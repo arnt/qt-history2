@@ -89,39 +89,6 @@ qimageio.o: qimageio.cpp \
 		qjpegio.h \
 		qpngio.h
 
-qjpegio.o: qjpegio.cpp \
-		/home/warwick/qt/include/qimage.h \
-		/home/warwick/qt/include/qpixmap.h \
-		/home/warwick/qt/include/qpaintd.h \
-		/home/warwick/qt/include/qwindefs.h \
-		/home/warwick/qt/include/qobjdefs.h \
-		/home/warwick/qt/include/qglobal.h \
-		/home/warwick/qt/include/qrect.h \
-		/home/warwick/qt/include/qsize.h \
-		/home/warwick/qt/include/qpoint.h \
-		/home/warwick/qt/include/qcolor.h \
-		/home/warwick/qt/include/qshared.h \
-		/home/warwick/qt/include/qstring.h \
-		/home/warwick/qt/include/qarray.h \
-		/home/warwick/qt/include/qgarray.h \
-		/home/warwick/qt/include/qgeneric.h \
-		/home/warwick/qt/include/qiodev.h
+qjpegio.o: qjpegio.cpp
 
-qpngio.o: qpngio.cpp \
-		/home/warwick/qt/include/qimage.h \
-		/home/warwick/qt/include/qpixmap.h \
-		/home/warwick/qt/include/qpaintd.h \
-		/home/warwick/qt/include/qwindefs.h \
-		/home/warwick/qt/include/qobjdefs.h \
-		/home/warwick/qt/include/qglobal.h \
-		/home/warwick/qt/include/qrect.h \
-		/home/warwick/qt/include/qsize.h \
-		/home/warwick/qt/include/qpoint.h \
-		/home/warwick/qt/include/qcolor.h \
-		/home/warwick/qt/include/qshared.h \
-		/home/warwick/qt/include/qstring.h \
-		/home/warwick/qt/include/qarray.h \
-		/home/warwick/qt/include/qgarray.h \
-		/home/warwick/qt/include/qgeneric.h \
-		/home/warwick/qt/include/qiodev.h
-
+qpngio.o: qpngio.cpp
