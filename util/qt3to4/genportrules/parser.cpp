@@ -1510,7 +1510,7 @@ bool Parser::parseTypeParameter(TypeParameterAST *&node)
     case Token_template:
         {
             advance(); // skip template
-            ADVANCE('<', '<');
+            ADVANCE('<', "<");
 
             TemplateParameterListAST *params = 0;
             if (!parseTemplateParameterList(params)) {
@@ -1815,7 +1815,7 @@ bool Parser::parseClassSpecifier(TypeSpecifierAST *&node)
         return false;
     }
 
-    ADVANCE('{', '{');
+    ADVANCE('{', "{");
 
     ClassSpecifierAST *ast = CreateNode<ClassSpecifierAST>(m_pool);
     ast->setWinDeclSpec(winDeclSpec);
@@ -2157,10 +2157,10 @@ bool Parser::parseMemInitializer(AST *&/*node*/)
         reportError(i18n("Identifier expected"));
         return false;
     }
-    ADVANCE('(', '(');
+    ADVANCE('(', "(");
     AbstractExpressionAST *expr = 0;
     skipCommaExpression(expr);
-    ADVANCE(')', ')');
+    ADVANCE(')', ")");
 
     return true;
 }

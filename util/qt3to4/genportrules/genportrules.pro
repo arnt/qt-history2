@@ -22,11 +22,11 @@ SOURCES += ast.cpp \
 TEMPLATE = app
 CONFIG -= moc
 DEPENDPATH += .
-TARGET =../genportrules
+TARGET =../makerules
 
 SOURCES += genportrules.cpp  genqtsymbols.cpp genclassnames.cpp gendocrules.cpp
 HEADERS += genqtsymbols.h genclassnames.h gendocrules.h
 CONFIG += qt warn_on debug  create_prl link_prl
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
-QT += xml 
+QT += xml qt3support

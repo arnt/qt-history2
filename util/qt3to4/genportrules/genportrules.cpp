@@ -183,7 +183,7 @@ QStringList getHeadersRecursive(QString path)
         if(dir != "private" && dir != ".." && dir != ".")
             qtHeaderList += getHeadersRecursive(path + dir);
     }
-    qHeapSort(qtHeaderList);
+    qSort(qtHeaderList);
     return qtHeaderList;
  }
 
@@ -526,7 +526,7 @@ void generateClassRenameRules()
     QList<SymbolRename> allClassRenames = mergeRemoveDuplicates(docClassRenames, autoClassRenames);
 
     //remove manually overridden renames
-    QListMutableIterator<SymbolRename> i(allClassRenames);
+    QMutableListIterator<SymbolRename> i(allClassRenames);
     while (i.hasNext()) {
         if(overrideClassRename(i.next().from))
             i.remove();
