@@ -3084,7 +3084,7 @@ void generateClass()		      // generate C++ source code for a class
 		    QCString type = a->leftType + ' ' + a->rightType;
 		    type = type.simplifyWhiteSpace();
 		    QCString utype = uType( type );
-		    fprintf( out, "    static_QUType_%s.set(o+%d,&t%d);\n", utype.data(), offset+1, offset );
+		    fprintf( out, "    static_QUType_%s.set(o+%d,t%d);\n", utype.data(), offset+1, offset );
 		    a = f->args->next();
 		    offset++;
 		}
