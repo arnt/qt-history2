@@ -201,6 +201,7 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 
     // properties and state
     virtual QString	text( Text t, int control ) const = 0;
+    virtual QString	setText( Text t, int control, const QString &text ) = 0;
     virtual Role	role( int control ) const = 0;
     virtual State	state( int control ) const = 0;
     virtual QMemArray<int> selection() const = 0;

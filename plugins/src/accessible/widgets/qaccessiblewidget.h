@@ -42,6 +42,7 @@ public:
     QRESULT	queryParent( QAccessibleInterface ** ) const;
 
     QString	text( Text t, int control ) const;
+    void	setText( Text t, int control, const QString &text );
     Role	role( int control ) const;
     State	state( int control ) const;
 

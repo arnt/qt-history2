@@ -95,7 +95,6 @@ QString hotKey( const QString &text )
 /*!
   \class QAccessibleWidget qaccessiblewidget.h
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
-  \preliminary
 */
 
 /*!
@@ -332,6 +331,33 @@ QString QAccessibleWidget::text( Text t, int control ) const
 }
 
 /*! \reimp */
+void QAccessibleWidget::setText( Text t, int control, const QString &text )
+{
+    switch ( t ) {
+    case DefaultAction:
+	defAction_ = text;
+	break;
+    case Description:
+	description_ = text;
+	break;
+    case Help:
+	help_ = text;
+	break;
+    case Accelerator:
+	accelerator_ = text;
+	break;
+    case Name:
+	name_ = text;
+	break;
+    case Value:
+	value_ = text;
+	break;
+    default:
+	break;
+    }
+}
+
+/*! \reimp */
 QAccessible::Role QAccessibleWidget::role( int control ) const
 {
     if ( !control )
@@ -410,7 +436,6 @@ QMemArray<int> QAccessibleWidget::selection() const
 /*!
   \class QAccessibleWidgetStack qaccessible.h
   \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
-  \preliminary
 */
 
 /*!
@@ -452,7 +477,6 @@ QRESULT QAccessibleWidgetStack::queryChild( int control, QAccessibleInterface **
 /*!
   \class QAccessibleButton qaccessible.h
   \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
-  \preliminary
 */
 
 /*!
@@ -543,7 +567,6 @@ QAccessible::State QAccessibleButton::state( int control ) const
 /*! 
   \class QAccessibleRangeControl qaccessiblewidget.h
   \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
-  \preliminary
 */
 
 /*! 
@@ -599,7 +622,6 @@ QString QAccessibleRangeControl::text( Text t, int control ) const
 /*!
   \class QAccessibleSpinWidget qaccessiblewidget.h
   \brief The QAccessibleText class implements the QAccessibleInterface for up/down widgets.
-  \preliminary
 */
 
 /*! 
@@ -768,7 +790,6 @@ bool QAccessibleSpinWidget::doDefaultAction( int control )
 /*!
   \class QAccessibleScrollBar qaccessiblewidget.h
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
-  \preliminary
 */
 
 /*! 
@@ -966,7 +987,6 @@ bool QAccessibleScrollBar::doDefaultAction( int control )
 /*!
   \class QAccessibleSlider qaccessiblewidget.h
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for sliders.
-  \preliminary
 */
 
 /*! 
@@ -1139,7 +1159,6 @@ bool QAccessibleSlider::doDefaultAction( int control )
 /*!
   \class QAccessibleText qaccessiblewidget.h
   \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
-  \preliminary
 */
 
 /*! 
@@ -1198,7 +1217,6 @@ QAccessible::State QAccessibleText::state( int control ) const
 /*!
   \class QAccessibleDisplay qaccessiblewidget.h
   \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display static information.
-  \preliminary
 */
 
 /*! 
@@ -1260,7 +1278,6 @@ QString QAccessibleDisplay::text( Text t, int control ) const
 /*! 
   \class QAccessibleHeader qaccessiblewidget.h
   \brief The QAccessibleHeader class implements the QAccessibleInterface for header widgets.
-  \preliminary
 */
 
 /*! 
@@ -1386,7 +1403,6 @@ QAccessible::State QAccessibleHeader::state( int control ) const
 /*! 
   \class QAccessibleTabBar qaccessiblewidget.h
   \brief The QAccessibleTabBar class implements the QAccessibleInterface for tab bars.
-  \preliminary
 */
 
 /*! 
@@ -1607,7 +1623,6 @@ QMemArray<int> QAccessibleTabBar::selection() const
 /*! 
   \class QAccessibleComboBox qaccessiblewidget.h
   \brief The QAccessibleComboBox class implements the QAccessibleInterface for editable and read-only combo boxes.
-  \preliminary
 */
 
 
@@ -1773,7 +1788,6 @@ bool QAccessibleComboBox::doDefaultAction( int control )
 /*! 
   \class QAccessibleTitleBar qaccessiblewidget.h
   \brief The QAccessibleTitleBar class implements the QAccessibleInterface for title bars.
-  \preliminary
 */
 
 /*! 
@@ -2103,7 +2117,6 @@ QMemArray<int> QAccessibleViewport::selection() const
 /*! 
   \class QAccessibleScrollView qaccessiblewidget.h
   \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
-  \preliminary
 */
 
 /*! 
@@ -2160,7 +2173,6 @@ int QAccessibleScrollView::itemCount() const
 /*! 
   \class QAccessibleListBox qaccessiblewidget.h
   \brief The QAccessibleListBox class implements the QAccessibleInterface for list boxes.
-  \preliminary
 */
 
 /*! 
@@ -2311,7 +2323,6 @@ QMemArray<int> QAccessibleListBox::selection() const
 /*! 
   \class QAccessibleListView qaccessiblewidget.h
   \brief The QAccessibleListView class implements the QAccessibleInterface for list views.
-  \preliminary
 */
 
 static QListViewItem *findLVItem( QListView* listView, int control )
@@ -2537,7 +2548,6 @@ QMemArray<int> QAccessibleListView::selection() const
 /*! 
   \class QAccessibleIconView qaccessiblewidget.h
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
-  \preliminary
 */
 
 static QIconViewItem *findIVItem( QIconView *iconView, int control )
@@ -2738,7 +2748,6 @@ QMemArray<int> QAccessibleIconView::selection() const
 /*! 
   \class QAccessibleTextEdit qaccessiblewidget.h
   \brief The QAccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
-  \preliminary
 */
 
 /*!

@@ -12,13 +12,12 @@
   \class QAccessible qaccessible.h
   \ingroup misc
   \brief The QAccessible class is provide a set of enums and static functions.
-
-  \preliminary
 */
 
 /*!
   \enum QAccessible::State
   This enum type defines bitflags that can be combined to indicate the state of the accessible object.
+  Defined values are
   
   \value Normal
   \value Unavailable
@@ -57,6 +56,7 @@
 /*!
   \enum QAccessible::Event
   This enum type defines event types when the state of the accessible object has changed.
+  Event types are
 
   \value SoundPlayed
   \value Alert
@@ -98,6 +98,7 @@
 /*!
   \enum QAccessible::Role
   This enum defines a number of roles an accessible object can have.
+  Roles are
 
   \value NoRole
   \value TitleBar
@@ -165,7 +166,7 @@
 
 /*!
   \enum QAccessible::NavDirection
-  This enum specifies to which item to move in navigate.
+  This enum specifies to which item to move when navigating.
 
   \value NavUp		sibling above
   \value NavDown	sibling below
@@ -334,6 +335,13 @@
   usually display them in their tooltip.
 
   \sa role(), state(), selection()
+*/
+
+/*!
+  \fn void QAccessibleInterface::setText( Text t, int control, const QString &text )
+
+  Sets the text property \a t of the child object \a control to \a text. If \a control
+  is 0, the text property of the object itself is set.
 */
 
 /*!
