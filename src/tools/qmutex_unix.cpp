@@ -340,58 +340,83 @@ int QRecursiveMutexPrivate::type() const
 
     The purpose of a QMutex is to protect an object, data structure or
     section of code so that only one thread can access it at a time
-    (In Java terms, this is similar to the synchronized keyword). For
+    (This is similar to the Java \c synchronized keyword). For
     example, say there is a method which prints a message to the user
     on two lines:
 
     \code
-    void someMethod()
+    int number = 6;
+
+    void method1()
     {
-	qDebug("Hello");
-	qDebug("World");
+        number *= 5;
+	number /= 4;
+    }
+
+    void method1()
+    {
+        number *= 3;
+	number /= 2;
     }
     \endcode
 
-    If this method is called simultaneously from two threads then the
+    If these two methods are called in succession, the following happens:
+
+    \code
+    // method1()
+    number *= 5;	// number is now 30
+    number /= 4;	// number is now 7
+
+    // method2()
+    number *= 3;	// nubmer is now 21
+    number /= 2;	// number is now 10
+    \endcode
+
+    If these two methods are called simultaneously from two threads then the
     following sequence could result:
 
     \code
-    Hello
-    Hello
-    World
-    World
+    // Thread 1 calls method1()
+    number *= 5;	// number is now 30
+
+    // Thread 2 calls method2().
+    //
+    // Most likely Thread 1 has been put to sleep by the operating
+    // system to allow Thread 2 to run.
+    number *= 3;	// number is now 90
+    number /= 2;	// number is now 45
+
+    // Thread 1 finishes executing.
+    number /= 4;	// number is now 11, instead of 10
     \endcode
 
-    If we add a mutex:
+    If we add a mutex, we should get the result we want:
 
     \code
     QMutex mutex;
+    int number = 6;
 
-    void someMethod()
+    void method1()
     {
 	mutex.lock();
-	qDebug("Hello");
-	qDebug("World");
+        number *= 5;
+	number /= 4;
+	mutex.unlock();
+    }
+
+    void method2()
+    {
+	mutex.lock();
+        number *= 3;
+	number /= 2;
 	mutex.unlock();
     }
     \endcode
 
-    In Java terms this would be:
-
-    \code
-    void someMethod()
-    {
-	synchronized {
-	qDebug("Hello");
-	qDebug("World");
-	}
-    }
-    \endcode
-
-    Then only one thread can execute someMethod() at a time and the
-    order of messages is always correct. This is a trivial example, of
-    course, but applies to any other case where things need to happen
-    in a particular sequence.
+    Then only one thread can modify \c number at any given time and
+    the result is correct. This is a trivial example, of course, but
+    applies to any other case where things need to happen in a
+    particular sequence.
 
     When you call lock() in a thread, other threads that try to call
     lock() in the same place will block until the thread that got the
