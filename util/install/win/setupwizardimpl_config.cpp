@@ -164,7 +164,7 @@ void SetupWizardImpl::cleanDone()
     else
 	args += "-no-tablet";
 
-    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", &settingsOK );
+    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", ',', &settingsOK );
     if ( entries.contains( "STL" ) )
 	args += "-stl";
     else
@@ -817,7 +817,7 @@ void SetupWizardImpl::showPageConfig()
     item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     item->setOn( entry == "Direct" );
 
-    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", &settingsOK );
+    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", ',', &settingsOK );
     folder = new QCheckListItem( configPage->advancedList, "Advanced C++" );
     folder->setOpen( true );
     advancedRTTI = new QCheckListItem( folder, "RTTI", QCheckListItem::CheckBox );
