@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#13 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#13 $";
 #endif
 
 
@@ -294,7 +294,7 @@ Multiplies both of \e p's components by \e c and returns the
 result.
 */
 
-QPoint operator*( const QPoint &p, float c )
+QPoint operator*( const QPoint &p, double c )
 {
     return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
@@ -305,7 +305,7 @@ Multiplies both of \e p's components by \e c and returns the
 result.
 */
 
-QPoint operator*( float c, const QPoint &p )
+QPoint operator*( double c, const QPoint &p )
 {
     return QPoint( (QCOORD)(p.xp*c), (QCOORD)(p.yp*c) );
 }
@@ -337,7 +337,7 @@ This function returns \e p if \e c is 0.
 Notice that the result is truncated.
 */
 
-QPoint operator/( const QPoint &p, float c )
+QPoint operator/( const QPoint &p, double c )
 {
     if ( c == 0.0 ) {
 #if defined(CHECK_MATH)
