@@ -342,12 +342,13 @@ QString QLabel::text() const
 }
 
 /*!
-    Clears any label contents. Equivalent to setText("").
+    Clears any label contents.
 */
 
 void QLabel::clear()
 {
-    setText(QString::fromLatin1(""));
+    d->clearContents();
+    d->updateLabel();
 }
 
 /*!
