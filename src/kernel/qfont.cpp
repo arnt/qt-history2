@@ -2951,7 +2951,7 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
     return script;
 #else
     // "Qt/Embedded is Unicode throughout..."
-    return QFont::Unicode
+    return QFont::Unicode;
 #endif
 }
 
