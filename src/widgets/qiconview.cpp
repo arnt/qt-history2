@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#130 $
 **
 ** Definition of QIconView widget class
 **
@@ -1579,13 +1579,13 @@ void QIconViewItem::setIconRect( const QRect &r )
   There is a variety of selection modes, described in the
   QIconView::SelectionMode documentation. The default is
   single-selection, and you can change it using setSelectionMode().
-    
+
   Since QIconView offers multiple selection it has to display keyboard
   focus and selection state separately.  Therefore there are functions
   both to set the selection state of an item, setSelected(), and to
   select which item displays keyboard focus, setCurrentItem().
 
-  When multiple items may be selected, the iconview provides a 
+  When multiple items may be selected, the iconview provides a
   rubberband too.
 
   Items can also be in-place renamed.
@@ -2937,12 +2937,41 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    return;
 	}
 
-	if ( item && item->isSelectable() )
+	if ( item && item->isSelectable() ) {
 	    if ( d->selectionMode == Single )
 		item->setSelected( TRUE, e->state() & ControlButton );
-	    else
+	    else if ( d->selectionMode == Multi ) 
 		item->setSelected( !item->isSelected(), e->state() & ControlButton );
-	else if ( d->selectionMode == Single || !( e->state() & ControlButton ) )
+	    else if ( d->selectionMode == Extended ) {
+		if ( e->state() & ShiftButton ) {
+		    QRect r;
+		    bool select = !item->isSelected();
+		    if ( d->currentItem )
+			r = QRect( QMIN( d->currentItem->x(), item->x() ), 
+				   QMIN( d->currentItem->y(), item->y() ),
+				   0, 0 );
+		    else
+			r = QRect( 0, 0, 0, 0 );
+		    if ( d->currentItem->x() < item->x() )
+			r.setWidth( item->x() - d->currentItem->x() + item->width() );
+		    else
+			r.setWidth( d->currentItem->x() - item->x() + d->currentItem->width() );
+		    if ( d->currentItem->y() < item->y() )
+			r.setHeight( item->y() - d->currentItem->y() + item->height() );
+		    else
+			r.setHeight( d->currentItem->y() - item->y() + d->currentItem->height() );
+		    r = r.normalize();
+		    for ( QIconViewItem *i = d->firstItem; i; i = i->next ) {
+			if ( r.intersects( i->rect() ) )
+			    i->setSelected( select, TRUE );
+		    }
+		    item->setSelected( select, TRUE );
+		} else if ( e->state() & ControlButton )
+		    item->setSelected( !item->isSelected(), e->state() & ControlButton );
+		else
+		    item->setSelected( TRUE, e->state() & ControlButton );
+	    }
+	} else if ( d->selectionMode == Single || !( e->state() & ControlButton ) )
 	    selectAll( FALSE );
 
 	setCurrentItem( item );
