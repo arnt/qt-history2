@@ -51,6 +51,10 @@ extern unsigned long qAxLock();
 extern unsigned long qAxUnlock();
 extern HANDLE qAxInstance;
 
+#ifdef QT_DEBUG
+unsigned long qaxserverbase_instance_count = 0;
+#endif
+
 // in qaxserverdll.cpp
 extern bool qax_ownQApp;
 
@@ -1035,6 +1039,12 @@ void QAxServerBase::init()
     InitializeCriticalSection(&refCountSection);
     InitializeCriticalSection(&createWindowSection);
 
+#ifdef QT_DEBUG
+    EnterCriticalSection(&refCountSection);
+    ++qaxserverbase_instance_count;    
+    LeaveCriticalSection(&refCountSection);
+#endif
+
     qAxLock();
 
     points[IID_IPropertyNotifySink] = new QAxConnection(this, IID_IPropertyNotifySink);
@@ -1046,6 +1056,12 @@ void QAxServerBase::init()
 */
 QAxServerBase::~QAxServerBase()
 {
+#ifdef QT_DEBUG
+    EnterCriticalSection(&refCountSection);
+    --qaxserverbase_instance_count;    
+    LeaveCriticalSection(&refCountSection);
+#endif
+
     revokeActiveObject();
 
     for (QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it) {
@@ -2786,12 +2802,13 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
 	if (!isPropertyExposed(prop))
 	    continue;
 	QMetaProperty property = mo->property(prop);
+        if (QByteArray(property.type()).endsWith('*'))
+            continue;
+
 	BSTR bstr = QStringToBSTR(property.name());
 	QCoreVariant qvar = qt.object->property(property.name());
 	if (!qvar.isValid())
 	    error = true;
-        if (qvar.type() == QCoreVariant::UserType)
-            continue;
 	VARIANT var;
 	QVariantToVARIANT(qvar, var, property.type());
 	bag->Write(bstr, &var);
