@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#6 $
+# $Id: //depot/qt/main/Makefile.inc#7 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -206,6 +206,8 @@ clean: NMakefile.debug
 	-rmdir .obj\release
 	-rmdir .obj\static-debug
 	-rmdir .obj\static-release
+	-rmdir .obj\X11-debug
+	-rmdir .obj\x11-release
 	-rmdir .obj
 !IFDEF MOREDEP
 	-del $(MOREDEP)
