@@ -1315,13 +1315,13 @@ QTextDocument::~QTextDocument()
 
 void QTextDocument::clear( bool createEmptyParag )
 {
-    if ( flow_ )
-	flow_->clear();
     while ( fParag ) {
 	QTextParagraph *p = fParag->next();
 	delete fParag;
 	fParag = p;
     }
+    if ( flow_ )
+	flow_->clear();
     fParag = lParag = 0;
     if ( createEmptyParag )
 	fParag = lParag = createParagraph( this );
