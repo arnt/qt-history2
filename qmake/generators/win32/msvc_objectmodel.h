@@ -800,7 +800,7 @@ public:
     VCConfiguration         Configuration;
     VCFilter                SourceFiles;
     VCFilter                HeaderFiles;
-    VCFilter                MOCFiles;
+    VCFilter                GeneratedFiles;
     VCFilter                LexYaccFiles;
     VCFilter                TranslationFiles;
     VCFilter                ResourceFiles;

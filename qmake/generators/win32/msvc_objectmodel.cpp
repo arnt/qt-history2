@@ -2043,7 +2043,7 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
             << tag(_Files)
                 << (VCFilter&)tool.SourceFiles
                 << (VCFilter&)tool.HeaderFiles
-                << (VCFilter&)tool.MOCFiles
+                << (VCFilter&)tool.GeneratedFiles
                 << (VCFilter&)tool.LexYaccFiles
                 << (VCFilter&)tool.ResourceFiles;
     for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
@@ -2111,8 +2111,8 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
             filter = SingleProjects.at(i).SourceFiles;
         } else if (filtername == "Headers") {
             filter = SingleProjects.at(i).HeaderFiles;
-        } else if (filtername == "MOCFiles") {
-            filter = SingleProjects.at(i).MOCFiles;
+        } else if (filtername == "GeneratedFiles") {
+            filter = SingleProjects.at(i).GeneratedFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "TranslationFiles") {
@@ -2148,8 +2148,8 @@ void VCProject::outputFilter(XmlOutput &xml,
             filter = SingleProjects.at(i).SourceFiles;
         } else if (filtername == "Headers") {
             filter = SingleProjects.at(i).HeaderFiles;
-        } else if (filtername == "MOCFiles") {
-            filter = SingleProjects.at(i).MOCFiles;
+        } else if (filtername == "GeneratedFiles") {
+            filter = SingleProjects.at(i).GeneratedFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "TranslationFiles") {
@@ -2217,7 +2217,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
             << tag(_Files);
     tool.outputFilter(xml, "Sources");
     tool.outputFilter(xml, "Headers");
-    tool.outputFilter(xml, "MOCFiles");
+    tool.outputFilter(xml, "GeneratedFiles");
     tool.outputFilter(xml, "LexYaccFiles");
     tool.outputFilter(xml, "TranslationFiles");
     tool.outputFilter(xml, "ResourceFiles");

@@ -636,7 +636,7 @@ void VcprojGenerator::initProject()
     initConfiguration();
     initSourceFiles();
     initHeaderFiles();
-    initMOCFiles();
+    initGeneratedFiles();
     initLexYaccFiles();
     initResourceFiles();
 
@@ -929,31 +929,31 @@ void VcprojGenerator::initHeaderFiles()
     addMocArguments(vcProject.HeaderFiles);
 }
 
-void VcprojGenerator::initMOCFiles()
+void VcprojGenerator::initGeneratedFiles()
 {
-    vcProject.MOCFiles.Name = "Generated Files";
-    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc;h";
-    vcProject.MOCFiles.Guid = _GUIDGeneratedFiles;
+    vcProject.GeneratedFiles.Name = "Generated Files";
+    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h";
+    vcProject.GeneratedFiles.Guid = _GUIDGeneratedFiles;
 
     // Create a list of the files being moc'ed
     QStringList &objl = project->variables()["OBJMOC"],
                 &srcl = project->variables()["SRCMOC"];
     int index = 0;
     for(; index < objl.count() && index < srcl.count(); ++index) {
-        vcProject.MOCFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));
+        vcProject.GeneratedFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));
     }
     // Exclude the rest, except .moc's
     for(; index < srcl.count(); ++index)
-        vcProject.MOCFiles.addFile(VCFilterFile(
+        vcProject.GeneratedFiles.addFile(VCFilterFile(
                               srcl.at(index),
                               mocSource(srcl.at(index)),
                               srcl.at(index).endsWith(Option::cpp_moc_ext)
                               ? false : true));
 
-    vcProject.MOCFiles.Project = this;
-    vcProject.MOCFiles.Config = &(vcProject.Configuration);
-    vcProject.MOCFiles.CustomBuild = mocSrc;
-    addMocArguments(vcProject.MOCFiles);
+    vcProject.GeneratedFiles.Project = this;
+    vcProject.GeneratedFiles.Config = &(vcProject.Configuration);
+    vcProject.GeneratedFiles.CustomBuild = mocSrc;
+    addMocArguments(vcProject.GeneratedFiles);
 }
 
 void VcprojGenerator::initLexYaccFiles()

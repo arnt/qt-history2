@@ -75,7 +75,7 @@ protected:
     void initPreLinkEventTools();
     void initSourceFiles();
     void initHeaderFiles();
-    void initMOCFiles();
+    void initGeneratedFiles();
     void initTranslationFiles();
     void initResourceFiles();
     void initLexYaccFiles();
