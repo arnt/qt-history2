@@ -99,7 +99,7 @@ public:
     QListBox *listBox;
     QString currInputString;
     QTimer *inputTimer;
-    
+
     QListBoxItem *pressedItem;
 };
 
@@ -674,7 +674,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->resizeTimer = new QTimer( this, "listbox resize timer" );
     d->clearing = FALSE;
     d->pressedItem = 0;
-    
+
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
 
@@ -1586,7 +1586,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
     emit pressed( i );
     emit pressed( i, e->globalPos() );
     emit mouseButtonPressed( e->button(), i, e->globalPos() );
-    
+
     if ( e->button() == RightButton )
 	emit rightButtonPressed( i, e->globalPos() );
 }
@@ -3223,6 +3223,8 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	if ( d->resizeTimer->isActive() )
 	    d->resizeTimer->stop();
 	d->resizeTimer->start( 100, TRUE );
+	resizeContents( contentsWidth() - ( e->oldSize().width() - e->size().width() ),
+			contentsHeight() - ( e->oldSize().height() - e->size().height() ) );
 	QScrollView::resizeEvent( e );
     }
 }

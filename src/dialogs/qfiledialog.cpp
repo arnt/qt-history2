@@ -55,6 +55,7 @@
 #include "qmap.h"
 #include "qnetworkprotocol.h"
 #include "qsemimodal.h"
+#include "qsizegrip.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -884,7 +885,8 @@ struct QFileDialogPrivate {
     bool checkForFilter;
     bool ignoreReturn;
     bool ignoreStop;
-
+    QSizeGrip *sizeGrip;
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1989,7 +1991,7 @@ void QFileDialog::init()
     d->checkForFilter = FALSE;
     d->ignoreReturn = FALSE;
     d->ignoreStop = FALSE;
-
+    
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -2166,7 +2168,7 @@ void QFileDialog::init()
     d->mcView->setOn( TRUE );
 
     QHBoxLayout *lay = new QHBoxLayout( this );
-    lay->setMargin( 5 );
+    lay->setMargin( 6 );
     d->leftLayout = new QHBoxLayout( lay, 5 );
     d->topLevelLayout = new QVBoxLayout( (QWidget*)0, 5 );
     lay->addLayout( d->topLevelLayout, 1 );
@@ -2218,6 +2220,9 @@ void QFileDialog::init()
     d->rightLayout = new QHBoxLayout( lay, 5 );
     d->topLevelLayout->setStretchFactor( d->mcView, 1 );
     d->topLevelLayout->setStretchFactor( files, 1 );
+
+    d->sizeGrip = new QSizeGrip( this );
+    d->sizeGrip->lower();
 
     updateGeometries();
 
@@ -2277,7 +2282,6 @@ void QFileDialog::init()
     }
 
     d->preview->hide();
-
     nameEdit->setFocus();
 
     connect( nameEdit, SIGNAL( returnPressed() ),
@@ -3121,8 +3125,10 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	for ( eb = d->extraButtons.first(); eb; eb = d->extraButtons.next() )
 	    eb->setFixedSize( r );
     }
-
+    
     d->topLevelLayout->activate();
+
+    d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
 
 #undef RM
 }
@@ -3954,7 +3960,9 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return TRUE;
 
-    if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
+    if ( e->type() == QEvent::Resize ) {
+	d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
+    } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
 	rereadDir();
 	((QKeyEvent *)e)->accept();
 	return TRUE;

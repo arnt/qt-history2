@@ -39,7 +39,8 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(Qt::WType_TopLevel) && p && !p->inherits("QWorkspace")) {
+    while ( !w->testWFlags(Qt::WType_TopLevel) && p && 
+	    ( !p->inherits("QWorkspace") || !p->inherits( "QFileDialog" ) ) ) {
 	w = p;
 	p = p->parentWidget();
     }
@@ -48,7 +49,7 @@ static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
 
 static QWidget* qt_sizegrip_workspace( QWidget* w )
 {
-    while ( w && !w->inherits("QWorkspace")) {
+    while ( w && ( !w->inherits("QWorkspace") || !w->inherits( "QFileDialog" ) ) ) {
 	w = w->parentWidget();
     }
     return w;
@@ -166,7 +167,7 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	return;
 
     QPoint np( e->globalPos() );
-    
+
     QWidget* ws = qt_sizegrip_workspace( this );
     if ( ws ) {
 	QPoint tmp( ws->mapFromGlobal( np ) );
