@@ -641,6 +641,7 @@ static void matchDocsAndStuff( Emitter *emitter )
 	    loc.advance( '/' );
 	    loc.advance( '*' );
 	    loc.advance( '!' );
+
 	    Doc *doc = Doc::create( loc, t.mid(3, t.length() - 5) );
 	    bool deleteDoc = TRUE;
 	    yyTok = getToken();

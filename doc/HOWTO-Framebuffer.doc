@@ -43,18 +43,15 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 \heading How to enable framebuffer support in the Linux kernel
 
-<p>
 This is only a short guide.
-See <a href="file:/usr/src/linux/README"><tt>/usr/src/linux/README</tt></a> and
-<a href="file:/usr/src/linux/Documentation/fb/"><tt>/usr/src/linux/Documentation/fb/</tt></a>
-for detailed information.
+See \l file:/usr/src/linux/README and
+\l file:/usr/src/linux/Documentation/fb/ for detailed information.
 There is also a detailed explanation at
-<a href="http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html">
-http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
+\l http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html.
 
 <ol>
 <li> Make sure that you have the Linux kernel source code in
-<a href="file:/usr/src/linux/">/usr/src/linux/</a>. 
+\l file:/usr/src/linux/.
 
 <li> Log in as root and cd /usr/src/linux
 
@@ -65,11 +62,9 @@ http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
 	make menuconfig
 </pre>
 
-<p>
    Select "Code maturity level options" and set "Prompt for
    development and/or incomplete code/drivers".
 
-<p>
    Then select "Console drivers" set "Support for frame buffer
    devices" to built-in (even if it says EXPERIMENTAL). Then configure
    the driver. Most modern graphics cards can use the "VESA VGA
@@ -77,13 +72,11 @@ http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
    your video card. Finally enable "Advanced low level driver options"
    and make sure that 16 and 32 bpp packed pixel support are enabled. 
 
-<p>
    When you are finished, chose exit and save.
 
 
 <li> Compile the kernel
 
-<p>
    First do:
 <pre>
 	make dep
@@ -102,13 +95,12 @@ http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
 
 <li> Edit <tt>/etc/lilo.conf</tt>
 
-<p>
 <i>
   IMPORTANT: Keep a backup of /etc/lilo.conf, and have a rescue disk
   available. If you make a mistake at this stage, the machine may not
   boot.
 </i>
-<p>
+
    The file /etc/lilo.conf specifies how the system boots. The precise
    contents of the file varies from system to system, this is one example:
 <pre>
@@ -123,19 +115,19 @@ other=/dev/hda1
         label=nt
         table=/dev/hda
 </pre>
-<p>
+
 <i>
   IMPORTANT: Keep a backup of /etc/lilo.conf, and have a rescue disk
   available. If you make a mistake here, the machine may not boot.
 </i>
-<p>
+
   Make a new "image" section that is a copy of the first one, but with
   image = /boot/linux.vesafb and label = Linux-vesafb. Place it just
   above the first image section.
-<p>
+
   Add a line before the image section saying 'vga = 791'. (Meaning
   1024x768, 16 bpp.) 
-<p>
+
   With the above example, lilo.conf would now be:
 <pre>
 # LILO configuration file
@@ -154,36 +146,36 @@ other=/dev/hda1
         label=nt
         table=/dev/hda
 </pre>
-<p>
+
 Do not change any lines in the file; just add new ones.
 
 <li> Run lilo
-<p>
+
    To make the new changes take effect, run the lilo program:
 <pre>
 	lilo
 </pre>
 
 <li> Reboot the system
-<p>
+
    You should now see a penguin logo while the system is booting.
    (Or more than one on a multi-processor machine.)
 
 
 <li> Error recovery
-<p>
+
    If it does not boot properly with the new kernel, you can boot with
    the old kernel by entering the label of the old image section at
    the LILO prompt. (with the example lilo.conf file, the old label is
    Linux.)
-<p>
+
    If that does not work (probably because of an error in lilo.conf),
    boot the machine using your rescue disk, restore /etc/lilo.conf from
    backup and re-run lilo.
 
 
 <li> Testing
-<p>
+
    Here's a short program that opens the frame buffer and draws a
    gradient-filled red square.
 <pre>

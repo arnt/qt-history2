@@ -76,7 +76,12 @@ private:
     bool popSkipping();
     bool isTrue( const QString& condition ) const;
 
-    enum { yyLexBufSize = 65536 };
+    /*
+      This limit on the length of a lexeme seems fairly high, but a
+      doc comment can be arbitrarily long. The previous 65536 limit
+      was reached by some of Mark Summerfield's documentation.
+    */
+    enum { yyLexBufSize = 524288 };
 
     Location yyTokLoc;
     Location yyCurLoc;
