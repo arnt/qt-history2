@@ -164,6 +164,58 @@ static msg_handler handler = 0;			// pointer to debug handler
   \link debug.html Debugging\endlink
 */
 
+#ifdef _OS_MAC_
+
+static FILE * mac_debug=0;
+
+void qDebug( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+}
+
+// copied... this looks really bad.
+Q_EXPORT
+void debug( const char *msg, ... )
+{
+    if( !mac_debug ) {
+	mac_debug=fopen( "Mac OS 8.5:debug.txt", "r+" );
+    }
+    if(mac_debug) {
+	char buf[512];
+	va_list ap;
+	va_start( ap, msg );			// use variable arg list
+	if ( handler ) {
+	    vsprintf( buf, msg, ap );
+	    va_end( ap );
+	    (*handler)( QtDebugMsg, buf );
+	} else {
+	    vfprintf( mac_debug, msg, ap );
+	    va_end( ap );
+	    fprintf( mac_debug, "\n" );		// add newline
+	    fflush( mac_debug );
+	}
+    }
+}
+
+#else
+
 Q_EXPORT
 void qDebug( const char *msg, ... )
 {
@@ -199,6 +251,7 @@ void debug( const char *msg, ... )
     }
 }
 
+#endif
 
 
 /*!
