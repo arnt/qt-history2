@@ -1613,13 +1613,6 @@ void qt_init(QApplicationPrivate *priv, int type)
 */
 #endif
 
-
-#ifndef QT_NO_NETWORK
-//    qInitNetworkProtocols();
-#endif
-}
-
-
 bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 {
     return QCoreApplication::sendSpontaneousEvent(obj, event);
