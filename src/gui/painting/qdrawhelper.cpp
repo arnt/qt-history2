@@ -6,8 +6,13 @@
 void qInitDrawhelperAsm() {}
 #endif
 
+#define MASK(src, a)                            \
+    src = (qt_div_255(qAlpha(src) * a) << 24)   \
+        | (qt_div_255(qRed(src) * a) << 16)     \
+        | (qt_div_255(qGreen(src) * a) << 8)    \
+        | (qt_div_255(qBlue(src) * a))
+
 typedef uint QT_FASTCALL (*CompositionFunction)(uint dest, uint src);
-typedef uint QT_FASTCALL (*CompositionFunctionMasked)(uint dest, uint src, int a);
 
 static uint QT_FASTCALL comp_func_Clear(uint, uint)
 {
@@ -137,87 +142,6 @@ static inline uint QT_FASTCALL comp_func_XOR(uint dest, uint src)
 }
 
 
-#define MASK(src, a)                                      \
-    src = (qt_div_255(qAlpha(src) * a) << 24)              \
-        | (qt_div_255(qRed(src) * a) << 16)                \
-        | (qt_div_255(qGreen(src) * a) << 8)               \
-        | (qt_div_255(qBlue(src) * a))
-
-
-static inline uint QT_FASTCALL comp_func_Clear_masked(uint, uint, int)
-{
-    return 0;
-}
-
-
-static inline uint QT_FASTCALL comp_func_Source_masked(uint, uint src, int a)
-{
-    MASK(src, a);
-    return src;
-}
-
-static inline uint QT_FASTCALL comp_func_Destination_masked(uint dest, uint, int)
-{
-    return dest;
-}
-
-static inline uint QT_FASTCALL comp_func_SourceOver_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceOver(dest, src);
-}
-
-static inline uint QT_FASTCALL comp_func_DestinationOver_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceOver(src, dest);
-}
-
-static inline uint QT_FASTCALL comp_func_SourceIn_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceIn(dest, src);
-}
-
-static inline uint QT_FASTCALL comp_func_DestinationIn_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceIn(src, dest);
-}
-
-static inline uint QT_FASTCALL comp_func_SourceOut_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceOut(dest, src);
-}
-
-
-static inline uint QT_FASTCALL comp_func_DestinationOut_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceOut(src, dest);
-}
-
-static inline uint QT_FASTCALL comp_func_SourceAtop_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceAtop(dest, src);
-}
-
-
-static inline uint QT_FASTCALL comp_func_DestinationAtop_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_SourceAtop(src, dest);
-}
-
-static inline uint QT_FASTCALL comp_func_XOR_masked(uint dest, uint src, int a)
-{
-    MASK(src, a);
-    return comp_func_XOR(dest, src);
-}
-
-
 static CompositionFunction functionForMode(QPainter::CompositionMode mode)
 {
     switch (mode) {
@@ -249,42 +173,11 @@ static CompositionFunction functionForMode(QPainter::CompositionMode mode)
     return 0;
 }
 
-static CompositionFunctionMasked functionForModeMasked(QPainter::CompositionMode mode)
-{
-    switch (mode) {
-    case QPainter::CompositionMode_SourceOver:
-        return comp_func_SourceOver_masked;
-    case QPainter::CompositionMode_DestinationOver:
-        return comp_func_DestinationOver_masked;
-    case QPainter::CompositionMode_Clear:
-        return comp_func_Clear_masked;
-    case QPainter::CompositionMode_Source:
-        return comp_func_Source_masked;
-    case QPainter::CompositionMode_Destination:
-        return comp_func_Destination_masked;
-    case QPainter::CompositionMode_SourceIn:
-        return comp_func_SourceIn_masked;
-    case QPainter::CompositionMode_DestinationIn:
-        return comp_func_DestinationIn_masked;
-    case QPainter::CompositionMode_SourceOut:
-        return comp_func_SourceOut_masked;
-    case QPainter::CompositionMode_DestinationOut:
-        return comp_func_DestinationOut_masked;
-    case QPainter::CompositionMode_SourceAtop:
-        return comp_func_SourceAtop_masked;
-    case QPainter::CompositionMode_DestinationAtop:
-        return comp_func_DestinationAtop_masked;
-    case QPainter::CompositionMode_Xor:
-        return comp_func_XOR_masked;
-    }
-    return 0;
-}
-
 static void blend_color_argb(void *t, const QSpan *span, uint color, QPainter::CompositionMode mode)
 {
     uint *target = (uint *)t;
-    MASK(color, span->coverage);
     if (mode == QPainter::CompositionMode_SourceOver) {
+        MASK(color, span->coverage);
         int alpha = qAlpha(color);
         if (!alpha)
             return;
@@ -308,16 +201,26 @@ static void blend_color_argb(void *t, const QSpan *span, uint color, QPainter::C
     } else {
         CompositionFunction func = functionForMode(mode);
         const uint *end = target + span->len;
-        while (target < end) {
-            *target = func(*target, color);
-            ++target;
+
+        if (span->coverage == 255) {
+            while (target < end) {
+                *target = func(*target, color);
+                ++target;
+            }
+        } else {
+            int icov = 255 - span->coverage;
+            while (target < end) {
+                uint tmp = func(*target, color);
+                *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+                ++target;
+            }
         }
     }
 }
 
-static void blend_argb(void *t, const QSpan *span,
-                       const qreal dx, const qreal dy,
-                       const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode mode)
+static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal dy,
+                       const void *ibits, const int image_width, const int image_height,
+                       QPainter::CompositionMode mode)
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
@@ -337,11 +240,21 @@ static void blend_argb(void *t, const QSpan *span,
     if (end - target > image_width)
         end = target + image_width;
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
-    while (target < end) {
-        *target = func(*target, *src, span->coverage);
-        ++target;
-        ++src;
+    CompositionFunction func = functionForMode(mode);
+    if (span->coverage == 255) {
+        while (target < end) {
+            *target = func(*target, *src);
+            ++target;
+            ++src;
+        }
+    } else {
+        int icov = 255 - span->coverage;
+        while (target < end) {
+            uint tmp = func(*target, *src);
+            *target = INTERPOLATE_PIXEL(tmp, span->coverage, tmp, icov);
+            ++target;
+            ++src;
+        }
     }
 }
 
@@ -362,19 +275,22 @@ static void blend_tiled_argb(void *t, const QSpan *span,
     if (y < 0)
         y += image_height;
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
+    CompositionFunction func = functionForMode(mode);
     const uint *src = image_bits + y*image_width;
-    for (int i = x; i < x + span->len; ++i) {
-        *target = func(*target, src[i%image_width], span->coverage);
-        ++target;
+    if (span->coverage == 255) {
+        for (int i = x; i < x + span->len; ++i) {
+            *target = func(*target, src[i%image_width]);
+            ++target;
+        }
+    } else {
+        int icov = 255 - span->coverage;
+        for (int i = x; i < x + span->len; ++i) {
+            uint tmp = func(*target, src[i%image_width]);
+            *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+            ++target;
+        }
     }
 }
-
-#define INTERPOLATE_PIXEL(p1, x1, p2,  x2)                            \
-    (((qAlpha(p1) * x1 + qAlpha(p2) * x2) >> 8 << 24)           \
-     | ((qRed(p1) * x1 + qRed(p2) * x2) >> 8 << 16)             \
-     | ((qGreen(p1) * x1 + qGreen(p2) * x2) >> 8 << 8)          \
-     | (qBlue(p1) * x1 + qBlue(p2) * x2) >> 8)
 
 static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
                                             const qreal ix, const qreal iy, const qreal dx, const qreal dy,
@@ -390,7 +306,8 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
+    CompositionFunction func = functionForMode(mode);
+    int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
         int x1 = (x >> 16);
@@ -420,7 +337,8 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
         uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
         uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
 
-        *target = func(*target, res, span->coverage);
+        uint tmp = func(*target, res);
+        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -441,7 +359,8 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
+    CompositionFunction func = functionForMode(mode);
+    int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
         int x1 = (x >> 16);
@@ -481,7 +400,8 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
         uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
         uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
 
-        *target = func(*target, res, span->coverage);
+        uint tmp = func(*target, res);
+        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -504,7 +424,8 @@ static void blend_transformed_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
+    CompositionFunction func = functionForMode(mode);
+    int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
         int px = (x + half_point) >> 16;
@@ -514,10 +435,9 @@ static void blend_transformed_argb(void *t, const QSpan *span,
                    | (py < 0) | (py >= image_height);
 
         int y_offset = py * image_width;
-
         uint pixel = out ? uint(0) : image_bits[y_offset + px];
-
-        *target = func(*target, pixel, span->coverage);
+        uint tmp = func(*target, pixel);
+        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -540,7 +460,8 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
 
-    CompositionFunctionMasked func = functionForModeMasked(mode);
+    CompositionFunction func = functionForMode(mode);
+    int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
         int px = (x + half_point) >> 16;
@@ -554,7 +475,8 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
         Q_ASSERT(px >= 0 && px < image_width);
         Q_ASSERT(py >= 0 && py < image_height);
 
-        *target = func(*target, image_bits[y_offset + px], span->coverage);
+        uint tmp = func(*target, image_bits[y_offset + px]);
+        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -575,12 +497,22 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
             tt += data->xincr;
         }
     } else {
-        CompositionFunctionMasked func = functionForModeMasked(mode);
-        for (int x = span->x; x<span->x + span->len; x++) {
-            uint src = qt_gradient_pixel(data, tt);
-            *target = func(*target, src, span->coverage);
-            ++target;
-            tt += data->xincr;
+        CompositionFunction func = functionForMode(mode);
+
+        if (span->coverage == 255) {
+            for (int x = span->x; x<span->x + span->len; x++) {
+                *target = func(*target, qt_gradient_pixel(data, tt));
+                ++target;
+                tt += data->xincr;
+            }
+        } else {
+            int icov = 255 - span->coverage;
+            for (int x = span->x; x<span->x + span->len; x++) {
+                uint tmp = func(*target, qt_gradient_pixel(data, tt));
+                *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+                ++target;
+                tt += data->xincr;
+            }
         }
     }
 }
