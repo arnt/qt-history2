@@ -131,6 +131,19 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
     }
 }
 
+/*!
+    Constructs a combobox widget with parent \a parent using a default model.
+*/
+QGenericComboBox::QGenericComboBox(QWidget *parent) :
+    QWidget(*new QGenericComboBoxPrivate(), parent, 0)
+{
+    d->model = new ComboModel();
+    d->init();
+}
+
+/*!
+    Constructs a combobox widget with parent \a parent using the item model \a model
+*/
 QGenericComboBox::QGenericComboBox(QAbstractItemModel *model, QWidget *parent) :
     QWidget(*new QGenericComboBoxPrivate(), parent, 0)
 {

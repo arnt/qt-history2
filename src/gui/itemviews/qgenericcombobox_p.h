@@ -98,47 +98,93 @@ public:
 
 protected:
     void paint(QPainter *painter, const QItemOptions &options,
-               const QModelIndex &index) const
-        {
-            Q4StyleOptionMenuItem opt = getStyleOption(options, index);
-            QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
-        }
+               const QModelIndex &index) const {
+        Q4StyleOptionMenuItem opt = getStyleOption(options, index);
+        QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
+    }
     QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-                   const QModelIndex &index) const
-        {
-            Q4StyleOptionMenuItem opt = getStyleOption(options, index);
-            return QApplication::style().sizeFromContents(
-                QStyle::CT_MenuItem, &opt, options.itemRect.size(), fontMetrics, 0);
-        }
+                   const QModelIndex &index) const {
+        Q4StyleOptionMenuItem opt = getStyleOption(options, index);
+        return QApplication::style().sizeFromContents(
+            QStyle::CT_MenuItem, &opt, options.itemRect.size(), fontMetrics, 0);
+    }
 
 private:
-    Q4StyleOptionMenuItem getStyleOption(const QItemOptions &options, const QModelIndex &index) const
-        {
-            Q4StyleOptionMenuItem opt(0);
-            opt.palette = options.palette;
-            opt.state = QStyle::Style_Default;
-            if (options.disabled)
-                opt.palette.setCurrentColorGroup(QPalette::Disabled);
-            else
-                opt.state |= QStyle::Style_Enabled;
-            opt.state |= QStyle::Style_ButtonDefault;
-            if (options.selected) {
-                opt.state |= QStyle::Style_Active;
-                opt.checkState = Q4StyleOptionMenuItem::Checked;
-            } else {
-                opt.checkState = Q4StyleOptionMenuItem::Unchecked;
-            }
-            opt.menuItemType = Q4StyleOptionMenuItem::Normal;
-            opt.icon = model()->data(index, QAbstractItemModel::Decoration).toIconSet();
-            opt.text = model()->data(index, QAbstractItemModel::Display).toString();
-            opt.tabWidth = 0;
-            opt.maxIconWidth = 0;
-            if (!opt.icon.isNull())
-                opt.maxIconWidth = opt.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
-            opt.menuRect = options.itemRect;
-            opt.rect = options.itemRect;
-            return opt;
+    Q4StyleOptionMenuItem getStyleOption(const QItemOptions &options, const QModelIndex &index) const {
+        Q4StyleOptionMenuItem opt(0);
+        opt.palette = options.palette;
+        opt.state = QStyle::Style_Default;
+        if (options.disabled)
+            opt.palette.setCurrentColorGroup(QPalette::Disabled);
+        else
+            opt.state |= QStyle::Style_Enabled;
+        opt.state |= QStyle::Style_ButtonDefault;
+        if (options.selected) {
+            opt.state |= QStyle::Style_Active;
+            opt.checkState = Q4StyleOptionMenuItem::Checked;
+        } else {
+            opt.checkState = Q4StyleOptionMenuItem::Unchecked;
         }
+        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.icon = model()->data(index, QAbstractItemModel::Decoration).toIconSet();
+        opt.text = model()->data(index, QAbstractItemModel::Display).toString();
+        opt.tabWidth = 0;
+        opt.maxIconWidth = 0;
+        if (!opt.icon.isNull())
+            opt.maxIconWidth = opt.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
+        opt.menuRect = options.itemRect;
+        opt.rect = options.itemRect;
+        return opt;
+    }
+};
+
+class ComboModel : public QAbstractItemModel
+{
+public:
+    QVariant data(const QModelIndex &index, int role = Display) const {
+        if ((role == Display || role == Edit || role == Decoration)
+            && index.type() == QModelIndex::View  && index.isValid()
+            && index.row() < rowCount(parent(index))
+            && index.column() < columnCount(parent(index))) {
+            if (role == Display || role == Edit)
+                return list.at(index.row()).first;
+            if (role == Decoration)
+                return list.at(index.row()).second;
+        }
+        return QVariant::Invalid;
+    }
+    int columnCount(const QModelIndex &) const {
+        return 1;
+    }
+    int rowCount(const  QModelIndex &) const {
+        return list.count();
+    }
+    bool setData(const QModelIndex &index, int role, const QVariant &value) {
+        if (role == Display || role == Edit) {
+            list[index.row()].first = value.toString();
+            emit dataChanged(index, index);
+            return true;
+        } else if (role == Decoration) {
+            list[index.row()].second = value.toIconSet();
+            emit dataChanged(index, index);
+            return true;
+        }
+        return false;
+    }
+    bool insertRows(int row, const QModelIndex &parent, int count) {
+        // this model only allows a 1D list
+        if (parent.isValid() || count < 1 || row < 0 || row > rowCount(QModelIndex()))
+            return false;
+
+        QPair<QString, QIconSet> emptyPair;
+        while (count--)
+            list.insert(row, emptyPair);
+        emit rowsInserted(parent, row, row+count-1);
+        return true;
+    }
+
+private:
+    QList<QPair<QString,QIconSet> > list;
 };
 
 class QGenericComboBoxPrivate: public QWidgetPrivate

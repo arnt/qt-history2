@@ -32,6 +32,7 @@ public:
     };
 
     QGenericComboBox(QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericComboBox(QWidget *parent = 0);
     ~QGenericComboBox();
 
     int sizeLimit() const;
