@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#112 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#112 $");
 
 
 // Motif style parameters
@@ -371,12 +371,12 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 	case WindowsStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	    setMouseTracking( TRUE );
-	    setCheckable( TRUE );		
+	    setCheckableFlag( TRUE );		
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
 	    setLineWidth( motifPopupFrame );
-	    setCheckable( FALSE );		
+	    setCheckableFlag( FALSE );		
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );
@@ -419,11 +419,27 @@ void QPopupMenu::setCheckable( bool enable )
     bool oldState = isCheckable();
     bool newState = (style() == WindowsStyle) || enable;
     if ( oldState != newState ) {
+	setCheckableFlag( newState );
+	if ( !newState ) {
+	    // turning off isCheckable; must look for pixmaps
+	    updateSize();
+	} 
+    }
+}
+
+
+/*!
+  Does the internal magic necessary to set the checkable flag.
+ */
+void QPopupMenu::setCheckableFlag( bool enable )
+{
+    bool oldState = isCheckable();
+    bool newState = (style() == WindowsStyle) || enable;
+    if ( oldState != newState ) {
 	if ( newState ) {
 	    setNumCols( 2 );
 	    tabCheck |= 0x80000000;
-	}
-	else {
+	} else {
 	    setNumCols( 1 );
 	    tabCheck &= 0x7FFFFFFF;
 	}
@@ -431,6 +447,9 @@ void QPopupMenu::setCheckable( bool enable )
 	update();
     }
 }
+
+
+
 
 /*!
   Returns whether display of check marks by the menu items is enabled.
@@ -794,7 +813,7 @@ void QPopupMenu::updateSize()
 	}
     }
     if ( gs == MotifStyle ) {
-	setCheckable( hasTextAndPixmapItem );
+	setCheckableFlag( isCheckable() || hasTextAndPixmapItem );
     }
     int extra_width = 0;
     if ( tab_width ) {
