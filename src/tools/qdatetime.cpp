@@ -49,10 +49,6 @@
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
-#elif defined(Q_OS_MSDOS)
-#include <dos.h>
-#elif defined(Q_OS_OS2)
-#include <os2.h>
 #endif
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 1752-09-14
@@ -1015,8 +1011,8 @@ int QDate::daysTo( const QDate &d ) const
   Returns TRUE if this date is later than or equal to \a d, otherwise returns FALSE.
 */
 
-
 /*!
+  \obsolete
   Returns the current date, as reported by the system clock.
 
   \sa QTime::currentTime(), QDateTime::currentDateTime()
@@ -1024,25 +1020,61 @@ int QDate::daysTo( const QDate &d ) const
 
 QDate QDate::currentDate()
 {
+    return currentDate( Qt::DateTimeSpec::LocalTime );
+}
+
+/*!
+  \fn QDate::currentDate( Qt::DateTimeSpec f )
+  Returns the current date, as reported by the system clock, for the
+  DateTimeSpec \a f. The default DateTimeSpec is LocalTime.
+
+  \sa QTime::currentTime(), QDateTime::currentDateTime(), Qt::DateTimeSpec
+*/
+QDate QDate::currentDate( Qt::DateTimeSpec f )
+{
+    QDate d;
+    switch ( f ) {
+	case Qt::DateTimeSpec::LocalTime:
+	    {
 #if defined(Q_OS_WIN32)
-
-    SYSTEMTIME t;
-    memset( &t, 0, sizeof(SYSTEMTIME) );
-    GetLocalTime( &t );
-    QDate d;
-    d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
-    return d;
-
+		SYSTEMTIME t;
+		memset( &t, 0, sizeof(SYSTEMTIME) );
+		GetLocalTime( &t );
+		d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
+		return d;
 #else
-
-    time_t ltime;
-    time( &ltime );
-    tm *t = localtime( &ltime );
-    QDate d;
-    d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
-    return d;
-
+		time_t ltime;
+		time( &ltime );
+		tm *t = localtime( &ltime );
+		d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
+		return d;
 #endif
+	    }
+	case Qt::DateTimeSpec::UniversalTime:
+	    {
+#if defined(Q_OS_WIN32)
+		SYSTEMTIME t;
+		memset( &t, 0, sizeof(SYSTEMTIME) );
+		GetSystemTime( &t );
+		d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
+		return d;
+#else
+		time_t ltime;
+		time( &ltime );
+		tm *t = gmtime( &ltime );
+		d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
+		return d;
+#endif
+	    }
+	    break;
+	default:
+	    {
+#if defined(QT_CHECK_RANGE)
+		qWarning( "QDate::currentDate: DateTimeSpec [%d] unknown.", f);
+#endif
+	    }
+    }
+    return d;
 }
 #ifndef QT_NO_DATESTRING
 /*!
@@ -1588,6 +1620,7 @@ int QTime::msecsTo( const QTime &t ) const
 
 
 /*!
+  \obsolete
   Returns the current time as reported by the system clock.
 
   Note that the accuracy depends on the accuracy of the underlying
@@ -1595,10 +1628,42 @@ int QTime::msecsTo( const QTime &t ) const
 */
 
 QTime QTime::currentTime()
+{ 
+    return currentTime( Qt::DateTimeSpec::LocalTime );
+}
+
+/*!
+  Returns the current time as reported by the system clock, for the
+  DateTimeSpec \a f. The default DateTimeSpec is LocalTime.
+
+  Note that the accuracy depends on the accuracy of the underlying
+  operating system; not all systems provide 1-millisecond accuracy.
+
+  \sa Qt::DateTimeSpec
+*/
+QTime QTime::currentTime( Qt::DateTimeSpec f )
 {
-    QTime ct;
-    currentTime( &ct );
-    return ct;
+    QTime t;
+    switch ( f ) {
+	case Qt::DateTimeSpec::LocalTime:
+	    {
+		currentTime( &t, Qt::DateTimeSpec::LocalTime );
+		return t;
+	    }
+	case Qt::DateTimeSpec::UniversalTime:
+	    {
+		currentTime( &t, Qt::DateTimeSpec::UniversalTime );
+		return t;
+	    }
+	    break;
+	default:
+	    {
+#if defined(QT_CHECK_RANGE)
+		qWarning( "QTime::currentTime: DateTimeSpec [%d] unknown.", f);
+#endif
+	    }
+    }
+    return t;
 }
 
 #ifndef QT_NO_DATESTRING
@@ -1627,6 +1692,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 
 /*!
   \internal
+  \obsolete
 
   Fetches the current time and returns TRUE if the time is within one
   minute after midnight, otherwise FALSE. The return value is used by
@@ -1635,6 +1701,22 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 
 bool QTime::currentTime( QTime *ct )
 {
+    return currentTime( ct, Qt::DateTimeSpec::LocalTime );
+}
+
+
+/*!
+  \internal
+
+  Fetches the current time, for the DateTimeSpec \a f, and returns TRUE
+  if the time is within one minute after midnight, otherwise FALSE. The
+  return value is used by QDateTime::currentDateTime() to ensure that
+  the date there is correct. The default DateTimeSpec is LocalTime. 
+
+  \sa Qt::DateTimeSpec
+*/
+bool QTime::currentTime( QTime *ct, Qt::DateTimeSpec f )
+{
     if ( !ct ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QTime::currentTime(QTime *): Null pointer not allowed" );
@@ -1642,49 +1724,65 @@ bool QTime::currentTime( QTime *ct )
 	return FALSE;
     }
 
+    switch( f ) {
+	case Qt::DateTimeSpec::LocalTime:
+	    {
 #if defined(Q_OS_WIN32)
-
-    SYSTEMTIME t;
-    GetLocalTime( &t );
-    ct->ds = MSECS_PER_HOUR*t.wHour + MSECS_PER_MIN*t.wMinute +
-	     1000*t.wSecond + t.wMilliseconds;
-    return (t.wHour == 0 && t.wMinute == 0);
-
-#elif defined(Q_OS_OS2)
-
-    DATETIME t;
-    DosGetDateTime( &t );
-    ct->ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
-	     1000*t.seconds + 10*t.hundredths;
-    return (t.hours == 0 && t.minutes == 0);
-
-#elif defined(Q_OS_MSDOS)
-
-    _dostime_t t;
-    _dos_gettime( &t );
-    ct->ds = MSECS_PER_HOUR*t.hour + MSECS_PER_MIN*t.minute +
-	     t.second*1000 + t.hsecond*10;
-    return (t.hour== 0 && t.minute == 0);
-
+		SYSTEMTIME t;
+		GetLocalTime( &t );
+		ct->ds = MSECS_PER_HOUR*t.wHour + MSECS_PER_MIN*t.wMinute +
+			1000*t.wSecond + t.wMilliseconds;
+		return (t.wHour == 0 && t.wMinute == 0);
 #elif defined(Q_OS_UNIX)
-
-    struct timeval tv;
-    gettimeofday( &tv, 0 );
-    time_t ltime = tv.tv_sec;
-    tm *t = localtime( &ltime );
-    ct->ds = (uint)( MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-		     1000*t->tm_sec + tv.tv_usec/1000 );
-    return (t->tm_hour== 0 && t->tm_min == 0);
-
+		struct timeval tv;
+		gettimeofday( &tv, 0 );
+		time_t ltime = tv.tv_sec;
+		tm *t = localtime( &ltime );
+		ct->ds = (uint)( MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+				1000*t->tm_sec + tv.tv_usec/1000 );
+		return (t->tm_hour== 0 && t->tm_min == 0);
 #else
-
-    time_t ltime;			// no millisecond resolution!!
-    ::time( &ltime );
-    tm *t = localtime( &ltime );
-    ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	     1000*t->tm_sec;
-    return (t->tm_hour== 0 && t->tm_min == 0);
+		time_t ltime;			// no millisecond resolution!!
+		::time( &ltime );
+		tm *t = localtime( &ltime );
+		ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+			1000*t->tm_sec;
+		return (t->tm_hour== 0 && t->tm_min == 0);
 #endif
+	    }
+	case Qt::DateTimeSpec::UniversalTime:
+	    {
+#if defined(Q_OS_WIN32)
+		SYSTEMTIME t;
+		GetSystemTime( &t );
+		ct->ds = MSECS_PER_HOUR*t.wHour + MSECS_PER_MIN*t.wMinute +
+			1000*t.wSecond + t.wMilliseconds;
+		return (t.wHour == 0 && t.wMinute == 0);
+#elif defined(Q_OS_UNIX)
+		struct timeval tv;
+		gettimeofday( &tv, 0 );
+		time_t ltime = tv.tv_sec;
+		tm *t = gmtime( &ltime );
+		ct->ds = (uint)( MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+				1000*t->tm_sec + tv.tv_usec/1000 );
+		return (t->tm_hour== 0 && t->tm_min == 0);
+#else
+		time_t ltime;			// no millisecond resolution!!
+		::time( &ltime );
+		tm *t = gmtime( &ltime );
+		ct->ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
+			1000*t->tm_sec;
+		return (t->tm_hour== 0 && t->tm_min == 0);
+#endif
+	    }
+	default:
+	    {
+#if defined(QT_CHECK_RANGE)
+		qWarning( "QTime::currentTime(QTime, DateTimeSpec): DateTimeSpec [%d] unknown.", f);
+#endif
+	    }
+    }
+    return FALSE;
 }
 
 /*!
@@ -2280,6 +2378,7 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 }
 
 /*!
+  \obsolete
   Returns the current datetime, as reported by the system clock.
 
   \sa QDate::currentDate(), QTime::currentTime()
@@ -2287,12 +2386,51 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 
 QDateTime QDateTime::currentDateTime()
 {
-    QDate cd = QDate::currentDate();
-    QTime ct;
-    if ( QTime::currentTime(&ct) )		// too close to midnight?
-	cd = QDate::currentDate();		// YES! time for some midnight
+    return currentDateTime( Qt::DateTimeSpec::LocalTime );
+}
+
+/*!
+  Returns the current datetime, as reported by the system clock, for the
+  DateTimeSpec \a f. The default DateTimeSpec is LocalTime.
+
+  \sa QDate::currentDate(), QTime::currentTime(), Qt::DateTimeSpec
+*/
+
+QDateTime QDateTime::currentDateTime( Qt::DateTimeSpec f )
+{
+    QDateTime dt;
+    switch ( f ) {
+	case Qt::DateTimeSpec::LocalTime:
+	    {
+		QDate d = QDate::currentDate();
+		QTime t;
+		if ( QTime::currentTime(&t) )	// too close to midnight?
+		    d = QDate::currentDate();	// YES! time for some midnight
 						// voodoo, fetch date again
-    return QDateTime( cd, ct );
+		dt.setDate( d );
+		dt.setTime( t );
+		return dt;
+	    }
+	case Qt::DateTimeSpec::UniversalTime:
+	    {
+		QDate d = QDate::currentDate( Qt::DateTimeSpec::UniversalTime );
+		QTime t;
+		if ( QTime::currentTime(&t, Qt::DateTimeSpec::UniversalTime) )
+		    d = QDate::currentDate( Qt::DateTimeSpec::UniversalTime );
+
+		dt.setDate( d );
+		dt.setTime( t );
+		return dt;
+	    }
+	    break;
+	default:
+	    {
+#if defined(QT_CHECK_RANGE)
+		qWarning( "QDateTime::currentDateTime: DateTimeSpec [%d] unknown.", f);
+#endif
+	    }
+    }
+    return dt;
 }
 
 #ifndef QT_NO_DATESTRING

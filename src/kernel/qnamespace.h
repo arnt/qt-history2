@@ -761,6 +761,15 @@ public:
 	LocalDate      // locale dependant
     };
 
+    // documented in qdatetime.cpp
+    enum DateTimeSpec {
+	LocalTime,
+	UniversalTime,
+	GreenwichMeanTime = UniversalTime,
+	UTC = UniversalTime,
+	GMT = GreenwichMeanTime
+    };
+
     // documented in qwidget.cpp
     enum BackgroundMode {
 	FixedColor,
