@@ -31,7 +31,7 @@
 
 #include <private/qlayoutengine_p.h>
 
-#define LAYOUT_DEBUG
+// #define LAYOUT_DEBUG
 #if defined(LAYOUT_DEBUG)
 #  define DEBUG qDebug
 #else
