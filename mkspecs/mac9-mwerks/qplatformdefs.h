@@ -17,7 +17,6 @@
 #include <pthread.h>
 #endif
 
-#include <errno.h>
 #include <fcntl.h>
 #include <locale.h>
 #include <signal.h>

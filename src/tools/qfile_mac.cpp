@@ -34,6 +34,7 @@
 #include "qdir.h"
 #include "qt_mac.h"
 
+#include <errno.h>
 #include <limits.h>
 
 const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
