@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#7 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#7 $");
 
 // what comes out of the dict
 struct QTip
@@ -298,11 +298,9 @@ void QTipManager::hideTip()
 }
 
 
-void QTipManager::remove( QToolTipGroup * g )
+void QTipManager::remove( QToolTipGroup * )
 {
-    
-
-
+    // hanord! implementer, vær så snill!
 }
 
 
@@ -390,8 +388,8 @@ void QToolTip::add( QWidget * widget, const char * text )
 
 */
 
-static void QToolTip::add( QWidget *, const char *,
-			   QToolTipGroup *, const char * )
+void QToolTip::add( QWidget *, const char *,
+		    QToolTipGroup *, const char * )
 {
     
 }
@@ -416,8 +414,8 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 
 */
 
-static void QToolTip::add( QWidget *, const QRect &, const char *,
-			   QToolTipGroup *, const char * )
+void QToolTip::add( QWidget *, const QRect &, const char *,
+		    QToolTipGroup *, const char * )
 {
     
 }
@@ -462,7 +460,7 @@ QToolTipGroup::QToolTipGroup( QObject * parent, const char * name )
   Destroy this tool tip groups and all tool tips in it.
 */
 
-QToolTipGroup::~QToolTipGroup::QToolTipGroup()
+QToolTipGroup::~QToolTipGroup()
 {
     if ( tipManager )
 	tipManager->remove( this );
