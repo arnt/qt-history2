@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#47 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -719,7 +719,7 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 }
 
 
-#if defined(_CC_MSC_)
+#if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
 #endif
 
