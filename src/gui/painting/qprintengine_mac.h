@@ -121,5 +121,6 @@ public:
 private:
     virtual void updateInternal(QPainterState *state, bool updateGC = true);
     friend class QPrintDialogMac;
+    friend class QPageSetupDialog;
 };
 #endif
