@@ -285,7 +285,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    return TRUE;  /* assume we are done */
 			}
 		    } else {
-			test = isActiveConfig(comp_scope.stripWhiteSpace(), TRUE);
+			test = isActiveConfig(comp_scope.stripWhiteSpace(), TRUE, &place);
 		    }
 		    if(invert_test)
 			test = !test;
@@ -667,7 +667,7 @@ QMakeProject::read(uchar cmd)
 }
 
 bool
-QMakeProject::isActiveConfig(const QString &x, bool regex)
+QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QStringList> *place)
 {
     if(x.isEmpty())
 	return TRUE;
@@ -711,7 +711,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex)
 #endif
 
 
-    QStringList &configs = vars["CONFIG"];
+    QStringList &configs = (place ? (*place)["CONFIG"] : vars["CONFIG"]);
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
 	if((regex && re.exactMatch((*it))) || (!regex && (*it) == x))
 	if(re.exactMatch((*it)))
@@ -1031,7 +1031,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 		test = doProjectTest(func, chk.mid(lparen+1, rparen - lparen - 1), place);
 	    }
 	} else {
-	    test = isActiveConfig(chk, TRUE);
+	    test = isActiveConfig(chk, TRUE, &place);
 	}
 	if(invert_test) {
 	    chk.prepend("!");

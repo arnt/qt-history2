@@ -50,7 +50,7 @@ public:
     QStringList &values(const QString &v);
     QString first(const QString &v);
     QMap<QString, QStringList> &variables();
-    bool isActiveConfig(const QString &x, bool regex=FALSE);
+    bool isActiveConfig(const QString &x, bool regex=FALSE, QMap<QString, QStringList> *place=NULL);
 
 protected:
     friend class MakefileGenerator;
