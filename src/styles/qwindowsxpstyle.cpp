@@ -238,7 +238,7 @@ QPixmap *QWindowsXPStylePrivate::tabbody = 0;
 struct XPThemeData
 {
     XPThemeData( const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null, int part = 0, int state = 0, const QRect &r = QRect(), QRgb tabBorderColor = 0 )
-        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), tbBorderColor( tabBorderColor ), htheme( 0 ), flipped( FALSE )
+        : widget( w ), painter( p ), name( theme ),partId( part ), stateId( state ), rec( r ), tbBorderColor( tabBorderColor ), htheme( 0 ), flipped( FALSE ), mirrored(FALSE)
     {
     }
     ~XPThemeData()
@@ -303,6 +303,11 @@ struct XPThemeData
 	flipped = b;
     }
 
+    void setMirrored( bool b = TRUE )
+    {
+	mirrored = b;
+    }
+
     void drawBackground( int pId = 0, int sId = 0 )
     {
 	if ( pId )
@@ -350,7 +355,28 @@ struct XPThemeData
 	} else {
 	    QRect rt = rec;
 	    rec = painter->xForm( rec );
-	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    if (!mirrored) {
+		pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
+	    } else {
+		QRect oldrec = rec;
+		rec = QRect(0, 0, rec.width(), rec.height());
+		QPixmap pm(rec.size());
+		QPainter p(&pm);
+		if(widget)
+		    p.setBackgroundColor(widget->paletteBackgroundColor());
+		else
+		    p.setBackgroundColor(qApp->palette().active().background());
+		p.eraseRect( 0, 0, rec.width(), rec.height() );
+		pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
+		p.end();
+		rec = oldrec;
+
+		QWMatrix m;
+		m.scale( -1, 1 );
+		pm = pm.xForm( m );
+
+		painter->drawPixmap(rec.x(), rec.y(), pm);
+	    }
 	    rec = rt;
 	}
     }
@@ -369,8 +395,9 @@ private:
     QPainter *painter;
     QString name;
     HTHEME htheme;
-    bool workAround;
-    bool flipped;
+    uint workAround :1;
+    uint flipped :1;
+    uint mirrored :1;
 };
 
 const QPixmap *QWindowsXPStylePrivate::tabBody( QWidget *widget )
@@ -622,6 +649,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     int partId = 0;
     int stateId = 0;
     QRect rect = r;
+    bool mirror = FALSE;
 
     switch ( op ) {
     case PE_ButtonCommand:
@@ -816,6 +844,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	partId = SP_GRIPPER;
 	// empiric correction values...
 	rect.addCoords( -4, -8, 0, 0 );
+	mirror = qApp->reverseLayout();
 	break;
 
     case PE_ScrollBarAddLine:
@@ -977,6 +1006,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	QWindowsStyle::drawPrimitive( op, p, r, pal, flags, opt );
 	return;
     }
+    theme.setMirrored(mirror);
     theme.drawBackground();
 }
 
@@ -1434,7 +1464,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		ftheme.drawBackground();
 	    }
 	    if ( sub & SC_SpinWidgetUp ) {
-		theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetUp, opt );
+		theme.rec = visualRect(querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetUp, opt ),w);
 		partId = SPNP_UP;
 		if ( !spin->isUpEnabled() )
 		    stateId = UPS_DISABLED;
@@ -1447,7 +1477,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.drawBackground( partId, stateId );
 	    }
 	    if ( sub & SC_SpinWidgetDown ) {
-		theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetDown, opt );
+		theme.rec = visualRect(querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetDown, opt ),w);
 		partId = SPNP_DOWN;
 		if ( !spin->isDownEnabled() )
 		    stateId = DNS_DISABLED;
@@ -1477,7 +1507,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		theme.drawBackground();
 		if ( !((QComboBox*)w)->editable() ) {
-	    	    QRect re = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, opt );
+	    	    QRect re = visualRect(querySubControlMetrics(CC_ComboBox, w, SC_ComboBoxEditField, opt), w);
 		    if ( w->hasFocus() ) {
 			p->fillRect(re, pal.brush( QPalette::Highlight) );
 			p->setPen( pal.highlightedText() );
@@ -1492,7 +1522,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 	    if ( sub & SC_ComboBoxArrow ) {
 		XPThemeData theme( w, p, "COMBOBOX" );
-		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxArrow, opt );
+		theme.rec = visualRect(querySubControlMetrics(CC_ComboBox, w, SC_ComboBoxArrow, opt), w);
 		partId = CP_DROPDOWNBUTTON;
 		QComboBox *cb = (QComboBox*)w;
 
@@ -2545,7 +2575,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 #endif
 	    } else if ( ::qt_cast<QComboBox*>(o) ) {
 		static bool clearCombo = FALSE;
-	    	const QRect rect = querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow );
+	    	const QRect rect = visualRect(querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow ), (QWidget*)o);
 		const bool inArrow = rect.contains( d->hotSpot );
 		if ( ( inArrow && !clearCombo ) || ( !inArrow && clearCombo ) ) {
 		    clearCombo = inArrow;
