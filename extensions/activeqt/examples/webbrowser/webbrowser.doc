@@ -5,13 +5,41 @@
 
   This example utilizes the Microsoft Web Browser ActiveX control 
   to implement a fully functional Web Browser application. The
-  user interface has been developed using the QAxWidget Designer
-  integration, and simple signal and slots connections handle most
-  of the user interaction.
+  user interface has been developed using the Qt Designer
+  integration of the QAxWidget class.
 
-  The code demonstrates the use of signals and slots to embed
-  ActiveX controls using the QAxWidget container class, and the
-  dynamicCall function.
+  The code demonstrates how the Qt application can communicate 
+  with the embedded ActiveX controls using signals, slots and the 
+  dynamicCall() function. Most signal and slot connections have
+  already been set up within Qt Designer.
+
+  \quotefile webbrowser/mainwindow.ui.h
+  \skipto init(
+  \printto go(
+  The init() function is implemented to create a progress bar as
+  the child of the status bar, and to connect Internet Explorer's 
+  \c ProgressChange() and \c StatusTextChange() signals to the
+  respective displays.
+
+  Finally the \c GoHome() function of Internet Explorer is invoked
+  using the \l QAxBase::dynamicCall() dynamicCall() API.
+
+  \printto setTitle(
+  The go() function calls the \c NavigateTo() function of Internet
+  Explorer, passing the text of the address bar as the argument.
+
+  \printto setProgress(
+  The setTitle() slot is connected to the TitleChange() signal
+  of Internet Explorer, and updates the caption of the window
+  using the provided title string.
+
+  \printto newWindow(
+  The setProgress(), setCommandState(), navigateBegin() and
+  navigateComplete() slots are connected to the respective
+  signals of Internet Explorer and update the user interface.
+
+  The rest of the implementation is not related to ActiveQt and
+  omitted for brevity.
 
   To build the example you must first build the
   \link qaxcontainer.html QAxContainer \endlink library.

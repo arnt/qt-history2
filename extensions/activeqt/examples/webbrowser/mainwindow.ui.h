@@ -15,21 +15,28 @@
 #include <qprogressbar.h>
 #include <qstatusbar.h>
 
+void MainWindow::init()
+{
+    pb = new QProgressBar( statusBar() );
+    pb->setPercentageVisible( FALSE );
+    pb->hide();
+    statusBar()->addWidget( pb, 0, TRUE );
+
+    connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
+    connect( WebBrowser, SIGNAL(StatusTextChange(const QString&)), statusBar(), SLOT(message(const QString&)) );
+
+    WebBrowser->dynamicCall( "GoHome()" );
+}
+
 void MainWindow::go()
 {
     actionStop->setEnabled( TRUE );
     WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
 }
 
-void MainWindow::newWindow()
+void MainWindow::setTitle( const QString &title )
 {
-    MainWindow *window = new MainWindow;
-    window->show();
-    if ( addressEdit->text().isEmpty() )
-	return;
-    window->addressEdit->setText( addressEdit->text() );
-    window->actionStop->setEnabled( TRUE );
-    window->go();
+    setCaption( "Qt WebBrowser - " + title );
 }
 
 void MainWindow::setProgress( int a, int b )
@@ -43,25 +50,6 @@ void MainWindow::setProgress( int a, int b )
     pb->setProgress( a );
 }
 
-void MainWindow::init()
-{
-    connect( WebBrowser, SIGNAL(StatusTextChange(const QString&)), statusBar(), SLOT(message(const QString&)) );
-    
-    pb = new QProgressBar( statusBar() );
-    pb->setPercentageVisible( FALSE );
-    statusBar()->addWidget( pb, 0, TRUE );
-    pb->hide();
-
-    connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
-    
-    actionStop->setEnabled( TRUE );
-    WebBrowser->dynamicCall( "GoHome()" );
-}
-
-void MainWindow::setTitle( const QString &title )
-{
-    setCaption( "Qt WebBrowser - " + title );
-}
 
 void MainWindow::setCommandState( int cmd, bool on )
 {
@@ -75,14 +63,25 @@ void MainWindow::setCommandState( int cmd, bool on )
     }
 }
 
+void MainWindow::navigateBegin()
+{
+    actionStop->setEnabled( TRUE );
+}
+
 void MainWindow::navigateComplete()
 {
     actionStop->setEnabled( FALSE );
 }
 
-void MainWindow::navigateBegin()
+void MainWindow::newWindow()
 {
-    actionStop->setEnabled( TRUE );
+    MainWindow *window = new MainWindow;
+    window->show();
+    if ( addressEdit->text().isEmpty() )
+	return;
+    window->addressEdit->setText( addressEdit->text() );
+    window->actionStop->setEnabled( TRUE );
+    window->go();
 }
 
 void MainWindow::aboutSlot()
