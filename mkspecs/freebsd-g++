@@ -49,7 +49,7 @@ QMAKE_LFLAGS_THREAD	= -pthread
 QMAKE_RPATH             = -Wl,-rpath,
 
 # soname does not work on fbsd 2.x
-#QMAKE_LFLAGS_SONAME	= -Wl,-soname
+# QMAKE_LFLAGS_SONAME	= -Wl,-soname,
 
 QMAKE_LIBS		=
 QMAKE_LIBS_X11		= -lXext -lX11 -lm
@@ -68,3 +68,8 @@ QMAKE_RANLIB		=
 
 QMAKE_TAR		= tar -cf
 QMAKE_GZIP		= gzip -9f
+
+QMAKE_COPY		= cp -f
+QMAKE_MOVE		= mv -f
+QMAKE_DEL		= rm -f
+
