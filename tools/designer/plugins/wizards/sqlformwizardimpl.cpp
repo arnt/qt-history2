@@ -50,7 +50,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface ),
      mode( None )
 {
-
+    appIface->addRef();
     formWindow = fw;
     setFinishEnabled( finishPage, TRUE );
 
@@ -82,7 +82,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 
 SqlFormWizard::~SqlFormWizard()
 {
-    // no need to delete child widgets, Qt does it all for us
+    appIface->release();
 }
 
 void SqlFormWizard::connectionSelected( const QString &c )
