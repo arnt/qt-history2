@@ -95,7 +95,7 @@ static XFontSet getFontSet( const QFont &f )
 	    if(missCount > 0)
 		XFreeStringList(missList);
 	    if ( !fontsetCache[i] )
-		fontsetCache[i] == (XFontSet)-1;
+		fontsetCache[i] = (XFontSet)-1;
 	}
     }
     return (fontsetCache[i] == (XFontSet)-1) ? 0 : fontsetCache[i];
