@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#90 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#90 $");
 
 
 /*!
@@ -364,7 +364,7 @@ void QPushButton::drawButton( QPainter *paint )
 	}
 	return;
     }
-    bool use_pm = TRUE;
+    bool use_pm = w * h < 8000;
     if ( use_pm ) {
 	pm = new QPixmap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
@@ -433,7 +433,8 @@ void QPushButton::drawButton( QPainter *paint )
 	pmpaint.end();
 	p = paint;				// draw in default device
 	p->drawPixmap( 0, 0, *pm );
-	QPixmapCache::insert( pmkey, pm );	// save for later use
+	if (!QPixmapCache::insert( pmkey, pm ))	// save for later use
+	    delete pm; // Too big
     }
 #endif
     drawButtonLabel( p );

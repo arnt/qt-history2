@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#56 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#56 $");
 
 
 /*!
@@ -151,7 +151,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	drawButtonLabel( p );
 	return;
     }
-    bool use_pm = TRUE;
+    bool use_pm = w * h < 8000;
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
@@ -205,7 +205,8 @@ void QCheckBox::drawButton( QPainter *paint )
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
 	w += wx;
-	QPixmapCache::insert( pmkey, pm );	// save for later use
+	if (!QPixmapCache::insert( pmkey, pm ))	// save for later use
+	    delete pm; // Too big
     }
 #endif
     drawButtonLabel( p );

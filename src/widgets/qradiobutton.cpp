@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#53 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#53 $");
 
 
 /*!
@@ -176,7 +176,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	drawButtonLabel( p );
 	return;
     }
-    bool use_pm = TRUE;
+    bool use_pm = w * h < 8000;
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
@@ -262,7 +262,8 @@ void QRadioButton::drawButton( QPainter *paint )
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
 	w += wx;
-	QPixmapCache::insert( pmkey, pm );	// save for later use
+	if (!QPixmapCache::insert( pmkey, pm ))	// save for later use
+	    delete pm;
     }
 #endif
     drawButtonLabel( p );
