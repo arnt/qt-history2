@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#85 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#85 $");
 
 
 /*!
@@ -332,6 +332,9 @@ QComboBox::~QComboBox()
 
 /*!  Reimplemented for implementational reasons.
 
+  Note that QComboBox always turns into a new-style Motif combo box
+  when it is changed from Windows to Motif style (even if it was an
+  old-style combo box before).
 */
 
 void QComboBox::setStyle( GUIStyle s )
