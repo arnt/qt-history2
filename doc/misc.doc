@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -108,152 +108,163 @@ Compiler\endlink for details on how to use moc.
 
 \section1 Using different versions of Qt on the same machine
 
-Qt programs need the following components of the Qt distribution: <dl>
+Qt programs need the following components of a Qt distribution:<dl>
 
-<dt><b>Header files - Compile time</b>
+<dt>Header files - Compile time
 
-<dd>Programmers need to include the Qt header files. Those with a
-command-line compiler will typically use options such as \c
-/I%QTDIR%\\include or \c -I${QTDIR}/include.  They will need the header
-files of the version of Qt they wish to build programs with.  The
-header files are in the \c include subdirectory of Qt distributions.
+<dd>Programmers need to include the Qt header files.  The Qt header files
+are usually located in the \c include subdirectory of Qt distributions.
+Care must be taken to include the header files of the relevant release of
+Qt. Those with a command-line compiler will typically use options such as
+\c /I%QTDIR%\\include or \c -I"$QTDIR"/include provided \c QTDIR specifies
+the relevant release of Qt.
 
-<dt><b>Meta Object Compiler - Compile time</b>
+<dt>Meta Object Compiler and other tools - Compile time
 
-<dd>Programmers need to run the Meta Object Compiler - \e moc.  The moc is
-found in the \c bin subdirectory of Qt distributions.
+<dd>Programmers need to run \e moc and other tools such as \e uic. These
+tools are usually located in the \c bin subdirectory of Qt distributions.
+Either run \c "$QTDIR"/bin/moc and \c "$QTDIR"/bin/uic or add \c "$QTDIR"/bin
+to your \c PATH and run \c moc and \c uic.
 
-<dt><b>Static or shared libraries - Link time</b>
+<dt>Static or shared libraries - Link time
 
-<dd>Programmers need to link with static or shared libraries. Those with a
-command-line compiler will typically use options such as \c
-/L%QTDIR%\lib\qt.lib or \c -L${QTDIR}/lib \c -lqt.  They will need the
-libraries of the version of Qt they wish to build programs with.  The
-libraries are in the \c lib subdirectory of Qt distributions.
+<dd>Programmers need to link with the Qt static or shared libraries. The Qt
+libraries are usually located in the \c lib subdirectory of Qt distributions.
+Care must be taken to link with the libraries of the relevant release of
+Qt.  Those with a command-line compiler will typically use options such as
+\c /L%QTDIR%\\lib\\qt.lib or \c -L"$QTDIR"/lib \c -lqt provided \c QTDIR
+specifies the relevant release of Qt.
 
-<dt><b>Shared libraries - Run time</b>
+<dt>Shared libraries - Run time
 
-<dd>Users of programs built with the shared Qt libraries need these same
-shared libraries to run the programs.  The libraries are in the \c lib
-subdirectory of Qt distributions.  Shared libraries are made available
-to programs in places such as \c C:\windows\system on Windows
-platforms, directories listed in file \c /etc/ld.so.conf on Linux,
-standard \c lib directories on Unix, or the directories listed in the
-environment variable \c ${LD_LIBRARY_PATH} on Unix/Linux.
+<dd>Users of programs linked with shared Qt libraries need these same
+shared libraries to run these programs.  The Qt libraries are usually
+located in the \c lib subdirectory of Qt distributions.  Shared libraries
+are made available to programs in places such as \c C:\\windows\\system on
+Windows platforms, directories listed in file \c /etc/ld.so.conf on Linux,
+standard \c lib directories on Unix, or directories listed in environment
+variables \c LD_LIBRARY_PATH, \c SHLIB_PATH, or \c LIBPATH on various Unix
+flavours.  Make the relevant Qt libraries available using one of these
+mechanisms.
 
 </dl>
 
-Binary packages usually consist of two parts:
+We have learned that Qt distributions consist of different files needed at
+compile time, link time, or run time. Trolltech distributes Qt in the form
+of a source package that contain all these files once they have been built.
+
+Other vendors distribute Qt in the form of binary packages. Binary packages
+usually consist of two parts:
 
 \list
-\i run time libraries in the run time package, usually called \c qt3.
+\i shared libraries in the run time package, usually called \c qt3.
 
-\i header files, the moc and static libraries in the developers' kit,
-usually called \c qt3-dev.
+\i header files, static libraries, the moc and other tools in the developers'
+kit, usually called \c qt3-dev.
 
 \endlist
 
 Depending on how you are using Qt, you need to make specific parts of
 the Qt distribution available to your programs.  Typical situations are
-described below.<dl>
+described below.
 
-<dt><b>Developers building for a single version of Qt on Unix
-- Qt packages</b>
+\section2 Developers building for a single version of Qt on Unix
+- Qt binary packages
 
-<dd>You build programs with a single version of Qt, but you still need
+You build programs with a single version of Qt, but you still need
 to run programs linked with another version of Qt.  You are typically
-a Linux developer who builds programs for Qt 2.x on a KDE desktop based
-on Qt 1.4x.  Qt packages are usually split into a shared library
+a Linux developer who builds programs for Qt 3.x on a KDE desktop based
+on Qt 2.x.  Qt packages are usually split into a shared library
 package with a name like \c qt and a developer package with a name
 like \c qt-dev.  You will need the appropriate packages:
 
 \list
 
-\i To build programs you will need the header files, the moc and the
-libraries of Qt 2.x. They are included in the developer package of
-Qt 2.x (\c qt2-dev or the like).
+\i To build programs you will need the header files, the libraries,
+the moc and other tools from Qt 3.x. They are included in the developer
+package of Qt 3.x (\c qt3-dev or the like).
 
-\i To run programs you will need the shared libraries of Qt 2.x
-and Qt 1.4x. They are included in the regular packages
-of Qt 2.x (\c qt2 or the like) and Qt 1.4x (\c qt1
-or the like).
+\i To run programs you will need the shared libraries of Qt 3.x and
+Qt 2.x.  They are included in the regular packages of Qt 3.x (\c qt3
+or the like) and Qt 2.x (\c qt2 or the like).
 
 \endlist
 
-Just install those 3 packages. You may need to set the
-environment variable \c QTDIR.
+Just install those 3 packages, \c qt2, \c qt3, and \c qt3-dev. You may
+need to set the environment variable \c QTDIR to point to Qt 3.x.
 
-<dt><b>Developers building for two versions of Qt on Unix
-- Qt sources</b>
+\section2 Developers building for two versions of Qt on Unix - Qt sources
 
-<dd>You build and run programs for Qt v1.4x and Qt 2.x. You will need:
+You build and run programs for Qt 2.x and Qt 3.x. You will need:
 
 \list
 
-\i the \e header \e files, the \e moc and the \e libraries of Qt 2.x
-and Qt 1.4x to build programs,
+\i the header files, the libraries, the moc and other tools from Qt 3.x
+and Qt 2.x to build programs,
 
-\i the shared libraries of Qt 2.x and Qt 1.4x to run programs (if you
-use shared linking).
+\i the shared libraries of Qt 3.x and Qt 2.x to run programs.
 
 \endlist
 
-Get source distributions of both Qt 1.4x and Qt 2.x.
+Get the source distributions of both Qt 2.x and Qt 3.x.
 
 \list 1
 
-\i Install and build Qt 1.4x and Qt 2.x, usually in \c /opt or
+\i Install and build Qt 2.x and Qt 3.x, usually in \c /opt or
 \c /usr/local. In the case of \c /opt:
 
 \code
 $ cd /opt
-$ gunzip -c qt-1.44.tar.gz | tar xf -
-$ cd qt-1.44
-$ setenv QTDIR /opt/qt-1.44
+$ gunzip -c \c qt-x11-2.3.1.tar.gz | tar xf -
+$ cd qt-2.3.1
+$ setenv QTDIR /opt/qt-2.3.1
 $ configure [options]
 $ make
 
 $ cd /opt
-$ gunzip -c qt-2.1.0.tar.gz | tar xf -
-$ cd qt-2.1.0
-$ setenv QTDIR /opt/qt-2.1.0
+$ gunzip -c qt-x11-free-3.0.0.tar.gz | tar xf -
+$ cd qt-3.0.0
+$ setenv QTDIR /opt/qt-3.0.0
 $ configure [options]
 $ make
 \endcode
 
 \i Make shared libraries available to programs at run time. Either
-add both \c /opt/qt-1.44 and \c /opt/qt-2.0.1 to your environment
-variable \c LD_LIBRARY_PATH or make links to the libraries in a
-standard directory like \c /usr/local/lib:
+add both \c /opt/qt-2.3.1/lib and \c /opt/qt-3.0.0/lib to your environment
+variable \c LD_LIBRARY_PATH or file \c /etc/ld.so.conf or whataver mechanism
+you're using, or make links to the libraries in a standard directory like
+\c /usr/local/lib:
 
 \code
 cd /usr/local/lib
-ln -s /opt/qt-1.44/lib/libqt.so.1 .
-ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
+ln -s /opt/qt-2.3.1/lib/libqt.so.2 .
+ln -s /opt/qt-2.3.1/lib/libqt-mt.so.2 .
+ln -s /opt/qt-2.3.1/lib/libqutil.so.1 .
+ln -s /opt/qt-3.0.0/lib/libqt.so.3 .
+ln -s /opt/qt-3.0.0/lib/libqui.so.1 .
 \endcode
 
 \endlist
 
-To develop with Qt 1.4x use:
-
-\code
-setenv QTDIR /opt/qt-1.44
-setenv PATH ${QTDIR}/bin:${PATH}
-\endcode
-
 To develop with Qt 2.x use:
 
 \code
-setenv QTDIR /opt/qt-2.1.0
+setenv QTDIR /opt/qt-2.3.1
 setenv PATH ${QTDIR}/bin:${PATH}
 \endcode
 
-Setting the \c PATH ensures that the proper version of moc is being
-used.  Your \c Makefile should refer to \c ${QTDIR}/include and \c
-${QTDIR}/lib to include the proper header files and link with the
-proper libraries.
+To develop with Qt 3.x use:
 
-</dl>
+\code
+setenv QTDIR /opt/qt-3.0.0
+setenv PATH ${QTDIR}/bin:${PATH}
+\endcode
+
+Setting \c QTDIR ensures that the proper resources are used, such as the
+documentation of the version of Qt you're using.  Also your Makfiles may
+refer to \c "$QTDIR"/include and \c "$QTDIR"/lib to include the proper
+header files and link with the proper libraries.  Setting the \c PATH
+ensures that the proper version of moc and other tools is being used.
 
 \section1 Using Qt on X11 without a window manager
 
