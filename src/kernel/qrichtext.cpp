@@ -2891,6 +2891,8 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
     if ( resetChanged )
 	parag->setChanged( FALSE );
     QRect ir( parag->rect() );
+    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+	ir.setWidth( parag->document()->width() );
     bool useDoubleBuffer = !parag->document()->parent();
     if ( !useDoubleBuffer && parag->document()->nextDoubleBuffered )
 	useDoubleBuffer = TRUE;
@@ -2946,7 +2948,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	painter->translate( -ir.x(), -ir.y() );
     }
 
-    if ( useDoubleBuffer ) {
+    if ( useDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
 	    p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
 			 ( parag->document()->x() + parag->document()->width() ) -
@@ -2991,8 +2993,9 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	lastFormatted = parag;
 	if ( !parag->isValid() )
 	    parag->format();
-
-	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
+	
+	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) &&
+	    !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	    QRect pr( parag->rect() );
 	    pr.setWidth( parag->document()->width() );
 	    if ( pr.intersects( QRect( cx, cy, cw, ch ) ) )
@@ -3005,7 +3008,8 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    continue;
 	}
 
-	if ( !parag->hasChanged() && onlyChanged ) {
+	if ( !parag->hasChanged() && onlyChanged && 
+	     !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
 	    parag = parag->next();
 	    continue;
 	}
@@ -4227,6 +4231,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		break;
 	    if ( lastBaseLine == 0 )
 		lastBaseLine = baseLine;
+	    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+		painter.fillRect( chr->x, cy, document()->width() - chr->x, h, cg.brush( QColorGroup::Base ) );
 	}
 
 	// draw bullet list items
@@ -4290,10 +4296,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 				if ( !hasdoc || document()->invertSelectionText( j ) )
 				    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
 				if ( j == QTextDocument::Standard )
-				    painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+				    painter.fillRect( x + bw, lastY, document()->width() - (x + bw), h,
 						      cg.color( QColorGroup::Highlight ) );
 				else
-				    painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+				    painter.fillRect( x + bw, lastY, document()->width() - (x + bw), h,
 						      hasdoc ? document()->selectionColor( j ) :
 						      cg.color( QColorGroup::Highlight ) );
 			    }
@@ -4382,10 +4388,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    if ( !hasdoc || document()->invertSelectionText( j ) )
 			painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
 		    if ( j == QTextDocument::Standard )
-			painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+			painter.fillRect( x + bw, lastY, document()->width() - (x + bw), h,
 					  cg.color( QColorGroup::Highlight ) );
 		    else
-			painter.fillRect( x + bw, lastY, r.width() - (x + bw), h,
+			painter.fillRect( x + bw, lastY, document()->width() - (x + bw), h,
 					  hasdoc ? document()->selectionColor( j ) :
 					  cg.color( QColorGroup::Highlight ) );
 		}
