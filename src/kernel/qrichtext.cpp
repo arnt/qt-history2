@@ -2754,7 +2754,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    startX = chr->x + chr->width();
 		    bw = 0;
 		} else {
-  		    chr->customItem()->resize( pntr, chr->customItem()->width );
+   		    chr->customItem()->resize( pntr, chr->customItem()->width );
 		    buffer = QString::null;
 		    lastFormat = chr->format();
 		    lastY = cy;
@@ -3789,7 +3789,14 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    if ( doc )
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
-	    c->customItem()->resize( parag->painter(), dw );
+	    int tw = dw;
+	    if ( is_printer( parag->painter() ) ) {
+		QPaintDeviceMetrics metrics( parag->painter()->device() );
+		double xscale = scale_factor( metrics.logicalDpiX() );
+		tw = (int)( (double)tw * xscale );
+		tw = QMAX( tw, dw );
+	    }
+	    c->customItem()->resize( parag->painter(), tw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
 	    w = dw;
@@ -3918,6 +3925,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		QPaintDeviceMetrics metrics( parag->painter()->device() );
 		double xscale = scale_factor( metrics.logicalDpiX() );
 		tw = (int)( (double)tw * xscale );
+		tw = QMAX( tw, dw );
 	    }
 	    c->customItem()->resize( parag->painter(), tw );
 	    if ( x != left || w != dw )
