@@ -11,7 +11,6 @@
 #include <qiconset.h>
 #include <qstyle.h>
 #include <qtimer.h>
-#include <qmimefactory.h>
 
 TabbedBrowser::TabbedBrowser(MainWindow *parent)
     : QWidget(parent)
@@ -178,7 +177,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(newTabButton, Qt::TopLeft);
     newTabButton->setCursor(Qt::arrowCursor);
     newTabButton->setAutoRaise(true);
-    newTabButton->setIcon(qPixmapFromMimeSource("addtab.png"));
+    newTabButton->setIcon(QPixmap(":/images/addtab.png"));
     newTabButton->setFixedSize(s, s);
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
     newTabButton->setToolTip(tr("Add page"));
@@ -188,8 +187,8 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
-    QIconSet is(qPixmapFromMimeSource("closetab.png"));
-    QPixmap disabledPix = qPixmapFromMimeSource("d_closetab.png");
+    QIconSet is(QPixmap(":/images/closetab.png"));
+    QPixmap disabledPix = QPixmap(":/images/d_closetab.png");
     is.setPixmap(disabledPix, QIconSet::Small, QIconSet::Disabled);
     closeTabButton->setIcon(is);
     closeTabButton->setFixedSize(s, s);

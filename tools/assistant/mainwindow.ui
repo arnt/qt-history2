@@ -139,7 +139,7 @@
      <cstring>actionFilePrint</cstring>
     </property>
     <property name="icon" >
-     <iconSet>print.png</iconSet>
+     <iconSet>:/images/print.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Print...</string>
@@ -170,7 +170,7 @@
      <cstring>actionEditCopy</cstring>
     </property>
     <property name="icon" >
-     <iconSet>editcopy.png</iconSet>
+     <iconSet>:/images/editcopy.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Copy</string>
@@ -187,7 +187,7 @@
      <cstring>actionEditFind</cstring>
     </property>
     <property name="icon" >
-     <iconSet>find.png</iconSet>
+     <iconSet>:/images/find.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Find in Text...</string>
@@ -226,7 +226,7 @@
      <cstring>actionGoHome</cstring>
     </property>
     <property name="icon" >
-     <iconSet>home.png</iconSet>
+     <iconSet>:/images/home.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Home</string>
@@ -243,7 +243,7 @@
      <cstring>actionGoPrevious</cstring>
     </property>
     <property name="icon" >
-     <iconSet>previous.png</iconSet>
+     <iconSet>:/images/previous.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Previous</string>
@@ -260,7 +260,7 @@
      <cstring>actionGoNext</cstring>
     </property>
     <property name="icon" >
-     <iconSet>next.png</iconSet>
+     <iconSet>:/images/next.png</iconSet>
     </property>
     <property name="text" >
      <string>&amp;Next</string>
@@ -296,7 +296,7 @@
      <cstring>actionZoomIn</cstring>
     </property>
     <property name="icon" >
-     <iconSet>zoomin.png</iconSet>
+     <iconSet>:/images/zoomin.png</iconSet>
     </property>
     <property name="text" >
      <string>Zoom &amp;in</string>
@@ -313,7 +313,7 @@
      <cstring>actionZoomOut</cstring>
     </property>
     <property name="icon" >
-     <iconSet>zoomout.png</iconSet>
+     <iconSet>:/images/zoomout.png</iconSet>
     </property>
     <property name="text" >
      <string>Zoom &amp;out</string>
@@ -377,7 +377,7 @@
      <cstring>actionHelpWhatsThis</cstring>
     </property>
     <property name="icon" >
-     <iconSet>whatsthis.xpm</iconSet>
+     <iconSet>:/images/whatsthis.xpm</iconSet>
     </property>
     <property name="text" >
      <string>What's This?</string>
@@ -441,7 +441,7 @@
      <cstring>actionHelpAssistant</cstring>
     </property>
     <property name="icon" >
-     <iconSet>assistant.png</iconSet>
+     <iconSet>:/images/assistant.png</iconSet>
     </property>
     <property name="text" >
      <string>Qt Assistant Manual</string>
@@ -453,5 +453,4 @@
   </actionGroup>
  </widget>
  <layoutDefault spacing="6" margin="11" />
- <pixmapFunction>qPixmapFromMimeSource</pixmapFunction>
 </UI>

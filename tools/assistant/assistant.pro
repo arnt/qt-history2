@@ -67,7 +67,8 @@ TRANSLATIONS        = assistant_de.ts \
 
 unix:!zlib:LIBS        += -lz
 
-IMAGES        = images/editcopy.png \
+QMAKE_RESOURCE_PREFIX = /
+RESOURCES = images/editcopy.png \
         images/find.png \
         images/home.png \
         images/next.png \

@@ -24,7 +24,6 @@
 #include <qsettings.h>
 #include <qxml.h>
 #include <qlist.h>
-#include <qmimefactory.h>
 
 static Config *static_configuration = 0;
 
@@ -318,14 +317,24 @@ QStringList Config::docFiles() const
 QPixmap Config::docIcon( const QString &title ) const
 {
     // ### To allow qdoc generated dcf files to reference the doc icons from qmake_image_col
-    if (!QFile::exists(profil->icons[title]))
-        return qPixmapFromMimeSource( QFileInfo(profil->icons[title]).fileName() );
-    return qPixmapFromMimeSource( profil->icons[title] );
+    QString name = profil->icons[title];
+    QString resName = QLatin1String(":/images/") + name;
+
+    if (QFile::exists(resName))
+        return QPixmap(resName);
+
+    return QPixmap(name);
 }
 
 QPixmap Config::applicationIcon() const
 {
-    return qPixmapFromMimeSource( profil->props["applicationicon"] );
+    QString name = profil->props["applicationicon"];
+    QString resName = QLatin1String(":/images/") + name;
+
+    if (QFile::exists(resName))
+        return QPixmap(resName);
+
+    return QPixmap(name);
 }
 
 QStringList Config::docTitles() const
