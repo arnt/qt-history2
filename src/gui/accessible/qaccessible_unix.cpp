@@ -95,7 +95,6 @@ void QAccessible::setRootObject(QObject *o)
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(o);
     for (int i = 0; i < bridges()->count(); ++i)
         bridges()->at(i)->setRootObject(iface);
-    delete iface;
 }
 
 #endif
