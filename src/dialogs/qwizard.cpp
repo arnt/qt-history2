@@ -226,7 +226,7 @@ void QWizard::showPage( QWidget * page )
 
     layOut();
     updateButtons();
-    emit selected( p ? p->t : QString::null ); 
+    emit selected( p ? p->t : QString::null );
 }
 
 
@@ -455,6 +455,18 @@ QString QWizard::title( QWidget * page ) const
 {
     QWizardPrivate::Page * p = d->page( page );
     return p ? p->t : QString::null;
+}
+
+/*!  Sets the title for the \a page to \a title.
+*/
+
+void QWizard::setTitle( QWidget *page, const QString &t )
+{
+    QWizardPrivate::Page * p = d->page( page );
+    if ( p )
+	p->t = t;
+    if ( page == currentPage() )
+	d->title->setText( t );	
 }
 
 

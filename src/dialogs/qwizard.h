@@ -54,7 +54,8 @@ public:
     virtual void removePage( QWidget * );
 
     QString title( QWidget * ) const;
-
+    void setTitle( QWidget *, const QString & );
+    
     virtual void showPage( QWidget * );
 
     QWidget * currentPage() const;
