@@ -747,7 +747,7 @@ bool QDB2Result::exec()
 		return FALSE;
 	    bool isNull = (*indPtr == SQL_NULL_DATA);
 	    tmpStorage.removeFirst();
-	    
+
 	    if ( isNull ) {
 		values[ i ] = QVariant( values[ i ].type() );
 		if ( values[ i ].type() != QVariant::ByteArray )
