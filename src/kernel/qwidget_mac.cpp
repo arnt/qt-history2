@@ -131,6 +131,7 @@ static WId parentw;
 WId myactive = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
+int mac_window_count = 0;
 
 static WId qt_root_win() {
     WindowPtr ret = NULL;
@@ -303,6 +304,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	if(testWFlags( WType_Popup )) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 
+	mac_window_count++;
 	hd = (void *)id;
 	setWinId(id);
 
@@ -328,8 +330,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     macDropEnabled = false;
     posInTLChanged = TRUE;
 
-    if ( destroyw )
+    if ( destroyw ) {
+	mac_window_count--;
 	DisposeWindow((WindowPtr)destroyw);
+    }
 }
 
 void qt_mac_destroy_widget(QWidget *w);
@@ -362,8 +366,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	} else {
-	    if ( destroyWindow && isTopLevel() && hd && own_id)
+	    if ( destroyWindow && isTopLevel() && hd && own_id) {
+		mac_window_count--;
 	        DisposeWindow( (WindowPtr)hd );
+	    }
 	}
 
     }
@@ -403,8 +409,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
-    if ( old_winid && own_id && isTopLevel() )
+    if ( old_winid && own_id && isTopLevel() ) {
+	mac_window_count--;
 	DisposeWindow( (WindowPtr)old_winid );
+    }
 
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning

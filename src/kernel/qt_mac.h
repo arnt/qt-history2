@@ -16,25 +16,30 @@ public:
     ~QMacSavedPortInfo();
 };
 
+extern int mac_window_count;
 
 inline QMacSavedPortInfo::QMacSavedPortInfo()
 {
-    GetBackColor(&back);
-    GetForeColor(&fore);
-    GetGWorld(&world, &handle);
-    clip = NewRgn();
-    GetClip(clip);
-    GetPenState(&pen);
+    if(mac_window_count) {
+	GetBackColor(&back);
+	GetForeColor(&fore);
+	GetGWorld(&world, &handle);
+	clip = NewRgn();
+	GetClip(clip);
+	GetPenState(&pen);
+    }
 }
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
-    SetGWorld(world,handle); //always do this one first
-    SetClip(clip);
-    DisposeRgn(clip);
-    SetPenState(&pen);
-    RGBForeColor(&fore);
-    RGBBackColor(&back);
+    if(mac_window_count) {
+	SetGWorld(world,handle); //always do this one first
+	SetClip(clip);
+	DisposeRgn(clip);
+	SetPenState(&pen);
+	RGBForeColor(&fore);
+	RGBBackColor(&back);
+    }
 }
 
 #endif // QT_MAC_H
