@@ -2856,7 +2856,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 			truples[currt - 1].mapped =
 			    cfont.d->
 			    x11data.fontstruct[truples[currt - 1].script]->codec->
-			    fromUnicode( str, truples[currt - 1].stroffset, i - truples[currt - 1].stroffset );
+			    fromUnicode( str, truples[currt - 1].stroffset, i + pos - truples[currt - 1].stroffset );
 			if (f->max_byte1) {
 			    currx +=
 				XTextWidth16(f, (XChar2b *)
@@ -2904,7 +2904,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
 		if (cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec) {
 		    truples[currt - 1].mapped =
 			cfont.d->x11data.fontstruct[truples[currt - 1].script]->codec->
-			fromUnicode( str, truples[currt - 1].stroffset, i - truples[currt - 1].stroffset );
+			fromUnicode( str, truples[currt - 1].stroffset, i +pos - truples[currt - 1].stroffset );
 		    if (f->max_byte1) {
 			currx += XTextWidth16(f, (XChar2b *)
 					      truples[currt - 1].mapped.data(),
