@@ -28,6 +28,7 @@ void MainWindow::setupFrame(QFrame *frame)
                      << tr("Translate by (100,100)");
 
     QLabel *originalLabel = new QLabel(tr("Original shape"));
+    originalLabel->setAlignment(Qt::AlignCenter);
     firstOperation = new QComboBox(frame);
     firstOperation->insertStringList(operationStrings);
     secondOperation = new QComboBox(frame);
