@@ -54,10 +54,14 @@ public:
 
     int position(const QString& name) const;
     QString fieldName(int i) const;
-    QSqlField* field(int i);
-    QSqlField* field(const QString& name);
-    const QSqlField* field(int i) const;
-    const QSqlField* field(const QString& name) const;
+
+    QSqlField field(int i) const;
+    QSqlField field(const QString &name) const;
+
+#ifdef QT_COMPAT
+    QT_COMPAT const QSqlField* fieldPtr(int i) const;
+    QT_COMPAT const QSqlField* fieldPtr(const QString& name) const;
+#endif
 
     virtual void append(const QSqlField& field);
     virtual void replace(int pos, const QSqlField& field);
