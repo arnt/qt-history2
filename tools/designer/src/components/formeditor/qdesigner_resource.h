@@ -82,6 +82,9 @@ protected:
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
     virtual QString iconToFilePath(const QIcon &pm) const;
     virtual QString iconToQrcPath(const QIcon &pm) const;
+    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath);
+    virtual QString pixmapToFilePath(const QPixmap &pm) const;
+    virtual QString pixmapToQrcPath(const QPixmap &pm) const;
 
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
 

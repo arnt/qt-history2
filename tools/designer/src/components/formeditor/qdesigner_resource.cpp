@@ -1084,3 +1084,35 @@ QString QDesignerResource::iconToQrcPath(const QIcon &pm) const
 
     return relativePath(qrc_path);
 }
+
+QPixmap QDesignerResource::nameToPixmap(const QString &filePath, const QString &qrcPath)
+{
+    QString file_path = filePath;
+    QString qrc_path = qrcPath;
+
+    if (qrc_path.isEmpty())
+        file_path = absolutePath(file_path);
+    else
+        qrc_path = absolutePath(qrc_path);
+
+    return core()->iconCache()->nameToPixmap(file_path, qrc_path);
+}
+
+QString QDesignerResource::pixmapToFilePath(const QPixmap &pm) const
+{
+    QString file_path = core()->iconCache()->pixmapToFilePath(pm);
+    QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
+    if (qrc_path.isEmpty())
+        return relativePath(file_path);
+
+    return file_path;
+}
+
+QString QDesignerResource::pixmapToQrcPath(const QPixmap &pm) const
+{
+    QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
+    if (qrc_path.isEmpty())
+        return QString();
+
+    return relativePath(qrc_path);
+}

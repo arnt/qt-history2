@@ -41,8 +41,10 @@ protected:
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
 
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
+    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath);
 
 private:
+    QString resolveQrcPath(const QString &filePath, const QString &qrcPath) const;
     AbstractFormEditor *m_core;
     QMap<QString, ICustomWidget*> m_customFactory;
 };
