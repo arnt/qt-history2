@@ -14,7 +14,7 @@
 
 #include "qaccessible.h"
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 
 #include "qapplication.h"
 #include "qlibrary.h"

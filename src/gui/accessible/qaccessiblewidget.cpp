@@ -14,7 +14,7 @@
 
 #include "qaccessiblewidget.h"
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 
 #include "qaccel.h"
 #include "qapplication.h"
@@ -844,4 +844,4 @@ int QAccessibleWidget::state(int child) const
     return (State)state;
 }
 
-#endif //QT_ACCESSIBILITY_SUPPORT
+#endif //QT_NO_ACCESSIBILITY

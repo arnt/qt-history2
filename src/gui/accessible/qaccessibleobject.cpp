@@ -14,7 +14,7 @@
 
 #include "qaccessibleobject.h"
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -363,4 +363,4 @@ QString QAccessibleApplication::actionText(int action, Text text, int child) con
     return QAccessibleObject::actionText(action, text, child);
 }
 
-#endif //QT_ACCESSIBILITY_SUPPORT
+#endif //QT_NO_ACCESSIBILITY
