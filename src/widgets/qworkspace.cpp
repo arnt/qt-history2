@@ -1708,7 +1708,6 @@ void QWorkspaceChild::keyPressEvent( QKeyEvent * e )
     bool is_control = e->state() & ControlButton;
     int delta = is_control?1:8;
     QPoint pos = QCursor::pos();
-    QPoint invertedMoveOffset; //TODO
     switch ( e->key() ) {
     case Key_Left:
 	pos.rx() -= delta;
