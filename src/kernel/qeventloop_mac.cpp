@@ -836,7 +836,12 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->unlock();
 #endif
+#if 1
 	RunApplicationEventLoop();
+#else
+	EventRef event;
+	ReceiveNextEvent(0, 0, kEventDurationForever, FALSE, &event);
+#endif
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->lock();
 #endif
