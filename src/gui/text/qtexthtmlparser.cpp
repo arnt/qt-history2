@@ -998,6 +998,24 @@ static bool setIntAttribute(int *destination, const QString &value)
     return ok;
 }
 
+static void setWidthAttribute(QTextLength *width, QString value)
+{
+    int intVal;
+    bool ok = false;
+    intVal = value.toInt(&ok);
+    if (ok) {
+        *width = QTextLength(QTextLength::FixedLength, intVal);
+    } else {
+        value = value.trimmed();
+        if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
+            value.chop(1);
+            intVal = value.toInt(&ok);
+            if (ok)
+                *width = QTextLength(QTextLength::PercentageLength, intVal);
+        }
+    }
+}
+
 void QTextHtmlParser::parseAttributes()
 {
     QTextHtmlParserNode *node = &nodes.last();
@@ -1068,20 +1086,7 @@ void QTextHtmlParser::parseAttributes()
                 node->bgColor.setNamedColor(value);
         } else if (node->isTableCell) {
             if (key == QLatin1String("width")) {
-                int intVal;
-                bool ok = false;
-                intVal = value.toInt(&ok);
-                if (ok) {
-                    node->tableColumnWidth = QTextLength(QTextLength::FixedLength, intVal);
-                } else {
-                    value = value.trimmed();
-                    if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
-                        value.chop(1);
-                        intVal = value.toInt(&ok);
-                        if (ok)
-                            node->tableColumnWidth = QTextLength(QTextLength::PercentageLength, intVal);
-                    }
-                }
+                setWidthAttribute(&node->width, value);
             } else if (key == QLatin1String("bgcolor")) {
                 node->bgColor.setNamedColor(value);
             } else if (key == QLatin1String("rowspan")) {
@@ -1098,6 +1103,8 @@ void QTextHtmlParser::parseAttributes()
                 setIntAttribute(&node->tableCellSpacing, value);
             } else if (key == QLatin1String("cellpadding")) {
                 setIntAttribute(&node->tableCellPadding, value);
+            } else if (key == QLatin1String("width")) {
+                setWidthAttribute(&node->width, value);
             }
         }
 

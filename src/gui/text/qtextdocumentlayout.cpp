@@ -774,7 +774,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     td->cellPadding = fmt.cellPadding();
     const int margin = td->margin + td->border + td->padding;
 
-    int totalWidth = td->contentsWidth;
+    int totalWidth = fmt.width().value(td->contentsWidth);
     // two (vertical) borders per cell per column
     totalWidth -= columns * 2 * td->border;
     // inter-cell spacing

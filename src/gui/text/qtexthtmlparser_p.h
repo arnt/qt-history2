@@ -147,7 +147,7 @@ struct QTextHtmlParserNode {
     QString imageName;
     int imageWidth;
     int imageHeight;
-    QTextLength tableColumnWidth;
+    QTextLength width;
     int tableBorder;
     int tableCellRowSpan;
     int tableCellColSpan;

@@ -661,7 +661,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
                         Q_ASSERT(colsInRow == columnWidths.count() + c.tableCellColSpan);
 
                         for (int i = 0; i < c.tableCellColSpan; ++i)
-                            columnWidths << c.tableColumnWidth;
+                            columnWidths << c.width;
                     }
                 }
 
@@ -677,6 +677,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 
     QTextTableFormat fmt;
     fmt.setBorder(at(tableNodeIdx).tableBorder);
+    fmt.setWidth(at(tableNodeIdx).width);
     fmt.setCellSpacing(at(tableNodeIdx).tableCellSpacing);
     fmt.setCellPadding(at(tableNodeIdx).tableCellPadding);
     fmt.setAlignment(at(tableNodeIdx).alignment);
