@@ -15761,9 +15761,6 @@ int QString::compare( const QString& s ) const
   platform-dependent manner. Use this function to present sorted
   lists of strings to the user.
 
-  \bug This function is only implemented on Windows. Elsewhere,
-  it is a synonym for QString::compare().
-
   \sa QString::compare() QTextCodec::locale()
 */
 

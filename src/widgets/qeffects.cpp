@@ -185,6 +185,8 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	if ( o != widget )
 	    break;
     case QEvent::MouseButtonPress:
+	if ( o->inherits( "QScrollView" ) )
+	    break;
     case QEvent::MouseButtonDblClick:
 	showWidget = FALSE;
 	render();
@@ -246,6 +248,8 @@ void QAlphaWidget::render()
 	    widget->removeEventFilter( this );
 	    if ( !showWidget ) {
 		widget->hide();
+		widget->setWState( WState_ForceHide );
+		widget->clearWState( WState_Visible );
 	    } else {
 		BackgroundMode bgm = widget->backgroundMode();
 		QColor erc = widget->eraseColor();
@@ -427,6 +431,8 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	scroll();
 	break;
     case QEvent::MouseButtonPress:
+	if ( o->inherits( "QScrollView" ) )
+	    break;
     case QEvent::MouseButtonDblClick:
 	if ( done )
 	    break;
@@ -556,9 +562,10 @@ void QRollEffect::scroll()
 	qApp->removeEventFilter( this );
 	if ( widget ) {
 	    widget->removeEventFilter( this );
-	    widget->removeEventFilter( this );
 	    if ( !showWidget ) {
 		widget->hide();
+		widget->setWState( WState_ForceHide );
+		widget->clearWState( WState_Visible );
 	    } else {
 		BackgroundMode bgm = widget->backgroundMode();
 		QColor erc = widget->eraseColor();

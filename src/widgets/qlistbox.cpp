@@ -336,7 +336,8 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
 
 /*!
   Constructs an empty list box item in the list box \a listbox and
-  inserts it after the item \a after.
+  inserts it after the item \a after. If \a after is 0, the item
+  is inserted at the beginning.
 */
 
 QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
@@ -1424,7 +1425,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
   Inserts the item \a lbi into the list after the item \a after.
 
-  If \a after is NULL, \a lbi is inserted at the beginning.
+  If \a after is 0, \a lbi is inserted at the beginning.
 
   \sa insertStrList()
 */
