@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#85 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#86 $
 **
 ** Implementation of QTabDialog class
 **
@@ -536,7 +536,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 }
 
 
-/*!
+/* ### SHOULD THIS BE HERE?
   Adds an Apply button to the dialog.  The button's text is set to \e
   text (and defaults to "Apply").
 
