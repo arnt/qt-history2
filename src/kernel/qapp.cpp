@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#38 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#38 $";
 #endif
 
 
@@ -453,15 +453,8 @@ void QApplication::syncX()	{}		// do nothing
 
 <h1>Qt documentation home page</h1>
 
-<strong>
-
-This documentation is far from complete.  We're working on it, but Qt
-is still not at version 1.0.  There are known bugs, there is missing
-functionality, and there is missing documentation.  We chose to
-release this beta version mainly to get input so we can finish Qt
-faster and make it better for the application programmer.
-
-</strong>
+<strong> This documentation is far from complete.  It, like the code,
+is still in beta.  </strong>
 
 <p>
 
@@ -469,8 +462,9 @@ The Qt toolkit documentation is organized as one HTML page per class,
 header file, example program, or topical documentation files.
 <p>
 There are several different index pages: <ul>
-<li><a href=classes.html>Alphabetical class list</a>
 <li><a href=hierarchy.html>The classes according to inheritance</a>
+<li><a href=tools.html>General utility classes</a>
+<li><a href=classes.html>Alphabetical class list</a>
 <li><a href=headers.html>All the header files</a>
 <li><a href=enums.html>All the enum types</a>
 <li><a href=examples.html>All the example programs</a>
@@ -745,6 +739,15 @@ Here are the main features of Qt:
 </ul>
 </ul>
 */
+
+/*! \defgroup tools.html
+
+  <h1>The Tool Classes</h1>
+
+  The tool classes are general-purpose classes that may be used
+  independently of the GUI classes.
+
+  */
 
 /*! \example wheel.cpp
 
