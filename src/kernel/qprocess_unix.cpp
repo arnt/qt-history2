@@ -673,7 +673,7 @@ bool QProcess::start( QStringList *env )
 #ifndef Q_OS_QNX6
     if ( (comms & Stderr) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
 #else
-    if ( (comms & Stdout) && qnx6SocketPairReplacement(sStderr) == -1 ) {
+    if ( (comms & Stderr) && qnx6SocketPairReplacement(sStderr) == -1 ) {
 #endif
 	return FALSE;
     }
@@ -799,7 +799,7 @@ bool QProcess::start( QStringList *env )
 		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
 			QString dir = *it;
 #if defined(Q_OS_MACX) //look in a bundle
-			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app")) 
+			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))
 			    dir += "/" + command + ".app/Contents/MacOS";
 #endif
 #ifndef QT_NO_DIR
