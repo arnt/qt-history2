@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#142 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#141 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#142 $");
 
 
 /*!
@@ -270,6 +270,29 @@ void QWidget::destroyMapper()
     delete mapper;
     mapper = 0;
 }
+
+/*!
+  \internal
+  Returns a list of top level widget.
+  \sa QApplication::topLevelWidgets()
+*/
+
+QWidgetList *QWidget::tlwList()
+{
+    QWidgetList *list = new QWidgetList;
+    CHECK_PTR( list );
+    if ( mapper ) {
+	register QWidget *w;
+	QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
+	while ( (w=it.current()) ) {
+	    ++it;
+	    if ( w->isTopLevel() )
+		list->append( w );
+	}
+    }
+    return list;
+}
+
 
 void QWidget::setWinId( WId id )		// set widget identifier
 {

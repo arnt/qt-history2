@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#181 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#180 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#181 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -2260,6 +2260,21 @@ bool QETWidget::translateCloseEvent( const XEvent * )
     }
     if ( accept ) {
 	hide();
+	    // This class is a friend of QApplication because it needs
+	    // to emit the lastWindowClosed() signal when the last top
+	    // level widget is closed.
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) ) {
+	    QWidgetList *list   = qApp->topLevelWidgets();
+	    QWidget     *widget = list->first();
+	    while ( widget ) {
+		if ( widget->isVisible() )
+		    break;
+		widget = list->next();
+	    }
+	    delete list;
+	    if ( widget == 0 )
+		emit qApp->lastWindowClosed();
+	}
 	if ( isMain )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#53 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#54 $
 **
 ** Definition of QApplication class
 **
@@ -49,6 +49,8 @@ public:
     QWidget	    *mainWidget()  const;
     void	     setMainWidget( QWidget * );
 
+    static QWidgetList *topLevelWidgets();
+
     static QWidget  *desktop();
     static QClipboard *clipboard();
     QWidget	    *focusWidget() const;
@@ -89,6 +91,9 @@ public:
     void	     winFocus( QWidget *, bool );
 #endif
 
+signals:
+    void	     lastWindowClosed();
+
 public slots:
     void	     quit();
 
@@ -109,6 +114,7 @@ private:
     static QWidget  *focus_widget;
 
     friend class QWidget;
+    friend class QETWidget;
 
 private:	// Disabled copy constructor and operator=
     QApplication( const QApplication & ) {}

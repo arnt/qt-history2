@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#87 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#87 $");
 
 
 /*!
@@ -403,6 +403,45 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 
 
 /*!
+  Returns a list of the top level widgets in the application.
+
+  The list is \link empty QList::empty()\endlink if there are
+  no top level widgets.
+
+  Note that some of the top level widgets may be hidden.
+
+  Example:
+  \code
+    //
+    // Shows all hidden top level widgets.
+    //
+    QWidgetList	 *list = QApplication::topLevelWidgets();
+    QWidgetListIt it( *list );		// iterate over the widgets
+    while ( it.current() ) {		// for each top level widget...
+	if ( !it.current()->isVisible() )
+	    it.current()->show();
+	++it;
+    }
+    delete list;			// delete the list, not the widgets
+  \endcode
+
+  The QWidgetList class is defined in the qwidcoll.h header file.
+
+  \warning
+  Delete the list away as soon you have finished using it.
+  You can get in serious trouble if you for instance try to access
+  a widget that has been deleted.
+
+  \sa QWidget::isTopLevel(), QWidget::isVisible(), QList::isEmpty()
+*/
+
+QWidgetList *QApplication::topLevelWidgets()
+{
+    return QWidget::tlwList();
+}
+
+
+/*!
   \fn QWidget *QApplication::focusWidget() const
   Returns the application widget that has the keyboard input focus, or null
   if no application widget has the focus.
@@ -465,6 +504,19 @@ void QApplication::quit()
 {
     QApplication::exit( 0 );
 }
+
+
+/*!
+  \fn void QApplication::lastWindowClosed()
+  
+  This signal is emitted when the user has closed a top level widget
+  and there are no more visible top level widgets left.
+
+  The signal is very useful when your application has many top level
+  widgets but no main widget. You can then connect it to the quit() slot.
+
+  \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel()
+*/
 
 
 /*!

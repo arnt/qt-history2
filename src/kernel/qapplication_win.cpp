@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#65 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#65 $");
 
 
 /*****************************************************************************
@@ -1663,6 +1663,21 @@ bool QETWidget::translateCloseEvent( const MSG & )
     }
     if ( accept ) {
 	hide();
+	    // This class is a friend of QApplication because it needs
+	    // to emit the lastWindowClosed() signal when the last top
+	    // level widget is closed.
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) ) {
+	    QWidgetList *list   = qApp->topLevelWidgets();
+	    QWidget     *widget = list->first();
+	    while ( widget ) {
+		if ( widget->isVisible() )
+		    break;
+		widget = list->next();
+	    }
+	    delete list;
+	    if ( widget == 0 )
+		emit qApp->lastWindowClosed();
+	}
 	if ( isMain )
 	    qApp->quit();
 	else if ( testWFlags(WDestructiveClose) )
