@@ -244,13 +244,63 @@ QImage QPixmap::convertToImage() const
 
     //how do I handle a mask?
     const QBitmap* msk = mask();
-    QImage alpha;
+
     if (msk) {
-	qDebug("I had a mask...How will you handle me?");
+	QImage alpha = msk->convertToImage();
+//	bool ale = alpha.bitOrder() == QImage::LittleEndian;
+
 	image->setAlphaBuffer( TRUE );
-	alpha = msk->convertToImage();
+	switch ( d ) {
+	case 8: {
+	    int used[256];
+	    memset( used, 0, sizeof(int)*256 );
+	    uchar* p = image->bits();
+	    int l = image->numBytes();
+	    while (l--) {
+		used[*p++]++;
+	    }
+	    int trans=0;
+	    int bestn=INT_MAX;
+	    for ( int i=0; i<256; i++ ) {
+		if ( used[i] < bestn ) {
+		    bestn = used[i];
+		    trans = i;
+		    if ( !bestn )
+			break;
+		}
+	    }
+	    image->setColor( trans, image->color(trans)&0x00ffffff );
+	    for ( int y=0; y<image->height(); y++ ) {
+		uchar* mb = alpha.scanLine(y);
+		uchar* ib = image->scanLine(y);
+		uchar bit = 0x80;
+		int i=image->width();
+		while (i--) {
+		    if ( !(*mb & bit) )
+			*ib = trans;
+		    bit /= 2; if ( !bit ) mb++,bit = 0x80; // ROL
+		    ib++;
+		}
+	    }
+	} break;
+	case 32: {
+	    for ( int y=0; y<image->height(); y++ ) {
+		uchar* mb = alpha.scanLine(y);
+		QRgb* ib = (QRgb*)image->scanLine(y);
+		uchar bit = 0x80;
+		int i=image->width();
+		while (i--) {
+		    if ( *mb & bit )
+			*ib |= 0xff000000;
+		    else
+			*ib &= 0x00ffffff;
+		    bit /= 2; if ( !bit ) mb++,bit = 0x80; // ROL
+		    ib++;
+		}
+	    }
+	} break;
+	}
     }
-    bool ale = alpha.bitOrder() == QImage::LittleEndian;
 
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
     return *image;
