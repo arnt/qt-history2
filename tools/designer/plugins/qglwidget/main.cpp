@@ -39,12 +39,12 @@ OpenGLWidgetInterface::~OpenGLWidgetInterface()
 {
 }
 
-bool OpenGLWidgetInterface::connectNotify( QApplication* theApp )
+bool OpenGLWidgetInterface::connectNotify( QApplication* )
 {
     return TRUE;
 }
 
-bool OpenGLWidgetInterface::disconnectNotify( QApplication* theApp )
+bool OpenGLWidgetInterface::disconnectNotify( QApplication* )
 {
     if ( !objects.isClean() )
 	return FALSE;
@@ -73,30 +73,40 @@ QWidget* OpenGLWidgetInterface::create( const QString &description, QWidget* par
 
 QString OpenGLWidgetInterface::group( const QString& description )
 {
+    if ( description == "QGLWidget" )
+	return "Rendering";
     return QString::null;
 }
 
-QString OpenGLWidgetInterface::iconSet( const QString& )
+QString OpenGLWidgetInterface::iconSet( const QString& description )
 {
+    if ( description == "QGLWidget" )
+	return "pixmap.xpm";
     return QString::null;
 }
 
 QString OpenGLWidgetInterface::includeFile( const QString& description )
 {
-    return "qgl.h";
+    if ( description == "QGLWidget" )
+        return "qgl.h";
+    return QString::null;
 }
 
 QString OpenGLWidgetInterface::toolTip( const QString& description )
 {
-    return QT_TR_NOOP("A widget for OpenGL rendering");
-}
-
-QString OpenGLWidgetInterface::whatsThis( const QString& )
-{
+    if ( description == "QGLWidget" )
+	return QT_TR_NOOP("OpenGL Widget");
     return QString::null;
 }
 
-bool OpenGLWidgetInterface::isContainer( const QString& description)
+QString OpenGLWidgetInterface::whatsThis( const QString& description )
+{
+    if ( description == "QGLWidget" )
+	return "A widget for OpenGL rendering";
+    return QString::null;
+}
+
+bool OpenGLWidgetInterface::isContainer( const QString& )
 {
     return FALSE;
 }
