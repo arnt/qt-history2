@@ -711,6 +711,8 @@ class Q_EXPORT QTextDocument : public QObject
 public:
     enum SelectionIds {
 	Standard = 0,
+	IMSelectionText		= 31998,
+	IMCompositionText	= 31999, // this must be higher!
 	Temp = 32000 // This selection must not be drawn, it's used e.g. by undo/redo to
 	// remove multiple lines with removeSelectedText()
     };
