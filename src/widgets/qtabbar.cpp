@@ -1193,8 +1193,7 @@ QString QTabBar::toolTip( int index ) const
 }
 
 /*!
-  void QTab::setText( const QString &text )
-  Set the text of the Tab to \a text.
+  Sets the text of the tab to \a text.
  */
 void QTab::setText( const QString& text )
 {
@@ -1210,10 +1209,8 @@ void QTab::setText( const QString& text )
 }
 
 /*!
-  void QTab::setIconSet( const QIconSet &icon )
-  Set the QTab iconset to \a icon
+  Sets the tab iconset to \a icon
 */
-
 void QTab::setIconSet( const QIconSet &icon )
 {
     iconset = new QIconSet( icon );
@@ -1224,7 +1221,5 @@ void QTab::setTabBar( QTabBar *newTb )
 {
     tb = newTb;
 }
-
-
 
 #endif
