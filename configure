@@ -775,7 +775,7 @@ then
 fi
 
 # Auto-detect opengl support
-if echo $MODULES | grep opengl >/dev/null 
+if echo $MODULES | grep opengl >/dev/null && ! basename $XQMAKEPATH | grep '^mac' >/dev/null
 then
     LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XQMAKEPATH/qmake.conf`
     for L in $LIBS
