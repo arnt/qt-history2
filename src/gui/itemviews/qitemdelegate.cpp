@@ -373,23 +373,23 @@ void QItemDelegate::drawCheck(QPainter *painter,
     if (!rect.isValid())
         return;
 
+    QStyleOptionButton opt;
+    opt.QStyleOption::operator=(option);
+    opt.rect = rect;
+    opt.state = opt.state & ~QStyle::State_HasFocus;
+
     switch (state) {
-    case Qt::Unchecked: {
-        static QPixmap checked(QApplication::style()->standardPixmap(
-                                   QStyle::SP_ItemUnchecked, &option));
-        painter->drawPixmap(rect, checked);
-        return; }
-    case Qt::PartiallyChecked: {
-        static QPixmap partially(QApplication::style()->standardPixmap(
-                                     QStyle::SP_ItemPartiallyChecked, &option));
-        painter->drawPixmap(rect, partially);
-        return; }
-    case Qt::Checked: {
-        static QPixmap unchecked(QApplication::style()->standardPixmap(
-                                     QStyle::SP_ItemChecked, &option));
-        painter->drawPixmap(rect, unchecked);
-        return; }
+    case Qt::Unchecked:
+        opt.state |= QStyle::State_Off;
+        break;
+    case Qt::PartiallyChecked:
+        opt.state |= QStyle::State_NoChange;
+        break;
+    case Qt::Checked:
+        opt.state |= QStyle::State_On;
+        break;
     }
+    QApplication::style()->drawPrimitive(QStyle::PE_IndicatorCheckBox, &opt, painter);
 }
 
 /*!
@@ -507,12 +507,6 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
                                        ? QIcon::Normal : QIcon::Disabled,
                                        option.state & QStyle::State_Open
                                        ? QIcon::On : QIcon::Off);
-    case QVariant::Bool: {
-        static QPixmap checked(QApplication::style()->standardPixmap(
-                                   QStyle::SP_ItemChecked, &option));
-        static QPixmap unchecked(QApplication::style()->standardPixmap(
-                                     QStyle::SP_ItemUnchecked, &option));
-        return variant.toBool() ? checked : unchecked; }
     case QVariant::Color: {
         static QPixmap pixmap(20, 20);
         pixmap.fill(qvariant_cast<QColor>(variant));
@@ -567,12 +561,15 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
                            const QVariant &value) const
 {
     if (value.isValid()) {
-        QPixmap pixmap = QApplication::style()->standardPixmap(QStyle::SP_ItemChecked, &option);
-        QSize size = pixmap.size();
+        QStyleOptionButton opt;
+        opt.QStyleOption::operator=(option);
+        QRect rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator, &opt);
         if (option.direction == Qt::RightToLeft)
-            return QRect(option.rect.right() - size.width(), option.rect.top(),
-                         size.width(), size.height());
-        return QRect(option.rect.topLeft(), size);
+            rect.moveTopLeft(QPoint(option.rect.right() - rect.width(), option.rect.top()));
+        else {
+            rect.moveTopLeft(option.rect.topLeft());
+        }
+        return rect;
     }
     return QRect();
 }
