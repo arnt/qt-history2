@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#16 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#17 $
 **
 ** Definition of QLCDNumber class
 **
@@ -40,6 +40,9 @@ public:
 
     double  value() const;
     int     intValue() const;
+#if defined(OBSOLETE)
+    long    longValue() const;
+#endif
 
 public slots:
     void    display( int num );
@@ -74,6 +77,14 @@ private:
     QBitArray points;
 };
 
+
+#if defined(OBSOLETE)
+inline long QLCDNumber::longValue() const
+{
+    qObsolete( "QLCDNumber", "longValue", "intValue" );
+    return intValue();
+}
+#endif
 
 inline bool QLCDNumber::smallDecimalPoint() const
 { return (bool)smallPoint; }
