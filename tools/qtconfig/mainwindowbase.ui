@@ -1287,6 +1287,9 @@
     </hbox>
 </widget>
 <menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>	
     <item text="&amp;File" name="PopupMenu">
         <action name="fileSaveAction"/>
         <separator/>
