@@ -14,75 +14,56 @@ void QResolverAgent::run()
     qDebug("QResolverAgent::run(%p): start DNS lookup", this);
 #endif
 
-    QResolverHostInfo results;
-
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
     // back to gethostbyname(), which has no IPv6 support.
     typedef int (*getaddrinfoProto)(const char *, const char *, const addrinfo *, addrinfo **);
     getaddrinfoProto local_getaddrinfo;
     local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
 
+    QResolverHostInfo results;
+
     if (local_getaddrinfo) {
+        // Call getaddrinfo, and place all IPv4 addresses at the start
+        // and the IPv6 addresses at the end of the address list in
+        // results.
         addrinfo *res;
         int err = local_getaddrinfo(hostName.latin1(), 0, 0, &res);
-
-        if (err) {
-            switch ( err ) {
-            case EAI_NONAME:
-                results.error = QResolver::HostNotFound;
-                break;
-            default:
-                results.error = QResolver::UnknownError;
-                break;
-            }
-#if defined(Q_OS_WIN32)
-            QT_WA( {
-                results.errorString = QString::fromUtf16((ushort *) gai_strerrorW(err));
-            } , {
-                results.errorString = QString::fromLocal8Bit(gai_strerrorA(err));
-            } );
-#else
-            results.errorString = QString::fromLocal8Bit(gai_strerror(err));
-#endif
-#if defined(QRESOLVER_DEBUG)
-            qDebug("QResolverAgent::run(%p): error %d: %s",
-                   this, err, results.errorString.latin1());
-#endif
-        } else {
-            QHostAddress *newAddress = 0;
+        if (err == 0) {
             for (addrinfo *p = res; p != 0; p = p->ai_next) {
                 switch (p->ai_family) {
-                case AF_INET:
-                    newAddress = new QHostAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
-#if defined(QRESOLVER_DEBUG)
-                    qDebug("QResolverAgent::run(%p): found IP4 address %s",
-                           this, newAddress->toString().latin1());
-#endif
+                case AF_INET: {
+                    QHostAddress addr(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
+                    if (!results.addresses.contains(addr))
+                        results.addresses.prepend(addr);
+                }
                     break;
-                case AF_INET6:
-                    newAddress = new QHostAddress(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
-#if defined(QRESOLVER_DEBUG)
-                    qDebug("QResolverAgent::run( %p ): found IP6 address %s",
-                           this, newAddress->toString().latin1());
-#endif
+                case AF_INET6: {
+                    QHostAddress addr(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
+                    if (!results.addresses.contains(addr))
+                        results.addresses.append(addr);
+                }
                     break;
                 default:
                     results.error = QResolver::UnknownError;
                     results.errorString = "Unknown address type";
                     break;
                 }
-
-                if (newAddress) {
-                    if (!results.addresses.contains(*newAddress))
-                        results.addresses << *newAddress;
-                    delete newAddress;
-                    newAddress = 0;
-                }
             }
             freeaddrinfo(res);
+        } else if (err == EAI_NONAME) {
+            results.error = QResolver::HostNotFound;
+            results.errorString = tr("Host not found");
+        } else {
+            results.error = QResolver::UnknownError;
+            // Get the error messages returned by getaddrinfo's gai_strerror
+            QT_WA( {
+                results.errorString = QString::fromUtf16((ushort *) gai_strerrorW(err));
+            } , {
+                results.errorString = QString::fromLocal8Bit(gai_strerrorA(err));
+            } );            
         }
     } else {
-        // fall back to gethostbyname
+        // Fall back to gethostbyname, which only supports IPv4.
         hostent *ent = gethostbyname(hostName.latin1());
         if (ent) {
             char **p;
@@ -92,10 +73,6 @@ void QResolverAgent::run()
 		    long *ip4Addr = (long *) *p;
 		    results.addresses << QHostAddress(ntohl(*ip4Addr));
 		}
-		break;
-	    case AF_INET6:
-		for (p = ent->h_addr_list; *p != 0; p++)
-		    results.addresses << QHostAddress((Q_UINT8 *) *p);
 		break;
 	    default:
 		results.error = QResolver::UnknownError;
