@@ -658,7 +658,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
 
     // sort edge table by min y value
 //     qHeapSort(edges);
-    qHeapSort(et.begin(), et.end(), compareEdges);
+    qSort(et.begin(), et.end(), compareEdges);
 
     // eliminate shared edges
     for (int i = 0; i < et.size(); ++i) {
