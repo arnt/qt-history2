@@ -4098,9 +4098,8 @@ bool QTextEdit::hasSelectedText() const
    \brief The selected text (from selection 0) or an empty string if
    there is no currently selected text (in selection 0).
 
-   The text is always returned as \c PlainText regardless of the text
-   format. In a future version of Qt an HTML subset \e may be returned
-   depending on the text format.
+   The text is always returned as \c PlainText if the textFormat() is
+   PlainText or AutoText, otherwise it is returned as HTML.
 
    \sa hasSelectedText
  */
@@ -4112,7 +4111,7 @@ QString QTextEdit::selectedText() const
 	return optimSelectedText();
     else
 #endif
-	return doc->selectedText( QTextDocument::Standard );
+	return doc->selectedText( QTextDocument::Standard, TRUE );
 }
 
 bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
