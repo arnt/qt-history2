@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#88 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#89 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -304,7 +304,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->corner = 0;
     d->xoffset = d->yoffset = 0;
 
-    updateScrollbars();
+    updateWorkspace();
 
     topLevelWidget()->installEventFilter( this );
 }
@@ -364,12 +364,12 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    child->move( wrect.x(), wrect.y() );
 
 	activateWindow( w );
-	updateScrollbars();
+	updateWorkspace();
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
 	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
-	    updateScrollbars();
+	    updateWorkspace();
 	}
     }
 }
@@ -391,7 +391,10 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     if ( d->active && d->active->windowWidget() == w && w->hasFocus() )
 	return;
 
-    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+     	QWorkspaceChild* c = it.current();
+	++it;
 	c->setActive( c->windowWidget() == w );
 	if (c->windowWidget() == w)
 	    d->active = c;
@@ -467,7 +470,10 @@ void QWorkspace::place( QWidget* w)
 	    r1.setRect(x, y, w->width(), w->height());
 
 	    QWidget *l;
-	    for (l = d->windows.first(); l ; l = d->windows.next()) {
+	    QPtrListIterator<QWorkspaceChild> it( d->windows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
 		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
@@ -503,7 +509,10 @@ void QWorkspace::place( QWidget* w)
 	    if ( possible - w->width() > x) possible -= w->width();
 
 	    QWidget *l;
-	    for(l = d->windows.first(); l; l = d->windows.next()) {
+	    QPtrListIterator<QWorkspaceChild> it( d->windows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
 		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
@@ -527,7 +536,10 @@ void QWorkspace::place( QWidget* w)
 	    if ( possible - w->height() > y ) possible -= w->height();
 
 	    QWidget *l;
-	    for (l = d->windows.first(); l; l = d->windows.next()) {
+	    QPtrListIterator<QWorkspaceChild> it( d->windows );
+	    while ( it.current () ) {
+		l = it.current();
+		++it;
 		if (l != w && ! d->icons.contains(w)) {
 		    r2.setRect(l->x(), l->y(), l->width(), l->height());
 
@@ -547,7 +559,7 @@ void QWorkspace::place( QWidget* w)
     while( overlap != 0 && overlap != -1 );
 
     w->move(wpos);
-    updateScrollbars();
+    updateWorkspace();
 }
 
 
@@ -559,11 +571,16 @@ void QWorkspace::insertIcon( QWidget* w )
     if (w->parentWidget() != this )
 	w->reparent( this, 0, QPoint(0,0), FALSE);
 
-    int x = 0;
-    int y = height() - w->height();
-    for (QWidget* i = d->icons.first(); i ; i = d->icons.next() ) {
 
-	if ( x > 0 && x + i->width() > width() ){
+    QRect cr = updateWorkspace();
+    int x = 0;
+    int y = cr.height() - w->height();
+    
+    QPtrListIterator<QWidget> it( d->icons );
+    while ( it.current () ) {
+	QWidget* i = it.current();
+	++it;
+	if ( x > 0 && x + i->width() > cr.width() ){
 	    x = 0;
 	    y -= i->height();
 	}
@@ -578,7 +595,7 @@ void QWorkspace::insertIcon( QWidget* w )
 	w->show();
 	w->lower();
     }
-    updateScrollbars();
+    updateWorkspace();
 }
 
 
@@ -595,31 +612,15 @@ void QWorkspace::removeIcon( QWidget* w)
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
 
-    QRect cr = updateScrollbars();
-    
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
 
-    QPtrListIterator<QWidget> it( d->icons );
-    while ( it.current() ) {
-	QWorkspaceChild* w = (QWorkspaceChild*)it.current();
-	++it;
-	int x = w->x();
-	int y = w->y();
-	bool m = FALSE;
-	if ( x+w->width() > cr.width() ) {
-	    m = TRUE;
-	    x =  cr.width() - w->width();
-	}
-	if ( y+w->height() >  cr.height() ) {
-	    y =  cr.height() - w->height();
-	    m = TRUE;
-	}
-	if ( m )
-	    w->move( x, y );
-    }
+    QRect cr = updateWorkspace();
 
-    for ( QWorkspaceChild *c = d->windows.first(); c; c = d->windows.next() ) {
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild* c = it.current();
+	++it;
 	if ( c->windowWidget() && !c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
 
@@ -647,7 +648,7 @@ void QWorkspace::showEvent( QShowEvent *e )
     else if ( d->windows.count() > 0 && !d->active )
 	activateWindow( d->windows.first()->windowWidget() );
 
-    updateScrollbars();
+    updateWorkspace();
 }
 
 void QWorkspace::minimizeWindow( QWidget* w)
@@ -676,7 +677,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	fake->clearWState( WState_Maximized );
 	fake->setWState( WState_Minimized );
 	
-	updateScrollbars();
+	updateWorkspace();
     }
 }
 
@@ -702,7 +703,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	hideMaximizeControls();
 	activateWindow( w, TRUE );
 
-	updateScrollbars();
+	updateWorkspace();
     }
 }
 
@@ -742,7 +743,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	fake->clearWState( WState_Minimized );
 	fake->setWState( WState_Maximized );
 
-	updateScrollbars();
+	updateWorkspace();
     }
 }
 
@@ -754,13 +755,16 @@ void QWorkspace::showWindow( QWidget* w)
 	normalizeWindow( w );
     if ( d->maxWindow )
 	d->maxWindow->raise();
-    updateScrollbars();
+    updateWorkspace();
 }
 
 
 QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 {
-    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild* c = it.current();
+	++it;
 	if (c->windowWidget() == w)
 	    return c;
     }
@@ -773,9 +777,11 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 QWidgetList QWorkspace::windowList() const
 {
     QWidgetList windows;
-    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( c->windowWidget() && c->windowWidget()->isVisibleTo( c ) )
-	    windows.append( c->windowWidget() );
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild* c = it.current();
+	++it;
+	windows.append( c->windowWidget() );
     }
     return windows;
 }
@@ -844,7 +850,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::Show:
 	if ( o->isA("QWorkspaceChild") && !d->focus.containsRef( (QWorkspaceChild*)o ) )
 	    d->focus.append( (QWorkspaceChild*)o );
-	updateScrollbars();
+	updateWorkspace();
 	break;
     case QEvent::CaptionChange:
 	if ( inCaptionChange )
@@ -863,14 +869,17 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::Close:
 	if ( o == topLevelWidget() )
 	{
-	    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	    QPtrListIterator<QWorkspaceChild> it( d->windows );
+	    while ( it.current () ) {
+		QWorkspaceChild* c = it.current();
+		++it;
 		if ( c->shademode )
 		    c->showShaded();
 	    }
 	} else if ( o->inherits("QWorkspaceChild") ) {
 	    d->popup->hide();
 	}
-	updateScrollbars();
+	updateWorkspace();
 	break;
     default:
 	break;
@@ -1198,9 +1207,12 @@ void QWorkspace::activatePreviousWindow()
  */
 void QWorkspace::cascade()
 {
+    if  ( d->maxWindow )
+	d->maxWindow->showNormal();
+    
     const int xoffset = 13;
     const int yoffset = 20;
-
+    
     // make a list of all relevant mdi clients
     QPtrList<QWorkspaceChild> widgets;
     for ( QWorkspaceChild* wc = d->focus.first(); wc; wc = d->focus.next() ) {
@@ -1241,7 +1253,7 @@ void QWorkspace::cascade()
 	child->setUpdatesEnabled( TRUE );
     }
     setUpdatesEnabled( TRUE );
-    updateScrollbars();
+    updateWorkspace();
 }
 
 /*!
@@ -1251,11 +1263,18 @@ void QWorkspace::cascade()
  */
 void QWorkspace::tile()
 {
+    if  ( d->maxWindow )
+	d->maxWindow->showNormal();
+    
     int rows = 1;
     int cols = 1;
     int n = 0;
     QWorkspaceChild* c;
-    for ( c = d->windows.first(); c; c = d->windows.next() ) {
+    
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	c = it.current();
+	++it;
 	if ( !c->windowWidget()->isHidden() &&
 	     !c->windowWidget()->testWFlags( WStyle_StaysOnTop ) &&
 	     !c->windowWidget()->testWFlags( WStyle_Tool ) )
@@ -1277,7 +1296,11 @@ void QWorkspace::tile()
     int col = 0;
     int w = width() / cols;
     int h = height() / rows;
-    for ( c = d->windows.first(); c; c = d->windows.next() ) {
+    
+    it.toFirst();
+    while ( it.current () ) {
+	c = it.current();
+	++it;
 	if ( c->windowWidget()->isHidden() || c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
 	if ( c->windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
@@ -1315,7 +1338,7 @@ void QWorkspace::tile()
 	}
     }
     delete [] used;
-    updateScrollbars();
+    updateWorkspace();
 }
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
@@ -1427,7 +1450,7 @@ QWorkspaceChild::~QWorkspaceChild()
 
 void QWorkspaceChild::moveEvent( QMoveEvent * )
 {
-    ((QWorkspace*) parentWidget() )->updateScrollbars();
+    ((QWorkspace*) parentWidget() )->updateWorkspace();
 }
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
@@ -1449,7 +1472,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     windowSize = cr.size();
     childWidget->setGeometry( cr );
-    ((QWorkspace*) parentWidget() )->updateScrollbars();
+    ((QWorkspace*) parentWidget() )->updateWorkspace();
 
 }
 
@@ -1849,9 +1872,10 @@ void QWorkspaceChild::internalRaise()
 	return;
     }
 
-    QPtrList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
-
-    for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
+    QPtrListIterator<QWorkspaceChild> it( ((QWorkspace*)parent())->d->windows );
+    while ( it.current () ) {
+     	QWorkspaceChild* c = it.current();
+	++it;
 	if ( c->windowWidget() &&
 	    !c->windowWidget()->isHidden() &&
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
@@ -1924,7 +1948,7 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
 	d->hbar = new QScrollBar( Horizontal, this );
 	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
 	d->corner = new QWidget( this );
-	updateScrollbars();
+	updateWorkspace();
     } else {
 	delete d->vbar;
 	delete d->hbar;
@@ -1941,76 +1965,100 @@ void QWorkspace::setScrollBarsEnabled( bool enable )
     }
 }
 
-QRect QWorkspace::updateScrollbars()
+QRect QWorkspace::updateWorkspace()
 {
-    if ( !scrollBarsEnabled() )
-	return rect();
+    QRect cr( rect() );
+    
+    if ( scrollBarsEnabled() ) {
 
-    d->corner->raise();
-    d->vbar->raise();
-    d->hbar->raise();
-    if ( d->maxWindow )
-	d->maxWindow->raise();
+	d->corner->raise();
+	d->vbar->raise();
+	d->hbar->raise();
+	if ( d->maxWindow )
+	    d->maxWindow->raise();
 
-    QRect r( 0, 0, 0, 0 );
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild *child = it.current();
-	++it;
-	if ( !child->isHidden() )
-	    r = r.unite( child->geometry() );
-    }
-    d->vbar->blockSignals( TRUE );
-    d->hbar->blockSignals( TRUE );
-    
-    int hsbExt = d->hbar->sizeHint().height();
-    int vsbExt = d->vbar->sizeHint().width();
-    
-    
-    bool showv = d->yoffset || d->yoffset + r.bottom() - height() + 1 > 0;
-    bool showh = d->xoffset || d->xoffset + r.right() - width() + 1 > 0;
-    
-    if ( showh && !showv)
-	showv = d->yoffset + r.bottom() - height() + hsbExt + 1 > 0;
-    if ( showv && !showh )
-	showh = d->xoffset + r.right() - width() + vsbExt  + 1 > 0;
-    
-    if ( !showh )
-	hsbExt = 0;
-    if ( !showv )
-	vsbExt = 0;
+	QRect r( 0, 0, 0, 0 );
+	QPtrListIterator<QWorkspaceChild> it( d->windows );
+	while ( it.current () ) {
+	    QWorkspaceChild *child = it.current();
+	    ++it;
+	    if ( !child->isHidden() )
+		r = r.unite( child->geometry() );
+	}
+	d->vbar->blockSignals( TRUE );
+	d->hbar->blockSignals( TRUE );
 
-    if ( showv ) {
-	d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - hsbExt );
-	d->vbar->setRange( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) );
-	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
-	d->vbar->setValue( d->yoffset );
-	d->vbar->show();
-    } else {
-	d->vbar->hide();
+	int hsbExt = d->hbar->sizeHint().height();
+	int vsbExt = d->vbar->sizeHint().width();
+
+
+	bool showv = d->yoffset || d->yoffset + r.bottom() - height() + 1 > 0;
+	bool showh = d->xoffset || d->xoffset + r.right() - width() + 1 > 0;
+
+	if ( showh && !showv)
+	    showv = d->yoffset + r.bottom() - height() + hsbExt + 1 > 0;
+	if ( showv && !showh )
+	    showh = d->xoffset + r.right() - width() + vsbExt  + 1 > 0;
+
+	if ( !showh )
+	    hsbExt = 0;
+	if ( !showv )
+	    vsbExt = 0;
+
+	if ( showv ) {
+	    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - hsbExt );
+	    d->vbar->setRange( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) );
+	    d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
+	    d->vbar->setValue( d->yoffset );
+	    d->vbar->show();
+	} else {
+	    d->vbar->hide();
+	}
+
+	if ( showh ) {
+	    d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - vsbExt );
+	    d->hbar->setRange( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) );
+	    d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
+	    d->hbar->setValue( d->xoffset );
+	    d->hbar->show();
+	} else {
+	    d->hbar->hide();
+	}
+
+	if ( showh && showv ) {
+	    d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
+	    d->corner->show();
+	} else {
+	    d->corner->hide();
+	}
+
+	d->vbar->blockSignals( FALSE );
+	d->hbar->blockSignals( FALSE );
+
+	cr.setRect( 0, 0, width() - vsbExt, height() - hsbExt );
     }
     
-    if ( showh ) {
-	d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - vsbExt );
-	d->hbar->setRange( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) );
-	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
-	d->hbar->setValue( d->xoffset );
-	d->hbar->show();
-    } else {
-	d->hbar->hide();
+    QPtrListIterator<QWidget> ii( d->icons );
+    while ( ii.current() ) {
+	QWorkspaceChild* w = (QWorkspaceChild*)ii.current();
+	++ii;
+	int x = w->x();
+	int y = w->y();
+	bool m = FALSE;
+	if ( x+w->width() > cr.width() ) {
+	    m = TRUE;
+	    x =  cr.width() - w->width();
+	}
+	if ( y+w->height() >  cr.height() ) {
+	    y =  cr.height() - w->height();
+	    m = TRUE;
+	}
+	if ( m )
+	    w->move( x, y );
     }
     
-    if ( showh && showv ) {
-	d->corner->setGeometry( width() - vsbExt, height() - hsbExt, vsbExt, hsbExt );
-	d->corner->show();
-    } else {
-	d->corner->hide();
-    }
-    
-    d->vbar->blockSignals( FALSE );
-    d->hbar->blockSignals( FALSE );
-    
-    return QRect( 0, 0, width() - vsbExt, height() - hsbExt );
+    return cr;
+
 }
 
 void QWorkspace::scrollBarChanged()
@@ -2027,8 +2075,10 @@ void QWorkspace::scrollBarChanged()
 	// we do not use move() due to the reimplementation in QWorkspaceChild
 	child->setGeometry( child->x() + hor, child->y() + ver, child->width(), child->height() );
     }
-    updateScrollbars();
+    updateWorkspace();
 }
+
+
 
 #include "qworkspace.moc"
 #endif // QT_NO_WORKSPACE

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.h#10 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.h#11 $
 **
 ** Definition of the QWorkspace class
 **
@@ -106,7 +106,7 @@ private:
     void minimizeWindow( QWidget* w);
     void normalizeWindow( QWidget* w);
 
-    QRect updateScrollbars();
+    QRect updateWorkspace();
 
     QPopupMenu* popup;
     QWorkspacePrivate* d;

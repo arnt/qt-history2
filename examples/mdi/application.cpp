@@ -128,6 +128,7 @@ ApplicationWindow::ApplicationWindow()
     QVBox* vb = new QVBox( this );
     vb->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     ws = new QWorkspace( vb );
+    ws->setScrollBarsEnabled( TRUE );
     setCentralWidget( vb );
 
     statusBar()->message( "Ready", 2000 );
