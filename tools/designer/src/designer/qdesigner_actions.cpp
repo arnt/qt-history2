@@ -84,6 +84,10 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     connect(m_saveFormAsAction, SIGNAL(triggered()), this, SLOT(saveFormAs()));
     m_fileActions->addAction(m_saveFormAsAction);
 
+    m_saveFormAsTemplateAction = new QAction(tr("Save Form As &Template..."), this);
+    connect(m_saveFormAsTemplateAction, SIGNAL(triggered()), this, SLOT(saveFormAsTemplate()));
+    m_fileActions->addAction(m_saveFormAsTemplateAction);
+
     m_fileActions->addSeparator();
 
     m_closeFormAction = new QAction(tr("&Close Form"), this);
@@ -250,6 +254,9 @@ QAction *QDesignerActions::saveFormAction() const
 
 QAction *QDesignerActions::saveFormAsAction() const
 { return m_saveFormAsAction; }
+
+QAction *QDesignerActions::saveFormAsTemplateAction() const
+{ return m_saveFormAsTemplateAction; }
 
 QAction *QDesignerActions::closeFormAction() const
 { return m_closeFormAction; }
@@ -527,6 +534,11 @@ void QDesignerActions::saveFormAs()
 {
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
         saveFormAs(fw);
+}
+
+void QDesignerActions::saveFormAsTemplate()
+{
+    QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
 }
 
 void QDesignerActions::notImplementedYet()

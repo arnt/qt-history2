@@ -51,6 +51,7 @@ public:
     QAction *openFormAction() const;
     QAction *saveFormAction() const;
     QAction *saveFormAsAction() const;
+    QAction *saveFormAsTemplateAction() const;
     QAction *closeFormAction() const;
     QAction *quitAction() const;
 
@@ -102,6 +103,7 @@ private slots:
     void openForm();
     void saveForm();
     void saveFormAs();
+    void saveFormAsTemplate();
     void notImplementedYet();
     void editPreferences();
 
@@ -126,6 +128,7 @@ private:
     QAction *m_openFormAction;
     QAction *m_saveFormAction;
     QAction *m_saveFormAsAction;
+    QAction *m_saveFormAsTemplateAction;
     QAction *m_closeFormAction;
 
     QAction *m_quitAction;
