@@ -47,6 +47,7 @@ public:
 
     void init();
     void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
+    void toggleView(bool); // private slot
 
     QMainWindow *mainWindow;
     QWidget *widget;
@@ -59,6 +60,8 @@ public:
     QDockWindowTitle *title;
 
     QWidgetResizeHandler *resizer;
+
+    QAction *toggleViewAction;
 };
 
 #endif // QDOCKWINDOW_P_H

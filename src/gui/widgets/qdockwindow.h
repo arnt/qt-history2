@@ -73,10 +73,15 @@ public:
     void setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);
     void setArea(QDockWindow *after, Qt::Orientation direction); // always splits
 
+    QAction *toggleViewAction() const;
+
 protected:
     void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);
     bool event(QEvent *event);
+
+private:
+    Q_PRIVATE_SLOT(d, void toggleView(bool))
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDockWindow::DockWindowFeatures)

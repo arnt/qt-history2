@@ -24,6 +24,7 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
+#include <qaction.h>
 
 #include <private/qwidgetresizehandler_p.h>
 
@@ -467,6 +468,10 @@ void QDockWindowPrivate::init() {
     d->resizer = new QWidgetResizeHandler(q);
     d->resizer->setMovingEnabled(false);
     d->resizer->setActive(false);
+
+    d->toggleViewAction = new QAction(q);
+    d->toggleViewAction->setCheckable(true);
+    QObject::connect(d->toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
 void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
@@ -485,6 +490,15 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
         mwl->relayout();
 }
 
+void QDockWindowPrivate::toggleView(bool b)
+{
+    if (b != q->isShown()) {
+        if (b)
+            q->show();
+        else
+            q->close();
+    }
+}
 
 
 
@@ -635,8 +649,6 @@ void QDockWindow::setWidget(QWidget *widget)
 {
     Q_ASSERT_X(widget != 0, "QDockWindow::setWidget", "parameter cannot be zero");
     Q_ASSERT_X(d->widget == 0, "QDockWindow::setWidget", "widget already set");
-    Q_ASSERT_X(widget->parentWidget() == this, "QDockWindow::setWidget",
-               "widget parent must be the dock window");
     d->widget = widget;
     d->box->insertWidget(1, widget);
 }
@@ -831,6 +843,7 @@ void QDockWindow::changeEvent(QEvent *event)
     switch (event->type()) {
     case QEvent::WindowTitleChange:
         d->title->updateWindowTitle();
+        d->toggleViewAction->setText(windowTitle());
         break;
     default:
         break;
@@ -862,10 +875,29 @@ bool QDockWindow::event(QEvent *event)
 
             break;
         }
+    case QEvent::Show:
+    case QEvent::Hide:
+        if (!event->spontaneous())
+            d->toggleViewAction->setChecked(event->type() == QEvent::Show);
+        break;
     default:
         break;
     }
     return QFrame::event(event);
 }
 
+/*!
+  Returns a checkable action that can be used to show or close this
+  dock window.
+
+  The action's text is set to the dock window's window title.
+
+  \sa QAction::text QWidget::windowTitle
+ */
+QAction * QDockWindow::toggleViewAction() const
+{
+    return d->toggleViewAction;
+}
+
 #include "qdockwindow.moc"
+#include "moc_qdockwindow.cpp"
