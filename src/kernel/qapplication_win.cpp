@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#175 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1800,7 +1800,7 @@ static ushort mouseTbl[] = {
     0,			0,				0
 };
 
-static int translateButtonState( int s )
+static int translateButtonState( int s, int type, int button )
 {
     int bst = 0;
     if ( s & MK_LBUTTON )
@@ -1815,6 +1815,15 @@ static int translateButtonState( int s )
 	bst |= ControlButton;
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= AltButton;
+
+    // Translate from Windows-style "state after event" 
+    // to X-style "state before event"
+    if ( type == QEvent::MouseButtonPress || 
+	 type == QEvent::MouseButtonDblClick )
+	bst &= ~button;
+    else if ( type == QEvent::MouseButtonRelease )
+	bst |= button;
+
     return bst;
 }
 
@@ -1836,7 +1845,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	return FALSE;
     type   = mouseTbl[++i];			// event type
     button = mouseTbl[++i];			// which button
-    state  = translateButtonState( msg.wParam ); // button state
+    state  = translateButtonState( msg.wParam, type, button ); // button state
 
     if ( type == QEvent::MouseMove ) {
 	QCursor *c = qt_grab_cursor();
@@ -1914,10 +1923,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     } else {					// not popup mode
 	int bs = state & (LeftButton | RightButton | MidButton);
 	if ( (type == QEvent::MouseButtonPress ||
-	      type == QEvent::MouseButtonDblClick) && bs == button ) {
+	      type == QEvent::MouseButtonDblClick) && bs == 0 ) {
 	    if ( QWidget::mouseGrabber() == 0 )
 		setAutoCapture( winId() );
-	} else if ( type == QEvent::MouseButtonRelease && bs == 0 ) {
+	} else if ( type == QEvent::MouseButtonRelease && bs == button ) {
 	    if ( QWidget::mouseGrabber() == 0 )
 		releaseAutoCapture();
 	}
@@ -2073,37 +2082,40 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 
     if ( msg.message == WM_CHAR ) {
 	// a multi-character key
-	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab );
-	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab );
+	k0 = sendKeyEvent( Event_KeyPress, 0, msg.wParam, state, grab );
+	k1 = sendKeyEvent( Event_KeyRelease, 0, msg.wParam, state, grab );
     } else {
 	int code = translateKeyCode( msg.wParam );
         if ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN ) {
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
 	    MSG wm_char;
-	    if ( !PeekMessage(&wm_char, 0, WM_CHAR, WM_CHAR, PM_REMOVE) ) {
+	    UINT charType = msg.message == WM_KEYDOWN ? WM_CHAR : WM_SYSCHAR;
+	    if ( !PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
 		if ( msg.wParam == VK_DELETE )
 		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
-		else if ( isalpha(msg.wParam) && msg.message == WM_SYSKEYDOWN ) // Alt-letter
-    		    wm_char.wParam = tolower(msg.wParam);
 		else
     		    wm_char.wParam = 0;
 		if ( !code )
 		    code = asciiToKeycode(msg.wParam, state);
 	    } else {
+		if ( isalpha(msg.wParam) &&
+		     (msg.message == WM_SYSKEYDOWN) && 
+		     (msg.lParam & 0x20000000) ) //See doc of WM_SYSCHAR
+    		    wm_char.wParam = tolower(msg.wParam); //Alt-letter
 		if ( !code )
 		    code = asciiToKeycode(wm_char.wParam, state);
 	    }
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
-		    k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii,
+		    k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii,
 				       state, grab);
-		    k1 = sendKeyEvent( QEvent::KeyPress, code, rec->ascii,
+		    k1 = sendKeyEvent( Event_KeyPress, code, rec->ascii,
 				       state, grab );
 		}
 	    } else {
 		store_key_rec( msg.wParam, wm_char.wParam );
-		k0 = sendKeyEvent( QEvent::KeyPress, code, wm_char.wParam,
+		k0 = sendKeyEvent( Event_KeyPress, code, wm_char.wParam,
 				   state, grab );
 	    }
         } else {
@@ -2115,12 +2127,13 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
 				state);
-		k0 = sendKeyEvent( QEvent::KeyRelease, code, rec->ascii, state, grab);
+		k0 = sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
     }
     return k0 || k1;
 }
+
 
 bool QETWidget::translateWheelEvent( const MSG &msg )
 {

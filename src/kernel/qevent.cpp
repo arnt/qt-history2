@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#69 $
 **
 ** Implementation of event classes
 **
@@ -308,10 +308,13 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 /*!
   \fn int QMouseEvent::state() const
 
-  Returns the current button state (a combination of mouse buttons and
-  keyboard modifiers), i.e. what buttons were depressed when the event
-  was generated. This does not include the event-causing button
-  itself.
+  Returns the button state (a combination of mouse buttons and keyboard
+  modifiers), i.e. what buttons and keys were being held depressed
+  immediately before the event was generated.
+
+  Note that this means that for \c QEvent::MouseButtonPress and \c
+  QEvent::MouseButtonDblClick, the flag for the button() itself will not be
+  set in the state; while for \c QEvent::MouseButtonRelease, it will.
 
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
