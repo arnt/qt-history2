@@ -59,11 +59,11 @@ public:
     virtual QVariant   value() const { return val; }
     virtual void       setName( const QString& name ) { nm = name; }
     QString            name() const { return nm; }
-    virtual void       setNull( bool n ) { if ( !isReadOnly() ) nul = n; if ( n ) clear(); }
+    virtual void       setNull( bool n ) { if ( !ro ) { nul = n; if ( nul ) clear( FALSE ); } }
     bool               isNull() const { return nul; }
     virtual void       setReadOnly( bool readOnly ) { ro = readOnly; }
     bool               isReadOnly() const { return ro; }
-    void               clear();
+    void               clear( bool nullify = TRUE );
     QVariant::Type     type() const { return val.type(); }
 
 private:
