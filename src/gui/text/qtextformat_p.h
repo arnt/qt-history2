@@ -133,6 +133,8 @@ public:
     BlockList blocks;
 };
 
+class QTextFrameLayoutData;
+
 class QTextFramePrivate : public QTextFormatObjectPrivate
 {
     friend class QTextPieceTable;
@@ -148,7 +150,7 @@ public:
 
     QTextFrame *parentFrame;
     QList<QTextFrame *> childFrames;
-    QRect rect;
+    QTextFrameLayoutData *layoutData;
 };
 
 

@@ -138,6 +138,23 @@ QTextBlockIterator QAbstractTextDocumentLayout::end() const
     return QTextBlockIterator(pieceTable, 0);
 }
 
+QTextFrame *QAbstractTextDocumentLayout::frameAt(int pos) const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+        return 0;
+    return pieceTable->frameAt(pos);
+}
+
+QTextFrame *QAbstractTextDocumentLayout::rootFrame() const
+{
+    QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
+    if (!pieceTable)
+        return 0;
+    return pieceTable->rootFrame();
+}
+
+
 int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());

@@ -84,7 +84,7 @@ QTextPieceTable::QTextPieceTable(QAbstractTextDocumentLayout *layout)
     ++formats->ref;
     if (!layout)
         layout = new QTextDocumentLayout();
-    frame = new QTextFrame(this);
+    frame = qt_cast<QTextFrame *>(formats->createObject(QTextFrameFormat()));
     framesDirty = false;
 
     lout = layout;

@@ -84,9 +84,11 @@ public:
         ListStyle = 0x3000,
         ListIndent = 0x3001,
 
-        // table properties
+        // table and frame properties
         TableColumns = 0x4000,
-        TableBorder = 0x4080,
+        FrameBorder = 0x4080,
+        FrameMargin = 0x4081,
+        FramePadding = 0x4082,
         Width = 0x4100,
         Height = 0x4101,
 
@@ -114,7 +116,8 @@ public:
 
     enum ObjectTypes {
         NoObject,
-        ImageObject
+        ImageObject,
+        TableObject
     };
 
     QTextFormat();
@@ -152,12 +155,17 @@ public:
 
     QList<int> allPropertyIds() const;
 
+    inline void setObjectType(int type)
+    { setProperty(ObjectType, type); }
+    inline int objectType() const
+    { return intProperty(ObjectType, NoObject); }
+
     inline bool isCharFormat() const { return type() == CharFormat; }
     inline bool isBlockFormat() const { return type() == BlockFormat; }
     inline bool isListFormat() const { return type() == ListFormat; }
-    inline bool isTableFormat() const { return type() == TableFormat; }
     inline bool isFrameFormat() const { return type() == FrameFormat; }
-    inline bool isImageFormat() const { return type() == CharFormat && intProperty(ObjectType) == ImageObject; }
+    inline bool isImageFormat() const { return type() == CharFormat && objectType() == ImageObject; }
+    inline bool isTableFormat() const { return type() == CharFormat && objectType() == TableObject; }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
@@ -251,11 +259,6 @@ public:
     { setProperty(NonDeletable, d); }
     inline bool nonDeletable() const
     { return boolProperty(NonDeletable); }
-
-    inline void setObjectType(int type)
-    { setProperty(ObjectType, type); }
-    inline int objectType() const
-    { return intProperty(ObjectType, NoObject); }
 
     // ####### extra format?
     QTextTableFormat tableFormat() const;
@@ -363,24 +366,6 @@ public:
 
 };
 
-class Q_GUI_EXPORT QTextTableFormat : public QTextFormat
-{
-public:
-    inline QTextTableFormat() : QTextFormat(TableFormat) {}
-
-    bool isValid() const { return isTableFormat(); }
-
-    inline void setBorder(int border)
-    { setProperty(TableBorder, border); }
-    inline int border() const
-    { return intProperty(TableBorder, 1); }
-
-    int columns() const
-    { return intProperty(TableColumns, 1); }
-    void setColumns(int columns)
-    { setProperty(TableColumns, columns); }
-};
-
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
@@ -412,20 +397,32 @@ public:
     bool isValid() const { return isFrameFormat(); }
 
     enum Position {
-        None,
-        Left,
-        Right
+        InFlow,
+        FloatLeft,
+        FloatRight
+        // ######
+//        Absolute
     };
 
     inline void setPosition(Position f)
     { setProperty(CssFloat, (int)f); }
     inline Position position() const
-    { return (Position)intProperty(CssFloat, None); }
+    { return (Position)intProperty(CssFloat, InFlow); }
 
     inline void setBorder(int border)
-    { setProperty(TableBorder, border); }
+    { setProperty(FrameBorder, border); }
     inline int border() const
-    { return intProperty(TableBorder, 0); }
+    { return intProperty(FrameBorder, 0); }
+
+    inline void setMargin(int margin)
+    { setProperty(FrameMargin, margin); }
+    inline int margin() const
+    { return intProperty(FrameMargin, 0); }
+
+    inline void setPadding(int padding)
+    { setProperty(FramePadding, padding); }
+    inline int padding() const
+    { return intProperty(FramePadding, 0); }
 
     inline void setWidth(int border)
     { setProperty(Width, border); }
@@ -439,6 +436,20 @@ public:
 
 
 };
+
+class Q_GUI_EXPORT QTextTableFormat : public QTextFrameFormat
+{
+public:
+    inline QTextTableFormat() : QTextFrameFormat() { setObjectType(TableObject); }
+
+    bool isValid() const { return isTableFormat(); }
+
+    int columns() const
+    { return intProperty(TableColumns, 1); }
+    void setColumns(int columns)
+    { setProperty(TableColumns, columns); }
+};
+
 
 class QTextFormatObjectPrivate;
 
@@ -480,6 +491,11 @@ protected:
     QList<QTextBlockIterator> blockList() const;
 };
 
+class QTextFrameLayoutData {
+public:
+    virtual ~QTextFrameLayoutData();
+};
+
 class QTextFramePrivate;
 
 class QTextFrame : public QTextFormatObject
@@ -504,8 +520,8 @@ public:
     int startPosition();
     int endPosition();
 
-    QRect rect() const;
-    void setRect(const QRect &r);
+    QTextFrameLayoutData *layoutData() const;
+    void setLayoutData(QTextFrameLayoutData *data);
 
     QList<QTextFrame *> children();
     QTextFrame *parent();

@@ -754,7 +754,7 @@ void QTextHtmlParser::resolveNode()
     node->margin[2] = 0;
     node->margin[3] = 0;
     node->margin[4] = 0;
-    node->cssFloat = QTextFrameFormat::None;
+    node->cssFloat = QTextFrameFormat::InFlow;
 
     if (node->tag == QLatin1String("br")) {
         node->text = QChar::LineSeparator;
@@ -915,11 +915,11 @@ void QTextHtmlParser::parseAttributes()
                     node->color.setNamedColor(style.mid(6));
                 } else if (style.startsWith(QLatin1String("float:"))) {
                     QString s = style.mid(6).trimmed();
-                    node->cssFloat = QTextFrameFormat::None;
+                    node->cssFloat = QTextFrameFormat::InFlow;
                     if (s == QLatin1String("left"))
-                        node->cssFloat = QTextFrameFormat::Left;
+                        node->cssFloat = QTextFrameFormat::FloatLeft;
                     else if (s == QLatin1String("right"))
-                        node->cssFloat = QTextFrameFormat::Right;
+                        node->cssFloat = QTextFrameFormat::FloatRight;
                 }
             }
         } else if (key == QLatin1String("align")) {

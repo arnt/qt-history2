@@ -688,16 +688,24 @@ QList<QTextBlockIterator> QTextBlockGroup::blockList() const
 
 
 
+QTextFrameLayoutData::~QTextFrameLayoutData()
+{
+}
+
+
+
 QTextFrame::QTextFrame(QObject *parent)
     : QTextFormatObject(*new QTextFramePrivate, parent)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;
     d->parentFrame = 0;
+    d->layoutData = 0;
 }
 
 QTextFrame::~QTextFrame()
 {
+    delete d->layoutData;
 }
 
 QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
@@ -706,6 +714,7 @@ QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
     d->fragment_start = 0;
     d->fragment_end = 0;
     d->parentFrame = 0;
+    d->layoutData = 0;
 }
 
 
@@ -750,15 +759,18 @@ int QTextFrame::endPosition()
     return d->pieceTable()->fragmentMap().position(d->fragment_end);
 }
 
-QRect QTextFrame::rect() const
+QTextFrameLayoutData *QTextFrame::layoutData() const
 {
-    return d->rect;
+    return d->layoutData;
 }
 
-void QTextFrame::setRect(const QRect &r)
+void QTextFrame::setLayoutData(QTextFrameLayoutData *data)
 {
-    d->rect = r;
+    delete d->layoutData;
+    d->layoutData = data;
 }
+
+
 
 void QTextFramePrivate::fragmentAdded(const QChar &type, uint fragment)
 {

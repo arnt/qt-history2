@@ -14,6 +14,7 @@ class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
 class QTextBlockIterator;
 class QTextObjectInterface;
+class QTextFrame;
 
 class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 {
@@ -60,6 +61,9 @@ protected:
     QTextBlockIterator findBlock(int pos) const;
     QTextBlockIterator begin() const;
     QTextBlockIterator end() const;
+
+    QTextFrame *frameAt(int pos) const;
+    QTextFrame *rootFrame() const;
 
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
