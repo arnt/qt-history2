@@ -72,6 +72,13 @@ public:
     virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
 			    const QHostAddress & host, Q_UINT16 port );
 
+#ifdef QT_COMPAT
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_ULONG len)
+        { return Q_LONG(write(data, Q_LONGLONG(len))); }
+    inline QT_COMPAT Q_LONG readBlock(char *data, Q_ULONG maxlen)
+        { return Q_LONG(read(data, Q_LONGLONG(maxlen))); }
+#endif
+
     Q_UINT16	 port() const;
     Q_UINT16	 peerPort() const;
     QHostAddress address() const;
