@@ -57,9 +57,8 @@ the directories where you choose to install Qt.
 
     On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
 
-    If you use SGI MIPSpro o32 or Sun WorkShop 5.0 you need to run the
-    qt32castcompat script found in $QTDIR/bin before compiling Qt.
-
+    Note that the SGI MIPSpro o32 and Sun WorkShop 5.0 targets are no
+    longer supported as of Qt 3.3.
 
 3.  Install your license file as $HOME/.qt-license.
     For the free edition and evaluation version, you do not need a license
