@@ -125,7 +125,7 @@ win32:TABLE_H	= ../include
 win32:ICONVIEW_H	= ../include
 win32:XML_H	= ../include
 win32:WORKSPACE_H	= ../include
-win32:DATABASE_H	= ../include
+win32:SQL_H	= ../include
 
 unix:DIALOGS_H	= dialogs
 unix:KERNEL_H	= kernel
@@ -138,7 +138,7 @@ unix:TABLE_H	= table
 unix:ICONVIEW_H	= iconview
 unix:XML_H	= xml
 unix:WORKSPACE_H	= workspace
-unix:DATABASE_H	= database
+unix:SQL_H	= sql
 
 DIALOGS_P	= dialogs
 KERNEL_P	= kernel
@@ -146,7 +146,7 @@ TOOLS_P		= tools
 WIDGETS_P	= widgets
 
 win32:DEPENDPATH = ../include
-unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H:$$OPENGL_H:$$NETWORK_H:$$CANVAS_H:$$TABLE_H:$$ICONVIEW_H:$$XML_H:$$WORKSPACE_H:$$DATABASE_H
+unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H:$$OPENGL_H:$$NETWORK_H:$$CANVAS_H:$$TABLE_H:$$ICONVIEW_H:$$XML_H:$$WORKSPACE_H:$$SQL_H
 
 dialogs:HEADERS	+= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qerrormessage.h \
@@ -308,6 +308,7 @@ widgets:HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
+		  $$WIDGETS_H/qwidgetresizehandler.h \
 		  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qdockarea.h \
 		  $$WIDGETS_H/qdockwindow.h \
@@ -556,6 +557,7 @@ widgets:SOURCES += widgets/qbuttongroup.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
+		  widgets/qwidgetresizehandler.cpp \
 		  widgets/qcommonstyle.cpp \
 		  widgets/qdial.cpp \
 		  widgets/qdockarea.cpp \
@@ -695,43 +697,52 @@ iconview:SOURCES += iconview/qiconview.cpp
 table:HEADERS += $$TABLE_H/qtable.h
 table:SOURCES += table/qtable.cpp
 
-!database:DEFINES += QT_NO_SQL
-database:HEADERS += $$DATABASE_H/qsql.h \
-		    $$DATABASE_H/qsql_p.h \
-		    $$DATABASE_H/qsqlform.h \
-		    $$DATABASE_H/qsqlfieldmapper.h \
-		    $$DATABASE_H/qsqlpropertymanager.h \
-		    $$DATABASE_H/qsqlconnection.h \
-		    $$DATABASE_H/qsqldatabase.h \
-		    $$DATABASE_H/qsqlfield.h \
-		    $$DATABASE_H/qsqlrowset.h \
-		    $$DATABASE_H/qsqlview.h \
-		    $$DATABASE_H/qsqleditorfactory.h \
-		    $$DATABASE_H/qsqleditor.h \
-		    $$DATABASE_H/qsqldriver.h \
-		    $$DATABASE_H/qsqldriverinterface.h \
-		    $$DATABASE_H/qsqldriverplugin.h \
-		    $$DATABASE_H/qsqlerror.h \
-		    $$DATABASE_H/qsqlresult.h \
-		    $$DATABASE_H/qsqlindex.h \
-		    $$DATABASE_H/qsqltable.h
-database:SOURCES += database/qsql.cpp \
-		    database/qsqlform.cpp \
-		    database/qsqlfieldmapper.cpp \
-		    database/qsqlpropertymanager.cpp \
-		    database/qsqldatabase.cpp \
-		    database/qsqlconnection.cpp \
-		    database/qsqlfield.cpp \
-		    database/qsqlrowset.cpp \
-		    database/qsqlview.cpp \
-		    database/qsqleditorfactory.cpp \
-		    database/qsqleditor.cpp \
-		    database/qsqldriver.cpp \
-		    database/qsqldriverplugin.cpp \
-		    database/qsqlerror.cpp \
-		    database/qsqlresult.cpp \
-		    database/qsqlindex.cpp \
-		    database/qsqltable.cpp
+!sql:DEFINES += QT_NO_SQL
+sql:HEADERS += $$SQL_H/qsql.h \
+		    $$SQL_H/qsqlconnection.h \
+		    $$SQL_H/qsqldatabase.h \
+		    $$SQL_H/qsqlfield.h \
+		    $$SQL_H/qsqlview.h \
+		    $$SQL_H/qsqlform.h \
+		    $$SQL_H/qsqleditorfactory.h \
+		    $$SQL_H/qsqldriver.h \
+		    $$SQL_H/qsqldriverinterface.h \
+		    $$SQL_H/qsqldriverplugin.h \
+		    $$SQL_H/qsqlerror.h \
+		    $$SQL_H/qsqlresult.h \
+		    $$SQL_H/qsqlindex.h \
+		    $$SQL_H/qsqltable.h
+sql:SOURCES += sql/qsql.cpp \
+		    sql/qsqldatabase.cpp \
+		    sql/qsqlconnection.cpp \
+		    sql/qsqlfield.cpp \
+		    sql/qsqlform.cpp \
+		    sql/qsqlview.cpp \
+		    sql/qsqleditorfactory.cpp \
+		    sql/qsqldriver.cpp \
+		    sql/qsqldriverplugin.cpp \
+		    sql/qsqlerror.cpp \
+		    sql/qsqlresult.cpp \
+		    sql/qsqlindex.cpp \
+		    sql/qsqltable.cpp
+
+sql_postgres:HEADERS += $$SQL_H/src/psql/qsql_psql.h
+sql_postgres:SOURCES += sql/src/psql/qsql_psql.cpp
+sql_postgres:DEFINES += QT_SQL_POSTGRES
+unix:sql_postgres:INCLUDEPATH += /usr/include/postgresql
+unix:sql_postgres:LIBS += -lpq
+
+sql_mysql:HEADERS += $$SQL_H/src/mysql/qsql_mysql.h
+sql_mysql:SOURCES += sql/src/mysql/qsql_mysql.cpp
+sql_mysql:DEFINES += QT_SQL_MYSQL
+unix:sql_mysql:INCLUDEPATH += /usr/include/mysql
+unix:sql_mysql:LIBS += -lmysqlclient
+
+sql_odbc:HEADERS += $$SQL_H/src/odbc/qsql_odbc.h
+sql_odbc:SOURCES += sql/src/odbc/qsql_odbc.cpp
+sql_odbc:DEFINES += QT_SQL_ODBC
+unix:sql_odbc:INCLUDEPATH += /usr/local/include
+unix:sql_odbc:LIBS += -lodbc
 
 opengl:HEADERS += $$OPENGL_H/qgl.h
 OPENGL_SOURCES	= opengl/qgl.cpp
