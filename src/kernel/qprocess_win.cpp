@@ -387,7 +387,8 @@ static BOOL CALLBACK qt_terminateApp( HWND hwnd, LPARAM procId )
 
 void QProcess::tryTerminate() const
 {
-    EnumWindows( qt_terminateApp, (LPARAM)d->pid->dwProcessId );
+    if ( d->pid )
+	EnumWindows( qt_terminateApp, (LPARAM)d->pid->dwProcessId );
 }
 
 void QProcess::kill() const
