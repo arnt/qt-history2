@@ -1278,7 +1278,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    SFlags flags = Style_Default;
 
 	    if (controls & SC_SpinWidgetFrame)
-		drawMotifPlusShade(p, r, cg, TRUE, &cg.brush(QColorGroup::Base));
+		drawMotifPlusShade(p, r, cg, TRUE, FALSE, &cg.brush(QColorGroup::Base));
 
 	    if (controls & SC_SpinWidgetUp) {
 		flags = Style_Enabled;
