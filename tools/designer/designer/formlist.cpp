@@ -27,6 +27,7 @@
 #include "command.h"
 #include "project.h"
 #include "pixmapcollection.h"
+#include "sourcefile.h"
 
 #include <qheader.h>
 #include <qdragobject.h>
@@ -73,9 +74,15 @@ FormListItem::FormListItem( QListView *parent )
 }
 
 FormListItem::FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw )
-    : QListViewItem( parent, form, file, "" ), formwindow( fw )
+    : QListViewItem( parent, form, file, "" ), formwindow( fw ), sourcefile( 0 )
 {
     setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+}
+
+FormListItem::FormListItem( QListViewItem *parent, const QString &file, SourceFile *fl )
+    : QListViewItem( parent, file ), formwindow( 0 ), sourcefile( fl )
+{
+    t = Source;
 }
 
 void FormListItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
@@ -140,6 +147,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     header()->setMovingEnabled( FALSE );
     header()->setFullSize( TRUE );
     header()->hide();
+    setSorting( -1 );
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     QPalette p( palette() );
@@ -162,12 +170,22 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 	folderPixmap = new QPixmap( folder_xpm );
     }
 
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+
     imageParent = new FormListItem( this );
     imageParent->setType( FormListItem::Parent );
     imageParent->setText( 0, tr( "Images" ) );
     imageParent->setPixmap( 0, *folderPixmap );
     imageParent->setOpen( TRUE );
 
+    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+	sourceParent = new FormListItem( this );
+	sourceParent->setType( FormListItem::Parent );
+	sourceParent->setText( 0, tr( "Source Files" ) );
+	sourceParent->setPixmap( 0, *folderPixmap );
+	sourceParent->setOpen( TRUE );
+    }
+	
     formsParent = new FormListItem( this );
     formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
@@ -186,6 +204,16 @@ void FormList::setProject( Project *pro )
     imageParent->setPixmap( 0, *folderPixmap );
     imageParent->setOpen( TRUE );
 
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+
+    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+	sourceParent = new FormListItem( this );
+	sourceParent->setType( FormListItem::Parent );
+	sourceParent->setText( 0, tr( "Source Files" ) );
+	sourceParent->setPixmap( 0, *folderPixmap );
+	sourceParent->setOpen( TRUE );
+    }
+	
     formsParent = new FormListItem( this );
     formsParent->setType( FormListItem::Parent );
     formsParent->setText( 0, tr( "Forms" ) );
@@ -233,6 +261,12 @@ void FormList::setProject( Project *pro )
 	}
     }
 
+    if ( !iface || !iface->supports( LanguageInterface::AdditionalFiles ) )
+	return;
+
+    QList<SourceFile> sources = pro->sourceFiles();
+    for ( SourceFile *f = sources.first(); f; f = sources.next() )
+	(void)new FormListItem( sourceParent, f->fileName(), f );
 }
 
 void FormList::addForm( FormWindow *fw )
@@ -323,14 +357,18 @@ void FormList::closeEvent( QCloseEvent *e )
 
 void FormList::itemClicked( int button, QListViewItem *i )
 {
-    if ( !i || button != LeftButton || i->rtti() != FormListItem::Form )
+    if ( !i || button != LeftButton )
 	return;
-    if ( ( (FormListItem*)i )->formWindow() ) {
-	( (FormListItem*)i )->formWindow()->setFocus();
-    } else {
-	blockNewForms = TRUE;
-	mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)i )->text( 1 ) ) );
-	blockNewForms = FALSE;
+    if ( i->rtti() == FormListItem::Form ) {
+	if ( ( (FormListItem*)i )->formWindow() ) {
+	    ( (FormListItem*)i )->formWindow()->setFocus();
+	} else {
+	    blockNewForms = TRUE;
+	    mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)i )->text( 1 ) ) );
+	    blockNewForms = FALSE;
+	}
+    } else if ( i->rtti() == FormListItem::Source ) {
+	mainWindow->editSource( ( (FormListItem*)i )->sourceFile() );
     }
 }
 
@@ -396,9 +434,42 @@ void FormList::rmbClicked( QListViewItem *i )
 	    }
 	    delete i;
 	} else if ( id == ADD_EXISTING_FORM ) {
-	    mainWindow->fileOpen( TRUE );
+	    mainWindow->fileOpen( "Qt User-Interface Files (*.ui)", "ui" );
 	} else if ( id == ADD_NEW_FORM ) {
 	    mainWindow->fileNew();
+	}
+    } else if ( i->rtti() == FormListItem::Source || i->text( 0 ) == "Source Files" ) {
+	QPopupMenu menu( this );
+
+	const int ADD_EXISTING_SOURCE = menu.insertItem( tr( "Add existing source file to project..." ) );
+	const int ADD_NEW_SOURCE = menu.insertItem( tr( "Add new source file to project..." ) );
+	int REMOVE_SOURCE = -2;
+	if ( i->rtti() == FormListItem::Source ) {
+	    menu.insertSeparator();
+	    REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
+	}
+	int id = menu.exec( QCursor::pos() );
+
+	if ( id == -1 )
+	    return;
+
+	if ( id == REMOVE_SOURCE ) {
+	    // ####
+	} else if ( id == ADD_EXISTING_SOURCE ) {
+	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
+	    QMap<QString, QString> extensionFilterMap;
+	    iface->fileFilters( extensionFilterMap );
+	    mainWindow->fileOpen( *extensionFilterMap.begin(), extensionFilterMap.begin().key() );
+	} else if ( id == ADD_NEW_SOURCE ) {
+	    QMap<QString, QString> extensionFilterMap;
+	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
+	    iface->fileFilters( extensionFilterMap );
+	    QString fn = QFileDialog::getSaveFileName( QString::null, *extensionFilterMap.begin(), mainWindow );
+	    if ( !fn.isEmpty() ) {
+		SourceFile *sf = new SourceFile( mainWindow->currProject()->makeRelative( fn ) );
+		mainWindow->currProject()->addSourceFile( sf );
+		setProject( mainWindow->currProject() );
+	    }
 	}
     } else if ( i->rtti() == FormListItem::Image || i->text( 0 ) == "Images" && mainWindow->currProject() != mainWindow->emptyProject() ) {
 	QPopupMenu menu( this );

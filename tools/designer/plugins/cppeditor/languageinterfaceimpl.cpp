@@ -152,5 +152,7 @@ bool LanguageInterfaceImpl::supports( Support s ) const
 	return TRUE;
     if ( s == ConnectionsToCustomSlots )
 	return TRUE;
+    if ( s == AdditionalFiles )
+	return FALSE;
     return FALSE;
 }

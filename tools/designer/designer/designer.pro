@@ -45,10 +45,11 @@ HEADERS	= command.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/parser.h \
 		  config.h \
-		  pixmapcollection.h \
 		  previewframe.h \
 		  previewwidgetimpl.h \
 		  paletteeditoradvancedimpl.h
+		  pixmapcollection.h \
+		  sourcefile.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -95,6 +96,7 @@ SOURCES	= command.cpp \
 		  previewframe.cpp \
 		  previewwidgetimpl.cpp \
 		  paletteeditoradvancedimpl.cpp
+		  sourcefile.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../resource ../../../src/3rdparty/zlib/

@@ -31,17 +31,21 @@ class QDragMoveEvent;
 class QDragEnterEvent;
 class MainWindow;
 class Project;
+class SourceFile;
 
 class FormListItem : public QListViewItem
 {
 public:
-    enum Type { Parent = 1001, Form, Image };
+    enum Type { Parent = 1001, Form, Image, Source };
 
     FormListItem( QListView *parent );
     FormListItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
+    FormListItem( QListViewItem *parent, const QString &file, SourceFile *fl );
 
     void setFormWindow( FormWindow *fw ) { formwindow = fw; }
     FormWindow *formWindow() const { return formwindow; }
+
+    SourceFile *sourceFile() const { return sourcefile; }
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
@@ -52,6 +56,7 @@ public:
 
 private:
     FormWindow *formwindow;
+    SourceFile *sourcefile;
     QColor backgroundColor();
     QColor backColor;
     Type t;
@@ -105,6 +110,7 @@ private:
     Project *project;
     FormListItem *formsParent;
     FormListItem *imageParent;
+    FormListItem *sourceParent;
 
 };
 

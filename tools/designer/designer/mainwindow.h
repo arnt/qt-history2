@@ -63,6 +63,7 @@ class FindDialog;
 struct DesignerProject;
 class ReplaceDialog;
 class GotoLineDialog;
+class SourceFile;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -161,6 +162,7 @@ public slots:
 signals:
     void currentToolChanged();
     void hasActiveForm( bool );
+    void hasActiveWindow( bool );
     void formModified( bool );
     void formWindowsChanged();
     void formWindowChanged();
@@ -174,8 +176,8 @@ public slots:
     void fileNew();
     void fileNewProject();
     void fileCloseProject();
-    void fileOpen() { fileOpen( FALSE ); }
-    void fileOpen( bool onlyForms );
+    void fileOpen() { fileOpen( "", "" ); }
+    void fileOpen( const QString &filter, const QString &extension );
     bool fileSave();
     bool fileSaveAs();
     void fileSaveAll();
@@ -204,6 +206,7 @@ public slots:
     void editSlots();
     void editConnections();
     void editSource() { editSource( TRUE ); }
+    void editSource( SourceFile *f );
     void editFormSettings();
     void editProjectSettings();
     void editPixmapCollection();

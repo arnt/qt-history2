@@ -27,6 +27,7 @@
 #include "../interfaces/languageinterface.h"
 #include <qregexp.h>
 #include "project.h"
+#include "sourcefile.h"
 
 static QString make_func_pretty( const QString &s )
 {
@@ -71,7 +72,7 @@ void SourceEditor::setObject( QObject *fw, Project *p )
     }
     formWindow = fw;
     pro = p;
-    setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
+    setCaption( tr( "Edit %1" ).arg( formWindow->inherits( "FormWindow" ) ? QString( formWindow->name() ) : ( (SourceFile*)fw )->fileName() ) );
     iFace->setText( sourceOfObject( formWindow, lang, iFace, lIface ) );
     if ( pro && fw->inherits( "FormWindow" ) )
 	iFace->setContext( pro->formList(), ( (FormWindow*)fw ) ->mainContainer() );
@@ -81,19 +82,23 @@ void SourceEditor::setObject( QObject *fw, Project *p )
 
 QString SourceEditor::sourceOfObject( QObject *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
 {
-    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
-    QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
     QString txt;
-    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	if ( (*it).language != lang )
-	    continue;
-	QString sl( (*it).slot );
-	txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ? QString( "void" ) : (*it).returnType ) );
-	QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
-	if ( bit != bodies.end() )
-	    txt += "\n" + *bit + "\n\n";
-	else
-	    txt += "\n" + lIface->createEmptyFunction() + "\n\n";
+    if ( fw->inherits( "FormWindow" ) ) {
+	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
+	QMap<QString, QString> bodies = MetaDataBase::functionBodies( fw );
+	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
+	    if ( (*it).language != lang )
+		continue;
+	    QString sl( (*it).slot );
+	    txt += lIface->createFunctionStart( fw->name(), sl, ( (*it).returnType.isEmpty() ? QString( "void" ) : (*it).returnType ) );
+	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
+	    if ( bit != bodies.end() )
+		txt += "\n" + *bit + "\n\n";
+	    else
+		txt += "\n" + lIface->createEmptyFunction() + "\n\n";
+	}
+    } else if ( fw->inherits( "SourceFile" ) ) {
+	txt = ( (SourceFile*)fw )->text();
     }
     return txt;
 }
@@ -113,41 +118,45 @@ void SourceEditor::save()
 {
     if ( !formWindow )
 	return;
-    QValueList<LanguageInterface::Function> functions;
-    QValueList<MetaDataBase::Slot> newSlots, oldSlots;
-    oldSlots = MetaDataBase::slotList( formWindow );
-    lIface->functions( iFace->text(), &functions );
-    QMap<QString, QString> funcs;
-    for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin(); it != functions.end(); ++it ) {
-	bool found = FALSE;
-	for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin(); sit != oldSlots.end(); ++sit ) {
-	    QString s( (*sit).slot );
-	    if ( MetaDataBase::normalizeSlot( s ) == MetaDataBase::normalizeSlot( (*it).name ) ) {
-		found = TRUE;
+    if ( formWindow->inherits( "FormWindow" ) ) {
+	QValueList<LanguageInterface::Function> functions;
+	QValueList<MetaDataBase::Slot> newSlots, oldSlots;
+	oldSlots = MetaDataBase::slotList( formWindow );
+	lIface->functions( iFace->text(), &functions );
+	QMap<QString, QString> funcs;
+	for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin(); it != functions.end(); ++it ) {
+	    bool found = FALSE;
+	    for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin(); sit != oldSlots.end(); ++sit ) {
+		QString s( (*sit).slot );
+		if ( MetaDataBase::normalizeSlot( s ) == MetaDataBase::normalizeSlot( (*it).name ) ) {
+		    found = TRUE;
+		    MetaDataBase::Slot slot;
+		    slot.slot = make_func_pretty( (*it).name );
+		    slot.access = (*sit).access;
+		    slot.language = (*sit).language;
+		    slot.returnType = (*it).returnType;
+		    newSlots << slot;
+		    funcs.insert( (*it).name, (*it).body );
+		    oldSlots.remove( sit );
+		    break;
+		}
+	    }
+	    if ( !found ) {
 		MetaDataBase::Slot slot;
 		slot.slot = make_func_pretty( (*it).name );
-		slot.access = (*sit).access;
-		slot.language = (*sit).language;
+		slot.access = "public";
+		slot.language = lang;
 		slot.returnType = (*it).returnType;
 		newSlots << slot;
 		funcs.insert( (*it).name, (*it).body );
-		oldSlots.remove( sit );
-		break;
 	    }
 	}
-	if ( !found ) {
-	    MetaDataBase::Slot slot;
-	    slot.slot = make_func_pretty( (*it).name );
-	    slot.access = "public";
-	    slot.language = lang;
-	    slot.returnType = (*it).returnType;
-	    newSlots << slot;
-	    funcs.insert( (*it).name, (*it).body );
-	}
-    }
 
-    MetaDataBase::setSlotList( formWindow, newSlots );
-    MetaDataBase::setFunctionBodies( formWindow, funcs, lang, QString::null );
+	MetaDataBase::setSlotList( formWindow, newSlots );
+	MetaDataBase::setFunctionBodies( formWindow, funcs, lang, QString::null );
+    } else if ( formWindow->inherits( "SourceFile" ) ) {
+	( (SourceFile*)(QObject*)formWindow )->setText( iFace->text() );
+    }
 }
 
 QString SourceEditor::language() const

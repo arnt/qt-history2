@@ -295,6 +295,15 @@ void Project::parse()
 	lang = parse_part( part );
     }
 
+    i = contents.find( "DESIGNER_SOURCES" );
+    if ( i != -1 ) {
+	QString part = contents.mid( i + QString( "DESIGNER_SOURCES" ).length() );
+	QString s = parse_part( part );
+	QStringList lst = QStringList::split( ' ', s );
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
+	    sources.append( new SourceFile( *it ) );
+    }
+
     updateCustomSettings();
 
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
@@ -473,6 +482,7 @@ void Project::save()
     remove_contents( contents, "IMAGEFILE" );
     remove_contents( contents, "PROJECTNAME" );
     remove_contents( contents, "LANGUAGE" );
+    remove_contents( contents, "DESIGNER_SOURCES" );
     remove_contents( contents, "{SOURCES+=" );
     if ( !dbFile.isEmpty() )
 	contents += "DBFILE\t= " + dbFile + "\n";
@@ -484,8 +494,20 @@ void Project::save()
 
     contents += "LANGUAGE\t= " + lang + "\n";
 
-    if ( !imageFile().isEmpty() )
-	contents += "{SOURCES+=" + imageFile() + "}\n";
+    if ( !sources.isEmpty() ) {
+	contents += "DESIGNER_SOURCES\t=";
+	for ( SourceFile *f = sources.first(); f; f = sources.next() )
+	    contents += f->fileName() + " ";
+	contents += "\n";
+    }
+
+    if ( !imageFile().isEmpty() ) {
+	contents += "{SOURCES+=" + imageFile();
+	if ( !sources.isEmpty() )
+	    contents += " $$DESIGNER_SOURCES}\n";
+	else
+	    contents += "}\n";
+    }
 
     for ( QStringList::Iterator it = csList.begin(); it != csList.end(); ++it ) {
 	remove_contents( contents, *it );
@@ -860,4 +882,10 @@ void Project::loadImages()
 void Project::setActive( bool b )
 {
     pixCollection->setActive( b );
+}
+
+void Project::addSourceFile( SourceFile *sf )
+{
+    sources.append( sf );
+    save();
 }

@@ -41,6 +41,7 @@ public:
     QString createArguments( const QStringList &args );
     QString createEmptyFunction();
     bool supports( Support s ) const;
+    void fileFilters( QMap<QString, QString> & ) const {}
 
 private:
     ulong ref;

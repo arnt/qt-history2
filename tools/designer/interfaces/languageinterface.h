@@ -43,7 +43,8 @@ struct LanguageInterface : public QUnknownInterface
     enum Support
     {
 	ReturnType,
-	ConnectionsToCustomSlots
+	ConnectionsToCustomSlots,
+	AdditionalFiles
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;
@@ -55,6 +56,8 @@ struct LanguageInterface : public QUnknownInterface
     virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;
     virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
     virtual bool supports( Support s ) const = 0;
+    virtual void fileFilters( QMap<QString, QString> &extensionFilterMap ) const = 0;
+
 
 };
 

@@ -33,6 +33,7 @@
 #include <qmap.h>
 #include <qinterfacemanager.h>
 #include "../interfaces/projectsettingsiface.h"
+#include "sourcefile.h"
 
 class FormWindow;
 class QObjectList;
@@ -165,6 +166,9 @@ public:
 
     void setActive( bool b );
 
+    QList<SourceFile> sourceFiles() const { return sources; }
+    void addSourceFile( SourceFile *sf );
+
 private:
     void parse();
     void clear();
@@ -188,6 +192,7 @@ private:
     QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QString imgFile;
     PixmapCollection *pixCollection;
+    QList<SourceFile> sources;
 
 };
 

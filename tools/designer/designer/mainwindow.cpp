@@ -109,6 +109,7 @@
 #include <qsettings.h>
 #include "pixmapcollectioneditor.h"
 #include "pixmapcollection.h"
+#include "sourcefile.h"
 
 static int forms = 0;
 static bool mblockNewForms = FALSE;
@@ -232,6 +233,7 @@ MainWindow::MainWindow( bool asClient )
     setupRMBMenus();
 
     emit hasActiveForm( FALSE );
+    emit hasActiveWindow( FALSE );
 
     lastPressWidget = 0;
     qApp->installEventFilter( this );
@@ -901,10 +903,7 @@ void MainWindow::setupFileActions()
 			"<p>A filedialog will open if there is no filename already "
 			"provided, otherwise the old name will be used.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSave() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
-#if 0 // #### Reggie: I don't like it
-    connect( this, SIGNAL( formModified(bool) ), a, SLOT( setEnabled(bool) ) );
-#endif
+    connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( tb );
     a->addTo( fileMenu );
 
@@ -914,7 +913,7 @@ void MainWindow::setupFileActions()
     a->setStatusTip( tr( "Saves the current form with a new filename" ) );
     a->setWhatsThis( tr( "Save the current form with a new filename" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAs() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
+    connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( fileMenu );
 
     a = new QAction( this, 0 );
@@ -923,7 +922,7 @@ void MainWindow::setupFileActions()
     a->setStatusTip( tr( "Saves all open forms" ) );
     a->setWhatsThis( tr( "Save all open forms" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( fileSaveAll() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), a, SLOT( setEnabled(bool) ) );
+    connect( this, SIGNAL( hasActiveWindow(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( fileMenu );
 
     fileMenu->insertSeparator();
@@ -1450,7 +1449,7 @@ void MainWindow::fileCloseProject()
 }
 
 
-void MainWindow::fileOpen( bool onlyForms )
+void MainWindow::fileOpen( const QString &filter, const QString &extension )
 {
     statusBar()->message( tr( "Select a file...") );
 
@@ -1465,17 +1464,17 @@ void MainWindow::fileOpen( bool onlyForms )
     {
 	QString filename;
 	QStringList filterlist;
-	if ( !onlyForms )
+	if ( filter.isEmpty() ) {
 	    filterlist << tr( "Designer Files (*.ui *.pro)" );
-	filterlist << tr( "Qt User-Interface Files (*.ui)" );
-	if ( !onlyForms )
+	    filterlist << tr( "Qt User-Interface Files (*.ui)" );
 	    filterlist << tr( "QMAKE Project Files (*.pro)" );
-	QStringList list = manager.featureList();
-	if ( !onlyForms ) {
+	    QStringList list = manager.featureList();
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
+	    filterlist << tr( "All Files (*)" );
+	} else {
+	    filterlist << filter;
 	}
-	filterlist << tr( "All Files (*)" );
 
 	QString filters = filterlist.join( ";;" );
 
@@ -1483,17 +1482,25 @@ void MainWindow::fileOpen( bool onlyForms )
 	if ( !filename.isEmpty() ) {
 	    QFileInfo fi( filename );
 
-	    if ( fi.extension() == "pro" ) {
-		if ( onlyForms )
-		    return;
+	    if ( fi.extension() == "pro" && ( extension.isEmpty() || extension == "pro" ) ) {
 		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
-	    } else if ( fi.extension() == "ui" ) {
+	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension == "ui" ) ) {
 		openFile( filename );
 		addRecentlyOpened( filename, recentlyFiles );
-	    } else {
-		if ( onlyForms )
-		    return;
+	    } else if ( !extension.isEmpty() && fi.extension() == extension ) {
+		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
+		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+		    QMap<QString, QString> extensionFilterMap;
+		    iface->fileFilters( extensionFilterMap );
+		    if ( extensionFilterMap.find( extension ) != extensionFilterMap.end() ) {
+			SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
+			currentProject->addSourceFile( sf );
+			formList->setProject( currentProject );
+			// ### show source file
+		    }
+		}
+	    } else if ( extension.isEmpty() ) {
 		QString filter;
 		for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
 		    if ( (*it2).contains( fi.extension(), FALSE ) ) {
@@ -1568,10 +1575,14 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 bool MainWindow::fileSave()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->object() == formWindow() ) {
+	if ( e->object() == formWindow() || e == workSpace()->activeWindow() ) {
 	    e->save();
 	    e->setModified( FALSE );
 	}
+	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
+	     e == workSpace()->activeWindow() )
+	    ( (SourceFile*)e->object() )->save();
+	
     }
     if ( !formWindow() )
 	return FALSE;
@@ -1607,6 +1618,14 @@ bool MainWindow::fileSaveAs()
 
 void MainWindow::fileSaveAll()
 {
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	e->save();
+	e->setModified( FALSE );
+	if ( e->object() && e->object()->inherits( "SourceFile" ) &&
+	     e == workSpace()->activeWindow() )
+	    ( (SourceFile*)e->object() )->save();
+    }
+
     QWidgetList windows = workSpace()->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	if ( !w->inherits( "FormWindow" ) )
@@ -1614,10 +1633,6 @@ void MainWindow::fileSaveAll()
 	w->setFocus();
 	qApp->processEvents();
 	fileSave();
-    }
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	e->save();
-	e->setModified( FALSE );
     }
 }
 
@@ -1925,7 +1940,7 @@ void MainWindow::editSource( bool /*resetSame*/ )
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
-				  tr( "There is no editor plugin to edit " + lang + "code installed" ) );
+				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
 	return;
     }
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
@@ -1952,6 +1967,40 @@ void MainWindow::editSource( bool /*resetSame*/ )
     editor->setFocus();
     if ( editor->object() != formWindow() )
 	editor->setObject( formWindow(), formWindow()->project() );
+}
+
+void MainWindow::editSource( SourceFile *f )
+{
+    SourceEditor *editor = 0;
+    QString lang = currentProject->language();
+    if ( !MetaDataBase::hasEditor( lang ) ) {
+	QMessageBox::information( this, tr( "Edit Source" ),
+				  tr( "There is no editor plugin to edit " + lang + " code installed" ) );
+	return;
+    }
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->language() == lang ) {
+	    editor = e;
+	    break;
+	}
+    }
+    if ( !editor ) {
+	EditorInterface *eIface = (EditorInterface*)editorPluginManager->queryInterface( lang );
+	if ( !eIface )
+	    return;
+	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
+	if ( !lIface )
+	    return;
+	editor = new SourceEditor( workSpace(), eIface, lIface );
+	eIface->release();
+	lIface->release();
+
+	editor->setLanguage( lang );
+	sourceEditors.append( editor );
+    }
+    editor->show();
+    editor->setFocus();
+    editor->setObject( f, currentProject );
 }
 
 void MainWindow::editFormSettings()
@@ -2270,6 +2319,14 @@ QObjectList *MainWindow::runProject()
 	    iiface->onShowDebugStep( this, SLOT( showDebugStep( QObject *, int ) ) );
 	    iiface->onShowError( this, SLOT( showErrorMessage( QObject *, int, const QString & ) ) );
 	    iiface->onFinish( this, SLOT( finishedRun() ) );
+	}
+	
+	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
+	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
+	    QList<SourceFile> sources = currentProject->sourceFiles();
+	    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+		iiface->exec( 0, f->text() );
+	    }
 	}
     }
 
@@ -3039,6 +3096,8 @@ void MainWindow::activeWindowChanged( QWidget *w )
 
     if ( currentTool() == ORDER_TOOL )
 	emit currentToolChanged();
+
+    emit hasActiveWindow( !!workspace->activeWindow() );
 }
 
 void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,
