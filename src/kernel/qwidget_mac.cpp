@@ -298,6 +298,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	InstallWindowContentPaintProc((WindowPtr)id, macSpecialErase, 0, this);
+//	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
 	if(testWFlags( WType_Popup )) 
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 
