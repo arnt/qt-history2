@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#168 $
+** $Id: //depot/qt/main/src/moc/moc.y#169 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -134,10 +134,10 @@ struct Property
     QCString get;
     QCString reset;
     QCString stored;
-    int designable; // Allowed values are TRUE, FALSE and -1
+    int designable; // Allowed values are 1 (True), 0 (False), and -1 (Unset)
     bool override;
     int oredEnum; // If the enums item may be ored. That means the data type is int.
-		  // Allowed values are TRUE, FALSE and -1
+		  // Allowed values are 1 (True), 0 (False), and -1 (Unset)
 
     Function* setfunc;
     Function* getfunc;
@@ -1123,7 +1123,7 @@ property:		IDENTIFIER IDENTIFIER
 				     if ( tmpPropOverride )
 				         propDesignable = -1;
 				     else
-				         propDesignable = TRUE;
+				         propDesignable = 1;
 				}
 			prop_statements
 				{
@@ -1153,9 +1153,9 @@ prop_statements:	  /* empty */
 			| DESIGNABLE IDENTIFIER
 				{
 					if ( strcmp( $2, "true" ) == 0 )
-						propDesignable = TRUE;
+						propDesignable = 1;
 					else if ( strcmp( $2, "false" ) == 0 )
-						propDesignable = FALSE;
+						propDesignable = 0;
 					else
 						moc_err( "DESIGNABLE may only be followed by 'true' or 'false'" );
 				}
@@ -1216,7 +1216,7 @@ QCString propRead;				// get function
 QCString propReset;				// reset function
 QCString propStored;				// "true", "false" or function or empty if not specified
 bool propOverride;				// Wether OVERRIDE was detected
-int propDesignable;				// Wether DESIGNABLE was TRUE or FALSE or not specified (-1)
+int propDesignable;				// Wether DESIGNABLE was TRUE (1) or FALSE (0) or not specified (-1)
 
 QStrList qtEnums;				// Used to store the contents of Q_ENUMS
 QStrList qtSets;				// Used to store the contents of Q_SETS
@@ -1954,7 +1954,7 @@ int generateProps()
 		    if ( !ok ) continue;
 		    p->gspec = spec;
 		    p->getfunc = f;
-		    p->oredEnum = FALSE;
+		    p->oredEnum = 0;
 		    break;
 		}
 		else if ( isEnumType( p->type ) ) {
@@ -1967,7 +1967,7 @@ int generateProps()
 			if ( !ok ) continue;
 		        p->gspec = spec;
 		        p->getfunc = f;
-			p->oredEnum = TRUE;
+			p->oredEnum = 1;
 		    }
 		}
 	    }
@@ -2060,7 +2060,7 @@ int generateProps()
 
 		if ( p->type == tmp && f->args->count() == 1 ) {
 		    // If it is an enum then it may not be a set
-		    if ( p->oredEnum == TRUE )
+		    if ( p->oredEnum == 1 )
 			continue;
 		    bool ok = TRUE;
 		    for( QListIterator<Enum> lit( enums ); lit.current(); ++lit )
@@ -2069,12 +2069,12 @@ int generateProps()
 		    if ( !ok ) continue;
 		    p->sspec = spec;
 		    p->setfunc = f;
-		    p->oredEnum = FALSE;
+		    p->oredEnum = 0;
 		    break;
 		}
 		else if ( isEnumType( p->type ) && f->args->count() == 1 ) {
 		    if ( tmp == "int" || tmp == "uint" || tmp == "unsigned int" ) {
-		        if ( p->oredEnum == FALSE )
+		        if ( p->oredEnum == 0 )
 			    continue;
 			// Test wether the enum is really a set (unfortunately we dont know enums of super classes)
 			bool ok = TRUE;
@@ -2084,7 +2084,7 @@ int generateProps()
 			if ( !ok ) continue;
 		        p->sspec = spec;
 		        p->setfunc = f;
-			p->oredEnum = TRUE;
+			p->oredEnum = 1;
 		    }
 		}
 	    }
@@ -2100,7 +2100,7 @@ int generateProps()
 		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
 			     fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public set functions \n");
-		    if ( !set && p->oredEnum != TRUE ) {
+		    if ( !set && p->oredEnum != 1 ) {
 			fprintf( stderr,
 			     "      void %s( %s )\n"
 			     "      void %s( %s& )\n"
@@ -2109,7 +2109,7 @@ int generateProps()
 			     (const char*) p->set, (const char*) p->type,
 			     (const char*) p->set, (const char*) p->type );
 		    }
-		    if ( set || ( !isPropertyType( p->type ) && p->oredEnum != FALSE ) ) {
+		    if ( set || ( !isPropertyType( p->type ) && p->oredEnum != 0 ) ) {
 			fprintf( stderr,
 			     "      void %s( int )\n"
 			     "      void %s( uint )\n"
@@ -2329,9 +2329,9 @@ int generateProps()
 		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
 	    // Is it an unknown enum that needs to be resolved ?
 	    else if (!isPropertyType( it.current()->type ) ) {
-		if ( it.current()->oredEnum == TRUE )
+		if ( it.current()->oredEnum == 1 )
 		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedSet);\n", entry );
-		else if ( it.current()->oredEnum == FALSE )
+		else if ( it.current()->oredEnum == 0 )
 		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
 		else
 		    fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnumOrSet);\n", entry );
@@ -2354,7 +2354,7 @@ int generateProps()
 		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedStored);\n", entry );
 
 	    // Handle DESIGNABLE
-	    if ( it.current()->designable == false )
+	    if ( it.current()->designable == 0 )
 		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotDesignable);\n", entry );
 	    // else { Default is TRUE -> do nothing }
 
@@ -2397,7 +2397,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#168 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#169 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
