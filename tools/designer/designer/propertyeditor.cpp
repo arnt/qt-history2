@@ -1664,63 +1664,63 @@ QComboBox *PropertyCursorItem::combo()
 
     cur = QBitmap(arrow_width, arrow_height, arrow_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Arrow"), ArrowCursor);
+    comb->insertItem( cur, tr("Arrow"), QObject::ArrowCursor);
 
     cur = QBitmap(uparrow_width, uparrow_height, uparrow_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Up-Arrow"), UpArrowCursor );
+    comb->insertItem( cur, tr("Up-Arrow"), QObject::UpArrowCursor );
 
     cur = QBitmap(cross_width, cross_height, cross_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Cross"), CrossCursor );
+    comb->insertItem( cur, tr("Cross"), QObject::CrossCursor );
 
     cur = QBitmap(wait_width, wait_height, wait_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Waiting"), WaitCursor );
+    comb->insertItem( cur, tr("Waiting"), QObject::WaitCursor );
 
     cur = QBitmap(ibeam_width, ibeam_height, ibeam_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("iBeam"), IbeamCursor );
+    comb->insertItem( cur, tr("iBeam"), QObject::IbeamCursor );
 
     cur = QBitmap(sizev_width, sizev_height, sizev_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Vertical"), SizeVerCursor );
+    comb->insertItem( cur, tr("Size Vertical"), QObject::SizeVerCursor );
 
     cur = QBitmap(sizeh_width, sizeh_height, sizeh_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Horizontal"), SizeHorCursor );
+    comb->insertItem( cur, tr("Size Horizontal"), QObject::SizeHorCursor );
 
     cur = QBitmap(sizef_width, sizef_height, sizef_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Slash"), SizeBDiagCursor );
+    comb->insertItem( cur, tr("Size Slash"), QObject::SizeBDiagCursor );
 
     cur = QBitmap(sizeb_width, sizeb_height, sizeb_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Size Backslash"), SizeFDiagCursor );
+    comb->insertItem( cur, tr("Size Backslash"), QObject::SizeFDiagCursor );
 
     cur = QBitmap(sizeall_width, sizeall_height, sizeall_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Size All"), SizeAllCursor );
+    comb->insertItem( cur, tr("Size All"), QObject::SizeAllCursor );
 
     cur = QBitmap( 25, 25, 1 );
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Blank"), BlankCursor );
+    comb->insertItem( cur, tr("Blank"), QObject::BlankCursor );
 
     cur = QBitmap(vsplit_width, vsplit_height, vsplit_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Split Vertical"), SplitVCursor );
+    comb->insertItem( cur, tr("Split Vertical"), QObject::SplitVCursor );
 
     cur = QBitmap(hsplit_width, hsplit_height, hsplit_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Split Horizontal"), SplitHCursor );
+    comb->insertItem( cur, tr("Split Horizontal"), QObject::SplitHCursor );
 
     cur = QBitmap(hand_width, hand_height, hand_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Pointing Hand"), PointingHandCursor );
+    comb->insertItem( cur, tr("Pointing Hand"), QObject::PointingHandCursor );
 
     cur = QBitmap(no_width, no_height, no_bits, TRUE);
     cur.setMask( cur );
-    comb->insertItem( cur, tr("Forbidden"), ForbiddenCursor );
+    comb->insertItem( cur, tr("Forbidden"), QObject::ForbiddenCursor );
 
     connect( comb, SIGNAL( activated( int ) ),
 	     this, SLOT( setValue() ) );

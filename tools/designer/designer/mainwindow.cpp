@@ -2340,7 +2340,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	    text = TextEditor::getText( this, w->property("text").toString() );
 	    ok = !text.isEmpty();
 	} else {
-	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), w->property("text").toString(), &ok, this );
+	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
 	    QString pn( tr( "Set 'text' of '%2'" ).arg( w->name() ) );
@@ -2353,7 +2353,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	}
     } else if ( id == props[ "title" ] ) {
 	bool ok = FALSE;
-	QString title = QInputDialog::getText( tr("Title"), tr( "New title" ), w->property("title").toString(), &ok, this );
+	QString title = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
 	    QString pn( tr( "Set 'title' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
@@ -2365,7 +2365,7 @@ void MainWindow::handleRMBProperties( int id, QMap<QString, int> &props, QWidget
 	}
     } else if ( id == props[ "pagetitle" ] ) {
 	bool ok = FALSE;
-	QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), w->property("pageTitle").toString(), &ok, this );
+	QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, w->property("pageTitle").toString(), &ok, this );
 	if ( ok ) {
 	    QString pn( tr( "Set 'pageTitle' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
@@ -2973,7 +2973,7 @@ bool MainWindow::openEditor( QWidget *w )
 	    text = TextEditor::getText( this, w->property("text").toString() );
 	    ok = !text.isEmpty();
 	} else {
-	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), w->property("text").toString(), &ok, this );
+	    text = QInputDialog::getText( tr("Text"), tr( "New text" ), QLineEdit::Normal, w->property("text").toString(), &ok, this );
 	}
 	if ( ok ) {
 	    QString pn( tr( "Set 'text' of '%2'" ).arg( w->name() ) );
@@ -2989,7 +2989,7 @@ bool MainWindow::openEditor( QWidget *w )
     if ( title && title->designable() ) {
 	bool ok = FALSE;
 	QString text;
-	text = QInputDialog::getText( tr("Title"), tr( "New title" ), w->property("title").toString(), &ok, this );
+	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );
 	if ( ok ) {
 	    QString pn( tr( "Set 'title' of '%2'" ).arg( w->name() ) );
 	    SetPropertyCommand *cmd = new SetPropertyCommand( pn, formWindow(), w, propertyEditor,
