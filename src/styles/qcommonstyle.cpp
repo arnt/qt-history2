@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#57 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#58 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -633,10 +633,10 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->setBrush(color1);
 	p->drawEllipse(ir);
 	break; }
-    
+
     case PO_DockWindowHandle: {
 	bool highlight = flags & PStyle_On;
-		
+
 	p->save();
 	p->translate( r.x(), r.y() );
 	if ( flags & PStyle_Vertical ) {
@@ -666,16 +666,16 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    p1 = QPoint( r.width()/2, 0 );
 	    p2 = QPoint( p1.x(), r.height() );
 	}
-	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );	
+	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
 	break; }
-    
+
     case PO_DockWindowPanel: {
 	// ### I guess drawPanel() should be a primitive as well?
 	QCommonStyle * that = (QCommonStyle *) this;
-	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg, 
+	that->drawPanel( p, r.x(), r.y(), r.width(), r.height(), cg,
 			 FALSE, pixelMetric( PM_DockWindowFrameWidth ), 0 );
 	break; }
-    
+
     default:
 	break;
     }
@@ -693,6 +693,8 @@ void QCommonStyle::drawControl( ControlElement element,
 				CFlags how,
 				void *data ) const
 {
+    Q_UNUSED(how);
+
     PFlags flags = PStyle_Default;
     if (widget->isEnabled())
 	flags |= PStyle_Enabled;
@@ -1069,6 +1071,9 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	}
 
 	break; }
+
+    default:
+	break;
     }
 }
 
@@ -1159,10 +1164,9 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
 	int sliderlen;
-	int sbstart;
 
 	void ** sdata = (void **) data;
-	
+
 	if (sdata)
 	    sliderstart = *((int*) sdata[0]);
 	else
@@ -1247,9 +1251,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int space = (sl->orientation() == Horizontal) ? sl->height() :
-		        sl->width();
-	    int ticks = sl->tickmarks();
 
 	    if ( sdata )
 		sliderPos = *((int *) sdata[0]);
@@ -1269,7 +1270,6 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
     case CC_ToolButton: {
 	QToolButton *toolbutton = (QToolButton *) w;
-	void **sdata = (void **) data;
 	int mbi = pixelMetric(PM_MenuButtonIndicator, w);
 
 	rect = toolbutton->rect();
@@ -1392,7 +1392,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	else
 	    ret = 0;
 	break; }
-        
+
     case PM_DockWindowSeparatorExtent:
 	ret = 6;
 	break;
@@ -1404,7 +1404,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_DockWindowFrameWidth:
 	ret = 1;
 	break;
-	
+
     default:
 	ret = 0;
 	break;
@@ -1446,18 +1446,14 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_CheckBox: {
 	QCheckBox *checkbox = (QCheckBox *) widget;
-	QSize sz = subRect(SR_CheckBoxIndicator, widget).size();
-
-	sz = contentsSize + QSize(sz.width() +
-				  (checkbox->text().isEmpty() ? 0 : 10), 4);
+	QSize isz = subRect(SR_CheckBoxIndicator, widget).size();
+	sz += QSize(isz.width() + (checkbox->text().isEmpty() ? 0 : 10), 4);
 	break; }
 
     case CT_RadioButton: {
 	QRadioButton *radiobutton = (QRadioButton *) widget;
-	QSize sz = subRect(SR_RadioButtonIndicator, widget).size();
-
-	sz = contentsSize + QSize(sz.width() +
-				  (radiobutton->text().isEmpty() ? 0 : 10), 4);
+	QSize isz = subRect(SR_RadioButtonIndicator, widget).size();
+	sz += QSize(isz.width() + (radiobutton->text().isEmpty() ? 0 : 10), 4);
 	break; }
 
     case CT_ToolButton: {
