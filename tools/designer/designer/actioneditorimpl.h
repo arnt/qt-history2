@@ -25,6 +25,7 @@
 
 class QAction;
 class FormWindow;
+class ActionItem;
 
 class ActionEditor : public ActionEditorBase
 {
@@ -43,11 +44,15 @@ protected slots:
     void currentActionChanged( QListViewItem * );
     void deleteAction();
     void newAction();
+    void newActionGroup();
     void connectionsClicked();
-    
+
 signals:
     void hidden();
 
+private:
+    void insertChildActions( ActionItem *i );
+    
 private:
     QAction *currentAction;
     FormWindow *formWindow;

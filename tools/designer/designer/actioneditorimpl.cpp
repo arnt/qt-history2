@@ -32,6 +32,8 @@
 #include <qlistview.h>
 #include <qcheckbox.h>
 #include <qpushbutton.h>
+#include <qpopupmenu.h>
+#include <qobjectlist.h>
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     : ActionEditorBase( parent, name, fl ), currentAction( 0 ), formWindow( 0 )
@@ -39,6 +41,14 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     listActions->addColumn( tr( "Actions" ) );
     setEnabled( FALSE );
     buttonConnect->setEnabled( FALSE );
+    
+    QPopupMenu *popup = new QPopupMenu( this );
+    popup->insertItem( tr( "New &Action" ), this, SLOT( newAction() ) );
+    popup->insertItem( tr( "New Action &Group" ), this, SLOT( newActionGroup() ) );
+    buttonNewAction->setPopup( popup );
+
+    connect( listActions, SIGNAL( insertAction() ), this, SLOT( newAction() ) );
+    connect( listActions, SIGNAL( insertActionGroup() ), this, SLOT( newActionGroup() ) );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -53,7 +63,9 @@ void ActionEditor::currentActionChanged( QListViewItem *i )
     if ( !i )
 	return;
     currentAction = ( (ActionItem*)i )->action();
-    if ( formWindow )
+    if ( !currentAction )
+	currentAction = ( (ActionItem*)i )->actionGroup();
+    if ( formWindow && currentAction )
 	formWindow->setActiveObject( currentAction );
 }
 
@@ -65,25 +77,69 @@ void ActionEditor::deleteAction()
     QListViewItemIterator it( listActions );
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == currentAction ) {
+	    formWindow->actionList().removeRef( currentAction );
+	    delete currentAction;
+	    delete it.current();
+	    break;
+	} else if ( ( (ActionItem*)it.current() )->actionGroup() == currentAction ) {
+	    formWindow->actionList().removeRef( currentAction );
+	    delete currentAction;
 	    delete it.current();
 	    break;
 	}
 	++it;
     }
-
-    delete currentAction;
-    currentAction = 0;
+    
+    if ( formWindow )
+	formWindow->setActiveObject( formWindow->mainContainer() );
 }
 
 void ActionEditor::newAction()
 {
-    ActionItem *i = new ActionItem( listActions, FALSE );
+    ActionItem *actionParent = (ActionItem*)listActions->currentItem();
+    if ( actionParent ) {
+	if ( !actionParent->actionGroup() ||
+	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
+	    actionParent = (ActionItem*)actionParent->parent();
+    }
+    
+    ActionItem *i = 0;
+    if ( actionParent )
+	i = new ActionItem( actionParent );
+    else
+	i = new ActionItem( listActions, FALSE );
     MetaDataBase::addEntry( i->action() );
     i->setText( 0, tr( "Action" ) );
     i->action()->setName( tr( "Action" ) );
     i->action()->setText( tr( "Action" ) );
     listActions->setCurrentItem( i );
-    formWindow->actionList().append( i->action() );
+    if ( !actionParent )
+	formWindow->actionList().append( i->action() );
+}
+
+void ActionEditor::newActionGroup()
+{
+    ActionItem *actionParent = (ActionItem*)listActions->currentItem();
+    if ( actionParent ) {
+	if ( !actionParent->actionGroup() ||
+	     !actionParent->actionGroup()->inherits( "QActionGroup" ) )
+	    actionParent = (ActionItem*)actionParent->parent();
+    }
+    
+    ActionItem *i = 0;
+    if ( actionParent )
+	i = new ActionItem( actionParent, TRUE );
+    else
+	i = new ActionItem( listActions, TRUE );
+
+    MetaDataBase::addEntry( i->actionGroup() );
+    i->setText( 0, tr( "ActionGroup" ) );
+    i->actionGroup()->setName( tr( "ActionGroup" ) );
+    i->actionGroup()->setText( tr( "ActionGroup" ) );
+    listActions->setCurrentItem( i );
+    i->setOpen( TRUE );
+    if ( !actionParent )
+	formWindow->actionList().append( i->actionGroup() );
 }
 
 void ActionEditor::setFormWindow( FormWindow *fw )
@@ -96,10 +152,16 @@ void ActionEditor::setFormWindow( FormWindow *fw )
 	setEnabled( FALSE );
     } else {
 	setEnabled( TRUE );
-	for ( QDesignerAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) { // ### handle action grpups/childs
-	    ActionItem *i = new ActionItem( listActions, a );
+	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) {
+	    ActionItem *i = 0;
+	    if ( a->parent() && a->parent()->inherits( "QAction" ) )
+		continue;
+	    i = new ActionItem( listActions, a );
 	    i->setText( 0, a->name() );
 	    i->setPixmap( 0, a->iconSet().pixmap() );
+	    if ( a->inherits( "QActionGroup" ) ) {
+		insertChildActions( i );
+	    }
 	}
 	if ( listActions->firstChild() ) {
 	    listActions->setCurrentItem( listActions->firstChild() );
@@ -108,11 +170,33 @@ void ActionEditor::setFormWindow( FormWindow *fw )
     }
 }
 
+void ActionEditor::insertChildActions( ActionItem *i )
+{
+    if ( !i->actionGroup() || !i->actionGroup()->children() )
+	return;
+    QObjectListIt it( *i->actionGroup()->children() );
+    while ( it.current() ) {
+	QObject *o = it.current();
+	++it;
+	if ( !o->inherits( "QAction" ) )
+	    continue;
+	QAction *a = (QAction*)o;
+	ActionItem *i2 = new ActionItem( i, a );
+	i->setOpen( TRUE );
+	i2->setText( 0, a->name() );
+	i2->setPixmap( 0, a->iconSet().pixmap() );
+	if ( a->inherits( "QActionGroup" ) )
+	    insertChildActions( i2 );
+    }
+}
+
 void ActionEditor::updateActionName( QAction *a )
 {
     QListViewItemIterator it( listActions );
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == a )
+	    ( (ActionItem*)it.current() )->setText( 0, a->name() );
+	else if ( ( (ActionItem*)it.current() )->actionGroup() == a )
 	    ( (ActionItem*)it.current() )->setText( 0, a->name() );
 	++it;
     }
@@ -123,6 +207,8 @@ void ActionEditor::updateActionIcon( QAction *a )
     QListViewItemIterator it( listActions );
     while ( it.current() ) {
 	if ( ( (ActionItem*)it.current() )->action() == a )
+	    ( (ActionItem*)it.current() )->setPixmap( 0, a->iconSet().pixmap() );
+	else if ( ( (ActionItem*)it.current() )->actionGroup() == a )
 	    ( (ActionItem*)it.current() )->setPixmap( 0, a->iconSet().pixmap() );
 	++it;
     }

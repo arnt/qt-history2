@@ -863,6 +863,8 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	return TRUE;
     else if ( o->inherits( "QDockWindowHandle" ) )
 	return TRUE;
+    else if ( o->inherits( "QHideDock" ) )
+	return TRUE;
 
     return FALSE;
 }

@@ -169,7 +169,7 @@ public:
 
     void setActiveObject( QObject *o );
 
-    QList<QDesignerAction> &actionList() { return actions; }
+    QList<QAction> &actionList() { return actions; }
 
     void setProject( Project *pro );
     Project *project() const;
@@ -269,7 +269,7 @@ private:
     bool pixInline;
     QString pixLoader;
     bool toolFixed;
-    QList<QDesignerAction> actions;
+    QList<QAction> actions;
     Project *proj;
 
 };

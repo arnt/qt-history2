@@ -220,6 +220,8 @@ public:
 
 class QHideDock : public QWidget
 {
+    Q_OBJECT
+    
 public:
     QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
 	hide();
@@ -383,7 +385,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 	return;
     QHideDock *dock = (QHideDock*)parentWidget();
 
-    if ( dock->children()->isEmpty() )
+    if ( !dock->children() || dock->children()->isEmpty() )
 	return;
     QObjectListIt it( *dock->children() );
     QObject *o;

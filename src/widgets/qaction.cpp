@@ -1266,12 +1266,12 @@ void QActionGroup::insert( QAction* action )
 	return;
 
     d->actions.append( action );
-    
+
     if ( action->whatsThis().isNull() )
 	action->setWhatsThis( whatsThis() );
     if ( action->toolTip().isNull() )
 	action->setToolTip( toolTip() );
-    
+
     connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
     connect( action, SIGNAL( toggled( bool ) ), this, SLOT( childToggled( bool ) ) );
@@ -1337,7 +1337,7 @@ bool QActionGroup::addTo( QWidget* w )
 		QAction *defAction = it.current();
 
 		QToolButton* btn = new QToolButton( (QToolBar*) w );
-		addedTo( btn, w );
+		addedTo( btn, w, defAction );
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
@@ -1365,7 +1365,7 @@ bool QActionGroup::addTo( QWidget* w )
 		return TRUE;
 	    } else {
 		QComboBox *box = new QComboBox( w );
-		addedTo( box, w );
+		QAction::addedTo( box, w );
 		connect( box, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->comboboxes.append( box );
 		if ( !!toolTip() )
@@ -1400,7 +1400,7 @@ bool QActionGroup::addTo( QWidget* w )
 		    id = menu->insertItem( menuText(), popup );
 	    }
 
-	    addedTo( menu->indexOf( id ), menu );
+	    QAction::addedTo( menu->indexOf( id ), menu );
 	
 	    QActionGroupPrivate::MenuItem *item = new QActionGroupPrivate::MenuItem;
 	    item->id = id;
@@ -1410,12 +1410,14 @@ bool QActionGroup::addTo( QWidget* w )
 	    popup = (QPopupMenu*)w;
 	}
 	for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	    // #### do an addedTo( index, popup, action), need to find out index
 	    it.current()->addTo( popup );
 	}
 	return TRUE;
     }
 
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
+	// #### do an addedTo( index, popup, action), need to find out index
 	it.current()->addTo( w );
     }
 
@@ -1663,6 +1665,32 @@ void QActionGroup::objectDestroyed()
 	}
     }
     d->comboboxes.removeRef( (QComboBox*)obj );
+}
+
+/*! This function is called from the addTo() function when it created
+  a widget (\a actionWidget) for the child action \a in the \a
+  container.
+*/
+
+void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container, QAction *a )
+{
+    Q_UNUSED( actionWidget );
+    Q_UNUSED( container );
+    Q_UNUSED( a );
+}
+
+/*! \overload
+
+  This function is called from the addTo() function when it created a
+  menu item for the child action \a at the index \a index in the popup
+  menu \a menu.
+*/
+
+void QActionGroup::addedTo( int index, QPopupMenu *menu, QAction *a )
+{
+    Q_UNUSED( index );
+    Q_UNUSED( menu );
+    Q_UNUSED( a );
 }
 
 #endif

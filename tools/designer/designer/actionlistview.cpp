@@ -26,16 +26,63 @@ ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )
 {
     header()->setFullSize( TRUE );
+    setRootIsDecorated( TRUE );
+    connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint &, int ) ),
+	     this, SLOT( rmbMenu( QListViewItem *, const QPoint & ) ) );
 }
+
+ActionItem::ActionItem( QListView *lv, QAction *ac )
+    : QListViewItem( lv ), a( 0 ), g( 0 ) 
+{ 
+    if ( ac->inherits( "QActionGroup" ) )
+	g = (QDesignerActionGroup*)ac;
+    else
+	a = (QDesignerAction*)ac;
+    setDragEnabled( TRUE ); 
+}
+
+ActionItem::ActionItem( QListViewItem *i, QAction *ac )
+    : QListViewItem( i ), a( 0 ), g( 0 ) 
+{ 
+    if ( ac->inherits( "QActionGroup" ) )
+	g = (QDesignerActionGroup*)ac;
+    else
+	a = (QDesignerAction*)ac;
+    setDragEnabled( TRUE ); 
+}
+
 
 QDragObject *ActionListView::dragObject()
 {
     ActionItem *i = (ActionItem*)currentItem();
     if ( !i )
 	return 0;
-    QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", viewport() );
-    QString s = QString::number( (long)i->action() ); // #### huha, that is evil
-    drag->setEncodedData( QCString( s.latin1() ) );
-    drag->setPixmap( i->action()->iconSet().pixmap() );
+    QStoredDrag *drag = 0;
+    if ( i->action() ) {
+	drag = new QStoredDrag( "application/x-designer-actions", viewport() );
+	QString s = QString::number( (long)i->action() ); // #### huha, that is evil
+	drag->setEncodedData( QCString( s.latin1() ) );
+	drag->setPixmap( i->action()->iconSet().pixmap() );
+    } else {
+	drag = new QStoredDrag( "application/x-designer-actiongroup", viewport() );
+	QString s = QString::number( (long)i->actionGroup() ); // #### huha, that is evil
+	drag->setEncodedData( QCString( s.latin1() ) );
+	drag->setPixmap( i->actionGroup()->iconSet().pixmap() );
+    }
     return drag;
+}
+
+void ActionListView::rmbMenu( QListViewItem *i, const QPoint &p )
+{
+    if ( !i )
+	return;
+
+    QPopupMenu *popup = new QPopupMenu( this );
+    popup->insertItem( tr( "New &Action" ), 0 );
+    popup->insertItem( tr( "New Action &Group" ), 1 );
+    int res = popup->exec( p );
+    if ( res == 0 )
+	emit insertAction();
+    else if ( res == 1 )
+	emit insertActionGroup();
 }

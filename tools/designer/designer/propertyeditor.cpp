@@ -2831,7 +2831,7 @@ QObject *PropertyEditor::widget() const
 
 void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 {
-    if ( w == wid ) {
+    if ( w && w == wid ) {
 	bool ret = TRUE;
 	if ( wid->isWidgetType() && WidgetFactory::layoutType( (QWidget*)wid ) != WidgetFactory::NoLayout ) {
 	    QListViewItemIterator it( listview );

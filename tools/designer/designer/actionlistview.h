@@ -27,31 +27,42 @@
 class ActionItem : public QListViewItem
 {
 public:
-    ActionItem( QListView *lv, bool /*group*/ )
+    ActionItem( QListView *lv, bool group )
 	: QListViewItem( lv ),
-	  a( /*group ? new QActionGroup( 0 ) : */new QDesignerAction( 0 ) ) { setDragEnabled( TRUE ); }
-    ActionItem( ActionItem *parent )
-	: QListViewItem( parent ),
-	  a( new QDesignerAction( parent->action() ) ) { setDragEnabled( TRUE ); }
-    ActionItem( QListView *lv, QDesignerAction *ac )
-	: QListViewItem( lv ), a( ac ) { setDragEnabled( TRUE ); }
-    ActionItem( ActionItem *parent, QDesignerAction *ac )
-	: QListViewItem( parent ), a( ac ) { setDragEnabled( TRUE ); }
+	  a( group ? 0 : new QDesignerAction( 0 ) ),
+	  g( group ? new QDesignerActionGroup( 0 ) : 0 ) { setDragEnabled( TRUE ); }
+    ActionItem( QListView *lv, QAction *ac );
+    ActionItem( QListViewItem *i, QAction *ac );
+    ActionItem( ActionItem *parent, bool group = FALSE )
+	: QListViewItem( parent ), 
+	  a( group ? 0 : new QDesignerAction( parent->actionGroup() ) ), 
+	  g( group ? new QDesignerActionGroup( parent->actionGroup() ) : 0 ) { setDragEnabled( TRUE ); }
 
     QDesignerAction *action() const { return a; }
+    QDesignerActionGroup *actionGroup() const { return g; }
 
 private:
     QDesignerAction *a;
+    QDesignerActionGroup *g;
 
 };
 
 class ActionListView : public QListView
 {
+    Q_OBJECT
+    
 public:
     ActionListView( QWidget *parent = 0, const char *name = 0 );
 
 protected:
     QDragObject *dragObject();
+
+private slots:
+    void rmbMenu( QListViewItem *i, const QPoint &p );
+    
+signals:
+    void insertAction();
+    void insertActionGroup();
 
 };
 

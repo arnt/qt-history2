@@ -1969,40 +1969,109 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
     return cg;
 }
 
-void Resource::saveActions( const QList<QDesignerAction> &actions, QTextStream &ts, int indent )
+void Resource::saveChildActions( QAction *a, QTextStream &ts, int indent )
+{
+    if ( !a->children() )
+	return;
+    QObjectListIt it( *a->children() );
+    while ( it.current() ) {
+	QObject *o = it.current();
+	++it;
+	if ( !o->inherits( "QAction" ) )
+	    continue;
+	QAction *ac = (QAction*)o;
+	bool isGroup = ac->inherits( "QActionGroup" );
+	if ( isGroup )
+	    ts << makeIndent( indent ) << "<actiongroup>" << endl;
+	else
+	    ts << makeIndent( indent ) << "<action>" << endl;
+	indent++;
+	saveObjectProperties( ac, ts, indent );
+	indent--;
+	if ( isGroup ) {
+	    indent++;
+	    saveChildActions( ac, ts, indent );
+	    indent--;
+	}
+	if ( isGroup )
+	    ts << makeIndent( indent ) << "</actiongroup>" << endl;
+	else
+	    ts << makeIndent( indent ) << "</action>" << endl;
+    }
+}
+
+void Resource::saveActions( const QList<QAction> &actions, QTextStream &ts, int indent )
 {
     if ( actions.isEmpty() )
 	return;
     ts << makeIndent( indent ) << "<actions>" << endl;
     indent++;
-    QListIterator<QDesignerAction> it( actions );
+    QListIterator<QAction> it( actions );
     while ( it.current() ) {
-	ts << makeIndent( indent ) << "<action>" << endl;
+	QAction *a = it.current();
+	bool isGroup = a->inherits( "QActionGroup" );
+	if ( isGroup )
+	    ts << makeIndent( indent ) << "<actiongroup>" << endl;
+	else
+	    ts << makeIndent( indent ) << "<action>" << endl;
 	indent++;
-	saveObjectProperties( it.current(), ts, indent );
+	saveObjectProperties( a, ts, indent );
 	indent--;
-	ts << makeIndent( indent ) << "</action>" << endl;
+	if ( isGroup ) {
+	    indent++;
+	    saveChildActions( a, ts, indent );
+	    indent--;
+	}
+	if ( isGroup )
+	    ts << makeIndent( indent ) << "</actiongroup>" << endl;
+	else
+	    ts << makeIndent( indent ) << "</action>" << endl;
 	++it;
     }
     indent--;
     ts << makeIndent( indent ) << "</actions>" << endl;
 }
 
+void Resource::loadChildAction( QObject *parent, const QDomElement &e )
+{
+    QDomElement n = e;
+    QAction *a = 0;
+    if ( n.tagName() == "action" ) {
+	a = new QDesignerAction( parent );
+	MetaDataBase::addEntry( a );
+	QDomElement n2 = n.firstChild().toElement();
+	while ( !n2.isNull() ) {
+	    if ( n2.tagName() == "property" )
+		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    n2 = n2.nextSibling().toElement();
+	}
+	if ( !parent->inherits( "QAction" ) )
+	    formwindow->actionList().append( a );
+    } else if ( n.tagName() == "actiongroup" ) {
+	a = new QDesignerActionGroup( parent );
+	MetaDataBase::addEntry( a );
+	QDomElement n2 = n.firstChild().toElement();
+	while ( !n2.isNull() ) {
+	    if ( n2.tagName() == "property" )
+		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    else if ( n2.tagName() == "action" ||
+		      n2.tagName() == "actiongroup" )
+		loadChildAction( a, n2 );
+	    n2 = n2.nextSibling().toElement();
+	}	
+	if ( !parent->inherits( "QAction" ) )
+	    formwindow->actionList().append( a );
+    }
+}
+
 void Resource::loadActions( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
-    QDesignerAction *a = 0;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "action" ) {
-	    a = new QDesignerAction( formwindow );
-	    MetaDataBase::addEntry( a );
-	    QDomElement n2 = n.firstChild().toElement();
-	    while ( !n2.isNull() ) {
-		if ( n2.tagName() == "property" )
-		    setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-		n2 = n2.nextSibling().toElement();
-	    }
-	    formwindow->actionList().append( a );
+	    loadChildAction( formwindow, n );
+	} else if ( n.tagName() == "actiongroup" ) {
+	    loadChildAction( formwindow, n );
 	}
 	n = n.nextSibling().toElement();
     }
@@ -2021,7 +2090,7 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
 	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() ) << "\">" << endl;
 	    indent++;
-	    QList<QDesignerAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
+	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() )
 		ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	    indent--;
@@ -2043,7 +2112,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
 	if ( !m )
 	    continue;
-	QList<QDesignerAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
+	QList<QAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
 	for ( QAction *a = actionList.first(); a; a = actionList.next() )
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	indent--;
@@ -2066,7 +2135,7 @@ void Resource::loadToolBars( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QDesignerAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
+		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
 			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
 			    a->addTo( tb );
 			    tb->addAction( a );
@@ -2092,7 +2161,7 @@ void Resource::loadMenuBar( const QDomElement &e )
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
-		    for ( QDesignerAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
+		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
 			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
 			    a->addTo( popup );
 			    popup->addAction( a );

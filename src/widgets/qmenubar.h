@@ -103,6 +103,7 @@ protected:
     void 	styleChange( QStyle& );
     int		itemAtPos( const QPoint & );
     void	hidePopups();
+    QRect	itemRect( int item );
 
 private slots:
     void	subActivated( int itemId );
@@ -125,7 +126,6 @@ private:
     void setAltMode( bool );
 
     int		calculateRects( int max_width = -1 );
-    QRect	itemRect( int item );
 
 #ifndef QT_NO_ACCEL
     void	setupAccelerators();

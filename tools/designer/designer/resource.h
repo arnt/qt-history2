@@ -89,7 +89,8 @@ private:
     void saveColor( QTextStream &ts, int indent, const QColor &c );
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
-    void saveActions( const QList<QDesignerAction> &actions, QTextStream &ts, int indent );
+    void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
+    void saveChildActions( QAction *a, QTextStream &ts, int indent );
     void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
     void saveFunctions( QTextStream &ts, int indent );
@@ -108,6 +109,7 @@ private:
     void loadTabOrder( const QDomElement &e );
     void loadItem( const QDomElement &n, QPixmap &pix, QString &txt, bool &hasPixmap );
     void loadActions( const QDomElement &n );
+    void loadChildAction( QObject *parent, const QDomElement &e );
     void loadToolBars( const QDomElement &n );
     void loadMenuBar( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );

@@ -149,6 +149,8 @@ public:
 
 protected:
     void childEvent( QChildEvent* );
+    virtual void addedTo( QWidget *actionWidget, QWidget *container, QAction *a );
+    virtual void addedTo( int index, QPopupMenu *menu, QAction *a );
 
 signals:
     void selected( QAction* );

@@ -11,6 +11,36 @@
 
 class QDesignerPopupMenu;
 
+class QDesignerActionGroup : public QActionGroup
+{
+    Q_OBJECT
+    
+public:
+    QDesignerActionGroup( QObject *parent )
+	: QActionGroup( parent ), wid( 0 ), idx( -1 ) {}
+
+    QWidget *widget() const { return wid; }
+    QWidget *widget( QAction *a ) const { return *widgets.find( a ); }
+    int index() const { return idx; }
+
+protected:
+    void addedTo( QWidget *w, QWidget * ) {
+	wid = w;
+    }
+    void addedTo( QWidget *w, QWidget *, QAction *a ) {
+	widgets.insert( a, w );
+    }
+    void addedTo( int index, QPopupMenu * ) {
+	idx = index;
+    }
+
+private:
+    QWidget *wid;
+    QMap<QAction *, QWidget *> widgets;
+    int idx;
+    
+};
+
 class QDesignerAction : public QAction
 {
     Q_OBJECT
@@ -43,10 +73,11 @@ class QDesignerToolBar : public QToolBar
 public:
     QDesignerToolBar( QMainWindow *mw );
     QDesignerToolBar( QMainWindow *mw, Dock dock );
-    QList<QDesignerAction> insertedActions() const { return actionList; }
-    void addAction( QDesignerAction *a );
+    QList<QAction> insertedActions() const { return actionList; }
+    void addAction( QAction *a );
 
 protected:
+    bool eventFilter( QObject *, QEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -61,14 +92,17 @@ private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
     void reInsert();
-
+    void buttonMousePressEvent( QMouseEvent *e, QObject *o );
+    void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
+    
 private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
     bool afterAnchor;
-    QList<QDesignerAction> actionList;
-    QMap<QWidget*, QDesignerAction*> actionMap;
-
+    QList<QAction> actionList;
+    QMap<QWidget*, QAction*> actionMap;
+    QPoint dragStartPos;
+    
 };
 
 class QDesignerMenuBar : public QMenuBar
@@ -88,6 +122,9 @@ public:
     QString itemText() const;
 
 protected:
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -96,8 +133,16 @@ protected:
 #endif
 
 private:
+    void drawIndicator( const QPoint &pos );
+    QPoint calcIndicatorPos( const QPoint &pos );
+    
+private:
     int itemNum;
-
+    QPoint dragStartPos;
+    bool mousePressed;
+    QPoint lastIndicatorPos;
+    int insertAt;
+    
 };
 
 class QDesignerPopupMenu : public QPopupMenu
@@ -106,10 +151,13 @@ class QDesignerPopupMenu : public QPopupMenu
 
 public:
     QDesignerPopupMenu( QWidget *w );
-    QList<QDesignerAction> insertedActions() const { return actionList; }
-    void addAction( QDesignerAction *a );
+    QList<QAction> insertedActions() const { return actionList; }
+    void addAction( QAction *a );
 
 protected:
+    void mousePressEvent( QMouseEvent *e );
+    void mouseMoveEvent( QMouseEvent *e );
+    void mouseReleaseEvent( QMouseEvent *e );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -128,8 +176,10 @@ private:
 private:
     QPoint lastIndicatorPos;
     int insertAt;
-    QList<QDesignerAction> actionList;
-
+    QList<QAction> actionList;
+    QPoint dragStartPos;
+    bool mousePressed;
+    
 };
 
 #endif

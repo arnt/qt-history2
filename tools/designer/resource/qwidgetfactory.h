@@ -47,6 +47,7 @@ private:
     void createColumn( const QDomElement &e, QWidget *widget );
     void loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
+    void loadChildAction( QObject *parent, const QDomElement &e );
     void loadActions( const QDomElement &e );
     void loadToolBars( const QDomElement &e );
     void loadMenuBar( const QDomElement &e );
@@ -79,7 +80,7 @@ private:
 	QStringList events;
 	QStringList functions;
     };
-    
+
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
@@ -91,7 +92,7 @@ private:
     QList<QAction> actionList;
     QMap<QObject *, EventFunction> eventMap;
     QString functions;
-    
+
 };
 
 #endif

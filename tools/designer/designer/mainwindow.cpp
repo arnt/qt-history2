@@ -2196,6 +2196,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     bool passiveInteractor = WidgetFactory::isPassiveInteractor( o );
     switch ( e->type() ) {
     case QEvent::MouseButtonPress:
+	if ( o->inherits( "QDesignerPopupMenu" ) )
+	    break;
 	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
 		   o->inherits( "QDesignerToolBar" ) ||
 		    o->inherits( "QToolButton" ) && o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
@@ -2206,7 +2208,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    while ( pw ) {
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
-		    return TRUE;
+		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" );
 		}
 		pw = pw->parentWidget();
 	    }

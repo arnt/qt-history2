@@ -1255,20 +1255,46 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
     }
 }
 
+
+
+void QWidgetFactory::loadChildAction( QObject *parent, const QDomElement &e )
+{
+    QDomElement n = e;
+    QAction *a = 0;
+    if ( n.tagName() == "action" ) {
+	a = new QAction( parent );
+	QDomElement n2 = n.firstChild().toElement();
+	while ( !n2.isNull() ) {
+	    if ( n2.tagName() == "property" )
+		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    n2 = n2.nextSibling().toElement();
+	}
+	if ( !parent->inherits( "QAction" ) )
+	    actionList.append( a );
+    } else if ( n.tagName() == "actiongroup" ) {
+	a = new QActionGroup( parent );
+	QDomElement n2 = n.firstChild().toElement();
+	while ( !n2.isNull() ) {
+	    if ( n2.tagName() == "property" )
+		setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+	    else if ( n2.tagName() == "action" ||
+		      n2.tagName() == "actiongroup" )
+		loadChildAction( a, n2 );
+	    n2 = n2.nextSibling().toElement();
+	}	
+	if ( !parent->inherits( "QAction" ) )
+	    actionList.append( a );
+    }
+}
+
 void QWidgetFactory::loadActions( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
-    QAction *a = 0;
     while ( !n.isNull() ) {
 	if ( n.tagName() == "action" ) {
-	    a = new QAction( toplevel );
-	    QDomElement n2 = n.firstChild().toElement();
-	    while ( !n2.isNull() ) {
-		if ( n2.tagName() == "property" )
-		    setProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
-		n2 = n2.nextSibling().toElement();
-	    }
-	    actionList.append( a );
+	    loadChildAction( toplevel, n );
+	} else if ( n.tagName() == "actiongroup" ) {
+	    loadChildAction( toplevel, n );
 	}
 	n = n.nextSibling().toElement();
     }
