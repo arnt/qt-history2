@@ -6,10 +6,9 @@ DLLDESTDIR      = $$QT_BUILD_TREE/bin
 TARGET          = qaxcontainer
 INCLUDEPATH     += $$QT_SOURCE_TREE/tools/designer/interfaces
 
-internal {
+contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
-}
-!internal {
+} else {
 	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
 }
 

@@ -2,10 +2,9 @@ TEMPLATE    = lib
 CONFIG      += qt warn_off staticlib
 TARGET      = qaxserver
 
-internal {
+contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
-}
-!internal {
+} else {
 	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
 }
 

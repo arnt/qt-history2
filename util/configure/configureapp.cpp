@@ -480,10 +480,6 @@ void Configure::parseCmdLine()
 	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
 
-    if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	if( licenseInfo[ "PRODUCTS" ] == "qt-internal" )
-	    qmakeConfig += "internal";
-    }
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
 	modules.remove( (*dis) );
     }

@@ -33,7 +33,7 @@ STYLES_CPP	= styles
 EMBEDDED_CPP	= embedded
 
 win32 {
-	internal {
+	contains(QT_PRODUCT,qt-internal) {
 		SQL_H		= $$SQL_CPP
 		KERNEL_H	= $$KERNEL_CPP
 		WIDGETS_H	= $$WIDGETS_CPP
@@ -48,8 +48,7 @@ win32 {
 		XML_H		= $$XML_CPP
 		CANVAS_H	= $$CANVAS_CPP
 		STYLES_H	= $$STYLES_CPP
-	}
-	!internal {
+	} else {
 		WIN_ALL_H = ../include
 		SQL_H		= $$WIN_ALL_H
 		KERNEL_H	= $$WIN_ALL_H
