@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#49 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -155,8 +155,8 @@ void QColor::initialize()
 
     hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
 
-    ((QColor*)(&black))->   alloc();
-    ((QColor*)(&white))->   alloc();
+    ((QColor*)(&Qt::black))->   alloc();
+    ((QColor*)(&Qt::white))->   alloc();
 }
 
 

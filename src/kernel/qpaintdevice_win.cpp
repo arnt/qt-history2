@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#44 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -281,11 +281,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( mask ) {
 	if ( src_pm->data->selfmask ) {
-	    HBRUSH b = CreateSolidBrush( black.pixel() );
+	    HBRUSH b = CreateSolidBrush( Qt::black.pixel() );
 	    COLORREF tc, bc;
 	    b = SelectObject( dst_dc, b );
-	    tc = SetTextColor( dst_dc, black.pixel() );
-	    bc = SetBkColor( dst_dc, white.pixel() );
+	    tc = SetTextColor( dst_dc, Qt::black.pixel() );
+	    bc = SetBkColor( dst_dc, Qt::white.pixel() );
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
