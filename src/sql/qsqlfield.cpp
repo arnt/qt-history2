@@ -342,7 +342,7 @@ QSqlFieldInfo::QSqlFieldInfo( const QSqlFieldInfo & other )
 
 /*! Creates a QSqlFieldInfo object with the type and the name of the QSqlField \a other
 */
-QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated = TRUE )
+QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated )
 {
     d = new QSqlFieldInfoPrivate();
     d->name = other.name();
