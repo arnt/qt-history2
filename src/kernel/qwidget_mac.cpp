@@ -1523,17 +1523,11 @@ void QWidget::setAcceptDrops( bool on )
 {
     if ( (on && macDropEnabled) || (!on && !macDropEnabled) )
 	return;
-
-    if ( on ) {
-	topLevelWidget()->createExtra();
-	QWExtra *extra = topLevelWidget()->extraData();
-	qt_macdnd_register( topLevelWidget(), extra );
-	macDropEnabled = true;
-    } else {
-	macDropEnabled = false;
-	QWExtra *extra = topLevelWidget()->extraData();
-	qt_macdnd_unregister( topLevelWidget(), extra );
-    }
+    topLevelWidget()->createExtra();
+    if ( (macDropEnabled = on) ) 
+	qt_macdnd_register( topLevelWidget(),  topLevelWidget()->extraData());
+    else 
+	qt_macdnd_unregister( topLevelWidget(), topLevelWidget()->extraData() );
 }
 
 void QWidget::setMask( const QRegion &region )

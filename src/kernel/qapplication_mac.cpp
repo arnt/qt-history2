@@ -955,6 +955,14 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 
 bool QApplication::processNextEvent( bool canWait )
 {
+    //TrackDrag says you may not use the EventManager things..
+    extern bool qt_mac_in_drag; //qdnd_mac.cpp
+    if(qt_mac_in_drag) {
+	qWarning("Whoa! Cannot process events whilst dragging!");
+	return FALSE;
+    }
+
+    //ok to carry on
     int	   nevents = 0;
 
 #if defined(QT_THREAD_SUPPORT)
@@ -985,12 +993,12 @@ bool QApplication::processNextEvent( bool canWait )
 //#define PLAY_EVENT_GAMES
 #ifdef PLAY_EVENT_GAMES
 		UInt32 ekind = GetEventKind(event), eclass=GetEventClass(event);
-		if(0 && eclass == kEventClassMouse && ekind == kEventMouseDown) {
+		if(eclass == kEventClassMouse && ekind == kEventMouseDown) {
 		    WindowRef wid;
 		    GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 				      sizeof(WindowRef), NULL, &wid);
 		    SelectWindow( wid );
-		} 
+		}
 #endif
 		if(SendEventToApplication(event) == noErr)
 		    nevents++;
@@ -1389,7 +1397,7 @@ QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *data)
 {
 #ifdef PLAY_EVENT_GAMES
-    return 1;
+    return eventNotHandledErr;
 #endif
 
     bool remove_context_timer = TRUE;

@@ -48,8 +48,11 @@
 #include "qbitmap.h"
 #include "qt_mac.h"
 
-DragReference current_dropobj = 0;
-
+bool qt_mac_in_drag = FALSE;
+//internal globals
+static QDragObject *global_src = 0;
+static QWidget *current_drag_widget = 0;
+static DragReference current_dropobj = 0;
 static const int default_pm_hotx = -2;
 static const int default_pm_hoty = -16;
 static const char* default_pm[] = {
@@ -67,6 +70,10 @@ static const char* default_pm[] = {
 " X X X X X X ",
 "X X X X X X X",
 };
+//functions
+QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
+static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
+						  void *handlerRefCon, DragReference theDrag );
 
 
 bool QDropEvent::provides( const char *fmt ) const
@@ -78,6 +85,15 @@ bool QDropEvent::provides( const char *fmt ) const
     }
     return FALSE;
 }
+
+static struct {
+    ScrapFlavorType mac_type;
+    const char *qt_type; 
+} scrap_map[] = {
+    { kScrapFlavorTypeUnicode, "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
+    { kScrapFlavorTypeText, "text/plain" },
+    { 0, NULL } 
+};
 
 QByteArray QDropEvent::encodedData( const char *fmt ) const
 {
@@ -96,7 +112,6 @@ QByteArray QDropEvent::encodedData( const char *fmt ) const
     if ( CountDragItemFlavors( current_dropobj, ref, &cnt ) || !cnt ) 
 	return 0;
 
-    bool find_text = (!strcmp( fmt, "text/plain" ));
     for ( UInt16 i = 1; i <= cnt; i++ ) {
 
 	if ( GetFlavorType(current_dropobj, ref, i, &info )) {
@@ -104,41 +119,38 @@ QByteArray QDropEvent::encodedData( const char *fmt ) const
 	    return 0;
 	}
 
-	if ( find_text && info == 'TEXT' ) {
-	    if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize ) ) {
-		qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
-		return 0;
-	    }
-	    buffer = (char *)malloc( flavorsize );
-	    GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
-	    ret.duplicate( buffer, flavorsize );
-	    delete buffer;
-	    return ret;
-	} else {
-	    if ( (info >> 16) != ('QTxx' >> 16) ) {
-		qDebug( "Unknown type %c%c%c%c", char(info >> 24),  
-			char((info >> 16) & 255), char((info >> 8) & 255),
-			char(info & 255 ));
-		continue;
-	    }
-	    
-	    if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize ) ) {
-		qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
-		return 0;
-	    }
-
-	    buffer = (char *)malloc( flavorsize );
-	    GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
-	    UInt32 mimesz;
-	    memcpy( &mimesz, buffer, sizeof(mimesz) );
-	    if( !strncasecmp( buffer+sizeof(mimesz), fmt, mimesz ) ) {
-	    // FIXME: Tell sam secret drag bus errored when using assign
-	    // at the point when the QByteArray destroyed.
-		ret.duplicate( buffer + mimesz + sizeof(mimesz), 
-			       flavorsize - (mimesz + sizeof(mimesz)) );
-		delete buffer;
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) {
+	    if ( info == scrap_map[sm].mac_type && !strcmp(fmt, scrap_map[sm].qt_type) ) {
+		if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize ) ) {
+		    qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
+		    return 0;
+		}
+		buffer = (char *)malloc( flavorsize );
+		GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
+		ret.assign( buffer, flavorsize );
 		return ret;
 	    }
+	}
+
+	if ( (info >> 16) != ('QTxx' >> 16) ) {
+	    qDebug( "%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
+		    char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255 ) );
+	    continue;
+	}
+	    
+	if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize ) ) {
+	    qDebug( "Failure to get GetFlavorDataSize for %d", (int)info );
+	    return 0;
+	}
+	buffer = (char *)malloc( flavorsize );
+	GetFlavorData( current_dropobj, ref, info, buffer, &flavorsize, 0 );
+	UInt32 mimesz;
+	memcpy( &mimesz, buffer, sizeof(mimesz) );
+	if( !strncasecmp( buffer+sizeof(mimesz), fmt, mimesz ) ) {
+	    int size = flavorsize - (mimesz + sizeof(mimesz));
+	    memcpy( buffer, buffer + mimesz + sizeof(mimesz), size );
+	    ret.assign( buffer, size );
+	    return ret;
 	}
     }
     return 0;
@@ -164,35 +176,41 @@ const char* QDropEvent::format( int i ) const
     if ( i >= numFlavors )
 	return 0;
 
-    if ( GetFlavorType(current_dropobj, ref, i+1, &info ) ) {
-	qDebug( "OOps.. %d %s:%d", i, __FILE__, __LINE__ );
+    int subtract = 0;
+    for(int sm = 0; scrap_map[sm].qt_type; sm++) {
+	if(i == (sm - subtract)) {
+	    if(GetFlavorDataSize( current_dropobj, ref, scrap_map[sm].mac_type, &flavorsize) == noErr) 
+		return scrap_map[sm].qt_type;
+	    else 
+		subtract++;
+	}
+    }
+
+    for( ; i < (int)numFlavors; i++) {
+	if ( GetFlavorType(current_dropobj, ref, i+1, &info ) ) {
+	    qDebug( "OOps.. %d %s:%d", i, __FILE__, __LINE__ );
+	    return 0;
+	}
+	if ((info >> 16) == ('QTxx' >> 16)) 
+	    break;
+	qDebug( "%s:%d Unknown type %c%c%c%c", __FILE__, __LINE__,
+		char(info >> 24), char((info >> 16) & 255), char((info >> 8) & 255), char(info & 255 ) );
+    }
+    if(i >= (int)numFlavors)
 	return 0;
-    }
 
-    if ( info == 'TEXT' ) {
-	return "text/plain";
-    }
-
-    if ((info >> 16) != ('QTxx' >> 16)) {
-	qDebug( "Unknown type %c%c%c%c", char(info >> 24), char((info >> 16) & 255),
-		char((info >> 8) & 255), char(info & 255 ) );
-        return 0;
-    }
     if ( GetFlavorDataSize( current_dropobj, ref, info, &flavorsize) || flavorsize < 4 ) {
 	qDebug( "Failure to get ScrapFlavorSize for %s:%d %d %d", __FILE__, __LINE__, 
 	       (int)flavorsize, (int)info );
 	return 0;
     }
     GetFlavorData( current_dropobj, ref, info, &typesize, &realsize, 0 );
-
     buffer = (char *)malloc(typesize + 1);
     GetFlavorData( current_dropobj, ref, info, buffer, &typesize, sizeof(typesize) );
-
     if (typesize < 0) {
 	qDebug( "typesize negative %s:%d", __FILE__, __LINE__ );
 	return 0;
     }
-
     *(buffer + typesize) = '\0';
     return buffer;
 }
@@ -231,13 +249,14 @@ void QDragManager::drop()
 {
 }
 
-static QDragObject *global_src = 0;
-
-EventRecord fakeEvent;
-
-
 bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 {
+    //just make sure..
+    if(qt_mac_in_drag) {
+	qWarning("Whoa! This should never happen!");
+	return FALSE;
+    }
+
     if ( object == o )
 	return FALSE;
 
@@ -260,18 +279,16 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     if ( (result = NewDrag(&theDrag)) )
 	return( !result );
 
-    if ( o->provides( "text/plain" ) ) {
-	ar = o->encodedData( "text/plain" );
-	AddDragItemFlavor( theDrag, (ItemReference)1, 'TEXT',
-			   ar.data(), ar.size(), 0 );
-    }
-	
-    //now the other formats
     FlavorType mactype;
     const char *fmt;
     for ( int i = 0; (fmt = o->format(i)); i++ ) {
-	if (!strcmp( fmt, "text/plain" ))
-	    continue; //already did that
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) {     //handle text/plain specially so other apps can get it
+	    if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+		ar = o->encodedData(scrap_map[sm].qt_type);
+		AddDragItemFlavor( theDrag, (ItemReference)1, scrap_map[sm].mac_type, ar.data(), ar.size(), 0 );
+		continue;
+	    }
+	}
 
 	//encode it..
 	ar = o->encodedData( fmt );
@@ -281,12 +298,15 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	memcpy( buffer, &mimelen, sizeof(mimelen) );
 	memcpy( buffer+sizeof(mimelen), fmt, mimelen );
 	memcpy( buffer+sizeof(mimelen) + mimelen, ar.data(), ar.size() );
-	AddDragItemFlavor( theDrag, (ItemReference)1, mactype,
-			   buffer, ar.size()+mimelen+sizeof(mimelen), 0 );
+	AddDragItemFlavor( theDrag, (ItemReference)1, mactype, buffer, ar.size()+mimelen+sizeof(mimelen), 0 );
     }
 
-    GetMouse( &(fakeEvent.where) );
-    LocalToGlobal( &(fakeEvent.where) );
+    //so we must fake an event
+    EventRecord fakeEvent;
+    GetGlobalMouse(&(fakeEvent.where));
+    fakeEvent.what = mouseDown;
+    fakeEvent.when = GetDblTime();
+    fakeEvent.modifiers = 0;
 
     Rect boundsRect;
     Point boundsPoint;
@@ -304,7 +324,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     SetRect( &boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height() );
     SetDragItemBounds( theDrag, (ItemReference)1 , &boundsRect );
 
-#ifdef Q_WS_MACX 
+#if defined( Q_WS_MACX ) 
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
     QRegion r(0, 0, pix.width(), pix.height());
     SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
@@ -315,10 +335,14 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     dragRegion.translate(boundsPoint.h, boundsPoint.v);
 #endif
 
-    fakeEvent.what = 0;
-    fakeEvent.when = 0;
-    fakeEvent.modifiers = 0;
+    //kick off the drag by calling the callback ourselves first..
+    QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, FALSE);
+    qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
+			     (void *)widget->extra->macDndExtra, theDrag );
+    //now let the mac take control..
+    qt_mac_in_drag = TRUE;
     result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );
+    qt_mac_in_drag = FALSE;
     DisposeDrag( theDrag );
     return !result;
 }
@@ -334,7 +358,6 @@ struct QMacDndExtra {
     bool acceptact;
     int ref;
 };
-
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
@@ -369,9 +392,6 @@ static const DragReceiveHandlerUPP make_receiveUPP()
     return qt_mac_receive_handlerUPP = NewDragReceiveHandlerUPP(qt_mac_receive_handler);
 }
 
-
-QWidget *current_drag_widget = 0;
-QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag )
 {
@@ -390,7 +410,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     Point local;
     local.h = mouse.h;
     local.v = mouse.v;
-    QMacSavedPortInfo savedInfo(macDndExtra->widget);;
+    QMacSavedPortInfo savedInfo(macDndExtra->widget);
     GlobalToLocal( &local );
     QWidget *widget = recursive_match( macDndExtra->widget, local.h, local.v );
 
@@ -416,12 +436,13 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 
     if ( widget ) {
 	current_dropobj = theDrag;
-	QPoint p = widget->mapFromGlobal( globalMouse );
-	QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
-	QApplication::sendEvent(widget, &de );
-	macDndExtra->acceptfmt = de.isAccepted();
-	macDndExtra->acceptact = de.isActionAccepted();
-	current_drag_widget = widget;
+	if(widget != current_drag_widget) {
+	    QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
+	    QApplication::sendEvent(widget, &de );
+	    macDndExtra->acceptfmt = de.isAccepted();
+	    macDndExtra->acceptact = de.isActionAccepted();
+	    current_drag_widget = widget;
+	}
     }
     QApplication::sendPostedEvents();
     return 0;

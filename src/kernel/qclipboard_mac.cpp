@@ -147,17 +147,27 @@ QClipboardWatcher::QClipboardWatcher()
     setupOwner();
 }
 
+static struct {
+    ScrapFlavorType mac_type;
+    const char *qt_type; 
+} scrap_map[] = {
+    { kScrapFlavorTypeUnicode, "text/plain;charset=ISO-10646-UCS-2" }, //highest priority
+    { kScrapFlavorTypeText, "text/plain" },
+    { 0, NULL } 
+};
+
 const char* QClipboardWatcher::format( int n ) const
 {
-    char *ret = NULL, *buffer = NULL;
+    int subtract = 0;
+    const char *ret = NULL;
+    char *buffer = NULL;
     ScrapFlavorInfo *infos = NULL;
     Size flavorsize=0, typesize=0, realsize=sizeof(typesize);
     hasScrapChanged();
 
     UInt32 cnt = 0;
-    if(GetScrapFlavorCount(scrap, &cnt) || !cnt) {
+    if(GetScrapFlavorCount(scrap, &cnt) || !cnt) 
 	return 0;
-    }
 
     infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
     if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
@@ -165,17 +175,32 @@ const char* QClipboardWatcher::format( int n ) const
 	goto format_end;
     }
 
-    if(infos[n].flavorType == kScrapFlavorTypeText) {
-	ret = "text/plain";
-	goto format_end;
+    for(int sm = 0; scrap_map[sm].qt_type; sm++) {
+	if(n == (sm - subtract)) {
+	    if(GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize) == noErr) {
+		ret = scrap_map[sm].qt_type;
+		goto format_end;
+	    } else {
+		subtract++;
+	    }
+	} 
     }
+
+    for( ; n < (int)cnt; n++) {
+	if( ( infos[n].flavorType >> 16 ) == ( 'QTxx' >> 16 ) ) 
+	    break;
+	qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
+		char(infos[n].flavorType >> 24), char((infos[n].flavorType >> 16) & 255), 
+		char((infos[n].flavorType >> 8) & 255), char(infos[n].flavorType & 255 ), n );
+    }
+    if(n >= (int)cnt)
+	return 0;
 
     if(GetScrapFlavorSize(scrap, infos[n].flavorType, &flavorsize) != noErr || flavorsize < 4) {
 	qDebug("Failure to get ScrapFlavorSize for %d", (int)infos[n].flavorType);
 	goto format_end;
     }
     GetScrapFlavorData(scrap, infos[n].flavorType, &realsize, &typesize);
-
     buffer = (char *)malloc(typesize+realsize);
     GetScrapFlavorData(scrap, infos[n].flavorType, &typesize, buffer);
     memcpy(buffer, buffer+realsize, typesize);
@@ -204,12 +229,14 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	return 0;
 
     //special case again..
-    if(!strcmp(fmt, "text/plain")) {
-	GetScrapFlavorSize(scrap, kScrapFlavorTypeText, &flavorsize);
-	buffer = (char *)malloc(buffersize = flavorsize);
-	GetScrapFlavorData(scrap, kScrapFlavorTypeText, &flavorsize, buffer);
-	ret.assign(buffer, flavorsize);
-	return ret;
+    for(int sm = 0; scrap_map[sm].qt_type; sm++) {
+	if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+	    GetScrapFlavorSize(scrap, scrap_map[sm].mac_type, &flavorsize);
+	    buffer = (char *)malloc(buffersize = flavorsize);
+	    GetScrapFlavorData(scrap, kScrapFlavorTypeText, &flavorsize, buffer);
+	    ret.assign(buffer, flavorsize);
+	    return ret;
+	}
     }
 
     infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
@@ -219,6 +246,13 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
     }
 
     for(UInt32 x = 0; x < cnt; x++) {
+	if( ( infos[x].flavorType >> 16 ) != ( 'QTxx' >> 16 ) ) {
+	    qDebug( "%s:%d Unknown type %c%c%c%c (%d)", __FILE__, __LINE__,
+		    char(infos[x].flavorType >> 24), char((infos[x].flavorType >> 16) & 255), 
+		    char((infos[x].flavorType >> 8) & 255), char(infos[x].flavorType & 255 ), (int) x);
+	    continue;
+	}
+
 	GetScrapFlavorSize(scrap, infos[x].flavorType, &flavorsize);
 	if(buffersize < flavorsize) 
 	    buffer = (char *)realloc(buffer, buffersize = flavorsize);
@@ -293,18 +327,16 @@ void QClipboard::setData( QMimeSource *src )
     ClearCurrentScrap();
     hasScrapChanged();
 
-    //handle text/plain specially so other apps can get it
-    if ( src->provides("text/plain") ) {
-	ar = src->encodedData("text/plain");
-	PutScrapFlavor(scrap, kScrapFlavorTypeText, 0, ar.size(), ar.data());
-    }
-	
-    //now the other formats
     ScrapFlavorType mactype;
     const char *fmt;
     for(int i = 0; (fmt = src->format(i)); i++) {
-	if(!strcmp(fmt, "text/plain"))
-	    continue; //already did that
+	for(int sm = 0; scrap_map[sm].qt_type; sm++) {     //handle text/plain specially so other apps can get it
+	    if(!strcmp(fmt, scrap_map[sm].qt_type)) {
+		ar = src->encodedData(scrap_map[sm].qt_type);
+		PutScrapFlavor(scrap, scrap_map[sm].mac_type, 0, ar.size(), ar.data());
+		continue;
+	    }
+	}
 
 	//encode it..
 	ar = src->encodedData(fmt);

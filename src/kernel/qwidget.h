@@ -544,8 +544,8 @@ private:
     uint    own_id : 1; //owns the winid
     //mac event functions
     void propagateUpdates();
-    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, 
-						RgnHandle, RgnHandle, void *);
+    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
+    friend class QDragManager;
 #endif
     void	 resetInputContext();
 
