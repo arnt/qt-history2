@@ -3670,7 +3670,8 @@ void QTextString::clear()
 	QTextStringChar &ch = data[ i ];
 #ifndef QT_NO_TEXTCUSTOMITEM
 	if ( !(ch.type == QTextStringChar::Regular) ) {
-	    delete ch.customItem();
+	    if ( ch.customItem() && ch.customItem()->placement() == QTextCustomItem::PlaceInline )
+		delete ch.customItem();
 	    if ( ch.d.custom->format )
 		ch.d.custom->format->removeRef();
 	    delete ch.d.custom;
@@ -7294,13 +7295,14 @@ QTextFlow::QTextFlow()
 {
     w = pagesize = 0;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    leftItems.setAutoDelete( FALSE );
-    rightItems.setAutoDelete( FALSE );
+    leftItems.setAutoDelete( TRUE );
+    rightItems.setAutoDelete( TRUE );
 #endif
 }
 
 QTextFlow::~QTextFlow()
 {
+    clear();
 }
 
 void QTextFlow::clear()
