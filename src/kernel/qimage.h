@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#16 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#17 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -93,6 +93,7 @@ class QImageIO
 {
 public:
     QImageIO();
+    QImageIO( QIODevice  *ioDevice, const char *format );
     QImageIO( const char *fileName, const char *format );
    ~QImageIO();
 
