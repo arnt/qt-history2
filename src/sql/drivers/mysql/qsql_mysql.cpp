@@ -384,7 +384,7 @@ bool QMYSQLDriver::open( const QString& db,
     unsigned int optionFlags = 0;
     if ( connOpts.count() ) {
 	QMap<QString, QString>::ConstIterator it;
-	QString opt, val;
+	QString opt;
 	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
 	    if ( it.data().upper() == "TRUE" ) {
 		opt = it.key().upper();
