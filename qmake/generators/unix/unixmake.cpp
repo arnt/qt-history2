@@ -343,7 +343,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString ret, destdir=project->first("DESTDIR");
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
-    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
+    QString targetdir = Option::fixPathToTargetOS(QString("$(INSTALL_ROOT)") + 
+						  project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
 

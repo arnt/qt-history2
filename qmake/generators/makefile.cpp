@@ -1355,7 +1355,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	}
 
 	bool do_default = TRUE;
-	QString target, dst=project->variables()[pvar].first();
+	QString target, dst=QString("$(INSTALL_ROOT)") + project->variables()[pvar].first();
 	if(dst.right(1) != Option::dir_sep)
 	    dst += Option::dir_sep;
  	QStringList tmp, &uninst = project->variables()[(*it) + ".uninstall"];

@@ -1747,7 +1747,8 @@ then
         echo >>$mkfile
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
-	    -e "s,@QT_INSTALL_BINS@,$BIN_DIR,g" -e "s,@QT_INSTALL_PREFIX@,$QT_INSTALL_PREFIX,g" \
+	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$BIN_DIR,g" \
+	    -e "s,@QT_INSTALL_PREFIX@,\$(INSTALL_ROOT)$QT_INSTALL_PREFIX,g" \
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
