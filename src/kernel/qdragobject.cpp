@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#95 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -43,8 +43,9 @@ struct QDragData {
     bool autoDelete;
     QPixmap pixmap;
     QPoint hot;
-    QWidget* target;
 };
+
+static QWidget* last_target;
 
 /*!
   After the drag completes, this function will return the QWidget
@@ -56,7 +57,7 @@ struct QDragData {
 */
 QWidget * QDragObject::target()
 {
-    return d->target;
+    return last_target;
 }
 
 /*!
@@ -65,7 +66,7 @@ QWidget * QDragObject::target()
 */
 void QDragObject::setTarget(QWidget* t)
 {
-    d->target = t;
+    last_target = t;
 }
 
 struct QStoredDragData {

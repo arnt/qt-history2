@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#60 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -588,7 +588,7 @@ void QMultiLineEdit::doDrag()
     if ( readOnly ) {
 	drag_text->dragCopy();
     } else {
-	if ( drag_text->drag() && drag_text->target() != this ) {
+	if ( drag_text->drag() && QDragObject::target() != this ) {
 	    del();
 	    if ( textDirty && !mlData->isHandlingEvent )
 		emit textChanged();

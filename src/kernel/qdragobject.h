@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#42 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#43 $
 **
 ** Definition of QDragObject
 **
@@ -51,9 +51,9 @@ public:
     QPoint pixmapHotSpot() const;
 
     QWidget * source();
-    QWidget * target();
+    static QWidget * target();
 
-    void setTarget(QWidget*);
+    static void setTarget(QWidget*);
 
     enum DragMode { DragDefault, DragCopy, DragMove, DragCopyOrMove };
 

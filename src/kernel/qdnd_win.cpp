@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#65 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -456,6 +456,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     current_dropobj = 0;
     dragSource = 0;
+    delete global_src;
     global_src = 0;
     object = 0;
     updatePixmap();
