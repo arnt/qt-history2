@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#85 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#85 $");
 
 
 /*!
@@ -972,7 +972,6 @@ QImage QImage::reasonableMask( bool clipTightly ) const
     }
 
     if ( clipTightly == FALSE ) {
-	debug( "hm?" );
 	ypn = m.scanLine(0);
 	ypc = 0;
 	for ( y = 0; y < h; y++ ) {
@@ -981,9 +980,7 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 	    ypn = (y == h-1) ? 0 : m.scanLine(y+1);
 	    for ( x = 0; x < w; x++ ) {
 		// this too is slow
-		debug( "hm %d, %d", x, y );
 		if ( (*((QRgb *)scanLine(y) + x)) != background ) {
-		    debug( "okay %d, %d", x, y );
 		    if ( x > 0 )
 			*(ypc + ((x-1) >> 3)) |= (1 << ((x-1) & 7));
 		    if ( x < w-1 )
@@ -995,8 +992,6 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 		}
 	    }
 	}
-    } else {
-	debug( "hm!" );
     }
     return m;
 }
@@ -1326,8 +1321,8 @@ static void init_image_handlers()		// initialize image handlers
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
-//	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
-//				   read_xpm_image, write_xpm_image );
+	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
+				   read_xpm_image, write_xpm_image );
     }
 }
 
@@ -2466,10 +2461,14 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 
 // skip until ", read until the next ", return the rest in *buf
 // return FALSE on error, TRUE on success
-static bool read_xpm_string( char * buf, const int buflen, QIODevice * d )
+static bool read_xpm_string( QString & buf, QIODevice * d )
 {
+    if ( buf.size() < 69 ) // just a hack
+	buf.resize( 123 );
+
     buf[0] = '\0';
-    int c, i;
+    int c;
+    unsigned int i;
     while ( (c=d->getch()) != EOF && c != '"' )
 	;
     if ( c == EOF ) {
@@ -2477,18 +2476,17 @@ static bool read_xpm_string( char * buf, const int buflen, QIODevice * d )
 	return FALSE;
     }
     i = 0;
-    while ( i<buflen && (c=d->getch()) != EOF && c != '"' )
+    while ( (c=d->getch()) != EOF && c != '"' ) {
+	if ( i == buf.size() )
+	    buf.resize( i*2+42 );
 	buf[i++] = c;
+    }
     if ( c == EOF ) {
 	debug( "saw EOF" );
 	return FALSE;
     }
-    if ( i==buflen ) {
-	debug( "long line %s (%d)", buf, buflen );
-	return FALSE;
-    }
+
     buf[i] = '\0';
-    debug( "read %s", buf );
     return TRUE;
 }
 
@@ -2501,11 +2499,10 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 
     QDataStream s( d );
 
-    const int buflen = 200;
     QString buf;
     int i, cpp, ncols, w, h;
 
-    buf.resize( buflen );
+    buf.resize( 200 );
     QRegExp r ("/\\*.XPM.\\*/" );
     d->readLine( buf.data(), buf.size() );		// "/* XPM */"
     if ( r.match(buf) < 0 ) {
@@ -2513,8 +2510,7 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	return; // bad magic
     }
 
-    buf.resize( buflen );
-    if ( !read_xpm_string( buf.data(), buf.size(), d ) )
+    if ( !read_xpm_string( buf, d ) )
 	return;
 
     if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 ) {
@@ -2527,19 +2523,16 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	return;
     }
 
-    //    debug( "%d %d %d %d", w, h, ncols, cpp );
     QImage image( w, h, 8, ncols, QImage::IgnoreEndian );
-    debug( "w %d, h %d, ncols %d, depth %d / w %d, h %d, ncols %d, depth %d",
-	   w, h, ncols, 8,
-	   image.width(), image.height(), image.numColors(), image.depth() );
 
     QDict<int> colourMap( 301, FALSE );
+    colourMap.setAutoDelete( FALSE );
+
     int currentColour;
     int transparentColour = -1;
 
     for( currentColour=ncols-1; currentColour >= 0; --currentColour ) {
-	buf.resize( buflen );
-	if ( !read_xpm_string( buf.data(), buf.size(), d ) )
+	if ( !read_xpm_string( buf, d ) )
 	    return;
 	QString index, colour;
 	index = buf.left( cpp );
@@ -2553,16 +2546,12 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    buf = buf.mid( i, buf.length() );
 	}
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
-	    debug( "colorless '%c' '%c' %s", buf[0], buf[1], (const char *)buf );
+	    //debug( "colorless %s", (const char *)buf );
 	    return; // no c specification
 	}
 	i = index.find( ' ', 2 );
 	buf = buf.mid( 2, i >= 0 ? i-1 : buf.length() );
 	QRegExp r( "^#[a-zA-Z0-9]*$" );
-	if ( currentColour == 257 ) {
-	    debug( "colour map full" );
-	    return;
-	}
 	if ( r.match( buf ) > -1 ) {
 	    // it's an RGB value, methinks...
 	    QString red, green, blue; // -Wshadow ahoy!
@@ -2594,11 +2583,11 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 		debug( "weird number %s", (const char *)buf );
 		return; // uh...
 	    }
-	    debug( "found colour %d, %d, %d", r, g, b );
+	    //debug( "found colour %d, %d, %d", r, g, b );
 	    image.setColor( currentColour, qRgb( r, g, b ) );
 	    colourMap.insert( index, (int*)(currentColour+1) );
 	} else if ( stricmp( buf, "none" ) == 0 ) {
-	    debug( "found transparent %d", image.numColors() );
+	    //debug( "found transparent %d", image.numColors() );
 	    transparentColour = currentColour;
 	    image.setColor( transparentColour, qRgb( 255,128,64 ) );
 	    colourMap.insert( index, (int*)(transparentColour+1) );
@@ -2611,15 +2600,14 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    QColor tmp( buf );
 	    image.setColor( currentColour, tmp.rgb() );
 	    colourMap.insert( index, (int*)(currentColour+1) );
-	    debug( "weird colour %s, %6x", (const char *)buf, tmp.rgb() );
+	    //debug( "weird colour %s, %6x", (const char *)buf, tmp.rgb() );
 	}
     }
 
     // next, we read pixels
 
     for( int y=0; y<h; y++ ) {
-	buf.resize( buflen );
-	if ( !read_xpm_string( buf.data(), buf.size(), d ) )
+	if ( !read_xpm_string( buf, d ) )
 	    return;
 	i = 0;
 
@@ -2645,6 +2633,11 @@ static void write_xpm_image( QImageIO * /* iio */ ) // write XPM image data
     QIODevice *d = image->iodev;
     int w = image->width, h = image->height, depth = image->depth, i;
     QString s = fbname(image->fname);		// get file base name
-    char buf[100];
+
+    QTextStream s( d );
+    s << "/* XPM */" << endl()
+      << "static char *" << s << "[] = {" << endl()
+      << "/* Written by Qt */" << endl()
+      << "\" " << s << " " << h << " " << " 256 2 \"" << endl();
 #endif
 }
