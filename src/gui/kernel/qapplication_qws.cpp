@@ -318,7 +318,7 @@ public:
             csocket = 0;
         else {
             csocket = new QWSSocket(parent);
-            QObject::connect(csocket, SIGNAL(closed()),
+            QObject::connect(csocket, SIGNAL(disconnected()),
                               qApp, SLOT(quit()));
         }
 #endif
