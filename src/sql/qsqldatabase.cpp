@@ -326,11 +326,11 @@ public:
     \mainclass
     \module sql
 
-    This class is used to create connections to SQL databases. It also
-    provides transaction handling functions for those database drivers
-    that support transactions.
+    Note that transaction handling is not supported by every SQL
+    database. You can find out whether transactions are supported
+    using QSqlDriver::hasFeature().
 
-    The QSqlDatabase class itself provides an abstract interface for
+    The QSqlDatabase class provides an abstract interface for
     accessing many types of database backends. Database-specific
     drivers are used internally to actually access and manipulate
     data, (see QSqlDriver). Result set objects provide the interface
@@ -405,7 +405,7 @@ void QSqlDatabase::removeDatabase( QSqlDatabase* db )
 }
 
 /*!
-    Returns a list of all available database drivers.
+    Returns a list of all the available database drivers.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -474,7 +474,7 @@ QStringList QSqlDatabase::drivers()
     Example usage:
 
     \code
-    QSqlDatabase::registerSqlDriver( "MYDRIVER", new QSqlDriverCreator<MySqlDriver> );
+    QSqlDatabase::registerSqlDriver( "MYDRIVER", new QSqlDriverCreator<MyDatabaseDriver> );
     QSqlDatabase* db = QSqlDatabase::addDatabase( "MYDRIVER" );
     ...
     \endcode
@@ -518,8 +518,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \row \i QDB2 \i IBM DB2, v7.1 and higher
     \endtable
 
-    Note that additional 3<sup>rd</sup> party drivers can be loaded
-    dynamically.
+    Additional third party drivers, including your own custom drivers,
+    can be loaded dynamically.
 
     \sa registerSqlDriver()
 */
@@ -531,7 +531,8 @@ QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * 
 }
 
 
-/*! \overload
+/*!
+    \overload
 
      Creates a database connection using the driver \a driver, with
      the parent \a parent and the object name \a objname.
@@ -638,9 +639,9 @@ QSqlDatabase::~QSqlDatabase()
 }
 
 /*!
-    Executes a SQL statement (e.g. an INSERT, UPDATE or DELETE
-    statement) on the database, and returns a QSqlQuery object. Use
-    lastError() to retrieve error information. If \a query is
+    Executes a SQL statement (e.g. an \c INSERT, \c UPDATE or \c
+    DELETE statement) on the database, and returns a QSqlQuery object.
+    Use lastError() to retrieve error information. If \a query is
     QString::null, an empty, invalid query is returned and lastError()
     is not affected.
 
@@ -661,7 +662,7 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
     Opens the database connection using the current connection values.
     Returns TRUE on success; otherwise returns FALSE. Error
     information can be retrieved using the lastError() function.
-    
+
     \sa lastError()
 */
 
@@ -674,14 +675,13 @@ bool QSqlDatabase::open()
 /*!
     \overload
 
-    Opens the database connection using \a user name and \a password.
-    Returns TRUE on success; otherwise returns FALSE. Error
+    Opens the database connection using the given \a user name and \a
+    password. Returns TRUE on success; otherwise returns FALSE. Error
     information can be retrieved using the lastError() function.
 
-    Note: For security reasons this function will not store the
-    password internally in any Qt classes. The password is passed
-    directly to the driver for opening a connection and then
-    discarded.
+    This function does not store the password it is given. Instead,
+    the password is passed directly to the driver for opening a
+    connection and is then discarded.
 
     \sa lastError()
 */
@@ -705,7 +705,6 @@ void QSqlDatabase::close()
 /*!
     Returns TRUE if the database connection is currently open;
     otherwise returns FALSE.
-
 */
 
 bool QSqlDatabase::isOpen() const
@@ -717,7 +716,6 @@ bool QSqlDatabase::isOpen() const
     Returns TRUE if there was an error opening the database
     connection; otherwise returns FALSE. Error information can be
     retrieved using the lastError() function.
-
 */
 
 bool QSqlDatabase::isOpenError() const
@@ -778,9 +776,9 @@ bool QSqlDatabase::rollback()
     (Oracle) driver.
 
     For the QODBC3 driver it can either be a DSN, a DSN filename (the
-    file must have a .dsn extension), or a connection string. MS
+    file must have a \c .dsn extension), or a connection string. MS
     Access users can for example use the following connection string
-    to open a .mdb file directly, instead of having to create a DSN
+    to open a \c .mdb file directly, instead of having to create a DSN
     entry in the ODBC manager:
 
     \code
@@ -792,6 +790,7 @@ bool QSqlDatabase::rollback()
     }
     ...
     \endcode
+    ("FIL" is the required spelling in Microsoft's API.)
 
     There is no default value.
 */
@@ -818,11 +817,11 @@ void QSqlDatabase::setUserName( const QString& name )
     \brief the password used to connect to the database
 
     There is no default value.
-    
-    \warning This function will store the password in a non-encrypted
-    form internally in Qt. Use the open() call that takes a password
-    as parameter to avoid this behaviour.
-    
+
+    \warning This function stores the password in plain text within
+    Qt. Use the open() call that takes a password as parameter to
+    avoid this behaviour.
+
     \sa open()
 */
 
@@ -912,8 +911,9 @@ QSqlError QSqlDatabase::lastError() const
 /*!
     \overload
 
-    Returns a list of tables visibel to the user in the database.
-    To retrieve also the views or system tables, use the function above.
+    Returns a list of the database's tables that are visible to the
+    user. To include views or system tables, use the version of this
+    function that takes a table \c type parameter.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -933,8 +933,8 @@ QStringList QSqlDatabase::tables() const
 }
 
 /*!
-    Returns a list of tables, system tables and/or views in the database
-    according to the parameter \a type.
+    Returns a list of the database's tables, system tables and views,
+    as specified by the parameter \a type.
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
@@ -967,8 +967,8 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 /*!
     Returns a QSqlRecord populated with the names of all the fields in
     the table (or view) called \a tablename. The order in which the
-    fields are returned is undefined. If no such table (or view)
-    exists, an empty record is returned.
+    fields appear in the record is undefined. If no such table (or
+    view) exists, an empty record is returned.
 
     \sa recordInfo()
 */
@@ -984,7 +984,7 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 
     Returns a QSqlRecord populated with the names of all the fields
     used in the SQL \a query. If the query is a "SELECT *" the order
-    in which fields are returned is undefined.
+    in which fields appear in the record is undefined.
 
     \sa recordInfo()
 */
@@ -996,7 +996,7 @@ QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
 
 /*!
     Returns a QSqlRecordInfo populated with meta data about the table
-    or view \a tablename. If no such table or view exists, an empty
+    or view \a tablename. If no such table (or view) exists, an empty
     record is returned.
 
     \sa QSqlRecordInfo, QSqlFieldInfo, record()
@@ -1025,10 +1025,9 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     \property QSqlDatabase::connectOptions
     \brief the database connect options
 
-    The format of the options string is a semicolon separated list of
-    options or option = value pairs.
-
-    The options supported depend on the database client used:
+    The format of the options string is a semi-colon separated list of
+    option names or option = value pairs. The options depend on the
+    database client used:
 
     \table
     \header \i ODBC \i MySQL \i PostgreSQL
@@ -1167,7 +1166,7 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     QPSQLDriver* drv =  new QPSQLDriver( con );
     QSqlDatabase* db = QSqlDatabase::addDatabase( drv ); // becomes the new default connection
     QSqlQuery q;
-    q.exec( "SELECT * FROM persons" );
+    q.exec( "SELECT * FROM people" );
     ...
     \endcode
 
@@ -1179,8 +1178,8 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     opened the database connection.
 
     Remember that you must link your application against the database
-    client library as well. The simplest way to do that is to add
-    something similar to the following lines to your \c .pro file:
+    client library as well. The simplest way to do this is to add
+    lines like those below to your \c .pro file:
 
     \code
     unix:LIBS += -lpq
@@ -1233,7 +1232,7 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     queries. This is to prevent the simultaneous usage of several
     QSqlQuery/\l{QSqlCursor} objects from blocking each other.
 
-    \warning The framework takes ownership of the \a driver pointer,
+    \warning The SQL framework takes ownership of the \a driver pointer,
     and it should not be deleted. The returned QSqlDatabase object is
     owned by the framework and must not be deleted. If you want to
     explicitly remove the connection, use removeDatabase()

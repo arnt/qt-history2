@@ -10,7 +10,7 @@ $Id: $
  
   This example does a search on the qt-interest mailinglist archives. It uses
   QHttp to issue the search command and to fetch the results. The GUI parts
-  are done in the Designer.
+  were done using \link designer-manual.book Qt Designer\endlink.
  
   <hr>
  

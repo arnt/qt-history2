@@ -31,8 +31,8 @@ public:
 
 /*!
    \class QSplashScreen qsplashscreen.h
-   \brief The QSplashScreen widget provides a splash screen that can be shown during
-   application startup.
+   \brief The QSplashScreen widget provides a splash screen that can
+   be shown during application startup.
 
     \ingroup misc
     \mainclass
@@ -43,11 +43,12 @@ public:
    networking applications that take time to establish connections) to
    provide the user with feedback that the application is loading.
 
-   The splash screen will be on top of all the windows and centered on
-   the screen. Some X11 window managers do not support the "stays on
-   top" flag, in such cases it may be necessary to set up a timer that
-   periodically calls raise() on the splash screen to get the "stays
-   on top" effect.
+   The splash screen appears centered on the screen, on top of all
+   other windows.
+
+   Some X11 window managers do not support the "stays on top" flag. A
+   solution is to set up a timer that periodically calls raise() on
+   the splash screen to simulate the "stays on top" effect.
 
    The most common usage is to show a splash screen before the main
    widget is displayed on the screen. This is illustrated in the
@@ -97,10 +98,10 @@ public:
 */
 
 /*!
-    Construct a splash screen that will display \a pixmap.
+    Construct a splash screen that will display the \a pixmap.
 
-    There should be no need to set the widget flags, \a f, other than
-    perhaps WDestructiveClose.
+    There should be no need to set the widget flags, \a f, except
+    perhaps \c WDestructiveClose.
 */
 QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
     : QWidget( 0, 0, WStyle_Customize | WStyle_Splash | f )
@@ -127,10 +128,10 @@ void QSplashScreen::mousePressEvent( QMouseEvent * )
 }
 
 /*!
-    This is an override of QWidget::repaint(). It differs from the
-    standard repaint function in that it additionally calls
-    QApplication::flush() to ensure the updates are displayed when
-    there is no event loop present.
+    This overrides QWidget::repaint(). It differs from the standard
+    repaint function in that it also calls QApplication::flush() to
+    ensure the updates are displayed, even when there is no event loop
+    present.
 */
 void QSplashScreen::repaint()
 {
@@ -143,7 +144,7 @@ void QSplashScreen::repaint()
     \fn QSplashScreen::messageChanged( const QString &message )
 
     This signal is emitted when the message on the splash screen
-    changes.  \a message is the new message and is a null-string
+    changes. \a message is the new message and is a null-string
     when the message has been removed.
 
     \sa message(), clear()
@@ -195,7 +196,8 @@ void QSplashScreen::finish( QWidget *mainWin )
 }
 
 /*!
-  Set the pixmap that will be used as the image of the splash screen to \a pixmap.
+    Sets the pixmap that will be used as the splash screen's image to
+    \a pixmap.
 */
 void QSplashScreen::setPixmap( const QPixmap &pixmap )
 {
@@ -207,8 +209,8 @@ void QSplashScreen::setPixmap( const QPixmap &pixmap )
 }
 
 /*!
-  Returns the pixmap that is used in the splash screen, minus any text possibly
-  set with message().
+    Returns the pixmap that is used in the splash screen. The image
+    does not have any of the text drawn by message() calls.
 */
 QPixmap* QSplashScreen::pixmap() const
 {
@@ -216,7 +218,7 @@ QPixmap* QSplashScreen::pixmap() const
 }
 
 /*!
-  \intern
+  \internal
 */
 void QSplashScreen::drawContents()
 {
@@ -227,9 +229,10 @@ void QSplashScreen::drawContents()
 }
 
 /*!
-  Draw the contents of the splash screen using painter \a painter.  The default
-  implementation draws the message passed by message().  Reimplement this
-  function if you want to do your own drawing on the splash screen.
+    Draw the contents of the splash screen using painter \a painter.
+    The default implementation draws the message passed by message().
+    Reimplement this function if you want to do your own drawing on
+    the splash screen.
 */
 void QSplashScreen::drawContents( QPainter *painter )
 {
