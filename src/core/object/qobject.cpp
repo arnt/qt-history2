@@ -1862,34 +1862,37 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	return false;
     }
 #endif
-    QByteArray signal_name = QMetaObject::normalizedSignature(signal);
-    signal = signal_name;
+    QByteArray tmp_signal_name;
 
 #ifndef QT_NO_DEBUG
     if (!check_signal_macro(sender, signal, "connect", "bind"))
 	return false;
 #endif
-    signal++; // skip code
-
     const QMetaObject *smeta = sender->metaObject();
+    ++signal; //skip code
     int signal_index = smeta->indexOfSignal(signal);
     if (signal_index < 0) {
+        // check for normalized signatures
+        tmp_signal_name = QMetaObject::normalizedSignature(signal - 1);
+        signal = tmp_signal_name.constData() + 1;
+        signal_index = smeta->indexOfSignal(signal);
+        if (signal_index < 0) {
 #ifndef QT_NO_DEBUG
-	err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
-	err_info_about_objects("connect", sender, receiver);
+	    err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
+	    err_info_about_objects("connect", sender, receiver);
 #endif
-	return false;
+	    return false;
+        }
     }
 
-    QByteArray member_name = QMetaObject::normalizedSignature(member);
-    member = member_name;
+    QByteArray tmp_member_name;
     int membcode = member[0] - '0';
 
 #ifndef QT_NO_DEBUG
     if (!check_member_code(membcode, receiver, member, "connect"))
 	return false;
 #endif
-    member++; // skip code
+    ++member; // skip code
 
     const QMetaObject *rmeta = receiver->metaObject();
     int member_index = -1;
@@ -1902,11 +1905,24 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	break;
     }
     if (member_index < 0) {
+        // check for normalizes members
+        tmp_member_name = QMetaObject::normalizedSignature(member - 1);
+        member = tmp_member_name.constData() + 1;
+        switch (membcode) {
+        case QSLOT_CODE:
+            member_index = rmeta->indexOfSlot(member);
+            break;
+        case QSIGNAL_CODE:
+            member_index = rmeta->indexOfSignal(member);
+            break;
+        }
+        if (member_index < 0) {
 #ifndef QT_NO_DEBUG
-	err_member_notfound(membcode, receiver, member, "connect");
-	err_info_about_objects("connect", sender, receiver);
+	    err_member_notfound(membcode, receiver, member, "connect");
+	    err_info_about_objects("connect", sender, receiver);
 #endif
-	return false;
+	    return false;
+        }
     }
 #ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, member)) {
@@ -1922,7 +1938,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     if (type == QueuedConnection && !(types = QObjectPrivate::queuedConnectionTypes(signal)))
 	return false;
     QMetaObject::connect(sender, signal_index, receiver, membcode, member_index, type, types);
-    const_cast<QObject*>(sender)->connectNotify(signal_name);
+    const_cast<QObject*>(sender)->connectNotify(signal - 1);
     return true;
 }
 
