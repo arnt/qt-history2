@@ -127,12 +127,12 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
  ** QThread
  *************************************************************************/
 
-Qt::HANDLE QThread::currentThread()
+Qt::HANDLE QThread::currentThreadId()
 {
     return (Qt::HANDLE)GetCurrentThreadId();
 }
 
-QThread *QThread::currentQThread()
+QThread *QThread::currentThread()
 {
     return reinterpret_cast<QThread *>(TlsGetValue(qt_current_thread_tls_index));
 }

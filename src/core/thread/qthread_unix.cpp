@@ -133,7 +133,7 @@ void QThreadPrivate::finish(void *arg)
     Windows, the returned value is a pseudo handle for the current
     thread, and it cannot be used for numerical comparison.
 */
-Qt::HANDLE QThread::currentThread()
+Qt::HANDLE QThread::currentThreadId()
 {
     // requires a C cast here otherwise we run into trouble on AIX
     return (Qt::HANDLE)pthread_self();
@@ -144,7 +144,7 @@ Qt::HANDLE QThread::currentThread()
     current thread was not started using the QThread API (e.g. the GUI
     thread), this function returns zero.
 */
-QThread *QThread::currentQThread()
+QThread *QThread::currentThread()
 {
     pthread_once(&current_thread_key_once, create_current_thread_key);
     return reinterpret_cast<QThread *>(pthread_getspecific(current_thread_key));
@@ -428,7 +428,7 @@ bool QThread::wait(unsigned long time)
 */
 void QThread::setTerminationEnabled(bool enabled)
 {
-    Q_ASSERT_X(currentQThread != 0, "QThread::setTerminationEnabled()",
+    Q_ASSERT_X(currentThread() != 0, "QThread::setTerminationEnabled()",
                "Current thread was not started with QThread.");
     pthread_setcancelstate(enabled ? PTHREAD_CANCEL_ENABLE : PTHREAD_CANCEL_DISABLE, NULL);
     if (enabled)

@@ -112,7 +112,7 @@ static void signalHandler(int sig)
 QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
 {
     extern Qt::HANDLE qt_application_thread_id;
-    mainThread = (QThread::currentThread() == qt_application_thread_id);
+    mainThread = (QThread::currentThreadId() == qt_application_thread_id);
 
     // initialize the common parts of the event loop
     pipe(thread_pipe);
@@ -350,7 +350,7 @@ int QEventDispatcherUNIX::select(int nfds, fd_set *readfds, fd_set *writefds, fd
 */
 int QEventDispatcherUNIX::registerTimer(int interval, QObject *obj)
 {
-    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentQThread(),
+    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentThread(),
                "QEventDispatcherUNIX::registerTimer",
                "timers cannot be started from another thread");
 
@@ -425,7 +425,7 @@ bool QEventDispatcherUNIX::unregisterTimer(int id)
 */
 bool QEventDispatcherUNIX::unregisterTimers(QObject *obj)
 {
-    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentQThread(),
+    Q_ASSERT_X(obj->thread() == thread() && thread() == QThread::currentThread(),
                "QEventDispatcherUNIX::unregisterTimers",
                "timers cannot be stopped from another thread");
 
@@ -471,7 +471,7 @@ QSockNotType::~QSockNotType()
 
 void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
 {
-    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentThread());
 
     int sockfd = notifier->socket();
     int type = notifier->type();
@@ -509,7 +509,7 @@ void QEventDispatcherUNIX::registerSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
-    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentThread());
 
     int sockfd = notifier->socket();
     int type = notifier->type();
@@ -549,7 +549,7 @@ void QEventDispatcherUNIX::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
 {
-    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentQThread());
+    Q_ASSERT(notifier->thread() == thread() && thread() == QThread::currentThread());
 
     int sockfd = notifier->socket();
     int type = notifier->type();
@@ -594,7 +594,7 @@ int QEventDispatcherUNIX::timeToWait()
 
 int QEventDispatcherUNIX::activateTimers()
 {
-    Q_ASSERT(thread() == QThread::currentQThread());
+    Q_ASSERT(thread() == QThread::currentThread());
 
     Q_D(QEventDispatcherUNIX);
     if (qt_disable_lowpriority_timers || !d->timerList || d->timerList->isEmpty())

@@ -23,21 +23,12 @@ class QThreadPrivate;
 
 class Q_CORE_EXPORT QThread : public QObject
 {
-    friend class QThreadData;
-
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QThread)
-    Q_DISABLE_COPY(QThread)
-
 public:
-    static Qt::HANDLE currentThread();
-    static QThread *currentQThread(); // better name?
-
-    static void initialize();
-    static void cleanup();
+    static Qt::HANDLE currentThreadId();
+    static QThread *currentThread();
 
     QThread(QObject *parent = 0);
-    virtual ~QThread();
+    ~QThread();
 
     enum Priority {
         IdlePriority,
@@ -90,6 +81,16 @@ public:
     inline QT_COMPAT bool finished() const { return isFinished(); }
     inline QT_COMPAT bool running() const { return isRunning(); }
 #endif
+
+private:
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QThread)
+
+    static void initialize();
+    static void cleanup();
+
+    friend class QCoreApplication;
+    friend class QThreadData;
 };
 
 #endif // QTHREAD_H

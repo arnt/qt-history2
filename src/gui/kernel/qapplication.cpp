@@ -877,8 +877,8 @@ QApplication::~QApplication()
         QApplication::sendEvent(qt_clipboard, &event);
     }
 #endif
-    
-    //### this should probable be done even later 
+
+    //### this should probable be done even later
     qt_call_post_routines();
 
     d->eventDispatcher->closingDown();
@@ -2600,10 +2600,10 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
-    Q_ASSERT_X(QThread::currentQThread() == receiver->thread(),
+    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
                "QApplication::sendEvent",
-               QString("Cannot send events to objects owned by a different thread (%1).  "
-                       "Receiver '%2' (of type '%3') was created in thread %4")
+               QString::fromLatin1("Cannot send events to objects owned by a different thread "
+                                   "(%1). Receiver '%2' (of type '%3') was created in thread %4")
                .arg(QString::number((ulong) QThread::currentThread(), 16))
                .arg(receiver->objectName())
                .arg(receiver->metaObject()->className())
@@ -2612,7 +2612,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
-       d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
+        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
 #endif // QT_COMPAT
 
     // capture the current mouse/keyboard state
@@ -2674,65 +2674,127 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     } else switch (e->type()) {
 #if defined QT_COMPAT && !defined(QT_NO_ACCEL)
     case QEvent::Accel:
-    {
-        if (d->use_compat()) {
-            QKeyEvent* key = static_cast<QKeyEvent*>(e);
-            res = notify_helper(receiver, e);
+        {
+            if (d->use_compat()) {
+                QKeyEvent* key = static_cast<QKeyEvent*>(e);
+                res = notify_helper(receiver, e);
 
-            if (!res && !key->isAccepted())
-                res = d->qt_dispatchAccelEvent(static_cast<QWidget *>(receiver), key);
+                if (!res && !key->isAccepted())
+                    res = d->qt_dispatchAccelEvent(static_cast<QWidget *>(receiver), key);
 
-            // next lines are for compatibility with Qt <= 3.0.x: old
-            // QAccel was listening on toplevel widgets
-            if (!res && !key->isAccepted() && !static_cast<QWidget *>(receiver)->isTopLevel())
-                res = notify_helper(static_cast<QWidget *>(receiver)->topLevelWidget(), e);
+                // next lines are for compatibility with Qt <= 3.0.x: old
+                // QAccel was listening on toplevel widgets
+                if (!res && !key->isAccepted() && !static_cast<QWidget *>(receiver)->isTopLevel())
+                    res = notify_helper(static_cast<QWidget *>(receiver)->topLevelWidget(), e);
+            }
+            break;
         }
-        break;
-    }
 #endif //QT_COMPAT && !QT_NO_ACCEL
     case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
-        QWidget* w = static_cast<QWidget*>(receiver);
-        QKeyEvent* key = static_cast<QKeyEvent*>(e);
+            QWidget* w = static_cast<QWidget*>(receiver);
+            QKeyEvent* key = static_cast<QKeyEvent*>(e);
 #if defined QT_COMPAT && !defined(QT_NO_ACCEL)
-        if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
-            break;
-#endif
-        // Try looking for a Shortcut before sending key events
-        if (key->type()==QEvent::KeyPress)
-            if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
-                return res;
-
-        bool def = key->isAccepted();
-        while (w) {
-            if (def)
-                key->accept();
-            else
-                key->ignore();
-            res = notify_helper(w, e);
-            if ((res && key->isAccepted()) || w->isTopLevel() || !w->parentWidget())
+            if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
                 break;
-            w = w->parentWidget();
+#endif
+            // Try looking for a Shortcut before sending key events
+            if (key->type()==QEvent::KeyPress)
+                if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
+                    return res;
+
+            bool def = key->isAccepted();
+            while (w) {
+                if (def)
+                    key->accept();
+                else
+                    key->ignore();
+                res = notify_helper(w, e);
+                if ((res && key->isAccepted()) || w->isTopLevel() || !w->parentWidget())
+                    break;
+                w = w->parentWidget();
+            }
         }
-    }
-    break;
+        break;
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
-    {
-        QWidget* w = static_cast<QWidget *>(receiver);
-        QMouseEvent* mouse = static_cast<QMouseEvent*>(e);
-        QPoint relpos = mouse->pos();
+        {
+            QWidget* w = static_cast<QWidget *>(receiver);
+            QMouseEvent* mouse = static_cast<QMouseEvent*>(e);
+            QPoint relpos = mouse->pos();
 
-        if (e->spontaneous()) {
+            if (e->spontaneous()) {
 
-            if (e->type() == QEvent::MouseButtonPress) {
+                if (e->type() == QEvent::MouseButtonPress) {
+                    QWidget *fw = w;
+                    while (fw) {
+                        if (fw->isEnabled() && (fw->focusPolicy() & Qt::ClickFocus)) {
+                            QFocusEvent::setReason(QFocusEvent::Mouse);
+                            fw->setFocus();
+                            QFocusEvent::resetReason();
+                            break;
+                        }
+                        if (fw->isTopLevel())
+                            break;
+                        fw = fw->parentWidget();
+                    }
+                }
+
+                if (e->type() == QEvent::MouseMove) {
+                    d->toolTipWidget = w;
+                    d->toolTipPos = relpos;
+                    d->toolTipGlobalPos = mouse->globalPos();
+                    d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?20:700, this);
+                }
+            }
+
+            while (w) {
+                QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(),
+                               mouse->modifiers());
+                me.spont = mouse->spontaneous();
+                // throw away any mouse-tracking-only mouse events
+                if (!w->hasMouseTracking()
+                    && mouse->type() == QEvent::MouseMove && mouse->buttons() == 0) {
+                    // but still send them through all application event filters (normally done by notify_helper)
+                    for (int i = 0; i < d->eventFilters.size(); ++i) {
+                        register QObject *obj = d->eventFilters.at(i);
+                        if (obj && obj->eventFilter(w, w == receiver ? mouse : &me))
+                            break;
+                    }
+                    res = true;
+                    break;
+                }
+                w->setAttribute(Qt::WA_NoMouseReplay, false);
+                res = notify_helper(w, w == receiver ? mouse : &me);
+                e->spont = false;
+                if ((res && (w == receiver ? mouse : &me)->isAccepted())
+                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                    break;
+
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
+            if (res)
+                mouse->accept();
+            else
+                mouse->ignore();
+        }
+        break;
+#ifndef QT_NO_WHEELEVENT
+    case QEvent::Wheel:
+        {
+            QWidget* w = static_cast<QWidget *>(receiver);
+            QWheelEvent* wheel = static_cast<QWheelEvent*>(e);
+            QPoint relpos = wheel->pos();
+
+            if (e->spontaneous()) {
                 QWidget *fw = w;
                 while (fw) {
-                    if (fw->isEnabled() && (fw->focusPolicy() & Qt::ClickFocus)) {
+                    if (fw->isEnabled() && (fw->focusPolicy() & Qt::WheelFocus) == Qt::WheelFocus) {
                         QFocusEvent::setReason(QFocusEvent::Mouse);
                         fw->setFocus();
                         QFocusEvent::resetReason();
@@ -2744,174 +2806,112 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 }
             }
 
-            if (e->type() == QEvent::MouseMove) {
-                d->toolTipWidget = w;
-                d->toolTipPos = relpos;
-                d->toolTipGlobalPos = mouse->globalPos();
-                d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?20:700, this);
-            }
-        }
-
-        while (w) {
-            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(),
-                           mouse->modifiers());
-            me.spont = mouse->spontaneous();
-            // throw away any mouse-tracking-only mouse events
-            if (!w->hasMouseTracking()
-                && mouse->type() == QEvent::MouseMove && mouse->buttons() == 0) {
-                // but still send them through all application event filters (normally done by notify_helper)
-                for (int i = 0; i < d->eventFilters.size(); ++i) {
-                    register QObject *obj = d->eventFilters.at(i);
-                    if (obj && obj->eventFilter(w, w == receiver ? mouse : &me))
-                        break;
-                }
-                res = true;
-                break;
-            }
-            w->setAttribute(Qt::WA_NoMouseReplay, false);
-            res = notify_helper(w, w == receiver ? mouse : &me);
-            e->spont = false;
-            if ((res && (w == receiver ? mouse : &me)->isAccepted())
-                || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
-                break;
-
-            relpos += w->pos();
-            w = w->parentWidget();
-        }
-        if (res)
-            mouse->accept();
-        else
-            mouse->ignore();
-    }
-    break;
-#ifndef QT_NO_WHEELEVENT
-    case QEvent::Wheel:
-    {
-        QWidget* w = static_cast<QWidget *>(receiver);
-        QWheelEvent* wheel = static_cast<QWheelEvent*>(e);
-        QPoint relpos = wheel->pos();
-
-        if (e->spontaneous()) {
-            QWidget *fw = w;
-            while (fw) {
-                if (fw->isEnabled() && (fw->focusPolicy() & Qt::WheelFocus) == Qt::WheelFocus) {
-                    QFocusEvent::setReason(QFocusEvent::Mouse);
-                    fw->setFocus();
-                    QFocusEvent::resetReason();
+            while (w) {
+                QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->buttons(),
+                               wheel->modifiers(), wheel->orientation());
+                we.spont = wheel->spontaneous();
+                res = notify_helper(w,  w == receiver ? wheel : &we);
+                e->spont = false;
+                if ((res && (w == receiver ? wheel : &we)->isAccepted())
+                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
                     break;
-                }
-                if (fw->isTopLevel())
-                    break;
-                fw = fw->parentWidget();
+
+                relpos += w->pos();
+                w = w->parentWidget();
             }
+            if (res)
+                wheel->accept();
+            else
+                wheel->ignore();
         }
-
-        while (w) {
-            QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->buttons(),
-                           wheel->modifiers(), wheel->orientation());
-            we.spont = wheel->spontaneous();
-            res = notify_helper(w,  w == receiver ? wheel : &we);
-            e->spont = false;
-            if ((res && (w == receiver ? wheel : &we)->isAccepted())
-                || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
-                break;
-
-            relpos += w->pos();
-            w = w->parentWidget();
-        }
-        if (res)
-            wheel->accept();
-        else
-            wheel->ignore();
-    }
-    break;
+        break;
 #endif
     case QEvent::ContextMenu:
-    {
-        QWidget* w = static_cast<QWidget *>(receiver);
-        QContextMenuEvent *context = static_cast<QContextMenuEvent*>(e);
-        QPoint relpos = context->pos();
-        while (w) {
-            QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
-            ce.spont = e->spontaneous();
-            res = notify_helper(w,  w == receiver ? context : &ce);
-            e->spont = false;
+        {
+            QWidget* w = static_cast<QWidget *>(receiver);
+            QContextMenuEvent *context = static_cast<QContextMenuEvent*>(e);
+            QPoint relpos = context->pos();
+            while (w) {
+                QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
+                ce.spont = e->spontaneous();
+                res = notify_helper(w,  w == receiver ? context : &ce);
+                e->spont = false;
 
-            if ((res && (w == receiver ? context : &ce)->isAccepted())
-                || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
-                break;
+                if ((res && (w == receiver ? context : &ce)->isAccepted())
+                    || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation))
+                    break;
 
-            relpos += w->pos();
-            w = w->parentWidget();
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
+            if (res)
+                context->accept();
+            else
+                context->ignore();
         }
-        if (res)
-            context->accept();
-        else
-            context->ignore();
-    }
-    break;
+        break;
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
-    {
-        QWidget *w = static_cast<QWidget *>(receiver);
-        QTabletEvent *tablet = static_cast<QTabletEvent*>(e);
-        QPoint relpos = tablet->pos();
-        while (w) {
-            QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(), tablet->hiResPos(),
-                            tablet->minHiResX(), tablet->maxHiResX(), tablet->minHiResY(), tablet->maxHiResY(),
-                            tablet->device(), tablet->pressure(), tablet->minPressure(), tablet->maxPressure(),
-                            tablet->xTilt(), tablet->yTilt(), tablet->modifiers(), tablet->uniqueId());
-            te.spont = e->spontaneous();
-            res = notify_helper(w, w == receiver ? tablet : &te);
-            e->spont = false;
-            if ((res && (w == receiver ? tablet : &te)->isAccepted()
-                 || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)))
-                break;
+        {
+            QWidget *w = static_cast<QWidget *>(receiver);
+            QTabletEvent *tablet = static_cast<QTabletEvent*>(e);
+            QPoint relpos = tablet->pos();
+            while (w) {
+                QTabletEvent te(tablet->type(), tablet->pos(), tablet->globalPos(), tablet->hiResPos(),
+                                tablet->minHiResX(), tablet->maxHiResX(), tablet->minHiResY(), tablet->maxHiResY(),
+                                tablet->device(), tablet->pressure(), tablet->minPressure(), tablet->maxPressure(),
+                                tablet->xTilt(), tablet->yTilt(), tablet->modifiers(), tablet->uniqueId());
+                te.spont = e->spontaneous();
+                res = notify_helper(w, w == receiver ? tablet : &te);
+                e->spont = false;
+                if ((res && (w == receiver ? tablet : &te)->isAccepted()
+                     || w->isTopLevel() || w->testWFlags(Qt::WNoMousePropagation)))
+                    break;
 
-            relpos += w->pos();
-            w = w->parentWidget();
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
+            if (res)
+                tablet->accept();
+            else
+                tablet->ignore();
+            tabletChokeMouse = tablet->isAccepted();
         }
-        if (res)
-            tablet->accept();
-        else
-            tablet->ignore();
-        tabletChokeMouse = tablet->isAccepted();
-    }
-    break;
+        break;
 
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
-    {
-        QWidget* w = static_cast<QWidget *>(receiver);
-        QHelpEvent *help = static_cast<QHelpEvent*>(e);
-        QPoint relpos = help->pos();
-        while (w) {
-            QHelpEvent he(help->type(), relpos, help->globalPos());
-            he.spont = e->spontaneous();
-            res = notify_helper(w,  w == receiver ? help : &he);
-            e->spont = false;
-            if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isTopLevel())
-                break;
+        {
+            QWidget* w = static_cast<QWidget *>(receiver);
+            QHelpEvent *help = static_cast<QHelpEvent*>(e);
+            QPoint relpos = help->pos();
+            while (w) {
+                QHelpEvent he(help->type(), relpos, help->globalPos());
+                he.spont = e->spontaneous();
+                res = notify_helper(w,  w == receiver ? help : &he);
+                e->spont = false;
+                if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isTopLevel())
+                    break;
 
-            relpos += w->pos();
-            w = w->parentWidget();
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
         }
-    }
-    break;
+        break;
 
     case QEvent::StatusTip:
     case QEvent::WhatsThisClicked:
-    {
-        QWidget *w = static_cast<QWidget *>(receiver);
-        while (w) {
-            res = notify_helper(w, e);
-            if ((res && e->isAccepted()) || w->isTopLevel())
-                break;
-            w = w->parentWidget();
+        {
+            QWidget *w = static_cast<QWidget *>(receiver);
+            while (w) {
+                res = notify_helper(w, e);
+                if ((res && e->isAccepted()) || w->isTopLevel())
+                    break;
+                w = w->parentWidget();
+            }
         }
-    }
-    break;
+        break;
 
     default:
         res = notify_helper(receiver, e);

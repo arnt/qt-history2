@@ -240,7 +240,7 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
                      val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
     if (type == Qt::AutoConnection) {
-        type = QThread::currentQThread() == obj->thread()
+        type = QThread::currentThread() == obj->thread()
                ? Qt::DirectConnection
                : Qt::QueuedConnection;
     }

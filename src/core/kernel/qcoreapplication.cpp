@@ -118,7 +118,7 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     QCoreApplication::is_app_closing = false;
 
 #ifdef Q_OS_UNIX
-    qt_application_thread_id = QThread::currentThread();
+    qt_application_thread_id = QThread::currentThreadId();
 #endif
     QThreadData *data = mainData();
     data->id = 0;
@@ -366,11 +366,11 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
         return true;
     }
 
-    Q_ASSERT_X(QThread::currentQThread() == receiver->thread(),
+    Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
                "QCoreApplication::sendEvent",
-               QString::fromLatin1("Cannot send events to objects owned by a different thread (%1).  "
-                                   "Receiver '%2' (of type '%3') was created in thread %4")
-               .arg(QString::number((ulong) QThread::currentQThread(), 16))
+               QString::fromLatin1("Cannot send events to objects owned by a different thread "
+                                   "(%1). Receiver '%2' (of type '%3') was created in thread %4")
+               .arg(QString::number((ulong) QThread::currentThread(), 16))
                .arg(receiver->objectName())
                .arg(QLatin1String(receiver->metaObject()->className()))
                .arg(QString::number((ulong) receiver->thread(), 16))
