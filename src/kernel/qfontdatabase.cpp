@@ -406,7 +406,7 @@ QtFontFamily *QFontDatabasePrivate::family( const QString &f, bool create )
     if ( res < 0 )
 	pos++;
 
-    // qDebug("adding family %s at %d",  f.latin1(), pos );
+    // qDebug("adding family %s at %d total=%d",  f.latin1(), pos, count);
     if ( !(count % 8) )
 	families = (QtFontFamily **)
 		   realloc( families,
@@ -899,7 +899,11 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    if ( loop == 2 && family_name.isNull() )
 		load( family->name, script );
 
-	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) )
+	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) 
+#ifdef Q_WS_WIN
+		&& !( family->scripts[QFont::Unicode] & QtFontFamily::Supported ) 
+#endif
+		)
 		continue;
 
 	    // as we know the script is supported, we can be sure
@@ -987,6 +991,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     if ( fe ) {
 	QChar sample = sampleCharacter( script );
+#if !defined Q_WS_WIN
 	if ( ! canRender( fe, sample ) ) {
 #ifdef FONT_MATCH_DEBUG
 	    qDebug( "  WARN: font loaded cannot render sample 0x%04x",
@@ -1009,6 +1014,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    return fe;
 	}
+#endif
 
 	fe->fontDef.family = best_family->name;
 	if ( ! best_foundry->name.isEmpty() ) {
@@ -1047,6 +1053,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
 
+#ifndef Q_WS_WIN
 	if ( fp ) {
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
@@ -1061,6 +1068,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 		QFontCache::instance->insertEngine( key, fe );
 	    }
 	}
+#endif
     } else {
 	if ( request.family.isEmpty() ) {
 #ifdef FONT_MATCH_DEBUG
