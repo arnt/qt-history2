@@ -320,9 +320,9 @@ void QSqlForm::readFields()
 
 /*!
 
-  Update the SQL fields with values from the widgets they are mapped to.
-  To actually update the database use insert, update or del as
-  appropriate.
+  Update the SQL fields with values from the widgets they are mapped
+  to.  To actually update the database with the contents of the record
+  buffer, use insert, update or del as appropriate.
 */
 void QSqlForm::writeFields()
 {
