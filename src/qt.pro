@@ -186,7 +186,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
-		  $$WIDGETS_H/qml.h \
 		  $$WIDGETS_H/qmotifstyle.h \
 		  $$WIDGETS_H/qmultilineedit.h \
 		  $$WIDGETS_H/qplatinumstyle.h \
@@ -357,7 +356,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
-		  widgets/qml.cpp \
 		  widgets/qmotifstyle.cpp \
 		  widgets/qmultilineedit.cpp \
 		  widgets/qplatinumstyle.cpp \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#97 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#98 $
 **
 ** Implementation of QMessageBox class
 **
@@ -180,11 +180,16 @@ static const char* critical_xpm[]={
   Complexity is one button (Ok, sometimes Dismiss for Motif
   applications) for a simple messages, or two or even three buttons
   for questions.
+  
+  The text part of all message box messages can be either rich text or
+  plain text. If you specify a rich text formatted string, it will be
+  rendered using the default stylesheet. See
+  QStyleSheet::defaultSheet() for details.
 
   Here are some examples of how to use the static member functions.
   After these examples you will find an overview of the non-static
   member functions.
-
+  
   If a program is unable to find a supporting file, it may perhaps do:
 
   \code
@@ -897,8 +902,12 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     mbd->iconLabel.move( border, border );
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )
 	lmargin += mbd->iconLabel.pixmap()->width() + border;
-    label->move( (width() + lmargin)/2 - label->width()/2,
-		 (height() - border - bh - label->height()) / 2 );
+//     label->move( (width() + lmargin)/2 - label->width()/2,
+// 		 (height() - border - bh - label->height()) / 2 );
+    label->setGeometry( lmargin+border, 
+			border, 
+			width() - lmargin -2*border, 
+			height() - 3*border - bh );
     int space = (width() - bw*n)/(n+1);
     for ( i=0; i<n; i++ ) {
 	mbd->pb[i]->move( space*(i+1)+bw*i,
@@ -1244,14 +1253,14 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 
 
 static const char *textAboutQt =
-"This program is developed with Qt, the multi-platform C++ GUI toolkit.\n\n"
-"Qt version running with this application: %1\n"
-"Qt is a product of Troll Tech AS (http://www.troll.no).\n"
-"Qt is available under two different licenses:\n"
-"- The Free Edition, which may be used free of charge to develop\n"
-"  Free Software on the X Window System.\n"
-"- The Professional Edition, which may be used to develop commercial\n"
-"  software on both X and Microsoft Windows.";
+"<h3>This program is developed with Qt, the multi-platform C++ GUI toolkit.</h3>"
+"<p>Qt version running with this application: <tt>%1</tt></p>"
+"<p>Qt is a product of <b>Troll Tech AS </b>(http://www.troll.no).</p>"
+"<p>Qt is available under two different licenses:</p>"
+"<ul><li>The Free Edition, which may be used free of charge to develop"
+"  Free Software on the X Window System.</li>"
+"<li>The Professional Edition, which may be used to develop commercial"
+"  software on both X and Microsoft Windows.</li></ul>";
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#418 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#419 $
 **
 ** Implementation of QWidget class
 **
@@ -4094,7 +4094,7 @@ int QWidget::heightForWidth( int w ) const
 
 
 /*!
-  Returns whether the widget wants to handle Whats This help
+  Returns whether the widget wants to handle What's This help
   manually. The default implementation returns FALSE, which means the
   widget will not receive any events in Whats This mode.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#8 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -61,8 +61,8 @@ public:
 };
 
 /*!
-  \class QStyleSheetItem qml.h
-  \brief The QStyleSheetItem class encapsulates a text format
+  \class QStyleSheetItem qstylesheet.h
+  \brief The QStyleSheetItem class encapsulates a text format.
 
   A style consists of a name and a set of font, color, and other
   display properties.  When used in a \link QStyleSheet style
@@ -419,6 +419,8 @@ void QStyleSheetItem::setAnchor(bool anc)
 
 /*!
   Returns  the white space mode.
+
+  \sa setWhiteSpaceMode()
  */
 QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
 {
@@ -426,7 +428,15 @@ QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
 }
 
 /*!
-  Sets the white space mode
+  Sets the white space mode to \a m. Possible values are
+  <ul>
+   <li> \c WhiteSpaceNormal
+	- white spaces in the document only serve as seperators.
+	Multiple spaces or indentation therefore is ignored.
+   <li> \c WhiteSpacePre
+          - white spaces are preserved. This is particulary useful to
+	  display programming code.
+  </ul>
  */
 void QStyleSheetItem::setWhiteSpaceMode(WhiteSpaceMode m)
 {
@@ -435,7 +445,11 @@ void QStyleSheetItem::setWhiteSpaceMode(WhiteSpaceMode m)
 
 
 /*!
-  Returns the margin in pixel.
+  Returns the width of margin \a m in pixel.
+
+  The margin determinator \a m can be \c MarginLeft, \c MarginRight,
+  \c MarginTop, \c MarginBottom, \c MarginAll, \c MarginVertical or \c
+  MarginHorizontal.
 
   \sa setMargin()
  */
@@ -446,8 +460,11 @@ int QStyleSheetItem::margin(Margin m) const
 
 
 /*!
-  Sets the margin in pixels.
-  The value must be >= 0.
+  Sets the width of margin \a m to \a v  pixels.
+
+  The margin determinator \a m can be \c MarginLeft, \c MarginRight,
+  \c MarginTop, \c MarginBottom, \c MarginAll, \c MarginVertical or \c
+  MarginHorizontal.  The value \a v must be >= 0.
 
   \sa border()
  */
@@ -552,11 +569,30 @@ bool QStyleSheetItem::allowedInContext( const QStyleSheetItem* s) const
 }
 
 
+/*!
+  Returns whether this style has self nesting enabled.
+
+  \sa setSelfNesting()
+ */
 bool QStyleSheetItem::selfNesting() const
 {
     return d->selfnest;
 }
 
+/*!
+  Sets the self nesting property for this style to \a nesting.
+
+  Usually, all styles are self nesting, i.e. they can legally be
+  nested recursively.  A paragraph, for example, might contain other
+  paragraphs as subparagraphs.
+
+  You may nevertheles want to disable self nesting for common HTML
+  tags such as \c &lt;p&gt; or \c &lt;li&gt;, if you want to parse and
+  display rich text documents based on "dirty" HTML.  However, we
+  recommend fixing the documents instead to close all non-empty tags,
+  if that is possible.
+
+ */
 void QStyleSheetItem::setSelfNesting( bool nesting )
 {
     d->selfnest = nesting;
@@ -572,15 +608,17 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 
 
 /*!
-  \class QStyleSheet qml.h
-  \brief A collection of styles and a generator of tags.
+  \class QStyleSheet qstylesheet.h
+  \brief A collection of styles for rich text rendering and a generator of tags.
 
   By creating QStyleSheetItem objects for a style sheet, you build a
   definition of a set of tags.  This definition will be used by the
   internal rich text rendering system to parse and display text
   documents to which the style sheet applies. Rich text is normally
-  visualized in a QTextView or a QTextBrowser. But also QLabel and
-  QWhatsThis support it for now, with others likely to follow.
+  visualized in a QTextView or a QTextBrowser. But also QLabel,
+  QWhatsThis and QMessageBox support it for now, with others likely to
+  follow. With QSimpleRichText it is possible to use the rich text
+  renderer for custom widgets as well.
 
   The default QStyleSheet object has the following style bindings:
 
@@ -588,6 +626,9 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;qt&gt;...&lt;/qt&gt;
 	- A Qt rich text document. It understands the following attributes
 	<ul>
+	<li> \c title
+	- the caption of the document. This attribute is easily accessible with
+	QTextView::documentTitle()
 	<li> \c type
 	- The type of the document. The default type is \c page . It indicates that
 	the document is displayed in a page of its own. Another style is \c detail.
@@ -599,7 +640,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- The background color, for example \c bgcolor="yellow" or \c bgcolor="#0000FF"
 	<li> \c bgpixmap
 	- The background pixmap, for example \c bgpixmap="granit.xpm". The pixmap name
-	will be resolved by the default QMLProvider.
+	will be resolved by a QMimeSourceFactory().
 	<li> \c text
 	- The default text color, for example \c text="red"
 	</ul>
@@ -675,8 +716,12 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	- A list item.
 
     <li>\c &lt;img/&gt;
-	- An image. The image name for the provider is given in the
-	source attribute, for example \c &lt;img \c source="qt.xpm"/&gt;
+	- An image. The image name for the mime source
+	factory  is given in the source attribute, for example
+	\c &lt;img \c source="qt.xpm"/&gt; The image tag also
+	understands the attributes \c width and \c height that determine
+	the size of the image. If the pixmap does not fit to the specified
+	size, it will be scaled automatically ( by using QImage::smoothScale() ).
 
     <li>\c &lt;br/&gt;
 	- A line break
@@ -816,24 +861,39 @@ void QStyleSheet::init()
 
 
 static QStyleSheet* defaultsheet = 0;
+void qt_cleanup_defaultsheet()
+{
+    delete defaultsheet;
+}
 
 /*!
-  Returns the application-wide default style sheet.
+  Returns the application-wide default style sheet.This style sheet is
+  used by rich text rendering classes such as QSimpleRichText,
+  QWhatsThis and also QMessageBox to define the rendering style and
+  available tags within rich text documents. It serves also as initial
+  style sheet for the more complex render widgets QTextView and
+  QTextBrowser.
+
+  \sa setDefaultSheet()
 */
 QStyleSheet* QStyleSheet::defaultSheet()
 {
-    if (!defaultsheet)
+    if (!defaultsheet) {
 	defaultsheet = new QStyleSheet();
+	qAddPostRoutine( qt_cleanup_defaultsheet );
+    }
     return defaultsheet;
 }
 
 /*!
   Sets the application-wide default style sheet, deleting any style
-  sheet previously set.
+  sheet previously set. The ownership is transferred.
+
+  \sa defaultSheet()
 */
 void QStyleSheet::setDefaultSheet( QStyleSheet* sheet)
 {
-    if (defaultsheet)
+    if ( defaultsheet != sheet )
 	delete defaultsheet;
     defaultsheet = sheet;
 }
@@ -869,13 +929,15 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 /*!
   Generates an internal object for tag named \a name, given the
   attributes \a attr, and using additional information provided
-  by \a provider.
+  by the mime source factory \a factory .
 
   This function should not (yet) be used in application code.
 */
 QTextNode* QStyleSheet::tag( const QString& name,
-			     const QDict<QString> &attr,
-			     QMLProvider& provider, bool emptyTag ) const
+			     const QMap<QString, QString> &attr,
+			     const QString& context,
+			     const QMimeSourceFactory& factory,
+			     bool emptyTag ) const
 {
     QStyleSheetItem* style = styles[name];
     if ( !style ) {
@@ -890,9 +952,9 @@ QTextNode* QStyleSheet::tag( const QString& name,
 
     // first some known  tags
     if (style->name() == s_img)
-	return new QTextImage(attr, provider);
+	return new QTextImage(attr, context, factory);
     else if (style->name() == s_hr)
-	return new QTextHorizontalLine(attr, provider);
+	return new QTextHorizontalLine(attr, factory);
     else if (style->name() == s_br ) {
 	QTextNode* result = new QTextNode;
 	result->c = '\n';
@@ -957,23 +1019,34 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 }
 
 /*!
-Returns whether the string \a text is likely to be rich text
-formatted.
+  Returns whether the string \a text is likely to be rich text
+  formatted.
 
-Note: The function uses a fast and therefore simple heuristic. It
-mainly checks whether there is something that looks like a tag. While
-the result may be correct for most common cases, there is no
-guarantee.
+  Note: The function uses a fast and therefore simple heuristic. It
+  mainly checks whether there is something that looks like a tag
+  before the first line break. While the result may be correct for
+  most common cases, there is no guarantee.
 */
 bool QStyleSheet::mightBeRichText( const QString& text)
 {
-    int open = text.find('<');
-    if ( open > -1 ) {
+    if ( text.isEmpty() )
+	return FALSE;
+    int open = 0;
+    while ( open < int(text.length()) && text[open] != '<' && text[open] != '\n' )
+	++open;
+    if ( text[open] == '<' ) {
 	int close = text.find('>', open);
 	if ( close > -1 ) {
-	    int nl = text.find('\n', open );
-	    return ( nl == -1 || nl > close )
-			 && !text.mid(open,close-open).contains(".h");
+	    bool hasTag = FALSE;
+	    for (int i = open+1; i < close; ++i) {
+		if ( text[i].isDigit() || text[i].isLetter() )
+		    hasTag = TRUE;
+		else if ( hasTag && text[i].isSpace() )
+		    return TRUE;
+		else if ( !text[i].isSpace() && (hasTag || text[i] != '!' ) )
+		    return FALSE; // that's not a tag
+	    }
+	    return TRUE;
 	}
     }
     return FALSE;

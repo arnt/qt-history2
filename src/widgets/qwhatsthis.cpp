@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#49 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -70,8 +70,24 @@
 
   <img src="whatsthis.gif" width="376" height="239">
 
-  More functionality will be provided in the coming releases of Qt.
-
+  Futhermore, you can create a dedicated QWhatsThis object for a
+  special widget. By subclassing and reimplementing QWhatsThis::text()
+  it is possible, to have different explanatory texts depending on the
+  position of the mouse click.
+  
+  If you widget needs even more control, see
+  QWidget::customWhatsThis().
+  
+  Other Qt classes support What's This help directly. Keyboard
+  accelerators, for example, can also provide explanatory text with
+  access through both they acceleration key itself or an attached menu
+  item. See QAccel::setWhatsThis() for details.
+  
+  The explanatory text can be both rich text or plain text.  If you
+  specify a rich text formatted string, it will be rendered using the
+  default stylesheet. This makes it also possible to embed images. See
+  QStyleSheet::defaultSheet() for details.
+  
   \sa QToolTip
 */
 
@@ -292,6 +308,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
+	    if ( ( (QMouseEvent*)e)->button() == RightButton )
+		return FALSE; // ignore RMB
 	    if ( w->customWhatsThis() )
 		return FALSE;
 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
@@ -310,8 +328,11 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    else
 		say( w, i->s, w->mapToGlobal(pos) );
 	    return TRUE;
-	} else if ( e->type() == QEvent::MouseButtonRelease ||
-		    e->type() == QEvent::MouseMove ) {
+	} else if ( e->type() == QEvent::MouseButtonRelease ) {
+	    if ( ( (QMouseEvent*)e)->button() == RightButton )
+		return FALSE; // ignore RMB
+	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
+	} else if ( e->type() == QEvent::MouseMove ) {
 	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
 	} else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent* kev = (QKeyEvent*)e;
@@ -322,6 +343,9 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    return TRUE;
 		}
 	    }
+	    else if ( kev->key() == Key_Menu || 
+		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
+		return FALSE; // ignore these keys, they are used for context menus
 	    else if ( kev->state() == kev->stateAfter() && kev->key() != Key_Meta ) // not a modifier key
 		leaveWhatsThisMode();
 	}
@@ -410,8 +434,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     QSimpleRichText* qmlDoc = 0;
 
     if ( QStyleSheet::mightBeRichText( text ) ) {
-	qmlDoc = new QSimpleRichText( text, whatsThat->font(),
-				      QStyleSheet::defaultSheet() );
+	qmlDoc = new QSimpleRichText( text, whatsThat->font() );
 	qmlDoc->setWidth( &p, w );
 	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
     }
@@ -517,7 +540,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 // and finally the What's This class itself
 
 /*!
-  
+
   Adds \a text as What's This help for \a widget. If the text is rich
   text formatted, it will be rendered with the default stylesheet
   QStyleSheet::defaultSheet().

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#90 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -723,9 +723,9 @@ bool QImageDrag::canDecode( const QMimeSource* e )
 */
 bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 {
-    QByteArray payload = e->encodedData( "image/ppm" );
+    QByteArray payload = e->encodedData( "image/png" );
     if ( payload.isEmpty() )
-	payload = e->encodedData( "image/png" );
+	payload = e->encodedData( "image/ppm" );
     if ( payload.isEmpty() )
 	payload = e->encodedData( "image/bmp" );
     if ( payload.isEmpty() ) // if we get gif, try it even if !builtin
@@ -839,9 +839,9 @@ QByteArray QStoredDrag::encodedData(const char* m) const
   filename, but more extensible.
 
   While presenting URIs to the user, use them in Unicode form so
-  that the user can confortably edit and view them.  
+  that the user can confortably edit and view them.
   For use in HTTP or other protocols, use the correctly escaped
-  ASCII form (see 
+  ASCII form (see
 */
 
 /*!
@@ -953,7 +953,7 @@ void QUriDrag::setFilenames( QStringList fnames )
 }
 
 /*!
-  Sets the URIs to be the 
+  Sets the URIs to be the
   Unicode URIs (only useful for
   displaying to humans) \a uuris.
 
@@ -971,7 +971,7 @@ void QUriDrag::setUnicodeUris( QStringList uuris )
 /*!
   Returns the URI equivalent to the Unicode URI (only useful for
   displaying to humans).
-  \a uuri.  
+  \a uuri.
 
   \sa uriToLocalFile()
 */
@@ -1014,7 +1014,7 @@ QCString QUriDrag::unicodeUriToUri(const QString& uuri)
 
 /*!
   Returns the URI equivalent to the absolute
-  local file \a filename.  
+  local file \a filename.
 
   \sa uriToLocalFile()
 */

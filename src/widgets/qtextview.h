@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#4 $
 **
 ** Definition of the QTextView class
 **
@@ -30,24 +30,30 @@
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
-#include "qml.h" // for the provider #######
 
 class QRichText;
 class QTextViewData;
 class QTextContainer;
 class QStyleSheet;
+class QMimeSourceFactory;
 
 class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
 public:
     QTextView(QWidget *parent=0, const char *name=0);
-    QTextView( const QString& doc, QWidget *parent=0, const char *name=0);
+    QTextView( const QString& text, const QString& context = QString::null,
+	       QWidget *parent=0, const char *name=0);
     ~QTextView();
 
-    virtual void setText( const QString& text );
+    virtual void setText( const QString& text, const QString& context = QString::null );
     virtual QString text() const;
+    virtual QString context() const;
+    
+    Qt::TextFormat textFormat() const;
+    void setTextFormat( Qt::TextFormat );
 
+    
     QStyleSheet* styleSheet() const;
     void setStyleSheet( QStyleSheet* styleSheet );
 
@@ -59,8 +65,8 @@ public:
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
 
-    void setProvider( QMLProvider* newProvider );
-    QMLProvider* provider() const;
+    void setMimeSourceFactory( QMimeSourceFactory* factory );
+    QMimeSourceFactory* mimeSourceFactory() const;
 
     QString documentTitle() const;
 
@@ -78,7 +84,7 @@ protected:
 
 protected:
 
-    QRichText& currentDocument() const;
+    QRichText& richText() const;
     void paletteChange( const QPalette & );
 
 private slots:
@@ -86,7 +92,7 @@ private slots:
 
 private:
     void init();
-    void createDocument();
+    void createRichText();
     QTextViewData* d;
 };
 
@@ -102,7 +108,7 @@ public:
     QTextEdit(QWidget *parent=0, const char *name=0);
     ~QTextEdit();
 
-    void setText( const QString& contents );
+    void setText( const QString& text, const QString& context = QString::null );
     QString text();
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#84 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -37,7 +37,9 @@ static const int QH_MARGIN = 4;
 struct QHeaderData
 {
     QArray<QCOORD>	sizes;
+    QArray<QCOORD>	heights;
     QArray<QString*>	labels;
+    QArray<QIconSet*>	iconsets;
     QArray<int>	        a2l;
     QArray<int>	        l2a;
 
@@ -215,16 +217,20 @@ void QHeader::init( int n )
     data = new QHeaderData;
 
     data->sizes.resize(n+1);
+    data->heights.resize(n+1);
     data->labels.resize(n+1);
+    data->iconsets.resize(n+1);
     data->a2l.resize(n+1);
     data->l2a.resize(n+1);
     data->clicks.resize(n+1);
     data->resize.resize(n+1);
     for ( int i = 0; i < n ; i ++ ) {
 	data->sizes[i] = 88;
+	data->heights[i] = fontMetrics().lineSpacing()+6;
 	data->a2l[i] = i;
 	data->l2a[i] = i;
 	data->labels[i] = 0;
+	data->iconsets[i] = 0;
     }
     data->clicks.fill( TRUE );
     data->resize.fill( TRUE );
@@ -245,8 +251,9 @@ void QHeader::init( int n )
     }
     */
     handleIdx = 0;
-    //################
+    //################ ??? What's that supposed to be, Paul?
     data->sizes[n] = 0;
+    data->heights[n] = 0;
     data->a2l[n] = 0;
     data->l2a[n] = 0;
     //#############
@@ -448,12 +455,12 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	else
 	    handleIdx = i+1;
 	oldHIdxSize = cellSize( handleIdx - 1 );
-	state = data->resize[ mapToLogical(handleIdx - 1) ] 
+	state = data->resize[ mapToLogical(handleIdx - 1) ]
 		? Sliding : Blocked;
     } else if ( i >= 0 ) {
 	handleIdx = i;
 	moveToIdx = -1;
-	state = data->clicks[ mapToLogical( i ) ] 
+	state = data->clicks[ mapToLogical( i ) ]
 		? Pressed : Blocked;
 	clickPos = c;
 	repaint( sRect( handleIdx ) );
@@ -597,10 +604,26 @@ QRect QHeader::sRect( int i )
 	return QRect( 0, pPos( i ), width(), pSize( i ) );
 }
 
+
+void QHeader::setLabel( int i, const QIconSet& iconset, const QString &s, int size )
+{
+    if ( i < 0 || i >= count() )
+	return;
+    if ( i >= 0 && i < count() ) {
+	if ( data->iconsets[i] )
+	    delete data->iconsets[i];
+	data->iconsets[i] = new QIconSet( iconset );
+    }
+    setLabel( i, s, size );
+}
+
 /*!
   Sets the text on logical section \a i to \a s. If the section does not exist,
   nothing happens.
   If \a size is non-negative, the section width is set to \a size.
+  
+  Any icon set that has been defined for this section remains
+  unchanged.
 */
 
 void QHeader::setLabel( int i, const QString &s, int size )
@@ -615,14 +638,14 @@ void QHeader::setLabel( int i, const QString &s, int size )
 	    setCellSize( i, size );
 	}
     }
-    repaint();
+    update();
 }
 
 
 /*!
   Returns the text set on logical section \a i.
 */
-QString QHeader::label( int i )
+QString QHeader::label( int i ) const
 {
     if ( i < 0 || i >= count() )
 	return QString::null;
@@ -633,6 +656,31 @@ QString QHeader::label( int i )
 }
 
 /*!
+  Returns the icon set set on logical section \a i.
+*/
+QIconSet	*QHeader::iconSet( int i) const
+{
+    if ( i < 0 || i >= count() )
+	return 0;
+    return data->iconsets[i];
+}
+
+
+/*!
+  Adds a new section, with icon set \a iconset and label text \a
+  s. Returns the index.  If \a size is non-negative, the section width
+  is set to \a size, otherwise a size currently sufficient for the
+  label is used.
+*/
+int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
+{
+    int n = count() + 1; //########### Paul? Why hashes?
+    data->iconsets.resize( n + 1 );
+    data->iconsets[n-1] = new QIconSet( iconset );
+    return addLabel( s, size );
+}
+
+/*!
   Adds a new section, with label text \a s. Returns the index.
   If \a size is non-negative, the section width is set to \a size,
   otherwise a size currently sufficient for the label text is used.
@@ -640,20 +688,39 @@ QString QHeader::label( int i )
 
 int QHeader::addLabel( const QString &s, int size )
 {
-    int n = count() + 1; //###########
+    int n = count() + 1; //########### Paul? Why hashes?
     data->labels.resize( n + 1 );
     data->labels[n-1] = new QString( s );
-    data->sizes.resize( n + 1 );
-    if ( size < 0 ) {
-	const QFontMetrics & fm = fontMetrics();
-        if ( orient == Horizontal )
-            size = -fm.minLeftBearing()
-                   +fm.width( s )
-                   -fm.minRightBearing() + QH_MARGIN*2;
-        else
-            size = fm.lineSpacing() + 6; // Use same size as horizontal QHeader
+    if ( int( data->iconsets.size() ) < n + 1  ) {
+	data->iconsets.resize( n + 1 );
+	data->iconsets[n-1] = 0;
     }
+    data->sizes.resize( n + 1 );
+    data->heights.resize( n + 1 );
+    int iw = 0;
+    int ih = 0;
+    if ( data->iconsets[n-1] != 0 ) {
+	iw = data->iconsets[n-1]->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	ih = data->iconsets[n-1]->pixmap( QIconSet::Small, QIconSet::Normal ).height();
+    }
+    
+    QFontMetrics fm = fontMetrics();
+    int height = QMAX( fm.lineSpacing() + 6, ih );
+    int width = -fm.minLeftBearing()
+		+fm.width( s )
+		-fm.minRightBearing() + QH_MARGIN*2 + iw;
+    
+    if ( size < 0 ) {
+	if ( orient == Horizontal )
+	    size = width;
+	else
+	    size = height;
+    }
+    
     data->sizes[n-1] = size;
+    // we abuse the heights as widths for vertical layout
+    data->heights[n-1] = orient == Horizontal ? height : width;
+
     data->a2l.resize( n + 1 );
     data->l2a.resize( n + 1 );
     data->a2l[n-1] = n-1;
@@ -669,7 +736,7 @@ int QHeader::addLabel( const QString &s, int size )
     else
 	setNumRows( n );
 #endif
-    repaint(); //####
+    update(); //####
     return n - 1;
 }
 
@@ -679,17 +746,20 @@ int QHeader::addLabel( const QString &s, int size )
 */
 QSize QHeader::sizeHint() const
 { // #### seriously buggy if there are lots of columns
-    QFontMetrics fm( font() );
-    if ( orient == Horizontal )
+    QFontMetrics fm = fontMetrics();
+    if ( orient == Horizontal ) {
+	int height = fm.lineSpacing() + 6;
+	for ( int i=0 ; i<count() ; i++ )
+	    height = QMAX( height , data->heights[i] );
 	return QSize( count() > 0
 		      ? cellSize( count()-1 ) + cellPos( count()-1 )
 		      : -1,
-		      fm.lineSpacing() + 6 );
+		      height );
+    }
     else {
-        int width = fm.width( ' ' );
+	int width = fm.width( ' ' );
 	for ( int i=0 ; i<count() ; i++ )
-	    if ( data->labels[i] )
-		width = QMAX( width , fm.width( *data->labels[i] ) );
+	    width = QMAX( width , data->heights[i] );
 	return QSize( width + 2*QH_MARGIN,
 		      count() > 0
 		      ? cellSize( count()-1 ) + cellPos( count()-1 )
@@ -753,6 +823,17 @@ int QHeader::pSize( int i ) const
 	return 0;
 
     return data->sizes[mapToLogical(i)];
+}
+
+/*!
+  Returns the height of actual section \a i.
+ */
+int QHeader::pHeight( int i ) const
+{
+    if ( i < 0 || i >= count() )
+	return 0;
+
+    return data->heights[mapToLogical(i)];
 }
 
 
@@ -883,6 +964,15 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 
     QRect r( fr.x() + QH_MARGIN+d, fr.y() + 2+d,
 	     fr.width() - 6, fr.height() - 4 );
+
+    if ( data->iconsets[logIdx] ) {
+	QIconSet::Mode mode = isEnabled()?QIconSet::Normal:QIconSet::Disabled;
+	QPixmap pixmap = data->iconsets[logIdx]->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	p->drawPixmap( r.left(), r.center().y()-pixh/2, pixmap );
+	r.setLeft( r.left() + pixw + 2 );
+    }
 
     p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
 }

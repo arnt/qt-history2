@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#243 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#244 $
 **
 ** Implementation of QListView widget class
 **
@@ -35,6 +35,7 @@
 #include "qdatetime.h"
 #include "qptrdict.h"
 #include "qvector.h"
+#include "qiconset.h"
 
 #include "qpixmapcache.h"
 
@@ -1970,6 +1971,24 @@ int QListView::addColumn( const QString &label, int width )
 }
 
 /*!
+  Adds a new column at the right end of the widget, with the header \a
+  label and \a iconset, and returns the index of the column.
+
+  If \a width is negative, the new column will have WidthMode Maximum,
+  otherwise it will be Manual at \a width pixels wide.
+
+  \sa setColumnText() setColumnWidth() setColumnWidthMode()
+*/
+int QListView::addColumn( const QIconSet& iconset, const QString &label, int width )
+{
+    int c = d->h->addLabel( iconset, label, width );
+    d->column.resize( c+1 );
+    d->column.insert( c, new QListViewPrivate::Column );
+    d->column[c]->wmode = width >=0 ? Manual : Maximum;
+    return c;
+}
+
+/*!
   Sets the heading text of column \a column to \a label.  The leftmost
   colum is number 0.
 */
@@ -1977,6 +1996,16 @@ void QListView::setColumnText( int column, const QString &label )
 {
     if ( column < d->h->count() )
 	d->h->setLabel( column, label );
+}
+
+/*!
+  Sets the heading text of column \a column to \a iconset and \a
+  label.  The leftmost colum is number 0.
+*/
+void QListView::setColumnText( int column, const QIconSet& iconset, const QString &label )
+{
+    if ( column < d->h->count() )
+	d->h->setLabel( column, iconset, label );
 }
 
 /*!

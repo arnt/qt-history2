@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#6 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#7 $
 **
 ** Definition of mime classes
 **
@@ -46,6 +46,9 @@ class Q_EXPORT QMimeSourceFactory {
 public:
     QMimeSourceFactory();
     virtual ~QMimeSourceFactory();
+
+    static QMimeSourceFactory* defaultFactory();
+    static void setDefaultFactory( QMimeSourceFactory* );
 
     virtual const QMimeSource* data(const QString& abs_name) const;
     virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;

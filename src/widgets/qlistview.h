@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#87 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#88 $
 **
 ** Definition of QListView widget class
 **
@@ -29,6 +29,7 @@
 class QPixmap;
 class QFont;
 class QHeader;
+class QIconSet;
 
 class QListView;
 struct QListViewPrivate;
@@ -180,7 +181,9 @@ public:
     QHeader * header() const;
 
     virtual int addColumn( const QString &label, int size = -1);
+    virtual int addColumn( const QIconSet& iconset, const QString &label, int size = -1);
     virtual void setColumnText( int column, const QString &label );
+    virtual void setColumnText( int column, const QIconSet& iconset, const QString &label );
     QString columnText( int column ) const;
     virtual void setColumnWidth( int column, int width );
     int columnWidth( int column ) const;

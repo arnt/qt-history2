@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#495 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#496 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4378,6 +4378,10 @@ QSessionManager::QSessionManager( QApplication * /* app */, QString &session )
     cb.shutdown_cancelled.callback = sm_shutdownCancelledCallback;
     cb.shutdown_cancelled.client_data = (SmPointer) this;
 
+    // avoid showing a warning message below
+    if (!::getenv("SESSION_MANAGER") )
+	return;
+    
     smcConnection = SmcOpenConnection( 0, 0, 1, 0,
 				       SmcSaveYourselfProcMask |
 				       SmcDieProcMask |

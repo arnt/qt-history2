@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#13 $
 **
 ** Implementation of the QTextView class
 **
@@ -38,7 +38,8 @@
 #include "qbitmap.h"
 #include "qtimer.h"
 #include "qimage.h"
-
+#include "qmime.h"
+#include "qdragobject.h"
 
 
 
@@ -48,11 +49,36 @@
   \brief A sophisticated single-page rich text viewer.
   \ingroup realwidgets
 
-  Unlike QSimpleRichText, which merely draws small pieces of rich text,
-  a QTextView is a real widget, with scrollbars when necessary, for showing
-  large text documents.
+  Unlike QSimpleRichText, which merely draws small pieces of rich
+  text, a QTextView is a real widget, with scrollbars when necessary,
+  for showing large text documents.
+
+  The rendering style and available tags are defined by a
+  styleSheet(). Currently, a small XML/CSS1 subset including embedded
+  images is supported. See QStyleSheet for details.
+
+  Using QTextView is quite similar to QLabel. It's mainly a call to
+  setText() to set the contents. Setting the background color is
+  slighty different from other widgets, since a text view is a
+  scrollable widget that naturally provies a scrolling background. You
+  can specify the colorgroup of the displayed text with
+  setPaperColorGroup() or directly define the paper background with
+  setPaper(). QTextView supports both plain color and complex pixmap
+  backgrounds.
+  
+  Note that we do not intend to add a full-featured web browser widget
+  to Qt (since that would easily double Qt's size and only few
+  applications would benefit from it). In particular, the rich text
+  support in Qt is supposed to provide a fast and sufficient way to
+  add reasonable online help facilities to applications. We will,
+  however, extend it to some degree in future versions of Qt. Most
+  likely some basic table support will be put in and a new class to
+  provide rich text input.
 
   For even more, like hypertext capabilities, see QTextBrowser.
+  
+  \bug No selection possible.
+  \bug No table support (yet).
 */
 
 class QTextViewData
@@ -60,11 +86,14 @@ class QTextViewData
 public:
     QStyleSheet* sheet_;
     QRichText* doc_;
-    QMLProvider* provider_;
+    QMimeSourceFactory* factory_;
+    QString original_txt;
     QString txt;
+    QString contxt;
     QColorGroup mypapcolgrp;
     QColorGroup papcolgrp;
     QTimer* resizeTimer;
+    Qt::TextFormat textformat;
 };
 
 
@@ -80,14 +109,18 @@ QTextView::QTextView(QWidget *parent, const char *name)
 
 
 /*!
-  Constructs a QTextView displaying the contents \a doc,
-  with the standard \a parent and \a name optional arguments.
+  Constructs a QTextView displaying the contents \a text with context
+  \a context, with the standard \a parent and \a name optional
+  arguments.
 */
-QTextView::QTextView( const QString& doc, QWidget *parent, const char *name)
+QTextView::QTextView( const QString& text, const QString& context,
+		      QWidget *parent, const char *name)
     : QScrollView( parent, name)
 {
     init();
-    d->txt = doc;
+    d->contxt = context;
+    d->original_txt = text;
+    d->txt = text;
 }
 
 
@@ -104,12 +137,13 @@ void QTextView::init()
 
     d->doc_ = 0;
     d->sheet_ = 0;
-    d->provider_ = 0;
+    d->factory_ = 0;
     d->txt = QString::fromLatin1("<p></p>");
+    d->textformat = AutoText;
 
     viewport()->setBackgroundMode(NoBackground);
     setFocusPolicy( StrongFocus );
-    
+
     d->resizeTimer = new QTimer( this );
     connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
 }
@@ -124,37 +158,54 @@ QTextView::~QTextView()
 }
 
 /*!
-  Changes the contents of the view to the string \a text.
+  Changes the contents of the view to the string \a text and the
+  context to \a context.
+  
+  \a text may be interpreted either as plain text or as rich text,
+  depending on the textFormat(). The default setting is \c AutoText,
+  i.e. the text view autodetects the format from \a text.
+  
+  The \a context is used to resolve references within the text
+  document, for example image sources. It is passed directly to the
+  mimeSourceFactory() when quering data.
 
-  \sa contents()
+  \sa text(), setTextFormat
 */
-void QTextView::setText( const QString& text)
+void QTextView::setText( const QString& text, const QString& context)
 {
     delete d->doc_;
     d->doc_ = 0;
 
-    // ###### TODOdo format stuff
-    if ( QStyleSheet::mightBeRichText( text ) ) 
-      d->txt = text;
-    else 
-      d->txt = QStyleSheet::convertFromPlainText( text );
+    d->original_txt = text;
+    d->contxt = context;
 
     if ( d->txt.isEmpty() )
 	d->txt = QString::fromLatin1("<p></p>");
+    else if ( d->textformat == AutoText ) {
+	if ( QStyleSheet::mightBeRichText( text ) )
+	    d->txt = text;
+	else
+	    d->txt = QStyleSheet::convertFromPlainText( text );
+    }
+    else if ( d->textformat == PlainText )
+	d->txt = QStyleSheet::convertFromPlainText( text );
+    else // rich text
+	d->txt = text;
+
     if ( isVisible() ) {
 	QPainter * p = new QPainter( this );
 	// first try to use the full width of the viewport
 	QSize vs( viewportSize( 1,1 ) );
-	currentDocument().setWidth( p, vs.width() );
+	richText().setWidth( p, vs.width() );
 	// if we'll need to scroll vertically, and the only reason we'll
 	// need to scroll horizontally is the vertical scroll bar, try
 	// to reformat so we won't need to scroll horizontally at all
-	if ( currentDocument().height > vs.height() &&
-	     currentDocument().width <= vs.width() &&
-	     currentDocument().width + /*###*/ 16 /*###*/ > vs.width() )
-	    currentDocument().setWidth( p, vs.width()-16 );
+	if ( richText().height > vs.height() &&
+	     richText().width <= vs.width() &&
+	     richText().width + /*###*/ 16 /*###*/ > vs.width() )
+	    richText().setWidth( p, vs.width()-16 );
 	delete p;
-	resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
+	resizeContents( QMAX( richText().widthUsed, richText().width), richText().height );
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
@@ -164,32 +215,54 @@ void QTextView::setText( const QString& text)
 /*!
   Returns the contents of the view.
 
-  \sa setContents()
+  \sa context(), setText()
 */
 QString QTextView::text() const
 {
-    return d->txt;
+    return d->original_txt;
+}
+
+/*!
+  Returns the context of the view.
+
+  \sa text(), setText()
+*/
+QString QTextView::context() const
+{
+    return d->contxt;
 }
 
 
-void QTextView::createDocument()
+void QTextView::createRichText()
 {
     d->papcolgrp = d->mypapcolgrp;
-    d->doc_ = new QRichText( d->txt, viewport()->font(), 8, provider(), styleSheet() );
+    d->doc_ = new QRichText( d->txt, viewport()->font(), d->contxt,
+			     8, mimeSourceFactory(), styleSheet() );
     if ( !d->doc_->attributes() )
 	return;
-    if (d->doc_->attributes()->find("bgcolor")){
-	QColor  col ( d->doc_->attributes()->find("bgcolor")->ascii() );
+    if (d->doc_->attributes()->contains("bgcolor")){
+	QColor  col ( d->doc_->attributes()->operator[]("bgcolor").latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Base, col );
     }
-    if (d->doc_->attributes()->find("text")){
-	QColor  col ( d->doc_->attributes()->find("text")->ascii() );
+    if (d->doc_->attributes()->contains("text")){
+	QColor  col ( d->doc_->attributes()->operator[]("text").latin1() );
 	if ( col.isValid() )
 	    d->papcolgrp.setColor( QColorGroup::Text,  col );
     }
-    if (d->doc_->attributes()->find("bgpixmap")){
-	QPixmap pm = provider()->image(*d->doc_->attributes()->find("bgpixmap"));
+    if (d->doc_->attributes()->contains("bgpixmap")){
+	QString imageName = d->doc_->attributes()->operator[]("bgpixmap");
+	QPixmap pm;
+	const QMimeSource* m = 0;
+	if ( context().isNull() )
+	    m = mimeSourceFactory()->data( imageName );
+	else
+	    m = mimeSourceFactory()->data( imageName, context() );
+	if ( m ) {
+	    if ( !QImageDrag::decode( m, pm ) ) {
+		qWarning("QTextImage: cannot load %s", imageName.latin1() );
+	    }
+	}
 	if (!pm.isNull())
 	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
     }
@@ -223,33 +296,45 @@ void QTextView::setStyleSheet( QStyleSheet* styleSheet )
 
 
 /*!
-  Returns the current provider for the view.
+  Returns the current mime source factory  for the view.
 
-  \sa setProvider()
+  \sa setMimeSourceFactory()
 */
-QMLProvider* QTextView::provider() const
+QMimeSourceFactory* QTextView::mimeSourceFactory() const
 {
-    if (!d->provider_)
-	return QMLProvider::defaultProvider();
+    if (!d->factory_)
+	return QMimeSourceFactory::defaultFactory();
     else
-	return d->provider_;
+	return d->factory_;
 
 }
 
 /*!
-  Sets the provider for the view.
+  Sets the mime source factory for the view. The factory is used to
+  resolve named references within rich text documents. If no factory
+  has been specified, the text view uses the default factory
+  QMimeSourceFactory::defaultFactory().
 
-  \sa provider()
+  Ownership of \a factory is \e not transferred to make it possible
+  for several text view widgets to share the same mime source.
+
+  \sa mimeSourceFactory()
 */
-void QTextView::setProvider( QMLProvider* newProvider )
+void QTextView::setMimeSourceFactory( QMimeSourceFactory* factory )
 {
-    d->provider_ = newProvider;
+    d->factory_ = factory;
     viewport()->update();
 }
 
 
 /*!
   Sets the brush to use as the background to \a pap.
+
+  This may be a nice pergament or marble pixmap or simply another
+  plain color.
+
+  Technically, setPaper() is just a convenience function to set the
+  base brush of the paperColorGroup().
 
   \sa paper()
 */
@@ -261,7 +346,12 @@ void QTextView::setPaper( const QBrush& pap)
 }
 
 /*!
-  Sets the full colorgroup of the background to \a colgrp.
+  Sets the full colorgroup of the paper to \a colgrp. If not specified
+  otherwise in the document itself, any text will use
+  QColorGroup::text(). The background will be painted with
+  QColorGroup::brush(QColorGroup::Base).
+
+  \sa paperColorGroup(), setPaper()
 */
 void QTextView::setPaperColorGroup( const QColorGroup& colgrp)
 {
@@ -271,7 +361,9 @@ void QTextView::setPaperColorGroup( const QColorGroup& colgrp)
 }
 
 /*!
-  Returns the colorgroup of the background.
+  Returns the colorgroup of the paper.
+
+  \sa setPaperColorGroup(), setPaper()
 */
 const QColorGroup& QTextView::paperColorGroup() const
 {
@@ -284,11 +376,7 @@ const QColorGroup& QTextView::paperColorGroup() const
 */
 QString QTextView::documentTitle() const
 {
-    QString* s = currentDocument().attributes()?currentDocument().attributes()->find("title"):0;
-    if (s)
-	return *s;
-    else
-	return QString();
+    return richText().attributes()?richText().attributes()->operator[]("title"):QString::null;
 }
 
 /*!
@@ -296,7 +384,8 @@ QString QTextView::documentTitle() const
 */
 int QTextView::heightForWidth( int w ) const
 {
-    QRichText doc ( d->txt, viewport()->font(), 8, provider(), styleSheet());
+    QRichText doc ( d->txt, viewport()->font(), d->contxt,
+		    8, mimeSourceFactory(), styleSheet() );
     {
 	QPainter p( this );
 	doc.setWidth(&p, w);
@@ -305,14 +394,14 @@ int QTextView::heightForWidth( int w ) const
 }
 
 /*!
-  Returns the current document defining the view.  This is not currently
-  useful for applications.
+  Returns the document defining the view as drawable and querable rich
+  text object.  This is not currently useful for applications.
 */
-QRichText& QTextView::currentDocument() const
+QRichText& QTextView::richText() const
 {
     if (!d->doc_){
 	QTextView* that = (QTextView*) this;
-	that->createDocument();
+	that->createRichText();
     }
     return *d->doc_;
 }
@@ -332,7 +421,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
     QRegion r(cx-ox, cy-oy, cw, ch);
-    currentDocument().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), &paper() );
+    richText().draw(p, 0, 0, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), &paper() );
 
     p->setClipRegion(r);
 
@@ -356,16 +445,16 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 
 void QTextView::doResize()
 {
-    QSize vw = viewportSize( QMAX( currentDocument().widthUsed,
-				   currentDocument().width),
-			     currentDocument().height );
+    QSize vw = viewportSize( QMAX( richText().widthUsed,
+				   richText().width),
+			     richText().height );
     {
 	QPainter p(this);
-	currentDocument().setWidth( &p, vw.width() );
+	richText().setWidth( &p, vw.width() );
     }
-    resizeContents( QMAX( currentDocument().widthUsed,
-			  currentDocument().width),
-		    currentDocument().height );
+    resizeContents( QMAX( richText().widthUsed,
+			  richText().width),
+		    richText().height );
     viewport()->update();
 }
 
@@ -383,16 +472,16 @@ void QTextView::resizeEvent( QResizeEvent* e )
     }
     else {
       // small document, resize immediately
-      QSize vw = viewportSize( QMAX( currentDocument().widthUsed,
-				     currentDocument().width),
-			       currentDocument().height );
-      QPainter p;
-      p.begin( this );
-      currentDocument().setWidth( &p, vw.width() );
-      p.end();
-      resizeContents( QMAX( currentDocument().widthUsed,
-			    currentDocument().width),
-		      currentDocument().height );
+      QSize vw = viewportSize( QMAX( richText().widthUsed,
+				     richText().width),
+			       richText().height );
+      {
+	  QPainter p( this );
+	  richText().setWidth( &p, vw.width() );
+      }
+      resizeContents( QMAX( richText().widthUsed,
+			    richText().width),
+		      richText().height );
       QScrollView::resizeEvent( e );
       viewport()->update();
     }
@@ -461,6 +550,39 @@ void QTextView::paletteChange( const QPalette & )
 }
 
 
+/*!
+  Returns the current text format.
+
+  \sa setTextFormat()
+ */
+Qt::TextFormat QTextView::textFormat() const
+{
+    return d->textformat;
+}
+
+/*!
+  Sets the text format to \a format. Possible choices are
+  <ul>
+  <li> \c PlainText - all characters are displayed verbatimely,
+  including all blanks and linebreaks. Word wrap is availbe
+  with the \c WordBreak alignment flag (see setAlignment() for
+  details).
+  <li> \c RichText - rich text rendering. The available
+  styles are defined in the default stylesheet
+  QStyleSheet::defaultSheet().
+  <li> \c AutoText - this is also the default. The label
+  autodetects which rendering style suits best, \c PlainText
+  or \c RichText. Technically, this is done by using the
+  QStyleSheet::mightBeRichText() heuristic.
+  </ul>
+ */
+void QTextView::setTextFormat( Qt::TextFormat format )
+{
+    d->textformat = format;
+    setText( d->original_txt, d->contxt ); // trigger update
+}
+
+
 //************************************************************************
 
 #if 0
@@ -487,11 +609,11 @@ QTextEdit::~QTextEdit()
 /*!
   reimplemented for internal purposes
  */
-void QTextEdit::setText( const QString& contents)
+void QTextEdit::setText( const QString& text, const QString& context  )
 {
-    QTextView::setContents( contents );
+    QTextView::setText( text, context );
     delete cursor;
-    cursor = new QTextCursor(currentDocument());
+    cursor = new QTextCursor(richText());
 }
 
 /*!
@@ -663,7 +785,7 @@ void QTextEdit::updateSelection(int oldY, int newY)
     int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
     int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
     QRegion r;
-    currentDocument().draw(&p, 0, 0, contentsX(), contentsY(),
+    richText().draw(&p, 0, 0, contentsX(), contentsY(),
 			   contentsX(), minY,
 			   viewport()->width(), maxY-minY,
 			   r, paperColorGroup(), &paper(), FALSE, TRUE);
@@ -761,7 +883,7 @@ void QTextEdit::updateScreen()
     {
 	QPainter p( viewport() );
 	QRegion r(0, 0, viewport()->width(), viewport()->height());
-	currentDocument().draw(&p, 0, 0, contentsX(), contentsY(),
+	richText().draw(&p, 0, 0, contentsX(), contentsY(),
 			       contentsX(), contentsY(),
 			       viewport()->width(), viewport()->height(),
 			       r, paperColorGroup(), &paper(), TRUE);
@@ -773,7 +895,7 @@ void QTextEdit::updateScreen()
 	    p.fillRect(0, 0, viewport()->width(), viewport()->height(), paper());
     }
     showCursor();
-    resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width(), currentDocument().height );
+    resizeContents( QMAX( richText().widthUsed, richText().width(), richText().height );
     ensureVisible(cursor->x, cursor->y);
 }
 

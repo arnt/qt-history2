@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#33 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#34 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -27,7 +27,9 @@
 #define QHEADER_H
 
 #ifndef QT_H
-#include "qtableview.h"
+#include "qwidget.h"
+#include "qstring.h"
+#include "qiconset.h"
 #endif // QT_H
 
 struct QHeaderData;
@@ -41,8 +43,11 @@ public:
     ~QHeader();
 
     int		addLabel( const QString &, int size = -1 );
+    int		addLabel( const QIconSet&, const QString &, int size = -1 );
     virtual void setLabel( int, const QString &, int size = -1 );
-    QString 	label( int );
+    virtual void setLabel( int, const QIconSet&, const QString &, int size = -1 );
+    QString 	label( int ) const;
+    QIconSet* 	iconSet( int ) const;
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );
@@ -94,6 +99,7 @@ private:
     void	unMarkLine( int idx );
     int		pPos( int i ) const;
     int		pSize( int i ) const;
+    int		pHeight( int i ) const;
 
     int 	findLine( int );
 

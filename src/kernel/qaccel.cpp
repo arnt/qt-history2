@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#71 $
 **
 ** Implementation of QAccel class
 **
@@ -461,9 +461,13 @@ int QAccel::shortcutKey( const QString &str )
   Sets a Whats This help for a certain accelerator.
 
   \arg \e id is the accelerator item id.
-  \arg \e text is the Whats This help text in QML format
+  \arg \e text is the Whats This help text.
+  
+  The text will be shown when the application is in What's This mode
+  and the user either hits the respective accelerator key or selects a
+  menu item that has been attached to this accelerator.
 
-  \sa whatsThis()
+  \sa whatsThis(), QWhatsThis::inWhatsThisMode()
  */
 void QAccel::setWhatsThis( int id, const QString& text )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.59 1999/06/01 20:22:19 warwick Exp $
+** $Id: porting.doc,v 1.60 1999/06/02 23:35:29 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -244,7 +244,7 @@ functionality in Qt 2.0, the following steps are required:
             dealing with is uncertain.  If the data is NUL-terminated
             8-bit data, use QCString; if it is unterminated (ie.
             contains NULs) 8-bit data, use QByteArray; if it is text,
-            use QString.  
+            use QString.
 	    </p>
 
      <li> Put a breakpoint in \code QString::latin1()\endcode
@@ -291,7 +291,7 @@ You are unlikely to use QCharRef in your own code - but so that you
 understand compiler error messages, just know that <tt>mystring[123]</tt>
 is a QCharRef whenever <tt>mystring</tt> is not a constant string. A QCharRef
 has basically the same functionality as a QChar, except it is more restricted
-in what you can assign to it and cast it to (to avoid programming errors). 
+in what you can assign to it and cast it to (to avoid programming errors).
 
 <dt><b>Use QString</b></dt>
 <dd>
@@ -556,14 +556,13 @@ datastream object that can read and write Qt 1.x format data streams.
 
 <p>If you want to write Qt 1.x format datastreams, note the following
 compatibility issues:
-	<ul> 
+	<ul>
 	<li>QString: Qt 1.x has no Unicode support, so strings will be
 	serialized by writing the classic C string returned by \code
 	QString::latin1().\endcode
 	<li><a href=#QPoint>QPoint & al.</a>: Coordinates will be
 	truncated to the Qt 1.x 16 bit format.
 	</ul>
-
 
 <h3><a name=QWidget>QWidget</a></h3>
 
@@ -587,7 +586,7 @@ paintEvent(0) is not permitted - subclasses need not check for
 a null event, and might crash.
 Never pass 0 as the argument to paintEvent().  You probably
 just want repaint() or update() instead.
-<p> 
+<p>
 When processing a paintEvent, painting is only permitted within
 the update region specified in the event. Any painting outside will be
 clipped away. This shouldn't break any code (it was always like this
@@ -680,9 +679,9 @@ The following functions are added:
  <li><tt>QListBox::insertStringList(const QStringList &,int index=-1)</tt>
 </ul>
 
-The rarely used static function <t>void
-QFont::listSubstitutions(QStrList*)</tt> is replaced by <t>QStringList
-QFont::substitutions()</t>.  
+The rarely used static function <tt>void
+QFont::listSubstitutions(QStrList*)</tt> is replaced by <tt>QStringList
+QFont::substitutions()</tt>.
 
 
 <h3><a name=QLayout>QLayout</a></h3>
@@ -724,7 +723,7 @@ in QScrollView where mouse (and other position-oriented) events are
 redirected to viewportMousePressEvent() etc, which in turn translate
 the event to the coordinate system of the contents and call
 contentsMousePressEvent() etc, thus providing events in the most
-convenient coordinate system.  If you overrode QListView::MouseButtonPress(), 
+convenient coordinate system.  If you overrode QListView::MouseButtonPress(),
 QListView::mouseDoubleClickEvent(), QListView::mouseMoveEvent(), or
 QListView::mouseReleaseEvent() you must instead override
 viewportMousePressEvent(),

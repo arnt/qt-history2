@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.3 1999/05/31 22:07:41 ettrich Exp $
+** $Id: session.doc,v 1.4 1999/06/02 23:35:30 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -72,11 +72,28 @@ TODO
 
 TODO
 
+Summary: MS-Windows supports only graceful logouts where applications
+have the chance to cancel the process after getting confirmation from
+the user (corresponds to QApplication::commitData() ).
+
+X11 supports complete session management since X11R6. Within the
+life-time of Qt-2.0, virtually all popuplar Unix/X11 desktops will
+support the XConsortium standard.
+
 <h2> Getting session management to work with Qt </h2>
 
-TODO
-Reimplementing saveState() and commitData().
-Restoring the application in main() etc.
+Summary: Reimplement saveState() and commitData().  Restore the
+application in main() if QApplication::isSessionRestored() is
+TRUE. The globally unique application specific session identifier
+QApplication::sessionId() shall be used to identify session specific
+data during both saving and restoring.
+
+<strong>Important:<strong> To allow the window manager to restore
+window attributes such as stacking order or geometry information, you
+have to identify your toplevel widgets with an application-wide unique
+object name (see QObject::setName() ). When restoring the application,
+you'll have to ensure that the same toplevel widgets end up with their
+prior object name again. 
 
 <h2> Testing and debugging session management </h2>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#9 $
 **
 ** Implementation of MIME support
 **
@@ -126,7 +126,42 @@ public:
   setImage(), and setPixmap() that simply call setData() with massaged
   parameters).
 
-  The QRichText classes use QMimeSourceFactory.
+  The rich text widgets QTextView and QTextBrowser use
+  QMimeSourceFactory to resolve references such as images or links
+  within rich text documents. They either access the default factory (
+  see defaultFactory() ) or their own ( see
+  QTextView::setMimeSourceFactory() ). Other classes that are capable
+  of displaying rich text like QLabel, QWhatsThis or QMessageBox
+  always use the default factory.
+
+  As mentioned earlier, a factory can also be used as container to
+  store data associated with a name. This technique is useful whenever
+  rich text contains images that are stored in the program itself, not
+  loaded from the harddisk. Your program may for example define some
+  image data as
+
+  \code
+  static const char* myimage_xpm[]={
+  "...",
+  ...
+  "..."};
+  \endcode
+
+  To be able to use this image within some rich text, for example inside a
+  QLabel, you have to create a QImage from the raw data and insert it
+  into the factory with a unique name:
+
+  \code
+  QMimeSourceFactory::defaultFactory()->setImage( "myimage", QImage(myimage_data) );
+  \endcode
+
+  Now you can create a rich text QLabel with
+
+  \code
+  QLabel* label = new QLabel(
+      "Rich text with embedded image:<img source=\"myimage\">"
+      "Isn't that <em>cute</em>?" );
+  \endcode
 */
 
 
@@ -137,6 +172,9 @@ public:
 QMimeSourceFactory::QMimeSourceFactory() :
     d(new QMimeSourceFactoryData)
 {
+    // add some reasonable defaults
+    setExtensionType("html", "text/utf8");
+    setExtensionType("txt", "text/plain");
 }
 
 /*!
@@ -147,11 +185,60 @@ QMimeSourceFactory::~QMimeSourceFactory()
     delete d;
 }
 
+static QMimeSource* data_internal(const QString& abs_name,
+				  const QMap<QString, QString> extensions )
+{
+    QMimeSource* r = 0;
+    QFileInfo fi(abs_name);
+    if ( fi.isReadable() ) {
+	
+	// get the right mimetype
+	QString e = fi.extension(FALSE);
+	QCString mimetype = "application/binary-data"; // #######warwick?
+	const char* imgfmt;
+	if ( extensions.contains(e) ) 
+	    mimetype = extensions[e].latin1();
+	else if ( ( imgfmt = QImage::imageFormat( abs_name ) ) )
+	    mimetype = QCString("image/")+QCString(imgfmt).lower();
+	
+	QFile f(abs_name);
+	if ( f.open(IO_ReadOnly) ) {
+	    QByteArray ba(f.size());
+	    f.readBlock(ba.data(), ba.size());
+	    QStoredDrag* sr = new QStoredDrag( mimetype );
+	    sr->setEncodedData( ba );
+	    r = sr;
+	}
+    }
+    return r;
+}
+
 
 /*!
   Returns a reference to the data associated with \a abs_name.  The return
   value only remains valid until a subsequent call to this function for
   the same object, and only if setData() is not called to modify the data.
+  
+  If there is no data associated with \a abs_name in the factory's
+  store, the factory tries to access the local filesystem. If \a
+  abs_name isn't an absolute filename, the factory will search for it
+  on all defined paths ( see setFilePath() ).
+  
+  The factory naturally understands all image formats supported by
+  QImageIO. Any other mime types are determined by the filename
+  extension. The default settings are 
+  \code
+  setExtensionType("html", "text/utf8");
+  setExtensionType("txt", "text/plain");
+  \endcode
+  You can easily add further extensions or change existing ones with
+  subsequent calls to setExtensionType(). If the extension mechanism
+  is not sufficient for you problem domain, you may inherit
+  QMimeSourceFactory and reimplement this function to perform some
+  more clever mime type detection. The same applies if you want to use
+  the mime source factory for accessing URL referenced data over a
+  network.
+
 */
 const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 {
@@ -160,25 +247,16 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 
     QMimeSource* r = 0;
     QStringList::Iterator it;
-    for ( it = d->path.begin(); !r && it != d->path.end(); ++it ) {
-	QString filename = *it;
-	if ( filename[(int)filename.length()-1] != '/' )
-	    filename += '/';
-	filename += abs_name;
-	QFileInfo fi(filename);
-	if ( fi.isReadable() ) {
-	    QString e = fi.extension(FALSE);
-	    if ( d->extensions.contains(e) ) {
-		QString mimetype = d->extensions[e];
-		QFile f(filename);
-		if ( f.open(IO_ReadOnly) ) {
-		    QByteArray ba(f.size());
-		    f.readBlock(ba.data(), ba.size());
-		    QStoredDrag* sr = new QStoredDrag( mimetype.latin1() );
-		    sr->setEncodedData( ba );
-		    r = sr;
-		}
-	    }
+    if ( abs_name[0] == '/' ) { // handle absolute file names directly
+	r = data_internal( abs_name, d->extensions );
+    }
+    else { // check list of paths
+	for ( it = d->path.begin(); !r && it != d->path.end(); ++it ) {
+	    QString filename = *it;
+	    if ( filename[(int)filename.length()-1] != '/' )
+		filename += '/';
+	    filename += abs_name;
+	    r = data_internal( filename, d->extensions );
 	}
     }
     delete d->last;
@@ -196,7 +274,7 @@ void QMimeSourceFactory::setFilePath( const QStringList& path )
 }
 
 /*!
-  Sets the MIME-type to be associated with a filename extension.  This 
+  Sets the MIME-type to be associated with a filename extension.  This
   determines the MIME-type for files found via a path set by setFilePath().
 */
 void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimetype )
@@ -206,13 +284,17 @@ void QMimeSourceFactory::setExtensionType( const QString& ext, const char* mimet
 
 /*!
   Converts the absolute or relative data item name \a abs_or_rel_name
-  to an absolute name, interpretted within the context of the data item
-  named \a context (this must be an absolute name).
+  to an absolute name, interpretted within the context of the data
+  item named \a context (this must be an absolute name).
 */
 QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const QString& context) const
 {
-    QFileInfo c(context);
-    QFileInfo r(c.dir(TRUE), abs_or_rel_name);
+    if ( context.isNull() )
+	return abs_or_rel_name;
+    if ( abs_or_rel_name.isEmpty() )
+	return context;
+    QFileInfo c( context );
+    QFileInfo r( c.dir(TRUE), abs_or_rel_name );
     return r.absFilePath();
 }
 
@@ -269,3 +351,42 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
     d->stored.replace(abs_name,data);
 }
 
+
+
+static QMimeSourceFactory* defaultfactory = 0;
+void qt_cleanup_defaultfactory()
+{
+    delete defaultfactory;
+}
+
+/*!
+  Returns the application-wide default mime source factory. This
+  factory is used by rich text rendering classes such as
+  QSimpleRichText, QWhatsThis and also QMessageBox to resolve named
+  references within rich text documents. It serves also as initial
+  factory for the more complex render widgets QTextView and
+  QTextBrowser.
+
+  \sa setDefaultFactory()
+ */
+QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
+{
+    if (!defaultfactory) {
+	defaultfactory = new QMimeSourceFactory();
+	qAddPostRoutine( qt_cleanup_defaultfactory );
+    }
+    return defaultfactory;
+}
+
+/*!
+  Sets the default \a factory, destroying any previously set mime source
+  provider. The ownership of the factory is transferred.
+
+  \sa defaultFactory()
+ */
+void QMimeSourceFactory::setDefaultFactory( QMimeSourceFactory* factory)
+{
+    if ( defaultfactory != factory )
+	delete defaultfactory;
+    defaultfactory = factory;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#16 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -36,6 +36,7 @@
 #include <qbitmap.h>
 #include <qtimer.h>
 #include <qimage.h>
+#include <qdragobject.h>
 
 
 
@@ -86,6 +87,7 @@ QTextNode::QTextNode()
     isLastSibling = 0;
     isContainer = 0;
     isBox = 0;
+    isRoot = 0;
     isSelected = 0;
     isSelectionDirty = 0;
 }
@@ -118,35 +120,48 @@ bool QTextCustomNode::expandsHorizontally()
 }
 
 
-QTextImage::QTextImage(const QDict<QString> &attr, QMLProvider &provider)
+QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& context,
+		       const QMimeSourceFactory &factory)
     : QTextCustomNode()
 {
     width = height = 0;
-    if ( attr["width"] )
-	width = attr["width"]->toInt();
-    if ( attr["height"] )
-	height = attr["height"]->toInt();
+    if ( attr.contains("width") )
+	width = attr["width"].toInt();
+    if ( attr.contains("height") )
+	height = attr["height"].toInt();
 
     reg = 0;
-    QString* imageName = attr["source"];
+    QImage img;
+    QString imageName = attr["source"];
+
     if (!imageName)
 	imageName = attr["src"];
-    if (imageName)
-	pm = provider.image( *imageName );
 
-    if ( !pm.isNull() ) {
-	if ( width == 0 )
-	    width = pm.width();
-	if ( height == 0 )
-	    height = pm.height();
-
-	if ( pm.width() != width || pm.height() != height ){
-	    pm.convertFromImage( pm.convertToImage().smoothScale(width,
-								 height) );
-	    width = pm.width();
-	    height = pm.height();
+    if ( !imageName.isEmpty() ) {
+	const QMimeSource* m = 0;
+	m = factory.data( imageName, context );
+	if ( !m ) {
+	    qWarning("QTextImage: no mimesource for %s", imageName.latin1() );
 	}
-	
+	else {
+	    if ( !QImageDrag::decode( m, img ) ) {
+		qWarning("QTextImage: cannot decode %s", imageName.latin1() );
+	    }
+	}
+    }
+
+    if ( !img.isNull() ) {
+	if ( width == 0 )
+	    width = img.width();
+	if ( height == 0 )
+	    height = img.height();
+
+	if ( img.width() != width || img.height() != height ){
+	    img = img.smoothScale(width, height);
+	    width = img.width();
+	    height = img.height();
+	}
+	pm.convertFromImage( img );
 	if ( pm.mask() ) {
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
@@ -183,7 +198,7 @@ void QTextImage::draw(QPainter* p, int x, int y,
 
 
 
-QTextHorizontalLine::QTextHorizontalLine(const QDict<QString>&, QMLProvider&)
+QTextHorizontalLine::QTextHorizontalLine(const QMap<QString, QString> &, const QMimeSourceFactory&)
 {
     height = 8;
     width = 200;
@@ -663,7 +678,7 @@ QTextContainer::QTextContainer( const QStyleSheetItem *stl)
     attributes_ = 0;
 }
 
-QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QDict<QString>& attr )
+QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
     : style(stl)
 {
     isSimpleNode = 0;
@@ -676,17 +691,10 @@ QTextContainer::QTextContainer( const QStyleSheetItem *stl, const QDict<QString>
 	setAttributes( attr );
 }
 
-void QTextContainer::setAttributes(const QDict<QString>& attr )
+void QTextContainer::setAttributes(const QMap<QString, QString> &attr )
 {
     delete attributes_;
-    attributes_ = new QDict<QString>;
-    attributes_->setAutoDelete( TRUE );
-    //#### we really need a QStringDict!
-    QDictIterator<QString> it(attr);
-    while ( it.current() ) {
-	attributes_->insert( it.currentKey(), new QString( *it.current() ) );
-	++it;
-    }
+    attributes_ = new QMap<QString, QString>( attr );
 }
 
 QTextContainer::~QTextContainer()
@@ -759,7 +767,7 @@ void QTextContainer::split(QTextNode* node)
 }
 
 
-const QDict<QString>* QTextContainer::attributes() const
+const QMap<QString, QString> * QTextContainer::attributes() const
 {
     return attributes_;
 }
@@ -777,7 +785,7 @@ const QTextContainer* QTextContainer::anchor() const
 QTextContainer* QTextContainer::findAnchor(const QString& name ) const
 {
     if (style->isAnchor() && attributes() &&
-	attributes()->find("name") && *attributes()->find("name") == name)
+	attributes()->contains("name") && attributes()->operator[]("name") == name)
 	return (QTextContainer*)this;
 
     QTextNode* n = child;
@@ -895,7 +903,7 @@ bool QTextContainer::fontUnderline() const
     if ( fnt )
       return fnt->underline();
     if ( style->definesFontUnderline() ) {
-      if ((style->isAnchor()  && ( !attributes()  || !attributes()->find("href") ) ) )
+      if ((style->isAnchor()  && ( !attributes()  || !attributes()->contains("href") ) ) )
 	return FALSE;
       return style->fontUnderline();
     }
@@ -935,7 +943,7 @@ QTextBox::QTextBox( const QStyleSheetItem *stl)
     width = height = widthUsed = 0;
 }
 
-QTextBox::QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr )
+QTextBox::QTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
     :QTextContainer(stl, attr)
 {
     rows.setAutoDelete(TRUE);
@@ -1266,12 +1274,12 @@ int QTextBox::numberOfSubBox( QTextBox* subbox, bool onlyListItems)
 QStyleSheetItem::ListStyle QTextBox::listStyle()
 {
     if ( attributes() ) {
-	QString* s =  attributes()->find("type");
+	QString s =  attributes()->operator[]("type");
 	
 	if ( !s )
 	    return style->listStyle();
 	else {
-	    QCString sl = s->latin1();
+	    QCString sl = s.latin1();
 	    if ( sl == "1" )
 		return QStyleSheetItem::ListDecimal;
 	    else if ( sl == "a" )
@@ -1836,13 +1844,24 @@ void QTextCursor::end(QPainter* p, bool select)
 
 
 
-QRichText::QRichText( const QString &doc, const QFont& fnt, int margin,  QMLProvider* provider, const QStyleSheet* sheet  )
+QRichText::QRichText( const QString &doc, const QFont& fnt,
+		      const QString& context,
+		      int margin,  const QMimeSourceFactory* factory, const QStyleSheet* sheet  )
     :QTextBox( (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
-    provider_ = provider? provider : QMLProvider::defaultProvider(); // for access during parsing only
-    sheet_ = sheet? sheet : QStyleSheet::defaultSheet();// for access during parsing only
+    isRoot = 1;
+    contxt = context;
+
+    // for access during parsing only
+    factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
+    // for access during parsing only
+    sheet_ = sheet? sheet : QStyleSheet::defaultSheet();
+
     init( doc, fnt, margin );
-    provider_ = 0;
+
+    // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
 }
 
 
@@ -1879,6 +1898,15 @@ bool QRichText::isValid() const
     return valid;
 }
 
+/*!
+  Returns the context of the rich text document. If no context has been specified
+  in the constructor, a null string is returned.
+*/
+QString QRichText::context() const
+{
+    return contxt;
+}
+
 
 bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QString &doc, int& pos)
 {
@@ -1906,12 +1934,16 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 // 		}
 		return TRUE;
 	    }
-	    QDict<QString> attr;
-	    attr.setAutoDelete( TRUE );
+	    QMap<QString, QString> attr;
 	    bool emptyTag = FALSE;
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
+ 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
+ 		pos = beforePos;
+ 		return FALSE;
+ 	    }
+
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
 		qWarning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
@@ -1919,12 +1951,7 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 		return FALSE;
 	    }
 	
- 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
- 		pos = beforePos;
- 		return FALSE;
- 	    }
-	
-	    QTextNode* tag = sheet_->tag(tagname, attr, *provider_, emptyTag );
+	    QTextNode* tag = sheet_->tag(tagname, attr, context(), *factory_, emptyTag );
 	    if (tag->isContainer ) {
 		QTextContainer* ctag = (QTextContainer*) tag;
 		bool cpre = ctag->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
@@ -2194,7 +2221,7 @@ bool QRichText::hasPrefix(const QString& doc, int pos, const QString& s)
 }
 
 QString QRichText::parseOpenTag(const QString& doc, int& pos,
-				  QDict<QString> &attr, bool& emptyTag)
+				  QMap<QString, QString> &attr, bool& emptyTag)
 {
     emptyTag = FALSE;
     pos++;
@@ -2252,7 +2279,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 	}
 	else
 	    value = s_true;
-	attr.insert(key, new QString(value) );
+	attr.insert(key, value );
 	eatSpace(doc, pos);
     }
 

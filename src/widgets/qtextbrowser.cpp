@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#7 $
 **
 ** Implementation of the QTextView class
 **
@@ -39,6 +39,7 @@
 #include "qtimer.h"
 #include "qimage.h"
 #include "qsimplerichtext.h"
+#include "qdragobject.h"
 
 
 /*!
@@ -53,10 +54,11 @@
   This class doesn't provide actual Back and Forward buttons, but it
   has backward() and forward() slots that implement the functionality.
 
-  By using QTextView::setProvider(), you can provide your own subclass
-  of QMLProvider, to access data from anywhere you need to.
+  By using QTextView::setMimeSourceFactory(), you can provide your own
+  subclass of QMimeSourceFactory, to access data from anywhere you
+  need to.
 
-  For simpler richt text use, see QTextView or QTextSimpleDocument.
+  For simpler richt text use, see QLabel, QTextView or QSimpleRichText.
 */
 
 class QTextBrowserData
@@ -68,10 +70,7 @@ public:
     QPoint lastClick;
     QStack<QString> stack;
     QStack<QString> forwardStack;
-    QStack<QString> stackPath;
-    QStack<QString> forwardStackPath;
     QString home;
-    QString homepath;
     QString curmain;
 };
 
@@ -82,8 +81,6 @@ public:
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextView( parent, name )
 {
-    setProvider( new QMLProvider( this ) );
-    provider()->setPath( QMLProvider::defaultProvider()->path() );
     d = new QTextBrowserData;
 
     viewport()->setMouseTracking( TRUE );
@@ -101,62 +98,68 @@ QTextBrowser::~QTextBrowser()
 
 
 /*!
-  Sets the document with the given \a name to be displayed.  The name
-  is looked up in the provider() of the browser.
+  Sets the text document with the given \a name to be displayed.  The
+  name is looked up in the mimeSourceFactory() of the browser.
 
-  If the first tag in the document is "<qml type=detail>", it is displayed as
-  a popup rather than as a new document.
+  In addition to the factory lookup, this functions also checks for
+  optional anchors and scrolls the document accordingly.
+
+  If the first tag in the document is "<qml type=detail>", it is
+  displayed as a popup rather than as new document in the browser
+  window itself. Otherwise, the document is set normally via
+  setText(), with \a name as new context.
+  
+  If you are using the filesystem access capabilities of the mime
+  source factory, you have to ensure that the factory knows about the
+  encoding of specified text files, otherwise no data will be
+  available. The default factory handles a couple of common file
+  extensions such as \c *.html, \c*.txt with reasonable defaults. See
+  QMimeSourceFactory::data() for details.
+  
 */
-void QTextBrowser::setDocument(const QString& name)
+void QTextBrowser::setSource(const QString& name)
 {
-    QString main = name;
+    QString source = name;
     QString mark;
     int hash = name.find('#');
     if ( hash != -1) {
-	main = name.left( hash );
-	mark = name.right( name.length() - hash - 1);
-	if ( main.isEmpty() )
-	    main = d->curmain;
+	source  = name.left( hash );
+	mark = name.mid( hash+1 );
     }
+    
+    if ( source.left(5) == "file:" ) 
+	source = source.mid(6);
 
-    QString url = main;
-    if (!mark.isEmpty()) {
-	url += '#';
+    QString url = mimeSourceFactory()->makeAbsolute( source, context() );
+    
+    if ( !source.isEmpty() && url != d->curmain ) {
+	const QMimeSource* m = 0;
+	m = mimeSourceFactory()->data( source, context() );
+	QString txt;
+	if ( !m ){
+	    qWarning("QTextBrowser: no mimesource for %s", source.latin1() );
+	}
+	else {
+	    if ( !QTextDrag::decode( m, txt ) ) {
+		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
+	    }
+	}
+	d->curmain = url;
+	setText( txt, url );
+    }
+    
+    if ( !mark.isEmpty() ) {
+	url += "#";
 	url += mark;
     }
 
-    QString path = provider()->path();
-
-    if ( d->curmain != main ) {
-	QString doc = provider()->document( main );
-	provider()->setReferenceDocument( main );
-	if ( isVisible() ) {
-	    QString firstTag = doc.left( doc.find('>' )+1 );
-	    QRichText tmp( firstTag );
-
-	    static QString s_type = QString::fromLatin1("type");
-	    static QString s_detail = QString::fromLatin1("detail");
-
-	    if (tmp.attributes() && tmp.attributes()->find(s_type)
-		    && *tmp.attributes()->find(s_type) == s_detail ) {
-		popupDetail( doc, d->lastClick );
-		return;
-	    }
-	}
-	d->curmain = main;
-	setText( doc );
-    }
-
+    if ( !d->home )
+	d->home = url;
+    
     if ( d->stack.isEmpty() || *d->stack.top() != url) {
 	emit backwardAvailable( !d->stack.isEmpty() );
 	d->stack.push(new QString( url ) );
-	d->stackPath.push(new QString( path ) );
     }
-    if ( d->home.isNull() ) {
-	d->home = url;
-	d->homepath = path;
-    }
-		
 
     if ( !mark.isEmpty() )
 	scrollToAnchor( mark );
@@ -168,9 +171,9 @@ void QTextBrowser::setDocument(const QString& name)
   Sets the contents of the browser to \a text, and emits the
   textChanged() signal.
 */
-void QTextBrowser::setText( const QString& text )
+void QTextBrowser::setText( const QString& text, const QString& context )
 {
-    QTextView::setText( text );
+    QTextView::setText( text, context );
     emit textChanged();
 }
 
@@ -213,13 +216,9 @@ void QTextBrowser::backward()
     if ( d->stack.count() <= 1)
 	return;
     d->forwardStack.push( d->stack.pop() );
-    d->forwardStackPath.push( d->stackPath.pop() );
     QString* ps = d->stack.pop();
-    QString* path = d->stackPath.pop();
-    provider()->setPath( *path );
-    setDocument( *ps );
+    setSource( *ps );
     delete ps;
-    delete path;
     emit forwardAvailable( TRUE );
 }
 
@@ -234,11 +233,8 @@ void QTextBrowser::forward()
     if ( d->forwardStack.isEmpty() )
 	return;
     QString* ps = d->forwardStack.pop();
-    QString* path = d->forwardStackPath.pop();
-    provider()->setPath( *path );
-    setDocument( *ps );
+    setSource( *ps );
     delete ps;
-    delete path;
     emit forwardAvailable( !d->forwardStack.isEmpty() );
 }
 
@@ -248,10 +244,8 @@ void QTextBrowser::forward()
 */
 void QTextBrowser::home()
 {
-    if (!d->home.isNull() ) {
-	provider()->setPath( d->homepath );
-	setDocument( d->home );
-    }
+    if (!d->home.isNull() )
+	setSource( d->home );
 }
 
 /*!
@@ -293,10 +287,10 @@ void QTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	if (d->buttonDown && d->buttonDown == anchor( e->pos() )){
-	  if ( d->buttonDown->attributes() && d->buttonDown->attributes()->find("href")) {
+	  if ( d->buttonDown->attributes() && d->buttonDown->attributes()->contains("href")) {
 	      QString href;
-	      href = *d->buttonDown->attributes()->find("href");
-	      setDocument( href );
+	      href = d->buttonDown->attributes()->operator[]("href");
+	      setSource( href );
 	  }
 	}
     }
@@ -310,9 +304,9 @@ void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
     const QTextContainer* act = anchor( e->pos() );
     if (d->highlight != act) {
-	if (act && act->attributes() && act->attributes()->find("href")) {
+	if (act && act->attributes() && act->attributes()->contains("href")) {
 	    QString href;
-	    href = *act->attributes()->find("href");
+	    href = act->attributes()->operator[]("href");
 	    emit highlighted( href );
 	    d->highlight = act;
 	}
@@ -328,7 +322,7 @@ void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 const QTextContainer* QTextBrowser::anchor( const QPoint& pos)
 {
     QPainter p( viewport() );
-    QTextNode* n = currentDocument().hitTest(&p, 0, 0,
+    QTextNode* n = richText().hitTest(&p, 0, 0,
 					   contentsX() + pos.x(),
 					   contentsY() + pos.y());
     if (n)
@@ -444,12 +438,12 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 {
     int x1,y1,h,ry,rh;
 
-    QTextContainer* anchor = currentDocument().findAnchor( name );
+    QTextContainer* anchor = richText().findAnchor( name );
     if ( !anchor )
 	return;
 
     QTextContainer* parent = anchor->parent;
-    QTextNode* node = currentDocument().nextLayout( anchor, parent);
+    QTextNode* node = richText().nextLayout( anchor, parent);
     if (!node)
 	return;
     y1 = contentsY();
