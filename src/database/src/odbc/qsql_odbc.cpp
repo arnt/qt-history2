@@ -22,18 +22,40 @@ public:
 
 QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 {
-    char state_[SQL_SQLSTATE_SIZE+1];
+    SQLCHAR state_[SQL_SQLSTATE_SIZE+1];
     SQLINTEGER nativeCode_;
-    char description_[SQL_MAX_MESSAGE_LENGTH];
+    SQLCHAR description_[SQL_MAX_MESSAGE_LENGTH];
     SQLSMALLINT tmp;
-    SQLRETURN r = SQLGetDiagRec( handleType,
+    SQLRETURN r = SQL_ERROR;
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLGetDiagRec( handleType,
+    				     handle,
+				     1,
+				     (SQLTCHAR*)state_,
+				     &nativeCode_,
+			    	     (SQLTCHAR*)description_,
+				     SQL_MAX_MESSAGE_LENGTH-1,
+				     &tmp);
+    else
+	r = SQLGetDiagRecA( handleType,
+    				     handle,
+				     1,
+				     (SQLCHAR*)state_,
+				     &nativeCode_,
+			    	     (SQLCHAR*)description_,
+				     SQL_MAX_MESSAGE_LENGTH-1,
+				     &tmp);
+#else
+    r = SQLGetDiagRec( handleType,
     				 handle,
 				 1,
-			         (SQLCHAR*)state_,
+				 (SQLCHAR*)state_,
 				 &nativeCode_,
-			    	 (SQLCHAR*)description_,
+				 (SQLCHAR*)description_,
 				 SQL_MAX_MESSAGE_LENGTH-1,
 				 &tmp);
+#endif
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
 	return QString( (const char*)description_ );
     return QString::null;
@@ -46,7 +68,7 @@ QString qODBCWarn( const QODBCPrivate* odbc)
 	     + qWarnODBCHandle( SQL_HANDLE_STMT, odbc->hStmt ) );
 }
 
-void qSystemWarning( const QString& message, const QODBCPrivate* odbc )
+void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
 #ifdef CHECK_RANGE
     qWarning( message + "\tError:" + qODBCWarn( odbc ) );
@@ -111,7 +133,30 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
     SQLUINTEGER colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
-    SQLRETURN r = SQLDescribeCol( p->hStmt,
+    SQLRETURN r = SQL_ERROR;
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLDescribeCol( p->hStmt,
+			    i+1,
+			    (SQLTCHAR*)colName,
+			    sizeof(colName),
+			    &colNameLen,
+			    &colType,
+			    &colSize,
+			    &colScale,
+			    &nullable);
+    else
+	r = SQLDescribeColA( p->hStmt,
+		    i+1,
+		    colName,
+		    sizeof(colName),
+		    &colNameLen,
+		    &colType,
+		    &colSize,
+		    &colScale,
+		    &nullable);
+#else
+    r = SQLDescribeCol( p->hStmt,
 			i+1,
 			colName,
 			sizeof(colName),
@@ -120,9 +165,10 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 			&colSize,
 			&colScale,
 			&nullable);
+#endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
+	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
     return QSqlField( QString((char*)colName), i, type );
@@ -137,7 +183,30 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
     SQLUINTEGER colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
-    SQLRETURN r = SQLDescribeCol( hStmt,
+    SQLRETURN r = SQL_ERROR;
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLDescribeCol( hStmt,
+			    column+1,
+			    (SQLTCHAR*)colName,
+			    sizeof(colName),
+			    &colNameLen,
+			    &colType,
+			    &colSize,
+			    &colScale,
+			    &nullable);
+    else
+	r = SQLDescribeColA( hStmt,
+			    column+1,
+			    colName,
+			    sizeof(colName),
+			    &colNameLen,
+			    &colType,
+			    &colSize,
+			    &colScale,
+			    &nullable);
+#else
+    r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
 			sizeof(colName),
@@ -146,6 +215,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			&colSize,
 			&colScale,
 			&nullable);
+#endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
@@ -208,7 +278,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "qMakeField: Unable to alloc handle", d );
+	qSqlWarning( "qMakeField: Unable to alloc handle", d );
 #endif
 	return fi;
     }
@@ -216,20 +286,18 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
-#if defined(_WS_WIN_)
-#if defined(UNICODE)
+#if defined(_OS_WIN32_)
     if ( qApp->winVersion() & Qt::WV_NT_based )
 	r =  SQLColumns( hStmt,
 			 NULL,
 			 0,
 			 NULL,
 			 0,
-			 (TCHAR*)qt_winTchar( tablename, TRUE ),
+			 (SQLTCHAR*)qt_winTchar( tablename, TRUE ),
 			 tablename.length(),
-			 (TCHAR*)qt_winTchar( fieldname, TRUE ),
+			 (SQLTCHAR*)qt_winTchar( fieldname, TRUE ),
 			 fieldname.length() );
     else 
-#endif
 	r =  SQLColumnsA( hStmt,
 			 NULL,
 			 0,
@@ -240,20 +308,20 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 			 (SQLCHAR*)fieldname.local8Bit().data(),
 			 fieldname.length() );
 #else
-	r =  SQLColumns( hStmt,
-			 NULL,
-			 0,
-			 NULL,
-			 0,
-			 (SQLCHAR*)tablename.local8Bit().data(),
-			 tablename.length(),
-			 (SQLCHAR*)fieldname.local8Bit().data(),
-			 fieldname.length() );
+    r =  SQLColumns( hStmt,
+		     NULL,
+		     0,
+		     NULL,
+		     0,
+		     (SQLCHAR*)tablename.local8Bit().data(),
+		     tablename.length(),
+		     (SQLCHAR*)fieldname.local8Bit().data(),
+		     fieldname.length() );
 #endif
 
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( "qMakeField: Unable to execute column list", d );
+	qSqlWarning( "qMakeField: Unable to execute column list", d );
 #endif
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
@@ -283,12 +351,12 @@ QODBCResult::~QODBCResult()
 //	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 //#ifdef CHECK_RANGE
 //	if ( r!= SQL_SUCCESS )
-//	    qSystemWarning( "QODBCDriver: Unable to free statement handle", d );
+//	    qSqlWarning( "QODBCDriver: Unable to free statement handle", d );
 //#endif
     	SQLRETURN r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
     	if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-		qSystemWarning( "QODBCDriver: Unable to close statement", d );
+		qSqlWarning( "QODBCDriver: Unable to close statement", d );
 #endif
     	}
     }
@@ -304,12 +372,12 @@ bool QODBCResult::reset ( const QString& query )
 //    	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 //#ifdef CHECK_RANGE
 //	if ( r!= SQL_SUCCESS )
-//	    qSystemWarning( "Unable to free statement handle", d );
+//	    qSqlWarning( "Unable to free statement handle", d );
 //#endif
     	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
     	if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-		qSystemWarning( "QODBCDriver::reset: Unable to close statement", d );
+		qSqlWarning( "QODBCDriver::reset: Unable to close statement", d );
 #endif
 		return FALSE;
     	}
@@ -319,7 +387,7 @@ bool QODBCResult::reset ( const QString& query )
 			&d->hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
+	qSqlWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
 #endif
 	return FALSE;
     }
@@ -329,13 +397,24 @@ bool QODBCResult::reset ( const QString& query )
                         SQL_IS_UINTEGER );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
+	qSqlWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
 #endif
 	return FALSE;
     }
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLExecDirect( d->hStmt,
+			    (SQLTCHAR*)qt_winTchar(query, TRUE),
+ 			    SQL_NTS );
+    else
+	r = SQLExecDirectA( d->hStmt,
+			    (SQLCHAR*)query.local8Bit().data(),
+ 			    SQL_NTS );
+#else
     r = SQLExecDirect( d->hStmt,
 			(SQLCHAR*)query.local8Bit().data(),
  			SQL_NTS );
+#endif
     if ( r != SQL_SUCCESS ) {
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -507,7 +586,7 @@ QSqlFieldList QODBCResult::fields()
     r = SQLNumResultCols( d->hStmt, &count );
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( "QODBCDriver::fields: Unable to count result columns", d );
+	qSqlWarning( "QODBCDriver::fields: Unable to count result columns", d );
 #endif
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
@@ -547,7 +626,7 @@ int QODBCResult::size()
 //                         SQL_FETCH_ABSOLUTE,
 //                         currRow);
 // 	if ( r != SQL_SUCCESS )
-// 	    qSystemWarning("QODBCDriver::size: Unable to restore position", d );
+// 	    qSqlWarning("QODBCDriver::size: Unable to restore position", d );
 //     }
 //     return size;
 }
@@ -560,7 +639,7 @@ int QODBCResult::affectedRows()
 	return affectedRowCount;
 #ifdef CHECK_RANGE
     else
-	qSystemWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
+	qSqlWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
 #endif
     return -1;
 }
@@ -602,7 +681,7 @@ bool QODBCDriver::open( const QString & db,
 			&d->hEnv);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::open: Unable to allocate environment", d );
+	qSqlWarning( "QODBCDriver::open: Unable to allocate environment", d );
 #endif
 	setOpenError( TRUE );
         return FALSE;
@@ -616,7 +695,7 @@ bool QODBCDriver::open( const QString & db,
 			&d->hDbc);
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning("QODBCDriver::open: Unable to allocate connection", d );
+	qSqlWarning("QODBCDriver::open: Unable to allocate connection", d );
 #endif
 	setOpenError( TRUE );
         return FALSE;
@@ -624,6 +703,26 @@ bool QODBCDriver::open( const QString & db,
     QString connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password + ";";
     SQLCHAR connOut[255];
     SWORD       cb;
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLDriverConnect( d->hDbc,
+				NULL,
+				(SQLTCHAR*)qt_winTchar(connQStr, TRUE),
+				SQL_NTS,
+				(SQLTCHAR*)&connOut,
+				255,
+				&cb,
+				SQL_DRIVER_NOPROMPT);
+    else
+	r = SQLDriverConnectA( d->hDbc,
+				NULL,
+				(SQLCHAR*)connQStr.local8Bit().data(),
+				SQL_NTS,
+				connOut,
+				255,
+				&cb,
+				SQL_DRIVER_NOPROMPT);
+#else
     r = SQLDriverConnect( d->hDbc,
 			    NULL,
 			    (SQLCHAR*)connQStr.local8Bit().data(),
@@ -632,6 +731,7 @@ bool QODBCDriver::open( const QString & db,
 			    255,
 			    &cb,
 			    SQL_DRIVER_NOPROMPT);
+#endif
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
@@ -668,7 +768,7 @@ void QODBCDriver::cleanup()
 		r = SQLFreeHandle( SQL_HANDLE_DBC, d->hDbc );
 #ifdef CHECK_RANGE
 		if ( r != SQL_SUCCESS )
-		    qSystemWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
+		    qSqlWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
 #endif
 		d->hDbc = 0;
     	}
@@ -676,7 +776,7 @@ void QODBCDriver::cleanup()
 		SQLRETURN r = SQLFreeHandle( SQL_HANDLE_ENV, d->hEnv );
 #ifdef CHECK_RANGE
 		if ( r != SQL_SUCCESS )
-		    qSystemWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
+		    qSqlWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
 #endif
 		d->hEnv = 0;
     	}
@@ -749,7 +849,7 @@ QStringList QODBCDriver::tables( const QString& user ) const
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::tables: Unable to allocate handle", d );
+	qSqlWarning( "QODBCDriver::tables: Unable to allocate handle", d );
 #endif
 	return tl;
     }
@@ -757,6 +857,28 @@ QStringList QODBCDriver::tables( const QString& user ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+    	r = SQLTables( hStmt,
+		       NULL,
+		       0,
+		       (SQLTCHAR*)qt_winTchar( user, FALSE ),
+		       user.length(),
+		       NULL,
+		       0,
+		       NULL,
+		       0);
+    else
+	r = SQLTablesA( hStmt,
+		       NULL,
+		       0,
+		       (SQLCHAR*)user.local8Bit().data(),
+		       user.length(),
+		       NULL,
+		       0,
+		       NULL,
+		       0);
+#else
     r = SQLTables( hStmt,
 		   NULL,
 		   0,
@@ -766,9 +888,10 @@ QStringList QODBCDriver::tables( const QString& user ) const
 		   0,
 		   NULL,
 		   0);
+#endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( "QODBCDriver::tables Unable to execute table list", d );
+	qSqlWarning( "QODBCDriver::tables Unable to execute table list", d );
 #endif
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
@@ -795,7 +918,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::primaryIndex: Unable to list primary key", d );
+	qSqlWarning( "QODBCDriver::primaryIndex: Unable to list primary key", d );
 #endif
 	return index;
     }
@@ -803,6 +926,24 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r = SQLPrimaryKeys( hStmt,
+			    NULL,
+			    0,
+			    NULL,
+			    0,
+			    (SQLTCHAR*)qt_winTchar(tablename, FALSE),
+			    tablename.length());
+    else
+	r = SQLPrimaryKeysA( hStmt,
+			    NULL,
+			    0,
+			    NULL,
+			    0,
+			    (SQLCHAR*)tablename.local8Bit().data(),
+			    tablename.length());
+#else
     r = SQLPrimaryKeys( hStmt,
 			NULL,
 			0,
@@ -810,9 +951,10 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			0,
 			(SQLCHAR*)tablename.local8Bit().data(),
 			tablename.length());
+#endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
+	qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
 #endif
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
@@ -843,7 +985,7 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef CHECK_RANGE
-	qSystemWarning( "QODBCDriver::fields: Unable to allocate handle", d );
+	qSqlWarning( "QODBCDriver::fields: Unable to allocate handle", d );
 #endif
 	return fil;
     }
@@ -851,6 +993,28 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
                         SQL_ATTR_CURSOR_TYPE,
                         (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
                         SQL_IS_UINTEGER );
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based )
+	r =  SQLColumns( hStmt,
+			 NULL,
+			 0,
+			 NULL,
+			 0,
+			 (SQLTCHAR*)qt_winTchar(tablename, FALSE),
+			 tablename.length(),
+			 NULL,
+			 0 );
+    else
+	r =  SQLColumnsA( hStmt,
+			 NULL,
+			 0,
+			 NULL,
+			 0,
+			 (SQLCHAR*)tablename.local8Bit().data(),
+			 tablename.length(),
+			 NULL,
+			 0 );
+#else
     r =  SQLColumns( hStmt,
 		     NULL,
 		     0,
@@ -860,9 +1024,10 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 		     tablename.length(),
 		     NULL,
 		     0 );
+#endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
-	qSystemWarning( "QODBCDriver::fields: Unable to execute column list", d );
+	qSqlWarning( "QODBCDriver::fields: Unable to execute column list", d );
 #endif
     r = SQLFetchScroll( hStmt,
                         SQL_FETCH_NEXT,
