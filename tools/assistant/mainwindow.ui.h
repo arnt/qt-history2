@@ -138,7 +138,7 @@ void MainWindow::goHome()
 
 void MainWindow::showLinguistHelp()
 {
-    showLink( "qt-translation-tools.html", tr( "Qt Linguist Manual" ) );
+    showLink( "linguist-manual.html", tr( "Qt Linguist Manual" ) );
 }
 
 void MainWindow::print()
