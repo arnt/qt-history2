@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#49 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#49 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -97,25 +97,26 @@ void QEvent::peErrMsg()				// posted event error message
 
   The \link QApplication::exec() main event loop\endlink of Qt fetches
   native window system events from the event queue, translates them
-  to Qt events and sends the translated events to application objects.
+  into QEvent and sends the translated events to QObjects.
 
-  Generally, events come from the underlying window system, but it is also
-  possible to manually send events through the QApplication class using
-  QApplication::sendEvent() and QApplication::postEvent().
+  Generally, events come from the underlying window system, but it is
+  also possible to manually send events through the QApplication class
+  using QApplication::sendEvent() and QApplication::postEvent().
 
-  Only classes that inherit QObject and reimplement the virtual
-  QObject::event() function may receive events.
-
-  The QWidget class reimplements the event() function to
-  dispatch an event to an appropriate event handler (virtual function) on
-  basis of the event type.
-
-  QWidget::keyPressEvent() and QWidget::mouseMoveEvent() are examples of
-  widget event handlers.
-
+  QObject recevied events by having its QObject::event() function
+  called.  The default implementation simply calls
+  QObject::timerEvent() for timer events and ignores all other events.
+  QWidget reimplements \link QWidget::event() event() \endlink and
+  dispatches incoming events to various event handles such as
+  QWidget::keyPressEvent() and QWidget::mouseMoveEvent().
+  
   The basic QEvent only contains an event type parameter.  Subclasses
   of QEvent contain additional parameters that descripe the particular
   event.
+  
+  \sa QObject::event() QObject::installEventFilter() QWidget::event()
+  QApplication::sendEvent() QApplcation::postEvent()
+  QApplication::processEvents()
 */
 
 /*!
@@ -253,7 +254,7 @@ void QEvent::peErrMsg()				// posted event error message
 
   The returned value is \c LeftButton, \c RightButton, \c MidButton,
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
-
+  
   \sa button()
 */
 
@@ -591,7 +592,7 @@ void QEvent::peErrMsg()				// posted event error message
   \fn QChildEvent::QChildEvent( int type, QWidget *child )
   Constructs a child event object.
 
-  The \a type parameter must be either \a Event_ChildInserted 
+  The \a type parameter must be either \a Event_ChildInserted
   or \a Event_ChildRemoved.
 */
 
@@ -609,8 +610,6 @@ void QEvent::peErrMsg()				// posted event error message
   \fn bool QChildEvent::removed() const
   Returns TRUE if the widget lost a child.
 */
-
-
 
 
 
