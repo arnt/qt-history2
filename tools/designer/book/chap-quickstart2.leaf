@@ -158,14 +158,14 @@ the name of the buddy widget.
 
 \list
 \i Click the \Button{Set Buddy} toolbar button (or press \Key F12).
-Click the Enter Number label and drag the rubber band to the
+Click the Enter Number label and drag the line to the
 numberLineEdit; then release.
 \i Click the \Button{Set Buddy} toolbar button. Click the Convert From label
-and drag the rubber band to the fromComboBox; then release.
+and drag the line to the fromComboBox; then release.
 \i Click the \Button{Set Buddy} toolbar button. Click the Convert To label
-and drag the rubber band to the toComboBox; then release.
+and drag the line to the toComboBox; then release.
 \i Click the \Button{Set Buddy} toolbar button. Click the Decimals label and
-drag the rubber band to the decimalsSpinBox; then release.
+drag the line to the decimalsSpinBox; then release.
 \endlist
 
 \section3 Adding Push Buttons
