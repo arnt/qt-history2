@@ -34,8 +34,9 @@ public:
     void enableCursor( bool e );
 
 protected slots:
-    void slotCursor();
-    void slotRateDlg();
+    void toggleCursor();
+    void changeRate();
+    void about();
 
 protected:
     void createMenu();
