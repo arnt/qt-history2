@@ -7,7 +7,7 @@ moc:
   in a string outside a class declaration. This bug has now been
   fixed.
 
-  More moc arguments, run "moc -h" for details.
+  More moc arguments, check the manpage for details.
 
 QDate:
 ------
@@ -64,8 +64,8 @@ Disabled copy constructors and operators=
 -----------------------------------------
   Copy constructors and operator= are disabled in the classes where
   they make no sense. This should lead to compile time errors where
-  you would have got core dumps before. This is done in the following 
-  classes:
+  you would have gotten core dumps before. This is done in the
+  following classes:
 
     QAccel QApplication QBuffer QButton QButtonGroup QCheckBox QClipboard
     QComboBox QConnection QDataStream QDialog QFile QFileDialog QFrame
