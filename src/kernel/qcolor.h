@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#25 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#26 $
 **
 ** Definition of QColor class
 **
@@ -115,7 +115,7 @@ inline bool QColor::isValid() const
 { return (rgbVal & RGB_INVALID) == 0; }
 
 inline bool QColor::isDirty() const
-{ return (rgbVal & RGB_DIRTY) == RGB_DIRTY; }
+{ return (rgbVal & RGB_DIRTY) != 0; }
 
 inline ulong QColor::rgb() const
 { return rgbVal & RGB_MASK; }
@@ -129,13 +129,8 @@ inline int QColor::green() const
 inline int QColor::blue() const
 { return QBLUE(rgbVal); }
 
-#if defined(_WS_WIN_) || defined(_WS_PM_)
 inline ulong QColor::pixel() const
-{ return pix; }
-#else
-inline ulong QColor::pixel() const
-{ return isDirty() ? ((QColor*)this)->alloc() : pix; }
-#endif
+{ return (rgbVal & RGB_DIRTY) == 0 ? pix : ((QColor*)this)->alloc(); }
 
 
 inline bool QColor::operator==( const QColor &c ) const

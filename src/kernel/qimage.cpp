@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#53 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#53 $")
 
 
 /*----------------------------------------------------------------------------
@@ -87,15 +87,15 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#52 $")
  ----------------------------------------------------------------------------*/
 
 
-extern bool qt_image_can_turn_scanlines();
+extern bool qt_image_native_bmp();
 
 
 /*****************************************************************************
   QImage member functions
  *****************************************************************************/
 
-static bool bitflip_init = FALSE;
-static char bitflip[256];			// table to flip bits
+static bool  bitflip_init = FALSE;
+static uchar bitflip[256];			// table to flip bits
 
 static void setup_bitflip()			// create bitflip table
 {
@@ -109,7 +109,7 @@ static void setup_bitflip()			// create bitflip table
     }
 }
 
-char *qt_get_bitflip_array()			// called from QPixmap code
+uchar *qt_get_bitflip_array()			// called from QPixmap code
 {
     setup_bitflip();
     return bitflip;
@@ -427,7 +427,7 @@ QImage::Endian QImage::systemByteOrder()
   Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
  ----------------------------------------------------------------------------*/
 
-QImage::Endian QImage::systemBitOrder()	
+QImage::Endian QImage::systemBitOrder()
 {
 #if defined(_WS_X11_)
     return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
@@ -603,7 +603,7 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
 	p = src->scanLine(y) - 1;
 	b = dst->scanLine(y);
 	x = src->width();
-	while ( x-- ) {			
+	while ( x-- ) {
 	    ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
 	    if ( !(pix=cdict.find(rgb)) ) {	// new RGB color?
 		cdict.insert( rgb, (pix=++pixel) ); // yes -> keep it
@@ -1131,7 +1131,7 @@ static QImageHandler *get_image_handler( const char *format )
     // add the GIF image handler
 
     QImageIO::defineIOHandler( "GIF",
-    			       "^GIF[0-9][0-9][a-z]",
+			       "^GIF[0-9][0-9][a-z]",
 			       0,
 			       read_gif_image,
 			       write_gif_image );
@@ -1364,7 +1364,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
   \sa setIODevice(), setFileName(), setFormat(), write(), QPixmap::load()
  ----------------------------------------------------------------------------*/
 
-bool QImageIO::read()				// read image data
+bool QImageIO::read()
 {
     QFile	   file;
     const char	  *image_format;
@@ -1584,7 +1584,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     BMP_INFOHDR bi;
     int		startpos = d->at();
     QImage	image;
-    bool	turn = qt_image_can_turn_scanlines();
+    bool	native = qt_image_native_bmp();
 
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
     s >> bf;					// read BMP file header
@@ -1645,7 +1645,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     int bpl = image.bytesPerLine();
     uchar **line;
-    if ( turn ) {
+    if ( !native ) {
 	line = (uchar **)malloc( h*sizeof(uchar*) );
 	for ( int i=0; i<h; i++ )
 	    line[i] = image.scanLine(h-i-1);
@@ -1783,16 +1783,19 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	    register uchar *p = line[h];
 	    if ( d->readBlock( (char *)p,bpl) != bpl )
 		break;
-	    for ( int i=0; i<w; i++ ) {		// swap r and b
-		uchar t = p[0];
-		p[0] = p[2];
-		p[2] = t;
-		p += 3;
+	    if ( !native ) {
+		uchar *end = p + w*3;
+		while ( p < end ) {		// swap r and b
+		    uchar t = p[0];
+		    p[0] = p[2];
+		    p[2] = t;
+		    p += 3;
+		}
 	    }
 	}
     }
 
-    if ( turn )
+    if ( !native )
 	free( line );
 
     iio->setImage( image );
@@ -1849,7 +1852,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     if ( image.depth() == 1 && image.bitOrder() != QImage::BigEndian )
 	image = image.convertBitOrder( QImage::BigEndian );
 
-    int  y;
+    int	 y;
 
     if ( !depth4 && image.depth() != 24 ) {	// 1 bit or 8 bit depth
 	for ( y=image.height()-1; y>=0; y-- )

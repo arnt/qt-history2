@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qcur_win.cpp#13 $
 **
 ** Implementation of QCursor class for Windows
 **
@@ -17,12 +17,12 @@
 #include "qdstream.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_win.cpp#13 $")
 
 
-// --------------------------------------------------------------------------
-// Internal QCursorData class
-//
+/*****************************************************************************
+  Internal QCursorData class
+ *****************************************************************************/
 
 struct QCursorData : QShared {			// internal cursor data
     QCursorData();
@@ -50,9 +50,9 @@ QCursorData::~QCursorData()
 }
 
 
-// --------------------------------------------------------------------------
-// Global cursors
-//
+/*****************************************************************************
+  Global cursors
+ *****************************************************************************/
 
 const QCursor arrowCursor;
 const QCursor upArrowCursor;
@@ -66,9 +66,9 @@ const QCursor sizeFDiagCursor;
 const QCursor sizeAllCursor;
 
 
-// --------------------------------------------------------------------------
-// QCursor member functions
-//
+/*****************************************************************************
+  QCursor member functions
+ *****************************************************************************/
 
 static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&arrowCursor,
@@ -135,7 +135,17 @@ QCursor::QCursor( int shape )			// cursor with shape
 
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
-{						// define own cursor
+{
+    if ( bitmap.depth() != 1 || mask.depth() != 1 ||
+	 bitmap.size() != mask.size() ) {
+#if defined(CHECK_NULL)
+	warning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
+#endif
+	QCursor *c = (QCursor *)&arrowCursor;
+	c->data->ref();
+	data = c->data;
+	return;
+    }
     data = new QCursorData;
     CHECK_PTR( data );
     data->bm  = new QBitmap( bitmap );
@@ -258,27 +268,24 @@ void QCursor::update() const			// update/load cursor
 	    sh = IDC_SIZENWSE;
 	    break;
 	case SizeAllCursor:
-	    sh = IDC_SIZE;
+	    sh = IDC_SIZEALL;
 	    break;
 	case BitmapCursor: {
-	    int w = data->bm->width();
-	    int h = data->bm->height();
-	    int len = (w+7)/8*h;
-	    uchar *bits = new uchar[len];
-	    uchar *mask = new uchar[len];
-	    GetBitmapBits( data->bm->hbm(),  len, bits );
-	    GetBitmapBits( data->bmm->hbm(), len, mask );
-	    int i;
-	    for ( i=0; i<len; i++ ) {
+	    QImage bbits, mbits;
+	    bbits = *data->bm;
+	    mbits = *data->bmm;
+	    int i, n = bbits.numBytes();
+	    uchar *bits = bbits.scanLine( 0 );
+	    uchar *mask = mbits.scanLine( 0 );
+	    for ( i=0; i<n; i++ ) {
 		uchar b = ~bits[i];
 		uchar m = ~mask[i];
-		bits[i] = ~m;			// convert to Qt bitmap/mask
+		bits[i] = ~m;
 		mask[i] = b ^ m;
 	    }
 	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
-					w, h, bits, mask );
-	    delete [] bits;
-	    delete [] mask;
+					data->bm->width(), data->bm->height(),
+					bits, mask );
 	    return;
 	    }
 	default:

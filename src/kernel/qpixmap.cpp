@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#49 $
 **
 ** Implementation of QPixmap class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#49 $")
 
 
 /*----------------------------------------------------------------------------
@@ -109,16 +109,13 @@ void QPixmap::detach()
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
-    QBitmap *mask = data->mask;
-    data->mask = 0;				// ignore mask when blt'ing
-    if ( !tmp.isNull() )			// copy the bitmap
-	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
-    if ( mask )	{				// copy the mask
-	data->mask = mask;
-	tmp.setMask( *mask );
-    }
     tmp.data->optim  = data->optim;		// copy optim flag
     tmp.data->bitmap = data->bitmap;		// copy bitmap flag
+    if ( !tmp.isNull() ) {			// copy the bitmap
+	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
+	if ( data->mask )			// copy the mask
+	    tmp.setMask( *data->mask );
+    }
     return tmp;
 }
 
@@ -284,7 +281,7 @@ void QPixmap::resize( int w, int h )
     if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
-		QMIN(height(),h) );
+		QMIN(height(),h), CopyROP, TRUE );
     pm.data->optim  = data->optim;		// keep optim flag
     pm.data->bitmap = data->bitmap;		// keep bitmap flag
     if ( data->mask ) {				// resize mask as well
@@ -311,21 +308,21 @@ const char *QPixmap::imageFormat( const char *fileName )
 }
 
 
-static bool can_turn_scanlines = FALSE;
-static bool did_turn_scanlines = FALSE;
+static bool can_handle_bmp = FALSE;
+static bool did_handle_bmp = FALSE;
 
-bool qt_image_can_turn_scanlines()
+bool qt_image_native_bmp()
 {
-    if ( can_turn_scanlines ) {
-	did_turn_scanlines = TRUE;
+    if ( can_handle_bmp ) {
+	did_handle_bmp = TRUE;
 	return TRUE;
     }
     return FALSE;
 }
 
-bool qt_image_did_turn_scanlines()
+bool qt_image_did_native_bmp()
 {
-    return did_turn_scanlines;
+    return did_handle_bmp;
 }
 
 
@@ -339,8 +336,8 @@ bool qt_image_did_turn_scanlines()
 
   The \e mode argument specifies whether the resulting pixmap should be a
   monochrome (\link depth() depth\endlink == 1) or a normal (\link
-  defaultDepth() native depth\endlink) pixmap.  This argument is ignored
-  if this pixmap is a QBitmap.  See the convertFromImage() documentation
+  defaultDepth() native depth\endlink) pixmap.	This argument is ignored
+  if this pixmap is a QBitmap.	See the convertFromImage() documentation
   for a detailed description.
 
   The QImageIO documentation lists the supported image formats and
@@ -354,7 +351,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 {
     QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
-    can_turn_scanlines = TRUE;
+    can_handle_bmp = TRUE;
 #endif
     bool result = io.read();
     if ( result ) {
@@ -362,7 +359,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 	result = convertFromImage( io.image(), mode );
     }
 #if defined(_WS_WIN_)
-    can_turn_scanlines = did_turn_scanlines = FALSE;
+    can_handle_bmp = did_handle_bmp = FALSE;
 #endif
     return result;
 }
@@ -377,8 +374,8 @@ bool QPixmap::load( const char *fileName, const char *format,
 
   The \e mode argument specifies whether the resulting pixmap should be a
   monochrome (\link depth() depth\endlink == 1) or a normal (\link
-  defaultDepth() native depth\endlink) pixmap.  This argument is ignored
-  if this pixmap is a QBitmap.  See the convertFromImage() documentation
+  defaultDepth() native depth\endlink) pixmap.	This argument is ignored
+  if this pixmap is a QBitmap.	See the convertFromImage() documentation
   for a detailed description.
 
   The QImageIO documentation lists the supported image formats and
@@ -396,7 +393,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     b.open( IO_ReadOnly );
     QImageIO io( &b, format );
 #if defined(_WS_WIN_)
-    can_turn_scanlines = TRUE;
+    can_handle_bmp = TRUE;
 #endif
     bool result = io.read();
     b.close();
@@ -406,7 +403,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
 	result = convertFromImage( io.image(), mode );
     }
 #if defined(_WS_WIN_)
-    can_turn_scanlines = did_turn_scanlines = FALSE;
+    can_handle_bmp = did_handle_bmp = FALSE;
 #endif
     return result;
 }

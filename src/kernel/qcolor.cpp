@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#43 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -62,8 +62,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#42 $")
   Global colors
  *****************************************************************************/
 
+#if defined(_WS_WIN_)
+const QColor color0	( 0x00ffffff, 0x00ffffff );
+const QColor color1	( 0x00000000, 0 );
+#else
 const QColor color0	( 0x00ffffff, 0 );
 const QColor color1	( 0x00000000, 1 );
+#endif
 const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
 const QColor darkGray	( 128, 128, 128 );
@@ -109,9 +114,14 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
 void QColor::initglobals()
 {
     ginit = TRUE;
-    ((QColor*)(&::color0))->pix	   = 0;
+#if defined(_WS_WIN_)
+    ((QColor*)(&::color0))->pix = 0x00ffffff;
+    ((QColor*)(&::color1))->pix = 0;
+#else
+    ((QColor*)(&::color0))->pix = 0;
+    ((QColor*)(&::color1))->pix = 1;
+#endif
     ((QColor*)(&::color0))->rgbVal = 0x00ffffff;
-    ((QColor*)(&::color1))->pix	   = 1;
     ((QColor*)(&::color1))->rgbVal = 0;
     ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
     ((QColor*)(&::white))	->setRgb( 255, 255, 255 );
