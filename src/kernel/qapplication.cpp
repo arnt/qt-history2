@@ -2302,8 +2302,6 @@ void QApplication::setEventLoop( QEventLoop *eventloop )
 {
     delete static_eventloop;
     static_eventloop = eventloop;
-    if ( static_eventloop )
-	connect( static_eventloop, SIGNAL(awake()), this, SIGNAL(guiThreadAwake()) );
 }
 
 /*!

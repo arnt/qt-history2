@@ -747,7 +747,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     QMutexLocker locker( QApplication::qt_mutex );
 #endif
-    emit awake();
 #ifdef QMAC_LAME_TIME_LIMITED
     static bool first = FALSE;
     if(!first) {
@@ -821,11 +820,22 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	    emit aboutToBlock();
 	    nevents += macHandleSelect(tm);
 	}
+
+	// we are awake, broadcast it
+	emit awake();
+	emit qApp->guiThreadAwake();
+
 	nevents += qt_activate_timers();
     } else if(canWait && !zero_timer_count) {
 	emit aboutToBlock();
 	RunApplicationEventLoop();
+
+	// we are awake, broadcast it
+	emit awake();
+	emit qApp->guiThreadAwake();
     }
+
+
 
     return nevents > 0;
 }

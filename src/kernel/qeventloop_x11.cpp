@@ -138,9 +138,6 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     QMutexLocker locker( QApplication::qt_mutex );
 #endif
 
-    // we are awake, broadcast it
-    emit awake();
-
     // handle gui and posted events
     if ( qt_is_gui_used ) {
 	QApplication::sendPostedEvents();
@@ -261,6 +258,10 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #if defined(QT_THREAD_SUPPORT)
     locker.mutex()->lock();
 #endif
+
+    // we are awake, broadcast it
+    emit awake();
+    emit qApp->guiThreadAwake();
 
     if ( nsel == -1 ) {
 	if ( errno != EINTR && errno != EAGAIN )
