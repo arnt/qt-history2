@@ -26,9 +26,6 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
-#ifndef QT_NO_WORKSPACE
-#include "qworkspace.h"
-#endif
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -418,7 +415,7 @@ void QTitleBar::mouseMoveEvent(QMouseEvent *e)
         if (d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed) {
             if ((d->moveOffset - mapToParent(e->pos())).manhattanLength() >= 4) {
                 QPoint p = mapFromGlobal(e->globalPos());
-#ifndef QT_NO_WORKSPACE
+#if 0 //#ifndef QT_NO_WORKSPACE
                 if(d->window && d->window->parentWidget()->inherits("QWorkspaceChild")) {
                     QWorkspace *workspace = qt_cast<QWorkspace*>(d->window->parentWidget()->parentWidget());
                     if(workspace) {
