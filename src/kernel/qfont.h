@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#52 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#53 $
 **
 ** Definition of QFont class
 **
@@ -63,7 +63,7 @@ public:
     QFont( const QString &family, int pointSize,
 	   int weight, bool italic, CharSet charSet );
     QFont( const QFont & );
-    virtual ~QFont();
+    ~QFont();
     QFont      &operator=( const QFont & );
 
     QString	family()	const;
