@@ -448,7 +448,8 @@ UnixMakefileGenerator::init()
     }
     MakefileGenerator::init();
     if ( project->isActiveConfig("resource_fork") ) {
-	project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
+	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty())
+	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
     }
     if(project->variables()["VERSION"].isEmpty()) {
 	project->variables()["VERSION"].append("1.0.0");
