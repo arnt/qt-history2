@@ -3731,11 +3731,9 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		    return FALSE;
 		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
-		if ( ke->key() == Key_Tab && currentColumn() >= numCols() - 1 )
-		    return TRUE;
-		if ( ke->key() == Key_BackTab && currentColumn() == 0 )
-		    return TRUE;
 		if ( ke->key() == Key_Tab ) {
+		    if ( currentColumn() >= numCols() - 1 )
+			return TRUE;
 		    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
 		    while ( cc < numCols() ) {
 			QTableItem *i = item( currentRow(), cc );
@@ -3745,6 +3743,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		    }
 		    setCurrentCell( currentRow(), cc );
 		} else { // Key_BackTab
+		    if ( currentColumn() == 0 )
+			return TRUE;
 		    int cc  = QMAX( 0, currentColumn() - 1 );
 		    while ( cc >= 0 ) {
 			QTableItem *i = item( currentRow(), cc );
@@ -3907,6 +3907,34 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	if ( beginEdit( tmpRow, tmpCol, FALSE ) )
 	    setEditMode( Editing, tmpRow, tmpCol );
 	break;
+    case Key_Enter: case Key_Return:
+	activateNextCell();
+	return;
+    case Key_Tab: case Key_BackTab:
+	if ( e->key() == Key_Tab ) {
+	    if ( currentColumn() >= numCols() - 1 )
+		return;
+	    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
+	    while ( cc < numCols() ) {
+		QTableItem *i = item( currentRow(), cc );
+		if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
+		    break;
+		++cc;
+	    }
+	    setCurrentCell( currentRow(), cc );
+	} else { // Key_BackTab
+	    if ( currentColumn() == 0 )
+		return;
+	    int cc  = QMAX( 0, currentColumn() - 1 );
+	    while ( cc >= 0 ) {
+		QTableItem *i = item( currentRow(), cc );
+		if ( !isColumnReadOnly( cc ) && (!i || i->isEnabled()) )
+		    break;
+		--cc;
+	    }
+	    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
+	}
+	return;
     default: // ... or start in-place editing
 	if ( e->text()[ 0 ].isPrint() ) {
 	    QTableItem *itm = item( tmpRow, tmpCol );
