@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#43 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#44 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -600,6 +600,9 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( viewportRightClicked() ), this, SLOT( slotViewportRightClicked() ) );
 
+    setReorderItemsWhenInsert( TRUE );
+    setResortItemsWhenInsert( TRUE );
+    
     QFont f( font() );
     f.setUnderline( TRUE );
     setSingleClickConfiguration( new QFont( f ), new QColor( Qt::red ),
@@ -686,7 +689,7 @@ void QtFileIconView::readDir( const QDir &dir )
 		allowRenameSet = TRUE;
 	}
 	item->setRenameEnabled( allowRename );
-	qApp->processEvents();
+	//qApp->processEvents();
     }
     emit readDirDone();
     makeNewGradient = TRUE;
