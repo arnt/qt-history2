@@ -1340,6 +1340,7 @@ void QLineEdit::del()
     d->selectionStart = d->cursor->index();
     update();
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+    d->ed = TRUE;
     emit textChanged( text() );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
