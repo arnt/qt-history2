@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#216 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#217 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#216 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#217 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1820,6 +1820,51 @@ void qt_close_popup( QWidget *popup )
 	    XFlush( popup->x11Display() );
 	}
     }
+}
+
+
+/*****************************************************************************
+  Functions returning the active popup and modal widgets.
+ *****************************************************************************/
+
+/*!
+  Returns the active popup widget.
+
+  A popup widget is a special top level widget that sets the WType_Popup
+  widget flag, e.g. the QPopupMenu widget.  When the application opens a
+  popup widget, all events are sent to the popup and normal widgets and
+  modal widgets cannot be accessed before the popup widget is closed.
+  
+  Only other popup widgets may be opened when a popup widget is shown.
+  The popup widgets are organized in a stack.
+  This function returns the active popup widget on top of the stack.
+
+  \sa currentModalWidget(), topLevelWidgets()
+*/
+
+QWidget *QApplication::activePopupWidget()
+{
+    return popupWidgets ? popupWidgets->getLast() : 0;
+}
+
+
+/*!
+  Returns the active modal widget.
+
+  A modal widget is a special top level widget which is a subclass of
+  QDialog that specifies the modal parameter of the constructor to TRUE.
+  A modal widget must be finished before the user can continue with other
+  parts of the program.
+
+  The modal widgets are organized in a stack.
+  This function returns the active modal widget on top of the stack.
+
+  \sa currentPopupWidget(), topLevelWidgets()
+*/
+
+QWidget *QApplication::activeModalWidget()
+{
+    return modal_stack ? modal_stack->getLast() : 0;
 }
 
 

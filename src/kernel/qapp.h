@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#63 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#64 $
 **
 ** Definition of QApplication class
 **
@@ -66,8 +66,9 @@ public:
     void	     setMainWidget( QWidget * );
 
     static QWidgetList *topLevelWidgets();
-
     static QWidget  *desktop();
+    static QWidget  *activePopupWidget();
+    static QWidget  *activeModalWidget();
     static QClipboard *clipboard();
     QWidget	    *focusWidget() const;
 

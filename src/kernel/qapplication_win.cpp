@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#89 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#89 $");
 
 
 /*****************************************************************************
@@ -685,15 +685,27 @@ static uint	sn_msg	  = 0;			// socket notifier message
 static QWidget *sn_win	  = 0;			// win msg via this window
 
 
+static void sn_cleanup()
+{
+    for ( int i=0; i<3; i++ )
+	delete *sn_vec[i];
+}
+
 static void sn_init()
 {
     if ( sn_win )
 	return;
+    qAddPostRoutine( sn_cleanup );
     sn_msg = RegisterWindowMessage( "QtSNEvent" );
     sn_win = qApp->mainWidget();		// use main widget, if any
     if ( !sn_win ) {				// create internal widget
 	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
 	CHECK_PTR( sn_win );
+    }
+    for ( int i=0; i<3; i++ ) {
+	*sn_vec[i] = new QSNDict;
+	CHECK_PTR( *sn_vec[i] );
+	(*sn_vec[i])->setAutoDelete( TRUE );
     }
 }
 
@@ -714,23 +726,18 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	if ( sn_win == 0 )
 	    sn_init();
 	if ( !dict ) {
-	    dict = new QSNDict;			// create new list
-	    CHECK_PTR( dict );
-	    dict->setAutoDelete( TRUE );
-	    *sn_vec[type] = dict;
 	}
 	sn = new QSockNot;
 	CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
-	if ( dict->find(sockfd) ) {
 #if defined(DEBUG)
+	if ( dict->find(sockfd) ) {
 	    static const char *t[] = { "read", "write", "exception" };
 	    warning( "QSocketNotifier: Multiple socket notifiers for "
 		     "same socket %d and type %s", sockfd, t[type] );
-#endif
-	    return FALSE;
 	}
+#endif
 	dict->insert( sockfd, sn );
     } else {					// disable notifier
 	if ( dict == 0 )
@@ -765,8 +772,6 @@ static void sn_activate_fd( int sockfd, int type )
     if ( sn ) {
 	QEvent event( Event_SockAct );
 	QApplication::sendEvent( sn->obj, &event );
-    } else {
-	// no notifier to handle this request
     }
 }
 
@@ -1255,6 +1260,23 @@ void qt_close_popup( QWidget *popup )
 	    popup->releaseKeyboard();
 	}
     }
+}
+
+
+/*****************************************************************************
+  Functions returning the active popup and modal widgets.
+ *****************************************************************************/
+
+
+QWidget *QApplication::activePopupWidget()
+{
+    return popupWidgets ? popupWidgets->getLast() : 0;
+}
+
+
+QWidget *QApplication::activeModalWidget()
+{
+    return modal_stack ? modal_stack->getLast() : 0;
 }
 
 
