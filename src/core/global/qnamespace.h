@@ -78,7 +78,7 @@ public:
         RightButton      = 0x00000002,
         MidButton        = 0x00000004,
         XButton1         = 0x00000008,
-        XButton2         = 0x0000000f,
+        XButton2         = 0x00000010,
         MouseButtonMask  = 0x000000ff
     };
     Q_DECLARE_FLAGS(MouseButtons, MouseButton);
@@ -90,7 +90,7 @@ public:
         AltButton       = Qt::AltModifier,
         MetaButton      = Qt::MetaModifier,
         Keypad          = Qt::KeypadModifier,
-        KeyButtonMask   = Qt::KeyboardModifierMask,
+        KeyButtonMask   = Qt::KeyboardModifierMask
     };
     typedef int ButtonState;
 #endif
