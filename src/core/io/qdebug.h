@@ -31,7 +31,8 @@ class Q_CORE_EXPORT QDebug
 public:
     inline QDebug():stream(new Stream){}
     inline QDebug(const QDebug &o):stream(o.stream){++stream->ref;}
-    inline ~QDebug() {if (!--stream->ref) { qDebug(stream->buffer.latin1()); delete stream; } }
+    inline ~QDebug() {if (!--stream->ref) { stream->buffer.replace(QLatin1Char('%'), QLatin1String("%%"));
+                                            qDebug(stream->buffer.latin1()); delete stream; } }
     inline QDebug &space() { stream->space = true; stream->ts << ' '; return *this; }
     inline QDebug &nospace() { stream->space = false; return *this; }
     inline QDebug &maybeSpace() { if (stream->space) stream->ts << ' '; return *this; }
