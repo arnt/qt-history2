@@ -1,25 +1,43 @@
 Fram til 0.98:
 
-1. EE
+1. EE - 1 d
 connect protected/public
 
-2. HN
+2. HN - 1d
 toppnivaa autodelete
 
-3. EE
+3. POT - 1d
 assign operator og copy constructor i alle klasser
 
-4. HN?
+4. HN - 1d
 size increment (max/min size force)
 
-5. POT?
+5. AG - 1t
 lage en distribusjon checkliste/huskeliste
 
-6. AG
+6. AG - 1d
 porte til flere plattformer
 
-7. HN?
+7. HN - 2d
 makesystem
 
-8. AG
+8. AG - 1d
 automatisk generere distribusjon
+
+9. EE - 1d
+QListBox
+
+10. HN
+tabbing bug
+
+11. 
+32 bit QImage <-> QPixmap
+
+12.
+pakking, testing, sende ut
+
+13.
+doc:
+	QCache
+	QStack
+	QQueue

@@ -85,3 +85,5 @@ Ferdigstilling:
     Fargekube
     
     Innebygget fontfamilie matching
+
+    Tilgang paa scrollbarene i QTableView
