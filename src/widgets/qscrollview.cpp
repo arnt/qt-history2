@@ -1414,11 +1414,6 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
             viewportDropEvent( (QDropEvent*)e );
             break;
 #endif // QT_NO_DRAGANDDROP
-#ifndef QT_NO_WHEELEVENT
-        case QEvent::Wheel:
-            viewportWheelEvent( (QWheelEvent*)e );
-            break;
-#endif
         case QEvent::ContextMenu:
             viewportContextMenuEvent( (QContextMenuEvent*)e );
 	    if ( ((QContextMenuEvent*)e)->isAccepted() )
@@ -1720,6 +1715,11 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 #ifndef QT_NO_WHEELEVENT
 void QScrollView::viewportWheelEvent( QWheelEvent* e )
 {
+    /* 
+       Different than standard mouse events, because wheel events might
+       be sent to the focus widget if the widget-under-mouse doesn't want
+       the event itself.
+    */
     QWheelEvent ce( viewportToContents(e->pos()),
         e->globalPos(), e->delta(), e->state());
     contentsWheelEvent(&ce);
