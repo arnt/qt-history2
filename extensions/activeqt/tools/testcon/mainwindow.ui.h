@@ -317,6 +317,7 @@ void MainWindow::renderPixmap()
 
 void MainWindow::runMacro()
 {
+#ifndef QT_NO_QAXSCRIPT
     if (!scripts)
 	return;
 
@@ -340,10 +341,12 @@ void MainWindow::runMacro()
     QVariant result = scripts->call(macro);
     if (result.isValid())
 	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
+#endif
 }
 
 void MainWindow::loadScript()
 {
+#ifndef QT_NO_QAXSCRIPT
     QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
 						this, 0, "Open Script");
 
@@ -371,6 +374,10 @@ void MainWindow::loadScript()
 		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
 	actionScriptingRun->setEnabled(TRUE);
     }
+#else
+    QMessageBox::information(this, "Function not available",
+	"QAxScript functionality is not available with this compiler.");
+#endif
 }
 
 void MainWindow::logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText )
