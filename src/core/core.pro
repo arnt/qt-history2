@@ -15,7 +15,7 @@ include(library/library.pri)
 include(kernel/kernel.pri)
 include(codecs/codecs.pri)
 
-mac:LIBS += -framework CoreServices -framework CoreFoundation -framework ApplicationServices
+mac:LIBS += -framework ApplicationServices
 
 win32:DEFINES-=QT_NO_CAST_TO_ASCII
 
