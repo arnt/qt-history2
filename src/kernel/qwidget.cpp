@@ -552,11 +552,15 @@ The main types are
 \value WType_TopLevel  indicates that this widget is a top-level
 widget, usually with a window-system frame and so on.
 
-\value WType_Dialog  indicates that this widget is a secondary
-top-level widget.  When combined with \c WShowModal, the dialog
-becomes a modal dialog i.e. prevents any other top-level window in the
-application from getting any input. \c WType_Dialog implies \c
-WType_TopLevel.
+\value WType_Dialog  indicates that this widget is a top-level window
+that should be decorated as a dialog (i.e. typically no maximize or
+minimize buttons in the title bar). If you want to use it as a modal
+dialog it should be launched from another window, or have a parent and
+this flag should be combined with \c WShowModal. If you make it modal,
+the dialog will prevent other top-level windows in the application
+from getting any input. \c WType_Dialog implies \c WType_TopLevel. We
+refer to a top-level window that has a parent as a \e secondary
+window. (See also \c WGroupLeader.)
 
 \value WType_Popup  indicates that this widget is a popup top-level
 window, i.e. that it is modal, but has a window system frame appropriate
@@ -657,9 +661,13 @@ paint events only for the newly visible part of itself.
 pixels.  Updating, scrolling and focus changes should therefore not
 erase the widget.  This allows smart-repainting to avoid flicker.
 
-\value WGroupLeader  makes this widget or window a group
-leader. Modality of secondary windows only affects windows within the
-same group.
+\value WGroupLeader  makes this window a group leader. A group leader
+should \e not have a parent (i.e. it should be a top-level window).
+Any decendant windows (direct or indirect) of a group leader are in
+its group; other windows are not. If you show a secondary window from
+the group (i.e. show a window whose top-most parent is a group
+	leader), that window will be modal with respect to the other
+windows in the group, but modeless with respect to any other windows.
 
 Miscellaneous flags
 
