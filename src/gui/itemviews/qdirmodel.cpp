@@ -153,41 +153,44 @@ public:
     void restorePersistentIndexes();
 
     QFileInfoList rootChildren() const;
-    inline QIcon rootIcon() const { return iconProvider->computerIcon(); }
-    inline QFileInfoList entryInfoList(const QString &path) const
-        {
-            const QDir dir(path);
-            QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
-            for (int i = 0; i < fil.count(); ++i) {
-                QString fn = fil.at(i).fileName();
-                if (fn == "." || fn == "..")
-                    fil.removeAt(i--);
-            }
-            return fil;
+
+    inline QIcon rootIcon() const {
+        return iconProvider->computerIcon();
+    }
+
+    inline QFileInfoList entryInfoList(const QString &path) const {
+        const QDir dir(path);
+        QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
+        for (int i = 0; i < fil.count(); ++i) {
+            QString fn = fil.at(i).fileName();
+            if (fn == "." || fn == "..")
+                fil.removeAt(i--);
         }
-    inline QStringList entryList(const QString &path) const
-        {
-            const QDir dir(path);
-            QStringList sl = dir.entryList(nameFilters, filters, sort);
-            for (int i = 0; i < sl.count(); ++i) {
-                QString fn = sl.at(i);
-                if (fn == "." || fn == "..")
-                    sl.removeAt(i--);
-            }
-            return sl;
+        return fil;
+    }
+
+    inline QStringList entryList(const QString &path) const {
+        const QDir dir(path);
+        QStringList sl = dir.entryList(nameFilters, filters, sort);
+        for (int i = 0; i < sl.count(); ++i) {
+            QString fn = sl.at(i);
+            if (fn == "." || fn == "..")
+                sl.removeAt(i--);
         }
-    inline void populate(QDirNode *parent) const
-        {
-            Q_ASSERT(parent);
-            parent->children = children(parent);
-            parent->populated = true;
-        }
-    inline void clear(QDirNode *parent) const
-        {
-            Q_ASSERT(parent);
-            parent->children = children(0);
-            parent->populated = false;
-        }
+        return sl;
+    }
+
+    inline void populate(QDirNode *parent) const {
+        Q_ASSERT(parent);
+        parent->children = children(parent);
+        parent->populated = true;
+    }
+
+    inline void clear(QDirNode *parent) const {
+        Q_ASSERT(parent);
+        parent->children = children(0);
+        parent->populated = false;
+    }
 
     mutable QDirNode root;
     bool resolveSymlinks;
