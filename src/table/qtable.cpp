@@ -6641,22 +6641,20 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->selections.append( table->currentSel );
 		    table->currentSel->init( secAt, 0 );
 		    table->currentSel->expandTo( secAt, table->numCols() );
-		    table->setCurrentCell( secAt, 0 );
-		} else {
+		} else if ( table->currentSel ) {		    
 		    table->currentSel->init( secAt, 0 );
-		    table->setCurrentCell( secAt, 0 );
 		}
+		table->setCurrentCell( secAt, 0 );
 	    } else { // orientation == Horizontal
 		if ( !table->isColumnSelected( secAt, TRUE ) ) {
 		    table->currentSel = new QTableSelection();
 		    table->selections.append( table->currentSel );
 		    table->currentSel->init( 0, secAt );
 		    table->currentSel->expandTo( table->numRows(), secAt );
-		    table->setCurrentCell( 0, secAt );
-		} else {
+		} else if ( table->currentSel ) {
 		    table->currentSel->init( 0, secAt );
-		    table->setCurrentCell( 0, secAt );
 		}
+		table->setCurrentCell( 0, secAt );
 	    }
 	    table->repaintSelections( oldSelection, table->currentSel,
 				      orientation() == Horizontal,
