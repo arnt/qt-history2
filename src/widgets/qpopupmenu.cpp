@@ -51,6 +51,7 @@
 #include "qeffects_p.h"
 #include "qcursor.h"
 #include "qstyle.h"
+#include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -261,6 +262,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tab = 0;
     checkable = 0;
     tornOff = 0;
+    pendingDelayedContentsChanges = 0;
+    pendingDelayedStateChanges = 0;
     maxPMWidth = 0;
 
     tab = 0;
@@ -331,10 +334,28 @@ bool QPopupMenu::isCheckable() const
 
 void QPopupMenu::menuContentsChanged()
 {
+    // here the part that can't be delayed
     QMenuData::menuContentsChanged();
     badSize = TRUE;				// might change the size
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    mac_dirty_popup = 1;
+#endif
+    if( pendingDelayedContentsChanges )
+        return;
+    pendingDelayedContentsChanges = 1;
+    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
+        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+}
+
+void QPopupMenu::performDelayedContentsChanged()
+{
+    pendingDelayedContentsChanges = 0;
+    // here the part the can be delayed
 #ifndef QT_NO_ACCEL
-    updateAccel( 0 );
+    // if performDelayedStateChanged() will be called too,
+    // it will call updateAccel() too, no need to do it twice
+    if( !pendingDelayedStateChanges )
+        updateAccel( 0 );
 #endif
     if ( isVisible() ) {
 	if ( tornOff )
@@ -357,16 +378,38 @@ void QPopupMenu::menuContentsChanged()
 #endif
 }
 
+
 void QPopupMenu::menuStateChanged()
-{
+{  
+     // here the part that can't be delayed
+     if( pendingDelayedStateChanges )
+         return;
+     pendingDelayedStateChanges = 1;
+     if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
+         QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+}
+ 
+void QPopupMenu::performDelayedStateChanged()
+{  
+    pendingDelayedStateChanges = 0;
+    // here the part that can be delayed
 #ifndef QT_NO_ACCEL
     updateAccel( 0 ); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+    // if you remove this, see performDelayedContentsChanged()
 #endif
-    if ( isVisible() )
-	update();
-    if ( QMenuData::d->aWidget && QMenuData::d->aWidget->isVisible() )
+    update();
+    if ( QMenuData::d->aWidget )
 	QMenuData::d->aWidget->update();
 }
+ 
+void QPopupMenu::performDelayedChanges()
+{
+    if( pendingDelayedContentsChanges )
+	performDelayedContentsChanged();
+    if( pendingDelayedStateChanges )
+	performDelayedStateChanged();
+}
+  
 
 void QPopupMenu::menuInsPopup( QPopupMenu *popup )
 {

@@ -52,6 +52,7 @@
 #include <ctype.h>
 #include "../kernel/qinternal_p.h"
 #include "qstyle.h"
+#include "qtimer.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -237,6 +238,8 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     hasmouse = 0;
     defaultup = 0;
     toggleclose = 0;
+    pendingDelayedContentsChanges = 0;
+    pendingDelayedStateChanges = 0;
     if ( parent ) {
 	// filter parent events for resizing
 	parent->installEventFilter( this );
@@ -338,25 +341,9 @@ static bool fromFrameChange = FALSE;
 
 void QMenuBar::menuContentsChanged()
 {
+    // here the part that can't be delayed
     QMenuData::menuContentsChanged();
-#ifndef QT_NO_ACCEL
-    setupAccelerators();
-#endif
     badSize = TRUE;				// might change the size
-    calculateRects();
-    if ( isVisible() ) {
-	update();
-#ifndef QT_NO_MAINWINDOW
-	if ( parent() && parent()->inherits( "QMainWindow" ) ) {
-	    ( (QMainWindow*)parent() )->triggerLayout();
-	    ( (QMainWindow*)parent() )->update();
-	}
-#endif
-#ifndef QT_NO_LAYOUT
-	if ( parentWidget() && parentWidget()->layout() )
-	    parentWidget()->layout()->activate();
-#endif
-    }
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(mac_eaten_menubar)
 	macDirtyNativeMenubar();
@@ -375,7 +362,37 @@ void QMenuBar::menuContentsChanged()
     }
 
 #endif
+    if( pendingDelayedContentsChanges )
+        return;
+    pendingDelayedContentsChanges = 1;
+    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
+        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+}
 
+void QMenuBar::performDelayedContentsChanged()
+{
+    pendingDelayedContentsChanges = 0;
+    // here the part the can be delayed
+#ifndef QT_NO_ACCEL
+    // if performDelayedStateChanged() will be called too,
+    // it will call setupAccelerators() too, no need to do it twice
+    if( !pendingDelayedStateChanges )
+        setupAccelerators();
+#endif
+    calculateRects();
+    if ( isVisible() ) {
+	update();
+#ifndef QT_NO_MAINWINDOW
+	if ( parent() && parent()->inherits( "QMainWindow" ) ) {
+	    ( (QMainWindow*)parent() )->triggerLayout();
+	    ( (QMainWindow*)parent() )->update();
+	}
+#endif
+#ifndef QT_NO_LAYOUT
+	if ( parentWidget() && parentWidget()->layout() )
+	    parentWidget()->layout()->activate();
+#endif
+    }
 }
 
 /*!
@@ -388,10 +405,31 @@ void QMenuBar::menuContentsChanged()
 
 void QMenuBar::menuStateChanged()
 {
+    // here the part that can't be delayed
+        return;
+    pendingDelayedStateChanges = 1;
+    if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
+        QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
+}
+
+void QMenuBar::performDelayedStateChanged()
+{
+    pendingDelayedStateChanges = 0;
+    // here the part that can be delayed
 #ifndef QT_NO_ACCEL
     setupAccelerators(); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+                         // if you remove this, see performDelayedContentsChanged()
 #endif
     update();
+}
+
+
+void QMenuBar::performDelayedChanges()
+{
+    if( pendingDelayedContentsChanges )
+        performDelayedContentsChanged();
+    if( pendingDelayedStateChanges )
+        performDelayedStateChanged();
 }
 
 

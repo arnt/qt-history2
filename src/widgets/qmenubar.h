@@ -106,7 +106,7 @@ protected:
     void	menuContentsChanged();
     void	menuStateChanged();
     void 	styleChange( QStyle& );
-    int		itemAtPos( const QPoint & );
+    int	itemAtPos( const QPoint & );
     void	hidePopups();
     QRect	itemRect( int item );
 
@@ -117,8 +117,11 @@ private slots:
     void	accelActivated( int itemId );
     void	accelDestroyed();
 #endif
+    void 	performDelayedChanges();
 
 private:
+    void 	performDelayedContentsChanged();
+    void 	performDelayedStateChanged();
     void	menuInsPopup( QPopupMenu * );
     void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
@@ -146,6 +149,8 @@ private:
     uint	hasmouse : 1;
     uint 	defaultup : 1;
     uint 	toggleclose : 1;
+    uint        pendingDelayedContentsChanges : 1;
+    uint        pendingDelayedStateChanges : 1;
 
     friend class QPopupMenu;
 

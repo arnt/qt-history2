@@ -126,10 +126,14 @@ private slots:
     void	subMenuTimer();
     void	allowAnimation();
     void     toggleTearOff();
+    
+    void        performDelayedChanges();
 
 private:
     void	menuContentsChanged();
     void	menuStateChanged();
+    void        performDelayedContentsChanged();
+    void        performDelayedStateChanged();
     void	menuInsPopup( QPopupMenu * );
     void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
@@ -163,6 +167,8 @@ private:
     uint checkable : 1;
     uint connectModalRecursionSafety : 1;
     uint tornOff : 1;
+    uint pendingDelayedContentsChanges : 1;
+    uint pendingDelayedStateChanges : 1;
     int maxPMWidth;
     int ncols;
     bool	snapToMouse;
