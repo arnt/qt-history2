@@ -111,8 +111,10 @@ public:
 		   int len = -1,
 		   int prec = -1,
 		   const QVariant& defValue = QVariant(),
-		   int sqlType = 0 );
+		   int sqlType = 0,
+		   bool calculated = FALSE );
     QSqlFieldInfo( const QSqlFieldInfo & other );
+    QSqlFieldInfo( const QSqlField & other, bool generated = TRUE );
     ~QSqlFieldInfo();
     QSqlFieldInfo& operator=( const QSqlFieldInfo& other );
     bool operator==( const QSqlFieldInfo& f ) const;
@@ -124,6 +126,7 @@ public:
     QVariant		defaultValue() const;
     QString		name() const;
     int			typeID() const;
+    bool		isGenerated() const;
 
 private:
     QSqlFieldInfoPrivate* d;

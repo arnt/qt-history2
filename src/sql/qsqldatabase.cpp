@@ -787,8 +787,9 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 /*!  Returns a QSqlRecord populated with the names of all the fields in
     the table (or view) named \a tablename. The order in which the fields are
     returned is undefined.  If no such table (or view) exists, an empty
-    list is returned.
+    record is returned.
 
+    \sa recordInfo()
 */
 
 QSqlRecord QSqlDatabase::record( const QString& tablename ) const
@@ -803,11 +804,36 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
   in the SQL \a query. If the query is a "SELECT *" the order in which
   fields are returned is undefined.
 
+  \sa recordInfo()
 */
 
 QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
 {
     return d->driver->record( query );
+}
+
+/*
+  Returns a QSqlRecordInfo populated with meta-data about the table (or view)
+  \a tablename. If no such table (or view) exists, an empty record is returned.
+
+  \sa QSqlRecordInfo, QSqlFieldInfo, record()
+*/
+QSqlRecordInfo QSqlDatabase::recordInfo( const QString& tablename ) const
+{
+    return d->driver->recordInfo( tablename );
+}
+
+/* \overload
+
+    Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
+    Note that this overloaded function may return not as much information as
+    the recordInfo function which takes the name of a table as parameter.
+
+   \sa QSqlRecordInfo, QSqlFieldInfo, record()
+*/
+QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
+{
+    return d->driver->recordInfo( query );
 }
 
 

@@ -116,6 +116,7 @@ class Q_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 public:
     QSqlRecordInfo(): QSqlFieldInfoList() {}
     QSqlRecordInfo( const QSqlFieldInfoList& other ): QSqlFieldInfoList( other ) {}
+    QSqlRecordInfo( const QSqlRecord& other );
 
     size_type contains( const QString& fieldName ) const;
     QSqlFieldInfo find( const QString& fieldName ) const;

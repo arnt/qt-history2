@@ -56,6 +56,7 @@ class QSqlError;
 class QSqlDriver;
 class QSqlIndex;
 class QSqlRecord;
+class QSqlRecordInfo;
 class QSqlDatabasePrivate;
 
 class QM_EXPORT_SQL QSqlDriverCreatorBase
@@ -83,35 +84,37 @@ class QM_EXPORT_SQL QSqlDatabase : public QObject
 public:
     ~QSqlDatabase();
 
-    bool	 open();
-    bool	 open( const QString& user, const QString& password );
-    void	 close();
-    bool	 isOpen() const;
-    bool	 isOpenError() const;
-    QStringList  tables() const;
-    QSqlIndex    primaryIndex( const QString& tablename ) const;
-    QSqlRecord   record( const QString& tablename ) const;
-    QSqlRecord   record( const QSqlQuery& query ) const;
-    QSqlQuery    exec( const QString& query = QString::null ) const;
-    QSqlError    lastError() const;
+    bool		open();
+    bool		open( const QString& user, const QString& password );
+    void		close();
+    bool		isOpen() const;
+    bool		isOpenError() const;
+    QStringList		tables() const;
+    QSqlIndex		primaryIndex( const QString& tablename ) const;
+    QSqlRecord		record( const QString& tablename ) const;
+    QSqlRecord		record( const QSqlQuery& query ) const;
+    QSqlRecordInfo	recordInfo( const QString& tablename ) const;
+    QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
+    QSqlQuery		exec( const QString& query = QString::null ) const;
+    QSqlError		lastError() const;
 
-    bool	 transaction();
-    bool	 commit();
-    bool	 rollback();
+    bool		transaction();
+    bool		commit();
+    bool		rollback();
 
-    virtual void setDatabaseName( const QString& name );
-    virtual void setUserName( const QString& name );
-    virtual void setPassword( const QString& password );
-    virtual void setHostName( const QString& host );
-    virtual void setPort( int p );
-    QString	 databaseName() const;
-    QString	 userName() const;
-    QString	 password() const;
-    QString	 hostName() const;
-    QString	 driverName() const;
-    int          port() const;
+    virtual void	setDatabaseName( const QString& name );
+    virtual void	setUserName( const QString& name );
+    virtual void	setPassword( const QString& password );
+    virtual void	setHostName( const QString& host );
+    virtual void	setPort( int p );
+    QString		databaseName() const;
+    QString		userName() const;
+    QString		password() const;
+    QString		hostName() const;
+    QString		driverName() const;
+    int         	port() const;
 
-    QSqlDriver*  driver() const;
+    QSqlDriver*		driver() const;
 
     // MOC_SKIP_BEGIN
     QT_STATIC_CONST char * const defaultConnection;

@@ -275,6 +275,7 @@ void QSqlField::setReadOnly( bool readOnly )
 struct QSqlFieldInfoPrivate
 {
     int required, len, prec, typeID;
+    bool generated;
     QString name;
     QString typeName;
     QVariant::Type typ;
@@ -302,13 +303,14 @@ struct QSqlFieldInfoPrivate
   \i \a name  the name of the field.
   \i \a typ   its type in a QVariant.
   \i \a required  greater than 0 if it is required, 0 if its value can be NULL
-     and less than 0 if it cannot be determined whether the field is required or not.
+	and less than 0 if it cannot be determined whether the field is required or not.
   \i \a len  the length of the field. Note that for non-character types some databases return
-          either the length in bytes or the number of digits. -1 if the length cannot be determined.
+	either the length in bytes or the number of digits. -1 if the length cannot be determined.
   \i \a prec  the precision of the field, or -1 if the field has no precision or it cannot be determined.
   \i \a defValue  the default value that is inserted into the table if none is specified by the user.
-               QVariant() if there is no default value or it cannot be determined.
+	QVariant() if there is no default value or it cannot be determined.
   \i \a typeID  the internal typeID of the database system (only useful for low-level programming). 0 if unknown.
+  \i \a generated  indicates whether this field should be included in auto-generated SQL statments, e.g. in QSqlCursor.
   \endlist
 */
 QSqlFieldInfo::QSqlFieldInfo( const QString& name,
@@ -317,7 +319,8 @@ QSqlFieldInfo::QSqlFieldInfo( const QString& name,
 		   int len,
 		   int prec,
 		   const QVariant& defValue,
-		   int typeID )
+		   int typeID,
+		   bool generated )
 {
     d = new QSqlFieldInfoPrivate();
     d->name = name;
@@ -327,6 +330,7 @@ QSqlFieldInfo::QSqlFieldInfo( const QString& name,
     d->prec = prec;
     d->defValue = defValue;
     d->typeID = typeID;
+    d->generated = generated;
 }
 
 /*! Constructs a copy of \a other.
@@ -334,6 +338,20 @@ QSqlFieldInfo::QSqlFieldInfo( const QString& name,
 QSqlFieldInfo::QSqlFieldInfo( const QSqlFieldInfo & other )
 {
     d = new QSqlFieldInfoPrivate( *(other.d) );
+}
+
+/*! Creates a QSqlFieldInfo object with the type and the name of the QSqlField \a other
+*/
+QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated = TRUE )
+{
+    d = new QSqlFieldInfoPrivate();
+    d->name = other.name();
+    d->typ = other.type();
+    d->required = -1;
+    d->len = -1;
+    d->prec = -1;
+    d->typeID = 0;
+    d->generated = generated;
 }
 
 /*!
@@ -365,7 +383,8 @@ bool QSqlFieldInfo::operator==( const QSqlFieldInfo& f ) const
 		d->len == f.d->len &&
 		d->prec == f.d->prec &&
 		d->defValue == f.d->defValue &&
-		d->typeID == f.d->typeID );
+		d->typeID == f.d->typeID &&
+		d->generated == f.d->generated );
 }
 
 /*! Returns a value greater than 0 if the fiels is required (no NULL values possible),
@@ -412,5 +431,10 @@ QString QSqlFieldInfo::name() const
 */
 int QSqlFieldInfo::typeID() const
 { return d->typeID; }
+
+/*! Returns whether this field should be included in auto-generated SQL statments, e.g. in QSqlCursor.
+*/
+bool QSqlFieldInfo::isGenerated() const
+{ return d->generated; }
 
 #endif

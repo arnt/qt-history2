@@ -306,14 +306,19 @@ QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
    return QSqlRecord();
 }
 
-/*! \internal
+/*! Returns a QSqlRecordInfo object with meta data on the table \a tablename.
 */
 QSqlRecordInfo QSqlDriver::recordInfo( const QString& /*tablename*/ ) const
 {
     return QSqlRecordInfo();
 }
 
-/*! \internal
+/*! \overload
+
+    Returns a QSqlRecordInfo object with meta data for the QSqlQuery \a query.
+    Note that this overloaded function may return not as much information as
+    the recordInfo function which takes the name of a table as parameter.
+
 */
 QSqlRecordInfo QSqlDriver::recordInfo( const QSqlQuery& /*query*/ ) const
 {

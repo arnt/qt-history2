@@ -638,6 +638,16 @@ void QSqlRecord::setValue( const QString& name, const QVariant& val )
     \sa QValueList, QSqlFieldInfo
 */
 
+
+/* Constructs a QSqlRecordInfo object based on the fields in the QSqlRecord \a other.
+*/
+QSqlRecordInfo::QSqlRecordInfo( const QSqlRecord& other )
+{
+    for ( uint i = 0; i < other.count(); ++i ) {
+	push_back( QSqlFieldInfo( *(other.field( i )), other.isGenerated( i ) ) );
+    }
+}
+
 /*! Returns the number of times a field named \a fieldName occurs in the record.
     Returns 0 if no field by that name could be found.
 */
