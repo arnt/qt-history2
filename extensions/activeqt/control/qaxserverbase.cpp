@@ -2630,10 +2630,12 @@ HRESULT WINAPI QAxServerBase::ReactivateAndUndo()
 
 int QAxEventFilter( MSG *pMsg )
 {
-    int ret = 0;
-    if ( pMsg->message != WM_KEYDOWN || !ax_ServerMapper )
-	return ret;
+    if ( !ax_ServerMapper )
+	return 0;
+    if ( pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST )
+	return 0;
 
+    int ret = 0;
     QWidget *aqt = QWidget::find( pMsg->hwnd );
     if ( !aqt )
 	return ret;
