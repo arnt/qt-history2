@@ -193,14 +193,14 @@
                     <property name="maximumSize">
                         <size>
                             <width>30</width>
-                            <height>30</height>
+                            <height>22</height>
                         </size>
                     </property>
                     <property name="text">
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>editcut.png</pixmap>
+                        <pixmap>small_editcut.png</pixmap>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>Delete Pixmap</string>
@@ -216,7 +216,7 @@
                     <property name="maximumSize">
                         <size>
                             <width>30</width>
-                            <height>30</height>
+                            <height>22</height>
                         </size>
                     </property>
                     <property name="text">
@@ -312,7 +312,7 @@
                 <string></string>
             </property>
             <property name="pixmap">
-                <pixmap>up.png</pixmap>
+                <pixmap>small_up.png</pixmap>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Move up</string>
@@ -329,7 +329,7 @@
                 <string></string>
             </property>
             <property name="pixmap">
-                <pixmap>down.png</pixmap>
+                <pixmap>small_down.png</pixmap>
             </property>
             <property name="toolTip" stdset="0">
                 <string>Move down</string>

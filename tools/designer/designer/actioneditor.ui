@@ -85,7 +85,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>editcut.png</pixmap>
+                        <pixmap>small_editcut.png</pixmap>
                     </property>
                     <property name="autoRaise">
                         <bool>true</bool>

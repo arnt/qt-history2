@@ -142,7 +142,7 @@
                                 <string></string>
                             </property>
                             <property name="pixmap">
-                                <pixmap>up.png</pixmap>
+                                <pixmap>small_up.png</pixmap>
                             </property>
                         </widget>
                         <widget class="QPushButton">
@@ -153,7 +153,7 @@
                                 <string></string>
                             </property>
                             <property name="pixmap">
-                                <pixmap>down.png</pixmap>
+                                <pixmap>small_down.png</pixmap>
                             </property>
                         </widget>
                     </vbox>

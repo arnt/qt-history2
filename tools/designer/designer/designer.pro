@@ -363,10 +363,15 @@ IMAGES		+= images/adjustsize.png \
 		images/disabled_textcenter.png \
 		images/disabled_wizarddata.png \
 		images/disabled_wizarddialog.png \
+		images/small_editcut.png \
+		images/small_up.png \
+		images/small_down.png \
+		images/small_left.png \
+		images/small_right.png \
 		images/disabled_image.png
 
 
-OBJECTS_DIR	= .
+OBJECTS_DIR	= .rep
 
 DEPENDPATH	+= $$QT_SOURCE_TREE/include
 VERSION  	= 1.0.0
