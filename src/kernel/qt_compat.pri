@@ -12,7 +12,7 @@ hacks += oldx11font
 internal {
 	MODULES_BASE	= tools kernel widgets dialogs
 	MODULES_PRO	= iconview workspace
-	MODULES_ENT	= network canvas table xml sql
+	MODULES_ENT	= network canvas table xml opengl sql
 	# we want everything
 	CONFIG		+= $$MODULES_BASE $$MODULES_PRO $$MODULES_ENT
 	CONFIG	+= png zlib  # Done differently in external system
