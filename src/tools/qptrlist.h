@@ -40,6 +40,20 @@
 #include "qglist.h"
 #endif // QT_H
 
+template<class type>
+class QPtrListStdIterator : public QGListStdIterator
+{
+public:
+    QPtrListStdIterator( QLNode* n ): QGListStdIterator(n){}
+    type *operator*() { return node ? (type *)node->getData() : 0; }
+    inline QPtrListStdIterator<type> operator++()
+    { return node = next(); return *this; }
+    inline QPtrListStdIterator<type> operator++(int)
+    { QLNode* n = node; node = next(); return QPtrListStdIterator<type>( n ); }
+    inline bool operator==( const QPtrListStdIterator<type>& it ) const { return node == it.node; }
+    inline bool operator!=( const QPtrListStdIterator<type>& it ) const { return node != it.node; }
+};
+
 
 template<class type>
 class QPtrList
@@ -50,6 +64,7 @@ class QPtrList
 #endif
 {
 public:
+
     QPtrList()				{}
     QPtrList( const QPtrList<type> &l ) : QGList(l) {}
     ~QPtrList()				{ clear(); }
@@ -96,6 +111,17 @@ public:
     type *next()			{ return (type *)QGList::next(); }
     type *prev()			{ return (type *)QGList::prev(); }
     void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
+
+
+    // stl compatibility
+    typedef QPtrListStdIterator<type> iterator;
+    typedef QPtrListStdIterator<type> const_iterator;
+    inline iterator begin() { return QGList::begin(); }
+    inline const_iterator begin() const { return QGList::begin(); }
+    inline iterator end() { return QGList::end(); }
+    inline const_iterator end() const { return QGList::end(); }
+    inline iterator erase( iterator it ) { return QGList::erase( it ); }
+
 
 #ifdef Q_QDOC
 protected:
@@ -154,5 +180,16 @@ public:
 #define QList QPtrList
 #define QListIterator QPtrListIterator
 #endif
+
+template <class type>
+class QPtrListAutoDelete : public QPtrList<type>
+{
+public:
+    inline QPtrListAutoDelete() { setAutoDelete(TRUE); }
+    inline QPtrListAutoDelete( const QPtrList<type> &l )
+	: QPtrList<type>(l) {}
+    inline QPtrListAutoDelete<type> &operator=(const QPtrList<type> &l)
+	{ return (QPtrListAutoDelete<type>&)QGList::operator=(l); }
+};
 
 #endif // QPTRLIST_H

@@ -1168,6 +1168,19 @@
     \sa read()
 */
 
+/*! \fn iterator QPtrList::begin() 
+\internal
+*/
+/*! \fn const_iterator QPtrList::begin() const
+\internal
+*/
+/*! \fn iterator QPtrList::end() 
+\internal
+*/
+/*! \fn const_iterator QPtrList::end() const
+\internal
+*/
+
 /*****************************************************************************
   QStrListIterator documentation
  *****************************************************************************/
@@ -1181,4 +1194,20 @@
 
     This class is a QPtrListIterator\<char\> instance. It can traverse
     the strings in the QStrList and QStrIList classes.
+*/
+
+
+/*****************************************************************************
+  QPtrListAutoDelete documentation
+ *****************************************************************************/
+/*!
+    \class QPtrListAutoDelete
+    \brief The QPtrListAutoDelete class is a template class that provides a list and 
+    auto-deletes its data.
+
+    \ingroup collection
+    \ingroup tools
+
+    A QPtrListAutoDelete is identical to a QPtrList with
+    setAutoDelete(TRUE).
 */

@@ -46,6 +46,7 @@ class Q_EXPORT QLNode
 {
 friend class QGList;
 friend class QGListIterator;
+friend class QGListStdIterator;
 public:
     QPtrCollection::Item getData()	{ return data; }
 private:
@@ -124,6 +125,11 @@ protected:
     virtual QDataStream &read( QDataStream &, QPtrCollection::Item & );
     virtual QDataStream &write( QDataStream &, QPtrCollection::Item ) const;
 #endif
+
+    QLNode* begin() const { return firstNode; }
+    QLNode* end() const { return 0; }
+    QLNode* erase( QLNode* it );
+
 private:
     void  prepend( QPtrCollection::Item );	// add item at start of list
 
@@ -247,6 +253,16 @@ inline QPtrCollection::Item QGListIterator::get() const
 {
     return curNode ? curNode->data : 0;
 }
+
+class Q_EXPORT QGListStdIterator
+{
+public:
+    inline QGListStdIterator( QLNode* n ) : node( n ){}
+    inline operator QLNode* () { return node; }
+protected:
+    inline QLNode *next() { return node->next; }
+    QLNode *node;
+};
 
 
 #endif	// QGLIST_H

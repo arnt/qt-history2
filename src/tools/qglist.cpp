@@ -1059,6 +1059,25 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 #endif // QT_NO_DATASTREAM
 
+
+
+/*! \internal \fn QGListStdIterator QGList::begin() const
+ */
+
+/*! \internal \fn QGListStdIterator QGList::end() const
+ */
+
+/*! \internal
+ */
+QLNode* QGList::erase( QLNode* it )
+{
+    QLNode* n = it;
+    it = it->next;
+    removeNode( n );
+    return it;
+}
+
+
 /*****************************************************************************
   QGListIterator member functions
  *****************************************************************************/

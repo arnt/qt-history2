@@ -35,6 +35,7 @@ tools {
 		  $$TOOLS_H/qlibrary.h \
 		  $$TOOLS_P/qlibrary_p.h \
 		  $$TOOLS_H/qptrlist.h \
+		  $$TOOLS_H/qmagic.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qmutex.h \
 		  $$TOOLS_P/qmutex_p.h \
