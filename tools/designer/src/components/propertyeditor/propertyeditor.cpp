@@ -83,6 +83,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root,
             case QVariant::Rect:
                 p = new RectProperty(value.toRect(), pname);
                 break;
+            case QVariant::Pixmap:
+                p = new PixmapProperty(value.toString(), pname);
+                break;
             case QVariant::Font:
                 p = new FontProperty(value.toFont(), pname);
                 break;

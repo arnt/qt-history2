@@ -27,6 +27,7 @@
 #include <QDateTimeEdit>
 #include <QBitmap>
 #include <QValidator>
+#include <QToolButton>
 
 #include <qdebug.h>
 #include <limits.h>
@@ -204,6 +205,92 @@ QWidget *PropertyCollection::createExternalEditor(QWidget *parent)
     return 0;
 }
 
+// -------------------------------------------------------------------------
+
+class PixmapPropertyEditor : public QHBoxWidget
+{
+    Q_OBJECT
+public:
+    PixmapPropertyEditor(const QString &path, QWidget *parent);
+
+    QString path() const { return m_edit->text(); }
+    
+public slots:
+    void setPath(const QString &path);
+
+signals:
+    void pathChanged(const QString &text);
+
+private:
+    QToolButton *m_button;
+    QLineEdit *m_edit;
+};
+
+PixmapPropertyEditor::PixmapPropertyEditor(const QString &path, QWidget *parent)
+    : QHBoxWidget(parent)
+{
+    m_button = new QToolButton(this);
+    m_button->setText("...");
+    m_edit = new QLineEdit(this);
+    
+    setPath(path);
+    
+    connect(m_edit, SIGNAL(textChanged(const QString&)), this, SIGNAL(pathChanged(const QString&)));
+}
+
+void PixmapPropertyEditor::setPath(const QString &path)
+{
+    m_edit->setText(path);
+    QPixmap pm;
+    QImage image(path);
+    if (!image.isNull())
+        pm.fromImage(image);
+    m_button->setPixmap(pm);
+}
+
+PixmapProperty::PixmapProperty(const QString &value, const QString &name)
+    : AbstractProperty<QString>(value, name)
+{
+}
+
+void PixmapProperty::setValue(const QVariant &value)
+{
+    m_value = value.toString();
+}
+
+QString PixmapProperty::toString() const
+{
+    return m_value;
+}
+
+QWidget *PixmapProperty::createEditor(QWidget *parent, QObject *target, 
+                                        const char *receiver)
+{
+    PixmapPropertyEditor *editor = new PixmapPropertyEditor(m_value, parent);
+
+    QObject::connect(editor, SIGNAL(pathChanged(const QString&)), target, receiver);
+    
+    return editor;
+}
+
+void PixmapProperty::updateEditorContents(QWidget *editor)
+{
+    if (PixmapPropertyEditor *ed = qt_cast<PixmapPropertyEditor*>(editor)) {
+        ed->setPath(m_value);
+    }
+}
+
+void PixmapProperty::updateValue(QWidget *editor)
+{
+    if (PixmapPropertyEditor *ed = qt_cast<PixmapPropertyEditor*>(editor)) {
+        QString newValue = ed->path();
+
+        if (newValue != m_value) {
+            m_value = newValue;
+            setChanged(true);
+        }
+    }
+}
 
 // -------------------------------------------------------------------------
 StringProperty::StringProperty(const QString &value, const QString &name)
@@ -1091,3 +1178,6 @@ void PaletteProperty::updateValue(QWidget *editor)
         }
     }
 }
+
+#include "qpropertyeditor_items.moc"
+

@@ -256,6 +256,19 @@ public:
     void updateValue(QWidget *editor);
 };
 
+class QT_PROPERTYEDITOR_EXPORT PixmapProperty : public AbstractProperty<QString>
+{
+public:
+    PixmapProperty(const QString &value, const QString &name);
+    
+    void setValue(const QVariant &value);
+    QString toString() const;
+    
+    QWidget *createEditor(QWidget *parent, QObject *target, const char *receiver);
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
 class QT_PROPERTYEDITOR_EXPORT StringProperty: public AbstractProperty<QString>
 {
 public:
