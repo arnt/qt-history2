@@ -753,7 +753,8 @@ void QProcess::start(const QString &program, const QStringList &arguments)
         return;
     }
 
-    setOpenMode(QIODevice::NotOpen);
+    d->outputReadBuffer.clear();
+    d->errorReadBuffer.clear();
     setOpenMode(QIODevice::ReadWrite);
 
     d->program = program;
