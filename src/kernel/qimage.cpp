@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#83 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#83 $");
 
 
 /*!
@@ -1278,8 +1278,8 @@ static void init_image_handlers()		// initialize image handlers
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_image_handlers );
-//	QImageIO::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
-//				   read_gif_image, write_gif_image );
+	//	QImageIO::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
+	//				   read_gif_image, write_gif_image );
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
 	QImageIO::defineIOHandler( "PBM", "^P1", "T",
@@ -1298,8 +1298,8 @@ static void init_image_handlers()		// initialize image handlers
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
-	//	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
-	//				   read_xpm_image, write_xpm_image );
+//	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
+//				   read_xpm_image, write_xpm_image );
     }
 }
 
@@ -2514,22 +2514,10 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	if ( !read_xpm_string( buf.data(), buf.size(), d ) )
 	    return;
 	QString index, colour;
-	if ( buf[0] == ' ' ) {
-	    index = " ";
-	    buf = buf.mid( 1, buf.length() ).simplifyWhiteSpace();
-	} else {
-	    buf = buf.simplifyWhiteSpace();
-	    index = buf.copy();
-	    i = index.find( ' ' ) + 1 ;
-	    if ( i < 1 ) {
-		debug( "invalid colour %s", (const char *)buf );
-		return; // invalid colour syntax
-	    }
-	    index.resize( i );
-	    buf = buf.mid( i, buf.length() );
-	}
+	index = buf.left( cpp );
+	buf = buf.mid( cpp, buf.length() ).simplifyWhiteSpace();
 	while( buf[0] == 's' || buf[0] == 'm' ) {
-	    i = index.find( ' ', 2 ) + 1;
+	    i = buf.find( ' ', 2 ) + 1;
 	    if ( i < 1 ) {
 		debug( "invalid colour II %s", (const char *)buf );
 		return;
@@ -2556,7 +2544,7 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 		green = buf.mid( 2, 1 );
 		blue = buf.mid( 3, 1 );
 		break;
-	    case 9:
+	    case 7:
 		red = buf.mid( 1, 2 );
 		green = buf.mid( 3, 2 );
 		blue = buf.mid( 5, 2 );
@@ -2581,15 +2569,21 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	    debug( "found colour %d, %d, %d", r, g, b );
 	    image.setColor( currentColour, qRgb( r, g, b ) );
 	    colourMap.insert( index, (int*)(currentColour+1) );
-	} else if ( buf == "None" ) {
+	} else if ( stricmp( buf, "none" ) == 0 ) {
 	    debug( "found transparent %d", image.numColors() );
 	    transparentColour = currentColour;
 	    image.setColor( transparentColour, qRgb( 255,128,64 ) );
 	    colourMap.insert( index, (int*)(transparentColour+1) );
 	} else {
 	    // symbolic colour names: die die die
-	    debug( "weird colour %s", (const char *)buf );
-	    return;
+	    r = " [a-z] ";
+	    i = r.match( buf );
+	    if ( i > -1 )
+		buf[i] = '0';
+	    QColor tmp( buf );
+	    image.setColor( currentColour, tmp.rgb() );
+	    colourMap.insert( index, (int*)(currentColour+1) );
+	    debug( "weird colour %s, %6x", (const char *)buf, tmp.rgb() );
 	}
     }
 
@@ -2599,22 +2593,16 @@ static void read_xpm_image( QImageIO * iio ) // read XPM image data
 	buf.resize( buflen );
 	if ( !read_xpm_string( buf.data(), buf.size(), d ) )
 	    return;
-	// don't test line width
+	i = 0;
 
-	for ( int x=0; x<w && !buf.isNull(); x++ ) {
-	    i = 0;
-	    int colour = 0;
-	    QString index;
-	    while( colour == 0 && i < 10 && buf[i] != '\0' ) {
-		colour = (int)colourMap[ buf.left( ++i ) ];
-	    }
+	for ( int x=0; x<w && i<(int)buf.length(); x++ ) {
+	    int colour = (int)colourMap[ buf.mid( i, cpp ) ];
 	    if ( colour == 0 ) {
 		debug( "unknown colour %s", (const char *)buf );
 		return; // bad colour
 	    }
 	    *(image.scanLine(y) + x) = (char)(colour-1);
-	    debug( "set pixel %d,%d to %d", x, y, (char)(colour-1) );
-	    buf = buf.mid( i, buf.length() );
+	    i += cpp;
 	}
     }
     iio->setImage( image );
