@@ -353,6 +353,13 @@ bool QLineF::isNull() const
 */
 
 /*!
+  \fn QLine QLineF::toLine() const
+
+  Rounds the end points of the line to integer coordinates and
+  returns it as a QLine.
+*/
+
+/*!
     Returns the length of the line.
 
     \sa setLength()

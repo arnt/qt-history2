@@ -179,6 +179,8 @@ public:
     inline bool operator==(const QLineF &d) const;
     inline bool operator!=(const QLineF &d) const { return !(*this == d); }
 
+    QLine toLine() const;
+
 private:
     QPointF pt1, pt2;
 };
@@ -266,14 +268,14 @@ inline void QLineF::setLength(qreal len)
     pt2 = QPointF(pt1.x() + v.dx() * len, pt1.y() + v.dy() * len);
 }
 
+#ifndef QT_USE_FIXED_POINT
 inline QPointF QLineF::pointAt(qreal t) const
 {
     qreal vx = pt2.x() - pt1.x();
     qreal vy = pt2.y() - pt1.y();
     return QPointF(pt1.x() + vx * t, pt1.y() + vy * t);
 }
-
-#ifdef QT_USE_FIXED_POINT
+#else
 inline QPointF QLineF::pointAt(QFixedPointLong t) const
 {
     QFixedPointLong vx = pt2.x() - pt1.x();
@@ -281,6 +283,11 @@ inline QPointF QLineF::pointAt(QFixedPointLong t) const
     return QPointF((pt1.x() + vx * t).toFixed(), (pt1.y() + vy * t).toFixed());
 }
 #endif
+
+inline QLine QLineF::toLine() const
+{
+    return QLine(pt1.toPoint(), pt2.toPoint());
+}
 
 inline bool QLineF::operator==(const QLineF &d) const
 {
