@@ -1862,7 +1862,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
                                            &qt_working_dir,
                                            parent,
                                            caption,
-                                           electedFilter);
+                                           selectedFilter);
         return result;
     }
 #elif defined(Q_WS_MAC)
