@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#38 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#39 $
 **
 ** Definition of QWidget class
 **
@@ -152,8 +152,6 @@ protected:
     virtual void paintEvent( QPaintEvent * );
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
-    virtual void showEvent( QShowEvent * );
-    virtual void hideEvent( QHideEvent * );
     virtual void closeEvent( QCloseEvent * );
 
 #if defined(_WS_MAC_)
