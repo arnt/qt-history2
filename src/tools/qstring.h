@@ -667,7 +667,7 @@ inline QCharRef QString::operator[]( int i ) { return at((uint)i); }
 
 class Q_EXPORT QConstString : private QString {
 public:
-    QConstString( QChar* unicode, uint length );
+    QConstString( const QChar* unicode, uint length );
     ~QConstString();
     const QString& string() const { return *this; }
 };

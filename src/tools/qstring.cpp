@@ -15766,8 +15766,8 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   (they are references), this constructor demands a non-const pointer
   even though it never modifies \a unicode.
 */
-QConstString::QConstString( QChar* unicode, uint length ) :
-    QString(new QStringData(unicode, length, length),TRUE)
+QConstString::QConstString( const QChar* unicode, uint length ) :
+    QString( new QStringData( (QChar*)unicode, length, length ), TRUE )
 {
 }
 
