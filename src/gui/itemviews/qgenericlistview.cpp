@@ -1115,9 +1115,8 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
         d->wrapVector.push_back(last + 1);
     }
 
-    int cw = qMax(rect.width(), bounds.width());
-    int ch = qMax(rect.height(), bounds.height());
-    resizeContents(cw, ch);
+    resizeContents(rect.width(), rect.height());
+
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
@@ -1578,8 +1577,8 @@ QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the viewport
     if (!wrap && movement == QGenericListView::Static)
         if (flow == QGenericListView::TopToBottom)
-            result.setWidth(viewport->width());
+            result.setWidth(qMax(rect.width(), viewport->width()));
         else
-            result.setHeight(viewport->height());
+            result.setHeight(qMax(rect.height(), viewport->height()));
     return result;
 }
