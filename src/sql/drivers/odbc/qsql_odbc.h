@@ -58,7 +58,14 @@
 #define HAVE_LONG_LONG 1 // force UnixODBC NOT to fall back to a struct for BIGINTs
 #endif
 
+#if defined(Q_CC_BOR)
+// workaround for Borland to make sure that SQLBIGINT is defined
+#  define _MSC_VER 900
+#endif
 #include <sql.h>
+#if defined(Q_CC_BOR)
+#  undef _MSC_VER
+#endif
 #include <sqlucode.h>
 #include <sqlext.h>
 
