@@ -566,7 +566,6 @@ void QTextEngine::shapeText(int item) const
             ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
                          glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
         }
-        si.width = abc.abcA + abc.abcB + abc.abcC;
 
         ensureSpace(si.num_glyphs);
         si.glyph_data_offset = layoutData->used;
@@ -585,7 +584,6 @@ void QTextEngine::shapeText(int item) const
 
         if (hdc)
             ReleaseDC(0, hdc);
-        si.analysis.script = script;
     } else {
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
 
@@ -610,17 +608,20 @@ void QTextEngine::shapeText(int item) const
         }
         si.num_glyphs = shaper_item.num_glyphs;
 
-        QGlyphLayout *g = shaper_item.glyphs;
-
-        if (this->font(si).d->kerning)
-            fontEngine->doKerning(si.num_glyphs, g, QFlag(shaper_item.flags));
-
-        si.width = 0;
-        QGlyphLayout *end = g + si.num_glyphs;
-        while (g < end)
-            si.width += (g++)->advance.x();
-
     }
+
+    si.analysis.script = script;
+
+    QGlyphLayout *g = glyphs(&si);
+    if (this->font(si).d->kerning)
+        fontEngine->doKerning(si.num_glyphs, g, QFlag(option.usesDesignMetrics() ? DesignMetrics : 0));
+
+    si.width = 0;
+    QGlyphLayout *end = g + si.num_glyphs;
+    while (g < end)
+        si.width += (g++)->advance.x();
+
+
     si.ascent = fontEngine->ascent();
     si.descent = fontEngine->descent();
 
