@@ -2727,7 +2727,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	    echo "CARBON_LFLAGS +=-framework CoreServices -framework CoreFoundation" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
-	    EXTRA_SOURCES="qcoresettings_mac.o qcore_mac.o"
+	    EXTRA_SOURCES="qsettings_mac.o qcore_mac.o"
 	fi
 	[ "$CFG_EMBEDDED" != "no" ] && EXTRA_CFLAGS="$EXTRA_CFLAGS -DQWS"
 	if [ '!' -z "$D_FLAGS" ]; then
