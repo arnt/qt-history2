@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#30 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#31 $
 **
 ** Implementation of QDns class.
 **
@@ -1007,7 +1007,7 @@ void QDnsManager::answer()
 
     // at this point queries[i] is whatever we asked for.
 
-    if ( (Q_UINT8)(a[2]) & 0x80 == 0 ) {
+    if ( ( (Q_UINT8)(a[2]) & 0x80 ) == 0 ) {
 #if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: received a query" );
 #endif
