@@ -4006,7 +4006,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFontEngine *f, QByteArray& d)
     return;
   }
 
-  char* fontnameptr = strstr(p+pos,"/FontName");
+  const char* fontnameptr = strstr(p+pos,"/FontName");
   if (fontnameptr == NULL)
     return;
 
