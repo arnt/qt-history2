@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#101 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#101 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -480,9 +480,7 @@ void QButton::setAutoRepeat( bool enable )
   appropriate.
 
   This function does nothing if the button is \link setEnabled()
-  disabled\endlink or if it is the enabled toggle button in an
-  exclusive button group (this means, in practice, a \link
-  QRadioButton radio button \endlink in a button group).
+  disabled. \endlink
 
   \sa setAccel()
 */
@@ -490,8 +488,6 @@ void QButton::setAutoRepeat( bool enable )
 void QButton::animateClick()
 {
     if ( !isEnabled() || animation )
-	return;
-    if ( isOn() && group() && group()->isExclusive() )
 	return;
     animation  = TRUE;
     buttonDown = TRUE;
@@ -668,7 +664,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     if ( d )
 	timer()->stop();
     mlbDown = FALSE;				// left mouse button up
-    bool hit = hitButton( e->pos() );
+    bool hit;
+    hit = (isToggleButton() && isOn() && group() && group()->isExclusive())
+	  ? FALSE
+	  : hitButton( e->pos() );
     buttonDown = FALSE;
     if ( hit ) {				// mouse release on button
 	if ( toggleBt )
@@ -798,10 +797,12 @@ void QButton::animateTimeout()
 	return;
     animation  = FALSE;
     buttonDown = FALSE;
-    if ( toggleBt )
+    bool t = isToggleButton() &&
+	     (!isOn() || !group() || !group()->isExclusive());
+    if ( t )
 	buttonOn = !buttonOn;
     repaint( FALSE );
-    if ( toggleBt )
+    if ( t )
 	emit toggled( buttonOn );
     emit released();
     emit clicked();

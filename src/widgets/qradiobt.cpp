@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#71 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#71 $");
 
 
 /*!
@@ -298,13 +298,13 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     w = width() - x;
     h = height();
 
-    qDrawItem( p, gs, x, y, w, h, 
+    qDrawItem( p, gs, x, y, w, h,
 	       AlignLeft|AlignVCenter|ShowPrefix,
 	       colorGroup(), isEnabled(),
 	       pixmap(), text() );
 
     if ( hasFocus() ) {
-	QRect br = qItemRect( p, gs, x, y, w, h, 
+	QRect br = qItemRect( p, gs, x, y, w, h,
 			      AlignLeft|AlignVCenter|ShowPrefix,
 			      isEnabled(),
 			      pixmap(), text() );
@@ -326,27 +326,17 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 }
 
 
-/*!
-  Handles mouse release events for the radio button.
-*/
+/*!  Obsolete; to be removed in Qt 2.0. */
 
 void QRadioButton::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( isOn() )				// cannot switch off
-	noHit = TRUE;
-    QButton::mouseReleaseEvent( e );		// send to button handler
-    noHit = FALSE;
+    QButton::mouseReleaseEvent( e );
 }
 
 
-/*!  Reimplemented to ignore toggle-off key events. */
+/*!  Obsolete; to be removed in Qt 2.0. */
 
 void QRadioButton::keyPressEvent( QKeyEvent * e )
 {
-    if ( isOn() && e->key() == Key_Space ) {
-	e->accept();
-	return;
-    }
     QButton::keyPressEvent( e );
 }
-
