@@ -121,7 +121,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_closeFormAction = new QAction(tr("&Close Form"), this);
     m_closeFormAction->setShortcut(tr("CTRL+W"));
-    connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(notImplementedYet()));
+    connect(m_closeFormAction, SIGNAL(triggered()), this, SLOT(closeForm()));
     m_fileActions->addAction(m_closeFormAction);
 
     sep = new QAction(this);
@@ -418,6 +418,12 @@ bool QDesignerActions::saveForm(AbstractFormWindow *fw)
     else
         ret =  writeOutForm(fw, fw->fileName());
     return ret;
+}
+
+void QDesignerActions::closeForm()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+        fw->window()->close();
 }
 
 void QDesignerActions::saveFormAs()

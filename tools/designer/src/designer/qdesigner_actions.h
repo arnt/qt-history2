@@ -116,6 +116,7 @@ private slots:
     void editWidgets();
     void openRecentForm();
     void clearRecentFiles();
+    void closeForm();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);
