@@ -2016,17 +2016,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			c = QTextCodec::codecForName("Apple Roman");
 		    accel_str = c->toUnicode(&chr, 1);
 		}
-		QKeyEvent accel_ev(QEvent::AccelOverride, mychar, chr, modifiers,
+		QKeyEvent accel_ev(etype, mychar, chr, modifiers,
 				   accel_str, ekind == kEventRawKeyRepeat,
 				   QMAX(1, accel_str.length()));
 		QApplication::sendSpontaneousEvent(widget, &accel_ev);
-		if(accel_ev.isAccepted()) {
-#ifdef DEBUG_KEY_MAPS
-		    qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
-			   widget ? widget->className() : "none", widget ? widget->name() : "",
-			   mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
-#endif
-		} else if(qt_tryAccelEvent(widget, &accel_ev)) {
+		if(qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
 		    qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
 			   widget ? widget->className() : "none", widget ? widget->name() : "",
@@ -2034,31 +2028,40 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 		    key_event = FALSE;
 		} else {
-		    HICommand hic;
-		    if(IsMenuKeyEvent(NULL, event, kNilOptions,
-				      &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
-			hic.attributes = kHICommandFromMenu;
-			if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
-						&hic.commandID))
-			    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
+		    accel_ev.t = QEvent::AccelOverride;
+		    QApplication::sendSpontaneousEvent(widget, &accel_ev);
+		    if(accel_ev.isAccepted()) {
+#ifdef DEBUG_KEY_MAPS
+			qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
+			       widget ? widget->className() : "none", widget ? widget->name() : "",
+			       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+#endif
+		    } else {
+			HICommand hic;
+			if(IsMenuKeyEvent(NULL, event, kNilOptions,
+					  &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
+			    hic.attributes = kHICommandFromMenu;
+			    if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
+						    &hic.commandID))
+				qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
-			if(QMenuBar::activateCommand(hic.commandID) ||
-			   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex,
-					      FALSE, TRUE)) {
+			    if(QMenuBar::activateCommand(hic.commandID) ||
+			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex,
+						  FALSE, TRUE)) {
 #ifdef DEBUG_KEY_MAPS
-			    qDebug("KeyEvent: Consumed by Menubar(1)");
-#endif
-
-			    key_event = FALSE;
-			} else
-#endif
-			    if(!ProcessHICommand(&hic)) {
-#ifdef DEBUG_KEY_MAPS
-				qDebug("KeyEvent: Consumed by an HICommand(1)");
+				qDebug("KeyEvent: Consumed by Menubar(1)");
 #endif
 				key_event = FALSE;
-			    }
+			    } else
+#endif
+				if(!ProcessHICommand(&hic)) {
+#ifdef DEBUG_KEY_MAPS
+				    qDebug("KeyEvent: Consumed by an HICommand(1)");
+#endif
+				    key_event = FALSE;
+				}
 			}
+		    }
 		}
 	    }
 	    if(key_event) {
