@@ -30,6 +30,7 @@ public:
 #endif
     void showSummary();
     void findProjects( const QString& dirName );
+    QString firstLicensePath();
 
 #if !defined(EVAL)
     void readLicense();

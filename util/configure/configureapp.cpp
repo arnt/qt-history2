@@ -181,6 +181,24 @@ Configure::~Configure()
     }
 }
 
+// We could use QDir::homePath() + "/.qt-license", but
+// that will only look in the first of $HOME,$USERPROFILE
+// or $HOMEDRIVE$HOMEPATH. So, here we try'em all to be
+// more forgiving for the end user..
+QString Configure::firstLicensePath()
+{
+    QStringList allPaths;
+    allPaths << "./.qt-license"
+             << QString::fromLocal8Bit(getenv("HOME")) + "/.qt-license"
+             << QString::fromLocal8Bit(getenv("USERPROFILE")) + "/.qt-license"
+             << QString::fromLocal8Bit(getenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH")) + "/.qt-license";
+    for (int i = 0; i< allPaths.count(); ++i)
+        if (QFile::exists(allPaths.at(i)))
+            return allPaths.at(i);
+    return QString();
+}
+
+
 #if !defined(EVAL)
 void Configure::buildModulesList()
 {
@@ -1278,7 +1296,7 @@ void Configure::displayConfig()
     // Give some feedback
     if( QFile::exists( dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" ) ) {
 	cout << "Trolltech license file used." << dictionary[ "QT_SOURCE_TREE" ] + "/LICENSE.TROLL" << endl;
-    } else if ( QFile::exists( QDir::homeDirPath() + "/.qt-license" ) ) {
+    } else if ( !firstLicensePath().isEmpty() ) {
 	QString l1 = licenseInfo[ "LICENSEE" ];
 	QString l2 = licenseInfo[ "LICENSEID" ];
 	QString l3 = licenseInfo[ "PRODUCTS" ];
@@ -1672,9 +1690,9 @@ static uint convertor( const QString &list )
 #if !defined(EVAL)
 void Configure::readLicense()
 {
-    QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
+    QFile licenseFile( firstLicensePath() );
     if( licenseFile.open( IO_ReadOnly ) ) {
-	cout << "Reading license file in....." << QDir::homeDirPath().latin1() << endl;
+	cout << "Reading license file in....." << firstLicensePath().latin1() << endl;
 	QString buffer;
 
 	while( licenseFile.readLine( buffer, 1024 ) > 0 ) {
