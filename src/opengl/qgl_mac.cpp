@@ -143,6 +143,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = pmDepth;
     } else {
+	attribs[cnt++] = AGL_RGBA;
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = 8;
     }
@@ -158,6 +159,10 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 
     attribs[cnt] = AGL_NONE;
     AGLPixelFormat fmt = aglChoosePixelFormat(&device, 1, attribs);
+    if(!fmt) {
+	GLenum err = aglGetError();
+	qDebug("got an error tex: %d", err);
+    }
     return fmt;
 }
 
@@ -177,6 +182,8 @@ void QGLContext::reset()
     initDone = FALSE;
 }
 
+static RgnHandle old_clip = NULL;
+QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 
 void QGLContext::makeCurrent()
 {
@@ -188,6 +195,17 @@ void QGLContext::makeCurrent()
     }
 
     QMacSavedPortInfo::setPaintDevice(paintDevice);
+    if(0 && !deviceIsPixmap()) {
+	QWidget *w = (QWidget *)paintDevice;
+
+	if(!old_clip)
+	    old_clip = NewRgn();
+	GetClip(old_clip);
+	SetClip((RgnHandle)w->clippedRegion().handle());
+
+	QPoint mp(posInWindow(w));
+	SetOrigin(-mp.x(), -mp.y());
+    }
     aglSetCurrentContext((AGLContext)cx);
     currentCtx = this;
 }
@@ -196,7 +214,14 @@ void QGLContext::doneCurrent()
 {
     if ( currentCtx != this )
 	return;
+
     currentCtx = 0;
+    QMacSavedPortInfo::setPaintDevice(paintDevice);
+    if(0 && !deviceIsPixmap()) {
+	if(old_clip)
+	    SetClip(old_clip);
+	SetOrigin(0, 0);
+    }
     aglSetCurrentContext(NULL);
 }
 
@@ -213,10 +238,48 @@ QColor QGLContext::overlayTransparentColor() const
     return QColor();		// Invalid color
 }
 
-
-uint QGLContext::colorIndex( const QColor&) const
+static QColor cmap[256];
+static bool init = FALSE;
+uint QGLContext::colorIndex( const QColor&c) const
 {
-    return 0;
+    qDebug("called..");
+
+    int ret = -1;
+    if(!init) {
+	init = TRUE;
+	for(int i = 0; i < 256; i++)
+	    cmap[i] = QColor();
+    } else {
+	for(int i = 0; i < 256; i++) {
+	    if(cmap[i].isValid() && cmap[i] == c) {
+		ret = i;
+		break;
+	    }
+	}
+    }
+    if(ret == -1) {
+	for(ret = 0; ret < 256; ret++) 
+	    if(!cmap[ret].isValid())
+		break;
+	if(ret == 256) {
+	    ret = -1;
+	    qDebug("whoa, I'm fucked..");
+	} else {
+	    qDebug("creating color %d %d %d :: at %d", c.red(), c.green(), c.blue(), ret);
+	    cmap[ret] = c;
+
+	    qDebug("done.. %d", __LINE__);
+	    GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
+	    qDebug("done.. %d", __LINE__);
+	    AGLRendererInfo info = aglQueryRendererInfo(&dev, 1);
+	    qDebug("done.. %d", __LINE__);
+	    GLint val = ret << 24 | (c.red() << 16) | (c.green() << 8) | c.blue();
+	    qDebug("done.. %d", __LINE__);
+	    aglDescribeRenderer(info, AGL_COLORMAP_ENTRY, &val);
+	    qDebug("done.. %d", __LINE__);
+	}
+    }
+    return (uint)(ret == -1 ? 0 : ret);
 }
 
 
@@ -266,6 +329,7 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 {
     if ( !isValid() )
 	return;
+    aglUpdateContext((AGLContext)context()->cx);
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -333,18 +397,23 @@ void QGLWidget::setContext( QGLContext *context,
     QGLContext* oldcx = glcx;
     glcx = context;
 
+#if 0
     bool doShow = FALSE;
     if ( oldcx && !glcx->deviceIsPixmap() ) {
 	doShow = isVisible();
 	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
     }
+#endif
 
     if ( !glcx->isValid() )
 	glcx->create( shareContext ? shareContext : oldcx );
     if ( deleteOldContext )
 	delete oldcx;
+
+#if 0
     if ( doShow )
 	show();
+#endif
 }
 
 
