@@ -45,8 +45,8 @@
 
   \ingroup io
 
-  QBuffer allows reading and writing a memory buffer. It is normally
-  used together with a QTextStream or a QDataStream.  QBuffer has an
+  QBuffer is used to read and write to a memory buffer. It is normally
+  used with a QTextStream or a QDataStream.  QBuffer has an
   associated QByteArray which holds the buffer data. The size() of the
   buffer is automatically adjusted as data is written.
 
@@ -59,7 +59,7 @@
   (read-only, write-only, etc.).  close() closes the buffer. The buffer
   must be closed before reopening or calling setBuffer().
 
-  The common way to use QBuffer is through \l QDataStream or \l QTextStream,
+  A common way to use QBuffer is through \l QDataStream or \l QTextStream,
   which have constructors that take a QBuffer parameter. For
   convenience, there are also QDataStream and QTextStream constructors
   that take a QByteArray parameter.  These constructors create and open
@@ -169,14 +169,14 @@ bool QBuffer::setBuffer( QByteArray buf )
 
 /*!
   \reimp
-  Opens the buffer in the mode \a m.  Returns TRUE if successful;
-  otherwise it returns FALSE. The buffer must be opened before use.
+  Opens the buffer in mode \a m.  Returns TRUE if successful;
+  otherwise returns FALSE. The buffer must be opened before use.
 
   The mode parameter \a m must be a combination of the following flags.
   <ul>
-  <li>\c IO_ReadOnly opens a buffer in read-only mode.
-  <li>\c IO_WriteOnly opens a buffer in write-only mode.
-  <li>\c IO_ReadWrite opens a buffer in read/write mode.
+  <li>\c IO_ReadOnly opens the buffer in read-only mode.
+  <li>\c IO_WriteOnly opens the buffer in write-only mode.
+  <li>\c IO_ReadWrite opens the buffer in read/write mode.
   <li>\c IO_Append sets the buffer index to the end of the buffer.
   <li>\c IO_Truncate truncates the buffer.
   </ul>

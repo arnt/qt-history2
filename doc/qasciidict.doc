@@ -71,11 +71,13 @@
 	dict.insert( "Norway", "Oslo" );
 
 	printf( "%s\n", dict["Norway"] );
-	printf( "%s\n", dict["FRANCE"] );
-	printf( "%s\n", dict["russia"] );
+	printf( "%s\n", dict["france"] );
+	printf( "%s\n", dict["RUSSIA"] );
 
-	if ( !dict["Italy"] )
-	    printf( "Italy not defined\n" );
+	dict.remove( "France" );
+
+	if ( !dict["France"] )
+	    printf( "France not defined\n" );
     }
   \endcode
 
@@ -84,7 +86,7 @@
 	Oslo
 	Paris
 	Moscow
-	Italy not defined
+	France not defined
   \endcode
 
   The dictionary in our example maps \c char* keys to \c char* items.
@@ -113,31 +115,6 @@
   Items with equal keys are allowed.  When inserting two items with the
   same key, only the last inserted item will be visible (last in, first out)
   until it is removed.
-
-  Example:
-  \code
-    #include <qdict.h>
-    #include <stdio.h>
-
-    void main()
-    {
-      // Creates a dictionary that maps char* ==> char* (case sensitive)
-	QAsciiDict<char> dict;
-
-	dict.insert( "Germany", "Berlin" );
-	dict.insert( "Germany", "Bonn" );
-
-	printf( "%s\n", dict["Germany"] );
-	dict.remove( "Germany" );	// Oct 3rd 1990
-	printf( "%s\n", dict["Germany"] );
-    }
-  \endcode
-
-  Program output:
-  \code
-	Bonn
-	Berlin
-  \endcode
 
   The QAsciiDictIterator class can traverse the dictionary contents, but only
   in an arbitrary order.  Multiple iterators may independently traverse the
@@ -169,8 +146,8 @@
   Constructs a dictionary optimized for less than \a size entries.
 
   We recommend setting \e size to a suitably large prime number (a bit
-  greater than the expected number of entries). This makes the hash
-  distribution better and hence the loopup faster.
+  larger than the expected number of entries). This makes the hash
+  distribution better and hence the lookup faster.
 
   When \a caseSensitive is TRUE (the default) QAsciiDict treats "abc"
   and "Abc" as different keys; when it is FALSE "abc" and "Abc" are
@@ -193,6 +170,8 @@
 /*!
   \fn QAsciiDict::~QAsciiDict()
   Removes all items from the dictionary and destroys it.
+
+  The items are deleted if auto-delete is enabled.
 
   All iterators that access this dictionary will be reset.
 
@@ -332,8 +311,8 @@
 
   This function uses an internal hashing algorithm to optimize lookup.
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be found.
+  If there are two or more items with equal keys, then the item that was
+  most recently inserted will be found.
 
   Equivalent to the [] operator.
 
@@ -348,8 +327,8 @@
 
   This function uses an internal hashing algorithm to optimize lookup.
 
-  If there are two or more items with equal keys, then the last inserted
-  of these will be found.
+  If there are two or more items with equal keys, then the item that was
+  most recently inserted will be found.
 
   Equivalent to the find() function.
 
@@ -409,14 +388,14 @@
 	France -> Paris
   \endcode
 
-  Note that the traversal order is arbitrary; you are not guaranteed the
-  order above.
+  Note that the traversal order is arbitrary; you are not guaranteed any
+  particular order.
 
-  Multiple iterators may independently traverse the same dictionary.
-  A QAsciiDict knows about all iterators that are operating on the dictionary.
-  When an item is removed from the dictionary, QAsciiDict updates all iterators
-  that are referring the removed item to point to the next item in the
-  traversing order.
+  Multiple iterators may independently traverse the same dictionary. A
+  QAsciiDict knows about all the iterators that are operating on the
+  dictionary. When an item is removed from the dictionary, QAsciiDict
+  updates all the iterators that are referring the removed item to point
+  to the next item in the (arbitrary) traversal order.
 
   \sa QAsciiDict, \link collection.html Collection Classes\endlink
 */
@@ -434,14 +413,15 @@
 
 /*!
   \fn uint QAsciiDictIterator::count() const
-  Returns the number of items in the dictionary this iterator operates on.
+  Returns the number of items in the dictionary this iterator operates
+  over.
   \sa isEmpty()
 */
 
 /*!
   \fn bool QAsciiDictIterator::isEmpty() const
-  Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise FALSE.
-  \sa count()
+  Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise
+  returns FALSE. \sa count()
 */
 
 /*!
@@ -487,10 +467,10 @@
 
 /*!
   \fn type *QAsciiDictIterator::operator+=( uint jump )
-  Sets the current item to the item \e jump positions after the current item,
-  and returns a pointer to that item.
+  Sets the current item to the item \e jump positions after the current
+  item, and returns a pointer to that item.
 
-  If that item is beyond the last item or if the dictionary is  empty,
+  If that item is beyond the last item or if the dictionary is empty,
   it sets the current item to null and  returns null.
 */
 

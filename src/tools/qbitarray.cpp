@@ -84,8 +84,6 @@
   \ingroup tools
   \ingroup shared
 
-  QString inherits QByteArray, which is defined as QArray\<char\>.
-
   Because QBitArray is a QArray, it uses explicit
   \link shclass.html sharing\endlink with a reference count.
 
@@ -113,6 +111,14 @@
     QBitArray c;
     c = ~a & b;				// c = [0 1 0]
   \endcode
+
+  When a QBitArray is constructed the bits are uninitialized. Use fill()
+  to set all the bits to 0 or 1. The array can be resized with resize()
+  and copied with copy(). Bits can be set with setBit() and cleared with
+  clearBit(). Bits can be toggled with toggleBit(). A bit's value can be
+  obtained with testBit() and with at().
+
+  QBitArray supports the & (AND), | (OR), ^ (XOR) and ~ (NOT) operators.
 */
 
 
@@ -130,6 +136,8 @@ QBitArray::QBitArray() : QByteArray( 0, 0 )
 
 /*!
   Constructs a bit array of \a size bits. The bits are uninitialized.
+
+  \sa fill()
 */
 
 QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
@@ -194,12 +202,13 @@ bool QBitArray::resize( uint size )
 
 
 /*!
-  Fills the bit array with \a v (1's if \a v is TRUE, or 0's if \a v is FALSE).
+  Fills the bit array with \a v (1's if \a v is TRUE, or 0's if \a v is
+  FALSE).
 
   fill() resizes the bit array to \a size bits if \a size is nonnegative.
 
-  Returns FALSE if a nonnegative \e size was specified the bit array could
-  not be resized; otherwise returns TRUE.
+  Returns FALSE if a nonnegative \e size was specified and the bit array
+  could not be resized; otherwise returns TRUE.
 
   \sa resize()
 */
@@ -222,7 +231,7 @@ bool QBitArray::fill( bool v, int size )
 
 /*!
   Detaches from shared bit array data and makes sure that this bit array
-  is the only one referring the data.
+  is the only one referring to the data.
 
   If multiple bit arrays share common data, this bit array dereferences the
   data and gets a copy of the data. Nothing will be done if there is just
@@ -253,7 +262,7 @@ QBitArray QBitArray::copy() const
 
 
 /*!
-  Returns TRUE if the bit at position \a index is set.
+  Returns TRUE if the bit at position \a index is set, i.e. is 1.
   \sa setBit(), clearBit()
 */
 
@@ -377,7 +386,7 @@ bool QBitArray::toggleBit( uint index )
   Returns a reference to this bit array.
 
   If the arrays have different sizes, the AND operation uses 0 for the
-  missing bits, as the following example shows:
+  missing bits, as the following example demonstrates:
   \code
     QBitArray a( 3 ), b( 2 );
     a[0] = 1;  a[1] = 0;  a[2] = 1;     // a = [1 0 1]
@@ -406,8 +415,8 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
   Performs the OR operation between all bits in this bit array and \a a.
   Returns a reference to this bit array.
 
-  The result has the length of the longest bit array of the two, with the bits
-  missing from the shortest array taken as 0.
+  The result has the length of the longest bit array of the two, with
+  the bits missing from the shortest array taken as 0.
 
   Example:
   \code
@@ -435,8 +444,8 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
   Performs the XOR operation between all bits in this bit array and \a a.
   Returns a reference to this bit array.
 
-  The result has the length of the longest bit array of the two, with the bits
-  missing from the shortest array taken as 0.
+  The result has the length of the longest bit array of the two, with
+  the bits missing from the shortest array taken as 0.
 
   Example:
   \code
