@@ -25,8 +25,9 @@
 
 #include "qconnection.h"
 
-// NOT REVISED
+// REVISED
 /*!
+  \internal
   \class QConnection qconnection.h
 
   \brief The QConnection class is an internal class, used in the
