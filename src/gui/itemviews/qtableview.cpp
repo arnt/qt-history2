@@ -617,8 +617,8 @@ void QTableView::columnCountChanged(int, int)
 
 void QTableView::updateGeometries()
 {
-    int width = d->verticalHeader->sizeHint().width();
-    int height = d->horizontalHeader->sizeHint().height();
+    int width = d->verticalHeader->isVisible() ? d->verticalHeader->sizeHint().width() : 0;
+    int height = d->verticalHeader->isVisible() ? d->horizontalHeader->sizeHint().height() : 0;
     bool reverse = QApplication::reverseLayout();
     setViewportMargins(reverse ? 0 : width, height, reverse ? width : 0, 0);
 

@@ -990,7 +990,7 @@ void QTreeView::columnWidthChanged(int column, int, int)
 
 void QTreeView::updateGeometries()
 {
-    QSize hint = d->header->sizeHint();
+    QSize hint = d->header->isVisible() ? d->header->sizeHint() : QSize(0, 0);
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();

@@ -62,8 +62,8 @@ public:
         inline bool operator>(int position) const
             { return (*this).position > position; }
     };
-    QVector<HeaderSection> sections; // section = sections.at(index)
-    QVector<int> indices; // index = indices.at(section)
+    mutable QVector<HeaderSection> sections; // section = sections.at(index)
+    mutable QVector<int> indices; // index = indices.at(section)
 
     int lastPos;
     int section; // used for resizing and moving sections
@@ -256,6 +256,10 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                          this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
     }
     QAbstractItemView::setModel(model);
+    // Users want to set sizes and modes before the widget is shown.
+    // Thus, we have to initialize when the model is set,
+    // and not lazily like we do in the other views.
+    initializeSections();
 }
 
 /*!
@@ -317,7 +321,7 @@ int QHeaderView::size() const
 
 QSize QHeaderView::sizeHint() const
 {
-    if (d->sections.isEmpty() || !isVisible())
+    if (d->sections.isEmpty())
             return QSize();
     QStyleOptionViewItem option = viewOptions();
     int row = orientation() == Qt::Horizontal ? 0 : section(count() - 1);
@@ -966,7 +970,7 @@ void QHeaderView::moveSection(int from, int to)
 */
 
 void QHeaderView::resizeSection(int section, int size)
-{
+{   
     int oldSize = sectionSize(section);
     if (oldSize == size)
         return;
