@@ -1980,8 +1980,10 @@ QSettings::QSettings(const QString &fileName, Qt::SettingsFormat format)
 #endif
 
 /*!
-    Destroys the QSettings object. Any unsaved changes will be
-    written to permanent storage at that point.
+    Destroys the QSettings object.
+
+    Any unsaved changes will eventually be written to permanent
+    storage.
 
     \sa sync()
 */
@@ -2026,8 +2028,8 @@ void QSettings::sync()
     Returns the path where settings written using this QSettings
     object are stored.
 
-    On Windows, if format() is Qt::NativeFormat, the return value is
-    a system registry path, not a file path.
+    On Windows, if the format is Qt::NativeFormat, the return value
+    is a system registry path, not a file path.
 
     \sa isWritable()
 */
