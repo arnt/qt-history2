@@ -104,6 +104,11 @@ QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
 {
 }
 
+QHostAddress::QHostAddress(const QString &address)
+    : d( new QHostAddressPrivate )
+{
+    setAddress( address );
+}
 
 /*!
     Creates a copy of \a address.

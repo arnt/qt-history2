@@ -34,6 +34,9 @@ public:
     QHostAddress();
     QHostAddress( Q_UINT32 ip4Addr );
     QHostAddress( Q_UINT8 *ip6Addr );
+#ifndef QT_NO_STRINGLIST
+    QHostAddress(const QString &address);
+#endif
     QHostAddress( const QHostAddress & );
     virtual ~QHostAddress();
 
