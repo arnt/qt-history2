@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#54 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#54 $")
 
 
 // Mac style parameters
@@ -105,7 +105,7 @@ static const motifTabSpacing	= 12;		// space between text and tab
 /*!
   Constructs a popup menu with a parent and a widget name.
 
-  The parent widget is ignored.  A pop-up menu has to be a top-level
+  The parent widget is ignored.	 A pop-up menu has to be a top-level
   widget, this argument is present merely for API uniformity.
 */
 
@@ -187,7 +187,7 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 
 
 void QPopupMenu::frameChanged()
-{    
+{
     menuContentsChanged();
 }
 
@@ -826,7 +826,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	register QMenuItem *mi = mitems->at( item );
 	QPopupMenu *popup = mi->popup();
 	if ( actItem == item ) {
-	    if ( popupActive == item ) {
+	    if ( popupActive == item && popup->actItem != -1 ) {
 		popup->actItem = -1;
 		popup->hidePopups();
 		popup->repaint( FALSE );
