@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.14 1999/03/23 06:30:25 agulbra Exp $
+** $Id: i18n.doc,v 1.15 1999/04/12 21:41:28 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -58,10 +58,14 @@ in the following stages:
 	</p>
  <li><b>Use \link QObject::tr() tr()\endlink for all literal text.</b>
 	<p>
-	Whe you use <tt>"quoted text"</tt> in the program for text
+	Where you use <tt>"quoted text"</tt> in the program for text
 	that will be presented to the user, ensure it goes through
-	the QApplication::translate() function by using tr() if the
-	quoted text is in a QObject/QWidget subclass, eg.:
+	the
+	\link QApplication::translate() QApplication::translate()\endlink
+       	function by using
+	\link QObject::tr() tr()\endlink if the
+	quoted text is in a QObject/QWidget subclass, eg. assuming
+	<tt>LoginWidget</tt> is such a class:
 	\code
 	LoginWidget::LoginWidget()
 	{
@@ -69,7 +73,9 @@ in the following stages:
 	    ...
 	}
 	\endcode
-	or, if the quoted text is not in a member function, by using
+
+	If the quoted text is not in a member function of a
+	QObject/QWidget subclass, use either
 	the tr() function of an approriate class, or the
 	QApplication::translate() function directly:
 	\code
@@ -89,7 +95,9 @@ in the following stages:
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
 	<p>
-	Provided with Qt is a utility program, findtr, that will extract
+	Provided with Qt is a utility program,
+	<tt>findtr</tt>,
+	that will extract
 	information about text to be translated.  It recognizes the constructs
 	above, plus two additions: QT_TR_NOOP() and QT_TRANSLATE_NOOP(),
        	for use in code where it is convenient to put the strings
@@ -113,17 +121,31 @@ in the following stages:
 	    return tr(greeting_strings[greet_type]);
 	}
 	\endcode
-	<i>The current version is a simple shell script that produces
-	    a .po file, which can be converted to a .qm file that QTranslator
-	    can load.</i>
+	<i>The current version is a simple Perl script that produces a
+	    <tt>.po</tt> file, which can be converted to a .qm file
+	    that QTranslator can load (using the <tt>msg2qm</tt>
+	    utility).</i>
 	</p>
  <li><b>Use QString::arg() for simple arguments.</b>
 	<p>
 	The printf() style of inserting arguments in strings
 	is a poor choice for internationalized text, as it is often
 	necessary to change the order of arguments when translating.
-	The QString::arg() functions offer simple
-	means for numbered arguments.
+	The
+	\link QString::arg() QString::arg()\endlink
+       	functions offer simple
+	means for numbered arguments:
+	\code
+	void FileCopier::showProgress(int done, int total,
+				      const QString& current_file )
+       	{
+	    label.setText( tr("%1 of %2 files copied.\nCopying: %3")
+			    .arg(done)
+			    .arg(total)
+			    .arg(current_file)
+			 );
+	}
+	\endcode
 	</p>
  <li><b>Support encodings.</b>
 	<p>
@@ -141,8 +163,25 @@ in the following stages:
  <li><b>Localization.</b>
 	<p>
 	Localization is the process of adapting to local conventions
-	such as date presentation.
+	such as date and time presentations.  Such localizations can be
+	accomplished using appropriate tr() strings, even "magic" words,
+	as this somewhat contrived example shows:
+	\code
+	void Clock::setTime(const QTime& t)
+	{
+	    if ( tr("AMPM") == "AMPM" ) {
+		// 12-hour clock
+	    } else {
+		// 24-hour clock
+	    }
+	}
+	\endcode
 	</p>
+
+	In general, it is recommended that you do \e not attempt
+	to localize images - choose clear icons that are appropriate
+	for all localities, rather than relying on local puns or
+	stretched metaphors.
 </ol>
 
 
