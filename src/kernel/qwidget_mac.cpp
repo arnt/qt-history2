@@ -832,7 +832,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if((GetAvailableWindowAttributes(wclass) & wattr) != wattr) {
 	    if(!grp)
 		grp = GetWindowGroupOfClass(wclass);
-	    wclass = kUtilityWindowClass;
+	    wclass = kFloatingWindowClass;
 	}
 
 #ifdef QMAC_USE_WDEF
