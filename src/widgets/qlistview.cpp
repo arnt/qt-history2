@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#319 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#320 $
 **
 ** Implementation of QListView widget class
 **
@@ -1055,8 +1055,11 @@ void QListViewItem::setText( int column, const QString &text )
     l->text = text;
     int oldW = listView()->columnWidth( column );
     widthChanged( column );
-    if ( parent() && listView()->autoResort() && listView()->d->sortcolumn != -1 ) {
- 	parent()->lsc = Unsorted;
+    if ( listView()->autoResort() && listView()->d->sortcolumn != -1 ) {
+ 	if ( parent() )
+	    parent()->lsc = Unsorted;
+	else
+	    listView()->d->r->lsc = Unsorted;
 	listView()->triggerUpdate();
     } else if ( oldW != listView()->columnWidth( column ) )
 	listView()->triggerUpdate();
