@@ -147,7 +147,7 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   drawLine(), drawRect(), drawWinFocusRect(), drawRoundRect(),
   drawEllipse(), drawArc(), drawPie(), drawChord(),
   drawLineSegments(), drawPolyline(), drawPolygon(),
-  drawConvexPolygon() and drawQuadBezier().  All of these functions
+  drawConvexPolygon() and drawCubicBezier().  All of these functions
   take integer coordinates; there are no floating-point
   versions. Floatint-point operations are outside the scope of
   QPainter (providing \e fast drawing of the things GUI programs
