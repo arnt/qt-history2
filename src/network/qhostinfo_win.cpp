@@ -102,10 +102,13 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                 }
             }
             results.setAddresses(addresses);
+        } else if (WSAGetLastError() == WSAHOST_NOT_FOUND || WSAGetLastError() == WSANO_DATA) {
+            results.setError(QHostInfo::HostNotFound);
+            results.setErrorString(tr("Host not found"));
         } else {
             results.setError(QHostInfo::UnknownError);
             results.setErrorString(tr("Unknown error"));
-            // Get the error messages returned by getaddrinfo's gai_strerror
+            // Get the error messages returned by getaddrinfo's gai_strerror //### not thread safe why use them!!
             QT_WA( {
                 typedef char *(*gai_strerrorWProto)(int);
                 gai_strerrorWProto local_gai_strerrorW;
