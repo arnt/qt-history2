@@ -87,7 +87,7 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
     return true;
 }
 
-const unsigned char * p_str(const char *);
+const unsigned char * p_str(const char *, int len=-1);
 QMAC_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      const void *fullPath,
 				      FSSpec *spec);

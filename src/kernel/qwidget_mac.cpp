@@ -393,7 +393,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
 	if(!isTopLevel() && oldp->isWidgetType()) 
-	    InvalWindowRect((WindowPtr)((QWidget *)oldp)->hd, mac_rect(posInWindow(this), geometry().size()));
+	    InvalWindowRect((WindowPtr)old_winid, mac_rect(posInWindow(this), geometry().size()));
     }
 
     if ( old_winid && own_id && isTopLevel() ) {

@@ -308,19 +308,25 @@ static QtMsgHandler handler = 0;			// pointer to debug handler
 
 
 #ifdef Q_OS_MAC
-const unsigned char * p_str(const char * c)
+const unsigned char * p_str(const char * c, int len=-1)
 {
     static unsigned char * ret=NULL;
     static int ret_len = 0;
 
-    int len = qstrlen(c);
+    if(len == -1)
+	len = qstrlen(c);
     if(len > ret_len) {
 	delete ret;
 	ret = new unsigned char[ret_len = (len+2)];
     }
     ret[0]=len;
-    qstrcpy(((char *)ret)+1,c);
+    memcpy(((char *)ret)+1,c,len);
     return ret;
+}
+
+const unsigned char * p_str(const QString &s)
+{
+    return p_str(s, s.length());
 }
 
 QCString p2qstring(const unsigned char *c) {

@@ -51,7 +51,7 @@
 #include "qt_mac.h"
 
 static QString qt_cwd = "";
-const unsigned char * p_str(const char * c); //qwidget_mac.cpp
+const unsigned char * p_str(const char * c, int len=-1); //qglobal_mac.cpp
 
 FSSpec *QDir::make_spec(const QString &f)
 {

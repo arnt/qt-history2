@@ -42,7 +42,7 @@
 #include "qdir.h"
 #include "qt_mac.h"
 
-const unsigned char * p_str(const char * c); //qwidget_mac.cpp
+const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
 
 bool qt_file_access( const QString& fn, int t )
 {

@@ -12,7 +12,7 @@
 #include <qpainter.h>
 
 /* utility functions */
-static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
+static inline void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
 {
     UnicodeMapping mapping;
     UnicodeToTextInfo info;
@@ -27,7 +27,6 @@ static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding enc
     const int unilen = len * 2;
     const UniChar *unibuf = (UniChar *)s.unicode(); //don't use pos here! FIXME
     ConvertFromUnicodeToPString( info, unilen, unibuf, str  );
-    return TRUE;
 }
 
 /* font information */
@@ -134,9 +133,31 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
     return err == noErr ? noErr : kTECUnmappableElementErr;
 }
 
+const unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02 };
 static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task)
 {
+    //latin1 optimization
+    {
+	uint is_latin = 1;
+	const QChar *chs = s.unicode() + pos;
+	for(int i = 0; i < len; i++) {
+	    if(chs[i].row()) {
+		is_latin = 0;
+		break;
+	    }
+	}
+	if(is_latin) {
+	    int ret = 0;
+	    const unsigned char *str = p_str(s.mid(pos, len));
+	    if(task & GIMME_WIDTH)
+		ret = StringWidth(str);
+	    if(task & GIMME_DRAW)
+		DrawString(str);
+	    return ret;
+	}
+    }
+
     //set the grafport font
     QMacSetFontInfo fi(d);
     FontInfo setfi; GetFontInfo(&setfi);
@@ -367,6 +388,8 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 
 void QFontPrivate::load()
 {
+    if(!request.dirty)
+	return;
     request.dirty=FALSE;
 
     QString k = key();
