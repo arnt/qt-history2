@@ -4425,7 +4425,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
 
     if (!data.isNull() && data.size() > 0) {
         const BYTE* b = (const BYTE *)data.constData();
-        if (b[0] == 0x80 && b[6] == '%' && b[7] == '!' && b[8] == 'P' && b[9] == 'S')
+        if (b[0] == 0x80 && b[1] == 0x01 && b[6] == '%' && b[7] == '!')
             type = PFB;
         else if (b[0] == '%' && b[1] == '!' && b[2] == 'P' && b[3] == 'S')
             type = PFA;
