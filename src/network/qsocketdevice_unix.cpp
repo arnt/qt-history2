@@ -354,8 +354,10 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 	fetchConnectionParameters();
 	return TRUE;
     }
-    if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS )
+    if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS ) {
+	fetchConnectionParameters();
 	return TRUE;
+    }
     if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	return FALSE;
     }
@@ -907,6 +909,7 @@ void QSocketDevice::fetchConnectionParameters()
 	p = ntohs( sa.sin_port );
 	a = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
     }
+    sz = sizeof( sa );
     if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) ) {
 	pp = ntohs( sa.sin_port );
 	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
