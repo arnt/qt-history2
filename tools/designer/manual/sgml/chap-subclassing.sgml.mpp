@@ -14,6 +14,10 @@ change more often than the underlying application.
 
 <sect1 id="subclassing">
 <title>Subclassing</title>
+<para>
+We'll start with a general description of how to subclass a form and
+follow with a short example.
+</para>
 
 <sect2 id="turningdesignersuifilesintosourcecode">
 <title>Turning Designer's .ui files into Source Code </title>
@@ -111,6 +115,49 @@ to the project file. The <filename>settingsdialog.h</filename> and
 <filename>settingsdialog.cpp</filename> files will be generated from the
 <filename>.ui</filename> file.
 </para>
+</sect2>
+
+
+<sect2 id="asubclassingexample">
+<title>A Subclassing Example </title>
+<para>
+We will write a small example dialog to show the use of subclassing in
+practice. Our dialog will ask the user to enter either a Customer ID or
+a Customer Name but not both. We'll implement this functionality in a
+subclass. We'll start by creating the base form and
+connecting up its signals and slots, then we'll create the subclass and
+a simple <filename>main.cpp</filename> so that we can test it.
+</para>
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+Click <guimenuitem>File|New Project</guimenuitem> and type in a project
+name of 'customer' and a project file name of 'customer.pro' then click
+\ok. 
+</para>
+</listitem>
+<listitem>
+<para>
+Click <guimenuitem>File|New</guimenuitem> to invoke the New Form
+dialog. The default form is Dialog which is what we want; click \ok.
+</para>
+</listitem>
+<listitem>
+<para>
+Resize the form to make it smaller; it should be about 3 inches (5 cm)
+wide by about 1.5 inches (3 cm) high. Change the form's name to
+'CustomerDialogBase' and the caption to 'Customer ID'. Save the form as
+'customerdialogbase.ui'
+</para>
+</listitem>
+<listitem>
+<para>
+Click the <guibutton>Text Label</guibutton> toolbar button, then click
+on the form towards the top left.
+</para>
+</listitem>
+</orderedlist>
+
 </sect2>
 
 </sect1>
