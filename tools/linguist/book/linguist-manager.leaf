@@ -6,6 +6,9 @@ Two tools are provided for the release manager, \l lupdate and \l
 lrelease. These tools depend on \e qmake project files. You don't
 have to use \e qmake, though.
 
+A third tool, \c qm2ts, can be used for converting Qt 2.x message
+files to \c .ts files.
+
 \section1 Qt Project Files
 
 \index .pro Files
@@ -50,12 +53,15 @@ An example of a complete \c .pro file with four translation source files:
 \index QApplication!defaultCodec()
 \index defaultCodec()!QApplication
 \index DEFAULTCODEC!in Project Files
+\index Chinese Language
+\index Japanese Language
 
 \l QApplication::setDefaultCodec() makes it possible to choose a
 8-bit encoding for literal strings that appear within \c tr() calls.
-If no encoding is set, \c tr() uses Latin-1.
+This is useful for applications whose source language is, for example,
+Chinese or Japanese. If no encoding is set, \c tr() uses Latin-1.
 
-If you use the QApplication::defaultCodec() mechanism in your
+If you do use the QApplication::defaultCodec() mechanism in your
 application, \e {Qt Linguist} needs you to set the \c DEFAULTCODEC
 entry in the \c .pro file as well. For example:
 \code
@@ -68,11 +74,14 @@ entry in the \c .pro file as well. For example:
 
 Usage: \c {lupdate myproject.pro}
 
+  \index Qt Designer
+
 This is a simple command line tool. \l lupdate reads a Qt \c .pro
-project file and produces or updates the \c .ts translation source
-files listed in the project file. The translation files are given to
-the translator who uses \e {Qt Linguist} to read the files and insert
-the translations.
+project file, finds the translatable strings in the specified source,
+header and \e {Qt Designer} interface files, and produces or updates
+the \c .ts translation files listed in the project file. The
+translation files are given to the translator who uses \e {Qt
+Linguist} to read the files and insert the translations.
 
 Companies that have their own translators in-house may find it useful
 to run \l lupdate regularly, perhaps monthly, as the application
