@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#12 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#13 $
 **
 ** Definition of QRect class
 **
@@ -54,7 +54,6 @@ public:
     void   setTopRight( const QPoint &p );	// move; top right at p
     void   setBottomLeft( const QPoint &p );	// move; bottom left at p
     void   setCenter( const QPoint &p );	// move; center at p
-    void   setCenter( int x, int y ) { setCenter( QPoint( x, y ) ); }
     void   move( int dx, int dy );		// move; displace by dx,dy
     void   setRect( int x, int y, int w, int h );
     void   setCoords( int x1, int y1, int x2, int y2 );
@@ -66,7 +65,6 @@ public:
     void   setHeight( int h );			// set height
     void   setSize( const QSize &s );		// set size
 
-    bool   contains( const QPoint &p, bool proper=FALSE ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;
     QRect  intersect( const QRect &r ) const;
