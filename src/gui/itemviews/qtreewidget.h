@@ -96,6 +96,12 @@ public:
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
+    inline void hide() { setHidden(true); }
+    inline void show() { setHidden(false); }
+
+    bool isHidden() const;
+    void setHidden(bool hide);
+
 protected:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
@@ -109,9 +115,10 @@ protected:
 
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<Data> > values;
+    QTreeWidget *view;
 
 private:
-    QTreeWidget *view;
+    QTreeModel *model;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     QAbstractItemModel::ItemFlags itemFlags;

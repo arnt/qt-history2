@@ -688,8 +688,9 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
-    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
-                                 |QAbstractItemModel::ItemIsEnabled)
+    : view(0), model(0), par(0),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
 }
 
@@ -701,11 +702,12 @@ QTreeWidgetItem::QTreeWidgetItem()
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
-    : view(view), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
-                                    |QAbstractItemModel::ItemIsEnabled)
+    : view(view), model(0), par(0),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        model = ::qt_cast<QTreeModel*>(view->model());
         if (model) {
             model->tree.append(this);
             model->emitRowsInserted(this);
@@ -719,11 +721,12 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
-    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
-                                 |QAbstractItemModel::ItemIsEnabled)
+    : view(0), model(0), par(0),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        model = ::qt_cast<QTreeModel*>(view->model());
         if (model) {
             int i = model->tree.indexOf(after);
             model->tree.insert(i, this);
@@ -737,7 +740,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
-    : view(parent->view), par(parent),
+    : view(0), model(0), par(parent),
       itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled)
 {
@@ -751,6 +754,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
+    : view(0), model(0), par(parent),
+      itemFlags(QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent) {
         int i = parent->indexOfChild(after);
@@ -775,11 +781,8 @@ QTreeWidgetItem::~QTreeWidgetItem()
         return;
     }
 
-    if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-        if (model)
-            model->remove(this);
-    }
+    if (model)
+        model->remove(this);
 }
 
 /*!
@@ -811,10 +814,8 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         }
     }
     values[column].append(Data(role, value));
-    if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+    if (model)
         model->itemChanged(this);
-    }
 }
 
 /*!
@@ -850,12 +851,13 @@ void QTreeWidgetItem::appendChild(QTreeWidgetItem *child)
 
 void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
+    // FIXME: here we have a problem;
+    // the user could build up a tree and then insert the root in the view
     children.insert(index, child);
-    if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-        if (model)
-            model->emitRowsInserted(child);
-    }
+    child->view = view;
+    child->model = model;
+    if (model)
+        model->emitRowsInserted(child);
 }
 
 /*!
@@ -864,12 +866,28 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
-    if (view) {
-        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-        if (model)
-            model->emitRowsRemoved(children.at(index));
-    }
+    if (model)
+        model->emitRowsRemoved(children.at(index));
     return children.takeAt(index);
+}
+
+bool QTreeWidgetItem::isHidden() const
+{
+    if (view && model) {
+        QModelIndex index = model->index(const_cast<QTreeWidgetItem*>(this));
+        QModelIndex parent = model->parent(index);
+        return view->isRowHidden(index.row(), parent);
+    }
+    return false;
+}
+
+void QTreeWidgetItem::setHidden(bool hide)
+{
+    if (view && model) {
+        QModelIndex index = model->index(this);
+        QModelIndex parent = model->parent(index);
+        view->setRowHidden(index.row(), parent, hide);
+    }
 }
 
 /*!
@@ -878,7 +896,8 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
-    LessThan compare = order == Qt::AscendingOrder ? &QTreeModel::lessThan : &QTreeModel::greaterThan;
+    LessThan compare = (order == Qt::AscendingOrder
+                        ? &QTreeModel::lessThan : &QTreeModel::greaterThan);
     qHeapSort(children.begin(), children.end(), compare);
     if (!climb)
         return;
