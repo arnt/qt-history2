@@ -13,6 +13,7 @@
 #include <qpainter.h>
 #include <qcheckbox.h>
 #include <qvbox.h>
+#include <qimage.h>
 #include "printpreview.h"
 
 
