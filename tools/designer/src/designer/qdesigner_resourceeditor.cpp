@@ -40,10 +40,11 @@ QRect QDesignerResourceEditor::geometryHint() const
 {
     QRect g = workbench()->availableGeometry();
     int margin = workbench()->marginHint();
-    int spacing = 40;
 
-    QSize sz(g.width() * 1/4, g.height() * 4/6);
+    QRect r(QPoint(0, 0), QSize(g.width() * 1/4, g.height() * 1/6));
 
-    return QRect((g.width() - sz.width() - margin), (margin + g.height() * 1/6) + spacing,
-                  sz.width(), sz.height());
+    r.moveCenter(g.center());
+    r.moveTop(g.top() + margin);
+
+    return r;
 }
