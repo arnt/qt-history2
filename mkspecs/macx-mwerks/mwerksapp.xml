@@ -74,15 +74,15 @@
                         <SETTING><NAME>Recursive</NAME><VALUE>true</VALUE></SETTING>
                         <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
                     </SETTING>
-                    <SETTING><NAME>SearchPath</NAME>
-                      <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
-                      <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
-                      <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
-                    </SETTING>
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
                     $$CODEWARRIOR_INCLUDEPATH
                     $$CODEWARRIOR_DEPENDPATH
+                    <SETTING><SETTING><NAME>SearchPath</NAME>
+                      <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:MW_Runtime:Libs:</VALUE></SETTING>
+                      <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
+                      <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
+                    </SETTING></SETTING>
                 </SETTING>
 
                 <!-- Settings for "Debugger Runtime" panel -->
@@ -628,7 +628,7 @@
                 <SETTING><NAME>MWLinker_MachO_symfullpath</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_supresswarnings</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_multisymerror</NAME><VALUE>1</VALUE></SETTING>
-                <SETTING><NAME>MWLinker_MachO_prebind</NAME><VALUE>0</VALUE></SETTING>
+                <SETTING><NAME>MWLinker_MachO_prebind</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_objectivecsemantics</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_whichfileloaded</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWLinker_MachO_whyfileloaded</NAME><VALUE>0</VALUE></SETTING>
