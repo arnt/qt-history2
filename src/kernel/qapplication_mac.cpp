@@ -1466,24 +1466,27 @@ int QApplication::macProcessEvent(MSG * m)
 	    } else {
 		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 	    }
+
+	    //set the cursor up
+	    Cursor *n = NULL;
+	    if(!widget) //not over the app, don't set a cursor..
+		;
+	    else if(widget->extra && widget->extra->curs)
+		n = (Cursor *)widget->extra->curs->handle();
+	    else if(cursorStack)
+		n = (Cursor *)app_cursor->handle();
+	    if(!n)
+		n = (Cursor *)arrowCursor.handle(); //I give up..
+	    if(currentCursor != n)
+		SetCursor(currentCursor = n);
+	    if ( qt_mouseover != widget ) {
+		qt_dispatchEnterLeave( widget, qt_mouseover );
+		qt_mouseover = widget;
+	    }
+
 	    if ( widget ) {
 		if ( app_do_modal && !qt_try_modal(widget, er) )
 		    return 1;
-
-		//set the cursor up
-		Cursor *n = NULL;
-		if(widget->extra && widget->extra->curs)
-		    n = (Cursor *)widget->extra->curs->handle();
-		else if(cursorStack)
-		    n = (Cursor *)app_cursor->handle();
-		if(!n)
-		    n = (Cursor *)arrowCursor.handle(); //I give up..
-		if(currentCursor != n)
-		    SetCursor(currentCursor = n);
-		if ( qt_mouseover != widget ) {
-		    qt_dispatchEnterLeave( widget, qt_mouseover );
-		    qt_mouseover = widget;
-		}
 
 		//ship the event
 		QPoint p( er->where.h, er->where.v );
