@@ -23,7 +23,7 @@ class QSqlRelationalDelegate: public QItemDelegate
 {
 public:
 
-explicit QSqlRelationalDelegate(QObject *parent)
+explicit QSqlRelationalDelegate(QObject *parent = 0)
     : QItemDelegate(parent)
 {}
 
@@ -31,8 +31,8 @@ explicit QSqlRelationalDelegate(QObject *parent)
 {}
 
 QWidget *createEditor(QWidget *parent,
-                                              const QStyleOptionViewItem &option,
-                                              const QModelIndex &index) const
+                      const QStyleOptionViewItem &option,
+                      const QModelIndex &index) const
 {
     const QSqlRelationalTableModel *sqlModel = qobject_cast<const QSqlRelationalTableModel *>(index.model());
     if (!sqlModel || !sqlModel->relationModel(index.column()))
