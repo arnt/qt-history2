@@ -1695,7 +1695,8 @@ QPoint QWidget::pos() const
 
     The size is adjusted if it lies outside the range defined by
     minimumSize() and maximumSize(). Furthermore, the size is always
-    at least QSize(1, 1).
+    at least QSize(1, 1). For toplevel widgets, the minimum size
+    might be larger, depending on the window manager.
 
     resize() is virtual, and all other overloaded resize()
     implementations in Qt call it.
