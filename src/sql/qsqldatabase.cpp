@@ -183,10 +183,8 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 
 QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 {
-    if ( !contains( name ) ) {
-	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
+    if ( !contains( name ) )
 	return 0;
-    }
 
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
