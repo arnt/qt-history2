@@ -1807,8 +1807,9 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
             break;
         case Extended:
             if (i) {
+                bool shouldBlock = false;
                 if (!(e->state() & Qt::ShiftButton) &&
-                     !(e->state() & Qt::ControlButton)) {
+                    !(e->state() & Qt::ControlButton)) {
                     if (!i->isSelected()) {
                         bool b = signalsBlocked();
                         blockSignals(true);
@@ -1817,6 +1818,7 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
                     }
                     setSelected(i, true);
                     d->dragging = true; // always assume dragging
+                    shouldBlock = true;
                 } else if (e->state() & Qt::ShiftButton) {
                     d->pressedSelected = false;
                     QListBoxItem *oldCurrent = item(currentItem());
@@ -1847,16 +1849,24 @@ void QListBox::mousePressEventEx(QMouseEvent *e)
                     emit selectionChanged();
                 } else if (e->state() & Qt::ControlButton) {
                     setSelected(i, !i->isSelected());
+                    shouldBlock = true;
                     d->pressedSelected = false;
                 }
+                bool blocked = signalsBlocked();
+                blockSignals(shouldBlock);
                 setCurrentItem(i);
+                blockSignals(blocked);
             }
             break;
         case Multi:
-            //d->current = i;
-            setSelected(i, !i->s);
-            setCurrentItem(i);
-            break;
+	    {
+                setSelected(i, !i->s);
+                bool b = signalsBlocked();
+                blockSignals(true);
+                setCurrentItem(i);
+                blockSignals(b);
+                break;
+	    }
         case NoSelection:
             setCurrentItem(i);
             break;
@@ -2649,8 +2659,7 @@ void QListBox::setSelected(QListBoxItem * item, bool select)
         return;
 
     int ind = index(item);
-    bool emitHighlighted = (d->current != item) ||
-                           (item->s != (uint) select && select);
+    bool emitHighlighted = (d->current != item);
     if (selectionMode() == Single) {
         if (d->current != item) {
             QListBoxItem *o = d->current;
@@ -2686,14 +2695,14 @@ void QListBox::setSelected(QListBoxItem * item, bool select)
 
     if (emitHighlighted) {
         QString tmp;
-        if (d->current)
-            tmp = d->current->text();
-        int tmp2 = index(d->current);
-        emit highlighted(d->current);
+        if (item)
+            tmp = item->text();
+        int tmp2 = index(item);
+        emit highlighted(item);
         if (!tmp.isNull())
             emit highlighted(tmp);
         emit highlighted(tmp2);
-        emit currentChanged(d->current);
+        emit currentChanged(item);
     }
 }
 
