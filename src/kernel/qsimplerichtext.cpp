@@ -42,7 +42,7 @@
   height() and the actual width used (see widthUsed()). Most
   importantly, it can be drawn on any given QPainter with draw().
   QSimpleRichText can also be used to implement hypertext or active
-  text facilities by using anchorAt(). A hit test through hitTest()
+  text facilities by using anchorAt(). A hit test through inText()
   makes it possible to use simple righ text for text objects in
   editable drawing canvases.
 
