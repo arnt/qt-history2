@@ -23,10 +23,10 @@ protected:
     ~QTextObject();
     QTextObject(QTextObjectPrivate &p, QTextDocument *doc);
 
+    void setFormat(const QTextFormat &format);
 public:
     int formatType() const;
     QTextFormat format() const;
-    void setFormat(const QTextFormat &format);
 
     QTextDocument *document() const;
 
@@ -48,8 +48,8 @@ protected:
     QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc);
     ~QTextBlockGroup();
 
-    virtual void insertBlock(const QTextBlock &block);
-    virtual void removeBlock(const QTextBlock &block);
+    virtual void blockInserted(const QTextBlock &block);
+    virtual void blockRemoved(const QTextBlock &block);
     virtual void blockFormatChanged(const QTextBlock &block);
 
     QList<QTextBlock> blockList() const;

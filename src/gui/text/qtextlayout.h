@@ -182,7 +182,6 @@ private:
 class QTextLine
 {
 public:
-    QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}
     inline QTextLine() : i(0), eng(0) {}
     inline bool isValid() const { return (bool)eng; }
 
@@ -225,6 +224,7 @@ public:
     void draw(QPainter *p, int x, int y, int selection = -1) const;
 
 private:
+    QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}
     friend class QTextLayout;
     int i;
     QTextEngine *eng;

@@ -360,6 +360,7 @@ void QTextLayout::setFormatCollection(const QTextFormatCollection *formats)
 }
 
 // ### DOC: How is it laid out again? Do they call draw() or what?
+// Same as initially, see the code snipplet in the class overview.
 /*!
     Sets the layout's text to the given \a string. The layout is
     invalidated and must be laid out again.
@@ -515,11 +516,11 @@ int QTextLayout::previousCursorPosition(int oldPos, CursorMode mode) const
 
     A grapheme cluster is a sequence of two or more Unicode characters
     that form one indivisible entity on the screen. For example the
-    latin character `Ä' is represented in Unicode by two characters,
-    `A' (0x41), and the combining diaresis (0x308). A text cursor can
-    only validly be positioned before or after these two characters,
-    never between them since that wouldn't make sense. In indic
-    languages every syllable forms a grapheme cluster.
+    latin character `Ä' can be represented in Unicode by two
+    characters, `A' (0x41), and the combining diaresis (0x308). A text
+    cursor can only validly be positioned before or after these two
+    characters, never between them since that wouldn't make sense. In
+    indic languages every syllable forms a grapheme cluster.
 */
 bool QTextLayout::validCursorPosition(int pos) const
 {
@@ -542,8 +543,20 @@ void QTextLayout::clearLines()
 }
 
 // ### DOC: Don't know what this really does.
+// added a bit more description
 /*!
     Creates a new text line to be laid out.
+
+    The text layout creates a new line object that starts after the
+    last layouted line (or at the beginning of the contained text if
+    no line has been layouted up to now).
+
+    The line is still empty and you need to call layout() on the line
+    to fill it with text. After the layout() call a new line can be
+    created and filled again. Repeating this process will layout the
+    whole block of text contained in the QTextLayout. If there is no
+    text left to be layouted, the retuned QTextLine will not be valid
+    (ie. isValid() will return false).
 */
 QTextLine QTextLayout::createLine()
 {
@@ -824,6 +837,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
 /*!
     \fn QTextLine::QTextLine(int line, QTextEngine *e)
+    \internal
 
     Constructs a new text line using the line at position \a line in
     the text engine \a e.
@@ -832,7 +846,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 /*!
     \fn QTextLine::QTextLine()
 
-    \internal
+    Creates an invalid line.
 */
 
 /*!
@@ -843,6 +857,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
 /*!
     \fn QTextEngine *QTextLine::engine() const
+  \internal
 
     Returns the text line's text engine.
 */
@@ -1081,6 +1096,12 @@ void QTextLine::setPosition(const QPoint &pos)
 }
 
 // ### DOC: I have no idea what this means/does.
+// You create a text layout with a string of text. Once you layouted
+// it, it contains a number of QTextLines. from() returns the position
+// inside the text string where this line starts. If you e.g. has a
+// text of "This is a string", layouted into two lines (the second
+// starting at the word 'a'), layout.lineAt(0).from() == 0 and
+// layout.lineAt(1).from() == 8.
 /*!
     Returns the start of the line from the beginning of the string
     passed to the QTextLayout.
@@ -1101,6 +1122,8 @@ int QTextLine::length() const
 }
 
 // ### DOC: You can't draw a line with only one point, so how does this work?
+// You don't draw the line _with_ one point, but _at_ one point. It's
+// similar to drawText(int x, int y, const QString &str).
 /*!
     \internal
 
@@ -1256,7 +1279,8 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
     inside the line, taking account of the \a edge.
 
     If \a cPos is not a valid cursor position, the nearest valid
-    cursor position will be used instead.
+    cursor position will be used instead, and cpos will be modified to
+    point to this valid cursor position.
 
     \sa xToCursor()
 */

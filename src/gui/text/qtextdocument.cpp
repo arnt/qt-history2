@@ -380,6 +380,10 @@ QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, Fi
 /*!
     Creates and returns a new document object (a QTextObject), based
     on the given format, \a f.
+
+    TextObjects will always get created through this method, so you
+    will have to reimplement it, if you use custom text objects inside
+    your document.
 */
 QTextObject *QTextDocument::createObject(const QTextFormat &f)
 {
@@ -415,12 +419,21 @@ QTextFrame *QTextDocument::rootFrame() const
 }
 
 // ### DOC: Give us a clue!
+
+// A document is basically a list of list of strings with associated
+// formats. Formats can contain "references" to objects. These
+// other formats are in the document associated with "text
+// objects". Depending on the format, this could be a QTextList, a
+// QTextFrame or a QTextTable. This method returns the associated
+// object for the objectIndex() of a format.
 QTextObject *QTextDocument::object(int objectIndex) const
 {
     return d->objectForIndex(objectIndex);
 }
 
 // ### DOC: Give us a clue!
+// See above. This basically just takes the format \a f get's the
+// objectIndex() from it, and then does the same as the method above.
 QTextObject *QTextDocument::objectForFormat(const QTextFormat &f) const
 {
     return d->objectForFormat(f);

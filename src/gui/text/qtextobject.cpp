@@ -8,53 +8,117 @@
 #define d d_func()
 #define q q_func()
 
+/*! \class QTextObject
+  \ingroup text
+
+  A QTextObject is a base class for different kind of objects that can
+  group parts of a QTextDocument together.  The common text objects
+  provided by Qt are lists (QTextList), frames (QTextFrame) and tables
+  (QTextTable).
+
+  There are basically two kinds of text objects. Objects used together
+  with blocks (blockformats) and objects used together with characters
+  (charformats). The first group derived from QTextBlockGroup, the
+  other one from QTextFrame.
+
+  You should rarely need to use this class directly. When creating
+  custom text objects, you will also need to reimplement
+  QTextDocument::createObject(), that acts as a factory method for
+  creating objects.
+*/
+
+/*!
+  Creates a new QTextObject on the document.
+
+  Should never be called directly, but only from QTextDocument::createObject().
+*/
 QTextObject::QTextObject(QTextDocument *doc)
     : QObject(*new QTextObjectPrivate, doc)
 {
 }
 
+/*!
+  \internal
+*/
 QTextObject::QTextObject(QTextObjectPrivate &p, QTextDocument *doc)
     :QObject(p, doc)
 {
 }
 
+/*!
+  Destroys the text object. Text objects belong to the document, so
+  you should never destroy them yourself.
+*/
 QTextObject::~QTextObject()
 {
 }
 
-
+/*!
+  The format associated with the text object.
+*/
 QTextFormat QTextObject::format() const
 {
     return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
+/*!
+  associate a new format with the text object
+*/
 void QTextObject::setFormat(const QTextFormat &format)
 {
     int idx = d->pieceTable->formatCollection()->indexForFormat(format);
     d->pieceTable->changeObjectFormat(this, idx);
 }
 
+/*!
+  The object index of this object. This can be used together with QTextFormat::setObjectIndex().
+*/
 int QTextObject::objectIndex() const
 {
     return d->objectIndex;
 }
 
+/*!
+  The document this object belongs to.
+*/
 QTextDocument *QTextObject::document() const
 {
     return qt_cast<QTextDocument *>(parent());
 }
 
+/*!
+  \internal
+*/
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
     return qt_cast<QTextDocument *>(parent())->docHandle();
 }
 
+/*!
+  \class QTextBlockGroup
 
+  These types of text objects can be used to group together a set of
+  blocks inside the document, e.g. to form a list.
+
+  Adding blocks of text to the block group can be done by setting the
+  object index of the block format to the objectIndex() of this
+  object, or more conveniently by calling insertBlock().
+
+  The block group will always have an up to date list of which blocks
+  belong to the group independent of editing operations.
+ */
+
+/*!
+  Create new new block group. Should only get called from QTextDocument::createObject().
+*/
 QTextBlockGroup::QTextBlockGroup(QTextDocument *doc)
     : QTextObject(*new QTextBlockGroupPrivate, doc)
 {
 }
 
+/*!
+  \internal
+*/
 QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QTextDocument *doc)
     : QTextObject(p, doc)
 {
@@ -64,21 +128,35 @@ QTextBlockGroup::~QTextBlockGroup()
 {
 }
 
-void QTextBlockGroup::insertBlock(const QTextBlock &block)
+/*!
+  Notification when a new block got added to the group. If you
+  reimplement this method, always call the parent implementation.
+*/
+void QTextBlockGroup::blockInserted(const QTextBlock &block)
 {
     QTextBlockGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
     d->blocks.insert(it, block);
 }
 
-void QTextBlockGroup::removeBlock(const QTextBlock &block)
+/*!
+  Notification when a block got removed from the group. If you
+  reimplement this method, always call the parent implementation.
+*/
+void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 {
     d->blocks.removeAll(block);
 }
 
+/*!
+  Notification when the format of a block of text (that is part of the group) has changed.
+*/
 void QTextBlockGroup::blockFormatChanged(const QTextBlock &)
 {
 }
 
+/*!
+  returns a list of all the blocks that are part of the block group.
+*/
 QList<QTextBlock> QTextBlockGroup::blockList() const
 {
     return d->blocks;
@@ -91,6 +169,29 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 }
 
 
+/*!
+  \class QTextFrame
+
+  This class represents a frame in a text document.
+
+ A frame is defined by a start and end point inside the document, the
+ start point having a QChar(0xfdd0) as text, the end point a
+ QChar(0xfdd1), and the char formats of start and end containing a
+ reference to the objectIndex of this object.
+
+ Frames can be used to form a hierachical structure on top of the
+ otherwise flat document. Each document has a rootFrame
+ (s.a. QTextDocument::rootFrame()). Each frame (except for the
+ rootFrame has a parent), and a list of children. In addition frames
+ can contain QTextBlock's.
+
+ Frames are usually created using QTextCursor::insertFrame().
+
+
+ You can iterate over a text frame using the QTextFrame::iterator
+ class, giving you read only access to the list of blocks and child
+ frames contained inside the frame.
+*/
 
 QTextFrame::QTextFrame(QTextDocument *doc)
     : QTextObject(*new QTextFramePrivate, doc)
@@ -115,7 +216,8 @@ QTextFrame::QTextFrame(QTextFramePrivate &p, QTextDocument *doc)
     d->layoutData = 0;
 }
 
-
+/*!
+ */
 QList<QTextFrame *> QTextFrame::childFrames()
 {
     return d->childFrames;
@@ -143,6 +245,9 @@ QTextCursor QTextFrame::lastCursorPosition() const
     return QTextCursor(d->pieceTable, lastPosition());
 }
 
+/*!
+  The first document position inside the frame
+*/
 int QTextFrame::firstPosition() const
 {
     if (!d->fragment_start)
@@ -150,6 +255,9 @@ int QTextFrame::firstPosition() const
     return d->pieceTable->fragmentMap().position(d->fragment_start) + 1;
 }
 
+/*!
+  The last document position inside the frame
+*/
 int QTextFrame::lastPosition() const
 {
     if (!d->fragment_end)
@@ -157,11 +265,17 @@ int QTextFrame::lastPosition() const
     return d->pieceTable->fragmentMap().position(d->fragment_end);
 }
 
+/*!
+  \internal
+*/
 QTextFrameLayoutData *QTextFrame::layoutData() const
 {
     return d->layoutData;
 }
 
+/*!
+  \internal
+*/
 void QTextFrame::setLayoutData(QTextFrameLayoutData *data)
 {
     delete d->layoutData;
@@ -229,6 +343,9 @@ void QTextFramePrivate::remove_me()
     parentFrame = 0;
 }
 
+/*!
+  returns an iterator pointing to the first block inside the frame
+*/
 QTextFrame::iterator QTextFrame::begin() const
 {
     const QTextDocumentPrivate *priv = docHandle();
@@ -237,6 +354,9 @@ QTextFrame::iterator QTextFrame::begin() const
     return iterator(const_cast<QTextFrame *>(this), b, b, e);
 }
 
+/*!
+  returns an iterator pointing to the last block inside the frame
+*/
 QTextFrame::iterator QTextFrame::end() const
 {
     const QTextDocumentPrivate *priv = docHandle();
@@ -245,7 +365,17 @@ QTextFrame::iterator QTextFrame::end() const
     return iterator(const_cast<QTextFrame *>(this), e, b, e);
 }
 
+/*!
+  \class QTextFrame::iterator
 
+  Makes it possible to iterate in a read only way over the frame.
+  Every frame is built up by a list of blocks and child frames (freely mixed).
+
+*/
+
+/*!
+  Constructs an invalid iterator
+*/
 QTextFrame::iterator::iterator()
 {
     f = 0;
@@ -253,6 +383,9 @@ QTextFrame::iterator::iterator()
     cb = 0;
 }
 
+/*!
+  \internal
+*/
 QTextFrame::iterator::iterator(QTextFrame *frame, int block, int begin, int end)
 {
     f = frame;
@@ -271,16 +404,26 @@ QTextFrame::iterator::iterator(const iterator &o)
     cb = o.cb;
 }
 
+/*!
+  returns the current frame the iterator points to or 0 if the iterator currently
+  points to a block
+*/
 QTextFrame *QTextFrame::iterator::currentFrame() const
 {
     return cf;
 }
 
+/*!  returns the current block the iterator points to. If the iterator
+  points to a child frame, the returned block is invalid.
+*/
 QTextBlock QTextFrame::iterator::currentBlock() const
 {
     return QTextBlock(f->docHandle(), cb);
 }
 
+/*!
+  moves the iterator to the next frame or block
+*/
 QTextFrame::iterator QTextFrame::iterator::operator++()
 {
     const QTextDocumentPrivate *priv = f->docHandle();
@@ -312,6 +455,9 @@ QTextFrame::iterator QTextFrame::iterator::operator++()
     return *this;
 }
 
+/*!
+  moves the iterator to the previous frame or block
+*/
 QTextFrame::iterator QTextFrame::iterator::operator--()
 {
     const QTextDocumentPrivate *priv = f->docHandle();
@@ -643,7 +789,9 @@ QTextBlock QTextBlock::previous() const
 }
 
 
-
+/*!
+  returns the text fragment the iterator currently points to.
+*/
 QTextFragment QTextBlock::iterator::fragment() const
 {
     int ne = n;
@@ -678,6 +826,13 @@ QTextBlock::iterator QTextBlock::iterator::operator--()
     return *this;
 }
 
+
+/*!
+  \class QTextFragment
+
+  A text fragment is a continious piece of text in the document that carries the same
+  format.
+*/
 
 
 int QTextFragment::position() const

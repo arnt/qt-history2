@@ -215,8 +215,10 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     the format can be retrieved with allPropertyIds(). One format can
     be merged into another using merge().
 
-    A format's object can be set with setObject(), and the object's
-    index set with setObjectIndex().
+    A format's object index can be set with setObjectIndex(), and
+    retrieved with objectIndex(). These methods can be used to
+    associate the format with a QTextObject. It is used to represent
+    lists, frames and tables inside the document.
 */
 
 /*!

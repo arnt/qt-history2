@@ -66,10 +66,21 @@
 */
 
 // ### DOC: No idea what this does
+// it's a notification about changes inside the document. The layout
+// has to know when the document changes so it can react, and relayout
+// whatever is needed. This method gets called whenever something has
+// changed. From the the position in the document where the change
+// started, oldlength the length of the changed area before the
+// change, length the length of the changed area after the change.
+//
+// Assume that you have a cursor on a document at position 5. Then
+// cursor.insert("foo") would result in documentChange(5, 0, 3)
+// cursor.remove(3) would result in documentChange(5, 3, 0)
+// and if the cursor has a selection of length 5, cursor.insert("foo") would
+// result in documentChange(5, 5, 3).
 /*!
     \fn void QAbstractTextDocumentLayout::documentChange(int from, int oldLength, int length)
 
-    \internal
 */
 
 /*!
