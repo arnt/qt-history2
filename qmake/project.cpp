@@ -2095,9 +2095,25 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         qmake_setpwd(oldpwd);
         return ret;
     } else if(func == "count") {
-        if(args.count() != 2) {
+        if(args.count() != 2 && args.count() != 3) {
             fprintf(stderr, "%s:%d: count(var, count) requires two arguments.\n", parser.file.toLatin1().constData(),
                     parser.line_no);
+            return false;
+        }
+        if(args.count() == 3) {
+            QString comp = args[2];
+            if(comp == ">" || comp == "greaterThan")
+                return place[args[0]].count() > args[1].toInt();
+            if(comp == ">=")
+                return place[args[0]].count() >= args[1].toInt();
+            if(comp == "<" || comp == "lessThan")
+                return place[args[0]].count() < args[1].toInt();
+            if(comp == "<=")
+                return place[args[0]].count() <= args[1].toInt();
+            if(comp == "equals" || comp == "isEqual" || comp == "=" || comp == "==")
+                return place[args[0]].count() == args[1].toInt();
+            fprintf(stderr, "%s:%d: unexpected modifier to count(%s)\n", parser.file.toLatin1().constData(),
+                    parser.line_no, comp.toLatin1().constData());
             return false;
         }
         return place[args[0]].count() == args[1].toInt();
