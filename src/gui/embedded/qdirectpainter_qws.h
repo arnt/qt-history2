@@ -18,7 +18,7 @@
 
 #ifdef Q_WS_QWS
 
-//#define QT_NO_DIRECTPAINTER
+#define QT_NO_DIRECTPAINTER
 
 #ifndef QT_NO_DIRECTPAINTER
 class QDirectPainterPrivate;
