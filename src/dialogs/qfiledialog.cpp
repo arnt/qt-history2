@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#109 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#110 $
 **
 ** Implementation of QFileDialog class
 **
@@ -849,7 +849,7 @@ void QFileDialog::init()
 	     this, SLOT(cdUpClicked()) );
 
     d->modeButtons = new QButtonGroup( 0, "invisible group" );
-    connect( d->modeButtons, SIGNAL(destroyed()), 
+    connect( d->modeButtons, SIGNAL(destroyed()),
 	     this, SLOT(modeButtonsDestroyed()) );
     d->modeButtons->setExclusive( TRUE );
     connect( d->modeButtons, SIGNAL(clicked(int)),
@@ -1500,7 +1500,7 @@ bool QFileDialog::trySetSelection( const QFileInfo& info, bool updatelined )
 	okB->setEnabled( FALSE );
     }	
 
-    if ( old != d->currentFileName )
+    if ( d->currentFileName.length() && old != d->currentFileName )
 	emit fileHighlighted( d->currentFileName );
 
     return !d->currentFileName.isNull();
