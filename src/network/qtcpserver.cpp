@@ -267,7 +267,7 @@ int QTcpServer::socketDescriptor() const
 */
 bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 {
-    if (!d->socketLayer.isValid()) {
+    if (isListening()) {
         qWarning("QTcpServer::setSocketDescriptor() can only be called when in NotListeningState");
         return false;
     }
