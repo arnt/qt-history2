@@ -2952,6 +2952,9 @@ bool Q3CanvasPixmapArray::readPixmaps(const QString& datafilenamepattern,
 	    framecount=1;
 	img = new Q3CanvasPixmap*[framecount];
     }
+    if (!img)
+        return false;
+
     bool ok = true;
     bool arg = fc > 1;
     if (!arg)
