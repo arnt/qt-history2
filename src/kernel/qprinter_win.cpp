@@ -728,9 +728,9 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
     }
 
     // Allocate a global HANDLE for a DEVNAMES Structure
-    DWORD lDrvrName = strlen(pinf2->pDriverName) + 1;
-    DWORD lPrntName = strlen(pinf2->pPrinterName) + 1;
-    DWORD lPortName = strlen(pinf2->pPortName) + 1;
+    DWORD lDrvrName = (DWORD)strlen(pinf2->pDriverName) + 1;
+    DWORD lPrntName = (DWORD)strlen(pinf2->pPrinterName) + 1;
+    DWORD lPortName = (DWORD)strlen(pinf2->pPortName) + 1;
     if ( hdevnames ) {
 	GlobalFree( hdevnames );
 	hdevnames = 0;
