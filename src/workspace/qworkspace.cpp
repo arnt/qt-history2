@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qworkspace.h"
 #ifndef QT_NO_WORKSPACE
 #include "qapplication.h"
@@ -199,13 +200,13 @@ public:
     QPtrList<QWidget> icons;
     QWorkspaceChild* maxWindow;
     QRect maxRestore;
-    QFrame* maxcontrols;
+    QGuardedPtr<QFrame> maxcontrols;
     QGuardedPtr<QMenuBar> maxmenubar;
 
     int px;
     int py;
     QWidget *becomeActive;
-    QTitleBarButton* maxtools;
+    QGuardedPtr<QTitleBarButton> maxtools;
     QPopupMenu* popup;
     QPopupMenu* toolPopup;
     int menuId;
@@ -830,7 +831,7 @@ void QWorkspace::showMaximizeControls()
 #ifndef QT_NO_MENUBAR
     QMenuBar* b = 0;
 
-    // Do a breadth-first search first, and query recoursively is nothing is found.
+    // Do a breadth-first search first, and query recoursively if nothing is found.
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
 						   FALSE, FALSE );
     if ( !l || !l->count() ) {
@@ -881,11 +882,11 @@ void QWorkspace::showMaximizeControls()
 				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
 
-    if ( d->controlId == -1 ) {
+    if ( d->controlId == -1 || b->indexOf( d->controlId ) == -1 ) {
 	QFrame* dmaxcontrols = d->maxcontrols;
 	d->controlId = b->insertItem( dmaxcontrols, -1, b->count() );
     }
-    if ( d->active && d->menuId == -1 ) {
+    if ( d->active && ( d->menuId == -1 || b->indexOf( d->menuId ) == -1 ) ) {
 	if ( !d->maxtools ) {
 	    d->maxtools = new QTitleBarButton( topLevelWidget(), QTitleBarButton::Icon );
 	    d->maxtools->installEventFilter( this );
@@ -909,13 +910,12 @@ void QWorkspace::hideMaximizeControls()
     if ( d->maxmenubar ) {
 	int mi = d->menuId;
 	if ( mi != -1 ) {
-	    d->maxmenubar->removeItem( mi );
-	    if ( d ) {
-		d->maxtools = 0;
-	    }
+	    if ( d->maxmenubar->indexOf( mi ) != -1 )
+		d->maxmenubar->removeItem( mi );
+	    d->maxtools = 0;
 	}
 	int ci = d->controlId;
-	if ( ci != -1 )
+	if ( ci != -1 && d->maxmenubar->indexOf( ci ) != -1 )
 	    d->maxmenubar->removeItem( ci );
     }
     d->maxcontrols = 0;
@@ -926,10 +926,12 @@ void QWorkspace::hideMaximizeControls()
 
 void QWorkspace::closeActiveWindow()
 {
+    setUpdatesEnabled( FALSE );
     if ( d->maxWindow && d->maxWindow->windowWidget() )
 	d->maxWindow->windowWidget()->close();
     else if ( d->active && d->active->windowWidget() )
-	    d->active->windowWidget()->close();
+	d->active->windowWidget()->close();
+    setUpdatesEnabled( TRUE );
 }
 
 void QWorkspace::closeAllWindows()
