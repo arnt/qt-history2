@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#59 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#60 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#60 $")
 
 
 /*****************************************************************************
@@ -472,8 +472,10 @@ QString::QString( const char *str )		// deep copy
 
 /*---------------------------------------------------------------------------
   Extends or shrinks the string to \e len bytes, including the
-  '\0'-terminator.  A \0-terminator is set at position <var>len - 1</var>
-  unless <var>len == 0</var>.
+  '\0'-terminator.
+
+  A \0-terminator is set at position <code>len - 1</code> unless
+  <code>len == 0</code>.
 
   Example:
   \code
@@ -489,7 +491,7 @@ bool QString::resize( uint len )
     if ( !QByteArray::resize(len) )
 	return FALSE;
     if ( len )
-	at(len-1) = '\0';
+	*(data()+len-1) = '\0';
     return TRUE;
 }
 
@@ -551,7 +553,7 @@ bool QString::fill( char c, int len )
 	len = length();
     if ( !QByteArray::fill(c,len+1) )
 	return FALSE;
-    at(len) = '\0';
+    *(data()+len) = '\0';
     return TRUE;
 }
 
@@ -1129,7 +1131,7 @@ QString &QString::insert( uint index, char c )	// insert char
   \e len is too large, the rest of the string is removed.
 
   \code
-    QString s = "neutrino
+    QString s = "neutrino";
     s.remove( 1, 6 );				// s == "no"
   \endcode
 
