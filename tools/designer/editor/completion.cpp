@@ -37,7 +37,7 @@ static QColor getColor( const QString &type )
 	return Qt::blue;
     else if ( type == "variable" || type == "widget" || type == "dir" )
 	return Qt::darkRed;
-    else if ( type == "object" )
+    else if ( type == "object" || type == "class" )
 	return Qt::darkBlue;
     else if ( type == "property" )
 	return Qt::darkGreen;
