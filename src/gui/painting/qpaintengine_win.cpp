@@ -396,30 +396,32 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
 
     Q_ASSERT(pdev);
-    d->hdc = pdev->getDC();
-    if (pdev->devType() == QInternal::Widget) {
-        QWidget *w = static_cast<QWidget *>(pdev);
-        d->usesWidgetDC = (d->hdc != 0);
-        if (!d->usesWidgetDC) {
-            if (w->testAttribute(Qt::WA_PaintUnclipped)) {
-                d->hdc = GetWindowDC(w->winId());
-                if (w->isTopLevel()) {
-                    int dx = w->geometry().x() - w->frameGeometry().x();
-                    int dy = w->geometry().y() - w->frameGeometry().y();
+    if (!d->hdc) {
+        d->hdc = pdev->getDC();
+        if (pdev->devType() == QInternal::Widget) {
+            QWidget *w = static_cast<QWidget *>(pdev);
+            d->usesWidgetDC = (d->hdc != 0);
+            if (!d->usesWidgetDC) {
+                if (w->testAttribute(Qt::WA_PaintUnclipped)) {
+                    d->hdc = GetWindowDC(w->winId());
+                    if (w->isTopLevel()) {
+                        int dx = w->geometry().x() - w->frameGeometry().x();
+                        int dy = w->geometry().y() - w->frameGeometry().y();
 #ifndef Q_OS_TEMP
-                    SetWindowOrgEx(d->hdc, -dx, -dy, 0);
+                        SetWindowOrgEx(d->hdc, -dx, -dy, 0);
 #else
-//                    MoveWindow(w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), false);
-//                    MoveWindow(w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), false);
+                        //                    MoveWindow(w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), false);
+                        //                    MoveWindow(w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), false);
 #endif
+                    }
+                } else {
+                    d->hdc = GetDC(w->isDesktop() ? 0 : w->winId());
                 }
-            } else {
-                d->hdc = GetDC(w->isDesktop() ? 0 : w->winId());
+                const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
             }
-            const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
         }
+        Q_ASSERT(d->hdc);
     }
-    Q_ASSERT(d->hdc);
 
     QRegion *region = paintEventClipRegion;
     if (region && pdev == paintEventDevice)
@@ -442,7 +444,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     d->ellipseHack = false;
 
-    // force a call to switch advanced mode on/off 
+    // force a call to switch advanced mode on/off
     d->setNativeMatrix(QMatrix());
     return true;
 }
