@@ -619,6 +619,7 @@ for plat in mac win x11 qws; do
 	    rm -rf $PLATDIR/include/qsql*.h
 	    rm -rf $PLATDIR/include/qdatetimeedit.h
 	    rm -rf $PLATDIR/include/qeditorfactory.h
+	    rm -rf $PLATDIR/include/qxt.h
 	    ;;
 	professional)
 	    #remove sql & table from the main file
@@ -636,6 +637,7 @@ for plat in mac win x11 qws; do
 	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql*
 	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h
 	    rm -rf $PLATDIR/include/qsql*.h
+	    rm -rf $PLATDIR/include/qxt.h
 	    #move xml stuff into designer directory TBD ###
 	    ;;
 	esac
