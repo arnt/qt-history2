@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#246 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#247 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2579,38 +2579,38 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     p.setPen( g.text() );
     p.setBackgroundColor( g.base() );
     while ( i && (int)col < numCols() && d->columnPos[col] < x + w ) {
-	int cw = d->columnPos[col+1] - d->columnPos[col];
-	while ( i && row < top ) {
-	    i = i->n;
-	    row++;
-	}
-	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
-	    int ch = d->rowPos[row+1] - d->rowPos[row];
-	    QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
-	    QRegion itemPaintRegion( QRegion( itemRect ).intersect( r  ) );
-	    if ( !itemPaintRegion.isEmpty() ) {
-		p.save();
-		p.setClipRegion( itemPaintRegion );
-		p.translate( d->columnPos[col]-x, d->rowPos[row]-y );
-		paintCell( &p, row, col );
-		p.restore();
-		r = r.subtract( itemPaintRegion );
-	    }
-	    row++;
-	    if ( i->dirty ) {
-		// reset dirty flag only if the entire item was painted
-		if ( itemPaintRegion == QRegion( itemRect ) )
-		    i->dirty = FALSE;
-	    }
-	    i = i->n;
-	}
-	while ( i && row < numRows() )
-	    i = i->n;
-	row = 0;
-	col++;
+        int cw = d->columnPos[col+1] - d->columnPos[col];
+        while ( i && row < top ) {
+            i = i->n;
+            row++;
+        }
+        while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
+            int ch = d->rowPos[row+1] - d->rowPos[row];
+            QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
+            QRegion itemPaintRegion( QRegion( itemRect ).intersect( r  ) );
+            if ( !itemPaintRegion.isEmpty() ) {
+                p.save();
+                p.setClipRegion( itemPaintRegion );
+                p.translate( d->columnPos[col]-x, d->rowPos[row]-y );
+                paintCell( &p, row, col );
+                p.restore();
+                r = r.subtract( itemPaintRegion );
+            }
+            row++;
+            if ( i->dirty ) {
+                // reset dirty flag only if the entire item was painted
+                if ( itemPaintRegion == QRegion( itemRect ) )
+                    i->dirty = FALSE;
+            }
+            i = i->n;
+        }
+        while ( i && row < numRows() )
+            i = i->n;
+        row = 0;
+        col++;
     }
     if ( r.isEmpty() )
-	return;
+        return;
     p.setClipRegion( r );
     p.fillRect( 0, 0, w, h, g.brush( QColorGroup::Base ) );
 }
@@ -2670,6 +2670,25 @@ int QListBox::rowAt( int y ) const
     return row;
 }
 
+
+QRect QListBox::itemRect( QListBoxItem *item ) const
+{
+    if ( !d->layoutDirty )
+	doLayout();
+
+    if ( !item )
+        return QRect( 0, 0, -1, -1 );
+    
+    int i = index( item );
+    int col = i / numRows();
+    int row = i % numRows();
+
+    int x = d->columnPos[ col ] - contentsX();
+    int y = d->rowPos[ row ] - contentsY();
+    
+    return QRect( x, y, d->columnPos[ col + 1 ] - d->columnPos[ col ],
+                  d->rowPos[ row + 1 ] - d->rowPos[ row ] );
+}
 
 void QListBox::inSort( const QListBoxItem * lbi )
 {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#86 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#87 $
 **
 ** Definition of QListBox widget class
 **
@@ -160,7 +160,8 @@ public:
     int itemHeight( int index = 0 ) const;
     QListBoxItem * itemAt( QPoint ) const;
 
-
+    QRect itemRect( QListBoxItem *item ) const;
+    
 public slots:
     virtual void clearSelection();
 
@@ -255,7 +256,7 @@ public:
     bool selected() const { return s; }
 
     QListBox *listBox() const;
-    
+
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }
