@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#88 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#88 $");
 
 
 /*!
@@ -474,8 +474,6 @@ void QMenuBar::show()
 void QMenuBar::hide()
 {
     QWidget::hide();
-    if ( focusWidget() )
-	focusWidget()->setFocus();
     setWindowsAltMode( FALSE, -1 );
     hidePopups();
 }
@@ -1017,7 +1015,7 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 	setActItem( index, FALSE );
     } else {
 	if ( windowsaltactive ) {
-	    if ( style() == WindowsStyle ) 
+	    if ( style() == WindowsStyle && focusWidget() )
 		focusWidget()->setFocus();
 	    windowsaltactive = 0;
 	}
