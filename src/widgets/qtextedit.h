@@ -502,7 +502,7 @@ private:
     void optimMousePressEvent( QMouseEvent * e );
     void optimMouseReleaseEvent( QMouseEvent * e );
     void optimMouseMoveEvent( QMouseEvent * e );
-    int  optimCharIndex( const QString &str, int mx );
+    int  optimCharIndex( const QString &str, int mx ) const;
     void optimSelectAll();
     void optimRemoveSelection();
     void optimSetSelection( int startLine, int startIdx, int endLine,

@@ -1975,7 +1975,6 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	optimMouseReleaseEvent( e );
-	inDoubleClick = FALSE;
 	return;
     }
 #endif
@@ -2082,6 +2081,8 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 
 void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
+    int para = 0;
+    int index = charAt( e->pos(), &para );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( !d->optimMode ) {
 #endif
@@ -2099,13 +2100,31 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 
     repaintChanged();
 #ifdef QT_TEXTEDIT_OPTIMIZATION
+    } else {
+	QString str = d->od->lines[ para ];
+	int startIdx = index, endIdx = index, i;
+	if ( !str[ index ].isSpace() ) {
+	    i = startIdx;
+	    // find start of word
+	    while ( i-- >= 0 && !str[ i ].isSpace() ) {
+		startIdx = i;
+	    }
+	    i = endIdx;
+	    // find end of word..
+	    while ( (uint) i < str.length() && !str[ i ].isSpace() ) {
+		endIdx = ++i;
+	    }
+	    // ..and start of next
+	    while ( (uint) i < str.length() && str[ i ].isSpace() ) {
+		endIdx = ++i;
+	    }
+	    optimSetSelection( para, startIdx, para, endIdx );
+	    repaintContents( FALSE );
+	}
     }
 #endif
     inDoubleClick = TRUE;
     mousePressed = TRUE;
-
-    int para = 0;
-    int index = charAt( e->pos(), &para );
     emit doubleClicked( para, index );
 }
 
@@ -5098,10 +5117,9 @@ int QTextEdit::charAt( const QPoint &pos, int *para ) const
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	int par = paragraphAt( pos );
-	if ( para != 0 )
+	if ( para )
 	    *para = par;
-	QTextEdit * that = (QTextEdit *) this;
-	return that->optimCharIndex( d->od->lines[ par ], pos.x() );
+	return optimCharIndex( d->od->lines[ par ], pos.x() );
     }
 #endif    
     QTextCursor c( doc );
@@ -5879,32 +5897,35 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
     if ( e->button() != LeftButton )
 	return;
 
-    QFontMetrics fm( QScrollView::font() );
     mousePressed = FALSE;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
-    d->od->selEnd.line = e->y() / fm.lineSpacing();
-    if ( d->od->selEnd.line > d->od->numLines-1 ) {
-	d->od->selEnd.line = d->od->numLines-1;
+    if ( !inDoubleClick ) {
+	QFontMetrics fm( QScrollView::font() );
+	d->od->selEnd.line = e->y() / fm.lineSpacing();
+	if ( d->od->selEnd.line > d->od->numLines-1 ) {
+	    d->od->selEnd.line = d->od->numLines-1;
+	}
+	QString str = d->od->lines[ d->od->selEnd.line ];
+	mousePos = e->pos();
+	d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
+	if ( d->od->selEnd.line < d->od->selStart.line ) {
+	    int tmp = d->od->selStart.line;
+	    d->od->selStart.line = d->od->selEnd.line;
+	    d->od->selEnd.line = tmp;
+	    tmp = d->od->selStart.index;
+	    d->od->selStart.index = d->od->selEnd.index;
+	    d->od->selEnd.index = tmp;
+	} else if ( d->od->selStart.line == d->od->selEnd.line &&
+		    d->od->selStart.index > d->od->selEnd.index ) {
+	    int tmp = d->od->selStart.index;
+	    d->od->selStart.index = d->od->selEnd.index;
+	    d->od->selEnd.index = tmp;
+	}
+	oldMousePos = e->pos();
+	repaintContents( FALSE );
     }
-    QString str = d->od->lines[ d->od->selEnd.line ];
-    mousePos = e->pos();
-    d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
-    if ( d->od->selEnd.line < d->od->selStart.line ) {
-	int tmp = d->od->selStart.line;
-	d->od->selStart.line = d->od->selEnd.line;
-	d->od->selEnd.line = tmp;
-	tmp = d->od->selStart.index;
-	d->od->selStart.index = d->od->selEnd.index;
-	d->od->selEnd.index = tmp;
-    } else if ( d->od->selStart.line == d->od->selEnd.line &&
-		d->od->selStart.index > d->od->selEnd.index ) {
-	int tmp = d->od->selStart.index;
-	d->od->selStart.index = d->od->selEnd.index;
-	d->od->selEnd.index = tmp;
-    }
-    oldMousePos = e->pos();
-    repaintContents( FALSE );
+    inDoubleClick = FALSE;
     emit copyAvailable( optimHasSelection() );
     emit selectionChanged();
 }
@@ -5997,7 +6018,7 @@ void QTextEdit::optimDoAutoScroll()
   Returns the index of the character in the string \a str that is
   currently under the mouse pointer.
 */
-int QTextEdit::optimCharIndex( const QString &str, int mx )
+int QTextEdit::optimCharIndex( const QString &str, int mx ) const
 {
     QFontMetrics fm( QScrollView::font() );
     uint i = 0;
