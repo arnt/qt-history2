@@ -48,6 +48,22 @@
 #ifndef QT_NO_SQL
 
 /*!
+    \class QEditorFactory qeditorfactory.h
+    \brief This class is used to create editor factories for QVariants.
+
+    Each editor factory provides the createEditor() function which given
+    a QVariant will create and return a QWidget that can edit that
+    QVariant. For example if you have a a QVariant::String a QLineEdit
+    would be the default editor, whereas a QVariant::Int's default
+    editor would be a QSpinBox.
+
+  If you want to create different editors for fields with the same
+  data type, subclass QEditorFactory and reimplement the createEditor()
+  function.
+
+*/
+
+/*!
   Constructs an editor factory with parent \a parent and name \a name.
 */
 
@@ -103,7 +119,6 @@ void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
 }
 
 /*!
-
   Creates and returns the appropriate editor for the QVariant \a v.
   If the QVariant is invalid, 0 is returned.
 */
