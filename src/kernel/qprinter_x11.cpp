@@ -172,7 +172,7 @@ bool QPrinter::aborted() const
   user cancelled the operation.
 */
 
-bool QPrinter::setup( QWidget * parent )
+bool QPrinter::setup( QWidget * /*parent*/ )
 {
     return QPrintDialog::getPrinterSetup( this );
 }
