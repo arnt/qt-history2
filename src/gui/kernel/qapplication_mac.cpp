@@ -1881,7 +1881,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QPair<int,int> uId((int)tabletPointRec.deviceID, (int)tabletPointRec.vendor1);
                 QPoint p(where.h, where.v);
                 QPoint plocal(widget->mapFromGlobal(p));
-                QTabletEvent e(t, plocal, p, dev, pressure, tiltX, tiltY, uId);
+                QTabletEvent e(t, plocal, p, p, 0, 0, 0, 0,  dev, pressure, 0, 0, tiltX, tiltY, uId);
                 QApplication::sendSpontaneousEvent(widget, &e);
                 if (e.isAccepted())
                     break;
