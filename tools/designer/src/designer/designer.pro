@@ -4,7 +4,8 @@ CONFIG += qt
 
 mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
-unix:!mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
+unix:!mac:!hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
+hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.sl
 
 unix:TARGETDEPS +=    ../../lib/libformeditor.a \
     ../../lib/libobjectinspector.a \
