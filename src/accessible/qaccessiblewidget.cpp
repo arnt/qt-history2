@@ -161,11 +161,13 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child, const QAccessible
     if (o->parent() == parent) {
 	int relation = Sibling;
 	QWidget *sibling = static_cast<QWidget*>(o);
-	if (widget()->x() < sibling->x())
+	QPoint wc = widget()->geometry().center();
+	QPoint sc = sibling->geometry().center();
+	if (wc.x() < sc.x())
 	    relation |= QAccessible::Left;
 	else
 	    relation |= QAccessible::Right;
-	if (widget()->y() < sibling->y())
+	if (wc.y() < sc.y())
 	    relation |= QAccessible::Above;
 	else
 	    relation |= QAccessible::Below;
@@ -285,6 +287,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
 
 	    QRect startg = start->geometry();
+	    QPoint startc = startg.center();
 	    QWidget *candidate = 0;
 	    int mindist = 100000;
 	    for (int i = 0; i < ol.count(); ++i) {
@@ -292,37 +295,38 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		if (sibling == start)
 		    continue;
 		QRect sibg = sibling->geometry();
+		QPoint sibc = sibg.center();
 		QPoint sibp;
 		QPoint startp;
 		QPoint distp;
 		switch (relation) {
 		case QAccessible::Left:
-		    startp = QPoint(startg.left(), startg.bottom() - startg.top() / 2);
-		    sibp = QPoint(sibg.right(), sibg.bottom() - sibg.top() / 2);
-		    distp = sibp - startp;
-		    if (distp.x() >= 0)
+		    startp = QPoint(startg.left(), startg.top() + startg.height() / 2);
+		    sibp = QPoint(sibg.right(), sibg.top() + sibg.height() / 2);
+		    if (QPoint(sibc - startc).x() >= 0)
 			continue;
+		    distp = sibp - startp;
 		    break;
 		case QAccessible::Right:
-		    startp = QPoint(startg.right(), startg.bottom() - startg.top() / 2);
-		    sibp = QPoint(sibg.left(), sibg.bottom() - sibg.top() / 2);
-		    distp = sibp - startp;
-		    if (distp.x() <= 0)
+		    startp = QPoint(startg.right(), startg.top() + startg.height() / 2);
+		    sibp = QPoint(sibg.left(), sibg.top() + sibg.height() / 2);
+		    if (QPoint(sibc - startc).x() <= 0)
 			continue;
+		    distp = sibp - startp;
 		    break;
 		case QAccessible::Above:
-		    startp = QPoint(startg.right() - startg.left() / 2, startg.top());
-		    sibp = QPoint(sibg.right() - sibg.left() / 2, sibg.bottom());
-		    distp = sibp - startp;
-		    if (distp.y() >= 0)
+		    startp = QPoint(startg.left() + startg.width() / 2, startg.top());
+		    sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.bottom());
+		    if (QPoint(sibc - startc).y() >= 0)
 			continue;
+		    distp = sibp - startp;
 		    break;
 		case QAccessible::Below:
-		    startp = QPoint(startg.right() - startg.left() / 2, startg.bottom());
-		    sibp = QPoint(sibg.right() - sibg.left() / 2, sibg.top());
-		    distp = sibp - startp;
-		    if (distp.y() <= 0)
+		    startp = QPoint(startg.left() + startg.width() / 2, startg.bottom());
+		    sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.top());
+		    if (QPoint(sibc - startc).y() <= 0)
 			continue;
+		    distp = sibp - startp;
 		    break;
 		}
 
