@@ -6,7 +6,7 @@
 
 #$ Substitute('tmp/qt.cpp: ../include/qt.h $$ALLHEADERS');
 	echo "#include <qt.h>" >tmp/qt.cpp
-	$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) -o tmp/moc_qt.h tmp/qt.cpp
+	$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >tmp/moc_qt.h tmp/qt.cpp
 	$(MOC) -o tmp/qt.cpp tmp/moc_qt.h
 	perl -pi -e 's/"moc_qt.h"/"qt.h"/' tmp/qt.cpp
 
