@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qutfcodec.h#8 $
 **
-** Definition of QEucCodec class
+** Definition of QUtf{8,16}Codec class
 **
 ** Created : 981015
 **

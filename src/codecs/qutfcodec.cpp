@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qutfcodec.cpp#12 $
 **
-** Implementation of QEucCodec class
+** Implementation of QUtf{8,16}Codec class
 **
 ** Created : 981015
 **
