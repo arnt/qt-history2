@@ -158,11 +158,11 @@ class Q_GUI_EXPORT QPainter
 
     void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
 			 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
-    void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint &);
-    void drawTiledPixmap(const QRect &, const QPixmap &);
+    void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint & = QPoint(),
+                         Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 #ifndef QT_NO_PICTURE
-    void drawPicture(int x, int y, const QPicture &);
-    void drawPicture(const QPoint &, const QPicture &);
+    void drawPicture(int x, int y, const QPicture &picture);
+    void drawPicture(const QPoint &p, const QPicture &picture);
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap, const QRect &sourceRect,
@@ -363,24 +363,20 @@ inline void QPainter::fillRect(int x, int y, int w,  int h, const QBrush &b)
     fillRect(QRect(x, y, w, h), b);
 }
 
-inline void QPainter::setBrushOrigin(const QPoint &p)
+inline void QPainter::setBrushOrigin(int x, int y)
 {
-    setBrushOrigin(p.x(), p.y());
+    setBrushOrigin(QPoint(x, y));
 }
 
-inline void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &sp)
+inline void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pm, int sx, int sy,
+                                      Qt::PixmapDrawingMode mode)
 {
-    drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), pm, sp.x(), sp.y());
+    drawTiledPixmap(QRect(x, y, w, h), pm, QPoint(sx, sy), mode);
 }
 
-inline void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm)
+inline void QPainter::drawPicture(int x, int y, const QPicture &picture)
 {
-    drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), pm, 0, 0);
-}
-
-inline void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
-{
-    drawPicture(p.x(), p.y(), pic);
+    drawPicture(QPoint(x, y), picture);
 }
 
 

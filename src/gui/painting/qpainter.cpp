@@ -705,15 +705,15 @@ QPoint QPainter::brushOrigin() const
 }
 
 /*!
-    \fn void QPainter::setBrushOrigin(const QPoint &p)
+    \fn void QPainter::setBrushOrigin(int x, int y)
 
     \overload
 
-    Sets the brush's origin to point \a p.
+    Sets the brush's origin to point (\a x, \a y).
 */
 
 /*!
-    Sets the brush origin to (\a{x}, \a{y}).
+    Sets the brush origin to \a p.
 
     The brush origin specifies the (0, 0) coordinate of the painter's
     brush. This setting only applies to pattern brushes and pixmap
@@ -722,9 +722,9 @@ QPoint QPainter::brushOrigin() const
     \sa brushOrigin()
 */
 
-void QPainter::setBrushOrigin(int x, int y)
+void QPainter::setBrushOrigin(const QPoint &p)
 {
-    d->state->bgOrigin = QPoint(x, y) - d->redirection_offset;
+    d->state->bgOrigin = p - d->redirection_offset;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
@@ -2618,22 +2618,11 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
     }
 }
 
-/*!
-    \fn void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &sp)
-    \overload
-
-    Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin
-    at point \a sp.
-*/
 
 /*!
-    \fn void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm)
-    \overload
+  \fn void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0,
+                                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
 
-    Draws a tiled pixmap, \a pm, inside rectangle \a r.
-*/
-
-/*!
     Draws a tiled \a pixmap in the specified rectangle.
 
     (\a{x}, \a{y}) specifies the top-left point in the paint device
@@ -2650,8 +2639,14 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
     \sa drawPixmap()
 */
 
-void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy,
-			       Qt::PixmapDrawingMode mode)
+/*!
+    \fn void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &sp)
+    \overload
+
+    Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin
+    at point \a sp.
+*/
+void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &sp, Qt::PixmapDrawingMode mode)
 {
     if (!isActive())
         return;
@@ -2661,6 +2656,8 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
     int sh = pixmap.height();
     if (!sw || !sh)
         return;
+    int sx = sp.x();
+    int sy = sp.y();
     if (sx < 0)
         sx = sw - -sx % sw;
     else
@@ -2671,47 +2668,50 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
         sy = sy % sh;
 
     if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-	QImage img(w, h, 32);
+        // ##### what's this crap? Why do we need an image at all here?
+	QImage img(r.width(), r.height(), 32);
 	img.setAlphaBuffer(true);
         QPixmap pm = img;
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
-	p.drawTiledPixmap(0, 0, w, h, pixmap, sx, sy, Qt::CopyPixmap);
+	p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy), Qt::CopyPixmap);
         p.end();
-        drawPixmap(x, y, pm);
+        drawPixmap(r.topLeft(), pm);
         return;
     }
 
+    int x = r.x();
+    int y = r.y();
     if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        x += int(d->state->matrix.dx());
-        y += int(d->state->matrix.dy());
+        x += qRound(d->state->matrix.dx());
+        y += qRound(d->state->matrix.dy());
     }
 
-    d->engine->drawTiledPixmap(QRect(x, y, w, h), pixmap, QPoint(sx, sy), mode);
+    d->engine->drawTiledPixmap(QRect(x, y, r.width(), r.height()), pixmap, QPoint(sx, sy), mode);
 }
 
 /*!
-    \fn void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
+    \fn void QPainter::drawPicture(int x, int y, const QPicture &picture)
     \overload
 
-    Draws picture \a pic at point \a p.
+    Draws picture \a picture at point (\a x, \a y).
 */
 
 /*!
-    Replays the picture \a p translated by (\a x, \a y).
+    Replays the picture \a picture at point \a p.
 
     This function does exactly the same as QPicture::play() when
     called with (\a x, \a y) = (0, 0).
 */
 
-void QPainter::drawPicture(int x, int y, const QPicture &p)
+void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
 {
     if (!isActive())
         return;
     d->engine->updateState(d->state);
     save();
-    translate(x, y);
-    const_cast<QPicture *>(&p)->play(this);
+    translate(p);
+    const_cast<QPicture *>(&picture)->play(this);
     restore();
 }
 
