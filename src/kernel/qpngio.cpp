@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#5 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -825,9 +825,9 @@ int QPNGFormat::user_chunk(png_structp png_ptr, png_infop,
 	    png_bytep data, png_uint_32 length)
 {
     // debug("Got %ld-byte %s chunk", length, png_ptr->chunk_name);
-    if ( 0==strcmp(png_ptr->chunk_name, "gIFg") ) {
+    if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFg") ) {
 	return 1;
-    } if ( 0==strcmp(png_ptr->chunk_name, "gIFx") ) {
+    } if ( 0==strcmp((char*)png_ptr->chunk_name, "gIFx") ) {
 	return 1;
     } else {
 	return 0;
