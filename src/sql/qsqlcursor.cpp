@@ -1456,7 +1456,7 @@ void QSqlCursor::insert( int pos, const QSqlField& field )
 void QSqlCursor::setValue( int i, const QVariant& val )
 {
 #ifdef QT_DEBUG
-    qDebug("QSqlCursor::setValue(): This will not affect actual database values. See primeInsert(), primeUpdate() and primeDelete().");
+    qDebug("QSqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
 #endif
     QSqlRecord::setValue( i, val );
 }
@@ -1465,7 +1465,7 @@ void QSqlCursor::setValue( int i, const QVariant& val )
 void QSqlCursor::setValue( const QString& name, const QVariant& val )
 {
 #ifdef QT_DEBUG
-    qDebug("QSqlCursor::setValue(): This will not affect actual database values. See primeInsert(), primeUpdate() and primeDelete().");
+    qDebug("QSqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");
 #endif
     QSqlRecord::setValue( name, val );
 }
