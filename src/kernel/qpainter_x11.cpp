@@ -2807,6 +2807,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( pos + len > (int)str.length() )
 	len = str.length() - pos;
 
+    QString shaped = QComplexText::shapedString( str,  pos, len, dir );
+    len = shaped.length();
+
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) ) {
 	    updateFont();
@@ -2815,9 +2818,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
-	    QString newstr = str.left(len);
 	    param[0].point = &p;
-	    param[1].str = &newstr;
+	    param[1].str = &shaped;
 	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd )
 		return;
 	}
@@ -2911,9 +2913,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
     }
-
-    QString shaped = QComplexText::shapedString( str,  pos, len, dir );
-    len = shaped.length();
 
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width = cfont.d->textWidth( shaped, 0, len, cache );
