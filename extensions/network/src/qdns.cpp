@@ -72,7 +72,12 @@ static void doResInit();
 
 class QDnsPrivate {
 public:
-    QDnsPrivate() {}
+    QDnsPrivate() : startQueryTimer(FALSE) {}
+    ~QDnsPrivate() {}
+private:
+    bool startQueryTimer;
+
+    friend class QDns;
 };
 
 
@@ -1253,7 +1258,7 @@ void QDnsSocket::answer()
 
 QDns::QDns()
 {
-    d = 0;
+    d = new QDnsPrivate;
     t = None;
 }
 
@@ -1264,14 +1269,18 @@ QDns::QDns()
   Constructs a DNS query object that will return \a rr
   information about \a label.
 
+  The DNS lookup is started the next time the application goes into the event
+  loop. When the result is found the signal resultsReady() is emmitted.
+
   \a rr defaults to \c A, IPv4 addresses.
 */
 
 QDns::QDns( const QString & label, QDns::RecordType rr )
 {
-    d = 0;
+    d = new QDnsPrivate;
     t = rr;
     setLabel( label );
+    setStartQueryTimer(); // start query the next time we enter event loop
 }
 
 
@@ -1300,6 +1309,9 @@ QDns::~QDns()
 /*!  Sets this query object to query for information about \a label.
   This does not change the recordType(), but its isWorking() most
   likely changes as a result.
+
+  The DNS lookup is started the next time the application goes into the event
+  loop. When the result is found the signal resultsReady() is emmitted.
 */
 
 void QDns::setLabel( const QString & label )
@@ -1328,6 +1340,7 @@ void QDns::setLabel( const QString & label )
 	}
 	n.append( l.lower() );
     }
+    setStartQueryTimer(); // start query the next time we enter event loop
 #if defined(DEBUG_QDNS)
     qDebug( "QDns::setLabel: %d address(es) for %s", n.count(), l.ascii() );
     int i = 0;
@@ -1383,13 +1396,48 @@ void QDns::setLabel( const QString & label )
   extensions will be added in future versions.
 */
 
-/*!  Sets this object to query for \a rr records. \sa RecordType */
+/*!
+  Sets this object to query for \a rr records.
+
+  The DNS lookup is started the next time the application goes into the event
+  loop. When the result is found the signal resultsReady() is emmitted.
+
+  \sa RecordType
+*/
 
 void QDns::setRecordType( RecordType rr )
 {
     t = rr;
+    setStartQueryTimer(); // start query the next time we enter event loop
 }
 
+/*!
+  Private slot for starting the query.
+*/
+void QDns::startQuery()
+{
+    // ### this is not the most efficient way it could be done...
+    QList<QDnsRR> *cached = QDnsDomain::cached( this );
+    delete cached;
+    if ( !isWorking() ) {
+	emit resultsReady();
+    }
+    d->startQueryTimer = FALSE;
+}
+
+/*!
+  The three functions QDns::QDns( QString, RecordType ), QDns::setLabel()
+  and QDns::setRecordType() may start a DNS lookup. This function handles
+  setting up the single shot timer.
+*/
+void QDns::setStartQueryTimer()
+{
+    if ( !d->startQueryTimer ) {
+	// start the query the next time we enter event loop
+	QTimer::singleShot( 0, this, SLOT(startQuery()) );
+	d->startQueryTimer = TRUE;
+    }
+}
 
 /*! \fn QDns::RecordType QDns::recordType() const
 

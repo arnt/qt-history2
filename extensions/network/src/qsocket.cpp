@@ -289,8 +289,6 @@ void QSocket::connectToHost( const QString &host, int port )
     d->port = port;
     d->dns = new QDns( host, QDns::A );
     connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
-    // First connection attempt, more to follow
-    tryConnecting();
 };
 
 #endif

@@ -102,7 +102,12 @@ public:
 signals:
     void resultsReady();
 
+private slots:
+    void startQuery();
+
 private:
+    void setStartQueryTimer();
+
     QString l;
     QStringList n;
     RecordType t;
