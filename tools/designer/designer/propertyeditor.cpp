@@ -2624,6 +2624,9 @@ void PropertyList::paintEmptyArea( QPainter *p, const QRect &r )
 
 void PropertyList::setCurrentItem( QListViewItem *i )
 {
+    if ( !i )
+	return;
+
     if ( currentItem() )
 	( (PropertyItem*)currentItem() )->hideEditor();
     QListView::setCurrentItem( i );
