@@ -59,7 +59,6 @@ static inline void readChar()
 	yyCh = EOF;
     else
 	yyCh = yyIn[yyCurPos].unicode();
-
     yyCurPos--;
 }
 
@@ -90,9 +89,22 @@ static int getToken()
 	if ( yyCh == EOF ) {
 	    break;
 	} else if ( isspace(yyCh) ) {
+	    bool metNL = FALSE;
 	    do {
+		metNL = ( metNL || yyCh == '\n' );
 		readChar();
 	    } while ( isspace(yyCh) );
+
+	    if ( metNL ) {
+		int lineStart = yyIn.findRev( QChar('\n'), yyCurPos ) + 1;
+		QString line = yyIn.mid( lineStart, yyCurPos - lineStart + 2 );
+		int commentStart = line.find( QString("//") );
+		if ( commentStart != -1 ) {
+		    yyCurPos = lineStart + commentStart - 1;
+		    yyPos = yyCurPos + 2;
+		    readChar();
+		}
+	    }
 	} else if ( isalnum(yyCh) || yyCh == '_' ) {
 	    do {
 		readChar();
@@ -149,7 +161,7 @@ static int getToken()
 		quote = yyCh;
 		readChar();
 
-		while ( yyCh != EOF ) {
+		while ( yyCh != EOF && yyCh != '\n' ) {
 		    if ( yyCh == quote ) {
 			readChar();
 			if ( yyCh != '\\' )
@@ -337,7 +349,7 @@ static QString matchTemplateAngles()
 		depth--;
 	    t.prepend( yyLex );
 	    yyTok = getToken();
-	} while ( depth > 0 && yyTok != Tok_Boi );
+	} while ( depth > 0 && yyTok != Tok_Boi && yyTok != Tok_LeftBrace );
     }
     return t;
 }
@@ -348,10 +360,14 @@ static QString matchArrayBrackets()
 
     while ( yyTok == Tok_RightBracket ) {
 	t.prepend( yyLex );
-	if ( yyTok == Tok_Something )
+	yyTok = getToken();
+	if ( yyTok == Tok_Something ) {
 	    t.prepend( yyLex );
+	    yyTok = getToken();
+	}
 	if ( yyTok != Tok_LeftBracket )
 	    return QString::null;
+	t.prepend( yyLex );
 	yyTok = getToken();
     }
     return t;
@@ -360,7 +376,7 @@ static QString matchArrayBrackets()
 static void prependToType( QString *type, const QString& prefix )
 {
     if ( !type->isEmpty() && !prefix.isEmpty() ) {
-	QChar left = prefix[(int)prefix.length() - 1];
+	QChar left = prefix[(int) prefix.length() - 1];
 	QChar right = (*type)[0];
 
 	// style can be enforced here
