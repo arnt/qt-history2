@@ -178,7 +178,7 @@ void QThread::sendPostedEvents()
     qthreadprivate->myeventmutex.lock();
     qthreadprivate->woken = false;
     QThreadEvent * qte;
-    for( qte = qthreadprivate->myevents.first(); qte! = 0; qte = qthreadprivate->myevents.next() ) {
+    for( qte = qthreadprivate->myevents.first(); qte != 0; qte = qthreadprivate->myevents.next() ) {
 	qApp->postEvent( qte->o, qte->e );
     }
     qthreadprivate->myevents.clear();
