@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#53 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,12 +24,13 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#53 $";
 #endif
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---
+bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
 
