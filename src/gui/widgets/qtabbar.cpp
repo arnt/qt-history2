@@ -839,10 +839,9 @@ void QTabBar::paintEvent(QPaintEvent *)
         case QTabBar::TriangularWest:
             rect.setRect(width()-overlap, 0, overlap, height());
             break;
-            
+
         }
-        QPaintEvent e(rect);
-        QApplication::sendEvent(theParent, &e);
+        theParent->repaint(rect);
         QPainter::restoreRedirected(theParent);
     }
     QStylePainter p(this);
