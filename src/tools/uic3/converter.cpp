@@ -626,12 +626,14 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
         DomSpacer *ui_spacer = new DomSpacer();
         QList<DomProperty*> properties;
 
-        Size defaultSize;
-        defaultSize.init(0, 0);
 
         QByteArray name = DomTool::readProperty(e, QLatin1String("name"), "spacer").toByteArray();
-        QVariant def;
-        qVariantSet(def, defaultSize);
+
+        Variant var;
+        var.createSize(0, 0);
+
+        QVariant def = qVariant(var);
+
         Size size = asVariant(DomTool::readProperty(e, QLatin1String("sizeHint"), def)).size;
         QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), "Expanding").toString();
         QString orientation = DomTool::readProperty(e, QLatin1String("orientation"), "Horizontal").toString();
