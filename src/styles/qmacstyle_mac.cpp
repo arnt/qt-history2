@@ -306,6 +306,11 @@ void QMacStyle::polish( QWidget* w )
 	layout->setSpacing(0);
 	layout->setMargin(0);
     } 
+#ifdef Q_WS_MAC
+    else if(w->inherits("QPopupMenu")) {
+	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
+    }
+#endif
 
 #if 0
     else if(w->inherits("QTitleBar") ) {
@@ -323,6 +328,12 @@ void QMacStyle::unPolish( QWidget* w )
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
     } 
+#ifdef Q_WS_MAC
+    else if(w->inherits("QPopupMenu")) {
+	QMacSavedPortInfo::setAlphaTransparancy(w, 1);
+    }
+#endif
+
 }
 
 /*! \reimp */
