@@ -147,30 +147,15 @@ void QAccessibleObject::setText(Text, int, const QString &)
 }
 
 /*! \reimp */
-int QAccessibleObject::userActionCount(int child) const
+int QAccessibleObject::userActionCount(int) const
 {
     return 0;
 }
 
 /*! \reimp */
-bool QAccessibleObject::doAction(int action, int child, const QVariantList &params)
+bool QAccessibleObject::doAction(int, int, const QVariantList &)
 {
-    if (child || action < 0)
-        return false;
-
-    QByteArray actionText(d->actionList().value(action));
-    int slotId = d->object->metaObject()->indexOfSlot(actionText);
-    if (slotId < 0)
-        return false;
-
-    QVarLengthArray<void*, 10> argv(params.count() + 1);
-
-    argv[0] = 0;
-    // ### here we must do some type casting, or at least verification
-    for (int p = 0; p < params.count(); ++p)
-        argv[p] = const_cast<void*>(params.at(p - 1).data());
-
-    return d->object->qt_metacall(QMetaObject::InvokeSlot, slotId, argv.data()) < 0;
+    return false;
 }
 
 static const char * const action_text[][5] = 
