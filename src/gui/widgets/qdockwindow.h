@@ -41,7 +41,7 @@ public:
     };
     Q_DECLARE_FLAGS(DockWindowFeatures, DockWindowFeature)
 
-        QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
+    QDockWindow(QMainWindow *parent, Qt::WFlags flags = 0);
     QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags = 0);
     ~QDockWindow();
 
