@@ -153,10 +153,10 @@ public:
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
 
-    void setProperty(int propertyId, bool value);
-    void setProperty(int propertyId, int value);
-    void setProperty(int propertyId, float value);
-    void setProperty(int propertyId, const QString &value);
+    void setProperty(int propertyId, bool value, bool defaultValue = false);
+    void setProperty(int propertyId, int value, int defaultValue = 0);
+    void setProperty(int propertyId, float value, float defaultValue = 0.0);
+    void setProperty(int propertyId, const QString &value, const QString &defaultValue = QString::null);
 
     bool hasProperty(int propertyId) const;
     PropertyType propertyType(int propertyId) const;
@@ -164,7 +164,7 @@ public:
     QList<int> allPropertyIds() const;
 
     inline void setObjectType(int type)
-    { setProperty(ObjectType, type); }
+    { setProperty(ObjectType, type, NoObject); }
     inline int objectType() const
     { return intProperty(ObjectType, NoObject); }
 
@@ -207,12 +207,12 @@ public:
     { return stringProperty(FontFamily); }
 
     inline void setFontPointSize(float size)
-    { setProperty(FontPointSize, size); }
+    { setProperty(FontPointSize, size, 12.0); }
     inline float fontPointSize() const
-    { return floatProperty(FontPointSize, 12); }
+    { return floatProperty(FontPointSize, 12.0); }
 
     inline void setFontWeight(int weight)
-    { setProperty(FontWeight, weight); }
+    { setProperty(FontWeight, weight, QFont::Normal); }
     inline int fontWeight() const
     { return intProperty(FontWeight, QFont::Normal); }
 
@@ -262,11 +262,11 @@ public:
     { return stringProperty(AnchorName); }
 
     inline void setTableCellRowSpan(int tableCellRowSpan)
-    { setProperty(TableCellRowSpan, tableCellRowSpan); }
+    { setProperty(TableCellRowSpan, tableCellRowSpan, 1); }
     inline int tableCellRowSpan() const
     { return intProperty(TableCellRowSpan, 1); }
     inline void setTableCellColumnSpan(int tableCellColumnSpan)
-    { setProperty(TableCellColumnSpan, tableCellColumnSpan); }
+    { setProperty(TableCellColumnSpan, tableCellColumnSpan, 1); }
     inline int tableCellColumnSpan() const
     { return intProperty(TableCellColumnSpan, 1); }
 };
@@ -281,7 +281,7 @@ public:
     bool isValid() const { return isBlockFormat(); }
 
     inline void setDirection(Direction dir)
-    { setProperty(BlockDirection, dir); }
+    { setProperty(BlockDirection, dir, AutoDirection); }
     inline Direction direction() const
     { return static_cast<Direction>(intProperty(BlockDirection, AutoDirection)); }
 
@@ -349,7 +349,7 @@ public:
     };
 
     inline void setStyle(int style)
-    { setProperty(ListStyle, style); }
+    { setProperty(ListStyle, style, ListStyleUndefined); }
     inline int style() const
     { return intProperty(ListStyle, ListStyleUndefined); }
 
@@ -399,32 +399,32 @@ public:
     };
 
     inline void setPosition(Position f)
-    { setProperty(CssFloat, (int)f); }
+    { setProperty(CssFloat, f, InFlow); }
     inline Position position() const
     { return (Position)intProperty(CssFloat, InFlow); }
 
     inline void setBorder(int border)
-    { setProperty(FrameBorder, border); }
+    { setProperty(FrameBorder, border, 0); }
     inline int border() const
     { return intProperty(FrameBorder, 0); }
 
     inline void setMargin(int margin)
-    { setProperty(FrameMargin, margin); }
+    { setProperty(FrameMargin, margin, 0); }
     inline int margin() const
     { return intProperty(FrameMargin, 0); }
 
     inline void setPadding(int padding)
-    { setProperty(FramePadding, padding); }
+    { setProperty(FramePadding, padding, 0); }
     inline int padding() const
     { return intProperty(FramePadding, 0); }
 
     inline void setWidth(int border)
-    { setProperty(Width, border); }
+    { setProperty(Width, border, -1); }
     inline int width() const
     { return intProperty(Width, -1); }
 
     inline void setHeight(int border)
-    { setProperty(Height, border); }
+    { setProperty(Height, border, -1); }
     inline int height() const
     { return intProperty(Height, -1); }
 
@@ -441,7 +441,7 @@ public:
     int columns() const
     { return intProperty(TableColumns, 1); }
     void setColumns(int columns)
-    { setProperty(TableColumns, columns); }
+    { setProperty(TableColumns, columns, 1); }
 };
 
 #endif

@@ -91,6 +91,12 @@ public:
         props.insert(key, value);
     }
 
+    inline void clearProperty(Q_INT32 key)
+    {
+        hashDirty = true;
+        props.remove(key);
+    }
+
     const PropertyMap &properties() const { return props; }
 
     inline void load(QDataStream &stream)
@@ -647,9 +653,12 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 
     \sa boolProperty() PropertyType
 */
-void QTextFormat::setProperty(int propertyId, bool value)
+void QTextFormat::setProperty(int propertyId, bool value, bool defaultValue)
 {
-    d->insertProperty(propertyId, value);
+    if (value == defaultValue)
+        d->clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -659,9 +668,12 @@ void QTextFormat::setProperty(int propertyId, bool value)
 
     \sa intProperty() PropertyType
 */
-void QTextFormat::setProperty(int propertyId, int value)
+void QTextFormat::setProperty(int propertyId, int value, int defaultValue)
 {
-    d->insertProperty(propertyId, value);
+    if (value == defaultValue)
+        d->clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -671,9 +683,12 @@ void QTextFormat::setProperty(int propertyId, int value)
 
     \sa floatProperty() PropertyType
 */
-void QTextFormat::setProperty(int propertyId, float value)
+void QTextFormat::setProperty(int propertyId, float value, float defaultValue)
 {
-    d->insertProperty(propertyId, value);
+    if (value == defaultValue)
+        d->clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -681,9 +696,12 @@ void QTextFormat::setProperty(int propertyId, float value)
 
     \sa stringProperty() PropertyType
 */
-void QTextFormat::setProperty(int propertyId, const QString &value)
+void QTextFormat::setProperty(int propertyId, const QString &value, const QString &defaultValue)
 {
-    d->insertProperty(propertyId, value);
+    if (value == defaultValue)
+        d->clearProperty(propertyId);
+    else
+        d->insertProperty(propertyId, value);
 }
 
 /*!
