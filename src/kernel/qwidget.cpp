@@ -3724,6 +3724,7 @@ void QWidget::internalShow(bool informParent)
 	// minimum size.
 	if (!s.isEmpty())
 	    resize(s);
+#endif // Q_OS_TEMP
     } else if (informParent) {
 	// allow our parent to monitor show events
 	QApplication::sendPostedEvents( parentWidget(),
@@ -3731,7 +3732,6 @@ void QWidget::internalShow(bool informParent)
 	// relayout before we receive our move and resize events.
 	if (parentWidget()->layout())
 	    parentWidget()->layout()->activate();
-#endif // Q_OS_TEMP
     }
     QApplication::sendPostedEvents( this, QEvent::Move );
     QApplication::sendPostedEvents( this, QEvent::Resize );
