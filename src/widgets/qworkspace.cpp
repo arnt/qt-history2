@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#24 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -132,8 +132,8 @@ static const char * normalize_xpm[] = {
 const bool win32 = FALSE;
 #define TITLEBAR_HEIGHT 18
 #define TITLEBAR_SEPARATION 2
-#define BUTTON_WIDTH 16
-#define BUTTON_HEIGHT 16
+#define BUTTON_WIDTH 18
+#define BUTTON_HEIGHT 18
 #define BORDER 2
 #define RANGE 16
 #define OFFSET 20
@@ -240,7 +240,7 @@ public:
     ~QWorkspaceChildTitleBar();
 
     bool isActive() const;
-    
+
     QSize sizeHint() const;
 
  public slots:
@@ -1000,7 +1000,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     titlebar->setText( clientw->caption() );
     if( clientw->icon() )
 	titlebar->setIcon( *clientw->icon() );
-    
+
     int th = titlebar->sizeHint().height();
 
     bool hasBeenResize = clientw->testWState( WState_Resized );
