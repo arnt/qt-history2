@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#59 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#60 $
 **
 ** Definition of QApplication class
 **
@@ -16,8 +16,8 @@
 
 
 #if defined(TrueColor)
-// X11/X111.h #defines TrueColor, so it can't be used in any class or enum
-#error "TrueColor" #defined: Do not include X11/X.h before qapp.h
+// X11/X.h #defines TrueColor, so it can't be used in any class or enum
+#error "TrueColor already #defined by X11/X.h. Include X11/X.h after qapp.h"
 #endif
 
 
