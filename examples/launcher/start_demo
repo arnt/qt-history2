@@ -135,7 +135,7 @@ then
 	FBSET=/sbin/fbset
     fi
     if [ -f "$FBSET" ]
-    else
+    then
 	echo "Change to display mode $MODE? [yes]"
 	read y
 	if [ "$y" != n -a "$y" != no ]
