@@ -711,6 +711,9 @@ contain a null pixmap. QIconSet::isNull() returns TRUE for un-
 initialized iconsets, and pixmap() still returns a null pixmap for
 pixmaps that couldn't be generated.
 
+New function:
+        clearGenerated()
+
 
 QIconView
 ---------
