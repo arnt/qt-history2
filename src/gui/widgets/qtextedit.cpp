@@ -424,8 +424,9 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
 
         viewport->setBackgroundRole(QPalette::Base);
-        viewport->setFocusPolicy(Qt::WheelFocus);
         viewport->setAcceptDrops(true);
+        viewport->setFocusProxy(q);
+        q->setFocusPolicy(Qt::WheelFocus);
     }
 
     readOnly = false;
