@@ -706,9 +706,38 @@ void QPainter::drawPoint( int x, int y )
 }
 
 
-// FIXME: Implement this
-void QPainter::drawPoints( const QPointArray&, int, int )
+void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 {
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > (int)a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 1 || index < 0 )
+	return;
+    QPointArray pa = a;
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    for (int i=0; i<npoints; i++) {
+		QPoint p( pa[index+i].x(), pa[index+i].y() );
+		param[0].point = &p;
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param))
+		    return;
+	    }
+	}
+	if ( txop != TxNone ) {
+	    pa = xForm( a, index, npoints );
+	    if ( pa.size() != a.size() ) {
+		index = 0;
+		npoints = pa.size();
+	    }
+	}
+    }
+    if ( cpen.style() != NoPen ) {
+	::RGBColor r = { 0, 0, 0 };
+	for (int i=0; i<npoints; i++) 
+	    SetCPixel(pa[index+i].x()+offx,pa[index+i].y()+offy,&r);
+    }
 }
 
 
