@@ -15,19 +15,19 @@ The Qt Library
 Qt Designer
 ========================================
 
- - 
+ - Improvements of the designer reference manual.
+
+ - Improved the C++ code indenter in the editor for numbers and handling of
+   parenthesis.
 
 
 Qt Assistant
 ========================================
 
- - 
+ - Add a context menu with common commands.
 
-
-Qt Linguist
-========================================
-
- - 
+ - Allow multiple windows to be opened and add the common shortcut that
+   Shift+Click on a link opens the link in a new window.
 
 
 Qt Functions
