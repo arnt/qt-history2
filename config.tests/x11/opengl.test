@@ -67,7 +67,9 @@ do
 	OPENGL=no
 	if [ "x$F_REASON" = "xthreads" ]
 	then
-	   echo "  $FOUND_LIB is threaded; the Qt OpenGL Module requires Qt to be configured with -thread."
+	   echo
+	   echo "NOTE: $FOUND_LIB is threaded!"
+	   echo "The Qt OpenGL module requires Qt to be configured with -thread."
 	else
 	   [ "$VERBOSE" = "yes" ] && echo "  Could not find $L lib anywhere in $LIBDIRS"
 	fi
