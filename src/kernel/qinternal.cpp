@@ -208,6 +208,12 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
             pix = new QPixmap( w, h );
     }
 
+#ifdef Q_WS_X11
+    if ( widget->x11Screen() != pix->x11Screen() )
+        pix->x11SetScreen( widget->x11Screen() );
+    QPixmap::x11SetDefaultScreen( pix->x11Screen() );
+#endif
+
     if ( initbg )
         pix->fill( wid, rx, ry );
     p = new QPainter( pix, wid );
