@@ -2872,6 +2872,7 @@ void QFileDialog::setSelection( const QString & filename )
 	d->url.setPath( d->url.dirPath() );
 	trySetSelection( FALSE, u, TRUE );
 	d->ignoreNextRefresh = TRUE;
+	nameEdit->selectAll();
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
     } else {
@@ -2884,7 +2885,7 @@ void QFileDialog::setSelection( const QString & filename )
 	trySetSelection( TRUE, d->url, FALSE );
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
-	nameEdit->setText( QString::fromLatin1("") );
+	nameEdit->setText( QString::fromLatin1("") );	
     }
     d->checkForFilter = FALSE;
 }
