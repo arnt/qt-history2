@@ -2946,13 +2946,16 @@ void MainWindow::setModified( bool b, QWidget *window )
 	    ( (FormWindow*)w )->modificationChanged( b );
 	    return;
 	} else if ( w->inherits( "SourceEditor" ) ) {
-	    if ( ( (SourceEditor*)w )->formWindow() ) {
-		FormWindow *fw = ( (SourceEditor*)w )->formWindow();
-		fw->commandHistory()->setModified( b );
-		fw->modificationChanged( b );
+	    FormWindow *fw = ( (SourceEditor*)w )->formWindow();
+	    if ( fw ) {
+		//fw->commandHistory()->setModified( b );
+		//fw->modificationChanged( b );
+		fw->formFile()->setModified( b, FormFile::WFormCode );
+		wspace->update( fw->formFile() );
 	    } else {
 		wspace->update();
 	    }
+	    return;
 	}
 	w = w->parentWidget( TRUE );
     }

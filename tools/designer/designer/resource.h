@@ -67,7 +67,7 @@ public:
     bool load( FormFile *ff, QIODevice* );
     QString copy();
 
-    bool save( const QString& filename);
+    bool save( const QString& filename, bool formCodeOnly = FALSE);
     bool save( QIODevice* );
     void paste( const QString &cb, QWidget *parent );
 

@@ -178,54 +178,59 @@ bool FormFile::save( bool withMsgBox )
     if ( ed )
 	ed->save();
 
-    if ( withMsgBox ) {
-	if ( !formWindow()->checkCustomWidgets() )
-	    return FALSE;
-    }
+    if ( isModified( WFormWindow ) ) {
+	if ( withMsgBox ) {
+	    if ( !formWindow()->checkCustomWidgets() )
+		return FALSE;
+	}
 
-    if ( QFile::exists( pro->makeAbsolute( filename ) ) ) {
-	QString fn( pro->makeAbsolute( filename ) );
+	if ( QFile::exists( pro->makeAbsolute( filename ) ) ) {
+	    QString fn( pro->makeAbsolute( filename ) );
 #if defined(Q_OS_WIN32)
-	fn += ".bak";
+	    fn += ".bak";
 #else
-	fn += "~";
+	    fn += "~";
 #endif
-	QFile f( pro->makeAbsolute( filename ) );
-	if ( f.open( IO_ReadOnly ) ) {
-	    QFile f2( fn );
-	    if ( f2.open( IO_WriteOnly ) ) {
-		QCString data( f.size() );
-		f.readBlock( data.data(), f.size() );
-		f2.writeBlock( data );
+	    QFile f( pro->makeAbsolute( filename ) );
+	    if ( f.open( IO_ReadOnly ) ) {
+		QFile f2( fn );
+		if ( f2.open( IO_WriteOnly ) ) {
+		    QCString data( f.size() );
+		    f.readBlock( data.data(), f.size() );
+		    f2.writeBlock( data );
+		}
 	    }
 	}
     }
 
-    if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
-	QString fn( pro->makeAbsolute( codeFile() ) );
+    if ( isModified( WFormCode ) && seperateSource ) {
+	if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
+	    QString fn( pro->makeAbsolute( codeFile() ) );
 #if defined(Q_OS_WIN32)
-	fn += ".bak";
+	    fn += ".bak";
 #else
-	fn += "~";
+	    fn += "~";
 #endif
-	QFile f( pro->makeAbsolute( codeFile() ) );
-	if ( f.open( IO_ReadOnly ) ) {
-	    QFile f2( fn );
-	    if ( f2.open( IO_WriteOnly ) ) {
-		QCString data( f.size() );
-		f.readBlock( data.data(), f.size() );
-		f2.writeBlock( data );
+	    QFile f( pro->makeAbsolute( codeFile() ) );
+	    if ( f.open( IO_ReadOnly ) ) {
+		QFile f2( fn );
+		if ( f2.open( IO_WriteOnly ) ) {
+		    QCString data( f.size() );
+		    f.readBlock( data.data(), f.size() );
+		    f2.writeBlock( data );
+		}
 	    }
 	}
     }
 
     Resource resource( MainWindow::self );
     resource.setWidget( formWindow() );
-    if ( !resource.save( pro->makeAbsolute( filename ) ) ) {
+    bool formCodeOnly = isModified( WFormCode ) && !isModified( WFormWindow ) && seperateSource;
+    if ( !resource.save( pro->makeAbsolute( filename ), formCodeOnly ) ) {
 	MainWindow::self->statusBar()->message( tr( "Failed to save file '%1'.").arg( filename ), 5000 );
 	return saveAs();
     }
-    MainWindow::self->statusBar()->message( tr( "'%1' saved.").arg( filename ), 3000 );
+    MainWindow::self->statusBar()->message( tr( "'%1' saved.").arg( formCodeOnly ? codeFile() : filename ), 3000 );
     timeStamp.update();
     setModified( FALSE );
     return TRUE;

@@ -168,9 +168,6 @@ bool Resource::load( FormFile *ff )
 
 bool Resource::load( FormFile *ff, QIODevice* dev )
 {
-    langIface = MetaDataBase::languageInterface( MainWindow::self->currProject()->language() );
-    if ( langIface )
-	langIface->addRef();
     QDomDocument doc;
     QString errMsg;
     int errLine;
@@ -186,11 +183,13 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
 
-    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
+    if (!langIface) {
+	langIface = MetaDataBase::languageInterface( mainwindow->currProject()->language() );
+	if ( langIface )
+	    langIface->addRef();
+    }
 
-    langIface = MetaDataBase::languageInterface( MainWindow::self->currProject()->language() );
-    if ( langIface )
-	langIface->addRef();
+    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
 
     QDomElement forwards = e;
     while ( forwards.tagName() != "forwards" && !forwards.isNull() )
@@ -410,10 +409,19 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     return TRUE;
 }
 
-bool Resource::save( const QString& filename )
+bool Resource::save( const QString& filename, bool formCodeOnly )
 {
     if ( !formwindow || filename.isEmpty() )
 	return FALSE;
+    if (!langIface) {
+	langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
+	if ( langIface )
+	    langIface->addRef();
+    }
+    if ( formCodeOnly && langIface && langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	saveFormCode();
+	return TRUE; // missing error checking in saveFormCode ?
+    }
     currFileName = filename;
 
     QFile f( filename );
@@ -429,9 +437,11 @@ bool Resource::save( QIODevice* dev )
     if ( !formwindow )
 	return FALSE;
 
-    langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
-    if ( langIface )
-	langIface->addRef();
+    if (!langIface) {
+	langIface = MetaDataBase::languageInterface( mainwindow->self->currProject()->language() );
+	if ( langIface )
+	    langIface->addRef();
+    }
 
     QTextStream ts( dev );
     ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );

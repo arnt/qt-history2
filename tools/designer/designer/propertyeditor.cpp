@@ -1923,16 +1923,21 @@ void PropertyDatabaseItem::initChildren()
 		item->setValue( cl );
 	    else if ( lst.count() > 1 )
 		item->setValue( QStringList( lst[ 1 ] ) );
-	    else if ( withField )
-		item->setValue( QStringList( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
-									 "database" ).toStringList()[ 1 ] ) );
+	    else if ( withField ) {
+		QStringList fakeLst = MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), "database" ).toStringList();
+		if ( fakeLst.count() > 1 )
+		    item->setValue( fakeLst[ 1 ] );
+	    }
 
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
-	    else if ( !isChanged() && withField )
-		item->setCurrentItem( MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(),
-								  "database" ).toStringList()[ 1 ] );
-	    else
+	    else if ( !isChanged() && withField ) {
+		QStringList fakeLst = MetaDataBase::fakeProperty( listview->propertyEditor()->formWindow()->mainContainer(), "database" ).toStringList();
+		if ( fakeLst.count() > 1 )
+		    item->setCurrentItem( fakeLst[ 1 ] );
+	        else
+	            item->setCurrentItem( 0 );
+	    } else
 		item->setCurrentItem( 0 );
 	    table = item->currentItem();
 	} else if ( item->name() == tr( "Field" ) ) {

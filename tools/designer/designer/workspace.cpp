@@ -236,7 +236,7 @@ bool WorkspaceItem::isModified() const
     case ProjectType:
 	return project->isModified();
     case FormFileType:
-	return formFile->isModified();
+	return formFile->isModified( FormFile::WFormWindow );
     case FormSourceType:
 	return formFile->isModified( FormFile::WFormCode );
     case SourceFileType:

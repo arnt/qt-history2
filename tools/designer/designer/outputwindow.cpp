@@ -61,6 +61,7 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 void OutputWindow::setupDebug()
 {
     debugoutput = debugView = new QTextEdit( this, "OutputWindow::debugView" );
+    debugView->setReadOnly( TRUE );
     addTab( debugView, "Debug Output" );
 
     if ( !debugToStderr )

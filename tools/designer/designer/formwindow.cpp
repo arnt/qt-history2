@@ -231,7 +231,7 @@ FormWindow::~FormWindow()
 
 void FormWindow::closeEvent( QCloseEvent *e )
 {
-    if ( mainwindow->unregisterClient( this ) && ff->closeEvent() )
+    if ( ff->closeEvent() && mainwindow->unregisterClient( this ) )
 	e->accept();
     else
 	e->ignore();
