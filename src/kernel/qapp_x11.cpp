@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#297 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#298 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -21,6 +21,7 @@
 #include "qwidget.h"
 #include "qobjcoll.h"
 #include "qwidcoll.h"
+#include "qbitarry.h"
 #include "qpainter.h"
 #include "qpmcache.h"
 #include "qdatetm.h"
@@ -85,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#297 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#298 $");
 
 
 /*****************************************************************************
@@ -2356,9 +2357,7 @@ struct TimerInfo {				// internal timer info
 
 typedef Q_DECLARE(QListM,TimerInfo) TimerList;	// list of TimerInfo structs
 
-static const int MaxTimers	= 256;		// max number of timers
-static const int TimerBitVecLen = MaxTimers/8+1;// size of timer bit vector
-static uchar *timerBitVec	= 0;		// timer bit vector
+static QBitArray *timerBitVec;			// timer bit vector
 static TimerList *timerList	= 0;		// timer list
 
 
@@ -2410,35 +2409,19 @@ static inline timeval operator-( const timeval &t1, const timeval &t2 )
 // The timerBitVec array is used for keeping track of timer identifiers.
 //
 
-static inline void setTimerBit( int id )	// set timer bit
-{
-    --id;
-    timerBitVec[id/8] |= (1 << (id & 7));
-}
-
-static inline void clearTimerBit( int id )	// clear timer bit
-{
-    --id;
-    timerBitVec[id/8] &= ~(1 << (id & 7));
-}
-
-static inline int testTimerBit( int id )	// test timer bit
-{
-    --id;
-    return timerBitVec[id/8] & (1 << (id & 7));
-}
-
 static int allocTimerId()			// find avail timer identifier
 {
-    for ( int i=0; i<TimerBitVecLen; i++ ) {
-	if ( timerBitVec[i] != 0xff ) {
-	    int j = i*8 + 1;
-	    while ( testTimerBit(j) )
-		j++;
-	    return j;
-	}
+    int i = timerBitVec->size()-1;
+    while ( i >= 0 && (*timerBitVec)[i] )
+	i--;
+    if ( i < 0 ) {
+	i = timerBitVec->size();
+	timerBitVec->resize( 4 * i );
+	for( int j=timerBitVec->size()-1; j > i; j-- )
+	    timerBitVec->clearBit( j );
     }
-    return 0;
+    timerBitVec->setBit( i );
+    return i+1;
 }
 
 static void insertTimer( const TimerInfo *ti )	// insert timer info into list
@@ -2562,11 +2545,11 @@ int qt_activate_timers()
 
 static void initTimers()			// initialize timers
 {
-    timerBitVec = new uchar[TimerBitVecLen];
+    timerBitVec = new QBitArray( 128 );
     CHECK_PTR( timerBitVec );
-    int i;
-    for( i=0; i < TimerBitVecLen; i++ )
-	timerBitVec[i] = '\0';
+    int i = timerBitVec->size();
+    while( i-- > 0 )
+	timerBitVec->clearBit( i );
     timerList = new TimerList;
     CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
@@ -2592,9 +2575,10 @@ int qStartTimer( int interval, QObject *obj )
     if ( !timerList )				// initialize timer data
 	initTimers();
     int id = allocTimerId();			// get free timer id
-    if ( id <= 0 || id > MaxTimers || !obj )	// cannot create timer
+    if ( id <= 0 ||
+	 id > (int)timerBitVec->size() || !obj )// cannot create timer
 	return 0;
-    setTimerBit( id );				// set timer active
+    timerBitVec->setBit( id-1 );		// set timer active
     TimerInfo *t = new TimerInfo;		// create timer
     CHECK_PTR( t );
     t->id = id;
@@ -2611,13 +2595,14 @@ int qStartTimer( int interval, QObject *obj )
 bool qKillTimer( int id )
 {
     register TimerInfo *t;
-    if ( !timerList || id <= 0 || id > MaxTimers || !testTimerBit(id) )
+    if ( !timerList || id <= 0 ||
+	 id > (int)timerBitVec->size() || !timerBitVec->testBit( id-1 ) )
 	return FALSE;				// not init'd or invalid timer
     t = timerList->first();
     while ( t && t->id != id )			// find timer info in list
 	t = timerList->next();
     if ( t ) {					// id found
-	clearTimerBit( id );			// set timer inactive
+	timerBitVec->clearBit( id-1 );		// set timer inactive
 	return timerList->remove();
     }
     else					// id not found
@@ -2632,7 +2617,7 @@ bool qKillTimer( QObject *obj )
     t = timerList->first();
     while ( t ) {				// check all timers
 	if ( t->obj == obj ) {			// object found
-	    clearTimerBit( t->id );
+	    timerBitVec->clearBit( t->id-1 );
 	    timerList->remove();
 	    t = timerList->current();
 	} else {
