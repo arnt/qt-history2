@@ -913,7 +913,9 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     Returns a list of model indexes (which may be empty), for those
     items at or after the \a start index which match the given \a
     value in accordance with the match \a flags. The comparison is
-    done against the specified item's \a{role}s.
+    done against the specified item's \a{role}s. The maximum number of
+    matches required (which should be \> 0) is specified by \a hits
+    which defaults to 1 (i.e. just find the first matching item).
 */
 
 /*!

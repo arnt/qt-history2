@@ -913,8 +913,9 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 */
 
 
-/*! Constructs a new modal printer dialog that configures \a prn and is a
-  child of \a parent named \a name.
+/*!
+    Constructs a new modal printer dialog for the given \a printer
+    with the given \a parent.
 */
 
 #define d d_func()

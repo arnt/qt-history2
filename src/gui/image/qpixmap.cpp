@@ -157,6 +157,14 @@
 
 */
 
+/*!
+    \fn HDC QPixmap::winHDC() const
+
+    Returns the pixmap's handle to the device context.
+
+    \warning This function is Windows-specific; using it is
+    non-portable.
+*/
 
 QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
 
