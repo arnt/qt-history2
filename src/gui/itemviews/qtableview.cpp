@@ -357,7 +357,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     right = qMax(tmp, right);
 
     // get the vertical start and end sections (visual indexes)
-    
+
     int top = d->verticalHeader->visualIndexAt(area.top());
     int bottom = d->verticalHeader->visualIndexAt(area.bottom());
 
@@ -497,29 +497,38 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           Qt::ButtonState)
 {
     QModelIndex current = currentIndex();
-    int bottom = d->model->rowCount(root()) - 1;
-    int right = d->model->columnCount(root()) - 1;
+    int visualRow = verticalHeader()->visualIndex(current.row());
+    int visualColumn = horizontalHeader()->visualIndex(current.column());
+    int verticalStep = 0;
+    int horizontalStep = 0;
+
+    int bottom = model()->rowCount(root()) - 1;
+    int right = model()->columnCount(root()) - 1;
     switch (cursorAction) {
     case QAbstractItemView::MoveUp:
-        if (current.row() > 0)
-            return model()->index(current.row() - 1, current.column(), root());
+        verticalStep = -1;
+        visualRow += verticalStep;
         break;
     case QAbstractItemView::MoveDown:
-        if (current.row() < bottom)
-            return model()->index(current.row() + 1, current.column(), root());
+        verticalStep = 1;
+        visualRow += verticalStep;
         break;
     case QAbstractItemView::MoveLeft:
-        if (current.column() > 0)
-            return model()->index(current.row(), current.column() - 1, root());
+        horizontalStep = QApplication::reverseLayout() ? 1 : -1;
+        visualColumn += horizontalStep;
         break;
     case QAbstractItemView::MoveRight:
-        if (current.column() < right)
-            return model()->index(current.row(), current.column() + 1, root());
+        horizontalStep = QApplication::reverseLayout() ? -1 : 1;
+        visualColumn += horizontalStep;
         break;
     case QAbstractItemView::MoveHome:
-        return model()->index(0, current.column(), root());
+        verticalStep = 1;
+        visualRow = 0;
+        break;
     case QAbstractItemView::MoveEnd:
-        return model()->index(bottom, current.column(), root());
+        verticalStep = -1;
+        visualRow = bottom;
+        break;
     case QAbstractItemView::MovePageUp: {
         int newRow = rowAt(itemViewportRect(current).top() - d->viewport->height());
         return model()->index(newRow <= bottom ? newRow : 0, current.column(), root());}
@@ -527,6 +536,23 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
         return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());}
     }
+
+    while (verticalStep != 0
+           && visualRow >= 0
+           && visualRow <= bottom
+           && verticalHeader()->isSectionHidden(verticalHeader()->logicalIndex(visualRow)))
+        visualRow += verticalStep;
+
+    while (horizontalStep != 0
+           && visualColumn >= 0
+           && visualColumn <= right
+           && horizontalHeader()->isSectionHidden(horizontalHeader()->logicalIndex(visualColumn)))
+        visualColumn += horizontalStep;
+
+    int logicalRow = verticalHeader()->logicalIndex(visualRow);
+    int logicalColumn = horizontalHeader()->logicalIndex(visualColumn);
+    if (model()->hasIndex(logicalRow, logicalColumn, root()))
+        return model()->index(logicalRow, logicalColumn, root());
     return QModelIndex::Null;
 }
 

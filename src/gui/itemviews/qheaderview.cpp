@@ -563,7 +563,8 @@ int QHeaderView::count() const
 }
 
 /*!
-    Returns the visual index position of the section specified by the given \a logicalIndex.
+    Returns the visual index position of the section specified by the
+    given \a logicalIndex, or -1 otherwise.
 
     \sa section()
 */
@@ -578,7 +579,8 @@ int QHeaderView::visualIndex(int logicalIndex) const
 }
 
 /*!
-    Returns the logicalIndex for the section at the given \a visualIndex position.
+    Returns the logicalIndex for the section at the given \a
+    visualIndex position, or -1 otherwise.
 
     \sa visualIndex()
 */
@@ -1349,7 +1351,7 @@ void QHeaderView::dataChanged(const QModelIndex &, const QModelIndex &)
 */
 void QHeaderView::rowsInserted(const QModelIndex &, int, int)
 {
-    // do nothing    
+    // do nothing
 }
 
 /*!
