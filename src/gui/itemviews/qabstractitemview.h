@@ -186,7 +186,7 @@ protected:
     virtual QModelIndexList selectedIndexes() const;
 
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
-    virtual void endEdit(const QModelIndex &index);
+    virtual void endEdit(QWidget *editor);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event) const;

@@ -229,7 +229,7 @@ void QAbstractItemViewPrivate::init()
     \value NoState        The is the default state.
     \value DraggingState  The user is dragging items.
     \value SelectingState The user is selecting items.
-    \value EditingState   The user is editing an item.
+    \value EditingState   The user is editing an item in a widget editor.
     \value OpeningState   The user is opening a branch of items.
     \value ClosingState   The user is closing a branch of items.
 */
@@ -1296,19 +1296,13 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 
     \sa edit() QAbstractItemDelegate::releaseEditor()
 */
-void QAbstractItemView::endEdit(const QModelIndex &index)
+void QAbstractItemView::endEdit(QWidget *editor)
 {
-    QPersistentModelIndex persistent(index, model());
-    if (!persistent.isValid())
-        return;
-
-    d->state = NoState;
-
-    QWidget *editor = d->editors.value(persistent);
     if (editor && !d->persistent.contains(editor)) { // if the editor is not persistent, remove it
+        d->state = NoState;
         QObject::disconnect(editor, SIGNAL(destroyed(QObject*)),
                             this, SLOT(editorDestroyed(QObject*)));
-        d->editors.remove(persistent);
+        d->editors.remove(d->editors.key(editor));
         itemDelegate()->releaseEditor(editor);
     }
 
@@ -1402,7 +1396,7 @@ void QAbstractItemView::selectionModelDestroyed()
 */
 void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
-    endEdit(d->editors.key(editor));
+    endEdit(editor);
     switch (hint) {
     case QAbstractItemDelegate::EditNextItem:
         editNextItem();
@@ -1739,6 +1733,15 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             rect.setBottom(d->viewport->height());
         }
         d->viewport->repaint(rect);
+
+        if (state() == EditingState) {
+            QPersistentModelIndex persistent(previous, model());
+            QWidget *editor = d->editors.value(persistent);
+            if (editor) {
+                commitData(editor);
+                endEdit(editor);
+            }
+        }
     }
 
     if (current.isValid()) {
