@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#34 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#34 $");
 
 
 struct QPrintDialogPrivate
@@ -228,11 +228,6 @@ static void parseEtcLp( QListView * printers )
 
 
 static QPrintDialog * globalPrintDialog = 0;
-static void deleteGlobalPrinterDialog()
-{
-    delete globalPrintDialog;
-    globalPrintDialog = 0;
-}
 
 
 /*! \class QPrintDialog qprndlg.h
@@ -331,12 +326,12 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
 QPrintDialog::~QPrintDialog()
 {
+    if ( this == globalPrintDialog )
+	globalPrintDialog = 0;
     delete d->printerOrFile;
     delete d->paperSize;
     delete d->pageOrder;
     delete d;
-    if ( this == globalPrintDialog )
-	globalPrintDialog = 0;
 }
 
 
@@ -680,10 +675,8 @@ QGroupBox * QPrintDialog::setupPaper()
 
 bool QPrintDialog::getPrinterSetup( QPrinter * p )
 {
-    if ( !globalPrintDialog ) {
+    if ( !globalPrintDialog )
 	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
-	qAddPostRoutine( deleteGlobalPrinterDialog );
-    }
 
     globalPrintDialog->setPrinter( p );
     bool r = globalPrintDialog->exec() == QDialog::Accepted;
