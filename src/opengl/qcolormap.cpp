@@ -115,17 +115,17 @@
 
 /*!
   \fn QRgb QColormap::rgb( int idx ) const
-  Returns the QRgb value in the colorcell \a idx.
+  Returns the QRgb value in the colorcell with index \a idx.
 */
 
 /*!
   \fn void QColormap::setColor( int idx, const QColor & color )
-  Set cell \a idx in the colormap to \a color.
+  Set cell with index \a idx in the colormap to color \a color.
 */
 
 /*!
   \fn QRgb QColormap::color( int idx ) const
-  Returns the QRgb value in the colorcell \a idx.
+  Returns the QRgb value in the colorcell with index \a idx.
 */
 
 /*!
