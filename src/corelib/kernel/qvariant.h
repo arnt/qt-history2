@@ -18,6 +18,7 @@
 #include "QtCore/qbytearray.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qmetatype.h"
+//#include "QtCore/qmap.h"
 
 #ifndef QT_NO_VARIANT
 class QBitArray;
