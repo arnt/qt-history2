@@ -937,14 +937,18 @@ void ClassDecl::fillInDocsForThis()
 		    if ( func->parameters().count() == 0 )
 			html = QString( "Resets " ) + brief;
 		} else {
-		    if ( func->parameters().count() == 1 &&
-			 func->parameters().first().dataType().toString()
-				 .find((*q)->dataType().toString()) != -1 ) {
-			html = QString( "Sets " ) + brief;
-			if ( !func->parameters().first().name().isEmpty() )
-			    html += QString( " to <em>" ) +
-				    func->parameters().first().name() +
-				    QString( "</em>" );
+		    if ( func->parameters().count() == 1 ) {
+			QString type = func->parameters().first().dataType()
+				       .toString();
+			if ( type.find((*q)->dataType().toString()) != -1 ||
+			     type == QString("int") ||
+			     type == QString("uint") ) {
+			    html = QString( "Sets " ) + brief;
+			    if ( !func->parameters().first().name().isEmpty() )
+				html += QString( " to <em>" ) +
+					func->parameters().first().name() +
+					QString( "</em>" );
+			}
 		    }
 		}
 
