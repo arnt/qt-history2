@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#151 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#150 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#151 $");
 
 
 /*!
@@ -1077,6 +1077,19 @@ static void err_member_notfound( int code, const QObject *object,
 		 func, type, object->className(), member );
 }
 
+
+static void err_info_about_objects( const char * func, 
+				    const QObject * sender,
+				    const QObject * receiver )
+{
+    const char * a = sender->name(), * b = receiver->name();
+    if ( a )
+	warning( "QObject::%s:  (sender name:   '%s')", func, a );
+    if ( b )
+	warning( "QObject::%s:  (receiver name: '%s')", func, b );
+}
+
+
 #endif // CHECK_RANGE
 
 
@@ -1290,6 +1303,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     if ( !(sm=smeta->signal(signal,TRUE)) ) {	// no such signal
 #if defined(CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
+	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
     }
@@ -1316,6 +1330,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
 	err_member_notfound( membcode, r, member, "connect" );
+	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
     }
@@ -1455,6 +1470,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	if ( !rm ) {				// no such member
 #if defined(CHECK_RANGE)
 	    err_member_notfound( membcode, r, member, "disconnect" );
+	    err_info_about_objects( "disconnect", sender, receiver );
 #endif
 	    return FALSE;
 	}
