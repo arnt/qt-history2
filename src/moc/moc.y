@@ -95,6 +95,10 @@ bool isEnumType( const char* type );
 int enumIndex( const char* type );
 bool isVariantType( const char* type );
 int qvariant_nameToType( const char* name );
+static void init();				// initialize
+static void initClass();			// prepare for new class
+static void generateClass();			// generate C++ code for class
+static void initExpression();			// prepare for new expression
 
 
 static const char* const utype_map[] =
@@ -535,10 +539,12 @@ enum Member { SignalMember,
 void	 addMember( Member );			// add tmpFunc to current class
 void     addEnum();				// add tmpEnum to current class
 
-char	*strnew( const char * );		// returns a new string (copy)
 char	*stradd( const char *, const char * );	// add two strings
 char	*stradd( const char *, const char *,	// add three strings
 			       const char * );
+char 	*stradd( const char *, const char *,	// adds 4 strings
+		 const char *, const char * );
+
 char	*straddSpc( const char *, const char * );
 char	*straddSpc( const char *, const char *,
 			       const char * );
@@ -1529,11 +1535,7 @@ extern "C" int hack_isatty( int )
 
 #include "moc_lex.cpp"
 
-void	  init();				// initialize
 void      cleanup();
-void	  initClass();				// prepare for new class
-void	  generateClass();			// generate C++ code for class
-void	  initExpression();			// prepare for new expression
 QCString  combinePath( const char *, const char * );
 
 class parser_reg {
