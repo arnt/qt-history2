@@ -2435,7 +2435,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsi
 
         alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
         for(loopc=0;loopc<w;loopc++) {
-            int r,g,b;
+            int a,r,g,b;
             if(srctype==SourceImage)
                 srcval=get_value_32(srcdepth,&srcptr);
 
@@ -2454,20 +2454,24 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsi
 
             unsigned int hold = alphabuf[loopc];
             if(av==255) {
+                a = av;
                 // Do nothing - we already have source values in r,g,b
             } else if(av==0) {
+                a = (hold >> 24) & 0xff;
                 r = (hold >> 16) & 0xff;
                 g = (hold >> 8) & 0xff;
                 b = hold & 0xff;
             } else {
-                int tmp = (hold >> 16) & 0xff;
+                int tmp = (hold >> 24) & 0xff;
+                a = av + tmp - av*tmp/255;
+                tmp = (hold >> 16) & 0xff;
                 r = ((r-tmp) * av) / 256 + tmp;
                 tmp = (hold >> 8) & 0xff;
                 g = ((g-tmp) * av) / 256 + tmp;
                 tmp = hold & 0xff;
                 b = ((b-tmp) * av) / 256 + tmp;
             }
-            *(alphaptr++) = (r << 16) | (g << 8) | b;
+            *(alphaptr++) = (a<<24) | (r << 16) | (g << 8) | b;
         }
 
         // Now write it all out

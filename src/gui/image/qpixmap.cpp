@@ -390,7 +390,9 @@ QPixmap QPixmap::copy(bool) const
     QPainter painter(&pm);
     painter.drawPixmap(QPoint(0, 0), *this, Qt::CopyPixmap);
     painter.end();
-
+#if defined(Q_WS_QWS)
+    pm.data->hasAlpha = data->hasAlpha;
+#endif
 #if defined(Q_WS_X11)
     x11SetDefaultScreen(old);
 #endif // Q_WS_X11

@@ -2841,7 +2841,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 #ifndef QT_NO_QWS_MANAGER
         if (widget->isTopLevel() && widget->d->topData()->qwsManager
             && (widget->d->topData()->qwsManager->region().contains(globalPos)
-                || (QWSManager::grabbedMouse() && QWidget::mouseGrabber()))) {
+                || QWSManager::grabbedMouse() )) {
             if ((*mouseInWidget)) {
                 QEvent leave(QEvent::Leave);
                 QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
