@@ -17,7 +17,7 @@
 #ifndef QT_NO_SQL
 
 #include "qregexp.h"
-#include "qvaluevector.h"
+#include "qvector.h"
 #include "qshared.h"
 #include "qnamespace.h"
 #include "qatomic.h"
@@ -46,7 +46,7 @@ public:
 	bool operator==(const info &other) const {
 	    return other.nogen == nogen && other.field == field;
 	}
-	
+
 	QSqlField field;
 	bool    nogen;
     };
@@ -124,7 +124,7 @@ public:
     {
 	return i >= 0 && i < (int)fi.count() && fi[ i ].isValid();
     }
-    
+
     QString createField( int i, const QString& prefix ) const
     {
 	if ( i < 0 || i >= (int)fi.count() )
@@ -133,12 +133,12 @@ public:
 	if ( !prefix.isEmpty() )
 	    f = prefix + ".";
 	f += fi.at(i).field.name();
-	return f;	
+	return f;
     }
-    
+
 public:
     QAtomic ref;
-    
+
 private:
     QVector<info> fi;
     int cnt;
@@ -595,7 +595,7 @@ void QSqlRecord::setValue( int i, const QVariant& val )
     if (!d->contains(i))
 	return;
     detach();
-    d->fieldInfo(i)->field.setValue(val);    
+    d->fieldInfo(i)->field.setValue(val);
 }
 
 

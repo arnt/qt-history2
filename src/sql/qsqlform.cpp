@@ -244,7 +244,7 @@ QWidget * QSqlForm::widget( int i ) const
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     int cnt = 0;
 
-    if( i > (int)d->map.count() ) 
+    if( i > (int)d->map.count() )
 	return 0;
     for( it = d->map.begin(); it != d->map.end(); ++it ){
 	if( cnt++ == i )
@@ -359,7 +359,7 @@ void QSqlForm::sync()
 	clearMap();
 	if ( d->buf ) {
 	    for ( int i = 0; i < d->fld.count(); ++i )
-		insert( d->wgt[ d->fld[ i ] ], d->buf->field( d->fld[ i ] ) );
+		insert( d->wgt.value(d->fld[ i ]), d->buf->field( d->fld[ i ] ) );
 	}
     }
     d->dirty = FALSE;
