@@ -75,7 +75,7 @@ protected:
     bool isNull(int i);
     bool fetch(int i);
     bool fetchNext();
-    bool fetchPrev();
+    bool fetchPrevious();
     bool fetchFirst();
     bool fetchLast();
 

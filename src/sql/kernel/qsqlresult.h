@@ -92,7 +92,7 @@ protected:
     virtual bool reset (const QString& sqlquery) = 0;
     virtual bool fetch(int i) = 0;
     virtual bool fetchNext();
-    virtual bool fetchPrev();
+    virtual bool fetchPrevious();
     virtual bool fetchFirst() = 0;
     virtual bool fetchLast() = 0;
     virtual int size() = 0;

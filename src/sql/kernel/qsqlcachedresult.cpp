@@ -175,7 +175,7 @@ bool QSqlCachedResult::fetchNext()
     return cacheNext();
 }
 
-bool QSqlCachedResult::fetchPrev()
+bool QSqlCachedResult::fetchPrevious()
 {
     return fetch(at() - 1);
 }

@@ -415,7 +415,7 @@ bool QSqlResult::fetchNext()
     signify failure.
 */
 
-bool QSqlResult::fetchPrev()
+bool QSqlResult::fetchPrevious()
 {
     return fetch(at() - 1);
 }

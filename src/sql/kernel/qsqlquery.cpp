@@ -99,7 +99,7 @@ QSqlQueryPrivate::~QSqlQueryPrivate()
 
     \list
     \i \c next()
-    \i \c prev()
+    \i \c previous()
     \i \c first()
     \i \c last()
     \i \c \link QSqlQuery::seek() seek\endlink(int)
@@ -323,7 +323,7 @@ bool QSqlQuery::isNull(int field) const
     Note that the last error for this query is reset when exec() is
     called.
 
-    \sa isActive() isValid() next() prev() first() last() seek()
+    \sa isActive() isValid() next() previous() first() last() seek()
 */
 
 bool QSqlQuery::exec(const QString& query)
@@ -364,7 +364,7 @@ bool QSqlQuery::exec(const QString& query)
     the query is inactive, or if the query is positioned on an invalid
     record.
 
-    \sa prev() next() first() last() seek() isActive() isValid()
+    \sa previous() next() first() last() seek() isActive() isValid()
 */
 
 QCoreVariant QSqlQuery::value(int i) const
@@ -380,7 +380,7 @@ QCoreVariant QSqlQuery::value(int i) const
     record is at position zero. If the position is invalid, a
     QSql::Location will be returned indicating the invalid position.
 
-    \sa prev() next() first() last() seek() isActive() isValid()
+    \sa previous() next() first() last() seek() isActive() isValid()
 */
 
 int QSqlQuery::at() const
@@ -456,7 +456,7 @@ const QSqlResult* QSqlQuery::result() const
     retrieved, true is returned.
     \endlist
 
-    \sa next() prev() first() last() at() isActive() isValid()
+    \sa next() previous() first() last() at() isActive() isValid()
 */
 bool QSqlQuery::seek(int i, bool relative)
 {
@@ -516,7 +516,7 @@ bool QSqlQuery::seek(int i, bool relative)
         return true;
     }
     if (actualIdx == (at() - 1)) {
-        if (!d->sqlResult->fetchPrev()) {
+        if (!d->sqlResult->fetchPrevious()) {
             d->sqlResult->setAt(QSql::BeforeFirst);
             afterSeek();
             return false;
@@ -557,7 +557,7 @@ bool QSqlQuery::seek(int i, bool relative)
     the last record and false is returned. If the record is successfully
     retrieved, true is returned.
 
-    \sa prev() first() last() seek() at() isActive() isValid()
+    \sa previous() first() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::next()
@@ -611,7 +611,7 @@ bool QSqlQuery::next()
     \sa next() first() last() seek() at() isActive() isValid()
 */
 
-bool QSqlQuery::prev()
+bool QSqlQuery::previous()
 {
     if (!isSelect() || !isActive())
         return false;
@@ -631,7 +631,7 @@ bool QSqlQuery::prev()
         afterSeek();
         return b;
     default:
-        if (!d->sqlResult->fetchPrev()) {
+        if (!d->sqlResult->fetchPrevious()) {
             d->sqlResult->setAt(QSql::BeforeFirst);
             afterSeek();
             return false;
@@ -649,7 +649,7 @@ bool QSqlQuery::prev()
     Returns true if successful. If unsuccessful the query position is
     set to an invalid position and false is returned.
 
-    \sa next() prev() last() seek() at() isActive() isValid()
+    \sa next() previous() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::first()
@@ -675,7 +675,7 @@ bool QSqlQuery::first()
     Returns true if successful. If unsuccessful the query position is
     set to an invalid position and false is returned.
 
-    \sa next() prev() first() seek() at() isActive() isValid()
+    \sa next() previous() first() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::last()

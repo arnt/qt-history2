@@ -73,7 +73,7 @@ public:
 
 protected:
     bool        fetchNext();
-    bool        fetchPrev();
+    bool        fetchPrevious();
     bool        fetchFirst();
     bool        fetchLast();
     bool        fetch(int i);

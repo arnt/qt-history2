@@ -127,7 +127,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     (isActive() returns true), but is initially not positioned on a
     valid record (isValid() returns false). To position the cursor on
     a valid record, use one of the navigation functions, next(),
-    prev(), first(), last(), or seek(). Once positioned on a valid
+    previous(), first(), last(), or seek(). Once positioned on a valid
     record, data can be retrieved from the browse buffer using
     value(). If a navigation function is not successful, it returns
     false, the cursor will no longer be positioned on a valid record
@@ -594,7 +594,7 @@ QSqlIndex QSqlCursor::index(const QString& fieldName) const
     The \a filter is a string containing a SQL \c WHERE clause but
     without the 'WHERE' keyword. The cursor is initially positioned at
     an invalid row after this function is called. To move to a valid
-    row, use seek(), first(), last(), prev() or next().
+    row, use seek(), first(), last(), previous() or next().
 
     Example:
     \code
@@ -657,7 +657,7 @@ bool QSqlCursor::select(const QString & filter, const QSqlIndex & sort)
     last call to select() that specified a filter, whichever is the
     most recent. If there is no current filter, all records are
     returned. The cursor is initially positioned at an invalid row. To
-    move to a valid row, use seek(), first(), last(), prev() or
+    move to a valid row, use seek(), first(), last(), previous() or
     next().
 
     \sa setSort() setFilter()
@@ -677,7 +677,7 @@ bool QSqlCursor::select()
     setFilter() or the last call to select() that specified a filter,
     whichever is the most recent. The cursor is initially positioned
     at an invalid row. To move to a valid row, use seek(), first(),
-    last(), prev() or next().
+    last(), previous() or next().
 */
 
 bool QSqlCursor::select(const QSqlIndex& sort)
@@ -694,7 +694,7 @@ bool QSqlCursor::select(const QSqlIndex& sort)
     using the names of the fields from the \a filter and their values
     from the current cursor record. The cursor is initially positioned
     at an invalid row. To move to a valid row, use seek(), first(),
-    last(), prev() or next(). This function is useful, for example,
+    last(), previous() or next(). This function is useful, for example,
     for retrieving data based upon a table's primary index:
 
     \code

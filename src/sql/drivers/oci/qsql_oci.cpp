@@ -1364,7 +1364,7 @@ bool QOCI9Result::fetchLast()
     return false;
 }
 
-bool QOCI9Result::fetchPrev()
+bool QOCI9Result::fetchPrevious()
 {
     if (!isForwardOnly()) {
         int r = OCIStmtFetch2 (d->sql, d->err, 1, OCI_FETCH_PRIOR, (sb4) 1, OCI_DEFAULT);

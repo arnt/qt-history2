@@ -61,7 +61,10 @@ public:
 
     virtual bool seek(int i, bool relative = false);
     virtual bool next();
-    virtual bool prev();
+    virtual bool previous();
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool prev() { return previous(); }
+#endif
     virtual bool first();
     virtual bool last();
 

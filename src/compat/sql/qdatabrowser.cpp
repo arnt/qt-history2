@@ -178,7 +178,7 @@ QDataBrowser::Boundary QDataBrowser::boundary()
     int currentAt = cur->at();
 
     Boundary b = None;
-    if (!cur->prev())
+    if (!cur->previous())
         b = Beginning;
     else
         cur->seek(currentAt);
@@ -867,7 +867,7 @@ void QDataBrowser::next()
 
 void QDataBrowser::prev()
 {
-    nav(&QSqlCursor::prev);
+    nav(&QSqlCursor::previous);
 }
 
 /*!
