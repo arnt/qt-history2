@@ -247,6 +247,9 @@ void Project::setFileName( const QString &fn, bool doClear )
 	    return;
 	singleProFileName = fn;
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
+	filename = QString( getenv( "HOME" ) + QString( "/tmp_" ) +
+			    QFileInfo( fn ).baseName() + "/" + QFileInfo( fn ).baseName() + ".pro" );
+	removeTempProject();
 	if ( iface && iface->supports( LanguageInterface::CompressProject ) ) {
 	    filename = iface->uncompressProject( makeAbsolute( singleProFileName ),
 						 QString( getenv( "HOME" ) +
@@ -1277,6 +1280,8 @@ void Project::removeTempProject()
     if ( !MainWindow::self->singleProjectMode() )
 	return;
     QDir d( QFileInfo( filename ).dirPath() );
+    if ( !d.exists( QFileInfo( filename ).dirPath() ) )
+	return;
     QStringList files = d.entryList( QDir::Files );
     QStringList::Iterator it;
     for ( it = files.begin(); it != files.end(); ++it ) {
@@ -1287,7 +1292,10 @@ void Project::removeTempProject()
 	files = d.entryList( QDir::Files );
 	for ( it = files.begin(); it != files.end(); ++it )
 	    d.remove( *it );
+	d = QDir( QFileInfo( filename ).dirPath() );
+	d.remove( "images" );
     }
+    d.remove( QFileInfo( filename ).dirPath() );
 }
 
 void Project::addAndEditFunction( const QString &function, const QString &functionBody, bool openDeveloper )
