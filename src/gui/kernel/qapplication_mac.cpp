@@ -36,6 +36,7 @@
 #include "qvariant.h"
 #include "qwidget.h"
 #include "qcolormap.h"
+#include <private/qmacinputcontext_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qcursor_p.h>
 
@@ -43,7 +44,6 @@
 #include "private/qcolor_p.h"
 #include "private/qwidget_p.h"
 #include "qeventdispatcher_mac_p.h"
-#include "qtextformat.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #  include "qaccessible.h"
@@ -103,7 +103,7 @@ static QTabletEvent::TabletDevice currTabletDevice = QTabletEvent::NoDevice;
 static qint64 tabletUniqueID = 0;
 
 static int tablet_button_state = 0;
-static bool qt_mac_eat_unicode_key = false;
+bool qt_mac_eat_unicode_key = false;
 static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
@@ -115,7 +115,6 @@ static bool qt_mac_collapse_on_dblclick = true;
 QPointer<QWidget> qt_button_down;                // widget got last button-down
 static QPointer<QWidget> qt_mouseover;
 static QHash<WindowRef, int> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
-static enum { QT_MAC_OFFTHESPOT, QT_MAC_ONTHESPOT } qt_mac_input_spot = QT_MAC_ONTHESPOT;
 #if defined(QT_DEBUG)
 static bool        appNoGrab        = false;        // mouse/keyboard grabbing
 #endif
@@ -151,66 +150,6 @@ extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
-
-/* Unicode input entry magic */
-class QTSMDocumentWrapper
-{
-    QPointer<QWidget> act;
-    TSMDocumentID id;
-public:
-    QTSMDocumentWrapper() {
-        InterfaceTypeList itl = { kUnicodeDocument };
-        NewTSMDocument(1, itl, &id, (long)this);
-    }
-    ~QTSMDocumentWrapper() {
-        DeleteTSMDocument(id);
-    }
-    inline bool operator==(const QTSMDocumentWrapper &wrap) const {  return (act == wrap.act && wrap.id == id); }
-    inline bool operator!=(const QTSMDocumentWrapper &wrap) const {  return !operator==(wrap); }
-    TSMDocumentID document() const { return id; }
-
-    void setInputWidget(QWidget *w) { act = w; }
-    QWidget *inputWidget() const { return act; }
-
-    QTextFormat editingFormat() const {
-        QTextCharFormat ret;
-        ret.setFontItalic(true);
-        ret.setFontUnderline(true);
-        return ret;
-    }
-};
-
-typedef QHash<WindowPtr, QTSMDocumentWrapper *> TsmHash;
-Q_GLOBAL_STATIC(TsmHash, qt_mac_tsm_hash)
-
-void qt_mac_unicode_init(QWidget *w)
-{
-    WindowPtr window = qt_mac_window_for(w);
-    TsmHash *hash = qt_mac_tsm_hash();
-    if(!hash->contains(window))
-        hash->insert(window, new QTSMDocumentWrapper());
-}
-void qt_mac_unicode_cleanup(QWidget *w)
-{
-    if(w && w->isWindow()) {
-        delete qt_mac_tsm_hash()->take(qt_mac_window_for(w));
-    }
-}
-static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
-{
-    if(!w)
-        return 0;
-    return qt_mac_tsm_hash()->value(qt_mac_window_for(w));
-}
-void qt_mac_unicode_reset_input(QWidget *w)
-{
-    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(w)) {
-        if(doc->inputWidget() && doc->inputWidget() != w) {
-            FixTSMDocument(doc->document());
-            doc->setInputWidget(0);
-        }
-    }
-}
 
 /* Resolution change magic */
 static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
@@ -352,7 +291,7 @@ void qt_mac_update_os_settings()
     if(!QApplication::startingUp()) {
         static bool needToPolish = true;
         if (needToPolish) {
-            qApp->style()->polish(qApp);
+            QApplication::style()->polish(qApp);
             needToPolish = false;
         }
     }
@@ -373,7 +312,7 @@ void qt_mac_update_os_settings()
 #ifdef DEBUG_PLATFORM_SETTINGS
     qDebug("qt_mac_update_os_settings *********************************************************************");
 #endif
-    { //setup the global peltte
+    { //setup the global palette
         QColor qc;
         RGBColor c;
         (void) QApplication::style();  // trigger creation of application style and system palettes
@@ -848,9 +787,6 @@ static EventTypeSpec app_events[] = {
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
 
-    { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
-    { kEventClassTextInput, kEventTextInputOffsetToPos },
-    { kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
     { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
@@ -916,17 +852,7 @@ void qt_init(QApplicationPrivate *priv, int)
                 appNoGrab = !appNoGrab;
             else
 #endif // QT_DEBUG
-                if(arg == "-inputstyle") {
-                    if(++i < argc) {
-                        QString s = QString(argv[i]).toLower();
-                        if(s == "onthespot")
-                            qt_mac_input_spot = QT_MAC_ONTHESPOT;
-                        else if(s == "offthespot")
-                            qt_mac_input_spot = QT_MAC_OFFTHESPOT;
-                        else
-                            qDebug("Qt: internal: Misunderstood input style '%s'", s.toLatin1().constData());
-                    }
-                } else if(arg.left(5) == "-psn_") {
+                if(arg.left(5) == "-psn_") {
                     passed_psn = arg.mid(6);
                 } else {
                     argv[j++] = argv[i];
@@ -963,6 +889,8 @@ void qt_init(QApplicationPrivate *priv, int)
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::initialize();
 #endif
+        QMacInputContext::initialize();
+        QApplicationPrivate::inputContext = new QMacInputContext;
 
 #if defined(QT_THREAD_SUPPORT)
         qt_mac_port_mutex = new QMutex(true);
@@ -1011,6 +939,7 @@ void qt_cleanup()
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::cleanup();
 #endif
+        QMacInputContext::cleanup();
         QQuickDrawPaintEngine::cleanup();
         QCursorData::cleanup();
         QFont::cleanup();
@@ -1020,10 +949,6 @@ void qt_cleanup()
             qt_mac_safe_pdev = 0;
         }
     }
-
-    TsmHash *hash = qt_mac_tsm_hash();
-    qDeleteAll(*hash);
-    hash->clear();
 }
 
 /*****************************************************************************
@@ -2126,107 +2051,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
         break;
     }
-    case kEventClassTextInput:
-        handled_event = false;
-        if(!(widget = QApplicationPrivate::focus_widget)) {
-            handled_event = false;
-        } else if(ekind == kEventTextInputOffsetToPos) {
-            if(qt_mac_input_spot != QT_MAC_ONTHESPOT ||
-               !widget->testAttribute(Qt::WA_InputMethodEnabled)) {
-                handled_event = false;
-                break;
-            }
-
-            if(qt_mac_get_document_id(widget)) {
-                QRect mr(widget->inputMethodQuery(Qt::ImMicroFocus).toRect());
-                QPoint mp(widget->mapToGlobal(QPoint(mr.topLeft())));
-                Point pt;
-                pt.h = mp.x();
-                pt.v = mp.y() + mr.height();
-                SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint,
-                                  sizeof(pt), &pt);
-                handled_event = true;
-            }
-        } else if(ekind == kEventTextInputUpdateActiveInputArea) {
-            if(qt_mac_input_spot != QT_MAC_ONTHESPOT ||
-               !widget->testAttribute(Qt::WA_InputMethodEnabled)) {
-                handled_event = false;
-                break;
-            }
-
-            long refcon = 0;
-            GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, 0,
-                              sizeof(refcon), 0, &refcon);
-            if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)refcon) {
-                UInt32 unilen = 0;
-                GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-                                  0, 0, &unilen, 0);
-                UniChar *unicode = (UniChar*)NewPtr(unilen);
-                GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
-                                  0, unilen, 0, unicode);
-                QString text((QChar*)unicode, unilen / sizeof(UniChar));
-                DisposePtr((char*)unicode);
-                if(doc->inputWidget()) {
-                    long fixed_length = 0;
-                    GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
-                                      sizeof(fixed_length), 0, &fixed_length);
-                    if(fixed_length == -1 || fixed_length == (long)unilen) {
-                        QInputMethodEvent e;
-                        e.setCommitString(text);
-                        QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
-                        handled_event = true;
-                        doc->setInputWidget(0);
-                    } else {
-                        if(fixed_length > 0) {
-                            const int qFixedLength = fixed_length / sizeof(UniChar);
-                            QList<QInputMethodEvent::Attribute> attrs;
-                            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                           qFixedLength, text.length()-qFixedLength,
-                                           doc->editingFormat());
-                            QInputMethodEvent e(text, attrs);
-                            e.setCommitString(text.left(qFixedLength), 0, qFixedLength);
-                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
-                            handled_event = true;
-                        } else {
-                            QList<QInputMethodEvent::Attribute> attrs;
-                            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                           0, text.length(), doc->editingFormat());
-                            QInputMethodEvent e(text, attrs);
-                            QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
-                            handled_event = true;
-                        }
-                    }
-                } else {
-                    QList<QInputMethodEvent::Attribute> attrs;
-                    attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                           0, text.length(), doc->editingFormat());
-                    QInputMethodEvent e(text, attrs);
-                    QApplication::sendSpontaneousEvent(widget, &e);
-                    handled_event = true;
-                    doc->setInputWidget(widget);
-                }
-                qt_mac_eat_unicode_key = handled_event;
-            }
-        } else if(ekind == kEventTextInputUnicodeForKeyEvent) {
-            EventRef key_ev = 0;
-            GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, 0,
-                              sizeof(key_ev), 0, &key_ev);
-            QString text;
-            UInt32 unilen = 0;
-            if(GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0) == noErr) {
-                UniChar *unicode = (UniChar*)NewPtr(unilen);
-                GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, unicode);
-                text = QString((QChar*)unicode, unilen / sizeof(UniChar));
-                DisposePtr((char*)unicode);
-            }
-            unsigned char chr = 0;
-            GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
-            if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr))))
-                handled_event = !widget->testAttribute(Qt::WA_InputMethodEnabled);
-        }
-        if(!handled_event) //just bail now
-            return eventNotHandledErr;
-        break;
     case kEventClassKeyboard: {
         // unfortunatly modifiers changed event looks quite different, so I have a separate
         // code path
@@ -2426,7 +2250,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         if(ekind == kEventWindowDispose) {
-            qt_mac_unicode_cleanup(widget);
         } else if(ekind == kEventWindowExpanded) {
             widget->setWindowState((widget->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
             QShowEvent qse;
@@ -2470,8 +2293,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QApplication::sendSpontaneousEvent(QApplicationPrivate::app_style, &ev);
             }
 
-            if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
-                ActivateTSMDocument(doc->document());
             if(app_do_modal && !qt_try_modal(widget, event))
                 break;
 
@@ -2504,8 +2325,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QMenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
-            if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
-                DeactivateTSMDocument(doc->document());
             if(widget && QApplicationPrivate::active_window == widget)
                 app->setActiveWindow(0);
         } else {

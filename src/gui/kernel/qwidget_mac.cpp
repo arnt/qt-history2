@@ -70,8 +70,6 @@ enum {
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
 extern void qt_clear_paintevent_clipping(); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
-extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
-extern void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp
@@ -1089,14 +1087,12 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if(window)
             ReleaseWindow(window);
     }
-    qt_mac_unicode_init(q);
 }
 
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     d->deactivateWidgetCleanup();
     qt_mac_event_release(this);
-    qt_mac_unicode_cleanup(this);
     if((windowType() == Qt::Desktop) && destroyWindow)
         qt_root_win_widgets.removeAll(this);
     if(testAttribute(Qt::WA_WState_Created)) {
@@ -1105,7 +1101,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         for(int i = 0; i < chldrn.size(); i++) {  // destroy all widget children
             QObject *obj = chldrn.at(i);
             if(obj->isWidgetType())
-                ((QWidget*)obj)->destroy(destroySubWindows, destroySubWindows);
+                static_cast<QWidget*>(obj)->destroy(destroySubWindows, destroySubWindows);
         }
         if(mac_mouse_grabber == this)
             releaseMouse();

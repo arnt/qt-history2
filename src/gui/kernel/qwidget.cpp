@@ -3097,9 +3097,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
         }
 
         QApplication::setFocusWidget(f, reason);
-#if !defined(Q_WS_MAC)
         f->d_func()->focusInputContext();
-#endif
 
 #if defined(Q_WS_WIN)
         if (!(f->window()->windowType() == Qt::Popup))
