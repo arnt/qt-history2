@@ -757,6 +757,33 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
 #include <iostream>
 #endif
 
+static QChar::Direction basicDirection(const QString &str, int start = 0)
+{
+    int len = str.length();
+    int pos = start > len ? len -1 : start;
+    const QChar *uc = str.unicode() + pos;
+    while( pos < len ) {
+	switch( uc->direction() )
+	{
+	case QChar::DirL:
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    return QChar::DirL;
+	case QChar::DirR:
+	case QChar::DirAL:
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    return QChar::DirR;
+	default:
+	    break;
+	}
+	++pos;
+	++uc;
+    }
+    if ( start != 0 ) 
+	return basicDirection( str );
+    return QChar::DirL;
+}
 
 // transforms one line of the paragraph to visual order
 // the caller is responisble to delete the returned list of QTextRuns.
@@ -786,13 +813,15 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
     int eor = start;
 
     int current = start;
-    while(current < last) {
+    while(current <= last) {
 	QChar::Direction dirCurrent;
 	if(current == (int)text.length()) {
 	    QBidiContext *c = context;
 	    while ( c->parent )
 		c = c->parent;
 	    dirCurrent = c->dir;
+	} else if ( current == last ) {
+	    dirCurrent = basicDirection( text, current );
 	} else
 	    dirCurrent = text.at(current).direction();
 
@@ -1021,7 +1050,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 			dir = QChar::DirAN; break;
 		    case QChar::DirES:
 		    case QChar::DirCS:
-			if(status.eor == QChar::DirEN) {
+			if(status.eor == QChar::DirEN || dir == QChar::DirAN) {
 			    eor = current; break;
 			}
 		    case QChar::DirBN:
@@ -1178,9 +1207,10 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 #ifdef BIDI_DEBUG
     cout << "reached end of line current=" << current << ", eor=" << eor << endl;
 #endif
-    eor = current;
+    eor = current - 1; // remove dummy char
 
-    runs->append( new QTextRun(sor, eor, context, dir) );
+    if ( sor <= eor )
+	runs->append( new QTextRun(sor, eor, context, dir) );
 
     // reorder line according to run structure...
 
