@@ -44,8 +44,8 @@
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
-// #include "qmotifplusstyle.h"
-// #include "qplatinumstyle.h"
+#include "qmotifplusstyle.h"
+#include "qplatinumstyle.h"
 // #include "qsgistyle.h"
 // #include "qcompactstyle.h"
 #ifndef QT_NO_STYLE_AQUA
@@ -125,7 +125,6 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QCDEStyle;
     else
 #endif
-#if 0
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if ( style == "motifplus" )
         return new QMotifPlusStyle;
@@ -146,7 +145,6 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QCompactStyle;
     else
 #endif
-#endif
 #ifndef QT_NO_STYLE_AQUA
     if ( style == "aqua" )
         return new QAquaStyle;
@@ -156,7 +154,6 @@ QStyle *QStyleFactory::create( const QString& s )
     if( style == "macintosh" )
 	return new QMacStyle;
 #endif
-
 #endif
 
 #ifndef QT_NO_COMPONENT
