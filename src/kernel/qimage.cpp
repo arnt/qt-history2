@@ -52,7 +52,7 @@
   the other being QPixmap.  QImage is designed and optimized for I/O
   and for direct pixel access/manipulation, QPixmap is designed and
   optimized for drawing.  There are (slow) functions to convert
-  between QImage and QPixmp; QPixmap::convertToImage() and
+  between QImage and QPixmap; QPixmap::convertToImage() and
   QPixmap::convertFromImage().
 
   An image has the parameters \link width() width\endlink, \link height()
