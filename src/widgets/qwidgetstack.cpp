@@ -432,8 +432,11 @@ QSize QWidgetStack::sizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() && o != invisible )
-		size = size.expandedTo( ((QWidget *)o)->sizeHint() );
+	    if ( o->isWidgetType() && o != invisible ) {
+		QWidget *w = (QWidget*)o;
+		size = size.expandedTo( w->sizeHint() )
+		       .expandedTo(w->minimumSize());
+	    }
 	}
     }
     if ( size.isNull() )
@@ -455,9 +458,11 @@ QSize QWidgetStack::minimumSizeHint() const
 
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() )
-		if ( o != invisible )
-		    size = size.expandedTo( ((QWidget *)o)->minimumSizeHint() );
+	    if ( o->isWidgetType() &&  o != invisible ) {
+		    QWidget *w = (QWidget*)o;
+		    size = size.expandedTo( w->minimumSizeHint())
+					    .expandedTo(w->minimumSize());
+	    }
 	}
     }
     return QSize( size.width() + 2*frameWidth(), size.height() + 2*frameWidth() );
