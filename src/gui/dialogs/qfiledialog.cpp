@@ -732,8 +732,8 @@ QFileIconProvider *QFileDialog::iconProvider() const
 }
 
 /*!
- \reimp*/
-
+ \reimp
+*/
 void QFileDialog::done(int result)
 {
     QDialog::done(result);
@@ -742,7 +742,6 @@ void QFileDialog::done(int result)
 /*!
     \reimp
 */
-
 void QFileDialog::accept()
 {
     QStringList files = selectedFiles();
@@ -811,7 +810,6 @@ void QFileDialog::accept()
 
   Private object  constructor.
 */
-
 QFileDialogPrivate::QFileDialogPrivate()
     : QDialogPrivate(),
       model(0),
@@ -847,7 +845,6 @@ QFileDialogPrivate::QFileDialogPrivate()
 
     Refreshes the display of the current directory in the dialog.
 */
-
 void QFileDialogPrivate::reload()
 {
     model->refresh(rootIndex());
@@ -858,7 +855,6 @@ void QFileDialogPrivate::reload()
 
     Navigates to the last directory viewed in the dialog.
 */
-
 void QFileDialogPrivate::navigateToPrevious()
 {
     QModelIndex root = history.back();
@@ -1297,6 +1293,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->filePath(index);
+        Q_ASSERT(!path.isEmpty());
         QIcon icons = model->fileIcon(index);
         lookIn->addItem(icons, toNative(path));
     }
@@ -1308,7 +1305,7 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
     // if it is not already in the list, insert the current directory
     QString currentPath = toNative(model->filePath(current));
     int item = lookIn->findText(currentPath);
-    if (item < 0) {
+    if (item < 0 && currentPath.count()) {
         lookIn->addItem(model->fileIcon(current), currentPath);
         item = lookIn->findText(currentPath);
     }
@@ -1540,6 +1537,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     back->setEnabled(!history.isEmpty());
     newFolder->setEnabled(!model->isReadOnly());
     QString pth = toNative(d->model->filePath(index));
+    Q_ASSERT(!pth.isEmpty()); // this should be caught by the first if statement
     QIcon icn = d->model->fileIcon(index);
     int i = lookIn->findText(pth);
     bool block = lookIn->blockSignals(true);
