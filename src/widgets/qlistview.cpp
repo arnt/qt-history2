@@ -1130,7 +1130,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     view and then insertItem() to put the item back in its new
     position.
 
-    Note: For Singel selection mode, if the selected item is part of the taken
+    Note: For Single selection mode, if the selected item is part of the taken
     item(s), it is unselected and a selectionChanged is emitted. For Multi or Extended
     selection, no unselection happens and no selectionChanged signals are emitted.
 
