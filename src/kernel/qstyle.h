@@ -45,22 +45,8 @@
 
 #ifndef QT_NO_STYLE
 
-class QButton;
-class QPushButton;
-class QScrollBar;
-class QTabBar;
-class QTab;
 class QPopupMenu;
-class QMenuItem;
-class QToolButton;
-class QTabWidget;
-class QSpinBox;
-class QGroupBox;
-class QSpinWidget;
-class QTitleBar;
-class QListViewItem;
 class QStylePrivate;
-
 
 class Q_EXPORT QStyle: public QObject
 {

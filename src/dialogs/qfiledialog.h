@@ -39,6 +39,7 @@
 #define QFILEDIALOG_H
 
 class QPushButton;
+class QButton;
 class QLabel;
 class QWidget;
 class QFileDialog;
