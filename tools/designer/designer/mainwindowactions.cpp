@@ -1248,21 +1248,6 @@ bool MainWindow::fileSaveForm()
 
 bool MainWindow::fileSaveProject()
 {
-    QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( w->inherits( "FormWindow" ) ) {
-	    FormWindow *fw = (FormWindow*)w;
-	    if ( fw->project() == currentProject )
-		if ( !fw->save( FALSE ) )
-		    return FALSE;
-	} else if ( w->inherits( "SourceEditor" ) ) {
-	    SourceEditor *e = (SourceEditor*)w;
-	    if ( e->object() && e->object()->inherits( "SourceFile" ) &&
-		 e->project() == currentProject )
-		( (SourceFile*)e->object() )->save();
-	}
-    }
-
     currentProject->save();
     statusBar()->message( tr( "Project '%1' saved.").arg( currentProject->projectName() ), 3000 );
     return TRUE;

@@ -613,6 +613,20 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
 
 void Project::save()
 {
+    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() ) {
+	if ( !sf->save() )
+	    return;
+    }
+
+    
+    //#### FORMS
+    /*
+    for ( FormFile *ff = forms.first(); ff; ff = forms.next() ) {
+	if ( !ff->save() )
+	    return;
+    }
+    */
+	
     if ( isDummy()  || filename.isEmpty() )
 	return;
 
