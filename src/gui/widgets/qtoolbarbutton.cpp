@@ -1,4 +1,4 @@
-#include "q4toolbarbutton_p.h"
+#include "qtoolbarbutton_p.h"
 
 #include <qaction.h>
 #include <qdrawutil.h>

@@ -1,9 +1,9 @@
-#include "q4dockseparator_p.h"
+#include "qdockseparator_p.h"
 
-#include "q4dockwindowlayout_p.h"
+#include "qdockwindowlayout_p.h"
 
-#include "q4mainwindow.h"
-#include "q4mainwindowlayout_p.h"
+#include "qmainwindow.h"
+#include "qmainwindowlayout_p.h"
 
 #include <qapplication.h>
 #include <qevent.h>

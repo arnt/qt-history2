@@ -1,7 +1,7 @@
-#include "q4dockwindowseparator_p.h"
+#include "qdockwindowseparator_p.h"
 
-#include "q4dockwindow.h"
-#include "q4dockwindowlayout_p.h"
+#include "qdockwindow.h"
+#include "qdockwindowlayout_p.h"
 
 #include <qapplication.h>
 #include <qevent.h>

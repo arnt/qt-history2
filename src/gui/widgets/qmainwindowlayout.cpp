@@ -1,10 +1,10 @@
-#include "q4mainwindowlayout_p.h"
-#include "q4dockseparator_p.h"
-#include "q4dockwindowlayout_p.h"
+#include "qmainwindowlayout_p.h"
+#include "qdockseparator_p.h"
+#include "qdockwindowlayout_p.h"
 
-#include "q4dockwindow.h"
-#include "q4mainwindow.h"
-#include "q4toolbar.h"
+#include "qdockwindow.h"
+#include "qmainwindow.h"
+#include "qtoolbar.h"
 
 #include <qapplication.h>
 #include <qdebug.h>

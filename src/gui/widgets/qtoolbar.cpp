@@ -1,8 +1,8 @@
-#include "q4toolbar.h"
+#include "qtoolbar.h"
 
-#include "q4mainwindow.h"
-#include "q4mainwindowlayout_p.h"
-#include "q4toolbarbutton_p.h"
+#include "qmainwindow.h"
+#include "qmainwindowlayout_p.h"
+#include "qtoolbarbutton_p.h"
 
 #include <qaction.h>
 #include <qapplication.h>
@@ -512,4 +512,4 @@ void QToolBar::setCurrentArea(Qt::ToolBarArea area, bool linebreak)
     d->currentArea = area;
 }
 
-#include "moc_q4toolbar.cpp"
+#include "moc_qtoolbar.cpp"

@@ -1,5 +1,5 @@
-#include "q4dockwindow.h"
-#include "q4mainwindow.h"
+#include "qdockwindow.h"
+#include "qmainwindow.h"
 
 #include <qapplication.h>
 #include <qdesktopwidget.h>
@@ -12,8 +12,8 @@
 #include <qtoolbutton.h>
 
 #include <private/qframe_p.h>
-#include "q4mainwindowlayout_p.h"
-#include "q4dockwindowlayout_p.h"
+#include "qmainwindowlayout_p.h"
+#include "qdockwindowlayout_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -665,4 +665,4 @@ bool QDockWindow::event(QEvent *event)
     return QFrame::event(event);
 }
 
-#include "q4dockwindow.moc"
+#include "qdockwindow.moc"

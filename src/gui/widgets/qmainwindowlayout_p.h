@@ -1,7 +1,7 @@
 #ifndef QMAINWINDOWLAYOUT_P_H
 #define QMAINWINDOWLAYOUT_P_H
 
-#include "q4mainwindow.h"
+#include "qmainwindow.h"
 
 #include <qlayout.h>
 

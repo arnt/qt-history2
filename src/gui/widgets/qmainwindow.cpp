@@ -1,8 +1,8 @@
-#include "q4mainwindow.h"
-#include "q4mainwindowlayout_p.h"
+#include "qmainwindow.h"
+#include "qmainwindowlayout_p.h"
 
-#include "q4dockwindow.h"
-#include "q4toolbar.h"
+#include "qdockwindow.h"
+#include "qtoolbar.h"
 
 #include <qmenubar.h>
 #include <qstatusbar.h>
