@@ -33,17 +33,16 @@ QDesignerSettingsDialog::QDesignerSettingsDialog(QDesignerWorkbench *workbench, 
 
     addPage(page, QIcon(":/trolltech/designer/images/workbench.png"));
 
-    // ### use the Designer Resource
-    ui.lblMDI->setPixmap(QPixmap(":/trolltech/designer/images/mdi.png"));
-    ui.lblSDI->setPixmap(QPixmap(":/trolltech/designer/images/sdi.png"));
+    ui.sdiButton->setIcon(QIcon(":/trolltech/designer/images/mdi.png"));
+    ui.mdiButton->setIcon(QIcon(":/trolltech/designer/images/sdi.png"));
 
     QDesignerSettings settings;
 
     int mode = settings.uiMode();
     if (mode == QDesignerWorkbench::TopLevelMode)
-        ui.optSDI->setChecked(true);
+        ui.sdiButton->setChecked(true);
     else
-        ui.optMDI->setChecked(true);
+        ui.mdiButton->setChecked(true);
 
     ui.optShowDialog->setChecked(settings.showNewFormOnStartup());
 
@@ -54,7 +53,7 @@ QDesignerSettingsDialog::~QDesignerSettingsDialog()
 {
 }
 
-void QDesignerSettingsDialog::on_optMDI_toggled(bool b)
+void QDesignerSettingsDialog::on_mdiButton_toggled(bool b)
 {
     if (b == false) {
         // nothing to do
@@ -67,7 +66,7 @@ void QDesignerSettingsDialog::on_optMDI_toggled(bool b)
     m_workbench->switchToWorkspaceMode();
 }
 
-void QDesignerSettingsDialog::on_optSDI_toggled(bool b)
+void QDesignerSettingsDialog::on_sdiButton_toggled(bool b)
 {
     if (b == false) {
         // nothing to do

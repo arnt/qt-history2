@@ -28,8 +28,8 @@ public:
     virtual ~QDesignerSettingsDialog();
 
 private slots:
-    void on_optMDI_toggled(bool b);
-    void on_optSDI_toggled(bool b);
+    void on_mdiButton_toggled(bool b);
+    void on_sdiButton_toggled(bool b);
     void on_optShowDialog_toggled(bool b);
 
 private:

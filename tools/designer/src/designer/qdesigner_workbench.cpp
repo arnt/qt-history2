@@ -90,10 +90,10 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
     if (QAction *action = formWindow->action()) {
         m_windowActions->addAction(action);
         m_windowMenu->addAction(action);
+        action->setChecked(true);
     }
 
     m_actionManager->minimizeAction()->setEnabled(true);
-    m_actionManager->zoomAction()->setEnabled(true);
 }
 
 void QDesignerWorkbench::initialize()
@@ -199,6 +199,9 @@ void QDesignerWorkbench::initialize()
 
 
     emit initialized();
+
+    connect(m_core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+                this, SLOT(updateWindowMenu(AbstractFormWindow *)));
 }
 
 QWidget *QDesignerWorkbench::magicalParent() const
@@ -222,6 +225,9 @@ void QDesignerWorkbench::switchToNeutralMode()
      if (m_mode == NeutralMode)
          return;
 
+    QPoint desktopOffset;
+    if (m_mode == TopLevelMode)
+        desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
     m_mode = NeutralMode;
 
     m_geometries.clear();
@@ -236,7 +242,7 @@ void QDesignerWorkbench::switchToNeutralMode()
                 if (QWidget *p = tw->parentWidget())
                     pos = p->pos(); // in workspace
 
-            m_geometries.insert(tw, QRect(pos, tw->size()));
+            m_geometries.insert(tw, QRect(pos - desktopOffset, tw->size()));
         }
         tw->setSaveSettingsOnClose(false);
 
@@ -251,7 +257,7 @@ void QDesignerWorkbench::switchToNeutralMode()
                 if (QWidget *p = fw->parentWidget())
                     pos = p->pos(); // in workspace
 
-            m_geometries.insert(fw, QRect(pos, fw->size()));
+            m_geometries.insert(fw, QRect(pos - desktopOffset, fw->size()));
         }
 
         fw->setParent(0);
@@ -351,6 +357,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         return;
 
     switchToNeutralMode();
+    QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
     m_mode = TopLevelMode;
 
     // The widget box is special, it gets the menubar and gets to be the main widget.
@@ -382,7 +389,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
-            tw->move(g.topLeft());
+            tw->move(g.topLeft() + desktopOffset);
             tw->setVisible(m_visibilities.value(tw, true));
         }
     }
@@ -392,7 +399,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
         fw->setParent(magicalParent(), Qt::Window);
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
-        fw->move(g.topLeft());
+        fw->move(g.topLeft() + desktopOffset);
         fw->show();
     }
 }
@@ -510,10 +517,8 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
         m_windowMenu->removeAction(action);
     }
 
-    if (formWindowCount() == 0) {
+    if (formWindowCount() == 0)
         m_actionManager->minimizeAction()->setEnabled(false);
-        m_actionManager->zoomAction()->setEnabled(false);
-    }
 }
 
 void QDesignerWorkbench::initializeCorePlugins()
@@ -639,4 +644,12 @@ void QDesignerWorkbench::setUIMode(UIMode mode)
         switchToWorkspaceMode();
     else
         switchToTopLevelMode();
+}
+
+void QDesignerWorkbench::updateWindowMenu(AbstractFormWindow *fw)
+{
+    if (!fw)
+        return;
+    if (QDesignerFormWindow *dfw = qobject_cast<QDesignerFormWindow *>(fw->parentWidget()))
+        dfw->action()->setChecked(true);
 }

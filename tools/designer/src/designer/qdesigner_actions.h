@@ -96,7 +96,6 @@ public:
 // window actions
 //
     QAction *minimizeAction() const;
-    QAction *zoomAction() const;
     QAction *bringAllToFront() const;
 
 public slots:
@@ -118,7 +117,6 @@ private slots:
     void closeForm();
     void handlePreferenceChange();
     void minimizeForm();
-    void zoomForm();
     void bringAllToFront();
 
 private:
@@ -171,7 +169,6 @@ private:
     QAction *m_previewFormAction;
 
     QAction *m_minimizeAction;
-    QAction *m_zoomAction;
     QAction *m_bringAllToFrontAction;
 };
 

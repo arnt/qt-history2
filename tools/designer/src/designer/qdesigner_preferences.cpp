@@ -41,8 +41,8 @@ DesignerPreferencesWidget::DesignerPreferencesWidget(QWidget *parent)
     : QWidget(parent)
 {
     ui.setupUi(this);
-    ui.lblSDI->setPixmap(QPixmap(":/trolltech/designer/images/sdi.png").scale(320, 240));
-    ui.lblMDI->setPixmap(QPixmap(":/trolltech/designer/images/mdi.png").scale(320, 240));
+    ui.sdiButton->setIcon(QIcon(":/trolltech/designer/images/sdi.png"));
+    ui.mdiButton->setIcon(QIcon(":/trolltech/designer/images/mdi.png"));
 }
 
 bool DesignerPreferencesWidget::setupPreferences()
@@ -52,9 +52,9 @@ bool DesignerPreferencesWidget::setupPreferences()
     QDesignerSettings settings;
     ui.optShowDialog->setChecked(settings.showNewFormOnStartup());
     if (settings.uiMode() == QDesignerWorkbench::TopLevelMode)
-        ui.optSDI->setChecked(true);
+        ui.sdiButton->setChecked(true);
     else
-        ui.optMDI->setChecked(true);
+        ui.mdiButton->setChecked(true);
     connect(this, SIGNAL(uiChanged(int)), this, SIGNAL(settingsChanged()));
     connect(this, SIGNAL(newFormChanged(bool)), this, SIGNAL(settingsChanged()));
     return settings.status() != QSettings::NoError;

@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>690</width>
-    <height>355</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -37,8 +37,8 @@
       <rect>
        <x>9</x>
        <y>9</y>
-       <width>672</width>
-       <height>22</height>
+       <width>382</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text" >
@@ -54,9 +54,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>37</y>
-       <width>672</width>
-       <height>303</height>
+       <y>35</y>
+       <width>382</width>
+       <height>256</height>
       </rect>
      </property>
      <property name="title" >
@@ -84,61 +84,35 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QLabel" name="lblSDI" >
+         <widget class="QToolButton" name="sdiButton" >
           <property name="objectName" >
-           <string notr="true" >lblSDI</string>
+           <string notr="true" >sdiButton</string>
           </property>
           <property name="geometry" >
            <rect>
             <x>1</x>
-            <y>1</y>
-            <width>320</width>
-            <height>240</height>
-           </rect>
-          </property>
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>0</hsizetype>
-            <vsizetype>0</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-           <size>
-            <width>320</width>
-            <height>240</height>
-           </size>
-          </property>
-          <property name="frameShape" >
-           <enum>QFrame::Box</enum>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="text" >
-           <string>SDI picture</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="optSDI" >
-          <property name="objectName" >
-           <string notr="true" >optSDI</string>
-          </property>
-          <property name="geometry" >
-           <rect>
-            <x>1</x>
-            <y>247</y>
-            <width>320</width>
-            <height>22</height>
+            <y>44</y>
+            <width>171</width>
+            <height>127</height>
            </rect>
           </property>
           <property name="text" >
-           <string>Multiple Top-Level Windows</string>
+           <string>Top-Level Mode</string>
           </property>
-          <property name="checked" >
+          <property name="checkable" >
            <bool>true</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>true</bool>
+          </property>
+          <property name="toolButtonStyle" >
+           <enum>Qt::ToolButtonTextUnderIcon</enum>
+          </property>
+          <property name="iconSize" >
+           <size>
+            <width>160</width>
+            <height>100</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -156,58 +130,35 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QLabel" name="lblMDI" >
+         <widget class="QToolButton" name="mdiButton" >
           <property name="objectName" >
-           <string notr="true" >lblMDI</string>
+           <string notr="true" >mdiButton</string>
           </property>
           <property name="geometry" >
            <rect>
             <x>1</x>
-            <y>1</y>
-            <width>320</width>
-            <height>240</height>
+            <y>44</y>
+            <width>171</width>
+            <height>127</height>
            </rect>
           </property>
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>0</hsizetype>
-            <vsizetype>0</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+          <property name="text" >
+           <string>All-in-one Button</string>
           </property>
-          <property name="minimumSize" >
+          <property name="checkable" >
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive" >
+           <bool>true</bool>
+          </property>
+          <property name="toolButtonStyle" >
+           <enum>Qt::ToolButtonTextUnderIcon</enum>
+          </property>
+          <property name="iconSize" >
            <size>
-            <width>320</width>
-            <height>240</height>
+            <width>160</width>
+            <height>100</height>
            </size>
-          </property>
-          <property name="frameShape" >
-           <enum>QFrame::Box</enum>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="text" >
-           <string>MDI Picutre</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="optMDI" >
-          <property name="objectName" >
-           <string notr="true" >optMDI</string>
-          </property>
-          <property name="geometry" >
-           <rect>
-            <x>1</x>
-            <y>247</y>
-            <width>320</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text" >
-           <string>All-in-one Window</string>
           </property>
          </widget>
         </item>
@@ -215,30 +166,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <spacer>
-     <property name="objectName" >
-      <string notr="true" >verticalSpacer</string>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>9</x>
-       <y>346</y>
-       <width>672</width>
-       <height>0</height>
-      </rect>
-     </property>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

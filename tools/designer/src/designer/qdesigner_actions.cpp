@@ -239,19 +239,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 // window actions
 //
     m_minimizeAction = new QAction(tr("&Minimize"), this);
+    m_minimizeAction->setEnabled(false);
     m_minimizeAction->setShortcut(tr("CTRL+M"));
     connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(minimizeForm()));
     m_windowActions->addAction(m_minimizeAction);
-
-    m_zoomAction = new QAction(
-#ifdef Q_WS_MAC
-                               tr("Zoom"),
-#else
-                               tr("Maximize"),
-#endif
-                               this);
-    connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(zoomForm()));
-    m_windowActions->addAction(m_zoomAction);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -691,13 +682,7 @@ void QDesignerActions::addRecentFile(const QString &fileName)
 void QDesignerActions::minimizeForm()
 {
     if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
-        fw->window()->showMinimized();
-}
-
-void QDesignerActions::zoomForm()
-{
-    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
-        fw->window()->showMaximized();
+        fw->parentWidget()->showMinimized();
 }
 
 void QDesignerActions::bringAllToFront()
@@ -713,11 +698,6 @@ void QDesignerActions::bringAllToFront()
 QAction *QDesignerActions::minimizeAction() const
 {
     return m_minimizeAction;
-}
-
-QAction *QDesignerActions::zoomAction() const
-{
-    return m_zoomAction;
 }
 
 QAction *QDesignerActions::bringAllToFront() const
