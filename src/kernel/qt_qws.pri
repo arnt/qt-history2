@@ -14,7 +14,6 @@ embedded {
 		    $$KERNEL_H/qfontfactoryttf_qws.h \
 		    $$KERNEL_H/qfontmanager_qws.h \
 		    $$KERNEL_H/qgfx_qws.h \
-		    $$KERNEL_H/qgfxlinuxfb_qws.h \
 		    $$KERNEL_H/qgfxraster_qws.h \
 		    $$KERNEL_H/qlock_qws.h \
 		    $$KERNEL_H/qmemorymanager_qws.h \
@@ -36,10 +35,7 @@ embedded {
 		    $$KERNEL_H/qwsregionmanager_qws.h \
 		    $$KERNEL_H/qwssocket_qws.h \
 		    $$KERNEL_H/qwsutils_qws.h \
-		    $$KERNEL_H/qwswindowsdecoration_qws.h \
-		    $$KERNEL_P/qgfxdriverinterface_p.h \
-		    $$KERNEL_H/qgfxdriverplugin_qws.h \
-		    $$KERNEL_H/qgfxdriverfactory_qws.h
+		    $$KERNEL_H/qwswindowsdecoration_qws.h
 
          SOURCES +=  $$KERNEL_CPP/qapplication_qws.cpp \
 		    $$KERNEL_CPP/qclipboard_qws.cpp \
@@ -55,7 +51,6 @@ embedded {
 		    $$KERNEL_CPP/qfontmanager_qws.cpp \
 		    $$KERNEL_CPP/qgfx_qws.cpp \
 		    $$KERNEL_CPP/qgfxraster_qws.cpp \
-		    $$KERNEL_CPP/qgfxlinuxfb_qws.cpp \
 		    $$KERNEL_CPP/qkeyboard_qws.cpp \
 		    $$KERNEL_CPP/qlock_qws.cpp \
 		    $$KERNEL_CPP/qmemorymanager_qws.cpp \
@@ -81,9 +76,7 @@ embedded {
 		    $$KERNEL_CPP/qwsproperty_qws.cpp \
 		    $$KERNEL_CPP/qwsregionmanager_qws.cpp \
 		    $$KERNEL_CPP/qwssocket_qws.cpp \
-		    $$KERNEL_CPP/qwswindowsdecoration_qws.cpp \
-		    $$KERNEL_CPP/qgfxdriverplugin_qws.cpp \
-		    $$KERNEL_CPP/qgfxdriverfactory_qws.cpp
+		    $$KERNEL_CPP/qwswindowsdecoration_qws.cpp
 
 	ft:SOURCES += \
 		3rdparty/freetype/builds/unix/ftsystem.c \
@@ -113,72 +106,15 @@ embedded {
 
 	else:DEFINES += QT_NO_FREETYPE
 
-	contains( gfx-drivers, qvfb ) {
-		HEADERS += $$KERNEL_H/qgfxvfb_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxvfb_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_VFB
-
-	contains( gfx-drivers, vnc ) {
-		HEADERS += $$KERNEL_H/qgfxvnc_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxvnc_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_VNC
-
-	contains( gfx-drivers, vga16 ) {
-		HEADERS += $$KERNEL_H/qgfxvga16_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxvga16_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_VGA16
-
-	contains( gfx-drivers, transformed ) {
-		HEADERS += $$KERNEL_H/qgfxtransformed_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxtransformed_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_TRANSFORMED
-
-	contains( gfx-drivers, mach64 ) {
-		HEADERS += $$KERNEL_H/qgfxmach64_qws.h \
-			   $$KERNEL_H/qgfxmach64defs_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxmach64_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_MACH64
-
-	contains( gfx-drivers, voodoo ) {
-		HEADERS += $$KERNEL_H/qgfxvoodoo_qws.h \
-			   $$KERNEL_H/qgfxvoodoodefs_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxvoodoo_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_VOODOO3
-
-	contains( gfx-drivers, matrox ) {
-		HEADERS += $$KERNEL_H/qgfxmatrox_qws.h \
-			   $$KERNEL_H/qgfxmatroxdefs_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxmatrox_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_MATROX
-
-	contains( gfx-drivers, shadowfb ) {
-		HEADERS += $$KERNEL_H/qgfxshadow_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxshadow_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_SHADOWFB
-
-	contains( gfx-drivers, repeater ) {
-		HEADERS += $$KERNEL_H/qgfxrepeater_qws.h
-		SOURCES += $$KERNEL_CPP/qgfxrepeater_qws.cpp
-	}
-	else:DEFINES += QT_NO_QWS_REPEATER
-
 
 	PRECOMPH=$(QTDIR)/include/qt.h
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
 
 	qnx { 
-		HEADERS += qwsgfx_qnx6.h
-		SOURCES += qwskeyboard_qnx.cpp \
-			   qwsmouse_qnx.cpp \
-			   qwsgfx_qnx6.cpp
+		HEADERS += $$KERNEL_H/qwsgfx_qnx6.h
+		SOURCES += $$KERNEL_CPP/qwskeyboard_qnx.cpp \
+			   $$KERNEL_CPP/qwsmouse_qnx.cpp \
+			   $$KERNEL_CPP/qwsgfx_qnx6.cpp
 	}
 }
 

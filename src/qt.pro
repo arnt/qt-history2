@@ -28,6 +28,7 @@ CODECS_CPP	= codecs
 WORKSPACE_CPP	= workspace
 XML_CPP	        = xml
 STYLES_CPP	= styles
+EMBEDDED_CPP	= embedded
 
 win32 {
 	internal {
@@ -92,9 +93,14 @@ unix {
 	!mac:CONFIG	   += x11 x11inc
 }
 
+embedded {
+	EMBEDDED_H	= $$EMBEDDED_CPP
+}
+
 DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
 DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$TOOLS_H;$$CODECS_H;$$WORKSPACE_H;$$XML_H;
 DEPENDPATH += $$CANVAS_H;$$STYLES_H
+embedded:DEPENDPATH += ;$$EMBEDDED_H
 
 thread {
 	!win32-borland:TARGET = qt-mt
@@ -137,6 +143,7 @@ include($$KERNEL_CPP/qt_gfx.pri)
 include($$TOOLS_CPP/qt_tools.pri)
 include($$CODECS_CPP/qt_codecs.pri)
 include($$STYLES_CPP/qt_styles.pri)
+embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
 
 #install directives
 include(qt_install.pri)
