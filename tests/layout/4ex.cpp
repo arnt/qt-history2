@@ -11,7 +11,7 @@
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qcolor.h>
-#include <qgroupbox.h>
+#include <qframe.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 
@@ -20,8 +20,9 @@
 class Kill : public QWidget
 {
 public:
-    Kill( QWidget *parent, const char *name=0 )
+    Kill( QWidget *parent=0, const char *name=0 )
 	:QWidget(parent,name) {}
+    QSize sizeHint() const { return QSize(20,20); }
 protected:
     void mouseReleaseEvent( QMouseEvent * );
 };
@@ -41,7 +42,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QGroupBox *f = new QGroupBox;
+    QFrame *f = new QFrame;
     f->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
 
     QBoxLayout *gm = new QBoxLayout( f, QBoxLayout::TopToBottom, 5 );
@@ -52,14 +53,10 @@ int main( int argc, char **argv )
     for ( int i=0; i<4; i++ ) {
 
 	if ( i != 2 ) {
-	    QLabel* lab = new QLabel(f);
-	    lab->setText("Testing");
-	    lab->adjustSize();
-	    lab->setMinimumSize( lab->size());
+	    QLabel* lab = new QLabel("Testing");
 	    lab->setFrameStyle( QFrame::Panel   | QFrame::Plain );
 	    lab->setAlignment( Qt::AlignTop | Qt::AlignHCenter );
 	    lab->setBackgroundColor(Qt::yellow);
-	    lab->setMaximumSize( 150, 200 );
 	    b1->addWidget( lab, 20 );
 	} else {
 	    QString s;
@@ -67,11 +64,8 @@ int main( int argc, char **argv )
 	    b1->addLayout( grid );
 	    for ( int j = 0; j < 2; j++ )
 		for ( int k = 0; k < 2; k++ ) {
-		    QLabel* lab = new QLabel(f);
 		    s.sprintf( "Grid %d,%d", j, k );
-		    lab->setText(s);
-		    lab->adjustSize();
-		    lab->setMinimumSize( lab->size());
+		    QLabel* lab = new QLabel(s);
 		    lab->setFrameStyle( QFrame::Panel | QFrame::Plain );
 		    lab->setAlignment( Qt::AlignCenter );
 		    lab->setBackgroundColor(Qt::cyan);
@@ -80,65 +74,40 @@ int main( int argc, char **argv )
 	}
     }
 
-    Kill* kill = new Kill( f );
+    Kill* kill = new Kill;
     b1->addWidget( kill );
     kill->setBackgroundColor( Qt::red );
 
-    QPushButton* qb = new QPushButton( "Quit", f );
+    QPushButton* qb = new QPushButton("Quit");
     a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
-    qb->setFixedSize( qb->size() );
     b1->addWidget( qb, 0, Qt::AlignTop );
 
-
-    kill->setFixedSize( qb->sizeHint() );
-
-
-
-
-
-    QLabel* large = new QLabel(f);
+    QLabel* large = new QLabel;
     large->setText("This is supposed to be a large window\n you know.");
-    large->adjustSize();
-    large->setMinimumSize( large->size());
     large->setFrameStyle( QFrame::Panel | QFrame::Plain );
     large->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
     large->setBackgroundColor(Qt::white);
 
     QBoxLayout *b2 = new QBoxLayout( QBoxLayout::LeftToRight);
     gm->addLayout( b2, 50 );
-    //    b2.addMaxStrut( 200 );
-
     b2->addWidget( large, 100 ); // hstretch
 
-    {
-	QLabel* s = new QLabel(f);
-	s->setMaximumSize(150,150);
-	s->setText("This\n is\n supposed\n to be\n centered\n relatively.");
-	s->adjustSize();
-	s->setMinimumSize( s->size());
-	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
-	s->setBackgroundColor(Qt::cyan);
-	b2->addWidget( s, 10, Qt::AlignCenter );
-    }
+    QLabel* s = new QLabel;
+    s->setText("This\n is\n supposed\n to be\n centered\n relatively.");
+    s->setFrameStyle( QFrame::Panel | QFrame::Plain );
+    s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
+    s->setBackgroundColor(Qt::cyan);
+    b2->addWidget( s, 10, Qt::AlignCenter );
 
-    {
-	QLabel* s = new QLabel(f);
-	s->setMaximumHeight( 50 );
-	s->setText("This is a widget inside the outermost box");
-	s->adjustSize();
-	s->setMinimumSize( s->width(), s->height() );
-	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
-	s->setBackgroundColor(Qt::red);
-	gm->addWidget( s, 1 );
-    }
+    s = new QLabel;
+    s->setText("This is a widget inside the outermost box");
+    s->setFrameStyle( QFrame::Panel | QFrame::Plain );
+    s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
+    s->setBackgroundColor(Qt::red);
+    gm->addWidget( s, 1 );
 
-    gm->activate();
-    //gm->freeze();
+
     f->show();
-
-
     a.setMainWidget(f);
     return a.exec();
 }

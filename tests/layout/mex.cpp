@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 
     {
 	QLabel* s = new QLabel(f);
-	s->setMaximumSize( QLayout::unlimited, 50 );
+	s->setMaximumHeight(50);
 	s->setText("This is a widget inside the outermost box");
 	s->adjustSize();
 	s->setMinimumSize( s->width(), s->height() );
