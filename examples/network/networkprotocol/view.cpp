@@ -31,7 +31,7 @@ View::View()
 		    "files from an <b>FTP</b> server using the ftp protocol and "
 		    "you can download and open <b>USENET</b> articles using the "
 		    "demo implementation of the nntp protocol of this "
-		    "exmaple (<i>This implementation of the nntp protocol is a very "
+		    "example (<i>This implementation of the nntp protocol is a very "
 		    "basic and incomplete one, so you need to connect to a news server "
 		    "which allows reading without authentification</i>)\n"
 		    "To open a file from the local filesystem, enter in the "
@@ -60,7 +60,7 @@ void View::downloadFile()
     if ( !file.isEmpty() ) {
 	// clear the view
 	fileView->clear();
-	
+
 	// download the data
 	op = file;
 	op.get();
