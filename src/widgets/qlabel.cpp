@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#127 $
 **
 ** Implementation of QLabel widget class
 **
@@ -692,7 +692,7 @@ void QLabel::drawContentsMask( QPainter *p )
 
     QMovie *mov = movie();
     if ( mov ) {
-	// ### should add movie to qDrawItem
+	// ### could add movie to qDrawItem
 	QRect r = qItemRect( p, style(),
 			cr.x(), cr.y(), cr.width(), cr.height(),
 			align, isEnabled(), &(mov->framePixmap()), ltext );

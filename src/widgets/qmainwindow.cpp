@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#66 $
 **
 ** Implementation of QMainWindow class
 **
@@ -192,7 +192,7 @@ protected:
     void setGeometry( const QRect& );
 private:
     void init();
-    int layout( const QRect&, bool testonly = FALSE );
+    int layoutItems( const QRect&, bool testonly = FALSE );
     QList<QLayoutItem> list;
     QArray<QLayoutStruct> *array;
     QBoxLayout::Direction dir;
@@ -237,7 +237,7 @@ void QToolLayout::invalidate()
     array=0;
 }
 
-int QToolLayout::layout( const QRect &r, bool testonly )
+int QToolLayout::layoutItems( const QRect &r, bool testonly )
 {
     int n = list.count();
     if ( !testonly ) {
@@ -304,7 +304,7 @@ int QToolLayout::heightForWidth( int w ) const
     if ( cached_width != w ) {
 	//Not all C++ compilers support "mutable" yet:
 	QToolLayout * mthis = (QToolLayout*)this;
-	int h = mthis->layout( QRect(0,0,w,0), TRUE );
+	int h = mthis->layoutItems( QRect(0,0,w,0), TRUE );
 	mthis->cached_hfw = h;
 	return h;
     }
@@ -338,7 +338,7 @@ QLayoutIterator QToolLayout::iterator()
 void QToolLayout::setGeometry( const QRect &r )
 {
     QLayout::setGeometry( r );
-    layout( r );
+    layoutItems( r );
 }
 
 /*!  Constructs an empty main window. */
@@ -780,8 +780,6 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     if ( !dock || dock->isEmpty() )
 	return;
 
-    bool anyToolBars = FALSE;
-
     QBoxLayout * dockLayout = tl;
 
     if ( direction == QBoxLayout::RightToLeft || direction == QBoxLayout::LeftToRight ){
@@ -799,6 +797,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     } else {
 	QBoxLayout * toolBarRowLayout = 0;
 	QMainWindowPrivate::ToolBar * t = dock->first();
+	bool anyToolBars;
 	do {
 	    bool nl = t->nl;
 	    if ( !toolBarRowLayout || nl ) {
@@ -807,8 +806,8 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 		toolBarRowLayout = new QToolBoxLayout( direction );
 		dockLayout->addLayout( toolBarRowLayout, 0 );
 	    }
-		toolBarRowLayout->addWidget( t->t, 0 );
-		anyToolBars = TRUE;//####
+	    toolBarRowLayout->addWidget( t->t, 0 );
+	    anyToolBars = TRUE;//####
 	} while ( (t=dock->next()) != 0 );
 
 	if ( anyToolBars && style == Qt::MotifStyle )

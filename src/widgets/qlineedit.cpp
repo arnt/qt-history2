@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#218 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#219 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -556,7 +556,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    p.setPen( g.text() );
 	    p.drawText( x, y, after );
 	}
-	x += w;
+	// ... x += w;
 	
 	p.setPen( g.foreground() );
 
@@ -1470,15 +1470,15 @@ void QLineEdit::updateOffset()
     } else if ( textWidth > w ) {
 	// may need to scroll.
 
-	QString d = displayText();
-	d += QString::fromLatin1( "  " );
-	d = d.left( cursorPos + 2 );
+	QString dt = displayText();
+	dt += QString::fromLatin1( "  " );
+	dt = dt.left( cursorPos + 2 );
 	if ( cursorPos < 3 )
 	    offset = 0;
-	else if ( fm.width( d.left( cursorPos - 2 ) ) + offset < 0 )
-	    offset = -fm.width( d.left( cursorPos - 2 ) );
-	else if ( fm.width( d ) + offset > w )
-	    offset = w - fm.width( d );
+	else if ( fm.width( dt.left( cursorPos - 2 ) ) + offset < 0 )
+	    offset = -fm.width( dt.left( cursorPos - 2 ) );
+	else if ( fm.width( dt ) + offset > w )
+	    offset = w - fm.width( dt );
     } else if ( alignmentFlag == Qt::AlignRight ) {
 	// right-aligned text, space for all of it
 	offset = w - textWidth;

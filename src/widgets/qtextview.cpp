@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#16 $
 **
 ** Implementation of the QTextView class
 **
@@ -255,11 +255,10 @@ void QTextView::createRichText()
     if (d->doc_->attributes()->contains("bgpixmap")){
 	QString imageName = d->doc_->attributes()->operator[]("bgpixmap");
 	QPixmap pm;
-	const QMimeSource* m = 0;
-	if ( context().isNull() )
-	    m = mimeSourceFactory()->data( imageName );
-	else
-	    m = mimeSourceFactory()->data( imageName, context() );
+	const QMimeSource* m =
+	    context().isNull()
+		? mimeSourceFactory()->data( imageName )
+		: mimeSourceFactory()->data( imageName, context() );
 	if ( m ) {
 	    if ( !QImageDrag::decode( m, pm ) ) {
 		qWarning("QTextImage: cannot load %s", imageName.latin1() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#113 $
 **
 ** Implementation of QPixmap class
 **
@@ -189,16 +189,17 @@ QPixmap::QPixmap( const char *xpm[] )
 }
 
 /*!
-  Constructs a pixmaps by loading from \a data.
+  Constructs a pixmaps by loading from \a img_data.
+  The data can be in any image format supported by Qt.
 
   \sa loadFromData()
 */
 
-QPixmap::QPixmap( const QByteArray & data )
+QPixmap::QPixmap( const QByteArray & img_data )
     : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0, FALSE, defOptim );
-    loadFromData( data );
+    loadFromData( img_data );
 }
 
 

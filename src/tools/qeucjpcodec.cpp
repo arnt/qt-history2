@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.cpp#8 $
 **
 ** Implementation of QEucJpCodec class
 **
@@ -210,7 +210,7 @@ int QEucJpCodec::heuristicNameMatch(const char* hint) const
 	score += 2; 
 	ja = TRUE;
     }
-    const char *p = 0;
+    const char *p;
     if (ja) {
 	p = strchr(hint, '.');
 	if (p == 0) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#199 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#200 $
 **
 ** Implementation of QFileDialog class
 **
@@ -763,17 +763,20 @@ void QFileDialogPrivate::MCItem::paint( QPainter * p )
 {
     QFontMetrics fm = p->fontMetrics();
 
-    int w, h;
+    int h;
 
     if ( pixmap() )
         h = QMAX( fm.height(), pixmap()->height()) + 4;
     else
         h = fm.height() + 4;
-    w = 4;
+
+    /* Not used
+    int w = 4;
     if ( pixmap() )
         w += pixmap()->width();
     w += fm.width( text() );
     w += 6;
+    */
 
     const QPixmap * pm = pixmap();
     if ( pm )
@@ -2319,15 +2322,17 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
                 ((QKeyEvent *)e)->key() == Key_Delete &&
                 ( o == files ||
                   o == files->viewport() ) ) {
-                  deleteFile( files->currentItem() ? files->currentItem()->text( 0 ) : QString::null );
+	if ( files->currentItem() )
+	    deleteFile( files->currentItem()->text( 0 ) );
         ((QKeyEvent *)e)->accept();
         return TRUE;
     } else if ( e->type() == QEvent::KeyPress &&
                 ((QKeyEvent *)e)->key() == Key_Delete &&
                 ( o == d->moreFiles ||
                   o == d->moreFiles->viewport() ) ) {
-        deleteFile( d->moreFiles->currentItem() == -1 ? QString::null : 
-                    d->moreFiles->item( d->moreFiles->currentItem() )->text() );
+	int c = d->moreFiles->currentItem();
+	if ( c >= 0 )
+	    deleteFile( d->moreFiles->item( c )->text() );
         ((QKeyEvent *)e)->accept();
         return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&

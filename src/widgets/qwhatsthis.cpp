@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#51 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -357,8 +357,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	     o->isWidgetType() &&
  	     ((QKeyEvent *)e)->state() == ShiftButton ) {
  	    QWidget * w = ((QWidget *)o)->focusWidget();
- 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
- 	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
+ 	    QWhatsThisPrivate::WhatsThisItem *i = w ? dict->find(w) : 0;
+ 	    if ( i && !i->s.isNull() ) {
 		if ( i->whatsthis )
 		    say( w, i->whatsthis->text( QPoint(0,0) ), w->mapToGlobal( w->rect().center() ));
 		else

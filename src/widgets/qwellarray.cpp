@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#18 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -349,12 +349,11 @@ void QWellArray::focusOutEvent( QFocusEvent* )
 
 void QWellArray::keyPressEvent( QKeyEvent* e )
 {
-    int edge = 0;
     switch( e->key() ) {			// Look at the key code
     case Key_Left:				// If 'left arrow'-key,
 	if( curCol > 0 ) {			// and cr't not in leftmost col
 	    setCurrent( curRow, curCol - 1);	// set cr't to next left column
-	    edge = leftCell();		// find left edge
+	    int edge = leftCell();		// find left edge
 	    if ( curCol < edge )		// if we have moved off  edge,
 		setLeftCell( edge - 1 );	// scroll view to rectify
 	}
@@ -362,7 +361,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
     case Key_Right:				// Correspondingly...
 	if( curCol < numCols()-1 ) {
 	    setCurrent( curRow, curCol + 1);
-	    edge = lastColVisible();
+	    int edge = lastColVisible();
 	    if ( curCol >= edge )
 		setLeftCell( leftCell() + 1 );
 	}
@@ -370,7 +369,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
     case Key_Up:
 	if( curRow > 0 ) {
 	    setCurrent( curRow - 1, curCol);;
-	    edge = topCell();
+	    int edge = topCell();
 	    if ( curRow < edge )
 		setTopCell( edge - 1 );
 	}
@@ -378,7 +377,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
     case Key_Down:
 	if( curRow < numRows()-1 ) {
 	    setCurrent( curRow + 1, curCol);
-	    edge = lastRowVisible();
+	    int edge = lastRowVisible();
 	    if ( curRow >= edge )
 		setTopCell( topCell() + 1 );
 	}

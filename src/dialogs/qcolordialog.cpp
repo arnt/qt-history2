@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#12 $
 **
 ** Implementation of QColorDialog class
 **
@@ -54,6 +54,7 @@ public:
 	:QWellArray( parent ), values( vals ) { setDimension(r,c); }
 protected:
     void drawContents( QPainter *, int row, int col, const QRect& );
+    void drawContents( QPainter *p ) { QWellArray::drawContents(p); }
 private:
     QRgb *values;
 };

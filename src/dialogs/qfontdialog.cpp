@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#39 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#40 $
 **
 ** Implementation of QFontDialog
 **
@@ -463,8 +463,8 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 
     if ( e->type() == QEvent::KeyPress ) {
-    QListBox * lb = 0;
-    QLineEdit * le = 0;
+	QListBox * lb = 0;
+	QLineEdit * le = 0;
 
 	if ( o == d->familyEdit ) {
 	    lb = d->familyList;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#16 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -32,15 +32,15 @@
 
 
 /*!
-  Constructs a grid widget with parent \a parent and name \a name. If \a d is
-  \c Horizontal, \a n specifies the number of columns. If \a d is \c Vertical,
+  Constructs a grid widget with parent \a parent and name \a name. If \a dir is
+  \c Horizontal, \a n specifies the number of columns. If \a dir is \c Vertical,
   \a n specifies the number of rows.
  */
-QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
+QGrid::QGrid( int n, Direction dir, QWidget *parent, const char *name, WFlags f )
     :QFrame( parent, name, f )
 {
     int nCols, nRows;
-    if ( d == Horizontal ) {
+    if ( dir == Horizontal ) {
 	nCols = n;
 	nRows = -1;
     } else {

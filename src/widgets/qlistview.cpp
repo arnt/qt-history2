@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#248 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#249 $
 **
 ** Implementation of QListView widget class
 **
@@ -1330,21 +1330,21 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	    horizontalLine->setMask( *horizontalLine );
 	    qAddPostRoutine( cleanupBitmapLines );
 	}
-	int i = 0; // misc
 	int line; // index into dotlines
-	int point; // relevant coordinate of current point
-	int end; // same coordinate of the end of the current line
-	int other; // the other coordinate of the current point/line
 	for( line = 0; line < c; line += 2 ) {
 	    // assumptions here: lines are horizontal or vertical.
 	    // lines always start with the numerically lowest
 	    // coordinate.
+
+	    // point ... relevant coordinate of current point
+	    // end ..... same coordinate of the end of the current line
+	    // other ... the other coordinate of the current point/line
 	    if ( dotlines[line].y() == dotlines[line+1].y() ) {
-		end = dotlines[line+1].x();
-		point = dotlines[line].x();
-		other = dotlines[line].y();
+		int end = dotlines[line+1].x();
+		int point = dotlines[line].x();
+		int other = dotlines[line].y();
 		while( point < end ) {
-		    i = 128;
+		    int i = 128;
 		    if ( i+point > end )
 			i = end-point;
 		    p->drawPixmap( point, other, *horizontalLine,
@@ -1352,12 +1352,12 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    point += i;
 		}
 	    } else {
-		end = dotlines[line+1].y();
-		point = dotlines[line].y();
+		int end = dotlines[line+1].y();
+		int point = dotlines[line].y();
+		int other = dotlines[line].x();
 		int pixmapoffset = ((point & 1) != dotoffset ) ? 1 : 0;
-		other = dotlines[line].x();
 		while( point < end ) {
-		    i = 128;
+		    int i = 128;
 		    if ( i+point > end )
 			i = end-point;
 		    p->drawPixmap( other, point, *verticalLine,
@@ -2577,7 +2577,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		if ( !d->currentSelected ) {
 		    setCurrentItem( i );
 		    // i may have been deleted here
-		    i = itemAt( vp );
 		}
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;

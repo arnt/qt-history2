@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qeuckrcodec.cpp#5 $
 **
 ** Implementation of QEucKrCodec class
 **
@@ -112,7 +112,7 @@ QString QEucKrCodec::toUnicode(const char* chars, int len) const
       if ( i < len-1 ) {
 	uchar c2 = chars[++i];
 	if ( IsEucChar(c2) ) {
-	  uint u = qt_Ksc5601ToUnicode(ch << 8 | c2);
+	  uint u = qt_Ksc5601ToUnicode((ch << 8) | c2);
 	  result += QValidChar(u);
 	} else {
 	  i--;
@@ -146,7 +146,7 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
     score += 2; 
     ko = TRUE;
   }
-  const char *p = 0;
+  const char *p;
   if (ko) {
     p = strchr(hint, '.');
     if (p == 0) {
@@ -228,7 +228,7 @@ public:
       case 1:
 	// KSC 5601
 	if ( IsEucChar(ch) ) {
-	  uint u = qt_Ksc5601ToUnicode(buf[0] << 8 |  ch);
+	  uint u = qt_Ksc5601ToUnicode((buf[0] << 8) |  ch);
 	  result += QValidChar(u);
 	} else {
 	  // Error

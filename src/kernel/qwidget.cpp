@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#422 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#423 $
 **
 ** Implementation of QWidget class
 **
@@ -1484,14 +1484,14 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 
 void QWidget::setBackgroundFromMode()
 {
-    int i = PaletteBackground;
     QColorGroup::ColorRole r = QColorGroup::Background;
     if ( extra ) {
-	i = (BackgroundMode)extra->bg_mode;
-	if ( i == FixedColor || i == FixedPixmap || i == NoBackground )
-	    // why does this function not do what its name says in
-	    // this case?
+	int i = (BackgroundMode)extra->bg_mode;
+	if ( i == FixedColor || i == FixedPixmap || i == NoBackground ) {
+	    // Mode is for fixed color, not one based on palette,
+	    // so nothing to do.
 	    return;
+	}
 	switch( i ) {
 	case PaletteForeground:
 	    r = QColorGroup::Foreground;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#104 $
 **
 ** Implementation of QScrollView class
 **
@@ -501,18 +501,15 @@ QSize QScrollView::viewportSize( int x, int y ) const
 
 	// Given other scrollbar will be shown, NOW do we need one?
 	if ( showh && h-sbDim-tmarg-bmarg < y ) {
-	    needv=TRUE;
 	    if (d->vMode == Auto)
 		showv=TRUE;
 	}
 	if ( showv && w-sbDim-lmarg-rmarg < x ) {
-	    needh=TRUE;
 	    if (d->hMode == Auto)
 		showh=TRUE;
 	}
     } else {
 	// Scrollbars not needed, only show scrollbar that are always on.
-	needh = needv = FALSE;
 	showh = d->hMode == AlwaysOn;
 	showv = d->vMode == AlwaysOn;
     }

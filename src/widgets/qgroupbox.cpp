@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#63 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -407,9 +407,8 @@ void QGroupBox::calculateFrame()
     if ( lenvisible ) { // do we have a label?
 	const QFontMetrics & fm = fontMetrics();
 	int h = fm.height();
-	int tw  = 0;
 	while ( lenvisible ) {
-	    tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	    int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	    if ( tw < width() )
 		break;
 	    lenvisible--;

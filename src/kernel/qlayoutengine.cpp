@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#10 $
 **
 ** Implementation of QLayout functionality
 **
@@ -94,7 +94,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 		chain[i].size = chain[i].sizeHint;
 		chain[i].done = TRUE;
 		space_left -= chain[i].sizeHint;
-		sumStretch -= chain[i].stretch;
+		// sumStretch -= chain[i].stretch; NOT USED
 		n--;
 	    }
 	}
@@ -119,7 +119,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 		    chain[i].size = chain[i].minimumSize;
 		    finished = FALSE;
 		    overdraft -= chain[i].sizeHint - chain[i].minimumSize;
-		    sumStretch -= chain[i].stretch;
+		    // sumStretch -= chain[i].stretch; NOT USED
 		    n--;
 		    break;
 		}

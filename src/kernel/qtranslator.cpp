@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#21 $
 **
 ** Localization database support.
 **
@@ -297,10 +297,10 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	    goto found_file; // EXIT LOOP
 
 	for ( int i=0; i<(int)delims.length(); i++) {
-	    int d;
-	    if ( (d=fname.find(delims[i])) >= 0 ) {
+	    int dlm;
+	    if ( (dlm=fname.find(delims[i])) >= 0 ) {
 		// found a truncation
-		fname = fname.left(d);
+		fname = fname.left(dlm);
 		goto try_with_and_without_suffix;
 	    }
 	}
