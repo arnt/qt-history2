@@ -227,6 +227,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 	 ( _name == "Marlett" || _name == "Symbol" || _name == "Webdings" || _name == "Wingdings" ) )
 	    useTextOutA = TRUE;
 #endif
+    memset( widthCache, 0, sizeof(widthCache) );
 }
 
 
@@ -241,13 +242,21 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
     if ( advances ) {
 	HDC hdc = dc();
-	int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
-	for( int i = 0; i < len; i++ ) {
-	    SIZE  size;
-	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-	    *advances = size.cx - overhang;
-	    advances++;
-	    str++;
+	unsigned int glyph;
+	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	for( register int i = 0; i < len; i++ ) {
+	    glyph = *(glyphs + i);
+	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	    // font-width cache failed
+	    if ( !advances[i] ) {
+		SIZE size;
+		GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
+		advances[i] = size.cx - overhang;
+		// if glyph's within cache range, store it for later
+		if ( glyph < widthCacheSize )
+		    ((QFontEngineWin *)this)->widthCache[glyph] = size.cx - overhang;
+	    }
+ 	    str++;
 	}
     }
 
@@ -467,7 +476,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    } else {
 		// fast path
 		RECT r = { x + offsets->x, y + offsets->y, r.left + w, r.top + tm.w.tmDescent + 1 };
-		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, &r, (wchar_t *)glyphs, si->num_glyphs, advances );		
+		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, &r, (wchar_t *)glyphs, si->num_glyphs, advances );
 		x += w;
 	    }
 	}

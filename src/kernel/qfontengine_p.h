@@ -567,6 +567,9 @@ public:
     bool canRender( const QChar *string,  int len );
 
     Type type() const;
+
+    enum { widthCacheSize = 0x800, cmapCacheSize = 0x500 };
+    unsigned char widthCache[widthCacheSize];
 };
 
 #if 0

@@ -119,6 +119,7 @@ QFontEngineWin::QFontEngineWin( const char * name, HDC _hdc, HFONT _hfont, bool 
 	qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
     cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
+    memset( widthCache, 0, sizeof(widthCache) );
 }
 
 
@@ -133,12 +134,20 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 
     if ( advances ) {
 	HDC hdc = dc();
-	for( int i = 0; i < len; i++ ) {
-	    SIZE  size;
-	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-	    *advances = size.cx;
-	    advances++;
-	    str++;
+	unsigned int glyph;
+	for( register int i = 0; i < len; i++ ) {
+	    glyph = *(glyphs + i);
+	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	    // font-width cache failed
+	    if ( !advances[i] ) {
+		SIZE size;
+		GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
+		advances[i] = size.cx;
+		// if glyph's within cache range, store it for later
+		if ( glyph < widthCacheSize )
+		    ((QFontEngineWin *)this)->widthCache[glyph] = size.cx;
+	    }
+ 	    str++;
 	}
     }
 
