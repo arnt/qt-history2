@@ -66,7 +66,7 @@ void QWidgetPrivate::propagatePaletteChange()
     q->paletteChange(q->palette()); // compatibility
 }
 
- 
+
 /*!
     \class QPalettePolicy qwidget.h
     \brief The QPalettePolicy class is used to set the background used for a QWidget.
@@ -120,8 +120,8 @@ void QWidgetPrivate::propagatePaletteChange()
 
     \sa QPalettePolicy::foreground(), QPalettePolicy::background()
 */
-QPalettePolicy::QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f) : bg(b), fg(f) 
-{ 
+QPalettePolicy::QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f) : bg(b), fg(f)
+{
 }
 
 /*!
@@ -154,12 +154,12 @@ QPalettePolicy::QPalettePolicy(QPalette::ColorRole b) : bg(b)
     Constructs a default palette policy with a background role of Inherited and foreground
     role of Foreground.
 */
-QPalettePolicy::QPalettePolicy() : bg(QPalette::Inherited), fg(QPalette::Foreground) 
-{ 
+QPalettePolicy::QPalettePolicy() : bg(QPalette::Inherited), fg(QPalette::Foreground)
+{
 }
 
-QPalettePolicy::QPalettePolicy(const QPalettePolicy &p) : bg(p.bg), fg(p.fg) 
-{ 
+QPalettePolicy::QPalettePolicy(const QPalettePolicy &p) : bg(p.bg), fg(p.fg)
+{
 }
 
 
@@ -849,20 +849,13 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
     focus_policy = 0;
 
-    own_font = 0;
-    own_palette = 0;
     sizehint_forced = 0;
     is_closing = 0;
     in_show = 0;
     in_show_maximized = 0;
     im_enabled = FALSE;
-#ifndef QT_NO_PALETTE
-    d->bg_brush = pal.brush(QPalette::Active, QPalette::Background); 	// default background color
-#endif
     create();					// platform-dependent init
-#ifndef QT_NO_PALETTE
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
-#endif
     if ( ! isTopLevel() )
 	fnt = parentWidget()->font();
 #if defined(Q_WS_X11)
@@ -923,8 +916,6 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 
     focus_policy = 0;
 
-    own_font = 0;
-    own_palette = 0;
     sizehint_forced = 0;
     is_closing = 0;
     in_show = 0;
@@ -1556,14 +1547,14 @@ void QWidget::windowActivationChange( bool )
 	return;
 
     for(int role=0; role < (int)QPalette::NColorRoles; role++) {
-	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) != 
+	if(pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
 	   pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
 	    QPalette::ColorRole bg_role = pal_policy.background();
-	    if ( !testAttribute(WA_NoErase) && bg_role < QPalette::NColorRoles && 
-		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) != 
+	    if ( !testAttribute(WA_NoErase) && bg_role < QPalette::NColorRoles &&
+		 (role == bg_role || (role < bg_role && pal.brush(QPalette::Active, bg_role) !=
 					 pal.brush(QPalette::Inactive, bg_role ))))
 		d->setBackgroundBrush(background());
-	    else if(role <= QPalette::Shadow) 
+	    else if(role <= QPalette::Shadow)
 		update();
 	    break;
 	}
@@ -2120,11 +2111,11 @@ const QColor &QWidget::foreground() const
 	w = findInheritedPalettePolicyWidget();
 	role = w->pal_policy.foreground();
 	if(role == QPalette::Inherited)
-	    role = QPalette::Foreground; 
+	    role = QPalette::Foreground;
     }
     if(role == QPalette::Overridden)
 	return w->d->fg_color;
-    return w->palette().color( role );
+    return w->pal.color( role );
 }
 
 void QWidget::setForeground(const QColor &color)
@@ -2147,11 +2138,11 @@ const QBrush &QWidget::background() const
 	w = findInheritedPalettePolicyWidget();
 	role = w->pal_policy.background();
 	if(role == QPalette::Inherited)
-	    role = QPalette::Background; 
+	    role = QPalette::Background;
     }
     if(role == QPalette::Overridden)
 	return w->d->bg_brush;
-    return w->palette().brush(role);
+    return w->pal.brush(role);
 }
 
 void QWidget::setBackground(const QBrush &brush)
@@ -2228,6 +2219,7 @@ void QWidget::setBackgroundMode( BackgroundMode m )
 {
     if(m == NoBackground) {
 	setAttribute(WA_NoErase, true);
+	d->setBackgroundBrush(QBrush());
 	return;
     }
     setAttribute(WA_NoErase, false);
@@ -2316,11 +2308,13 @@ void QWidget::setBackgroundMode( BackgroundMode m )
     Note that setting the palette policy to QPalette::Overridden makes
     no sense for setPalettePolicy(). You must call
     setBackgroundPixmap() and setPaletteBackgroundColor() instead.
-*/  
+*/
 
 void QWidget::setPalettePolicy(const QPalettePolicy &pp)
-{ 
+{
     pal_policy = pp;
+    setAttribute(WA_OwnPalettePolicy, true);
+    d->setBackgroundBrush(background());
     d->propagatePaletteChange();
 }
 
@@ -2329,7 +2323,7 @@ void QWidget::setPalettePolicy(const QPalettePolicy &pp)
 const QWidget *QWidget::findInheritedPalettePolicyWidget() const
 {
     for(const QWidget *w = this; w; w = w->parentWidget(TRUE)) {
-	if(w->testWFlags(WType_TopLevel|WSubWindow) || 
+	if(w->testWFlags(WType_TopLevel|WSubWindow) ||
 	   !w->palettePolicy().background() == QPalette::Inherited)
 	    return w;
     }
@@ -2356,19 +2350,26 @@ const QWidget *QWidget::findInheritedPalettePolicyWidget() const
     \sa ownPalette, QApplication::palette()
 */
 const QPalette &QWidget::palette() const
-{ 
+{
     if ( !isEnabled() )
 	pal.setCurrentColorGroup(QPalette::Disabled);
     else if ( !isVisible() || isActiveWindow() )
 	pal.setCurrentColorGroup(QPalette::Active);
     else
 	pal.setCurrentColorGroup(QPalette::Inactive);
-    return pal; 
+    return pal;
 }
 
 void QWidget::setPalette( const QPalette &palette )
 {
-    own_palette = TRUE;
+    setAttribute(WA_OwnPalette, true);
+    setPalette_helper(palette);
+    if (!testAttribute(WA_OwnPalettePolicy))
+	setPalettePolicy(QPalette::Background);
+}
+
+void QWidget::setPalette_helper( const QPalette &palette )
+{
     if ( pal == palette )
 	return;
     QPalette old = pal;
@@ -2379,9 +2380,8 @@ void QWidget::setPalette( const QPalette &palette )
 
 void QWidget::unsetPalette()
 {
-    // reset the palette
-    setPalette( qt_naturalWidgetPalette( this ) );
-    own_palette = FALSE;
+    setAttribute(WA_OwnPalette, false);
+    setPalette_helper( qt_naturalWidgetPalette( this ) );
 }
 
 /*!
@@ -2432,9 +2432,15 @@ void QWidget::paletteChange( const QPalette & )
 
     \sa fontChange() fontInfo() fontMetrics() ownFont()
 */
+
 void QWidget::setFont( const QFont &font )
 {
-    own_font = TRUE;
+    setAttribute(WA_OwnFont, true);
+    setFont_helper(font);
+}
+
+void QWidget::setFont_helper( const QFont &font )
+{
     if ( fnt == font && fnt.d->mask == font.d->mask )
 	return;
     QFont old = fnt;
@@ -2453,14 +2459,13 @@ void QWidget::setFont( const QFont &font )
     }
     if ( hasFocus() )
 	setFontSys();
-    fontChange( old );
+    fontChange(old); // compatibility
 }
 
 void QWidget::unsetFont()
 {
-    // reset the font
-    setFont( qt_naturalWidgetFont( this ) );
-    own_font = FALSE;
+    setAttribute(WA_OwnFont, false);
+    setFont_helper( qt_naturalWidgetFont( this ) );
 }
 
 /*!
@@ -4141,8 +4146,8 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // fall through
 	case QEvent::ApplicationFontChange:
-	    if ( own_font )
-		setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+	    if (testAttribute(WA_OwnFont))
+		setFont_helper(fnt.resolve(qt_naturalWidgetFont(this)));
 	    else
 		unsetFont();
 	    break;
@@ -4150,14 +4155,14 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ParentPaletteChange:
 	    if(isTopLevel())
 		break;
-	    if(!own_palette)
+	    if(!testAttribute(WA_OwnPalette))
 		pal = qt_naturalWidgetPalette(this);
 	    d->setBackgroundBrush(background());
 	    d->propagatePaletteChange();
 	    break;
 
 	case QEvent::ApplicationPaletteChange:
-	    if (!own_palette && !isDesktop())
+	    if (!testAttribute(WA_OwnPalette) && !isDesktop())
 		unsetPalette();
 	    break;
 
@@ -5192,14 +5197,12 @@ void QWidget::reparent(QWidget *parent, WFlags f)
     reparentSys( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if (!own_font)
+    if (!testAttribute(WA_OwnFont))
 	unsetFont();
     else
-	setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
-#ifndef QT_NO_PALETTE
-    if (!own_palette)
+	setFont_helper( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+    if (!testAttribute(WA_OwnPalette))
 	unsetPalette();
-#endif
 }
 
 /*!
@@ -5375,7 +5378,7 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     QWidget::setAttribute(), and queried with QWidget::hasAttribute().
 
     \table
-    \header \i Attribute \i Meaning \i Set by
+    \header \i Attribute \i Meaning \i Set/cleared by
 
     \row \i WA_KeyCompression \i Enables key event compression if set,
     and disables it if not set. By default key compression is off, so
@@ -5428,6 +5431,17 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     its ancestors are set to the enabled state. This implies
     WA_Disabled. \i Function QWidget::setEnabled() and
     QWidget::setDisabled()
+
+    \row \i WA_OwnPalette \i Indicates that the widgets has a palette
+    of its own.  \i Functions QWidget::setPalette() and
+    QWidget::unsetPalette()
+
+    \row \i WA_OwnPalettePolicy \i Indicates that either
+    setPalettePolicy() or setPalette() was called on the widget. \i
+    Functions QWidget::setPalette() and QWidget::setPalettePolicy()
+
+    \row \i WA_OwnFont \i Indicates that the widgets has a font of its
+    own. \i Functions QWidget::setFont() and QWidget::unsetFont()
 
     \endtable
 */

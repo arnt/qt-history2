@@ -631,7 +631,7 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
  *****************************************************************************/
 
 /*!
-    \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2, 
+    \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
     const QPalette &pal, bool sunken, int lineWidth, int midLineWidth )
 */
 
@@ -644,7 +644,7 @@ void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
 }
 
 /*!
-    \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QPalette &pal, 
+    \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QPalette &pal,
     bool sunken, int lineWidth, int midLineWidth, const QBrush *fill )
 */
 
@@ -848,12 +848,12 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 	    colspec = horizontal ? 0x1334 : 0x1343;
     }
 
-    QColor *cols[5];
+    const QColor *cols[5];
     cols[0] = 0;
-    cols[1] = (QColor *)&pal.button();
-    cols[2] = (QColor *)&pal.mid();
-    cols[3] = (QColor *)&pal.light();
-    cols[4] = (QColor *)&pal.dark();
+    cols[1] = &pal.button().color();
+    cols[2] = &pal.mid().color();
+    cols[3] = &pal.light().color();
+    cols[4] = &pal.dark().color();
 #define CMID	*cols[ (colspec>>12) & 0xf ]
 #define CLEFT	*cols[ (colspec>>8) & 0xf ]
 #define CTOP	*cols[ (colspec>>4) & 0xf ]

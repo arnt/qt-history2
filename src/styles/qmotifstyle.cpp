@@ -430,19 +430,19 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    bTop.translate( rect.x(), rect.y() );
 	    bBot.translate( rect.x(), rect.y() );
 
-	    QColor *cols[5];
+	    const QColor *cols[5];
 	    if ( flags & Style_Enabled ) {
 		cols[0] = 0;
-		cols[1] = (QColor *)&pal.button();
-		cols[2] = (QColor *)&pal.mid();
-		cols[3] = (QColor *)&pal.light();
-		cols[4] = (QColor *)&pal.dark();
+		cols[1] = &pal.button().color();
+		cols[2] = &pal.mid().color();
+		cols[3] = &pal.light().color();
+		cols[4] = &pal.dark().color();
 	    } else {
 		cols[0] = 0;
-		cols[1] = (QColor *)&pal.button();
-		cols[2] = (QColor *)&pal.button();
-		cols[3] = (QColor *)&pal.button();
-		cols[4] = (QColor *)&pal.button();
+		cols[1] = &pal.button().color();
+		cols[2] = &pal.button().color();
+		cols[3] = &pal.button().color();
+		cols[4] = &pal.button().color();
 	    }
 
 #define CMID *cols[ (colspec>>12) & 0xf ]
@@ -2248,25 +2248,25 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 		switch ( sp ) {
 		case SP_MessageBoxInformation:
 		case SP_MessageBoxQuestion:
-		    image.setColor( 2, 0xff000000 | 
+		    image.setColor( 2, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Dark).rgb() );
-		    image.setColor( 3, 0xff000000 | 
+		    image.setColor( 3, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Base).rgb() );
-		    image.setColor( 4, 0xff000000 | 
+		    image.setColor( 4, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Text).rgb() );
 		    break;
 		case SP_MessageBoxWarning:
-		    image.setColor( 1, 0xff000000 | 
+		    image.setColor( 1, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Base).rgb() );
-		    image.setColor( 2, 0xff000000 | 
+		    image.setColor( 2, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Text).rgb() );
 		    image.setColor( 3, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Dark).rgb() );
 		    break;
 		case SP_MessageBoxCritical:
-		    image.setColor( 1, 0xff000000 | 
+		    image.setColor( 1, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Dark).rgb() );
-		    image.setColor( 2, 0xff000000 | 
+		    image.setColor( 2, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Text).rgb() );
 		    image.setColor( 3, 0xff000000 |
 				    pal.color(QPalette::Active, QPalette::Base).rgb() );

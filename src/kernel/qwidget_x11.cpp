@@ -319,9 +319,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					      crect.width(), crect.height(),
 					      0,
 					      black.pixel(x11Screen()),
-					      d->bg_brush.color().pixel(x11Screen()) );
+					      background().color().pixel(x11Screen()) );
 	} else {
-	    wsa.background_pixel = d->bg_brush.color().pixel(x11Screen());
+	    wsa.background_pixel = background().color().pixel(x11Screen());
 	    wsa.border_pixel = black.pixel(x11Screen());
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
@@ -859,7 +859,12 @@ void QWidget::setFontSys( QFont * )
 
 void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
 {
-    XSetWindowBackground( q->x11Display(), q->winId(), brush.color().pixel(x11Screen()) );
+    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoErase))
+	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), None);
+    else if (brush.pixmap() && q->backgroundOrigin() == QWidget::WidgetOrigin)
+	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), brush.pixmap()->handle());
+    else
+	XSetWindowBackground( q->x11Display(), q->winId(), brush.color().pixel(q->x11Screen()) );
 }
 
 void QWidget::setCursor( const QCursor &cursor )
@@ -1714,11 +1719,9 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 	    s.min_width  = x->minw;
 	    s.min_height = x->minh;
 	}
-	if ( x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX ) {
-	    s.flags |= PMaxSize;		// add maximum size hints
-	    s.max_width  = x->maxw;
-	    s.max_height = x->maxh;
-	}
+	s.flags |= PMaxSize;		// add maximum size hints
+	s.max_width  = x->maxw;
+	s.max_height = x->maxh;
 	if ( x->topextra &&
 	   (x->topextra->incw > 0 || x->topextra->inch > 0) )
 	{					// add resize increment hints

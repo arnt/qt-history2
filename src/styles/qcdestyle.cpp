@@ -282,19 +282,19 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 		colspec = horizontal ? 0x1334 : 0x1343;
 	}
 
-	QColor *cols[5];
+	const QColor *cols[5];
 	if ( flags & Style_Enabled ) {
 	    cols[0] = 0;
-	    cols[1] = (QColor *)&pal.button();
-	    cols[2] = (QColor *)&pal.mid();
-	    cols[3] = (QColor *)&pal.light();
-	    cols[4] = (QColor *)&pal.dark();
+	    cols[1] = &pal.button().color();
+	    cols[2] = &pal.mid().color();
+	    cols[3] = &pal.light().color();
+	    cols[4] = &pal.dark().color();
 	} else {
 	    cols[0] = 0;
-	    cols[1] = (QColor *)&pal.button();
-	    cols[2] = (QColor *)&pal.button();
-	    cols[3] = (QColor *)&pal.button();
-	    cols[4] = (QColor *)&pal.button();
+	    cols[1] = &pal.button().color();
+	    cols[2] = &pal.button().color();
+	    cols[3] = &pal.button().color();
+	    cols[4] = &pal.button().color();
 	}
 
 #define CMID    *cols[ (colspec>>12) & 0xf ]

@@ -58,17 +58,18 @@ class QHideEvent;
 
 struct QWidgetPrivate;
 
-class Q_EXPORT QPalettePolicy 
+class Q_EXPORT QPalettePolicy
 {
-    QPalette::ColorRole bg, fg;
+    uint bg : 6;
+    uint fg : 6;
 public:
     QPalettePolicy();
     QPalettePolicy(const QPalettePolicy &p);
     QPalettePolicy(QPalette::ColorRole b, QPalette::ColorRole f);
     QPalettePolicy(QPalette::ColorRole b);
 
-    inline QPalette::ColorRole background() const { return bg; }
-    inline QPalette::ColorRole foreground() const { return fg; }
+    inline QPalette::ColorRole background() const { return (QPalette::ColorRole)bg; }
+    inline QPalette::ColorRole foreground() const { return (QPalette::ColorRole)fg; }
 };
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
@@ -463,7 +464,10 @@ public:
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
 	WA_PendingMoveEvent,
-	WA_PendingResizeEvent
+	WA_PendingResizeEvent,
+	WA_OwnPalette,
+	WA_OwnPalettePolicy,
+	WA_OwnFont
     };
     void setAttribute(WidgetAttribute, bool);
     bool testAttribute(WidgetAttribute) const;
@@ -621,6 +625,8 @@ private:
     void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 deactivateWidgetCleanup();
     void setGeometry_helper(int, int, int, int, bool);
+    void setFont_helper(const QFont &);
+    void setPalette_helper(const QPalette &);
     void show_helper();
     void hide_helper();
     void setEnabled_helper(bool);
@@ -635,8 +641,6 @@ private:
     bool testAttribute_helper(WidgetAttribute) const;
     uint	 widget_flags;
     uint	 focus_policy : 4;
-    uint 	 own_font :1;
-    uint 	 own_palette :1;
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;
     uint 	 in_show : 1;
@@ -893,12 +897,12 @@ inline bool QWidget::ownCursor() const
 #endif
 inline bool QWidget::ownFont() const
 {
-    return own_font;
+    return testAttribute(WA_OwnFont);
 }
 #ifndef QT_NO_PALETTE
 inline bool QWidget::ownPalette() const
 {
-    return own_palette;
+    return testAttribute(WA_OwnPalette);
 }
 #endif
 
