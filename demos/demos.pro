@@ -1,3 +1,12 @@
-TEMPLATE = subdirs
+TEMPLATE    = subdirs
 
-SUBDIRS = mainwindow plasmatable textedit widgetview arthur interview sqlbrowser downloadwidget spreadsheet
+SUBDIRS     = arthur \
+              downloadwidget \
+              interview \
+              mainwindow \
+              pimelim \
+              plasmatable \
+              spreadsheet
+              sqlbrowser \
+              textedit \
+              widgetview \
