@@ -811,11 +811,6 @@ bool QMetaProperty::reset( QObject* o ) const
     return o->qt_property( this, 2, 0 );
 }
 
-/*! \enum QMetaProperty::Specification
-
-  \internal
-*/
-
 /*! \enum QMetaProperty::Flags
 
   \internal
