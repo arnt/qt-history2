@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /FR /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /D QT_ACTIVEQT_APPID="{0xA095BA0C,0x224F,0x4933,{0xA4,0x58,0x2D,0xD7,0xF6,0xB8,0x5D,0x8F}}" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x814 /d "_DEBUG"
 # ADD RSC /l 0x814 /d "_DEBUG"
@@ -82,7 +82,7 @@ SOURCE="$(InputPath)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /ZI /Od /I "$(QTDIR)\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "QT_DLL" /FR /YX"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /O1 /I "$(QTDIR)\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /O1 /I "$(QTDIR)\include" /D "NDEBUG" /D QT_ACTIVEQT_TARGET="ACTIVEQTEXE" /D "WIN32" /D "_WINDOWS" /D "QT_DLL" /D "UNICODE" /D QT_ACTIVEQT_APPID="{0xA095BA0C,0x224F,0x4933,{0xA4,0x58,0x2D,0xD7,0xF6,0xB8,0x5D,0x8F}}" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203
 # ADD BASE RSC /l 0x814 /d "_DEBUG"
@@ -141,10 +141,6 @@ SOURCE=.\main.cpp
 # Begin Source File
 
 SOURCE=.\ActiveQtEXE.tlb
-# End Source File
-# Begin Source File
-
-SOURCE=.\ActiveQtEXE_i.c
 # End Source File
 # Begin Source File
 
