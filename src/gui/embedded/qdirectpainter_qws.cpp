@@ -17,10 +17,11 @@
 #ifdef Q_WS_QWS
 #ifndef QT_NO_DIRECTPAINTER
 #include <qgfxraster_qws.h>
+#include <qpaintengine_qws.h>
 
 // gain access to some internal QGfx functionality you'll need.
 class QDirectPainterGfx : public QGfxRasterBase {
-    void* gfxdata;
+    static void* gfxdata;
 public:
     QDirectPainterGfx() : QGfxRasterBase(0,0,0) { }
 
@@ -31,6 +32,7 @@ public:
     const QRect& rect(int i) const { return cliprect[i]; }
 };
 
+void * QDirectPainterGfx::gfxdata = 0;
 
 class QDirectPainter::Private {
 public:
@@ -111,7 +113,8 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
     QPainter(w,w)
 {
     d = new Private;
-    d->gfx = (QDirectPainterGfx*)internalGfx();
+    QWSPaintEngine *qp = (QWSPaintEngine*)device()->engine();
+    d->gfx = (QDirectPainterGfx*)qp->gfx();
     d->offset = w->mapToGlobal(QPoint(0,0));
     d->w = w->width();
     d->h = w->height();

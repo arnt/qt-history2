@@ -21,9 +21,6 @@
 
 #ifdef Q_WS_QWS
 
-#define QT_NO_DIRECTPAINTER
-#warning "Make QDirectPainter work again !!!"
-
 #ifndef QT_NO_DIRECTPAINTER
 class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
