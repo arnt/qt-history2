@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#399 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#400 $
 **
 ** Implementation of QWidget class
 **
@@ -272,14 +272,9 @@
   <li> paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
-  paintEvent().  The widget is guaranteed to receive a paint event
-  when the widget is first shown.  Unless the widget was created with
-  the WResizeNoErase flag, the widget will also receive a paint event
-  immediately after every resize events.
+  paintEvent().  
 
-  <li> resizeEvent() - normally called when the widget has been
-  resized.  For widgets created with the WResizeNoErase flag, see the
-  full documentation for resizeEvent() for details.
+  <li> resizeEvent() - called when the widget has been resized.
 
   <li> mousePressEvent() - called when a mouse button is pressed.
   There are six mouse-related events, mouse press and mouse release
@@ -3619,12 +3614,12 @@ void QWidget::leaveEvent( QEvent * )
 
 /*!
   This event handler can be reimplemented in a subclass to receive
-  widget paint events.	Actually, it more or less \e must be
+  widget paint events. Actually, it more or less \e must be
   reimplemented.
 
   The default implementation does nothing.
 
-  When the paint event occurs, the update rectangle QPaintEvent::rect()
+  When the paint event occurs, the update region QPaintEvent::region()
   normally has been cleared to the background color or pixmap. An
   exception is repaint() with erase=FALSE.
 
@@ -3635,7 +3630,7 @@ void QWidget::leaveEvent( QEvent * )
   Pixmaps can also be used to implement flicker-free update.
 
   update() and repaint() can be used to force a paint event.
-
+  
   \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
 
@@ -3663,17 +3658,20 @@ void QWidget::moveEvent( QMoveEvent * )
 
 /*!
   This event handler can be reimplemented in a subclass to receive
-  widget resize events.	 When resizeEvent() is called, the widget
+  widget resize events. When resizeEvent() is called, the widget
   already has its new geometry.
 
-  If the widget was created with the WResizeNoErase flag, this handler
-  is responsible for calling update() for all areas in the \link
-  QResizeEvent::oldSize() previous area\endlink of the widget which
-  look different with the new size.  For example, for a simple label,
-  no areas need to be updated, while for a button with centered text,
-  the area covered by the old and new text needs to be updated and
-  possibly also the right-edge and bottom-edge of the button frame
-  (depending on the actual resize) You should also use
+  The widget will be erased and receive a paint event immediately
+  after processing the resize event. No drawing has to (and should) be
+  done inside this handler. The only exception of this rule is if the
+  widget was created with the WResizeNoErase flag. In that case the
+  resize handler is also responsible for calling update() for all
+  areas in the \link QResizeEvent::oldSize() previous area\endlink of
+  the widget which look different with the new size.  For example, for
+  a simple label, no areas need to be updated, while for a button with
+  centered text, the area covered by the old and new text needs to be
+  updated and possibly also the right-edge and bottom-edge of the
+  button frame (depending on the actual resize) You should also use
   QPaintEvent::region() rather than QPaintEvent::rect() when you \link
   QPainter::setClipRegion() set clipping\endlink in the paintEvent().
 
