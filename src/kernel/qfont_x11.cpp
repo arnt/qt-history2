@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#35 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#35 $";
 #endif
 
 
@@ -899,8 +899,6 @@ void QFont::loadFont() const
     d->lineW	 = computeLineWidth( d->xfd->name ); 
     d->req.dirty = FALSE;
     d->act.dirty = TRUE;      // actual font information no longer valid
-    if ( newFont )
-	QPainter::changedFont( this );
 #if defined(DEBUG_FONT)
     debug( "=== GOT FONT" );
 #endif
