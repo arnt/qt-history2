@@ -2793,6 +2793,9 @@ bool QScrollView::dragAutoScroll() const
     return d->drag_autoscroll;
 }
 
+/*!
+    \reimp
+ */
 void QScrollView::setAcceptDrops( bool b )
 {
     QWidget::setAcceptDrops( b );
