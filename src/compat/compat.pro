@@ -3,6 +3,8 @@ QPRO_PWD        = $$PWD
 QT              = core gui network sql
 include(../qbase.pri)
 
+PRECOMPILED_HEADER = ../gui/kernel/qt_gui_pch.h
+
 DEFINES += QT_BUILD_COMPAT_LIB 
 
 include(tools/tools.pri)
