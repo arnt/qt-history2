@@ -354,7 +354,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-exceptions)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -548,6 +548,8 @@ while [ "$#" -gt 0 ]; do
     exceptions|g++-exceptions)
 	if [ "$VAL" = "no" ]; then
 	    CFG_EXCEPTION_SUPPORT=no
+	elif [ "$VAL" = "yes" ]; then
+	    CFG_EXCEPTION_SUPPORT=yes
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1993,8 +1995,20 @@ Configure options:
  *  -no-fast ........... Configure Qt normally by generating Makefiles for all
 			 project files.
 
+EOF
+if [ "$PLATFORM_QWS" = "yes" ]; then
+    cat << EOF
+    -exceptions ........ Enable exceptions on platforms that support it.
+ *  -no-exceptions ..... Disable exceptions on platforms that support it.
+
+EOF
+else
+    cat << EOF
     -no-exceptions ..... Disable exceptions on platforms that support it.
 
+EOF
+fi
+    cat << EOF
     -version-script .... Use a version script when linking the Qt library.
 			 Internal symbols will be marked as local. Requires
 			 a recent GNU binutils package.
@@ -2845,6 +2859,10 @@ QMAKE_VARS="$QMAKE_VARS \"translations.path=${QT_INSTALL_TRANSLATIONS}\""
 
 # turn off exceptions for the compilers that support it
 COMPILER=`echo $PLATFORM | cut -f 2- -d-`
+if [ "$CFG_EXCEPTION_SUPPORT" = "unspecified" -a "$PLATFORM_QWS" = "yes" ]; then
+    CFG_EXCEPTION_SUPPORT=no
+fi
+
 if [ "$CFG_EXCEPTION_SUPPORT" = "no" ]; then
     case "$COMPILER" in
     g++*)
