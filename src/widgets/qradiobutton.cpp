@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#26 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#26 $";
 #endif
 
 
@@ -37,8 +37,11 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 {
     switch ( gs ) {
 	case MacStyle:
-	case WindowsStyle:
+	case Win3Style:
 	    *w = *h = 15;
+	    break;
+	case WindowsStyle:
+	    *w = *h = 12;
 	    break;
 	case PMStyle:
 	    *w = *h = 16;
@@ -46,6 +49,8 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 	case MotifStyle:
 	    *w = *h = 13;
 	    break;
+	default:
+	    *w = *h = 10;
     }
 }
 
@@ -146,13 +151,16 @@ void QRadioButton::drawButton( QPainter *paint )
     QColorGroup  g  = colorGroup();
     QSize	 sz = size();
     QFontMetrics fm = fontMetrics();
-    int		 x  = 0, y, w, h;
+    int		 x, y, w, h;
     int		 wless = 0;
 
     getSizeOfBitmap( gs, &w, &h );
+    x = 0;
     y = sz.height()/2 - w/2;
 
-    if ( gs == MacStyle || gs == WindowsStyle || gs == MotifStyle )
+    if ( gs == WindowsStyle )
+	wless = -1;
+    else if ( gs != PMStyle )
 	wless = 1;
 
 #define SAVE_RADIOBUTTON_PIXMAPS
@@ -186,7 +194,7 @@ void QRadioButton::drawButton( QPainter *paint )
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 
-    if ( gs == MacStyle || gs == WindowsStyle ){// Mac/Windows radio button
+    if ( gs == MacStyle || gs == Win3Style ){	// Mac/Windows 3.x radio button
 	static QCOORD pts1[] = {		// normal circle
 	    5,0, 7,0, 8,1, 9,1, 11,3, 11,4, 12,5, 12,7,
 	    11,8, 11,9, 9,11, 8,11, 7,12, 5,12, 4,11, 3,11,
@@ -212,6 +220,46 @@ void QRadioButton::drawButton( QPainter *paint )
 	    a.move( x, y );
 	    p->setBrush( g.foreground() );
 	    p->drawPolygon( a );
+	}
+    }
+    else if ( gs == WindowsStyle ) {		// Windows radio button
+	static QCOORD pts1[] = {		// dark lines
+	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+	static QCOORD pts2[] = {		// black lines
+	    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+	static QCOORD pts3[] = {		// background lines
+	    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+	static QCOORD pts4[] = {		// white lines
+	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+	    11,4, 10,3, 10,2 };
+	static QCOORD pts5[] = {		// inner fill
+	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+	p->eraseRect( x, y, w, h );
+	QPointArray a( QCOORDARRLEN(pts1), pts1 );
+	a.move( x, y );
+	p->setPen( g.dark() );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts2), pts2 );
+	a.move( x, y );
+	p->setPen( black );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts3), pts3 );
+	a.move( x, y );
+	p->setPen( g.background() );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	a.move( x, y );
+	p->setPen( white );
+	p->drawPolyline( a );
+	a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	a.move( x, y );
+	p->setPen( NoPen );
+	p->setBrush( isDown() ? g.background() : g.base() );
+	p->drawPolygon( a );
+	if ( isOn() ) {
+	    p->setBrush( g.foreground() );
+	    p->drawRect( x+5, y+4, 2, 4 );
+	    p->drawRect( x+4, y+5, 4, 2 );
 	}
     }
     else if ( gs == PMStyle ) {			// PM radio button

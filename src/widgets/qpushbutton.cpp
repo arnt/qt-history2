@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#32 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#32 $";
 #endif
 
 
@@ -251,7 +251,7 @@ void QPushButton::drawButton( QPainter *paint )
 	lastDef = defButton;
 	return;
     }
-    bool use_pm = !isDown();
+    bool use_pm = TRUE;
     QPainter pmpaint;
     if ( use_pm ) {
 	pm = new QPixmap( w, h );		// create new pixmap
@@ -284,6 +284,47 @@ void QPushButton::drawButton( QPainter *paint )
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
     }
     else if ( gs == WindowsStyle ) {		// Windows push button
+	QPointArray a;
+	if ( isDown() ) {
+	    if ( defButton ) {
+		p->setPen( black );
+		p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
+		p->setPen( g.dark() );
+		p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
+	    }
+	    else {
+		a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
+		p->setPen( g.dark() );
+		p->drawPolyline( a );
+		a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
+		p->setPen( g.light() );
+		p->drawPolyline( a );
+	    }
+	}
+	else {
+	    if ( defButton ) {
+		p->setPen( black );
+		p->drawRect( x1, y1, w, h );
+		x1++; y1++;
+		x2--; y2--;
+	    }
+	    a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
+	    p->setPen( g.light() );
+	    p->drawPolyline( a );
+	    a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
+	    p->setPen( g.background() );
+	    p->drawPolyline( a );
+	    a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
+	    p->setPen( g.dark() );
+	    p->drawPolyline( a );
+	    a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
+	    p->setPen( black );
+	    p->drawPolyline( a );
+	}
+	if ( updated )
+	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
+    }
+    else if ( gs == Win3Style ) {		// Windows 3.x push button
 	QPointArray a;
 	a.setPoints( 8, x1+1,y1, x2-1,y1, x1+1,y2, x2-1,y2,
 		        x1,y1+1, x1,y2-1, x2,y1+1, x2,y2-1 );
@@ -385,17 +426,18 @@ void QPushButton::drawButtonFace( QPainter *paint )
     register QPainter *p = paint;    
     GUIStyle    gs = style();
     QColorGroup g  = colorGroup();
-    int dt;
+    int		dt = 0;
     switch ( gs ) {
 	case MacStyle:
 	    p->pen().setColor( isDown() ? white : g.text() );
-	    dt = 0;
 	    break;
+	case Win3Style:
+	    dt = 1;
 	case WindowsStyle:
+	    dt++;
 	case PMStyle:
 	case MotifStyle:
 	    p->pen().setColor( g.text() );
-	    dt = gs == WindowsStyle ? 2 : 0;
 	    break;
     }
     QRect r = rect();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#25 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#25 $";
 #endif
 
 
@@ -35,12 +35,16 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
     switch ( gs ) {				// calculate coords
 	case MacStyle:
 	case WindowsStyle:
+	case Win3Style:
 	    *w = *h = 13;
 	    break;
 	case PMStyle:
 	    *w = *h = 16;
 	    break;
 	case MotifStyle:
+	    *w = *h = 10;
+	    break;
+        default:
 	    *w = *h = 10;
     }
 }
@@ -130,13 +134,14 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QColorGroup  g  = colorGroup();
     QSize 	 sz = size();
     QFontMetrics fm = fontMetrics();
-    int		 x=0, y, w, h;
+    int		 x, y, w, h;
     int		 wmore = 0;
 
     getSizeOfBitmap( gs, &w, &h );
-    y = sz.height()/2 - w/2;
+    x = 0;
+    y = sz.height()/2 - h/2;
 
-    if ( gs == MacStyle || gs == WindowsStyle )
+    if ( gs == MacStyle || gs == Win3Style )
 	wmore = 1;
     else if ( gs == MotifStyle )
 	wmore = 2;
@@ -170,7 +175,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     }
 #endif
 
-    if ( gs == MacStyle || gs == WindowsStyle ){// Mac/Windows check box
+    if ( gs == MacStyle || gs == Win3Style ){	// Mac/Windows 3.x check box
 	p->eraseRect( x, y, w, h );
 	p->pen().setColor( g.foreground() );
 	p->drawRect( x, y, w, h );
@@ -179,6 +184,43 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	if ( isOn() ) {
 	    p->drawLine( x, y, x+w-1, y+h-1 );	// draw cross
 	    p->drawLine( x, y+h-1, x+w-1, y );
+	}
+    }
+    else if ( gs == WindowsStyle ) {		// Windows check box
+	int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
+	QPointArray a;
+	a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
+	p->setPen( g.dark() );
+	p->drawPolyline( a );
+	a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
+	p->setPen( black );
+	p->drawPolyline( a );
+	a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
+	p->setPen( g.background() );
+	p->drawPolyline( a );
+	a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
+	p->setPen( white );
+	p->drawPolyline( a );
+	p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
+		     isDown() ? g.background() : g.base() );
+	if ( isOn() ) {
+	    a.resize( 7*2 );
+	    int i, xx, yy;
+	    xx = x+3;
+	    yy = y+5;
+	    for ( i=0; i<3; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy++;
+	    }
+	    yy -= 2;
+	    for ( i=3; i<7; i++ ) {
+		a.setPoint( 2*i,   xx, yy );
+		a.setPoint( 2*i+1, xx, yy+2 );
+		xx++; yy--;
+	    }
+	    p->setPen( black );
+	    p->drawLineSegments( a );
 	}
     }
     else if ( gs == PMStyle ) {			// PM check box
