@@ -900,7 +900,6 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     d = new QWSServerData;
     Q_ASSERT( !qwsServer );
     qwsServer = this;
-    windows.setAutoDelete( TRUE );
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     QString pipe = qws_qtePipeFilename();
@@ -982,6 +981,9 @@ QWSServer::~QWSServer()
     // destroy all clients
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	delete *it;
+
+    windows.setAutoDelete(TRUE);
+    windows.clear();
 
     delete bgColor;
     bgColor = 0;
