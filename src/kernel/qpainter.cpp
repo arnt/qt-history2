@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#49 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#49 $";
 #endif
 
 
@@ -316,7 +316,7 @@ void QPainter::setViewXForm( bool enable )
 
 /*!
   Returns the window rectangle.
-  \sa setWindow()
+  \sa setWindow(), setViewXForm()
 */
 
 QRect QPainter::window() const			// get window
@@ -328,8 +328,28 @@ QRect QPainter::window() const			// get window
   Sets the window rectangle view transformation for the painter and
   enables view transformation.
 
-  The window rectangle is part of the view transformation.
+  The window rectangle is part of the view transformation.  The window
+  specifies the logical coordinate system.
+
+  The window and the \link setViewport() viewport\endlink are initially set
+  to \e (0,0,width,height), where \e (width,height) is the pixel size of the
+  paint device.
+
+  Example:
+  \code
+      QPainter p;
+      p.begin( myWidget );
+      p.setWindow( 0, 0, 1000, 2000 );
+      p.setViewport( 100,100, 200,200 );
+      p.drawPoint( 500, 500 );			// draws pixel at (150,125)
+  \endcode
+
+  The preceding example sets up a transformation that maps the logical
+  coordinates (0,0,1000,2000) into a (200,200) rectangle at (100,100).
+
   View transformations can be combined with world transformations.
+  World transformations are applied after the view transformations.
+
   \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
   setWorldXForm()
 */
@@ -357,7 +377,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 
 /*!
   Returns the viewport rectangle.
-  \sa setViewport()
+  \sa setViewport(), setViewXForm()
 */
 
 QRect QPainter::viewport() const		// get viewport
@@ -369,8 +389,28 @@ QRect QPainter::viewport() const		// get viewport
   Sets the viewport rectangle view transformation for the painter and
   enables view transformation.
 
-  The viewport rectangle is part of the view transformation.
+  The viewport rectangle is part of the view transformation. The viewport
+  specifies the device coordinate system.
+
+  The viewport and the \link setWindow() window\endlink are initially set
+  to \e (0,0,width,height), where \e (width,height) is the pixel size of
+  the paint device.
+
+  Example:
+  \code
+      QPainter p;
+      p.begin( myWidget );
+      p.setWindow( 0, 0, 1000, 2000 );
+      p.setViewport( 100,100, 200,200 );
+      p.drawPoint( 500, 500 );			// draws pixel at (150,125)
+  \endcode
+
+  The preceding example sets up a transformation that maps the logical
+  coordinates (0,0,1000,2000) into a (200,200) rectangle at (100,100).
+
   View transformations can be combined with world transformations.
+  World transformations are applied after the view transformations.
+
   \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
   setWorldXForm()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#120 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#119 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#120 $";
 #endif
 
 
@@ -962,7 +962,7 @@ void QPainter::updateXForm()			// update xform params
   Returns the point \e pv transformed from user coordinates to device
   coordinates.
 
-  \sa xFormDev(), QWMatrix::xForm
+  \sa xFormDev(), QWMatrix::xForm()
 */
 
 QPoint QPainter::xForm( const QPoint &pv ) const
@@ -984,7 +984,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
   If world transformation is enabled and rotation or shearing has been
   specified, then the bounding rectangle is returned.
 
-  \sa xFormDev(), QWMatrix::xForm
+  \sa xFormDev(), QWMatrix::xForm()
 */
 
 QRect QPainter::xForm( const QRect &rv ) const
@@ -1015,7 +1015,7 @@ QRect QPainter::xForm( const QRect &rv ) const
   Returns the point array \e av transformed from user coordinates to device
   coordinates.
 
-  \sa xFormDev(), QWMatrix::xForm
+  \sa xFormDev(), QWMatrix::xForm()
 */
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
@@ -1039,7 +1039,7 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
   Returns the point \e pv transformed from device coordinates to user
   coordinates.
 
-  \sa xForm(), QWMatrix::xForm
+  \sa xForm(), QWMatrix::xForm()
 */
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
@@ -1067,7 +1067,7 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
   If world transformation is enabled and rotation or shearing is used,
   then the bounding rectangle is returned.
 
-  \sa xForm(), QWMatrix::xForm
+  \sa xForm(), QWMatrix::xForm()
 */
 
 QRect QPainter::xFormDev( const QRect &rd ) const
@@ -1100,7 +1100,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
   Returns the point array \e av transformed from device coordinates to user
   coordinates.
 
-  \sa xForm(), QWMatrix::xForm
+  \sa xForm(), QWMatrix::xForm()
 */
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
