@@ -3409,6 +3409,13 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		cg = colorGroup();
 
 	    QIconViewItem *item = c->items.first();
+	    // clip items to the container rect by default... this
+	    // prevents icons with alpha channels from being painted
+	    // twice when they are in 2 containers
+	    //
+	    // NOTE: the item could override this cliprect in it's
+	    // paintItem() implementation, which makes this useless
+	    p->setClipRect( QRect( contentsToViewport( r2.topLeft() ), r2.size() ) );
 	    for ( ; item; item = c->items.next() ) {
 		if ( item->rect().intersects( r ) && !item->dirty ) {
 		    p->save();
