@@ -37,8 +37,9 @@
 #include "qapplication.h"
 
 
-struct QToolBarPrivate
+class QToolBarPrivate
 {
+public:
     bool moving;
 };
 
