@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#171 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1355,7 +1355,6 @@ void QLineEdit::dropEvent( QDropEvent *e )
     } else {
 	e->ignore();
     }
-    return TRUE;
 }
 
 
