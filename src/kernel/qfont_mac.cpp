@@ -44,6 +44,7 @@
   QFont debug facilities
  *****************************************************************************/
 //#define DEBUG_FONTMETRICS
+//#define QMAC_FONT_ANTIALIAS
 
 #ifdef DEBUG_FONTMETRICS
 #include <qregexp.h>
@@ -617,15 +618,29 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
     MoveTo(x, y);
     if(len < 1)
 	len = s.length();
+#ifdef DEBUG_FONTMETRICS
+    bool do_debug = qt_mac_debug_metrics(s, len);
+#endif
+
+#ifdef QMAC_FONT_ANTIALIAS
+    int w = do_text_task(this, s, 0, len, GIMME_WIDTH);
+    {
+	QMacSetFontInfo fi(this);
+	CFStringRef str = CFStringCreateWithCharacters(NULL, (UniChar *)s.unicode(), len);
+	Rect rct; SetRect(&rct, x, y-fin->ascent(), x+w, y+fin->descent());
+	DrawThemeTextBox(str, kThemeCurrentPortFont, kThemeStateActive, false, &rct, 0, 0);
+	CFRelease(str);
+    }
+#else
     uchar task = GIMME_DRAW;
     if(request.underline || request.strikeOut) 
 	task |= GIMME_WIDTH; //I need the width for these..
 #ifdef DEBUG_FONTMETRICS
-    bool do_debug = qt_mac_debug_metrics(s, len);
     if(do_debug)
 	task |= GIMME_WIDTH;
 #endif
     int w = do_text_task(this, s, 0, len, task);
+#endif
     
 #ifdef DEBUG_FONTMETRICS
     if(do_debug) {
@@ -634,7 +649,7 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 	       actual.pointSize, actual.pixelSize, request.underline, request.strikeOut);
     }
 #endif
-    if(task & GIMME_WIDTH) { 
+    if(request.underline || request.strikeOut) { 
 	computeLineWidth();
 	if(request.underline) {
 	    Rect r;
