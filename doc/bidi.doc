@@ -31,6 +31,15 @@ The visual output of this would be:
 Qt takes care of all these formatting and reordering issues internally, so you
 will not have to care about it.
 
+Many functions using the QPainter::drawText( int x, int y, const QString &text )
+method will however get a wrong alignment of their text as localized versions 
+should have all text right aligned.
+
+Using the variant of drawText that takes a rectangle to draw text into will correctly take 
+care of alignment issues. Hebrew or arabic text will be right aligned, other text 
+left aligned by default.
+
+<!--
 Another big difference is that the whole user interface is mirrored. So a
 dialog which would usually be laid out from left to right will be laid out
 right to left in Hebrew and Arabic. If you use QLayout, this will be done
@@ -58,4 +67,6 @@ QHeader::cellPos()
 QSplitter::moveSplitter()
 
 QHeader::offset()
+-->
+
 */

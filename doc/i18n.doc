@@ -379,13 +379,14 @@ Over the next few minor version numbers, we hope to add support for
 <em>your</em> language of choice, until everyone can use Qt and all
 the programs developed with Qt, regardless of their language.
 
-Initially, languages with uni-directional single-byte encodings
-(European Latin-1 and KOI8-R, etc.)  and the uni-directional
-multi-byte encodings (East Asian EUC-JP, etc.) will be supported.
-Later, support for the "complex" encodings - those requiring
+Languages with single-byte encodings
+(European Latin-1 and KOI8-R, etc.)  and multi-byte encodings 
+(East Asian EUC-JP, etc.) are supported. 
+Support for the "complex" encodings - those requiring
 right-to-left input or complex character composition (eg. Arabic,
-Hebrew, and Thai script) will be implemented.  The current state of
-activity is:
+Hebrew, and Thai script) is implemented, but the range of Indic scripts
+(Hindi, Devanagari, Bengali, ...) is still under development. 
+The current state of activity is:
 <dl compact>
  <dt><b>All encodings on Windows</b>
     <dd>On Windows, the local encoding is always supported.
@@ -400,8 +401,6 @@ activity is:
 	ISO 8859-15
 	</b>
   <dd>Fully supported.
-	The Arabic (ISO 8859-6-I) and Hebrew (ISO 8859-8-I) encodings
-	are not supported, but are under development externally.
  <dt><b>KOI8-R</b>
   <dd>Fully supported.
  <dt><b>eucJP, JIS, and ShiftJIS</b>
@@ -411,7 +410,7 @@ activity is:
 	<a href="ftp://ftp.sra.co.jp/pub/x11/kinput2/">kinput2</a>
 	is the tested input method for X11.
  <dt><b>eucKR</b>
-  <dd>Under external development,
+  <dd>Supported.
 	Mizi Research are assisting with this effort.
 	<a class="r" href="http://www.mizi.com">hanIM</a>
        	is the tested input method.
@@ -421,6 +420,9 @@ activity is:
  <dt><b>eucTW</b>
   <dd>Under external development.
 </dl>
+
+More information on the support of different writing systems in Qt can be found
+in \link scripts.html the documentation about writing systems \endlink.
 
 If you are interested in contributing to existing efforts, or
 supporting new encodings beyond the more standard ones above, your

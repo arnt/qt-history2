@@ -1,0 +1,58 @@
+/*!
+ \page scripts.html
+
+\title The text engine in Qt
+
+Qt-3 comes with a completely redesigned text processing and layouting engine, that is 
+used throughout the whole library.
+
+It has support for most writing systems that are used in todays world, as
+<ul>
+<li> Latin languages
+<li> Cyrillic
+<li> Greek
+<li> Hebrew
+<li> Arabic
+<li> Chinese
+<li> Japanese
+<li> Korean
+<li> Thai
+<li> Vietnamese
+\endlist
+
+Many of these writing systems exhibit special features as for example
+<ul>
+<li>Special line breaking behaviour. Some of the asian languages are written without
+spaces between words. Line breaking can occur either after every character (with exceptions)
+as in Chinese, Japanese and Korean, or after logical word boundaries as in Thai.
+<li>Bidirectional writing. Arabic and Hebrew are written from right to left, while numbers
+and embedded english text is still written left to right. The exact behaviour is defined
+in the \link http://www.unicode.org/unicode/reports/tr9/ Unicode Technical Report #9 \endlink.
+<li>Non spacing or diacritical marks. Most people know these as accents or umlauts in
+european languages. Some languages as for example Vietnamese make extensive use of these
+marks and some characters can have a few marks at the same time to clarify pronounciation.
+<li>Ligatures. In special contexts, some characters following each other directly get replaced by a 
+combined glyph forming a so called ligature. Known examples are the ff and fi ligatures used in 
+typesetting of some european books.
+</ul>
+
+Except for ligatures which are currently only supported for a special case in arabic, 
+Qt tries to take care of all the special features listed above. The programmer will usually never
+have to worry about these features as long as he uses Qt's input (QLineEdit and
+QTextView derived classes) and displaying controls (QLabel).
+
+Support for these writing systems is transparent to the programmer and completeley encapsulated
+in Qt's text engine. This implies, that a programmer using Qt does not need to have any knowledge
+about the writing system used in this language, except for a few small things listed below.
+<ul>
+<li>\l QPainter::drawText( int x, int y, const QString &str ) will always draw the string with it's left edge 
+at the position specified with the (x/y) parameter. This will usually give you left aligned strings, while
+in an arabic or hebrew application strings are usually right aligned. Using the version of drawText, that 
+takes a QRect should solve these issues, as alignment will then be done according to language.
+<li>When you write your own text input controls, use \l QFontMetrics::charWidth() to determine
+the width of a character in a string. In some langauges (mainly arabic), the width and shape of a glyph changes 
+with the surrounding characters. Writing input controls usually requires a certain knowledge of
+the scripts it is going to be used in. Usually the easier way is to subclass QLineEdit or QTextView.
+</ul>
+
+*/
