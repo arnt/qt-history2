@@ -1430,7 +1430,7 @@ bool QSplitter::restoreState(const QByteArray &state)
             } else {
                 s->widget->show();
                 int dim = 0;
-                while (i < state.size() && ::isdigit(state.at(i))) {
+                while (i < state.size() && isdigit(state.at(i))) {
                     dim *= 10;
                     dim += state.at(i) - '0';
                     ++i;
