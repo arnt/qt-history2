@@ -3252,6 +3252,31 @@ unrecognized widget.
 */
 int QApplication::x11ProcessEvent( XEvent* event )
 {
+    
+    switch ( event->type ) {
+    case ButtonPress:
+    case ButtonRelease:
+	qt_x_time = event->xbutton.time;
+	break;
+    case MotionNotify:
+	qt_x_time = event->xmotion.time;
+	break;
+    case XKeyPress:
+    case XKeyRelease:
+	qt_x_time = event->xkey.time;
+	break;
+    case PropertyNotify:
+	qt_x_time = event->xproperty.time;
+	break;
+    case EnterNotify:
+    case LeaveNotify:
+	qt_x_time = event->xcrossing.time;
+	qt_x_time = event->xcrossing.time;
+	break;
+    default:
+	break;
+    }
+    
     if ( qt_x11EventFilter(event) )		// send through app filter
 	return 1;
 
@@ -3303,7 +3328,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
-	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
 		if (qt_check_clipboard_sentinel( event ) )
@@ -3510,14 +3534,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case ButtonPress:			// mouse event
     case ButtonRelease:
     case MotionNotify:
-	qt_x_time = (event->type == MotionNotify) ?
-		    event->xmotion.time : event->xbutton.time;
 	widget->translateMouseEvent( event );
 	break;
 
     case XKeyPress:				// keyboard event
     case XKeyRelease: {
-	qt_x_time = event->xkey.time;
 	if ( keywidget ) // should always exist
 	    keywidget->translateKeyEvent( event, grabbed );
     }
@@ -3574,8 +3595,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case EnterNotify: {			// enter window
-	qt_x_time = event->xcrossing.time;
-
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
@@ -3591,8 +3610,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case LeaveNotify: {			// leave window
-	qt_x_time = event->xcrossing.time;
-
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( curWin && widget->winId() != curWin )
