@@ -1356,22 +1356,21 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
-    bool dis = !mi->isEnabledAndVisible();
-    const QColorGroup &cg = (dis ? palette().disabled() : colorGroup() );
-
     QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled() && mi->isEnabledAndVisible())
+    if (isEnabled() && mi->isEnabledAndVisible() && (!mi->popup() || mi->popup()->isEnabled()) )
 	flags |= QStyle::Style_Enabled;
     if (act)
 	flags |= QStyle::Style_Active;
     if (mouseBtDn)
 	flags |= QStyle::Style_Down;
 
+    const QColorGroup &cg = ((flags&QStyle::Style_Enabled) ? colorGroup() : palette().disabled() );
+
     if ( mi->custom() && mi->custom()->fullSpan() ) {
 	QMenuItem dummy;
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
 			    flags, QStyleOption(&dummy,maxPMWidth,tab_));
-	mi->custom()->paint( p, cg, act, !dis, x, y, w, h );
+	mi->custom()->paint( p, cg, act, flags&QStyle::Style_Enabled, x, y, w, h );
     } else
 	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
 			    flags, QStyleOption(mi,maxPMWidth,tab_));
