@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#332 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#333 $
 **
 ** Implementation of QListView widget class
 **
@@ -2905,6 +2905,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		    }
 		}
 	    }
+	    emit selectionChanged();
 	}
     }
 
