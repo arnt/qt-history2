@@ -1970,14 +1970,16 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     } else if ( widget && event->type==QWSEvent::Mouse ) {
 	// The mouse event is to one of my top-level widgets
 	// which one?
+	const int btnMask = LeftButton | RightButton | MidButton;
 	QPoint p(event->asMouse()->simpleData.x_root,
 		 event->asMouse()->simpleData.y_root);
+	int mouseButtonState = event->asMouse()->simpleData.state & btnMask;
 	static QWidget *pressGrab = 0;
 	static int btnstate = 0;
 
 	QETWidget *w = (QETWidget*)QWidget::mouseGrabber();
-	if ( w && !event->asMouse()->simpleData.state && pressGrab == w ) {
-	    pressGrab->releaseMouse();
+	if ( w && !mouseButtonState && pressGrab == w ) {
+	    QWidget::setGrabbingMouse(0);
 	    pressGrab = 0;
 	}
 #ifndef QT_NO_QWS_MANAGER
@@ -1987,7 +1989,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #endif
 	if (w) {
 	    widget = w;
-	    btnstate = event->asMouse()->simpleData.state;
+	    btnstate = mouseButtonState;
 	} else
 #ifndef QT_NO_QWS_MANAGER
 	if (!wm || !(wm->region().contains(p)))
@@ -1996,10 +1998,12 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    static QWidget *gw = 0;
 	    w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
 	    w = w ? (QETWidget*)w : widget;
-	    if ( event->asMouse()->simpleData.state && !btnstate ) {
-		w->grabMouse();
+	    if ( mouseButtonState && !btnstate ) {
+		// The server has grabbed the mouse for us.
+		// Remember which of my widgets has it.
+		QWidget::setGrabbingMouse(w);
 		pressGrab = w;
-		btnstate = event->asMouse()->simpleData.state;
+		btnstate = mouseButtonState;
 		gw = w;
 		if ( !widget->isActiveWindow() &&
 		     ( !app_do_modal || QApplication::activeModalWidget() == widget ) &&
@@ -2008,7 +2012,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    if ( widget->raiseOnClick() )
 			widget->raise();
 		}
-	    } else if ( !event->asMouse()->simpleData.state && btnstate ) {
+	    } else if ( !mouseButtonState && btnstate ) {
 		btnstate = 0;
 		gw = 0;
 	    }

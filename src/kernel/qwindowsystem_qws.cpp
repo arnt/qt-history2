@@ -1155,6 +1155,7 @@ static bool prevWin;
 */
 void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 {
+    const int btnMask = LeftButton | RightButton | MidButton;
     qwsServer->showCursor();
 
     if ( state )
@@ -1187,7 +1188,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	prevWin = TRUE;
 #endif
 
-    if ( state && !qwsServer->mouseGrabbing ) {
+    if ( (state&btnMask) && !qwsServer->mouseGrabbing ) {
 	qwsServer->mouseGrabber = win;
     }
 
@@ -1212,7 +1213,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
     qwsServer->d->cursorClient = winClient;
 
-    if ( !state && !qwsServer->mouseGrabbing )
+    if ( !(state&btnMask) && !qwsServer->mouseGrabbing )
 	qwsServer->releaseMouse(qwsServer->mouseGrabber);
 }
 
@@ -1826,7 +1827,7 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	return;
 
     if ( cmd->simpleData.grab ) {
-	if ( !mouseGrabber || ( mouseGrabber->client() == client ) ) {
+	if ( !mouseGrabber ) { //|| ( mouseGrabber->client() == client ) ) {
 	    mouseGrabbing = TRUE;
 	    mouseGrabber = win;
 	}

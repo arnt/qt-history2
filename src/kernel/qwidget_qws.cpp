@@ -603,6 +603,13 @@ void QWidget::releaseMouse()
     }
 }
 
+// Internal
+// Allows the implicit grabs via mouse button press to be maintained.
+void QWidget::setGrabbingMouse( QWidget *w )
+{
+    mouseGrb = w;
+}
+
 void QWidget::grabKeyboard()
 {
     if ( keyboardGrb )
