@@ -37,6 +37,8 @@
 
 \title Using the Meta Object Compiler
 
+\keyword moc
+
 The Meta Object Compiler, moc among friends, is the program which
 handles the <a href="metaobjects.html">C++ extensions in Qt.</a>
 

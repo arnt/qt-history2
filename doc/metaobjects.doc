@@ -37,6 +37,8 @@
 
 \title Meta Object System
 
+\keyword meta object
+
 The Meta Object System in Qt is responsible for the signal/slot
 mechanism for communication between objects, runtime type information
 and the dynamic property system.

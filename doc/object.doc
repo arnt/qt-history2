@@ -206,13 +206,16 @@ in a single-threaded application without blocking the user interface.
 
 \title Properties
 
+\keyword property
+\keyword properties
+
 Qt provides a sophisticated property system similar to those shipped
 by some compiler vendors. However, as a compiler- and
 platform-independent library, Qt cannot rely on non-standard compiler
 features like \c __property or \c [property]. Our solution works with
 any standard C++ compiler on every platform we support. It's based on
-the \link metaobjects.html Meta Object System \endlink that also
-provides object communication through signals and slots.
+the meta object System that also provides object communication through
+signals and slots.
 
 The \c Q_PROPERTY macro in a class declaration declares a
 property. Properties can only be declared in classes that inherit \l
@@ -230,7 +233,7 @@ them from ordinary data members:
 QWidget::isDesktop() do not have this.
 
 <li> an attribute "stored" that indicates persistence.  Most
-properties are stored, but a few janus-faced properties like \l
+properties are stored, but a few virtual properties like \l
 QWidget::minimumWidth() aren't: That property is just way of looking
 at \l QWidget::minimumSize(), it has no data of its own.
 
@@ -248,8 +251,8 @@ but a GUI design tool can't press buttons.
 </ul>
 
 Properties can be read and written through generic functions in
-QObject without knowing anything about class in use.  These two are
-equivalent:
+QObject without knowing anything about class in use.  These two
+function calls are equivalent:
 
 \code
     //QButton * b and QObject * o point to the same button
@@ -258,11 +261,11 @@ equivalent:
 \endcode
 
 Equivalent, that is, except that the first is faster, and that the
-first gives much better diagnostics at compile time.  When accessible,
-the first is preferred.  However, since you can get a list of all
-available properties for any QObject through its \link QMetaObject
-metaObject() \endlink, \l setProperty() can give you control over
-classes that weren't available at compile time.
+first gives much better diagnostics at compile time.  When practical,
+the first is better.  However, since you can get a list of all
+available properties for any QObject through its \l QMetaObject, \l
+setProperty() can give you control over classes that weren't available
+at compile time.
 
 As well as QObject::setProperty(), there is a \l QObject::property().
 \l QMetaObject::propertyNames() returns the names of all available
