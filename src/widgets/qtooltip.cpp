@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#4 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#4 $");
 
 // what comes out of the dict
 struct QTip
@@ -348,11 +348,11 @@ void QTipManager::hideTip()
   \sa maybeHit().
 */
 
-QToolTip::QToolTip( QWidget * parent, const char * name )
+QToolTip::QToolTip( QWidget * )
 {
-
-
-
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    // stuff and nonsense
 }
 
 
@@ -364,29 +364,35 @@ QToolTip::QToolTip( QWidget * parent, const char * name )
 */
 void QToolTip::add( QWidget * widget, const char * text )
 {
-
-
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( widget, QRect( QCOORD_MIN, QCOORD_MIN,
+				    QCOORD_MAX-QCOORD_MIN,
+				    QCOORD_MAX-QCOORD_MIN ),
+		     text, FALSE );
 }
 
 
-void QToolTip::remove( QWidget * )
+void QToolTip::remove( QWidget * widget )
 {
-
-
+    if ( tipManager )
+	tipManager->remove( widget, QRect( QCOORD_MIN, QCOORD_MIN,
+					   QCOORD_MAX-QCOORD_MIN,
+					   QCOORD_MAX-QCOORD_MIN ) );
 }
 
-void QToolTip::add( QWidget *, const QRect &, const char * )
+void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 {
-
-
-
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( widget, rect, text, FALSE );
 }
 
 
-void QToolTip::remove( QWidget *, const QRect & )
+void QToolTip::remove( QWidget * widget, const QRect & rect )
 {
-
-
+    if ( tipManager )
+	tipManager->remove( widget, rect );
 }
 
 

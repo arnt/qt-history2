@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#4 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -16,7 +16,7 @@ class QWidget;
 class QToolTip
 {
 public:
-    QToolTip( QWidget * parent, const char * name = 0 );
+    QToolTip( QWidget * );
 
     static void add( QWidget *, const char * );
     static void remove( QWidget * );
