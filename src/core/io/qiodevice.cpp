@@ -666,7 +666,7 @@ QByteArray QIODevice::readAll()
         int oldpos = ret.size();
         ret.resize(oldpos+chunk_size);
         int got = read(ret.data()+oldpos, chunk_size);
-        if(got == -1) {
+        if(got <= 0) {
             ret.resize(oldpos);
             break;
         }
