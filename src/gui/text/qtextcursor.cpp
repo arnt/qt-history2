@@ -1267,11 +1267,15 @@ QTextList *QTextCursor::currentList() const
 }
 
 /*!
+    \fn QTextTable *QTextCursor::insertTable(int rows, int columns)
+
     \overload
 
-    Creates a new table with \a rows rows and \a cols columns, inserts
-    it at the current position(), and returns the table object. The
-    cursor position() is moved to the beginning of the first cell.
+    Creates a new table with the given number of \a rows and \a columns,
+    inserts it at the current cursor position() in the document, and returns
+    the table object. The cursor is moved to the beginning of the first cell.
+
+    There must be at least one row and one column in the table.
 
     \sa currentTable()
  */
@@ -1281,10 +1285,12 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 }
 
 /*!
-    Creates a new table with \a rows rows and \a cols columns, using
-    the given \a format, inserts it at the current position(), and
-    returns the table object. The cursor position() is moved to the
-    beginning of the first cell.
+    Creates a new table with the given number of \a rows and \a columns
+    in the specified \a format, inserts it at the current cursor position()
+    in the document, and returns the table object. The cursor is moved to
+    the beginning of the first cell.
+
+    There must be at least one row and one column in the table.
 
     \sa currentTable()
 */

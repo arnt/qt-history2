@@ -21,15 +21,24 @@
 
 /*!
     \class QTextLength qtextformat.h
-    \brief The QTextLength class encapsulates different types of lengths, used for example
-    for tables.
+    \brief The QTextLength class encapsulates the different types of length
+    used in a QTextDocument.
 
     \ingroup text
 
-    Length specifications in a text document can be of different types. For example the width of
-    a table can be specified either in a fixed amount of pixels, using a percentage value, relative
-    to the available width of the frame it is contained in or by width a variable length, making it
-    take up just the space it prefers.
+    When we specify a value for the length of an element in a text document,
+    we often need to provide some other information so that the length is
+    used in the way we expect. For example, when we specify a table width,
+    the value can represent a fixed number of pixels, or it can be a percentage
+    value. This information changes both the meaning of the value and the way
+    it is used.
+
+    Generally, this class is used to specify table widths. These can be
+    specified either as a fixed amount of pixels, as a percentage of the
+    containing frame's width, or by a variable width that allows it to take
+    up just the space it requires.
+
+    \sa QTextTable
 */
 
 /*!
