@@ -3230,21 +3230,12 @@ void QTextEdit::checkUndoRedoInfo( UndoRedoInfo::Type t )
     Although used extensively internally you shouldn't need to call
     this yourself.
 */
-
 void QTextEdit::repaintChanged()
 {
     if ( !isUpdatesEnabled() || !viewport()->isUpdatesEnabled() )
 	return;
 
-    QPainter p( viewport() );
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode ) {
-	optimDrawContents( &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
-	return;
-    }
-#endif
-    p.translate( -contentsX(), -contentsY() );
-    paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+    repaint(contentsX(), contentsY(), visibleWidth(), visibleHeight()); //hmm..
 }
 
 #ifndef QT_NO_MIME
@@ -6879,7 +6870,7 @@ void QTextEdit::optimDoAutoScroll()
 int QTextEdit::optimCharIndex( const QString &str, int mx ) const
 {
     QFontMetrics fm(QScrollView::font());
-    uint i = 0;
+    int i = 0;
     int dd, dist = 10000000;
     int curpos = 0;
     int strWidth;

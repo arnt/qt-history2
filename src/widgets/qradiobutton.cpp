@@ -71,6 +71,8 @@
     \sa QWidget::setAutoMask()
 */
 
+static QPixmap *qt_radiobutton_painter_pix = 0;
+
 /*!
     Constructs a radio button with no text.
 
@@ -132,7 +134,9 @@ QSize QRadioButton::sizeHint() const
     // NB: QCheckBox::sizeHint() is similar
     constPolish();
 
-    QPainter p(this);
+    if(!qt_radiobutton_painter_pix)
+	qt_radiobutton_painter_pix = new QPixmap(1, 1);
+    QPainter p(qt_radiobutton_painter_pix, this);
     QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
 				pixmap(), text()).size();
 
@@ -220,7 +224,9 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 {
     QButton::resizeEvent(e);
 
-    QPainter p(this);
+    if(!qt_radiobutton_painter_pix)
+	qt_radiobutton_painter_pix = new QPixmap(1, 1);
+    QPainter p(qt_radiobutton_painter_pix, this);
     QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
 				 pixmap(), text()).size();
     QSize wsz = (style().sizeFromContents(QStyle::CT_RadioButton, this, isz).

@@ -682,19 +682,10 @@ void QLCDNumber::internalSetString( const QString& s )
     if ( buffer == digitStr )
         return;
 
-    if ( backgroundMode() == FixedPixmap || palette().brush( QPalette::Background ).pixmap() ) {
-        digitStr = buffer;
-        if ( smallPoint )
-            points = newPoints;
-        repaint( contentsRect() );
-    }
-    else {
-        QPainter p( this );
-        if ( !smallPoint )
-            drawString( buffer, p );
-        else
-            drawString( buffer, p, &newPoints );
-    }
+    digitStr = buffer;
+    if ( smallPoint )
+	points = newPoints;
+    repaint( contentsRect() );
 }
 
 /*!

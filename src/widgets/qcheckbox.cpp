@@ -87,6 +87,8 @@
     The default is two-state, i.e. tri-state is FALSE.
 */
 
+static QPixmap *qt_checkbox_painter_pix = 0;
+
 /*!
     Constructs a checkbox with no text.
 
@@ -145,7 +147,10 @@ QSize QCheckBox::sizeHint() const
     // NB: QRadioButton::sizeHint() is similar
     constPolish();
 
-    QPainter p(this);
+
+    if(!qt_checkbox_painter_pix)
+	qt_checkbox_painter_pix = new QPixmap(1, 1);
+    QPainter p(qt_checkbox_painter_pix, this);
     QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
 				pixmap(), text()).size();
 
@@ -216,7 +221,9 @@ void QCheckBox::resizeEvent( QResizeEvent *e )
 {
     QButton::resizeEvent(e);
 
-    QPainter p(this);
+    if(!qt_checkbox_painter_pix)
+	qt_checkbox_painter_pix = new QPixmap(1, 1);
+    QPainter p(qt_checkbox_painter_pix, this);
     QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
 				 pixmap(), text()).size();
     QSize wsz = (style().sizeFromContents(QStyle::CT_CheckBox, this, isz).

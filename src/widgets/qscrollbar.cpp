@@ -399,16 +399,7 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-
-    if ( isVisible() )
-	drawControls(QStyle::SC_ScrollBarAddLine |
-		     QStyle::SC_ScrollBarSubLine |
-		     QStyle::SC_ScrollBarAddPage |
-		     QStyle::SC_ScrollBarSubPage |
-		     QStyle::SC_ScrollBarFirst   |
-		     QStyle::SC_ScrollBarLast    |
-		     QStyle::SC_ScrollBarSlider,
-		     pressedControl );
+    repaint();
 }
 
 
