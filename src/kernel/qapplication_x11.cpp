@@ -1621,11 +1621,11 @@ void qt_init( QApplicationPrivate *priv, int,
 		    memset( &visInfo, 0, sizeof(XVisualInfo) );
 		    visInfo.visualid = XVisualIDFromVisual( vis );
 		    visInfo.screen = screen;
-		    vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask,
+		    vi = XGetVisualInfo( X11->display, VisualIDMask | VisualScreenMask,
 					 &visInfo, &nvis );
 		    if ( vi ) {
 			int useGL;
-			int ret = glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
+			int ret = glXGetConfig( X11->display, vi, GLX_USE_GL, &useGL );
 			if ( ret != 0 || !useGL ) {
 			    // We have to find another visual that is GL capable
 			    int i;
@@ -1634,13 +1634,13 @@ void qt_init( QApplicationPrivate *priv, int,
 			    visInfo.screen = screen;
 			    visInfo.c_class = vi->c_class;
 			    visInfo.depth = vi->depth;
-			    visuals = XGetVisualInfo( appDpy, VisualClassMask |
+			    visuals = XGetVisualInfo( X11->display, VisualClassMask |
 						      VisualDepthMask |
 						      VisualScreenMask, &visInfo,
 						      &nvis );
 			    if ( visuals ) {
 				for ( i = 0; i < nvis; i++ ) {
-				    int ret = glXGetConfig( appDpy, &visuals[i],
+				    int ret = glXGetConfig( X11->display, &visuals[i],
 							    GLX_USE_GL, &useGL );
 				    if ( ret == 0 && useGL ) {
 					vis = visuals[i].visual;
