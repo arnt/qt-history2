@@ -31,7 +31,7 @@ public:
     void drawRect(int x1, int y1, int w, int h);
     void drawPoint(int x, int y);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &penColor);
+    void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor);
     void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd);
     void drawEllipse(int x, int y, int w, int h);
     void drawArc(int x, int y, int w, int h, int a, int alen);
