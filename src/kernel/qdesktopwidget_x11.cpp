@@ -228,7 +228,7 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
     return -1;
 }
 
-void QDesktopWidget::resizeEvent( QResizeEven * )
+void QDesktopWidget::resizeEvent( QResizeEvent * )
 {
     delete d;
     d = new QDesktopWidgetPrivate;
