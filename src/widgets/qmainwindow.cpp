@@ -1023,6 +1023,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     QMainWindowPrivate::ToolBar *me = t;
     t->extraOffset = rect_pos( d->oldPosRect, o ) + rect_pos( dockArea, o ) - dy;
     if ( rows.isEmpty() ) {
+
 	relative = 0;
     } else {
 	QMap<QRect, QList<QMainWindowPrivate::ToolBar> >::Iterator it = rows.begin();
@@ -1041,10 +1042,13 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		QRect ir = it.key().intersect( d->oldPosRect );
 		if ( rect_extend( ir, o, TRUE ) < 3 )
 		    continue;
-		int div = 3;
-		if ( d->opaque )
+		int div = 4;
+		int mul = 3;
+		if ( d->opaque ) {
+		    mul = 2;
 		    div = 5;
-		if ( rect_extend( ir, o, TRUE ) < ( 2 * rect_extend( it.key(), o, TRUE ) ) / div ) {
+		}
+		if ( rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
@@ -1208,7 +1212,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   Right docks for this toolbar with setDockEnabled().
   The MDI example (examples/mdi/application.cpp) demonstrates
   how to implement all that.
-  
+
   An application with multiple toolbars can choose to save the current
   toolbar layout in order to restore it in the next session. To do so,
   use getLocation() on each toolbar, store the data and restore the

@@ -1190,7 +1190,7 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 QSize QMenuBar::sizeHint() const
 {
     if ( badSize )
-	calculateRects();
+	( (QMenuBar*)this )->calculateRects();
     QSize s( 0, 0 );
     if ( irects ) {
 	for ( int i = 0; i < (int)mitems->count(); ++i )
