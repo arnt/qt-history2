@@ -616,7 +616,7 @@ void QDialog::show()
 	QWidget *first = fd->next(); // Get first main widget
 	if ( d->mainDef &&
 	     first != d->mainDef &&
-	     first->inherits("QPushButton") )
+	     ::qt_cast<QPushButton>(first) )
 	    d->mainDef->setFocus();
     }
 
@@ -631,12 +631,10 @@ void QDialog::show()
 	    QWidget *candidate = home;
 	    Q_ASSERT( candidate == fw );
 	    do {
-		if ( candidate->inherits("QPushButton") ) {
-		    QPushButton *pb = (QPushButton *)candidate;
-		    if ( pb->autoDefault() ) {
-			pb->setDefault( TRUE );
-			break;
-		    }
+		QPushButton *pb = ::qt_cast<QPushButton>(candidate);
+		if ( pb && pb->autoDefault() ) {
+		    pb->setDefault( TRUE );
+		    break;
 		}
 		candidate = fd->next();
 	    } while ( candidate != home );

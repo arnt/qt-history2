@@ -61,21 +61,22 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	break;
 
     case Alert:
+    {
 #ifndef QT_NO_MESSAGEBOX
-	if ( o->inherits( "QMessageBox" ) ) {
-	    QMessageBox *mb = (QMessageBox*)o;
+	QMessageBox *mb = ::qt_cast<QMessageBox>(o);
+	if ( mb ) {
 	    switch ( mb->icon() ) {
-	    case QMessageBox::Warning:
-		soundName = "SystemExclamation";
-		break;
-	    case QMessageBox::Critical:
-		soundName = "SystemHand";
-		break;
-	    case QMessageBox::Information:
-		soundName = "SystemAsterisk";
-		break;
-	    default:
-		break;
+		case QMessageBox::Warning:
+		    soundName = "SystemExclamation";
+		    break;
+		case QMessageBox::Critical:
+		    soundName = "SystemHand";
+		    break;
+		case QMessageBox::Information:
+		    soundName = "SystemAsterisk";
+		    break;
+		default:
+		    break;
 	    }
 	} else 
 #endif // QT_NO_MESSAGEBOX

@@ -40,6 +40,7 @@
 #include "qbutton.h"
 #include "qptrlist.h"
 #include "qapplication.h"
+#include "qradiobutton.h"
 
 
 
@@ -406,9 +407,9 @@ void QButtonGroup::buttonClicked()
 {
     // introduce a QButtonListIt if calling anything
     int id = -1;
-    QButton *bt = (QButton *)sender();		// object that sent the signal
+    QButton *bt = ::qt_cast<QButton>(sender());		// object that sent the signal
 #if defined(QT_CHECK_NULL)
-    Q_ASSERT( bt->inherits("QButton") );
+    Q_ASSERT( bt );
 #endif
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( bt == i->button ) {			// button was clicked
@@ -432,19 +433,19 @@ void QButtonGroup::buttonToggled( bool on )
     // introduce a QButtonListIt if calling anything
     if ( !on || !excl_grp && !radio_excl )
 	return;
-    QButton *bt = (QButton *)sender();		// object that sent the signal
+    QButton *bt = ::qt_cast<QButton>(sender());		// object that sent the signal
 #if defined(QT_CHECK_NULL)
-    Q_ASSERT( bt->inherits("QButton") );
+    Q_ASSERT( bt );
     Q_ASSERT( bt->isToggleButton() );
 #endif
 
-    if ( !excl_grp && !bt->inherits("QRadioButton") )
+    if ( !excl_grp && !::qt_cast<QRadioButton>(bt) )
 	return;
     QButtonItem * i = buttons->first();
     bool hasTabFocus = FALSE;
 
     while( i != 0 && hasTabFocus == FALSE ) {
-	if ( ( excl_grp || i->button->inherits("QRadioButton") ) &&
+	if ( ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) &&
 	     (i->button->focusPolicy() & TabFocus) )
 	    hasTabFocus = TRUE;
 	i = buttons->next();
@@ -455,9 +456,9 @@ void QButtonGroup::buttonToggled( bool on )
 	if ( bt != i->button &&
 	     i->button->isToggleButton() &&
 	     i->button->isOn() &&
-	     ( excl_grp || i->button->inherits( "QRadioButton" ) ) )
+	     ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) )
 	    i->button->setOn( FALSE );
-	if ( ( excl_grp || i->button->inherits( "QRadioButton" ) ) &&
+	if ( ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) &&
 	     i->button->isToggleButton() &&
 	     hasTabFocus )
 	    i->button->setFocusPolicy( (FocusPolicy)(i->button->focusPolicy() &
@@ -573,20 +574,20 @@ void QButtonGroup::moveFocus( int key )
 	i = buttons->next();
     }
 
-    if ( candidate && f && f->inherits( "QButton" ) &&
+    QButton *buttoncand = ::qt_cast<QButton>(candidate);
+    if ( buttoncand && ::qt_cast<QButton>(f) &&
 	 ((QButton*)f)->isOn() &&
-	 candidate->inherits( "QButton" ) &&
-	 ((QButton*)candidate)->isToggleButton() &&
-	 ( isExclusive() || ( f->inherits( "QRadioButton" ) &&
-			      candidate->inherits( "QRadioButton" )))) {
+	 buttoncand->isToggleButton() &&
+	 ( isExclusive() || ( ::qt_cast<QRadioButton>(f) &&
+			      ::qt_cast<QRadioButton>(candidate)))) {
 	if ( f->focusPolicy() & TabFocus ) {
 	    f->setFocusPolicy( (FocusPolicy)(f->focusPolicy() & ~TabFocus) );
 	    candidate->setFocusPolicy( (FocusPolicy)(candidate->focusPolicy()|
 						     TabFocus) );
 	}
-	((QButton*)candidate)->setOn( TRUE );
-	((QButton*)candidate)->animateClick();
-	((QButton*)candidate)->animateTimeout(); // ### crude l&f hack
+	buttoncand->setOn( TRUE );
+	buttoncand->animateClick();
+	buttoncand->animateTimeout(); // ### crude l&f hack
     }
 
     if ( candidate )
@@ -656,8 +657,7 @@ bool QButtonGroup::event( QEvent * e )
 {
     if ( e->type() == QEvent::ChildInserted ) {
 	QChildEvent * ce = (QChildEvent *) e;
-	if ( radio_excl && ce->child() &&
-	     ce->child()->inherits("QRadioButton") ) {
+	if ( radio_excl && ::qt_cast<QRadioButton>(ce->child()) ) {
 	    QButton * button = (QButton *) ce->child();
 	    if ( button->isToggleButton() && !button->isOn() &&
 		 selected() && (selected()->focusPolicy() & TabFocus) != 0 )

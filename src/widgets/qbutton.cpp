@@ -384,7 +384,7 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
     repeat     = FALSE;				// not in autorepeat mode
     d	       = 0;
 #ifndef QT_NO_BUTTONGROUP
-    if ( parent && parent->inherits("QButtonGroup") ) {
+    if ( ::qt_cast<QButtonGroup>(parent) ) {
 	setGroup((QButtonGroup*)parent);
 	group()->insert( this );		// insert into button group
     }

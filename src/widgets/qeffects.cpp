@@ -44,6 +44,7 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 #include "qguardedptr.h"
+#include "qscrollview.h"
 
 /*
   Internal class to get access to protected QWidget-members
@@ -183,7 +184,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	if ( o != widget )
 	    break;
     case QEvent::MouseButtonPress:
-	if ( o->inherits( "QScrollView" ) )
+	if ( ::qt_cast<QScrollView>(o) )
 	    break;
     case QEvent::MouseButtonDblClick:
 	setEnabled(TRUE);
@@ -425,7 +426,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	scroll();
 	break;
     case QEvent::MouseButtonPress:
-	if ( o->inherits( "QScrollView" ) )
+	if ( ::qt_cast<QScrollView>(o) )
 	    break;
     case QEvent::MouseButtonDblClick:
 	if ( done )

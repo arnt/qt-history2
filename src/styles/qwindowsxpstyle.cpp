@@ -52,6 +52,9 @@
 #include <qlibrary.h>
 #include <qdockwindow.h>
 #include <qdockarea.h>
+#include <qwidgetstack.h>
+#include <qtabwidget.h>
+#include <qtoolbar.h>
 #include <qt_windows.h>
 
 #include <uxtheme.h>
@@ -427,10 +430,10 @@ void QWindowsXPStyle::polish( QWidget *widget )
     if ( !use_xp )
 	return;
 
-    if ( widget->inherits( "QButton" ) ) {
+    if ( ::qt_cast<QButton>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setBackgroundOrigin( QWidget::ParentOrigin );
-	if ( widget->inherits( "QToolButton" ) && !QString::compare( "qt_close_button1", widget->name() ) ) {
+	if ( ::qt_cast<QToolButton>(widget) && !QString::compare( "qt_close_button1", widget->name() ) ) {
 	    QToolButton *tb = (QToolButton*)widget;
 	    tb->setPixmap( *(d->dockCloseActive) );
 	    tb->setAutoRaise( TRUE );
@@ -453,34 +456,33 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	    pl.setInactive( cgi );
 	    widget->setPalette( pl );
 	}
-    } else if ( widget->inherits( "QTabBar" ) ) {
+    } else if ( ::qt_cast<QTabBar>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setAutoMask( TRUE );
 	widget->setMouseTracking( TRUE );
 	connect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
-    } else if ( widget->inherits( "QHeader" ) ) {
+    } else if ( ::qt_cast<QHeader>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-    } else if ( widget->inherits( "QComboBox" ) ) {
+    } else if ( ::qt_cast<QComboBox>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-    } else if ( widget->inherits( "QSpinWidget" ) ) {
+    } else if ( ::qt_cast<QSpinWidget>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-    } else if ( widget->inherits( "QScrollBar" ) ) {
+    } else if ( ::qt_cast<QScrollBar>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-    } else if ( widget->inherits( "QTitleBar" ) ) {
+    } else if ( ::qt_cast<QTitleBar>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	widget->installEventFilter( this );
-    } else if ( widget->inherits( "QSlider" ) ) {
+    } else if ( ::qt_cast<QSlider>(widget) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-    } else if ( widget->inherits( "QWidgetStack" ) &&
-		widget->parentWidget() &&
-		widget->parentWidget()->inherits( "QTabWidget" ) ) {
+    } else if ( ::qt_cast<QWidgetStack>(widget) &&
+		::qt_cast<QTabWidget>(widget->parentWidget()) ) {
 	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
     }
 
@@ -505,22 +507,21 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 
     widget->removeEventFilter( this );
 
-    if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
+    if ( ::qt_cast<QTitleBar>(widget) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
 	if ( !QString::compare( widget->name(), "_workspacechild_icon_" ) )
 	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
-    } else if ( widget->inherits( "QWidgetStack" ) &&
-		widget->parentWidget() &&
-		widget->parentWidget()->inherits( "QTabWidget" ) ) {
+    } else if ( ::qt_cast<QWidgetStack>(widget) &&
+		::qt_cast<QTabWidget>(widget->parentWidget()) ) {
 	widget->setPaletteBackgroundPixmap( QPixmap() );
 	widget->unsetPalette();
-    } else if ( widget->inherits( "QTabBar" ) ) {
+    } else if ( ::qt_cast<QTabBar>(widget) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
     } else if ( widget->inherits( "QDockWindowHandle" ) ||
-		widget->inherits( "QMenuBar" ) ||
-		( widget->inherits( "QToolButton" ) &&
+		::qt_cast<QMenuBar>(widget) ||
+		( ::qt_cast<QToolButton>(widget) &&
 		  !QString::compare( "qt_close_button1", widget->name() ) ) ) {
 	widget->unsetPalette();
     }
@@ -539,7 +540,7 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
     if ( widget->inherits( "QDockWindowTitleBar" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
-    } else if ( widget->inherits( "QTitleBar" ) && !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
+    } else if ( ::qt_cast<QTitleBar>(widget) && !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
 	XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	theme.setTransparency();
 	XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
@@ -781,7 +782,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    if ( p && p->device()->devType() == QInternal::Widget ) {
 		w = (QWidget *) p->device();
 		QWidget *p = w->parentWidget();
-		if (p->inherits("QDockWindow") && ! p->inherits("QToolBar")) {
+		if ( ::qt_cast<QDockWindow>(p) && !::qt_cast<QToolBar>(p) ) {
 		    drawDockTitle = TRUE;
 		    isDockWindow = TRUE;
 		    title = p->caption();
@@ -1535,7 +1536,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 			theme.drawBackground( partId, stateId );
 		    } else {
-			if ( !w->parentWidget() || !w->parentWidget()->inherits( "QToolBar" ) )
+			if ( !::qt_cast<QToolBar>(w->parentWidget()) )
 			    drawPrimitive( PE_ButtonBevel, p, theme.rec, cg, bflags, opt );
 			else
 			    drawPrimitive( PE_ButtonTool, p, theme.rec, cg, bflags, opt );
@@ -2091,14 +2092,14 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	    d->hotWidget = widget;
 	    d->hotSpot = me->pos();
 
-	    if ( o->inherits( "QTabBar" ) ) {
+	    if ( ::qt_cast<QTabBar>(o) ) {
 		QTabBar* bar = (QTabBar*)o;
 		QTab * t = bar->selectTab( me->pos() );
 		if ( d->hotTab != t ) {
 		    d->hotTab = t;
 		    widget->repaint( FALSE );
 		}
-	    } else if ( o->inherits( "QHeader" ) ) {
+	    } else if ( ::qt_cast<QHeader>(o) ) {
 		QHeader *header = (QHeader*)o;
 		QRect oldHeader = d->hotHeader;
 
@@ -2114,7 +2115,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 			header->update( d->hotHeader );
 		}
 #ifndef QT_NO_TITLEBAR
-	    } else if ( o->inherits( "QTitleBar" ) ) {
+	    } else if ( ::qt_cast<QTitleBar>(o) ) {
 		static SubControl clearHot = SC_TitleBarLabel;
 		QTitleBar *titlebar = (QTitleBar*)o;
 		SubControl sc = querySubControl( CC_TitleBar, titlebar, d->hotSpot );
@@ -2128,7 +2129,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		}
 #endif
 #ifndef QT_NO_SLIDER
-	    } else if ( o->inherits( "QSlider" ) ) {
+	    } else if ( ::qt_cast<QSlider>(o) ) {
 		static clearSlider = FALSE;
 		QSlider *slider = (QSlider*)o;
 		const QRect rect = slider->sliderRect();
@@ -2138,7 +2139,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    slider->repaint( rect, FALSE );
 		}
 #endif
-	    } else if ( o->inherits( "QComboBox" ) ) {
+	    } else if ( ::qt_cast<QComboBox>(o) ) {
 		static clearCombo = FALSE;
 		const QRect rect = querySubControlMetrics( CC_ComboBox, (QWidget*)o, SC_ComboBoxArrow );
 		const bool inArrow = rect.contains( d->hotSpot );
@@ -2195,7 +2196,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 void QWindowsXPStyle::activeTabChanged()
 {
     const QObject *s = sender();
-    if ( !s || !s->inherits( "QTabBar" ) )
+    if ( !::qt_cast<QTabBar>(s) )
 	return;
 
     ((QWidget *)s)->repaint( FALSE );

@@ -54,6 +54,7 @@
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#include "qtoolbar.h"
 #include "qguardedptr.h"
 #include "qlayout.h"
 
@@ -175,28 +176,24 @@ void QMotifPlusStyle::polish(QPalette &)
 void QMotifPlusStyle::polish(QWidget *widget)
 {
 #ifndef QT_NO_FRAME
-    if (widget->inherits("QFrame") &&
-        ((QFrame *) widget)->frameStyle() == QFrame::Panel)
+    if (::qt_cast<QFrame>(widget) && ((QFrame *) widget)->frameStyle() == QFrame::Panel)
         ((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
 #endif
 
 #ifndef QT_NO_MENUBAR
-    if (widget->inherits("QMenuBar") &&
-        ((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
+    if (::qt_cast<QMenuBar>(widget) && ((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
         ((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #endif
 
 #ifndef QT_NO_TOOLBAR
-    if (widget->inherits("QToolBar"))
+    if (::qt_cast<QToolBar>(widget))
         widget->layout()->setMargin(2);
 #endif
     if (useHoveringHighlight) {
-	if (widget->inherits("QButton") ||
-	    widget->inherits("QComboBox"))
+	if (::qt_cast<QButton>(widget) || ::qt_cast<QComboBox>(widget))
 	    widget->installEventFilter(this);
 
-	if (widget->inherits("QScrollBar") ||
-	    widget->inherits("QSlider")) {
+	if (::qt_cast<QScrollBar>(widget) || ::qt_cast<QSlider>(widget)) {
 	    widget->setMouseTracking(TRUE);
 	    widget->installEventFilter(this);
 	}
@@ -1489,7 +1486,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
         {
 	    singleton->mousePressed = TRUE;
 
-            if (! object->inherits("QSlider"))
+	    if (!::qt_cast<QSlider>(object))
 		break;
 
 	    singleton->sliderActive = TRUE;
@@ -1537,7 +1534,7 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 	    if (! object->isWidgetType() || object != singleton->hoverWidget)
 		break;
 
-	    if (! object->inherits("QScrollBar") && ! object->inherits("QSlider"))
+	    if (!::qt_cast<QScrollBar>(object) && ! ::qt_cast<QSlider>(object))
 		break;
 
 	    singleton->mousePos = ((QMouseEvent *) event)->pos();

@@ -136,10 +136,9 @@ void QRadioButton::init()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setToggleButton( TRUE );
 #ifndef QT_NO_BUTTONGROUP
-    if ( parentWidget() && parentWidget()->inherits("QButtonGroup") ) {
-	QButtonGroup *bgrp = (QButtonGroup *)parentWidget();
+    QButtonGroup *bgrp = ::qt_cast<QButtonGroup>(parentWidget());
+    if ( bgrp )
 	bgrp->setRadioButtonExclusive( TRUE );
-    }
 #endif
 }
 
