@@ -33,12 +33,6 @@
 #define d d_func()
 #define q q_func()
 
-QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
-double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
-
-
 /*!
     \class QAbstractSpinBox
     \brief The QAbstractSpinBox class provides a spinwidget and a line edit to

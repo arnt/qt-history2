@@ -35,6 +35,10 @@
 
 bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
 bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
+QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
+QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
+QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
+double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
 
 #define TIME_MIN QTime(0, 0, 0, 0)
 #define TIME_MAX QTime(23, 59, 59, 999)
