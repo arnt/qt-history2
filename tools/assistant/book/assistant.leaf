@@ -318,12 +318,13 @@ patterns can be used:
 The wildcard (*) character cannot be used within quotes. 
 
 Since the search engine is built and optimized for a fast search instead
-of perfect string matching, words consisting of a single character are not 
-noticed, e.g. the english word 'a' is not indexed. This means that if you
-are looking for the phrase 'this is a string' you will get all phrases 
-'this is string'. An other point is the splitting of words. For example
-'event-based' is not indexed either, instead the words 'event' and 'based'
-are used.
+of perfect string matching, some words are not considered. For example the
+english word 'a' is such a word. An other reason for doing that is it would
+not make sense either because 'a' contains no information. Looking for 'a'
+would return thousands of documends without knowing anything about these 
+documents, except they all contain 'a', of course.
+This means if you are looking for the phrase 'this is a string' you will
+get all phrases which best match the searching phrase.
 
 The list of documents is ordered according to the number of
 occurrences of the search text they contain, with those with the
@@ -344,6 +345,15 @@ Click \Menu Edit|Settings to invoke the \Widget Settings dialog. Click
 the \Menu{Documentation Files} tab. Now click \Button Add to invoke a
 file open dialog. Select the new documentation's content file. (This
 file must be an XML file in \QA's documentation content file format.)
+
+An other way to add your own documentation is, to start \QA with the
+commandline option '-addContentFile' followed by the documentation
+content file.
+Example: assistant -addContentFile /mycompany/myapp/help.xml
+
+\QA will parse this file, add it and quit, i.e. no mainwindow will
+be shown. This way can be used when adding documentation during an
+installation process. 
 
 If the new documentation belongs to a category which does not
 currently appear in the Categories list box, you can add the category

@@ -129,7 +129,7 @@ QValidator::State SearchValidator::validate( QString &str, int & ) const
 	     ( c >= 'A' && c <= 'Z' ) ||
 	     c == '\'' || c == '`' ||
 	     c == '\"' || c == ' ' ||
-	     c == '*' ) )
+	     c == '-' || c == '*' ) )
 	    return QValidator::Invalid;
     }
     return QValidator::Acceptable;
@@ -1024,6 +1024,7 @@ void HelpDialog::startSearch()
     str = str.replace( "\'", "\"" );
     str = str.replace( "`", "\"" );
     QString buf = str;
+    str = str.replace( "-", " " );
     str = str.replace( QRegExp( "\\s[A-Za-z0-9]?\\s" ), " " );
     terms = QStringList::split( " ", str );
     QStringList termSeq;
@@ -1102,11 +1103,13 @@ void HelpDialog::showSearchHelp()
 void HelpDialog::showResultPage( int page )
 {
     viewer->blockScrolling( TRUE );
+    viewer->setCursor( waitCursor );
     if ( viewer->source() == foundDocs[page] )
 	viewer->reload();
     else
 	help->showLink( foundDocs[page] );
     viewer->sync();
+    viewer->setCursor( arrowCursor );
 
     int minPar = INT_MAX;
     int minIndex = INT_MAX;
