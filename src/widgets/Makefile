@@ -16,7 +16,7 @@ CC	=	gcc
 #######	Files
 
 INTERNAL=	qheader.h 	qheader.cpp	qspinbox.h	qspinbox.cpp  \
-		qvalidator.h	qvalidator.cpp	qscrollview.h	qscrollview.cpp
+		qscrollview.h	qscrollview.cpp
 HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qframe.h	qgrpbox.h	qlabel.h	qlcdnum.h     \
 		qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
