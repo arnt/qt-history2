@@ -24,6 +24,16 @@ class QObject;
 struct QUInterfaceDescription;
 struct QUObject;
 
+#ifdef Q_WS_WIN
+#ifdef QT_PLUGIN
+#define QT_PLUGIN_EXPORT __declspec(dllexport)
+#else
+#define QT_PLUGIN_EXPORT __declspec(dllimport)
+#endif
+#else
+#define QT_PLUGIN_EXPORT
+#endif
+
 #define QRESULT		unsigned long
 #define QS_OK		(QRESULT)0x00000000
 #define QS_FALSE	(QRESULT)0x00000001
