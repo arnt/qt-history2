@@ -2,7 +2,6 @@
 #define QPLATFORMDEFS_H
 
 // Get Qt defines/settings
-
 #include "qglobal.h"
 
 #include <unix.h>
@@ -71,7 +70,5 @@
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 #endif
-
-#define ptrdiff_t int
 
 #endif // QPLATFORMDEFS_H
