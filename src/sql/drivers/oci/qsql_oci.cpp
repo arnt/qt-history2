@@ -562,8 +562,9 @@ public:
 		} else {
 		    res.setValue( i, buf );
 		}
-		if ( r != 0 || !amount )
-		    res.setValue( i, QByteArray() );
+	    }
+	    if ( r != 0 || !amount ) {
+		res.setValue( i, QByteArray() );
 		r = 0; // non-fatal error
 	    }
 	}
