@@ -13,10 +13,12 @@
    <file>introscreen.cpp</file>
    <file>alphashade.cpp</file>
    <file>rotatinggradient.cpp</file>
+   <file>mandelbrotwidget.cpp</file>
    <file>clipping.cpp</file>
    <file>paths.cpp</file>
    <file>warpix.cpp</file>
    <file>roads.cpp</file>
+   <file>items.cpp</file>
    <file>glpainter.cpp</file>
    <file>textoutline.cpp</file>
 </qresource>
