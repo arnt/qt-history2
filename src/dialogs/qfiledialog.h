@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#135 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#136 $
 **
 ** Definition of QFileDialog class
 **
@@ -304,6 +304,10 @@ private:
     static QStringList winGetOpenFileNames( const QString &filter,
 					    QString* workingDirectory,
 					    QWidget *parent = 0,
+					    const char* name = 0,
+					    const QString& caption = QString::null);
+    static QString winGetExistingDirectory( const QString &initialDirectory,
+					    QWidget* parent = 0,
 					    const char* name = 0,
 					    const QString& caption = QString::null);
     static QString resolveLinkFile( const QString& linkfile );

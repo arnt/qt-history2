@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#32 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#33 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -37,6 +37,8 @@
 #include "qregexp.h"
 #include "qbuffer.h"
 #include "qstringlist.h"
+
+#include "shlobj.h"
 
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
@@ -423,5 +425,123 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     *initialDirectory = fi.dirPath();
     return result;
 }
+
+// MFC Directory Dialog. Contrib: Steve Williams (minor parts from Scott Powers)
+
+static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
+						UINT uMsg,
+						LPARAM lParam,
+						LPARAM lpData)
+{
+    if (uMsg == BFFM_INITIALIZED && lpData != NULL) {
+	QString *initDir = (QString *)(lpData);
+	if (!initDir->isEmpty()) {
+	    TCHAR *dispName = (TCHAR*)qt_winTchar_new(*initDir);
+	    if (qt_winver != QFileDialog::WV_NT)
+		SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, long(dispName));
+	    else
+		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, long(dispName));
+	    delete dispName;
+	    dispName = 0;
+	}
+    } else if (uMsg == BFFM_SELCHANGED) {
+	if ( qt_winver & Qt::WV_DOS_based ) {
+	    TCHAR path[MAX_PATH];
+	    SHGetPathFromIDList(LPITEMIDLIST(lParam), path);
+	    QString tmpStr = qt_winQString(path);
+	    if (!tmpStr.isEmpty())
+		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
+	    else
+		SendMessage(hwnd, BFFM_ENABLEOK, 0, 0);
+	    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, long(path));
+	} else {
+	    char path[MAX_PATH];
+	    SHGetPathFromIDListA(LPITEMIDLIST(lParam), path);
+	    QString tmpStr = QString::fromLocal8Bit(path);
+	    if (!tmpStr.isEmpty())
+		SendMessageA(hwnd, BFFM_ENABLEOK, 1, 1);
+	    else
+		SendMessageA(hwnd, BFFM_ENABLEOK, 0, 0);
+	    SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, long(path));
+	}
+    }
+    return 0;
+}
+
+
+QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
+					     QWidget *parent,
+					     const char* /*name*/,
+					     const QString& caption )
+{
+    QString result;
+    if ( parent )
+	parent = parent->topLevelWidget();
+    else
+	parent = qApp->mainWidget();
+    QString title = caption;
+    if ( title.isNull() )
+	title = tr("Select A Directory");
+    if ( qt_winver & WV_DOS_based ) {
+	QString initDir = QDir::convertSeparators(initialDirectory);
+	TCHAR path[MAX_PATH];
+	TCHAR initPath[MAX_PATH];
+	initPath[0] = 0;
+	path[0] = 0;
+	tTitle = (TCHAR*)qt_winTchar_new( title );
+	BROWSEINFO bi;
+	bi.hwndOwner = (parent ? parent->winId() : 0);
+	bi.pidlRoot = NULL;
+	bi.lpszTitle = tTitle;
+	bi.pszDisplayName = initPath;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
+	bi.lpfn = winGetExistDirCallbackProc;
+	bi.lParam = long(&initDir);
+	LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+	if (pItemIDList) {
+	    SHGetPathFromIDList(pItemIDList, path);
+	    IMalloc *pMalloc;
+	    if (SHGetMalloc(&pMalloc) != NOERROR)
+		result = QString::null;
+	    else {
+		pMalloc->Free(pItemIDList);
+		pMalloc->Release();
+		result = qt_winQString(path);
+	    }
+	} else
+	    result = QString::null;
+	delete tTitle;
+	tTitle = 0;
+    } else {
+	QString initDir = QDir::convertSeparators(initialDirectory);
+	char path[MAX_PATH];
+	char initPath[MAX_PATH];
+	initPath[0]=0;
+	path[0]=0;
+	BROWSEINFOA bi;
+	bi.hwndOwner = (parent ? parent->winId() : 0);
+	bi.pidlRoot = NULL;
+	bi.lpszTitle = title.data();
+	bi.pszDisplayName = initPath;
+	bi.ulFlags = BIF_RETURNONLYFSDIRS;
+	bi.lpfn = winGetExistDirCallbackProc;
+	bi.lParam = long(&initDir);
+	LPITEMIDLIST pItemIDList = SHBrowseForFolderA(&bi);
+	if (pItemIDList) {
+	    SHGetPathFromIDListA(pItemIDList, path);
+	    IMalloc *pMalloc;
+	    if (SHGetMalloc(&pMalloc) != NOERROR)
+		result = QString::null;
+	    else {
+		pMalloc->Free(pItemIDList);
+		pMalloc->Release();
+		result = QString::fromLocal8Bit(path);
+	    }
+	} else
+	    result = QString::null;
+    }
+    return result;
+}
+
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#600 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#601 $
 **
 ** Implementation of QFileDialog class
 **
@@ -4107,6 +4107,19 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     QString wd;
     if ( workingDirectory )
 	wd = *workingDirectory;
+
+#if defined(Q_WS_WIN)
+    QString initialDir;
+    if ( !dir.isEmpty() ) {
+	QUrlOperator u( dir );
+	if ( QFileInfo( u.path() ).isDir() )
+	    initialDir = dir;
+    } else
+	initialDir = QString::null;
+    if ( qApp->style() == WindowsStyle )
+	return winGetExistingDirectory( initialDir, parent, name );
+#endif
+
     QFileDialog *dialog = new QFileDialog( parent, name, TRUE );
     if ( !caption.isNull() )
 	dialog->setCaption( caption );
