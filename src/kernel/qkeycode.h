@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#6 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#7 $
 **
 ** Definition of keyboard codes
 **
@@ -12,6 +12,8 @@
 
 #ifndef QKEYCODE_H
 #define QKEYCODE_H
+
+#include "qglobal.h"
 
 
 const uint SHIFT	= 0x00002000;		// accelerator modifiers
