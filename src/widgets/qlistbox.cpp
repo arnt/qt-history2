@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#16 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#16 $";
 #endif
 
 #include "qstring.h"
@@ -616,7 +616,7 @@ void QListBox::setCurrentItem( int index )
     current	   = index;
     updateItem( oldCurrent );
     updateItem( current, FALSE ); // Do not clear, current marker covers item
-
+    emit highlighted( current );
 }
 
 /*! Returns the number of items in the list box. */
@@ -675,7 +675,7 @@ void QListBox::paintCell( QPainter *p, long row, long column )
 }
 
 /*! This event handler moves the highlight to the clicked item, and
-  ignores mouse clicks that don't fall on an item. */
+  ignores mouse clicks that do not fall on an item. */
 
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
@@ -684,8 +684,6 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	setCurrentItem( itemClicked );
     }
 }
-
-/*! Not completely implemented */
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
@@ -696,14 +694,12 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		killTimers();
 		isTiming = FALSE;
 	    }
-	    setCurrentItem( itemClicked );
+            setCurrentItem( itemClicked ); //returns at once if already current
 	    return;
 	} else {
 	    if ( !doAutoScroll )
 		return;
-            int topMargin;
-            margins( 0, &topMargin, 0, 0 );
-	    if ( e->pos().y() < topMargin )
+	    if ( e->pos().y() < frameWidth() )
 		scrollDown = FALSE;
 	    else
 		scrollDown = TRUE;
@@ -715,10 +711,6 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*! Not completely implemented.  Contains a very very funny comment,
-  though, which may be considered a suitable substitute for actually
-  working. */
-
 void QListBox::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( doDrag )
@@ -727,7 +719,6 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 	killTimers();
 	isTiming = FALSE;
     }
-    // emit & gutta!
 }
 
 /*! This event handler emits the selected() signal for the
@@ -743,8 +734,8 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-//    setCellWidth( width() );
     QTableWidget::resizeEvent( e );
+    updateCellWidth();
 }
 
 void QListBox::timerEvent( QTimerEvent *e )
@@ -858,7 +849,7 @@ void QListBox::updateCellWidth()
 {
     QLBItem *tmp = itemList->first();
     QFontMetrics fm( font() );
-    int maxW = 0;
+    int maxW = windowWidth();
     int w;
     while ( tmp ) {
 	w = internalItemWidth( tmp, fm );
