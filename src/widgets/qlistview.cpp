@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#123 $
 **
 ** Implementation of QListView widget class
 **
@@ -2751,11 +2751,11 @@ void QListView::changeSortColumn( int column )
 }
 
 /*! Sets the advisory item margin which list items may use to \a m.
-  
+
   The item margin defaults to one pixels and is the margin between the
   item's edges and the area where it draws its contents.
   QListViewItem::paintFocus() draws in the margin.
-  
+
   \sa QListViewItem::paintCell()
 */
 void QListView::setItemMargin( int m )
@@ -2990,7 +2990,7 @@ static const char * def_item_xpm[] = {
 
 
 
-static    QPixmap * tempIcon = 0; // ########### temporary!
+static QPixmap *defaultIcon = 0;
 static const int BoxSize = 16;
 
 
@@ -3004,7 +3004,6 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text,
     : QListViewItem( parent, text, 0 )
 {
     myType = tt;
-    pix = 0;
     init();
     if ( myType == RadioButton ) {
 	if ( parent->type() != Controller )
@@ -3028,7 +3027,6 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text,
     if ( tt == RadioButton )
 	warning( "QCheckListItem::QCheckListItem(), radio button must be "
 		 "child of a QCheckListItem" );
-    pix = 0;
     init();
 }
 
@@ -3041,7 +3039,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const char *text,
     : QListViewItem( parent, text, 0 )
 {
     myType = Controller;
-    pix = new QPixmap(p);
+    setPixmap( 0, p );
     init();
 }
 
@@ -3054,20 +3052,19 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const char *text,
     : QListViewItem( parent, text, 0 )
 {
     myType = Controller;
-    pix = new QPixmap(p);
+    setPixmap( 0, p );
     init();
 }
 
 void QCheckListItem::init()
 {
     on = FALSE;
-    if ( !tempIcon )
-	tempIcon = new QPixmap( def_item_xpm );
+    reserved = 0;
+    if ( !defaultIcon )
+	defaultIcon = new QPixmap( def_item_xpm );
     if ( myType == Controller ) {
-	if ( !pix )
-	    pix = tempIcon; //#####
-    } else {
-	pix = 0;
+	if ( !pixmap(0) )
+	    setPixmap( 0, *defaultIcon ); 
     }
     exclusive = 0;
 }
@@ -3154,8 +3151,6 @@ void QCheckListItem::setup()
 {
     QListViewItem::setup();
     int h = height();
-    if ( myType == Controller && pix )
-	 h = QMAX( pix->height(), h );
     h = QMAX( BoxSize, h );
     setHeight( h );
 }
@@ -3166,8 +3161,8 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
     int r = QListViewItem::width( fm, lv, column );
     if ( column == 0 ) {
 	r += lv->itemMargin();
-	if ( myType == Controller && pix ) {
-	    r += pix->width();
+	if ( myType == Controller && pixmap( 0 ) ) {
+	    //	     r += 0;
 	} else {	
 	    r += BoxSize + 4;
 	}
@@ -3200,9 +3195,9 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     bool winStyle = lv->style() == WindowsStyle;
 
-    if ( myType == Controller && pix ) {
-	p->drawPixmap( 0, (height()-pix->height())/2, *pix );
-	r += pix->width();
+    if ( myType == Controller ) {
+	if ( !pixmap( 0 ) )
+	    r += BoxSize + 4;
     } else {	
 	ASSERT( lv ); //###
 	//	QFontMetrics fm( lv->font() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#51 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#52 $
 **
 ** Definition of QListView widget class
 **
@@ -285,7 +285,7 @@ private:
     bool on;
     QCheckListItem *exclusive;
 
-    QPixmap *pix;
+    void *reserved;
 };
 
 
