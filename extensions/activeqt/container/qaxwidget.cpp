@@ -61,11 +61,11 @@ static int translateButtonState(int s, int type, int button)
     if (s & MK_RBUTTON)
         bst |= Qt::RightButton;
     if (s & MK_SHIFT)
-        bst |= Qt::ShiftButton;
+        bst |= Qt::ShiftModifier;
     if (s & MK_CONTROL)
-        bst |= Qt::ControlButton;
+        bst |= Qt::ControlModifier;
     if (GetKeyState(VK_MENU) < 0)
-        bst |= Qt::AltButton;
+        bst |= Qt::AltModifier;
     
     // Translate from Windows-style "state after event"
     // to X-style "state before event"

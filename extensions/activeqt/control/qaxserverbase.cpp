@@ -3285,11 +3285,11 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 	if (isUIActive && qt.widget->focusWidget()) {
             int state = Qt::NoButton;
 	    if (dwKeyMod & 1)
-		state |= Qt::ShiftButton;
+		state |= Qt::ShiftModifier;
 	    if (dwKeyMod & 2)
-		state |= Qt::ControlButton;
+		state |= Qt::ControlModifier;
 	    if (dwKeyMod & 4)
-		state |= Qt::AltButton;
+		state |= Qt::AltModifier;
 
 	    int key = qt_translateKeyCode(pMsg->wParam);
 	    QKeyEvent override(QEvent::ShortcutOverride, key, (Qt::KeyboardModifiers)state);
@@ -3900,11 +3900,11 @@ HRESULT WINAPI QAxServerBase::EnumFormatEtc(DWORD /* dwDirection */, IEnumFORMAT
 static int mapModifiers(int state)
 {
     int ole = 0;
-    if (state & Qt::ShiftButton)
+    if (state & Qt::ShiftModifier)
 	ole |= 1;
-    if (state & Qt::ControlButton)
+    if (state & Qt::ControlModifier)
 	ole |= 2;
-    if (state & Qt::AltButton)
+    if (state & Qt::AltModifier)
 	ole |= 4;
 
     return ole;
