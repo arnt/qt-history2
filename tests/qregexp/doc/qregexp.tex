@@ -128,7 +128,7 @@ In practice, {\it followpos\/} can be computed without an explicit syntax tree. 
 
 A {\sf Box} is, really, an abstraction for a regular expression fragment.  The name {\sf Box} suggests the idea of a ``black box.''  Indeed, a {\sf Box} contains only ``surface'' information about the regular expression it represents:  the minimum length, the left states, and the right states.  Regular expressions such as \rx{abc} and \rx{x+y+z+} are represented by the same {\sf Box} (assuming the state numbers correspond).
 
-Boxes support the four combining operations {\sf cat}, {\sf or}, {\sf plus}, and {\sf opt}, and take care of adding transitions to the automaton for {\sf cat} and {\sf plus}.  We can construct an automaton for \rx{(?:ab|a)*} in this way:  $$\hbox{\sf Box b('a'); \quad b.cat(Box('b')); \quad b.orx(Box('a')); \quad b.plus(); \quad b.opt();}$$  Or almost so\dots\spacefactor=3000{} It is useful to define a unique initial state~$0$, and a unique final state~$1$ reached using $\epsilon$-transitions.  This is what the procedure {\sf parse} does.  Also, the actual interface of class {\sf Box} is more cumbersome than hinted here.
+Boxes support the four combining operations {\sf cat}, {\sf or}, {\sf plus}, and {\sf opt}, and take care of adding transitions to the automaton for {\sf cat} and {\sf plus}.  We can construct an automaton for \rx{(?:ab|a)*} in this way:  $$\hbox{\sf Box b('a'); \quad b.cat(Box('b')); \quad b.or(Box('a')); \quad b.plus(); \quad b.opt();}$$  Or almost so\dots\spacefactor=3000{} It is useful to define a unique initial state~$0$, and a unique final state~$1$ reached using $\epsilon$-transitions.  This is what the procedure {\sf parse} does.  Also, the actual interface of class {\sf Box} is more cumbersome than hinted here.
 
 \beginsection 5. Simulation of an NFA
 
@@ -201,7 +201,7 @@ The information is gathered, as usual, in the {\sf Box} class.
 
 \beginsection 8. Text Capture
 
-To enable text capture, one just needs to call {\sf startAtom} before parsing an atom ({\sf startAtom(true)} if the atom is to be captured, otherwise {\sf setAtom(false)}) and {\sf finishAtom} after.  These procedures also assign a sequence number to each atom.  For example, the regular expression \rx{a(b(c))(d)} contains seven atoms:  $$\hbox{\rx{$\underbrace{\underbrace{\tt a}_1\underbrace{{\tt (}\underbrace{{\tt (}\underbrace{\tt b}_4\underbrace{\tt c}_5{\tt )}}_3\underbrace{\tt d}_6{\tt )}}_2}_0$}}$$  By calling {\sf dump} on the NFA, we obtain that information in the following form: $$\vtop{\halign{\g{$#$} \vrule & \g{$#$}\cr
+To enable text capture, one just needs to call {\sf startAtom} before parsing an atom ({\sf startAtom(true)} if the atom is to be captured, otherwise {\sf setAtom(false)}) and {\sf finishAtom} after.  These procedures also assign a sequence number to each atom.  For example, the regular expression \rx{a((bc)d)} contains seven atoms:  $$\hbox{\rx{$\underbrace{\underbrace{\tt a}_1\underbrace{{\tt (}\underbrace{{\tt (}\underbrace{\tt b}_4\underbrace{\tt c}_5{\tt )}}_3\underbrace{\tt d}_6{\tt )}}_2}_0$}}$$  By calling {\sf dump} on the NFA, we obtain that information in the following form: $$\vtop{\halign{\g{$#$} \vrule & \g{$#$}\cr
   {\it State\/} & {\it Atom\/} \cr
 \noalign{\hrule}
   0             & 0 \cr
@@ -238,7 +238,7 @@ A natural way to replace \rx{(a(b|c)+)\string{2,4\string}} with $$\hbox{\rx{(?:a
 
 \beginsection 10. Anchors
 
-An anchor is a ``zero-length assertion'' about the input string.  The anchors are {\tt\^}~(beginning of input), {\tt\$}~(end of input), {\tt\\b}~(word boundary), {\tt\\B}~(word non-boundary), {\tt(?=}$\ldots${\tt)}~(positive lookahead), and {\tt(?!}$\ldots${\tt)}~(negative lookahead).
+An anchor is a zero-length assertion about the input string.  The anchors are {\tt\^}~(beginning of input), {\tt\$}~(end of input), {\tt\\b}~(word boundary), {\tt\\B}~(word non-boundary), {\tt(?=}$\ldots${\tt)}~(positive lookahead), and {\tt(?!}$\ldots${\tt)}~(negative lookahead).
 
 In general, anchors are attached to the transitions of an automaton.  Here is, for illustration, the automaton for \rx{(?:a*\$b+)+}:  $$\epsfbox{qregexp.2}$$  (Incidentally, it will never match.)  We saw earlier that the input symbols can be stored with the states instead of with the transitions.  This is generally impossible for anchors.
 
@@ -264,7 +264,7 @@ The {\sf Box} class handles anchors according to three functions.  The first one
   opt: $n_1?$           & T \cr
 }}$$  For cat-nodes, transitions from ${\it lastpos}(n_1)$ to ${\it firstpos}(n_2)$ bear ${\it rightanchors}(n_1) \land {\it leftanchors}(n_2)$.  For plus-nodes, transitions from ${\it lastpos}(n_1)$ to ${\it firstpos}(n_1)$ bear ${\it rightanchors}(n_1) \land {\it leftanchors}(n_1)$.
 
-The operations $\land$ and $\lor$ are implemented by procedures {\sf assertConcatenation} and {\sf assertAlternation}, respectively.
+The operations $\land$ and $\lor$ are implemented by procedures {\sf anchorConcatenation} and {\sf anchorAlternation}, respectively.
 
 The regular expression that constitutes the lookahead are parsed using a brand new {\sf QRegExpEngine} object.  For example, when parsing \rx{a(?=b)c}, the first tokens are \tok{char} ({\tt a}) and \lex{(?=}; then {\tt b} is parsed with NFA and is skipped over using {\sf skipChars}; then \lex{)} and \lex{c} are read.
 
