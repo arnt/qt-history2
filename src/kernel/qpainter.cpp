@@ -2579,13 +2579,14 @@ void qt_format_text( const QFont& font, const QRect &r,
 	// compatible behaviour to the old implementation. Replace tabs by spaces
 	parStr.replace( QRegExp( "\t" ), " " );
 #endif
+	int w = fm.width( parStr );
+	int h = fm.height();
+
 	if ( brect ) {
-	    QRect br( r.x(), r.y(), fm.width( parStr ), fm.height() );
+	    QRect br( r.x(), r.y(), w, h );
 	    *brect = br;
 	}
 
-	int w = fm.width( parStr );
-	int h = fm.height();
 	int xoff = r.x();
 	int yoff = r.y() + fm.ascent();
 
@@ -2685,6 +2686,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    formatter->setAllowBreakInWords( TRUE );
 	parag->setFormatter( formatter );
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
+	f->setPainter( painter );
 #ifndef QT_NO_REGEXP
 	if ( singleline )
 	    parStr.replace(QRegExp("[\n\r]"), " ");
@@ -2740,7 +2742,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    if ( tabstops > 0 )
 		parag->setTabStops( tabstops );
 	}
-	f->removeRef();
 #if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
@@ -2748,6 +2749,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 	parag->setAlignment( QApplication::horizontalAlignment( tf ) );
 	parag->invalidate( 0 );
 	parag->format();
+	f->setPainter( 0 );
+	f->removeRef();
     }
     int xoff = 0;
     int yoff = 0;
