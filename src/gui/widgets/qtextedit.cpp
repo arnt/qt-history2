@@ -567,8 +567,12 @@ void QTextEditPrivate::setClipboardSelection()
 
 void QTextEditPrivate::ensureVisible(int documentPosition)
 {
-    if (!d->vbar->isVisible())
-        return;
+    // don't check for the visibility of the vertical scrollbar here,
+    // always scroll to the position. we might have a layoutChildren
+    // in QViewport pending, which will make things visible later on
+    // then, for example when initially showing the widget and right
+    // after that calling scrollToAnchor, which calls us. the vbar
+    // isn't visible then, but that's okay.
 
     QTextBlock block = doc->findBlock(documentPosition);
     QTextLayout *layout = block.layout();
