@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#68 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#69 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -497,7 +497,7 @@ public:
     QDomDocumentPrivate( QDomDocumentPrivate* n, bool deep );
     ~QDomDocumentPrivate();
 
-    bool setContent( QXmlInputSource& source, bool namespaceProcessing );
+    bool setContent( QXmlInputSource& source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn );
 
     // Attributes
     QDomDocumentTypePrivate* doctype() { return type; };
@@ -545,7 +545,6 @@ public:
     ~QDomHandler();
 
     // content handler
-    void setDocumentLocator( QXmlLocator* locator );
     bool endDocument();
     bool startElement( const QString& nsURI, const QString& localName, const QString& qName, const QXmlAttributes& atts );
     bool endElement( const QString& nsURI, const QString& localName, const QString& qName );
@@ -568,8 +567,11 @@ public:
     bool notationDecl( const QString & name, const QString & publicId, const QString & systemId );
     bool unparsedEntityDecl( const QString &name, const QString &publicId, const QString &systemId, const QString &notationName ) ;
 
+    QString errorMsg;
+    int errorLine;
+    int errorColumn;
+
 private:
-    QXmlLocator* loc;
     QDomDocumentPrivate* doc;
     QDomNodePrivate* node;
     bool cdata;
@@ -5403,7 +5405,7 @@ void QDomDocumentPrivate::clear()
     QDomNodePrivate::clear();
 }
 
-bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespaceProcessing )
+bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     clear();
     impl = new QDomImplementationPrivate;
@@ -5426,7 +5428,12 @@ bool QDomDocumentPrivate::setContent( QXmlInputSource& source, bool namespacePro
     reader.setFeature( "http://trolltech.com/xml/features/report-whitespace-only-CharData", FALSE );
 
     if ( !reader.parse( &source ) ) {
-	qWarning( "Parsing error" );
+	if ( errorMsg )
+	    *errorMsg = hnd.errorMsg;
+	if ( errorLine )
+	    *errorLine = hnd.errorLine;
+	if ( errorColumn )
+	    *errorColumn = hnd.errorColumn;
 	return FALSE;
     }
 
@@ -5733,6 +5740,12 @@ QDomDocument::~QDomDocument()
   appropriate values. If \a namespaceProcessing is FALSE, the parser does no
   namespace processing when it reads the XML file.
 
+  If a parse error occurs, this function returns TRUE, otherwise FALSE. If \a
+  errorMsg, \a errorLine resp. \a errorColumn is non-null, then in the case of
+  a parse error, the error message, the line number where the error occured
+  resp. the column number where the error occured is stored in the
+  corresponding variable.
+
   If \a namespaceProcessing is TRUE, the function QDomNode::prefix() returns
   not null for all elements and attributes (it returns an empty, but not null
   string, if the element or attribute has no prefix).
@@ -5743,45 +5756,86 @@ QDomDocument::~QDomDocument()
   \sa QDomNode::namespaceURI() QDomNode::localName() QDomNode::prefix()
   QString::isNull() QString::isEmpty()
 */
-bool QDomDocument::setContent( const QString& text, bool namespaceProcessing )
+bool QDomDocument::setContent( const QString& text, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QXmlInputSource source;
     source.setData( text );
-    return IMPL->setContent( source, namespaceProcessing );
+    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!  \overload
   This function reads the XML document from the byte array \a buffer.
 */
-bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessing )
+bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QBuffer buf( buffer );
     QXmlInputSource source( &buf );
-    return IMPL->setContent( source, namespaceProcessing );
+    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!  \overload
   This function reads the XML document from the C string \a buffer.
 */
-bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing )
+bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
-    return setContent( QString::fromUtf8( buffer, buffer.length() ), namespaceProcessing );
+    return setContent( QString::fromUtf8( buffer, buffer.length() ), namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
 
 /*!  \overload
   This function reads the XML document from the IO device \a dev.
 */
-bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing )
+bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     if ( !impl )
 	impl = new QDomDocumentPrivate;
     QXmlInputSource source( dev );
-    return IMPL->setContent( source, namespaceProcessing );
+    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
 }
+
+/*! \overload
+  This function reads the XML document from the string \a text.
+
+  No namespace processing is done.
+*/
+bool QDomDocument::setContent( const QString& text, QString *errorMsg, int *errorLine, int *errorColumn )
+{
+    return setContent( text, FALSE, errorMsg, errorLine, errorColumn );
+}
+
+/*!  \overload
+  This function reads the XML document from the byte array \a buffer.
+
+  No namespace processing is done.
+*/
+bool QDomDocument::setContent( const QByteArray& buffer, QString *errorMsg, int *errorLine, int *errorColumn  )
+{
+    return setContent( buffer, FALSE, errorMsg, errorLine, errorColumn );
+}
+
+/*!  \overload
+  This function reads the XML document from the C string \a buffer.
+
+  No namespace processing is done.
+*/
+bool QDomDocument::setContent( const QCString& buffer, QString *errorMsg, int *errorLine, int *errorColumn  )
+{
+    return setContent( buffer, FALSE, errorMsg, errorLine, errorColumn );
+}
+
+/*!  \overload
+  This function reads the XML document from the IO device \a dev.
+
+  No namespace processing is done.
+*/
+bool QDomDocument::setContent( QIODevice* dev, QString *errorMsg, int *errorLine, int *errorColumn  )
+{
+    return setContent( dev, FALSE, errorMsg, errorLine, errorColumn );
+}
+
 
 /*!
   Converts the parsed document back to its textual representation.
@@ -6269,11 +6323,6 @@ QDomHandler::~QDomHandler()
 {
 }
 
-void QDomHandler::setDocumentLocator( QXmlLocator* locator )
-{
-    loc = locator;
-}
-
 bool QDomHandler::endDocument()
 {
     // ### is this really necessary? (rms)
@@ -6347,9 +6396,9 @@ bool QDomHandler::processingInstruction( const QString& target, const QString& d
 
 bool QDomHandler::fatalError( const QXmlParseException& exception )
 {
-    // ### not nice!!!
-    qDebug( "fatal parsing error: " +  exception.message() + " in line %d",
-	    exception.lineNumber() );
+    errorMsg = exception.message();
+    errorLine =  exception.lineNumber();
+    errorColumn =  exception.columnNumber();
     return QXmlDefaultHandler::fatalError( exception );
 }
 
