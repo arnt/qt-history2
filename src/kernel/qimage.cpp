@@ -4525,7 +4525,6 @@ static void read_xbm_image( QImageIO *iio )
     char	buf[buflen];
     QRegExp	r1, r2;
     QIODevice  *d = iio->ioDevice();
-    int		i;
     int		w=-1, h=-1;
     QImage	image;
 
@@ -4537,14 +4536,14 @@ static void read_xbm_image( QImageIO *iio )
 
     if ( r1.search(sbuf) == 0 &&
 	 r2.search(sbuf, r1.matchedLength()) == r1.matchedLength() )
-	w = atoi( &buf[i] );
+	w = atoi( &buf[r1.matchedLength()] );
 
     d->readLine( buf, buflen );			// "#define .._height <num>"
     sbuf = QString::fromLatin1(buf);
 
     if ( r1.search(sbuf) == 0 &&
 	 r2.search(sbuf, r1.matchedLength()) == r1.matchedLength() )
-	h = atoi( &buf[i] );
+	h = atoi( &buf[r1.matchedLength()] );
 
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 )
 	return;					// format error
