@@ -150,14 +150,6 @@ static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiCont
     item.analysis.bidiLevel = level;
     item.analysis.override = control.override();
     item.analysis.reserved = 0;
-    item.x = 0;
-    item.y = 0;
-    item.width = -1;
-    item.ascent = -1;
-    item.descent = -1;
-    item.shaped = 0;
-    item.fontEngine = 0;
-    item.isSpace = item.isTab = item.isObject = FALSE;
 
     items.append( item );
     for ( int i = start+1; i <= stop; i++ ) {
@@ -670,8 +662,32 @@ QTextEngine::QTextEngine( const QString &str, QFontPrivate *f )
 #endif
     if ( fnt ) fnt->ref();
 
-    allocated = str.length() * sizeof( void * );
-    memory = ::malloc( allocated );
+    num_glyphs = QMAX( 16, str.length()*3/2 );
+    int space_charAttributes = (sizeof(QCharAttributes)*str.length()+sizeof(void*)-1)/sizeof(void*);
+    int space_glyphs = (sizeof(glyph_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_advances = (sizeof(advance_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_offsets = (sizeof(offset_t)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_logClusters = (sizeof(unsigned short)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_glyphAttributes = (sizeof(GlyphAttributes)*num_glyphs+sizeof(void*)-1)/sizeof(void*);
+
+    allocated = space_charAttributes + space_glyphs + space_advances +
+		space_offsets + space_logClusters + space_glyphAttributes;
+    memory = (void **)::malloc( allocated*sizeof( void * ) );
+    memset( memory, 0, allocated*sizeof( void * ) );
+
+    void **m = memory;
+    m += space_charAttributes;
+    glyphPtr = (glyph_t *) m;
+    m += space_glyphs;
+    advancePtr = (advance_t *) m;
+    m += space_advances;
+    offsetsPtr = (offset_t *) m;
+    m += space_offsets;
+    logClustersPtr = (unsigned short *) m;
+    m += space_logClusters;
+    glyphAttributesPtr = (GlyphAttributes *) m;
+
+    used = 0;
 }
 
 QTextEngine::~QTextEngine()
@@ -681,28 +697,48 @@ QTextEngine::~QTextEngine()
     allocated = 0;
 }
 
-
-void QTextEngine::setFont( int item, QFontPrivate *f )
+void QTextEngine::reallocate( int totalGlyphs )
 {
-    QScriptItem &si = items[item];
-    if ( !f )
-	f = fnt;
-    // ### fix for uniscribe
-    QFontEngine *fe = f->engineForScript( (QFont::Script)si.analysis.script );
-    fe->ref();
-    if ( si.fontEngine )
-	si.fontEngine->deref();
-    si.fontEngine = fe;
+    int new_num_glyphs = totalGlyphs;
+    int space_charAttributes = (sizeof(QCharAttributes)*string.length()+sizeof(void*)-1)/sizeof(void*);
+    int space_glyphs = (sizeof(glyph_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_advances = (sizeof(advance_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_offsets = (sizeof(offset_t)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_logClusters = (sizeof(unsigned short)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
+    int space_glyphAttributes = (sizeof(GlyphAttributes)*new_num_glyphs+sizeof(void*)-1)/sizeof(void*);
 
-    if ( si.shaped ) {
-	delete si.shaped;
-	si.shaped = 0;
-    }
-}
+    int newAllocated = space_charAttributes + space_glyphs + space_advances +
+		space_offsets + space_logClusters + space_glyphAttributes;
+    void ** newMemory = (void **)::malloc( newAllocated*sizeof( void * ) );
 
-QFontEngine *QTextEngine::font( int item )
-{
-    return items[item].fontEngine;
+    void **nm = newMemory;
+    void **m = memory;
+    memcpy( nm, m, num_glyphs*sizeof(QCharAttributes) );
+    m += space_charAttributes;
+    nm += space_charAttributes;
+    memcpy( nm, m, num_glyphs*sizeof(glyph_t) );
+    glyphPtr = (glyph_t *) nm;
+    m += space_glyphs;
+    nm += space_glyphs;
+    memcpy( nm, m, num_glyphs*sizeof(advance_t) );
+    advancePtr = (advance_t *) nm;
+    m += space_advances;
+    nm += space_advances;
+    memcpy( nm, m, num_glyphs*sizeof(offset_t) );
+    offsetsPtr = (offset_t *) nm;
+    m += space_offsets;
+    nm += space_offsets;
+    memcpy( nm, m, num_glyphs*sizeof(unsigned short) );
+    logClustersPtr = (unsigned short *) nm;
+    m += space_logClusters;
+    nm += space_logClusters;
+    memcpy( nm, m, num_glyphs*sizeof(GlyphAttributes) );
+    glyphAttributesPtr = (GlyphAttributes *) nm;
+
+    free( memory );
+    memory = newMemory;
+    allocated = newAllocated;
+    num_glyphs = new_num_glyphs;
 }
 
 const QCharAttributes *QTextEngine::attributes()
@@ -723,5 +759,6 @@ const QCharAttributes *QTextEngine::attributes()
 	Q_ASSERT( script < QFont::NScripts );
 	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
     }
+    haveCharAttributes = TRUE;
     return charAttributes;
 }

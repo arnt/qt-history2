@@ -185,28 +185,14 @@ struct QCharAttributes {
     uchar reserved       :3;
 };
 
-struct QShapedItem
-{
-    inline QShapedItem()
-	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
-	  glyphAttributes( 0 ), ownGlyphs( TRUE ) {}
-    ~QShapedItem();
-    int num_glyphs;
-    glyph_t *glyphs;
-    advance_t *advances;
-    offset_t *offsets;
-    unsigned short *logClusters;
-    GlyphAttributes *glyphAttributes;
-    uint ownGlyphs : 1;
-};
-
 class QFontEngine;
 
 struct QScriptItem
 {
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
-			   isObject( FALSE ), ascent( 0 ), descent( 0 ),
-		    x( 0 ), y( 0 ), width( 0 ), shaped( 0 ), fontEngine( 0 ) { }
+			   isObject( FALSE ), ascent( -1 ), descent( -1 ), width( -1 ),
+			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
+			   fontEngine( 0 ) { }
     int position;
     QScriptAnalysis analysis;
     unsigned short isSpace  : 1;
@@ -215,10 +201,11 @@ struct QScriptItem
     unsigned short reserved : 13;
     short ascent;
     short descent;
+    short width;
     int x;
     int y;
-    int width;
-    QShapedItem *shaped;
+    int num_glyphs;
+    int glyph_data_offset;
     QFontEngine *fontEngine;
 };
 
@@ -264,11 +251,8 @@ public:
 
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
 
-    void setFont( int item, QFontPrivate *f );
-    QFontEngine *font( int item );
-
     const QCharAttributes *attributes();
-    QShapedItem *shape( int item ) const;
+    void shape( int item ) const;
 
     // ### we need something for justification
 
@@ -298,11 +282,33 @@ public:
 	return ( item < items.size() ? items[item].position : string.length() ) - from;
     }
 
-//     unsigned int malloc( int size );
-//     unsigned int realloc( int offset, int size );
+    glyph_t *glyphPtr;
+    advance_t *advancePtr;
+    offset_t *offsetsPtr;
+    unsigned short *logClustersPtr;
+    GlyphAttributes *glyphAttributesPtr;
+
+    inline glyph_t *glyphs( const QScriptItem *si ) const
+	{ return glyphPtr+si->glyph_data_offset; }
+    inline advance_t *advances( const QScriptItem *si ) const
+	{ return advancePtr+si->glyph_data_offset; }
+    inline offset_t *offsets( const QScriptItem *si ) const
+	{ return offsetsPtr+si->glyph_data_offset; }
+    inline unsigned short *logClusters( const QScriptItem *si ) const
+	{ return logClustersPtr+si->glyph_data_offset; }
+    inline GlyphAttributes *glyphAttributes( const QScriptItem *si ) const
+	{ return glyphAttributesPtr+si->glyph_data_offset; }
+
+    void reallocate( int totalGlyphs );
+    inline void ensureSpace( int nGlyphs ) {
+	if ( used + num_glyphs < nGlyphs )
+	    reallocate( (nGlyphs + 16) >> 4 << 4 );
+    }
 
     int allocated;
-    void *memory;
+    void **memory;
+    int num_glyphs;
+    int used;
 };
 
 #endif

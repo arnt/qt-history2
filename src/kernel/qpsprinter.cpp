@@ -2334,8 +2334,8 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 {
     // we draw glyphs here to get correct shaping of arabic and indic
     QScriptItem &si = engine->items[item];
-    QShapedItem *shaped = engine->shape( item );
-    int len = shaped->num_glyphs;
+    engine->shape( item );
+    int len = si.num_glyphs;
 
     int x = p.x() + si.x;
     int y = p.y() + si.y;
@@ -2347,31 +2347,35 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     int xo = 0;
     int yo = 0;
 
+    glyph_t *glyphs = engine->glyphs( &si );
+    advance_t *advances = engine->advances( &si );
+    offset_t *offsets = engine->offsets( &si );
+
     stream << "<";
     if ( si.analysis.bidiLevel % 2 ) {
 	for ( int i = len-1; i >=0; i-- ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex( mapUnicode( shaped->glyphs[i] ) );
+	    stream << toHex( mapUnicode( glyphs[i] ) );
 	    if ( i != len-1 ) {
-		xyarray += toInt( xo + shaped->offsets[i].x + shaped->advances[i+1] );
+		xyarray += toInt( xo + offsets[i].x + advances[i+1] );
 		xyarray += " ";
-		xyarray += toInt( yo + shaped->offsets[i].y );
+		xyarray += toInt( yo + offsets[i].y );
 		xyarray += " ";
-		xo = -shaped->offsets[i].x;
-		yo = -shaped->offsets[i].y;
+		xo = -offsets[i].x;
+		yo = -offsets[i].y;
 	    }
 	}
     } else {
 	for ( int i = 0; i < len; i++ ) {
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
-	    stream << toHex( mapUnicode( shaped->glyphs[i] ) );
+	    stream << toHex( mapUnicode( glyphs[i] ) );
 	    if ( i ) {
-		xyarray += toInt( xo - shaped->offsets[i].x + shaped->advances[i-1] );
+		xyarray += toInt( xo - offsets[i].x + advances[i-1] );
 		xyarray += " ";
-		xyarray += toInt( yo + shaped->offsets[i].y );
+		xyarray += toInt( yo + offsets[i].y );
 		xyarray += " ";
-		xo = shaped->offsets[i].x;
-		yo = -shaped->offsets[i].y;
+		xo = offsets[i].x;
+		yo = -offsets[i].y;
 	    }
 	}
     }

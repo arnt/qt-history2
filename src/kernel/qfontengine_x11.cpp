@@ -406,7 +406,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	}
     }
 
-    if ( numGlyphs > 255 )
+    if ( chars != ch )
 	free( chars );
 
     if ( fontDef.underline || fontDef.overline || fontDef.strikeOut )
@@ -596,7 +596,7 @@ bool QFontEngineXLFD::canRender( const QChar *string,  int len )
 	}
     }
 
-    if ( nglyphs > 255 )
+    if ( g != glyphs )
 	free( g );
 
     return allExist;
@@ -1017,7 +1017,7 @@ bool QFontEngineXft::canRender( const QChar *string,  int len )
 	}
     }
 
-    if ( nglyphs > 255 )
+    if ( g != glyphs )
 	free( g );
 #endif // QT_XFT2
 
@@ -1419,10 +1419,10 @@ bool QOpenType::supportsScript( unsigned int script )
     return FALSE;
 }
 
-extern void q_calculateAdvances( QScriptItem *item );
-extern void q_heuristicPosition( QScriptItem *item );
+extern void q_calculateAdvances( QTextEngine *engine, QScriptItem *item );
+extern void q_heuristicPosition( QTextEngine *engine, QScriptItem *item );
 
-void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QScriptItem *item, int stringLength )
+void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QTextEngine *engine, QScriptItem *si, int stringLength )
 {
     if ( current_script != supported_scripts[script].tag ) {
 	TT_GSUB_Clear_Features( gsub );
@@ -1431,7 +1431,9 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 	    return;
     }
 
-    QShapedItem *shaped = item->shaped;
+    glyph_t *glyphs = engine->glyphs( si );
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
+    unsigned short *logClusters = engine->logClusters( si );
 
     // shaping code
 
@@ -1439,13 +1441,13 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
     TTO_GSUB_String *out = 0;
 
     TT_GSUB_String_New( face->memory, &in );
-    TT_GSUB_String_Set_Length( in, shaped->num_glyphs );
+    TT_GSUB_String_Set_Length( in, si->num_glyphs );
     TT_GSUB_String_New( face->memory, &out);
-    TT_GSUB_String_Set_Length( out, shaped->num_glyphs*3+1 );
+    TT_GSUB_String_Set_Length( out, si->num_glyphs*3+1 );
     out->length = 0;
 
-    for ( int i = 0; i < shaped->num_glyphs; i++) {
-      in->string[i] = shaped->glyphs[i];
+    for ( int i = 0; i < si->num_glyphs; i++) {
+      in->string[i] = glyphs[i];
       in->logClusters[i] = i;
       in->properties[i] = ~((featuresToApply ? featuresToApply[i] : 0)|always_apply);
     }
@@ -1453,35 +1455,35 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
     TT_GSUB_Apply_String (gsub, in, out);
 
-    if ( shaped->num_glyphs < (int)out->length ) {
-	shaped->glyphs = ( glyph_t *) realloc( shaped->glyphs, out->length*sizeof(glyph_t) );
-    }
-    shaped->num_glyphs = out->length;
+    // #### do this in place!
+    GlyphAttributes *oldAttrs = ( GlyphAttributes *) malloc( si->num_glyphs*sizeof(GlyphAttributes) );
+    memcpy( oldAttrs, glyphAttributes, si->num_glyphs*sizeof(GlyphAttributes) );
 
-//     qDebug("out: num_glyphs = %d", shaped->num_glyphs );
-    GlyphAttributes *oldAttrs = shaped->glyphAttributes;
-    shaped->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
+    si->num_glyphs = out->length;
+    engine->ensureSpace( si->num_glyphs );
+
+//     qDebug("out: num_glyphs = %d", si->num_glyphs );
 
     int clusterStart = 0;
     int oldlc = 0;
-    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	shaped->glyphs[i] = out->string[i];
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+	glyphs[i] = out->string[i];
 	int lc = out->logClusters[i];
-	shaped->glyphAttributes[i] = oldAttrs[lc];
-	if ( !shaped->glyphAttributes[i].mark && shaped->glyphAttributes[i].clusterStart && lc != oldlc ) {
+	glyphAttributes[i] = oldAttrs[lc];
+	if ( !glyphAttributes[i].mark && glyphAttributes[i].clusterStart && lc != oldlc ) {
 	    for ( int j = oldlc; j < lc; j++ )
-		shaped->logClusters[j] = clusterStart;
+		logClusters[j] = clusterStart;
 	    clusterStart = i;
 	    oldlc = lc;
 	}
-//     	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], shaped->glyphAttributes[i].mark );
+//     	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
     for ( int j = oldlc; j < stringLength; j++ )
-	shaped->logClusters[j] = clusterStart;
+	logClusters[j] = clusterStart;
 //     qDebug("log clusters after shaping:");
 //     for ( int j = 0; j < stringLength; j++ )
-// 	qDebug("    log[%d] = %d", j, shaped->logClusters[j] );
+// 	qDebug("    log[%d] = %d", j, logClusters[j] );
     free( oldAttrs );
 
     TT_GSUB_String_Done( in );
@@ -1489,22 +1491,20 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 
     // positioning code:
 
-    q_calculateAdvances( item );
+    q_calculateAdvances( engine, si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
 
     if ( hasGPos ) {
-	item->width = 0;
 	TTO_GPOS_Data *positions = 0;
 
-	bool reverse = (item->analysis.bidiLevel % 2);
+	bool reverse = (si->analysis.bidiLevel % 2);
 	// ### is FT_LOAD_DEFAULT the right thing to do?
 	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, out, &positions, FALSE, false );
 
-	advance_t *advances = shaped->advances;
-	offset_t *offsets = shaped->offsets;
-
-	float scale = item->fontEngine->scale();
+	float scale = si->fontEngine->scale();
 // 	qDebug("positioned glyphs:" );
-	for ( int i = 0; i < shaped->num_glyphs; i++) {
+	for ( int i = 0; i < si->num_glyphs; i++) {
 // 	    qDebug("    %d:\t orig advance: %d\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
 // 		   advances[i], (int)(positions[i].x_advance >> 6), (int)(positions[i].y_advance >> 6 ),
 // 		   (int)(positions[i].x_pos >> 6 ), (int)(positions[i].y_pos >> 6),
@@ -1527,13 +1527,12 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 		while ( back )
 		    offsets[i].x -= advances[i-(back--)];
 	    }
-	    item->width += advances[i];
 // 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
 // 		   advances[i], offsets[i].x, offsets[i].y );
 	}
 	free( positions );
     } else {
-	q_heuristicPosition( item );
+	q_heuristicPosition( engine, si );
     }
 
     if ( out )

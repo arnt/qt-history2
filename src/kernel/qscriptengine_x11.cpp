@@ -5,17 +5,18 @@
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
 
-static void syriac_shape( int script, const QString &string, int from, int len, QScriptItem *item )
+static void syriac_shape( int script, const QString &string, int from, int len,
+			  QTextEngine *engine, QScriptItem *item )
 {
 #ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
-	openTypeShape( QFont::Syriac, openType, string, from, len, item );
+	openTypeShape( QFont::Syriac, openType, string, from, len, engine, item );
 	return;
     }
 #endif
-    basic_shape( script, string, from, len, item );
+    basic_shape( script, string, from, len, engine, item );
 }
 
 
@@ -1366,43 +1367,44 @@ static QChar *analyzeSyllables( int script, const QString &string, int from, int
 }
 
 
-static void indic_shape( int script, const QString &string, int from, int len, QScriptItem *item )
+static void indic_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
 //       qDebug("QScriptEngineDevanagari::shape( from=%d, len=%d)",  from,  len);
-    QShapedItem *shaped = item->shaped;
-
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
+
     if ( len > 127 )
 	featuresToApply = new unsigned short[ 2*len ];
 
-
-    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, ( 3 * len + 1 ) * sizeof( GlyphAttributes )  );
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
+    unsigned short *logClusters = engine->logClusters( si );
 
     QChar *reordered = (QChar *)malloc( (3*len + 1) * sizeof( QChar ) );
 
-    QChar *end = analyzeSyllables( script, string, from, len, featuresToApply, shaped->glyphAttributes, reordered );
-    shaped->num_glyphs = end - reordered;
+    QChar *end = analyzeSyllables( script, string, from, len, featuresToApply,
+				   glyphAttributes, reordered );
+    si->num_glyphs = end - reordered;
+    engine->ensureSpace( si->num_glyphs );
 
-    shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, shaped->num_glyphs * sizeof( unsigned short ) );
     int pos = 0;
-    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	if ( shaped->glyphAttributes[i].clusterStart )
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+	if ( glyphAttributes[i].clusterStart )
 	    pos = i;
-	shaped->logClusters[i] = pos;
+	logClusters[i] = pos;
     }
 
-    convertToCMap( reordered, shaped->num_glyphs, item );
+    convertToCMap( reordered, si->num_glyphs, engine, si );
+    ::free( reordered );
 
 #ifndef QT_NO_XFTFREETYPE
-    QOpenType *openType = item->fontEngine->openType();
+    QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
-	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
+	((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
     }
 #endif
 
-    if ( len > 127 )
+    if ( featuresToApply != fa )
 	delete [] featuresToApply;
 }
 
@@ -1590,39 +1592,40 @@ static void tibetan_analyzeSyllables( const QString &string, int from, int lengt
 }
 
 
-static void tibetan_shape( int script, const QString &string, int from, int len, QScriptItem *item )
+static void tibetan_shape( int script, const QString &string, int from, int len, QTextEngine *engine, QScriptItem *si )
 {
 #ifdef QT_NO_XFTFREETYPE
     Q_UNUSED( script );
 #endif
 //     qDebug("tibetan_shape()");
-    QShapedItem *shaped = item->shaped;
 
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
     if ( len > 127 )
 	featuresToApply = new unsigned short[ len ];
 
-    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * sizeof( GlyphAttributes ) );
-    shaped->num_glyphs = len;
-    shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, shaped->num_glyphs * sizeof( unsigned short ) );
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
+    unsigned short *logClusters = engine->logClusters( si );
 
-    tibetan_analyzeSyllables( string, from, len, featuresToApply, shaped->glyphAttributes );
+    si->num_glyphs = len;
+    engine->ensureSpace( si->num_glyphs );
+
+    tibetan_analyzeSyllables( string, from, len, featuresToApply, glyphAttributes );
 
     int pos = 0;
-    for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	if ( shaped->glyphAttributes[i].clusterStart )
+    for ( int i = 0; i < si->num_glyphs; i++ ) {
+	if ( glyphAttributes[i].clusterStart )
 	    pos = i;
-	shaped->logClusters[i] = pos;
+	logClusters[i] = pos;
     }
 
-    convertToCMap( string.unicode() + from, shaped->num_glyphs, item );
+    convertToCMap( string.unicode() + from, si->num_glyphs, engine, si );
 
 #ifndef QT_NO_XFTFREETYPE
-    QOpenType *openType = item->fontEngine->openType();
+    QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
-	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
+	((QOpenType *) openType)->apply( script, featuresToApply, engine, si, len );
     }
 #endif
 

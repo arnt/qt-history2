@@ -2517,8 +2517,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 	QFontEngine *fe = si.fontEngine;
 	Q_ASSERT( fe );
-	QShapedItem *shaped = si.shaped;
-	Q_ASSERT( shaped );
 
 	int xpos = x + si.x;
 	int ypos = y + si.y - ascent;
@@ -2535,8 +2533,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	HDC oldDC = fe->hdc;
 	fe->hdc = hdc;
 	SelectObject( hdc, fe->hfont );
-	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+	fe->draw( this, xpos,  ypos, engine->glyphs( &si ), engine->advances( &si ),
+		  engine->offsets( &si ), shaped->num_glyphs, rightToLeft );
 	fe->hdc = oldDC;
 	if ( rop != CopyROP ) {
 #ifndef Q_OS_TEMP
@@ -2571,22 +2569,23 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     if ( txop == TxTranslate )
 	map( x, y, &x, &y );
 
-    QScriptItem &si = ti.engine->items[ti.item];
+    QTextEngine *engine = ti.engine;
+    QScriptItem &si = engine->items[ti.item];
 
-    QShapedItem *shaped = ti.engine->shape( ti.item );
+    engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
     Q_ASSERT( fe );
 
-    x += ti.x();
-    y += ti.y();
+    x += si.x;
+    y += si.y;
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
     HDC oldDC = fe->hdc;
     fe->hdc = hdc;
     SelectObject( hdc, fe->hfont );
-    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+    fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
+		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
     fe->hdc = oldDC;
 
     if ( ulChars ) {

@@ -314,6 +314,7 @@ private:
 };
 
 class QScriptItem;
+class QTextEngine;
 
 #ifndef QT_NO_XFTFREETYPE
 class QOpenType
@@ -324,7 +325,8 @@ public:
 
     bool supportsScript( unsigned int script );
 
-    void apply( unsigned int script, unsigned short *featuresToApply, QScriptItem *item, int stringLength );
+    void apply( unsigned int script, unsigned short *featuresToApply, QTextEngine *engine,
+		QScriptItem *si, int stringLength );
 
 private:
     bool loadTables( FT_ULong script);

@@ -44,8 +44,6 @@ public:
     void setAscent( int a );
     void setDescent( int d );
 
-    void setFont( const QFont & f );
-
     int from() const;
     int length() const;
 
@@ -117,6 +115,7 @@ public:
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
 
 private:
+    QTextLayout( QTextEngine *e ) : d( e ) {}
     /* disable copy and assignment */
     QTextLayout( const QTextLayout & ) {}
     void operator = ( const QTextLayout & ) {}

@@ -52,11 +52,6 @@ void QTextItem::setDescent( int d )
     engine->items[item].descent = d;
 }
 
-void QTextItem::setFont( const QFont & f )
-{
-    engine->setFont( item, f.d );
-}
-
 int QTextItem::from() const
 {
     return engine->items[item].position;
@@ -71,11 +66,12 @@ int QTextItem::length() const
 int QTextItem::cursorToX( int *cPos, Edge edge ) const
 {
     int pos = *cPos;
-    QScriptItem &si = engine->items[item];
+    QScriptItem *si = &engine->items[item];
 
-    const QShapedItem *shaped = si.shaped;
-    if ( !shaped )
-	shaped = engine->shape( item );
+    engine->shape( item );
+    advance_t *advances = engine->advances( si );
+    GlyphAttributes *glyphAttributes = engine->glyphAttributes( si );
+    unsigned short *logClusters = engine->logClusters( si );
 
     int l = engine->length( item );
     if ( pos > l )
@@ -83,10 +79,10 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
     if ( pos < 0 )
 	pos = 0;
 
-    int glyph_pos = pos == l ? shaped->num_glyphs : shaped->logClusters[pos];
+    int glyph_pos = pos == l ? si->num_glyphs : logClusters[pos];
     if ( edge == Trailing ) {
 	// trailing edge is leading edge of next cluster
-	while ( glyph_pos < shaped->num_glyphs && !shaped->glyphAttributes[glyph_pos].clusterStart )
+	while ( glyph_pos < si->num_glyphs && !glyphAttributes[glyph_pos].clusterStart )
 	    glyph_pos++;
     }
 
@@ -94,11 +90,11 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
     bool reverse = engine->items[item].analysis.bidiLevel % 2;
 
     if ( reverse ) {
-	for ( int i = shaped->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += shaped->advances[i];
+	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
+	    x += advances[i];
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += shaped->advances[i];
+	    x += advances[i];
     }
 //     qDebug("cursorToX: pos=%d, gpos=%d x=%d", pos, glyph_pos, x );
     *cPos = pos;
@@ -107,21 +103,21 @@ int QTextItem::cursorToX( int *cPos, Edge edge ) const
 
 int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 {
-    QScriptItem &si = engine->items[item];
-    const QShapedItem *shaped = si.shaped;
-    if ( !shaped )
-	shaped = engine->shape( item );
+    QScriptItem *si = &engine->items[item];
+    engine->shape( item );
+    advance_t *advances = engine->advances( si );
+    unsigned short *logClusters = engine->logClusters( si );
 
     int l = engine->length( item );
-    bool reverse = si.analysis.bidiLevel % 2;
+    bool reverse = si->analysis.bidiLevel % 2;
     if ( x < 0 )
 	return reverse ? l : 0;
 
 
     if ( reverse ) {
 	int width = 0;
-	for ( int i = 0; i < shaped->num_glyphs; i++ ) {
-	    width += shaped->advances[i];
+	for ( int i = 0; i < si->num_glyphs; i++ ) {
+	    width += advances[i];
 	}
 	x = -x + width;
     }
@@ -132,14 +128,14 @@ int QTextItem::xToCursor( int x, CursorPosition cpos ) const
 
     int lastCluster = 0;
     for ( int i = 1; i <= l; i++ ) {
-	int newCluster = i < l ? shaped->logClusters[i] : shaped->num_glyphs;
+	int newCluster = i < l ? logClusters[i] : si->num_glyphs;
 	if ( newCluster != lastCluster ) {
 	    // calculate cluster width
 	    cp_before = cp_after;
 	    x_before = x_after;
 	    cp_after = i;
 	    for ( int j = lastCluster; j < newCluster; j++ )
-		x_after += shaped->advances[j];
+		x_after += advances[j];
 	    // 		qDebug("cluster boundary: lastCluster=%d, newCluster=%d, x_before=%d, x_after=%d",
 	    // 		       lastCluster, newCluster, x_before, x_after );
 	    if ( x_after > x )
@@ -307,8 +303,7 @@ QTextLayout::Result QTextLayout::addCurrentItem()
     if ( d->firstItemInLine == -1 )
 	d->firstItemInLine = d->currentItem;
     QScriptItem &current = d->items[d->currentItem];
-    if ( !current.shaped )
-	d->shape( d->currentItem );
+    d->shape( d->currentItem );
     d->widthUsed += current.width;
 //     qDebug("trying to add item %d with width %d, remaining %d", d->currentItem, current.width, d->lineWidth-d->widthUsed );
 
@@ -354,12 +349,12 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	    bool lastWasSpace = FALSE;
 	    // forward search is probably faster
 	    for ( int i = d->firstItemInLine; i < d->currentItem; i++ ) {
-		const QScriptItem &si = d->items[i];
+		const QScriptItem *si = &d->items[i];
 		int length = d->length( i );
-		const QCharAttributes *itemAttrs = attrs + si.position;
+		const QCharAttributes *itemAttrs = attrs + si->position;
 
-		const QShapedItem *shaped = si.shaped;
-		const advance_t *advances = shaped->advances;
+		advance_t *advances = d->advances( si );
+		unsigned short *logClusters = d->logClusters( si );
 
 		int lastGlyph = 0;
 		int tmpItemWidth = 0;
@@ -369,7 +364,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		for ( int pos = 0; pos < length; pos++ ) {
 // 		    qDebug("advance=%d, tmpWidth=%d, softbreak=%d, whitespace=%d",
 // 			   advances->x, tmpWidth, itemAttrs->softBreak, itemAttrs->whiteSpace );
-		    int glyph = shaped->logClusters[pos];
+		    int glyph = logClusters[pos];
 		    if ( lastGlyph != glyph ) {
 			while ( lastGlyph < glyph )
 			    tmpItemWidth += advances[lastGlyph++];
@@ -395,7 +390,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 		    lastWasSpace = itemAttrs->whiteSpace;
 		    itemAttrs++;
 		}
-		while ( lastGlyph < shaped->num_glyphs )
+		while ( lastGlyph < si->num_glyphs )
 		    tmpItemWidth += advances[lastGlyph++];
 		tmpWidth += tmpItemWidth;
 		if ( w + tmpWidth > d->lineWidth )
@@ -414,32 +409,25 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 //  	qDebug("linebreak at item %d, position %d, glyph %d", breakItem, breakPosition, breakGlyph );
 	// split the line
 	if ( breakPosition > 0 ) {
-	    int length = d->length( breakItem );
+// 	    int length = d->length( breakItem );
 
 //  	    qDebug("splitting item, itemWidth=%d", itemWidth);
-	    QShapedItem *shaped = d->items[breakItem].shaped;
 	    // not a full item, need to break
 	    d->items.split( breakItem, breakPosition );
 	    QScriptItem &endItem = d->items[breakItem];
 // 	    qDebug("new items are at %d (len=%d) and %d (len=%d)", endItem.position, d->length(breakItem),
 // 		   d->items[breakItem+1].position, d->length(breakItem+1) );
 
-	    // split the shapedItem
-	    QShapedItem *split = new QShapedItem;
-	    split->ownGlyphs = FALSE;
-	    split->num_glyphs = shaped->num_glyphs - breakGlyph;
-	    split->glyphs = shaped->glyphs + breakGlyph;
-	    split->offsets = shaped->offsets + breakGlyph;
-	    split->advances = shaped->advances + breakGlyph;
-	    split->glyphAttributes = shaped->glyphAttributes + breakGlyph;
-	    split->logClusters = shaped->logClusters + breakPosition;
-	    for ( int i = 0; i < length-breakPosition; i++ )
-		split->logClusters[i] -= breakGlyph;
 
-	    shaped->num_glyphs = breakGlyph;
+	    QScriptItem &bSi = d->items[breakItem + 1];
+	    bSi.num_glyphs = d->items[breakItem].num_glyphs - breakGlyph;
+	    d->items[breakItem].num_glyphs = breakGlyph;
+	    bSi.glyph_data_offset = d->items[breakItem].glyph_data_offset + breakGlyph;
 
-	    d->items[breakItem + 1].shaped = split;
-	    d->items[breakItem + 1].width = endItem.width - itemWidth;
+	    for ( int i = 0; i < d->items[breakItem+1].num_glyphs; i++ )
+		d->logClusters( &bSi )[i] -= breakGlyph;
+
+	    bSi.width = endItem.width - itemWidth;
 	    endItem.width = itemWidth;
 	    d->currentItem = breakItem+1;
 	} else {
@@ -534,11 +522,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 
 void QTextLayout::endLayout()
 {
-    for ( int i = 0; i < d->items.size(); i++ ) {
-	QScriptItem &si = d->items[i];
-	delete si.shaped;
-	si.shaped = 0;
-    }
+    // nothing to do currently
 }
 
 

@@ -1943,8 +1943,8 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	QFontEngine *fe = si.fontEngine;
 	Q_ASSERT(fe);
 	Q_ASSERT(si.shaped);
-	fe->draw(this, x + si.x,  y + si.y - ascent, si.shaped->glyphs, si.shaped->advances,
-		 si.shaped->offsets, si.shaped->num_glyphs, si.analysis.bidiLevel % 2);
+	fe->draw(this, x + si.x,  y + si.y - ascent, engine->glyphs( si ), engine->advances( si ),
+		 engine->offsets( si ), si.num_glyphs, si.analysis.bidiLevel % 2);
     }
 }
 
@@ -1960,19 +1960,20 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int
     if ( txop == TxTranslate )
         map( x, y, &x, &y );
 
-    QScriptItem &si = ti.engine->items[ti.item];
-    QShapedItem *shaped = ti.engine->shape( ti.item );
+    QTextEngine *engine - ti.engine;
+    QScriptItem &si = engine->items[ti.item];
+    engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
 
     qDebug( "drawing text item with width %d (numglyphs =%d) at %d/%d",
-	    ti.width(), shaped->num_glyphs, x + si.x, y + si.y );
+	    ti.width(), si.num_glyphs, x + si.x, y + si.y );
 
     Q_ASSERT(fe);
     x += si.x;
     y += si.y;
 
-    fe->draw(this, x,  y, shaped->glyphs, shaped->advances,
-	     shaped->offsets, shaped->num_glyphs, si.analysis.bidiLevel % 2);
+    fe->draw(this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
+	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2);
 
     if ( ulChars ) {
         int ulpos = fe->underlinePosition();

@@ -3112,14 +3112,14 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     QConstString cstr( str.unicode() + start, end - start );
     pos -= start;
 
-    QTextLayout layout( cstr.string(), this );
-    QTextEngine *engine = layout.d;
+    QTextEngine engine( cstr.string(), pfont ? pfont->d : cfont.d );
+    QTextLayout layout( &engine );
 
     // this is actually what beginLayout does. Inlined here, so we can
     // avoid the bidi algorithm if we don't need it.
-    engine->itemize( !simple );
-    engine->currentItem = 0;
-    engine->firstItemInLine = -1;
+    engine.itemize( !simple );
+    engine.currentItem = 0;
+    engine.firstItemInLine = -1;
 
     if ( !simple ) {
 	layout.setBoundary( pos );
@@ -3128,15 +3128,15 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     if ( dir != Auto ) {
 	int level = dir == RTL ? 1 : 0;
-	for ( int i = engine->items.size(); i >= 0; i-- )
-	    engine->items[i].analysis.bidiLevel = level;
+	for ( int i = engine.items.size(); i >= 0; i-- )
+	    engine.items[i].analysis.bidiLevel = level;
     }
 
     // small hack to force skipping of unneeded items
     start = 0;
-    while ( engine->items[start].position < pos )
+    while ( engine.items[start].position < pos )
 	++start;
-    engine->currentItem = start;
+    engine.currentItem = start;
     layout.beginLine( 0xfffffff );
     end = start;
     while ( !layout.atEnd() && layout.currentItem().from() < pos + len ) {
@@ -3150,21 +3150,20 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     // for painting.
 
     for ( int i = start; i < end; i++ ) {
-	QScriptItem &si = engine->items[i];
+	QScriptItem &si = engine.items[i];
 
 	QFontEngine *fe = si.fontEngine;
 	assert( fe );
-	QShapedItem *shaped = si.shaped;
-	assert( shaped );
 
 	int xpos = x + si.x;
 	int ypos = y + si.y - ascent;
 
 	bool rightToLeft = si.analysis.bidiLevel % 2;
 
-	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+	fe->draw( this, xpos,  ypos, engine.glyphs( &si ), engine.advances( &si ),
+		  engine.offsets( &si ), si.num_glyphs, rightToLeft );
     }
+    layout.d = 0;
 }
 
 
@@ -3273,19 +3272,20 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     if ( txop == TxTranslate )
 	map( x, y, &x, &y );
 
-    QScriptItem &si = ti.engine->items[ti.item];
+    QTextEngine *engine = ti.engine;
+    QScriptItem &si = engine->items[ti.item];
 
-    QShapedItem *shaped = ti.engine->shape( ti.item );
+    engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
     assert( fe );
 
-    x += ti.x();
-    y += ti.y();
+    x += si.x;
+    y += si.y;
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
-    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+    fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
+		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
 
     if ( ulChars ) {
 	// draw underlines

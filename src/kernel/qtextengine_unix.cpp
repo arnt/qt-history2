@@ -1,4 +1,4 @@
-
+#include <assert.h>
 
 // -----------------------------------------------------------------------------------------------------
 //
@@ -20,8 +20,6 @@ void QScriptItemArray::clear()
 	    QScriptItem &si = d->items[i];
 	    if ( si.fontEngine )
 		si.fontEngine->deref();
-	    if ( si.shaped )
-		delete si.shaped;
 	}
 	d->size = 0;
     }
@@ -58,17 +56,6 @@ void QScriptItemArray::split( int item, int pos )
 }
 
 
-QShapedItem::~QShapedItem()
-{
-    if ( ownGlyphs ) {
-	free( glyphs );
-	free( advances );
-	free( offsets );
-	free( logClusters );
-	free( glyphAttributes );
-    }
-}
-
 void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder )
 {
     ::bidiReorder(numRuns, levels, visualOrder );
@@ -77,7 +64,7 @@ void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOr
 void QTextEngine::itemize( bool doBidi )
 {
     if ( !items.d ) {
-	int size = 1;
+	int size = 8;
 	items.d = (QScriptItemArrayPrivate *)malloc( sizeof( QScriptItemArrayPrivate ) +
 						    sizeof( QScriptItem ) * size );
 	items.d->alloc = size;
@@ -96,28 +83,38 @@ void QTextEngine::itemize( bool doBidi )
     }
 }
 
-QShapedItem *QTextEngine::shape( int item ) const
+void QTextEngine::shape( int item ) const
 {
     QScriptItem &si = items[item];
 
-    if ( si.shaped )
-	return si.shaped;
+    if ( si.num_glyphs )
+	return;
 
     QFont::Script script = (QFont::Script)si.analysis.script;
     int from = si.position;
     int len = length( item );
 
-    if ( !si.shaped )
-	si.shaped = new QShapedItem();
+    si.glyph_data_offset = used;
+
     if ( !si.fontEngine )
 	si.fontEngine = fnt->engineForScript( script );
     si.fontEngine->ref();
 
+    si.ascent = si.fontEngine->ascent();
+    si.descent = si.fontEngine->descent();
+
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
 	assert( script < QFont::NScripts );
-	scriptEngines[script].shape( script, string, from, len, &si );
+	scriptEngines[script].shape( script, string, from, len, (QTextEngine *)this, &si );
     }
-    return si.shaped;
+    ((QTextEngine *)this)->used += si.num_glyphs;
+
+    si.width = 0;
+    advance_t *advances = this->advances( &si );
+    for ( int i = 0; i < si.num_glyphs; i++ )
+	si.width += advances[i];
+
+    return;
 }
 
 int QTextEngine::width( int from, int len ) const
@@ -126,39 +123,44 @@ int QTextEngine::width( int from, int len ) const
 
 //     qDebug("QTextEngine::width( from = %d, len = %d ), numItems=%d, strleng=%d", from,  len, items.size(), string.length() );
     for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem &item = items[i];
-	int pos = item.position;
+	QScriptItem *si = &items[i];
+	int pos = si->position;
 	int ilen = length( i );
 // 	qDebug("item %d: from %d len %d", i, pos, ilen );
 	if ( pos >= from + len )
 	    break;
 	if ( pos + ilen > from ) {
-	    const QShapedItem *shaped = shape( i );
+	    if ( !si->num_glyphs )
+		shape( i );
+
+	    advance_t *advances = this->advances( si );
+	    unsigned short *logClusters = this->logClusters( si );
+
 // 	    fprintf( stderr, "  logclusters:" );
 // 	    for ( int k = 0; k < ilen; k++ )
-// 		fprintf( stderr, " %d", shaped->logClusters[k] );
+// 		fprintf( stderr, " %d", logClusters[k] );
 // 	    fprintf( stderr, "\n" );
 	    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
 	    int charFrom = from - pos;
 	    if ( charFrom < 0 )
 		charFrom = 0;
-	    int glyphStart = shaped->logClusters[charFrom];
-	    if ( charFrom > 0 && shaped->logClusters[charFrom-1] == glyphStart )
-		while ( charFrom < ilen && shaped->logClusters[charFrom] == glyphStart )
+	    int glyphStart = logClusters[charFrom];
+	    if ( charFrom > 0 && logClusters[charFrom-1] == glyphStart )
+		while ( charFrom < ilen && logClusters[charFrom] == glyphStart )
 		    charFrom++;
 	    if ( charFrom < ilen ) {
-		glyphStart = shaped->logClusters[charFrom];
+		glyphStart = logClusters[charFrom];
 		int charEnd = from + len - 1 - pos;
 		if ( charEnd >= ilen )
 		    charEnd = ilen-1;
-		int glyphEnd = shaped->logClusters[charEnd];
-		while ( charEnd < ilen && shaped->logClusters[charEnd] == glyphEnd )
+		int glyphEnd = logClusters[charEnd];
+		while ( charEnd < ilen && logClusters[charEnd] == glyphEnd )
 		    charEnd++;
-		glyphEnd = (charEnd == ilen) ? shaped->num_glyphs : shaped->logClusters[charEnd];
+		glyphEnd = (charEnd == ilen) ? si->num_glyphs : logClusters[charEnd];
 
 // 		qDebug("char: start=%d end=%d / glyph: start = %d, end = %d", charFrom, charEnd, glyphStart, glyphEnd );
 		for ( int i = glyphStart; i < glyphEnd; i++ )
-		    w += shaped->advances[i];
+		    w += advances[i];
 	    }
 	}
     }
@@ -171,34 +173,40 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
     glyph_metrics_t gm;
 
     for ( int i = 0; i < items.size(); i++ ) {
-	QScriptItem &item = items[i];
-	int pos = item.position;
+	QScriptItem *si = &items[i];
+	int pos = si->position;
 	int ilen = length( i );
 	if ( pos > from + len )
 	    break;
 	if ( pos + len > from ) {
-	    const QShapedItem *shaped = shape( i );
+	    if ( !si->num_glyphs )
+		shape( i );
+	    advance_t *advances = this->advances( si );
+	    unsigned short *logClusters = this->logClusters( si );
+	    glyph_t *glyphs = this->glyphs( si );
+	    offset_t *offsets = this->offsets( si );
+
 	    // do the simple thing for now and give the first glyph in a cluster the full width, all other ones 0.
 	    int charFrom = from - pos;
 	    if ( charFrom < 0 )
 		charFrom = 0;
-	    int glyphStart = shaped->logClusters[charFrom];
-	    if ( charFrom > 0 && shaped->logClusters[charFrom-1] == glyphStart )
-		while ( charFrom < ilen && shaped->logClusters[charFrom] == glyphStart )
+	    int glyphStart = logClusters[charFrom];
+	    if ( charFrom > 0 && logClusters[charFrom-1] == glyphStart )
+		while ( charFrom < ilen && logClusters[charFrom] == glyphStart )
 		    charFrom++;
 	    if ( charFrom < ilen ) {
-		glyphStart = shaped->logClusters[charFrom];
+		glyphStart = logClusters[charFrom];
 		int charEnd = from + len - 1 - pos;
 		if ( charEnd >= ilen )
 		    charEnd = ilen-1;
-		int glyphEnd = shaped->logClusters[charEnd];
-		while ( charEnd < ilen && shaped->logClusters[charEnd] == glyphEnd )
+		int glyphEnd = logClusters[charEnd];
+		while ( charEnd < ilen && logClusters[charEnd] == glyphEnd )
 		    charEnd++;
-		glyphEnd = (charEnd == ilen) ? shaped->num_glyphs : shaped->logClusters[charEnd];
+		glyphEnd = (charEnd == ilen) ? si->num_glyphs : logClusters[charEnd];
 		if ( glyphStart <= glyphEnd  ) {
-		    QFontEngine *fe = item.fontEngine;
-		    glyph_metrics_t m = fe->boundingBox( shaped->glyphs+glyphStart, shaped->advances+glyphStart,
-						       shaped->offsets+glyphStart, glyphEnd-glyphStart );
+		    QFontEngine *fe = si->fontEngine;
+		    glyph_metrics_t m = fe->boundingBox( glyphs+glyphStart, advances+glyphStart,
+						       offsets+glyphStart, glyphEnd-glyphStart );
 		    gm.x = QMIN( gm.x, m.x + gm.xoff );
 		    gm.y = QMIN( gm.y, m.y + gm.yoff );
 		    gm.width = QMAX( gm.width, m.width+gm.xoff );
