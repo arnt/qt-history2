@@ -26,5 +26,5 @@ diff -ubr template/library/Makefile netbsd-gcc-shared/library/Makefile
 +		`lorder /usr/lib/c++rt0.o $(OBJECTS) $(METAOBJ) | tsort` \
 +		-L/usr/X11R6/lib -lX11
  	-rm -f ../lib/libqt.so
- 	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
+ 	-ln -s libqt.so.$(VERSION) ../lib/libqt.so
  	-rm -f ../lib/libqt.so.1
