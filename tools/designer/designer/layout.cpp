@@ -215,16 +215,26 @@ void Layout::undoLayout()
 
 void Layout::breakLayout()
 {
+    QMap<QWidget*, QRect> rects;
+    QWidget *w;
+    for ( w = widgets.first(); w; w = widgets.next() )
+	rects.insert( w, w->geometry() );
     WidgetFactory::deleteLayout( layoutBase );
     bool needReparent = qstrcmp( layoutBase->className(), "QLayoutWidget" ) == 0 ||
 			qstrcmp( layoutBase->className(), "QSplitter" ) == 0 ||
 			( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( layoutBase ) ) ) &&
 			  layoutBase != formWindow->mainContainer() );
+    bool needResize = qstrcmp( layoutBase->className(), "QSplitter" ) == 0;
     bool add = geometries.isEmpty();
     for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
 	if ( needReparent )
 	    w->reparent( layoutBase->parentWidget(), 0,
 			 layoutBase->pos() + w->pos(), TRUE );
+	if ( needResize ) {
+	    QMap<QWidget*, QRect>::Iterator it = rects.find( w );
+	    if ( it != rects.end() )
+		w->setGeometry( QRect( layoutBase->pos() + (*it).topLeft(), (*it).size() ) );
+	}
 	if ( add )
 	    geometries.insert( w, QRect( w->pos(), w->size() ) );
     }
