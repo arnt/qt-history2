@@ -155,10 +155,11 @@ qtcpcomm.o: qstring.h qarray.h qgarray.h qshared.h /usr/include/string.h
 qtcpcomm.o: /usr/include/features.h /usr/include/sys/cdefs.h
 qtcpcomm.o: /usr/local/lib/gcc-include/stddef.h
 qtracefs.o: qtracefs.h
-qtstream.o: qtstream.h qiodev.h qglobal.h qstring.h qarray.h qgarray.h
-qtstream.o: qshared.h /usr/include/string.h /usr/include/features.h
-qtstream.o: /usr/include/sys/cdefs.h /usr/local/lib/gcc-include/stddef.h
-qtstream.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/ctype.h
+qtstream.o: qtstream.h qiodev.h qglobal.h /usr/include/stdio.h
+qtstream.o: /usr/include/libio.h /usr/include/sys/cdefs.h
+qtstream.o: /usr/include/features.h qfile.h qstring.h qarray.h qgarray.h
+qtstream.o: qshared.h /usr/include/string.h
+qtstream.o: /usr/local/lib/gcc-include/stddef.h /usr/include/ctype.h
 qtstream.o: /usr/include/stdlib.h /usr/include/errno.h
 qtstream.o: /usr/include/linux/errno.h /usr/local/lib/gcc-include/float.h
 qudpcomm.o: qudpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
