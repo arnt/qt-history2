@@ -1073,6 +1073,10 @@ bool QPicture::QPicturePrivate::checkFormat()
 {
     resetFormat();
 
+    // can't check anything in an empty buffer
+    if ( pictb.size() == 0 )
+	return FALSE;
+
     pictb.open( IO_ReadOnly );			// open buffer device
     QDataStream s;
     s.setDevice( &pictb );			// attach data stream to buffer
