@@ -26,15 +26,15 @@ public:
     inline int childCount() const { return children.count(); }
 
     inline int columnCount() const { return c; }
-    inline QString text(int column) const { return data(column, QAbstractItemModel::Display).toString(); }
-    inline QIconSet iconSet(int column) const { return data(column, QAbstractItemModel::Decoration).toIconSet(); }
+    inline QString text(int column) const { return data(column, QAbstractItemModel::Role_Display).toString(); }
+    inline QIconSet iconSet(int column) const { return data(column, QAbstractItemModel::Role_Decoration).toIconSet(); }
 
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
     void setColumnCount(int columns);
-    inline void setText(int column, const QString &text) { setData(column, QAbstractItemModel::Display, text); }
-    inline void setIconSet(int column, const QIconSet &iconSet) { setData(column, QAbstractItemModel::Decoration, iconSet); }
+    inline void setText(int column, const QString &text) { setData(column, QAbstractItemModel::Role_Display, text); }
+    inline void setIconSet(int column, const QIconSet &iconSet) { setData(column, QAbstractItemModel::Role_Decoration, iconSet); }
 
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }

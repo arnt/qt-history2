@@ -35,7 +35,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QSqlRecord record() const;
 
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
+    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);

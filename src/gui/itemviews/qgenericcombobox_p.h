@@ -130,8 +130,8 @@ private:
             opt.checkState = QStyleOptionMenuItem::Unchecked;
         }
         opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.icon = model()->data(index, QAbstractItemModel::Decoration).toIconSet();
-        opt.text = model()->data(index, QAbstractItemModel::Display).toString();
+        opt.icon = model()->data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+        opt.text = model()->data(index, QAbstractItemModel::Role_Display).toString();
         opt.tabWidth = 0;
         opt.maxIconWidth = 0;
         if (!opt.icon.isNull())
@@ -145,14 +145,14 @@ private:
 class ComboModel : public QAbstractItemModel
 {
 public:
-    QVariant data(const QModelIndex &index, int role = Display) const {
-        if ((role == Display || role == Edit || role == Decoration)
+    QVariant data(const QModelIndex &index, int role = Role_Display) const {
+        if ((role == Role_Display || role == Role_Edit || role == Role_Decoration)
             && index.type() == QModelIndex::View  && index.isValid()
             && index.row() < rowCount(parent(index))
             && index.column() < columnCount(parent(index))) {
-            if (role == Display || role == Edit)
+            if (role == Role_Display || role == Role_Edit)
                 return list.at(index.row()).first;
-            if (role == Decoration)
+            if (role == Role_Decoration)
                 return list.at(index.row()).second;
         }
         return QVariant::Invalid;
@@ -164,11 +164,11 @@ public:
         return list.count();
     }
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
-        if (role == Display || role == Edit) {
+        if (role == Role_Display || role == Role_Edit) {
             list[index.row()].first = value.toString();
             emit dataChanged(index, index);
             return true;
-        } else if (role == Decoration) {
+        } else if (role == Role_Decoration) {
             list[index.row()].second = value.toIconSet();
             emit dataChanged(index, index);
             return true;

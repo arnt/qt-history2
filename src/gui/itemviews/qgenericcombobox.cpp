@@ -242,7 +242,7 @@ void QGenericComboBoxPrivate::returnPressed()
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Edit))
+        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Role_Edit))
             return;
         QModelIndex newItem;
         switch (insertionPolicy) {
@@ -287,11 +287,11 @@ void QGenericComboBoxPrivate::complete()
     QString text = lineEdit->text();
     if (!text.isEmpty()) {
         QModelIndexList list
-            = d->model->match(q->currentItem(), QAbstractItemModel::Edit, text);
+            = d->model->match(q->currentItem(), QAbstractItemModel::Role_Edit, text);
         if (!list.count())
             return;
         QString completed = d->model->data(list.first(),
-                                           QAbstractItemModel::Edit).toString();
+                                           QAbstractItemModel::Role_Edit).toString();
         int start = completed.length();
         int length = text.length() - start; // negative length
         lineEdit->setText(completed);
@@ -306,7 +306,7 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
     } else if (q->isEditable()) {
         if (lineEdit) {
             lineEdit->selectAll();
-            lineEdit->setText(model->data(q->currentItem(), QAbstractItemModel::Edit)
+            lineEdit->setText(model->data(q->currentItem(), QAbstractItemModel::Role_Edit)
                               .toString());
         }
         q->emit activated(q->currentItem());
@@ -320,8 +320,8 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
 bool QGenericComboBoxPrivate::contains(const QString &text, int role)
 {
     return model->match(model->index(0, 0, q->root()),
-                             role, text, 1, QAbstractItemModel::MatchExactly
-                             |QAbstractItemModel::MatchCase).count() > 0;
+                             role, text, 1, QAbstractItemModel::Match_Exactly
+                             |QAbstractItemModel::Match_Case).count() > 0;
 }
 
 QGenericComboBox::~QGenericComboBox()
@@ -505,7 +505,7 @@ QString QGenericComboBox::currentText() const
     if (d->lineEdit)
         return d->lineEdit->text();
     else if (currentItem().isValid())
-	return model()->data(currentItem(), QAbstractItemModel::Edit).toString();
+	return model()->data(currentItem(), QAbstractItemModel::Role_Edit).toString();
     else
 	return QString::null;
 }
@@ -513,7 +513,7 @@ QString QGenericComboBox::currentText() const
 void QGenericComboBox::setCurrentText(const QString& text)
 {
     if (currentItem().isValid()) {
-        model()->setData(currentItem(), QAbstractItemModel::Edit, text);
+        model()->setData(currentItem(), QAbstractItemModel::Role_Edit, text);
         if (d->lineEdit)
             d->lineEdit->setText(text);
     }
@@ -526,7 +526,7 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, int row)
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::Edit, text);
+        model()->setData(item, QAbstractItemModel::Role_Edit, text);
     }
     return item;
 }
@@ -538,7 +538,7 @@ QModelIndex QGenericComboBox::insertItem(const QIconSet &icon, int row)
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::Decoration, icon);
+        model()->setData(item, QAbstractItemModel::Role_Decoration, icon);
     }
     return item;
 }
@@ -551,8 +551,8 @@ QModelIndex QGenericComboBox::insertItem(const QString &text, const QIconSet &ic
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         QMap<int, QVariant> values;
-        values.insert(QAbstractItemModel::Edit, text);
-        values.insert(QAbstractItemModel::Decoration, icon);
+        values.insert(QAbstractItemModel::Role_Edit, text);
+        values.insert(QAbstractItemModel::Role_Decoration, icon);
         model()->setItemData(item, values);
     }
     return item;
@@ -562,7 +562,7 @@ QModelIndex QGenericComboBox::changeItem(const QString &text, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::Edit, text);
+        model()->setData(item, QAbstractItemModel::Role_Edit, text);
     }
     return item;
 }
@@ -571,7 +571,7 @@ QModelIndex QGenericComboBox::changeItem(const QIconSet &icon, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::Decoration, icon);
+        model()->setData(item, QAbstractItemModel::Role_Decoration, icon);
     }
     return item;
 }
@@ -581,8 +581,8 @@ QModelIndex QGenericComboBox::changeItem(const QString &text, const QIconSet &ic
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
         QMap<int, QVariant> map;
-        map.insert(QAbstractItemModel::Edit, text);
-        map.insert(QAbstractItemModel::Decoration, icon);
+        map.insert(QAbstractItemModel::Role_Edit, text);
+        map.insert(QAbstractItemModel::Role_Decoration, icon);
         model()->setItemData(item, map);
     }
     return item;
@@ -667,7 +667,7 @@ void QGenericComboBox::popup()
 void QGenericComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 {
     if (d->lineEdit)
-        d->lineEdit->setText(model()->data(q->currentItem(), QAbstractItemModel::Edit)
+        d->lineEdit->setText(model()->data(q->currentItem(), QAbstractItemModel::Role_Edit)
                              .toString());
     emit activated(currentItem());
 }

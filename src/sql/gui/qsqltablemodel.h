@@ -42,7 +42,7 @@ public:
     bool isModelReadOnly() const { return false; }
     bool isEditable(const QModelIndex &) const;
 
-    QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Display) const;
+    QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     virtual void setEditStrategy(EditStrategy strategy);

@@ -569,7 +569,7 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
 {
     if (!d->fileName->hasFocus() && current.isValid()) {
-        QString text = d->model->data(current, QAbstractItemModel::Display).toString();
+        QString text = d->model->data(current, QAbstractItemModel::Role_Display).toString();
         d->fileName->setText(text);
     }
 }
@@ -580,14 +580,14 @@ void QFileDialog::fileNameChanged(const QString &text)
         QModelIndex current = d->current();
         if (!current.isValid())
             current = d->model->topLeft(d->root());
-        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Display, text);
+        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Role_Display, text);
         int key = d->fileName->lastKeyPressed();
         if (indices.count() <= 0) { // no matches
             d->lview->selectionModel()->clear();
         } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             d->setCurrent(indices.first());
             QString completed = d->model->data(indices.first(),
-                                               QAbstractItemModel::Display).toString();
+                                               QAbstractItemModel::Role_Display).toString();
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
@@ -606,7 +606,7 @@ void QFileDialog::lookInChanged(const QString &text)
         QString searchText = text.section('/', -1);
         int rowCount = d->model->rowCount(dirIndex);
         QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
-                                                  QAbstractItemModel::Display,
+                                                  QAbstractItemModel::Role_Display,
                                                   searchText, rowCount);
         int key = d->lookInEdit->lastKeyPressed();
         QModelIndex result;

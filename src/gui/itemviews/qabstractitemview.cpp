@@ -578,7 +578,7 @@ bool QAbstractItemView::event(QEvent *e)
         QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
-        QString tooltip = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        QString tooltip = model()->data(index, QAbstractItemModel::Role_ToolTip).toString();
         QToolTip::showText(he->globalPos(), tooltip, this);
         return true; }
     case QEvent::WhatsThis: {
@@ -586,7 +586,7 @@ bool QAbstractItemView::event(QEvent *e)
         QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
-        QString whatsthis = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        QString whatsthis = model()->data(index, QAbstractItemModel::Role_WhatsThis).toString();
         QWhatsThis::showText(he->globalPos(), whatsthis, this);
         return true; }
     case QEvent::StatusTip: {
@@ -594,7 +594,7 @@ bool QAbstractItemView::event(QEvent *e)
         QModelIndex index = itemAt(he->pos());
         if (!index.isValid())
             break;
-        QString statustip = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        QString statustip = model()->data(index, QAbstractItemModel::Role_StatusTip).toString();
         if (!statustip.isEmpty())
             setStatusTip(statustip);
         return true; }
@@ -1170,7 +1170,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     // search from start with wraparound
     QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
     QModelIndexList match;
-    match = model()->match(start, QAbstractItemModel::Display, searchString);
+    match = model()->match(start, QAbstractItemModel::Role_Display, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
         setCurrentItem(match.at(0));
     }

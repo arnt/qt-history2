@@ -421,7 +421,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     }
 
     if (index.type() == QModelIndex::HorizontalHeader) {
-        if (role != Display)
+        if (role != Role_Display)
             return QVariant();
 	switch (index.column()) {
         case 0: return "Name";
@@ -431,7 +431,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         default: return QVariant();
         }
     } else if (index.type() == QModelIndex::VerticalHeader) {
-        if (role != Display)
+        if (role != Role_Display)
             return QVariant();
 	return index.row();
     }
@@ -442,7 +442,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    if (role == Display || role == Edit) {
+    if (role == Role_Display || role == Role_Edit) {
         switch (index.column()) {
         case 0: return node->info.fileName();
         case 1: return node->info.size();
@@ -454,7 +454,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    if (role == Decoration && index.column() == 0)
+    if (role == Role_Decoration && index.column() == 0)
         return d->iconProvider->icons(node->info);
     return QVariant();
 }
@@ -476,7 +476,7 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
         qWarning("setData: wrong column %d", index.column());
         return false;
     }
-    if (role != Edit) {
+    if (role != Role_Edit) {
         qWarning("setData: wrong role %d", role);
         return false;
     }

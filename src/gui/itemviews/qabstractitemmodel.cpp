@@ -605,7 +605,7 @@ QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWid
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
-    for (int i=0; i<User; ++i) {
+    for (int i = 0; i < Role_User; ++i) {
         QVariant variantData = data(index, i);
         if (variantData != QVariant::Invalid)
             roles.insert(i, variantData);
@@ -836,13 +836,13 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 /*!
     \enum QAbstractItemModel::Match
 
-    \value MatchContains The value is contained in the item.
-    \value MatchFromStart The value matches the start of the item.
-    \value MatchFromEnd The value matches the end of the item.
-    \value MatchExactly The value matches the item exactly.
-    \value MatchCase The search is case sensitive.
-    \value MatchWrap The search wraps around.
-    \value MatchDefault The default match, which is MatchFromStart|MatchWrap.
+    \value Match_Contains The value is contained in the item.
+    \value Match_FromStart The value matches the start of the item.
+    \value Match_FromEnd The value matches the end of the item.
+    \value Match_Exactly The value matches the item exactly.
+    \value Match_Case The search is case sensitive.
+    \value Match_Wrap The search wraps around.
+    \value Match_Default The default match, which is Match_FromStart|Match_Wrap.
 */
 
 /*!
@@ -861,7 +861,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 {
     QString val = value.toString();
 
-    if (!(flags & MatchCase))
+    if (!(flags & Match_Case))
         val = val.toLower();
 
     QModelIndexList result;
@@ -869,11 +869,11 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QModelIndex par = parent(start);
     QString itemText;
     int col = start.column();
-    int matchType = flags & MatchExactly;
+    int matchType = flags & Match_Exactly;
 
     // iterates twice if wrapping
     for (int i = 0; i < 2 && result.count() < hits; ++i) {
-        if (!(flags & MatchWrap) && i == 1)
+        if (!(flags & Match_Wrap) && i == 1)
             break;
         int rowStart = (i == 0) ? start.row() : 0;
         int rowEnd = (i == 0) ? rowCount(par) : start.row();
@@ -881,23 +881,23 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
         for (int row = rowStart; row < rowEnd && result.count() < hits; ++row) {
             idx = index(row, col, par);
             itemText = data(idx, role).toString();
-            if (!(flags & MatchCase))
+            if (!(flags & Match_Case))
                 itemText = itemText.toLower();
 
             switch (matchType) {
-            case MatchExactly:
+            case Match_Exactly:
                 if (itemText == val)
                     result.append(idx);
                 break;
-            case MatchFromStart:
+            case Match_FromStart:
                 if (itemText.startsWith(val))
                     result.append(idx);
                 break;
-            case MatchFromEnd:
+            case Match_FromEnd:
                 if (itemText.endsWith(val))
                     result.append(idx);
                 break;
-            case MatchContains:
+            case Match_Contains:
             default:
                 if (itemText.contains(val))
                     result.append(idx);

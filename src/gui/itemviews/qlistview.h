@@ -16,14 +16,14 @@ public:
     QListViewItem()  : edit(true), select(true) {}
     ~QListViewItem() {}
 
-    inline QString text() const { return data(QAbstractItemModel::Display).toString(); }
-    inline QIconSet iconSet() const { return data(QAbstractItemModel::Decoration).toIconSet(); }
+    inline QString text() const { return data(QAbstractItemModel::Role_Display).toString(); }
+    inline QIconSet iconSet() const { return data(QAbstractItemModel::Role_Decoration).toIconSet(); }
 
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
-    inline void setText(const QString &text) { setData(QAbstractItemModel::Display, text); }
-    inline void setIconSet(const QIconSet &iconSet) { setData(QAbstractItemModel::Display, iconSet); }
+    inline void setText(const QString &text) { setData(QAbstractItemModel::Role_Display, text); }
+    inline void setIconSet(const QIconSet &iconSet) { setData(QAbstractItemModel::Role_Display, iconSet); }
 
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }

@@ -145,7 +145,7 @@ QVariant QSqlModel::data(const QModelIndex &item, int role) const
         return QString::number(item.row());
 
     QVariant v;
-    if (role & ~(Display | Edit))
+    if (role & ~(Role_Display | Role_Edit))
         return v;
 
     if (!d->rec.isGenerated(item.column()))
@@ -215,7 +215,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
  */
 bool QSqlModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
-    if (role != Display || index.type() != QModelIndex::HorizontalHeader || index.row() <= 0
+    if (role != Role_Display || index.type() != QModelIndex::HorizontalHeader || index.row() <= 0
         || index.column() < 0)
         return false;
 
