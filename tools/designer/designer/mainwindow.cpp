@@ -1183,7 +1183,7 @@ void MainWindow::setupPropertyEditor()
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
     dw->setFixedExtentWidth( 300 );
-    dw->setCaption( tr( "Property Editor/Events" ) );
+    dw->setCaption( tr( "Property Editor/Signal Handlers" ) );
     QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
 					"<p>You can change the appearance and behaviour of the selected widget in the "
 					"property editor.</p>"
@@ -1192,7 +1192,11 @@ void MainWindow::setupPropertyEditor()
 					"new values, open a special dialog or select values from a predefined list. "
 					"Use <b>F1</b> to get detailed help for the selected property.</p>"
 					"<p>You can resize the columns of the editor by dragging the separators of the list "
-					"header.</p>" ) );
+					"header.</p>"
+					"<p><b>Signal Handlers</b></p>"
+					"<p>In the Signal Handlers tab you can define connections between "
+					"signals of widgets and slots of the form. That is just a convenience "
+					"way, you can use the connection tool to do that as well." ) );
     dw->show();
 }
 
