@@ -330,6 +330,10 @@ void QLibrary::createInstanceInternal()
 #endif
 	UCMInstanceProc ucmInstanceProc;
 	ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
+#if defined(QT_DEBUG_COMPONENT)
+	if ( !ucmInstanceProc )
+	    qWarning( "%s: Not a UCOM library.", library().latin1() );
+#endif
 	entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 	if ( entry ) {
 	    entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&d->libIface);
@@ -348,7 +352,7 @@ void QLibrary::createInstanceInternal()
 	    }
 	} else {
 #if defined(QT_DEBUG_COMPONENT)
-	    qWarning( "%s: No interface implemented.", library().latin1() );
+	    qWarning( "%s: No exported component provided.", library().latin1() );
 #endif
 	    unload();
 	}
