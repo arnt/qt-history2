@@ -381,6 +381,7 @@ void QTreeView::open(const QModelIndex &index)
     int idx = d->viewIndex(index);
     if (idx > -1) { // is visible
         d->open(idx);
+        updateGeometries();
         viewport()->update();
     } else {
         d->openedIndexes.append(index);
