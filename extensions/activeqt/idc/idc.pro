@@ -6,19 +6,18 @@ INCLUDEPATH     = $$QT_SOURCE_TREE/include .
 DEPENDPATH      = $$QT_SOURCE_TREE/include .
 
 SOURCES         = main.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qcstring.cpp \
+		    $$QT_SOURCE_TREE/src/tools/qbytearray.cpp \
+		    $$QT_SOURCE_TREE/src/tools/qchar.cpp \
                     $$QT_SOURCE_TREE/src/tools/qfile.cpp \
                     $$QT_SOURCE_TREE/src/tools/qfile_win.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qgarray.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qgdict.cpp       \
-                    $$QT_SOURCE_TREE/src/tools/qglist.cpp       \
-                    $$QT_SOURCE_TREE/src/tools/qglobal.cpp      \
-                    $$QT_SOURCE_TREE/src/tools/qgvector.cpp     \
-                    $$QT_SOURCE_TREE/src/tools/qiodevice.cpp    \
-                    $$QT_SOURCE_TREE/src/tools/qptrcollection.cpp \
+                    $$QT_SOURCE_TREE/src/tools/qglobal.cpp \
+		    $$QT_SOURCE_TREE/src/tools/qhash.cpp \
+                    $$QT_SOURCE_TREE/src/tools/qiodevice.cpp \
+		    $$QT_SOURCE_TREE/src/tools/qlist.cpp \
                     $$QT_SOURCE_TREE/src/tools/qstring.cpp \
 		    $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		    $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp
 
+	    
 TARGET          = idc
 DESTDIR         = $$QT_BUILD_TREE\bin
