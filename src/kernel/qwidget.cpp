@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#115 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#114 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#115 $")
 
 
 /*----------------------------------------------------------------------------
@@ -371,20 +371,13 @@ GUIStyle QWidget::style() const
 
 /*----------------------------------------------------------------------------
   Sets the GUI style for this widget.  The valid values are listed
-  in qwindefs.h, but everything except \c MotifStyle is disabled in
-  the free Linux version.
+  in qwindefs.h.
 
   \sa style(), styleChange(), QApplication::setStyle()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setStyle( GUIStyle style )
 {
-#if defined(LINUX_RESTRICTED)
-    if ( style != MotifStyle ) {
-	warning( "QWidget::setStyle: Only Motif style is supported" );
-	return;
-    }
-#endif
     GUIStyle old = this->style();
     createExtra();
     extra->guistyle = style;

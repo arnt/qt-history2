@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#74 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#73 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#74 $")
 
 
 /*----------------------------------------------------------------------------
@@ -269,12 +269,6 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( GUIStyle style )
 {
-#if defined(LINUX_RESTRICTED)
-    if ( style != MotifStyle ) {
-	warning( "QApplication::setStyle: Only Motif style is supported" );
-	return;
-    }
-#endif
     app_style = style;
 }
 
