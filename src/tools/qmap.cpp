@@ -4,8 +4,7 @@ QMapData QMapData::shared_null = {
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     0,
 #endif
-    { (Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, (Node *)&shared_null, Q_ATOMIC_INIT(1),
-    -1, 0, 0
+    { (Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), -1, 0, 0
 };
 
 QMapData *QMapData::createData()
@@ -16,7 +15,6 @@ QMapData *QMapData::createData()
     d->backward = e;
 #endif
     d->forward[0] = e;
-    d->cachedNode = e;
     d->ref = 1;
     d->topLevel = 0;
     d->size = 0;
@@ -32,7 +30,7 @@ void QMapData::freeData(int offset)
     while (cur != e) {
 	prev = cur;
 	cur = cur->forward[0];
-	qFree((char *) prev - offset);
+	qFree((char *)prev - offset);
     }
     delete this;
 }
@@ -77,13 +75,71 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 
 void QMapData::node_delete(Node *update[], int offset, Node *node)
 {
+#ifndef QT_NO_QMAP_BACKWARD_ITERATORS
+    node->forward[0]->backward = node->backward;
+#endif
+
     for (int i = 0; i <= topLevel; ++i) {
 	if (update[i]->forward[i] != node)
 	    break;
 	update[i]->forward[i] = node->forward[i];
     }
-    if (cachedNode == node)
-	cachedNode = node->forward[0];
     --size;
     qFree((char *)node - offset);
 }
+
+#if defined(QT_DEBUG)
+#include <qstring.h>
+#include <qvector.h>
+
+uint QMapData::adjust_ptr(Node *node)
+{
+    if (node == (Node *)this) {
+	return (uint)0xFFFFFFFF;
+    } else {
+	return (uint)node;
+    }
+}
+
+void QMapData::dump()
+{
+    qDebug("Map data (ref = %d, size = %d, randomBits = %#.8x)", ref.atomic, size, randomBits);
+
+    QString preOutput;
+    QVector<QString> output(topLevel + 1);
+    Node *e = (Node *)this;
+
+    QString str;
+    str.sprintf("    %.8x", adjust_ptr((Node *)this));
+    preOutput += str;
+
+    Node *update[LastLevel + 1];
+    for (int i = 0; i <= topLevel; ++i) {
+        str.sprintf("%d: [%.8x] -", i, adjust_ptr(forward[i]));
+        output[i] += str;
+	update[i] = forward[i];
+    }
+
+    Node *node = forward[0];
+    while (node != e) {
+	int level = 0;
+        while (level < topLevel && update[level + 1] == node)
+	    ++level;
+
+	str.sprintf("       %.8x", adjust_ptr(node));
+	preOutput += str;
+
+	for (int i = 0; i <= level; ++i) {
+            str.sprintf("-> [%.8x] -", adjust_ptr(node->forward[i]));
+	    output[i] += str;
+        }
+        for (int j = level + 1; j <= topLevel; ++j)
+	    output[j] += "---------------";
+	node = node->forward[0];
+    }
+
+    qDebug(preOutput.ascii());
+    for (int i = 0; i <= topLevel; ++i)
+	qDebug(output[i].ascii());
+}
+#endif
