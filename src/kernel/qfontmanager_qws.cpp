@@ -63,7 +63,7 @@
 
 QString qws_topdir()
 {
-    QString ret( QT_INSTALL_PREFIX );
+    QString ret( qInstallPath() );
 
     // ### REMOVE ME 3.1
     // we shouldn't use QTDIR to change the behavior of the library at
