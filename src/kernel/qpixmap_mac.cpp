@@ -767,6 +767,10 @@ Qt::HANDLE QPixmap::macCGHandle() const
 {
     if(!cg_hd) {
 	CreateCGContextForPort((CGrafPtr)hd, (CGContextRef*)&cg_hd);
+#if 0
+	CGContextSetShouldAntialias((CGContextRef)cg_hd, false);
+	CGContextSetShouldSmoothFonts((CGContextRef)cg_hd, true);
+#endif
 	SyncCGContextOriginWithPort((CGContextRef)cg_hd, (CGrafPtr)hd); //account for origin (just in case)
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, height());
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);

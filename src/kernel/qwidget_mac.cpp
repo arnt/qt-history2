@@ -2320,6 +2320,10 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 	Rect port_rect;
 	GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
+#if 0
+	CGContextSetShouldAntialias((CGContextRef)cg_hd, false);
+	CGContextSetShouldSmoothFonts((CGContextRef)cg_hd, true);
+#endif
 	SyncCGContextOriginWithPort((CGContextRef)cg_hd, GetWindowPort((WindowPtr)handle()));
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
