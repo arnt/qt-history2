@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#25 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#26 $
 **
 ** Implementation of QDns class.
 **
@@ -1963,8 +1963,14 @@ QString QDns::canonicalName() const
 // struct __res_state is part of the API.  Normally not used, it
 // says.  But we use it, to get various information.
 
-#if 0 // should be included by default... if not, please document!
+#if 1
+// should be included by default... if not, please document!
+// ...
+// the BSDs don't include these by default in the header files - XPG
+// unfortunately doesn't say anything about res_* :/
 #include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/nameser.h>
 #endif
 
 #if defined (Q_OS_SCO) // SCO OpenServer 5.0.5
@@ -1973,11 +1979,6 @@ QString QDns::canonicalName() const
 #include <resolv.h>
 #if defined (Q_OS_SCO)
 #  undef class
-#endif
-
-#if 0 // should be included by default... if not, please document!
-#include <netinet/in.h>
-#include <arpa/nameser.h>
 #endif
 
 #if defined (Q_OS_SOLARIS)
