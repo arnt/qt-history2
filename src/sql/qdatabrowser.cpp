@@ -743,7 +743,7 @@ void QDataBrowser::update()
     The current form's record is deleted from the database, providing
     that the data browser is not in insert mode. If the data browser
     is actively inserting a record (see insert()), the insert action
-    is cancelled, and the browser navigates to the last valid record
+    is canceled, and the browser navigates to the last valid record
     that was current. If there is an error, handleError() is called.
 */
 

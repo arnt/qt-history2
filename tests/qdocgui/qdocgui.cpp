@@ -8,6 +8,7 @@
 #include <qpushbutton.h>
 #include <qregexp.h>
 #include <qsettings.h>
+#include <qtimer.h>
 
 #include "qdocgui.h"
 
@@ -91,7 +92,6 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
 
     msgCount = 0;
 
-//    populateListView();
     updateTitle();
     setEditor();
     classList->setFocus();
@@ -107,6 +107,7 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
     connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
     connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
+    QTimer::singleShot(20 * 1000, this, SLOT(timeout()));
 }
 
 
@@ -131,6 +132,13 @@ void QDocMainWindow::updateTitle()
 	edition = "(commercial)";
     setCaption( QString( "qdocgui -- %1 %2 %3" )
 		    .arg( qtdirenv ).arg( edition ).arg( _defines.join(" ") ) );
+}
+
+
+void QDocMainWindow::timeout()
+{
+    if (!stop->isEnabled())
+	populateListView();
 }
 
 

@@ -52,7 +52,7 @@
     if ( ok ) {
 	// font is set to the font the user selected
     } else {
-	// the user cancelled the dialog; font is set to the initial
+	// the user canceled the dialog; font is set to the initial
 	// value, in this case Helvetica [Cronyx], 10
     }
   \endcode
@@ -313,7 +313,7 @@ QFontDialog::~QFontDialog()
     if ( ok ) {
 	// font is set to the font the user selected
     } else {
-	// the user cancelled the dialog; font is set to the initial
+	// the user canceled the dialog; font is set to the initial
 	// value, in this case Times, 12.
     }
   \endcode
@@ -353,7 +353,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont &initial,
     if ( ok ) {
 	// font is set to the font the user selected
     } else {
-	// the user cancelled the dialog; font is set to the default
+	// the user canceled the dialog; font is set to the default
 	// application font, QApplication::font()
     }
   \endcode

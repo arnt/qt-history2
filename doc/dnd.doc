@@ -53,7 +53,7 @@ Note that the QDragObject is not deleted after the drag. The
 QDragObject needs to persist after the drag is apparently finished
 since it may still be communicating with another process. Eventually
 Qt will delete the object. If the widget owning the drag object is
-deleted before then, any pending drop will be cancelled and the drag
+deleted before then, any pending drop will be canceled and the drag
 object deleted. For this reason, you should be careful what the object
 references.
 

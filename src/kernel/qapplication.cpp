@@ -2407,7 +2407,7 @@ QString QApplication::sessionKey() const
 
   The default implementation requests interaction and sends a close
   event to all visible top level widgets. If any event was
-  rejected, the shutdown is cancelled.
+  rejected, the shutdown is canceled.
 
   \sa isSessionRestored(), sessionId(), saveState(), \link session.html the Session Management overview\endlink
 */

@@ -219,7 +219,7 @@ static void deleteGlobalPrinterDefaults()
     it should have.
 
     Returns TRUE if the user pressed "OK" to print, or FALSE if the
-    user cancelled the operation.
+    user canceled the operation.
 */
 
 bool QPrinter::printSetup( QWidget * parent )

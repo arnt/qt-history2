@@ -1516,7 +1516,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
     After the user has selected the final string, an IMEndEvent will
     be sent to the widget. The event contains the final string the
-    user selected, and could be empty if they cancelled the
+    user selected, and could be empty if they canceled the
     composition. This string should be accepted as the final text the
     user entered, and the intermediate composition string should be
     cleared. These events are delivered to \l QWidget::imEndEvent().

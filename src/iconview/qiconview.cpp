@@ -1709,7 +1709,7 @@ bool QIconViewItem::acceptDrop( const QMimeSource * ) const
     This function sets up the icon view so that the user can edit the
     item text, and then returns. When the user is done, setText() will
     be called and QIconView::itemRenamed() will be emitted (unless the
-    user cancelled, e.g. by pressing the Escape key).
+    user canceled, e.g. by pressing the Escape key).
 
     \sa setRenameEnabled()
 */

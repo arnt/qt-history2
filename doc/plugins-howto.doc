@@ -18,11 +18,11 @@
 Qt provides a simple plugin interface which makes it easy to create
 custom database drivers, image formats, text codecs, styles and
 widgets as stand-alone components.
-
-\warning Qt 3.0.5 introduces changes into some aspects of plugins, in
+\footnote Qt 3.0.5 introduces changes into some aspects of plugins, in
 particular regarding loading, path handling and library versions. As
 a result of this change, <b>\e{no}</b> plugins compiled with Qt 3.0.4 and
 earlier will work with Qt 3.0.5 and later: they must be recompiled.
+\endfootnote
 
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
@@ -144,6 +144,10 @@ compile it in with the application, or to compile it into a \c DLL (or
 other library. If you want the plugin to be loadable then one approach
 is to create a subdirectory under the application, e.g. \c
 appdir/plugins/designer, and place the plugin in that directory.
+
+For \link designer-manual.book Qt Designer\endlink, you may need to
+call QApplication::addLibraryPath("QTDIR/plugins/designer") to load
+your \link designer-manual.book Qt Designer\endlink plugins.
 
 <sup>*</sup><small> All references to \c{QTDIR} refer to the path
 where Qt was installed. </small>

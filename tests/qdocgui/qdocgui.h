@@ -24,6 +24,7 @@ public slots:
 
 private slots:
     void changeVersion();
+    void timeout();
 
 private:
     void setEditor();

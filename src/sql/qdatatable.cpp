@@ -143,7 +143,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     the edit buffer to the database until the user moves to a
     different record in the grid or presses Enter. Cell editing is
     initiated by pressing F2 (or right clicking and then clicking the
-    appropriate popup menu item) and cancelled by pressing Esc. If
+    appropriate popup menu item) and canceled by pressing Esc. If
     there is a problem updating or adding data, errors are handled
     automatically (see handleError() to change this behavior). Note
     that if autoEdit() is FALSE navigating to another record will
