@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#10 $
+** $Id: //depot/qt/main/src/moc/moc.y#11 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -41,7 +41,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#11 $";
 #endif
 
 
@@ -85,8 +85,8 @@ public:
 ArgList *addArg( Argument * );			// add arg to tmpArgList
 void	 addMember( QString, char );		// add tmpFunc to current class
 
-char    *strnew( char * );			// returns a new string (copy)
-char	*stradd( char *, char * );		// add two strings
+char	*strnew( const char * );		// returns a new string (copy)
+char	*stradd( const char *, const char * );	// add two strings
 
 extern int yydebug;
 int	 lexdebug;
@@ -295,13 +295,13 @@ arg_declaration_list:	  arg_declaration_list
 			| argument_declaration	{ $$ = addArg($1); }
 
 argument_declaration:	  decl_specifiers declarator
-						{ $$ = new Argument($1,$2); }
+					{ CHECK_MEM($$ = new Argument($1,$2));}
 			| decl_specifiers declarator '=' expression
-						{ $$ = new Argument($1,$2); }
+					{ CHECK_MEM($$ = new Argument($1,$2));}
 			| decl_specifiers abstract_decl_opt
-						{ $$ = new Argument($1,$2); }
+					{ CHECK_MEM($$ = new Argument($1,$2));}
 			| decl_specifiers abstract_decl_opt '=' expression
-						{ $$ = new Argument($1,$2); }
+					{ CHECK_MEM($$ = new Argument($1,$2));}
 			;
 
 abstract_decl_opt:	  /* empty */		{ $$ = ""; }
@@ -340,7 +340,8 @@ fct_name_decl:		  fct_name		{ tmpFunc->name = $1;
 			| ptr_operator fct_name_decl
 						{ tmpFunc->name = $2->name;
 						  tmpFunc->ptrType =
-						    stradd($1,$2->ptrType);
+						    stradd($1,
+							(pcchar)$2->ptrType);
 						  $$ = tmpFunc; }
 
 ptr_operator:		  '*' cv_qualifier_list_opt { $$="*"; }
@@ -473,8 +474,16 @@ access_specifier:	  PRIVATE		{ $$=_PRIVATE; }
 
 %%
 
+#if defined(_OS_MSDOS_)
+extern "C" int read( int, void *, uint );
+#if defined(_CC_MSC_)
+extern "C" int fileno( FILE *stream );
+#endif
+int yydebug;
+#include "lexyy.c"
+#else
 #include "lex.yy.c"
-
+#endif
 
 void init();					// initialize
 void generate();				// generate C++ source code
@@ -502,7 +511,7 @@ int main( int argc, char **argv )		// program starts here
     fileName = argv[1];
     yyin = fopen( fileName, "r" );
     if ( !yyin ) {
-	fprintf( stderr, "moc: %s: No such file\n", (char*)fileName );
+	fprintf( stderr, "moc: %s: No such file\n", (pcchar)fileName );
 	return 1;
     }
     init();
@@ -525,8 +534,8 @@ void init()					// initialize
     signals.autoDelete( TRUE );
     slots.autoDelete( TRUE );
 
-    tmpArgList = new ArgList;
-    tmpFunc = new Function;
+    CHECK_MEM( tmpArgList = new ArgList );
+    CHECK_MEM( tmpFunc = new Function );
 }
 
 void yyerror( char *msg )			// print yacc error message
@@ -539,9 +548,10 @@ lineNo );
 }
 
 
-char *stradd( char *s1, char *s2 )		// adds two strings
+char *stradd( const char *s1, const char *s2 )	// adds two strings
 {
     char *n = new char[strlen(s1)+strlen(s2)+1];
+    CHECK_MEM( n );
     strcpy( n, s1 );
     strcat( n, s2 );
     return n;
@@ -569,8 +579,8 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	    a = f->args->next();
 	}
 	fprintf( out, "    typedef %s %s(%s::*m%d_t%d)(%s);\n",
-		 (char*)f->type, (char*)f->ptrType,
-		 (char*)className, num, list->at(),(char*)typstr );
+		 (pcchar)f->type, (pcchar)f->ptrType,
+		 (pcchar)className, num, list->at(),(pcchar)typstr );
 	if ( num == Signal_Num && (f->type != "void" || f->ptrType != "" ) )
 	    warning( "moc: warning: %s (%d) signal %s%s %s(%s)"
 		     " should have void return value",
@@ -585,13 +595,13 @@ void generateFuncs( FuncList *list, char *functype, int num )
     }
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n", num, list->at(),
-		 num, list->at(), (char*)className, (char*)f->name);
+		 num, list->at(), (pcchar)className, (pcchar)f->name);
     if ( list->count() )
 	fprintf( out, "    QMetaData *%s_tbl = new QMetaData[%d];\n",
 		 functype, list->count() );
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].name = \"%s\";\n",
-		 functype, list->at(), (char*)f->type );
+		 functype, list->at(), (pcchar)f->type );
     for ( f=list->first(); f; f=list->next() )
 	fprintf( out, "    %s_tbl[%d].ptr = *((QMember*)&v%d_%d);\n",
 	         functype, list->at(), num, list->at() );
@@ -609,32 +619,32 @@ void generate()					// generate C++ source code
 	return;
     }
     if ( gen_count++ == 0 ) {			// first class to be generated
-	fprintf( out, hdr1, (char*)fileName );
+	fprintf( out, hdr1, (pcchar)fileName );
 	fprintf( out, hdr2 );
 	fprintf( out, hdr3 );
 	fprintf( out, hdr4 );
 	fprintf( out, "#include <qmetaobj.h>\n" );
-	fprintf( out, "#include \"%s\"\n\n\n", (char*)fileName );
+	fprintf( out, "#include \"%s\"\n\n\n", (pcchar)fileName );
     }
     else
         fprintf( out, "\n\n" );
 
     fprintf( out, "class QObject__%s : public QObject \n{\npublic:",
-	     (char*)className );
+	     (pcchar)className );
     fprintf( out, "\n    void setSender( QObject *s ) { sender=s; }\n};\n\n" );
 
-    fprintf( out, "char *%s::className() const\n{\n    ", (char*)className );
-    fprintf( out, "return \"%s\";\n}\n\n", (char*)className );
+    fprintf( out, "char *%s::className() const\n{\n    ", (pcchar)className );
+    fprintf( out, "return \"%s\";\n}\n\n", (pcchar)className );
 
 //
 // Generate initMetaObject member function
 //
-    fprintf( out, "void %s::initMetaObject()\n{\n    ", (char*)className );
+    fprintf( out, "void %s::initMetaObject()\n{\n    ", (pcchar)className );
 //
 // Call to initialize parent meta object
 //
-    fprintf( out, "if ( metaObject(\"%s\") == 0 )\n",(char*)superclassName);
-    fprintf( out, "\t%s::initMetaObject();\n", (char *)superclassName );
+    fprintf( out, "if ( metaObject(\"%s\") == 0 )\n",(pcchar)superclassName );
+    fprintf( out, "\t%s::initMetaObject();\n", (pcchar)superclassName );
 //
 // Build methods array in initMetaObject()
 //
@@ -651,7 +661,7 @@ void generate()					// generate C++ source code
 // Finally create meta object
 //
     fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
-	     (char*)className, (char*)superclassName );
+	     (pcchar)className, (pcchar)superclassName );
     if ( methods.count() )
 	fprintf( out, "\tmethod_tbl, %d,\n", methods.count() );
     else
@@ -682,8 +692,8 @@ void generate()					// generate C++ source code
 	int  count = 0;
 	char buf[12];
 						// method header
-	fprintf( out, "\n// SIGNAL %s\n", (char*)f->name );
-	fprintf( out, "void %s::%s( ", (char*)className, (char*)f->name );
+	fprintf( out, "\n// SIGNAL %s\n", (pcchar)f->name );
+	fprintf( out, "void %s::%s( ", (pcchar)className, (pcchar)f->name );
 	Argument *a = f->args->first();
 	while ( a ) {				// argument list
 	    if ( count++ ) {
@@ -702,25 +712,25 @@ void generate()					// generate C++ source code
 	    a = f->args->next();
 	}
 
-	fprintf( out, "%s )\n{\n", (char*)argstr );
-	fprintf( out, "    typedef void (QObject::*RT)(%s);\n", (char*)typstr);
+	fprintf( out, "%s )\n{\n", (pcchar)argstr );
+	fprintf( out, "    typedef void (QObject::*RT)(%s);\n", (pcchar)typstr);
 	fprintf( out, "    QConnection *c = receiver(\"%s(%s)\");\n", 
-		 (char*)f->name, (char*)typstr );
+		 (pcchar)f->name, (pcchar)typstr );
 	fprintf( out, "    if ( !c )\n\treturn;\n" );
 	fprintf( out, "    RT r = (RT)(*(c->member()));\n" );
 	fprintf( out, "    QObject__%s *object = (QObject__%s*)c->object();\n",
-		 (char*)className, (char*)className );
+		 (pcchar)className, (pcchar)className );
 	fprintf( out, "    object->setSender( this );\n" );
-	fprintf( out, "    (object->*r)(%s);\n}\n", (char*)valstr );
+	fprintf( out, "    (object->*r)(%s);\n}\n", (pcchar)valstr );
 /*
 	fprintf( out, "	   Part_%s *owner = (Part_%s*)getOwner();\n",
-		 (char*)className, (char*)className );
+		 (pcchar)className, (pcchar)className );
 //	fprintf( out, "	   Part *owner = getOwner();\n" );
 	fprintf( out, "	   owner->setSender(this);\n" );
 	fprintf( out, "	   SPListIter it(*list);\n" );
 	fprintf( out, "	   while ( it ) {\n" );
 	fprintf( out, "\tPPS p = (PPS)(*it.get());\n" );
-	fprintf( out, "\t(owner->*p)(%s);\n", (char*)valstr );
+	fprintf( out, "\t(owner->*p)(%s);\n", (pcchar)valstr );
 	fprintf( out, "\t++it;\n    }\n" );
 	fprintf( out, "}\n\n" );
 */
@@ -744,7 +754,7 @@ void addMember( QString type, char m )
     tmpFunc->type = type;
     tmpFunc->args = tmpArgList;
     tmpFunc->lineNo = lineNo;
-    tmpArgList = new ArgList;
+    CHECK_MEM( tmpArgList = new ArgList );
     if ( !skipFunc ) {
 	switch( m ) {
 	    case 'm': methods.append( tmpFunc ); break;
@@ -753,5 +763,5 @@ void addMember( QString type, char m )
 	}
     }
     skipFunc = FALSE;
-    tmpFunc = new Function;
+    CHECK_MEM( tmpFunc = new Function );
 }
