@@ -1550,7 +1550,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 
 /*!
     This event handler is called whenever the QScrollView receives a
-    mousePressEvent(): the press position is translated to be a point
+    mousePressEvent(): the press position in \a e is translated to be a point
     on the contents.
 */
 void QScrollView::contentsMousePressEvent( QMouseEvent* e )
@@ -1560,7 +1560,7 @@ void QScrollView::contentsMousePressEvent( QMouseEvent* e )
 
 /*!
     This event handler is called whenever the QScrollView receives a
-    mouseReleaseEvent(): the release position is translated to be a
+    mouseReleaseEvent(): the release position in \a e is translated to be a
     point on the contents.
 */
 void QScrollView::contentsMouseReleaseEvent( QMouseEvent* e )
@@ -1570,7 +1570,7 @@ void QScrollView::contentsMouseReleaseEvent( QMouseEvent* e )
 
 /*!
     This event handler is called whenever the QScrollView receives a
-    mouseDoubleClickEvent(): the click position is translated to be a
+    mouseDoubleClickEvent(): the click position in \a e is translated to be a
     point on the contents.
 */
 void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* e )
@@ -1580,7 +1580,7 @@ void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 
 /*!
     This event handler is called whenever the QScrollView receives a
-    mouseMoveEvent(): the mouse position is translated to be a point
+    mouseMoveEvent(): the mouse position in \a e is translated to be a point
     on the contents.
 */
 void QScrollView::contentsMouseMoveEvent( QMouseEvent* e )
