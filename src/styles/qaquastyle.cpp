@@ -209,6 +209,8 @@ bool QAquaAnimate::addWidget(QWidget *w)
 	    setFocusWidget(w);
 	w->installEventFilter( this );
     }
+    if(w == d->defaultButton || d->progressBars.contains((QProgressBar*)w)) //already knew of it
+	return FALSE;
 
     if( w->inherits("QPushButton") ){
         QPushButton * btn = (QPushButton *) w;
@@ -337,8 +339,6 @@ bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
 	QMouseEvent *me = (QMouseEvent*)e;
 	d->noPulse = me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton ? 
 				    (QPushButton*)o : NULL;
-    } else if( o && e->type() == QEvent::Paint && o->inherits("QPushButton") ) {
-	addWidget( (QPushButton*)o );
     } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;
@@ -1229,16 +1229,10 @@ void QAquaStyle::drawControl( ControlElement element,
 #ifndef QT_NO_PUSHBUTTON
 	if(!widget)
 	    break;
-	QPushButton *btn = (QPushButton *)widget;
-        if( btn->isDefault() || (btn->autoDefault() && btn->hasFocus()) ){
-	    d->defaultButton = btn;
-            btn->installEventFilter( this );
-            if( btn->isVisible() && d->buttonTimerId == -1 )
-                d->buttonTimerId = ((QAquaStyle*)this)->startTimer( 50 );
-        }
-
 	QPixmap left, mid, right;
-	QColorGroup g = btn->colorGroup();
+	QColorGroup g = widget->colorGroup();
+	QPushButton *btn = (QPushButton *)widget;
+	d->addWidget(btn);
 	int x=r.x(), y=r.y(), w=r.width(), h=r.height();
 
 	// ### What about buttons that are so small that the pixmaps don't fit?

@@ -829,6 +829,7 @@ void QMacStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
+	d->addWidget(btn);
 	if ( btn->isToggleButton() && btn->isOn() )
 	    tds = kThemeStatePressed;
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
