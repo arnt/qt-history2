@@ -244,6 +244,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 settings.writeEntry("/CLSID/" + classId + "/Version/.", classVersion);
                 settings.writeEntry("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
                 settings.writeEntry("/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1");
+
+                delete object;
             }
             
             settings.writeEntry("/Interface/" + ifaceId + "/.", "I" + className);
