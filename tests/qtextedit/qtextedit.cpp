@@ -445,7 +445,7 @@ void QTextEdit::doKeyboardAction( int action )
 	    undoRedoInfo.text += "\n";
 	break;
     case ActionBackspace:
-	if ( cursor->parag()->type() != QTextEditParag::Normal ) {
+	if ( cursor->parag()->type() != QTextEditParag::Normal && cursor->index() == 0 ) {
 	    if ( cursor->parag()->listDepth() > 0 )
 		cursor->parag()->setListDepth( cursor->parag()->listDepth() - 1 );
 	    else
