@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#41 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#41 $");
 
 
 const int Unsorted = 32767;
@@ -673,6 +673,9 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
+    if ( !decorateChildren() )
+	return;
+
     const QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
 
@@ -705,10 +708,35 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
 
 	    } else {
-		// down or right arrow.  fucking ugly, but hey.
+#if 0		
+		// down or right arrow.  yucking ugly, but hey.
 		::qDrawArrow( p, child->isOpen() ? DownArrow : RightArrow,
 			      s, FALSE, bx - 5, linebot - 5, 11, 11,
 			      cg, TRUE );
+#else
+
+		int x = bx - 4;
+		int y = linebot - 4;
+		int d = 9;
+		QPointArray a;
+		if ( child->isOpen() ) {
+		    // DownArrow
+		    a.setPoints( 3, x, y, x+d, y, x+d/2, y+d );
+		} else {
+		    //RightArrow
+		    a.setPoints( 3, x, y, x, y+d, x+d, y+d/2 );
+		}
+		QPen     savePen   = p->pen();
+                QBrush   saveBrush = p->brush();
+
+		p->setPen( cg.text() );
+		p->setBrush( cg.text() );
+
+		p->drawPolygon( a );
+
+		p->setPen( savePen );
+		p->setBrush( saveBrush );
+#endif
 	    }
 	    // dotlinery
 	    dotlines[c++] = QPoint( bx, linetop );
@@ -785,6 +813,17 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     }
 }
 
+/*!
+  If this function returns TRUE, the list view item will draw lines to
+  indicate the tree structure, and a handle to open and close the subtree.
+
+  The default implementation returns TRUE.
+*/
+
+bool QListViewItem::decorateChildren() const
+{
+    return TRUE;
+}
 
 
 QListViewPrivate::Root::Root( QListView * parent )
