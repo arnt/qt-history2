@@ -347,7 +347,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     return an invalid model index that is equivalent to an index constructed
     with the zero argument form of the QModelIndex() constructor.
 
-    To obtain a model index that refers to an item in a model, call 
+    To obtain a model index that refers to an item in a model, call
     \l{QAbstractItemModel::index()}{index()} with the required row and column
     values, and the parent model index. Supply the zero argument form of
     the QModelIndex() constructor as the parent index when referring to
@@ -776,6 +776,18 @@ bool QAbstractItemModel::hasIndex(int row, int column, const QModelIndex &parent
         return false;
     return row < rowCount(parent) && column < columnCount(parent);
 }
+
+
+/*!
+  Returns true if \a parent has any children; otherwise returns false.
+
+  \sa parent() index()
+*/
+bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
+{
+    return (rowCount(parent) > 0) && (columnCount(parent) > 0);
+}
+
 
 /*!
     Returns a map with values for all predefined roles in the model

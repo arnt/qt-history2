@@ -160,7 +160,7 @@ public:
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const = 0;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const = 0;
-    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const = 0;
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
