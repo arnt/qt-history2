@@ -80,7 +80,6 @@ fi
 echo "Removing internal files..." >&2
 cd ${DISTDIR}/qt/src
 for d in `make showdirs`; do cd $d ; rm -fv `make showinternal`; cd .. ; done
-rm -rfv ../extensions/nsplugin
 
 VERSION=`grep "#define.*QT_VERSION_STR" ${DISTDIR}/qt/src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
@@ -99,6 +98,7 @@ else
   mkdir -p ${DISTDIR}/qt/opengl/html
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt
   ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/opengl
+  ${DISTDIR}/qt/util/qdoc/qdoc ${DISTDIR}/qt/extensions/nsplugin
   if [ "${platform}" = "x11" ]; then
     mkdir -p ${DISTDIR}/qt/doc/man/man1  ${DISTDIR}/qt/doc/man/man3
     ${DISTDIR}/qt/util/qdoc/man
