@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#28 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#28 $");
 
 
 /*!
@@ -47,34 +47,37 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#27 $");
   The QDataStream and QTextStream provide binary and text operations
   on QIODevice objects.
 
-  QIODevice provides numerous pure virtual functions, so subclassing
-  it can be a bit of a bother.  Here's a skeleton subclass:
+  QIODevice provides numerous pure virtual functions you need to implement
+  when subclassing it. Here is a skeleton subclass:
 
   \code
-  class YourClass : public QIODevice
-  {
-  public:
-      YourClass();
-      ~YourClass();
-
-      bool open( int mode );
-      void close();
-      void flush();
-
-      uint size() const;
-      int at() const; // not a pure virtual function
-      bool at( int ); // not a pure virtual function
-      bool atEnd() const; // not a pure virtual function
-
-      int readBlock( char *data, uint len );
-      int writeBlock( const char *data, uint len );
-      int readLine( char *data, uint maxlen );
-
-      int getch();
-      int putch( int );
-      int ungetch( int );
-  };
+    class YourDevice : public QIODevice
+    {
+    public:
+	YourDevice();
+       ~YourDevice();
+  
+	bool open( int mode );
+	void close();
+	void flush();
+  
+	uint size() const;
+	int  at() const;	// not a pure virtual function
+	bool at( int );		// not a pure virtual function
+	bool atEnd() const;	// not a pure virtual function
+  
+	int readBlock( char *data, uint len );
+	int writeBlock( const char *data, uint len );
+	int readLine( char *data, uint maxlen );
+  
+	int getch();
+	int putch( int );
+	int ungetch( int );
+    };
   \endcode
+
+  The three non-pure virtual functions can be ignored if your device
+  is sequential (e.g. a tape device).
 
   \sa QDataStream, QTextStream
 */
