@@ -157,6 +157,9 @@ public:
     inline int contentsWidth() const { return hbar->maximum() + viewport->width(); }
     inline int contentsHeight() const { return vbar->maximum() + viewport->height(); }
 
+    bool pageUp(QTextCursor::MoveMode moveMode);
+    bool pageDown(QTextCursor::MoveMode moveMode);
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
@@ -188,6 +191,10 @@ public:
 
 bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 {
+    QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
+				   ? QTextCursor::KeepAnchor
+				   : QTextCursor::MoveAnchor;
+
     QTextCursor::MoveOperation op = QTextCursor::NoMove;
     switch (e->key()) {
 	case Qt::Key_Up:
@@ -216,15 +223,16 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 		 ? QTextCursor::End
 		 : QTextCursor::EndOfLine;
 	    break;
+        case Qt::Key_Next:
+            return pageDown(mode);
+        case Qt::Key_Prior:
+            return pageUp(mode);
     default:
         return false;
     }
 
     const bool hadSelection = cursor.hasSelection();
 
-    QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
-				   ? QTextCursor::KeepAnchor
-				   : QTextCursor::MoveAnchor;
     cursor.movePosition(op, mode);
     q->ensureCursorVisible();
 
@@ -425,6 +433,28 @@ QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) c
 
     QTextDocumentPrivate *pt = doc->docHandle();
     return QTextBlock(pt, pt->blockMap().findNode(docPos));
+}
+
+bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
+{
+    int targetY = vbar->value() - viewport->height();
+    bool moved = false;
+    do {
+        q->ensureCursorVisible();
+        moved = cursor.movePosition(QTextCursor::Up, moveMode);
+    } while (moved && vbar->value() > targetY);
+    return moved;
+}
+
+bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
+{
+    int targetY = vbar->value() + viewport->height();
+    bool moved = false;
+    do {
+        q->ensureCursorVisible();
+        moved = cursor.movePosition(QTextCursor::Down, moveMode);
+    } while (moved && vbar->value() < targetY);
+    return moved;
 }
 
 /*!
@@ -887,15 +917,15 @@ void QTextEdit::setHtml(const QByteArray &text)
 */
 void QTextEdit::keyPressEvent(QKeyEvent *e)
 {
-    bool updateCurrentFormat = true;
-
-    if (d->cursorMoveKeyEvent(e))
-        goto accept;
-
     if (d->readOnly) {
         QViewport::keyPressEvent(e);
         return;
     }
+
+    bool updateCurrentFormat = true;
+
+    if (d->cursorMoveKeyEvent(e))
+        goto accept;
 
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
