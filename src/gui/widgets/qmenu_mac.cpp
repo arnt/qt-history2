@@ -219,15 +219,29 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
         QWidget *widget = 0;
         GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
         if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
-            if(action_e == QAction::Trigger)
-                emit qmenu->activated(action->action);
-            else if(action_e == QAction::Hover)
-                emit qmenu->highlighted(action->action);
+            if(action_e == QAction::Trigger) {
+                emit qmenu->triggered(action->action);
+#ifdef QT_COMPAT
+                emit qmenu->activated(qmenu->findIdForAction(action->action));
+#endif
+            } else if(action_e == QAction::Hover) {
+                emit qmenu->hovered(action->action);
+#ifdef QT_COMPAT
+                emit qmenu->highlighted(qmenu->findIdForAction(action->action));
+#endif
+            }
         } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
-            if(action_e == QAction::Trigger)
-                emit qmenubar->activated(action->action);
-            else if(action_e == QAction::Hover)
-                emit qmenubar->highlighted(action->action);
+            if(action_e == QAction::Trigger) {
+                emit qmenubar->triggered(action->action);
+#ifdef QT_COMPAT
+                emit qmenubar->activated(qmenu->findIdForAction(action->action));
+#endif
+            } else if(action_e == QAction::Hover) {
+                emit qmenubar->hovered(action->action);
+#ifdef QT_COMPAT
+                emit qmenubar->highlighted(qmenu->findIdForAction(action->action));
+#endif
+            }
             break; //nothing more..
         }
 
@@ -400,8 +414,8 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, attr, action->command);
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
-    } else {
-        qt_mac_command_set_enabled(action->menu, action->command, true);
+    } else if(!qt_modal_state()) {
+            qt_mac_command_set_enabled(action->menu, action->command, true);
     }
     SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
     syncAction(action);
@@ -455,7 +469,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //enabled
     data.whichData |= kMenuItemDataEnabled;
-    data.enabled = action->action->isEnabled();
+    data.enabled = !qt_modal_state() && action->action->isEnabled();
 
     //icon
     data.whichData |= kMenuItemDataIconHandle;
