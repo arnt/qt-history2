@@ -6,6 +6,7 @@
 #include <qaction.h>
 
 class PopupMenuEditor;
+class QMenuItem;
 
 class PopupMenuEditorItem : public QObject
 {
@@ -60,6 +61,8 @@ public:
     int count();
 
     bool eventFilter( QObject *, QEvent * event );
+
+    //QMenuItem * toItem();
     
 public slots:
     void selfDestruct();
@@ -159,10 +162,8 @@ protected:
     void focusOutEvent( QFocusEvent * e );
 
     void drawItems( QPainter & p );
-    int drawAction( QPainter & p, QAction * a, int x, int y );
-    int drawActionGroup( QPainter & p, QActionGroup * g, int x, int y );
-    int drawSeparator( QPainter & p, const int y );
-    void drawToggle( QPainter & p, const int y );
+    int drawAction( QPainter & p, QAction * a, int x, int y, int f );
+    int drawActionGroup( QPainter & p, QActionGroup * g, int x, int y, int f );
     void drawWinFocusRect( QPainter & p, const int y );
 
     QSize contentsSize();

@@ -1,7 +1,6 @@
 #ifndef MENUBAREDITOR_H
 #define MENUBAREDITOR_H
 
-/*#include <qwidget.h>*/
 #include <qmenubar.h>
 #include <qptrlist.h>
 
@@ -158,7 +157,7 @@ private:
     MenuBarEditorItem addSeparator;
     MenuBarEditorItem * draggedItem;
     QPoint mousePressPos;
-    uint currentIndex;
+    int currentIndex;
     int itemHeight;
     int separatorWidth;
     int borderSize;

@@ -300,7 +300,7 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 	else
 	    resizeInternals();
 
-	uint n = count() + 1;
+	int n = count() + 1;
 	if ( currentIndex >=  n )
 	    currentIndex = n;
 
@@ -639,7 +639,7 @@ void MenuBarEditor::mousePressEvent( QMouseEvent * e )
     currentIndex = findItem( mousePressPos );
     showItem();
     update();
-    if ( e->button() == Qt::RightButton && (int)currentIndex < count() )
+    if ( e->button() == Qt::RightButton && currentIndex < count() )
 	popupMenu->popup( mapToGlobal( mousePressPos ) );
     e->accept();
 }
@@ -865,7 +865,7 @@ void MenuBarEditor::drawItems( QPainter & p )
     QPoint pos( borderSize, 0 );
     uint c = 0;
 
-    p.setPen( paletteForegroundColor() );
+    p.setPen( colorGroup().buttonText() );
 
     MenuBarEditorItem * i = itemList.first();
     while ( i ) {
@@ -874,7 +874,7 @@ void MenuBarEditor::drawItems( QPainter & p )
 	i = itemList.next();
     }
 
-    p.setPen( "darkgray" ); // FIXME: find some portable way to get this color...
+    p.setPen( colorGroup().dark() );
     drawItem( p, &addItem, c++, pos );
     if ( !hasSeparator )
 	drawItem( p, &addSeparator, c, pos );
@@ -904,7 +904,7 @@ void MenuBarEditor::drawItem( QPainter & p,
 	//style().drawControl( QStyle::CE_MenuBarItem, &p, i, r );
     }
 
-    if ( hasFocus() && idx == (int)currentIndex && !draggedItem )
+    if ( hasFocus() && idx == currentIndex && !draggedItem )
 	p.drawWinFocusRect( pos.x(), pos.y() + 1, w, itemHeight - 2 );
 
     pos.rx() += w;
