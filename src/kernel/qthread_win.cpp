@@ -48,6 +48,54 @@ void QMutex::unlock()
 {
 }
 
+class QThreadEvent {
+
+public:
+
+    QObject * o;
+    QEvent * e;
+
+};
+
+class QThreadPrivate : public QObject {
+
+    Q_OBJECT
+
+public:
+
+    QThreadPrivate();
+
+    QList<QThreadEvent> myevents;
+    QMutex myeventmutex;
+
+public slots:
+
+    void sendEvents();
+    
+private:
+
+};
+
+QThreadPrivate::QThreadPrivate()
+{
+    myevents.setAutoDelete( TRUE );
+    connect( qApp, SIGNAL( guiThreadAwake() ), this, SLOT( sendEvents() ) );
+}
+
+void QThreadPrivate::sendEvents()
+{
+    myeventmutex.lock();
+    QThreadEvent * qte;
+    for( qte = myevents.first(); qte != 0; qte = myevents.next() ) {
+        qApp->postEvent( qte->o, qte->e );
+    }
+    myevents.clear();
+    qApp->sendPostedEvents();
+    myeventmutex.unlock();
+}
+ 
+static QThreadPrivate * qthreadprivate = 0;
+
 int QThread::currentThread()
 {
   return 0;
@@ -55,6 +103,17 @@ int QThread::currentThread()
 
 void QThread::postEvent(QObject *,QEvent *)
 {
+    if( !qthreadprivate ) {
+        qthreadprivate = new QThreadPrivate();
+    }
+    qthreadprivate->myeventmutex.lock();
+    QThreadEvent * qte = new QThreadEvent;
+    qte->o = o;
+    qte->e = e;
+    qthreadprivate->myevents.append( qte );
+    qthreadprivate->myeventmutex.unlock();
+    qApp->wakeUpGuiThread();
+
 }
 
 extern "C" static unsigned long start_thread(QThread * t)
@@ -75,9 +134,9 @@ void QThread::start()
 {
   // Error checking would be good
   //_beginthread(start_thread,0,(void *)this);
-  unsigned long threadid;
+  long threadid;
   if( CreateThread(0,0, (LPTHREAD_START_ROUTINE) start_thread, (void *) this,
-		   0, &threadid) == 0 ) {
+		   0,&threadid) = 0 ) {
     qFatal("Eek! Couldn't make thread!");
   }
 }
