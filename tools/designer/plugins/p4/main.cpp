@@ -309,6 +309,7 @@ private slots:
     void formChanged();
     void p4Info( const QString& filename, P4Info* );
     void statusMessage( const QString& );
+    void reloadFile( const QString & );
 
 private:
     bool aware;
@@ -462,6 +463,7 @@ void P4Interface::p4Sync()
     P4Sync *sync = new P4Sync( fwIface->fileName() );
     connect( sync, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( sync, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    connect( sync, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
     sync->execute();
 }
 
@@ -477,6 +479,7 @@ void P4Interface::p4Edit()
     P4Edit *edit = new P4Edit( fwIface->fileName(), TRUE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    connect( edit, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
     edit->execute();
 }
 
@@ -507,6 +510,7 @@ void P4Interface::p4Revert()
     P4Revert *revert = new P4Revert( fwIface->fileName() );
     connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( revert, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
+    connect( revert, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
     revert->execute();
 }
 
@@ -636,7 +640,7 @@ void P4Interface::formChanged()
     p4Info( filename, p4i );
 }
 
-void P4Interface::p4Info( const QString& filename, P4Info* p4i )
+void P4Interface::p4Info( const QString&, P4Info* p4i )
 {
     if ( !p4i )
 	return;
@@ -712,6 +716,14 @@ void P4Interface::statusMessage( const QString &text )
     QString txt = text.left( text.length() - 2 );
     appInterface->showStatusMessage( txt );
     outputView->append( txt );
+}
+
+void P4Interface::reloadFile( const QString &file )
+{
+    if ( !appInterface || file.isEmpty() )
+	return;
+
+    qDebug( "P4 todo: reload file after sync" );
 }
 
 QUnknownInterface *P4Interface::queryInterface( const QUuid &uuid )

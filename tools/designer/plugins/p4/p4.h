@@ -65,6 +65,7 @@ protected:
 signals:
     void finished( const QString&, P4Info* );
     void showStatusBarMessage( const QString &s );
+    void fileChanged( const QString & );
 
 private slots:
     void newData();
@@ -123,6 +124,7 @@ protected:
 
 private slots:
     void fStatResults( const QString&, P4Info* );
+    void fSyncResults( const QString&, P4Info* );
 
 private:
     bool silent;    

@@ -191,6 +191,7 @@ bool P4Sync::execute()
 void P4Sync::processExited()
 {
     updateStats();
+    emit fileChanged( fileName() );
 }
 
 P4Edit::P4Edit( const QString &filename, bool s )
@@ -226,20 +227,38 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
 	return;
     } 
     if ( p4i->action == P4Info::None ) {
-	if ( !silent ) {
-	    if ( p4i->ignoreEdit )
-		return;
-	    if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file<pre>%1</pre>is under Perforce Source Control "
-								   "and not opened for edit.\n"
-								   "Do you want to open it for edit?" ).
+	if ( !p4i->uptodate ) {
+	    /*
+	    if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The local file<pre>%1</pre>is not in sync with the"
+								   "depot.\nDo you want to sync before editing?" ).
 					   arg( fileName() ),
-					   tr( "&Yes" ), tr( "&No" ) ) == 1 ) {
-		p4i->ignoreEdit = TRUE;
-		return;
-	    }
+					   tr( "&Yes" ), tr( "&No" ) ) != 1 ) {
+	   */
+	    P4Sync* fsync = new P4Sync( fileName() );
+	    connect( fsync, SIGNAL(finished( const QString&, P4Info* )), this, SLOT(fSyncResults(const QString&,P4Info*) ) );
+	    connect( fsync, SIGNAL(fileChanged( const QString& )), this, SIGNAL(fileChanged( const QString& ) ) );
+	    fsync->execute();
+	} else {
+	    fSyncResults( filename, p4i );
 	}
-	run( QString("p4 edit \"%1\"").arg( fileName() ) );
     }
+}
+
+void P4Edit::fSyncResults( const QString &filename, P4Info *p4i )
+{
+    if ( !silent ) {
+	if ( p4i->ignoreEdit )
+	    return;
+	if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file<pre>%1</pre>is under Perforce Source Control "
+							       "and not opened for edit.\n"
+							       "Do you want to open it for edit?" ).
+				       arg( fileName() ),
+				       tr( "&Yes" ), tr( "&No" ) ) == 1 ) {
+	    p4i->ignoreEdit = TRUE;
+	    return;
+	}
+    }
+    run( QString("p4 edit \"%1\"").arg( filename ) );
 }
 
 P4Submit::P4Submit( const QString &filename )
@@ -334,6 +353,7 @@ bool P4Revert::execute()
 void P4Revert::processExited()
 {
     updateStats();
+    emit fileChanged( fileName() );
 }
 
 P4Add::P4Add( const QString &filename )
