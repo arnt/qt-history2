@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#21 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#21 $";
 #endif
 
 
@@ -726,11 +726,8 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    clearTableFlags( Tbl_autoHScrollBar ); // wait until cell width is known
     QTableWidget::resizeEvent( e );
-    updateScrollBars();
     updateCellWidth();
-    setTableFlags( Tbl_autoHScrollBar );  // new cell width set, do auto scrBar
 }
 
 void QListBox::timerEvent( QTimerEvent *e )
