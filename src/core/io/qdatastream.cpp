@@ -1044,6 +1044,7 @@ QDataStream &QDataStream::operator<<(float f)
     if (printable) {                                // printable data
         QString num = QString::number((double)f);
         dev->writeBlock(num.latin1(), num.length());
+	dev->putch('\n');
     } else {
         float g = f;                                // fixes float-on-stack problem
         if (noswap) {                                // no conversion needed
@@ -1075,7 +1076,7 @@ QDataStream &QDataStream::operator<<(double f)
     if (printable) {                                // printable data
         QString num = QString::number((double)f);
         dev->writeBlock(num.latin1(), num.length());
-        dev->writeBlock("\n", 1);
+        dev->putch('\n');
     } else if (noswap) {                        // no conversion needed
         dev->writeBlock((char *)&f, sizeof(double));
     } else {                                        // swap bytes
