@@ -266,17 +266,6 @@
 // of the specified OpenGroup standard.  This is probably more flexible...
 // See standards(5) and <standards.h> for more details.
 #  elif defined(Q_OS_OSF)
-/*
-// ### Need to take a closer look at this issue...
-#    if !defined(_OSF_SOURCE)
-#      define _OSF_SOURCE
-#    endif
-*/
-#    define _XOPEN_SOURCE 500          // import SUSv2/XPG5
-#    define _XOPEN_SOURCE_EXTENDED 1   // fall back on SUS/XPG4v2
-#    if defined(QT_THREAD_SUPPORT)
-#      define _POSIX_C_SOURCE 199506L  // IEEE Std 1003.1c (1995) / POSIX.1c
-#    endif
 // There is no _*_SOURCE on Solaris, there's an __EXTENSIONS__ macro instead.
 // This is very similar to Tru64.  This macro does not import most recent
 // Open Group interfaces.  Instead you must explicitly specify them using the
