@@ -765,10 +765,6 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
     if (d == rhs.d)
         return true;
-    if (!d)
-        return !rhs.d;
-    if (!rhs.d)
-        return false;
 
     return *d == *rhs.d;
 }
