@@ -132,6 +132,7 @@ void QAuServerWindows::playHelper( const QString &filename, int loop, QSound *sn
     DWORD threadid = 0;
     SoundInfo info(filename, loop, snd, this);
     current = CreateThread(0, 0, SoundPlayProc, &info, 0, &threadid);
+    CloseHandle(current);
 
     WaitForSingleObject(event, INFINITE);
 }
