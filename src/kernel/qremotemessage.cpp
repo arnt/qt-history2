@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qremotemessage_p.h"
+
+#if defined(QT_REMOTE_SUPPORT)
+
 #include <qsocket.h>
 #include <qsocketdevice.h>
 
@@ -393,3 +396,5 @@ QString QRemoteMessage::msgType() const
 {
     return msg_type;
 }
+
+#endif //QT_REMOTE_SUPPORT

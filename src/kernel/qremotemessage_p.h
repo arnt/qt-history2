@@ -50,7 +50,12 @@
 //
 //
 
-#include <qpixmap.h>
+#ifndef QT_H
+#include "qpixmap.h"
+#endif // QT_H
+
+#if defined(QT_REMOTE_SUPPORT)
+
 class QString;
 class QSocket;
 
@@ -101,5 +106,7 @@ protected:
     QPixmap	internal_pixmap;
     QByteArray	internal_bytearray;
 };
+
+#endif //QT_REMOTE_SUPPORT
 
 #endif
