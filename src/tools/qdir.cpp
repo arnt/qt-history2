@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#68 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#69 $
 **
 ** Implementation of QDir class
 **
@@ -1150,7 +1150,7 @@ QString QDir::currentDirPath()
 
 QString QDir::homeDirPath()
 {
-    QString d( PATH_MAX );
+    QString d;
     d = getenv("HOME");
     slashify( d );
     if ( d.isNull() )

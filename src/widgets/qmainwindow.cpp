@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#43 $
 **
 ** Implementation of QMainWindow class
 **
@@ -94,7 +94,7 @@
 class QMainWindowPrivate {
 public:
     struct ToolBar {
-	ToolBar() : t(0), l(0), nl(FALSE) {}
+	ToolBar() : t(0), nl(FALSE) {}
 	ToolBar( QToolBar * tb, QString label, bool n=FALSE )
 	    : t(tb), l(label), nl(n) {}
 	QToolBar * t;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#132 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -652,7 +652,7 @@ QString QMultiLineEdit::textLine( int line ) const
 	else
 	    return *s;
     } else
-	return 0;
+	return QString::null;
 }
 
 

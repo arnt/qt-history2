@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#73 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -662,7 +662,8 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
     p = parent;
     g = group;
     initTipManager();
-    tipManager->add( p, entireWidget(), 0, g, 0, this, FALSE );
+    tipManager->add( p, entireWidget(),
+		     QString::null, g, QString::null, this, FALSE );
 }
 
 
@@ -678,7 +679,7 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
 void QToolTip::add( QWidget *widget, const QString &text )
 {
     initTipManager();
-    tipManager->add( widget, entireWidget(), text, 0, 0, 0, FALSE );
+    tipManager->add( widget, entireWidget(), text, 0, QString::null, 0, FALSE );
 }
 
 
@@ -722,7 +723,7 @@ void QToolTip::remove( QWidget * widget )
 void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
 {
     initTipManager();
-    tipManager->add( widget, rect, text, 0, 0, 0, FALSE );
+    tipManager->add( widget, rect, text, 0, QString::null, 0, FALSE );
 }
 
 
@@ -798,7 +799,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
 void QToolTip::tip( const QRect & rect, const QString &text )
 {
     initTipManager();
-    tipManager->add( parentWidget(), rect, text, 0, 0, 0, TRUE );
+    tipManager->add( parentWidget(), rect, text, 0, QString::null, 0, TRUE );
 }
 
 
@@ -933,7 +934,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.67 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.68 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

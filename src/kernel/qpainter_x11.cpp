@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#281 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#282 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2435,7 +2435,7 @@ static QString gen_xbm_key( const QWMatrix &m, const QFont &font,
     QString s = str;
     s.truncate( len );
     QString fd = font.key();
-    QString k( len + 100 + fd.length() );
+    QString k;
     k.sprintf( "$qt$%s,%g,%g,%g,%g,%g,%g,%s", (const char *)s,
 	       m.m11(), m.m12(), m.m21(),m.m22(), m.dx(), m.dy(),
 	       (const char *)fd );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#34 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -514,7 +514,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
 void QWhatsThis::add( QWidget * widget, const QString &text )
 {
     QPixmap tmp;
-    add( widget, tmp, 0, text );
+    add( widget, tmp, QString::null, text );
 }
 
 

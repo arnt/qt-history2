@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#178 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#179 $
 **
 ** Implementation of QListBox widget class
 **
@@ -760,7 +760,7 @@ void QListBox::clear()
 QString QListBox::text( int index ) const
 {
     if ( (uint)index >= count() )
-	return 0;
+	return QString::null;
     return itemList->at(index)->text();
 }
 

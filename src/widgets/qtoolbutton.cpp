@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#45 $
 **
 ** Implementation of QToolButton class
 **
@@ -422,7 +422,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	if ( usesTextLabel() ) {
 	    int fh = fontMetrics().height();
 	    qDrawItem( p, style(), 1 + sx, 1 + sy, width()-2, height() - 2 - fh - 6,
-		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
+		       AlignCenter, colorGroup(), TRUE, &pm, QString::null );
 	    p->setFont( font() );
 	    qDrawItem( p, style(), 1 + sx, height() - 4 - fh + sy, width()-2, fh,
 		       AlignCenter + ShowPrefix,
@@ -430,7 +430,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 		       0, textLabel() );
 	} else {
 	    qDrawItem( p, style(), 1 + sx, 1 + sy, width()-2, height() - 2,
-		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
+		       AlignCenter, colorGroup(), TRUE, &pm, QString::null );
 
 	}
     }

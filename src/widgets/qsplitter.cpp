@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#48 $
 **
 **  Splitter widget
 **
@@ -35,7 +35,7 @@ class QSplitterHandle : public QWidget
 {
 public:
     QSplitterHandle( Qt::Orientation o,
-		       QSplitter *parent, QString name=0 );
+		       QSplitter *parent, QString name=QString::null );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 

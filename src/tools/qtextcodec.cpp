@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#31 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1163,14 +1163,13 @@ QSimpleTextCodec::~QSimpleTextCodec()
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
 QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 {
-    QString r( len );
+    QString r;
     const unsigned char * c = (const unsigned char *)chars;
     for( int i=0; i<len; i++ ) {
 	if ( c[i] > 127 )
-	    r[i] = unicodevalues[i].values[c[i]-128];
-	else {
-	    r[i] = c[i];
-	}
+	    r += unicodevalues[i].values[c[i]-128];
+	else
+	    r += c[i];
     }
     return r;
 }

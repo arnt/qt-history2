@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#188 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#189 $
 **
 ** Implementation of QListView widget class
 **
@@ -3238,7 +3238,7 @@ static const int BoxSize = 16;
  */
 QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 				Type tt )
-    : QListViewItem( parent, text, 0 )
+    : QListViewItem( parent, text, QString::null )
 {
     myType = tt;
     init();
@@ -3258,7 +3258,7 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
  */
 QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				Type tt )
-    : QListViewItem( parent, text, 0 )
+    : QListViewItem( parent, text )
 {
     myType = tt;
     if ( tt == RadioButton )
@@ -3273,7 +3273,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
  */
 QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				const QPixmap & p )
-    : QListViewItem( parent, text, 0 )
+    : QListViewItem( parent, text )
 {
     myType = Controller;
     setPixmap( 0, p );
@@ -3286,7 +3286,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
  */
 QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 				const QPixmap & p )
-    : QListViewItem( parent, text, 0 )
+    : QListViewItem( parent, text )
 {
     myType = Controller;
     setPixmap( 0, p );

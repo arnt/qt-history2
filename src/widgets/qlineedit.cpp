@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#176 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -287,7 +287,7 @@ QString QLineEdit::markedText() const
     if ( markAnchor != markDrag ) {
 	return tbuf.mid( minMark(), maxMark() - minMark() );
     } else {
-	return 0;
+	return QString::null;
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#67 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -612,7 +612,7 @@ void QLCDNumber::drawContents( QPainter *p )
 
 void QLCDNumber::internalDisplay( const QString &s )
 {
-    QString buffer(ndigits+1);
+    QString buffer;
     int i;
     int len = s.length();
     QPainter p( this );

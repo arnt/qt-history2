@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#176 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#177 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -619,7 +619,7 @@ QString QComboBox::currentText() const
 QString QComboBox::text( int index ) const
 {
     if ( !checkIndex( "text", name(), count(), index ) )
-	return 0;
+	return QString::null;
     if ( d->usingListBox )
 	return d->listBox->text( index );
     else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#2 $
 **
 ** Localization database support.
 **
@@ -336,12 +336,12 @@ QString QTranslator::find( uint h, const char*, const char* ) const
     if ( o+5 < fsp && r == h ) {
 	// here it is.  let's return it.
 	int sl = readlength( d->t, o+3 );
-	QString result( sl );
+	QString result;
 	int i;
 	for( i=0; i<sl; i++ ) {
 	    uchar row =  d->t[sp++];
 	    uchar cell =  d->t[sp++];
-	    result[i] = QChar( cell, row );
+	    result += QChar( cell, row );
 	}
 	return result;
     }
@@ -564,7 +564,7 @@ void QTranslator::unsqueeze()
 		while( fp+5 < fsp ) {
 		    uint h = readhash( d->t, fp, i );
 		    int sl = readlength( d->t, fp+3 );
-		    QString result( sl );
+		    QString result;
 		    int k;
 		    for( k=0; k<sl; k++ ) {
 			uchar row = d->t[sp++];

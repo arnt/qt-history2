@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#143 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#144 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1151,7 +1151,7 @@ void QFileDialog::rereadDir()
 				   tr("Please make sure that the directory\n"
 				      "is readable.\n"),
 				   tr("Use Parent Directory"),
-				   tr("Use Old Contents"), 0 ) ) {
+				   tr("Use Old Contents") ) ) {
 	    return;
 	}
 	if ( !filist ) {

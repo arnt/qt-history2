@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#94 $
+** $Id: //depot/qt/main/src/tools/qstring.h#95 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -172,7 +172,6 @@ class Q_EXPORT QString
 public:
     QString();					// make null string
     QString( const QChar& );			// one-char string
-    QString( int size );			// allocate size incl. \0
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
     QString( QChar* unicode, uint length );	// deep copy
@@ -245,7 +244,9 @@ public:
     QString    &insert( uint index, const QString & );
     QString    &insert( uint index, QChar );
     QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
+    QString    &append( char );
     QString    &append( const QString & );
+    QString    &prepend( char );
     QString    &prepend( const QString & );
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const QString & );
@@ -309,6 +310,7 @@ public:
 #endif
 
 private:
+    QString( int size );			// allocate size incl. \0
     void deref();
     void real_detach();
     void setLength( uint pos );
@@ -389,8 +391,14 @@ inline QString QString::copy() const
 inline QString &QString::prepend( const QString & s )
 { return insert(0,s); }
 
+inline QString &QString::prepend( char c )
+{ return insert(0,c); }
+
 inline QString &QString::append( const QString & s )
 { return operator+=(s); }
+
+inline QString &QString::append( char c )
+{ return operator+=(c); }
 
 inline QString &QString::setNum( short n )
 { return setNum((long)n); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#58 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#59 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -237,7 +237,7 @@ static void parseEtcLpPrinters( QListView * printers )
 		}
 		if ( canPrintPostscript )
 		    perhapsAddPrinter( printers, printer->fileName(),
-				       printerHost, 0 );
+				       printerHost, "" );
 	    }
 	    delete[] line;
 	}
@@ -374,7 +374,7 @@ static void parseEtcLpMember( QListView * printers )
 	// decent way to locate aliases and remote printers.
 	if ( printer->isFile() )
 	    perhapsAddPrinter( printers, printer->fileName(),
-			       "unknown", 0 );
+			       "unknown", "" );
     }
 }
 
@@ -399,7 +399,7 @@ static void parseSpoolInterface( QListView * printers )
 	if ( !configFile.open( IO_ReadOnly ) )
 	    continue;
 
-	QString line(1025);
+	QCString line(1025);
 	QString hostName;
 	QString hostPrinter;
 	QString printerType;
@@ -410,7 +410,7 @@ static void parseSpoolInterface( QListView * printers )
 	int length;
 
 	while( !configFile.atEnd() &&
-	    (configFile.readLine( line, 1024 )) > 0 ) {
+	    (configFile.readLine( line.data(), 1024 )) > 0 ) {
 
 	    if(typeKey.match(line, 0, &length) == 0) {
 		printerType = line.mid(length, line.length()-length);
@@ -434,7 +434,7 @@ static void parseSpoolInterface( QListView * printers )
 	if(hostName.isEmpty() || hostPrinter.isEmpty())
 	{
 	    perhapsAddPrinter( printers, printer->fileName(),
-		0, 0);
+		"", "");
 	} else
 	{
 	    QString comment("Remote name: ");

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#59 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -306,7 +306,7 @@ void QSpinBox::setSuffix( const QString &text )
 QString QSpinBox::prefix() const
 {
     if ( pfix.isEmpty() )
-	return 0;
+	return QString::null;
     else
 	return pfix;
 }
@@ -322,7 +322,7 @@ QString QSpinBox::prefix() const
 QString QSpinBox::suffix() const
 {
     if ( sfix.isEmpty() )
-	return 0;
+	return QString::null;
     else
 	return sfix;
 }
