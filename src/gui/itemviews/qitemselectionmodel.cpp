@@ -6,19 +6,11 @@
 
 QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
 {
-    QModelIndex item = model->index(top(), left(), parent());
     QModelIndexList items;
-    int row, column;
-    while (item.isValid()) {
-        items.append(item);
-        row = item.row();
-        column = item.column();
-        if (row >= bottom())
-            break;
-        if (column >= right())
-            item = model->index(row + 1, left(), parent());
-        else
-            item = model->index(row, column + 1, parent());
+    if (isValid()) {
+        for (int column=l; column<=r; ++column)
+            for (int row=t; row<=b; ++row)
+                items.append(model->index(row, column, parent()));
     }
     return items;
 }
@@ -85,19 +77,26 @@ static void split(QItemSelectionRange &range, const QItemSelectionRange &other, 
         result->append(QItemSelectionRange(parent, top, other_right + 1, bottom, right));
 }
 
+/*!
+  \internal
+
+  returns a QItemSelection where all ranges have been expanded to left: 0 and right: columnCount(range.parent())-1
+*/
+
 QItemSelection QItemSelectionModelPrivate::expandRows(const QItemSelection &selection) const
 {
-    if (selection.size() == 0)
-        return QItemSelection();
-    QModelIndex bottomRight = model->bottomRight(selection.first().parent());
+    if (selection.count() == 0)
+        return selection;
+
     QItemSelection rows;
-    QList<QItemSelectionRange>::const_iterator it = selection.begin();
-    for (; it != selection.end(); ++it)
-        rows.append(QItemSelectionRange((*it).parent(), (*it).top(), 0,
-                                               (*it).bottom(), bottomRight.column()));
+    for (int i=0; i<selection.count(); ++i)
+        rows.append(QItemSelectionRange(selection.at(i).parent(),
+                                        selection.at(i).top(),
+                                        0,
+                                        selection.at(i).bottom(),
+                                        model->columnCount(selection.at(i).parent())-1));
     return rows;
 }
-
 
 /*!
   \class QItemSelectionModel
