@@ -36,7 +36,7 @@ class Q_EXPORT QCDEStyle : public QMotifStyle
     Q_OBJECT
 public:
     QCDEStyle( bool useHighlightCols = FALSE );
-
+    virtual ~QCDEStyle() {}
     int defaultFrameWidth() const;
 
     void drawArrow( QPainter *p, ArrowType type, bool down,

@@ -36,6 +36,7 @@ class Q_EXPORT QPlatinumStyle : public QWindowsStyle
     Q_OBJECT
 public:
     QPlatinumStyle();
+    virtual ~QPlatinumStyle() {}
     void drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 			 const QColorGroup &,  int lineWidth = 2,
 			 const QBrush *fill = 0 );
