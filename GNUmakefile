@@ -6,7 +6,8 @@ SHELL=/bin/sh
 
 init: FORCE
 	@$(MAKE) all
-
+uninstall: FORCE
+	@$(MAKE) qt.uninstall
 install: FORCE
 	@$(MAKE) qt.install
 
@@ -23,45 +24,60 @@ all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo
 
 qt.install: qmake-install moc-install src-install tools-install plugins-install
+qt.uninstall: qmake-uninstall moc-uninstall src-uninstall tools-uninstall plugins-uninstall
 
+#moc
+moc-uninstall: .qmake.cache
+	cd src/moc && $(MAKE) uninstall
 moc-install: src-moc
 	cd src/moc && $(MAKE) install
-
-src-install: sub-src
-	cd src && $(MAKE) install
-
-tools-install: sub-tools
-	cd tools && $(MAKE) install
-
-qmake-install: src-qmake
-	cd qmake && $(MAKE) install
-
-plugins-install: sub-plugins
-	cd plugins/src && $(MAKE) install
-
-src-qmake: symlinks FORCE
-	cd qmake && $(MAKE)
-
 src-moc: src-qmake FORCE
 	cd src/moc && $(MAKE)
 
-sub-tools: sub-plugins FORCE
-	cd tools && $(MAKE)
-
-symlinks: .qmake.cache
-#	@cd include && rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
-
+#Qt
+src-uninstall: .qmake.cache
+	cd src && $(MAKE) uninstall
+src-install: sub-src
+	cd src && $(MAKE) install
 sub-src: src-moc .qmake.cache FORCE
 	cd src && $(MAKE)
 
+#Tools
+tools-uninstall: .qmake.cache
+	cd tools && $(MAKE) uninstall
+tools-install: sub-tools
+	cd tools && $(MAKE) install
+sub-tools: sub-plugins FORCE
+	cd tools && $(MAKE)
+
+#qmake
+qmake-uninstall: .qmake.cache
+	cd qmake && $(MAKE) uninstall
+qmake-install: src-qmake
+	cd qmake && $(MAKE) install
+src-qmake: symlinks FORCE
+	cd qmake && $(MAKE)
+
+#plugins
+plugins-uninstall: .qmake.cache
+	cd plugins/src && $(MAKE) uninstall
+plugins-install: sub-plugins
+	cd plugins/src && $(MAKE) install
 sub-plugins: sub-src .qmake.cache FORCE
 	cd plugins/src && $(MAKE)
 
+#tutorials
 sub-tutorial: sub-src FORCE
 	cd tutorial && $(MAKE)
-
+#examples
 sub-examples: sub-tools FORCE
 	cd examples && $(MAKE)
+#docs
+doc: FORCE
+	qdoc util/qdoc/qdoc.conf
+
+symlinks: .qmake.cache
+#	@cd include && rm -f q*.h; ln -s ../src/*/q*.h .; ln -s ../extensions/*/src/q*.h .; rm -f q*_p.h
 
 distclean clean uiclean mocclean:
 	cd tools && $(MAKE) $@
@@ -73,9 +89,6 @@ distclean clean uiclean mocclean:
 	cd qmake && $(MAKE) $@
 	cd config.tests/unix && $(MAKE) $@
 	cd config.tests/x11 && $(MAKE) $@
-
-doc: FORCE
-	qdoc util/qdoc/qdoc.conf
 
 .qmake.cache:
 	@echo

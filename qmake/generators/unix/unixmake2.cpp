@@ -748,7 +748,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	  << "grep \"^qmake_all:\" $(MAKEFILE) 2>/dev/null >/dev/null && "
 	  << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
-	t <<"install uiclean mocclean clean: qmake_all" << " FORCE\n\t"
+	t <<"uninstall install uiclean mocclean clean: qmake_all" << " FORCE\n\t"
 	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
 	    "-f $(MAKEFILE) $@; fi; ) ; done" << endl;
 	t <<"distclean: qmake_all" << " FORCE\n\t"
