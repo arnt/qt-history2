@@ -275,17 +275,26 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
         break;
 
     case QEvent::MouseMove:
+	if ( !widget->isActiveWindow() )
+	    break;
+	if ( ((QMouseEvent*)e)->button() )
+	    break;
+
 	d->hotWidget = widget;
         d->mousePos = ((QMouseEvent*)e)->pos();
 	widget->repaint( FALSE );
         break;
 
     case QEvent::Enter:
+	if ( !widget->isActiveWindow() )
+	    break;
         d->hotWidget = widget;
         widget->repaint( FALSE );
         break;
 
     case QEvent::Leave:
+	if ( !widget->isActiveWindow() )
+	    break;
         if ( widget == d->hotWidget) {
             d->hotWidget = 0;
             widget->repaint( FALSE );
@@ -1051,17 +1060,33 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 						  data);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
+		QRegion region( groove );
+		if ( ( sub & SC_SliderHandle ) && handle.isValid() )
+		    region = region.subtract( handle );
+		if ( d->lastSliderRect.isValid() )
+		    region = region.subtract( d->lastSliderRect );
+		p->setClipRegion( region );
+
 		QRect grooveTop = groove;
 		grooveTop.addCoords( 1, 1, -1, -1 );
-		qDrawShadePanel( p, groove, cg, TRUE, 2, &cg.brush( QColorGroup::Mid ) );
-		drawPrimitive( PE_ButtonCommand, p, grooveTop, cg, flags & ~Style_MouseOver, data );
+		drawPrimitive( PE_ButtonBevel, p, grooveTop, cg, flags & ~Style_MouseOver, data );
 
 		if ( slider->hasFocus() ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
 		    drawPrimitive( PE_FocusRect, p, fr, cg, flags & ~Style_MouseOver );
 		}
+
+		if ( ( sub & SC_SliderHandle ) && handle.isValid() ) {
+		    region = widget->rect();
+		    region = region.subtract( handle );
+		    p->setClipRegion( region );
+		} else {
+		    p->setClipping( FALSE );
+		}
+
 		if ( d->lastSliderRect.isValid() )
 		    qDrawShadePanel( p, d->lastSliderRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
+		p->setClipping( FALSE );
 	    }
 
 	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
@@ -1127,10 +1152,6 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    QScrollBar *scrollbar = (QScrollBar*)widget;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 	    if ( sub & SC_ScrollBarGroove ) {
-		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarGroove, data ), widget );
-		qDrawShadePanel(p, widget->rect(), cg, TRUE,
-  				pixelMetric(PM_DefaultFrameWidth, widget),
-  				&cg.brush(QColorGroup::Mid));
 	    }
 	    if ( maxedOut )
 		flags &= ~Style_Enabled;
@@ -1144,15 +1165,42 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( sub & SC_ScrollBarAddPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, data ), widget );
+		QRegion region( er );
+		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
+		    region = region.subtract( d->lastScrollbarRect );
+		    p->setClipRegion( region );
+		}
+		if ( sub & SC_ScrollBarSlider ) {
+		    QRect srect = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
+		    if ( er.intersects( srect ) ) {
+			region = region.subtract( srect );
+			p->setClipRegion( region );
+		    }
+		}
+		
 		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, data );
+		p->setClipping( FALSE );
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) )
 		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
 	    }
 	    if ( sub & SC_ScrollBarSubPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, data ), widget );
+		QRegion region( er );
+		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) ) {
+		    region = region.subtract( d->lastScrollbarRect );
+		    p->setClipRegion( region );
+		}
+		if ( sub & SC_ScrollBarSlider ) {
+		    QRect srect = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
+		    if ( er.intersects( srect ) ) {
+			region = region.subtract( srect );
+			p->setClipRegion( region );
+		    }
+		}
 		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, data );
+		p->setClipping( FALSE );
 		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) )
-		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
+		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );		
 	    }
 	    if ( sub & SC_ScrollBarSlider ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );

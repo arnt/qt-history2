@@ -46,22 +46,10 @@
 
 #ifndef QT_NO_STYLE_SGI
 
-class QButton;
-class QScrollBar;
-class QMenuItem;
-class QTabBar;
-class QTab;
-
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_SGI
 #else
 #define Q_EXPORT_STYLE_SGI Q_EXPORT
-#endif
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT_STYLE_SGI QGuardedPtr<QWidget>;
-// MOC_SKIP_END
 #endif
 
 class QSGIStylePrivate;
