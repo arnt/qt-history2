@@ -92,7 +92,9 @@ void ActionListView::rmbMenu( QListViewItem *i, const QPoint &p )
     popup->insertItem( tr( "New Action &Group" ), 1 );
     popup->insertItem( tr( "New &Dropdown Action Group" ), 2 );
     popup->insertSeparator();
-    popup->insertItem( tr( "Delete Action" ), 3 );
+    popup->insertItem( tr( "&Connect Action..." ), 3 );
+    popup->insertSeparator();
+    popup->insertItem( tr( "Delete Action" ), 4 );
     int res = popup->exec( p );
     if ( res == 0 )
 	emit insertAction();
@@ -101,5 +103,7 @@ void ActionListView::rmbMenu( QListViewItem *i, const QPoint &p )
     else if ( res == 2 )
 	emit insertDropDownActionGroup();
     else if ( res == 3 )
+	emit connectAction();
+    else if ( res == 4 )
 	emit deleteAction();
 }

@@ -68,6 +68,7 @@ signals:
     void insertActionGroup();
     void insertDropDownActionGroup();
     void deleteAction();
+    void connectAction();
 
 };
 
