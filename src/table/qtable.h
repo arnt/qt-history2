@@ -162,6 +162,7 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool rowMovingEnabled READ rowMovingEnabled WRITE setRowMovingEnabled )
     Q_PROPERTY( bool columnMovingEnabled READ columnMovingEnabled WRITE setColumnMovingEnabled )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
+    Q_PROPERTY( bool sorting READ sorting WRITE setSorting )
 
     friend class QTableHeader;
 

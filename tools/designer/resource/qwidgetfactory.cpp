@@ -166,7 +166,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	else if ( widgetFactory->toplevel->inherits( "QDesignerSqlDialog" ) )
 	    ( (QDesignerSqlDialog*)widgetFactory->toplevel )->
 		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
-	
+
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
 	    QSqlTable *table = (QSqlTable*)widgetFactory->toplevel->child( it.key(), "QSqlTable" );
 	    if ( !table )
@@ -178,19 +178,19 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    else
 		c = new QSqlCursor( (*it)[ 1 ], conn );
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
-	    table->setCursor( c, fieldMap.isEmpty() );
+	    table->setCursor( c, fieldMap.isEmpty(), TRUE );
 	    if ( !fieldMap.isEmpty() ) {
 		    int i = 0;
 		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
+			c->setDisplayLabel( (*fit).field, (*fit).name );
 			table->addColumn( c->field( (*fit).field ) );
-			if ( !(*fit).pix.isNull() )
-			    table->horizontalHeader()->setLabel( i, (*fit).pix, (*fit).name );
-			else
-			    table->horizontalHeader()->setLabel( i, (*fit).name );
+			// ## pixmap support for QSqlTable?
+//			if ( !(*fit).pix.isNull() )
+//			    table->horizontalHeader()->setLabel( i, (*fit).pix, (*fit).name );
+//			else
+//			    table->horizontalHeader()->setLabel( i, (*fit).name );
 		    }
-	    }				
-	    table->setSorting( TRUE );
-	    table->setAutoDelete( TRUE );
+	    }
 	}
     }
 
@@ -477,7 +477,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		    break;
 		}
 	    }
-	
+
 	    layout = 0;
 	}
     }
@@ -521,7 +521,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    if ( parentLayout && parentLayout->inherits( "QGridLayout" ) )
 		( (QGridLayout*)parentLayout )->addMultiCellLayout( layout, row, row + rowspan - 1, col, col + colspan - 1 );
 	    continue;
- 	} else if ( n.tagName() == "property" && obj ) {
+	} else if ( n.tagName() == "property" && obj ) {
 	    setProperty( obj, n.attribute( "name" ), n.firstChild().toElement() );
 	} else if ( n.tagName() == "attribute" && w ) {
 	    QString attrib = n.attribute( "name" );
@@ -552,7 +552,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout*  layout, Layout
 {
     int spacing = BOXLAYOUT_DEFAULT_SPACING;
     int margin = BOXLAYOUT_DEFAULT_MARGIN;
-	
+
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
@@ -731,7 +731,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );
-    }	
+    }
 
     if ( prop == "geometry" ) {
 	if ( obj == toplevel ) {
@@ -899,7 +899,7 @@ struct Connection
     bool operator==( const Connection &c ) const {
 	return sender == c.sender && receiver == c.receiver &&
 	       signal == c.signal && slot == c.slot ;
-    }	
+    }
 };
 
 void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
@@ -943,7 +943,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
-	
+
 	    QObject *sender = 0, *receiver = 0;
 	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
@@ -957,7 +957,7 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		sender = l->first();
 		delete l;
 	    }
-	
+
 	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
 		receiver = toplevel;
 	    } else {
@@ -981,14 +981,14 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    // if this is a connection to a custom slot and we have a connector, try this as receiver
 	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector )
 		slotList = connector->metaObject()->slotNames( TRUE );
-	
+
 	    // avoid warnings
 	    if ( signalList.find( conn.signal ) == -1 ||
 		 slotList.find( conn.slot ) == -1 ) {
 		n = n.nextSibling().toElement();
 		continue;
 	    }
-	
+
 	    QObject::connect( sender, s, receiver, s2 );
 	}
 	n = n.nextSibling().toElement();
@@ -1058,7 +1058,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    table->setNumRows( table->numRows() + 1 );
 	else
 	    table->setNumCols( table->numCols() + 1 );
-	
+
 	QDomElement n = e.firstChild().toElement();
 	QPixmap pix;
 	bool hasPixmap = FALSE;

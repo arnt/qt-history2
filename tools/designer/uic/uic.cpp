@@ -1053,14 +1053,34 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !(conn == QString::null || tab == QString::null) ) {
-			out << indent << indent << "if ( !" << c << "->cursor() ) {" << endl;
+			out << indent << indent << "QSqlCursor* c = " << c << "->cursor();" << endl;
+			out << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
-			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\" );" << endl;
+			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
 			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
-			out << indent << indent << indent << c << "->setCursor( c );" << endl;
-			out << indent << indent << indent << c << "->setAutoDelete( TRUE );" << endl;
+			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
 			out << indent << indent << "}" << endl;
+			// create implementation // ## move this elsewhere?  do we -require- a delayed QSqlTable implementation?
+			QDomElement n2;
+			for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
+			    if ( n2.tagName() == "column" ) {
+				QString fieldName;
+				QString fieldLabel;
+				// ### also need pixmap support in QSqlTable
+				QDomElement n3;
+				for ( n3 = n2.firstChild().toElement(); !n3.isNull(); n3 = n3.nextSibling().toElement() ) {
+				    if ( n3.tagName() == "property"  && n3.attribute( "name" ) == "text" )
+					fieldLabel = n3.firstChild().firstChild().toText().data();
+				    if ( n3.tagName() == "property"  && n3.attribute( "name" ) == "field" )
+					fieldName = n3.firstChild().firstChild().toText().data();
+				}
+				if ( !fieldName.isEmpty() && !fieldLabel.isEmpty() ) {
+				    out << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
+				    out << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
+				}
+			    }
+			}
 		    }
 		}
 	    }
@@ -1136,7 +1156,8 @@ QString Uic::getInclude( const QString& className )
 
 void Uic::createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table )
 {
-    if ( e.tagName() == "widget" ) {
+    if ( e.tagName() == "widget" &&
+	 e.attribute( "class" ) != "QSqlTable" ) {
 	if ( isWidgetInTable( e, connection, table ) )
 	    out << indent << indent << form << "Form->insert( " << getObjectName( e ) << ", buf->field( \"" << getDatabaseInfo( e, "field" ) << "\" ) );" << endl;
     }
@@ -1431,7 +1452,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		QString s = createListViewColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
-	    } else if ( objClass.contains( "Table" ) ) {
+	    } else if ( objClass ==  "QTable" ) {
 		QString s = createTableRowColumnImpl( n, objName );
 		if ( !s.isEmpty() )
 		    out << s;
@@ -1632,8 +1653,6 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 
 QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &parent )
 {
-    // #### Generate QSqlTable Database code
-
     QDomElement n = e.firstChild().toElement();
     QString txt;
     QString pix;

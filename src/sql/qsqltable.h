@@ -56,6 +56,14 @@ class QSqlTablePrivate;
 class Q_EXPORT QSqlTable : public QTable
 {
     Q_OBJECT
+
+    Q_PROPERTY( QString nullText READ nullText WRITE setNullText )
+    Q_PROPERTY( QString trueText READ trueText WRITE setTrueText )
+    Q_PROPERTY( QString falseText READ falseText WRITE setFalseText )
+    Q_PROPERTY( bool confirmEdits READ confirmEdits WRITE setConfirmEdits )
+    Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
+    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
+
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
     QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 );
@@ -111,7 +119,7 @@ public slots:
 			     bool backwards );
     virtual void sortAscending( int col );
     virtual void sortDescending( int col );
-    virtual void refresh();   
+    virtual void refresh();
 
 protected slots:
     virtual void insertCurrent();
