@@ -3,6 +3,7 @@
 
 #include <qscrollview.h>
 #include <qstylesheet.h>
+#include <qpainter.h>
 
 class QPainter;
 class QTextDocument;
