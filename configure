@@ -49,10 +49,13 @@ PLATFORM_QNX=no
 
 if [ -d /System/Library/Frameworks/Carbon.framework ]; then
     # Qt/Mac
-    # ~ the Carbon SDK is present
-    PLATFORM_MAC=yes
-fi
-if [ -d $relpath/mkspecs/qws ]; then
+    # ~ the Carbon SDK exists
+    # ~ this is the commercial edition and Qt/Mac sources exist
+    # ~ this is the internal edition and Qt/Mac sources exist
+    if [ -f $relpath/src/tools/qdir_mac.cpp ]; then
+	PLATFORM_MAC=maybe
+    fi
+elif [ -d $relpath/mkspecs/qws ]; then
     # Qt/Embedded
     # ~ mkspecs/qws is present
     # ~ this is the free or commercial edition
@@ -84,8 +87,9 @@ elif [ -f $relpath/LICENSE.EVAL ]; then
     Licensee="Evaluation"
     Products="qt-eval"
 # Internal Trolltech edition.
-# Qt/X11, Qt/Embedded, Qt/Mac
+# Qt/X11, Qt/Embedded, Qt/Mac, Qt/QNX
 elif [ -f $relpath/LICENSE.TROLL ]; then
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QNX" = "maybe" ] && PLATFORM_QNX=yes
     Edition="troll"
     Licensee="Trolltech"
@@ -93,6 +97,7 @@ elif [ -f $relpath/LICENSE.TROLL ]; then
 # Commercial edition - needs a license.
 # Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/.LICENSE ]; then
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     echo
     Desc=""
@@ -1038,11 +1043,15 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
+	if [ "$PLATFORM_MAC" = "no" ]; then
+	PLATFORM=darwin-g++
+	else
 	PLATFORM=macx-g++
 	# PLATFORM=macx-pbuilder
 	PLATFORM_NOTES="
 	    - Also available for Mac OS X: macx-pbuilder
 	"
+	fi
 	;;
      AIX*)
 	#PLATFORM=aix-g++
@@ -2003,22 +2012,22 @@ minimal|small|medium|large|full)
 esac
 case "$CFG_QCONFIG" in
 full)
-    echo "// Everything" >$outpath/include/qconfig.h.new
+    echo "/* Everything */" >$outpath/include/qconfig.h.new
     ;;
 *)
     QCONFIGFILE=qconfig-$CFG_QCONFIG.h
-    echo "// Copied from $QCONFIGFILE" >$outpath/include/qconfig.h.new
+    echo "/* Copied from $QCONFIGFILE */" >$outpath/include/qconfig.h.new
     cat $relpath/src/tools/$QCONFIGFILE >>$outpath/include/qconfig.h.new
     ;;
 esac
 cat >> $outpath/include/qconfig.h.new <<EOF
 
-// From configure
+/* From configure */
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
 
-// Compile time features
+/* Compile time features */
 EOF
 [ '!' -z "$QT_INSTALL_PLUGINS" ] && echo "$define QT_INSTALL_PLUGINS ${QT_INSTALL_PLUGINS}" >>qconfig.h.new
 [ '!' -z "$QT_INSTALL_DATA" ]    && echo "$define QT_INSTALL_DATA    ${QT_INSTALL_DATA}"    >>qconfig.h.new
