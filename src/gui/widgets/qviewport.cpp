@@ -49,15 +49,15 @@
     again, the viewport shrinks in order to make room for the scroll
     bar.
 
-    With a scroll bar policy of ScrollBarAsNeeded (the default),
-    QViewport shows a scroll bar when it provides a non-zero scrolling
-    range, and hides it otherwise. You control the range of each
-    scroll bar with QAbstractSlider::setRange().
+    With a scroll bar policy of Qt::ScrollBarAsNeeded (the default),
+    QViewport shows scroll bars when those provide a non-zero
+    scrolling range, and hides them otherwise. You control the range
+    of each scroll bar with QAbstractSlider::setRange().
 
     In order to track scroll bar movements, reimplement the virtual
     function scrollContentsBy(). In order to fine-tune scrolling
     behaviour, connect to a scroll bar's
-    QAbstractSlider::actionTriggered() signal and adjust \l the
+    QAbstractSlider::actionTriggered() signal and adjust the \l
     QAbstractSlider::sliderPosition as you wish.
 
     It is possible to reserve a margin area around the viewport, see
@@ -200,14 +200,6 @@ QWidget *QViewport::viewport() const
 {
     return d->viewport;
 }
-
-/*!
-    \enum Qt::ScrollBarPolicy
-
-    \value ScrollBarAsNeeded
-    \value ScrollBarAlwaysOff
-    \value ScrollBarAlwaysOn
-*/
 
 
 /*!
