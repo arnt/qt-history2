@@ -367,9 +367,6 @@ protected:
     void keyPressEvent( QKeyEvent *e );
     void keyReleaseEvent( QKeyEvent *e );
 
-signals:
-    void doubleClicked();
-
 private:
     QDockWindow *dockWindow;
     QPoint offset;
