@@ -334,9 +334,9 @@ QMap<QString, QStringList> DesignerDatabaseImpl::fields() const
     return db->fields();
 }
 
-void DesignerDatabaseImpl::open() const
+void DesignerDatabaseImpl::open( bool suppressDialog ) const
 {
-    db->open();
+    db->open( suppressDialog );
 }
 
 void DesignerDatabaseImpl::close() const
@@ -350,6 +350,11 @@ void DesignerDatabaseImpl::setFields( const QMap<QString, QStringList> & )
 
 void DesignerDatabaseImpl::setTables( const QStringList & )
 {
+}
+
+QSqlDatabase* DesignerDatabaseImpl::connection()
+{
+    return db->connection();
 }
 #endif
 

@@ -89,6 +89,8 @@ private:
 };
 
 #ifndef QT_NO_SQL
+class QSqlDatabase;
+
 class DesignerDatabaseImpl: public DesignerDatabase
 {
 public:
@@ -110,8 +112,9 @@ public:
     void setTables( const QStringList & );
     QMap<QString, QStringList> fields() const;
     void setFields( const QMap<QString, QStringList> & );
-    void open() const;
+    void open( bool suppressDialog = TRUE ) const;
     void close() const;
+    QSqlDatabase* connection();
 private:
     DatabaseConnection *db;
 

@@ -43,6 +43,7 @@ class QWidget;
 class QObject;
 class QAction;
 class QIconSet;
+class QSqlDatabase;
 
 /*!
 
@@ -113,8 +114,10 @@ struct DesignerDatabase
     virtual void setTables( const QStringList & ) = 0;
     virtual QMap<QString, QStringList> fields() const = 0;
     virtual void setFields( const QMap<QString, QStringList> & ) = 0;
-    virtual void open() const = 0;
+    virtual void open( bool suppressDialog = FALSE ) const = 0;
     virtual void close() const = 0;
+    virtual QSqlDatabase* connection() = 0;
+
 };
 
 struct DesignerPixmapCollection
