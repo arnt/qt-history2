@@ -32,7 +32,7 @@ typedef int FT_Int;
 typedef unsigned int FT_UInt;
 typedef long FT_Long;
 typedef unsigned long FT_ULong;
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__SUNPRO_C)
 typedef long long FT_Int64;
 #else
 typedef __int64 FT_Int64;
