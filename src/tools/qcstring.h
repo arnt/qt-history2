@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of the extended char array operations,
 ** and QByteArray and QCString classes
 **
 ** Created : 920609
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -327,6 +327,9 @@ Q_EXPORT inline bool operator<( const char *s1, const QCString &s2 )
 Q_EXPORT inline bool operator<=( const QCString &s1, const QCString &s2 )
 { return qstrcmp( s1.data(), s2.data() ) <= 0; }
 
+Q_EXPORT inline bool operator<=( const QCString &s1, const QCString &s2 )
+{ return qstrcmp( s1.data(),s2.data() ) <= 0; }
+
 Q_EXPORT inline bool operator<=( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) <= 0; }
 
@@ -336,6 +339,9 @@ Q_EXPORT inline bool operator<=( const char *s1, const QCString &s2 )
 Q_EXPORT inline bool operator>( const QCString &s1, const QCString &s2 )
 { return qstrcmp( s1.data(), s2.data() ) > 0; }
 
+Q_EXPORT inline bool operator>( const QCString &s1, const QCString &s2 )
+{ return qstrcmp( s1.data(),s2.data() ) > 0; }
+
 Q_EXPORT inline bool operator>( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) > 0; }
 
@@ -344,6 +350,9 @@ Q_EXPORT inline bool operator>( const char *s1, const QCString &s2 )
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const QCString& s2 )
 { return qstrcmp( s1.data(), s2.data() ) >= 0; }
+
+Q_EXPORT inline bool operator>=( const QCString &s1, const QCString &s2 )
+{ return qstrcmp( s1.data(),s2.data() ) >= 0; }
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
 { return qstrcmp( s1.data(), s2 ) >= 0; }
