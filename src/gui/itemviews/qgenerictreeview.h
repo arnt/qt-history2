@@ -53,6 +53,8 @@ public:
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
+    QModelIndex itemAbove(const QModelIndex &index) const;
+    QModelIndex itemBelow(const QModelIndex &index) const;
 
     void doItemsLayout();
 

@@ -121,4 +121,4 @@ protected:
     void updateGeometries();
 };
 
-#endif /* QGENERICLISTVIEW_H */
+#endif

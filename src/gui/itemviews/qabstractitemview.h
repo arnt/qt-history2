@@ -177,4 +177,4 @@ protected:
     void timerEvent(QTimerEvent *e);
 };
 
-#endif /* QABSTRACTITEMVIEW_H */
+#endif

@@ -580,6 +580,26 @@ QModelIndex QGenericTreeView::itemAt(int, int y) const
 }
 
 /*!
+  Returns the model index of the item above \a index.
+*/
+
+QModelIndex QGenericTreeView::itemAbove(const QModelIndex &index) const
+{
+    int vi = d->viewIndex(index);
+    return d->modelIndex(d->above(vi));
+}
+
+/*!
+  Returns the model index of the item below \a index.
+*/
+
+QModelIndex QGenericTreeView::itemBelow(const QModelIndex &index) const
+{
+    int vi = d->viewIndex(index);
+    return d->modelIndex(d->below(vi));
+}
+
+/*!
   Layout the items in the tree view.
 */
 
@@ -615,10 +635,11 @@ int QGenericTreeView::verticalOffset() const
     return item * iheight;
 }
 
-/*!                                                                                       \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+/*!
+  \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
 
-Move the cursor in the way described by \a cursorAction, using the
-information provided by the button \a state.
+  Move the cursor in the way described by \a cursorAction, using the
+  information provided by the button \a state.
 
 \sa QAbstractItemView::CursorAction                                                                                                                                                        */
 
