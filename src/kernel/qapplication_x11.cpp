@@ -2778,17 +2778,6 @@ int QApplication::exec()
 
     enter_loop();
 
-    if ( !loop_level ) {
-	QWidgetList *list = qApp->topLevelWidgets();
-	QWidgetListIt it(*list);
-	QWidget * w;
-	while( (w=it.current()) != 0 ) {
-	    ++it;
-	    if ( w->testWFlags( WDestructiveClose ) )
-		delete w;
-	}
-    }
-
     return quit_code;
 }
 

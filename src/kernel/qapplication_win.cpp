@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#432 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#433 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1271,17 +1271,6 @@ int QApplication::exec()
     qApp->unlock();
 #endif
     enter_loop();
-
-    if ( !loop_level ) {
-	QWidgetList *list = qApp->topLevelWidgets();
-	QWidgetListIt it(*list);
-	QWidget * w;
-	while( (w=it.current()) != 0 ) {
-	    ++it;
-	    if ( w->testWFlags( WDestructiveClose ) )
-		delete w;
-	}
-    }
 
     return quit_code;
 }
