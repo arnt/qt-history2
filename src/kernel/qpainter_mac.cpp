@@ -1610,7 +1610,7 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
         if ( txop != TxNone )
             pa = xForm( pa );
     }
-    //Finish doing this implementation!! //FIXME
+    drawPolyline(pa.cubicBezier());
 }
 #else //!QMAC_NO_QUARTZ
 //FIXME
