@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#117 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#117 $");
 
 
 /*****************************************************************************
@@ -1891,10 +1891,7 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    // KEYUP
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
 	    if ( !rec ) {
-#if defined(DEBUG)
-		// ### 1.3 remove this message
-		warning( "Qt: Got KEYUP without KEYDOWN" );
-#endif
+		// Someone ate the key down event
 	    } else {
 		if ( !code )
 		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
