@@ -45,15 +45,15 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     connect( markerWidget, SIGNAL( editBreakPoints() ),
 	     this, SIGNAL( editBreakPoints() ) );
     markerWidget->setFixedWidth( 35 );
-    dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
-    layout->addWidget( dockArea );
-    dockArea->setMinimumWidth( 5 );
+    //dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
+    //layout->addWidget( dockArea );
+    //dockArea->setMinimumWidth( 5 );
     layout->addWidget( markerWidget );
 
-    QObjectList *l = topLevelWidget()->queryList( "QToolBar" );
-    for ( QObject *o = l->first(); o; o = l->next() )
-	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), FALSE );
-    delete l;
+//     QObjectList *l = topLevelWidget()->queryList( "QToolBar" );
+//     for ( QObject *o = l->first(); o; o = l->next() )
+// 	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), FALSE );
+//     delete l;
 }
 
 void ViewManager::addView( QWidget *view )
