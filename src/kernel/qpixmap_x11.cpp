@@ -274,7 +274,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->count  = 1;
@@ -553,7 +553,7 @@ QImage QPixmap::convertToImage() const
     if ( !xi )					// fetch data from X server
 	xi = XGetImage( x11Display(), hd, 0, 0, w, h, AllPlanes,
 			mono ? XYPixmap : ZPixmap );
-    CHECK_PTR( xi );
+    Q_CHECK_PTR( xi );
 
     QImage::Endian bitOrder = QImage::IgnoreEndian;
     if ( mono ) {
@@ -1019,7 +1019,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 
 	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
-	CHECK_PTR( xi );
+	Q_CHECK_PTR( xi );
 	newbits = (uchar *)malloc( xi->bytes_per_line*h );
 	uchar *src;
 	uchar *dst;
@@ -1248,7 +1248,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	PIX *px		   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
-	CHECK_PTR( pixarr );
+	Q_CHECK_PTR( pixarr );
 	j = 0;
 	QRgb* ctable = image.colorTable();
 	for ( i=0; i<256; i++ ) {		// init pixel array
@@ -1336,7 +1336,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    ushort *p2;
 	    int	    p2inc = xi->bytes_per_line/sizeof(ushort);
 	    ushort *newerbits = (ushort *)malloc( xi->bytes_per_line * h );
-	    CHECK_PTR( newerbits );
+	    Q_CHECK_PTR( newerbits );
 	    p = newbits;
 	    for ( int y=0; y<h; y++ ) {		// OOPS: Do right byte order!!
 		p2 = newerbits + p2inc*y;
@@ -1611,7 +1611,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     } else {
 #endif
 	dptr = (uchar *)malloc( dbytes );	// create buffer for bits
-	CHECK_PTR( dptr );
+	Q_CHECK_PTR( dptr );
 	if ( depth1 )				// fill with zeros
 	    memset( dptr, 0, dbytes );
 	else if ( bpp == 8 )			// fill with background color

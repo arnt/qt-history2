@@ -89,7 +89,7 @@
 QGArray::QGArray()
 {
     shd = newData();
-    CHECK_PTR( shd );
+    Q_CHECK_PTR( shd );
 }
 
 /*!
@@ -118,11 +118,11 @@ QGArray::QGArray( int size )
 	size = 0;
     }
     shd = newData();
-    CHECK_PTR( shd );
+    Q_CHECK_PTR( shd );
     if ( size == 0 )				// zero length
 	return;
     shd->data = NEW(char,size);
-    CHECK_PTR( shd->data );
+    Q_CHECK_PTR( shd->data );
     shd->len = size;
 }
 
@@ -226,7 +226,7 @@ bool QGArray::resize( uint newsize )
     } else {
 	shd->data = NEW(char,newsize);
     }
-    CHECK_PTR( shd->data );
+    Q_CHECK_PTR( shd->data );
     if ( !shd->data )				// no memory
 	return FALSE;
     shd->len = newsize;
@@ -307,7 +307,7 @@ QGArray &QGArray::assign( const char *d, uint len )
     if ( shd->count > 1 ) {			// disconnect this
 	shd->count--;
 	shd = newData();
-	CHECK_PTR( shd );
+	Q_CHECK_PTR( shd );
     } else {
 	if ( shd->data )
 	    DELETE(shd->data);
@@ -330,10 +330,10 @@ QGArray &QGArray::duplicate( const QGArray &a )
 	if ( shd->count > 1 ) {
 	    shd->count--;
 	    register array_data *n = newData();
-	    CHECK_PTR( n );
+	    Q_CHECK_PTR( n );
 	    if ( (n->len=shd->len) ) {
 		n->data = NEW(char,n->len);
-		CHECK_PTR( n->data );
+		Q_CHECK_PTR( n->data );
 		if ( n->data )
 		    memcpy( n->data, shd->data, n->len );
 	    } else {
@@ -347,13 +347,13 @@ QGArray &QGArray::duplicate( const QGArray &a )
     if ( shd->count > 1 ) {			// disconnect this
 	shd->count--;
 	shd = newData();
-	CHECK_PTR( shd );
+	Q_CHECK_PTR( shd );
     } else {					// delete after copy was made
 	oldptr = shd->data;
     }
     if ( a.shd->len ) {				// duplicate data
 	shd->data = NEW(char,a.shd->len);
-	CHECK_PTR( shd->data );
+	Q_CHECK_PTR( shd->data );
 	if ( shd->data )
 	    memcpy( shd->data, a.shd->data, a.shd->len );
     } else {
@@ -384,13 +384,13 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	    return *this;
 	}
 	data = NEW(char,len);
-	CHECK_PTR( data );
+	Q_CHECK_PTR( data );
 	memcpy( data, d, len );
     }
     if ( shd->count > 1 ) {			// detach
 	shd->count--;
 	shd = newData();
-	CHECK_PTR( shd );
+	Q_CHECK_PTR( shd );
     } else {					// just a single reference
 	if ( shd->data )
 	    DELETE(shd->data);

@@ -649,7 +649,7 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
 	return *this;
     } else {
 	s = new char[len];			// create char array
-	CHECK_PTR( s );
+	Q_CHECK_PTR( s );
 	if ( !s )				// no memory
 	    return *this;
 	return readRawBytes( s, (uint)len );

@@ -138,7 +138,7 @@ Q_UNUSED( destIsPixmap )
     if ( newPixmap ) {
 	bs = new QPixmap( src_width, src_height, src_depth,
 			  QPixmap::NormalOptim );
-	CHECK_PTR( bs );
+	Q_CHECK_PTR( bs );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
 		hdc_src, 0, src_offset, SRCCOPY );
 	QBitmap masknot( src_width, src_height, FALSE, QPixmap::NormalOptim );
@@ -205,7 +205,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	} else if ( ts == QInternal::Widget ) {	// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
-	    CHECK_PTR( pm );
+	    Q_CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
 	} else {
 #if defined(QT_CHECK_RANGE)

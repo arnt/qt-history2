@@ -236,7 +236,7 @@ QFont::QFont( QFontPrivate *data, bool deep )
 {
     if ( deep ) {
 	d = new QFontPrivate( *data );
-	CHECK_PTR( d );
+	Q_CHECK_PTR( d );
 	// qDebug("QFont::QFont(QFontPrivate *): new *d %p", d);
 
 	// now a single reference
@@ -287,7 +287,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
     if (pointSize <= 0) pointSize = 1;
 
     d = new QFontPrivate;
-    CHECK_PTR( d );
+    Q_CHECK_PTR( d );
 
     d->request.family = family;
     d->request.pointSize = pointSize * 10;
@@ -1144,7 +1144,7 @@ static void initFontSubst()                     // create substitution dict
     if ( fontSubst )
         return;
     fontSubst = new QFontSubst();
-    CHECK_PTR( fontSubst );
+    Q_CHECK_PTR( fontSubst );
     for ( int i=0; initTbl[i] != 0; i += 2 )
         fontSubst->insert(
             QString::fromLatin1(initTbl[i]),
@@ -1511,7 +1511,7 @@ QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
 static void insertFontMetrics( QFontMetrics *fm ) {
     if ( !fm_list ) {
         fm_list = new QFontMetricsList;
-        CHECK_PTR( fm_list );
+        Q_CHECK_PTR( fm_list );
 	qfont_cleanup_fontmetricslist.add( fm_list );
     }
     fm_list->append( fm );
@@ -1862,7 +1862,7 @@ static void insertFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
         fi_list = new QFontInfoList;
-        CHECK_PTR( fi_list );
+        Q_CHECK_PTR( fi_list );
 	qfont_cleanup_fontinfolist.add( fi_list );
     }
     fi_list->append( fi );

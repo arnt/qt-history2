@@ -2910,7 +2910,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
-    CHECK_PTR( dlg );
+    Q_CHECK_PTR( dlg );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -3021,7 +3021,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
-    CHECK_PTR( dlg );
+    Q_CHECK_PTR( dlg );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
@@ -4736,7 +4736,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
 
-    CHECK_PTR( dlg );
+    Q_CHECK_PTR( dlg );
     dlg->setFilters( filters );
     if ( !caption.isNull() )
 	dlg->setCaption( caption );

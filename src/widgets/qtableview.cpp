@@ -1094,7 +1094,7 @@ void QTableView::coverCornerSquare( bool enable )
     coveringCornerSquare = enable;
     if ( !cornerSquare && enable ) {
 	cornerSquare = new QCornerSquare( this );
-	CHECK_PTR( cornerSquare );
+	Q_CHECK_PTR( cornerSquare );
 	cornerSquare->setGeometry( maxViewX() + frameWidth() + 1,
 				   maxViewY() + frameWidth() + 1,
                                    VSBEXT,
@@ -1464,7 +1464,7 @@ QScrollBar *QTableView::verticalScrollBar() const
 	sb->setCursor( arrowCursor );
 #endif
         sb->resize( sb->sizeHint() ); // height is irrelevant
-	CHECK_PTR(sb);
+	Q_CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	sb->setFocusPolicy( NoFocus );
 	connect( sb, SIGNAL(valueChanged(int)),
@@ -1496,7 +1496,7 @@ QScrollBar *QTableView::horizontalScrollBar() const
 #endif
 	sb->resize( sb->sizeHint() ); // width is irrelevant
 	sb->setFocusPolicy( NoFocus );
-	CHECK_PTR(sb);
+	Q_CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	connect( sb, SIGNAL(valueChanged(int)),
 		 SLOT(horSbValue(int)));

@@ -197,11 +197,11 @@ void QColor::initialize()
 	// we allocated.
 	g_cells = QMIN(ncols,256);
 	g_carr  = new XColor[g_cells];
-	CHECK_PTR( g_carr );
+	Q_CHECK_PTR( g_carr );
 	memset( g_carr, 0, g_cells*sizeof(XColor) );
 	g_carr_fetch = TRUE;		// run XQueryColors on demand
 	g_our_alloc = new bool[g_cells];	
-	CHECK_PTR( g_our_alloc );
+	Q_CHECK_PTR( g_our_alloc );
 	memset( g_our_alloc, FALSE, g_cells*sizeof(bool) );
 	XColor *xc = &g_carr[0];
 	for ( int i=0; i<g_cells; i++ ) {
@@ -223,7 +223,7 @@ void QColor::initialize()
 	dictsize = col_std_dict;
     }
     colorDict = new QColorDict(dictsize);	// create dictionary
-    CHECK_PTR( colorDict );
+    Q_CHECK_PTR( colorDict );
 
   // Initialize global color objects
 
@@ -471,7 +471,7 @@ uint QColor::alloc()
     }
     if ( !many || current_alloc_context != 0 ) {
 	c = new QColorData;			// insert into color dict
-	CHECK_PTR( c );
+	Q_CHECK_PTR( c );
 	c->pix	   = pix;
 	c->context = current_alloc_context;
 	colorDict->insert( (long)rgbVal, c );	// store color in dict

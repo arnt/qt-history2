@@ -234,7 +234,7 @@ static QClipboardData *clipboardData()
 {
     if ( internalCbData == 0 ) {
 	internalCbData = new QClipboardData;
-	CHECK_PTR( internalCbData );
+	Q_CHECK_PTR( internalCbData );
 	qAddPostRoutine( cleanupClipboardData );
     }
     return internalCbData;

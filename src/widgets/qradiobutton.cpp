@@ -228,7 +228,7 @@ void QRadioButton::drawButton( QPainter *paint )
     int wx, wy;
     if ( use_pm ) {
 	pm = new QPixmap( sz );			// create new pixmap
-	CHECK_PTR( pm );
+	Q_CHECK_PTR( pm );
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
 	wx=x;  wy=y;				// save x,y coords

@@ -316,7 +316,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 	if ( replacement == 0 )
 	    return;
 	pdev_dict = new QPaintDeviceDict;
-	CHECK_PTR( pdev_dict );
+	Q_CHECK_PTR( pdev_dict );
     }
 #if defined(QT_CHECK_NULL)
     if ( pdev == 0 )

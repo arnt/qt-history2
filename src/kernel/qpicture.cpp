@@ -432,7 +432,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    painter->setTabArray( 0 );
 		} else {
 		    int *ta = new int[i_16];
-		    CHECK_PTR( ta );
+		    Q_CHECK_PTR( ta );
 		    for ( int i=0; i<i_16; i++ ) {
 			s >> i1_16;
 			ta[i] = i1_16;

@@ -234,7 +234,7 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
-	CHECK_PTR( pm_cache );
+	Q_CHECK_PTR( pm_cache );
 	qpm_cleanup_cache.add( pm_cache );
     }
     return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
@@ -259,7 +259,7 @@ bool QPixmapCache::insert( const QString &key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
-	CHECK_PTR( pm_cache );
+	Q_CHECK_PTR( pm_cache );
 	qpm_cleanup_cache.add( pm_cache );
     }
     QPixmap *p = new QPixmap(pm);

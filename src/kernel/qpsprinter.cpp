@@ -2697,7 +2697,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		tmpC.truncate( tmpC.length()-1 );
 	    char *tmp = new char[tmpC.length()*2 + 2];
 #if defined(QT_CHECK_NULL)
-	    CHECK_PTR( tmp );
+	    Q_CHECK_PTR( tmp );
 #endif
 	    const char* from = (const char*)tmpC;
 

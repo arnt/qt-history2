@@ -654,7 +654,7 @@ int QMenuBar::calculateRects( int max_width )
 	}
 	int i = mitems->count();		// workaround for gcc 2.95.2
 	irects = new QRect[ i ];		// create rectangle array
-	CHECK_PTR( irects );
+	Q_CHECK_PTR( irects );
 	max_width = width();
     }
     QFontMetrics fm = fontMetrics();
@@ -1167,7 +1167,7 @@ void QMenuBar::setupAccelerators()
 	    if ( i ) {
 		if ( !autoaccel ) {
 		    autoaccel = new QAccel( this );
-		    CHECK_PTR( autoaccel );
+		    Q_CHECK_PTR( autoaccel );
 		    autoaccel->setIgnoreWhatsThis( TRUE );
 		    connect( autoaccel, SIGNAL(activated(int)),
 			     SLOT(accelActivated(int)) );

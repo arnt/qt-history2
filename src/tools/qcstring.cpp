@@ -93,7 +93,7 @@ char *qstrdup( const char *str )
     if ( !str )
 	return 0;
     char *dst = new char[strlen(str)+1];
-    CHECK_PTR( dst );
+    Q_CHECK_PTR( dst );
     return strcpy( dst, str );
 }
 

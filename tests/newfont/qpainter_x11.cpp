@@ -516,7 +516,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 	if ( replacement == 0 )
 	    return;
 	pdev_dict = new QPaintDeviceDict;
-	CHECK_PTR( pdev_dict );
+	Q_CHECK_PTR( pdev_dict );
     }
 #if defined(QT_CHECK_NULL)
     if ( pdev == 0 )
@@ -878,7 +878,7 @@ static uchar *pat_tbl[] = {
 	    bool del = FALSE;
 	    if ( !pm ) {			// not already in pm dict
 		pm = new QBitmap( d, d, pat, TRUE );
-		CHECK_PTR( pm );
+		Q_CHECK_PTR( pm );
 		del = !QPixmapCache::insert( key, pm );
 	    }
 	    if ( cbrush.data->pixmap )

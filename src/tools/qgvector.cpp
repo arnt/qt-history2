@@ -169,7 +169,7 @@ QGVector::QGVector( uint size )			// create vectors with nullptrs
 	return;
     }
     vec = NEW(Item,len);
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     memset( (void*)vec, 0, len*sizeof(Item) );	// fill with nulls
 }
 
@@ -183,10 +183,10 @@ QGVector::QGVector( const QGVector &a )		// make copy of other vector
     len = a.len;
     numItems = a.numItems;
     vec = NEW(Item,len);
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {
 	vec[i] = a.vec[i] ? newItem( a.vec[i] ) : 0;
-	CHECK_PTR( vec[i] );
+	Q_CHECK_PTR( vec[i] );
     }
 }
 
@@ -210,10 +210,10 @@ QGVector& QGVector::operator=( const QGVector &v )
     len = v.len;
     numItems = v.numItems;
     vec = NEW(Item,len);				// create new vector
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     for ( uint i=0; i<len; i++ ) {		// copy elements
 	vec[i] = v.vec[i] ? newItem( v.vec[i] ) : 0;
-	CHECK_PTR( vec[i] );
+	Q_CHECK_PTR( vec[i] );
     }
     return *this;
 }
@@ -257,7 +257,7 @@ bool QGVector::insert( uint index, Item d )	// insert item at index
     }
     if ( d ) {
 	vec[index] = newItem( d );
-	CHECK_PTR( vec[index] );
+	Q_CHECK_PTR( vec[index] );
 	numItems++;
 	return vec[index] != 0;
     } else {
@@ -360,7 +360,7 @@ bool QGVector::resize( uint newsize )		// resize array
 	vec = NEW(Item,newsize);
 	len = numItems = 0;
     }
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     if ( !vec )					// no memory
 	return FALSE;
     if ( newsize > len )			// init extra space added
@@ -612,7 +612,7 @@ QDataStream &QGVector::read( QDataStream &s )	// read vector from stream
     for (uint i=0; i<num; i++) {		// read all items
 	Item d;
 	read( s, d );
-	CHECK_PTR( d );
+	Q_CHECK_PTR( d );
 	if ( !d )				// no memory
 	    break;
 	vec[i] = d;

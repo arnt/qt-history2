@@ -362,7 +362,7 @@ bool QStringBuffer::at( int pos )
 int  QStringBuffer::readBlock( char *p, uint len )
 {
 #if defined(QT_CHECK_STATE)
-    CHECK_PTR( p );
+    Q_CHECK_PTR( p );
     if ( !isOpen() ) {                          // buffer not open
 	qWarning( "QStringBuffer::readBlock: Buffer not open" );
 	return -1;
@@ -1976,7 +1976,7 @@ QTextStream &QTextStream::operator<<( const char* s )
 	    char *ppad;
 	    if ( padlen > 46 ) {		// create extra big fill buffer
 		ppad = new char[padlen];
-		CHECK_PTR( ppad );
+		Q_CHECK_PTR( ppad );
 	    } else {
 		ppad = padbuf;
 	    }

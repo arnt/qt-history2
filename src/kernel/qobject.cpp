@@ -968,7 +968,7 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 				 bool recursiveSearch ) const
 {
     QObjectList *list = new QObjectList;
-    CHECK_PTR( list );
+    Q_CHECK_PTR( list );
     bool onlyWidgets = (inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx(QString::fromLatin1(objName));
@@ -1043,7 +1043,7 @@ void QObject::insertChild( QObject *obj )
 
     if ( !childObjects ) {
 	childObjects = new QObjectList;
-	CHECK_PTR( childObjects );
+	Q_CHECK_PTR( childObjects );
     }
 #if defined(QT_CHECK_STATE)
     else if ( childObjects->findRef(obj) >= 0 ) {
@@ -1153,7 +1153,7 @@ void QObject::installEventFilter( const QObject *obj )
 		    this, SLOT(cleanupEventFilter()) );
     } else {
 	eventFilters = new QObjectList;
-	CHECK_PTR( eventFilters );
+	Q_CHECK_PTR( eventFilters );
     }
     eventFilters->insert( 0, obj );
     connect( obj, SIGNAL(destroyed()), this, SLOT(cleanupEventFilter()) );
@@ -1527,23 +1527,23 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 #endif
     if ( !s->connections ) {			// create connections dict
 	s->connections = new QSignalVec( 7 );
-	CHECK_PTR( s->connections );
+	Q_CHECK_PTR( s->connections );
 	s->connections->setAutoDelete( TRUE );
     }
 
     QConnectionList *clist = s->connections->at( signal_index );
     if ( !clist ) {				// create receiver list
 	clist = new QConnectionList;
-	CHECK_PTR( clist );
+	Q_CHECK_PTR( clist );
 	clist->setAutoDelete( TRUE );
 	s->connections->insert( signal_index, clist );
     }
     QConnection *c = new QConnection(r, rm->ptr, rm->name);
-    CHECK_PTR( c );
+    Q_CHECK_PTR( c );
     clist->append( c );
     if ( !r->senderObjects ) {			// create list of senders
 	r->senderObjects = new QObjectList;
-	CHECK_PTR( r->senderObjects );
+	Q_CHECK_PTR( r->senderObjects );
     }
     r->senderObjects->append( s );		// add sender to list
     s->connectNotify( signal_name );

@@ -199,7 +199,7 @@ QGDict::QGDict( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
 {
     vec = new QBaseBucket *[vlen = len];		// allocate hash table
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
     numItems  = 0;
     iterators = 0;
@@ -380,7 +380,7 @@ QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d,
     }
     // op_insert or op_replace
     n = new QStringBucket(key,newItem(d),vec[index]);
-    CHECK_PTR( n );
+    Q_CHECK_PTR( n );
 #if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QDict: Cannot insert null item" );
@@ -419,7 +419,7 @@ QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int 
     }
     // op_insert or op_replace
     n = new QAsciiBucket(copyk ? qstrdup(key) : key,newItem(d),vec[index]);
-    CHECK_PTR( n );
+    Q_CHECK_PTR( n );
 #if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QAsciiDict: Cannot insert null item" );
@@ -450,7 +450,7 @@ QCollection::Item QGDict::look_int( long key, QCollection::Item d, int op )
     }
     // op_insert or op_replace
     n = new QIntBucket(key,newItem(d),vec[index]);
-    CHECK_PTR( n );
+    Q_CHECK_PTR( n );
 #if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QIntDict: Cannot insert null item" );
@@ -481,7 +481,7 @@ QCollection::Item QGDict::look_ptr( void *key, QCollection::Item d, int op )
     }
     // op_insert or op_replace
     n = new QPtrBucket(key,newItem(d),vec[index]);
-    CHECK_PTR( n );
+    Q_CHECK_PTR( n );
 #if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QPtrDict: Cannot insert null item" );
@@ -506,7 +506,7 @@ void QGDict::resize( uint newsize )
     bool old_copyk = copyk;
 
     vec = new QBaseBucket *[vlen = newsize];
-    CHECK_PTR( vec );
+    Q_CHECK_PTR( vec );
     memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
     numItems = 0;
     copyk = FALSE;
@@ -1078,7 +1078,7 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     toFirst();					// set to first noe
     if ( !dict->iterators ) {
 	dict->iterators = new QGDItList;	// create iterator list
-	CHECK_PTR( dict->iterators );
+	Q_CHECK_PTR( dict->iterators );
     }
     dict->iterators->append( this );		// attach iterator to dict
 }

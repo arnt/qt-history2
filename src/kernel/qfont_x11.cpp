@@ -380,11 +380,11 @@ void QFont::initialize()
     if ( fontCache )
 	return;
     fontCache = new QFontCache( fontCacheSize, 29 );
-    CHECK_PTR( fontCache );
+    Q_CHECK_PTR( fontCache );
     fontDict  = new QFontDict( 29 );
-    CHECK_PTR( fontDict );
+    Q_CHECK_PTR( fontDict );
     fontNameDict = new QFontNameDict( 29 );
-    CHECK_PTR( fontNameDict );
+    Q_CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
 }
 
@@ -1269,7 +1269,7 @@ void QFont::load() const
 	    name = PRIV->findFont( &match );
 	}
 	fn = new QXFontName( name.ascii(), match );
-	CHECK_PTR( fn );
+	Q_CHECK_PTR( fn );
 	fontNameDict->insert( k, fn );
     }
     d->exactMatch = fn->exactMatch;
@@ -1280,7 +1280,7 @@ void QFont::load() const
 	d->fin = fontDict->find( n.data() );
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( n );
-	    CHECK_PTR( d->fin );
+	    Q_CHECK_PTR( d->fin );
 	    fontDict->insert( d->fin->name(), d->fin );
 	}
     }

@@ -1055,7 +1055,7 @@ bool QImage::create( const QSize& size, int depth, int numColors,
 void QImage::init()
 {
     data = new QImageData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     reinit();
 }
 
@@ -3166,7 +3166,7 @@ void qt_init_image_handlers()		// initialize image handlers
 {
     if ( !imageHandlers ) {
 	imageHandlers = new QIHList;
-	CHECK_PTR( imageHandlers );
+	Q_CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qimg_cleanup_handler.add( imageHandlers );
 #ifndef QT_NO_IMAGEIO_BMP
@@ -3273,7 +3273,7 @@ void QImageIO::defineIOHandler( const char *format,
     QImageHandler *p;
     p = new QImageHandler( format, header, flags,
 			   read_image, write_image );
-    CHECK_PTR( p );
+    Q_CHECK_PTR( p );
     imageHandlers->insert( 0, p );
 }
 
@@ -3885,7 +3885,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     else if ( nbits == 4 ) {			// 4 bit BMP image
 	int    buflen = ((w+7)/8)*4;
 	uchar *buf    = new uchar[buflen];
-	CHECK_PTR( buf );
+	Q_CHECK_PTR( buf );
 	if ( comp == BMP_RLE4 ) {		// run length compression
 	    int x=0, y=0, b, c, i;
 	    register uchar *p = line[h-1];

@@ -89,12 +89,12 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
     int w=0, x=0, n;
 
     zoom = new QComboBox( FALSE, this );
-    CHECK_PTR(zoom);
+    Q_CHECK_PTR(zoom);
     zoom->insertStrList( zoomfactors, 9 );
     connect( zoom, SIGNAL(activated(int)), SLOT(setZoom(int)) );
 
     refresh = new QComboBox( FALSE, this );
-    CHECK_PTR(refresh);
+    Q_CHECK_PTR(refresh);
     refresh->insertStrList( refreshrates, 9 );
     connect( refresh, SIGNAL(activated(int)), SLOT(setRefresh(int)) );
 
@@ -113,7 +113,7 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
     refresh->setGeometry( x, 2, w+30, 20 );
 
     saveButton = new QPushButton( this );
-    CHECK_PTR(saveButton);
+    Q_CHECK_PTR(saveButton);
     connect( saveButton, SIGNAL(clicked()), this, SLOT(save()) );
     saveButton->setText( "Save" );
     saveButton->setGeometry( x+w+30+2, 2,
@@ -121,14 +121,14 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
 
     multiSaveButton = new QPushButton( this );
     multiSaveButton->setToggleButton(TRUE);
-    CHECK_PTR(multiSaveButton);
+    Q_CHECK_PTR(multiSaveButton);
     connect( multiSaveButton, SIGNAL(clicked()), this, SLOT(multiSave()) );
     multiSaveButton->setText( "MultiSave" );
     multiSaveButton->setGeometry( saveButton->geometry().right() + 2, 2,
 			     10+multiSaveButton->fontMetrics().width("MultiSave"), 20 );
 
     quitButton = new QPushButton( this );
-    CHECK_PTR(quitButton);
+    Q_CHECK_PTR(quitButton);
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
     quitButton->setText( "Quit" );
     quitButton->setGeometry( multiSaveButton->geometry().right() + 2, 2,
@@ -142,7 +142,7 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
     setZoom(5);
 
     rgb = new QLabel( this );
-    CHECK_PTR( rgb );
+    Q_CHECK_PTR( rgb );
     rgb->setText( "" );
     rgb->setAlignment( AlignVCenter );
     rgb->resize( width(), rgb->fontMetrics().height() + 4 );

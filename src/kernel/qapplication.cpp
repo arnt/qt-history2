@@ -1206,7 +1206,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     if ( !className ) {
 	if ( !app_pal ) {
 	    app_pal = new QPalette( pal );
-	    CHECK_PTR( app_pal );
+	    Q_CHECK_PTR( app_pal );
 	} else {
 	    *app_pal = pal;
 	}
@@ -1217,7 +1217,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     } else {
 	if ( !app_palettes ) {
 	    app_palettes = new QAsciiDict<QPalette>;
-	    CHECK_PTR( app_palettes );
+	    Q_CHECK_PTR( app_palettes );
 	    app_palettes->setAutoDelete( TRUE );
 	}
 	app_palettes->insert( className, new QPalette( pal ) );
@@ -1261,7 +1261,7 @@ QFont QApplication::font( const QWidget *w )
     }
     if ( !app_font ) {
 	app_font = new QFont( "Helvetica" );
-	CHECK_PTR( app_font );
+	Q_CHECK_PTR( app_font );
     }
     return *app_font;
 }
@@ -1289,7 +1289,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
     if ( !className ) {
 	if ( !app_font ) {
 	    app_font = new QFont( font );
-	    CHECK_PTR( app_font );
+	    Q_CHECK_PTR( app_font );
 	} else {
 	    *app_font = font;
 	}
@@ -1299,11 +1299,11 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
     } else {
 	if (!app_fonts){
 	    app_fonts = new QAsciiDict<QFont>;
-	    CHECK_PTR( app_fonts );
+	    Q_CHECK_PTR( app_fonts );
 	    app_fonts->setAutoDelete( TRUE );
 	}
 	QFont* fnt = new QFont(font);
-	CHECK_PTR( fnt );
+	Q_CHECK_PTR( fnt );
 	app_fonts->insert(className, fnt);
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
@@ -2073,7 +2073,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
     if ( !globalPostedEvents ) {			// create list
 	globalPostedEvents = new QPostEventList;
-	CHECK_PTR( globalPostedEvents );
+	Q_CHECK_PTR( globalPostedEvents );
 	globalPostedEvents->setAutoDelete( TRUE );
 	qapp_cleanup_events.add( globalPostedEvents );
     }
@@ -2545,7 +2545,7 @@ QWidget *QApplication::desktop()
     if ( !desktopWidget ||			// not created yet
 	 !desktopWidget->testWFlags( WType_Desktop ) ) { // recreated away
 	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
-	CHECK_PTR( desktopWidget );
+	Q_CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
 }

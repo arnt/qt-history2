@@ -198,7 +198,7 @@ void Urk::makeMenu()
 	return;
     qDebug( "make menu" );
     pop = new QPopupMenu;
-    CHECK_PTR( pop );
+    Q_CHECK_PTR( pop );
 
     menuId = pop->insertItem( "&New" );
     pop->insertItem( "&Open" );

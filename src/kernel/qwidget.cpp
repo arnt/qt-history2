@@ -814,7 +814,7 @@ QWidget::~QWidget()
 void QWidget::createMapper()
 {
     mapper = new QWidgetMapper;
-    CHECK_PTR( mapper );
+    Q_CHECK_PTR( mapper );
 }
 
 /*!
@@ -843,7 +843,7 @@ void QWidget::destroyMapper()
 static QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
 {
     QWidgetList *list = new QWidgetList;
-    CHECK_PTR( list );
+    Q_CHECK_PTR( list );
     if ( mapper ) {
 	QWidget *w;
 	QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
@@ -958,7 +958,7 @@ void QWidget::createExtra()
 {
     if ( !extra ) {				// if not exists
 	extra = new QWExtra;
-	CHECK_PTR( extra );
+	Q_CHECK_PTR( extra );
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 	extra->bg_pix = 0;

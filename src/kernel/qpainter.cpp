@@ -597,12 +597,12 @@ void QPainter::save()
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
 	pss = new QStack<QPState>;
-	CHECK_PTR( pss );
+	Q_CHECK_PTR( pss );
 	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
     QPState *ps = new QPState;
-    CHECK_PTR( ps );
+    Q_CHECK_PTR( ps );
     ps->font  = cfont;
     ps->pen   = cpen;
     ps->brush = cbrush;
@@ -1249,7 +1249,7 @@ void QPainter::saveWorldMatrix()
     QWMatrixStack *stack = (QWMatrixStack *)wm_stack;
     if ( stack == 0 ) {
 	stack  = new QStack<QWMatrix>;
-	CHECK_PTR( stack );
+	Q_CHECK_PTR( stack );
 	stack->setAutoDelete( TRUE );
 	wm_stack = stack;
     }
@@ -2463,7 +2463,7 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 void QPen::init( const QColor &color, uint width, uint linestyle )
 {
     data = new QPenData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->style = (PenStyle)(linestyle & MPenStyle);
     data->width = width;
     data->color = color;
@@ -2813,7 +2813,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->style	 = style;
     data->color	 = color;
     data->pixmap = 0;

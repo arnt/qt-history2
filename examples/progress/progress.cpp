@@ -142,10 +142,10 @@ public:
 	pb(0)
     {
 	menubar = new QMenuBar( this, "menu" );
-	CHECK_PTR( menubar );
+	Q_CHECK_PTR( menubar );
 
 	QPopupMenu* file = new QPopupMenu();
-	CHECK_PTR( file );
+	Q_CHECK_PTR( file );
 	menubar->insertItem( "&File", file );
 	for (int i=first_draw_item; i<=last_draw_item; i++)
 	    file->insertItem( drawItemText(i), i );
@@ -154,7 +154,7 @@ public:
 	file->insertItem( "Quit", qApp,  SLOT(quit()) );
 
 	options = new QPopupMenu();
-	CHECK_PTR( options );
+	Q_CHECK_PTR( options );
 	menubar->insertItem( "&Options", options );
 	td_id = options->insertItem( "Timer driven", this, SLOT(timerDriven()) );
 	ld_id = options->insertItem( "Loop driven", this, SLOT(loopDriven()) );

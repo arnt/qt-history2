@@ -481,7 +481,7 @@ static int palette_count = 1;
 QPalette::QPalette()
 {
     data = new QPalData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
 }
 
@@ -494,7 +494,7 @@ QPalette::QPalette()
 QPalette::QPalette( const QColor &button )
 {
     data = new QPalData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     QColor bg = button, btn = button, fg, base, disfg;
     int h, s, v;
@@ -523,7 +523,7 @@ QPalette::QPalette( const QColor &button )
 QPalette::QPalette( const QColor &button, const QColor &background )
 {
     data = new QPalData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     QColor bg = background, btn = button, fg, base, disfg;
     int h, s, v;
@@ -557,7 +557,7 @@ QPalette::QPalette( const QColorGroup &active, const QColorGroup &disabled,
 		    const QColorGroup &inactive )
 {
     data = new QPalData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->ser_no = palette_count++;
     data->active = active;
     data->disabled = disabled;

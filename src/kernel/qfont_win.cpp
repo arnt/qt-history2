@@ -253,9 +253,9 @@ void QFont::initialize()
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
     fontCache = new QFontCache( fontCacheSize, 29 );
-    CHECK_PTR( fontCache );
+    Q_CHECK_PTR( fontCache );
     fontDict = new QFontDict( 29 );
-    CHECK_PTR( fontDict );
+    Q_CHECK_PTR( fontDict );
 }
 
 void QFont::cleanup()
@@ -381,7 +381,7 @@ void QFont::load() const
 	d->fin = fontDict->find(k);
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( k );
-	    CHECK_PTR( d->fin );
+	    Q_CHECK_PTR( d->fin );
 	    fontDict->insert( d->fin->key(), d->fin );
 	}
     }

@@ -103,7 +103,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->count  = 1;
@@ -767,7 +767,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     dbytes = dbpl*h;
 
     dptr = new uchar[ dbytes ];			// create buffer for bits
-    CHECK_PTR( dptr );
+    Q_CHECK_PTR( dptr );
     if ( depth1 )
 	memset( dptr, 0xff, dbytes );
     else if ( bpp == 8 )
@@ -1113,7 +1113,7 @@ int QPixmap::allocCell()
     }
     if ( offset < 0 ) {				// could not alloc
 	mcp = new QMultiCellPixmap( s, depth(), 2048 );
-	CHECK_PTR( mcp );
+	Q_CHECK_PTR( mcp );
 	offset = mcp->allocCell( height() );
 	if ( offset < 0 ) {			// height() > total height
 	    delete mcp;
@@ -1131,7 +1131,7 @@ int QPixmap::allocCell()
     }
     data->mcp = TRUE;
     DATA_MCPI = new QMCPI;
-    CHECK_PTR( DATA_MCPI );
+    Q_CHECK_PTR( DATA_MCPI );
     DATA_MCPI_MCP = mcp;
     DATA_MCPI_OFFSET = offset;
     return offset;

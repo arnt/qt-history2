@@ -236,11 +236,11 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 {
     keytype = kt;
     lruList = new QCList;
-    CHECK_PTR( lruList );
+    Q_CHECK_PTR( lruList );
     lruList->setAutoDelete( TRUE );
     copyk   = ((keytype == AsciiKey) && copyKeys);
     dict    = new QCDict( size, kt, caseSensitive, FALSE );
-    CHECK_PTR( dict );
+    Q_CHECK_PTR( dict );
     mCost   = maxCost;
     tCost   = 0;
 #if defined(QT_DEBUG)
@@ -367,7 +367,7 @@ bool QGCache::insert_string( const QString &key, QCollection::Item data,
 	priority = 32677;
     QCacheItem *ci = new QCacheItem( new QString(key), newItem(data),
 				     cost, (short)priority );
-    CHECK_PTR( ci );
+    Q_CHECK_PTR( ci );
     lruList->insert( 0, ci );
     dict->insert_string( key, ci );
     tCost += cost;
@@ -401,7 +401,7 @@ bool QGCache::insert_other( const char *key, QCollection::Item data,
 	priority = 32677;
     QCacheItem *ci = new QCacheItem( (void*)key, newItem(data), cost,
 				     (short)priority );
-    CHECK_PTR( ci );
+    Q_CHECK_PTR( ci );
     lruList->insert( 0, ci );
     if ( keytype == AsciiKey )
 	dict->insert_ascii( key, ci );

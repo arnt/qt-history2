@@ -160,7 +160,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 	return;
     }
     data = new QCursorData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->bm  = new QBitmap( bitmap );
     data->bmm = new QBitmap( mask );
     data->hcurs = 0;

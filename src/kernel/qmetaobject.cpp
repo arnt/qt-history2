@@ -429,7 +429,7 @@ QMemberDict *QMetaObject::init( QMetaData *data, int n )
     if ( n == 0 )				// nothing, then make no dict
 	return 0;
     QMemberDict *dict = new QMemberDict( optDictSize(n), TRUE, FALSE );
-    CHECK_PTR( dict );
+    Q_CHECK_PTR( dict );
     while ( n-- ) {				// put all members into dict
 	dict->insert( data->name, data );
 	data++;

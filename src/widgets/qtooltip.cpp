@@ -146,7 +146,7 @@ static void initTipManager()
 {
     if ( !tipManager ) {
 	tipManager = new QTipManager;
-	CHECK_PTR( tipManager );
+	Q_CHECK_PTR( tipManager );
     }
     if ( !initializedTM ) {
 	initializedTM = TRUE;
@@ -478,7 +478,7 @@ void QTipManager::showTip()
 	label = new QTipLabel(t->text);
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
-	CHECK_PTR( label );
+	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
     QPoint p;

@@ -969,7 +969,7 @@ void QFontDatabase::createDatabase()
       if ( !foundry ) {
       //qWarning( "New font foundry [%s]", (const char*) foundryName );
       foundry = new QtFontFoundry( foundryName );
-      CHECK_PTR(foundry);
+      Q_CHECK_PTR(foundry);
       db->addFoundry( foundry );
       }
       QString familyName = tokens[Family];
@@ -978,7 +978,7 @@ void QFontDatabase::createDatabase()
       //qWarning( "New font family [%s][%s]",
       // (const char*) familyName, (const char*) foundryName );
       family = new QtFontFamily( foundry, familyName );
-      CHECK_PTR(family);
+      Q_CHECK_PTR(family);
       foundry->addFamily( family );
       }
       // QString charSetName = getCharSetName( tokens[CharsetRegistry],
@@ -990,7 +990,7 @@ void QFontDatabase::createDatabase()
       // (const char*)charSetName, (const char *)familyName,
       // (const char *)foundryName );
       charSet = new QtFontCharSet( family, charSetName );
-      CHECK_PTR(charSet);
+      Q_CHECK_PTR(charSet);
       family->addCharSet( charSet );
       }
       * /
@@ -1004,7 +1004,7 @@ void QFontDatabase::createDatabase()
       // (const char*)styleName, (const char*)charSetName,
       // (const char*)familyName, (const char *)foundryName );
       // style = new QtFontStyle( charSet, styleName );
-      CHECK_PTR( style );
+      Q_CHECK_PTR( style );
       style->ital         = italic;
       style->lesserItal   = lesserItalic;
       style->weightString = tokens[Weight_];
@@ -1103,7 +1103,7 @@ void add_style( QtFontCharSet *charSet, const QString& styleName,
         // (const char*)styleName, (const char*)charSetName,
         // (const char*)familyName, (const char *)foundryName );
         style = new QtFontStyle( charSet, sn );
-        CHECK_PTR( style );
+        Q_CHECK_PTR( style );
         style->ital         = italic;
         style->lesserItal   = lesserItalic;
         style->weightString = weightString;
@@ -1147,7 +1147,7 @@ void newWinFont( void * p )
         //qWarning( "New font family [%s][%s]",
         // (const char*) familyName, (const char*) foundryName );
         family = new QtFontFamily( foundry, familyName );
-        CHECK_PTR(family);
+        Q_CHECK_PTR(family);
         foundry->addFamily( family );
     }
     QString charSetName = winGetCharSetName( f->elfLogFont.lfCharSet );
@@ -1157,7 +1157,7 @@ void newWinFont( void * p )
         // (const char*)charSetName, (const char *)familyName,
         // (const char *)foundryName );
         charSet = new QtFontCharSet( family, charSetName );
-        CHECK_PTR(charSet);
+        Q_CHECK_PTR(charSet);
         family->addCharSet( charSet );
     }
     bool italic = f->elfLogFont.lfItalic;

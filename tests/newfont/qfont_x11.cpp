@@ -1027,11 +1027,11 @@ void QFont::initialize()
       if ( fontCache )
       return;
       fontCache = new QFontCache( fontCacheSize, 29 );
-      CHECK_PTR( fontCache );
+      Q_CHECK_PTR( fontCache );
       fontDict  = new QFontDict( 29 );
-      CHECK_PTR( fontDict );
+      Q_CHECK_PTR( fontDict );
       fontNameDict = new QFontNameDict( 29 );
-      CHECK_PTR( fontNameDict );
+      Q_CHECK_PTR( fontNameDict );
       fontNameDict->setAutoDelete( TRUE );
     */
     
@@ -1536,7 +1536,7 @@ void QFontPrivate::load(QFont::CharSet charset, bool tryUnicode)
     // qDebug("QFont::load: skipping font cache insertion");
     /*
       fn = new QXFontName( name.ascii(), match );
-      CHECK_PTR( fn );
+      Q_CHECK_PTR( fn );
       fontNameDict->insert( k, fn );
       }
     */
@@ -1554,7 +1554,7 @@ void QFontPrivate::load(QFont::CharSet charset, bool tryUnicode)
       d->priv = fontDict->find( n.data() );
       if ( !d->priv ) {			// font was never loaded
       d->priv = new QFontPrivate( n );
-      CHECK_PTR( d->priv );
+      Q_CHECK_PTR( d->priv );
       fontDict->insert( d->priv->name(), d->priv );
       }
       }

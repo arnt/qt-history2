@@ -321,7 +321,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace)
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
-	CHECK_PTR( cursorStack );
+	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
     app_cursor = new QCursor(cursor);
@@ -633,12 +633,12 @@ int qt_activate_timers()
 static void initTimers()			// initialize timers
 {
     timerBitVec = new QBitArray( 128 );
-    CHECK_PTR( timerBitVec );
+    Q_CHECK_PTR( timerBitVec );
     int i = timerBitVec->size();
     while( i-- > 0 )
 	timerBitVec->clearBit( i );
     timerList = new TimerList;
-    CHECK_PTR( timerList );
+    Q_CHECK_PTR( timerList );
     timerList->setAutoDelete( TRUE );
 }
 
@@ -666,7 +666,7 @@ int qStartTimer( int interval, QObject *obj )
 	return 0;
     timerBitVec->setBit( id-1 );		// set timer active
     TimerInfo *t = new TimerInfo;		// create timer
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->id = id;
     t->interval.tv_sec  = interval/1000;
     t->interval.tv_usec = (interval%1000)*1000;
@@ -728,7 +728,7 @@ static void sn_init()
 {
     if ( !sn_act_list ) {
 	sn_act_list = new QSNList;
-	CHECK_PTR( sn_act_list );
+	Q_CHECK_PTR( sn_act_list );
 	qAddPostRoutine( sn_cleanup );
     }
 }
@@ -751,14 +751,14 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	if ( !list ) {
 	    sn_init();
 	    list = new QSNList;			// create new list
-	    CHECK_PTR( list );
+	    Q_CHECK_PTR( list );
 	    list->setAutoDelete( TRUE );
 	    *sn_vec[type].list = list;
 	    FD_ZERO( fds );
 	    FD_ZERO( sn_vec[type].queue );
 	}
 	sn = new QSockNot;
-	CHECK_PTR( sn );
+	Q_CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
 	sn->queue = sn_vec[type].queue;
@@ -1114,7 +1114,7 @@ void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	CHECK_PTR( qt_modal_stack );
+	Q_CHECK_PTR( qt_modal_stack );
     }
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
@@ -1438,7 +1438,7 @@ void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
-	CHECK_PTR( popupWidgets );
+	Q_CHECK_PTR( popupWidgets );
 	if ( !activeBeforePopup )
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
 	(*activeBeforePopup) = active_window;

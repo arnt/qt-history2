@@ -151,7 +151,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	optim = defOptim;
 
     data = new QPixmapData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->id=0;

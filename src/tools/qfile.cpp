@@ -278,7 +278,7 @@ int QFile::readLine( char *p, uint maxlen )
     if ( maxlen == 0 )				// application bug?
 	return 0;
 #if defined(QT_CHECK_STATE)
-    CHECK_PTR( p );
+    Q_CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::readLine: File not open" );
 	return -1;

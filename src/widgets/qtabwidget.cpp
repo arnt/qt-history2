@@ -220,7 +220,7 @@ QTabWidget::~QTabWidget()
 void QTabWidget::addTab( QWidget *child, const QString &label)
 {
     QTab * t = new QTab();
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->label = label;
     addTab( child, t );
 }
@@ -235,7 +235,7 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
 {
     QTab * t = new QTab();
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->label = label;
     t->iconset = new QIconSet( iconset );
     addTab( child, t );
@@ -288,7 +288,7 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
 void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 {
     QTab * t = new QTab();
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->label = label;
     insertTab( child, t, index );
 }
@@ -303,7 +303,7 @@ void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
 {
     QTab * t = new QTab();
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->label = label;
     t->iconset = new QIconSet( iconset );
     insertTab( child, t, index );

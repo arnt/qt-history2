@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#425 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#426 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -687,7 +687,7 @@ Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
-	CHECK_PTR( postRList );
+	Q_CHECK_PTR( postRList );
     }
     postRList->prepend( p );
 }
@@ -737,7 +737,7 @@ const char* qt_reg_winclass( int flags )	// register window class
 {
     if ( !winclassNames ) {
 	winclassNames = new QAsciiDict<int>;
-	CHECK_PTR( winclassNames );
+	Q_CHECK_PTR( winclassNames );
     }
     uint style;
     bool icon;
@@ -886,11 +886,11 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
 	cursorStack = new QCursorList;
-	CHECK_PTR( cursorStack );
+	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
     app_cursor = new QCursor( cursor );
-    CHECK_PTR( app_cursor );
+    Q_CHECK_PTR( app_cursor );
     if ( replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
@@ -1089,11 +1089,11 @@ static void sn_init()
     sn_win = qApp->mainWidget();		// use main widget, if any
     if ( !sn_win ) {				// create internal widget
 	sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
-	CHECK_PTR( sn_win );
+	Q_CHECK_PTR( sn_win );
     }
     for ( int i=0; i<3; i++ ) {
 	*sn_vec[i] = new QSNDict;
-	CHECK_PTR( *sn_vec[i] );
+	Q_CHECK_PTR( *sn_vec[i] );
 	(*sn_vec[i])->setAutoDelete( TRUE );
     }
 }
@@ -1121,7 +1121,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    dict = *sn_vec[type];
 	}
 	sn = new QSockNot;
-	CHECK_PTR( sn );
+	Q_CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
 #if defined(QT_CHECK_STATE)
@@ -1766,7 +1766,7 @@ void qt_enter_modal( QWidget *widget )
 {
     if ( !qt_modal_stack ) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
-	CHECK_PTR( qt_modal_stack );
+	Q_CHECK_PTR( qt_modal_stack );
     }
     releaseAutoCapture();
     qt_modal_stack->insert( 0, widget );
@@ -1890,7 +1890,7 @@ void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
-	CHECK_PTR( popupWidgets );
+	Q_CHECK_PTR( popupWidgets );
 	if ( !activeBeforePopup )
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
 	(*activeBeforePopup) = active_window;
@@ -2080,10 +2080,10 @@ static void activateZeroTimers()		// activate full-speed timers
 static void initTimers()			// initialize timers
 {
     timerVec = new TimerVec( 128 );
-    CHECK_PTR( timerVec );
+    Q_CHECK_PTR( timerVec );
     timerVec->setAutoDelete( TRUE );
     timerDict = new TimerDict( 29 );
-    CHECK_PTR( timerDict );
+    Q_CHECK_PTR( timerDict );
 }
 
 static void cleanupTimers()			// remove pending timers
@@ -2127,7 +2127,7 @@ int qStartTimer( int interval, QObject *obj )
 	timerVec->resize( ind * 4 );
     }
     t = new TimerInfo;				// create timer entry
-    CHECK_PTR( t );
+    Q_CHECK_PTR( t );
     t->ind  = ind;
     t->obj  = obj;
 

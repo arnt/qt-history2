@@ -174,7 +174,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
     } else {
 	if ( !fic ) {
 	    fic = new QFileInfoCache;
-	    CHECK_PTR( fic );
+	    Q_CHECK_PTR( fic );
 	}
 	*fic = *fi.fic;
     }

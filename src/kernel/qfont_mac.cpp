@@ -215,11 +215,11 @@ void QFont::initialize()
     if ( fontCache )
 	return;
     fontCache = new QFontCache( fontCacheSize, 29 );
-    CHECK_PTR( fontCache );
+    Q_CHECK_PTR( fontCache );
     fontDict  = new QFontDict( 29 );
-    CHECK_PTR( fontDict );
+    Q_CHECK_PTR( fontDict );
     fontNameDict = new QFontNameDict( 29 );
-    CHECK_PTR( fontNameDict );
+    Q_CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
 #endif
 }

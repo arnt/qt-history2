@@ -346,9 +346,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
     int i;
     if ( !fList ) {
 	fList  = new QStringList;
-	CHECK_PTR( fList );
+	Q_CHECK_PTR( fList );
 	fiList = new QFileInfoList;
-	CHECK_PTR( fiList );
+	Q_CHECK_PTR( fiList );
 	fiList->setAutoDelete( TRUE );
     } else {
 	fList->clear();

@@ -139,7 +139,7 @@ QClipboard *QApplication::clipboard()
 {
     if ( qt_clipboard == 0 ) {
 	qt_clipboard = new QClipboard;
-	CHECK_PTR( qt_clipboard );
+	Q_CHECK_PTR( qt_clipboard );
 	qt_cleanup_clipboard.add( qt_clipboard );
     }
     return (QClipboard *)qt_clipboard;

@@ -137,7 +137,7 @@ void QFont::locale_init()
 void QFont::initialize()
 {
     fontDict  = new QFontDict( 29 );
-    CHECK_PTR( fontDict );
+    Q_CHECK_PTR( fontDict );
 }
 
 void QFont::cleanup()

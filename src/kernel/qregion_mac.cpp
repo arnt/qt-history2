@@ -57,7 +57,7 @@ QRegion::QRegion()
     if ( !empty_region ) {			// avoid too many allocs
 	qAddPostRoutine( cleanup_empty_region );
 	empty_region = new QRegion( TRUE );
-	CHECK_PTR( empty_region );
+	Q_CHECK_PTR( empty_region );
     }
     data = empty_region->data;
     data->ref();
@@ -66,7 +66,7 @@ QRegion::QRegion()
 QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->rgn = NewRgn();
     data->is_null = is_null;
 }
@@ -75,7 +75,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 {
     QRect rr = r.normalize();
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = NewRgn();
 
@@ -94,7 +94,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 QRegion::QRegion( const QPointArray &a, bool winding)
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = NewRgn();
 
@@ -196,7 +196,7 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 QRegion::QRegion( const QBitmap &bm )
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = qt_mac_bitmapToRegion(bm);
 }

@@ -411,7 +411,7 @@ bool QAccel::connectItem( int id, const QObject *receiver, const char *member )
     if ( item ) {
 	if ( !item->signal ) {
 	    item->signal = new QSignal;
-	    CHECK_PTR( item->signal );
+	    Q_CHECK_PTR( item->signal );
 	}
 	return item->signal->connect( receiver, member );
     }

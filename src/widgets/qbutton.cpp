@@ -75,7 +75,7 @@ static inline void makeDrawingPixmap()
 {
     if ( !drawpm ) {
 	drawpm = new QPixmap( drawingPixWidth, drawingPixHeight );
-	CHECK_PTR( drawpm );
+	Q_CHECK_PTR( drawpm );
 	qbt_cleanup_pixmap.add( drawpm );
     }
 }
@@ -96,7 +96,7 @@ void QButton::ensureData()
 {
     if ( !d ) {
 	d = new QButtonData;
-	CHECK_PTR( d );
+	Q_CHECK_PTR( d );
 	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }
 }
@@ -413,7 +413,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
     } else {
 	newSize = TRUE;
 	bpixmap = new QPixmap( pixmap );
-	CHECK_PTR( bpixmap );
+	Q_CHECK_PTR( bpixmap );
     }
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );

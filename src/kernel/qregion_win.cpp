@@ -50,7 +50,7 @@ QRegion::QRegion()
     if ( !empty_region ) {			// avoid too many allocs
 	qAddPostRoutine( cleanup_empty_region );
 	empty_region = new QRegion( TRUE );
-	CHECK_PTR( empty_region );
+	Q_CHECK_PTR( empty_region );
     }
     data = empty_region->data;
     data->ref();
@@ -59,7 +59,7 @@ QRegion::QRegion()
 QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->rgn = 0;
     data->is_null = is_null;
 }
@@ -68,7 +68,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 {
     QRect rr = r.normalize();
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     if ( t == Rectangle ) {			// rectangular region
 	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
@@ -82,7 +82,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
 QRegion::QRegion( const QPointArray &a, bool winding )
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(),
 				  winding ? WINDING : ALTERNATE );
@@ -195,7 +195,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 QRegion::QRegion( const QBitmap & bm )
 {
     data = new QRegionData;
-    CHECK_PTR( data );
+    Q_CHECK_PTR( data );
     data->is_null = FALSE;
     data->rgn = qt_win_bitmapToRegion(bm);
 }

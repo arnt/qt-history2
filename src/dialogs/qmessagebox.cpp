@@ -655,7 +655,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 		  "information.</p>" ).arg( QT_VERSION_STR );
     }
     label = new QLabel( this, "text" );
-    CHECK_PTR( label );
+    Q_CHECK_PTR( label );
     label->setAlignment( AlignAuto );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
@@ -665,7 +665,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	button0 = button1 = button2 = 0;
     }
     mbd = new QMBData(this);
-    CHECK_PTR( mbd );
+    Q_CHECK_PTR( mbd );
     mbd->numButtons = 0;
     mbd->button[0] = button0;
     mbd->button[1] = button1;
@@ -1123,7 +1123,7 @@ int QMessageBox::information( QWidget *parent,
     QMessageBox *mb = new QMessageBox( caption, text, Information,
 				       button0, button1, button2,
 				       parent, "information" );
-    CHECK_PTR( mb );
+    Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
     return reply;
@@ -1148,7 +1148,7 @@ int QMessageBox::warning( QWidget *parent,
     QMessageBox *mb = new QMessageBox( caption, text, Warning,
 				       button0, button1, button2,
 				       parent, "warning" );
-    CHECK_PTR( mb );
+    Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
     return reply;
@@ -1173,7 +1173,7 @@ int QMessageBox::critical( QWidget *parent,
     QMessageBox *mb = new QMessageBox( caption, text, Critical,
 				       button0, button1, button2,
 				       parent, "critical" );
-    CHECK_PTR( mb );
+    Q_CHECK_PTR( mb );
     int reply = mb->exec();
     delete mb;
     return reply;
@@ -1203,7 +1203,7 @@ void QMessageBox::about( QWidget *parent, const QString &caption,
 				       Information,
 				       Ok + Default, 0, 0,
 				       parent, "simple about box" );
-    CHECK_PTR( mb );
+    Q_CHECK_PTR( mb );
     QPixmap i;
     if ( parent && parent->icon())
 	i = *(parent->icon());
@@ -1256,7 +1256,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     QMessageBox *mb = new QMessageBox( caption, text, severity,
 				       b[0], b[1], b[2],
 				       parent, "information" );
-    CHECK_PTR( mb );
+    Q_CHECK_PTR( mb );
     if ( button0Text.isEmpty() )
 	mb->setButtonText( 1, QMessageBox::tr(mb_texts[QMessageBox::Ok]) );
     else

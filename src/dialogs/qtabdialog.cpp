@@ -226,14 +226,14 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
     : QDialog( parent, name, modal, f )
 {
     d = new QTabPrivate;
-    CHECK_PTR( d );
+    Q_CHECK_PTR( d );
 
     d->tw = new QTabWidget( this, "tab widget" );
     connect ( d->tw, SIGNAL ( selected( const QString& ) ), this, SIGNAL( selected( const QString& ) ) );
     connect ( d->tw, SIGNAL ( currentChanged( QWidget* ) ), this, SIGNAL( currentChanged( QWidget* ) ) );
 
     d->ok = new QPushButton( this, "ok" );
-    CHECK_PTR( d->ok );
+    Q_CHECK_PTR( d->ok );
     d->ok->setText( tr("OK") );
     d->ok->setDefault( TRUE );
     connect( d->ok, SIGNAL(clicked()),

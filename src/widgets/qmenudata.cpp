@@ -141,7 +141,7 @@ QMenuData::QMenuData()
 {
     actItem = -1;				// no active menu item
     mitems = new QMenuItemList;			// create list of menu items
-    CHECK_PTR( mitems );
+    Q_CHECK_PTR( mitems );
     mitems->setAutoDelete( TRUE );
     parentMenu = 0;				// assume top level
     isPopupMenu = FALSE;
@@ -241,7 +241,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	id = get_seq_id();
 
     register QMenuItem *mi = new QMenuItem;
-    CHECK_PTR( mi );
+    Q_CHECK_PTR( mi );
     mi->ident = id;
     if ( widget != 0 ) {
 	mi->widget_item = widget;
@@ -1138,7 +1138,7 @@ bool QMenuData::setItemParameter( int id, int param ) {
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
-	CHECK_PTR( mi->signal_data );
+	Q_CHECK_PTR( mi->signal_data );
     }
     mi->signal_data->setParameter( param );
     return TRUE;
@@ -1178,7 +1178,7 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
 	mi->signal_data = new QSignal;
-	CHECK_PTR( mi->signal_data );
+	Q_CHECK_PTR( mi->signal_data );
 	mi->signal_data->setParameter( id );
     }
     return mi->signal_data->connect( receiver, member );

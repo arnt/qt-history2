@@ -35,7 +35,7 @@ Editor::Editor( QWidget * parent , const char * name )
     m = new QMenuBar( this, "menu" );
 
     QPopupMenu * file = new QPopupMenu();
-    CHECK_PTR( file );
+    Q_CHECK_PTR( file );
     m->insertItem( "&File", file );
 
     file->insertItem( "&New",   this, SLOT(newDoc()),   ALT+Key_N );
@@ -60,7 +60,7 @@ Editor::Editor( QWidget * parent , const char * name )
     rebuildCodecList();
 
     QPopupMenu * edit = new QPopupMenu();
-    CHECK_PTR( edit );
+    Q_CHECK_PTR( edit );
     m->insertItem( "&Edit", edit );
 
     edit->insertItem( "To &uppercase",   this, SLOT(toUpper()),   ALT+Key_U );

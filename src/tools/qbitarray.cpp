@@ -122,7 +122,7 @@
 QBitArray::QBitArray() : QByteArray( 0, 0 )
 {
     bitarr_data *x = new bitarr_data;
-    CHECK_PTR( x );
+    Q_CHECK_PTR( x );
     x->nbits = 0;
     setSharedBlock( x );
 }
@@ -134,7 +134,7 @@ QBitArray::QBitArray() : QByteArray( 0, 0 )
 QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
 {
     bitarr_data *x = new bitarr_data;
-    CHECK_PTR( x );
+    Q_CHECK_PTR( x );
     x->nbits = 0;
     setSharedBlock( x );
     resize( size );

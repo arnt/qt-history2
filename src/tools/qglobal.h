@@ -576,9 +576,9 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
 #if defined(QT_CHECK_NULL)
-#  define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#  define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
-#  define CHECK_PTR(p)
+#  define Q_CHECK_PTR(p)
 #endif
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };

@@ -220,7 +220,7 @@
 void QFont::init()
 {
     d = new QFontData;
-    CHECK_PTR( d );
+    Q_CHECK_PTR( d );
     d->req.pointSize     = 0;
     d->req.styleHint     = AnyStyle;
     d->req.styleStrategy = PreferDefault;
@@ -249,7 +249,7 @@ QFont::QFont( QFontData *data, bool deep )
 {
     if ( deep ) {
 	d = new QFontData( *data );
-	CHECK_PTR( d );
+	Q_CHECK_PTR( d );
 	d->count = 1;                               // now a single reference
     } else {
 	d = data;
@@ -1134,7 +1134,7 @@ static void initFontSubst()                     // create substitution dict
     if ( fontSubst )
         return;
     fontSubst = new QFontSubst();
-    CHECK_PTR( fontSubst );
+    Q_CHECK_PTR( fontSubst );
     for ( int i=0; initTbl[i] != 0; i += 2 )
         fontSubst->insert(
             QString::fromLatin1(initTbl[i]),
@@ -1399,7 +1399,7 @@ QCleanupHandler<QFontMetricsList> qfont_cleanup_fontmetricslist;
 static void insertFontMetrics( QFontMetrics *fm ) {
     if ( !fm_list ) {
         fm_list = new QFontMetricsList;
-        CHECK_PTR( fm_list );
+        Q_CHECK_PTR( fm_list );
 	qfont_cleanup_fontmetricslist.add( fm_list );
     }
     fm_list->append( fm );
@@ -1748,7 +1748,7 @@ static void insertFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
         fi_list = new QFontInfoList;
-        CHECK_PTR( fi_list );
+        Q_CHECK_PTR( fi_list );
 	qfont_cleanup_fontinfolist.add( fi_list );
     }
     fi_list->append( fi );

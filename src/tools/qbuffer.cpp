@@ -274,7 +274,7 @@ bool QBuffer::at( int pos )
 int QBuffer::readBlock( char *p, uint len )
 {
 #if defined(QT_CHECK_STATE)
-    CHECK_PTR( p );
+    Q_CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::readBlock: Buffer not open" );
 	return -1;
@@ -353,7 +353,7 @@ int QBuffer::writeBlock( const char *p, uint len )
 int QBuffer::readLine( char *p, uint maxlen )
 {
 #if defined(QT_CHECK_STATE)
-    CHECK_PTR( p );
+    Q_CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::readLine: Buffer not open" );
 	return -1;

@@ -160,7 +160,7 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 void QButtonGroup::init()
 {
     buttons = new QButtonList;
-    CHECK_PTR( buttons );
+    Q_CHECK_PTR( buttons );
     buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
     radio_excl = TRUE;
@@ -245,7 +245,7 @@ int QButtonGroup::insert( QButton *button, int id )
 
     static int seq_no = -2;
     QButtonItem *bi = new QButtonItem;
-    CHECK_PTR( bi );
+    Q_CHECK_PTR( bi );
 
     if ( id < -1 )
 	bi->id = seq_no--;

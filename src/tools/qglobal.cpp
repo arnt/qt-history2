@@ -526,7 +526,7 @@ void fatal( const char *msg, ... )
 
 
 /*!
-  \fn void CHECK_PTR( void *p )
+  \fn void Q_CHECK_PTR( void *p )
   \relates QApplication
   If \e p is null, a fatal messages says that the program ran out of memory
   and exits.  If \e p is not null, nothing happens.
@@ -536,10 +536,10 @@ void fatal( const char *msg, ... )
   Example:
   \code
     int *a;
-    CHECK_PTR( a = new int[80] );	// never do this!
+    Q_CHECK_PTR( a = new int[80] );	// never do this!
       // do this instead:
     a = new int[80];
-    CHECK_PTR( a );			// this is fine
+    Q_CHECK_PTR( a );			// this is fine
   \endcode
 
   \sa qFatal(), \link debug.html Debugging\endlink
@@ -547,7 +547,7 @@ void fatal( const char *msg, ... )
 
 
 //
-// The CHECK_PTR macro calls this function to check if an allocation went ok.
+// The Q_CHECK_PTR macro calls this function to check if an allocation went ok.
 //
 
 bool qt_check_pointer( bool c, const char *n, int l )

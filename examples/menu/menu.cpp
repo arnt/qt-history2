@@ -122,7 +122,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     QPixmap p3( p3_xpm );
 
     QPopupMenu *print = new QPopupMenu( this );
-    CHECK_PTR( print );
+    Q_CHECK_PTR( print );
     print->insertTearOffHandle();
     print->insertItem( "&Print to printer", this, SLOT(printer()) );
     print->insertItem( "Print to &file", this, SLOT(file()) );
@@ -131,7 +131,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     print->insertItem( "Printer &Setup", this, SLOT(printerSetup()) );
 
     QPopupMenu *file = new QPopupMenu( this );
-    CHECK_PTR( file );
+    Q_CHECK_PTR( file );
     file->insertItem( p1, "&Open",  this, SLOT(open()), CTRL+Key_O );
     file->insertItem( p2, "&New", this, SLOT(news()), CTRL+Key_N );
     file->insertItem( p3, "&Save", this, SLOT(save()), CTRL+Key_S );
@@ -142,14 +142,14 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     file->insertItem( "E&xit",  qApp, SLOT(quit()), CTRL+Key_Q );
 
     QPopupMenu *edit = new QPopupMenu( this );
-    CHECK_PTR( edit );
+    Q_CHECK_PTR( edit );
     int undoID = edit->insertItem( "&Undo", this, SLOT(undo()) );
     int redoID = edit->insertItem( "&Redo", this, SLOT(redo()) );
     edit->setItemEnabled( undoID, FALSE );
     edit->setItemEnabled( redoID, FALSE );
 
     QPopupMenu* options = new QPopupMenu( this );
-    CHECK_PTR( options );
+    Q_CHECK_PTR( options );
     options->insertTearOffHandle();
     options->setCaption("Options");
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
@@ -173,12 +173,12 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
 
     QPopupMenu *help = new QPopupMenu( this );
-    CHECK_PTR( help );
+    Q_CHECK_PTR( help );
     help->insertItem( "&About", this, SLOT(about()), CTRL+Key_H );
     help->insertItem( "About &Qt", this, SLOT(aboutQt()) );
 
     menu = new QMenuBar( this );
-    CHECK_PTR( menu );
+    Q_CHECK_PTR( menu );
     menu->insertItem( "&File", file );
     menu->insertItem( "&Edit", edit );
     menu->insertItem( "&Options", options );
@@ -187,7 +187,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     menu->setSeparator( QMenuBar::InWindowsStyle );
 
     label = new QLabel( this );
-    CHECK_PTR( label );
+    Q_CHECK_PTR( label );
     label->setGeometry( 20, rect().center().y()-20, width()-40, 40 );
     label->setFrameStyle( QFrame::Box | QFrame::Raised );
     label->setLineWidth( 1 );
