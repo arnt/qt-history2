@@ -13,6 +13,7 @@
 
 #include "docuwindow.h"
 #include <qtextbrowser.h>
+#include <qtextdocument.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qfiledialog.h>
@@ -20,8 +21,6 @@
 #include <qstatusbar.h>
 #include <qprinter.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
-#include <qsimplerichtext.h>
 #include <qtextstream.h>
 
 static const char *filesave[] = {
@@ -125,33 +124,5 @@ void DocuWindow::print()
 	return;
     }
 
-    QPainter painter;
-    if (!painter.begin(&printer)) {
-	statusBar()->message(QString("Printing aborted"), 2000);
-	return;
-    }
-
-    QPaintDeviceMetrics metrics(painter.device());
-    int dpix = metrics.logicalDpiX();
-    int dpiy = metrics.logicalDpiY();
-    const int margin = 72; // pt
-    QRect body(margin*dpix/72, margin*dpiy/72,
-	       metrics.width()-margin*dpix/72*2,
-	       metrics.height()-margin*dpiy/72*2);
-
-    QSimpleRichText richText(browser->text(), QFont());
-    richText.setWidth(&painter, body.width());
-    QRect view(body);
-    int page = 1;
-    do {
-	richText.draw(&painter, body.left(), body.top(), view, palette());
-	view.moveBy(0, body.height());
-	painter.translate(0 , -body.height());
-	painter.drawText(view.right() - painter.fontMetrics().width(QString::number(page)),
-		    view.bottom() + painter.fontMetrics().ascent() + 5, QString::number(page));
-	if (view.top() >= richText.height())
-	    break;
-	printer.newPage();
-	page++;
-    } while (TRUE);
+    browser->document()->print(&printer);
 }
