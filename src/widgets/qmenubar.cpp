@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#84 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#84 $");
 
 
 /*!
@@ -678,10 +678,11 @@ void QMenuBar::drawContents( QPainter *p )
 		p->fillRect( r, palette().normal().background() );
 		if ( i == actItem ) {
 		    QBrush b( palette().normal().background() );
+		    bool sunken = !windowsaltactive && mouseBtDn;
 		    qDrawShadeRect( p,
 				    r.left(), r.top(), r.width(), r.height(),
-				    g, !windowsaltactive, 1, 0, &b );
-		    if ( !windowsaltactive )
+				    g, sunken, 1, 0, &b );
+		    if ( sunken )
 			r.setRect( r.left()+2, r.top()+2,
 				   r.width()-2, r.height()-2 );
 		}
@@ -734,6 +735,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
     QPopupMenu *popup = mi->popup();
     if ( popup && mi->isEnabled() ) {
+	windowsaltactive = 0;
 	if ( popup->isVisible() ) {	// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
@@ -794,10 +796,20 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( style() == WindowsStyle && !mouseBtDn ) {
+	int item = itemAtPos( e->pos() );
+	QMenuItem *mi = actItem < 0 ? 0 : mitems->at(actItem);
+	if ( item != actItem &&
+	     (!mi ||
+	      (mi->popup() && !mi->popup()->isVisible())) ) {
+	    setActItem( item, FALSE );
+	    // ? emit highlighted( mi->id() );
+	    return;
+	}
+    }
+
     if ( actItem < 0 && !mouseBtDn )
 	return;
-    //    if ( !(mouseBtDn || (actItem >= 0 && hasMouseTracking())) )
-    //-	return;
 
     int item = itemAtPos( e->pos() );
     if ( item == -1 )
@@ -810,6 +822,20 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	if ( mi->popup() && mi->isEnabled() )
 	    openActPopup();
     }
+}
+
+
+/*!  Handles leave events for the menu bar.
+*/
+
+void QMenuBar::leaveEvent( QEvent * e )
+{
+    if ( actItem >= 0 ) {
+	QMenuItem *mi = mitems->at( actItem );
+	if ( mi && mi->popup() && !mi->popup()->isVisible() )
+	    setActItem( -1, FALSE );
+    }
+    QFrame::leaveEvent( e );
 }
 
 
