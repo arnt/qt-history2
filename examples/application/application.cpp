@@ -149,7 +149,7 @@ ApplicationWindow::~ApplicationWindow()
 void ApplicationWindow::newDoc()
 {
     ApplicationWindow *ed = new ApplicationWindow;
-    ed->setCaption("Qt Example - Application");
+    ed->setWindowTitle("Qt Example - Application");
     ed->show();
 }
 
@@ -173,7 +173,7 @@ void ApplicationWindow::load( const QString &fileName )
     QTextStream ts( &f );
     e->setText( ts.read() );
     e->setModified( FALSE );
-    setCaption( fileName );
+    setWindowTitle( fileName );
     statusBar()->message( "Loaded document " + fileName, 2000 );
 }
 
@@ -199,7 +199,7 @@ void ApplicationWindow::save()
 
     e->setModified( FALSE );
 
-    setCaption( filename );
+    setWindowTitle( filename );
 
     statusBar()->message( QString( "File %1 saved" ).arg( filename ), 2000 );
 }
@@ -249,7 +249,7 @@ void ApplicationWindow::print()
   	QRect view( body );
 	int page = 1;
 	do {
-	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	    richText.draw( &p, body.left(), body.top(), view, palette() );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number( page ) ),

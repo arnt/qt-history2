@@ -16,7 +16,7 @@
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
     ApplicationWindow *mw = new ApplicationWindow();
-    mw->setCaption( "Qt Example - Application" );
+    mw->setWindowTitle( "Qt Example - Application" );
     mw->show();
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();
