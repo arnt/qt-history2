@@ -5037,6 +5037,16 @@ QRect QTextEdit::paragraphRect( int para ) const
 
 int QTextEdit::paragraphAt( const QPoint &pos ) const
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode ) {
+	QFontMetrics fm( QScrollView::font() );
+	int parag = pos.y() / fm.lineSpacing();
+	if ( parag <= d->od->numLines )
+	    return parag;
+	else
+	    return -1;
+    }
+#endif
     QTextCursor c( doc );
     c.place( pos, doc->firstParag() );
     if ( c.parag() )
