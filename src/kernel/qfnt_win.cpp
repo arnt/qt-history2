@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#14 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#14 $")
 
 
 QFont *QFont::defFont = 0;			// default font
@@ -96,9 +96,10 @@ void QFont::cacheStatistics()
 QFont::QFont( bool )				// create default font
 {
     init();
-    d->req.family    = "Arial";
-    d->req.pointSize = 12*10;
+    d->req.family    = "default";
+    d->req.pointSize = 10*10;			// approximate point size, hack
     d->req.weight    = QFont::Normal;
+    d->req.rawMode   = TRUE;
 }
 
 
@@ -144,7 +145,7 @@ QString QFont::lastResortFamily() const
 
 QString QFont::lastResortFont() const
 {
-    return "system";
+    return "default";
 }
 
 
@@ -178,9 +179,19 @@ void QFont::loadFont( HANDLE output_hdc ) const
 
     if ( d->req.rawMode ) {
 	QString n = QFont::substitute( d->req.family );
-	int	f;
+	int	f, deffnt;
+	DWORD	dwVer = GetVersion();
+
+	if ( dwVer < 0x80000000 )
+	    deffnt = SYSTEM_FONT;		// Windows NT
+	else if ( LOBYTE(LOWORD(dwVer)) < 4 )
+	    deffnt = SYSTEM_FONT;		// Win32s
+	else
+	    deffnt = DEFAULT_GUI_FONT;		// Windows 95
 	n.lower();
-	if ( n == "system" )
+	if ( n == "default" )
+	    f = deffnt;
+	else if ( n == "system" )
 	    f = SYSTEM_FONT;
 	else if ( n == "system_fixed" )
 	    f = SYSTEM_FIXED_FONT;
@@ -192,8 +203,12 @@ void QFont::loadFont( HANDLE output_hdc ) const
 	    f = DEVICE_DEFAULT_FONT;
 	else if ( n == "oem_fixed" )
 	    f = OEM_FIXED_FONT;
+	else if ( n[0] == '#' ) {
+	    n = n.right( n.length()-1 );
+	    f = n.toInt();
+	}
 	else
-	    f = SYSTEM_FONT;
+	    f = deffnt;
 	d->hfont = GetStockObject( f );
 	SelectObject( d->hdc, d->hfont );
 	d->stockFont = TRUE;
