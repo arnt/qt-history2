@@ -18,7 +18,7 @@ class PixelDelegate : public QAbstractItemDelegate
     Q_OBJECT
 
 public:
-    PixelDelegate::PixelDelegate(QObject *parent = 0)
+    PixelDelegate(QObject *parent = 0)
         : QAbstractItemDelegate(parent) {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,

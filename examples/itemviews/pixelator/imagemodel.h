@@ -8,7 +8,7 @@ class ImageModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    ImageModel::ImageModel(const QImage &image, QObject *parent = 0);
+    ImageModel(const QImage &image, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
