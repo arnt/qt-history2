@@ -429,7 +429,6 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 #if defined(QT_THREAD_SUPPORT)
 	qt_mac_port_mutex = new QMutex(TRUE);
 #endif
-
 	RegisterAppearanceClient();
     }
 
@@ -1673,7 +1672,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    UInt32 count;
 	    GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
 			      sizeof(count), NULL, &count);
-	    if(count == 2)
+	    if(!(count % 2))
 		etype = QEvent::MouseButtonDblClick;
 	    else
 		etype = QEvent::MouseButtonPress;
