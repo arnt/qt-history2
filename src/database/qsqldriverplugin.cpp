@@ -26,7 +26,7 @@ QSqlDriverPlugInManager::QSqlDriverPlugInManager( const QString& path, const QSt
 */
 QSqlDriver* QSqlDriverPlugInManager::create( const QString& name )
 {
-    QSqlDriverInterface *iface = (*this)[name];
+    QSqlDriverInterface *iface = queryInterface( name );
     return iface ? iface->create( name ) : 0;
 }
 

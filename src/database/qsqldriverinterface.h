@@ -13,9 +13,9 @@ class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 public:
     virtual QSqlDriver* create( const QString& name ) = 0;
 
-    virtual QStringList featureList() = 0;
+    virtual QStringList featureList() const { return QStringList(); }
 
-    QString interfaceID() { return "QSqlDriverInterface"; }
+    QString interfaceID() const { return "QSqlDriverInterface"; }
 };
 
 #endif // QT_NO_SQL
