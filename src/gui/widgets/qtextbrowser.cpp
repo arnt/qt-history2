@@ -26,6 +26,7 @@
 #include <qtextcodec.h>
 #include <qpainter.h>
 #include <qdir.h>
+#include <qwhatsthis.h>
 
 #define d d_func()
 #define q q_func()
@@ -71,92 +72,6 @@ QString QTextBrowserPrivate::resolvePath(const QString &name) const
 
     QFileInfo path(QFileInfo(currentURL).absolutePath(), name);
     return path.absoluteFilePath();
-}
-
-class QTextDetailPopup : public QWidget
-{
-public:
-    QTextDetailPopup()
-        : QWidget (0, Qt::WType_Popup | Qt::WDestructiveClose)
-        {}
-
-    virtual void mousePressEvent(QMouseEvent*)
-    { close(); }
-};
-
-
-static void popupDetail(const QString& contents, const QPoint& pos)
-{
-    const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int vMargin = 8;
-    const int hMargin = 12;
-
-    QWidget* popup = new QTextDetailPopup;
-    popup->setAttribute(Qt::WA_NoSystemBackground, true);
-
-    QTextDocument doc;
-    doc.setHtml(contents); // ### popup->font()
-    QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc.documentLayout());
-    layout->adjustSize();
-
-    QRect r(QPoint(0, 0), layout->sizeUsed());
-
-    int w = r.width() + 2*hMargin;
-    int h = r.height() + 2*vMargin;
-
-    popup->resize(w + shadowWidth, h + shadowWidth);
-
-    // okay, now to find a suitable location
-    //###### we need a global fancy popup positioning somewhere
-    popup->move(pos - popup->rect().center());
-    if (popup->geometry().right() > QApplication::desktop()->width())
-        popup->move(QApplication::desktop()->width() - popup->width(),
-                     popup->y());
-    if (popup->geometry().bottom() > QApplication::desktop()->height())
-        popup->move(popup->x(),
-                     QApplication::desktop()->height() - popup->height());
-    if (popup->x() < 0)
-        popup->move(0, popup->y());
-    if (popup->y() < 0)
-        popup->move(popup->x(), 0);
-
-
-    popup->show();
-
-    // now for super-clever shadow stuff.  super-clever mostly in
-    // how many window system problems it skirts around.
-
-    QPainter p(popup);
-    p.setPen(QApplication::palette().color(QPalette::Active, QPalette::Foreground));
-    p.drawRect(0, 0, w, h);
-    p.setPen(QApplication::palette().color(QPalette::Active, QPalette::Mid));
-    p.setBrush(QColor(255, 255, 240));
-    p.drawRect(1, 1, w-2, h-2);
-    p.setPen(Qt::black);
-
-    QAbstractTextDocumentLayout::PaintContext context;
-    context.textColorFromPalette = true;
-    context.palette = popup->palette();
-    p.save();
-    p.setClipRect(r);
-    layout->draw(&p, context);
-    p.restore();
-
-    p.drawPoint(w + 5, 6);
-    p.drawLine(w + 3, 6,
-                w + 5, 8);
-    p.drawLine(w + 1, 6,
-                w + 5, 10);
-    int i;
-    for(i=7; i < h; i += 2)
-        p.drawLine(w, i,
-                    w + 5, i + 5);
-    for(i = w - i + h; i > 6; i -= 2)
-        p.drawLine(i, h,
-                    i + 5, h + 5);
-    for(; i > 0 ; i -= 2)
-        p.drawLine(6, h + 6 - i,
-                    i + 5, h + 5);
 }
 
 QTextBrowser::QTextBrowser(QWidget *parent)
@@ -240,8 +155,8 @@ void QTextBrowser::setSource(const QString& name)
         if (isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);
             if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
-                popupDetail(txt, QCursor::pos());
                 qApp->restoreOverrideCursor();
+                QWhatsThis::showText(QCursor::pos(), txt, this);
                 return;
             }
         }
