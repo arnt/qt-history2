@@ -1856,12 +1856,12 @@ for you.
 \target cache
 \section2 Cache File
 
-The cache file (mentioned above in the options) is a special file \e
-qmake will read to find settings not specified in the \c qmake.conf
-file, the .pro file, or the command line. If \c -nocache is specified,
-\e qmake will try to find a file called \c .qmake.cache in parent
-directories.  If it fails to find this file, it will silently ignore
-this step of processing.
+The cache file (mentioned above in the options) is a special file \e qmake
+will read to find settings not specified in the \c qmake.conf file, the
+.pro file, or the command line. If \c -nocache is not specified, \e qmake
+will try to find a file called \c .qmake.cache in parent directories.  If
+it fails to find this file, it will silently ignore this step of
+processing.
 
 \target LibDepend
 \section2 Library Dependencies
