@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#7 $
+** $Id: //depot/qt/main/src/moc/moc.l#8 $
 **
 ** Lexical analyzer for meta object compiler
 **
 ** Author  : Haavard Nord
 ** Created : 930417
 **
-** Copyright (C) 1993,1994 by Haavard Nord.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This file contains the lexical analyzer for the meta object compiler (moc)
@@ -14,7 +14,7 @@
 *****************************************************************************/
 
 %{
-#include <qstring.h>
+#include "qstring.h"
 
 
 #define input yyinput				// yyinput in C++
