@@ -283,42 +283,44 @@ int main( int argc, char** argv )
     } else
 	die( env.lastError() );
 
-    /* output results */
-    LocalSQLResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
-    if ( rs->size() ) {
-	uint fieldcount = rs->count();
-	uint i = 0;
-	QString line = " ";
-	if ( !suppressheader ) {
-	    QStringList cols = rs->columnNames();
-	    for ( i = 0; i < fieldcount; ++i )
-		line += cols[i].rightJustify( 15 ) + " ";
-	    outstream << line << endl;
-	    line = sep;
-	    for ( i = 0; i < fieldcount; ++i )
-		line += QString().rightJustify( 15, '-' ) + sep;
-	    outstream << line << endl;
-	}
-	rs->first();
-	do {
-	    line = sep;
-	    localsql::Record& rec = rs->currentRecord();
-	    for ( i = 0; i < fieldcount; ++i ) {
-		bool nullfield;
-		if ( !rs->isNull( i, nullfield ) )
-		    break;
-		if ( nullfield )
-		    line += QString("NULL").rightJustify( 15 ).mid( 0, 15 ) + sep;
-		else
-		    line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
+ //## what about more than two result sets?
+    for ( int i = 0; i < 2; i++ ) {
+	/* output results */
+	LocalSQLResultSet* rs = env.resultSet( i );
+	if ( rs->size() ) {
+	    uint fieldcount = rs->count();
+	    uint i = 0;
+	    QString line = " ";
+	    if ( !suppressheader ) {
+		QStringList cols = rs->columnNames();
+		for ( i = 0; i < fieldcount; ++i )
+		    line += cols[i].rightJustify( 15 ) + " ";
+		outstream << line << endl;
+		line = sep;
+		for ( i = 0; i < fieldcount; ++i )
+		    line += QString().rightJustify( 15, '-' ) + sep;
+		outstream << line << endl;
 	    }
-	    outstream << line << endl;
-	} while( rs->next() );
-	outstream << rs->size() << " record(s) processed" << endl;
-    } else if ( env.affectedRows() > -1 ) {
-	outstream << env.affectedRows() << " record(s) processed" << endl;
+	    rs->first();
+	    do {
+		line = sep;
+		localsql::Record& rec = rs->currentRecord();
+		for ( i = 0; i < fieldcount; ++i ) {
+		    bool nullfield;
+		    if ( !rs->isNull( i, nullfield ) )
+			break;
+		    if ( nullfield )
+			line += QString("NULL").rightJustify( 15 ).mid( 0, 15 ) + sep;
+		    else
+			line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
+		}
+		outstream << line << endl;
+	    } while( rs->next() );
+	    outstream << rs->size() << " record(s) processed" << endl;
+	} else if ( env.affectedRows() > -1 ) {
+	    outstream << env.affectedRows() << " record(s) processed" << endl;
+	}
     }
-
 
     if ( outfile.isOpen() )
 	outfile.close();

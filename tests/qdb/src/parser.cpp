@@ -1224,6 +1224,14 @@ QVariant Parser::matchColumnRef()
     int numDots = 0;
 
     while ( TRUE ) {
+	if ( yyTok == Tok_Aster ) {
+	    QValueList<QVariant> aster;
+	    yyTok = getToken();
+	    aster.append( (int) Node_Star );
+	    aster.append( columnName );
+	    return aster;
+	}
+
 	columnName = matchName();
 	if ( yyTok != Tok_Dot || numDots == 2 )
 	    break;
@@ -1910,7 +1918,7 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new Push(TRUE) ); // ###
+	yyProg->append( new Push((int) TRUE) ); // ###
 	yyProg->append( new MakeList );
 
 	matchColumnDefOptions( column );
@@ -2147,24 +2155,16 @@ void Parser::matchSelectStatement()
     QVariant havingCond;
 
     yyTok = getToken();
-    if ( yyTok == Tok_Aster ) {
-	QValueList<QVariant> aster;
-	yyTok = getToken();
-	aster.append( (int) Node_Star );
-	selectColumns.append( aster );
-	selectColumnNames.append( QString::null );
-    } else {
-	while ( TRUE ) {
-	    int start = yyPos;
-	    selectColumns.append( matchScalarExpr() );
-	    QString columnName = yyIn.mid( start, yyPos - start )
-				     .simplifyWhiteSpace();
-	    selectColumnNames.append( columnName );
+    while ( TRUE ) {
+	int start = yyPos;
+	selectColumns.append( matchScalarExpr() );
+	QString columnName = yyIn.mid( start, yyPos - start )
+				 .simplifyWhiteSpace();
+	selectColumnNames.append( columnName );
 
-	    if ( yyTok != Tok_Comma )
-		break;
-	    yyTok = getToken();
-	}
+	if ( yyTok != Tok_Comma )
+	    break;
+	yyTok = getToken();
     }
 
     matchFromClause();
@@ -2236,7 +2236,7 @@ void Parser::matchSelectStatement()
 		} else {
 		    resultColumnNos[*g].insert( f.key(), n );
 		    auxColumns.append( resolvedField(n, *g) );
-		    auxColumnNames.append( QString("#%1").arg(n) );
+		    auxColumnNames.append( *g );
 		    n++;
 		}
 		++g;
@@ -2256,7 +2256,7 @@ void Parser::matchSelectStatement()
 	    case 0:
 		resultColumnNos[*s].insert( s.key(), n );
 		auxColumns.append( resolvedField(n, *s) );
-		auxColumnNames.append( QString("#%1").arg(n) );
+		auxColumnNames.append( *s );
 		n++;
 		break;
 	    case 1:
@@ -2340,6 +2340,7 @@ void Parser::matchUpdateStatement()
     int next = yyNextLabel--;
     int end = yyNextLabel--;
 
+    yyProg->append( new MarkAll(tableId) );
     yyProg->appendLabel( next );
     yyProg->append( new NextMarked(tableId, end) );
 
@@ -2348,7 +2349,7 @@ void Parser::matchUpdateStatement()
     yyProg->append( new PushSeparator );
     while ( as != assignments.end() ) {
 	yyProg->append( new PushSeparator );
-// ###	yyProg->append( new PushFieldDesc(tableId, as.key()) );
+	yyProg->append( new Push(as.key()) );
 	emitExpr( *as );
 	yyProg->append( new MakeList );
 	++as;
