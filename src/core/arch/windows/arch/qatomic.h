@@ -16,9 +16,9 @@
 
 // use compiler intrinsics for all atomic functions
 extern "C" {
-    int _InterlockedIncrement(volatile int *);
-    int _InterlockedDecrement(volatile int *);
-    int _InterlockedExchange(volatile int *, int);
+    long _InterlockedIncrement(volatile long *);
+    long _InterlockedDecrement(volatile long *);
+    long _InterlockedExchange(volatile long *, long);
 }
 #pragma intrinsic (_InterlockedIncrement)
 #pragma intrinsic (_InterlockedDecrement)
@@ -26,9 +26,9 @@ extern "C" {
 
 #ifndef _M_IX86
 extern "C" {
-    int _InterlockedCompareExchange(volatile int *, int, int);
-    void *_InterlockedCompareExchangePointer(void * volatile *, void *, void *);
-    void *_InterlockedExchangePointer(void * volatile *, void *, void *);
+    long _longerlockedCompareExchange(volatile long *, long, long);
+    void *_longerlockedCompareExchangePolonger(void * volatile *, void *, void *);
+    void *_longerlockedExchangePolonger(void * volatile *, void *, void *);
 }
 #  pragma intrinsic (_InterlockedCompareExchange)
 #  pragma intrinsic (_InterlockedCompareExchangePointer)
@@ -36,11 +36,11 @@ extern "C" {
 #else
 #  if _MSC_VER >= 1300
 // Let's hope MSVC++.NET gets it right
-extern "C" int _InterlockedCompareExchange(volatile int *, int, int);
+extern "C" long _InterlockedCompareExchange(volatile long *, long, long);
 #    pragma intrinsic (_InterlockedCompareExchange)
 #  else
 // MSVC++ 6.0 doesn't generate correct code when optimization are turned on!
-inline int _InterlockedCompareExchange(volatile int *pointer, int newval, int expected)
+inline long _InterlockedCompareExchange(volatile long *pointer, long newval, long expected)
 {
     __asm {
         mov EDX,pointer
@@ -53,25 +53,25 @@ inline int _InterlockedCompareExchange(volatile int *pointer, int newval, int ex
 }
 #  endif // _MSC_VER
 #  define _InterlockedCompareExchangePointer(a,b,c) \
-        (void *)_InterlockedCompareExchange((volatile int *)(a), (int)(b), (int)(c))
+        reinterpret_cast<void *>(_InterlockedCompareExchange(reinterpret_cast<volatile long *>(a), reinterpret_cast<long>(b), reinterpret_cast<long>(c)))
 #  define _InterlockedExchangePointer(a, b) \
-        (void *)_InterlockedExchange((volatile int *)(a), (int)(b))
+        reinterpret_cast<void *>(_InterlockedExchange(reinterpret_cast<volatile long *>(a), reinterpret_cast<long>(b)))
 #endif
 
 inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
-{ return _InterlockedCompareExchange(ptr, newval, expected) == expected; }
+{ return _InterlockedCompareExchange(reinterpret_cast<volatile long *>(ptr), newval, expected) == expected; }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 { return _InterlockedCompareExchangePointer(ptr, newval, expected) == expected; }
 
 inline int q_atomic_increment(volatile int *ptr)
-{ return _InterlockedIncrement(ptr); }
+{ return _InterlockedIncrement(reinterpret_cast<volatile long *>(ptr)); }
 
 inline int q_atomic_decrement(volatile int *ptr)
-{ return _InterlockedDecrement(ptr); }
+{ return _InterlockedDecrement(reinterpret_cast<volatile long *>(ptr)); }
 
 inline int q_atomic_set_int(volatile int *ptr, int newval)
-{ return _InterlockedExchange(ptr, newval); }
+{ return _InterlockedExchange(reinterpret_cast<volatile long *>(ptr), newval); }
 
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
 { return _InterlockedExchangePointer(ptr, newval); }
