@@ -1230,6 +1230,42 @@ void QActionGroup::setWhatsThis( const QString& text )
     d->update( this );
 }
 
+/*!\reimp
+*/
+void QActionGroup::childEvent( QChildEvent *e )
+{
+    if ( !e->child()->inherits( "QAction" ) )
+	return;
+
+    QAction *action = (QAction*)e->child();
+
+    if ( e->inserted() ) {
+	for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
+	    cb.current()->insertItem( action->iconSet().pixmap(), action->text() );
+	}
+	for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
+	    QPopupMenu* popup = mb.current()->popup();
+	    if ( !popup )
+		continue;
+	    action->addTo( popup );
+	}
+    } else if ( e->removed() ) {
+	for ( QListIterator<QComboBox> cb( d->comboboxes ); cb.current(); ++cb ) {
+	    for ( int i = 0; i < cb.current()->count(); i++ ) {
+		if ( cb.current()->text( i ) == action->text() ) {
+		    cb.current()->removeItem( i );
+		    break;
+		}
+	    }
+	}
+	for ( QListIterator<QToolButton> mb( d->menubuttons ); mb.current(); ++mb ) {
+	    QPopupMenu* popup = mb.current()->popup();
+	    if ( !popup )
+		continue;
+	    action->removeFrom( popup );
+	}
+    }
+}
 
 /*!
   \fn void QActionGroup::selected(QAction*)

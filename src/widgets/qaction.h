@@ -142,6 +142,9 @@ public:
     void setToolTip( const QString& );
     void setWhatsThis( const QString& );
 
+protected:
+    void childEvent( QChildEvent* );
+
 signals:
     void selected( QAction* );
 
