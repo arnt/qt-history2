@@ -1,13 +1,16 @@
 #include "projectporter.h"
+#include <iostream>
 #include <QFile>
 #include <QDir>
 #include <QStringList>
 #include <QFileInfo>
-
 #include "qtsimplexml.h"
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
+
+using std::cout;
+using std::endl;
 
 ProjectPorter::ProjectPorter(QString rulesFileName)
 :rulesFileName(rulesFileName)
@@ -17,7 +20,14 @@ ProjectPorter::ProjectPorter(QString rulesFileName)
 
 void ProjectPorter::portProject(QString inPath, QString proFileName, QString outPath)
 {
-    QString proFileContents = loadFile(inPath+proFileName);
+    QString fullInFileName = inPath + proFileName;
+    QFileInfo infileInfo(fullInFileName);
+    if(!infileInfo.exists()) {
+        cout<<"Could not open file: " << fullInFileName.latin1() <<endl;
+        return;
+    }     
+   
+    QString proFileContents = loadFile(fullInFileName);
     QMap<QString, QString> proFileMap = proFileTagMap(proFileContents);
 #if 0
     puts(proFileContents.latin1());
@@ -86,6 +96,7 @@ void ProjectPorter::portProject(QString inPath, QString proFileName, QString out
     QString portedProFile = portProFile(proFileContents, proFileMap);
     if(!outPath.isEmpty())
         FileWriter::instance()->writeFileVerbously(outPath+proFileName, portedProFile.latin1());
+       
 }
 
 QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagMap)

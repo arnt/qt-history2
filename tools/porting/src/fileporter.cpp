@@ -1,4 +1,5 @@
 #include "fileporter.h"
+#include <iostream>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -6,6 +7,8 @@
 #include "replacetoken.h"
 #include "logger.h"
 
+using std::cout;
+using std::endl;
 
 QByteArray FilePorter::noPreprocess(const QString &filePath)
 {
@@ -27,9 +30,16 @@ FilePorter::FilePorter(QString rulesfilename)
 
 void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePath, QString outFilePath, FileType fileType )
 {
+    QString fullInFileName = inBasePath + inFilePath;
+    QFileInfo infileInfo(fullInFileName);
+    if(!infileInfo.exists()) {
+        cout<<"Could not open file: " << fullInFileName.latin1() <<endl;
+        return;
+    }
+   
     Lexer lexer;
     FileSymbol *sym = new FileSymbol();
-    sym->contents = noPreprocess(inBasePath + inFilePath);
+    sym->contents = noPreprocess(fullInFileName);
     sym->tokenStream = lexer.tokenize(sym);
 
     Logger::instance()->setFileState(inFilePath);
@@ -42,8 +52,8 @@ void FilePorter::port(QString inBasePath, QString inFilePath, QString outBasePat
     portedContents = includeAnalyse(portedContents, fileType);
 
     if(!outFilePath.isEmpty()) {
-        QString completeOutPath = outBasePath + outFilePath;
-        FileWriter::instance()->writeFileVerbously(completeOutPath, portedContents);
+        QString fullOutfileName = outBasePath + outFilePath;
+        FileWriter::instance()->writeFileVerbously(fullOutfileName, portedContents);
     }
     delete sym;
 }
