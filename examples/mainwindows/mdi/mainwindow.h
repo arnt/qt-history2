@@ -15,12 +15,21 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private slots:
-    MdiChild *newMdiChild();
+    void newFile();
     void open();
     void save();
     void saveAs();
+    void cut();
+    void copy();
+    void paste();
     void about();
+    void updateMenus();
+    void updateWindowMenu();
+    MdiChild *createMdiChild();
 
 private:
     void createActions();
@@ -35,6 +44,7 @@ private:
 
     QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *windowMenu;
     QMenu *helpMenu;
     QToolBar *fileToolBar;
     QToolBar *editToolBar;
@@ -42,11 +52,17 @@ private:
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
-    QAction *closeAct;
     QAction *exitAct;
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
+    QAction *closeAct;
+    QAction *closeAllAct;
+    QAction *tileAct;
+    QAction *cascadeAct;
+    QAction *nextAct;
+    QAction *previousAct;
+    QAction *separatorAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
 };

@@ -9,12 +9,23 @@ MdiChild::MdiChild()
     connect(document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
 
-    setCurrentFile("");
+    action = new QAction(this);
+    action->setCheckable(true);
+    connect(action, SIGNAL(triggered()), this, SLOT(show()));
+    connect(action, SIGNAL(triggered()), this, SLOT(setFocus()));
+}
+
+void MdiChild::newFile()
+{
+    static int sequenceNumber = 1;
+
+    isUntitled = true;
+    curFile = tr("document%1.txt").arg(sequenceNumber++);
+    setWindowTitle(curFile + "[*]");
 }
 
 bool MdiChild::loadFile(const QString &fileName)
 {
-
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("MDI"),
@@ -35,7 +46,7 @@ bool MdiChild::loadFile(const QString &fileName)
 
 bool MdiChild::save()
 {
-    if (curFile.isEmpty()) {
+    if (isUntitled) {
         return saveAs();
     } else {
         return saveFile(curFile);
@@ -44,7 +55,8 @@ bool MdiChild::save()
 
 bool MdiChild::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                                    curFile);
     if (fileName.isEmpty())
         return false;
 
@@ -71,6 +83,11 @@ bool MdiChild::saveFile(const QString &fileName)
     return true;
 }
 
+QString MdiChild::userFriendlyCurrentFile()
+{
+    return strippedName(curFile);
+}
+
 void MdiChild::closeEvent(QCloseEvent *event)
 {
     if (maybeSave()) {
@@ -89,8 +106,9 @@ bool MdiChild::maybeSave()
 {
     if (document()->isModified()) {
         int ret = QMessageBox::warning(this, tr("MDI"),
-                     tr("The document has been modified.\n"
-                        "Do you want to save your changes?"),
+                     tr("'%1' has been modified.\n"
+                        "Do you want to save your changes?")
+                     .arg(userFriendlyCurrentFile()),
                      QMessageBox::Yes | QMessageBox::Default,
                      QMessageBox::No,
                      QMessageBox::Cancel | QMessageBox::Escape);
@@ -107,11 +125,7 @@ void MdiChild::setCurrentFile(const QString &fileName)
     curFile = fileName;
     document()->setModified(false);
     setWindowModified(false);
-
-    if (curFile.isEmpty())
-        setWindowTitle(tr("Untitled"));
-    else
-        setWindowTitle(strippedName(curFile));
+    setWindowTitle(userFriendlyCurrentFile() + "[*]");
 }
 
 QString MdiChild::strippedName(const QString &fullFileName)

@@ -7,37 +7,49 @@ MainWindow::MainWindow()
 {
     workspace = new QWorkspace(this);
     setCentralWidget(workspace);
+    connect(workspace, SIGNAL(windowActivated(QWidget *)),
+            this, SLOT(updateMenus()));
 
     createActions();
     createMenus();
     createToolBars();
     createStatusBar();
+    updateMenus();
 
     readSettings();
 
     setWindowTitle(tr("MDI"));
 }
 
-MdiChild *MainWindow::newMdiChild()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    MdiChild *child = new MdiChild;
-    workspace->addWindow(child);
+    workspace->closeAllWindows();
+    if (activeMdiChild()) {
+        event->ignore();
+    } else {
+        writeSettings();
+        event->accept();
+    }
+}
 
-    connect(cutAct, SIGNAL(triggered()), child, SLOT(cut()));
-    connect(copyAct, SIGNAL(triggered()), child, SLOT(copy()));
-    connect(pasteAct, SIGNAL(triggered()), child, SLOT(paste()));
-
+void MainWindow::newFile()
+{
+    MdiChild *child = createMdiChild();
+    child->newFile();
     child->show();
-    return child;
 }
 
 void MainWindow::open()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
-        MdiChild *child = newMdiChild();
-        if (child->loadFile(fileName))
+        MdiChild *child = createMdiChild();
+        if (child->loadFile(fileName)) {
             statusBar()->showMessage(tr("File loaded"), 2000);
+            child->show();
+        } else {
+            child->close();
+        }
     }
 }
 
@@ -53,6 +65,21 @@ void MainWindow::saveAs()
         statusBar()->showMessage(tr("File saved"), 2000);
 }
 
+void MainWindow::cut()
+{
+    activeMdiChild()->cut();
+}
+
+void MainWindow::copy()
+{
+    activeMdiChild()->copy();
+}
+
+void MainWindow::paste()
+{
+    activeMdiChild()->paste();
+}
+
 void MainWindow::about()
 {
    QMessageBox::about(this, tr("About MDI"),
@@ -60,12 +87,67 @@ void MainWindow::about()
                "document interface applications using Qt."));
 }
 
+void MainWindow::updateMenus()
+{
+    bool hasMdiChild = (activeMdiChild() != 0);
+    saveAct->setEnabled(hasMdiChild);
+    saveAsAct->setEnabled(hasMdiChild);
+    pasteAct->setEnabled(hasMdiChild);
+    closeAct->setEnabled(hasMdiChild);
+    closeAllAct->setEnabled(hasMdiChild);
+    tileAct->setEnabled(hasMdiChild);
+    cascadeAct->setEnabled(hasMdiChild);
+    nextAct->setEnabled(hasMdiChild);
+    previousAct->setEnabled(hasMdiChild);
+    separatorAct->setVisible(hasMdiChild);
+
+    bool hasSelection = (activeMdiChild() &&
+                         activeMdiChild()->textCursor().hasSelection());
+    cutAct->setEnabled(hasSelection);
+    copyAct->setEnabled(hasSelection);
+}
+
+void MainWindow::updateWindowMenu()
+{
+    QList<QWidget *> windows = workspace->windowList();
+    separatorAct->setVisible(!windows.isEmpty());
+
+    for (int i = 0; i < windows.size(); ++i) {
+        MdiChild *child = qobject_cast<MdiChild *>(windows.at(i));
+
+        QString text;
+        if (i < 9) {
+            text = tr("&%1. %2").arg(i + 1)
+                                .arg(child->userFriendlyCurrentFile());
+        } else {
+            text = tr("%1. %2").arg(i + 1)
+                               .arg(child->userFriendlyCurrentFile());
+        }
+        child->windowMenuAction()->setText(text);
+        child->windowMenuAction()->setChecked(child == activeMdiChild());
+    }
+}
+
+MdiChild *MainWindow::createMdiChild()
+{
+    MdiChild *child = new MdiChild;
+    workspace->addWindow(child);
+    windowMenu->addAction(child->windowMenuAction());
+
+    connect(child, SIGNAL(copyAvailable(bool)),
+            cutAct, SLOT(setEnabled(bool)));
+    connect(child, SIGNAL(copyAvailable(bool)),
+            copyAct, SLOT(setEnabled(bool)));
+
+    return child;
+}
+
 void MainWindow::createActions()
 {
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
     newAct->setShortcut(tr("Ctrl+N"));
     newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, SIGNAL(triggered()), this, SLOT(newMdiChild()));
+    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
     openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
@@ -81,11 +163,6 @@ void MainWindow::createActions()
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    closeAct = new QAction(tr("&Close"), this);
-    closeAct->setShortcut(tr("Ctrl+W"));
-    closeAct->setStatusTip(tr("Close this window"));
-    connect(closeAct, SIGNAL(triggered()), this, SLOT(close()));
-
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
@@ -95,16 +172,54 @@ void MainWindow::createActions()
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
                             "clipboard"));
+    connect(cutAct, SIGNAL(triggered()), this, SLOT(cut()));
 
     copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
     copyAct->setShortcut(tr("Ctrl+C"));
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
                              "clipboard"));
+    connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
 
     pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcut(tr("Ctrl+V"));
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
                               "selection"));
+    connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
+
+    closeAct = new QAction(tr("Cl&ose"), this);
+    closeAct->setShortcut(tr("Ctrl+F4"));
+    closeAct->setStatusTip(tr("Close the active window"));
+    connect(closeAct, SIGNAL(triggered()),
+            workspace, SLOT(closeActiveWindow()));
+
+    closeAllAct = new QAction(tr("Close &All"), this);
+    closeAllAct->setStatusTip(tr("Close all the windows"));
+    connect(closeAllAct, SIGNAL(triggered()),
+            workspace, SLOT(closeAllWindows()));
+
+    tileAct = new QAction(tr("&Tile"), this);
+    tileAct->setStatusTip(tr("Tile the windows"));
+    connect(tileAct, SIGNAL(triggered()), workspace, SLOT(tile()));
+
+    cascadeAct = new QAction(tr("&Cascade"), this);
+    cascadeAct->setStatusTip(tr("Cascade the windows"));
+    connect(cascadeAct, SIGNAL(triggered()), workspace, SLOT(cascade()));
+
+    nextAct = new QAction(tr("Ne&xt"), this);
+    nextAct->setShortcut(tr("Ctrl+F6"));
+    nextAct->setStatusTip(tr("Move the focus to the next window"));
+    connect(nextAct, SIGNAL(triggered()),
+            workspace, SLOT(activateNextWindow()));
+
+    previousAct = new QAction(tr("Pre&vious"), this);
+    previousAct->setShortcut(tr("Ctrl+Shift+F6"));
+    previousAct->setStatusTip(tr("Move the focus to the previous "
+                                 "window"));
+    connect(previousAct, SIGNAL(triggered()),
+            workspace, SLOT(activatePreviousWindow()));
+
+    separatorAct = new QAction(this);
+    separatorAct->setSeparator(true);
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -123,13 +238,24 @@ void MainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
-    fileMenu->addAction(closeAct);
     fileMenu->addAction(exitAct);
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
+
+    windowMenu = menuBar()->addMenu(tr("&Window"));
+    windowMenu->addAction(closeAct);
+    windowMenu->addAction(closeAllAct);
+    windowMenu->addSeparator();
+    windowMenu->addAction(tileAct);
+    windowMenu->addAction(cascadeAct);
+    windowMenu->addSeparator();
+    windowMenu->addAction(nextAct);
+    windowMenu->addAction(previousAct);
+    windowMenu->addAction(separatorAct);
+    connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
 
     menuBar()->addSeparator();
 

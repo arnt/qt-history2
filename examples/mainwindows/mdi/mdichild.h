@@ -10,10 +10,13 @@ class MdiChild : public QTextEdit
 public:
     MdiChild();
 
+    void newFile();
     bool loadFile(const QString &fileName);
     bool save();
     bool saveAs();
     bool saveFile(const QString &fileName);
+    QString userFriendlyCurrentFile();
+    QAction *windowMenuAction() { return action; }
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -27,6 +30,8 @@ private:
     QString strippedName(const QString &fullFileName);
 
     QString curFile;
+    QAction *action;
+    bool isUntitled;
 };
 
 #endif
