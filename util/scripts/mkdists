@@ -812,7 +812,7 @@ sub copy_version {
 	}
 	open( O, "> $out" ) || die "could not open $out, stopped";
 	print O $_;
-	close I;
+	close O;
     }
 }
 
