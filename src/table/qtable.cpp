@@ -1908,6 +1908,44 @@ QTable::FocusStyle QTable::focusStyle() const
     return focusStl;
 }
 
+/*! This functions updates all the header states to be in sync with
+  the current selections. This should be called after programatically
+  changing, adding or removing selections, so that the headers are
+  updated.
+*/
+
+void QTable::updateHeaderStates()
+{
+    horizontalHeader()->setUpdatesEnabled( FALSE );
+    verticalHeader()->setUpdatesEnabled( FALSE );
+
+    ( (QTableHeader*)verticalHeader() )->setSectionStateToAll( QTableHeader::Normal );
+    ( (QTableHeader*)horizontalHeader() )->setSectionStateToAll( QTableHeader::Normal );
+
+    QPtrListIterator<QTableSelection> it( selections );
+    QTableSelection *s;
+    while ( ( s = it.current() ) != 0 ) {
+	++it;
+	if ( s->isActive() &&
+	     s->leftCol() == 0 &&
+	     s->rightCol() == numCols() - 1 ) {
+	    for ( int i = 0; i < s->bottomRow() - s->topRow() + 1; ++i )
+		leftHeader->setSectionState( s->topRow() + i, QTableHeader::Selected );
+	}
+	if ( s->isActive() &&
+	     s->topRow() == 0 &&
+	     s->bottomRow() == numRows() - 1 ) {
+	    for ( int i = 0; i < s->rightCol() - s->leftCol() + 1; ++i )
+		topHeader->setSectionState( s->leftCol() + i, QTableHeader::Selected );
+	}
+    }
+
+    horizontalHeader()->setUpdatesEnabled( TRUE );
+    verticalHeader()->setUpdatesEnabled( TRUE );
+    horizontalHeader()->repaint( FALSE );
+    verticalHeader()->repaint( FALSE );
+}
+
 /*! Returns the table's top QHeader.
 
     This header contains the column labels.

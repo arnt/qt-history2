@@ -319,6 +319,8 @@ public:
     virtual void setFocusStyle( FocusStyle fs );
     FocusStyle focusStyle() const;
 
+    void updateHeaderStates();
+
 public slots:
     virtual void setNumRows( int r );
     virtual void setNumCols( int r );
