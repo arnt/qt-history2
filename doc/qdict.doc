@@ -455,7 +455,7 @@
 */
 
 /*!
-  \fn type *QDictIterator::operator*() const
+  \fn type *QDictIterator::operator*()
   \internal
 */
 /*!

@@ -264,6 +264,9 @@
 */
 
 /*! \fn QMap<Key,T>& QMap::operator= ( const std::map<Key,T>& m )
+
+  \overload
+
   Assigns \a m to this map and returns a reference to this map.
 
   All iterators of the current map become invalidated by this
@@ -322,6 +325,9 @@
 
 /*!
   \fn ConstIterator QMap::find( const Key& k ) const
+
+  \overload
+
   Finds the key \a k in the map.
 
   Returns end() if no key matched.
@@ -339,6 +345,9 @@
 
 /*!
   \fn ConstIterator QMap::begin() const
+
+  \overload
+
   Returns an iterator pointing to the first element in the map. This
   iterator equals end() if the map is empty.
 
@@ -355,6 +364,9 @@
 
 /*!
   \fn ConstIterator QMap::end() const
+
+  \overload
+
   Returns an iterator pointing behind the last element in the map. This
   iterator equals begin() if the map is empty.
 
@@ -373,14 +385,14 @@
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m )
   \relates QMap
-  Reads a map from the stream. The types \e Key and \e T must implement
+  Reads the map \m from the stream \s. The types \e Key and \e T must implement
   the streaming operator as well.
 */
 
 /*!
   \fn QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m )
   \relates QMap
-  Writes a map to the stream. The types \e Key and \e T must implement
+  Writes the map \a m to the stream \a s. The types \e Key and \e T must implement
   the streaming operator as well.
 */
 
@@ -409,6 +421,9 @@
 */
 
 /*! \fn void QMap::erase( const key_type& k )
+
+  \overload
+
   Removes the item with the key \a k.
 
   \sa clear()
@@ -431,6 +446,8 @@
 // *****************************************************
 
 /*! \fn const T& QMap::operator[] ( const Key& k ) const
+
+  \overload
 
   \warning This function differs from the non-const version of the
   same function.  It will \e not insert an empty value if the key \a k
@@ -466,7 +483,7 @@
 */
 
 /*! \obsolete
-  \fn void QMap::remove( Iterator it )
+  \fn void QMap::remove( iterator it )
 
   Use erase() instead.
 
@@ -612,6 +629,8 @@
 /*!
   \fn QMapIterator<K,T> QMapIterator::operator++(int)
 
+  \overload
+
   Postfix ++ makes the succeeding item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the end of the map. Incrementing the iterator as
@@ -630,6 +649,8 @@
 /*!
   \fn QMapIterator<K,T> QMapIterator::operator--(int)
 
+  \overload
+
   Postfix -- makes the previous item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the beginning of the map. Decrementing the
@@ -646,6 +667,8 @@
 /*!
   \fn const T& QMapIterator::operator*() const
 
+  \overload
+
   Asterix operator. Returns a const reference to the current item. The
   same as data().
 */
@@ -653,15 +676,15 @@
 /*!
   \fn bool QMapIterator::operator==( const QMapIterator<K,T>& it ) const
 
-  Compares both iterators and returns TRUE if they point to the same
+  Compares the iterator to the \a it iterator and returns TRUE if they point to the same
   item.
 */
 
 /*!
   \fn bool QMapIterator::operator!=( const QMapIterator<K,T>& it ) const
 
-  Compares both iterators and returns TRUE if they point to different
-  items.
+  Compares the iterator to the \a it iterator and returns TRUE if they point to the same
+  item.
 */
 
 /*!
@@ -672,6 +695,8 @@
 
 /*!
   \fn const T& QMapIterator::data() const
+
+  \overload
 
   Returns a const reference to the data of the current item.
 */
@@ -744,6 +769,8 @@
 /*!
   \fn QMapConstIterator<K,T> QMapConstIterator::operator++(int)
 
+  \overload
+
   Postfix ++ makes the succeeding item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the end of the map. Incrementing the iterator as
@@ -762,6 +789,8 @@
 /*!
   \fn QMapConstIterator<K,T> QMapConstIterator::operator--(int)
 
+  \overload
+
   Postfix -- makes the previous item current and returns an iterator
   pointing to the new current item.  The iterator can not check
   whether it reached the beginning of the map. Decrementing the
@@ -778,15 +807,15 @@
 /*!
   \fn bool QMapConstIterator::operator==( const QMapConstIterator<K,T>& it ) const
 
-  Compares both iterators and returns TRUE if they point to the same
+  Compares the iterator to the \a it iterator and returns TRUE if they point to the same
   item.
 */
 
 /*!
   \fn bool QMapConstIterator::operator!=( const QMapConstIterator<K,T>& it ) const
 
-  Compares both iterators and returns TRUE if they point to different
-  items.
+  Compares the iterator to the \a it iterator and returns TRUE if they point to the same
+  item.
 */
 
 /*!

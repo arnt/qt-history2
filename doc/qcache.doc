@@ -211,7 +211,7 @@
 /*!
   \fn bool QCache::remove( const QString &k )
 
-  Removes the item associated with \e k, and returns TRUE if the item
+  Removes the item associated with \a k, and returns TRUE if the item
   was present in the cache or FALSE if it was not.
 
   The item is deleted if auto-deletion has been enabled, i.e., you have
@@ -229,7 +229,7 @@
 /*!
   \fn type *QCache::take( const QString &k )
 
-  Takes the item associated with \e k out of the cache without
+  Takes the item associated with \a k out of the cache without
   deleting it and returns a pointer to the item taken out, or null if
   the key does not exist in the cache.
 
@@ -322,8 +322,8 @@
 /*!
   \fn QCacheIterator::QCacheIterator( const QCache<type> &cache )
 
-  Constructs an iterator for \e cache.  The current iterator item is
-  set to point to the first item in the \e cache.
+  Constructs an iterator for \a cache.  The current iterator item is
+  set to point to the first item in the \a cache.
 */
 
 /*!
@@ -431,14 +431,14 @@
 /*!
   \fn type *QCacheIterator::operator+=( uint jump )
 
-  Returns the item \e jump positions after the current item, or null if
+  Returns the item \a jump positions after the current item, or null if
   it is beyond the last item.  Makes this the current item.
 */
 
 /*!
   \fn type *QCacheIterator::operator-=( uint jump )
 
-  Returns the item \e jump positions before the current item, or null if
+  Returns the item \a jump positions before the current item, or null if
   it is before the first item.  Makes this the current item.
 */
 

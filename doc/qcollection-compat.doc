@@ -101,5 +101,5 @@
   \code
 #include <qvector.h>\endcode
 
-  The QVector class has been renamed <b> \l QVector </b> in Qt 3.0.
+  The QVector class has been renamed <b> \l QPtrVector </b> in Qt 3.0.
 */
