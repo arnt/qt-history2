@@ -69,7 +69,7 @@ extern "C" int res_init();
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T	int
+#define QT_SOCKLEN_T		int
 
 
 #endif // QPLATFORMDEFS_H
