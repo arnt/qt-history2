@@ -128,7 +128,8 @@ public:
     int wrapColumnOrWidth() const;
     void setWrapColumnOrWidth(int w);
 
-    bool find(const QString &exp, QTextDocument::FindFlags options);
+    bool find(const QString &exp, QTextDocument::FindFlags options = 0,
+              QTextDocument::FindDirection direction = QTextDocument::FindForward);
 
     inline QString toPlainText() const
     { return document()->toPlainText(); }

@@ -2196,12 +2196,13 @@ void QTextEdit::setWrapColumnOrWidth(int w)
 
 /*!
     Finds the next occurrence of the string, \a exp, using the given
-    \a options. Returns true if \a exp was found and changes the cursor
-    to select the match; otherwise returns false;
+    \a options searching in direction \a direction. Returns true if \a
+    exp was found and changes the cursor to select the match;
+    otherwise returns false;
 */
-bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
+bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QTextDocument::FindDirection direction)
 {
-    QTextCursor search = d->doc->find(exp, d->cursor, options);
+    QTextCursor search = d->doc->find(exp, d->cursor, options, direction);
     if (search.isNull())
         return false;
 
