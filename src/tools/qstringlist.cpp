@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#9 $
 **
 ** Implementation of QStringList
 **
@@ -31,7 +31,7 @@
 QDataStream &operator>>( QDataStream& s, QStringList& l )
 {
   l.clear();
-  
+
   Q_UINT32 c;
   s >> c;
   for( uint i = 0; i < c; ++i )
@@ -62,11 +62,37 @@ QDataStream &operator<<( QDataStream& s, const QStringList& l )
   \class QStringList qstringlist.h
   \brief A list of strings
 
+  \ingroup tools
+  \ingroup shared
+
   This class is a list of QString objects. Like QValueList it is
   value based unlike QList. In contrast to QStrList it deals with
   real QString objects instead of character pointers. That makes
-  QStringList the class of joice if you have to deal with unicode
+  QStringList the class of choice if you have to deal with unicode
   strings.
+  
+  Like QString itself, a QStringList provides implicit
+  share. Therefore string lists can be passed around
+  as value-parameters both fast and safe.
+  
+  Example:
+  \code
+  	QStringList list;
+
+	// three different ways of appending values:
+	list.append( "Torben");
+	list += "Warwick";
+	list << "Matthias" << "Arnt" << "Paul";
+
+	// sort the list, Arnt's now first
+	list.sort();
+	
+	// print it out
+	for ( QStringList::Iterator it = list.begin(); it != list.end() ) {
+	    printf( "%s \n", it->latin1() );
+	}
+  \endcode
+  
 */
 
 /*! \fn QStringList::QStringList()
