@@ -842,10 +842,9 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
     QStringList::Iterator oit = objl.begin(), sit = srcl.begin();
     QString stringSrc("$src"), stringObj("$obj");
     for(;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
-        QString hdr = QMakeSourceFileInfo::mocFile((*sit));
-        t << (*oit) << ": "
-          << (*sit) << " " << findDependencies((*sit)).join(" \\\n\t\t") << " "
-          << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
+        QString hdr = QMakeSourceFileInfo::mocSource((*sit));
+        t << (*oit) << ": " << (*sit) << " " << valList(findDependencies(*sit)) << " "
+          << hdr << " " << valList(findDependencies(hdr));
         bool use_implicit_rule = !project->isEmpty("QMAKE_RUN_CXX_IMP");
         if(use_implicit_rule) {
             if(!project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR")) {
