@@ -30,10 +30,10 @@ void ScriptEngineArabic::shape( ShapedItem *result )
     len = shaped.length();
 
     d->num_glyphs = len;
-    d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
+    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
     int error = d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     if ( error == FontEngineIface::OutOfMemory ) {
-	d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
+	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     }
     d->offsets = new Offset[d->num_glyphs];

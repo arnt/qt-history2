@@ -92,6 +92,34 @@ public:
     short y;
 };
 
+
+// enum and struct are  made to be compatible with Uniscribe
+struct GlyphAttributes {
+    // highest value means highest priority for justification.
+    enum Justification {
+	NoJustification= 0,   // Justification can't be applied at this glyph
+	Arabic_Space   = 1,   // This glyph represents a space in an Arabic item
+	Character      = 2,   // Inter-character justification point follows this glyph
+	Space          = 4,   // This glyph represents a blank outside an Arabic run
+	Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
+	Arabic_Kashida = 8,   // Kashida(U+640) in middle of word
+	Arabic_Alef    = 9,   // Final form of Alef-like (U+627, U+625, U+623, U+632)
+	Arabic_Ha      = 10,  // Final Form Of Ha (U+647)
+	Arabic_Ra      = 11,  // Final Form Of Ra (U+631)
+	Arabic_Ba      = 12,  // Middle-Of-Word Form Of Ba (U+628)
+	Arabic_Bara    = 13,  // Ligature Of Alike (U+628,U+631)
+	Arabic_Seen    = 14,  // Highest Priority: Initial Shape Of Seen(U+633) (End)
+    };
+    unsigned int justification   :4;  // Justification class
+    unsigned int clusterStart    :1;  // First glyph of representation of cluster
+    unsigned int mark            :1;  // needs to be positioned around base char
+    unsigned int zeroWidth       :1;  // Blank, ZWJ, ZWNJ etc, with no width
+    unsigned int reserved        :1;  // General reserved
+    unsigned int engineReserved  :8;
+};
+
+typedef unsigned short GlyphIndex;
+
 class ShapedItemPrivate
 {
 public:
@@ -103,7 +131,7 @@ public:
 	delete[] offsets;
     }
     int num_glyphs;
-    int * glyphs;
+    GlyphIndex * glyphs;
     Offset *offsets;
     FontEngineIface *fontEngine;
     ScriptAnalysis analysis;
@@ -118,7 +146,7 @@ public:
     ShapedItem();
     ~ShapedItem();
 
-    const int *glyphs() const;
+    const GlyphIndex *glyphs() const;
     int count() const;
     const Offset *offsets() const;
 

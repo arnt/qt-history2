@@ -2,6 +2,7 @@
 #define FONTENGINEIFACE_H
 
 #include <qshared.h>
+#include "qtextlayout.h"
 
 class QChar;
 class QPainter;
@@ -34,16 +35,16 @@ public:
     virtual ~FontEngineIface() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const = 0;
+    virtual Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const = 0;
 
     virtual const OpenTypeIface *openTypeIface() const { return 0; }
     virtual int cmap() const = 0;
 
     // #### pass in offsets array
-    virtual void draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
 
-    virtual int width( const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;
-    virtual QCharStruct boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual int width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
+    virtual QCharStruct boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs ) = 0;
 
     virtual int ascent() const = 0;
     virtual int descent() const = 0;

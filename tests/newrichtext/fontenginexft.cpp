@@ -46,7 +46,7 @@ FontEngineXft::~FontEngineXft()
     _pattern = 0;
 }
 
-FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const
+FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -68,7 +68,7 @@ FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, 
     return NoError;
 }
 
-void FontEngineXft::draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs )
+void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     Qt::BGMode bgmode = p->backgroundMode();
     XftDraw *draw = ((HackPaintDevice *)p->device())->xftDrawHandle();
@@ -93,10 +93,10 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const int *glyphs, const Of
     col.color.blue = pen.blue () | pen.blue() << 8;
     col.color.alpha = 0xffff;
     col.pixel = pen.pixel();
-    XftDrawString32 (draw, &col, _font, x, y, (XftChar32 *) glyphs, numGlyphs);
+    XftDrawString16 (draw, &col, _font, x, y, (XftChar16 *) glyphs, numGlyphs);
 }
 
-int FontEngineXft::width( const int *glyphs, const Offset *offsets, int numGlyphs )
+int FontEngineXft::width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int width = 0;
 
@@ -114,7 +114,7 @@ int FontEngineXft::width( const int *glyphs, const Offset *offsets, int numGlyph
 
 }
 
-QCharStruct FontEngineXft::boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs )
+QCharStruct FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
@@ -141,16 +141,17 @@ QCharStruct FontEngineXft::boundingBox( const int *glyphs, const Offset *offsets
 	}
 	overall.width = QMAX( overall.width, x );
     }
+    return overall;
 }
 
 int FontEngineXft::ascent() const
 {
-    _font->ascent;
+    return _font->ascent;
 }
 
 int FontEngineXft::descent() const
 {
-    _font->descent;
+    return _font->descent;
 }
 
 int FontEngineXft::leading() const
@@ -161,7 +162,7 @@ int FontEngineXft::leading() const
 
 int FontEngineXft::maxCharWidth() const
 {
-    _font->max_advance_width;
+    return _font->max_advance_width;
 }
 
 int FontEngineXft::cmap() const
@@ -176,11 +177,11 @@ const char *FontEngineXft::name() const
 
 bool FontEngineXft::canRender( const QChar *string,  int len )
 {
-    int glyphs[256];
+    GlyphIndex glyphs[256];
     int nglyphs = 255;
-    int *g = glyphs;
+    GlyphIndex *g = glyphs;
     if ( stringToCMap( string, len, g, &nglyphs, FALSE ) == OutOfMemory ) {
-	g = (int *)malloc( nglyphs*sizeof(int) );
+	g = (GlyphIndex *)malloc( nglyphs*sizeof(GlyphIndex) );
 	stringToCMap( string, len, g, &nglyphs, FALSE );
     }
 

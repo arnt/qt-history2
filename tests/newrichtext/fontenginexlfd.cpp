@@ -80,7 +80,7 @@ FontEngineXLFD::~FontEngineXLFD()
     _fs = 0;
 }
 
-FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const
+FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -121,7 +121,7 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
     return NoError;
 }
 
-void FontEngineXLFD::draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs )
+void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
 //     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
@@ -176,7 +176,7 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const int *glyphs, const O
     }
 }
 
-int FontEngineXLFD::width( const int *glyphs, const Offset *offsets, int numGlyphs )
+int FontEngineXLFD::width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int width = 0;
 
@@ -194,7 +194,7 @@ int FontEngineXLFD::width( const int *glyphs, const Offset *offsets, int numGlyp
     return (int)(width*_scale);
 }
 
-QCharStruct FontEngineXLFD::boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs )
+QCharStruct FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs )
 {
     int i;
 
@@ -263,11 +263,11 @@ const char *FontEngineXLFD::name() const
 
 bool FontEngineXLFD::canRender( const QChar *string,  int len )
 {
-    int glyphs[256];
+    GlyphIndex glyphs[256];
     int nglyphs = 255;
-    int *g = glyphs;
+    GlyphIndex *g = glyphs;
     if ( stringToCMap( string, len, g, &nglyphs, FALSE ) == OutOfMemory ) {
-	g = (int *)malloc( nglyphs*sizeof(int) );
+	g = (GlyphIndex *)malloc( nglyphs*sizeof(GlyphIndex) );
 	stringToCMap( string, len, g, &nglyphs, FALSE );
     }
 

@@ -153,11 +153,11 @@ void ScriptEngineBasic::shape( ShapedItem *result )
 
     ShapedItemPrivate *d = result->d;
     d->num_glyphs = len;
-    d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
+    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
     bool reverse = d->analysis.bidiLevel % 2;
     int error = d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs, reverse );
     if ( error == FontEngineIface::OutOfMemory ) {
-	d->glyphs = (int *)realloc( d->glyphs, d->num_glyphs*sizeof( int ) );
+	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs, reverse );
     }
     d->offsets = new Offset[d->num_glyphs];

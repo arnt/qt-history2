@@ -14,12 +14,12 @@ public:
     FontEngineXLFD( XFontStruct *fs, const char *name, QTextCodec *codec, int cmap );
     ~FontEngineXLFD();
 
-    Error stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const;
+    Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs, bool reverse ) const;
 
-    void draw( QPainter *p, int x, int y, const int *glyphs, const Offset *offsets, int numGlyphs );
+    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
 
-    int width( const int *glyphs, const Offset *offsets, int numGlyphs );
-    QCharStruct boundingBox( const int *glyphs, const Offset *offsets, int numGlyphs );
+    int width( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
+    QCharStruct boundingBox( const GlyphIndex *glyphs, const Offset *offsets, int numGlyphs );
 
     int ascent() const;
     int descent() const;

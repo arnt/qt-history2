@@ -41,7 +41,7 @@ ShapedItem::~ShapedItem()
 }
 
 
-const int *ShapedItem::glyphs() const
+const GlyphIndex *ShapedItem::glyphs() const
 {
     return d->glyphs;
 
