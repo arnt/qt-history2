@@ -655,14 +655,9 @@ bool QAction::isChecked() const
 */
 void QAction::setEnabled(bool b)
 {
-    if (d->forceDisabled != b)
-        return;
-
     d->enabled = b;
     d->forceDisabled = !b;
-    if (d->shortcutId) 
-        d->setShortcutEnabled(b, qApp->d->shortcutMap);
-
+    d->setShortcutEnabled(b, qApp->d->shortcutMap);
     d->sendDataChanged();
 }
 
@@ -684,9 +679,6 @@ bool QAction::isEnabled() const
 */
 void QAction::setVisible(bool b)
 {
-    if (d->forceInvisible != b)
-        return;
-
     d->forceInvisible = !b;
     d->visible = b;
     d->sendDataChanged();
