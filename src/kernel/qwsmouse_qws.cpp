@@ -1,3 +1,23 @@
+/****************************************************************************
+** $Id: //depot/qt/qws/util/qws/qws.cpp#4 $
+**
+** Implementation of Qt/Embedded mouse drivers
+**
+** Created : 991025
+**
+** Copyright (C) 1992-2000 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit Professional Edition.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing.
+**
+*****************************************************************************/
+
 #include "qwindowsystem_qws.h"
 #include "qwsevent.h"
 #include "qwscommand.h"
@@ -25,29 +45,7 @@
 #endif
 
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
-                     Microsoft = 2 };
-static const int mouseBufSize = 100;
-static QPoint mousePos;
-
-class MouseHandlerPrivate : public MouseHandler {
-    Q_OBJECT
-public:
-    MouseHandlerPrivate(const QString& spec);
-    ~MouseHandlerPrivate();
-
-private:
-    int mouseFD;
-    int mouseIdx;
-    uchar mouseBuf[mouseBufSize];
-    MouseProtocol mouseProtocol;
-    void handleMouseData();
-private slots:
-    void sendRelease();
-    void readMouseData();
-private:
-    int obstate;
-    QTimer *rtimer;
-};
+                     Microsoft = 2, TPanel = 3 };
 
 typedef struct {
     char *name;
@@ -58,8 +56,38 @@ static const MouseConfig mouseConfig[] = {
     { "MouseMan",	MouseMan },
     { "IntelliMouse",	IntelliMouse },
     { "Microsoft",      Microsoft },
+    { "TPanel",         TPanel },
     { 0,		Unknown }
 };
+
+
+static const int mouseBufSize = 100;
+static QPoint mousePos;
+
+/*
+ * Standard mouse driver
+ */
+
+class MouseHandlerPrivate : public MouseHandler {
+    Q_OBJECT
+public:
+    MouseHandlerPrivate( MouseProtocol protocol, QString mouseDev );
+    ~MouseHandlerPrivate();
+
+private:
+    int mouseFD;
+    int mouseIdx;
+    uchar mouseBuf[mouseBufSize];
+    MouseProtocol mouseProtocol;
+    void handleMouseData();
+
+private slots:
+    void readMouseData();
+
+private:
+    int obstate;
+};
+
 
 typedef struct {
     int bytesPerPacket;
@@ -70,108 +98,6 @@ static const MouseData mouseData[] = {
     { 4 },  // intelliMouse
     { 3 }   // Microsoft
 };
-
-#ifdef __MIPSEL__
-static int tlx=-400;
-static int tly=-400;
-static int brx=400;
-static int bry=400;
-static int addx=400;
-static int addy=400;
-#endif
-
-void MouseHandlerPrivate::readMouseData()
-{
-#ifdef QWS_TOUCHPANEL
-    if(!qt_screen)
-	return;
-    short data[6];
-    int ret;
-    static int prev_valid=0;
-    static QPoint prev;
-    static int prev_pressure = 0;
-    static bool pressed = FALSE;
-    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
-
-    #define EMIT_MOUSE \
-	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \
-			  (prev.y()+addy)*qt_screen->height()/(bry-tly)); \
-	if ( reverse ) { \
-	    q.setX( qt_screen->width()-q.x() ); \
-	    q.setY( qt_screen->height()-q.y() ); \
-	} \
-	if ( q != mousePos ) { \
-	    mousePos = q; \
-	    emit mouseChanged(mousePos, Qt::LeftButton); \
-	    pressed = TRUE; \
-	    rtimer->stop(); \
-	}
-
-    do {
-	ret=read(mouseFD,data,sizeof(data));
-
-	if(ret==sizeof(data)) {
-	    // "auto calibrate" for now.
-	    if ( data[0] & 0x8000 ) {
-		if ( data[5] > 800 ) {
-		    if ( prev_pressure - data[5] < 40 ) {
-			QPoint t(data[3]-data[4],data[2]-data[1]);
-			if(t.x()<tlx)
-			    tlx=t.x();
-			if(t.y()<tly)
-			    tly=t.y();
-			if(t.x()>brx)
-			    brx=t.x();
-			if(t.y()>bry)
-			    bry=t.y();
-			addx=-tlx;
-			addy=-tly;
-			if ( prev_valid ) {
-			    QPoint d = t-prev;
-			    if ( d.manhattanLength() > 450 ) // scan error
-				return;
-			    if ( QABS(d.x()) < 3 && QABS(d.y()) < 3 )   // insignificant change
-				return;
-			    prev = (t+prev)/2;
-			} else {
-			    prev = t;
-			}
-			prev_valid++;
-		    }
-		    prev_pressure = data[5];
-		}
-	    } else {
-		if ( prev_valid ) {
-		    prev_valid = 0;
-		    EMIT_MOUSE
-		}
-		if ( pressed ) {
-		    rtimer->start( 40, TRUE );
-		    //emit mouseChanged(mousePos, 0);
-		    pressed = FALSE;
-		}
-	    }
-	}
-    } while ( ret > 0 );
-    if ( prev_valid > 1 ) {
-	prev_valid = 0;
-	EMIT_MOUSE
-    }
-#else
-    int n;
-    do {
-	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
-	if ( n > 0 )
-	    mouseIdx += n;
-    } while ( n > 0 );
-    handleMouseData();
-#endif
-}
-
-void MouseHandlerPrivate::sendRelease()
-{
-    emit mouseChanged(mousePos, 0);
-}
 
 
 static void limitToScreen( QPoint &pt )
@@ -186,6 +112,18 @@ static void limitToScreen( QPoint &pt )
     pt.setX( QMIN( w-1, QMAX( 0, pt.x() )));
     pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
 }
+
+void MouseHandlerPrivate::readMouseData()
+{
+    int n;
+    do {
+	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	if ( n > 0 )
+	    mouseIdx += n;
+    } while ( n > 0 );
+    handleMouseData();
+}
+
 
 /*
 */
@@ -299,12 +237,135 @@ void MouseHandlerPrivate::handleMouseData()
 }
 
 
-MouseHandlerPrivate::MouseHandlerPrivate(const QString& spec)
+MouseHandlerPrivate::MouseHandlerPrivate( MouseProtocol protocol,
+					  QString mouseDev )
+{
+    mouseProtocol = protocol;
+
+    if ( mouseDev.isEmpty() )
+	mouseDev = "/dev/mouse";
+
+    static int init=0;
+    if ( !init && qt_screen ) {
+	init = 1;
+	mousePos = QPoint(qt_screen->width()/2,
+			  qt_screen->height()/2);
+    }
+
+    obstate = -1;
+    if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
+	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
+		strerror(errno));
+    } else {
+	// Clear pending input
+
+	tcflush(mouseFD,TCIFLUSH);
+
+	bool ps2 = false;
+
+	switch (mouseProtocol) {
+
+	    case MouseMan:
+		ps2 = true;
+		write(mouseFD,"",1);
+		usleep(50000);
+		write(mouseFD,"@EeI!",5);
+		break;
+
+	    case IntelliMouse: {
+		    qDebug("Init intellimouse");
+		    ps2 = true;
+		    const unsigned char init[] = { 243, 200, 243, 100, 243, 80 };
+		    write(mouseFD,"",1);
+		    usleep(50000);
+		    write(mouseFD,init,6);
+		}
+		break;
+
+	    case Microsoft:
+		struct termios tty;
+
+		tcgetattr(mouseFD, &tty);
+
+		tty.c_iflag = IGNBRK | IGNPAR;
+		tty.c_oflag = 0;
+		tty.c_lflag = 0;
+		tty.c_line = 0;
+		tty.c_cc[VTIME] = 0;
+		tty.c_cc[VMIN] = 1;
+		tty.c_cflag = B1200 | CS7 | CREAD | CLOCAL | HUPCL;
+		tcsetattr(mouseFD, TCSAFLUSH, &tty); /* set parameters */
+		break;
+
+	    default:
+		qDebug("Unknown mouse protocol");
+		exit(1);
+	}
+
+	if (ps2) {
+	    char buf[] = { 246, 244 };
+	    write(mouseFD,buf,1);
+	    write(mouseFD,buf+1,1);
+	}
+
+	usleep(50000);
+	tcflush(mouseFD,TCIFLUSH);	    // ### doesn't seem to work.
+
+	char buf[2];
+	while (read(mouseFD, buf, 1) > 0);  // eat unwanted replies
+
+	mouseIdx = 0;
+
+	QSocketNotifier *mouseNotifier;
+	mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
+	connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+    }
+}
+
+MouseHandlerPrivate::~MouseHandlerPrivate()
+{
+    if (mouseFD >= 0)
+	close(mouseFD);
+}
+
+/*
+ * Handler for /dev/tpanel Linux kernel driver
+ */
+
+
+#ifdef QWS_TOUCHPANEL
+static int tlx=-400;
+static int tly=-400;
+static int brx=400;
+static int bry=400;
+static int addx=400;
+static int addy=400;
+#endif
+
+class TPanelHandlerPrivate : public MouseHandler {
+    Q_OBJECT
+public:
+    TPanelHandlerPrivate(MouseProtocol, QString dev);
+    ~TPanelHandlerPrivate();
+
+private:
+    int mouseFD;
+    MouseProtocol mouseProtocol;
+private slots:
+    void sendRelease();
+    void readMouseData();
+private:
+    QTimer *rtimer;
+};
+
+TPanelHandlerPrivate::TPanelHandlerPrivate( MouseProtocol, QString dev)
 {
 #ifdef QWS_TOUCHPANEL
+    if ( dev.isEmpty() )
+	dev = "/dev/tpanel";
 
-    if ((mouseFD = open( "/dev/tpanel", O_RDONLY)) < 0) {
-        qFatal( "Cannot open /dev/tpanel (%s)", strerror(errno));
+    if ((mouseFD = open( dev, O_RDONLY)) < 0) {
+        qFatal( "Cannot open %s (%s)", dev.latin1(), strerror(errno));
     } else {
         qDebug("Opened panel %d",mouseFD);
         sleep(1);
@@ -324,15 +385,108 @@ MouseHandlerPrivate::MouseHandlerPrivate(const QString& spec)
 
     rtimer = new QTimer( this );
     connect( rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
-#else
-    static int init=0;
-    if ( !init && qt_screen ) {
-	init = 1;
-	mousePos = QPoint(qt_screen->width()/2,
-			  qt_screen->height()/2);
-    }
+#endif
+}
 
-    obstate = -1;
+TPanelHandlerPrivate::~TPanelHandlerPrivate()
+{
+    if (mouseFD >= 0)
+	close(mouseFD);
+}
+
+void TPanelHandlerPrivate::sendRelease()
+{
+    emit mouseChanged(mousePos, 0);
+}
+
+void TPanelHandlerPrivate::readMouseData()
+{
+#ifdef QWS_TOUCHPANEL
+    if(!qt_screen)
+	return;
+    short data[6];
+    int ret;
+    static int prev_valid=0;
+    static QPoint prev;
+    static int prev_pressure = 0;
+    static bool pressed = FALSE;
+    static bool reverse = TRUE;  // = TRUE; Osprey axis reversed
+//    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
+
+    #define EMIT_MOUSE \
+	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \
+			  (prev.y()+addy)*qt_screen->height()/(bry-tly)); \
+	if ( reverse ) { \
+	    q.setX( qt_screen->width()-q.x() ); \
+	    q.setY( qt_screen->height()-q.y() ); \
+	} \
+	if ( q != mousePos ) { \
+	    mousePos = q; \
+	    emit mouseChanged(mousePos, Qt::LeftButton); \
+	    pressed = TRUE; \
+	    rtimer->stop(); \
+	}
+
+    do {
+	ret=read(mouseFD,data,sizeof(data));
+
+	if(ret==sizeof(data)) {
+	    // "auto calibrate" for now.
+	    if ( data[0] & 0x8000 ) {
+		if ( data[5] > 800 ) {
+		    if ( prev_pressure - data[5] < 40 ) {
+			QPoint t(data[3]-data[4],data[2]-data[1]);
+			if(t.x()<tlx)
+			    tlx=t.x();
+			if(t.y()<tly)
+			    tly=t.y();
+			if(t.x()>brx)
+			    brx=t.x();
+			if(t.y()>bry)
+			    bry=t.y();
+			addx=-tlx;
+			addy=-tly;
+			if ( prev_valid ) {
+			    QPoint d = t-prev;
+			    if ( d.manhattanLength() > 450 ) // scan error
+				return;
+			    if ( QABS(d.x()) < 3 && QABS(d.y()) < 3 )   // insignificant change
+				return;
+			    prev = (t+prev)/2;
+			} else {
+			    prev = t;
+			}
+			prev_valid++;
+		    }
+		    prev_pressure = data[5];
+		}
+	    } else {
+		if ( prev_valid ) {
+		    prev_valid = 0;
+		    EMIT_MOUSE
+		}
+		if ( pressed ) {
+		    rtimer->start( 40, TRUE );
+		    //emit mouseChanged(mousePos, 0);
+		    pressed = FALSE;
+		}
+	    }
+	}
+    } while ( ret > 0 );
+    if ( prev_valid > 1 ) {
+	prev_valid = 0;
+	EMIT_MOUSE
+    }
+#endif
+}
+
+
+/*
+ * return a MouseHandler that supports /a spec.
+ */
+
+MouseHandler* QWSServer::newMouseHandler(const QString& spec)
+{
     int c = spec.find(':');
     QString mouseProto;
     QString mouseDev;
@@ -341,99 +495,36 @@ MouseHandlerPrivate::MouseHandlerPrivate(const QString& spec)
 	mouseDev = spec.mid(c+1);
     } else {
 	mouseProto = spec;
-	mouseDev = "/dev/mouse";
     }
-    if ((mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY)) < 0) {
-	qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
-		strerror(errno));
-    } else {
-	int idx = 0;
-	mouseProtocol = Unknown;
-	while (mouseProtocol == Unknown && mouseConfig[idx].name) {
-	    if (mouseProto == QString(mouseConfig[idx].name)) {
-		mouseProtocol = mouseConfig[idx].id;
-	    }
-	    idx++;
+
+    MouseProtocol mouseProtocol = Unknown;
+
+    int idx = 0;
+    while (mouseProtocol == Unknown && mouseConfig[idx].name) {
+	if (mouseProto == QString(mouseConfig[idx].name)) {
+	    mouseProtocol = mouseConfig[idx].id;
 	}
-
-	if (mouseProtocol == Unknown) {
-	    qDebug("Unknown mouse protocol: %s", mouseProto.ascii());
-	} else {
-	    // Clear pending input
-
-	    tcflush(mouseFD,TCIFLUSH);
-
-	    bool ps2 = false;
-
-	    switch (mouseProtocol) {
-
-		case MouseMan:
-		    ps2 = true;
-		    write(mouseFD,"",1);
-		    usleep(50000);
-		    write(mouseFD,"@EeI!",5);
-		    break;
-
-		case IntelliMouse: {
-			qDebug("Init intellimouse");
-			ps2 = true;
-			const unsigned char init[] = { 243, 200, 243, 100, 243, 80 };
-			write(mouseFD,"",1);
-			usleep(50000);
-			write(mouseFD,init,6);
-		    }
-		    break;
-
-		case Microsoft:
-		    struct termios tty;
-
-		    tcgetattr(mouseFD, &tty);
-
-		    tty.c_iflag = IGNBRK | IGNPAR;
-		    tty.c_oflag = 0;
-		    tty.c_lflag = 0;
-		    tty.c_line = 0;
-		    tty.c_cc[VTIME] = 0;
-		    tty.c_cc[VMIN] = 1;
-		    tty.c_cflag = B1200 | CS7 | CREAD | CLOCAL | HUPCL;
-		    tcsetattr(mouseFD, TCSAFLUSH, &tty); /* set parameters */
-		    break;
-
-		default:
-		    qDebug("Unknown mouse protocol");
-		    exit(1);
-	    }
-
-	    if (ps2) {
-		char buf[] = { 246, 244 };
-		write(mouseFD,buf,1);
-		write(mouseFD,buf+1,1);
-	    }
-
-	    usleep(50000);
-	    tcflush(mouseFD,TCIFLUSH);	    // ### doesn't seem to work.
-
-	    char buf[2];
-	    while (read(mouseFD, buf, 1) > 0);  // eat unwanted replies
-
-	    mouseIdx = 0;
-
-	    QSocketNotifier *mouseNotifier;
-	    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
-	    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
-	}
+	idx++;
     }
-#endif
-}
-MouseHandlerPrivate::~MouseHandlerPrivate()
-{
-    if (mouseFD >= 0)
-	close(mouseFD);
-}
 
-MouseHandler* QWSServer::newMouseHandler(const QString& spec)
-{
-    return new MouseHandlerPrivate(spec);
+    MouseHandler *handler = 0;
+
+    switch ( mouseProtocol ) {
+	case MouseMan:
+	case IntelliMouse:
+	case Microsoft:
+	    handler = new MouseHandlerPrivate( mouseProtocol, mouseDev );
+	    break;
+	
+	case TPanel:
+	    handler = new TPanelHandlerPrivate( mouseProtocol, mouseDev );
+	    break;
+
+	default:
+	    qDebug( "Mouse type %s unsupported", spec.latin1() );
+    }
+
+    return handler;
 }
 
 #include "qwsmouse_qws.moc"

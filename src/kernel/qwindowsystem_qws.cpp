@@ -1274,8 +1274,12 @@ void QWSServer::openMouse()
 {
     QString mice = getenv("QWS_MOUSE_PROTO");
     if ( mice.isEmpty() ) {
-	qDebug("Assuming MouseMan:/dev/mouse");
+#ifdef __MIPSEL__
+	mice = "TPanel:/dev/tpanel";
+#else
 	mice = "MouseMan:/dev/mouse";
+#endif
+	qDebug("Assuming %s", mice.latin1() );
     }
     closeMouse();
     QStringList mouse = QStringList::split(" ",mice);
@@ -1327,6 +1331,7 @@ void QWSServer::openDisplay()
     fb_open=TRUE;
 
     QScreen * s=qt_probe_bus();
+    s->connect();
     s->initCard();
 
     swidth=s->width();
