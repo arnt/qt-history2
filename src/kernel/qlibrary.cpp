@@ -276,10 +276,8 @@ QUnknownInterface* QLibrary::load()
 	    qDebug( "Symbol \"qt_load_interface\" not found." );
 #endif
 	info = infoProc ? infoProc() : 0;
-	if ( info )
-	    info->addRef();
 #if defined(QT_DEBUG_COMPONENT)
-	else
+	if ( !info )
 	    qDebug( "No interface implemented." );
 #endif
     }
@@ -395,7 +393,7 @@ QUnknownInterface* QLibrary::queryInterface( const QGuid& request )
     }
 
     QUnknownInterface * iface = 0;
-    if( info ) 
+    if( info )
 	iface = info->queryInterface( request );
 
     return iface;
