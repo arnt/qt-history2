@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#17 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#17 $");
 
 
 /*!
@@ -321,6 +321,15 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
   \internal
   This function draws a rectangle with two pixel line width.
   It is called from qDrawWinButton() and qDrawWinPanel().
+
+  c1..c4 and fill are used:
+
+    1 1 1 1 1 2
+    1 3 3 3 4 2
+    1 3 F F 4 2
+    1 3 F F 4 2
+    1 4 4 4 4 2
+    2 2 2 2 2 2
 */
 
 static void qDrawWinShades( QPainter *p,
@@ -396,7 +405,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 		       black, g.light(), g.dark(), g.background(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.light(), black, g.background(), g.dark(), fill );
+		       g.highlight(), black, g.light(), g.dark(), fill );
 }
 
 /*!
