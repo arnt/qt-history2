@@ -290,7 +290,7 @@ void QMenuBar::styleChange( QStyle& old )
     default:
 	break;
     }
-    setFrameStyle( QFrame::MenuBarPanel );
+    setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
     setLineWidth( style().pixelMetric( QStyle::PM_MenuBarFrameWidth, this ) );
     updateGeometry();
     QFrame::styleChange( old );
@@ -439,7 +439,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( ! isVisible() || ! object->isWidgetType() )
 	return FALSE;
 
-    if ( event->type() == QEvent::MouseButtonPress || 
+    if ( event->type() == QEvent::MouseButtonPress ||
 	event->type() == QEvent::MouseButtonRelease ) {
 	waitforalt = FALSE;
 	return FALSE;
