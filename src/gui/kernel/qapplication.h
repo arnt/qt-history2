@@ -277,15 +277,6 @@ private:
     static QWidget *findWidget(const QObjectList&, const QPoint &, bool rec);
 #endif
 
-#if defined(Q_WS_MAC)
-    friend class QMacInputMethod;
-    friend OSStatus qt_window_event(EventHandlerCallRef, EventRef, void *);
-    friend void qt_mac_update_os_settings();
-    friend bool qt_set_socket_handler(int, int, QObject *, bool);
-    friend void qt_mac_destroy_widget(QWidget *);
-    friend void qt_init(QApplicationPrivate *, QApplication::Type);
-#endif
-
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
     static void x11_initialize_style();
 #endif

@@ -866,7 +866,7 @@ bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
 }
 
 /* platform specific implementations */
-void qt_init(QApplicationPrivate *priv, QApplication::Type)
+void qt_init(QApplicationPrivate *priv, int)
 {
     if(qt_is_gui_used) {
         ProcessSerialNumber psn;
