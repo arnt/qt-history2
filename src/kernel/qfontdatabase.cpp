@@ -50,7 +50,7 @@
 #include <stdlib.h>
 
 // #define QFONTDATABASE_DEBUG
-// #define FONT_MATCH_DEBUG
+#define FONT_MATCH_DEBUG
 
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
@@ -113,6 +113,7 @@ struct QtFontEncoding
     int xpoint : 16;
     int xres : 8;
     int yres : 8;
+    int avgwidth : 8;
     unsigned char pitch : 8;
 };
 #endif // Q_WS_X11
@@ -125,14 +126,14 @@ struct QtFontSize
     int count;
     QtFontEncoding *encodings;
     QtFontEncoding *encodingID( int id, int xpoint = 0, int xres = 0,
-				int yres = 0, bool add = FALSE);
+				int yres = 0, int avgwidth = 0, bool add = FALSE);
 #endif // Q_WS_X11
 };
 
 
 #ifdef Q_WS_X11
 QtFontEncoding *QtFontSize::encodingID( int id, int xpoint, int xres,
-					int yres, bool add )
+					int yres, int avgwidth, bool add )
 {
     // we don't match using the xpoint, xres and yres parameters, only the id
     for ( int i = 0; i < count; ++i ) {
@@ -150,6 +151,7 @@ QtFontEncoding *QtFontSize::encodingID( int id, int xpoint, int xres,
     encodings[count].xpoint = xpoint;
     encodings[count].xres = xres;
     encodings[count].yres = yres;
+    encodings[count].avgwidth = avgwidth;
     encodings[count].pitch = '*';
     return encodings + count++;
 }
@@ -899,9 +901,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    if ( loop == 2 && family_name.isNull() )
 		load( family->name, script );
 
-	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) 
+	    if ( ! ( family->scripts[script] & QtFontFamily::Supported )
 #ifdef Q_WS_WIN
-		&& !( family->scripts[QFont::Unicode] & QtFontFamily::Supported ) 
+		&& !( family->scripts[QFont::Unicode] & QtFontFamily::Supported )
 #endif
 		)
 		continue;

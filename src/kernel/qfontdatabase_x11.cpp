@@ -715,6 +715,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	int xpointSize = atoi( tokens[PointSize] );
 	int xres = atoi( tokens[ResolutionX] );
 	int yres = atoi( tokens[ResolutionY] );
+	int avgwidth = atoi( tokens[AverageWidth] );
 	bool fixedPitch = isFixedPitch( tokens );
 
 	QtFontFamily *family = fontFamily ? fontFamily : db->family( familyName, TRUE );
@@ -737,7 +738,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 
 	QtFontSize *size = style->pixelSize( pixelSize, TRUE );
 	QtFontEncoding *enc =
-	    size->encodingID( encoding_id, xpointSize, xres, yres, TRUE );
+	    size->encodingID( encoding_id, xpointSize, xres, yres, avgwidth, TRUE );
 	enc->pitch = *tokens[Spacing];
 	if ( !enc->pitch ) enc->pitch = '*';
 
@@ -862,7 +863,7 @@ static void loadXft()
 	family->fixedPitch = ( spacing_value >= XFT_MONO );
 
 	QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE, TRUE );
-	QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, TRUE );
+	QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, 0, TRUE );
 	enc->pitch = ( spacing_value >= XFT_CHARCELL ? 'c' :
 		       ( spacing_value >= XFT_MONO ? 'm' : 'p' ) );
     }
@@ -1164,7 +1165,7 @@ static void initializeDb()
 
 		QtFontSize *size = style->pixelSize( SMOOTH_SCALABLE );
 		if ( ! size ) continue; // should not happen
-		QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, TRUE );
+		QtFontEncoding *enc = size->encodingID( -1, 0, 0, 0, 0, TRUE );
 		if ( ! enc ) continue; // should not happen either
 
 		QtFontStyle::Key key = style->key;
@@ -1189,7 +1190,7 @@ static void initializeDb()
 		equiv->smoothScalable = TRUE;
 
 		QtFontSize *equiv_size = equiv->pixelSize( SMOOTH_SCALABLE, TRUE );
-		QtFontEncoding *equiv_enc = equiv_size->encodingID( -1, 0, 0, 0, TRUE );
+		QtFontEncoding *equiv_enc = equiv_size->encodingID( -1, 0, 0, 0, 0, TRUE );
 
 		// keep the same pitch
 		equiv_enc->pitch = enc->pitch;
@@ -1448,7 +1449,9 @@ QFontEngine *loadEngine( QFont::Script script,
 
     // ### handle cell spaced fonts
     xlfd += encoding->pitch;
-    xlfd += "-*-";
+    xlfd += "-";
+    xlfd += QString::number( encoding->avgwidth );
+    xlfd += "-";
     xlfd += xlfd_for_id( encoding->encoding );
 
 #ifdef FONT_MATCH_DEBUG
