@@ -323,7 +323,6 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
                                    const QRect &rect, const QPixmap &pixmap) const
 {
     if (!pixmap.isNull() && !rect.isEmpty()) {
-        painter->drawPixmap(rect.topLeft(), pixmap);
         if (option.state & QStyle::Style_Selected) {
             bool enabled = option.state & QStyle::Style_Enabled;
             QColor col = option.palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
@@ -337,6 +336,8 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
  	    p.fillRect(fake.rect(), QBrush(QColor(col.red(), col.green(), col.blue(), 90)));
  	    p.end();
 	    painter->drawPixmap(rect.topLeft(), fake);
+        } else {
+            painter->drawPixmap(rect.topLeft(), pixmap);
         }
     }
 }
