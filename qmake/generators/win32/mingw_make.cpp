@@ -388,7 +388,7 @@ MingwMakefileGenerator::init()
 	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
-	    if ( project->isActiveConfig( "activeqt" ) && project->variables()["QMAKE_LIBS"].contains("-lqaxserver") > 0) { // ordering 
+	    if ( project->isActiveConfig( "activeqt" ) && project->variables()["QMAKE_LIBS"].contains("-lqaxserver") ) { // ordering 
 		project->variables()["QMAKE_LIBS"].remove("-lqaxserver");
 		project->variables()["QMAKE_LIBS"].prepend("-lqaxserver");
 	    }
