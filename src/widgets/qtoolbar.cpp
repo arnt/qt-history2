@@ -895,7 +895,7 @@ void QToolBar::paintToolBar()
     int h = height();
     int hw = w;
     int hh =h;
-    int he = style().toolBarHandleExtend();
+    int he = style().toolBarHandleExtent();
     if ( orientation() == Horizontal && w < sizeHint().width() ) {
 	w++;
 	hw = he;
@@ -908,7 +908,7 @@ void QToolBar::paintToolBar()
     int xpos;
     if ( QApplication::reverseLayout() && orientation() == Horizontal )
 	xpos = width() - he - 2;
-    else 
+    else
 	xpos = 0;
     style().drawToolBarHandle( &p, QRect( xpos, 0, hw, hh ),
  			       orientation(), d->moving, colorGroup() );
