@@ -560,29 +560,22 @@ QByteArray QWindowsMimeUri::convertToMime( QByteArray data, const char* mime, in
 
     QCString texturi;
 
-    if (qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-	QString file;
-	file.setUnicodeCodes( (const ushort*) files, data.size() );
-	texturi = QUriDrag::localFileToUri(file);
-    } else
-    {
-	int i=0;
-	if ( hdrop->fWide ) {
-	    while ( filesw[i] ) {
-		QString fn = qt_winQString( (void*)(filesw+i) );
-		texturi += QUriDrag::localFileToUri(fn);
-		texturi += "\r\n";
-		i += fn.length()+1;
-	    }
-	} else {
-	    while ( files[i] ) {
-		QString fn = qt_winMB2QString( files+i );
-		texturi += QUriDrag::localFileToUri(fn);
-		texturi += "\r\n";
-		i += fn.length()+1;
-	    }
-	}    
-    }
+    int i=0;
+    if ( hdrop->fWide ) {
+	while ( filesw[i] ) {
+	    QString fn = qt_winQString( (void*)(filesw+i) );
+	    texturi += QUriDrag::localFileToUri(fn);
+	    texturi += "\r\n";
+	    i += fn.length()+1;
+	}
+    } else {
+	while ( files[i] ) {
+	    QString fn = qt_winMB2QString( files+i );
+	    texturi += QUriDrag::localFileToUri(fn);
+	    texturi += "\r\n";
+	    i += fn.length()+1;
+	}
+    }    
 
     return texturi;
 }
