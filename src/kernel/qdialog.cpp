@@ -63,9 +63,9 @@
   A dialog window is a top-level window mostly used for short-term tasks
   and brief communications with the user. QDialogs may be modal or
   modeless. QDialogs can have \link #default default buttons\endlink,
-  support \link #extensibility extensibility\endlink, and may provide a
-  \link #return return value\endlink. QDialog can provide a QSizeGrip in
-  its lower-right corner, using setSizeGripEnabled().
+  support \link #extensibility extensibility\endlink and may provide a
+  \link #return return value\endlink. QDialogs can have a QSizeGrip in
+  their lower-right corner, using setSizeGripEnabled().
 
     Note that QDialog uses the parent widget slightly differently from
     other classes in Qt.  A dialog is always a top-level widget, but if
@@ -77,18 +77,22 @@
   \i A <b>modal</b> dialog is a dialog that blocks input to other visible
   windows in the same application: the user \e must finish interacting
   with the dialog and close it before they can access any other window
-  in the application. Dialogs which are used to request a filename from
-  the user or which are used to set application preferences are usually
-  modal. Call exec() to display a modal dialog. When the user closes the
-  dialog, exec() will provide a useful \link #return return
-  value\endlink, and the flow of control will follow on from the exec() call
-  at this time. Typically we connect a default button, e.g. "OK", to the
-  accept() slot and a "Cancel" button to the reject() slot, to get the
-  dialog to close and return the appropriate value. Alternatively you
-  can connect to the done() slot, passing it \c Accepted or \c Rejected.
+  in the application. Modal dialogs have their own local event loop.
+  Dialogs which are used to request a filename from the user or which
+  are used to set application preferences are usually modal. Call exec()
+  to display a modal dialog. When the user closes the dialog, exec()
+  will provide a useful \link #return return value\endlink, and the flow
+  of control will follow on from the exec() call at this time. Typically
+  we connect a default button, e.g. "OK", to the accept() slot and a
+  "Cancel" button to the reject() slot, to get the dialog to close and
+  return the appropriate value. Alternatively you can connect to the
+  done() slot, passing it \c Accepted or \c Rejected.
 
   \i A <b>modeless</b> dialog is a dialog that operates independently of
-  other windows in the same application. Find and replace dialogs in
+  other windows in the same application. Modeless dialogs do not have
+  their own event loop, so you will need to call
+  QApplication::processEvents() periodically to give the modeless dialog
+  the opportunity to process its events. Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
   both the application's main window and the dialog. Call show() to
   display a modeless dialog. show() returns immediately so the flow of
@@ -97,15 +101,15 @@
   called with control returning to the main event loop.
 
   \i <a name="semimodal">A "<b>semi-modal</b>" dialog is a modal dialog
-  that returns control to the caller immediately. A progress dialog
+  that returns control to the caller immediately. Semi-modal dialogs do
+  not have their own event loop, so you will need to call
+  QApplication::processEvents() periodically to give the semi-modal
+  dialog the opportunity to process its events. A progress dialog
   (e.g. QProgressDialog) is an example, where you only want the user to
   be able to interact with the progress dialog, e.g. to cancel a long
-  running operation, but need to actually carry out the operation. This
-  can be achieved by setting the modal flag to TRUE and using the \l
-  show() function. In this situation you will need to periodically call
-  QApplication::processEvents() to give the semi-modal dialog a share of
-  processing time so that it can update its display and process any user
-  events it has received. 
+  running operation, but need to actually carry out the operation.
+  Semi-modal dialogs are displayed by setting the modal flag to TRUE and
+  calling the \l show() function. 
   \endlist
 
     <a name="default"><b>Default button</b><br>
@@ -201,12 +205,13 @@ public:
 };
 
 /*!
-  Constructs a dialog called \a name, with parent widget \a parent.
+  Constructs a dialog called \a name, with parent \a parent.
 
   If \a modal is FALSE (the default), the dialog is modeless and should
-  be displayed with show(). If \a modal is TRUE the dialog is modal,
-  i.e. blocks input to other windows, if displayed with exec(), 
-  and semi-modal if displayed with show() is used.
+  be displayed with show(). If \a modal is TRUE and the dialog is
+  displayed with exec(), the dialog is modal, i.e. blocks input to other
+  windows. If \a modal is TRUE and the dialog is displayed show(), the
+  dialog is semi-modal.
 
   The widget flags \a f are passed on to the QWidget constructor.
 
@@ -307,9 +312,8 @@ void QDialog::hideDefault()
 
 /*! 
     Executes a modal dialog. Control passes to the dialog until the user
-    closes it, at which point this function returns with the \l
-    DialogCode result. 
-    
+    closes it, at which point the local event loop finishes and the
+    function returns with the \l DialogCode result. 
     The user will not be able to interact with any other window in
     the same application until they close this dialog. For a modeless or
     semi-modal dialog use show().
@@ -500,13 +504,13 @@ void QDialog::closeEvent( QCloseEvent *e )
 /*! 
     Shows a modeless or semi-modal dialog. Control returns immediately
     to the calling code. 
+
+    The dialog does not have a local event loop so you will need to call
+    QApplication::processEvents() periodically to give the dialog the
+    opportunity to process its events.
     
     The dialog will be \link #semimodal semi-modal\endlink if the modal
-    flag was set to TRUE in the constructor. If you use a semi-modal
-    dialog you will need to call QApplication::processEvents()
-    periodically to give the semi-modal dialog the opportunity to update
-    its display and deal with any events it has received since the
-    dialog does \e not enter a local event loop.
+    flag was set to TRUE in the constructor. 
 
   \warning
 
@@ -655,9 +659,11 @@ void QDialog::setGeometry( const QRect &r )
 }
 
 
-/*!  Sets the dialog to display its extension to the right of the main
-  are if \a orientation is \c Horizonal, and to display it below the
-  main area if \a orientation is \c Vertical.
+/*!  
+    If \a orientation is \c Horizonal, the extension will be displayed
+    to the right of the dialog's main area. If \a orientation is \c
+    Vertical, the extension will be displayed below the dialog's main
+    are.
 
   \sa orientation(), setExtension()
 */
@@ -667,7 +673,7 @@ void QDialog::setOrientation( Orientation orientation )
 }
 
 /*!
-  Returns the extension direction of the dialog.
+  Returns the dialog's extension orientation.
 
   \sa setOrientation()
 */
@@ -676,13 +682,13 @@ Qt::Orientation QDialog::orientation() const
     return d->orientation;
 }
 
-/*!  Sets \a extension to be the dialog's extension, or deletes the
-  extensions if \a extension is 0.
+/*!  
+    Sets the widget, \a extension, to be the dialog's extension,
+    deleting any previous extension. The dialog takes ownership of the
+    extension. Note that if 0 is passed any existing extension will be
+    deleted. 
 
-  The dialogs takes over ownership of the extension. Any previously
-  set extension is deleted.
-
-  This function can only be called while the dialog is hidden.
+  This function must only be called while the dialog is hidden.
 
   \sa showExtension(), setOrientation(), extension()
  */
@@ -713,13 +719,13 @@ QWidget* QDialog::extension() const
 
 
 /*!
-  Extends the dialog to show its extension if \a showIt is TRUE
-  and hides it else.
+  If \a showIt is TRUE, the dialog's extension is shown; otherwise the
+  extension is hidden.
 
   This slot is usually connected to the \l QButton::toggled() signal
   of a QPushButton.
 
-  If the dialog is not visible, nothing happens.
+  If the dialog is not visible, or has no extension, nothing happens.
 
   \sa show(), setExtension(), setOrientation()
  */
