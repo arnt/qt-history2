@@ -1095,6 +1095,9 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         pm_offset = 0;
     }
 
+    Q_ASSERT(pm_dc);
+    Q_ASSERT(GetGraphicsMode(pm_dc) == GM_COMPATIBLE);
+
     if (pixmap.hasAlphaChannel()) {
         BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                              0,                 // BlendFlags, must be zero
@@ -1133,10 +1136,11 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
                        SRCCOPY);
             state->painter->restore();
         } else {
-            MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
-                    pm_dc, sr.x(), sr.y()+pm_offset,
-                    mask->hbm(), sr.x(), sr.y()+pm_offset,
-                    MAKEROP4(0x00aa0000, SRCCOPY));
+            if (!MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
+                         pm_dc, sr.x(), sr.y()+pm_offset,
+                         mask->hbm(), sr.x(), sr.y()+pm_offset,
+                         MAKEROP4(0x00aa0000, SRCCOPY)))
+                qSystemWarning("QWin32PaintEngine::drawPixmap, MaskBlt failed");
         }
     } else {
         if (stretch) {
@@ -1144,7 +1148,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             if (!StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                             pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
                             SRCCOPY)) {
-                qSystemWarning("QWin32PaintEngine::drawPixmap, stretch failed");
+                qSystemWarning("QWin32PaintEngine::drawPixmap, StretchBlt failed");
             }
         } else {
             Q_ASSERT((GetDeviceCaps(d->hdc, RASTERCAPS) & RC_BITBLT) != 0);
