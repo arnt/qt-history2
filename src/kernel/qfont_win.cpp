@@ -241,10 +241,13 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	DWORD res = GetGlyphOutline( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
+// This is supposed to fail sometimes as we use it in inFont.
+/* 
 #ifndef QT_NO_DEBUG
 	else if ( qt_winver & Qt::WV_NT_based )
 	    qSystemWarning( "QFontPrivate: GetGlyphOutline failed error code" );
 #endif
+*/
     }
 #endif
     return QRect();

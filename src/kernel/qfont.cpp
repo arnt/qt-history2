@@ -873,9 +873,6 @@ QFont::StyleHint QFont::styleHint() const
   use the exact font size that has been specified.
   \value PreferQuality prefer the best quality font. The font matcher
   will use the nearest standard point size that the font supports.
-
-  Whilst all strategies work on Windows, they are currently ignored
-  under X11.
 */
 
 /*! Sets the style hint and strategy to \a hint and \a strategy,

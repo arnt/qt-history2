@@ -83,6 +83,7 @@
 #include "qpainter.h"
 #include "qcleanuphandler.h"
 #include "qstyle.h"
+#include "qcursor.h"
 
 #ifndef Q_OS_TEMP
 #include <time.h>
@@ -3112,10 +3113,14 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
+    if ( !QApplication::overrideCursor() )
+	QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
     d->pendingItems.clear();
     if ( d->mimeTypeTimer->isActive() )
 	d->mimeTypeTimer->stop();
     d->currListChildren = d->url.listChildren();
+    if ( QApplication::overrideCursor() )
+	QApplication::restoreOverrideCursor();
 }
 
 
@@ -5610,7 +5615,7 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
     if ( op && op->operation() == QNetworkProtocol::OpListChildren &&
 	 op != d->currListChildren )
 	return;
-
+    QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
     QValueList<QUrlInfo>::ConstIterator it = lst.begin();
     for ( ; it != lst.end(); ++it ) {
 	const QUrlInfo &inf = *it;
@@ -5899,6 +5904,8 @@ void QFileDialog::setContentsPreview( QWidget *w, QFilePreview *preview )
 
 void QFileDialog::resortDir()
 {
+    if ( !QApplication::overrideCursor() )
+	QApplication::setOverrideCursor( QCursor( Qt::WaitCursor ) );
     d->mimeTypeTimer->stop();
     d->pendingItems.clear();
 
@@ -5934,6 +5941,8 @@ void QFileDialog::resortDir()
     // specific icons.
     if ( d->url.isLocalFile() )
 	d->mimeTypeTimer->start( 0 );
+    if ( QApplication::overrideCursor() )
+	QApplication::restoreOverrideCursor();
 }
 
 /*!
