@@ -2313,6 +2313,8 @@ void QFileDialog::init()
 
     d->stack = new QWidgetStack( d->splitter, "files and more files" );
 
+    d->splitter->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+    
     files = new QFileDialogQFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
     files->addColumn( tr("Name") );
