@@ -407,7 +407,10 @@ void WidgetDatabase::setupDataBase()
 	    continue;
 	r = new WidgetDatabaseRecord;
 	r->iconSet = widgetManager()->iconSet( *it );
-	r->group = widgetGroup( widgetManager()->group( *it ) );
+	QString grp = widgetManager()->group( *it );
+	if ( grp.isEmpty() )
+	    grp = "3rd party widgets";
+	r->group = widgetGroup( grp );
 	r->toolTip = widgetManager()->toolTip( *it );
 	r->whatsThis = widgetManager()->whatsThis( *it );
 	r->includeFile = widgetManager()->includeFile( *it );
