@@ -90,8 +90,11 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         return ed; }
     case QVariant::Pixmap:
         return new QLabel(parent);
+    case QVariant::Double: {
+        QDoubleSpinBox *sb = new QDoubleSpinBox(parent);
+        sb->setTracking(true);
+        return sb; }
     case QVariant::String:
-    case QVariant::Double:
     default: {
         // the default editor is a lineedit
         QLineEdit *le = new QLineEdit(parent);
@@ -107,6 +110,7 @@ QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) con
         return "currentItem";
     case QVariant::UInt:
     case QVariant::Int:
+    case QVariant::Double:
         return "value";
     case QVariant::Date:
         return "date";
@@ -115,7 +119,6 @@ QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) con
     case QVariant::DateTime:
         return "dateTime";
     case QVariant::String:
-    case QVariant::Double:
     default:
         // the default editor is a lineedit
         return "text";
