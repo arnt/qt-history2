@@ -469,6 +469,8 @@ future extension.
 
 \section1 QXml classes
 
+\section2 QXmlInputSource
+
 The semantics of QXmlInputSource has slightly changed. This change affects
 only code that parses the same data from the same input source multiple
 times. In that cases you have to do a QXmlInputSource::reset() before the
@@ -494,6 +496,17 @@ Has to be changed to:
     source.reset();
     reader.parse( source );
 \endcode
+
+\section2 QXmlLocator
+
+Due to some internal changes, it was necessary to clean-up the semantics of
+QXmlLocator: this class is now an abstract class. This should be in general
+no problem, since one usually used the QXmlLocator that was reported by
+QXmlContentHandler::setDocumentLocator().
+
+If you used this class in another way as the above described, you have to
+adjust you code to use the QXmlLocator that is reported by the
+QXmlContentHandler::setDocumentLocator() function.
 
 \section1 Bezier curves
 
