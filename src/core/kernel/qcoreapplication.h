@@ -136,6 +136,7 @@ private:
     friend class QEventLoop;
     friend class QGuiEventLoop;
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class QETWidget;
     friend class QAccelManager;
     friend class QShortcutMap;

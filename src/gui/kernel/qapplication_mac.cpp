@@ -713,7 +713,7 @@ static void qt_event_request_context(QWidget *w=0, EventRef *where=0)
 }
 static EventRef request_context_hold_pending = 0;
 void
-QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *data)
+QApplicationPrivate::qt_context_timer_callbk(EventLoopTimerRef r, void *data)
 {
     QWidget *w = (QWidget *)data;
     EventLoopTimerRef otc = mac_context_timer;
@@ -909,12 +909,12 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
             qt_mac_update_os_settings();
 
         if(!app_proc_handler) {
-            app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
+            app_proc_handlerUPP = NewEventHandlerUPP(QApplicationPrivate::globalEventProcessor);
             qt_init_app_proc_handler();
         }
 
         if(!app_proc_ae_handlerUPP) {
-            app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplication::globalAppleEventProcessor);
+            app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplicationPrivate::globalAppleEventProcessor);
             AEInstallEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, (long)qApp, true);
         }
 
@@ -923,7 +923,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
             qt_sendSpontaneousEvent(QApplication::app_style, &ev);
         }
     }
-    QApplication::qt_mac_apply_settings();
+    QApplicationPrivate::qt_mac_apply_settings();
 }
 
 /*****************************************************************************
@@ -1244,15 +1244,15 @@ static int get_key(int modif, int key, int scan)
 /*!
     \internal
 */
-bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
+bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
     int popup_close_count = 0;
     short windowPart = qt_mac_window_at(pt->h, pt->v, &widget);
-    if(inPopupMode() && widget != activePopupWidget()) {
-        while(inPopupMode()) {
-            activePopupWidget()->close();
-            popup_close_count++;
+    if(q->inPopupMode() && widget != q->activePopupWidget()) {
+        while(q->inPopupMode()) {
+            q->activePopupWidget()->close();
+            ++popup_close_count;
             if(windowPart == inContent)
                 break;
         }
@@ -1306,13 +1306,13 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
                 toolbar->hide();
             else
                 toolbar->show();
-            sendPostedEvents();
+            q->sendPostedEvents();
         }
 #endif
         break; }
     case inProxyIcon: {
         QIconDragEvent e;
-        QApplication::sendSpontaneousEvent(widget, &e);
+        q->sendSpontaneousEvent(widget, &e);
         if(e.isAccepted())
             break;
         //fall through if not accepted
@@ -1351,7 +1351,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             int nw = LoWord(growWindowSize);
             int nh = HiWord(growWindowSize);
             if(nw != widget->width() || nh != widget->height()) {
-                if(nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0)
+                if(nw < q->desktop()->width() && nw > 0 && nh < q->desktop()->height() && nh > 0)
                     widget->resize(nw, nh);
             }
         }
@@ -1361,7 +1361,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
         widget->setWindowState(widget->windowState() | Qt::WindowMinimized);
         //we send a hide to be like X11/Windows
         QEvent e(QEvent::Hide);
-        QApplication::sendSpontaneousEvent(widget, &e);
+        q->sendSpontaneousEvent(widget, &e);
         break; }
     case inZoomIn:
         widget->setWindowState(widget->windowState() & ~Qt::WindowMaximized);
@@ -1527,7 +1527,7 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 }
 
 OSStatus
-QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
+QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
     if(app->macEventFilter(er, event)) //someone else ate it
@@ -1691,7 +1691,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 if(qt_mac_dblclick.use_qt_time_limit) {
                     EventTime now = GetEventTime(event);
                     if(qt_mac_dblclick.last_time != -2 &&
-                       now - qt_mac_dblclick.last_time <= ((double)mouse_double_click_time)/1000)
+                       now - qt_mac_dblclick.last_time <= ((double)QApplication::mouse_double_click_time)/1000)
                         etype = QEvent::MouseButtonDblClick;
                 } else {
                     UInt32 count;
@@ -1734,7 +1734,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     widget = clt;
             }
             if(!widget) 
-                widget = activePopupWidget();
+                widget = QApplication::activePopupWidget();
         } else {
             if(ekind != kEventMouseDown && qt_button_down) {
                 widget = qt_button_down;
@@ -1789,9 +1789,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         //although it looks hacky it is VERY intentional..
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
             mouse_button_state = after_state;
-            if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
-                activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-                if(!app->do_mouse_down(&where, 0))
+            if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
+                QApplication::activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
+                if(!app->d->do_mouse_down(&where, 0))
                     mouse_button_state = 0;
             }
 #ifdef DEBUG_MOUSE_MAPS
@@ -1834,7 +1834,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
         if(ekind == kEventMouseDown) {
             bool mouse_down_unhandled;
-            if(!app->do_mouse_down(&where, &mouse_down_unhandled)) {
+            if(!app->d->do_mouse_down(&where, &mouse_down_unhandled)) {
                 if(mouse_down_unhandled) {
                     handled_event = false;
                     break;
@@ -1879,7 +1879,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             if(button == Qt::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
                 remove_context_timer = false;
                 if(!mac_context_timerUPP)
-                    mac_context_timerUPP = NewEventLoopTimerUPP(qt_context_timer_callbk);
+                    mac_context_timerUPP = NewEventLoopTimerUPP(QApplicationPrivate::qt_context_timer_callbk);
                 InstallEventLoopTimer(GetMainEventLoop(), 2, 0, mac_context_timerUPP,
                                       widget, &mac_context_timer);
             }
@@ -1902,10 +1902,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             if(wheel_delta) {
                 QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
                 QApplication::sendSpontaneousEvent(widget, &qwe);
-                if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
-                    QWheelEvent qwe2(focus_widget->mapFromGlobal(p), p,
+                if(!qwe.isAccepted() && QApplication::focus_widget && QApplication::focus_widget != widget) {
+                    QWheelEvent qwe2(QApplication::focus_widget->mapFromGlobal(p), p,
                                      wheel_delta, state | keys);
-                    QApplication::sendSpontaneousEvent(focus_widget, &qwe2);
+                    QApplication::sendSpontaneousEvent(QApplication::focus_widget, &qwe2);
                 }
             } else {
 #ifdef QMAC_SPEAK_TO_ME
@@ -1956,7 +1956,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     }
     case kEventClassTextInput:
         handled_event = false;
-        if(!(widget=focus_widget)) {
+        if(!(widget = QApplication::focus_widget)) {
             handled_event = false;
         } else if(ekind == kEventTextInputOffsetToPos) {
             if(qt_mac_input_spot != QT_MAC_ONTHESPOT) {
@@ -2075,8 +2075,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             keyboard_modifiers_state = modif;
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
-            else if(focus_widget)
-                widget = focus_widget;
+            else if(QApplication::focus_widget)
+                widget = QApplication::focus_widget;
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
                 break;
             static key_sym key_modif_syms[] = {
@@ -2187,8 +2187,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
-        else if(focus_widget)
-            widget = focus_widget;
+        else if(QApplication::focus_widget)
+            widget = QApplication::focus_widget;
         if(widget) {
             if(app_do_modal && !qt_try_modal(widget, event))
                 break;
@@ -2357,7 +2357,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         } else if(ekind == kEventWindowDeactivated) {
             if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
                 DeactivateTSMDocument(doc->document());
-            if(widget && active_window == widget)
+            if(widget && QApplication::active_window == widget)
                 app->setActiveWindow(0);
         } else {
             handled_event = false;
@@ -2474,7 +2474,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     return noErr; //we eat the event
 }
 
-OSStatus QApplication::globalAppleEventProcessor(const AppleEvent *ae, AppleEvent *, long handlerRefcon)
+OSStatus QApplicationPrivate::globalAppleEventProcessor(const AppleEvent *ae, AppleEvent *, long handlerRefcon)
 {
     QApplication *app = (QApplication *)handlerRefcon;
     bool handled_event=false;
@@ -2714,7 +2714,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 /*!
     \internal
 */
-bool QApplication::qt_mac_apply_settings()
+bool QApplicationPrivate::qt_mac_apply_settings()
 {
     QSettings settings;
 

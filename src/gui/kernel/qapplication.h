@@ -250,12 +250,6 @@ private:
 #endif
 
 #if defined(Q_WS_MAC)
-    bool do_mouse_down(Point *, bool *);
-    static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
-    static OSStatus globalAppleEventProcessor(const AppleEvent *, AppleEvent *, long);
-    static void qt_context_timer_callbk(EventLoopTimerRef, void *);
-    static void qt_select_timer_callbk(EventLoopTimerRef, void *);
-    static bool qt_mac_apply_settings();
     friend class QMacInputMethod;
     friend OSStatus qt_window_event(EventHandlerCallRef, EventRef, void *);
     friend void qt_mac_update_os_settings();

@@ -65,6 +65,7 @@ protected:
     bool        event(QEvent *);
 
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class QBaseApplication;
     friend class QDragManager;
     friend class QMimeSource;

@@ -57,7 +57,7 @@ private:
     void cleanup();
 
 #if defined(Q_WS_MAC)
-    friend class QApplication;
+    friend class QApplicationPrivate;
     friend void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
 #endif
 };

@@ -605,6 +605,7 @@ private:
     static QWidgetMapper *mapper;
 
     friend class QApplication;
+    friend class QApplicationPrivate;
     friend class QBaseApplication;
     friend class QPainter;
     friend class QPixmap; // for QPixmap::fill()

@@ -270,7 +270,7 @@ private:
     friend class QMenuPrivate;
 
 #ifdef Q_WS_MAC
-    friend class QApplication;
+    friend class QApplicationPrivate;
     static bool macUpdateMenuBar();
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
