@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#116 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#115 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#116 $";
 #endif
 
 
@@ -2419,8 +2419,10 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    param[0].rect = &r;
 	    param[1].ival = tf;
 	    param[2].str = newstr.data();
-	    if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hd )
-		return;
+	    if ( pdev->devType() != PDT_PRINTER ) {
+		if ( !pdev->cmd(PDC_DRAWTEXTFRMT,this,param) || !hd )
+		    return;			// QPrinter wants PDC_DRAWTEXT
+	    }
 	}
     }
     if ( w <= 0 || h <= 0 ) {
@@ -2796,7 +2798,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    setClipRegion( crgn );
 	else {					// clipping was off
 	    crgn = save_rgn;
-	    XSetClipMask( dpy, gc, None );
+	    if ( gc )
+		XSetClipMask( dpy, gc, None );
 	    if ( gc_brush )
 		XSetClipMask( dpy, gc_brush, None );
 	}
