@@ -2077,8 +2077,6 @@ static void doResInit()
     res_close();
 #endif
 
-
-
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
     if ( hosts.open( IO_ReadOnly ) ) {
 	// read the /etc/hosts file, creating long-life A and PTR RRs
@@ -2088,11 +2086,11 @@ static void doResInit()
 	while( !i.atEnd() ) {
 	    line = i.readLine().simplifyWhiteSpace().lower();
 	    uint n = 0;
-	    while( n < line.length() && line[n] != '#' )
+	    while( n < line.length() && line[(int)n] != '#' )
 		n++;
 	    line.truncate( n );
 	    n = 0;
-	    while( n < line.length() && !line[n].isSpace() )
+	    while( n < line.length() && !line[(int)n].isSpace() )
 		n++;
 	    QString ip = line.left( n );
 	    QHostAddress a;
@@ -2101,7 +2099,7 @@ static void doResInit()
 		bool first = TRUE;
 		line = line.mid( n+1 );
 		n = 0;
-		while( n < line.length() && !line[n].isSpace() )
+		while( n < line.length() && !line[(int)n].isSpace() )
 		    n++;
 		QString hostname = line.left( n );
 		// ### in case of bad syntax, hostname is invalid. do we care?
