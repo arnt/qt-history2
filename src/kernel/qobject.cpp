@@ -855,6 +855,8 @@ bool QObject::activate_filters( QEvent *e )
     block is FALSE.
 
     Emitted signals disappear into hyperspace if signals are blocked.
+    Note that the destroyed() signals will be emitted even if the signals
+    for this object have been blocked.
 */
 
 void QObject::blockSignals( bool block )
