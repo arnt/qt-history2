@@ -76,7 +76,7 @@ class QMacCursorWidget : public QWidget
     QPixmap *pm;
 public:
     QMacCursorWidget(QBitmap *mask, QPixmap *pix) : 
-	QWidget(0, "fake_cursor", WType_Dialog | WRepaintNoErase | WStyle_Customize | WStyle_NoBorder)
+	QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 	{
 	    pm = pix;
 	    hide();
@@ -121,6 +121,8 @@ struct QCursorData : public QShared
 static QCursorData *currentCursor = NULL; //current cursor
 void qt_mac_set_cursor(const QCursor *c, const Point *p)
 {
+    (void)c->handle(); //force the cursor to get loaded, if it's not
+
 #ifndef QMAC_NO_FAKECURSOR
     if(c->data->type == QCursorData::TYPE_FakeCursor) {
 	/* That's right folks, I want nice big cursors - if apple won't give them to me, why
@@ -134,8 +136,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 #else
     Q_UNUSED(p);
 #endif
-
-    if(currentCursor != c->handle()) {
+    if(currentCursor != c->data) {
 #ifndef QMAC_NO_FAKECURSOR
 	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor) 
 	    currentCursor->curs.fc.widget->hide();

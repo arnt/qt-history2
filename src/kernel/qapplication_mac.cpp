@@ -2118,8 +2118,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
 	    app->setActiveWindow(NULL);
+#if 0
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
+#endif
 	} else {
 	    handled_event = FALSE;
 	}
