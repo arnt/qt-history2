@@ -14,23 +14,19 @@
 
 \title Thread Support in Qt
 
+\tableofcontents
+
+\section1 Introduction
+
 Qt provides thread support in the form of basic platform-independent
 threading classes, a thread-safe way of posting events, and a global
 Qt library lock that allows you to call Qt methods from different
 threads.
 
-This document is intended for an audience that has knowledge and
-experience with multithreaded applications.  Recommended reading:
-\list
-\i \link http://www.amazon.com/exec/obidos/ASIN/0134436989/trolltech/t
-Threads Primer: A Guide to Multithreaded Programming\endlink
-\i \link http://www.amazon.com/exec/obidos/ASIN/0131900676/trolltech/t
-Thread Time: The Multithreaded Programming Guide\endlink
-\i \link http://www.amazon.com/exec/obidos/ASIN/1565921151/trolltech/t
-Pthreads Programming: A POSIX Standard for Better Multiprocessing (O'Reilly Nutshell)\endlink
-\i \link http://www.amazon.com/exec/obidos/ASIN/1565922964/trolltech/t
-Win32 Multithreaded Programming\endlink
-\endlist
+This document is intended for an audience that has knowledge of, and
+experience with, multithreaded applications. If you are new to
+threading see our \link #reading Recommended Reading\endlink list.
+
 
 \section1 Enabling Thread Support
 
@@ -68,7 +64,7 @@ woken up by another thread.
 \i QSemaphore - Provides a simple integer semaphore.
 \endlist
 
-\section1 Important Information
+\section1 Important Definitions
 
 \target reentrant
 \target threadsafe
@@ -176,7 +172,7 @@ Normally, the programmer would like to include some information in the
 event sent to the widget.  See the documentation for QCustomEvent for
 more information on user-defined events.
 
-\section1 Threads and QObject
+\section1 Threads and QObject subclasses
 
 The QObject class itself is \e reentrant.  However, certain rules
 apply when creating and using QObjects in a thread that is not the GUI
@@ -275,10 +271,10 @@ documentation for more details.
 The classes in the SQL Module can be used in separate threads, as long
 as the rules for QObject based classes are followed.
 
-The 3rd party libraries used by the QSqlDrivers can impose other
+The third party libraries used by the QSqlDrivers can impose other
 restrictions on using the SQL Module in a multithreaded program.  For
 example, the PostgreSQL library requires a separate connection per
-thread.  Consult the documentation for your 3rd party library for more
+thread.  Consult the documentation for your third party library for more
 information.
 
 \section1 Caveats
@@ -319,4 +315,18 @@ main() function in your program.
 
 \endlist
  
+\target reading
+\section1 Recommended Reading
+
+\list
+\i \link http://www.amazon.com/exec/obidos/ASIN/0134436989/trolltech/t
+Threads Primer: A Guide to Multithreaded Programming\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/0131900676/trolltech/t
+Thread Time: The Multithreaded Programming Guide\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/1565921151/trolltech/t
+Pthreads Programming: A POSIX Standard for Better Multiprocessing (O'Reilly Nutshell)\endlink
+\i \link http://www.amazon.com/exec/obidos/ASIN/1565922964/trolltech/t
+Win32 Multithreaded Programming\endlink
+\endlist
+
 */

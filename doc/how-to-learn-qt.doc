@@ -20,7 +20,7 @@
 We assume that you already know C++!
 
 The best way to learn Qt is to read the official Qt book, <a
-href="http://vig.prenhall.com:8081/catalog/academic/product/0,4096,0131240722,00.html">
+href="http://www.amazon.com/exec/obidos/ASIN/0131240722/trolltech/">
 C++ GUI Programming with Qt 3 (ISBN 0-13-124072-2)</a>. This book
 provides comprehensive coverage of Qt programming all the way from
 "Hello Qt" to advanced features like multithreading, 2D and 3D
@@ -74,7 +74,7 @@ which work best for you. You might also like to try \link
 assistant.book Qt Assistant\endlink: this tool is supplied with Qt and
 provides access to the entire Qt API, and it provides a full text
 search facility. There are also a growing number of \link
-http://www.trolltech.com/developer/documentation/literature.html Qt
+http://www.trolltech.com/developer/books.html Qt
 books\endlink.
 
 You should now be ready to ground-break: good luck, and have fun!
