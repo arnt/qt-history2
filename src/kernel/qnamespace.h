@@ -75,12 +75,12 @@ public:
 	LeftButton	= 0x0001,
 	RightButton	= 0x0002,
 	MidButton	= 0x0004,
-	MouseButtonMask = 0x00ff,
+	MouseButtonMask = 0x0007,
 	ShiftButton	= 0x0100,
 	ControlButton   = 0x0200,
 	AltButton	= 0x0400,
 	MetaButton	= 0x0800,
-	KeyButtonMask	= 0x0fff,
+	KeyButtonMask	= 0x0f00,
 	Keypad		= 0x4000
     };
 
