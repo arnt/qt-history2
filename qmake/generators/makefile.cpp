@@ -1331,7 +1331,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         QString tmp_out = fileFixify(project->variables()[(*it) + ".output"].first(),
                                      Option::output_dir, Option::output_dir);
         QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
-        QStringList tmp_dep = project->variables()[(*it) + ".depends"];
+        QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
         QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
         if(!tmp_dep_cmd.isEmpty()) {
             QString argv0 = Option::fixPathToLocalOS(tmp_dep_cmd.split(' ').first());
@@ -1399,10 +1399,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 continue;
             }
             QString inputs, deps;
-            if(!tmp_dep.isEmpty()) {
-                QStringList dep_fixed = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-                deps = " " + dep_fixed.join(" ");
-            }
+            if(!tmp_dep.isEmpty())
+                deps = " " + tmp_dep;
             for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
                 const QStringList &tmp = project->variables()[(*it2)];
                 for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
@@ -1441,10 +1439,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
                 QString in = Option::fixPathToTargetOS((*input), false),
                       deps = " " + findDependencies((*input)).join(" ");
-                if(!tmp_dep.isEmpty()) {
-                    QStringList dep_fixed = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-                    deps = " " + dep_fixed.join(" ");
-                }
+                if(!tmp_dep.isEmpty())
+                    deps = " " + tmp_dep;
                 QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                 QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
                 for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
