@@ -904,7 +904,7 @@ QDnsManager::QDnsManager()
 	    }
 	}
 	if(!found) {
-	    new_domains->append((*it)); 
+	    new_domains->append((*it));
 #if defined(QDNS_DEBUG)
 	    qDebug( "searching domain %s", s );
 	} else {
@@ -1608,7 +1608,7 @@ void QDns::setLabel( const QString & label )
 	}
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
-	    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it) 
+	    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it)
 		n.append( l.lower() + "." + (*it).data() );
 	}
 	n.append( l.lower() );
@@ -2386,13 +2386,13 @@ static void doResInit()
 #  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( res.dnsrch[i] && *(res.dnsrch[i]) )
-	    domains->append( QString::fromLatin1( res.dnsrch[i] ).lower() );
+	    domains->append( QByteArray(QString::fromLatin1( res.dnsrch[i] ).lower()) );
 	else
 	    break;
     }
 #  endif
     if ( *res.defdname )
-	domains->append( QString::fromLatin1( res.defdname ).lower() );
+	domains->append( QByteArray(QString::fromLatin1( res.defdname ).lower()) );
 #else
     res_init();
     int i;
