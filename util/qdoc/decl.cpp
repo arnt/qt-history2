@@ -932,13 +932,7 @@ void ClassDecl::fillInDocsForThis()
 		QString html;
 		StringSet documentedParams;
 
-		QString brief = (*q)->propertyDoc()->brief()
-				.simplifyWhiteSpace();
-		if ( !brief.isEmpty() ) {
-		    brief[0] = brief[0].lower();
-		    if ( brief.right(1) == QChar('.') )
-			brief.truncate( brief.length() - 1 );
-		}
+		QString brief = (*q)->propertyDoc()->brief();
 		bool whether = brief.lower().startsWith( QString("whether ") );
 
 		/*

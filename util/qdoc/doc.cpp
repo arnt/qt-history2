@@ -962,9 +962,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		}
 		if ( yyIn.mid(yyPos, 6) == QString("\\brief") ) {
 		    yyPos += 6;
-		    brief = getRestOfParagraph( yyIn, yyPos ).stripWhiteSpace();
-		    yyOut += QString( "<p>This property holds " ) + brief +
-			     QString( ".\n<p>" );
+		    brief = getRestOfParagraph( yyIn, yyPos )
+			    .stripWhiteSpace();
+		    if ( !brief.isEmpty() ) {
+			brief[0] = brief[0].lower();
+			if ( brief.right(1) == QChar('.') )
+			    brief.truncate( brief.length() - 1 );
+			yyOut += QString( "<p>This property holds " ) + brief +
+				 QString( ".\n<p>" );
+		    }
 		} else {
 		    warning( 2, location(),
 			    "Expected '\\brief' after '\\property %s'",
