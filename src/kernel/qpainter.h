@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#8 $
 **
 ** Definition of QPainter class
 **
@@ -40,6 +40,7 @@ public:
 
     bool	begin( const QPaintDevice * );	// begin painting in device
     bool	end();				// end painting
+    QPaintDevice *device() const { return pdev; }
 
     static bool redirect( const QPaintDevice * );
 
@@ -86,7 +87,7 @@ public:
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
     QWXFMatrix *wxfMatrix()	const;		// get/set world xform matrix
-    void	setWxfMatrix( const QWXFMatrix &, bool combine=FALSE );
+    void	setWxfMatrix( const QWXFMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
     QRect	xForm( const QRect & )	const;
