@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#108 $
 **
 ** Implementation of layout classes
 **
@@ -261,7 +261,7 @@ bool QLayoutArray::findWidget( QWidget* w, int *row, int *col )
 QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
     QLayoutArray *This = (QLayoutArray*)this;
-    This->setupLayoutData( spacer ); 
+    This->setupLayoutData( spacer );
             //###A very clever optimizer could cause trouble
     int w = 0;
     int h = 0;
@@ -455,24 +455,26 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 				int start, int end,
-				int minSize, int sizeHint )
+				int minSize, int /*sizeHint*/ )
 {
     //distribute the sizes somehow.
-
+    //### sizeHint calculation disabled, to big a change just before
+    // the release
+    
     int i;
     int w = 0;
-    int wh = 0;
+    //    int wh = 0;
     bool exp = FALSE;
     bool stretch = FALSE;
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
-	wh += chain[i].sizeHint;
+	//	wh += chain[i].sizeHint;
 	exp = exp || chain[i].expansive;
 	stretch = stretch || chain[i].stretch == 0;
 	chain[i].empty = FALSE;
     }
     w += spacing * (end-start);
-    wh += spacing * (end-start);
+    //    wh += spacing * (end-start);
 
     if ( w < minSize ) {
 	//debug( "Big multicell" );
@@ -482,7 +484,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 		chain[i].minimumSize = chain[i].size;
 	}	
     }
-    
+    /*
     if ( wh < sizeHint ) {
         qGeomCalc( chain, start, end-start+1, 0, sizeHint, spacing );
 	for ( i = start; i <= end; i++ ) {
@@ -490,6 +492,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 		chain[i].sizeHint = chain[i].size;
 	}
     }
+    */
 }
 
 
@@ -623,7 +626,7 @@ void QLayoutArray::setupHfwLayoutData( int spacing )
 	    if ( r1 == r2 ) {
 		addHfwData( box );
 	    } else {
-		distributeMultiBox( rData, r1, r2, spacing, 
+		distributeMultiBox( rData, r1, r2, spacing,
 				    min.height(), hint.height() );
 	    }
 	}
