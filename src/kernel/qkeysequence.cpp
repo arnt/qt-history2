@@ -205,7 +205,7 @@ done:
 }
 
 /*!
-  Copy constructor. Makes a copy of \a key sequence.
+  Copy constructor. Makes a copy of \a keysequence.
  */
 QKeySequence::QKeySequence( const QKeySequence& keysequence )
 {
@@ -223,7 +223,7 @@ QKeySequence::~QKeySequence()
 }
 
 /*!
-  Assignment operator. Assigns \a key sequence to this object.
+  Assignment operator. Assigns \a keysequence to this object.
  */
 QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 {
