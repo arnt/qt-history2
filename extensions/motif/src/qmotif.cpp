@@ -141,27 +141,45 @@ void QMotifPrivate::unhook()
 }
 
 extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
+
+static bool xt_grab = FALSE;
+static Window xt_grab_focus_window = None;
+
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
-    static bool grabbed = FALSE;
-    static Window grab_window = None;
-
     QApplication::sendPostedEvents();
 
-
-    if (grabbed && event->type == DestroyNotify
-        && event->xdestroywindow.window == grab_window) {
-        // qDebug("Xt: grab window destroyed");
-        grab_window = None;
-        grabbed = FALSE;
+    if (xt_grab) {
+	if (event->type == XFocusIn && event->xfocus.mode == NotifyWhileGrabbed) {
+	    // qDebug("Xt: grab moved to window 0x%lx", event->xany.window);
+	    xt_grab_focus_window = event->xany.window;
+	} else {
+	    if (event->type == XFocusOut && event->xfocus.mode == NotifyUngrab) {
+		// qDebug( "Xt: grab ended for 0x%lx", event->xany.window );
+		xt_grab = FALSE;
+		xt_grab_focus_window = None;
+	    } else if (event->type == DestroyNotify
+		       && event->xany.window == xt_grab_focus_window) {
+		// qDebug("Xt: grab window destroyed (0x%lx)", xt_grab_focus_window);
+		xt_grab = FALSE;
+		xt_grab_focus_window = None;
+	    }
+	}
     }
 
     QWidgetIntDict *mapper = &static_d->mapper;
     QWidget* qMotif = mapper->find( event->xany.window );
     if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
+	if (! xt_grab
+	    && (event->type == XFocusIn && event->xfocus.mode == NotifyGrab)) {
+	    // qDebug("Xt: grab started for 0x%lx", event->xany.window);
+	    xt_grab = TRUE;
+	    xt_grab_focus_window = event->xany.window;
+	}
+
 	// event is not for Qt, try Xt
-	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
-				     event->xany.window );
+	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(), event->xany.window );
+
 	while ( w && ! ( qMotif = mapper->find( XtWindow( w ) ) ) ) {
 	    if ( XtIsShell( w ) ) {
 		break;
@@ -174,20 +192,6 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    // remap key events to keep accelerators working
  	    event->xany.window = qMotif->winId();
  	}
-
-	if ( w ) {
-	    if ( !grabbed && ( event->type        == XFocusIn &&
-			       event->xfocus.mode == NotifyGrab ) ) {
-                // qDebug( "Xt: grab started" );
-                grab_window = XtWindow(w);
-		grabbed = TRUE;
-	    } else if ( grabbed && ( event->type        == XFocusOut &&
-				     event->xfocus.mode == NotifyUngrab ) ) {
-                // qDebug( "Xt: grab ended" );
-                grab_window = None;
-		grabbed = FALSE;
-	    }
-	}
     }
 
     /*
@@ -197,7 +201,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
       started.
     */
     bool do_deliver = TRUE;
-    if ( grabbed && ( event->type == ButtonPress   ||
+    if ( xt_grab && ( event->type == ButtonPress   ||
 		      event->type == ButtonRelease ||
 		      event->type == MotionNotify  ||
 		      event->type == EnterNotify   ||
@@ -254,7 +258,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
-    if ( ! grabbed && QApplication::activeModalWidget() ) {
+    if ( ! xt_grab && QApplication::activeModalWidget() ) {
 	if ( qMotif ) {
 	    // send event through Qt modality handling...
 	    if ( !qt_try_modal( qMotif, event ) ) {
@@ -294,13 +298,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
-    if ( static_d->dispatchers[ event->type ]( event ) ) {
-	// qDebug( "Xt: delivered event" );
-	// Xt handled the event.
-	return True;
-    }
-
-    return False;
+    return static_d->dispatchers[event->type](event);
 }
 
 
