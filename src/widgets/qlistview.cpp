@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#140 $
 **
 ** Implementation of QListView widget class
 **
@@ -1102,7 +1102,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		other = dotlines[line].y();
 		while( point < end ) {
 		    dots[i++] = QPoint( point, other );
-		    if ( i == dots.size() )
+		    if ( (uint)i == dots.size() )
 			fatal( "fatal a %d %d %d %d", i, end, point, other );
 		    point += 2;
 		}
@@ -1114,7 +1114,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		other = dotlines[line].x();
 		while( point < end ) {
 		    dots[i++] = QPoint( other, point );
-		    if ( i == dots.size() )
+		    if ( (uint)i == dots.size() )
 			fatal( "fatal b %d %d %d %d", i, end, point, other );
 		    point += 2;
 		}
@@ -2412,6 +2412,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 
     if ( isMultiSelection() && i->isSelectable() && e->ascii() == ' ' ) {
 	setSelected( i, !i->isSelected() );
+	d->currentPrefix.truncate( 0 );
 	return;
     }
 
@@ -2494,7 +2495,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	e->ignore();
 	break;
     default:
-	if ( e->ascii() ) {
+	if ( e->ascii() && isalnum( e->ascii() ) ) {
 	    QString input( d->currentPrefix );
 	    input.detach();
 	    QListViewItem * keyItem = i;
