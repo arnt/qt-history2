@@ -90,13 +90,14 @@ void QColor::initialize()
 	numPalEntries = 20 + 6*6*6;		// System + cube
     else
 	numPalEntries = 0;			// allocate in alloc()
+    numPalEntries = 0;				// ### ManyColor is broken right now
 
     LOGPALETTE* pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE)
 				     + numPalEntries * sizeof(PALETTEENTRY) );
     pal->palVersion = 0x300;
     pal->palNumEntries = numPalEntries;
 
-    if ( QApplication::colorSpec() == QApplication::ManyColor ) {
+    if ( numPalEntries ) {
 	// Fill with system colors
 	GetSystemPaletteEntries( dc, 0, 10, pal->palPalEntry );
 	GetSystemPaletteEntries( dc, 246, 10, pal->palPalEntry + 10 );
@@ -125,8 +126,7 @@ void QColor::initialize()
 				pal->palPalEntry[i].peGreen,
 				pal->palPalEntry[i].peBlue ) & RGB_MASK;
 	    ctxArray[i] = 0;
-	}
-	else {
+	} else {
 	    colArray[i] = 0;
 	    ctxArray[i] = -1;
 	}
