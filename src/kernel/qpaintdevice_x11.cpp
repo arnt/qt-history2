@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#25 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#25 $";
 #endif
 
 
@@ -176,9 +176,14 @@ This function copies a block of pixels from one paint device to another
 \arg \e sw and \e sh is the width and height of the block to be copied.
 \arg \e rop defines the raster operation to be used when copying.
 
-If \e sw or \e sh are 0, then bitBlt will use the width/height of \e src.
+If \e sw is 0 or \e sh is 0, then bitBlt will do nothing.<br>
 
-The \e e rop parameter can be on of:
+If \e sw is negative, then bitBlt calculates
+<code>sw = src->width - sx.</code><br>
+If \e sh is negative, then bitBlt calculates
+<code>sh = src->height - sy.</code><br>
+
+The \e rop parameter can be one of:
 <ul>
 <li> \c CopyROP:     dst = src.
 <li> \c OrROP:       dst = dst OR src.
@@ -191,7 +196,7 @@ The \e e rop parameter can be on of:
 <li> \c NotROP:      dst = NOT dst
 </ul>
 
-There are a few restrictions:
+There are some restrictions:
 <ol>
 <li> The \e src device must be QWidget or QPixmap.  You cannot copy pixels
 from a picture or a printer (external device).
@@ -214,10 +219,18 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     int td = dst->devType();			// to device type
     Display *dpy = src->display();
 
-    if ( sw <= 0 )				// use device width
-	sw = src->metric( PDM_WIDTH ) - sx;
-    if ( sh <= 0 )				// use device height
-	sh = src->metric( PDM_HEIGHT ) - sy;
+    if ( sw <= 0 ) {				// special width
+	if ( sw < 0 )
+	    sw = src->metric( PDM_WIDTH ) - sx;
+	else
+	    return;
+    }
+    if ( sh <= 0 ) {				// special height
+	if ( sh < 0 )
+	    sh = src->metric( PDM_HEIGHT ) - sy;
+	else
+	    return;
+    }
 
     if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
