@@ -61,7 +61,8 @@ When \QD starts it shows the \Widget{New/Open} dialog. (If you prefer
 the old behavior, check the "Don't show this dialog in the future"
 checkbox.) We'll just click \CANCEL to skip past it.
 
-\img qd-newopen-dlg.png New/Open Dialog
+\omit \img qd-newopen-dlg.png New/Open Dialog \endomit
+\img newopendialog.png
 
 \index Exiting Qt Designer
 \index Getting Help
@@ -137,10 +138,16 @@ project, ideally creating a new folder for it (e.g. called
 \i Enter a filename of "colortool.pro", then click \OK. The project's
 name will now be "colortool"; click \OK to close the \Widget{Project
 Settings} dialog.
+
+\img projset.png
+
 \i Click \Menu File|Save to save the project.
 \endlist
 
-\img qd-chapdialogs-creatingnewprojects.png New File dialog
+\omit \img qd-chapdialogs-creatingnewprojects.png New File dialog
+\endomit
+
+\img newfiledialog.png
 
 The \Widget{New File} dialog is used to create all the files that can
 be used in a \QD project. This includes C++ source files, an
@@ -253,7 +260,8 @@ on, but it is still convenient to create them now. We won't have any
 Help Actions on the toolbar so uncheck the Help Action's Toolbar
 checkbox. Click \Button Next to move on to the next wizard page.
 
-\img qd-chapmainwin-mainwinwiz1.png
+\omit \img qd-chapmainwin-mainwinwiz1.png \endomit
+\img mwwiz.png
 \caption Main Window Wizard- Choosing menus and toolbars
 
 \i
@@ -282,7 +290,8 @@ Copy the New, Open and Save Actions to the Toolbar list box. Copy a
 copy the Cut Copy and Find actions to the Toolbar list box. Click
 \Button Next and then click \Button Finish.
 
-\img qd-chapmainwin-mainwinwiz2.png
+\omit \img qd-chapmainwin-mainwinwiz2.png \endomit
+\img mwwiz2.png
 \caption Main Window Wizard- Setting up the toolbar
 
 \endlist
@@ -295,7 +304,8 @@ toolbars are not yet functional, but we will rectify this as we
 progress. You leave preview mode by clicking the form's Close box (or
 the platform-specific equivalent). 
 
-\img qd-chapmainwin-mainwinwiz3.png
+\omit \img qd-chapmainwin-mainwinwiz3.png \endomit
+\img previewform.png
 \caption Previewing the Form
 
 Now that we've created the form we will need to change some of its
@@ -328,7 +338,8 @@ common will be shown in the property editor, and any change made to
 one property will be made to that same property for all the selected
 widgets.
 
-\img qd-chapdialogs-propertyeditor.png
+\omit \img qd-chapdialogs-propertyeditor.png \endomit
+\img propedit.png
 \caption Property Editor
 
 Some properties have simple values, for example, the \Property name property
@@ -426,7 +437,8 @@ Explorer which is especially useful for forms that have many widgets
 or which use layouts. Multiple widgets can be selected by
 \Key{Click}ing the first one then \Key{Shift+Click}ing the others.
 
-\img qd-chapdialogs-objectexplorer.png
+\omit \img qd-chapdialogs-objectexplorer.png \endomit
+\img objexplor.png
 \caption Object Explorer
 
 \index Code Editing
@@ -516,6 +528,8 @@ an entirely new toolbar. See \l{Creating and Populating Toolbars} for
 more information on doing this.) Right click the right-most toolbar
 button ("Find"), then click \Menu{Insert Separator}.
 
+\img addmenuitem.png
+
 Now we'll create our form's custom actions.
 
 \sidebar Creating and Populating Toolbars
@@ -529,7 +543,8 @@ The new toolbar is empty and is visible only by its \e{toolbar
 handle}. (Toolbar handle's are usually represented as a gray area
 containing either two thick vertical lines or with many small pits).
 
-\img qd-chapmainwin-toolbarhandle.png
+\omit \img qd-chapmainwin-toolbarhandle.png \endomit
+\img toolbarpits.png
 \caption Toolbar Handle
 
 \index Actions and Action Groups!Adding to a Toolbar
@@ -541,11 +556,12 @@ Editor to the toolbar, and dropping them on the toolbar in the
 position we want them. (The position is indicated by a vertical red
 line.)
 
-\img qd-chapmainwin-toolbarhandle2.png
+\omit \img qd-chapmainwin-toolbarhandle2.png \endomit
+\img dragaction.png
 \caption Dragging the Action Group to the Toolbar
 
-\img qd-chapmainwin-toolbaractiongroup1.png
-\caption Populating the Toolbar with an Action Group
+\omit \img qd-chapmainwin-toolbaractiongroup1.png \endomit
+\omit \caption Populating the Toolbar with an Action Group \endomit
 
 All the actions in an action group are added to a toolbar in one go,
 simply by dragging the action group from the Action Editor and
@@ -572,7 +588,8 @@ dragged to different docking points (top, left, right and bottom of a
 \l QMainWindow or subclass), or dragged out of the application as
 independent tool windows. 
 
-\img qd-chapmainwin-previewing.png
+\omit \img qd-chapmainwin-previewing.png \endomit
+\img actiongroup.png
 \caption Toolbar with all the Actions Added
 
 \section3 Adding Widgets to the Toolbar
@@ -593,8 +610,8 @@ It is perfectly feasible to add \Widget{ComboBox}es and
 be used to list the available font names and the \Widget{SpinBox} used
 to select a font size.
 
-\img qd-chapmainwin-addwidg.png
-\caption Adding Widgets to the Toolbar
+\omit \img qd-chapmainwin-addwidg.png \endomit
+\omit \caption Adding Widgets to the Toolbar \endomit
 
 Although you can put any widget into a toolbar we recommend that
 widgets which can be associated with an action should \e not be added
@@ -772,6 +789,8 @@ Click the Toolbox's Containers button, then click WidgetStack. Click
 roughly in the middle of the form to place the widget stack. Change
 the widget stack's \Property{name} property to "colorWidgetStack".
 
+\img addmainwidg.png
+
 \sidebar Widget Placement
 
 When placing widgets on forms using \QD, you only need to place things
@@ -794,6 +813,8 @@ Click the form itself, then click the \Button{Lay Out Vertically}
 toolbar button. The widget stack now fills the entire form. We're now
 ready to populate the widget stack's pages with widgets.
 
+\img laymainwidg.png
+
 Click the Toolbox's Views button. Click Table, then click roughly in the
 middle of the widget stack. Change the table's \Property{name} property
 to "colorTable", change its \Property{numRows} property to "0", and
@@ -811,10 +832,14 @@ Label line edit. Change column 2's label to "Hex". In the same way
 change column 3's label to "Web". (The reference section provides full
 information on this dialog.) Click \OK to close the dialog.
 
+\img colortable.png
+
 Click the widget stack, then click the \Button{Lay Out Vertically}
 toolbar button. The table now fits inside the widget stack, and will
 resize with the widget stack (which in turn will resize with the form:
 try clicking \Key Ctrl+T to preview and resize the previewed form).
+
+\img laycolortable.png
 
 Click the "page" object in Object Explorer. Change its \Property{name}
 property to "tablePage".
@@ -829,6 +854,8 @@ its \Property{resizeMode} property to "Adjust". We want our color
 swatches to appear in neat columns so change the \Property{gridX}
 property to "100".
 
+\img coloriconv.png
+
 It is often useful to create IconView items during design, but it
 isn't appropriate for our application. Right click the IconView to
 popup its context menu, then click \Menu{Edit...} to invoke the
@@ -837,6 +864,8 @@ the default item, then click \OK.
 
 Click the widget stack, then click the \Button{Lay Out Vertically}
 toolbar button. The icon view now fits inside the widget stack. 
+
+\img laycoloriconv.png
 
 Click the "page" object in Object Explorer. Change its name to
 "iconsPage".
@@ -877,6 +906,8 @@ type in "bool m_changed". We'll use this variable to keep track of
 whether the data has changed or not; this is useful for offering the
 user a prompt to save unsaved changes when they exit or open a new
 file, for example. 
+
+\img editvar.png
 
 In the same way add "QString m_filename;" so that we can keep track of
 the file the user has open. Add "bool m_table_dirty" and "bool
@@ -919,6 +950,8 @@ Add the following forward declarations: "class QString;" and "class
 QColor;". Close the dialog and the forward declarations appear in
 Object Explorer.
 
+\img forwdec.png
+
 You should now have the following forward declarations:
 \list
 \i class QString;
@@ -935,6 +968,8 @@ going to use the clipboard we'll need access to the global clipboard
 object via \l QApplication, so also add "qapplication.h" and
 "qclipboard.h". We'll also be doing some drawing (e.g. the color
 swatches), so add "qpainter.h" too, then close the dialog. 
+
+\img incimp.png
 
 When entering include files you can include double quotes or angle
 brackets if you wish; if you don't use either \QD will put in double
@@ -956,7 +991,9 @@ by the main window wizard when we created the main form. We have added
 some new actions since then, and we need to ensure that they are
 connected to slots so that we can code their behavior.
 
-\img qd-connections1-dlg.png View and Edit Connections dialog
+\omit \img qd-connections1-dlg.png View and Edit Connections dialog
+\endomit
+\img editconn.png
 
 \sidebar Creating Signals and Slots Connections
 
@@ -982,13 +1019,22 @@ Connections} dialog.
 
 Click \Button{New} to create a new connection. Change the Sender to
 "colorTable" and the Signal to "currentChanged(int,int)". Change the
-Receiver to "MainForm". We want to connect to our own custom slot
-which we haven't yet created. Click the \Button{Edit Slots...} button
-to invoke the \Widget{Edit Functions} dialog. Change the slot name
-(which defaults to "newSlot") to "changedTableColor(int,int)". Click
-\OK to close the dialog. Now change the Slot in the \Widget{View and
-Edit Connections} dialog to our newly created
-"changedTableColor(int,int)" slot.
+Receiver to "MainForm".
+
+\img editconn1.png
+
+We want to connect to our own custom slot which we haven't yet
+created. Click the \Button{Edit Slots...} button to invoke the
+\Widget{Edit Functions} dialog. Change the slot name (which defaults
+to "newSlot") to "changedTableColor(int,int)". Click \OK to close the
+dialog.
+
+\img editfunc.png
+
+Now change the Slot in the \Widget{View and Edit Connections}
+dialog to our newly created "changedTableColor(int,int)" slot.
+
+\img editconn2.png
 
 Click \Button{New} to create a new connection. Change the Sender to
 "colorIconView" and the Signal to "currentChanged(QIconViewItem*)".
@@ -1027,7 +1073,9 @@ the slot that the signal connects to.
 Click \OK to close the \Widget{View and Edit Connections} dialog.
 We are now ready to write the code.
 
-\img qd-connections2-dlg.png View and Edit Connections dialog
+\omit \img qd-connections2-dlg.png View and Edit Connections dialog
+\endomit
+\img editconn3.png
 
 \section2 Editing the Code: Setting Up
 

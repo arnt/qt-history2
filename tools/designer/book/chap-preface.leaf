@@ -13,16 +13,17 @@
     widgets and new and improved functionality which have been developed as a
     result of your feedback.
 
-    \QD helps you build user interfaces with layout tools that move and
-    scale your widgets (\e controls in Windows terminology) automatically at
-    runtime. The resulting interfaces are both functional and attractive,
-    comfortably suiting your users' operating environments and
-    preferences. \QD supports Qt's signals and slots mechanism for
-    type-safe communication between widgets. \QD includes a code
-    editor which you can use to embed your own custom slots inside the
-    generated code. Those who prefer to separate generated code from
-    hand crafted code can continue to use the subclassing approach
-    pioneered in the first version of \QD. \index Controls!Widgets
+    \QD helps you build user interfaces with layout tools that move
+    and scale your widgets (\e controls in Windows terminology)
+    automatically at runtime. The resulting interfaces are both
+    functional and attractive, comfortably suiting your users'
+    operating environments and preferences. \QD supports Qt's signals
+    and slots mechanism for type-safe communication between widgets.
+    \QD includes a code editor which you can use to embed your own
+    custom slots inside the generated code. Those who prefer to
+    separate generated code from hand crafted code can continue to use
+    the subclassing approach pioneered in the first version of \QD.
+    \index Controls!Widgets
 
     The manual introduces you to \QD by leading you through the
     development of example applications. The first six chapters are
@@ -158,7 +159,8 @@
 	in the property editor and can be changed collectively.
 	\endlist
 
-\img designer.png
+\omit \img designer.png \endomit
+\img despreface.png
 \caption Qt Designer
 
 \section1 Feedback

@@ -143,6 +143,8 @@ the button's \Property{name} property to "okPushButton", its
 \Property{text} property to "OK", and its \Property{default} property
 to True.
 
+\img dialog1addwidg.png
+
 Click the PushButton tool again, then click to the right of the OK
 button. Change this button's \Property{name} property to
 "cancelPushButton" and its \Property{text} property to "Cancel".
@@ -176,6 +178,10 @@ Horizontally} toolbar button. A thin red rectangle appears to indicate
 the layout (this only shows up as a visual cue in \QD, it doesn't
 appear in preview mode or in the running form).
 
+\img dialog1selewidg.png Selecting Widgets with the Rubber Band
+
+\img dialog1selewidg1.png Selected Widgets
+
 Click the form to deselect any selected widgets. In Object Explorer's
 Objects tab click the "cancelPushButton" to select it. Now \Key
 Shift+Click the OK button in the Objects tab. (The Objects tab only
@@ -194,6 +200,8 @@ lay them all out in relation to the form.
 Click the form to deselect any selected widgets. Click the \Button{Lay
 Out Horizontally} toolbar button to lay out the form. (The form gets
 laid out because no widgets or layouts are selected.)
+
+\img dialog1layout1.png
 
 Preview the form (\Key Ctrl+T), and try resizing it. Unfortunately,
 when you make the form larger the buttons expand too much and look
@@ -237,6 +245,8 @@ Vertically} (or pres \Key Ctrl+L).
 
 Now we'll lay out the form itself. Click the form to deselect any
 selected widgets or layouts. Then click \Button{Lay Out Horizontally}.
+
+\img dialog1layout2.png
 
 So far the form doesn't look very different from before. Try
 previewing it (\Key Ctrl+T) and resizing it. No matter how large or
@@ -282,7 +292,8 @@ tab order by previewing (\Key Ctrl+T) and pressing the \Key Tab key.
 If you prefer the tab order that you had before this one, click
 \Menu{Edit|Undo} (or press \Key Ctrl+Z).
 
-\img qd-chapdialog-taborder.png Setting Tab Order
+\omit \img qd-chapdialog-taborder.png Setting Tab Order \endomit
+\img dialog1tab.png
 
 \endsidebar
 
@@ -485,7 +496,8 @@ a dialog, make its connections, write its code, then code the slot
 that invokes it. (We already have the connection set up in the main
 form; it was created automatically by the main window wizard.)
 
-\img qd-colortool-find.png The Find Color Dialog
+\omit \img qd-colortool-find.png The Find Color Dialog \endomit
+\img dialog2sample.png
 
 \section2 Creating the Dialog
 
@@ -527,6 +539,8 @@ horizontally to the right a little, then release. Click on the Spacer
 tool again, then click above the "Find" button; drag vertically a
 little, then release.
 
+\img dialog2setwidg.png
+
 \section3 Laying Out the Widgets
 
 Now that we've created and roughly placed the widgets we need we are
@@ -550,6 +564,8 @@ We can now lay out the form itself. Click the form, then press \Key
 Ctrl+L (lay out vertically). You may want to resize the form slightly,
 perhaps to make it smaller. Try previewing the form (\Key Ctrl+T) and
 resizing it to see how everything resizes nicely.
+
+\img dialog2laywidg.png
 
 \section3 Connecting the Widgets
 
@@ -725,7 +741,8 @@ colors in the table view, and what they want to copy to the clipboard
 when the click \Key Ctrl+C to copy a color. We'll also automatically
 save and restore their view, window size and position.
 
-\img qd-colortool-options.png The Options Dialog
+\omit \img qd-colortool-options.png The Options Dialog \endomit
+\img dialog3sample.png
 
 \section2 Creating the Dialog
 
@@ -748,6 +765,8 @@ Up to now we've always placed all our widgets and then laid them out
 at the end. But we can lay out widgets as we go along if we prefer.
 Click the group box, then press \Key Ctrl+H (lay out horizontally).
 
+\img dialog3grpbox.png
+
 Click the ButtonGroup tool and click below the table view group box.
 Change this group's \Property{title} property to "Copy to Clipboard
 As" and drag a corner to make it larger.
@@ -763,6 +782,8 @@ radio button. Click for a third time, below the second radio button.
 Now click the Pointer toolbar button to cancel multiple placement
 mode.
 
+\img dialog3clipgrp.png
+
 Click the first (top-most) radio button. Change its \Property{name}
 property to "hexRadioButton", its \Property{text} property to "\&Hex,
 e.g. #AB52F7", and its \Property{checked} property to True.
@@ -776,6 +797,8 @@ property to "rgbRadioButton" and its text to "\&RGB, e.g. 51,255,102".
 
 Click the clipboard group to select it, then click \Key Ctrl+L (lay
 out vertically).
+
+\img dialog3layclip.png
 
 Now create an OK button and a Cancel button. (Click the PushButton
 tool, then click the form below the clipboard group. Change the
@@ -791,8 +814,12 @@ drag horizontally to the left a little then release. \Key Shift+Click
 the OK button, then \Key Shift+Click the Cancel button. Press \Key
 Ctrl+H.)
 
+\img dialog3buttons.png
+
 Lay out the form. (Click the form, then press \Key Ctrl+L -- lay out
 vertically.) Resize the form until it is a pleasing size and shape.
+
+\img dialog3layout.png
 
 \section3 Connecting the Widgets
 
