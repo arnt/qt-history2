@@ -134,7 +134,7 @@ public:
 
     enum CombiningClass
     {
-        Combining_BelowLeftAttached               = 200,
+        Combining_BelowLeftAttached       = 200,
         Combining_BelowAttached           = 202,
         Combining_BelowRightAttached      = 204,
         Combining_LeftAttached            = 208,
@@ -571,6 +571,7 @@ public:
 #endif
 
     bool startsWith( const QString& ) const;
+    int similarityWith( const QString& ) const;
 
     void setLength( uint newLength );
 
@@ -578,6 +579,8 @@ public:
     bool isRightToLeft() const;
 
 private:
+    class CoMatrix;
+
     QString( int size, bool dummy );            // allocate size incl. \0
 
     void deref();
