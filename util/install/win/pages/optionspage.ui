@@ -85,12 +85,6 @@
                                     <property name="name">
                                         <cstring>installPath</cstring>
                                     </property>
-                                    <property name="frameShape">
-                                        <enum>StyledPanel</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                        <enum>Sunken</enum>
-                                    </property>
                                 </widget>
                                 <widget class="QPushButton">
                                     <property name="name">
