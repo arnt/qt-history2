@@ -4,6 +4,7 @@
 #include <QString>
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 
 #include "projectporter.h"
 #include "fileporter.h"
@@ -15,29 +16,43 @@ using std::endl;
 QString rulesFileName;
 QString rulesFilePath;
 
+/*
+    Rules for findng rules.xml
+    1. look in current path
+    2. look in program path
+    3. look in $QTDIR/tools/porting/ 
+    (4. use built in resource file.) (not implemented)
+*/
 QString findRulesFile(QString fileName, QString programPath)
 {
     QString filePath;
-
+    
     QFile f(fileName);
     if (f.exists()) {
         filePath=fileName;
-    } else {
-        QString programFileName =  QFileInfo(programPath).fileName();
-        programPath.chop(programFileName.size());
-        filePath = programPath + fileName;
+    }
+    
+    if(filePath.isEmpty()) {
+        filePath = QFileInfo(programPath).path() + "/" + fileName;
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
-    return filePath;
+    
+    if(filePath.isEmpty()) {
+        filePath = QString (qgetenv("QTDIR")) + "/tools/porting/" + fileName;
+        QFile f(filePath);
+        if (!f.exists())
+            filePath=QString();
+    }
+    return QFileInfo(filePath).absoluteFilePath();
 }
 
 int fileMode(QString inFile)
 {
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
-        cout << "Could not find file" << inFile.latin1() << endl;
+        cout << "Could not find file " << inFile.latin1() << endl;
         return 1;
     }
 
@@ -53,7 +68,7 @@ int projectMode(QString inFile)
 {
     QFileInfo inFileInfo(inFile);
     if(!inFileInfo.exists()) {
-        cout<<"Could not find file" << inFile.latin1() << endl;
+        cout<<"Could not find file " << inFile.latin1() << endl;
         return 1;
     }
  
@@ -101,7 +116,7 @@ int main(int argc, char**argv)
         printf("Error: Could not find rules.xml file\n");
         return 0;
     } else {
-        printf("Using rules file: %s\n", rulesFilePath.latin1());
+        cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).latin1() <<endl;
     }
 
 
