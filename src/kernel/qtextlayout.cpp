@@ -773,6 +773,56 @@ QTextLine QTextLayout::findLine(int pos) const
 }
 
 
+
+void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Selection *selections, int nSelections, const QRect &cr) const
+{
+    Q_ASSERT(numLines() != 0);
+
+    int clipy = INT_MIN;
+    int clipe = INT_MAX;
+    if (cr.isValid()) {
+	clipy = cr.y() - pos.y();
+	clipe = clipy + cr.height();
+    }
+
+    for ( int i = 0; i < d->lines.size(); i++ ) {
+	QTextLine l(i, d);
+	const QScriptLine &sl = d->lines[i];
+
+	if (sl.y > clipe || sl.y + sl.ascent + sl.descent < clipy)
+	    continue;
+
+	int from = sl.from;
+	int length = sl.length;
+
+	l.draw(p, pos.x(), pos.y());
+	if (selections) {
+	    for (int j = 0; j < nSelections; ++j) {
+		const Selection &s = selections[j];
+		if (s.from + s.length > from && s.from < from+length) {
+		    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from, from)),
+						   pos.y() + sl.y),
+					    QPoint(pos.x() + l.cursorToX(qMin(s.from + s.length, from+length)) - 1,
+						   pos.y() + sl.y + sl.ascent + sl.descent));
+		    p->save();
+		    p->setClipRect(highlight, QPainter::CoordPainter);
+		    if (s.type == Highlight)
+			p->fillRect(highlight, s.highlight);
+		    p->setPen(s.highlightText);
+		    l.draw(p, pos.x(), pos.y());
+		    p->restore();
+		}
+	    }
+	}
+	if (sl.from <= cursorPos && sl.from + sl.length > cursorPos) {
+	    int x = l.cursorToX(cursorPos);
+	    p->drawLine(pos.x() + x, pos.y() + sl.y, pos.x() + x, pos.y() + sl.y + sl.ascent + sl.descent );
+	}
+    }
+
+}
+
+
 QRect QTextLine::rect() const
 {
     const QScriptLine& si = eng->lines[i];

@@ -17,6 +17,8 @@
 #include "qstring.h"
 #include "qnamespace.h"
 #include "qrect.h"
+#include "qvector.h"
+#include "qcolor.h"
 #endif // QT_H
 
 class QTextEngine;
@@ -199,7 +201,27 @@ public:
     int nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
     int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
 
-    QTextEngine *engine() { return d; }
+    enum SelectionType {
+	Highlight,
+	Underline
+    };
+    struct Selection {
+	int from;
+	int length;
+	SelectionType type;
+	QColor highlight;
+	QColor highlightText;
+    };
+
+    enum { NoCursor = -1 };
+
+    inline void draw(QPainter *p, const QPoint &pos, int cursorPos, const QVector<Selection> &selections) const {
+	draw(p, pos, cursorPos, selections.constData(), selections.size());
+    }
+    void draw(QPainter *p, const QPoint &pos, int cursorPos = NoCursor, const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
+
+
+    QTextEngine *engine() const { return d; }
 
 private:
     QTextLayout( QTextEngine *e ) : d( e ) {}
