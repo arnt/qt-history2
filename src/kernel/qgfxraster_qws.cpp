@@ -1677,14 +1677,17 @@ void QGfxRasterBase::setBrush( const QBrush & b )
 	patternedbrush=FALSE;
     }
 #ifndef QT_NO_QWS_REPEATER
-    QScreen * tmp=qt_screen;
-    qt_screen=gfx_screen;
+    if ( is_screen_gfx && qt_screen != gfx_screen ) {
+	QScreen * tmp=qt_screen;
+	qt_screen=gfx_screen;
+	QColor tmpcol=b.color();
+	srccol=tmpcol.alloc();
+	qt_screen=tmp;
+    } else 
 #endif
-    QColor tmpcol=b.color();
-    srccol=tmpcol.alloc();
-#ifndef QT_NO_QWS_REPEATER
-    qt_screen=tmp;
-#endif
+	srccol=b.color().pixel();
+
+    
 }
 
 /*!
