@@ -669,9 +669,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	QRect r(x,y,w,h);
 	if ( r.isEmpty() )
 	    return; // nothing to do
-	if ( erase && w != 0 && h != 0 ) {
+	if ( erase )
 	    this->erase(x,y,w,h);
-	}
 	QPaintEvent e( r, erase );
 	qt_set_paintevent_clipping( this, r );
 	QApplication::sendEvent( this, &e );
@@ -1050,6 +1049,11 @@ void QWidget::setBaseSize( int basew, int baseh )
     }
 }
 
+static void drawTileAligned(QPainter& p, const QRect& r, const QPixmap& pm)
+{
+    p.setClipRect(r);
+    p.drawTiledPixmap(r,pm,QPoint(r.x()%pm.width(),r.y()%pm.height()));
+}
 
 void QWidget::erase( int x, int y, int w, int h )
 {
@@ -1064,7 +1068,7 @@ void QWidget::erase( int x, int y, int w, int h )
 	QPainter p(this);
 	QRect r(x,y,w,h);
 	if ( extra && extra->bg_pix ) {
-	    p.drawTiledPixmap(r,*extra->bg_pix,QPoint(0,0));
+	    drawTileAligned(p,r,*extra->bg_pix);
 	} else {
 	    p.fillRect(r,bg_col);
 	}
@@ -1078,7 +1082,7 @@ void QWidget::erase( const QRegion& reg )
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
 	if ( extra && extra->bg_pix ) {
-	    p.drawTiledPixmap(rr,*extra->bg_pix,QPoint(0,0));
+	    drawTileAligned(p,rr,*extra->bg_pix);
 	} else {
 	    p.fillRect(rr,bg_col);
 	}
