@@ -25,7 +25,7 @@ public:
     QAbstractSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
     ~QAbstractSpinBox();
 
-    enum StepEnabledFlags { StepUpEnabled = 0x100, StepDownEnabled = 0x200 };
+    enum StepEnabledFlags { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
     Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlags);
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };

@@ -299,16 +299,12 @@ void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
-    StepEnabled ret = 0;
+    StepEnabled ret = StepNone;
     if (d->wrapping || d->value < d->maximum) {
 	ret |= StepUpEnabled;
-    } else {
-	ret &= (~StepUpEnabled);
     }
     if (d->wrapping || d->value > d->minimum) {
 	ret |= StepDownEnabled;
-    } else {
-	ret &= (~StepDownEnabled);
     }
     return ret;
 }
