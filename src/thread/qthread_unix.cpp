@@ -155,7 +155,7 @@ void QThreadInstance::terminate()
 */
 Qt::HANDLE QThread::currentThread()
 {
-    return (unsigned long) pthread_self();
+    return (Qt::HANDLE)pthread_self();
 }
 
 /*! \internal
@@ -163,7 +163,7 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    extern QMutexPool *static_qt_global_mutex_pool;
+    extern QMutexPool *static_qt_global_mutexpool;
     if (static_qt_global_mutexpool)
 	return;
 
