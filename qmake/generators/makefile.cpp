@@ -448,7 +448,7 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString &m = mocablesToMOC[(*it)];
 	if ( !m.isEmpty())
-	    t << m << ": " << (*it) << "\n\t"
+	    t << m << ": $(MOC) " << (*it) << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
     }
 }
@@ -547,7 +547,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "UICDECLS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
-	return TRUE;
+    return TRUE;
 }
 
 

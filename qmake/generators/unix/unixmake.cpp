@@ -192,7 +192,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGET)") << endl << endl;
     }
 
-    t << "moc: $(SRCMOC)" << endl << endl;
+    t << "mocables: $(SRCMOC)" << endl << endl;
+
+    t << "moc $(MOC): \n\t"
+      << "make -C $(QTDIR)/src/moc" << "\n\t"
+      << "cp $(QTDIR)/src/moc $(MOC)" << endl << endl;
 
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
