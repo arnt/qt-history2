@@ -242,7 +242,7 @@ int QIODeviceSource::readyToSend()
     if ( iod->status() != IO_Ok || !(iod->state() & IO_Open) )
 	return -1;
 
-    int n = QMIN(buf_size, iod->size()-iod->at());
+    int n = QMIN((uint)buf_size, iod->size()-iod->at());
     return n ? n : -1;
 }
 
