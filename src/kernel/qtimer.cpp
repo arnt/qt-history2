@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#39 $
 **
 ** Implementation of QTimer class
 **
@@ -53,7 +53,7 @@
 
   As a special case, a QTimer with timeout 0 times out as soon as all
   the events in the window system's event queue have been processed.
-  
+
   This can be used to do heavy work while providing a snappy
   user interface: \code
     QTimer *t = new QTimer( myObject );
@@ -134,6 +134,8 @@ QTimer::~QTimer()
 
 int QTimer::start( int msec, bool sshot )
 {
+    if ( id >=0 && !msec && sshot == single )
+	return id;
     if ( id != INV_TIMER )			// stop running timer
 	stop();
     single = sshot;
