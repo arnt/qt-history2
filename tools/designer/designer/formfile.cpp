@@ -138,10 +138,6 @@ QString FormFile::code()
     if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	createSource = FALSE;
 	txt = cod;
-	if ( txt.isEmpty() ) {
-	    createSource = TRUE;
-	    setSource = TRUE;
-	}
     }
     if ( createSource ) {
 	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
