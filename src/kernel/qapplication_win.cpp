@@ -54,7 +54,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#if defined(QT_WINTAB_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
 		      PK_ORIENTATION | PK_CURSOR )
 #define PACKETMODE  0
@@ -272,7 +272,7 @@ public:
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
-#if defined (QT_WINTAB_SUPPORT)
+#if defined (QT_TABLET_SUPPORT)
 	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		                          int numPackets );
 #endif
@@ -729,7 +729,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #endif
 
 	// the WinTab API
-#if defined(QT_WINTAB_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 
 #define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
     typedef UINT (API *PtrWTInfo)(UINT, UINT, LPVOID);
@@ -842,7 +842,7 @@ void qt_cleanup()
     OleUninitialize();
 #endif
 
-#if defined(QT_WINTAB_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
     typedef BOOL ( API *PtrWTClose )(HCTX);
 
     static bool dllWintabChecked = FALSE;
@@ -1079,7 +1079,7 @@ static void unregWinClasses()
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
-#if defined (QT_WINTAB_SUPPORT)
+#if defined (QT_TABLET_SUPPORT)
     typedef HCTX ( API *PtrWTOpen )(HWND, LPLOGCONTEXTW, BOOL);
     static bool dllWinTabChecked = FALSE;
     static PtrWTOpen ptrWTOpen = 0;
@@ -1803,7 +1803,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget;
 
-#if defined (QT_WINTAB_SUPPORT)
+#if defined (QT_TABLET_SUPPORT)
 	// there is no need to process pakcets from tablet unless
 	// it is actually on the tablet, a flag to let us know...
 //	bool processPackets = FALSE;
@@ -2103,7 +2103,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_ACTIVATE:
 		{
-#if defined (QT_WINTAB_SUPPORT)
+#if defined (QT_TABLET_SUPPORT)
 		    typedef BOOL (API *PtrWTEnable)(HCTX, BOOL);
 		    typedef BOOL (API *PtrWTOverlap)(HCTX, BOOL);
 		    static bool dllWinTabChecked = FALSE;
@@ -2309,7 +2309,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = FALSE;
 		break;
 #endif
-#if defined (QT_WINTAB_SUPPORT)
+#if defined (QT_TABLET_SUPPORT)
 	case WT_PACKET:
 	    {
 		// Get the packets and also don't link against the actual library...
@@ -3552,7 +3552,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     return FALSE;
 }
 
-#if defined(QT_WINTAB_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 
 //
 // Windows Wintab to QTabletEvent translation

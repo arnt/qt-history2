@@ -406,6 +406,9 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 
+    if ( project->isActiveConfig("tablet") )
+	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
+
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    QString ver_xyz(project->first("VERSION"));

@@ -71,9 +71,6 @@ win32 {
 	OBJECTS_DIR = tmp
 	dll:DEFINES+=QT_MAKEDLL
 
-        tablet {
-		DEFINES += QT_WINTAB_SUPPORT
-	}
 }
 win32-borland:INCLUDEPATH += kernel
 

@@ -233,6 +233,9 @@ NmakeMakefileGenerator::init()
     if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 
+    if ( project->isActiveConfig("tablet") )
+	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
+
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
 	    // use the DLL RT even here
