@@ -84,7 +84,7 @@ struct QHeaderData
 	sortDirection = TRUE;
 	positionsDirty = TRUE;
 	lastPos = 0;
-	fullWidth = TRUE;
+	fullSize = TRUE;
     }
 
 
@@ -101,7 +101,7 @@ struct QHeaderData
     uint move : 1;
     uint clicks_default : 1; // default value for new clicks bits
     uint resize_default : 1; // default value for new resize bits
-    bool fullWidth : 1;
+    bool fullSize : 1;
     bool sortDirection;
     bool positionsDirty;
     int sortColumn;
@@ -1511,12 +1511,13 @@ void QHeader::resizeEvent( QResizeEvent *e )
 	    offs = 0;
     }
 
-    if ( d->fullWidth && count() > 0 ) {
+    if ( d->fullSize && count() > 0 ) {
 	int sec = mapToIndex( count() - 1 );
-	int ns = width() - sectionPos( sec );
+	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
 	int os = sectionSize( sec );
 	if ( ns > 20 ) {
-	    resizeSection( sec, ns );
+	    setCellSize( sec, ns );
+	    repaint( FALSE );
 	    emit sizeChange( sec, os, ns );
 	}
     }
@@ -1540,20 +1541,20 @@ void QHeader::calculatePositions()
   by sections of the header.
 */
 
-void QHeader::setFullWidth( bool b )
+void QHeader::setFullSize( bool b )
 {
-    d->fullWidth = b;
+    d->fullSize = b;
 }
 
 /*! Returns whether the header sections always cover the full width of
   the header.
 
-  \sa setFullWidth()
+  \sa setFullSize()
 */
 
-bool QHeader::fullWidth() const
+bool QHeader::fullSize() const
 {
-    return d->fullWidth;
+    return d->fullSize;
 }
 
 #endif // QT_NO_HEADER

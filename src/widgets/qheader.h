@@ -57,7 +57,7 @@ class Q_EXPORT QHeader : public QWidget
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int offset READ offset WRITE setOffset )
     Q_PROPERTY( bool moving READ isMovingEnabled WRITE setMovingEnabled )
-    Q_PROPERTY( bool fullWidth READ fullWidth WRITE setFullWidth )
+    Q_PROPERTY( bool fullSize READ fullSize WRITE setFullSize )
 
 public:
     QHeader( QWidget *parent=0, const char *name=0 );
@@ -109,8 +109,8 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    void setFullWidth( bool b );
-    bool fullWidth() const;
+    void setFullSize( bool b );
+    bool fullSize() const;
 
 public slots:
     void setUpdatesEnabled( bool enable );

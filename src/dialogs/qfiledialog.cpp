@@ -1367,7 +1367,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     connect( lined, SIGNAL( escapePressed() ),
 	     this, SLOT( cancelRename() ) );
     header()->setMovingEnabled( FALSE );
-    header()->setFullWidth( TRUE );
+    header()->setFullSize( TRUE );
     connect( renameTimer, SIGNAL( timeout() ),
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
