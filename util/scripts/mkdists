@@ -962,12 +962,13 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    remove_file_and_includes "src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
-		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
+		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" 
+                rm -rf "$PLATDIR/examples/overlay_x11" "$PLATDIR/src/3rdparty/dlcompat"
 	    elif [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/examples/trayicon"
-		rm -rf "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/extensions/imageio" "$PLATDIR/src/3rdparty/dlcompat"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
 		rm -f "$PLATDIR/src/widgets/qcompactstyle.h" "$PLATDIR/src/widgets/qcompactstyle.cpp"
 	    elif [ "$plat" = "mac" ]; then
@@ -980,15 +981,15 @@ for plat in mac win x11 qnx6 embedded; do
 	    fi
 	elif [ "$plat" = "win" ]; then
 	    ### Unix build system things
-	    #configure is for unix only
+	    #configure is for unix/mac only
 	    rm -f "$PLATDIR/configure"
-	    #GNUmakefile is for unix only
+	    #GNUmakefile is for unix/mac only
 	    rm -f "$PLATDIR/GNUmakefile" $PLATDIR/qmake/GNUmakefile* "$PLATDIR/qmake/Makefile.unix"
 	    # don't need config.tests
 	    rm -rf "$PLATDIR/config.tests"
 
-	    #Unix only code
-	    rm -rf "$PLATDIR/src/3rdparty/gsos"
+	    #non-Windows code
+	    rm -rf "$PLATDIR/src/3rdparty/gsos" "$PLATDIR/src/3rdparty/dlcompat"
 	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
