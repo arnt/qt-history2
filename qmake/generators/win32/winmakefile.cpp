@@ -437,6 +437,10 @@ void Win32MakefileGenerator::processVars()
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
+    if(project->isEmpty("QMAKE_INSTALL_FILE"))
+	project->variables()["QMAKE_INSTALL_FILE"].append("$(COPY_FILE)");
+    if(project->isEmpty("QMAKE_INSTALL_DIR"))
+	project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
     fixTargetExt();
     processLibsVar();
     processRcFileVar();
@@ -641,6 +645,8 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
     t << "CHK_DIR_EXISTS =	" << var("QMAKE_CHK_DIR_EXISTS") << endl;
     t << "MKDIR		=	" << var("QMAKE_MKDIR") << endl;
+    t << "INSTALL_FILE= " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_DIR = " << var("QMAKE_INSTALL_DIR") << endl;
     t << endl;
 
     t << "####### Output directory" << endl << endl;
