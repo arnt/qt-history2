@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#71 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#72 $
 **
 ** Implementation of QTabDialog class
 **
@@ -369,7 +369,7 @@ void QTabDialog::show()
 
 
 /*!
-  Ensure that the selected tab's page is visible and appropriately sized.
+  Ensures that the selected tab's page is visible and appropriately sized.
 */
 
 void QTabDialog::showTab( int i )
@@ -382,7 +382,7 @@ void QTabDialog::showTab( int i )
 
 
 /*!
-  Add another tab and page to the tab view.
+  Adds another tab and page to the tab view.
 
   The tab will be labelled \a label and \a child constitutes the new
   page.  Note the difference between the widget name (which you supply
@@ -554,13 +554,17 @@ void QTabDialog::setTabEnabled( const QString &name, bool enable )
 
 
 /*!
-  Add an Apply button to the dialog.  The button's text is set to \e
+  Adds an Apply button to the dialog.  The button's text is set to \e
   text (and defaults to "Apply").
 
   The Apply button should apply the current settings in the dialog box
   to the application, while keeping the dialog visible.
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
@@ -586,13 +590,17 @@ void QTabDialog::setApplyButton( const QString &text )
 
 
 /*!
-  Add a Defaults button to the dialog.  The button's text is set to \e
+  Adds a Defaults button to the dialog.  The button's text is set to \e
   text (and defaults to "Defaults").
 
   The Defaults button should set the dialog (but not the application)
   back to the application defaults.
 
   When Defaults is clicked, the defaultButtonPressed() signal is emitted.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setApplyButton() setCancelButton() defaultButtonPressed()
 */
@@ -618,7 +626,7 @@ void QTabDialog::setDefaultButton( const QString &text )
 
 
 /*!
-  Add a Cancel button to the dialog.  The button's text is set to \e
+  Adds a Cancel button to the dialog.  The button's text is set to \e
   text (and defaults to "Cancel").
 
   The cancel button should always return the application to the state
@@ -627,6 +635,10 @@ void QTabDialog::setDefaultButton( const QString &text )
 
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.
   The dialog is closed at the same time.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setApplyButton setDefaultButton() cancelButtonPressed()
 */
@@ -857,6 +869,10 @@ QRect QTabDialog::childRect() const
   When the OK button is clicked, the applyButtonPressed() signal is emitted,
   and the current settings in the dialog box should be applied to
   the application. Then the dialog closes.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */

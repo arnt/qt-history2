@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#207 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#208 $
 **
 ** Implementation of QListView widget class
 **
@@ -262,8 +262,8 @@ struct QListViewPrivate
   <img src="treeview.gif" width="227" height="261" alt="Example Tree View">
 */
 
-/*!  Create a new list view item in the QListView \a parent and first
-  in the parent's list of children. */
+/*!  Creates a new top-level list view item in the QListView \a parent.
+*/
 
 QListViewItem::QListViewItem( QListView * parent )
 {
@@ -272,7 +272,7 @@ QListViewItem::QListViewItem( QListView * parent )
 }
 
 
-/*!  Create a new list view item which is a child of \a parent and first
+/*!  Creates a new list view item which is a child of \a parent and first
   in the parent's list of children. */
 
 QListViewItem::QListViewItem( QListViewItem * parent )

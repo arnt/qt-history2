@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#53 $
 **
 ** Implementation of QTabBar class
 **
@@ -111,7 +111,7 @@ struct QTabPrivate {
 */
 
 /*!
-  Create a new, empty tab bar.
+  Creates a new, empty tab bar.
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
@@ -131,7 +131,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 
 
 /*!
-  Delete the tab control and free the memory it used.
+  Deletes the tab control and free the memory it used.
 */
 
 QTabBar::~QTabBar()
@@ -142,11 +142,11 @@ QTabBar::~QTabBar()
 
 
 /*!
-  Add \a newTab to the tab control.
+  Adds \a newTab to the tab control.
 
-  Allocate a new id, set t's id, locate it just to the right of the
-  existing tabs, insert an accelerator if the tab's label contains the
-  string "&p" for some value of p, add it to the bar, and return the
+  Allocates a new id, sets t's id, locates it just to the right of the
+  existing tabs, inserts an accelerator if the tab's label contains the
+  string "&p" for some value of p, adds it to the bar, and returns the
   newly allocated id.
 */
 
@@ -232,7 +232,7 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 
 
 /*!
-  Return TRUE if the tab with id \a id is enabled, or FALSE if it
+  Returns TRUE if the tab with id \a id is enabled, or FALSE if it
   is disabled or there is no such tab.
 
   \sa setTabEnabled()
@@ -394,8 +394,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 
 /*!
   Paints the label of tab \a t centered in rectangle \a br using
-  painter \a p and draws a focus indication iff \a has_focus is TRUE.
-
+  painter \a p and draws a focus indication if \a has_focus is TRUE.
 */
 
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
@@ -427,9 +426,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
 
 /*!
-  Draws the mask for this tab bar
+  Draws the mask for this tab bar.
 
-  This is not totally right.
+  \internal
+  This is not totally right - a few corner pixels missing.
 */
 
 void  QTabBar::updateMask()
@@ -584,7 +584,7 @@ int QTabBar::currentTab() const
 }
 
 
-/*!  "Raises" the tab with ID \a id and emits the selected() signal.
+/*! Raises the tab with ID \a id and emits the selected() signal.
 
   \sa currentTab() selected() tab()
 */
@@ -595,7 +595,7 @@ void QTabBar::setCurrentTab( int id )
 }
 
 
-/*! "Raises" \a tab and emits the selected() signal unless the tab was
+/*! Raises \a tab and emits the selected() signal unless the tab was
   already current.
 
   \sa currentTab() selected()
@@ -635,7 +635,7 @@ int QTabBar::keyboardFocusTab() const
 
 /*!  Handles the tab bar's keyboard interface (if enabled).
 
-  The right and left arrow keys move a selector, the space bar makes
+  The right and left arrow keys move a selector, the spacebar makes
   the tab with the selector active.  All other keys are ignored.
 */
 

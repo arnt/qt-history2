@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#21 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -113,8 +113,11 @@ void QLayoutItem::setAlignment( int a )
 /*! \fn QSpacerItem::QSpacerItem (int w, int h, QSizePolicy::SizeType hData=QSizePolicy::Minimum, QSizePolicy::SizeType vData= QSizePolicy::Minimum)
 
   Constructs a spacer item with preferred width \a w, preferred height
-  \a h, horizontal size policy \a hData and vertical size policy \a
-  vData. The default values gives a space that is able to stre, if nothing else wants the space.
+  \a h, horizontal size policy \a hData and vertical size policy
+  \a vData.
+
+  The default values gives a gap that is able to stretch,
+  if nothing else wants the space.
 */
 
 /*! \fn QWidgetItem::QWidgetItem (QWidget * w)
