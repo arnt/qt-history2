@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#3 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#4 $
 **
 ** Definition of QStringList class
 **
@@ -43,7 +43,7 @@ public:
 
 class QDataStream;
   
-Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
+// Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
+// Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
 
 #endif
