@@ -255,7 +255,7 @@ bool TextEdit::load(const QString &f)
         return false;
     QTextEdit *edit = createNewEditor(QFileInfo(f).fileName());
     QFile file(f);
-    if (!file.open(IO_ReadOnly))
+    if (!file.open(QFile::ReadOnly))
         return false;
 
     QByteArray data = file.readAll();
@@ -290,7 +290,7 @@ void TextEdit::fileSave()
         fileSaveAs();
     } else {
         QFile file(*filenames.find(currentEditor));
-        if (!file.open(IO_WriteOnly))
+        if (!file.open(QFile::WriteOnly))
             return;
         QTextStream ts(&file);
         ts << currentEditor->document()->plainText();

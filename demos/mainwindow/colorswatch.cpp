@@ -121,6 +121,12 @@ ColorSwatch::ColorSwatch(const QString &colorName, QMainWindow *parent, Qt::WFla
     menu->addActions(allowedAreasActions->actions());
     menu->addSeparator();
     menu->addActions(areaActions->actions());
+
+    if(colorName == "Black") {
+         leftAction->setShortcut(Qt::CTRL|Qt::Key_W);
+         rightAction->setShortcut(Qt::CTRL|Qt::Key_E);
+         showHideAction->setShortcut(Qt::CTRL|Qt::Key_R);
+    }
 }
 
 void ColorSwatch::contextMenuEvent(QContextMenuEvent *event)
