@@ -15,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
-            <height>277</height>
+            <width>366</width>
+            <height>275</height>
         </rect>
     </property>
     <property name="caption">
@@ -78,7 +78,7 @@
         </spacer>
         <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
             <property name="name">
-                <cstring>Layout5</cstring>
+                <cstring>Layout2</cstring>
             </property>
             <hbox>
                 <property name="name">
@@ -109,14 +109,6 @@
                 </spacer>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>buttonCancel</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
                         <cstring>buttonOk</cstring>
                     </property>
                     <property name="text">
@@ -124,6 +116,14 @@
                     </property>
                     <property name="default">
                         <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonCancel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Cancel</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -230,6 +230,9 @@
     pixmap.name = QFileInfo( f ).baseName();
     project-&gt;pixmapCollection()-&gt;addPixmap( pixmap );
     updateView();
+    QIconViewItem *item = viewPixmaps-&gt;findItem( pixmap.name );
+    if ( item )
+	viewPixmaps-&gt;setCurrentItem( item );
 }</function>
     <function name="removePixmap()" >{
     if ( !project || !viewPixmaps-&gt;currentItem() )
