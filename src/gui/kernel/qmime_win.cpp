@@ -984,7 +984,13 @@ QVariant QLastResortMimes::convertToMime(const QString &mimeType, QVariant::Type
 {
     QVariant val;
     if (canConverToMime(mimeType, pDataObj)) {
-        QByteArray data = getData(formats.key(mimeType), pDataObj);
+        QByteArray data;
+        if (formats.keys(mimeType).isEmpty()) {
+            int cf = QWindowsMime::registerMimeType(mimeType);
+            data = getData(cf, pDataObj);
+        } else {
+            data = getData(formats.key(mimeType), pDataObj);
+        }
         if (!data.isEmpty())
             val = data; // it should be enough to return the data and let QMimeData do the rest.
     }
@@ -1010,11 +1016,11 @@ void cleanup_mimes()
 void QWindowsMime::initialize()
 {
     if (mimes.isEmpty()) {
-        //new QLastResortMimes;
+        new QLastResortMimes;
         new WindowsAnyMime;
         new QWindowsMimeImage;
         new QWindowsMimeHtml;
-       // new QBuiltInMimes;
+        new QBuiltInMimes;
         qAddPostRoutine(cleanup_mimes);
     }
 }
