@@ -1,3 +1,6 @@
+#ifndef QT_H
+#endif // QT_H
+
 #define QT_NO_PROCESS
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES

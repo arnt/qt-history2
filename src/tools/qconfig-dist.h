@@ -1,3 +1,6 @@
+#ifndef QT_H
+#endif // QT_H
+
 // Empty leaves all features enabled.  See doc/html/features.html for choices.
 
 // Note that disabling some features will produce a libqt that is not

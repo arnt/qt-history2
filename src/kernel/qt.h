@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Mon Sep 18 15:03:36 EST 2000
+** Generated : Wed Sep 20 11:32:09 EST 2000
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -39,7 +39,7 @@
 #include "qregion.h"
 #include "qevent.h"
 #include "qobject.h"
-#include <qlist.h>
+#include "qlist.h"
 #include <qfont.h>
 #include "qfontinfo.h"
 #include "qpalette.h"
@@ -107,7 +107,7 @@
 #include <qlcdnumber.h>
 #include <qinputdialog.h>
 #include "qpointarray.h"
-#include <qscrollview.h>
+#include "qscrollview.h"
 #include <qlistview.h>
 #include "qnetworkprotocol.h"
 #include "qtoolbar.h"
@@ -187,9 +187,10 @@
 #include "qsqlresultinfo.h"
 #include "qsqldriverinterface.h"
 #include "qpluginmanager.h"
-#include <qsqldatabase.h>
-#include <qsqlresult.h>
+#include "qsqlindex.h"
 #include <qsqldriver.h>
+#include <qsqlresult.h>
+#include <qsqldatabase.h>
 #include <qstack.h>
 #include <qstatusbar.h>
 #include <qapplicationinterface.h>
@@ -203,8 +204,9 @@
 #include <qtable.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
-#include "qtextview.h"
+#include "qtextedit.h"
 #include <qbig5codec.h>
+#include "qtextview.h"
 #include <qtextstream.h>
 #include <qtextbrowser.h>
 #include <qthread.h>
