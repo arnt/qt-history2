@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#2 $
 **
 ** Implementation of Qt calls to X11
 **
@@ -15,7 +15,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#2 $");
 
 
 /*
@@ -24,7 +24,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#1 $");
   versions.
 */
 
-Window qt_XCreateWindow( Display *display, Window parent,
+Window qt_XCreateWindow( const QWidget*, Display *display, Window parent,
 			 int x, int y, uint w, uint h,
 			 int borderwidth, int depth,
 			 uint windowclass, Visual *visual,
@@ -35,7 +35,7 @@ Window qt_XCreateWindow( Display *display, Window parent,
 }
 
 
-Window qt_XCreateSimpleWindow( Display *display, Window parent,
+Window qt_XCreateSimpleWindow( const QWidget*, Display *display, Window parent,
 			       int x, int y, uint w, uint h, int borderwidth,
 			       ulong border, ulong background )
 {
@@ -44,7 +44,7 @@ Window qt_XCreateSimpleWindow( Display *display, Window parent,
 }
 
 
-void qt_XDestroyWindow( Display *display, Window window )
+void qt_XDestroyWindow( const QWidget*, Display *display, Window window )
 {
     XDestroyWindow( display, window );
 }

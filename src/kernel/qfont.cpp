@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#69 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#69 $");
 
 
 /*!
@@ -207,8 +207,9 @@ QFont::QFont( const QFont &font )
 
 QFont::~QFont()
 {
-    if ( d->deref() )
+    if ( d->deref() ) {
 	delete d;
+    }
 }
 
 

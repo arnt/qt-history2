@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#103 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#103 $");
 
 
 /*****************************************************************************
@@ -446,6 +446,8 @@ int QPixmap::metric( int m ) const
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
 
+  \bug Alpha masks on monochrome images are ignored.
+
   \sa convertFromImage()
 */
 
@@ -613,10 +615,6 @@ QImage QPixmap::convertToImage() const
 	image.setNumColors( 2 );
 	image.setColor( 0, qRgb(255,255,255) );
 	image.setColor( 1, qRgb(0,0,0) );
-#if defined(CHECK_RANGE)
-	if (msk)
-	    warning( "QPixmap::convertToImage: ignoring alpha on mono image" );
-#endif
     } else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
 	uchar *end;
@@ -704,9 +702,10 @@ QImage QPixmap::convertToImage() const
 	for ( i=0; i<256; i++ ) {		// translate pixels
 	    if ( use[i] ) {
 		image.setColor( j++,
-			0xff000000 | qRgb( (carr[i].red   >> 8) & 255,
-			                   (carr[i].green >> 8) & 255,
-			                   (carr[i].blue  >> 8) & 255 ) );
+				 ( msk ? 0xff000000 : 0 )
+				 | qRgb( (carr[i].red   >> 8) & 255,
+			                 (carr[i].green >> 8) & 255,
+			                 (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
 	delete [] carr;
@@ -722,8 +721,6 @@ QImage QPixmap::convertToImage() const
 
 
 /*!
-  \fn bool QPixmap::convertFromImage( const QImage &image, ColorMode mode,
-    DitherMode dmode )
   Converts an image and sets this pixmap. Returns TRUE if successful.
 
   The \e mode argument specifies whether the resulting pixmap should be
@@ -748,8 +745,8 @@ QImage QPixmap::convertToImage() const
   If \e image has more colors than the number of available colors, we
   try to pick the most important colors.
 
-  If the image has an alpha buffer, \e dmode determines how this is
-  converted to a mask. QImage::createAlphaMask explains this in detail.
+  If the image has an alpha buffer, QImage::getDitherMode() determines
+  how this is converted to a mask.
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
@@ -758,8 +755,7 @@ QImage QPixmap::convertToImage() const
     hasAlphaBuffer()
 */
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
-    DitherMode dmode )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -846,7 +842,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.createAlphaMask( dmode );
+	    m = image.createAlphaMask();
 	    setMask( m );
 	}
 	return TRUE;
@@ -1119,21 +1115,11 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask( dmode );
+	m = img.createAlphaMask();
 	setMask( m );
     }
 
     return TRUE;
-}
-
-/*!
-  \override bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
-  The Threshold dithering method is used.
-*/
-
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
-{
-    return convertFromImage( img, mode, Threshold );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#70 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#70 $");
 
 
 /*!
@@ -130,23 +130,6 @@ QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
 {
     init( 0, 0, 0 );
     load( fileName, format, mode );
-}
-
-/*!
-  Constructs a pixmap from the file \e fileName. If the file does not
-  exist, or is of an unknown format, the pixmap becomes a null pixmap.
-
-  The parameters are passed on to load().
-
-  \sa isNull(), load(), loadFromData(), save(), imageFormat()
-*/
-
-QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode,
-		  DitherMode dmode )
-    : QPaintDevice( PDT_PIXMAP )
-{
-    init( 0, 0, 0 );
-    load( fileName, format, mode, dmode );
 }
 
 /*!
@@ -463,7 +446,6 @@ bool qt_image_did_native_bmp()
     return did_handle_bmp;
 }
 
-
 /*!
   Loads a pixmap from the file \e fileName.
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
@@ -477,11 +459,8 @@ bool qt_image_did_native_bmp()
   defaultDepth() native depth\endlink) pixmap.	This argument is ignored
   if this pixmap is a QBitmap.
 
-  The \e dmode argument specifies the type of dithering to use to generate
-  a mask if the file contains an alpha channel.
-
   See the convertFromImage() documentation for a detailed description
-  of the \e mode and \e dmode arguments.
+  of the \e mode argument, and note the effect of QImage::setDitherMode().
 
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
@@ -490,7 +469,7 @@ bool qt_image_did_native_bmp()
 */
 
 bool QPixmap::load( const char *fileName, const char *format,
-		    ColorMode mode, DitherMode dmode )
+		    ColorMode mode )
 {
     QImageIO io( fileName, format );
 #if defined(_WS_WIN_)
@@ -499,24 +478,13 @@ bool QPixmap::load( const char *fileName, const char *format,
     bool result = io.read();
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode, dmode );
+	result = convertFromImage( io.image(), mode );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
 #endif
     return result;
 }
-
-/*!
-    \overload QPixmap::load( const char *, const char *, ColorMode )
-    Threshold mask dithering is used if required.
-*/
-bool QPixmap::load( const char *fileName, const char *format,
-		    ColorMode mode )
-{
-    return load( fileName, format, mode, Threshold );
-}
-
 
 /*!
   Loads a pixmap from the binary data in \e buf (\e len bytes).
@@ -531,11 +499,8 @@ bool QPixmap::load( const char *fileName, const char *format,
   defaultDepth() native depth\endlink) pixmap.	This argument is ignored
   if this pixmap is a QBitmap.
 
-  The \e dmode argument specifies the type of dithering to use to generate
-  a mask if the data contains an alpha channel.
-
   See the convertFromImage() documentation for a detailed description
-  of the \e mode and \e dmode arguments.
+  of the \e mode argument, and note the effect of QImage::setDitherMode().
 
   The QImageIO documentation lists the supported image formats and
   explains how to add extra formats.
@@ -544,7 +509,7 @@ bool QPixmap::load( const char *fileName, const char *format,
 */
 
 bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
-			    ColorMode mode, DitherMode dmode )
+			    ColorMode mode )
 {
     QByteArray a;
     a.setRawData( (char *)buf, len );
@@ -559,7 +524,7 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     a.resetRawData( (char *)buf, len );
     if ( result ) {
 	detach();
-	result = convertFromImage( io.image(), mode, dmode );
+	result = convertFromImage( io.image(), mode );
     }
 #if defined(_WS_WIN_)
     can_handle_bmp = did_handle_bmp = FALSE;
@@ -567,17 +532,6 @@ bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
     return result;
 }
 
-/*!
-    \overload QPixmap::loadFromData( const uchar *, uint, const char *,
-	ColorMode )
-    Threshold mask dithering is used if required.
-*/
-
-bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format,
-			    ColorMode mode )
-{
-    return loadFromData( buf, len, format, mode, Threshold );
-}
 
 /*!
   Saves the pixmap to the file \e fileName, using the image file format

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#70 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#70 $");
 
 
 /*
@@ -1589,7 +1589,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
-    if ( ra2 < 0.0 ) {				// swap angles
+    if ( alen < 0.0 ) {				// swap angles
 	double t = ra1;
 	ra1 = ra2;
 	ra2 = t;
@@ -1642,7 +1642,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
     double ra1 = 1.09083078249645598e-3 * a;
     double ra2 = 1.09083078249645598e-3 * alen + ra1;
-    if ( ra2 < 0.0 ) {				// swap angles
+    if ( alen < 0.0 ) {				// swap angles
 	double t = ra1;
 	ra1 = ra2;
 	ra2 = t;

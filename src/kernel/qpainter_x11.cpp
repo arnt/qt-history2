@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#213 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#212 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#213 $");
 
 
 /*****************************************************************************
@@ -2042,6 +2042,14 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
+    // Make sure "a" is 0..360*16, as otherwise a*4 may overflow 16 bits.
+    if ( a > (360*16) ) {
+	a = a % (360*16);
+    } else if ( a < 0 ) {
+	a = a % (360*16);
+	if ( a < 0 ) a += (360*16);
+    }
+
     if ( !isActive() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#73 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#74 $
 **
 ** Definition of QPixmap class
 **
@@ -23,14 +23,11 @@ friend class QPaintDevice;
 friend class QPainter;
 public:
     enum ColorMode { Auto, Color, Mono };
-    enum DitherMode { Threshold, Bayer, Floyd };
 
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
     QPixmap( const char *fileName, const char *format=0, ColorMode mode=Auto );
-    QPixmap( const char *fileName, const char *format, ColorMode mode,
-	DitherMode dmode );
     QPixmap( const char *xpm[] );
     QPixmap( const QPixmap & );
    ~QPixmap();
@@ -65,20 +62,13 @@ public:
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
-    bool	convertFromImage( const QImage &, ColorMode mode,
-	DitherMode dmode );
 
     static const char *imageFormat( const char *fileName );
     bool	load( const char *fileName, const char *format=0,
 		      ColorMode mode=Auto );
-    bool	load( const char *fileName, const char *format,
-		      ColorMode mode, DitherMode dmode );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0,
 			      ColorMode mode=Auto );
-    bool	loadFromData( const uchar *buf, uint len,
-			      const char *format,
-			      ColorMode mode, DitherMode dmode );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)

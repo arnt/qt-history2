@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#31 $
 **
 ** Implementation of QBuffer class
 **
@@ -12,7 +12,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#31 $");
 
 
 /*!
@@ -155,6 +155,7 @@ bool QBuffer::open( int m  )
     } else {
 	index = 0;
     }
+    a_inc = 16;
     setState( IO_Open );
     setStatus( 0 );
     return TRUE;
@@ -170,6 +171,7 @@ void QBuffer::close()
     if ( isOpen() ) {
 	setFlags( IO_Direct );
 	index = 0;
+	a_inc = 16;
     }
 }
 
@@ -187,6 +189,12 @@ void QBuffer::flush()
   \fn int QBuffer::at() const
   Returns the buffer index.
   \sa size()
+*/
+
+/*!
+  \fn int QBuffer::size() const
+  Returns the number of bytes in the buffer.
+  \sa at()
 */
 
 /*!
@@ -237,9 +245,6 @@ int QBuffer::readBlock( char *p, uint len )
 #endif
     if ( (uint)index + len > a.size() ) {	// overflow
 	if ( (uint)index >= a.size() ) {
-#if defined(CHECK_RANGE)
-	    warning( "QBuffer::readBlock: Buffer read error" );
-#endif
 	    setStatus( IO_ReadError );
 	    return -1;
 	} else {
@@ -252,8 +257,9 @@ int QBuffer::readBlock( char *p, uint len )
 }
 
 /*!
-  Writes \e len bytes from \e p to the buffer and returns the number of
-  bytes actually written.
+  Writes \e len bytes from \e p into the buffer at the current index,
+  overwriting any characters there and extending the buffer if necessary.
+  Returns the number of bytes actually written.
 
   Returns -1 if a serious error occurred.
 
@@ -358,9 +364,6 @@ int QBuffer::getch()
     }
 #endif
     if ( (uint)index+1 > a.size() ) {		// overflow
-#if defined(CHECK_RANGE)
-	warning( "QBuffer::getch: Buffer read error" );
-#endif
 	setStatus( IO_ReadError );
 	return -1;
     }
@@ -368,7 +371,9 @@ int QBuffer::getch()
 }
 
 /*!
-  Writes the character \e ch to the buffer.
+  Writes the character \e ch into the buffer, overwriting
+  the character at the current index, extending the buffer
+  if necessary.
 
   Returns \e ch, or -1 if some error occurred.
 

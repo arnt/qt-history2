@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#64 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#65 $
 **
 ** Definition of QApplication class
 **
@@ -103,6 +103,7 @@ public:
     virtual bool     pmEventFilter( QMSG * );
 #elif defined(_WS_X11_)
     virtual bool     x11EventFilter( XEvent * );
+    int              x11ProcessEvent( XEvent* );
 #endif
 
 #if defined(_WS_WIN_)
@@ -114,6 +115,11 @@ signals:
 
 public slots:
     void	     quit();
+
+protected:
+#if defined(_WS_X11_)
+    QApplication::QApplication( void* dpy );
+#endif
 
 private:
     bool	     processNextEvent( bool );

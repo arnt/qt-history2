@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#92 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#92 $");
 
 
 /*****************************************************************************
@@ -817,16 +817,17 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     }
 
-    if ( winEventFilter(&msg) )			// pass through event filter
-	return TRUE;				//   the event was eaten up
-
     if ( msg.message == WM_TIMER ) {		// timer message received
+	if ( winEventFilter(&msg) )
+	    return TRUE;			// the event was eaten up
 	activateTimer( msg.wParam );
 	return TRUE;
     }
 
     if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
 	if ( translateKeyCode(msg.wParam) == 0 ) {
+	    if ( winEventFilter(&msg) )
+		return TRUE;			// the event was eaten up
 	    TranslateMessage( &msg );		// translate to WM_CHAR
 	    return TRUE;
 	}
@@ -1336,6 +1337,7 @@ static const int MaxTimers  = 256;		// max number of timers
 static TimerVec *timerVec   = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
+bool qt_win_use_simple_timers = FALSE;
 
 //
 // Timer activation (called from the event loop when WM_TIMER arrives)
@@ -1407,6 +1409,11 @@ static void cleanupTimers()			// remove pending timers
 //
 // Main timer functions for starting and killing timers
 //
+void CALLBACK qt_simple_timer_func( HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime )
+{
+    activateTimer( idEvent );
+}
+
 
 int qStartTimer( int interval, QObject *obj )
 {
@@ -1420,19 +1427,25 @@ int qStartTimer( int interval, QObject *obj )
     CHECK_PTR( t );
     t->ind  = ind;
     t->obj  = obj;
-    t->zero = interval == 0;
-    if ( t->zero ) {				// add zero timer
-	t->id = (uint)50000 + ind;		// unique, high id
-	numZeroTimers++;
+
+    if ( qt_win_use_simple_timers ) {
+	t->zero = FALSE;
+	t->id = SetTimer( 0, 0, (uint)interval, (TIMERPROC)qt_simple_timer_func );
     } else {
-	t->id = SetTimer( 0, 0, (uint)interval, 0 );
-	if ( t->id == 0 ) {
+	t->zero = interval == 0;
+	if ( t->zero ) {				// add zero timer
+	    t->id = (uint)50000 + ind;		// unique, high id
+	    numZeroTimers++;
+	} else {
+	    t->id = SetTimer( 0, 0, (uint)interval, 0 );
+	} 
+    }
+    if ( t->id == 0 ) {
 #if defined(DEBUG)
-	    warning( "qStartTimer: No more Windows timers" );
+	warning( "qStartTimer: No more Windows timers" );
 #endif
-	    delete t;				// could not set timer
-	    return 0;
-	}
+	delete t;				// could not set timer
+	return 0;
     }
     timerVec->insert( ind, t );			// store in timer vector
     timerDict->insert( t->id, t );		// store in dict

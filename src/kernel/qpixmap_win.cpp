@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#48 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#48 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -372,8 +372,10 @@ QImage QPixmap::convertToImage() const
 	    uint *p = (uint*)image.scanLine(i);
 	    uint *end = p + image.width();
 	    while ( p < end ) {
-		// ### Need to take QPixmap::mask() into account here,
-		// ### by adding 0xff000000 (opaque) for 1-bits in the mask.
+#if 0
+		#error "Need to take QPixmap::mask() into account here, "\
+			"by adding 0xff000000 (opaque) for 1-bits in the mask."
+#endif
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
 		    *p & 0xff00;
 		p++;
@@ -381,9 +383,11 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-    // ### Need to take QPixmap::mask() into account here,
-    // ### by adding a transparent color (if possible), and
-    // ### changing masked-out pixels to that color index.
+#if 0
+    #error "Need to take QPixmap::mask() into account here, "\
+	    "by adding a transparent color (if possible), and "\
+	    "changing masked-out pixels to that color index."
+#endif
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
@@ -396,8 +400,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
-    DitherMode dmode )
+bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 {
     if ( img.isNull() ) {
 #if defined(CHECK_NULL)
@@ -503,18 +506,12 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
 
     if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask( dmode );
+	m = img.createAlphaMask();
 	setMask( m );
     }
 
     return TRUE;
 }
-
-bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
-{
-    return convertFromImage( img, mode, Threshold );
-}
-
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {

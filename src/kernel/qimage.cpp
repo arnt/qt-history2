@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#106 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#106 $");
 
 
 /*!
@@ -1064,24 +1064,44 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
     return image;
 }
 
+/*!
+  Sets the dithering algorithm used by createAlphaMask().
+
+  Mode QImage::Threshold, avoids dithering altogether
+  and instead interprets all alpha values from 127 and below as
+  transparent and values from 128 and above as opaque. It is much
+  faster than dithering and may be sufficient when reading images with
+  transparent colors.  
+
+  Mode QImage::Bayer selects Bayer's ordered
+  dithering algorithm to create the mask. This is relatively fast.  
+
+  Mode QImage::Floyd selects the Floyd-Steinberg
+  dithering algorithm to create the mask. It gives accurate results but
+  is somewhat slow.  
+*/
+void QImage::setDitherMode( DitherMode mode )
+{
+    dithermode = mode;
+}
+
+/*!
+  Returns the dithering mode set by setDitherMode().
+*/
+QImage::DitherMode QImage::getDitherMode()
+{
+    return dithermode;
+}
+
+QImage::DitherMode QImage::dithermode = Threshold;
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
   is disabled.
 
-  If \a dither is QPixmap::Threshold, this function avoids dithering
-  and instead interprets all alpha values from 127 and below as
-  transparent and values from 128 and above as opaque. It is much
-  faster than dithering and may be sufficient when reading images with
-  transparent colors.  
-
-  If \a dither is QPixmap::Bayer this function uses Bayer's ordered
-  dithering algorithm to create the mask. This is relatively fast.  
-
-  If \a dither is QPixmap::Floyd this function uses the Floyd-Steinberg
-  dithering algorithm to create the mask. It gives accurate results but
-  is somewhat slow.  
+  The mask is dithered from the 8-bit alpha mask according to
+  the mode set by setDitherMode().
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
@@ -1089,8 +1109,10 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   \sa setAlphaBuffer()
 */
 
-QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
+QImage QImage::createAlphaMask( bool dither ) const
 {
+    DitherMode dmode = dither ? dithermode : Threshold;
+
     if ( isNull() || !hasAlphaBuffer() ) {
 	QImage nullImage;
 	return nullImage;
@@ -1102,7 +1124,7 @@ QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
 
     int i;
     switch ( dmode ) {
-     case QPixmap::Threshold:	    // simple quantization
+      case Threshold:	    // simple quantization
 	{
 	    QImage mask1( width(), height(), 1, 2, QImage::BigEndian );
 	    mask1.setColor( 0, 0xffffff );
@@ -1147,8 +1169,9 @@ QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
 		}
 	    }
 	    return mask1;
+	    break;
 	}
-    break; case QPixmap::Bayer:
+      case Bayer:
 	{
 	    static uint bm[16][16];
 	    static int init=0;
@@ -1223,8 +1246,9 @@ QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
 		}
 	    }
 	    return mask1;
+	    break;
 	}
-    break; case QPixmap::Floyd:
+      case Floyd:
 	{
 	    QImage mask8( width(), height(), 8, 256 );
 	    for ( i=0; i<256; i++ )
@@ -1260,14 +1284,6 @@ QImage QImage::createAlphaMask( QPixmap::DitherMode dmode ) const
     return dummy;
 }
 
-/*!
-    Obsolete.  Use createAlphaMask(QPixmap::DitherMode) instead.
-*/
-
-QImage QImage::createAlphaMask( bool dither ) const
-{
-    return createAlphaMask( dither ? QPixmap::Threshold : QPixmap::Floyd );
-}
 
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#39 $");
 
 
 /*!
@@ -500,7 +500,7 @@ static double input_double( QTextStream *s )
 
 /*!
   Reads a signed \c short integer from the stream and returns a reference to
-  the stream.
+  the stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( signed short &i )
@@ -513,7 +513,7 @@ QTextStream &QTextStream::operator>>( signed short &i )
 
 /*!
   Reads an unsigned \c short integer from the stream and returns a reference to
-  the stream.
+  the stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned short &i )
@@ -526,7 +526,7 @@ QTextStream &QTextStream::operator>>( unsigned short &i )
 
 /*!
   Reads a signed \c int from the stream and returns a reference to the
-  stream.
+  stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( signed int &i )
@@ -539,7 +539,7 @@ QTextStream &QTextStream::operator>>( signed int &i )
 
 /*!
   Reads an unsigned \c int from the stream and returns a reference to the
-  stream.
+  stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned int &i )
@@ -552,7 +552,7 @@ QTextStream &QTextStream::operator>>( unsigned int &i )
 
 /*!
   Reads a signed \c long int from the stream and returns a reference to the
-  stream.
+  stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( signed long &i )
@@ -565,7 +565,7 @@ QTextStream &QTextStream::operator>>( signed long &i )
 
 /*!
   Reads an unsigned \c long int from the stream and returns a reference to the
-  stream.
+  stream. See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( unsigned long &i )
@@ -578,6 +578,7 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 
 /*!
   Reads a \c float from the stream and returns a reference to the stream.
+  See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( float &f )
@@ -590,6 +591,7 @@ QTextStream &QTextStream::operator>>( float &f )
 
 /*!
   Reads a \c double from the stream and returns a reference to the stream.
+  See flags() for an explanation of expected input format.
 */
 
 QTextStream &QTextStream::operator>>( double &f )
@@ -1011,6 +1013,30 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
 /*!
   \fn int QTextStream::flags() const
   Returns the current stream flags. The default value is 0.
+
+  The meaning of the flags are:
+  <ul>
+    <li> \e skipws - Not currently used - whitespace always skipped
+    <li> \e left - Numeric fields are left-aligned
+    <li> \e right - Not currently used (by default numerics are right aligned)
+    <li> \e internal - Put any padding spaces between +/- and value
+    <li> \e bin - Output \e and input only in binary
+    <li> \e oct - Output \e and input only in octal
+    <li> \e dec - Output \e and input only in decimal
+    <li> \e hex - Output \e and input only in hexadecimal
+    <li> \e showbase - Annotate numeric outputs with 0b, 0, or 0x if in
+		\e bin, \e oct, or \e hex format
+    <li> \e showpoint - Not currently used
+    <li> \e uppercase - Use 0B and 0X rather than 0b and 0x
+    <li> \e showpos - Show + for positive numeric values
+    <li> \e scientific - Use scientific notation for floating point values
+    <li> \e fixed - Use fixed-point notation for floating point values
+  </ul>
+
+  Note that unless \e bin, \e oct, \e dec, or \e hex is set, the input base is
+    octal if the value starts with 0, hexadecimal if it starts with 0x, binary
+    if the value starts with 0b, and decimal otherwise.
+
   \sa setf(), unsetf()
 */
 
@@ -1019,7 +1045,7 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
   Sets the stream flags to \e f.
   Returns the previous stream flags.
 
-  \sa setf(), unsetf()
+  \sa setf(), unsetf(), flags()
 */
 
 /*!

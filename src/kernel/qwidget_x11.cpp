@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#184 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#183 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#184 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -63,15 +63,16 @@ const uint stdWidgetEventMask =			// X event mask
   The qt_ functions below are implemented in qt_x11.cpp.
 */
 
-Window qt_XCreateWindow( Display *display, Window parent,
+Window qt_XCreateWindow( const QWidget *creator, Display *display, Window parent,
 			 int x, int y, uint w, uint h,
 			 int borderwidth, int depth,
 			 uint windowclass, Visual *visual,
 			 ulong valuemask, XSetWindowAttributes *attributes );
-Window qt_XCreateSimpleWindow( Display *display, Window parent,
+Window qt_XCreateSimpleWindow( const QWidget *creator, Display *display, Window parent,
 			       int x, int y, uint w, uint h, int borderwidth,
 			       ulong border, ulong background );
-void qt_XDestroyWindow( Display *display, Window window );
+void qt_XDestroyWindow( const QWidget *destroyer, Display *display, Window window );
+
 
 
 /*!
@@ -137,6 +138,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {					// child widget
 	frect.setRect( 0, 0, 100, 30 );
     }
+
     crect = frect;				// default client rect
 
     parentw = topLevel ? root_win : parentWidget()->winId();
@@ -160,7 +162,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     } else {
 	if ( x11DefaultVisual() && x11DefaultColormap() ) {
-	    id = qt_XCreateSimpleWindow( dpy, parentw,
+	    id = qt_XCreateSimpleWindow( this, dpy, parentw,
 					 frect.left(), frect.top(),
 					 frect.width(), frect.height(),
 					 0,
@@ -170,7 +172,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    wsa.background_pixel = bg_col.pixel();
 	    wsa.border_pixel = black.pixel();		
 	    wsa.colormap = (Colormap)x11Colormap();
-	    id = qt_XCreateWindow( dpy, parentw,
+	    id = qt_XCreateWindow( this, dpy, parentw,
 				   frect.left(), frect.top(),
 				   frect.width(), frect.height(),
 				   0, x11Depth(), InputOutput,
@@ -279,7 +281,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( destroyw )
-	qt_XDestroyWindow( dpy, destroyw );
+	qt_XDestroyWindow( this, dpy, destroyw );
 }
 
 
@@ -353,7 +355,7 @@ void QWidget::destroy( bool destroyWindow )
 	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
 	if ( destroyWindow && !testWFlags(WType_Desktop) )
-	    XDestroyWindow( dpy, winid );
+	    qt_XDestroyWindow( this, dpy, winid );
 	setWinId( 0 );
     }
 }
@@ -432,7 +434,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( showIt )
 	show();
     if ( old_winid )
-	XDestroyWindow( dpy, old_winid );
+	qt_XDestroyWindow( this, dpy, old_winid );
 }
 
 
