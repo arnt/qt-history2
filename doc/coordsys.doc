@@ -179,16 +179,16 @@ possible square that'll fit in the output device.
 
 Time to start drawing.
 
-\printline currentTime
+\skipto pts
 \printline pts
 
-Since we'll draw a clock, we'll need to know the time. \e pts is just
-a utility variable to hold some points.
+\e pts is just a temporary variable to hold some points.
 
 Next come three drawing blocks, one for the hour hand, one for the
 minute hand and finally one for the clock face itself. First we draw
 the hour hand:
 
+\skipto save
 \printline save
 \printline rotate
 
