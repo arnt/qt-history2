@@ -1252,11 +1252,12 @@ QRegion QPainter::clipRegion() const
         switch (info.clipType) {
 
         case QPainterClipInfo::RegionClip: {
-            if (lastWasNothing) {
-                region = info.region;
-                lastWasNothing = false;
-            }
             QMatrix matrix = (d->invMatrix * info.matrix);
+            if (lastWasNothing) {
+                region = info.region * matrix;
+                lastWasNothing = false;
+                continue;
+            }
             if (info.operation == Qt::IntersectClip)
                 region &= info.region * matrix;
             else if (info.operation == Qt::UniteClip)
@@ -1270,6 +1271,12 @@ QRegion QPainter::clipRegion() const
         }
         case QPainterClipInfo::PathClip: {
             QMatrix matrix = (d->invMatrix * info.matrix);
+            if (lastWasNothing) {
+                region = QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                                 info.path.fillRule());
+                lastWasNothing = false;
+                continue;
+            }
             if (info.operation == Qt::IntersectClip) {
                 region &= QRegion((info.path * matrix).toFillPolygon().toPointArray(),
                                   info.path.fillRule());
