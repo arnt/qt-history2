@@ -1882,16 +1882,15 @@ events are reported.
     on implementing the parts of the handler relevant to your
     application.
 
-    The XML reader being used needs to be informed about the
-    handler to use for handling different kinds of events during
-    parsing. This means that, although QXmlDefaultHandler
-    provides default implementations of functions inherited from
-    all its base classes, we may still use specialized handlers for
-    particular kinds of events.
+    The XML reader must be told which handler to use for different
+    kinds of events during parsing. This means that, although
+    QXmlDefaultHandler provides default implementations of functions
+    inherited from all its base classes, we can still use specialized
+    handlers for particular kinds of events.
 
     For example, QXmlDefaultHandler subclasses both
     QXmlContentHandler and QXmlErrorHandler, so by subclassing
-    it we can supply the same handler to both of the following
+    it we can use the same handler for both of the following
     reader functions:
 
     \quotefile ../doc/snippets/xml/rsslisting/rsslisting.cpp
@@ -1900,14 +1899,14 @@ events are reported.
 
     Since the reader will inform the handler of parsing errors, it is
     necessary to reimplement QXmlErrorHandler::fatalError() if, for
-    example we want to stop parsing when such an error occurs:
+    example, we want to stop parsing when such an error occurs:
 
     \quotefile ../doc/snippets/xml/rsslisting/handler.cpp
     \skipto bool Handler::fatalError
     \printuntil }
 
-    The above function returns false, so parsing is stopped if
-    a fatal error is encountered. To continue to use the same reader,
+    The above function returns false, which tells the reader to stop
+    parsing. To continue to use the same reader,
     it is necessary to create a new handler instance, and set up the
     reader to use it in the manner described above.
 
@@ -1921,8 +1920,8 @@ events are reported.
     QXmlContentHandler::endElement(), and
     QXmlContentHandler::characters().
     You may want to reimplement QXmlContentHandler::endDocument()
-    to perform validation on the content once the document has been
-    read completely.
+    to perform some finalization or validation on the content once the
+    document has been read completely.
 
     See the qt/examples/xml/rsslisting example for more information
     on creating a custom handler.
@@ -2606,60 +2605,60 @@ private:
     \ingroup xml-tools
     \mainclass
 
-    This XML reader is suitable for a wide range of simple applications.
-    It is able to parse well-formed XML, does not parse any external
-    entities, and can report the namespaces of elements to a content
-    handler.
+    This XML reader is suitable for a wide range of applications. It
+    is able to parse well-formed XML and can report the namespaces of
+    elements to a content handler; however, it does not parse any
+    external entities.
 
-    The simplest pattern of use for this class is to create a reader
+    The easiest pattern of use for this class is to create a reader
     instance, define an input source, specify the handlers to be used
-    by the reader, and begin parsing.
+    by the reader, and parse the data.
 
-    For example, we may use a QFile instance to supply input. We create
-    a reader, and define an input source to be used by the reader:
+    For example, we could use a QFile to supply the input. Here, we
+    create a reader, and define an input source to be used by the
+    reader:
 
     \quotefile ../doc/snippets/xml/simpleparse/main.cpp
     \skipto QXmlSimpleReader
     \printuntil (file);
 
-    A handler allows us to perform actions when the reader encounters
-    certain items of content, or if errors in the input are found. The reader
-    needs to be told which handler to use for each type of event. For
-    many common applications, we can create a custom handler by
-    subclassing QXmlDefaultHandler, and use this to handle both errors
-    and content-related events:
+    A handler lets us perform actions when the reader encounters
+    certain types of content, or if errors in the input are found. The
+    reader must be told which handler to use for each type of
+    event. For many common applications, we can create a custom
+    handler by subclassing QXmlDefaultHandler, and use this to handle
+    both error and content events:
 
     \quotefile ../doc/snippets/xml/simpleparse/main.cpp
     \skipto Handler *handler
     \printuntil setErrorHandler(handler);
 
-    It is important to tell the reader about any custom handlers that you
-    are using if you wish to override the default behavior. The reader
-    will fall back on the default behavior if you fail to do so.
+    If you don't set at least the content and error handlers, the
+    parser will fall back on its default behavior---and will do
+    nothing.
 
-    The reader can be set up to take input that can be read in a single
-    pass, using the parse() function with a single argument: that specifies
-    the input source:
+    The most convenient way to handle the input is to read it in a
+    single pass using the parse() function with an argument that
+    specifies the input source:
 
     \quotefile ../doc/snippets/xml/simpleparse/main.cpp
     \skipto bool ok
     \printuntil endl;
 
-    If not all the input is immediately available, data can be
-    fed to the parser in pieces by supplying a second argument to parse(),
-    and making subsequent calls to parseContinue() until all the
-    necessary data has been processed. This incremental approach to
-    parsing is suitable for applications that retrieve information over
-    a network, and is covered in the
-    \link ../doc/snippets/xml/rdflisting rdflisting\endlink example.
+    If you can't parse the entire input in one go (for example, it is
+    huge, or is being delivered over a network connection), data can
+    be fed to the parser in pieces. This is achieved by telling
+    parse() to work incrementally, and making subsequent calls to the
+    parseContinue() function, until all the data has been processed.
+    The incremental approach to parsing is described in the \link
+    ../doc/snippets/xml/rdflisting rdflisting\endlink example.
 
-    Features of the reader can be set with setFeature(), and properties can
-    be set with setProperty(). For example, the following code could be
-    used to enable reporting of namespace prefixes to the content handler:
+    Aspects of the parsing behavior can be adapted using setFeature()
+    and setProperty(). For example, the following code could be used
+    to enable reporting of namespace prefixes to the content handler:
 
     \code
-    xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes",
-                         true);
+    xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes", true);
     \endcode
 
 */
@@ -2737,15 +2736,15 @@ bool QXmlSimpleReader::feature(const QString& name, bool *ok) const
     \row \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData
          \i true
          \i If enabled, CharData that consist of
-            whitespace only (and no other characters) are reported
-            via QXmlContentHandler::characters().
+            only whitespace characters are reported
+            using QXmlContentHandler::characters().
     \row \i \e http://trolltech.com/xml/features/report-start-end-entity
          \i false
          \i If enabled, the parser reports
             QXmlContentHandler::startEntity() and
             QXmlContentHandler::endEntity() events, so character data
             might be reported in chunks.
-            If disabled, the parser does not report those events, but
+            If disabled, the parser does not report these events, but
             silently substitutes the entities, and reports the character
             data in one chunk.
     \endtable
