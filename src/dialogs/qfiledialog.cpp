@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#230 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#231 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1857,7 +1857,7 @@ void QFileDialog::setShowHiddenFiles( bool s )
 {
     if ( s == bShowHiddenFiles )
         return;
-    
+
     bShowHiddenFiles = s;
     rereadDir();
 }
@@ -1866,7 +1866,7 @@ void QFileDialog::setShowHiddenFiles( bool s )
   Returns TRUE if hidden files are shown in the filedialog, else FALSE.
 */
 
-bool QFileDialog::showHiddenFiles()
+bool QFileDialog::showHiddenFiles() const
 {
     return bShowHiddenFiles;
 }
