@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#225 $
 **
 ** Implementation of QListView widget class
 **
@@ -4188,29 +4188,60 @@ void QListView::removeItem( QListViewItem * i )
 
 /*!
   \class QListViewItemIterator qlistview.h
-  \brief The QListViewItemIterator class provides an iterator for collections of 
+  \brief The QListViewItemIterator class provides an iterator for collections of
   QListViewItems (QListViews)
 
   Construct an instance of a QListViewItemIterator with either a QListView* or
   a QListViewItem* as argument, to operate on the tree of QListViewItems.
-  
-  Example:
-  \code
-  \endcode
 
-  Program output:
+  Example:
+
+  Often you want to get all items, which were selected by a user. Here is
+  an example which does this and stores the pointers to all selected items
+  in a QList.
+  
   \code
+  
+  \/ Somewhere a listview is generated like this
+  QListView *lv = new QListView(this);
+  \/ Enable multiselection
+  lv->setMultiSelection( TRUE );
+  
+  \/ Insert the items here
+  
+  * * * *
+  
+  \/ This function is called to get a list of the selected items of a listview
+  QList<QListViewItem> * getSelectedItems( QListView *lv ) {
+    if ( !lv )
+      return 0;
+      
+    \/ Create the list
+    QList<QListViewItem> *lst = new QList<QListViewItem>;
+    lst->setAutoDelete( FALSE );
+      
+    \/ Create an iterator and give the listview as argument
+    QListViewItemIterator it( lv );
+    \/ iterate through all items of the listview
+    for ( ; it->current(); ++it ) {
+      if ( it->current()->isSelected() )
+        lst->append( it->current() );
+    }
+    
+    return lst;
+  }
+  
   \endcode
 
   Using a QListViewItemIterator is a convinient way to traverse the tree
-  of QListViewItems of a QListView. It makes especially operating on a 
+  of QListViewItems of a QListView. It makes especially operating on a
   hirarchical QListView easy.
   Also multiple QListViewItemIterators can operate on the tree of
   QListViewItems. A QListView knows about all iterators which are operating
-  on its QListViewItems. So when a QListViewItem gets removed, all iterators 
+  on its QListViewItems. So when a QListViewItem gets removed, all iterators
   that point to this item get updated and point to the new current item after
   that.
-  
+
   \sa QListView, QListViewItem
 */
 
@@ -4364,18 +4395,18 @@ QListViewItemIterator &QListViewItemIterator::operator+=(int j)
 {
   while (curr && j--)
     ++(*this);
-  
+
   return *this;
 }
 
 /*!
-  \fn QListViewItem *QListViewItemIterator::current() const 
+  \fn QListViewItem *QListViewItemIterator::current() const
   Returns a pointer to the current item of the iterator.
 */
 
-QListViewItem *QListViewItemIterator::current() const 
-{ 
-  return curr; 
+QListViewItem *QListViewItemIterator::current() const
+{
+  return curr;
 }
 
 /*!
