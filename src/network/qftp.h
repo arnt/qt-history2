@@ -85,8 +85,9 @@ public:
 	Get,
 	Put,
 	Remove,
+	Mkdir,
+	Rmdir,
 //###	Copy,
-//###	Mkdir,
 //###	Rename,
 //###	Abort,
 	FtpCommand
@@ -100,6 +101,8 @@ public:
     int get( const QString &file );
     int put( const QByteArray &data, const QString &file );
     int remove( const QString &file );
+    int mkdir( const QString &dir );
+    int rmdir( const QString &dir );
 
     int currentId() const;
     Command currentCommand() const;

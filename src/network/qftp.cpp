@@ -1180,6 +1180,38 @@ int QFtp::remove( const QString &file )
 }
 
 /*!
+  Creates the directory \a dir on the server.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa start() finishedSuccess() finishedError()
+*/
+int QFtp::mkdir( const QString &dir )
+{
+    return addCommand( new QFtpCommand( Mkdir, QStringList("MKD "+dir+"\r\n") ) );
+}
+
+/*!
+  Removes the directory \a dir from the server.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa start() finishedSuccess() finishedError()
+*/
+int QFtp::rmdir( const QString &dir )
+{
+    return addCommand( new QFtpCommand( Rmdir, QStringList("RMD "+dir+"\r\n") ) );
+}
+
+/*!
   Returns the identifier of the FTP command currently executed or 0 if there is
   no command executed.
 
