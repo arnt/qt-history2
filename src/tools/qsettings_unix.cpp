@@ -504,15 +504,16 @@ bool QSettings::sync()
 
 
 /*!
-  Reads the entry specified by \a key, and returns a bool.
+  Reads the entry specified by \a key, and returns a bool, or \a def
+  if the entry couldn't be read.
   If \a ok non-null, *ok is set to TRUE if there are no errors, and
   FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-bool QSettings::readBoolEntry(const QString &key, bool *ok )
+bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
-    QString value = readEntry( key, ok );
+    QString value = readEntry( key, QString::null, ok );
 
     if (value.lower() == "true")
 	return TRUE;
@@ -522,53 +523,56 @@ bool QSettings::readBoolEntry(const QString &key, bool *ok )
     qWarning("QString::readBoolEntry: '%s' is not 'true' or 'false'", value.latin1());
     if ( ok )
 	*ok = FALSE;
-    return FALSE;
+    return def;
 }
 
 
 /*!
-  Reads the entry specified by \a key, and returns a double.
+  Reads the entry specified by \a key, and returns a double, or \a def
+  if the entry couldn't be read.
   If \a ok non-null, *ok is set to TRUE if there are no errors, and
   FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-double QSettings::readDoubleEntry(const QString &key, bool *ok )
+double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
-    QString value = readEntry( key, ok );
+    QString value = readEntry( key, QString::number(def), ok );
     return value.toDouble();
 }
 
 
 /*!
-  Reads the entry specified by \a key, and returns a integer.
+  Reads the entry specified by \a key, and returns a integer, or \a def
+  if the entry couldn't be read.
   If \a ok non-null, *ok is set to TRUE if there are no errors, and
   FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-int QSettings::readNumEntry(const QString &key, bool *ok )
+int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
-    QString value = readEntry( key, ok );
+    QString value = readEntry( key, QString::number( def ), ok );
     return value.toInt();
 }
 
 
 /*!
-  Reads the entry specified by \a key, and returns a QString.
+  Reads the entry specified by \a key, and returns a QString, or \a def
+  if the entry couldn't be read.
   If \a ok non-null, *ok is set to TRUE if there are no errors, and
   FALSE if the entry could not be read.
 
   \sa writeEntry(), removeEntry()
 */
-QString QSettings::readEntry(const QString &key, bool *ok )
+QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
 	qWarning("QSettings::readEntry: invalid null/empty key.");
 	if ( ok )
 	    *ok = FALSE;
-	return QString::null;
+	return def;
     }
 #endif // QT_CHECK_STATE
 
@@ -583,7 +587,7 @@ QString QSettings::readEntry(const QString &key, bool *ok )
 	    qWarning("QSettings::readEntry: invalid key '%s'", key.latin1());
 	    if ( ok )
 		*ok = FALSE;
-	    return QString::null;
+	    return def;
 	}
 #endif // QT_CHECK_STATE
 
@@ -607,6 +611,8 @@ QString QSettings::readEntry(const QString &key, bool *ok )
 
     QSettingsGroup grp = d->readGroup();
     QString retval = grp[realkey];
+    if ( retval.isNull() )
+	retval = def;
 
     if ( ok )
 	*ok = TRUE;
@@ -624,7 +630,7 @@ QString QSettings::readEntry(const QString &key, bool *ok )
 */
 QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
 {
-    QString value = readEntry( key, ok );
+    QString value = readEntry( key, QString::null, ok );
     if ( ok && !*ok )
 	return QStringList();
 

@@ -302,23 +302,24 @@ bool QSettings::writeEntry( const QString &key, const QStringList &value, const 
 
 QStringList QSettings::readListEntry( const QString &key, const QChar &sep, bool *ok )
 {
-    QString joined = readEntry( key, ok );
+    QString joined = readEntry( key, QString::null, ok );
     if ( ok && *ok )
 	return QStringList::split( sep, joined );
     else
 	return QStringList();
 }
 
-QString QSettings::readEntry( const QString &key, bool *ok )
+QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
 {
-    QString result = QString::null;
     QByteArray array = d->readKey( key, REG_SZ, ok );
     if ( ok && !*ok ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
-	return result;
+	return def;
     }
+
+    QString result = QString::null;
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
@@ -339,7 +340,7 @@ QString QSettings::readEntry( const QString &key, bool *ok )
     return result;
 }
 
-int QSettings::readNumEntry( const QString &key, bool *ok )
+int QSettings::readNumEntry( const QString &key, int def, bool *ok )
 {
     QByteArray array = d->readKey( key, REG_DWORD, ok );
     if ( ok && !*ok ) {
@@ -347,13 +348,13 @@ int QSettings::readNumEntry( const QString &key, bool *ok )
 	array.resetRawData( data, array.size() );
 	delete[] data;
 
-	return 0;
+	return def;
     }
 
     if ( array.size() != sizeof(int) ) {
 	if ( ok )
 	    *ok = FALSE;
-	return 0;
+	return def;
     }
 
     int res = 0;
@@ -367,19 +368,19 @@ int QSettings::readNumEntry( const QString &key, bool *ok )
     return res;
 }
 
-double QSettings::readDoubleEntry( const QString &key, bool *ok )
+double QSettings::readDoubleEntry( const QString &key, double def, bool *ok )
 {
     QByteArray array = d->readKey( key, REG_BINARY, ok );
     if ( ok && !*ok ) {
 	char *data = array.data();
 	array.resetRawData( data, array.size() );
 	delete[] data;
-	return 0;
+	return def;
     }
     if ( array.size() != sizeof(double) ) {
 	if ( ok )
 	    *ok = FALSE;
-	return 0;
+	return def;
     }
 
     double res = 0;
@@ -393,9 +394,9 @@ double QSettings::readDoubleEntry( const QString &key, bool *ok )
     return res;
 }
 
-bool QSettings::readBoolEntry( const QString &key, bool *ok )
+bool QSettings::readBoolEntry( const QString &key, bool def, bool *ok )
 {
-    return readNumEntry( key, ok );
+    return readNumEntry( key, def, ok );
 }
 
 bool QSettings::removeEntry( const QString &key )
