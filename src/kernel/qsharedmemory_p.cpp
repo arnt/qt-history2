@@ -79,7 +79,7 @@ int QSharedMemory::size()
 #else // Assume SysV for backwards compat
 #include <sys/shm.h>
 
-QSharedMemory::QSharedMemory (int size, QString filename, char c )
+QSharedMemory::QSharedMemory (int size, const QString &filename, char c )
 {
   shmSize = size;
   shmFile = filename;
