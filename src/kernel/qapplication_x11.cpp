@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#440 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#441 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -43,6 +43,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
+#include "qdatastream.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -180,6 +181,7 @@ static Atom	qt_unicode_key_release;
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
+static Atom 	qt_desktop_properties;   	// Qt desktop properties
 static Atom 	qt_resource_manager;   	// X11 Resource manager
 static bool 	use_x11_resource_manager = TRUE;
 Atom 		qt_sizegrip;		// sizegrip
@@ -482,10 +484,55 @@ static void set_local_font()
 }
 
 
+// read the QT_DESKTOP_PROPERTIES property and apply the settings to
+// the application
+static bool qt_set_desktop_properties()
+{
+    Atom type;
+    int format;
+    ulong  nitems, after = 1;
+    long offset = 0;
+    const char *data;
+
+    if ( XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
+			     TRUE, AnyPropertyType, &type, &format,
+			     &nitems, &after,  (unsigned char**)&data ) != Success ) 
+	return FALSE;
+    if ( !nitems ) {
+	XFree(  (unsigned char*)data );
+	return FALSE;
+    }
+
+    debug("read desktop properties");
+    
+    QCString properties;
+    while (after > 0) {
+	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
+			    offset, 256, FALSE, AnyPropertyType,
+			    &type, &format, &nitems, &after, (unsigned char**) &data );
+	properties += data;
+	offset += 256;
+	XFree(  (unsigned char*)data );
+    }
+    
+    QDataStream d( properties, IO_ReadOnly ); 
+    
+    QPalette pal;
+    QFont font;
+    d >> pal >> font;
+    QApplication::setPalette( pal, TRUE );
+    QApplication::setFont( font, TRUE );
+    return TRUE;
+}
+
+
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
 static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0, const char* button = 0 )
 {
+    if ( qt_set_desktop_properties() ) // qt desktop properties have priority
+	return;
+    
     Atom   type = None;
     int	   format;
     ulong  nitems, after = 1;
@@ -579,22 +626,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
 	QApplication::setPalette( pal, TRUE );
-	/* ##### TODO Matthias
-	{
-	    QColorGroup cg( fg, Qt::green, btn.light(),
-			    btn.dark(), btn.dark(150), fg, Qt::white, Qt::white, bg );
-	    cg.setHighlightedText(Qt::white);
-	    cg.setHighlight(Qt::black);
-	    QColor disabled( (fg.red()+btn.red())/2,
-			     (fg.green()+btn.green())/2,
-			     (fg.blue()+btn.blue())/2);
-	    QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			     disabled, Qt::white, Qt::white, bg );
-	    QPalette menuPal(cg, dcg, cg);
-	    QApplication::setPalette( menuPal, FALSE, "QMenuBar");
-	    QApplication::setPalette( menuPal, TRUE, "QPopupMenu");
-	}
-	*/
     }
 }
 
@@ -839,6 +870,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
     qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
+    qt_x11_intern_atom( "QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
     qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 
@@ -1962,6 +1994,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( event->xproperty.window == appRootWin ) {
 	    if ( event->xproperty.atom == qt_resource_manager && use_x11_resource_manager )
 		qt_set_x11_resources();
+	    else if ( event->xproperty.atom == qt_desktop_properties )
+		qt_set_desktop_properties();
 	}
 	return 0;
     }
