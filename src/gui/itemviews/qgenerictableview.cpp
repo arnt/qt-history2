@@ -171,7 +171,6 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     QItemOptions options = viewOptions();
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
-    painter.fillRect(area, options.palette.base());
 
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right() - 1);
@@ -238,6 +237,17 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         }
     }
 
+    int w = d->viewport->width();
+    int h = d->viewport->height();
+    int x = d->topHeader->size();
+    int y = d->leftHeader->size();
+    QRect bottom(0, y, w, h - y);
+    QRect left(x, 0, w - x, h);
+    if (y < h && area.intersects(bottom))
+        painter.fillRect(bottom, options.palette.base());
+    if (x < w && area.intersects(left))
+        painter.fillRect(left, options.palette.base());
+    
     painter.end();
     painter.begin(d->viewport);
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);

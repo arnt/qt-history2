@@ -315,6 +315,15 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
         ++i;
     }
 
+    int w = d->viewport->width();
+    int x = d->header->size();
+    QRect bottom(0, y, w, h - y);
+    QRect left(x, 0, w - x, h);
+    if (y < h && area.intersects(bottom))
+        painter.fillRect(bottom, options.palette.base());
+    if (x < w && area.intersects(left))
+        painter.fillRect(left, options.palette.base());
+
     painter.end();
     painter.begin(d->viewport);
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
