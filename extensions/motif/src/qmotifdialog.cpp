@@ -32,6 +32,7 @@
 #include <qapplication.h>
 #include <qobjectlist.h>
 
+#include <X11/StringDefs.h>
 #include <Xm/DialogS.h>
 #include <Xm/DialogSP.h>
 
@@ -312,6 +313,7 @@ QMotifDialog::QMotifDialog( DialogType dialogtype, Widget parent,
     d->dialog = XtCreateWidget( name, widgetclass, d->shell, realargs, argcount );
 
     delete [] realargs;
+    realargs = 0;
 }
 
 /*! \obsolete
@@ -409,6 +411,19 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 {
     d = new QMotifDialogPrivate;
 
+    Arg *realargs = new Arg[ argcount + 3 ];
+    memcpy( realargs, args, argcount * sizeof(Arg) );
+    if ( ! QPaintDevice::x11AppDefaultVisual() ) {
+	// make Motif use the same visual/colormap/depth as Qt (if Qt
+	// is not using the default)
+	XtSetArg( realargs[argcount++], XtNvisual,
+		  QPaintDevice::x11AppVisual() );
+	XtSetArg( realargs[argcount++], XtNcolormap,
+		  QPaintDevice::x11AppColormap() );
+	XtSetArg( realargs[argcount++], XtNdepth,
+		  QPaintDevice::x11AppDepth() );
+    }
+
     // create the dialog shell
     if ( parent ) {
 	d->shell = XtCreatePopupShell( name(), qmotifDialogWidgetClass, parent,
@@ -419,6 +434,9 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
     }
 
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = this;
+
+    delete [] realargs;
+    realargs = 0;
 }
 
 /*!

@@ -33,6 +33,7 @@
 #include <qwidgetintdict.h>
 #include <qevent.h>
 
+#include <X11/StringDefs.h>
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
@@ -231,11 +232,28 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 
     if ( ! motifparent || ( widgetclass == applicationShellWidgetClass ||
 			    widgetclass == topLevelShellWidgetClass ) ) {
+	ArgList realargs = new Arg [argcount + 3];
+	memcpy( realargs, args, sizeof( Arg ) * argcount );
+
+	if ( ! QPaintDevice::x11AppDefaultVisual() ) {
+	    // make Motif use the same visual/colormap/depth as Qt (if
+	    // Qt is not using the default)
+	    XtSetArg( realargs[ argcount++ ], XtNvisual,
+		      QPaintDevice::x11AppVisual() );
+	    XtSetArg( realargs[ argcount++ ], XtNcolormap,
+		      QPaintDevice::x11AppColormap() );
+	    XtSetArg( realargs[ argcount++ ], XtNdepth,
+		      QPaintDevice::x11AppDepth() );
+	}
+
 	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
 				     QPaintDevice::x11AppDisplay(),
-				     args, argcount );
+				     realargs, argcount );
 	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = this;
 	motifparent = d->shell;
+
+	delete [] realargs;
+	realargs = 0;
     }
 
     if ( widgetclass == applicationShellWidgetClass ||
