@@ -80,9 +80,6 @@ void MainForm::go()
     changeDateTo = 0;
 
     incIntegrates = includeIntegrates->isChecked();
-#if !defined(USE_READLINE)
-    changesTmp = "";
-#endif
     changeListFrom = new QValueList<int>;
     startChanges( changesFrom->currentText() );
 }
@@ -112,56 +109,6 @@ void MainForm::readyReadStdout()
 	    changesFrom->insertItem( label, 0 );
 	    changesTo->insertItem( label, 0 );
 	}
-    } else if ( command == "changes" ) {
-	QValueList<int> *list;
-	if ( changeListTo != 0 ) {
-	    list = changeListTo;
-	} else if ( changeListFrom != 0 ) {
-	    list = changeListFrom;
-	}
-	if ( list ) {
-#if defined(USE_READLINE)
-	    while ( process.canReadLineStdout() ) {
-		QString label = QStringList::split( ' ', process.readLineStdout() )[1];
-		list->append( label.toInt() );
-		if ( list->count() % 500 == 0 ) {
-		    qApp->processEvents();
-		}
-	    }
-#else
-	    changesTmp = QString(process.readStdout());
-	    int sPos = 0;
-	    int ePos = 0;
-	    while ( TRUE ) {
-		ePos = changesTmp.find( '\n', sPos );
-		if ( ePos == -1 )
-		    break;
-		int sTmpPos = changesTmp.find( ' ', sPos );
-		int eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
-		if ( sTmpPos == -1 || eTmpPos == -1 )
-		    qWarning( "parsing error of p4 output" );
-		QString label = changesTmp.mid( sTmpPos, eTmpPos-sTmpPos );
-		int labelInt = label.toInt();
-		list->append( labelInt );
-		if ( changeDateTo ) {
-		    sTmpPos = changesTmp.find( ' ', eTmpPos+1 );
-		    eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
-		    changeDateTo->insert( labelInt, changesTmp.mid( sTmpPos, eTmpPos-sTmpPos ) );
-#if 0
-		    if ( changes->currentItem() != 0 ) {
-			int i = desc.find( '\n' );
-			QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
-			changes->currentItem()->setText( 1, tmp );
-		    }
-#endif
-		}
-		sPos = ePos + 1;
-	    }
-	    changesTmp = changesTmp.right( changesTmp.length() - sPos );
-#endif
-	} else {
-	    qWarning( "Something went terribly wrong" );
-	}
     }
 }
 
@@ -181,14 +128,6 @@ void MainForm::readyReadStderr()
 
 void MainForm::processExited()
 {
-#if defined(USE_READLINE)
-    // We do a processEvents() in readyReadStdout(). This can emit the
-    // processExited() signal, even before we have read all data. So make sure
-    // that you read all data of the process.
-    readyReadStdout();
-    readyReadStderr();
-#endif
-
     while ( QApplication::overrideCursor() )
 	QApplication::restoreOverrideCursor();
     QString command = process.arguments()[1];
@@ -214,11 +153,37 @@ void MainForm::processExited()
 		path->insertItem( depot );
 	}
     } else if ( command == "changes" ) {
-	if ( changeListFrom!=0 ) {
-	    if ( changeListTo==0 ) {
-#if !defined(USE_READLINE)
-		changesTmp = "";
-#endif
+	QValueList<int> *list;
+	if ( changeListTo != 0 ) {
+	    list = changeListTo;
+	} else if ( changeListFrom != 0 ) {
+	    list = changeListFrom;
+	}
+	if ( list ) {
+	    QApplication::setOverrideCursor( Qt::waitCursor );
+	    QString changesTmp = QString(process.readStdout());
+	    int sPos = 0;
+	    int ePos = 0;
+	    while ( TRUE ) {
+		ePos = changesTmp.find( '\n', sPos );
+		if ( ePos == -1 )
+		    break;
+		int sTmpPos = changesTmp.find( ' ', sPos );
+		int eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
+		if ( sTmpPos == -1 || eTmpPos == -1 )
+		    qWarning( "parsing error of p4 output" );
+		QString label = changesTmp.mid( sTmpPos, eTmpPos-sTmpPos );
+		int labelInt = label.toInt();
+		list->append( labelInt );
+		if ( changeDateTo ) {
+		    sTmpPos = changesTmp.find( ' ', eTmpPos+1 );
+		    eTmpPos = changesTmp.find( ' ', sTmpPos+1 );
+		    changeDateTo->insert( labelInt, changesTmp.mid( sTmpPos, eTmpPos-sTmpPos ) );
+		}
+		sPos = ePos + 1;
+	    }
+
+	    if ( changeListTo == 0 ) {
 		changeListTo = new QValueList<int>;
 		changeDateTo = new QMap<int,QString>;
 		startChanges( changesTo->currentText() );
@@ -258,6 +223,7 @@ void MainForm::processExited()
 		changeListTo = 0;
 		changeDateTo = 0;
 	    }
+	    QApplication::restoreOverrideCursor();
 	}
     } else if ( command == "describe" ) {
 	QString desc( process.readStdout() );

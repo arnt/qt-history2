@@ -33,9 +33,6 @@ private:
     QValueList<int> *changeListTo;
     QMap<int,QString> *changeDateTo;
     bool incIntegrates;
-#if !defined(USE_READLINE)
-    QString changesTmp;
-#endif
 };
 
 #endif // MAINFORM_H
