@@ -1496,16 +1496,26 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 QString
 MakefileGenerator::var(const QString &var)
 {
-    return varGlue(var, "", " ", "");
+    return val(project->variables()[var]);
 }
 
+QString 
+MakefileGenerator::val(const QStringList &varList)
+{
+    return valGlue(varList, "", " ", "");
+}
 
 QString
 MakefileGenerator::varGlue(const QString &var, const QString &before, const QString &glue, const QString &after)
 {
+    return valGlue(project->variables()[var], before, glue, after);
+}
+
+QString
+MakefileGenerator::valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after)
+{
     QString ret;
-    QStringList &l = project->variables()[var];
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+    for(QStringList::ConstIterator it = varList.begin(); it != varList.end(); ++it) {
 	if(!(*it).isEmpty()) {
 	    if(!ret.isEmpty())
 		ret += glue;
@@ -1519,7 +1529,13 @@ MakefileGenerator::varGlue(const QString &var, const QString &before, const QStr
 QString
 MakefileGenerator::varList(const QString &var)
 {
-    return varGlue(var, "", " \\\n\t\t", "");
+    return valList(project->variables()[var]);
+}
+
+QString
+MakefileGenerator::valList(const QStringList &varList)
+{
+    return valGlue(varList, "", " \\\n\t\t", "");
 }
 
 
@@ -1687,7 +1703,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 		t << s << " ";
 	    }
 	    if(!specdir().isEmpty()) 
-		t << specdir() << "/qmake.conf" << " ";
+		t << specdir() << Option::dir_sep + "qmake.conf" << " ";
 	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
@@ -1720,6 +1736,8 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
     QString dir( d );
     if(dir.isNull())
 	dir = Option::output_dir;
+    if(dir == ".")
+	dir = QDir::currentDirPath();
 
     int depth = 4;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
@@ -1737,27 +1755,31 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
     }
     QString orig_file = file;
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
-	file = Option::fixPathToTargetOS(file);
+	QString qfile = Option::fixPathToLocalOS(file);
 	if(!QDir::isRelativePath(file)) { //already absolute
+	    file = Option::fixPathToTargetOS(file, FALSE);
 	    if(!quote.isNull()) 
 		file = quote + file + quote;
 	    return FALSE;
 	}
-	QFileInfo fi(file);
+	QFileInfo fi(qfile);
 	if(fi.convertToAbs()) { //strange
+	    file = Option::fixPathToTargetOS(file, FALSE);
 	    if(!quote.isNull()) 
 		file = quote + file + quote;
 	    return FALSE;
 	}
 	file = fi.filePath();
     } else if(!project->isActiveConfig("no_fixpath")) { //relative
-	file = Option::fixPathToTargetOS(file, FALSE);
-	if(QDir::isRelativePath(file)) {
+	QString qfile = Option::fixPathToLocalOS(file, FALSE);
+	if(QDir::isRelativePath(qfile)) {
+	    file = Option::fixPathToTargetOS(file, FALSE);
 	    if(!quote.isNull()) 
 		file = quote + file + quote;
 	    return FALSE;
 	}
-	QString match_dir = dir;
+	file = Option::fixPathToTargetOS(file, FALSE);
+	QString match_dir = Option::fixPathToTargetOS(dir, FALSE);
 	if(file.left(match_dir.length()) == match_dir &&
 	   file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
@@ -1782,9 +1804,8 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
 		}
 	    }
 	}
-    } else { //just clean it
-	file = Option::fixPathToTargetOS(file, FALSE);
     }
+    file = Option::fixPathToTargetOS(file, FALSE);
     if(!quote.isNull()) 
 	file = quote + file + quote;
     debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);

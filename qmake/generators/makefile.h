@@ -109,6 +109,10 @@ protected:
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
+    QString val(const QStringList &varList);
+    QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
+    QString valList(const QStringList &varList);
+
 
     bool fileFixify(QString &file, const QString &dir=QString::null) const;
     bool fileFixify(QStringList &files, const QString &dir=QString::null) const;
