@@ -34,6 +34,7 @@
 #include <qstatusbar.h>
 #include "propertyeditor.h"
 #include <qworkspace.h>
+#include <stdlib.h>
 
 static QString make_func_pretty( const QString &s )
 {
