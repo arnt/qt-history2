@@ -1971,7 +1971,7 @@ QString QSettings::group() const
 	d->groupDirty = false;
 	d->groupPrefix = QString::null;
 
-	QValueStack<QString>::Iterator it = d->groupStack.begin();
+	QStack<QString>::Iterator it = d->groupStack.begin();
 	while ( it != d->groupStack.end() ) {
 	    QString group = *it;
 	    ++it;
