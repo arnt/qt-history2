@@ -121,11 +121,15 @@ protected:
     void leaveEvent( QEvent * );
     void moveEvent( QMoveEvent * );
 
+    bool eventFilter( QObject*, QEvent* );
+
     bool uses3D() const;
 
 private slots:
     void popupTimerDone();
     void popupPressed();
+    void releaseTimerDone();
+    void popupReleased();
 
 private:
     void init();

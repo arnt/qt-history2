@@ -182,6 +182,8 @@ void QToolButton::init()
     setFocusPolicy( NoFocus );
     setBackgroundMode( PaletteButton);
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+
+    installEventFilter( this );
 }
 
 
@@ -330,6 +332,8 @@ QSize QToolButton::sizeHint() const
 	if ( tw > w )
 	    w = tw;
     }
+    if ( d->popup && !d->delay )
+	w += 15;
 #ifdef Q_WS_QWS // ###### should be style option
     return QSize( w+4, h ).expandedTo( QApplication::globalStrut() );
 #else
@@ -483,6 +487,8 @@ void QToolButton::drawButtonLabel( QPainter * p )
     int sy = 0;
     int x, y, w, h;
     style().toolButtonRect(0, 0, width(), height() ).rect( &x, &y, &w, &h );
+    if ( d->popup && !d->delay )
+	w -= 10;
     if (isDown() || (isOn()&&!son) ) {
 	style().getButtonShift(sx, sy);
 	x+=sx;
@@ -531,6 +537,12 @@ void QToolButton::drawButtonLabel( QPainter * p )
 
 	}
     }
+    if ( d->popup && !d->delay ) {
+	bool sunken = ( isOn() && !son ) || isDown();
+	if ( sunken || uses3D() )
+	    style().drawSeparator( p, w+1, y, w+1, y+h, colorGroup() );
+	style().drawArrow( p, Qt::DownArrow, FALSE, w+2, y, 13, h, colorGroup(), TRUE );
+    }
 }
 
 
@@ -573,6 +585,29 @@ void QToolButton::moveEvent( QMoveEvent * )
 	repaint( FALSE );
 }
 
+/*!\reimp
+*/
+bool QToolButton::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o == this ) {
+	if ( e->type() == QEvent::MouseButtonPress && !d->delay && d->popup ) {
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    if ( me->pos().x() > ( width() - 15 ) ) {
+		setDown( TRUE );
+		popupTimerDone();
+		return TRUE;
+	    }
+	}
+    } else if ( !d->delay && o == d->popup ) {
+	if ( e->type() == QEvent::MouseButtonRelease ) {
+	    popupReleased();
+	    setDown( FALSE );
+	    return FALSE;
+	}
+    }
+
+    return QButton::eventFilter( o, e );
+}
 
 /*!  Returns TRUE if this button should be drawn using raised edges.
   \sa drawButton() */
@@ -735,10 +770,14 @@ void QToolButton::setPopup( QPopupMenu* popup )
 {
     if ( popup && !d->popupTimer ) {
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
+	connect( this, SIGNAL( released() ), this, SLOT( popupReleased() ) );
 	d->popupTimer = new QTimer( this );
 	connect( d->popupTimer, SIGNAL( timeout() ), this, SLOT( popupTimerDone() ) );
     }
     d->popup = popup;
+    d->popup->installEventFilter( this );
+
+    update();
 }
 
 /*!
@@ -752,11 +791,9 @@ QPopupMenu* QToolButton::popup() const
     return d->popup;
 }
 
-
 void QToolButton::popupPressed()
 {
-
-    if ( d->popupTimer )
+    if ( d->popupTimer && d->delay )
 	d->popupTimer->start( d->delay, TRUE );
 }
 
@@ -803,6 +840,19 @@ void QToolButton::popupTimerDone()
     }
 }
 
+void QToolButton::popupReleased()
+{
+    if ( !d->delay ) 
+	QTimer::singleShot( 0, this, SLOT(releaseTimerDone()) );
+}
+
+void QToolButton::releaseTimerDone()
+{
+    if ( d->popup )
+	d->popup->close();
+    setDown( FALSE );
+}
+
 /*!
   Sets the time delay between pressing the button and the appearance of
   the associated popupmenu in milliseconds. Usually this is around 1/2 of
@@ -813,6 +863,8 @@ void QToolButton::popupTimerDone()
 void QToolButton::setPopupDelay( int delay )
 {
     d->delay = delay;
+
+    update();
 }
 
 /*!
