@@ -22,6 +22,7 @@
 #include <qhash.h>
 #include <qmap.h>
 #include <qmenubar.h>
+#include <qpopupmenu.h>
 #include <qmetaobject.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
@@ -1271,11 +1272,12 @@ bool QAxServerBase::internalCreate()
     return TRUE;
 }
 
+/*
 class HackMenuData : public QMenuData
 {
     friend class QAxServerBase;
 };
-
+*/
 /*
     Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget.
     \a uMsg is handled as follows
@@ -1419,6 +1421,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     case WM_MENUSELECT:
     case WM_COMMAND:
+        /* XXXX
 	if ( that->qt.widget ) {
 	    QMenuBar *menuBar = that->menuBar;
 	    if ( !menuBar )
@@ -1472,6 +1475,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		return 0;
 	    }
 	}
+        */
 	break;
 
     default:
@@ -1560,6 +1564,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos )
 HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 {
     HMENU popupMenu = oldMenu ? oldMenu : CreatePopupMenu();
+    /* ###
     menuMap[popupMenu] = popup;
 
     if ( oldMenu ) while ( GetMenuItemCount(oldMenu) ) {
@@ -1591,6 +1596,7 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
     }
     if ( oldMenu )
 	DrawMenuBar( hwndMenuOwner );
+    */
     return popupMenu;
 }
 
@@ -1599,6 +1605,7 @@ HMENU QAxServerBase::createPopup( QPopupMenu *popup, HMENU oldMenu )
 */
 void QAxServerBase::createMenu( QMenuBar *menuBar )
 {
+    /* ###
     hmenuShared = ::CreateMenu();
 
     int edit = 0;
@@ -1651,6 +1658,7 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	hmenuShared = 0;
 	OleDestroyMenuDescriptor( holemenu );
     }
+    */
 }
 
 /*!
@@ -2417,10 +2425,15 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
                 argv_pointer[p + 1] = 0;
 		if (varp[p + 1].isValid()) {
-		    argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
-                    if (ptype.endsWith("*")) {
-                        argv_pointer[p + 1] = argv[p + 1];
+                    if (varp[p + 1].type() == QVariant::UserType) {
+                        argv_pointer[p + 1] = varp[p + 1].toUserType().data();
                         argv[p + 1] = argv_pointer + p + 1;
+                    } else {
+                        argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
+                        if (ptype.endsWith("*")) {
+                            argv_pointer[p + 1] = argv[p + 1];
+                            argv[p + 1] = argv_pointer + p + 1;
+                        }
                     }
 		} else {
 		    if (puArgErr)
@@ -2432,14 +2445,13 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
             // return value
 	    if (!type.isEmpty()) {
                 varp[0] = QVariant(QVariant::nameToType(slot.type()));
-                if (varp[0].type() == QVariant::Invalid) {
-                    if (mo->indexOfEnumerator(slot.type()) != -1)
-                        varp[0] = QVariant(QVariant::Int);
-                    else
-                        varp[0] = QVariant::UserData(0, type.latin1());
-                }
-                Q_ASSERT(varp[0].type() != QVariant::Invalid);
-		argv[0] = const_cast<void*>(varp[0].constData());
+                if (varp[0].type() == QVariant::Invalid && mo->indexOfEnumerator(slot.type()) != -1)
+                    varp[0] = QVariant(QVariant::Int);
+
+                if (varp[0].type() == QVariant::Invalid)
+                    argv[0] = 0;
+                else
+                    argv[0] = const_cast<void*>(varp[0].constData());
                 if (type.endsWith("*")) {
                     argv_pointer[0] = argv[0];
                     argv[0] = argv_pointer;
@@ -2461,7 +2473,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		}
                 if (!type.isEmpty() && pvarResult) {
                     if (argv_pointer[0])
-                        varp[0] = QVariant::UserData(*(void**)argv[0], type.latin1());
+                        varp[0] = QVariant::UserData(argv_pointer[0], type.latin1());
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
                 }
 	    }
