@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#83 $
 **
 ** Implementation of QAccel class
 **
@@ -114,7 +114,7 @@ static QAccelItem *find_key( QAccelList &list, int key, QChar ch )
 	    if ( km ) {
 		// Modifiers must match...
 		QChar c;
-		if ( (key & Qt::CTRL) && ch < ' ' )
+		if ( (key & Qt::CTRL) && (ch < ' ') )
 		    c = ch.unicode()+'@'+' '; // Ctrl-A is ASCII 001, etc.
 		else
 		    c = ch;
