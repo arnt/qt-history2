@@ -16,6 +16,7 @@
 #ifndef QPRINTER_P_H
 #define QPRINTER_P_H
 
+#include <qglobal.h>
 #ifdef QT_COMPAT
 #include <qprintdialog.h>
 #endif
