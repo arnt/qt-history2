@@ -731,10 +731,6 @@ inline const QString operator+(const QString &s1, const char *s2)
 { QString t(s1); t += QString::fromAscii(s2); return t; }
 inline const QString operator+(const char *s1, const QString &s2)
 { QString t(s1); t += s2; return t; }
-inline const QString operator+(const QString &s1, char *s2)
-{ QString t(s1); t += QString::fromAscii(s2); return t; }
-inline const QString operator+(char *s1, const QString &s2)
-{ QString t(s1); t += s2; return t; }
 inline const QString operator+(char c, const QString &s)
 { QString t = s; t.prepend(QChar(c)); return t; }
 inline const QString operator+(const QString &s, char c)

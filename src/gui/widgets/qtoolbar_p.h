@@ -45,7 +45,7 @@ public:
         : QAction(parent), _widget(widget)
     {
         setText(_widget->objectName().isEmpty()
-                ? _widget->metaObject()->className()
+                ? QLatin1String(_widget->metaObject()->className())
                 : _widget->objectName());
     }
 
