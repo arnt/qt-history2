@@ -1,22 +1,31 @@
 TEMPLATE	= app
 TARGET		= moc
 
-CONFIG 		= console release qtinc yacc lex_included yacc_no_name_mangle
+CONFIG 		= console release qtinc
 mac:CONFIG     -= resource_fork
 DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
 		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM QT_NO_TEXTCODEC \
-		  QT_NO_UNICODETABLES QT_NO_THREAD
+		  QT_NO_UNICODETABLES QT_NO_THREAD QT_NO_REGEXP
 win32:DEFINES  += QT_NODLL
 DESTDIR         = ../../bin
 
 
 INCLUDEPATH	= $$QT_SOURCE_TREE/include .
-DEPENDPATH	+= $$QT_SOURCE_TREE/include ../core/base ../core/tools ../core/io .
+DEPENDPATH	+= ../core/arch/generic/arch $$QT_SOURCE_TREE/include ../core/base ../core/tools ../core/io .
 LIBS		=
 OBJECTS_DIR	= .
-SOURCES		= ../core/tools/qbitarray.cpp	\
-		  ../core/tools/qbytearray.cpp	\
-		  ../core/tools/qhash.cpp	\
+
+
+HEADERS = moc.h preprocessor.h scanner.h symbols.h token.h utils.h \
+           generator.h outputrevision.h
+SOURCES =  moc.cpp \
+           preprocessor.cpp \
+           main.cpp \
+           generator.cpp \
+           scanner.cpp
+
+# Qt tools needed to link moc
+SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qdatetime.cpp	\
 		  ../core/io/qfile.cpp		\
 		  ../core/io/qdir.cpp		\
@@ -24,7 +33,6 @@ SOURCES		= ../core/tools/qbitarray.cpp	\
 		  ../core/base/qglobal.cpp		\
 		  ../core/io/qiodevice.cpp	\
 		  ../core/tools/qlist.cpp		\
-		  ../core/tools/qregexp.cpp		\
 		  ../core/tools/qchar.cpp		\
 		  ../core/tools/qstring.cpp		\
                   ../core/tools/qunicodetables.cpp	\
@@ -32,15 +40,6 @@ SOURCES		= ../core/tools/qbitarray.cpp	\
 		  ../core/tools/qmap.cpp		\ 
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp
-
-include(../core/arch/$$ARCH/arch.pri)
-
-isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
-    LEXSOURCES  = moc.l
-    YACCSOURCES = moc.y
-} else {
-    SOURCES   += moc_yacc.cpp
-}
 
 unix:SOURCES += \
 	../core/io/qfile_unix.cpp \
@@ -69,6 +68,3 @@ INSTALLS += target
    SOURCES += mwerks_mac.cpp
 }
 
-# ##### for now, until the mess is a bit more cleaned up and we can 
-# enable COMPAT warnings.
-DEFINES += QT_COMPAT
