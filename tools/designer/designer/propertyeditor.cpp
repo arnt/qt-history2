@@ -2686,7 +2686,7 @@ PropertyEnumItem::PropertyEnumItem( PropertyList *l,
     box = new EnumBox( listview->viewport() );
     box->hide();
     box->installEventFilter( listview );
-    pop = new EnumPopup( box, 0, WType_Popup);
+    pop = new EnumPopup( box, 0, QObject::WType_Popup);
     connect( box, SIGNAL( popup() ), this, SLOT( popup() ) );
     connect( pop, SIGNAL( closed() ), this, SLOT( setValue() ) );
     connect( pop, SIGNAL( hidden() ), this, SLOT( popupHidden() ) );
