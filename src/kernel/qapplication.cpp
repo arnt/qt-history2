@@ -51,7 +51,6 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
-#include "private/qcomponentfactory_p.h"
 #ifdef Q_WS_X11
 #include "qeventloop.h"
 #endif
