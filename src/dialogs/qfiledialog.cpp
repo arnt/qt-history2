@@ -3226,6 +3226,7 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 {
     QString nf = d->url.nameFilter();
 
+    QString operatorPath = url.toString( FALSE, FALSE );
     if ( QUrl::isRelativeUrl( operatorPath ) ) {
 	d->url = QUrl( d->url, operatorPath );
     } else {
