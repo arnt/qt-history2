@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#118 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -961,6 +961,7 @@ void QPainter::nativeXForm( bool enable )
     } else {
 	SetGraphicsMode( hdc, GM_ADVANCED );
 	ModifyWorldTransform( hdc, 0, MWT_IDENTITY );
+	SetGraphicsMode( hdc, GM_COMPATIBLE );
     }
 }
 
