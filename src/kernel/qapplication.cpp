@@ -236,6 +236,26 @@
   \header qglobal.h
 */
 
+/*!
+    \enum QApplication::Type
+
+    \value Tty a console application
+    \value GuiClient a GUI client application
+    \value GuiServer a GUI server application
+*/
+
+/*!
+    \enum QApplication::ColorSpec
+
+    \value NormalColor the default color allocation policy
+    \value CustomColor the same as NormalColor for X11; allocates colors
+    to a palette on demand under Windows
+    \value ManyColor the choice for applications that use thousands of
+    colors
+
+    See setColorSpec() for full details.
+*/
+
 /*
   The qt_init() and qt_cleanup() functions are implemented in the
   qapplication_xyz.cpp file.
@@ -599,6 +619,10 @@ void QApplication::construct( int &argc, char **argv, Type type )
 	qt_maxWindowRect = desktop()->rect();
 }
 
+/*!
+    Returns the type of application, Tty, GuiClient or GuiServer.
+*/
+
 QApplication::Type QApplication::type() const
 {
     return qt_appType;
@@ -606,7 +630,6 @@ QApplication::Type QApplication::type() const
 
 
 #if defined(Q_WS_X11)
-// note: #ifdef'ed stuff is NOT documented.
 /*!
   Create an application, given an already open display \a dpy.  If \a
   visual and \a colormap are non-zero, the application will use those as
@@ -635,6 +658,15 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     initialize( aargc, aargv );
 }
 
+/*!
+  Create an application, given an already open display \a dpy and using
+  \a argc command line arguments in \a argv.  If \a
+  visual and \a colormap are non-zero, the application will use those as
+  the default Visual and Colormap contexts.
+
+  This is available only on X11.
+    
+*/
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
 {
