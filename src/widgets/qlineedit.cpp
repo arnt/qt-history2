@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#222 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#223 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -622,7 +622,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int newCP = xPosToCursorPos( e->pos().x() );
     int m1 = minMark();
     int m2 = maxMark();
-    if ( hasMarkedText() && echoMode() == Normal && 
+    if ( hasMarkedText() && echoMode() == Normal &&
 	 e->button() == LeftButton && m1 < newCP && m2 > newCP ) {
 	QTextDrag *tdo = new QTextDrag( markedText(), this );
 	if ( tdo->drag() ) {
@@ -1310,6 +1310,8 @@ void QLineEdit::repaintArea( int from, int to )
 
 void QLineEdit::setEnabled( bool e )
 {
+    if ( e == isEnabled() )
+	return;
     d->pmDirty = TRUE;
     QWidget::setEnabled( e );
 }
