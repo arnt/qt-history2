@@ -508,6 +508,8 @@ QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
 	if (! dir.mkdir(dir.path()))
 #if defined(QT_CHECK_STATE)
 	    qWarning("QSettings: error creating %s", dir.path().latin1());
+#else
+	    ;
 #endif
     }
 
