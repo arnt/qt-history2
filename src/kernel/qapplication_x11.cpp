@@ -1315,7 +1315,7 @@ void qt_cleanup()
     appDpy = 0;
 
     if ( appForeignDpy ) {
-	delete appName;
+	delete[] appName;
 	appName = 0;
     }
 
