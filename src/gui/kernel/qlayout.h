@@ -197,6 +197,8 @@ public:
 
     void freeze(int w=0, int h=0);
 
+    static QSize closestAcceptableSize(const QWidget *w, QSize s);
+
 protected:
     void widgetEvent(QEvent *);
     void childEvent(QChildEvent *e);

@@ -1845,4 +1845,49 @@ bool QLayout::isEnabled() const
     return d->enabled;
 }
 
+/*!
+    Returns a size that satisfies all size constraints on \a w, including heightForWidth()
+    and that is as close as possible to \a s.
+*/
+
+QSize QLayout::closestAcceptableSize(const QWidget *w, QSize s)
+{
+    QSize result = s.boundedTo(qSmartMaxSize(w));
+    result = result.expandedTo(qSmartMinSize(w));
+    QLayout *l = w->layout();
+    if (l && l->hasHeightForWidth() && result.height() < l->minimumHeightForWidth(result.width()) ) {
+        QSize current = w->size();
+        int currentHfw =  l->minimumHeightForWidth(current.width());
+        int newHfw = l->minimumHeightForWidth(result.width());
+        if (current.height() < currentHfw || currentHfw == newHfw) {
+            //handle the constant hfw case and the vertical-only case, as well as the
+            // current-size-is-not-correct case
+            result.setHeight(newHfw);
+        } else {
+            // binary search; assume hfw is decreasing ###
+
+            int maxw = qMax(w->width(),result.width());
+            int maxh = qMax(w->height(), result.height());
+            int minw = qMin(w->width(),result.width());
+            int minh = qMin(w->height(), result.height());
+
+            int minhfw = l->minimumHeightForWidth(minw);
+            int maxhfw = l->minimumHeightForWidth(maxw);
+            while (minw < maxw) {
+                if (minhfw > maxh) { //assume decreasing
+                    minw = maxw - (maxw-minw)/2;
+                    minhfw = l->minimumHeightForWidth(minw);
+                } else if (maxhfw < minh ) { //assume decreasing
+                    maxw = minw + (maxw-minw)/2;
+                    maxhfw = l->minimumHeightForWidth(maxw);
+                } else  {
+                    break;
+                }
+            }
+            result = result.expandedTo(QSize(minw, minhfw));
+        }
+    }
+    return result;
+}
+
 #endif // QT_NO_LAYOUT
