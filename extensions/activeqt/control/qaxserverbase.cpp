@@ -3279,7 +3279,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 		state |= AltButton;
 
 	    int key = qt_translateKeyCode(pMsg->wParam);
-	    QKeyEvent override(QEvent::AccelOverride, key, state);
+	    QKeyEvent override(QEvent::ShortcutOverride, key, state);
 	    override.ignore();
 	    QApplication::sendEvent(qt.widget->focusWidget(), &override);
 	    if (override.isAccepted())
