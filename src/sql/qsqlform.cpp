@@ -139,13 +139,11 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 
 /*!
   \class QSqlFormMap qsqlform.h
-  \brief Class used for mapping SQL fields to Qt widgets and vice versa
-
+  \brief Class used for mapping database fields to widgets and vice versa
   \module sql
 
-  This class is used to associate a class with a specific property. This
-  is used on the GUI side of the database module to map SQL fields
-  to Qt widgets and vice versa.
+  This class is used by the QSqlForm to manage the mapping between SQL
+  data fields and actual widgets.
   
  */
 
@@ -307,21 +305,26 @@ void QSqlFormMap::writeRecord()
 /*!
 
   \class QSqlForm qsqlform.h
-  \brief Class used for creating SQL forms
+  \brief Class used for managing and creating data entry forms
 
   \module sql
 
-  This class is used to create SQL forms for accessing, updating,
-  inserting and deleting data from a database. Populate the form with
-  widgets created by the QSqlEditorFactory class, to get the proper
-  widget for a certain field. The form needs a valid QSqlCursor on which
-  to perform its operations.
+  This class is used to create and manage data entry forms. 
+  
+  Populate the form with widgets created by the QSqlEditorFactory
+  class to get the proper widget for a certain data field. Use the
+  populate() function generate a form automatically. The generated
+  form contains a label and an editor for each field in the
+  QSqlRecord.
+  
+  The form needs a valid QSqlCursor on which to perform its operations
+  like insert, update and delete.
   
   Some sample code to initialize a form successfully:
   
   \code
   QSqlForm form;
-  QSqlEditorFactory factory;
+  QSqlEditorFactory * factory = QSqlEditorFactory::defaultFactory();
   QWidget * w;
 
   // Set the cursor the form should operate on
@@ -329,7 +332,7 @@ void QSqlFormMap::writeRecord()
 
   // Create an appropriate widget for displaying/editing
   // field 0 in myCursor.
-  w = factory.createEditor( &form, myCursor.field( 0 ) );
+  w = factory->createEditor( &form, myCursor.field( 0 ) );
 
   // Get the insert buffer from the cursor
   QSqlRecord* buf = myCursor.insertBuffer();
@@ -349,7 +352,7 @@ void QSqlFormMap::writeRecord()
   uses this object to get or set the value of a widget (ie. the text
   in a QLineEdit, the index in a QComboBox).
   
-  \sa installPropertyMap()
+  \sa installPropertyMap(), QSqlPropertyMap
 */
 
 /*!
@@ -358,9 +361,7 @@ void QSqlFormMap::writeRecord()
 */
 QSqlForm::QSqlForm( QObject * parent, const char * name )
     : QObject( parent, name ),
-      autodelete( FALSE ),
       readOnly( FALSE ),
-      v( 0 ),
       factory( 0 )
 {
 }
@@ -373,14 +374,13 @@ QSqlForm::QSqlForm( QObject * parent, const char * name )
 
   \sa populate()
 */
-QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fields, 
-		    uint columns, QObject * parent, const char * name )
+QSqlForm::QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns, 
+		    QObject * parent, const char * name )
     : QObject( parent, name ),
-      autodelete( FALSE ),
       readOnly( FALSE ),
       factory( 0 )
 {
-    populate( widget, cursor, fields, columns );
+    populate( widget, fields, columns );
 }
 
 /*!
@@ -389,8 +389,6 @@ QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fields,
 */
 QSqlForm::~QSqlForm()
 {
-    if( autodelete && v )
-	delete v;
 }
 
 /*!
@@ -401,32 +399,6 @@ QSqlForm::~QSqlForm()
 void QSqlForm::associate( QWidget * widget, QSqlField * field )
 {
     map.insert( widget, field );
-}
-
-/*!
-
-  Set the cursor that the widgets in the form should be associated
-  with.  QSqlForm takes ownership of the \a cursor pointer, and it will
-  be deleted when a new cursor is set, or when the object goes out of
-  scope. ### crap!
-  
-*/
-void QSqlForm::setCursor( QSqlCursor * cursor )
-{
-    if( autodelete && v )
-	delete v;
-    v = cursor;
-}
-
-/*!
-
-  Returns a pointer to the QSqlCursor that this form is associated
-  with.
-  
-*/
-QSqlCursor * QSqlForm::cursor() const
-{
-    return v;
 }
 
 /*!
@@ -482,36 +454,6 @@ bool QSqlForm::isReadOnly() const
 
 /*!
 
-  Sets the auto-delete option of the form.
-
-  Enabling auto-delete (\a enable is TRUE) will case the form to take
-  ownership of the cursor (see setCursor() ).
-
-  Disabling auto-delete (\a enable is FALSE) will \e not delete the
-  cursor when the form goes out of scope.
-
-  The default setting is FALSE.
-
-  \sa autoDelete().
-*/
-void QSqlForm::setAutoDelete( bool enable )
-{
-    autodelete = enable;
-}
-
-/*!
-
-  Returns the setting of the auto-delete option (default is FALSE).
-
-  \sa setAutoDelete().
-*/
-bool QSqlForm::autoDelete() const
-{
-    return autodelete;
-}
-
-/*!
-
   Refresh the widgets in the form with values from the associated SQL
   cursor. Also emits the stateChanged() signal to indicate that the
   form state has changed.
@@ -519,11 +461,7 @@ bool QSqlForm::autoDelete() const
 */
 void QSqlForm::readRecord()
 {
-    if( v ){
-	map.readRecord();
-	emit stateChanged( v->at() );
-    } else
-	qWarning( "QSqlForm::readRecord: no associated cursor" );
+    map.readRecord();
 }
 
 /*!
@@ -532,10 +470,7 @@ void QSqlForm::readRecord()
 */
 void QSqlForm::writeRecord()
 {
-    if( v )
-	map.writeRecord();
-    else
-	qWarning( "QSqlForm::writeRecord: no associated cursor" );
+    map.writeRecord();
 }
 
 /*!
@@ -550,114 +485,6 @@ void QSqlForm::clear()
 
 /*!
 
-  Move to the first record in the associated cursor.
-*/
-void QSqlForm::first()
-{
-    if( v && v->first() ){
-	readRecord();
-    }
-}
-
-/*!
-
-  Move to the last set record in the associated cursor.
-*/
-void QSqlForm::last()
-{
-    if( v && v->last() ){
-	readRecord();
-    }
-}
-
-/*!
-
-  Move to the next record in the associated cursor.
-*/
-void QSqlForm::next()
-{
-
-    if( v ){
-	v->next();
-	if( v->at() == QSqlResult::AfterLast ){
-	    v->last();
-	}
-	readRecord();
-    }
-}
-
-/*!
-
-  Move to the previous record in the associated cursor.
-*/
-void QSqlForm::prev()
-{
-    if( v ){
-        v->prev();
-	if( v->at() == QSqlResult::BeforeFirst ){
-	    v->first();
-	}
-	readRecord();
-    }
-}
-
-/*!
-
-  Insert a new record in the associated cursor. This function will most
-  likely have to be re-implementet by the user.
-*/
-bool QSqlForm::insert()
-{
-    if( !readOnly && v ){
-	writeRecord();
-	v->insert();
-	return TRUE;
-    }
-    return FALSE;
-}
-
-/*!
-
-  Update the current record in the associated cursor. This function will
-  most likely have to be re-implementet by the user.
-*/
-bool QSqlForm::update()
-{
-    if( !readOnly && v ){
-	writeRecord();
-	if( v->update() )
-	    return TRUE;
-    }
-    return FALSE;
-}
-
-/*!
-
-  Delete the current record from the associated cursor. This function
-  will most likely have to be re-implementet by the user.
-*/
-bool QSqlForm::del()
-{
-    if( !readOnly && v && v->del() ){
-	readRecord();
-	return TRUE;
-    }
-    return FALSE;
-}
-
-/*!
-
-  Seek to the i'th record in the associated cursor.
-*/
-void QSqlForm::seek( uint i )
-{
-    if( v && v->seek( i ) ){
-	readRecord();
-    }
-}
-
-/*!
-
   This is a convenience function used to automatically populate a form
   with fields based on a QSqlCursor. The form will contain a name label
   and an editor widget for each of the fields in the cursor. The widgets
@@ -665,11 +492,11 @@ void QSqlForm::seek( uint i )
   of columns. \a widget will become the parent of the generated widgets.
  */
 
-void QSqlForm::populate( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fields, uint columns )
+void QSqlForm::populate( QWidget * widget, QSqlRecord* fields, uint columns )
 {
     // ### Remove the children before populating?
 
-    if( !widget || !cursor || !fields ) return;
+    if( !widget || !fields ) return;
 
     QSqlEditorFactory * f = (factory == 0) ? 
 			    QSqlEditorFactory::defaultFactory() : factory;
@@ -701,8 +528,11 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fiel
 	    currentCol += 2;
 	}
 
-	if( fields->field( j )->isPrimaryIndex() || !fields->field( j )->isVisible() )
+	if( fields->field( j )->isPrimaryIndex() || 
+	    !fields->field( j )->isVisible() )
+	{
 	    continue;
+	}
 
 	label = new QLabel( fields->field( j )->displayLabel(), widget );
 	g->addWidget( label, col, currentCol );
@@ -713,7 +543,6 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fiel
 	col++;
     }
 
-    setCursor( cursor );
     readRecord();
 }
 #endif // QT_NO_SQL

@@ -67,47 +67,26 @@ class Q_EXPORT QSqlForm : public QObject
     Q_OBJECT
 public:
     QSqlForm( QObject * parent = 0, const char * name = 0 );
-    QSqlForm( QWidget * widget, QSqlCursor * cursor, QSqlRecord * fields, 
-	      uint columns = 1, QObject * parent = 0, const char * name = 0 );
+    QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns = 1, 
+	      QObject * parent = 0, const char * name = 0 );
     ~QSqlForm();
 
-    void       associate( QWidget * widget, QSqlField * field );
+    void associate( QWidget * widget, QSqlField * field );
+    void populate( QWidget * widget, QSqlRecord * fields, uint columns = 1 );
+    
+    void setReadOnly( bool enable );
+    bool isReadOnly() const;
 
-    void       setCursor( QSqlCursor * cursor );
-    QSqlCursor* cursor() const;
-    void       populate( QWidget * widget, QSqlCursor * cursor, 
-			 QSqlRecord* fields, uint columns = 1 );
-
-    void       setReadOnly( bool enable );
-    bool       isReadOnly() const;
-    void       setAutoDelete( bool enable );
-    bool       autoDelete() const;
-
-    void       installEditorFactory( QSqlEditorFactory * f );
-    void       installPropertyMap( QSqlPropertyMap * m );
-
+    void installEditorFactory( QSqlEditorFactory * f );
+    void installPropertyMap( QSqlPropertyMap * m );
 
 public slots:
     void readRecord();
     void writeRecord();
     void clear();
-
-    virtual void first();
-    virtual void prev();
-    virtual void next();
-    virtual void last();
-    virtual bool insert();
-    virtual bool update();
-    virtual bool del();
-    virtual void seek( uint i );
-
-signals:
-    void stateChanged( uint i );
-
+    
 private:
-    bool autodelete;
     bool readOnly;
-    QSqlCursor * v;
     QSqlFormMap map;
     QSqlEditorFactory * factory;
 };
