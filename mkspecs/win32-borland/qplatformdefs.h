@@ -100,7 +100,8 @@
 # endif
 #endif
 
-#define QT_VSNPRINTF		_vsnprintf
+#define QT_VSNPRINTF		::_vsnprintf
+#define QT_SNPRINTF		::_snprintf
 
 # define F_OK	0
 # define X_OK	1
