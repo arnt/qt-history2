@@ -301,6 +301,7 @@ private:
     friend class QFontInfo;
     friend class QPainter;
     friend class QPSPrinterFont;
+    friend class QApplication;
     friend class QWidget;
     friend class QTextFormatCollection;
 

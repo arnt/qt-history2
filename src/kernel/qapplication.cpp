@@ -1687,6 +1687,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	} else {
 	    *app_font = font;
 	}
+	app_font->detach();
 	all = app_fonts != 0;
 	delete app_fonts;
 	app_fonts = 0;
