@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#155 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#154 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#155 $");
 
 
 /*!
@@ -157,8 +157,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#154 $");
 //
 
 inline bool isIdentChar( char x )
-{
-    return isalnum(x) || x == '_';
+{						// Avoid bug in isalnum
+    return x == '_' || (x >= '0' && x <= '9') ||
+	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
 }
 
 inline bool isSpace( char x )
