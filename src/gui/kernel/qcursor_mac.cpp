@@ -127,10 +127,6 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
         Q_UNUSED(p);
 #endif
     if(currentCursor != c->d) {
-#ifndef QMAC_NO_FAKECURSOR
-        if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
-            currentCursor->curs.fc.widget->hide();
-#endif
         if(currentCursor && currentCursor->type == QCursorData::TYPE_ThemeCursor
                 && currentCursor->curs.tc.anim)
             currentCursor->curs.tc.anim->stop();
@@ -375,6 +371,14 @@ void QCursor::update() const
         d->type = QCursorData::TYPE_ThemeCursor;
         d->curs.tc.curs = kThemeSpinningCursor;
         break;
+    case SplitVCursor:
+        d->type = QCursorData::TYPE_ThemeCursor;
+        d->curs.tc.curs = kThemeResizeUpDownCursor;
+	break;
+    case SplitHCursor:
+	d->type = QCursorData::TYPE_ThemeCursor;
+	d->curs.tc.curs = kThemeResizeLeftRightCursor;
+	break;
 
 #define QT_USE_APPROXIMATE_CURSORS
 #ifdef QT_USE_APPROXIMATE_CURSORS
@@ -483,40 +487,6 @@ void QCursor::update() const
         d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
         memcpy(d->curs.cp.hcurs->data, cur_up_arrow_bits, sizeof(cur_up_arrow_bits));
         memcpy(d->curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
-        break;
-    }
-    case SplitVCursor:
-    {
-        static const unsigned char cur_vsplit_bits[] = {
-            0x00, 0x00, 0x01, 0x00, 0x03, 0x80, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00,
-            0x7f, 0xfe, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xfe, 0x01, 0x00, 0x01, 0x00,
-            0x01, 0x00 ,0x03, 0x80 ,0x01, 0x00 ,0x00, 0x00 };
-        static const unsigned char mcur_vsplit_bits[] = {
-            0x01, 0x00, 0x03, 0x80, 0x07, 0xc0, 0x03, 0x80, 0x03, 0x80, 0xff, 0xff,
-            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x03, 0x80,
-            0x03, 0x80, 0x07, 0xc0, 0x03, 0x80, 0x01, 0x00 };
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = static_cast<CursPtr>(malloc(sizeof(Cursor)));
-        memcpy(d->curs.cp.hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
-        break;
-    }
-    case SplitHCursor:
-    {
-        static const unsigned char cur_hsplit_bits[] = {
-            0x00, 0x00, 0x02, 0x40, 0x02, 0x40, 0x02, 0x40, 0x02, 0x40, 0x02, 0x40,
-            0x22, 0x44, 0x7e, 0x7e, 0x22, 0x44, 0x02, 0x40, 0x02, 0x40, 0x02, 0x40,
-            0x02, 0x40, 0x02, 0x40, 0x02, 0x40, 0x00, 0x00 };
-        static const unsigned char mcur_hsplit_bits[] = {
-            0x07, 0xe0, 0x07, 0xe0, 0x07, 0xe0, 0x07, 0xe0, 0x07, 0xe0, 0x27, 0xe4,
-            0x7f, 0xfe, 0xff, 0xff, 0x7f, 0xfe, 0x27, 0xe4, 0x07, 0xe0, 0x07, 0xe0,
-            0x07, 0xe0, 0x07, 0xe0, 0x07, 0xe0, 0x07, 0xe0 };
-        d->type = QCursorData::TYPE_CursPtr;
-        d->curs.cp.my_cursor = true;
-        d->curs.cp.hcurs = static_cast<CursPtr>(malloc(sizeof(Cursor)));
-        memcpy(d->curs.cp.hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
-        memcpy(d->curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
         break;
     }
 #endif
