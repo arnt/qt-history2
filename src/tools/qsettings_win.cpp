@@ -47,9 +47,20 @@ QSettingsPrivate::QSettingsPrivate()
 	    local = NULL;
 	}
     }
-    res = RegOpenCurrentUser( KEY_ALL_ACCESS, &user );
+#if defined(UNICODE)
+    if ( qt_winver & Qt::WV_NT_based ) 
+	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &local );
+    else
+#endif
+	res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &local );
+	
     if ( res != ERROR_SUCCESS ) {
-	res = RegOpenCurrentUser( KEY_READ, &user );
+#if defined(UNICODE)
+	if ( qt_winver & Qt::WV_NT_based ) 
+	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &local );
+	else
+#endif
+	    res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &local );
 	if ( res != ERROR_SUCCESS ) {
 	    user = NULL;
 	}
