@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#436 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#437 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1050,7 +1050,7 @@ void qt_updated_rootinfo()
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
 
-  
+
   The function given by \a p should take no arguments and return nothing.
 
   Example of use:
@@ -2947,9 +2947,14 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
-	while ( XCheckTypedWindowEvent(x11Display(),winId(),MotionNotify,
-				       xevent) )
-	    ;					// compress motion events
+	unsigned int xstate = event->xmotion.state;
+	while ( XCheckTypedWindowEvent( appDpy, winId(), MotionNotify, xevent ) ) {
+	    // compress motion events
+	    if ( xevent->xmotion.state != xstate ) {
+		XPutBackEvent( appDpy, xevent );
+		break;
+	    }
+	}
 	type = QEvent::MouseMove;
 	pos.rx() = xevent->xmotion.x;
 	pos.ry() = xevent->xmotion.y;
