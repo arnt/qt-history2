@@ -2468,11 +2468,13 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 			|| type == WM_NCMOUSEMOVE
 #endif
 			) {
-	  QCursor *c = qt_grab_cursor();
-	  if ( !c )
-	      c = QApplication::overrideCursor();
-	  if ( c )				// application cursor defined
-	      SetCursor( c->handle() );
+	QCursor *c = qt_grab_cursor();
+	if ( !c )
+	    c = QApplication::overrideCursor();
+	if ( c )				// application cursor defined
+	    SetCursor( c->handle() );
+	else
+	    SetCursor( Qt::arrowCursor.handle() );
       }
       block_event = TRUE;
     }
