@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#84 $
+** $Id: //depot/qt/main/src/workspace/qworkspace.cpp#85 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -400,12 +400,18 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
 
     if ( d->maxWindow && d->maxWindow != d->active && d->active->windowWidget() &&
-	d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
-	!d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
+	 d->active->windowWidget()->testWFlags( WStyle_MinMax ) &&
+	 !d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
 	maximizeWindow( d->active->windowWidget() );
 	if ( d->maxtools ) {
 	    if ( w->icon() ) {
-		d->maxtools->setPixmap( *w->icon() );
+		QPixmap pm(*w->icon());
+		if(pm.width() != 14 || pm.height() != 14) {
+		    QImage im;
+		    im = pm;
+		    pm = im.smoothScale( 14, 14 );
+		}
+		d->maxtools->setPixmap( pm );
 	    } else {
 		QPixmap pm(14,14);
 		pm.fill( white );
@@ -945,7 +951,13 @@ void QWorkspace::showMaximizeControls()
 	    d->maxtools->installEventFilter( this );
 	}
 	if ( d->active->windowWidget() && d->active->windowWidget()->icon() ) {
-	    d->maxtools->setPixmap( *d->active->windowWidget()->icon() );
+	    QPixmap pm(*d->active->windowWidget()->icon());
+	    if(pm.width() != 14 || pm.height() != 14) {
+		QImage im;
+		im = pm;
+		pm = im.smoothScale( 14, 14 );
+	    }
+	    d->maxtools->setPixmap( pm );
 	} else {
 	    QPixmap pm(14,14);
 	    pm.fill( white );
@@ -1548,7 +1560,13 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
 	    if ( ws->d->maxtools ) {
 		if ( childWidget->icon() ) {
-		    ws->d->maxtools->setPixmap( *childWidget->icon() );
+		    QPixmap pm(*childWidget->icon());
+		    if(pm.width() != 14 || pm.height() != 14) {
+			QImage im;
+			im = pm;
+			pm = im.smoothScale( 14, 14 );
+		    }
+		    ws->d->maxtools->setPixmap( pm );
 		} else {
 		    QPixmap pm(14,14);
 		    pm.fill( white );
