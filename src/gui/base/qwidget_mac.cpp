@@ -232,7 +232,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 	geo->right++;
     if(geo->bottom == geo->top)
 	geo->bottom++;
-    if (qMacVersion() >= Qt::MV_PANTHER) {
+    if(QSysInfo::MacintoshVersion >= Qt::MV_PANTHER) {
 	Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
 	if (ret == noErr) {
