@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#4 $
 **
 ** Implementation of QBuilder class
 **
@@ -121,7 +121,6 @@ public:
 		QBuilderClassItem* bci = (QBuilderClassItem*)cursor;
 		if ( bci->at() == mo ) {
 		    bci->setOpen(TRUE);
-		    bci->setup();
 		    return bci;
 		}
 		cursor = cursor->nextSibling();
@@ -132,7 +131,6 @@ public:
 	    // QObject
 	    QListViewItem* bci = classes->firstChild();
 	    bci->setOpen(TRUE);
-	    bci->setup();
 	    return bci;
 	}
     }
