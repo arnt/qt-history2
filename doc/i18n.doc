@@ -30,29 +30,27 @@ by German users, will require that the software operate not only in
 different languages, but use different input techniques, character
 encodings and presentation conventions.
 
-Qt tries to take this burden away from the developer as much as
-possible. All input widgets and text drawing methods in Qt offer
-builtin support for all supported languages. The built-in font engine
-takes care to render even text using mixed writing systems as good as
-possible. 
+Qt tries to make internationalization as painless as possible for
+developers. All input widgets and text drawing methods in Qt offer
+built-in support for all supported languages. The built-in font engine
+is capable of correctly and attractively rendering text that contains
+characters from a variety of different writing systems at the same
+time.
 
-Qt does support most of the languages spoken nowadays. The list below
-offers an overview over what is supported nowadays:
-
+Qt supports most languages in use today, in particular:
 \list
-\i All western languages (using Latin script)
+\i All East Asian languages (Chinese, Japanese and Korean)
+\i All Western languages (using Latin script)
+\i Arabic
 \i Cyrillic languages (Russian)
 \i Greek
-\i All east Asian languages (Chinese, Japanese and Korean)
-\i Arabic
 \i Hebrew
 \i Thai and Lao
 \i All scripts in Unicode 3.2 that do not require special processing
 \endlist
 
-On Windows NT/2000/XP and Unix/X11 with Xft (client side font) support the
-following languages are supported in addition:
-
+On Windows NT/2000/XP and Unix/X11 with Xft (client side font support)
+the following languages are also supported:
 \list
 \i Bengali
 \i Devanagari
@@ -65,47 +63,45 @@ following languages are supported in addition:
 \i Syriac
 \i Tamil
 \i Telugu
-\i Tibetan (X11 only)
 \i Thaana
+\i Tibetan (X11 only)
 \endlist
 
 Many of these writing systems exhibit special features:
 
 \list
 
-\i Special line breaking behavior. Some of the Asian languages are
+\i <b>Special line breaking behavior.</b> Some of the Asian languages are
 written without spaces between words. Line breaking can occur either
 after every character (with exceptions) as in Chinese, Japanese and
 Korean, or after logical word boundaries as in Thai.
 
-\i Bidirectional writing. Arabic and Hebrew are written from right to
+\i <b>Bidirectional writing.</b> Arabic and Hebrew are written from right to
 left, except for numbers and embedded English text which is written
 left to right. The exact behavior is defined in the \link
 http://www.unicode.org/unicode/reports/tr9/ Unicode Technical Report
 #9 \endlink.
 
-\i Non spacing or diacritical marks (accents or umlauts in European
+\i <b>Non spacing or diacritical marks</b> (accents or umlauts in European
 languages). Some languages such as Vietnamese make extensive use of
-these marks and some characters can have a few marks at the same time
-to clarify pronunciation.
+these marks and some characters can have more than one mark at the
+same time to clarify pronunciation.
 
-\i Ligatures. In special contexts, some characters following each
-other directly get replaced by a combined glyph forming a 
-ligature. Common examples are the fl and fi ligatures used in
-typesetting US and European books.
+\i <b>Ligatures.</b> In special contexts, some pairs of characters get
+replaced by a combined glyph forming a ligature. Common examples are
+the fl and fi ligatures used in typesetting US and European books.
 
 \endlist
 
 Qt tries to take care of all the special features listed above. You
-will usually never have to worry about these features as long as you
-use Qt's input (e.g. QLineEdit, QTextView or derived classes) and
-displaying controls (e.g. QLabel).
+usually don't have to worry about these features so long as you use
+Qt's input widgets (e.g. QLineEdit, QTextEdit, and derived classes)
+and Qt's display widgets (e.g. QLabel).
 
 Support for these writing systems is transparent to the programmer
 and completely encapsulated in Qt's text engine. This means that you
 don't need to have any knowledge about the writing system used in a
-particular language, except for a couple of small things listed below.
-
+particular language, except for the following small points:
 \list
 
 \i QPainter::drawText( int x, int y, const QString &str ) will always
@@ -117,11 +113,11 @@ takes a QRect since this will align in accordance with the language.
 
 \i When you write your own text input controls, use \l
 QFontMetrics::charWidth() to determine the width of a character in a
-string. In some languages (e.g. Arabic or languages from the indian
+string. In some languages (e.g. Arabic or languages from the Indian
 subcontinent), the width and shape of a glyph changes depending on the
 surrounding characters. Writing input controls usually requires a
 certain knowledge of the scripts it is going to be used in. Usually
-the easiest way is to subclass QLineEdit or QTextView.
+the easiest way is to subclass QLineEdit or QTextEdit.
 
 \endlist
 
@@ -142,7 +138,7 @@ Since QString uses the Unicode encoding internally, every
 language in the world can be processed transparently using
 familiar text processing operations. Also, since all Qt
 functions that present text to the user take a QString as a
-parameter, there is no char* to QString conversion time overhead.
+parameter, there is no char* to QString conversion overhead.
 
 Strings that are in "programmer space" (such as QObject names
 and file format texts) need not use QString; the traditional
@@ -232,7 +228,7 @@ If you disable the const char* to QString automatic conversion
 by compiling your software with the macro QT_NO_CAST_ASCII
 defined, you'll be very likely to catch any strings you are
 missing. See QString::fromLatin1() for more information.
-Disabling the conversion makes programming cumbersome.
+Disabling the conversion can make programming a bit cumbersome.
 
 If your source language uses characters outside Latin1, you
 might find QObject::trUtf8() more convenient than
@@ -342,7 +338,7 @@ project file as a command-line argument.
 
 In this example, four exotic languages are supported: Danish, Finnish,
 Norwegian and Swedish. If you use \link qmake-manual.book
-qmake\endlink (or \c tmake), you usually don't need an extra project
+qmake\endlink, you usually don't need an extra project
 file for \e lupdate; your \c qmake project file will work fine once
 you add the \c TRANSLATIONS entry.
 
@@ -451,8 +447,8 @@ is most likely to need for communicating with other people and
 applications (this is the codec used by local8Bit()).
 
 Qt supports most of the more frequently used encodings natively. For a
-complete list of supported encodings see the \link QTextcodec
-QTextCodec \endlink documentation.
+complete list of supported encodings see the \l QTextCodec
+documentation.
 
 In some cases and for less frequently used encodings it may be
 necessary to write your own QTextCodec subclass. Depending on the
@@ -469,10 +465,10 @@ documentation.
 
 \section2 Localize
 
-Localization is the process of adapting to local conventions such as
-date and time presentations. Such localizations can be accomplished
-using appropriate tr() strings, even "magic" words, as this somewhat
-contrived example shows:
+Localization is the process of adapting to local conventions, for
+example presenting dates and times using the locally preferred
+formats. Such localizations can be accomplished using appropriate tr()
+strings.
 
 \code
     void Clock::setTime(const QTime& t)
@@ -485,17 +481,22 @@ contrived example shows:
     }
 \endcode
 
+In the example, for the US we would leave the translation of "AMPM" as
+it is and thereby use the 12-hour clock branch; but in Europe we would
+translate it as something else (anything else, e.g. "EU") and this
+will make the code use the 24-hour clock branch.
+
 Localizing images is not recommended. Choose clear icons that are
 appropriate for all localities, rather than relying on local puns or
 stretched metaphors.
 
 \section1 System Support
 
-Some of the operating systems and window systems Qt runs on have a
-rather limited support of Unicode. The level of support available in
-the underlying system does somewhat influences the support Qt provides
-on that platform, but applications written with Qt need not generally
-be too concerned with the actual limitations.
+Some of the operating systems and windowing systems that Qt runs on
+only have limited support for Unicode. The level of support available
+in the underlying system has some influence on the support that Qt can
+provide on those platforms, although in general Qt applications need
+not be too concerned with platform-specific limitations.
 
 \section2 Unix/X11
 
@@ -506,7 +507,7 @@ be too concerned with the actual limitations.
     \link http://www.ietf.org/rfc/rfc2279.txt UTF-8 \endlink
     are under development
     in some Unix variants. All Qt file functions allow Unicode,
-    but convert all filenames to the local 8-bit encoding, as
+    but convert filenames to the local 8-bit encoding, as
     this is the Unix convention
     (see QFile::setEncodingFunction()
 	to explore alternative encodings).
@@ -533,7 +534,7 @@ be too concerned with the actual limitations.
 Many Unix distributions contain only partial support for some locales.
 For example, if you have a \c /usr/share/locale/ja_JP.EUC directory,
 this does not necessarily mean you can display Japanese text; you also
-need JIS encoded fonts (or Unicode fonts), and that \c
+need JIS encoded fonts (or Unicode fonts), and the \c
 /usr/share/locale/ja_JP.EUC directory needs to be complete. For best
 results, use complete locales from your system vendor.
 

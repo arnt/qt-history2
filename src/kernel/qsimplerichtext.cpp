@@ -77,6 +77,10 @@ void QSimpleRichTextData::adjustSize() {
 
     For large documents use QTextEdit or QTextBrowser. For very small
     items of rich text you can use a QLabel.
+
+    If you are using QSimpleRichText to print in high resolution you
+    should call setWidth(QPainter, int) so that the content will be
+    laid out properly on the page.
 */
 
 /*!
