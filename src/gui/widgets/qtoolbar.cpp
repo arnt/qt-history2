@@ -55,7 +55,7 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
 
 void QToolBarPrivate::init()
 {
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 
     QStyleOptionFrame opt = getStyleOption(q);
 
@@ -266,13 +266,13 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
     case Qt::Vertical:
 	box->setDirection(QBoxLayout::TopToBottom);
         box->setAlignment(Qt::AlignTop);
-	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+	setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum));
 	break;
 
     case Qt::Horizontal:
 	box->setDirection(QBoxLayout::LeftToRight);
         box->setAlignment(Qt::AlignLeft);
-	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 	break;
     }
 
