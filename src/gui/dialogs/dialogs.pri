@@ -28,8 +28,8 @@ mac {
 	HEADERS += dialogs/qprintdialog_mac.h
 }
 !mac:unix {
-#	SOURCES += dialogs/qprintdialog_unix.cpp
-#	HEADERS += dialogs/qprintdialog_unix.h
+	SOURCES += dialogs/qprintdialog_unix.cpp
+	HEADERS += dialogs/qprintdialog_unix.h
 }
 
 SOURCES += \
