@@ -448,6 +448,7 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
             d->timerDict.remove(t->id);
             d->timerVec.removeAt(i);
             delete t;
+            --i;
         }
     }
     return true;
