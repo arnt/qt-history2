@@ -13590,9 +13590,11 @@ QString QString::arg( double a, int fieldwidth, char fmt, int prec ) const
 bool QString::findArg( int& pos, int& len ) const
 {
     char lowest=0;
-    for (uint i=0; i<length(); i++) {
-	if ( at(i) == '%' && i+1<length() ) {
-	    char dig = at(i+1);
+    register const QChar *uc = d->unicode;
+    const uint l = length();
+    for (uint i = 0; i < l; i++) {
+	if ( uc[i] == '%' && i+1<l ) {
+	    QChar dig = uc[i+1];
 	    if ( dig >= '0' && dig <= '9' ) {
 		if ( !lowest || dig < lowest ) {
 		    lowest = dig;
@@ -13866,6 +13868,98 @@ int QString::find( QChar c, int index, bool cs ) const
     return (int)(uc - unicode());
 }
 
+/* an implementation of the Boyle-Moore search algorithm */
+
+/* initializes the skiptable to know haw far ahead we can skip on a wrong match 
+*/
+static void bm_init_skiptable( const QString &pattern, uint *skiptable, bool cs ) 
+{
+    int i = 0;
+    register uint *st = skiptable;
+    int l = pattern.length();
+    while ( i++ < 0x100/8 ) {
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+	*(st++) = l;
+    }
+    const QChar *uc = pattern.unicode();
+    if ( cs ) {
+	while( l-- ) {
+	    skiptable[ uc->cell() ] = l;
+	    uc++;
+	}
+    } else {
+	while( l-- ) {
+	    skiptable[ ::lower( *uc ).cell() ] = l;
+	    uc++;
+	}
+    }
+}
+
+static int bm_find( const QString &str, int index, const QString &pattern, uint *skiptable, bool cs )
+{
+    if ( pattern.isEmpty() )
+	return index > (int)str.length() ? -1 : index;
+
+    const QChar *uc = str.unicode();
+    const QChar *puc = pattern.unicode();
+    const uint l = str.length();
+    const uint pl = pattern.length() - 1;
+
+    uint pos = index + pl;
+    if ( cs ) {
+	while( pos < l ) {
+	    uint skip = skiptable[ uc[pos].cell() ];
+	    if ( !skip ) {
+		// possible match
+		while( skip <= pl ) {
+		    if ( uc[pos-skip] != puc[pl-skip] )
+			break;
+		    skip++;
+		}
+		if ( skip > pl ) { // we have a match
+		    return pos - skip + 1;
+		}
+		// in case we don't have a match we are a bit inefficient as we only skip by one
+		// when we have the non matching char in the string.
+		if ( skiptable[ uc[pos-skip].cell() ] == pl+1 )
+		    skip = pl + 1 - skip;
+		else
+		    skip = 1;
+	    } 
+	    pos += skip;
+	}
+    } else {
+	while( pos < l ) {
+	    uint skip = skiptable[ ::lower( uc[pos] ).cell() ];
+	    if ( !skip ) {
+		// possible match
+		while( skip <= pl ) {
+		    if ( ::lower( uc[pos-skip] ) != ::lower( puc[pl-skip] ) )
+			break;
+		    skip++;
+		}
+		if ( skip > pl ) // we have a match
+		    return pos - skip + 1;
+		// in case we don't have a match we are a bit inefficient as we only skip by one
+		// when we have the non matching char in the string.
+		if ( skiptable[ ::lower( uc[pos-skip] ).cell() ] == pl+1 )
+		    skip = pl + 1 - skip;
+		else
+		    skip = 1;
+	    }
+	    pos += skip;
+	}
+    }
+    // not found
+    return -1;
+}
+
 /*! \overload
 
   Finds the first occurrence of the string \a str, starting at position
@@ -13881,6 +13975,23 @@ int QString::find( QChar c, int index, bool cs ) const
 
 int QString::find( const QString& str, int index, bool cs ) const
 {
+    int l = length();
+    int sl = str.length();
+    if ( index < 0 )
+	index += l;
+    if ( sl + index > l )
+	return -1;
+    if ( !sl )
+	return index;
+
+    if ( l > 200 || sl > 5 ) {
+	// we use the Boyer-Moore algorithm, in this case the overhead for the 
+	// hash table should usually pay off.
+	uint skiptable[0x100];
+	bm_init_skiptable( str, skiptable, cs );
+	return bm_find( *this, index, str, skiptable, cs );
+    }
+
     /*
       We use some simple hashing for efficiency's sake. Instead of
       comparing strings, we compare the hash value of str with that
@@ -13890,8 +14001,6 @@ int QString::find( const QString& str, int index, bool cs ) const
       The hash value of a string is the sum of the unicode values of its
       QChars.
     */
-    if ( index < 0 )
-	index += length();
     int lstr = str.length();
     int lthis = length() - index;
     if ( (uint)lthis > length() )
@@ -15120,20 +15229,17 @@ QString &QString::replace( uint index, uint len, const QString &s )
 
 QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 {
+    real_detach();
     if ( len == slen && index + len <= length() ) {
 	// Optimized common case: replace without size change
-	real_detach();
 	memcpy( d->unicode+index, s, len * sizeof(QChar) );
+    } else if ( s >= d->unicode && (uint)(s - d->unicode) < d->maxl ) {
+	// Part of me - take a copy.
+	QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
+	memcpy(tmp,s,slen*sizeof(QChar));
+	replace( index, len, tmp, slen );
+	QT_DELETE_QCHAR_VEC( tmp );
     } else {
-	if ( s >= d->unicode && (uint)(s - d->unicode) < d->maxl ) {
-	    // Part of me - take a copy.
-	    QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
-	    memcpy(tmp,s,slen*sizeof(QChar));
-	    replace(index,len,tmp,slen);
-	    QT_DELETE_QCHAR_VEC( tmp );
-	    return *this;
-	}
-
 	remove( index, len );
 	insert( index, s, slen );
     }
@@ -15156,7 +15262,7 @@ QString &QString::replace( QChar c, const QString & after )
 {
     int i = 0;
     while ( i < (int) length() ) {
-	if ( constref(i) == c ) {
+	if ( d->unicode[i] == c ) {
 	    replace( i, 1, after );
 	    i += after.length();
 	} else {
@@ -15187,15 +15293,90 @@ QString &QString::replace( QChar c, const QString & after )
 */
 QString &QString::replace( const QString & before, const QString & after )
 {
+    if ( before == after || isNull() )
+	return *this;
+    
+    real_detach();
+    
     int index = 0;
-    while ( (index = find(before, index)) != -1 ) {
-	replace( index, before.length(), after );
-	index += after.length();
+    uint skiptable[256];
+    bm_init_skiptable( before, skiptable, TRUE );
+    const int bl = before.length();
+    const int al = after.length();
 
-	// avoid infinite loop
-	if ( before.length() == 0 )
-	    index++;
-    }
+    if ( bl == al ) {
+	if ( bl ) {
+	    const QChar *auc = after.unicode();
+	    while( (index = bm_find(*this, index, before, skiptable, TRUE) ) != -1 ) {
+		memcpy( d->unicode+index, auc, al*sizeof(QChar) );
+		index += bl;
+	    }
+	}
+    } else if ( al < bl ) {
+	const QChar *auc = after.unicode();
+	uint to = 0;
+	uint movestart = 0;
+	uint num = 0;
+	while( (index = bm_find(*this, index, before, skiptable, TRUE) ) != -1 ) {
+	    if ( num ) {
+		int msize = index - movestart;
+		if ( msize > 0 ) {
+		    memmove( d->unicode + to, d->unicode + movestart, msize*sizeof(QChar) );
+		    to += msize;
+		}
+	    } else {
+		to = index;
+	    }
+	    if ( al ) {
+		memcpy( d->unicode+to, auc, al*sizeof(QChar) );
+		to += al;
+	    }
+	    index += bl;
+	    movestart = index;
+	    num++;
+	}
+	if ( num ) {
+	    int msize = d->len - movestart;
+	    if ( msize > 0 )
+		memmove( d->unicode + to, d->unicode + movestart, msize*sizeof(QChar) );
+	    setLength( d->len - num*(bl-al) );
+	}
+    } else {
+	// the most complex case. We don't want to loose performance by doing repeated 
+	// copies and reallocs of the string.
+	while( index != -1 ) {
+	    uint indices[4096];
+	    uint pos = 0;
+	    while( pos < 4095 ) {
+		index = bm_find(*this, index, before, skiptable, TRUE);
+		if ( index == -1 )
+		    break;
+		indices[pos++] = index;
+		index += bl;
+		// avoid infinite loop
+		if ( !bl )
+		    index++;
+	    }
+	    if ( !pos )
+		break;
+	
+	    // we have a table of replacement positions
+	    uint newlen = d->len + pos*(al-bl);
+	    int moveend = d->len;
+	    if ( newlen > d->len )
+		setLength( newlen );
+	
+	    while( pos ) {
+		pos--;
+		int movestart = indices[pos] + bl;
+		int insertstart = indices[pos] + pos*(al-bl);
+		int moveto = insertstart + al;
+		memmove( d->unicode + moveto, d->unicode + movestart, (moveend - movestart)*sizeof(QChar) );
+		memcpy( d->unicode + insertstart, after.unicode(), al*sizeof(QChar) );
+		moveend = movestart;
+	    }
+	}
+    } 
     return *this;
 }
 
@@ -15225,6 +15406,9 @@ QString &QString::replace( const QString & before, const QString & after )
 
 QString &QString::replace( const QRegExp &rx, const QString &str )
 {
+    if ( isNull() )
+	return *this;
+    
     QRegExp rx2 = rx;
     QString str2 = str;
     int index = 0;
