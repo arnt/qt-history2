@@ -1428,8 +1428,6 @@ int QTextDocument::widthUsed() const
     QTextParag *p = fParag;
     int w = 0;
     while ( p ) {
-	w = QMAX( w, p->widthUsed() );
-#if 0
 	int a = p->alignment();
 	p->setAlignment( Qt::AlignLeft );
 	p->invalidate( 0 );
@@ -1437,7 +1435,6 @@ int QTextDocument::widthUsed() const
 	w = QMAX( w, p->rect().width() );
 	p->setAlignment( a );
 	p->invalidate( 0 );
-#endif	
 	p = p->next();
     }
     return w;
@@ -3923,17 +3920,6 @@ void QTextParag::format( int start, bool doMove )
     changed = TRUE;
     invalid = -1;
     string()->setTextChanged( FALSE );
-}
-
-int QTextParag::widthUsed()
-{
-    if ( invalid != -1 ) format();
-    
-    QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
-    int usedw = 0;
-    for ( ; it != lineStarts.end(); ++it )
-	usedw = QMAX( usedw, (*it)->w );
-    return usedw;
 }
 
 
