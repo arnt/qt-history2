@@ -44,6 +44,14 @@
 
 #include <png.h>
 
+
+#ifdef Q_OS_TEMP
+#define CALLBACK_CALL_TYPE	__cdecl
+#else
+#define CALLBACK_CALL_TYPE
+#endif
+
+
 /*
   All PNG files load to the minimal QImage equivalent.
 
@@ -56,7 +64,7 @@ extern "C" {
 #endif
 
 static
-void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
+void CALLBACK_CALL_TYPE iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 {
     QImageIO* iio = (QImageIO*)png_get_io_ptr(png_ptr);
     QIODevice* in = iio->ioDevice();
@@ -73,7 +81,7 @@ void iod_read_fn(png_structp png_ptr, png_bytep data, png_size_t length)
 
 
 static
-void qpiw_write_fn( png_structp png_ptr, png_bytep data, png_size_t length )
+void CALLBACK_CALL_TYPE qpiw_write_fn( png_structp png_ptr, png_bytep data, png_size_t length )
 {
     QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr( png_ptr );
     QIODevice* out = qpiw->device();
@@ -87,7 +95,7 @@ void qpiw_write_fn( png_structp png_ptr, png_bytep data, png_size_t length )
 
 
 static
-void qpiw_flush_fn( png_structp png_ptr )
+void CALLBACK_CALL_TYPE qpiw_flush_fn( png_structp png_ptr )
 {
     QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr( png_ptr );
     QIODevice* out = qpiw->device();
@@ -221,7 +229,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr, float scr
 #if defined(Q_C_CALLBACKS)
 extern "C" {
 #endif
-static void qt_png_warning(png_structp /*png_ptr*/, png_const_charp message)
+static void CALLBACK_CALL_TYPE qt_png_warning(png_structp /*png_ptr*/, png_const_charp message)
 {
     qWarning("libpng warning: %s", message);
 }
@@ -881,14 +889,14 @@ extern "C" {
 #endif
 
 static void
-info_callback(png_structp png_ptr, png_infop info)
+CALLBACK_CALL_TYPE info_callback(png_structp png_ptr, png_infop info)
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
     that->info(png_ptr,info);
 }
 
 static void
-row_callback(png_structp png_ptr, png_bytep new_row,
+CALLBACK_CALL_TYPE row_callback(png_structp png_ptr, png_bytep new_row,
    png_uint_32 row_num, int pass)
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
@@ -896,7 +904,7 @@ row_callback(png_structp png_ptr, png_bytep new_row,
 }
 
 static void
-end_callback(png_structp png_ptr, png_infop info)
+CALLBACK_CALL_TYPE end_callback(png_structp png_ptr, png_infop info)
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
     that->end(png_ptr,info);
@@ -904,7 +912,7 @@ end_callback(png_structp png_ptr, png_infop info)
 
 #ifdef PNG_USER_CHUNK_SUPPORTED
 static int
-user_chunk_callback(png_structp png_ptr, png_infop info,
+CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr, png_infop info,
 	    png_bytep data, png_uint_32 length)
 {
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
