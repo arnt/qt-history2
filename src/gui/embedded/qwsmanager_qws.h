@@ -40,17 +40,17 @@ public:
     static QDecoration *newDefaultDecoration();
 
     QWidget *widget();
-    void maximize();
-
     static QWidget *grabbedMouse();
+    void maximize();
+    void startMove();
+    void startResize();
 
     QRegion region();
     QRegion &cachedRegion()
     { return cached_region.region; }
 
 protected slots:
-    void menuTriggered(QAction *item);
-    void styleMenuTriggered(QAction *item);
+    void menuTriggered(QAction *action);
 
 protected:
     void handleMove(QPoint g);
@@ -64,14 +64,10 @@ protected:
     bool repaintRegion(int region, QDecoration::DecorationState state);
 
     void menu(const QPoint &);
-    void close();
-    void minimize();
-    void toggleMaximize();
-
 
 private:
     int previousRegionType;
-    bool previousRegionRepainted; // Handled Hover or Pressed?
+    bool previousRegionRepainted; // Hover/Press handled
     struct RegionCaching {
         int regionType;
         QRegion region;

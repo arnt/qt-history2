@@ -607,6 +607,7 @@ private:
     QRegion dirtyChildren;
     bool isSettingGeometry;
     friend class QWSManager;
+    friend class QDecoration;
     friend class QWSPaintEngine;
 #endif
     static int instanceCounter;  // Current number of widget instances

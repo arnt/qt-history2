@@ -16,8 +16,10 @@
 
 #include "qregion.h"
 #include "qwidget.h"
+#include "qaction.h"
 
 class QPopupMenu;
+class QMenu;
 
 // Do not use other decoration styles at the moment. API in rapid change.
 #define QT_NO_QWS_DECORATION_BEOS
@@ -25,6 +27,14 @@ class QPopupMenu;
 #define QT_NO_QWS_DECORATION_KDE
 #define QT_NO_QWS_DECORATION_KDE2
 #define QT_NO_QWS_DECORATION_WINDOWS
+
+class QDecorationAction : public QAction
+{
+public:
+    QDecorationAction(const QString &text, QObject* parent, int region)
+        : QAction(text, parent), reg(region) {}
+    int reg;
+};
 
 /*
  Implements decoration styles
@@ -52,7 +62,8 @@ public:
         BottomLeft  = 0x0000000020, Bottom   = 0x0000000040, BottomRight = 0x0000000080,
         Borders     = 0x00000000ff,
         Menu        = 0x0000000100, Title    = 0x0000000200, Help        = 0x0000000400,
-        Minimize    = 0x0000000800, Maximize = 0x0000001000, Close       = 0x0000002000
+        Minimize    = 0x0000000800, Maximize = 0x0000001000, Close       = 0x0000002000,
+        Move        = 0x0000004000, Resize   = 0x0000008000
     };
 
     enum DecorationState { Normal = 0x04, Disabled = 0x08, Hover = 0x01, Pressed = 0x02 };
@@ -61,12 +72,17 @@ public:
     QRegion region(const QWidget *w, int decorationRegion = All )
     { return region(w, w->rect(), decorationRegion); }
     virtual int regionAt(const QWidget *w, const QPoint &point);
-    virtual void close(QWidget *w);
-    virtual void minimize(QWidget *w);
-    virtual void maximize(QWidget *w);
+
+    virtual void regionClicked(QWidget *widget, int region);
+    virtual void buildSysMenu(QWidget *widget, QMenu *menu);
+    void menuTriggered(QWidget *widget, QAction *action);
+
+    static void startMove(QWidget *widget);
+    static void startResize(QWidget *widget);
 
     virtual bool paint(QPainter *p, const QWidget *w, int decorationRegion = All,
                        DecorationState state = Normal) = 0;
+
 };
 
 #endif // QDECORATION_QWS_H

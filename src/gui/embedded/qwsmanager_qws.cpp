@@ -163,6 +163,7 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
          d->activeRegion != QDecoration::Menu) {
         d->managed->raise();
     }
+
     if (e->button() == Qt::RightButton) {
         menu(e->globalPos());
     }
@@ -185,24 +186,8 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
         int activatedItem = d->activeRegion;
         d->activeRegion = QDecoration::None;
         d->active = 0;
-        switch (activatedItem) {
-            case QDecoration::Close:
-                if (itm == QDecoration::Close) {
-                    close();
-                    return;
-                }
-                break;
-            case QDecoration::Minimize:
-                if (itm == QDecoration::Minimize)
-                    minimize();
-                break;
-            case QDecoration::Maximize:
-                if (itm == QDecoration::Maximize)
-                    toggleMaximize();
-                break;
-            default:
-                break;
-        }
+        if (activatedItem == itm)
+            QApplication::qwsDecoration().regionClicked(d->managed, itm);
     } else if (d->activeRegion == QDecoration::None) {
         d->active = 0;
     }
@@ -398,111 +383,57 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
 void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
-    if (!d->popup) {
-        // Basic window operation menu
-        d->popup = new QMenu();
-        d->menuActions[QWSManagerPrivate::NormalizeAction] = new QAction(qApp->translate("QDecoration",  "&Restore"));
-        d->menuActions[QWSManagerPrivate::TitleAction] = new QAction(qApp->translate("QDecoration",  "&Move"));
-        d->menuActions[QWSManagerPrivate::BottomRightAction] = new QAction(qApp->translate("QDecoration",  "&Size"));
-        d->menuActions[QWSManagerPrivate::MinimizeAction] = new QAction(qApp->translate("QDecoration",  "Mi&nimize"));
-        d->menuActions[QWSManagerPrivate::MaximizeAction] = new QAction(qApp->translate("QDecoration",  "Ma&ximize"));
-        d->menuActions[QWSManagerPrivate::CloseAction] = new QAction(qApp->translate("QDecoration",  "Close"));
+    if (d->popup)
+        delete d->popup;
 
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::NormalizeAction]);
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::TitleAction]);
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::BottomRightAction]);
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::MinimizeAction]);
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::MaximizeAction]);
-        d->popup->addSeparator();
-        d->popup->addAction(d->menuActions[QWSManagerPrivate::CloseAction]);
-        connect(d->popup, SIGNAL(triggered(QAction*)), SLOT(menuTriggered(QAction*)));
+    // Basic window operation menu
+    d->popup = new QMenu();
+    QApplication::qwsDecoration().buildSysMenu(d->managed, d->popup);
+    connect(d->popup, SIGNAL(triggered(QAction*)), SLOT(menuTriggered(QAction*)));
 
-        // Add Style menu
-        QMenu *styleMenu = new QMenu("Style");
-/*
-        for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
-            styleMenu->addAction(qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()));
-        connect(styleMenu, SIGNAL(triggered(QAction*)), this, SLOT(styleMenuTriggered(QAction*)));
-        d->popup->addSeparator();
-        d->popup->addAction(styleMenu->menuAction());
-*/
-    }
-
-    d->menuActions[QWSManagerPrivate::MaximizeAction]->setEnabled(!d->managed->isMaximized());
-    d->menuActions[QWSManagerPrivate::NormalizeAction]->setEnabled(d->managed->isMaximized());
     d->popup->popup(pos);
 #endif
 }
 
-#include <qcdestyle.h>
-#include <qcommonstyle.h>
-#include <qcompactstyle.h>
-#include <qmotifplusstyle.h>
-#include <qmotifstyle.h>
-#include <qplatinumstyle.h>
-#include <qsgistyle.h>
-#include <qwindowsstyle.h>
-
-void QWSManager::styleMenuTriggered(QAction *item)
+void QWSManager::menuTriggered(QAction *action)
 {
-/*
-    for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++) {
-        if (item->text() == qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()))
-            qApp->qwsSetDecoration(WMStyleList[i].new_WMDecorations());
-    }
-*/
-    // Force a repaint of the WM regions
-    const QSize s = d->managed->size();
-    d->managed->resize(s.width() + 1, s.height());
-    d->managed->resize(s.width(), s.height());
+    QApplication::qwsDecoration().menuTriggered(d->managed, action);
+    d->popup->deleteLater();
+    d->popup = 0;
 }
 
-void QWSManager::menuTriggered(QAction *item)
+void QWSManager::startMove()
 {
-    if (item == d->menuActions[QWSManagerPrivate::CloseAction]) {
-        close();
-    } else if (item == d->menuActions[QWSManagerPrivate::MinimizeAction]) {
-        minimize();
-    } else if (item == d->menuActions[QWSManagerPrivate::MaximizeAction]
-               || item == d->menuActions[QWSManagerPrivate::NormalizeAction]) {
-        toggleMaximize();
-    } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
-        d->mousePos = QCursor::pos();
-        d->activeRegion = QDecoration::Title;
-        d->active = d->managed;
-        d->managed->grabMouse();
-    } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
-        d->activeRegion = QDecoration::BottomRight;
-        d->active = d->managed;
-        d->managed->grabMouse();
-    } else {
-        qWarning("QWSManager: Unknown menu option");
-    }
+    d->mousePos = QCursor::pos();
+    d->activeRegion = QDecoration::Title;
+    d->active = d->managed;
+    d->managed->grabMouse();
 }
 
-void QWSManager::close()
+void QWSManager::startResize()
 {
-    d->active = 0;
-    QApplication::qwsDecoration().close(d->managed);
-}
-
-void QWSManager::minimize()
-{
-    QApplication::qwsDecoration().minimize(d->managed);
+    d->activeRegion = QDecoration::BottomRight;
+    d->active = d->managed;
+    d->managed->grabMouse();
 }
 
 void QWSManager::maximize()
 {
-    QApplication::qwsDecoration().maximize(d->managed);
-}
-
-void QWSManager::toggleMaximize()
-{
-    if (!d->managed->isMaximized()) {
-        d->managed->showMaximized();
+    // find out how much space the decoration needs
+    extern QRect qt_maxWindowRect;
+    QRect desk = qt_maxWindowRect;
+    QRect dummy(0, 0, 1, 1);
+    QRect nr;
+    QRegion r = QApplication::qwsDecoration().region(d->managed, dummy);
+    if (r.isEmpty()) {
+        nr = desk;
     } else {
-        d->managed->showNormal();
+        QRect rect = r.boundingRect();
+        nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
+                desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
+                desk.height() - (rect.height()==1 ? 0 : rect.height()));
     }
+    d->managed->setGeometry(nr);
 }
 
 bool QWSManager::newCachedRegion(const QPoint &pos)

@@ -19,6 +19,9 @@
 #include "qpainter.h"
 #include "qregion.h"
 
+#include "qmenu.h"
+#include "private/qwidget_p.h"
+#include "qwsmanager_qws.h"
 
 
 /*!
@@ -85,109 +88,6 @@
 */
 
 /*!
-    Called when the user clicks in the \c Close region.
-
-    \a widget is the widget to be closed.
-
-    The default behavior is to close the widget.
-*/
-void QDecoration::close(QWidget *widget)
-{
-    widget->close();
-}
-
-
-#include <qdialog.h>
-
-/*
-
-#include <qbitmap.h>
-
-class MinimisedWindow : public QWidget
-{
-public:
-    MinimisedWindow(QWidget *restore) :
-        QWidget((QWidget *)restore->parent(), restore->windowCaption(), Qt::WStyle_Customize | Qt::WStyle_NoBorder),
-        w(restore)
-    {
-        w->hide();
-        QPixmap p("../pics/tux.png");
-        setBackgroundPixmap(p);
-        setFixedSize(p.size());
-        setMask(p.createHeuristicMask());
-        show();
-    }
-
-    void mouseDoubleClickEvent(QMouseEvent *) { w->show(); delete this; }
-    void mousePressEvent(QMouseEvent *e) { clickPos = e->pos(); }
-    void mouseMoveEvent(QMouseEvent *e) { move(e->globalPos() - clickPos); }
-
-    QWidget *w;
-    QPoint clickPos;
-};
-
-*/
-
-
-/*!
-    Called when the user clicks in the \c Minimize region.
-
-    \a widget is the widget to be minimized.
-
-    The default behavior is to ignore this action.
-*/
-void QDecoration::minimize(QWidget * /* widget */)
-{
-//      new MinimisedWindow(w);
-
-    //    qDebug("No minimize functionality provided");
-}
-
-
-/*!
-    Called when the user clicks in the \c Maximize region.
-
-    \a widget is the widget to be maximized.
-
-    The default behavior is to resize the widget to be full-screen.
-    This method can be overridden e.g. to allow room for launch
-    panels.
-*/
-void QDecoration::maximize(QWidget *widget)
-{
-    QRect nr;
-
-    // find out how much space the decoration needs
-    extern QRect qt_maxWindowRect;
-    QRect desk = qt_maxWindowRect;
-
-/*
-#ifdef QPE_WM_LOOK_AND_FEEL
-    if (wmStyle == QtEmbedded_WMStyle) {
-        QRect dummy(0, 0, desk.width(), 1);
-        QRegion r = region(widget, dummy, Title);
-        QRect rect = r.boundingRect();
-        nr = QRect(desk.x(), desk.y()-rect.y(),
-            desk.width(), desk.height() - rect.height());
-    } else
-#endif
-*/
-    {
-        QRect dummy(0, 0, 1, 1);
-        QRegion r = region(widget, dummy);
-        if (r.isEmpty()) {
-            nr = desk;
-        } else {
-            QRect rect = r.boundingRect();
-            nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-                    desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
-                    desk.height() - (rect.height()==1 ? 0 : rect.height()));
-        }
-    }
-    widget->setGeometry(nr);
-}
-
-/*!
     \fn void QDecoration::paint(QPainter *painter, const QWidget *widget)
 
     Override to paint the border and title decoration around \a widget
@@ -243,6 +143,79 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
         ++i;
     }
     return None;
+}
+
+/*!
+    Builds the system \a menu for the TLW \a widget.
+*/
+void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
+{
+    QDecorationAction *act = new QDecorationAction("Restore", menu, Maximize);
+    act->setEnabled(widget->testWState(Qt::WState_Maximized));
+    menu->addAction(act);
+    menu->addAction(new QDecorationAction("Move", menu, Move));
+    menu->addAction(new QDecorationAction("Size", menu, Resize));
+    act = new QDecorationAction("Minimize", menu, Minimize);
+    menu->addAction(act);
+    act = new QDecorationAction("Maximize", menu, Maximize);
+    act->setDisabled(widget->testWState(Qt::WState_Maximized));
+    menu->addAction(act);
+    menu->addSeparator();
+    menu->addAction(new QDecorationAction("Close", menu, Close));
+}
+
+void QDecoration::menuTriggered(QWidget *widget, QAction *action)
+{
+    QDecorationAction *decAction = static_cast<QDecorationAction *>(action);
+    regionClicked(widget, decAction->reg);
+}
+
+/*!
+    Performs the action for when \a region is clicked.
+    Also used for items clicked in the system menu.
+*/
+void QDecoration::regionClicked(QWidget *widget, int reg)
+{
+    switch(reg)
+    {
+        case Move:
+            startMove(widget);
+            break;
+        case Resize:
+            startResize(widget);
+            break;
+        case Close: {
+            widget->close();
+            break;
+        }
+        case Maximize: {
+            if (widget->testWState(Qt::WState_Maximized))
+                widget->showNormal();
+            else
+                widget->showMaximized();
+            break;
+        }
+    }
+}
+
+/*!
+    Initiates move mode for the TLW handled by QWSManager.
+*/
+void QDecoration::startMove(QWidget *widget)
+{
+    QWSManager *manager = widget->d_func()->topData()->qwsManager;
+    if (manager)
+        manager->startMove();
+}
+
+/*!
+    Initiates resize mode for the TLW handled by QWSManager.
+*/
+void QDecoration::startResize(QWidget *widget)
+{
+    QWSManager *manager = widget->d_func()->topData()->qwsManager;
+    if (manager)
+        manager->startResize();
 }
 
 #endif
