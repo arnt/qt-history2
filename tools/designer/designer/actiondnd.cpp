@@ -734,7 +734,6 @@ QDesignerPopupMenu::QDesignerPopupMenu( QWidget *w )
 
 void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 {
-    mousePressed = TRUE;
     if ( e->button() == MidButton )
 	return;
 
@@ -764,6 +763,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	return;
     }
 
+    mousePressed = TRUE;
     dragStartPos = e->pos();
     QPopupMenu::mousePressEvent( e );
 }
