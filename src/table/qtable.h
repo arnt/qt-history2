@@ -227,6 +227,7 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool sorting READ sorting WRITE setSorting )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
     Q_PROPERTY( FocusStyle focusStyle READ focusStyle WRITE setFocusStyle )
+    Q_PROPERTY( int numSelections READ numSelections )
 
     friend class QTableHeader;
     friend class QComboTableItem;
