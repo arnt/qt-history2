@@ -42,6 +42,8 @@
 #include "qstring.h"
 #include "qshared.h"
 #include "qmap.h"
+#include "qvaluelist.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -70,13 +72,7 @@ class QDateTime;
 class QBitArray;
 class QKeySequence;
 class QPen;
-// Some headers rejected after QVariant declaration for GCC 2.7.* compatibility
 class QVariant;
-#ifndef QT_NO_TEMPLATE_VARIANT
-template <class T> class QValueList;
-template <class T> class QValueListConstIterator;
-template <class T> class QValueListNode;
-#endif
 
 class Q_EXPORT QVariant
 {
@@ -224,7 +220,7 @@ public:
 #endif
     QSizePolicy toSizePolicy() const;
 
-#ifndef QT_NO_TEMPLATE_VARIANT
+#if 0 //ndef QT_NO_TEMPLATE_VARIANT
     QValueListConstIterator<QString> stringListBegin() const;
     QValueListConstIterator<QString> stringListEnd() const;
     QValueListConstIterator<QVariant> listBegin() const;
@@ -316,12 +312,6 @@ public:
     void* rawAccess( void* ptr = 0, Type typ = Invalid, bool deepCopy = FALSE );
 };
 
-// down here for GCC 2.7.* compatibility
-#ifndef QT_H
-#include "qvaluelist.h"
-#include "qstringlist.h"
-#endif // QT_H
-
 inline QVariant::Type QVariant::type() const
 {
     return d->typ;
@@ -332,7 +322,7 @@ inline bool QVariant::isValid() const
     return (d->typ != Invalid);
 }
 
-#ifndef QT_NO_TEMPLATE_VARIANT
+#if 0 //ndef QT_NO_TEMPLATE_VARIANT
 inline QValueListConstIterator<QString> QVariant::stringListBegin() const
 {
     if ( d->typ != StringList )
