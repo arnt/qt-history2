@@ -294,6 +294,10 @@ public:
     {
 	return key;
     }
+    bool hasStockEvents( const QString &key ) const
+    {
+	return TRUE;
+    }
 };
 
 QAXFACTORY_EXPORT( ActiveQtFactory, "{b934af55-89ec-4b65-8a7d-80a4892fc86a}", "{83cc66df-c867-4c23-b641-9e06d02f3b33}" )
