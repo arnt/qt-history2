@@ -39,7 +39,7 @@ curdir=`/bin/pwd`
 echo >&2
 echo "Creating a new Qt distribution:" >&2
 
-if [ "${disttype}" = "free" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
+if [ "${disttype}" = "free" -o "${disttype}" = "beta" -o "${disttype}" = "commercial" -o "${disttype}" = "trial" ]; then
   goodparam1=yes
   echo "  Distribution type... " ${disttype} >&2
 fi
@@ -75,19 +75,17 @@ if [ "$local" = "yes" ]; then
 else
   echo "Exporting the entire Qt archive..." >&2
   cvs -Q export -Dnow qt
-  echo "Doing the sed thing with qcombo..." >&2
-  cd qt/src/widgets
-  sed '/QEditableComboBox:/,$ d' < qcombo.cpp > a && mv a qcombo.cpp
-  sed '/QEditableComboBox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
 fi
 
 VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
-echo "Removing beta code..." >&2
-cd ${DISTDIR}/qt/src
-for d in `make showdirs`; do cd $d ; rm -fv `make showbeta`; cd .. ; done
+if [ "$disttype" != "beta" ]; then
+  echo "Removing beta code..." >&2
+  cd ${DISTDIR}/qt/src
+  for d in `make showdirs`; do cd $d ; rm -fv `make showbeta`; cd .. ; done
+fi
 
 QTDIR=${DISTDIR}/qt
 export QTDIR
@@ -122,7 +120,7 @@ cd ${DISTDIR}/qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
-if [ "${disttype}" = "free" ]; then
+if [ "${disttype}" = "free" -o "${disttype}" = "beta" ]; then
   echo "Adding non-commercial banner in .h and .cpp files.." >&2
   cd ${DISTDIR}/qt/src
   ${curdir}/fixcopyright ${VERSION} tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
@@ -172,7 +170,11 @@ if [ "${platform}" = "x11" ]; then
   rm makefile.win
   echo "Creating arch directory" >&2
   cd ${DISTDIR}/qt/src
-  ${curdir}/makearch.sh
+  if [ "$disttype" = "beta" ]; then
+    ${curdir}/makearch.sh -b
+  else
+    ${curdir}/makearch.sh
+  fi
   cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
   rmdir ${DISTDIR}/qt/lib ${DISTDIR}/qt/bin
@@ -198,8 +200,13 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
-  mv qt qt-${VERSION}
-  tar cf qt-${VERSION}.tar qt-${VERSION}
+  if [ "$disttype" = "beta" ]; then
+    mv qt qt-${VERSION}-beta
+    tar cf qt-${VERSION}-betaX.tar qt-${VERSION}-beta
+  else
+    mv qt qt-${VERSION}
+    tar cf qt-${VERSION}.tar qt-${VERSION}
+  fi
   gzip -9 qt-${VERSION}.tar
 fi
 

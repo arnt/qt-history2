@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Creates a new Qt source distribution for X11
+#
+
+cd ${QTDIR}/util/scripts
+./mkdist.generic $* beta x11 /tmp/qtdist
