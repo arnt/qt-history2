@@ -815,23 +815,16 @@ QString QTabWidget::label( int index ) const
 }
 
 
-/*!
-  Returns the current alignment of the tabs in the tab bar.
-  
-  \sa setTabAlignment()
+/*! \property QTabWidget::tabAlignment
+    \brief the alignment of the tabs in the tab bar
+    
+  Possible values are Qt::AlignLeft, Qt::AlignHCenter, Qt::AlignRight.
 */
 int QTabWidget::tabAlignment() const
 {
     return d->alignment;
 }
 
-/*!
-  Set the alignment of the tabs in the tab bar.
-  
-  Possible values are Qt::AlignLeft, Qt::AlignHCenter, Qt::AlignRight.
-  
-  \sa tabAlignment()
-*/
 void QTabWidget::setTabAlignment( int a )
 {
     d->alignment = a;

@@ -60,6 +60,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( TabShape tabShape READ tabShape WRITE setTabShape )
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
+    Q_PROPERTY( Alignment tabAlignment READ tabAlignment WRITE setTabAlignment )
 
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
