@@ -4493,7 +4493,7 @@ void QWidget::customEvent( QCustomEvent * )
 
   \warning This function is not portable.
 
-  QApplication::macEventFilter()
+  \sa QApplication::macEventFilter()
 */
 
 bool QWidget::macEvent( MSG * )
@@ -4513,7 +4513,7 @@ bool QWidget::macEvent( MSG * )
 
   \warning This function is not portable.
 
-  QApplication::winEventFilter()
+  \sa QApplication::winEventFilter()
 */
 
 bool QWidget::winEvent( MSG * )
@@ -4533,7 +4533,7 @@ bool QWidget::winEvent( MSG * )
 
   \warning This function is not portable.
 
-  QApplication::x11EventFilter()
+  \sa QApplication::x11EventFilter()
 */
 
 bool QWidget::x11Event( XEvent * )
@@ -4553,7 +4553,7 @@ bool QWidget::x11Event( XEvent * )
 
   \warning This function is not portable.
 
-  QApplication::qwsEventFilter()
+  \sa QApplication::qwsEventFilter()
 */
 
 bool QWidget::qwsEvent( QWSEvent * )
