@@ -41,8 +41,7 @@ public:
     uint checkable : 1;
     uint checked : 1;
     uint separator : 1;
-    // used for compat functionality in QPopupMenu and QMenuBar
-    int id;
+    int id;  //used for compat functionality
 
     void sendDataChanged();
 };

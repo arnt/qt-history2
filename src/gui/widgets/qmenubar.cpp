@@ -534,7 +534,7 @@ void QMenuBar::actionEvent(QActionEvent *e)
             d->mac_menubar->syncAction(e->action());
     }
 #else
-    (void) e;
+    Q_UNUSED(e);
 #endif
     if(isVisible())
         update();
@@ -780,20 +780,12 @@ int QMenuBar::frameWidth() const
     return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this);
 }
 
-static int get_id()
-{
-    static int sid = -1;
-    return --sid;
-}
-
 int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                         const QKeySequence *accel, const QMenu *popup, int id, int index)
 {
-    if(id == -1)
-        id = get_id();
     QAction *act = new QAction;
-    act->setId(id);
-
+    if(id != -1)
+        act->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -808,23 +800,19 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return id;
+    return act->id();
 }
-
 
 int QMenuBar::insertSeparator(int index)
 {
-    int id = get_id();
     QAction *act = new QAction;
     act->setSeparator(true);
-    act->setId(id);
     if(index == -1)
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return id;
+    return act->id();
 }
-
 
 QAction *QMenuBar::findActionForId(int id) const
 {

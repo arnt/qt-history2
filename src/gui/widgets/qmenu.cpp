@@ -1324,23 +1324,13 @@ void QMenu::internalDelayedPopup()
     d->activeMenu->popup(pos);
 }
 
-
 #ifdef QT_COMPAT
-static int get_id()
-{
-    static int sid = -1;
-    return --sid;
-}
-
-
 int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *accel, const QMenu *popup, int id, int index)
 {
-    if(id == -1)
-        id = get_id();
     QAction *act = new QAction;
-    act->setId(id);
-
+    if(id != -1)
+        act->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1355,23 +1345,19 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return id;
+    return act->id();
 }
-
 
 int QMenu::insertSeparator(int index)
 {
-    int id = get_id();
     QAction *act = new QAction;
     act->setSeparator(true);
-    act->setId(id);
     if(index == -1)
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return id;
+    return act->id();
 }
-
 
 QAction *QMenu::findActionForId(int id) const
 {
