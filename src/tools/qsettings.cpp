@@ -1266,11 +1266,13 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
     	realkey = theKey;
 
     QSettingsGroup grp = d->readGroup();
-    QString retval = grp[realkey];
-    if ( retval.isNull() )
-	retval = def;
-    else if ( ok ) // everything is ok
-	*ok = TRUE;
+    QSettingsGroup::const_iterator it = grp.find( realkey ), end = grp.end();
+    QString retval = def;
+    if ( it != end ) {
+	// found the value we needed
+	retval = *it;
+	if ( ok ) *ok = TRUE;
+    }
     return retval;
 }
 
@@ -1972,7 +1974,7 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     insertSearchPath( Windows, actualSearchPath );
 #elif !defined(QWS) && defined(Q_OS_MAC)
     QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
-    if ( !topLevelDomain.isEmpty() ) 
+    if ( !topLevelDomain.isEmpty() )
 	qt_setSettingsBasePath( topLevelDomain );
     actualSearchPath = "/" + domain.left( lastDot ) + product;
     insertSearchPath( Mac, actualSearchPath );
