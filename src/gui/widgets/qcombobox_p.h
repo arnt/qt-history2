@@ -25,18 +25,20 @@
 // We mean it.
 //
 
-#include <qlistview.h>
-#include <qlineedit.h>
-#include <qcombobox.h>
-#include <qbasictimer.h>
-#include <qabstractslider.h>
-#include <qstyle.h>
-#include <qpair.h>
-#include <qstyleoption.h>
-#include <qpainter.h>
-#include <qitemdelegate.h>
-#include <qapplication.h>
 #include <private/qwidget_p.h>
+#include <qabstractslider.h>
+#include <qapplication.h>
+#include <qbasictimer.h>
+#include <qcombobox.h>
+#include <qhash.h>
+#include <qitemdelegate.h>
+#include <qlineedit.h>
+#include <qlistview.h>
+#include <qpainter.h>
+#include <qpair.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+
 #include <limits.h>
 
 class Scroller : public QWidget
@@ -134,14 +136,14 @@ protected:
                const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
         painter->eraseRect(option.rect);
-        QApplication::style()->drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
+        mCombo->style()->drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QStyleOptionViewItem &option,
                    const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
         QVariant value = index.model()->data(index, QAbstractItemModel::FontRole);
         QFont fnt = value.isValid() ? value.toFont() : option.font;
-        return QApplication::style()->sizeFromContents(
+        return mCombo->style()->sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), 0);
     }
 
@@ -170,6 +172,8 @@ private:
                 = menuOption.icon.pixmap(Qt::SmallIconSize, QIcon::Normal).width() + 4;
         menuOption.menuRect = option.rect;
         menuOption.rect = option.rect;
+        extern QHash<QString, QFont> *qt_app_fonts_hash();
+        menuOption.font = qt_app_fonts_hash()->value("QComboMenuItem", mCombo->font());
         return menuOption;
     }
 

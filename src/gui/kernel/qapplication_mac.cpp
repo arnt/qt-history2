@@ -439,7 +439,9 @@ void qt_mac_update_os_settings()
             { "QTitleBar", kThemeWindowTitleFont },
             { "QMenuBar", kThemeMenuTitleFont },
             { "QMenu", kThemeMenuItemFont },
-            { "QHeader", kThemeSmallSystemFont },
+            { "QComboMenuItem", kThemeEmphasizedSystemFont },
+            { "QHeaderView", kThemeSmallSystemFont },
+            { "Q3Header", kThemeSmallSystemFont },
             { "QTipLabel", kThemeSmallSystemFont },
             { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
             { "QLabel", kThemeSystemFont },
@@ -479,7 +481,8 @@ void qt_mac_update_os_settings()
         } mac_widget_colors[] = {
             { "QToolButton", kThemeTextColorBevelButtonActive, kThemeTextColorBevelButtonInactive },
             { "QAbstractButton", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
-            { "QHeader", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
+            { "QHeaderView", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
+            { "Q3Header", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
             { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
             { "QListView", kThemeTextColorListView, kThemeTextColorDialogInactive },
             { "QListBox", kThemeTextColorListView, kThemeTextColorDialogInactive },
@@ -517,8 +520,9 @@ void qt_mac_update_os_settings()
                 GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
                 pal.setBrush(QPalette::Disabled, QPalette::Text,
                              QColor(c.red / 256, c.green / 256, c.blue / 256));
-            } else if(!strcmp(mac_widget_colors[i].qt_class, "QAbstractButton") ||
-                      !strcmp(mac_widget_colors[i].qt_class, "QHeader")) { //special
+            } else if(!strcmp(mac_widget_colors[i].qt_class, "QAbstractButton")
+                      || !strcmp(mac_widget_colors[i].qt_class, "QHeaderView")
+                      || !strcmp(mac_widget_colors[i].qt_class, "Q3Header")) { //special
                 pal.setColor(QPalette::Disabled, QPalette::ButtonText,
                              pal.color(QPalette::Disabled, QPalette::Text));
                 pal.setColor(QPalette::Inactive, QPalette::ButtonText,
