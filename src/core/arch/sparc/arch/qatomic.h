@@ -25,7 +25,23 @@ Q_CORE_EXPORT
 int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
 Q_CORE_EXPORT
-void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+int q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newval);
+
+#define Q_HAVE_ATOMIC_INCDEC
+
+Q_CORE_EXPORT
+int q_atomic_increment(volatile int *ptr);
+
+Q_CORE_EXPORT
+int q_atomic_decrement(volatile int *ptr);
+
+#define Q_HAVE_ATOMIC_SET
+
+Q_CORE_EXPORT
+int q_atomic_set_int(volatile int *ptr, int newval);
+
+Q_CORE_EXPORT
+void *q_atomic_set_ptr(void * volatile *ptr, void *newval);
 
 } // extern "C"
 
