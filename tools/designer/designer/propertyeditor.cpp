@@ -2535,7 +2535,9 @@ void PropertyKeysequenceItem::setValue()
 	return;
     setText( 1, sequence->text() );
     PropertyItem::setValue( v );
-    notifyValueChange();
+    if ( sequence->hasFocus() )
+	notifyValueChange();
+    setChanged( TRUE );
 }
 
 void PropertyKeysequenceItem::setValue( const QVariant &v )
