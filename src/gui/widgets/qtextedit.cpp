@@ -10,6 +10,8 @@
 #include <qstyle.h>
 #include <qbasictimer.h>
 #include <qtimer.h>
+#include <qscrollbar.h>
+#include <private/qviewport_p.h>
 
 #include "private/qtextdocumentlayout_p.h"
 #include "private/qtextdocument_p.h"
@@ -29,6 +31,9 @@
 #else
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
+
+#define d d_func()
+#define q q_func()
 
 class QRichTextDrag : public QTextDrag
 {
@@ -52,13 +57,13 @@ QRichTextDrag::QRichTextDrag(const QTextDocumentFragment &_fragment, QWidget *dr
 }
 
 const char *QRichTextDrag::format(int i) const
-{
+{ 
     const char *fmt = QTextDrag::format(i);
-    if (fmt)
-	return fmt;
+    if (fmt) 
+        return fmt; 
     if (QTextDrag::format(i - 1))
-	return "application/x-qt-richtext";
-    return 0;
+        return "application/x-qt-richtext"; 
+    return 0; 
 }
 
 QByteArray QRichTextDrag::encodedData(const char *mime) const
@@ -105,16 +110,15 @@ bool QRichTextDrag::canDecode(const QMimeSource* e)
     return QTextDrag::canDecode(e);
 }
 
-class QTextEditPrivate
+class QTextEditPrivate : public QViewportPrivate
 {
+    Q_DECLARE_PUBLIC(QTextEdit)
 public:
-    inline QTextEditPrivate(QTextEdit *ed)
-        : doc(new QTextDocument(ed)), cursorOn(false), cursor(doc), q(ed), readOnly(false),
+    inline QTextEditPrivate()
+        : doc(0), cursorOn(false), readOnly(false),
           autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false), trippleClickTimerActive(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0)
-    {
-        QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
-    }
+    {}
 
     inline ~QTextEditPrivate()
     { delete doc; }
@@ -141,7 +145,11 @@ public:
     void placeCursor(const QPoint &pos);
 
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
-    inline void update(const QRect &r) { q->viewport()->update(r); }
+    // ### translate?
+    inline void update(const QRect &r) { viewport->update(r); }
+
+    inline QPoint translateCoordinates(const QPoint &point)
+    { return QPoint(point.x() + d->hbar->value(), point.y() + d->vbar->value()); }
 
     void selectionChanged();
 
@@ -152,8 +160,6 @@ public:
     bool cursorOn;
     QTextCursor cursor;
     QTextCharFormat currentCharFormat;
-
-    QTextEdit *q;
 
     bool readOnly; /* ### move to document? */
 
@@ -294,6 +300,12 @@ void QTextEditPrivate::createAutoBulletList()
 
 void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
 {
+    if (!doc) {
+        doc = new QTextDocument(q);
+        QObject::connect(doc->documentLayout(), SIGNAL(update(const QRect &)), q, SLOT(update(const QRect &)));
+        cursor = QTextCursor(doc);
+    }
+
     readOnly = false;
     q->clear();
 
@@ -305,7 +317,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
 //     d->cursor.movePosition(QTextCursor::Start);
 //     d->cursor.setBlockFormat(fmt);
 
-    q->viewport()->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
+    viewport->setCursor(readOnly ? Qt::ArrowCursor : Qt::IbeamCursor);
 
     if (fragment.isEmpty())
         return;
@@ -322,7 +334,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
 void QTextEditPrivate::startDrag()
 {
     mousePressed = false;
-    QRichTextDrag *drag = new QRichTextDrag(cursor, q->viewport());
+    QRichTextDrag *drag = new QRichTextDrag(cursor, viewport);
     if (readOnly)
         drag->dragCopy();
     else
@@ -382,27 +394,24 @@ QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) c
 }
 
 QTextEdit::QTextEdit(QWidget *parent)
-    : QScrollView(parent)
+    : QViewport(*new QTextEditPrivate, parent)
 {
-    d = new QTextEditPrivate(this);
+    d->init();
 
     // compat signals
     connect(d->doc, SIGNAL(contentsChanged()), this, SIGNAL(textChanged()));
     connect(d->doc, SIGNAL(undoAvailable(bool)), this, SIGNAL(undoAvailable(bool)));
     connect(d->doc, SIGNAL(redoAvailable(bool)), this, SIGNAL(redoAvailable(bool)));
 
-    d->init();
-
     d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
 
-    viewport()->setBackgroundRole(QPalette::Base);
-    viewport()->setFocusPolicy(WheelFocus);
-    viewport()->setAcceptDrops(true);
+    d->viewport->setBackgroundRole(QPalette::Base);
+    d->viewport->setFocusPolicy(WheelFocus);
+    d->viewport->setAcceptDrops(true);
 }
 
 QTextEdit::~QTextEdit()
 {
-    delete d;
 }
 
 float QTextEdit::fontPointSize() const
@@ -600,7 +609,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
         if (d->cursor.hasSelection())
             d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected) != 0);
 
-        viewport()->update(d->cursor.block().layout()->rect());
+        d->viewport->update(d->cursor.block().layout()->rect());
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
@@ -647,8 +656,10 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     if (d->cursorMoveKeyEvent(e))
         goto accept;
 
-    if (d->readOnly)
+    if (d->readOnly) {
+        QViewport::keyPressEvent(e);
         return;
+    }
 
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
@@ -752,7 +763,7 @@ process:
                 updateCurrentFormat = false;
                 d->selectionChanged();
             } else {
-                e->ignore();
+                QViewport::keyPressEvent(e);
                 return;
             }
             break;
@@ -769,10 +780,10 @@ process:
 	d->updateCurrentCharFormat();
 
 //    qDebug("cursorPos at %d",  d->cursor.position() );
-    viewport()->update();
+    d->viewport->update();
 }
 
-void QTextEdit::viewportResizeEvent( QResizeEvent * )
+void QTextEdit::resizeEvent(QResizeEvent *)
 {
     QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(d->doc->documentLayout());
 
@@ -784,10 +795,10 @@ void QTextEdit::viewportResizeEvent( QResizeEvent * )
     int width = 0;
     switch (d->wordWrap) {
         case NoWrap:
-            width = visibleWidth();
+            width = d->viewport->width();
             break;
         case WidgetWidth:
-            width = visibleWidth();
+            width = d->viewport->width();
             break;
         case FixedPixelWidth:
             width = d->wrapColumnOrWidth;
@@ -798,27 +809,43 @@ void QTextEdit::viewportResizeEvent( QResizeEvent * )
     }
 
     d->doc->documentLayout()->setPageSize(QSize(width, INT_MAX));
-    resizeContents(layout->widthUsed(), layout->totalHeight());
+
+    d->hbar->setPageStep(width);
+    d->hbar->setRange(0, layout->widthUsed());
+
+    d->vbar->setPageStep(d->viewport->height());
+    d->vbar->setRange(0, layout->totalHeight());
+
+//    resizeContents(layout->widthUsed(), layout->totalHeight());
 }
 
-void QTextEdit::drawContents(QPainter *p, int clipX, int clipY, int clipWidth, int clipHeight)
+void QTextEdit::paintEvent(QPaintEvent *ev)
 {
-    QAbstractTextDocumentLayout::PaintContext ctx;
+    QPainter p(d->viewport);
 
-    p->setClipRect(QRect(clipX, clipY, clipWidth, clipHeight));
-    ctx.showCursor = d->cursorOn && viewport()->hasFocus();
+    const int xOffset = horizontalScrollBar()->value();
+    const int yOffset = verticalScrollBar()->value();
+    const QRect r = ev->rect();
+
+    p.translate(-xOffset, -yOffset);
+    p.setClipRect(xOffset + r.x(), yOffset + r.y(), r.width(), r.height());
+
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.showCursor = d->cursorOn && d->viewport->hasFocus();
     ctx.cursor = d->cursor;
     ctx.palette = palette();
 
 //    qDebug() << "selectionStart" << d->selection.start().position() << "selectionEnd" << d->selection.end().position();
 
-    d->doc->documentLayout()->draw(p, ctx);
+    d->doc->documentLayout()->draw(&p, ctx);
 }
 
-void QTextEdit::contentsMousePressEvent(QMouseEvent *ev)
+void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
     if (!(ev->button() & LeftButton))
 	return;
+
+    QPoint pos = d->translateCoordinates(ev->pos());
 
     d->mousePressed = true;
     d->mightStartDrag = false;
@@ -830,7 +857,7 @@ void QTextEdit::contentsMousePressEvent(QMouseEvent *ev)
         d->cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
         d->trippleClickTimerActive = false;
     } else {
-        int cursorPos = d->doc->documentLayout()->hitTest(ev->pos(), QText::FuzzyHit);
+        int cursorPos = d->doc->documentLayout()->hitTest(pos, QText::FuzzyHit);
         if (cursorPos != -1) {
 
             if (d->cursor.hasSelection()
@@ -849,12 +876,12 @@ void QTextEdit::contentsMousePressEvent(QMouseEvent *ev)
     }
 
     d->selectionChanged();
-    viewport()->update();
+    d->viewport->update();
 }
 
-void QTextEdit::contentsMouseMoveEvent(QMouseEvent *ev)
+void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
-    int cursorPos = d->doc->documentLayout()->hitTest(ev->pos(), QText::FuzzyHit);
+    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(ev->pos()), QText::FuzzyHit);
     if (cursorPos == -1)
 	return;
 
@@ -872,10 +899,10 @@ void QTextEdit::contentsMouseMoveEvent(QMouseEvent *ev)
     }
 
     d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
-    viewport()->update();
+    d->viewport->update();
 }
 
-void QTextEdit::contentsMouseReleaseEvent(QMouseEvent *ev)
+void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (d->mightStartDrag) {
         d->mousePressed = false;
@@ -891,18 +918,18 @@ void QTextEdit::contentsMouseReleaseEvent(QMouseEvent *ev)
     } else if (ev->button() == MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
-        d->placeCursor(ev->pos());
+        d->placeCursor(d->translateCoordinates(ev->pos()));
         d->paste(QApplication::clipboard()->data(QClipboard::Selection));
     }
 
-    viewport()->update();
+    d->viewport->update();
     d->selectionChanged();
 
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
 }
 
-void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent *ev)
+void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     if (ev->button() != LeftButton) {
         ev->ignore();
@@ -911,7 +938,7 @@ void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent *ev)
 
     d->cursor.movePosition(QTextCursor::PreviousWord);
     d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
-    viewport()->update();
+    d->viewport->update();
     d->selectionChanged();
 
     d->trippleClickTimerActive = true;
@@ -929,7 +956,7 @@ bool QTextEdit::focusNextPrevChild(bool next)
 //    return QScrollView::focusNextPrevChild(next);
 }
 
-void QTextEdit::contentsContextMenuEvent(QContextMenuEvent *ev)
+void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu *popup = createContextMenu(ev->pos());
     if (!popup)
@@ -938,7 +965,7 @@ void QTextEdit::contentsContextMenuEvent(QContextMenuEvent *ev)
     delete popup;
 }
 
-void QTextEdit::contentsDragEnterEvent(QDragEnterEvent *ev)
+void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
         ev->ignore();
@@ -947,7 +974,7 @@ void QTextEdit::contentsDragEnterEvent(QDragEnterEvent *ev)
     ev->acceptAction();
 }
 
-void QTextEdit::contentsDragMoveEvent(QDragMoveEvent *ev)
+void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
         ev->ignore();
@@ -965,14 +992,14 @@ void QTextEdit::contentsDragMoveEvent(QDragMoveEvent *ev)
     ev->acceptAction();
 }
 
-void QTextEdit::contentsDropEvent(QDropEvent *ev)
+void QTextEdit::dropEvent(QDropEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
         return;
     }
     ev->acceptAction();
 
-    d->placeCursor(ev->pos());
+    d->placeCursor(d->translateCoordinates(ev->pos()));
     d->paste(ev);
 }
 
@@ -1028,7 +1055,7 @@ void QTextEdit::setReadOnly(bool ro)
         return;
 
     d->readOnly = ro;
-    viewport()->setCursor(d->readOnly ? ArrowCursor : IbeamCursor);
+    d->viewport->setCursor(d->readOnly ? ArrowCursor : IbeamCursor);
 
     if (ro)
         d->cursorBlinkTimer.stop();
@@ -1184,7 +1211,8 @@ void QTextEdit::setWordWrap(WordWrap wrap)
     if (d->wordWrap == wrap)
         return;
     d->wordWrap = wrap;
-    viewportResizeEvent(0);
+    // ####
+    resizeEvent(0);
 }
 
 /*!
@@ -1424,7 +1452,8 @@ void QTextEdit::append(const QString &text)
             f = PlainText;
     }
 
-    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
+// ############
+//    const bool atBottom = contentsY() >= contentsHeight() - visibleHeight();
 
     QTextCursor cursor(d->doc);
     cursor.movePosition(QTextCursor::End);
@@ -1436,8 +1465,8 @@ void QTextEdit::append(const QString &text)
         cursor.insertFragment(frag);
     }
 
-    if (atBottom)
-        setContentsPos(contentsX(), contentsHeight() - visibleHeight());
+//    if (atBottom)
+//        setContentsPos(contentsX(), contentsHeight() - visibleHeight());
 }
 /*!
     Ensures that the cursor is visible by scrolling the text edit if
@@ -1445,6 +1474,7 @@ void QTextEdit::append(const QString &text)
 */
 void QTextEdit::ensureCursorVisible()
 {
+    /* ###########
     QTextBlock block = d->cursor.block();
     QTextLayout *layout = block.layout();
     QPoint layoutPos = layout->position();
@@ -1458,6 +1488,7 @@ void QTextEdit::ensureCursorVisible()
     int height = line.ascent() + line.descent();
     const int width = 1;
     ensureVisible(x, y + (height / 2), width, (height / 2) + 2);
+    */
 }
 
 #include "moc_qtextedit.cpp"

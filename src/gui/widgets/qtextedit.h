@@ -2,7 +2,7 @@
 #define QTEXTEDIT_H
 
 #ifndef QT_H
-#include <qscrollview.h>
+#include <qviewport.h>
 #include <qtextdocument.h>
 #endif // QT_H
 
@@ -22,9 +22,10 @@ class QTextBlockFormat;
 class QMenu;
 class QTextEditPrivate;
 
-class Q_GUI_EXPORT QTextEdit : public QScrollView
+class Q_GUI_EXPORT QTextEdit : public QViewport
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTextEdit)
     Q_FLAGS(AutoFormattingFlags)
     Q_ENUMS(WordWrap)
     Q_PROPERTY(AutoFormattingFlags autoFormatting READ autoFormatting WRITE setAutoFormatting)
@@ -133,24 +134,21 @@ signals:
 protected:
     virtual void timerEvent(QTimerEvent *ev);
     virtual void keyPressEvent(QKeyEvent *ev);
-    virtual void viewportResizeEvent(QResizeEvent *);
-    virtual void drawContents(QPainter *painter, int clipX, int clipY, int clipWidth, int clipHeight);
-    virtual void contentsMousePressEvent(QMouseEvent *ev);
-    virtual void contentsMouseMoveEvent(QMouseEvent *ev);
-    virtual void contentsMouseReleaseEvent(QMouseEvent *ev);
-    virtual void contentsMouseDoubleClickEvent(QMouseEvent *ev);
+    virtual void resizeEvent(QResizeEvent *);
+    virtual void paintEvent(QPaintEvent *ev);
+    virtual void mousePressEvent(QMouseEvent *ev);
+    virtual void mouseMoveEvent(QMouseEvent *ev);
+    virtual void mouseReleaseEvent(QMouseEvent *ev);
+    virtual void mouseDoubleClickEvent(QMouseEvent *ev);
     virtual bool focusNextPrevChild(bool next);
-    virtual void contentsContextMenuEvent(QContextMenuEvent *ev);
-    virtual void contentsDragEnterEvent(QDragEnterEvent *ev);
-    virtual void contentsDragMoveEvent(QDragMoveEvent *ev);
-    virtual void contentsDropEvent(QDropEvent *ev);
+    virtual void contextMenuEvent(QContextMenuEvent *ev);
+    virtual void dragEnterEvent(QDragEnterEvent *ev);
+    virtual void dragMoveEvent(QDragMoveEvent *ev);
+    virtual void dropEvent(QDropEvent *ev);
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 
 private:
-    friend class QTextEditPrivate;
-    QTextEditPrivate *d;
-
     Q_PRIVATE_SLOT(void trippleClickTimeout())
     Q_PRIVATE_SLOT(void update(const QRect &r))
 #if defined(Q_DISABLE_COPY)
