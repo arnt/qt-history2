@@ -168,7 +168,7 @@ QString Uic::getFormClassName( const QDomElement& e )
     return cn;
 }
 
-/*! Extracts a class name from \a e
+/*! Extracts a class name from \a e.
  */
 QString Uic::getClassName( const QDomElement& e )
 {
@@ -381,15 +381,15 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
     QDomNodeList nl = n.elementsByTagName( "item" );
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();
-	QString objName = ae.attribute( "name" );
-	out << indent << objName << " = new QPopupMenu( this ); " << endl;
+	QString itemName = ae.attribute( "name" );
+	out << indent << itemName << " = new QPopupMenu( this ); " << endl;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
-		out << indent << n2.attribute( "name" ) << "->addTo( " << objName << " );" << endl;
+		out << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
 	    else if ( n2.tagName() == "separator" )
-		out << indent << objName << "->insertSeparator();" << endl;
+		out << indent << itemName << "->insertSeparator();" << endl;
 	}
-	out << indent << "menuBar()->insertItem( " << trcall( ae.attribute( "text" ) ) << ", " << objName << " );" << endl;
+	out << indent << objName << "->insertItem( " << trcall( ae.attribute( "text" ) ) << ", " << itemName << " );" << endl;
 	out << endl;
     }
 }
