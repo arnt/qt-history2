@@ -1,7 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QtGui>
+#include <QMainWindow>
+
+class QLabel;
+class QMenu;
+class QTextEdit;
 
 class MainWindow : public QMainWindow
 {
@@ -37,9 +41,7 @@ private:
 
     QTextEdit *textEdit;
     QLabel *modLabel;
-    QStringList recentFiles;
     QString curFile;
-    QString fileFilters;
     bool modified;
 
     QMenu *fileMenu;
@@ -55,7 +57,6 @@ private:
     QAction *cutAct;
     QAction *copyAct;
     QAction *pasteAct;
-    QAction *deleteAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
 };

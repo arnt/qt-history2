@@ -1,3 +1,5 @@
+#include <QtGui>
+
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -16,13 +18,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(textEdit->document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
 
-    setWindowTitle(tr("Application"));
+    setWindowTitle(tr("Application Example"));
 //    setIcon(...);
 
-/*
-    curFile;
-    fileFilters;
-*/
     modified = false;
 }
 
@@ -56,8 +54,7 @@ void MainWindow::newFile()
 void MainWindow::open()
 {
     if (maybeSave()) {
-        QString fileName =
-                QFileDialog::getOpenFileName(this, ".", fileFilters);
+        QString fileName = QFileDialog::getOpenFileName(this);
         if (!fileName.isEmpty())
             loadFile(fileName);
     }
@@ -75,13 +72,12 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-    QString fileName =
-            QFileDialog::getSaveFileName(this, ".", fileFilters);
+    QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty())
         return false;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::warning(this, tr("Spreadsheet"),
+        int ret = QMessageBox::warning(this, tr("Application Example"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
@@ -139,24 +135,19 @@ void MainWindow::createActions()
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the "
                             "clipboard"));
-    connect(cutAct, SIGNAL(activated()), this, SLOT(cut()));
+    connect(cutAct, SIGNAL(activated()), textEdit, SLOT(cut()));
 
     copyAct = new QAction(QIconSet(QPixmap("images/copy.png")), tr("&Copy"), this);
     copyAct->setShortcut(tr("Ctrl+C"));
     copyAct->setStatusTip(tr("Copy the current selection's contents to the "
                              "clipboard"));
-    connect(copyAct, SIGNAL(activated()), this, SLOT(copy()));
+    connect(copyAct, SIGNAL(activated()), textEdit, SLOT(copy()));
 
     pasteAct = new QAction(QIconSet(QPixmap("images/paste.png")), tr("&Paste"), this);
     pasteAct->setShortcut(tr("Ctrl+V"));
     pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current "
                               "selection"));
-    connect(pasteAct, SIGNAL(activated()), this, SLOT(paste()));
-
-    deleteAct = new QAction(QIconSet(QPixmap("images/del.png")), tr("&Delete"), this);
-    deleteAct->setShortcut(tr("Del"));
-    deleteAct->setStatusTip(tr("Delete the current selection's contents"));
-    connect(deleteAct, SIGNAL(activated()), this, SLOT(deleteText()));
+    connect(pasteAct, SIGNAL(activated()), textEdit, SLOT(paste()));
 
     aboutAct = new QAction(tr("&About"), this);
     aboutAct->setStatusTip(tr("Show the application's About box"));
@@ -181,7 +172,6 @@ void MainWindow::createMenus()
     editMenu->addAction(cutAct);
     editMenu->addAction(copyAct);
     editMenu->addAction(pasteAct);
-    editMenu->addAction(deleteAct);
 
     menuBar()->addSeparator();
 
@@ -219,7 +209,7 @@ void MainWindow::readSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("trolltech.com", "Application");
+    QSettings settings("trolltech.com", "Application Example");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     move(pos);
@@ -231,7 +221,7 @@ void MainWindow::writeSettings()
 {
 #if 0
     // TODO: enable settings code when the new QSettings is available
-    QSettings settings("trolltech.com", "Application");
+    QSettings settings("trolltech.com", "Application Example");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 #endif
@@ -240,7 +230,7 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (modified) {
-        int ret = QMessageBox::warning(this, tr("Application"),
+        int ret = QMessageBox::warning(this, tr("Application Example"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
                      QMessageBox::Yes | QMessageBox::Default,
@@ -258,7 +248,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application Example"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -278,7 +268,7 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::warning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application Example"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -301,10 +291,10 @@ void MainWindow::setCurrentFile(const QString &fileName)
     modified = false;
 
     if (curFile.isEmpty())
-        setWindowTitle(tr("Application"));
+        setWindowTitle(tr("Application Example"));
     else
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
-                                    .arg(tr("Application")));
+                                    .arg(tr("Application Example")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
