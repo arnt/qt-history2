@@ -31,7 +31,6 @@
 #include <private/qdnd_p.h>
 #include <qdebug.h>
 
-static const int border = 1;
 static const int textMargin = 2;
 
 class QItemDelegatePrivate : public QObjectPrivate
@@ -142,7 +141,8 @@ void QItemDelegate::paint(QPainter *painter,
 
     QFontMetrics fontMetrics(opt.font);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
+    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    textRect.adjust(-textMargin, -textMargin, textMargin, textMargin);
 
     value = model->data(index, QAbstractItemModel::CheckStateRole);
     QRect checkRect = check(opt, value);
@@ -184,7 +184,8 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                            option.decorationSize.height());
 
     QFontMetrics fontMetrics(fnt);
-    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
+    QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
+    textRect.adjust(-textMargin, -textMargin, textMargin, textMargin);
     QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
@@ -247,7 +248,6 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
-    const QPoint pt(0, 0);
     if (editor) {
         Q_ASSERT(index.isValid());
         const QAbstractItemModel *model = index.model();
@@ -255,7 +255,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
         QString text = model->data(index, QAbstractItemModel::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
-        QRect textRect(pt, editor->fontMetrics().size(0, text));
+        QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
         QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
         doLayout(option, &checkRect, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
@@ -292,9 +292,8 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     QPen pen = painter->pen();
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
-    QRect fill(rect.adjusted(-border, -border, border, border));
     if (option.state & QStyle::State_Selected) {
-        painter->fillRect(fill, option.palette.color(cg, QPalette::Highlight));
+        painter->fillRect(rect, option.palette.color(cg, QPalette::Highlight));
         painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
     } else {
         painter->setPen(option.palette.color(cg, QPalette::Text));
@@ -303,13 +302,13 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     if (option.state & QStyle::State_Editing) {
         painter->save();
         painter->setPen(option.palette.color(cg, QPalette::Text));
-        painter->drawRect(fill.adjusted(0,0,-1,-1));
+        painter->drawRect(rect.adjusted(0, 0, -1, -1));
         painter->restore();
     }
 
-    QRect textRect = rect.adjusted(textMargin, 0, 0, 0);
     QFont font = painter->font();
     painter->setFont(option.font);
+    QRect textRect = rect.adjusted(textMargin, textMargin, -textMargin, -textMargin);
     if (painter->fontMetrics().width(text) > textRect.width())
         painter->drawText(textRect, option.displayAlignment,
                           ellipsisText(painter->fontMetrics(), textRect.width(),
@@ -352,8 +351,7 @@ void QItemDelegate::drawFocus(QPainter *painter,
     if (option.state & QStyle::State_HasFocus) {
         QStyleOptionFocusRect o;
         o.QStyleOption::operator=(option);
-        o.rect.setRect(rect.x() - border, rect.y() - border,
-                       rect.width() + border * 2, rect.height() + border * 2);
+        o.rect = rect;
         QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
                                   QPalette::Normal : QPalette::Disabled;
         o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected) ?
@@ -404,35 +402,26 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     Q_ASSERT(checkRect && pixmapRect && textRect);
     int x = option.rect.left();
     int y = option.rect.top();
-    int bb = border * 2;
     int w, h;
-
-    textRect->adjust(-textMargin, 0, textMargin, 0);
 
     QSize pm(0, 0);
     if (pixmapRect->isValid())
         pm = option.decorationSize;
     if (hint) {
-        w = qMax(textRect->width(), pm.width()) + bb;
-        h = qMax(textRect->height(), pm.height()) + bb;
+        w = qMax(textRect->width(), pm.width());
+        h = qMax(textRect->height(), pm.height());
     } else {
-        x += border;
-        y += border;
-        w = option.rect.width() - bb;
-        h = option.rect.height() - bb;
+        w = option.rect.width();
+        h = option.rect.height();
     }
 
     int cw = 0;
     QRect check;
     if (checkRect->isValid()) {
-        if (option.direction == Qt::RightToLeft) {
-            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
-            cw = checkRect->width() + border;
-        } else {
-            check.setRect(checkRect->x(), checkRect->y(), checkRect->width() + bb, h);
-            cw = checkRect->width() + border;
+        check.setRect(x, y, h, h);
+        cw = check.width();
+        if (option.direction == Qt::LeftToRight)
             x += cw;
-        }
     }
 
     QRect display;
@@ -447,14 +436,14 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     switch (position) {
     case QStyleOptionViewItem::Top: {
         if (!pm.isEmpty())
-            pm.setHeight(pm.height() + bb); // add space
+            pm.setHeight(pm.height() + textMargin); // add space
         decoration.setRect(x, y, w, pm.height());
         h = hint ? textRect->height() : h - pm.height();
         display.setRect(x, y + pm.height(), w, h);
         break; }
     case QStyleOptionViewItem::Bottom: {
         if (!textRect->isEmpty())
-            textRect->setHeight(textRect->height() + bb); // add space
+            textRect->setHeight(textRect->height() + textMargin); // add space
         h = hint ? textRect->height() + pm.height() : h;
         decoration.setRect(x, y + h - pm.height(), w, pm.height());
         h = hint ? textRect->height() : h - pm.height();
@@ -462,14 +451,14 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         break; }
     case QStyleOptionViewItem::Left: {
         if (!pm.isEmpty())
-            pm.setWidth(pm.width() + bb); // add space
+            pm.setWidth(pm.width() + textMargin); // add space
         decoration.setRect(x, y, pm.width(), h);
         w = hint ? textRect->width() : w - pm.width() - cw;
         display.setRect(x + pm.width(), y, w, h);
         break; }
     case QStyleOptionViewItem::Right: {
         if (!textRect->isEmpty())
-            textRect->setWidth(textRect->width() + bb); // add space
+            textRect->setWidth(textRect->width() + textMargin); // add space
         w = hint ? textRect->width() + pm.width() : w;
         decoration.setRect(x + w - pm.width() - cw, y, pm.width(), h);
         w = hint ? textRect->width() : w - pm.width() - cw;
@@ -567,13 +556,8 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
     if (value.isValid()) {
         QStyleOptionButton opt;
         opt.QStyleOption::operator=(option);
-        QRect rect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator, &opt);
-        if (option.direction == Qt::RightToLeft)
-            rect.moveTopLeft(QPoint(option.rect.right() - rect.width(), option.rect.top()));
-        else {
-            rect.moveTopLeft(option.rect.topLeft());
-        }
-        return rect;
+        opt.rect.setWidth(opt.rect.height());
+        return QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator, &opt);
     }
     return QRect();
 }
@@ -649,7 +633,10 @@ bool QItemDelegate::editorEvent(QEvent *event,
 
     // check if the event happened in the right place
     QVariant value = model->data(index, QAbstractItemModel::CheckStateRole);
-    QRect checkRect = check(option, value);
+    QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
+                                          check(option, value).size(),
+                                          QRect(option.rect.x(), option.rect.y(),
+                                                option.rect.height(), option.rect.height()));
     if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
         Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
         return model->setData(index, (state == Qt::Unchecked ? Qt::Checked : Qt::Unchecked),

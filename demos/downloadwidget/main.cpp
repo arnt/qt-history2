@@ -19,6 +19,7 @@
 #include <qitemdelegate.h>
 #include <qpainter.h>
 #include <qevent.h>
+#include <qdebug.h>
 
 class DownloadDelegate : public QItemDelegate
 {
@@ -36,6 +37,8 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+                              const QModelIndex &index) const;
 
 private:
     QPixmap star;
@@ -54,7 +57,9 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
                              const QModelIndex &index) const
 {
     if (index.column() < 2 || index.column() > 3) {
-        QItemDelegate::paint(painter, option, index);
+        QStyleOptionViewItem opt = option;
+        opt.rect.adjust(0, 0, -1, -1); // since we draw the grid ourselves
+        QItemDelegate::paint(painter, opt, index);
     } else {
         const QAbstractItemModel *model = index.model();
         QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
@@ -62,8 +67,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
         if (index.column() == 2) {
-            QRect rect(option.rect.x() + 3, option.rect.y() + 3,
-                       option.rect.width() - 6, option.rect.height() - 6);
+            QRect rect = option.rect.adjusted(3, 3, -4, -4);
             double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
             int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
@@ -72,22 +76,20 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             painter->fillRect(rect.x(), rect.y(), width, rect.height(), gradient);
             painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
                               option.palette.base());
-            painter->drawRect(rect);
+            painter->drawRect(rect.adjusted(0, 0, -1, -1));
         } else if (index.column() == 3) {
             int rating = model->data(index, DownloadDelegate::RatingRole).toInt();
             int width = star.width();
+            int height = star.height();
             int x = option.rect.x();
-            int y = option.rect.y();
+            int y = option.rect.y() + (option.rect.height() / 2) - (height / 2);
             for (int i = 0; i < rating; ++i) {
                 painter->drawPixmap(x, y, star);
                 x += width;
             }
         }
+        drawFocus(painter, option, option.rect.adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
     }
-
-    QRect rect(option.rect.x() + 1, option.rect.y() + 1,
-               option.rect.width() - 3, option.rect.height() - 3);
-    drawFocus(painter, option, rect);
 
     QPen pen = painter->pen();
     painter->setPen(option.palette.color(QPalette::Mid));
@@ -104,11 +106,20 @@ QSize DownloadDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     if (index.column() == 3) {
         int rating = index.model()->data(index, QAbstractItemModel::DisplayRole).toInt();
-        return QSize(rating * star.width(), star.height());
+        return QSize(rating * star.width(), star.height()) + QSize(1, 1);
     }
     
-    return QItemDelegate::sizeHint(option, index);    
+    return QItemDelegate::sizeHint(option, index) + QSize(1, 1); // since we draw the grid ourselves
 }
+
+void DownloadDelegate::updateEditorGeometry(QWidget *editor,
+                                            const QStyleOptionViewItem &option,
+                                            const QModelIndex &index) const
+{
+    QItemDelegate::updateEditorGeometry(editor, option, index);
+    editor->setGeometry(editor->geometry().adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
+}
+
 
 int main(int argc, char *argv[])
 {

@@ -835,7 +835,6 @@ QStyleOptionViewItem QListView::viewOptions() const
     }
     if (d->viewMode == IconMode) {
         option.decorationPosition = QStyleOptionViewItem::Top;
-        option.displayAlignment = Qt::AlignHCenter|Qt::AlignBottom;
     } else {
         option.decorationPosition = QStyleOptionViewItem::Left;
     }
