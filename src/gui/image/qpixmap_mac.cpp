@@ -289,30 +289,19 @@ QImage QPixmap::convertToImage() const
     int d = data->d;
     int ncols = 2;
 
-#if 0
-    if(d > 1 && d <= 8) {                    // set to nearest valid depth
-        d = 8;                                  //   2..7 ==> 8
-        ncols = 256;
-    } else if(d > 8) {
-        d = 32;                                 //   > 8  ==> 32
-        ncols = 0;
-    }
-#else
-    if(d != 1) { //do we want to FIXME??? Might want to support indexed color modes?
+    if(d != 1) { //Doesn't support index color modes
         d = 32;
         ncols = 0;
     }
-#endif
 
     QImage image(w, h, d, ncols, QImage::BigEndian);
-    //first we copy the clut
-    //handle bitmap case, what about other indexed depths?
+    //handle bitmap case (no other indexes supported)
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
         image.setColor(1, qRgba(0, 0, 0, 0));
-    } else if(d == 8) {
-        //figure out how to copy clut into image FIXME???
+    } else {
+        //no need to copy the clut
     }
 
     Q_ASSERT_X(data->hd, "QPixmap::convertToImage", "No handle");
