@@ -603,8 +603,7 @@ bool QTextHTMLImporter::closeTag(int i)
 
             t.currentColumnCount = 0;
             blockTagClosed = true;
-        } else if (closedNode->tag == QLatin1String("table")) {
-            Q_ASSERT(!tables.isEmpty());
+        } else if (closedNode->tag == QLatin1String("table") && !tables.isEmpty()) {
             QTextCharFormat charFmt;
             charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
             QTextBlockFormat fmt;
