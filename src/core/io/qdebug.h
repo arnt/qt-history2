@@ -17,7 +17,7 @@
 #include "qtextstream.h"
 #include "qstring.h"
 
-#if !defined( QT_NO_DEBUG ) && !defined( QT_NO_TEXTSTREAM )
+#if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM )
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {

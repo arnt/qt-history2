@@ -1167,8 +1167,10 @@ Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 class QDebug;
 class QNoDebug;
 
-#ifdef QT_NO_DEBUG
+#ifdef QT_NO_DEBUG_OUTPUT
 #  define qDebug if(1); else qDebug
+#endif
+#ifdef QT_NO_WARNING_OUTPUT
 #  define qWarning if(1); else qWarning
 #endif
 

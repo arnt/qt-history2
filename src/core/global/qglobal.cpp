@@ -93,7 +93,7 @@ Q_CORE_EXPORT void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding e
     UnicodeToTextInfo info;
     OSStatus err = CreateUnicodeToTextInfo(&mapping, &info);
     if(err != noErr) {
-        qDebug("Qt: internal: Unable to create pascal string '%s'::%d [%ld]", 
+        qDebug("Qt: internal: Unable to create pascal string '%s'::%d [%ld]",
                s.left(len).latin1(), (int)encoding, err);
         return;
     }
@@ -531,7 +531,7 @@ QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
     Calls the message handler with the debug message \a msg. If no
     message handler has been installed, the message is printed to
     stderr. Under Windows, the message is sent to the debugger. This
-    function does nothing if \c QT_NO_DEBUG was defined during
+    function does nothing if \c QT_NO_DEBUG_OUTPUT was defined during
     compilation.
 
     If you pass the function a format string and a list of arguments,
@@ -591,8 +591,8 @@ void qDebug(const char *msg, ...)
     Calls the message handler with the warning message \a msg. If no
     message handler has been installed, the message is printed to
     stderr. Under Windows, the message is sent to the debugger. This
-    function does nothing if \c QT_NO_DEBUG was defined during
-    compilation; it exits if the environment variable \c
+    function does nothing if \c QT_NO_WARNING_OUTPUT was defined
+    during compilation; it exits if the environment variable \c
     QT_FATAL_WARNINGS is defined.
 
     This function takes a format string and a list of arguments,

@@ -52,9 +52,8 @@ text.
 testing etc.
 \i \link ::qWarning() qWarning()\endlink for writing warning output
 when program errors occur. 
-\i \link ::qSystemWarning() qSystemWarning()\endlink for writing
-warning output when system errors occur. The output is completed by
-the system's last error message (if available).
+\i \link ::qCritical() qCritical()\endlink for writing
+critical error mesages when system errors occur.
 \i \link ::qFatal() qFatal()\endlink for writing fatal error messages
 and exiting.
 \endlist
@@ -68,9 +67,9 @@ If the environment variable \c QT_FATAL_WARNINGS is defined,
 qWarning() exits after printing the warning message. This makes it
 possible to easily locate errors in a debugger.
 
-Note that qDebug() and qWarning() are debugging tools only, they do
-nothing if \c QT_NO_DEBUG was defined during compilation; whereas
-qSystemWarning() and qFatal() also apply in release mode.
+Both qDebug() and qWarning() are debugging tools, they can be compiled
+away by defining \c QT_NO_DEBUG_OUTPUT and \c QT_NO_WARNING_OUTPUT
+during compilation; qCritical() and qFatal() always apply.
 
 The debugging functions \l QObject::dumpObjectTree() and \l
 QObject::dumpObjectInfo() are often useful when an application looks
