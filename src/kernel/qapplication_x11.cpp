@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#556 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#557 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -50,6 +50,9 @@
 #include "qvaluelist.h"
 #include "qdict.h"
 #include <stdlib.h>
+#ifdef QT_SM_SUPPORT
+#include <pwd.h>
+#endif
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
@@ -2345,10 +2348,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
-	// 	if ( event->xfocus.mode == NotifyGrab )
-	// 	    break;
-	active_window = 0;
 	if ( focus_widget && !inPopupMode() ) {
+	    active_window = 0;
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
@@ -2358,6 +2359,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case EnterNotify:			// enter window
     case LeaveNotify: {			// leave window
+	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
+	    break;
 	qt_x_clipboardtime = event->xcrossing.time;
 	if ( event->xcrossing.detail == NotifyNormal )
 	    widget->translateMouseEvent( event ); //we don't get MotionNotify
@@ -2650,11 +2653,14 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
+static QWidget *activeBeforePopup = 0;
+
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	CHECK_PTR( popupWidgets );
+	activeBeforePopup = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
@@ -2712,7 +2718,14 @@ void QApplication::closePopup( QWidget *popup )
 	    }
 	    XFlush( popup->x11Display() );
 	}
-	active_window = 0;
+	active_window = activeBeforePopup;	// restore the former
+	// active window immediately, although we'll get a focusIn
+	// later from X
+	if ( active_window )
+	    if (active_window->focusWidget())
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
     }
      else {
 	// popups are not focus-handled by the window system (the
@@ -4433,7 +4446,9 @@ static void sm_performSaveYourself( QSessionManager* sm )
     // tell the session manager about our program in best POSIX style
     sm_setProperty( SmProgram, QString( qApp->argv()[0] ) );
     // tell the session manager about our user as well.
-    sm_setProperty( SmUserID, QString::fromLatin1( getlogin() ) );
+    struct passwd* entry = getpwuid( geteuid() );
+    if ( entry )
+	sm_setProperty( SmUserID, QString::fromLatin1( entry->pw_name ) );
 
     // generate a restart and discard command that makes sense
     QStringList restart;
@@ -4621,8 +4636,8 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
 				       &cb,
 				       prevId,
 				       &myId,
-				       256,
-				       (char*)&cerror );
+				       255,
+				       cerror );
 
     d->sessionId = QString::fromLatin1( myId );
     ::free( myId ); // it was allocated by C
