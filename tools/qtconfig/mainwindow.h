@@ -1,7 +1,7 @@
-#ifndef MAINWINDOWIMPL_H
-#define MAINWINDOWIMPL_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
-#include "mainwindow.h"
+#include "mainwindowbase.h"
 
 
 class MainWindow : public MainWindowBase
@@ -11,6 +11,10 @@ class MainWindow : public MainWindowBase
 public:
     MainWindow();
     ~MainWindow();
+
+
+public:
+    void closeEvent(QCloseEvent *);
 
 
 public slots:
@@ -35,6 +39,7 @@ public slots:
     virtual void somethingModified();
     virtual void helpAbout();
     virtual void helpAboutQt();
+    virtual void pageChanged(QWidget *);
 
 
 private:
@@ -58,4 +63,4 @@ private:
 };
 
 
-#endif // MAINWINDOWIMPL_H
+#endif // MAINWINDOW_H

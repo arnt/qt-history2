@@ -24,7 +24,7 @@
 #include <qvbox.h>
 #include <qworkspace.h>
 
-#include "previewwidgetimpl.h"
+#include "previewwidget.h"
 
 class Workspace : public QWorkspace
 {

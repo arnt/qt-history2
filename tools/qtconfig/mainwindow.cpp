@@ -1,7 +1,7 @@
-#include "mainwindowimpl.h"
+#include "mainwindow.h"
 #include "colorbutton.h"
 #include "previewframe.h"
-#include "paletteeditoradvancedimpl.h"
+#include "paletteeditoradvanced.h"
 
 #include <qapplication.h>
 #include <qcombobox.h>
@@ -17,9 +17,93 @@
 #include <qstatusbar.h>
 #include <qsettings.h>
 #include <qmessagebox.h>
+#include <qtextview.h>
 
 
 extern bool qt_has_xft;
+
+
+static const char *appearance_text =
+"<p><b><font size+=2>Appearance</font></b></p>
+<hr>
+
+<p>Here you can customize the appearance of your Qt applications.</p>
+<p>You may select the default GUI Style from the drop down list and
+customize the colors.</p>
+
+<p>Any GUI Style plugins in your plugin path will automatically be added
+to the list of built-in Qt styles.</p>
+
+<p>Upon choosing 3-D Effects and Background colors, the Qt Configutaion
+program will automatically generate a palette for you.  To customize
+colors further, press the Tune Palette button to open the advanced
+palette editor.
+
+<p>The preview will show your selected Style and colors, allowing
+you to see how your Qt programs will look.";
+
+static const char *font_text =
+"<p><b><font size+=2>Fonts</font></b></p>
+<hr>
+
+<p>Here you can select the default font for Qt applications.  The font
+you have selected will be previewed in the line edit below the Family,
+Style and Point Size drop down lists.</p>
+
+<p>Qt has a powerful font substitution feature that allows you to
+specify a list of substitute fonts.  Substitute fonts are used
+when a font cannot be loaded, or if the specified font doesn't have
+a particular character.
+
+<p>For example, you select the font Lucida, which doesn't have Korean
+characters.  For Korean text, you want to use the Mincho font family.
+By adding Mincho to the list, any Korean characters not found in
+Lucida will be used from Mincho.  Because the font substitutions are
+lists, you can also select multiple families, such as Song Ti (for
+use with Chinese text).";
+
+static const char *interface_text =
+"<p><b><font size+=2>Interface</font></b></p>
+<hr>
+
+<p>Here you can customize the feel of your Qt applications.  (Should I
+say anything more here?  It should be pretty obvious what the Feel spin
+boxes and Effects comboboxes do.  Tell us your opinion, Dear User, at
+<b>qt-bugs@trolltech.com</b>).</p>
+
+<p>The Global Strut setting is useful for people that require a
+minimum size for all widgets (e.g. when using a touch panel or for users
+that have visual impairments).  Leaving the Global Strut width and height
+at 0 will disable the Global Strut feature</p>";
+
+static const char *libpath_text =
+"<p><b><font size+=2>Library Paths</font></b></p>
+<hr>
+
+<p>Here you can select additional directories where Qt should search
+for component plugins.
+
+<p>These directories should be the base directory of where your plugins
+are stored.  For example, if you wish to store GUI Style plugins in
+$HOME/plugins/styles and Qt Designer plugins in $HOME/plugins/designer,
+you would add $HOME/plugins to your Library Path.  NOTE: Qt automatically
+searches in the directory where you installed Qt for component plugins.
+Removing that path is not possible.</p>";
+
+static const char *about_text =
+"<p><b><font size+=4>About Qt Configuration</font></b><br>
+A graphical configuration tool for programs using Qt.</p>
+<p>Version 1.0 (almost)</p>
+<p>Copyright (c) 2001 Trolltech AS</p>
+<p></p>
+<p>This program is licensed to you under the terms of the GNU General
+Public License Version 2 as published by the Free Software Foundation. This
+gives you legal permission to copy, distribute and/or modify this software
+under certain conditions. For details, see the file 'COPYING' that came with
+this software distribution. If you did not get the file, send email to
+info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY
+OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE.</p>";
 
 
 static QColorGroup::ColorRole centralFromItem( int item )
@@ -283,7 +367,7 @@ void MainWindow::fileSave()
 
 void MainWindow::fileExit()
 {
-    qApp->quit();
+    qApp->closeAllWindows();
 }
 
 
@@ -716,11 +800,51 @@ void MainWindow::somethingModified()
 
 void MainWindow::helpAbout()
 {
-
+    QMessageBox::about(this, tr("Qt Configuration"),
+		       tr(about_text));
 }
 
 
 void MainWindow::helpAboutQt()
 {
     QMessageBox::aboutQt(this, tr("Qt Configuration"));
+}
+
+
+void MainWindow::pageChanged(QWidget *page)
+{
+    if (page == tab)
+	helpview->setText(tr(appearance_text));
+    else if (page == tab_2)
+	helpview->setText(tr(font_text));
+    else if (page == tab_3)
+	helpview->setText(tr(interface_text));
+    else if (page == tab_4)
+	helpview->setText(tr(libpath_text));
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    if (modified) {
+	switch(QMessageBox::warning(this, tr("Save Changes"),
+				    tr("Save changes to settings?"),
+				    tr("&Yes"), tr("&No"), tr("&Cancel"), 0, 2)) {
+	case 0: // save
+	    qApp->processEvents();
+	    fileSave();
+
+	    // fall through intended
+	case 1: // don't save
+	    e->accept();
+	    break;
+
+	case 2: // cancel
+	    e->ignore();
+	    break;
+
+	default: break;
+	}
+    } else
+	e->accept();
 }

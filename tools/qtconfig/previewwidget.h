@@ -18,10 +18,10 @@
 **
 **********************************************************************/
 
-#ifndef __previewwidgetimpl_h__
-#define __previewwidgetimpl_h__
+#ifndef __previewwidget_h__
+#define __previewwidget_h__
 
-#include "previewwidget.h"
+#include "previewwidgetbase.h"
 
 class PreviewWidget : public PreviewWidgetBase
 {
