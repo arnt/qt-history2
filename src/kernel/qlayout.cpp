@@ -165,8 +165,6 @@ private:
 
     int rr;
     int cc;
-    bool hReversed;
-    bool vReversed;
     QMemArray<QLayoutStruct> rowData;
     QMemArray<QLayoutStruct> colData;
     QMemArray<QLayoutStruct> *hfwData;
@@ -174,13 +172,18 @@ private:
     QMemArray<int> cStretch;
     QPtrList<QGridBox> things;
     QPtrList<QGridMultiBox> *multi;
-    bool needRecalc;
-    bool has_hfw;
+
     int hfw_width;
     int hfw_height;
     int nextR;
     int nextC;
-    bool addVertical;
+
+    uint hReversed	: 1;
+    uint vReversed	: 1;
+    uint needRecalc	: 1;
+    uint has_hfw	: 1;
+    uint addVertical	: 1;
+
     friend class QGridLayoutDataIterator;
 };
 
@@ -1433,8 +1436,8 @@ public:
     QSize minSize;
     QSize maxSize;
     QSizePolicy::ExpandData expanding;
-    bool hasHfw;
-    bool dirty;
+    uint hasHfw	    : 1;
+    uint dirty	    : 1;
 };
 
 class QBoxLayoutIterator : public QGLayoutIterator
@@ -2405,6 +2408,7 @@ QVBoxLayout::~QVBoxLayout()
 QBoxLayout *QBoxLayout::createTmpCopy()
 {
     QBoxLayout *bl = new QBoxLayout( direction() );
+    delete bl->data;
     bl->data = data;
     return bl;
 }
