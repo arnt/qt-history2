@@ -212,7 +212,9 @@ QSpinBox::~QSpinBox()
 
 
 /*!
-  Returns the current text of the spin box, including any prefix() and suffix().
+  \property QSpinBox::text
+
+  \brief the current text of the spin box, including any prefix() and suffix()
 
   \sa value()
 */
@@ -225,10 +227,12 @@ QString QSpinBox::text() const
 
 
 /*!
-  Returns a copy of the current text of the spin box with any prefix
-  and/or suffix and with the whitespace at the start and end removed.
+  \property QSpinBox::cleanText
 
-  \sa text(), setPrefix(), setSuffix()
+  \brief the current text of the spin box with any prefix and/or suffix and
+  with the whitespace at the start and end removed.
+
+  \sa text, prefix, suffix
 */
 
 QString QSpinBox::cleanText() const
@@ -251,10 +255,13 @@ QString QSpinBox::cleanText() const
 
 
 /*!
-  Sets the special-value text to \a text.  If set, the spin box will
-  display this text instead of a numeric value whenever the current
-  value is equal to minVal().  Typical use is to indicate that this
-  choice has a special (default) meaning.
+  \property QSpinBox::specialValueText
+
+  \brief the special-value text
+
+  If set, the spin box will display this text instead of a numeric value
+  whenever the current value is equal to minVal(). Typical use is to indicate
+  that this choice has a special (default) meaning.
 
   For example, if your spin box allows the user to choose the
   margin width in a print dialog and your application is able to
@@ -270,15 +277,16 @@ QString QSpinBox::cleanText() const
   choose.  Your code must then interpret the spin box value of -1 as
   the user requesting automatic margin width.
 
-  Neither \link setPrefix prefix\endlink nor \link setSuffix
+  Neither \link prefix prefix\endlink nor \link suffix
   suffix,\endlink if set, are added to the special-value text when
   displayed.
 
-  To turn off the special-value text display, call this function with
+  To turn off the special-value text display, set this property to
   an empty string as the parameter. The default is no special-value text,
   i.e., the numeric value is shown as usual.
 
-  \sa specialValueText()
+  If no special-value text is currently set, the getter function
+  specialValueText() returns a null string.
 */
 
 void QSpinBox::setSpecialValueText( const QString &text )
@@ -287,13 +295,6 @@ void QSpinBox::setSpecialValueText( const QString &text )
     updateDisplay();
 }
 
-
-/*!
-  Returns the currently set special-value text or a null string if no
-  special-value text is currently set.
-
-  \sa setSpecialValueText()
-*/
 
 QString QSpinBox::specialValueText() const
 {
@@ -305,18 +306,23 @@ QString QSpinBox::specialValueText() const
 
 
 /*!
-  Sets the prefix to \a text.  The prefix is prepended to the start of
-  the displayed value.  Typical use is to indicate the unit of
-  measurement to the user. For example:
+  \property QSpinBox::prefix
+
+  \brief the prefix of the spin box
+
+  The prefix is prepended to the start of the displayed value. Typical use is
+  to indicate the unit of measurement to the user. For example:
 
   \code
     sb->setPrefix("$");
   \endcode
 
-  To turn off the prefix display, call this function with an empty
-  string as parameter.  The default is no prefix.
+  To turn off the prefix display, set this property to an empty
+  string. The default is no prefix.
 
-  \sa prefix(), setSuffix(), suffix()
+  If no prefix is set, the getter function prefix() returns a null string.
+
+  \sa suffix
 */
 
 void QSpinBox::setPrefix( const QString &text )
@@ -326,10 +332,22 @@ void QSpinBox::setPrefix( const QString &text )
 }
 
 
+QString QSpinBox::prefix() const
+{
+    if ( pfix.isEmpty() )
+	return QString::null;
+    else
+	return pfix;
+}
+
+
 /*!
-  Sets the suffix to \a text.  The suffix is appended to the end of the
-  displayed value.  Typical use is to indicate the unit of measurement
-  to the user. For example:
+  \property QSpinBox::suffix
+
+  \brief the suffix of the spin box
+
+  The suffix is appended to the end of the displayed value.  Typical use is to
+  indicate the unit of measurement to the user. For example:
 
   \walkthrough table/wineorder2/productlist.cpp
   \skipto suffix
@@ -342,10 +360,12 @@ void QSpinBox::setPrefix( const QString &text )
   table/wineorder2/spinboxitem.cpp and
   table/wineorder2/productlist.cpp \endlink )
 
-  To turn off the suffix display, call this function with an empty
-  string as \a text.  The default is no suffix.
+  To turn off the suffix display, set this property to  an empty
+  string. The default is no suffix.
 
-  \sa suffix(), setPrefix(), prefix()
+  If no suffix is set, the getter function suffix() returns a null string.
+
+  \sa prefix
 */
 
 void QSpinBox::setSuffix( const QString &text )
@@ -353,30 +373,6 @@ void QSpinBox::setSuffix( const QString &text )
     sfix = text;
     updateDisplay();
 }
-
-
-/*!
-  Returns the currently set prefix or a null string if no prefix is
-  set.
-
-  \sa setPrefix(), setSuffix(), suffix()
-*/
-
-QString QSpinBox::prefix() const
-{
-    if ( pfix.isEmpty() )
-	return QString::null;
-    else
-	return pfix;
-}
-
-
-/*!
-  Returns the currently set suffix or a null string if no suffix is
-  set.
-
-  \sa setSuffix(), setPrefix(), suffix()
-*/
 
 QString QSpinBox::suffix() const
 {
@@ -387,11 +383,15 @@ QString QSpinBox::suffix() const
 }
 
 
-/*! Setting \a on to TRUE allows the value to be stepped from the
-  highest value to the lowest and vice versa.  By default, wrapping is
-  turned off.
+/*!
+  \property QSpinBox::wrapping
 
-  \sa wrapping(), minValue(), maxValue(), setRange()
+  \brief whether it is possible to step the value from the highest value to the
+  lowest value and vice versa
+
+  By default, wrapping is turned off.
+
+  \sa minValue, maxValue, setRange()
 */
 
 void QSpinBox::setWrapping( bool on )
@@ -399,11 +399,6 @@ void QSpinBox::setWrapping( bool on )
     wrap = on;
     updateDisplay();
 }
-
-
-/*!
-  Returns the current setWrapping() value.
-*/
 
 bool QSpinBox::wrapping() const
 {
@@ -469,14 +464,22 @@ void QSpinBox::arrangeWidgets()
     vi->setGeometry( lx, fw, rx, height() - 2*fw );
 }
 
-/*! Sets the current value of the spin box to \a value.
+/*!
+  \property QSpinBox::value
 
-  This is QRangeControl::setValue() made available as a slot.
+  \brief the current value of the spin box
+
+  \sa QRangeControl::setValue()
 */
 
 void QSpinBox::setValue( int value )
 {
     QRangeControl::setValue( value );
+}
+
+int QSpinBox::value() const
+{
+    return QRangeControl::value();
 }
 
 
@@ -765,7 +768,7 @@ QLineEdit* QSpinBox::editor() const
 
 
 /*!
-  This slot gets called whenever the user edits the text of the spin box.
+  This slot is called whenever the user edits the text of the spin box.
 */
 
 void QSpinBox::textChanged()
@@ -889,10 +892,15 @@ void QSpinBox::styleChange( QStyle& old )
   often considered to be more meaningful than \c UpDownArrows.
 */
 
-/*!  Sets the spin box to display \a newSymbols on its buttons.  \a
-  newSymbols can be either \c UpDownArrows (the default) or \c PlusMinus.
+/*!
+  \property QSpinBox::buttonSymbols
 
-  \sa buttonSymbols() ButtonSymbols
+  \brief the current button symbol mode
+
+  The possible values can be either \c UpDownArrows or \c PlusMinus. The
+  default is \c UpDownArrows.
+
+  \sa ButtonSymbols
 */
 
 void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
@@ -911,12 +919,6 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
     //    repaint( FALSE );
 }
 
-/*!  Returns the current button symbol mode.  The default is \c
-  UpDownArrows.
-
-  \sa setButtonSymbols() ButtonSymbols
-*/
-
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
     switch( d->buttons->buttonSymbols() ) {
@@ -929,33 +931,27 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 }
 
 /*!
-  \reimp
+  \property QSpinBox::minValue
+
+  \brief the minimum value of the spin box
+
+  \sa setRange()
 */
+
 int QSpinBox::minValue() const
 {
     return QRangeControl::minValue();
 }
 
-/*!
-  \reimp
-*/
-int QSpinBox::maxValue() const
-{
-    return QRangeControl::maxValue();
-}
-
-/*! A convenience function that simply calls
-  setRange( \a i, maxValue() ).
-
-  \sa setRange()
-*/
 void QSpinBox::setMinValue( int i )
 {
     setRange( i, maxValue() );
 }
 
-/*! A convenience function that simply calls
-  setRange( minValue(), \a i ).
+/*!
+  \property QSpinBox::maxValue
+
+  \brief the maximum value of the spin box
 
   \walkthrough table/wineorder2/spinboxitem.cpp
   \skipto setMaxValue
@@ -966,37 +962,36 @@ void QSpinBox::setMinValue( int i )
 
   \sa setRange()
 */
+
+int QSpinBox::maxValue() const
+{
+    return QRangeControl::maxValue();
+}
+
 void QSpinBox::setMaxValue( int i )
 {
     setRange( minValue(), i );
 }
 
 /*!
-  \reimp
+  \property QSpinBox::lineStep
+
+  \brief the line step
+
+  The setter function setLineStep() calls the virtual stepChange() function if
+  the new line step is different from the previous setting.
+
+  \sa QRangeControl::setSteps() setRange()
 */
+
 int QSpinBox::lineStep() const
 {
     return QRangeControl::lineStep();
 }
 
-/*! Sets the line step to \a i.
-
-  Calls the virtual stepChange() function if the new line step is
-  different from the previous setting.
-
-  \sa lineStep() QRangeControl::setSteps() setRange()
-*/
 void QSpinBox::setLineStep( int i )
 {
     setSteps( i, pageStep() );
-}
-
-/*!
-  \reimp
-*/
-int QSpinBox::value() const
-{
-    return QRangeControl::value();
 }
 
 /*!
