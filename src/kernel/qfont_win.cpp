@@ -294,11 +294,11 @@ int QFontMetrics::leftBearing(QChar ch) const
 	    GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
 	} , {
 	    uint ch8;
-	    if ( ch.row() || ch.cell() > 125 ) {
+	    if ( ch.row() || ch.cell() > 127 ) {
 		QByteArray w = QString(ch).toLocal8Bit();
 		if ( w.length() != 1 )
 		    return 0;
-		ch8 = w[0];
+		ch8 = (uchar)w[0];
 	    } else {
 		ch8 = ch.cell();
 	    }
@@ -338,11 +338,11 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    return abc.abcC;
 	} , {
 	    uint ch8;
-	    if ( ch.row() || ch.cell() > 125 ) {
+	    if ( ch.row() || ch.cell() > 127 ) {
 		QByteArray w = QString(ch).toLocal8Bit();
 		if ( w.length() != 1 )
 		    return 0;
-		ch8 = w[0];
+		ch8 = (uchar)w[0];
 	    } else {
 		ch8 = ch.cell();
 	    }
