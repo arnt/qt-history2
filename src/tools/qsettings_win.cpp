@@ -300,7 +300,7 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value, const Q
 QStringList QSettings::readListEntry(const QString &key, const QChar &sep)
 {
     QString joined = readEntry( key );
-    return QStringList::split( sep, key );
+    return QStringList::split( sep, joined );
 }
 
 QString QSettings::readEntry( const QString &key )
