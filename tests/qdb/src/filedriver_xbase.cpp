@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-#define DEBUG_XBASE
-#define VERBOSE_DEBUG_XBASE
+// #define DEBUG_XBASE
+// #define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
