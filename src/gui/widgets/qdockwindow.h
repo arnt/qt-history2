@@ -47,7 +47,8 @@ public:
     Qt::DockWindowArea area() const;
 
     void setArea(Qt::DockWindowArea area); // always extends
-    void setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);    void setArea(QDockWindow *after, Qt::Orientation direction); // always splits
+    void setArea(Qt::DockWindowArea area, Qt::Orientation direction, bool extend = false);
+    void setArea(QDockWindow *after, Qt::Orientation direction); // always splits
 
 protected:
     void changeEvent(QEvent *event);
