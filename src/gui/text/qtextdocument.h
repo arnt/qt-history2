@@ -140,6 +140,7 @@ protected:
 
 // ### just a temporary hook/interface, until Q4TextBrowser and friends moved into main
 // ### will be gone soon again
+class QImage;
 struct QTextDocumentLoaderInterface
 {
     virtual QImage image(const QString &name, const QString &context = QString::null) = 0;
