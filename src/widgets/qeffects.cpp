@@ -138,7 +138,6 @@ void QAlphaWidget::run( int time )
     checkTime.start();
 
     showWidget = TRUE;
-    widget->installEventFilter( this );
     qApp->installEventFilter( this );
 
     widget->setWState( WState_Visible );
@@ -244,7 +243,6 @@ void QAlphaWidget::render()
 	qApp->removeEventFilter( this );
 
 	if ( widget ) {
-	    widget->removeEventFilter( this );
 	    if ( !showWidget ) {
 		widget->hide();
 		widget->setWState( WState_ForceHide );
@@ -275,6 +273,7 @@ void QAlphaWidget::render()
 	q_blend = 0;
 	deleteLater();
     } else {
+	widget->clearWState( WState_ForceHide );
 	alphaBlend();
 	pm = mixed;
 	repaint( FALSE );
@@ -490,7 +489,6 @@ void QRollEffect::run( int time )
 
     show();
 
-    widget->installEventFilter( this );
     qApp->installEventFilter( this );
 
     showWidget = TRUE;
@@ -505,11 +503,12 @@ void QRollEffect::run( int time )
 void QRollEffect::scroll()
 {
     if ( !done ) {
-        int tempel = checkTime.elapsed();
-        if ( elapsed >= tempel )
-            elapsed++;
-        else
-            elapsed = tempel;
+	widget->clearWState( WState_ForceHide );
+	int tempel = checkTime.elapsed();
+	if ( elapsed >= tempel )
+	    elapsed++;
+	else
+	    elapsed = tempel;
 
 	if ( currentWidth != totalWidth ) {
 	    currentWidth = totalWidth * (elapsed/duration)
@@ -554,7 +553,6 @@ void QRollEffect::scroll()
 	anim.stop();
 	qApp->removeEventFilter( this );
 	if ( widget ) {
-	    widget->removeEventFilter( this );
 	    if ( !showWidget ) {
 		widget->hide();
 		widget->setWState( WState_ForceHide );
