@@ -753,7 +753,7 @@ QString QTextHtmlExporter::toHtml()
     if (styleEmitted)
         html += QLatin1Char('"');
     else
-        html.truncate(html.size() - qstrlen(style.latin1()));
+        html.chop(qstrlen(style.latin1()));
 
     html += QLatin1Char('>');
 
@@ -845,7 +845,7 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format, bool 
         html += QLatin1Char(';');
         attributesEmitted = true;
     } else {
-        html.truncate(html.size() - qstrlen(decorationTag.latin1()));
+        html.chop(qstrlen(decorationTag.latin1()));
     }
 
     if (format.hasProperty(QTextFormat::TextColor)) {
@@ -925,7 +925,7 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     if (attributesEmitted)
         html += QLatin1String("\">");
     else
-        html.truncate(html.size() - qstrlen(styleTag.latin1()));
+        html.chop(qstrlen(styleTag.latin1()));
 
     QString txt = fragment.text();
     if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
@@ -1030,7 +1030,7 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     if (hasStyle)
         html += QLatin1Char('"');
     else
-        html.truncate(html.size() - qstrlen(style.latin1()));
+        html.chop(qstrlen(style.latin1()));
 
     if (format.hasProperty(QTextFormat::BlockBackgroundColor))
         emitAttribute("bgcolor", format.backgroundColor().name());
