@@ -226,7 +226,7 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
   The default edit strategy is OnRowChange.
  */
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
-    : QSqlQueryModel(*new QSqlTableModelPrivate(this), parent)
+    : QSqlQueryModel(*new QSqlTableModelPrivate, parent)
 {
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }

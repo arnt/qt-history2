@@ -25,7 +25,7 @@ class QSqlQuery;
 class Q_SQL_EXPORT QSqlQueryModel: public QAbstractTableModel
 {
     Q_OBJECT
-    friend class QSqlQueryModelPrivate;
+    Q_DECLARE_PRIVATE(QSqlQueryModel)
 
 public:
     QSqlQueryModel(QObject *parent = 0);
@@ -56,10 +56,6 @@ protected:
     QModelIndex dataIndex(const QModelIndex &item) const;
     void setLastError(const QSqlError &error);
     QSqlQueryModel(QSqlQueryModelPrivate &d, QObject *parent);
-
-    inline QSqlQueryModelPrivate *d_func() const { return d_ptr; }
-
-    QSqlQueryModelPrivate *d_ptr;
 };
 
 #endif

@@ -26,6 +26,8 @@
 //
 //
 
+#include "private/qabstractitemmodel_p.h"
+
 #include "qlist.h"
 #include "qsqlerror.h"
 #include "qsqlquery.h"
@@ -33,11 +35,12 @@
 #include "qvarlengtharray.h"
 #include "qvector.h"
 
-class QSqlQueryModelPrivate
+class QSqlQueryModelPrivate: public QAbstractItemModelPrivate
 {
+    Q_DECLARE_PUBLIC(QSqlQueryModel)
 public:
-    QSqlQueryModelPrivate(QSqlQueryModel *qq): atEnd(false), q_ptr(qq) {}
-    virtual ~QSqlQueryModelPrivate();
+    QSqlQueryModelPrivate(): atEnd(false) {}
+    ~QSqlQueryModelPrivate();
 
     void prefetch(int);
 
@@ -48,7 +51,6 @@ public:
     uint atEnd : 1;
     QVector<QVariant> headers;
     QVarLengthArray<int, 56> colOffsets; // used to calculate dataIndex of columns
-    QSqlQueryModel *q_ptr;
 };
 
 #endif

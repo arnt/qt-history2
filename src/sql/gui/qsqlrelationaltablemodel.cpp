@@ -34,8 +34,8 @@ struct Relation
 class QSqlRelationalTableModelPrivate: public QSqlTableModelPrivate
 {
 public:
-    QSqlRelationalTableModelPrivate(QSqlRelationalTableModel *qq)
-        : QSqlTableModelPrivate(qq)
+    QSqlRelationalTableModelPrivate()
+        : QSqlTableModelPrivate()
     {}
 
     mutable QVector<Relation> relations;
@@ -99,7 +99,7 @@ void QSqlRelationalTableModelPrivate::clearChanges()
   default database connection will be used.
  */
 QSqlRelationalTableModel::QSqlRelationalTableModel(QObject *parent, QSqlDatabase db)
-    : QSqlTableModel(*new QSqlRelationalTableModelPrivate(this), parent, db)
+    : QSqlTableModel(*new QSqlRelationalTableModelPrivate, parent, db)
 {
 }
 

@@ -34,9 +34,8 @@ class QSqlTableModelPrivate: public QSqlQueryModelPrivate
     Q_DECLARE_PUBLIC(QSqlTableModel)
 
 public:
-    QSqlTableModelPrivate(QSqlTableModel *qq)
-        : QSqlQueryModelPrivate(qq),
-          editIndex(-1), insertIndex(-1), sortColumn(-1),
+    QSqlTableModelPrivate()
+        : editIndex(-1), insertIndex(-1), sortColumn(-1),
           sortOrder(Qt::AscendingOrder),
           strategy(QSqlTableModel::OnRowChange)
     {}
