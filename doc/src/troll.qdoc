@@ -1,0 +1,137 @@
+/*! \page troll.html
+
+\title Company Information
+
+Trolltech is an international software company with
+headquarters in Oslo, the capital of Norway, and with offices
+in Brisbane, Australia, and Palo Alto, California.
+
+Our flagship product is \link
+http://www.trolltech.com/products/qt.html Qt\endlink, the
+cross-platform C++ GUI toolkit. Qt enables you to build professional,
+efficient, portable and maintainable GUI applications quickly and
+easily.
+
+\link http://www.trolltech.com/products/embedded/index.html
+Qt/Embedded\endlink, the embedded version of Qt, is designed to power
+todays new generation of embedded computers and electronic consumer
+devices. On top of that, \link
+http://www.trolltech.com/products/qtopia/index.html Qtopia\endlink
+provides a window system and application suite for handheld devices.
+
+\section1 Software that makes Sense
+
+Our motto expresses the vision behind our products. We design our
+products to give our customers the feeling of "this is the way
+that things were always meant to be".
+
+We know that it is crucial for our customers to have good tools for
+making good software. Therefore, we do not compromise our demands for
+superior design and technical quality when we develop our
+products.
+
+Trolltech is also known for providing top quality technical support
+to our customers. At Trolltech, support inquiries are handled by the
+most qualified developers and designers themselves.
+
+\section1 History
+
+Trolltech was founded in 1994. The core team of designers at Trolltech
+started developing Qt in 1992, and the first commercial version of Qt was
+released in 1995. Since then, Trolltech has experienced rapid growth, and
+Qt is currently used in thousands of successful commercial software
+development projects world wide. At Trolltech, we continously work to
+improve and expand Qt to ensure that it always represents the state of the
+art in usability, look and feel, performance, and stability.
+
+For more information, please visit the \link http://www.trolltech.com/
+Trolltech website\endlink.
+
+\section1 Contact Information
+
+\raw HTML
+
+<table cellpadding="3" cellspacing="0" border="0" bgcolor="#E5E5E5">
+<tr><th colspan="6" valign="top" bgcolor="#a2c511">Email</th></tr>
+<tr>
+ <td rowspan="4"><br /></td>
+ <td colspan="2">
+  <a href="mailto:info@trolltech.com"><strong>info@trolltech.com</strong></a>
+ </td><td colspan="2">
+  <a href="mailto:sales@trolltech.com"><strong>sales@trolltech.com</strong></a>
+ </td><td rowspan="4"><br /></td>
+</tr><tr>
+ <td ><br /></td>
+ <td valign="top"> General inquiries and questions. Please check the
+  <a href="http://www.trolltech.com/developer/faqs/">FAQs</a> to see if your question is already answered there.
+ </td><td ><br />
+ </td><td valign="top"> Inquires related to purchasing, pricing and availability of
+  Trolltech products
+ </td>
+</tr><tr>
+ <td colspan="2">
+  <a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
+ </td><td colspan="2">
+  <a href="mailto:qt-bugs@trolltech.com"><strong>qt-bugs@trolltech.com</strong></a>
+ </td>
+</tr><tr>
+ <td ><br /></td>
+ <td valign="top"> Comments about our web pages</td>
+ <td ><br /></td>
+ <td valign="top">
+  Use this address for bug reports; please read (the very short)
+  <a href="bughowto.html">How to Report a Bug</a> page first.
+ </td>
+</tr><tr>
+ <td ><br /></td>
+ <td colspan="4" valign="top">Note that Trolltech uses the
+  <a href="http://mail-abuse.org/rbl/">RBL</a> and
+  <a href="http://work-rss.mail-abuse.org/rss/">RSS</a> databases to cut down on
+  spam. If your mail server is listed, you will regrettably not be able to
+  send us mail. The <a href="http://www.mail-abuse.org/tsi/">MAPS TSI</a>
+  pages provide information about how to secure your server.
+ </td><td>
+  <br />
+ </td>
+</tr>
+<tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"><br /></td></tr>
+<tr><th colspan="6" valign="top" bgcolor="#a2c511">Norway Office</th></tr>
+<tr>
+ <td rowspan="4"><br /></td>
+ <td colspan="2"><strong>Telephone</strong></td>
+ <td colspan="2"><strong>Street/Mail Address</strong></td>
+<td rowspan="4"><br /></td>
+</tr><tr>
+ <td ><br /></td>
+ <td valign="top"> General inquiries: +47 21 60 48 00</td>
+ <td rowspan="3"><br /></td>
+ <td valign="top" rowspan="3"> Waldemar Thranes gate 98<br /> NO-0175 Oslo<br /> Norway</td>
+</tr><tr>
+ <td colspan="2"><strong>Telefax</strong></td>
+</tr><tr>
+ <td><br /></td>
+ <td valign="top"> All inquiries: +47 21 60 48 01</td>
+</tr><tr bgcolor="#ffffff">
+ <td bgcolor="#ffffff" colspan="6"> <br /> </td>
+</tr><tr>
+ <th colspan="6" valign="top" bgcolor="#a2c511">USA Office</th>
+</tr><tr>
+ <td rowspan="4"><br /></td>
+ <td colspan="2"><strong>Telephone</strong></td>
+ <td colspan="2"><strong>Street/Mail Address</strong></td>
+ <td rowspan="4"><br /></td>
+</tr><tr>
+ <td ><br /></td>
+ <td valign="top"> General inquiries: (+1) 650-813-1676</td>
+ <td rowspan="3"><br /></td>
+ <td valign="top" rowspan="3"> 1860 Embarcadero Road<br /> Suite 100<br /> Palo Alto<br /> CA 94303<br /> USA</td>
+</tr><tr>
+ <td colspan="2"><strong>Telefax</strong></td>
+</tr><tr>
+ <td ><br /></td>
+ <td valign="top"> All inquiries: (+1) 650-813-1851</td>
+</tr>
+</table>
+\endraw
+
+*/
