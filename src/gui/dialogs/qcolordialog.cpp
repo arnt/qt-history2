@@ -902,7 +902,7 @@ class QColorShower : public QWidget
 {
     Q_OBJECT
 public:
-    QColorShower(QWidget *parent, const char *name=0);
+    QColorShower(QWidget *parent);
 
     //things that don't emit signals
     void setHsv(int h, int s, int v);
@@ -1045,8 +1045,8 @@ void QColorShowLabel::mouseReleaseEvent(QMouseEvent *)
     mousePressed = false;
 }
 
-QColorShower::QColorShower(QWidget *parent, const char *name)
-    :QWidget(parent, name)
+QColorShower::QColorShower(QWidget *parent)
+    :QWidget(parent)
 {
     curCol = qRgb(-1, -1, -1);
     QColIntValidator *val256 = new QColIntValidator(0, 255, this);
@@ -1350,7 +1350,7 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
 
     rightLay->addStretch();
 
-    cs = new QColorShower(dialog, "qt_colorshower");
+    cs = new QColorShower(dialog);
     connect(cs, SIGNAL(newCol(QRgb)), this, SLOT(newColorTypedIn(QRgb)));
     rightLay->addWidget(cs);
 
@@ -1429,9 +1429,11 @@ void QColorDialogPrivate::addCustom()
 */
 
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
-    QDialog(parent, name, modal, ( Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
-                                    Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
+    QDialog(parent, (Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_Title |
+                     Qt::WStyle_DialogBorder | Qt::WStyle_SysMenu))
 {
+    setObjectName(name);
+    setModal(modal);
     setSizeGripEnabled(false);
     d = new QColorDialogPrivate(this);
 

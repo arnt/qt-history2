@@ -440,8 +440,10 @@ const char * mb_texts[] = {
 */
 
 QMessageBox::QMessageBox(QWidget *parent, const char *name)
-    : QDialog(parent, name, true, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+    : QDialog(parent, Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
+    setObjectName(name);
+    setModal(true);
     init(Ok, 0, 0);
 }
 
@@ -516,8 +518,10 @@ QMessageBox::QMessageBox(const QString& caption,
                           int button0, int button1, int button2,
                           QWidget *parent, const char *name,
                           bool modal, Qt::WFlags f)
-    : QDialog(parent, name, modal, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
+    : QDialog(parent, f | Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
 {
+    setObjectName(name);
+    setModal(modal);
     init(button0, button1, button2);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);

@@ -224,8 +224,10 @@ QProgressBar *QProgressDialog::bar() const
 
 QProgressDialog::QProgressDialog(QWidget *creator, const char *name,
                                   bool modal, Qt::WFlags f)
-    : QDialog(creator, name, modal, f)
+    : QDialog(creator, f)
 {
+    setObjectName(name);
+    setModal(modal);
     init(creator, QString::fromLatin1(""), tr("Cancel"), 100);
 }
 
@@ -261,8 +263,10 @@ QProgressDialog::QProgressDialog(const QString &labelText,
                                   int totalSteps,
                                   QWidget *creator, const char *name,
                                   bool modal, Qt::WFlags f)
-    : QDialog(creator, name, modal, f)
+    : QDialog(creator, f)
 {
+    setObjectName(name);
+    setModal(modal);
     init(creator, labelText, cancelButtonText, totalSteps);
 }
 

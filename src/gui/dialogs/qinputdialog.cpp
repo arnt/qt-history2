@@ -26,10 +26,13 @@
 #include "qvalidator.h"
 #include "qapplication.h"
 
-class QInputDialogPrivate
+#include "qdialog_p.h"
+
+class QInputDialogPrivate : public QDialogPrivate
 {
+    Q_DECLARE_PUBLIC(QInputDialog)
 public:
-    friend class QInputDialog;
+    QInputDialogPrivate();
     QLabel *label;
     QLineEdit *lineEdit;
     QSpinBox *spinBox;
@@ -37,7 +40,67 @@ public:
     QPushButton *ok;
     QStackedBox *stack;
     QInputDialog::Type type;
+
+    void init(const QString &label, QInputDialog::Type type);
 };
+
+#define d d_func()
+#define q q_func()
+
+QInputDialogPrivate::QInputDialogPrivate()
+    : QDialogPrivate(),
+      label(0),
+      lineEdit(0),
+      spinBox(0),
+      comboBox(0),
+      editComboBox(0)
+{
+}
+
+void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
+{
+    QVBoxLayout *vbox = new QVBoxLayout(q);
+    vbox->setMargin(6);
+    vbox->setSpacing(6);
+
+    label = new QLabel(lbl, q);
+    vbox->addWidget(label);
+
+    stack = new QStackedBox(q);
+    vbox->addWidget(stack);
+    lineEdit = new QLineEdit(stack);
+    spinBox = new QSpinBox(stack);
+    comboBox = new QComboBox(stack);
+    editComboBox = new QComboBox(stack);
+    editComboBox->setEditable(true);
+
+    QHBoxLayout *hbox = new QHBoxLayout;
+    hbox->setSpacing(6);
+    vbox->addLayout(hbox, Qt::AlignRight);
+
+    d->ok = new QPushButton(q->tr("OK"), q);
+    d->ok->setDefault(true);
+    QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
+
+    QSize bs = d->ok->sizeHint().expandedTo(cancel->sizeHint());
+    d->ok->setFixedSize(bs);
+    cancel->setFixedSize(bs);
+
+    hbox->addStretch();
+    hbox->addWidget(d->ok);
+    hbox->addWidget(cancel);
+
+    QObject::connect(lineEdit, SIGNAL(returnPressed()), q, SLOT(tryAccept()));
+    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), q, SLOT(textChanged(QString)));
+
+    QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
+    QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
+
+    QSize sh = q->sizeHint().expandedTo(QSize(400, 10));
+    q->setType(type);
+    q->resize(sh.width(), vbox->heightForWidth(sh.width()));
+}
+
 
 /*!
     \class QInputDialog
@@ -90,7 +153,28 @@ public:
   Use editableComboBox() to access the QComboBox.
 */
 
+
 /*!
+  Constructs the dialog. The \a label is the text which is shown to the user
+  (it should tell the user what they are expected to enter). The \a parent
+  is the dialog's parent widget. The widget is called \a name. If \a
+  modal is true (the default) the dialog will be modal. The \a type
+  parameter is used to specify which type of dialog to construct. The \a f
+  parameter is passed on to the QDialog constructor.
+
+  \sa getText(), getInteger(), getDouble(), getItem()
+*/
+
+QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt::WFlags f)
+    : QDialog(*new QInputDialogPrivate, parent, f)
+{
+    d->init(label, type);
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
   Constructs the dialog. The \a label is the text which is shown to the user
   (it should tell the user what they are expected to enter). The \a parent
   is the dialog's parent widget. The widget is called \a name. If \a
@@ -103,56 +187,12 @@ public:
 
 QInputDialog::QInputDialog(const QString &label, QWidget* parent,
                             const char* name, bool modal, Type type, Qt::WFlags f)
-    : QDialog(parent, name, modal, f)
+    : QDialog(*new QInputDialogPrivate, parent, f)
 {
-    d = new QInputDialogPrivate;
-    d->lineEdit = 0;
-    d->spinBox = 0;
-    d->comboBox = 0;
-
-    QVBoxLayout *vbox = new QVBoxLayout(this);
-    vbox->setMargin(6);
-    vbox->setSpacing(6);
-
-    d->label = new QLabel(label, this);
-    vbox->addWidget(d->label);
-
-    d->stack = new QStackedBox(this);
-    vbox->addWidget(d->stack);
-    d->lineEdit = new QLineEdit(d->stack);
-    d->spinBox = new QSpinBox(d->stack);
-    d->comboBox = new QComboBox(d->stack);
-    d->editComboBox = new QComboBox(d->stack);
-    d->editComboBox->setEditable(true);
-
-    QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->setSpacing(6);
-    vbox->addLayout(hbox, Qt::AlignRight);
-
-    d->ok = new QPushButton(tr("OK"), this);
-    d->ok->setDefault(true);
-    QPushButton *cancel = new QPushButton(tr("Cancel"), this);
-
-    QSize bs = d->ok->sizeHint().expandedTo(cancel->sizeHint());
-    d->ok->setFixedSize(bs);
-    cancel->setFixedSize(bs);
-
-    hbox->addStretch();
-    hbox->addWidget(d->ok);
-    hbox->addWidget(cancel);
-
-    connect(d->lineEdit, SIGNAL(returnPressed()),
-             this, SLOT(tryAccept()));
-    connect(d->lineEdit, SIGNAL(textChanged(QString)),
-             this, SLOT(textChanged(QString)));
-
-    connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancel, SIGNAL(clicked()), this, SLOT(reject()));
-
-    QSize sh = sizeHint().expandedTo(QSize(400, 10));
-    setType(type);
-    resize(sh.width(), vbox->heightForWidth(sh.width()));
+    d->init(label, type);
+    setModal(modal);
 }
+#endif
 
 /*!
   Returns the line edit which is used in LineEdit mode.
@@ -276,9 +316,9 @@ QString QInputDialog::getText(const QString &caption, const QString &label,
                                QLineEdit::EchoMode mode, const QString &text,
                                bool *ok, QWidget *parent, const char *name, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent,
-                                          name ? name : "qt_inputdlg_gettext",
-                                          true, LineEdit, f);
+    QInputDialog *dlg = new QInputDialog(label, parent, LineEdit, f);
+    dlg->setObjectName(name ? name : "qt_inputdlg_gettext");
+    dlg->setModal(true);
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setWindowTitle(caption);
@@ -334,9 +374,10 @@ int QInputDialog::getInteger(const QString &caption, const QString &label,
                               int value, int minValue, int maxValue, int step, bool *ok,
                               QWidget *parent, const char *name, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent,
-                                          name ? name : "qt_inputdlg_getint",
-                                          true, SpinBox, f);
+    QInputDialog *dlg = new QInputDialog(label, parent, SpinBox, f);
+    dlg->setObjectName(name ? name : "qt_inputdlg_getint");
+    dlg->setModal(true);
+
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setWindowTitle(caption);
 #endif
@@ -394,8 +435,9 @@ double QInputDialog::getDouble(const QString &caption, const QString &label,
                                 int decimals, bool *ok, QWidget *parent,
                                 const char *name, Qt::WFlags f)
 {
-    QInputDialog dlg(label, parent,
-                      name ? name : "qt_inputdlg_getdbl", true, LineEdit, f);
+    QInputDialog dlg(label, parent, LineEdit, f);
+    dlg.setObjectName(name ? name : "qt_inputdlg_getdbl");
+    dlg.setModal(true);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(caption);
 #endif
@@ -448,7 +490,9 @@ QString QInputDialog::getItem(const QString &caption, const QString &label, cons
                                int current, bool editable,
                                bool *ok, QWidget *parent, const char *name, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent, name ? name : "qt_inputdlg_getitem", true, editable ? EditableComboBox : ComboBox, f);
+    QInputDialog *dlg = new QInputDialog(label, parent, editable ? EditableComboBox : ComboBox, f);
+    dlg->setObjectName(name ? name : "qt_inputdlg_getitem");
+    dlg->setModal(true);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setWindowTitle(caption);
 #endif

@@ -276,7 +276,7 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 #ifndef QT_NO_SIZEGRIP
     if (!enabled != !d->resizer) {
         if (enabled) {
-            d->resizer = new QSizeGrip(this, "QStatusBar::resizer");
+            d->resizer = new QSizeGrip(this);
         } else {
             delete d->resizer;
             d->resizer = 0;

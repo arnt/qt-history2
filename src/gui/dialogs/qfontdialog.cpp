@@ -202,8 +202,10 @@ public:
 
 QFontDialog::QFontDialog(QWidget *parent, const char *name,
                           bool modal, Qt::WFlags f)
-    : QDialog(parent, name, modal, f)
+    : QDialog(parent, f)
 {
+    setObjectName(name);
+    setModal(modal);
     setSizeGripEnabled(true);
     d = new QFontDialogPrivate;
     // grid

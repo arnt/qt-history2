@@ -37,7 +37,10 @@ class Q_GUI_EXPORT QDialog : public QWidget
 
 public:
     QDialog(QWidget *parent, Qt::WFlags f = 0);
-    QDialog(QWidget *parent, const char *name, bool modal=false, Qt::WFlags f=0); // deprecated
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QDialog(QWidget *parent, const char *name, bool modal = false,
+                                  Qt::WFlags f = 0);
+#endif
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };

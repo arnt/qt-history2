@@ -212,6 +212,7 @@ QDialog::QDialog(QWidget *parent, Qt::WFlags f)
 {
 }
 
+#ifdef QT_COMPAT
 /*!
     \overload
     \obsolete
@@ -220,9 +221,9 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, Qt::WFlags f)
     : QWidget(*new QDialogPrivate, parent,
               (modal ? (f|Qt::WShowModal) : f) | Qt::WType_Dialog)
 {
-    if (name)
-        setObjectName(name);
+    setObjectName(name);
 }
+#endif
 
 /*!
   \overload
@@ -950,7 +951,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 #ifndef QT_NO_SIZEGRIP
     if (!enabled != !d->resizer) {
         if (enabled) {
-            d->resizer = new QSizeGrip(this, "QDialog::resizer");
+            d->resizer = new QSizeGrip(this);
             // adjustSize() processes all events, which is suboptimal
             d->resizer->resize(d->resizer->sizeHint());
             if (QApplication::reverseLayout())

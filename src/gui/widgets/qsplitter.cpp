@@ -48,7 +48,7 @@ class QSplitterHandle : public QWidget
 {
     Q_OBJECT
 public:
-    QSplitterHandle(Qt::Orientation o, QSplitter *parent, const char* name=0);
+    QSplitterHandle(Qt::Orientation o, QSplitter *parent);
     void setOrientation(Qt::Orientation o);
     Qt::Orientation orientation() const { return orient; }
 
@@ -78,9 +78,8 @@ private:
 const uint Default = 2;
 static int mouseOffset;
 
-QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent,
-                                  const char * name)
-    : QWidget(parent, name)
+QSplitterHandle::QSplitterHandle(Qt::Orientation o, QSplitter *parent)
+    : QWidget(parent)
 {
     s = parent;
     setOrientation(o);
