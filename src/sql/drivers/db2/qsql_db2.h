@@ -59,6 +59,9 @@ class QDB2Result : public QSqlResult
 public:
     QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp );
     ~QDB2Result();
+    bool prepare( const QString& query );
+    bool exec();
+
 protected:
     QVariant data( int field );
     bool reset ( const QString& query );

@@ -40,6 +40,7 @@
 #include <qsqlrecord.h>
 #include <qdatetime.h>
 #include <qptrvector.h>
+#include <private/qsqlextension_p.h>
 
 #include <sqlcli.h>
 #include <sqlcli1.h>
@@ -53,6 +54,25 @@ public:
     SQLHANDLE hEnv;
     SQLHANDLE hDbc;
     QString user;
+};
+
+class QDB2PreparedExtension : public QSqlExtension
+{
+public:
+    QDB2PreparedExtension( QODBCResult * r )
+	: result( r ) {}
+
+    bool prepare( const QString& query )
+    {
+	return result->prepare( query );
+    }
+
+    bool exec()
+    {
+	return result->exec();
+    }
+    
+    QDB2Result * result;
 };
 
 class QDB2ResultPrivate
@@ -417,10 +437,11 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
 
 /************************************/
 
-QDB2Result::QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp ):
-	QSqlResult( dr )
+QDB2Result::QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp )
+    : QSqlResult( dr )
 {
     d = new QDB2ResultPrivate( dp );
+    setExtension( new QDB2PreparedExtension( this ) );
 }
 
 QDB2Result::~QDB2Result()
@@ -493,6 +514,16 @@ bool QDB2Result::reset ( const QString& query )
     d->valueCache.resize( count );
     setActive( TRUE );
     return TRUE;
+}
+
+bool QDB2Result::prepare( const QString& query )
+{
+    return FALSE;
+}
+
+bool QDB2Result::exec()
+{
+    return FALSE;
 }
 
 bool QDB2Result::fetch( int i )
