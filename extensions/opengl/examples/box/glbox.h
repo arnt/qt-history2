@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.h#3 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.h#4 $
 **
 ** Definition of GLBox
 ** This is a simple QGLWidget displaying an openGL wireframe box
@@ -19,6 +19,7 @@ class GLBox : public QGLWidget
 public:
 
     GLBox( QWidget* parent, const char* name );
+    ~GLBox();
 
 public slots:
 
