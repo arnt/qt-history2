@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#16 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#17 $
 **
 ** Definition of QFont class
 **
@@ -68,7 +68,6 @@ public:
 #if defined(_WS_X11_)
     Font	handle() const;
 #endif
-    void        updateSubscribers();
 
     static const QFont &defaultFont();
     static void  setDefaultFont( const QFont & );
@@ -79,25 +78,23 @@ public:
 protected:
     bool        dirty() const;
 
-    bool    isDefaultFont();
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
     int     deciPointSize() const;
 
 private:
-    QFont( bool referenceDefaultFont ); // Used by QWidget and QPainter
+    void detach();
     QFont( QFontData * );               // used by QFont::copy()
-    QFont( const char *family, int pointSize,int weight, bool italic, 
-           bool defaultFont );          // used to create default font
+    QFont( bool );                      // creates default font
     void updateFontInfo() const;
     void init();
     void loadFont() const;
 
     friend class QFontMetrics;
     friend class QFontInfo;
-    friend class QWidget;       // QWidget and QPainter uses a private 
-    friend class QPainter;      // constructor and isDefaultFont()
+    friend class QPainter;
+//    friend class QWidget;
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 

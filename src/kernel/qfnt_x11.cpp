@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#28 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#28 $";
 #endif
 
 // #define DEBUG_FONT
@@ -227,8 +227,7 @@ typedef declare(QDictM,QXFontName) QFontNameDict;
 static QFontCache    *fontCache    = 0;         // cache of loaded fonts
 static QFontDict     *fontDict     = 0;         // dict of all loaded fonts
 static QFontNameDict *fontNameDict = 0;         // dict of matched font names
-QFont QFont::defFont( "helvetica" , 12, QFont::Normal, 
-                      FALSE, TRUE);             // default font
+QFont QFont::defFont( TRUE );  // default font
 
 // --------------------------------------------------------------------------
 // QFont member functions
@@ -241,8 +240,7 @@ const QFont &QFont::defaultFont()
 
 void  QFont::setDefaultFont( const QFont &f )
 {
-    defFont = f.copy();
-    defFont.d->isDefaultFont = TRUE;
+    defFont = f;
 }
 
 void QFont::initialize()                        // called when starting up
@@ -289,11 +287,17 @@ void QFont::cleanup()                           // called when terminating app
     delete fontNameDict;
 }
 
+QFont::QFont( bool )                            // create default font
+{
+    init();
+    d->req.family    = "fixed";
+    d->req.rawMode   = TRUE;
+}
 QFont::QFont()
 {
     d = new QFontData;
     CHECK_PTR( d );
-    *this = defFont.copy();
+    *this = defFont;
 }
 
 QFont::QFont( const char *family, int pointSize, int weight, bool italic )
@@ -304,22 +308,6 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.weight    = weight;
     d->req.italic    = italic;
     d->xfd           = 0;
-    d->isDefaultFont = FALSE;
-}
-
-QFont::QFont( bool referenceDefaultFont )
-{
-    if ( referenceDefaultFont ) {
-        d = defFont.d;
-        d->ref();
-    } else {
-        d = new QFontData;
-        CHECK_PTR( d );
-        *this = defFont.copy();
-#if defined (DEBUG_FONT)
-        debug("Copying default font 1");
-#endif
-    }
 }
 
 QFont::QFont( QFontData *data ) // copies a font
@@ -330,20 +318,7 @@ QFont::QFont( QFontData *data ) // copies a font
 #if defined (DEBUG_FONT)
     debug("Copying font 1");
 #endif
-    d->isDefaultFont = FALSE;   // a copied font is never a default font
     d->count         = 1;       // reset the ref count that was copied above
-}
-
-QFont::QFont( const char *family, int pointSize, int weight, bool italic,
-              bool defaultFont )
-{
-    init();
-    d->req.family    = family;
-    d->req.pointSize = pointSize * 10;
-    d->req.weight    = weight;
-    d->req.italic    = italic;
-    d->xfd           = 0;
-    d->isDefaultFont = defaultFont;
 }
 
 QFont QFont::copy() const

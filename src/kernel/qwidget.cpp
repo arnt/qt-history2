@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#37 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#37 $";
 #endif
 
 /*! \class QWidget qwidget.h
@@ -121,8 +121,7 @@ inline bool QWidgetMapper::remove( WId id )
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	: QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
-	  pal( *qApp->palette() ),		// use application palette
-          fnt( TRUE )                           // create a default font
+	  pal( *qApp->palette() )		// use application palette
 {
     initMetaObject();				// initialize meta object
     isWidget = TRUE;				// is a widget

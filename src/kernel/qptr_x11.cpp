@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#70 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#69 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#70 $";
 #endif
 
 
@@ -383,7 +383,6 @@ void QPainter::cleanup()
 
 
 QPainter::QPainter()
-         : cfont( TRUE )                        // create a default font
 {
     if ( !list ) {				// create list
 	list = new QPnList;
@@ -418,8 +417,6 @@ QPainter::~QPainter()
 
 QFont &QPainter::font()
 {
-    if ( cfont.isDefaultFont() )
-        cfont = cfont.copy();
     return cfont;
 }
 
@@ -785,7 +782,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 	if ( reinit ) {
-	    QFont  defaultFont(TRUE);		// default drawing tools
+	    QFont  defaultFont;		// default drawing tools
 	    QPen   defaultPen;
 	    QBrush defaultBrush;
 	    cfont  = defaultFont;		// set these drawing tools

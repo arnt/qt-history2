@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#55 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#54 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#55 $";
 #endif
 
 
@@ -298,15 +298,10 @@ void QWidget::setBackgroundColor( const QColor &c )
 /*! Returns the font the widget is currently using (wanting to use,
   rather, QFontInfo will tell you what's actually on the screen).
 
-  If the font in use is the default font, a deep copy is returned.  If
-  you installed your own font, a shallow copy is returned.
-
   \sa QFont, setFont(), fontMetrics() and fontInfo(). */
 
 QFont &QWidget::font()
 {
-    if ( fnt.isDefaultFont() )
-        fnt = fnt.copy();
     return fnt;
 }
 

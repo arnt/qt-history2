@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#14 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,14 +18,15 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#14 $";
 #endif
 
 
   /*!
   \class QFont qfont.h
 
-      Yo! Yo! Set yourself free!
+      Yo! Yo! If you love something, set it free! If it comes back, it is yours
+      forever, if it doesn't hunt it down and shoot it!
 
   */
 
@@ -65,6 +66,7 @@ QFont &QFont::operator=( const QFont &font )
 void QFont::setFamily( const char *family )
 {
     if ( d->req.family != family ) {
+        detach();
 	d->req.family = family;
 	d->req.dirty  = TRUE;
     }
@@ -91,6 +93,7 @@ void QFont::setPointSize( int pointSize )
 	return;
     }
     if ( d->req.pointSize != pointSize ) {
+        detach();
 	d->req.pointSize = pointSize * 10;
 	d->req.dirty     = TRUE;
     }
@@ -117,6 +120,7 @@ void QFont::setPointSize( int pointSize )
 void QFont::setItalic( bool i )
 {
     if ( d->req.italic != i ) {
+        detach();
 	d->req.italic = i;
 	d->req.dirty  = TRUE;
     }
@@ -153,6 +157,7 @@ void QFont::setWeight( int w )
     }
 #endif
     if ( d->req.weight != w ) {
+        detach();
 	d->req.weight = w;
 	d->req.dirty  = TRUE;
     }
@@ -170,6 +175,7 @@ void QFont::setWeight( int w )
 void QFont::setUnderline( bool b )
 {
     if ( d->req.underline != b ) {
+        detach();
 	d->req.underline  = b;
 	d->act.underline  = b;                  // underline always possible
     }
@@ -187,6 +193,7 @@ void QFont::setUnderline( bool b )
 void QFont::setStrikeOut( bool b )
 {
     if ( d->req.strikeOut != b ) {
+        detach();
 	d->req.strikeOut  = b;
 	d->act.strikeOut  = b;                  // strikeOut always posible
     }
@@ -207,6 +214,7 @@ void QFont::setStrikeOut( bool b )
 void QFont::setFixedPitch( bool b )
 {
     if ( d->req.fixedPitch != b ) {
+        detach();
 	d->req.fixedPitch = b;
 	d->req.dirty      = TRUE;
     }
@@ -255,6 +263,7 @@ void QFont::setFixedPitch( bool b )
 void QFont::setStyleHint( StyleHint h )
 {
     if ( d->req.styleHint != h ) {
+        detach();
 	d->req.styleHint     = h;
 	d->req.hintSetByUser = TRUE;
 	d->req.dirty         = TRUE;
@@ -290,6 +299,7 @@ void QFont::setStyleHint( StyleHint h )
 void QFont::setCharSet( CharSet c )
 {
     if ( d->req.charSet != c ) {
+        detach();
 	d->req.charSet = c;
 	d->req.dirty   = TRUE;
     }
@@ -462,6 +472,7 @@ bool QFont::exactMatch() const
 void QFont::setRawMode( bool b )
 {
     if ( d->req.rawMode != b ) {
+        detach();
 	d->req.rawMode = b;
 	d->req.dirty   = TRUE;
     }
@@ -531,31 +542,12 @@ int QFont::deciPointSize() const
     return d->req.pointSize;
 }
 
-  /*!
-  Returns TRUE if the font is the global default font.
-  */
-bool QFont::isDefaultFont()
+
+void QFont::detach()
 {
-    return d->isDefaultFont;
+    if ( d->count != 1 )
+        *this = QFont( d );
 }
-
-  /*!
-  \internal
-  Update all widgets that are using ths font.
-
-  \todo Not currently in use, do we need this anymore?
-  */
-void QFont::updateSubscribers()
-{
-    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::wmapper()) );
-    register QWidget *w;
-    while ( (w=it.current()) ) {		// for all widgets that use
-	if ( w->fontRef().d == d )		// this font
-	    w->setFont( *this );		// update the font
-	++it;
-    }    
-}
-
 
 // --------------------------------------------------------------------------
 // QFont stream functions
