@@ -1156,8 +1156,21 @@ void QDnsManager::transmitQuery( int i )
     p[pp++] = 0;
     p[pp++] = 1;
 
-    if ( !ns || ns->isEmpty() )
-	return;
+    if ( !ns || ns->isEmpty() ) {
+	// we don't find any name servers. We fake an NXDomain
+	// with a very short life time...
+	QDnsAnswer answer( q );
+	answer.notify();
+	// and then get rid of the query
+	queries.take( i );
+#if defined(QDNS_DEBUG)
+	qDebug( "DNS Manager: no DNS server found on query 0x%04x", q->id );
+#endif
+	delete q;
+	QTimer::singleShot( 1000*10, QDnsManager::manager(), SLOT(cleanCache()) );
+	// and don't process anything more
+	return; 
+    }
 
     socket->writeBlock( p.data(), pp, *ns->at( q->step % ns->count() ), 53 );
 #if defined(QDNS_DEBUG)
