@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#79 $
 **
 ** Definition of QIconView widget class
 **
@@ -497,7 +497,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 
   \code
     \/ parent is a pointer to our iconview, pixmap a QPixmap, which we want to use as icon
-    (void) new QIconViewItem( parent, "This is the text of the item", QIocnSet( pixmap ) );
+    (void) new QIconViewItem( parent, "This is the text of the item", QIconSet( pixmap ) );
   \endcode
 
   When the iconview is deleted, all items of it are deleted automatically, so the programmer
@@ -3259,6 +3259,25 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
     return QScrollView::eventFilter( o, e );
 }
 
+
+/*!
+  \reimp
+*/
+
+QSize QIconView::minimumSizeHint() const
+{
+    return QSize( 100, 100 );
+}
+
+/*!
+  \reimp
+*/
+
+QSizePolicy QIconView::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}
+
 void QIconView::clearInputString()
 {
     d->currInputString = QString::null;
@@ -3280,4 +3299,6 @@ void QIconView::findItemByName( const QString text )
 }
 
 #include "qiconview.moc"
+
+
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#34 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#35 $
 **
 ** Definition of QIconView widget class
 **
@@ -320,6 +320,9 @@ public:
     bool rearrangeEnabled() const;
 
     bool eventFilter( QObject * o, QEvent * );
+
+    QSize minimumSizeHint() const;
+    QSizePolicy sizePolicy() const;
 
 signals:
     void dropped( QDropEvent *e );
