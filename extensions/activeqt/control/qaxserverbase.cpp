@@ -1513,10 +1513,11 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 */
 HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 {
-     // ##why not create the QWidget here?
     static ATOM atom = 0;
     HINSTANCE hInst = (HINSTANCE)qAxInstance;
     EnterCriticalSection(&createWindowSection);
+    QString cn("QAxControl");
+    cn += QString::number((int)ActiveXProc);
     if (!atom) {
 	QT_WA({
 	    WNDCLASSW wcTemp;
@@ -1527,12 +1528,13 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
-	    wcTemp.lpszClassName = L"QAxControl";
+	    wcTemp.lpszClassName = (wchar_t*)cn.utf16();
 	    wcTemp.lpszMenuName = 0;
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
 	    atom = RegisterClassW(&wcTemp);
 	}, {
+            QByteArray cna = cn.toLatin1();
 	    WNDCLASSA wcTemp;
 	    wcTemp.style = CS_DBLCLKS;
 	    wcTemp.cbClsExtra = 0;
@@ -1541,7 +1543,7 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 	    wcTemp.hCursor = 0;
 	    wcTemp.hIcon = 0;
 	    wcTemp.hInstance = hInst;
-	    wcTemp.lpszClassName = "QAxControl";
+	    wcTemp.lpszClassName = cna.data();
 	    wcTemp.lpszMenuName = 0;
 	    wcTemp.lpfnWndProc = ActiveXProc;
 
@@ -1557,12 +1559,12 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
     HWND hWnd = 0;
 
     QT_WA({
-	hWnd = ::CreateWindowW(L"QAxControl", 0,
+	hWnd = ::CreateWindowW((wchar_t*)cn.utf16(), 0,
 	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this);
     }, {
-	hWnd = ::CreateWindowA("QAxControl", 0,
+	hWnd = ::CreateWindowA(cn.toLatin1().data(), 0,
 	    WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 	    rcPos.left, rcPos.top, rcPos.right - rcPos.left,
 	    rcPos.bottom - rcPos.top, hWndParent, 0, hInst, this);
@@ -1573,6 +1575,9 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 
     internalCreate();
     updateMask();
+
+    if (qt.object && qt.object->isWidgetType())
+        EnableWindow(m_hWnd, qt.widget->isEnabled());
 
     return hWnd;
 }
@@ -4091,8 +4096,12 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
 	if (m_hWnd && o == qt.widget)
 	    ShowWindow(m_hWnd, SW_HIDE);
 	break;
-    case QEvent::FontChange:
+
     case QEvent::EnabledChange:
+        if (m_hWnd && o == qt.widget)
+            EnableWindow(m_hWnd, qt.widget->isEnabled());
+        // Fall Through
+    case QEvent::FontChange:
     case QEvent::ActivationChange:
     case QEvent::StyleChange:
     case QEvent::IconTextChange:
