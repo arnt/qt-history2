@@ -1172,11 +1172,13 @@ then
 fi
 
 # auto-detect NIS support
-    if [ "$CFG_NIS" != "no" ]
-    then
-	CFG_NIS=yes
-	$unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_NIS=no
-    fi
+if [ "$CFG_NIS" != "no" ]
+then
+    CFG_NIS=yes
+    $unixtests/nis.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_NIS=no
+else
+    CFG_NIS=no
+fi
 
 # x11
 if [ "$PLATFORM_X11" = "yes" ]
