@@ -75,7 +75,7 @@ win32 {
 
 	CONFIG	+= zlib
 	INCLUDEPATH += tmp
-	dll {
+	!staticlib {
 	    DEFINES+=QT_MAKEDLL
 	    exists(qt.rc) {
 		RC_FILE = qt.rc

@@ -1032,6 +1032,63 @@ void Configure::generateConfigfiles()
 
 	outFile.close();
     }
+
+    outDir = dictionary[ "QT_SOURCE_TREE" ];
+    outName = outDir + "/src/qt.rc";
+    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    QFile::remove( outName );
+    outFile.setName( outName );
+
+    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream outStream( &outFile );
+
+	int major = QT_VERSION >> 16;
+	int minor = QT_VERSION >> 8 & 0xff;
+	int patch = QT_VERSION&0xff;
+	QString prodVer = QString::number(major, 16) + ", " + 
+			  QString::number(minor, 16) + ", " + 
+			  QString::number(patch, 16) + ", 0";
+	QString prodFile = "qt";
+	if ( dictionary["THREAD"] == "yes" )
+	    prodFile += "-mt";
+	if ( dictionary["SHARED"] == "yes" )
+	    prodFile += dictionary["VERSION"];
+	prodFile += ".dll";
+
+	QString internalName = licenseInfo["PRODUCTS"];
+
+	outStream << "#include <winver.h>" << endl << endl;
+	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
+	outStream << "\tFILEVERSION 1,0,0,1" << endl;
+	outStream << "\tPRODUCTVERSION " << prodVer << endl;
+	outStream << "\tFILEFLAGSMASK 0x3fL" << endl;
+	outStream << "#ifdef _DEBUG" << endl;
+	outStream << "\tFILEFLAGS VS_FF_DEBUG" << endl;
+	outStream << "#else" << endl;
+	outStream << "\tFILEFLAGS 0x0L" << endl;
+	outStream << "#endif" << endl;
+	outStream << "\tFILEOS VOS__WINDOWS32" << endl;
+	outStream << "\tFILETYPE VFT_DLL" << endl;
+	outStream << "\tFILESUBTYPE 0x0L" << endl;
+	outStream << "\tBEGIN" << endl;
+	outStream << "\t\tBLOCK \"StringFileInfo\"" << endl;
+	outStream << "\t\tBEGIN" << endl;
+	outStream << "\t\t\tBLOCK \"040904B0\"" << endl;
+	outStream << "\t\t\tBEGIN" << endl;
+	outStream << "\t\t\t\tVALUE \"CompanyName\", \"Trolltech AS\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"FileVersion\", \"1,0,0,1\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003 Trolltech\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
+	outStream << "\t\t\t\tVALUE \"ProductVersion\", \""<< prodVer << "\\0\"" << endl;
+	outStream << "\t\t\tEND" << endl;
+	outStream << "\t\tEND" << endl;
+	outStream << "\tEND" << endl;
+	outStream << "/* End of Version info */" << endl << endl;
+    }
 }
 
 void Configure::displayConfig()
