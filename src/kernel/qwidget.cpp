@@ -4221,7 +4221,7 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // FALL THROUGH
 	case QEvent::ApplicationPaletteChange:
-	    if ( !own_palette ) {
+	    if ( !own_palette && !isDesktop() ) {
 		own_palette = TRUE;
 		unsetPalette();
 	    }
