@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#187 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#188 $
 **
 ** Implementation of QFileDialog class
 **
@@ -315,7 +315,8 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 }
 
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
-    : QListBox( parent, "filelistbox" ), filedialog( d ), renaming( FALSE )
+    : QListBox( parent, "filelistbox" ), filedialog( d ), 
+      renaming( FALSE ), renameTimer( this )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -323,6 +324,8 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
              this, SLOT (rename() ) );
     connect( lined, SIGNAL( escapePressed() ),
              this, SLOT( cancelRename() ) );
+    connect( &renameTimer, SIGNAL( timeout() ),
+             this, SLOT( doubleClickTimeout() ) );
 }
 
 void QFileListBox::show()
@@ -366,7 +369,19 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 
     if ( i == currentItem() && currentItem() != -1 &&
          QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." )
-        startRename();
+        renameTimer.start( QApplication::doubleClickInterval(), TRUE );
+}
+
+void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
+{
+    renameTimer.stop();
+    QListBox::viewportMouseDoubleClickEvent( e );
+}
+
+void QFileListBox::doubleClickTimeout()
+{
+    startRename();
+    renameTimer.stop();
 }
 
 void QFileListBox::startRename()
@@ -390,6 +405,7 @@ void QFileListBox::startRename()
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
+
 void QFileListBox::clear()
 {
     cancelRename();
@@ -438,7 +454,8 @@ void QFileListBox::cancelRename()
 }
 
 QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
-    : QListView( parent ), filedialog( d ), renaming( FALSE )
+    : QListView( parent ), filedialog( d ), renaming( FALSE ),
+      renameTimer( this )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -447,6 +464,8 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
     connect( lined, SIGNAL( escapePressed() ),
              this, SLOT( cancelRename() ) );
     header()->setMovingEnabled( FALSE );
+    connect( &renameTimer, SIGNAL( timeout() ),
+             this, SLOT( doubleClickTimeout() ) );
 }
 
 void QFileListView::keyPressEvent( QKeyEvent *e )
@@ -479,7 +498,19 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 
     if ( i == currentItem() && currentItem() &&
          QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." )
-        startRename();
+        renameTimer.start( QApplication::doubleClickInterval(), TRUE );
+}
+
+void QFileListView::viewportMouseDoubleClickEvent( QMouseEvent *e )
+{
+    renameTimer.stop();
+    QListView::viewportMouseDoubleClickEvent( e );
+}
+
+void QFileListView::doubleClickTimeout()
+{
+    startRename();
+    renameTimer.stop();
 }
 
 void QFileListView::startRename()

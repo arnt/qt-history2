@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#48 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#49 $
 **
 ** Definition of QFileDialog class
 **
@@ -31,6 +31,7 @@ class QPushButton;
 class QLabel;
 class QWidget;
 class QFileDialog;
+class QTimer;
 
 #ifndef QT_H
 #include "qdir.h"
@@ -83,17 +84,22 @@ public:
 
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
+    void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
 
 public slots:
     void rename();
     void cancelRename();
 
+private slots:
+    void doubleClickTimeout();
+    
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
-
+    QTimer renameTimer;
+    
 };
 
 class QFileListView : public QListView
@@ -110,16 +116,21 @@ public:
 
 protected:
     void viewportMousePressEvent( QMouseEvent *e );
+    void viewportMouseDoubleClickEvent( QMouseEvent *e );
     void keyPressEvent( QKeyEvent *e );
 
 public slots:
     void rename();
     void cancelRename();
 
+private slots:
+    void doubleClickTimeout();
+
 private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
+    QTimer renameTimer;
 
 };
 
