@@ -2457,7 +2457,6 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 HIShapeGetBounds(titleRegion, &tmpRect);
                 newr.translate(newr.x() - int(tmpRect.origin.x), newr.y() - int(tmpRect.origin.y));
                 titleBarRect = qt_hirectForQRect(newr, p);
-                p->fillRect(newr, Qt::green);
             }
             HIThemeDrawWindowFrame(&titleBarRect, &wdi, cg, kHIThemeOrientationNormal, 0);
             if (titlebar->subControls & (QStyle::SC_TitleBarCloseButton
@@ -4554,6 +4553,14 @@ QMacStyle::~QMacStyle()
 /*! \reimp */
 void QMacStyle::polish(QPalette &pal)
 {
+    QPalette toolTipPalette(Qt::black, QColor(255,255,220),
+                  QColor(96,96,96), Qt::black, Qt::black,
+                  Qt::black, QColor(255,255,220));
+    if (pal == toolTipPalette) {
+        pal = QPalette(Qt::black, QColor(254, 254, 201), QColor(195, 195, 195),
+                            Qt::black, Qt::black, Qt::black, QColor(254, 254, 201));
+        return;
+    }
     QPixmap px(200, 200);
     QColor pc(Qt::black);
     {
