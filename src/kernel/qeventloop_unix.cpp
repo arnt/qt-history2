@@ -533,37 +533,86 @@ int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
 
     FD_SET( thread_pipe[0], &sn_vec[0].select_fds );
     highest = qMax( highest, thread_pipe[0] );
-    int nsel = select(highest + 1, &sn_vec[0].select_fds, &sn_vec[1].select_fds,
-		      &sn_vec[2].select_fds, t);
 
-    int ret = 0;
-    if ( nsel == -1 ) {
-	if ( errno != EINTR && errno != EAGAIN )
-	    perror( "select" );
-    } else {
-	// some other thread woke us up... consume the data on the thread pipe so that
-	// select doesn't immediately return next time
-	if ( FD_ISSET( thread_pipe[0], &sn_vec[0].select_fds ) ) {
-	    char c;
-	    ::read( thread_pipe[0], &c, 1 );
-	}
+    int nsel;
+    do {
+	nsel = select(highest + 1,
+		      &sn_vec[0].select_fds,
+		      &sn_vec[1].select_fds,
+		      &sn_vec[2].select_fds,
+		      t);
+    } while (nsel == -1 && (errno == EINTR || errno == EAGAIN));
 
-	// activate socket notifiers
-	if ( ! ( flags & QEventLoop::ExcludeSocketNotifiers ) && nsel > 0 && sn_highest >= 0 ) {
-	    // if select says data is ready on any socket, then set the socket notifier
-	    // to pending
-	    for (int i=0; i<3; i++ ) {
-		QList<QSockNot *> &list = sn_vec[i].list;
-		for (int j = 0; j < list.size(); ++j) {
-		    QSockNot *sn = list.at(j);
-		    if ( FD_ISSET( sn->fd, &sn_vec[i].select_fds ) )
-			q->setSocketNotifierPending( sn->obj );
+    if (nsel == -1) {
+	if (errno == EBADF) {
+	    // it seems a socket notifier has a bad fd... find out
+	    // which one it is and disable it
+	    fd_set fdset;
+	    timeval tm;
+	    tm.tv_sec = tm.tv_usec = 0l;
+
+	    for (int type = 0; type < 3; ++type) {
+		QList<QSockNot *> &list = sn_vec[type].list;
+		if (!list) continue;
+
+		for (int i = 0; i < list.size(); ++i) {
+		    QSockNot *sn = list.at(i);
+
+		    FD_ZERO(&fdset);
+		    FD_SET(sn->fd, &fdset);
+
+		    int ret;
+		    do {
+			switch (type) {
+			case 0: // read
+			    ret = select(sn->fd + 1, &fdset, 0, 0, &tm);
+			    break;
+			case 1: // write
+			    ret = select(sn->fd + 1, 0, &fdset, 0, &tm);
+			    break;
+			case 2: // except
+			    ret = select(sn->fd + 1, 0, 0, &fdset, &tm);
+			    break;
+			}
+		    } while (ret == -1 && (errno == EINTR || errno == EAGAIN));
+
+		    if (ret == -1 && errno == EBADF) {
+			// disable the invalid socket notifier
+			static const char *t[] = { "Read", "Write", "Exception" };
+			qWarning("QSocketNotifier: invalid socket %d and type '%s', disabling...",
+				 sn->fd, t[type]);
+			sn->obj->setEnabled(false);
+		    }
 		}
 	    }
+	} else {
+	    // EINVAL... shouldn't happen, so let's complain to stderr
+	    // and hope someone sends us a bug report
+	    perror( "select" );
 	}
-	ret += q->activateSocketNotifiers();
     }
-    return ret;
+
+    // some other thread woke us up... consume the data on the thread pipe so that
+    // select doesn't immediately return next time
+    if ( nsel > 0 && FD_ISSET( thread_pipe[0], &sn_vec[0].select_fds ) ) {
+	char c;
+	::read( thread_pipe[0], &c, 1 );
+    }
+
+    // activate socket notifiers
+    if ( ! ( flags & QEventLoop::ExcludeSocketNotifiers ) && nsel > 0 && sn_highest >= 0 ) {
+	// if select says data is ready on any socket, then set the socket notifier
+	// to pending
+	for (int i=0; i<3; i++ ) {
+	    QList<QSockNot *> &list = sn_vec[i].list;
+	    for (int j = 0; j < list.size(); ++j) {
+		QSockNot *sn = list.at(j);
+		if ( FD_ISSET( sn->fd, &sn_vec[i].select_fds ) )
+		    q->setSocketNotifierPending( sn->obj );
+	    }
+	}
+    }
+    return q->activateSocketNotifiers();
 }
 
 bool QEventLoop::processEvents( ProcessEventsFlags flags )
