@@ -4419,7 +4419,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( lastBaseLine == 0 )
 		lastBaseLine = baseLine;
 	    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
-		painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, cg.brush( QColorGroup::Base ) );
+		if (backgroundColor())
+		    painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, *backgroundColor() );
+		else
+		    painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, cg.brush( QColorGroup::Base ) );
 	}
 
 	// draw bullet list items
