@@ -3137,7 +3137,7 @@ QRect QPainter::boundingRect( const QRect &r, int flags,
 
     The cap style defines how the end points of lines are drawn. The
     join style defines how the joins between two lines are drawn when
-    multiple connected lines are drawn (QPainter::drawPolyLine()
+    multiple connected lines are drawn (QPainter::drawPolyline()
     etc.). The cap and join styles only apply to wide lines, i.e. when
     the width is 1 or greater.
 
