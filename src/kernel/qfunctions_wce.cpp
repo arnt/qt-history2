@@ -33,6 +33,7 @@
 #include <stdio.h>
 
 #include "qfunctions_wce.h"
+#include "qplatformdefs.h"
 #include "qstring.h"
 
 #include <windows.h>
@@ -47,17 +48,83 @@
 extern "C" {
 #endif
 
+
+// Environment ------------------------------------------------------
+// Windows CE was no concept of environment settings, therefore we
+// just return 'root folder'.
 char *getenv(char const *) { return "\\"; }
 
-// File function wrappers -------------------------------------------
+
+// Time -------------------------------------------------------------
+size_t strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr ) {
+    return 0;
+}
+
+struct tm *gmtime( const time_t *timer ) {
+    return NULL;
+}
+
+struct tm *localtime( const time_t *timer ) {
+    return NULL;
+}
+
+time_t mktime( struct tm *timeptr ) {
+    return 0;
+}
+
+time_t ftToTime_t( const FILETIME ft )
+{
+    ULARGE_INTEGER li;
+    li.LowPart  = ft.dwLowDateTime;
+    li.HighPart = ft.dwHighDateTime;
+
+    // 100-nanosec to seconds
+    li.QuadPart /= 10000000;
+
+    // FILETIME is from 1601-01-01 T 00:00:00
+    // time_t   is from 1970-01-01 T 00:00:00
+    // 1970 - 1601 = 369 year (89 leap years)
+    //
+    // ((369y*365d) + 89d) *24h *60min *60sec
+    // = 11644473600 seconds
+    li.QuadPart -= 11644473600;
+    return li.LowPart; 
+}
+
+FILETIME time_tToFt( time_t tt )
+{
+    ULARGE_INTEGER li;
+    li.QuadPart  = tt;
+    li.QuadPart += 11644473600;
+    li.QuadPart *= 10000000;
+    
+    FILETIME ft;
+    ft.dwLowDateTime = li.LowPart;
+    ft.dwHighDateTime = li.HighPart;
+    return ft; 
+}
+
+
+// File I/O ---------------------------------------------------------
+int errno = 0;
+
+DWORD GetLogicalDrives(VOID)
+{ 
+    return 1; 
+}
+
+int _getdrive( void ) 
+{ 
+    return 1; 
+}
 WCHAR *_wgetcwd( WCHAR *buffer, int maxlen )
 { 
-    return L"\\"; 
+    return wcscpy( buffer, L"\\" );
 }
 
 WCHAR *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) 
 { 
-    return L"\\"; 
+    return wcscpy( buffer, L"\\" );
 }
 
 int _wchdir( const WCHAR *dirname ) 
@@ -75,9 +142,23 @@ int _wrmdir( const WCHAR *dirname )
     return -1; 
 }
 
-int _waccess( const WCHAR *path, int mode )
+int _waccess( const WCHAR *path, int pmode )
 { 
-    return -1; 
+    DWORD res = GetFileAttributes( path );
+    if ( 0xFFFFFFFF == res )
+	return -1;
+
+    if ( (pmode & W_OK) && (res & FILE_ATTRIBUTE_READONLY) ) 
+	return -1;
+    
+    if ( (pmode & X_OK) && !(res & FILE_ATTRIBUTE_DIRECTORY) ) {
+	QString file = QString::fromUcs2(path);
+	if ( !(file.endsWith(".exe") || 
+	       file.endsWith(".com")) )
+	    return -1;
+    }
+
+    return 0;
 }
 
 int _wrename( const WCHAR *oldname, const WCHAR *newname )
@@ -127,7 +208,18 @@ int _wopen( const WCHAR *filename, int oflag, int pmode )
 
 int _fstat( int handle, struct _stat *buffer ) 
 { 
-    return -1; 
+    BY_HANDLE_FILE_INFORMATION fi;
+    if ( !GetFileInformationByHandle( (FILE*)handle, &fi ) )
+	return -1;
+
+    buffer->st_ctime = ftToTime_t( fi.ftCreationTime );
+    buffer->st_atime = ftToTime_t( fi.ftLastAccessTime );
+    buffer->st_mtime = ftToTime_t( fi.ftLastWriteTime );
+    buffer->st_nlink = fi.nNumberOfLinks;
+    buffer->st_size  = fi.nFileSizeLow;
+    buffer->st_mode  = 0;
+
+    return -1;
 }
 
 int _wstat( const WCHAR *path, struct _stat *buffer ) 
@@ -160,100 +252,141 @@ int _qt_fileno( FILE *filehandle )
     return (int)filehandle;
 }
 
+FILE *_fdopen(int handle, const char *mode) 
+{ 
+    return (FILE*)handle; 
+}
+
 FILE *fdopen( int handle, const char *mode ) 
 { 
     return (FILE*)handle;
 }
 
-
-DWORD GetLogicalDrives(VOID)
+void rewind( FILE *stream ) 
 { 
-    return 1; 
+    fseek( stream, 0L, SEEK_SET ); 
 }
 
-int _getdrive( void ) 
+FILE *tmpfile( void )
 { 
-    return 1; 
+    static long i = 0; 
+    char name[16]; 
+    sprintf( name, "tmp%i", i++ ); 
+    return fopen( name, "r+" ); 
 }
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
-int errno = 0;
-void rewind( FILE *stream ) { fseek( stream, 0L, SEEK_SET ); }
-FILE *tmpfile(void) { static int i = 0; char name[16]; sprintf(name, "tmp%i", i); i++; return fopen(name, "r+"); }
-FILE *_fdopen(int handle, const char *mode) { return (FILE*)handle; }
-//#ifdef __cplusplus
-//}
-//#endif
+
+// Clipboard --------------------------------------------------------
+BOOL ChangeClipboardChain( HWND hWndRemove, HWND hWndNewNext ) 
+{ 
+    return FALSE; 
+}
+
+HWND SetClipboardViewer( HWND hWndNewViewer )
+{ 
+    return NULL; 
+}
 
 
-BOOL ChangeClipboardChain( HWND hWndRemove, HWND hWndNewNext ) { return FALSE; }
-HWND SetClipboardViewer( HWND hWndNewViewer ) { return NULL; }
+// Printer ----------------------------------------------------------
 
+
+// Graphics ---------------------------------------------------------
+BOOL ResizePalette( HPALETTE hpal, UINT nEntries ) {
+    return FALSE;
+}
+
+COLORREF PALETTEINDEX( WORD wPaletteIndex ) {
+    return 0;
+}
+
+BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
+    // SetViewportOrgEx( hdc, -X, -Y, lpPoint );
+    // return SetViewportOrgEx( hdc, X - 30, Y - 30, lpPoint );
+    // return ::SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
+    return TRUE;
+}
+
+BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) {
+    return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
+}
+
+BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
+{
+    if (hdc == NULL)
+	return FALSE;
+    lpPoint->x = 0;		// origin is always (0,0)
+    lpPoint->y = 0;
+    return TRUE;
+}
+
+BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
+{
+    if (hdc == NULL)
+        return FALSE;
+    lpSize->cx = 1;		// extent is always 1,1
+    lpSize->cy = 1;
+    return TRUE;
+}
+
+BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
+{
+    if (hdc == NULL)
+        return FALSE;
+    lpPoint->x = 0;		// origin is always (0,0)
+    lpPoint->y = 0;
+    return TRUE;
+}
+
+BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize)
+{
+    if (hdc == NULL)
+        return FALSE;
+    lpSize->cx = 1;		// extent is always 1,1
+    lpSize->cy = 1;
+    return TRUE;
+}
+
+
+// Other stuff ------------------------------------------------------
+void abort()
+{
+    exit(3);
+}
+
+void *_expand( void* pvMemBlock, size_t iSize )
+{
+    return realloc( pvMemBlock, iSize );
+}
+
+void *calloc( size_t num, size_t size )
+{
+    void *ptr = malloc( num * size );
+    if( ptr )
+	memset( ptr, 0, num * size );
+    return ptr;
+}
+
+unsigned long _beginthreadex( void *security, 
+			      unsigned stack_size,
+			      unsigned (__stdcall *start_address)(void *),
+			      void *arglist, 
+			      unsigned initflag, 
+			      unsigned *thrdaddr) {
+    return (unsigned long)
+	CreateThread( (LPSECURITY_ATTRIBUTES)security,
+		      (DWORD)stack_size, 
+		      (LPTHREAD_START_ROUTINE)start_address,
+		      (LPVOID)arglist, 
+		      (DWORD)initflag | CREATE_SUSPENDED, 
+		      (LPDWORD)thrdaddr);
+}
+
+void _endthreadex(unsigned nExitCode) {
+    ExitThread((DWORD)nExitCode);
+}
 
 #ifndef POCKET_PC
-
-HANDLE CreateSemaphore(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
-					   LONG lInitialCount, LONG lMaximumCount, LPCTSTR lpName ) { return NULL; }
-BOOL ReleaseSemaphore(HANDLE hSemaphore, LONG lReleaseCount, LPLONG lpPreviousCount ) { return TRUE; }
-
-
-char *strrchr( const char *string, int c )
-{
-	int len = strlen( string );
-	for (int i = len - 1; i >= 0; i--) {
-		if ( (int)string[i] == c )
-			return (char *)&(string[i]);
-	}
-	return NULL;
-}
-
-// This has been copied from libpng\pngrutil.c
-double strtod( const char *nptr, char **endptr )
-{
-   double result = 0;
-   int len;
-   wchar_t *str, *end;
-
-   len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
-   str = (wchar_t *)malloc(len * sizeof(wchar_t));
-   if ( NULL != str )
-   {
-      MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
-      result = wcstod(str, &end);
-      len = WideCharToMultiByte(CP_ACP, 0, end, -1, NULL, 0, NULL, NULL);
-      *endptr = (char *)nptr + (strlen(nptr) - len + 1);
-      free(str);
-   }
-   return result;
-}
-
-// This is based on strtod from libpng\pngrutil.c
-long strtol( const char *nptr, char **endptr, int base )
-{
-   long result = 0;
-   int len;
-   wchar_t *str, *end;
-
-   len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
-   str = (wchar_t *)malloc(len * sizeof(wchar_t));
-   if ( NULL != str )
-   {
-      MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
-      result = wcstol(str, &end, base);
-      len = WideCharToMultiByte(CP_ACP, 0, end, -1, NULL, 0, NULL, NULL);
-      *endptr = (char *)nptr + (strlen(nptr) - len + 1);
-      free(str);
-   }
-   return result;
-}
-
-double atof( const char *string )
-{
-	return 0.0;
-}
-
 // ### very rough approximation of these sets
 // A proper implementation uses tables for these sets, but this will do for now
 int isprint ( int c ) { return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || isdigit(c) || isspace(c)) ? 1 : 0; }
@@ -309,174 +442,154 @@ const int ctype[]= {
 
 int isgraph(int c)
 {
-	int i = ((int)c & 0xff);
-	return (ctype[i] & (_P|_U|_L|_N)) > 0;
+    int i = ((int)c & 0xff);
+    return (ctype[i] & (_P|_U|_L|_N)) > 0;
 }
 
-#endif
-
-
-//#define	ASSERT(x)
-//#define	VERIFY(x)	x
-#define	TRACE0(x)
-#ifndef _countof
-#define _countof(array) (sizeof(array)/sizeof(array[0]))
-#endif
-
-
-BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
-	// SetViewportOrgEx( hdc, -X, -Y, lpPoint );
-	// return SetViewportOrgEx( hdc, X - 30, Y - 30, lpPoint );
-	// return ::SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy,	uFlags);
-	return TRUE;
+double atof( const char *string )
+{
+    QString value( string );
+    return value.toDouble();
 }
 
-
-BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) {
-    return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
-}
-
-
-
-BOOL ResizePalette( HPALETTE hpal, UINT nEntries ) {
-    return FALSE;
-}
-
-COLORREF PALETTEINDEX( WORD wPaletteIndex ) {
-    return 0;
-}
-
-struct tm *localtime( const time_t *timer ) {
+char *strrchr( const char *string, int c )
+{
+    int len = strlen( string );
+    for ( int i = len - 1; i >= 0; i-- ) {
+	if ( (int)string[i] == c )
+	    return (char *)&(string[i]);
+    }
     return NULL;
 }
 
-struct tm *gmtime( const time_t *timer ) {
-    return NULL;
-}
+// BEGIN COPYRIGHTED FUNCTIONS --------------------------------------
+// The functions below are taken from libpng v1.2.5 - October 3, 2002
 
-size_t strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr ) {
-    return 0;
-}
+/*
+ * COPYRIGHT NOTICE, DISCLAIMER, and LICENSE:
+ *
+ * If you modify libpng you may insert additional notices immediately following
+ * this sentence.
+ *
+ * libpng versions 1.0.7, July 1, 2000, through 1.2.5, October 3, 2002, are
+ * Copyright (c) 2000-2002 Glenn Randers-Pehrson, and are
+ * distributed according to the same disclaimer and license as libpng-1.0.6
+ * with the following individuals added to the list of Contributing Authors
+ *
+ *    Simon-Pierre Cadieux
+ *    Eric S. Raymond
+ *    Gilles Vollant
+ *
+ * and with the following additions to the disclaimer:
+ *
+ *    There is no warranty against interference with your enjoyment of the
+ *    library or against infringement.  There is no warranty that our
+ *    efforts or the library will fulfill any of your particular purposes
+ *    or needs.  This library is provided with all faults, and the entire
+ *    risk of satisfactory quality, performance, accuracy, and effort is with
+ *    the user.
+ *
+ * libpng versions 0.97, January 1998, through 1.0.6, March 20, 2000, are
+ * Copyright (c) 1998, 1999, 2000 Glenn Randers-Pehrson
+ * Distributed according to the same disclaimer and license as libpng-0.96,
+ * with the following individuals added to the list of Contributing Authors:
+ *
+ *    Tom Lane
+ *    Glenn Randers-Pehrson
+ *    Willem van Schaik
+ *
+ * libpng versions 0.89, June 1996, through 0.96, May 1997, are
+ * Copyright (c) 1996, 1997 Andreas Dilger
+ * Distributed according to the same disclaimer and license as libpng-0.88,
+ * with the following individuals added to the list of Contributing Authors:
+ *
+ *    John Bowler
+ *    Kevin Bracey
+ *    Sam Bushell
+ *    Magnus Holmgren
+ *    Greg Roelofs
+ *    Tom Tanner
+ *
+ * libpng versions 0.5, May 1995, through 0.88, January 1996, are
+ * Copyright (c) 1995, 1996 Guy Eric Schalnat, Group 42, Inc.
+ *
+ * For the purposes of this copyright and license, "Contributing Authors"
+ * is defined as the following set of individuals:
+ *
+ *    Andreas Dilger
+ *    Dave Martindale
+ *    Guy Eric Schalnat
+ *    Paul Schmidt
+ *    Tim Wegner
+ *
+ * The PNG Reference Library is supplied "AS IS".  The Contributing Authors
+ * and Group 42, Inc. disclaim all warranties, expressed or implied,
+ * including, without limitation, the warranties of merchantability and of
+ * fitness for any purpose.  The Contributing Authors and Group 42, Inc.
+ * assume no liability for direct, indirect, incidental, special, exemplary,
+ * or consequential damages, which may result from the use of the PNG
+ * Reference Library, even if advised of the possibility of such damage.
+ *
+ * Permission is hereby granted to use, copy, modify, and distribute this
+ * source code, or portions hereof, for any purpose, without fee, subject
+ * to the following restrictions:
+ *
+ * 1. The origin of this source code must not be misrepresented.
+ *
+ * 2. Altered versions must be plainly marked as such and
+ * must not be misrepresented as being the original source.
+ *
+ * 3. This Copyright notice may not be removed or altered from
+ *    any source or altered source distribution.
+ *
+ * The Contributing Authors and Group 42, Inc. specifically permit, without
+ * fee, and encourage the use of this source code as a component to
+ * supporting the PNG file format in commercial products.  If you use this
+ * source code in a product, acknowledgment is not required but would be
+ * appreciated.
+ */
 
-time_t mktime( struct tm *timeptr ) {
-    return 0;
-}
-
-BOOL SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
-    return FALSE;
-}
-
-HMENU GetMenu(HWND hWnd) {
-    return NULL;
-}
-
-BOOL SetMenu(HWND hWnd, HMENU hMenu) {
-    return FALSE;
-}
-
-BOOL CALLBACK FirstDlgProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam) {
-    return DefWindowProc(hWnd,nMsg,wParam,lParam);
-};
-
-LRESULT CALLBACK FirstDefWindowProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam) {
-    return DefWindowProc(hWnd,nMsg,wParam,lParam);
-}
-
-BOOL PreCreateWindow( CREATESTRUCT& cs) {
-    return TRUE;
-}
-
-void PostCreateWindow( CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
-    // Set the menu (SetMenu just caches it away in CWnd)
-    if((hWnd != NULL) && (HIWORD(nIDorHMenu) != NULL))
-	SetMenu(hWnd, nIDorHMenu);
-}
-
-HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
-    RECT rect = { x1, y1, x2, y2 };
-    return ::CreateRectRgnIndirect(&rect);
-}
-
-
-
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-///////////////// MFC compatibility functions ///////////////////
-// This code has been copied from the MFC library source code  //
-// and will need replacing. Much of this is not used also, and //
-// needs removing                                              //
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-
-void*  calloc(size_t num, size_t size)
+double strtod( const char *nptr, char **endptr )
 {
-	void *ptr = malloc(num*size);
-	if(ptr)
-		memset(ptr, 0, num*size);
-	return ptr;
+   double result = 0;
+   int len;
+   wchar_t *str, *end;
+
+   len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
+   str = (wchar_t *)malloc(len * sizeof(wchar_t));
+   if ( NULL != str )
+   {
+      MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
+      result = wcstod(str, &end);
+      len = WideCharToMultiByte(CP_ACP, 0, end, -1, NULL, 0, NULL, NULL);
+      *endptr = (char *)nptr + (strlen(nptr) - len + 1);
+      free(str);
+   }
+   return result;
 }
 
-void*  _expand(void* pvMemBlock, size_t iSize)
+long strtol( const char *nptr, char **endptr, int base )
 {
-	return realloc(pvMemBlock, iSize);
+   long result = 0;
+   int len;
+   wchar_t *str, *end;
+
+   len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
+   str = (wchar_t *)malloc(len * sizeof(wchar_t));
+   if ( NULL != str )
+   {
+      MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
+      result = wcstol(str, &end, base);
+      len = WideCharToMultiByte(CP_ACP, 0, end, -1, NULL, 0, NULL, NULL);
+      *endptr = (char *)nptr + (strlen(nptr) - len + 1);
+      free(str);
+   }
+   return result;
 }
+// END COPYRIGHTED FUNCTIONS ----------------------------------------
+#endif // POCKET_PC
 
-extern "C" void  __cdecl exit(int);
-
-void abort() {
-    exit(3);
-}
-
-unsigned long _beginthreadex(void *security, unsigned stack_size,
-		    unsigned (__stdcall *start_address)(void *),
-		    void *arglist, unsigned initflag, unsigned *thrdaddr) {
-    return (unsigned long)CreateThread((LPSECURITY_ATTRIBUTES)security,
-	(DWORD)stack_size, (LPTHREAD_START_ROUTINE)start_address,
-	(LPVOID)arglist, (DWORD)initflag | CREATE_SUSPENDED, (LPDWORD)thrdaddr);
-}
-
-void _endthreadex(unsigned nExitCode) {
-	ExitThread((DWORD)nExitCode);
-}
-
-
-BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
-{
-    if (hdc == NULL)
-	return FALSE;
-    lpPoint->x = 0;		// origin is always (0,0)
-    lpPoint->y = 0;
-    return TRUE;
-}
-
-BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
-{
-    if (hdc == NULL)
-        return FALSE;
-    lpSize->cx = 1;		// extent is always 1,1
-    lpSize->cy = 1;
-    return TRUE;
-}
-
-BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
-{
-    if (hdc == NULL)
-        return FALSE;
-    lpPoint->x = 0;		// origin is always (0,0)
-    lpPoint->y = 0;
-    return TRUE;
-}
-
-BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize)
-{
-    if (hdc == NULL)
-        return FALSE;
-    lpSize->cx = 1;		// extent is always 1,1
-    lpSize->cy = 1;
-    return TRUE;
-}
-
-// ----------------------------------------------------------------------------
+// BEGIN COPYRIGHTED FUNCTION ---------------------------------------
 // The bsearch routine below is taken from BSD 4.4-lite
 
 /*
@@ -551,6 +664,54 @@ void *bsearch( register const void *key,
     }
     return (NULL);
 }
+// END COPYRIGHTED FUNCTION -----------------------------------------
+
+/*
+BOOL SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
+    return FALSE;
+}
+
+HMENU GetMenu(HWND hWnd) {
+    return NULL;
+}
+
+BOOL SetMenu(HWND hWnd, HMENU hMenu) {
+    return FALSE;
+}
+
+BOOL CALLBACK FirstDlgProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam) {
+    return DefWindowProc(hWnd,nMsg,wParam,lParam);
+};
+
+LRESULT CALLBACK FirstDefWindowProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam) {
+    return DefWindowProc(hWnd,nMsg,wParam,lParam);
+}
+
+BOOL PreCreateWindow( CREATESTRUCT& cs) {
+    return TRUE;
+}
+
+void PostCreateWindow( CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
+    // Set the menu (SetMenu just caches it away in CWnd)
+    if((hWnd != NULL) && (HIWORD(nIDorHMenu) != NULL))
+	SetMenu(hWnd, nIDorHMenu);
+}
+
+HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
+    RECT rect = { x1, y1, x2, y2 };
+    return ::CreateRectRgnIndirect(&rect);
+}
+*/
+
+//#define	TRACE0(x)
+//#ifndef _countof
+//#define _countof(array) (sizeof(array)/sizeof(array[0]))
+//#endif
+
+//HANDLE CreateSemaphore( LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+//			LONG lInitialCount, LONG lMaximumCount, LPCTSTR lpName ) { return NULL; }
+//BOOL ReleaseSemaphore( HANDLE hSemaphore, LONG lReleaseCount, LPLONG lpPreviousCount ) { return TRUE; }
+// extern "C" void  __cdecl exit(int);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -48,42 +48,47 @@
 extern "C" {
 #endif
 
-#define POCKET_PC         // POCKETPC
-//#undef POCKETPC           // HPCPRO
+#define POCKET_PC		// POCKETPC
+//#undef POCKETPC		// HPCPRO
 
 #define SetWindowLongA		SetWindowLong
 #define GetWindowLongA		GetWindowLong
 #define SendMessageA		SendMessage
+#define calloc			_calloc
 
 
-#define PATH_MAX	1024
+// Environment ------------------------------------------------------
+char *getenv(const char *env);
 
 
-#ifndef POCKET_PC
-int isprint( int c );
-int isdigit( int c );
-int isxdigit( int c );
-int isspace( int c );
-int isgraph( int c );
-
-#else
-
-#define SM_CXCURSOR             13
-#define SM_CYCURSOR             14
-
-#endif
-
-struct _stat
-{
-	int	st_mode;
-	int	st_size;
-	int st_mtime;
-	int st_atime;
-	int st_nlink;
-	int st_ctime;
+// Time -------------------------------------------------------------
+#ifndef _TM_DEFINED
+#define _TM_DEFINED
+struct tm {
+    int tm_sec;     /* seconds after the minute - [0,59] */
+    int tm_min;     /* minutes after the hour - [0,59] */
+    int tm_hour;    /* hours since midnight - [0,23] */
+    int tm_mday;    /* day of the month - [1,31] */
+    int tm_mon;     /* months since January - [0,11] */
+    int tm_year;    /* years since 1900 */
+    int tm_wday;    /* days since Sunday - [0,6] */
+    int tm_yday;    /* days since January 1 - [0,365] */
+    int tm_isdst;   /* daylight savings time flag */
 };
+#endif // _TM_DEFINED
+
+size_t	    strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr );
+struct tm  *gmtime( const time_t *timer );
+struct tm  *localtime(const time_t *);
+time_t	    mktime( struct tm *timeptr );
+
+// Time conversion functions
+time_t	 ftToTime_t( const FILETIME ft );
+FILETIME time_tToFt( time_t tt );
 
 
+// File I/O ---------------------------------------------------------
+#define PATH_MAX		  1024
 #define _O_RDONLY		0x0001
 #define _O_RDWR			0x0002
 #define _O_WRONLY		0x0004
@@ -97,159 +102,127 @@ struct _stat
 
 #define EMFILE			0x0800
 #define ENOSPC			0x1000
+#define EACCES			    13
+
+struct _stat
+{
+    int st_mode;
+    int st_size;
+    int st_nlink;
+    time_t st_mtime;
+    time_t st_atime;
+    time_t st_ctime;
+};
+
+typedef int mode_t;
+extern int errno;
+
+DWORD	 GetLogicalDrives(VOID);
+int	_getdrive( void );
+WCHAR  *_wgetcwd( WCHAR *buffer, int maxlen );
+WCHAR  *_wgetdcwd( int drive, WCHAR *buffer, int maxlen );
+int	_wchdir( const WCHAR *dirname );
+int	_wmkdir( const WCHAR *dirname );
+int	_wrmdir( const WCHAR *dirname );
+int	_waccess( const WCHAR *path, int pmode );
+int	_wrename( const WCHAR *oldname, const WCHAR *newname );
+int	_wremove( const WCHAR *name );
+int	 open( const char *filename, int oflag, int pmode );
+int	_wopen( const WCHAR *filename, int oflag, int pmode );
+int	_fstat( int handle, struct _stat *buffer );
+int	_wstat( const WCHAR *path, struct _stat *buffer );
+long	_lseek( int handle, long offset, int origin );
+int	_read( int handle, void *buffer, unsigned int count );
+int	_write( int handle, const void *buffer, unsigned int count );
+int	_close( int handle );
+int	_qt_fileno( FILE *filehandle );
+FILE   *_fdopen(int handle, const char *mode);
+FILE   *fdopen(int handle, const char *mode);
+void	rewind( FILE *stream );
+FILE   *tmpfile( void );
 
 
-#ifndef POCKET_PC
-
-char *strrchr( const char *string, int c );
-double strtod( const char *nptr, char **endptr );
-long strtol( const char *nptr, char **endptr, int base );
-double atof( const char *string );
-
-#endif
-
+// Clipboard --------------------------------------------------------
+#define WM_CHANGECBCHAIN	1
+#define WM_DRAWCLIPBOARD	2
 
 BOOL ChangeClipboardChain(
-  HWND hWndRemove,  // handle to window to remove
-  HWND hWndNewNext  // handle to next window
+    HWND hWndRemove,  // handle to window to remove
+    HWND hWndNewNext  // handle to next window
 );
 
 HWND SetClipboardViewer(
-  HWND hWndNewViewer   // handle to clipboard viewer window
+    HWND hWndNewViewer   // handle to clipboard viewer window
 );
 
 
+// Printer ----------------------------------------------------------
+#define ETO_GLYPH_INDEX		0x0010
+
+typedef struct tagENUMLOGFONTEX {
+    LOGFONT  elfLogFont;
+    TCHAR  elfFullName[LF_FULLFACESIZE];
+    TCHAR  elfStyle[LF_FACESIZE];
+    TCHAR  elfScript[LF_FACESIZE];
+} ENUMLOGFONTEX, *LPENUMLOGFONTEX;
+
+
+// Graphics ---------------------------------------------------------
+#ifdef POCKET_PC
+#   define SM_CXCURSOR		13
+#   define SM_CYCURSOR		14
+#else
 // ###
-#define WM_CHANGECBCHAIN	1
-#define WM_DRAWCLIPBOARD	2
-#ifndef POCKET_PC
-#define GHND				GMEM_MOVEABLE | GMEM_ZEROINIT
-#endif
-
-#define EACCES          13
-
-typedef int mode_t; // Used for file security modes
-//char *_getcwd( char *buffer, int maxlen );
-//TCHAR *_tgetcwd( TCHAR *buffer, int maxlen );
-WCHAR *_wgetcwd( WCHAR *buffer, int maxlen );
-
-//char *_getdcwd( int drive, char *buffer, int maxlen );
-//TCHAR *_tgetdcwd( int drive, TCHAR *buffer, int maxlen );
-WCHAR  *_wgetdcwd( int drive, WCHAR *buffer, int maxlen );
-
-//int _chdir( const char *dirname );
-//int _tchdir( const TCHAR *dirname );
-int _wchdir( const WCHAR *dirname );
-
-//int _mkdir( const char *dirname );
-//int _tmkdir( const TCHAR *dirname );
-int _wmkdir( const WCHAR *dirname );
-
-//int _rmdir( const char *dirname );
-//int _trmdir( const TCHAR *dirname );
-int _wrmdir( const WCHAR *dirname );
-
-//int _access( const char *path, int mode );
-//int _taccess( const TCHAR *path, int mode );
-int _waccess( const WCHAR *path, int mode );
-
-//int rename( const char *oldname, const char *newname );
-//int _trename( const TCHAR *oldname, const TCHAR *newname );
-int _wrename( const WCHAR *oldname, const WCHAR *newname );
-
-//int remove( const char *name );
-//int _tremove( const TCHAR *name );
-int _wremove( const WCHAR *name );
-
-int open( const char *filename, int oflag, int pmode );
-//int _topen( const TCHAR *filename, int oflag, int pmode );
-int _wopen( const WCHAR *filename, int oflag, int pmode );
-
-int _fstat( int handle, struct _stat *buffer );
-//int _stat( const char *path, struct _stat *buffer );
-//int _tstat( const TCHAR *path, struct _stat *buffer );
-int _wstat( const WCHAR *path, struct _stat *buffer );
-
-long _lseek( int handle, long offset, int origin );
-int _read( int handle, void *buffer, unsigned int count );
-int _write( int handle, const void *buffer, unsigned int count );
-int _close( int handle );
-int _qt_fileno( FILE *filehandle );
-DWORD GetLogicalDrives(VOID);
-int _getdrive( void );
-FILE *fdopen(int handle, const char *mode);
-char *getenv(const char *env);
-FILE *_fdopen(int handle, const char *mode);
-void rewind( FILE *stream );
-FILE *tmpfile( void );
-extern int errno;
-
-#define calloc	_calloc
-
+#define GHND			GMEM_MOVEABLE | GMEM_ZEROINIT
+#endif // POCKET_PC
 
 BOOL ResizePalette( HPALETTE hpal, UINT nEntries );
 COLORREF PALETTEINDEX( WORD wPaletteIndex );
 
-
-void *bsearch( const void *key, const void *base0, size_t nmemb, size_t size, int ( __cdecl *compar ) ( const void *, const void * ) );
-
-#define ETO_GLYPH_INDEX              0x0010
-typedef struct tagENUMLOGFONTEX {
-  LOGFONT  elfLogFont;
-  TCHAR  elfFullName[LF_FULLFACESIZE];
-  TCHAR  elfStyle[LF_FACESIZE];
-  TCHAR  elfScript[LF_FACESIZE];
-} ENUMLOGFONTEX, *LPENUMLOGFONTEX;
+BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint );
+BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString );
+BOOL GetViewportOrgEx( HDC hdc, LPPOINT lpPoint );
+BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize );
+BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint );
+BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize );
 
 
-
-#ifndef _TM_DEFINED
-#define _TM_DEFINED
-struct tm {
-        int tm_sec;     /* seconds after the minute - [0,59] */
-        int tm_min;     /* minutes after the hour - [0,59] */
-        int tm_hour;    /* hours since midnight - [0,23] */
-        int tm_mday;    /* day of the month - [1,31] */
-        int tm_mon;     /* months since January - [0,11] */
-        int tm_year;    /* years since 1900 */
-        int tm_wday;    /* days since Sunday - [0,6] */
-        int tm_yday;    /* days since January 1 - [0,365] */
-        int tm_isdst;   /* daylight savings time flag */
-        };
-#endif // _TM_DEFINED
-
-
-struct tm *gmtime( const time_t *timer );
-size_t strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr );
-struct tm *localtime(const time_t *);
-time_t mktime( struct tm *timeptr );
-
-
-BOOL SetWindowOrgEx(
-  HDC hdc,        // handle to device context
-  int X,          // new x-coordinate of window origin
-  int Y,          // new y-coordinate of window origin
-  LPPOINT lpPoint // original window origin
-);
-
-BOOL TextOut(
-  HDC hdc,           // handle to DC
-  int nXStart,       // x-coordinate of starting position
-  int nYStart,       // y-coordinate of starting position
-  LPCTSTR lpString,  // character string
-  int cbString       // number of characters
-);
-
-
+// Other stuff ------------------------------------------------------
 // ### not the real values
 #define STARTF_USESTDHANDLES	1
-#define CREATE_NO_WINDOW		2
-#define DETACHED_PROCESS		3
-#define CF_HDROP				4
+#define CREATE_NO_WINDOW	2
+#define DETACHED_PROCESS	3
+#define CF_HDROP		4
 
-//HANDLE GetCurrentProcess(void);
-//DWORD GetCurrentThreadId(void);
-//HANDLE GetCurrentThread(void);
+void abort();
+void *_expand(void* pvMemBlock, size_t iSize);
+void *calloc(size_t num, size_t size);
+
+unsigned long _beginthreadex( void *security,
+			      unsigned stack_size,
+			      unsigned (__stdcall *start_address)(void *),
+			      void *arglist,
+			      unsigned initflag,
+			      unsigned *thrdaddr );
+void _endthreadex(unsigned nExitCode);
+
+#ifndef POCKET_PC
+    int isprint( int c );
+    int isdigit( int c );
+    int isxdigit( int c );
+    int isspace( int c );
+    int isgraph( int c );
+    double atof( const char *string );
+    char *strrchr( const char *string, int c );
+    double strtod( const char *nptr, char **endptr );
+    long strtol( const char *nptr, char **endptr, int base );
+#endif // POCKET_PC
+
+void *bsearch( const void *key, 
+	       const void *base0, 
+	       size_t nmemb, 
+	       size_t size, 
+	       int ( __cdecl *compar ) ( const void *, const void * ) );
 
 
 /////////////////////////////////////////////////////////////////
@@ -498,131 +471,8 @@ HGLOBAL GlobalHandle(LPCVOID pMem);
 UINT    GlobalFlags(HGLOBAL hMem);
 #endif
 
-/*
-typedef struct tagNCCALCSIZE_PARAMS {
-    RECT       rgrc[3];
-    PWINDOWPOS lppos;
-} NCCALCSIZE_PARAMS, *LPNCCALCSIZE_PARAMS;
-
-
-// The WinCE OS headers #defines the following,
-// but it interferes with MFC member functions.
-#undef TrackPopupMenu
-#undef DrawIcon
-#undef SendDlgItemMessage
-#undef SetDlgItemText
-#undef GetDlgItemText
-#undef LoadCursor
-
-// ATLCONV.H support
-#ifndef _ASSERTE
-#define _ASSERTE ASSERT
-#endif
-
-
-typedef struct tagFINDREPLACEW
-{
-   DWORD        lStructSize;        // size of this struct 0x20
-   HWND         hwndOwner;          // handle to owner's window
-   HINSTANCE    hInstance;          // instance handle of.EXE that
-                                    //   contains cust. dlg. template
-   DWORD        Flags;              // one or more of the FR_??
-   LPWSTR       lpstrFindWhat;      // ptr. to search string
-   LPWSTR       lpstrReplaceWith;   // ptr. to replace string
-   WORD         wFindWhatLen;       // size of find buffer
-   WORD         wReplaceWithLen;    // size of replace buffer
-   LPARAM       lCustData;          // data passed to hook fn.
-   LPFRHOOKPROC lpfnHook;           // ptr. to hook fn. or NULL
-   LPCWSTR      lpTemplateName;     // custom template name
-} FINDREPLACE, *LPFINDREPLACE;
-
-#if defined(_WIN32_WCE_PSPC) && (_WIN32_WCE == 201)
-	#define OFN_READONLY         0
-	#define OFN_ENABLEHOOK       0
-	#define OFN_ENABLETEMPLATE   0
-	#define OFN_ALLOWMULTISELECT 0
-#endif // _WIN32_WCE_PSPC
-
-#if defined(_WIN32_WCE_PSPC) && (_WIN32_WCE >= 300)
-	#ifndef SHA_SHOWDONE
-	#define SHA_SHOWDONE 0x0001
-	#endif
-	#ifndef SHA_HIDEDONE
-	#define SHA_HIDEDONE 0x0002
-	#endif
-	#ifndef SHA_AUTODONE
-	#define SHA_AUTODONE 0x0003
-	#endif
-	#ifndef MENU_HEIGHT
-	#define MENU_HEIGHT  26
-	#endif
-	BOOL AFXAPI wce_IsSipUp();
-#endif // _WIN32_WCE_PSPC
-
-#if !defined(_WIN32_WCE_NO_WININET)
-#include <wininet.h>
-#endif
-
-#define wce_T2CA(lpszSrc) \
-	(lpszSrc ? wce_T2CAHelper((LPSTR)_alloca((_tcslen(lpszSrc)+1)*2), lpszSrc) : NULL)
-
-#if defined(_WIN32_WCE_NO_OLE)
-// WinCE: compensate for not including atlconv.h in afxconv.h
-#ifndef _DEBUG
-#define USES_CONVERSION int _convert; _convert
-#else
-#define USES_CONVERSION int _convert = 0;
-#endif
-#define A2CT(lpa) (\
-	((LPCSTR)lpa == NULL) ? NULL : (\
-		_convert = (lstrlenA(lpa)+1),\
-		(LPCWSTR)AfxA2WHelper((LPWSTR) alloca(_convert*2), lpa, _convert)\
-	)\
-)
-#endif // _WIN32_WCE_NO_OLE
-
-// Missing headers
-#include "prsht.h"
-
-// Missing string functions aliases
-#ifndef _istlead
-#define _istlead(ch) (FALSE)
-#endif
-#ifndef _vsnwprintf
-#define _vsnwprintf(a,b,c,d) vswprintf(a,c,d)
-#endif
-#define lstrcpyn     _tcsncpy
-
-__inline wchar_t * __cdecl _wcsdec(const wchar_t * start, const wchar_t * current)
-	{ return (wchar_t *) ( (start>=current) ? NULL : (current-1) ); }
-__inline wchar_t * __cdecl _wcsinc(const wchar_t * _pc) { return (wchar_t *)(_pc+1); }
-__inline size_t    __cdecl _tclen( const wchar_t *_cpc) { return 2; } // for UNICODE
-
-long	GetMessageTime();
-time_t	mktime(struct tm* );
-struct tm *localtime(const time_t *);
-char	*ctime(const time_t* );
-time_t	time(time_t *);
-
-*/
-
-void abort();
-void *_expand(void* pvMemBlock, size_t iSize);
-void *calloc(size_t num, size_t size);
-BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint);
-BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize);
-BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint);
-BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize);
-void _endthreadex(unsigned nExitCode);
-unsigned long _beginthreadex(void *security, unsigned stack_size,
-		    unsigned (__stdcall *start_address)(void *),
-		    void *arglist, unsigned initflag, unsigned *thrdaddr);
-
-
 #ifdef __cplusplus
 }	// Extern C.
 #endif
-
 #endif // Q_OS_TEMP
-
 #endif // QFUNCTIONS_WCE_H
