@@ -70,6 +70,11 @@
 \row \o QToolButton::Under \o QToolButton::BelowIcon
 \row \o QValidator::Valid \o QValidator::Intermediate
 \row \o QVariant::IconSet \o QCoreVariant::Icon
+\row \o QWidget::NoFocus \o Qt::NoFocus
+\row \o QWidget::TabFocus \o Qt::TabFocus
+\row \o QWidget::ClickFocus \o Qt::ClickFocus
+\row \o QWidget::StrongFocus \o Qt::StrongFocus
+\row \o QWidget::WheelFocus \o Qt::WheelFocus
 \row \o Qt::AltButton \o Qt::AltModifier
 \row \o Qt::Ascending \o Qt::AscendingOrder
 \row \o Qt::Bottom \o Qt::DockBottom

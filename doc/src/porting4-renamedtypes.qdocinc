@@ -16,6 +16,7 @@
 \row \o QStyle::SFlags \o QStyle::StyleFlags
 \row \o QTS \o QTextStream
 \row \o QUrlDrag \o QUriDrag
+\row \o QWidget::FocusPolicy \o Qt::FocusPolicy
 \row \o Q_LLONG \o Q_LONGLONG
 \row \o Q_ULLONG \o Q_ULONGLONG
 \row \o Qt::ButtonState \o Qt::KeyboardModifier
