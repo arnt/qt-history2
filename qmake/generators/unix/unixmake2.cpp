@@ -267,6 +267,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
 		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
+	    if(!project->isEmpty("QMAKE_PRE_LINK"))
+		t << "\n\t" << var("QMAKE_PRE_LINK");
 	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
 	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
 	    t << "\n\t"
@@ -304,6 +306,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << incr_target_dir << ": $(OBJECTS) $(OBJMOC) ";
 	    if(!destdir.isEmpty())
 		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
+	    if(!project->isEmpty("QMAKE_PRE_LINK"))
+		t << "\n\t" << var("QMAKE_PRE_LINK");
 	    QString incr_lflags = var("QMAKE_LFLAGS_SHLIB") + " ";
 	    incr_lflags += var(project->isActiveConfig("debug") ? "QMAKE_LFLAGS_DEBUG" : "QMAKE_LFLAGS_RELEASE");
 	    t << "\n\t"
@@ -321,6 +325,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	if(!destdir.isEmpty())
 	    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
+	if(!project->isEmpty("QMAKE_PRE_LINK"))
+	    t << "\n\t" << var("QMAKE_PRE_LINK");
 
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
