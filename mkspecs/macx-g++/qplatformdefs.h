@@ -9,7 +9,6 @@
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
-#include <sys/types.h>
 
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
@@ -18,7 +17,6 @@
 #ifdef QT_THREAD_SUPPORT
 #include <pthread.h>
 #endif
-
 
 #include <ctype.h>
 #include <dirent.h>
@@ -35,6 +33,7 @@
 
 #include <netinet/in.h>
 
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>

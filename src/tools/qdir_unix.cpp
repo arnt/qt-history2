@@ -48,6 +48,8 @@
 #include "qregexp.h"
 #include "qstringlist.h"
 
+#include <stdlib.h>
+
 
 void QDir::slashify( QString& )
 {

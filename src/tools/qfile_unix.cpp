@@ -38,6 +38,8 @@
 #include "qplatformdefs.h"
 #include "qfile.h"
 
+#include <errno.h>
+
 
 bool qt_file_access( const QString& fn, int t )
 {

@@ -70,20 +70,24 @@
 #include "qinputcontext_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
-#  include "qthread.h"
+# include "qthread.h"
 #endif
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-#  include "qfile.h"
+# include "qfile.h"
 #endif
 
 #if defined(Q_OS_UNIX)
 static int qt_thread_pipe[2];
 #endif
 
-
 #define GC GC_QQQ
 #include "qt_x11.h"
+
+#include <stdlib.h>
+#include <ctype.h>
+#include <locale.h>
+#include <errno.h>
 
 
 //#define X_NOT_BROKEN
@@ -95,14 +99,14 @@ static int qt_thread_pipe[2];
 // implement _Xsetlocale just in case X calls it - redirecting it to
 // the real libC version.
 //
-#  ifndef setlocale
+# ifndef setlocale
 extern "C" char *_Xsetlocale(int category, const char *locale);
 char *_Xsetlocale(int category, const char *locale)
 {
     //qDebug("_Xsetlocale(%d,%s),category,locale");
     return setlocale(category,locale);
 }
-#  endif // setlocale
+# endif // setlocale
 #endif // X_NOT_BROKEN
 
 
@@ -3020,13 +3024,13 @@ bool QApplication::processNextEvent( bool canWait )
 
 void QApplication::wakeUpGuiThread()
 {
-#  if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX)
     char c = 0;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
-#  endif
+#endif
 }
 
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)

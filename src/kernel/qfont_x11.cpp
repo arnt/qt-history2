@@ -46,22 +46,22 @@
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
-
-#include <qpaintdevice.h>
-#include <qregexp.h>
-#include <qdict.h>
-#include <qtextcodec.h>
-#include <qcleanuphandler.h>
-
+#include "qpaintdevice.h"
+#include "qregexp.h"
+#include "qdict.h"
+#include "qtextcodec.h"
+#include "qcleanuphandler.h"
 #include "../codecs/qfontcodecs_p.h"
 
 #ifndef QT_NO_XFTFREETYPE
-#  include <qintdict.h>
-#  include <qpixmap.h>
-#  include <qsettings.h>
+# include "qintdict.h"
+# include "qpixmap.h"
+# include "qsettings.h"
 #endif // QT_NO_XFTFREETYPE
 
 #include "qt_x11.h"
+
+#include <ctype.h>
 
 
 // #define QFONTLOADER_DEBUG
@@ -71,7 +71,8 @@
 // to get which font encodings are installed:
 // xlsfonts | egrep -- "^-.*-.*-.*$" | cut -f 14- -d- | sort | uniq
 
-// because of the way the font matcher works - these lists must have atleast 2 entries
+// because of the way the font matcher works
+// these lists must have at least 2 entries
 static const char * const empty_encodings[] = { 0, 0 };
 static const char * const latin_encodings[] = { "iso8859-1", 0 };
 static const char * const greek_encodings[] = { "iso8859-7", 0 };

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #ifndef QT_H
-#  include <qfeatures.h>
+# include <qfeatures.h>
 #endif // QT_H
 
 #ifndef QT_NO_PROCESS
@@ -49,6 +49,8 @@
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qcleanuphandler.h"
+
+#include <errno.h>
 
 
 //#define QT_QPROCESS_DEBUG

@@ -14,7 +14,6 @@
 #endif
 
 #include <unistd.h>
-#include <sys/types.h>
 
 
 // We are hot - unistd.h should have turned on the specific APIs we requested
@@ -24,22 +23,15 @@
 #include <pthread.h>
 #endif
 
-
-#include <ctype.h>
 #include <dirent.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
-#include <limits.h>
-#include <locale.h>
 #include <pwd.h>
 #include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 
 #include <netinet/in.h>
 
+#include <sys/types.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/time.h>
