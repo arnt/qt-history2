@@ -519,7 +519,7 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
 
 QWidget * QTabWidget::currentPage() const
 {
-    return d->stack->visibleWidget();
+    return page( currentPageIndex() );
 }
 
 /*! \property QTabWidget::autoMask
