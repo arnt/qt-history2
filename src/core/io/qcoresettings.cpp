@@ -741,7 +741,7 @@ static QString systemIniPath()
 
 static QString userIniPath()
 {
-    return QDir::homePath() + QDir::separator() + QLatin1String(".qt4") + QDir::separator();
+    return QDir::homePath() + QDir::separator() + QLatin1String(".settings") + QDir::separator();
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
