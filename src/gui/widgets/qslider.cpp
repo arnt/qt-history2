@@ -169,14 +169,12 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
     The \a parent argument is sent to the QAbstractSlider
     constructor.
 */
-#ifndef QT_COMPAT
 QSlider::QSlider(QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     d->orientation = Vertical;
     d->init();
 }
-#endif QT_COMPAT
 
 /*!
     Constructs a slider.
