@@ -727,14 +727,14 @@ void QObject::ensurePolished() const
     d->polished = m;
 
     QEvent e(QEvent::Polish);
-    QCoreApplication::sendEvent((QObject*)this, &e);
+    QCoreApplication::sendEvent(const_cast<QObject *>(this), &e);
 
     // polish children after 'this'
     for (int i = 0; i < d->children.size(); ++i)
 	d->children.at(i)->ensurePolished();
 
     if (d->parent) {
-        QChildEvent e(QEvent::ChildPolished, (QObject*)this);
+        QChildEvent e(QEvent::ChildPolished, const_cast<QObject *>(this));
         QCoreApplication::sendEvent(d->parent, &e);
     }
 }
