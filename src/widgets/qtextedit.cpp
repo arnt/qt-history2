@@ -4847,7 +4847,7 @@ void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 	return;
     if ( doc->hasSelection( QTextDocument::Standard ) )
 	removeSelectedText();
-    if ( !m->provides( st.data() ) )
+    if ( !QRichTextDrag::canDecode( m ) )
 	return;
     QString t;
     if ( !QRichTextDrag::decode( m, t, st, subtype ) )
