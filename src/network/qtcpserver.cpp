@@ -126,15 +126,18 @@ QTcpServerPrivate::~QTcpServerPrivate()
 void QTcpServerPrivate::processIncomingConnection(int)
 {
     d->readSocketNotifier->setEnabled(false);
-    if (pendingConnections.count() >= maxConnections) {
-#if defined (QTCPSERVER_DEBUG)
-        qDebug("QTcpServerPrivate::processIncomingConnection() too many connections");
-#endif
-        return;
-    }
 
-    int descriptor;
-    while ((descriptor = socketLayer.accept()) != -1) {
+    for (;;) {
+        if (pendingConnections.count() >= maxConnections) {
+#if defined (QTCPSERVER_DEBUG)
+            qDebug("QTcpServerPrivate::processIncomingConnection() too many connections");
+#endif
+            return;
+        }
+
+        int descriptor = socketLayer.accept();
+        if (descriptor == -1)
+            break;
 #if defined (QTCPSERVER_DEBUG)
         qDebug("QTcpServerPrivate::processIncomingConnection() accepted socket %i", descriptor);
 #endif
@@ -408,6 +411,8 @@ QTcpSocket *QTcpServer::nextPendingConnection()
 
     if (!d->readSocketNotifier->isEnabled())
         d->readSocketNotifier->setEnabled(true);
+
+    d->readSocketNotifier->setEnabled(true);
     return d->pendingConnections.takeFirst();
 }
 
