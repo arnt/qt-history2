@@ -411,83 +411,83 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 {
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC                =        " << var("QMAKE_CC") << endl;
-    t << "CXX                =        " << var("QMAKE_CXX") << endl;
-    t << "LEX                = " << var("QMAKE_LEX") << endl;
-    t << "YACC                = " << var("QMAKE_YACC") << endl;
+    t << "CC            = " << var("QMAKE_CC") << endl;
+    t << "CXX           = " << var("QMAKE_CXX") << endl;
+    t << "LEX           = " << var("QMAKE_LEX") << endl;
+    t << "YACC          = " << var("QMAKE_YACC") << endl;
     t << "DEFINES       = "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CFLAGS        =        " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
-    t << "CXXFLAGS        =        " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
-    t << "LEXFLAGS        =" << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS        =" << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH        =        ";
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
+      << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
+    t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
+    t << "INCPATH       = ";
 
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
         QString inc = (*incit);
         inc.replace(QRegExp("\\\\$"), "\\\\");
         inc.replace(QRegExp("\""), "");
-        t << " -I" << "\"" << inc << "\"";
+        t << "-I" << "\"" << inc << "\" ";
     }
-    t << " -I\"" << specdir() << "\""
+    t << "-I\"" << specdir() << "\""
       << endl;
 
     writeLibsPart(t);
 
-    t << "MOC        =        " << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
+    t << "MOC           = " << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
                               Option::fixPathToTargetOS(var("QMAKE_MOC"), false)) << endl;
-    t << "UIC        =        " << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
+    t << "UIC           = " << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
                               Option::fixPathToTargetOS(var("QMAKE_UIC"), false)) << endl;
-    t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
+    t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") :
                               Option::fixPathToTargetOS(var("QMAKE_QMAKE"), false)) << endl;
-    t << "IDC                =        " << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
+    t << "IDC           = " << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
                               Option::fixPathToTargetOS(var("QMAKE_IDC"), false)) << endl;
-    t << "IDL                =        " << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
+    t << "IDL           = " << (project->isEmpty("QMAKE_IDL") ? QString("midl") :
                               Option::fixPathToTargetOS(var("QMAKE_IDL"), false)) << endl;
-    t << "ZIP      =        " << var("QMAKE_ZIP") << endl;
-    t << "DEF_FILE =        " << varList("DEF_FILE") << endl;
-    t << "RES_FILE =        " << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
-    t << "COPY     =       " << var("QMAKE_COPY") << endl;
-    t << "COPY_FILE  =       " << var("QMAKE_COPY_FILE") << endl;
-    t << "COPY_DIR  =       " << var("QMAKE_COPY_DIR") << endl;
-    t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
-    t << "DEL_DIR    =       " << var("QMAKE_DEL_DIR") << endl;
-    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
-    t << "CHK_DIR_EXISTS =        " << var("QMAKE_CHK_DIR_EXISTS") << endl;
-    t << "MKDIR                =        " << var("QMAKE_MKDIR") << endl;
-    t << "INSTALL_FILE= " << var("QMAKE_INSTALL_FILE") << endl;
-    t << "INSTALL_DIR = " << var("QMAKE_INSTALL_DIR") << endl;
+    t << "ZIP           = " << var("QMAKE_ZIP") << endl;
+    t << "DEF_FILE      = " << varList("DEF_FILE") << endl;
+    t << "RES_FILE      = " << varList("RES_FILE") << endl; // Not on mingw, can't see why not though...
+    t << "COPY          = " << var("QMAKE_COPY") << endl;
+    t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
+    t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
+    t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
+    t << "DEL_DIR       = " << var("QMAKE_DEL_DIR") << endl;
+    t << "MOVE          = " << var("QMAKE_MOVE") << endl;
+    t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
+    t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
+    t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_DIR   = " << var("QMAKE_INSTALL_DIR") << endl;
     t << endl;
 
     t << "####### Output directory" << endl << endl;
     if(!project->variables()["OBJECTS_DIR"].isEmpty())
-        t << "OBJECTS_DIR = " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"),"") << endl;
+        t << "OBJECTS_DIR   = " << var("OBJECTS_DIR").replace(QRegExp("\\\\$"),"") << endl;
     else
-        t << "OBJECTS_DIR = . " << endl;
+        t << "OBJECTS_DIR   = . " << endl;
     if(!project->variables()["MOC_DIR"].isEmpty())
-        t << "MOC_DIR = " << var("MOC_DIR").replace(QRegExp("\\\\$"),"") << endl;
+        t << "MOC_DIR       = " << var("MOC_DIR").replace(QRegExp("\\\\$"),"") << endl;
     else
-        t << "MOC_DIR = . " << endl;
+        t << "MOC_DIR       = . " << endl;
     t << endl;
 
     t << "####### Files" << endl << endl;
-    t << "HEADERS =        " << varList("HEADERS") << endl;
-    t << "SOURCES =        " << varList("SOURCES") << endl;
+    t << "HEADERS       = " << varList("HEADERS") << endl;
+    t << "SOURCES       = " << varList("SOURCES") << endl;
 
     writeObjectsPart(t);
 
-    t << "FORMS =        " << varList("FORMS") << endl;
-    t << "UICDECLS =        " << varList("UICDECLS") << endl;
-    t << "UICIMPLS =        " << varList("UICIMPLS") << endl;
-    t << "SRCMOC =        " << varList("SRCMOC") << endl;
+    t << "FORMS         = " << varList("FORMS") << endl;
+    t << "UICDECLS      = " << varList("UICDECLS") << endl;
+    t << "UICIMPLS      = " << varList("UICIMPLS") << endl;
+    t << "SRCMOC        = " << varList("SRCMOC") << endl;
 
     writeObjMocPart(t);
     QString extraCompilerDeps = writeObjCompParts(t);
 
-    t << "DIST        =        " << varList("DISTFILES") << endl;
-    t << "TARGET        =        ";
+    t << "DIST          = " << varList("DISTFILES") << endl;
+    t << "TARGET        = ";
     if(!project->variables()["DESTDIR"].isEmpty())
         t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
     else
@@ -616,14 +616,14 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
 {
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-        t << "LINK        =        " << var("QMAKE_LINK") << endl;
-        t << "LFLAGS        =        ";
+        t << "LINK          = " << var("QMAKE_LINK") << endl;
+        t << "LFLAGS        = ";
         if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
             writeLibDirPart(t);
         t << var("QMAKE_LFLAGS") << endl;
-        t << "LIBS        =        " << var("QMAKE_LIBS") << endl;
+        t << "LIBS          = " << var("QMAKE_LIBS") << endl;
     } else {
-        t << "LIB        =        " << var("QMAKE_LIB") << endl;
+        t << "LIB           = " << var("QMAKE_LIB") << endl;
     }
 }
 
@@ -640,12 +640,12 @@ void Win32MakefileGenerator::processMocConfig()
 
 void Win32MakefileGenerator::writeObjectsPart(QTextStream &t)
 {
-    t << "OBJECTS =        " << varList("OBJECTS") << endl;
+    t << "OBJECTS       = " << varList("OBJECTS") << endl;
 }
 
 void Win32MakefileGenerator::writeObjMocPart(QTextStream &t)
 {
-    t << "OBJMOC =        " << varList("OBJMOC") << endl;
+    t << "OBJMOC        = " << varList("OBJMOC") << endl;
 }
 
 QString Win32MakefileGenerator::writeObjCompParts(QTextStream &t)
@@ -654,7 +654,7 @@ QString Win32MakefileGenerator::writeObjCompParts(QTextStream &t)
     QString extraCompilerDeps;
 
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        t << "OBJCOMP = " << varList("OBJCOMP") << endl;
+        t << "OBJCOMP       = " << varList("OBJCOMP") << endl;
 
         QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
         for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {

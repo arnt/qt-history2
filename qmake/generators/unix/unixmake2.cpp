@@ -87,18 +87,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
          src_incremental=false, moc_incremental=false;
 
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC       = " << var("QMAKE_CC") << endl;
-    t << "CXX      = " << var("QMAKE_CXX") << endl;
-    t << "LEX      = " << var("QMAKE_LEX") << endl;
-    t << "YACC     = " << var("QMAKE_YACC") << endl;
-    t << "DEFINES  = "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
+    t << "CC            = " << var("QMAKE_CC") << endl;
+    t << "CXX           = " << var("QMAKE_CXX") << endl;
+    t << "LEX           = " << var("QMAKE_LEX") << endl;
+    t << "YACC          = " << var("QMAKE_YACC") << endl;
+    t << "DEFINES       = "
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
       << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
-    t << "CXXFLAGS = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
-    t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH  = " << "-I" << specdir();
+    t << "CFLAGS        = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS      = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
+    t << "LEXFLAGS      = " << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS     = " << var("QMAKE_YACCFLAGS") << endl;
+    t << "INCPATH       = " << "-I" << specdir();
     if(!project->isActiveConfig("no_include_pwd")) {
         QString pwd = fileFixify(QDir::currentDirPath());
         if(pwd.isEmpty())
@@ -108,48 +108,48 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
 
     if(!project->isActiveConfig("staticlib")) {
-        t << "LINK     = " << var("QMAKE_LINK") << endl;
-        t << "LFLAGS   = " << var("QMAKE_LFLAGS") << endl;
-        t << "LIBS     = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
+        t << "LINK          = " << var("QMAKE_LINK") << endl;
+        t << "LFLAGS        = " << var("QMAKE_LFLAGS") << endl;
+        t << "LIBS          = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
     }
 
-    t << "AR       = " << var("QMAKE_AR") << endl;
-    t << "RANLIB   = " << var("QMAKE_RANLIB") << endl;
-    t << "MOC      = " << var("QMAKE_MOC") << endl;
-    t << "UIC      = "        << var("QMAKE_UIC") << endl;
-    t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-    t << "TAR      = "        << var("QMAKE_TAR") << endl;
-    t << "COMPRESS = " << var("QMAKE_GZIP") << endl;
+    t << "AR            = " << var("QMAKE_AR") << endl;
+    t << "RANLIB        = " << var("QMAKE_RANLIB") << endl;
+    t << "MOC           = " << var("QMAKE_MOC") << endl;
+    t << "UIC           = " << var("QMAKE_UIC") << endl;
+    t << "QMAKE         = " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
+    t << "TAR           = " << var("QMAKE_TAR") << endl;
+    t << "COMPRESS      = " << var("QMAKE_GZIP") << endl;
     if(project->isActiveConfig("compile_libtool"))
-        t << "LIBTOOL        = " << var("QMAKE_LIBTOOL") << endl;
-    t << "COPY     = " << var("QMAKE_COPY") << endl;
-    t << "COPY_FILE= " << var("QMAKE_COPY_FILE") << endl;
-    t << "COPY_DIR = " << var("QMAKE_COPY_DIR") << endl;
-    t << "INSTALL_FILE= " << var("QMAKE_INSTALL_FILE") << endl;
-    t << "INSTALL_DIR = " << var("QMAKE_INSTALL_DIR") << endl;
+        t << "LIBTOOL       = " << var("QMAKE_LIBTOOL") << endl;
+    t << "COPY          = " << var("QMAKE_COPY") << endl;
+    t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
+    t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
+    t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_DIR   = " << var("QMAKE_INSTALL_DIR") << endl;
 
-    t << "DEL_FILE = " << var("QMAKE_DEL_FILE") << endl;
-    t << "SYMLINK  = " << var("QMAKE_SYMBOLIC_LINK") << endl;
-    t << "DEL_DIR  = " << var("QMAKE_DEL_DIR") << endl;
-    t << "MOVE     = " << var("QMAKE_MOVE") << endl;
+    t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
+    t << "SYMLINK       = " << var("QMAKE_SYMBOLIC_LINK") << endl;
+    t << "DEL_DIR       = " << var("QMAKE_DEL_DIR") << endl;
+    t << "MOVE          = " << var("QMAKE_MOVE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
-    t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
+    t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
     t << endl;
 
     t << "####### Output directory" << endl << endl;
     if (! project->variables()["OBJECTS_DIR"].isEmpty())
-        t << "OBJECTS_DIR = " << var("OBJECTS_DIR") << endl;
+        t << "OBJECTS_DIR   = " << var("OBJECTS_DIR") << endl;
     else
-        t << "OBJECTS_DIR = ./" << endl;
+        t << "OBJECTS_DIR   = ./" << endl;
     t << endl;
 
     /* files */
     t << "####### Files" << endl << endl;
-    t << "HEADERS = " << varList("HEADERS") << endl;
-    t << "SOURCES = " << varList("SOURCES") << endl;
+    t << "HEADERS       = " << varList("HEADERS") << endl;
+    t << "SOURCES       = " << varList("SOURCES") << endl;
     if(do_incremental) {
         QStringList &objs = project->variables()["OBJECTS"], &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
-        t << "OBJECTS = ";
+        t << "OBJECTS       = ";
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
@@ -173,17 +173,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "INCREMENTAL_OBJECTS = " << incrs_out.join(" \\\n\t\t") << endl;
         }
     } else {
-        t << "OBJECTS = " << varList("OBJECTS") << endl;
+        t << "OBJECTS       = " << varList("OBJECTS") << endl;
     }
-    t << "FORMS = " << varList("FORMS") << endl;
-    t << "UICDECLS = " << varList("UICDECLS") << endl;
-    t << "UICIMPLS = " << varList("UICIMPLS") << endl;
+    t << "FORMS         = " << varList("FORMS") << endl;
+    t << "UICDECLS      = " << varList("UICDECLS") << endl;
+    t << "UICIMPLS      = " << varList("UICIMPLS") << endl;
     QString srcMoc = varList("SRCMOC"), objMoc = varList("OBJMOC");
-    t << "SRCMOC   = " << srcMoc << endl;
+    t << "SRCMOC        = " << srcMoc << endl;
     if(do_incremental) {
         QStringList &objs = project->variables()["OBJMOC"],
                    &incrs = project->variables()["QMAKE_INCREMENTAL"], incrs_out;
-        t << "OBJMOC = ";
+        t << "OBJMOC        = ";
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
@@ -207,12 +207,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "INCREMENTAL_OBJMOC = " << incrs_out.join(" \\\n\t\t") << endl;
         }
     } else {
-        t << "OBJMOC = " << objMoc << endl;
+        t << "OBJMOC        = " << objMoc << endl;
     }
     if(do_incremental && !moc_incremental && !src_incremental)
         do_incremental = false;
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        t << "OBJCOMP = " << varList("OBJCOMP") << endl;
+        t << "OBJCOMP       = " << varList("OBJCOMP") << endl;
         target_deps += " $(OBJCOMP)";
 
         QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
@@ -225,24 +225,24 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             }
         }
     }
-    t << "DIST           = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
-    t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
-    t << "DESTDIR  = " << var("DESTDIR") << endl;
+    t << "DIST          = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
+    t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
+    t << "DESTDIR       = " << var("DESTDIR") << endl;
     if(project->isActiveConfig("compile_libtool"))
-        t << "TARGETL        = " << var("TARGET_la") << endl;
-    t << "TARGET   = " << var("TARGET") << endl;
+        t << "TARGETL       = " << var("TARGET_la") << endl;
+    t << "TARGET        = " << var("TARGET") << endl;
     if(project->isActiveConfig("plugin")) {
-        t << "TARGETD   = " << var("TARGET") << endl;
+        t << "TARGETD       = " << var("TARGET") << endl;
     } else if (!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-        t << "TARGETA        = " << var("TARGETA") << endl;
+        t << "TARGETA       = " << var("TARGETA") << endl;
         if (project->isEmpty("QMAKE_HPUX_SHLIB")) {
-            t << "TARGETD        = " << var("TARGET_x.y.z") << endl;
-            t << "TARGET0        = " << var("TARGET_") << endl;
-            t << "TARGET1        = " << var("TARGET_x") << endl;
-            t << "TARGET2        = " << var("TARGET_x.y") << endl;
+            t << "TARGETD       = " << var("TARGET_x.y.z") << endl;
+            t << "TARGET0       = " << var("TARGET_") << endl;
+            t << "TARGET1       = " << var("TARGET_x") << endl;
+            t << "TARGET2       = " << var("TARGET_x.y") << endl;
         } else {
-            t << "TARGETD        = " << var("TARGET_x") << endl;
-            t << "TARGET0        = " << var("TARGET_") << endl;
+            t << "TARGETD       = " << var("TARGET_x") << endl;
+            t << "TARGET0       = " << var("TARGET_") << endl;
         }
     }
     writeExtraVariables(t);
@@ -320,7 +320,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         QString libdir = "tmp/";
         if(!project->isEmpty("SUBLIBS_DIR"))
             libdir = project->first("SUBLIBS_DIR");
-        t << "SUBLIBS= ";
+        t << "SUBLIBS       = ";
         QStringList &l = project->variables()["SUBLIBS"];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
             t << libdir << "lib" << (*it) << ".a ";
