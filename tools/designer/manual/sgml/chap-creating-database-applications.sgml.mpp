@@ -1043,7 +1043,7 @@ a single field, in a combobox for example.
 		<function>primeInsertBook</> function. We need to change
 		it to the following:
 <programlisting>
-\scan eg/book/book6/editbook.cpp /EditBookForm::primeInsertBook/ /^}/
+\scan eg/book/book6/editbook.cpp c_filter /EditBookForm::primeInsertBook/ /^}/
 </programlisting>
 		</para>
 	    </listitem> 
