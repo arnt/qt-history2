@@ -460,7 +460,7 @@ QVariant QDirModel::headerData(int section, Qt::Orientation orientation, int rol
 
 bool QDirModel::hasChildren(const QModelIndex &parent) const
 {
-    if (!parent.isValid())
+    if (!parent.isValid()) // the invalid index is the "My Computer" item
         return true; // the drives
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     Q_ASSERT(p);

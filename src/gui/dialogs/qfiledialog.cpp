@@ -905,7 +905,7 @@ void QFileDialogPrivate::navigateToParent()
 
 void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
 {
-    if (model->isDir(index)) {
+    if (model->hasChildren(index)) {
         history.push_back(rootIndex());
         setRootIndex(index);
         updateButtons(index);
@@ -1545,7 +1545,8 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
 
 void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 {
-    Q_ASSERT(index.isValid()); // "My Computer" is already in the list
+    if (!index.isValid())
+        return; // "My Computer" is already in the list
     toParent->setEnabled(index.isValid());
     back->setEnabled(!history.isEmpty());
     newFolder->setEnabled(!model->isReadOnly());
