@@ -279,15 +279,30 @@ public:
 };
 #endif
 
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <class T> inline T qt_cast_helper(const QObject *object, T) { return (T) ((T)0)->staticMetaObject.cast(object); }
 
-template <typename T>
+template <class T>
+inline T qt_cast(const QObject *object)
+{ 
+    return qt_cast_helper<T>(object, T(0));
+}
+
+#define Q_DECLARE_INTERFACE(IFace) \
+template <> inline IFace *qt_cast_helper<IFace *>(const QObject *object, IFace *) \
+{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
+
+#else
+
+template <class T>
 inline T qt_cast(const QObject *object)
 { return (T) ((T)0)->staticMetaObject.cast(object); }
 
-
 #define Q_DECLARE_INTERFACE(IFace) \
-inline IFace *qt_cast(const QObject *object, IFace * = 0) \
+template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
+
+#endif
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug, QObject *);

@@ -747,11 +747,19 @@ protected:
     virtual void languageChange() { }
 };
 
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QWidget *qt_cast_helper<QWidget*>(const QObject *o, QWidget *)
+{
+    if (!o || !o->isWidgetType()) return 0;
+    return (QWidget*)(o);
+}
+#else
 template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
 {
     if (!o || !o->isWidgetType()) return 0;
     return (QWidget*)(o);
 }
+#endif
 
 inline Qt::WState QWidget::testWState( WState s ) const
 { return QFlag(widget_state & s); }
