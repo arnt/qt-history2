@@ -812,6 +812,7 @@ public:
     void unregisterCustomItem( QTextCustomItem *i, QTextParag *p );
 
     void setFlow( QTextFlow *f );
+    void takeFlow();
     QTextFlow *flow() const { return flow_; }
     bool isPageBreakEnabled() const { return pages; }
     void setPageBreakEnabled( bool b ) { pages = b; }
@@ -1757,6 +1758,11 @@ inline void QTextDocument::setFlow( QTextFlow *f )
     if ( flow_ )
 	delete flow_;
     flow_ = f;
+}
+
+inline void QTextDocument::takeFlow()
+{
+    flow_ = 0;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
