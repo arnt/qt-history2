@@ -334,6 +334,7 @@ sub fix_paths {
     $file1 =~ s=\\=/=g;
     $file2 =~ s=\\=/=g;
 
+    #setup
     my $ret = $file1;
     my $file1_dir = dirname($file1);
     my $file2_dir = dirname($file2);
@@ -352,9 +353,12 @@ sub fix_paths {
     #guts
     my $match_dir = 0;
     for(my $i = 1; $i < length($file1_dir); $i++) {
-	my $tmp = substr($file1_dir, 0, $i);
-	last unless($file2_dir =~ /^$tmp/);
+	my $slash = index($file1_dir, "/", $i);
+	last if($slash == -1);
+	my $tmp = substr($file1_dir, 0, $slash);
+	last unless($file2_dir =~ m,^$tmp/,);
 	$match_dir = $tmp;
+	$i = $slash;
     }
     if($match_dir) {
 	my $after = substr($file2_dir, length($match_dir));
