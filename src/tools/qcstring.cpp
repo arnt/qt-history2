@@ -43,7 +43,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <../3rdparty/zlib/zlib.h>
+#ifndef QT_QMAKE
+#include "../3rdparty/zlib/zlib.h"
+#endif
 
 /*****************************************************************************
   Safe and portable C string functions; extensions to standard string.h
