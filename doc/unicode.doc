@@ -24,10 +24,8 @@ of documents available, including<ul>
 
 <li><a href="http://www.unicode.org/unicode/standard/principles.html">
 A technical introduction to Unicode</a>
-
 <li><a href="http://www.unicode.org/unicode/standard/standard.html">
 The home page for the standard</a>
-
 <li><a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
 The home page of the upcoming version 3.0</a>
 
@@ -42,7 +40,6 @@ is coming soon. <ul>
 The Unicode Standard, version 2.0.</a>  See also the
 <a href="http://www.unicode.org/unicode/reports/tr8.html">2.1 update</a> and
 <a href="http://www.unicode.org/unicode/standard/versions/enumeratedversions.html#Unicode 2.1.9">the 2.1.9 data files</a> at www.unicode.org.
-
 <li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
 The Unicode Standard, version 3.0.</a> (Finalized, but not yet published
 at the time of writing.)  See also
@@ -50,5 +47,77 @@ at the time of writing.)  See also
 its home page.</a>
 
 </ul>
-*/
 
+<b>As used in Qt.</b> In Qt, and in most applications that use Qt,
+most or all user-visible strings are stored in Unicode, and Qt
+provides <ul>
+
+<li> Translation to/from legacy encodings for file I/O - see \l
+QTextCodec and \l QTextStream
+<li> Translation from Input Methods and 8-bit keyboard input
+<li> Translation to legacy character sets for on-screen display
+<li> A string class, \l QString, that stores unicode characters, with
+support for migrating from C strings, fast (cached) translation to and
+from the locale's usual 8-bit representation, and all the usual string
+operations
+<li> Unicode-aware widgets where necessary
+<li> On Windows 95/98/NT/2000, unicodes upport detection, so that Qt
+provides unicode even on Windows platforms that do not support it
+
+
+</ul>
+
+To obtain the benefits of Unicode, we recommend using QString for
+storing all user-visible strings and do all text file I/O using
+QTextStream.  Use \l QKeyEvent::text() for keyboard input in any
+custom widgets you write; it does not make much difference for slow
+typists in West Europe or North America, but for fast typists or
+people using special input methods using text() is beneficial.
+
+All the function arguments in Qt that may be user-visible strings, \l
+QLabel::setText() and a thousand others, take \c const \c QString \c &
+as type.  \l QString provides implicit casting from \c const \c char
+\c * such that things like
+
+\code
+	myLabel->setText( "Hello, Dolly!" );
+\endcode
+
+will work.  There is also a function, \l QObject::tr(), that provides
+translation support, like this:
+
+\code
+	myLabel->setText( tr("Hello, Dolly!") );
+\endcode
+
+tr(), oversimplying a bit, maps from \c const \c char \c * to a
+Unicode string, and uses installable \l QTranslator objects to do the
+mapping.
+
+Turning back to Unicode, for programs that needs to talk to other
+programs or read/write files in legacy file formats, Qt provides a
+number of built-in \l QTextCodec classes, that is, classes that know
+how to translate between Unicode and a legacy encoding.
+
+By default, conversion to/from \c const \c char \c * uses a
+locale-dependent codec.  However, the program can easily find codecs
+for other locales, and set any open file or network connection to use
+a special codec.  It is also possible to install new codecs, for
+encodings that the built-in ones do not support.  (At the time of
+writing, Vietnamese/VISCII is one example of that.)
+
+Since US-ASCII and ISO-8859-1 are so common, there are also specially
+fast functions for mapping to and from them.  For example, to open an
+application's icon one might do this:
+
+\code
+	QFile f( QString::fromLatin1( "appicon.png" ) );
+\endcode
+
+Regarding output, Qt will do a best-effort conversion from Unicode to
+whatever encoding the system and fonts provide.  Depending on
+operating system, locale, font availability and Qt's support for the
+characters used, this conversion may be good or bad.  We aim to extend
+this in upcoming versions, with emphasis on the most common locales
+first.
+*/
