@@ -493,14 +493,9 @@ void QClipboard::setData( QMimeSource* src )
 	for (QWindowsMime* c = all.first(); c; c = all.next()) {
 	    if ( c->cfFor(mime) ) {
 		for (int j = 0; j < c->countCf(); j++) {
-		    int cf = c->cf(j);
-		    if ( c->canConvert(mime,cf) ) {
-			HANDLE res = SetClipboardData( cf, 0 ); // 0 == ask me later
-#ifndef Q_NO_DEBUG
-			if ( !res )
-			    qSystemWarning( "QClipboard: Failed to register format" );
-#endif
-		    }
+		    UINT cf = c->cf(j);
+		    if ( c->canConvert(mime,cf) )
+			SetClipboardData( cf, 0 ); // 0 == ask me later
 		}
 	    }
 	}
