@@ -66,8 +66,6 @@ WIDGETS_P	= widgets
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
-HEADERS	= $$WIDGETS_H/qwellarray_p.h
-
 ALLHEADERS	= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
@@ -466,7 +464,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qvbox.cpp \
 		  widgets/qvbuttongroup.cpp \
 		  widgets/qvgroupbox.cpp \
-		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \

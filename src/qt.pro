@@ -252,7 +252,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qvbuttongroup.h \
 		  $$WIDGETS_H/qvgroupbox.h \
-		  $$WIDGETS_P/qwellarray_p.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
@@ -447,7 +446,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qvbox.cpp \
 		  widgets/qvbuttongroup.cpp \
 		  widgets/qvgroupbox.cpp \
-		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
