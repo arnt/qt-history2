@@ -50,6 +50,10 @@
 
   QHGroupBox is a convenience class that offers a thin layer on top of
   QGroupBox. Think of it as a QHBox that offers a frame with a title.
+
+  \img qgroupboxes.png Group Boxes
+
+  \sa QVGroupBox
 */
 
 /*!

@@ -56,7 +56,7 @@
 
   <img src=qgrid-m.png>
 
-  \sa QVBox QHBox
+  \sa QVBox QHBox QGridLayout
 */
 /*! \enum QGrid::Direction
     \internal

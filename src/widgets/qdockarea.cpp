@@ -452,6 +452,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
   need to create your own dock areas we suggest that you create a subclass of
   QWidget and add your QDockAreas to your subclass.
 
+  \img qmainwindow-qdockareas.png QMainWindow's QDockAreas
+
   \target lines
   \e Lines. QDockArea uses the concept of lines. A line
   is a horizontal region which may contain dock windows side-by-side. A dock

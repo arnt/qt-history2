@@ -51,6 +51,10 @@
   QHButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QHBox that offers a frame with a title
   and is specifically designed for buttons.
+
+  \img qbuttongroup-h.png QButtonGroup
+
+  \sa QVButtonGroup
 */
 
 /*!

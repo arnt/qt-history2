@@ -911,7 +911,7 @@ private:
   Both the border and the spacing are parameters of the constructor and
   default to 0.
 
-  \sa \link layout.html Layout Overview \endlink
+  \sa QGrid, \link layout.html Layout Overview \endlink
 */
 
 /*!
@@ -2284,6 +2284,8 @@ int QBoxLayout::calcHfw( int w )
      l->addWidget( existingChildOfWidget );
      l->addWidget( anotherChildOfWidget );
   \endcode
+
+  \img qhboxlayout.png QHBox
 
   \sa QVBoxLayout QGridLayout
       \link layout.html the Layout overview \endlink

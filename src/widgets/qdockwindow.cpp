@@ -669,6 +669,12 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
     provided for dock windows is available with the same API for
     toolbars.
 
+  \img qmainwindow-qdockareas.png QDockWindows in a QDockArea
+  \caption Two QDockWindows (\l{QToolBar}s) in a \l QDockArea
+
+  \img qdockwindow.png A QDockWindow
+  \caption A Floating QDockWindow
+
     If the user drags the dock window into the dock area the dock window
     will be docked. If the user drags the dock area outside any dock
     areas the dock window will be undocked (floated) and will become a

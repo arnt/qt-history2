@@ -207,6 +207,10 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 
   Applications can use this class to save window positions, or to place
   child widgets on one screen.
+
+  \img qdesktopwidget.png Managing Multiple Screens
+  In the illustration above, Application One's primary screen is
+  screen 0, and App Two's primary screen is screen 1.
 */
 
 /*!
