@@ -41,9 +41,6 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 
-#include <limits.h> //###remove in 3.1
-#include "qlayoutengine_p.h" //###remove in 3.1
-
 /*!
     \class QLayoutItem
     \ingroup appearance

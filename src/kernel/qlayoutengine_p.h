@@ -59,8 +59,6 @@
 
 #ifndef QT_NO_LAYOUT
 
-static const int QLAYOUTSIZE_MAX=INT_MAX/256/16; //remove in 3.1
-
 struct QLayoutStruct
 {
     void initParameters() { minimumSize = sizeHint = 0;
