@@ -123,7 +123,7 @@ public:
 	
     typedef QList<ToolBar> ToolBarDock;
     enum InsertPos { Before, After, TotalAfter };
-    
+
     QMainWindowPrivate()
 	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ),
@@ -134,7 +134,7 @@ public:
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
     ToolBar *takeToolBarFromDock( QToolBar * t );
-    
+
     ~QMainWindowPrivate()
     {
 	if ( top ) {
@@ -719,7 +719,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 
 
 
-QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t, 
+QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t,
 							       QMainWindowPrivate::ToolBarDock *&dock )
 {
     QMainWindowPrivate::ToolBarDock* docks[] = {
@@ -755,7 +755,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
     return 0;
 }
 
-/*!  
+/*!
   Moves \a toolBar before the tollbar \a relative if \a after is FALSE, or after
   \a relative if \a after is TRUE.
 
@@ -767,7 +767,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 {
     if ( !toolBar )
 	return;
-    
+
     bool nl = FALSE;
     QValueList<int> dd;
     if ( toolBar->mw && toolBar->mw != this ) {
@@ -824,7 +824,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 		if ( t->t == relative )
 		    break;
 	    }
-	    if ( after ) 
+	    if ( after )
 		++i;
 	    dl->insert( i, ct );
 	}
@@ -839,7 +839,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     triggerLayout();
 }
 
-/*!  
+/*!
   Moves \a toolBar to this the end of \a edge.
 
   If \a toolBar is already managed by some main window, it is moved from
@@ -892,7 +892,7 @@ QSize QToolBoxLayout::minimumSize() const
 }
 
 static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::ToolBarDock *dock,
-							const QPoint &pos, 
+							const QPoint &pos,
 							 QMainWindowPrivate::InsertPos &ipos )
 {
     if ( !dock )
@@ -900,7 +900,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
     QMainWindowPrivate::ToolBar * t = dock->first(), *tmp = 0;
     if ( !t )
 	return 0;
-    
+
     if ( t->t->orientation() == Qt::Horizontal ) {
 	while ( t ) {
 	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
@@ -952,7 +952,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 	    }
 	}
     }
-    
+
     return 0;
 }
 
@@ -1290,9 +1290,10 @@ void QMainWindow::triggerLayout()
     d->timer->start( 0, TRUE );
 }
 
-static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock, const QPoint &pos, 
+static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock, const QPoint &pos,
 				    const QRect &areaRect, QToolBar *tb, int &ipos, QToolBar *&covering  )
 {
+    // find the container where the needed toolbar is
     QMainWindowPrivate::ToolBarDock *tdock = 0;
     switch ( dock ) {
     case QMainWindow::Left:
@@ -1314,29 +1315,35 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	tdock = d->tornOff;
 	break;
     }
-    
-    QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos, 
+
+    // find the toolbar which will be the relative toolbar for the moved one
+    QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos,
 							  (QMainWindowPrivate::InsertPos&)ipos );
     covering = 0;
-    
+
     Qt::Orientation o;
     if ( dock == QMainWindow::Top || dock == QMainWindow::Bottom )
 	o = Qt::Horizontal;
     else
 	o = Qt::Vertical;
 
+    // calc width and height of the tb depending on the orientation it _would_ have
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
 
+    // if a relative toolbar for the moving one was found
     if ( t ) {
 	covering = t->t;
 	QRect r;
 	bool hasRect = FALSE;
+	
+	// if the relative toolbar is the same as the moving one, nothing would change
 	if ( t->t == tb ) {
 	    hasRect = TRUE;
 	    r = QRect( tb->pos(), tb->size() );
 	}
 	
+	// calc the rect which the moving toolbar would cover
 	if ( !hasRect ) {
 	    switch( ipos ) {
 	    case QMainWindowPrivate::Before: {
@@ -1363,10 +1370,12 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	    }
 	}
 	
-	if ( hasRect ) 
+	if ( hasRect )
 	    return r;
     }
-    
+
+    // no relative toolbar was found means no toolbar yet in the dock,
+    // so the moving one would be the first one .. so calc the rect for that
     switch ( dock ) {
     case QMainWindow::Top:
 	return QRect( areaRect.x(), areaRect.y(), w, h );
@@ -1379,7 +1388,7 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
     case QMainWindow::Unmanaged: case QMainWindow::TornOff:
 	return areaRect;
     }
-    
+
     return areaRect;
 }
 
@@ -1520,7 +1529,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     return Unmanaged;
 }
 
-/*!  
+/*!
   Handles mouse event \e e on behalf of tool bar \a t and does all
   the funky docking.
 */
@@ -1528,6 +1537,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
+	// don't allow repaints of the central widget as this may be a problem for our rects
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
 		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( FALSE );
@@ -1535,6 +1545,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		d->mc->setUpdatesEnabled( FALSE );
 	}
 	
+	// create the painter for our rects
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
 	uint flags = getWFlags();
 	setWFlags( WPaintUnclipped );
@@ -1544,11 +1555,13 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->rectPainter->setPen( QPen( color0, 2 ) );
 	d->rectPainter->setRasterOp( NotROP );
 
+	// init some stuff
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
 	int ipos;
 	QToolBar *covering;
 	d->origDock = findDockArea( pos, r, t, ipos, covering );
+	r = QRect( t->pos(), t->size() );
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
@@ -1557,6 +1570,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->movedEnough = FALSE;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
+
+	// delete the rect painter
 	QApplication::restoreOverrideCursor();
 	if ( d->rectPainter ) {
 	    if ( d->oldPosRectValid )
@@ -1566,6 +1581,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	delete d->rectPainter;
 	d->rectPainter = 0;
 	
+	// allow repaints in central widget again
 	if ( d->mc ) {
 	    if ( d->mc->inherits( "QScrollView" ) )
 		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( TRUE );
@@ -1573,6 +1589,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		d->mc->setUpdatesEnabled( TRUE );
 	}
 
+	// finally really move the toolbar
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
 	int ipos;
@@ -1590,17 +1607,20 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	 ( pos - d->pos ).manhattanLength() > 8 )
 	d->movedEnough = TRUE;
 
+    // find the dock, rect, etc. for the current mouse pos
     d->pos = pos;
     QRect r;
     int ipos;
     QToolBar *covering;
     ToolBarDock dock = findDockArea( pos, r, t, ipos, covering );
-    
+
+    // if we will not be able to move the toolbar into the dock/rect
+    // we got, it will not be moved at all - show this to the user
     if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	 !isDockEnabled( t, dock ) )
 	r = d->origPosRect;
 
-
+    // draw the new rect where the toolbar would be moved
     if ( d->rectPainter ) {
 	if ( d->oldPosRectValid && d->oldPosRect != r )
 	    d->rectPainter->drawRect( d->oldPosRect );
