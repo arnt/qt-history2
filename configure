@@ -1471,7 +1471,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     else
 	CFG_FREETYPE=no
     fi
-    # auto-detect XftFreeType support
+    # auto-detect Xft support
     if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_FREETYPE" != "no" ]; then
 	CFG_FREETYPE=yes
 	mkdir -p $outpath/config.tests/x11
@@ -1482,7 +1482,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xfreetype.inc`\""
     fi
     rm -f $outpath/config.tests/x11/xfreetype.inc
-    # add XftFreetype specific config options
+    # add Xft specific config options
     if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xfreetype.cfg ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xfreetype.cfg`"
     fi
@@ -1774,8 +1774,8 @@ Qt/X11 only:
  $XRY  -xrender ........... Compile XRender support.
 			 Requires X11/extensions/Xrender.h and libXrender.
 
- $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
- $XFTY  -xft ............... Compile XftFreeType support.
+ $XFTN  -no-xft ............ Do not compile Xft (anti-aliased font) support.
+ $XFTY  -xft ............... Compile Xft support.
 			 Requires X11/Xft/XftFreetype.h and libXft.
 
  $XIN  -no-tablet ......... Do not compile Tablet support.
@@ -2735,7 +2735,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Xinerama support .... $CFG_XINERAMA"
     echo "Tablet support ...... $CFG_TABLET"
     echo "XRender support ..... $CFG_XRENDER"
-    echo "XftFreeType support . $CFG_FREETYPE"
+    echo "Xft support ......... $CFG_FREETYPE"
     echo "XKB Support ......... $CFG_XKB"
 fi
 
