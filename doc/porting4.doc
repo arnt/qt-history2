@@ -110,6 +110,54 @@ QWidget::unsetCursor();
 If you specify a negative value for \e len to left() or right() then an empty string is
 returned.
 
+\section1 QByteArray
+
+QByteArray is now implicitly shared. It provides most of the
+functionality QCString used to provide and is favored over QCString.
+
+* at() now returns a copy and not a reference. If you use at() as an
+lvalue use the [] operator instead
+
+* sort() and bsearch() have been removed
+
+* contains(...) returns a bool and not an integer. If you want to count
+  the number of occurences of a substring use count(...) instead.
+
+* copy() is obsolete, use regular assignment instead.
+
+\section1 QCString
+
+QCString is deprecated. QByteArray should do everything you need of an
+8bit string class. For text handling use QString instead.
+
+The class is now implicitly shared.
+
+Removed methods:
+
+* All methods involving QRegExp as argument have been removed. Use
+QString instead if you need to operate with regular expressions on a
+string.
+
+changed methods:
+
+* at() now returns a copy and not a reference. If you use at() as an
+lvalue use the [] operator instead
+
+\section1 QStringList
+
+QStringList now inherits from QList<QString> and cannot be converted to
+a QValueList<QString> anymore. Since QValueList inherits QList a
+cast will work as expected.
+
+This change implies some API incompatibilities for QStringList:
+
+* at() returns the string, not an iterator
+
+\section1 QValueList
+
+QValueList now inherits from QList, but is kept source compatible to
+the Qt3 class.
+
 \section1 QObject
 
 children() and QueryList now return a QObjectList instead of a pointer
@@ -132,5 +180,4 @@ copy() is obsolete, use standard assignment instead.
 
 Has been removed.
 
-<<<<
 */
