@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#134 $
 **
 ** Implementation of QButton widget class
 **
@@ -574,6 +574,38 @@ void QButton::setDown( bool enable )
     }
 }
 
+/*!
+  \fn QButton::ToggleType QButton::toggleType() const
+
+  Returns the current toggle type.
+
+  \sa setToggleType()
+*/
+
+/*!
+  \fn void QButton::setState(ToggleState)
+  Protected function to set the button state into one of the
+  three states:
+  <ul>
+   <li>\c QButton::Off - isOn() is FALSE
+   <li>\c QButton::On - isOn() is TRUE
+   <li>\c QButton::NoChange - the button is in the
+	    \link QCheckBox::setTristate() NoChanged\endlink state.
+  </ul>
+
+  \sa setToggleType()
+*/
+
+/*!
+  \fn QButton::ToggleState QButton::state() const
+  Returns the state of the button, one of:
+  <ul>
+   <li>\c QButton::Off - isOn() is FALSE
+   <li>\c QButton::On - isOn() is TRUE
+   <li>\c QButton::NoChange - the button is in the
+	    \link QCheckBox::setTristate() NoChanged\endlink state.
+  </ul>
+*/
 
 /*!
   \fn bool QButton::isOn() const
@@ -886,7 +918,7 @@ void QButton::toggle()
    <li>\c Toggle - pressing the button toggles between an On and and Off
 			state.
    <li>\c Tristate - pressing the button cycles between three states -
-	    On, Off, and \link QCheckBocx::setTristate() NoChanged\endlink.
+	    On, Off, and \link QCheckBox::setTristate() NoChanged\endlink.
   </ul>
 
   Subclasses use this, and present it with a more comfortable interface.

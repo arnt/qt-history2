@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#2 $
+** $Id: //depot/qt/main/src/widgets/qml.h#3 $
 **
 ** Definition of QML classes
 **
@@ -65,7 +65,6 @@ public:
 
     QColor color() const;
     void setColor( const QColor &);
-    bool definesColor() const;
 
     bool fontItalic() const;
     void setFontItalic( bool );
@@ -285,6 +284,7 @@ protected:
     void viewportMousePressEvent( QMouseEvent* );
     void viewportMouseReleaseEvent( QMouseEvent* );
     void viewportMouseMoveEvent( QMouseEvent* );
+    void keyPressEvent( QKeyEvent * e);
 
 private:
     void popupDetail( const QString& contents, const QPoint& pos );

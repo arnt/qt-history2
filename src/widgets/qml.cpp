@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#3 $
 **
 ** Implementation of QML classes
 **
-** Created : 931107
+** Created : 990101
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -46,7 +46,7 @@ struct QMLStyleData
     QMLStyle *parentstyle;
     QString stylename;
     int ncolumns;
-    QColor* col;
+    QColor col;
     bool anchor;
     int align;
     int parsep;
@@ -57,8 +57,20 @@ struct QMLStyleData
   \class QMLStyle qml.h
   \brief The QMLStyle class encapsulates a QML style
 
-  A style consists of font and color definitions.... bla bla
-  bla.... inheritance of attributes....
+  A style consists of a name and a set of
+  font, color, and other display properties.
+  When used in a
+  \link QMLStyleSheet style sheet\endlink, styles define the
+  name of a QML tag, and the display property changes associated
+  with it.
+*/
+
+/*!
+  Constructs a new style named \a name.
+
+  All properties in QMLStyle are initially in the "do not change" state,
+  except \link QMLStyle::DisplayMode display mode\endlink, which defaults
+  to \c DisplayInline.
 */
 QMLStyle::QMLStyle( const QString& name )
 {
@@ -69,27 +81,28 @@ QMLStyle::QMLStyle( const QString& name )
 
 
 /*!
-  Destructor
+  Destroys the style.  Note that QMLStyle objects become owned
+  by QMLStyleSheet when you \link QMLStyleSheet::insert() add them\endlink.
  */
 QMLStyle::~QMLStyle()
 {
-    delete d->col;
     delete d;
 }
 
 
 /*!
-  internal initialization
+  \internal
+  Internal initialization
  */
 void QMLStyle::init()
 {
     d->disp = DisplayInline;
 
     d->fontitalic = Undefined;
-    d->fontweight = Undefined;;
+    d->fontweight = Undefined;
     d->fontsize = Undefined;
     d->ncolumns = Undefined;
-    d->col = 0;
+    d->col = QColor(); // !isValid()
     d->anchor = FALSE;
     d->align = Undefined;
     d->parsep = Undefined;
@@ -97,16 +110,16 @@ void QMLStyle::init()
 
 }
 
-/*
-  Returns the name of style
- */
+/*!
+  Returns the name of style.
+*/
 QString QMLStyle::name() const
 {
     return d->stylename;
 }
 
 /*!
-  Returns the display mode of the style
+  Returns the \link QMLStyle::DisplayMode display mode\endlink of the style.
 
   \sa setDisplayMode()
  */
@@ -116,7 +129,24 @@ QMLStyle::DisplayMode QMLStyle::displayMode() const
 }
 
 /*!
-  Sets the display mode of the style
+  Sets the display mode of the style to \a m.
+
+  \define QMLStyle::DisplayMode
+
+  The affect of the available values are:
+  <ul>
+   <li> \c DisplayBlock
+		- elements will be displayed as a rectangular block.
+		    (eg. &lt;P&gt; ... &lt;/P&gt;)
+   <li> \c DisplayInline
+		- elements will be displayed in a horizontally flowing sequence.
+		    (eg. &lt;EM&gt; ... &lt;/EM&gt;)
+   <li> \c DisplayListItem
+		- elements will be displayed vertically sequenced.
+		    (eg. &lt;EM&gt; ... &lt;/EM&gt;)
+   <li> \c DisplayNone
+		- elements which are not displayed at all.
+  </ul>
 
   \sa displayMode()
  */
@@ -138,12 +168,14 @@ int QMLStyle::alignment() const
 }
 
 /*!
-  Sets the alignment. This only makes sense for styles with display
-  mode DisplayBlock. Possible values are AlignLeft, AlignRight and
+  Sets the alignment. This only makes sense for styles with
+  \link QMLStyle::DisplayMode display mode\endlink
+  DisplayBlock. Possible values are AlignLeft, AlignRight and
   AlignCenter.
+
   \sa alignment(), displayMode()
  */
-void QMLStyle::setAlignment( int f)
+void QMLStyle::setAlignment( int f )
 {
     d->align = f;
 }
@@ -160,7 +192,7 @@ bool QMLStyle::fontItalic() const
 }
 
 /*!
-  Define a font shape for this style, either italic or upright.
+  Sets italic or upright shape for the style.
 
   \sa fontItalic(), definesFontItalic()
  */
@@ -170,8 +202,8 @@ void QMLStyle::setFontItalic(bool italic)
 }
 
 /*!
-  Returns whether the style defines a font shape.  Regularly a style
-  does not define any shape unless setFontItalic() was called.
+  Returns whether the style defines a font shape.  A style
+  does not define any shape until setFontItalic() is called.
 
   \sa setFontItalic(), fontitalic()
  */
@@ -183,7 +215,7 @@ bool QMLStyle::definesFontItalic() const
 
 /*!
   Returns the font weight setting of the style. This is either a
-  valid QFont::Weight or QMLStyle::Undefined.
+  valid QFont::Weight or the value QMLStyle::Undefined.
 
  \sa setFontWeight, QFont
  */
@@ -193,7 +225,8 @@ int QMLStyle::fontWeight() const
 }
 
 /*!
-  Defines the font weight setting of the style.
+  Sets the font weight setting of the style.  Valid values are
+  those defined by QFont::Weight.
 
   \sa QFont, fontWeight()
  */
@@ -204,7 +237,7 @@ void QMLStyle::setFontWeight(int w)
 
 /*!
   Returns the font size setting of the style. This is either a valid
-  pointsize > 0 or QMLStyle::Undefined.
+  pointsize or QMLStyle::Undefined.
 
  \sa setFontSize(), QFont::pointSize(), QFont::setPointSize()
  */
@@ -214,7 +247,7 @@ int QMLStyle::fontSize() const
 }
 
 /*!
-  Defines the font size setting of the style.
+  Sets the font size setting of the style, in point measures.
 
  \sa fontSize(), QFont::pointSize(), QFont::setPointSize()
  */
@@ -226,9 +259,9 @@ void QMLStyle::setFontSize(int s)
 
 /*!
   Returns the font family setting of the style. This is either a valid
-  font family  or QString::null in case no family has been defined.
+  font family or QString::null if no family has been set.
 
- \sa setFontSize(), QFont::family(), QFont::setFamily()
+ \sa setFontFamily(), QFont::family(), QFont::setFamily()
  */
 QString QMLStyle::fontFamily() const
 {
@@ -236,7 +269,7 @@ QString QMLStyle::fontFamily() const
 }
 
 /*!
-  Defines the font family setting of the style.
+  Sets the font family setting of the style.
 
  \sa fontFamily(), QFont::family(), QFont::setFamily()
  */
@@ -247,8 +280,7 @@ void QMLStyle::setFontFamily( const QString& fam)
 
 
 /*!
-  Returns the number of columns of this style. This makes only sense
-  if the style uses a block display mode.
+  Returns the number of columns for this style.
 
   \sa setNumberOfColumns(), displayMode(), setDisplayMode()
 
@@ -260,7 +292,11 @@ int QMLStyle::numberOfColumns() const
 
 
 /*!
-  Set the number of columns of this style.
+  Sets the number of columns for this style.  Elements in the style
+  are divided into columns.
+
+  This only makes sense
+  if the style uses a \link QMLStyle::DisplayMode block display mode\endlink.
 
   \sa numberOfColumns()
  */
@@ -272,43 +308,29 @@ void QMLStyle::setNumberOfColumns(int ncols)
 
 
 /*!
-  Returns the text color of this style or black, if no color has been
-  defined yet.
+  Returns the text color of this style, or 
+  \link QColor::QColor() an invalid color\endlink
+  if no color has been set yet.
 
-  \sa setColor(), definesColor()
+  \sa setColor()
  */
 QColor QMLStyle::color() const
 {
-    if (d->col) return *d->col;
-    QColor dummy;
-    return dummy;
+    return d->col;
 }
 
 /*!
   Sets the text color of this style.
 
-  \sa color(), definesColor()
+  \sa color()
  */
 void QMLStyle::setColor( const QColor &c)
 {
-    delete d->col;
-    d->col = new QColor(c);
-}
-
-
-/*!
-  Returns whether a special text color has been defined for this
-  style.
-
-  \sa setColor(), color()
- */
-bool QMLStyle::definesColor() const
-{
-    return ( d->col != 0 );
+    d->col = c;
 }
 
 /*!
-  Returns whether this style is a anchor
+  Returns whether this style is an anchor.
 
   \sa setAnchor()
  */
@@ -318,7 +340,8 @@ bool QMLStyle::isAnchor() const
 }
 
 /*!
-  Sets whether the style is an achor (link) or not.
+  Sets whether the style is an anchor (link).  Elements in this style
+  have connections to other documents or anchors.
 
   \sa isAnchor()
  */
@@ -330,8 +353,8 @@ void QMLStyle::setAnchor(bool anc)
 
 
 /*!
-  Returns  the separation of subparagraphs in pixel
-
+  Returns the separation of subparagraphs in pixel.
+  
   \sa setParagraphSeparation()
  */
 int QMLStyle::paragraphSeparation() const
@@ -341,9 +364,10 @@ int QMLStyle::paragraphSeparation() const
 
 
 /*!
-  Sets the separation of subparagraphs in pixel
-
-  \sa setParagraphSeparation()
+  Sets the separation of subparagraphs in pixels.
+  The value must be >= 0.
+  
+  \sa paragraphSeparation()
  */
 void QMLStyle::setParagraphSeparation(int v)
 {
@@ -352,7 +376,7 @@ void QMLStyle::setParagraphSeparation(int v)
 
 
 /*!
-  Returns the list style of the style. The default is DiscStyle.
+  Returns the list style of the style.
 
   \sa setListStyle()
  */
@@ -363,6 +387,27 @@ QMLStyle::ListStyle QMLStyle::listStyle() const
 
 /*!
   Sets the list style of the style
+
+  This is used by nested elements which have a
+  \link QMLStyle::DisplayMode display mode\endlink of DisplayListItem.
+
+  \define QMLStyle::ListStyle
+
+  The affect of the available values are:
+  <ul>
+   <li> \c ListDisc
+		- a filled circle
+   <li> \c ListCircle
+		- an unfilled circle
+   <li> \c ListSquare
+		- a filled circle
+   <li> \c ListDecimal
+		- an integer in base 10: \e 1, \e 2, \e 3, ...
+   <li> \c ListLowerAlpha
+		- a lowercase letter: \e a, \e b, \e c, ...
+   <li> \c ListUpperAlpha
+		- an uppercase letter: \e A, \e B, \e C, ...
+  </ul>
 
   \sa listStyle()
  */
@@ -535,8 +580,9 @@ inline QFont QMLContainer::font() const
 
 inline QColor QMLContainer::color(const QColor& c) const
 {
-    if (style->definesColor())
-	return style->color();
+    QColor sc = style->color();
+    if ( sc.isValid() )
+	return sc;
     return parent?parent->color(c):c;
 }
 
@@ -604,17 +650,86 @@ public:
 
 //************************************************************************
 
-QMLStyleSheet::QMLStyleSheet( QObject *parent=0, const char *name=0 )
+
+/*!
+  \class QMLStyleSheet qml.h
+  \brief A collection of styles and a generator of tags.
+
+  By \link QMLStyleSheet::insert() inserting\endlink QStyle objects
+  into a style sheet, you build a definition of a set of tags.  This
+  definition will be used by the internal QML features to parse
+  and display QML documents to which the style sheet applies.
+
+  The default QMLStyleSheet object has the following style bindings:
+
+  <ul>
+    <li>&lt;qml&gt;...&lt;/qml&gt;
+	A QML document.
+
+    <li>&lt;a&gt;...&lt;/a&gt;
+	An anchor or link.
+
+    <li>&lt;em&gt;...&lt;/em&gt;
+	Emphasized.
+
+    <li>&lt;large&gt;...&lt;/large&gt;
+	Large font size.
+
+    <li>&lt;b&gt;...&lt;/b&gt;
+    style->setFontWeight( QFont::Bold);
+	Bold font style.
+
+    <li>&lt;h1&gt;...&lt;/h1&gt;
+	A top-level heading.
+
+    <li>&lt;p&gt;...&lt;/p&gt;
+	A paragraph.
+
+    <li>&lt;center&gt;...&lt;/center&gt;
+	A centered paragraph.
+
+    <li>&lt;twocolumn&gt;...&lt;/twocolumn&gt;
+	Two-column display.
+
+    <li>&lt;ul&gt;...&lt;/ul&gt;
+	An un-ordered list.
+
+    <li>&lt;ol&gt;...&lt;/ol&gt;
+	An ordered list.
+
+    <li>&lt;li&gt;...&lt;/li&gt;
+	A list item.
+
+    <li>&lt;img&gt;
+	An image.
+  </ul>
+*/
+
+/*!
+  Create a style sheet.  Like any QObject, the created object will be
+  deleted when its parent destructs (if the child still exists then).
+
+  By default, the style sheet has the QML definitions defined above.
+*/
+QMLStyleSheet::QMLStyleSheet( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     init();
 }
 
+/*!
+  Destroys the style sheet.  All styles inserted into the style sheet
+  will be deleted.
+*/
 QMLStyleSheet::~QMLStyleSheet()
 {
     delete nullstyle;
 }
 
+/*!
+  \internal
+  Initialized the style sheet to the QML style.
+*/
 void QMLStyleSheet::init()
 {
     styles.setAutoDelete( TRUE );
@@ -684,8 +799,11 @@ void QMLStyleSheet::init()
 
 
 
-//### pseudo memory leak, needs clean up
 static QMLStyleSheet* defaultsheet = 0;
+
+/*!
+  Returns the application-wide default style sheet.
+*/
 QMLStyleSheet& QMLStyleSheet::defaultSheet()
 {
     if (!defaultsheet)
@@ -693,6 +811,10 @@ QMLStyleSheet& QMLStyleSheet::defaultSheet()
     return *defaultsheet;
 }
 
+/*!
+  Sets the application-wide default style sheet, deleting any style
+  sheet previously set.
+*/
 void QMLStyleSheet::setDefaultSheet( QMLStyleSheet* sheet)
 {
     if (defaultsheet)
@@ -700,15 +822,27 @@ void QMLStyleSheet::setDefaultSheet( QMLStyleSheet* sheet)
     defaultsheet = sheet;
 }
 
-void QMLStyleSheet::insert( QMLStyle* style)
+/*!
+  Inserts \a style.  Any tags generated after this time will be
+  bound to this style.  Note that \a style becomes owned by the
+  style sheet and will be deleted when the style sheet destructs.
+*/
+void QMLStyleSheet::insert( QMLStyle* style )
 {
     styles.insert(style->name(), style);
 }
 
 
+/*!
+  Generates an internal object for tag named \a name, given the
+  attributes \a attr, and using additional information provided
+  by \a provider.
+
+  This function should not (yet) be used in application code.
+*/
 QMLNode* QMLStyleSheet::tag( const QString& name,
-				  const QDict<QString> &attr,
-				  const QMLProvider& provider) const
+			     const QDict<QString> &attr,
+			     const QMLProvider& provider ) const
 {
     QMLStyle* style = styles[name];
     if ( !style )
@@ -2312,9 +2446,27 @@ void QMLCursor::end(QPainter* p, bool select)
 
 
 /*!
-  Create a provider.
+  \class QMLProvider qml.h
+  \brief Provides a collection of QML documents
+
+  Since QML documents link to each other, a view which displays QML will
+  often need access to other documents so as to follow links, etc.
+  A QMLProvider actually knows nothing about QML - it is just a repository
+  of documents and images which QML documents happen to use.
+
+  The default implementation gives no meaning to the names of documents
+  it provides, beyond that provided by setPath().  However, the image()
+  and document() functions are virtual, so a subclass could interpret
+  the names as filenames, URLs, or whatever.  
+
+  \sa QMLView::setProvider()
+*/
+
+/*!
+  Create a provider.  Like any QObject, the created object will be
+  deleted when its parent destructs (if the child still exists then).
  */
-QMLProvider::QMLProvider(  QObject *parent=0, const char *name=0 )
+QMLProvider::QMLProvider(  QObject *parent, const char *name )
     : QObject( parent, name )
 {
     images.setAutoDelete( TRUE );
@@ -2322,46 +2474,54 @@ QMLProvider::QMLProvider(  QObject *parent=0, const char *name=0 )
 }
 
 /*!
-  Destructor
+  Destroys the provider.
  */
 QMLProvider::~QMLProvider()
 {
 }
 
 
-//### pseudo memory leak, needs clean up
 static QMLProvider* defaultprovider = 0;
 
+static void cleanup_provider()
+{
+    delete defaultprovider;
+}
+
 /*!
-  Returns the default provider.
+  Returns the application-wide default provider.
  */
 QMLProvider& QMLProvider::defaultProvider()
 {
     if (!defaultprovider)
 	defaultprovider = new QMLProvider;
+    qAddPostRoutine(cleanup_provider);
     return *defaultprovider;
 }
 
 /*!
-  Sets the default provider
+  Sets the default provider, destroying any previously set provider.
  */
 void QMLProvider::setDefaultProvider( QMLProvider* provider)
 {
-    if (defaultprovider)
-	delete defaultprovider;
+    delete defaultprovider;
     defaultprovider = provider;
 }
 
 
-/*!  Bind the given name to a pixmap. The pixmap can be accessed with
-  image() */
+/*!
+  Binds the given name to a pixmap. The pixmap can be accessed with
+  image().
+*/
 void QMLProvider::setImage(const QString& name, const QPixmap& pm)
 {
     images.insert(name, new QPixmap(pm));
 }
 
-/*!  Return the corresponding image for the given name.
-\sa insert()
+/*!
+  Returns the image corresponding to \a name.
+
+  \sa setImage()
 */
 QPixmap QMLProvider::image(const QString &name) const
 {
@@ -2372,15 +2532,18 @@ QPixmap QMLProvider::image(const QString &name) const
 	return QPixmap( searchPath + "/" + name );
 }
 
-/*!  Bind the given name to a document. The document can be accessed with
-  document() */
+/*!
+  Binds the \a name to the document contents \a doc.
+  The document can then be accessed with document().
+*/
 void QMLProvider::setDocument(const QString &name, const QString& doc)
 {
     documents.insert(name, new QString(doc));
 }
 
-/*!  Return the corresponding document for the given name.
-\sa insert()
+/*!
+  Returns the document contents corresponding to \a name.
+  \sa setDocument()
 */
 QString QMLProvider::document(const QString &name) const
 {
@@ -2400,20 +2563,21 @@ QString QMLProvider::document(const QString &name) const
 }
 
 
-/*!
-  If an item cannot be found in the cache, the QMLProvider will try to
-  load it from the local filesystem in the directory specified with
-  setPath().
+/*! 
+  If an item cannot be found in the definitions set by setDocument()
+  and setImage(), the default implementations of image() and document()
+  will try to load it from the local filesystem in the single directory
+  specified with setPath().  
 
   \sa path()
  */
 void QMLProvider::setPath( const QString &path )
 {
      searchPath = path;
- }
+}
 
 /*!
-  Returns the current search path for items.
+  Returns the current search path.
 
   \sa setPath()
  */
@@ -2822,6 +2986,17 @@ inline QMLNode* QMLNode::nextSibling() const
 //************************************************************************
 
 
+/*!
+  \class QMLView qml.h
+  \brief A sophisticated single-page QML viewer.
+
+  Unlike QMLSimpleDocument, which merely draws small pieces of QML,
+  a QMLView is a real widget, with scrollbars when necessary, for showing
+  large QML documents.
+
+  For even more, see QMLBrowser.
+*/ 
+
 struct QMLViewData
 {
     const QMLStyleSheet* sheet_;
@@ -2833,6 +3008,10 @@ struct QMLViewData
 };
 
 
+/*!
+  Constructs an empty QMLView
+  with the standard \a parent and \a name optional arguments.
+*/
 QMLView::QMLView(QWidget *parent, const char *name)
     : QScrollView( parent, name)
 {
@@ -2840,6 +3019,10 @@ QMLView::QMLView(QWidget *parent, const char *name)
 }
 
 
+/*!
+  Constructs a QMLView displaying the contents \a doc,
+  with the standard \a parent and \a name optional arguments.
+*/
 QMLView::QMLView( const QString& doc, QWidget *parent, const char *name)
     : QScrollView( parent, name)
 {
@@ -2867,6 +3050,9 @@ void QMLView::init()
     setFocusPolicy( StrongFocus );
 }
 
+/*!
+  Destructs the view.
+*/
 QMLView::~QMLView()
 {
     delete d->doc_;
@@ -2874,6 +3060,11 @@ QMLView::~QMLView()
     delete d;
 }
 
+/*!
+  Changes the contents of the view to the string \a doc.
+
+  \sa contents()
+*/
 void QMLView::setContents( const QString& doc)
 {
     delete d->doc_;
@@ -2893,10 +3084,16 @@ void QMLView::setContents( const QString& doc)
 }
 
 
+/*!
+  Returns the contents of the view.
+
+  \sa setContents()
+*/
 QString QMLView::contents() const
 {
     return d->txt;
 }
+
 
 void QMLView::createDocument()
 {
@@ -2923,6 +3120,11 @@ void QMLView::createDocument()
 }
 
 
+/*!
+  Returns the current style sheet of the view.
+
+  \sa setStyleSheet()
+*/
 const QMLStyleSheet& QMLView::styleSheet() const
 {
     if (!d->sheet_)
@@ -2932,12 +3134,22 @@ const QMLStyleSheet& QMLView::styleSheet() const
 
 }
 
+/*!
+  Sets the style sheet of the view.
+
+  \sa styleSheet()
+*/
 void QMLView::setStyleSheet( const QMLStyleSheet* styleSheet )
 {
     d->sheet_ = styleSheet;
 }
 
 
+/*!
+  Returns the current provider for the view.
+
+  \sa setProvider()
+*/
 const QMLProvider& QMLView::provider() const
 {
     if (!d->provider_)
@@ -2947,30 +3159,49 @@ const QMLProvider& QMLView::provider() const
 
 }
 
+/*!
+  Sets the provider for the view.
+
+  \sa provider()
+*/
 void QMLView::setProvider( const QMLProvider* newProvider )
 {
     d->provider_ = newProvider;
 }
 
 
+/*!
+  Sets the brush to use as the background to \a pap.
+
+  \sa paper()
+*/
 void QMLView::setPaper( const QBrush& pap)
 {
     d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
     d->papcolgrp.setBrush( QColorGroup::Base, pap );
 }
 
+/*!
+  Sets the full colorgroup of the background to \a colgrp.
+*/
 void QMLView::setPaperColorGroup( const QColorGroup& colgrp)
 {
     d->mypapcolgrp = colgrp;
     d->papcolgrp = colgrp;
 }
 
+/*!
+  Returns the colorgroup of the background.
+*/
 const QColorGroup& QMLView::paperColorGroup() const
 {
     return d->papcolgrp;
 }
 
 
+/*!
+  Returns the document title parsed from the content.
+*/
 QString QMLView::documentTitle() const
 {
     QString* s = currentDocument().attributes()?currentDocument().attributes()->find("title"):0;
@@ -2980,6 +3211,9 @@ QString QMLView::documentTitle() const
 	return QString();
 }
 
+/*!
+  Returns the height of the view given a width of \a w.
+*/
 int QMLView::heightForWidth( int w ) const
 {
     QMLDocument doc ( d->txt, provider(), styleSheet(), viewport() );
@@ -2990,6 +3224,10 @@ int QMLView::heightForWidth( int w ) const
     return doc.height;
 }
 
+/*!
+  Returns the current document defining the view.  This is not currently
+  useful for applications.
+*/
 QMLDocument& QMLView::currentDocument() const
 {
     if (!d->doc_){
@@ -2999,12 +3237,17 @@ QMLDocument& QMLView::currentDocument() const
     return *d->doc_;
 }
 
-
+/*!
+  Returns the brush used to paint the background.
+*/
 const QBrush& QMLView::paper()
 {
     return d->papcolgrp.brush( QColorGroup::Base );
 }
 
+/*!
+  \override
+*/
 void QMLView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
@@ -3024,6 +3267,9 @@ void QMLView::drawContentsOffset(QPainter* p, int ox, int oy,
     p->setClipping( FALSE );
 }
 
+/*!
+  \override
+*/
 void QMLView::viewportResizeEvent(QResizeEvent* )
 {
     {
@@ -3034,18 +3280,30 @@ void QMLView::viewportResizeEvent(QResizeEvent* )
     viewport()->update();
 }
 
+/*!
+  \override
+*/
 void QMLView::viewportMousePressEvent( QMouseEvent* )
 {
 }
 
+/*!
+  \override
+*/
 void QMLView::viewportMouseReleaseEvent( QMouseEvent* )
 {
 }
 
+/*!
+  \override
+*/
 void QMLView::viewportMouseMoveEvent( QMouseEvent* )
 {
 }
 
+/*!
+  Provides scrolling and paging.
+*/
 void QMLView::keyPressEvent( QKeyEvent * e)
 {
     switch (e->key()) {
@@ -3074,7 +3332,9 @@ void QMLView::keyPressEvent( QKeyEvent * e)
     }
 }
 
-
+/*!
+  \override
+*/
 void QMLView::paletteChange( const QPalette & )
 {
     d->mypapcolgrp = palette().normal();
@@ -3409,6 +3669,25 @@ void QMLEdit::viewportResizeEvent(QResizeEvent* e)
 #endif
 //************************************************************************
 
+
+
+/*!
+  \class QMLBrowser qml.h
+  \brief A QML browser with simple navigation.
+
+  This class is the same as the QMLView it inherits, with the addition
+  that it provides basic navigation features to follow links in QML
+  documents that link to other QML documents.
+
+  This class doesn't provide actual Back and Forward buttons, but it
+  has backward() and forward() slots that implement the functionality.
+
+  By using QMLView::setProvider(), you can provide your own subclass
+  of QMLProvider, to access QML data from anywhere you need to.
+
+  For simpler QML use, see QMLView or QMLSimpleDocument.
+*/ 
+
 struct QMLBrowserData
 {
     QString searchPath;
@@ -3421,6 +3700,9 @@ struct QMLBrowserData
 };
 
 
+/*!
+  Constructs an empty QMLBrowser.
+*/
 QMLBrowser::QMLBrowser(QWidget *parent, const char *name)
     : QMLView( parent, name )
 {
@@ -3431,12 +3713,22 @@ QMLBrowser::QMLBrowser(QWidget *parent, const char *name)
     d->highlight = 0;
 }
 
+/*!
+  Destructs the browser.
+*/
 QMLBrowser::~QMLBrowser()
 {
     delete d;
 }
 
 
+/*!
+  Sets the document with the given \a name to be displayed.  The name
+  is looked up in the provider() of the browser.
+
+  If the first tag in the document is "<qml type=detail>", it is displayed as
+  a popup rather than as a new document.
+*/
 void QMLBrowser::setDocument(const QString& name)
 {
     if ( d->home.isNull() )
@@ -3460,12 +3752,56 @@ void QMLBrowser::setDocument(const QString& name)
     setContents( doc );
 }
 
+/*!
+  Sets the contents of the browser to \a contents, and emits the
+  contentsChanged() signal.
+*/
 void QMLBrowser::setContents( const QString& contents )
 {
     QMLView::setContents( contents );
     emit contentsChanged();
 }
 
+/*!
+  \fn void QMLBrowser::backwardAvailable(bool available)
+  This signal is emitted when the availability of the backward()
+  changes.  It becomes available when the user navigates forward,
+  and unavailable when the user is at the home().
+*/
+
+/*!
+  \fn void QMLBrowser::forwardAvailable(bool available)
+  This signal is emitted when the availability of the forward()
+  changes.  It becomes available after backward() is activated,
+  and unavailable when the user navigates or goes forward() to
+  the last navigated document.
+*/
+
+/*!
+  \fn void QMLBrowser::highlighted (const QString &href)
+  This signal is emitted when the user has selected but not activated
+  a link in the document.  \a href is the value of the href tag
+  in the link.
+*/
+
+/*!
+  \fn void QMLBrowser::contentsChanged()
+  This signal is emitted whenever the setContents() changes the
+  contents (eg. because the user clicked on a link).
+*/
+
+/*!
+  \fn void QMLBrowser::highlighted (const QString &)
+  This signal is emitted when the user has selected but not activated
+  a link in the document.
+*/
+
+/*!
+  Changes the document displayed to be the previous document
+  in the list of documents build by navigating links.
+
+  \sa forward(), backwardAvailable()
+*/
 void QMLBrowser::backward()
 {
     if ( d->stack.count() <= 1)
@@ -3477,6 +3813,12 @@ void QMLBrowser::backward()
     emit forwardAvailable( TRUE );
 }
 
+/*!
+  Changes the document displayed to be the next document
+  in the list of documents build by navigating links.
+
+  \sa backward(), forwardAvailable()
+*/
 void QMLBrowser::forward()
 {
     if ( d->forwardStack.isEmpty() )
@@ -3487,13 +3829,41 @@ void QMLBrowser::forward()
     delete ps;
 }
 
+/*!
+  Changes the document displayed to be the first document the
+  browser displayed.
+*/
 void QMLBrowser::home()
 {
     if (!d->home.isNull() )
 	setDocument( d->home );
 }
 
-void QMLBrowser::viewportMousePressEvent( QMouseEvent* e)
+/*!
+  Add Backward and Forward on ALT-Left and ALT-Right respectively.
+*/
+void QMLBrowser::keyPressEvent( QKeyEvent * e )
+{
+    if ( e->state() & AltButton ) {
+	switch (e->key()) {
+	case Key_Right:
+	    forward();
+	    return;
+	case Key_Left:
+	    backward();
+	    return;
+	case Key_Up:
+	    home();
+	    return;
+	}
+    }
+    QMLView::keyPressEvent(e);
+}
+
+/*!
+  \e override to press anchors.
+*/
+void QMLBrowser::viewportMousePressEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	d->buttonDown = anchor( e->pos() );
@@ -3501,7 +3871,10 @@ void QMLBrowser::viewportMousePressEvent( QMouseEvent* e)
     }
 }
 
-void QMLBrowser::viewportMouseReleaseEvent( QMouseEvent* e)
+/*!
+  \e override to activate anchors.
+*/
+void QMLBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 {
     if ( e->button() == LeftButton ) {
 	if (d->buttonDown && d->buttonDown == anchor( e->pos() )){
@@ -3514,6 +3887,9 @@ void QMLBrowser::viewportMouseReleaseEvent( QMouseEvent* e)
     d->buttonDown = 0;
 }
 
+/*!
+  Activate to emit highlighted().
+*/
 void QMLBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
     const QMLContainer* act = anchor( e->pos() );
@@ -3599,23 +3975,55 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 }
 
 
+
+/*!
+  \class QMLSimpleDocument qml.h
+  \brief A small displayable piece of QML.
+
+  This class encapsulates simple QML usage where a string is interpretted
+  as QML and can be drawn.
+
+  For large documents, see QMLView or QMLBrowser.
+
+  \sa QLabel::setQML(), QMLView
+*/
+
 struct QMLSimpleDocumentData
 {
     QMLDocument* doc;
 };
 
+/*!
+  Constructs a QMLSimpleDocument from the QML \a contents.
+
+  If \a w is
+  not 0, its properties (font, etc.) are used to set default
+  properties for the display. No reference is kept to the widget.
+
+  Once created, changes cannot be made (just throw it away and make
+  a new one with the new contents).
+*/
 QMLSimpleDocument::QMLSimpleDocument( const QString& contents, const QWidget* w)
 {
     d  = new QMLSimpleDocumentData;
     d->doc = new QMLDocument( contents, w );
 }
 
+/*!
+  Destructs the document, freeing memory.
+*/
 QMLSimpleDocument::~QMLSimpleDocument()
 {
     delete d->doc;
     delete d;
 }
 
+/*!
+  Sets the width of the document to \a w pixels, recalculating the layout
+  as if it were to be drawn with \a p.  ####### QPaintDevice
+
+  \sa height()
+*/
 void QMLSimpleDocument::setWidth( QPainter* p, int w)
 {
     d->doc->setWidth( p, w );
@@ -3626,11 +4034,24 @@ int QMLSimpleDocument::width() const
     return d->doc->width;
 }
 
+/*!
+  Returns the height of the document, in pixels.
+  \sa setWidth()
+*/
 int QMLSimpleDocument::height() const
 {
     return d->doc->height;
 }
 
+/*!
+  Draws the formatted QML with \a p, at position (\a x,\a y), clipped to
+  \a clipRegion.  Colors from \a cg are used as needed, and if not 0,
+  *\a paper is used as the background brush.
+
+  Note that the display code is highly optimized to reduce flicker, so
+  passing a brush for \a paper is preferrable to simply clearing the area
+  to be painted and then calling this without a brush.
+*/
 void QMLSimpleDocument::draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
 			      const QColorGroup& cg, const QBrush* paper) const
 {
