@@ -111,7 +111,7 @@ void* qt_load_library( const QString& lib )
 
 bool qt_free_library( void* handle )
 {
-    return shl_unload( x );
+    return shl_unload( handle );
 }
 
 void* qt_resolve_symbol( const QString& symbol, void* handle )
