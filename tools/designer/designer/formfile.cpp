@@ -260,7 +260,7 @@ bool FormFile::closeEvent()
     if ( editor() )
 	editor()->save();
 
-    switch ( QMessageBox::warning( 0, tr( "Save Form" ),
+    switch ( QMessageBox::warning( MainWindow::self, tr( "Save Form" ),
 				   tr( "Save changes to the form '%1'?" ).arg( filename ),
 				   tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
     case 0: // save
