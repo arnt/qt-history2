@@ -537,9 +537,11 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
     for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin();
 	  it != functions.end(); ++it ) {
 	bool found = FALSE;
-	for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin(); sit != oldSlots.end(); ++sit ) {
+	for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin();
+	      sit != oldSlots.end(); ++sit ) {
 	    QString s( (*sit).slot );
-	    if ( MetaDataBase::normalizeSlot( s ) == MetaDataBase::normalizeSlot( (*it).name ) ) {
+	    if ( MetaDataBase::normalizeSlot( s ) ==
+		 MetaDataBase::normalizeSlot( (*it).name ) ) {
 		found = TRUE;
 		MetaDataBase::Slot slot;
 		slot.slot = make_func_pretty( (*it).name );
@@ -571,6 +573,9 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	MetaDataBase::setFunctionComments( formWindow(), (*it).name, (*it).comments );
     }
 
+    if ( allowModify && oldSlots.count() > 0 )
+	setFormWindowModified( TRUE );
+	
     MetaDataBase::setSlotList( formWindow(), newSlots );
     MetaDataBase::setFunctionBodies( formWindow(), funcs, pro->language(), QString::null );
 }
