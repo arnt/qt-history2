@@ -29,6 +29,7 @@ open( CUSTOMERS, "<".$custfile ) || die "1";
 foreach $line ( <CUSTOMERS> ) {
     $exp = "";
     chomp $line;
+    next unless ( $line =~ /\S/ );
     ($name, $addr, $platform, $exp, $org) = split( / *\t+ */, $line );
     die "$line\ninvalid line, stopped" unless ( $exp =~ m-^\d+/\d+/\d+$- );
 
