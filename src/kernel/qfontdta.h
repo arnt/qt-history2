@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdta.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfontdta.h#11 $
 **
 ** Definition of QFontData struct
 **
@@ -50,6 +50,7 @@ struct QFontData : QShared {
     short	lineW;				// underline/strikeOut font
 #if defined(_WS_WIN_) || defined(_WS_PM_)
     HANDLE	hfont;
+    HANDLE	hdc;
 #elif defined(_WS_X11_)
     QXFontData *xfd;
 #endif
