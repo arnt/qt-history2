@@ -612,9 +612,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     \sa headerData() setHeaderData()
 */
 
-#define d d_func()
-#define q q_func()
-
 /*!
     Constructs an abstract item model with the given \a parent.
 */
@@ -638,6 +635,7 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
+    Q_D(QAbstractItemModel);
     QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
     for (; it != d->persistentIndexes.end(); ++it) {
         Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
@@ -1302,6 +1300,7 @@ void QAbstractItemModel::resetPersistentIndexes()
 */
 void QAbstractItemModel::invalidatePersistentIndex(const QModelIndex &index)
 {
+    Q_D(QAbstractItemModel);
     // FIXME: make this a QMap<QModelIndex, QPresistentModelIndexData*> or something similar
     QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
     for (; it != d->persistentIndexes.end(); ++it) {
@@ -1328,6 +1327,7 @@ void QAbstractItemModel::invalidatePersistentIndex(const QModelIndex &index)
 */
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
+    Q_D(QAbstractItemModel);
     bool all = !parent.isValid();
     QList<QPersistentModelIndexData*>::iterator it = d->persistentIndexes.begin();
     for (; it != d->persistentIndexes.end(); ++it) {
@@ -1348,6 +1348,7 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 */
 int QAbstractItemModel::persistentIndexesCount() const
 {
+    Q_D(const QAbstractItemModel);
     return d->persistentIndexes.count();
 }
 
@@ -1358,6 +1359,7 @@ int QAbstractItemModel::persistentIndexesCount() const
 */
 QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
 {
+    Q_D(const QAbstractItemModel);
     return d->persistentIndexes.at(position)->index;
 }
 
@@ -1369,6 +1371,7 @@ QModelIndex QAbstractItemModel::persistentIndexAt(int position) const
 */
 void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &index)
 {
+    Q_D(QAbstractItemModel);
     d->persistentIndexes[position]->index = index;
 }
 
@@ -1379,6 +1382,7 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 */
 int QAbstractItemModel::persistentIndexPosition(const QModelIndex &index, int from) const
 {
+    Q_D(const QAbstractItemModel);
     for (int i = from; i < d->persistentIndexes.count(); ++i)
         if (d->persistentIndexes.at(i)->index == index)
             return i;
