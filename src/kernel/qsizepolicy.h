@@ -52,7 +52,7 @@ public:
 		    Minimum = MayGrow,
 		    Maximum = MayShrink,
 		    Preferred = MayGrow|MayShrink ,
-		    MinimumExpanding = MayShrink|ExpMask,
+		    MinimumExpanding = MayGrow|ExpMask,
 		    Expanding = MayGrow|MayShrink|ExpMask
     };
 
