@@ -7,6 +7,10 @@ documentation.
 *               Changes that might affect runtime behavior                 *
 ****************************************************************************
 
+QGridLayout::addWidget() and addMultiCellWidget(): The align parameter
+is now interpreted correctly. (Previously up/down and right/left were
+reversed.) If you have worked around this bug, your widgets may now be
+incorrectly aligned.
 
 
 ****************************************************************************
@@ -24,20 +28,19 @@ none
 
 
 ****************************************************************************
-*                         Obsoleted functions                              *
-****************************************************************************
-
-none
-
-
-****************************************************************************
 * 			     New classes				   *
 ****************************************************************************
 
+QSlider is a range input widget. If you have been using a standalone
+QScrollBar, you will probably want to switch to a QSlider.
 
+QSpinBox provides a spin box, sometimes called up-down widget, little
+arrows widget or spin button.
+
+OpenGL support
 
 ****************************************************************************
-*		       Other changes from 1.0 to 1.1			   *
+*		       Other changes from 1.1 to 1.2			   *
 ****************************************************************************
 
 
