@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#43 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#44 $
 #
 # this is a massive hack, written very quickly
 #
@@ -182,11 +182,11 @@ sub processdocs {
 	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
-	$doc =~ s-\\link\s+(\S+)\s*(.+?)\s*\\endlink-
+	$doc =~ s-\\link\s+([\w:]+)(?:[\(\)]*)\s*(.+?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
 		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
 	    } else {
-		if (defined($class . "::" . $anchor{$1})) {
+		if (defined($anchor{$class . "::" . $1})) {
 		    sprintf("<a href=%s>%s</a>", 
 			    $anchor{$class . "::" . $1}, $2);
 		} else {
@@ -300,7 +300,6 @@ sub manglefn {
     $type = "-" . $type if ($type ne "");
     $const = "-" . $const if ($const ne "");
     $url = $class . "::" . $name;
-#    $url = join("", &mangleclass($class), "#", $name);
     $d = "(";
     foreach (split(/\s*,\s*/, $sig)) {
 # kill argument name
@@ -390,7 +389,7 @@ sub getfile {
     local($filename) = @_;
     local($ifdef);
 
-    open(F, "< $filename") || die "can't open $filename for reading";
+    open(F, "expand < $filename |") || die "can't open $filename for reading";
     $ifdef = 0;
     while(<F>) {
 	$dates{$1} = $2 if (/\$Id\:\s+(.*?),v\s+[0-9\.]+\s+(\S+)\s/);
@@ -447,16 +446,7 @@ Qt Toolkit - ", $filename, " include file
 documentation only; the copyright remains with Troll Tech.
 <hr>
 <pre>
-", $h, "
-</pre>
-<hr><p>
-This file is part of the <a href=qt.html>Qt toolkit</a>,
-<a href=licence.html>copyright</a> 1995
-<a href=troll.html>Troll Tech</a>, all rights reserved.
-<address>
-Generated at ", $date, " by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>
-</address>
-</body></html>";
+", $h, "\n</pre>\n", $address;
 	close H;
     }
 }
@@ -520,17 +510,20 @@ sub readc {
 	    $doc{$url} = $doc;
 	    $includefile{$url} = $hfile;
 	    $includefile{$url} =~ s/\.doc/.h/;
-	} elsif ($doc =~ m@^\\page\s+(\w+)\s+(.*?)\s*$@s) {
+	} elsif ($doc =~ m@^\\page\s+([\w\.]+)\s+(.*?)\s*$@s) {
 	    # it a \page
-	    my ($page, $doc);
+	    my ($file, $doc);
 	    my ($url);
-	    $page = $1;
-	    $doc = $3;
-	    $doc = &html($doc);
-	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
+	    $file = $1;
+	    $doc = $2;
+	    open(O, "> $outputdir/$file") ||
+		die "can't open $outputdir/$file";
+	    print O "<html><head>", $doc, "\n", $address;
+	    close(O);
+	    $anchor{$page} = $file;
 	} else {
 	    # it's a function, \fn or real?
-print ""; # heeeeeiiiiiii LARRY!
+	    print ""; # defeat too-cool switch optimizer
 	    if ($doc =~ /^\\fn\s+([^;\n]+);?\s+(.*?)\s*$/s) {
 		$def = $1;
 		$doc = $2;
@@ -547,7 +540,12 @@ print ""; # heeeeeiiiiiii LARRY!
 		$type = "";
 		$class = $1;
 		$name = $2;
+	    } elsif ($name =~ /^\s*(\w+)\s*::operator\s*([\s\w\*\&]+)$/s) {
+		$type = $2;
+		$class = $1;
+		$name = "casting-operator";
 	    } else {
+		print "skipped: ", $filename, ": ", $def, "\n", $doc, "\n";
 		$skip = 1;
 	    }
 	    $args =~ s/([^:]):[^:].*/$1/s;
@@ -578,7 +576,8 @@ print ""; # heeeeeiiiiiii LARRY!
 			$class .= "::" if ($class ne "");
 			$const = " " . const if ($const ne "");
 			$def{$url} = $type." ".$class.$name."(".$args.")".$const;
-			print "url: ", $url, "\n" if ($debug);
+			print "url: ", $url, " is ", $def{$url}, "\n" 
+			    if ($debug);
 		    }
 		}
 	    }
@@ -770,7 +769,7 @@ sub printout {
 		}
 		$tail .= "</ul>\n";
 	    }
-	    $tail .= "<address>\nGenerated at " . $date . " by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>";
+	    $tail .= $address;
 
 	    print O "<html><head>\n<title>Qt Toolkit - ", 
 	    $name{$url}, 
@@ -779,6 +778,11 @@ sub printout {
 	}
 	if ($type{$url} eq "class") {
 	    my ($i);
+	    if (defined($brief{$url})) {
+		print O "<p>\n", $brief{$url}, "\n";
+		print O "<a href=#details>(details)</a>\n"
+		    if ($doc{$url} ne "");
+	    }
 	    print O "<p>\n<code>#include &lt;<a href=", 
 	            $headerfiles{$includefile{$url}}, 
  		    ">", $includefile{$url}, "</a>&gt;</code>\n"
@@ -791,7 +795,7 @@ sub printout {
 		    $name =~ s/^[^\#]*\#//;
 		    $header = $def{$_};
 		    $header =~ s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
-		    $relatives = join ("", $relatives, "<p><h3>", $header{$_},
+		    $relatives = join ("", $relatives, "<p><h3>", $header,
 				       "</h3>\n<p>", $doc{$_}, "\n");
 		}
 		$tail = join("", $relatives, $tail);
@@ -837,11 +841,6 @@ sub printout {
 
 	    if (defined($members{$url})) {
 		my (%m, $mode);
-		if (defined($brief{$url})) {
-		    print O "<p>\n", $brief{$url}, "\n";
-		    print O "<a href=#details>(details)</a>\n"
-			if ($doc{$url} ne "");
-		}
 
 		undef %m;
 		$mode = "Private";
@@ -930,17 +929,22 @@ sub printout {
 		    print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
 		}
 	    }
-	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/s)) {
-	    my ($name);
-	    print O $fnheader;
-	    $fnheader = "";
-	    $fntail = "\n";
+	} elsif (($type{$url} eq "fn") && 
+		 ($doc{$url} =~ /\S/s)) {
+	    my ($name, $class);
+	    $class = $url;
+	    $class =~ s/\#.*//;
+	    $class = $name{$class} . "::";
 	    $_ = $def{$url};
-	    $name = $url;
-	    $name =~ s/^[^\#]*\#//;
-#	    s;([^\(]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
-	    s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
-	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
+	    if (/$class/) {
+		$name = $url;
+		$name =~ s/^[^\#]*\#//;
+		print O $fnheader;
+		$fnheader = "";
+		$fntail = "\n";
+		s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
+		print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
+	    }
 	}
     }
     print O $fntail, $tail;
@@ -948,8 +952,8 @@ sub printout {
 }
 
 sub classindex {
-    open(O, "> $outputdir/index.html")
-	|| die "can't open $outputdir/index.html for writing";
+    open(O, "> $outputdir/classes.html")
+	|| die "can't open $outputdir/classes.html for writing";
     print O <<EOHEAD
 <html>
 <head><title>Qt toolkit, main index page</title></head>
@@ -963,20 +967,104 @@ EOHEAD
 	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "class");
     }
-    print O "</ul>\n<p>Here are the defined enums:\n<ul compact>\n";
+    print O "</ul>\n", $address;
+    close(O);
+}
+
+
+sub enumindex {
+    open(O, "> $outputdir/enums.html")
+	|| die "can't open $outputdir/enums.html for writing";
+    print O "<html><head><title>Qt toolkit, enum type indexe</title></head><body>\n<h1>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
     }
-    print O <<EOTAIL
-</ul>
-<address>
-Generated at $date by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>
-</address>
-</body></html>
-EOTAIL
-    ;
+    print O "</ul>\n", $address;
     close(O);
+}
+
+
+
+sub headerindex {
+    local($filename);
+    open(O, "> $outputdir/headers.html")
+	|| die "can't open $outputdir/headers.html for writing";
+    print O "<html><head><title>Qt toolkit - header file index</title></head><body>\n<h1>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
+    foreach $filename ( keys %headerfiles ) {
+	$_ = $filename;
+	s/\./-/;
+	s/$/.html/;
+	print O "<li><a href=", $_, ">", $filename, "</a>\n";
+    }
+    print O "</ul>\n", $address;
+
+    close(O);
+}
+
+
+
+#
+# make a semi-graphical inheritance tree
+#
+sub inheritanceindex {
+    open(O, "> $outputdir/hierarchy.html")
+	|| die "can't open $outputdir/hierarchy.html for writing";
+    print O "
+<html>
+<head><title>Qt toolkit - class hierarchy</title></head>
+<body>
+<h1>Qt class hierarchy</h1>
+
+<p>This inheritance list is sorted roughly, but not completely,
+alphabetically.
+
+<ul compact>
+";
+    foreach ( sort keys %members ) {
+	&doclassinheritance( $name{$_} ) unless ($inheritance{$_} =~ /\S/s);
+    }
+    print O "</ul>", $address;
+    close O;
+}
+
+sub doclassinheritance {
+    local($class) = @_;
+    local($_);
+
+    if ($inheritance{$_} =~ /\S/s) {
+	$_ = $inheritance{$_};
+	s/,.*//s;
+	s/^\s*\w+\s+//s;
+	&doclassinheritance($_) unless (defined($classtree{$_}));
+    }
+
+    unless (defined($classtree{$class})) {
+	$classtree{$class}++;
+	print O "<li><a href=", $anchor{$class}, ">", $class, "</a>";
+	print O " (", $capt{$anchor{$class}}, ")"
+	    if (defined ($capt{$anchor{$class}}));
+	$_ = $inheritance{$anchor{$class}};
+	if (/,/s) {
+	    s/^.*?,//;
+	    s/\s*\w*\s+(?=\w)/ /gs;
+	    s/\s*,\s*([^,]+)$/ and $1/s;
+	    print O " (inherits ", &al($_), ", too)";
+	}
+	print O "\n";
+	if ($subclasses{$class} =~ /\S/s) {
+	    print O "<ul>\n";
+	    foreach ( sort split(/\s+/, $subclasses{$class} ) ) {
+		if (defined($classtree{$_})) {
+		    print O "<li><a href=", $anchor{$_}, 
+			    ">", $_, "</a> (secondary inheritance)";
+		} else {
+		    &doclassinheritance( $_ );
+		}
+	    }
+	    print O "</ul>\n";
+	}
+    }
 }
 
 
@@ -986,13 +1074,14 @@ $cfile = "VOLD";
 #$debug = 1;
 $internal = 1;
 
+$outputdir = "/local/qt/doc/html";
+($j, $min, $hour, $mday, $mon, $year) = localtime(time);
+$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d by the <a href=mailto:www\@troll.no>webmaster</a> at <a href=http://www.troll.no/>Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday );
+
 foreach $arg ( 0..$#ARGV ) {
     &readc($ARGV[$arg]);
 }
 
-($j, $min, $hour, $mday, $mon, $year) = localtime(time);
-$date = sprintf("%02d:%02d, %d/%d/%d", $hour, $min, $mday, 1+$mon, 1900+$year);
-$outputdir = "/local/qt/doc/html";
 
 &preprocessdocs();
 &makenames();
@@ -1000,5 +1089,11 @@ $outputdir = "/local/qt/doc/html";
 &processdocs();
 &readfiles();
 
+
 &printout();
+&inheritanceindex();
 &classindex();
+&enumindex();
+&headerindex();
+
+print "Documented entities: ", $uniq, "\n";
