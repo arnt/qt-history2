@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#41 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#41 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -188,8 +188,8 @@ void QEvent::peErrMsg()				// posted event error message
   widget, and the widget will continue to receive mouse events until the
   last mouse button is released.
 
-  The QWidget::disable() function disables mouse and keyboard events for a
-  widget, and QWidget::enable() enables mouse and keyboard events.
+  The QWidget::setEnable() function can be used to enable or disable mouse
+  and keyboard events for a widget.
 
   The QCursor widget has static functions for reading and setting the
   position of the mouse cursor.
@@ -198,8 +198,7 @@ void QEvent::peErrMsg()				// posted event error message
   QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent() receive
   mouse events.
 
-  \sa QWidget::setMouseTracking(), QWidget::grabMouse()
-*/
+  \sa QWidget::setMouseTracking(), QWidget::grabMouse() */
 
 /*!
   \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
