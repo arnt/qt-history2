@@ -1576,6 +1576,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	RETURN(0);
     }
     case WM_DISPLAYCHANGE:
+	if ( qApp->type() == QApplication::Tty )
+	    break;
 	if ( qt_desktopWidget ) {
 	    int x = GetSystemMetrics( 76 );
 	    int y = GetSystemMetrics( 77 );
@@ -1591,6 +1593,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     case WM_SETTINGCHANGE:
 	// ignore spurious XP message when user logs in again after locking
+	if ( qApp->type() == QApplication::Tty )
+	    break;
 	if ( QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA ) {
 	    QWidgetList *twl = qApp->topLevelWidgets();
 	    QETWidget *w = (QETWidget *) twl->first();
@@ -1602,6 +1606,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	break;
     case WM_SYSCOLORCHANGE:
+	if ( qApp->type() == QApplication::Tty )
+	    break;
 	if ( QApplication::desktopSettingsAware() )
 	    qt_set_windows_resources();
 	break;
@@ -1623,7 +1629,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		releaseAutoCapture();
 		qt_button_down = 0;
 	    }
-
 
 	    RETURN(0);
 	}
@@ -1920,7 +1925,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = FALSE;
 	    break;
 #endif
-	    case WM_PAINT:				// paint event
+	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
 	    break;
 
@@ -2155,7 +2160,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_THEMECHANGED:
-	    if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() )
+	    if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() 
+							 || qApp->type() == QApplication::Tty )
 		break;
 
 	    qApp->style().unPolish( qApp );
