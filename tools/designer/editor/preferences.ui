@@ -274,7 +274,7 @@
                 <cstring>GroupBox3</cstring>
             </property>
             <property name="title">
-                <string>&amp;Options</string>
+                <string>Optio&amp;ns</string>
             </property>
             <grid>
                 <property name="name">
@@ -299,7 +299,7 @@
                         <cstring>checkParenMatching</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Parentheses Matching</string>
+                        <string>Parentheses &amp;Matching</string>
                     </property>
                 </widget>
                 <widget class="QCheckBox" row="1" column="0">
@@ -307,7 +307,7 @@
                         <cstring>checkCompletion</cstring>
                     </property>
                     <property name="text">
-                        <string>Completion</string>
+                        <string>Comple&amp;tion</string>
                     </property>
                 </widget>
             </grid>
