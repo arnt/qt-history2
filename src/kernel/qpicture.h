@@ -76,6 +76,7 @@ protected:
 private:
     bool	exec( QPainter *, QDataStream &, int );
     void	resetFormat();
+    bool	checkFormat();
     QBuffer	pictb;
     int		trecs;
     bool	formatOk;

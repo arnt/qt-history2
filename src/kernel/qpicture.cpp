@@ -188,8 +188,7 @@ bool QPicture::load( const QString &fileName )
     f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
     pictb.setBuffer( a );			// set byte array in buffer
-    resetFormat();				// we'll have to check
-    return TRUE;
+    return checkFormat();
 }
 
 /*!
@@ -222,69 +221,25 @@ bool QPicture::play( QPainter *painter )
     if ( pictb.size() == 0 )			// nothing recorded
 	return TRUE;
 
+    if ( !formatOk && !checkFormat() )
+	return FALSE;
+
     pictb.open( IO_ReadOnly );			// open buffer device
     QDataStream s;
     s.setDevice( &pictb );			// attach data stream to buffer
-
-    if ( !formatOk ) {				// first time we read it
-	char mf_id[4];				// picture header tag
-	s.readRawBytes( mf_id, 4 );		// read actual tag
-	if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { // wrong header id
-#if defined(CHECK_RANGE)
-	    qWarning( "QPicture::play: Incorrect header" );
-#endif
-	    pictb.close();
-	    return FALSE;
-	}
-
-	int cs_start = sizeof(Q_UINT32);		// pos of checksum word
-	int data_start = cs_start + sizeof(Q_UINT16);
-	Q_UINT16 cs,ccs;
-	QByteArray buf = pictb.buffer();	// pointer to data
-	s >> cs;				// read checksum
-	ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
-	if ( ccs != cs ) {
-#if defined(CHECK_STATE)
-	    qWarning( "QPicture::play: Invalid checksum %x, %x expected",
-		     ccs, cs );
-#endif
-	    pictb.close();
-	    return FALSE;
-	}
-
-	Q_UINT16 major, minor;
-	s >> major >> minor;			// read version number
-	if ( major > mfhdr_maj ) {		// new, incompatible version
-#if defined(CHECK_RANGE)
-	    qWarning( "QPicture::play: Incompatible version %d.%d",
-		     major, minor);
-#endif
-	    pictb.close();
-	    return FALSE;
-	}
-	formatOk = TRUE;			// picture seems to be ok
-	formatMajor = major;
-	formatMinor = minor;
-    } else {
-	s.device()->at( 10 );			// go directly to the data
-    }
-
+    s.device()->at( 10 );			// go directly to the data
     s.setVersion( formatMajor );
 
     Q_UINT8  c, clen;
     Q_UINT32 nrecords;
     s >> c >> clen;
-    if ( c == PdcBegin ) {
-	if ( !( formatMajor >= 1 && formatMajor <= 3 )) {
-	    Q_INT32 l, t, w, h;
-	    s >> l >> t >> w >> h;
-	    brect = QRect( l, t, w, h );
-	}
-	s >> nrecords;
-	if ( !exec( painter, s, nrecords ) )
-	    c = 0;
+    ASSERT( c == PdcBegin );
+    if ( !( formatMajor >= 1 && formatMajor <= 3 )) {
+	Q_INT32 dummy;
+	s >> dummy >> dummy >> dummy >> dummy;
     }
-    if ( c !=  PdcBegin ) {
+    s >> nrecords;
+    if ( !exec( painter, s, nrecords ) ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QPicture::play: Format error" );
 #endif
@@ -814,6 +769,81 @@ void QPicture::resetFormat()
     formatMinor = mfhdr_min;
 }
 
+/*!
+  \internal
+
+  Checks data integrity and format version number. Set formatOk to TRUE
+  on success, to FALSE otherwise. Returns the resulting formatOk value.
+*/
+
+bool QPicture::checkFormat()
+{
+    resetFormat();
+
+    pictb.open( IO_ReadOnly );			// open buffer device
+    QDataStream s;
+    s.setDevice( &pictb );			// attach data stream to buffer
+
+    char mf_id[4];				// picture header tag
+    s.readRawBytes( mf_id, 4 );			// read actual tag
+    if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
+#if defined(CHECK_RANGE)
+	qWarning( "QPicture::checkFormat: Incorrect header" );
+#endif
+	pictb.close();
+	return FALSE;
+    }
+
+    int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+    int data_start = cs_start + sizeof(Q_UINT16);
+    Q_UINT16 cs,ccs;
+    QByteArray buf = pictb.buffer();	// pointer to data
+    s >> cs;				// read checksum
+    ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
+    if ( ccs != cs ) {
+#if defined(CHECK_STATE)
+	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
+		  ccs, cs );
+#endif
+	pictb.close();
+	return FALSE;
+    }
+
+    Q_UINT16 major, minor;
+    s >> major >> minor;			// read version number
+    if ( major > mfhdr_maj ) {		// new, incompatible version
+#if defined(CHECK_RANGE)
+	qWarning( "QPicture::checkFormat: Incompatible version %d.%d",
+		  major, minor);
+#endif
+	pictb.close();
+	return FALSE;
+    }
+    s.setVersion( major );
+
+    Q_UINT8  c, clen;
+    Q_UINT32 nrecords;
+    s >> c >> clen;
+    if ( c == PdcBegin ) {
+	if ( !( major >= 1 && major <= 3 )) {
+	    Q_INT32 l, t, w, h;
+	    s >> l >> t >> w >> h;
+	    brect = QRect( l, t, w, h );
+	}
+    } else {
+#if defined(CHECK_RANGE)
+	qWarning( "QPicture::checkFormat: Format error" );
+#endif
+	pictb.close();
+	return FALSE;
+    }
+    pictb.close();
+
+    formatOk = TRUE;			// picture seems to be ok
+    formatMajor = major;
+    formatMinor = minor;
+    return TRUE;
+}
 
 /*****************************************************************************
   QPicture stream functions
