@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#4 $
 **
 ** Localization database support.
 **
@@ -281,7 +281,7 @@ void QTranslator::save( const QString & filename )
 	QString * c;
 	const char * k;
 	while( (c=it.current()) != 0 ) {
-	    k = it.currentKey();
+	    k = (const char*)(void*)it.currentKeyLong();
 	    ++it;
 	    s << *k << *c;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#241 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#242 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -574,8 +574,9 @@ static void unregWinClasses()
     if ( !winclassNames )
 	return;
     QDictIterator<int> it(*winclassNames);
-    while ( it.currentKey() ) {
-	UnregisterClass( (TCHAR*)qt_winTchar(it.currentKey(),TRUE),
+    const char* k;
+    while ( (k = (const char*)(void*)it.currentKeyLong()) ) {
+	UnregisterClass( (TCHAR*)qt_winTchar(k,TRUE),
 			 (HINSTANCE)qWinAppInst() );
 	++it;
     }

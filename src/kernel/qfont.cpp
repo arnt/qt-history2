@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#115 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -956,7 +956,7 @@ void QFont::listSubstitutions( QStrList *list )
     list->setAutoDelete( TRUE );
     QFontSubstIt it( *fontSubst );
     const char* n;
-    while ( (n=it.currentKey()) ) {
+    while ( (n=(const char*)(void*)it.currentKeyLong()) ) {
 	list->inSort( qstrdup(n) );
 	++it;
     }

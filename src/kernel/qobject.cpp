@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#185 $
 **
 ** Implementation of QObject class
 **
@@ -1518,7 +1518,8 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     if ( signal == 0 ) {			// any/all signals
 	QSignalDictIt it(*(s->connections));
 	while ( (clist=it.current()) ) {	// for all signals...
-	    const char *curkey = it.currentKey();
+	    // Tricky hack to avoid UTF conversion.
+	    const char *curkey = (const char*)(void*)it.currentKeyLong();
 	    ++it;
 	    c = clist->first();
 	    while ( c ) {			// for all receivers...
