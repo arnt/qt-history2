@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.58 1999/05/31 09:30:33 warwick Exp $
+** $Id: porting.doc,v 1.59 1999/06/01 20:22:19 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -192,6 +192,10 @@ function that is not in a subclass of QListViewItem).
 
 
 <h3><a name=Collection>Collection classes</a></h3>
+
+<p> The collection classes include generic
+classes such as QGDict, QGList, and
+the subclasses such as QDict and QList.
 
 <p> The macro-based Qt collection classes are obsolete; use the
 template-based classes instead. Simply remove includes of qgeneric.h and
