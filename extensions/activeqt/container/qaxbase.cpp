@@ -208,7 +208,7 @@ public:
 	    return E_UNEXPECTED;
 
 	QAxMetaObject *meta = const_cast<QAxMetaObject*>(static_cast<const QAxMetaObject*>(combase->metaObject()));
-	QString signame = sigs[dispIdMember];
+	QString signame = sigs.value(dispIdMember);
 	if (!meta || signame.isEmpty())
 	    return DISP_E_MEMBERNOTFOUND;
 
@@ -296,7 +296,7 @@ public:
 	    return S_OK;
 
 	const QMetaObject *meta = combase->metaObject();
-	QString propname = props[dispID];
+	QString propname = props.value(dispID);
 	if (!meta || propname.isEmpty())
 	    return S_OK;
 
@@ -311,7 +311,7 @@ public:
 	    combase->qt_metacall(QMetaObject::EmitSignal, index, argv );
 	}
 
-	QString signame = propsigs[dispID];
+	QString signame = propsigs.value(dispID);
 	if (signame.isEmpty())
 	    return S_OK;
 
@@ -335,7 +335,7 @@ public:
 	if ( dispID == DISPID_UNKNOWN || !combase )
 	    return S_OK;
 
-	QString propname = props[dispID];
+	QString propname = props.value(dispID);
 	return combase->propertyWritable(propname.latin1()) ? S_OK : S_FALSE;
     }
 
@@ -891,10 +891,8 @@ void QAxBase::clear()
     while (it != d->eventSink.end()) {
 	QAxEventSink *eventSink = it.value();
 	++it;
-	if (eventSink) { //### should not happen!
-	    eventSink->unadvise();
-	    eventSink->Release();
-	}
+	eventSink->unadvise();
+	eventSink->Release();
     }
     d->eventSink.clear();
     if ( d->disp ) {
@@ -1224,7 +1222,7 @@ private:
     QMap<QString, QString> classinfo_list;
     inline void addClassInfo(const QString &key, const QString &value)
     {
-	classinfo_list[key] = value;
+	classinfo_list.insert(key, value);
     }
 
     inline bool hasClassInfo(const QString &key)
@@ -2050,8 +2048,8 @@ void MetaObjectGenerator::readEventInfo()
 		// get information about type
 		if ( conniid == IID_IPropertyNotifySink ) {
 		    // test whether property notify sink has been created already, and advise on it
-		    QAxEventSink *eventSink = d->eventSink[iid_propNotifySink];
-		    if ( eventSink )
+		    QAxEventSink *eventSink = d->eventSink.value(iid_propNotifySink);
+                    if ( eventSink )
 			eventSink->advise( cpoint, conniid );
 		    continue;
 		}
@@ -2072,7 +2070,7 @@ void MetaObjectGenerator::readEventInfo()
 			continue;
 		    }
 
-		    QAxEventSink *eventSink = d->eventSink[QUuid(conniid)];
+		    QAxEventSink *eventSink = d->eventSink.value(QUuid(conniid));
 		    if ( !eventSink ) {
 			eventSink = new QAxEventSink( that );
 			d->eventSink.insert( QUuid(conniid), eventSink );
@@ -2144,7 +2142,7 @@ void MetaObjectGenerator::readEventInfo()
 QMetaObject *MetaObjectGenerator::tryCache()
 {
     if ( mo_cache && !cacheKey.isEmpty() ) {
-	d->metaobj = (*mo_cache)[cacheKey];
+	d->metaobj = mo_cache->value(cacheKey);
 	if ( d->metaobj ) {
 	    d->cachedMetaObject = TRUE;
 	    QList<QUuid>::ConstIterator it = d->metaobj->connectionInterfaces.begin();
@@ -2161,10 +2159,10 @@ QMetaObject *MetaObjectGenerator::tryCache()
 		    QAxEventSink *sink = new QAxEventSink( that );
 		    sink->advise( cpoint, iid );
 		    d->eventSink.insert( iid, sink );
-		    sink->sigs = d->metaobj->sigs[iid];
+		    sink->sigs = d->metaobj->sigs.value(iid);
 
-		    sink->props = d->metaobj->props[iid];
-		    sink->propsigs = d->metaobj->propsigs[iid];
+		    sink->props = d->metaobj->props.value(iid);
+		    sink->propsigs = d->metaobj->propsigs.value(iid);
 		    cpoints->Release();
 		}
 	    }
@@ -3250,7 +3248,7 @@ public:
 	    return E_POINTER;
 
 	QString property = BSTRToQString((TCHAR*)name).local8Bit();
-	QVariant qvar = map[property];
+	QVariant qvar = map.value(property);
 	QVariantToVARIANT( qvar, *var, qvar.typeName() );
 	return S_OK;
     }
@@ -3349,7 +3347,7 @@ void QAxBase::setPropertyBag( const PropertyBag &bag )
     	const QMetaObject *mo = metaObject();
 	for (int p = mo->propertyOffset(); p < mo->propertyCount(); ++p) {
 	    const QMetaProperty property = mo->property(p);
-	    QVariant var = bag[property.name()];
+	    QVariant var = bag.value(property.name());
 	    qObject()->setProperty(property.name(), var);
 	}
     }
@@ -3370,10 +3368,7 @@ bool QAxBase::propertyWritable( const char *prop ) const
     if ( !d->propWritable )
 	return TRUE;
 
-    if ( !d->propWritable->contains( prop ) )
-	return TRUE;
-    else
-	return (*d->propWritable)[prop];
+    return d->propWritable->value(prop, true);
 }
 
 /*!
