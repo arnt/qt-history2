@@ -79,8 +79,6 @@ public:
 	RenameWizardPage,
 	AddConnection,
 	RemoveConnection,
-	//AddSlot,
-	//RemoveSlot,
 	Lower,
 	Raise,
 	Paste,

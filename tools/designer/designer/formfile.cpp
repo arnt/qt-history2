@@ -589,7 +589,7 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
     bool hasFunc = FALSE;
     for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
 	  it != funcs.end(); ++it ) {
-	if ( (*it).name == QString( function.function ) ) {
+	if ( MetaDataBase::normalizeFunction( (*it).name ) == MetaDataBase::normalizeFunction( function.function ) ) {
 	    hasFunc = TRUE;
 	    break;
 	}
