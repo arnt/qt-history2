@@ -340,7 +340,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
 {
     d = new QActionPrivate;
     d->toggleaction = toggle;
-    if ( !icon.isNull() )
+    if ( !icon.isNull() && !icon.pixmap().isNull() )
 	setIconSet( icon );
     d->text = text;
     d->menutext = menuText;
@@ -1271,7 +1271,7 @@ bool QActionGroup::addTo( QWidget* w )
 		connect( btn, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 		d->menubuttons.append( btn );
 
-		if ( !iconSet().isNull() )
+		if ( !iconSet().isNull() && !iconSet().pixmap().isNull() )
 		    btn->setIconSet( iconSet() );
 		else
 		    btn->setIconSet( defAction->iconSet() );
@@ -1327,7 +1327,7 @@ bool QActionGroup::addTo( QWidget* w )
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 
 	    int id;
-	    if ( !iconSet().isNull() ) {
+	    if ( !iconSet().isNull() && !iconSet().pixmap().isNull() ) {
 		if ( menuText().isEmpty() )
 		    id = menu->insertItem( iconSet(), text(), popup );
 		else
