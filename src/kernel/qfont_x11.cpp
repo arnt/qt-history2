@@ -80,6 +80,11 @@ Bool XftNameUnparse (XftPattern *, char *, int);
 // #define QFONTLOADER_DEBUG
 // #define QFONTLOADER_DEBUG_VERBOSE
 
+#define CN_ENCODINGS "gb18030-0", "gb18030.2000-0", "gbk-0", "gb2312.1980-0"
+#define JP_ENCODINGS "jisx0208.1997-0", "jisx0208.1990-0", "jisx0208.1983-0"
+#define KR_ENCODINGS "ksc5601.1987-0"
+#define HK_ENCODINGS "big5hkscs-0", "hkscs-1"
+#define TW_ENCODINGS "big5*-*", "big5-0"
 
 static const int MAXFONTSIZE = 128;
 
@@ -98,31 +103,51 @@ static const char * const hebrew_encodings[] = { "iso8859-8", 0 };
 static const char * const arabic_encodings[] = { "iso8859-6.8x" /*, "iso8859-6"*/, 0 };
 static const char * const tamil_encodings[] = { "tscii-*", 0 };
 static const char * const thai_encodings[] = { "tis620*-0", "iso8859-11", 0 };
-static const char * const hiragana_encodings[] = { "jisx0208.1983-0", 0 };
-static const char * const katakana_encodings[] = { "jisx0208.1983-0", 0 };
-static const char * const hangul_encodings[] = { "ksc5601.1987-0", 0 };
-static const char * const bopomofo_encodings[] = { "gb2312.1980-0", 0 };
+static const char * const hiragana_encodings[] = { JP_ENCODINGS, 0 };
+static const char * const katakana_encodings[] = { JP_ENCODINGS,  0 };
+static const char * const hangul_encodings[] = { KR_ENCODINGS, 0 };
+static const char * const bopomofo_encodings[] = { CN_ENCODINGS, 0 };
 static const char * const unicode_encodings[] = { "iso10646-1", "unicode-*", 0 };
-static const char * const hanx11_encodings[] = { "gb18030-0", /* "gb18030.2000-1", */ "gb18030.2000-0", "big5-0", "big5hkscs-0" };
+static const char * const hanx11_encodings[] = { CN_ENCODINGS, TW_ENCODINGS, HK_ENCODINGS };
 static const char * const latinA2_encodings[] = { "iso8859-2", 0 };
 static const char * const latinA3_encodings[] = { "iso8859-3", 0 };
 static const char * const latinA4_encodings[] = { "iso8859-4", 0 };
 static const char * const latinA14_encodings[] = { "iso8859-14", 0 };
 static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
+static const char * const jisx0201_encodings[] = { "jisx0201*-0", 0 };
+static const char * const gb18030_encodings[] = { "gb18030-0", "gb18030.2000-0" };
 
 // we select one of these at initialization time for Han use
 static const char * const hancn_encodings[] =
-    { "gbk-0", "gb2312.1980-0", "big5-0", "big5hkscs-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
-static const char * const hancngb18030_encodings[] =
-    { "gb18030-0", /* "gb18030.2000-1", */ "gb18030.2000-0", "gbk-0", "gb2312.1980-0", "big5-0", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
-static const char * const hanhk_encodings[] =
-    { "big5hkscs-0", "hkscs-1", "big5-0", "gb2312.1980-0", "gbk-0", "jisx0208.1983-0", "ksc5601.1987-0", "gb18030-0", 0 };
+    { CN_ENCODINGS,
+      TW_ENCODINGS,
+      HK_ENCODINGS,
+      JP_ENCODINGS,
+      KR_ENCODINGS, 0 };
 static const char * const hanjp_encodings[] =
-    { "jisx0208.1983-0", "gb2312.1980-0", "big5-0", "ksc5601.1987-0", "big5hkscs-0", "gbk-0", 0 };
+    { JP_ENCODINGS,
+      CN_ENCODINGS,
+      TW_ENCODINGS,
+      HK_ENCODINGS,
+      KR_ENCODINGS, 0 };
 static const char * const hankr_encodings[] =
-    { "ksc5601.1987-0", "jisx0208.1983-0", "gb2312.1980-0", "big5-0", "big5hkscs-0", "gbk-0", 0 };
+    { KR_ENCODINGS,
+      JP_ENCODINGS,
+      CN_ENCODINGS,
+      TW_ENCODINGS,
+      HK_ENCODINGS, 0 };
+static const char * const hanhk_encodings[] =
+    { HK_ENCODINGS,
+      TW_ENCODINGS,
+      CN_ENCODINGS,
+      JP_ENCODINGS,
+      KR_ENCODINGS, 0 };
 static const char * const hantw_encodings[] =
-    { "big5-0", "gb2312.1980-0", "jisx0208.1983-0", "ksc5601.1987-0", "big5hkscs-0", "gbk-0", 0 };
+    { TW_ENCODINGS,
+      HK_ENCODINGS,
+      CN_ENCODINGS,
+      JP_ENCODINGS,
+      KR_ENCODINGS, 0 };
 
 static struct
 {
@@ -182,7 +207,7 @@ static struct
     // Lao
     { 0, empty_encodings },
     // Tibetan
-    { 0, empty_encodings },
+    { 0, gb18030_encodings },
     // Myanmar
     { 0, empty_encodings },
     // Khmer
@@ -199,7 +224,7 @@ static struct
     // Bopomofo
     { 0, bopomofo_encodings },
     // Yi
-    { 0, empty_encodings },
+    { 0, gb18030_encodings },
 
     // Ethiopic
     { 0, empty_encodings },
@@ -208,7 +233,7 @@ static struct
     // CanadianAboriginal
     { 0, empty_encodings },
     // Mongolian
-    { 0, empty_encodings },
+    { 0, gb18030_encodings },
     // CurrencySymbols
     { 0, empty_encodings },
     // LetterlikeSymbols
@@ -249,7 +274,9 @@ static struct
     // LatinExtendedA_14
     { 0, latinA14_encodings },
     // LatinExtendedA_15
-    { 0, latinA15_encodings }
+    { 0, latinA15_encodings },
+    // KatakanaHalfWidth
+    { 0, jisx0201_encodings }
 };
 
 
@@ -2847,6 +2874,7 @@ void QFont::initialize()
 #ifndef QT_NO_BIG_CODECS
     static bool codecs_once = FALSE;
     if ( ! codecs_once ) {
+	(void) new QFontJis0201Codec;
 	(void) new QFontJis0208Codec;
 	(void) new QFontKsc5601Codec;
 	(void) new QFontGb2312Codec;
@@ -2880,15 +2908,9 @@ void QFont::initialize()
 	case 57: // gb2312.1980-0
 	case 113: // GBK
 	case -113: // gbk-0
-	    script_table[QFont::Han].list = hancn_encodings;
-	    break;
-
 	case 114: // GB18030
 	case -114: // gb18030-0
-	    script_table[QFont::Han].list = hancngb18030_encodings;
-	    script_table[QFont::Mongolian].list = hancngb18030_encodings;
-	    script_table[QFont::Tibetan].list = hancngb18030_encodings;
-	    script_table[QFont::Yi].list = hancngb18030_encodings;
+	    script_table[QFont::Han].list = hancn_encodings;
 	    break;
 
 	case 2026: // Big5

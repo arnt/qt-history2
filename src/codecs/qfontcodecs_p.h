@@ -63,6 +63,30 @@
 class QJpUnicodeConv;
 
 
+class QFontJis0201Codec : public QTextCodec
+{
+public:
+    QFontJis0201Codec();
+
+    const char *name() const;
+
+    int mibEnum() const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+    int heuristicNameMatch(const char* hint) const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
+    bool canEncode( QChar ) const;
+};
+
+
 class QFontJis0208Codec : public QTextCodec
 {
 public:
@@ -88,6 +112,8 @@ public:
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
     int heuristicContentMatch(const char *, int) const;
+    int heuristicNameMatch(const char* hint) const;
+
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif

@@ -42,11 +42,77 @@
 #include "qjpunicode.h"
 
 
+// JIS X 0201
+
+QFontJis0201Codec::QFontJis0201Codec()
+{
+}
+
+const char *QFontJis0201Codec::name() const
+{
+    return "jisx0201*-0";
+}
+
+int QFontJis0201Codec::mibEnum() const
+{
+    return 15;
+}
+
+
+
+QCString QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString rstring( lenInOut+1 );
+    uchar *rdata = (uchar *) rstring.data();
+    const QChar *sdata = uc.unicode();
+    int i = 0;
+    for ( ; i < lenInOut; ++i, ++sdata, ++rdata ) {
+	if ( sdata->unicode() < 0x80 ) {
+	    *rdata = (uchar) sdata->unicode();
+	} else if ( sdata->unicode() >= 0xff61 && sdata->unicode() <= 0xff9f ) {
+	    *rdata = (uchar) (sdata->unicode() - 0xff61 + 0xa1);
+	} else {
+	    *rdata = '?';
+	}
+    }
+    *rdata = 0u;
+    return rstring;
+}
+
+int QFontJis0201Codec::heuristicNameMatch(const char* hint) const
+{
+    if ( qstrncmp( hint, "jisx0201", 8 ) == 0 )
+	return 20;
+    return -1;
+
+}
+
+bool QFontJis0201Codec::canEncode( QChar ch ) const
+{
+    return ( ch.unicode() < 0x80 || ( ch.unicode() >= 0xff61 &&
+				      ch.unicode() <= 0xff9f ) );
+}
+
+int QFontJis0201Codec::heuristicContentMatch(const char *, int) const
+{
+    return 0;
+}
+
+
+// JIS X 0208
+
 int QFontJis0208Codec::heuristicContentMatch(const char *, int) const
 {
     return 0;
 }
 
+
+int QFontJis0208Codec::heuristicNameMatch(const char *hint) const
+{
+    if ( qstrncmp( hint, "jisx0208.", 9 ) == 0 )
+	return 20;
+    return -1;
+}
 
 QFontJis0208Codec::QFontJis0208Codec()
 {
@@ -63,7 +129,7 @@ QFontJis0208Codec::~QFontJis0208Codec()
 
 const char* QFontJis0208Codec::name() const
 {
-    return "jisx0208.1983-0";
+    return "jisx0208*-0";
 }
 
 
@@ -109,6 +175,8 @@ bool QFontJis0208Codec::canEncode( QChar ch ) const
 {
     return ( convJP->unicodeToJisx0208(ch.unicode()) != 0 );
 }
+
+
 
 
 #endif // QT_NO_BIG_CODECS

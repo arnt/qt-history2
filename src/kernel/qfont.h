@@ -253,6 +253,7 @@ public:
 	LatinExtendedA_4,               // from ISO-8859-4
 	LatinExtendedA_14,              // from ISO-8859-14
 	LatinExtendedA_15,              // from ISO-8859-15
+	KatakanaHalfWidth,		// from JIS X 0201
 
 	LastPrivateScript
     };

@@ -2783,7 +2783,7 @@ static const unsigned char extendedLatinTable[128] = {
     QFont::Latin
 };
 
-static const unsigned char otherScripts [112] = {
+static const unsigned char otherScripts [116] = {
 #define SCRIPTS_02 0
     0xaf, QFont::Latin, 0xff, QFont::SpacingModifiers, 			// row 0x02, index 0
 #define SCRIPTS_03 4
@@ -2830,7 +2830,8 @@ static const unsigned char otherScripts [112] = {
     0x1f, QFont::Unicode, 0x2f, QFont::CombiningMarks, 0x6f, QFont::Unicode,
     0xff, QFont::Arabic,						// row 0xfe, index 98
 #define SCRIPTS_ff 108
-    0xef, QFont::Hiragana, 0xff, QFont::Unicode,			// row 0xff, index 106
+    0x5e, QFont::Katakana, 0x60, QFont::Unicode,
+    0x9f, QFont::KatakanaHalfWidth, 0xff, QFont::Unicode		// row 0xff, index 106
 };
 
 // (uc-0x0900)>>7
