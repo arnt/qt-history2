@@ -33,7 +33,10 @@
 #include "qimage.h"
 #include "qwidget.h"
 #include "qptrdict.h" //binary compatibility
+
+
 #include <limits.h>
+
 
 class QStylePrivate
 {
@@ -767,7 +770,7 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
 */
 QSize QStyle::scrollBarExtent()
 {
-    return d(this)->sbextent;
+    return d(this)->sbextent.expandedTo( QApplication::globalStrut() );
 }
 
 /*!
@@ -902,7 +905,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 //### TODO: pick up desktop settings on Windows
 void QStyle::setScrollBarExtent( int width, int height )
 {
-    d(this)->sbextent = QSize( width, height );
+    d(this)->sbextent = QSize( width, height ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -955,3 +958,17 @@ int QStyle::menuButtonIndicatorWidth( int h )
 {
     return QMAX( 12, (h-4)/3 );
 }
+
+/*! \fn void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled );
+
+  Draws the menu item \a mi using the painter \a p and the ButtonText
+  color of \g. The painter is preset to the right font. \a x, \a y, 
+  \a w and \a h determine the geometry of the entire item.
+
+  In a future version of the Qt library, this function will become
+  and subclasses will be able to reimplement drawMenuBarItem()
+
+  \sa drawPopupMenuItem()
+*/

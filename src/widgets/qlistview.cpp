@@ -900,6 +900,7 @@ void QListViewItem::setup()
 	    ph = QMAX( ph, pixmap( i )->height() );
     }
     int h = QMAX( v->d->fontMetricsHeight, ph ) + 2*v->itemMargin();
+    h = QMAX( h, QApplication::globalStrut().height());
     if ( h % 2 > 0 )
 	h++;
     setHeight( h );
@@ -1364,7 +1365,7 @@ int QListViewItem::width( const QFontMetrics& fm,
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
-    return w;
+    return QMAX( w, QApplication::globalStrut().width() );
 }
 
 
@@ -3991,14 +3992,13 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i && firstChild() && firstChild() &&
-	 ( firstChild()->firstChild() || firstChild()->nextSibling() ) )
+    if ( !i || d->focusItem == i )
 	return;
 
     QListViewItem * prev = d->focusItem;
     d->focusItem = i;
 
-    if ( i != prev ) {
+    if ( i != prev) {
 	if ( i && d->selectionMode == Single ) {
 	    bool changed = FALSE;
 	    if ( prev && prev->selected ) {
@@ -4571,6 +4571,7 @@ void QCheckListItem::setup()
     QListViewItem::setup();
     int h = height();
     h = QMAX( BoxSize, h );
+    h = QMAX( h, QApplication::globalStrut().height() );
     setHeight( h );
 }
 
@@ -4589,7 +4590,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
 	    r += BoxSize + 4;
 	}
     }
-    return r;
+    return QMAX( r, QApplication::globalStrut().width() );
 }
 
 /*!

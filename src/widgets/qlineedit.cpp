@@ -1358,9 +1358,9 @@ QSize QLineEdit::sizeHint() const
 	h += 8;
 	if ( style() == WindowsStyle && h < 26 )
 	    h = 22;
-	return QSize( w + 8, h );
+	return QSize( w + 8, h ).expandedTo( QApplication::globalStrut() );
     } else {
-	return QSize( w + 4, h + 4 );
+	return QSize( w + 4, h + 4 ).expandedTo( QApplication::globalStrut() );
     }
 }
 

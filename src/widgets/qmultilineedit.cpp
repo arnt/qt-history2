@@ -2865,7 +2865,7 @@ QSize QMultiLineEdit::sizeHint() const
     if ( maxh < QWIDGETSIZE_MAX )
 	h = maxh;
 
-    return QSize( w, h );
+    return QSize( w, h ).expandedTo( QApplication::globalStrut() );
 }
 
 

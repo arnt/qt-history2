@@ -977,10 +977,13 @@ int QPopupMenu::itemHeight( int row ) const
 int QPopupMenu::itemHeight( QMenuItem *mi ) const
 {
     if  ( mi->widget() )
-	return mi->widget()->height();
+	return QMAX( mi->widget()->height(), QApplication::globalStrut().height() );
     if ( mi->custom() && mi->custom()->fullSpan() )
-	return mi->custom()->sizeHint().height();
-    return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
+	return QMAX( mi->custom()->sizeHint().height(), QApplication::globalStrut().height() );
+    if ( mi->isSeparator() )
+	return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
+
+    return QMAX( style().popupMenuItemHeight( checkable, mi, fontMetrics() ), QApplication::globalStrut().height() );
 }
 
 
@@ -1661,7 +1664,7 @@ QSize QPopupMenu::sizeHint() const
 	QPopupMenu* that = (QPopupMenu*) this;
 	that->updateSize();
     }
-    return size();
+    return size().expandedTo( QApplication::globalStrut() );
 }
 
 

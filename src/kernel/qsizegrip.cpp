@@ -122,7 +122,7 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    return QSize( 13, 13 );
+    return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
 }
 
 /*!

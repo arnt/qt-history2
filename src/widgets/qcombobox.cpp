@@ -942,7 +942,7 @@ QSize QComboBox::sizeHint() const
 	sh = 5 + 5 + maxH;
     }
 
-    return QSize( sw, sh );
+    return QSize( sw, sh ).expandedTo( QApplication::globalStrut() );
 }
 
 

@@ -317,7 +317,7 @@ QSize QToolButton::sizeHint() const
 	if ( tw > w )
 	    w = tw;
     }
-    return QSize( w + 7, h + 6 );
+    return QSize( w + 7, h + 6 ).expandedTo( QApplication::globalStrut() );
 }
 
 

@@ -29,7 +29,7 @@
 #include "qdrawutil.h"
 #include "qtimer.h"
 #include "qbitmap.h"
-
+#include "qapplication.h"
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;
@@ -856,9 +856,9 @@ QSize QSlider::sizeHint() const
     if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
 	thick += style().sliderLength() / 4;	    // pointed slider
     if ( orient == Horizontal )
-	return QSize( length, thick );
+	return QSize( length, thick ).expandedTo( QApplication::globalStrut() );
     else
-	return QSize( thick, length );
+	return QSize( thick, length ).expandedTo( QApplication::globalStrut() );
 }
 
 

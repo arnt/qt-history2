@@ -1317,7 +1317,7 @@ int QIconViewItem::y() const
 
 int QIconViewItem::width() const
 {
-    return itemRect.width();
+    return QMAX( itemRect.width(), QApplication::globalStrut().width() );
 }
 
 /*!
@@ -1326,7 +1326,7 @@ int QIconViewItem::width() const
 
 int QIconViewItem::height() const
 {
-    return itemRect.height();
+    return QMAX( itemRect.height(), QApplication::globalStrut().height() );
 }
 
 /*!
@@ -2636,7 +2636,7 @@ QIconViewItem *QIconView::currentItem() const
 
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
-    if ( item == d->currentItem || ( !item && d->firstItem && d->firstItem->next ) )
+    if ( !item || item == d->currentItem )
 	return;
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;

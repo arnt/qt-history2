@@ -135,11 +135,6 @@ QSGIStyle::polish( QApplication* app)
 
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
     QApplication::setPalette( pal, TRUE, "QMultiLineEdit" );
-
-    pal = QApplication::palette();
-    pal.setColor( QColorGroup::Button, pal.active().background() );
-    QApplication::setPalette( pal, TRUE, "QToolBar" );
-    QApplication::setPalette( pal, TRUE, "QMenuBar" );
 }
 
 /*!
@@ -158,8 +153,11 @@ QSGIStyle::polish( QWidget* w )
 	    w->setBackgroundMode( QWidget::NoBackground );
     } else if ( w->inherits("QMenuBar") ) {
 	((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+	w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QPopupMenu") ) {
         ((QFrame*) w)->setLineWidth( defaultFrameWidth() + 1 );
+    } else if ( w->inherits("QToolBar") ) {
+	w->setBackgroundMode( QWidget::PaletteBackground );
     }
 }
 
@@ -944,7 +942,7 @@ QSGIStyle::drawTabMask( QPainter *p, const QTabBar *tb, QTab* t, bool selected )
 int
 QSGIStyle::splitterWidth() const
 {
-    return 10;
+    return QMAX( 10, QApplication::globalStrut().width() );
 }
 
 /*! \reimp
@@ -1013,6 +1011,33 @@ QSGIStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
     if (lineWidth == 3)
         drawBevelButton( p, x, y,  w, h, g, FALSE, fill );
     else QMotifStyle::drawPopupPanel( p, x, y, w, h, g, lineWidth, fill );
+}
+
+
+static void drawSGIPrefix( QPainter *p, int x, int y, int w, int h, QString* miText )
+{
+    if ( miText && (!!(*miText)) ) {
+	int amp = 0;
+	bool nextAmp = FALSE;
+	do {
+	    amp = miText->find( '&', amp );	 // remove ampersand from text
+	    if ( amp != -1 ) {
+		miText->remove( amp,1 );
+		nextAmp = (*miText)[amp] == '&';	// next time if &&
+		
+		if ((*miText)[amp] != '&') {     // draw special underlining
+		    uint ulx = p->fontMetrics().width(*miText, amp);
+		
+		    uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
+
+		    p->drawLine( x+ulx, y+h-4, x+ulx+ulw, y+h-4 );
+		    p->drawLine( x+ulx, y+h-3, x+ulx+ulw/2, y+h-3 );
+		    p->drawLine( x+ulx, y+h-2, x+ulx+ulw/4, y+h-2 );
+		}
+	    }
+	    amp++;
+	} while ( nextAmp );
+    }
 }
 
 /*! \reimp
@@ -1121,28 +1146,8 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 	    miText = s.mid( 0, t );
 	}
 
-	int amp = 0;
-	bool nextAmp = FALSE;
-	do {
-	    amp = miText.find( '&', amp );	 // remove ampersand from text
-	    if ( amp != -1 ) {
-		miText.remove( amp,1 );
-		nextAmp = miText[amp] == '&';	// next time if &&
-		t--;
-		
-		if (miText[amp] != '&') {     // draw special underlining
-		    uint ulx = p->fontMetrics().width(miText, amp);
-		
-		    uint ulw = p->fontMetrics().width(miText, amp+1) - ulx;
-
-		    p->drawLine( x+xm+ulx, y+h-m-4, x+xm+ulx+ulw, y+h-m-4 );
-		    p->drawLine( x+xm+ulx, y+h-m-3, x+xm+ulx+ulw/2, y+h-m-3 );
-		    p->drawLine( x+xm+ulx, y+h-m-2, x+xm+ulx+ulw/4, y+h-m-2 );
-		}
-	    }
-	    amp++;
-	} while ( nextAmp );
-	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, miText, t );
+	drawSGIPrefix( p, x+xm, y, w, mi->iconSet() ? h-m : h-m+2, &miText );
+	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, miText, miText.length() );
     } else {
 	if ( mi->pixmap() ) {
 	    QPixmap *pixmap = mi->pixmap();
@@ -1157,6 +1162,24 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 	int dim = (h-2*sgiItemFrame) / 2;
 	drawArrow( p, RightArrow, FALSE, x+w-sgiArrowHMargin-sgiItemFrame-dim,
 		   y+h/2-dim/2, dim, dim, g, TRUE );
+    }
+}
+
+/*!
+    \reimp
+*/
+void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h, 
+				QMenuItem* mi, QColorGroup& g, bool enabled )
+{
+    if ( mi->pixmap() )
+	drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine, 
+		g, enabled, mi->pixmap(), "", -1, &g.buttonText() );
+
+    if ( !!mi->text() ) {
+	QString* text = new QString(mi->text());
+	drawSGIPrefix( p, x, y, w, h, text );
+	p->drawText( x, y, w+1, h, AlignVCenter|DontClip|SingleLine, *text, text->length() );
+	delete text;
     }
 }
 

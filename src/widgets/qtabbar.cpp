@@ -26,6 +26,7 @@
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
+#include "qapplication.h"
 
 #include <ctype.h>
 
@@ -332,9 +333,9 @@ QSize QTabBar::sizeHint() const
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	return r.size();
+	return r.size().expandedTo( QApplication::globalStrut() );
     } else {
-	return QSize( 0, 0 );
+	return QSize( 0, 0 ).expandedTo( QApplication::globalStrut() );
     }
 }
 
@@ -778,9 +779,11 @@ void QTabBar::layoutTabs()
 	    ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	}
 	int h = QMAX( fm.height(), ih );
+	h = QMAX( h, QApplication::globalStrut().height() );
 
 	h += vframe;
-	t->r.setRect( x, 0, lw + hframe + iw, h );
+	t->r.setRect( x, 0, QMAX( lw + hframe + iw, 
+		    QApplication::globalStrut().width() ), h );
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
     }

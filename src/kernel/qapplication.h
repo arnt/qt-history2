@@ -160,6 +160,9 @@ public:
     static void      setWheelScrollLines( int );
     static int       wheelScrollLines();
 
+    static void	     setGlobalStrut( const QSize & );
+    static QSize     globalStrut();
+
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
@@ -242,6 +245,7 @@ private:
     QSessionManager *session_manager;
     QString	     session_id;
     bool	     is_session_restored;
+    static QSize     app_strut;
 
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
@@ -327,6 +331,11 @@ inline bool QApplication::isSessionRestored() const
 inline QString QApplication::sessionId() const
 {
     return session_id;
+}
+
+inline QSize QApplication::globalStrut()
+{
+    return app_strut;
 }
 
 #if defined(QT_BASEAPP)

@@ -410,7 +410,7 @@ QSize QPushButton::sizeHint() const
     }
 #endif
 
-    return QSize( w, h );
+    return QSize( w, h ).expandedTo( QApplication::globalStrut() );
 }
 
 

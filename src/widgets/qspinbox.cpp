@@ -33,7 +33,7 @@
 #include "qlineedit.h"
 #include "qvalidator.h"
 #include "qpixmapcache.h"
-
+#include "qapplication.h"
 
 struct QSpinBoxPrivate
 {
@@ -427,7 +427,7 @@ QSize QSpinBox::sizeHint() const
 	     + 4 // top/bottom margins
 	     + h // font height
 	     );
-    return r;
+    return r.expandedTo( QApplication::globalStrut() );
 }
 
 

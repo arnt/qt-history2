@@ -651,20 +651,21 @@ int QMenuBar::calculateRects( int max_width )
 	    if ( mi->widget()->parentWidget() != this ) {
 		mi->widget()->reparent( this, QPoint(0,0), TRUE );
 	    }
-	    w = mi->widget()->sizeHint().width()+2;
-	    h = mi->widget()->sizeHint().height()+2;
+	    w = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).width()+2;
+	    h = mi->widget()->sizeHint().expandedTo( QApplication::globalStrut() ).height()+2;
 	    if ( separator < 0 )
 		separator = i;
 	} else if ( mi->pixmap() ) {			// pixmap item
-	    w = mi->pixmap()->width() + 4;
-	    h = mi->pixmap()->height() + 4;
+	    w = QMAX( mi->pixmap()->width() + 4, QApplication::globalStrut().width() );
+	    h = QMAX( mi->pixmap()->height() + 4, QApplication::globalStrut().height() );
 	} else if ( !mi->text().isNull() ) {	// text item
 	    QString s = mi->text();
 	    w = fm.boundingRect( s ).width()
 		+ 2*motifItemHMargin;
 	    w -= s.contains('&')*fm.width('&');
 	    w += s.contains("&&")*fm.width('&');
-	    h = fm.height() + motifItemVMargin;
+	    w = QMAX( w, QApplication::globalStrut().width() );
+	    h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
 	} else if ( mi->isSeparator() ) {	// separator item
 	    if ( style() == MotifStyle )
 		separator = i; //### only motif?
@@ -843,10 +844,8 @@ void QMenuBar::drawContents( QPainter *p )
 		    p->fillRect(r, palette().normal().brush( QColorGroup::Button ));
 	    }
 	    QColor btext = g.buttonText();
-	    style().drawItem( p, r.left(), r.top(), r.width(), r.height(),
-			      AlignCenter|ShowPrefix|DontClip|SingleLine,
-			      g, e, mi->pixmap(), mi->text(), -1, &btext );
-
+	    style().drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
+			    mi, g, e );
 	}
     }
     if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
@@ -1210,7 +1209,7 @@ QSize QMenuBar::sizeHint() const
 	    s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
     s.setHeight( height() );
-    return s;
+    return s.expandedTo( QApplication::globalStrut() );
 }
 
 /*!

@@ -85,7 +85,7 @@ QSizePolicy QSplitterHandle::sizePolicy() const
 QSize QSplitterHandle::sizeHint() const
 {
     int sw = style().splitterWidth();
-    return QSize(sw,sw);
+    return QSize(sw,sw).expandedTo( QApplication::globalStrut() );
 }
 
 void QSplitterHandle::setOrientation( Qt::Orientation o )

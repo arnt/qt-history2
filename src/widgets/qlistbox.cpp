@@ -223,7 +223,7 @@ void QListBoxItem::setCustomHighlighting( bool b )
 */
 int QListBoxItem::width(const QListBox*)  const
 {
-    return 0;
+    return QApplication::globalStrut().width();
 }
 
 /*!
@@ -237,7 +237,7 @@ int QListBoxItem::width(const QListBox*)  const
 */
 int QListBoxItem::height(const QListBox*)  const
 {
-    return 0;
+    return QApplication::globalStrut().height();
 }
 
 
@@ -370,7 +370,8 @@ void QListBoxText::paint( QPainter *painter )
 
 int QListBoxText::height( const QListBox* lb ) const
 {
-    return lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
+    int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
+    return QMAX( h, QApplication::globalStrut().height() );
 }
 
 /*!
@@ -381,7 +382,8 @@ int QListBoxText::height( const QListBox* lb ) const
 
 int QListBoxText::width( const QListBox* lb ) const
 {
-    return lb ? lb->fontMetrics().width( text() ) + 6 : 0;
+    int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
+    return QMAX( w, QApplication::globalStrut().width() );
 }
 
 
@@ -503,10 +505,12 @@ void QListBoxPixmap::paint( QPainter *painter )
 
 int QListBoxPixmap::height( const QListBox* lb ) const
 {
+    int h;
     if ( text().isEmpty() )
-	return pm.height();
+	h = pm.height();
     else
-	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+	h = QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+    return QMAX( h, QApplication::globalStrut().height() );
 }
 
 /*!
@@ -517,10 +521,10 @@ int QListBoxPixmap::height( const QListBox* lb ) const
 
 int QListBoxPixmap::width( const QListBox* lb ) const
 {
-
     if ( text().isEmpty() )
-	return pm.width() + 6;
-    return pm.width() + lb->fontMetrics().width( text() ) + 6;
+	return QMAX( pm.width() + 6, QApplication::globalStrut().width() );
+    return QMAX( pm.width() + lb->fontMetrics().width( text() ) + 6,
+	    QApplication::globalStrut().width() );
 }
 
 
@@ -1470,7 +1474,7 @@ void QListBox::setCurrentItem( int index )
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
-    if ( d->current == i || ( !i && d->head && d->head->n ) )
+    if ( !i || d->current == i )
 	return;
     QListBoxItem * o = d->current;
     d->current = i;

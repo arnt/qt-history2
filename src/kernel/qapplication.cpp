@@ -264,6 +264,7 @@ int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
 static int drag_time = 500;
 static int drag_distance = 4;
+QSize     QApplication::app_strut      = QSize( 0,0 ); // no default application strut
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
@@ -996,6 +997,33 @@ void QApplication::setColorSpec( int spec )
     app_cspec = spec;
 }
 
+/*!
+  \fn QSize QApplication::globalStrut()
+  Returns the global strut of the application.
+  \sa setGlobalStrut()
+*/
+
+/*!
+  Sets the application strut to \a strut. No GUI-element that
+  can be interacted with should be smaller than the provided
+  size. This should be considered when reimplementing items
+  that may be used on touch-screens or with similar IO-devices.
+  
+  Example:
+  \code
+  QSize& WidgetClass::sizeHint() const
+  {
+      return QSize( 80, 25 ).expandedTo( QApplication::globalStrut() );
+  }
+  \endcode
+
+  \sa golbalStrut()
+*/
+
+void QApplication::setGlobalStrut( const QSize& strut )
+{
+    app_strut = strut;
+}
 
 /*!
   Returns a pointer to the default application palette. There is

@@ -31,6 +31,7 @@
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 #include "qtextstream.h"
+#include "qapplication.h"
 
 // NOT REVISED
 /*!
@@ -175,7 +176,7 @@ QSize QCheckBox::sizeHint() const
 
     return sz + QSize( bmsz.width() + (style()==MotifStyle ? 1 : 0)
 			+ (text().isEmpty() ? 0 : 4 + extraWidth(gs)),
-			4 );
+			4 ).expandedTo( QApplication::globalStrut() );
 }
 
 
