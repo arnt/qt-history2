@@ -766,13 +766,14 @@ QString QSqlTableModel::selectStatement() const
 /*!
     Removes the given \a column from the \a parent model.
 
-    \sa removeRows() TODO
+    \sa removeRows()
 */
-bool QSqlTableModel::removeColumn(int column, const QModelIndex &parent)
+bool QSqlTableModel::removeColumns(int column, const QModelIndex &parent, int count)
 {
-    if (parent.isValid() || column < 0 || column >= d->rec.count())
+    if (parent.isValid() || column < 0 || column + count > d->rec.count())
         return false;
-    d->rec.remove(column);
+    for (int i = 0; i < count; ++i)
+        d->rec.remove(column + i);
     if (d->query.isActive())
         return select();
     return true;

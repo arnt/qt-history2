@@ -71,7 +71,7 @@ public:
     virtual void setFilter(const QString &filter);
 
     int rowCount() const;
-    bool removeColumn(int column, const QModelIndex &parent = QModelIndex::Null);
+    bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
