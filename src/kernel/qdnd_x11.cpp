@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#63 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -681,6 +681,7 @@ void QDragManager::cancel()
 	restoreCursor = FALSE;
     }
 
+    delete qt_xdnd_source_object;
     qt_xdnd_source_object = 0;
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
@@ -877,6 +878,7 @@ bool qt_xdnd_handle_badwindow()
 {
     if ( qt_xdnd_source_object && qt_xdnd_current_target ) {
 	qt_xdnd_current_target = 0;
+	delete qt_xdnd_source_object;
 	qt_xdnd_source_object = 0;
 	delete qt_xdnd_deco;
 	qt_xdnd_deco = 0;
@@ -1139,9 +1141,10 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
-    qt_xdnd_source_object = 0;
 
     return drag_mode_chosen == QDragObject::DragMove;
+
+    // qt_xdnd_source_object persists for a while...
 }
 
 void QDragManager::updatePixmap()
