@@ -184,6 +184,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     layoutToolBar = new QToolBar( this, "Layout" );
     layoutToolBar->setCloseMode( QDockWindow::Undocked );
     addToolBar( layoutToolBar, tr( "Layout" ) );
+    interpreterPluginManager = 0;
     setupToolActions();
     setupLayoutActions();
     setupPreviewActions();
