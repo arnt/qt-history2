@@ -1532,6 +1532,10 @@ QString MakefileGenerator::buildArgs()
     if(!Option::mkfile::qmakespec_commandline.isEmpty())
         ret += " -spec " + Option::mkfile::qmakespec_commandline;
 
+    //configs
+    for(QStringList::Iterator it = Option::user_configs.begin();
+        it != Option::user_configs.end(); ++it) 
+        ret += " -config " + (*it);
     //arguments
     for(QStringList::Iterator it = Option::before_user_vars.begin();
         it != Option::before_user_vars.end(); ++it) {
