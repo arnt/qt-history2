@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#25 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#26 $
 **
-** Implementation of the QSVGDevice class
+** Implementation of the QSvgDevice class
 **
 ** Created : 20001024
 **
@@ -54,17 +54,17 @@
 const double deg2rad = 0.017453292519943295769;	// pi/180
 const char piData[] = "version=\"1.0\" standalone=\"yes\"";
 
-class QSVGDevicePrivate {
+class QSvgDevicePrivate {
 };
 
-typedef QMap<QString,QSVGDevice::ElementType> QSvgTypeMap;
+typedef QMap<QString,QSvgDevice::ElementType> QSvgTypeMap;
 static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
-  \class QSVGDevice qsvgdevice.h
+  \class QSvgDevice qsvgdevice.h
 
-  \brief The QSVGDevice provides a paint device for SVG vector graphics.
+  \brief The QSvgDevice provides a paint device for SVG vector graphics.
 
   \module XML
 
@@ -72,21 +72,21 @@ static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 */
 
 /*!
-  Creates a QSVGDevice object.
+  Creates a QSvgDevice object.
  */
 
-QSVGDevice::QSVGDevice()
+QSvgDevice::QSvgDevice()
     : QPaintDevice( QInternal::ExternalDevice ),
       pt( 0 )
 {
-    d = new QSVGDevicePrivate;
+    d = new QSvgDevicePrivate;
 }
 
 /*!
   Destructor.
 */
 
-QSVGDevice::~QSVGDevice()
+QSvgDevice::~QSvgDevice()
 {
     delete qSvgTypeMap; qSvgTypeMap = 0;	// static
     delete qSvgColMap; qSvgColMap = 0;
@@ -98,11 +98,11 @@ QSVGDevice::~QSVGDevice()
   FALSE if errors were encountered.
  */
 
-bool QSVGDevice::load( const QString &file )
+bool QSvgDevice::load( const QString &file )
 {
     QFile f( file );
     if ( !f.open( IO_ReadOnly ) ) {
-	qWarning( "QSVGDevice::load: Could not open input file" );
+	qWarning( "QSvgDevice::load: Could not open input file" );
 	return FALSE;
     }
     return doc.setContent( &f );
@@ -113,7 +113,7 @@ bool QSVGDevice::load( const QString &file )
   FALSE if the document format is not valid.
  */
 
-bool QSVGDevice::play( QPainter *painter )
+bool QSvgDevice::play( QPainter *painter )
 {
     if ( !painter ) {
 #if defined(QT_CHECK_RANGE)
@@ -122,13 +122,13 @@ bool QSVGDevice::play( QPainter *painter )
 	return FALSE;
     }
     if ( doc.isNull() ) {
-	qWarning( "QSVGDevice::play: No SVG data set." );
+	qWarning( "QSvgDevice::play: No SVG data set." );
 	return FALSE;
     }
 
     QDomNode svg = doc.namedItem( "svg" );
     if ( svg.isNull() || !svg.isElement() ) {
-	qWarning( "QSVGDevice::play: Couldn't find any svg element." );
+	qWarning( "QSvgDevice::play: Couldn't find any svg element." );
 	return FALSE;
     }
 
@@ -171,7 +171,7 @@ bool QSVGDevice::play( QPainter *painter )
     return play( svg );
 }
 
-QString QSVGDevice::toString() const
+QString QSvgDevice::toString() const
 {
     if ( doc.isNull() )
 	return QString();
@@ -179,7 +179,7 @@ QString QSVGDevice::toString() const
     return doc.toString();
 }
 
-bool QSVGDevice::save( const QString &file )
+bool QSvgDevice::save( const QString &file )
 {
     QFile f( file );
     if ( !f.open ( IO_WriteOnly ) )
@@ -191,7 +191,7 @@ bool QSVGDevice::save( const QString &file )
     return TRUE;
 }
 
-/*!  \fn QRect QSVGDevice::boundingRect() const
+/*!  \fn QRect QSvgDevice::boundingRect() const
   Returns the bounding rectangle of the vector graphic.
  */
 
@@ -200,11 +200,11 @@ bool QSVGDevice::save( const QString &file )
 
   Use the QPaintDeviceMetrics class instead.
 
-  A QSVGDevice has the following hard coded values:
+  A QSvgDevice has the following hard coded values:
   dpi = 72, numcolors=16777216 and depth=24.
 */
 
-int QSVGDevice::metric( int m ) const
+int QSvgDevice::metric( int m ) const
 {
     int val;
     switch ( m ) {
@@ -235,7 +235,7 @@ int QSVGDevice::metric( int m ) const
     default:
 	val = 0;
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QSVGDevice::metric: Invalid metric command" );
+	qWarning( "QSvgDevice::metric: Invalid metric command" );
 #endif
     }
     return val;
@@ -246,7 +246,7 @@ int QSVGDevice::metric( int m ) const
   Records painter commands and stores them in the QDomDocument doc.
  */
 
-bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
+bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 {
     pt = painter;
 
@@ -483,7 +483,7 @@ bool QSVGDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
   Evaluate \a node, drawing on \a p. Allows recursive calls.
 */
 
-bool QSVGDevice::play( const QDomNode &node )
+bool QSvgDevice::play( const QDomNode &node )
 {
     QDomNode child = node.firstChild();
 
@@ -586,7 +586,7 @@ bool QSVGDevice::play( const QDomNode &node )
 	    break;
 	case ImageElement:
 	case InvalidElement:
-	    qWarning( "QSVGDevice::play: unknown element type " +
+	    qWarning( "QSvgDevice::play: unknown element type " +
 		      child.nodeName() );
 	    break;
 	};
@@ -606,7 +606,7 @@ bool QSVGDevice::play( const QDomNode &node )
   RGB specification like #ff00ff or rgb(255,0,50%).
  */
 
-QColor QSVGDevice::parseColor( const QString &col )
+QColor QSvgDevice::parseColor( const QString &col )
 {
     static const struct ColorTable {
 	const char *name;
@@ -669,11 +669,11 @@ QColor QSVGDevice::parseColor( const QString &col )
   unit specifier. Can be used for type <coordinate> as well.
 */
 
-double QSVGDevice::parseLen( const QString &str, bool *ok ) const
+double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 {
     QRegExp reg( "([+-]*\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|pt|pc|cm|mm|)" );
     if ( reg.search( str ) == -1 ) {
-	qWarning( "QSVGDevice::parseLen: couldn't parse " + str );
+	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
 	if ( ok )
 	    *ok = FALSE;
 	return 0.0;
@@ -692,7 +692,7 @@ double QSVGDevice::parseLen( const QString &str, bool *ok ) const
   specified attribute doesn't exist or can't be parsed \a def is returned.
 */
 
-int QSVGDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
+int QSvgDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 			  int def ) const
 {
     if ( map.contains( attr ) ) {
@@ -704,7 +704,7 @@ int QSVGDevice::lenToInt( const QDomNamedNodeMap &map, const QString &attr,
     return def;
 }
 
-void QSVGDevice::setStyle( const QString &s )
+void QSvgDevice::setStyle( const QString &s )
 {
     QStringList rules = QStringList::split( QRegExp( ";" ), s );
 
@@ -761,7 +761,7 @@ void QSVGDevice::setStyle( const QString &s )
     pt->setFont( font );
 }
 
-void QSVGDevice::setTransform( const QString &tr )
+void QSvgDevice::setTransform( const QString &tr )
 {
     QString t = tr.simplifyWhiteSpace();
 
@@ -803,7 +803,7 @@ void QSVGDevice::setTransform( const QString &tr )
     }
 }
 
-void QSVGDevice::drawPath( const QString &data )
+void QSvgDevice::drawPath( const QString &data )
 {
     int x0 = 0, y0 = 0;			// starting point
     int x = 0, y = 0;			// current point
@@ -827,7 +827,7 @@ void QSVGDevice::drawPath( const QString &data )
 	QChar chUp = ch.upper();
 	int cmd = commands.find( chUp );
 	if ( cmd == - 1 && !mode ) {
-	    qWarning( "QSVGDevice::drawPath: Unknown command" );
+	    qWarning( "QSvgDevice::drawPath: Unknown command" );
 	    return;
 	}
 	// switch to new command mode
@@ -841,7 +841,7 @@ void QSVGDevice::drawPath( const QString &data )
 	for ( int i = 0; i < numArgs; i++ ) {
 	    int pos = reg.search( data, idx );
 	    if ( pos == -1 ) {
-		qWarning( "QSVGDevice::drawPath: Error parsing arguments" );
+		qWarning( "QSvgDevice::drawPath: Error parsing arguments" );
 		return;
 	    }
 	    arg[ i ] = reg.cap( 1 ).toDouble();
@@ -950,7 +950,7 @@ void QSVGDevice::drawPath( const QString &data )
     }
 }
 
-void QSVGDevice::applyStyle( QDomElement *e, int c ) const
+void QSvgDevice::applyStyle( QDomElement *e, int c ) const
 {
     // ### do not write every attribute each time
     QColor pcol = pt->pen().color();
@@ -975,7 +975,7 @@ void QSVGDevice::applyStyle( QDomElement *e, int c ) const
     e->setAttribute( "style", s );
 }
 
-void QSVGDevice::applyTransform( QDomElement *e ) const
+void QSvgDevice::applyTransform( QDomElement *e ) const
 {
     QWMatrix m = pt->worldMatrix();
 

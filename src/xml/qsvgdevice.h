@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#15 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#16 $
 **
-** Definition of the QSVGDevice class
+** Definition of the QSvgDevice class
 **
 ** Created : 20001024
 **
@@ -57,13 +57,13 @@
 class QPainter;
 class QDomNode;
 class QDomNamedNodeMap;
-class QSVGDevicePrivate;
+class QSvgDevicePrivate;
 
-class Q_EXPORT QSVGDevice : public QPaintDevice
+class Q_EXPORT QSvgDevice : public QPaintDevice
 {
 public:
-    QSVGDevice();
-    ~QSVGDevice();
+    QSvgDevice();
+    ~QSvgDevice();
 
     bool load( const QString& );
     bool play( QPainter *p );
@@ -119,10 +119,10 @@ private:
     QString svgName;			// name of the SVG document
     bool dirtyTransform, dirtyStyle;
 
-    QSVGDevicePrivate *d;
+    QSvgDevicePrivate *d;
 };
 
-inline QRect QSVGDevice::boundingRect() const
+inline QRect QSvgDevice::boundingRect() const
 {
     return brect;
 }
