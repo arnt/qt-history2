@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#69 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#69 $");
 
 
 /*!
@@ -410,27 +410,33 @@ static QCOORD sliderStartPos = 0;
 
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton )
+    if ( !(e->button() == LeftButton ||
+	   (style() == MotifStyle && e->button() == MidButton) ) )
 	return;
     clickedAt	   = TRUE;
     pressedControl = PRIV->pointOver( e->pos() );
-    switch( pressedControl ) {
-	case SLIDER:
-	    clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
-				    - sliderPos );
-	    slidePrevVal   = value();
-	    sliderStartPos = sliderPos;
-	    emit sliderPressed();
-	    break;
-	case NONE:
-	    break;
-	default:
-	    PRIV->drawControls( pressedControl, pressedControl );
-	    PRIV->action( (ScrollControl) pressedControl );
-	    thresholdReached = FALSE;	// wait before starting repeat
-	    startTimer(thresholdTime);
-	    isTiming = TRUE;
-	    break;
+
+    if ( (pressedControl == ADD_PAGE || pressedControl == SUB_PAGE) &&
+	 style() == MotifStyle && e->button() == MidButton ) {
+	int newSliderPos = (HORIZONTAL ? e->pos().x() : 
+			    e->pos().y()) -clickOffset;
+	setValue( PRIV->sliderPosToRangeValue(newSliderPos) );
+	sliderPos = newSliderPos;
+	pressedControl = SLIDER;
+    }
+
+    if ( pressedControl == SLIDER ) {
+	clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
+				- sliderPos );
+	slidePrevVal   = value();
+	sliderStartPos = sliderPos;
+	emit sliderPressed();
+    } else if ( pressedControl != NONE ) {
+	PRIV->drawControls( pressedControl, pressedControl );
+	PRIV->action( (ScrollControl) pressedControl );
+	thresholdReached = FALSE;	// wait before starting repeat
+	startTimer(thresholdTime);
+	isTiming = TRUE;
     }
 }
 
@@ -441,7 +447,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( e->button() != LeftButton || !clickedAt )
+    if ( !clickedAt || !(e->button() == LeftButton ||
+			 (style() == MotifStyle && e->button() == MidButton)) )
 	return;
     ScrollControl tmp = (ScrollControl) pressedControl;
     clickedAt = FALSE;
@@ -477,7 +484,8 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	clickedAt = FALSE;
 	return;
     }
-    if ( !(e->state() & LeftButton) || !clickedAt )
+    if ( !clickedAt || !(e->state() & LeftButton ||
+			 ((e->state() & MidButton) && style() == MotifStyle)) )
 	return;
     int newSliderPos;
     if ( pressedControl == SLIDER ) {
