@@ -2632,7 +2632,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	if (qt_badwindow() )
 	    return 0;
 	w = QWidget::find( (WId)target );
-	if ( FALSE && !w ) {
+#if 0
+	if ( !w ) {
 	    // Perhaps the widgets at (x,y) is inside a foreign application?
 	    // Search all toplevel widgets to see if one is within target
 	    QWidgetList *list   = topLevelWidgets();
@@ -2656,6 +2657,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	    }
 	    delete list;
 	}
+#endif
     }
     if ( child && w ) {
 	if ( (c = w->childAt( w->mapFromGlobal(QPoint(x, y ) ) ) ) )
