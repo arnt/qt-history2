@@ -148,20 +148,20 @@ static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
     t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
     //now the fun part
     MenuCommand ret = 0;
-#define DO_SOMETHING(x) QString(x) //this really will DO_SOMETHING later..
-    if(t.startsWith(DO_SOMETHING("About").toLower())) {
+#define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
+    if(t.startsWith(MENU_TRANSLATE("About").toLower())) {
         if(t.indexOf(QRegExp(QString::fromLatin1("qt$"), false)) == -1)
             ret = kHICommandAbout;
         else
             ret = kHICommandAboutQt;
-    } else if(t.startsWith(DO_SOMETHING("Config").toLower()) || t.startsWith(DO_SOMETHING("Preference").toLower()) ||
-              t.startsWith(DO_SOMETHING("Options").toLower()) || t.startsWith(DO_SOMETHING("Setting").toLower()) ||
-              t.startsWith(DO_SOMETHING("Setup").toLower())) {
+    } else if(t.startsWith(MENU_TRANSLATE("Config").toLower()) || t.startsWith(MENU_TRANSLATE("Preference").toLower()) ||
+              t.startsWith(MENU_TRANSLATE("Options").toLower()) || t.startsWith(MENU_TRANSLATE("Setting").toLower()) ||
+              t.startsWith(MENU_TRANSLATE("Setup").toLower())) {
         ret = kHICommandPreferences;
-    } else if(t.startsWith(DO_SOMETHING("Quit").toLower()) || t.startsWith(DO_SOMETHING("Exit").toLower())) {
+    } else if(t.startsWith(MENU_TRANSLATE("Quit").toLower()) || t.startsWith(MENU_TRANSLATE("Exit").toLower())) {
         ret = kHICommandQuit;
     }
-#undef DO_SOMETHING
+#undef MENU_TRANSLATE
     return ret;
 }
 
