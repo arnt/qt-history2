@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#296 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#297 $
 **
 ** Implementation of QApplication class
 **
@@ -597,12 +597,11 @@ QWidget *QApplication::activeModalWidget()
 {
     if ( !qt_modal_stack )
 	return 0;
-    QWidget* w = qt_modal_stack->getLast();
+    QWidget* w = qt_modal_stack->getFirst();
     if ( w->testWState( WState_Modal ) )
 	return w;
     // find the real one
     QWidgetListIt it( *qt_modal_stack );
-    it.toLast();
     while ( it.current() ) {
 	if ( it.current()->testWState( WState_Modal ) )
 	    return it.current();
