@@ -324,7 +324,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
                 break;
               case JISX0208_1978:
               case JISX0208_1983:
-                if (i < len-1) {
+                if (i < len-1 && chars[i+1] >= 33 && chars[i+1] <= 126 ) {
                     uchar c2 = chars[++i];
                     u = conv->jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
                     result += QValidChar(u);
