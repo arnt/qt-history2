@@ -415,8 +415,10 @@ public:
     const char* ascii() const;
     const char* latin1() const;
     static QString fromLatin1(const char*, int len=-1);
+#ifndef QT_NO_TEXTCODEC
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
+#endif
     QCString local8Bit() const;
     static QString fromLocal8Bit(const char*, int len=-1);
     bool operator!() const;

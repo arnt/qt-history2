@@ -30,6 +30,8 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
+#ifndef QT_NO_TEXTCODEC
+
 class Q_EXPORT QUtf8Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
@@ -53,4 +55,5 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 };
 
-#endif
+#endif //QT_NO_TEXTCODEC
+#endif // QUTFCODEC_H

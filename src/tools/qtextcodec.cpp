@@ -23,8 +23,10 @@
 **
 *****************************************************************************/
 
-#include "qlist.h"
 #include "qtextcodec.h"
+#ifndef QT_NO_TEXTCODEC
+
+#include "qlist.h"
 #ifndef QT_NO_CODECS
 #include "qutfcodec.h"
 #include "qgbkcodec.h"
@@ -1744,5 +1746,6 @@ static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
 }
-#endif
+#endif // QT_NO_CODECS
 
+#endif // QT_NO_TEXTCODEC

@@ -30,6 +30,8 @@
 #include "qstring.h"
 #endif // QT_H
 
+#ifndef QT_NO_TEXTCODEC
+
 class QTextCodec;
 class QIODevice;
 
@@ -86,5 +88,5 @@ protected:
     QTextCodec();
     static int simpleHeuristicNameMatch(const char* name, const char* hint);
 };
-
-#endif
+#endif // QT_NO_TEXTCODEC
+#endif // QTEXTCODEC_H

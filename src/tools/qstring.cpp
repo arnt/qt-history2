@@ -12701,7 +12701,11 @@ QString &QString::sprintf( const char* cformat, ... )
 	    }
 
 	    if ( format[pos+len] == 's' ) {
+#ifndef QT_NO_TEXTCODEC
 		QString s = QString::fromUtf8(va_arg(ap, char*));
+#else
+		QString s = QString::fromLatin1(va_arg(ap, char*));
+#endif
 		if ( decimals <= 0 )
 		    replacement = s;
 		else
@@ -14245,6 +14249,7 @@ const char* QString::ascii() const
     return latin1();
 }
 
+#ifndef QT_NO_TEXTCODEC
 /*!
   Returns the string encoded in UTF8 format.
 
@@ -14276,7 +14281,7 @@ QString QString::fromUtf8(const char* utf8, int len)
 	    ? codec->toUnicode(utf8, len)
 	    : QString::fromLatin1(utf8, len);
 }
-
+#endif // QT_NO_TEXTCODEC
 /*!
   Creates a QString from Latin1 text.  This is the same as the
   QString(const char*) constructor, but you can make that constructor
@@ -14312,8 +14317,13 @@ QString QString::fromLatin1(const char* chars, int len)
 
   \sa QString::fromLocal8Bit(), latin1(), utf8()
 */
+
+
 QCString QString::local8Bit() const
 {
+#ifdef QT_NO_TEXTCODEC
+    return latin1();
+#else    
 #ifdef _WS_X11_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
@@ -14332,6 +14342,7 @@ QCString QString::local8Bit() const
 #ifdef _WS_QWS_
     return utf8(); // ##### if there is ANY 8 bit format supported?
 #endif
+#endif    
 }
 
 /*!
@@ -14346,6 +14357,10 @@ QCString QString::local8Bit() const
 */
 QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
+#ifdef QT_NO_TEXTCODEC
+    return fromLatin1( local8Bit, len );
+#else    
+
     if ( !local8Bit )
 	return QString::null;
 #ifdef _WS_X11_
@@ -14373,6 +14388,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 #ifdef _WS_QWS_
     return fromUtf8(local8Bit,len);
 #endif
+#endif // QT_NO_TEXTCODEC    
 }
 
 /*!
