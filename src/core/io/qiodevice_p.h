@@ -33,7 +33,7 @@
 #include "qobjectdefs.h"
 #endif // QT_H
 
-class QIODevicePrivate
+class Q_CORE_EXPORT QIODevicePrivate
 {
     Q_DECLARE_PUBLIC(QIODevice);
 
