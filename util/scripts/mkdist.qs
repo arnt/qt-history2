@@ -393,8 +393,8 @@ function initialize()
     if (options["snapshots"])
 	options["version"] = options["version"] + "-snapshot-%1%2%3"
 	    .arg(startDate.getYear())
-	    .arg(startDate.getMonth())
-	    .arg(startDate.getDate());
+	    .arg(startDate.getMonth() < 10 ? "0" + startDate.getMonth() : startDate.getMonth())
+	    .arg(startDate.getDate() < 10 ? "0" + startDate.getDate() : startDate.getDate());
 
 //     for (var i in options)
 // 	print("options[%1] = %2".arg(i).arg(options[i]));
