@@ -172,14 +172,14 @@ public:
     QByteArray &operator+=(const char *s);
     QByteArray &operator+=(const QByteArray &a);
 
+    QList<QByteArray> split(char sep) const;
+
 #ifndef QT_NO_CAST_TO_ASCII
     QByteArray &append(const QString &s);
     QByteArray &insert(int i, const QString &s);
     QByteArray &replace(const QString &before, const char *after);
     QByteArray &replace(char c, const QString &after);
     QByteArray &replace(const QString &before, const QByteArray &after);
-
-    QList<QByteArray> split(char sep) const;
 
     QByteArray &operator+=(const QString &s);
     int indexOf(const QString &s, int from = 0) const;
