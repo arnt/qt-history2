@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#8 $
 **
 **  Studies in Geometry Management
 **
@@ -12,22 +12,19 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#8 $")
 
 
 
 /*!
   \class QBoxLayout qgeom.h
   \brief The QBoxLayout class specifies child widget geometry.
-
   
   Contents arranged serially, either horizontal or vertical.
   The contents fill the available space.
 
   A QBoxLayout (box for short) can contain widgets or other
   boxes. 
-
-
 
   */
 
@@ -49,15 +46,21 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
 
 
 /*!
-  Creates a new QBoxLayout with direction \e d and main widget \e parent.
 
-  \e border is space between edge of widget and area controlled by QBoxLayout
-  \e autoBorder is default space between objects. If \e autoBorder is -1 the 
-  value of \e border is used. 
-  \sa direction()
- */
+  Creates a new QBoxLayout with direction \e d and main widget \e
+  parent.
 
-QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d, int border, int autoBorder, const char *name )
+  \e border is the number of pixels between the edge of the widget and
+  the managed children.  \e autoBorder is the default number of pixels
+  between adjacent managed children.  If \e autoBorder is -1 the value
+  of \e border is used.
+
+  \e name is passed to the QObject constructor.
+
+  \sa direction() */
+
+QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
+			int border, int autoBorder, const char *name )
     : QObject( parent, name )
 {
     topLevel = TRUE;
@@ -90,15 +93,25 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d, int border,
 
 /*!
   \fn bool QBoxLayout::doIt()
-Starts geometry management.
+
+  Starts geometry management - equivalent to show() for widgets.
   */
 
-/*!
-  Fixes the size of the main widget and distributes the available
-  space to the child widgets. The size is adjusted to a valid
-  value. Thus freeze(0,0) (the default) will fix the widget to its
-  minimum size.
-  */
+
+/*! \overload void QBoxLayout::freeze()
+
+  This version of the method fixes the widget at its minimum size.
+  You can also achieve this with freeze( 0, 0 );
+ */
+  
+
+/*!  Fixes the size of the main widget and distributes the available
+  space to the child widgets, for widgets which should not be
+  resizable but where QBoxLayout is used to set up the initial geometry.
+
+  The size is adjusted to a valid value. Thus freeze(0,0) fixes the
+  widget to its minimum size.  */
+
 void QBoxLayout::freeze( int w, int h ) 
 {
     if ( !topLevel ) {
@@ -130,12 +143,10 @@ QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d,
 
 
 /*!
-  Adds a non-stretchable space with size
-  \e size.  QBoxLayout gives default border and spacing. This function
-  adds additional space. 
+  Adds a non-stretchable space with size \e size.  QBoxLayout gives
+  default border and spacing. This function adds additional space.
 
-  \sa addStretch
-  */
+  \sa addStretch */
 //###... Should perhaps replace default space?
 void QBoxLayout::addSpacing( int size )
 {
@@ -175,16 +186,24 @@ void QBoxLayout::addStrut( int size )
   may decrease the limit.
 
   \sa addMinStrut()
-  
+
 void QBox::addMaxStrut( int size)
 {
     gm->QBasicManager::addSpacing( parChain, 0, 0, size ); 
 }
 */
 
-/*!
-  Adds \e widget to the box, with serial stretch factor \e stretch
-  and alignment \e a
+/*!  Adds \e widget to the box, with stretch factor \e stretch and
+  alignment \e a.
+
+  The stretch factor applies only in the \link direction() direction
+  \endlink of the QBoxLayout, and is relative to the other boxes and
+  widgets in this QBoxLayout.  Widgets and boxes with higher strech
+  factor grow more.
+
+  If the stretch factor is 0 and nothing else in the QBoxLayout can
+  grow at all, the widget may still grow up to its \link
+  QWidget::setMaximumSize() maximum size. \endlink
 
   Alignment is perpendicular to direction(), alignment in the
   serial direction is done with addSpacing().
@@ -205,12 +224,12 @@ void QBox::addMaxStrut( int size)
   <li> \c alignBoth aligns to both the right and left borders of the box.
   </ul>
 
-  Alignment only has effect if the size of the box is greater than
-  the widget's maximum size. \c alignBoth will limit the maximum
-  size of the box.
+  Alignment only has effect if the size of the box is greater than the
+  widget's maximum size. \c alignBoth limits the maximum size of the
+  box.
 
-  \sa addNewBox(), addSpacing()
-  */
+  \sa addNewBox(), addSpacing() */
+
 void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 {
     if ( !pristine && defaultBorder() )

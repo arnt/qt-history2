@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#24 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
@@ -45,6 +45,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#23 $")
   have some other parent widget.  A button must then be manually inserted
   using the insert() function with an identifer.
   </ol>
+
+  \sa QButton QPushButton QCheckBox QRadioButton
  ----------------------------------------------------------------------------*/
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#7 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#8 $
 **
 **  Geometry Management
 **
@@ -23,7 +23,8 @@ public:
     int     defaultBorder() { return defBorder; }
 
     bool doIt() { return bm->doIt(); }
-    void freeze( int w = 0, int h = 0 );
+    void freeze( int w, int h );
+    void freeze() { freeze( 0, 0 ); }
 
     enum alignment { alignCenter, alignTop, alignLeft,
 		 alignBottom, alignRight /*, alignBoth */};
