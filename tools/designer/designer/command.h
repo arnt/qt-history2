@@ -1097,6 +1097,7 @@ public:
 			 QAction *a,
 			 PopupMenuEditor *m,
 			 QString nm );
+    QString mangle(QString name);
     void execute();
     void unexecute();
     Type type() const { return RenameAction; }
