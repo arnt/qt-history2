@@ -394,7 +394,8 @@ void QComLibrary::createInstanceInternal()
     if ( ! query_done ) {
 
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &cache ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &cache ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
 	if ( ! cache ) {
@@ -463,7 +464,8 @@ void QComLibrary::createInstanceInternal()
     if ( queried != reg ) {
 
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &cache ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &cache ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
 	cache->writeEntry( regkey, queried );

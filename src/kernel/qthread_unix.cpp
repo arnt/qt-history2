@@ -59,21 +59,6 @@
 
 static QMutexPool *qt_thread_mutexpool = 0;
 
-class QGlobalThreadInitializer
-{
-public:
-    inline QGlobalThreadInitializer()
-    {
-	qt_thread_mutexpool = new QMutexPool( FALSE );
-    }
-
-    inline ~QGlobalThreadInitializer()
-    {
-	delete qt_thread_mutexpool;
-	qt_thread_mutexpool = 0;
-    }
-};
-QGlobalThreadInitializer qt_global_thread_initializer;
 
 extern "C" { static void *start_thread( void *_arg ); }
 extern "C" { static void finish_thread( void *arg ); }
@@ -218,6 +203,13 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( qt_global_mutexpool == 0 );
+    Q_ASSERT( qt_thread_mutexpool == 0 );
+#endif // QT_CHECK_STATE
+
+    qt_global_mutexpool = new QMutexPool( TRUE );
+    qt_thread_mutexpool = new QMutexPool( FALSE );
 }
 
 
@@ -226,6 +218,10 @@ void QThread::initialize()
 */
 void QThread::cleanup()
 {
+    delete qt_global_mutexpool;
+    delete qt_thread_mutexpool;
+    qt_global_mutexpool = 0;
+    qt_thread_mutexpool = 0;
 }
 
 

@@ -299,7 +299,8 @@ Q_UINT16 qChecksum( const char *data, uint len )
     if ( !crc_tbl_init ) {			// create lookup table
 
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &crc_tbl_init ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &crc_tbl_init ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
 	if ( !crc_tbl_init ) {

@@ -495,7 +495,8 @@ static void resolveLibs()
     if ( !triedResolve ) {
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &triedResolve ) : 0 );
 	// check triedResolve again, since another thread may have already
 	// done the initialization
 	if ( triedResolve ) {

@@ -66,7 +66,7 @@ static PtrBuildTrusteeWithSidW ptrBuildTrusteeWithSidW = 0;
 typedef VOID (WINAPI *PtrBuildTrusteeWithNameW)(PTRUSTEE_W, unsigned short*);
 static PtrBuildTrusteeWithNameW ptrBuildTrusteeWithNameW = 0;
 typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclW)(PACL, PTRUSTEE_W, OUT PACCESS_MASK);
-static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0; 
+static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
 
@@ -84,7 +84,8 @@ static void resolveLibs()
 
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &triedResolve ) : 0 );
 	// check triedResolve again, since another thread may have already
 	// done the initialization
 	if ( triedResolve ) {
@@ -275,7 +276,7 @@ QString QFileInfo::owner() const
 	resolveLibs();
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
 	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lowner = 0, ldomain = 0; 
+		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
 		ptrLookupAccountSidW( NULL, pOwner, NULL, &lowner, NULL, &ldomain, &use );
@@ -291,7 +292,7 @@ QString QFileInfo::owner() const
 	    }
 	}
 	return name;
-    } else 
+    } else
 #endif
 	return QString::null;
 }
@@ -314,7 +315,7 @@ QString QFileInfo::group() const
 
 	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
 	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lgroup = 0, ldomain = 0; 
+		DWORD lgroup = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
 		ptrLookupAccountSidW( NULL, pGroup, NULL, &lgroup, NULL, &ldomain, &use );
@@ -330,7 +331,7 @@ QString QFileInfo::group() const
 	    }
 	}
 	return name;
-    } else 
+    } else
 #endif
 	return QString::null;
 }
@@ -353,10 +354,10 @@ bool QFileInfo::permission( int p ) const
 	resolveLibs();
 
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
-	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, 
+	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT,
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
 		0, &pGroup, &pDacl, 0, &pSD );
-	    
+
 	    if ( res == ERROR_SUCCESS ) {
 		TRUSTEE_W trustee;
 		if ( p & ( ReadUser | WriteUser | ExeUser) ) {

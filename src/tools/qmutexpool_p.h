@@ -63,7 +63,8 @@ public:
 
 private:
     QMutex mutex;
-    QMemArray<QMutex*> mutexes;
+    QMutex **mutexes;
+    int count;
     bool recurs;
 };
 

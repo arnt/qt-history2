@@ -78,7 +78,7 @@
 #if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
 #endif
-#if !defined( QWS ) && defined( Q_OS_MAC ) 
+#if !defined( QWS ) && defined( Q_OS_MAC )
 #include <Carbon/Carbon.h>
 #endif
 
@@ -106,7 +106,8 @@ void QTextCodec::deleteAllCodecs()
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &all ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &all ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
     destroying_is_ok = TRUE;
@@ -141,16 +142,15 @@ static void realSetup()
 
 static inline void setup()
 {
-    if ( !all ) {
+    if ( all ) return;
 
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &all ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &all ) : 0 );
+    if ( all ) return;
 #endif // QT_THREAD_SUPPORT
 
-	if ( ! all ) {
-	    realSetup();
-	}
-    }
+    realSetup();
 }
 
 
@@ -758,7 +758,8 @@ QTextCodec* QTextCodec::codecForLocale()
     setup();
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &localeMapper ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &localeMapper ) : 0 );
     if ( localeMapper )
 	return localeMapper;
 #endif // QT_THREAD_SUPPORT
@@ -1679,7 +1680,7 @@ const char* QTextCodec::locale()
     static QCString lang;
     lang = getenv( "LANG" );
 
-#if !defined( QWS ) && defined( Q_OS_MAC ) 
+#if !defined( QWS ) && defined( Q_OS_MAC )
     if ( !lang.isEmpty() )
 	return lang;
 

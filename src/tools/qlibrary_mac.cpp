@@ -82,7 +82,8 @@ bool QLibraryPrivate::loadLibrary()
 
 #ifdef QT_THREAD_SUPPORT
     // protect glibs_loaded creation/access
-    QMutexLocker locker( qt_global_mutexpool->get( &glibs_loaded ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &glibs_loaded ) : 0);
 #endif // QT_THREAD_SUPPORT
 
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
@@ -131,7 +132,8 @@ bool QLibraryPrivate::freeLibrary()
 
 #ifdef QT_THREAD_SUPPORT
     // protect glibs_loaded access
-    QMutexLocker locker( qt_global_mutexpool->get( &glibs_loaded ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &glibs_loaded ) : 0);
 #endif // QT_THREAD_SUPPORT
 
     if(glibs_loaded) {

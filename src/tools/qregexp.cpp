@@ -3203,7 +3203,8 @@ static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
 #ifndef QT_NO_REGEXP_OPTIM
     if ( engineCache != 0 ) {
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &engineCache ) : 0 );
 #endif
 	QRegExpEngine *eng = engineCache->take( pattern );
 	if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
@@ -3222,7 +3223,8 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
     if ( eng != 0 && eng->deref() ) {
 #ifndef QT_NO_REGEXP_OPTIM
 #ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool->get( &engineCache ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &engineCache ) : 0 );
 #endif
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
@@ -3714,7 +3716,7 @@ int QRegExp::matchedLength() const
 }
 
 #ifndef QT_NO_REGEXP_CAPTURE
-/*! 
+/*!
   Returns the number of captures contained in the regular expression.
  */
 int QRegExp::numCaptures() const

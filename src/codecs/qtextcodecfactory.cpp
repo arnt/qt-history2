@@ -59,7 +59,8 @@ static void create_manager()
 
 #ifdef QT_THREAD_SUPPORT
     // protect manager creation
-    QMutexLocker locker( qt_global_mutexpool->get( &manager ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &manager ) : 0);
 
     // we check the manager pointer again to make sure that another thread
     // has not created the manager before us.

@@ -553,7 +553,8 @@ const QFileInfoList * QDir::drives()
     static QFileInfoList * knownMemoryLeak = 0;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &knownMemoryLeak ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &knownMemoryLeak ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
     if ( !knownMemoryLeak ) {

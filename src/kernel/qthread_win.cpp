@@ -145,10 +145,17 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( qt_global_mutexpool == 0 );
+#endif // QT_CHECK_STATE
+
+    qt_global_mutexpool = new QMutexPool( TRUE );
 }
 
 void QThread::cleanup()
 {
+    delete qt_global_mutexpool;
+    qt_global_mutexpool = 0;
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )

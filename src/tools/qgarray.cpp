@@ -714,7 +714,8 @@ void QGArray::sort( uint sz )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &cmp_item_size ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &cmp_item_size ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
     cmp_item_size = sz;
@@ -732,7 +733,8 @@ int QGArray::bsearch( const char *d, uint sz ) const
 	return -1;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &cmp_item_size ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &cmp_item_size ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
     cmp_item_size = sz;

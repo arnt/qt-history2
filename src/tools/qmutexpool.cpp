@@ -41,21 +41,6 @@
 
 QMutexPool *qt_global_mutexpool = 0;
 
-// this is an internal class used only for inititalizing the global mutexpool
-class QGlobalMutexPoolInitializer
-{
-public:
-    inline QGlobalMutexPoolInitializer()
-    {
-	/*
-	  Purify will report a leak here. However, this mutex pool must be alive
-	  until *everything* in Qt has been destructed. Unfortunately there is
-	  no way to guarantee this, so we never destroy this mutex pool.
-	*/
-	qt_global_mutexpool = new QMutexPool( TRUE );
-    }
-};
-QGlobalMutexPoolInitializer qt_global_mutexpool_initializer;
 
 /*!
     \class QMutexPool qmutexpool_p.h
@@ -119,9 +104,12 @@ QGlobalMutexPoolInitializer qt_global_mutexpool_initializer;
     QMutexPool is destructed.
 */
 QMutexPool::QMutexPool( bool recursive, int size )
-    : mutex( FALSE ), mutexes( size ), recurs( recursive )
+    : mutex( FALSE ), count( size ), recurs( recursive )
 {
-    mutexes.fill( 0 );
+    mutexes = new QMutex*[count];
+    for ( int index = 0; index < count; ++index ) {
+	mutexes[index] = 0;
+    }
 }
 
 /*!
@@ -131,11 +119,12 @@ QMutexPool::QMutexPool( bool recursive, int size )
 QMutexPool::~QMutexPool()
 {
     QMutexLocker locker( &mutex );
-    QMutex **d = mutexes.data();
-    for ( int index = 0; (uint) index < mutexes.size(); index++ ) {
-	delete d[index];
-	d[index] = 0;
+    for ( int index = 0; index < count; ++index ) {
+	delete mutexes[index];
+	mutexes[index] = 0;
     }
+    delete [] mutexes;
+    mutexes = 0;
 }
 
 /*!
@@ -144,21 +133,20 @@ QMutexPool::~QMutexPool()
 */
 QMutex *QMutexPool::get( void *address )
 {
-    QMutex **d = mutexes.data();
-    int index = (int)( (ulong) address % mutexes.size() );
+    int index = (int) address % count;
 
-    if ( ! d[index] ) {
+    if ( ! mutexes[index] ) {
 	// mutex not created, create one
 
 	QMutexLocker locker( &mutex );
 	// we need to check once again that the mutex hasn't been created, since
 	// 2 threads could be trying to create a mutex as the same index...
-	if ( ! d[index] ) {
-	    d[index] = new QMutex( recurs );
+	if ( ! mutexes[index] ) {
+	    mutexes[index] = new QMutex( recurs );
 	}
     }
 
-    return d[index];
+    return mutexes[index];
 }
 
 #endif

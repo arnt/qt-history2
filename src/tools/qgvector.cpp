@@ -399,7 +399,8 @@ void QGVector::sort()				// sort vector
     }
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool->get( &sort_vec ) );
+    QMutexLocker locker( qt_global_mutexpool ?
+			 qt_global_mutexpool->get( &sort_vec ) : 0 );
 #endif // QT_THREAD_SUPPORT
 
     sort_vec = (QGVector*)this;

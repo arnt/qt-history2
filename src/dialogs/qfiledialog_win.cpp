@@ -69,7 +69,8 @@ static void resolveLibs()
     if ( !triedResolve ) {
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool->get( &triedResolve ) );
+	QMutexLocker locker( qt_global_mutexpool ?
+			     qt_global_mutexpool->get( &triedResolve ) : 0 );
 	// check triedResolve again, since another thread may have already
 	// done the initialization
 	if ( triedResolve ) {
@@ -326,7 +327,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     if ( title.isNull() )
 	title = tr("Open");
 
-    DWORD selFilIdx;        
+    DWORD selFilIdx;
 
     int idx = 0;
     if ( selectedFilter && !selectedFilter->isEmpty() ) {
@@ -372,7 +373,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	QFileInfo fi( result );
 	*initialDirectory = fi.dirPath();
 	if ( selectedFilter )
-	    *selectedFilter = selFilter( filter, selFilIdx );	
+	    *selectedFilter = selFilter( filter, selFilIdx );
 	return fi.absFilePath();
     }
 }
@@ -403,7 +404,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Save As");
-    
+
     DWORD selFilIdx;
 
     int idx = 0;
@@ -450,7 +451,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	QFileInfo fi( result );
 	*initialDirectory = fi.dirPath();
 	if ( selectedFilter )
-	    *selectedFilter = selFilter( filter, selFilIdx );	
+	    *selectedFilter = selFilter( filter, selFilIdx );
 	return fi.absFilePath();
     }
 }
@@ -561,7 +562,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 
     *initialDirectory = fi.dirPath();
     if ( !result.isEmpty() && selectedFilter )
-	*selectedFilter = selFilter( filter, selFilIdx );	
+	*selectedFilter = selFilter( filter, selFilIdx );
     return result;
 }
 
