@@ -858,6 +858,8 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
 	flags |= QStyle::Style_Enabled;
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
+    if ( orientation() == Horizontal )
+	flags |= QStyle::Style_Horizontal;
 
     void *data[1];
     data[0] = (void *) &sliderPos;
