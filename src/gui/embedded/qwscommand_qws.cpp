@@ -19,7 +19,7 @@
  *
  *********************************************************************/
 
-#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
+//#define QWSCOMMAND_DEBUG // Uncomment to debug client/server communication
 #ifdef QWSCOMMAND_DEBUG
 #include <qhexdump.h>
 QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
