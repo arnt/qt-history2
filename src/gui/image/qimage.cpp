@@ -1382,18 +1382,6 @@ void QImage::setNumColors(int numColors)
         d->colortable[i] = 0;
 }
 
-
-/*!
-    Returns true if alpha buffer mode is enabled; otherwise returns
-    false.
-
-    \sa setAlphaBuffer()
-*/
-bool QImage::hasAlphaBuffer() const
-{
-    return (d && (d->format == Format_ARGB32 || d->format == Format_ARGB32_Premultiplied));
-}
-
 /*!
   returns the format of the image.
 */
@@ -1402,6 +1390,18 @@ QImage::Format QImage::format() const
     return d ? d->format : Format_Invalid;
 }
 
+
+#ifdef QT3_SUPPORT
+/*!
+    Returns true if alpha buffer mode is enabled; otherwise returns
+    false.
+
+    \sa setAlphaBuffer()
+*/
+bool QImage::hasAlphaBuffer() const
+{
+    return (d && (d->format != Format_RGB32));
+}
 
 /*!
     Enables alpha buffer mode if \a enable is true, otherwise disables
@@ -1441,7 +1441,6 @@ void QImage::setAlphaBuffer(bool enable)
 }
 
 
-#ifdef QT3_SUPPORT
 /*!
   \fn bool QImage::create(int width, int height, int depth, int numColors, Endian bitOrder)
 
@@ -1503,9 +1502,10 @@ static void convert_ARGB_to_ARGB_PM(QImageData *dest, const QImageData *src, Qt:
     Q_ASSERT(src->nbytes == dest->nbytes);
     Q_ASSERT(src->bytes_per_line == dest->bytes_per_line);
 
-    const uchar *src_data = src->data;
-    uchar *dest_data = dest->data;
-    for (int i = 0; i < src->nbytes; ++i) {
+    const QRgb *src_data = (QRgb *) src->data;
+    const QRgb *end = src_data + (src->nbytes>>2);
+    QRgb *dest_data = (QRgb *) dest->data;
+    while (src_data < end) {
         *dest_data = PREMUL(*src_data);
         ++src_data;
         ++dest_data;
@@ -1521,9 +1521,10 @@ static void convert_ARGB_PM_to_ARGB(QImageData *dest, const QImageData *src, Qt:
     Q_ASSERT(src->nbytes == dest->nbytes);
     Q_ASSERT(src->bytes_per_line == dest->bytes_per_line);
 
-    const uchar *src_data = src->data;
-    uchar *dest_data = dest->data;
-    for (int i = 0; i < src->nbytes; ++i) {
+    const QRgb *src_data = (QRgb *) src->data;
+    const QRgb *end = src_data + (src->nbytes>>2);
+    QRgb *dest_data = (QRgb *) dest->data;
+    while (src_data < end) {
         *dest_data = INV_PREMUL(*src_data);
         ++src_data;
         ++dest_data;
@@ -2796,7 +2797,8 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     QImage dImage(wd, hd, d->format);
     dImage.d->colortable = d->colortable;
-    dImage.setAlphaBuffer(hasAlphaBuffer() | complex_xform);
+    if (dImage.d->format == Format_RGB32 && complex_xform)
+        dImage.d->format = Format_ARGB32;
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
@@ -2844,8 +2846,8 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
 /*!
     Builds and returns a 1-bpp mask from the alpha buffer in this
-    image. Returns a \link isNull() null\endlink image if \link
-    setAlphaBuffer() alpha buffer mode\endlink is disabled.
+    image. Returns a \link isNull() null\endlink image if the image is
+    of format RGB32.
 
     See QPixmap::convertFromImage() for a description of the \a
     flags argument.
@@ -2858,7 +2860,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 #ifndef QT_NO_IMAGE_DITHER_TO_1
 QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 {
-    if (!d || !hasAlphaBuffer())
+    if (!d || d->format == QImage::Format_RGB32)
         return QImage();
 
     if (d->depth == 1) {
@@ -3030,7 +3032,6 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
     // Create result image, copy colormap
     QImage result(d->width, d->height, d->format);
     result.d->colortable = d->colortable;
-    result.setAlphaBuffer(hasAlphaBuffer());
 
     if (depth() == 1)
         w = (w+7)/8;

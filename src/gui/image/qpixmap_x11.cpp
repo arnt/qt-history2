@@ -1053,7 +1053,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         pixmap.data->w = w;
         pixmap.data->h = h;
         pixmap.data->d = 32;
-        pixmap.data->alpha = cimage.hasAlphaBuffer();
 
         pixmap.data->hd =
             (Qt::HANDLE)XCreatePixmap(pixmap.data->xinfo.display(),
@@ -1663,10 +1662,9 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     pixmap.data->h = h;
     pixmap.data->d = dd;
 
-    if (image.hasAlphaBuffer()) {
+    if (image.format() != QImage::Format_RGB32) {
         QBitmap m = QBitmap::fromImage(image.createAlphaMask(flags));
         pixmap.setMask(m);
-
     }
 
     return pixmap;
@@ -1838,7 +1836,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     if (h == 0 || w == 0 || !invertible) {        // error, return null pixmap
         QPixmap pm;
         pm.data->bitmap = data->bitmap;
-        pm.data->alpha = data->alpha;
         return pm;
     }
 
@@ -1864,7 +1861,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     if (!xi) {                                // error, return null pixmap
         QPixmap pm;
         pm.data->bitmap = data->bitmap;
-        pm.data->alpha = data->alpha;
         return pm;
     }
 
@@ -1949,7 +1945,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     } else {                                        // color pixmap
         QPixmap pm(w, h);
         pm.data->uninit = false;
-        pm.data->alpha = (X11->use_xrender && data->d == 32);
         pm.x11SetScreen(data->xinfo.screen());
         GC gc = XCreateGC(pm.data->xinfo.display(), pm.handle(), 0, 0);
 #if defined(QT_MITSHM)
@@ -2036,21 +2031,18 @@ void QPixmap::x11SetScreen(int screen)
 */
 bool QPixmap::hasAlpha() const
 {
-    return data->alpha || data->x11_mask;
+    return X11->use_xrender || data->x11_mask;
 }
 
 /*!
     Returns true if the pixmap has an alpha channel; otherwise it
     returns false.
 
-    NOTE: If the pixmap has a mask but not alpha channel, this
-    function returns false.
-
     \sa hasAlpha() mask()
 */
 bool QPixmap::hasAlphaChannel() const
 {
-    return data->alpha || data->x11_mask;
+    return X11->use_xrender || data->x11_mask;
 }
 
 /*!

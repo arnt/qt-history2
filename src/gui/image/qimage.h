@@ -105,33 +105,35 @@ public:
     void setColor(int i, QRgb c);
     void setNumColors(int);
 
-    bool hasAlphaBuffer() const;
-    void setAlphaBuffer(bool);
-
-    void setAlphaChannel(const QImage &alphaChannel);
-    QImage alphaChannel() const;
-
     bool allGray() const;
     bool isGrayscale() const;
 
     uchar *bits();
     const uchar *bits() const;
+    int numBytes() const;
+
     uchar *scanLine(int);
     const uchar *scanLine(int) const;
-
-    QVector<QRgb> colorTable() const;
-    void setColorTable(const QVector<QRgb> colors);
-
-    int numBytes() const;
     int bytesPerLine() const;
-
-    void fill(uint pixel);
-    void invertPixels(InvertMode = InvertRgb);
 
     bool valid(int x, int y) const;
     int pixelIndex(int x, int y) const;
     QRgb pixel(int x, int y) const;
     void setPixel(int x, int y, uint index_or_rgb);
+
+    QVector<QRgb> colorTable() const;
+    void setColorTable(const QVector<QRgb> colors);
+
+    void fill(uint pixel);
+
+    void setAlphaChannel(const QImage &alphaChannel);
+    QImage alphaChannel() const;
+#ifndef QT_NO_IMAGE_DITHER_TO_1
+    QImage createAlphaMask(Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+#endif
+#ifndef QT_NO_IMAGE_HEURISTIC_MASK
+    QImage createHeuristicMask(bool clipTight = true) const;
+#endif
 
 #ifndef QT_NO_IMAGE_TRANSFORMATION
     inline QImage scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
@@ -144,17 +146,12 @@ public:
     QImage transformed(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &, int w, int h);
 #endif
-
-#ifndef QT_NO_IMAGE_DITHER_TO_1
-    QImage createAlphaMask(Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-#endif
-#ifndef QT_NO_IMAGE_HEURISTIC_MASK
-    QImage createHeuristicMask(bool clipTight = true) const;
-#endif
 #ifndef QT_NO_IMAGE_MIRROR
     QImage mirrored(bool horizontally = false, bool vertically = true) const;
 #endif
     QImage rgbSwapped() const;
+    void invertPixels(InvertMode = InvertRgb);
+
 
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
@@ -209,6 +206,8 @@ public:
     QT3_SUPPORT QImage convertDepth(int, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QT3_SUPPORT QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QT3_SUPPORT QImage convertBitOrder(Endian) const;
+    QT3_SUPPORT bool hasAlphaBuffer() const;
+    QT3_SUPPORT void setAlphaBuffer(bool);
     QT3_SUPPORT uchar **jumpTable();
     QT3_SUPPORT const uchar * const *jumpTable() const;
     inline QT3_SUPPORT void reset() { *this = QImage(); }

@@ -1414,7 +1414,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
                     drawW = pixmap.width() - xOff; // Cropping first column
                     if (xPos + drawW > x + w)    // Cropping last column
                         drawW = x + w - xPos;
-                    XRenderComposite(d->dpy, (pixmap.data->alpha ? PictOpOver : PictOpSrc),
+                    XRenderComposite(d->dpy, PictOpOver,
                                      pixmap.x11PictureHandle(), XNone,
                                      d->picture, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
                     xPos += drawW;

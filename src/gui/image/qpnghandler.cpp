@@ -167,8 +167,7 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
             if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
                 const int g = info_ptr->trans_values.gray;
                 if (g < ncols) {
-                    image.setAlphaBuffer(true);
-                    image.setColor(g, image.color(g) & RGB_MASK);
+                    image.setColor(g, 0);
                 }
             }
         }
@@ -187,7 +186,6 @@ void setup_qt(QImage& image, png_structp png_ptr, png_infop info_ptr, float scre
         image.setNumColors(info_ptr->num_palette);
         int i = 0;
         if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-            image.setAlphaBuffer(true);
             while (i < info_ptr->num_trans) {
                 image.setColor(i, qRgba(
                     info_ptr->palette[i].red,
@@ -316,7 +314,7 @@ static bool read_png_image(QIODevice *device, QImage *outImage, float gamma)
     png_read_image(png_ptr, row_pointers);
 
 #if 0 // libpng takes care of this.
-png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
+    png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
     if (image.depth()==32 && png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
         QRgb trans = 0xFF000000 | qRgb(
               (info_ptr->trans_values.red << 8 >> bit_depth)&0xff,
@@ -347,26 +345,6 @@ png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
 #endif
 
     delete [] row_pointers;
-
-    if (image.hasAlphaBuffer()) {
-        // Many PNG files lie (eg. from PhotoShop). Fortunately this loop will
-        // usually be quick to find those that tell the truth.
-        int n;
-        if (image.depth()==32) {
-            const QRgb *c = (const QRgb*)image.bits();
-            n = image.bytesPerLine() * image.height() / 4;
-            while (n-- && qAlpha(*c++)==0xff)
-                ;
-        } else {
-            QVector<QRgb> colors = image.colorTable();
-            const QRgb *c = colors.constData();
-            n = image.numColors();
-            while (n-- && qAlpha(*c++)==0xff)
-                ;
-        }
-        if (n<0) // LIAR!
-            image.setAlphaBuffer(false);
-    }
 
     *outImage = image;
 
@@ -493,15 +471,15 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
 
     info_ptr->channels =
         (image.depth() == 32)
-            ? (image.hasAlphaBuffer() ? 4 : 3)
-            : 1;
+        ? (image.format() == QImage::Format_RGB32 ? 3 : 4)
+        : 1;
 
     png_set_IHDR(png_ptr, info_ptr, image.width(), image.height(),
         image.depth() == 1 ? 1 : 8 /* per channel */,
         image.depth() == 32
-            ? image.hasAlphaBuffer()
-                ? PNG_COLOR_TYPE_RGB_ALPHA
-                : PNG_COLOR_TYPE_RGB
+            ? image.format() == QImage::Format_RGB32
+                ? PNG_COLOR_TYPE_RGB
+                : PNG_COLOR_TYPE_RGB_ALPHA
             : PNG_COLOR_TYPE_PALETTE, 0, 0, 0);
 
 
@@ -527,11 +505,9 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
             info_ptr->palette[i].red = qRed(rgb);
             info_ptr->palette[i].green = qGreen(rgb);
             info_ptr->palette[i].blue = qBlue(rgb);
-            if (image.hasAlphaBuffer()) {
-                trans[i] = rgb >> 24;
-                if (trans[i] < 255) {
-                    num_trans = i+1;
-                }
+            trans[i] = rgb >> 24;
+            if (trans[i] < 255) {
+                num_trans = i+1;
             }
         }
         if (num_trans) {
@@ -543,7 +519,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
         delete [] trans;
     }
 
-    if (image.hasAlphaBuffer()) {
+    if (image.format() != QImage::Format_RGB32) {
         info_ptr->sig_bit.alpha = 8;
     }
 
@@ -586,7 +562,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality_in, int off_x_
     if (image.depth() != 1)
         png_set_packing(png_ptr);
 
-    if (image.depth() == 32 && !image.hasAlphaBuffer())
+    if (image.format() == QImage::Format_RGB32)
         png_set_filler(png_ptr, 0,
             QSysInfo::ByteOrder == QSysInfo::BigEndian ?
                 PNG_FILLER_BEFORE : PNG_FILLER_AFTER);

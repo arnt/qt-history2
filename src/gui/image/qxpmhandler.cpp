@@ -822,7 +822,7 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
 
     QImage::Format format = QImage::Format_Indexed8;
     if (ncols > 256)
-        format = QImage::Format_RGB32;
+        format = QImage::Format_ARGB32;
     image = QImage(w, h, format);
     if (ncols <= 256)
         image.setNumColors(ncols);
@@ -860,7 +860,6 @@ bool qt_read_xpm_image_or_array(QIODevice *device, const char * const * source, 
             buf.truncate(end);
         buf = buf.trimmed();
         if (buf == "none") {
-            image.setAlphaBuffer(true);
             int transparentColor = currentColor;
             if (image.depth() == 8) {
                 image.setColor(transparentColor, 0);
@@ -1009,7 +1008,7 @@ static void write_xpm_image(const QImage &sourceImage, QIODevice *device, const 
     QMap<QRgb, int>::Iterator c = colorMap.begin();
     while (c != colorMap.end()) {
         QRgb color = c.key();
-        if (image.hasAlphaBuffer() && color == (color & RGB_MASK))
+        if (image.format() != QImage::Format_RGB32 && !qAlpha(color))
             line.sprintf("\"%s c None\"",
                           xpm_color_name(cpp, *c));
         else

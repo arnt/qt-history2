@@ -117,7 +117,6 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     QImage image(devWidth, devHeight, QImage::Format_ARGB32_Premultiplied);
     image.fill(0);
-    image.setAlphaBuffer(true);
 
     QPainter p(&image);
 
@@ -3498,7 +3497,6 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
             // While setPixel() is needed to switch on alpha buffer on Embedded
             QImage img(qRound(r.width()), qRound(r.height()), QImage::Format_ARGB32_Premultiplied);
             img.setPixel(0, 0, qRgba(127, 0, 0, 127));
-            img.setAlphaBuffer(true);
             pm = QPixmap::fromImage(img);
         } else {
             pm = QPixmap(qRound(r.width()), qRound(r.height()));

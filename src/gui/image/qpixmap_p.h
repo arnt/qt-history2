@@ -64,7 +64,6 @@ struct QPixmapData { // internal pixmap data
     QBitmap *mask;
 #endif
 #if defined(Q_WS_X11)
-    bool alpha;
     QX11Info xinfo;
     Qt::HANDLE x11_mask;
     Qt::HANDLE picture;

@@ -474,8 +474,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         QImage *image = static_cast<QImage *>(device);
         d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied;
         d->rasterBuffer->prepare(image);
-        if (image->hasAlphaBuffer())
-            layout =  DrawHelper::Layout_ARGB;
+        if (image->format() != QImage::Format_RGB32)
+            layout = DrawHelper::Layout_ARGB;
 #ifdef Q_WS_QWS
     } else if (device->devType() == QInternal::Pixmap) {
         QPixmap *pix = static_cast<QPixmap *>(device);
@@ -862,7 +862,7 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
         d->rasterBuffer,
-        image.bits(), image.width(), image.height(), image.hasAlphaBuffer(),
+        image.bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blend,
         d->bilinear ? d->drawHelper->blendTransformedBilinear : d->drawHelper->blendTransformed
@@ -918,7 +918,7 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 
     TextureFillData textureData = {
         d->rasterBuffer,
-        ((const QImage &)(image)).bits(), image.width(), image.height(), image.hasAlphaBuffer(),
+        ((const QImage &)(image)).bits(), image.width(), image.height(), image.format() != QImage::Format_RGB32,
         0., 0., 0., 0., 0., 0.,
         d->drawHelper->blendTiled,
         d->bilinear ? d->drawHelper->blendTransformedBilinearTiled : d->drawHelper->blendTransformedTiled
@@ -2370,7 +2370,7 @@ void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &
     imageData = (uint*) image->bits();
     width = image->width();
     height = image->height();
-    hasAlpha = image->hasAlphaBuffer();
+    hasAlpha = image->format() != QImage::Format_RGB32;
 
     QMatrix inv = matrix.inverted();
     m11 = inv.m11();

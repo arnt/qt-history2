@@ -3073,7 +3073,7 @@ static QByteArray compress(const QImage & image, bool gray) {
             }
         }
     } else {
-        bool alpha = image.hasAlphaBuffer();
+        bool alpha = image.format() != QImage::Format_RGB32;
         for(int y=0; y < height; y++) {
             QRgb * s = (QRgb*)(image.scanLine(y));
             for(int x=0; x < width; x++) {
