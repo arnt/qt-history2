@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#24 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#25 $
 **
 ** Definition of QMetaObject class
 **
@@ -58,7 +58,7 @@ struct QMetaEnum
     QMetaEnumerator *enumerators;
 
     QStringList enumeratorNames();
-};  
+};
 
 struct QMetaProperty
 {
@@ -108,6 +108,7 @@ public:
 #ifdef QT_BUILDER
     bool inherits( const char* _class ) const;
     int            nProperties( bool=FALSE ) const;
+    QMetaProperty *property( int index ) const;
     QMetaProperty *property( const char* name, bool super = FALSE ) const;
     QStringList    propertyNames();
     QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;

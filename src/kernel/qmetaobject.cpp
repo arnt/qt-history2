@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#52 $
 **
 ** Implementation of QMetaObject class
 **
@@ -390,6 +390,14 @@ QMetaEnum* QMetaObject::enumerator( const char* _name, bool _super ) const
   return 0;
 }
 
+QMetaProperty* QMetaObject::property( int index ) const
+{
+    if ( index >= nPropData || index < 0 )
+	return 0;
+    
+    return &propData[ index ];
+}
+
 QMetaProperty* QMetaObject::property( const char* _name, bool _super ) const
 {
   for( int i = 0; i < nPropData; ++i )
@@ -464,7 +472,7 @@ QStringList QMetaObject::propertyNames()
     QStringList super = superclass->propertyNames();
     l += super;
   }
-  
+
   if ( l.count() < 2 )
     return l;
 
@@ -483,7 +491,7 @@ QStringList QMetaObject::propertyNames()
       ++it;
     }
   }
-  
+
   return l;
 }
 
@@ -491,10 +499,10 @@ bool QMetaObject::inherits( const char* _class ) const
 {
   if ( strcmp( _class, classname ) == 0 )
     return TRUE;
-  
+
   if ( superClass() )
     return superClass()->inherits( _class );
-  
+
   return 0;
 }
 
@@ -503,7 +511,7 @@ QStringList QMetaEnum::enumeratorNames()
   QStringList l;
   for( int i = 0; i < nEnumerators; ++i )
     l.append( enumerators[i].name );
-  
+
   return l;
 }
 #endif // QT_BUILDER
@@ -551,7 +559,7 @@ QMetaObjectInit::QMetaObjectInit(QMetaObject*(*f)())
 }
 
 /*!
-  Creates a list of all QMetaObject instances. This function is 
+  Creates a list of all QMetaObject instances. This function is
   called from all the other static member functions of QMetaObjectInit.
   Calling it twice does not harm. The function returns the number of
   QMetaObjects.
@@ -596,7 +604,7 @@ QMetaObject* QMetaObjectInit::metaObject( const char* _class_name )
     for( int i = 0; i < n_meta_list; ++i )
       if ( strcmp( meta_list[i]->className(), _class_name ) == 0 )
       return meta_list[i];
-    
+
     return 0;
 }
 
@@ -609,15 +617,15 @@ QMetaObject* QMetaObjectInit::metaObject( int index )
 {
     // Perhaps someone did not call init
     init();
-  
+
     if ( index > n_meta_list )
       return 0;
 
-    return meta_list[ index ];  
+    return meta_list[ index ];
 }
 
 /*!
-  Returns the amount of registered QMetaObjects.  
+  Returns the amount of registered QMetaObjects.
 */
 int QMetaObjectInit::nMetaObjects()
 {
