@@ -16,11 +16,17 @@ int main()
     splitter->addWidget(treeview);
     splitter->addWidget(textedit);
 
+    {
+    // SAVE STATE
     QSettings settings;
     settings.setValue("splitterSizes", splitter->saveState());
+    }
 
-    QSettings restoreSettings;
-    splitter->restoreState(restoreSettings.value("splitterSizes").toByteArray());
+    {
+    // RESTORE STATE
+    QSettings settings;
+    splitter->restoreState(settings.value("splitterSizes").toByteArray());
+    }
 
     QListIterator<int> it(splitter->sizes());
     while (it.hasNext())
