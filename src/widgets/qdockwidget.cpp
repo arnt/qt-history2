@@ -514,9 +514,9 @@ QDockWidget::QDockWidget( Place p, QWidget *parent, const char *name, WFlags f )
     stretchable[ Horizontal ] = FALSE;
     stretchable[ Vertical ] = FALSE;
 
-    connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( doDock() ) );
-    connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
-    connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( doUndock() ) );
+    connect( titleBar, SIGNAL( doubleClicked() ), this, SLOT( dock() ) );
+    connect( verHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
+    connect( horHandle, SIGNAL( doubleClicked() ), this, SLOT( undock() ) );
     connect( this, SIGNAL( orientationChanged( Orientation ) ),
 	     this, SLOT( setOrientation( Orientation ) ) );
 }
@@ -896,13 +896,6 @@ QSize QDockWidget::minimumSizeHint() const
     return msh;
 }
 
-void QDockWidget::dock()
-{
-    if ( place() == InDock )
-	return;
-    qWarning( "QDockWidget::dock() not implemented yet!" );
-}
-
 void QDockWidget::undock( QWidget *w )
 {
     if ( place() == OutsideDock && !w )
@@ -942,12 +935,7 @@ void QDockWidget::removeFromDock()
 	dockArea->removeDockWidget( this, FALSE, FALSE );
 }
 
-void QDockWidget::doUndock()
-{
-    undock();
-}
-
-void QDockWidget::doDock()
+void QDockWidget::dock()
 {
     if ( !(QDockArea::DockWidgetData*)dockWidgetData ||
 	 !( (QDockArea::DockWidgetData*)dockWidgetData )->area )

@@ -325,7 +325,7 @@ protected:
 		if ( o && o->inherits( "QDockWidget" ) ) {
 		    QDockWidget *dw = (QDockWidget*)o;
 		    dw->show();
-		    dw->doDock();
+		    dw->dock();
 		}
 	    }
 	}
@@ -345,12 +345,12 @@ protected:
     bool eventFilter( QObject *o, QEvent *e ) {
 	if ( o == this || !o->isWidgetType() )
 	    return QWidget::eventFilter( o, e );
-	if ( e->type() == QEvent::Hide || 
+	if ( e->type() == QEvent::Hide ||
 	     e->type() == QEvent::Show )
 	    updateState();
 	return QWidget::eventFilter( o, e );
     }
-    
+
     void updateState() {
 	bool visible = TRUE;
 	if ( !children() || children()->isEmpty() ) {
@@ -467,7 +467,7 @@ public:
     QStringList disabledDocks;
     bool dockMenu;
     QHideDock *hideDock;
-    
+
     QPopupMenu *rmbMenu;
 
 };
@@ -1014,7 +1014,7 @@ void QMainWindow::setUpLayout()
 #endif
 
     d->tll->addWidget( d->hideDock );
-    
+
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( d->movable ? 1  : 2 );
     d->tll->addWidget( d->topDock );

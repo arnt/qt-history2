@@ -51,12 +51,14 @@ class QHBoxLayout;
 class QVBoxLayout;
 class QDockArea;
 class QWidgetResizeHandler;
+class QMainWindow;
 
 class Q_EXPORT QDockWidget : public QFrame
 {
     friend class QDockWidgetHandle;
     friend class QDockWidgetTitleBar;
     friend class QDockArea;
+    friend class QMainWindow;
     Q_OBJECT
 
 public:
@@ -104,9 +106,7 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    virtual void dock();
-    virtual void undock( QWidget *w = 0 );
-    virtual void removeFromDock();
+    QBoxLayout *boxLayout();
 
 signals:
     void orientationChanged( Orientation o );
@@ -114,15 +114,15 @@ signals:
     void visibilityChanged( bool );
 
 public slots:
-    virtual void doUndock();
-    virtual void doDock();
+    virtual void undock( QWidget *w );
+    virtual void undock() { undock( 0 ); }
+    virtual void dock();
     virtual void setOrientation( Orientation o );
 
 protected:
     void resizeEvent( QResizeEvent *e );
     void showEvent( QShowEvent *e );
     void hideEvent( QHideEvent *e );
-    QBoxLayout *boxLayout();
 
 private:
     void handleMove( const QPoint &pos, const QPoint &gp );
@@ -132,6 +132,7 @@ private:
     void endRectDraw();
     void updatePosition( const QPoint &globalPos  );
     QWidget *areaAt( const QPoint &gp );
+    void removeFromDock();
 
 private:
     QDockWidgetHandle *horHandle, *verHandle;
