@@ -16,6 +16,7 @@ public:
 private:
     bool setFirstName(int personId, const QString &firstName);
     bool setLastName(int personId, const QString &lastName);
+    void refresh();
 };
 
 #endif

@@ -33,11 +33,20 @@ bool EditableSqlModel::setData(const QModelIndex &index, int /* role */,
     } else {
         ok = setLastName(id, value.toString());
     }
-    setQuery("select * from person");
+    refresh();
     return ok;
 }
 
-// TODO: Use refresh() instead of setQuery() when it's available
+void EditableSqlModel::refresh()
+{
+    setQuery("select * from person");
+    setHeaderData(0, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+            QObject::tr("ID"));
+    setHeaderData(1, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+            QObject::tr("First name"));
+    setHeaderData(2, Qt::Horizontal, QAbstractItemModel::DisplayRole,
+            QObject::tr("Last name"));
+}
 
 bool EditableSqlModel::setFirstName(int personId, const QString &firstName)
 {
