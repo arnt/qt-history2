@@ -1619,6 +1619,7 @@ void QLineEdit::insert( const QString &newText )
 #ifndef QT_NO_COMPAT
 void QLineEdit::repaintArea( int, int )
 {
+    qObsolete( "QLineEdit", "repaintArea" );
     update();
 }
 #endif
