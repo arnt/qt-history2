@@ -181,7 +181,7 @@ beta1 have been fixed.
 
 
 ****************************************************************************
-*			   Qt Designer			   *
+*			   Qt Designer					   *
 ****************************************************************************
 
 - Improved the look of the Toolbox
@@ -206,7 +206,7 @@ uic.
 all buttons support multi line labels.
 
 ****************************************************************************
-*			   Qt Assistant			   *
+*			   Qt Assistant					   *
 ****************************************************************************
 
 - Added commandline option -removeContentFile
@@ -214,7 +214,7 @@ all buttons support multi line labels.
 - New icon look
 
 ****************************************************************************
-*			   Qt Linguist			   *
+*			   Qt Linguist					   *
 ****************************************************************************
 
 - New icon look
