@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#144 $
 **
 ** Implementation of QApplication class
 **
@@ -256,9 +256,10 @@ void QApplication::initialize( int argc, char **argv )
 
 
 /*!
-  Deletes all remaining widgets and cleans up any window system
-  resources that were allocated by this application.  Sets the global
-  variable \c qApp to null.
+  Cleans up any window system resources that were allocated by this
+  application.  Sets the global variable \c qApp to null. In opposite
+  to former versions of Qt the destructor does \e not delete all
+  remaining widgets.
 */
 
 QApplication::~QApplication()
@@ -750,7 +751,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
     // no events are delivered after ~QApplication has started
     if ( is_app_closing )
 	return FALSE;
-    
+
     if ( receiver == 0 ) {			// serious error
 #if defined(CHECK_NULL)
 	warning( "QApplication::notify: Unexpected null receiver" );
