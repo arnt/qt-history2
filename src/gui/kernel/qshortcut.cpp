@@ -75,7 +75,7 @@ QShortcut::QShortcut(QWidget *parent)
 */
 QShortcut::QShortcut(const QKeySequence &key, QWidget *parent,
                      const char *member, const char *ambiguousMember,
-                     Qt::ShortcutContext context)
+                     ShortcutContext context)
     : QObject(*new QShortcutPrivate, parent)
 {
     Q_ASSERT(parent != 0);
