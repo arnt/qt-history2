@@ -158,6 +158,9 @@
   \value LayoutHint  Widget child has changed layout properties.
   \value ActivateControl  Internal event used by Qt on some platforms.
   \value DeactivateControl  Internal event used by Qt on some platforms.
+  \value LanguageChange The application translation changed, \l{QTranslator}
+  \value LayoutDirectionChange The direction of layouts changed
+  \value LocaleChange The system locale changed
   \value Quit  Reserved.
   \value Create  Reserved.
   \value Destroy  Reserved.
