@@ -22,8 +22,12 @@ public slots:
     void editorFinished();
     void finished();
 
+private slots:
+    void changeVersion();
+
 private:
     void setEditor();
+    void updateTitle();
 
     QVBoxLayout *vb;
     QListView *classList;
@@ -34,6 +38,9 @@ private:
     QString qtdirenv;
     QLabel *statusBar;
     QPushButton *redo;
+    QPushButton *commercial;
+    QPushButton *version;
+    QPushButton *stop;
     int msgCount;
     QString editor;
     int warnings;

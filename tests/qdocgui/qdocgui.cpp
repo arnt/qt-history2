@@ -1,7 +1,8 @@
 #include <qapplication.h>
 #include <qdict.h>
-#include <qinputdialog.h>
 #include <qheader.h>
+#include <qfiledialog.h>
+#include <qinputdialog.h>
 #include <qmessagebox.h>
 #include <qprocess.h>
 #include <qpushbutton.h>
@@ -44,8 +45,6 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
 	if ( qtdirenv.endsWith( "/" ) )
 	    qtdirenv.truncate( qtdirenv.length() - 1 );
     }
-    setCaption( QString( "qdocgui -- %1 %2" )
-		    .arg( qtdirenv ).arg( _defines.join(" ") ) );
 
     vb = new QVBoxLayout( this );
     classList = new QListView( this );
@@ -54,14 +53,29 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
     classList->setRootIsDecorated( TRUE );
     vb->addWidget( classList );
     QHBoxLayout* hb = new QHBoxLayout();
-    statusBar = new QLabel( "Ready", this );
+    statusBar = new QLabel( "Ready. Click Repopulate to run qdoc.", this );
     hb->addWidget( statusBar );
     hb->setStretchFactor( statusBar, 2 );
+    version = new QPushButton("&QTDIR...", this);
+    version->setFocusPolicy( NoFocus );
+    version->setAutoDefault( FALSE );
+    hb->addWidget(version);
+    commercial = new QPushButton("&Commercial", this);
+    commercial->setFocusPolicy( NoFocus );
+    commercial->setAutoDefault( FALSE );
+    commercial->setToggleButton( TRUE );
+    commercial->setOn( FALSE );
+    hb->addWidget(commercial);
     redo = new QPushButton( "&Repopulate", this );
     redo->setFocusPolicy( NoFocus );
     redo->setAutoDefault( FALSE );
     hb->addWidget( redo );
-    QPushButton *quit = new QPushButton( "&Quit", this );
+    stop = new QPushButton("&Stop", this);
+    stop->setFocusPolicy( NoFocus );
+    stop->setAutoDefault( FALSE );
+    stop->setEnabled( FALSE );
+    hb->addWidget(stop);
+    QPushButton *quit = new QPushButton( "E&xit", this );
     quit->setFocusPolicy( NoFocus );
     quit->setAutoDefault( FALSE );
     hb->addWidget( quit );
@@ -77,30 +91,66 @@ QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
 
     msgCount = 0;
 
-    populateListView();
+//    populateListView();
+    updateTitle();
     setEditor();
     classList->setFocus();
+    proc = new QProcess( this );
 
     connect( classList, SIGNAL(returnPressed(QListViewItem*)),
 	     this, SLOT(activateEditor(QListViewItem*)) );
     connect( classList, SIGNAL(doubleClicked(QListViewItem*)),
 	     this, SLOT(activateEditor(QListViewItem*)) );
+    connect(version, SIGNAL(clicked()), this, SLOT(changeVersion()));
     connect( redo, SIGNAL(clicked()), this, SLOT(populateListView()) );
+    connect(stop, SIGNAL(clicked()), proc, SLOT(tryTerminate()));
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
+    connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
+}
+
+
+void QDocMainWindow::changeVersion()
+{
+    QString path = QFileDialog::getExistingDirectory(
+			qtdirenv, this, "get version path",
+			"Choose the QTDIR path", true);
+    if (!path.isEmpty()) {
+	qtdirenv = path;
+	if ( qtdirenv.endsWith( "/" ) )
+	    qtdirenv.truncate( qtdirenv.length() - 1 );
+	statusBar->setText(QString("QTDIR is now %1").arg(qtdirenv));
+    }
+}
+
+
+void QDocMainWindow::updateTitle()
+{
+    QString edition("(free)");
+    if (commercial->isOn())
+	edition = "(commercial)";
+    setCaption( QString( "qdocgui -- %1 %2 %3" )
+		    .arg( qtdirenv ).arg( edition ).arg( _defines.join(" ") ) );
 }
 
 
 void QDocMainWindow::populateListView()
 {
+    updateTitle();
     redo->setEnabled( FALSE );
+    commercial->setEnabled( FALSE );
+    version->setEnabled( FALSE );
+    stop->setEnabled( TRUE );
     classList->clear();
-    proc = new QProcess( this );
     QDir dir( qtdirenv + "/util/qdoc" );
     if ( ! dir.exists( "qdoc" ) )
 	statusBar->setText( QString( "No qdoc to execute in %1" ).
 				arg( dir.path() ) );
     else {
+	if (proc->isRunning())
+	    proc->kill();
 	proc->setWorkingDirectory( dir );
+	proc->clearArguments();
 	proc->addArgument( dir.path() + "/qdoc" );
 	proc->addArgument( dir.path() + "/qdoc.conf" );
 	proc->addArgument( "--friendly" );
@@ -109,9 +159,9 @@ void QDocMainWindow::populateListView()
 	for (QStringList::const_iterator it = _defines.constBegin();
 	     it != _defines.constEnd(); ++it)
 	    proc->addArgument(*it);
+	if (commercial->isOn())
+	    proc->addArgument("-Dcommercial");
 
-	connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
-	connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
 	statusBar->setText( QString("Running qdoc..."));
 	// qdoc relies on $QTDIR _as well as_ qdoc.conf
 	QStringList *env = new QStringList( QString( "QTDIR=%1" ).
@@ -323,6 +373,9 @@ void QDocMainWindow::finished()
 	classList->sort();
     }
     redo->setEnabled( TRUE );
+    commercial->setEnabled( TRUE );
+    version->setEnabled( TRUE );
+    stop->setEnabled( FALSE );
     warnings = count;
     QString msg = QString( "%1 warnings" ).arg( count );
     statusBar->setText( msg );
@@ -338,9 +391,9 @@ QDocMainWindow::~QDocMainWindow()
     settings.writeEntry( "/qDocGUI/geometry/y", y() );
     settings.writeEntry( "/qDocGUI/geometry/width", width() );
     settings.writeEntry( "/qDocGUI/geometry/height", height() );
-    proc->kill();
+    if (proc)
+	proc->kill();
 }
-
 
 
 int main( int argc, char** argv )
@@ -350,7 +403,7 @@ int main( int argc, char** argv )
     /* By default qdocgui uses $QTDIR, but you can override this by
        specifying a path on the command line.
        You can also specify defines, e.g.
-       qdocgui /home/mark/qt-3.2 -Dcommercial_edition -Dprofessional_edition
+       qdocgui /home/mark/qt-3.2 -Dcommercial
     */
     QString qtdir;
     QStringList defines;
