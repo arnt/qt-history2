@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#58 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#58 $")
 
 
 // Mac style parameters
@@ -93,6 +93,8 @@ static const motifTabSpacing	= 12;		// space between text and tab
 
   The popup widget is different from other widgets in the way it
   relates to the parent widget.
+
+  menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
   \sa QMenuBar
  ----------------------------------------------------------------------------*/
