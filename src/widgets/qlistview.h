@@ -1,3 +1,4 @@
+//depot/qt/main/src/widgets/qlistview.h#215 - edit change 79563 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -491,7 +492,7 @@ public:
     int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();
 
-    virtual void setOn( bool );
+    virtual void setOn( bool ); // ### should be replaced by setChecked in ver4
     bool isOn() const { return on; }
     Type type() const { return myType; }
     QString text() const { return QListViewItem::text( 0 ); }
@@ -501,8 +502,6 @@ public:
     bool isTristate() const;
     ToggleState state() const;
     void setState( ToggleState s);
-    void setChecked( bool checked );
-    bool isChecked() const;
 
     int rtti() const;
     static int RTTI;

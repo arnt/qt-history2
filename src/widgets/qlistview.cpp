@@ -1,3 +1,4 @@
+//depot/qt/main/src/widgets/qlistview.cpp#781 - edit change 79563 (text)
 /****************************************************************************
 ** $Id$
 **
@@ -6035,31 +6036,6 @@ QCheckListItem::ToggleState QCheckListItem::storedState( void *key ) const
 	return Off;
 }
 
-/*!
-  Sets whether the checkbox is checked or not.
-
-  \sa isChecked() setState()
-*/
-void QCheckListItem::setChecked( bool checked ) {
-    if ( checked )
-	setState( On , TRUE, TRUE );
-    else
-	setState( Off , TRUE, TRUE );
-}
-
-/*!
-  Returns TRUE if the checklist item is checked; otherwise returns FALSE.
-
-  Note: A checklist item that has the state NoChange also returns FALSE.
-
-  \sa setChecked() state()
-*/
-bool QCheckListItem::isChecked() const {
-    if ( internalState() == On )
-	return TRUE;
-    else
-	return FALSE;
-}
 
 /*!
     \fn QString QCheckListItem::text() const
