@@ -3337,12 +3337,6 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 				 me->pos().y() - d->h->height() ),
 			 me->button(), me->state() );
 	switch( me2.type() ) {
-	case QEvent::MouseButtonPress:
-	    if ( me2.button() == RightButton ) {
-		viewportMousePressEvent( &me2 );
-		return TRUE;
-	    }
-	    break;
 	case QEvent::MouseButtonDblClick:
 	    if ( me2.button() == RightButton )
 		return TRUE;
@@ -3350,12 +3344,6 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	case QEvent::MouseMove:
 	    if ( me2.state() & RightButton ) {
 		viewportMouseMoveEvent( &me2 );
-		return TRUE;
-	    }
-	    break;
-	case QEvent::MouseButtonRelease:
-	    if ( me2.button() == RightButton ) {
-		viewportMouseReleaseEvent( &me2 );
 		return TRUE;
 	    }
 	    break;
