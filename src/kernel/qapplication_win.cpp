@@ -3634,7 +3634,6 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_ui = enable;
 	break;
     }
-
     if ( desktopSettingsAware() && !( qt_winver == WV_95 || qt_winver == WV_NT ) ) {
 	// we know that they can be used when we are here
 	UINT api;
@@ -3664,9 +3663,9 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	}
 	BOOL onoff = enable;
 	QT_WA( {
-	    SystemParametersInfo( api, 0, &onoff, 0 );
+	    SystemParametersInfo( api, 0, (void*)onoff, 0 );
 	}, {
-	    SystemParametersInfoA( api, 0, &onoff, 0 );
+	    SystemParametersInfoA( api, 0, (void*)onoff, 0 );
 	} );
     }
 }
