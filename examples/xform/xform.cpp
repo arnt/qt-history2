@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#7 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -39,7 +39,7 @@ class XFormControl : public QFrame, public ModeNames
 {
     Q_OBJECT
 public:
-    XFormControl( QWidget *parent=0, const char *name=0 );
+    XFormControl( const QFont &initialFont, QWidget *parent=0, const char *name=0 );
    ~XFormControl() {}
 
     QWMatrix matrix();
@@ -70,6 +70,7 @@ private:
     QRadioButton *rb_txt;	       // Radio button for text
     QRadioButton *rb_img;	       // Radio button for image
     QRadioButton *rb_pic;	       // Radio button for picture
+    QFont currentFont;
 };
 
 /*
@@ -81,7 +82,7 @@ class ShowXForm : public QWidget, public ModeNames
 {
     Q_OBJECT
 public:
-    ShowXForm( QWidget *parent=0, const char *name=0 );
+    ShowXForm( const QFont &f, QWidget *parent=0, const char *name=0 );
    ~ShowXForm() {}
     void showIt();			// (Re)displays text or pixmap
 
@@ -104,9 +105,11 @@ private:
     Mode      m;
 };
 
-XFormControl::XFormControl( QWidget *parent, const char *name )
+XFormControl::XFormControl( const QFont &initialFont,
+			    QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
+    currentFont = initialFont;
     mode = Image;
 
     rotLCD	= new QLCDNumber( 4, this, "rotateLCD" );
@@ -247,9 +250,11 @@ QWMatrix XFormControl::matrix()
 void XFormControl::selectFont()
 {
     bool ok;
-    QFont f = QFontDialog::getFont( &ok );
-    if ( ok )
+    QFont f = QFontDialog::getFont( &ok, currentFont );
+    if ( ok ) {
+	currentFont = f;
 	fontSelected( f );
+    }
 }
 
 void XFormControl::fontSelected( const QFont &font )
@@ -285,10 +290,11 @@ void XFormControl::changeMode(int m)
     qApp->flushX();
 }
 
-ShowXForm::ShowXForm( QWidget *parent, const char *name )
+ShowXForm::ShowXForm( const QFont &initialFont,
+		      QWidget *parent, const char *name )
 	: QWidget( parent, name, WResizeNoErase )
 {
-    setFont( QFont( "Charter", 48, QFont::Bold ) );
+    setFont( initialFont );
     setBackgroundColor( white );
     m = Text;
     eraseRect = QRect( 0, 0, 0, 0 );
@@ -466,9 +472,11 @@ void XFormCenter::newMode( int m )
 XFormCenter::XFormCenter( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    sx = new ShowXForm(this);
+    QFont f( "Charter", 36, QFont::Bold );
+
+    sx = new ShowXForm( f, this );
     sx->move( 120, 0 );		    // the size is set by resizeEvent
-    xc = new XFormControl(this);
+    xc = new XFormControl( f, this );
     xc->move( 0, 0 );		    // the size is set by resizeEvent
     xc->setFrameStyle( QFrame::Box | QFrame::Sunken );
     xc->setLineWidth( 2 );
