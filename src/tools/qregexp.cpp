@@ -3188,27 +3188,25 @@ QStringList QRegExp::capturedTexts()
 }
 
 /*!
-  Returns the text captured by the \a nth parenthesized subexpression in the
-  regular expression.  Subexpressions are numbered in the order of occurrence of
-  their left parenthesis, starting at 1.  The whole regular expression is given
-  number 0 (the default), making it easy to retrieve the full matched text.
+  Returns the text captured by the \a nth parenthesized subexpression
+  in the regular expression.  Subexpressions are numbered in the order
+  of occurrence of their left parenthesis, starting at 1.  The whole
+  regular expression is given number 0 (the default), so cap() returns
+  the text matched by the entire regular expression.
 
-  Example 1:
   \code
-    QRegExp rx( "([a-z])+" );           // matches a lower-case word
+    QRegExp rx( "[a-z]+" );           // matches a lower-case word
     int pos = rx.search( "X pizza Y" ); // pos == 2
-    QString t0 = rx.cap( 0 );           // pizza
-    QString t1 = rx.cap( 1 );           // a
+    QString t0 = rx.cap();           // pizza - the entire word
   \endcode
 
-  Example 2:
+  If the subexpression is used several times, cap() returns the text
+  it matched last time:
+  
   \code
-    QRegExp rx( "1*((2*)3*)(4*)" );
-    int pos = rx.search( "1223334" );   // pos == 0
-    QString t0 = rx.cap( 0 );           // 1223334
-    QString t1 = rx.cap( 1 );           // 22333
-    QString t2 = rx.cap( 2 );           // 22
-    QString t3 = rx.cap( 3 );           // 4
+    QRegExp rx( "([a-z])+" );           // matches a lower-case word
+    int pos = rx.search( "X pizza chianti Y" );
+    QString t0 = rx.cap( 1 );        // a - the last match
   \endcode
 
   \sa pos()
