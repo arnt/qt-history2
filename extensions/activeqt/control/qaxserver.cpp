@@ -225,6 +225,22 @@ HRESULT UpdateRegistry(BOOL bRegister)
     const QString appId = qAxFactory()->appID().toString().upper();
     const QString libId = qAxFactory()->typeLibID().toString().upper();
 
+    qAxInit();
+    QString typeLibVersion;
+    if (qAxTypeLibrary) {
+	TLIBATTR *libAttr = 0;
+	qAxTypeLibrary->GetLibAttr(&libAttr);
+	if (libAttr) {
+	    DWORD major = libAttr->wMajorVerNum;
+	    DWORD minor = libAttr->wMinorVerNum;
+	    typeLibVersion = QString::number(major) + "." + QString::number(minor);
+	    qAxTypeLibrary->ReleaseTLibAttr(libAttr);
+	}
+    }
+    if (typeLibVersion.isEmpty())
+	typeLibVersion = "1.0";
+    qAxCleanup();
+
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
 
@@ -238,10 +254,10 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appId );
 	}
 
-	settings.writeEntry( "/TypeLib/" + libId + "/1.0/0/win32/.", file );
-	settings.writeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/.", "0" );
-	settings.writeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/.", path );
-	settings.writeEntry( "/TypeLib/" + libId + "/1.0/.", module + " 1.0 Type Library" );
+	settings.writeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/0/win32/.", file );
+	settings.writeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/FLAGS/.", "0" );
+	settings.writeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/HELPDIR/.", path );
+	settings.writeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/.", module + " " + typeLibVersion + " Type Library" );
 
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
@@ -290,13 +306,13 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/.", libId );
-	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", "1.0" );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", typeLibVersion );
 
 	    settings.writeEntry( "/Interface/" + eventId + "/.", "I" + className + "Events" );
 	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/.", libId );
-	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
+	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", typeLibVersion );
 
 	    qAxFactory()->registerClass( className, &settings );
 	}
@@ -354,13 +370,13 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
 	settings.removeEntry( "/AppID/" + appId + "/." );
 
-	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/win32/." );
-	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/." );
-	settings.removeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/." );
-	settings.removeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/." );
-	settings.removeEntry( "/TypeLib/" + libId + "/1.0/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/0/win32/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/0/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/FLAGS/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/HELPDIR/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/" + typeLibVersion + "/." );
     }
-   
+
     return S_OK;
 }
 
