@@ -18,19 +18,19 @@ platforms and programs can access multiple databases using multiple
 drivers simultaneously.
 
 Programmers can easily execute any arbitrary SQL statements. Qt also
-provides a high-level C++ interface that programmers can use which
-generates the appropriate SQL statements automatically.
+provides a high-level C++ interface that programmers can use to
+generate the appropriate SQL statements automatically.
 
 Any Qt widget, including custom widgets, can be made data-aware. Qt
 also includes some database-specific convenience widgets, to simplify
 the creation of dialogs and windows that present records as forms or
 in tables. Data-aware widgets automatically support browsing, updating
 and deleting records. Most database designs require that new records
-have a unique key which cannot be guessed by Qt, so insertion usually
+have a unique key that cannot be guessed by Qt, so insertion usually
 needs a small amount of code to be written. The programmer can
 easily force the user to confirm actions, e.g. deletions.
 
-The Qt SQL module is fully integrated into \l{Qt Designer} which
+The Qt SQL module is fully integrated into \l{Qt Designer}, which
 provides templates and wizards to make the creation of database forms
 as quick and easy as possible. The wizards can create forms with
 navigation buttons, and with update, insert and delete buttons.
@@ -124,13 +124,13 @@ confirm all or selected changes (e.g. deletions) by setting
 for each type of data depends on the data type. For example, a \Class
 QLineEdit is used for \c CHAR fields, whereas a \Class QSpinBox is
 used for \c INTEGER fields. The programmer can override the defaults
-by creating a property map for the table which matches fields
+by creating a property map for the table, which matches fields
 (columns) to the editor widget type the programmer prefers. 
 
 Records can be updated and deleted without writing any code.
 Insertions require some code since most database designs expect new
 records to be created with a unique key. This can easily be achieved
-by generating the key in a slot which is connected to the \Func
+by generating the key in a slot connected to the \Func
 QDataTable::beforeInsert() signal.
 
 \Class QDataTable uses intelligent buffering to make the loading of
@@ -138,8 +138,8 @@ large result sets fast, while keeping the user interface responsive.
 For databases that are capable of reporting query sizes, the scroll
 bar slider is displayed proportionally immediately.
 
-Qt also includes \Class QDataBrowser and \Class QDataView which are
-used to display records as forms, typically with one or perhaps just a
+Qt also includes \Class QDataBrowser and \Class QDataView
+to display records as forms, typically with one or perhaps just a
 few records shown at a time. These classes provide buttons with
 ready-made connections for navigating through the records. \Class
 QDataView is used for read only data. \Class QDataBrowser is used for
@@ -157,7 +157,7 @@ into its id by implementing a slot connected to \Func beforeInsert(),
 \Func beforeUpdate() and \Func beforeDelete().
 
 Developers can create their own forms for displaying database records.
-Unlike older toolkits which duplicate their widgets with data-aware
+Unlike older toolkits that duplicate their widgets with data-aware
 versions, any Qt widget (including custom widgets) can be made
 data-aware. All that is necessary is to include the widget in a \Class
 QSqlForm and set up a property map to relate the relevant database
