@@ -822,6 +822,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     updateBrush();
     if ( pdev == paintEventDevice )
 	SelectClipRgn( hdc, paintEventClipRegion->handle() );
+    else
+	SelectClipRgn( hdc, 0 );
     setf(DirtyFont);
     return TRUE;
 }
