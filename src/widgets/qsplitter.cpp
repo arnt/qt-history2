@@ -233,10 +233,10 @@ public:
     vertical.
 
     By default, all widgets can be as large or as small as the user
-    wishes, down to \link QWidget::minimumSizeHint()
-    minimumSizeHint()\endlink. You can also use setMinimumSize() and
-    setMaximumSize() on the children. Use setResizeMode() to specify
-    that a widget should keep its size when the splitter is resized.
+    wishes, between the \l minimumSize and \l maximumSize of the
+    widgets. Use setResizeMode() to specify that a widget should keep
+    its size when the splitter is resized, or set the stretch
+    component of the \l sizePolicy.
 
     Although QSplitter normally resizes the children only at the end
     of a resize operation, if you call setOpaqueResize( TRUE ) the
@@ -1217,6 +1217,7 @@ void QSplitter::styleChange( QStyle& old )
 
 QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 {
+    splitter.processChildEvents();
     QSplitterLayoutStruct *s = splitter.data->list.first();
     bool first = TRUE;
     ts << "[";
@@ -1258,6 +1259,7 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
     while ( line[i].isSpace() ) \
 	i++
 
+    splitter.processChildEvents();
     QSplitterLayoutStruct *s = splitter.data->list.first();
     QString line = ts.readLine();
     int i = 0;
