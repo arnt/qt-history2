@@ -2120,8 +2120,12 @@ QString RenameActionCommand::mangle( QString name )
 
 void RenameActionCommand::execute()
 {
-    action->setMenuText( newName );
-    action->setText( newName );
+    QString actionText = newName;
+    actionText.replace("&&", "&");
+    QString menuText = newName;
+    action->setText( actionText );
+    action->setMenuText( menuText );
+
     QString n = mangle( newName );
     formWindow()->unify( action, n, TRUE );
     action->setName( n );
@@ -2129,6 +2133,7 @@ void RenameActionCommand::execute()
     ActionEditor *ae = actionEditor();
     if ( ae )
 	ae->updateActionName( action );
+
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 

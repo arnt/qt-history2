@@ -1391,13 +1391,17 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
     if ( currentIndex >= (int)itemList.count() ) {
 	// new item was created
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
-	a->setText( lineEdit->text() );
-	a->setMenuText( lineEdit->text() );
+	QString actionText = lineEdit->text();
+	actionText.replace("&&", "&");
+	QString menuText = lineEdit->text();
+	a->setText( actionText );
+	a->setMenuText( menuText );
 	i = createItem( a );
 	QString n = constructName( i );
 	formWindow()->unify( a, n, TRUE );
 	a->setName( n );
 	MetaDataBase::addEntry( a );
+	MetaDataBase::setPropertyChanged( a, "menuText", TRUE );
 	ActionEditor *ae = (ActionEditor*)formWindow()->mainWindow()->child( 0, "ActionEditor" );
 	if ( ae )
 	    ae->updateActionName( a );
