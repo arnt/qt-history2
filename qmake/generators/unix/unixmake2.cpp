@@ -58,12 +58,19 @@ UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerato
 bool
 UnixMakefileGenerator::writeMakefile(QTextStream &t)
 {
+    // libtool support
     if(project->isActiveConfig("create_libtool") && project->first("TEMPLATE") == "lib") { //write .la
 	if(project->isActiveConfig("compile_libtool"))
 	    warn_msg(WarnLogic, "create_libtool specified with compile_libtool can lead to conflicting .la\n"
 		     "formats, create_libtool has been disabled\n");
 	else
 	    writeLibtoolFile(var("TARGET"));
+    }
+
+    // pkg-config support
+    if(project->isActiveConfig("create_pc") &&
+       project->first("TEMPLATE") == "lib") {
+	writePkgConfigFile(var("TARGET"));
     }
 
     writeHeader(t);
@@ -1312,4 +1319,61 @@ UnixMakefileGenerator::writeLibtoolFile(const QString &target)
 	install_dir = project->first("DESTDIR");
     t << "# Directory that this library needs to be installed in:\n"
 	"libdir='" << Option::fixPathToTargetOS(install_dir, FALSE) << "'\n";
+}
+
+void
+UnixMakefileGenerator::writePkgConfigFile(const QString &target)
+{
+    qDebug( "writePkgConfigFile(%s)", target.ascii() );
+
+    QString lname = target;
+    int slsh = target.findRev(Option::dir_sep);
+    if(slsh != -1)
+	lname = lname.right(lname.length() - slsh);
+    if(lname.startsWith("lib"))
+	lname = lname.mid(3);
+    int dot = lname.find('.');
+    if(dot != -1)
+	lname = lname.left(dot);
+    QString fname = lname + ".pc";
+
+    QFile ft(fname);
+    if(!ft.open(IO_WriteOnly))
+	return;
+    QTextStream t(&ft);
+#if 0
+    t << "prefix=" << endl;
+    t << "exec_prefix=" << endl;
+    t << "libdir=" << endl;
+    t << "includedir=" << endl << endl;
+#endif
+
+    t << "Name: Qt" << endl;
+    t << "Description: Qt GUI Library" << endl;
+    t << "Version: " << project->first("VERSION") << endl;
+
+    // libs
+    QStringList libs;
+    if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
+    else
+	libs << "QMAKE_LIBS"; //obvious one
+    t << "Libs: ";
+    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
+	t << project->variables()[(*it)].join(" ") << " ";
+    t << endl;
+
+    // flags
+    // ### too many
+    t << "Cflags: " << var("QMAKE_CXXFLAGS") << " "
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D"," ")
+      << varGlue("DEFINES","-D"," -D"," ")
+      << "-I" << specdir();
+    if(!project->isActiveConfig("no_include_pwd")) {
+	QString pwd = fileFixify(QDir::currentDirPath());
+	if(pwd.isEmpty())
+	    pwd = ".";
+	t << " -I" << pwd;
+    }
+    t << varGlue("INCLUDEPATH"," -I", " -I", "") << endl;
 }
