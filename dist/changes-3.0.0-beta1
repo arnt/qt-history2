@@ -314,7 +314,45 @@ is provided by a new class QWidgetFactory in the QResource library.
 Qt Linguist
 ========================================
 
-######
+Qt Linguist is a utility for translating applications written with
+Qt. It comes with two command-line tools: lupdate and lrelease.
+
+Translation of a Qt application is a three-step process:
+
+  * Run lupdate to extract translatable text from the C++ source
+    code of the Qt application, resulting in a translation source file
+    (a TS file).
+  * Provide translations for the source texts in the TS file.
+  * Run lrelease to obtain a light-weight message file (a QM file)
+    from the TS file, suitable only for released applications.
+
+Qt Linguist's role is to let you provide translations for source
+texts (step 2 above). Each source text is characterized by the text
+itself, a context (usually the name of the C++ class containing the
+text), and an optional comment to help you distinguish the text.
+
+When translating an item, you have the following information close at
+hand:
+  * the source text;
+  * the comment for the source text;
+  * the context in which the source text appears, possibly with an
+    explanation of where to find the context in the Qt application or
+    other comment;
+  * relevant phrases from phrase books, with translations and
+    definitions.
+
+Phrase books provide instant information about technical terms, and
+can be edited using Qt Linguist.  There is also a "done" flag that
+you may turn on when you are satisfied with a translation, in which
+case the translation is used instead of the source text when running
+the Qt application with the QM file.
+
+When the Qt application evolves (say, from release 1.0 to release
+1.1), the utility lupdate merges the current source texts with the
+previous translation source file, to reuse existing translations. In
+some typical cases, lupdate may suggest translations. These
+translations are marked as unfinished, so you can easily go over
+them.
 
 
 Qt Assistant
@@ -517,8 +555,19 @@ QFontMetrics
 
 QFrame
 
-Two new frame shapes for more sophisticated styleability:
+Two new frame shapes for more sophisticated style features:
 MenuBarPanel and ToolBarPanel.
+
+
+QGrid
+
+The member type
+
+    enum Direction { Horizontal, Vertical };
+
+has been eliminated, as it is redundant with Qt::Orientation. Old
+code referring to QGrid::Horizontal or QGrid::Vertical will
+still work, as QGrid counts Qt among its ancestors.
 
 
 QGroupBox
