@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#22 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#22 $");
 
 
 QTab::~QTab()
@@ -427,7 +427,8 @@ void QTabBar::setCurrentTab( int id )
 }
 
 
-/*! "Raises" \a tab and emits the selected() signal.
+/*! "Raises" \a tab and emits the selected() signal unless the tab was
+  already current.
 
   \sa currentTab() selected()
 */
@@ -435,6 +436,9 @@ void QTabBar::setCurrentTab( int id )
 void QTabBar::setCurrentTab( QTab * tab )
 {
     if ( tab && l ) {
+	if ( l->last() == tab )
+	    return;
+
 	QRect r = l->last()->r;
 	if ( l->findRef( tab ) >= 0 )
 	    l->append( l->take() );
