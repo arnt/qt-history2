@@ -222,6 +222,9 @@ called for \c p2, because painting a pixmap will modify it. The same
 also happens if anything is \link ::bitBlt() bitBlt()\endlink'ed into
 \c p2.
 
+\warning If you want to copy an implicitly shared list (e.g. a
+QStringList or a QValueVector, etc.), inside a loop that is iterating
+over that same list, the iterator should be a \c const iterator.
 
 \section1 QCString: implicit or explicit?
 

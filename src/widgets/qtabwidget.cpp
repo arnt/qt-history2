@@ -32,13 +32,12 @@
     \ingroup advanced
     \mainclass
 
-    A tabbed widget is a widget that has a tab bar of tabs, and for
-    each tab a "page" which is a widget. The user selects which page
-    to see and use by clicking on its tab or by pressing the indicated
-    Alt+\e{letter} key combination.
-
-    QTabWidget provides a single row of tabs along the top or bottom
-    of the pages (see \l{TabPosition}).
+    A tab widget provides a tab bar of tabs and a `page area' below
+    (or above, see \l{TabPosition}) the tabs. Each tab is associated
+    with a different widget (called a `page'). Only the current tab's
+    page is shown in the page area; all the other tabs' pages are
+    hidden. The user can show a different page by clicking on its tab
+    or by pressing its Alt+\e{letter} accelerator if it has one.
 
     The normal way to use QTabWidget is to do the following in the
     constructor:
