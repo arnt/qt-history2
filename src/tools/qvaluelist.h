@@ -75,6 +75,7 @@ public:
    * Typedefs
    */
   typedef QValueListIterator< T, T&, T* > Iterator;
+  typedef QValueListIterator< T, const T&, const T* > ConstIterator;
   typedef QValueListNode<T> Node;
   typedef QValueListNode<T>* NodePtr;
 
@@ -112,15 +113,15 @@ public:
     return Iterator( next );
   }
 
-  Iterator find( Iterator it, const T& x ) const {
-    Iterator first = it;
-    Iterator last = Iterator( node );
+  NodePtr find( NodePtr start, const T& x ) const {
+    ConstIterator first( start );
+    ConstIterator last( node );
     while( first != last) {
       if ( *first == x )
 	return first;
       ++first;
     }
-    return last;
+    return last.node;
   }
 
   uint contains( const T& x ) const {
@@ -146,8 +147,8 @@ public:
     }
   }
 
-  Iterator at( uint i ) const {
-    ASSERT( i < nodes );
+  NodePtr at( uint i ) const {
+    ASSERT( i <= nodes );
     NodePtr p = node->next;
     for( uint x = 0; x < i; ++x )
       p = p->next;
@@ -228,18 +229,18 @@ public:
   void remove( const T& x ) { detach(); sh->remove( x ); }
 
   T& getFirst() { detach(); return sh->node->next->data; }
-  const T& getFirst() const { detach(); return sh->node->next->data; }
+  const T& getFirst() const { return sh->node->next->data; }
   T& getLast() { detach(); return sh->node->prev->data; }
   const T& getLast() const { return sh->node->prev->data; }
 
-  T& operator[] ( uint i ) { detach(); return *sh->at(i); }
-  const T& operator[] ( uint i ) const { return *sh->at(i); }
-  Iterator at( uint i ) { detach(); return sh->at(i); }
-  ConstIterator at( uint i ) const { return ConstIterator( sh->at(i).node ); }
-  Iterator find ( const T& x ) { detach(); return sh->find( begin(), x); }
-  ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( begin(), x).node ); }
-  Iterator find ( Iterator it, const T& x ) { detach(); return sh->find( it, x ); }
-  ConstIterator find ( Iterator it, const T& x ) const { return ConstIterator( sh->find( it, x ).node ); }
+  T& operator[] ( uint i ) { detach(); return sh->at(i)->data; }
+  const T& operator[] ( uint i ) const { return sh->at(i)->data; }
+  Iterator at( uint i ) { detach(); return Iterator( sh->at(i) ); }
+  ConstIterator at( uint i ) const { return ConstIterator( sh->at(i) ); }
+  Iterator find ( const T& x ) { detach(); return Iterator( sh->find( sh->node->next, x) ); }
+  ConstIterator find ( const T& x ) const { return ConstIterator( sh->find( sh->node->next, x) ); }
+  Iterator find ( Iterator it, const T& x ) { detach(); return Iterator( sh->find( it.node, x ) ); }
+  ConstIterator find ( Iterator it, const T& x ) const { return ConstIterator( sh->find( it.node, x ) ); }
   uint contains( const T& x ) const { return sh->contains( x ); }
 
   uint count() const { return sh->nodes; }
