@@ -123,10 +123,6 @@ int main(int argc, char **argv)
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
 			return 5;
 		    }
-		    QFileInfo fi(Option::output);
-		    Option::output_dir = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
-		    if(QDir::isRelativePath(Option::output_dir)) 
-			Option::output_dir.prepend(oldpwd);
 		}
 	    }
 	} else {

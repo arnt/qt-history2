@@ -93,7 +93,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //MAKE QMAKE equivlant
     if(!project->isActiveConfig("no_autoqmake") && project->projectFile() != "(stdin)") {
-	QString mkfile = Option::output_dir + Option::dir_sep + "qt_makeqmake.mak";
+	QString mkfile = pbx_dir + Option::dir_sep + "qt_makeqmake.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
@@ -136,7 +136,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file);
 	    if(!project->isActiveConfig("flat")) {
-		QString flat_file = fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), TRUE);
+		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
 		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
 		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
@@ -213,7 +213,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //PREPROCESS BUILDPHASE (just a makefile)
     if(!project->isEmpty("UICIMPLS") || !project->isEmpty("SRCMOC") ||
 	!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES")) {
-	QString mkfile = Option::output_dir + Option::dir_sep + "qt_preprocess.mak";
+	QString mkfile = pbx_dir + Option::dir_sep + "qt_preprocess.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
 	    did_preprocess = TRUE;
@@ -408,7 +408,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     //SUBLIBS BUILDPHASE (just another makefile)
     if(!project->isEmpty("SUBLIBS")) {
-	QString mkfile = Option::output_dir + Option::dir_sep + "qt_sublibs.mak";
+	QString mkfile = pbx_dir + Option::dir_sep + "qt_sublibs.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
@@ -527,7 +527,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		links << t;
 	    }
 	}
-	QString script = Option::output_dir + Option::dir_sep + "qt_install.sh";
+	QString script = pbx_dir + Option::dir_sep + "qt_install.sh";
 	QFile shf(script);
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
@@ -778,7 +778,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t" << "rootObject = " << keyFor("QMAKE_PBX_ROOT") << ";" << "\n"
       << "}" << endl;
 
-    QString mkwrap = fileFixify(Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"), 
+    QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"), 
 				QDir::currentDirPath());
     QFile mkwrapf(mkwrap);
     if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
@@ -797,7 +797,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(did_preprocess) 
 	    mkwrapt << cleans << ":" << "\n\t"
 		    << "make -f " 
-		    << Option::output_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
+		    << pbx_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
     }
     return TRUE;
 }
@@ -881,6 +881,10 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
 	    output += QString("project.pbxproj");
 	    file.setName(output);
 	}
+	bool ret = UnixMakefileGenerator::openOutput(file);
+	((ProjectBuilderMakefileGenerator*)this)->pbx_dir = Option::output_dir.section(Option::dir_sep, 0, -1);
+	Option::output_dir = pbx_dir.section(Option::dir_sep, 0, -2); 
+	return ret;
     }
     return UnixMakefileGenerator::openOutput(file);
 }

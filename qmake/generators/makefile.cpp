@@ -1084,7 +1084,8 @@ MakefileGenerator::processPrlFile(QString &file)
 	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(prl_file);
 	QMakeProject proj;
 	debug_msg(1, "Processing PRL file: %s", real_prl_file.latin1());
-	if(!proj.read(real_prl_file, QDir::currentDirPath())) {
+	if(!proj.read(fileFixify(real_prl_file, QDir::currentDirPath(), Option::output_dir), 
+		      QDir::currentDirPath())) {
 	    fprintf(stderr, "Error processing prl file: %s\n", real_prl_file.latin1());
 	} else {
 	    ret = TRUE;
@@ -1951,7 +1952,15 @@ MakefileGenerator::openOutput(QFile &file) const
     int slsh = file.name().findRev(Option::dir_sep);
     if(slsh != -1)
 	createDir(file.name().left(slsh));
-    return file.open(IO_WriteOnly | IO_Translate);
+    if(file.open(IO_WriteOnly | IO_Translate)) {
+	QFileInfo fi(Option::output);
+	QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
+	if(QDir::isRelativePath(od)) 
+	    od.prepend(Option::output_dir);
+	Option::output_dir = od;
+	return TRUE;
+    }
+    return FALSE;
 }
 
 

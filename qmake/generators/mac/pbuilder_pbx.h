@@ -41,6 +41,7 @@
 
 class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
+    QString pbx_dir;
     int pbuilderVersion() const;
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
