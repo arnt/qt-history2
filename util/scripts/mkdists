@@ -401,6 +401,7 @@ for $platform ( "x11", "qws" ) {
 	# Remove unifont.bdf - it's too big to both shipping, and the
 	# fontdir points to the source.
 	unlink "$distdir/$platform-$freedom/qt-$version$type/etc/fonts/unifont.bdf";
+	unlink "$distdir/$platform-$freedom/qt-$version$type/etc/fonts/verdana.ttf";
     }
 
     link( "$distdir/qt/util/scripts/configure", "$qtdir/configure" );
