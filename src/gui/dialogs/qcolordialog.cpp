@@ -302,8 +302,10 @@ void QWellArray::setCurrent(int row, int col)
 
 
 /*!
-  Sets the currently selected cell to \a row, \a col.  If \a row or \a
-  col are less than zero, the current cell is unselected.
+  \fn void QWellArray::setSelected(int row, int column)
+
+  Sets the currently selected cell to \a row, \a column. If \a row or
+  \a column are less than zero, the current cell is unselected.
 
   Does not set the position of the focus indicator.
 */
@@ -355,8 +357,10 @@ void QWellArray::setCellBrush(int row, int col, const QBrush &b)
 
 
 /*!
-  Returns the brush set for the cell at \a row, \a col. If no brush is set,
-  \c Qt::NoBrush is returned.
+  \fn QBrush QWellArray::cellBrush(int row, int column)
+
+  Returns the brush set for the cell at \a row, \a column. If no brush is
+  set, \c Qt::NoBrush is returned.
 */
 
 QBrush QWellArray::cellBrush(int row, int col)
@@ -452,7 +456,9 @@ QRgb QColorDialog::customColor(int i)
 }
 
 /*!
-    Set custom color number \a i to the QRgb value \a c.
+    \fn void QColorDialog::setCustomColor(int number, QRgb color)
+
+    Sets the custom color \a number to the QRgb \a color value.
 */
 void QColorDialog::setCustomColor(int i, QRgb c)
 {
@@ -463,7 +469,9 @@ void QColorDialog::setCustomColor(int i, QRgb c)
 }
 
 /*!
-    Set standard color number \a i to the QRgb value \a c.
+    \fn void QColorDialog::setStandardColor(int number, QRgb color)
+
+    Sets the standard color \a number to the QRgb \a color value given.
 */
 
 void QColorDialog::setStandardColor(int i, QRgb c)
@@ -1391,8 +1399,8 @@ void QColorDialogPrivate::addCustom()
     If you require a modeless dialog, use the QColorDialog constructor.
     \endomit
 
-    The static getColor() function shows the dialog and allows the
-    user to specify a color. The getRgba() function does the same but
+    The static getColor() function shows the dialog, and allows the
+    user to specify a color. The getRgba() function does the same, but
     also allows the user to specify a color with an alpha channel
     (transparency) value.
 
@@ -1410,9 +1418,9 @@ void QColorDialogPrivate::addCustom()
 */
 
 /*!
-    Constructs a default color dialog with parent \a parent and called
-    \a name. If \a modal is true the dialog will be modal. Use
-    setColor() to set an initial value.
+    Constructs a default color dialog called \a name with the given \a parent.
+    If \a modal is true the dialog will be modal. Use setColor() to set an
+    initial value.
 
     \sa getColor()
 */
@@ -1517,7 +1525,7 @@ QRgb QColorDialog::getRgba(QRgb initial, bool *ok,
 
 
 /*!
-    Returns the color currently selected in the dialog.
+    Returns the currently selected color in the dialog.
 
     \sa setColor()
 */
@@ -1529,7 +1537,7 @@ QColor QColorDialog::color() const
 
 
 /*!
-    Destroys the dialog and frees any memory it allocated.
+    Destroys the color dialog.
 */
 
 QColorDialog::~QColorDialog()
@@ -1546,7 +1554,9 @@ QColorDialog::~QColorDialog()
 
 
 /*!
-    Sets the color shown in the dialog to \a c.
+    \fn void QColorDialog::setColor(const QColor &color)
+
+    Sets the color shown in the dialog to the \a color given.
 
     \sa color()
 */
@@ -1560,8 +1570,10 @@ void QColorDialog::setColor(const QColor& c)
 
 
 /*!
-    Sets the initial alpha channel value to \a a, and shows the alpha
-    channel entry box.
+    \fn void QColorDialog::setSelectedAlpha(int alpha)
+
+    Sets the initial alpha channel value to the \a alpha value given, and
+    shows the alpha channel entry box.
 */
 
 void QColorDialog::setSelectedAlpha(int a)
