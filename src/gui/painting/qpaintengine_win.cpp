@@ -530,7 +530,7 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
 void QWin32PaintEngine::drawRect(const QRectF &r)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " -> QWin32PaintEngine::drawRect()" << r;
+    qDebug() << " - QWin32PaintEngine::drawRect()" << r;
 #endif
 
 #ifdef QT_NO_NATIVE_GRADIENT
@@ -1249,7 +1249,7 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 {
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
-    printf("QWin32PaintEngine::updateMatrix(), [%.1f %.1f %.1f %.1f %.1f %.1f], calls=%d\n",
+    printf(" - QWin32PaintEngine::updateMatrix(), [%.1f %.1f %.1f %.1f %.1f %.1f], calls=%d\n",
            mtx.m11(), mtx.m12(), mtx.m21(), mtx.m22(), mtx.dx(), mtx.dy(), ++counter);
 #endif
 
@@ -1324,6 +1324,10 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
         return;
     }
 
+    if (op == Qt::NoClip) {
+        SelectClipRgn(d->hdc, 0);
+        return;
+    }
 
 #ifndef QT_NO_NATIVE_XFORM
     if (d->txop >= QPainterPrivate::TxScale) {
@@ -1344,11 +1348,12 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
     }
 #endif
 
-    QRegion rgn = region
-#ifndef QT_NO_NATIVE_XFORM
-                  * d->matrix
-#endif
-                  ;
+    QRegion rgn = region * d->matrix;
+    // Setting an empty clip region on windows disables clipping, so we do the
+    // nice hack of just setting a 1 pixel clip region far away to avoid anything
+    // from being drawn.
+    if (region.isEmpty())
+        rgn = QRegion(-0x1000000, -0x1000000, 1, 1);
     ExtSelectClipRgn(d->hdc, rgn.handle(), qt_clip_operations[op]);
 }
 
@@ -1360,6 +1365,11 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
 #endif
     // Sanity check since we use it blindly below.
     Q_ASSERT(op >= 0 && op <= Qt::UniteClip);
+
+    if (d->tryGdiplus()) {
+        d->gdiplusEngine->updateClipPath(path, op);
+        return;
+    }
 
     if (op == Qt::ReplaceClip && path.isEmpty()) {
         SelectClipRgn(d->hdc, 0);
@@ -1650,16 +1660,30 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     if (!qt_gdiplus_support)
         return;
+#ifdef QT_DEBUG_DRAW
+    printf(" - QWin32PaintEnginePrivate::beginGdiplus()\n");
+#endif
 
     ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
     SetGraphicsMode(hdc, GM_COMPATIBLE);
+    ExtSelectClipRgn(hdc, 0, RGN_COPY);
 
     Q_ASSERT(!gdiplusEngine);
     gdiplusEngine = new QGdiplusPaintEngine();
     gdiplusEngine->begin(pdev);
     gdiplusEngine->state = q->state;
     gdiplusInUse = true;
-    q->setDirty(QPaintEngine::DirtyFlags(QPaintEngine::AllDirty&~QPaintEngine::DirtyClip));
+
+    bool dirtyClipRegion = q->testDirty(QPaintEngine::DirtyClip);
+    bool dirtyClipPath   = q->testDirty(QPaintEngine::DirtyClipPath);
+
+    q->setDirty(QPaintEngine::AllDirty);
+
+    if (!dirtyClipRegion)
+        q->clearDirty(QPaintEngine::DirtyClip);
+    if (!dirtyClipPath)
+        q->clearDirty(QPaintEngine::DirtyClipPath);
+
     q->updateState(q->state);
 }
 
@@ -1716,6 +1740,7 @@ typedef int (__stdcall *PtrGdipCreateFromHDC) (HDC hdc, QtGpGraphics **);
 typedef int (__stdcall *PtrGdipDeleteGraphics) (QtGpGraphics *);
 typedef int (__stdcall *PtrGdipSetTransform) (QtGpGraphics *, QtGpMatrix *);
 typedef int (__stdcall *PtrGdipSetClipRegion) (QtGpGraphics *, QtGpRegion *, int);
+typedef int (__stdcall *PtrGdipSetClipPath) (QtGpGraphics *, QtGpPath *, int);
 typedef int (__stdcall *PtrGdipResetClip) (QtGpGraphics *);
 typedef int (__stdcall *PtrGdipSetSmoothingMode)(QtGpGraphics *, int);
 typedef int (__stdcall *PtrGdipFillEllipse) (QtGpGraphics *, QtGpBrush *,
@@ -1805,6 +1830,7 @@ static PtrGdipFillPolygon GdipFillPolygon = 0;
 static PtrGdipFillRectangle GdipFillRectangle = 0;           // Graphics::FillRectangle(brush,x,y,w,h)
 static PtrGdipResetClip GdipResetClip = 0;                   // Graphics::ResetClip()
 static PtrGdipSetClipRegion GdipSetClipRegion = 0;           // Graphics::SetClipRegion(region)
+static PtrGdipSetClipPath GdipSetClipPath = 0;               // Graphics::SetClipPath(path)
 static PtrGdipSetSmoothingMode GdipSetSmoothingMode = 0;     // Graphics::SetSmoothingMode(mode)
 static PtrGdipSetTransform GdipSetTransform = 0;             // Graphics::SetTransform(matrix)
 static PtrGdipDrawDriverString GdipDrawDriverString = 0;     // Graphics::DrawDriverString(...)
@@ -1876,6 +1902,7 @@ static void qt_resolve_gdiplus()
     GdipReleaseDC                = (PtrGdipReleaseDC)          lib.resolve("GdipReleaseDC");
     GdipSetTransform             = (PtrGdipSetTransform)       lib.resolve("GdipSetWorldTransform");
     GdipSetClipRegion            = (PtrGdipSetClipRegion)      lib.resolve("GdipSetClipRegion");
+    GdipSetClipPath              = (PtrGdipSetClipPath)        lib.resolve("GdipSetClipPath");
     GdipResetClip                = (PtrGdipResetClip)          lib.resolve("GdipResetClip");
     GdipSetSmoothingMode         = (PtrGdipSetSmoothingMode)   lib.resolve("GdipSetSmoothingMode");
     GdipFillEllipse              = (PtrGdipFillEllipse)        lib.resolve("GdipFillEllipse");
@@ -1946,6 +1973,7 @@ static void qt_resolve_gdiplus()
     Q_ASSERT(GdipReleaseDC);
     Q_ASSERT(GdipSetTransform);
     Q_ASSERT(GdipSetClipRegion);
+    Q_ASSERT(GdipSetClipPath);
     Q_ASSERT(GdipResetClip);
     Q_ASSERT(GdipSetSmoothingMode);
     Q_ASSERT(GdipFillEllipse);
@@ -2172,6 +2200,10 @@ void QGdiplusPaintEngine::updateBackground(Qt::BGMode, const QBrush &)
 
 void QGdiplusPaintEngine::updateMatrix(const QMatrix &qm)
 {
+#ifdef QT_DEBUG_DRAW
+    printf(" --- QGdiplus2PaintEngine::updateMatrix(), [%.1f %.1f %.1f %.1f %.1f %.1f]\n",
+           qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
+#endif
 //     Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
 //     d->graphics->SetTransform(&m);
     QtGpMatrix *m = 0;
@@ -2182,14 +2214,25 @@ void QGdiplusPaintEngine::updateMatrix(const QMatrix &qm)
 
 void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, Qt::ClipOperation op)
 {
-    if (qtClip.isEmpty()) {
+#ifdef QT_DEBUG_DRAW
+    printf(" --- QGdiplusPaintEngine::updateClipRegion(), bounds=[%d, %d, %d, %d], op=%d\n",
+           qtClip.boundingRect().x(),
+           qtClip.boundingRect().y(),
+           qtClip.boundingRect().width(),
+           qtClip.boundingRect().height(),
+           op
+           );
+#endif
+    if (op == Qt::NoClip) {
+        GdipResetClip(d->graphics);
+    } else {
         if (op == Qt::ReplaceClip)
             GdipResetClip(d->graphics);
-    } else {
         QtGpRegion *region = 0;
         GdipCreateRegionHrgn(qtClip.handle(), &region);
-        GdipSetClipRegion(d->graphics, region,
-                          op + 1  // Same enum values in GDI+, but +1 due to Qt::NoClip
+        GdipSetClipRegion(d->graphics
+                          , region,
+                          op-1  // Same enum values in GDI+, but +1 due to Qt::NoClip
                           );
         GdipDeleteRegion(region);
 
@@ -2198,10 +2241,28 @@ void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, Qt::ClipOperat
 
 void QGdiplusPaintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOperation op)
 {
-    Q_UNUSED(clipPath);
-    Q_UNUSED(op);
-
-    // ### Implement me...
+#ifdef QT_DEBUG_DRAW
+    QRect bounds = clipPath.boundingRect().toRect();
+    printf(" --- QGdiplusPaintEngine::updateClipPath(), bounds=[%d, %d, %d, %d], op=%d\n",
+           bounds.x(),
+           bounds.y(),
+           bounds.width(),
+           bounds.height(),
+           op
+           );
+#endif
+    if (op == Qt::NoClip) {
+        GdipResetClip(d->graphics);
+    } else {
+        if (op == Qt::ReplaceClip)
+            GdipResetClip(d->graphics);
+        QtGpPath *path = d->composeGdiplusPath(clipPath);
+        GdipSetClipPath(d->graphics
+                          , path,
+                          op-1  // Same enum values in GDI+, but +1 due to Qt::NoClip
+                          );
+        GdipDeletePath(path);
+    }
 }
 
 void QGdiplusPaintEngine::drawLine(const QLineF &line)
@@ -2313,53 +2374,14 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     GdipDisposeImage(bitmap);
 }
 
+
 void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 {
 #ifdef QT_NO_NATIVE_PATH
     Q_ASSERT(!"QGdiplusPaintEngine::drawPath(), QT_NO_NATIVE_PATH is defined...\n");
     return;
 #endif
-    QtGpPath *path = 0;
-    GdipCreatePath(0, &path);
-
-    QPointF prev, start;
-
-    // Drawing the subpaths
-    for (int i=0; i<p.elementCount(); ++i) {
-        const QPainterPath::Element &elm = p.elementAt(i);
-        switch (elm.type) {
-        case QPainterPath::MoveToElement:
-            if (i>0 && start == prev)
-                GdipClosePathFigure(path);
-            GdipStartPathFigure(path);
-            start = prev = QPointF(elm.x, elm.y);
-            break;
-        case QPainterPath::LineToElement:
-            GdipAddPathLine(path,
-                            prev.x(), prev.y(),
-                            elm.x, elm.y);
-            prev = QPointF(elm.x, elm.y);
-            break;
-        case QPainterPath::CurveToElement:
-            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
-            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
-            GdipAddPathBezier(path,
-                              prev.x(), prev.y(),
-                              elm.x, elm.y,
-                              p.elementAt(i+1).x, p.elementAt(i+1).y,
-                              p.elementAt(i+2).x, p.elementAt(i+2).y);
-            i += 2;
-            prev = QPointF(p.elementAt(i).x, p.elementAt(i).y);
-            break;
-        default:
-            qFatal("QGdiplusPaintEngine::drawPath(), unhandled type: %d", elm.type);
-        }
-    }
-
-    GdipSetPathFillMode(path, p.fillRule() == Qt::WindingFill ? 1 : 0);
-
-    if (start == prev)
-        GdipClosePathFigure(path);
+    QtGpPath *path = d->composeGdiplusPath(p);
 
     if (d->brush)
         GdipFillPath(d->graphics, d->brush, path);
@@ -2440,3 +2462,52 @@ static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image
     }
     return bitmap;
 }
+
+QtGpPath *QGdiplusPaintEnginePrivate::composeGdiplusPath(const QPainterPath &p)
+{
+    QtGpPath *path = 0;
+    GdipCreatePath(0, &path);
+
+    QPointF prev, start;
+
+    // Drawing the subpaths
+    for (int i=0; i<p.elementCount(); ++i) {
+        const QPainterPath::Element &elm = p.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            if (i>0 && start == prev)
+                GdipClosePathFigure(path);
+            GdipStartPathFigure(path);
+            start = prev = QPointF(elm.x, elm.y);
+            break;
+        case QPainterPath::LineToElement:
+            GdipAddPathLine(path,
+                            prev.x(), prev.y(),
+                            elm.x, elm.y);
+            prev = QPointF(elm.x, elm.y);
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            GdipAddPathBezier(path,
+                              prev.x(), prev.y(),
+                              elm.x, elm.y,
+                              p.elementAt(i+1).x, p.elementAt(i+1).y,
+                              p.elementAt(i+2).x, p.elementAt(i+2).y);
+            i += 2;
+            prev = QPointF(p.elementAt(i).x, p.elementAt(i).y);
+            break;
+        default:
+            qFatal("QGdiplusPaintEngine::drawPath(), unhandled type: %d", elm.type);
+        }
+    }
+
+    GdipSetPathFillMode(path, p.fillRule() == Qt::WindingFill ? 1 : 0);
+
+    if (start == prev)
+        GdipClosePathFigure(path);
+
+    return path;
+}
+
+

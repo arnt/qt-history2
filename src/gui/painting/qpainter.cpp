@@ -1037,6 +1037,8 @@ bool QPainter::begin(QPaintDevice *pd)
     // Slip a painter state into the engine before we do any other operations
     d->engine->state = d->state;
     d->engine->setDirty(QPaintEngine::AllDirty);
+    d->engine->clearDirty(QPaintEngine::DirtyClip);
+    d->engine->clearDirty(QPaintEngine::DirtyClipPath);
 
     if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
@@ -1189,7 +1191,8 @@ const QBrush &QPainter::background() const
 
 bool QPainter::hasClipping() const
 {
-    return d->state->clipEnabled;
+    int infoSize = d->state->clipInfo.size();
+    return infoSize > 0 && d->state->clipInfo.at(infoSize-1).operation != Qt::NoClip;
 }
 
 
@@ -1211,12 +1214,17 @@ void QPainter::setClipping(bool enable)
         return;
     }
 
-    if (d->state->clipEnabled == enable)
+    if (hasClipping() == enable)
         return;
 
-    d->state->clipEnabled = enable;
-    d->engine->setDirty(QPaintEngine::DirtyClip);
-    d->engine->updateState(d->state);
+    if (enable) {
+        // ### missing what to do...
+    } else {
+        d->state->tmpClipRegion = QRegion();
+        d->state->tmpClipOp = Qt::NoClip;
+        d->engine->setDirty(QPaintEngine::DirtyClip);
+        d->engine->updateState(d->state);
+    }
 }
 
 
@@ -1234,8 +1242,53 @@ QRegion QPainter::clipRegion() const
         qWarning("QPainter::clipRegion(), painter not active");
         return QRegion();
     }
-    // ### Implementation missing for now.
-    return QRegion();
+
+    QRegion region;
+    bool lastWasNothing = true;
+
+    for (int i=0; i<d->state->clipInfo.size(); ++i) {
+        const QPainterClipInfo &info = d->state->clipInfo.at(i);
+        QRegion other;
+        switch (info.clipType) {
+
+        case QPainterClipInfo::RegionClip: {
+            if (lastWasNothing) {
+                region = info.region;
+                lastWasNothing = false;
+            }
+            QMatrix matrix = (d->invMatrix * info.matrix);
+            if (info.operation == Qt::IntersectClip)
+                region &= info.region * matrix;
+            else if (info.operation == Qt::UniteClip)
+                region |= info.region * matrix;
+            else if (info.operation == Qt::NoClip) {
+                lastWasNothing = true;
+                region = QRegion();
+            } else
+                region = info.region * matrix;
+            break;
+        }
+        case QPainterClipInfo::PathClip: {
+            QMatrix matrix = (d->invMatrix * info.matrix);
+            if (info.operation == Qt::IntersectClip) {
+                region &= QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                                  info.path.fillRule());
+            } else if (info.operation == Qt::UniteClip) {
+                region |= QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                                  info.path.fillRule());
+            } else if (info.operation == Qt::NoClip) {
+                lastWasNothing = true;
+                region = QRegion();
+            } else {
+                region = QRegion((info.path * matrix).toFillPolygon().toPointArray(),
+                                 info.path.fillRule());
+            }
+            break;
+        }
+        }
+    }
+
+    return region;
 }
 
 /*!
@@ -1281,12 +1334,11 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
         return;
     }
 
-    if (!hasClipping() && r.isEmpty())
-        return;
-
     d->state->tmpClipRegion = r;
     d->state->tmpClipOp = op;
-    d->state->clipEnabled = true;
+    if (op == Qt::NoClip || op == Qt::ReplaceClip)
+        d->state->clipInfo.clear();
+    d->state->clipInfo << QPainterClipInfo(r, op, d->state->matrix);
     d->engine->setDirty(QPaintEngine::DirtyClip);
     d->engine->updateState(d->state);
 }
@@ -1349,11 +1401,6 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
         qWarning("QPainter::setMatrix(), painter not active ");
         return;
     }
-
-    // Must update clip before changing matrix.
-    if (d->engine->hasFeature(QPaintEngine::ClipTransform)
-        && d->engine->testDirty(QPaintEngine::DirtyClip))
-        d->engine->updateState(d->state);
 
     if (combine)
         d->state->worldMatrix = matrix * d->state->worldMatrix;                        // combines
@@ -1597,7 +1644,9 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 
     d->state->tmpClipPath = path;
     d->state->tmpClipOp = op;
-    d->state->clipEnabled = true;
+    if (op == Qt::NoClip || op == Qt::ReplaceClip)
+        d->state->clipInfo.clear();
+    d->state->clipInfo << QPainterClipInfo(path, op, d->state->matrix);
     d->engine->setDirty(QPaintEngine::DirtyClipPath);
     d->engine->updateState(d->state);
 }

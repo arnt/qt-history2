@@ -60,6 +60,8 @@ public:
     {
     }
 
+    QtGpPath *composeGdiplusPath(const QPainterPath &p);
+
     HWND hwnd;
     HDC hdc;
 

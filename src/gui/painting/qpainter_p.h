@@ -26,6 +26,24 @@
 
 class QPaintEngine;
 
+class QPainterClipInfo
+{
+public:
+    enum ClipType { RegionClip, PathClip };
+
+    QPainterClipInfo(const QPainterPath &p, Qt::ClipOperation op, const QMatrix &m) :
+        clipType(PathClip), matrix(m), operation(op), path(p) { }
+
+    QPainterClipInfo(const QRegion &r, Qt::ClipOperation op, const QMatrix &m) :
+        clipType(RegionClip), matrix(m), operation(op), region(r) { }
+
+    ClipType clipType;
+    QMatrix matrix;
+    Qt::ClipOperation operation;
+    QPainterPath path;
+    QRegion region;
+};
+
 class QPainterState
 {
 public:
@@ -41,7 +59,6 @@ public:
         brush = QBrush(s->brush);
         bgOrigin = s->bgOrigin;
         bgBrush = QBrush(s->bgBrush);
-        clipEnabled = s->clipEnabled;
         tmpClipRegion = QRegion(s->tmpClipRegion);
         tmpClipPath = s->tmpClipPath;
         tmpClipOp = s->tmpClipOp;
@@ -65,6 +82,7 @@ public:
         vw = s->vw;
         vh = s->vh;
         painter = s->painter;
+        clipInfo = s->clipInfo;
         changeFlags = 0;
     }
 
@@ -86,10 +104,9 @@ public:
         bgOrigin = QPoint(0, 0);
         brush = bgBrush = QBrush();
         font = deviceFont = QFont();
-        clipEnabled = 0;
         tmpClipRegion = QRegion();
         tmpClipPath = QPainterPath();
-        tmpClipOp = Qt::ReplaceClip;
+        tmpClipOp = Qt::NoClip;
 #ifndef QT_NO_TRANSFORMATIONS
         worldMatrix.reset();
         matrix.reset();
@@ -106,10 +123,10 @@ public:
     QPen pen;
     QBrush brush;
     QBrush bgBrush;             // background brush
-    uint clipEnabled : 1;
     QRegion tmpClipRegion;
     QPainterPath tmpClipPath;
     Qt::ClipOperation tmpClipOp;
+    QList<QPainterClipInfo> clipInfo;
 #ifndef QT_NO_TRANSFORMATIONS
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QMatrix matrix;            // Complete transformation matrix, including win and view.

@@ -454,6 +454,11 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     }
     state = s;
 
+    if (testDirty(DirtyHints)) {
+        updateRenderHints(d->renderhints);
+        clearDirty(DirtyHints);
+    }
+
 
     if (testDirty(DirtyTransform)) {
         updateMatrix(s->matrix);
@@ -537,12 +542,12 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyClipPath)) {
         // Q_ASSERT(hasFeature(PainterPaths)); ### AllDirty should never be used (says gunnar)
         if (hasFeature(ClipTransform)) {
-            updateClipPath(s->tmpClipPath, s->clipEnabled ? s->tmpClipOp : Qt::NoClip);
+            updateClipPath(s->tmpClipPath, s->tmpClipOp);
         } else {
             QPainterPath path = s->txop > QPainterPrivate::TxNone
                                 ? (s->tmpClipPath * s->matrix)
                                 : s->tmpClipPath;
-            updateClipPath(path, s->clipEnabled ? s->tmpClipOp : Qt::NoClip);
+            updateClipPath(path, s->tmpClipOp);
         }
         clearDirty(DirtyClipPath);
     }
@@ -550,20 +555,14 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
     if (testDirty(DirtyClip)) {
         if (hasFeature(ClipTransform)) {
-            updateClipRegion(s->tmpClipRegion, s->clipEnabled ? s->tmpClipOp : Qt::NoClip);
+            updateClipRegion(s->tmpClipRegion, s->tmpClipOp);
         } else {
             QRegion region = s->txop > QPainterPrivate::TxNone
                              ? (s->tmpClipRegion * s->matrix)
                              : s->tmpClipRegion;
-            updateClipRegion(region, s->clipEnabled ? s->tmpClipOp : Qt::NoClip);
+            updateClipRegion(region, s->tmpClipOp);
         }
         clearDirty(DirtyClip);
-    }
-
-
-    if (testDirty(DirtyHints)) {
-        updateRenderHints(d->renderhints);
-        clearDirty(DirtyHints);
     }
 
 
