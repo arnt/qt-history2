@@ -1104,16 +1104,14 @@ QFont::StyleHint QFont::styleHint() const
     \value PreferDefault the default style strategy. It does not prefer
            any type of font.
     \value PreferBitmap prefers bitmap fonts (as opposed to outline
-           fonts). On X11, this will cause Qt to disregard fonts from
-           the Xft font extension.
+           fonts).
     \value PreferDevice prefers device fonts.
     \value PreferOutline prefers outline fonts (as opposed to bitmap fonts).
     \value ForceOutline forces the use of outline fonts.
     \value NoAntialias don't antialias the fonts.
     \value PreferAntialias antialias if possible.
     \value OpenGLCompatible forces the use of OpenGL compatible
-           fonts. On X11, this will cause Qt to disregard fonts from
-           the Xft font extension.
+           fonts.
 
     Any of these may be OR-ed with one of these flags:
 
