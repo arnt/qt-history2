@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#17 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#18 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -166,14 +166,14 @@ protected slots:
     void alignInGrid();
     void sortAscending();
     void sortDescending();
-    
+
     void slotItemRightClicked( QIconViewItem *item );
     void slotViewportRightClicked();
 
 protected:
     void readDir( const QDir &dir );
     virtual QDragObject *dragObject();
-    void initDrag( QDropEvent *e );
+    void initDragEnter( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void drawBackground( QPainter *p, const QRect &r );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#47 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#48 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -221,7 +221,7 @@ static QIconSet *iconFolder = 0;
 static QIconSet *iconFile = 0;
 static QIconSet *iconLink = 0;
 
-static void cleanup() 
+static void cleanup()
 {
     delete iconFolderLocked;
     iconFolderLocked = 0;
@@ -618,8 +618,8 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
     connect( this, SIGNAL( viewportRightPressed() ),
 	     this, SLOT( slotViewportRightClicked() ) );
 
-    setReorderItemsWhenInsert( TRUE );
-    setResortItemsWhenInsert( TRUE );
+    setAlignItemsWhenInsert( TRUE );
+    setSortItemsWhenInsert( TRUE );
 
     QFont f( font() );
     f.setUnderline( TRUE );
@@ -642,7 +642,7 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
-    setReorderItemsWhenInsert( FALSE );
+    setAlignItemsWhenInsert( FALSE );
     selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
@@ -657,7 +657,7 @@ void QtFileIconView::newDirectory()
 	qApp->processEvents();
 	item->rename();
     }
-    setReorderItemsWhenInsert( TRUE );
+    setAlignItemsWhenInsert( TRUE );
 }
 
 QDir QtFileIconView::currentDir()
@@ -857,18 +857,18 @@ void QtFileIconView::singleClick()
 
 void QtFileIconView::alignInGrid()
 {
-    orderItemsInGrid();
+    alignItemsInGrid();
     repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
 }
 
 void QtFileIconView::sortAscending()
 {
-    sortItems( TRUE );
+    sort( TRUE );
 }
 
 void QtFileIconView::sortDescending()
 {
-    sortItems( FALSE );
+    sort( FALSE );
 }
 
 void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
@@ -922,31 +922,24 @@ void QtFileIconView::slotViewportRightClicked()
     menu->exec( QCursor::pos() );
 }
 
-void QtFileIconView::initDrag( QDropEvent *e )
+void QtFileIconView::initDragEnter( QDropEvent *e )
 {
     if ( QtFileIconDrag::canDecode( e ) ) {	
 	QValueList<QtFileIconDragItem> lst;
 	QtFileIconDrag::decode( e, lst );
 	if ( lst.count() != 0 ) {
-	    setDragObjectIsKnown( TRUE );
-	    QValueList<QIconDragItem> lst2;
-	    for ( QValueList<QtFileIconDragItem>::Iterator it = lst.begin();
-		  it != lst.end(); ++it )
-		lst2.append( *it );
-	    setIconDragData( lst2 );
+	    setDragObjectIsKnown( e );
 	} else {
 	    QStringList l;
 	    QtFileIconDrag::decode( e, l );
 	    setNumDragItems( l.count() );
-	    setDragObjectIsKnown( FALSE );
 	}
     } else if ( QUriDrag::canDecode( e ) ) {
 	QStringList l;
 	QUriDrag::decodeLocalFiles( e, l );
 	setNumDragItems( l.count() );
-	setDragObjectIsKnown( FALSE );
     } else {
-	QIconView::initDrag( e );
+	QIconView::initDragEnter( e );
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#149 $
 **
 ** Definition of QIconView widget class
 **
@@ -124,14 +124,14 @@ struct QIconViewPrivate
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
-    bool drawDragShade;
+    bool drawDragShapes;
     QString currInputString;
     bool dirty, rearrangeEnabled;
     QIconView::ItemTextPos itemTextPos;
     bool reorderItemsWhenInsert;
     bool singleClickMode;
     QCursor oldCursor;
-    bool resortItemsWhenInsert, sortOrder;
+    bool resortItemsWhenInsert, sortDirection;
     bool hasOwnColor, hasOwnFont;
     QColor ownColor;
     QFont ownFont;
@@ -265,8 +265,25 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
   This class is used internally in the QIconDrag to store the data (in fact,
   a list of QIconDragItems is used by QIconDrag). Such an item stores
   the data about the geometry of an item of the iconview which is dragged
-  around, so that drag shades can be drawn correctly.
+  around, so that drag shapes can be drawn correctly.
+  
+  If you extend the DnD functionality of a QIconView, you should use a class
+  derived from QIconDrag as dragobject. This class again should contain
+  a list of objects which are derived from this class.
+  
+  So, normally for each iconview item which is dragged, a QIconDragItem
+  class (or a class derived from QIconDragItem) is created and stored 
+  in the QIconDrag object.
+  
+  So, in a class derived from that you should reimplement 
+  QIconDragItem::makeKey(), so that a key containing the data of this
+  object + the geometry of the dragged item is created and returned.
+  
+  You also may add methods to add/get the data you store here.
 
+  An example, how to implement this, is in the QtFileIconView example.
+
+  \sa QtFileIconDragItem::QtFileIconDragItem()
 */
 
 /*!
@@ -390,7 +407,7 @@ void QIconDragItem::setTextRect( const QRect &r )
   The QIconDrag is the drag object which is used for moving items in the
   iconview. The QIconDrag stores exact informations about the positions of
   the items, which are dragged, so that each iconview is able to draw drag
-  shades in correct positions.
+  shapes in correct positions.
 
   It's suggested that, if you write a drag object for own QIconViewItems,
   you derive the drag object class from QIconDrag and just (re)implement the
@@ -400,7 +417,7 @@ void QIconDragItem::setTextRect( const QRect &r )
 
   An example, how to implement this, is in the QtFileIconView example.
 
-  \sa QFileIconView::QFileIconView()
+  \sa QtFileIconDrag::QtFileIconDrag()
 */
 
 /*!
@@ -408,7 +425,7 @@ void QIconDragItem::setTextRect( const QRect &r )
   \a dragSource  is the widget which started the dragand \a name the name of the object.
 
   \sa QIconDragItem::QIconDragItem()
- */
+*/
 
 QIconDrag::QIconDrag( const QIconList &icons_, QWidget * dragSource, const char* name )
     : QDragObject( dragSource, name ), icons( icons_ )
@@ -1662,7 +1679,7 @@ void QIconViewItem::calcTmpText()
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East). The text can be either displayed at the bottom of the icons
   or the the right of the icons. Items can also be inserted in a sorted order. There
-  are also methodes to rearrange and resort the items after they have been inserted.
+  are also methodes to re-align and sort the items after they have been inserted.
 
   There is a variety of selection modes, described in the
   QIconView::SelectionMode documentation. The default is
@@ -1704,7 +1721,34 @@ void QIconViewItem::calcTmpText()
   extended DnD too. To use DnD correctly in the iconview, please read following
   instructions:
 
-
+  The first part is starting drags:
+  If you want to reimplement DnD in the QIconView, because you need some
+  extended functionality, you normally will not use QIconDrag as dragobject for your
+  items. But you should derive your drag object from QIconDrag. This derived class
+  (let's call it MyIconDrag), should contain for each iconview item, which should be
+  dragged, a QIconDragItem. But again, as this drag item contains the data of
+  an item, you may use a class derived from QIconDragItem (let's call it MyIconDragItem)
+  and not directly QIconDragItem.
+  So you implement MyIconDrag which contains a list of MyIconDragItems. See
+  the documentation of QIconDrag and QIconDragItem for more information.
+  
+  Finally, you need to overload QIconView::dragObject(). This method is called
+  by QIconView to get the drag object when starting a drag. In this method
+  you have to create and return an instance of MyIconDrag which contains a list of
+  MyIconDragItems (normally one MyIconDragItem for each selected item
+  in the iconview).
+  
+  Now, when a drag enters the iconview, you should know following:
+  If the entered drag is known (the drag object is a class derived from
+  QIconDrag) we also know the coordinates of the icons which are
+  dragged around. So, we can draw drag shapes of the dragged items.
+  For that some stuff has to be initialized. So, when a drag enters, the
+  iconview calls QIconView::initDragEnter(). Reimplement this methode
+  to do your initialization. For more information about that, see the 
+  documentation of QIconView::initDragEnter().
+  
+  For an example implementation of all the Drag'n'Drop stuff look at the 
+  qfileiconview example (QtFileIconView::QtFileIconView())
 */
 
 /*! \enum QIconView::ResizeMode
@@ -1933,7 +1977,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->oldCursor = Qt::arrowCursor;
     d->singleClickSelectTimer = new QTimer( this );
     d->resortItemsWhenInsert = FALSE;
-    d->sortOrder = TRUE;
+    d->sortDirection = TRUE;
     d->hasOwnColor = FALSE;
     d->hasOwnFont = FALSE;
     d->wordWrapIconText = TRUE;
@@ -2072,7 +2116,7 @@ void QIconView::slotUpdate()
 
     // #### remove that ASA insertInGrid uses cached values and is efficient
     if ( d->resortItemsWhenInsert )
-	sortItems( d->sortOrder );
+	sort( d->sortDirection );
     else {
 	int y = d->spacing;
 	QIconViewItem *item = d->firstItem;
@@ -2280,7 +2324,7 @@ void QIconView::setViewMode( QIconSet::Size mode )
     for ( ; item; item = item->next )
 	item->setViewMode( mode );
 
-    orderItemsInGrid();
+    alignItemsInGrid();
 }
 
 /*!
@@ -2379,10 +2423,14 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
-  Orders all items in the grid.
+  Allign all items in the grid. For the grid the the specified
+  values, given by QIconView::setGridX() and QIconView::setGridY()
+  are used.
+  
+  \sa QIconView::setGridX(), QIconView::setGridY()
 */
 
-void QIconView::orderItemsInGrid()
+void QIconView::alignItemsInGrid()
 {
     if ( !d->firstItem || !d->lastItem )
 	return;
@@ -2405,41 +2453,40 @@ void QIconView::orderItemsInGrid()
 }
 
 /*!
-  Aligns all items in the \a grid;
+  Aligns all items in the \a grid; If the grid is invalid 
+  (see QSize::isValid(), an invalid size is created when using
+  the default constructor of QSize())
+  the best fitting grid is calculated first and used then.
 */
 
 void QIconView::alignItemsInGrid( const QSize &grid )
 {
+    QSize grid_( grid );
+    if ( !grid_.isValid() ) {
+	int w = 0, h = 0;
+	QIconViewItem *item = d->firstItem;
+	for ( ; item; item = item->next ) {
+	    w = QMAX( w, item->width() );
+	    h = QMAX( h, item->height() );
+	}
+
+	grid_ = QSize( QMAX( d->rastX + d->spacing, w ),
+		       QMAX( d->rastY + d->spacing, h ) );
+    }
+
     int w = 0, h = 0;
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next ) {
-	int nx = item->x() / grid.width();
-	int ny = item->y() / grid.height();
-	item->move( nx * grid.width(), // + ( grid.width() - item->width() / 2 ),
-		    ny * grid.height() );// + ( grid.height() - item->height() / 2 ) );
+	int nx = item->x() / grid_.width();
+	int ny = item->y() / grid_.height();
+	item->move( nx * grid_.width(),
+		    ny * grid_.height() );
 	w = QMAX( w, item->x() + item->width() );
 	h = QMAX( h, item->y() + item->height() );
 	item->dirty = FALSE;
     }
 
     resizeContents( w, h );
-}
-
-/*!
-  Aligns the items in the best fitting grid.
-*/
-
-void QIconView::alignItemsInGrid()
-{
-    int w = 0, h = 0;
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next ) {
-	w = QMAX( w, item->width() );
-	h = QMAX( h, item->height() );
-    }
-
-    alignItemsInGrid( QSize( QMAX( d->rastX + d->spacing, w ),
-			     QMAX( d->rastY + d->spacing, h ) ) );
 }
 
 /*!
@@ -2465,7 +2512,7 @@ void QIconView::showEvent( QShowEvent * )
 {
     if ( d->dirty ) {
 	resizeContents( viewport()->width(), viewport()->height() );
-	orderItemsInGrid();
+	alignItemsInGrid();
     }
     QScrollView::show();
 }
@@ -2745,7 +2792,7 @@ void QIconView::clear()
     setCurrentItem( 0 );
     d->highlightedItem = 0;
     d->tmpCurrentItem = 0;
-    d->drawDragShade = FALSE;
+    d->drawDragShapes = FALSE;
 
     viewport()->repaint( FALSE );
 
@@ -2830,12 +2877,14 @@ void QIconView::setItemTextPos( ItemTextPos pos )
 	item->calcRect();
     }
 
-    orderItemsInGrid();
+    alignItemsInGrid();
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 }
 
 /*!
   Returns the position, at which the text of the items are drawn.
+
+  \sa QIconView::setItemTextPos()
 */
 
 QIconView::ItemTextPos QIconView::itemTextPos() const
@@ -2856,26 +2905,15 @@ void QIconView::setAlignMode( AlignMode am )
     if ( d->alignMode == am )
 	return;
 
-//     if ( d->resizeMode != Adjust ) {
-// 	setHScrollBarMode( Auto );
-// 	setVScrollBarMode( Auto );
-//     } else {
-// 	if ( d->alignMode == East ) {
-// 	    setHScrollBarMode( AlwaysOff );
-// 	    setVScrollBarMode( Auto );
-// 	} else {
-// 	    setVScrollBarMode( AlwaysOff );
-// 	    setHScrollBarMode( Auto );
-// 	}		
-//     }
-
     d->alignMode = am;
     resizeContents( viewport()->width(), viewport()->height() );
-    orderItemsInGrid();
+    alignItemsInGrid();
 }
 
 /*!
   Returns the alignment mode of the iconview.
+
+  \sa QIconView::setAlignMode()
 */
 
 QIconView::AlignMode QIconView::alignMode() const
@@ -2896,23 +2934,12 @@ void QIconView::setResizeMode( ResizeMode rm )
 	return;
 
     d->resizeMode = rm;
-
-//     if ( d->resizeMode != Adjust ) {
-// 	setHScrollBarMode( Auto );
-// 	setVScrollBarMode( Auto );
-//     } else {
-// 	if ( d->alignMode == East ) {
-// 	    setHScrollBarMode( AlwaysOff );
-// 	    setVScrollBarMode( Auto );
-// 	} else {
-// 	    setVScrollBarMode( AlwaysOff );
-// 	    setHScrollBarMode( Auto );
-// 	}		
-//     }
 }
 
 /*!
   Returns the resizemode of the iconview.
+
+  \sa QIconView::setResizeMode()
 */
 
 QIconView::ResizeMode QIconView::resizeMode() const
@@ -2941,6 +2968,8 @@ void QIconView::setMaxItemTextLength( int w )
 
 /*!
   Returns the maximum width, which an item may have.
+
+  \sa QIconView::setMaxItemWidth()
 */
 
 int QIconView::maxItemWidth() const
@@ -2954,6 +2983,8 @@ int QIconView::maxItemWidth() const
 /*!
   Returns the maximum length (in characters), which the
   text of an icon may have.
+  
+  \sa QIconView::setMaxItemTextLength()
 */
 
 int QIconView::maxItemTextLength() const
@@ -2962,28 +2993,30 @@ int QIconView::maxItemTextLength() const
 }
 
 /*!
-  If \a b is TRUE, the user is allowed to rearrange icons in the iconview
-  (moving them with the mouse),
+  If \a b is TRUE, the user is allowed to move items around in 
+  the iconview.
   if \a b is FALSE, the user is not allowed to do that.
 */
 
-void QIconView::setRearrangeEnabled( bool b )
+void QIconView::setEnableMoveItems( bool b )
 {
     d->rearrangeEnabled = b;
 }
 
 /*!
-  Returns TRUE, if the user is allowed to rearrange icons in the iconview,
-  else FALSE;
+  Returns TRUE, if the user is allowed to move items around 
+  in the iconview, else FALSE;
+
+  \sa QIconView::setEnableMoveItems()
 */
 
-bool QIconView::rearrangeEnabled() const
+bool QIconView::enableMoveItems() const
 {
     return d->rearrangeEnabled;
 }
 
 /*!
-  If \a b is TRUE, all items are reordered in the grid if a new one is
+  If \a b is TRUE, all items are re-aligned in the grid if a new one is
   inserted. Else, the best fitting place for the new item is searched and
   the other ones are not touched.
 
@@ -2992,17 +3025,19 @@ bool QIconView::rearrangeEnabled() const
   gets visible.
 */
 
-void QIconView::setReorderItemsWhenInsert( bool b )
+void QIconView::setAlignItemsWhenInsert( bool b )
 {
     d->reorderItemsWhenInsert = b;
 }
 
 /*!
-  Returns TRUE if all items are reordered in the grid if a new one is
+  Returns TRUE if all items are re-aligned in the grid if a new one is
   inserted, else FALSE.
+  
+  \sa QIconView::setAlignItemsWhenInsert()
 */
 
-bool QIconView::reorderItemsWhenInsert() const
+bool QIconView::alignItemsWhenInsert() const
 {
     return d->reorderItemsWhenInsert;
 }
@@ -3011,40 +3046,40 @@ bool QIconView::reorderItemsWhenInsert() const
   If \a sort is TRUE, new items are inserted sorted. The sort
   direction is specified using \a ascending.
 
-  Inserting items sorted only works when reordering items is
-  set to TRUE as well.
+  Inserting items sorted only works when re-arranging items is
+  set to TRUE as well (using QIconView::setAlignItemsWhenInsert()).
 
-  \sa QIconView::setReorderItemsWhenInsert(), QIconView::reorderItemsWhenInsert()
+  \sa QIconView::setAlignItemsWhenInsert(), QIconView::alignItemsWhenInsert()
 */
 
-void QIconView::setResortItemsWhenInsert( bool sort, bool ascending )
+void QIconView::setSortItemsWhenInsert( bool sort, bool ascending )
 {
     d->resortItemsWhenInsert = sort;
-    d->sortOrder = ascending;
+    d->sortDirection = ascending;
 }
 
 /*!
   Returns TRUE if new items are inserted sorted, else FALSE.
 
-  \sa QIconView::setResortItemsWhenInsert()
+  \sa QIconView::setSortItemsWhenInsert()
 */
 
-bool QIconView::resortItemsWhenInsert() const
+bool QIconView::sortItemsWhenInsert() const
 {
     return d->resortItemsWhenInsert;
 }
 
 /*!
-  Returns TRUE if the sortorder for inserting new items is ascending,
-  FALSE means descending. This sortorder has only a meaning if resorting
-  and reordering of new inserted items is enabled.
+  Returns TRUE if the sort dorection for inserting new items is ascending,
+  FALSE means descending. This sort dircction has only a meaning if re-sorting
+  and re-aligning of new inserted items is enabled.
 
-  \sa QIconView::setResortItemsWhenInsert(), QIconView::setReorderItemsWhenInsert()
+  \sa QIconView::setSortItemsWhenInsert(), QIconView::setAlignItemsWhenInsert()
 */
 
-bool QIconView::sortOrder() const
+bool QIconView::sortDirection() const
 {
-    return d->sortOrder;
+    return d->sortDirection;
 }
 
 /*!
@@ -3272,8 +3307,6 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	}
     }
 
-
-
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
@@ -3286,8 +3319,9 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	    if ( d->tmpCurrentItem )
 		repaintItem( d->tmpCurrentItem );
 	}
-    } else if ( d->mousePressed && !d->currentItem && d->rubber )
+    } else if ( d->mousePressed && !d->currentItem && d->rubber ) {
 	doAutoScroll();
+    }
 }
 
 /*!
@@ -3310,11 +3344,11 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
-    d->drawDragShade = TRUE;
+    d->drawDragShapes = TRUE;
     d->tmpCurrentItem = 0;
-    initDrag( e );
+    initDragEnter( e );
     d->oldDragPos = e->pos();
-    drawDragShade( e->pos() );
+    drawDragShapes( e->pos() );
     d->dropped = FALSE;
 }
 
@@ -3324,7 +3358,7 @@ void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
-    drawDragShade( d->oldDragPos );
+    drawDragShapes( d->oldDragPos );
 
     QIconViewItem *old = d->tmpCurrentItem;
     d->tmpCurrentItem = 0;
@@ -3362,7 +3396,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
     }
 
     d->oldDragPos = e->pos();
-    drawDragShade( e->pos() );
+    drawDragShapes( e->pos() );
 }
 
 /*!
@@ -3372,7 +3406,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     if ( !d->dropped )
-	drawDragShade( d->oldDragPos );
+	drawDragShapes( d->oldDragPos );
 
     if ( d->tmpCurrentItem ) {
 	repaintItem( d->tmpCurrentItem );
@@ -3391,7 +3425,7 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
 void QIconView::contentsDropEvent( QDropEvent *e )
 {
     d->dropped = TRUE;
-    drawDragShade( d->oldDragPos );
+    drawDragShapes( d->oldDragPos );
 
     if ( d->tmpCurrentItem )
 	repaintItem( d->tmpCurrentItem );
@@ -3476,7 +3510,7 @@ void QIconView::adjustItems()
  		d->firstAdjust = FALSE;
  		return;
  	    }
-	    orderItemsInGrid();
+	    alignItemsInGrid();
 	    viewport()->repaint( FALSE );
 	}
     }
@@ -3805,7 +3839,7 @@ void QIconView::drawRubber( QPainter *p )
 /*!
   Returns the QDragObject which should be used for DnD.  Subclasses may reimplement this.
 
-  \sa QIconViewItem::dragObject()
+  \sa QIconViewItem::dragObject(), \sa QIconDrag::QIconDrag()
 */
 
 QDragObject *QIconView::dragObject()
@@ -3962,10 +3996,10 @@ void QIconView::emitRenamed( QIconViewItem *item )
   contains are drawn, usnig \a pos as origin.
 */
 
-void QIconView::drawDragShade( const QPoint &pos )
+void QIconView::drawDragShapes( const QPoint &pos )
 {
-    if ( !d->drawDragShade ) {
-	d->drawDragShade = TRUE;
+    if ( !d->drawDragShapes ) {
+	d->drawDragShapes = TRUE;
 	return;
     }
 
@@ -4001,14 +4035,30 @@ void QIconView::drawDragShade( const QPoint &pos )
 }
 
 /*!
-  This method is called before a drag is started to initialize
-  everything. Subclasses may reimplement this method to gain more
-  flexibility.
-
-  \sa QFileIconView::initDrag()
+  When a drag enters the iconview, this method is called to
+  initialize it. Initializing means here to get information about
+  the drag, this means if the iconview knows enough about
+  the drag to be able to draw drag shapes of the drag data
+  (e.g. shapes of icons which are dragged).
+  
+  There are three possibilities: 
+  <ul>
+  <li>Knowing the drag very well: The drag contains all coordinates 
+  of the drag shapes. If this is the case, call QIconView::setDragObjectIsKnown()
+  and specify as argument \a e.
+  <li>Knowing the drag, but not very well: The drag contains a data
+  about a number of dragged items. If this is the case,  set the number
+  of items using QIconView::setNumDragItems() so that the iconview
+  can draw a sort of drag shapes.
+  <li>The drag is completly unknown: Call the base implementation
+  QIconView::initDragEnter().
+  </ul>
+  
+  \sa QFileIconView::initDragEnter(), QIconView::setDragObjectIsKnown(),
+  QIconView::setNumDragItems()
 */
 
-void QIconView::initDrag( QDropEvent *e )
+void QIconView::initDragEnter( QDropEvent *e )
 {
     if ( QIconDrag::canDecode( e ) ) {
 	QIconDrag::decode( e, d->iconDragData );
@@ -4021,28 +4071,29 @@ void QIconView::initDrag( QDropEvent *e )
 /*!
   Using this function it's possible to tell the iconview, that a
   drag contains known data, which may be encoded to display
-  correct drag shades.
+  correct drag shapes.
+  This method is normally called from QIconView::initDragEnter(),
+  \a e is the argument which you got in this method.
+  
+  \sa QIconView::initDragEnter()
 */
 
-void QIconView::setDragObjectIsKnown( bool b )
+void QIconView::setDragObjectIsKnown( QDropEvent *e )
 {
-    d->isIconDrag = b;
-}
-
-/*!
-  Sets a list of icondrag items. They are used to draw a correct drag shade.
-*/
-
-void QIconView::setIconDragData( const QValueList<QIconDragItem> &lst )
-{
-    d->iconDragData = lst;
+    d->isIconDrag = TRUE;
+    if ( QIconDrag::canDecode( e ) )
+	QIconDrag::decode( e, d->iconDragData );
 }
 
 /*!
   If a drag is unknown (you have no information about how to draw the drag
-  shades), it's possible to specify using the function the number of items
+  shades), but you know enough about it, to know the nunber of items which
+  are dragged around, it's possible to specify using the function the number of items
   of the drag (e.g. the number of URLs), so that the iconview can draw
-  some (not totally correcty) drag shades.
+  some (not totally correcty) drag shapes.
+  This method is normally called fro QIconView::initDragEnter()
+  
+  \sa QIconView::initDragEnter()
 */
 
 void QIconView::setNumDragItems( int num )
@@ -4400,7 +4451,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
   \sa QIconViewItem::key(), QIconViewItem::setKey(), QIconViewItem::compare()
 */
 
-void QIconView::sortItems( bool ascending )
+void QIconView::sort( bool ascending )
 {
     if ( count() == 0 )
 	return;
@@ -4450,7 +4501,7 @@ void QIconView::sortItems( bool ascending )
 
     delete [] items;
 
-    orderItemsInGrid();
+    alignItemsInGrid();
     viewport()->repaint( FALSE );
 }
 
@@ -4460,24 +4511,28 @@ void QIconView::sortItems( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
+    // #### todo
     // ##### should be mutable
-    ( (QIconView*)this )->orderItemsInGrid();
+//     if ( d->dirty )
+// 	( (QIconView*)this )->alignItemsInGrid();
 
-    int w = 100;
-    int h = 100;
+//     int w = 100;
+//     int h = 100;
 
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next ) {
-	w = QMAX( w, item->x() + item->width() );
-	h = QMAX( h, item->y() + item->height() );
-    }
+//     QIconViewItem *item = d->firstItem;
+//     for ( ; item; item = item->next ) {
+// 	w = QMAX( w, item->x() + item->width() );
+// 	h = QMAX( h, item->y() + item->height() );
+//     }
 
-    w += d->spacing;
-    h += d->spacing;
+//     w += d->spacing;
+//     h += d->spacing;
 
-    d->dirty = TRUE;
+//     d->dirty = TRUE;
 
-    return QSize( QMIN( 400, w ), QMIN( 400, h ) );
+//     return QSize( QMIN( 400, w ), QMIN( 400, h ) );
+
+    return QSize( 400, 400 );
 }
 
 #include "qiconview.moc"
