@@ -36,6 +36,7 @@ public:
         }
     }
     inline QVarLengthArray(const QVarLengthArray &other)
+        : a(Prealloc), s(0), ptr(reinterpret_cast<T *>(array))
     {
         append(other.constData(), other.size());
     }
