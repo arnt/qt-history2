@@ -1,49 +1,30 @@
 #ifndef QT_CLEAN_NAMESPACE
 #define QT_CLEAN_NAMESPACE
 #endif
-#include <qimageformatinterface.h>
+#include <qimageformatplugin.h>
 
 #ifdef QT_NO_IMAGEIO_JPEG
 #undef QT_NO_IMAGEIO_JPEG
 #endif
 #include "../../../../src/kernel/qjpegio.cpp"
 
-class JPEGFormat : public QImageFormatInterface
+class JPEGFormat : public QImageFormatPlugin
 {
 public:
     JPEGFormat();
-    Q_REFCOUNT;
-    QRESULT queryInterface( const QUuid &, QUnknownInterface ** );
 
-    QStringList featureList() const;
-
-    QRESULT loadImage( const QString &format, const QString &filename, QImage * );
-    QRESULT saveImage( const QString &format, const QString &filename, const QImage & );
-
-    QRESULT installIOHandler( const QString & );
+    QStringList keys() const;
+    bool loadImage( const QString &format, const QString &filename, QImage * );
+    bool saveImage( const QString &format, const QString &filename, const QImage & );
+    bool installIOHandler( const QString & );
 };
 
 JPEGFormat::JPEGFormat()
 {
 }
 
-QRESULT JPEGFormat::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
-{
-    *iface = 0;
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QImageFormat )
-	*iface = (QImageFormatInterface*)this;
-    else
-	return QE_NOINTERFACE;
 
-    (*iface)->addRef();
-    return QS_OK;
-}
-
-QStringList JPEGFormat::featureList() const
+QStringList JPEGFormat::keys() const
 {
     QStringList list;
     list << "JPEG";
@@ -51,10 +32,10 @@ QStringList JPEGFormat::featureList() const
     return list;
 }
 
-QRESULT JPEGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
+bool JPEGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
 {
     if ( format != "JPEG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     QImageIO io;
     io.setFileName( filename );
@@ -62,13 +43,13 @@ QRESULT JPEGFormat::loadImage( const QString &format, const QString &filename, Q
 
     read_jpeg_image( &io );
 
-    return QS_OK;
+    return TRUE;
 }
 
-QRESULT JPEGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
+bool JPEGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
 {
     if ( format != "JPEG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     QImageIO io;
     io.setFileName( filename );
@@ -76,19 +57,16 @@ QRESULT JPEGFormat::saveImage( const QString &format, const QString &filename, c
 
     write_jpeg_image( &io );
 
-    return QS_OK;
+    return TRUE;
 }
 
-QRESULT JPEGFormat::installIOHandler( const QString &name )
+bool JPEGFormat::installIOHandler( const QString &name )
 {
     if ( name.upper() != "JPEG" )
-	return QE_INVALIDARG;
+	return FALSE;
 
     qInitJpegIO();
-    return QS_OK;
+    return TRUE;
 }
 
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE( JPEGFormat )
-}
+Q_EXPORT_PLUGIN( JPEGFormat )
