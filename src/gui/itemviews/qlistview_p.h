@@ -320,7 +320,7 @@ public:
     QListView::Flow flow;
     QListView::Movement movement;
     QSize iconSize;
-    inline bool hasLargeIcons() const { return iconSize.height() > 22; }
+    bool hasLargeIcons() const;
     QListView::ResizeMode resizeMode;
     QListView::LayoutMode layoutMode;
     QListView::ViewMode viewMode;

@@ -321,15 +321,13 @@ bool QListView::isWrapping() const
 
 /*!
     \property QListView::iconSize
-    \brief whether the items should be rendered as large or small items.
+    \brief the size of items
 
-    If this property is \c Small (the default), the default delegate
-    will render the items as small items with the decoration to the
-    left and the text to the right. If this property is \c Large, the
-    default delegate will render the items as large items with the
-    decoration at the top and the text at the bottom. If set to \c
-    Automatic, the view will use the \c Small mode if the \l
-    isWrapping property is true.
+    If this property small (the default), the default delegate will
+    render the items as small items with the decoration to the left
+    and the text to the right. If this property is large, the default
+    delegate will render the items as large items with the decoration
+    at the top and the text at the bottom.
 
     Setting this property when the view is visible will cause the
     items to be laid out again.
@@ -1740,4 +1738,10 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
         }
     }
     return closest;
+}
+
+
+bool QListViewPrivate::hasLargeIcons() const
+{
+    return iconSize.height() > q->style()->pixelMetric(QStyle::PM_SmallIconSize);
 }
