@@ -50,7 +50,8 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     }
     QMakeMetaInfo libinfo;
     if(libinfo.readLib(bd + Option::dir_sep + dllStem)) {
-        if(!libinfo.isEmpty("QMAKE_PRL_VERSION"))
+        if(!libinfo.values("QMAKE_PRL_CONFIG").contains("staticlib") &&
+           !libinfo.isEmpty("QMAKE_PRL_VERSION"))
             biggest = qMax(biggest, libinfo.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
     }
     return biggest;
