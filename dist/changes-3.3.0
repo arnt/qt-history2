@@ -27,7 +27,7 @@ Server binaries no longer need to implement a main() entry point function.
 A default implementation will be used for out-of-process servers.
 
 COM objects developed with ActiveQt are now supported in a wider range of
-standard clients, including .NET.
+standard clients, including Microsoft Office applications and .NET.
 
 The QAxContainer library is now static even for shared configurations of Qt,
 which simplifies depolyment and allows using of both QAxServer and 
@@ -56,14 +56,17 @@ Sun CC 5.0.
 *			   Library					   *
 ****************************************************************************
 
+- QAction
+	Added a setDislabled() slot similar to QWidget::setDisabled.
+
 - QListView
 	Improved alignment for text in QListViewItems. Right aligned text now
 	have the ellipsis to the left.
 
 - QWindowsStyle
 	Qt supports toggeling of the accelerator underlines using the Alt-key
-	on Windows 98, 2000 and later. On other platforms this change is not
-	having any effect.
+	on Windows 98, 2000 and later. On other platforms this change has no 
+	effect.
 
 - QSound
 	Windows: Support loop related APIs
