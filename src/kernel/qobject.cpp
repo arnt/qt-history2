@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#45 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#45 $";
 #endif
 
 
@@ -454,9 +454,9 @@ If \e interval is 0, then timer event occurs as often as possible.
 
 The virtual event() function is called with the QTimerEvent event parameter
 class when a timer event occurs.
-Widgets dispatches timer events to the QWidget::timerEvent() event handler.
+Widgets dispatch timer events to the QWidget::timerEvent() event handler.
 Reimplement this virtual function to get timer events if your object is
-a widget.  If you object is not a widget, you must reimplement the event()
+a widget.  If your object is not a widget, you must reimplement the event()
 function to get timer events.
 
 \sa QTimerEvent, killTimer(), killTimers() and QWidget::timerEvent().
@@ -469,7 +469,7 @@ int QObject::startTimer( long interval )
 }
 
 /*!
-Kills timer with the identifier \e id.
+Kills the timer with the identifier \e id.
 
 The timer identifer is returned by startTimer() when a
 timer event is started.
