@@ -89,8 +89,9 @@ inline BiOutputIterator qCopyBackward( BiIterator _begin, BiIterator _end,
 template <class InputIterator1, class InputIterator2>
 inline bool qEqual( InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 )
 {
+    // ### compare using !(*first1 == *first2) in Qt 4.0
     for ( ; first1 != last1; ++first1, ++first2 )
-	if ( !(*first1 == *first2) )
+	if ( *first1 != *first2 )
 	    return FALSE;
     return TRUE;
 }
