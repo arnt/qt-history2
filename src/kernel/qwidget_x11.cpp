@@ -61,6 +61,7 @@ static QWidget *keyboardGrb = 0;
 
 // defined in qapplication_x11.cpp
 extern Time qt_x_time;
+extern Time qt_x_user_time;
 
 int qt_x11_create_desktop_on_screen = -1;
 
@@ -478,11 +479,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #endif // QT_NO_XFTFREETYPE
 
     // NET window types
-    long net_wintypes[4] = { 0, 0, 0, 0 };
+    long net_wintypes[7] = { 0, 0, 0, 0, 0, 0, 0 };
     int curr_wintype = 0;
 
     // NET window states
-    long net_winstates[4] = { 0, 0, 0, 0 };
+    long net_winstates[6] = { 0, 0, 0, 0, 0, 0 };
     int curr_winstate = 0;
 
     struct {
@@ -500,7 +501,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	ulong wsa_mask = 0;
 
 	if ( testWFlags(WStyle_Splash) ) {
-            if ( qt_net_supports(ATOM(Net_Wm_Window_Type_Splash)) ) {
+            if (qt_net_supports(ATOM(Net_Wm_Window_Type_Splash))) {
                 clearWFlags( WX11BypassWM );
                 net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Splash);
 	    } else {
@@ -537,8 +538,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		wsa.save_under = True;
 		wsa_mask |= CWSaveUnder;
 
-		// toolbar netwm type
-		net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Toolbar);
+		// utility netwm type
+		net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Utility);
 	    }
 	} else if (testWFlags(WType_Dialog)) {
 	    setWFlags(WStyle_NormalBorder | WStyle_Title |
@@ -557,12 +558,23 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    }
 	}
 
+	// ### need a better way to do this
+	if (inherits("QPopupMenu")) {
+	    // menu netwm type
+	    net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Menu);
+	} else if (inherits("QToolBar")) {
+	    // toolbar netwm type
+	    net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Toolbar);
+	}
+
 	// normal netwm type - default
 	net_wintypes[curr_wintype++] = ATOM(Net_Wm_Window_Type_Normal);
 
 	// stays on top
-	if (testWFlags(WStyle_StaysOnTop))
+	if (testWFlags(WStyle_StaysOnTop)) {
+	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Above);
 	    net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Stays_On_Top);
+}
 
         if (testWFlags(WShowModal)) {
             mwmhints.input_mode = 3L; // MWM_INPUT_FULL_APPLICATION_MODAL
@@ -597,10 +609,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if (p)
 	    p = p->topLevelWidget();
 
-	if ( testWFlags(WStyle_DialogBorder) ||
-	     testWFlags(WStyle_StaysOnTop) ||
-	     dialog ||
-	     testWFlags(WStyle_Tool) ) {
+ 	if (dialog || testWFlags(WStyle_DialogBorder) || testWFlags(WStyle_Tool)) {
 	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
 	    else				// application-modal
@@ -617,9 +626,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	size_hints.y = crect.top();
 	size_hints.width = crect.width();
 	size_hints.height = crect.height();
-	size_hints.win_gravity = QApplication::reverseLayout() ?
-				 NorthEastGravity : NorthWestGravity;
-	const char *title = qAppName();
+	size_hints.win_gravity =
+	    QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
+
 	XWMHints wm_hints;			// window manager hints
 	wm_hints.input = True;
 	wm_hints.initial_state = NormalState;
@@ -632,12 +641,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	wm_hints.flags |= WindowGroupHint;
 
 	XClassHint class_hint;
-	class_hint.res_class = (char*) title;	// app name
-	class_hint.res_name = (char*) title; 	// maybe some day we need a function for that
-	XSetWMProperties( dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints,
-			  &class_hint );
+	class_hint.res_name = (char *) qAppName(); // application name
+	class_hint.res_class = (char *) qAppClass();	// application class
+
+       	XSetWMProperties( dpy, id, 0, 0, 0, 0, &size_hints, &wm_hints, &class_hint );
+
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
-	XStoreName( dpy, id, (char*) title );
+	XStoreName( dpy, id, qAppName() );
 	Atom protocols[4];
 	int n = 0;
 	protocols[n++] = ATOM(Wm_Delete_Window);	// support del window protocol
@@ -1097,8 +1107,7 @@ void QWidget::setWindowTitle( const QString &caption )
 
     QByteArray net_wm_name = caption.toUtf8();
     XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_Name), ATOM(Utf8_String), 8,
-		    PropModeReplace, (unsigned char *)net_wm_name.data(),
-		    net_wm_name.length());
+		    PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
 
     QEvent e( QEvent::WindowTitleChange );
     QApplication::sendEvent( this, &e );
@@ -1144,8 +1153,13 @@ void QWidget::setWindowIconText( const QString &iconText )
 {
     d->createTLExtra();
     d->extra->topextra->iconText = iconText;
-    XSetIconName( x11Display(), winId(), iconText.utf8() );
+
     XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
+
+    QByteArray icon_name = iconText.toUtf8();
+    XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_Icon_Name), ATOM(Utf8_String), 8,
+		    PropModeReplace, (unsigned char *) icon_name.data(), icon_name.size());
+
     QEvent e( QEvent::IconTextChange );
     QApplication::sendEvent( this, &e );
 }
@@ -1734,6 +1748,11 @@ void QWidget::showWindow()
 	XSetWMHints( x11Display(), winId(), h );
 	if ( got_hints )
 	    XFree( (char *)h );
+
+	if (qt_x_user_time != CurrentTime) {
+	    XChangeProperty(x11Display(), winId(), ATOM(Net_Wm_User_Time), XA_CARDINAL,
+			    32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
+	}
 
 	if ( d->d->topData()->parentWinId &&
 	     d->topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen()) &&

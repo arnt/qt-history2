@@ -77,11 +77,6 @@
 
 #include "qt_x11_p.h"
 
-#if !defined(QT_NO_XFTFREETYPE)
-// XFree86 4.0.3 implementation is missing XftInitFtLibrary forward
-extern "C" Bool XftInitFtLibrary(void);
-#endif
-
 #if defined(QT_MODULE_OPENGL)
 #include <GL/glx.h>
 #endif
@@ -198,17 +193,22 @@ static const char * x11_atomnames = {
     "_NET_WM_STATE_MAXIMIZED_VERT\0"
     "_NET_WM_STATE_MAXIMIZED_HORZ\0"
     "_NET_WM_STATE_FULLSCREEN\0"
+    "_NET_WM_STATE_ABOVE\0"
     "_NET_WM_WINDOW_TYPE\0"
     "_NET_WM_WINDOW_TYPE_NORMAL\0"
     "_NET_WM_WINDOW_TYPE_DIALOG\0"
     "_NET_WM_WINDOW_TYPE_TOOLBAR\0"
+    "_NET_WM_WINDOW_TYPE_MENU\0"
+    "_NET_WM_WINDOW_TYPE_UTILITY\0"
     "_NET_WM_WINDOW_TYPE_SPLASH\0"
     "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE\0"
     "_KDE_NET_WM_FRAME_STRUT\0"
     "_NET_WM_STATE_STAYS_ON_TOP\0"
     "_NET_WM_PID\0"
+    "_NET_WM_USER_TIME\0"
     "ENLIGHTENMENT_DESKTOP\0"
     "_NET_WM_NAME\0"
+    "_NET_WM_ICON_NAME\0"
     "UTF8_STRING\0"
     "TEXT\0"
     "COMPOUND_TEXT\0"
@@ -256,6 +256,7 @@ QX11Data *qt_x11Data = 0;
   Internal variables and functions
  *****************************************************************************/
 static const char *appName;			// application name
+static const char *appClass;			// application class
 static const char *appFont	= 0;		// application font
 static const char *appBGCol	= 0;		// application bg color
 static const char *appFGCol	= 0;		// application fg color
@@ -381,6 +382,7 @@ static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
 Q_GUI_EXPORT Time	qt_x_time = CurrentTime;
+Q_GUI_EXPORT Time	qt_x_user_time = CurrentTime;
 extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
 extern bool	qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 
@@ -1016,7 +1018,9 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QString key, value;
 	int l = 0, r;
 	QString apn = appName;
+	QString apc = appClass;
 	int apnl = apn.length();
+	int apcl = apc.length();
 	int resl = res.length();
 
 	while (l < resl) {
@@ -1029,26 +1033,28 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    if ( res[l] == '*' &&
 		 (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'g' ||
 		  res[l+1] == 'F' || res[l+1] == 'B' || res[l+1] == 'G' ||
-		  res[l+1] == 's' || res[l+1] == 'S' ) )
-		{
-		    // OPTIMIZED, since we only want "*[fbgs].."
-
+		  res[l+1] == 's' || res[l+1] == 'S' ) ) {
+		// OPTIMIZED, since we only want "*[fbgs].."
+		QString item = res.mid( l, r - l ).simplifyWhiteSpace();
+		int i = item.find( ":" );
+		key = item.left( i ).stripWhiteSpace().mid(1).lower();
+		value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		mine = TRUE;
+	    } else if ( res[l] == appName[0] || res[l] == appClass[0] ) {
+		if (res.mid(l,apnl) == apn && (res[l+apnl] == '.' || res[l+apnl] == '*')) {
 		    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		    int i = item.find( ":" );
-		    key = item.left( i ).stripWhiteSpace().mid(1).lower();
+		    key = item.left( i ).stripWhiteSpace().mid(apnl+1).lower();
 		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
 		    mine = TRUE;
-		} else if ( res[l] == appName[0] ) {
-		    if ( res.mid(l,apnl) == apn &&
-			 (res[l+apnl] == '.' || res[l+apnl] == '*' ) )
-			{
-			    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
-			    int i = item.find( ":" );
-			    key = item.left( i ).stripWhiteSpace().mid(apnl+1).lower();
-			    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
-			    mine = TRUE;
-			}
+		} else if (res.mid(l,apcl) == apc && (res[l+apcl] == '.' || res[l+apcl] == '*')) {
+		    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
+		    int i = item.find( ":" );
+		    key = item.left( i ).stripWhiteSpace().mid(apcl+1).lower();
+		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		    mine = TRUE;
 		}
+	    }
 
 	    if ( mine ) {
 		if ( !font && key == "systemfont")
@@ -1293,6 +1299,12 @@ static void qt_get_net_virtual_roots()
     }
 }
 
+static void qt_net_update_user_time(QWidget *tlw)
+{
+    XChangeProperty(QPaintDevice::x11AppDisplay(), tlw->winId(), ATOM(Net_Wm_User_Time),
+		    XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
+}
+
 static void qt_check_focus_model()
 {
     Window fw = None;
@@ -1382,10 +1394,15 @@ void qt_init( QApplicationPrivate *priv, int,
     if ( display ) {
 	// Qt part of other application
 
+	// Set application name and class
 	appName = qstrdup( "Qt-subapplication" );
+	const char* p = strrchr( priv->argv[0], '/' );
+	char *app_class = qstrdup(p ? p + 1 : priv->argv[0]);
+	if (app_class[0])
+	    app_class[0] = toupper(app_class[0]);
+	appClass = app_class;
 
 	// Install default error handlers
-
 	original_x_errhandler = XSetErrorHandler( qt_x_errhandler );
 	original_xio_errhandler = XSetIOErrorHandler( qt_xio_errhandler );
     } else {
@@ -1397,14 +1414,16 @@ void qt_init( QApplicationPrivate *priv, int,
 	int j;
 
 	// Install default error handlers
-
 	original_x_errhandler = XSetErrorHandler( qt_x_errhandler );
 	original_xio_errhandler = XSetIOErrorHandler( qt_xio_errhandler );
 
-	// Set application name
-
-	p = strrchr( priv->argv[0], '/' );
-	appName = p ? p + 1 : priv->argv[0];
+	// Set application name and class
+	p = strrchr( argv[0], '/' );
+	appName = p ? p + 1 : argv[0];
+	char *app_class = qstrdup(appName);
+	if (app_class[0])
+	    app_class[0] = toupper(app_class[0]);
+	appClass = app_class;
 
 	// Get command line params
 	j = 1;
@@ -1923,7 +1942,7 @@ void qt_init( QApplicationPrivate *priv, int,
 	    i,
 	    j;
 	bool gotStylus,
-	     gotEraser;
+	    gotEraser;
 	XDeviceInfo *devices, *devs;
 	XInputClassInfo *ip;
 	XAnyClassPtr any;
@@ -2037,49 +2056,49 @@ void qt_init( QApplicationPrivate *priv, int,
 #if defined (Q_OS_IRIX)
 		if ( devStylus != NULL ) {
 #else
-		if ( devStylus != NULL && devEraser != NULL ) {
+		    if ( devStylus != NULL && devEraser != NULL ) {
 #endif
-		    break;
+			break;
+		    }
 		}
-	    }
-	} // end for loop
-	XFreeDeviceList( devices );
+	    } // end for loop
+	    XFreeDeviceList( devices );
 #endif // QT_TABLET_SUPPORT
 
-    } else {
-	// read some non-GUI settings when not using the X server...
+	} else {
+	    // read some non-GUI settings when not using the X server...
 
-	if ( QApplication::desktopSettingsAware() ) {
-	    QSettings settings;
+	    if ( QApplication::desktopSettingsAware() ) {
+		QSettings settings;
 
-	    // read library (ie. plugin) path list
-	    QString libpathkey = QString("/qt/%1.%2/libraryPath")
-				 .arg( QT_VERSION >> 16 )
-				 .arg( (QT_VERSION & 0xff00 ) >> 8 );
-	    QStringList pathlist =
-		settings.readListEntry(libpathkey, ':');
-	    if (! pathlist.isEmpty()) {
-		QStringList::ConstIterator it = pathlist.begin();
-		while (it != pathlist.end())
-		    QApplication::addLibraryPath(*it++);
+		// read library (ie. plugin) path list
+		QString libpathkey = QString("/qt/%1.%2/libraryPath")
+				     .arg( QT_VERSION >> 16 )
+				     .arg( (QT_VERSION & 0xff00 ) >> 8 );
+		QStringList pathlist =
+		    settings.readListEntry(libpathkey, ':');
+		if (! pathlist.isEmpty()) {
+		    QStringList::ConstIterator it = pathlist.begin();
+		    while (it != pathlist.end())
+			QApplication::addLibraryPath(*it++);
+		}
+
+		QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
+		if (defaultcodec != "none") {
+		    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+		    if (codec)
+			qApp->setDefaultCodec(codec);
+		}
+
+		qt_resolve_symlinks =
+		    settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 	    }
-
-	    QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
-	    if (defaultcodec != "none") {
-		QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
-		if (codec)
-		    qApp->setDefaultCodec(codec);
-	    }
-
-	    qt_resolve_symlinks =
-		settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
 	}
     }
-}
 
 
 #ifndef QT_NO_STYLE
- // run-time search for default style
+    // run-time search for default style
 void QApplication::x11_initialize_style()
 {
     Atom type;
@@ -2200,6 +2219,8 @@ void qt_cleanup()
     if ( X11->foreignDisplay ) {
 	delete [] (char *)appName;
 	appName = 0;
+	delete [] (char *)appClass;
+	appClass = 0;
     }
 
     if (X11->net_supported_list)
@@ -2273,6 +2294,11 @@ bool qt_wstate_iconified( WId winid )
 const char *qAppName()				// get application name
 {
     return appName;
+}
+
+const char *qAppClass()				// get application class
+{
+    return appClass;
 }
 
 Display *qt_xdisplay()				// get current X display
@@ -2794,6 +2820,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     switch ( event->type ) {
     case ButtonPress:
 	ignoreNextMouseReleaseEvent = FALSE;
+	qt_x_user_time = event->xbutton.time;
 	// fallthrough intended
     case ButtonRelease:
 	qt_x_time = event->xbutton.time;
@@ -2802,6 +2829,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xmotion.time;
 	break;
     case XKeyPress:
+	qt_x_user_time = event->xkey.time;
+	// fallthrough intended
     case XKeyRelease:
 	qt_x_time = event->xkey.time;
 	break;
@@ -3176,6 +3205,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		activePopupWidget()->close();
 	    return 1;
 	}
+	if (event->type == ButtonPress)
+	    qt_net_update_user_time(widget->topLevelWidget());
 	// fall through intended
     case MotionNotify:
 #if defined(QT_TABLET_SUPPORT)
@@ -3190,6 +3221,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case XKeyPress:				// keyboard event
+	qt_net_update_user_time(widget->topLevelWidget());
+	// fallthrough intended
     case XKeyRelease:
 	{
 	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
@@ -5597,6 +5630,8 @@ static void sm_performSaveYourself( QSessionManagerPrivate* smd )
     // generate a restart and discard command that makes sense
     QStringList restart;
     restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
+    if (qstricmp(qAppName(), qAppClass()) != 0)
+	restart << "-name" << qAppName();
     sm->setRestartCommand( restart );
     QStringList discard;
     sm->setDiscardCommand( discard );

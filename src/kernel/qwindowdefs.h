@@ -121,6 +121,8 @@ Q_GUI_EXPORT WId	 qt_xrootwin( int scrn ); // ### 4.0 add default arg of -1
 Q_GUI_EXPORT GC	 qt_xget_readonly_gc( int scrn, bool monochrome );
 Q_GUI_EXPORT GC	 qt_xget_temp_gc( int scrn, bool monochrome );
 
+Q_GUI_EXPORT const char *qAppClass();		// get application class
+
 #endif // Q_WS_X11
 
 #if defined(Q_WS_QWS)
