@@ -634,10 +634,7 @@ static const char * const ps_header[] = {
 "    defM setmatrix",			// default transformation matrix
 "    /Cx  0 d",				// reset current x position
 "    /Cy  0 d",				// reset current y position
-"    255 255 255 BC",
 "    /OMo false d",
-"    B P1",
-"    0 B BR",
 "    GS",
 "} D",
 "",
@@ -2315,9 +2312,9 @@ QByteArray compress( const QImage & image ) {
 #endif
 		    start = None;
 		}
-		if ( start < index - tableSize )
+		if ( start < index - tableSize || start < 0 )
 		    start = None;
-		if ( end < index - tableSize + bestLength )
+		if ( end < index - tableSize + bestLength || end < bestLength )
 		    end = None;
 	    }
 	    if ( start != None && end != None ) {
@@ -2489,8 +2486,8 @@ static const char * psCap( Qt::PenCapStyle p )
 	return "1 ";
     return "0 ";
 }
-			  
-			  
+
+
 static const char * psJoin( Qt::PenJoinStyle p ) {
     if ( p == Qt::BevelJoin )
 	return "2 ";
@@ -2498,7 +2495,7 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 	return "1 ";
     return "0 ";
 }
-			  
+
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
@@ -2560,12 +2557,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    // we special-case for narrow solid lines with the default
 	    // cap and join styles
 	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
-		 d->cpen.capStyle() == Qt::FlatCap && 
+		 d->cpen.capStyle() == Qt::FlatCap &&
 		 d->cpen.joinStyle() == Qt::MiterJoin )
 		stream << color( d->cpen.color(), printer ) << "P1\n";
 	    else
 		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
-		       << ' ' << color( d->cpen.color(), printer ) 
+		       << ' ' << color( d->cpen.color(), printer )
 		       << psCap( d->cpen.capStyle() )
 		       << psJoin( d->cpen.joinStyle() ) << "PE\n";
 	    d->dirtypen = FALSE;
