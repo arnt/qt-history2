@@ -92,6 +92,8 @@ void DatabaseConnectionsEditor::newConnection()
     }
     connectionWidget->editName->setText( n );
     listConnections->clearSelection();
+    buttonConnect->setDefault( TRUE );
+    connectionWidget->editName->setFocus();
     blockChanges = FALSE;
 }
 
