@@ -488,7 +488,8 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     // children
-    bool needEventHandler = dbAware;
+    bool needEventHandler = FALSE;
+    bool needPolish = dbAware;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -497,7 +498,7 @@ void Uic::createFormDecl( const QDomElement &e )
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
 	if ( s == "QSqlTable" )
-	    needEventHandler = TRUE;
+	    needPolish = TRUE;
     }
 
     // actions
@@ -560,10 +561,12 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     // create public additional slots as pure-virtual functions
-    if ( !publicSlots.isEmpty() ) {
+    if ( !publicSlots.isEmpty() || needPolish ) {
 	out << "public slots:" << endl;
 	for ( it = publicSlots.begin(); it != publicSlots.end(); ++it )
-	    out << "    virtual void " << (*it) << ";" << endl;
+	    out << indent << "virtual void " << (*it) << ";" << endl;
+	if ( needPolish )
+	    out << indent << "void polish();" << endl;
 	out << endl;
     }
 
@@ -576,9 +579,9 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
 
-    bool needProtected = needEventHandler || dbAware;
+    bool needProtected = needEventHandler;
     for ( it = layouts.begin(); !needProtected && it != layouts.end(); ++it )
-	needProtected = e.elementsByTagName( *it ).count() > 0 ;
+	needProtected = needProtected || e.elementsByTagName( *it ).count() > 0 ;
     if ( needProtected )
 	out << "protected:" << endl;
 
@@ -1101,26 +1104,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( needFontEventHandler && needSqlTableEventHandler )
 	    break;
     }
-    if ( needFontEventHandler || needSqlTableEventHandler || needSqlFormEventHandler ) {
+    if ( needFontEventHandler ) {
 	//	indent = "\t"; // increase indentation for if-clause below
 	out << "/*  " << endl;
 	out << " *  Main event handler. Reimplemented to handle" << endl;
-	if ( needFontEventHandler ) {
-	    out <<  " *  application font changes";
-	    if ( needSqlTableEventHandler || needSqlFormEventHandler )
-		out << " and" << endl;
-	    else
-		out << endl;
-	}
-	if ( needSqlTableEventHandler ) {
-	    out << " *  default SQL table initialization";
-	    if ( needSqlFormEventHandler )
-		out << " and" << endl;
-	    else
-		out << endl;
-	}
-	if ( needSqlFormEventHandler )
-	    out << " *  default SQL form initialization" << endl;
+	out << " *  application font changes";
 	out << " */" << endl;
 	out << "bool " << nameOfClass  << "::event( QEvent* ev )" << endl;
 	out << "{" << endl;
@@ -1137,8 +1125,24 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << "    }" << endl;
 	    indent = "    ";
 	}
+    }
+
+    if ( needSqlTableEventHandler || needSqlFormEventHandler ) {
+	out << "/*  " << endl;
+	out << " *  Widget polish.  Reimplemented to handle" << endl;
 	if ( needSqlTableEventHandler ) {
-	    out << indent << "if ( ev->type() == QEvent::Show ) {" << endl;
+	    out << " *  default SQL table initialization";
+	    if ( needSqlFormEventHandler )
+		out << " and" << endl;
+	    else
+		out << endl;
+	}
+	if ( needSqlFormEventHandler )
+	    out << " *  default SQL form initialization" << endl;
+	out << " */" << endl;
+	out << "void " << nameOfClass  << "::polish()" << endl;
+	out << "{" << endl;
+	if ( needSqlTableEventHandler ) {
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString s = getClassName( nl.item(i).toElement() );
 		if ( s == "QSqlTable" ) {
@@ -1147,16 +1151,16 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
 		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
-			out << indent << indent << "if ( " << c << " ) {" << endl;
-			out << indent << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
-			out << indent << indent << indent << "if ( !c ) {" << endl;
+			out << indent << "if ( " << c << " ) {" << endl;
+			out << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
+			out << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
-			    out << indent << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
+			    out << indent << indent << indent << "c = new QSqlCursor( \"" << tab << "\" );" << endl;
 			else
-			    out << indent << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
-			out << indent << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
-			out << indent << indent << indent << "}" << endl;
-			// create implementation // ## move this elsewhere?  do we -require- a delayed QSqlTable implementation?
+			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
+			out << indent << indent << indent << c << "->setCursor( c, FALSE, TRUE );" << endl;
+			out << indent << indent << "}" << endl;
+			// create implementation
 			QDomElement n2;
 			for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 			    if ( n2.tagName() == "column" ) {
@@ -1171,29 +1175,26 @@ void Uic::createFormImpl( const QDomElement &e )
 					fieldName = n3.firstChild().firstChild().toText().data();
 				}
 				if ( !fieldName.isEmpty() && !fieldLabel.isEmpty() ) {
-				    out << indent << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
-				    out << indent << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
+				    out << indent << indent << "c->setDisplayLabel( \"" << fieldName << "\" , \"" << fieldLabel << "\" );" << endl;
+				    out << indent << indent << c << "->addColumn( c->field( \"" << fieldName << "\" ) );" << endl;
 				}
 			    }
 			}
-			out << indent << indent << indent << "if ( !c->isActive() )" << endl;
-			out << indent << indent << indent << indent << c << "->refresh();" << endl;
-			out << indent << indent << "}" << endl;
+			out << indent << indent << "if ( !c->isActive() )" << endl;
+			out << indent << indent << indent << c << "->refresh();" << endl;
+			out << indent << "}" << endl;
 		    }
 		}
 	    }
-	    out << "    }" << endl;
 	}
 	if ( needSqlFormEventHandler ) {
-	    out << indent << "if ( ev->type() == QEvent::Show ) {" << endl;
-	    out << indent << indent << "QSqlCursor* cursor = defaultCursor();" << endl;
-	    out << indent << indent << "if ( cursor && !cursor->isActive() ) {" << endl;
-	    out << indent << indent << indent << "refresh();" << endl;
-	    out << indent << indent << indent << "firstRecord();" << endl;
-	    out << indent << indent << "}" << endl;
+	    out << indent << "QSqlCursor* cursor = defaultCursor();" << endl;
+	    out << indent << "if ( cursor && !cursor->isActive() ) {" << endl;
+	    out << indent << indent << "refresh();" << endl;
+	    out << indent << indent << "firstRecord();" << endl;
 	    out << indent << "}" << endl;
 	}
-	out << "    return ret;" << endl;
+	out << indent << objClass << "::polish();" << endl;
 	out << "}" << endl;
 	out << endl;
     }
