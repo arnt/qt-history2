@@ -58,7 +58,8 @@ The following options can be specified on the command line to \e qmake:
 \i \c -d \BR
 	\e qmake will output (hopefully) useful debugging information.
 \i \c -t tmpl \BR
-	\e qmake will override any set TEMPLATE variables with tmpl.
+	\e qmake will override any set TEMPLATE variables with tmpl, but only
+	\e after the .pro file has been processed.
 \i \c -tp prefix \BR
 	\e qmake will add the prefix to the TEMPLATE variable.
 \i \c -help \BR
@@ -534,6 +535,11 @@ SOURCES = main.cpp
 TARGET = mylib
 \endcode
 
+The template can be overridden by specifying a new template type with the
+\c -t command line option. This overrides the template type \e after the .pro
+file has been processed. With .pro files that use the template type to
+determine how the project is built, it is necessary to declare TEMPLATE on
+the command line rather than use the \c -t option.
 
 
 
