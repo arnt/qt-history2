@@ -533,6 +533,7 @@ QSize QLabel::sizeForWidth( int w ) const
 #endif
 #ifndef QT_NO_RICHTEXT
     else if ( doc ) {
+	int oldW = doc->width();
 	if ( w < 0 )
 	    doc->adjustSize();
 	else {
@@ -540,6 +541,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	    doc->setWidth( w );
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
+	doc->setWidth( oldW );
     }
     else
 #endif
