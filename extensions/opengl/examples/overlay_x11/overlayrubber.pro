@@ -6,3 +6,4 @@ SOURCES		= gearwidget.cpp \
 		  main.cpp \
 		  rubberbandwidget.cpp
 TARGET		= overlayrubber
+DEPENDPATH	= ../../../../include

@@ -6,3 +6,4 @@ SOURCES		= gltexobj.cpp \
 		  globjwin.cpp \
 		  main.cpp
 TARGET		= texture
+DEPENDPATH	= ../../../../include

@@ -56,3 +56,5 @@ echo examples again
 (cd examples; tmake $tmakearg examples.pro > Makefile.in )
 echo tutorial again
 (cd tutorial; tmake $tmakearg tutorial.pro > Makefile.in )
+echo OpenGL Extension examples again
+(cd extensions/opengl/examples; tmake $tmakearg examples.pro > Makefile.in )

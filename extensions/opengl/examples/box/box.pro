@@ -6,3 +6,4 @@ SOURCES		= glbox.cpp \
 		  globjwin.cpp \
 		  main.cpp
 TARGET		= box
+DEPENDPATH	= ../../../../include

@@ -6,3 +6,4 @@ SOURCES		= glteapots.cpp \
 		  globjwin.cpp \
 		  main.cpp
 TARGET		= overlay
+DEPENDPATH	= ../../../../include
