@@ -360,6 +360,7 @@ void QPixmap::fill(const QColor &fillColor)
 {
     if (isNull())
         return;
+    detach();
     QPainter p(this);
     p.fillRect(rect(),fillColor);
 }
