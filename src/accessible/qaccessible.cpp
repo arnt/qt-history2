@@ -327,9 +327,9 @@ void QAccessible::installFactory(InterfaceFactory factory)
 	}
     }
 
-    if (qAccessibleFactories->contains(factory))
+    if (qAccessibleFactories->contains((void*)factory))
 	return;
-    qAccessibleFactories->append(factory);
+    qAccessibleFactories->append((void*)factory);
 }
 
 void QAccessible::removeFactory(InterfaceFactory factory)
@@ -337,7 +337,7 @@ void QAccessible::removeFactory(InterfaceFactory factory)
     if (!qAccessibleFactories || !factory)
 	return;
 
-    qAccessibleFactories->remove(factory);
+    qAccessibleFactories->remove((void*)factory);
 }
 
 QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handler)
