@@ -2184,11 +2184,12 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 
 void QMainWindow::slotPlaceChanged()
 {
-    if ( sender()->inherits( "QDockWindow" ) )
-	emit dockWindowPositionChanged( (QDockWindow*)sender() );
+    const QObject* obj = sender();
+    if ( obj->inherits( "QDockWindow" ) )
+	emit dockWindowPositionChanged( (QDockWindow*)obj );
 #ifndef QT_NO_TOOLBAR
-    if ( sender()->inherits( "QToolBar" ) )
-	emit toolBarPositionChanged( (QToolBar*)sender() );
+    if ( obj->inherits( "QToolBar" ) )
+	emit toolBarPositionChanged( (QToolBar*) obj );
 #endif
 }
 
