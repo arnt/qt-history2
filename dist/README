@@ -1,13 +1,15 @@
-This is the final version of Qt 3.0.
+This is the final version of Qt 3.0, the cross-platform C++ GUI
+toolkit.
 
-This new generation of the Qt application development framework
-contains many new features, improvements and extensions. It also
-includes a significantly improved Qt Designer, and introduces Qt
-Linguist, Qt Assistant and a new multi-platform build tool, 'qmake'.
+This new generation of Qt contains many new features, improvements and
+extensions. It also includes a significantly improved Qt Designer, and
+introduces Qt Linguist, Qt Assistant and a new multi-platform build
+tool, 'qmake'. In addition to the traditional Qt platforms Linux, Unix
+and the various flavours of MS-Windows, Qt 3.0 for the first time also
+introduces a native port to MacOS X.
 
 Detailed information about the modifications and new features for Qt
-3.0 is included in the Online Reference Documentation.  For a brief
-overview, see http://www.trolltech.com/company/announce/30pre.html
+3.0 is included in the Online Reference Documentation.
 
 Because of our recently increased development team, we have been able
 to realize far more of your requests in this release. Qt 3.0 is a
@@ -63,17 +65,18 @@ If you try to use Qt 3.0 on an an unsupported version of Unix, please
 contact us at support@trolltech.com so that we can assist you.
 
 
-How to get the beta release:
+How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. To get better download times, use ftpsearch and
-search for qt-x11-free-3.0.0.tar.gz to find it on a mirror ftp
-site near you.
+search for qt-x11-free-3.0.0.tar.gz to find it on a mirror ftp site
+near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
 licenses should have received an e-mail with instructions on how to
-get the beta. Contact sales@trolltech.com if you are a Professional or
-Enterprise Edition licensee and have not received this e-mail.
+get the new release. Contact sales@trolltech.com if you are a
+Professional or Enterprise Edition licensee and have not received this
+e-mail.
 
 
 Any problems encountered Qt 3.0 should be reported to

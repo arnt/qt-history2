@@ -8,7 +8,7 @@ recompiled to work with Qt 3.0.
 
 In addition to the traditional Qt platforms Linux, Unix and the
 various flavours of MS-Windows, Qt 3.0 for the first time introduces a
-native port to MacOS X. As with all Qt versions, Qt/Mac is source
+native port to MacOS X. Like all Qt versions, Qt/Mac is source
 compatible with the others editions and follows closely the platform's
 native look and feel guidelines.
 
@@ -457,11 +457,6 @@ changes in the API.
 *			    General					   *
 ****************************************************************************
 
-- Improved build on
-	HP-UX with cc
-	Solaris 8 with gcc 3.0.1
-	AIX with xlC and aCC
-
 ****************************************************************************
 *			   Library					   *
 ****************************************************************************
@@ -493,7 +488,7 @@ changes in the API.
 - QDataTable
 	fixed broken context menus
 
-- QDate 
+- QDate
 	fixed addMonth() overflow
 
 - QDesktopWidget
@@ -572,7 +567,7 @@ changes in the API.
 	do not start renaming an item is CTRL or SHIFT is
 	pressed. Start renaming on mouse release, not mouse press, so
 	click + click + move on the same item does not start a rename
-	operation. 
+	operation.
 
 - QMainWindow
 	show dock-menu also when clicking on the menubar
@@ -580,7 +575,7 @@ changes in the API.
 - QPainter
 	win32 only: improved printing performance through printer font
 	caching.
-	boundingRect(): ignore 0-width in the constrain rectangle 
+	boundingRect(): ignore 0-width in the constrain rectangle
 
 - QPicture
 	added overload for load()  that takes a QIODevice
@@ -690,11 +685,24 @@ changes in the API.
 	install $QTDIR/doc/html/ instead of $QTDIR/doc/
 	install Qt Designer templates as well
 
+- improved build on
+	HP-UX with cc
+	Solaris 8 with gcc 3.0.1
+	AIX with xlC and aCC
+
 - inputmethods
 	x11 only: do not reset the input context on focus changes
 
+- uic
+	smaller improvements, handle additinal form signals
+
+- Qt Designer
+	make it possible to add new signals to a form without
+	subclassing. Minor fixes.
+
 - Qt Assistant
-	fixed Shift-LMB selection bug
+	fixed Shift-LMB selection bug. Fixed new window and window
+	restoration on restart.
 
 - Qt Linguist
 	change fourth parameter of QApplication::translate() from bool
@@ -702,4 +710,13 @@ changes in the API.
 	syntax to parse). Change Qt Linguist's XML file format (.ts)
 	to be consistent with QApplication:<defaultcodec> (rather than
 	<codec>) to match QApp::defaultCodec(); encoding="UTF-8"
-	(rather than utf8="true") to match QApp::translate().
+	(rather than utf8="true") to match QApp::translate(). Fixed
+	window decoration on restart. Use 'finished', 'unfinished' and
+	'unresolved' instead of the (!), (?) symbols on printouts.
+
+- QtMsDev
+	merge "Add UIC" and "New Dialog". Better user interface and
+	general cleanup. Wwrite (and merge) qmake pro file with active
+	project. Load qmake pro files into Visual Studio
+
+
