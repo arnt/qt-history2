@@ -205,7 +205,6 @@ void MainWindow::setupGoActions( const QStringList &docList, const QStringList &
 	    if ( !separatorInserted )
 		separatorInserted = insertActionSeparator();
 	    actionGoAssistant->addTo( goMenu );
-	    actionGoAssistant->addTo( Toolbar );
 	} else if ( (*it).lower().contains( "linguist.xml" ) &&
 		    catList.find( "qt/linguist" ) != catList.end() ) {
 	    if ( !separatorInserted )
