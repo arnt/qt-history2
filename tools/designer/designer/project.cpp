@@ -564,8 +564,11 @@ void Project::save( bool onlyProjectFile )
 	}
     }
 
-    if ( isDummy()  || filename.isEmpty() )
+    if ( isDummy() || filename.isEmpty() )
 	return;
+
+    if ( !modified )
+ 	return;
 
     QFile f( filename );
     QString contents;
