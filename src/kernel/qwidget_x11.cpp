@@ -164,12 +164,14 @@ Window qt_XCreateSimpleWindow( const QWidget *creator,
 void qt_XDestroyWindow( const QWidget *destroyer,
 			Display *display, Window window );
 
-Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
+Q_EXPORT void qt_x11_enforce_cursor( QWidget * w, bool unset )
 {
-    if ( QApplication::overrideCursor() )
-	return;
-
-    if ( w->isEnabled() ) {
+    QCursor * oc = QApplication::overrideCursor();
+    if ( oc ) {
+	XDefineCursor( w->x11Display(), w->winId(), oc->handle() );
+    } else if ( unset ) {
+	XDefineCursor( w->x11Display(), w->winId(), None );
+    } else if ( w->isEnabled() ) {
 	XDefineCursor( w->x11Display(), w->winId(), w->cursor().handle() );
     } else {
 	QWidget *parent = w->parentWidget();
@@ -179,7 +181,6 @@ Q_EXPORT void qt_x11_enforce_cursor( QWidget * w )
 	    XDefineCursor( w->x11Display(), w->winId(), parent->cursor().handle() );
 	}
     }
-    XFlush( w->x11Display() );
 }
 
 /*!
@@ -552,9 +553,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( desktop ) {
 	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
-	QCursor *oc = QApplication::overrideCursor();
 	if ( initializeWindow )
-	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
+	    qt_x11_enforce_cursor( this, FALSE );
 	setWState( WState_OwnCursor );
     }
 
@@ -915,7 +915,8 @@ void QWidget::setCursor( const QCursor &cursor )
 	extra->curs = new QCursor(cursor);
     }
     setWState( WState_OwnCursor );
-    qt_x11_enforce_cursor( this );
+    qt_x11_enforce_cursor( this, FALSE );
+    XFlush( x11Display() );
 }
 
 void QWidget::unsetCursor()
@@ -926,7 +927,7 @@ void QWidget::unsetCursor()
 	    extra->curs = 0;
 	}
 	clearWState( WState_OwnCursor );
-	XDefineCursor( x11Display(), winId(), None );
+	qt_x11_enforce_cursor( this, TRUE );
 	XFlush( x11Display() );
     }
 }

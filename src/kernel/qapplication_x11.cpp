@@ -2557,6 +2557,8 @@ void QApplication::setMainWidget( QWidget *mainWidget )
   QApplication cursor stack
  *****************************************************************************/
 
+extern void qt_x11_enforce_cursor( QWidget * w, bool unset );
+
 typedef QPtrList<QCursor> QCursorList;
 
 static QCursorList *cursorStack = 0;
@@ -2617,13 +2619,10 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
 
-    QWidget* amw = activeModalWidget();
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWState(WState_OwnCursor) &&
-	     ( !amw || !w->isVisible() || w->topLevelWidget() == amw ) )	//   set a cursor
-	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
+	qt_x11_enforce_cursor( w, FALSE );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -2650,10 +2649,7 @@ void QApplication::restoreOverrideCursor()
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// set back to original cursors
-	    if ( w->testWState(WState_OwnCursor) )
-		XDefineCursor( w->x11Display(), w->winId(),
-			       app_cursor ? app_cursor->handle()
-			       : w->cursor().handle() );
+	    qt_x11_enforce_cursor( w, FALSE );
 	    ++it;
 	}
 	XFlush( appDpy );
