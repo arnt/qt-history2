@@ -8,6 +8,8 @@
 #include <qpoint.h>
 #include <qrect.h>
 
+static const int border = 2;
+
 QItemDelegate::QItemDelegate(QAbstractItemModel *model, QObject *parent)
     : QAbstractItemDelegate(model, parent)
 {
@@ -20,11 +22,12 @@ QItemDelegate::~QItemDelegate()
 void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
+    static QSize sz(border << 1, border << 1);
     QString text = model()->data(item, QAbstractItemModel::Display).toString();
     QIconSet icons = model()->data(item, QAbstractItemModel::Decoration).toIconSet();
 
     QRect iconRect(pt, iconSize(options, icons));
-    QRect textRect(pt, textSize(painter->fontMetrics(), options, text));
+    QRect textRect(pt, textSize(painter->fontMetrics(), options, text) + sz);
     doLayout(options, &iconRect, &textRect, false);
 
     drawIcon(painter, options, iconRect, icons);
@@ -36,10 +39,11 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
                               const QModelIndex &item) const
 {
     static QPoint pt(0, 0);
+    static QSize sz(border << 1, border << 1);
     QRect iconRect(pt, iconSize(options,
                                 model()->data(item, QAbstractItemModel::Decoration).toIconSet()));
     QRect textRect(pt, textSize(fontMetrics, options,
-                                model()->data(item, QAbstractItemModel::Display).toString()));
+                                model()->data(item, QAbstractItemModel::Display).toString()) + sz);
     doLayout(options, &iconRect, &textRect, true); // makes the rects valid
     return iconRect.unite(textRect).size();
 }
@@ -93,8 +97,8 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &op
 }
 
 void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, const QRect &rect,
-                              const QString &text) const
-{
+                             const QString &text) const
+{    
     QPen old = painter->pen();
     if (options.selected) {
         painter->fillRect(rect, options.palette.highlight());
@@ -102,12 +106,10 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     } else {
         painter->setPen(options.palette.text());
     }
-    bool reverse = QApplication::reverseLayout() && options.iconAlignment == Qt::AlignAuto;
-    if (reverse || (options.iconAlignment & Qt::AlignRight))
-        painter->drawText(rect, options.textAlignment, text);
-    else
-        painter->drawText(QRect(rect.x(), rect.y(), rect.width(), rect.height()),
-                          options.textAlignment, text);
+    // reduce the rect to create a border
+    painter->drawText(rect.x() + border, rect.y() + border,
+                      rect.width() - (border << 1), rect.height() - (border << 1),
+                      options.textAlignment, text);
     painter->setPen(old);
 }
 
@@ -145,7 +147,8 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect
             return;
         }
         int height = hint ? qMax(textRect->height(), iconRect->height()) : options.itemRect.height();
-        bool reverse = QApplication::reverseLayout() && options.iconAlignment == Qt::AlignAuto;
+        bool alignAuto = (options.iconAlignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto;
+        bool reverse = QApplication::reverseLayout() && alignAuto;
         if (reverse || (options.iconAlignment & Qt::AlignRight)) {
             int w = hint ? textRect->width() : options.itemRect.width() - iconRect->width();
             textRect->setRect(x, y, w, height);

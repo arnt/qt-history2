@@ -30,6 +30,7 @@ public:
     QSize sizeHint() const;
     int sectionSizeHint(int section) const;
 
+    int indexAt(int position) const;
     int sectionAt(int position) const;
     int sectionSize(int section) const;
     int sectionPosition(int section) const;
@@ -89,8 +90,6 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *e);
 
     virtual void paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item);
-
-    int indexAt(int position) const;
 
     QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;

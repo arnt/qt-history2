@@ -184,17 +184,18 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
-    QRect area = e->rect();
-
-    int leftSection = qMax(d->header->sectionAt(d->header->offset() + area.left()), 0);
-    int rightSection = d->header->sectionAt(d->header->offset() + area.right());
-    d->left = d->header->index(leftSection);
-    d->right = d->header->index(rightSection);
-    if (d->right < d->left)
-        d->right = d->header->count() - 1;
+    QRect area = d->viewport->rect();//e->rect();
 
     if (d->items.isEmpty())
         return;
+
+    d->left = d->header->indexAt(d->header->offset() + area.left());
+    d->right = d->header->indexAt(d->header->offset() + area.right());
+    if (d->left > d->right) {
+        int tmp = d->left;
+        d->left = d->right;
+        d->right = tmp;
+    }
 
     const QGenericTreeViewItem *items = d->items.constData();
 
@@ -204,13 +205,15 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
     QModelIndex current = selectionModel()->currentItem();
+    bool reverse = QApplication::reverseLayout();
 
     int v = verticalScrollBar()->value();
     int h = d->viewport->height();
     int c = d->items.count();
     int i = d->itemAt(v);
     int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, options, items[i].index).height());
-    int x = -d->header->offset();
+    int x = d->header->x() - d->header->offset()
+            - (reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0);
     painter.translate(x, 0);
     while (y < h && i < c) {
         // prepare
@@ -255,7 +258,8 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
             int i = d->indentation(d->current);
             options->itemRect.setRect(reverse ? position : i + position, y, width - i, height);
             painter->fillRect(position, y, width, height, base);
-            drawBranches(painter, QRect(reverse ? position + width - i: position, y, i, options->itemRect.height()), index);
+            drawBranches(painter, QRect(reverse ? position + width - i :
+                                        position, y, i, options->itemRect.height()), index);
         } else {
             options->itemRect.setRect(position, y, width, height);
             painter->fillRect(position, y, width, height, base);
@@ -296,10 +300,12 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
 
 void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 {
-    int x = QApplication::reverseLayout() ? d->header->size() - e->x() : e->x();
+    bool reverse = QApplication::reverseLayout();
+    int x = e->x() - d->header->x() + d->header->offset()
+            + (reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0);
     int column = d->header->sectionAt(x);
     int position = d->header->sectionPosition(column);
-    int cx = x - position;
+    int cx = reverse ? position + d->header->sectionSize(column) - x : x - position;
     int vi = d->item(e->y(), verticalScrollBar()->value());
     QModelIndex mi = d->modelIndex(vi);
 
@@ -307,7 +313,7 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
         int indent = d->indentation(vi) - d->header->offset();
         if (column == 0 && cx < (indent - d->indent))
             return; // we are in the empty area in front of the tree - do nothing
-        if (column > 0 || cx > indent) {
+        if (column != 0 || cx > indent) {
             QAbstractItemView::mousePressEvent(e);
             return; // we are on an item - select it
         }
@@ -611,7 +617,9 @@ void QGenericTreeView::resizeColumnToContents(int column)
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
     int columnPos = d->header->sectionPosition(column);
-    QRect rect(columnPos, 0, d->viewport->width() - columnPos + d->header->offset(), d->viewport->height());
+    int x = columnPos;
+    int w = d->viewport->width() - columnPos + d->header->offset();
+    QRect rect(x, 0, w, d->viewport->height());
     d->viewport->update(rect);
     updateGeometries();
     updateCurrentEditor();
@@ -771,10 +779,13 @@ bool QGenericTreeViewPrivate::isOpen(int i) const
 
 void QGenericTreeViewPrivate::open(int i)
 {
+    int c = q->model()->rowCount(modelIndex(i));
     items[i].open = true;
+    if (c <= 0)
+        return;
+    layout_count = c;
     layout_parent_index = i;
     layout_from_index = i;
-    layout_count = q->model()->rowCount(modelIndex(i));
     q->startItemsLayout();
     q->updateGeometries();
 }
