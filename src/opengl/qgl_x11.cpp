@@ -316,6 +316,12 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 	d->glFormat.setStencilBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STEREO, &res);
     d->glFormat.setStereo(res);
+    glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_SAMPLE_BUFFERS_ARB, &res);
+    d->glFormat.setSampleBuffers(res);
+    if (d->glFormat.sampleBuffers()) {
+        glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_SAMPLES_ARB, &res);
+        d->glFormat.setSamples(res);
+    }
 
     Bool direct = format().directRendering() ? True : False;
 
