@@ -11,8 +11,8 @@
 #include "qtextengine_p.h"
 #include "qtextlayout_p.h"
 #include "qwidget.h"
-#include "qwin32gc.h"
-#include "qwin32gc_p.h"
+#include "qgc_win.h"
+#include "qgc_win_p.h"
 
 #include <math.h>
 
@@ -277,7 +277,7 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclip
 	       "\n\tYou must end() the painter before a second begin()\n");
 // 	return true;
     }
-    if(pdev->devType() == QInternal::Widget && 
+    if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");

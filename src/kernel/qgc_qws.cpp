@@ -1,4 +1,4 @@
-#include "qwsgc_qws.h"
+#include "qgc_qws.h"
 #include "q4painter_p.h"
 
 #include "qgfx_qws.h"
@@ -112,7 +112,7 @@ bool QWSGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
                    "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
-    if(pdev->devType() == QInternal::Widget && 
+    if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
@@ -143,7 +143,7 @@ bool QWSGC::end(){
 void QWSGC::updatePen(QPainterState *ps)
 {
     d->gfx->setPen(ps->pen);
-    
+
 //    qDebug("QWSGC::updatePen");
 }
 void QWSGC::updateBrush(QPainterState *ps)
@@ -254,7 +254,7 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 //    qDebug("QWSGC::updateClipRegion");
 
     Q_ASSERT(isActive());
-    
+
     bool painterClip = ps->clipEnabled;
     bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
 /*
@@ -268,7 +268,7 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 	QRegion crgn;
 	if (painterClip) {
 	    crgn = ps->clipRegion;
-	    if (eventClip) 
+	    if (eventClip)
 		crgn = crgn.intersect(*paintEventClipRegion);
 	} else {
 	    crgn = *paintEventClipRegion;
@@ -598,7 +598,7 @@ void QWSGC::drawPolygon(const QPointArray &pa, bool winding, int index, int npoi
 	    }
 	    pa.translate(-redirection_offset);
 	}
-    
+
 #endif
     d->gfx->drawPolygon( pa, winding, index, npoints );
 

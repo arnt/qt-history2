@@ -1,6 +1,6 @@
 #include "qplatformdefs.h"
 
-#include "qx11gc.h"
+#include "qgc_x11.h"
 
 #include "qfont.h"
 #include "qwidget.h"
@@ -25,7 +25,7 @@
 
 #include "qmath_p.h"
 
-#include "qx11gc_p.h"
+#include "qgc_x11_p.h"
 
 //
 // Some global variables - these are initialized by QColor::initialize()
@@ -514,7 +514,7 @@ void QX11GC::cleanup()
 
 bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
-    if(pdev->devType() == QInternal::Widget && 
+    if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
