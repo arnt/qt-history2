@@ -79,7 +79,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
-    dgl = (QGLWidget *)(pdev);
+    d->pdev = dgl = (QGLWidget *)(pdev);
     dgl->setAutoBufferSwap(false);
     setActive(true);
 
