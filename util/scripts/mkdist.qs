@@ -366,10 +366,10 @@ function initialize()
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
-	if (File.exists(System.getenv("HOME") + "/tmp"))
-	    tmpDir = System.getenv("HOME") + "/tmp";
-	else if (File.exists("/tmp"))
+	if (File.exists("/tmp"))
 	    tmpDir = "/tmp";
+	else if (File.exists(System.getenv("HOME") + "/tmp"))
+	    tmpDir = System.getenv("HOME") + "/tmp";
 	else
 	    throw "Unable to find tmp directory";
     }
