@@ -85,6 +85,11 @@ extern Atom qt_window_role;		// defined in qapplication_x11.cpp
 extern Atom qt_sm_client_id;		// defined in qapplication_x11.cpp
 extern Atom qt_net_wm_context_help;	// defined in qapplication_x11.cpp
 extern Atom qt_xa_motif_wm_hints;	// defined in qapplication_x11.cpp
+extern Atom qt_net_wm_window_type;      // defined in qapplication_x11.cpp
+extern Atom qt_net_wm_window_type_normal; // defined in qapplication_x11.cpp
+extern Atom qt_net_wm_window_type_dialog; // defined in qapplication_x11.cpp
+extern Atom qt_net_wm_window_type_toolbar; // defined in qapplication_x11.cpp
+extern Atom qt_net_wm_window_type_override; // defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -356,8 +361,28 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( initializeWindow ) {
-	wsa.bit_gravity = QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;	// don't erase when resizing
+	// don't erase when resizing
+	wsa.bit_gravity =
+	    QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
+
+	// set _NET_WM_WINDOW_TYPE
+	unsigned long wtype[2];
+	int len = 1;
+	if (! (testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder))) {
+	    // KDE extension for quick no border, motif hints are still set above
+	    wtype[0] = qt_net_wm_window_type_override;
+	    wtype[1] = qt_net_wm_window_type_normal;
+	    len = 2;
+	} else if (testWFlags(WStyle_Tool))
+	    wtype[0] = qt_net_wm_window_type_toolbar;
+	else if (testWFlags(WType_Dialog))
+	    wtype[0] = qt_net_wm_window_type_dialog;
+	else
+	    wtype[0] = qt_net_wm_window_type_normal;
+
+	XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
+			(unsigned char *) wtype, len);
     }
 
     setWState( WState_MouseTracking );

@@ -298,6 +298,11 @@ Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
 Atom		qt_x_incr		= 0;
+Atom            qt_net_wm_window_type   = 0;
+Atom            qt_net_wm_window_type_normal = 0;
+Atom            qt_net_wm_window_type_dialog = 0;
+Atom            qt_net_wm_window_type_toolbar = 0;
+Atom            qt_net_wm_window_type_override = 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -1778,6 +1783,15 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type);
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
+			    &qt_net_wm_window_type_normal );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_DIALOG",
+			    &qt_net_wm_window_type_dialog );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_TOOLBAR",
+			    &qt_net_wm_window_type_toolbar );
+	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_OVERRIDE",
+			    &qt_net_wm_window_type_override );
 
 	qt_xdnd_setup();
 	qt_x11_motifdnd_init();
@@ -3375,9 +3389,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xcrossing.time;
 
 	// check PointerRoot focus
-	if ( event->xcrossing.focus && 
+	if ( event->xcrossing.focus &&
 	     widget->isTopLevel() && !widget->isDesktop () &&
-	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
+	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() )
 	    setActiveWindow (widget);
 
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
@@ -3396,11 +3410,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case LeaveNotify: {			// leave window
 	qt_x_time = event->xcrossing.time;
-	
+
 	// check PointerRoot focus
-	if ( event->xcrossing.focus && 
+	if ( event->xcrossing.focus &&
 	     widget->isTopLevel() && !widget->isDesktop () &&
-	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() ) 
+	     event->xcrossing.detail != NotifyInferior &&!inPopupMode() )
 	    setActiveWindow ( 0 );
 
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )

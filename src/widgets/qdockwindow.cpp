@@ -655,7 +655,7 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | ( p == OutsideDock ? (WType_Dialog | WStyle_Customize | WStyle_NoBorder) : 0 ) ),
+    : QFrame( parent, name, f | ( p == OutsideDock ? (WType_TopLevel | WStyle_Customize | WStyle_NoBorder) : 0 ) ),
       curPlace( p ), wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), resizeEnabled( FALSE ),
       moveEnabled( TRUE ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ), nl( FALSE ), dockWindowData( 0 ),
       lastPos( -1, -1 ), opaque( FALSE )
@@ -863,7 +863,7 @@ void QDockWindow::updateGui()
 		vHandleRight->raise();
 		vHandleLeft->raise();
 	    }
-	
+
 	    if ( area() ) {
 		if ( orientation() == Horizontal ) {
 		    if ( area()->gravity() == QDockArea::Normal ) {
