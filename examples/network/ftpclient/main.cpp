@@ -18,5 +18,6 @@ int main( int argc, char **argv )
     FtpMainWindow m;
     a.setMainWidget( &m );
     m.show();
+    m.connectToHost();
     return a.exec();
 }

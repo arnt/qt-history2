@@ -2,7 +2,9 @@ REQUIRES	= network full-config
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 
-SOURCES		= main.cpp
+HEADERS		= ftpviewitem.h
+SOURCES		= main.cpp \
+		  ftpviewitem.cpp
 FORMS		= ftpmainwindow.ui \
 		  connectdialog.ui
 IMAGES		= images/file.png \

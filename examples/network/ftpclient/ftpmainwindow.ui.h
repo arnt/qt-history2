@@ -24,8 +24,10 @@
 #include <qspinbox.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
+#include <qfiledialog.h>
 
 #include "connectdialog.h"
+#include "ftpviewitem.h"
 
 void FtpMainWindow::init()
 {
@@ -33,10 +35,12 @@ void FtpMainWindow::init()
     statusBar()->addWidget( stateFtp, 0, TRUE );
 
     ftp = new QFtp( this );
-    connect( ftp, SIGNAL(stateChanged(int)),
-	    SLOT(ftp_stateChanged(int)) );
+    connect( ftp, SIGNAL(start(int)),
+	    SLOT(ftp_start()) );
     connect( ftp, SIGNAL(doneError(const QString&)),
 	    SLOT(ftp_doneError(const QString&)) );
+    connect( ftp, SIGNAL(stateChanged(int)),
+	    SLOT(ftp_stateChanged(int)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
 	    SLOT(ftp_listInfo(const QUrlInfo &)) );
 }
@@ -49,17 +53,42 @@ void FtpMainWindow::destroy()
 
 void FtpMainWindow::uploadFile()
 {
+    QString fileName = QFileDialog::getOpenFileName(
+	    QString::null,
+	    QString::null,
+	    this,
+	    "upload file dialog",
+	    tr("Choose a file to upload") );
+    if ( fileName.isNull() )
+	return;
 
+    QFile file( fileName );
+    if ( !file.open( IO_ReadOnly ) ) {
+	QMessageBox::critical( this, tr("Upload error"),
+		tr("Can't open file '%1' for reading.").arg(fileName) );
+	return;
+    }
+    QFileInfo fi( fileName );
+    ftp->put( file.readAll(), fi.fileName() );
+    ftp->list();
 }
 
 void FtpMainWindow::downloadFile()
 {
-
+    FtpViewItem *item = (FtpViewItem*)remoteView->selectedItem();
+    if ( !item || item->isDir() )
+	return;
+    qDebug( "### download file" );
 }
 
 void FtpMainWindow::removeFile()
 {
+    FtpViewItem *item = (FtpViewItem*)remoteView->selectedItem();
+    if ( !item || item->isDir() )
+	return;
 
+    ftp->remove( item->text(0) );
+    ftp->list();
 }
 
 void FtpMainWindow::connectToHost()
@@ -83,9 +112,19 @@ void FtpMainWindow::connectToHost()
 // remotePath.
 void FtpMainWindow::changePath( const QString &newPath )
 {
-    remoteView->clear();
+    currentFtpDir = newPath;
     ftp->cd( newPath );
     ftp->list();
+}
+
+// This slot is connected to the QListView::doubleClicked() and
+// QListView::returnPressed() signals of the remoteView.
+void FtpMainWindow::changePathOrDownload( QListViewItem *item )
+{
+    if ( ((FtpViewItem*)item)->isDir() )
+	changePath( item->text(0) );
+    else
+	downloadFile();
 }
 
 /****************************************************************************
@@ -93,6 +132,26 @@ void FtpMainWindow::changePath( const QString &newPath )
 ** Slots connected to signals of the QFtp class
 **
 *****************************************************************************/
+
+void FtpMainWindow::ftp_start()
+{
+    if ( ftp->currentCommand() == QFtp::List ) {
+	remoteView->clear();
+	if ( currentFtpDir != "/" )
+	    new FtpViewItem( remoteView, FtpViewItem::Directory, "..", "", "" );
+    }
+}
+
+void FtpMainWindow::ftp_doneError( const QString &msg )
+{
+    QMessageBox::critical( this, tr("FTP Error"), msg );
+
+    // If we are connected, but not logged in, it is not meaningful to stay
+    // connected to the server since the error is a really fatal one (login
+    // failed).
+    if ( ftp->state() == QFtp::Connected )
+	ftp->close();
+}
 
 void FtpMainWindow::ftp_stateChanged( int state )
 {
@@ -118,21 +177,14 @@ void FtpMainWindow::ftp_stateChanged( int state )
     }
 }
 
-void FtpMainWindow::ftp_doneError( const QString &msg )
-{
-    if ( QMessageBox::critical( this, tr("FTP Error"), msg, QMessageBox::Ok, QMessageBox::Abort ) == QMessageBox::Abort )
-	ftp->close();
-}
-
 void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 {
-    QListViewItem *item = new QListViewItem( remoteView,
-	    i.name(),
-	    QString::number( i.size() ),
-	    i.lastModified().toString() );
-    // the pixmaps for folders and files are in an image collection
+    FtpViewItem::Type type;
     if ( i.isDir() )
-	item->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
+	type = FtpViewItem::Directory;
     else
-	item->setPixmap( 0, QPixmap::fromMimeSource( "file.png" ) );
+	type = FtpViewItem::File;
+
+    new FtpViewItem( remoteView, type,
+	    i.name(), QString::number(i.size()), i.lastModified().toString() );
 }
