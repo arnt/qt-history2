@@ -73,7 +73,7 @@ static void sanitize( QString& str )
 
 static QString htmlProtect( const QString& str )
 {
-    static QRegExp amp( QChar('&') );
+    static QRegExp amp( QChar('&') ); // HTML metacharacters
     static QRegExp lt( QChar('<') );
     static QRegExp gt( QChar('>') );
     static QRegExp backslash( QString("\\\\") ); // qdoc metacharacter
@@ -104,10 +104,9 @@ static QString getEscape( const QString& in, int& pos )
 	return QString( "&gt;" );
     case '\\':
 	// double backslash becomes &#92; so that pass 2 leaves it alone
+    default:
 	pos++;
 	return QString( "&#92;" );
-    default:
-	return QChar( '\\' );
     }
 }
 
@@ -168,7 +167,7 @@ static void skipSpaces( const QString& in, int& pos )
 
 /*
   This function is highly magical. It tries to somehow reproduce the
-  old qdoc's behavior.
+  old qdoc behavior.
 */
 static void skipSpacesOrNL( const QString& in, int& pos )
 {
@@ -595,13 +594,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    // we have found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
 		} else {
+#if 1
 		    consume( "example" );
-// ### not yet
 		    warning( 2, location(),
-			     "Command '\\example' has been renamed '\\file'" );
+			     "Command '%s' has been renamed '%s'", "\\example",
+			     "\\file" );
 		    fileName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 		    setKind( Doc::Example, command );
+#endif
 		}
 		break;
 	    case hash( 'e', 9 ):
@@ -624,6 +625,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected function prototype after '\\fn'" );
 		else
 		    setKind( Doc::Fn, command );
+		break;
+	    case hash( 'f', 4 ):
+		consume( "file" );
+		fileName = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+		// ### use page instead of example
+		setKind( Doc::Example, command );
 		break;
 	    case hash( 'h', 6 ):
 		consume( "header" );
@@ -906,9 +914,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 #if 1 // ###
 	    case hash( 'd', 11 ):
 		consume( "dontinclude" );
-		warning( 2, location(),
-			 "Command '\\dontinclude' has been renamed"
-			 " '\\walkthrough'" );
+		warning( 2, location(), "Command '%s' has been renamed '%s'",
+			 "\\dontinclude", "\\walkthrough" );
 		command = QString( "walkthrough" );
 		/* fall through */
 #endif
