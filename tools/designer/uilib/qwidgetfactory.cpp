@@ -122,6 +122,12 @@ bool qwf_stays_on_top = FALSE;
   <li>Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
 
+  This class is not included in the Qt library itself. To use it you
+  have to link against libqui.so (unix) or qui.lib (windows), which is
+  build into $(QTDIR)/lib if you built the Qt Designer. Also to be
+  able to include qwidgetfactory.h you have to add
+  $(QTDIR)/tools/designer/uilib to your project's include path.
+
   </ul>
 */
 

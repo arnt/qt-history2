@@ -103,8 +103,8 @@ SOURCES	= command.cpp \
 
 TARGET	= designer
 INCLUDEPATH	+= ../shared ../util ../resource ../../../src/3rdparty/zlib/
-unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqresource
-win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qresource.lib
+unix:LIBS	+= -lqutil -L$(QTDIR)/lib -lqui
+win32:LIBS	+= $(QTDIR)/lib/qutil.lib $(QTDIR)/lib/qui.lib
 DEFINES	+= DESIGNER
 DESTDIR	= ../../../bin
 win32-msvc:RC_FILE = designer.rc
