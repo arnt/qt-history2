@@ -352,7 +352,6 @@ GLInfo::GLInfo()
     for (scrnum = 0; scrnum < numScreens; scrnum++) {
         mesa_hack(dpy, scrnum);
 	print_screen_info(dpy, scrnum);
-	printf("\n");
 	print_visual_info(dpy, scrnum);
 	if (scrnum + 1 < numScreens)
 	    printf("\n\n");
