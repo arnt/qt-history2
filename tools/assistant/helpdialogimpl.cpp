@@ -542,7 +542,7 @@ void HelpDialog::insertContents()
     qtDocu->setLink( "index.html" );
     qtDocu->setPixmap( 0, *bookPixmap );
     handbook = new HelpNavigationContentsItem( listContents, 0 );
-    handbook->setText( 0, tr( "Designer Handbook" ) );
+    handbook->setText( 0, tr( "Qt Designer Manual" ) );
     handbook->setLink( "designer-manual.html" );
     handbook->setPixmap( 0, *bookPixmap );
     linguistDocu = new HelpNavigationContentsItem( listContents, 0 );
@@ -550,7 +550,7 @@ void HelpDialog::insertContents()
     linguistDocu->setLink( "linguist-manual.html" );
     linguistDocu->setPixmap( 0, *bookPixmap );
     assistantDocu = new HelpNavigationContentsItem( listContents, 0 );
-    assistantDocu->setText( 0, tr( "Qt Assistant" ) );
+    assistantDocu->setText( 0, tr( "Qt Assistant Manual" ) );
     assistantDocu->setLink( "assistant.html" );
     assistantDocu->setPixmap( 0, *bookPixmap );
 
