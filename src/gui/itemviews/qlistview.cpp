@@ -1394,10 +1394,9 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 }
 
 /*!
-    Sets the \a column in the model that is visible.
-
-    \sa column()
- */
+    \property QListView::column
+    \brief the column in the model that is visible
+*/
 void QListView::setColumn(int column)
 {
     d->column = column;
@@ -1407,11 +1406,6 @@ void QListView::setColumn(int column)
         d->doDelayedItemsLayout();
 }
 
-/*!
-    Returns the column in the model that is visible.
-
-    \sa setColumn()
- */
 int QListView::column() const
 {
     return d->column;

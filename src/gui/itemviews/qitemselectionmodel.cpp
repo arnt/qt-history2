@@ -61,20 +61,18 @@
 */
 
 /*!
-    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, int top, int left, int bottom, int right)
+    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
 
-    Constructs a selection range containing the model items specified by the
-    \a parent and the extents of the range: \a top, \a left, \a bottom, and
-    \a right.
+    Constructs a new selection range containing only the model item specified
+    by the \a parent and the model \a index.
 
 */
 
 /*!
-    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &parent, const QModelIndex &index)
+    \fn QItemSelectionRange::QItemSelectionRange(const QModelIndex &index)
 
     Constructs a new selection range containing only the model item specified
-    by the \a parent and the model item \a index.
-
+    by the model \a index.
 */
 
 /*!
@@ -124,6 +122,12 @@
 */
 
 /*!
+    \fn const QAbstractItemModel *QItemSelectionRange::model() const
+
+    Returns the model that the items in the selection range belong to.
+*/
+
+/*!
     \fn QModelIndex QItemSelectionRange::parent() const
 
     Returns the parent model item index of the items in the selection range.
@@ -131,10 +135,10 @@
 */
 
 /*!
-    \fn bool QItemSelectionRange::contains(const QModelIndex &index, const QAbstractItemModel *model) const
+    \fn bool QItemSelectionRange::contains(const QModelIndex &index) const
 
     Returns true if the model item specified by the \a index lies within the
-    range of selected items for the given \a model; otherwise returns false.
+    range of selected items; otherwise returns false.
 
 */
 
@@ -200,7 +204,7 @@ QItemSelectionRange QItemSelectionRange::intersect(const QItemSelectionRange &ot
 */
 
 /*!
-    Returns the list of model index items stored for the given \a model.
+    Returns the list of model index items stored in the selection.
 */
 
 QModelIndexList QItemSelectionRange::indexes() const
@@ -282,7 +286,7 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 }
 
 /*!
-    Selects the range in the \a model that extends from the top-left model
+    Selects the items in a range that extends from the top-left model
     item, specified by the \a topLeft index, to the bottom-right item,
     specified by \a bottomRight.
 */
@@ -300,7 +304,7 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
 }
 
 /*!
-    Returns true if the \a model contains the specified \a index; otherwise
+    Returns true if the selection contains the given \a index; otherwise
     returns false.
 */
 
@@ -314,7 +318,7 @@ bool QItemSelection::contains(const QModelIndex &index) const
 }
 
 /*!
-    Returns the list of selected model index items for the given \a model.
+    Returns a list of model indexes that correspond to the selected items.
 */
 
 QModelIndexList QItemSelection::indexes() const
@@ -534,13 +538,31 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 }
 
 /*!
-   \fn void QItemSelectionModel::currentChanged(const QModelIndex &old, const QModelIndex &current)
+   \fn void QItemSelectionModel::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 
-   This signal is emitted whenever the current item changes. The \a old
+   This signal is emitted whenever the current item changes. The \a previous
    model item index is replaced by the \a current index as the selection's
    current item.
 
    \sa currentIndex() setCurrentItem()
+*/
+
+/*!
+   \fn void QItemSelectionModel::currentColumnChanged(const QModelIndex &current, const QModelIndex &previous)
+
+   This signal is emitted if the \a current item changes and its column is
+   different to the column of the \a previous current item.
+
+   \sa currentChanged() currentRowChanged() currentIndex() setCurrentItem()
+*/
+
+/*!
+   \fn void QItemSelectionModel::currentRowChanged(const QModelIndex &current, const QModelIndex &previous)
+
+   This signal is emitted if the \a current item changes and its row is
+   different to the row of the \a previous current item.
+
+   \sa currentChanged() currentColumnChanged() currentIndex() setCurrentItem()
 */
 
 /*!
