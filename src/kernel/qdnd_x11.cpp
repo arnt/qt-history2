@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#98 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1511,8 +1511,8 @@ void QDragManager::updatePixmap()
 	QPoint pm_hot(default_pm_hotx,default_pm_hoty);
 	if ( object ) {
 	    pm = object->pixmap();
-	    //if ( !pm.isNull() )
-		//pm_hot = object->pixmapHotSpot();
+	    if ( !pm.isNull() )
+		pm_hot = object->pixmapHotSpot();
 	}
 	if ( pm.isNull() ) {
 	    if ( !defaultPm )
