@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#37 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#37 $";
 #endif
 
 
@@ -915,9 +915,9 @@ void QListBox::paintCell( QPainter *p, int row, int column )
 	p->setPen( g.text() );
     }
     if ( lbi->type == LBI_String )
-	p->drawText( 3, cellHeight( row ) - fm.descent() - 1, lbi->string );
+	p->drawText( 3, fm.ascent() + fm.leading()/2, lbi->string );
     if ( lbi->type == LBI_Pixmap )
-	p->drawPixmap( 3, 2, *lbi->pixmap );
+	p->drawPixmap( 3, 0, *lbi->pixmap );
 }
 
 /*----------------------------------------------------------------------------
