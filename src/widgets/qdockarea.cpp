@@ -89,6 +89,8 @@ QSize QDockAreaLayout::sizeHint() const
     while ( ( dw = it.current() ) != 0 ) {
 	int plush = 0, plusw = 0;
 	++it;
+	if ( dw->isHidden() )
+	    continue;
 	if ( hasHeightForWidth() ) {
 	    if ( y != dw->y() )
 		plush = ph;
@@ -132,8 +134,10 @@ QSize QDockAreaLayout::minimumSize() const
     QDockWindow *dw = 0;
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
- 	s = s.expandedTo( dw->minimumSizeHint() )
- 	    .expandedTo( dw->minimumSize());
+	if ( dw->isHidden() )
+	    continue;
+ 	s = s.expandedTo( dw->QFrame::minimumSizeHint() )
+ 	    .expandedTo( dw->QFrame::minimumSize() );
     }
 
     if ( s.width() < 0 )
