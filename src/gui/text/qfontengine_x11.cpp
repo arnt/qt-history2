@@ -673,6 +673,7 @@ void QFontEngineXft::doKerning(int num_glyphs, QGlyphLayout *g, QTextEngine::Sha
             g[i].advance.ry() += kerning.y / 64.;
         }
     }
+    XftUnlockFace(_font);
 }
 
 
