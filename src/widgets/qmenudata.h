@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#28 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#29 $
 **
 ** Definition of QMenuData class
 **
@@ -35,7 +35,7 @@ public:
     const char *text()		const	{ return text_data; }
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
-    long	key()		const	{ return accel_key; }
+    int		key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
     bool	isDisabled()	const	{ return is_disabled; }
@@ -50,7 +50,7 @@ private:
     QString	text_data;			// item text
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
-    long	accel_key;			// accelerator key
+    int		accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_disabled  : 1;		// disabled flag
@@ -83,10 +83,10 @@ public:
 
     int		insertItem( const char *text,
 			    const QObject *receiver, const char *member,
-			    long accel=0 );
+			    int accel=0 );
     int		insertItem( const QPixmap &pixmap,
 			    const QObject *receiver, const char *member,
-			    long accel=0 );
+			    int accel=0 );
     int		insertItem( const char *text, int id=-1, int index=-1 );
     int		insertItem( const char *text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
@@ -100,8 +100,8 @@ public:
     void	removeItemAt( int index );
     void	clear();
 
-    long	accel( int id )		const;
-    void	setAccel( long key, int id );
+    int		accel( int id )		const;
+    void	setAccel( int key, int id );
 
     const char *text( int id )		const;
 #if defined(OBSOLETE)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#40 $
 **
 ** Implementation of QMenuData class
 **
@@ -15,7 +15,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -254,7 +254,7 @@ void QMenuData::setAllDirty( bool dirty )
 
 int QMenuData::insertItem( const char *text,
 			   const QObject *receiver, const char *member,
-			   long accel )
+			   int accel )
 {
     int id = insertAny( text, 0, 0, -2, -1 );
     connectItem( id, receiver, member );
@@ -275,7 +275,7 @@ int QMenuData::insertItem( const char *text,
 
 int QMenuData::insertItem( const QPixmap &pixmap,
 			   const QObject *receiver, const char *member,
-			   long accel )
+			   int accel )
 {
     int id = insertAny( 0, &pixmap, 0, -2, -1 );
     connectItem( id, receiver, member );
@@ -433,14 +433,14 @@ void QMenuData::clear()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the accelerator key that has been defined for the menu item \e id,
   or 0 if there is no accelerator key.
 
-  \sa setAccel() QAccel qkeycode.h
-  */
+  \sa setAccel(), QAccel, qkeycode.h
+ ----------------------------------------------------------------------------*/
 
-long QMenuData::accel( int id ) const
+int QMenuData::accel( int id ) const
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->key() : 0;
@@ -457,8 +457,9 @@ long QMenuData::accel( int id ) const
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Notice that accelerators are only meaningful for popup submenus of a menu
-  bar.
+  Notice that accelerators only work for QMenuBar items and QPopupMenu
+  items that live in a menu bar. For stand-alone popup menus, use an
+  independent QAccel object.
 
   Example:
   \code
@@ -469,10 +470,10 @@ long QMenuData::accel( int id ) const
     fm->setAccel( CTRL + ALT + Key_Delete, 69 );
   \endcode
 
-  \sa accel() QAccel qkeycode.h
+  \sa accel(), QAccel, qkeycode.h
  ----------------------------------------------------------------------------*/
 
-void QMenuData::setAccel( long key, int id )
+void QMenuData::setAccel( int key, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {
