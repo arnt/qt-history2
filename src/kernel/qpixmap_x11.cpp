@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#100 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#100 $");
 
 
 /*****************************************************************************
@@ -770,7 +770,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = image.buildAlphaMask();
+	    m = image.createAlphaMask();
 	    setMask( m );
 	}
 	return TRUE;
@@ -1043,7 +1043,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
     if ( image.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = image.buildAlphaMask();
+	m = image.createAlphaMask();
 	setMask( m );
     }
 

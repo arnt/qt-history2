@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#99 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#99 $");
 
 
 /*!
@@ -40,8 +40,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#98 $");
   lookup table; the pixel value is a color table index.
 
   32-bpp images encode an RGB value in 24 bits and ignore the color table.
-  The most significant byte is reserved for alpha channel support in a
-  future version of Qt.
+  The most significant byte is used for the \link setAlphaBuffer alpha
+  buffer\endlink.
 
   An entry in the color table is an RGB triplet encoded as \c uint.  Use
   the qRed, qGreen and qBlue functions (qcolor.h) to access the
@@ -78,7 +78,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#98 $");
 
   32-bpp images ignore the color table, instead each pixel contains the
   RGB triplet. 24 bits contain the RGB value and the most significant
-  byte is reserved for alpha channel.
+  byte is reserved for the alpha buffer.
 
   \code
     QImage image;
@@ -480,7 +480,7 @@ void QImage::fill( uint pixel )
 	for ( int i=0; i<height(); i++ )
 	    memset( scanLine(i), pixel, bpl );
     } else if ( depth() == 32 ) {
-	if ( 0 /* hasAlphaBuffer() */ ) {
+	if ( hasAlphaBuffer() ) {
 	    pixel &= 0x00ffffff;
 	    for ( int i=0; i<height(); i++ ) {
 		uint *p = (uint *)scanLine(i);
@@ -608,7 +608,7 @@ void QImage::setNumColors( int numColors )
   The alpha buffer is used to set a mask when a QImage is translated to a
   QPixmap.
 
-  \sa hasAlphaBuffer()
+  \sa hasAlphaBuffer(), createAlphaMask()
 */
 
 void QImage::setAlphaBuffer( bool enable )
@@ -1038,7 +1038,6 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 }
 
 
-
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
@@ -1057,7 +1056,7 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   \sa setAlphaBuffer()
 */
 
-QImage QImage::buildAlphaMask( bool dither ) const
+QImage QImage::createAlphaMask( bool dither ) const
 {
     if ( isNull() || !hasAlphaBuffer() ) {
 	QImage nullImage;
@@ -1065,7 +1064,7 @@ QImage QImage::buildAlphaMask( bool dither ) const
     }
 
     if ( depth() == 1 ) {
-	return convertDepth(8).buildAlphaMask();
+	return convertDepth(8).createAlphaMask();
     }
 
     int i;
@@ -1145,46 +1144,55 @@ QImage QImage::buildAlphaMask( bool dither ) const
 
 
 /*!
-  Builds and returns a 1-bpp heuristic mask for this image.  It works by
+  Creates and returns a 1-bpp heuristic mask for this image. It works by
   selecting a color from one of the corners, then chipping away pixels of
   that color, starting at all the edges.
 
-  The four corners vote over which color is to be masked away.  In
+  The four corners vote over which color is to be masked away. In
   case of a draw (this generally means that this function is not
   applicable to the image) the voting results are undocumented.
 
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
 
-  This function disregards the alpha buffer.
+  This function disregards the \link hasAlphaBuffer() alpha buffer\endlink.
 */
 
-QImage QImage::reasonableMask( bool clipTightly ) const
+QImage QImage::createHeuristicMask( bool clipTight ) const
 {
-    if ( depth() < 32 )
-	return convertDepth( 32 ).reasonableMask( clipTightly );
+    if ( isNull() ) {
+	QImage nullImage;
+	return nullImage;
+    }
+    if ( depth() != 32 ) {
+	QImage img32 = convertDepth(32);
+	return img32.createHeuristicMask(clipTight);
+    }
 
-    int w = width(), h = height();
-    QImage m( w, h, 1, 0, QImage::LittleEndian );
-    // note - need to mask out alpha channel here
-    QRgb background = *(QRgb *)scanLine(0);
-    if ( background != *(w-1+(QRgb *)scanLine(0)) &&
-	 background != *(QRgb *)scanLine(h-1) &&
-	 background != *(w-1+(QRgb *)scanLine(h-1)) ) {
-	background = *(w-1+(QRgb *)scanLine(0));
-	if ( background != *(w-1+(QRgb *)scanLine(h-1)) &&
-	     background != *(QRgb *)scanLine(h-1) &&
-	     *(QRgb *)scanLine(h-1) == *(w-1+(QRgb *)scanLine(h-1))) {
-	    background = *(w-1+(QRgb *)scanLine(h-1));
+#define PIX(x,y)  (*((QRgb*)scanLine(y)+x) & 0x00ffffff)
+
+    int w = width();
+    int h = height();
+    QImage m(w, h, 1, 2, QImage::LittleEndian);
+    m.setColor( 0, 0xffffff );
+    m.setColor( 1, 0 );
+    m.fill( 0xff );
+
+    QRgb background = PIX(0,0);
+    if ( background != PIX(w-1,0) &&
+	 background != PIX(0,h-1) &&
+	 background != PIX(w-1,h-1) ) {
+	background = PIX(w-1,0);
+	if ( background != PIX(w-1,h-1) &&
+	     background != PIX(0,h-1) &&
+	     PIX(0,h-1) == PIX(w-1,h-1) ) {
+	    background = PIX(w-1,h-1);
 	}
     }
+
     int x,y;
-
-    for ( y = 0; y < height(); y++ )
-	memset( m.scanLine( y ), 255, (width()+7)/8 );
-
     bool done = FALSE;
-    uchar * ypp, * ypc, * ypn;
+    uchar *ypp, *ypc, *ypn;
     while( !done ) {
 	done = TRUE;
 	ypn = m.scanLine(0);
@@ -1193,6 +1201,7 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 	    ypp = ypc;
 	    ypc = ypn;
 	    ypn = (y == h-1) ? 0 : m.scanLine(y+1);
+	    QRgb *p = (QRgb *)scanLine(y);
 	    for ( x = 0; x < w; x++ ) {
 		// slowness here - it's possible to do six of these tests
 		// together in one go.  oh well.
@@ -1202,25 +1211,25 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 		       !(*(ypp + (x     >> 3)) & (1 << (x     & 7))) ||
 		       !(*(ypn + (x     >> 3)) & (1 << (x     & 7))) ) &&
 		     (	(*(ypc + (x     >> 3)) & (1 << (x     & 7))) ) &&
-		     // alpha channel here too
-		     ( (*((QRgb *)scanLine(y) + x)) == background ) ) {
+		     ( (*p & 0x00ffffff) == background ) ) {
 		    done = FALSE;
 		    *(ypc + (x >> 3)) &= ~(1 << (x & 7));
 		}
+		p++;
 	    }
 	}
     }
 
-    if ( !clipTightly ) {
+    if ( !clipTight ) {
 	ypn = m.scanLine(0);
 	ypc = 0;
 	for ( y = 0; y < h; y++ ) {
 	    ypp = ypc;
 	    ypc = ypn;
 	    ypn = (y == h-1) ? 0 : m.scanLine(y+1);
+	    QRgb *p = (QRgb *)scanLine(y);
 	    for ( x = 0; x < w; x++ ) {
-		// this too is slow
-		if ( (*((QRgb *)scanLine(y) + x)) != background ) {
+		if ( (*p & 0x00ffffff) != background ) {
 		    if ( x > 0 )
 			*(ypc + ((x-1) >> 3)) |= (1 << ((x-1) & 7));
 		    if ( x < w-1 )
@@ -1230,9 +1239,13 @@ QImage QImage::reasonableMask( bool clipTightly ) const
 		    if ( y < h-1 )
 			*(ypn + (x >> 3)) |= (1 << (x & 7));
 		}
+		p++;
 	    }
 	}
     }
+
+#undef PIX
+
     return m;
 }
 
@@ -2058,7 +2071,7 @@ QDataStream &operator<<( QDataStream &s, const BMP_INFOHDR &bi )
 }
 
 
-static void read_bmp_image( QImageIO *iio )	// read BMP image data
+static void read_bmp_image( QImageIO *iio )
 {
     QIODevice  *d = iio->ioDevice();
     QDataStream s( d );
@@ -2187,8 +2200,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 				d->getch();	// align on word boundary
 			    x += c;
 		    }
-		}
-		else {				// encoded mode
+		} else {			// encoded mode
 		    i = (c = b)/2;
 		    b = d->getch();		// 2 pixels to be repeated
 		    while ( i-- ) {
@@ -2200,8 +2212,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 		    x += c;
 		}
 	    }
-	}
-	else if ( comp == BMP_RGB ) {		// no compression
+	} else if ( comp == BMP_RGB ) {		// no compression
 	    while ( --h >= 0 ) {
 		if ( d->readBlock((char*)buf,buflen) != buflen )
 		    break;
@@ -2248,15 +2259,13 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 			    x += b;
 			    p += b;
 		    }
-		}
-		else {				// encoded mode
+		} else {			// encoded mode
 		    memset( p, d->getch(), b ); // repeat pixel
 		    x += b;
 		    p += b;
 		}
 	    }
-	}
-	else if ( comp == BMP_RGB ) {		// uncompressed
+	} else if ( comp == BMP_RGB ) {		// uncompressed
 	    while ( --h >= 0 ) {
 		if ( d->readBlock((char *)line[h],bpl) != bpl )
 		    break;
@@ -2289,7 +2298,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 }
 
 
-static void write_bmp_image( QImageIO *iio )	// write BMP image data
+static void write_bmp_image( QImageIO *iio )
 {
     QIODevice  *d = iio->ioDevice();
     QImage	image = iio->image();
@@ -2393,7 +2402,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
   PBM/PGM/PPM (ASCII and RAW) image read/write functions
  *****************************************************************************/
 
-static int read_pbm_int( QIODevice *d )		// read int, skip comments
+static int read_pbm_int( QIODevice *d )
 {
     int	  c;
     int	  val = -1;
@@ -2408,8 +2417,7 @@ static int read_pbm_int( QIODevice *d )		// read int, skip comments
 	    if ( digit ) {
 		val = 10*val + c - '0';
 		continue;
-	    }
-	    else {
+	    } else {
 		if ( c == '#' )			// comment
 		    d->readLine( buf, buflen );
 		break;
@@ -2544,7 +2552,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 }
 
 
-static void write_pbm_image( QImageIO *iio )	// write PBM image data
+static void write_pbm_image( QImageIO *iio )
 {
 #if defined(CHECK_RANGE)
     warning( "Qt: %s output not supported in this version",
@@ -2563,7 +2571,7 @@ static inline int hex2byte( register char *p )
 	   ( isdigit(*(p+1)) ? *(p+1) - '0' : toupper(*(p+1)) - 'A' + 10);
 }
 
-static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
+static void read_xbm_image( QImageIO *iio )
 {
     const int	buflen = 300;
     char	buf[buflen];
@@ -2612,8 +2620,7 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 		x = 0;
 	    }
 	    p = strstr( p, "0x" );
-	}
-	else {					// read another line
+	} else {				// read another line
 	    if ( !d->readLine(buf,buflen) )	// EOF ==> truncated image
 		break;
 	    p = strstr( buf, "0x" );
@@ -2625,7 +2632,7 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
 }
 
 
-static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
+static void write_xbm_image( QImageIO *iio )
 {
     QIODevice *d = iio->ioDevice();
     QImage     image = iio->image();
@@ -2699,17 +2706,18 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
  *****************************************************************************/
 
 
-// skip until ", read until the next ", return the rest in *buf
-// return FALSE on error, TRUE on success
-static bool read_xpm_string( QString & buf, QIODevice * d,
-			     const char ** source, int & index )
+// Skip until ", read until the next ", return the rest in *buf
+// Returns FALSE on error, TRUE on success
+
+static bool read_xpm_string( QString &buf, QIODevice *d,
+			     const char **source, int &index )
 {
     if ( source ) {
 	buf = source[index++];
 	return TRUE;
     }
 
-    if ( buf.size() < 69 ) // just a hack
+    if ( buf.size() < 69 )	    // just a hack
 	buf.resize( 123 );
 
     buf[0] = '\0';
@@ -2735,9 +2743,13 @@ static bool read_xpm_string( QString & buf, QIODevice * d,
 }
 
 
+//
 // INTERNAL
-// read an .xpm from either the QImageIO or from the const char **
-// one of the two HAS to be 0, the other one is used
+//
+// Reads an .xpm from either the QImageIO or from the const char **.
+// One of the two HAS to be 0, the other one is used.
+//
+
 static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 				     QImage & image)
 {
@@ -2748,7 +2760,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     if ( iio ) {
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
-	d->readLine( buf.data(), buf.size() );		// "/* XPM */"
+	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
     } else if ( source ) {
 	buf = source[0];
     } else {
@@ -2759,13 +2771,13 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 
     QRegExp r ("/\\*.XPM.\\*/" );
     if ( r.match(buf) < 0 )
-	return; // bad magic
+	return;					// bad magic
 
     if ( !read_xpm_string( buf, d, source, index ) )
 	return;
 
     if ( sscanf( buf, "%d %d %d %d", &w, &h, &ncols, &cpp ) < 4 )
-	return; // less than four numbers parsed
+	return;					// < 4 numbers parsed
 
     if ( ncols > 256 || cpp > 15 )
 	return;
@@ -2788,7 +2800,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
 	    i = buf.find( " c " );
 	    if ( i < 0 )
-		return; // no c specification
+		return;				// no c specification
 	    buf = buf.mid( i+1, buf.length() );
 	}
 	QRegExp r( "^c #[a-zA-Z0-9]*$" );
@@ -2796,8 +2808,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    i = buf.find( ' ', 2 );
 	    if ( i >= 0 )
 		buf.resize( i );
-	    // it's an RGB value, methinks...
-	    QString red, green, blue; // -Wshadow ahoy!
+	    QString red, green, blue;		// it's an RGB value...
 	    switch( buf.length() ) {
 	    case 6:
 		red = buf.mid( 3, 1 );
@@ -2816,13 +2827,13 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		blue = buf.mid( 11, 2 );
 		break;
 	    default:
-		return; // bad number of rgb digits
+		return;		// bad number of rgb digits
 	    }
 	    int r, g, b;
 	    if ( sscanf( red, "%x", &r ) != 1 ||
 		 sscanf( green, "%x", &g ) != 1 ||
 		 sscanf( blue, "%x", &b ) != 1 )
-		return; // uh...
+		return;		// couldn't sscanf
 	    image.setColor( currentColor, 0xff000000 | qRgb( r, g, b ) );
 	    colorMap.insert( index, (int*)(currentColor+1) );
 	} else if ( buf == "c none" ) {
@@ -2830,19 +2841,15 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    image.setColor( transparentColor, RGB_MASK & qRgb( 200,200,200 ) );
 	    colorMap.insert( index, (int*)(transparentColor+1) );
 	} else {
-	    // symbolic color names: die die die
-	    r = " [a-z] ";
+	    r = " [a-z] ";	// symbolic color names: die die die
 	    i = r.match( buf );
 	    QColor tmp( buf.mid( 2, i > -1 ? i-2 : buf.length() ) );
 	    image.setColor( currentColor, 0xff000000 | tmp.rgb() );
 	    colorMap.insert( index, (int*)(currentColor+1) );
 	}
-	//	debug( "color %d is %06x - %s",
-	//	       currentColor, image.color( currentColor ),
-	//	       (const char *)buf );
     }
 
-    // next, we read pixels
+    // Read pixels
     for( int y=0; y<h; y++ ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#67 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#67 $");
 
 
 /*!
@@ -262,62 +262,6 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*!
-  \fn const QBitmap *QPixmap::mask() const
-  Returns the mask bitmap, or null if no mask has been set.
-
-  \sa setMask(), QBitmap
-*/
-
-/*!
-  Sets a mask bitmap.
-
-  The \e mask bitmap defines the clip mask for this pixmap. Every pixel in
-  \e mask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
-  and pixel value 0 means transparent.	The mask must have the same size as
-  this pixmap.
-
-  Setting a \link isNull() null\endlink mask resets the mask,
-
-  \sa mask(), QBitmap
-*/
-
-void QPixmap::setMask( const QBitmap &mask )
-{
-    if ( mask.handle() && mask.handle() == handle() ) {
-	const QPixmap *tmp = &mask;		// dec cxx bug
-	QPixmap m = tmp->copy();
-	setMask( *((QBitmap*)&m) );
-	data->selfmask = TRUE;			// mask == pixmap
-	return;
-    }
-    detach();
-    data->selfmask = FALSE;
-    if ( mask.isNull() ) {			// reset the mask
-	delete data->mask;
-	data->mask = 0;
-	return;
-    }
-    if ( mask.width() != width() || mask.height() != height() ) {
-#if defined(CHECK_RANGE)
-	warning( "QPixmap::setMask: The pixmap and the mask must have "
-		 "the same size" );
-#endif
-	return;
-    }
-    delete data->mask;
-    data->mask = new QBitmap( mask );
-}
-
-
-/*!
-  \fn bool QPixmap::selfMask() const
-  Returns TRUE if the pixmap's mask is identical to the pixmap
-  itself.
-  \sa mask()
-*/
-
-
-/*!
   \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
   Fills the pixmap with the widget's background color or pixmap.
 
@@ -389,22 +333,83 @@ void QPixmap::resize( int w, int h )
 }
 
 
-/*! Returns a reasonable mask for this pixmap.  The mask may not be
-  perfect but should be reasonable, so you can do things like
+/*!
+  \fn const QBitmap *QPixmap::mask() const
+  Returns the mask bitmap, or null if no mask has been set.
 
-  \code
-    pm->setMask( pm->reasonableMask() );
-  \endcode;
-
-  This function is slow.
-
-  \sa QImage::reasonableMask()
+  \sa setMask(), QBitmap
 */
 
-QBitmap QPixmap::reasonableMask( bool clipTightly ) const
+/*!
+  Sets a mask bitmap.
+
+  The \e mask bitmap defines the clip mask for this pixmap. Every pixel in
+  \e mask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
+  and pixel value 0 means transparent. The mask must have the same size as
+  this pixmap.
+
+  Setting a \link isNull() null\endlink mask resets the mask,
+
+  \sa mask(), createHeuristicMask(), QBitmap
+*/
+
+void QPixmap::setMask( const QBitmap &mask )
+{
+    if ( mask.handle() && mask.handle() == handle() ) {
+	const QPixmap *tmp = &mask;		// dec cxx bug
+	QPixmap m = tmp->copy();
+	setMask( *((QBitmap*)&m) );
+	data->selfmask = TRUE;			// mask == pixmap
+	return;
+    }
+    detach();
+    data->selfmask = FALSE;
+    if ( mask.isNull() ) {			// reset the mask
+	delete data->mask;
+	data->mask = 0;
+	return;
+    }
+    if ( mask.width() != width() || mask.height() != height() ) {
+#if defined(CHECK_RANGE)
+	warning( "QPixmap::setMask: The pixmap and the mask must have "
+		 "the same size" );
+#endif
+	return;
+    }
+    delete data->mask;
+    data->mask = new QBitmap( mask );
+}
+
+
+/*!
+  \fn bool QPixmap::selfMask() const
+  Returns TRUE if the pixmap's mask is identical to the pixmap
+  itself.
+  \sa mask()
+*/
+
+
+/*!
+  Creates and returns a heuristic mask for this pixmap. It works by
+  selecting a color from one of the corners, then chipping away pixels of
+  that color, starting at all the edges.
+
+  The mask may not be perfect but should be reasonable, so you can do
+  things like:
+  \code
+    pm->setMask( pm->createHeuristicMask() );
+  \endcode;
+
+  This function is slow because it involves transformation to a QImage,
+  non-trivial computations and a transformation back to QBitmap.
+
+  \sa QImage::createHeuristicMask()
+*/
+
+QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
 {
     QBitmap m;
-    m.convertFromImage( convertToImage().reasonableMask( clipTightly ) );
+    m.convertFromImage( convertToImage().createHeuristicMask(clipTight) );
     return m;
 }
 

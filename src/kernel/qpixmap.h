@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#71 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#72 $
 **
 ** Definition of QPixmap class
 **
@@ -52,8 +52,8 @@ public:
 
     const QBitmap *mask() const;
     void	setMask( const QBitmap & );
-    QBitmap	reasonableMask( bool = TRUE ) const;
     bool	selfMask() const;
+    QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
 
     static  QPixmap  grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
