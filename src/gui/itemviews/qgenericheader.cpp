@@ -173,6 +173,8 @@ QSize QGenericHeader::sizeHint() const
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
     QModelIndex item = model()->index(row, col, QModelIndex(), type);
+    if (!item.isValid())
+        return QSize();
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, item);
     if (orientation() == Qt::Vertical)
         return QSize(hint.width() + border, size());
@@ -245,7 +247,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     int height = d->viewport->height();
     if (d->orientation == Qt::Horizontal) {
         for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden)
+            if (sections[i].hidden || !item.isValid())
                 continue;
             section = sections[i].section;
             item = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
@@ -260,7 +262,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
         }
     } else {
         for (int i = start; i <= end; ++i) {
-            if (sections[i].hidden)
+            if (sections[i].hidden || !item.isValid())
                 continue;
             section = sections[i].section;
             item = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
