@@ -2,21 +2,23 @@
 @SysInclude { tbl }
 @SysInclude { diag }
 # lout -EPS dependencies.lout > dependencies.eps
+macro @TTGreenColour { {cmyk 0.40 0.00 1.00 0.01} }
 macro @XrenderColour { rgb { 0.961 0.961 0.863 } }
 macro @FreetypeColour { rgb { 0.902 0.902 0.980 } }
 macro @GLColour { rgb { 1.000 0.753 0.796 } }
 macro @PthreadColour { rgb { 0.741 0.718 0.420 } }
 macro @XineramaColour { rgb { 0.792 0.882 1.000 } }
 macro @SMColour { rgb { 0.961 1.000 0.980 } }
+macro @MiscColour { rgb { 0.941 0.973 1.000 } }
 @Illustration
     @InitialFont { Helvetica Base 14p }
 {
-@Diag
+@Centre @Diag
     outline { shadowbox }
     shadow { 0.15f }
     margin { 0.5f }
     hsize { 5f }
-    paint { rgb { 0.941 0.973 1.000 } }
+    paint { @MiscColour }
     arrowwidth { 0.55f }
     arrowlength { 0.55f }
     pathwidth { medium }
@@ -30,19 +32,22 @@ macro @SMColour { rgb { 0.961 1.000 0.980 } }
     cmargin { 0.5f }
 {
 @Tbl
+#    rule { yes } rulecolour { red }
     indent { ctr }
     iv { ctr }
     marginvertical { 1.25f }
     div { top }
-    fmarginbelow { 0c }
+#    fmarginbelow { 0c }
     aformat { @Cell A | @Cell B | @Cell C | @Cell D | @Cell E }
     bformat { @StartHSpan @Cell A | @HSpan | @Cell C | @Cell D | @Cell E }
     cformat { @Cell A | @Cell B | @Cell C | @StartHSpan @Cell D | @HSpan }
     dformat { @StartHVSpan @Cell A | @HSpan | @Cell C | @Cell D | @Cell E }
     eformat { @VSpan | | @Cell C | @Cell D | @Cell E }
-    fformat { @VSpan | | @Cell C | @StartHSpan @Cell iv { foot } D | @HSpan }
+    fformat { @VSpan | | @Cell C |
+              @StartHSpan @Cell marginbelow { 0c } iv { foot } font { +2p } D |
+	      @HSpan }
 {
-    @Rowa C { QT:: @Node paint { {cmyk 0.40 0.00 1.00 0.01} } qt }
+    @Rowa C { QT:: @Node paint { @TTGreenColour } qt }
     @Rowb A { XFT:: @Node paint { @FreetypeColour } Xft }
 	  C { XINERAMA:: @Node paint { @XineramaColour } Xinerama }
 	  D { GL:: @Node paint { @GLColour } GL }
@@ -63,20 +68,20 @@ macro @SMColour { rgb { 0.961 1.000 0.980 } }
 	          C { optional }
 	    @Rowa A { C:: @BNode {} } B { D:: @BNode {} }
 	          C { some configurations only }
-	    @Rowb A { @CNode paint { @FreetypeColour } {} }
-		  C { -xft or auto-detected }
-	    @Rowb A { @CNode paint { @XrenderColour } {} }
-		  C { -xrender or -xft or auto-detected }
-	    @Rowb A { @CNode paint { @XineramaColour } {} }
-		  C { -xinerama or auto-detected }
-	    @Rowb A { @CNode paint { @GLColour } {} }
-		  C { OpenGL auto-detected }
-	    @Rowb A { @CNode paint { @SMColour } {} }
-		  C { -sm or auto-detected }
-	    @Rowb A { @CNode paint { @PthreadColour } {} }
-		  C { -thread }
-	    @Rowb C { needed if OpenGL is threaded }
-	    @Rowb C { ~ } # Hack
+#	    @Rowb A { @CNode paint { @FreetypeColour } {} }
+#		  C { -xft or auto-detected }
+#	    @Rowb A { @CNode paint { @XrenderColour } {} }
+#		  C { -xrender or -xft or auto-detected }
+#	    @Rowb A { @CNode paint { @XineramaColour } {} }
+#		  C { -xinerama or auto-detected }
+#	    @Rowb A { @CNode paint { @GLColour } {} }
+#		  C { OpenGL auto-detected }
+#	    @Rowb A { @CNode paint { @SMColour } {} }
+#		  C { -sm or auto-detected }
+#	    @Rowb A { @CNode paint { @PthreadColour } {} }
+#		  C { -thread }
+#	    @Rowb C { needed if OpenGL is threaded }
+#	    @Rowb C { ~ } # Hack
 	}
 	} 
 	  C { XEXT:: @Node Xext } E { SM:: @Node paint { @SMColour } SM }
@@ -86,7 +91,7 @@ macro @SMColour { rgb { 0.961 1.000 0.980 } }
 }
 //
 @Arrow from { QT } to { XINERAMA }
-@LVRCurveArrow from { QT } to { PTHREAD } pathstyle { dashed } bias { 15.5f }
+@LVRCurveArrow from { QT } to { PTHREAD } pathstyle { dashed } bias { 14.25f }
 @HVCurveArrow from { QT } to { SM }
 @VHVCurveArrow from { QT } to { XFT }
 @VHVCurveArrow from { QT } to { GL }
@@ -101,8 +106,40 @@ macro @SMColour { rgb { 0.961 1.000 0.980 } }
 @VHVCurveArrow from { XMUXT } to { SM } pathstyle { dotted }
 @Arrow from { SM } to { ICE }
 @Arrow from { XEXT } to { X }
-@RVLCurveArrow from { GL } to { PTHREAD } pathstyle { dotted } bias { 7.65f }
+@RVLCurveArrow from { GL } to { PTHREAD } pathstyle { dotted } bias { 8.25f }
 @Link from { A@W } to { B@E } pathstyle { dashed }
 @Link from { C@W } to { D@E } pathstyle { dotted }
+}
+@LLP
+@Tbl
+    font { -1p }
+    aformat { @Cell white @Colour @I A | @Cell white @Colour @I B | @Cell white @Colour @I C }
+    bformat { @Cell A | @Cell B | @Cell C }
+{
+    @Rowa paint { darkgrey } A { Name } B { Library } C { Notes }
+    @Rowb paint { @TTGreenColour } A { qt } B { libqt @I or libqt-mt }
+	C { Qt (libqt-mt is multi-threaded) }
+    @Rowb paint { @FreetypeColour } A { Xft } B { libXft }  
+	C { X FreeType Interface; -xft or auto-detected }
+    @Rowb paint { @FreetypeColour } A { freetype } B { libfreetype }  
+	C { FreeType; -xft or auto-detected }
+    @Rowb paint { @XrenderColour } A { Xrender } B { libXrender }  
+	C { {red @Colour ?}; -xrender or -xft or auto-detected }
+    @Rowb paint { @XineramaColour } A { Xinerama } B { libXinerama }
+	C { Multi-head support; -xinerama or auto-detected }
+    @Rowb paint { @MiscColour} A { Xext } B { libXext }  
+	C { {red @Colour ?} }
+    @Rowb paint { @MiscColour} A { X11 } B { libX11 }  
+	C { {red @Colour ?} }
+    @Rowb paint { @GLColour } A { GL } B { red @Colour ? }  
+	C { OpenGL; auto-detected (needs -thread if threaded) }
+    @Rowb paint { @MiscColour } A { Xmu"/"Xt }  B { libXmu @I and libXt }  
+	C { {red @Colour ?} }
+    @Rowb paint { @SMColour } A { SM } B { libSM }  
+	C { X Session Management; -sm or auto-detected }
+    @Rowb paint { @SMColour } A { ICE } B { libICE }  
+	C { Inter-Client Exchange }
+    @Rowb paint { @PthreadColour } A { pthread } B { libpthread }  
+	C { Multi-threading; -thread (needed if OpenGL is threaded) }
 }
 }
