@@ -1026,6 +1026,9 @@ void QListViewItem::setExpandable( bool enable )
 
 void QListViewItem::enforceSortOrder() const
 {
+    QListView *lv = listView();
+    if ( lv && lv->d->clearing )
+	return;
     if( parentItem &&
 	(parentItem->lsc != lsc || parentItem->lso != lso) &&
 	(int)parentItem->lsc != Unsorted )
