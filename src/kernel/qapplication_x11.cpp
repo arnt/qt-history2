@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#454 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#455 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -503,7 +503,7 @@ static bool qt_set_desktop_properties()
     const char *data;
 
     if ( XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
-			     TRUE, AnyPropertyType, &type, &format,
+			     FALSE, AnyPropertyType, &type, &format,
 			     &nitems, &after,  (unsigned char**)&data ) != Success )
 	return FALSE;
     if ( !nitems ) {
@@ -3182,6 +3182,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
+	
+	
 
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
