@@ -7,25 +7,37 @@
 #include "Script.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 bool
 createFork(const QString &f)
 {
+    qDebug("Creating fork for %s", f.latin1());
+
     FSRef fref;
     FSSpec fileSpec;
     if(QFile::exists(f)) {
         mode_t perms = 0;
         {
             struct stat s;
-            stat(f.latin1(), &s);
+            if(stat(f.latin1(), &s) == -1) {
+		qDebug("Fatal!");
+		return FALSE;
+	    }
             if(!(s.st_mode & S_IWUSR)) {
                 perms = s.st_mode;
-                chmod(f.latin1(), perms | S_IWUSR);
+                if(chmod(f.latin1(), perms | S_IWUSR) == -1) {
+		    qDebug("%d: Fatal:%d: %s", __LINE__, errno, strerror(errno));
+		    return FALSE;
+		}
             }
         }
         FILE *o = fopen(f.latin1(), "a");
-        if(!o)
+	qDebug("%d %s (%d)", o, f.latin1(), errno);
+        if(!o) {
+	    qDebug("%d: Fatal:%d: %s", __LINE__, errno, strerror(errno));
             return FALSE;
+	}
         if(FSPathMakeRef((const UInt8 *)f.latin1(), &fref, NULL) == noErr) {
             if(FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, &fileSpec, NULL) == noErr)
                 FSpCreateResFile(&fileSpec, 'CUTE', 'TEXT', smSystemScript);
@@ -33,7 +45,8 @@ createFork(const QString &f)
                 qDebug("bogus %d", __LINE__);
         } else
             qDebug("bogus %d", __LINE__);
-        fclose(o);
+	if(o)
+	    fclose(o);
         if(perms)
             chmod(f.latin1(), perms);
     }
@@ -43,9 +56,7 @@ createFork(const QString &f)
 int
 main(int argc, char **argv)
 {
-	for(int i = 1; i < argc; i++) {
-		qDebug("%s", argv[i]);
+	for(int i = 1; i < argc; i++) 
 		createFork(argv[i]);
-	}
 	return 1;
 }
