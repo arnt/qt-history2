@@ -763,7 +763,7 @@ public:
 */
 
 /*!
-    \enum DockWindows
+    \enum QMainWindow::DockWindows
 
     Right-clicking a dock area will pop up a menu
     (createDockWindowMenu() is called automatically). When called in
