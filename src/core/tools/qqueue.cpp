@@ -29,12 +29,17 @@
     The example will output 1, 2, 3 in that order.
 
     QQueue inherits from QList. All of QList's functionality also
-    applies to QList. For example, you can use isEmpty() to test
+    applies to QQueue. For example, you can use isEmpty() to test
     whether the queue is empty, and you can traverse a QQueue using
     QList's iterator classes (for example, QListIterator). But in
     addition, QQueue provides three convenience functions that make
     it easy to implement FIFO semantics: enqueue(), dequeue(), and
     head().
+
+    QQueue's value type must be an \l{assignable data type}. This
+    covers most data types that are commonly used, but the compiler
+    won't let you, for example, store a QWidget as a value; instead,
+    store a QWidget *.
 
     \sa QList, QStack
 */

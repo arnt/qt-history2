@@ -8,13 +8,13 @@
     \mainclass
     \reentrant
 
-    Define a template instance QStack\<X\> to create a stack of values
-    of type X.
+    QStack\<T\> is one of Qt's generic \l{container classes}. It implements
+    a stack data structure for items of a sae type.
 
     A stack is a last in, first out (LIFO) structure. Items are added
     to the top of the stack using push() and retrieved from the top
-    using pop(). The top() function provides access to the topmost item
-    without removing it.
+    using pop(). The top() function provides access to the topmost
+    item without removing it.
 
     Example:
     \code
@@ -22,39 +22,26 @@
 	stack.push(1);
 	stack.push(2);
 	stack.push(3);
-	while (! stack.isEmpty())
-	    cout << "Item: " << stack.pop() << endl;
-
-	// Output:
-	//	Item: 3
-	//	Item: 2
-	//	Item: 1
+	while (!stack.isEmpty())
+	    cout << stack.pop() << endl;
     \endcode
 
-    QStack is a specialized QVector provided for convenience.  All of
-    QVector's functionality also applies to QStack, for example the
-    facility to iterate over all elements using QVector<T>::Iterator, or
-    the possibility to reserve extra capacity with reserve().
+    The example will output 3, 2, 1 in that order.
 
-    Some classes cannot be used within a QStack directly, for example
-    everything derived from QObject and thus all classes that
-    implement widgets. If you need a stack of QWidgets you would
-    instantiate a QStack<QWidget*> instead. Only values can be used in
-    a QStack, including pointers to objects.  To qualify as a value,
-    the class must provide
-    \list
-    \i a copy constructor;
-    \i an assignment operator;
-    \i a default constructor, i.e. a constructor that does not take any arguments.
-    \endlist
+    QStack inherits from QVector. All of QVector's functionality also
+    applies to QStack. For example, you can use isEmpty() to test
+    whether the stack is empty, and you can traverse a QStack using
+    QVector's iterator classes (for example, QVectorIterator). But in
+    addition, QStack provides three convenience functions that make
+    it easy to implement LIFO semantics: push(), pop(), and top().
 
-    Note that C++ defaults to field-by-field assignment operators and
-    copy constructors if no explicit version is supplied. In many
-    cases this is sufficient.
+    QStack's value type must be an \l{assignable data type}. This
+    covers most data types that are commonly used, but the compiler
+    won't let you, for example, store a QWidget as a value; instead,
+    store a QWidget *.
 
-    \important isEmpty()
+    \sa QVector, QQueue
 */
-
 
 /*!
     \fn QStack::QStack()
@@ -66,17 +53,15 @@
     \fn QStack::~QStack()
 
     Destroys the stack. References to the values in the stack and all
-    mutable iterators on this stack become invalidated. Because QStack
-    is highly tuned for performance, you won't see warnings if you use
-    invalid iterators because it is impossible for an iterator to
-    check whether or not it is valid.
+    iterators of this stack become invalid.
 */
 
-
 /*!
-    \fn void  QStack::push(const T& t)
+    \fn void QStack::push(const T& t)
 
-    Adds element \a t to the top of the stack. Last in, first out.
+    Adds element \a t to the top of the stack.
+
+    This is the same as QVector::append().
 
     \sa pop(), top()
 */
@@ -84,18 +69,18 @@
 /*!
     \fn T& QStack::top()
 
-    Returns a reference to the top item of the stack, if there is any.
+    Returns a reference to the stack's top item. This function
+    assumes that the stack isn't empty.
 
-    \sa pop(), push()
+    This is the same as QVector::last().
+
+    \sa pop(), push(), isEmpty()
 */
-
 
 /*!
     \fn const T& QStack::top() const
 
     \overload
-
-    Returns a reference to the top item of the stack, if there is any.
 
     \sa pop(), push()
 */
@@ -103,7 +88,8 @@
 /*!
     \fn T QStack::pop()
 
-    Removes the top item from the stack, if there is any, and returns it.
+    Removes the top item from the stack and returns it. This function
+    assumes that the stack isn't empty.
 
-    \sa top() push()
+    \sa top(), push(), isEmpty()
 */
