@@ -307,7 +307,8 @@ int PopupMenuEditor::clipboardOperation = 0;
 PopupMenuEditorItem * PopupMenuEditor::clipboardItem = 0;
 
 PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char * name )
-    : QWidget( 0, name, WStyle_Customize | WStyle_NoBorder | WRepaintNoErase ),
+    : QWidget( 0, name,
+	       WStyle_Customize | WStyle_NoBorder | WRepaintNoErase | WResizeNoErase ),
       formWnd( fw ),
       parentMenu( parent ),
       iconWidth( 0 ),
@@ -764,7 +765,14 @@ bool PopupMenuEditor::eventFilter( QObject * o, QEvent * e )
 void PopupMenuEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
+    p.save();
+    QRegion reg( rect() );
+    QRegion mid( borderSize, borderSize,
+		 rect().width() - borderSize * 2, rect().height() - borderSize * 2 );
+    reg -= mid;
+    p.setClipRegion( reg );
     style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), colorGroup() );
+    p.restore();
     drawItems( &p );
 }
 
