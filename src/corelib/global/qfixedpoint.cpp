@@ -8,6 +8,8 @@
 
 */
 
+#ifndef Q_CC_BOR
+
 QFixedPoint sqrt(QFixedPoint  x)
 {
     Q_ASSERT(QFixedPoint::HighBits + QFixedPoint::LowBits == 32);
@@ -207,3 +209,5 @@ QFixedPointLong acos(QFixedPointLong f)
     return QFixedPointLong(acos(f.toDouble()));
 }
 #endif
+
+#endif // Q_CC_BOR
