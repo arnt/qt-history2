@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.h#5 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.h#6 $
 **
 ** Definition of QKoi8Codec class
 **
@@ -28,7 +28,7 @@
 
 #include "qtextcodec.h"
 
-class QKoi8Codec : public QTextCodec {
+class Q_EXPORT QKoi8Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qutfcodec.h#5 $
+** $Id: //depot/qt/main/src/tools/qutfcodec.h#6 $
 **
 ** Definition of QEucCodec class
 **
@@ -28,7 +28,7 @@
 
 #include "qtextcodec.h"
 
-class QUtf8Codec : public QTextCodec {
+class Q_EXPORT QUtf8Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
@@ -40,7 +40,7 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 };
 
-class QUtf16Codec : public QTextCodec {
+class Q_EXPORT QUtf16Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.h#2 $
+** $Id: //depot/qt/main/src/tools/qsjiscodec.h#3 $
 **
 ** Definition of QSjisCodec class
 **
@@ -57,7 +57,7 @@
 
 #include "qtextcodec.h"
 
-class QSjisCodec : public QTextCodec {
+class Q_EXPORT QSjisCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpngio.h#4 $
 **
 ** Definition of PNG QImage IOHandler
 **
@@ -31,7 +31,7 @@ void qInitPngIO();
 class QIODevice;
 class QImage;
 
-class QPNGImageWriter {
+class Q_EXPORT QPNGImageWriter {
 public:
     QPNGImageWriter(QIODevice*);
     ~QPNGImageWriter();
@@ -55,7 +55,7 @@ private:
     int ms_delay;
 };
 
-class QPNGImagePacker : public QPNGImageWriter {
+class Q_EXPORT QPNGImagePacker : public QPNGImageWriter {
 public:
     QPNGImagePacker(QIODevice*, int depth, int convflags);
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#180 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#181 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -262,7 +262,7 @@ static int stat_get_ascii_size=0;
 static int stat_copy_on_write=0;
 static int stat_copy_on_write_size=0;
 static int stat_fast_copy=0;
-void qt_qstring_stats()
+void Q_EXPORT qt_qstring_stats()
 {
 	debug("construct_charstar = %d (%d chars)", stat_construct_charstar, stat_construct_charstar_size);
 	debug("construct_null = %d", stat_construct_null);
