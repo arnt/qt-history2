@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#21 $
 **
 ** Implementation of movie classes
 **
@@ -31,7 +31,13 @@
   A QMovie provides a QPixmap as the framePixmap(), and connections can
   be made via connectResize() and connectUpdate() to receive notification
   of size and pixmap changes.  All decoding is driven by
-  the normal event processing mechanisms.
+  the normal event processing mechanisms.  The simplest way to display
+  a QMovie, is to use a QLabel and QLabel::setMovie().
+
+  The movie begins playing as soon as the QMovie is created (actually,
+  once control returns to the event loop).  When the last frame in the
+  movie has been played, it may loop back to the start if such looping
+  is defined in the input source.
 
   QMovie objects are explicitly shared.  This means that a QMovie copied
   from another QMovie will be displaying the same frame at all times.
@@ -46,7 +52,7 @@
   available for adding support for new formats. Only GIF support
   is installed.  The GIF decoder supports interlaced images,
   transparency, looping, image-restore disposal, local color maps,
-  and background colors.
+  and background colors.  The Netscape looping extension is obeyed.
 
   We are required to state: The Graphics Interchange Format(c) is the
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
@@ -583,9 +589,11 @@ int QMovie::steps() const
 }
 
 /*!
-  Returns the number of times EndOfFrame has been emitted.  So before
+  Returns the number of times EndOfFrame has been emitted since the
+  start of the current loop of the movie.  Thus, before
   any EndOfFrame has been emitted, the value will be 0,
-  within slots processing the first signal, frameNumber() will be 1, etc.
+  within slots processing the first signal, frameNumber() will be 1, and
+  so on.
 */
 int QMovie::frameNumber() const
 {
@@ -601,7 +609,8 @@ bool QMovie::paused() const
 }
 
 /*!
-  Returns TRUE if the image is finished.
+  Returns TRUE if the image is no longer playing - this happens when all
+  loops of all frames is complete.
 */
 bool QMovie::finished() const
 {
@@ -805,7 +814,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.20 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.21 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
