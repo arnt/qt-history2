@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#164 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -3002,25 +3002,17 @@ QDataStream &operator<<( QDataStream &s, const BMP_INFOHDR &bi )
     return s;
 }
 
-
-static void read_bmp_image( QImageIO *iio )
+static
+bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 {
-    QIODevice  *d = iio->ioDevice();
-    QDataStream s( d );
-    BMP_FILEHDR bf;
     BMP_INFOHDR bi;
-    int		startpos = d->at();
-    QImage	image;
+    QIODevice* d = s.device();
 
-    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
-    s >> bf;					// read BMP file header
-    if ( strncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
-	return;
     s >> bi;					// read BMP info header
     if ( d->atEnd() )				// end of stream/file
-	return;
+	return FALSE;
 #if 0
-    debug( "bfOffBits........%d", bf.bfOffBits );
+    //debug( "bfOffBits........%d", bf.bfOffBits );
     debug( "biSize...........%d", bi.biSize );
     debug( "biWidth..........%d", bi.biWidth );
     debug( "biHeight.........%d", bi.biHeight );
@@ -3038,10 +3030,10 @@ static void read_bmp_image( QImageIO *iio )
 
     if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24) ||
 	 bi.biPlanes != 1 || comp > BMP_RLE4 )
-	return;					// weird BMP image
+	return FALSE;					// weird BMP image
     if ( !(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
 	   (nbits == 8 && comp == BMP_RLE8)) )
-	 return;				// weird compression type
+	 return FALSE;				// weird compression type
 
     int ncols;
     int depth;
@@ -3064,7 +3056,7 @@ static void read_bmp_image( QImageIO *iio )
     image.create( w, h, depth, ncols, nbits == 1 ?
 		  QImage::BigEndian : QImage::IgnoreEndian );
     if ( image.isNull() )			// could not create image
-	return;
+	return FALSE;
 
     d->at( startpos + BMP_FILEHDR_SIZE + bi.biSize ); // goto start of colormap
 
@@ -3075,11 +3067,12 @@ static void read_bmp_image( QImageIO *iio )
 	    d->readBlock( (char *)rgb, rgb_len );
 	    image.setColor( i, qRgb(rgb[2],rgb[1],rgb[0]) );
 	    if ( d->atEnd() )			// truncated file
-		return;
+		return FALSE;
 	}
     }
 
-    d->at( startpos + bf.bfOffBits );		// start of image data
+    if (offset>=0)
+	d->at( startpos + offset );		// start of image data
 
     int	     bpl = image.bytesPerLine();
     uchar **line = image.jumpTable();
@@ -3225,21 +3218,42 @@ static void read_bmp_image( QImageIO *iio )
 	delete[] buf24;
     }
 
-    iio->setImage( image );
-    iio->setStatus( 0 );			// image ok
+    return TRUE;
+}
+
+bool qt_read_dib( QDataStream& s, QImage& image )
+{
+    return read_dib(s,-1,-BMP_FILEHDR_SIZE,image);
 }
 
 
-static void write_bmp_image( QImageIO *iio )
+static void read_bmp_image( QImageIO *iio )
 {
     QIODevice  *d = iio->ioDevice();
-    QImage	image = iio->image();
     QDataStream s( d );
     BMP_FILEHDR bf;
-    BMP_INFOHDR bi;
-    int		bpl = image.bytesPerLine();
-    int		bpl_bmp;
+    int		startpos = d->at();
+
+    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
+    s >> bf;					// read BMP file header
+
+    if ( strncmp(bf.bfType,"BM",2) != 0 )	// not a BMP image
+	return;
+
+    QImage	image;
+    if (read_dib( s, bf.bfOffBits, startpos, image )) {
+	iio->setImage( image );
+	iio->setStatus( 0 );			// image ok
+    }
+}
+
+bool qt_write_dib( QDataStream& s, QImage image )
+{
     int		nbits;
+    int		bpl_bmp;
+    int		bpl = image.bytesPerLine();
+
+    QIODevice* d = s.device();
 
     if ( image.depth() == 8 && image.numColors() <= 16 ) {
 	bpl_bmp = (((bpl+1)/2+3)/4)*4;
@@ -3252,13 +3266,7 @@ static void write_bmp_image( QImageIO *iio )
 	nbits = image.depth();
     }
 
-    iio->setStatus( 0 );
-    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
-    strncpy( bf.bfType, "BM", 2 );		// build file header
-    bf.bfReserved1 = bf.bfReserved2 = 0;	// reserved, should be zero
-    bf.bfOffBits   = BMP_FILEHDR_SIZE + BMP_WIN + image.numColors()*4;
-    bf.bfSize	   = bf.bfOffBits + bpl_bmp*image.height();
-    s << bf;					// write file header
+    BMP_INFOHDR bi;
 
     bi.biSize	       = BMP_WIN;		// build info header
     bi.biWidth	       = image.width();
@@ -3295,7 +3303,7 @@ static void write_bmp_image( QImageIO *iio )
     if ( nbits == 1 || nbits == 8 ) {		// direct output
 	for ( y=image.height()-1; y>=0; y-- )
 	    d->writeBlock( (char*)image.scanLine(y), bpl );
-	return;
+	return TRUE;
     }
 
     uchar *buf	= new uchar[bpl_bmp];
@@ -3327,6 +3335,37 @@ static void write_bmp_image( QImageIO *iio )
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
     delete[] buf;
+    return TRUE;
+}
+
+
+static void write_bmp_image( QImageIO *iio )
+{
+    QIODevice  *d = iio->ioDevice();
+    QImage	image = iio->image();
+    QDataStream s( d );
+    BMP_FILEHDR bf;
+    int		bpl_bmp;
+    int		bpl = image.bytesPerLine();
+
+    // Code partially repeated in qt_write_dib
+    if ( image.depth() == 8 && image.numColors() <= 16 ) {
+	bpl_bmp = (((bpl+1)/2+3)/4)*4;
+    } else if ( image.depth() == 32 ) {
+	bpl_bmp = ((image.width()*24+31)/32)*4;
+    } else {
+	bpl_bmp = bpl;
+    }
+
+    iio->setStatus( 0 );
+    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
+    strncpy( bf.bfType, "BM", 2 );		// build file header
+    bf.bfReserved1 = bf.bfReserved2 = 0;	// reserved, should be zero
+    bf.bfOffBits   = BMP_FILEHDR_SIZE + BMP_WIN + image.numColors()*4;
+    bf.bfSize	   = bf.bfOffBits + bpl_bmp*image.height();
+    s << bf;					// write file header
+
+    qt_write_dib( s, image );
 }
 
 

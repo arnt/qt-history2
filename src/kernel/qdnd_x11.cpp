@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#24 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -549,6 +549,26 @@ const char * QDragMoveEvent::format( int n )
     return *name;
 }
 
+/*!  Returns TRUE if this drag object provides format \a mimeType or
+  FALSE if it does not.
+  
+  This function is provided for drop sites that accept only one mime
+  types.  Drop sites that accept more than one mime type are probably
+  better off using format().
+*/
+
+bool QDragMoveEvent::provides( const char * mimeType )
+{
+    int n=0;
+    const char * p;
+    do {
+	p = format( n );
+	if ( !p )
+	    return FALSE;
+	n++;
+    } while( qstricmp( mimeType, p ) );
+    return TRUE;
+}
 
 void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 {

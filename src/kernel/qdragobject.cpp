@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#18 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -272,6 +272,7 @@ QTextDragObject::QTextDragObject( const char * text,
 				  QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
+    setFormat( "text/plain" );
     setText( text );
 }
 
@@ -283,7 +284,6 @@ QTextDragObject::QTextDragObject( const char * text,
 QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
-    // nothing
     setFormat( "text/plain" );
 }
 
@@ -297,7 +297,7 @@ QTextDragObject::~QTextDragObject()
 }
 
 
-/*!
+/*
 
 */
 
@@ -320,7 +320,7 @@ QWidget * QDragObject::source()
 }
 
 
-/*!
+/*
 
 */
 
@@ -330,7 +330,7 @@ void QDragObject::setAlternative( QDragObject * next )
 }
 
 
-/*!
+/*
 
 */
 

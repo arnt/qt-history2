@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#151 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -93,6 +93,8 @@ QObject	       *qt_clipboard = 0;
 static bool	qt_try_modal( QWidget *, MSG * );
 
 static int	translateKeyCode( int );
+
+extern void qt_init_windows_mime();  // qdnd_win.cpp
 
 
 #if defined(_WS_WIN32_)
@@ -221,6 +223,7 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
   // Initialize OLE
     if (NOERROR != OleInitialize(NULL))
        return 1;
+    qt_init_windows_mime();
 
   // Call user main()
 
@@ -331,7 +334,6 @@ void qt_cleanup()
 	ReleaseDC( 0, displayDC );
 
   // Deinitialize OLE
-debug("Deinit");
     OleUninitialize();
 }
 
