@@ -74,6 +74,8 @@ public:
     QTimer connectTimer;
     int connectTimeElapsed;
 
+    int hostLookupId;
+
     QAbstractSocket::SocketType socketType;
     QAbstractSocket::SocketState state;
 

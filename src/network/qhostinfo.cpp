@@ -31,7 +31,7 @@
 #endif
 
 Q_GLOBAL_STATIC(QHostInfoAgent, agent)
-
+   
 //#define QHOSTINFO_DEBUG
 
 /*!         
@@ -49,11 +49,11 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     convenience functions, one that works asynchronously and emits a
     signal once the host is found, and one that blocks.
 
-    To look up a host's IP address asynchronously, call
-    lookupHost(), which takes the host name and a slot signature as
-    arguments. The lookup is asynchronous by default. If Qt is built
-    without thread support, this function blocks until the lookup has
-    finished.
+    To look up a host's IP address asynchronously, call lookupHost(), which
+    takes the host name and a slot signature as arguments, and returns an
+    ID. The lookup is asynchronous by default, and you can abort it by calling
+    abortHostLookup(), passing the lookup ID. If Qt is built without thread
+    support, lookupHost() blocks until the lookup has finished.
 
     \code
         QHostInfo::lookupHost("www.example.com", this, SLOT(printResults(const QHostInfo &)));
@@ -70,8 +70,21 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
     \sa QHostInfo \link http://ietf.org/rfc/rfc3492 RFC 3492\endlink
 */
 
+static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
+static int qt_qhostinfo_newid()
+{
+    register int id;
+    for (;;) {
+        id = idCounter;
+        if (idCounter.testAndSet(id, id + 1))
+            break;
+    }
+    return id;
+}
+
 /*!
-    Looks up the hostname (IP address) \a name. When the result of the
+    Looks up the hostname (IP address) \a name, and returns an ID
+    for the lookup. When the result of the
     lookup is ready, the slot or signal \a member in \a receiver is
     called with a QHostInfo argument. The QHostInfo object can
     then be inspected to get the results of the lookup.
@@ -100,9 +113,11 @@ Q_GLOBAL_STATIC(QHostInfoAgent, agent)
                 qDebug() << "Got address:" << addresses.at(i).toString();
         }
     \endcode
+
+    \sa abortHostLookup(), fromName()
 */
-void QHostInfo::lookupHost(const QString &name, QObject *receiver,
-                           const char *member)
+int QHostInfo::lookupHost(const QString &name, QObject *receiver,
+                          const char *member)
 {
 #if defined QHOSTINFO_DEBUG
     qDebug("QHostInfo::lookupHost(\"%s\", %p, %s)",
@@ -110,7 +125,7 @@ void QHostInfo::lookupHost(const QString &name, QObject *receiver,
 #endif
     if (!QAbstractEventDispatcher::instance(QThread::currentThread())) {
         qWarning("QHostInfo::lookupHost() called with no event dispatcher");
-        return;
+        return -1;
     }
 
     qRegisterMetaType<QHostInfo>("QHostInfo");
@@ -120,16 +135,16 @@ void QHostInfo::lookupHost(const QString &name, QObject *receiver,
     if (addr.setAddress(name)) {
         if (!member || !member[0]) {
             qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
-            return;
+            return -1;
         }
 
         QByteArray arr(member + 1);
         if (!arr.contains('(')) {
             qWarning("QHostInfo::lookupHost() called with invalid slot [%s]", member);
-            return;
+            return -1;
         }
 
-        QHostInfo info;
+        QHostInfo info(::qt_qhostinfo_newid());
         info.setAddresses(QList<QHostAddress>() << addr);
         arr.resize(arr.indexOf('('));
 
@@ -145,7 +160,7 @@ void QHostInfo::lookupHost(const QString &name, QObject *receiver,
                          QGenericArgument("QHostInfo", &info))) {
             qWarning("QHostInfo::lookupHost() called with invalid slot (qInvokeMetaMember failed)");
         }
-        return;
+        return info.lookupId();
     }
 
 #if defined Q_OS_WIN32
@@ -171,6 +186,7 @@ void QHostInfo::lookupHost(const QString &name, QObject *receiver,
                      receiver, member);
     QObject::connect(result, SIGNAL(resultsReady(const QHostInfo &)),
                      result, SLOT(deleteLater()));
+    result->lookupId = ::qt_qhostinfo_newid();
     agent->addHostName(lookup, result);
 
 #if !defined QT_NO_THREAD
@@ -182,6 +198,18 @@ void QHostInfo::lookupHost(const QString &name, QObject *receiver,
     else
         agent->wakeOne();
 #endif
+    return result->lookupId;
+}
+
+/*!
+    Aborts the host lookup with the ID \a id, as returned by lookupHost().
+
+    \sa lookupHost()
+*/
+void QHostInfo::abortHostLookup(int id)
+{
+    QHostInfoAgent *agent = ::agent();
+    agent->abortLookup(id);
 }
 
 /*!
@@ -247,7 +275,9 @@ void QHostInfoAgent::run()
                query->hostName.toLatin1().constData());
 #endif
 
-        query->object->emitResultsReady(fromName(query->hostName));
+        QHostInfo info = fromName(query->hostName);
+        info.setLookupId(query->object->lookupId);
+        query->object->emitResultsReady(info);
         query->object = 0;
         delete query;
     }
@@ -284,9 +314,10 @@ void QHostInfoAgent::run()
 /*!
     Constructs an empty host info object.
 */
-QHostInfo::QHostInfo()
+QHostInfo::QHostInfo(int lookupId)
     : d(new QHostInfoPrivate)
 {
+    d->lookupId = lookupId;
 }
 
 /*!
@@ -332,6 +363,11 @@ QList<QHostAddress> QHostInfo::addresses() const
     return d->addrs;
 }
 
+/*!
+    Sets the list of addresses in this QHostInfo to \a addresses.
+
+    \sa addresses()
+*/
 void QHostInfo::setAddresses(const QList<QHostAddress> &addresses)
 {
     d->addrs = addresses;
@@ -345,6 +381,11 @@ QString QHostInfo::hostName() const
     return d->hostName;
 }
 
+/*!
+    Sets the host name of this QHostInfo to \a hostName.
+
+    \sa hostName()
+*/
 void QHostInfo::setHostName(const QString &hostName)
 {
     d->hostName = hostName;
@@ -361,9 +402,34 @@ QHostInfo::HostInfoError QHostInfo::error() const
     return d->err;
 }
 
+/*!
+    Sets the error type of this QHostInfo to \a error.
+
+    \sa error()
+*/
 void QHostInfo::setError(HostInfoError error)
 {
     d->err = error;
+}
+
+/*!
+    Returns the ID of this lookup.
+
+    \sa setLookupId(), abortHostLookup()
+*/
+int QHostInfo::lookupId() const
+{
+    return d->lookupId;
+}
+
+/*!
+    Sets the ID of this lookup to \a id.
+
+    \sa lookupId(), lookupHost()
+*/
+void QHostInfo::setLookupId(int id)
+{
+    d->lookupId = id;
 }
 
 /*!
@@ -377,6 +443,12 @@ QString QHostInfo::errorString() const
     return d->errorStr;
 }
 
+/*!
+    Sets the human readable description of the error that occurred to \a str
+    if the lookup failed.
+
+    \sa errorString(), setError()
+*/
 void QHostInfo::setErrorString(const QString &str)
 {
     d->errorStr = str;

@@ -37,6 +37,8 @@ public:
     {
         emit resultsReady(info);
     }
+
+    int lookupId;
 signals:
     void resultsReady(const QHostInfo &info);
 };
@@ -76,6 +78,18 @@ public:
         cond.wakeOne();
     }
 
+    inline void abortLookup(int id)
+    {
+        for (int i = 0; i < queries.size(); ++i) {
+            QHostInfoResult *result = queries.at(i)->object;
+            if (result->lookupId == id) {
+                result->disconnect();
+                queries.removeAt(i);
+                break;
+            }                
+        }
+    }
+
 public slots:
     inline void cleanup()
     {
@@ -108,6 +122,7 @@ public:
     QString errorStr;
     QList<QHostAddress> addrs;
     QString hostName;
+    int lookupId;
 };
 
 #endif // QHOSTINFO_P_H
