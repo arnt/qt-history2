@@ -1590,6 +1590,10 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
+#if defined( Q_WS_MAC ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
+    if(gl_pix) //why not optimize?
+	return ((QPixmap*)gl_pix)->convertToImage();
+#endif
     makeCurrent();
     QImage res;
     int w = width();
