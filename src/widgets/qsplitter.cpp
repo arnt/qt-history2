@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#2 $
 **
 **  Splitter widget
 **
@@ -99,6 +99,7 @@ void QSplitter::setSecondWidget( QWidget *w ) {
 
 /*!
   Sets the orientation to \a o.
+   \sa orientation()
  */
 void QSplitter::setOrientation( Orientation o )
 {
@@ -107,6 +108,13 @@ void QSplitter::setOrientation( Orientation o )
     orient = o;
     recalc();
 }
+
+/*!
+   \fn QSplitter::Orientation QSplitter::orientation() const
+
+   Returns the orientation (\c Horizontal or \c Vertical) of the splitter.
+   \sa setOrientation()
+   */
 
 
 QCOORD QSplitter::r2p( int r )
@@ -160,6 +168,10 @@ void QSplitter::leaveEvent( QEvent * )
     //    setCursor( arrowCursor );
 }
 
+
+/*!
+  Tells the splitter that a child widget has been removed.
+ */
 void QSplitter::childRemoveEvent( QChildEvent *c )
 {
     if ( c->child() == w1 ) {
@@ -171,6 +183,9 @@ void QSplitter::childRemoveEvent( QChildEvent *c )
     }
 }
 
+/*!
+  Tells the splitter that a child widget has been inserted.
+ */
 void QSplitter::childInsertEvent( QChildEvent * )
 {
 }

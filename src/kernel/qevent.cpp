@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#48 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#48 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -577,7 +577,10 @@ void QEvent::peErrMsg()				// posted event error message
 
   Child events are sent to widgets when children are inserted or removed.
 
-  In this release of Qt, no event handlers are defined to receive child events.
+  In this release of Qt, no event handlers are defined to receive
+  child events. Reimplement QObject::event() or install an
+  QObject::eventFilter() to handle these events.
+
 */
 
 #if QT_VERSION >= 200
@@ -590,6 +593,11 @@ void QEvent::peErrMsg()				// posted event error message
 
   The \a type parameter must be either \a Event_ChildInserted 
   or \a Event_ChildRemoved.
+*/
+
+/*!
+  \fn QWidget *QChildEvent::child() const
+  Returns the child widget inserted or removed.
 */
 
 /*!
