@@ -46,13 +46,28 @@ int main( int argc, char** argv )
 
     qDebug("Creating rowset...");
     QSqlView v(database, "key_test");
+    
+    // insert a value
     v["id"] = 999;
-    v["name"] = "Dave";
+    v["name"] = QString("Dave");
     v.insert();
     v.select( v.primaryIndex() );
     ASSERT( v.next() );
-    ASSERT( v["id"] == 999 );
-    v.del();
+    ASSERT( v["id"].toInt() == 999 );
+    ASSERT( v["name"].toString() == QString("Dave") );
+    qDebug("name:" + v["name"].toString());    
+    
+    // put pack a new value
+    v["name"] = "Kaja";
+    v.update( v.primaryIndex() );
+    v.select( v.primaryIndex() );
+    ASSERT( v.next() );
+    ASSERT( v["id"].toInt() == 999 );    
+    ASSERT( v["name"].toString() == "Kaja" );
+    
+    // delete the record
+    v["id"] = 999;
+    v.del( v.primaryIndex() );
     v.select( v.primaryIndex() );
     ASSERT( !v.next() );
     

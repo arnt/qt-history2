@@ -95,45 +95,40 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 */
 bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    QString str= "select " + toString();
-    str += " from " + tableName;
-    if ( filter.count() )
-	str += whereClause( filter );
-    if ( sort.count() )
-	str += qOrderByClause( sort );
-    str += ";";
-    return query( str );
+    return select( fieldEqualsValue( "and", filter ), sort );
+}
+
+QString qMakeFieldValue( QSqlField& field, const QString& op = "=" )
+{
+    QString f = field.name();
+    if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
+	f += " " + op + " '" + field.value().toString() + "'";
+    else
+	f += " " + op + " " + field.value().toString();
+    return f;
 }
 
 /*!
-  Return a SQL WHERE clause based on an index and the current rowset
-  buffer.
+  \internal
 
 */
-QString QSqlRowset::whereClause( const QSqlIndex & i )
+QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i )
 {
-    QString filter = " where ";
+    QString filter;
     int k = i.fields().count();
 
-    if( k == 0 ) return QString::null;
-
-    // Build a filter based on the current field values
-    for( int j = 0; j < k; j++ ){
-	QVariant::Type type = i.fields().field(j).type();
-	QString        fn   = i.fields().field(j).name();
-	QVariant       val  = QSqlFieldList::operator[]( fn );
-
-	if( (type == QVariant::Invalid) )
-	    continue;
-
-	if( j > 0 )
-	    filter += " and " ;
-
-	filter += fn;
-	if( (type == QVariant::String) || (type == QVariant::CString) )
-	    filter += " = '" + val.toString() + "'";
-	else
-	    filter += " = " + val.toString();
+    if ( k ) { // use index
+	for( int j = 0; j < k; ++j ){
+	    if( j > 0 )
+		filter += " " + fieldSep + " " ;
+	    filter += qMakeFieldValue( field( i.fields().field(j).name() ) );
+	}
+    } else { // use all fields
+	for ( int j = 0; j < count(); ++j ) {
+	    if ( j > 0 )
+		filter += " " + fieldSep + " " ;
+	    filter += qMakeFieldValue( field( j ) );
+	}
     }
     return filter;
 }
@@ -152,17 +147,17 @@ bool QSqlRowset::query( const QString & str )
 
 QVariant& QSqlRowset::operator[]( int i )
 {
-    updateFieldValues();
+    sync();
     return QSqlFieldList::operator[]( i );
 }
 
 QVariant& QSqlRowset::operator[]( const QString& name )
 {
-    updateFieldValues();
+    sync();
     return QSqlFieldList::operator[]( name );
 }
 
-void QSqlRowset::updateFieldValues()
+void QSqlRowset::sync()
 {
     if ( lastAt != at() ) {
 	lastAt = at();

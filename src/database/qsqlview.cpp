@@ -3,27 +3,27 @@
 
 #ifndef QT_NO_SQL
 
-/*!  
+/*!
   Constructs a view on database \a db.  The \a name of the view
   must correspond to an existing table or view name in the database.
-  
+
 */
 
 QSqlView::QSqlView( QSqlDatabase * db, const QString & name )
     : QSqlRowset( db, name )
 {
-    
+
 }
 
-/*!  
+/*!
   Constructs a copy of view \a s.
-  
+
 */
 
 QSqlView::QSqlView( const QSqlView & s )
     : QSqlRowset( s )
 {
-    
+
 }
 
 /*!
@@ -39,7 +39,7 @@ QSqlIndex QSqlView::primaryIndex() const
 }
 
 /*!
-  Inserts the current contents of the view record buffer into the database.  
+  Inserts the current contents of the view record buffer into the database.
   Returns the number of rows affected.  For error information, use lastError().
 
 */
@@ -69,7 +69,7 @@ int QSqlView::insert()
 
 /*!
   Updates the database with the current contents of the record buffer, using the
-  specified \a filter.  Only records which meet the filter criteria are updated, 
+  specified \a filter.  Only records which meet the filter criteria are updated,
   otherwise all records in the table are updated.  Returns the number of records
   which were updated.  For error information, use lastError().
 
@@ -77,16 +77,24 @@ int QSqlView::insert()
 
 int QSqlView::update( const QString & filter )
 {
-    return 0;
+    int k = count();
+    if( k == 0 ) return 0;
+    QString str = "update " + name();
+    str += " set " + fieldEqualsValue( "," );
+    if ( filter.length() )
+ 	str+= " where " + filter;
+    str += ";";
+    query( str );
+    return affectedRows();
 }
 
 /*!
   Updates the database with the current contents of the record buffer, using the
   filter index \a filter.  Only records which meet the filter criteria specified
   by the index are updated.  If no index is specified, the primary index of the underlying
-  rowset is used.  Returns the number of records which were updated. For error information, 
+  rowset is used.  Returns the number of records which were updated. For error information,
   use lastError().  For example:
-  
+
   \code
   QSqlDatabase* db;
   ...
@@ -100,11 +108,11 @@ int QSqlView::update( const QString & filter )
 
 int QSqlView::update( const QSqlIndex & filter )
 {
-    return 0;    
+    return update( fieldEqualsValue( "and", filter ) );
 }
 
 /*!
-  Deletes the record from the view using the filter \a filter.  Only records which meet the 
+  Deletes the record from the view using the filter \a filter.  Only records which meet the
   filter criteria specified by the index are deleted.  Returns the number of records which
   were updated. For error information, use lastError().
 
@@ -112,20 +120,28 @@ int QSqlView::update( const QSqlIndex & filter )
 
 int QSqlView::del( const QString & filter )
 {
-    return 0;    
+    int k = count();
+    if( k == 0 ) return 0;
+    QString str = "delete from " + name();
+    if ( filter.length() )
+ 	str+= " where " + filter;
+    str += ";";
+    query( str );
+    return affectedRows();
 }
 
 /*!
-  Deletes the record from the view using the filter index \a filter.  Only records which meet 
-  the filter criteria specified by the index are updated.  If no index is specified, the primary 
-  index of the underlying rowset is used.  Returns the number of records which were deleted. 
+  Deletes the record from the view using the filter index \a filter.  Only records which meet
+  the filter criteria specified by the index are updated.  If no index is specified, the primary
+  index of the underlying rowset is used.  Returns the number of records which were deleted.
   For error information, use lastError().  For example:
 
 */
 
 int QSqlView::del( const QSqlIndex & filter )
 {
-    return 0;    
+    return del( fieldEqualsValue( "and", filter ) );
 }
 
 #endif
+

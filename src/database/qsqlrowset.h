@@ -34,10 +34,10 @@ public:
 protected:
     QSqlFieldList & operator=( const QSqlFieldList & list );
     bool query( const QString & str );
-    QString whereClause( const QSqlIndex & i );
+    QString fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
 
 private:
-    void      updateFieldValues();
+    void      sync();
     int       lastAt;
     QString   tableName;
 };
