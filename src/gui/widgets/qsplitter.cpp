@@ -29,13 +29,13 @@
 #include "qvector.h"
 #include "private/qframe_p.h"
 #include "private/qlayoutengine_p.h"
+#include "qdebug.h"
 
 #include <ctype.h>
 
 #define d d_func()
 #define q q_func()
 
-#include "qdebug.h"
 //#define QSPLITTER_DEBUG
 
 const uint Default = 2;
