@@ -622,7 +622,6 @@ void ConfigureApp::qmakeDone()
 	    cout << "For " << projectName.latin1() << endl;
 
 	str = args.join( " " );
-//	cout << str << endl;
 	qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
 	qmake.setArguments( args );
 	if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
@@ -664,7 +663,7 @@ bool ConfigureApp::isProjectLibrary( const QString& proFileName )
     QString buffer;
 
     if( proFile.open( IO_ReadOnly ) ) {
-	while( proFile.readLine( buffer, 1024 ) ) {
+	while( proFile.readLine( buffer, 1024 ) != -1 ) {
 	    QStringList segments = QStringList::split( QRegExp( "\\s" ), buffer );
 	    QStringList::Iterator it = segments.begin();
 
