@@ -2379,7 +2379,7 @@ void QListView::init()
 
 /*! \property QListView::showSortIndicator
     \brief whether the list view header should display a sort indicator or not
-    
+
   If this property is TRUE, an arrow is drawn in the header of the
   list view to indicate the sort order of the list view contents. The
   arrow will be drawn in the correct column and will point up or down,
@@ -2422,7 +2422,7 @@ bool QListView::showToolTips() const
 
 /*! \property QListView::resizeMode
     \brief whether all, none or the last column should be resized
-  
+
   Specifies whether all, none or the last column should be resized to
   fit the full width of the listview. The values for this property can
   be one of the following: \c NoColumn, \c AllColumns or \c LastColumn.
@@ -2803,7 +2803,7 @@ void QListView::setTreeStepSize( int size )
 {
     if ( size != d->levelWidth ) {
 	d->levelWidth = size;
-	// ### update
+	viewport()->repaint( FALSE );
     }
 }
 
@@ -4582,7 +4582,7 @@ int QListView::itemPos( const QListViewItem * item )
 
 /*! \property QListView::multiSelection
     \brief whether the list view is in multi-selection or single selection mode
-    
+
   If you enable multi-selection mode, it is possible to specify
   whether or not this mode should be extended. Extended means that the
   user can select multiple items only when pressing the Shift or
@@ -4606,7 +4606,7 @@ bool QListView::isMultiSelection() const
 
 /*! \property QListView::selectionMode
     \brief the list view's multi-selection mode
-    
+
     The mode can be \c Single (the default), \c Extended, \c Multi or
     \c NoSelection.
 
@@ -5082,7 +5082,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 
 /*! \property QListView::allColumnsShowFocus
     \brief whether items should show keyboard focus using all columns or not
-     
+
   If this property is TRUE all columns will show focus and selection
   states, otherwise only column 0 will show focus.
 
@@ -5352,7 +5352,7 @@ void QCheckListItem::activate()
     }
 }
 
-/*!  
+/*!
     If \a b is TRUE enables the item; if \a b is FALSE disables the
     item. If the item is disabled, the user can't change the state (see
     setOn()/isOn()) of the item.
@@ -5410,7 +5410,7 @@ void QCheckListItem::stateChange( bool )
 }
 
 /*!
-    \reimp 
+    \reimp
 
   Performs setup.
  */
@@ -5733,7 +5733,7 @@ bool QListView::isOpen( const QListViewItem * item ) const
 
 /*! \property QListView::rootIsDecorated
     \brief whether the list view show open/close signs on root items or not
-  
+
   Open/close signs is a little + or - in windows style, an arrow in
   Motif style.
 */
@@ -5801,7 +5801,7 @@ QHeader * QListView::header() const
 
 /*! \property QListView::childCount
     \brief the number of parentless QListViewItem objects in this QListView
-    
+
   Represents the current number of parentless QListViewItem objects in
   this QListView, like QListViewItem::childCount() returns the number
   of child items for a QListViewItem.
