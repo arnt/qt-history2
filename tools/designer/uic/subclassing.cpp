@@ -82,7 +82,9 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data();
+	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( slotName.endsWith( ";" ) )
+	    slotName = slotName.left( slotName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {
@@ -227,7 +229,9 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data();
+	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( slotName.endsWith( ";" ) )
+	    slotName = slotName.left( slotName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {

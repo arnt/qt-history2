@@ -878,9 +878,12 @@ void MetaDataBase::setSignalList( QObject *o, const QStringList &sigs )
     }
 
     r->sigs.clear();
-    
+
     for ( QStringList::ConstIterator it = sigs.begin(); it != sigs.end(); ++it ) {
 	QString s = (*it).simplifyWhiteSpace();
+	bool hasSemicolon = s.endsWith( ";" );
+	if ( hasSemicolon )
+	    s = s.left( s.length() - 1 );
 	int p = s.find( '(' );
 	if ( p < 0 )
 	    p = s.length();
@@ -891,6 +894,8 @@ void MetaDataBase::setSignalList( QObject *o, const QStringList &sigs )
 	}
 	if ( p == (int) s.length() )
 	    s += "()";
+	if ( hasSemicolon )
+	    s += ";";
 	r->sigs << s;
     }
 }

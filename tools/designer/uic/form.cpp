@@ -274,7 +274,7 @@ void Uic::createFormDecl( const QDomElement &e )
     for ( it = forwardDecl2.begin(); it != forwardDecl2.end(); ++it ) {
 	QString fd = *it;
 	fd = fd.stripWhiteSpace();
-	if ( fd[ (int)fd.length() - 1 ] != ';' )
+	if ( !fd.endsWith( ";" ) )
 	    fd += ";";
 	out << fd << endl;
     }
@@ -361,17 +361,20 @@ void Uic::createFormDecl( const QDomElement &e )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	extraSignals += n.firstChild().toText().data();
+	QString sigName = n.firstChild().toText().data().stripWhiteSpace();	
+	if ( sigName.endsWith( ";" ) )
+	    sigName = sigName.left( sigName.length() - 1 );
+	extraSignals += sigName;
     }
-    
+
     // create signals
     if ( !extraSignals.isEmpty() ) {
-	out << "signals::" << endl;
+	out << "signals:" << endl;
 	for ( it = extraSignals.begin(); it != extraSignals.end(); ++it )
 	    out << "    void " << (*it) << ";" << endl;
 	out << endl;
     }
-    
+
     // find additional slots
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
@@ -386,7 +389,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data();
+	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( slotName.endsWith( ";" ) )
+	    slotName = slotName.left( slotName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {
@@ -514,9 +519,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    out << "protected:" << endl;
 	out << endl;
 	for ( i = 0; i < (int) nl.length(); i++ ) {
-	    QString v = nl.item( i ).firstChild().toText().data();
-	    v = v.stripWhiteSpace();
-	    if ( v[ (int)v.length() - 1 ] != ';' )
+	    QString v = nl.item( i ).firstChild().toText().data().stripWhiteSpace();
+	    if ( !v.endsWith( ";" ) )
 		v += ";";
 	    out << indent << v << endl;
 	}
@@ -561,7 +565,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	extraSlots += n.firstChild().toText().data();
+	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( slotName.endsWith( ";" ) )
+	    slotName = slotName.left( slotName.length() - 1 );
+	extraSlots += slotName;
 	extraSlotTypes += n.attribute( "returnType", "void" );
     }
 

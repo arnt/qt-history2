@@ -246,7 +246,7 @@ void HelpWindow::newWindow()
 void HelpWindow::print()
 {
 #ifndef QT_NO_PRINTER
-    QPrinter printer; //( QPrinter::HighResolution );
+    QPrinter printer;//(QPrinter::HighResolution );
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
