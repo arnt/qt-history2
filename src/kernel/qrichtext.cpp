@@ -4143,7 +4143,7 @@ void QTextParag::move( int &dy )
 
 void QTextParag::format( int start, bool doMove )
 {
-    if ( !str || str->length() == 0 || !formatter() ) 
+    if ( !str || str->length() == 0 || !formatter() )
 	return;
 
     if ( hasdoc &&
@@ -4536,7 +4536,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    formatChar = chr;
 	    lastY = cy;
 	    startX = chr->x;
-	    if ( !chr->isCustom() && chr->c != '\n' && chr->c != QChar_linesep )
+	    if ( !chr->isCustom() && chr->c != '\n' && chr->c != QChar_linesep)
 		paintEnd = i;
 	    bw = cw;
 	    if ( !chr->isCustom() )
@@ -5733,9 +5733,10 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	}
 #endif
 
-	if ( lastChr == QChar_linesep ||
-	     ( wrapEnabled && ( wrapAtColumn() == -1 && x + ww > w ||
-			wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) ) {
+	if ( wrapEnabled &&
+	     ( wrapAtColumn() == -1 && x + ww > w ||
+	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
+	       lastChr == QChar_linesep ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw;
 	    y += h;
@@ -5923,12 +5924,12 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		minw = QMAX( minw, tw );
 	}
 
-	if ( lastChr == QChar_linesep ||
-	     ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
-	       && ( lastBreak != -1 || allowBreakInWords() ) &&
-	       ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
-		 wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
-		 wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) ) {
+	if ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
+	     && ( lastBreak != -1 || allowBreakInWords() ) &&
+	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
+	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
+	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
+	       lastChr == QChar_linesep && firstChar < c ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
 	    if ( lastBreak < 0 ) {
