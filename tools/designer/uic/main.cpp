@@ -22,6 +22,7 @@
 #include "parser.h"
 #include "widgetdatabase.h"
 #include "domtool.h"
+#include <qapplication.h>
 #include <qfile.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
@@ -36,7 +37,7 @@ int main( int argc, char * argv[] )
 {
     bool impl = FALSE;
     bool subcl = FALSE;
-    bool imagecollection = FALSE; 
+    bool imagecollection = FALSE;
     QStringList images;
     const char *error = 0;
     const char* fileName = 0;
@@ -47,6 +48,7 @@ int main( int argc, char * argv[] )
     const char* trmacro = 0;
     bool nofwd = FALSE;
     bool fix = FALSE;
+    QApplication app(argc, argv, FALSE);
     for ( int n = 1; n < argc && error == 0; n++ ) {
 	QCString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
@@ -163,13 +165,13 @@ int main( int argc, char * argv[] )
     }
     QTextStream out( &fileOut );
     out.setEncoding( QTextStream::UnicodeUTF8 );
-    
+
     if ( imagecollection ) {
 	Uic::embed( out, projectName, images );
 	return 0;
     }
 
-    
+
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) )
 	qFatal( "uic: Could not open file '%s' ", fileName );
