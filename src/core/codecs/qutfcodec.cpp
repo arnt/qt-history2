@@ -288,7 +288,13 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
                     // ignore BOM
                     endian = BE;
                 } else {
-                    endian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? BE : LE;
+                    if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
+                        endian = BE;
+                    } else {
+                        endian = LE;
+                        ch.setRow(*chars++);
+                        ch.setCell(buf);
+                    }
                     *qch++ = ch;
                 }
             } else {
