@@ -52,6 +52,7 @@ class QSplitter;
 class QBoxLayout;
 class QDockAreaLayout;
 class QMouseEvent;
+class QDockWindowResizeHandle;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -64,7 +65,7 @@ class Q_EXPORT QDockAreaLayout : public QLayout
 {
     Q_OBJECT
     friend class QDockArea;
-
+    
 public:
     QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow> *wl, int space = -1, int margin = -1, const char *name = 0 )
 	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
@@ -104,6 +105,7 @@ class Q_EXPORT QDockArea : public QWidget
     Q_OBJECT
 
     friend class QDockWindow;
+    friend class QDockWindowResizeHandle;
 
 public:
     enum Gravity { Normal, Reverse };
@@ -151,7 +153,8 @@ private:
     void dockWindow( QDockWindow *dockWindow, DockWindowData *data );
     void updateLayout();
     void invalidateFixedSizes();
-    
+    int maxSpace( int hint, QDockWindow *dw );
+
 private:
     Orientation orient;
     QList<QDockWindow> *dockWindows;

@@ -155,6 +155,8 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    drawLine( lastPos );
 	    endLineDraw();
 	}
+	if ( orientation() != dockWindow->area()->orientation() )
+	    dockWindow->area()->invalidNextOffset( dockWindow );
 	if ( orientation() == Horizontal ) {
 	    int dy;
 	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
@@ -162,8 +164,10 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
 	    int d = dockWindow->height() + dy;
-	    if ( orientation() != dockWindow->area()->orientation() )
+	    if ( orientation() != dockWindow->area()->orientation() ) {
 		d = QMAX( d, dockWindow->minimumHeight() );
+		d = QMIN( d, dockWindow->area()->maxSpace( d, dockWindow ) );
+	    }
 	    dockWindow->setFixedExtentHeight( d );
 	} else {
 	    int dx;
@@ -172,12 +176,12 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    else
 		dx = firstPos.x() - e->globalPos().x();
 	    int d = dockWindow->width() + dx;
-	    if ( orientation() != dockWindow->area()->orientation() )
+	    if ( orientation() != dockWindow->area()->orientation() ) {
 		d = QMAX( d, dockWindow->minimumWidth() );
+		d = QMIN( d, dockWindow->area()->maxSpace( d, dockWindow ) );
+	    }
 	    dockWindow->setFixedExtentWidth( d );
 	}
-	if ( orientation() != dockWindow->area()->orientation() )
-	    dockWindow->area()->invalidNextOffset( dockWindow );
     }
 
     QApplication::postEvent( dockWindow->area(), new QEvent( QEvent::LayoutHint ) );
