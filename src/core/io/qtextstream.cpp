@@ -531,7 +531,7 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
     of the file. EOF is reached when the return value does not equal
     \a len.
 */
-QTextStreamPrivate::GetBufEnd 
+QTextStreamPrivate::GetBufEnd
 QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 {
     if (len < 1) {
@@ -613,13 +613,13 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
             int ungetc_len = ungetcBuf.length(), ungetc_used = 0;
             const QChar *ungetc_buff = ungetcBuf.unicode();
             while(rnum < ungetc_len && ungetc_used < ungetc_len) {
-                if(int end = ts_end(ungetc_buff+ungetc_used, 
+                if(int end = ts_end(ungetc_buff+ungetc_used,
 				    ungetc_len-ungetc_used, end_flags)) {
 		    ungetc_used += end - leaveEnd;
                     ret = QTextStreamPrivate::TS_END_FOUND;
                     break;
                 }
-                if(out) 
+                if(out)
                     *(out++) = *(ungetc_buff+ungetc_used);
 		ungetc_used++;
                 rnum++;
@@ -659,7 +659,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     }
                 }
             }
-            if(out) 
+            if(out)
                 memcpy(out + rnum, s.unicode(), used_len*sizeof(out[0]));
             rnum += used_len;
             if(ret == TS_END_FOUND)
@@ -1303,9 +1303,7 @@ double QTextStreamPrivate::input_double()
         c = ts_getc();
     }
 
-#if !defined(Q_CC_EDG)
     return 0.0;
-#endif
 }
 
 
