@@ -34,10 +34,10 @@
 
 #include "qsettings.h"
 #ifndef QT_NO_SETTINGS
-#include <qregexp.h>
-#include <qstring.h>
-#include <qptrlist.h>
-#include <qwindowdefs.h>
+#include "qregexp.h"
+#include "qstring.h"
+#include "qptrlist.h"
+#include "qwindowdefs.h"
 #include <CoreFoundation/CoreFoundation.h>
 #include <stdlib.h>
 

@@ -43,9 +43,9 @@
 #include "qfocusdata.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
-#include <qcursor.h>
-#include <qtimer.h>
-#include <qstyle.h>
+#include "qcursor.h"
+#include "qtimer.h"
+#include "qstyle.h"
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif

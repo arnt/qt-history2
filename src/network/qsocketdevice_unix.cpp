@@ -35,11 +35,11 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "qsocketdevice.h"
 
 #ifndef QT_NO_NETWORK
 
-#include "qplatformdefs.h"
 #include "qwindowdefs.h"
 
 // Almost always the same. If not, specify in qplatformdefs.h.

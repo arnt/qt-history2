@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPrinter class for mac
 **
 ** Created : 001019
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -39,9 +39,9 @@
 #include "qprintdialog.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include <stdlib.h>
 #include "qt_mac.h"
 #include <qstyle.h>
+#include <stdlib.h>
 
 // NOT REVISED
 
