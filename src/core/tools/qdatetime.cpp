@@ -1846,6 +1846,9 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
 
 static void localToUtc(QDate &date, QTime &time, int isdst)
 {
+    if (!date.isValid())
+	return;
+
     QDate lowerLimit(LowerYear, 1, 2);
     QDate upperLimit(2037, 12, 30);
 
