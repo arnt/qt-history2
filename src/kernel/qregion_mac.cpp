@@ -164,10 +164,10 @@ static void cleanup_empty_region()
 
 QRegion::QRegion()
 {
-    if ( !empty_region ) {			// avoid too many allocs
-	qAddPostRoutine( cleanup_empty_region );
-	empty_region = new QRegion( TRUE );
-	Q_CHECK_PTR( empty_region );
+    if(!empty_region) {			// avoid too many allocs
+	qAddPostRoutine(cleanup_empty_region);
+	empty_region = new QRegion(TRUE);
+	Q_CHECK_PTR(empty_region);
     }
     data = empty_region->data;
     data->ref();
@@ -205,7 +205,7 @@ QRegion::handle(bool require_rgn) const
     return data->is_rect ? NULL : data->rgn;
 }
 
-QRegion::QRegion( bool is_null )
+QRegion::QRegion(bool is_null)
 {
     data = qt_mac_get_rgn_data();
     if((data->is_null = is_null)) {
@@ -239,19 +239,29 @@ QRegion::QRegion(const QRect &r, RegionType t)
 //### We do not support winding yet, how do we do that?? --SAM
 QRegion::QRegion(const QPointArray &a, bool)
 {
-    data = qt_mac_get_rgn_data();
-    data->is_null = FALSE;
-    data->is_rect = FALSE;
-    data->rgn = qt_mac_get_rgn();
+    if(a.size() > 0) {
+	data = qt_mac_get_rgn_data();
+	data->is_null = FALSE;
+	data->is_rect = FALSE;
+	data->rgn = qt_mac_get_rgn();
 
-    OpenRgn();
-    MoveTo(a[0].x(), a[0].y());
-    for(unsigned int loopc = 1; loopc < a.size(); loopc++) {
-	LineTo(a[loopc].x(), a[loopc].y());
-	MoveTo(a[loopc].x(), a[loopc].y());
+	OpenRgn();
+	MoveTo(a[0].x(), a[0].y());
+	for(unsigned int loopc = 1; loopc < a.size(); loopc++) {
+	    LineTo(a[loopc].x(), a[loopc].y());
+	    MoveTo(a[loopc].x(), a[loopc].y());
+	}
+	LineTo(a[0].x(), a[0].y());
+	CloseRgn(data->rgn);
+    } else {
+	if (!empty_region) {			// avoid too many allocs
+	    qAddPostRoutine(cleanup_empty_region);
+	    empty_region = new QRegion(TRUE);
+	    Q_CHECK_PTR(empty_region);
+	}
+	data = empty_region->data;
+	data->ref();
     }
-    LineTo(a[0].x(), a[0].y());
-    CloseRgn(data->rgn);
 }
 
 
@@ -309,7 +319,7 @@ static RgnHandle qt_mac_bitmapToRegion(const QBitmap& bitmap)
 		    for(int b=8; b>0 && x<w; b--) {
 			if(!(byte&0x80) == !all) { 			    // More of the same
 			} else { 			    // A change.
-			    if ( all!=zero ) {
+			    if (all!=zero) {
 				AddSpan
 				all = zero;
 			    } else {
@@ -444,14 +454,14 @@ QRegion QRegion::unite(const QRegion &r) const
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-    QRegion result( FALSE );
+    QRegion result(FALSE);
     UnionRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
 
-QRegion QRegion::intersect( const QRegion &r ) const
+QRegion QRegion::intersect(const QRegion &r) const
 {
-    if(data->is_null || r.data->is_null )
+    if(data->is_null || r.data->is_null)
 	return QRegion();
 
     if(data->is_rect && r.data->is_rect)
@@ -461,12 +471,12 @@ QRegion QRegion::intersect( const QRegion &r ) const
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-    QRegion result( FALSE );
-    SectRgn( data->rgn, r.data->rgn, result.data->rgn );
+    QRegion result(FALSE);
+    SectRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
 
-QRegion QRegion::subtract( const QRegion &r ) const
+QRegion QRegion::subtract(const QRegion &r) const
 {
     if(data->is_null || r.data->is_null )
 	return copy();
@@ -475,7 +485,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-    QRegion result( FALSE );
+    QRegion result(FALSE);
     DiffRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
@@ -489,7 +499,7 @@ QRegion QRegion::eor(const QRegion &r) const
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-    QRegion result( FALSE );
+    QRegion result(FALSE);
     XorRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
 }
