@@ -23,6 +23,7 @@
 #include <ui4.h>
 #include <spacer_widget.h>
 #include <sheet_delegate.h>
+#include <iconloader.h>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
@@ -51,18 +52,6 @@ private:
     DomUI *m_dom_ui;
     QPoint m_hot_spot;
 };
-
-static QIcon createIconSet(const QString &name)
-{
-    if (name.isEmpty())
-        return QIcon();
-    QString path = QString::fromUtf8(":/trolltech/formeditor/images/") + name;
-    QPixmap result(path);
-    if (result.isNull())
-        qWarning("Failed to load \"%s\"", path.toLatin1().constData());
-
-    return QIcon(result);
-}
 
 static QDomElement childElement(QDomNode node, const QString &tag,
                                 const QString &attr_name,
@@ -363,9 +352,8 @@ WidgetCollectionModel::Category WidgetCollectionModel::xmlToCategory(const QDomE
 
     QDomElement widget_elt = cat_elt.firstChildElement();
     for (; !widget_elt.isNull(); widget_elt = widget_elt.nextSiblingElement()) {
-        Widget w(widget_elt.attribute(QLatin1String("name")),
-                    domToString(widget_elt),
-                    createIconSet(widget_elt.attribute(QLatin1String("icon"))));
+        QIcon icon = createIconSet(widget_elt.attribute(QLatin1String("icon")));
+        Widget w(widget_elt.attribute(QLatin1String("name")), domToString(widget_elt), icon);
         result.addWidget(w);
     }
 

@@ -14,28 +14,29 @@
 #ifndef ICONLOADER_H
 #define ICONLOADER_H
 
-#include <QIcon>
-#include <QPixmap>
-#include <QString>
+#include <QtCore/QString>
+#include <QtCore/QFile>
+
+#include <QtGui/QIcon>
+#include <QtGui/QPixmap>
 
 inline QIcon createIconSet(const QString &name)
 {
-    QPixmap pix(QString::fromUtf8(":/trolltech/formeditor/images/") + name);
-
-    if (!pix.isNull())
-        return pix;
-
-    const QString ResouceString =
+    QStringList candidates = QStringList()
+        << (QString::fromUtf8(":/trolltech/formeditor/images/") + name)
 #ifdef Q_WS_MAC
-        QLatin1String(":/trolltech/formeditor/images/mac/");
+        << (QString::fromUtf8(":/trolltech/formeditor/images/mac/") + name)
 #else
-        QLatin1String(":/trolltech/formeditor/images/win/");
+        << (QString::fromUtf8(":/trolltech/formeditor/images/win/") + name)
 #endif
-    pix = QPixmap(ResouceString + name);
-    if (!pix.isNull())
-        return pix;
+        << (QString::fromUtf8(":/trolltech/formeditor/images/designer_") + name);
 
-    return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/designer_") + name);
+    foreach (QString f, candidates) {
+        if (QFile::exists(f))
+            return QIcon(f);
+    }
+
+    return QIcon();
 }
 
 #endif // ICONLOADER_H
