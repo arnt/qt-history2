@@ -124,7 +124,9 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
     ConnectWidget connect;
+#ifndef QT_NO_WIDGET_TOPEXTRA   // for Qt/Embedded minimal build
     connect.setCaption( "Qt Example - Draw lines");
+#endif
     a.setMainWidget( &connect );
     connect.show();
     return a.exec();
