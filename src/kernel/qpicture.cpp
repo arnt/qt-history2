@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#17 $
 **
 ** Implementation of QPicture class
 **
@@ -13,13 +13,12 @@
 #include "qpicture.h"
 #include "qpaintdc.h"
 #include "qpainter.h"
-#include "qpntarry.h"
-#include "qwmatrix.h"
+#include "qpixmap.h"
 #include "qfile.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#17 $";
 #endif
 
 
@@ -119,7 +118,7 @@ bool QPicture::play( QPainter *painter )
 #endif
 	pictb.close();
 	return FALSE;
-    }    
+    }	 
     pictb.close();
     return TRUE;				// no end-command
 }
@@ -223,15 +222,18 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		s >> r >> i_16 >> str;
 		painter->drawText( r, i_16, str );
 		delete str;
-	        break;
-	    case PDC_DRAWPIXMAP:
-	        debug( "QPicture: DRAWPIXMAP not implemented" );
-	        break;
+		break;
+	    case PDC_DRAWPIXMAP: {
+		QPixMap pixmap(8,8,1);
+		s >> p >> pixmap;
+		painter->drawPixMap( p, pixmap );
+	        }
+		break;
 	    case PDC_BEGIN:
 		s >> ul;			// number of records
-	        if ( !exec( painter, s, ul ) )
+		if ( !exec( painter, s, ul ) )
 		    return FALSE;
-	        break;
+		break;
 	    case PDC_END:
 		if ( nrecords == 0 )
 		    return TRUE;
@@ -259,8 +261,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		painter->setBrushOrigin( p );
 		break;
 	    case PDC_SETFONT:
-	        s >> font;
-	        painter->setFont( font );
+		s >> font;
+		painter->setFont( font );
 		break;
 	    case PDC_SETPEN:
 		s >> pen;
@@ -302,17 +304,17 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		painter->setTargetView( r );
 		break;
 	    case PDC_SETWXFORM:
-	        s >> i_8;
-	        painter->setWorldXForm( i_8 );
-	        break;
+		s >> i_8;
+		painter->setWorldXForm( i_8 );
+		break;
 	    case PDC_SETWMATRIX:
-	        s >> matrix >> i_8;
-	        painter->setWorldMatrix( matrix, i_8 );
-	        break;
+		s >> matrix >> i_8;
+		painter->setWorldMatrix( matrix, i_8 );
+		break;
 	    case PDC_SETCLIP:
-	        s >> i_8;
-	        painter->setClipping( i_8 );
-	        break;
+		s >> i_8;
+		painter->setClipping( i_8 );
+		break;
 	    case PDC_SETCLIPRGN:
 		s >> rgn;
 		painter->setClipRegion( rgn );
@@ -390,7 +392,7 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	    break;
 	case PDC_DRAWLINESEGS:
 	case PDC_DRAWPOLYLINE:
-        case PDC_DRAWBEZIER:
+	case PDC_DRAWBEZIER:
 	    s << *p[0].ptarr;
 	    break;
 	case PDC_DRAWPOLYGON:
@@ -402,8 +404,13 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	case PDC_DRAWTEXTFRMT:
 	    s << *p[0].rect << (INT16)p[1].ival << p[2].str;
 	    break;
-	case PDC_DRAWPIXMAP:
-	    debug( "QPicture::cmd: DRAWPIXMAP not implemented" );
+	case PDC_DRAWPIXMAP: {
+	    QRect    r  = *p[0].rect;
+	    QPixMap *pm1 = (QPixMap *)p[2].pixmap;
+	    QPixMap  pm2( r.width(), r.height(), pm1->depth() );
+	    bitBlt( &pm2, 0, 0, pm1, r.x(), r.y(), r.width(), r.height() );
+	    s << *p[1].point << pm2;
+	    }
 	    break;
 	case PDC_SAVE:
 	case PDC_RESTORE:
