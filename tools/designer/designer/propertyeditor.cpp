@@ -67,6 +67,7 @@
 #include <qtimer.h>
 #include <qdragobject.h>
 #include <qdom.h>
+#include <qprocess.h>
 
 #ifndef QT_NO_SQL
 #include <qdatetimeedit.h>
@@ -129,8 +130,12 @@ QString PropertyWhatsThis::text( const QPoint &pos )
 
 bool PropertyWhatsThis::clicked( const QString& href )
 {
-    // ###TODO href is link or null
-    
+    if ( !href.isEmpty() ) {
+	QStringList lst;
+	lst << "assistant" << QString( href );
+	QProcess proc( lst );
+	proc.start();
+    }
     return FALSE; // do not hide window
 }
 
