@@ -15,7 +15,7 @@
 #include <qapplication.h>
 #include <qevent.h>
 
-#include <qgc_x11.h>
+#include <qx11info_x11.h>
 
 #include "qmotif.h"
 #include "qmotifdialog.h"

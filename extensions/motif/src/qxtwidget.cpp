@@ -14,6 +14,7 @@
 
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+#include <qlist.h>
 
 #include "qxtwidget.h"
 
@@ -51,15 +52,12 @@ typedef struct _QWidgetRec {
 static
 void reparentChildrenOf(QWidget* parent)
 {
-    if ( !parent->children() )
-	return; // nothing to do
-
-    QObjectList children = parent->children();
+    const QObjectList children = parent->children();
+    if (children.isEmpty()) return; // nothing to do
     for (int i = 0; i < children.size(); ++i) {
 	QWidget *widget = qt_cast<QWidget*>(children.at(i));
 	if (! widget) continue;
-
-	XReparentWindow(widget->x11Info()->display(), widget->winId(), parent->winId(),
+       	XReparentWindow(widget->x11Info()->display(), widget->winId(), parent->winId(),
 			widget->x(), widget->y());
     }
 }
@@ -275,8 +273,7 @@ QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 QXtWidget::~QXtWidget()
 {
     // Delete children first, as Xt will destroy their windows
-    //
-    QList<QWidget *> list = findChildren<QWidget *>(0);
+    QList<QWidget *> list = qFindChildren<QWidget *>(0);
     for (int i = 0; i < list.size(); ++i) {
 	QWidget *c;
         while ((c = qt_cast<QWidget*>(list.at(i))) != 0)

@@ -17,7 +17,7 @@
 #include <qwidget.h>
 #include <private/qwidget_p.h>
 
-#include <qgc_x11.h>
+#include <qx11info_x11.h>
 
 #include "qmotifwidget.h"
 #include "qmotif.h"
@@ -458,6 +458,9 @@ void QMotifWidget::realize( Widget w )
     // use the winid of the dialog shell, reparent any children we
     // have
     if ( XtWindow( w ) != winId() ) {
+	// flush both command queues to make sure that all windows
+	// have been created
+	XSync(x11Info()->display(), FALSE);
 	XSync(QMotif::x11Display(), FALSE);
 
 	// save the geometry of the motif widget, since it has the
@@ -481,7 +484,6 @@ void QMotifWidget::realize( Widget w )
 	    XReparentWindow(x11Info()->display(), widget->winId(), newid,
 			    widget->x(), widget->y());
 	}
-	QApplication::syncX();
 
 	// re-create this QWidget with the winid from the motif
 	// widget... the geometry will be reset to roughly 1/4 of the
@@ -502,6 +504,11 @@ void QMotifWidget::realize( Widget w )
 	    XReparentWindow( x11Info()->display(), winId(),
 			     parentWidget()->winId(), x(), y() );
 	}
+
+	// flush both command queues again, to make sure that we don't
+	// get any of the above calls processed out of order
+    	XSync(x11Info()->display(), FALSE);
+	XSync(QMotif::x11Display(), FALSE);
     }
     QMotif::registerWidget( this );
 }

@@ -18,8 +18,6 @@
 #include <qguieventloop.h>
 
 #include <X11/Intrinsic.h>
-#undef Bool
-#undef Int
 
 class QMotifPrivate;
 

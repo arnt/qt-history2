@@ -33,8 +33,6 @@
 #include <qwidget.h>
 #include <qvector.h>
 
-#include <qgc_x11.h>
-
 #include "qmotif.h"
 
 #include <qx11info_x11.h>
