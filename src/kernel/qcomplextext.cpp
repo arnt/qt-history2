@@ -122,7 +122,7 @@ static inline const QChar *prevChar( const QString &str, int pos )
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
-	if( !isMark( *ch ) )
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
 	    return ch;
 	pos--;
 	ch--;
@@ -137,7 +137,7 @@ static inline const QChar *nextChar( const QString &str, int pos)
     const QChar *ch = str.unicode() + pos;
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( !isMark( *ch ) )
+	if( ::category( *ch ) != QChar::Mark_NonSpacing )
 	    return ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
@@ -557,13 +557,13 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     // we have to ignore NSMs at the beginning and add at the end.
     int num = uc.length() - from - len;
     const QChar *ch = uc.unicode() + from + len;
-    while ( num > 0 && combiningClass( *ch ) != 0 ) {
+    while ( num > 0 && ::category( *ch ) == QChar::Mark_NonSpacing ) {
 	ch++;
 	num--;
 	len++;
     }
     ch = uc.unicode() + from;
-    while ( len > 0 && combiningClass( *ch ) != 0 ) {
+    while ( len > 0 && ::category( *ch ) == QChar::Mark_NonSpacing ) {
 	ch++;
 	len--;
 	from++;
@@ -671,14 +671,14 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	QChar *s = shapeBuffer;
 	int i = 0;
 	while ( i < lenOut ) {
-	    if ( combiningClass( *s ) != 0 ) {
+	    if ( ::category( *s ) == QChar::Mark_NonSpacing ) {
 		// non spacing marks
 		int clen = 1;
 		QChar *ch = s;
 		do {
 		    ch++;
 		    clen++;
-		} while ( combiningClass( *ch ) != 0 );
+		} while ( ::category( *ch ) == QChar::Mark_NonSpacing );
 
 		int j = 0;
 		QChar *cp = s;
@@ -765,7 +765,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 {
     int len = str.length();
     int nmarks = 0;
-    while ( pos + nmarks < len && combiningClass( str.unicode()[pos+nmarks +1] ) > 0 )
+    while ( pos + nmarks < len && ::category( str[pos+nmarks +1] ) == QChar::Mark_NonSpacing )
 	nmarks++;
 
     if ( !nmarks )
@@ -775,6 +775,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     QRect baseRect = f->boundingRect( baseChar );
     int baseOffset = f->textWidth( str, pos, 1 );
 
+    qDebug("positioning marks from %d len %d", pos,  nmarks );
     //qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
     int offset = f->actual.pixelSize / 10 + 1;
     //qDebug("offset = %d", offset );
@@ -785,17 +786,50 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     if ( boundingRect )
 	*boundingRect = baseRect;
     for( i = 0; i < nmarks; i++ ) {
-	QChar mark = str.unicode()[pos+i+1];
+	QChar mark = str[pos+i+1];
 	unsigned char cmb = combiningClass( mark );
+	QPoint p;
+	QRect markRect = f->boundingRect( mark );
+
 	if ( cmb < 200 ) {
 	    // fixed position classes. We approximate by mapping to one of the others.
-	    // currently I added only the ones for arabic, hebrew and thai.
+	    // currently I added only the ones for arabic, hebrew, lao and thai.
 
-	    // ### add a bit more offset to arabic, a bit hacky
+	    // add a bit more offset to arabic, a bit hacky
 	    if ( cmb >= 27 && cmb <= 36 )
 		offset +=1;
-	    // below
-	    if ( (cmb >= 10 && cmb <= 18) ||
+	    if ( cmb == 0 ) {
+		if ( mark.row() == 0x0e ) {
+		    // thai or lao
+		    unsigned char col = mark.cell();
+		    if ( col == 0x31 ) {
+			cmb = QChar::Combining_AboveRight;
+			p += QPoint( markRect.width()/4., 0 );
+		    } else if ( col == 0x47 ||
+				col == 0x4c ||
+				col == 0x4d ||
+				col == 0x4e ||
+				col == 0xcc ||
+				col == 0xcd ) {
+			cmb = QChar::Combining_AboveRight;
+		    } else if ( col == 0x34 ||
+				col == 0x35 ||
+				col == 0x36 ||
+				col == 0x37 ||
+				col == 0xb1 ||
+				col == 0xb4 ||
+				col == 0xb5 ||
+				col == 0xb6 ||
+				col == 0xb7 ||
+				col == 0xbb ) {
+			cmb = QChar::Combining_Above;
+		    } else if ( col == 0xbc ) {
+			cmb = QChar::Combining_Below;
+		    }
+		}
+	    }
+ 	    // below
+	    else if ( (cmb >= 10 && cmb <= 18) ||
 		 cmb == 20 || cmb == 22 ||
 		 cmb == 29 || cmb == 32 )
 		cmb = QChar::Combining_Below;
@@ -822,8 +856,6 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 	    attachmentRect = baseRect;
 	}
 
-	QPoint p;
-	QRect markRect = f->boundingRect( mark );
 	switch( cmb ) {
 	case QChar::Combining_DoubleBelow:
 		// ### wrong in rtl context!

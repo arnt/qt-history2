@@ -416,7 +416,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     if ( request.dirty || fin->dirty() )
 	load();
     for( i = 0; i < len; i++ ) {
-	if ( ch->combiningClass() == 0 ) {
+	if ( ch->category() != QChar::Mark_NonSpacing ) {
 	    width += memorymanager->lockGlyphMetrics(fin->handle(), *ch )->advance;
 	}
 	++ch;
@@ -440,7 +440,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
     for (i = 0; i < len; i++) {
 	tmp = scriptForChar(*uc);
 #ifndef QT_NO_COMPLEXTEXT
-	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
+	if ( uc->category() == QChar::Mark_NonSpacing && !nmarks && pos + i > 0 ) {
 	    if ( lasts >= 0 ) {
 		// string width (this is for the PREVIOUS truple)
 		cache->setParams( currw, 0, 0, str.unicode() + lasts, i-lasts, currs );
@@ -594,7 +594,7 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = str[pos];
-    if ( ch.combiningClass() > 0 ) return 0;
+    if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 #ifndef QT_NO_COMPLEXTEXT
     ch = QComplexText::shapedCharacter( str, pos );
 #endif
@@ -603,7 +603,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
 int QFontMetrics::width( QChar ch ) const
 {
-    if ( ch.combiningClass() > 0 ) return 0;
+    if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 
     return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->internal()->handle(),ch)->advance;
 }

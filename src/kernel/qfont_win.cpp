@@ -627,7 +627,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     for ( i = 0; i < len; i++ ) {
 	// for the row hack, see comment in buildCache below!
 	uchar row = uc->row();
-	if ( uc->combiningClass() != 0 && (row < 0x09 || row > 0x0e) && pos + i > 0 ) {
+	if ( uc->category() == QChar::Mark_NonSpacing && (row < 0x09 || row > 0x0e) && pos + i > 0 ) {
 	    if ( i - last > 0 ) {
 		GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
 		width += s.cx;
@@ -669,7 +669,7 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	    singlePrint = TRUE;
 	// disable our shaping for indic and thai, as we (a) can't do indic, so we let uniscribe do it (b) Uniscribe repositions thai marks anyway,
 	// so positioning by hand doesn't work correctly.
-	if ( uc->combiningClass() != 0 && (row < 0x09 || row > 0x0e) && !nmarks && pos + i > 0 ) {
+	if ( uc->category() == QChar::Mark_NonSpacing && (row < 0x09 || row > 0x0e) && !nmarks && pos + i > 0 ) {
 	    const QChar *qc = str.unicode() + lasts;
 	    int length = i - lasts;
 	    cache->setParams( width, 0, 0, qc, length,
@@ -1050,7 +1050,7 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( QChar ch ) const
 {
-    if ( ch.combiningClass() > 0 )
+    if ( ch.category() == QChar::Mark_NonSpacing )
 	return 0;
 
     if ( qt_winver & Qt::WV_NT_based && painter )
@@ -1104,7 +1104,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = str[pos];
-    if ( ch.combiningClass() > 0 )
+    if ( ch.category() == QChar::Mark_NonSpacing )
 	return 0;
     ch = QComplexText::shapedCharacter( str, pos );
     if ( !ch.unicode() )

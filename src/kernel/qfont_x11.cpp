@@ -53,6 +53,7 @@
 #include "qtextcodec.h"
 #include "qcleanuphandler.h"
 #include "../codecs/qfontcodecs_p.h"
+#include "../tools/qunicodetables_p.h"
 
 #ifndef QT_NO_XFTFREETYPE
 # include "qintdict.h"
@@ -876,8 +877,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 #endif // QT_NO_XFTFREETYPE
 
     for (i = 0; i < len; i++) {
-	// combiningClass is always 0 for unicode < 0x400
-	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
+	// no marks at unicode < 0x400
+	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
@@ -962,8 +963,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 #endif // QT_NO_XFTFREETYPE
 
     for (i = 0; i < len; i++) {
-	// combiningClass is always 0 for unicode < 0x400
-	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
+	// no marks at unicode < 0x400
+	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current ||
@@ -1176,8 +1177,9 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
     float scale = 1;
     for (i = 0; i < len; i++) {
-	// combiningClass is always 0 for unicode < 0x400
-	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
+	// no marks at unicode < 0x400
+	if (chars->unicode() < 0x400 || category( *chars ) != QChar::Mark_NonSpacing || pos + i == 0) {
+	    tmp = scriptForChar(*chars);
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
@@ -3477,7 +3479,7 @@ int QFontMetrics::width(QChar ch) const
 	w = d->x11data.widthCache[ch.unicode()];
 
     if ( !w ) {
-	if ( ch.combiningClass() > 0 )
+	if ( category( ch ) == QChar::Mark_NonSpacing )
 	    return 0;
 
 #ifndef QT_NO_XFTFREETYPE
@@ -3541,7 +3543,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	w = d->x11data.widthCache[ch.unicode()];
 
     if ( !w ) {
-	if ( ch.combiningClass() > 0 )
+	if ( category( ch ) == QChar::Mark_NonSpacing )
 	    return 0;
 
 #ifndef QT_NO_XFTFREETYPE
