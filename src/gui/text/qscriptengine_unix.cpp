@@ -1148,6 +1148,7 @@ static inline void splitMatra(unsigned short *reordered, int matra, int &len, in
 
 static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
+    Q_UNUSED(openType)
     int script = item->script;
     Q_ASSERT(script >= QFont::Devanagari && script <= QFont::Sinhala);
     const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
@@ -1169,11 +1170,11 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
     if (invalid) {
-        *reordered = 0x25cc;
-        memcpy(reordered+1, item->string->unicode() + item->from, len*sizeof(QChar));
+        *reordered.data() = 0x25cc;
+        memcpy(reordered.data()+1, item->string->unicode() + item->from, len*sizeof(QChar));
         len++;
     } else {
-        memcpy(reordered, item->string->unicode() + item->from, len*sizeof(QChar));
+        memcpy(reordered.data(), item->string->unicode() + item->from, len*sizeof(QChar));
     }
     if (reordered[len-1] == 0x200c) // zero width non joiner
         len--;
@@ -1190,7 +1191,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 #endif
 
     if (len != 1) {
-        unsigned short *uc = reordered;
+        unsigned short *uc = reordered.data();
         bool beginsWithRa = false;
 
         // Rule 1: find base consonant
@@ -1228,7 +1229,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
             // * the matras position for rule 3 and 4
 
             // figure out possible base glyphs
-            memset(position, 0, len);
+            memset(position.data(), 0, len);
             if (script == QFont::Devanagari || script == QFont::Gujarati) {
                 bool vattu = false;
                 for (i = base; i < len; ++i) {
@@ -1446,7 +1447,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         }
 
     }
-    if (!item->font->stringToCMap((const QChar *)(unsigned short *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+    if (!item->font->stringToCMap((const QChar *)reordered.data(), len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
     if (reph > 0) {
@@ -1870,6 +1871,7 @@ static inline TibetanForm tibetan_form(const QChar &c)
 
 static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
+    Q_UNUSED(openType)
     int len = item->length;
 
     if (item->num_glyphs < item->length + 4) {
@@ -1882,10 +1884,10 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
 
     const QChar *str = item->string->unicode() + item->from;
     if (invalid) {
-        *reordered = 0x25cc;
-        memcpy(reordered+1, str, len*sizeof(QChar));
+        *reordered.data() = 0x25cc;
+        memcpy(reordered.data()+1, str, len*sizeof(QChar));
         len++;
-        str = (QChar *)(unsigned short *)reordered;
+        str = (QChar *)reordered.data();
     }
 
     if (!item->font->stringToCMap(str, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
@@ -2245,6 +2247,7 @@ finish:
 
 static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool invalid)
 {
+    Q_UNUSED(openType)
     enum {
         Coeng = 0x17d2,
         VowelSignE = 0x17c1
@@ -2591,6 +2594,7 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
 
 static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
 {
+    Q_UNUSED(openType)
     const QChar *ch = item->string->unicode() + item->from;
 
     int i;

@@ -676,7 +676,7 @@ static void cleanup_texture_cache()
     int i = 0;
     for(it = tx_cache.constBegin(); it != tx_cache.constEnd(); ++it)
         textures[i++] = *it;
-    glDeleteTextures(tx_cache.size(), textures);
+    glDeleteTextures(tx_cache.size(), textures.data());
     tx_cache.clear();
 }
 

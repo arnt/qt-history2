@@ -304,7 +304,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
                 chars[i] = (str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode());
         }
         QVarLengthArray<glyph_t> g(len);
-        _codec->fromUnicode(chars, g, len);
+        _codec->fromUnicode(chars, g.data(), len);
         for (int i = 0; i < len; i++)
             glyphs[i].glyph = g[i];
     } else {
@@ -416,7 +416,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
             int xp = (x+glyphs[i].offset.x).toInt();
             int yp = (y+glyphs[i].offset.y).toInt();
             if (xp < SHRT_MAX && xp > SHRT_MIN)
-                XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1);
+                XDrawString16(dpy, hd, gc, xp, yp, chars.data()+i, 1);
 
             if (glyphs[i].nKashidas) {
                 QChar ch(0x640); // Kashida character
@@ -430,7 +430,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
                     int xp = (x+g[0].offset.x).toInt();
                     int yp = (y+g[0].offset.y).toInt();
                     if (xp < SHRT_MAX && xp > SHRT_MIN)
-                        XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1);
+                        XDrawString16(dpy, hd, gc, xp, yp, chars.data()+i, 1);
                 }
             } else {
                 x -= Q26Dot6(glyphs[i].space_18d6, F26Dot6);
@@ -443,7 +443,7 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
             int xp = (x+glyphs[i].offset.x).toInt();
             int yp = (y+glyphs[i].offset.y).toInt();
             if (xp < SHRT_MAX && xp > SHRT_MIN)
-                XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1);
+                XDrawString16(dpy, hd, gc, xp, yp, chars.data()+i, 1);
             x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
             y += glyphs[i].advance.y;
             i++;
@@ -635,9 +635,9 @@ bool QFontEngineXLFD::canRender(const QChar *string, int len)
 {
     QVarLengthArray<QGlyphLayout, 256> glyphs(len);
     int nglyphs = len;
-    if (stringToCMap(string, len, glyphs, &nglyphs, 0) == false) {
+    if (stringToCMap(string, len, glyphs.data(), &nglyphs, 0) == false) {
         glyphs.resize(nglyphs);
-        stringToCMap(string, len, glyphs, &nglyphs, 0);
+        stringToCMap(string, len, glyphs.data(), &nglyphs, 0);
     }
 
     bool allExist = true;

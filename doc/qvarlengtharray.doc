@@ -185,17 +185,6 @@
     \overload
 */
 
-/*! \fn QVarLengthArray::operator T *()
-
-    Same as data().
-*/
-
-/*! \fn QVarLengthArray::operator const T *() const
-
-    \overload
-
-    Same as constData().
-*/
 
 /*!
     \fn void QVarLengthArray::append(const T &t)

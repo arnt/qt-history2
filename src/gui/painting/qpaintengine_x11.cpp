@@ -690,7 +690,7 @@ void QX11PaintEngine::drawRects(const QList<QRect> &rects)
     }
 
     if (d->cbrush.style() != NoBrush && d->cpen.style() == NoPen) {
-	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects, rects.size());
+	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rects.size());
 	return;
     }
     if (d->cpen.style() != NoPen && d->cbrush.style() == NoBrush) {
@@ -698,7 +698,7 @@ void QX11PaintEngine::drawRects(const QList<QRect> &rects)
 	    xrects[i].width -= 1;
 	    xrects[i].height -= 1;
 	}
-        XDrawRectangles(d->dpy, d->hd, d->gc, xrects, rects.size());
+        XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rects.size());
     }
 }
 

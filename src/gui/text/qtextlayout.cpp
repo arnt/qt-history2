@@ -615,7 +615,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
     QVarLengthArray<uchar> levels(nItems);
     for (int i = 0; i < nItems; ++i)
         levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
-    QTextEngine::bidiReorder(nItems, levels, visualOrder);
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
@@ -791,7 +791,7 @@ int QTextLine::cursorToX(int *cPos, Edge edge) const
     QVarLengthArray<uchar> levels(nItems);
     for (int i = 0; i < nItems; ++i)
         levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
-    QTextEngine::bidiReorder(nItems, levels, visualOrder);
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
@@ -854,7 +854,7 @@ int QTextLine::xToCursor(int xpos, CursorPosition cpos) const
     QVarLengthArray<unsigned char> levels(nItems);
     for (int i = 0; i < nItems; ++i)
         levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
-    QTextEngine::bidiReorder(nItems, levels, visualOrder);
+    QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     int gl_before = 0;
     int gl_after = 0;

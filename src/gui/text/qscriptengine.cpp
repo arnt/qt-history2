@@ -1145,7 +1145,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     }
 
     QVarLengthArray<ArabicProperties> properties(len);
-    getArabicProperties((const unsigned short *)(uc->unicode()+from), len, properties);
+    getArabicProperties((const unsigned short *)(uc->unicode()+from), len, properties.data());
 
     const QChar *ch = uc->unicode() + from;
     QChar *data = shapeBuffer;
@@ -1360,11 +1360,11 @@ static bool arabic_shape(QShaperItem *item)
     QVarLengthArray<ushort> shapedChars(item->length);
 
     int slen;
-    shapedString(item->string, item->from, item->length, (QChar *)(unsigned short*)shapedChars, &slen,
+    shapedString(item->string, item->from, item->length, (QChar *)shapedChars.data(), &slen,
                   item->flags & QTextEngine::RightToLeft,
                   item->glyphs, item->log_clusters);
 
-    if (!item->font->stringToCMap((QChar *)(unsigned short*)shapedChars, slen, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+    if (!item->font->stringToCMap((QChar *)shapedChars.data(), slen, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
     for (int i = 0; i < slen; ++i)
