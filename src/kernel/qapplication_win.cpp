@@ -3161,6 +3161,7 @@ bool QETWidget::translatePaintEvent( const MSG & )
     if ( !GetUpdateRect( winId(), 0, FALSE )  // The update bounding rect is invalid
 	 || (res == ERROR)
 	 || (res == NULLREGION) ) {
+	ValidateRect( winId(), 0 );
 	DeleteObject( possible_region );
 	hdc = 0;
 	return FALSE;
