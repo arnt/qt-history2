@@ -134,19 +134,18 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 
 void QGenericTableView::scrollContentsBy(int dx, int dy)
 {
-    int hscroll = 0;
-    int vscroll = 0;
     if (dx) { // horizontal
         int value = horizontalScrollBar()->value();
         int section = d->topHeader->section(value / horizontalFactor());
         int left = (value % horizontalFactor()) * d->topHeader->sectionSize(section);
         int offset = (left / horizontalFactor()) + d->topHeader->sectionPosition(section);
         if (QApplication::reverseLayout()) {
-            int delta = d->viewport->width() + d->topHeader->sectionSize(section) + d->viewport->x() - 2;
-            hscroll = offset + d->topHeader->offset();
+            int delta = d->viewport->width() + d->topHeader->sectionSize(section)
+                        + d->viewport->x() - 2;
+            dx = offset + d->topHeader->offset();
             d->topHeader->setOffset(offset - delta);
         } else {
-            hscroll = d->topHeader->offset() - offset;
+            dx = d->topHeader->offset() - offset;
             d->topHeader->setOffset(offset);
         }
     }
@@ -155,11 +154,10 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         int section = d->leftHeader->section(value / verticalFactor());
         int above = (value % verticalFactor()) * d->leftHeader->sectionSize(section);
         int offset = (above / verticalFactor()) + d->leftHeader->sectionPosition(section);
-        vscroll = d->leftHeader->offset() - offset;
+        dy = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);
     }
-    d->viewport->scroll(hscroll, vscroll);
-    //d->viewport->update();
+    d->viewport->scroll(dx, dy);
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const

@@ -584,7 +584,7 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
 void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 {
     if (!index.isValid())
-        return ;
+        return;
 
     setState(NoState);
 
@@ -803,7 +803,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 {
     QRect deselectedRect = selectionViewportRect(deselected);
     QRect selectedRect = selectionViewportRect(selected);
-    d->viewport->update(deselectedRect.unite(selectedRect));
+    d->viewport->repaint(deselectedRect.unite(selectedRect));
 }
 
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
