@@ -2226,12 +2226,14 @@ void QLineEdit::delOrBackspace( bool backspace )
 	removeSelectedText();
     } else {
 	int newPos = d->cursor->index();
+	QString newText;
+
 	if ( backspace )
 	    newPos--;
 	if ( newPos >= 0 ) {
 	    bool ok = TRUE;
 	    if ( d->validator ) {
-		QString newText = text();
+		newText = text();
 		newText.remove( newPos, 1 );
 		ok = ( d->validator->validate(newText, newPos) != QValidator::Invalid );
 	    }
@@ -2251,6 +2253,11 @@ void QLineEdit::delOrBackspace( bool backspace )
 		}
 		d->cursor->remove();
 
+		if ( d->validator ) {
+		    if ( newText != text() )
+			setText( newText );
+		    d->cursor->setIndex( newPos );
+		}
 		d->selectionStart = d->cursor->index();
 		d->ed = TRUE;
 		update();
