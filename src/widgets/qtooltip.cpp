@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#93 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -106,10 +106,10 @@ private:
     QTimer  fallAsleep;
     QTimer  leaveWindow;
 
-    QPtrDict<Tip>    *tips;
-    QLabel	     *label;
-    QPoint	      pos;
-    QWidget	     *widget;
+    QPtrDict<Tip> *tips;
+    QLabel *label;
+    QPoint pos;
+    QWidget *widget;
     Tip *currentTip;
     Tip *previousTip;
     bool isApplicationFilter;
@@ -188,10 +188,7 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
 {
     QTipManager::Tip *h = (*tips)[ w ];
     QTipManager::Tip *t = new QTipManager::Tip;
-    if ( h )
-	tips->take( w );
     t->next = h;
-
     t->tip = tt;
     t->autoDelete = a;
     t->text = s;
@@ -199,16 +196,16 @@ void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
     t->groupText = gs;
     t->group = g;
 
-    tips->insert( w, t );
-    connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
-    if ( a ) {
-	if ( t->rect.contains( pos ) )
-	    showTip();
+    if ( h )
 	tips->take( w );
-	if( t->next )
-	    tips->insert( w, t->next );
-	t->next = 0;
-    }
+    else
+	connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
+
+    tips->insert( w, t );
+
+    if ( a && t->rect.contains( pos ) )
+	showTip();
+
     if ( !isApplicationFilter && qApp ) {
 	isApplicationFilter = TRUE;
 	qApp->installEventFilter( tipManager );
@@ -225,6 +222,9 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 
     if ( t == currentTip )
 	hideTip();
+
+    if ( t == previousTip )
+	previousTip = 0;
 
     if ( t->rect == r ) {
 	tips->take( w );
@@ -331,7 +331,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	leaveWindow.stop();
 	return FALSE;
     }
-	
+
     QTipManager::Tip *t = 0;
     while( w && !t ) {
 	t = (*tips)[ w ];
@@ -481,13 +481,10 @@ void QTipManager::hideTip()
 	    emit currentTip->group->removeTip();
     }
 
-
-    if ( currentTip && currentTip->autoDelete )
-	delete currentTip;
-    else
-	previousTip = currentTip;
-
+    previousTip = currentTip;
     currentTip = 0;
+    if ( previousTip && previousTip->autoDelete )
+	remove( widget, previousTip->rect );
     widget = 0;
 }
 
@@ -698,7 +695,8 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
 void QToolTip::add( QWidget *widget, const QString &text )
 {
     initTipManager();
-    tipManager->add( widget, entireWidget(), text, 0, QString::null, 0, FALSE );
+    tipManager->add( widget, entireWidget(),
+		     text, 0, QString::null, 0, FALSE );
 }
 
 
@@ -985,7 +983,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.87 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.88 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
