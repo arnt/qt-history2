@@ -2522,3 +2522,11 @@ void QWidget::resetInputContext()
 void QWidget::macWidgetChangedWindow()
 {
 }
+
+void QWidget::setMouseTracking( bool enable )
+{
+    if ( enable )
+	setWState( WState_MouseTracking );
+    else
+	clearWState( WState_MouseTracking );
+}

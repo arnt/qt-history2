@@ -73,6 +73,7 @@ extern QClipboard *qt_clipboard;
 
 #if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 extern Qt::WindowsVersion qt_winver;
+const int QT_TABLET_NPACKETQSIZE = 128;
 #elif defined (Q_OS_MAC)
 extern Qt::MacintoshVersion qt_macver;
 #endif

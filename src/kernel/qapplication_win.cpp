@@ -87,23 +87,17 @@ typedef BOOL	( API *PtrWTGet )(HCTX, LPLOGCONTEXT);
 typedef int     ( API *PtrWTQueueSizeGet )(HCTX);
 typedef BOOL    ( API *PtrWTQueueSizeSet )(HCTX, int);
 
-static PtrWTOpen	 ptrWTOpen = 0;
-static PtrWTClose	 ptrWTClose = 0;
 static PtrWTInfo	 ptrWTInfo = 0;
 static PtrWTEnable	 ptrWTEnable = 0;
 static PtrWTOverlap	 ptrWTOverlap = 0;
 static PtrWTPacketsGet	 ptrWTPacketsGet = 0;
 static PtrWTGet		 ptrWTGet = 0;
-static PtrWTQueueSizeGet ptrWTQueueSizeGet = 0;
-static PtrWTQueueSizeSet ptrWTQueueSizeSet = 0;
 
-static const int NPACKETQSIZE = 128;	// minimum size of queue.
 static const double PI = 3.14159265359;
 
-static PACKET localPacketBuf[ NPACKETQSIZE ];  // our own tablet packet queue.
-static LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
-static HCTX hTab;  // the hardware context for the tablet ( like a window handle )
-static bool tilt_support;
+static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
+HCTX qt_tablet_context;  // the hardware context for the tablet ( like a window handle )
+bool qt_tablet_tilt_support;
 static void prsInit(HCTX hTab);
 static UINT prsAdjust(PACKET p, HCTX hTab);
 static void initWinTabFunctions();	// resolve the WINTAB api functions
@@ -386,7 +380,7 @@ public:
     bool	translatePaintEvent( const MSG &msg );
     bool	translateConfigEvent( const MSG &msg );
     bool	translateCloseEvent( const MSG &msg );
-#if defined (QT_TABLET_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 	bool	translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 		                          int numPackets );
 #endif
@@ -824,69 +818,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     } , {
 	WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
     } );
-
-    // the WinTab API
 #if defined(QT_TABLET_SUPPORT)
-
-#define FIX_DOUBLE(x) ( double(INT(x)) + double(FRAC(x) / 0x10000 ) )
-    // get the WinTab Functions
     initWinTabFunctions();
-    int max_pressure;
-    struct tagAXIS tpOri[3];
-    struct tagAXIS pressureAxis;
-    double tpvar,
- 	   aziFactor = 1,
- 	   altFactor = 1,
- 	   altAdjust = 1;
-
-    if ( ptrWTInfo ) {
-	// make sure we have WinTab
-	if ( !ptrWTInfo( 0, 0, NULL ) ) {
-#if defined(QT_CHECK_STATE)
-	    qWarning( "Wintab services not available" );
 #endif
-	    return;
-	}
-
-	// some tablets don't support tilt, check if its possible,
-	tilt_support = ptrWTInfo( WTI_DEVICES, DVC_ORIENTATION, &tpOri );
-
-	if ( tilt_support ) {
-	    // check for azimuth and altitude
-	    if ( tpOri[0].axResolution && tpOri[1].axResolution ) {
-		tpvar = FIX_DOUBLE( tpOri[0].axResolution );
-		aziFactor = tpvar/(2 * PI);
-		tpvar = FIX_DOUBLE( tpOri[1].axResolution);
-		altFactor = tpvar / 1000;
-		altAdjust = double(tpOri[1].axMax) / altFactor;
- 	    } else {
-		tilt_support = FALSE;
- 	    }
-	}
-	max_pressure = ptrWTInfo( WTI_DEVICES, DVC_NPRESSURE, &pressureAxis );
-	if ( max_pressure ) {
-	    //get the maximum pressure then
-	    max_pressure = pressureAxis.axMax;
-	} else {
-	    max_pressure = 0;
-	}
-	// build our context from the default context
-	ptrWTInfo( WTI_DEFSYSCTX, 0, &lcMine );
-	lcMine.lcOptions |= CXO_MESSAGES | CXO_CSRMESSAGES;
-	lcMine.lcPktData = PACKETDATA;
-	lcMine.lcPktMode = PACKETMODE;
-	lcMine.lcMoveMask = PACKETDATA;
-
-	lcMine.lcOutOrgX = 0;
-	lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
-	lcMine.lcOutOrgY = 0;
-	// the tablet deals with coordinates as most humans do, make it follow
-	// the standard screen idea of coordinates...
-	lcMine.lcOutExtY = -GetSystemMetrics( SM_CYSCREEN );
-    }
-#undef FIX_DOUBLE
-#endif
-
     QInputContext::init();
 }
 
@@ -916,11 +850,6 @@ void qt_cleanup()
 #ifndef Q_OS_TEMP
   // Deinitialize OLE/COM
     OleUninitialize();
-#endif
-
-#if defined(QT_TABLET_SUPPORT)
-    if ( ptrWTClose )
-	ptrWTClose( hTab );
 #endif
 }
 
@@ -1157,30 +1086,7 @@ static void unregWinClasses()
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    main_widget = mainWidget;			// set main widget
-#if defined (QT_TABLET_SUPPORT )
-    if ( ptrWTOpen && main_widget ) {
-	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
-#if defined (QT_CHECK_STATE)
-	if ( hTab == NULL )
-	    qWarning( "Failed to open the tablet" );
-#endif
-	// Set the size of the Packet Queue to the correct size...
-	if ( ptrWTQueueSizeGet && ptrWTQueueSizeSet ) {
-	    int currSize = ptrWTQueueSizeGet( hTab );
-	    if ( !ptrWTQueueSizeSet(hTab, NPACKETQSIZE) ) {
-		// Ideally one might want to make use a smaller
-		// multiple, but for now, since we managed to destroy
-		// the existing Q with the previous call, set it back
-		// to the other size, which should work.  If not,
-		// we had best die.
-		if ( !ptrWTQueueSizeSet(hTab, currSize) )
-		    qWarning( "There is no packet queue for the tablet.\n"
-			      "The tablet will not work" );
-	    }
-	}
-    }
-#endif
+    main_widget = mainWidget;
 }
 
 Qt::WindowsVersion QApplication::winVersion()
@@ -1498,10 +1404,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget = 0;
 
-#if defined (QT_TABLET_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 	// there is no need to process pakcets from tablet unless
 	// it is actually on the tablet, a flag to let us know...
-//	bool processPackets = FALSE;
 	int nPackets;	// the number of packets we get from the queue
 #endif
 
@@ -1954,13 +1859,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ACTIVATE:
-#if defined (QT_TABLET_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 	    if ( ptrWTOverlap && ptrWTEnable ) {
 		// cooperate with other tablet applications, but when
 		// we get focus, I want to use the tablet...
-		if (hTab && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
-		    if ( ptrWTEnable(hTab, TRUE) )
-			ptrWTOverlap(hTab, TRUE);
+		if (qt_tablet_context && GET_WM_ACTIVATE_STATE(wParam, lParam)) {
+		    if ( ptrWTEnable(qt_tablet_context, TRUE) )
+			ptrWTOverlap(qt_tablet_context, TRUE);
 		}
 	    }
 #endif
@@ -2130,11 +2035,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    result = FALSE;
 	    break;
 #endif
-#if defined (QT_TABLET_SUPPORT)
+#if defined(QT_TABLET_SUPPORT)
 	case WT_PACKET:
 	    // Get the packets and also don't link against the actual library...
 	    if ( ptrWTPacketsGet ) {
-		if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+		if ( (nPackets = ptrWTPacketsGet( qt_tablet_context, QT_TABLET_NPACKETQSIZE, &localPacketBuf)) ) {
 		    result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
 		}
 	    }
@@ -2142,7 +2047,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WT_PROXIMITY:
 	    // flush the QUEUE
 	    if ( ptrWTPacketsGet )
-		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+		ptrWTPacketsGet( qt_tablet_context, QT_TABLET_NPACKETQSIZE + 1, NULL);
 	    if ( chokeMouse )
 		chokeMouse = FALSE;
 	    break;
@@ -3394,7 +3299,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	ptNew.y = (UINT)localPacketBuf[i].pkY;
 	prsNew = 0;
 	if ( btnNew ) {
-	    prsNew = prsAdjust( localPacketBuf[i], hTab );
+	    prsNew = prsAdjust( localPacketBuf[i], qt_tablet_context );
 	} else if ( button_pressed ) {
 	    // One button press, should only give one button release
 	    t = QEvent::TabletRelease;
@@ -3407,7 +3312,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	if ( w == NULL )
 	    w = this;
 	QPoint localPos = w->mapFromGlobal( globalPos );
-	if ( !tilt_support )
+	if ( !qt_tablet_tilt_support )
 	    tiltX = tiltY = 0;
 	else {
 	    ort = localPacketBuf[i].pkOrientation;
@@ -3438,6 +3343,26 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
     return sendEvent;
+}
+
+extern bool qt_is_gui_used;
+static void initWinTabFunctions()
+{
+    if ( !qt_is_gui_used )
+	return;
+    QLibrary library( "wintab32" );
+    library.setAutoUnload( FALSE );
+    QT_WA( {
+	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
+	ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
+    } , {
+	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
+	ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
+    } );
+
+    ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
+    ptrWTOverlap = (PtrWTEnable)library.resolve( "WTOverlap" );
+    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
 }
 #endif
 
@@ -3803,33 +3728,6 @@ void QSessionManager::cancel()
 {
     sm_cancel = TRUE;
 }
-
-#if defined (QT_TABLET_SUPPORT)
-extern bool qt_is_gui_used;
-static void initWinTabFunctions()
-{
-    if ( !qt_is_gui_used )
-	return;
-    QLibrary library( "wintab32" );
-    library.setAutoUnload( FALSE );
-    QT_WA( {
-	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );
-	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoW" );
-	ptrWTGet = (PtrWTGet)library.resolve( "WTGetW" );
-    } , {
-	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenA" );
-	ptrWTInfo = (PtrWTInfo)library.resolve( "WTInfoA" );
-	ptrWTGet = (PtrWTGet)library.resolve( "WTGetA" );
-    } );
-
-    ptrWTClose = (PtrWTClose)library.resolve( "WTClose" );
-    ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
-    ptrWTOverlap = (PtrWTEnable)library.resolve( "WTOverlap" );
-    ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
-    ptrWTQueueSizeGet = (PtrWTQueueSizeGet)library.resolve( "WTQueueSizeGet" );
-    ptrWTQueueSizeSet = (PtrWTQueueSizeSet)library.resolve( "WTQueueSizeSet" );
-}
-#endif
 /*!
     \enum Qt::WindowsVersion
 

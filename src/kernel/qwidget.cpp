@@ -2923,16 +2923,7 @@ QString QWidget::iconText() const
 
     \sa mouseMoveEvent(), QApplication::setGlobalMouseTracking()
 */
-#if !defined(Q_WS_X11)
-void QWidget::setMouseTracking( bool enable )
-{
-    if ( enable )
-	setWState( WState_MouseTracking );
-    else
-	clearWState( WState_MouseTracking );
-    return;
-}
-#endif // Q_WS_X11
+
 
 /*!
     Sets the widget's focus proxy to widget \a w. If \a w is 0, the

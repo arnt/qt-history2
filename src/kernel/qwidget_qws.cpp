@@ -1804,3 +1804,10 @@ void QWidget::updateCursor( const QRegion &r ) const
 }
 #endif
 
+void QWidget::setMouseTracking( bool enable )
+{
+    if ( enable )
+	setWState( WState_MouseTracking );
+    else
+	clearWState( WState_MouseTracking );
+}
