@@ -113,6 +113,9 @@ public:
     bool isRowSelected(int row, const QModelIndex &parent) const;
     bool isColumnSelected(int column, const QModelIndex &parent) const;
 
+    bool rowIntersectsSelection(int row, const QModelIndex &parent) const;
+    bool columnIntersectsSelection(int column, const QModelIndex &parent) const;
+
     QAbstractItemModel *model() const;
     QModelIndexList selectedIndexes() const;
     const QItemSelection selection() const;

@@ -672,7 +672,7 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
   Returns true if all items are selected in the \a row with the given
   \a parent.
 
-  Note that this function is usually faster then calling isSelected() on
+  Note that this function is usually faster than calling isSelected() on
   all items in the same row.
 */
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
@@ -721,14 +721,14 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
   Returns true if all items are selected in the \a column with the given
   \a parent.
 
-  Note that this function is usually faster then calling isSelected() on
+  Note that this function is usually faster than calling isSelected() on
   all items in the same column.
 */
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
     // return false if column exist in currentSelection (Deselect)
     if (d->currentCommand & Deselect && d->currentSelection.count()) {
-        for (int i=0; i<d->currentSelection.count(); ++i) {
+        for (int i = 0; i < d->currentSelection.count(); ++i) {
             if (d->currentSelection.at(i).parent() == parent &&
                 column >= d->currentSelection.at(i).left() &&
                 column <= d->currentSelection.at(i).right())
@@ -738,10 +738,10 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     // return false if ranges in both currentSelection and the selection model
     // intersect and have the same column contained
     if (d->currentCommand & Toggle && d->currentSelection.count()) {
-        for (int i=0; i<d->currentSelection.count(); ++i) {
+        for (int i = 0; i < d->currentSelection.count(); ++i) {
             if (d->currentSelection.at(i).left() <= column &&
                 d->currentSelection.at(i).right() >= column) {
-                for (int j=0; j<d->ranges.count(); ++j) {
+                for (int j = 0; j < d->ranges.count(); ++j) {
                     if (d->ranges.at(j).left() <= column && d->ranges.at(j).right() >= column
                         && d->currentSelection.at(i).intersect(d->ranges.at(j)).isValid()) {
                         return false;
@@ -769,6 +769,44 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
              return false;
     }
     return rowCount > 0; // no rows means no selected items
+}
+
+/*!
+  Returns true if there are any  items selected in the \a row with the given
+  \a parent.
+*/
+bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &parent) const
+{
+    // check current selection
+    for (int i = 0; i < d->currentSelection.count(); ++i)
+        if (d->currentSelection.at(i).top() <= row
+            && d->currentSelection.at(i).bottom() >= row)
+            return true;
+    // check the ranges
+    for (int i = 0; i < d->ranges.count(); ++i)
+        if (d->ranges.at(i).top() <= row
+            && d->ranges.at(i).bottom() >= row)
+            return true;
+    return false;
+}
+
+/*!
+  Returns true if there are any  items selected in the \a column with the given
+  \a parent.
+*/
+bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelIndex &parent) const
+{
+    // check current selection
+    for (int i = 0; i < d->currentSelection.count(); ++i)
+        if (d->currentSelection.at(i).left() <= column
+            && d->currentSelection.at(i).right() >= column)
+            return true;
+    // check the ranges
+    for (int i = 0; i < d->ranges.count(); ++i)
+        if (d->ranges.at(i).left() <= column
+            && d->ranges.at(i).right() >= column)
+            return true;
+    return false;
 }
 
 /*!

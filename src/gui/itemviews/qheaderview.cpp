@@ -526,6 +526,7 @@ bool QHeaderView::isSectionHidden(int logicalIndex) const
 
 void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
 {
+    // FIXME: if the size of the table changes, the hidden sections are forgotten
     if (hide) {
         resizeSection(logicalIndex, 0);
         d->sections[visualIndex(logicalIndex)].hidden = true;
@@ -1056,10 +1057,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = sections.at(i).logical;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionPosition(logical) - offset, 0, sectionSize(logical), height);
-            highlight = (focus && i == current.column());
+            highlight = (focus && d->selectionModel->columnIntersectsSelection(i, root()));
         } else {
             rect.setRect(0, sectionPosition(logical) - offset, width, sectionSize(logical));
-            highlight = (focus && i == current.row());
+            highlight = (focus && d->selectionModel->rowIntersectsSelection(i, root()));
         }
         if (highlight) {
             QFont bf(fnt);
