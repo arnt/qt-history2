@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: dnd.doc,v 1.2 1999/04/28 09:53:49 aavit Exp $
+** $Id: dnd.doc,v 1.3 1999/05/26 11:54:07 warwick Exp $
 **
 ** Drag and drop documentation
 **
@@ -22,6 +22,14 @@
 *****************************************************************************/
 
 /*! \page dnd.html
+
+<title>
+Qt toolkit - Drag and Drop
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Drag and Drop with Qt</h1><br clear="all">
 
   Drag-and-drop is a direct-manipulation model for allowing the user to
   transfer information between and within applications. It is similar
