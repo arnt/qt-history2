@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#175 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#176 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -79,9 +79,9 @@ static QTimer * singleSingleShot = 0;
 static void popupSubMenuLater( int msec, QObject * receiver ) {
     if ( !singleSingleShot )
 	singleSingleShot = new QTimer( qApp, "popup submenu timer" );
-    singleSingleShot->disconnect( receiver );
-    singleSingleShot->connect( singleSingleShot, SIGNAL(timeout()),
-			       receiver, SLOT(subMenuTimer()) );
+    singleSingleShot->disconnect( SIGNAL(timeout()) );
+    QObject::connect( singleSingleShot, SIGNAL(timeout()),
+		      receiver, SLOT(subMenuTimer()) );
     singleSingleShot->start( msec, TRUE );
 }
 
