@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#143 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -675,6 +675,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	QTextDrag * tdo = new QTextDrag( this );
 	tdo->setText( markedText() );
 	tdo->dragCopy();
+	delete tdo;
 	return;
     }
 
@@ -1364,7 +1365,6 @@ void QLineEdit::insert( const char * newText )
     if ( t.isEmpty() )
 	return;
 
-    t.detach();
     uchar *p = (uchar *) t.data();
     while ( *p ) {		// unprintable/nl becomes space
 	if ( *p < 32 )
