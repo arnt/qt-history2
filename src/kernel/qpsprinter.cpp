@@ -61,7 +61,7 @@
 #include "qpainter.h"
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
-#include "qimage.h"o
+#include "qimage.h"
 #include "qdatetime.h"
 #include "qstring.h"
 #include "qdict.h"
