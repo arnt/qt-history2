@@ -77,6 +77,7 @@ QSqlDriverFactoryInterface, which is an interface that is capable of
 producing QSqlDriver objects (see QSqlDriverFactory::create()).  There
 are several macros available to assist in creating such a plugin.  See
 the source from the examples provided with Qt in 
-\c{QTDIR/src/sql/src} for more information.
+\c{QTDIR/plugins/src/sqldrivers} and \c{QTDIR/src/sql/drivers}
+ for more information.
 
 */
