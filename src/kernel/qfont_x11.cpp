@@ -848,6 +848,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		    qfs = 0;
 
 		w += (int) (tmpw*scale);
+		tmpw = 0;
 		current = tmp;
 		scale =  (qfs != (QFontStruct *)-1) ? qfs->scale : 1.;
 	    }
@@ -876,7 +877,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 			// character isn't in the font, set the script to UnknownScript
 			tmp = current = QFont::UnknownScript;
 			w += (int) (tmpw*scale);
-			tmpw = actual.pixelSize * 3 / 4;
+			width = actual.pixelSize * 3 / 4;
 			scale = 1.;
 		    } else if (xcs)
 			width = xcs->width;
@@ -891,7 +892,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     }
 
     w += (int) (tmpw*scale);
-    return (int)w;
+    return w;
 }
 
 
