@@ -86,6 +86,13 @@ bool QTipLabel::eventFilter(QObject *, QEvent *e)
     case QEvent::Leave:
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
         hideTip();
     default:
         ;
