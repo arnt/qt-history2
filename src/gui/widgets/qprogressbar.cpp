@@ -78,18 +78,20 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
     progress of an operation and to reassure them that the application
     is still running.
 
-    The progress bar uses the concept of \e steps; you give it the
-    total number of steps and the number of steps completed so far and
-    it will display the percentage of steps that have been completed.
-    You can specify the total number of steps in the constructor or
-    later with setTotalSteps(). The current number of steps is set
-    with setProgress(). The progress bar can be rewound to the
+    The progress bar uses the concept of \e steps. You set it up by
+    specifying the minumum and maximum possible step values, and it
+    will display the percentage of steps that have been completed
+    when you later give it the current step value.
+
+    You can specify the minimum and maximum number of steps with
+    setMinimum() and setMaximum. The current number of steps is set
+    with setValue(). The progress bar can be rewound to the
     beginning with reset().
 
-    If the total is given as 0 the progress bar shows a busy indicator
-    instead of a percentage of steps. This is useful, for example,
-    when using QFtp or QHttp to download items when they are unable to
-    determine the size of the item being downloaded.
+    If minimum and maximum both are set to 0, the bar shows a busy indicator
+    instead of a percentage of steps. This is useful, for example, when using
+    QFtp or QHttp to download items when they are unable to determine the
+    size of the item being downloaded.
 
     \sa QProgressDialog
 
@@ -104,10 +106,10 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
 /*!
     Constructs a progress bar.
 
-    The total number of steps is set to 100 by default.
+    By default, the minimum step value is set to 0, and the
+    maximum to 100.
 
-    The \a parent, and widget flags, \a f, are passed on to
-    the QFrame::QFrame() constructor.
+    The \a parent, ais passed on to the QWidget::QWidget() constructor.
 
     \sa setTotalSteps()
 */
@@ -131,7 +133,15 @@ void QProgressBar::reset()
     repaint();
 }
 
+/*!
+    \property QProgressBarr::minimum
+    \brief the progressbars's minimum value
 
+    When setting this property, the \l maximum is adjusted if
+    necessary to ensure that the range remains valid. If the
+    current value falls outside the new range, the progressbar is reset
+    with reset().
+*/
 void QProgressBar::setMinimum(int minimum)
 {
     d->minimum = minimum;
@@ -141,6 +151,17 @@ int QProgressBar::minimum() const
 {
     return d->minimum;
 }
+
+
+/*!
+    \property QProgressBarr::maximum
+    \brief the progressbars's maximum value
+
+    When setting this property, the \l minimum is adjusted if
+    necessary to ensure that the range remains valid. If the
+    current value falls outside the new range, the progressbar is reset
+    with reset().
+*/
 
 void QProgressBar::setMaximum(int maximum)
 {
@@ -152,6 +173,13 @@ int QProgressBar::maximum() const
     return d->maximum;
 }
 
+/*!
+    \property QProgressBar::value
+    \brief the progressbar's current value
+
+    Attemting to change the current value to one outside
+    the minimum-maximum range has no effect the current value.
+*/
 void QProgressBar::setValue(int value)
 {
     if (d->value == value
@@ -166,17 +194,28 @@ void QProgressBar::setValue(int value)
     repaint();
 }
 
-void QProgressBar::setRange(int minimum, int maximum)
-{
-    setMinimum(minimum);
-    setMaximum(maximum);
-}
-
 int QProgressBar::value() const
 {
     return d->value;
 }
 
+/*!
+    Sets the progressbar's minimum to \a min and its maximum to \a max.
+
+    If \a max is smaller than \a min, \a min becomes the only legal
+    value.
+
+    \sa minimum maximum
+*/
+void QProgressBar::setRange(int minimum, int maximum)
+{
+    setMinimum(minimum);
+    setMaximum(maximum);
+}
+/*!
+    Sets wether the  the current completed percentage
+    shoud be displayed.
+*/
 void QProgressBar::setTextVisible(bool visible)
 {
     if (d->textVisible != visible) {
@@ -189,7 +228,11 @@ bool QProgressBar::isTextVisible() const
 {
     return d->textVisible;
 }
+/*!
+    Sets the allignment for the progressbar.
 
+    \sa Qt::allignment
+*/
 void QProgressBar::setAlignment(Qt::Alignment alignment)
 {
     if (d->alignment != alignment) {
@@ -254,17 +297,12 @@ QSize QProgressBar::minimumSizeHint() const
     This method is called to generate the text displayed in the center
     (or in some styles, to the left) of the progress bar.
 
-    The \a progress may be negative, indicating that the progress bar
-    is in the "reset" state before any progress is set.
+    The \a progress may be smaller than minimum, indicating that the
+    progress bar is in the "reset" state before any progress is set.
 
     The default implementation is the percentage of completion or
-    blank in the reset state. The percentage is calculated based on
-    the \a progress and \a totalSteps. You can set the \a indicator
-    text if you wish.
-
-    To allow efficient repainting of the progress bar, this method
-    should return false if the string is unchanged from the last call
-    to this function.
+    blank in the reset state. The percentage is calculated as
+    the \a progress divided by \a maximum() - \a munimum().
 */
 QString QProgressBar::text() const
 {
