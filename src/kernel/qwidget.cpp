@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#409 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#410 $
 **
 ** Implementation of QWidget class
 **
@@ -2878,7 +2878,7 @@ void QWidget::show()
   Hides the widget.
 
   The QApplication::lastWindowClosed() signal is emitted when the last
-  visible top level widget is hidden,
+  visible top level widget is hidden.
 
   You almost never have to reimplement this function. If you need to
   do something after a widget is hidden, use \link hideEvent()
