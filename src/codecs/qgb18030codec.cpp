@@ -431,6 +431,11 @@ const char* QGbkCodec::mimeName() const
 /*! \reimp */
 int QGbkCodec::heuristicNameMatch(const char* hint) const
 {
+    // these are needed so that the X11 fonts behave correctly.
+    if (qstricmp (hint, "gbk-0") == 0 ||
+	qstricmp (hint, "gb18030.2000-0") == 0)
+        return 13;
+    
     int score = 0;
     bool zh = FALSE;
     if (qstrnicmp(hint, "zh_CN", 5) == 0){

@@ -81,7 +81,7 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
-	uchar buf[4];
+	uchar buf[8];
 
 	int len = qt_UnicodeToGb18030( ch.unicode(), buf );
 

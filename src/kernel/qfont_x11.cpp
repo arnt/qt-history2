@@ -110,7 +110,7 @@ static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
 
 // we select on of these at initialization time for Han use
 static const char * const hancn_encodings[] =
-    { "gb18030.2000-1", "gb18030.2000-0", "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
+{ "gb18030-0", /*"gb18030.2000-1",*/ "gb18030.2000-0", "gbk-0", "gb2312.1980-0", "big5*-*", "jisx0208.1983-0", "ksc5601.1987-0", 0 };
 static const char * const hanjp_encodings[] =
     { "jisx0208.1983-0", "gb2312.1980-0", "big5*-*", "ksc5601.1987-0", 0 };
 static const char * const hankr_encodings[] =
