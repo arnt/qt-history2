@@ -8,6 +8,41 @@ sub prepare {
     $_;
 }
 
+sub tables {
+    local ($_) = @_;
+
+    my $r, $c, $i, $s;
+    $c = 0;
+    $c++ while( /<th>/gsi );
+    $r = ".nf\n.TS\nl";
+    foreach $i ( 2 .. $c ) {
+	$r .= " l";
+    }
+    $r .= "\n-";
+    foreach $i ( 2 .. $c ) {
+	$r .= " -";
+    }
+    $r .= "\nl";
+    foreach $i ( 2 .. $c ) {
+	$r .= " l";
+    }
+    $r .= ".";
+    $s = "\n";
+    while( /<t([hrd])\b[^>]*>\s*([^<]*?)\s*(?=<)/gsi ) {
+	if ( $1 eq "r" ) {
+	    $s = "\n";
+	} else {
+	    $r = $r . $s . $2;
+	    $s = "\t";
+	}
+    }
+    $r .= "\n.TE\n.fi\n";
+    $r =~ s/(\s*\&nbsp;\s*)*\n/\n/gs;
+    $r =~ s/&nbsp;//gs;
+
+    $r;
+}
+
 sub fixup {
     local ($_) = @_;
 
@@ -21,8 +56,14 @@ sub fixup {
     s-<var>(.*?)</var>-\\fI$1\\fR-gs;
     s-<div[^>]*>(.*?)</div>-$1-gs;
 
+    # end of a list item is nothing at all
+    s-</li>--gs;
+
+    # HTML comments go away
+    s/<!--.*?-->//gs;
+
     # images
-    s!\s*<img src=(.*?\.gif).*?>\s*!\n.ce 1\n.B "[Image Omitted]"\n.PP\n!gs;
+    s!\s*<img\b[^>]*>\s*!\n.ce 1\n.B "[Image Omitted]"\n.PP\n!gs;
 
     # undo quoted characters
     s/&gt;/>/gs;
@@ -141,7 +182,7 @@ sub parseclassfile {
     local ($title );
 
     # strip head and tail
-    s/^.*?<body[^>]*>\s*.*?<\/table(?:\s[^>]*)?>//s;
+    s/^.*?<\/h1>\s*//s;
     s/<hr><p>\s+This file is part of the.*$//s;
     s/<hr><p>\s*Search the doc.*$//s;
 
@@ -162,6 +203,7 @@ sub parseclassfile {
     s-\s*<h2>Related Functions</h2>(\s*\.PP)?-\n.SH RELATED FUNCTION DOCUMENTATION\n.PP\n-gs;
     s-\s*<h2\b.*?>\s*(.*?)</h2.*?>(\s*\.PP)?-\n.SS \x22$1\x22\n.PP\n-gs;
     s-(?:\s*\n\.PP)*\s*<h3\b.*?>\s*(.*?)</h3.*?>\s*(?:\.PP\s*)*-\n.SH \x22$1\x22\n-gsx;
+    s-\n\x22-\x22\n-gsx;
 
     # fonts, code and emphasized text
     s-<em>(.*?)</em>-\\fI$1\\fR-gs;
@@ -188,6 +230,8 @@ sub parseclassfile {
 	$examples;
     }-gse;
 
+    s-<table[^>]*>(.*?)</table>-&tables($1)-gsie;
+
     $title = $1 if ( /\b(\w+)\s+Class Reference/s );
     $_;
 }
@@ -210,9 +254,15 @@ $_ = <A>;
 s/ / /gs;
 close A;
 
-while ( m@<b><a href=\"(.*?\.html)\">(.*?)</a></b></td><td>(.*?)</td>@gs ) {
+while ( m@<b><a href=\"([a-z0-9]+\.html)\">([A-Za-z0-9]*)</a></b><td>([^<]*?)\s*<@gs ) {
     $name{$1} = $2;
     $desc{$1} = $3;
+}
+
+if ( m@<div align=right>Qt version ([^\s<]+)</div>@s ) {
+    $version = $1;
+} else {
+    die "unable to find Qt version, stopped";
 }
 
 foreach ( keys %desc ) {
@@ -228,10 +278,11 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     open( F, "< $url" ) || die "can't open $url";
     $contents = <F>;
     close F;
+    unlink( "> ../man/man3/" . $manpage );
     open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
     print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Trolltech AS\" \\\" -*- nroff -*-
-.\\\" Copyright 1992-2000 Trolltech AS.  All rights reserved.  See the
+.\\\" Copyright 1992-2001 Trolltech AS.  All rights reserved.  See the
 .\\\" license file included in the distribution for a complete license
 .\\\" statement.
 .\\\"
@@ -242,12 +293,23 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 &fixup( &parseclassfile( &prepare( $contents ) ) ),
 ".SH \"SEE ALSO\"
 .BR http://doc.trolltech.com/", $url, "
+.BR http://www.trolltech.com/faq/tech.html
 .SH COPYRIGHT
-Copyright 1992-2000 Trolltech AS, http://www.trolltech.com/.  See the
+Copyright 1992-2001 Trolltech AS, http://www.trolltech.com.  See the
 license file included in the distribution for a complete license
 statement.
 .SH AUTHOR
 Generated automatically from the source code.
+.SH BUGS
+If you find a bug in Qt, please report it as described in
+.BR http://doc.trolltech.com/bughowto.html .
+Good bug reports make our job much simpler. Thank you.
+.P
+In case of content or formattting problems with this manual page, please
+report them to
+.BR qt-bugs\@trolltech.com .
+Please include the name of the manual page ($manpage) and the Qt
+version ($version).
 ";
     close M;
 
