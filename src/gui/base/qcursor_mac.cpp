@@ -32,15 +32,20 @@
 
 
 /*****************************************************************************
-  Global cursors
+  Internal variables and functions
  *****************************************************************************/
-
 static QCursor cursorTable[Qt::LastCursor+1];
+
+
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+
 
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
-
 #ifndef QMAC_NO_FAKECURSOR
 #include <qpainter.h>
 class QMacCursorWidget : public QWidget
@@ -57,7 +62,7 @@ public:
 #if QT_MACOSX_VERSION >= 0x1020 && QT_MACOSX_VERSION < 0x1030
 	    attribs |= kWindowIgnoreClicksAttribute;
 #endif
-	    ChangeWindowAttributes((WindowPtr)handle(), attribs, 0);
+	    ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), attribs, 0);
 	    int w = b->width(), h = b->height();
 	    resize(w, h);
 

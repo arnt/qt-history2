@@ -494,7 +494,7 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
     w->d->extraData()->topextra->resizer += up;
     {
 	WindowClass wclass;
-	GetWindowClass((WindowPtr)w->handle(), &wclass);
+	GetWindowClass(qt_mac_window_for((HIViewRef)w->winId()), &wclass);
 	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
 	    return TRUE;
     }
@@ -508,12 +508,12 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
 	if(attr & kWindowResizableAttribute) {
 	    ChangeWindowAttributes((WindowRef)w->handle(), kWindowNoAttributes,
                                    kWindowResizableAttribute);
-	    ReshapeCustomWindow((WindowPtr)w->handle());
+	    ReshapeCustomWindow(qt_mac_window_for((HIViewRef)w->winId()));
 	}
     } else if(!(attr & kWindowResizableAttribute)) {
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute,
 			       kWindowNoAttributes);
-	ReshapeCustomWindow((WindowPtr)w->handle());
+	ReshapeCustomWindow(qt_mac_window_for((HIViewRef)w->winId()));
     }
     return true;
 }

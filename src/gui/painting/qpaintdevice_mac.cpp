@@ -20,8 +20,21 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 
+/*****************************************************************************
+  Internal variables and functions
+ *****************************************************************************/
 QPaintDevice *g_cur_paintdev = 0;
 
+
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+
+
+/*****************************************************************************
+  QPaintDevice member functions
+ *****************************************************************************/
 QPaintDevice::QPaintDevice(uint devflags)
 {
     if(!qApp) {				// global constructor
@@ -103,16 +116,11 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	srcdepth = 32; //well, not 0 anyway :)
 	if(w->isDesktop()) {
 	    GDHandle gdh;
-#if 0
-	    if(GetWindowGreatestAreaDevice((WindowPtr)w->handle(), kWindowStructureRgn, &gdh, NULL) || !gdh)
-		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
-#else
 	    if(!(gdh=GetMainDevice()))
 		qDebug("Qt: internal: Unexpected condition reached: %s:%d", __FILE__, __LINE__);
-#endif
 	    srcbitmap = (BitMap*)(*(*gdh)->gdPMap);
 	} else {
-	    srcbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
+	    srcbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
 	    QMacSavedPortInfo::setPaintDevice(w); //wtf?
 	    QPoint p(posInWindow(w));
 	    srcoffx = p.x();
@@ -174,7 +182,7 @@ void unclippedScaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	}
 
 	QWidget *w = (QWidget *)dst;
-	dstbitmap = GetPortBitMapForCopyBits(GetWindowPort((WindowPtr)w->handle()));
+	dstbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
 	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 	if(src == dst) {
 	    dstoffx = srcoffx;

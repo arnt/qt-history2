@@ -44,13 +44,14 @@ QPaintEngine *qt_mac_current_engine = 0; //Current "active" QPaintEngine
 /*****************************************************************************
   External functions
  *****************************************************************************/
-QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
-QRegion make_region(RgnHandle handle);
-void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
-void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
-RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
-void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
+extern QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
+extern QRegion make_region(RgnHandle handle);
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+extern void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
+extern void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
+			    Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
+extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 // paintevent magic to provide Windows semantics on Qt/Mac
 class paintevent_item
@@ -151,14 +152,14 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
 	    unclipped = (bool)w->testWFlags(WPaintUnclipped);
 
 	if(!d->locked) {
-	    LockPortBits(GetWindowPort((WindowPtr)w->handle()));
+	    LockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
 	    d->locked = true;
 	}
 
 	if(w->isDesktop()) {
 	    if(!unclipped)
 		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
-	    ShowWindow((WindowPtr)w->handle());
+	    ShowWindow(qt_mac_window_for((HIViewRef)w->winId()));
 	}
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)d->pdev;
@@ -188,7 +189,7 @@ QQuickDrawPaintEngine::end()
 
     if(d->locked) {
 	if(d->pdev->devType() == QInternal::Widget)
-	    UnlockPortBits(GetWindowPort((WindowPtr)d->pdev->handle()));
+	    UnlockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId())));
 	d->locked = false;
     }
 
@@ -198,7 +199,7 @@ QQuickDrawPaintEngine::end()
 	qt_mac_current_engine = 0;
 
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
-	HideWindow((WindowPtr)d->pdev->handle());
+	HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
 
     d->pdev = 0;
     return true;
@@ -942,7 +943,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 
 	CGrafPtr ptr;
 	if(d->pdev->devType() == QInternal::Widget)
-	    ptr = GetWindowPort((WindowPtr)d->pdev->handle());
+	    ptr = GetWindowPort(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
 	else
 	    ptr = (GWorldPtr)d->pdev->handle();
 	if(RgnHandle rgn = d->clip.paintable.handle()) {
@@ -1101,7 +1102,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
 	if(w->isDesktop()) {
 	    if(!unclipped)
 		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
-	    ShowWindow((WindowPtr)w->handle());
+	    ShowWindow(qt_mac_window_for((HIViewRef)w->winId()));
 	}
     } else if(d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)d->pdev;
@@ -1132,7 +1133,7 @@ QCoreGraphicsPaintEngine::end()
 	d->hd = 0;
     }
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
-	HideWindow((WindowPtr)d->pdev->handle());
+	HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
     d->pdev = 0;
     return true;
 }

@@ -1196,8 +1196,9 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
 			      Dock edge, bool newLine )
 {
 #ifdef Q_WS_MAC
+    extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
     if(isTopLevel() && edge == DockTop)
-	ChangeWindowAttributes((WindowPtr)handle(), kWindowToolbarButtonAttribute, 0);
+	ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowToolbarButtonAttribute, 0);
 #endif
     moveDockWindow( dockWindow, edge );
     dockWindow->setNewLine( newLine );
@@ -1364,8 +1365,9 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
 void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 {
 #ifdef Q_WS_MAC
+    extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
     if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows( DockTop ).count())
-	ChangeWindowAttributes((WindowPtr)handle(), 0, kWindowToolbarButtonAttribute);
+	ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), 0, kWindowToolbarButtonAttribute);
 #endif
 
     dockWindow->hide();

@@ -1593,7 +1593,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0,
 			      sizeof(widget), 0, &widget);
 	    if(widget)
-		ShowSheetWindow((WindowPtr)widget->hd, (WindowPtr)widget->parentWidget()->hd);
+		ShowSheetWindow(qt_mac_window_for((HIViewRef)widget->winId()), 
+				qt_mac_window_for((HIViewRef)widget->parentWidget()->winId()));
 	} else if(ekind == kEventQtRequestWakeup) {
 	    request_wakeup_pending = 0; 	    //do nothing else, we just woke up!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
