@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#144 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#145 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -3877,7 +3877,7 @@ QConstString::~QConstString()
 
 #if defined(_WS_WIN_)
 
-#include <tchar.h>
+#include <windows.h>
 
 /*!
   Returns a static Windows TCHAR* from a QString, possibly adding NUL.
