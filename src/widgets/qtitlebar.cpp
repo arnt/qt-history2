@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#42 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -223,12 +223,18 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	style().drawTitleBarControls(&p, this, buttonDown, buttonDown);
 	p.end();
 
-    } else if(e->button() == RightButton ) {
-	int ctrl = style().titleBarPointOver(this, e->pos());
-	if(ctrl == QStyle::TitleLabel)
-	    emit showOperationMenu();
     }
 }
+
+void QTitleBar::contextMenuEvent( QContextMenuEvent *e )
+{
+    int ctrl = style().titleBarPointOver(this, e->pos());
+    if(ctrl == QStyle::TitleLabel) {
+	emit popupOperationMenu(e->globalPos());
+	e->accept();
+    }
+}
+
 
 void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 {

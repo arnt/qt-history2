@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#14 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar_p.h#15 $
 **
 ** Definition of some Qt private functions.
 **
@@ -94,6 +94,7 @@ signals:
 protected:
     bool event( QEvent *);
     void resizeEvent( QResizeEvent *);
+    void contextMenuEvent( QContextMenuEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
