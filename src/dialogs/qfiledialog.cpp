@@ -2632,7 +2632,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     if ( !newFilter )
 	return;
     QString f = newFilter;
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;\\#]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
@@ -4560,15 +4560,14 @@ void QFileDialog::addFilter( const QString &filter )
     if ( filter.isEmpty() )
 	return;
 
-    QString f( filter );
-    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
+    QString f = filter;
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9.*? +;#]*)$") );
     int len;
     int index = r.match( f, 0, &len );
     if ( index >= 0 )
 	f = f.mid( index + 1, len - 2 );
     for ( int i = 0; i < d->types->count(); ++i ) {
 	QString f2( d->types->text( i ) );
-	QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;]*)$") );
 	int len;
 	int index = r.match( f2, 0, &len );
 	if ( index >= 0 )
