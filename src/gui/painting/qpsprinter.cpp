@@ -167,7 +167,7 @@ static const char *const ps_header =
 "ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{/clipTmp matrix CM d defM SM NP}\n"
 "D/CLEND{clip NP clipTmp SM}D/CLO{grestore gsave defM SM}D\n";
 
-static const char *agl =
+static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
 "quotesingle\0parenleft\0parenright\0asterisk\0plus\0comma\0hyphen\0period\0"
 "slash\0zero\0one\0two\0three\0four\0five\0six\0seven\0eight\0nine\0colon\0"
