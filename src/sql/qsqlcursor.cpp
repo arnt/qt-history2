@@ -362,7 +362,7 @@ QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
 
     for ( uint i = 0; i < count(); ++i ) {
 	const QString fname = fieldName( i );
-	if ( isGenerated( fname ) ) {
+	if ( isGenerated( i ) ) {
 	    if( comma )
 		pflist += sep + " ";
 	    pflist += pfix + fname;
@@ -834,9 +834,8 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
     ".", the field name, the \a fieldSep and the field value. If the
     \a prefix is empty then the field will begin with the field name.
     The fields are then joined together separated by \a sep.
-    Calculated fields and fields where isGenerated() returns FALSE are
-    not included. This function is useful for generating SQL
-    statements.
+    Fields where isGenerated() returns FALSE are not included.
+    This function is useful for generating SQL statements.
 
 */
 
@@ -847,7 +846,7 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
     bool separator = FALSE;
     for ( uint j = 0; j < count(); ++j ) {
 	QSqlField* f = rec->field( j );
-	if ( isGenerated( f->name() ) ) {
+	if ( rec->isGenerated( j ) ) {
 	    if ( separator )
 		filter += sep + " " ;
 	    filter += toString( prefix, f, fieldSep );
@@ -859,13 +858,14 @@ QString QSqlCursor::toString( QSqlRecord* rec, const QString& prefix, const QStr
 
 /*! \overload
 
-  Returns a formatted string composed of all the fields in the index
+    Returns a formatted string composed of all the fields in the index
     \a i. Each field is composed of the \a prefix (e.g. table or view
     name), ".", the field name, the \a fieldSep and the field value.
     If the \a prefix is empty then the field will begin with the field
     name. The field values are taken from \a rec. The fields are then
-    joined together separated by \a sep. This function is useful for
-    generating SQL statements.
+    joined together separated by \a sep. Fields where isGenerated() returns
+    FALSE are ignored.
+    This function is useful for generating SQL statements.
 
 */
 
@@ -875,12 +875,15 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     QString filter;
     bool separator = FALSE;
     for( uint j = 0; j < i.count(); ++j ){
-	if( separator )
-	    filter += " " + sep + " " ;
-	QString fn = i.fieldName( j );
-	QSqlField* f = rec->field( fn );
-	filter += toString( prefix, f, fieldSep );
-	separator = TRUE;
+	if ( rec->isGenerated( j ) ) {
+	    if( separator ) {
+		filter += " " + sep + " " ;
+	    }
+	    QString fn = i.fieldName( j );
+	    QSqlField* f = rec->field( fn );
+	    filter += toString( prefix, f, fieldSep );
+	    separator = TRUE;
+	}
     }
     return filter;
 }
@@ -963,7 +966,6 @@ QSqlRecord* QSqlCursor::editBuffer( bool copy )
 	    } else {
 		d->editBuffer.setValue( i, value( i ) );
 	    }
-	    d->editBuffer.setGenerated( i, isGenerated( i ) );
 	}
     }
     return &d->editBuffer;
@@ -1221,22 +1223,24 @@ void QSqlCursor::sync()
 	uint i = 0;
 	uint j = 0;
 	bool haveCalculatedFields = FALSE;
-	for ( ; i < count(); ++i ){
-	    if ( !d->infoBuffer[i].isCalculated() ){
+	for ( ; i < count(); ++i ) {
+	    if ( !haveCalculatedFields && d->infoBuffer[i].isCalculated() ) {
+		haveCalculatedFields = TRUE;
+	    }
+	    if ( QSqlRecord::isGenerated( i ) ) {
 		QVariant v = QSqlQuery::value( j );
 		if ( ( v.type() == QVariant::String || v.type() == QVariant::CString ) &&
-		     d->infoBuffer[ i ].isTrim() )
+			d->infoBuffer[ i ].isTrim() ) {
 		    v = qTrim( v.toString() );
+		}
 		QSqlRecord::setValue( i, v );
 		if ( QSqlQuery::isNull( j ) )
 		    QSqlRecord::field( i )->setNull();
 		j++;
-	    } else
-		haveCalculatedFields = TRUE;
+	    }
 	}
 	if ( haveCalculatedFields ) {
-	    i = 0;
-	    for ( ; i < count(); ++i ){
+	    for ( i = 0; i < count(); ++i ) {
 		if ( d->infoBuffer[i].isCalculated() )
 		    QSqlRecord::setValue( i, calculateField( fieldName( i ) ) );
 	    }
