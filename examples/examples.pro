@@ -65,8 +65,8 @@ SUBDIRS	=	aclock \
 thread:SUBDIRS +=   thread/prodcons \
 		    thread/semaphores
 
-canvas:SUBDIRS +=   canvas \
-		    chart
+canvas:SUBDIRS +=   canvas
+canvas:table:SUBDIRS += chart
 
 opengl:SUBDIRS +=   opengl/box \
 		    opengl/gear \
