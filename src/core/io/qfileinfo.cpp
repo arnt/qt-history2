@@ -334,11 +334,7 @@ QFileInfo::~QFileInfo()
 
 QFileInfo &QFileInfo::operator=(const QFileInfo &fileinfo)
 {
-    QFileInfoPrivate::Data *x = fileinfo.d->data;
-    ++x->ref;
-    x = qAtomicSetPtr(&d->data, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicAssign(d->data, fileinfo.d->data);
     return *this;
 }
 
