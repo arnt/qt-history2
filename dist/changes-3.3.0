@@ -38,7 +38,8 @@ object classes (see the QAxServer documentation for details).
 COM objects developed with ActiveQt are now supported in a wider range of
 clients, including Microsoft Office applications and .NET. Examples that 
 demonstrate how to use the Qt objects from the examples in .NET languages
-like C# are included.
+like C# are included. QRect, QSize and QPoint are now supported datatypes
+for control properties and as reference parameters.
 
 The QAxContainer library is now static even for shared configurations of Qt,
 which simplifies deployment and allows using both QAxServer and QAxContainer 

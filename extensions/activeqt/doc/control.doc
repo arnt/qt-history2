@@ -404,6 +404,15 @@
     \row
     \i QByteArray
     \i SAFEARRAY(BYTE)
+    \row
+    \i QRect
+    \i User defined type
+    \row
+    \i QSize
+    \i User defined type
+    \row
+    \i QPoint
+    \i User defined type
     \endtable
     
     The Qt data types that are supported for parameters in signals and
@@ -493,6 +502,20 @@
     \row
     \i QObject*
     \i [in] IDispatch*
+    \row
+    \i QRect&
+    \footnote
+    OLE needs to marshal user defined types by reference (ByRef), and cannot 
+    marshal them by value (ByVal). This is why const-references and object
+    parameters are not supported for QRect, QSize and QPoint.
+    \endfootnote
+    \i [in, out] struct QRect (user defined)
+    \row
+    \i QSize&
+    \i [in, out] struct QSize (user defined)
+    \row
+    \i QPoint&
+    \i [in, out] struct QPoint (user defined)
     \endtable
 
     Also supported are exported enums and sets (see Q_ENUMS and Q_SETS).
