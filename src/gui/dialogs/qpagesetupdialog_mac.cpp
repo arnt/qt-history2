@@ -12,6 +12,7 @@
 ****************************************************************************/
 #include "qpagesetupdialog.h"
 
+#include <private/qapplication_p.h>
 #include <private/qprintengine_mac_p.h>
 #include <private/qabstractpagesetupdialog_p.h>
 

@@ -26,6 +26,7 @@
 # include "qaccessible.h"
 #endif
 
+#include <private/qapplication_p.h>
 #include <private/qdnd_p.h>
 #include <private/qt_mac_p.h>
 

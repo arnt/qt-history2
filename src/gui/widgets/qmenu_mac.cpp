@@ -21,8 +21,9 @@
 #include "qtoolbar.h"
 #include "qstyle.h"
 
-#include "private/qmenu_p.h"
-#include "private/qmenubar_p.h"
+#include <private/qapplication_p.h>
+#include <private/qmenu_p.h>
+#include <private/qmenubar_p.h>
 #define d d_func()
 #define q q_func()
 
