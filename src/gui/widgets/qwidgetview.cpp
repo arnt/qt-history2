@@ -41,7 +41,12 @@ public:
 
     A widget view is used to display the contents of a child widget within
     a frame. If the widget exceeds the size of the frame, the view can
-    provide scroll bars so that the entire child widget can be accessed.
+    provide scroll bars so that the entire area of the child widget can be
+    viewed.
+
+    The child widget must be specified with setWidget(); it can be
+    retrieved with widget(). The view can be made to be resizable with
+    the setWidgetResizable() function.
 
     When using a widget view to display the contents of a custom widget,
     it is important to ensure that the \l{QWidget::sizeHint} size hint of the
@@ -49,10 +54,6 @@ public:
     for the child widget, it may be necessary to call
     \l{QWidget::setMinimumSize} to ensure that the contents of the widget are
     shown correctly within the widget view.
-
-    The child widget must be specified with setWidget(); it can be
-    retrieved with widget(). The view can be made to be resizable with
-    the setWidgetResizable() function.
 */
 
 
@@ -185,7 +186,7 @@ void QWidgetView::scrollContentsBy(int, int)
     \brief whether the widget view should resize the view widget
 
     If this property is set to false (the default), the view honors
-    the size of its widget. Regardless of this property you can
+    the size of its widget. Regardless of this property, you can
     programmatically resize the widget using widget()->resize(), and
     the widget view will automatically adjust itself to the new size.
 

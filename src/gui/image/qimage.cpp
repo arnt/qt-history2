@@ -134,30 +134,27 @@ QImageData::~QImageData()
     \ingroup shared
     \mainclass
 
-    It is one of the two classes Qt provides for dealing with images,
-    the other being QPixmap. QImage is designed and optimized for I/O
-    and for direct pixel access/manipulation. QPixmap is designed and
-    optimized for drawing. There are (slow) functions to convert
-    between QImage and QPixmap: QPixmap::convertToImage() and
-    QPixmap::convertFromImage().
+    Qt provides two classes for handling image data: QImage and QPixmap.
+    QImage is designed and optimized for I/O, and for direct pixel
+    access/manipulation. QPixmap is designed and optimized for drawing.
+    There are functions to convert between QImage and QPixmap:
+    QPixmap::convertToImage() and QPixmap::convertFromImage().
 
-    An image has the parameters \link width() width\endlink, \link
-    height() height\endlink and \link depth() depth\endlink (bits per
-    pixel, bpp), a color table and the actual \link bits()
-    pixels\endlink. QImage supports 1-bpp, 8-bpp and 32-bpp image
-    data. 1-bpp and 8-bpp images use a color lookup table; the pixel
+    An image has the parameters \l{width()}{width}, \l{height()}{height}
+    and \l{depth()}{depth} (bits per pixel, bpp), a color table, and the
+    actual \l{bits()}{pixels}. QImage supports 1-bpp, 8-bpp, and 32-bpp
+    image data. 1-bpp and 8-bpp images use a color lookup table; the pixel
     value is a color table index.
 
-    32-bpp images encode an RGB value in 24 bits and ignore the color
-    table. The most significant byte is used for the \link
-    setAlphaBuffer() alpha buffer\endlink.
+    32-bpp images contain RGB values encoded in 24 bits, and do not use a
+    color table. The most significant byte is used for the
+    \l{setAlphaBuffer()}{alpha buffer}.
 
-    An entry in the color table is an RGB triplet encoded as a \c
-    uint. Use the \link ::qRed() qRed()\endlink, \link ::qGreen()
-    qGreen()\endlink and \link ::qBlue() qBlue()\endlink functions (\c
-    qcolor.h) to access the components, and \link ::qRgb()
-    qRgb\endlink to make an RGB triplet (see the QColor class
-    documentation).
+    An entry in the color table is an RGB triplet encoded as an \c qRgb
+    value. Use the color() function to obtain an entry from the table,
+    and the qRed(), qGreen(), and qBlue() functions (\c qcolor.h) to access
+    the components. The qRgb() function is used to make an RGB triplet
+    suitable for use with the setColor() function.
 
     1-bpp (monochrome) images have a color table with a most two
     colors. There are two different formats: big endian (MSB first) or
@@ -205,13 +202,20 @@ QImageData::~QImageData()
     On Qt/Embedded, an additional constructor allows the number of
     bytes-per-line to be specified.
 
-    QImage supports a variety of methods for getting information about
-    the image, for example, colorTable(), allGray(), isGrayscale(),
-    bitOrder(), bytesPerLine(), depth(), dotsPerMeterX() and
-    dotsPerMeterY(), hasAlphaBuffer(), numBytes(), numColors(), and
-    width() and height().
-
     Pixel colors are retrieved with pixel() and set with setPixel().
+
+    QImage supports a variety of functions that can be used to obtain
+    information about the image. width(), height(), dotsPerMeterX(), and
+    dotsPerMeterY() provide information about the image size and resolution.
+    The depth(), numColors(), isGrayscale(), and colorTable() functions
+    provide information about the color depth and available color components
+    used to store the image data. The hasAlphaBuffer() function indicates
+    whether the image has an associated alpha buffer.
+
+    It is possible to determine whether a color image can be safely
+    converted to a grayscale image by using the allGray() function. The
+    bitOrder(), bytesPerLine(), and numBytes() functions provide low-level
+    information about the data stored in the image.
 
     QImage also supports a number of functions for creating a new
     image that is a transformed version of the original. For example,
@@ -235,7 +239,7 @@ QImageData::~QImageData()
     New image formats can be added as \link plugins-howto.html
     plugins\endlink.
 
-    \sa QImageIO QPixmap \link shclass.html Shared Classes\endlink
+    \sa QImageIO QPixmap QColor \l{shclass.html}{Shared Classes}
 */
 
 
@@ -247,7 +251,7 @@ QImageData::~QImageData()
 
     \value IgnoreEndian  Endianness does not matter. Useful for some
                          operations that are independent of endianness.
-    \value BigEndian  Network byte order, as on SPARC and Motorola CPUs.
+    \value BigEndian     Network byte order, as on SPARC and Motorola CPUs.
     \value LittleEndian  PC/Alpha byte order.
 */
 
