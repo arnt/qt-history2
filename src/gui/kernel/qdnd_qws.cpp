@@ -195,7 +195,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
         case QEvent::MouseMove:
         {
             QMouseEvent *me = (QMouseEvent *)e;
-            if (me->state() & (QMouseEvent::LeftButton | QMouseEvent::MidButton | QMouseEvent::RightButton)) {
+            if (me->state() & (Qt::LeftButton | Qt::MidButton | Qt::RightButton)) {
 
                 QWidget *cw = QApplication::widgetAt(me->globalPos(), true);
 

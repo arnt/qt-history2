@@ -148,7 +148,7 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
             painter->setFont(widget->font());
             painter->drawText(titleLeft, -titleHeight,
                             titleWidth-5, titleHeight - 1,
-                            QPainter::AlignVCenter, widget->windowTitle());
+                            Qt::AlignVCenter, widget->windowTitle());
 #endif
             return;
         }
@@ -158,7 +158,7 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
         painter->setFont(widget->font());
         painter->drawText(titleLeft, -titleHeight,
                         rect.width() - titleHeight - 10, titleHeight-1,
-                        QPainter::AlignVCenter, widget->windowTitle());
+                        Qt::AlignVCenter, widget->windowTitle());
 #endif
     }
 

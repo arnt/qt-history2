@@ -25,7 +25,7 @@
 */
 #ifdef QT_NO_CURSOR
 
-class Q_GUI_EXPORT QCursor : public Qt
+class Q_GUI_EXPORT QCursor
 {
 public:
     static QPoint pos();

@@ -17,7 +17,6 @@
 #include "qfontdata_p.h"
 #include <private/qunicodetables_p.h>
 #include "qfontdatabase.h"
-#include "qstrlist.h"
 #include "qtextcodec.h"
 #include "qapplication.h"
 #include "qfile.h"

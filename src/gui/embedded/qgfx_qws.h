@@ -293,7 +293,7 @@ protected:
 
 extern QScreen * qt_screen;
 
-class Q_GUI_EXPORT QGfx : public Qt {
+class Q_GUI_EXPORT QGfx {
 
 public:
      enum RasterOp { // raster op mode

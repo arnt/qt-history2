@@ -92,7 +92,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QKeySequence &);
 
 #else
 
-class Q_GUI_EXPORT QKeySequence : public Qt
+class Q_GUI_EXPORT QKeySequence
 {
 public:
     QKeySequence() {}

@@ -811,7 +811,7 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     if (depth1)
         memset(dptr, 0x00, dbytes);
     else if (bpp == 8)
-        memset(dptr, QColor(white).pixel(), dbytes);
+        memset(dptr, QColor(Qt::white).pixel(), dbytes);
     else if (bpp == 32) {
         if (qt_screen->isTransformed())
             destImg.fill(0x00FFFFFF);

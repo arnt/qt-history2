@@ -19,7 +19,7 @@
 #include "qimage.h"
 #endif // QT_H
 
-class QWSCursor : public Qt
+class QWSCursor
 {
 public:
     QWSCursor() {}

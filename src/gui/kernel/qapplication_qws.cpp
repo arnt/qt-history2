@@ -2183,7 +2183,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             move.simpleData.state = oldstate;
             widget->translateMouseEvent(&move, oldstate);
         }
-        if ((mouse.state&Qt::MouseButtonMask) != (oldstate&MouseButtonMask)) {
+        if ((mouse.state&Qt::MouseButtonMask) != (oldstate&Qt::MouseButtonMask)) {
             widget->translateMouseEvent(me, oldstate);
         }
         if (qt_button_down && (mouse_state & Qt::MouseButtonMask) == 0)

@@ -30,7 +30,6 @@
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
 #include "qwsregionmanager_qws.h"
-#include "qptrqueue.h"
 #include "qfile.h"
 #include "qtimer.h"
 #include "qpen.h"
@@ -1278,7 +1277,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
         //checking for virtual keyboards ### could be better
         QWidget *target = winClient == serverClient ?
                           QApplication::widgetAt(pos) : 0;
-        if (kbw != win && (!target || !target->testWFlags(Qt::WStyle_Tool) || target->focusPolicy() != QWidget::NoFocus))
+        if (kbw != win && (!target || !target->testWFlags(Qt::WStyle_Tool) || target->focusPolicy() != Qt::NoFocus))
             resetInputMethod();
     }
 #endif
