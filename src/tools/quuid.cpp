@@ -125,6 +125,14 @@ QUuid::QUuid( const QString &text )
 	}
     }
 }
+
+/*!
+    \overload
+*/
+QUuid::QUuid( const char *text )
+{
+    *this = QUuid( QString(text) );
+}
 #endif
 /*!
   \fn QUuid QUuid::operator=(const QUuid &uuid )
