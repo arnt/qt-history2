@@ -296,7 +296,7 @@ void QGPluginManager::addLibraryPath( const QString& path )
 #if defined(Q_OS_WIN32)
     QString filter = "*.dll";
 #elif defined(Q_OS_DARWIN)
-    QString filter = "*.dylib; *.so";
+    QString filter = "*.dylib; *.so; *.bundle";
 #elif defined(Q_OS_HPUX)
     QString filter = "*.sl";
 #elif defined(Q_OS_UNIX)
