@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#6 $
 **
-** Definition of something or other
+** Definition of a buttom customized for tool bar use
 **
 ** Created : 979899
 **
