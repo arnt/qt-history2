@@ -10,7 +10,7 @@ win32 {
 	SOURCES		= qtmain_win.cpp
 	CONFIG		+= png zlib
 	CONFIG		-= jpeg
-	INCLUDEPATH	+= tmp
+	INCLUDEPATH	+= tmp $$QMAKE_INCDIR_QT
 }
 
 !win32-*:!wince-*:error("${QMAKE_FILE} is intended only for Windows!")
