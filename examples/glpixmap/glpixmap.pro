@@ -8,4 +8,4 @@ SOURCES		= glbox.cpp \
 		  main.cpp
 TARGET		= glpixmap
 DEPENDPATH	= ../include
-unix:LIBS      += -lm
+!mac:unix:LIBS      += -lm
