@@ -17,42 +17,20 @@
 #include <abstractformeditor.h>
 #include <abstractwidgetfactory.h>
 #include <abstractwidgetdatabase.h>
-#include <qdesigner_formbuilder.h>
 #include <customwidget.h>
 #include <pluginmanager.h>
 #include <ui4.h>
-#include <spacer_widget.h>
 #include <sheet_delegate.h>
 #include <iconloader.h>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
+#include "widgetbox_dnditem.h"
+
 /*******************************************************************************
 ** Tools
 */
-
-class WidgetBoxDnDItem : public AbstractDnDItem
-{
-    Q_OBJECT
-public:
-    WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widget, const QRect &geometry);
-    virtual DomUI *domUi() const;
-    virtual QWidget *decoration() const;
-    virtual ~WidgetBoxDnDItem();
-    virtual QPoint hotSpot() const;
-
-protected:
-    inline AbstractFormEditor *core() const
-    { return m_core; }
-
-private:
-    AbstractFormEditor *m_core;
-    QWidget *m_decoration;
-    DomUI *m_dom_ui;
-    QPoint m_hot_spot;
-};
-
 static QDomElement childElement(QDomNode node, const QString &tag,
                                 const QString &attr_name,
                                 const QString &attr_value)
@@ -139,51 +117,6 @@ static DomWidget *xmlToUi(QString xml)
     return widget;
 }
 
-
-/*******************************************************************************
-** WidgetBoxResource
-*/
-
-class WidgetBoxResource : public QDesignerFormBuilder
-{
-public:
-    WidgetBoxResource(AbstractFormEditor *core)
-        : QDesignerFormBuilder(core) {}
-
-    virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget)
-    { return QDesignerFormBuilder::createWidget(ui_widget, parentWidget); }
-
-protected:
-    using QDesignerFormBuilder::create;
-    using QDesignerFormBuilder::createWidget;
-
-    virtual QWidget *create(DomWidget *ui_widget, QWidget *parents);
-    virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
-};
-
-QWidget *WidgetBoxResource::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
-{
-    if (widgetName == QLatin1String("Spacer")) {
-        Spacer *spacer = new Spacer(parentWidget);
-        spacer->setObjectName(name);
-        return spacer;
-    }
-
-    return QDesignerFormBuilder::createWidget(widgetName, parentWidget, name);
-}
-
-QWidget *WidgetBoxResource::create(DomWidget *ui_widget, QWidget *parent)
-{
-    QWidget *result = 0;
-
-    result = QDesignerFormBuilder::create(ui_widget, parent);
-    result->setFocusPolicy(Qt::NoFocus);
-    result->setObjectName(ui_widget->attributeName());
-
-    return result;
-}
-
-
 /*******************************************************************************
 ** WidgetBoxTreeView
 */
@@ -207,15 +140,15 @@ public:
     Category category(int cat_idx) const;
     void addCategory(const Category &cat);
     void removeCategory(int cat_idx);
-    
+
     int widgetCount(int cat_idx) const;
     Widget widget(int cat_idx, int wgt_idx) const;
     void addWidget(int cat_idx, const Widget &wgt);
     void removeWidget(int cat_idx, int wgt_idx);
 
 signals:
-    void pressed(const QString dom_xml, const QRect &rect);
-            
+    void pressed(const QString dom_xml, const QPoint &global_mouse_pos);
+
 private slots:
     void handleMousePress(QTreeWidgetItem *item);
 
@@ -245,7 +178,7 @@ WidgetBoxTreeView::WidgetBoxTreeView(AbstractFormEditor *core, QWidget *parent)
     m_core = core;
 
     load(QLatin1String(":/trolltech/widgetbox/widgetbox.xml"));
-    
+
     QSettings settings;
     settings.beginGroup("WidgetBox");
 
@@ -301,9 +234,9 @@ void WidgetBoxTreeView::handleMousePress(QTreeWidgetItem *item)
     if (wgt.isNull())
         return;
 
-    emit pressed(wgt.domXml(), QRect());
+    emit pressed(wgt.domXml(), QCursor::pos());
 }
-    
+
 int WidgetBoxTreeView::categoryIndex(const QString &name) const
 {
     for (int i = 0; i < topLevelItemCount(); ++i) {
@@ -341,13 +274,13 @@ bool WidgetBoxTreeView::load(const QString &name)
 
     foreach(Category cat, cat_list)
         addCategory(cat);
-        
+
     Category custom_cat = loadCustomCategory();
     if (!custom_cat.isNull())
         addCategory(custom_cat);
 
     m_file_name = name;
-           
+
     return true;
 }
 
@@ -431,7 +364,7 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::loadCustomCategory() const
 QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt, QTreeWidgetItem *parent) const
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(parent);
-        
+
     item->setText(0, wgt.name());
     item->setIcon(0, wgt.icon());
     item->setData(0, Qt::UserRole, qVariantFromValue(wgt));
@@ -452,10 +385,10 @@ int WidgetBoxTreeView::categoryCount() const
 WidgetBoxTreeView::Category WidgetBoxTreeView::category(int cat_idx) const
 {
     Category result;
-    
+
     if (cat_idx >= topLevelItemCount())
         return result;
-        
+
     QTreeWidgetItem *cat_item = topLevelItem(cat_idx);
     result.setName(cat_item->text(0));
 
@@ -497,7 +430,7 @@ WidgetBoxTreeView::Widget WidgetBoxTreeView::widget(int cat_idx, int wgt_idx) co
         return Widget();
 
     QTreeWidgetItem *cat_item = topLevelItem(cat_idx);
-        
+
     if (wgt_idx >= cat_item->childCount())
         return Widget();
 
@@ -557,105 +490,6 @@ CollectionFrame::CollectionFrame(QWidget *child, QWidget *parent)
     show();
 }
 
-
-/*******************************************************************************
-** WidgetBoxDnDItem
-*/
-
-static QSize geometryProp(DomWidget *dw)
-{
-    QList<DomProperty*> prop_list = dw->elementProperty();
-    foreach (DomProperty *prop, prop_list) {
-        if (prop->attributeName() != QLatin1String("geometry"))
-            continue;
-        DomRect *dr = prop->elementRect();
-        if (dr == 0)
-            continue;
-        return QSize(dr->elementWidth(), dr->elementHeight());
-    }
-    return QSize();
-}
-
-static QSize domWidgetSize(DomWidget *dw)
-{
-    QSize size = geometryProp(dw);
-    if (size.isValid())
-        return size;
-
-    foreach (DomWidget *child, dw->elementWidget()) {
-        size = geometryProp(child);
-        if (size.isValid())
-            return size;
-    }
-
-    foreach (DomLayout *dl, dw->elementLayout()) {
-        foreach (DomLayoutItem *item, dl->elementItem()) {
-            DomWidget *child = item->elementWidget();
-            if (child == 0)
-                continue;
-            size = geometryProp(child);
-            if (size.isValid())
-                return size;
-        }
-    }
-
-    return QSize();
-}
-
-WidgetBoxDnDItem::WidgetBoxDnDItem(AbstractFormEditor *core, DomWidget *dom_widget, const QRect &geometry)
-    : m_core(core)
-{
-    DomWidget *root_dom_widget = new DomWidget;
-    QList<DomWidget*> child_list;
-    child_list.append(dom_widget);
-    root_dom_widget->setElementWidget(child_list);
-    m_dom_ui = new DomUI();
-    m_dom_ui->setElementWidget(root_dom_widget);
-
-    QLabel *label = new QLabel(0, Qt::ToolTip);
-
-    WidgetBoxResource builder(m_core);
-    QWidget *w = builder.createWidget(dom_widget, label);
-    QSize size = domWidgetSize(dom_widget);
-    if (!size.isValid())
-        size = w->sizeHint();
-    w->setGeometry(QRect(QPoint(), size));
-    label->resize(size);
-
-    label->setWindowOpacity(0.8);
-    m_decoration = label;
-
-    QPoint pos = QCursor::pos();
-
-    if (geometry.isValid())
-        m_decoration->setGeometry(geometry);
-    else
-        m_decoration->move(pos - QPoint(size.width(), size.height())/2);
-
-    m_hot_spot = pos - m_decoration->geometry().topLeft();
-}
-
-DomUI *WidgetBoxDnDItem::domUi() const
-{
-    return m_dom_ui;
-}
-
-QWidget *WidgetBoxDnDItem::decoration() const
-{
-    return m_decoration;
-}
-
-WidgetBoxDnDItem::~WidgetBoxDnDItem()
-{
-    delete m_dom_ui;
-    m_decoration->deleteLater();
-}
-
-QPoint WidgetBoxDnDItem::hotSpot() const
-{
-    return m_hot_spot;
-}
-
 /*******************************************************************************
 ** WidgetBox
 */
@@ -671,8 +505,8 @@ WidgetBox::WidgetBox(AbstractFormEditor *core, QWidget *parent, Qt::WFlags flags
     m_view = new WidgetBoxTreeView(m_core, this);
     l->addWidget(m_view);
 
-    connect(m_view, SIGNAL(pressed(const QString&, const QRect&)),
-            this, SLOT(handleMousePress(const QString&, const QRect&)));
+    connect(m_view, SIGNAL(pressed(const QString&, const QPoint&)),
+            this, SLOT(handleMousePress(const QString&, const QPoint&)));
 }
 
 WidgetBox::~WidgetBox()
@@ -684,15 +518,15 @@ AbstractFormEditor *WidgetBox::core() const
     return m_core;
 }
 
-void WidgetBox::handleMousePress(const QString &xml, const QRect &geometry)
+void WidgetBox::handleMousePress(const QString &xml, const QPoint &global_mouse_pos)
 {
     DomWidget *dom_widget = xmlToUi(xml);
     if (dom_widget == 0)
         return;
     if (QApplication::mouseButtons() == Qt::LeftButton) {
         QList<AbstractDnDItem*> item_list;
-        item_list.append(new WidgetBoxDnDItem(core(), dom_widget, geometry));
-        m_core->formWindowManager()->dragItems(item_list, 0);
+        item_list.append(new WidgetBoxDnDItem(core(), dom_widget, global_mouse_pos));
+        m_core->formWindowManager()->dragItems(item_list);
     }
 }
 
@@ -739,6 +573,12 @@ void WidgetBox::removeWidget(int cat_idx, int wgt_idx)
 void WidgetBox::reload()
 {
     m_view->load(m_view->fileName());
+}
+
+void WidgetBox::dropWidgets(const QList<AbstractDnDItem*> &item_list,
+                                const QPoint &global_mouse_pos)
+{
+    qDebug() << "WidgetBox::dropWidgets():" << item_list;
 }
 
 #include "widgetbox.moc"

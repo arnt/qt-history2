@@ -23,17 +23,7 @@ class QAction;
 class AbstractFormEditor;
 class DomUI;
 class QWidget;
-
-class QT_SDK_EXPORT AbstractDnDItem : public QObject
-{
-    Q_OBJECT
-public:
-    virtual ~AbstractDnDItem() {}
-
-    virtual DomUI *domUi() const = 0;
-    virtual QWidget *decoration() const = 0;
-    virtual QPoint hotSpot() const = 0;
-};
+class AbstractDnDItem;
 
 class QT_SDK_EXPORT AbstractFormWindowManager: public QObject
 {
@@ -61,7 +51,7 @@ public:
     virtual QAction *actionAdjustSize() const;
 
     virtual QAction *actionShowResourceEditor()const;
-    
+
     virtual AbstractFormWindow *activeFormWindow() const;
 
     virtual int formWindowCount() const;
@@ -71,7 +61,7 @@ public:
 
     virtual AbstractFormEditor *core() const;
 
-    virtual void dragItems(const QList<AbstractDnDItem*> &item_list, AbstractFormWindow *source_form) = 0;
+    virtual void dragItems(const QList<AbstractDnDItem*> &item_list) = 0;
 
 signals:
     void formWindowAdded(AbstractFormWindow *formWindow);

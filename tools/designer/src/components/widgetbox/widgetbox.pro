@@ -13,9 +13,11 @@ INCLUDEPATH += \
 
 DEFINES += QT_WIDGETBOX_LIBRARY
 
-SOURCES += widgetbox.cpp
+SOURCES += widgetbox.cpp \
+            widgetbox_dnditem.cpp
 HEADERS += widgetbox.h \
-        widgetbox_global.h
+            widgetbox_global.h \
+	    widgetbox_dnditem.h
 
 RESOURCES += widgetbox.qrc
 

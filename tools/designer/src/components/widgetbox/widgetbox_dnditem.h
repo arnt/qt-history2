@@ -11,18 +11,20 @@
 **
 ****************************************************************************/
 
-#ifndef FORMWINDOW_DNDITEM_H
-#define FORMWINDOW_DNDITEM_H
+#ifndef WIDGETBOX_DNDITEM_H
+#define WIDGETBOX_DNDITEM_H
 
 #include <qdesigner_dnditem.h>
+#include "widgetbox_global.h"
 
-class FormWindow;
+class AbstractFormEditor;
 
-class FormWindowDnDItem : public QDesignerDnDItem
+class QT_WIDGETBOX_EXPORT WidgetBoxDnDItem : public QDesignerDnDItem
 {
 public:
-    FormWindowDnDItem(AbstractDnDItem::DropType type, FormWindow *form,
-                        QWidget *widget, const QPoint &global_mouse_pos);
+    WidgetBoxDnDItem(AbstractFormEditor *core,
+                        DomWidget *dom_widget,
+                        const QPoint &global_mouse_pos);
 };
 
-#endif // FORMWINDOW_DNDITEM_H
+#endif // WIDGETBOX_DNDITEM_H

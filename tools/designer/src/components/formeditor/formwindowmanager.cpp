@@ -24,6 +24,7 @@
 #include <abstractmetadatabase.h>
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
+#include <abstractwidgetbox.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
 #include <resourceeditor.h>
@@ -68,7 +69,7 @@ FormWindowManager::FormWindowManager(AbstractFormEditor *core, QObject *parent)
     // DnD stuff
     m_last_widget_under_mouse = 0;
     m_last_form_under_mouse = 0;
-    m_source_form = 0;
+    m_widget_box_under_mouse = 0;
 }
 
 FormWindowManager::~FormWindowManager()
@@ -666,14 +667,12 @@ QAction *FormWindowManager::actionRedo() const
 
 // DnD stuff
 
-void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list, AbstractFormWindow *source_form)
+void FormWindowManager::dragItems(const QList<AbstractDnDItem*> &item_list)
 {
     if (!m_drag_item_list.isEmpty()) {
         qWarning("FormWindowManager::dragItem(): called while already dragging");
         return;
     }
-
-    m_source_form = qobject_cast<FormWindow*>(source_form);
 
     beginDrag(item_list, QCursor::pos());
 }
@@ -701,6 +700,18 @@ void FormWindowManager::beginDrag(const QList<AbstractDnDItem*> &item_list, cons
 
     m_core->topLevel()->installEventFilter(this);
     m_core->topLevel()->grabMouse();
+}
+
+static AbstractWidgetBox *widgetBoxAt(const QPoint &global_pos)
+{
+    QWidget *w = qApp->widgetAt(global_pos);
+    while (w != 0) {
+        AbstractWidgetBox *wb = qobject_cast<AbstractWidgetBox*>(w);
+        if (wb != 0)
+            return wb;
+        w = w->parentWidget();
+    }
+    return 0;
 }
 
 void FormWindowManager::setItemsPos(const QPoint &globalPos)
@@ -735,8 +746,9 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
                                     FormWindow::Restore);
     }
 
+    FormWindow *source_form = qobject_cast<FormWindow*>(m_drag_item_list.first()->source());
     if (form_under_mouse != 0
-        && (m_source_form == 0 || widget_under_mouse != m_source_form->mainContainer())) {
+        && (source_form == 0 || widget_under_mouse != source_form->mainContainer())) {
 
         form_under_mouse->highlightWidget(widget_under_mouse,
                                     widget_under_mouse->mapFromGlobal(globalPos),
@@ -745,6 +757,10 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
 
     m_last_widget_under_mouse = widget_under_mouse;
     m_last_form_under_mouse = form_under_mouse;
+    if (m_last_form_under_mouse == 0)
+        m_widget_box_under_mouse = widgetBoxAt(globalPos);
+    else
+        m_widget_box_under_mouse = 0;
 }
 
 void FormWindowManager::endDrag(const QPoint &pos)
@@ -757,73 +773,26 @@ void FormWindowManager::endDrag(const QPoint &pos)
     foreach (AbstractDnDItem *item, m_drag_item_list)
         item->decoration()->hide();
 
+    // ugly, but you can't qobject_cast from interfaces
     if (m_last_form_under_mouse != 0 &&
             m_last_form_under_mouse->hasFeature(AbstractFormWindow::EditFeature)) {
-        FormWindow *form = qobject_cast<FormWindow*>(m_last_form_under_mouse);
-
-        form->beginCommand(tr("Drop widget"));
-
-        QWidget *parent = m_last_widget_under_mouse;
-        if (parent == 0)
-            parent = form->mainContainer();
-
-        setActiveFormWindow(form);
-        form->mainContainer()->activateWindow();
-        form->clearSelection(false);
-
-        form->highlightWidget(m_last_widget_under_mouse,
-                            m_last_widget_under_mouse->mapFromGlobal(pos),
-                            FormWindow::Restore);
-
-        if (m_drag_item_list.first()->domUi() != 0) {
-            foreach (AbstractDnDItem *item, m_drag_item_list) {
-                DomUI *dom_ui = item->domUi();
-                Q_ASSERT(dom_ui != 0);
-
-                QRect geometry = item->decoration()->geometry();
-                QWidget *widget = form->createWidget(dom_ui, geometry, parent);
-                form->selectWidget(widget, true);
-            }
-        } else if (qobject_cast<FormWindowDnDItem*>(m_drag_item_list.first()) != 0) {
-            foreach (AbstractDnDItem *item, m_drag_item_list) {
-                FormWindowDnDItem *form_item = qobject_cast<FormWindowDnDItem*>(item);
-                Q_ASSERT(form_item != 0);
-
-                QWidget *widget = form_item->widget();
-                Q_ASSERT(widget != 0);
-
-                QRect geometry = item->decoration()->geometry();
-
-                if (parent == widget->parent()) {
-                    geometry.moveTopLeft(parent->mapFromGlobal(geometry.topLeft()));
-                    form->resizeWidget(widget, geometry);
-                    form->selectWidget(widget, true);
-                    widget->show();
-                } else {
-
-                    QDesignerResource builder(m_source_form);
-                    DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
-
-                    m_source_form->deleteWidgets(QList<QWidget*>() << widget);
-                    QWidget *widget = form->createWidget(dom_ui, geometry, parent);
-                    form->selectWidget(widget, true);
-                }
-            }
-        }
-        form->endCommand();
+        m_last_form_under_mouse->dropWidgets(m_drag_item_list, m_last_widget_under_mouse, pos);
+    } else if (m_widget_box_under_mouse != 0) {
+        m_widget_box_under_mouse->dropWidgets(m_drag_item_list, pos);
     } else {
         foreach (AbstractDnDItem *item, m_drag_item_list) {
-            FormWindowDnDItem *form_item = qobject_cast<FormWindowDnDItem*>(item);
-            if (form_item != 0 && form_item->widget() != 0)
-                form_item->widget()->show();
+            if (item->widget() != 0)
+                item->widget()->show();
         }
     }
 
     foreach (AbstractDnDItem *item, m_drag_item_list)
         delete item;
+
     m_drag_item_list.clear();
     m_last_widget_under_mouse = 0;
     m_last_form_under_mouse = 0;
+    m_widget_box_under_mouse = 0;
 }
 
 bool FormWindowManager::isDecoration(QWidget *widget) const

@@ -21,6 +21,7 @@
 #include "sdk_global.h"
 
 class DomUI;
+class AbstractDnDItem;
 
 class QT_SDK_EXPORT AbstractWidgetBox : public QWidget
 {
@@ -80,6 +81,9 @@ public:
     virtual void removeWidget(int cat_idx, int wgt_idx) = 0;
 
     int findOrInsertCategory(const QString &categoryName);
+
+    virtual void dropWidgets(const QList<AbstractDnDItem*> &item_list,
+                                const QPoint &global_mouse_pos) = 0;
 
 public slots:
     virtual void reload();

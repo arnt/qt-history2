@@ -19,30 +19,68 @@
 
 #include <ui4.h>
 
-QDesignerDnDItem::QDesignerDnDItem()
-    : m_domUi(0),
-      m_widget(0),
-      m_decoration(0),
-      m_ownWidget(false)
+// This is necessary because we want the widgets under the decoration to receive
+// mouse events
+static void makeHoleInDecoration(QWidget *deco, const QPoint &globalPos)
 {
+    QRect geometry = deco->geometry();
+    geometry.moveTopLeft(deco->mapToGlobal(QPoint(0, 0)));
+    if (!geometry.contains(globalPos)) {
+        // nothing to do
+        return;
+    }
+
+    QPoint pos = deco->mapFromGlobal(globalPos);
+
+    QBitmap bitmap(deco->size());
+
+    QPainter p(&bitmap);
+    p.fillRect(bitmap.rect(), Qt::color1);
+    p.setPen(Qt::color0);
+    p.drawPoint(pos);
+    p.end();
+
+    deco->setMask(bitmap);
+
+    deco->setWindowOpacity(0.8);
+    deco->show();
 }
 
-QDesignerDnDItem::~QDesignerDnDItem()
+QDesignerDnDItem::QDesignerDnDItem(DropType type, QWidget *source)
 {
-    if (m_ownWidget)
-        delete m_widget;
-
-    delete m_decoration;
-    delete m_domUi;
-
-    m_domUi = 0;
+    m_source = source;
+    m_type = type;
+    m_dom_ui = 0;
     m_widget = 0;
     m_decoration = 0;
 }
 
+void QDesignerDnDItem::init(DomUI *ui, QWidget *widget, QWidget *decoration,
+                                    const QPoint &global_mouse_pos)
+{
+    Q_ASSERT(widget != 0 || ui != 0);
+    Q_ASSERT(decoration != 0);
+
+    m_dom_ui = ui;
+    m_widget = widget;
+    m_decoration = decoration;
+
+    makeHoleInDecoration(m_decoration, global_mouse_pos);
+
+    QRect geometry = m_decoration->geometry();
+    m_hot_spot = global_mouse_pos - m_decoration->geometry().topLeft();
+}
+
+QDesignerDnDItem::~QDesignerDnDItem()
+{
+    if (m_decoration != 0)
+        m_decoration->deleteLater();
+    delete m_dom_ui;
+}
+
 DomUI *QDesignerDnDItem::domUi() const
 {
-    return m_domUi;
+    return m_dom_ui;
 }
 
 QWidget *QDesignerDnDItem::decoration() const
@@ -52,71 +90,20 @@ QWidget *QDesignerDnDItem::decoration() const
 
 QPoint QDesignerDnDItem::hotSpot() const
 {
-    return m_hotSpot;
+    return m_hot_spot;
 }
 
-QDesignerDnDItem *QDesignerDnDItem::create(QWidget *widget, const QPoint &hotSpot)
+QWidget *QDesignerDnDItem::widget() const
 {
-    Q_UNUSED(widget);
-    Q_UNUSED(hotSpot);
-
-    Q_ASSERT(0);
-    return 0;
+    return m_widget;
 }
 
-QDesignerDnDItem *QDesignerDnDItem::create(DomUI *ui, QWidget *widget, const QPoint &hotSpot)
+QDesignerDnDItem::DropType QDesignerDnDItem::type() const
 {
-    Q_UNUSED(ui);
-    Q_UNUSED(widget);
-    Q_UNUSED(hotSpot);
-
-    Q_ASSERT(0);
-    return 0;
+    return m_type;
 }
 
-void QDesignerDnDItem::createDecoration(const QPoint &globalPos)
+QWidget *QDesignerDnDItem::source() const
 {
-    Q_ASSERT(m_widget == 0);
-
-    QLabel *label = new QLabel(0, Qt::ToolTip); // ### maybe we should use QWidget directly.
-    label->setPixmap(QPixmap::grabWidget(m_widget));
-    m_decoration = label;
-
-    QRect geometry = m_widget->geometry();
-    geometry.moveTopLeft(m_widget->mapToGlobal(QPoint(0, 0)));
-    m_decoration->setGeometry(geometry);
-
-    m_hotSpot = globalPos - m_decoration->geometry().topLeft();
+    return m_source;
 }
-
-void QDesignerDnDItem::setupDecoration(const QPoint &globalPos)
-{
-    Q_ASSERT(m_decoration != 0);
-
-    QRect geometry = m_widget->geometry();
-    geometry.moveTopLeft(m_widget->mapToGlobal(QPoint(0, 0)));
-    if (geometry.contains(globalPos) == false) {
-        // nothing to do
-        return;
-    }
-
-    QPoint pos = m_decoration->mapFromGlobal(globalPos);
-
-    QBitmap bitmap(m_decoration->size());
-
-    QPainter p(&bitmap);
-    p.fillRect(bitmap.rect(), Qt::color1);
-    p.setPen(Qt::color0);
-    p.drawPoint(pos);
-    p.end();
-
-    m_decoration->setMask(bitmap);
-
-    m_decoration->setWindowOpacity(0.8);
-    m_decoration->show();
-}
-
-
-
-
-

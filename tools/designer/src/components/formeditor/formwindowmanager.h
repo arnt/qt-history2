@@ -27,6 +27,7 @@ class QAction;
 class QActionGroup;
 class MetaDataBase;
 class AbstractFormEditor;
+class AbstractWidgetBox;
 
 class QT_FORMEDITOR_EXPORT FormWindowManager: public AbstractFormWindowManager
 {
@@ -66,7 +67,7 @@ public:
 
     bool eventFilter(QObject *o, QEvent *e);
 
-    void dragItems(const QList<AbstractDnDItem*> &item_list, AbstractFormWindow *source_form);
+    void dragItems(const QList<AbstractDnDItem*> &item_list);
 
 public slots:
     void addFormWindow(AbstractFormWindow *formWindow);
@@ -135,7 +136,7 @@ private:
     QAction *m_actionRedo;
 
     QAction *m_actionShowResourceEditor;
-    
+
     // DnD stuff
     void beginDrag(const QList<AbstractDnDItem*> &item_list, const QPoint &globalPos);
     void endDrag(const QPoint &pos);
@@ -144,7 +145,7 @@ private:
     QList<AbstractDnDItem*> m_drag_item_list;
     QWidget *m_last_widget_under_mouse;
     FormWindow *m_last_form_under_mouse;
-    FormWindow *m_source_form;
+    AbstractWidgetBox *m_widget_box_under_mouse;
 
     mutable QPointer<QWidget> lastPassiveInteractor;
     mutable bool lastWasAPassiveInteractor;

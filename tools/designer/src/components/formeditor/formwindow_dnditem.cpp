@@ -11,70 +11,38 @@
 **
 ****************************************************************************/
 
-#include "formwindow_dnditem.h"
-
-#include <ui4.h>
-
 #include <QtGui/QLabel>
 #include <QtGui/QPixmap>
 
-FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
+#include <ui4.h>
+#include <qdesigner_resource.h>
+
+#include "formwindow_dnditem.h"
+#include "formwindow.h"
+
+static QWidget *decorationFromWidget(QWidget *w)
 {
-    m_dom_ui = 0;
-    m_widget = widget;
     QLabel *label = new QLabel(0, Qt::ToolTip);
-    label->setPixmap(QPixmap::grabWidget(m_widget));
+    label->setPixmap(QPixmap::grabWidget(w));
 
-    QRect geometry = widget->geometry();
-    geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));
-    label->setGeometry(geometry);
-
-    m_decoration = label;
-
-    m_hot_spot = pos - m_decoration->geometry().topLeft();
+    return label;
 }
 
-FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos)
+static DomUI *widgetToDom(QWidget *widget, FormWindow *form)
 {
-    m_dom_ui = dom_ui;
-    m_widget = 0;
-
-    QLabel *label = new QLabel(0, Qt::ToolTip);
-    label->setPixmap(QPixmap::grabWidget(widget));
-    label->setWindowOpacity(0.8);
-    QRect geometry = widget->geometry();
-    geometry.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));
-    label->setGeometry(geometry);
-
-    m_decoration = label;
-
-    m_hot_spot = pos - m_decoration->geometry().topLeft();
+    QDesignerResource builder(form);
+    return builder.copy(QList<QWidget*>() << widget);
 }
 
-DomUI *FormWindowDnDItem::domUi() const
+FormWindowDnDItem::FormWindowDnDItem(AbstractDnDItem::DropType type, FormWindow *form,
+                                        QWidget *widget, const QPoint &global_mouse_pos)
+    : QDesignerDnDItem(type, form)
 {
-    return m_dom_ui;
-}
+    QWidget *decoration = decorationFromWidget(widget);
+    QPoint pos = widget->mapToGlobal(QPoint(0, 0));
+    decoration->move(pos);
+    DomUI *dom_ui = widgetToDom(widget, form);
 
-QWidget *FormWindowDnDItem::decoration() const
-{
-    return m_decoration;
-}
-
-QWidget *FormWindowDnDItem::widget() const
-{
-    return m_widget;
-}
-
-FormWindowDnDItem::~FormWindowDnDItem()
-{
-    m_decoration->deleteLater();
-    delete m_dom_ui;
-    m_dom_ui = 0;
-}
-
-QPoint FormWindowDnDItem::hotSpot() const
-{
-    return m_hot_spot;
+    init(dom_ui, widget, decoration, global_mouse_pos);
 }
 

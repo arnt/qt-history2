@@ -407,16 +407,17 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *managedWidget, QMouseE
             selectWidget(widget, true);
         }
         if (e->modifiers() & Qt::ControlModifier) {
-            DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
-            item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
+            item_list.append(new FormWindowDnDItem(AbstractDnDItem::CopyDrop, this,
+                                                    widget, e->globalPos()));
         } else {
-            item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
+            item_list.append(new FormWindowDnDItem(AbstractDnDItem::MoveDrop, this,
+                                                    widget, e->globalPos()));
             widget->hide();
         }
     }
 
     if (sel.count())
-        core()->formWindowManager()->dragItems(item_list, this);
+        core()->formWindowManager()->dragItems(item_list);
 
     blockSelectionChanged(blocked);
 
@@ -1951,6 +1952,50 @@ void FormWindow::editContents()
             }
         }
     }
+}
+
+void FormWindow::dropWidgets(QList<AbstractDnDItem*> &item_list, QWidget *target,
+                                const QPoint &global_mouse_pos)
+{
+    beginCommand(tr("Drop widget"));
+
+    QWidget *parent = target;
+    if (parent == 0)
+        parent = mainContainer();
+
+    core()->formWindowManager()->setActiveFormWindow(this);
+    mainContainer()->activateWindow();
+    clearSelection(false);
+
+    highlightWidget(target, target->mapFromGlobal(global_mouse_pos), FormWindow::Restore);
+
+    foreach (AbstractDnDItem *item, item_list) {
+        DomUI *dom_ui = item->domUi();
+        QRect geometry = item->decoration()->geometry();
+        Q_ASSERT(dom_ui != 0);
+
+        if (item->type() == AbstractDnDItem::CopyDrop) {
+            QWidget *widget = createWidget(dom_ui, geometry, parent);
+            selectWidget(widget, true);
+        } else {
+            QWidget *widget = item->widget();
+            Q_ASSERT(widget != 0);
+            if (parent == widget->parent()) {
+                geometry.moveTopLeft(parent->mapFromGlobal(geometry.topLeft()));
+                resizeWidget(widget, geometry);
+                selectWidget(widget, true);
+                widget->show();
+            } else {
+                FormWindow *source = qobject_cast<FormWindow*>(item->source());
+                Q_ASSERT(source != 0);
+                source->deleteWidgets(QList<QWidget*>() << widget);
+                QWidget *new_widget = createWidget(dom_ui, geometry, parent);
+                selectWidget(new_widget, true);
+            }
+        }
+    }
+
+    endCommand();
 }
 
 #include "formwindow.moc"

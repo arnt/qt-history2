@@ -193,6 +193,9 @@ public:
 
     void resizeWidget(QWidget *widget, const QRect &geometry);
 
+    void dropWidgets(QList<AbstractDnDItem*> &item_list, QWidget *target,
+                        const QPoint &global_mouse_pos);
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
 

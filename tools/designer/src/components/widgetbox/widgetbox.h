@@ -14,11 +14,13 @@
 #ifndef WIDGETBOX_H
 #define WIDGETBOX_H
 
-#include "widgetbox_global.h"
-#include "abstractwidgetbox.h"
-#include "abstractformwindowmanager.h"
-
 #include <QtXml/QDomDocument>
+
+#include <abstractwidgetbox.h>
+#include <abstractformwindowmanager.h>
+#include <abstractdnditem.h>
+
+#include "widgetbox_global.h"
 
 class AbstractFormEditor;
 class AbstractFormWindow;
@@ -54,8 +56,10 @@ public:
 
     virtual void reload();
 
+    void dropWidgets(const QList<AbstractDnDItem*> &item_list, const QPoint &global_mouse_pos);
+
 private slots:
-    void handleMousePress(const QString &xml, const QRect &geometry);
+    void handleMousePress(const QString &xml, const QPoint &global_mouse_pos);
 
 private:
     AbstractFormEditor *m_core;
