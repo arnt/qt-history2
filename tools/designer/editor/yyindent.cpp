@@ -20,7 +20,7 @@
 
 /*
   This file is a self-contained interactive indenter for C++,
-  JavaScript and similar programming languages.
+  and similar programming languages.
 */
 
 #include <qregexp.h>
