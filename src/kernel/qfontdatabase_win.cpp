@@ -314,6 +314,8 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 	    family->scripts[QFont::Unicode] = !hasScript;
 	    family->scriptCheck = true;
 	    // qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
+	} else if (!family->scriptCheck) {
+	    family->scripts[QFont::Unicode] = TRUE;
 	}
     }
 
