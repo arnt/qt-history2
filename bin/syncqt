@@ -223,14 +223,16 @@ sub sync_classnames {
 		    print "SYMBOL: $symbol\n";
 		} else {
 		    my $header = "$includedir/$library/$symbol";
-		    my $header_dir = dirname($header);
-		    mkdir $header_dir, 0777;
+		    unless(-e "$header") {
+			my $header_dir = dirname($header);
+			mkdir $header_dir, 0777;
 
-		    #write it
-		    my $iheader_out = fix_paths($iheader, $header);
-		    open HEADER, ">$header" || die "Could not open $header for writing!\n";
-		    print HEADER "#include \"$iheader_out\"\n";
-		    close HEADER;
+			#write it
+			my $iheader_out = fix_paths($iheader, $header);
+			open HEADER, ">$header" || die "Could not open $header for writing!\n";
+			print HEADER "#include \"$iheader_out\"\n";
+			close HEADER;
+		    }
 		}
 	    }
 	}
@@ -262,7 +264,7 @@ sub sync_header {
 	unlink "$includedir/$header" if(-e "$includedir/$header"); #remove old symlink from 3.x
 	foreach(@headers_out) { 
 	    my $header_out = $_;
-	    if(!-e "$header_out") {
+	    unless(-e "$header_out") {
 		$headers_created++;
 
 		my $header_out_dir = dirname($header_out);
