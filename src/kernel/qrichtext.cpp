@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#29 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -382,7 +382,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	fill = 0;
     }
 
-    min = lastWidth + lastBearing;
+    min = lastWidth - lastBearing;
 
     ++it;
 
