@@ -10,27 +10,35 @@
     \ingroup io
     \module network
 
-    There are two common ways of using QAbstractSocket. The first is
-    as a base pointer for hiding higher level details on the type of
-    socket that is currently in use. For example, an application may
-    choose to use either TCP or UDP to perform certain network
-    operations. By making use of a QAbstractSocket pointer, the code
-    which handles the specific operations can be left unchanged,
-    regardless of whether the pointer points to a QTcpSocket or a
-    QUdpSocket.
-
-    The other common method is to use it as a base class for creating
-    new socket classes.
-
-    QAbstractSocket can operate in blocking or non-blocking mode, and
-    it's either buffered or unbuffered. Since it inherits QIODevice,
-    it can be used with QTextStream for reading or writing text. The
-    QIODevice behavior works best when the socket is in blocking mode.
+    QAbstractSocket is the base class of QTcpSocket and QUdpSocket,
+    and it contains all common functionality of these two
+    classes. While QTcpSocket is a simple convenience class which adds
+    no extra functionality, QUdpSocket has some extra functions that
+    are specific to sending UDP datagrams. QAbstractSocket can be used
+    for both socket types, and the type of socket is determined by
+    passing either Qt::TcpSocket or Qt::UdpSocket to its constructor.
 
     Call connectToHost() to connect the socket to a host. isValid()
-    and socketState() can be called to check the state of the socket.
+    and socketState() can be called to check the state of the
+    socket. When the socket is connected, the readyRead() signal is
+    emitted every time new data has arrived. This signal is emitted
+    only once for every incoming payload of data.
 
+    bytesAvailable() returns the number of bytes that are available
+    for reading. To read or write data, call read() or write().
 
+    By calling setBlocking(), QAbstractSocket can be toggled to
+    operate in blocking mode or non-blocking mode. You will find more
+    details about QAbstractSocket's blocking mode behavior in the
+    documentation for each function. In short, when in blocking mode,
+    certain functions do not return until their operation has
+    completed. In non-blocking mode, all function return immediately.
+
+    Since QAbstractSocket inherits QIODevice, it can be used with
+    streams for reading or writing text. Reading from a QTextStream or
+    QDataStream works best when the socket is in blocking mode;
+    otherwise you must make sure that enough data is available before
+    reading.
 */
 
 #include "qabstractsocket.h"
@@ -49,186 +57,219 @@
 #define d d_func()
 #define q q_func()
 
-/*! \internal
-
-    Constructs a sliding window buffer of unlimited size.
-*/
-QSlidingWindowBuffer::QSlidingWindowBuffer()
+QRingBuffer::QRingBuffer(int growth) : basicBlockSize(growth)
 {
-    maximumBufferSize = 0;
     clear();
 }
 
-/*! \internal
-
-    Returns the maximum size of the buffer, or 0 if the buffer has no
-    size limit.
-*/
-Q_LLONG QSlidingWindowBuffer::maximumSize() const
+int QRingBuffer::nextDataBlockSize() const
 {
-    return maximumBufferSize;
+    return (tailBuffer == 0 ? tail : buffers[0].size()) - head;
 }
 
-/*! \internal
-
-    Sets the maximum size of the buffer to \a size. The buffer's
-    current contents are left unchanged, even if the buffer is already
-    larger than \a size.
-*/
-void QSlidingWindowBuffer::setMaximumSize(Q_LLONG size)
+char *QRingBuffer::readPointer() const
 {
-    maximumBufferSize = size;
+    if (buffers.count() == 0)
+        return 0;
+    return const_cast<char *>(buffers[0].data()) + head;
 }
 
-/*! \internal
-*/
-QByteArray QSlidingWindowBuffer::readAll()
+void QRingBuffer::free(int bytes)
 {
-    QByteArray tmp;
-    tmp.resize(size());
-    readFromFront(tmp.data(), size());
-    return tmp;
+    for (;;) {
+        int nextBlockSize = nextDataBlockSize();
+        if (bytes < nextBlockSize) {
+            head += bytes;
+            if (head == tail && tailBuffer == 0)
+                head = tail = 0;
+            return;
+        }
+
+        bytes -= nextBlockSize;
+        if (buffers.count() == 1) {
+            if (buffers.at(0).size() != basicBlockSize)
+                buffers[0].resize(basicBlockSize);
+            head = tail = 0;
+            tailBuffer = 0;
+            return;
+        } else {
+            buffers.removeAt(0);
+        }
+
+        --tailBuffer;
+        head = 0;
+    }
 }
 
-/*! \internal
-*/
-bool QSlidingWindowBuffer::contains(char character) const
+char *QRingBuffer::reserve(int bytes)
 {
-    if (headBuffer->indexOf(character, head) != -1)
-        return true;
-    return tailBuffer->contains(character);
+    // if there is already enough space, simply return.
+    if (tail + bytes <= basicBlockSize) {
+        if (buffers.isEmpty()) {
+            buffers << QByteArray();
+            buffers[0].resize(basicBlockSize);
+        }
+
+        tail += bytes;
+        return buffers[tailBuffer].data() + tail - bytes;
+    }
+
+    // if our buffer isn't half full yet, simply resize it.
+    if (tail < basicBlockSize / 2) {
+        if (buffers.isEmpty())
+            buffers << QByteArray();
+
+        buffers[tailBuffer].resize(tail + bytes);
+        tail += bytes;
+        return buffers[tailBuffer].data() + tail - bytes;
+    }
+
+    // shrink this buffer to its current size
+    buffers[tailBuffer].resize(tail);
+    if (tail == basicBlockSize)
+        tail = bytes - (basicBlockSize - tail);
+    else
+        tail = bytes - (basicBlockSize - tail) + (basicBlockSize - tail);
+
+    // create a new QByteArray with the right size, and set the
+    // tail to 0.
+    buffers << QByteArray();
+    ++tailBuffer;
+    buffers[tailBuffer].resize(basicBlockSize);
+    return buffers[tailBuffer].data();
 }
 
-/*! \internal
-*/
-int QSlidingWindowBuffer::indexOf(char character) const
+void QRingBuffer::truncate(int bytes)
 {
-    int i = headBuffer->indexOf(character, head);
-    if (i != -1)
-        return i - head;
-    i = tailBuffer->indexOf(character);
-    if (i != -1)
-        return (headBuffer->size() - head) + i;
+    for (;;) {
+        if (tailBuffer == 0) {
+            tail -= bytes;
+            if (tail < head)
+                clear();
+            return;
+        }
+
+        if (bytes < tail) {
+            tail -= bytes;
+            return;
+        }
+
+        bytes -= (tail + 1);
+        buffers.removeAt(tailBuffer);
+        if (buffers.isEmpty()) {
+            clear();
+            return;
+        }
+
+        --tailBuffer;
+        tail = basicBlockSize - 1;
+    }
+}
+
+int QRingBuffer::getchar()
+{
+    if (isEmpty())
+        return -1;
+    char c = *readPointer();
+    free(1);
+    return c;
+}
+
+void QRingBuffer::putchar(char c)
+{
+    char *ptr = reserve(1);
+    *ptr = c;
+}
+
+void QRingBuffer::ungetchar(char c)
+{
+    --head;
+    if (head < 0) {
+        buffers.prepend(QByteArray());
+        buffers[0].resize(basicBlockSize);
+        head = basicBlockSize - 1;
+    }
+    buffers[0][head] = c;
+}
+
+int QRingBuffer::size() const
+{
+    int tmpSize = 0;
+    for (int i = 0; i < buffers.size(); ++i) {
+        if (i == 0) {
+            if (i == tailBuffer)
+                tmpSize += tail - head;
+            else
+                tmpSize += buffers.at(i).size() - head;
+        } else if (i == tailBuffer) {
+            tmpSize += tail;
+        } else {
+            tmpSize += buffers.at(i).size();
+        }
+
+    }
+
+    return tmpSize;
+}
+
+void QRingBuffer::clear()
+{
+    if (!buffers.isEmpty())
+        buffers.clear();
+    buffers << QByteArray();
+    buffers[0].resize(basicBlockSize);
+    head = tail = 0;
+    tailBuffer = 0;
+}
+
+bool QRingBuffer::isEmpty() const
+{
+    return size() == 0;
+}
+
+int QRingBuffer::indexOf(char c) const
+{
+    int index = 0;
+    for (int i = 0; i < buffers.size(); ++i) {
+        int start = 0;
+        int end = buffers.at(i).size();
+        if (i == 0)
+            start = head;
+        if (i == tailBuffer)
+            end = tail;
+        for (int j = start; j < end; ++j) {
+            if (buffers.at(i).data()[j] == c)
+                return index;
+            ++index;
+        }
+    }
+
     return -1;
 }
 
-/*! \internal
-*/
-QByteArray QSlidingWindowBuffer::left(int len)
+int QRingBuffer::readLine(char *data, int maxLength)
 {
-    QByteArray tmp;
-    tmp.resize(len > size() ? size() : len);
-    readFromFront(tmp.data(), tmp.size());
-    return tmp;
-}
+    int index = indexOf('\n');
+    if (index == -1)
+        return -1;
 
-/*! \internal
-
-    Clears the buffer.
-*/
-void QSlidingWindowBuffer::clear()
-{
-    head = 0;
-    tail = 0;
-    headBuffer = &buffers[0];
-    tailBuffer = &buffers[1];
-    buffers[0].clear();
-    buffers[1].clear();
-}
-
-/*! \internal
-
-    Swaps the head and tail buffer. This is done before reading, if
-    the head buffer is empty.
-*/
-void QSlidingWindowBuffer::swapBuffers()
-{
-    headBuffer->clear();
-    QByteArray *tmp = headBuffer;
-    headBuffer = tailBuffer;
-    tailBuffer = tmp;
-    tail = 0;
-    head = 0;
-}
-
-/*! \internal
-
-    Reads and removes at most \a maxLength bytes from the from of the
-    buffer, and stores it in \a data. Returns the number of bytes
-    read.
-*/
-Q_LLONG QSlidingWindowBuffer::readFromFront(char *data, Q_LLONG maxLength)
-{
-    // Truncate requested data to size of sliding window buffer.
-    if (maxLength > size())
-        maxLength = size();
-    if (maxLength == 0)
-        return 0;
-
-    // Swap the buffers if data is to be read and there is nothing
-    // available
-    if (headBuffer->size() - head == 0)
-        swapBuffers();
+    if (index > maxLength)
+        return -1;
 
     int readSoFar = 0;
-    int headBufferSize = headBuffer->size();
-
-    // Check if we need to read more than what's in the head buffer
-    if (maxLength > headBufferSize) {
-        if (data) {
-            if (headBufferSize == 1)
-                *data = *headBuffer->data();
-            else
-                memcpy(data, headBuffer->data(), headBufferSize);
-        }
-        readSoFar = headBufferSize;
-        maxLength -= headBufferSize;
-        headBuffer->clear();
-        head = 0;
-        swapBuffers();
+    while (readSoFar < index) {
+        int bytesToRead = qMin((index + 1) - readSoFar, nextDataBlockSize());
+        memcpy(data + readSoFar, readPointer(), bytesToRead);
+        readSoFar += bytesToRead;
+        free(bytesToRead);
     }
 
-    // Check if all data is in the current buffer.
-    if (data) {
-        if (maxLength == 1)
-            data[readSoFar] = headBuffer->data()[head];
-        else
-            memcpy(data + readSoFar, headBuffer->data() + head, maxLength);
-    }
-    head += maxLength;
-    return readSoFar + maxLength;
+    return readSoFar;
 }
 
-/*!
-    Writes at most \a length bytes from \a data onto the end of the
-    buffer. Returns the number of bytes written.
-*/
-Q_LLONG QSlidingWindowBuffer::writeToEnd(const char *data, Q_LLONG length)
+bool QRingBuffer::canReadLine() const
 {
-    // Truncate length to fit the buffer.
-    if (maximumBufferSize && length > maximumBufferSize - size())
-        length = maximumBufferSize - size();
-    if (length == 0)
-        return 0;
-
-    // Make sure the tail buffer is large enough
-    if (tailBuffer->size() - tail < length)
-        tailBuffer->resize(tail + length);
-
-    if (length == 1)
-        tailBuffer->data()[tail] = *data;
-    else
-        memcpy(tailBuffer->data() + tail, data, length);
-    tail += length;
-    return length;
-}
-
-/*!
-    Returns the size of the buffer.
-*/
-Q_LLONG QSlidingWindowBuffer::size() const
-{
-    return (headBuffer->size() - head) + tailBuffer->size();
+    return indexOf('\n') != -1;
 }
 
 /*! \internal
@@ -236,6 +277,7 @@ Q_LLONG QSlidingWindowBuffer::size() const
     Constructs a QAbstractSocketPrivate. Initializes all members.
 */
 QAbstractSocketPrivate::QAbstractSocketPrivate()
+    : readBuffer(32768), writeBuffer(32768)
 {
     port = 0;
     readSocketNotifier = 0;
@@ -474,21 +516,25 @@ void QAbstractSocketPrivate::flush()
     bool timedOut = false;
     int timeout = blockingTimeout;
     QTime stopWatch;
-    stopWatch.start();
+    if (isBlocking)
+        stopWatch.start();
     do {
+        int nextSize = writeBuffer.nextDataBlockSize();
+        char *ptr = writeBuffer.readPointer();
+
         // Attempt to write it all in one chunk.
-        Q_LLONG written = socketLayer.write(writeBuffer.data(), writeBuffer.size());
+        Q_LLONG written = socketLayer.write(ptr, nextSize);
         if (written < 0) {
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
             emit q->error(socketError);
             resetSocketLayer();
             break;
-        } else {
-            // Remove what we wrote so far.
-            writeBuffer.remove(0, written);
-            emit q->bytesWritten(written);
         }
+
+        // Remove what we wrote so far.
+        writeBuffer.free(nextSize);
+        emit q->bytesWritten(written);
     } while (isBlocking && !writeBuffer.isEmpty()
              && socketLayer.waitForWrite(timeout - stopWatch.elapsed(), &timedOut));
 
@@ -735,9 +781,10 @@ bool QAbstractSocketPrivate::readFromSocket()
 
     // Read from the socket, store data in the read buffer.
     if (bytesToRead > 0) {
-        QByteArray tmpBuffer;
-        tmpBuffer.resize(bytesToRead);
-        Q_LLONG readBytes = socketLayer.read(tmpBuffer.data(), bytesToRead);
+        char *ptr = d->readBuffer.reserve(bytesToRead);
+        Q_LLONG readBytes = socketLayer.read(ptr, bytesToRead);
+        d->readBuffer.truncate((int) (bytesToRead - readBytes));
+
         if (!socketLayer.isValid()) {
             socketError = socketLayer.socketError();
             socketErrorString = socketLayer.errorString();
@@ -749,8 +796,6 @@ bool QAbstractSocketPrivate::readFromSocket()
             d->resetSocketLayer();
             return false;
         }
-
-        readBuffer.writeToEnd(tmpBuffer.data(), readBytes);
 
         // If there is still space in the buffer, reenabled the read
         // socket notifier.
@@ -1016,7 +1061,7 @@ QString QAbstractSocket::peerName() const
 */
 bool QAbstractSocket::canReadLine() const
 {
-    bool hasLine = d->readBuffer.contains('\n');
+    bool hasLine = d->readBuffer.canReadLine();
 #if defined (QABSTRACTSOCKET_DEBUG)
     qDebug("QAbstractSocket::canReadLine() == %s", hasLine ? "true" : "false");
 #endif
@@ -1062,9 +1107,13 @@ QByteArray QAbstractSocket::readLine()
     }
 
     int endOfLine = d->readBuffer.indexOf('\n');
+    QByteArray tmp;
     if (endOfLine == -1)
-        return QByteArray();
-    return d->readBuffer.left(endOfLine + 1);
+        return tmp;
+
+    tmp.resize(endOfLine + 1);
+    d->readBuffer.readLine(tmp.data(), endOfLine + 1);
+    return tmp;
 }
 
 /*!
@@ -1208,7 +1257,7 @@ Q_LLONG QAbstractSocket::readLine(char *data, Q_LLONG maxLength)
      if (endOfLine + 1 > maxLength)
          endOfLine = maxLength - 1;
 
-    d->readBuffer.readFromFront(data, endOfLine + 1);
+    d->readBuffer.readLine(data, endOfLine + 1);
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
     return endOfLine + 1;
@@ -1220,7 +1269,15 @@ QByteArray QAbstractSocket::readAll()
 {
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
-    return d->readBuffer.readAll();
+    QByteArray tmp;
+    tmp.resize(d->readBuffer.size());
+    int readSoFar = 0;
+    while (!d->readBuffer.isEmpty()) {
+        memcpy(tmp.data() + readSoFar, d->readBuffer.readPointer(), d->readBuffer.nextDataBlockSize());
+        readSoFar += d->readBuffer.nextDataBlockSize();
+        d->readBuffer.free(d->readBuffer.nextDataBlockSize());
+    }
+    return tmp;
 }
 
 /*! \reimp
@@ -1234,20 +1291,14 @@ bool QAbstractSocket::seek(Q_LLONG off)
 */
 int QAbstractSocket::getch()
 {
-    char c;
-    d->readBuffer.readFromFront(&c, 1);
-    if (d->readSocketNotifier)
-        d->readSocketNotifier->setEnabled(true);
-    return c;
+    return d->readBuffer.getchar();
 }
 
 /*! \reimp
 */
 int QAbstractSocket::ungetch(int character)
 {
-    // ### Size of read buffer
-    qWarning("QAbstractSocket::ungetch() unimplemented");
-//    d->readBuffer.prepend(character);
+    d->readBuffer.ungetchar((char) character);
     return character;
 }
 
@@ -1255,8 +1306,7 @@ int QAbstractSocket::ungetch(int character)
 */
 int QAbstractSocket::putch(int character)
 {
-    d->writeBuffer += (char) character;
-    d->writeSocketNotifier->setEnabled(true);
+    d->writeBuffer.putchar(character);
     return character;
 }
 
@@ -1290,7 +1340,17 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
     if (d->readBuffer.size() > 0) {
         if (d->readSocketNotifier)
             d->readSocketNotifier->setEnabled(true);
-        return d->readBuffer.readFromFront(data, maxLength);
+        int bytesToRead = qMin(d->readBuffer.size(), (int) maxLength);
+        int readSoFar = 0;
+        while (readSoFar < bytesToRead) {
+            char *ptr = d->readBuffer.readPointer();
+            int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar, d->readBuffer.nextDataBlockSize());
+            memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
+            readSoFar += bytesToReadFromThisBlock;
+            d->readBuffer.free(bytesToReadFromThisBlock);
+        }
+
+        return readSoFar;
     }
 
     // Nonblocking sockets are done after the first read.
@@ -1308,7 +1368,18 @@ Q_LLONG QAbstractSocket::read(char *data, Q_LLONG maxLength)
 
     if (d->readSocketNotifier)
         d->readSocketNotifier->setEnabled(true);
-    return d->readBuffer.readFromFront(data, maxLength);
+
+    int bytesToRead = qMin(d->readBuffer.size(), (int) maxLength);
+    int readSoFar = 0;
+    while (readSoFar < bytesToRead) {
+        char *ptr = d->readBuffer.readPointer();
+        int bytesToReadFromThisBlock = qMin(bytesToRead - readSoFar, d->readBuffer.nextDataBlockSize());
+        memcpy(data + readSoFar, ptr, bytesToReadFromThisBlock);
+        readSoFar += bytesToReadFromThisBlock;
+        d->readBuffer.free(bytesToReadFromThisBlock);
+    }
+
+    return readSoFar;
 }
 
 /*!
@@ -1335,9 +1406,11 @@ Q_LLONG QAbstractSocket::write(const char *data, Q_LLONG length)
         return written;
     }
 
-    Q_LLONG oldSize = d->writeBuffer.size();
-    d->writeBuffer.resize(oldSize + length);
-    memcpy(d->writeBuffer.data() + oldSize, data, length);
+    char *ptr = d->writeBuffer.reserve(length);
+    if (length == 1)
+        *ptr = *data;
+    else
+        memcpy(ptr, data, length);
 
     if (d->writeSocketNotifier)
         d->writeSocketNotifier->setEnabled(true);

@@ -59,9 +59,6 @@ public:
     virtual bool connectToHost(const QString &hostName, Q_UINT16 port);
     bool connectToHost(const QHostAddress &address, Q_UINT16 port);
 
-    bool isBlocking() const;
-    void setBlocking(bool blocking, int msec = 30000);
-
     virtual bool isValid() const;
 
     virtual Q_LLONG bytesAvailable() const;
@@ -92,6 +89,9 @@ public:
 
     Qt::SocketError socketError() const;
     QString errorString() const;
+
+    bool isBlocking() const;
+    void setBlocking(bool blocking, int msec = 30000);
 
     // from QIODevice
 
