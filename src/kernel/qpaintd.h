@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#44 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#45 $
 **
 ** Definition of QPaintDevice class
 **
@@ -54,7 +54,17 @@ public:
 #if !defined(_WS_X11_)
 #define Display void
 #endif
-    Display *x11Display() const;		// X-Windows only
+    Display *x11Display() const;		// X11 only
+
+#if defined(_WS_X11_)
+    static Display *x__Display();
+    static int	    x11Screen();
+    static int	    x11Depth();
+    static int	    x11Cells();
+    static HANDLE   x11Colormap();
+    static void	   *x11Visual();
+    static bool	    x11DefaultVisual();
+#endif
 
 protected:
     QPaintDevice( uint devflags );
@@ -75,10 +85,22 @@ protected:
 
     uint     devFlags;				// device flags
 
+    friend class QColor;
     friend class QPainter;
     friend class QPaintDeviceMetrics;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp, bool );
+
+#if defined(_WS_X11_)
+private:
+    static Display *x_display;
+    static int	    x_screen;
+    static int	    x_depth;
+    static int	    x_cells;
+    static HANDLE   x_colormap;
+    static void	   *x_visual;
+    static bool     x_defvisual;
+#endif
 
 private:	// Disabled copy constructor and operator=
     QPaintDevice( const QPaintDevice & ) {}
@@ -117,6 +139,16 @@ inline Display *QPaintDevice::x11Display() const { return dpy; }
 #else
 inline Display *QPaintDevice::x11Display() const { return 0; }
 #undef Display
+#endif
+
+#if defined(_WS_X11_)
+inline Display *QPaintDevice::x__Display()	 { return x_display; }
+inline int	QPaintDevice::x11Screen()	 { return x_screen; }
+inline int	QPaintDevice::x11Depth()	 { return x_depth; }
+inline int	QPaintDevice::x11Cells()	 { return x_cells; }
+inline HANDLE	QPaintDevice::x11Colormap()	 { return x_colormap; }
+inline void    *QPaintDevice::x11Visual()	 { return x_visual; }
+inline bool    	QPaintDevice::x11DefaultVisual() { return x_defvisual; }
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#96 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#96 $");
 
 
 /*****************************************************************************
@@ -45,7 +45,7 @@ static void qt_cleanup_mitshm()
 {
     if ( xshmimg == 0 )
 	return;
-    Display *dpy = qt_xdisplay();
+    Display *dpy = QPaintDevice::x__Display();
     if ( xshmpm ) {
 	XFreePixmap( dpy, xshmpm );
 	xshmpm = 0;
@@ -61,10 +61,10 @@ bool qt_create_mitshm_buffer( int w, int h )
 {
     static int major, minor;
     static Bool pixmaps_ok;
-    Display *dpy = qt_xdisplay();
-    int scr	 = qt_xscreen();
-    int dd	 = DefaultDepth(dpy,scr);
-    Visual *vis	 = DefaultVisual(dpy,scr);
+    Display *dpy = QPaintDevice::x11Display();
+    int scr	 = QPaintDevice::x11Screen();
+    int dd	 = QPaintDevice::x11Depth();
+    Visual *vis	 = QPaintDevice::x11Visual();
 
     if ( xshminit ) {
 	qt_cleanup_mitshm();
@@ -158,7 +158,7 @@ bool QPixmap::optimAll = TRUE;
 void QPixmap::init( int w, int h, int d )
 {
     static int serial = 0;
-    int dd = defaultDepth();
+    int dd = x11Depth();
 
     data = new QPixmapData;
     CHECK_PTR( data );
@@ -308,10 +308,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 
 int QPixmap::defaultDepth()
 {
-    static int dd = 0;
-    if ( dd == 0 && qApp )
-	dd = DefaultDepth( qt_xdisplay(), qt_xscreen() );
-    return dd;
+    return x11Depth();
 }
 
 
@@ -465,8 +462,8 @@ QImage QPixmap::convertToImage() const
     int	    h  = height();
     int	    d  = depth();
     bool    mono = d == 1;
-    int	    scr	   = qt_xscreen();
-    Visual *visual = DefaultVisual(dpy,scr);
+    int	    scr	   = x11Screen();
+    Visual *visual = (Visual *)x11Visual();
     bool    trucol = (visual->c_class == TrueColor) && !mono;
     XImage *xi = 0;				// get pixmap data from server
 
@@ -625,8 +622,8 @@ QImage QPixmap::convertToImage() const
 	    }
 	}
 
-	Colormap cmap	= DefaultColormap( dpy, scr );
-	int	 ncells = DisplayCells( dpy, scr );
+	Colormap cmap	= x11Colormap();
+	int	 ncells = x11Cells();
 	XColor *carr = new XColor[ncells];
 	for ( i=0; i<ncells; i++ )
 	    carr[i].pixel = i;
@@ -699,8 +696,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     int	 w   = image.width();
     int	 h   = image.height();
     int	 d   = image.depth();
-    int	 scr = qt_xscreen();
-    int	 dd  = DefaultDepth(dpy,scr);
+    int	 scr = x11Screen();
+    int	 dd  = x11Depth();
     bool force_mono = (dd == 1 || isQBitmap() || mode == Mono);
 
     if ( data->mask ) {				// get rid of the mask
@@ -774,7 +771,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	return TRUE;
     }
 
-    Visual *visual = DefaultVisual(dpy,scr);
+    Visual *visual = (Visual *)x11Visual();
     XImage *xi	   = 0;
     bool    trucol = visual->c_class == TrueColor;
     int	    nbytes = image.numBytes();
@@ -1067,6 +1064,8 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
+    if ( !x11DefaultVisual() )			// incompatible depth
+	return QPixmap(0, 0);
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    QPixmap nullPixmap;
@@ -1453,9 +1452,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    XCopyArea( dpy, xshmpm, pm.handle(), gc, 0, 0, w, h, 0, 0 );
 	} else {
 #endif
-	    int scr = qt_xscreen();
-	    int dd  = DefaultDepth(dpy,scr);
-	    xi = XCreateImage( dpy, DefaultVisual(dpy,scr), dd, ZPixmap, 0,
+	    int scr = x11Screen();
+	    int dd  = x11Depth();
+	    xi = XCreateImage( dpy, (Visual *)x11Visual(), dd, ZPixmap, 0,
 			       (char *)dptr, w, h, 32, 0 );
 	    XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	    XDestroyImage( xi );

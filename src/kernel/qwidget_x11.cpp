@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#161 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#160 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#161 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -112,6 +112,8 @@ void QWidget::create( WId window )
     else
 	parentw = parentWidget()->winId();
 
+    XSetWindowAttributes wattr;
+
     if ( window ) {				// override the old window
 	destroyw = winid;
 	id = window;
@@ -127,16 +129,27 @@ void QWidget::create( WId window )
 	    setWinId( id );
 	}
     } else {
-	id = XCreateSimpleWindow( dpy, parentw,
-				  frect.left(), frect.top(),
-				  frect.width(), frect.height(),
-				  0,
-				  black.pixel(),
-				  bg_col.pixel() );
+	if ( x11DefaultVisual() ) {
+	    id = XCreateSimpleWindow( dpy, parentw,
+				      frect.left(), frect.top(),
+				      frect.width(), frect.height(),
+				      0,
+				      black.pixel(),
+				      bg_col.pixel() );
+	} else {
+	    wattr.background_pixel = bg_col.pixel();
+	    wattr.border_pixel = black.pixel();		
+	    wattr.colormap = (Colormap)x11Colormap();
+	    id = XCreateWindow( dpy, parentw,
+				frect.left(), frect.top(),
+				frect.width(), frect.height(),
+				0, x11Depth(), InputOutput,
+				(Visual*)x11Visual(),
+				CWBackPixel|CWBorderPixel|CWColormap,
+				&wattr );
+	}
 	setWinId( id );				// set widget id/handle + hd
     }
-
-    XSetWindowAttributes wattr;
 
     if ( topLevel && !(desktop || popup || modal) ) {
 	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget

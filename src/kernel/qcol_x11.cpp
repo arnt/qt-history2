@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#50 $
 **
 ** Implementation of QColor class for X11
 **
@@ -11,12 +11,14 @@
 
 #include "qcolor.h"
 #include "string.h"
+#include "qpaintd.h"
+#include "qapp.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#50 $");
 
 
 /*****************************************************************************
@@ -41,24 +43,65 @@ typedef Q_DECLARE(QIntDictIteratorM,QColorData) QColorDictIt;
 static QColorDict *colorDict  = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
+static bool	color_init = FALSE;		// module was initialized
 static int	current_alloc_context = 0;	// current color alloc context
-static int	g_depth = 0;			// display depth
-static int	g_ncols = 0;			// number of colors
-static Colormap g_cmap	= 0;			// application global colormap
+static Visual  *g_vis	= 0;			// visual
 static XColor  *g_carr	= 0;			// color array
-static Visual  *g_vis	= 0;
 static bool	g_truecolor;
 static uint	red_mask , green_mask , blue_mask;
 static int	red_shift, green_shift, blue_shift;
 
 
-void qt_reset_color_avail()			// OOPS: called from event loop
+/*
+  This function is called from the event loop. It resets the colorAvail
+  flag so that the application can retry to allocate read-only colors
+  that other applications may have deallocated lately.
+*/
+
+void qt_reset_color_avail()
 {
     colorAvail = TRUE;
     if ( g_carr ) {				// color array was allocated
 	delete [] g_carr;
 	g_carr = 0;				// reset
     }
+}
+
+
+/*
+  Returns a truecolor visual (if there is one). The SGI X server usually
+  has an 8 bit default visual, but the application can also ask for a
+  truecolor visual. This is what we do if QApplication::colorMode() is
+  TrueColor.
+*/
+
+static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
+{
+    XVisualInfo *vi, rvi;
+    int best, n, i;
+    int scr = DefaultScreen(dpy);
+    rvi.c_class = TrueColor;
+    rvi.screen  = scr;
+    vi = XGetVisualInfo( dpy, VisualClassMask | VisualScreenMask,
+			 &rvi, &n );
+    if ( vi ) {
+	for ( i=0, best=-1; i<n; i++ ) {
+	    if ( (vi[i].depth == 24) || (vi[i].depth > 24 && best<0) )
+		best = i;
+	}
+    }
+    Visual *v = DefaultVisual(dpy,scr);
+    if ( best < 0 || (vi[best].visualid == XVisualIDFromVisual(v)) ) {
+	*depth = DefaultDepth(dpy,scr);
+	*ncols = DisplayCells(dpy,scr);	
+    } else {
+	v = vi[best].visual;
+	*depth = vi[best].depth;
+	*ncols = vi[best].colormap_size;
+    }
+    if ( vi )
+	XFree( (char *)vi );
+    return v;
 }
 
 
@@ -87,7 +130,7 @@ static int highest_bit( uint v )
 
 int QColor::maxColors()
 {
-    return g_ncols;
+    return QPaintDevice::x11Cells();
 }
 
 /*!
@@ -100,7 +143,7 @@ int QColor::maxColors()
 
 int QColor::numBitPlanes()
 {
-    return g_depth;
+    return QPaintDevice::x11Depth();
 }
 
 
@@ -112,20 +155,41 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    if ( g_cmap )				// already initialized
+    if ( color_init )				// already initialized
 	return;
-    ginit = TRUE;
+    color_init = TRUE;
 
-    Display *dpy    = qt_xdisplay();
-    int	     screen = qt_xscreen();
-    g_depth = DefaultDepth( dpy, screen );	// default depth of display
-    g_cmap  = DefaultColormap( dpy, screen );	// create colormap
-    g_ncols = DisplayCells( dpy, screen );	// number of colors
-    g_vis   = DefaultVisual( dpy, screen );
+    Display *dpy = qt_xdisplay();
+    int      scr = DefaultScreen(dpy);
+    int	     depth, ncols;
+    Colormap cmap;
+
+    if ( QApplication::colorMode() == QApplication::ManyColors ) {
+	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
+    } else {
+	g_vis = DefaultVisual(dpy,scr);
+	depth = DefaultDepth(dpy,scr);
+	ncols = DisplayCells(dpy,scr);
+    }
+    bool defVis = g_vis == DefaultVisual(dpy,scr);
+
+    if ( defVis )
+	cmap = DefaultColormap(dpy,scr);
+    else
+	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone );
+
     g_truecolor = g_vis->c_class == TrueColor;
 
+    QPaintDevice::x_display   = dpy;
+    QPaintDevice::x_screen    = scr;
+    QPaintDevice::x_depth     = depth;
+    QPaintDevice::x_cells     = ncols;
+    QPaintDevice::x_colormap  = cmap;
+    QPaintDevice::x_visual    = g_vis;
+    QPaintDevice::x_defvisual = defVis;
+
     int dictsize = 419;				// standard dict size
-    if ( g_ncols > 256 || g_depth > 8 )
+    if ( ncols > 256 || depth > 8 )
 	dictsize = 2113;
 
     if ( g_truecolor ) {			// truecolor
@@ -143,9 +207,14 @@ void QColor::initialize()
   // Initialize global color objects
 
     ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
-    ((QColor*)(&black))->pix	= BlackPixel( dpy, screen );
     ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
-    ((QColor*)(&white))->pix	= WhitePixel( dpy, screen );
+    if ( defVis ) {
+	((QColor*)(&black))->pix = BlackPixel( dpy, scr );
+	((QColor*)(&white))->pix = WhitePixel( dpy, scr );
+    } else {
+	((QColor*)(&black))->alloc();
+	((QColor*)(&white))->alloc();
+    }
 
 #if 0 /* 0 == allocate colors on demand */
     setLazyAlloc( FALSE );			// allocate global colors
@@ -176,12 +245,15 @@ void QColor::initialize()
 
 void QColor::cleanup()
 {
-    if ( !colorDict )
+    if ( !color_init )
 	return;
-    colorDict->setAutoDelete( TRUE );		// remove all entries
-    colorDict->clear();
-    delete colorDict;
-    colorDict = 0;
+    color_init = FALSE;
+    if ( colorDict ) {
+	colorDict->setAutoDelete( TRUE );
+	colorDict->clear();
+	delete colorDict;
+	colorDict = 0;
+    }
 }
 
 
@@ -223,12 +295,12 @@ QColor::QColor( QRgb rgb, uint pixel )
 
 uint QColor::alloc()
 {
-    Display *dpy = qt_xdisplay();
-    int      scr = qt_xscreen();
-    if ( (rgbVal & RGB_INVALID) || !g_cmap ) { // invalid color or state
-	rgbVal = qRgb( 0, 0, 0 );
+    Display *dpy = QPaintDevice::x__Display();
+    int      scr = QPaintDevice::x11Screen();
+    if ( (rgbVal & RGB_INVALID) || !color_init ) {
+	rgbVal = qRgb( 0, 0, 0 );		// invalid color or state
 	if ( dpy )
-	    pix = BlackPixel( dpy, scr );
+	    pix = BlackPixel(dpy, scr);
 	else
 	    pix = 0;
 	return pix;
@@ -260,14 +332,14 @@ uint QColor::alloc()
     col.red   = r << 8;
     col.green = g << 8;
     col.blue  = b << 8;
-    if ( colorAvail && XAllocColor(dpy, g_cmap, &col) ) {
+    if ( colorAvail && XAllocColor(dpy, QPaintDevice::x11Colormap(), &col) ) {
 	pix = (uint)col.pixel;			// allocated X11 color
 	rgbVal &= RGB_MASK;
     } else {					// get closest color
 	int mincol = -1;
 	int mindist = 200000;
 	int rx, gx, bx, dist;
-	int i, maxi = g_ncols > 256 ? 256 : g_ncols;
+	int i, maxi = QMIN(QPaintDevice::x11Cells(),256);
 	register XColor *xc;
 	colorAvail = FALSE;			// no more avail colors
 	if ( !g_carr ) {			// get colors in colormap
@@ -278,7 +350,7 @@ uint QColor::alloc()
 		xc->pixel = i;			// carr[i] = color i
 		xc++;
 	    }
-	    XQueryColors( dpy, g_cmap, g_carr, maxi );
+	    XQueryColors( dpy, QPaintDevice::x11Colormap(), g_carr, maxi );
 	}
 	xc = &g_carr[0];
 	for ( i=0; i<maxi; i++ ) {		// find closest color
@@ -297,7 +369,7 @@ uint QColor::alloc()
 	    pix = BlackPixel( dpy, scr );
 	    return pix;
 	}
-	XAllocColor( dpy, g_cmap, &g_carr[mincol] );
+	XAllocColor( dpy, QPaintDevice::x11Colormap(), &g_carr[mincol] );
 	pix = g_carr[mincol].pixel;		// allocated X11 color
 	rgbVal &= RGB_MASK;
     }
@@ -323,16 +395,18 @@ uint QColor::alloc()
 void QColor::setNamedColor( const char *name )
 {
     bool ok = FALSE;
-    if ( g_cmap	 ) {				// initialized
+    if ( color_init	 ) {			// initialized
 	XColor col, hw_col;
-	if ( XLookupColor( qt_xdisplay(), g_cmap, name, &col, &hw_col ) ) {
+	if ( XLookupColor(QPaintDevice::x__Display(),
+			  QPaintDevice::x11Colormap(), name, &col, &hw_col) ) {
 	    ok = TRUE;
 	    setRgb( col.red>>8, col.green>>8, col.blue>>8 );
 	}
     }
     if ( !ok ) {
 	rgbVal = RGB_INVALID;
-	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
+	pix = BlackPixel( QPaintDevice::x__Display(),
+			  QPaintDevice::x11Screen() );
     }
 }
 
@@ -349,7 +423,7 @@ void QColor::setRgb( int r, int g, int b )
 	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
     rgbVal = qRgb(r,g,b);
-    if ( lalloc || g_cmap == 0 ) {
+    if ( lalloc || !color_init ) {
 	rgbVal |= RGB_DIRTY;			// alloc later
 	pix = 0;
     } else {
@@ -490,7 +564,7 @@ int QColor::currentAllocContext()
 void QColor::destroyAllocContext( int context )
 {
     init_context_stack();
-    if ( !g_cmap || g_truecolor )
+    if ( !color_init || g_truecolor )
 	return; 
     ulong *pixels = new ulong[colorDict->count()];
     QColorData   *d;
@@ -506,6 +580,7 @@ void QColor::destroyAllocContext( int context )
 	}
     }
     if ( i )
-	XFreeColors( qt_xdisplay(), g_cmap, pixels, i, 0 );
+	XFreeColors( QPaintDevice::x__Display(), QPaintDevice::x11Colormap(),
+		     pixels, i, 0 );
     delete [] pixels;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#199 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -46,7 +46,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#198 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#199 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -447,37 +447,60 @@ bool qt_nograb()				// application no-grab option
 #endif
 }
 
+
+static GC create_gc( bool monochrome )
+{
+    GC gc;
+    if ( monochrome ) {
+	Pixmap pm = XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	gc = XCreateGC( appDpy, pm, 0, 0 );
+	XFreePixmap( appDpy, pm );
+    } else {
+	if ( QPaintDevice::x11DefaultVisual() ) {
+	    gc = XCreateGC( appDpy, appRootWin, 0, 0 );
+	} else {
+	    Window w;
+	    XSetWindowAttributes a;
+	    a.background_pixel = black.pixel();
+	    a.border_pixel = black.pixel();		
+	    a.colormap = QPaintDevice::x11Colormap();
+	    w = XCreateWindow( appDpy, appRootWin, 0, 0, 100, 100,
+			       0, QPaintDevice::x11Depth(), InputOutput,
+			       (Visual*)QPaintDevice::x11Visual(),
+			       CWBackPixel|CWBorderPixel|CWColormap,
+			       &a );
+	    gc = XCreateGC( appDpy, w, 0, 0 );
+	    XDestroyWindow( appDpy, w );
+	}
+    }
+    return gc;
+}
+
 GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
 {
     GC gc;
     if ( monochrome ) {
-	if ( !app_gc_ro_m ) {			// create GC for bitmap
-	    Pixmap pm =	 XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
-	    app_gc_ro_m = XCreateGC( appDpy, pm, 0, 0 );
-	    XFreePixmap( appDpy, pm );
-	}
+	if ( !app_gc_ro_m )			// create GC for bitmap
+	    app_gc_ro_m = create_gc(TRUE);
 	gc = app_gc_ro_m;
     } else {					// create standard GC
-	if ( !app_gc_ro )
-	    app_gc_ro = XCreateGC( appDpy, appRootWin, 0, 0 );
+	if ( !app_gc_ro )			// create GC for bitmap
+	    app_gc_ro = create_gc(FALSE);
 	gc = app_gc_ro;
     }
     return gc;
 }
 
-GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
+GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 {
     GC gc;
     if ( monochrome ) {
-	if ( !app_gc_tmp_m ) {			// create GC for bitmap
-	    Pixmap pm =	 XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
-	    app_gc_tmp_m = XCreateGC( appDpy, pm, 0, 0 );
-	    XFreePixmap( appDpy, pm );
-	}
+	if ( !app_gc_tmp_m )			// create GC for bitmap
+	    app_gc_tmp_m = create_gc(TRUE);
 	gc = app_gc_tmp_m;
     } else {					// create standard GC
-	if ( !app_gc_tmp )
-	    app_gc_tmp = XCreateGC( appDpy, appRootWin, 0, 0 );
+	if ( !app_gc_tmp )			// create GC for bitmap
+	    app_gc_tmp = create_gc(FALSE);
 	gc = app_gc_tmp;
     }
     return gc;
