@@ -14,7 +14,7 @@
     if ( Project('TEMPLATE') eq "qt.t" ) {
 	#! Qt/Embedded hackery.
 	Project('TMAKE_LIBS += -L../lib');
-	Project('TMAKE_LIBS += -lfreetype2');
+	Project('TMAKE_LIBS += -lfreetype');
     }
 
     if ( Config("qt") || Config("opengl") ) {
@@ -199,7 +199,7 @@ ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
 #$}
 
 #$ Substitute('../lib/libfreetype.a:');
-#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk OBJ_DIR=../../../lib ../../../lib/libfreetype.a');
+#$ Substitute('	cd 3rdparty/freetype2; make CONFIG_MK=config.mk ../../../lib/libfreetype.a');
 
 moc: $(SRCMOC)
 
