@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#236 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#235 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#236 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2451,9 +2451,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 #include <X11/keysymdef.h>
 #include "qkeycode.h"
 
+#ifndef XK_ISO_Left_Tab
+#define	XK_ISO_Left_Tab					0xFE20
+#endif
 static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Escape,		Key_Escape,		// misc keys
     XK_Tab,		Key_Tab,
+    XK_ISO_Left_Tab,    Key_Backtab,
     XK_BackSpace,	Key_Backspace,
     XK_Return,		Key_Return,
     XK_Insert,		Key_Insert,
