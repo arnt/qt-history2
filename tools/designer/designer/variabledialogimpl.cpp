@@ -61,7 +61,7 @@ void VariableDialog::okClicked()
     while ( it.current() != 0 ) {
 	MetaDataBase::Variable v;
 	v.varName = it.current()->text( 0 ).simplifyWhiteSpace();
-	if ( v.varName[ v.varName.length() - 1 ] != ';' )
+	if ( v.varName[ (int)v.varName.length() - 1 ] != ';' )
 	    v.varName += ";";
 	v.varAccess = it.current()->text( 1 );
 	lst << v;
