@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#154 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#153 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#154 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -345,34 +345,33 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 /*!
   Sets the background color of this widget.
 
-  The background color is sem-independent of the widget color group.
+  The background color is semi-independent of the widget color group.
   Setting a new palette overwrites the background color, but setting
   the background color does not change the palette in any way.
 
-  X11 and Windows clear the widget to the background color just before
-  sending a paint event.  This generally causes flicker if the widget
-  doesn not use colorGroup().background() as background color.  A
-  widget which uses colorGroup().base() as background color can do
-  avoid flicker by doing:
+  The window system clears the widget to the background color just before
+  sending a paint event. This generally causes flicker if the widget does
+  not use colorGroup().background() as background color.  A widget which
+  uses colorGroup().base() as background color can avoid flicker by doing:
 
   \code
-  setBackgroundColor( colorGroup().base() );
+    setBackgroundColor( colorGroup().base() );
   \endcode
 
   If you want to change the color scheme of a widget, the setPalette()
-  function is better suited.  Here's how to set \e thatWidget to use a
+  function is better suited.  Here is how to set \e thatWidget to use a
   light green (RGB value 80, 255, 80) as background color, with shades
   of green used for all the 3D effects:
 
   \code
-  thatWidget->setPalette( QPalette( QColor( 80, 255, 80, Rgb ) ) );
+    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
   \endcode
 
   You can also use QApplication::setPalette() if you want to change
   the color scheme of your entire application, or of all new widgets.
   
   \sa backgroundColor(), backgroundColorChange(), setPalette(),
-  setBackgroundPixmap() QApplication::setPalette()
+  setBackgroundPixmap(), QApplication::setPalette()
 */
 
 void QWidget::setBackgroundColor( const QColor &color )
