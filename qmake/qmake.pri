@@ -43,6 +43,7 @@ bootstrap { #Qt code
         qfile.cpp \
         qfileengine.cpp \
         qfileinfo.cpp \
+        qfsfileengine.cpp \
         qglobal.cpp \
         qlibraryinfo.cpp \
         qhash.cpp \
@@ -97,14 +98,14 @@ bootstrap { #Qt code
         qvector.h
 
     unix {
-        SOURCES += qfileengine_unix.cpp
+        SOURCES += qfsfileengine_unix.cpp
         mac {
           SOURCES += qcore_mac.cpp qsettings_mac.cpp
           QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.2 #enables weak linking for 10.2 (exported)
           LIBS += -framework CoreServices
         }
     } else:win32 {
-	SOURCES += qfileengine_win.cpp qsettings_win.cpp
+	SOURCES += qfsfileengine_win.cpp qsettings_win.cpp
         win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
 
