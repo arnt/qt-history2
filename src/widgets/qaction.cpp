@@ -102,7 +102,7 @@
 class QActionPrivate
 {
 public:
-    QActionPrivate();
+    QActionPrivate(QAction *act);
     ~QActionPrivate();
     QIconSet *iconset;
     QString text;
@@ -123,6 +123,8 @@ public:
 #ifndef QT_NO_TOOLTIP
     QToolTipGroup tipGroup;
 #endif
+    QActionGroupPrivate* d_group;
+    QAction *action;
 
     struct MenuItem {
 	MenuItem():popup(0),id(0){}
@@ -149,7 +151,7 @@ public:
     QString statusTip() const;
 };
 
-QActionPrivate::QActionPrivate()
+QActionPrivate::QActionPrivate(QAction *act)
     : iconset( 0 ),
 #ifndef QT_NO_ACCEL
       key( 0 ), accel( 0 ), accelid( 0 ),
@@ -159,6 +161,7 @@ QActionPrivate::QActionPrivate()
 #ifndef QT_NO_TOOLTIP
       , tipGroup( 0 )
 #endif
+      d_group( 0 ), action(act)
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
@@ -186,6 +189,33 @@ QActionPrivate::~QActionPrivate()
 	QPopupMenu* menu = mi->popup;
 	if ( menu->findItem( mi->id ) )
 	    menu->removeItem( mi->id );
+    }
+
+    QPtrListIterator<QActionPrivate::ComboItem> itci(comboitems);
+    QActionPrivate::ComboItem* ci;
+    while ( ( ci = itci.current() ) ) {
+	++itci;
+	QComboBox* combo = ci->combo;
+	combo->clear();
+	QActionGroup *group = ::qt_cast<QActionGroup*>(action->parent());
+	QObjectList *siblings = group ? group->queryList("QAction") : 0;
+	if (siblings) {
+	    QObjectListIt it(*siblings);
+	    while (it.current()) {
+		QAction *sib = ::qt_cast<QAction*>(it.current());
+		++it;
+		sib->removeFrom(combo);
+	    }
+	    it = QObjectListIt(*siblings);
+	    while (it.current()) {
+		QAction *sib = ::qt_cast<QAction*>(it.current());
+		++it;
+		if (sib == action)
+		    continue;
+		sib->addTo(combo);
+	    }
+	}
+	delete siblings;
     }
 
 #ifndef QT_NO_ACCEL
@@ -348,7 +378,7 @@ static QString qt_stripMenuText( QString s )
 QAction::QAction( QObject* parent, const char* name )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     init();
 }
 
@@ -367,7 +397,7 @@ QAction::QAction( QObject* parent, const char* name )
 QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     d->toggleaction = toggle;
     init();
 }
@@ -400,7 +430,7 @@ QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence ac
 		  QObject* parent, const char* name )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     if ( !icon.isNull() )
 	setIconSet( icon );
     d->text = qt_stripMenuText( menuText );
@@ -433,7 +463,7 @@ QAction::QAction( const QString& menuText, QKeySequence accel,
 		  QObject* parent, const char* name )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     d->text = qt_stripMenuText( menuText );
     d->menutext = menuText;
     setAccel( accel );
@@ -460,7 +490,7 @@ QAction::QAction( const QString& menuText, QKeySequence accel,
 QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     d->toggleaction = toggle;
     if ( !icon.isNull() )
 	setIconSet( icon );
@@ -491,7 +521,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
 QAction::QAction( const QString& text, const QString& menuText, QKeySequence accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
-    d = new QActionPrivate;
+    d = new QActionPrivate(this);
     d->toggleaction = toggle;
     d->text = text;
     d->menutext = menuText;
