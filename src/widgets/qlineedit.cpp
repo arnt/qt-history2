@@ -1749,9 +1749,6 @@ void QLineEdit::insert( const QString &newText )
 	    removeSelectedText();
 	d->cursor->insert( t, FALSE );
 	emit textChanged( text() );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-#endif
     } else {
 	QString text = d->parag->string()->toString();
 	text.remove( text.length() - 1, 1 );
@@ -1765,6 +1762,9 @@ void QLineEdit::insert( const QString &newText )
 	blinkOn();
 	validateAndSet( text, cp, cp, cp );
     }
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
     update();
     d->selectionStart = d->cursor->index();
     d->undoRedoInfo.text += t;
