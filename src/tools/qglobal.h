@@ -40,7 +40,7 @@
 
 #define QT_VERSION_STR   "3.1.0-beta1"
 /*
-   QT_VERSION is ( MAJOR<<16+MINOR<<8+PATCH)
+   QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
 #define QT_VERSION 0x030100
 
