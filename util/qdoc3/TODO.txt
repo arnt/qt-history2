@@ -1,18 +1,16 @@
-From Jasmin:
-
+  * Drop return type in "List of all members" pages.
+  * Fix look of \value (consecutive \values)
+  * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
   * implement \target and \keyword
   * expand QObjectList -> QList<QObject *>
-  * Drop return type in "List of all members" pages.
   * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
   does show up in the docs, but not as a link from the properties in QViewport)
   * qhboxwidget.html#sizeHint is broken (apparently)
 
   * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
-  * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
 
   * Show in which module/library each class is
   * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
-  * fix resolving \typedef Qt::HANDLE
   * make links within document work
   * make links beyond document work
 
@@ -24,7 +22,6 @@ From Jasmin:
   * \center...\endcenter
 
 LINKS:
-  * make types be links in Detailed synopses
   * make automatic links to function in text work
   * make automatic links in code work
 
@@ -39,9 +36,7 @@ LINKS:
 
   * implement \sidebar
 
-  * implement \inmodule
   * implement qbook
-  * implement \stl
 
   * implement \legalesefile
 
@@ -58,7 +53,6 @@ NICE FEATURES:
 
 OTHER:
   * make qdoc run faster
-  * \annotated: specify which library
   * make sure \headerfile works even if specified after \relates
 
   * use qtstyle.css instead of inline style for each page

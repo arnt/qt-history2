@@ -1602,6 +1602,8 @@ QString DocParser::getArgument( bool verbatim )
 
     skipSpacesOrOneEndl();
 
+    int startPos = pos;
+
     /*
       Typically, an argument ends at the next white-space. However,
       braces can be used to group words:
@@ -1656,7 +1658,7 @@ QString DocParser::getArgument( bool verbatim )
 	if ( delimDepth > 0 )
 	    location().warning( tr("Missing '}'") );
     } else {
-	while ( pos < (int) in.length() &&
+	while ( pos < in.length() &&
 		(delimDepth > 0 || (delimDepth == 0 && !in[pos].isSpace())) ) {
 	    switch ( in[pos].unicode() ) {
 	    case '(':
@@ -1670,7 +1672,7 @@ QString DocParser::getArgument( bool verbatim )
 	    case ']':
 	    case '}':
 		delimDepth--;
-		if ( delimDepth >= 0 ) {
+		if ( pos == startPos || delimDepth >= 0 ) {
 		    arg += in[pos];
 		    pos++;
 		}
