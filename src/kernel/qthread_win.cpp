@@ -308,6 +308,13 @@ void QThread::start()
 #endif
 }
 
+void QThread::terminate()
+{
+    TerminateThread( handle, 0 );
+    d->running = FALSE;
+    d->finished = TRUE;
+}
+
 bool QThread::wait( unsigned long time )
 {
     if ( d->id == GetCurrentThreadId() ) {

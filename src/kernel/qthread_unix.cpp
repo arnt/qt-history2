@@ -45,90 +45,79 @@
 #endif
 
 #include "qthread.h"
-#include "qapplication.h"
+
 #include "qmutex.h"
 #include "qwaitcondition.h"
-#include "qptrlist.h"
 #include <private/qmutexpool_p.h>
 
 #ifndef QT_H
+#  include "qapplication.h"
 #  include "qptrdict.h"
+#  include "qptrlist.h"
 #endif // QT_H
 
 #include <errno.h>
 
-static QPtrDict<QThread> *qt_thread_dict = 0;
+static QPtrDict<QThreadPrivate> *qt_thread_dict = 0;
 static QMutexPool *qt_thread_mutexpool = 0;
 
-extern "C" { static void *start_thread(void *t); }
+extern "C" { static void *start_thread( void *arg ); }
+extern "C" { static void finish_thread( void * ); }
 
 
 class QThreadPrivate {
 public:
+    QWaitCondition thread_done;
     pthread_t thread_id;
-    QWaitCondition thread_done;      // Used for QThread::wait()
-    bool finished, running;
+    bool finished : 1;
+    bool running  : 1;
+    bool orphan   : 1;
 
-    QThreadPrivate()
-	: thread_id(0), finished(FALSE), running(FALSE)
-    {
-    }
+    QThreadPrivate();
 
-    ~QThreadPrivate()
-    {
-	if ( thread_id )
-	    qt_thread_dict->remove( (void *) thread_id );
-	thread_id = 0;
-    }
-
-    void init(QThread *that)
-    {
-	that->d->running = TRUE;
-	that->d->finished = FALSE;
-
-	int ret;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	ret = pthread_create(&thread_id, &attr, start_thread,
-			     (void *) that);
-	pthread_attr_destroy(&attr);
-
-#ifdef QT_CHECK_STATE
-	if (ret)
-	    qWarning("QThread::start: thread creation error: %s", strerror(ret));
-#endif
-    }
-
-    static void internalRun(QThread *that)
-    {
-	QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
-	qt_thread_dict->insert( (void *) QThread::currentThread(), that );
-
-	locker.mutex()->unlock();
-
-	that->run();
-
-	locker.mutex()->lock();
-	QThread *there = qt_thread_dict->take( (void *) QThread::currentThread() );
-
-	if (there) {
-            QMutexLocker locker( qt_thread_mutexpool->get( there->d ) );
-
-	    there->d->running = FALSE;
-	    there->d->finished = TRUE;
-
-	    there->d->thread_done.wakeAll();
-	}
-    }
+    static inline void start( QThread *thread ) { thread->run(); }
 };
 
+inline QThreadPrivate::QThreadPrivate()
+    : thread_id( 0 ), finished( FALSE ), running( FALSE ), orphan( FALSE )
+{
+}
+
 extern "C" {
-    static void *start_thread(void *t)
+    static void *start_thread( void *arg )
     {
-	QThreadPrivate::internalRun( (QThread *) t );
+	pthread_cleanup_push( finish_thread, 0 );
+	pthread_testcancel();
+
+	QThreadPrivate::start( (QThread *) arg );
+
+	pthread_cleanup_pop( TRUE );
+
 	return 0;
+    }
+
+    static void finish_thread( void * )
+    {
+	QThreadPrivate *d = 0;
+	{
+	    QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
+	    d = qt_thread_dict->take( (void *) QThread::currentThread() );
+	}
+
+	if ( ! d ) {
+	    qWarning( "QThread: internal error: data missing for running thread." );
+	    return;
+	}
+
+	QMutexLocker locker( qt_thread_mutexpool->get( d ) );
+	d->running = FALSE;
+	d->finished = TRUE;
+	d->thread_id = 0;
+
+	d->thread_done.wakeAll();
+
+	if ( d->orphan )
+	    delete d;
     }
 }
 
@@ -140,10 +129,7 @@ extern "C" {
 class QThreadQtEvent
 {
 public:
-    QThreadQtEvent(QObject *r, QEvent *e)
-	: receiver(r), event(e)
-    {
-    }
+    QThreadQtEvent( QObject *r, QEvent *e ) : receiver( r ), event( e ) { }
     QObject *receiver;
     QEvent *event;
 };
@@ -175,7 +161,7 @@ void QThreadPostEventPrivate::sendEvents()
 {
     QMutexLocker locker( qt_global_mutexpool->get( this ) );
     QThreadQtEvent *qte;
-    for( qte = events.first(); qte != 0; qte = events.next() )
+    for ( qte = events.first(); qte != 0; qte = events.next() )
 	qApp->postEvent( qte->receiver, qte->event );
     events.clear();
 }
@@ -260,11 +246,11 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-    if (! qt_thread_dict)
-	qt_thread_dict = new QPtrDict<QThread>;
-    if (! qt_thread_mutexpool)
+    if ( ! qt_thread_dict )
+	qt_thread_dict = new QPtrDict<QThreadPrivate>;
+    if ( ! qt_thread_mutexpool )
 	qt_thread_mutexpool = new QMutexPool( FALSE );
-    if( !qthreadposteventprivate && qApp )
+    if( ! qthreadposteventprivate && qApp )
 	qthreadposteventprivate = new QThreadPostEventPrivate();
 }
 
@@ -324,22 +310,18 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 
 // helper function to do thread sleeps, since usleep()/nanosleep() aren't reliable
 // enough (in terms of behavior and availability)
-static void thread_sleep(struct timespec *ti)
+static void thread_sleep( struct timespec *ti )
 {
-    pthread_mutex_t mtx;
-    pthread_cond_t cnd;
+    pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+    pthread_cond_t cnd = PTHREAD_COND_INITIALIZER;
 
-    pthread_mutex_init(&mtx, 0);
-    pthread_cond_init(&cnd, 0);
+    pthread_mutex_lock( &mtx );
+    (void) pthread_cond_timedwait( &cnd, &mtx, ti );
+    pthread_mutex_unlock( &mtx );
 
-    pthread_mutex_lock(&mtx);
-    (void) pthread_cond_timedwait(&cnd, &mtx, ti);
-    pthread_mutex_unlock(&mtx);
-
-    pthread_cond_destroy(&cnd);
-    pthread_mutex_destroy(&mtx);
+    pthread_cond_destroy( &cnd );
+    pthread_mutex_destroy( &mtx );
 }
-
 
 /*!
     System independent sleep. This causes the current thread to sleep
@@ -348,13 +330,12 @@ static void thread_sleep(struct timespec *ti)
 void QThread::sleep( unsigned long secs )
 {
     struct timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday( &tv, 0 );
     struct timespec ti;
     ti.tv_sec = tv.tv_sec + secs;
-    ti.tv_nsec = (tv.tv_usec * 1000);
-    thread_sleep(&ti);
+    ti.tv_nsec = ( tv.tv_usec * 1000 );
+    thread_sleep( &ti );
 }
-
 
 /*!
     System independent sleep. This causes the current thread to sleep
@@ -363,14 +344,13 @@ void QThread::sleep( unsigned long secs )
 void QThread::msleep( unsigned long msecs )
 {
     struct timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday( &tv, 0 );
     struct timespec ti;
-    ti.tv_nsec = (tv.tv_usec * 1000) + (msecs % 1000) * 1000000;
-    ti.tv_sec = tv.tv_sec + (msecs / 1000) + (ti.tv_nsec / 1000000000);
+    ti.tv_nsec = ( tv.tv_usec * 1000 ) + ( msecs % 1000 ) * 1000000;
+    ti.tv_sec = tv.tv_sec + ( msecs / 1000 ) + ( ti.tv_nsec / 1000000000 );
     ti.tv_nsec %= 1000000000;
-    thread_sleep(&ti);
+    thread_sleep( &ti );
 }
-
 
 /*!
     System independent sleep. This causes the current thread to sleep
@@ -379,14 +359,13 @@ void QThread::msleep( unsigned long msecs )
 void QThread::usleep( unsigned long usecs )
 {
     struct timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday( &tv, 0 );
     struct timespec ti;
-    ti.tv_nsec = (tv.tv_usec * 1000) + (usecs % 1000000) * 1000;
-    ti.tv_sec = tv.tv_sec + (usecs / 1000000) + (ti.tv_nsec / 1000000000);
+    ti.tv_nsec = ( tv.tv_usec * 1000 ) + ( usecs % 1000000 ) * 1000;
+    ti.tv_sec = tv.tv_sec + ( usecs / 1000000 ) + ( ti.tv_nsec / 1000000000 );
     ti.tv_nsec %= 1000000000;
-    thread_sleep(&ti);
+    thread_sleep( &ti );
 }
-
 
 /*!
     Constructs a new thread. The thread does not begin executing until
@@ -397,7 +376,6 @@ QThread::QThread()
     d = new QThreadPrivate;
     Q_CHECK_PTR( d );
 }
-
 
 /*!
     QThread destructor.
@@ -411,16 +389,23 @@ QThread::~QThread()
 {
     QMutexLocker locker( qt_thread_mutexpool->get( d ) );
 
+    if ( d->thread_id ) {
+	QMutexLocker dict_locker( qt_global_mutexpool->get( qt_thread_dict ) );
+	qt_thread_dict->remove( (void *) d->thread_id );
+    }
+
+    if ( d->running && !d->finished ) {
 #ifdef QT_CHECK_STATE
-    if( d->running && !d->finished ) {
 	qWarning("QThread object destroyed while thread is still running.");
+#endif
+
+	d->orphan = TRUE;
 	return;
     }
-#endif
+
 
     delete d;
 }
-
 
 /*!
     Ends the execution of the calling thread and wakes up any threads
@@ -428,21 +413,8 @@ QThread::~QThread()
 */
 void QThread::exit()
 {
-    QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
-    QThread *there = qt_thread_dict->take( (void *) QThread::currentThread() );
-
-    if (there) {
-	QMutexLocker locker( qt_thread_mutexpool->get( there->d ) );
-
-	there->d->running = FALSE;
-	there->d->finished = TRUE;
-
-	there->d->thread_done.wakeAll();
-    }
-
-    pthread_exit(0);
+    pthread_exit( 0 );
 }
-
 
 /*!
     This begins the execution of the thread by calling run(), which
@@ -455,19 +427,59 @@ void QThread::start()
 {
     QMutexLocker locker( qt_thread_mutexpool->get( d ) );
 
-    if (d->running) {
+    if ( d->running ) {
 #ifdef QT_CHECK_STATE
-	qWarning("Attempt to start a thread already running");
+	qWarning( "Attempt to start a thread already running" );
 #endif
 
-        locker.mutex()->unlock();
-        wait();
-        locker.mutex()->lock();
+	d->thread_done.wait( locker.mutex() );
     }
 
-    d->init(this);
+    d->running = TRUE;
+    d->finished = FALSE;
+
+    int ret;
+    pthread_attr_t attr;
+    pthread_attr_init( &attr );
+    pthread_attr_setinheritsched( &attr, PTHREAD_INHERIT_SCHED );
+    pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
+    ret = pthread_create( &d->thread_id, &attr, start_thread, (void *) this );
+    pthread_attr_destroy( &attr );
+
+    if ( !ret ) {
+	QMutexLocker dict_locker( qt_global_mutexpool->get( qt_thread_dict ) );
+	qt_thread_dict->insert( (void *) d->thread_id, d );
+    } else {
+#ifdef QT_CHECK_STATE
+	qWarning( "QThread::start: thread creation error: %s", strerror( ret ) );
+#endif
+    }
 }
 
+/*!
+    This function terminates the execution of the thread. The thread
+    may or may not be terminated immediately, depending on the
+    operating systems scheduling policies. Use QThread::wait()
+    after terminate() for synchronous termination.
+
+    When the thread is terminated, all threads waiting for the
+    the thread to finish will be woken up.
+
+    \warning This function is dangerous, and its use is discouraged.
+    The thread can be terminate at any point in its code path.  Threads
+    can be terminated while modifying data.  There is no chance for
+    the thread to cleanup after itself, unlock any held mutexes, etc.
+    In short, use this function only if \e absolutely necessary.
+*/
+void QThread::terminate()
+{
+    QMutexLocker private_locker( qt_thread_mutexpool->get( d ) );
+    if ( d->finished || !d->running )
+	return;
+    if ( ! d->thread_id )
+	return;
+    pthread_cancel( d->thread_id );
+}
 
 /*!
     This provides similar functionality to POSIX pthread_join. A thread
@@ -483,14 +495,13 @@ void QThread::start()
 	wait timed out.
     \endlist
 */
-bool QThread::wait(unsigned long time)
+bool QThread::wait( unsigned long time )
 {
     QMutexLocker locker( qt_thread_mutexpool->get( d ) );
-    if (d->finished || ! d->running)
+    if ( d->finished || ! d->running )
 	return TRUE;
-    return d->thread_done.wait( locker.mutex(), time);
+    return d->thread_done.wait( locker.mutex(), time );
 }
-
 
 /*!
     Returns TRUE is the thread is finished; otherwise returns FALSE.
@@ -501,7 +512,6 @@ bool QThread::finished() const
     return d->finished;
 }
 
-
 /*!
     Returns TRUE if the thread is running; otherwise returns FALSE.
 */
@@ -510,7 +520,6 @@ bool QThread::running() const
     QMutexLocker locker( qt_thread_mutexpool->get( d ) );
     return d->running;
 }
-
 
 /*!
     \fn void QThread::run()

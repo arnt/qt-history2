@@ -59,6 +59,7 @@ class Q_EXPORT QThread : public Qt
 public:
     static Qt::HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
+
     static void initialize();
     static void cleanup();
 
@@ -71,6 +72,7 @@ public:
     bool wait( unsigned long time = ULONG_MAX );
 
     void start();
+    void terminate();
 
     bool finished() const;
     bool running() const;
