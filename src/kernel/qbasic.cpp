@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#2 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#2 $")
 
 
 
@@ -26,7 +26,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#1 $")
   \class QBasicManager qbasic.h
   \brief The QBasicManager class provides one-dimensional geometry management.
   
-  This class is not for the faint of heart. 
+  This class is not for the faint of heart. The QGeomManager class is
+  available for normal application programming.
+
   */
 
 
@@ -168,6 +170,7 @@ public:
     {
     }
 
+    ~ParChain() {}
     bool addC( QChain *s );
     
     void recalc();
@@ -193,6 +196,7 @@ class SerChain : public QChain
 public:
 
     SerChain( QBasicManager::Direction d ) : QChain( d ) {}
+    ~SerChain() {}
 
     bool addC( QChain *s );
     
@@ -493,9 +497,9 @@ void QBasicManager::resizeAll()
 
     WidgetInfo *w;
     while (( w = it.current() )) {
+	++it;
 	if ( w->widget )
 	    w->widget->setGeometry( w->geom );
 	delete w;
-	++it;
     }
 }
