@@ -1605,6 +1605,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	int fw = pixelMetric(PM_DefaultFrameWidth, widget);
 	int buttonw = sbextent - (fw * 2);
+	int buttonh = sbextent - (fw * 2);
 	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 		      scrollbar->width() : scrollbar->height()) -
 		     (buttonw * 2) - (fw * 2);
@@ -1626,16 +1627,28 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	switch (sc) {
 	case SC_ScrollBarSubLine:
 	    // top/left button
-	    return QRect(fw, fw, buttonw, buttonw);
-
+	    if (scrollbar->orientation() == Qt::Horizontal) {
+		if ( scrollbar->width()/2 < sbextent )
+		    buttonw = scrollbar->width()/2 - (fw*2);
+		return QRect(fw, fw, buttonw, buttonh);
+	    } else {
+		if ( scrollbar->height()/2 < sbextent )
+		    buttonh = scrollbar->height()/2 - (fw*2);
+		return QRect(fw, fw, buttonw, buttonh);
+	    }
 	case SC_ScrollBarAddLine:
 	    // bottom/right button
-	    if (scrollbar->orientation() == Qt::Horizontal)
-		return QRect(scrollbar->width() - sbextent + fw, fw,
-			     buttonw, buttonw);
-	    return QRect(fw, scrollbar->height() - sbextent + fw,
-			     buttonw, buttonw);
-
+	    if (scrollbar->orientation() == Qt::Horizontal) {
+		if ( scrollbar->width()/2 < sbextent )
+		    buttonw = scrollbar->width()/2 - (fw*2);
+		return QRect(scrollbar->width() - buttonw - fw, fw,
+			     buttonw, buttonh);
+	    } else {
+		if ( scrollbar->height()/2 < sbextent )
+		    buttonh = scrollbar->height()/2 - (fw*2);
+		return QRect(fw, scrollbar->height() - buttonh - fw,
+			     buttonw, buttonh);
+	    }
 	case SC_ScrollBarSubPage:
 	    if (scrollbar->orientation() == Qt::Horizontal)
 		return QRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
