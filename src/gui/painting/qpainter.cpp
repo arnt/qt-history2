@@ -1901,13 +1901,16 @@ void QPainter::drawEllipse(const QRect &r)
 
     QRect rect = r.normalize();
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+    if ((d->state->txop > TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         QPainterPath path;
         path.moveTo(rect.x() + rect.width(), rect.y() + rect.height() / 2.0);
         path.arcTo(rect, 0, 360);
         drawPath(path);
         return;
     }
+
+    if ((d->state->txop == TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        rect.moveBy(d->state->matrix.dx(), d->state->matrix->dy());
 
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
