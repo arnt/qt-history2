@@ -141,7 +141,6 @@ public:
     uint	count() const;
 
 
-#ifndef QT_NO_ACCEL
     int		insertItem( const QString &text,
 			    const QObject *receiver, const char* member,
 			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
@@ -156,9 +155,6 @@ public:
 			    const QPixmap &pixmap,
 			    const QObject *receiver, const char* member,
 			    const QKeySequence& accel = 0, int id = -1, int index = -1 );
-#endif
-
-
 
     int		insertItem( const QString &text, int id=-1, int index=-1 );
     int		insertItem( const QIconSet& icon,

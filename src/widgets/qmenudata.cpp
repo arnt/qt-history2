@@ -321,7 +321,6 @@ void QMenuData::removePopup( QPopupMenu *popup )
 	removeItemAt( index );
 }
 
-#ifndef QT_NO_ACCEL
 
 /*!
   The family of insertItem() functions inserts menu items into a
@@ -398,8 +397,10 @@ int QMenuData::insertItem( const QString &text,
 {
     int actualID = insertAny( &text, 0, 0, 0, id, index );
     connectItem( actualID, receiver, member );
+#ifndef QT_NO_ACCEL
     if ( accel )
 	setAccel( accel, actualID );
+#endif
     return actualID;
 }
 
@@ -422,8 +423,10 @@ int QMenuData::insertItem( const QIconSet& icon,
 {
     int actualID = insertAny( &text, 0, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
+#ifndef QT_NO_ACCEL
     if ( accel )
 	setAccel( accel, actualID );
+#endif
     return actualID;
 }
 
@@ -447,8 +450,10 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 {
     int actualID = insertAny( 0, &pixmap, 0, 0, id, index );
     connectItem( actualID, receiver, member );
+#ifndef QT_NO_ACCEL
     if ( accel )
 	setAccel( accel, actualID );
+#endif
     return actualID;
 }
 
@@ -475,12 +480,13 @@ int QMenuData::insertItem( const QIconSet& icon,
 {
     int actualID = insertAny( 0, &pixmap, 0, &icon, id, index );
     connectItem( actualID, receiver, member );
+#ifndef QT_NO_ACCEL
     if ( accel )
 	setAccel( accel, actualID );
+#endif
     return actualID;
 }
 
-#endif //QT_NO_ACCEL
 
 
 /*!\overload

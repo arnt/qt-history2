@@ -78,6 +78,14 @@ Q_EXPORT QDataStream &operator<<( QDataStream &, const QKeySequence & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QKeySequence & );
 #endif
 
+#else
+class Q_EXPORT QKeySequence : public Qt
+{
+public:
+    QKeySequence() {}
+    QKeySequence( int key ) {}
+};
+
 #endif //QT_NO_ACCEL
 
 #endif
