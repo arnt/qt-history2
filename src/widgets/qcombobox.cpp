@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#153 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -289,6 +289,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->useCompletion = FALSE;
 
     setFocusPolicy( TabFocus );
+    setPalettePropagation( AllChildren );
+    setFontPropagation( AllChildren );
 }
 
 
@@ -347,6 +349,8 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 	d->ed = 0;
     }
     setBackgroundMode( NoBackground );
+    setPalettePropagation( AllChildren );
+    setFontPropagation( AllChildren );
 }
 
 
@@ -1780,7 +1784,7 @@ void QComboBox::setEditText( const QString &newText )
 
 /*!  Sets this combo box to offer auto-completion while the user is
   editing if \a enable is TRUE, or not to offer auto-completion of \a
-  enable is FALSE.
+  enable is FALSE (the default).
 
   The combo box uses the list of items as candidates for completion.
 
