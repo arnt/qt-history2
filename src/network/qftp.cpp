@@ -206,7 +206,7 @@ public:
  * QFtpDTP implemenatation
  *
  *********************************************************************/
-QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 ) :
+QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent, const char *name ) :
     QSocket( parent, name ), pi(p),
     err( QString::null )
 {
