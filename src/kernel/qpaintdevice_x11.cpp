@@ -21,7 +21,7 @@
 #include "qt_x11_p.h"
 
 #ifdef Q_Q4PAINTER
-#include "qx11gc.h"
+#include "qgc_x11.h"
 
 Display *QPaintDevice::x11Display() const
 { return x11Data ? x11Data->x_display : QX11GC::x11AppDisplay(); }

@@ -19,7 +19,7 @@
 #include <qbitmap.h>
 #if Q_Q4PAINTER
 #include "q4painter_p.h"
-#include "qwsgc_qws.h"
+#include "qgc_qws.h"
 #define GFX(p) static_cast<QWSGC *>(p->device()->gc())->gfx()
 #endif
 
@@ -219,7 +219,7 @@ void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, co
 	    GFX(p)->fillRect( x, y+underlinePosition(), si->width, lw );
 #else
 	    p->gfx->fillRect( x, y+underlinePosition(), si->width, lw );
-#endif	    
+#endif
 	if ( textFlags & Qt::StrikeOut )
 #ifdef Q_Q4PAINTER
 	    GFX(p)->fillRect( x, y-ascent()/3, si->width, lw );

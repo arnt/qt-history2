@@ -32,7 +32,7 @@
 #include "qdesktopwidget.h"
 
 #ifdef Q_Q4PAINTER
-#include "qwin32gc.h"
+#include "qgc_win.h"
 #endif
 
 #if defined(QT_TABLET_SUPPORT)

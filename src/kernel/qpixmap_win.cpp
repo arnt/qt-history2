@@ -22,7 +22,7 @@
 #include <limits.h>
 
 #ifdef Q_Q4PAINTER
-#include "qwin32gc.h"
+#include "qgc_win.h"
 #endif
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp

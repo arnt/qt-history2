@@ -77,7 +77,7 @@
 #endif
 
 #if Q_Q4PAINTER
-#include "qwsgc_qws.h"
+#include "qgc_qws.h"
 #endif
 
 #include <stdlib.h>

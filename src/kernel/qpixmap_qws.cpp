@@ -28,7 +28,7 @@
 
 #include "qmemorymanager_qws.h"
 #ifdef Q_Q4PAINTER
-#include "qwsgc_qws.h"
+#include "qgc_qws.h"
 #endif
 /*****************************************************************************
   Internal functions

@@ -32,7 +32,7 @@ extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region
 extern void qt_clear_paintevent_clipping();
 
 #ifdef Q_Q4PAINTER
-#include "qx11gc.h"
+#include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
 

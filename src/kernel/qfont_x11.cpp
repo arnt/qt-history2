@@ -41,7 +41,7 @@
 #include <ctype.h>
 
 #ifdef Q_Q4PAINTER
-#include "qx11gc.h"
+#include "qgc_x11.h"
 #endif
 
 #define QFONTLOADER_DEBUG

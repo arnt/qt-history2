@@ -36,7 +36,7 @@
 #include "qwidget_p.h"
 
 #ifdef Q_Q4PAINTER
-#include "qwsgc_qws.h"
+#include "qgc_qws.h"
 #endif
 
 enum WMStyle {

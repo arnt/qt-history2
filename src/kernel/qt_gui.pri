@@ -69,7 +69,7 @@ kernel {
 		  $$KERNEL_CPP/qscriptengine_p.h \
 		  $$KERNEL_CPP/qtextengine_p.h \
 		  $$KERNEL_CPP/qfontengine_p.h \
-		  $$KERNEL_CPP/qtextlayout_p.h 
+		  $$KERNEL_CPP/qtextlayout_p.h
 
 	win32:SOURCES += \
 		  $$KERNEL_CPP/qapplication_win.cpp \
@@ -198,7 +198,7 @@ kernel {
 		  $$KERNEL_CPP/qtextlayout.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qwidget.cpp \
-		  $$KERNEL_CPP/qwmatrix.cpp 
+		  $$KERNEL_CPP/qwmatrix.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
@@ -232,31 +232,31 @@ newpainter {
 	       $$KERNEL_CPP/q4painter.cpp \
 	       $$KERNEL_CPP/qbrush.cpp \
 	       $$KERNEL_CPP/qpen.cpp
-    HEADERS += $$KERNEL_P/q4painter_p.h \ 
+    HEADERS += $$KERNEL_P/q4painter_p.h \
 	       $$KERNEL_H/q4painter.h \
-	       $$KERNEL_H/qabstractgc.h 
+	       $$KERNEL_H/qabstractgc.h
     #platform
-    win32 { 
+    win32 {
         #remove
 	SOURCES -= $$KERNEL_CPP/qpainter_win.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qwin32gc.cpp
-	HEADERS += $$KERNEL_P/qwin32gc_p.h $$KERNEL_H/qwin32gc.h
-    } else:x11 { 
+	SOURCES += $$KERNEL_CPP/qgc_win.cpp
+	HEADERS += $$KERNEL_P/qgc_win_p.h $$KERNEL_H/qgc_win.h
+    } else:x11 {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp	
+	SOURCES -= $$KERNEL_CPP/qpainter_x11.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qx11gc.cpp
-	HEADERS += $$KERNEL_H/qx11gc.h $$KERNEL_P/qx11gc_p.h
-    } else:embedded { 
+	SOURCES += $$KERNEL_CPP/qgc_x11.cpp
+	HEADERS += $$KERNEL_H/qgc_x11.h $$KERNEL_P/qgc_x11_p.h
+    } else:embedded {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_qws.cpp	
+	SOURCES -= $$KERNEL_CPP/qpainter_qws.cpp
         #add
-	SOURCES += $$KERNEL_CPP/qwsgc_qws.cpp
-	HEADERS += $$KERNEL_H/qwsgc_qws.h $$KERNEL_P/qwsgc_p.h
+	SOURCES += $$KERNEL_CPP/qgc_qws.cpp
+	HEADERS += $$KERNEL_H/qgc_qws.h $$KERNEL_P/qgc_qws_p.h
     } else:mac {
         #remove
-	SOURCES -= $$KERNEL_CPP/qpainter_mac.cpp	
+	SOURCES -= $$KERNEL_CPP/qpainter_mac.cpp
         #add
 	SOURCES += $$KERNEL_CPP/qgc_mac.cpp
 	HEADERS += $$KERNEL_H/qgc_mac.h #$$KERNEL_P/qgc_mac_p.h

@@ -23,7 +23,7 @@
 #include "qintdict.h"
 
 #ifdef Q_Q4PAINTER
-#include "qx11gc.h"
+#include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
 
@@ -640,15 +640,15 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		cmap = new QMap<int, QRgb>;
 		qglcmap_dict->insert((long) info->visualid, cmap);
 	    }
-	    
+
 	    // already in the map?
 	    QRgb target = c.rgb();
 	    QMap<int, QRgb>::Iterator it = cmap->begin();
 	    for (; it != cmap->end(); ++it) {
 		if ((*it) == target)
 		    return it.key();
-	    }		
-	    
+	    }
+
 	    // need to alloc color
 	    unsigned long plane_mask[2];
 	    unsigned long color_map_entry;

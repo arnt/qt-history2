@@ -35,7 +35,7 @@
 #endif
 
 #ifdef Q_Q4PAINTER
-#include "qwin32gc.h"
+#include "qgc_win.h"
 #endif
 
 #ifdef QT_THREAD_SUPPORT

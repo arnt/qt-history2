@@ -10,7 +10,7 @@
 #include "qimage.h"
 #include "qwidget.h"
 #ifdef Q_WS_WIN
-#include "qwin32gc.h"
+#include "qgc_win.h"
 #endif
 #include "qpaintdevicemetrics.h"
 #include "qtextlayout_p.h"
@@ -708,7 +708,7 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
     if(yRnd >= 100)
 	yRnd = 99;
     if(xRnd <= 0 || yRnd <= 0) {             // draw normal rectangle
-	drawRect(x, y, w, h);                 
+	drawRect(x, y, w, h);
 	return;
     }
 

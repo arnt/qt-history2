@@ -49,7 +49,7 @@ extern double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scre
 extern double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int screen);
 
 #ifdef Q_Q4PAINTER
-#include "qx11gc.h"
+#include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
 

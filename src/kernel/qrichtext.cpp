@@ -42,7 +42,7 @@
 #include <stdlib.h>
 
 #if defined(Q_WS_X11) && defined(Q_Q4PAINTER)
-#include "qx11gc.h"
+#include "qgc_x11.h"
 #define QPaintDevice QX11GC
 #endif
 
