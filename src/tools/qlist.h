@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#27 $
+** $Id: //depot/qt/main/src/tools/qlist.h#28 $
 **
 ** Definition of QList template/macro class
 **
@@ -55,6 +55,7 @@ public:
     type *take()			{ return (type *)QGList::take(); }
     type *takeNode( QLNode *n )		{ return (type *)QGList::takeNode(n); }
     void  clear()			{ QGList::clear(); }
+    void  sort()			{ QGList::sort(); }
     int	  find( const type *d )		{ return QGList::find((Item)d); }
     int	  findNext( const type *d )	{ return QGList::find((Item)d,FALSE); }
     int	  findRef( const type *d )	{ return QGList::findRef((Item)d); }

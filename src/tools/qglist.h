@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#33 $
+** $Id: //depot/qt/main/src/tools/qglist.h#34 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -86,6 +86,7 @@ protected:
     Item	  takeFirst();				// take out first item
     Item	  takeLast();				// take out last item
 
+    void  sort();                               // sort all items;
     void  clear();				// remove all items
 
     int	  findRef( Item, bool = TRUE );		// find exact item in list
@@ -116,6 +117,8 @@ protected:
 
 private:
     void  prepend( Item );			// add item at start of list
+
+    void heapSortPushDown( QCollection::Item* heap, int first, int last );
 
     QLNode *firstNode;				// first node
     QLNode *lastNode;				// last node

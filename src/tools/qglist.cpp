@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#51 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#52 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -844,6 +844,90 @@ void QGList::toVector( QGVector *vector ) const
     }
 }
 
+void QGList::heapSortPushDown( QCollection::Item* heap, int first, int last )
+{
+  int r = first;
+  while( r <= last/2 )
+  {
+    // Node r has only one child ?
+    if ( last == 2*r )
+    {
+      // Need for swapping ?
+      if ( compareItems( heap[r], heap[ 2*r ] ) > 0 )
+      {
+	QCollection::Item tmp = heap[r];
+	heap[ r ] = heap[ 2*r ];
+	heap[ 2*r ] = tmp;
+      }
+      // That's it ...
+      r = last;
+    }
+    // Node has two children
+    else
+    {
+      if ( compareItems( heap[r], heap[ 2*r ] ) > 0 && compareItems( heap[ 2*r ], heap[ 2*r+1 ] ) <= 0 )
+      {
+        // Swap with left child
+	QCollection::Item tmp = heap[r];
+	heap[ r ] = heap[ 2*r ];
+	heap[ 2*r ] = tmp;
+        r *= 2;
+      }
+      else if ( compareItems( heap[r], heap[ 2*r+1 ] ) > 0 && compareItems( heap[ 2*r+1 ], heap[ 2*r ] ) < 0 )
+      {
+        // Swap with right child
+	QCollection::Item tmp = heap[r];
+	heap[ r ] = heap[ 2*r+1 ];
+	heap[ 2*r+1 ] = tmp;
+        r = 2*r+1;
+      }
+      else
+        // We are done
+        r = last;
+    }
+  }
+}
+
+void QGList::sort()
+{
+  uint n = count();
+  if ( n < 2 )
+    return;
+
+  // Create the heap
+  QCollection::Item* realheap = new QCollection::Item[ n ];
+  // Wow, what a fake. But I want the heap to be indexed as 1...n
+  QCollection::Item* heap = realheap - 1;
+  int size = 0;
+  QLNode* insert = firstNode;
+  for( ; insert != 0; insert = insert->next )
+  {
+    heap[++size] = insert->data;
+    int i = size;
+    while( i > 1 && compareItems( heap[i], heap[ i / 2 ] ) < 0 )
+    {
+      QCollection::Item tmp = heap[ i ];
+      heap[ i ] = heap[ i/2 ];
+      heap[ i/2 ] = tmp;
+      i /= 2;
+    }
+  }
+
+  insert = firstNode;
+  // Now do the sorting
+  for( int i = n; i > 0; i-- )
+  {
+    insert->data = heap[1];
+    insert = insert->next;
+    if ( i > 1 )
+    {
+      heap[1] = heap[i];
+      heapSortPushDown( heap, 1, i - 1 );
+    }
+  }
+
+  delete[] realheap;
+}
 
 /*****************************************************************************
   QGList stream functions
