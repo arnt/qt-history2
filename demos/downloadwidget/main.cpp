@@ -43,7 +43,7 @@ private:
 };
 
 DownloadDelegate::DownloadDelegate(QObject *parent)
-    : QItemDelegate(parent), star(QPixmap("star.png"))
+    : QItemDelegate(parent), star(QPixmap(":images/star.png"))
 {
 }
 
@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
       item->setFlags(item->flags()|QAbstractItemModel::ItemIsEditable);
   }
 
+  view->setWindowIcon(QPixmap(":/images/interview.png"));
   app.setMainWidget(view);
   view->show();
   return app.exec();
