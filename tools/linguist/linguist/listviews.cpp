@@ -18,8 +18,8 @@
 
 #include "listviews.h"
 
-static const int Text0MaxLen = 75;
-static const int Text1MaxLen = 25;
+static const int Text0MaxLen = 150;
+static const int Text1MaxLen = 150;
 
 /*
    LVI implementation
