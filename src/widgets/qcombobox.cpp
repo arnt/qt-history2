@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#170 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -946,9 +946,9 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	int dist, buttonH, buttonW;
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &g.fillButton() );
+	qDrawShadePanel( &p, rect(), g, FALSE, style().defaultFrameWidth(), &g.fillButton() );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE, 2 );
+			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	QString str = d->popup->text( d->current );
 	if ( !str.isNull() ) {
