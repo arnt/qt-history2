@@ -19,6 +19,7 @@
 #include "qsocketdevice.h"
 #include "private/qsocketdevice_p.h"
 #include "private/qinternal_p.h"
+#include "private/qioengine_p.h"
 #include "qsignal.h"
 #include "qhostaddress.h"
 
@@ -274,6 +275,11 @@ int QSocketEngine::putch(int ch)
 int QSocketEngine::ungetch(int ch)
 {
     return socket->d->rba.ungetch(ch);
+}
+
+QIOEngine::Type QSocketEngine::type() const
+{
+    return QIOEngine::Socket;
 }
 
 bool QSocketEngine::open(int)
