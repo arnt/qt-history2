@@ -18,7 +18,7 @@
 #include "abstractwidgetbox.h"
 #include "abstractformwindowmanager.h"
 
-#include <QDomDocument>
+#include <QtXml/QDomDocument>
 
 class AbstractFormEditor;
 class AbstractFormWindow;
@@ -52,7 +52,6 @@ public:
     virtual void addWidget(int cat_idx, const Widget &wgt);
     virtual void removeWidget(int cat_idx, int wgt_idx);
 
-public slots:
     virtual void reload();
 
 private slots:

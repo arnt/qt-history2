@@ -644,6 +644,8 @@ public:
     WidgetBoxListViewChild(WidgetCollectionModel *model, QWidget *parent = 0);
     ~WidgetBoxListViewChild();
 
+    void reset();
+
 private slots:
     void fixSize();
 
@@ -697,6 +699,22 @@ WidgetBoxListViewChild::~WidgetBoxListViewChild()
     settings.setValue("open categories", open_cat);
 
     settings.endGroup();
+}
+
+void WidgetBoxListViewChild::reset()
+{
+    QTreeView::reset();
+
+    bool up = updatesEnabled();
+
+    setUpdatesEnabled(false);
+
+    int rowCount = m_model->rowCount(QModelIndex());
+    for (int r = 0; r < rowCount; ++r) {
+        setExpanded(m_model->index(r, 0, QModelIndex()), true);
+    }
+
+    setUpdatesEnabled(up);
 }
 
 void WidgetBoxListViewChild::fixSize()

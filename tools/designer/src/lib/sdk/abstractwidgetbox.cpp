@@ -21,3 +21,8 @@ AbstractWidgetBox::AbstractWidgetBox(QWidget *parent, Qt::WindowFlags flags)
 AbstractWidgetBox::~AbstractWidgetBox()
 {
 }
+
+void AbstractWidgetBox::reload()
+{
+}
+
