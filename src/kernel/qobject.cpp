@@ -23,7 +23,7 @@
 #if defined(QT_THREAD_SUPPORT)
 #  include <qthread.h>
 #  include <private/qmutexpool_p.h>
-#  define LOCK(n, x) QSpinLockLocker slocker ## n((x))
+#  define S_LOCK(n, x) QSpinLockLocker slocker ## n((x))
 #  define RELEASE(n) slocker ## n.release()
 #  define ACQUIRE(n) slocker ## n.acquire()
 #  define M_LOCK(x) \
@@ -31,7 +31,7 @@
 			 ? qt_global_mutexpool->get(static_cast<QObjectPrivate *>(x)) \
 			 : 0)
 #else
-#  define LOCK(n, x)
+#  define S_LOCK(n, x)
 #  define RELEASE(n)
 #  define ACQUIRE(n)
 #  define M_LOCK(x)
@@ -56,7 +56,7 @@ void QMetaObject::addGuard(QObject **ptr)
 {
     if (!*ptr)
 	return;
-    LOCK(0, &(*ptr)->d->spinlock);
+    S_LOCK(0, &(*ptr)->d->spinlock);
     (*ptr)->d->addConnection(GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
 }
 
@@ -66,7 +66,7 @@ void QMetaObject::removeGuard(QObject **ptr)
 {
     if (!*ptr)
 	return;
-    LOCK(0, &(*ptr)->d->spinlock);
+    S_LOCK(0, &(*ptr)->d->spinlock);
     (*ptr)->d->removeReceiver(reinterpret_cast<QObject*>(ptr));
 }
 
@@ -409,7 +409,7 @@ QObject::~QObject()
     emit destroyed( this );
 
     {
-	LOCK(1, &d->spinlock);
+	S_LOCK(1, &d->spinlock);
 
 	// disconnect receivers
 	if (d->connections) {
@@ -425,7 +425,7 @@ QObject::~QObject()
 		QObjectPrivate::Connections::Connection &c = d->connections->connections[i];
 		if (c.receiver) {
 		    RELEASE(1);
-		    LOCK(2, &c.receiver->d->spinlock);
+		    S_LOCK(2, &c.receiver->d->spinlock);
 		    c.receiver->d->removeSender(this);
 		    ACQUIRE(1);
 		}
@@ -444,7 +444,7 @@ QObject::~QObject()
 		QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
 		if (sender.sender) {
 		    RELEASE(1);
-		    LOCK(3, &sender.sender->d->spinlock);
+		    S_LOCK(3, &sender.sender->d->spinlock);
 		    sender.sender->d->removeReceiver(this);
 		    ACQUIRE(1);
 		}
@@ -707,7 +707,7 @@ bool QObject::event( QEvent *e )
 
     case QEvent::InvokeSlot:
     case QEvent::EmitSignal: {
-	LOCK(0, &d->spinlock);
+	S_LOCK(0, &d->spinlock);
 	QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
 	QObject *sender =
 	    QObjectPrivate::setCurrentSender(this, const_cast<QObject*>(mce->sender()));
@@ -1714,7 +1714,7 @@ int QObject::receivers(const char *signal) const
 	    return false;
 	}
 	int i = 0;
-	LOCK(0, const_cast<QSpinLock *>(&d->spinlock));
+	S_LOCK(0, const_cast<QSpinLock *>(&d->spinlock));
 	while (d->findConnection(signal_index, i))
 	    ++receivers;
     }
@@ -2122,12 +2122,12 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QObject *r = const_cast<QObject*>(receiver);
 
     {
-	LOCK(1, &s->d->spinlock);
+	S_LOCK(1, &s->d->spinlock);
 	s->d->addConnection(signal_index, r, (member_index<<1)+membcode-1, type, types);
     }
 
     {
-	LOCK(2, &r->d->spinlock);
+	S_LOCK(2, &r->d->spinlock);
 	r->d->refSender(s);
     }
 
@@ -2147,7 +2147,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
 
-    LOCK(1, &s->d->spinlock);
+    S_LOCK(1, &s->d->spinlock);
     M_LOCK(s->d); // preemptive mutex lock
     bool success = false;
     for (int i = 0; i < s->d->connections->count; ++i) {
@@ -2158,7 +2158,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 			   && (member_index < 0
 			       || (member_index<<1)+membcode-1 == c.member)))) {
 	    RELEASE(1);
-	    LOCK(2, &c.receiver->d->spinlock);
+	    S_LOCK(2, &c.receiver->d->spinlock);
 	    c.receiver->d->derefSender(s);
 	    ACQUIRE(1);
 	    c.receiver = 0;
@@ -2184,22 +2184,26 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
     if (!argv)
 	argv = static_argv;
     {
-	LOCK(1, &obj->d->spinlock);
+	S_LOCK(1, &obj->d->spinlock);
 	c = obj->d->findConnection(signal_index, i);
 	if (!c) return;
     }
     for (; c != 0; c = nc) {
 	bool queued;
 	{
-	    LOCK(1, &obj->d->spinlock);
+	    S_LOCK(1, &obj->d->spinlock);
 	    // find the next connection before activating the current
 	    // connection
 	    nc = obj->d->findConnection(signal_index, i);
 	    // determine if this connection should be sent immediately
 	    // or put into the event queue
+#if defined(QT_THREAD_SUPPORT)
 	    queued = (c->type == Qt::QueuedConnection
 		      || (c->type == Qt::AutoConnection
 			  && c->receiver->d->thread != obj->d->thread));
+#else
+	    queued = c->type == Qt::QueuedConnection;
+#endif
 	    if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
 		M_LOCK(obj->d);
 		QMetaMember m = obj->metaObject()->signal(signal_index);
@@ -2230,7 +2234,7 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 							   cc.member >> 1, obj,
 							   nargs, types, args));
 	} else { // DirectConnection
-	    LOCK(2, &cc.receiver->d->spinlock);
+	    S_LOCK(2, &cc.receiver->d->spinlock);
 	    QObject *sender = QObjectPrivate::setCurrentSender(cc.receiver, obj);
 	    RELEASE(2);
 	    cc.receiver->qt_metacall((Call)((cc.member & 1) + 1), cc.member >> 1, argv);
