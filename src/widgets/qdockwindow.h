@@ -143,6 +143,9 @@ protected:
     void showEvent( QShowEvent *e );
     void hideEvent( QHideEvent *e );
 
+private slots:
+    void toggleVisible() { if ( !isVisible() ) show(); else hide(); }
+
 private:
     void handleMove( const QPoint &pos, const QPoint &gp, bool drawRect );
     void updateGui();

@@ -129,10 +129,12 @@ public:
     QDockArea *topDock() const;
     QDockArea *bottomDock() const;
 
-    virtual void customize();
     virtual bool isCustomizable() const;
 
     bool appropriate( QDockWindow *dw ) const;
+
+    enum DockWindows { OnlyToolBars, NoToolBars, AllDockWindows };
+    QPopupMenu *createDockWindowMenu( DockWindows dockWindows = AllDockWindows ) const;
 
 public slots:
     virtual void setRightJustification( bool );
@@ -143,6 +145,7 @@ public slots:
     virtual void setDockMenuEnabled( bool );
     virtual void whatsThis();
     virtual void setAppropriate( QDockWindow *dw, bool a );
+    virtual void customize();
 
     // compatibility stuff
     void setToolBarsMovable( bool );
@@ -167,6 +170,8 @@ protected:
 
 private slots:
     void slotPlaceChanged();
+    void menuAboutToShow();
+    void doLineUp() { lineUpDockWindows( TRUE ); }
 
 private:
     QMainWindowPrivate * d;

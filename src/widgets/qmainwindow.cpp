@@ -418,8 +418,7 @@ class QMainWindowPrivate
 public:
     QMainWindowPrivate()
 	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
-	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE ),
-	   rmbMenu( 0 )
+	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
     {
 	docks.insert( Qt::Top, TRUE );
 	docks.insert( Qt::Bottom, TRUE );
@@ -460,8 +459,9 @@ public:
     bool dockMenu;
     QHideDock *hideDock;
 
-    QPopupMenu *rmbMenu;
+    QGuardedPtr<QPopupMenu> rmbMenu, tbMenu, dwMenu;
     QMap<QDockWindow*, bool> appropriate;
+    QMap<QPopupMenu*, QMainWindow::DockWindows> dockWindowModes;
 
 };
 
@@ -1626,6 +1626,95 @@ void QMainWindow::setDockMenuEnabled( bool b )
     d->dockMenu = b;
 }
 
+/*!  Creates a menu which contains all toolbars (if \a dockWindows
+  equals \c OnlyToolBars ), all dockwindows (if \a dockWindows equals
+  \c NoToolBars) or all toolbars and dockwindows ( if \a dockWindows
+  equals AllDockWindows)..
+
+  The items representing the toolbars and dockwindows are checkable,
+  so the user sees the current state of the window and can also
+  hide/show them.
+
+  The list and its state is always kept up-to-date.
+
+  Toolbars and dockwindows which are not appropriate at the moment
+  (see setAppropriate()) are not listed in the menu.
+
+  Also an item to line up the toolbars in the dock arease is added. If
+  isCustomizable() returns TRUE, an item to customize the toolbars and
+  dockwindows is added to the end of the menu, which calls customize()
+  if it is activated.
+*/
+
+QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
+{
+    QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this );
+    menu->setCheckable( TRUE );
+    d->dockWindowModes.replace( menu, dockWindows );
+    connect( menu, SIGNAL( aboutToShow() ), this, SLOT( menuAboutToShow() ) );
+    return menu;
+}
+
+void QMainWindow::menuAboutToShow()
+{
+    QPopupMenu *menu = (QPopupMenu*)sender();
+    QMap<QPopupMenu*, DockWindows>::Iterator it = d->dockWindowModes.find( menu );
+    if ( it == d->dockWindowModes.end() )
+	return;
+    menu->clear();
+
+    DockWindows dockWindows = *it;
+
+    QObjectList *l = queryList( "QDockWindow" );
+
+    bool empty = TRUE;
+    if ( l && !l->isEmpty() ) {
+
+	QObject *o = 0;
+	if ( dockWindows == AllDockWindows || dockWindows == NoToolBars ) {
+	    for ( o = l->first(); o; o = l->next() ) {
+		QDockWindow *dw = (QDockWindow*)o;
+		if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) )
+		    continue;
+		QString label = dw->caption();
+		if ( !label.isEmpty() ) {
+		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
+		    menu->setItemChecked( id, dw->isVisible() );
+		}
+		empty = FALSE;
+	    }
+	    menu->insertSeparator();
+	}
+	
+	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
+	    for ( o = l->first(); o; o = l->next() ) {
+		QDockWindow *dw = (QDockWindow*)o;
+		if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) )
+		    continue;
+		QString label = ( (QToolBar*)dw )->label();
+		if ( !label.isEmpty() ) {
+		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
+		    menu->setItemChecked( id, dw->isVisible() );
+		}
+		empty = FALSE;
+	    }
+	} else {
+	    empty = TRUE;
+	}
+
+    }
+
+    delete l;
+
+    if ( !empty )
+	menu->insertSeparator();
+
+    if ( dockWindowsMovable() )
+	menu->insertItem( tr( "Line up" ), this, SLOT( doLineUp() ) );
+    if ( isCustomizable() )
+	menu->insertItem( tr( "Customize..." ), this, SLOT( customize() ) );
+}
+
 /*! Shows the dock menu at the position \a globalPos which allows
   lining up dock windows, hiding/showing dock windows and customizing
   them.
@@ -1633,80 +1722,18 @@ void QMainWindow::setDockMenuEnabled( bool b )
   If you need a specialized popup menu here, you can reimplement that
   function.
 
-  The default implementation creates a menu which contains all
-  Toolbars and Dockwindows. Toolbars and Dockwindows which are not
-  appropriate (see setAppropriate()) are not listed in the menu. Also
-  an item to lign up the toolbars in the dock is added. If
-  isCustomizable() returns TRUE, an item to customize the Toolbars and
-  Dockwindows is added to the end of the menu, which calls customize()
-  if it is activated.
+  The default implementation uses the menu which gets created by
+  createDockWindowMenu().
 */
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
 {
     if ( !d->dockMenu )
 	return FALSE;
-    if ( !d->rmbMenu ) {
-	d->rmbMenu = new QPopupMenu( this );
-	d->rmbMenu->setCheckable( TRUE );
-    } else {
-	d->rmbMenu->clear();
-    }
-    QObjectList *l = queryList( "QDockWindow" );
-    QIntDict<QDockWindow> id2Widget;
-    if ( l && !l->isEmpty() ) {
-	QObject *o = 0;
-	for ( o = l->first(); o; o = l->next() ) {
-	    QDockWindow *dw = (QDockWindow*)o;
-	    if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) )
-		continue;
-	    QString label = dw->caption();
-	    if ( !label.isEmpty() ) {
-		int id = d->rmbMenu->insertItem( label );
-		d->rmbMenu->setItemChecked( id, dw->isVisible() );
-		id2Widget.insert( id, dw );
-	    }
-	}
-	d->rmbMenu->insertSeparator();
-	for ( o = l->first(); o; o = l->next() ) {
-	    QDockWindow *dw = (QDockWindow*)o;
-	    if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) )
-		continue;
-	    QString label = ( (QToolBar*)dw )->label();
-	    if ( !label.isEmpty() ) {
-		int id = d->rmbMenu->insertItem( label );
-		d->rmbMenu->setItemChecked( id, dw->isVisible() );
-		id2Widget.insert( id, dw );
-	    }
-	}
-    }
-    delete l;
+    if ( !d->rmbMenu )
+	d->rmbMenu = createDockWindowMenu();
 
-    if ( !id2Widget.isEmpty() )
-	d->rmbMenu->insertSeparator();
-    int lineup = -2;
-
-    if ( dockWindowsMovable() )
-	lineup = d->rmbMenu->insertItem( tr( "Line up" ) );
-    int config = -2;
-    if ( isCustomizable() )
-	config = d->rmbMenu->insertItem( tr( "Customize..." ) );
-    int result = d->rmbMenu->exec( globalPos );
-    if ( result == config ) {
-	customize();
-	return TRUE;
-    } else if ( result == lineup ) {
-	lineUpDockWindows( TRUE );
-	return TRUE;
-    }
-
-    QDockWindow *dw = 0;
-    if ( !( dw = id2Widget.find( result ) ) )
-	return TRUE;
-    if ( dw->isVisible() )
-	dw->hide();
-    else
-	dw->show();
+    d->rmbMenu->exec( globalPos );
     return TRUE;
 }
 
