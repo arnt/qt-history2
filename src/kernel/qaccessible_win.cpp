@@ -206,24 +206,22 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accLocation( long *pxLeft, long *p
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT *pvarEnd )
 {
-    if ( varStart.lVal == CHILDID_SELF ) {
-	int target;
-	QAccessibleInterface *acc = accessible->navigate( (QAccessible::NavDirection)navDir, &target );
-	if ( !acc ) {
-	    (*pvarEnd).vt = VT_EMPTY;
-	    return S_FALSE;
-	} else if ( acc == accessible ) {
-	    (*pvarEnd).vt = VT_I4;
-	    (*pvarEnd).lVal = target;
-	    return S_OK;
-	}
-	IDispatch *disp = 0;
-	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
-	wacc->QueryInterface( IID_IDispatch, (void**)&disp );
-	(*pvarEnd).vt = VT_DISPATCH;
-	(*pvarEnd).pdispVal = disp;
+    int target = varStart.lVal;
+    QAccessibleInterface *acc = accessible->navigate( (QAccessible::NavDirection)navDir, &target );
+    if ( !acc ) {
+	(*pvarEnd).vt = VT_EMPTY;
+	return S_FALSE;
+    } else if ( acc == accessible ) {
+	(*pvarEnd).vt = VT_I4;
+	(*pvarEnd).lVal = target;
 	return S_OK;
-    } // ###
+    }
+    IDispatch *disp = 0;
+    QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    wacc->QueryInterface( IID_IDispatch, (void**)&disp );
+    (*pvarEnd).vt = VT_DISPATCH;
+    (*pvarEnd).pdispVal = disp;
+    return S_OK;
 
     (*pvarEnd).vt = VT_EMPTY;
     return S_FALSE;
@@ -349,7 +347,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::put_accName( VARIANT varID, BSTR s
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
 { 
-    int role = accessible->role( varID.lVal );
+    QAccessible::Role role = accessible->role( varID.lVal );
     if ( role != QAccessible::NoRole ) {
 	(*pvarRole).vt = VT_I4;
 	(*pvarRole).lVal = role;	
