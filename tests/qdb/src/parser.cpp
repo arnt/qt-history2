@@ -1477,31 +1477,45 @@ void Parser::matchOrderByClause()
     yyTok = getToken();
     matchOrInsert( Tok_by, "'by'" );
 
+    int n = 0;
     while ( TRUE ) {
+	QVariant column;
+	bool descending = FALSE;
+
 	switch ( yyTok ) {
 	case Tok_IntNum:
+	    column.asList().append( (int) Tok_Name );
+	    column.asList().append( QString::null );
+	    column.asList().append( yyNum - 1 ); // FORTRAN vs. C
 	    yyTok = getToken();
 	    break;
 	case Tok_Name:
-	    matchColumnRef();
-
-	    switch ( yyTok ) {
-	    case Tok_asc:
-		yyTok = getToken();
-		break;
-	    case Tok_desc:
-		yyTok = getToken();
-	    }
+	    column = matchColumnRef();
 	    break;
 	default:
 	    error( "Met '%s' where a numeral or column reference was expected",
 		   yyLex );
 	}
+	lookupNames( &column );
+	emitExpr( column, FALSE );
+
+	switch ( yyTok ) {
+	case Tok_desc:
+	    descending = TRUE;
+	    // fall through
+	case Tok_asc:
+	    yyTok = getToken();
+	}
+	yyProg->append( new Push((int) descending) );
+	yyProg->append( new MakeList(2) );
+	n++;
 
 	if ( yyTok != Tok_Comma )
 	    break;
 	yyTok = getToken();
     }
+    yyProg->append( new MakeList(n) );
+    yyProg->append( new Sort(0) );
 }
 
 void Parser::matchSelectStatement()

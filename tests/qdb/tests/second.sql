@@ -1,5 +1,6 @@
-insert into authors values(7, 'Foo');
+insert into authors
+values(7, 'Bar');
 
-update authors
-set name = 'Bar'
-where id = 7;
+select id, name
+from authors
+order by id desc, name desc;

@@ -555,22 +555,19 @@ bool ResultSet::sort( const localsql::List& index )
 	env->setLastError("No fields defined");
 	return 0;
     }
-    if ( (index.count() % 2) != 0 ) {
-	env->setLastError("Internal error: Incorrect multiple of list elements");
-	return 0;
-    }
     uint i = 0;
     QMap<int,bool> desc; /* indicates fields with a descending sort */
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
-	localsql::List fieldDescription = index[i].toList();
+    	localsql::List indexData = index[i].toList();
+	localsql::List fieldDescription = indexData[0].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("Internal error: Bad field description");
 	    return 0;
 	}
 	sortIndex.fields[i].name = fieldDescription[0].toString();
-	sortIndex.fields[i].type = fieldDescription[1].type();
-	desc[i] = index[++i].toBool();
+	sortIndex.fields[i].type = (QVariant::Type)fieldDescription[1].toInt();
+	desc[i] = indexData[1].toBool();
 	switch ( sortIndex.fields[i].type ) {
 	case QVariant::String:
 	case QVariant::CString:
@@ -585,7 +582,7 @@ bool ResultSet::sort( const localsql::List& index )
 	default:
 	    QVariant v;
 	    v.cast( sortIndex.fields[i].type );
-	    env->setLastError( "Internal error: Invalid sort field type" +
+	    env->setLastError( "Internal error: Invalid sort field type " +
 			       QString( v.typeName() ) );
 	    return FALSE;
 	}
