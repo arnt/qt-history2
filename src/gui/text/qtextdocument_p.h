@@ -166,8 +166,8 @@ public:
     void enableUndoRedo(bool enable);
     inline bool isUndoRedoEnabled() const { return undoEnabled; }
 
-    inline bool isUndoAvailable() const { return undoEnabled && undoPosition > 0; }
-    inline bool isRedoAvailable() const { return undoEnabled && undoPosition < undoStack.size(); }
+    inline bool isUndoAvailable() const { return undoEnabled && undoState > 0; }
+    inline bool isRedoAvailable() const { return undoEnabled && undoState < undoStack.size(); }
 
     inline QString buffer() const { return text; }
     QString plainText() const;
@@ -247,7 +247,10 @@ private:
 
     QVector<QTextUndoCommand> undoStack;
     bool undoEnabled;
-    int undoPosition;
+    int undoState;
+    // position in undo stack of the last setModified(false) call
+    int modifiedState;
+    bool modified;
 
     int editBlock;
     int docChangeFrom;
@@ -267,9 +270,6 @@ private:
 
     QTextDocumentConfig docConfig;
 
-    bool modified;
-    // position in undo stack of the last setModified(false) call
-    int lastUnmodifiedUndoStackPos;
 };
 
 #endif // QTEXTDOCUMENT_P_H
