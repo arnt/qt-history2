@@ -544,27 +544,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    const double dt = 0.0001;
-    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    double xx = (double)ws - 1;
-    double yy = (double)hs - 1;
-
-    matrix.map( dt, dt, &x1, &y1 );
-    matrix.map( xx, dt, &x2, &y2 );
-    matrix.map( xx, yy, &x3, &y3 );
-    matrix.map( dt, yy, &x4, &y4 );
-
-    double ymin = y1;				// lowest y value
-    if ( y2 < ymin ) ymin = y2;
-    if ( y3 < ymin ) ymin = y3;
-    if ( y4 < ymin ) ymin = y4;
-    double xmin = x1;				// lowest x value
-    if ( x2 < xmin ) xmin = x2;
-    if ( x3 < xmin ) xmin = x3;
-    if ( x4 < xmin ) xmin = x4;
-
-    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
-    mat = matrix * mat;
+    QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
 
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
@@ -780,33 +760,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     return pm;
-}
-
-
-QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
-{
-    const double dt = (double)0.0001;
-    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    double xx = (double)w - 1;
-    double yy = (double)h - 1;
-
-    matrix.map( dt, dt, &x1, &y1 );
-    matrix.map( xx, dt, &x2, &y2 );
-    matrix.map( xx, yy, &x3, &y3 );
-    matrix.map( dt, yy, &x4, &y4 );
-
-    double ymin = y1;				// lowest y value
-    if ( y2 < ymin ) ymin = y2;
-    if ( y3 < ymin ) ymin = y3;
-    if ( y4 < ymin ) ymin = y4;
-    double xmin = x1;				// lowest x value
-    if ( x2 < xmin ) xmin = x2;
-    if ( x3 < xmin ) xmin = x3;
-    if ( x4 < xmin ) xmin = x4;
-
-    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
-    mat = matrix * mat;
-    return mat;
 }
 #endif // QT_NO_TRANSFORMATIONS
 

@@ -1531,27 +1531,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    const double dt = 0.0001;
-    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    double xx = (double)ws - 1;
-    double yy = (double)hs - 1;
-
-    matrix.map( dt, dt, &x1, &y1 );
-    matrix.map( xx, dt, &x2, &y2 );
-    matrix.map( xx, yy, &x3, &y3 );
-    matrix.map( dt, yy, &x4, &y4 );
-
-    double ymin = y1;				// lowest y value
-    if ( y2 < ymin ) ymin = y2;
-    if ( y3 < ymin ) ymin = y3;
-    if ( y4 < ymin ) ymin = y4;
-    double xmin = x1;				// lowest x value
-    if ( x2 < xmin ) xmin = x2;
-    if ( x3 < xmin ) xmin = x3;
-    if ( x4 < xmin ) xmin = x4;
-
-    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
-    mat = matrix * mat;
+    QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
 
     if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
@@ -1817,48 +1797,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
     }
-}
-
-
-/*!
-  Returns the actual matrix used for transforming a pixmap with \a w
-  width and \a h height.
-
-  When transforming a pixmap with xForm(), the transformation matrix
-  is internally adjusted to compensate for unwanted translation,
-  i.e., xForm() returns the smallest pixmap containing all transformed
-  points of the original pixmap.
-
-  This function returns the modified matrix, which maps points
-  correctly from the original pixmap into the new pixmap.
-
-  \sa xForm(), QWMatrix
-*/
-
-QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
-{
-    const double dt = (double)0.0001;
-    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    double xx = (double)w - 1;
-    double yy = (double)h - 1;
-
-    matrix.map( dt, dt, &x1, &y1 );
-    matrix.map( xx, dt, &x2, &y2 );
-    matrix.map( xx, yy, &x3, &y3 );
-    matrix.map( dt, yy, &x4, &y4 );
-
-    double ymin = y1;				// lowest y value
-    if ( y2 < ymin ) ymin = y2;
-    if ( y3 < ymin ) ymin = y3;
-    if ( y4 < ymin ) ymin = y4;
-    double xmin = x1;				// lowest x value
-    if ( x2 < xmin ) xmin = x2;
-    if ( x3 < xmin ) xmin = x3;
-    if ( x4 < xmin ) xmin = x4;
-
-    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
-    mat = matrix * mat;
-    return mat;
 }
 
 
