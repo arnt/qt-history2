@@ -14,7 +14,7 @@
 #ifndef QGFXVFB_QWS_H
 #define QGFXVFB_QWS_H
 
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #ifndef QT_NO_QWS_QVFB
 
