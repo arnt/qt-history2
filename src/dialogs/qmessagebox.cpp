@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QMessageBox class
 **
@@ -346,7 +346,7 @@ errors which can't be easily fixed:
     switch( QMessageBox::information( this, "Application name here",
                                       "The document contains unsaved changes\n"
                                       "Do you want to save the changes before exiting?",
-                                      "&Save", "&Discard", "&Cancel",
+                                      "&Save", "&Discard", "Cancel",
                                       0,      // Return == button 0
                                       2 ) ) { // Escape == button 2
     case 0: // Save clicked or Alt+S pressed or Return pressed.

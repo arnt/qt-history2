@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QInputDialog class
 **
@@ -152,9 +152,9 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     QHBoxLayout *hbox = new QHBoxLayout( 6 );
     vbox->addLayout( hbox, AlignRight );
 
-    d->ok = new QPushButton( tr( "&OK" ), this );
+    d->ok = new QPushButton( tr( "OK" ), this );
     d->ok->setDefault( TRUE );
-    QPushButton *cancel = new QPushButton( tr( "&Cancel" ), this );
+    QPushButton *cancel = new QPushButton( tr( "Cancel" ), this );
 
     QSize bs( d->ok->sizeHint() );
     if ( cancel->sizeHint().width() > bs.width() )

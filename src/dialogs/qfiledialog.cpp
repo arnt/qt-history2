@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFileDialog class
 **
@@ -783,7 +783,7 @@ QFDProgressDialog::QFDProgressDialog( QWidget *parent, const QString &fn, int st
     writeBar->setProgress( 0 );
     layout->addWidget( writeBar );
 
-    QPushButton *b = new QPushButton( tr( "&Cancel" ), this );
+    QPushButton *b = new QPushButton( tr( "Cancel" ), this );
     b->setFixedSize( b->sizeHint() );
     layout->addWidget( b );
     connect( b, SIGNAL( clicked() ),
