@@ -1646,13 +1646,13 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
     Spacer *spacer = (Spacer*) WidgetFactory::create( WidgetDatabase::idFromClassName("Spacer"),
 						      parent, "spacer", FALSE);
     spacer->setOrientation( o );
-    spacer->setAutoResize( FALSE );
+    spacer->setInteraciveMode( FALSE );
     while ( !n.isNull() ) {
 	if ( n.tagName() == "property" )
 	    setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
 	n = n.nextSibling().toElement();
     }
-    spacer->setAutoResize( TRUE );
+    spacer->setInteraciveMode( TRUE );
     if ( formwindow )
 	formwindow->insertWidget( spacer, pasting );
     if ( layout ) {

@@ -854,11 +854,11 @@ void GridLayout::buildGrid()
 
 
 Spacer::Spacer( QWidget *parent, const char *name )
-    : QWidget( parent, name, WMouseNoMask ), orient( Vertical )
+    : QWidget( parent, name, WMouseNoMask ),
+      orient( Vertical ), interactive(TRUE), sh( QSize(20,20) )
 {
     setSizeType( Expanding );
     setAutoMask( TRUE );
-    ar = TRUE;
 }
 
 void Spacer::paintEvent( QPaintEvent * )
@@ -893,6 +893,13 @@ void Spacer::paintEvent( QPaintEvent * )
 	p.drawLine( 0, 0, width(), 0 );
 	p.drawLine( 0, height() - 1, width(), height() - 1 );
     }
+}
+
+void Spacer::resizeEvent( QResizeEvent* e)
+{
+    QWidget::resizeEvent( e );
+    if ( !parentWidget() || WidgetFactory::layoutType( parentWidget() ) == WidgetFactory::NoLayout )
+	sh = size();
 }
 
 void Spacer::updateMask()
@@ -944,15 +951,22 @@ QSize Spacer::minimumSize() const
 
 QSize Spacer::sizeHint() const
 {
-    if ( sizeHintStored() )
-	return size();
-    return QSize( 20, 20 );
+    QSize s = sh.expandedTo( QSize(0,0) );
+    if ( sizeType() == Expanding )
+	if ( orient == Horizontal )
+	    s.rwidth() = 0;
+	else
+	    s.rheight() = 0;
+    return s;
 }
 
-bool Spacer::sizeHintStored() const
+
+void Spacer::setSizeHint( const QSize &s )
 {
-    return parentWidget() && WidgetFactory::layoutType( parentWidget() ) != WidgetFactory::NoLayout &&
-			     ( sizeType() == Fixed || sizeType() == Maximum );
+    sh = s;
+    if ( !parentWidget() || WidgetFactory::layoutType( parentWidget() ) == WidgetFactory::NoLayout )
+	resize( sizeHint() );
+    updateGeometry();
 }
 
 Qt::Orientation Spacer::orientation() const
@@ -968,8 +982,11 @@ void Spacer::setOrientation( Qt::Orientation o )
     SizeType st = sizeType();
     orient = o;
     setSizeType( st );
-    if ( ar )
-	resize( QSize( size().height(), size().width() ) );
+    if ( interactive ) {
+	sh = QSize( sh.height(), sh.width() );
+	if (!parentWidget() || WidgetFactory::layoutType( parentWidget() ) == WidgetFactory::NoLayout )
+	    resize( height(), width() );
+    }
     updateMask();
     update();
     updateGeometry();
