@@ -105,7 +105,7 @@ private:
     int wakeUpDelay;
     QTimer  fallAsleep;
 
-    QHash<void*,Tip*> *tips;
+    QHash<QWidget*,Tip*> *tips;
     QTipLabel *label;
     QPoint pos;
     QGuardedPtr<QWidget> widget;
@@ -133,7 +133,7 @@ QTipManager::QTipManager()
     : QObject( qApp, "toolTipManager" )
 {
     wakeUpDelay = 700;
-    tips = new QHash<void*,QTipManager::Tip*>;
+    tips = new QHash<QWidget*,QTipManager::Tip*>;
     tips->reserve(313);
     currentTip = 0;
     previousTip = 0;
@@ -152,9 +152,9 @@ QTipManager::~QTipManager()
 	qApp->removeEventFilter( tipManager );
 
     if ( tips ) {
-	QHash<void*,QTipManager::Tip*>::Iterator it = tips->begin();
+	QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin();
 	QTipManager::Tip *t, *n;
-	void *k;
+	QWidget *k;
 	while ( (t = it.value()) != 0 ) {
 	    k = it.key();
 	    ++it;
@@ -315,7 +315,7 @@ void QTipManager::remove( QWidget *w )
 
 void QTipManager::removeFromGroup( QToolTipGroup *g )
 {
-    QHash<void*,QTipManager::Tip*>::Iterator it = tips->begin();
+    QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin();
     QTipManager::Tip *t;
     while( (t = it.value()) != 0 ) {
 	++it;
