@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#15 $
 **
 **  Splitter widget
 **
@@ -194,6 +194,8 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
   QSplitter normally resizes the two children only at the end of a
   resize operation, but if you call setOpaqueResize( TRUE ), the
   widgets are resized as often as possible.
+
+  <img src=qsplitter-m.gif> <img src=qsplitter-w.gif>
 
   \sa QTabBar
 */

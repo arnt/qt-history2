@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#13 $
 **
 ** Implementation of QStatusBar class
 **
@@ -59,6 +59,8 @@
   standard resize handle.  In the X11 version Qt 1.40 this resize
   handle generally works differently than the one provided by the
   system; we hope to reduce this difference in the future.
+
+  <img src=qstatusbar-m.gif> <img src=qstatusbar-w.gif>
 
   \sa QToolBar QMainWindow QLabel
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui192.htm">Microsoft Style Guide,</a>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#26 $
 **
 ** Implementation of QMainWindow class
 **
@@ -68,6 +68,8 @@
   The current release of QMainWindow does not provide draggable
   toolbars.  This feature is planned for inclusion in one of the next
   releases.
+
+  <img src=qmainwindow-m.gif> <img src=qmainwindow-w.gif>
 
   \sa QToolBar QStatusBar QMenuBar QToolTipGroup QDialog
 */
