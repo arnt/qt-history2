@@ -644,7 +644,6 @@ private:
     friend class QETWidget;
     friend class QLayout;
     friend class QWidgetItem;
-    friend void qt_widget_ensure_polished(QWidget *); //fake virtual function
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -875,17 +875,6 @@ QWidget::~QWidget()
 int QWidget::instanceCounter = 0;  // Current number of widget instances
 int QWidget::maxInstances = 0;     // Maximum number of widget instances
 
-void qt_widget_ensure_polished(QWidget *w)
-{
-    if ( !w->testAttribute(QWidget::WA_SetFont) && !QApplication::font(w).isCopyOf(QApplication::font()))
-	w->d->resolveFont();
-#ifndef QT_NO_PALETTE
-    if (!QApplication::palette(w).isCopyOf(QApplication::palette()))
-	w->d->resolvePalette();
-#endif
-    qApp->polish(w);
-}
-
 void QWidget::setWinId( WId id )		// set widget identifier
 {
     if ( !mapper )				// mapper destroyed
@@ -4262,9 +4251,6 @@ QSize QWidget::minimumSizeHint() const
 
 bool QWidget::event( QEvent *e )
 {
-    if ( QObject::event( e ) )
-	return TRUE;
-
     switch ( e->type() ) {
     case QEvent::MouseMove:
 	// throw away any mouse-tracking-only mouse events
@@ -4364,6 +4350,21 @@ bool QWidget::event( QEvent *e )
 	if (! i->isAccepted())
 	    return FALSE;
     }
+	break;
+
+    case QEvent::Polish: {
+	polishEvent(e); //duplicated from QObject::event()!? ### 
+	qApp->polish(this);
+	if ( !testAttribute(QWidget::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
+	    d->resolveFont();
+#ifndef QT_NO_PALETTE
+	if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
+	    d->resolvePalette();
+#endif
+#ifdef QT_COMPAT
+	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+#endif
+    } 
 	break;
 
     case QEvent::FocusIn: {
@@ -4600,7 +4601,7 @@ bool QWidget::event( QEvent *e )
 	break;
 
     default:
-	return FALSE;
+	return QObject::event( e );
     }
     return TRUE;
 }
