@@ -2670,12 +2670,12 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	qFatal( "Cannot find region for window %d", winId() );
     }
 
-    QWSDisplay()::grab();
+    QWSDisplay::grab();
     int revision = *rgnMan->revision( alloc_region_index );
     if ( revision != alloc_region_revision ) {
 	alloc_region_revision = revision;
 	QRegion newRegion = rgnMan->region( alloc_region_index );
-	QWSDisplay()::ungrab();
+	QWSDisplay::ungrab();
 
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
 	    QRegion mr(topData()->qwsManager->region());
@@ -2697,7 +2697,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	    }
 	}
     } else {
-	QWSDisplay()::ungrab();
+	QWSDisplay::ungrab();
     }
 
     if ( event->simpleData.nrectangles )
