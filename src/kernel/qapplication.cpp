@@ -1317,6 +1317,7 @@ void QApplication::setGlobalStrut( const QSize& strut )
 /*!
   Returns a list of paths that the application will search when
   dynamically loading libraries.
+  Returns $QTDIR/plugins as the only entry if no paths have been set explicitely.
 
   \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
 */
@@ -1347,6 +1348,9 @@ QStringList QApplication::libraryPaths()
  */
 void QApplication::setLibraryPaths(const QStringList &paths)
 {
+    if ( paths.isEmpty() )
+	return;
+
     delete app_libpaths;
     app_libpaths = new QStringList(paths);
 }
@@ -1354,6 +1358,8 @@ void QApplication::setLibraryPaths(const QStringList &paths)
 /*!
   Append \a path to the end of the library path list.  If \a path is
   empty or already in the path list, the path list is not changed.
+  $QTDIR/plugins is a default entry in the path list unless you call
+  setLibraryPaths() to set a different list of paths.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
@@ -1366,7 +1372,7 @@ void QApplication::addLibraryPath(const QString &path)
     libraryPaths();
 
     if ( !app_libpaths->contains(path) )
-	app_libpaths->append(path);
+	app_libpaths->prepend(path);
 }
 
 /*!

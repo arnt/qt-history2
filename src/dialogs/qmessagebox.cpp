@@ -483,7 +483,8 @@ QMessageBox mb( "Application Name",
 	"Hardware failure.\n\nDisk error detected\nDo you want to stop?",
 	QMessageBox::NoIcon,
 	QMessageBox::Yes | QMessageBox::Default,
-	QMessageBox::No  | QMessageBox::Escape );
+	QMessageBox::No  | QMessageBox::Escape 
+	QMessageBox::NoButton );
 if ( mb.exec() == QMessageBox::No )
     // try again
 \endcode
