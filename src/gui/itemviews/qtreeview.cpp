@@ -1296,6 +1296,8 @@ int QTreeViewPrivate::indentation(int i) const
 
 int QTreeViewPrivate::coordinate(int item) const
 {
+    if (items.at(item).hidden)
+        return -1;
     QStyleOptionViewItem option = q->viewOptions();
     int v = q->verticalScrollBar()->value();
     int i = itemAt(v); // first item (may start above the page)
@@ -1304,9 +1306,11 @@ int QTreeViewPrivate::coordinate(int item) const
     int h = viewport->height();
     if (i <= item) {
         while (y < h && i < items.count()) {
-            if (i == item)
-                return y; // item is visible - actual y in viewport
-            y += delegate->sizeHint(option, model, items.at(i).index).height();
+            if (!items.at(i).hidden) {
+                if (i == item)
+                    return y; // item is visible - actual y in viewport
+                y += delegate->sizeHint(option, model, items.at(i).index).height();
+            }
             ++i;
         }
         // item is below the viewport - estimated y
