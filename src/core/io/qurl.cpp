@@ -1,4 +1,3 @@
-
 /*! \class QUrl
 
     \brief The QUrl class provides a convenient interface for working
@@ -1148,7 +1147,7 @@ void QUrlPrivate::clear()
     userName.clear();
     password.clear();
     host.clear();
-    int port = -1;
+    port = -1;
     path.clear();
     query.clear();
     fragment.clear();
