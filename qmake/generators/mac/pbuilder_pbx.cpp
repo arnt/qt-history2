@@ -846,7 +846,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 targ += ".app";
         } else if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") &&
            !project->isActiveConfig("frameworklib")) {
-            QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
+            QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", "TARGET_x.y.z", QString::null };
             for(int n = 0; !li[n].isNull(); n++) {
                 QString t = project->first(li[n]);
                 slsh = t.lastIndexOf(Option::dir_sep);
