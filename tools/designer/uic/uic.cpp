@@ -378,19 +378,26 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << "class QPopupMenu;" << endl;
     }
 
-
     bool dbForm = FALSE;
-    if ( dbAware ) {
-	registerDatabases( e );
-	if ( dbConnections.count() )
-	    forwardDecl += "QSqlDatabase";
-	if ( dbCursors.count() )
-	    forwardDecl += "QSqlCursor";
-	if ( dbForms[ "(default)" ].count() ) {
-	    dbForm = TRUE;
-	    forwardDecl += "QSqlForm";
+    registerDatabases( e );
+    dbConnections = unique( dbConnections );
+    if ( dbConnections.count() )
+	forwardDecl += "QSqlDatabase";
+    if ( dbCursors.count() )
+	forwardDecl += "QSqlCursor";
+    if ( dbForms[ "(default)" ].count() )
+	dbForm = TRUE;
+    bool subDbForms = FALSE;
+    for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
+	if ( !(*it).isEmpty() && (*it) != "(default)" ) {
+	    if ( dbForms[ (*it) ].count() ) {
+		subDbForms = TRUE;
+		break;
+	    }
 	}
     }
+    if ( dbForm || subDbForms )
+	forwardDecl += "QSqlForm";
 
     for ( it = tags.begin(); it != tags.end(); ++it ) {
 	nl = e.elementsByTagName( *it );
@@ -514,18 +521,18 @@ void Uic::createFormDecl( const QDomElement &e )
 
     out << endl;
 
-    if ( dbAware ) {
-	dbConnections = unique( dbConnections );
-	for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
-	    if ( !(*it).isEmpty() ) {
-		if ( (*it) == "(default)" )
-		    out << indent << "QSqlDatabase* defaultConnection;" << endl;
-		else if ( !(*it).isEmpty() )
-		    out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
-	    }
+    // database connections
+    dbConnections = unique( dbConnections );
+    for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
+	if ( !(*it).isEmpty() ) {
+	    if ( (*it) == "(default)" )
+		out << indent << "QSqlDatabase* defaultConnection;" << endl;
+	    else if ( !(*it).isEmpty() )
+		out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
 	}
-	out << indent << "QSqlForm* " << nameOfClass << "Form;" << endl;
     }
+    if ( dbAware )
+	out << indent << "QSqlForm* " << nameOfClass << "Form;" << endl;
 
     out << endl;
 
@@ -628,19 +635,29 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     bool dbAware = FALSE;
-    if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" ) {
+    if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" )
 	dbAware = TRUE;
-    }
-    if ( dbAware ) {
-	registerDatabases( e );
-	if ( dbConnections.count() )
-	    globalIncludes += "qsqldatabase.h";
-	if ( dbCursors.count() )
-	    globalIncludes += "qsqlcursor.h";
-	if ( dbForms[ "(default)" ].count() ) {
-	    globalIncludes += "qsqlform.h";
-	    globalIncludes += "qsqlrecord.h";
+    registerDatabases( e );
+    dbConnections = unique( dbConnections );
+    if ( dbConnections.count() )
+	globalIncludes += "qsqldatabase.h";
+    if ( dbCursors.count() )
+	globalIncludes += "qsqlcursor.h";
+    bool dbForm = FALSE;
+    if ( dbForms[ "(default)" ].count() )
+	dbForm = TRUE;
+    bool subDbForms = FALSE;
+    for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
+	if ( !(*it).isEmpty()  && (*it) != "(default)" ) {
+	    if ( dbForms[ (*it) ].count() ) {
+		subDbForms = TRUE;
+		break;
+	    }
 	}
+    }
+    if ( dbForm || subDbForms ) {
+	globalIncludes += "qsqlform.h";
+	globalIncludes += "qsqlrecord.h";
     }
 
     // do the local includes afterwards, since global includes have priority on clashes
@@ -950,18 +967,20 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // database support
+    dbConnections = unique( dbConnections );
+    if ( dbConnections.count() )
+	out << endl << indent << "// database support" << endl;
+    for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
+	if ( !(*it).isEmpty() ) {
+	    if ( (*it) == "(default)" ) {
+		out << indent << "defaultConnection = QSqlDatabase::database();" << endl;
+	    } else
+		out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
+	}
+    }
+
     if ( dbAware ) {
 	QString defaultTable = getDatabaseInfo( e, "table" );
-	out << endl << indent << "// database support" << endl;
-	dbConnections = unique( dbConnections );
-	for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
-	    if ( !(*it).isEmpty() ) {
-		if ( (*it) == "(default)" ) {
-		    out << indent << "defaultConnection = QSqlDatabase::database();" << endl;
-		} else
-		    out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
-	    }
-	}
 	out << indent << nameOfClass << "Form =  new QSqlForm( this, \"" << nameOfClass << "Form\" );" << endl;
 	createFormImpl( e, nameOfClass, "(default)", defaultTable );
 	out << indent << "setForm( " << nameOfClass << "Form );" << endl;
