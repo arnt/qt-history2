@@ -50,6 +50,10 @@ public:
                          const QPixmap &pixmap, const QString &text, int len = -1,
                          const QColor *penColor = 0)
     {
+        if (!isActive()) {
+            qWarning("QPainter is not active");
+            return;
+        }
         if (!pixmap.isNull())
             drawItem(r, flags, pal, enabled, pixmap, penColor);
         else
@@ -65,27 +69,47 @@ private:
 
 void QStylePainter::drawPrimitive(QStyle::PrimitiveElement pe, const QStyleOption &opt)
 {
+    if (!isActive()) {
+        qWarning("QPainter is not active");
+        return;
+    }
     wstyle->drawPrimitive(pe, &opt, this, widget);
 }
 
 void QStylePainter::drawControl(QStyle::ControlElement ce, const QStyleOption &opt)
 {
+    if (!isActive()) {
+        qWarning("QPainter is not active");
+        return;
+    }
     wstyle->drawControl(ce, &opt, this, widget);
 }
 
 void QStylePainter::drawControlMask(QStyle::ControlElement ce, const QStyleOption &opt)
 {
+    if (!isActive()) {
+        qWarning("QPainter is not active");
+        return;
+    }
     wstyle->drawControlMask(ce, &opt, this, widget);
 }
 
 void QStylePainter::drawComplexControl(QStyle::ComplexControl cc, const QStyleOptionComplex &opt)
 {
+    if (!isActive()) {
+        qWarning("QPainter is not active");
+        return;
+    }
     wstyle->drawComplexControl(cc, &opt, this, widget);
 }
 
 void QStylePainter::drawComplexControlMask(QStyle::ComplexControl cc,
                                            const QStyleOptionComplex &opt)
 {
+    if (!isActive()) {
+        qWarning("QPainter is not active");
+        return;
+    }
     wstyle->drawComplexControlMask(cc, &opt, this, widget);
 }
 
