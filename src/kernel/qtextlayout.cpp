@@ -375,14 +375,14 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, Qt::AlignmentFlags align
 
 //  	qDebug("linebreak at item %d, position %d, glyph %d", breakItem, breakPosition, breakGlyph );
 	// split the line
-	QScriptItem &endItem = d->items[breakItem];
 	if ( breakPosition > 0 ) {
 	    int length = d->length( breakItem );
 
 //  	    qDebug("splitting item, itemWidth=%d", itemWidth);
-	    QShapedItem *shaped = endItem.shaped;
+	    QShapedItem *shaped = d->items[breakItem].shaped;
 	    // not a full item, need to break
 	    d->items.split( breakItem, breakPosition );
+	    QScriptItem &endItem = d->items[breakItem];
 // 	    qDebug("new items are at %d (len=%d) and %d (len=%d)", endItem.position, d->length(breakItem),
 // 		   d->items[breakItem+1].position, d->length(breakItem+1) );
 
