@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#78 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#79 $
 **
 ** Implementation of QTextCodec class
 **
@@ -493,14 +493,22 @@ QTextCodec* QTextCodec::codecForLocale()
     char * p = lang ? strchr( lang, '.' ) : 0;
     if ( !p || *p != '.' ) {
 	// Some versions of setlocale return encoding, others not.
-	if ( lang )
-	    delete [] lang;
-	lang = qstrdup( setlocale( LC_CTYPE, 0 ) );
-	p = lang ? strchr( lang, '.' ) : 0;
+	char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
+
+	// Some Linux distributions have broken locales which will return
+	// "C" for LC_CTYPE
+	if ( strcmp( ctype, "C" ) == 0 ) {
+	    delete [] ctype;
+	} else {
+	    if ( lang )
+		delete [] lang;
+	    lang = ctype;
+	    p = lang ? strchr( lang, '.' ) : 0;
+	}
     }
 
     if( p && *p == '.' ) {
-	 // if there is an encoding and we don't know it, we return 0
+	// if there is an encoding and we don't know it, we return 0
 	// User knows what they are doing.  Codecs will believe them.
 	localeMapper = codecForName( lang );
 	if ( !localeMapper ) {
