@@ -47,6 +47,8 @@ curdir=`/bin/pwd`
 echo >&2
 echo "Creating a new Qt distribution:" >&2
 
+  echo "  CVS tag ............." ${release} >&2
+
 if [ "${disttype}" = "free" -o "${disttype}" = "commercial" ]; then
   goodparam1=yes
   echo "  Distribution type... " ${disttype} >&2
