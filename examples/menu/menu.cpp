@@ -168,7 +168,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 #else
-#warning "Do we want something like this?! -Sam"
+//#warning "Do we want something like this?! -Sam"
 #endif
 
     isBold = FALSE;
