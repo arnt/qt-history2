@@ -47,29 +47,25 @@ static char *rcsid = "$XConsortium: io.c /main/6 1995/07/14 09:46:23 drk $";
 #include <qmessagebox.h>
 
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+// Motif includes
 #include <Xm/Xm.h>
-#include <Xm/MessageB.h>
-#include <Xm/Notebook.h>
 #include <Xm/Text.h>
 
-// Wrap non-standard includes and global variables with extern "C"
-extern "C" {
-#include <Exm/TabB.h>
 #include "page.h"
 
-extern Widget notebook, textw, shell;
-Page pages[MAXPAGES];
+// Demo includes
+extern "C" {
+#include <Exm/TabB.h>
+}
 
-extern int currentPage;
+extern Widget notebook, textw;
+
 extern int modified;
-int maxpages;
-Page AllocPage();
 
 void ReadDB(char*);
 void SaveDB(char*);
-} // extern "C"
+
 
 /* Pages are stored pretty simply:
  * each page starts with "*PLabel"
@@ -146,14 +142,8 @@ ReadDB(char* filename)
 
   /* Destroy current pages on reread */
   for(i = 0; i < maxpages; i++) {
-    XtFree(pages[i] -> page);
-    XtFree(pages[i] -> majorTab);
-    XtFree(pages[i] -> minorTab);
-    XtFree(pages[i] -> label);
-    if (pages[i] -> majorPB)
-      XtDestroyWidget(pages[i] -> majorPB);
-    if (pages[i] -> minorPB)
-      XtDestroyWidget(pages[i] -> minorPB);
+    delete pages[i];
+    pages[i] = 0;
   }
 
   number = 0;
@@ -164,7 +154,7 @@ ReadDB(char* filename)
     buffer = (char*) XtMalloc(max);
     buffer[0] = 0; /* Reset page buffer */
     current = 0;
-    pages[0] = AllocPage();
+    pages[0] = new Page();
 
     while(fgets(line, 1024, input) != NULL) {
       if (line[0] == '*') /* Special */
@@ -181,7 +171,7 @@ ReadDB(char* filename)
 		buffer = (char*) XtMalloc(max);
 		buffer[0] = 0; /* Reset page buffer */
 		number++;
-		pages[number] = AllocPage();
+		pages[number] = new Page();
 	      }
 	      if (strlen(line) > 3) {
 		line[strlen(line) - 1] = 0; /* Remove newline */
@@ -252,7 +242,7 @@ ReadDB(char* filename)
   /* If we didn't have a file to read,  we need to setup a page */
   if (input == NULL) {
     number = 0;
-    pages[0] = AllocPage();
+    pages[0] = new Page();
     pages[0] -> page = XtMalloc(2);
     pages[0] -> page[0] = 0;
   } else {
@@ -325,21 +315,4 @@ SaveDB(char* filename)
     fputc('\n', output);
   }
   fclose(output);
-}
-
-Page AllocPage()
-{
-  Page p;
-
-  p = (Page) XtMalloc(sizeof(PageRec));
-  p -> page = NULL;
-  p -> label = NULL;
-  p -> minorTab = NULL;
-  p -> majorTab = NULL;
-  p -> minorPB = (Widget) 0;
-  p -> majorPB = (Widget) 0;
-  p -> lasttoppos = 0;
-  p -> lastcursorpos = 0;
-
-  return(p);
 }

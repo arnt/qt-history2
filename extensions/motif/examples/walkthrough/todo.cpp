@@ -43,115 +43,59 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #endif
 #endif
 
-// Qt based Main Window
+// MainWindow includes
 #include "mainwindow.h"
 
 // Qt includes
 #include <qapplication.h>
-#include <qfiledialog.h>
 #include <qmotif.h>
 #include <qmotifwidget.h>
-#include <qmotifdialog.h>
 
 #include <pwd.h>
 #include <unistd.h>
 #include <stdlib.h>
-/* X include files */
-#include <X11/Intrinsic.h>
-#include <X11/StringDefs.h>
-#include <X11/Xatom.h>
-/* Motif include files */
+
+// Motif includes
 #include <Xm/Xm.h>
-// #include <Xm/CascadeBG.h>
 #include <Xm/Label.h>
-// #include <Xm/MainW.h>
 #include <Xm/Notebook.h>
-// #include <Xm/PushBG.h>
-// #include <Xm/RowColumn.h>
-// #include <Xm/ScrolledW.h>
-// #include <Xm/Separator.h>
 #include <Xm/Text.h>
 
-// Wrap non-standard includes with extern "C"
-/* Demo include files */
-extern "C" {
-// #include <Xmd/Help.h>
-// #include <Xmd/Menus.h>
-#include <Xmd/Print.h>
-
 #include "page.h"
-} // extern "C"
-
 
 #define APP_CLASS "XmdTodo"
 
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
-#define MIN(x,y) ((x) > (y) ? (y) : (x))
+void ReadDB(char*);
 
-char * fallback_resources[] = {
-"*text.rows: 24",
-"*text.columns: 80",
-"*print_manager.printerList: lp,./todo.txt",
-// "*help_manager.helpFile: todo",
-"*notebook.frameShadowThickness: 2",
-"*notebook.bindingType:	XmSPIRAL",
-NULL
-};
+// Global data
+Page *pages[MAXPAGES];
+int currentPage = 1;
+int maxpages = 0;
 
-/* Options */
-OptionsRec options;
+Options options;
 
-#define Offset(field) XtOffsetOf(OptionsRec, field)
+Widget notebook, textw, labelw;
 
-XtResource resources[] = {
-  {"todoFile", "TodoFile", XtRString, sizeof(String),
-    Offset(todoFile), XtRImmediate, NULL}
-};
+int modified = 0;
 
-#undef Offset
 
-XrmOptionDescRec optionDesc[] = {
-  {"-todoFile", "*todoFile", XrmoptionSepArg, NULL}
-};
+static void TextChanged(Widget, XtPointer, XtPointer)
+{ modified = 1; }
 
-// static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
-static void TextChanged(Widget, XtPointer, XtPointer);
 
-// Wrap extern/callback functions and global variables with extern "C"
-extern "C" {
+static void
+PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
+{
+  if (modified && pages[currentPage] != NULL) {
+    if (pages[currentPage] -> page != NULL)
+      XtFree(pages[currentPage] -> page);
+    pages[currentPage] -> page = XmTextGetString(textw);
+    pages[currentPage] -> lasttoppos = XmTextGetTopCharacter(textw);
+    pages[currentPage] -> lastcursorpos = XmTextGetInsertionPosition(textw);
+  }
 
-    // void manageCB(Widget, Widget, XtPointer);
-    // void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
-    void New(Widget, char*, XmPushButtonCallbackStruct *);
-    // void Open(Widget, char*, XmFileSelectionBoxCallbackStruct *);
-    void Open(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    // void Save(Widget, char*, XmFileSelectionBoxCallbackStruct *);
-    void Save(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void Print(Widget, char*, XmdPrintCallbackStruct *);
-    void ShowPrintDialog(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void SaveIt(Widget, char*, XmPushButtonCallbackStruct *);
-    void PageChange(Widget, XtPointer, XmNotebookCallbackStruct *);
-    void NewPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void DeletePage(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void EditPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void SetPage(int);
-    // void help_cb(Widget, XtPointer, XmAnyCallbackStruct *);
-
-    extern void ReadDB(char*);
-    extern void SaveDB(char*);
-
-    extern Page pages[];
-
-    // Widget shell;
-    Widget notebook, textw, labelw;
-    // Widget help_widget;
-    // Widget file_dialog;
-    int currentPage = 1;
-    int modified;
-    extern int maxpages;
-    struct passwd *user;
-
-} // extern "C"
+  SetPage(cs -> page_number - 1);
+}
 
 
 int main( int argc, char **argv )
@@ -166,8 +110,7 @@ int main( int argc, char **argv )
     return(0);
   }
 
-  QMotif integrator( APP_CLASS, NULL,
-		     optionDesc, XtNumber(optionDesc) );
+  QMotif integrator( APP_CLASS );
   QApplication app( argc, argv );
   MainWindow mainwindow;
   app.setMainWidget( &mainwindow );
@@ -201,7 +144,7 @@ int main( int argc, char **argv )
   labelw = XmCreateLabel(notebook, "label", args, n);
   XtManageChild(labelw);
 
-  user = getpwuid(getuid());
+  struct passwd *user = getpwuid(getuid());
   for (i = 0; i < MAXPAGES; i++) {
     pages[i] = NULL;
   }
@@ -220,156 +163,4 @@ int main( int argc, char **argv )
 
   mainwindow.show();
   return app.exec();
-}
-
-// Unneeded QuitAppl callback
-// static void
-// QuitAppl(Widget w, char *i, XmPushButtonCallbackStruct *e)
-// {
-//   exit(0);
-// }
-
-static void
-TextChanged(Widget, XtPointer, XtPointer)
-{
-  modified = 1;
-}
-
-// Unneeded manageCB callback
-// void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
-// {
-//   if (w_to_manage != (Widget) NULL)
-//     XtManageChild(w_to_manage);
-// }
-
-// Callback to show the XmFileSelectionBox dialog
-// void
-// PresentFDialog(Widget w, XtPointer cb, XmPushButtonCallbackStruct *cs)
-// {
-//   XtRemoveAllCallbacks(file_dialog, XmNokCallback);
-//   XtAddCallback(file_dialog, XmNokCallback, (XtCallbackProc) cb, NULL);
-//   XtManageChild(file_dialog);
-// }
-
-void
-New( Widget, char *, XmPushButtonCallbackStruct * )
-{
-  char buf[128];
-  char *str;
-  Boolean found = False;
-  int i = 0;
-
-  while(! found) {
-    sprintf(buf, "untitled%d.todo", i++);
-    found = access(buf, F_OK) != 0;
-  }
-
-  str = XtNewString(buf);
-  ReadDB(str);
-  XtFree(options.todoFile);
-  options.todoFile = str;
-  // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-  //               XA_STRING, NULL, NULL);
-  SetPage(0);
-}
-
-// Save using QFileDialog
-void
-Save(Widget, XtPointer client_data,
-     XmPushButtonCallbackStruct *)
-{
-  QWidget *toplevel = (QWidget *) client_data;
-  QString filename =
-      QFileDialog::getSaveFileName( QString::null, QString::null,
-				    toplevel );
-
-  if ( ! filename.isEmpty() ) {
-    char *str = qstrdup( filename.local8Bit() );
-    SaveDB(str);
-    XtFree(options.todoFile);
-    options.todoFile = str;
-    // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-    //               XA_STRING, NULL, NULL);
-  }
-}
-
-// Open using QFileDialog
-void
-Open(Widget, XtPointer client_data,
-     XmPushButtonCallbackStruct *)
-{
-  QWidget *toplevel = (QWidget *) client_data;
-  QString filename =
-      QFileDialog::getOpenFileName( QString::null, QString::null,
-				    toplevel );
-
-  if ( ! filename.isEmpty() ) {
-    char *str = qstrdup( filename.local8Bit() );
-    ReadDB(str);
-    XtFree(options.todoFile);
-    options.todoFile = str;
-    // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-    //               XA_STRING, NULL, NULL);
-  }
-}
-
-// Callback to show the Help widget
-// void
-// help_cb(Widget w, XtPointer item, XmAnyCallbackStruct *cb)
-// {
-//   XtManageChild(help_widget);
-//   XmdGotoHelpItem(w, (int) item, help_widget);
-// }
-
-// Print using QMotifDialog
-void ShowPrintDialog(Widget, XtPointer client_data,
-		     XmPushButtonCallbackStruct *)
-{
-    QMotifDialog dialog( (QWidget *) client_data );
-    (void) XtCreateWidget( "print dialog", xmdPrintWidgetClass,
-			   dialog.shell(), NULL, 0 );
-
-    // the print callback calls QMotifDialog::acceptCallback()
-    XtAddCallback( dialog.dialog(), XmdNprintCallback,
-		   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
-    // the cancel callback calls QMotifDialog::rejectCallback()
-    XtAddCallback( dialog.dialog(), XmNcancelCallback,
-		   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
-
-    // the print callback also calls the original Print() function
-    XtAddCallback( dialog.dialog(), XmdNprintCallback,
-		   (XtCallbackProc) Print, NULL );
-
-    dialog.exec();
-}
-
-void
-Print(Widget, char *, XmdPrintCallbackStruct *cb)
-{
-  int i;
-  FILE *temp;
-  int from, to;
-
-  temp = fopen("/tmp/.todoout", "w");
-
-  if (cb -> first == cb -> last &&
-      cb -> first == 0) {
-    from = 0;
-    to = maxpages - 1;
-  } else {
-    from = MAX(0, cb -> first - 1);
-    to = MIN(maxpages, cb -> last - 1);
-  }
-
-  for (i = from; i <= to; i++) {
-    if (pages[i] -> label != NULL) {
-      fprintf(temp, "Subject: %s\n", pages[i] -> label);
-      fprintf(temp, "---------------------------\n\n\n");
-    }
-    fprintf(temp, "%s", pages[i] -> page);
-    if (i != (maxpages - 1)) fprintf(temp, "\f");
-  }
-
-  fclose(temp);
-  XmdPrintDocument("/tmp/.todoout", cb);
 }

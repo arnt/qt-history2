@@ -7,58 +7,164 @@
 ** place of a destructor.
 *****************************************************************************/
 
+// PageEditDialog includes
+#include "pageeditdialog.h"
+
 // Qt includes
 #include <qapplication.h>
+#include <qfiledialog.h>
+#include <qlineedit.h>
 #include <qmessagebox.h>
+#include <qstatusbar.h>
+
 #include <qmotifwidget.h>
+#include <qmotifdialog.h>
+
+#include <unistd.h>
+
+// X includes
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+#include <X11/Xatom.h>
 
 // Motif includes
 #include <Xm/Xm.h>
+#include <Xm/Text.h>
 
 // Demo includes
-#include <Xmd/Print.h>
+#include "page.h"
 
-// Existing functions/variables found in todo.cpp and action.cpp
 extern "C" {
-    void New(Widget, char*, XmPushButtonCallbackStruct *);
-    void Open(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void Save(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void Print(Widget, char*, XmdPrintCallbackStruct *);
-    void ShowPrintDialog(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void SaveIt(Widget, char*, XmPushButtonCallbackStruct *);
-    void NewPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void DeletePage(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    void EditPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
+#include <Exm/TabB.h>
+#include <Xmd/Print.h>
 } // extern "C"
+
+void ReadDB(char*);
+void SaveDB(char*);
+
+extern Widget notebook, textw, labelw;
+
+extern int modified;
 
 
 void MainWindow::fileNew()
 {
-    ::New(NULL, NULL, NULL);
+    char buf[128];
+    char *str;
+    Boolean found = False;
+    int i = 0;
+
+    while(! found) {
+	sprintf(buf, "untitled%d.todo", i++);
+	found = access(buf, F_OK) != 0;
+    }
+
+    str = XtNewString(buf);
+    ReadDB(str);
+    XtFree(options.todoFile);
+    options.todoFile = str;
+
+    statusBar()->message( tr("Created new file '%1'").
+			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+
+    SetPage(0);
 }
 
 
 void MainWindow::fileOpen()
 {
-    ::Open(NULL, this, NULL);
+    QString filename =
+	QFileDialog::getOpenFileName( QString::null, QString::null, this );
+
+    if ( ! filename.isEmpty() ) {
+	char *str = qstrdup( filename.local8Bit() );
+	ReadDB(str);
+	XtFree(options.todoFile);
+	options.todoFile = str;
+
+	statusBar()->message( tr("Opened file '%1'").
+			      arg( QString::fromLocal8Bit( options.todoFile ) ) );
+    }
 }
 
 
 void MainWindow::fileSave()
 {
-    ::SaveIt(NULL, NULL, NULL);
+    SaveDB(options.todoFile);
+
+    statusBar()->message( tr("Saved file '%1'").
+			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
 }
 
 
 void MainWindow::fileSaveAs()
 {
-    ::Save(NULL, this, NULL);
+  QString filename =
+      QFileDialog::getSaveFileName( QString::null, QString::null, this );
+
+  if ( ! filename.isEmpty() ) {
+    char *str = qstrdup( filename.local8Bit() );
+    SaveDB(str);
+    XtFree(options.todoFile);
+    options.todoFile = str;
+
+    statusBar()->message( tr("Saved file '%1'").
+			  arg( QString::fromLocal8Bit( options.todoFile ) ) );
+  }
+}
+
+
+// Print callback called by the print dialog
+static void
+Print(Widget, char *, XmdPrintCallbackStruct *cb)
+{
+  int i;
+  FILE *temp;
+  int from, to;
+
+  temp = fopen("/tmp/.todoout", "w");
+
+  if (cb -> first == cb -> last &&
+      cb -> first == 0) {
+    from = 0;
+    to = maxpages - 1;
+  } else {
+    from = QMAX(0, cb -> first - 1);
+    to = QMIN(maxpages, cb -> last - 1);
+  }
+
+  for (i = from; i <= to; i++) {
+    if (pages[i] -> label != NULL) {
+      fprintf(temp, "Subject: %s\n", pages[i] -> label);
+      fprintf(temp, "---------------------------\n\n\n");
+    }
+    fprintf(temp, "%s", pages[i] -> page);
+    if (i != (maxpages - 1)) fprintf(temp, "\f");
+  }
+
+  fclose(temp);
+  XmdPrintDocument("/tmp/.todoout", cb);
 }
 
 
 void MainWindow::filePrint()
 {
-    ::ShowPrintDialog(NULL, this, NULL);
+    QMotifDialog dialog( this );
+    (void) XtCreateWidget( "print dialog", xmdPrintWidgetClass,
+			   dialog.shell(), NULL, 0 );
+
+    // the print callback calls QMotifDialog::acceptCallback()
+    XtAddCallback( dialog.dialog(), XmdNprintCallback,
+		   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
+    // the cancel callback calls QMotifDialog::rejectCallback()
+    XtAddCallback( dialog.dialog(), XmNcancelCallback,
+		   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
+
+    // the print callback also calls the original Print() function
+    XtAddCallback( dialog.dialog(), XmdNprintCallback,
+		   (XtCallbackProc) Print, NULL );
+
+    dialog.exec();
 }
 
 
@@ -70,17 +176,144 @@ void MainWindow::fileExit()
 
 void MainWindow::selProperties()
 {
-    ::EditPage(NULL, this, NULL);
+    if (pages[currentPage] == NULL) return;
+
+    PageEditDialog pedlg( this, "page edit dialog", TRUE );
+
+    if (pages[currentPage] -> label != NULL)
+	pedlg.titleEdit->setText( pages[currentPage]->label );
+    if (pages[currentPage] -> majorTab != NULL)
+	pedlg.majorEdit->setText( pages[currentPage]->majorTab );
+    if (pages[currentPage] -> minorTab != NULL)
+	pedlg.minorEdit->setText( pages[currentPage]->minorTab );
+
+    int result = pedlg.exec();
+
+    if ( result != QDialog::Accepted )
+	return;
+
+    char *temp;
+    XmString tstr;
+    Arg args[5];
+    int i;
+
+    QString qstr = pedlg.titleEdit->text().simplifyWhiteSpace();
+    pages[currentPage]->label = qstrdup( qstr.local8Bit().data() );
+
+    if (pages[currentPage] -> minorTab != NULL)
+	XtFree(pages[currentPage] -> minorTab);
+    qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
+    temp = qstrdup( qstr.local8Bit().data() );
+    if (strlen(temp) > 0)
+	pages[currentPage] -> minorTab = temp;
+    else {
+	XtFree(temp);
+	pages[currentPage] -> minorTab = NULL;
+	if (pages[currentPage] -> minorPB)
+	    XtUnmanageChild(pages[currentPage] -> minorPB);
+    }
+
+    if (pages[currentPage] -> majorTab != NULL)
+	XtFree(pages[currentPage] -> majorTab);
+    qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
+    temp = qstrdup( qstr.local8Bit().data() );
+    if (strlen(temp) > 0)
+	pages[currentPage] -> majorTab = temp;
+    else {
+	XtFree(temp);
+	pages[currentPage] -> majorTab = NULL;
+	if (pages[currentPage] -> majorPB)
+	    XtUnmanageChild(pages[currentPage] -> majorPB);
+    }
+
+    if (pages[currentPage] -> majorTab != NULL) {
+	if (pages[currentPage] -> majorPB == (Widget) 0) {
+	    i = 0;
+	    XtSetArg(args[i], XmNpageNumber, currentPage + 1); i++;
+	    XtSetArg(args[i], XmNnotebookChildType, XmMAJOR_TAB); i++;
+	    XtSetArg(args[i], XmNshadowThickness, 1); i++;
+	    pages[currentPage] -> majorPB =
+		ExmCreateTabButton(notebook, "atab", args, i);
+	}
+	tstr = XmStringGenerate(pages[currentPage] -> majorTab, NULL,
+				XmCHARSET_TEXT, NULL);
+	XtSetArg(args[0], ExmNcompoundString, tstr);
+	XtSetValues(pages[currentPage] -> majorPB, args, 1);
+	XtManageChild(pages[currentPage] -> majorPB);
+    }
+
+    if (pages[currentPage] -> minorTab != NULL) {
+	if (pages[currentPage] -> minorPB == (Widget) 0) {
+	    i = 0;
+	    XtSetArg(args[i], XmNpageNumber, currentPage + 1); i++;
+	    XtSetArg(args[i], XmNnotebookChildType, XmMINOR_TAB); i++;
+	    XtSetArg(args[i], XmNshadowThickness, 1); i++;
+	    pages[currentPage] -> minorPB =
+		ExmCreateTabButton(notebook, "atab", args, i);
+	}
+	tstr = XmStringGenerate(pages[currentPage] -> minorTab, NULL,
+				XmCHARSET_TEXT, NULL);
+	XtSetArg(args[0], ExmNcompoundString, tstr);
+	XtSetValues(pages[currentPage] -> minorPB, args, 1);
+	XtManageChild(pages[currentPage] -> minorPB);
+    }
+
+    /* Get contents before update */
+    XtFree(pages[currentPage] -> page);
+    pages[currentPage] -> page = XmTextGetString(textw);
+
+    SetPage(currentPage);
 }
 
 
 void MainWindow::selNewPage()
 {
-    ::NewPage(NULL, NULL, NULL);
+    Arg args[2];
+
+    if (modified && pages[currentPage] != NULL) {
+	if (pages[currentPage] -> page != NULL)
+	    XtFree(pages[currentPage] -> page);
+	pages[currentPage] -> page = XmTextGetString(textw);
+    }
+    AdjustPages(currentPage, 1);
+    pages[currentPage] = new Page();
+    FixPages();
+    XtSetArg(args[0], XmNcurrentPageNumber, (currentPage + 1));
+    XtSetArg(args[1], XmNlastPageNumber, (maxpages + 1));
+    XtSetValues(notebook, args, 2);
+    SetPage(currentPage);
 }
 
 
 void MainWindow::selDeletePage()
 {
-    ::DeletePage(NULL, this, NULL);
+    int result =
+	QMessageBox::information( this, "Page Delete Dialog",
+				  "Do you want to delete this page?",
+				  QMessageBox::Yes, QMessageBox::No );
+    if ( result != QMessageBox::Yes )
+	return;
+
+    Arg args[2];
+
+    delete pages[currentPage];
+    pages[currentPage] = 0;
+
+    AdjustPages(currentPage, -1);
+
+    /* If there are no more pages left,  then create a blank one */
+    if (maxpages < 0) {
+	pages[0] = new Page();
+	pages[0] -> page = XtMalloc(2);
+	pages[0] -> page[0] = 0;
+	maxpages = 0;
+    }
+
+    FixPages();
+    XtSetArg(args[0], XmNcurrentPageNumber, (currentPage + 1));
+    XtSetArg(args[1], XmNlastPageNumber, (maxpages + 1));
+    XtSetValues(notebook, args, 2);
+    SetPage(currentPage);
 }
+
+// EOF
