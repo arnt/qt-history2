@@ -53,6 +53,8 @@
 #undef B0 // Terminal hang-up.  We assume that you do not want that.
 #endif
 
+class QPrinterPrivate;
+
 class Q_EXPORT QPrinter : public QPaintDevice
 {
 public:
@@ -179,6 +181,7 @@ private:
     short       min_pg,  max_pg;
     short       ncopies;
     int         res;
+    QPrinterPrivate *d;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
