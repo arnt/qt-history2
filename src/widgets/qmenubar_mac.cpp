@@ -162,6 +162,7 @@ uint QMenuBar::isCommand(QMenuItem *it)
 bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
+	SetMenuExcludesMarkColumn(ret, !d->isCheckable());
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
 	    if(activeMenuBar->mac_d->commands) {
 		bool found = FALSE;
@@ -286,7 +287,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 bool QMenuBar::updateMenuBar() 
 {
     if(this != activeMenuBar) 
-	qDebug("Should have happend! %s:%d", __FILE__, __LINE__);
+	qDebug("Shouldn't have happened! %s:%d", __FILE__, __LINE__);
     ClearMenuBar();
     InvalMenuBar();
     if(mac_d)
@@ -298,7 +299,6 @@ bool QMenuBar::updateMenuBar()
 	    continue;
 
 	MenuRef mp = createMacPopup(item->popup(), FALSE, TRUE);
-	qDebug("%d %d", item->id(), x);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
     }
