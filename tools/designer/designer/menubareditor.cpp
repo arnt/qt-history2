@@ -238,10 +238,15 @@ void MenuBarEditor::insertItem( MenuBarEditorItem * item, int index )
     } else {
 	itemList.append( item );
     }
+
     if ( hideWhenEmpty && itemList.count() == 1 ) {
 	show(); // calls resizeInternals();
     } else {
 	resizeInternals();
+    }
+
+    if ( isVisible() ) {
+	update();
     }
 }
 
@@ -295,6 +300,10 @@ void MenuBarEditor::removeItem( MenuBarEditorItem * item )
 	uint n = count() + 1;
 	if ( currentIndex >=  n ) {
 	    currentIndex = n;
+	}
+
+	if ( isVisible() ) {
+	    update();
 	}
     }
 }
