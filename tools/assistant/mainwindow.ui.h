@@ -62,10 +62,12 @@ void MainWindow::init()
     browser->setFont( fnt );
     browser->setLinkUnderline( config.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
 
-    QPalette pal = palette();
-    pal.setColor( QPalette::Active, QColorGroup::Link,
-		  config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
-    setPalette( pal );
+    QPalette pal = browser->palette();
+    QColor lc( config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
+    pal.setColor( QPalette::Active, QColorGroup::Link, lc );
+    pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
+    pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
+    browser->setPalette( pal );
 
     QString family = config.readEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
 
@@ -266,9 +268,12 @@ void MainWindow::showSettingsDialog()
     browser->setFont( fnt );
     browser->setLinkUnderline( settings->linkUnderlineCB->isChecked() );
 
-    QPalette pal = palette();
-    pal.setColor( QPalette::Active, QColorGroup::Link, settings->colorButton->paletteBackgroundColor() );
-    setPalette( pal );
+    QPalette pal = browser->palette();
+    QColor lc = settings->colorButton->paletteBackgroundColor();
+    pal.setColor( QPalette::Active, QColorGroup::Link, lc );
+    pal.setColor( QPalette::Inactive, QColorGroup::Link, lc );
+    pal.setColor( QPalette::Disabled, QColorGroup::Link, lc );
+    browser->setPalette( pal );
 
     QString family = settings->fixedfontCombo->currentText();
 
