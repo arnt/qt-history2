@@ -90,8 +90,6 @@ protected:
 
 private:
     int layoutItems( const QRect&, bool testonly = FALSE );
-    int cached_height;
-    int cached_wfh;
     QDockArea *left, *right;
     QWidget *central;
 
@@ -146,7 +144,6 @@ QSize QMainWindowLayout::minimumSize() const
 QMainWindowLayout::QMainWindowLayout( QLayout* parent )
     : QLayout( parent ), left( 0 ), right( 0 ), central( 0 )
 {
-    cached_height = -1; cached_wfh = -1;
 }
 
 void QMainWindowLayout::setLeftDock( QDockArea *l )
@@ -185,7 +182,7 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
 	if ( right )
 	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y(), wr, r.height() ) );
 	if ( central )
-	    central->setGeometry( g.x() + wl, g.y(), w, r.height() );
+	    central->setGeometry( g.x() + wl, g.y() + 2, w, r.height() - 2 );
     }
 
     w = wl + wr;
@@ -1507,7 +1504,7 @@ void QMainWindow::setUsesBigPixmaps( bool enable )
   are responsible for reading the correct state on startup, and for
   connecting to the main window's widget's usesTextLabelChanged()
   signal.
-  
+
   \sa QToolButton::setUsesTextLabel()
 */
 
@@ -1539,7 +1536,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 /*! \property QMainWindow::toolBarsMovable
     \brief If the toolbars are movable
     \obsolete
-    
+
     This property is obsolete, use dockWindowsMovable now.
 
     \sa dockWindowsMovable()
@@ -1775,9 +1772,9 @@ void QMainWindow::setDockWindowsMovable( bool enable )
 /*! \property QMainWindow::dockWindowsMovable
     \brief whether the dock windows are movable
 
-  If enabled, the user will be able to move Movable dock windows from 
-  one QMainWindow dock area to another, including the \c TearOff 
-  area (i.e. where the dock window floats freely as a window in its 
+  If enabled, the user will be able to move Movable dock windows from
+  one QMainWindow dock area to another, including the \c TearOff
+  area (i.e. where the dock window floats freely as a window in its
   own right), and the \c Minimized area (where only the dock window's
   handle is shown below the menu bar). Moveable dock windows can also
   be moved within QMainWindow dock areas, i.e. to rearrange them within
@@ -1811,7 +1808,7 @@ void QMainWindow::setOpaqueMoving( bool b )
 
 /*! \property QMainWindow::opaqueMoving
     \brief whether dock windows are moved opaquely
-  
+
   If enabled the dock windows of the main window are shown
   opaquely (i.e. it shows the toolbar as it looks when docked) when
   moved. If disabled they are shown transparently,
