@@ -3,7 +3,6 @@
 
 #include <qguardedptr.h>
 #include <qdatetime.h>
-#include <qapplicationinterface.h>
 
 #if defined(HAVE_KDE)
 #include <kapp.h>

@@ -6,22 +6,27 @@
   that can be used in the plugins.
 */
 
-#include <qapplicationinterface.h>
+#include <qcomponentinterface.h>
 #include "../designer/actioniface.h"
 #include "../shared/widgetinterface.h"
 #include "../designer/filteriface.h"
+
+typedef QApplicationComponentInterface DesignerFormWindowInterface;
+typedef QApplicationComponentInterface DesignerActiveFormWindowInterface;
+typedef QApplicationComponentInterface DesignerMainWindowInterface;
+typedef QApplicationComponentInterface DesignerStatusBarInterface;
 
 class DesignerFormListInterface : public QApplicationComponentInterface
 {
 public:
     DesignerFormListInterface( QObject *li ) : QApplicationComponentInterface( li ) {}
 
-    virtual const QPixmap* pixmap( QApplicationComponentInterface*, int col ) const = 0;
-    virtual void setPixmap( QApplicationComponentInterface*, int col, const QPixmap& ) = 0;
-    virtual QString text( QApplicationComponentInterface*, int col ) const = 0;
-    virtual void setText( QApplicationComponentInterface*, int col, const QString& ) = 0;
+    virtual const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const = 0;
+    virtual void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& ) = 0;
+    virtual QString text( DesignerFormWindowInterface*, int col ) const = 0;
+    virtual void setText( DesignerFormWindowInterface*, int col, const QString& ) = 0;
 
-    virtual QList<QApplicationComponentInterface>* queryFormInterfaceList() = 0;
+    virtual QList<DesignerFormWindowInterface>* queryFormInterfaceList() = 0;
 };
 
 #endif //DESIGNERINTERFACE_H

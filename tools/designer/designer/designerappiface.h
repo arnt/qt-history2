@@ -1,7 +1,6 @@
 #ifndef DESIGNERAPPIFACE_H
 #define DESIGNERAPPIFACE_H
 
-#include <qapplicationinterface.h>
 #include <qguardedptr.h>
 #include <qobjectlist.h>
 #include <../plugins/designerinterface.h>
@@ -11,20 +10,20 @@ class FormList;
 class FormWindow;
 class QStatusBar;
 
-class DesignerStatusBarInterface : public QApplicationComponentInterface
+class DesignerStatusBarInterfaceImpl : public QApplicationComponentInterface
 {
 public:
-    DesignerStatusBarInterface( QStatusBar *sb );
+    DesignerStatusBarInterfaceImpl( QStatusBar *sb );
 
     bool requestSetProperty( const QCString &p, const QVariant &v );
 };
 
-class DesignerMainWindowInterface : public QApplicationComponentInterface
+class DesignerMainWindowInterfaceImpl : public QApplicationComponentInterface
 {
 public:
-    DesignerMainWindowInterface( MainWindow *mw );
+    DesignerMainWindowInterfaceImpl( MainWindow *mw );
 
-    QApplicationComponentInterface *queryInterface( const QString &request );
+    QUnknownInterface *queryInterface( const QString &request );
 
 private:
     QGuardedPtr<DesignerStatusBarInterface> sbIface;
@@ -32,12 +31,12 @@ private:
 
 };
 
-class DesignerActiveFormWindowInterface : public QApplicationComponentInterface
+class DesignerActiveFormWindowInterfaceImpl : public QApplicationComponentInterface
 {
     Q_OBJECT
     
 public:
-    DesignerActiveFormWindowInterface ( FormList* );
+    DesignerActiveFormWindowInterfaceImpl ( FormList* );
 
     QVariant requestProperty( const QCString& p );
     bool requestSetProperty( const QCString& p, const QVariant& v );
@@ -79,17 +78,17 @@ class DesignerFormListInterfaceImpl : public DesignerFormListInterface
 public:
     DesignerFormListInterfaceImpl( FormList *fl );
 
-    QApplicationComponentInterface *queryInterface( const QString &request );
+    QUnknownInterface *queryInterface( const QString &request );
 
-    const QPixmap* pixmap( QApplicationComponentInterface*, int col ) const;
-    void setPixmap( QApplicationComponentInterface*, int col, const QPixmap& );
-    QString text( QApplicationComponentInterface*, int col ) const;
-    void setText( QApplicationComponentInterface*, int col, const QString& );
+    const QPixmap* pixmap( DesignerFormWindowInterface*, int col ) const;
+    void setPixmap( DesignerFormWindowInterface*, int col, const QPixmap& );
+    QString text( DesignerFormWindowInterface*, int col ) const;
+    void setText( DesignerFormWindowInterface*, int col, const QString& );
 
-    QList<QApplicationComponentInterface>* queryFormInterfaceList();
+    QList<DesignerFormWindowInterface>* queryFormInterfaceList();
 
 private:
-    QGuardedPtr<DesignerActiveFormWindowInterface> fwIface;
+    QGuardedPtr<DesignerActiveFormWindowInterfaceImpl> fwIface;
 };
 
 class DesignerApplicationInterface : public QApplicationInterface
@@ -97,7 +96,7 @@ class DesignerApplicationInterface : public QApplicationInterface
 public:
     DesignerApplicationInterface();
 
-    QApplicationComponentInterface *queryInterface( const QString &request );
+    QUnknownInterface *queryInterface( const QString &request );
 
 private:
     QGuardedPtr<DesignerMainWindowInterface> mwIface;

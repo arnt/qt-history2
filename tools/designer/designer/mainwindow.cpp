@@ -46,6 +46,7 @@
 #include "actionplugin.h"
 #include "filterplugin.h"
 #include "designerappiface.h"
+#include "filteriface.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -1178,13 +1179,14 @@ void MainWindow::fileOpen()
 			break;
 		    }
 		}
-		QPlugIn* plugin = manager.plugIn(filter);
-		if ( !plugin ) {
+		FilterInterface* iface = manager[filter];
+		if ( !iface ) {
 		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
 		    return;
 		}
+		QPlugIn* plugin = manager.plugIn( filter );
 		statusBar()->message( tr( "Importing %1 using import filter %2...").arg( filename ).arg(plugin->name()) );
-		QStringList list = manager.import( filter, filename );
+		QStringList list = iface->import( filter, filename );
 		if ( list.isEmpty() ) {
 		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
 		    return;
