@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#140 $
 **
 ** Implementation of QButton widget class
 **
@@ -809,17 +809,14 @@ void QButton::paintEvent( QPaintEvent *event )
 	paint.end();
 
 	paint.begin( this );
-	paint.setClipRegion( event->region() );
+	// for small buttons it does not make sense to clip, and
+	// besides it led to update bugs for radio buttons
 	paint.drawPixmap( 0, 0, *drawpm );
 	paint.end();
     } else {
-	if (event)
-	    erase( event->region() );
-	else
-	    erase ( rect() );
+	erase( event->region() );
 	QPainter paint( this );
-	if ( event )
-	    paint.setClipRegion( event->region() );
+	paint.setClipRegion( event->region() );
 	drawButton( &paint );
     }
 }
