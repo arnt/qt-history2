@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#37 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#37 $");
 
 
 const int sbDim = 16;
@@ -553,8 +553,8 @@ void QTableView::setCellWidth( int cellWidth )
     if ( cellW == cellWidth )
 	return;
 #if defined(CHECK_RANGE)
-    if ( cellWidth < 0 ) {
-	warning( "QTableView::setCellWidth: Negative argument" );
+    if ( cellWidth < 0 || cellWidth > SHRT_MAX ) {
+	warning( "QTableView::setCellWidth: Argument out of range" );
 	return;
     }
 #endif
@@ -603,8 +603,8 @@ void QTableView::setCellHeight( int cellHeight )
     if ( cellH == cellHeight )
 	return;
 #if defined(CHECK_RANGE)
-    if ( cellHeight < 0 ) {
-	warning( "QTableView::setCellHeight: Negative argument" );
+    if ( cellHeight < 0 || cellHeight > SHRT_MAX ) {
+	warning( "QTableView::setCellHeight: Argument out of range" );
 	return;
     }
 #endif
