@@ -5,7 +5,7 @@
 **
 ** Created : 920529
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -174,10 +174,6 @@
 
 #if defined(__SC__)
 #  define Q_CC_SYM
-#elif defined( __KCC )
-#  define Q_CC_KAI
-// does not define __EDG__
-#  define Q_C_CALLBACKS
 #elif defined(applec)
 #  define Q_CC_MPW
 #  define Q_NO_BOOL_TYPE
@@ -217,8 +213,27 @@
 #  define Q_CC_COMEAU
 #  define Q_C_CALLBACKS
 #elif defined(__USLC__)
-// defines __EDG__ on UnixWare7 only
 #  define Q_CC_USLC
+#  ifdef __EDG__ // UnixWare7
+#    define Q_HAS_BOOL_TYPE
+#  endif
+#elif defined(__EDG) || defined(__EDG__)
+// __EDG observed on SGI DCC, MIPSpro 7.3.1.1 and KAI C++
+// __EDG__ documented in EDG online docs, observed on Compaq C++
+#  define Q_CC_EDG
+// the EDG documentation says that _BOOL is defined when the compiler has bool
+// but Compaq seem to have disabled this
+#  if defined(__DECCXX)
+#    define Q_CC_DEC
+#    if __DECCXX_VER >= 60060005
+#      define Q_HAS_BOOL_TYPE
+#    endif
+#  elif defined( __KCC )
+#    define Q_CC_KAI
+#  endif
+#  if defined(_BOOL) && !defined(Q_HAS_BOOL_TYPE)
+#    define Q_HAS_BOOL_TYPE
+#  endif
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 // defines __EDG__?
 #  define Q_CC_OC
@@ -625,4 +640,5 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
 #endif // QGLOBAL_H
+
 
