@@ -161,7 +161,6 @@ template class Q_EXPORT QDict<QStyleSheetItem>;
 template class Q_EXPORT QValueList< QVector<QStyleSheetItem> >;
 template class Q_EXPORT QVector<QStyleSheetItem>;
 template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
-template class Q_EXPORT QArray<int>;
 // MOC_SKIP_END
 #endif
 

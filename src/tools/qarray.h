@@ -106,5 +106,11 @@ public:
     ConstIterator end() const { return data() + size(); }
 };
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QArray<int>;
+template class Q_EXPORT QArray<bool>;
+// MOC_SKIP_END
+#endif
 
 #endif // QARRAY_H
