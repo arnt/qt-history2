@@ -30,6 +30,13 @@
 # define QMAC_SHIFT QChar(kShiftUnicode)
 #endif
 
+#ifdef Q_WS_MAC
+static bool qt_sequence_no_mnemonics = true;
+#else
+static bool qt_sequence_no_mnemonics = false;
+#endif
+void Q_GUI_EXPORT qt_setSequenceAutoMnemonic(bool b) { qt_sequence_no_mnemonics = b; }
+
 /*!
     \class QKeySequence
     \brief The QKeySequence class encapsulates a key sequence as used
@@ -311,6 +318,9 @@ bool QKeySequence::isEmpty() const
 */
 QKeySequence QKeySequence::mnemonic(const QString &text)
 {
+    if(qt_sequence_no_mnemonics)
+	return QKeySequence();
+
     int p = 0;
     while (p >= 0) {
         p = text.indexOf('&', p) + 1;
