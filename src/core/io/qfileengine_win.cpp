@@ -1069,8 +1069,7 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
         if (size > this->size()) {
             QIODevice::Offset currentPos = at();
             seek(this->size());
-            QByteArray ba(size - this->size());
-            ba.fill(0);
+            QByteArray ba(size - this->size(), char(0));
             if (write(ba.data(), ba.size()) != ba.size()) {
                 seek(currentPos);
                 return false;
@@ -1099,8 +1098,7 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
                     newSize += in;
                 }
                 if (newSize < size) {
-                    QByteArray ba(size - newSize);
-                    ba.fill(0);
+                    QByteArray ba(size - newSize, 0);
                     if (file2.write(ba) != ba.size())
                         return false;
                 }
