@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#64 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -40,8 +40,27 @@ struct QDragData {
     bool autoDelete;
     QPixmap pixmap;
     QPoint hot;
+    QWidget* target;
 };
 
+/*!
+  After the drag completes, this function will return the QWidget
+  which received the drop, or 0 if the data was dropped on some other
+  program.
+*/
+QWidget * QDragObject::target()
+{
+    return d->target;
+}
+
+/*!
+  \internal
+  Sets the target.
+*/
+void QDragObject::setTarget(QWidget* t)
+{
+    d->target = t;
+}
 
 struct QStoredDragData {
     QStoredDragData() {}
@@ -56,8 +75,13 @@ struct QStoredDragData {
 static const char * move_xpm[] = {
 "11 20 3 1",
 ".	c None",
-" 	c #000000",
+#if defined(_WS_WIN_)
+" 	c #000000", // Windows cursor is traditionally white
 "X	c #FFFFFF",
+#else
+" 	c #FFFFFF", // X11 cursor is traditionally white
+"X	c #000000",
+#endif
 "  .........",
 " X ........",
 " XX .......",
@@ -85,6 +109,7 @@ static const char * copy_xpm[] = {
 ".	c None",
 " 	c #000000",
 "X	c #FFFFFF",
+#if defined(_WS_WIN_) // Windows cursor is traditionally white
 "  ......................",
 " X .....................",
 " XX ....................",
@@ -105,6 +130,28 @@ static const char * copy_xpm[] = {
 "....... XX .............",
 "....... XX .............",
 "........  ...           ",
+#else
+"XX......................",
+"X X.....................",
+"X  X....................",
+"X   X...................",
+"X    X..................",
+"X     X.................",
+"X      X................",
+"X       X...............",
+"X        X..............",
+"X         X.............",
+"X      XXXX.............",
+"X   X  X................",
+"X  XX  X................",
+"X X..X  X...............",
+"XX...X  X...............",
+"X.....X  X..............",
+"......X  X..............",
+".......X  X.............",
+".......X  X.............",
+"........XX...           ",
+#endif
 "............. XXXXXXXXX ",
 "............. XXXXXXXXX ",
 "............. XXXX XXXX ",
@@ -122,6 +169,7 @@ static const char * link_xpm[] = {
 ".	c None",
 " 	c #000000",
 "X	c #FFFFFF",
+#if defined(_WS_WIN_) // Windows cursor is traditionally white
 "  ......................",
 " X .....................",
 " XX ....................",
@@ -132,7 +180,7 @@ static const char * link_xpm[] = {
 " XXXXXXX ...............",
 " XXXXXXXX ..............",
 " XXXXXXXXX .............",
-" XXXXXX     ............",
+" XXXXXX    .............",
 " XXX XX ................",
 " XX  XX ................",
 " X .. XX ...............",
@@ -142,6 +190,28 @@ static const char * link_xpm[] = {
 "....... XX .............",
 "....... XX .............",
 "........  ...           ",
+#else
+"XX......................",
+"X X.....................",
+"X  X....................",
+"X   X...................",
+"X    X..................",
+"X     X.................",
+"X      X................",
+"X       X...............",
+"X        X..............",
+"X         X.............",
+"X      XXXX.............",
+"X   X  X................",
+"X  XX  X................",
+"X X..X  X...............",
+"XX...X  X...............",
+"X.....X  X..............",
+"......X  X..............",
+".......X  X.............",
+".......X  X.............",
+"........XX...           ",
+#endif
 "............. XXXXXXXXX ",
 "............. XXX    XX ",
 "............. XXXX   XX ",

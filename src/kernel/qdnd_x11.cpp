@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#62 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -492,6 +492,9 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 	//       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
+    if ( qt_xdnd_source_object )
+	qt_xdnd_source_object->setTarget( qt_xdnd_current_widget );
+	
     QDropEvent de( qt_xdnd_current_position );
     QApplication::sendEvent( qt_xdnd_current_widget, &de );
     QDragLeaveEvent e;
@@ -512,6 +515,8 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 }
 
 static QCursor *noDropCursor = 0;
+static QCursor *moveCursor = 0;
+static QCursor *copyCursor = 0;
 
 #define noDropCursorWidth 20
 #define noDropCursorHeight 20
@@ -555,7 +560,9 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
     ASSERT( object != 0 );
 
     if ( e->type() == QEvent::MouseMove ) {
-	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
+	QMouseEvent* me = (QMouseEvent *)e;
+	move( dragSource->mapToGlobal( me->pos() ) );
+	updateMode(me->stateAfter());
 	return TRUE;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	if ( willDrop )
@@ -568,34 +575,93 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	beingCancelled = FALSE;
 	qApp->exit_loop();
 	return TRUE;
-    } else if ( e->type() == QEvent::KeyPress &&
-		((QKeyEvent*)e)->key() == Key_Escape ) {
-	cancel();
-	dragSource->removeEventFilter( this );
-	object = 0;
-	dragSource = 0;
-	beingCancelled = FALSE;
-	qApp->exit_loop();
-	return TRUE;
+    } else if ( e->type() == QEvent::KeyPress ) {
+	QKeyEvent *ke = ((QKeyEvent*)e);
+	if ( ke->key() == Key_Escape ) {
+	    cancel();
+	    dragSource->removeEventFilter( this );
+	    object = 0;
+	    dragSource = 0;
+	    beingCancelled = FALSE;
+	    qApp->exit_loop();
+	    return TRUE;
+	}
+	updateMode(ke->stateAfter());
+    } else if ( e->type() == QEvent::KeyRelease ) {
+	QKeyEvent *ke = ((QKeyEvent*)e);
+	updateMode(ke->stateAfter());
     } else if ( e->type() == QEvent::DragResponse ) {
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
-	    QApplication::setOverrideCursor( arrowCursor, restoreCursor );
-	    restoreCursor = TRUE;
-	    willDrop = TRUE;
-	} else {
-	    if ( !noDropCursor ) {
-		QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
-		QBitmap m( noDropCursorWidth, noDropCursorHeight, noDropCutMask, TRUE );
-		noDropCursor = new QCursor( b, m );
+	    if ( !willDrop ) {
+		willDrop = TRUE;
+		updateCursor();
 	    }
-	    QApplication::setOverrideCursor( *noDropCursor, restoreCursor );
-	    restoreCursor = TRUE;
-	    willDrop = FALSE;
+	} else {
+	    if ( willDrop ) {
+		willDrop = FALSE;
+		updateCursor();
+	    }
 	}
 	return TRUE;
     }
 
     return FALSE;
+}
+
+
+static QDragObject::DragMode drag_mode, drag_mode_chosen;
+static Qt::ButtonState oldstate;
+void QDragManager::updateMode( ButtonState newstate )
+{
+    if ( newstate == oldstate )
+	return;
+    const int both = ShiftButton|ControlButton;
+    if ( (newstate & both) == both ) {
+	// #### Link
+    } else {
+	bool local = qt_xdnd_source_object != 0;
+	switch ( drag_mode ) {
+	  case QDragObject::DragMove:
+	  case QDragObject::DragCopy:
+	    return;
+	  case QDragObject::DragDefault:
+	    drag_mode_chosen = local ? QDragObject::DragMove : QDragObject::DragCopy;
+	    break;
+	  case QDragObject::DragCopyOrMove:
+	    drag_mode_chosen = QDragObject::DragCopy;
+	    break;
+	}
+	if ( newstate & ShiftButton )
+	    drag_mode_chosen = QDragObject::DragMove;
+	else if ( newstate & ControlButton )
+	    drag_mode_chosen = QDragObject::DragCopy;
+	updateCursor();
+    }
+    oldstate = newstate;
+}
+
+
+void QDragManager::updateCursor()
+{
+    if ( !noDropCursor ) {
+	QBitmap b( noDropCursorWidth, noDropCursorHeight, noDropCutBits, TRUE );
+	QBitmap m( noDropCursorWidth, noDropCursorHeight, noDropCutMask, TRUE );
+	noDropCursor = new QCursor( b, m );
+	moveCursor = new QCursor(pm_cursor[0], 0,0);
+	copyCursor = new QCursor(pm_cursor[1], 0,0);
+    }
+
+    QCursor *c;
+    if ( willDrop ) {
+	if ( drag_mode_chosen == QDragObject::DragCopy ) {
+	    c = copyCursor;
+	} else {
+	    c = moveCursor;
+	}
+    } else {
+	c = noDropCursor;
+    }
+    qApp->setOverrideCursor( *c, TRUE );
 }
 
 
@@ -811,7 +877,6 @@ bool qt_xdnd_handle_badwindow()
 {
     if ( qt_xdnd_source_object && qt_xdnd_current_target ) {
 	qt_xdnd_current_target = 0;
-	delete qt_xdnd_source_object;
 	qt_xdnd_source_object = 0;
 	delete qt_xdnd_deco;
 	qt_xdnd_deco = 0;
@@ -1039,7 +1104,7 @@ QByteArray QDropEvent::data( const char *format )
     return qt_xdnd_obtain_data( format );
 }
 
-bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
+bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 {
     if ( object == o )
 	return FALSE;
@@ -1065,13 +1130,18 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
     updatePixmap();
     move(QCursor::pos());
 
+    oldstate = ButtonState(-1); // #### Should use state that caused the drag
+    drag_mode = mode;
+    drag_mode_chosen = mode;
+    updateMode(ButtonState(0));
     qApp->enter_loop();
+    qApp->restoreOverrideCursor();
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
-    // qt_xdnd_source_object will become 0 later.
+    qt_xdnd_source_object = 0;
 
-    return FALSE;
+    return drag_mode_chosen == QDragObject::DragMove;
 }
 
 void QDragManager::updatePixmap()
