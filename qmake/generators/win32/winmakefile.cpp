@@ -56,6 +56,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 		    sd->profile = file;
 		}
 	    } else {
+		if(!file.isEmpty() && !project->isActiveConfig("subdir_first_pro"))
+		    sd->profile = file.section(Option::dir_sep, -1) + ".pro";
 		sd->directory = file;
 	    }
 	    while(sd->directory.right(1) == Option::dir_sep)
