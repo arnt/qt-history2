@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#77 $
 **
 ** Implementation of QSlider class
 **
@@ -461,20 +461,6 @@ void QSlider::paintEvent( QPaintEvent *e )
  			width()/*###*/, height(), g.background() );
 	}
     }
-    if ( hasFocus() ) {
-	QRect r;
-	if ( orient == Horizontal )
-	    r.setRect( 0, tickOffset-1, width(), thickness()+2 );
-	else
-	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
-	r = r.intersect( rect() );
-	if (style() == MotifStyle)
-	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
-	else
-	    style().drawFocusRect(&p, r, g);
-    }
-    paintSlider( &p, g, sliderR );
-
     int interval = tickInt;
     if ( interval <= 0 ) {
 	interval = lineStep();
@@ -489,6 +475,20 @@ void QSlider::paintEvent( QPaintEvent *e )
 	avail -= tickOffset + thickness();
 	drawTicks( &p, g, tickOffset + thickness() + 1, avail - 2, interval );
     }
+    if ( hasFocus() ) {
+	QRect r;
+	if ( orient == Horizontal )
+	    r.setRect( 0, tickOffset-1, width(), thickness()+2 );
+	else
+	    r.setRect( tickOffset-1, 0, thickness()+2, height() );
+	r = r.intersect( rect() );
+	if (style() == MotifStyle)
+	    style().drawFocusRect(&p, QRect(r.x()+1, r.y()+1, r.width()-2, r.height()-2), g);
+	else
+	    style().drawFocusRect(&p, r, g);
+    }
+    paintSlider( &p, g, sliderR );
+
 }
 
 
