@@ -99,6 +99,8 @@ void Parser::startTokenizer( const QString& in )
 
 void Parser::warning( const char *format, ... )
 {
+    //## need to use env->output() here
+
     va_list ap;
 
     va_start( ap, format );
@@ -110,6 +112,8 @@ void Parser::warning( const char *format, ... )
 
 void Parser::error( const char *format, ... )
 {
+    //## need to use env->setLastError() here
+
     va_list ap;
 
     va_start( ap, format );
