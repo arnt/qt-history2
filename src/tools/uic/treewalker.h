@@ -38,6 +38,8 @@ class DomCustomWidget;
 class DomAction;
 class DomActionGroup;
 class DomActionRef;
+class DomImages;
+class DomImage;
 
 struct TreeWalker
 {
@@ -66,8 +68,11 @@ struct TreeWalker
     virtual void accept(DomDateTime *dateTime);
     virtual void accept(DomProperty *property);
 
-    virtual void accept(DomAction* action);
-    virtual void accept(DomActionGroup* actionGroup);
+    virtual void accept(DomImages *images);
+    virtual void accept(DomImage *image);
+
+    virtual void accept(DomAction *action);
+    virtual void accept(DomActionGroup *actionGroup);
     virtual void accept(DomActionRef *actionRef);
 
 };

@@ -17,6 +17,9 @@ void TreeWalker::accept(DomUI *ui)
 {
     accept(ui->elementWidget());
     accept(ui->elementTabStops());
+
+    if (ui->elementImages())
+        accept(ui->elementImages());
 }
 
 void TreeWalker::accept(DomLayoutDefault *layoutDefault)
@@ -202,3 +205,15 @@ void TreeWalker::accept(DomActionRef *actionRef)
 {
     Q_UNUSED(actionRef);
 }
+
+void TreeWalker::accept(DomImages *images)
+{
+    foreach (DomImage *image, images->elementImage())
+        accept(image);
+}
+
+void TreeWalker::accept(DomImage *image)
+{
+    Q_UNUSED(image);
+}
+

@@ -22,6 +22,7 @@
 #include "writedeclaration.h"
 #include "writeincludes.h"
 #include "writeinitialization.h"
+#include "writeiconinitialization.h"
 
 #include <qtextstream.h>
 #include <qfileinfo.h>
@@ -116,6 +117,7 @@ bool Uic::write(DomUI *ui)
     Validator(driver).accept(ui);
     WriteDeclaration(driver).accept(ui);
     WriteInitialization(driver).accept(ui);
+    WriteIconInitialization(driver).accept(ui);
 
     if (option.generateNamespace)
         output << "}\n\n";

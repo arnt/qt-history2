@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include "writedeclaration.h"
+#include "writeicondeclaration.h"
 #include "driver.h"
 #include "ui4.h"
 
@@ -34,6 +35,16 @@ void WriteDeclaration::accept(DomUI *node)
     TreeWalker::accept(node->elementWidget());
 
     output << "\n" << option.indent << "inline void setupUI(" << widgetClassName << " *" << varName << ");\n";
+
+    output << "\n"
+           << option.indent << "enum IconID\n"
+           << option.indent << "{\n";
+    WriteIconDeclaration(driver).accept(node);
+
+    output << option.indent << option.indent << "unknown_ID\n"
+           << option.indent << "};\n";
+
+    output << "\n" << option.indent << "static QPixmap icon(IconID id);\n";
 
     output << "};\n\n";
 
