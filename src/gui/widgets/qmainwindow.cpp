@@ -64,7 +64,8 @@ public:
 
 */
 
-/*! \class QMainWindow qmainwindow.h
+/*! 
+    \class QMainWindow qmainwindow.h
     \brief The QMainWindow class provides a main application window.
 
     \ingroup application
@@ -188,6 +189,8 @@ QWidget *QMainWindow::centerWidget() const
     \warning This function should be called at most once for each main
     window instance, and the widget passed must be a child of the main
     window.
+
+    \sa centerWidget()
 */
 void QMainWindow::setCenterWidget(QWidget *widget)
 {
@@ -238,8 +241,7 @@ Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 
 /*!
     \internal
-
-    Unimplemented.
+    Unimplemented: it should set the \a state for the dock window.
 */
 void QMainWindow::setDockWindowState(const QString &/*state*/)
 {
