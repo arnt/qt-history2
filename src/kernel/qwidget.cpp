@@ -572,6 +572,8 @@ WStyle_DialogBorder.
 
 <li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize
 
+<li> \c WStyle_ContextHelp - adds a context help button.
+
 <li> \c WStyle_Tool - makes the window a tool window.  A tool window
 is a small window that lives for a short time and it is typically used
 for creating popup windows.  It there is a parent, the tool window
