@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#102 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#102 $");
 
 
 /*****************************************************************************
@@ -494,6 +494,15 @@ QImage QPixmap::convertToImage() const
     if ( image.isNull() )			// could not create image
 	return image;
 
+    const QBitmap* msk = mask();
+
+    QImage alpha;
+    if (msk) {
+	image.setAlphaBuffer( TRUE );
+	alpha = msk->convertToImage();
+    }
+    bool ale = alpha.bitOrder() == QImage::LittleEndian;
+
     if ( trucol ) {				// truecolor
 	uint red_mask	 = visual->red_mask;
 	uint green_mask	 = visual->green_mask;
@@ -512,6 +521,7 @@ QImage QPixmap::convertToImage() const
 	    bppc++;
 
 	for ( int y=0; y<h; y++ ) {
+	    uchar* asrc = msk ? alpha.scanLine( y ) : 0;
 	    dst = (QRgb *)image.scanLine( y );
 	    src = (uchar *)xi->data + xi->bytes_per_line*y;
 	    for ( int x=0; x<w; x++ ) {
@@ -568,7 +578,18 @@ QImage QPixmap::convertToImage() const
 		    b = (pixel & blue_mask) >> blue_shift;
 		else
 		    b = (pixel & blue_mask) << -blue_shift;
-		*dst++ = qRgb(r, g, b);
+
+		if (msk) {
+		    if ( ale ) {
+			*dst++ = (asrc[x >> 3] & (1 << (x & 7)))
+			    ? (0xff000000 | qRgb(r, g, b)) : qRgb(r, g, b);
+		    } else {
+			*dst++ = (asrc[x >> 3] & (1 << (7 -(x & 7))))
+			    ? (0xff000000 | qRgb(r, g, b)) : qRgb(r, g, b);
+		    }
+		} else {
+		    *dst++ = qRgb(r, g, b);
+		}
 	    }
 	}
     } else if ( xi->bits_per_pixel == d ) {	// compatible depth
@@ -592,6 +613,10 @@ QImage QPixmap::convertToImage() const
 	image.setNumColors( 2 );
 	image.setColor( 0, qRgb(255,255,255) );
 	image.setColor( 1, qRgb(0,0,0) );
+#if defined(CHECK_RANGE)
+	if (msk)
+	    warning( "QPixmap::convertToImage: ignoring alpha on mono image" );
+#endif
     } else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
 	uchar *end;
@@ -602,11 +627,28 @@ QImage QPixmap::convertToImage() const
 	memset( pix, 0, 256 );
 	bpl = image.bytesPerLine();
 
-	for ( i=0; i<h; i++ ) {			// which pixels are used?
-	    p = image.scanLine( i );
-	    end = p + bpl;
-	    while ( p < end )
-		use[*p++] = 1;
+	if (msk) {				// which pixels are used?
+	    for ( i=0; i<h; i++ ) {
+		uchar* asrc = alpha.scanLine( i );
+		p = image.scanLine( i );
+		for ( int x = 0; x < w; x++ ) {
+		    if ( ale ) {
+			if (asrc[x >> 3] & (1 << (x & 7)))
+			    use[*p] = 1;
+		    } else {
+			if (asrc[x >> 3] & (1 << (7 -(x & 7))))
+			    use[*p] = 1;
+		    }
+		    ++p;
+		}
+	    }
+	} else {
+	    for ( i=0; i<h; i++ ) {
+		p = image.scanLine( i );
+		end = p + bpl;
+		while ( p < end )
+		    use[*p++] = 1;
+	    }
 	}
 	ncols = 0;
 	for ( i=0; i<256; i++ ) {		// build translation table
@@ -629,14 +671,42 @@ QImage QPixmap::convertToImage() const
 	    carr[i].pixel = i;
 	XQueryColors( dpy, cmap, carr, ncells );// get default colormap
 
-	image.setNumColors( ncols );		// create color table
+	if (msk) {
+	    int trans;
+	    if (ncols < 256) {
+		trans = ncols++;
+		image.setNumColors( ncols );	// create color table
+		image.setColor( trans, 0x00000000 );
+	    } else {
+		image.setNumColors( ncols );	// create color table
+		// oh dear... no spare "transparent" pixel.
+		// use first pixel in image (as good as any).
+		trans = image.scanLine( i )[0];
+	    }
+	    for ( i=0; i<h; i++ ) {
+		uchar* asrc = alpha.scanLine( i );
+		p = image.scanLine( i );
+		for ( int x = 0; x < w; x++ ) {
+		    if ( ale ) {
+			if (!(asrc[x >> 3] & (1 << (x & 7))))
+			    *p = trans;
+		    } else {
+			if (!(asrc[x >> 3] & (1 << (7 -(x & 7)))))
+			    *p = trans;
+		    }
+		    ++p;
+		}
+	    }
+	} else {
+	    image.setNumColors( ncols );	// create color table
+	}
 	int j = 0;
 	for ( i=0; i<256; i++ ) {		// translate pixels
 	    if ( use[i] ) {
 		image.setColor( j++,
-				qRgb( (carr[i].red   >> 8) & 255,
-				      (carr[i].green >> 8) & 255,
-				      (carr[i].blue  >> 8) & 255 ) );
+			0xff000000 | qRgb( (carr[i].red   >> 8) & 255,
+			                   (carr[i].green >> 8) & 255,
+			                   (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
 	delete [] carr;
@@ -1047,9 +1117,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode,
     }
     data->w = w;  data->h = h;	data->d = dd;
 
-    if ( image.hasAlphaBuffer() ) {
+    if ( img.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = image.createAlphaMask( dmode );
+	m = img.createAlphaMask( dmode );
 	setMask( m );
     }
 
