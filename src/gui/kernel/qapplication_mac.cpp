@@ -2376,6 +2376,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QShowEvent qse;
             QApplication::sendSpontaneousEvent(widget, &qse);
         } else if(ekind == kEventWindowBoundsChanged) {
+            //implicitly removes the maximized bit
+            if(widget->testWState(Qt::WState_Maximized) && 
+               IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) 
+                widget->clearWState(Qt::WState_Maximized);
+
             handled_event = false;
             UInt32 flags = 0;
             GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,
