@@ -794,8 +794,10 @@ void QFileDialog::accept()
     case AnyFile: {
         QString fn = files.first();
         QFileInfo info(fn);
-        if (info.isDir())
+        if (info.isDir()) {
+            setDirectory(info.absoluteFilePath());
             return;
+        }
         if (!info.exists()
             || !confirmOverwrite()
             || acceptMode() == AcceptOpen)
