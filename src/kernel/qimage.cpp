@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#100 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#100 $");
 
 
 /*!
@@ -582,7 +582,7 @@ void QImage::setNumColors( int numColors )
 
 
 /*!
-  \fn bool QImage::hasAlphaBuffer( bool enable ) const
+  \fn bool QImage::hasAlphaBuffer() const
 
   Returns TRUE if alpha buffer mode is enabled, otherwise FALSE.
 

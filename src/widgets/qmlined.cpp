@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#50 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -211,7 +211,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 */
 
 
-/*! \fn bool QMultiLineEdit::isReadOnly()
+/*! \fn bool QMultiLineEdit::isReadOnly() const
 
   Returns FALSE if this multi line edit accepts text input. 
   Scrolling and cursor movements are accepted in any case.
@@ -219,7 +219,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
   \sa setReadOnly() QWidget::isEnabled()
 */
 
-/*! \fn bool QMultiLineEdit::isOverwriteMode()
+/*! \fn bool QMultiLineEdit::isOverwriteMode() const
 
   Returns TRUE if this multi line edit is in overwrite mode, i.e.
   if characters typed replace characters in the editor.
