@@ -58,11 +58,13 @@ class QTextFormat;
 class QFont;
 class QColor;
 class QTextEdit;
+class QTextBrowser;
 
 class Q_EXPORT QTextView : public QScrollView
 {
     friend class QTextEdit;
-
+    friend class QTextBrowser;
+    
     Q_OBJECT
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )

@@ -54,6 +54,7 @@
 #include "qsimplerichtext.h"
 #include "qdragobject.h"
 #include "qurl.h"
+#include "qcursor.h"
 
 /*!
   \class QTextBrowser qtextbrowser.h
@@ -96,7 +97,7 @@
 
   Also see QTextEdit, if you need an editor widget which supports
   richtext formatting.
-  
+
   <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
 */
 
@@ -105,10 +106,6 @@ class QTextBrowserData
 public:
     QTextBrowserData() {}
 
-    QString searchPath;
-    QString buttonDown;
-    QString highlight;
-    QPoint lastClick;
     QValueStack<QString> stack;
     QValueStack<QString> forwardStack;
     QString home;
@@ -189,18 +186,9 @@ void QTextBrowser::setSource(const QString& name)
 	    }
 	}
  	if ( isVisible() ) {
- 	    QString firstTag = txt.left( txt.find('>' )+1 );
- 	    QTextDocument* tmp = new QTextDocument( 0 );
-	    tmp->setRichText( firstTag, context() );
- 	    static QString s_type = QString::fromLatin1("type"); // ####### stuff in html parser needed for that
- 	    static QString s_detail = QString::fromLatin1("detail");
-	    bool doReturn = FALSE;
- 	    if ( tmp->attributes().contains(s_type)
-		 && tmp->attributes()[s_type] == s_detail )
-		doReturn = TRUE;
-	    delete tmp;
-	    if ( doReturn ) {
- 		popupDetail( txt, d->lastClick );
+ 	    QString firstTag = txt.left( txt.find( '>'  ) + 1 );
+ 	    if ( firstTag.left( 3 ) == "<qt" && firstTag.contains( "type" ) && firstTag.contains( "detail" ) ) {
+ 		popupDetail( txt, QCursor::pos() );
 #ifndef QT_NO_CURSOR
  		qApp->restoreOverrideCursor();
 #endif
