@@ -1350,7 +1350,7 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
-    return field->alignment();
+    return field->alignment() | Qt::AlignVCenter;
 }
 
 

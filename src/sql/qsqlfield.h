@@ -38,7 +38,6 @@
 #define QSQLFIELD_H
 
 #ifndef QT_H
-#include "qnamespace.h"
 #include "qstring.h"
 #include "qvariant.h"
 #endif // QT_H
@@ -76,8 +75,8 @@ public:
     bool               isVisible() const { return iv; }
     void               setCalculated( bool calculated ) { cf = calculated; }
     bool               isCalculated() const { return cf; }
-    void               setAlignment( Qt::AlignmentFlags align ) { af = align; }
-    Qt::AlignmentFlags alignment() const { return af; }
+    void               setAlignment( int align ) { af = align; }
+    int                alignment() const { return af; }
 
 private:
     QString       nm;
@@ -88,7 +87,7 @@ private:
     bool          pIdx;
     bool          iv;
     bool          cf;
-    Qt::AlignmentFlags af;
+    int           af;
     QSqlFieldPrivate* d;
 };
 

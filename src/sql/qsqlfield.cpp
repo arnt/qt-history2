@@ -38,6 +38,8 @@
 
 #ifndef QT_NO_SQL
 
+#include "qnamespace.h"
+
 /*!
     \class QSqlField qsqlfield.h
     \brief Class used for manipulating SQL database fields
@@ -56,8 +58,10 @@
 */
 
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QString& displayLabel )
-    : nm(fieldName), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
+    : nm(fieldName), label(displayLabel), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
 {
+    if ( label.isNull() )
+	label = fieldName;
     val.cast( type );
     switch( type ) {
     case QVariant::String:
@@ -71,7 +75,7 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type, const QStri
 }
 
 QSqlField::QSqlField( const QSqlField& other )
-    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf )
+    : nm( other.nm ), val( other.val ), label( other.label ), ro( other.ro ), nul( other.nul ), pIdx( other.pIdx ), iv( other.iv ), cf( other.cf ), af( other.af )
 {
 }
 
@@ -85,6 +89,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     pIdx = other.pIdx;
     iv = other.iv;
     cf = other.cf;
+    af = other.af;
     return *this;
 }
 
