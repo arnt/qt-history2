@@ -752,7 +752,10 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s )
     setIndex( curpos, FALSE );
 
     if ( inCustom && doc && parag()->at( curpos )->isCustom() && parag()->at( curpos )->customItem()->isNested() ) {
+	QTextDocument *oldDoc = doc;
 	gotoIntoNested( pos );
+	if ( oldDoc == doc )
+	    return TRUE;
 	QPoint p( pos.x() - offsetX(), pos.y() - offsetY() );
 	if ( !place( p, document()->firstParag() ) )
 	    pop();
