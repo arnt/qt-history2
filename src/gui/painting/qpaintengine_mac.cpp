@@ -917,6 +917,45 @@ static void qt_mac_clip_cg_reset(CGContextRef hd)
     CGContextConcatCTM(hd, old_xform);
 }
 
+static CGMutablePathRef qt_mac_compose_path(const QPainterPath &p)
+{
+    CGMutablePathRef ret = CGPathCreateMutable();
+    QPointF startPt;
+    for (int i=0; i<p.elementCount(); ++i) {
+        const QPainterPath::Element &elm = p.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            if (i > 0
+                && p.elementAt(i - 1).x == startPt.x()
+                && p.elementAt(i - 1).y == startPt.y())
+                CGPathCloseSubpath(ret);
+            startPt = QPointF(elm.x, elm.y);
+            CGPathMoveToPoint(ret, 0, elm.x, elm.y);
+            break;
+        case QPainterPath::LineToElement:
+            CGPathAddLineToPoint(ret, 0, elm.x, elm.y);
+            break;
+        case QPainterPath::CurveToElement:
+            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
+            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
+            CGPathAddCurveToPoint(ret, 0,
+                                  elm.x, elm.y,
+                                  p.elementAt(i+1).x, p.elementAt(i+1).y,
+                                  p.elementAt(i+2).x, p.elementAt(i+2).y);
+            i+=2;
+            break;
+        default:
+            qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled type: %d", elm.type);
+            break;
+        }
+    }
+    if (!p.isEmpty()
+        && p.elementAt(p.elementCount() - 1).x == startPt.x()
+        && p.elementAt(p.elementCount() - 1).y == startPt.y())
+        CGPathCloseSubpath(ret);
+    return ret;
+}
+
 static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt, CGAffineTransform *orig_xform)
 {
     CGAffineTransform old_xform = CGAffineTransformIdentity;
@@ -1207,6 +1246,26 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);
 }
 
+void 
+QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, bool clipEnabled)
+{
+    Q_ASSERT(isActive());
+    if(clipEnabled) {
+        QPolygon poly = p.toFillPolygon();
+        d->current.clip = QRegion(poly.toPointArray(), p.fillMode() == QPainterPath::Winding);
+        setf(ClipOn);
+    } else {
+        clearf(ClipOn);
+    }
+    d->setClip(0);
+    if(clipEnabled) {
+        CGMutablePathRef path = qt_mac_compose_path(p);
+        CGContextAddPath(d->hd, path);
+        CGContextClip(d->hd);
+        CGPathRelease(path);
+    }
+}
+
 void
 QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
@@ -1236,40 +1295,7 @@ QCoreGraphicsPaintEngine::drawLine(const QLineF &line)
 void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
-    CGMutablePathRef path = CGPathCreateMutable();
-    QPointF startPt;
-    for (int i=0; i<p.elementCount(); ++i) {
-        const QPainterPath::Element &elm = p.elementAt(i);
-        switch (elm.type) {
-        case QPainterPath::MoveToElement:
-            if (i > 0
-                && p.elementAt(i - 1).x == startPt.x()
-                && p.elementAt(i - 1).y == startPt.y())
-                CGPathCloseSubpath(path);
-            startPt = QPointF(elm.x, elm.y);
-            CGPathMoveToPoint(path, 0, elm.x, elm.y);
-            break;
-        case QPainterPath::LineToElement:
-            CGPathAddLineToPoint(path, 0, elm.x, elm.y);
-            break;
-        case QPainterPath::CurveToElement:
-            Q_ASSERT(p.elementAt(i+1).type == QPainterPath::CurveToDataElement);
-            Q_ASSERT(p.elementAt(i+2).type == QPainterPath::CurveToDataElement);
-            CGPathAddCurveToPoint(path, 0,
-                                  elm.x, elm.y,
-                                  p.elementAt(i+1).x, p.elementAt(i+1).y,
-                                  p.elementAt(i+2).x, p.elementAt(i+2).y);
-            i+=2;
-            break;
-        default:
-            qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled type: %d", elm.type);
-            break;
-        }
-    }
-    if (!p.isEmpty()
-        && p.elementAt(p.elementCount() - 1).x == startPt.x()
-        && p.elementAt(p.elementCount() - 1).y == startPt.y())
-        CGPathCloseSubpath(path);
+    CGMutablePathRef path = qt_mac_compose_path(p);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillMode() == QPainterPath::Winding)
         ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
