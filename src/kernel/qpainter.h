@@ -57,7 +57,7 @@ class QPaintDevice;
 #if defined( Q_WS_MAC )
 class QMacSavedPortInfo;
 #endif
-
+class QPainterPrivate;
 
 class Q_EXPORT QPainter : public Qt
 {
@@ -314,6 +314,7 @@ private:
     void	clearf( uint b )	{ flags &= (uint)(~b); }
     void	fix_neg_rect( int *x, int *y, int *w, int *h );
 
+    QPainterPrivate *d;
     QPaintDevice *pdev;
     QColor	bg_col;
     uchar	bg_mode;
