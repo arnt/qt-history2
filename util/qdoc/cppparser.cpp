@@ -743,6 +743,10 @@ static void matchDocsAndStuff( Emitter *emitter )
 				 "Function '%s' specified with '\\fn' not"
 				 " found",
 				 yyLastDecl->fullMangledName().latin1() );
+			if ( yyLastDecl->fullMangledName()
+			     .contains(QChar(':')) == 0 )
+			    warning( 2, fn->location(),
+				     "(the class name appears to be missing)" );
 		    }
 
 		    if ( relates == 0 ) {

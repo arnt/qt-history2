@@ -1157,6 +1157,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    }
 	    metNL = TRUE;
 	} else {
+	    if ( ch == QChar('#') && yyIn.mid(yyPos, 2) == QString("##") )
+		warning( 2, location(), "Met '#" "##' in documentation" );
 	    yyOut += ch;
 	}
 

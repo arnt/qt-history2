@@ -104,7 +104,7 @@ QWSMouseHandler::~QWSMouseHandler()
 }
 
 /*!
-  \fn void mouseChanged(const QPoint& pos, int bstate);
+  \fn void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 
   This signal is emited by the mouse handler to signal that the
   mouse is now at position \a pos and the mouse buttons are now

@@ -108,6 +108,8 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
   \class QDesktopWidget qdesktopwidget.h
   \brief The QDesktopWidget class provides an API to access the screen information on multi-head systems.
 
+  \ingroup environment
+
   Systems with more than one graphics card and monitor can manage the screen space available either
   as multiple desktops, or as a big virtual desktop, which usually has the size of the bounding rectangle
   of all screens.

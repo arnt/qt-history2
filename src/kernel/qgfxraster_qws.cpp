@@ -5164,8 +5164,7 @@ struct DriverTable
     { 0, 0, 0 },
 };
 
-/*!
-\fn QScreen *qt_get_screen( int display_id, const char *spec )
+/*
 Given a display_id (number of the Qt/Embedded server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
 A structure DriverTable contains a list of different screen types

@@ -349,9 +349,9 @@ since it can take account of kerning and inter-character spacing
 */
 
 /*!
-\fn int leftBearing(int)
+\fn int QRenderedFont::leftBearing(int)
 Returns the left bearing (distance in pixels before the start of the letter)
-of the character specified
+of the character specified.
 */
 
 /*!
