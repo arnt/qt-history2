@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#27 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#27 $");
 
 
 /*!
@@ -23,8 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#26 $");
 
   All window systems that Qt supports, except X11, have built-in
   printer drivers.  For X11, Qt provides PostScript (tm)
-  printing.  Note that the PostScript support is incomplete and very
-  much beta-quality at the present time.
+  printing.
 
   drawPixmap(), clipping, even-odd filling, landscape orientation/page
   size support and pixmap brushes are all either unimplemented or
