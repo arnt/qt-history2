@@ -52,7 +52,7 @@ static bool resizeVerticalDirectionFixed = FALSE;
 
 QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const char *name )
     : QObject( parent, name ), widget( parent ), childWidget( cw ? cw : parent ),
-      buttonDown( FALSE ), moveResizeMode( FALSE ), extrahei( 0 ), sizeprotect( TRUE ), moving( TRUE )
+      extrahei( 0 ), buttonDown( FALSE ), moveResizeMode( FALSE ), sizeprotect( TRUE ), moving( TRUE )
 {
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
