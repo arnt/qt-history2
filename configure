@@ -1590,7 +1590,7 @@ fi
 if [ -n "$VERBOSE" ]
 then
     echo "QMake vars....... $QMAKE_VARS"
-    echo "QMake swtiches... $QMAKE_SWITCHES"
+    echo "QMake switches... $QMAKE_SWITCHES"
 fi
 
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
