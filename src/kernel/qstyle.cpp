@@ -707,6 +707,14 @@ QSize QStyle::scrollBarExtent()
     return d(this)->sbextent;
 }
 
+/*!
+  Returns the extend (height or width depending on the orientation) which a toolbar
+  handle has.
+  
+  WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
+  it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
+*/
+
 int QStyle::toolBarHandleExtend() const
 {
     if ( guiStyle() == Qt::MotifStyle )
@@ -714,13 +722,23 @@ int QStyle::toolBarHandleExtend() const
     return 11;
 }
 
-void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation, 
+/*!
+  Draws the handle for the toolbar using the painter \a p with the toolbar coordinates
+  \a r. \a orientation gives the orientation of the toolbar, and the handle is drawn
+  \a highlighted if \a highlight is TRUE, else not. \a cg is the QColorGroup of the toolbar and
+  if \a drawBorder is TRUE a border around the handle may be drawn.
+  
+  WARNING: Because of binary compatibility this method is NOT virtual, so reimplementing
+  it in Qt 2.x doesn't make sense. In the next major release this method will become virtual!
+*/
+
+void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 				bool highlight, const QColorGroup &cg,
 				bool drawBorder )
 {
     p->save();
     p->translate( r.x(), r.y() );
-    
+
     if ( guiStyle() == Qt::MotifStyle ) {
 	QColor dark( cg.dark() );
 	QColor light( cg.light() );
@@ -796,7 +814,7 @@ void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation ori
 	    }
 	}
     }
-    
+
     p->restore();
 }
 
