@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#243 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#244 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1248,7 +1248,6 @@ void QPopupMenu::updateRow( int row )
   \code
       exec(somewidget.mapToGlobal(QPoint(0,0)));
   \endcode
-  \sa popup()
 
   When positioning a popup with exec() or popup(), keep in mind that
   you cannot rely on the popup menu's current size(). For performance
@@ -1257,7 +1256,7 @@ void QPopupMenu::updateRow( int row )
   different. Instead, use sizeHint(). It calculates the proper size
   depending on the menu's current contents.
 
-  \sa sizeHint()
+  \sa popup(), sizeHint()
 */
 
 int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#289 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#290 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1911,7 +1911,7 @@ void QListBox::setColumnMode( LayoutMode mode )
 /*!  Sets the column layout mode for this list box to \c FixedNumber, and
   sets the number of displayed columns accordingly.
 
-  \setRowMode() columnMode() numColumns()
+  \sa setRowMode() columnMode() numColumns()
 */
 
 void QListBox::setColumnMode( int columns )

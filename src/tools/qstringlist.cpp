@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#16 $
 **
 ** Implementation of QStringList
 **
@@ -29,7 +29,7 @@
 
 /*!
   \class QStringList qstringlist.h
-  \brief A list of strings
+  \brief A list of strings.
 
   \ingroup tools
   \ingroup shared
@@ -99,8 +99,8 @@ void QStringList::sort()
 
 /*!
   Splits the string \a str using \a sep as separator. Returns the
-  list of strings. If \a str doesn't contain \sep, a stringlist
-  with one item, which is the same as \str, is returned.
+  list of strings. If \a str doesn't contain \a sep, a stringlist
+  with one item, which is the same as \a str, is returned.
 */
 
 QStringList QStringList::split( const QChar &sep, const QString &str )
@@ -110,8 +110,8 @@ QStringList QStringList::split( const QChar &sep, const QString &str )
 
 /*!
   Splits the string \a str using \a sep as separator. Returns the
-  list of strings. If \a str doesn't contain \sep, a stringlist
-  with one item, which is the same as \str, is returned.
+  list of strings. If \a str doesn't contain \a sep, a stringlist
+  with one item, which is the same as \a str, is returned.
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#24 $
 **
 ** Implementation of QTabWidget class
 **
@@ -357,7 +357,7 @@ void QTabWidget::showPage( QWidget * w)
 
 /*! Removes page \a w from this stack of widgets.  Does not
   delete \a w.
-  \sa showPage(), \sa QWidgetStack::removeWidget()
+  \sa showPage(), QWidgetStack::removeWidget()
 */
 void QTabWidget::removePage( QWidget * w )
 {
