@@ -3059,7 +3059,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( msg.wParam == VK_DELETE )
 		    uch = QChar((char)0x7f); // Windows doesn't know this one.
 		else {
-		    if (t != WM_SYSKEYDOWN) {
+		    if ( t != WM_SYSKEYDOWN || !code ) {
 			UINT map;
 			QT_WA( {
 			    map = MapVirtualKey( msg.wParam, 2 );
