@@ -364,8 +364,9 @@ void QProcessPrivate::startProcess()
     ::fcntl(writePipe[1], F_SETFL, ::fcntl(writePipe[1], F_GETFL) | O_NONBLOCK);
 }
 
-void QProcessPrivate::execChild(const QByteArray &encodedProgramName)
+void QProcessPrivate::execChild(const QByteArray &programName)
 {
+    QByteArray encodedProgramName = programName;
     Q_Q(QProcess);
 
     // create argument list with right number of elements, and set the
@@ -581,7 +582,10 @@ bool QProcessPrivate::waitForStarted(int msecs)
     fd_set fds;
     FD_ZERO(&fds);
     FD_SET(childStartedPipe[0], &fds);
-    int ret = qt_native_select(&fds, 0, msecs);
+    int ret;
+    do {
+        ret = qt_native_select(&fds, 0, msecs);
+    } while (ret < 0 && errno == EINTR);
     if (ret == 0) {
         processError = QProcess::Timedout;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
@@ -630,6 +634,11 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 
         int timeout = msecs - stopWatch.elapsed();
         int ret = qt_native_select(&fdread, &fdwrite, timeout);
+        if (ret < 0) {
+            if (errno == EINTR)
+                continue;
+            break;
+        }
         if (ret == 0) {
             processError = QProcess::Timedout;
             q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
@@ -695,9 +704,14 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
         if (!writeBuffer.isEmpty() && writePipe[1] != -1)
             FD_SET(writePipe[1], &fdwrite);
-       
+
 	int timeout = msecs - stopWatch.elapsed();
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
+        if (ret < 0) {
+            if (errno == EINTR)
+                continue;
+            break;
+        }
 	if (ret == 0) {
 	    processError = QProcess::Timedout;
 	    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
@@ -711,7 +725,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
 	if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
 	    return canWrite();
-	
+
 	if (standardReadPipe[0] != -1 && FD_ISSET(standardReadPipe[0], &fdread))
 	    canReadStandardOutput();
 
@@ -760,6 +774,11 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
 	int timeout = msecs - stopWatch.elapsed();
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
+        if (ret < 0) {
+            if (errno == EINTR)
+                continue;
+            break;
+        }
 	if (ret == 0) {
 	    processError = QProcess::Timedout;
 	    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process operation timed out"));
@@ -793,14 +812,18 @@ bool QProcessPrivate::waitForWrite(int msecs)
     FD_ZERO(&fdwrite);
     FD_SET(writePipe[1], &fdwrite);
 
-    return qt_native_select(0, &fdwrite, msecs < 0 ? 0 : msecs) == 1;
+    int ret;
+    do {
+        ret = qt_native_select(0, &fdwrite, msecs < 0 ? 0 : msecs) == 1;
+    } while (ret < 0 && errno == EINTR);
+    return ret == 1;
 }
 
 void QProcessPrivate::findExitCode()
 {
     Q_Q(QProcess);
     int result = processManager()->takeExitResult(q);
-   
+
     crashed = !WIFEXITED(result);
     exitCode = WEXITSTATUS(result);
 }
