@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#7 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#8 $
 **
 ** Definition of QRegion class
 **
@@ -45,8 +45,8 @@ public:
     QRegion subtract( const QRegion & ) const;
     QRegion xor( const QRegion & )	const;
 
-    bool    operator==( const QRegion & );
-    bool    operator!=( const QRegion &r )
+    bool    operator==( const QRegion & )  const
+    bool    operator!=( const QRegion &r ) const
     			{ return !(operator==(r)); }
 
 #if defined(_WS_WIN_)
