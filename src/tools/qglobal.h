@@ -47,35 +47,35 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MACX	  - Mac OS X
-     MAC9	  - Mac OS 9
-     MSDOS  - MS-DOS and Windows
-     OS2	  - OS/2
-     OS2EMX - XFree86 on OS/2 (not PM)
-     WIN32  - Win32 (Windows 95/98/ME and Windows NT/2000/XP)
-     SUN	  - SunOS
-     SOLARIS	 - Sun Solaris
-     HPUX	  - HP-UX
-     ULTRIX - DEC Ultrix
-     LINUX  - Linux
-     FREEBSD	 - FreeBSD
-     NETBSD - NetBSD
-     OPENBSD    - OpenBSD
-     BSDI	  - BSD/OS
-     IRIX	  - SGI Irix
-     OSF	  - Compaq Tru64
-     UNIXWARE	 - SCO UnixWare 2
-     SCO	  - SCO OpenServer, UnixWare 7, Open UNIX
-     AIX	  - AIX
-     HURD	  - GNU Hurd
-     DGUX	  - DG/UX
-     DYNIX  - DYNIX/ptx
-     RELIANT	 - Reliant UNIX
-     QNX	  - QNX
-     QNX6   - QNX RTP 6.1
-     LYNX	  - LynxOS
-     BSD4	  - Any BSD 4.4 system
-     UNIX	  - Any UNIX BSD/SYSV system
+     MACX	- Mac OS X
+     MAC9	- Mac OS 9
+     MSDOS	- MS-DOS and Windows
+     OS2	- OS/2
+     OS2EMX	- XFree86 on OS/2 (not PM)
+     WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000/XP)
+     SUN	- SunOS
+     SOLARIS	- Sun Solaris
+     HPUX	- HP-UX
+     ULTRIX	- DEC Ultrix
+     LINUX	- Linux
+     FREEBSD	- FreeBSD
+     NETBSD	- NetBSD
+     OPENBSD	- OpenBSD
+     BSDI	- BSD/OS
+     IRIX	- SGI Irix
+     OSF	- Compaq Tru64
+     UNIXWARE	- SCO UnixWare 2
+     SCO	- SCO OpenServer, UnixWare 7, Open UNIX
+     AIX	- AIX
+     HURD	- GNU Hurd
+     DGUX	- DG/UX
+     DYNIX	- DYNIX/ptx
+     RELIANT	- Reliant UNIX
+     QNX	- QNX
+     QNX6	- QNX RTP 6.1
+     LYNX	- LynxOS
+     BSD4	- Any BSD 4.4 system
+     UNIX	- Any UNIX BSD/SYSV system
 */
 
 #if defined(__APPLE__) && defined(__GNUC__)
@@ -206,6 +206,9 @@
 #    define Q_NO_EXPLICIT_KEYWORD
 #  endif
 #  define Q_NO_USING_KEYWORD
+#  if !defined(_CPPUNWIND)
+#    define Q_NO_EXCEPTIONS
+#  endif
 
 #elif defined(applec)
 #  define Q_CC_MPW
@@ -256,6 +259,9 @@
 #  endif
 #  if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #    define Q_PACKED __attribute__ ((packed))
+#  endif
+#  if !defined(__EXCEPTIONS)
+#    define Q_NO_EXCEPTIONS
 #  endif
 
 /* IBM compiler versions are a bit messy. There are actually two products:
@@ -320,12 +326,21 @@
 /* Using the `using' keyword avoids KAI C++ warnings */
 #    elif defined(__KCC)
 #      define Q_CC_KAI
+#      if !defined(_EXCEPTIONS)
+#        define Q_NO_EXCEPTIONS
+#      endif
 /* Using the `using' keyword avoids Intel C++ warnings */
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
+#      if !defined(__EXCEPTIONS)
+#        define Q_NO_EXCEPTIONS
+#      endif
 /* The Portland Group compiler is based on EDG and does define __EDG__ */
 #    elif defined(__PGI)
 #      define Q_CC_PGI
+#      if !defined(__EXCEPTIONS)
+#        define Q_NO_EXCEPTIONS
+#      endif
 /* The new UnixWare 7 compiler is based on EDG and does define __EDG__ */
 #    elif defined(__USLC__)
 #      define Q_CC_EDG
@@ -345,6 +360,9 @@
 #    define Q_NO_BOOL_TYPE
 #  endif
 #  define Q_NO_USING_KEYWORD
+#  if defined(__cplusplus) && (__cplusplus < 2) /* Cfront C++ mode */
+#    define Q_NO_EXCEPTIONS
+#  endif
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
