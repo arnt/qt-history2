@@ -36,7 +36,7 @@ static QColor qt_mix_colors(QColor a, QColor b)
 #ifdef QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
+QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g)
 {
     if(s.version() == 1) {
         // Qt 1.x
@@ -53,7 +53,7 @@ QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
     return s;
 }
 
-QDataStream &operator>>(QDataStream &s, QColorGroup &g)
+QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g)
 {
     if(s.version() == 1) {         // Qt 1.x
         QColor fg, bg, light, dark, mid, text, base;
@@ -78,6 +78,16 @@ QDataStream &operator>>(QDataStream &s, QColorGroup &g)
         }
     }
     return s;
+}
+
+QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
+{
+    return qt_stream_out_qcolorgroup(s, g);
+}
+
+QDataStream &operator>>(QDataStream &s, QColorGroup &g)
+{
+    return qt_stream_in_qcolorgroup(s, g);
 }
 #endif
 

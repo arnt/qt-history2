@@ -34,6 +34,9 @@
 #include "qsize.h"
 #include "qsizepolicy.h"
 
+extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
+extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
+
 extern const QVariant::Handler qt_gui_variant_handler;
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
@@ -370,7 +373,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        s >> *static_cast<QColorGroup *>(d->value.ptr);
+        qt_stream_in_qcolorgroup(s, *static_cast<QColorGroup *>(d->value.ptr));
         break;
 #endif
 #endif
@@ -455,7 +458,7 @@ static void save(const QVariant::Private *d, QDataStream &s)
         break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-        s << *static_cast<QColorGroup *>(d->value.ptr);
+        qt_stream_out_qcolorgroup(s, *static_cast<QColorGroup *>(d->value.ptr));
         break;
 #endif
 #endif
