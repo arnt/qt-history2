@@ -34,6 +34,7 @@ layout managers.
 Layouts are also useful for internationalization. With fixed sizes
 and positions, the translation text is often truncated; with layouts,
 the child widgets are automatically resized.
+  internationalization @Index { Internationalization }
 @BeginSubSections
 @SubSection
     @Title { Built-in Layout Managers }
@@ -145,8 +146,6 @@ buttons.
 @PP
 The dialog's widgets and layouts are created with the following code:
 @IndentedDisplay @CP @Begin
-setCaption( "International Trader" );
-
 QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
 buttonBox->addWidget( new QPushButton("OK", this) );
 buttonBox->addWidget( new QPushButton("Cancel", this) );

@@ -17,9 +17,9 @@ public:
 
 MyDialog::MyDialog()
 {
-// quote
-setCaption( "International Trader" );
+    setCaption( "International Trader" );
 
+// quote
 QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
 buttonBox->addWidget( new QPushButton("OK", this) );
 buttonBox->addWidget( new QPushButton("Cancel", this) );

@@ -13,7 +13,7 @@ since 1995. Qt is used by companies as diverse as AT\&T, IBM, NASA
 and Xerox, and by numerous smaller companies and organizations. Qt
 3.0 retains the ease-of-use and power of earlier versions while
 adding significant functionality and introducing many new classes.
-Qt's classes are fully-featured to reduce developer workload, and
+Qt's classes are fully featured to reduce developer workload, and
 provide consistent interfaces to speed learning. Qt is, and always
 has been, fully object oriented.
 
@@ -36,7 +36,7 @@ by modern applications, such as menus, context menus, dockable
 toolbars, balloon help, drag and drop, etc.
 
 Intuitive naming conventions and a consistent programming approach
-simpify coding. Qt also includes \l {Qt Designer}, a tool for
+simplify coding. Qt also includes \l {Qt Designer}, a tool for
 designing user interfaces graphically. \l {Qt Designer} supports Qt's
 powerful \l Layouts in addition to absolute positioning. \l {Qt
 Designer} can be used purely as a design tool, or it can be used to
@@ -62,7 +62,7 @@ Qt programs have native look and feel on all supported platforms
 using Qt's \l {Styles and Themes} support. From a single source tree,
 recompilation is all that is required to produce applications for
 Windows 95/98/NT4/ME/2000, Mac OS X, Linux, Solaris, HP-UX and many
-other versions of Unix with X11. Qt applications can even be compiled
+other versions of Unix with X11. Qt applications can also be compiled
 to run on Qt/Embedded. Qt's \Cmd qmake build tool produces Makefiles
 or \File .dsp files appropriate to the target platform. Since \l
 {Qt's Architecture} takes advantage of the underlying platform, many

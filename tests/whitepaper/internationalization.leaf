@@ -100,7 +100,6 @@ subclassing \Class QTextCodec.
   \index Line breaking
   \index Right-to-left languages
   \index Text rendering
-  \index Thai
   \index Vietnamese
   \index Writing system
 
@@ -110,8 +109,8 @@ sophisticated rich-text editor. The engine supports advanced features
 such as special line breaking behavior, bidirectional writing and
 diacritical marks. It renders most of the world's writing systems,
 including Arabic, Chinese, Cyrillic, English, Greek, Hebrew,
-Japanese, Korean, Latin, Thai and Vietnamese. Qt will automatically
-combine the installed fonts to render multi-language text.
+Japanese, Korean, Latin and Vietnamese. Qt will automatically combine
+the installed fonts to render multi-language text.
 
 \section1 Input Methods
 

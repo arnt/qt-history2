@@ -184,7 +184,7 @@ widgets are presented in \l {GUI Applications}. \Class QMessageBox,
 \Class QFileDialog, \Class QTabDialog, \Class QWizard and other
 dialogs are presented in \l Dialogs. \Class QSplitter is covered in
 \l Layouts. \Class QCanvas and \Class QGLWidget are presented in \l
-{3D Graphics}.
+{2D and 3D Graphics}.
 
   \index Checkbox
   \index QCheckBox

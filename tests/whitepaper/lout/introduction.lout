@@ -15,7 +15,7 @@ since 1995. Qt is used by companies as diverse as "AT&T", IBM, NASA
 and Xerox, and by numerous smaller companies and organizations. Qt
 3.0 retains the ease-of-use and power of earlier versions while
 adding significant functionality and introducing many new classes.
-Qt's classes are fully-featured to reduce developer workload, and
+Qt's classes are fully featured to reduce developer workload, and
 provide consistent interfaces to speed learning. Qt is, and always
 has been, fully object oriented.
 @PP
@@ -42,7 +42,7 @@ as menus, context menus, dockable toolbars, balloon help, drag and
 drop, etc.
 @PP
 Intuitive naming conventions and a consistent programming approach
-simpify coding. Qt also includes @QDR @Xref{qt.designer}, a tool
+simplify coding. Qt also includes @QDR @Xref{qt.designer}, a tool
 for designing user interfaces graphically. @QDR supports Qt's powerful
 layouts @Xref{layouts} in addition to absolute positioning.
 @QDR
@@ -72,7 +72,7 @@ the target platform. Since Qt's architecture @Xref{qts.architecture}
 takes advantage of the underlying platform, many customers also use Qt
 for single-platform development on both Windows and on Unix because
 they prefer the Qt approach. 
-  .dsp @Index { .dsp }
+  dsp @Index { .dsp }
   makefile @Index { Makefile }
   qmake @Index { qmake }
 @PP

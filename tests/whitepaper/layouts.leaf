@@ -30,6 +30,8 @@ layout managers.
   \img login.png
   \caption English, French and French with layouts
 
+  \index Internationalization
+
 Layouts are also useful for internationalization. With fixed sizes
 and positions, the translation text is often truncated; with layouts,
 the child widgets are automatically resized.

@@ -209,7 +209,8 @@ widgets are presented in GUI Applications @Xref{gui.applications}.
 @Class QMessageBox, @Class QFileDialog, @Class QTabDialog, @Class
 QWizard and other dialogs are presented in Dialogs @Xref{dialogs}.
 @Class QSplitter is covered in Layouts @Xref{layouts}. @Class QCanvas
-and @Class QGLWidget are presented in 3D Graphics @Xref{3d.graphics}.
+and @Class QGLWidget are presented in 2D and 3D Graphics
+@Xref{2d.and.3d.graphics}.
 @PP
 The screenshot that shows the @Class{QRadioButton}s and
 @Class{QCheckBox}es was produced with the following code:

@@ -50,7 +50,7 @@ forms and source files as required. Developers can completely separate
 the user interface from the underlying functionality by subclassing,
 or they can keep their source code and forms together by editing the
 form's source directly in @QDR. 
-  .pro @Index { .pro }
+  pro @Index { .pro }
   inheriting @Index { Inheriting }
   makefile @Index { Makefile }
   subclassing @Index { Subclassing }
@@ -65,7 +65,7 @@ converted into C++ header and source files by the @Cmd uic (User
 Interface Compiler). The @Cmd qmake build tool automatically
 includes build rules for @Cmd uic in the Makefiles it generates, so
 developers do not need to invoke @Cmd uic themselves.
-  .ui @Index { .ui }
+  ui @Index { .ui }
   xml @Index { XML }
   uic @Index { uic }
 @PP

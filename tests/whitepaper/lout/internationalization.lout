@@ -92,8 +92,8 @@ sophisticated rich-text editor. The engine supports advanced features
 such as special line breaking behavior, bidirectional writing and
 diacritical marks. It renders most of the world's writing systems,
 including Arabic, Chinese, Cyrillic, English, Greek, Hebrew,
-Japanese, Korean, Latin, Thai and Vietnamese. Qt will automatically
-combine the installed fonts to render multi-language text.
+Japanese, Korean, Latin and Vietnamese. Qt will automatically combine
+the installed fonts to render multi-language text.
   arabic @Index { Arabic }
   bidirectionalwriting @Index { Bidirectional writing }
   chinese @Index { Chinese }
@@ -109,7 +109,6 @@ combine the installed fonts to render multi-language text.
   linebreaking @Index { Line breaking }
   righttoleftlanguages @Index { Right-to-left languages }
   textrendering @Index { Text rendering }
-  thai @Index { Thai }
   vietnamese @Index { Vietnamese }
   writingsystem @Index { Writing system }
 @End @SubSection
@@ -182,7 +181,7 @@ disk-based @File .qm files (Qt Message files). Each @File .qm file contains
 the translations for a particular language. The language can be
 chosen at run-time, in accordance with the locale or user
 preferences.
-  .qm @Index { .qm }
+  qm @Index { .qm }
   locale @Index { Locale }
   qtranslator @Index { QTranslator }
 @PP
@@ -195,8 +194,8 @@ Qt Linguist and @Cmd lrelease.
 @NumberedList
   designer @Index { Designer }
   qtdesigner @Index { Qt Designer }
-  .ts @Index { .ts }
-  .ui @Index { .ui }
+  ts @Index { .ts }
+  ui @Index { .ui }
   xml @Index { XML }
 @ListItem { @Cmd lupdate extracts all the (context, source text,
 comment) triples from the source code, including @QDR
