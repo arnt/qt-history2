@@ -780,7 +780,6 @@ void PopupMenuEditor::mousePressEvent( QMouseEvent * e )
 
 void PopupMenuEditor::mouseDoubleClickEvent( QMouseEvent * e )
 {
-    QPoint pos = e->pos();
     currentItem()->setDirty( TRUE );
     setFocusAt( mousePressPos );
     currentItem()->setDirty( TRUE );
