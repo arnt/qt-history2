@@ -15,6 +15,7 @@ public:
     QStyle *create( const QString& );
 
     bool init();
+    void cleanup();
     bool canUnload() const;
 
 private:
@@ -75,6 +76,11 @@ QStyle* SGIStyle::create( const QString& s )
 bool SGIStyle::init()
 {
     return TRUE;
+}
+
+void SGIStyle::cleanup() 
+{
+    delete style;
 }
 
 bool SGIStyle::canUnload() const
