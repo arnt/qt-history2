@@ -770,6 +770,8 @@ void QWorkspace::minimizeWindow(QWidget* w)
             c->setGeometry(d->maxRestore);
         d->focus.append(c);
 
+        activateWindow(w);
+
         setUpdatesEnabled(true);
         updateWorkspace();
 
@@ -1379,7 +1381,7 @@ void QWorkspace::activateNextWindow()
     if (d->focus.at(a))
         activateWindow(d->focus.at(a)->windowWidget(), false);
     else
-        d->active = 0;
+        activateWindow(0);
 }
 
 void QWorkspace::activatePreviousWindow()
@@ -1730,6 +1732,7 @@ QWorkspaceChild::~QWorkspaceChild()
 
     QWorkspace *workspace = qt_cast<QWorkspace*>(parentWidget());
     if (workspace) {
+        workspace->d->focus.remove(this);
         if (workspace->d->active == this)
             workspace->activatePrevWindow();
         if (workspace->d->maxWindow == this) {
