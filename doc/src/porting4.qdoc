@@ -10,17 +10,6 @@
 **
 ****************************************************************************/
 
-/*
-        WDestructiveClose      = 0x00010000,
-        WStaticContents        = 0x00400000,
-        WNoAutoErase           = 0x00800000,
-
-        WResizeNoErase = 0,
-        WPaintClever = 0,
-        WMacNoSheet = 0
-
-*/
-
 /*!
     \page porting.html
 
@@ -33,7 +22,7 @@
     ### QVector etc. are initialized to 0 by default?
     ### How to port from Qt 2.3 to Qt 4.
     ### missing sort() functions?
-    ### make sure all QT_COMPAT enums are documented here and omitvalue otherwise
+    ### QToolTipGroup
 \endomit
 
     If you haven't yet made the decision about porting, or are unsure
@@ -74,7 +63,6 @@
     ### what to do with slots that aren't slots anymore
     ### what to do with virtual functions that aren't virtual anymore
     ### what to do with virtual functions that changed signature
-    ### properties?
 \endomit
 
 \omit
@@ -126,6 +114,21 @@
     QWidget::BackgroundOrigin compat
 \endomit
 
+    \section1 Class Names
+
+    The table below lists the classes that have been renamed in Qt 4.
+    If you compile your applications with \c QT_COMPAT defined, the
+    old names will be available.
+
+    Whenever you see an occurrence of the name on the left, you can
+    safely replace it with the Qt 4 equivalent in your program. The
+    \l{porting tool} handles performs the conversion automatically.
+
+    \table
+    \header \o Qt 3 name \o Qt 4 equivalent
+    \input porting4-classnames.qdocinc
+    \endtable
+
     \section1 Enum and Typedef Names
 
     The table below lists the enums and typedefs that have been
@@ -152,7 +155,7 @@
     \l{porting tool} handles performs the conversion automatically.
 
     \table
-    \header \o Qt 3 name \o Qt 4 equivalent
+    \header \o Qt 3 name \o Qt 4 name
     \input porting4-enumvalues.qdocinc
     \endtable
 
@@ -161,7 +164,7 @@
     or have been deprecated:
 
     \table
-    \header \o Qt 3 names \o Qt 4 equivalent
+    \header \o Qt 3 type \o Qt 4 equivalent
     \row \o Qt::WDestructiveClose \o Use Qt::WA_DeleteOnClose instead.
     \row \o Qt::WStaticContents \o{1,2} Use Qt::WA_StaticContents instead.
     \row \o Qt::WNorthWestGravity
@@ -172,6 +175,125 @@
          \omit ### Check with Matthias \endomit
     \row \o Qt::WMacNoSheet \o Unnecessary in Qt 4.
          \omit ### Check with Sam \endomit
+    \endtable
+
+    \omit ### Explain how to port from flag to attribute \endomit
+
+    \section1 Properties
+
+    Some properties have been renamed in Qt 4, to make Qt's API more
+    consistent and more intuitive. For example, QWidget's \c caption
+    property has been renamed \c windowTitle to make it clear that it
+    refers to the title shown in the window's title bar.
+
+    The table below lists the Qt properties that have been renamed in
+    Qt 4. Occurrences of these in \e{Qt Designer} \c .ui files are
+    automatically converted to the new name by \c uic.
+
+    \table
+    \header \o Qt 3 name \o Qt 4 name
+    \row \o QButton::accel \o QButton::shortcut
+    \row \o QButton::on \o QButton::checked
+    \row \o QButton::toggleButton \o QAbstractButton::checkable
+    \row \o QDial::lineStep \o QDial::singleStep
+    \row \o QDial::maxValue \o QDial::maximum
+    \row \o QDial::minValue \o QDial::minimum
+    \row \o QDialog::modal \o QDialog::isModal
+    \row \o QLineEdit::edited \o QLineEdit::modified
+    \row \o QLineEdit::hasMarkedText \o QLineEdit::hasSelectedText
+    \row \o QLineEdit::markedText \o QLineEdit::selectedText
+    \row \o QObject::name \o QObject::objectName
+    \row \o QProgressDialog::progress \o QProgressDialog::value
+    \row \o QProgressDialog::totalSteps \o QProgressDialog::maximum
+    \row \o QProgressDialog::wasCancelled \o QProgressDialog::wasCanceled
+    \row \o QPushButton::iconSet \o QPushButton::icon
+    \row \o QScrollBar::draggingSlider \o QScrollBar::sliderDown
+    \row \o QScrollBar::lineStep \o QScrollBar::singleStep
+    \row \o QScrollBar::maxValue \o QScrollBar::maximum
+    \row \o QScrollBar::minValue \o QScrollBar::minimum
+    \row \o QSlider::lineStep \o QSlider::singleStep
+    \row \o QSlider::maxValue \o QSlider::maximum
+    \row \o QSlider::minValue \o QSlider::minimum
+    \row \o QSpinBox::lineStep \o QSpinBox::singleStep
+    \row \o QSpinBox::maxValue \o QSpinBox::maximum
+    \row \o QSpinBox::minValue \o QSpinBox::minimum
+    \row \o QTabBar::currentTab \o QTabBar::currentIndex
+    \row \o QTabWidget::currentPage \o QTabWidget::currentIndex
+    \row \o QToolButton::iconSet \o QToolButton::icon
+    \row \o QToolButton::textLabel \o QToolButton::text
+    \row \o QWidget::caption \o QWidget::windowTitle
+    \row \o QWidget::icon \o QWidget::windowIcon
+    \row \o QWidget::iconText \o QWidget::windowIconText
+    \endtable
+
+    A handful of properties in Qt 3 are no longer properties in Qt 4,
+    but the access functions still exist as part of the Qt 4 API.
+    These are not used by \e{Qt Designer}; the only case where you
+    need to worry about them is in highly dynamic applications that
+    use Qt's meta-object system to access properties. Here's the list
+    of these properties with the read and write functions that you
+    can use instead:
+
+    \table
+    \header \o Qt 3 property \o Qt 4 read function \o Qt 4 write function
+    \row \o QGrid::margin \o QGridWidget::margin() \o QGridWidget::setMargin()
+    \row \o QHBox::margin \o QHBoxWidget::margin() \o QHBoxWidget::setMargin()
+    \row \o QSqlDatabase::connectOptions \o QSqlDatabase::connectOptions() \o QSqlDatabase::setConnectOptions()
+    \row \o QSqlDatabase::databaseName \o QSqlDatabase::databaseName() \o QSqlDatabase::setDatabaseName()
+    \row \o QSqlDatabase::hostName \o QSqlDatabase::hostName() \o QSqlDatabase::setHostName()
+    \row \o QSqlDatabase::password \o QSqlDatabase::password() \o QSqlDatabase::setPassword()
+    \row \o QSqlDatabase::port \o QSqlDatabase::port() \o QSqlDatabase::setPort()
+    \row \o QSqlDatabase::userName \o QSqlDatabase::userName() \o QSqlDatabase::setUserName()
+    \endtable
+
+    Some properties have been removed from Qt 4, but the associated
+    access functions are provided if \c QT_COMPAT is defined to help
+    porting to Qt 4. When converting Qt 3 \c .ui files to Qt 4, \c
+    uic generates calls to the Qt compatibility functions.
+
+    The table below lists these properties with the read and write
+    functions that you can use instead. The documentation for the
+    individual functions explains how to replace them with
+    non-compatibility Qt 4 functions.
+
+    \table
+    \header \o Qt 3 property \o Qt 4 read function (\c QT_COMPAT)\o Qt 4 write function (\c QT_COMPAT)
+    \row \o QMenuBar::separator \o QMenuBar::separator() \o QMenuBar::setSeparator()
+    \row \o QPushButton::menuButton \o QPushButton::isMenuButton() \o N/A
+    \row \o QTabWidget::margin \o QTabWidget::margin() \o QTabWidget::setMargin()
+    \row \o QWidget::backgroundBrush \o QWidget::backgroundBrush() \o N/A
+    \row \o QWidget::backgroundMode \o QWidget::backgroundMode() \o QWidget::setBackgroundMode()
+    \row \o QWidget::backgroundOrigin \o QWidget::backgroundOrigin() \o QWidget::setBackgroundOrigin()
+    \row \o QWidget::colorGroup \o QWidget::colorGroup() \o QWidget::setColorGroup()
+    \row \o QWidget::customWhatsThis \o QWidget::customWhatsThis() \o QWidget::setCustomWhatsThis()
+    \row \o QWidget::inputMethodEnabled \o QWidget::inputMethodEnabled() \o QWidget::setInputMethodEnabled()
+    \row \o QWidget::ownCursor \o QWidget::ownCursor() \o N/A
+    \row \o QWidget::ownFont \o QWidget::ownFont() \o N/A
+    \row \o QWidget::ownPalette \o QWidget::ownPalette() \o N/A
+    \row \o QWidget::paletteBackgroundColor \o QWidget::paletteBackgroundColor() \o QWidget::setPaletteBackgroundColor()
+    \row \o QWidget::paletteBackgroundPixmap \o QWidget::paletteBackgroundPixmap() \o QWidget::setPaletteBackgroundPixmap()
+    \row \o QWidget::paletteForegroundColor \o QWidget::paletteForegroundColor() \o QWidget::setPaletteForegroundColor()
+    \row \o QWidget::underMouse \o QWidget::underMouse() \o N/A
+    \endtable
+
+    The following Qt 3 properties and their access functions are no
+    longer available in Qt 4. In most cases, Qt 4 provides similar
+    functionality.
+
+    \table
+    \header \o Qt 3 property \o Qt 4 equivalent
+    \row \o QButton::autoResize \o N/A
+    \row \o QButton::exclusiveToggle \o Use QButton::autoExclusive instead.
+    \row \o QButton::pixmap \o Use QAbstractButton::icon instead.
+    \row \o QButton::toggleState \o Use QCheckBox::setState() and QCheckBox::state() instead.
+    \row \o QButton::toggleType \o Use QCheckBox::setTristate() instead.
+    \row \o QComboBox::autoResize \o N/A
+    \row \o QFrame::contentsRect \o Use Q3Frame::contentsRect() instead.
+    \row \o QFrame::contentsRect \o Use Q3Frame::margin instead.
+    \row \o QTabBar::keyboardFocusTab \o N/A
+    \row \o QToolButton::offIconSet \o Use the \l{QIcon::Off}{off component} of QAbstractButton::icon instead.
+    \row \o QToolButton::onIconSet \o Use the \l{QIcon::On}{on component} of QAbstractButton::icon instead.
+    \row \o QWidget::microFocusHint \o N/A
     \endtable
 
 \omit
@@ -227,6 +349,12 @@
     \endcode
 
     (Notice the \c & in the parameter declaration.)
+
+\omit
+    \section1 Qt Designer .ui Files
+
+    ###
+\endomit
 
     \section1 QAccel
 

@@ -61,19 +61,19 @@
 \row \o QToolButton::Under \o QToolButton::BelowIcon
 \row \o QValidator::Valid \o QValidator::Intermediate
 \row \o QVariant::IconSet \o QCoreVariant::Icon
-\row \o Qt::AltButton \o Qt::Qt::AltModifier
+\row \o Qt::AltButton \o Qt::AltModifier
 \row \o Qt::Ascending \o Qt::AscendingOrder
 \row \o Qt::Bottom \o Qt::DockBottom
 \row \o Qt::BottomLeft \o Qt::BottomLeftCorner
 \row \o Qt::BottomRight \o Qt::BottomRightCorner
 \row \o Qt::BreakAnywhere \o Qt::TextWrapAnywhere
-\row \o Qt::ControlButton \o Qt::Qt::ControlModifier
+\row \o Qt::ControlButton \o Qt::ControlModifier
 \row \o Qt::Descending \o Qt::DescendingOrder
 \row \o Qt::DontClip \o Qt::TextDontClip
 \row \o Qt::DontPrint \o Qt::TextDontPrint
 \row \o Qt::ExpandTabs \o Qt::TextExpandTabs
 \row \o Qt::IncludeTrailingSpaces \o Qt::TextIncludeTrailingSpaces
-\row \o Qt::KeyButtonMask \o Qt::Qt::KeyboardModifierMask
+\row \o Qt::KeyButtonMask \o Qt::KeyboardModifierMask
 \row \o Qt::Key_BackSpace \o Qt::Key_Backspace
 \row \o Qt::Key_BackTab \o Qt::Key_Backtab
 \row \o Qt::Key_MediaPrev \o Qt::Key_MediaPrevious
@@ -109,7 +109,7 @@
 \row \o Qt::Key_udiaeresis \o Qt::Key_Udiaeresis
 \row \o Qt::Key_ugrave \o Qt::Key_Ugrave
 \row \o Qt::Key_yacute \o Qt::Key_Yacute
-\row \o Qt::Keypad \o Qt::Qt::KeypadModifier
+\row \o Qt::Keypad \o Qt::KeypadModifier
 \row \o Qt::Left \o Qt::DockLeft
 \row \o Qt::MV_10_DOT_0 \o QSysInfo::MV_10_0
 \row \o Qt::MV_10_DOT_1 \o QSysInfo::MV_10_1
@@ -123,12 +123,12 @@
 \row \o Qt::MV_PUMA \o QSysInfo::MV_10_1
 \row \o Qt::MV_TIGER \o QSysInfo::MV_10_4
 \row \o Qt::MV_Unknown \o QSysInfo::MV_Unknown
-\row \o Qt::MetaButton \o Qt::Qt::MetaModifier
+\row \o Qt::MetaButton \o Qt::MetaModifier
 \row \o Qt::Minimized \o Qt::DockMinimized
 \row \o Qt::NoAccel \o Qt::TextHideMnemonic
 \row \o Qt::Overline \o Qt::TextOverline
 \row \o Qt::Right \o Qt::DockRight
-\row \o Qt::ShiftButton \o Qt::Qt::ShiftModifier
+\row \o Qt::ShiftButton \o Qt::ShiftModifier
 \row \o Qt::ShowPrefix \o Qt::TextShowMnemonic
 \row \o Qt::SingleLine \o Qt::TextSingleLine
 \row \o Qt::StrikeOut \o Qt::TextStrikeOut
@@ -141,10 +141,7 @@
 \row \o Qt::WNorthWestGravity \o Qt::WStaticContents
 \row \o Qt::WRepaintNoErase \o Qt::WNoAutoErase
 \row \o Qt::WStyle_Dialog \o Qt::WType_Dialog
-\row \o Qt::WStyle_Dialog \o Qt::WType_Dialog
 \row \o Qt::WStyle_NoBorderEx \o Qt::WStyle_NoBorder
-\row \o Qt::WStyle_NoBorderEx \o Qt::WStyle_NoBorder
-\row \o Qt::WType_Modal \o (Qt::WType_Dialog | Qt::WShowModal)
 \row \o Qt::WType_Modal \o (Qt::WType_Dialog | Qt::WShowModal)
 \row \o Qt::WV_2000 \o QSysInfo::WV_2000
 \row \o Qt::WV_2003 \o QSysInfo::WV_2003

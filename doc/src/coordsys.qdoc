@@ -113,7 +113,7 @@
 
     \quotefromfile widgets/analogclock/analogclock.cpp
     \skipto ::paintEvent
-    \printuntil setBrush
+    \printuntil scale
 
     First, we set up the painter. We translate the coordinate system
     so that point (0, 0) is in the widget's center, instead of being
@@ -126,7 +126,6 @@
     the middle that we can draw on. What we draw will show up in the
     largest possible square that will fit in the widget.
 
-    \printline QTime time =
     \printline painter.save()
     \printline rotate
     \printline hourHand
