@@ -83,32 +83,40 @@ QTableModel::~QTableModel()
     clear();
 }
 
-bool QTableModel::insertRows(int, const QModelIndex &, int)
+bool QTableModel::insertRows(int row, const QModelIndex &, int count)
 {
-// FIXME: not implemented
-    qDebug("insertRows: not implemented");
-    return false;
+    int i = tableIndex(row, c - 1);
+    table.insert(i, count * c, 0);
+    verticalHeader.insert(row, 0);
+    emit rowsInserted(QModelIndex::Null, row, row + count - 1);
+    return true;
 }
 
-bool QTableModel::insertColumns(int, const QModelIndex &, int)
+bool QTableModel::insertColumns(int column, const QModelIndex &, int count)
 {
-// FIXME: not implemented
-    qDebug("insertColumns: not implemented");
-    return false;
+    for (int row = 0; row < r; ++row)
+        table.insert(tableIndex(row, column), 0);
+    horizontalHeader.insert(column, 0);
+    emit columnsInserted(QModelIndex::Null, column, column + count - 1);
+    return true;
 }
 
-bool QTableModel::removeRows(int, const QModelIndex &, int)
+bool QTableModel::removeRows(int row, const QModelIndex &, int count)
 {
-// FIXME: not implemented
-    qDebug("removeRows: not implemented");
-    return false;
+    emit rowsRemoved(QModelIndex::Null, row, row + count - 1);
+    int i = tableIndex(row, c - 1);
+    table.remove(i, count * c);
+    verticalHeader.remove(row);
+    return true;
 }
 
-bool QTableModel::removeColumns(int, const QModelIndex &, int)
+bool QTableModel::removeColumns(int column, const QModelIndex &, int count)
 {
-// FIXME: not implemented
-    qDebug("removeColumns: not implemented");
-    return false;
+    emit columnsRemoved(QModelIndex::Null, column, column + count - 1);
+    for (int row = 0; row < r; ++row)
+        table.remove(tableIndex(row, column));
+    horizontalHeader.remove(column);
+    return true;
 }
 
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
