@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#4 $
 **
 ** Implementation of QBuffer class
 **
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#4 $";
 #endif
 
 
@@ -158,6 +158,35 @@ int QBuffer::writeBlock( const char *p, uint len )// write data info buffer
     if ( a.p->len < (uint)index )
 	a.p->len = (uint)index;			// fake (not alloc'd) length
     return len;
+}
+
+int QBuffer::readLine( char *p, uint maxlen )	// read data from buffer
+{
+#if defined(CHECK_STATE)
+    CHECK_PTR( p );
+    if ( !isOpen() ) {				// buffer not open
+	warning( "QBuffer::readLine: Buffer not open" );
+	return -1;
+    }
+    if ( !isReadable() ) {			// reading not permitted
+	warning( "QBuffer::readLine: Read operation not permitted" );
+	return -1;
+    }
+#endif
+    if ( maxlen == 0 )
+	return 0;
+    int  start = index;
+    char *d = a.data() + index;
+    maxlen--;					// need room for 0-terminator
+    if ( a.size() - index < maxlen )
+	maxlen = a.size() - index;
+    while ( maxlen-- ) {
+	if ( (*p++ = *d++) == '\n' )
+	    break;	
+    }
+    *p = '\0';
+    index = d - a.data();
+    return index - start;
 }
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#6 $
 **
 ** Implementation of QFile class
 **
 ** Author  : Haavard Nord
 ** Created : 930812
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#6 $";
 #endif
 
 
@@ -493,6 +493,30 @@ int QFile::writeBlock( const char *p, uint len ) // write data to file
     if ( index > length )			// update file length
 	length = index;
     return nwritten;
+}
+
+int QFile::readLine( char *p, uint maxlen )	// read data from file
+{
+#if defined(CHECK_STATE)
+    CHECK_PTR( p );
+    if ( !isOpen() ) {				// file not open
+	warning( "QFile::readLine: File not open" );
+	return -1;
+    }
+    if ( !isReadable() ) {			// reading not permitted
+	warning( "QFile::readLine: Read operation not permitted" );
+	return -1;
+    }
+#endif
+    int nread;					// number of bytes read
+    if ( isRaw() )				// raw file
+	nread = QIODevice::readLine( p, maxlen );
+    else {					// buffered file
+	p = fgets( p, maxlen, fh );
+	nread = p ? strlen( p ) : 0;
+    }
+    index += nread;
+    return nread;
 }
 
 
