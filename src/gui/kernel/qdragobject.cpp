@@ -1025,21 +1025,29 @@ QImageDrag::~QImageDrag()
 void QImageDrag::setImage(QImage image)
 {
     d->img = image; // ### detach?
-    d->ofmts = QImage::outputFormats();
-    d->ofmts.removeAll("PBM"); // remove non-raw PPM
+    QList<QByteArray> formats = QImage::outputFormats();
+    formats.removeAll("PBM"); // remove non-raw PPM
     if (image.depth()!=32) {
         // BMP better than PPM for paletted images
-        if (d->ofmts.removeAll("BMP")) // move to front
-            d->ofmts.insert(0,"BMP");
+        if (formats.removeAll("BMP")) // move to front
+            formats.insert(0,"BMP");
     }
     // PNG is best of all
-    if (d->ofmts.removeAll("PNG")) // move to front
-        d->ofmts.insert(0,"PNG");
+    if (formats.removeAll("PNG")) // move to front
+        formats.insert(0,"PNG");
 
     if(cacheType == QMimeSource::NoCache) { //cache it
         cacheType = QMimeSource::Graphics;
         cache.gfx.img = new QImage(d->img);
         cache.gfx.pix = 0;
+    }
+    for(int i = 0; i < formats.count(); i++) {
+        QByteArray format("image/");
+        format += formats.at(i);
+        format = format.toLower();
+        if (format == "image/pbmraw")
+            format = "image/ppm";
+        d->ofmts.append(format);
     }
 }
 
@@ -1048,17 +1056,7 @@ void QImageDrag::setImage(QImage image)
 */
 const char * QImageDrag::format(int i) const
 {
-    if (i < d->ofmts.count()) {
-        static const QByteArray img("image/");
-        QByteArray str(img);
-        str += d->ofmts.at(i);
-        str = str.toLower();
-        if (str == "image/pbmraw")
-            str = "image/ppm";
-        return str;
-    } else {
-        return 0;
-    }
+    return i < d->ofmts.count() ? d->ofmts.at(i).data() : 0;
 }
 
 /*!
