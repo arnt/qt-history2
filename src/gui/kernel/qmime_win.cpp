@@ -32,7 +32,6 @@
 #include "qtextdocument.h"
 #include "qdir.h"
 
-#define QT_NO_IMAGEIO_BMP
 #ifndef QT_NO_IMAGEIO_BMP
 extern bool qt_read_dib(QDataStream&, QImage&); // qimage.cpp
 extern bool qt_write_dib(QDataStream&, QImage);   // qimage.cpp
