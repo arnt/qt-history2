@@ -187,10 +187,10 @@ void QTitleBar::readColors()
 #define COLOR_GRADIENTINACTIVECAPTION 28
 #endif
     if ( QApplication::desktopSettingsAware() ) {
-	pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
-	pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
-	pal.setColor( QPalette::Active, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
-	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
+	pal.setColor( QPalette::Active, QPalette::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
+	pal.setColor( QPalette::Inactive, QPalette::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
+	pal.setColor( QPalette::Active, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
+	pal.setColor( QPalette::Inactive, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
 	if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
 	    colorsInitialized = TRUE;
 	    BOOL gradient;
@@ -200,21 +200,26 @@ void QTitleBar::readColors()
 		SystemParametersInfoA( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 	    } );
 	    if ( gradient ) {
-		pal.setColor( QPalette::Active, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) );
-		pal.setColor( QPalette::Inactive, QColorGroup::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)) );
+		pal.setColor( QPalette::Active, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) );
+		pal.setColor( QPalette::Inactive, QPalette::Base, qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION)) );
 	    } else {
-		pal.setColor( QPalette::Active, QColorGroup::Base, palette().active().highlight() );
-		pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().highlight() );
+		pal.setColor( QPalette::Active, QPalette::Base, palette().active().highlight() );
+		pal.setColor( QPalette::Inactive, QPalette::Base, palette().inactive().highlight() );
 	    }
 	}
     }
 #endif // Q_WS_WIN
     if ( !colorsInitialized ) {
-	pal.setColor( QPalette::Active, QColorGroup::Highlight, palette().active().highlight() );
-	pal.setColor( QPalette::Active, QColorGroup::Base, palette().active().highlight() );
-	pal.setColor( QPalette::Inactive, QColorGroup::Highlight, palette().inactive().dark() );
-	pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().dark() );
-	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, palette().inactive().background() );
+	pal.setColor( QPalette::Active, QPalette::Highlight, 
+		      pal.color(QPalette::Active, QPalette::Highlight ));
+	pal.setColor( QPalette::Active, QPalette::Base, 
+		      pal.color(QPalette::Active, QPalette::Highlight ));
+	pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+		      pal.color(QPalette::Inactive, QPalette::Dark ));
+	pal.setColor( QPalette::Inactive, QPalette::Base, 
+		      pal.color(QPalette::Inactive, QPalette::Dark ));
+	pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+		      pal.color(QPalette::Inactive, QPalette::Background ));
     }
 
     setPalette( pal );
@@ -448,12 +453,12 @@ void QTitleBar::paintEvent(QPaintEvent *)
 
     QSharedDoubleBuffer buffer( this, rect() );
     style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
-			       colorGroup(),
+			       palette(),
 			       isEnabled() ? QStyle::Style_Enabled :
 			       QStyle::Style_Default, ctrls, d->buttonDown);
     if(under_mouse != QStyle::SC_None)
 	style().drawComplexControl(QStyle::CC_TitleBar, buffer.painter(), this, rect(),
-				   colorGroup(),
+				   palette(),
 				   QStyle::Style_MouseOver |
 				   (isEnabled() ? QStyle::Style_Enabled : 0),
 				   under_mouse, d->buttonDown);

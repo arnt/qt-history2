@@ -133,24 +133,24 @@ public:
     }
 
     virtual void drawItem( QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &g, bool enabled,
+			   int flags, const QPalette &pal, bool enabled,
 			   const QString &text, int len = -1,
 			   const QColor *penColor = 0 ) const;
 
     virtual void drawItem( QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &g, bool enabled,
+			   int flags, const QPalette &pal, bool enabled,
 			   const QPixmap &pixmap,
 			   const QColor *penColor = 0 ) const;
 
     void drawItem( QPainter *p, const QRect &r,
-		   int flags, const QColorGroup &g, bool enabled,
+		   int flags, const QPalette &pal, bool enabled,
 		   const QPixmap *pixmap,
 		   const QString &text, int len = -1,
 		   const QColor *penColor = 0 ) const {
 	if (pixmap)
-	    drawItem(p, r, flags, g, enabled, *pixmap, penColor);
+	    drawItem(p, r, flags, pal, enabled, *pixmap, penColor);
 	else
-	    drawItem(p, r, flags, g, enabled, text, len, penColor);
+	    drawItem(p, r, flags, pal, enabled, text, len, penColor);
     }
 
     enum PrimitiveElement {
@@ -251,10 +251,8 @@ public:
     typedef uint SFlags;
 
     virtual void drawPrimitive( PrimitiveElement pe,
-				QPainter *p,
-				const QRect &r,
-				const QColorGroup &cg,
-				SFlags flags = Style_Default,
+				QPainter *p, const QRect &r,
+				const QPalette &pal, SFlags flags = Style_Default,
 				const QStyleOption& = QStyleOption::Default ) const = 0;
 
 
@@ -296,7 +294,7 @@ public:
 			      QPainter *p,
 			      const QWidget *widget,
 			      const QRect &r,
-			      const QColorGroup &cg,
+			      const QPalette &pal,
 			      SFlags how = Style_Default,
 			      const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual void drawControlMask( ControlElement element,
@@ -413,7 +411,7 @@ public:
 				     QPainter *p,
 				     const QWidget *widget,
 				     const QRect &r,
-				     const QColorGroup &cg,
+				     const QPalette &pal,
 				     SFlags how = Style_Default,
 				     SCFlags sub = SC_All,
 				     SCFlags subActive = SC_None,

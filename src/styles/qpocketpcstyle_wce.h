@@ -44,7 +44,7 @@ public:
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
-			const QColorGroup &cg,
+			const QPalette &pal,
 			SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 
@@ -52,7 +52,7 @@ public:
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
-		      const QColorGroup &cg,
+		      const QPalette &pal,
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
@@ -60,7 +60,7 @@ public:
 			     QPainter* p,
 			     const QWidget* widget,
 			     const QRect& r,
-			     const QColorGroup& cg,
+			     const QPalette& pal,
 			     SFlags how = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,

@@ -278,13 +278,14 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
-    const QColorGroup &cg = QApplication::palette().active();
-//    const QColorGroup &cg = widget->palette().active();
+    QPalette pal = QApplication::palette();
+    //QPalette pal = w->palette();
+    pal.setCurrentColorGroup(QPalette::Active);
 
 #if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, cg, FALSE,
-		  &cg.brush(QColorGroup::Background));
+		  br.height() - 4, pal, FALSE,
+		  &pal.brush(QPalette::Background));
 #endif
 
     painter->setClipRegion( oldClip );
@@ -295,11 +296,11 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
 	int    titleLeft = titleHeight + 4;
 
 	if (widget == qApp->activeWindow()) {
-	    titleBrush = cg.brush(QColorGroup::Highlight);
-	    titlePen   = cg.color(QColorGroup::HighlightedText);
+	    titleBrush = pal.brush(QPalette::Highlight);
+	    titlePen   = pal.color(QPalette::HighlightedText);
 	} else {
-	    titleBrush = cg.brush(QColorGroup::Background);
-	    titlePen   = cg.color(QColorGroup::Text);
+	    titleBrush = pal.brush(QPalette::Background);
+	    titlePen   = pal.color(QPalette::Text);
 	}
 
 #define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
@@ -353,8 +354,10 @@ void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
 			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
-    const QColorGroup &cg = QApplication::palette().active();
-//    const QColorGroup &cg = w->palette().active();
+    QPalette pal = QApplication::palette();
+    //QPalette pal = w->palette();
+    pal.setCurrentColorGroup(QPalette::Active);
+
     QRect brect(region(w, w->rect(), type).boundingRect());
     int xoff=2;
     int yoff=2;
@@ -362,7 +365,8 @@ void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked))
 	xoff++, yoff++;
     if (type != Menu)
-	painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15, cg.brush(QColorGroup::Background));
+	painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15, 
+			  pal.brush(QPalette::Background));
     if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, *pm);
 #endif
 }

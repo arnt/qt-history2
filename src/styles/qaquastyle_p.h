@@ -99,12 +99,9 @@ private slots:
 /*
   Hackish method of finding out whether the window is active or not
  */
-static inline bool qAquaActive( const QColorGroup & g )
+static inline bool qAquaActive( const QPalette &pal )
 {
-    if( g.link() == QColor( 148,148,148 ) )
-        return FALSE;
-    else
-        return TRUE;
+    return (pal.currentColorGroup() == QPalette::Active);
 }
 
 /* 

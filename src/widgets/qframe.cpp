@@ -200,8 +200,7 @@ static const int wpwidth = 2; // WinPanel lwidth
     VLine frames. The mid-color of the current color group is used for
     drawing middle lines.
 
-    \sa \link #picture Illustration\endlink, frameStyle(),
-    colorGroup(), QColorGroup
+    \sa \link #picture Illustration\endlink, frameStyle()
 */
 
 void QFrame::setFrameStyle( int style )
@@ -547,7 +546,7 @@ void QFrame::drawFrame( QPainter *p )
     p->setPen( black ); // ####
     p->drawRect( r ); //### a bit too simple
 #else
-    const QColorGroup & g = colorGroup();
+    const QPalette &pal = palette();
 
 #ifndef QT_NO_STYLE
     QStyleOption opt(lineWidth(),midLineWidth());
@@ -569,42 +568,42 @@ void QFrame::drawFrame( QPainter *p )
 
     case Box:
         if ( cstyle == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, r, pal.foreground(), lwidth );
         else
-            qDrawShadeRect( p, r, g, cstyle == Sunken, lwidth,
+            qDrawShadeRect( p, r, pal, cstyle == Sunken, lwidth,
                             midLineWidth() );
         break;
 
     case LineEditPanel:
-	style().drawPrimitive( QStyle::PE_PanelLineEdit, p, r, g, flags, opt );
+	style().drawPrimitive( QStyle::PE_PanelLineEdit, p, r, pal, flags, opt );
 	break;
 
     case GroupBoxPanel:
-	style().drawPrimitive( QStyle::PE_PanelGroupBox, p, r, g, flags, opt );
+	style().drawPrimitive( QStyle::PE_PanelGroupBox, p, r, pal, flags, opt );
 	break;
 
     case TabWidgetPanel:
-	style().drawPrimitive( QStyle::PE_PanelTabWidget, p, r, g, flags, opt );
+	style().drawPrimitive( QStyle::PE_PanelTabWidget, p, r, pal, flags, opt );
 	break;
 
     case MenuBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, g, flags, opt);
+	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, pal, flags, opt);
 	break;
 #endif // fall through to Panel if QT_NO_STYLE
 
     case ToolBarPanel:
 #ifndef QT_NO_STYLE
-	style().drawPrimitive( QStyle::PE_PanelDockWindow, p, rect(), g, flags, opt);
+	style().drawPrimitive( QStyle::PE_PanelDockWindow, p, rect(), pal, flags, opt);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
     case StyledPanel:
 #ifndef QT_NO_STYLE
         if ( cstyle == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, r, pal.foreground(), lwidth );
         else
-	    style().drawPrimitive(QStyle::PE_Panel, p, r, g, flags, opt);
+	    style().drawPrimitive(QStyle::PE_Panel, p, r, pal, flags, opt);
         break;
 #endif // fall through to Panel if QT_NO_STYLE
 
@@ -619,41 +618,41 @@ void QFrame::drawFrame( QPainter *p )
 	    if(vextra > 0) {
 		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
-				    g, flags, opt);
+				    pal, flags, opt);
 		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
-				    g, flags, opt);
+				    pal, flags, opt);
 	    }
 	    if(hextra > 0) {
 		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
-				    g, flags, opt);
+				    pal, flags, opt);
 		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
 				    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
-				    g, flags, opt);
+				    pal, flags, opt);
 	    }
 	}
 
         if ( cstyle == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, r, pal.foreground(), lwidth );
         else
-	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, g, flags, opt);
+	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, pal, flags, opt);
         break;
     }
 #endif // fall through to Panel if QT_NO_STYLE
 
     case Panel:
         if ( cstyle == Plain )
-            qDrawPlainRect( p, r, g.foreground(), lwidth );
+            qDrawPlainRect( p, r, pal.foreground(), lwidth );
         else
-            qDrawShadePanel( p, r, g, cstyle == Sunken, lwidth );
+            qDrawShadePanel( p, r, pal, cstyle == Sunken, lwidth );
         break;
 
     case WinPanel:
         if ( cstyle == Plain )
-            qDrawPlainRect( p, r, g.foreground(), wpwidth );
+            qDrawPlainRect( p, r, pal.foreground(), wpwidth );
         else
-            qDrawWinPanel( p, r, g, cstyle == Sunken );
+            qDrawWinPanel( p, r, pal, cstyle == Sunken );
         break;
     case HLine:
     case VLine:
@@ -667,12 +666,12 @@ void QFrame::drawFrame( QPainter *p )
         }
         if ( cstyle == Plain ) {
             QPen oldPen = p->pen();
-            p->setPen( QPen(g.foreground(),lwidth) );
+            p->setPen( QPen(pal.foreground(),lwidth) );
             p->drawLine( p1, p2 );
             p->setPen( oldPen );
         }
         else
-            qDrawShadeLine( p, p1, p2, g, cstyle == Sunken,
+            qDrawShadeLine( p, p1, p2, pal, cstyle == Sunken,
                             lwidth, midLineWidth() );
         break;
     }

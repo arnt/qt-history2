@@ -181,7 +181,7 @@ QSize QToolBoxButton::minimumSizeHint() const
 void QToolBoxButton::drawButton( QPainter *p )
 {
     QStyle::SFlags flags = QStyle::Style_Default;
-    const QColorGroup &cg = colorGroup();
+    const QPalette &pal = palette();
 
     if ( isEnabled() )
 	flags |= QStyle::Style_Enabled;
@@ -191,7 +191,7 @@ void QToolBoxButton::drawButton( QPainter *p )
 	flags |= QStyle::Style_HasFocus;
     if (isDown())
 	flags |= QStyle::Style_Down;
-    style().drawControl( QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), cg, flags );
+    style().drawControl( QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), pal, flags );
 
     QPixmap pm = icon.pixmap( QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled );
 
@@ -236,13 +236,13 @@ void QToolBoxButton::drawButton( QPainter *p )
     if ( selected &&
 	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
 	 tb->backgroundMode() != NoBackground )
-	fill = &cg.color( QPalette::foregroundRoleFromMode( tb->backgroundMode() ) );
+	fill = &pal.color( QPalette::foregroundRoleFromMode( tb->backgroundMode() ) );
 
-    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, cg,
+    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, pal,
 		      isEnabled(), 0, txt, -1, fill );
 
     if ( !txt.isEmpty() && hasFocus() )
-	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, cg );
+	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, pal );
 }
 
 /*!

@@ -113,26 +113,26 @@ void QPocketPCStyle::polish( QApplication* )
 */
 
     QPalette pal = QApplication::palette();
-    pal.setColor( QColorGroup::Background, pal.active().light() );
+    pal.setColor( QPalette::Background, pal.active().light() );
     // darker basecolor in list-widgets
-//    pal.setColor( QColorGroup::Base, pal.active().base().dark(130) );
+//    pal.setColor( QPalette::Base, pal.active().base().dark(130) );
 /*
 // ####### Temp comment to fix bug in QApp ctor. Uncomment when fixed
     QApplication::setPalette( pal, TRUE );
     pal = QApplication::palette();
-    pal.setColor( QColorGroup::Button, pal.active().midlight() ); // background() );
+    pal.setColor( QPalette::Button, pal.active().midlight() ); // background() );
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
 */
 /*
     // different basecolor and highlighting in Q(Multi)LineEdit
-    pal.setColor( QColorGroup::Base, QColor(211,181,181) );
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, pal.active().midlight() );
-    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, pal.active().text() );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, pal.inactive().midlight() );
-    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, pal.inactive().text() );
-    pal.setColor( QPalette::Disabled, QColorGroup::Highlight, pal.disabled().midlight() );
-    pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, pal.disabled().text() );
+    pal.setColor( QPalette::Base, QColor(211,181,181) );
+    pal.setColor( QPalette::Active, QPalette::Highlight, pal.active().midlight() );
+    pal.setColor( QPalette::Active, QPalette::HighlightedText, pal.active().text() );
+    pal.setColor( QPalette::Inactive, QPalette::Highlight, pal.inactive().midlight() );
+    pal.setColor( QPalette::Inactive, QPalette::HighlightedText, pal.inactive().text() );
+    pal.setColor( QPalette::Disabled, QPalette::Highlight, pal.disabled().midlight() );
+    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, pal.disabled().text() );
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
     QApplication::setPalette( pal, TRUE, "QMultiLineEdit" );
 */
@@ -157,11 +157,8 @@ void QPocketPCStyle::unPolish( QApplication* )
 
 /*! \reimp */
 void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
-				   QPainter *p,
-				   const QRect &r,
-				   const QColorGroup &cg,
-				   SFlags flags,
-				   const QStyleOption& opt ) const
+				   QPainter *p, const QRect &r, const QPalette &cg,
+				   SFlags flags, const QStyleOption& opt ) const
 {
     static const QCOORD radioOutline[] = { 1,3, 3,1, 4,1, 5,0, 9,0, 10,1, 11,1, 13,3, 13,4, 14,5,
 	14,9, 13,10, 13,11, 11,13, 10,13, 9,14, 5,14, 4,13, 3,13, 1,11, 1,10, 0,9, 0,5, 1,4, 1,3 };
@@ -193,7 +190,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
     case PE_PanelLineEdit:
     case PE_PanelTabWidget:
     case PE_WindowFrame:
-	qDrawShadePanel(p, r, cg, (flags & Style_Sunken),
+	qDrawShadePanel(p, r, pal, (flags & Style_Sunken),
 	    opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth());
 	break;
      case PE_HeaderSection:
@@ -245,14 +242,14 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	    p->drawPolyline( CreateQPointArray( radioDot ) );
 	break;
     case PE_ScrollBarSubLine:
-        drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & Style_Enabled) |
+        drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) |
 			  ((flags & Style_Down) ? Style_Down : Style_Raised));
-	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp), p, r, cg, flags);
+	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp), p, r, pal, flags);
 	break;
     case PE_ScrollBarAddLine:
-        drawPrimitive(PE_ButtonBevel, p, r, cg, (flags & Style_Enabled) |
+        drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) |
 			  ((flags & Style_Down) ? Style_Down : Style_Raised));
-	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown), p, r, cg, flags);
+	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown), p, r, pal, flags);
 	break;
     case PE_ScrollBarAddPage:
     case PE_ScrollBarSubPage:
@@ -306,21 +303,21 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	p->save();
 	if ( flags & Style_Down ) {
 	    QPointArray pa( 3 );
-	    p->setPen( cg.light() );
+	    p->setPen( pal.light() );
 	    p->drawLine( r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height() );
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    pa.setPoint( 0, r.x() + r.width() / 2, r.height() );
 	    pa.setPoint( 1, r.x(), r.y() );
 	    pa.setPoint( 2, r.x() + r.width(), r.y() );
 	    p->drawPolyline( pa );
 	} else {
 	    QPointArray pa( 3 );
-	    p->setPen( cg.light() );
+	    p->setPen( pal.light() );
 	    pa.setPoint( 0, r.x(), r.height() );
 	    pa.setPoint( 1, r.x() + r.width(), r.height() );
 	    pa.setPoint( 2, r.x() + r.width() / 2, r.y() );
 	    p->drawPolyline( pa );
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    p->drawLine( r.x(), r.height(), r.x() + r.width() / 2, r.y() );
 	}
 	p->restore();
@@ -335,9 +332,9 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
 
-	p->fillRect( br, cg.brush( QColorGroup::Button ) );
-	p->setPen( cg.buttonText() );
-	p->setBrush( cg.buttonText() );
+	p->fillRect( br, pal.brush( QPalette::Button ) );
+	p->setPen( pal.buttonText() );
+	p->setBrush( pal.buttonText() );
 
 	int length;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
@@ -366,7 +363,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	QRect br;
 	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 		    r.height() - fw*2 );
-	p->fillRect( br, cg.brush( QColorGroup::Button ) );
+	p->fillRect( br, pal.brush( QPalette::Button ) );
 	int x = r.x(), y = r.y(), w = r.width(), h = r.height();
 	int sw = w-4;
 	if ( sw < 3 )
@@ -391,8 +388,8 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	    bsy = pixelMetric(PM_ButtonShiftVertical);
 	}
 	p->translate( sx + bsx, sy + bsy );
-	p->setPen( cg.buttonText() );
-	p->setBrush( cg.buttonText() );
+	p->setPen( pal.buttonText() );
+	p->setBrush( pal.buttonText() );
 	p->drawPolygon( a );
 	p->restore();
 	break; }
@@ -405,16 +402,16 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	if ( flags & Style_Vertical ) {
 	    if ( r.width() > 4 ) {
 		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
+				 pal, highlight, 1, 0 );
 		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
-				 cg, highlight, 1, 0 );
+				 pal, highlight, 1, 0 );
 	    }
 	} else {
 	    if ( r.height() > 4 ) {
 		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
+				 pal, highlight, 1, 0 );
 		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
-				 cg, highlight, 1, 0 );
+				 pal, highlight, 1, 0 );
 	    }
 	}
 	p->restore();
@@ -430,14 +427,14 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	    p1 = QPoint( r.width()/2, 0 );
 	    p2 = QPoint( p1.x(), r.height() );
 	}
-	qDrawShadeLine( p, p1, p2, cg, 1, 1, 0 );
+	qDrawShadeLine( p, p1, p2, pal, 1, 1, 0 );
 	break; }
 
     case PE_PanelDockWindow: {
 	int lw = opt.isDefault() ? pixelMetric(PM_DockWindowFrameWidth)
 			: opt.lineWidth();
 
-	qDrawShadePanel(p, r, cg, FALSE, lw);
+	qDrawShadePanel(p, r, pal, FALSE, lw);
 	break; }
 
     case PE_SizeGrip: {
@@ -459,22 +456,22 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	if ( QApplication::reverseLayout() ) {
 	    sx = x + sw;
 	    for ( int i = 0; i < 4; ++i ) {
-		p->setPen( QPen( cg.light(), 1 ) );
+		p->setPen( QPen( pal.light(), 1 ) );
 		p->drawLine(  x, sy - 1 , sx + 1,  sw );
-		p->setPen( QPen( cg.dark(), 1 ) );
+		p->setPen( QPen( pal.dark(), 1 ) );
 		p->drawLine(  x, sy, sx,  sw );
-		p->setPen( QPen( cg.dark(), 1 ) );
+		p->setPen( QPen( pal.dark(), 1 ) );
 		p->drawLine(  x, sy + 1, sx - 1,  sw );
 		sx -= s;
 		sy += s;
 	    }
 	} else {
 	    for ( int i = 0; i < 4; ++i ) {
-		p->setPen( QPen( cg.light(), 1 ) );
+		p->setPen( QPen( pal.light(), 1 ) );
 		p->drawLine(  sx-1, sw, sw,  sy-1 );
-		p->setPen( QPen( cg.dark(), 1 ) );
+		p->setPen( QPen( pal.dark(), 1 ) );
 		p->drawLine(  sx, sw, sw,  sy );
-		p->setPen( QPen( cg.dark(), 1 ) );
+		p->setPen( QPen( pal.dark(), 1 ) );
 		p->drawLine(  sx+1, sw, sw,  sy+1 );
 		sx += s;
 		sy += s;
@@ -508,7 +505,7 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	}
 	if ( !(flags & Style_Enabled) && !(flags & Style_On)) {
 	    int pnt;
-	    p->setPen( cg.highlightedText() );
+	    p->setPen( pal.highlightedText() );
 	    QPoint offset(1,1);
 	    for ( pnt = 0; pnt < (int)a.size(); pnt++ )
 		a[pnt] += offset;
@@ -516,19 +513,19 @@ void QPocketPCStyle::drawPrimitive( PrimitiveElement pe,
 	    for ( pnt = 0; pnt < (int)a.size(); pnt++ )
 		a[pnt] -= offset;
 	}
-	p->setPen( cg.text() );
+	p->setPen( pal.text() );
 	p->drawLineSegments( a );
 	break; }
 
     case PE_ProgressBarChunk:
 	p->fillRect( r.x(), r.y() + 3, r.width() -2, r.height() - 6,
-	    cg.brush(QColorGroup::Highlight));
+	    pal.brush(QPalette::Highlight));
 	break;
 */
 
 
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( pe, p, r, pal, flags, opt );
 	break;
     }
 }
@@ -541,7 +538,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 				 QPainter *p,
 				 const QWidget *widget,
 				 const QRect &r,
-				 const QColorGroup &cg,
+				 const QPalette &pal,
 				 SFlags how,
 				 const QStyleOption& opt ) const
 {
@@ -571,7 +568,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    if (! button->isFlat() && ! (flags & Style_Down))
 		flags |= Style_Raised;
 
-	    drawPrimitive(PE_ButtonCommand, p, br, cg, flags);
+	    drawPrimitive(PE_ButtonCommand, p, br, pal, flags);
 	    break;
 	}
 /*
@@ -587,7 +584,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    if (button->isMenuButton()) {
 		int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 		QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
-		drawPrimitive(PE_ArrowDown, p, ar, cg, flags, opt);
+		drawPrimitive(PE_ArrowDown, p, ar, pal, flags, opt);
 		ir.setWidth(ir.width() - mbi);
 	    }
 
@@ -610,7 +607,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		ir.setWidth(ir.width() - pixw + 4);
 	    }
 
-	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
+	    drawItem(p, ir, AlignCenter | ShowPrefix, pal,
 		     flags & Style_Enabled, button->pixmap(), button->text(),
 		     button->text().length(), (flags & Style_Sunken) ? &Qt::white : &Qt::black );
 
@@ -657,11 +654,11 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		tr.setBottom( tr.bottom() -
 			      pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
 
-	    drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() &&
+	    drawItem( p, tr, AlignCenter | ShowPrefix, pal, tb->isEnabled() &&
 		      t->isEnabled(), 0, t->text() );
 
 	    //if ( has_focus )
-		//drawPrimitive( PE_FocusRect, p, r, cg );
+		//drawPrimitive( PE_FocusRect, p, r, pal );
 	    break;
 	}
 #endif // QT_NO_TABBAR
@@ -693,16 +690,16 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    int checkcol = maxpmw;
 
 	    if ( mi && mi->isSeparator() ) {                    // draw separator
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( x, y, x+w, y );
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawLine( x, y+1, x+w, y+1 );
 		return;
 	    }
 
 	    QBrush fill = (act ?
-			   cg.brush( QColorGroup::Highlight ) :
-			   cg.brush( QColorGroup::Button ));
+			   pal.brush( QPalette::Highlight ) :
+			   pal.brush( QPalette::Button ));
 	    p->fillRect( x, y, w, h, fill);
 
 	    if ( !mi )
@@ -712,14 +709,14 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    if ( mi->isChecked() ) {
 		if ( act && !dis )
 		    qDrawShadePanel( p, xpos, y, checkcol, h,
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+				     pal, TRUE, 1, &pal.brush( QPalette::Button ) );
 		else {
-		    QBrush fill( cg.light(), Dense4Pattern );
-		    qDrawShadePanel( p, xpos, y, checkcol, h, cg, TRUE, 1,
+		    QBrush fill( pal.light(), Dense4Pattern );
+		    qDrawShadePanel( p, xpos, y, checkcol, h, pal, TRUE, 1,
 				     &fill );
 		}
 	    } else if (! act)
-		p->fillRect(xpos, y, checkcol , h, cg.brush( QColorGroup::Button ));
+		p->fillRect(xpos, y, checkcol , h, pal.brush( QPalette::Button ));
 
 	    if ( mi->iconSet() ) {              // draw iconset
 		QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
@@ -733,17 +730,17 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
 		if ( act && !dis && !mi->isChecked() )
-		    qDrawShadePanel( p, xpos, y, checkcol, h, cg, FALSE, 1,
-				     &cg.brush( QColorGroup::Button ) );
+		    qDrawShadePanel( p, xpos, y, checkcol, h, pal, FALSE, 1,
+				     &pal.brush( QPalette::Button ) );
 		QRect cr( xpos, y, checkcol, h );
 		QRect pmr( 0, 0, pixw, pixh );
 		pmr.moveCenter( cr.center() );
-		p->setPen( cg.text() );
+		p->setPen( pal.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 
 		fill = (act ?
-			cg.brush( QColorGroup::Highlight ) :
-			cg.brush( QColorGroup::Button ));
+			pal.brush( QPalette::Highlight ) :
+			pal.brush( QPalette::Button ));
 		int xp;
 		xp = xpos + checkcol + 1;
 		p->fillRect( xp, y, w - checkcol - 1, h, fill);
@@ -760,15 +757,15 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		    drawPrimitive(PE_CheckMark, p,
 				  QRect(xp, y + pocketpcItemFrame,
 					checkcol - 2*pocketpcItemFrame,
-					h - 2*pocketpcItemFrame), cg, cflags);
+					h - 2*pocketpcItemFrame), pal, cflags);
 		}
 	    }
 
-	    p->setPen( act ? cg.highlightedText() : cg.buttonText() );
+	    p->setPen( act ? pal.highlightedText() : pal.buttonText() );
 
 	    QColor discol;
 	    if ( dis ) {
-		discol = cg.text();
+		discol = pal.text();
 		p->setPen( discol );
 	    }
 
@@ -779,12 +776,12 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		int m = pocketpcItemVMargin;
 		p->save();
 		if ( dis && !act ) {
-		    p->setPen( cg.light() );
-		    mi->custom()->paint( p, cg, act, !dis,
+		    p->setPen( pal.light() );
+		    mi->custom()->paint( p, pal, act, !dis,
 					 xpos+1, y+m+1, w-xm-tab+1, h-2*m );
 		    p->setPen( discol );
 		}
-		mi->custom()->paint( p, cg, act, !dis,
+		mi->custom()->paint( p, pal, act, !dis,
 				     x+xm, y+m, w-xm-tab+1, h-2*m );
 		p->restore();
 	    }
@@ -798,7 +795,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		    xp = x + w - tab - pocketpcRightBorder - pocketpcItemHMargin -
 			 pocketpcItemFrame + 1;
 		    if ( dis && !act ) {
-			p->setPen( cg.light() );
+			p->setPen( pal.light() );
 			p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
 			p->setPen( discol );
 		    }
@@ -806,7 +803,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		    s = s.left( t );
 		}
 		if ( dis && !act ) {
-		    p->setPen( cg.light() );
+		    p->setPen( pal.light() );
 		    p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
 		    p->setPen( discol );
 		}
@@ -827,16 +824,14 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		if ( act ) {
 		    if ( !dis )
 			discol = white;
-		    QColorGroup g2( discol, cg.highlight(),
-				    white, white,
-				    dis ? discol : white,
-				    discol, white );
+		    QPalette pal2( discol, pal.highlight(), white, white,
+				    dis ? discol : white,discol, white );
 
 		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-				  g2, Style_Enabled);
+				  pal2, Style_Enabled);
 		} else {
 		    drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
-				  cg, mi->isEnabled() ? Style_Enabled : Style_Default);
+				  pal, mi->isEnabled() ? Style_Enabled : Style_Default);
 		}
 	    }
 
@@ -851,14 +846,14 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    bool down = how & Style_Down;
 	    QRect pr = r;
 
-	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	    p->fillRect( r, pal.brush( QPalette::Button ) );
 	    if ( active || hasFocus ) {
-		QBrush b = cg.brush( QColorGroup::Button );
+		QBrush b = pal.brush( QPalette::Button );
 		if ( active && down )
 		    p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
 		if ( active && hasFocus )
 		    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(),
-				    cg, active && down, 1, 0, &b );
+				    pal, active && down, 1, 0, &b );
 		if ( active && down ) {
 		    pr.setRect( r.x() + 2 + pixelMetric(PM_ButtonShiftHorizontal,
 							widget),
@@ -872,10 +867,10 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		break;
 
 	    QMenuItem *mi = opt.menuItem();
-	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, cg,
+	    drawItem( p, r, AlignCenter|ShowPrefix|DontClip|SingleLine, pal,
 		      mi->isEnabled(), mi->pixmap(), mi->text(), -1,
-		      &cg.buttonText() );
-	    //QCommonStyle::drawControl(element, p, widget, pr, cg, how, opt);
+		      &pal.buttonText() );
+	    //QCommonStyle::drawControl(element, p, widget, pr, pal, how, opt);
 	    break;
 	}
 
@@ -903,7 +898,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    else if (checkbox->state() == QButton::NoChange)
 		flags |= Style_NoChange;
 
-	    drawPrimitive(PE_Indicator, p, ir, cg, flags, opt);
+	    drawPrimitive(PE_Indicator, p, ir, pal, flags, opt);
 	    break;
 	}
 
@@ -912,13 +907,13 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
 		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
 	    if (checkbox->hasFocus()) {
 		QRect fr = subRect(SR_CheckBoxFocusRect, widget);
 		fr.moveBy(r.left() - 1, r.top());
-		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
+		drawPrimitive(PE_FocusRect, p, fr, pal, flags);
 	    }
 	    break;
 	}
@@ -945,7 +940,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    else if (radiobutton->state() == QButton::Off)
 		flags |= Style_Off;
 
-	    drawPrimitive(PE_ExclusiveIndicator, p, ir, cg, flags, opt);
+	    drawPrimitive(PE_ExclusiveIndicator, p, ir, pal, flags, opt);
 	    break;
 	}
 
@@ -954,13 +949,13 @@ void QPocketPCStyle::drawControl( ControlElement element,
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
 		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
 	    if (radiobutton->hasFocus()) {
 		QRect fr = subRect(SR_RadioButtonFocusRect, widget);
 		fr.moveBy(r.left() - 1, r.top());
-		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
+		drawPrimitive(PE_FocusRect, p, fr, pal, flags);
 	    }
 	    break;
 	}
@@ -983,7 +978,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		if (x > w)
 		    x = 2 * w - x;
 		x = reverse ? r.right() - x : x + r.x();
-		p->setPen( QPen(cg.highlight(), 4) );
+		p->setPen( QPen(pal.highlight(), 4) );
 		p->drawLine(x, r.y() + 1, x, r.height() - 2);
 	    } else {
 		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
@@ -1009,7 +1004,7 @@ void QPocketPCStyle::drawControl( ControlElement element,
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
-				   cg, Style_Default, opt );
+				   pal, Style_Default, opt );
 		    x += reverse ? -unit_width: unit_width;
 		}
 	    }
@@ -1019,14 +1014,14 @@ void QPocketPCStyle::drawControl( ControlElement element,
     case CE_ProgressBarLabel:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
-	    drawItem(p, r, AlignCenter | SingleLine, cg, progressbar->isEnabled(), 0,
+	    drawItem(p, r, AlignCenter | SingleLine, pal, progressbar->isEnabled(), 0,
 		     progressbar->progressString());
 	}
 	break;
 #endif // QT_NO_PROGRESSBAR
 
     default:
-	QWindowsStyle::drawControl(element, p, widget, r, cg, flags, opt);
+	QWindowsStyle::drawControl(element, p, widget, r, pal, flags, opt);
 
     }
 }
@@ -1811,7 +1806,7 @@ QPixmap QPocketPCStyle::stylePixmap(StylePixmap stylepixmap,
 void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
-					const QColorGroup &cg,
+					const QPalette &pal,
 					SFlags how,
 					SCFlags sub,
 					SCFlags subActive,
@@ -1833,16 +1828,16 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if ( subActive & Style_Sunken )
 		flags |= Style_Sunken;
 
-	    drawPrimitive( PE_ArrowDown, p, QRect( r.width() - 13, 0, 13, r.height() ), cg, flags );
+	    drawPrimitive( PE_ArrowDown, p, QRect( r.width() - 13, 0, 13, r.height() ), pal, flags );
 	}
 
 	if ( sub & SC_ComboBoxEditField ) {
 	    const QComboBox * cb = (const QComboBox *) widget;
 
 	    if ( cb->hasFocus() && !cb->editable() ) {
-		p->fillRect( QRect( r.x() + 2, r.y() + 2, r.width() - 18, r.height() - 4 ), cg.brush( QColorGroup::Highlight ) );
-		p->setPen( cg.highlightedText() );
-		p->setBackgroundColor( cg.highlight() );
+		p->fillRect( QRect( r.x() + 2, r.y() + 2, r.width() - 18, r.height() - 4 ), pal.brush( QPalette::Highlight ) );
+		p->setPen( pal.highlightedText() );
+		p->setBackgroundColor( pal.highlight() );
 	    }
 	}
 
@@ -1858,7 +1853,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_ListView:
 	{
 	    if ( sub & SC_ListView ) {
-		QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub, subActive, opt );
+		QWindowsStyle::drawComplexControl( ctrl, p, widget, r, pal, how, sub, subActive, opt );
 	    }
 	    if ( sub & ( SC_ListViewExpand | SC_ListViewBranch ) ) {
 		if (opt.isDefault())
@@ -1887,7 +1882,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    if ( (child->isExpandable() || child->childCount()) &&
 			 (child->height() > 0) ) {
 			// needs a box
-			p->setPen( cg.text() );
+			p->setPen( pal.text() );
 			p->drawRect( bx-4, linebot-4, 9, 9 );
 			// plus or minus
 			p->drawLine( bx - 2, linebot, bx + 2, linebot );
@@ -1920,7 +1915,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		    dotlines[c++] = QPoint( bx, linebot );
 		}
 
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 
 		static QBitmap *verticalLine = 0, *horizontalLine = 0;
 		static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
@@ -1997,11 +1992,11 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	switch ( sub ) {
 	case SC_SpinWidgetUp:
 	case SC_SpinWidgetDown:
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, pal, how,
 					      sub, subActive, opt );
 	    break;
 	case SC_SpinWidgetFrame:
-	    qDrawWinPanel( p, r, cg, TRUE );
+	    qDrawWinPanel( p, r, pal, TRUE );
 	    break;
 	}
 	break;
@@ -2035,14 +2030,14 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if ( ticks & QSlider::Below )
 		mid -= len / 8;
 
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    if ( sl->orientation() == Horizontal ) {
-		qDrawWinPanel( p, x, y + mid - 2,  wi, 4, cg, TRUE );
+		qDrawWinPanel( p, x, y + mid - 2,  wi, 4, pal, TRUE );
 		p->drawLine( x+1, y + mid - 1, x + wi - 3, y + mid - 1 );
 		((QSlider *) sl)->erase( 0, 0, sl->width(), tickOffset );
 		((QSlider *) sl)->erase( 0, tickOffset + thickness, sl->width(), sl->height() );
 	    } else {
-		qDrawWinPanel( p, x + mid - 2, y, 4, he, cg, TRUE );
+		qDrawWinPanel( p, x + mid - 2, y, 4, he, pal, TRUE );
 		p->drawLine( x + mid - 1, y + 1, x + mid - 1, y + he - 3 );
 		((QSlider *) sl)->erase( 0, 0,  tickOffset, sl->height() );
 		((QSlider *) sl)->erase( tickOffset + thickness, 0, sl->width(), sl->height() );
@@ -2050,7 +2045,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	if ( sub & SC_SliderTickmarks )
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, pal, how,
 					      SC_SliderTickmarks, subActive,
 					      opt );
 
@@ -2066,11 +2061,11 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    // ***0***
 	    enum  SliderDir { SlUp, SlDown, SlLeft, SlRight };
 
-	    const QColor c0 = cg.shadow();
-	    const QColor c1 = cg.dark();
+	    const QColor c0 = pal.shadow();
+	    const QColor c1 = pal.dark();
 	    //    const QColor c2 = g.button();
-	    const QColor c3 = cg.midlight();
-	    const QColor c4 = cg.light();
+	    const QColor c3 = pal.midlight();
+	    const QColor c4 = pal.light();
 
 	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle,
 					       opt );
@@ -2088,17 +2083,17 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    bool tickAbove = sl->tickmarks() == QSlider::Above;
 	    bool tickBelow = sl->tickmarks() == QSlider::Below;
 
-	    p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
+	    p->fillRect( x, y, wi, he, pal.brush( QPalette::Background ) );
 
 	    if ( (tickAbove && tickBelow) || (!tickAbove && !tickBelow) ) {
-		qDrawWinButton( p, QRect(x,y,wi,he), cg, FALSE,
-				&cg.brush( QColorGroup::Button ) );
+		qDrawWinButton( p, QRect(x,y,wi,he), pal, FALSE,
+				&pal.brush( QPalette::Button ) );
 		return;
 	    }
 
 	    if ( sl->hasFocus() ) {
 		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PE_FocusRect, p, re, cg );
+		drawPrimitive( PE_FocusRect, p, re, pal );
 	    }
 
 	    SliderDir dir;
@@ -2141,7 +2136,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 
 	    QBrush oldBrush = p->brush();
-	    p->setBrush( cg.brush( QColorGroup::Button ) );
+	    p->setBrush( pal.brush( QPalette::Button ) );
 	    p->setPen( NoPen );
 	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	    p->drawPolygon( a );
@@ -2262,7 +2257,7 @@ void QPocketPCStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 #endif // QT_NO_SLIDER
 
 	default:
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, how, sub,
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, pal, how, sub,
 					      subActive, opt );
 	break;
     }

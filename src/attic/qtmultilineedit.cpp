@@ -740,7 +740,7 @@ static QPixmap *getCacheBuffer( QSize sz )
 */
 void QtMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
-    const QColorGroup & g = colorGroup();
+    const QPalette & g = palette();
     QFontMetrics fm( painter->font() );
     QString s = stringShown(row);
     if ( s.isNull() ) {
@@ -815,7 +815,7 @@ void QtMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	p.setClipRect( fillxpos1 - updateR.left(), 0,
 		       fillxpos2 - fillxpos1, cellHeight(row) );
 	p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
-		    g.brush( QColorGroup::Highlight ) );
+		    g.brush( QPalette::Highlight ) );
 	p.setPen( g.highlightedText() );
 	p.drawText( x,  yPos, cellWidth()-d->lr_marg-x, cellHeight(),
 		    d->align == AlignLeft?ExpandTabs:0, s );

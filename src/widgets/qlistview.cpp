@@ -1934,7 +1934,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
     \a p is a QPainter open on the relevant paint device. \a p is
     translated so (0, 0) is the top-left pixel in the cell and \a
     width-1, height()-1 is the bottom-right pixel \e in the cell. The
-    other properties of \a p (pen, brush, etc) are undefined. \a cg is
+    other properties of \a p (pen, brush, etc) are undefined. \a pal is
     the color group to use. \a column is the logical column number
     within the item that is to be painted; 0 is the column which may
     contain a tree.
@@ -1953,7 +1953,7 @@ const QPixmap * QListViewItem::pixmap( int column ) const
     \sa paintBranches(), QListView::drawContentsOffset()
 */
 
-void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
+void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 			       int column, int width, int align )
 {
     // Change width() if you change this.
@@ -2045,9 +2045,9 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     const QPixmap * icon = pixmap( column );
 
     const BackgroundMode bgmode = lv->viewport()->backgroundMode();
-    const QColorGroup::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
-    if ( cg.brush( crole ) != lv->colorGroup().brush( crole ) )
-	p->fillRect( 0, 0, width, height(), cg.brush( crole ) );
+    const QPalette::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    if ( pal.brush( crole ) != lv->palette().brush( crole ) )
+	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
@@ -2060,16 +2060,16 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( isSelected() &&
 	 (column == 0 || listView()->allColumnsShowFocus()) ) {
 	p->fillRect( r - marg, 0, width - r + marg, height(),
-		     cg.brush( QColorGroup::Highlight ) );
+		     pal.brush( QPalette::Highlight ) );
 	if ( enabled || !lv )
-	    p->setPen( cg.highlightedText() );
+	    p->setPen( pal.highlightedText() );
 	else if ( !enabled && lv)
-	    p->setPen( lv->palette().disabled().highlightedText() );
+	    p->setPen( lv->palette().color(QPalette::Disabled, QPalette::HighlightedText ));
     } else {
 	if ( enabled || !lv )
-	    p->setPen( cg.text() );
+	    p->setPen( pal.text() );
 	else if ( !enabled && lv)
-	    p->setPen( lv->palette().disabled().text() );
+	    p->setPen( lv->palette().color(QPalette::Disabled, QPalette::Text ));
     }
 
 
@@ -2130,7 +2130,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( textheight < height() ) {
 	    int w = lv->treeStepSize() / 2;
 	    lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
-					    QRect( 0, textheight, w + 1, height() - textheight + 1 ), cg,
+					    QRect( 0, textheight, w + 1, height() - textheight + 1 ), pal,
 					    lv->isEnabled() ? QStyle::Style_Enabled : QStyle::Style_Default,
 					    QStyle::SC_ListViewExpand,
 					    QStyle::SC_All, QStyleOption( this ) );
@@ -2169,21 +2169,21 @@ int QListViewItem::width( const QFontMetrics& fm,
 
 /*!
     Paints a focus indicator on the rectangle \a r using painter \a p
-    and colors \a cg.
+    and colors \a pal.
 
     \a p is already clipped.
 
     \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
 */
 
-void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
+void QListViewItem::paintFocus( QPainter *p, const QPalette &pal,
 				const QRect & r )
 {
-    listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, cg,
+    listView()->style().drawPrimitive( QStyle::PE_FocusRect, p, r, pal,
 				       (isSelected() ?
 					QStyle::Style_FocusAtBorder :
 					QStyle::Style_Default),
-				       QStyleOption(isSelected() ? cg.highlight() : cg.base() ));
+				       QStyleOption(isSelected() ? pal.highlight() : pal.base() ));
 }
 
 
@@ -2191,7 +2191,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
     Paints a set of branches from this item to (some of) its children.
 
     Painter \a p is set up with clipping and translation so that you
-    can only draw in the rectangle that needs redrawing; \a cg is the
+    can only draw in the rectangle that needs redrawing; \a pal is the
     color group to use; the update rectangle is at (0, 0) and has size
     width \a w by height \a h. The top of the rectangle you own is at
     \a y (which is never greater than 0 but can be outside the window
@@ -2203,7 +2203,7 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
     \sa paintCell(), QListView::drawContentsOffset()
 */
 
-void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
+void QListViewItem::paintBranches( QPainter * p, const QPalette & pal,
 				   int w, int y, int h )
 {
     listView()->paintEmptyArea( p, QRect( 0, 0, w, h ) );
@@ -2213,7 +2213,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     if ( lv ) {
 	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv,
 					QRect( 0, y, w, h ),
-					cg,
+					pal,
 					lv->isEnabled() ? QStyle::Style_Enabled :
 					QStyle::Style_Default,
 					(QStyle::SC_ListViewBranch |
@@ -2862,7 +2862,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    bool drawActiveSelection = hasFocus() || d->inMenuMode ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
-	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
+	    QPalette pal = palette();
+	    if(!drawActiveSelection)
+		pal.setCurrentColorGroup(QPalette::Inactive);
 
 	    while ( c < lc && d->drawables ) {
 		int i = d->h->mapToLogical( c );
@@ -2889,10 +2891,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 			buffer.painter()->setPen( p->pen() );
 			buffer.painter()->setBrush( p->brush() );
 			buffer.painter()->setBrushOrigin( -r.left(), -r.top() );
-			current->i->paintCell( buffer.painter(), cg, ac, r.width(),
+			current->i->paintCell( buffer.painter(), pal, ac, r.width(),
 			    align );
 		    } else {
-			current->i->paintCell( p, cg, ac, r.width(),
+			current->i->paintCell( p, pal, ac, r.width(),
 			    align );
 		    }
 		}
@@ -2909,7 +2911,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		if ( current->i->parentItem )
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 		if ( r.left() < r.right() )
-		    current->i->paintFocus( p, colorGroup(), r );
+		    current->i->paintFocus( p, palette(), r );
 		p->restore();
 	    }
 	}
@@ -2928,7 +2930,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if ( d->h->mapToActual( 0 ) == 0 || ( current->l == 0 && !rootIsDecorated() ) ) {
 		int offsetx = QMIN( current->l * treeStepSize(), d->h->cellSize( cell ) );
 		r.setLeft( r.left() + offsetx );
-		current->i->paintFocus( p, colorGroup(), r );
+		current->i->paintFocus( p, palette(), r );
 	    } else {
 		int xdepth = QMIN( treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
 			     + itemMargin(), d->h->cellSize( cell ) );
@@ -2937,8 +2939,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		r1.setRight( d->h->cellPos( cell ) - 1 );
 		QRect r2( r );
 		r2.setLeft( xdepth - 1 );
-		current->i->paintFocus( p, colorGroup(), r1 );
-		current->i->paintFocus( p, colorGroup(), r2 );
+		current->i->paintFocus( p, palette(), r1 );
+		current->i->paintFocus( p, palette(), r2 );
 	    }
 	    p->restore();
 	}
@@ -2971,7 +2973,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if ( r.isValid() ) {
 		p->save();
 		p->translate( rleft-ox, crtop-oy );
-		current->i->paintBranches( p, colorGroup(), treeStepSize(),
+		current->i->paintBranches( p, palette(), treeStepSize(),
 					   rtop - crtop, r.height() );
 		p->restore();
 	    }
@@ -3009,7 +3011,7 @@ void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 	how |= QStyle::Style_Enabled;
 
     style().drawComplexControl( QStyle::CC_ListView,
-				p, this, rect, colorGroup(),
+				p, this, rect, palette(),
 				how, QStyle::SC_ListView, QStyle::SC_None,
 				opt );
 }
@@ -6547,11 +6549,11 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
 }
 
 /*!
-    Paints the item using the painter \a p and the color group \a cg.
+    Paints the item using the painter \a p and the color group \a pal.
     The item is in column \a column, has width \a width and has
     alignment \a align. (See Qt::AlignmentFlags for valid alignments.)
 */
-void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
+void QCheckListItem::paintCell( QPainter * p, const QPalette & pal,
 			       int column, int width, int align )
 {
     if ( !p )
@@ -6562,15 +6564,15 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
 
     const BackgroundMode bgmode = lv->viewport()->backgroundMode();
-    const QColorGroup::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
-    if ( cg.brush( crole ) != lv->colorGroup().brush( crole ) )
-	p->fillRect( 0, 0, width, height(), cg.brush( crole ) );
+    const QPalette::ColorRole crole = QPalette::backgroundRoleFromMode( bgmode );
+    if ( pal.brush( crole ) != lv->palette().brush( crole ) )
+	p->fillRect( 0, 0, width, height(), pal.brush( crole ) );
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );
 
     if ( column != 0 ) {
 	// The rest is text, or for subclasses to change.
-	QListViewItem::paintCell( p, cg, column, width, align );
+	QListViewItem::paintCell( p, pal, column, width, align );
 	return;
     }
 
@@ -6612,7 +6614,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
 				  QRect(x, 0, boxsize,
 					fm.height() + 2 + marg),
-				  cg, styleflags, QStyleOption(this));
+				  pal, styleflags, QStyleOption(this));
 	    r += boxsize + 4;
 	}
     } else {
@@ -6630,12 +6632,12 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
 				      QRect(x, y, boxsize,
 					    fm.height() + 2 + marg),
-				      cg, styleflags, QStyleOption(this));
+				      pal, styleflags, QStyleOption(this));
 	} else { //radio button look
 	    lv->style().drawPrimitive(QStyle::PE_CheckListExclusiveIndicator,
 					      p, QRect(x, y, boxsize,
 						       fm.height() + 2 + marg),
-					      cg, styleflags, QStyleOption(this));
+					      pal, styleflags, QStyleOption(this));
 	}
 	r += boxsize + 4;
     }
@@ -6662,15 +6664,15 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     // Draw text ----------------------------------------------------
     p->translate( r, 0 );
-    p->setPen( QPen( cg.text() ) );
-    QListViewItem::paintCell( p, cg, column, width - r, align );
+    p->setPen( QPen( pal.text() ) );
+    QListViewItem::paintCell( p, pal, column, width - r, align );
 }
 
 /*!
-    Draws the focus rectangle \a r using the color group \a cg on the
+    Draws the focus rectangle \a r using the color group \a pal on the
     painter \a p.
 */
-void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
+void QCheckListItem::paintFocus( QPainter *p, const QPalette & pal,
 				 const QRect & r )
 {
     bool intersect = TRUE;
@@ -6699,9 +6701,9 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 	} else
 	    rect.setRect( r.x() + boxsize + 5, r.y(), r.width() - boxsize - 5,
 			  r.height() );
-	QListViewItem::paintFocus(p, cg, rect);
+	QListViewItem::paintFocus(p, pal, rect);
     } else {
-	QListViewItem::paintFocus(p, cg, r);
+	QListViewItem::paintFocus(p, pal, r);
     }
 }
 
@@ -7996,7 +7998,7 @@ void QListView::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-    if ( palette().active() != palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
 	viewport()->update();
     QScrollView::windowActivationChange( oldActive );
 }

@@ -2005,7 +2005,7 @@ void QWorkspaceChild::drawFrame( QPainter *p )
     if ( titlebar && titlebar->isActive() )
 	flags |= QStyle::Style_Active;
 
-    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
+    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), palette(), flags, opt );
 }
 
 void QWorkspaceChild::styleChange( QStyle & )

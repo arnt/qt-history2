@@ -507,13 +507,13 @@ void QPushButton::drawButton( QPainter *paint )
 					bo.x()+width(), bo.y() );
 	    } else {
 		paint->fillRect( 0, 0, width(), diw,
-				 colorGroup().brush(QColorGroup::Background) );
+				 palette().brush(QPalette::Background) );
 		paint->fillRect( 0, 0, diw, height(),
-				 colorGroup().brush(QColorGroup::Background) );
+				 palette().brush(QPalette::Background) );
 		paint->fillRect( 0, height()-diw, width(), diw,
-				 colorGroup().brush(QColorGroup::Background) );
+				 palette().brush(QPalette::Background) );
 		paint->fillRect( width()-diw, 0, diw, height(),
-				 colorGroup().brush(QColorGroup::Background) );
+				 palette().brush(QPalette::Background) );
 	    }
 
 	}
@@ -533,7 +533,7 @@ void QPushButton::drawButton( QPainter *paint )
     if (isDefault())
 	flags |= QStyle::Style_ButtonDefault;
 
-    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), colorGroup(), flags);
+    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), palette(), flags);
     drawButtonLabel( paint );
 
     lastEnabled = isEnabled();
@@ -562,7 +562,7 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 
     style().drawControl(QStyle::CE_PushButtonLabel, paint, this,
 			style().subRect(QStyle::SR_PushButtonContents, this),
-			colorGroup(), flags);
+			palette(), flags);
 }
 
 

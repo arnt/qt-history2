@@ -182,7 +182,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 	flags |= QStyle::Style_Horizontal;
 
     style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
-			   colorGroup(), flags );
+			   palette(), flags );
 }
 
 #include "qtoolbar.moc"

@@ -1069,7 +1069,7 @@ void QMenuBar::drawContents( QPainter *p )
 {
     performDelayedChanges();
     QRegion reg( contentsRect() );
-    QColorGroup g = colorGroup();
+    QPalette pal = palette();
     bool e;
 
     // this shouldn't happen
@@ -1083,11 +1083,8 @@ void QMenuBar::drawContents( QPainter *p )
 	    if(r.isEmpty() || !mi->isVisible())
 		continue;
 	    e = mi->isEnabledAndVisible();
-	    if ( e )
-		g = isEnabled() ? ( isActiveWindow() ? palette().active() :
-				    palette().inactive() ) : palette().disabled();
-	    else
-		g = palette().disabled();
+	    if ( !e )
+		pal.setCurrentColorGroup(QPalette::Disabled);
 	    reg = reg.subtract( r );
 	    QSharedDoubleBuffer buffer( p, r );
 	    buffer.painter()->setFont( p->font() );
@@ -1104,13 +1101,13 @@ void QMenuBar::drawContents( QPainter *p )
 	    if (hasFocus() || hasmouse || popupvisible)
 		flags |= QStyle::Style_HasFocus;
 	    style().drawControl(QStyle::CE_MenuBarItem, buffer.painter(), this,
-				r, g, flags, QStyleOption(mi));
+				r, pal, flags, QStyleOption(mi));
 	}
     }
 
     p->save();
     p->setClipRegion(reg);
-    style().drawControl(QStyle::CE_MenuBarEmptyArea, p, this, contentsRect(), g);
+    style().drawControl(QStyle::CE_MenuBarEmptyArea, p, this, contentsRect(), pal);
     p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1119,9 +1116,9 @@ void QMenuBar::drawContents( QPainter *p )
     {
 	Qt::GUIStyle gs = (Qt::GUIStyle) style().styleHint(QStyle::SH_GUIStyle);
 	if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	    p->drawLine( 0, height()-1, width()-1, height()-1 );
-	    p->setPen( g.dark() );
+	    p->setPen( pal.dark() );
 	    p->drawLine( 0, height()-2, width()-1, height()-2 );
 	}
     }

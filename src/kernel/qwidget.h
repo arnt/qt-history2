@@ -93,7 +93,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QColor paletteBackgroundColor READ paletteBackgroundColor WRITE setPaletteBackgroundColor RESET unsetPalette )
     Q_PROPERTY( QPixmap paletteBackgroundPixmap READ paletteBackgroundPixmap WRITE setPaletteBackgroundPixmap RESET unsetPalette )
     Q_PROPERTY( QBrush backgroundBrush READ backgroundBrush )
-    Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette  STORED ownPalette )
     Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool ownPalette READ ownPalette )
@@ -227,7 +226,9 @@ public:
     void setErasePixmap( const QPixmap & );
 
 #ifndef QT_NO_PALETTE
-    const QColorGroup & colorGroup() const;
+#ifndef QT_NO_COMPAT
+    QColorGroup colorGroup() const;
+#endif
     const QPalette &	palette()    const;
     bool		ownPalette() const;
     void	setPalette( const QPalette & );
@@ -471,6 +472,7 @@ public:
 	WA_Disabled,
 	WA_UnderMouse,
 	WA_MouseTracking,
+	WA_ContentsInherited,
 
 	WA_ForceDisabled = 32,
 	WA_KeyCompression,
@@ -641,7 +643,7 @@ private:
     QRect	 crect;
     QColor	 bg_col;
 #ifndef QT_NO_PALETTE
-    QPalette	 pal;
+    mutable QPalette	 pal;
 #endif
     QFont	 fnt;
 #if defined(Q_WS_QWS)
@@ -772,11 +774,6 @@ inline void QWidget::setBaseSize( const QSize &s )
 inline const QColor &QWidget::eraseColor() const
 { return bg_col; }
 
-#ifndef QT_NO_PALETTE
-inline const QPalette &QWidget::palette() const
-{ return pal; }
-#endif
-
 inline QFont QWidget::font() const
 { return fnt; }
 
@@ -821,6 +818,13 @@ inline bool QWidget::close()
 
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }
+
+#ifndef QT_NO_PALETTE
+#ifndef QT_NO_COMPAT
+inline QColorGroup QWidget::colorGroup() const //obsolete
+{ return QColorGroup(palette()); }
+#endif
+#endif
 
 #ifndef QT_NO_COMPAT
 inline bool QWidget::isVisibleToTLW() const // obsolete

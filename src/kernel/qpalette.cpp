@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Implementation of QColorGroup and QPalette classes.
+** Implementation of QPalette classes.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -18,42 +18,289 @@
 #include "qdatastream.h"
 #include "qcleanuphandler.h"
 
-/*****************************************************************************
-  QColorGroup member functions
- *****************************************************************************/
+static QColor qt_mix_colors(QColor a, QColor b)
+{
+    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2, 
+		   (a.blue() + b.blue()) / 2);
+}
+
+#ifndef QT_NO_COMPAT
+void QColorGroup::init()
+{
+    is_colorgroup = 1;
+}
+
+#ifndef QT_NO_DATASTREAM
+QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
+{
+    if(s.version() == 1) {
+	// Qt 1.x
+	s << g.foreground() << g.background() << g.light()
+	  << g.dark() << g.mid() << g.text() << g.base();
+    } else {
+	int max = QPalette::NColorRoles;
+	if(s.version() <= 3) // Qt 2.x
+	    max = 14;
+	for(int r = 0 ; r < max ; r++)
+	    s << g.brush((QPalette::ColorRole)r);
+    }
+    return s;
+}
+
+QDataStream &operator>>(QDataStream &s, QColorGroup &g)
+{
+    if(s.version() == 1) { 	// Qt 1.x
+	QColor fg, bg, light, dark, mid, text, base;
+	s >> fg >> bg >> light >> dark >> mid >> text >> base;
+	QPalette p(bg);
+	QColorGroup n(p.active());
+	n.setColor(QPalette::Foreground, fg);
+	n.setColor(QPalette::Light, light);
+	n.setColor(QPalette::Dark, dark);
+	n.setColor(QPalette::Mid, mid);
+	n.setColor(QPalette::Text, text);
+	n.setColor(QPalette::Base, base);
+	g = n;
+    } else {
+	int max = QPalette::NColorRoles;
+	if (s.version() <= 3) // Qt 2.x
+	    max = 14;
+	QBrush tmp;
+	for(int r = 0 ; r < max; r++) {
+	    s >> tmp;
+	    g.setBrush((QPalette::ColorRole)r, tmp);
+	}
+    }
+    return s;
+}
+#endif
+
+QPalette::QPalette(const QColorGroup &active, const QColorGroup &disabled,
+		   const QColorGroup &inactive)
+{
+    init();
+    setColorGroup(Active, active);
+    setColorGroup(Disabled, disabled);
+    setColorGroup(Inactive, inactive);
+}
+
+QColorGroup QPalette::createColorGroup(ColorGroup cr) const
+{
+    QColorGroup ret(*this);
+    ret.setCurrentColorGroup(cr);
+    return ret;
+}
+
+void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
+{
+    setColorGroup(cg, g.foreground(), g.button(), g.light(), 
+		  g.dark(), g.mid(), g.text(), g.brightText(), g.base(), 
+		  g.background(), g.midlight(), g.buttonText(), g.shadow(), 
+		  g.highlight(), g.highlightedText(), g.link(),
+		  g.linkVisited());
+}
+
+#endif
 
 /*!
-    \class QColorGroup qpalette.h
-    \brief The QColorGroup class contains a group of widget colors.
+   \fn const QColor &QPalette::color( ColorRole r ) const
+    Returns the color that has been set for color role \a r in the current ColorGroup.
+
+    \sa brush() ColorRole
+ */
+
+/*!
+    \fn const QBrush &QPalette::brush( ColorRole r ) const
+    Returns the brush that has been set for color role \a r in the current ColorGroup.
+
+    \sa color() setBrush() ColorRole
+*/
+
+/*!
+    \fn void QPalette::setColor( ColorRole r, const QColor &c )
+    Sets the brush used for color role \a r in the current ColorGroup to a solid color \a c.
+
+    \sa brush() setColor() ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::setBrush(ColorRole cr, const QBrush &brush) const 
+
+    Sets the brush used for color role \a r for the current color group to \a b.
+
+    \sa brush() setColor() ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::foreground() const
+
+    Returns the foreground color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::button() const
+
+    Returns the button color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::light() const
+
+    Returns the light color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor& QPalette::midlight() const
+
+    Returns the midlight color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::dark() const
+
+    Returns the dark color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::mid() const
+
+    Returns the mid color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::text() const
+
+    Returns the text foreground color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::brightText() const
+
+    Returns the bright text foreground color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::buttonText() const
+
+    Returns the button text foreground color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::base() const
+
+    Returns the base color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::background() const
+
+    Returns the background color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::shadow() const
+
+    Returns the shadow color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::highlight() const
+
+    Returns the highlight color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::highlightedText() const
+
+    Returns the highlighted text color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::link() const
+
+    Returns the unvisited link text color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \fn const QColor & QPalette::linkVisited() const
+
+    Returns the visited link text color of the current color group.
+
+    \sa ColorRole
+*/
+
+/*!
+    \class QPalette qpalette.h
+
+    \brief The QPalette class contains color groups for each widget state.
 
     \ingroup appearance
+    \ingroup shared
     \ingroup graphics
     \ingroup images
+    \mainclass
 
-    A color group contains a group of colors used by widgets for
-    drawing themselves. We recommend that widgets use color group
-    roles such as "foreground" and "base" rather than literal colors
-    like "red" or "turquoise". The color roles are enumerated and
-    defined in the \l ColorRole documentation.
+    A palette consists of three color groups: \e Active, \e Disabled,
+    and \e Inactive. All widgets contain a palette, and all widgets in
+    Qt use their palette to draw themselves. This makes the user
+    interface easily configurable and easier to keep consistent.
 
-    The most common use of QColorGroup is like this:
+    If you create a new widget we strongly recommend that you use the
+    colors in the palette rather than hard-coding specific colors.
 
-    \code
-	QPainter p;
-	...
-	p.setPen( colorGroup().foreground() );
-	p.drawLine( ... )
-    \endcode
+    The color groups:
+    \list
+    \i The Active group is used for the window that has keyboard focus.
+    \i The Inactive group is used for other windows.
+    \i The Disabled group is used for widgets (not windows) that are
+    disabled for some reason.
+    \endlist
 
-    It is also possible to modify color groups or create new color
-    groups from scratch.
+    Both active and inactive windows can contain disabled widgets.
+    (Disabled widgets are often called \e inaccessible or \e{grayed
+    out}.)
 
-    The color group class can be created using three different
-    constructors or by modifying one supplied by Qt. The default
-    constructor creates an all-black color group, which can then be
-    modified using set functions; there's also a constructor for
-    specifying all the color group colors. And there is also a copy
-    constructor.
+    In Motif style, Active and Inactive look the same. In Windows
+    2000 style and Macintosh Platinum style, the two styles look
+    slightly different.
+
+    Colors and brushes can be set for particular roles in any of a
+    palette's color groups with setColor() and setBrush().  A color
+    group contains a group of colors used by widgets for drawing
+    themselves. We recommend that widgets use color group roles such
+    as "foreground" and "base" rather than literal colors like "red"
+    or "turquoise". The color roles are enumerated and defined in the
+    \l ColorRole documentation.
 
     We strongly recommend using a system-supplied color group and
     modifying that as necessary.
@@ -66,11 +313,24 @@
     commonly used convenience function to get each ColorRole:
     background(), foreground(), base(), etc.
 
-    \sa QColor QPalette QWidget::colorGroup()
+    You can copy a palette using the copy constructor and test to see
+    if two palettes are \e identical using isCopyOf().
+
+    \sa QApplication::setPalette(), QWidget::setPalette(), QColor
 */
 
 /*!
-    \enum QColorGroup::ColorRole
+    \enum QPalette::ColorGroup
+
+    \value Disabled
+    \value Active
+    \value Inactive
+    \value NColorGroups
+    \value Normal synonym for Active
+*/
+
+/*!
+    \enum QPalette::ColorRole
 
     The ColorRole enum defines the different symbolic color roles used
     in current GUIs.
@@ -143,404 +403,6 @@
     \img palette.png Color Roles
 */
 
-QColorGroup::QColorGroupData *QColorGroup::shared_default = 0;
-
-
-/*!
-    Constructs a color group with all colors set to black.
-*/
-QColorGroup::QColorGroup()
-{
-    if (!shared_default) {
-	static QCleanupHandler<QColorGroup::QColorGroupData> defColorGroupCleanup;
-	shared_default = new QColorGroupData;
-	shared_default->ref = 1;
-	defColorGroupCleanup.add(&shared_default);
-    }
-    d = shared_default;
-    ++d->ref;
-}
-
-/*!
-    Constructs a color group that is an independent copy of \a other.
-*/
-QColorGroup::QColorGroup(const QColorGroup &other)
-{
-    d = other.d;
-    ++d->ref;
-}
-
-/*!
-    Copies the colors of \a other to this color group.
-*/
-QColorGroup& QColorGroup::operator =(const QColorGroup& other)
-{
-    QColorGroupData *x = other.d;
-    ++x->ref;
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-	delete x;
-    return *this;
-}
-
-static QColor qt_mix_colors(const QColor &a, const QColor &b)
-{
-    return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2, (a.blue() + b.blue()) / 2);
-}
-
-
-/*!
-    Constructs a color group. You can pass either brushes, pixmaps or
-    plain colors for \a foreground, \a button, \a light, \a dark, \a
-    mid, \a text, \a bright_text, \a base and \a background.
-
-    \sa QBrush
-*/
- QColorGroup::QColorGroup(const QBrush &foreground, const QBrush &button,
-			  const QBrush &light, const QBrush &dark,
-			  const QBrush &mid, const QBrush &text,
-			  const QBrush &bright_text, const QBrush &base,
-			  const QBrush &background)
-{
-    d = new QColorGroupData;
-    d->ref = 1;
-    d->br[Foreground] = foreground;
-    d->br[Button] = button;
-    d->br[Light] = light;
-    d->br[Dark] = dark;
-    d->br[Mid] = mid;
-    d->br[Text] = text;
-    d->br[BrightText] = bright_text;
-    d->br[ButtonText] = text;
-    d->br[Base] = base;
-    d->br[Background] = background;
-    d->br[Midlight] = qt_mix_colors(d->br[Button].color(), d->br[Light].color());
-    d->br[Shadow] = Qt::black;
-    d->br[Highlight] = Qt::darkBlue;
-    d->br[HighlightedText] = Qt::white;
-    d->br[Link] = Qt::blue;
-    d->br[LinkVisited] = Qt::magenta;
-}
-
-
-/*!\obsolete
-
-  Constructs a color group with the specified colors. The button
-  color will be set to the background color.
-*/
-QColorGroup::QColorGroup(const QColor &foreground, const QColor &background,
-			 const QColor &light, const QColor &dark,
-			 const QColor &mid, const QColor &text, const QColor &base)
-{
-    d = new QColorGroupData;
-    d->ref = 1;
-    d->br[Foreground] = QBrush(foreground);
-    d->br[Button] = QBrush(background);
-    d->br[Light] = QBrush(light);
-    d->br[Dark] = QBrush(dark);
-    d->br[Mid] = QBrush(mid);
-    d->br[Text] = QBrush(text);
-    d->br[BrightText] = d->br[Light];
-    d->br[ButtonText] = d->br[Text];
-    d->br[Base] = QBrush(base);
-    d->br[Background] = QBrush(background);
-    d->br[Midlight] = qt_mix_colors(d->br[Button].color(), d->br[Light].color());
-    d->br[Shadow] = Qt::black;
-    d->br[Highlight] = Qt::darkBlue;
-    d->br[HighlightedText] = Qt::white;
-    d->br[Link] = Qt::blue;
-    d->br[LinkVisited] = Qt::magenta;
-}
-
-/*!
-    Destroys the color group.
-*/
-QColorGroup::~QColorGroup()
-{
-    if (!--d->ref)
-	delete d;
-}
-
-/*!
-   \fn const QColor &QColorGroup::color( ColorRole r ) const
-    Returns the color that has been set for color role \a r.
-
-    \sa brush() ColorRole
- */
-
-/*!
-    \fn const QBrush &QColorGroup::brush( ColorRole r ) const
-    Returns the brush that has been set for color role \a r.
-
-    \sa color() setBrush() ColorRole
-*/
-
-/*!
-    \fn void QColorGroup::setColor( ColorRole r, const QColor &c )
-    Sets the brush used for color role \a r to a solid color \a c.
-
-    \sa brush() setColor() ColorRole
-*/
-
-/*!
-    Sets the brush used for color role \a r to \a b.
-
-    \sa brush() setColor() ColorRole
-*/
-void QColorGroup::setBrush(ColorRole r, const QBrush &b)
-{
-    detach();
-    d->br[r] = b;
-}
-
-
-/*!
-    \fn const QColor & QColorGroup::foreground() const
-
-    Returns the foreground color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::button() const
-
-    Returns the button color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::light() const
-
-    Returns the light color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor& QColorGroup::midlight() const
-
-    Returns the midlight color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::dark() const
-
-    Returns the dark color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::mid() const
-
-    Returns the mid color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::text() const
-
-    Returns the text foreground color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::brightText() const
-
-    Returns the bright text foreground color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::buttonText() const
-
-    Returns the button text foreground color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::base() const
-
-    Returns the base color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::background() const
-
-    Returns the background color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::shadow() const
-
-    Returns the shadow color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::highlight() const
-
-    Returns the highlight color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::highlightedText() const
-
-    Returns the highlighted text color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::link() const
-
-    Returns the unvisited link text color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn const QColor & QColorGroup::linkVisited() const
-
-    Returns the visited link text color of the color group.
-
-    \sa ColorRole
-*/
-
-/*!
-    \fn bool QColorGroup::operator!=( const QColorGroup &g ) const
-
-    Returns TRUE if this color group is different from \a g; otherwise
-    returns  FALSE.
-
-    \sa operator==()
-*/
-
-/*!
-    Returns TRUE if this color group is equal to \a g; otherwise
-    returns FALSE.
-
-    \sa operator!=()
-*/
-bool QColorGroup::operator==( const QColorGroup &g ) const
-{
-    if ( d == g.d )
-	return true;
-    for (int r = 0; r < NColorRoles; ++r)
-	if (d->br[r] != g.d->br[r])
-	    return false;
-    return true;
-}
-
-void QColorGroup::detach_helper()
-{
-    QColorGroupData *x = new QColorGroupData;
-    x->ref = 1;
-    for (int i = 0; i < NColorRoles; ++i)
-	x->br[i] = d->br[i];
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-	delete x;
-}
-/*****************************************************************************
-  QPalette member functions
- *****************************************************************************/
-
-/*!
-    \class QPalette qpalette.h
-
-    \brief The QPalette class contains color groups for each widget state.
-
-    \ingroup appearance
-    \ingroup shared
-    \ingroup graphics
-    \ingroup images
-    \mainclass
-
-    A palette consists of three color groups: \e active, \e disabled,
-    and \e inactive. All widgets contain a palette, and all widgets in
-    Qt use their palette to draw themselves. This makes the user
-    interface easily configurable and easier to keep consistent.
-
-    If you create a new widget we strongly recommend that you use the
-    colors in the palette rather than hard-coding specific colors.
-
-    The color groups:
-    \list
-    \i The active() group is used for the window that has keyboard focus.
-    \i The inactive() group is used for other windows.
-    \i The disabled() group is used for widgets (not windows) that are
-    disabled for some reason.
-    \endlist
-
-    Both active and inactive windows can contain disabled widgets.
-    (Disabled widgets are often called \e inaccessible or \e{grayed
-    out}.)
-
-    In Motif style, active() and inactive() look the same. In Windows
-    2000 style and Macintosh Platinum style, the two styles look
-    slightly different.
-
-    There are setActive(), setInactive(), and setDisabled() functions
-    to modify the palette. (Qt also supports a normal() group; this is
-    an obsolete alias for active(), supported for backwards
-    compatibility.)
-
-    Colors and brushes can be set for particular roles in any of a
-    palette's color groups with setColor() and setBrush().
-
-    You can copy a palette using the copy constructor and test to see
-    if two palettes are \e identical using isCopyOf().
-
-    \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
-*/
-
-/*!
-    \enum QPalette::ColorGroup
-
-    \value Disabled
-    \value Active
-    \value Inactive
-    \value NColorGroups
-    \value Normal synonym for Active
-*/
-
-/*!
-    \obsolete
-
-    \fn const QColorGroup &QPalette::normal() const
-
-    Returns the active color group. Use active() instead.
-
-    \sa setActive() active()
-*/
-
-/*!
-    \obsolete
-
-    \fn void QPalette::setNormal( const QColorGroup & cg )
-
-    Sets the active color group to \a cg. Use setActive() instead.
-
-    \sa setActive() active()
-*/
-
-
 int QPalette::palette_count = 0;
 QPalette::QPaletteData *QPalette::shared_default = 0;
 
@@ -550,7 +412,7 @@ QPalette::QPaletteData *QPalette::shared_default = 0;
 */
 QPalette::QPalette()
 {
-    if (!shared_default) {
+    if(!shared_default) {
 	shared_default = new QPaletteData;
 	shared_default->ref = 1;
 	shared_default->ser_no = palette_count++;
@@ -559,6 +421,7 @@ QPalette::QPalette()
     }
     d = shared_default;
     ++d->ref;
+    current_group = Active; //as a default..
 }
 
 /*!\obsolete
@@ -566,19 +429,17 @@ QPalette::QPalette()
   automatically calculated, based on this color. Background will be
   the button color as well.
 */
-QPalette::QPalette( const QColor &button )
+QPalette::QPalette(const QColor &button)
 {
-    d = new QPaletteData;
-    d->ref = 1;
-    d->ser_no = palette_count++;
+    init();
     QColor bg = button,
 	   btn = button,
 	   fg,
 	   base,
 	   disfg;
     int h, s, v;
-    bg.hsv( &h, &s, &v );
-    if ( v > 128 ) {
+    bg.hsv(&h, &s, &v);
+    if(v > 128) {
 	fg   = Qt::black;
 	base = Qt::white;
 	disfg = Qt::darkGray;
@@ -587,11 +448,48 @@ QPalette::QPalette( const QColor &button )
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    d->active   = QColorGroup(fg, btn, btn.light(150), btn.dark(), btn.dark(150), fg,
-			      Qt::white, base, bg );
-    d->disabled = QColorGroup(disfg, btn, btn.light(150), btn.dark(), btn.dark(150), disfg,
-			      Qt::white, base, bg );
-    d->inactive = d->active;
+    //inactive and active are the same..
+    setColorGroup(Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()), 
+		  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg) );
+    setColorGroup(Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()), 
+		  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg) );
+    setColorGroup(Disabled, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()), 
+		  QBrush(btn.dark(150)), QBrush(disfg), QBrush(Qt::white), QBrush(base), 
+		  QBrush(bg));
+}
+
+/*!
+    Constructs a palette. You can pass either brushes, pixmaps or
+    plain colors for \a foreground, \a button, \a light, \a dark, \a
+    mid, \a text, \a bright_text, \a base and \a background.
+
+    \sa QBrush
+*/
+QPalette::QPalette(const QBrush &foreground, const QBrush &button,
+		   const QBrush &light, const QBrush &dark,
+		   const QBrush &mid, const QBrush &text,
+		   const QBrush &bright_text, const QBrush &base,
+		   const QBrush &background)
+{
+    init();
+    setColorGroup(All, foreground, button, light, dark, mid, text, bright_text,
+		  base, background);
+}
+
+
+/*!\obsolete
+
+  Constructs a palette with the specified colors. The button
+  color will be set to the background color.
+*/
+QPalette::QPalette(const QColor &foreground, const QColor &background,
+		   const QColor &light, const QColor &dark, const QColor &mid, 
+		   const QColor &text, const QColor &base)
+{
+    init();
+    setColorGroup(All, QBrush(foreground), QBrush(background), QBrush(light), 
+		  QBrush(dark), QBrush(mid), QBrush(text), QBrush(light), 
+		  QBrush(base), QBrush(background));
 }
 
 /*!
@@ -599,19 +497,13 @@ QPalette::QPalette( const QColor &button )
     The other colors are automatically calculated, based on these
     colors.
 */
-QPalette::QPalette( const QColor &button, const QColor &background )
+QPalette::QPalette(const QColor &button, const QColor &background)
 {
-    d = new QPaletteData;
-    d->ref = 1;
-    d->ser_no = palette_count++;
-    QColor bg = background,
-	   btn = button,
-	   fg,
-	   base,
-	   disfg;
+    init();
+    QColor bg = background, btn = button, fg, base, disfg;
     int h, s, v;
     bg.hsv(&h, &s, &v);
-    if ( v > 128 ) {
+    if(v > 128) {
 	fg   = Qt::black;
 	base = Qt::white;
 	disfg = Qt::darkGray;
@@ -620,31 +512,16 @@ QPalette::QPalette( const QColor &button, const QColor &background )
 	base = Qt::black;
 	disfg = Qt::darkGray;
     }
-    d->active   = QColorGroup(fg, btn, btn.light(150), btn.dark(), btn.dark(150), fg,
-			      Qt::white, base, bg );
-    d->disabled = QColorGroup(disfg, btn, btn.light(150), btn.dark(), btn.dark(150), disfg,
-			      Qt::white, base, bg );
-    d->inactive = d->active;
-}
-
-/*!
-    Constructs a palette that consists of the three color groups \a
-    active, \a disabled and \a inactive. See the \link #details
-    Detailed Description\endlink for definitions of the color groups
-    and \l QColorGroup::ColorRole for definitions of each color role
-    in the three groups.
-
-    \sa QColorGroup QColorGroup::ColorRole QPalette
-*/
-QPalette::QPalette(const QColorGroup &active, const QColorGroup &disabled,
-		   const QColorGroup &inactive)
-{
-    d = new QPaletteData;
-    d->ref = 1;
-    d->ser_no = palette_count++;
-    d->active = active;
-    d->disabled = disabled;
-    d->inactive = inactive;
+    //inactive and active are identical
+    setColorGroup(Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()), 
+		  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), 
+		  QBrush(bg));
+    setColorGroup(Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()), 
+		  QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), 
+		  QBrush(bg));
+    setColorGroup(Disabled, QBrush(disfg), QBrush(btn), QBrush(btn.light(150)), 
+		  QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(disfg), 
+		  QBrush(Qt::white), QBrush(base), QBrush(bg));
 }
 
 /*!
@@ -656,6 +533,10 @@ QPalette::QPalette(const QPalette &p)
 {
     d = p.d;
     ++d->ref;
+#ifndef QT_NO_COMPAT
+    is_colorgroup = p.is_colorgroup;
+#endif
+    current_group = p.current_group;
 }
 
 /*!
@@ -663,8 +544,24 @@ QPalette::QPalette(const QPalette &p)
 */
 QPalette::~QPalette()
 {
-    if (!--d->ref)
+    if(!--d->ref)
 	delete d;
+}
+
+/*!\internal*/
+void QPalette::init() {
+    d = new QPaletteData;
+    d->ref = 1;
+    d->ser_no = palette_count++;
+#ifndef QT_NO_COMPAT
+    is_colorgroup = 0;
+#endif
+    current_group = Active; //as a default..
+
+    for(int grp = 0; grp < (int)NColorGroups; grp++) {
+	for(int role = 0; role < (int)NColorRoles; role++) 
+	    d->br[grp][role] = Qt::green;
+    }
 }
 
 /*!
@@ -679,56 +576,47 @@ QPalette &QPalette::operator=(const QPalette &p)
 {
     QPaletteData *x = p.d;
     ++x->ref;
+    current_group = p.current_group;
+#ifndef QT_NO_COMPAT
+    is_colorgroup = p.is_colorgroup;
+#endif
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if(!--x->ref)
 	delete x;
     return *this;
 }
 
 /*!
-    \fn const QColor &QPalette::color(ColorGroup gr, QColorGroup::ColorRole r) const
+    \fn const QColor &QPalette::color(ColorGroup gr, ColorRole r) const
     Returns the color in color group \a gr, used for color role \a r.
 
-    \sa brush() setColor() QColorGroup::ColorRole
+    \sa brush() setColor() ColorRole
 */
 
 /*!
-    \fn const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
     Returns the brush in color group \a gr, used for color role \a r.
 
-    \sa color() setBrush() QColorGroup::ColorRole
+    \sa color() setBrush() ColorRole
 */
-
-/*!
-    \fn void QPalette::setColor( ColorGroup gr, QColorGroup::ColorRole r, const QColor &c)
-    Sets the brush in color group \a gr, used for color role \a r, to
-    the solid color \a c.
-
-    \sa setBrush() color() QColorGroup::ColorRole
-*/
-
-/*!
-    Sets the brush in color group \a gr, used for color role \a r, to
-    \a b.
-
-    \sa brush() setColor() QColorGroup::ColorRole
-*/
-void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
-			 const QBrush &b)
+const QBrush &QPalette::brush(ColorGroup cg, ColorRole cr) const
 {
-    detach();
-    d->ser_no = palette_count++;
-    directSetBrush(gr, r, b);
+    if(cg >= (int)NColorGroups) {
+	if(cg == Current) {
+	    cg = current_group;
+	} else {
+	    qWarning("QPalette::brush: Unknown ColorGroup: %d", (int)cg);
+	    cg = Active;
+	}
+    }
+    return d->br[cg][cr];
 }
 
 /*!
-    \overload
+    \fn void QPalette::setColor( ColorGroup gr, ColorRole r, const QColor &c)
+    Sets the brush in color group \a gr, used for color role \a r, to
+    the solid color \a c.
 
-    \fn void QPalette::setColor( QColorGroup::ColorRole r, const QColor &c )
-    Sets the brush color used for color role \a r to color \a c in all
-    three color groups.
-
-    \sa color() setBrush() QColorGroup::ColorRole
+    \sa setBrush() color() ColorRole
 */
 
 /*!
@@ -737,16 +625,43 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
     Sets the brush in for color role \a r in all three color groups to
     \a b.
 
-    \sa brush() setColor() QColorGroup::ColorRole active() inactive() disabled()
+    \sa brush() setColor() ColorRole 
 */
-void QPalette::setBrush(QColorGroup::ColorRole r, const QBrush &b)
+
+/*!
+    Sets the brush in color group \a gr, used for color role \a r, to
+    \a b.
+
+    \sa brush() setColor() ColorRole
+*/
+void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 {
     detach();
     d->ser_no = palette_count++;
-    directSetBrush(Active, r, b);
-    directSetBrush(Disabled, r, b);
-    directSetBrush(Inactive, r, b);
+    if(cg >= (int)NColorGroups) {
+	if(cg == All) {
+	    for(int i = 0; i < (int)NColorGroups; i++)
+		d->br[i][cr] = b;
+	    return;
+	} else if(cg == Current) {
+	    cg = current_group;
+	} else {
+	    qWarning("QPalette::setBrush: Unknown ColorGroup: %d", (int)cg);
+	    cg = Active;
+	}
+    }
+    d->br[cg][cr] = b;
 }
+
+/*!
+    \overload
+
+    \fn void QPalette::setColor( ColorRole r, const QColor &c )
+    Sets the brush color used for color role \a r to color \a c in all
+    three color groups.
+
+    \sa color() setBrush() ColorRole
+*/
 
 /*!
     \fn QPalette QPalette::copy() const
@@ -770,76 +685,14 @@ void QPalette::detach_helper()
 {
     QPaletteData *x = new QPaletteData;
     x->ref = 1;
-    x->disabled = d->disabled;
-    x->active = d->active;
-    x->inactive = d->inactive;
+    for(int grp = 0; grp < (int)NColorGroups; grp++) {
+	for(int role = 0; role < (int)NColorRoles; role++) 
+	    x->br[grp][role] = d->br[grp][role];
+    }
     x->ser_no = palette_count++;
     x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
+    if(!--x->ref)
 	delete x;
-}
-
-/*!
-    \fn const QColorGroup & QPalette::disabled() const
-
-    Returns the disabled color group of this palette.
-
-    \sa QColorGroup, setDisabled(), active(), inactive()
-*/
-
-/*!
-    Sets the \c Disabled color group to \a g.
-
-    \sa disabled() setActive() setInactive()
-*/
-
-void QPalette::setDisabled(const QColorGroup &g)
-{
-    detach();
-    d->ser_no = palette_count++;
-    d->disabled = g;
-}
-
-/*!
-    \fn const QColorGroup & QPalette::active() const
-
-    Returns the active color group of this palette.
-
-    \sa QColorGroup, setActive(), inactive(), disabled()
-*/
-
-/*!
-    Sets the \c Active color group to \a g.
-
-    \sa active() setDisabled() setInactive() QColorGroup
-*/
-
-void QPalette::setActive(const QColorGroup &g)
-{
-    detach();
-    d->ser_no = palette_count++;
-    d->active = g;
-}
-
-/*!
-    \fn const QColorGroup & QPalette::inactive() const
-
-    Returns the inactive color group of this palette.
-
-    \sa QColorGroup,  setInactive(), active(), disabled()
-*/
-
-/*!
-    Sets the \c Inactive color group to \a g.
-
-    \sa active() setDisabled() setActive() QColorGroup
-*/
-
-void QPalette::setInactive(const QColorGroup &g)
-{
-    detach();
-    d->ser_no = palette_count++;
-    d->inactive = g;
 }
 
 /*!
@@ -853,10 +706,49 @@ void QPalette::setInactive(const QColorGroup &g)
     Returns TRUE (usually quickly) if this palette is equal to \a p;
     otherwise returns FALSE (slowly).
 */
-
 bool QPalette::operator==(const QPalette &p) const
 {
-    return d->active == p.d->active && d->disabled == p.d->disabled && d->inactive == p.d->inactive;
+#ifndef QT_NO_COMPAT
+    Q_ASSERT(is_colorgroup == p.is_colorgroup);
+#endif
+    for(int grp = 0; grp < (int)NColorGroups; grp++) {
+	for(int role = 0; role < (int)NColorRoles; role++) {
+	    if(d->br[grp][role] != p.d->br[grp][role])
+		return FALSE;
+	}
+    }
+    return TRUE;
+}
+
+/*!
+    Returns TRUE (usually quickly) if this ColorGroup \a grp1 is equal to \a grp2;
+    otherwise returns FALSE.
+*/
+bool QPalette::isEqual(QPalette::ColorGroup grp1, QPalette::ColorGroup grp2) const
+{
+    if(grp1 >= (int)NColorGroups) {
+	if(grp1 == Current) {
+	    grp1 = current_group;
+	} else {
+	    qWarning("QPalette::brush: Unknown ColorGroup(1): %d", (int)grp1);
+	    grp1 = Active;
+	}
+    }
+    if(grp2 >= (int)NColorGroups) {
+	if(grp2 == Current) {
+	    grp2 = current_group;
+	} else {
+	    qWarning("QPalette::brush: Unknown ColorGroup(2): %d", (int)grp2);
+	    grp2 = Active;
+	}
+    }
+    if(grp1 == grp2)
+	return TRUE;
+    for(int role = 0; role < (int)NColorRoles; role++) {
+	if(d->br[grp1][role] != d->br[grp2][role])
+		return FALSE;
+    }
+    return TRUE;
 }
 
 /*!
@@ -874,73 +766,10 @@ bool QPalette::operator==(const QPalette &p) const
 */
 
 /*****************************************************************************
-  QColorGroup/QPalette stream functions
+  QPalette stream functions
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-/*!
-    \relates QColorGroup
-
-    Writes color group, \a g to the stream \a s.
-
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
-*/
-
-QDataStream &operator<<(QDataStream &s, const QColorGroup &g)
-{
-    if (s.version() == 1) {
-	s << g.foreground()
-	  << g.background()
-	  << g.light()
-	  << g.dark()
-	  << g.mid()
-	  << g.text()
-	  << g.base();
-    } else {
-	int max = QColorGroup::NColorRoles;
-	if (s.version() <= 3)
-	    max = 14;
-	for (int r = 0 ; r < max ; ++r)
-	    s << g.brush((QColorGroup::ColorRole)r);
-    }
-    return s;
-}
-
-/*!
-    \related QColorGroup
-
-    Reads a color group from the stream.
-
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
-*/
-
-QDataStream &operator>>(QDataStream &s, QColorGroup &g)
-{
-    if (s.version() == 1) {
-	QColor fg, bg, light, dark, mid, text, base;
-	s >> fg >> bg >> light >> dark >> mid >> text >> base;
-	QPalette p(bg);
-	QColorGroup n(p.active());
-	n.setColor(QColorGroup::Foreground, fg);
-	n.setColor(QColorGroup::Light, light);
-	n.setColor(QColorGroup::Dark, dark);
-	n.setColor(QColorGroup::Mid, mid);
-	n.setColor(QColorGroup::Text, text);
-	n.setColor(QColorGroup::Base, base);
-	g = n;
-    } else {
-	int max = QColorGroup::NColorRoles;
-	if (s.version() <= 3)
-	    max = 14;
-
-	QBrush tmp;
-	for(int r = 0 ; r < max; ++r) {
-	    s >> tmp;
-	    g.setBrush((QColorGroup::ColorRole)r, tmp);
-	}
-    }
-    return s;
-}
 
 /*!
     \relates QPalette
@@ -953,35 +782,23 @@ QDataStream &operator>>(QDataStream &s, QColorGroup &g)
 
 QDataStream &operator<<(QDataStream &s, const QPalette &p)
 {
-    return s << p.active()
-	     << p.disabled()
-	     << p.inactive();
+    for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++) {
+	for(int role = 0; role < (int)QPalette::NColorRoles; role++) 
+	    s << p.d->br[grp][role];
+    }
+    return s;
 }
 
-static void readV1ColorGroup(QDataStream &s, QColorGroup &g, QPalette::ColorGroup r)
+static void readV1ColorGroup(QDataStream &s, QPalette &pal, QPalette::ColorGroup r)
 {
     QColor fg, bg, light, dark, mid, text, base;
     s >> fg >> bg >> light >> dark >> mid >> text >> base;
-    QPalette p(bg);
-    QColorGroup n;
-    switch (r) {
-    case QPalette::Disabled:
-	n = p.disabled();
-	break;
-    case QPalette::Inactive:
-	n = p.inactive();
-	break;
-    default:
-	n = p.active();
-	break;
-    }
-    n.setColor(QColorGroup::Foreground, fg);
-    n.setColor(QColorGroup::Light, light);
-    n.setColor(QColorGroup::Dark, dark);
-    n.setColor(QColorGroup::Mid, mid);
-    n.setColor(QColorGroup::Text, text);
-    n.setColor(QColorGroup::Base, base);
-    g = n;
+    pal.setColor(r, QPalette::Foreground, fg);
+    pal.setColor(r, QPalette::Light, light);
+    pal.setColor(r, QPalette::Dark, dark);
+    pal.setColor(r, QPalette::Mid, mid);
+    pal.setColor(r, QPalette::Text, text);
+    pal.setColor(r, QPalette::Base, base);
 }
 
 /*!
@@ -995,16 +812,19 @@ static void readV1ColorGroup(QDataStream &s, QColorGroup &g, QPalette::ColorGrou
 
 QDataStream &operator>>(QDataStream &s, QPalette &p)
 {
-    QColorGroup active, disabled, inactive;
-    if ( s.version() == 1 ) {
-	readV1ColorGroup(s, active, QPalette::Active);
-	readV1ColorGroup(s, disabled, QPalette::Disabled);
-	readV1ColorGroup(s, inactive, QPalette::Inactive);
+    if(s.version() == 1) {
+	readV1ColorGroup(s, p, QPalette::Active);
+	readV1ColorGroup(s, p, QPalette::Disabled);
+	readV1ColorGroup(s, p, QPalette::Inactive);
     } else {
-	s >> active >> disabled >> inactive;
+	QBrush tmp;
+	for(int grp = 0; grp < (int)QPalette::NColorGroups; grp++) {
+	    for(int role = 0; role < (int)QPalette::NColorRoles; role++) {
+		s >> tmp;
+		p.setBrush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role, tmp);
+	    }
+	}
     }
-    QPalette newpal(active, disabled, inactive);
-    p = newpal;
     return s;
 }
 #endif //QT_NO_DATASTREAM
@@ -1023,93 +843,112 @@ bool QPalette::isCopyOf(const QPalette &p)
     return d == p.d;
 }
 
-const QBrush &QPalette::directBrush(ColorGroup gr, QColorGroup::ColorRole r) const
+/*!
+
+    Sets a the group at \a cg. You can pass either brushes, pixmaps or
+    plain colors for \a foreground, \a button, \a light, \a dark, \a
+    mid, \a text, \a bright_text, \a base and \a background.
+
+    \sa QBrush
+*/
+void QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &button, 
+			      const QBrush &light, const QBrush &dark, const QBrush &mid, 
+			      const QBrush &text, const QBrush &bright_text, const QBrush &base, 
+			      const QBrush &background)
 {
-    switch (gr) {
-    case Active:
-	return d->active.d->br[r];
-    case Disabled:
-	return d->disabled.d->br[r];
-    case Inactive:
-	return d->inactive.d->br[r];
-    default:
-	return d->active.d->br[QColorGroup::Foreground];
-    }
+    setColorGroup(cg, foreground, button, light, dark, mid, text, bright_text, base,
+		  background, QBrush(qt_mix_colors(button.color(), light.color())), 
+		  text, QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white), 
+		  QBrush(Qt::blue), QBrush(Qt::magenta));
 }
 
-void QPalette::directSetBrush(ColorGroup gr, QColorGroup::ColorRole r, const QBrush& b)
+
+/*!\internal*/
+void
+QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &button, 
+			const QBrush &light, const QBrush &dark, const QBrush &mid, 
+			const QBrush &text, const QBrush &bright_text, const QBrush &base, 
+			const QBrush &background, const QBrush &midlight, 
+			const QBrush &button_text, const QBrush &shadow,
+			const QBrush &highlight, const QBrush &highlighted_text, 
+			const QBrush &link, const QBrush &link_visited)
 {
-    switch (gr) {
-    case Active:
-	d->active.setBrush(r, b);
-	break;
-    case Disabled:
-	d->disabled.setBrush(r, b);
-	break;
-    case Inactive:
-	d->inactive.setBrush(r, b);
-	break;
-    default:
-	break;
-    }
+    detach();
+    d->ser_no = palette_count++;
+    setBrush(cg, Foreground, foreground);
+    setBrush(cg, Button, button);
+    setBrush(cg, Light, light);
+    setBrush(cg, Dark, dark);
+    setBrush(cg, Mid, mid);
+    setBrush(cg, Text, text);
+    setBrush(cg, BrightText, bright_text);
+    setBrush(cg, Base, base);
+    setBrush(cg, Background, background);
+    setBrush(cg, Midlight, midlight);
+    setBrush(cg, ButtonText, button_text);
+    setBrush(cg, Shadow, shadow);
+    setBrush(cg, Highlight, highlight);
+    setBrush(cg, HighlightedText, highlighted_text);
+    setBrush(cg, Link, link);
+    setBrush(cg, LinkVisited, link_visited);
 }
 
 /*!\internal*/
-QColorGroup::ColorRole QPalette::foregroundRoleFromMode(Qt::BackgroundMode mode)
+QPalette::ColorRole QPalette::foregroundRoleFromMode(Qt::BackgroundMode mode)
 {
     switch (mode) {
     case Qt::PaletteButton:
-	return QColorGroup::ButtonText;
+	return ButtonText;
     case Qt::PaletteBase:
-	return QColorGroup::Text;
+	return Text;
     case Qt::PaletteDark:
     case Qt::PaletteShadow:
-	return QColorGroup::Light;
+	return Light;
     case Qt::PaletteHighlight:
-	return QColorGroup::HighlightedText;
+	return HighlightedText;
     case Qt::PaletteBackground:
     default:
-	return QColorGroup::Foreground;
+	return Foreground;
     }
 }
 
 /*!\internal*/
-QColorGroup::ColorRole QPalette::backgroundRoleFromMode(Qt::BackgroundMode mode)
+QPalette::ColorRole QPalette::backgroundRoleFromMode(Qt::BackgroundMode mode)
 {
     switch (mode) {
     case Qt::PaletteForeground:
-	return QColorGroup::Foreground;
+	return Foreground;
     case Qt::PaletteButton:
-	return QColorGroup::Button;
+	return Button;
     case Qt::PaletteLight:
-	return QColorGroup::Light;
+	return Light;
     case Qt::PaletteMidlight:
-	return QColorGroup::Midlight;
+	return Midlight;
     case Qt::PaletteDark:
-	return QColorGroup::Dark;
+	return Dark;
     case Qt::PaletteMid:
-	return QColorGroup::Mid;
+	return Mid;
     case Qt::PaletteText:
-	return QColorGroup::Text;
+	return Text;
     case Qt::PaletteBrightText:
-	return QColorGroup::BrightText;
+	return BrightText;
     case Qt::PaletteButtonText:
-	return QColorGroup::ButtonText;
+	return ButtonText;
     case Qt::PaletteBase:
-	return QColorGroup::Base;
+	return Base;
     case Qt::PaletteShadow:
-	return QColorGroup::Shadow;
+	return Shadow;
     case Qt::PaletteHighlight:
-	return QColorGroup::Highlight;
+	return Highlight;
     case Qt::PaletteHighlightedText:
-	return QColorGroup::HighlightedText;
+	return HighlightedText;
     case Qt::PaletteLink:
-	return QColorGroup::Link;
+	return Link;
     case Qt::PaletteLinkVisited:
-	return QColorGroup::LinkVisited;
+	return LinkVisited;
     case Qt::PaletteBackground:
     default:
-	return QColorGroup::Background;
+	return Background;
     }
 }
 #endif // QT_NO_PALETTE

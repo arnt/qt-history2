@@ -754,20 +754,19 @@ void QLabel::drawContents( QPainter *p )
 	    yo = cr.height()-rh;
 	if (! isEnabled() &&
 	    style().styleHint(QStyle::SH_EtchDisabledText, this)) {
-	    QColorGroup cg = colorGroup();
-	    cg.setColor( QColorGroup::Text, cg.light() );
-	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, cg, 0);
+	    QPalette pal = palette();
+	    pal.setColor( QPalette::Text, pal.light() );
+	    doc->draw(p, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
 	}
 
-	// QSimpleRichText always draws with QColorGroup::Text as with
+	// QSimpleRichText always draws with QPalette::Text as with
 	// background mode PaletteBase. QLabel typically has
 	// background mode PaletteBackground, so we create a temporary
 	// color group with the text color adjusted.
-	QColorGroup cg = colorGroup();
+	QPalette pal = palette();
 	if ( backgroundMode() != PaletteBase && isEnabled() )
-	    cg.setColor( QColorGroup::Text, paletteForegroundColor() );
-
-	doc->draw(p, cr.x(), cr.y()+yo, cr, cg, 0);
+	    pal.setColor( QPalette::Text, paletteForegroundColor() );
+	doc->draw(p, cr.x(), cr.y()+yo, cr, pal, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
@@ -812,7 +811,7 @@ void QLabel::drawContents( QPainter *p )
 	}
 #endif
 	// ordinary text or pixmap label
-	style().drawItem( p, cr, align, colorGroup(), isEnabled(),
+	style().drawItem( p, cr, align, palette(), isEnabled(),
 			  pix, ltext );
     }
 }

@@ -352,8 +352,8 @@ void QMacStyle::polish(QApplication* app)
 	pc = QColor(c.red / 256, c.green / 256, c.blue / 256);
     }
     QBrush background(pc, px);
-    pal.setBrush(QColorGroup::Background, background);
-    pal.setBrush(QColorGroup::Button, background);
+    pal.setBrush(QPalette::Background, background);
+    pal.setBrush(QPalette::Button, background);
     app->setPalette(pal, TRUE);
 }
 
@@ -362,9 +362,9 @@ void QMacStyle::polish(QWidget* w)
 {
     if(!w->isTopLevel() && !w->inherits("QSplitter") &&
        w->backgroundPixmap() &&
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
+       qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap() &&
 	w->backgroundPixmap()->serialNumber() ==
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber())
+       qApp->palette().brush(QPalette::Active, QPalette::Background).pixmap()->serialNumber())
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
     d->addWidget(w);
 
@@ -383,8 +383,8 @@ void QMacStyle::polish(QWidget* w)
 	    EraseRect(&r);
 	}
 	QBrush background(pc, px);
-	pal.setBrush(QColorGroup::Background, background);
-	pal.setBrush(QColorGroup::Button, background);
+	pal.setBrush(QPalette::Background, background);
+	pal.setBrush(QPalette::Button, background);
 	w->setPalette(pal);
     }
 #endif
@@ -443,25 +443,25 @@ void QMacStyle::unPolish(QWidget* w)
 
 /*! \reimp */
 void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			 int flags, const QColorGroup &cg, bool,
+			 int flags, const QPalette &pal, bool,
 			 const QString& text, int len,
 			 const QColor* penColor) const
 {
     flags |= NoAccel;     //No accelerators drawn here!
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    p->setPen(penColor ? *penColor : cg.foreground());
+    p->setPen(penColor ? *penColor : pal.foreground().color());
     if(!text.isNull())
 	p->drawText(x, y, w, h, flags, text, len);
 }
 
 void QMacStyle::drawItem(QPainter *p, const QRect &r,
-			 int flags, const QColorGroup &cg, bool enabled,
+			 int flags, const QPalette &pal, bool enabled,
 			 const QPixmap &pixmap,
 			 const QColor* penColor) const
 {
     flags |= NoAccel;     //No accelerators drawn here!
     int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-    p->setPen(penColor ? *penColor : cg.foreground());
+    p->setPen(penColor ? *penColor : pal.foreground().color());
     QPixmap  pm(pixmap);
     bool clip = (flags & Qt::DontClip) == 0;
     if(clip) {
@@ -507,9 +507,9 @@ void QMacStyle::drawItem(QPainter *p, const QRect &r,
 #endif
 	}
 	{ //do we want the drop thingie for QMacStyle?
-	    p->setPen(cg.light());
+	    p->setPen(pal.light());
 	    p->drawPixmap(x+1, y+1, pm);
-	    p->setPen(cg.text());
+	    p->setPen(pal.text());
 	}
     }
     p->drawPixmap(x, y, pm);
@@ -521,14 +521,14 @@ void QMacStyle::drawItem(QPainter *p, const QRect &r,
 void QMacStyle::drawPrimitive(PrimitiveElement pe,
 			       QPainter *p,
 			       const QRect &r,
-			       const QColorGroup &cg,
+			       const QPalette &pal,
 			       SFlags flags,
 			       const QStyleOption& opt) const
 {
     ThemeDrawState tds = kThemeStateActive;
     if(flags & Style_Down) {
 	tds = kThemeStatePressed;
-    } else if(qAquaActive(cg)) {
+    } else if(qAquaActive(pal)) {
 	if(!(flags & Style_Enabled))
 	    tds = kThemeStateUnavailable;
     } else {
@@ -549,10 +549,10 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 		GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
 
 	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth();
-	    p->fillRect(r.x(), r.y(), lw, r.height(), cg.background()); //left
-	    p->fillRect(r.right()-lw+1, r.y(), lw, r.height(), cg.background()); //right
-	    p->fillRect(r.x(), r.y(), r.width(), lw, cg.background()); //top
-	    p->fillRect(r.x(), r.bottom()-lw+1, r.width(), lw, cg.background()); //bottm
+	    p->fillRect(r.x(), r.y(), lw, r.height(), pal.background()); //left
+	    p->fillRect(r.right()-lw+1, r.y(), lw, r.height(), pal.background()); //right
+	    p->fillRect(r.x(), r.y(), r.width(), lw, pal.background()); //top
+	    p->fillRect(r.x(), r.bottom()-lw+1, r.width(), lw, pal.background()); //bottm
 
 	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE,
 					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
@@ -562,7 +562,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    else
 		DrawThemeListBoxFrame(rect, tds);
 	} else {
-	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	    QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	}
 	break; }
     case PE_PanelGroupBox: {
@@ -597,23 +597,23 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 #if 1
 	if(flags & Style_Enabled) {
 	    a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
-	    p->setPen(cg.text());
+	    p->setPen(pal.text());
 	    p->drawLineSegments(a, 0, 3);         // draw arrow
 	    p->drawPoint(a[6]);
 	} else {
 	    a.translate(r.x() + r.width() / 2 + 1, r.y() + r.height() / 2 + 1);
-	    p->setPen(cg.light());
+	    p->setPen(pal.light());
 	    p->drawLineSegments(a, 0, 3);         // draw arrow
 	    p->drawPoint(a[6]);
 	    a.translate(-1, -1);
-	    p->setPen(cg.mid());
+	    p->setPen(pal.mid());
 	    p->drawLineSegments(a, 0, 3);
 	    p->drawPoint(a[6]);
 	}
 #else
 	a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
-	p->setPen(cg.text());
-	p->setBrush(cg.text());
+	p->setPen(pal.text());
+	p->setBrush(pal.text());
 	p->drawPolygon(a);
 	p->setBrush(NoBrush);
 #endif
@@ -642,7 +642,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	if(flags & Style_HasFocus)
 	    info.adornment |= kThemeAdornmentFocus;
-	if(qAquaActive(cg)) {
+	if(qAquaActive(pal)) {
 	    if(!(flags & Style_Enabled))
 		info.state = kThemeStateUnavailable;
 	    else if(flags & Style_Down)
@@ -718,7 +718,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	}
 	break; }
     default:
-	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
     }
 }
@@ -728,14 +728,14 @@ void QMacStyle::drawControl(ControlElement element,
 				 QPainter *p,
 				 const QWidget *widget,
 				 const QRect &r,
-				 const QColorGroup &cg,
+				 const QPalette &pal,
 				 SFlags how,
 				 const QStyleOption& opt) const
 {
     ThemeDrawState tds = kThemeStateActive;
     if(how & Style_Down) {
 	tds = kThemeStatePressed;
-    } else if(qAquaActive(cg)) {
+    } else if(qAquaActive(pal)) {
 	if(!(how & Style_Enabled))
 	    tds = kThemeStateUnavailable;
     } else {
@@ -747,7 +747,7 @@ void QMacStyle::drawControl(ControlElement element,
 
     switch(element) {
     case CE_ToolBoxTab:
-	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
+	QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
 	break;
     case CE_PopupMenuHorizontalExtra:
     case CE_PopupMenuVerticalExtra:
@@ -768,7 +768,7 @@ void QMacStyle::drawControl(ControlElement element,
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
 	break; }
     case CE_MenuBarEmptyArea:
-	p->fillRect(r, cg.brush(QColorGroup::Button));
+	p->fillRect(r, pal.brush(QPalette::Button));
 	((QMacPainter*)p)->setport();
 	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p, FALSE), kThemeMenuBarNormal,
 				   kThemeMenuSquareMenuBar);
@@ -781,8 +781,6 @@ void QMacStyle::drawControl(ControlElement element,
 	if(!mi)
 	    break;
 
-	const QColorGroup & g = cg;
-	QColorGroup itemg = g;
 	bool dis = !mi->isEnabled();
 	int tab = opt.tabWidth();
 	int maxpmw = opt.maxIconWidth();
@@ -826,22 +824,21 @@ void QMacStyle::drawControl(ControlElement element,
 		QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
 		if(act && !dis) {
 		    qDrawShadePanel(p, vrect.x(), y, checkcol, h,
-				     cg, TRUE, 1, &cg.brush(QColorGroup::Button));
+				     pal, TRUE, 1, &pal.brush(QPalette::Button));
 		} else {
-		    QBrush fill(cg.light(), Dense4Pattern);
+		    QBrush fill(pal.light(), Dense4Pattern);
 		    // set the brush origin for the hash pattern to the x/y coordinate
 		    // of the menu item's checkmark... this way, the check marks have
 		    // a consistent look
 		    QPoint origin = p->brushOrigin();
 		    p->setBrushOrigin(vrect.x(), y);
-		    qDrawShadePanel(p, vrect.x(), y, checkcol, h, cg, TRUE, 1,
+		    qDrawShadePanel(p, vrect.x(), y, checkcol, h, pal, TRUE, 1,
 				     &fill);
 		    // restore the previous brush origin
 		    p->setBrushOrigin(origin);
 		}
 	    } else if(!act) {
-		p->fillRect(xpos, y, checkcol, h,
-			    g.brush(QColorGroup::Button));
+		p->fillRect(xpos, y, checkcol, h, pal.brush(QPalette::Button));
 	    }
 
 	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
@@ -854,15 +851,13 @@ void QMacStyle::drawControl(ControlElement element,
 		pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
 	    int pixw = pixmap.width();
 	    int pixh = pixmap.height();
-	    if(act && !dis) {
-		if(!mi->isChecked())
-		    qDrawShadePanel(p, xpos, y, checkcol, h, g, FALSE, 1,
-				     &g.brush(QColorGroup::Button));
-	    }
+	    if(act && !dis && !mi->isChecked())
+		qDrawShadePanel(p, xpos, y, checkcol, h, pal, FALSE, 1,
+				&pal.brush(QPalette::Button));
 	    QRect cr(xpos, y, checkcol, h);
 	    QRect pmr(0, 0, pixw, pixh);
 	    pmr.moveCenter(cr.center());
-	    p->setPen(itemg.text());
+	    p->setPen(pal.text());
 	    p->drawPixmap(pmr.topLeft(), pixmap);
 	} else  if(checkable) {  // just "checking"...
 	    int mw = checkcol + macItemFrame;
@@ -879,16 +874,16 @@ void QMacStyle::drawControl(ControlElement element,
 		    cflags |= Style_Enabled;
 		if(act)
 		    cflags |= Style_On;
-		drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), cg, cflags);
+		drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), pal, cflags);
 	    }
 	}
 
 	if(dis)
-	    p->setPen(itemg.text());
+	    p->setPen(pal.text());
 	else if(act)
-	    p->setPen(g.highlightedText());
+	    p->setPen(pal.highlightedText());
 	else
-	    p->setPen(g.buttonText());
+	    p->setPen(pal.buttonText());
 
 	int xm = macItemFrame + checkcol + macItemHMargin;
 	if(reverse)
@@ -898,8 +893,7 @@ void QMacStyle::drawControl(ControlElement element,
 
 	if(mi->custom()) {
 	    int m = macItemVMargin;
-	    mi->custom()->paint(p, itemg, act, !dis,
-				 x+xm, y+m, w-xm-tab+1, h-2*m);
+	    mi->custom()->paint(p, pal, act, !dis, x+xm, y+m, w-xm-tab+1, h-2*m);
 	}
 	QString s = mi->text();
 	if(!s.isNull()) {                        // draw text
@@ -939,7 +933,7 @@ void QMacStyle::drawControl(ControlElement element,
 	    tms |= kThemeMenuSelected;
 	((QMacPainter *)p)->setport();
 	DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
-	QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
+	QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
 	break; }
     case CE_ProgressBarContents: {
 	if(!widget)
@@ -955,7 +949,7 @@ void QMacStyle::drawControl(ControlElement element,
 	ttdi.value = pbar->progress();
 	ttdi.attributes |= kThemeTrackHorizontal;
 	ttdi.trackInfo.progress.phase = d->progressbarState.frame;
-	if(!qAquaActive(cg))
+	if(!qAquaActive(pal))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!pbar->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -968,13 +962,13 @@ void QMacStyle::drawControl(ControlElement element,
 	QTabBar * tb = (QTabBar *) widget;
 	ThemeTabStyle tts = kThemeTabNonFront;
 	if(how & Style_Selected) {
-	    if(!qAquaActive(cg))
+	    if(!qAquaActive(pal))
 		tts = kThemeTabFrontUnavailable;
 	    else if(!(how & Style_Enabled))
 		tts = kThemeTabFrontInactive;
 	    else
 		tts = kThemeTabFront;
-	} else if(!qAquaActive(cg)) {
+	} else if(!qAquaActive(pal)) {
 	    tts = kThemeTabNonFrontUnavailable;
 	} else if(!(how & Style_Enabled)) {
 	    tts = kThemeTabNonFrontInactive;
@@ -1001,7 +995,7 @@ void QMacStyle::drawControl(ControlElement element,
 	    p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
 	    ((QMacPainter *)p)->setport();
 	    ThemeDrawState tabpane_tds = kThemeStateActive;
-	    if(qAquaActive(cg)) {
+	    if(qAquaActive(pal)) {
 		if(!tb->isEnabled())
 		    tabpane_tds = kThemeStateUnavailable;
 	    } else {
@@ -1038,7 +1032,7 @@ void QMacStyle::drawControl(ControlElement element,
 	    darken = FALSE;
 	    frame = 0;
 	}
-	if(darken && qAquaActive(cg)) {
+	if(darken && qAquaActive(pal)) {
 	    QTextOStream os(&pmkey);
 	    os << "$qt_mac_pshbtn_" << r.width() << "x" << r.height() << "_" << how << "_" << frame;
 	    tds = kThemeStatePressed;
@@ -1112,7 +1106,7 @@ void QMacStyle::drawControl(ControlElement element,
 	}
 	break; }
     default:
-	QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
+	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
 }
 
@@ -1120,14 +1114,14 @@ void QMacStyle::drawControl(ControlElement element,
 void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
-					const QColorGroup &cg,
+					const QPalette &pal,
 					SFlags flags,
 					SCFlags sub,
 					SCFlags subActive,
 					const QStyleOption& opt) const
 {
     ThemeDrawState tds = kThemeStateActive;
-    if(qAquaActive(cg)) {
+    if(qAquaActive(pal)) {
 	if(!(flags & Style_Enabled))
 	    tds = kThemeStateUnavailable;
     } else if(flags & Style_Enabled) {
@@ -1206,7 +1200,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	break; }
     case CC_ListView: {
 	if(sub & SC_ListView)
-	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
+	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
 	if(sub & (SC_ListViewBranch | SC_ListViewExpand)) {
 	    if(opt.isDefault())
 		break;
@@ -1275,7 +1269,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	QSpinWidget * sw = (QSpinWidget *) widget;
 	if(sub & SC_SpinWidgetFrame)
 	    drawPrimitive(PE_PanelLineEdit, p, querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame),
-			  cg, Style_Sunken);
+			  pal, Style_Sunken);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
 		tds = kThemeStateUnavailable;
@@ -1392,7 +1386,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ((QMacPainter *)p)->setport();
 	    for(int i = 0; types[i].qt_type; i++) {
 		ThemeDrawState ctrl_tds = wtds;
-		if(qAquaActive(cg) && (subActive & types[i].qt_type))
+		if(qAquaActive(pal) && (subActive & types[i].qt_type))
 		    ctrl_tds = kThemeStatePressed;
 		DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, types[i].mac_type);
 	    }
@@ -1414,7 +1408,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(!qAquaActive(cg))
+	if(!qAquaActive(pal))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!scrollbar->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -1456,7 +1450,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ttdi.attributes |= kThemeTrackHorizontal;
 	if(widget->isEnabled())
 	    ttdi.enableState |= kThemeTrackActive;
-	if(!qAquaActive(cg))
+	if(!qAquaActive(pal))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!sldr->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -1489,7 +1483,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	if(subActive & QStyle::SC_ComboBoxArrow)
 	    info.state = kThemeStatePressed;
-	p->fillRect(r, cg.brush(QColorGroup::Button)); //make sure it is filled
+	p->fillRect(r, pal.brush(QPalette::Button)); //make sure it is filled
 	if(cbox->editable()) {
 	    info.adornment |= kThemeAdornmentArrowDownArrow;
 	    QRect buttonR = querySubControlMetrics(CC_ComboBox, widget, SC_ComboBoxArrow, opt);
@@ -1510,7 +1504,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	}
 	break; }
     default:
-	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
+	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
     }
 }
 
@@ -1749,7 +1743,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(!qAquaActive(scrollbar->colorGroup()))
+	if(!qAquaActive(scrollbar->palette()))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!scrollbar->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -1789,7 +1783,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(!qAquaActive(sldr->colorGroup()))
+	if(!qAquaActive(sldr->palette()))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!sldr->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -1970,7 +1964,7 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
-	if(!qAquaActive(scrollbar->colorGroup()))
+	if(!qAquaActive(scrollbar->palette()))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!scrollbar->isEnabled())
 	    ttdi.enableState = kThemeTrackDisabled;
@@ -2025,7 +2019,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 	ret = QDialogButtons::Reject;
 	break;
     case SH_GroupBox_TextLabelColor:
-	ret = (int) ( w ? w->colorGroup().foreground().rgb() : 0 );
+	ret = (int) ( w ? w->palette().foreground().color().rgb() : 0 );
 	break;
     case SH_PopupMenu_SloppySubMenus:
 	ret = TRUE;

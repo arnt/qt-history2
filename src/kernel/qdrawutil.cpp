@@ -31,8 +31,8 @@
     line is neither horizontal nor vertical).
 
     The color group argument \a g specifies the shading colors (\link
-    QColorGroup::light() light\endlink, \link QColorGroup::dark()
-    dark\endlink and \link QColorGroup::mid() middle\endlink colors).
+    QPalette::light() light\endlink, \link QPalette::dark()
+    dark\endlink and \link QPalette::mid() middle\endlink colors).
 
     The line appears sunken if \a sunken is TRUE, or raised if \a
     sunken is FALSE.
@@ -41,7 +41,7 @@
     lines. It is not the total line width.
 
     The \a midLineWidth argument specifies the width of a middle line
-    drawn in the QColorGroup::mid() color.
+    drawn in the QPalette::mid() color.
 
     If you want to use a QFrame widget instead, you can make it
     display a shaded line, for example \c{QFrame::setFrameStyle(
@@ -55,7 +55,7 @@
 */
 
 void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
-		     const QColorGroup &g, bool sunken,
+		     const QPalette &pal, bool sunken,
 		     int lineWidth, int midLineWidth )
 {
     if (!( p && lineWidth >= 0 && midLineWidth >= 0 ) )	{
@@ -65,9 +65,9 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
     int tlw = lineWidth*2 + midLineWidth;	// total line width
     QPen oldPen = p->pen();			// save pen
     if ( sunken )
-	p->setPen( g.dark() );
+	p->setPen( pal.dark() );
     else
-	p->setPen( g.light() );
+	p->setPen( pal.light() );
     QPointArray a;
     int i;
     if ( y1 == y2 ) {				// horizontal line
@@ -85,15 +85,15 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	    p->drawPolyline( a );
 	}
 	if ( midLineWidth > 0 ) {
-	    p->setPen( g.mid() );
+	    p->setPen( pal.mid() );
 	    for ( i=0; i<midLineWidth; i++ )	// draw lines in the middle
 		p->drawLine( x1+lineWidth, y+lineWidth+i,
 			     x2-lineWidth, y+lineWidth+i );
 	}
 	if ( sunken )
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	else
-	    p->setPen( g.dark() );
+	    p->setPen( pal.dark() );
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x1+i, y+tlw-i-1,
 			 x2-i, y+tlw-i-1,
@@ -116,14 +116,14 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 	    p->drawPolyline( a );
 	}
 	if ( midLineWidth > 0 ) {
-	    p->setPen( g.mid() );
+	    p->setPen( pal.mid() );
 	    for ( i=0; i<midLineWidth; i++ )	// draw lines in the middle
 		p->drawLine( x+lineWidth+i, y1+lineWidth, x+lineWidth+i, y2 );
 	}
 	if ( sunken )
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	else
-	    p->setPen( g.dark() );
+	    p->setPen( pal.dark() );
 	for ( i=0; i<lineWidth; i++ ) {		// draw right shadow
 	    a.setPoints( 3, x+lineWidth, y2-i,
 			 x+tlw-i-1, y2-i,
@@ -144,8 +144,8 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
     using the painter \a p.
 
     The color group argument \a g specifies the shading colors (\link
-    QColorGroup::light() light\endlink, \link QColorGroup::dark()
-    dark\endlink and \link QColorGroup::mid() middle\endlink colors).
+    QPalette::light() light\endlink, \link QPalette::dark()
+    dark\endlink and \link QPalette::mid() middle\endlink colors).
 
     The rectangle appears sunken if \a sunken is TRUE, or raised if \a
     sunken is FALSE.
@@ -154,7 +154,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
     lines. It is not the total line width.
 
     The \a midLineWidth argument specifies the width of a middle line
-    drawn in the QColorGroup::mid() color.
+    drawn in the QPalette::mid() color.
 
     The rectangle's interior is filled with the \a fill brush unless
     \a fill is 0.
@@ -173,7 +173,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 */
 
 void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken,
+		     const QPalette &pal, bool sunken,
 		     int lineWidth, int midLineWidth,
 		     const QBrush *fill )
 {
@@ -185,18 +185,18 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     }
     QPen oldPen = p->pen();
     if ( sunken )
-	p->setPen( g.dark() );
+	p->setPen( pal.dark() );
     else
-	p->setPen( g.light() );
+	p->setPen( pal.light() );
     int x1=x, y1=y, x2=x+w-1, y2=y+h-1;
     QPointArray a;
 
     if ( lineWidth == 1 && midLineWidth == 0 ) {// standard shade rectangle
 	p->drawRect( x1, y1, w-1, h-1 );
 	if ( sunken )
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	else
-	    p->setPen( g.dark() );
+	    p->setPen( pal.dark() );
 	a.setPoints( 8, x1+1,y1+1, x2-2,y1+1, x1+1,y1+2, x1+1,y2-2,
 		     x1,y2, x2,y2,  x2,y1, x2,y2-1 );
 	p->drawLineSegments( a );		// draw bottom/right lines
@@ -209,16 +209,16 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	    p->drawLineSegments( a );
 	    k++;
 	}
-	p->setPen( g.mid() );
+	p->setPen( pal.mid() );
 	j = lineWidth*2;
 	for ( i=0; i<midLineWidth; i++ ) {	// draw lines in the middle
 	    p->drawRect( x1+lineWidth+i, y1+lineWidth+i, w-j, h-j );
 	    j += 2;
 	}
 	if ( sunken )
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	else
-	    p->setPen( g.dark() );
+	    p->setPen( pal.dark() );
 	k = m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    a.setPoints( 8, x1+1+i,y2-i, x2-i, y2-i, x2-i, y2-i, x2-i, y1+i+1,
@@ -248,8 +248,8 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     the painter \a p.
 
     The color group argument \a g specifies the shading colors (\link
-    QColorGroup::light() light\endlink, \link QColorGroup::dark()
-    dark\endlink and \link QColorGroup::mid() middle\endlink colors).
+    QPalette::light() light\endlink, \link QPalette::dark()
+    dark\endlink and \link QPalette::mid() middle\endlink colors).
 
     The panel appears sunken if \a sunken is TRUE, or raised if \a
     sunken is FALSE.
@@ -272,7 +272,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 */
 
 void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
-		      const QColorGroup &g, bool sunken,
+		      const QPalette &pal, bool sunken,
 		      int lineWidth, const QBrush *fill )
 {
     if ( w == 0 || h == 0 )
@@ -280,13 +280,13 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
     	qWarning( "qDrawShadePanel() Invalid parameters." );
     }
-    QColor shade = g.dark();
-    QColor light = g.light();
+    QColor shade = pal.dark();
+    QColor light = pal.light();
     if ( fill ) {
 	if ( fill->color() == shade )
-	    shade = g.shadow();
+	    shade = pal.shadow();
 	if ( fill->color() == light )
-	    light = g.midlight();
+	    light = pal.midlight();
     }
     QPen oldPen = p->pen();			// save pen
     QPointArray a( 4*lineWidth );
@@ -401,8 +401,8 @@ static void qDrawWinShades( QPainter *p,
     h) using the painter \a p.
 
     The color group argument \a g specifies the shading colors (\link
-    QColorGroup::light() light\endlink, \link QColorGroup::dark()
-    dark\endlink and \link QColorGroup::mid() middle\endlink colors).
+    QPalette::light() light\endlink, \link QPalette::dark()
+    dark\endlink and \link QPalette::mid() middle\endlink colors).
 
     The button appears sunken if \a sunken is TRUE, or raised if \a
     sunken is FALSE.
@@ -420,15 +420,15 @@ static void qDrawWinShades( QPainter *p,
 */
 
 void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool sunken,
+		     const QPalette &pal, bool sunken,
 		     const QBrush *fill )
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-		       g.shadow(), g.light(), g.dark(), g.button(), fill );
+		       pal.shadow(), pal.light(), pal.dark(), pal.button(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-		       g.light(), g.shadow(), g.button(), g.dark(), fill );
+		       pal.light(), pal.shadow(), pal.button(), pal.dark(), fill );
 }
 
 /*!
@@ -461,15 +461,15 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 */
 
 void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &g, bool	sunken,
+		    const QPalette &pal, bool	sunken,
 		    const QBrush *fill )
 {
     if ( sunken )
 	qDrawWinShades( p, x, y, w, h,
-			g.dark(), g.light(), g.shadow(), g.midlight(), fill );
+			pal.dark(), pal.light(), pal.shadow(), pal.midlight(), fill );
     else
 	qDrawWinShades( p, x, y, w, h,
-			g.light(), g.shadow(), g.midlight(), g.dark(), fill );
+			pal.light(), pal.shadow(), pal.midlight(), pal.dark(), fill );
 }
 
 
@@ -561,11 +561,11 @@ QRect qItemRect( QPainter *p, Qt::GUIStyle gs,
 void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 		int x, int y, int w, int h,
 		int flags,
-		const QColorGroup &g, bool enabled,
+		const QPalette &pal, bool enabled,
 		const QPixmap *pixmap,
 		const QString& text, int len , const QColor* penColor )
 {
-    p->setPen( penColor?*penColor:g.foreground() );
+    p->setPen( penColor?*penColor:pal.foreground().color() );
     if ( pixmap ) {
 	QPixmap  pm( *pixmap );
 	bool clip = (flags & Qt::DontClip) == 0;
@@ -607,9 +607,9 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 #endif
 	    }
 	    if ( gs == Qt::WindowsStyle ) {
-		p->setPen( g.light() );
+		p->setPen( pal.light() );
 		p->drawPixmap( x+1, y+1, pm );
-		p->setPen( g.text() );
+		p->setPen( pal.text() );
 	    }
 	}
 	p->drawPixmap( x, y, pm );
@@ -617,9 +617,9 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 	    p->setClipping( FALSE );
     } else if ( !text.isNull() ) {
 	if ( gs == Qt::WindowsStyle && !enabled ) {
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );
-	    p->setPen( g.text() );
+	    p->setPen( pal.text() );
 	}
 	p->drawText( x, y, w, h, flags, text, len );
     }
@@ -631,62 +631,62 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
  *****************************************************************************/
 
 /*!
-    \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2, const QColorGroup &g, bool sunken, int lineWidth, int midLineWidth )
+    \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2, 
+    const QPalette &pal, bool sunken, int lineWidth, int midLineWidth )
 */
 
 void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
-		     const QColorGroup &g, bool sunken,
+		     const QPalette &pal, bool sunken,
 		     int lineWidth, int midLineWidth )
 {
-    qDrawShadeLine( p, p1.x(), p1.y(), p2.x(), p2.y(), g, sunken,
+    qDrawShadeLine( p, p1.x(), p1.y(), p2.x(), p2.y(), pal, sunken,
 		    lineWidth, midLineWidth );
 }
 
 /*!
-    \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, int lineWidth, int midLineWidth, const QBrush *fill )
+    \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QPalette &pal, 
+    bool sunken, int lineWidth, int midLineWidth, const QBrush *fill )
 */
 
 void qDrawShadeRect( QPainter *p, const QRect &r,
-		     const QColorGroup &g, bool sunken,
+		     const QPalette &pal, bool sunken,
 		     int lineWidth, int midLineWidth,
 		     const QBrush *fill )
 {
-    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), g, sunken,
+    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(), pal, sunken,
 		    lineWidth, midLineWidth, fill );
 }
 
 /*!
-    \overload void qDrawShadePanel( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, int lineWidth, const QBrush *fill )
+    \overload void qDrawShadePanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, int lineWidth, const QBrush *fill )
 */
 
 void qDrawShadePanel( QPainter *p, const QRect &r,
-		      const QColorGroup &g, bool sunken,
+		      const QPalette &pal, bool sunken,
 		      int lineWidth, const QBrush *fill )
 {
-    qDrawShadePanel( p, r.x(), r.y(), r.width(), r.height(), g, sunken,
+    qDrawShadePanel( p, r.x(), r.y(), r.width(), r.height(), pal, sunken,
 		     lineWidth, fill );
 }
 
 /*!
-    \overload void qDrawWinButton( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, const QBrush *fill )
+    \overload void qDrawWinButton( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
 */
 
 void qDrawWinButton( QPainter *p, const QRect &r,
-		     const QColorGroup &g, bool sunken,
-		     const QBrush *fill )
+		     const QPalette &pal, bool sunken, const QBrush *fill )
 {
-    qDrawWinButton( p, r.x(), r.y(), r.width(), r.height(), g, sunken, fill );
+    qDrawWinButton( p, r.x(), r.y(), r.width(), r.height(), pal, sunken, fill );
 }
 
 /*!
-    \overload void qDrawWinPanel( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, const QBrush *fill )
+    \overload void qDrawWinPanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
 */
 
 void qDrawWinPanel( QPainter *p, const QRect &r,
-		    const QColorGroup &g, bool sunken,
-		    const QBrush *fill )
+		    const QPalette &pal, bool sunken,  const QBrush *fill )
 {
-    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), g, sunken, fill );
+    qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), pal, sunken, fill );
 }
 
 /*!
@@ -703,7 +703,7 @@ void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c,
 
 static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
 			   int x, int y, int w, int h,
-			   const QColorGroup &g, bool enabled )
+			   const QPalette &pal, bool enabled )
 {
     QPointArray a;				// arrow polygon
     switch ( type ) {
@@ -731,21 +731,21 @@ static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
     QPen savePen = p->pen();			// save current pen
     if (down)
 	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-    p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
+    p->fillRect( x, y, w, h, pal.brush( QPalette::Button ) );
     if (down)
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
 	a.translate( x+w/2, y+h/2 );
-	p->setPen( g.foreground() );
+	p->setPen( pal.foreground() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
     } else {
 	a.translate( x+w/2+1, y+h/2+1 );
-	p->setPen( g.light() );
+	p->setPen( pal.light() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
 	a.translate( -1, -1 );
-	p->setPen( g.mid() );
+	p->setPen( pal.mid() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
     }
@@ -762,7 +762,7 @@ static void qDrawWinArrow( QPainter *p, Qt::ArrowType type, bool down,
 // is this correct?
 static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 			     int x, int y, int w, int h,
-			     const QColorGroup &g, bool )
+			     const QPalette &pal, bool )
 {
     QPointArray bFill;				// fill polygon
     QPointArray bTop;				// top shadow.
@@ -850,10 +850,10 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 
     QColor *cols[5];
     cols[0] = 0;
-    cols[1] = (QColor *)&g.button();
-    cols[2] = (QColor *)&g.mid();
-    cols[3] = (QColor *)&g.light();
-    cols[4] = (QColor *)&g.dark();
+    cols[1] = (QColor *)&pal.button();
+    cols[2] = (QColor *)&pal.mid();
+    cols[3] = (QColor *)&pal.light();
+    cols[4] = (QColor *)&pal.dark();
 #define CMID	*cols[ (colspec>>12) & 0xf ]
 #define CLEFT	*cols[ (colspec>>8) & 0xf ]
 #define CTOP	*cols[ (colspec>>4) & 0xf ]
@@ -865,7 +865,7 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     QWMatrix wxm = p->worldMatrix();
 #endif
     QPen     pen( Qt::NoPen );
-    const QBrush &brush = g.brush( QColorGroup::Button );
+    const QBrush &brush = pal.brush( QPalette::Button );
 
     p->setPen( pen );
     p->setBrush( brush );
@@ -897,15 +897,15 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
 
 void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 		 int x, int y, int w, int h,
-		 const QColorGroup &g, bool enabled )
+		 const QPalette &pal, bool enabled )
 {
     switch ( style ) {
 	case Qt::WindowsStyle:
-	    qDrawWinArrow( p, type, down, x, y, w, h, g, enabled );
+	    qDrawWinArrow( p, type, down, x, y, w, h, pal, enabled );
 	    break;
 #ifndef QT_NO_STYLE_MOTIF
 	case Qt::MotifStyle:
-	    qDrawMotifArrow( p, type, down, x, y, w, h, g, enabled );
+	    qDrawMotifArrow( p, type, down, x, y, w, h, pal, enabled );
 	    break;
 #endif
 	default:

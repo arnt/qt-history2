@@ -107,7 +107,7 @@ static bool optimize_layout = FALSE;
 static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(Q_WS_X11)
-static void createSelectionPixmap( const QColorGroup &cg )
+static void createSelectionPixmap( const QPalette &cg )
 {
     QBitmap m( 2, 2 );
     m.fill( Qt::color1 );
@@ -1933,7 +1933,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     with the changed values.
 */
 
-void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
+void QIconViewItem::paintItem( QPainter *p, const QPalette &cg )
 {
     if ( !view )
 	return;
@@ -2038,7 +2038,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
     the color group \a cg.
 */
 
-void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
+void QIconViewItem::paintFocus( QPainter *p, const QPalette &cg )
 {
     if ( !view )
 	return;
@@ -3387,14 +3387,11 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    remaining = remaining.subtract( r3 );
 	    p->restore();
 
-	    QColorGroup cg;
+	    QPalette pal = palette();
 	    d->drawActiveSelection = hasFocus() || d->inMenuMode
 		|| !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this );
-
 	    if ( !d->drawActiveSelection )
-		cg = palette().inactive();
-	    else
-		cg = colorGroup();
+		pal.setCurrentColorGroup(QPalette::Inactive);
 
 	    QIconViewItem *item = c->items.first();
 	    // clip items to the container rect by default... this
@@ -3408,7 +3405,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		if ( item->rect().intersects( r ) && !item->dirty ) {
 		    p->save();
 		    p->setFont( font() );
-		    item->paintItem( p, cg );
+		    item->paintItem( p, pal );
 		    p->restore();
 		}
 	    }
@@ -3435,7 +3432,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     if ( ( hasFocus() || viewport()->hasFocus() ) && d->currentItem &&
 	 d->currentItem->rect().intersects( r ) ) {
-	d->currentItem->paintFocus( p, colorGroup() );
+	d->currentItem->paintFocus( p, palette() );
     }
 
     if ( d->dragging && d->rubber )
@@ -4700,7 +4697,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	QPainter p;
 	p.begin( viewport() );
 	p.translate( -contentsX(), -contentsY() );
-	item->paintFocus( &p, colorGroup() );
+	item->paintFocus( &p, palette() );
 	p.end();
     } else {
 	e->acceptAction();
@@ -5305,8 +5302,8 @@ void QIconView::drawRubber( QPainter *p )
     style().drawPrimitive(QStyle::PE_FocusRect, p,
 			  QRect( pnt.x(), pnt.y(),
 				 d->rubber->width(), d->rubber->height() ),
-			  colorGroup(), QStyle::Style_Default,
-			  QStyleOption(colorGroup().base()));
+			  palette(), QStyle::Style_Default,
+			  QStyleOption(palette().base()));
 }
 
 /*!
@@ -5501,7 +5498,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	return;
     }
 
-    QStyleOption opt(colorGroup().base());
+    QStyleOption opt(palette().base());
 
     if ( d->isIconDrag ) {
 	QPainter p;
@@ -5519,9 +5516,9 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    if ( !ir.intersects( QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() ) ) )
 		continue;
 
-	    style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, ir, palette(),
 				  QStyle::Style_Default, opt);
-	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, tr, palette(),
 				  QStyle::Style_Default, opt);
 	}
 
@@ -5534,7 +5531,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
-	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, colorGroup(),
+	    style().drawPrimitive(QStyle::PE_FocusRect, &p, r, palette(),
 				  QStyle::Style_Default, opt);
 	}
 
@@ -6339,7 +6336,7 @@ void QIconView::windowActivationChange( bool oldActive )
     if ( !isVisible() )
 	return;
 
-    if ( palette().active() == palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive) )
 	return;
 
     repaintSelectedItems();

@@ -357,15 +357,15 @@ void QWhatsThat::paintEvent( QPaintEvent* )
     if ( drawShadow )
 	r.addCoords( 0, 0, -shadowWidth, -shadowWidth );
     QPainter p( this);
-    p.setPen( colorGroup().foreground() );
+    p.setPen( palette().foreground() );
     p.drawRect( r );
-    p.setPen( colorGroup().mid() );
-    p.setBrush( colorGroup().brush( QColorGroup::Background ) );
+    p.setPen( palette().mid() );
+    p.setBrush( palette().brush( QPalette::Background ) );
     int w = r.width();
     int h = r.height();
     p.drawRect( 1, 1, w-2, h-2 );
     if ( drawShadow ) {
-	p.setPen( colorGroup().shadow() );
+	p.setPen( palette().shadow() );
 	p.drawPoint( w + 5, 6 );
 	p.drawLine( w + 3, 6, w + 5, 8 );
 	p.drawLine( w + 1, 6, w + 5, 10 );
@@ -377,12 +377,12 @@ void QWhatsThat::paintEvent( QPaintEvent* )
 	for( ; i > 0 ; i -= 2 )
 	    p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
     }
-    p.setPen( colorGroup().foreground() );
+    p.setPen( palette().foreground() );
     r.addCoords( hMargin, vMargin, -hMargin, -vMargin );
 
 #ifndef QT_NO_RICHTEXT
     if ( doc ) {
-	doc->draw( &p, r.x(), r.y(), r, colorGroup(), 0 );
+	doc->draw( &p, r.x(), r.y(), r, palette(), 0 );
     }
     else
 #endif

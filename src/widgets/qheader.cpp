@@ -1425,7 +1425,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
     if ( section < 0 ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
-			       colorGroup(), QStyle::Style_Raised |
+			       palette(), QStyle::Style_Raised |
 			       (isEnabled() ? QStyle::Style_Enabled : 0) |
 			       ( orient == Horizontal ? QStyle::Style_Horizontal : 0 ),
 			       QStyleOption( this ) );
@@ -1454,7 +1454,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
 	style().drawPrimitive( QStyle::PE_HeaderSection, p, fr,
-			       colorGroup(), flags,
+			       palette(), flags,
 			       QStyleOption( this ) );
     } else {
 	p->save();
@@ -1462,42 +1462,42 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	if ( orientation() == Horizontal ) {
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), flags,
+				   palette(), flags,
 				   QStyleOption( this ) );
 
-	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
+	    p->setPen( palette().color( QPalette::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1,
 			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->drawLine( fr.x() + fr.width() - 1, fr.y(),
 			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-	    p->setPen( colorGroup().color( QColorGroup::Light ) );
+	    p->setPen( palette().color( QPalette::Light ) );
 	    if ( index > 0 )
 		p->drawLine( fr.x(), fr.y(), fr.x(), fr.y() + fr.height() - 1 );
 	    if ( index == count() - 1 ) {
 		p->drawLine( fr.x() + fr.width() - 1, fr.y(),
 			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-		p->setPen( colorGroup().color( QColorGroup::Mid ) );
+		p->setPen( palette().color( QPalette::Mid ) );
 		p->drawLine( fr.x() + fr.width() - 2, fr.y(),
 			     fr.x() + fr.width() - 2, fr.y() + fr.height() - 1 );
 	    }
 	} else {
 	    style().drawPrimitive( QStyle::PE_HeaderSection, p,
 				   QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
-				   colorGroup(), flags,
+				   palette(), flags,
 				   QStyleOption( this ) );
 
-	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
+	    p->setPen( palette().color( QPalette::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(),
 			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1,
 			 fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-	    p->setPen( colorGroup().color( QColorGroup::Light ) );
+	    p->setPen( palette().color( QPalette::Light ) );
 	    if ( index > 0 )
 		p->drawLine( fr.x(), fr.y(), fr.x() + fr.width() - 1, fr.y() );
 	    if ( index == count() - 1 ) {
 		p->drawLine( fr.x(), fr.y() + fr.height() - 1,
 			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
-		p->setPen( colorGroup().color( QColorGroup::Mid ) );
+		p->setPen( palette().color( QPalette::Mid ) );
 		p->drawLine( fr.x(), fr.y() + fr.height() - 2,
 			     fr.x() + fr.width() - 1, fr.y() + fr.height() - 2 );
 	    }
@@ -1535,7 +1535,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     QRect r( fr.x() + style().pixelMetric( QStyle::PM_HeaderMargin ) + dx, fr.y() + 2 + dy,
 	     fr.width() - 6, fr.height() - 4 );
 
-    style().drawControl( QStyle::CE_HeaderLabel, p, this, r, colorGroup(), flags,
+    style().drawControl( QStyle::CE_HeaderLabel, p, this, r, palette(), flags,
 			 QStyleOption( section ) );
 
     int arrowWidth = ( orient == Qt::Horizontal ? height() : width() ) / 2;
@@ -1560,7 +1560,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	    flags |= QStyle::Style_Up;
 	style().drawPrimitive( QStyle::PE_HeaderArrow, p,
 			       QRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight),
-			       colorGroup(), flags, QStyleOption( this ) );
+			       palette(), flags, QStyleOption( this ) );
     }
 }
 
@@ -1569,7 +1569,7 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 void QHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
-    p.setPen( colorGroup().buttonText() );
+    p.setPen( palette().buttonText() );
     int pos = orient == Horizontal ? e->rect().left() : e->rect().top();
     int id = mapToIndex( sectionAt( pos + offset() ) );
     if ( id < 0 ) {
@@ -1601,7 +1601,7 @@ void QHeader::paintEvent( QPaintEvent *e )
 		if ( hasFocus() && d->focusIdx == i ) {
 		    QRect fr( r.x()+2, r.y()+2, r.width()-4, r.height()-4 );
 		    style().drawPrimitive( QStyle::PE_FocusRect, &p, fr,
-					   colorGroup() );
+					   palette() );
 		}
 		if ( orient == Horizontal && r. right() >= e->rect().right() ||
 		     orient == Vertical && r. bottom() >= e->rect().bottom() )

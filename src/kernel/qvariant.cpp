@@ -108,9 +108,11 @@ QVariant::Private::Private( uint t )
     case Palette:
 	value.ptr = new QPalette;
 	break;
+#ifndef QT_NO_COMPAT
     case ColorGroup:
 	value.ptr = new QColorGroup;
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case IconSet:
@@ -223,9 +225,11 @@ QVariant::Private::Private( uint t, void *v )
     case Palette:
 	value.ptr = new QPalette(*(QPalette*)v);
 	break;
+#ifndef QT_NO_COMPAT
     case ColorGroup:
 	value.ptr = new QColorGroup(*(QColorGroup*)v);
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case IconSet:
@@ -342,9 +346,11 @@ void QVariant::Private::clear()
     case QVariant::Palette:
 	delete (QPalette*)value.ptr;
 	break;
+#ifndef QT_NO_COMPAT
     case QVariant::ColorGroup:
 	delete (QColorGroup*)value.ptr;
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
@@ -491,7 +497,6 @@ void QVariant::Private::clear()
     \value Bool  a bool
     \value Brush  a QBrush
     \value Color  a QColor
-    \value ColorGroup  a QColorGroup
     \value Cursor  a QCursor
     \value Date  a QDate
     \value DateTime  a QDateTime
@@ -729,9 +734,7 @@ QVariant::QVariant( const QPalette& val )
     d->is_null = FALSE;
 }
 
-/*!
-    Constructs a new variant with a color group value, \a val.
-*/
+#ifndef QT_NO_COMPAT
 QVariant::QVariant( const QColorGroup& val )
 {
     d = new Private;
@@ -739,6 +742,8 @@ QVariant::QVariant( const QColorGroup& val )
     d->value.ptr = new QColorGroup( val );
     d->is_null = FALSE;
 }
+#endif
+
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 /*!
@@ -1051,7 +1056,9 @@ static const char* const type_map[ntypes] =
     "QSize",
     "QColor",
     "QPalette",
+#ifndef QT_NO_COMPAT
     "QColorGroup",
+#endif
     "QIconSet",
     "QPoint",
     "QImage",
@@ -1253,6 +1260,7 @@ void QVariant::load( QDataStream& s )
 	d->is_null = FALSE;
     }
 	break;
+#ifndef QT_NO_COMPAT
     case ColorGroup: {
 	QColorGroup* x = new QColorGroup;
 	s >> *x;
@@ -1260,6 +1268,7 @@ void QVariant::load( QDataStream& s )
 	d->is_null = FALSE;
     }
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case IconSet: {
@@ -1442,9 +1451,11 @@ void QVariant::save( QDataStream& s ) const
     case Palette:
 	s << *((QPalette*)d->value.ptr);
 	break;
+#ifndef QT_NO_COMPAT
     case ColorGroup:
 	s << *((QColorGroup*)d->value.ptr);
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case IconSet:
@@ -1837,19 +1848,14 @@ QPalette QVariant::toPalette() const
     return *((QPalette*)d->value.ptr);
 }
 
-/*!
-    Returns the variant as a QColorGroup if the variant has type()
-    ColorGroup; otherwise returns a completely black color group.
-
-    \sa asColorGroup()
-*/
+#ifndef QT_NO_COMPAT
 QColorGroup QVariant::toColorGroup() const
 {
     if ( d->type != ColorGroup )
 	return QColorGroup();
-
     return *((QColorGroup*)d->value.ptr);
 }
+#endif
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
 /*!
@@ -2365,7 +2371,9 @@ Q_VARIANT_AS(Size)
 Q_VARIANT_AS(Color)
 #ifndef QT_NO_PALETTE
 Q_VARIANT_AS(Palette)
+#ifndef QT_NO_COMPAT
 Q_VARIANT_AS(ColorGroup)
+#endif
 #endif
 #ifndef QT_NO_ICONSET
 Q_VARIANT_AS(IconSet)
@@ -2536,18 +2544,6 @@ Q_VARIANT_AS(Pen)
     Returns a reference to the stored palette.
 
     \sa toString()
-*/
-
-/*!
-    \fn QColorGroup& QVariant::asColorGroup()
-
-    Tries to convert the variant to hold a QColorGroup value. If that
-    is not possible the variant is set to a color group of all black
-    colors.
-
-    Returns a reference to the stored color group.
-
-    \sa toColorGroup()
 */
 
 /*!
@@ -2961,9 +2957,11 @@ bool QVariant::cast( Type t )
     case QVariant::Palette:
 	asPalette();
 	break;
+#ifndef QT_NO_COMPAT
     case QVariant::ColorGroup:
 	asColorGroup();
 	break;
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
@@ -3101,8 +3099,10 @@ bool QVariant::operator==( const QVariant &v ) const
 #ifndef QT_NO_PALETTE
     case Palette:
 	return v.toPalette() == toPalette();
+#ifndef QT_NO_COMPAT
     case ColorGroup:
 	return v.toColorGroup() == toColorGroup();
+#endif
 #endif
 #ifndef QT_NO_ICONSET
     case IconSet:
@@ -3250,7 +3250,9 @@ bool QVariant::isNull() const
     case Color:
 #ifndef QT_NO_PALETTE
     case Palette:
+#ifndef QT_NO_COMPAT
     case ColorGroup:
+#endif
 #endif
 #ifndef QT_NO_TEMPLATE_VARIANT
     case Map:

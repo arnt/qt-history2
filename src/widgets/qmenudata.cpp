@@ -1493,11 +1493,11 @@ bool QCustomMenuItem::isSeparator() const
 
 
 /*!
-    \fn void QCustomMenuItem::paint( QPainter* p, const QColorGroup& cg, bool act,  bool enabled, int x, int y, int w, int h );
+    \fn void QCustomMenuItem::paint( QPainter* p, const QPalette& pal, bool act,  bool enabled, int x, int y, int w, int h );
 
     Paints this item. When this function is invoked, the painter \a p
     is set to a font and foreground color suitable for a menu item
-    text using color group \a cg. The item is active if \a act is TRUE
+    text using color group \a pal. The item is active if \a act is TRUE
     and enabled if \a enabled is TRUE. The geometry values \a x, \a y,
     \a w and \a h specify where to draw the item.
 

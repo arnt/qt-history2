@@ -682,8 +682,7 @@ void QLCDNumber::internalSetString( const QString& s )
     if ( buffer == digitStr )
         return;
 
-    if ( backgroundMode() == FixedPixmap
-         || colorGroup().brush( QColorGroup::Background ).pixmap() ) {
+    if ( backgroundMode() == FixedPixmap || palette().brush( QPalette::Background ).pixmap() ) {
         digitStr = buffer;
         if ( smallPoint )
             points = newPoints;
@@ -807,17 +806,18 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     QPoint pt = pos;
     int width = segLen/5;
 
-    const QColorGroup & g = colorGroup();
+    const QPalette &pal = palette();
     QColor lightColor,darkColor,fgColor;
     if ( erase ){
         lightColor = backgroundColor();
         darkColor  = lightColor;
         fgColor    = lightColor;
     } else {
-        lightColor = g.light();
-        darkColor  = g.dark();
-        fgColor    = g.foreground();
+        lightColor = pal.light();
+        darkColor  = pal.dark();
+        fgColor    = pal.foreground();
     }
+
 
 #define LINETO(X,Y) addPoint( a, QPoint(pt.x() + (X),pt.y() + (Y)))
 #define LIGHT
@@ -1102,7 +1102,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     \endtable
 
     \c Outline and \c Filled will additionally use
-    QColorGroup::light() and QColorGroup::dark() for shadow effects.
+    QPalette::light() and QPalette::dark() for shadow effects.
 */
 void QLCDNumber::setSegmentStyle( SegmentStyle s )
 {

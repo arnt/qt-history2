@@ -449,7 +449,8 @@ public:
 	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
     {}
     virtual ~QTextCustomItem();
-    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected ) = 0;
+    virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+		      const QPalette &pal, bool selected ) = 0;
 
     virtual void adjustToPainter( QPainter* );
 
@@ -511,7 +512,8 @@ public:
 
     QString richText() const;
 
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+	       const QPalette &pal, bool selected );
 
 private:
     QRegion* reg;
@@ -533,7 +535,8 @@ public:
     virtual ~QTextHorizontalLine();
 
     void adjustToPainter( QPainter* );
-    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
+    void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+	      const QPalette &pal, bool selected );
     QString richText() const;
 
     bool ownLine() const { return TRUE; }
@@ -579,7 +582,8 @@ public:
     virtual void unregisterFloatingItem( QTextCustomItem* item );
 #endif
     virtual QRect boundingRect() const;
-    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
+    virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, 
+				   const QPalette &pal, bool selected );
 
     virtual int adjustFlow( int  y, int w, int h ); // adjusts y according to the defined pagesize. Returns the shift.
 
@@ -637,7 +641,8 @@ public:
     QTextDocument* richText()  const { return richtext; }
     QTextTable* table() const { return parent; }
 
-    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+	       const QPalette &cg, bool selected );
 
     QBrush *backGround() const { return background; }
     virtual void invalidate();
@@ -684,7 +689,7 @@ public:
     void adjustToPainter( QPainter *p );
     void pageBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
-	       const QColorGroup& cg, bool selected );
+	       const QPalette &pal, bool selected );
 
     bool noErase() const { return TRUE; }
     bool ownLine() const { return TRUE; }
@@ -878,13 +883,13 @@ public:
     QBrush *paper() const { return backBrush; }
 
     void doLayout( QPainter *p, int w );
-    void draw( QPainter *p, const QRect& rect, const QColorGroup &cg, const QBrush *paper = 0 );
+    void draw( QPainter *p, const QRect& rect, const QPalette &pal, const QBrush *paper = 0 );
     bool useDoubleBuffer( QTextParagraph *parag, QPainter *p );
 
     void drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
-		    QPixmap *&doubleBuffer, const QColorGroup &cg,
+		    QPixmap *&doubleBuffer, const QPalette &pal,
 		    bool drawCursor, QTextCursor *cursor, bool resetChanged = TRUE );
-    QTextParagraph *draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
+    QTextParagraph *draw( QPainter *p, int cx, int cy, int cw, int ch, const QPalette &pal,
 		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0,
 		      bool resetChanged = TRUE );
 
@@ -1283,8 +1288,9 @@ public:
     void setAlignment( int a );
     int alignment() const;
 
-    void paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor = 0, bool drawSelections = FALSE,
-			int clipx = -1, int clipy = -1, int clipw = -1, int cliph = -1 );
+    void paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor = 0, 
+		bool drawSelections = FALSE, int clipx = -1, int clipy = -1, 
+		int clipw = -1, int cliph = -1 );
 
     int topMargin() const;
     int bottomMargin() const;
@@ -1350,11 +1356,11 @@ public:
     void writeStyleInformation( QDataStream& stream ) const;
 
 protected:
-    void setColorForSelection( QColor &c, QPainter &p, const QColorGroup& cg, int selection );
-    void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
+    void setColorForSelection( QColor &c, QPainter &p, const QPalette &pal, int selection );
+    void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QPalette &pal );
     void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
 			     int y, int baseLine, int w, int h, bool drawSelections, int fullSelectionWidth,
-			     QTextStringChar *formatChar, const QColorGroup& cg,
+			     QTextStringChar *formatChar, const QPalette &pal,
 			     bool rightToLeft );
 
 private:
@@ -1362,7 +1368,11 @@ private:
 #ifndef QT_NO_TEXTCUSTOMITEM
     QPtrList<QTextCustomItem> &floatingItems() const;
 #endif
-    QBrush backgroundBrush( const QColorGroup&cg ) { if ( bgcol ) return *bgcol; return cg.brush( QColorGroup::Base ); }
+    inline QBrush backgroundBrush( const QPalette &pal ) { 
+	if ( bgcol ) 
+	    return *bgcol; 
+	return pal.brush( QPalette::Base ); 
+    }
     void invalidateStyleCache();
 
     QMap<int, QTextLineStart*> lineStarts;

@@ -2099,7 +2099,7 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
 		 br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()) );
     gfx->setClipDeviceRegion( screenRegion );
 #ifndef QT_NO_PALETTE
-    clearRegion( exposed, qApp->palette().color( QPalette::Active, QColorGroup::Background ) );
+    clearRegion( exposed, qApp->palette().color( QPalette::Active, QPalette::Background ) );
 #endif
     QWSDisplay::ungrab();
 /*

@@ -1374,7 +1374,7 @@ void QtTableView::paintEvent( QPaintEvent *e )
     // outside the cells.
 
     QRect viewR = viewRect();
-    const QColorGroup g = colorGroup();
+    const QPalette g = palette();
 
     if ( xPos <= maxX ) {
 	QRect r = viewR;

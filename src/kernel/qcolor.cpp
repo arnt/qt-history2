@@ -127,7 +127,7 @@
     too-big hue value, Qt forces it into range. Hue 360 or 720 is
     treated as 0; hue 540 is treated as 180.
 
-    \sa QPalette, QColorGroup, QApplication::setColorSpec(),
+    \sa QPalette, QApplication::setColorSpec(),
     \link http://www.inforamp.net/~poynton/Poynton-color.html Color FAQ\endlink
 */
 

@@ -105,7 +105,7 @@ public:
     virtual bool fullSpan() const;
     virtual bool isSeparator() const;
     virtual void setFont( const QFont& font );
-    virtual void paint( QPainter* p, const QColorGroup& cg, bool act,
+    virtual void paint( QPainter* p, const QPalette& pal, bool act,
 			bool enabled, int x, int y, int w, int h ) = 0;
     virtual QSize sizeHint() = 0;
 };

@@ -61,7 +61,7 @@ QPlatinumStyle::~QPlatinumStyle()
 void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				    QPainter *p,
 				    const QRect &r,
-				    const QColorGroup &cg,
+				    const QPalette &pal,
 				    SFlags flags,
 				    const QStyleOption& opt ) const
 {
@@ -72,14 +72,14 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    // sunken...
 	    if ( flags & Style_Sunken )
 		flags ^= Style_Sunken;
-	    drawPrimitive( PE_ButtonBevel, p, r, cg, flags, opt );
+	    drawPrimitive( PE_ButtonBevel, p, r, pal, flags, opt );
 	    break;
 	}
     case PE_ButtonTool:
 	{
 	    // tool buttons don't change color when pushed in platinum,
 	    // so we need to make the mid and button color the same
-	    QColorGroup myCG = cg;
+	    QPalette pal2 = pal;
 	    QBrush fill;
 
 	    // quick trick to make sure toolbuttons drawn sunken
@@ -87,9 +87,9 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( flags & Style_On )
 		flags |= Style_Sunken;
 
-	    fill = myCG.brush( QColorGroup::Button );
-	    myCG.setBrush( QColorGroup::Mid, fill );
-	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, opt );
+	    fill = pal2.brush( QPalette::Button );
+	    pal2.setBrush( QPalette::Mid, fill );
+	    drawPrimitive( PE_ButtonBevel, p, r, pal2, flags, opt );
 	    break;
 	}
     case PE_ButtonBevel:
@@ -107,24 +107,24 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 		if ( !(flags & (Style_Sunken | Style_Down)) ) {
 		    p->fillRect( x + 2, y + 2, w - 4, h - 4,
-				 cg.brush(QColorGroup::Button) );
+				 pal.brush(QPalette::Button) );
 		    // the bright side
-		    p->setPen( cg.dark() );
+		    p->setPen( pal.dark() );
 		    // the bright side
-		    p->setPen( cg.dark() );
+		    p->setPen( pal.dark() );
 		    p->drawLine( x, y, x + w - 1, y );
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.light() );
+		    p->setPen( pal.light() );
 		    p->drawLine( x + 1, y + 1, x + w - 2, y + 1 );
 		    p->drawLine( x + 1, y + 1, x + 1, y + h - 2 );
 
 		    // the dark side
-		    p->setPen( cg.mid() );
+		    p->setPen( pal.mid() );
 		    p->drawLine( x + 2, y + h - 2, x + w - 2, y + h - 2 );
 		    p->drawLine( x + w - 2, y + 2, x + w - 2, y + h - 3 );
 
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x + 1, y + h - 1, x + w - 1,
 				 y + h - 1 );
 		    p->drawLine( x + w - 1, y + 1,
@@ -133,14 +133,14 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		} else {
 		    p->fillRect(x + 2, y + 2,
 				w - 4, h - 4,
-				cg.brush( QColorGroup::Mid ));
+				pal.brush( QPalette::Mid ));
 
 		    // the dark side
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x, y, x + w - 1, y );
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.mid().dark());
+		    p->setPen( pal.mid().color().dark());
 		    p->drawLine( x + 1, y + 1,
 				 x + w-2, y + 1);
 		    p->drawLine( x + 1, y + 1,
@@ -149,14 +149,14 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 		    // the bright side!
 
-		    p->setPen(cg.button());
+		    p->setPen(pal.button());
 		    p->drawLine( x + 1, y + h - 2,
 				 x + w - 2,
 				 y + h - 2 );
 		    p->drawLine( x + w - 2, y + 1,
 				 x + w - 2,
 				 y + h - 2 );
-		    p->setPen(cg.dark());
+		    p->setPen(pal.dark());
 		    p->drawLine(x, y + h - 1,
 				x + w - 1,
 				y + h - 1 );
@@ -169,34 +169,34 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		if ( !(flags & (Style_Sunken | Style_Down)) ) {
 		    p->fillRect( x + 3, y + 3, w - 6,
 				 h - 6,
-				 cg.brush(QColorGroup::Button) );
+				 pal.brush(QPalette::Button) );
 
 		    // the bright side
-		    p->setPen( cg.button().dark() );
+		    p->setPen( pal.button().color().dark() );
 		    p->drawLine( x, y, x + w - 1, y );
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.button() );
+		    p->setPen( pal.button() );
 		    p->drawLine( x + 1, y + 1,
 				 x + w - 2, y + 1 );
 		    p->drawLine( x + 1, y + 1,
 				 x + 1, y + h - 2 );
 
-		    p->setPen( cg.light() );
+		    p->setPen( pal.light() );
 		    p->drawLine( x + 2, y + 2,
 				 x + 2, y + h - 2 );
 		    p->drawLine( x + 2, y + 2,
 				 x + w - 2, y + 2 );
 		    // the dark side!
 
-		    p->setPen( cg.mid() );
+		    p->setPen( pal.mid() );
 		    p->drawLine( x + 3, y + h - 3,
 				 x + w - 3,
 				 y + h - 3 );
 		    p->drawLine( x + w - 3, y + 3,
 				 x + w - 3,
 				 y + h - 3 );
-		    p->setPen( cg.dark() );
+		    p->setPen( pal.dark() );
 		    p->drawLine( x + 2, y + h - 2,
 				 x + w - 2,
 				 y + h - 2 );
@@ -204,7 +204,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				 x + w - 2,
 				 y + h - 2 );
 
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x + 1, y + h - 1,
 				 x + w - 1,
 				 y + h - 1 );
@@ -214,20 +214,20 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		} else {
 		    p->fillRect( x + 3, y + 3, w - 6,
 				 h - 6,
-				 cg.brush( QColorGroup::Mid ) );
+				 pal.brush( QPalette::Mid ) );
 
 		    // the dark side
-		    p->setPen( cg.dark().dark().dark() );
+		    p->setPen( pal.dark().color().dark().dark() );
 		    p->drawLine( x, y, x + w - 1, y );
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x + 1, y + 1,
 				 x + w - 2, y + 1 );
 		    p->drawLine( x + 1, y + 1,
 				 x + 1, y + h - 2 );
 
-		    p->setPen( cg.mid().dark() );
+		    p->setPen( pal.mid().color().dark() );
 		    p->drawLine( x + 2, y + 2,
 				 x + 2, y + w - 2 );
 		    p->drawLine( x + 2, y + 2,
@@ -236,7 +236,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 		    // the bright side!
 
-		    p->setPen( cg.button() );
+		    p->setPen( pal.button() );
 		    p->drawLine( x + 2, y + h - 3,
 				 x + w - 3,
 				 y + h - 3 );
@@ -244,7 +244,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				 x + w - 3,
 				 y + h - 3 );
 
-		    p->setPen( cg.midlight() );
+		    p->setPen( pal.midlight() );
 		    p->drawLine( x + 1, y + h - 2,
 				 x + w - 2,
 				 y + h - 2 );
@@ -252,7 +252,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				 x + w - 2,
 				 y + h - 2 );
 
-		    p->setPen( cg.dark() );
+		    p->setPen( pal.dark() );
 		    p->drawLine( x, y + h - 1,
 				 x + w - 1,
 				 y + h - 1 );
@@ -262,16 +262,16 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 
 		    // corners
-		    p->setPen( mixedColor(cg.dark().dark().dark(),
-					  cg.dark()) );
+		    p->setPen( mixedColor(pal.dark().color().dark().dark(),
+					  pal.dark()) );
 		    p->drawPoint( x, y + h - 1 );
 		    p->drawPoint( x + w - 1, y );
 
-		    p->setPen( mixedColor(cg.dark().dark(), cg.midlight()) );
+		    p->setPen( mixedColor(pal.dark().color().dark(), pal.midlight()) );
 		    p->drawPoint( x + 1, y + h - 2 );
 		    p->drawPoint( x + w - 2, y + 1 );
 
-		    p->setPen( mixedColor(cg.mid().dark(), cg.button() ) );
+		    p->setPen( mixedColor(pal.mid().color().dark(), pal.button() ) );
 		    p->drawPoint( x + 2, y + h - 3 );
 		    p->drawPoint( x + w - 3, y + 2 );
 		}
@@ -290,133 +290,133 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 	    if ( !(flags & (Style_Down | Style_On)) ) {
 		p->fillRect( x+3, y+3, w-6, h-6,
-			     cg.brush( QColorGroup::Button ));
+			     pal.brush( QPalette::Button ));
 		// the bright side
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( x, y, x+w-1, y );
 		p->drawLine( x, y, x, y + h - 1 );
 
-		p->setPen( cg.button() );
+		p->setPen( pal.button() );
 		p->drawLine( x + 1, y + 1, x + w - 2, y + 1 );
 		p->drawLine( x + 1, y + 1, x + 1, y + h - 2 );
 
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawLine( x + 2, y + 2, x + 2, y + h - 2 );
 		p->drawLine( x + 2, y + 2, x + w - 2, y + 2 );
 
 
 		// the dark side!
 
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawLine( x + 3, y + h - 3 ,x + w - 3, y + h - 3 );
 		p->drawLine( x + w - 3, y + 3, x + w - 3, y + h - 3 );
 
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( x + 2, y + h - 2, x + w - 2, y + h - 2 );
 		p->drawLine( x + w - 2, y + 2, x + w - 2, y + h - 2 );
 
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( x + 1, y + h - 1, x + w - 1, y + h - 1 );
 		p->drawLine( x + w - 1, y, x + w - 1, y + h - 1 );
 
 
 		// top left corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x, y );
 		p->drawPoint( x + 1, y );
 		p->drawPoint( x, y+1 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + 1, y + 1 );
-		p->setPen( cg.button() );
+		p->setPen( pal.button() );
 		p->drawPoint( x + 2, y + 2 );
 		p->setPen( white );
 		p->drawPoint( x + 3, y + 3 );
 		// bottom left corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x, y + h - 1 );
 		p->drawPoint( x + 1, y + h - 1 );
 		p->drawPoint( x, y + h - 2 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + 1, y + h - 2 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + 2, y + h - 3 );
 		// top right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w -1, y );
 		p->drawPoint( x + w - 2, y );
 		p->drawPoint( x + w - 1, y + 1 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + w - 2, y + 1 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + w - 3, y + 2 );
 		// bottom right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w - 1, y + h - 1 );
 		p->drawPoint( x + w - 2, y + h - 1 );
 		p->drawPoint( x + w - 1, y + h - 2 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + w - 2, y + h - 2 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + w - 3, y + h - 3 );
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawPoint( x + w - 4, y + h - 4 );
 
 	    } else {
 		p->fillRect( x + 2, y + 2, w - 4, h - 4,
-			     cg.brush(QColorGroup::Dark) );
+			     pal.brush(QPalette::Dark) );
 
 		// the dark side
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( x, y, x + w - 1, y );
 		p->drawLine( x, y, x, y + h - 1 );
 
-		p->setPen( cg.dark().dark() );
+		p->setPen( pal.dark().color().dark() );
 		p->drawLine( x + 1, y + 1, x + w - 2, y + 1 );
 		p->drawLine( x + 1, y + 1, x + 1, y + h - 2 );
 
 		// the bright side!
 
-		p->setPen( cg.button() );
+		p->setPen( pal.button() );
 		p->drawLine( x + 1, y + h - 2, x + w - 2, y + h - 2 );
 		p->drawLine( x + w - 2, y + 1, x + w - 2, y + h - 2 );
 
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( x, y + h - 1, x + w - 1, y + h - 1 );
 		p->drawLine( x + w - 1, y, x + w - 1, y + h - 1 );
 
 		// top left corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x, y );
 		p->drawPoint( x + 1, y );
 		p->drawPoint( x, y + 1 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + 1, y + 1 );
-		p->setPen( cg.dark().dark() );
+		p->setPen( pal.dark().color().dark() );
 		p->drawPoint( x + 3, y + 3 );
 		// bottom left corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x, y + h - 1 );
 		p->drawPoint( x + 1, y + h - 1 );
 		p->drawPoint( x, y + h - 2 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + 1, y + h - 2 );
 		// top right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w - 1, y );
 		p->drawPoint( x + w - 2, y );
 		p->drawPoint( x + w - 1, y + 1 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + w - 2, y + 1 );
 		// bottom right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w - 1, y + h - 1 );
 		p->drawPoint( x + w - 2, y + h - 1 );
 		p->drawPoint( x + w - 1, y + h - 2 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( x + w - 2, y + h - 2 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + w - 3, y + h - 3 );
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawPoint( x + w - 4, y + h - 4 );
 	    }
 	    p->setPen( oldPen );
@@ -426,10 +426,10 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    drawPrimitive( PE_ButtonBevel, p, QRect(r.x(), r.y(),
 						    r.width() - 2, r.height()),
-			   cg, flags );
+			   pal, flags );
 	    p->fillRect( r.x() + r.width() - 2, r.y(), 2, r.height(),
-			 cg.brush( QColorGroup::Background ) );
-	    p->setPen( cg.shadow() );
+			 pal.brush( QPalette::Background ) );
+	    p->setPen( pal.shadow() );
 	    p->drawRect( r.x(), r.y(), r.width() - 2, r.height() );
 
 	    static const QCOORD nochange_mark[] = { 3,5, 9,5,  3,6, 9,6 };
@@ -460,10 +460,10 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		}
 
 		amark.translate( x1 + 1, y1 + 1 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLineSegments( amark );
 		amark.translate( -1, -1 );
-		p->setPen( cg.foreground() );
+		p->setPen( pal.foreground() );
 		p->drawLineSegments( amark );
 		p->setPen( oldPen );
 	    }
@@ -517,11 +517,11 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    x = r.x();
 	    y = r.y();
 	    p->eraseRect( r );
-	    p->setBrush( (down||on) ? cg.brush( QColorGroup::Dark )
-			 : cg.brush( QColorGroup::Button) );
+	    p->setBrush( (down||on) ? pal.brush( QPalette::Dark )
+			 : pal.brush( QPalette::Button) );
 	    p->setPen( NoPen );
 	    p->drawEllipse( x, y, 13, 13 );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	    a.translate( x, y );
 	    p->drawPolyline( a );	// draw normal circle
@@ -529,13 +529,13 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    const QCOORD *bp;
 	    int	bl;
 	    if ( down || on ) {			// pressed down or on
-		tc = cg.dark().dark();
-		bc = cg.light();
+		tc = pal.dark().color().dark();
+		bc = pal.light();
 		bp = pts4;
 		bl = QCOORDARRLEN(pts4);
 	    } else {					// released
-		tc = cg.light();
-		bc = cg.dark();
+		tc = pal.light();
+		bc = pal.dark();
 		bp = pts3;
 		bl = QCOORDARRLEN(pts3);
 	    }
@@ -550,13 +550,13 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( on ) {				// draw check mark
 		int x1 = x,
 		    y1 = y;
-		p->setBrush( cg.foreground() );
-		p->setPen( cg.foreground() );
+		p->setBrush( pal.foreground() );
+		p->setPen( pal.foreground() );
 		a.setPoints( QCOORDARRLEN(pts5), pts5 );
 		a.translate( x1, y1 );
 		p->drawPolygon( a );
 		p->setBrush( NoBrush );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		a.setPoints( QCOORDARRLEN(pts6), pts6 );
 		a.translate( x1, y1 );
 		p->drawLineSegments( a );
@@ -580,34 +580,34 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	}
     case PE_ScrollBarAddLine:
 	{
-	    drawPrimitive( PE_ButtonBevel, p, r, cg,
+	    drawPrimitive( PE_ButtonBevel, p, r, pal,
 			   (flags & Style_Enabled) | ((flags & Style_Down)
 						      ? Style_Sunken
 						      : Style_Raised) );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawRect( r );
 	    drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowRight
 			    : PE_ArrowDown), p, QRect(r.x() + 2,
 						      r.y() + 2,
 						      r.width() - 4,
 						      r.height() - 4),
-			   cg, flags );
+			   pal, flags );
 	    break;
 	}
     case PE_ScrollBarSubLine:
 	{
-	    drawPrimitive( PE_ButtonBevel, p, r, cg,
+	    drawPrimitive( PE_ButtonBevel, p, r, pal,
 			   (flags & Style_Enabled) | ((flags & Style_Down)
 						      ? Style_Sunken
 						      : Style_Raised) );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawRect( r );
 	    drawPrimitive( ((flags & Style_Horizontal) ? PE_ArrowLeft
 			    : PE_ArrowUp ), p, QRect(r.x() + 2,
 						     r.y() + 2,
 						     r.width() - 4,
 						     r.height() - 4),
-			   cg, flags );
+			   pal, flags );
 	    break;
 	}
     case PE_ScrollBarAddPage:
@@ -615,8 +615,8 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	{
  	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {
-		p->fillRect( r, cg.brush(QColorGroup::Mid) );
-		p->setPen( cg.shadow() );
+		p->fillRect( r, pal.brush(QPalette::Mid) );
+		p->setPen( pal.shadow() );
 		p->drawRect( r );
 		p->setPen( oldPen );
 	    } else {
@@ -628,14 +628,14 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		if ( flags & Style_Horizontal ) {
 		    p->fillRect( x + 2, y + 2, w - 2,
 				 h - 4,
-				 cg.brush(QColorGroup::Mid) );
+				 pal.brush(QPalette::Mid) );
 		    // the dark side
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x, y, x + w - 1, y );
-		    p->setPen( cg.shadow());
+		    p->setPen( pal.shadow());
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.mid().dark());
+		    p->setPen( pal.mid().color().dark());
 		    p->drawLine( x + 1, y + 1, x + w - 1,
 				 y + 1 );
 		    p->drawLine( x + 1, y + 1, x + 1,
@@ -643,11 +643,11 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 		    // the bright side!
 
-		    p->setPen( cg.button());
+		    p->setPen( pal.button());
 		    p->drawLine( x + 1, y + h - 2,
 				 x + w - 1,
 				 y + h - 2 );
-		    p->setPen( cg.shadow());
+		    p->setPen( pal.shadow());
 		    p->drawLine( x, y + h - 1,
 				 x + w - 1,
 				 y + h - 1 );
@@ -655,27 +655,27 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		} else {
 		    p->fillRect( x + 2, y + 2, w - 4,
 				 h - 2,
-				 cg.brush(QColorGroup::Mid) );
+				 pal.brush(QPalette::Mid) );
 
 		    // the dark side
-		    p->setPen( cg.dark().dark() );
+		    p->setPen( pal.dark().color().dark() );
 		    p->drawLine( x, y, x + w - 1, y );
-		    p->setPen( cg.shadow() );
+		    p->setPen( pal.shadow() );
 		    p->drawLine( x, y, x, y + h - 1 );
 
-		    p->setPen( cg.mid().dark() );
+		    p->setPen( pal.mid().color().dark() );
 		    p->drawLine( x + 1, y + 1, x + w - 2,
 				 y + 1 );
 		    p->drawLine( x + 1, y + 1, x + 1,
 				 y + h - 1 );
 
 		    // the bright side!
-		    p->setPen( cg.button() );
+		    p->setPen( pal.button() );
 		    p->drawLine( x + w - 2, y + 1,
 				 x + w - 2,
 				 y + h - 1 );
 
-		    p->setPen( cg.shadow() );
+		    p->setPen( pal.shadow() );
 		    p->drawLine( x + w - 1, y,
 				 x + w - 1,
 				 y + h - 1 );
@@ -689,22 +689,22 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QPoint bo = p->brushOrigin();
 	    p->setBrushOrigin( r.topLeft() );
-	    drawPrimitive( PE_ButtonBevel, p, r, cg, Style_Raised );
+	    drawPrimitive( PE_ButtonBevel, p, r, pal, Style_Raised );
 	    p->setBrushOrigin( bo );
-	    drawRiffles( p, r.x(), r.y(), r.width(), r.height(), cg,
+	    drawRiffles( p, r.x(), r.y(), r.width(), r.height(), pal,
 			 flags & Style_Horizontal );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawRect( r );
 	    if ( flags & Style_HasFocus ) {
 		drawPrimitive( PE_FocusRect, p, QRect(r.x() + 2, r.y() + 2,
 						      r.width() - 5,
 						      r.height() - 5 ),
-			       cg, flags );
+			       pal, flags );
 	    }
 	    break;
 	}
     default:
-	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( pe, p, r, pal, flags, opt );
 	break;
     }
 
@@ -716,7 +716,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 				  QPainter *p,
 				  const QWidget *widget,
 				  const QRect &r,
-				  const QColorGroup &cg,
+				  const QPalette &pal,
 				  SFlags how,
 				  const QStyleOption& opt ) const
 {
@@ -724,7 +724,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
     case CE_PushButton:
 	{
 #ifndef QT_NO_PUSHBUTTON
-	    QColorGroup myCg( cg );
+	    QPalette pal2 = pal;
 	    const QPushButton *btn;
 	    int x1, y1, x2, y2;
 	    bool useBevelButton;
@@ -748,18 +748,18 @@ void QPlatinumStyle::drawControl( ControlElement element,
 
 	    r.coords( &x1, &y1, &x2, &y2 );
 
-	    p->setPen( cg.foreground() );
-	    p->setBrush( QBrush(cg.button(), NoBrush) );
+	    p->setPen( pal.foreground() );
+	    p->setBrush( QBrush(pal.button(), NoBrush) );
 
 	    QBrush fill;
 	    if ( btn->isDown() ) {
-		fill = cg.brush( QColorGroup::Dark );
+		fill = pal.brush( QPalette::Dark );
 		// this could be done differently, but this
 		// makes a down Bezel drawn correctly...
-		myCg.setBrush( QColorGroup::Mid, fill );
+		pal2.setBrush( QPalette::Mid, fill );
 	    } else if ( btn->isOn() ) {
-		fill = QBrush( cg.mid(), Dense4Pattern );
-		myCg.setBrush( QColorGroup::Mid, fill );
+		fill = QBrush( pal.mid(), Dense4Pattern );
+		pal2.setBrush( QPalette::Mid, fill );
 	    }
 	    // to quote the old QPlatinumStlye drawPushButton...
 	    // small or square image buttons as well as toggle buttons are
@@ -778,25 +778,25 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		y1 += 1;
 		x2 -= 1;
 		y2 -= 1;
-		QColorGroup cg2( myCg );
+		QPalette buttonPal( pal2 );
+		buttonPal.setColor( QPalette::Button, pal.mid() );
+
 		SFlags myFlags = flags;
 		// don't draw the default button sunken, unless it's necessary.
 		if ( myFlags & Style_Down )
 		    myFlags ^= Style_Down;
 		if ( myFlags & Style_Sunken )
 		    myFlags ^= Style_Sunken;
-
-		cg2.setColor( QColorGroup::Button, cg.mid() );
 		if ( useBevelButton ) {
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
-				   myCg, myFlags, opt );
+				   pal2, myFlags, opt );
 		} else {
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
-				   cg2, myFlags, opt );
+				   buttonPal, myFlags, opt );
 		}
 	    }
 
@@ -815,13 +815,13 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
-				   myCg, flags, opt );
+				   pal2, flags, opt );
 		} else {
 
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
-				   myCg, flags, opt );
+				   pal2, flags, opt );
 		}
 	    }
 
@@ -845,24 +845,23 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    if ( btn->isMenuButton() ) {
 		int dx = pixelMetric( PM_MenuButtonIndicator, widget );
 
-		QColorGroup g = cg;
 		int xx = x + w - dx - 4;
 		int yy = y - 3;
 		int hh = h + 6;
 
 		if ( !on ) {
-		    p->setPen( g.mid() );
+		    p->setPen( pal.mid() );
 		    p->drawLine( xx, yy + 2, xx, yy + hh - 3 );
-		    p->setPen( g.button() );
+		    p->setPen( pal.button() );
 		    p->drawLine( xx + 1, yy + 1, xx + 1, yy + hh - 2 );
-		    p->setPen( g.light() );
+		    p->setPen( pal.light() );
 		    p->drawLine( xx + 2, yy + 2, xx + 2, yy + hh - 2 );
 		}
 		if ( btn->isEnabled() )
 		    flags |= Style_Enabled;
 		drawPrimitive( PE_ArrowDown, p, QRect(x + w - dx - 1, y + 2,
 						      dx, h - 4),
-			       g, flags, opt );
+			       pal, flags, opt );
 		w -= dx;
 	    }
 #ifndef QT_NO_ICONSET
@@ -885,19 +884,19 @@ void QPlatinumStyle::drawControl( ControlElement element,
 #endif
 	    drawItem( p, QRect( x, y, w, h ),
 		      AlignCenter | ShowPrefix,
-		      btn->colorGroup(), btn->isEnabled(),
+		      btn->palette(), btn->isEnabled(),
 		      btn->pixmap(), btn->text(), -1,
-		      on ? &btn->colorGroup().brightText()
-		      : &btn->colorGroup().buttonText() );
+		      on ? &btn->palette().brightText().color()
+		      : &btn->palette().buttonText().color() );
 	    if ( btn->hasFocus() )
 		drawPrimitive( PE_FocusRect, p,
 			       subRect(SR_PushButtonFocusRect, widget),
-			       cg, flags );
+			       pal, flags );
 	    break;
 #endif
 	}
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt );
+	QWindowsStyle::drawControl( element, p, widget, r, pal, how, opt );
 	break;
     }
 }
@@ -908,7 +907,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 					 QPainter *p,
 					 const QWidget *widget,
 					 const QRect &r,
-					 const QColorGroup &cg,
+					 const QPalette &pal,
 					 SFlags how,
 					 SCFlags sub,
 					 SCFlags subActive,
@@ -923,13 +922,13 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		h;
 	    r.rect( &x, &y, &w, &h );
 	    p->fillRect( x + 2,  y + 2, w - 4,
-			 h - 4, cg.brush(QColorGroup::Button) );
+			 h - 4, pal.brush(QPalette::Button) );
 	    // the bright side
-	    p->setPen(cg.shadow());
+	    p->setPen(pal.shadow());
 	    p->drawLine( x, y, x + w - 1, y );
 	    p->drawLine( x, y, x, y + h - 1 );
 
-	    p->setPen( cg.light() );
+	    p->setPen( pal.light() );
 	    p->drawLine( x + 1, y + 1,
 			 x + w - 2, y + 1 );
 	    p->drawLine( x + 1, y + 1,
@@ -938,49 +937,49 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 	    // the dark side!
 
 
-	    p->setPen( cg.mid() );
+	    p->setPen( pal.mid() );
 	    p->drawLine( x + 2, y + h - 2,
 			 x + w - 2, y + h - 2 );
 	    p->drawLine( x + w - 2, y + 2,
 			 x + w - 2, y + h - 2 );
 
-	    p->setPen (cg.shadow() );
+	    p->setPen (pal.shadow() );
 	    p->drawLine( x + 1, y + h - 1,
 			 x + w - 1, y + h - 1 );
 	    p->drawLine( x + w - 1, y,
 			 x + w - 1, y + h - 1 );
 
 	    // top left corner:
-	    p->setPen( cg.background() );
+	    p->setPen( pal.background() );
 	    p->drawPoint( x, y );
 	    p->drawPoint( x + 1, y );
 	    p->drawPoint( x, y + 1 );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawPoint( x + 1, y + 1 );
 	    p->setPen( white );
 	    p->drawPoint( x + 3, y + 3 );
 	    // bottom left corner:
-	    p->setPen( cg.background() );
+	    p->setPen( pal.background() );
 	    p->drawPoint( x, y + h - 1 );
 	    p->drawPoint( x + 1, y + h - 1 );
 	    p->drawPoint( x, y + h - 2 );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawPoint( x + 1, y + h - 2 );
 	    // top right corner:
-	    p->setPen( cg.background() );
+	    p->setPen( pal.background() );
 	    p->drawPoint( x + w - 1, y );
 	    p->drawPoint( x + w - 2, y );
 	    p->drawPoint( x + w - 1, y + 1 );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawPoint( x + w - 2, y + 1 );
 	    // bottom right corner:
-	    p->setPen( cg.background() );
+	    p->setPen( pal.background() );
 	    p->drawPoint( x + w - 1, y + h - 1 );
 	    p->drawPoint( x + w - 2, y + h - 1 );
 	    p->drawPoint( x + w - 1, y + h - 2 );
-	    p->setPen( cg.shadow() );
+	    p->setPen( pal.shadow() );
 	    p->drawPoint( x + w - 2, y + h - 2 );
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    p->drawPoint( x + w - 3, y + h - 3 );
 
 	    if ( sub & SC_ComboBoxArrow ) {
@@ -992,53 +991,53 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    hh = rTmp.height();
 		// the bright side
 
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawLine( xx, yy+2, xx, yy+hh-3 );
 
-		p->setPen( cg.button() );
+		p->setPen( pal.button() );
 		p->drawLine( xx+1, yy+1, xx+ww-2, yy+1 );
 		p->drawLine( xx+1, yy+1, xx+1, yy+hh-2 );
 
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawLine( xx+2, yy+2, xx+2, yy+hh-2 );
 		p->drawLine( xx+2, yy+2, xx+ww-2, yy+2 );
 
 
 		// the dark side!
 
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawLine( xx+3, yy+hh-3 ,xx+ww-3, yy+hh-3 );
 		p->drawLine( xx+ww-3, yy+3, xx+ww-3, yy+hh-3 );
 
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( xx+2, yy+hh-2 ,xx+ww-2, yy+hh-2 );
 		p->drawLine( xx+ww-2, yy+2, xx+ww-2, yy+hh-2 );
 
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( xx+1, yy+hh-1,xx+ww-1, yy+hh-1 );
 		p->drawLine( xx+ww-1, yy, xx+ww-1, yy+hh-1 );
 
 		// top right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( xx + ww - 1, yy );
 		p->drawPoint( xx + ww - 2, yy );
 		p->drawPoint( xx + ww - 1, yy + 1 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( xx + ww - 2, yy + 1 );
 		// bottom right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( xx + ww - 1, yy + hh - 1 );
 		p->drawPoint( xx + ww - 2, yy + hh - 1 );
 		p->drawPoint( xx + ww - 1, yy + hh - 2 );
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawPoint( xx + ww - 2, yy + hh - 2 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( xx + ww - 3, yy + hh - 3 );
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawPoint( xx + ww - 4, yy + hh - 4 );
 
 		// and the arrows
-		p->setPen( cg.foreground() );
+		p->setPen( pal.foreground() );
 		QPointArray a ;
 		a.setPoints(  7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2  );
 		a.translate( xx + ww / 2, yy + hh / 2 - 3 );
@@ -1064,14 +1063,14 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		if ( cmb->hasFocus() && !cmb->editable() )
 		    p->fillRect( re.x() + 1, re.y() + 1,
 				 re.width() - 2, re.height() - 2,
-				 cg.brush( QColorGroup::Highlight ) );
+				 pal.brush( QPalette::Highlight ) );
 
 		if ( cmb->hasFocus() ) {
-		    p->setPen( cg.highlightedText() );
-		    p->setBackgroundColor( cg.highlight() );
+		    p->setPen( pal.highlightedText() );
+		    p->setBackgroundColor( pal.highlight() );
 		} else {
-		    p->setPen( cg.text() );
-		    p->setBackgroundColor( cg.background() );
+		    p->setPen( pal.text() );
+		    p->setBackgroundColor( pal.background() );
 		}
 
 		if ( cmb->hasFocus() && !cmb->editable() ) {
@@ -1079,9 +1078,9 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 			QStyle::visualRect( subRect( SR_ComboBoxFocusRect,
 						     cmb ),
 					    widget );
-		    drawPrimitive( PE_FocusRect, p, re, cg,
+		    drawPrimitive( PE_FocusRect, p, re, pal,
 				   Style_FocusAtBorder,
-				   QStyleOption(cg.highlight()));
+				   QStyleOption(pal.highlight()));
 		}
 		if ( cmb->editable() ) {
 		    // need this for the moment...
@@ -1093,7 +1092,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    // end comboButtonRect...
 		    ir.setRect( ir.left() - 1, ir.top() - 1, ir.width() + 2,
 				ir.height() + 2 );
-		    qDrawShadePanel( p, ir, cg, TRUE, 2, 0 );
+		    qDrawShadePanel( p, ir, pal, TRUE, 2, 0 );
 		}
 	    }
 #endif
@@ -1113,7 +1112,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 						  opt);
 
 	    if ((sub & SC_SliderGroove) && groove.isValid()) {
-		p->fillRect( groove, cg.brush(QColorGroup::Background) );
+		p->fillRect( groove, pal.brush(QPalette::Background) );
 
 		int x, y, w, h;
 		int mid = thickness / 2;
@@ -1135,61 +1134,61 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    h = slider->height();
 		}
 
-		p->fillRect( x, y, w, h, cg.brush( QColorGroup::Dark ));
+		p->fillRect( x, y, w, h, pal.brush( QPalette::Dark ));
 		// the dark side
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawLine( x, y, x + w - 1, y );
 		p->drawLine( x, y, x, y + h - 1);
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( x + 1, y + 1, x + w - 2, y + 1 );
 		p->drawLine( x + 1, y + 1, x + 1, y + h - 2 );
 		// the bright side!
-		p->setPen(cg.shadow());
+		p->setPen(pal.shadow());
 		p->drawLine( x + 1,  y + h - 2, x + w - 2,  y + h - 2 );
 		p->drawLine( x + w - 2, y + 1, x + w - 2, y + h - 2 );
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawLine( x, y + h - 1, x + w - 1, y + h - 1 );
 		p->drawLine( x + w - 1, y, x + w - 1, y + h - 1 );
 		// top left corner:
-		p->setPen(cg.background());
+		p->setPen(pal.background());
 		p->drawPoint( x, y );
 		p->drawPoint( x + 1, y );
 		p->drawPoint( x, y + 1 );
-		p->setPen(cg.shadow());
+		p->setPen(pal.shadow());
 		p->drawPoint( x + 1, y + 1 );
 		// bottom left corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x, y + h - 1 );
 		p->drawPoint( x + 1, y + h - 1 );
 		p->drawPoint( x, y + h - 2 );
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawPoint( x + 1, y + h - 2 );
 		// top right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w - 1, y );
 		p->drawPoint( x + w - 2, y );
 		p->drawPoint( x + w - 1, y + 1 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + w - 2, y + 1 );
 		// bottom right corner:
-		p->setPen( cg.background() );
+		p->setPen( pal.background() );
 		p->drawPoint( x + w - 1, y + h - 1 );
 		p->drawPoint( x + w - 2, y + h - 1 );
 		p->drawPoint( x + w - 1, y + h - 2 );
-		p->setPen( cg.light() );
+		p->setPen( pal.light() );
 		p->drawPoint( x + w - 2, y + h - 2 );
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 		p->drawPoint( x + w - 3, y + h - 3 );
 		// ### end slider groove
 
 		if ( how & Style_HasFocus )
-		    drawPrimitive( PE_FocusRect, p, groove, cg );
+		    drawPrimitive( PE_FocusRect, p, groove, pal );
 	    }
 
 	    if ((sub & SC_SliderHandle) && handle.isValid()) {
-		const QColor c0 = cg.shadow();
-		const QColor c1 = cg.dark();
-		const QColor c3 = cg.light();
+		const QColor c0 = pal.shadow();
+		const QColor c1 = pal.dark();
+		const QColor c3 = pal.light();
 
 		int x1 = handle.x();
 		int x2 = handle.x() + handle.width() - 1;
@@ -1201,7 +1200,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		if ( slider->orientation() == Vertical ) {
 		    // Background
 		    QBrush oldBrush = p->brush();
-		    p->setBrush( cg.brush( QColorGroup::Button ) );
+		    p->setBrush( pal.brush( QPalette::Button ) );
 		    p->setPen( NoPen );
 		    QPointArray a(6);
 		    a.setPoint( 0, x1 + 1, y1 + 1 );
@@ -1235,10 +1234,10 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    p->drawLine( x1 + 1, y2 - 1, x2 -my + 2, y2 - 1 );
 
 		    drawRiffles( p, handle.x(), handle.y() + 2, handle.width() - 3,
-				 handle.height() - 4, cg, TRUE );
+				 handle.height() - 4, pal, TRUE );
 		} else {  // Horizontal
 		    QBrush oldBrush = p->brush();
-		    p->setBrush( cg.brush( QColorGroup::Button ) );
+		    p->setBrush( pal.brush( QPalette::Button ) );
 		    p->setPen( NoPen );
 		    QPointArray a(6);
 		    a.setPoint( 0, x2 - 1, y1 + 1 );
@@ -1272,19 +1271,19 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		    p->drawLine( x1 + mx - 2, y2 - 1, x1 + mx + 2, y2 - 1 );
 
 		    drawRiffles( p, handle.x() + 2, handle.y(), handle.width() - 4,
-				 handle.height() - 5, cg, FALSE );
+				 handle.height() - 5, pal, FALSE );
 		}
 	    }
 
 	    if ( sub & SC_SliderTickmarks )
 		QCommonStyle::drawComplexControl( control, p, widget, r,
-						  cg, how, SC_SliderTickmarks,
+						  pal, how, SC_SliderTickmarks,
 						  subActive, opt );
 #endif
 	    break;
 	}
     default:
-	QWindowsStyle::drawComplexControl( control, p, widget, r, cg,
+	QWindowsStyle::drawComplexControl( control, p, widget, r, pal,
 					   how, sub, subActive, opt );
 	break;
     }
@@ -1479,11 +1478,11 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 
 /*!
     Draws the nifty Macintosh decoration used on sliders using painter
-    \a p and colorgroup \a g. \a x, \a y, \a w, \a h and \a horizontal
+    \a p and colorgroup \a pal. \a x, \a y, \a w, \a h and \a horizontal
     specify the geometry and orientation of the riffles.
 */
 void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
-				  const QColorGroup &g, bool horizontal ) const
+				  const QPalette &pal, bool horizontal ) const
 {
     if (!horizontal) {
 	if (h > 20) {
@@ -1494,11 +1493,11 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	    int n = h / 4;
 	    int my = y+h/2-n;
 	    int i ;
-	    p->setPen(g.light());
+	    p->setPen(pal.light());
 	    for (i=0; i<n; i++) {
 		p->drawLine(x+3, my+2*i, x+w-5, my+2*i);
 	    }
-	    p->setPen(g.dark());
+	    p->setPen(pal.dark());
 	    my++;
 	    for (i=0; i<n; i++) {
 		p->drawLine(x+4, my+2*i, x+w-4, my+2*i);
@@ -1514,11 +1513,11 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	    int n = w / 4;
 	    int mx = x+w/2-n;
 	    int i ;
-	    p->setPen(g.light());
+	    p->setPen(pal.light());
 	    for (i=0; i<n; i++) {
 		p->drawLine(mx+2*i, y+3, mx + 2*i, y+h-5);
 	    }
-	    p->setPen(g.dark());
+	    p->setPen(pal.dark());
 	    mx++;
 	    for (i=0; i<n; i++) {
 		p->drawLine(mx+2*i, y+4, mx + 2*i, y+h-4);

@@ -564,7 +564,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     if(t->rect().contains(mapFromGlobal(QCursor::pos())))
 	flags |= QStyle::Style_MouseOver;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
-			 colorGroup(), flags, QStyleOption(t) );
+			 palette(), flags, QStyleOption(t) );
 
     QRect r( t->r );
     p->setFont( font() );
@@ -622,9 +622,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	flags |= QStyle::Style_Enabled;
     if (has_focus)
 	flags |= QStyle::Style_HasFocus;
-    style().drawControl( QStyle::CE_TabBarLabel, p, this, r,
-			 t->isEnabled() ? colorGroup(): palette().disabled(),
-			 flags, QStyleOption(t) );
+    QPalette pal = palette();
+    if(!t->isEnabled())
+	pal.setCurrentColorGroup(QPalette::Disabled);
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, pal, flags, QStyleOption(t) );
 }
 
 
@@ -657,19 +658,19 @@ void QTabBar::paintEvent( QPaintEvent * e )
 	int h = height();
 	if ( d->s == RoundedAbove ) {
 	    buffer.painter()->fillRect( 0, 3, 4, h-5,
-			colorGroup().brush( QColorGroup::Background ) );
+			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,2,  3,h/4, 0,h/2, 3,3*h/4, 0,h );
 	} else if ( d->s == RoundedBelow ) {
 	    buffer.painter()->fillRect( 0, 2, 4, h-5,
-			colorGroup().brush( QColorGroup::Background ) );
+			palette().brush( QPalette::Background ) );
 	    a.setPoints( 5,  0,0,  3,h/4, 0,h/2, 3,3*h/4, 0,h-3 );
 	}
 
 	if ( !a.isEmpty() ) {
-	    buffer.painter()->setPen( colorGroup().light() );
+	    buffer.painter()->setPen( palette().light() );
 	    buffer.painter()->drawPolyline( a );
 	    a.translate( 1, 0 );
-	    buffer.painter()->setPen( colorGroup().midlight() );
+	    buffer.painter()->setPen( palette().midlight() );
 	    buffer.painter()->drawPolyline( a );
 	}
     }

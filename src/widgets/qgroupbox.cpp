@@ -332,7 +332,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	if(va & AlignTop)
 	    r.moveBy(0, fm.descent());
 	QColor pen( (QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this )  );
-	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
+	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, palette(),
 			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
 #ifndef QT_NO_CHECKBOX
@@ -349,7 +349,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	    QPoint p1( fr.x(), fr.y() + 1 );
             QPoint p2( fr.x() + fr.width(), p1.y() );
 	    // ### This should probably be a style primitive.
-            qDrawShadeLine( &paint, p1, p2, colorGroup(), TRUE,
+            qDrawShadeLine( &paint, p1, p2, palette(), TRUE,
                             lineWidth(), midLineWidth() );
     } else {
 	drawFrame(&paint);

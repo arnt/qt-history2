@@ -165,7 +165,7 @@ void QCheckBox::drawButton( QPainter *paint )
 {
     QPainter *p = paint;
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
-    const QColorGroup &cg = colorGroup();
+    const QPalette &pal = palette();
 
 #if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
 #   define  SAVE_CHECKBOX_PIXMAPS
@@ -197,14 +197,14 @@ void QCheckBox::drawButton( QPainter *paint )
     QPainter pmpaint;
     int wx = 0, wy = 0;
     pm = QPixmap( irect.size() );	// create new pixmap
-    pm.fill( cg.background() );
+    pm.fill( pal.background() );
     QPainter::redirect(this, &pm);
     pmpaint.begin(this);
     p = &pmpaint;				// draw in pixmap
     wx = irect.x();				// save x,y coords
     wy = irect.y();
     irect.moveTopLeft(QPoint(0, 0));
-    p->setBackgroundColor( cg.background() );
+    p->setBackgroundColor( pal.background() );
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -223,7 +223,7 @@ void QCheckBox::drawButton( QPainter *paint )
     else if ( state() == QButton::NoChange )
 	flags |= QStyle::Style_NoChange;
 
-    style().drawControl(QStyle::CE_CheckBox, p, this, irect, cg, flags);
+    style().drawControl(QStyle::CE_CheckBox, p, this, irect, pal, flags);
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     pmpaint.end();
@@ -266,7 +266,7 @@ void QCheckBox::drawButtonLabel( QPainter *p )
     else if (state() == QButton::NoChange)
 	flags |= QStyle::Style_NoChange;
 
-    style().drawControl(QStyle::CE_CheckBoxLabel, p, this, r, colorGroup(), flags);
+    style().drawControl(QStyle::CE_CheckBoxLabel, p, this, r, palette(), flags);
 }
 
 /*!

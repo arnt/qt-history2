@@ -469,14 +469,10 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QDockWindowHandle" ) ) {
 	QWidget *p = (QWidget*)widget->parent();
 	if ( !((QDockWindow*)p)->isToolbar ) {
-	    QPalette pl = widget->palette();
-	    QColorGroup cga = pl.active();
-	    QColorGroup cgi = pl.inactive();
-	    cga.setColor( QColorGroup::Background, d->dockColorActive );
-	    cgi.setColor( QColorGroup::Background, d->dockColorInactive );
-	    pl.setActive( cga );
-	    pl.setInactive( cgi );
-	    widget->setPalette( pl );
+	    QPalette pal = widget->palette();
+	    pal.setColor( QPalette::Active, QPalette::Background, d->dockColorActive );
+	    pal.setColor( QPalette::Inactive, QPalette::Background, d->dockColorActive );
+	    widget->setPalette( pal );
 	}
     } else if ( qt_cast<QTabBar*>(widget) ) {
 	widget->installEventFilter( this );
@@ -579,12 +575,12 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
 void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 				    QPainter *p,
 				    const QRect &r,
-				    const QColorGroup &cg,
+				    const QPalette &pal,
 				    SFlags flags,
 				    const QStyleOption &opt ) const
 {
     if ( !use_xp ) {
-	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( op, p, r, pal, flags, opt );
 	return;
     }
 
@@ -710,7 +706,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
     case PE_PanelPopup:
 	p->save();
-	p->setPen( cg.dark() );
+	p->setPen( pal.dark() );
 	p->drawRect( r );
 	p->restore();
 	return;
@@ -747,7 +743,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	    stateId = HSAS_SORTEDUP;
 	break;
 	*/
-	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( op, p, r, pal, flags, opt );
 	return;
 
     case PE_StatusBarSection:
@@ -842,10 +838,9 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
 	    if ( drawDockTitle ) {
 		QRect rt = r;
-		if ( w ) {
-		    QColorGroup cgroup = w->isActiveWindow() ? w->palette().active() : w->palette().inactive();
-		    p->setPen( cgroup.highlightedText() );
-		}
+		if ( w ) 
+		    p->setPen( pal.color(w->isActiveWindow() ? QPalette::Active : 
+					 QPalette::Inactive, QPalette::HighlightedText ));
 
 		if ( flags & Style_Horizontal ) {
 		    // Vertical Title  ( Horizontal DockWindow )
@@ -867,12 +862,12 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 			return;
 		    if ( w->isActiveWindow() ) {
 			QPalette pl = tb->palette();
-			pl.setColor( QColorGroup::Button, d->dockColorActive );
+			pl.setColor( QPalette::Button, d->dockColorActive );
 			tb->setPalette( pl );
 			tb->setPixmap( *(d->dockCloseActive) );
 		    } else {
 			QPalette pl = tb->palette();
-			pl.setColor( QColorGroup::Button, d->dockColorInactive );
+			pl.setColor( QPalette::Button, d->dockColorInactive );
 			tb->setPalette( pl );
 			tb->setPixmap( *(d->dockCloseInactive) );
 		    }
@@ -928,7 +923,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 
     XPThemeData theme( 0, p, name, partId, stateId, rect );
     if ( !theme.isValid() ) {
-	QWindowsStyle::drawPrimitive( op, p, r, cg, flags, opt );
+	QWindowsStyle::drawPrimitive( op, p, r, pal, flags, opt );
 	return;
     }
     theme.drawBackground();
@@ -939,7 +934,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 				  QPainter *p,
 				  const QWidget *widget,
 				  const QRect &r,
-				  const QColorGroup &cg,
+				  const QPalette &pal,
 				  SFlags flags,
 				  const QStyleOption &opt ) const
 {
@@ -947,7 +942,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     d->currentWidget = widget;
 
     if ( !use_xp ) {
-	QWindowsStyle::drawControl( element, p, widget, r, cg, flags, opt );
+	QWindowsStyle::drawControl( element, p, widget, r, pal, flags, opt );
 	return;
     }
 
@@ -1047,13 +1042,13 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
 	    QMenuItem *mi = opt.menuItem();
 	    if (flags & Style_Active)
-		p->fillRect(r, cg.brush( QColorGroup::Highlight) );
+		p->fillRect(r, pal.brush( QPalette::Highlight) );
 	    else
-		p->fillRect(r, cg.brush( QColorGroup::Button) );
+		p->fillRect(r, pal.brush( QPalette::Button) );
 
-	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, pal,
 		     flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-		     flags & Style_Active ? &cg.highlightedText() : &cg.buttonText());
+		     flags & Style_Active ? &pal.highlightedText() : &pal.buttonText());
 	}
 	return;
 
@@ -1068,7 +1063,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
     XPThemeData theme( widget, p, name, partId, stateId, rect, d->tabPaneBorderColor );
     if ( !theme.isValid() ) {
-	QWindowsStyle::drawControl( element, p, widget, rect, cg, flags, opt );
+	QWindowsStyle::drawControl( element, p, widget, rect, pal, flags, opt );
 	return;
     }
 
@@ -1165,7 +1160,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 					 QPainter* p,
 					 const QWidget* w,
 					 const QRect& r,
-					 const QColorGroup& cg,
+					 const QPalette& pal,
 					 SFlags flags,
 					 SCFlags sub,
 					 SCFlags subActive,
@@ -1174,7 +1169,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     d->currentWidget = w;
 
     if ( !use_xp ) {
-	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+	QWindowsStyle::drawComplexControl( control, p, w, r, pal, flags, sub, subActive, opt );
 	return;
     }
 
@@ -1248,13 +1243,13 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		if ( !((QComboBox*)w)->editable() ) {
 	    	    QRect re = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, opt );
 		    if ( w->hasFocus() ) {
-			p->fillRect(re, cg.brush( QColorGroup::Highlight) );
-			p->setPen( cg.highlightedText() );
-			p->setBackgroundColor( cg.highlight() );
+			p->fillRect(re, pal.brush( QPalette::Highlight) );
+			p->setPen( pal.highlightedText() );
+			p->setBackgroundColor( pal.highlight() );
 		    } else {
-			p->fillRect(re, cg.brush( QColorGroup::Base ) );
-			p->setPen( cg.text() );
-			p->setBackgroundColor( cg.base() );
+			p->fillRect(re, pal.brush( QPalette::Base ) );
+			p->setPen( pal.text() );
+			p->setBackgroundColor( pal.base() );
 		    }
 		}
 	    }
@@ -1427,7 +1422,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    p->setClipRegion( tickreg );
 	    if ( sub & SC_SliderTickmarks ) {
-		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, SC_SliderTickmarks, subActive, opt );
+		QWindowsStyle::drawComplexControl( control, p, w, r, pal, flags, SC_SliderTickmarks, subActive, opt );
 		// Reenable XP style tickmarks when the
 		// styles actually have usable pixmaps!
 		/*
@@ -1458,9 +1453,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 
 		if ( sl->orientation() == Horizontal ) {
 		    if ( ticks & QSlider::Above )
-			p->fillRect( 0, 0, sl->width(), aboveend, cg.brush( QColorGroup::Background ) );
+			p->fillRect( 0, 0, sl->width(), aboveend, pal.brush( QPalette::Background ) );
 		    if ( ticks & QSlider::Below )
-			p->fillRect( 0, belowstart, sl->width(), belowend, cg.brush( QColorGroup::Background ) );
+			p->fillRect( 0, belowstart, sl->width(), belowend, pal.brush( QPalette::Background ) );
 
 		    partId = TKP_TICS;
 		    stateId = TSS_NORMAL;
@@ -1479,9 +1474,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    }
 		} else {
 		    if ( ticks & QSlider::Left )
-			p->fillRect( 0, 0, aboveend, sl->height(), cg.brush( QColorGroup::Background ) );
+			p->fillRect( 0, 0, aboveend, sl->height(), pal.brush( QPalette::Background ) );
 		    if ( ticks & QSlider::Right )
-			p->fillRect( belowstart, 0, belowend, sl->height(), cg.brush( QColorGroup::Background ) );
+			p->fillRect( belowstart, 0, belowend, sl->height(), pal.brush( QPalette::Background ) );
 
 		    partId = TKP_TICSVERT;
 		    stateId = TSVS_NORMAL;
@@ -1503,7 +1498,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    p->setClipping( FALSE );
 	    if ( sub & SC_SliderHandle ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, opt );
-		p->fillRect( theme.rec, cg.brush( QColorGroup::Background ) );
+		p->fillRect( theme.rec, pal.brush( QPalette::Background ) );
 		if ( sl->orientation() == Horizontal ) {
 		    if ( sl->tickmarks() == QSlider::Above )
 			partId = TKP_THUMBTOP;
@@ -1545,7 +1540,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( flags & Style_HasFocus ) {
 		QRect re = subRect( SR_SliderFocusRect, sl );
-		drawPrimitive( PE_FocusRect, p, re, cg );
+		drawPrimitive( PE_FocusRect, p, re, pal );
 	    }
 	}
 	break;
@@ -1618,9 +1613,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			theme.drawBackground( partId, stateId );
 		    } else {
 			if ( !qt_cast<QToolBar*>(w->parentWidget()) )
-			    drawPrimitive( PE_ButtonBevel, p, theme.rec, cg, bflags, opt );
+			    drawPrimitive( PE_ButtonBevel, p, theme.rec, pal, bflags, opt );
 			else
-			    drawPrimitive( PE_ButtonTool, p, theme.rec, cg, bflags, opt );
+			    drawPrimitive( PE_ButtonTool, p, theme.rec, pal, bflags, opt );
 		    }
 		} else if ( tb->parentWidget() &&
 			  tb->parentWidget()->backgroundPixmap() &&
@@ -1632,13 +1627,13 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( sub & SC_ToolButtonMenu ) {
 		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButtonMenu, opt );
-		drawPrimitive(PE_ButtonDropDown, p, theme.rec, cg, mflags, opt);
+		drawPrimitive(PE_ButtonDropDown, p, theme.rec, pal, mflags, opt);
 	    }
 
 	    if ( tb->hasFocus() && !tb->focusProxy() ) {
 		QRect fr = tb->rect();
 		fr.addCoords(3, 3, -3, -3);
-		drawPrimitive( PE_FocusRect, p, fr, cg );
+		drawPrimitive( PE_FocusRect, p, fr, pal );
 	    }
 	}
 	break;
@@ -1665,9 +1660,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.drawBackground( partId, stateId );
 
 		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel ), w );
-		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ?
-		    titlebar->palette().active() : titlebar->palette().inactive();
-		p->setPen( cgroup.highlightedText() );
+		p->setPen( pal.color(w->isActiveWindow() || !titlebar->window() ? 
+				     QPalette::Active : QPalette::Inactive, 
+				     QPalette::HighlightedText ));
 		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
 			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
@@ -1756,7 +1751,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	{
 	    if ( sub & SC_ListView ) {
 		const QListView *lv = (const QListView*)w;
-		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+		QWindowsStyle::drawComplexControl( control, p, w, r, pal, flags, sub, subActive, opt );
 		if ( !lv->showSortIndicator() )
 		    break;
 
@@ -1812,7 +1807,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			    theme.rec = QRect( bx-4 + (int)p->translationX(), linebot-4+(int)p->translationY(), 9, 9 );
 			    theme.drawBackground( TVP_GLYPH, child->isOpen() ? GLPS_OPENED : GLPS_CLOSED );
 			    // dotlinery
-			    p->setPen( cg.mid() );
+			    p->setPen( pal.mid() );
 			    dotlines[c++] = QPoint( bx, linetop );
 			    dotlines[c++] = QPoint( bx, linebot - 5 );
 			    dotlines[c++] = QPoint( bx + 5, linebot );
@@ -1836,7 +1831,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			dotlines[c++] = QPoint( bx, linebot );
 		    }
 		}
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 
 		static QBitmap *verticalLine = 0, *horizontalLine = 0;
 		static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
@@ -1910,7 +1905,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 #endif //QT_NO_LISTVIEW
 
     default:
-	QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+	QWindowsStyle::drawComplexControl( control, p, w, r, pal, flags, sub, subActive, opt );
 	break;
     }
 

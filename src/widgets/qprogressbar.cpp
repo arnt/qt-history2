@@ -367,16 +367,16 @@ void QProgressBar::drawContents( QPainter *p )
 
     style().drawControl(QStyle::CE_ProgressBarGroove, buffer.painter(), this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this ),
-			colorGroup(), flags);
+			palette(), flags);
 
     style().drawControl(QStyle::CE_ProgressBarContents, buffer.painter(), this,
 			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this ),
-			colorGroup(), flags);
+			palette(), flags);
 
     if (percentageVisible())
 	style().drawControl(QStyle::CE_ProgressBarLabel, buffer.painter(), this,
 			    QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this ),
-			    colorGroup(), flags);
+			    palette(), flags);
 }
 
 #endif

@@ -42,14 +42,14 @@ public:
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
-		      const QColorGroup &cg,
+		      const QPalette &pal,
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
-			const QColorGroup &cg,
+			const QPalette &pal,
 			SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 

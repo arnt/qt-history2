@@ -935,7 +935,7 @@ void QTextEdit::init()
     inDnD = FALSE;
     doc->setFormatter( new QTextFormatterBreakWords );
     doc->formatCollection()->defaultFormat()->setFont( QScrollView::font() );
-    doc->formatCollection()->defaultFormat()->setColor( colorGroup().color( QColorGroup::Text ) );
+    doc->formatCollection()->defaultFormat()->setColor( palette().color( QPalette::Text ) );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
@@ -1004,30 +1004,30 @@ void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw
     if (( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) ) ||
 	isReadOnly() || !cursorVisible )
 	drawCur = FALSE;
-    QColorGroup g = colorGroup();
-    const QColorGroup::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
+    QPalette pal = palette();
+    const QPalette::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
     if ( doc->paper() )
-	g.setBrush( backRole, *doc->paper() );
+	pal.setBrush( backRole, *doc->paper() );
 
     if ( contentsY() < doc->y() ) {
 	p->fillRect( contentsX(), contentsY(), visibleWidth(), doc->y(),
-		     g.brush( backRole ) );
+		     pal.brush( backRole ) );
     }
     if ( drawAll && doc->width() - contentsX() < cx + cw ) {
 	p->fillRect( doc->width() - contentsX(), cy, cx + cw - doc->width() + contentsX(), ch,
-		     g.brush( backRole ) );
+		     pal.brush( backRole ) );
     }
 
     p->setBrushOrigin( -contentsX(), -contentsY() );
 
-    lastFormatted = doc->draw( p, cx, cy, cw, ch, g, !drawAll, drawCur, cursor );
+    lastFormatted = doc->draw( p, cx, cy, cw, ch, pal, !drawAll, drawCur, cursor );
 
     if ( lastFormatted == doc->lastParagraph() )
 	resizeContents( contentsWidth(), doc->height() );
 
     if ( contentsHeight() < visibleHeight() && ( !doc->lastParagraph() || doc->lastParagraph()->isValid() ) && drawAll )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
-		     visibleHeight() - contentsHeight(), g.brush( backRole ) );
+		     visibleHeight() - contentsHeight(), pal.brush( backRole ) );
 }
 
 /*!
@@ -1071,7 +1071,7 @@ void QTextEdit::drawContents( QPainter *p )
 	cornerRect.setLeft( verticalRect.left() );
 	cornerRect.setRight( verticalRect.right() );
 
-	p->fillRect( cornerRect, colorGroup().background() );
+	p->fillRect( cornerRect, palette().background() );
     }
 }
 
@@ -2070,12 +2070,12 @@ void QTextEdit::drawCursor( bool visible )
     cursor->paragraph()->setChanged( TRUE );
     p.translate( -contentsX() + cursor->totalOffsetX(), -contentsY() + cursor->totalOffsetY() );
     QPixmap *pix = 0;
-    QColorGroup cg( colorGroup() );
-    const QColorGroup::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
+    QPalette pal( palette() );
+    const QPalette::ColorRole backRole = QPalette::backgroundRoleFromMode(backgroundMode());
     if ( cursor->paragraph()->background() )
-	cg.setBrush( backRole, *cursor->paragraph()->background() );
+	pal.setBrush( backRole, *cursor->paragraph()->background() );
     else if ( doc->paper() )
-	cg.setBrush( backRole, *doc->paper() );
+	pal.setBrush( backRole, *doc->paper() );
     p.setBrushOrigin( -contentsX(), -contentsY() );
     cursor->paragraph()->document()->nextDoubleBuffered = TRUE;
     if ( !cursor->nestedDepth() ) {
@@ -2088,11 +2088,11 @@ void QTextEdit::drawCursor( bool visible )
 	p.setClipRect( QRect( x - contentsX(),
 			      r.y() - cursor->totalOffsetY() + cursor->y() - contentsY(), 2 * dist, h ) );
 	doc->drawParagraph( &p, cursor->paragraph(), x,
-			r.y() - cursor->totalOffsetY() + cursor->y(), 2 * dist, h, pix, cg, visible, cursor );
+			r.y() - cursor->totalOffsetY() + cursor->y(), 2 * dist, h, pix, pal, visible, cursor );
     } else {
 	doc->drawParagraph( &p, cursor->paragraph(), r.x() - cursor->totalOffsetX(),
 			r.y() - cursor->totalOffsetY(), r.width(), r.height(),
-			pix, cg, visible, cursor );
+			pix, pal, visible, cursor );
     }
     cursorVisible = visible;
 }
@@ -2860,9 +2860,9 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
     }
 
     if ( o == this && e->type() == QEvent::PaletteChange ) {
-	QColor old( viewport()->colorGroup().color( QColorGroup::Text ) );
-	if ( old != colorGroup().color( QColorGroup::Text ) ) {
-	    QColor c( colorGroup().color( QColorGroup::Text ) );
+	QColor old( viewport()->palette().color( QPalette::Text ) );
+	if ( old != palette().color( QPalette::Text ) ) {
+	    QColor c( palette().color( QPalette::Text ) );
 	    doc->setMinimumWidth( -1 );
 	    doc->setDefaultFormat( doc->formatCollection()->defaultFormat()->font(), c );
 	    lastFormatted = doc->firstParagraph();
@@ -3413,7 +3413,7 @@ void QTextEdit::setPalette( const QPalette &p )
     QScrollView::setPalette( p );
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
-	f->setColor( colorGroup().text() );
+	f->setColor( palette().text() );
 	updateContents();
     }
 }
@@ -4454,7 +4454,7 @@ QBrush QTextEdit::paper() const
 {
     if ( doc->paper() )
 	return *doc->paper();
-    return QBrush( colorGroup().base() );
+    return QBrush( palette().base() );
 }
 
 /*!
@@ -5553,7 +5553,7 @@ void QTextEdit::setEnabled( bool b )
     QScrollView::setEnabled( b );
     if ( textFormat() == PlainText ) {
 	QTextFormat *f = doc->formatCollection()->defaultFormat();
-	f->setColor( colorGroup().text() );
+	f->setColor( palette().text() );
 	updateContents();
     }
 }
@@ -5565,7 +5565,7 @@ void QTextEdit::setEnabled( bool b )
 
     This only works for \a selNum > 0. The default selection (\a
     selNum == 0) gets its attributes from the text edit's
-    colorGroup().
+    palette().
 */
 
 void QTextEdit::setSelectionAttributes( int selNum, const QColor &back, bool invertText )
@@ -5585,7 +5585,7 @@ void QTextEdit::windowActivationChange( bool oldActive )
 {
     if ( oldActive && scrollTimer )
 	scrollTimer->stop();
-    if ( palette().active() != palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive ))
 	updateContents();
     QScrollView::windowActivationChange( oldActive );
 }
@@ -6547,7 +6547,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     // get the current text color from the current format
     td->selectAll( QTextDocument::Standard );
     QTextFormat f;
-    f.setColor( colorGroup().text() );
+    f.setColor( palette().text() );
     f.setFont( QScrollView::font() );
     td->setFormat( QTextDocument::Standard, &f,
 		   QTextFormat::Color | QTextFormat::Font );
@@ -6675,7 +6675,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     int offset = clipy % fm.lineSpacing() + 2;
     QRect r( clipx, 0, clipw, cliph + offset );
     p->translate( 0, clipy - offset );
-    td->draw( p, r.x(), r.y(), r.width(), r.height(), colorGroup() );
+    td->draw( p, r.x(), r.y(), r.width(), r.height(), palette() );
     p->translate( 0, -(clipy - offset) );
     delete td;
 }

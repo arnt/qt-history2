@@ -129,7 +129,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     that takes an additional mime source factory \a factory, a page
     break parameter \a pageBreak and a bool \a linkUnderline. \a
     linkColor is only provided for compatibility, but has no effect,
-    as QColorGroup's QColorGroup::link() color is used now.
+    as QPalette::link() color is used now.
 
     \a context is the optional context of the rich text object. This
     becomes important if \a text contains relative references, for
@@ -284,7 +284,7 @@ void QSimpleRichText::adjustSize()
     y), clipped to \a clipRect. The clipping rectangle is given in the
     rich text object's coordinates translated by (\a x, \a y). Passing
     an null rectangle results in no clipping. Colors from the color
-    group \a cg are used as needed, and if not 0, \a *paper is used as
+    group \a pal are used as needed, and if not 0, \a *paper is used as
     the background brush.
 
     Note that the display code is highly optimized to reduce flicker,
@@ -293,7 +293,7 @@ void QSimpleRichText::adjustSize()
 */
 
 void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
-			    const QColorGroup& cg, const QBrush* paper ) const
+			    const QPalette &pal, const QBrush* paper ) const
 {
     p->save();
     if ( d->cachedWidth < 0 )
@@ -304,21 +304,21 @@ void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 
     if ( paper )
 	d->doc->setPaper( new QBrush( *paper ) );
-    QColorGroup g = cg;
+    QPalette pal2 = pal;
     if ( d->doc->paper() )
-	g.setBrush( QColorGroup::Base, *d->doc->paper() );
+	pal2.setBrush( QPalette::Base, *d->doc->paper() );
 
     if ( !clipRect.isNull() )
 	p->setClipRect( clipRect, QPainter::CoordPainter );
     p->translate( x, y );
-    d->doc->draw( p, r, g, paper );
+    d->doc->draw( p, r, pal2, paper );
     p->translate( -x, -y );
     p->restore();
 }
 
 
 /*! \fn void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
-  const QColorGroup& cg, const QBrush* paper ) const
+  const QPalette &pal, const QBrush* paper ) const
 
   \obsolete
 

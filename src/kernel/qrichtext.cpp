@@ -1345,7 +1345,7 @@ void QTextDocument::init()
     scaleFontsFactor = 1;
 
 
-    selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
+    selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QPalette::Highlight );
     selectionText[ Standard ] = TRUE;
     selectionText[ IMSelectionText ] = TRUE;
     selectionText[ IMCompositionText ] = FALSE;
@@ -3111,7 +3111,8 @@ QPixmap *QTextDocument::bufferPixmap( const QSize &s )
     return buf_pixmap;
 }
 
-void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg, const QBrush *paper )
+void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal, 
+			  const QBrush *paper )
 {
     if ( !firstParagraph() )
 	return;
@@ -3126,8 +3127,8 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
     QPainter * oldPainter = QTextFormat::painter();
     QTextFormat::setPainter( p );
 
-    if ( formatCollection()->defaultFormat()->color() != cg.text() )
-	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
+    if ( formatCollection()->defaultFormat()->color() != pal.text() )
+	setDefaultFormat( formatCollection()->defaultFormat()->font(), pal.text() );
 
     QTextParagraph *parag = firstParagraph();
     while ( parag ) {
@@ -3143,20 +3144,21 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	}
 	p->translate( 0, y );
 	if ( rect.isValid() )
-	    parag->paint( *p, cg, 0, FALSE, rect.x(), rect.y(), rect.width(), rect.height() );
+	    parag->paint( *p, pal, 0, FALSE, rect.x(), rect.y(), rect.width(), rect.height() );
 	else
-	    parag->paint( *p, cg, 0, FALSE );
+	    parag->paint( *p, pal, 0, FALSE );
 	p->translate( 0, -y );
 	parag = parag->next();
 	if ( !flow()->isEmpty() )
-	    flow()->drawFloatingItems( p, rect.x(), rect.y(), rect.width(), rect.height(), cg, FALSE );
+	    flow()->drawFloatingItems( p, rect.x(), rect.y(), rect.width(), rect.height(), pal, FALSE );
     }
     QTextFormat::setPainter(oldPainter);
 }
 
-void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
-			       QPixmap *&doubleBuffer, const QColorGroup &cg,
-			       bool drawCursor, QTextCursor *cursor, bool resetChanged )
+void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, 
+				   int cw, int ch,
+				   QPixmap *&doubleBuffer, const QPalette &pal,
+				   bool drawCursor, QTextCursor *cursor, bool resetChanged )
 {
     QPainter *painter = 0;
     if ( resetChanged )
@@ -3189,14 +3191,14 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     painter->setBrushOrigin( -ir.x(), -ir.y() );
 
     if ( uDoubleBuffer || is_printer( painter ) )
-	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ), parag->backgroundBrush( cg ) );
+	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ), parag->backgroundBrush( pal ) );
     else if ( cursor && cursor->paragraph() == parag )
 	painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
-			   parag->backgroundBrush( cg ) );
+			   parag->backgroundBrush( pal ) );
 
     painter->translate( -( ir.x() - parag->rect().x() ),
 			-( ir.y() - parag->rect().y() ) );
-    parag->paint( *painter, cg, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
+    parag->paint( *painter, pal, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
 
     if ( uDoubleBuffer ) {
 	delete painter;
@@ -3209,13 +3211,14 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     parag->document()->nextDoubleBuffered = FALSE;
 }
 
-QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
-				 bool onlyChanged, bool drawCursor, QTextCursor *cursor, bool resetChanged )
+QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, 
+				     const QPalette &pal, bool onlyChanged, bool drawCursor, 
+				     QTextCursor *cursor, bool resetChanged )
 {
     if ( withoutDoubleBuffer || par && par->withoutDoubleBuffer ) {
 	withoutDoubleBuffer = TRUE;
 	QRect r;
-	draw( p, r, cg );
+	draw( p, r, pal );
 	return 0;
     }
     withoutDoubleBuffer = FALSE;
@@ -3225,8 +3228,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 
     QPainter * oldPainter = QTextFormat::painter();
     QTextFormat::setPainter( p );
-    if ( formatCollection()->defaultFormat()->color() != cg.text() )
-	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
+    if ( formatCollection()->defaultFormat()->color() != pal.text() )
+	setDefaultFormat( formatCollection()->defaultFormat()->font(), pal.text() );
 
     if ( cx < 0 && cy < 0 ) {
 	cx = 0;
@@ -3256,7 +3259,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	    continue;
 	}
 
-	drawParagraph( p, parag, cx, cy, cw, ch, doubleBuffer, cg, drawCursor, cursor, resetChanged );
+	drawParagraph( p, parag, cx, cy, cw, ch, doubleBuffer, pal, drawCursor, 
+		       cursor, resetChanged );
 	parag = parag->next();
     }
 
@@ -3268,11 +3272,11 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	    QRect fillRect = QRect( 0, parag->rect().y() + parag->rect().height(), parag->document()->width(),
 		parag->document()->height() - ( parag->rect().y() + parag->rect().height() ) );
 	    if ( QRect( cx, cy, cw, ch ).intersects( fillRect ) )
-		p->fillRect( fillRect, cg.brush( QColorGroup::Base ) );
+		p->fillRect( fillRect, pal.brush( QPalette::Base ) );
 	}
 	if ( !flow()->isEmpty() ) {
 	    QRect cr( cx, cy, cw, ch );
-	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg, FALSE );
+	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), pal, FALSE );
 	}
     }
 
@@ -4468,8 +4472,8 @@ void QTextParagraph::indent( int *oldIndent, int *newIndent )
     document()->indent()->indent( document(), this, oldIndent, newIndent );
 }
 
-void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor, bool drawSelections,
-			int clipx, int clipy, int clipw, int cliph )
+void QTextParagraph::paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor, 
+			    bool drawSelections, int clipx, int clipy, int clipw, int cliph )
 {
     if ( !visible )
 	return;
@@ -4561,7 +4565,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 			}
 		    }
 		}
-		drawLabel( &painter, x, y, 0, 0, baseLine, cg );
+		drawLabel( &painter, x, y, 0, 0, baseLine, pal );
 	    }
 	}
 
@@ -4593,7 +4597,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		if ( !chr->isCustom() )
 		    drawString( painter, qstr, paintStart, i - paintStart + (ignoreSoftHyphen ? 0 : 1), xstart, y,
 				baseLine, xend-xstart, h, drawSelections, fullSelectionWidth,
-				chr, cg, chr->rightToLeft );
+				chr, pal, chr->rightToLeft );
 #ifndef QT_NO_TEXTCUSTOMITEM
 		else if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
 		    bool inSelection = FALSE;
@@ -4604,7 +4608,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		    chr->customItem()->draw( &painter, chr->x, y,
 					     clipx == -1 ? clipx : (clipx - r.x()),
 					     clipy == -1 ? clipy : (clipy - r.y()),
-					     clipw, cliph, cg, inSelection );
+					     clipw, cliph, pal, inSelection );
 		}
 #endif
 	    }
@@ -4617,7 +4621,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
     const int cursor_extent = 4;
     if ( !cursorRect.isNull() && cursor &&
 	 ((clipx == -1 || clipw == -1) || (cursorRect.right()+cursor_extent >= clipx && cursorRect.left()-cursor_extent <= clipx + clipw)) ) {
-	painter.fillRect( cursorRect, cg.color( QColorGroup::Text ) );
+	painter.fillRect( cursorRect, pal.color( QPalette::Text ) );
 	painter.save();
 	if ( string()->isBidi() ) {
 	    if ( at( cursor->index() )->rightToLeft ) {
@@ -4637,31 +4641,32 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 //#define BIDI_DEBUG
 
 void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
-					   const QColorGroup& cg, int selection )
+					   const QPalette &pal, int selection )
 {
     if (selection < 0)
 	return;
     color = ( hasdoc && selection != QTextDocument::Standard ) ?
 	    document()->selectionColor( selection ) :
-	    cg.color( QColorGroup::Highlight );
+	    pal.color( QPalette::Highlight );
     if ( selection == QTextDocument::IMCompositionText ) {
 	int h1, s1, v1, h2, s2, v2;
-	cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
-	cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+	pal.color( QPalette::Base ).hsv( &h1, &s1, &v1 );
+	pal.color( QPalette::Background ).hsv( &h2, &s2, &v2 );
 	color.setHsv( h1, s1, ( v1 + v2 ) / 2 );
-	painter.setPen( cg.color( QColorGroup::Text ) );
+	painter.setPen( pal.color( QPalette::Text ) );
     } else if ( selection == QTextDocument::IMSelectionText ) {
-	color = cg.color( QColorGroup::Foreground );
-	painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+	color = pal.color( QPalette::Foreground );
+	painter.setPen( pal.color( QPalette::HighlightedText ) );
     } else if ( !hasdoc || document()->invertSelectionText( selection ) ) {
-	painter.setPen( cg.color( QColorGroup::HighlightedText ) );
+	painter.setPen( pal.color( QPalette::HighlightedText ) );
     }
 }
 
-void QTextParagraph::drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
-			     int y, int baseLine, int w, int h, bool drawSelections, int fullSelectionWidth,
-			     QTextStringChar *formatChar, const QColorGroup& cg,
-			     bool rightToLeft )
+void QTextParagraph::drawString( QPainter &painter, const QString &str, int start, int len, 
+				 int xstart, int y, int baseLine, int w, int h, 
+				 bool drawSelections, int fullSelectionWidth,
+				 QTextStringChar *formatChar, const QPalette& pal,
+				 bool rightToLeft )
 {
     bool plainText = hasdoc ? document()->textFormat() == Qt::PlainText : FALSE;
     QTextFormat* format = formatChar->format();
@@ -4669,12 +4674,13 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
     if ( !plainText || hasdoc && format->color() != document()->formatCollection()->defaultFormat()->color() )
 	painter.setPen( QPen( format->color() ) );
     else
-	painter.setPen( cg.text() );
+	painter.setPen( pal.text() );
     painter.setFont( format->font() );
 
     if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() ) {
 	if ( format->useLinkColor() )
-	    painter.setPen(document()->linkColor.isValid() ? document()->linkColor : cg.link());
+	    painter.setPen(document()->linkColor.isValid() ? document()->linkColor : 
+			   pal.link().color());
 	if ( document()->underlineLinks() ) {
 	    QFont fn = format->font();
 	    fn.setUnderline( TRUE );
@@ -4765,7 +4771,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		(it.key() != QTextDocument::Standard || !is_printer( &painter))) {
 		int selection = it.key();
 		QColor color;
-		setColorForSelection( color, painter, cg, selection );
+		setColorForSelection( color, painter, pal, selection );
 		if (selStart != start || selEnd != start + len || selWrap) {
 		    // have to clip
 		    painter.save();
@@ -4820,7 +4826,8 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	painter.drawWinFocusRect( QRect( xstart, y, w, h ) );
 }
 
-void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg )
+void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int base, 
+				const QPalette& pal )
 {
     QRect r ( x, y, w, h );
     QStyleSheetItem::ListStyle s = listStyle();
@@ -4886,7 +4893,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
 	{
 	    int x = rtl ? r.left() + size : r.right() - size*2;
 	    QRect er( x, r.top() + fm.height() / 2 - size / 2, size, size );
-	    p->fillRect( er , cg.brush( QColorGroup::Text ) );
+	    p->fillRect( er , pal.brush( QPalette::Text ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
@@ -4899,7 +4906,7 @@ void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int bas
     case QStyleSheetItem::ListDisc:
     default:
 	{
-	    p->setBrush( cg.brush( QColorGroup::Text ));
+	    p->setBrush( pal.brush( QPalette::Text ));
 	    int x = rtl ? r.left() + size : r.right() - size*2;
 	    QRect er( x, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
@@ -5926,7 +5933,7 @@ QTextFormatCollection::QTextFormatCollection()
     : cKey( 307 ), paintdevice( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
-				 QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
+				 QApplication::palette().color( QPalette::Active, QPalette::Text ) );
     lastFormat = cres = 0;
     cflags = -1;
     cKey.setAutoDelete( TRUE );
@@ -6561,7 +6568,7 @@ void QTextImage::adjustToPainter( QPainter* p )
 #include <qcleanuphandler.h>
 static QPixmap *qrt_selection = 0;
 static QSingleCleanupHandler<QPixmap> qrt_cleanup_pixmap;
-static void qrt_createSelectionPixmap( const QColorGroup &cg )
+static void qrt_createSelectionPixmap( const QPalette &pal )
 {
     qrt_selection = new QPixmap( 2, 2 );
     qrt_cleanup_pixmap.set( &qrt_selection );
@@ -6575,11 +6582,12 @@ static void qrt_createSelectionPixmap( const QColorGroup &cg )
     }
     p.end();
     qrt_selection->setMask( m );
-    qrt_selection->fill( cg.highlight() );
+    qrt_selection->fill( pal.highlight() );
 }
 #endif
 
-void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
+void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+		       const QPalette &pal, bool selected )
 {
     if ( placement() != PlaceInline ) {
 	x = xpos;
@@ -6587,7 +6595,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     }
 
     if ( pm.isNull() ) {
-	p->fillRect( x , y, width, height,  cg.dark() );
+	p->fillRect( x , y, width, height,  pal.dark() );
 	return;
     }
 
@@ -6606,10 +6614,11 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
 
     if ( selected && placement() == PlaceInline && is_printer( p ) ) {
 #if defined(Q_WS_X11)
-	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
+	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( pal.highlight(), 
+								 QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
 	if ( !qrt_selection )
-	    qrt_createSelectionPixmap( cg );
+	    qrt_createSelectionPixmap( pal );
 	p->drawTiledPixmap( x, y, pm.width(), pm.height(), *qrt_selection );
 #endif
     }
@@ -6643,24 +6652,26 @@ QString QTextHorizontalLine::richText() const
     return "<hr>";
 }
 
-void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool selected )
+void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , 
+				const QPalette& pal, bool selected )
 {
     QRect r( x, y, width, height);
     if ( is_printer( p ) || !shade ) {
 	QPen oldPen = p->pen();
 	if ( !color.isValid() )
-	    p->setPen( QPen( cg.text(), is_printer( p ) ? height/8 : QMAX( 2, height/4 ) ) );
+	    p->setPen( QPen( pal.text(), is_printer( p ) ? height/8 : QMAX( 2, height/4 ) ) );
 	else
 	    p->setPen( QPen( color, is_printer( p ) ? height/8 : QMAX( 2, height/4 ) ) );
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
 	p->setPen( oldPen );
     } else {
-	QColorGroup g( cg );
-	if ( color.isValid() )
-	    g.setColor( QColorGroup::Dark, color );
 	if ( selected )
-	    p->fillRect( r, g.highlight() );
-	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, g, TRUE, height / 8 );
+	    p->fillRect( r, pal.highlight() );
+	QPalette pal2( pal );
+	if ( color.isValid() )
+	    pal2.setColor( pal2.currentColorGroup(), QPalette::Dark, color );
+	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, pal2, 
+			TRUE, height / 8 );
     }
 }
 #endif //QT_NO_TEXTCUSTOMITEM
@@ -7391,20 +7402,21 @@ QRect QTextFlow::boundingRect() const
 }
 
 
-void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
+void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, 
+				   const QPalette &pal, bool selected )
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
     QTextCustomItem *item;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
-	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg, selected );
+	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, pal, selected );
     }
 
     for ( item = rightItems.first(); item; item = rightItems.next() ) {
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
-	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, cg, selected );
+	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, pal, selected );
     }
 #endif
 }
@@ -7578,7 +7590,8 @@ void QTextTable::pageBreak( int  yt, QTextFlow* flow )
 }
 
 
-void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected )
+void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+		      const QPalette &pal, bool selected )
 {
     if ( placement() != PlaceInline ) {
 	x = xpos;
@@ -7589,8 +7602,9 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
-							cell->geometry().width(), cell->geometry().height() ) ) ) {
-	    cell->draw( p, x+outerborder, y+outerborder, cx, cy, cw, ch, cg, selected );
+							cell->geometry().width(), 
+							cell->geometry().height() ) ) ) {
+	    cell->draw( p, x+outerborder, y+outerborder, cx, cy, cw, ch, pal, selected );
 	    if ( border ) {
 		QRect r( x+outerborder+cell->geometry().x() - innerborder,
 			 y+outerborder+cell->geometry().y() - innerborder,
@@ -7600,18 +7614,18 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		    QPen oldPen = p->pen();
 		    QRect r2 = r;
 		    r2.addCoords( innerborder/2, innerborder/2, -innerborder/2, -innerborder/2 );
-		    p->setPen( QPen( cg.text(), innerborder ) );
+		    p->setPen( QPen( pal.text(), innerborder ) );
 		    p->drawRect( r2 );
 		    p->setPen( oldPen );
 		} else {
 		    int s =  QMAX( cellspacing-2*innerborder, 0);
 		    if ( s ) {
-			p->fillRect( r.left()-s, r.top(), s+1, r.height(), cg.button() );
-			p->fillRect( r.right(), r.top(), s+1, r.height(), cg.button() );
-			p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
-			p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
+			p->fillRect( r.left()-s, r.top(), s+1, r.height(), pal.button() );
+			p->fillRect( r.right(), r.top(), s+1, r.height(), pal.button() );
+			p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, pal.button() );
+			p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, pal.button() );
 		    }
-		    qDrawShadePanel( p, r, cg, TRUE, innerborder );
+		    qDrawShadePanel( p, r, pal, TRUE, innerborder );
 		}
 	    }
 	}
@@ -7622,18 +7636,18 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
  	    QRect r2 = r;
  	    r2.addCoords( border/2, border/2, -border/2, -border/2 );
 	    QPen oldPen = p->pen();
-	    p->setPen( QPen( cg.text(), border ) );
+	    p->setPen( QPen( pal.text(), border ) );
 	    p->drawRect( r2 );
 	    p->setPen( oldPen );
 	} else {
 	    int s = border+QMAX( cellspacing-2*innerborder, 0);
 	    if ( s ) {
-		p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
-		p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
-		p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
-		p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
+		p->fillRect( r.left(), r.top(), s, r.height(), pal.button() );
+		p->fillRect( r.right()-s, r.top(), s, r.height(), pal.button() );
+		p->fillRect( r.left(), r.top(), r.width(), s, pal.button() );
+		p->fillRect( r.left(), r.bottom()-s, r.width(), s, pal.button() );
 	    }
-	    qDrawShadePanel( p, r, cg, FALSE, border );
+	    qDrawShadePanel( p, r, pal, FALSE, border );
 	}
     }
 
@@ -8080,18 +8094,19 @@ int QTextTableCell::verticalAlignmentOffset() const
     return parent->cellpadding;
 }
 
-void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
+void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+			   const QPalette &pal, bool )
 {
     if ( cached_width != geom.width() ) {
 	int extra = 2 * ( parent->innerborder + parent->cellpadding );
 	richtext->doLayout( p, geom.width() - extra );
 	cached_width = geom.width();
     }
-    QColorGroup g( cg );
+    QPalette pal2( pal );
     if ( background )
-	g.setBrush( QColorGroup::Base, *background );
+	pal2.setBrush( QPalette::Base, *background );
     else if ( richtext->paper() )
-	g.setBrush( QColorGroup::Base, *richtext->paper() );
+	pal2.setBrush( QPalette::Base, *richtext->paper() );
 
     p->save();
     p->translate( x + geom.x(), y + geom.y() );
@@ -8106,9 +8121,9 @@ void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, in
     if ( cx >= 0 && cy >= 0 )
 	richtext->draw( p, cx - ( x + horizontalAlignmentOffset() + geom.x() ),
 			cy - ( y + geom.y() + verticalAlignmentOffset() ),
-			cw, ch, g, FALSE, FALSE, 0 );
+			cw, ch, pal2, FALSE, FALSE, 0 );
     else
-	richtext->draw( p, -1, -1, -1, -1, g, FALSE, FALSE, 0 );
+	richtext->draw( p, -1, -1, -1, -1, pal2, FALSE, FALSE, 0 );
 
     p->restore();
 }

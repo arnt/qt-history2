@@ -254,13 +254,13 @@ void QDial::repaintScreen( const QRect *cr )
     QRect br( calcDial() );
     p.setPen( NoPen );
     // if ( style() == MotifStyle )
-    // p.setBrush( colorGroup().brush( QColorGroup::Mid ) );
+    // p.setBrush( palette().brush( QPalette::Mid ) );
     // else {
     QBrush b;
-    if ( colorGroup().brush( QColorGroup::Light ).pixmap() )
-	b = QBrush( colorGroup().brush( QColorGroup::Light ) );
+    if ( palette().brush( QPalette::Light ).pixmap() )
+	b = QBrush( palette().brush( QPalette::Light ) );
     else
-	b = QBrush( colorGroup().light(), Dense4Pattern );
+	b = QBrush( palette().light(), Dense4Pattern );
     p.setBrush( b );
     p.setBackgroundMode( OpaqueMode );
     // }
@@ -290,14 +290,14 @@ void QDial::repaintScreen( const QRect *cr )
     // draw notches
     if ( d->showNotches ) {
 	calcLines();
-	p.setPen( colorGroup().foreground() );
+	p.setPen( palette().foreground() );
 	p.drawLineSegments( d->lines );
     }
 
     // calculate and paint arrow
-    p.setPen( QPen( colorGroup().dark() ) );
+    p.setPen( QPen( palette().dark() ) );
     p.drawArc( te, 60 * 16, 180 * 16 );
-    p.setPen( QPen( colorGroup().light() ) );
+    p.setPen( QPen( palette().light() ) );
     p.drawArc( te, 240 * 16, 180 * 16 );
 
     double a;
@@ -307,7 +307,7 @@ void QDial::repaintScreen( const QRect *cr )
     d->eraseAreaValid = TRUE;
 
     p.setPen( NoPen );
-    p.setBrush( colorGroup().brush( QColorGroup::Button ) );
+    p.setBrush( palette().brush( QPalette::Button ) );
     if ( !d->onlyOutside )
 	p.drawPolygon( arrow );
 
@@ -316,27 +316,27 @@ void QDial::repaintScreen( const QRect *cr )
 
     // that's still a hack...
     if ( a <= 0 || a > 200 ) {
-	p.setPen( colorGroup().light() );
+	p.setPen( palette().light() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
-	p.setPen( colorGroup().dark() );
+	p.setPen( palette().dark() );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
     } else if ( a > 0 && a < 45 ) {
-	p.setPen( colorGroup().light() );
+	p.setPen( palette().light() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
-	p.setPen( colorGroup().dark() );
+	p.setPen( palette().dark() );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
     } else if ( a >= 45 && a < 135 ) {
-	p.setPen( colorGroup().dark() );
+	p.setPen( palette().dark() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
-	p.setPen( colorGroup().light() );
+	p.setPen( palette().light() );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
     } else if ( a >= 135 && a < 200 ) {
-	p.setPen( colorGroup().dark() );
+	p.setPen( palette().dark() );
 	p.drawLine( arrow[ 2 ], arrow[ 0 ] );
-	p.setPen( colorGroup().light() );
+	p.setPen( palette().light() );
 	p.drawLine( arrow[ 0 ], arrow[ 1 ] );
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
     }
@@ -356,11 +356,11 @@ void QDial::repaintScreen( const QRect *cr )
 	p.end();
 	p.begin( this );
 	p.save();
-	p.setPen( QPen( colorGroup().background() ) );
+	p.setPen( QPen( palette().background() ) );
 	p.setBrush( NoBrush );
 	p.drawRect( br );
 	p.restore();
-	style().drawPrimitive( QStyle::PE_FocusRect, &p, br, colorGroup());
+	style().drawPrimitive( QStyle::PE_FocusRect, &p, br, palette());
     }
     p.end();
 }

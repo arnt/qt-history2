@@ -499,25 +499,19 @@ void qt_create_std_palette()
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
-    QColorGroup std_act( Qt::black, standardLightGray,
-			 light, dark, Qt::gray,
-			 Qt::black, Qt::white );
-    QColorGroup std_dis( Qt::darkGray, standardLightGray,
-			 light, dark, Qt::gray,
-			 Qt::darkGray, std_act.background() );
-    QColorGroup std_inact( Qt::black, standardLightGray,
-			   light, dark, Qt::gray,
-			   Qt::black, Qt::white );
-    qt_std_pal = new QPalette( std_act, std_dis, std_inact );
+    qt_std_pal = new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray,
+			      Qt::black, Qt::white);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, Qt::darkGray);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, qt_std_pal->background());
 }
 
 static void qt_fix_tooltips()
 {
     // No resources for this yet (unlike on Windows).
-    QColorGroup cg( Qt::black, QColor(255,255,220),
-		    QColor(96,96,96), Qt::black, Qt::black,
-		    Qt::black, QColor(255,255,220) );
-    QPalette pal( cg, cg, cg );
+    QPalette pal( Qt::black, QColor(255,255,220),
+		  QColor(96,96,96), Qt::black, Qt::black,
+		  Qt::black, QColor(255,255,220) );
     QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
 #endif

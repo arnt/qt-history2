@@ -680,7 +680,7 @@ QString QTableItem::content() const
 /*!
     This virtual function is used to paint the contents of an item
     using the painter \a p in the rectangular area \a cr using the
-    color group \a cg.
+    color group \a pal.
 
     If \a selected is TRUE the cell is displayed in a way that
     indicates that it is highlighted.
@@ -702,12 +702,12 @@ QString QTableItem::content() const
 
 */
 
-void QTableItem::paint( QPainter *p, const QColorGroup &cg,
+void QTableItem::paint( QPainter *p, const QPalette &pal,
 			const QRect &cr, bool selected )
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
-		 selected ? cg.brush( QColorGroup::Highlight )
-			  : cg.brush( QColorGroup::Base ) );
+		 selected ? pal.brush( QPalette::Highlight )
+			  : pal.brush( QPalette::Base ) );
 
     int w = cr.width();
     int h = cr.height();
@@ -719,9 +719,9 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
     }
 
     if ( selected )
-	p->setPen( cg.highlightedText() );
+	p->setPen( pal.highlightedText() );
     else
-	p->setPen( cg.text() );
+	p->setPen( pal.text() );
     p->drawText( x + 2, 0, w - x - 4, h,
 		 wordwrap ? (alignment() | WordBreak) : alignment(), text() );
 }
@@ -1235,21 +1235,21 @@ void QComboTableItem::setContentFromEditor( QWidget *w )
 
 /*! \reimp */
 
-void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
+void QComboTableItem::paint( QPainter *p, const QPalette &pal,
 			   const QRect &cr, bool selected )
 {
     fakeCombo->resize( cr.width(), cr.height() );
 
-    QColorGroup c( cg );
+    QPalette pal2( pal );
     if ( selected ) {
-	c.setBrush( QColorGroup::Base, cg.brush( QColorGroup::Highlight ) );
-	c.setColor( QColorGroup::Text, cg.highlightedText() );
+	pal2.setBrush( QPalette::Base, pal.brush( QPalette::Highlight ) );
+	pal2.setColor( QPalette::Text, pal.highlightedText() );
     }
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if(isEnabled() && table()->isEnabled())
 	flags |= QStyle::Style_Enabled;
-    table()->style().drawComplexControl( QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), c, flags );
+    table()->style().drawComplexControl( QStyle::CC_ComboBox, p, fakeCombo, fakeCombo->rect(), pal2, flags );
 
     p->save();
     QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
@@ -1493,19 +1493,19 @@ void QCheckTableItem::setContentFromEditor( QWidget *w )
 
 /*! \reimp */
 
-void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
+void QCheckTableItem::paint( QPainter *p, const QPalette &pal,
 				const QRect &cr, bool selected )
 {
     p->fillRect( 0, 0, cr.width(), cr.height(),
-		 selected ? cg.brush( QColorGroup::Highlight )
-			  : cg.brush( QColorGroup::Base ) );
+		 selected ? pal.brush( QPalette::Highlight )
+			  : pal.brush( QPalette::Base ) );
 
     int w = cr.width();
     int h = cr.height();
     QSize sz = QSize( table()->style().pixelMetric( QStyle::PM_IndicatorWidth ),
 		      table()->style().pixelMetric( QStyle::PM_IndicatorHeight ) );
-    QColorGroup c( cg );
-    c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
+    QPalette pal2( pal );
+    pal2.setBrush( QPalette::Background, pal.brush( QPalette::Base ) );
     QStyle::SFlags flags = QStyle::Style_Default;
     if(isEnabled())
 	flags |= QStyle::Style_Enabled;
@@ -1517,13 +1517,13 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 	flags |= QStyle::Style_Enabled;
 
     table()->style().drawPrimitive( QStyle::PE_Indicator, p,
-				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c, flags );
+				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), pal2, flags );
     int x = sz.width() + 6;
     w = w - x;
     if ( selected )
-	p->setPen( cg.highlightedText() );
+	p->setPen( pal.highlightedText() );
     else
-	p->setPen( cg.text() );
+	p->setPen( pal.text() );
     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
@@ -2800,18 +2800,15 @@ void QTable::paintCell( QPainter* p, int row, int col,
 {
     if ( cr.width() == 0 || cr.height() == 0 )
 	return;
+    QPalette pal = palette();
 #if defined(Q_WS_WIN)
-    const QColorGroup &cg = ( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ? palette().inactive() : colorGroup() );
-#else
-    const QColorGroup &cg = colorGroup();
+    if( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ))
+	pal.setCurrentColorGroup(QPalette::Inactive);
 #endif
-
     QTableItem *itm = item( row, col );
-    QColorGroup cg2( cg );
     if ( itm && !itm->isEnabled() )
-	cg2 = palette().disabled();
-
-    paintCell( p, row, col, cr, selected, cg2 );
+	pal.setCurrentColorGroup(QPalette::Disabled);
+    paintCell( p, row, col, cr, selected, pal );
 }
 
 /*!
@@ -2821,7 +2818,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 
     If \a selected is TRUE the cell is highlighted.
 
-    \a cg is the colorgroup which should be used to draw the cell
+    \a pal is the colorgroup which should be used to draw the cell
     content.
 
     If you want to draw custom cell content, for example right-aligned
@@ -2848,7 +2845,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 */
 
 void QTable::paintCell( QPainter *p, int row, int col,
-			const QRect &cr, bool selected, const QColorGroup &cg )
+			const QRect &cr, bool selected, const QPalette &pal )
 {
     if ( focusStl == SpreadSheet && selected &&
 	 row == curRow &&
@@ -2864,10 +2861,10 @@ void QTable::paintCell( QPainter *p, int row, int col,
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	p->save();
-	itm->paint( p, cg, cr, selected );
+	itm->paint( p, pal, cr, selected );
 	p->restore();
     } else {
-	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
+	p->fillRect( 0, 0, w, h, selected ? pal.brush( QPalette::Highlight ) : pal.brush( QPalette::Base ) );
     }
 
     if ( sGrid ) {
@@ -2900,8 +2897,8 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
     } else {
 	QColor c = isSelected( curRow, curCol, FALSE ) ?
-			     colorGroup().highlight() : colorGroup().base();
-	style().drawPrimitive( QStyle::PE_FocusRect, p, focusRect, colorGroup(),
+			     palette().highlight() : palette().base();
+	style().drawPrimitive( QStyle::PE_FocusRect, p, focusRect, palette(),
 			       ( isSelected( curRow, curCol, FALSE ) ?
 				 QStyle::Style_FocusAtBorder :
 				 QStyle::Style_Default ),
@@ -6195,7 +6192,7 @@ void QTable::windowActivationChange( bool oldActive )
     if ( !isVisible() )
 	return;
 
-    if ( palette().active() != palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive) )
 	updateContents();
 }
 
@@ -6408,7 +6405,7 @@ QTableHeader::SectionState QTableHeader::sectionState( int s ) const
 void QTableHeader::paintEvent( QPaintEvent *e )
 {
     QPainter p( this );
-    p.setPen( colorGroup().buttonText() );
+    p.setPen( palette().buttonText() );
     int pos = orientation() == Horizontal
 		     ? e->rect().left()
 		     : e->rect().top();
@@ -6471,7 +6468,7 @@ void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
        if(!(flags & QStyle::Style_Down))
 	   flags |= QStyle::Style_Raised;
        style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			      colorGroup(), flags );
+			      palette(), flags );
        paintSectionLabel( p, index, fr );
    }
 }

@@ -40,7 +40,7 @@ public:
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
-			const QColorGroup &cg,
+			const QPalette &pal,
 			SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 
@@ -48,7 +48,7 @@ public:
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
-		      const QColorGroup &cg,
+		      const QPalette &pal,
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
@@ -56,7 +56,7 @@ public:
 			     QPainter *p,
 			     const QWidget *widget,
 			     const QRect &r,
-			     const QColorGroup &cg,
+			     const QPalette &pal,
 			     SFlags how = Style_Default,
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
@@ -72,9 +72,9 @@ public:
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
 protected:
-     QColor mixedColor(const QColor &, const QColor &) const;
+    QColor mixedColor(const QColor &, const QColor &) const;
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
-		      const QColorGroup &g, bool horizontal ) const;
+		      const QPalette &pal, bool horizontal ) const;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPlatinumStyle( const QPlatinumStyle & );

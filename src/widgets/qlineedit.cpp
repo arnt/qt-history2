@@ -1816,7 +1816,7 @@ void QLineEdit::focusOutEvent( QFocusEvent* e )
 */
 void QLineEdit::drawContents( QPainter *p )
 {
-    const QColorGroup& cg = colorGroup();
+    const QPalette &pal = palette();
     QRect cr = contentsRect();
     QFontMetrics fm = fontMetrics();
     QRect lineRect( cr.x() + innerMargin, cr.y() + (cr.height() - fm.height() + 1) / 2,
@@ -1825,9 +1825,9 @@ void QLineEdit::drawContents( QPainter *p )
     QBrush bg = QBrush( paletteBackgroundColor() );
 
     if (paletteBackgroundPixmap())
-	bg = QBrush(cg.background(), *paletteBackgroundPixmap());
+	bg = QBrush(pal.background(), *paletteBackgroundPixmap());
     else if (!enabled)
-	bg = cg.brush( QColorGroup::Background );
+	bg = pal.brush( QPalette::Background );
 
     p->save();
     if (enabled)
@@ -1880,7 +1880,7 @@ void QLineEdit::drawContents( QPainter *p )
     QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
     // draw text, selections and cursors
-    p->setPen( cg.text() );
+    p->setPen( pal.text() );
     bool supressCursor = d->readOnly, hasRightToLeft = d->isRightToLeft();
     int textflags = 0;
     if ( font().underline() )
@@ -1907,8 +1907,8 @@ void QLineEdit::drawContents( QPainter *p )
   	    p->setClipRegion( QRegion( lineRect ) - highlight, QPainter::CoordPainter );
  	    p->drawTextItem( topLeft, ti, textflags );
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, cg.highlight() );
- 	    p->setPen( cg.highlightedText() );
+	    p->fillRect( highlight, pal.highlight() );
+ 	    p->setPen( pal.highlightedText() );
 	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
 	} else {
@@ -1923,8 +1923,8 @@ void QLineEdit::drawContents( QPainter *p )
  	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
 
 	    int h1, s1, v1, h2, s2, v2;
-	    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
-	    cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
+	    pal.color( QPalette::Base ).hsv( &h1, &s1, &v1 );
+	    pal.color( QPalette::Background ).hsv( &h2, &s2, &v2 );
 	    QColor imCol;
 	    imCol.setHsv( h1, s1, ( v1 + v2 ) / 2 );
 	    p->fillRect( highlight, imCol );
@@ -1938,7 +1938,7 @@ void QLineEdit::drawContents( QPainter *p )
 			      QPoint( tix + ti.cursorToX( QMIN( d->imselend - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, cg.text() );
+	    p->fillRect( highlight, pal.text() );
 	    p->setPen( paletteBackgroundColor() );
 	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
@@ -1951,7 +1951,7 @@ void QLineEdit::drawContents( QPainter *p )
 				     QPoint( tix + ti.cursorToX( QMIN( d->cursor + 1 - first, last - first + 1 ) ), lineRect.bottom() ) ).normalize();
 	    p->save();
 	    p->setClipRect( lineRect & highlight, QPainter::CoordPainter );
-	    p->fillRect( highlight, cg.text() );
+	    p->fillRect( highlight, pal.text() );
 	    p->setPen( paletteBackgroundColor() );
 	    p->drawTextItem( topLeft, ti, textflags );
 	    p->restore();
@@ -2138,7 +2138,7 @@ QPopupMenu *QLineEdit::createPopupMenu()
 void QLineEdit::windowActivationChange( bool b )
 {
     //### remove me with WHighlightSelection attribute
-    if ( palette().active() != palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
 	update();
     QWidget::windowActivationChange( b );
 }

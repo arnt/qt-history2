@@ -300,7 +300,7 @@ protected:
 	    return;
 	QPainter p( this );
 	p.setClipRegion( e->rect() );
-	p.fillRect( e->rect(), colorGroup().brush( QColorGroup::Background ) );
+	p.fillRect( e->rect(), palette().brush( QPalette::Background ) );
 	int x = 0;
 	for (int i = 0; i < childs.size(); ++i) {
 	    QObject *o = childs.at(i);
@@ -313,7 +313,7 @@ protected:
 		flags |= QStyle::Style_On;
 
 	    style().drawPrimitive( QStyle::PE_DockWindowHandle, &p,
-				   QRect( x, 0, 30, 10 ), colorGroup(),
+				   QRect( x, 0, 30, 10 ), palette(),
 				   flags );
 	    x += 30;
 	}
@@ -1531,7 +1531,7 @@ void QMainWindow::paintEvent( QPaintEvent * )
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),
-			      colorGroup(), QStyle::Style_Sunken);
+			      palette(), QStyle::Style_Sunken);
     }
 }
 

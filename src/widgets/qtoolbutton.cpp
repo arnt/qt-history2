@@ -461,7 +461,7 @@ void QToolButton::drawButton( QPainter * p )
     } else if (! isOn() && ! isDown())
 	flags |= QStyle::Style_Raised;
 
-    style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), colorGroup(),
+    style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), palette(),
 			       flags, controls, active,
 				hasArrow ? QStyleOption(arrowtype) :
 				    QStyleOption());
@@ -499,7 +499,7 @@ void QToolButton::drawButtonLabel(QPainter *p)
 	flags |= QStyle::Style_Raised;
 
     style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
-			colorGroup(), flags,
+			palette(), flags,
 			hasArrow ? QStyleOption(arrowtype) :
 			    QStyleOption());
 }

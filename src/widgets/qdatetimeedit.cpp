@@ -274,7 +274,7 @@ public:
     }
 
     void paint( const QString& txt, bool focus, QPainter& p,
-		const QColorGroup& cg, const QRect& rect, QStyle& style )
+		const QPalette&pal, const QRect& rect, QStyle& style )
     {
 	int fw = 0;
 	if ( frm )
@@ -290,9 +290,9 @@ public:
 
 	/* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
 	QTextFormat *fb = parag->formatCollection()->format( p.font(),
-							     cg.base() );
+							     pal.base() );
 	QTextFormat *nf = parag->formatCollection()->format( p.font(),
-							     cg.text() );
+							     pal.text() );
 	for ( int i = 0; i < txt.length(); ++i ) {
 	    parag->setFormat( i, 1, nf );
 	    if ( inSectionSelection( i ) )
@@ -316,7 +316,7 @@ public:
 	    yoff = 0;
 
 	p.translate( xoff, yoff );
-	parag->paint( p, cg, 0, TRUE );
+	parag->paint( p, pal, 0, TRUE );
 	if ( frm )
 	    p.translate( -xoff, -yoff );
     }
@@ -506,10 +506,9 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
     }
 
     QSharedDoubleBuffer buffer( this );
-    const QBrush &bg =
-	colorGroup().brush( isEnabled() ? QColorGroup::Base : QColorGroup::Background );
+    const QBrush &bg = palette().brush( isEnabled() ? QPalette::Base : QPalette::Background );
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
-    d->paint( txt, hasFocus(), *buffer.painter(), colorGroup(), rect(),
+    d->paint( txt, hasFocus(), *buffer.painter(), palette(), rect(),
 	      style() );
     buffer.end();
 }

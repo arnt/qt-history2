@@ -224,11 +224,11 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
     if(where)
 	qDebug("qt-internal: %s", where);
     for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
-	for(int role = 0; role < QColorGroup::NColorRoles; role++) {
-	    QBrush b = pal.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role);
+	for(int role = 0; role < QPalette::NColorRoles; role++) {
+	    QBrush b = pal.brush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role);
 	    qDebug("  %s::%s %d::%d::%d [%p]%s", groups[grp], roles[role], b.color().red(),
 		   b.color().green(), b.color().blue(), b.pixmap(),
-		   pal2.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role) != b ? " (*)" : "");
+		   pal2.brush((QPalette::ColorGroup)grp, (QPalette::ColorRole)role) != b ? " (*)" : "");
 	}
     }
 
@@ -316,33 +316,38 @@ void qt_mac_update_os_settings()
 	RGBColor c;
 	QPalette pal = QApplication::palette();
 	if(!GetThemeBrushAsColor(-3, 32, true, &c))
-	    pal.setBrush(QPalette::Active, QColorGroup::Highlight,
+	    pal.setBrush(QPalette::Active, QPalette::Highlight,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
-	if(!GetThemeBrushAsColor(-4, 32, true, &c))
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Highlight,
+	if(!GetThemeBrushAsColor(-4, 32, true, &c)) {
+	    pal.setBrush(QPalette::Inactive, QPalette::Highlight,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    pal.setBrush(QPalette::Disabled, QPalette::Highlight,
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	}
 	if(!GetThemeBrushAsColor(kThemeBrushButtonActiveDarkShadow, 32, true, &c))
-	    pal.setBrush(QPalette::Active, QColorGroup::Shadow,
+	    pal.setBrush(QPalette::Active, QPalette::Shadow,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
-	if(!GetThemeBrushAsColor(kThemeBrushButtonInactiveDarkShadow, 32, true, &c))
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Shadow,
+	if(!GetThemeBrushAsColor(kThemeBrushButtonInactiveDarkShadow, 32, true, &c)) {
+	    pal.setBrush(QPalette::Inactive, QPalette::Shadow,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    pal.setBrush(QPalette::Disabled, QPalette::Shadow,
+			 QColor(c.red / 256, c.green / 256, c.blue / 256));
+	}
 	if(!GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c)) {
 	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-	    pal.setColor(QPalette::Active, QColorGroup::Text, qc);
-	    pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
-	    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
+	    pal.setColor(QPalette::Active, QPalette::Text, qc);
+	    pal.setColor(QPalette::Active, QPalette::Foreground, qc);
+	    pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
 	}
 	if(!GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &c)) {
 	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
-	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
-	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
-
+	    pal.setColor(QPalette::Inactive, QPalette::Text, qc);
+	    pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
+	    pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
+	    pal.setColor(QPalette::Disabled, QPalette::Text, qc);
+	    pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
+	    pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
 	}
-	pal.setDisabled(pal.inactive());
-	//This is what triggers the "inactive" appearance in Qt/Mac!
-	pal.setColor(QPalette::Inactive, QColorGroup::Link, QColor(148, 148, 148));
 	if(!(pal == QApplication::palette())) {
 	    QApplication::setPalette(pal);
 #ifdef DEBUG_PLATFORM_SETTINGS
@@ -420,35 +425,35 @@ void qt_mac_update_os_settings()
 	    QPalette pal = apppal;
 	    if(!GetThemeTextColor(mac_widget_colours[i].active, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
-		pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
-		pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
+		pal.setColor(QPalette::Active, QPalette::Text, qc);
+		pal.setColor(QPalette::Active, QPalette::Foreground, qc);
+		pal.setColor(QPalette::Active, QPalette::HighlightedText, qc);
 	    }
 	    if(!GetThemeTextColor(mac_widget_colours[i].inactive, 32, true, &c)) {
 		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
-		pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
-		pal.setColor(QPalette::Disabled, QColorGroup::Text, qc);
-		pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
-		pal.setColor(QPalette::Disabled, QColorGroup::Foreground, qc);
-		pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
-		pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qc);
+		pal.setColor(QPalette::Inactive, QPalette::Text, qc);
+		pal.setColor(QPalette::Disabled, QPalette::Text, qc);
+		pal.setColor(QPalette::Inactive, QPalette::Foreground, qc);
+		pal.setColor(QPalette::Disabled, QPalette::Foreground, qc);
+		pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
+		pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
 	    }
 	    if(!strcmp(mac_widget_colours[i].qt_class, "QPopupMenu")) { //special
 		GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
-		pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
-		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
+		pal.setBrush(QPalette::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
-		pal.setBrush(QPalette::Disabled, QColorGroup::Text,
+		pal.setBrush(QPalette::Disabled, QPalette::Text,
 			     QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") ||
 		      !strcmp(mac_widget_colours[i].qt_class, "QHeader")) { //special
-		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText,
-			     pal.color(QPalette::Disabled, QColorGroup::Text));
-		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText,
-			     pal.color(QPalette::Inactive, QColorGroup::Text));
-		pal.setColor(QPalette::Active, QColorGroup::ButtonText,
-			     pal.color(QPalette::Active, QColorGroup::Text));
+		pal.setColor(QPalette::Disabled, QPalette::ButtonText,
+			     pal.color(QPalette::Disabled, QPalette::Text));
+		pal.setColor(QPalette::Inactive, QPalette::ButtonText,
+			     pal.color(QPalette::Inactive, QPalette::Text));
+		pal.setColor(QPalette::Active, QPalette::ButtonText,
+			     pal.color(QPalette::Active, QPalette::Text));
 	    }
 	    bool set_palette = TRUE;
 	    if(QApplication::app_palettes) {
@@ -2778,20 +2783,20 @@ bool QApplication::qt_mac_apply_settings()
 	int i, num;
 	QPalette pal(QApplication::palette());
 	strlist = settings.readListEntry("/qt/Palette/active");
-	if(strlist.count() == QColorGroup::NColorRoles) {
-	    for(i = 0; i < QColorGroup::NColorRoles; i++)
-		pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
+	if(strlist.count() == QPalette::NColorRoles) {
+	    for(i = 0; i < QPalette::NColorRoles; i++)
+		pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
 			     QColor(strlist[i]));
 	}
 	strlist = settings.readListEntry("/qt/Palette/inactive");
-	if(strlist.count() == QColorGroup::NColorRoles) {
-	    for(i = 0; i < QColorGroup::NColorRoles; i++)
-		pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i, QColor(strlist[i]));
+	if(strlist.count() == QPalette::NColorRoles) {
+	    for(i = 0; i < QPalette::NColorRoles; i++)
+		pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i, QColor(strlist[i]));
 	}
 	strlist = settings.readListEntry("/qt/Palette/disabled");
-	if(strlist.count() == QColorGroup::NColorRoles) {
-	    for(i = 0; i < QColorGroup::NColorRoles; i++)
-		pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i, QColor(strlist[i]));
+	if(strlist.count() == QPalette::NColorRoles) {
+	    for(i = 0; i < QPalette::NColorRoles; i++)
+		pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i, QColor(strlist[i]));
 	}
 	if(pal != QApplication::palette())
 	    QApplication::setPalette(pal, TRUE);

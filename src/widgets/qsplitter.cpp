@@ -151,7 +151,7 @@ void QSplitterHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     parentWidget()->style().drawPrimitive( QStyle::PE_Splitter, &p, rect(),
-					   colorGroup(),
+					   palette(),
 					   (orientation() == Horizontal ?
 					    QStyle::Style_Horizontal : 0) );
 }
@@ -547,7 +547,7 @@ bool QSplitter::event( QEvent *e )
 void QSplitter::drawSplitter( QPainter *p,
 			      QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
-    style().drawPrimitive(QStyle::PE_Splitter, p, QRect(x, y, w, h), colorGroup(),
+    style().drawPrimitive(QStyle::PE_Splitter, p, QRect(x, y, w, h), palette(),
 			  (orientation() == Horizontal ?
 			   QStyle::Style_Horizontal : 0));
 }

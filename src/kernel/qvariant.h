@@ -31,7 +31,9 @@ class QImage;
 class QSize;
 class QColor;
 class QPalette;
+#ifndef QT_NO_COMPAT
 class QColorGroup;
+#endif
 class QIconSet;
 class QDataStream;
 class QPointArray;
@@ -67,7 +69,9 @@ public:
 	Size,
 	Color,
 	Palette,
+#ifndef QT_NO_COMPAT
 	ColorGroup,
+#endif
 	IconSet,
 	Point,
 	Image,
@@ -106,6 +110,9 @@ public:
 #ifndef QT_NO_STRINGLIST
     QVariant( const QStringList& );
 #endif
+#ifndef QT_NO_COMPAT
+    QVariant( const QColorGroup& );
+#endif
     QVariant( const QFont& );
     QVariant( const QPixmap& );
     QVariant( const QImage& );
@@ -115,7 +122,6 @@ public:
     QVariant( const QSize& );
     QVariant( const QColor& );
     QVariant( const QPalette& );
-    QVariant( const QColorGroup& );
     QVariant( const QIconSet& );
     QVariant( const QPointArray& );
     QVariant( const QRegion& );
@@ -171,7 +177,9 @@ public:
     QSize toSize() const;
     QColor toColor() const;
     QPalette toPalette() const;
+#ifndef QT_NO_COMPAT
     QColorGroup toColorGroup() const;
+#endif
     QIconSet toIconSet() const;
     const QPointArray toPointArray() const;
     QBitmap toBitmap() const;
@@ -211,7 +219,9 @@ public:
     QSize& asSize();
     QColor& asColor();
     QPalette& asPalette();
+#ifndef QT_NO_COMPAT
     QColorGroup& asColorGroup();
+#endif
     QIconSet& asIconSet();
     QPointArray& asPointArray();
     QBitmap& asBitmap();

@@ -169,11 +169,11 @@ public:
     // obsolete functions
     static void      setWinStyleHighlightColor( const QColor &c ) {
 	QPalette p( palette() );
-	p.setColor( QColorGroup::Highlight, c );
+	p.setColor( QPalette::Highlight, c );
 	setPalette( p, TRUE);
     }
     static const QColor &winStyleHighlightColor() {
-	return palette().active().highlight();
+	return palette().color(QPalette::Active, QPalette::Highlight);
     }
 #endif
     static void      setDesktopSettingsAware( bool );

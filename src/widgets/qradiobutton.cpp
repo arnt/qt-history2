@@ -169,7 +169,7 @@ void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter *p = paint;
     QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_RadioButtonIndicator, this), this );
-    const QColorGroup &cg = colorGroup();
+    const QPalette &pal = palette();
 
 #if !defined( QT_NO_TEXTSTREAM ) && !defined( Q_WS_MACX )
 #   define  SAVE_RADIOBUTTON_PIXMAPS
@@ -202,14 +202,14 @@ void QRadioButton::drawButton( QPainter *paint )
     QPainter pmpaint;
     int wx, wy;
     pm = QPixmap( irect.size() );	// create new pixmap
-    pm.fill(cg.background());
+    pm.fill(pal.background());
     QPainter::redirect(this, &pm);
     pmpaint.begin(this);
     p = &pmpaint;				// draw in pixmap
     wx = irect.x();				// save x,y coords
     wy = irect.y();
     irect.moveTopLeft(QPoint(0, 0));
-    p->setBackgroundColor( cg.background() );
+    p->setBackgroundColor( pal.background() );
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -226,7 +226,7 @@ void QRadioButton::drawButton( QPainter *paint )
     else if ( state() == QButton::Off )
 	flags |= QStyle::Style_Off;
 
-    style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg, flags);
+    style().drawControl(QStyle::CE_RadioButton, p, this, irect, pal, flags);
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     pmpaint.end();
@@ -270,7 +270,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     else if (state() == QButton::Off)
 	flags |= QStyle::Style_Off;
 
-    style().drawControl(QStyle::CE_RadioButtonLabel, p, this, r, colorGroup(), flags);
+    style().drawControl(QStyle::CE_RadioButtonLabel, p, this, r, palette(), flags);
 }
 
 

@@ -131,7 +131,7 @@ public:
     int row() const;
     int col() const;
 
-    virtual void paint( QPainter *p, const QColorGroup &cg,
+    virtual void paint( QPainter *p, const QPalette &pal,
                         const QRect &cr, bool selected );
 
     void updateEditor( int oldRow, int oldCol );
@@ -167,7 +167,7 @@ public:
     QComboTableItem( QTable *table, const QStringList &list, bool editable = FALSE );
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
-    virtual void paint( QPainter *p, const QColorGroup &cg,
+    virtual void paint( QPainter *p, const QPalette &pal,
                         const QRect &cr, bool selected );
     virtual void setCurrentItem( int i );
     virtual void setCurrentItem( const QString &i );
@@ -203,7 +203,7 @@ public:
     void setText( const QString &t );
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
-    virtual void paint( QPainter *p, const QColorGroup &cg,
+    virtual void paint( QPainter *p, const QPalette &pal,
                         const QRect &cr, bool selected );
     virtual void setChecked( bool b );
     bool isChecked() const;
@@ -313,7 +313,7 @@ public:
     virtual void paintCell( QPainter *p, int row, int col,
                             const QRect &cr, bool selected );
     virtual void paintCell( QPainter *p, int row, int col,
-                            const QRect &cr, bool selected, const QColorGroup &cg );
+                            const QRect &cr, bool selected, const QPalette &pal );
     virtual void paintFocus( QPainter *p, const QRect &r );
     QSize sizeHint() const;
 

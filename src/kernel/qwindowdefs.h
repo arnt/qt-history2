@@ -27,8 +27,10 @@ class QPaintDeviceMetrics;
 class QWidget;
 class QDialog;
 class QColor;
-class QColorGroup;
 class QPalette;
+#ifndef QT_NO_COMPAT
+class QColorGroup;
+#endif
 class QCursor;
 class QPoint;
 class QSize;

@@ -94,13 +94,14 @@ void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
-    const QColorGroup &cg = QApplication::palette().active();
-//    const QColorGroup &cg = widget->palette().active();
+    //QPalette pal = QApplication::palette();
+    QPalette pal = w->palette();
+    pal.setCurrentColorGroup(QPalette::Active);
 
 #if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, cg, FALSE,
-		  &cg.brush(QColorGroup::Background));
+		  br.height() - 4, pal, FALSE,
+		  &pal.brush(QPalette::Background));
 #endif
 
     painter->setClipRegion( oldClip );
@@ -111,11 +112,11 @@ void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
 	int    titleLeft = titleHeight + 4;
 
 	if (widget == qApp->activeWindow()) {
-	    titleBrush = cg.brush(QColorGroup::Highlight);
-	    titlePen   = cg.color(QColorGroup::HighlightedText);
+	    titleBrush = pal.brush(QPalette::Highlight);
+	    titlePen   = pal.color(QPalette::HighlightedText);
 	} else {
-	    titleBrush = cg.brush(QColorGroup::Background);
-	    titlePen   = cg.color(QColorGroup::Text);
+	    titleBrush = pal.brush(QPalette::Background);
+	    titlePen   = pal.color(QPalette::Text);
 	}
 
 #define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
@@ -124,7 +125,7 @@ void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
 
 #if !defined(QT_NO_DRAWUTIL)
 	    qDrawShadePanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			    cg, TRUE, 1, &titleBrush);
+			    pal, TRUE, 1, &titleBrush);
 #endif
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -154,8 +155,10 @@ void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
 			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
-    const QColorGroup &cg = QApplication::palette().active();
-//    const QColorGroup &cg = w->palette().active();
+
+    //QPalette pal = QApplication::palette();
+    QPalette pal = w->palette();
+    pal.setCurrentColorGroup(QPalette::Active);
 
     QRect brect(region(w, w->rect(), type).boundingRect());
 
@@ -169,13 +172,13 @@ void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
 	if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
 #if !defined(QT_NO_DRAWUTIL)
 	    qDrawShadePanel(painter, brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, cg, TRUE, 2,
-			&cg.brush(QColorGroup::Background));
+			    brect.height()-1, pal, TRUE, 2,
+			    &pal.brush(QPalette::Background));
 #endif	
 	    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
 	} else {
 	    painter->fillRect(brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, cg.brush(QColorGroup::Background));
+			brect.height()-1, pal.brush(QPalette::Background));
 	    if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
 	}
     }

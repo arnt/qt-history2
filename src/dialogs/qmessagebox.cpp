@@ -1509,8 +1509,8 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 #ifndef QT_NO_IMAGEIO
     QPixmap pm;
     QImage logo( (const char **)qtlogo_xpm);
-    if ( qGray(mb->palette().active().text().rgb()) >
-         qGray(mb->palette().active().base().rgb()) )
+    if ( qGray(mb->palette().color(QPalette::Active, QPalette::Text).rgb()) >
+         qGray(mb->palette().color(QPalette::Active, QPalette::Base).rgb()) )
     {
         // light on dark, adjust some colors (where's 10?)
         logo.setColor( 0, 0xffffffff );

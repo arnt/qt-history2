@@ -3749,8 +3749,8 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 
     QListBoxItem * i = item( col*numRows() + row );
 
-    const QColorGroup & g = colorGroup();
-    p.setPen( g.text() );
+    const QPalette &pal = palette();
+    p.setPen( pal.text() );
     p.setBackgroundColor( backgroundBrush().color() );
     while ( i && (int)col < numColumns() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
@@ -4015,7 +4015,9 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 {
     bool drawActiveSelection = hasFocus() || d->inMenuMode ||
 	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this );
-    const QColorGroup &g = ( drawActiveSelection ? colorGroup() : palette().inactive() );
+    QPalette pal = palette();
+    if(!drawActiveSelection)
+	pal.setCurrentColorGroup(QPalette::Inactive);
 
     int cw = d->columnPos[col+1] - d->columnPos[col];
     int ch = d->rowPos[row+1] - d->rowPos[row];
@@ -4024,25 +4026,25 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     if ( i->s ) {
 	if ( i->custom_highlight ) {
 	    p->fillRect( 0, 0, cw, ch,
-			 g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
-	    p->setPen( g.highlightedText() );
-	    p->setBackgroundColor( g.highlight() );
+			 pal.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
+	    p->setPen( pal.highlightedText() );
+	    p->setBackgroundColor( pal.highlight() );
 	}
 	else if ( numColumns()  == 1 ) {
-	    p->fillRect( 0, 0, cw, ch, g.brush( QColorGroup::Highlight ) );
-	    p->setPen( g.highlightedText() );
-	    p->setBackgroundColor( g.highlight() );
+	    p->fillRect( 0, 0, cw, ch, pal.brush( QPalette::Highlight ) );
+	    p->setPen( pal.highlightedText() );
+	    p->setBackgroundColor( pal.highlight() );
 	} else {
 	    int iw = i->width( this );
-	    p->fillRect( 0, 0, iw, ch, g.brush( QColorGroup::Highlight ) );
+	    p->fillRect( 0, 0, iw, ch, pal.brush( QPalette::Highlight ) );
 	    p->fillRect( iw, 0, cw - iw + 1, ch,
-			 g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
-	    p->setPen( g.highlightedText() );
-	    p->setBackgroundColor( g.highlight() );
+			 pal.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
+	    p->setPen( pal.highlightedText() );
+	    p->setBackgroundColor( pal.highlight() );
 	}
     } else {
 	p->fillRect( 0, 0, cw, ch,
-		     g.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
+		     pal.brush( QPalette::backgroundRoleFromMode( viewport()->backgroundMode() ) ) );
     }
 
     i->paint( p );
@@ -4051,9 +4053,9 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	if ( numColumns() > 1 )
 	    cw = i->width( this );
 
-	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), g,
+	style().drawPrimitive( QStyle::PE_FocusRect, p, QRect( 0, 0, cw, ch ), pal,
 			       QStyle::Style_FocusAtBorder,
-			       QStyleOption(i->isSelected() ? g.highlight() : g.base() ) );
+			       QStyleOption(i->isSelected() ? pal.highlight() : pal.base() ) );
     }
 
     p->restore();
@@ -4332,7 +4334,7 @@ void QListBox::drawRubber()
     QPainter p( viewport() );
     p.setRasterOp( NotROP );
     style().drawPrimitive( QStyle::PE_FocusRect, &p, d->rubber->normalize(),
-			   colorGroup() );
+			   palette() );
     p.end();
 }
 
@@ -4604,7 +4606,7 @@ void QListBox::windowActivationChange( bool oldActive )
 {
     if ( oldActive && d->scrollTimer )
 	d->scrollTimer->stop();
-    if ( palette().active() != palette().inactive() )
+    if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
 	viewport()->update();
     QScrollView::windowActivationChange( oldActive );
 }

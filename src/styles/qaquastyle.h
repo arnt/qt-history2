@@ -45,7 +45,7 @@ public:
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,
 			const QRect &r,
-			const QColorGroup &cg,
+			const QPalette &pal,
 			SFlags flags = Style_Default,
 			const QStyleOption& = QStyleOption::Default ) const;
 
@@ -53,7 +53,7 @@ public:
 		      QPainter *p,
 		      const QWidget *widget,
 		      const QRect &r,
-		      const QColorGroup &cg,
+		      const QPalette &pal,
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
@@ -61,7 +61,7 @@ public:
 			     QPainter* p,
 			     const QWidget* w,
 			     const QRect& r,
-			     const QColorGroup& cg,
+			     const QPalette &pal,
 			     SFlags flags = Style_Default,
 			     SCFlags sub = SC_None,
 			     SCFlags subActive = SC_None,
@@ -85,12 +85,12 @@ public:
     virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &, QStyleHintReturn *) const;
 
     virtual void drawItem( QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &g, bool enabled,
+			   int flags, const QPalette &pal, bool enabled,
 			   const QString &text, int len = -1,
 			   const QColor *penColor = 0 ) const;
 
     virtual void drawItem( QPainter *p, const QRect &r,
-			   int flags, const QColorGroup &g, bool enabled,
+			   int flags, const QPalette &pal, bool enabled,
 			   const QPixmap &pixmap,
 			   const QColor *penColor = 0 ) const;
 

@@ -314,7 +314,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 	style().querySubControlMetrics( QStyle::CC_SpinWidget, this,
 					QStyle::SC_SpinWidgetFrame ), this );
     style().drawComplexControl( QStyle::CC_SpinWidget, &p, this,
-				fr, colorGroup(),
+				fr, palette(),
 				flags,
 				QStyle::SC_All,
 				active );

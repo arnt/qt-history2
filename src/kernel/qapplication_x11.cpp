@@ -853,28 +853,28 @@ bool QApplication::x11_apply_settings()
     int i, num;
     QPalette pal(QApplication::palette());
     strlist = settings.readListEntry("/qt/Palette/active");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
+    if (strlist.count() == QPalette::NColorRoles) {
+	for (i = 0; i < QPalette::NColorRoles; i++)
+	    pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
 			 QColor(strlist[i]));
     }
     strlist = settings.readListEntry("/qt/Palette/inactive");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
+    if (strlist.count() == QPalette::NColorRoles) {
+	for (i = 0; i < QPalette::NColorRoles; i++)
+	    pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i,
 			 QColor(strlist[i]));
     }
     strlist = settings.readListEntry("/qt/Palette/disabled");
-    if (strlist.count() == QColorGroup::NColorRoles) {
-	for (i = 0; i < QColorGroup::NColorRoles; i++)
-	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
+    if (strlist.count() == QPalette::NColorRoles) {
+	for (i = 0; i < QPalette::NColorRoles; i++)
+	    pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i,
 			 QColor(strlist[i]));
     }
 
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
     if ( pal.disabled().buttonText() == pal.active().buttonText() ) {
-	pal.setColor( QPalette::Disabled, QColorGroup::ButtonText,
+	pal.setColor( QPalette::Disabled, QPalette::ButtonText,
 		      pal.disabled().foreground() );
     }
 
@@ -1230,28 +1230,26 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    bright_mode = TRUE;
 	}
 
-	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, Qt::white, base, bg );
+	QPalette pal( fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg);
 	if (bright_mode) {
-	    cg.setColor( QColorGroup::HighlightedText, base );
-	    cg.setColor( QColorGroup::Highlight, Qt::white );
+	    pal.setColor( QPalette::HighlightedText, base );
+	    pal.setColor( QPalette::Highlight, Qt::white );
 	} else {
-	    cg.setColor( QColorGroup::HighlightedText, Qt::white );
-	    cg.setColor( QColorGroup::Highlight, Qt::darkBlue );
+	    pal.setColor( QPalette::HighlightedText, Qt::white );
+	    pal.setColor( QPalette::Highlight, Qt::darkBlue );
 	}
-	QColor disabled( (fg.red()+btn.red())/2,
-			 (fg.green()+btn.green())/2,
+	const QColor fg = pal.foreground().color(), btn = pal.button().color();
+	QColor disabled( (fg.red()+pal.btn.red())/2,(fg.green()+pal.btn.green())/2,
 			 (fg.blue()+btn.blue())/2);
-	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			 disabled, Qt::white, Qt::white, bg );
+	pal.setColorGroup( QPalette::Disabled, disabled, btn, btn.light( 125 ), 
+			   btn.dark(), btn.dark(150), disabled, Qt::white, Qt::white, bg );
 	if (bright_mode) {
-	    dcg.setColor( QColorGroup::HighlightedText, base );
-	    dcg.setColor( QColorGroup::Highlight, Qt::white );
+	    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, base );
+	    pal.setColor( QPalette::DisabledQPalette::Highlight, Qt::white );
 	} else {
-	    dcg.setColor( QColorGroup::HighlightedText, Qt::white );
-	    dcg.setColor( QColorGroup::Highlight, Qt::darkBlue );
+	    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, Qt::white );
+	    pal.setColor( QPalette::Disabled, QPalette::Highlight, Qt::darkBlue );
 	}
-	QPalette pal( cg, dcg, cg );
 	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
 	*qt_std_pal = pal;

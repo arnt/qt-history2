@@ -1403,15 +1403,17 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
     if (mouseBtDn)
 	flags |= QStyle::Style_Down;
 
-    const QColorGroup &cg = ((flags&QStyle::Style_Enabled) ? colorGroup() : palette().disabled() );
+    QPalette pal = palette();
+    if(!(flags & QStyle::Style_Enabled))
+	pal.setCurrentColorGroup(QPalette::Disabled);
 
     if ( mi->custom() && mi->custom()->fullSpan() ) {
 	QMenuItem dummy;
-	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
+	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), pal,
 			    flags, QStyleOption(&dummy,maxPMWidth,tab_));
-	mi->custom()->paint( p, cg, act, flags&QStyle::Style_Enabled, x, y, w, h );
+	mi->custom()->paint( p, pal, act, flags&QStyle::Style_Enabled, x, y, w, h );
     } else
-	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), cg,
+	style().drawControl(QStyle::CE_PopupMenuItem, p, this, QRect(x, y, w, h), pal,
 			    flags, QStyleOption(mi,maxPMWidth,tab_));
 }
 
@@ -1441,7 +1443,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		if (isEnabled())
 		    flags |= QStyle::Style_Enabled;
 		style().drawControl(QStyle::CE_PopupMenuScroller, p, this, rect,
-				    colorGroup(), flags, QStyleOption(maxPMWidth));
+				    palette(), flags, QStyleOption(maxPMWidth));
 	    }
 	    y += rect.height();
 	}
@@ -1476,7 +1478,7 @@ void QPopupMenu::drawContents( QPainter* p )
 		    if (isEnabled() && mi->isEnabledAndVisible())
 			flags |= QStyle::Style_Enabled;
 		    style().drawControl(QStyle::CE_PopupMenuItem, p, this, rect,
-					colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+					palette(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
 		}
 	    }
 	    y = contentsRect().y();
@@ -1494,7 +1496,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    if ( isEnabled() )
 		flags |= QStyle::Style_Enabled;
 	    style().drawControl(QStyle::CE_PopupMenuItem, p, this, rect,
-				colorGroup(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
+				palette(), flags, QStyleOption((QMenuItem*)0,maxPMWidth));
 	}
     }
     if( d->scroll.scrollable & QPopupMenuPrivate::Scroll::ScrollDown ) {
@@ -1505,13 +1507,13 @@ void QPopupMenu::drawContents( QPainter* p )
 	    if (isEnabled())
 		flags |= QStyle::Style_Enabled;
 	    style().drawControl(QStyle::CE_PopupMenuScroller, p, this, rect,
-				colorGroup(), flags, QStyleOption(maxPMWidth));
+				palette(), flags, QStyleOption(maxPMWidth));
 	}
     }
 #if defined( DEBUG_SLOPPY_SUBMENU )
     if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
 	p->setClipRegion( d->mouseMoveBuffer );
-	p->fillRect( d->mouseMoveBuffer.boundingRect(), colorGroup().brush( QColorGroup::Highlight ) );
+	p->fillRect( d->mouseMoveBuffer.boundingRect(), palette().brush( QPalette::Highlight ) );
     }
 #endif
 }
@@ -2573,12 +2575,12 @@ public:
     ~QTearOffMenuItem()
     {
     }
-    void paint( QPainter* p, const QColorGroup& cg, bool /* act*/,
+    void paint( QPainter* p, const QPalette& pal, bool /* act*/,
 		bool /*enabled*/, int x, int y, int w, int h )
     {
-	p->setPen( QPen( cg.dark(), 1, DashLine ) );
+	p->setPen( QPen( pal.dark(), 1, DashLine ) );
 	p->drawLine( x+2, y+h/2-1, x+w-4, y+h/2-1 );
-	p->setPen( QPen( cg.light(), 1, DashLine ) );
+	p->setPen( QPen( pal.light(), 1, DashLine ) );
 	p->drawLine( x+2, y+h/2, x+w-4, y+h/2 );
     }
     bool fullSpan() const

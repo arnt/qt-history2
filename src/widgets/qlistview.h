@@ -105,12 +105,10 @@ public:
     virtual void setSelected( bool );
     bool isSelected() const { return selected; }
 
-    virtual void paintCell( QPainter *, const QColorGroup & cg,
+    virtual void paintCell( QPainter *, const QPalette & pal,
 			    int column, int width, int alignment );
-    virtual void paintBranches( QPainter * p, const QColorGroup & cg,
-				int w, int y, int h );
-    virtual void paintFocus( QPainter *, const QColorGroup & cg,
-			     const QRect & r );
+    virtual void paintBranches( QPainter * p, const QPalette & pal, int w, int y, int h );
+    virtual void paintFocus( QPainter *, const QPalette & pal, const QRect & r );
 
     QListViewItem * firstChild() const;
     QListViewItem * nextSibling() const { return siblingItem; }
@@ -472,9 +470,9 @@ public:
 		    const QPixmap & );
     ~QCheckListItem();
 
-    void paintCell( QPainter *,  const QColorGroup & cg,
+    void paintCell( QPainter *,  const QPalette & pal,
 		    int column, int width, int alignment );
-    virtual void paintFocus( QPainter *, const QColorGroup & cg,
+    virtual void paintFocus( QPainter *, const QPalette &pal,
 			     const QRect & r );
     int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();

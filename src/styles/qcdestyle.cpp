@@ -88,7 +88,7 @@ void QCDEStyle::drawControl( ControlElement element,
 			     QPainter *p,
 			     const QWidget *widget,
 			     const QRect &r,
-			     const QColorGroup &cg,
+			     const QPalette &pal,
 			     SFlags how,
 			     const QStyleOption& opt ) const
 {
@@ -97,15 +97,15 @@ void QCDEStyle::drawControl( ControlElement element,
     case CE_MenuBarItem:
 	{
 	    if ( how & Style_Active )  // active item
-		qDrawShadePanel( p, r, cg, TRUE, 1,
-				 &cg.brush( QColorGroup::Button ) );
+		qDrawShadePanel( p, r, pal, TRUE, 1,
+				 &pal.brush( QPalette::Button ) );
 	    else  // other item
-		p->fillRect( r, cg.brush( QColorGroup::Button ) );
-	    QCommonStyle::drawControl( element, p, widget, r, cg, how, opt );
+		p->fillRect( r, pal.brush( QPalette::Button ) );
+	    QCommonStyle::drawControl( element, p, widget, r, pal, how, opt );
 	    break;
 	}
     default:
-	QMotifStyle::drawControl( element, p, widget, r, cg, how, opt );
+	QMotifStyle::drawControl( element, p, widget, r, pal, how, opt );
     break;
     }
 
@@ -117,7 +117,7 @@ void QCDEStyle::drawControl( ControlElement element,
 void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 			       QPainter *p,
 			       const QRect &r,
-			       const QColorGroup &cg,
+			       const QPalette &pal,
 			       SFlags flags,
 			       const QStyleOption& opt ) const
 {
@@ -127,8 +127,8 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 	bool down = flags & Style_Down;
 	bool on = flags & Style_On;
 	bool showUp = !( down ^ on );
-	QBrush fill = showUp || flags & Style_NoChange ? cg.brush( QColorGroup::Button ) : cg.brush( QColorGroup::Mid );
-	qDrawShadePanel( p, r, cg, !showUp, pixelMetric( PM_DefaultFrameWidth ), &cg.brush( QColorGroup::Button ) );
+	QBrush fill = showUp || flags & Style_NoChange ? pal.brush( QPalette::Button ) : pal.brush( QPalette::Mid );
+	qDrawShadePanel( p, r, pal, !showUp, pixelMetric( PM_DefaultFrameWidth ), &pal.brush( QPalette::Button ) );
 
 	if ( !( flags & Style_Off ) ) {
 	    QPointArray a( 7 * 2 );
@@ -147,9 +147,9 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 		xx++; yy--;
 	    }
 	    if ( flags & Style_NoChange )
-		p->setPen( cg.dark() );
+		p->setPen( pal.dark() );
 	    else
-		p->setPen( cg.foreground() );
+		p->setPen( pal.foreground() );
 	    p->drawLineSegments( a );
 	}
 #endif
@@ -170,18 +170,18 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 	    p->eraseRect( r );
 	    QPointArray a( QCOORDARRLEN(pts1), pts1 );
 	    a.translate( r.x(), r.y() );
-	    p->setPen( ( down || on ) ? cg.dark() : cg.light() );
+	    p->setPen( ( down || on ) ? pal.dark() : pal.light() );
 	    p->drawPolyline( a );
 	    a.setPoints( QCOORDARRLEN(pts4), pts4 );
 	    a.translate( r.x(), r.y() );
-	    p->setPen( ( down || on ) ? cg.light() : cg.dark() );
+	    p->setPen( ( down || on ) ? pal.light() : pal.dark() );
 	    p->drawPolyline( a );
 	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	    a.translate( r.x(), r.y() );
-	    QColor fillColor = on ? cg.dark() : cg.background();
+	    QColor fillColor = on ? pal.dark() : pal.background();
 	    p->setPen( fillColor );
-	    p->setBrush( on ? cg.brush( QColorGroup::Dark ) :
-			 cg.brush( QColorGroup::Background ) );
+	    p->setBrush( on ? pal.brush( QPalette::Dark ) :
+			 pal.brush( QPalette::Background ) );
 	    p->drawPolygon( a );
 	    break;
 	}
@@ -285,16 +285,16 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 	QColor *cols[5];
 	if ( flags & Style_Enabled ) {
 	    cols[0] = 0;
-	    cols[1] = (QColor *)&cg.button();
-	    cols[2] = (QColor *)&cg.mid();
-	    cols[3] = (QColor *)&cg.light();
-	    cols[4] = (QColor *)&cg.dark();
+	    cols[1] = (QColor *)&pal.button();
+	    cols[2] = (QColor *)&pal.mid();
+	    cols[3] = (QColor *)&pal.light();
+	    cols[4] = (QColor *)&pal.dark();
 	} else {
 	    cols[0] = 0;
-	    cols[1] = (QColor *)&cg.button();
-	    cols[2] = (QColor *)&cg.button();
-	    cols[3] = (QColor *)&cg.button();
-	    cols[4] = (QColor *)&cg.button();
+	    cols[1] = (QColor *)&pal.button();
+	    cols[2] = (QColor *)&pal.button();
+	    cols[3] = (QColor *)&pal.button();
+	    cols[4] = (QColor *)&pal.button();
 	}
 
 #define CMID    *cols[ (colspec>>12) & 0xf ]
@@ -306,8 +306,8 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 	QBrush   saveBrush = p->brush();            // save current brush
 	QWMatrix wxm = p->worldMatrix();
 	QPen     pen( NoPen );
-	QBrush brush = cg.brush( flags & Style_Enabled ? QColorGroup::Button :
-				 QColorGroup::Mid );
+	QBrush brush = pal.brush( flags & Style_Enabled ? QPalette::Button :
+				  QPalette::Mid );
 
 	p->setPen( pen );
 	p->setBrush( brush );
@@ -334,7 +334,7 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
     }
 	break;
     default:
-	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QMotifStyle::drawPrimitive( pe, p, r, pal, flags, opt );
     }
 }
 

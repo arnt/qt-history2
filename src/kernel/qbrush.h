@@ -38,6 +38,9 @@ public:
     inline QPixmap *pixmap() const { return d->pixmap; }
     void setPixmap(const QPixmap &pixmap);
 
+    inline operator const QColor&() const { return d->color; }
+    inline operator const QPixmap*() const { return d->pixmap; }
+
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 

@@ -168,7 +168,6 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 	    break;
 #endif
 	case QVariant::Palette:
-	case QVariant::ColorGroup:
 	case QVariant::Color:
 	case QVariant::Font:
 	case QVariant::Brush:

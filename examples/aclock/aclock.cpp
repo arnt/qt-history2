@@ -70,7 +70,7 @@ void AnalogClock::paintEvent( QPaintEvent * )
     if ( autoMask() )
 	return;
     QPainter paint( this );
-    paint.setBrush( colorGroup().foreground() );
+    paint.setBrush( palette().foreground() );
     drawClock( &paint );
 }
 

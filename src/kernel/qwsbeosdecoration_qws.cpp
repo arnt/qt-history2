@@ -157,13 +157,14 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
     painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
 
 #ifndef QT_NO_PALETTE
-    // const QColorGroup &cg = QApplication::palette().active();
-    const QColorGroup &cg = widget->palette().active();
+    // const QPalette &pal = QApplication::palette();
+    QPalette pal = widget->palette();
+    pal.setCurrentColorGroup(QPalette::Active);
 
 #if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, cg, FALSE,
-		  &cg.brush(QColorGroup::Background));
+		  br.height() - 4, pal, FALSE,
+		  &pal.brush(QPalette::Background));
 #endif
 
     painter->setClipRegion( oldClip );
@@ -174,11 +175,11 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
 	int    titleLeft = titleHeight + 4;
 
 	if (widget == qApp->activeWindow()) {
-	    titleBrush = cg.brush(QColorGroup::Highlight);
-	    titlePen   = cg.color(QColorGroup::HighlightedText);
+	    titleBrush = pal.brush(QPalette::Highlight);
+	    titlePen   = pal.color(QPalette::HighlightedText);
 	} else {
-	    titleBrush = cg.brush(QColorGroup::Background);
-	    titlePen   = cg.color(QColorGroup::Text);
+	    titleBrush = pal.brush(QPalette::Background);
+	    titlePen   = pal.color(QPalette::Text);
 	}
 
 #define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
@@ -210,7 +211,7 @@ void QWSBeOSDecoration::paintButton(QPainter *painter, const QWidget *w,
 			QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
-//    const QColorGroup &cg = w->palette().active();
+//    const QPalette &pal = w->palette();
 
     QRect brect(region(w, w->rect(), type).boundingRect());
 

@@ -395,7 +395,7 @@ void QSlider::paintEvent( QPaintEvent * )
     if ( tickmarks() != NoMarks )
 	sub |= QStyle::SC_SliderTickmarks;
 
-    style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), colorGroup(),
+    style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), palette(),
 				flags, sub, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None );
 }
 

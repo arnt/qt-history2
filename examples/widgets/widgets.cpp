@@ -100,7 +100,7 @@ public:
 	: string( s ), font( f ){};
     ~MyMenuItem(){}
 
-    void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/,
+    void paint( QPainter* p, const QPalette& /*cg*/, bool /*act*/,
 		bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );

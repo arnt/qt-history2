@@ -438,13 +438,13 @@ void QStatusBar::paintEvent( QPaintEvent * )
 		style().drawPrimitive( QStyle::PE_StatusBarSection, &p,
 				       QRect(item->w->x() - 1, item->w->y() - 1,
 					     item->w->width()+2, item->w->height()+2),
-				       colorGroup(), QStyle::Style_Default,
+				       palette(), QStyle::Style_Default,
 				       QStyleOption(item->w) );
 	    }
 	item = d->items.next();
     }
     if ( haveMessage ) {
-	p.setPen( colorGroup().text() );
+	p.setPen( palette().text() );
 	p.drawText( 6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem );
     }
 }

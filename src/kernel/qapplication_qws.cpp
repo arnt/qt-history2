@@ -1377,22 +1377,20 @@ static void qt_set_qws_resources()
 	    bright_mode = TRUE;
 	}
 
-	QColorGroup cg( fg, btn, btn.light(),
-			btn.dark(), btn.dark(150), fg, Qt::white, base, bg );
+	QPalette pal( fg, btn, btn.light(), btn.dark(), btn.dark(150), fg, Qt::white, base, bg );
 	if (bright_mode) {
-	    cg.setColor( QColorGroup::HighlightedText, base );
-	    cg.setColor( QColorGroup::Highlight, Qt::white );
+	    pal.setColor( QPalette::HighlightedText, base );
+	    pal.setColor( QPalette::Highlight, Qt::white );
+	} else {
+	    pal.setColor( QPalette::HighlightedText, Qt::white );
+	    pal.setColor( QPalette::Highlight, Qt::darkBlue );
 	}
-	else {
-	    cg.setColor( QColorGroup::HighlightedText, Qt::white );
-	    cg.setColor( QColorGroup::Highlight, Qt::darkBlue );
-	}
-	QColor disabled( (fg.red()+btn.red())/2,
-			 (fg.green()+btn.green())/2,
-			 (fg.blue()+btn.blue())/2);
-	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
-			 disabled, Qt::white, Qt::white, bg );
-	QPalette pal( cg, dcg, cg );
+	pal.setColor(QPalette::Disabled, QPalette::Foreground, 
+		     QColor( (fg.red()+btn.red())/2, (fg.green()+btn.green())/2, 
+			     (fg.blue()+btn.blue())/2));
+	pal.setColor(QPalette::Disabled, QPalette::Light, btn.light(125));
+	pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
+	pal.setColor(QPalette::Disabled, QPalette::Base, Qt::white);
 	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
 	*qt_std_pal = pal;

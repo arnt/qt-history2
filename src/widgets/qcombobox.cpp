@@ -332,10 +332,10 @@ class QComboBoxPopupItem : public QCustomMenuItem
 public:
     QComboBoxPopupItem(QListBoxItem *i) : QCustomMenuItem(), li(i), sc(0, 0) {  }
     virtual bool fullSpan() const { return TRUE; }
-    virtual void paint( QPainter*, const QColorGroup&, bool, bool, int, int, int, int);
+    virtual void paint( QPainter*, const QPalette&, bool, bool, int, int, int, int);
     virtual QSize sizeHint() { if (sc.isNull()) sc = QSize(li->width(li->listBox()), QMAX(25, li->height(li->listBox()))); return sc; }
 };
-void QComboBoxPopupItem::paint( QPainter* p, const QColorGroup&, bool,
+void QComboBoxPopupItem::paint( QPainter* p, const QPalette&, bool,
 				bool, int x, int y, int, int)
 {
     p->save();
@@ -1158,8 +1158,8 @@ void QComboBox::resizeEvent( QResizeEvent * e )
 void QComboBox::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    const QColorGroup & g = colorGroup();
-    p.setPen(g.text());
+    const QPalette &pal = palette();
+    p.setPen(pal.text());
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -1168,8 +1168,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	flags |= QStyle::Style_HasFocus;
 
     if ( width() < 5 || height() < 5 ) {
-	qDrawShadePanel( &p, rect(), g, FALSE, 2,
-			 &g.brush( QColorGroup::Button ) );
+	qDrawShadePanel( &p, rect(), pal, FALSE, 2,
+			 &pal.brush( QPalette::Button ) );
 	return;
     }
 
@@ -1190,11 +1190,11 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    xPos = w;
 	    x0 = 4;
 	}
-	qDrawShadePanel( &p, rect(), g, FALSE,
+	qDrawShadePanel( &p, rect(), pal, FALSE,
 			 style().pixelMetric(QStyle::PM_DefaultFrameWidth, this),
-			 &g.brush( QColorGroup::Button ) );
+			 &pal.brush( QPalette::Button ) );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE,
+			 buttonW, buttonH, pal, FALSE,
 			 style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 	QRect clip( x0, 2, w - 2 - 4 - 5, height() - 4 );
 	QString str = d->popup()->text( this->d->current );
@@ -1214,7 +1214,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
     } else if(!d->usingListBox()) {
-	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
+	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), pal,
 				    flags, QStyle::SC_All,
 				    (d->arrowDown ?
 				     QStyle::SC_ComboBoxArrow :
@@ -1239,12 +1239,12 @@ void QComboBox::paintEvent( QPaintEvent * )
 	}
 	if ( pix ) {
 	    p.fillRect( re.x(), re.y(), pix->width() + 4, re.height(),
-			colorGroup().brush( QColorGroup::Base ) );
+			palette().brush( QPalette::Base ) );
 	    p.drawPixmap( re.x() + 2, re.y() +
 			  ( re.height() - pix->height() ) / 2, *pix );
 	}
     } else {
-	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), g,
+	style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), pal,
 				    flags, QStyle::SC_All,
 				    (d->arrowDown ?
 				     QStyle::SC_ComboBoxArrow :
@@ -1267,7 +1267,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
 		p.fillRect( re.x(), re.y(), pix->width() + 4, re.height(),
-			    colorGroup().brush( QColorGroup::Base ) );
+			    palette().brush( QPalette::Base ) );
 		p.drawPixmap( re.x() + 2, re.y() +
 			      ( re.height() - pix->height() ) / 2, *pix );
 	    }

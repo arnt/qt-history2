@@ -168,7 +168,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     if ( !smallStyle )
 	b = 3;
 
-    const QColorGroup & g = colorGroup();
+    const QPalette & g = palette();
     p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol &&
 	 style().styleHint(QStyle::SH_GUIStyle) != MotifStyle) {
@@ -725,7 +725,7 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
     }
     QPainter p(this);
     p.drawPixmap( 1, coff, *pix );
-    const QColorGroup &g = colorGroup();
+    const QPalette &g = palette();
     qDrawShadePanel( &p, r, g, TRUE );
     p.setPen( g.foreground() );
     p.setBrush( g.foreground() );

@@ -548,7 +548,7 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     \a flags (see \l{Qt::AlignmentFlags}).
 */
 void QStyle::drawItem( QPainter *p, const QRect &r,
-		       int flags, const QColorGroup &g, bool enabled,
+		       int flags, const QPalette &pal, bool enabled,
 		       const QString& text, int len,
 		       const QColor* penColor ) const
 {
@@ -557,12 +557,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     int w = r.width();
     int h = r.height();
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
-    p->setPen( penColor?*penColor:g.foreground() );
+    p->setPen( penColor?*penColor:pal.foreground().color() );
     if ( !text.isNull() ) {
 	if ( gs == Qt::WindowsStyle && !enabled ) {
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	    p->drawText( x+1, y+1, w, h, flags, text, len );
-	    p->setPen( g.text() );
+	    p->setPen( pal.text() );
 	}
 	p->drawText( x, y, w, h, flags, text, len );
     }
@@ -571,11 +571,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*! \overload
 
     Draws the \a pixmap in rectangle \a r using painter \a p and color
-    group \a g.
+    group \a pal.
  */
 
 void QStyle::drawItem( QPainter *p, const QRect &r,
-		       int flags, const QColorGroup &g, bool enabled,
+		       int flags, const QPalette &pal, bool enabled,
 		       const QPixmap &pixmap,
 		       const QColor* penColor ) const
 {
@@ -585,7 +585,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     int h = r.height();
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
-    p->setPen( penColor?*penColor:g.foreground() );
+    p->setPen( penColor?*penColor:pal.foreground().color() );
     QPixmap pm( pixmap );
     bool clip = (flags & Qt::DontClip) == 0;
     if ( clip ) {
@@ -631,9 +631,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 #endif
 	}
 	if ( gs == Qt::WindowsStyle ) {
-	    p->setPen( g.light() );
+	    p->setPen( pal.light() );
 	    p->drawPixmap( x+1, y+1, pm );
-	    p->setPen( g.text() );
+	    p->setPen( pal.text() );
 	}
     }
     p->drawPixmap( x, y, pm );

@@ -164,7 +164,7 @@ protected:
 		flags |= QStyle::Style_Enabled;
 
 	    style().drawPrimitive( QStyle::PE_TabBarBase, &p, rect(),
-				   colorGroup(), flags );
+				   palette(), flags );
         }
     }
 };

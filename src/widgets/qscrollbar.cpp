@@ -908,7 +908,7 @@ void QScrollBar::drawControls( uint controls, uint activeControl,
     if ( orientation() == Horizontal )
 	flags |= QStyle::Style_Horizontal;
 
-    style().drawComplexControl(QStyle::CC_ScrollBar, p, this, rect(), colorGroup(),
+    style().drawComplexControl(QStyle::CC_ScrollBar, p, this, rect(), palette(),
 			       flags, (QStyle::SubControl) controls,
 			       (QStyle::SubControl) activeControl );
 }

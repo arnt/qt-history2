@@ -119,36 +119,48 @@ QSGIStyle::polish( QApplication* app)
 
     QPalette pal = QApplication::palette();
     // check this on SGI-Boxes
-    //pal.setColor( QColorGroup::Background, pal.active().midlight() );
-    if (pal.active().button() == pal.active().background())
-        pal.setColor( QColorGroup::Button, pal.active().button().dark(120) );
+    //pal.setColor( QPalette::Background, pal.active().midlight() );
+    if (pal.brush(QPalette::Active, QPalette::Button) == pal.brush(QPalette::Active, QPalette::Background))
+        pal.setColor( QPalette::Button, pal.color(QPalette::Active, QPalette::Button).dark(120) );
     // darker basecolor in list-widgets
-    pal.setColor( QColorGroup::Base, pal.active().base().dark(130) );
+    pal.setColor( QPalette::Base, pal.color(QPalette::Active, QPalette::Base).dark(130) );
     if (! useHighlightColors() ) {
-        pal.setColor( QPalette::Active, QColorGroup::Highlight, pal.active().text() );
-        pal.setColor( QPalette::Active, QColorGroup::HighlightedText, pal.active().base() );
-        pal.setColor( QPalette::Inactive, QColorGroup::Highlight, pal.inactive().text() );
-        pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, pal.inactive().base() );
-        pal.setColor( QPalette::Disabled, QColorGroup::Highlight, pal.disabled().text() );
-        pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, pal.disabled().base() );
+        pal.setColor( QPalette::Active, QPalette::Highlight, 
+		      pal.color(QPalette::Active, QPalette::Text));
+        pal.setColor( QPalette::Active, QPalette::HighlightedText, 
+		      pal.color(QPalette::Active, QPalette::Base));
+        pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+		      pal.color(QPalette::Inactive, QPalette::Text));
+        pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+		      pal.color(QPalette::Inactive, QPalette::Base));
+        pal.setColor( QPalette::Disabled, QPalette::Highlight, 
+		      pal.color(QPalette::Disabled, QPalette::Text));
+        pal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+		      pal.color(QPalette::Disabled, QPalette::Base));
     }
     QApplication::setPalette( pal, TRUE );
 
     // different basecolor and highlighting in Q(Multi)LineEdit
-    pal.setColor( QColorGroup::Base, QColor(211,181,181) );
-    pal.setColor( QPalette::Active, QColorGroup::Highlight, pal.active().midlight() );
-    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, pal.active().text() );
-    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, pal.inactive().midlight() );
-    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, pal.inactive().text() );
-    pal.setColor( QPalette::Disabled, QColorGroup::Highlight, pal.disabled().midlight() );
-    pal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, pal.disabled().text() );
+    pal.setColor( QPalette::Base, QColor(211,181,181) );
+    pal.setColor( QPalette::Active, QPalette::Highlight, 
+		  pal.color(QPalette::Active, QPalette::Midlight));
+    pal.setColor( QPalette::Active, QPalette::HighlightedText, 
+		  pal.color(QPalette::Active, QPalette::Text));
+    pal.setColor( QPalette::Inactive, QPalette::Highlight, 
+		  pal.color(QPalette::Inactive, QPalette::Midlight));
+    pal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+		  pal.color(QPalette::Inactive, QPalette::Text));
+    pal.setColor( QPalette::Disabled, QPalette::Highlight, 
+		  pal.color(QPalette::Disabled, QPalette::Midlight));
+    pal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+		  pal.color(QPalette::Disabled, QPalette::Text));
 
     QApplication::setPalette( pal, TRUE, "QLineEdit" );
     QApplication::setPalette( pal, TRUE, "QTextEdit" );
     QApplication::setPalette( pal, TRUE, "QDateTimeEditBase" );
 
     pal = QApplication::palette();
-    pal.setColor( QColorGroup::Button, pal.active().background() );
+    pal.setColor( QPalette::Button, pal.color(QPalette::Active, QPalette::Background ));
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
     QApplication::setPalette( pal, TRUE, "QPopupMenu" );
@@ -177,31 +189,43 @@ QSGIStyle::polish( QWidget* w )
     if ( !isApplicationStyle ) {
         QPalette sgiPal = QApplication::palette();
 
-        sgiPal.setColor( QColorGroup::Background, sgiPal.active().midlight() );
-        if (sgiPal.active().button() == sgiPal.active().background())
-            sgiPal.setColor( QColorGroup::Button, sgiPal.active().button().dark(110) );
-        sgiPal.setColor( QColorGroup::Base, sgiPal.active().base().dark(130) );
+        sgiPal.setColor( QPalette::Background, sgiPal.color(QPalette::Active, QPalette::Midlight ));
+        if (sgiPal.brush(QPalette::Active, QPalette::Button) == 
+	    sgiPal.brush(QPalette::Active, QPalette::Background))
+            sgiPal.setColor( QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Button).dark(110) );
+        sgiPal.setColor( QPalette::Base, sgiPal.color(QPalette::Active, QPalette::Base).dark(130) );
         if (! useHighlightColors() ) {
-            sgiPal.setColor( QPalette::Active, QColorGroup::Highlight, sgiPal.active().text() );
-            sgiPal.setColor( QPalette::Active, QColorGroup::HighlightedText, sgiPal.active().base() );
-            sgiPal.setColor( QPalette::Inactive, QColorGroup::Highlight, sgiPal.inactive().text() );
-            sgiPal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, sgiPal.inactive().base() );
-            sgiPal.setColor( QPalette::Disabled, QColorGroup::Highlight, sgiPal.disabled().text() );
-            sgiPal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, sgiPal.disabled().base() );
+            sgiPal.setColor( QPalette::Active, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Active, QPalette::Text));
+            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Active, QPalette::Base));
+            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Inactive, QPalette::Text));
+            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Inactive, QPalette::Base));
+            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Disabled, QPalette::Text));
+            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Disabled, QPalette::Base));
         }
 
         if ( qt_cast<QLineEdit*>(w) || qt_cast<QTextEdit*>(w) ) {
             // different basecolor and highlighting in Q(Multi)LineEdit
-            sgiPal.setColor( QColorGroup::Base, QColor(211,181,181) );
-            sgiPal.setColor( QPalette::Active, QColorGroup::Highlight, sgiPal.active().midlight() );
-            sgiPal.setColor( QPalette::Active, QColorGroup::HighlightedText, sgiPal.active().text() );
-            sgiPal.setColor( QPalette::Inactive, QColorGroup::Highlight, sgiPal.inactive().midlight() );
-            sgiPal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, sgiPal.inactive().text() );
-            sgiPal.setColor( QPalette::Disabled, QColorGroup::Highlight, sgiPal.disabled().midlight() );
-            sgiPal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, sgiPal.disabled().text() );
-
+            sgiPal.setColor( QPalette::Base, QColor(211,181,181) );
+            sgiPal.setColor( QPalette::Active, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Active, QPalette::Midlight));
+            sgiPal.setColor( QPalette::Active, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Active, QPalette::Text));
+            sgiPal.setColor( QPalette::Inactive, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Inactive, QPalette::Midlight));
+            sgiPal.setColor( QPalette::Inactive, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Inactive, QPalette::Text));
+            sgiPal.setColor( QPalette::Disabled, QPalette::Highlight, 
+			     sgiPal.color(QPalette::Disabled, QPalette::Midlight));
+            sgiPal.setColor( QPalette::Disabled, QPalette::HighlightedText, 
+			     sgiPal.color(QPalette::Disabled, QPalette::Text));
         } else if ( qt_cast<QMenuBar*>(w) || qt_cast<QToolBar*>(w) ) {
-            sgiPal.setColor( QColorGroup::Button, sgiPal.active().midlight() );
+            sgiPal.setColor( QPalette::Button, sgiPal.color(QPalette::Active, QPalette::Midlight));
         }
 
         w->setPalette( sgiPal );
@@ -378,7 +402,7 @@ int QSGIStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 }
 
 static void drawPanel( QPainter *p, int x, int y, int w, int h,
-		const QColorGroup &g, bool sunken,
+		const QPalette &pal, bool sunken,
 		int lineWidth, const QBrush* fill)
 {
     if ( w == 0 || h == 0 )
@@ -389,9 +413,9 @@ static void drawPanel( QPainter *p, int x, int y, int w, int h,
     QPen oldPen = p->pen();			// save pen
     QPointArray a( 4*lineWidth );
     if ( sunken )
-	p->setPen( g.dark() );
+	p->setPen( pal.dark() );
     else
-	p->setPen( g.light() );
+	p->setPen( pal.light() );
     int x1, y1, x2, y2;
     int i;
     int n = 0;
@@ -411,9 +435,9 @@ static void drawPanel( QPainter *p, int x, int y, int w, int h,
     p->drawLineSegments( a );
     n = 0;
     if ( sunken )
-	p->setPen( g.light() );
+	p->setPen( pal.light() );
     else
-	p->setPen( g.dark() );
+	p->setPen( pal.dark() );
     x1 = x;
     y1 = y2 = y+h-1;
     x2 = x+w-1;
@@ -440,13 +464,13 @@ static void drawPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 static void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
-			  const QColorGroup &g )
+			  const QPalette &pal )
 {
     QPen oldPen = p->pen();
 
-    p->setPen( g.midlight() );
+    p->setPen( pal.midlight() );
     p->drawLine( x1, y1, x2, y2 );
-    p->setPen( g.shadow() );
+    p->setPen( pal.shadow() );
     if ( y2-y1 < x2-x1 )
 	p->drawLine( x1, y1+1, x2, y2+1 );
     else
@@ -526,7 +550,7 @@ static void get_combo_parameters( const QRect &r,
 void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		    QPainter *p,
 		    const QRect &r,
-		    const QColorGroup &cg,
+		    const QPalette &pal,
 		    SFlags flags,
 		    const QStyleOption& opt ) const
 {
@@ -544,16 +568,16 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    QBrush fill;
 	    if ( hot ) {
 		if ( sunken )
-		    fill = cg.brush( QColorGroup::Dark );
+		    fill = pal.brush( QPalette::Dark );
 		else
-		    fill = cg.brush( QColorGroup::Midlight );
+		    fill = pal.brush( QPalette::Midlight );
 	    } else if ( sunken ) {
-		fill = cg.brush( QColorGroup::Mid );
+		fill = pal.brush( QPalette::Mid );
 	    } else {
-		fill = cg.brush( QColorGroup::Button );
+		fill = pal.brush( QPalette::Button );
 	    }
 
-	    drawPanel( p, x, y, w, h, cg, sunken, defaultFrameWidth, &fill );
+	    drawPanel( p, x, y, w, h, pal, sunken, defaultFrameWidth, &fill );
 	}
 	break;
 
@@ -561,16 +585,16 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonBevel:
     case PE_ButtonTool:
 	{
-	    drawPrimitive( PE_ButtonCommand, p, QRect( x+1, y+1, w-2, h-2 ), cg, flags, opt );
+	    drawPrimitive( PE_ButtonCommand, p, QRect( x+1, y+1, w-2, h-2 ), pal, flags, opt );
 
 	    QPen oldPen = p->pen();
 	    QPointArray a;
 
 	    // draw twocolored rectangle
-	    p->setPen( sunken ? cg.light() : cg.dark().dark(200) );
+	    p->setPen( sunken ? pal.light().color() : pal.dark().color().dark(200) );
 	    a.setPoints( 3, x, y+h-1, x+w-1, y+h-1, x+w-1, y );
 	    p->drawPolyline( a );
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    a.setPoints( 3, x, y+h-2, x, y, x+w-2, y );
 	    p->drawPolyline( a );
 
@@ -604,7 +628,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    p->save();
 	    p->setPen( Qt::NoPen );
 	    a.translate( x+w/2, y+h/2 );
-	    p->setBrush( flags & Style_Enabled ? cg.dark() : cg.light() );
+	    p->setBrush( flags & Style_Enabled ? pal.dark() : pal.light() );
 	    p->drawPolygon( a );			// draw arrow
 	    p->restore();
 	}
@@ -615,11 +639,11 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    QRect er = r;
 	    er.addCoords( 1, 1, -1, -1 );
 	    int iflags = flags & ~Style_On;
-	    drawPrimitive( PE_ButtonBevel, p, er, cg, iflags, opt );
+	    drawPrimitive( PE_ButtonBevel, p, er, pal, iflags, opt );
 	    if ( !(flags & QStyle::Style_Off) ) {
 		er = r;
 		er.addCoords( 1, 2, 1, 1 );
-		drawPrimitive( PE_CheckMark, p, er, cg, flags, opt );
+		drawPrimitive( PE_CheckMark, p, er, pal, flags, opt );
 	    }
 	}
 	break;
@@ -671,17 +695,17 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    amark.translate( x+1, y+1 );
 
 	    if ( flags & Style_On ) {
-		p->setPen( flags & Style_Enabled ? cg.shadow() : cg.dark() );
+		p->setPen( flags & Style_Enabled ? pal.shadow() : pal.dark() );
 		p->drawLineSegments( amark );
 		amark.translate( -1, -1 );
-		p->setPen( flags & Style_Enabled ? QColor(255,0,0) : cg.dark() );
+		p->setPen( flags & Style_Enabled ? QColor(255,0,0) : pal.dark().color() );
 		p->drawLineSegments( amark );
 		p->setPen( oldPen );
 	    } else {
-		p->setPen( flags & Style_Enabled ? cg.dark() : cg.mid() );
+		p->setPen( flags & Style_Enabled ? pal.dark() : pal.mid() );
 		p->drawLineSegments( amark );
 		amark.translate( -1, -1 );
-		p->setPen( flags & Style_Enabled ? QColor(230,120,120) : cg.dark() );
+		p->setPen( flags & Style_Enabled ? QColor(230,120,120) : pal.dark().color() );
 		p->drawLineSegments( amark );
 		p->setPen( oldPen );
 	    }
@@ -694,21 +718,21 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    p->eraseRect( x, y, w, h );
 	    p->translate( x, y );
 
-	    p->setPen( cg.button() );
-	    p->setBrush( hot ? cg.midlight() : cg.button() );
+	    p->setPen( pal.button() );
+	    p->setBrush( hot ? pal.midlight() : pal.button() );
 	    QPointArray a;
 	    a.setPoints( 4, 5,0, 11,6, 6,11, 0,5);
 	    p->drawPolygon( a );
 
-	    p->setPen( cg.dark() );
+	    p->setPen( pal.dark() );
 	    p->drawLine( 0,5, 5,0 );
 	    p->drawLine( 6,0, 11,5 );
-	    p->setPen( flags & Style_Down ? cg.light() : cg.dark() );
+	    p->setPen( flags & Style_Down ? pal.light() : pal.dark() );
 	    p->drawLine( 11,6, 6,11 );
 	    p->drawLine( 5,11, 0,6 );
 	    p->drawLine( 2,7, 5,10 );
 	    p->drawLine( 6,10, 9,7 );
-	    p->setPen( cg.light() );
+	    p->setPen( pal.light() );
 	    p->drawLine( 2,5, 5,2 );
 
 	    if ( flags & Style_On ) {
@@ -718,7 +742,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		p->drawPolygon( a );
 		p->setBrush( Qt::NoBrush );
 
-		p->setPen( cg.shadow() );
+		p->setPen( pal.shadow() );
 		p->drawLine( 7,7, 9,5 );
 	    } else {
 		p->drawLine( 6,2, 9,5 );
@@ -749,16 +773,16 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_Panel:
 	{
 	    const int lineWidth = opt.isDefault() ? defaultFrameWidth : opt.lineWidth();
-	    drawPanel( p, x, y, w, h, cg, flags & (Style_Sunken | Style_Down | Style_On), lineWidth, 0 );
+	    drawPanel( p, x, y, w, h, pal, flags & (Style_Sunken | Style_Down | Style_On), lineWidth, 0 );
 	    if ( lineWidth <= 1 )
 		return;
 
 	    // draw extra shadinglines
 	    QPen oldPen = p->pen();
-	    p->setPen( cg.midlight() );
+	    p->setPen( pal.midlight() );
 	    p->drawLine( x+1, y+h-3, x+1, y+1 );
 	    p->drawLine( x+1, y+1, x+w-3, y+1 );
-	    p->setPen( cg.mid() );
+	    p->setPen( pal.mid() );
 	    p->drawLine( x+1, y+h-2, x+w-2, y+h-2 );
 	    p->drawLine( x+w-2, y+h-2, x+w-2, y+1 );
 	    p->setPen(oldPen);
@@ -768,17 +792,17 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ScrollBarSubLine:
 	if ( !r.contains( d->mousePos ) && !(flags & Style_Active) )
 	    flags &= ~Style_MouseOver;
-	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, opt );
+	drawPrimitive( PE_ButtonCommand, p, r, pal, flags, opt );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
-		      p, r, cg, Style_Enabled | flags);
+		      p, r, pal, Style_Enabled | flags);
 	break;
 
     case PE_ScrollBarAddLine:
 	if ( !r.contains( d->mousePos ) )
 	    flags &= ~Style_MouseOver;
-	drawPrimitive( PE_ButtonCommand, p, r, cg, flags, opt );
+	drawPrimitive( PE_ButtonCommand, p, r, pal, flags, opt );
 	drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
-		      p, r, cg, Style_Enabled | flags);
+		      p, r, pal, Style_Enabled | flags);
 	break;
 
     case PE_ScrollBarSubPage:
@@ -786,7 +810,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	if ( !r.contains( d->mousePos ) )
 	    flags &= ~Style_MouseOver;
 	if ( r.isValid() )
-	    qDrawShadePanel( p, x, y, w, h, cg, FALSE, 1, hot ? &cg.brush( QColorGroup::Midlight ) : &cg.brush( QColorGroup::Button ) );
+	    qDrawShadePanel( p, x, y, w, h, pal, FALSE, 1, hot ? &pal.brush( QPalette::Midlight ) : &pal.brush( QPalette::Button ) );
 	break;
 
     case PE_ScrollBarSlider:
@@ -798,24 +822,24 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
 	    QPixmap pm( r.width(), r.height() );
 	    QPainter bp( &pm );
-	    drawPrimitive(PE_ButtonBevel, &bp, QRect(0,0,r.width(),r.height()), cg, flags | Style_Enabled | Style_Raised);
+	    drawPrimitive(PE_ButtonBevel, &bp, QRect(0,0,r.width(),r.height()), pal, flags | Style_Enabled | Style_Raised);
 	    if ( flags & Style_Horizontal ) {
 		const int sliderM =  r.width() / 2;
 		if ( r.width() > 20 ) {
-		    drawSeparator( &bp, sliderM-5, 2, sliderM-5, r.height()-3, cg );
-		    drawSeparator( &bp, sliderM+3, 2, sliderM+3, r.height()-3, cg );
+		    drawSeparator( &bp, sliderM-5, 2, sliderM-5, r.height()-3, pal );
+		    drawSeparator( &bp, sliderM+3, 2, sliderM+3, r.height()-3, pal );
 		}
 		if ( r.width() > 10 )
-		    drawSeparator( &bp, sliderM-1, 2, sliderM-1, r.height()-3, cg );
+		    drawSeparator( &bp, sliderM-1, 2, sliderM-1, r.height()-3, pal );
 
 	    } else {
 		const int sliderM =  r.height() / 2;
 		if ( r.height() > 20 ) {
-		    drawSeparator( &bp, 2, sliderM-5, r.width()-3, sliderM-5, cg );
-		    drawSeparator( &bp, 2, sliderM+3, r.width()-3, sliderM+3, cg );
+		    drawSeparator( &bp, 2, sliderM-5, r.width()-3, sliderM-5, pal );
+		    drawSeparator( &bp, 2, sliderM+3, r.width()-3, sliderM+3, pal );
 		}
 		if ( r.height() > 10 )
-		    drawSeparator( &bp, 2, sliderM-1, r.width()-3, sliderM-1, cg );
+		    drawSeparator( &bp, 2, sliderM-1, r.width()-3, sliderM-1, pal );
 	    }
 	    bp.end();
 	    p->drawPixmap( r.x(), r.y(), pm );
@@ -833,24 +857,24 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		int kSize = sw - 2;
 
 		qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
-			xPos, h, cg );
+			xPos, h, pal );
 
-		drawPrimitive( PE_ButtonBevel, p, QRect(xPos-sw/2+1, kPos, kSize, kSize+1), cg, flags, opt );
-		qDrawShadeLine( p, xPos+2, 0, xPos, kPos, cg );
+		drawPrimitive( PE_ButtonBevel, p, QRect(xPos-sw/2+1, kPos, kSize, kSize+1), pal, flags, opt );
+		qDrawShadeLine( p, xPos+2, 0, xPos, kPos, pal );
 	    } else {
 		int yPos = y + h/2;
 		int kPos = w - motifOffset - sw;
 		int kSize = sw - 2;
 
-		qDrawShadeLine( p, 0, yPos, kPos, yPos, cg );
-		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), cg, flags, opt );
-		qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, cg );
+		qDrawShadeLine( p, 0, yPos, kPos, yPos, pal );
+		drawPrimitive( PE_ButtonBevel, p, QRect( kPos, yPos-sw/2+1, kSize+1, kSize ), pal, flags, opt );
+		qDrawShadeLine( p, kPos + kSize+1, yPos, w, yPos, pal );
 	    }
 	}
 	break;
 
     default:
-	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, opt );
+	QMotifStyle::drawPrimitive( pe, p, r, pal, flags, opt );
 	break;
     }
 }
@@ -860,7 +884,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		  QPainter *p,
 		  const QWidget *widget,
 		  const QRect &r,
-		  const QColorGroup &cg,
+		  const QPalette &pal,
 		  SFlags flags,
 		  const QStyleOption& opt ) const
 {
@@ -875,8 +899,8 @@ void QSGIStyle::drawControl( ControlElement element,
 	    int x1, y1, x2, y2;
 	    r.coords( &x1, &y1, &x2, &y2 );
 
-	    p->setPen( cg.foreground() );
-	    p->setBrush( QBrush( cg.button(),Qt::NoBrush ) );
+	    p->setPen( pal.foreground() );
+	    p->setBrush( QBrush( pal.button(),Qt::NoBrush ) );
 	    p->setBrushOrigin( -widget->backgroundOffset().x(),
 			       -widget->backgroundOffset().y() );
 
@@ -894,20 +918,20 @@ void QSGIStyle::drawControl( ControlElement element,
 		    a.setPoints( 9,
 				 x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
 				 x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-		    p->setPen( cg.shadow() );
+		    p->setPen( pal.shadow() );
 		    p->drawPolyline( a );
 		    x1 += 2;
 		    y1 += 2;
 		    x2 -= 2;
 		    y2 -= 2;
 		} else {
-		    qDrawShadePanel( p, btn->rect(), cg, TRUE );
+		    qDrawShadePanel( p, btn->rect(), pal, TRUE );
 		}
 	    }
 
-	    QBrush fill = cg.brush( QColorGroup::Button );
+	    QBrush fill = pal.brush( QPalette::Button );
 	    if ( !btn->isFlat() || btn->isOn() || btn->isDown() )
-		drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1, x2-x1+1, y2-y1+1 ), cg, flags, opt );
+		drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1, x2-x1+1, y2-y1+1 ), pal, flags, opt );
 
 	    if ( p->brush().style() != Qt::NoBrush )
 		p->setBrush( Qt::NoBrush );
@@ -938,7 +962,7 @@ void QSGIStyle::drawControl( ControlElement element,
 	    int checkcol = maxpmw;
 
 	    if (mi && mi->isSeparator() ) {
-		p->setPen( cg.mid() );
+		p->setPen( pal.mid() );
 		p->drawLine(x, y, x+w, y );
 		return;
 	    }
@@ -947,13 +971,13 @@ void QSGIStyle::drawControl( ControlElement element,
 
 	    if ( act && !dis ) {
 		if ( pixelMetric( PM_DefaultFrameWidth ) > 1 )
-		    drawPanel( p, x, y, w, h, cg, FALSE, pw,
-				     &cg.brush( QColorGroup::Light ) );
+		    drawPanel( p, x, y, w, h, pal, FALSE, pw,
+				     &pal.brush( QPalette::Light ) );
 		else
-		    drawPanel( p, x+1, y+1, w-2, h-2, cg, FALSE, 1,
-				     &cg.brush( QColorGroup::Light ) );
+		    drawPanel( p, x+1, y+1, w-2, h-2, pal, FALSE, 1,
+				     &pal.brush( QPalette::Light ) );
 	    } else {
-		p->fillRect( x, y, w, h, cg.brush( QColorGroup::Button ) );
+		p->fillRect( x, y, w, h, pal.brush( QPalette::Button ) );
 	    }
 
 	    if ( !mi )
@@ -962,12 +986,12 @@ void QSGIStyle::drawControl( ControlElement element,
 	    if ( mi->isChecked() ) {
 		if ( mi->iconSet() ) {
 		    drawPanel( p, x+sgiItemFrame, y+sgiItemFrame, checkcol, h-2*sgiItemFrame,
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Light ) );
+				     pal, TRUE, 1, &pal.brush( QPalette::Light ) );
 		}
 	    } else {
 		if ( !act )
 		    p->fillRect( x+sgiItemFrame, y+sgiItemFrame, checkcol, h-2*sgiItemFrame,
-				cg.brush( QColorGroup::Button ) );
+				pal.brush( QPalette::Button ) );
 	    }
 
 	    if ( mi->iconSet() ) {
@@ -985,7 +1009,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		QRect cr( x+sgiItemFrame, y+sgiItemFrame, checkcol, h-2*sgiItemFrame );
 		QRect pmr( 0, 0, pixw, pixh );
 		pmr.moveCenter( cr.center() );
-		p->setPen( cg.text() );
+		p->setPen( pal.text() );
 		p->drawPixmap( pmr.topLeft(), pixmap );
 	    } else {
 		if ( checkable ) {
@@ -1000,18 +1024,18 @@ void QSGIStyle::drawControl( ControlElement element,
 				  pixelMetric(PM_IndicatorWidth),
 				  pixelMetric(PM_IndicatorHeight) );
 			er.addCoords( 1, 1, -1, -1 );
-			drawPrimitive( PE_ButtonBevel, p, er, cg, cflags, opt );
+			drawPrimitive( PE_ButtonBevel, p, er, pal, cflags, opt );
 			er.addCoords( 0, 1, 1, 1 );
-			drawPrimitive( PE_CheckMark, p, er, cg, cflags | Style_On, opt );
+			drawPrimitive( PE_CheckMark, p, er, pal, cflags | Style_On, opt );
 		    }
 		}
 	    }
 
-	    p->setPen( cg.buttonText() );
+	    p->setPen( pal.buttonText() );
 
 	    QColor discol;
 	    if ( dis ) {
-		discol = cg.text();
+		discol = pal.text();
 		p->setPen( discol );
 	    }
 
@@ -1020,7 +1044,7 @@ void QSGIStyle::drawControl( ControlElement element,
 	    if ( mi->custom() ) {
 		int m = sgiItemVMargin;
 		p->save();
-		mi->custom()->paint( p, cg, act, !dis,
+		mi->custom()->paint( p, pal, act, !dis,
 				     x+xm, y+m, w-xm-tab+1, h-2*m );
 		p->restore();
 	    }
@@ -1055,7 +1079,7 @@ void QSGIStyle::drawControl( ControlElement element,
 	    }
 	    if ( mi->popup() ) {
 		int dim = (h-2*sgiItemFrame) / 2;
-		drawPrimitive( PE_ArrowRight, p, QRect( x+w-sgiArrowHMargin-sgiItemFrame-dim, y+h/2-dim/2, dim, dim ), cg, flags );
+		drawPrimitive( PE_ArrowRight, p, QRect( x+w-sgiArrowHMargin-sgiItemFrame-dim, y+h/2-dim/2, dim, dim ), pal, flags );
 	    }
 #endif
 	}
@@ -1074,17 +1098,17 @@ void QSGIStyle::drawControl( ControlElement element,
 	    r.rect( &x, &y, &w, &h );
 
 	    if ( active ) {
-		p->setPen( QPen( cg.shadow(), 1) );
+		p->setPen( QPen( pal.shadow(), 1) );
 		p->drawRect( x, y, w, h );
-		qDrawShadePanel( p, QRect(x+1,y+1,w-2,h-2), cg, FALSE, 2,
-				 &cg.brush( QColorGroup::Light ));
+		qDrawShadePanel( p, QRect(x+1,y+1,w-2,h-2), pal, FALSE, 2,
+				 &pal.brush( QPalette::Light ));
 	    } else {
-		p->fillRect( x, y, w, h, cg.brush( QColorGroup::Button ));
+		p->fillRect( x, y, w, h, pal.brush( QPalette::Button ));
 	    }
 
 	    if ( mi->pixmap() )
 		drawItem( p, r, AlignCenter|DontClip|SingleLine,
-			cg, mi->isEnabled(), mi->pixmap(), "", -1, &cg.buttonText() );
+			pal, mi->isEnabled(), mi->pixmap(), "", -1, &pal.buttonText().color() );
 
 	    if ( !!mi->text() ) {
 		QString* text = new QString(mi->text());
@@ -1101,11 +1125,11 @@ void QSGIStyle::drawControl( ControlElement element,
 	break;
 
     case CE_CheckBox:
-	QMotifStyle::drawControl( element, p, widget, r, cg, flags, opt );
+	QMotifStyle::drawControl( element, p, widget, r, pal, flags, opt );
 	break;
 
     default:
-	QMotifStyle::drawControl( element, p, widget, r, cg, flags, opt );
+	QMotifStyle::drawControl( element, p, widget, r, pal, flags, opt );
 	break;
     }
 }
@@ -1115,7 +1139,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 			 QPainter *p,
 			 const QWidget* widget,
 			 const QRect& r,
-			 const QColorGroup& cg,
+			 const QPalette& pal,
 			 SFlags flags,
 			 SCFlags sub,
 			 SCFlags subActive,
@@ -1145,11 +1169,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 		QRect grooveTop = groove;
 		grooveTop.addCoords( 1, 1, -1, -1 );
-		drawPrimitive( PE_ButtonBevel, p, grooveTop, cg, flags & ~Style_MouseOver, opt );
+		drawPrimitive( PE_ButtonBevel, p, grooveTop, pal, flags & ~Style_MouseOver, opt );
 
 		if ( flags & Style_HasFocus ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, cg, flags & ~Style_MouseOver );
+		    drawPrimitive( PE_FocusRect, p, fr, pal, flags & ~Style_MouseOver );
 		}
 
 		if ( d->lastSliderRect.slider == slider && d->lastSliderRect.rect.isValid() ) {
@@ -1160,7 +1184,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    } else {
 			p->setClipping( FALSE );
 		    }
-		    qDrawShadePanel( p, d->lastSliderRect.rect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
+		    qDrawShadePanel( p, d->lastSliderRect.rect, pal, TRUE, 1, &pal.brush( QPalette::Dark ) );
 		}
 		p->setClipping( FALSE );
 	    }
@@ -1168,23 +1192,23 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
 		if ( flags & Style_MouseOver && !handle.contains( d->mousePos ) && subActive != SC_SliderHandle )
 		    flags &= ~Style_MouseOver;
-		drawPrimitive( PE_ButtonBevel, p, handle, cg, flags );
+		drawPrimitive( PE_ButtonBevel, p, handle, pal, flags );
 
 		if ( slider->orientation() == Horizontal ) {
 		    QCOORD mid = handle.x() + handle.width() / 2;
 		    qDrawShadeLine( p, mid, handle.y(), mid,
 				    handle.y() + handle.height() - 2,
-				    cg, TRUE, 1);
+				    pal, TRUE, 1);
 		} else {
 		    QCOORD mid = handle.y() + handle.height() / 2;
 		    qDrawShadeLine( p, handle.x(), mid,
 				    handle.x() + handle.width() - 2, mid,
-				    cg, TRUE, 1);
+				    pal, TRUE, 1);
 		}
 	    }
 
 	    if ( sub & SC_SliderTickmarks )
-		QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags,
+		QMotifStyle::drawComplexControl( control, p, widget, r, pal, flags,
 						 SC_SliderTickmarks, subActive,
 						 opt );
 #endif
@@ -1199,7 +1223,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		QRect fr =
 		    QStyle::visualRect( querySubControlMetrics( CC_ComboBox, cb,
 								SC_ComboBoxFrame ), cb );
-		drawPrimitive( PE_ButtonBevel, p, fr, cg, flags );
+		drawPrimitive( PE_ButtonBevel, p, fr, pal, flags );
 	    }
 
 	    if ( sub & SC_ComboBoxArrow ) {
@@ -1209,18 +1233,18 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
 		er.addCoords( 0, 3, 0, 0 );
 
-		drawPrimitive( PE_ArrowDown, p, er, cg, flags | Style_Enabled, opt );
+		drawPrimitive( PE_ArrowDown, p, er, pal, flags | Style_Enabled, opt );
 
 		int awh, ax, ay, sh, sy, dh, ew;
 		get_combo_parameters( widget->rect(), ew, awh, ax, ay, sh, dh, sy );
 
-		QBrush arrow = cg.brush( QColorGroup::Dark );
+		QBrush arrow = pal.brush( QPalette::Dark );
 		p->fillRect( ax, sy-1, awh, sh, arrow );
 
 		p->restore();
 		if ( cb->hasFocus() ) {
 		    QRect re = QStyle::visualRect( subRect( SR_ComboBoxFocusRect, cb ), cb );
-		    drawPrimitive( PE_FocusRect, p, re, cg );
+		    drawPrimitive( PE_FocusRect, p, re, pal );
 		}
 	    }
 	    if ( sub & SC_ComboBoxEditField ) {
@@ -1231,11 +1255,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    er.addCoords( -1, -1, 1, 1);
 		    qDrawShadePanel( p, QRect( er.x()-1, er.y()-1,
 					       er.width()+2, er.height()+2 ),
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+				     pal, TRUE, 1, &pal.brush( QPalette::Button ) );
 		}
 	    }
 #endif
-	    p->setPen(cg.buttonText());
+	    p->setPen(pal.buttonText());
 	    break;
 	}
 
@@ -1253,11 +1277,11 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    }
 	    if ( sub & SC_ScrollBarAddLine ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddLine, opt ), widget );
-		drawPrimitive( PE_ScrollBarAddLine, p, er, cg, flags, opt );
+		drawPrimitive( PE_ScrollBarAddLine, p, er, pal, flags, opt );
 	    }
 	    if ( sub & SC_ScrollBarSubLine ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubLine, opt ), widget );
-		drawPrimitive( PE_ScrollBarSubLine, p, er, cg, flags, opt );
+		drawPrimitive( PE_ScrollBarSubLine, p, er, pal, flags, opt );
 	    }
 	    if ( sub & SC_ScrollBarAddPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, opt ), widget );
@@ -1273,7 +1297,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    p->setClipRegion( region );
 		}
 
-		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, opt );
+		drawPrimitive( PE_ScrollBarAddPage, p, er, pal, flags & ~Style_MouseOver, opt );
 
 		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
 		     d->lastScrollbarRect.rect.isValid() &&
@@ -1285,7 +1309,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    } else {
 			p->setClipping( FALSE );
 		    }
-		    qDrawShadePanel( p, d->lastScrollbarRect.rect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
+		    qDrawShadePanel( p, d->lastScrollbarRect.rect, pal, TRUE, 1, &pal.brush( QPalette::Dark ) );
 		}
 		p->setClipping( FALSE );
 	    }
@@ -1302,7 +1326,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    region = region.subtract( handle );
 		    p->setClipRegion( region );
 		}
-		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, opt );
+		drawPrimitive( PE_ScrollBarSubPage, p, er, pal, flags & ~Style_MouseOver, opt );
 		if ( d->lastScrollbarRect.scrollbar == scrollbar &&
 		     d->lastScrollbarRect.rect.isValid() &&
 		     er.intersects( d->lastScrollbarRect.rect ) ) {
@@ -1313,7 +1337,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    } else {
 			p->setClipping( FALSE );
 		    }
-		    qDrawShadePanel( p, d->lastScrollbarRect.rect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
+		    qDrawShadePanel( p, d->lastScrollbarRect.rect, pal, TRUE, 1, &pal.brush( QPalette::Dark ) );
 		}
 		p->setClipping( FALSE );
 	    }
@@ -1322,14 +1346,14 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		if ( subActive == SC_ScrollBarSlider )
 		    flags |= Style_Active;
 
-		drawPrimitive( PE_ScrollBarSlider, p, handle, cg, flags, opt );
+		drawPrimitive( PE_ScrollBarSlider, p, handle, pal, flags, opt );
 	    }
 #endif
 	}
 	break;
 
     default:
-	QMotifStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, opt );
+	QMotifStyle::drawComplexControl( control, p, widget, r, pal, flags, sub, subActive, opt );
 	break;
     }
 }

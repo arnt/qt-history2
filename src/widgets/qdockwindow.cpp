@@ -219,7 +219,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 void QDockWindowResizeHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), colorGroup(),
+    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), palette(),
 			  (isEnabled() ?
 			   QStyle::Style_Enabled : QStyle::Style_Default) |
 			  (orientation() == Qt::Horizontal ?
@@ -389,7 +389,7 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     style().drawPrimitive( QStyle::PE_DockWindowHandle, &p,
 			   QStyle::visualRect( style().subRect( QStyle::SR_DockWindowHandleRect,
 								this ), this ),
-			   colorGroup(), flags );
+			   palette(), flags );
     QWidget::paintEvent( e );
 }
 
@@ -1482,7 +1482,7 @@ void QDockWindow::drawFrame( QPainter *p )
     if ( titleBar->isActive() )
 	flags |= QStyle::Style_Active;
 
-    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
+    style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), palette(), flags, opt );
 }
 
 /*!
@@ -1494,7 +1494,7 @@ void QDockWindow::drawContents( QPainter *p )
     if ( titleBar->isActive() )
 	flags |= QStyle::Style_Active;
     style().drawControl( QStyle::CE_DockWindowEmptyArea, p, this,
-			 rect(), colorGroup(), flags );
+			 rect(), palette(), flags );
 }
 
 /*!

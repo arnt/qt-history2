@@ -188,8 +188,8 @@ protected:
     virtual void removeRenameBox();
 #endif
     virtual void calcRect( const QString &text_ = QString::null );
-    virtual void paintItem( QPainter *p, const QColorGroup &cg );
-    virtual void paintFocus( QPainter *p, const QColorGroup &cg );
+    virtual void paintItem( QPainter *p, const QPalette &pal );
+    virtual void paintFocus( QPainter *p, const QPalette &pal );
 #ifndef QT_NO_DRAGANDDROP
     virtual void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
 #endif
