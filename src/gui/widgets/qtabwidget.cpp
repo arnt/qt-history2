@@ -934,7 +934,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     }
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
-    if (d->leftCornerWidget || d->rightCornerWidget) {
+    if (1 || d->leftCornerWidget || d->rightCornerWidget) {
         if (d->pos == North) {
             opt.rect.setTop(opt.rect.top() - 2);
             opt.rect.setHeight(2);

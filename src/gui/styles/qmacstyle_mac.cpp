@@ -4395,12 +4395,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 {
     SInt32 ret = 0;
     switch (metric) {
-    case QStyle::PM_TabBarTabVSpace:
-        ret = 4;
+    case PM_CheckListControllerSize:
         break;
-    case QStyle::PM_CheckListControllerSize:
-        break;
-    case QStyle::PM_CheckListButtonSize: {
+    case PM_CheckListButtonSize: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4418,14 +4415,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_TabBarTabShiftHorizontal:
-    case QStyle::PM_TabBarTabShiftVertical:
-        ret = 0;
-        break;
-    case QStyle::PM_DialogButtonsSeparator:
+    case PM_DialogButtonsSeparator:
         ret = -5;
         break;
-    case QStyle::PM_DialogButtonsButtonHeight: {
+    case PM_DialogButtonsButtonHeight: {
         QSize sz;
         ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
         if(sz == QSize(-1, -1))
@@ -4433,7 +4426,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         else
             ret = sz.height();
         break; }
-    case QStyle::PM_DialogButtonsButtonWidth: {
+    case PM_DialogButtonsButtonWidth: {
         QSize sz;
         ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
         if(sz == QSize(-1, -1))
@@ -4453,7 +4446,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case QStyle::PM_MenuDesktopFrameWidth:
         ret = 15;
         break;
-    case QStyle::PM_MenuScrollerHeight:
+    case PM_MenuScrollerHeight:
 #if 0
         SInt16 ash, asw;
         GetThemeMenuItemExtra(kThemeMenuItemScrollUpArrow, &ash, &asw);
@@ -4462,7 +4455,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 15; //I hate having magic numbers in here...
 #endif
         break;
-    case QStyle::PM_DefaultFrameWidth:
+    case PM_DefaultFrameWidth:
 #ifndef QT_NO_MAINWINDOW
         if(widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
@@ -4477,37 +4470,47 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
 #endif
             ret = QWindowsStyle::pixelMetric(metric, opt, widget);
         break;
-    case QStyle::PM_MaximumDragDistance:
+    case PM_MaximumDragDistance:
         ret = -1;
         break;
-    case QStyle::PM_ScrollBarSliderMin:
+    case PM_ScrollBarSliderMin:
         ret = 24;
         break;
-    case QStyle::PM_TabBarBaseHeight:
-        ret = 8;
-        break;
-    case QStyle::PM_SpinBoxFrameWidth:
+    case PM_SpinBoxFrameWidth:
         GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
         ret += 2;
         break;
-    case QStyle::PM_ButtonShiftHorizontal:
-    case QStyle::PM_ButtonShiftVertical:
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
         ret = 0;
         break;
-    case QStyle::PM_SliderLength:
+    case PM_SliderLength:
         ret = 17;
         break;
-    case QStyle::PM_ButtonDefaultIndicator:
+    case PM_ButtonDefaultIndicator:
         ret = 0;
         break;
-    case QStyle::PM_TitleBarHeight:
+    case PM_TitleBarHeight:
 	ret = d->useHITheme ? d->HIThemePixelMetric(metric, opt, widget)
 			    : d->AppManPixelMetric(metric, opt, widget);
         break;
-    case QStyle::PM_TabBarTabOverlap:
+    case PM_TabBarTabVSpace:
+        ret = 4;
+        break;
+    case PM_TabBarTabShiftHorizontal:
+    case PM_TabBarTabShiftVertical:
+        ret = 0;
+        break;
+    case PM_TabBarBaseHeight:
+        ret = 8;
+        break;
+    case PM_TabBarTabOverlap:
         GetThemeMetric(kThemeMetricTabOverlap, &ret);
         break;
-    case QStyle::PM_ScrollBarExtent: {
+    case PM_TabBarBaseOverlap:
+        GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
+        break;
+    case PM_ScrollBarExtent: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4525,10 +4528,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_TabBarBaseOverlap:
-        GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
-        break;
-    case QStyle::PM_IndicatorHeight: {
+    case PM_IndicatorHeight: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4546,7 +4546,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_IndicatorWidth: {
+    case PM_IndicatorWidth: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4564,7 +4564,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_ExclusiveIndicatorHeight: {
+    case PM_ExclusiveIndicatorHeight: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4582,7 +4582,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_ExclusiveIndicatorWidth: {
+    case PM_ExclusiveIndicatorWidth: {
         switch (qt_aqua_size_constrain(widget)) {
         case QAquaSizeUnknown:
         case QAquaSizeLarge:
@@ -4600,10 +4600,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             break;
         }
         break; }
-    case QStyle::PM_MenuVMargin:
+    case PM_MenuVMargin:
         ret = 4;
         break;
-    case QStyle::PM_MenuPanelWidth:
+    case PM_MenuPanelWidth:
         ret = 0;
         break;
     default:
@@ -4876,10 +4876,15 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
 void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                               const QWidget *w) const
 {
-    if (d->useHITheme)
-	d->HIThemeDrawPrimitive(pe, opt, p, w);
-    else
-	d->AppManDrawPrimitive(pe, opt, p, w);
+    switch (pe) {
+    case PE_FrameTabBarBase:
+        break;
+    default:
+        if (d->useHITheme)
+            d->HIThemeDrawPrimitive(pe, opt, p, w);
+        else
+            d->AppManDrawPrimitive(pe, opt, p, w);
+    }
 }
 
 /*! \reimp */
@@ -5086,9 +5091,6 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     switch (ct) {
     case QStyle::CT_SpinBox:
         sz.setWidth(sz.width() + macSpinBoxSep);
-        break;
-    case QStyle::CT_TabWidget:
-        sz.setWidth(sz.width() + 15);
         break;
     case QStyle::CT_TabBarTab: {
             bool newStyleTabs =

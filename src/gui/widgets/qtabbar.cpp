@@ -307,6 +307,32 @@ void QTabBarPrivate::layoutTabs()
         available = size.height();
     }
 
+#if 0
+    // align the tabs on the tabbar, luckily AlignLeft is already done for us.
+    int alignment = q->style()->styleHint(QStyle::SH_TabBar_Alignment, 0, q);
+    if (alignment != Qt::AlignLeft && last <= available) {
+        int tabstart;
+        if (alignment == Qt::AlignCenter)
+            tabstart = (available - last) / 2;
+        else if (alignment == Qt::AlignRight)
+            tabstart = available - last;
+        else
+            tabstart = 0;
+        if (!vertTabs) {
+            for (int i = 0; i < tabList.count(); ++i) {
+                tabList[i].rect.setX(tabstart);
+                tabstart += tabList.at(i).rect.width();
+            }
+        } else {
+            for (int i = 0; i < tabList.count(); ++i) {
+                tabList[i].rect.setY(tabstart);
+                tabstart += tabList.at(i).rect.width();
+            }
+        }
+        last = tabstart;
+    }
+#endif
+
     if (tabList.count() && last > available) {
         int extra = extraWidth();
         if (!vertTabs) {
@@ -679,8 +705,6 @@ QSize QTabBar::sizeHint() const
     for (int i = 0; i < d->tabList.count(); ++i)
         r = r.unite(d->tabList.at(i).rect);
     QSize sz = QApplication::globalStrut();
-    if (QWidget *pw = parentWidget())
-        sz.rwidth() += pw->width();
     return r.size().expandedTo(sz);
 }
 
@@ -799,6 +823,7 @@ void QTabBar::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
 
+    /*
     QStyleOptionTabWidgetFrame opt1;
     opt1.init(this);
     if (QTabWidget *tw = qt_cast<QTabWidget *>(parentWidget())) {
@@ -811,6 +836,7 @@ void QTabBar::paintEvent(QPaintEvent *)
     opt1.shape = d->shape;
     p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt1);
 
+    */
     int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {
         if (i == d->currentIndex) {
