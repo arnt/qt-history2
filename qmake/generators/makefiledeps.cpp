@@ -457,8 +457,9 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         }
                     }
                 } else if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
-                    ++x;
+                    beginning = 0;
                     const char term = *(buffer+x);
+                    ++x;
                     while(x < buffer_len) {
                         if(*(buffer+x) == term)
                             break;
