@@ -342,7 +342,7 @@ while [ -n "$1" ]; do
 	    then
 		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
 	    else
-		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
+		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/. -name '*.pro' -print`"
 	    fi
 	fi
 	;;
