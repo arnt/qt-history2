@@ -1946,51 +1946,69 @@ static QStringList makeFiltersList( const QString &filter )
 // NOT REVISED
 /*!
   \class QFileDialog qfiledialog.h
-  \brief The QFileDialog class provides a dialog widget for inputting file names.
+  \brief The QFileDialog class provides a dialog that allows a user to select files and directories.
   \ingroup dialogs
 
-  This class implements a dialog that can be used if the user should select
-  a file or a directory.
+  The QFileDialog class enables a user to traverse their system in order to select one or many 
+  files or a directory.
 
-  Example (e.g. to get a file name for saving a file):
+  The easist way to create a QFileDialog is to use the static functions.  On Windows, these static 
+  functions will call the Windows system file dialog.
 
   \code
-    QString fileName = QFileDialog::getSaveFileName( "newfile.txt", "Textfiles (*.txt)", this );
-    if ( !fileName.isNull() ) {			// got a file name
-	...
-    }
+    QString s = QFileDialog::getOpenFileName( "/home",
+					      "Images (*.png *.xpm *.jpg)",
+					      this,
+					      "open file dialog"
+					      "Select a file!" );
   \endcode
 
-  To let the user specify a file name for opening a file, for example, you could use following
-  code:
+  In the above example, a modal QFileDialog is created using a static function.  The startup directory 
+  is set to "/home".  The file filter is set to "Images (*.png *.xpm *.jpg)".  The parent of the file 
+  dialog is set to \e this and it is given the identification name - "open file dialog".  The caption 
+  at the top of file dialog is set to "Select a file!".
 
-  \walkthrough action/application.cpp
-  \skipto QFileDialog::getOpenFileName(
-  \printuntil Loading aborted
+  You can create your own QFileDialog without using the static functions.  By calling setMode(), you can 
+  set what can be returned by the QFileDialog.
 
-  (Code taken from \link qaction-application-example.html examples/action/application.cpp
-  \endlink )
+  \code
+    QFileDialog fd( this, "file dialog", TRUE );
+    fd.setMode( QFileDialog::AnyFile );
+  \endcode
 
-  Other convenient static methods are QFileDialog::getExistingDirectory() to let the user
-  choose a directory or QFileDialog::getOpenFileNames() to let the user select multiple
-  files.
+  In the above example, the mode of the file dialog is set to \e AnyFile, meaning that the user can select
+  any file, or even specify a file that doesn't exist.  This mode is useful for creating a "Save File As" 
+  file dialog.  You can get whatever mode the file dialog has been set to by calling mode().
 
-  In addition to these convenient static methods you can use one of QFileDialog's
-  constructors, set a mode (see setMode()), and do more things such as adding a preview
-  widget that will preview the current file or information of the current file while
-  the user does the selection (see setInfoPreview(), setContentsPreview(), setInfoPreviewEnabled() and
-  setContentsPreviewEnabled()), or add additional widgets to the file dialog
-  (see addWidgets(), addToolButton(), addLeftWidget() and addRightWidget()).
+  If you call setFilter(), then you can set the filter that is used by the QFileDialog.
 
-  To get the selection the user did then, see selectedFile(), selectedFiles(), selectedFilter()
-  and url(). To set these things, see setUrl() and setSelection().
+  \code
+    QFileDialog fd( this, "file dialog", TRUE );
+    fd.setFilter( "Images (*.png *.xpm *.jpg)" );
+  \endcode
 
-  For an example of how to use this customization of the QFileDialog, take a look
-  at the qdir example (qt/examples/qdir/qdir.cpp).
+
+  In the above example, the filter is set to "Images (*.png *.xpm *.jpg)", this means that only PNG, XPM and 
+  JPG files will be visible in the QFileDialog.  If you set more than one filter by using setFilters(), or by 
+  adding another one by using addFilter() then you can use setSelectedFilter() which will set the filter shown 
+  in the file dialog when shown to the specified one.  To find out what filter was selected when the user 
+  selects a file you can call selectedFilter().  The signal filterSelected() will be emitted every time the 
+  user changes the filter in the file dialog.
+
+  If you call setViewMode(), then you can set whether the user can see details of the files alongside the files
+  or not.
+
+  \code
+    QFileDialog fd( this, "file dialog", TRUE );
+    fd.setViewMode( QFileDialog::Detail );
+  \endcode
+
+  In the above example, the view mode is set to \e Detail, which means that alongside each of the files will
+  be details about the file.
 
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
-  \sa QPrintDialog
+  
 */
 
 
@@ -2046,9 +2064,9 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  Constructs a file dialog with a \a parent, \a name and \a modal flag.
-
-  The dialog becomes modal if \a modal is TRUE; otherwise it is modeless.
+  Constructs a file dialog with the parent \a parent, the name 
+  \a name. If \a modal is TRUE then the file dialog is modal; 
+  otherwise it is non-modal.
 */
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
@@ -2545,7 +2563,7 @@ void QFileDialog::changeMode( int id )
 }
 
 /*!
-  Destructs the file dialog.
+  Destroys the file dialog.
 */
 
 QFileDialog::~QFileDialog()
@@ -3162,9 +3180,12 @@ void QFileDialog::okClicked()
 	    d->ignoreReturn = FALSE;
 	    return;
 	}
-	QUrlInfo f( d->url, nameEdit->text() );
-	if ( f.isDir() ) {
-	    d->currentFileName = d->url + f.name();
+        QUrlInfo f( d->url, nameEdit->text() );
+        if ( f.isDir() ) {
+            d->currentFileName = d->url;
+	    if ( d->currentFileName.right(1) != '/' )
+		d->currentFileName += '/';
+	    d->currentFileName += f.name();
 	    accept();
 	    return;
 	}
