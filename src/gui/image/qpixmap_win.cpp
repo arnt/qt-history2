@@ -410,20 +410,17 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
+    if (data == newmask.data)
+        // trying to selfmask
+        return;
+
     // ##################### PIXMAP
 #if 0
     const QPixmap *tmp = &newmask;                // dec cxx bug
-    if (data == tmp->data) {
-        QPixmap m = tmp->copy();
-        setMask(*((QBitmap*)&m));
-        data->selfmask = true;                        // mask == pixmap
-        return;
-    }
 
     if (newmask.isNull()) {                        // reset the mask
         if (data->mask) {
             detach();
-            data->selfmask = false;
 
             delete data->mask;
             data->mask = 0;
@@ -432,7 +429,6 @@ void QPixmap::setMask(const QBitmap &newmask)
     }
 
     detach();
-    data->selfmask = false;
 
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
@@ -990,7 +986,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 #endif
             StretchBlt(pm_dc, 0, 0, w, h, dc, 0, 0, ws, hs, SRCCOPY);
             if (data->mask) {
-                QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->transform(matrix);
+                QBitmap bm = data->mask->transform(matrix);
                 pm.setMask(bm);
             }
 
@@ -1139,7 +1135,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     delete [] bmi_data;
     delete [] dptr;
     if (data->mask) {
-        QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->transform(matrix);
+        QBitmap bm = data->mask->transform(matrix);
         pm.setMask(bm);
     }
 

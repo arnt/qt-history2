@@ -388,50 +388,26 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
-    // ##################### PIXMAP
-#if 0
-    const QPixmap *tmp = &newmask;                // dec cxx bug
-    if (data == tmp->data) {
-        QPixmap m = tmp->copy();
-        setMask(*((QBitmap*)&m));
-        data->selfmask = true;                        // mask == pixmap
+    if (data == newmask.data)
+        // trying to selfmask
         return;
-    }
-
-    if (newmask.isNull()) {                        // reset the mask
-        if (data->mask) {
-            detach();
-            data->selfmask = false;
-
-            delete data->mask;
-            data->mask = 0;
-        }
-        return;
-    }
-
-    detach();
-    data->selfmask = false;
 
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
     }
-#if defined(Q_WS_MAC)
-    // when setting the mask, we get rid of the alpha channel completely
-    data->macQDDisposeAlpha();
-#endif
 
-    delete data->mask;
-    QBitmap* newmaskcopy;
-    if (newmask.mask())
-        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy());
-    else
-        newmaskcopy = new QBitmap(newmask);
-#ifdef Q_WS_X11
-    newmaskcopy->x11SetScreen(data->xinfo.screen());
-#endif
-    data->mask = newmaskcopy;
-#endif
+    detach();
+
+    if (newmask.isNull()) {
+        delete data->mask;
+        data->mask = 0;
+        return;
+    }
+    if (!data->mask)
+        data->mask = new QBitmap();
+
+    *data->mask = newmask;
 }
 
 
@@ -801,9 +777,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
              }
              delete pe;
              if (data->mask) {
-                 QBitmap bm =
-                     data->selfmask ? *((QBitmap*)(&pm)) :
-                     data->mask->transformed(matrix);
+                 QBitmap bm = data->mask->transformed(matrix);
                  pm.setMask(bm);
              }
              pm.data->hasAlpha = data->hasAlpha;
@@ -885,12 +859,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         pm.fromImage(destImg);
     }
 
-    if (data->mask) {
-        if (depth1 && data->selfmask)               // pixmap == mask
-            pm.setMask(*((QBitmap*)(&pm)));
-        else
-            pm.setMask(data->mask->transformed(matrix));
-    }
+    if (data->mask)
+        pm.setMask(data->mask->transformed(matrix));
     pm.data->hasAlpha = data->hasAlpha;
 
     return pm;

@@ -487,13 +487,9 @@ void QPixmap::resize_helper(const QSize &s)
     } else
 #endif // Q_WS_X11
         if (data->mask) {                                // resize mask as well
-            if (data->selfmask) {                        // preserve self-mask
-                pm.setMask(*((QBitmap*)&pm));
-            } else {                                // independent mask
-                QBitmap m = *data->mask;
-                m.resize(w, h);
-                pm.setMask(m);
-            }
+            QBitmap m = *data->mask;
+            m.resize(w, h);
+            pm.setMask(m);
         }
     *this = pm;
 }
@@ -513,15 +509,8 @@ void QPixmap::resize_helper(const QSize &s)
 /*!
     \fn bool QPixmap::selfMask() const
 
-    Returns true if the pixmap's mask is identical to the pixmap
-    itself; otherwise returns false.
-
-    \sa mask()
+    \obsolete
 */
-bool QPixmap::selfMask() const
-{
-    return data->selfmask;
-}
 
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!

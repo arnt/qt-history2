@@ -64,13 +64,14 @@ public:
     QPixmap alphaChannel() const;
     void setAlphaChannel(const QPixmap &);
 
-    bool selfMask() const;
     bool hasAlpha() const;
     bool hasAlphaChannel() const;
+
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QBitmap createHeuristicMask(bool clipTight = true) const;
 #endif
     QBitmap createMaskFromColor(const QColor &maskColor) const;
+
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
     static QPixmap grabWidget(QWidget *widget, const QRect &rect);
     static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1)
@@ -156,6 +157,7 @@ public:
         { (*this) = fromImage(img, flags); return !isNull(); }
     inline QT3_SUPPORT operator QImage() const { return toImage(); }
     inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
+    inline QT3_SUPPORT bool selfMask() const { return false; }
 
 private:
     void resize_helper(const QSize &s);

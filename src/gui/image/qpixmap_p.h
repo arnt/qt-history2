@@ -48,7 +48,6 @@ struct QPixmapData { // internal pixmap data
     short d;
     uint uninit:1;
     uint bitmap:1;
-    uint selfmask:1;
 #if defined(Q_WS_WIN)
     uint mcp:1;
 #endif

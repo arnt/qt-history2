@@ -1420,12 +1420,13 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 	gcvals.ts_y_origin = dy - sy;
 
         if (mask) {
-            if (((QPixmap*)src)->data->selfmask) {
+            // ############## PIXMAP Correct?
+//             if (((QPixmap*)src)->data->selfmask) {
                 gcvals.fill_style = FillStippled;
-            } else {
-                XSetClipMask(dpy, gc, mask->handle());
-                XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
-	    }
+//             } else {
+//                 XSetClipMask(dpy, gc, mask->handle());
+//                 XSetClipOrigin(dpy, gc, dx-sx, dy-sy);
+// 	    }
 	}
 
         XChangeGC(dpy, gc, valmask, &gcvals);
@@ -1474,8 +1475,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
 
     if (!mask.isNull() && !hasClipping() && systemClip().isEmpty()) {
         if (mono_src) {                           // needs GCs pen // color
-            bool selfmask = pixmap.data->selfmask;
-            if (selfmask) {
+            if (d->bg_mode == Qt::TransparentMode) {
                 XSetFillStyle(d->dpy, d->gc, FillStippled);
                 XSetStipple(d->dpy, d->gc, pixmap.handle());
             } else {
@@ -1488,7 +1488,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
             XSetTSOrigin(d->dpy, d->gc, 0, 0);
             XSetFillStyle(d->dpy, d->gc, FillSolid);
-            if (!selfmask) {
+            if (d->bg_mode != Qt::TransparentMode) {
                 QRegion sysClip = systemClip();
                 if (!sysClip.isEmpty()) {
                     x11SetClipRegion(d->dpy, d->gc, 0, d->picture, sysClip);

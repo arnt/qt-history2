@@ -392,50 +392,30 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
-    // ##################### PIXMAP
-#if 0
-    const QPixmap *tmp = &newmask;                // dec cxx bug
-    if (data == tmp->data) {
-        QPixmap m = tmp->copy();
-        setMask(*((QBitmap*)&m));
-        data->selfmask = true;                        // mask == pixmap
+    if (data == newmask.data)
+        // trying to selfmask
         return;
-    }
-
-    if (newmask.isNull()) {                        // reset the mask
-        if (data->mask) {
-            detach();
-            data->selfmask = false;
-
-            delete data->mask;
-            data->mask = 0;
-        }
-        return;
-    }
-
-    detach();
-    data->selfmask = false;
 
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
     }
-#if defined(Q_WS_MAC)
+
+    detach();
+
+    if (newmask.isNull()) {
+        delete data->mask;
+        data->mask = 0;
+        return;
+    }
     // when setting the mask, we get rid of the alpha channel completely
     data->macQDDisposeAlpha();
-#endif
 
-    delete data->mask;
-    QBitmap* newmaskcopy;
-    if (newmask.mask())
-        newmaskcopy = (QBitmap*)new QPixmap(tmp->copy());
-    else
-        newmaskcopy = new QBitmap(newmask);
-#ifdef Q_WS_X11
-    newmaskcopy->x11SetScreen(data->xinfo.screen());
-#endif
-    data->mask = newmaskcopy;
-#endif
+    if (!data->mask)
+        data->mask = new QBitmap();
+
+    *data->mask = newmask;
+    data->mask->x11SetScreen(data->xinfo.screen());
 }
 
 void QPixmap::detach()
@@ -600,16 +580,8 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     }
 
     //update the mask
-    if(depth() == 1) {
-        if(data->mask) {
-            if(data->selfmask)               // pixmap == mask
-                pm.setMask(*((QBitmap*)(&pm)));
-            else
-                pm.setMask(data->mask->transform(matrix));
-        }
-    } else if(data->mask) {
+    if(data->mask) {
         pm.setMask(data->mask->transform(matrix));
-    }
 
     //update the alpha
     pm.data->macSetAlpha(data->alpha);
