@@ -119,9 +119,6 @@ public:
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
 #endif
 
-    int id() const;
-    void setId(int id);
-
 protected:
     virtual void addedTo(QWidget *) {};
 
@@ -143,6 +140,9 @@ private slots:
     void sendAccelActivated();
 
 private:
+#ifdef QT_COMPAT
+    friend class QMenuItem;
+#endif
     friend class QWidget;
     friend class QActionGroup;
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=

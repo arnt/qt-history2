@@ -19,7 +19,7 @@
 
 class QMenuBarPrivate;
 #ifdef QT_COMPAT
-typedef QAction QMenuItem;
+class QMenuItem;
 #endif
 
 class Q_GUI_EXPORT QMenuBar : public QWidget
@@ -150,13 +150,11 @@ public:
         return actionGeometry(actions().value(index));
     }
     inline QT_COMPAT int itemAtPos(const QPoint &p) {
-        QAction *a = actionAtPos(p);
-        return a ? a->id() : 0;
+        return findIdForAction(actionAtPos(p));
     }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
-        QAction *a = actions().value(index);
-        return a ? a->id() : 0;
+        return findIdForAction(actions().value(index));
     }
     inline QT_COMPAT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
@@ -170,9 +168,11 @@ public:
         QObject::disconnect(findActionForId(id), SIGNAL(triggered()), receiver, member);
         return true;
     }
-    inline QT_COMPAT QAction *findItem(int id) const {
-        return findActionForId(id);
+    inline QT_COMPAT QMenuItem *findItem(int id) const {
+        return (QMenuItem*)findActionForId(id);
     }
+    QT_COMPAT bool setItemParameter(int id, int param);
+    QT_COMPAT int itemParameter(int id) const;
 
     //frame
     QT_COMPAT int frameWidth() const;
@@ -189,6 +189,7 @@ private:
     QAction *findActionForId(int id) const;
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
+    int findIdForAction(QAction*) const;
 #endif
 
 private:

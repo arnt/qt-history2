@@ -1673,12 +1673,13 @@ void QMenu::internalDelayedPopup()
 }
 
 #ifdef QT_COMPAT
+#include "qmenudata.h"
 int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                           const QKeySequence *accel, const QMenu *popup, int id, int index)
 {
     QAction *act = new QAction;
     if(id != -1)
-        act->setId(id);
+        ((QMenuItem*)act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1693,7 +1694,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return act->id();
+    return findIdForAction(act);
 }
 
 int QMenu::insertSeparator(int index)
@@ -1704,18 +1705,34 @@ int QMenu::insertSeparator(int index)
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return act->id();
+    return findIdForAction(act);
 }
 
 QAction *QMenu::findActionForId(int id) const
 {
     QList<QAction *> list = actions();
     for (int i = 0; i < list.size(); ++i) {
-        QAction *a = list.at(i);
-        if (a->id() == id)
-            return a;
+        QAction *act = list.at(i);
+        if (findIdForAction(act)== id)
+            return act;
     }
     return 0;
+}
+
+bool QMenu::setItemParameter(int id, int param)
+{
+    if(QAction *act = findActionForId(id)) {
+        ((QMenuItem*)act)->setSignalValue(param);
+        return true;
+    }
+    return false;
+}
+
+int QMenu::itemParameter(int id) const
+{
+    if(QAction *act = findActionForId(id)) 
+        return ((QMenuItem*)act)->signalValue();
+    return id;
 }
 
 int QMenu::frameWidth() const
@@ -1725,11 +1742,16 @@ int QMenu::frameWidth() const
 
 void QMenu::compatActivated(QAction *act)
 {
-    emit activated(act->id());
+    emit activated(findIdForAction(act));
 }
 
 void QMenu::compatHighlighted(QAction *act)
 {
-    emit highlighted(act->id());
+    emit highlighted(findIdForAction(act));
+}
+
+int QMenu::findIdForAction(QAction *act) const
+{
+    return ((QMenuItem*)act)->id();
 }
 #endif

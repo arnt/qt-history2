@@ -32,10 +32,68 @@ void QActionPrivate::sendDataChanged()
     QApplication::sendEvent(q, &e);
 }
 
+/*!
+    \class QAction qaction.h
+    \brief The QAction class provides an abstract user interface
+    action that can be inserted into widgets with
+    QWidget::addAction().
+
+    \ingroup basic
+    \ingroup application
+    \mainclass
+
+    In GUI applications many commands can be invoked via a menu
+    option, a toolbar button and a keyboard accelerator. Since the
+    same action must be performed regardless of how the action was
+    invoked, and since the menu and toolbar should be kept in sync, it
+    is useful to represent a command as an \e action. An action can be
+    added to a menu and a toolbar and will automatically keep them in
+    sync. For example, if the user presses a Bold toolbar button the
+    Bold menu item will automatically be checked.
+
+    A QAction may contain an icon, a menu text, an accelerator, a
+    status text, a whats this text and a tool tip. Most of these can
+    be set in the constructor. They can also be set independently with
+    setIconSet(), setText(), setMenuText(), setToolTip(),
+    setStatusTip(), setWhatsThis() and setAccel().
+
+    Actions are added to widgets using QWidget::addAction().
+
+    Once a QAction has been created it should be added to the relevant
+    menu and toolbar and then connected to the slot which will perform
+    the action. For example:
+
+    \quotefile action/application.cpp
+    \skipto QPixmap(fileopen
+    \printuntil connect
+
+    We recommend that actions are created as children of the window
+    that they are used in. In most cases actions will be children of
+    the application's main window.
+
+    To prevent recursion, don't create an action as a child of a
+    widget that the action is later added to.
+*/
+
+
+/*!
+    Constructs an action called \a name with parent \a parent.
+
+    If \a parent is a Q3ActionGroup, the new action inserts itself into
+    \a parent.
+
+    For accelerators and status tips to work, \a parent must either be
+    a widget, or an action group whose parent is a widget.
+
+    \warning To prevent recursion, don't create an action as a child
+    of a widget that the action is later added to.
+*/
 QAction::QAction(QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->group = parent;
     if(parent)
         parent->addAction(this);
@@ -44,13 +102,17 @@ QAction::QAction(QActionGroup* parent)
 QAction::QAction(QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
 }
 
 QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     d->menu = menu;
     d->group = parent;
@@ -61,7 +123,9 @@ QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
 QAction::QAction(const QString &text, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     d->group = parent;
     if(parent)
@@ -71,7 +135,9 @@ QAction::QAction(const QString &text, QActionGroup* parent)
 QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->icons = new QIconSet(icon);
     d->text = text;
     d->group = parent;
@@ -82,7 +148,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
 QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     d->menu = menu;
 }
@@ -90,14 +158,18 @@ QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
 QAction::QAction(const QString &text, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
 }
 
 QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     d->icons = new QIconSet(icon);
 }
@@ -106,7 +178,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
 QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     setAccel(accel);
     d->group = parent;
@@ -117,7 +191,9 @@ QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* p
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel, QActionGroup* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     setAccel(accel);
     d->icons = new QIconSet(icon);
@@ -129,7 +205,9 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     setAccel(accel);
 }
@@ -137,7 +215,9 @@ QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
                    QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
-    d->id = --qt_static_action_id;
+#ifdef QT_COMPAT
+    d->param = d->id = --qt_static_action_id;
+#endif
     d->text = text;
     setAccel(accel);
     d->icons = new QIconSet(icon);
@@ -392,24 +472,6 @@ void QAction::activate(ActionEvent event)
         emit hovered();
     }
 }
-
-/*!
-  \internal
-*/
-int QAction::id() const
-{
-    return d->id;
-}
-
-/*!
-  \internal
-*/
-void QAction::setId(int id)
-{
-    d->id = id;
-}
-
-
 
 /* QActionGroup code */
 QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, parent)

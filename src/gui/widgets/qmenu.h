@@ -21,6 +21,9 @@
 #include <qaction.h>
 
 class QMenuPrivate;
+#ifdef QT_COMPAT
+class QMenuItem;
+#endif
 
 class Q_GUI_EXPORT QMenu : public QWidget
 {
@@ -165,13 +168,12 @@ public:
         return actionGeometry(actions().value(index));
     }
     inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
-        return actionAtPos(p, ignoreSeparator)->id();
+        return findIdForAction(actionAtPos(p, ignoreSeparator));
     }
 
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
-        QAction * a = actions().value(index);
-        return a ? a->id() : 0;
+        return findIdForAction(actions().value(index));
     }
     inline QT_COMPAT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
@@ -185,9 +187,11 @@ public:
         QObject::disconnect(findActionForId(id), SIGNAL(triggered()), receiver, member);
         return true;
     }
-    inline QT_COMPAT QAction *findItem(int id) const {
-        return findActionForId(id);
+    inline QT_COMPAT QMenuItem *findItem(int id) const {
+        return (QMenuItem*)findActionForId(id);
     }
+    QT_COMPAT bool setItemParameter(int id, int param);
+    QT_COMPAT int itemParameter(int id) const;
 
     //frame
     QT_COMPAT int frameWidth() const;
@@ -195,8 +199,7 @@ public:
     //popupmenu
     inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, actions().value(indexAtPoint)); }
     inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) {
-        QAction *a = exec(pos, actions().value(indexAtPoint));
-        return a ? a->id() : 0;
+        return findIdForAction(exec(pos, actions().value(indexAtPoint)));
     }
     inline QT_COMPAT int insertTearOffHandle(int = 0, int = 0) {
         setTearOffEnabled(true);
@@ -208,8 +211,8 @@ protected:
     inline QT_COMPAT int itemHeight(int index) {
         return actionGeometry(actions().value(index)).height();
     }
-    inline QT_COMPAT int itemHeight(QAction *act) {
-        return actionGeometry(act).height();
+    inline QT_COMPAT int itemHeight(QMenuItem *mi) {
+        return actionGeometry((QAction*)mi).height();
     }
 
 signals:
@@ -224,6 +227,7 @@ private:
     int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *accel, const QMenu *popup, int id, int index);
     QAction *findActionForId(int id) const;
+    int findIdForAction(QAction*) const;
 #endif
 
 private:

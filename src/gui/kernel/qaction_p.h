@@ -41,8 +41,10 @@ public:
     uint checkable : 1;
     uint checked : 1;
     uint separator : 1;
-    int id;  //used for compat functionality
 
+#ifdef QT_COMPAT
+    int id, param; //for menubar/menu compat
+#endif
     void sendDataChanged();
 };
 

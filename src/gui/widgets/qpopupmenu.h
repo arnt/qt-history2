@@ -23,6 +23,5 @@ class Q_GUI_EXPORT QPopupMenu : public QMenu
 public:
     QPopupMenu(QWidget *parent = 0, const char * =0) : QMenu(parent)  { }
 };
-typedef QAction QMenuItem;
 
 #endif // QPOPUPMENU_H

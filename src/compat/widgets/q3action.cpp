@@ -30,7 +30,7 @@
 #include "qaction.h"
 
 /*!
-    \class Q3Action qaction.h
+    \class Q3Action q3action.h
     \brief The Q3Action class provides an abstract user interface
     action that can appear both in menus and tool bars.
 

@@ -89,6 +89,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qlistbox.cpp \
 	widgets/qlistview.cpp \
 	widgets/qmainwindow.cpp \
+	widgets/qmenudata.cpp \
         widgets/qmenu.cpp \
 	widgets/q3menubar.cpp \
 	widgets/q3menudata.cpp \

@@ -986,6 +986,7 @@ void QMenuBar::setRightWidget(QWidget *w)
 }
 
 #ifdef QT_COMPAT
+#include "qmenudata.h"
 int QMenuBar::frameWidth() const
 {
     return style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this);
@@ -996,7 +997,7 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
 {
     QAction *act = new QAction;
     if(id != -1)
-        act->setId(id);
+        ((QMenuItem*)act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1011,7 +1012,7 @@ int QMenuBar::insertAny(const QIconSet *icon, const QString *text, const QObject
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return act->id();
+    return findIdForAction(act);
 }
 
 int QMenuBar::insertSeparator(int index)
@@ -1022,27 +1023,48 @@ int QMenuBar::insertSeparator(int index)
         addAction(act);
     else
         insertAction(act, actions().value(index+1));
-    return act->id();
+    return findIdForAction(act);
+}
+
+bool QMenuBar::setItemParameter(int id, int param)
+{
+    if(QAction *act = findActionForId(id)) {
+        ((QMenuItem*)act)->setSignalValue(param);
+        return true;
+    }
+    return false;
+}
+
+int QMenuBar::itemParameter(int id) const
+{
+    if(QAction *act = findActionForId(id)) 
+        return ((QMenuItem*)act)->signalValue();
+    return id;
 }
 
 QAction *QMenuBar::findActionForId(int id) const
 {
     QList<QAction *> list = actions();
     for (int i = 0; i < list.size(); ++i) {
-        QAction *a = list.at(i);
-        if (a->id() == id)
-            return a;
+        QAction *act = list.at(i);
+        if (findIdForAction(act) == id)
+            return act;
     }
     return 0;
 }
 
 void QMenuBar::compatActivated(QAction *act)
 {
-    emit activated(act->id());
+    emit activated(findIdForAction(act));
 }
 
 void QMenuBar::compatHighlighted(QAction *act)
 {
-    emit highlighted(act->id());
+    emit highlighted(findIdForAction(act));
+}
+
+int QMenuBar::findIdForAction(QAction *act) const
+{
+    return ((QMenuItem*)act)->id();
 }
 #endif
