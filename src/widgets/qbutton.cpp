@@ -892,7 +892,7 @@ void QButton::nextState()
 /*! \reimp */
 void QButton::enabledChange( bool e )
 {
-    if ( !e )
+    if ( !isEnabled() )
 	setDown( FALSE );
     QWidget::enabledChange( e );
 }
