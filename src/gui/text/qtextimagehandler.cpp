@@ -58,8 +58,8 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
         if (img.isNull() && QTextImageHandler::externalLoader)
             img = QTextImageHandler::externalLoader(name, context);
 
-        if (img.isNull() && !name.isEmpty()) // try direct loading
-            if (!img.load(name))
+        if (img.isNull()) // try direct loading
+            if (name.isEmpty() || !img.load(name))
                 return pm;
 
         QSize size = img.size();
