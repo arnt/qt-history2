@@ -15,6 +15,10 @@
 #ifndef QATOMIC_P_H
 #define QATOMIC_P_H
 
+#ifndef QT_H
+#  include <qglobal.h>
+#endif
+
 extern "C" {
 
 Q_CORE_EXPORT
@@ -26,3 +30,4 @@ void *q_atomic_test_and_set_ptr(void * volatile *ptr, void *expected, void *newv
 } // extern "C"
 
 #endif // QATOMIC_P_H
+
