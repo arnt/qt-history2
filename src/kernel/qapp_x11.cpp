@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#290 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#291 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#290 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#291 $");
 
 
 /*****************************************************************************
@@ -3184,7 +3184,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	QSize oldSize = size();
 	r.setSize( newSize );
 	setCRect( r );
-#ifdef DEFERRED_GEOMETRY
 	if ( isVisible() ) {
 	    cancelResize();
 	    QResizeEvent e( newSize, oldSize );
@@ -3192,21 +3191,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	} else {
 	    deferResize( oldSize );
 	}
-#else
-	if ( isVisible() ) {
-	    QResizeEvent e( newSize, oldSize );
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    QResizeEvent *e = new QResizeEvent( newSize, oldSize );
-	    QApplication::postEvent( this, e );
-	}
-#endif
     }
     if ( newPos != geometry().topLeft() ) {
 	QPoint oldPos = pos();
 	r.moveTopLeft( newPos );
 	setCRect( r );
-#ifdef DEFERRED_GEOMETRY
 	if ( isVisible() ) {
 	    cancelMove();
 	    QMoveEvent e( newPos, oldPos );
@@ -3214,15 +3203,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	} else {
 	    deferMove( oldPos );
 	}
-#else
-	if ( isVisible() ) {
-	    QMoveEvent e( newPos, oldPos );
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    QMoveEvent *e = new QMoveEvent( newPos, oldPos );
-	    QApplication::postEvent( this, e );
-	}
-#endif
     }
     return TRUE;
 }

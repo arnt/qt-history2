@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#98 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#98 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -743,13 +743,11 @@ void QWidget::move( int x, int y )
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     } else {
 	setFRect( QRect(x,y,frect.width(),frect.height()) );
-#ifdef DEFERRED_GEOMETRY
 	if ( !isVisible() ) {
 	    deferMove( oldp );
-	    return;
+	} else {
+	    cancelMove();
 	}
-	cancelMove();
-#endif
 	internalMove( x, y );
     }
 }
@@ -782,13 +780,11 @@ void QWidget::resize( int w, int h )
 	w += frect.width()  - crect.width();
 	h += frect.height() - crect.height();
 	setFRect( QRect(x,y,w,h) );
-#ifdef DEFERRED_GEOMETRY
 	if ( !isVisible() ) {
 	    deferResize( olds );
-	    return;
+	} else {
+	    cancelResize();
 	}
-	cancelResize();
-#endif
 	internalResize( width(), height() );
     }
 }
@@ -822,15 +818,13 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	w += frect.width()  - crect.width();
 	h += frect.height() - crect.height();
 	setFRect( QRect(x,y,w,h) );
-#ifdef DEFERRED_GEOMETRY
 	if ( !isVisible() ) {
 	    deferMove( oldp );
 	    deferResize( olds );
-	    return;
+	} else {
+	    cancelMove();
+	    cancelResize();
 	}
-	cancelMove();
-	cancelResize();
-#endif
 	setWFlags( WConfigPending );
 	internalSetGeometry( x, y, width(), height() );
 	clearWFlags( WConfigPending );
