@@ -95,6 +95,8 @@ void MainWindow::setup()
 {
     if( setupCompleted )
 	return;
+
+    setupCompleted = TRUE;
     helpDock->initialize();
     connect( actionGoPrevious, SIGNAL( activated() ), tabs, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), tabs, SLOT( forward() ) );
@@ -144,7 +146,6 @@ void MainWindow::setup()
     helpDock->tabWidget->setCurrentPage( config->sideBarPage() );
 
     setObjectsEnabled( TRUE );
-    setupCompleted = TRUE;
 }
 
 void MainWindow::setupGoActions( const QStringList & /*docList*/, const QStringList &catList )
@@ -284,10 +285,8 @@ void MainWindow::aboutApplication()
 
 void MainWindow::find()
 {
-    if ( !findDialog ) {
+    if ( !findDialog )
 	findDialog = new FindDialog( this );
-//	findDialog->setBrowser( browser );
-    }
     findDialog->comboFind->setFocus();
     findDialog->comboFind->lineEdit()->setSelection(
         0, findDialog->comboFind->lineEdit()->text().length() );
@@ -448,16 +447,7 @@ void MainWindow::showSettingsDialog( int page )
 
     if ( ret != QDialog::Accepted )
 	return;
-    /*
-    actionGoQt->removeFrom( goMenu );
-    actionGoQt->removeFrom( Toolbar );
-    actionGoDesigner->removeFrom( goMenu );
-    actionGoDesigner->removeFrom( Toolbar );
-    actionGoAssistant->removeFrom( goMenu );
-    actionGoAssistant->removeFrom( Toolbar );
-    actionGoLinguist->removeFrom( goMenu );
-    actionGoLinguist->removeFrom( Toolbar );
-    */
+
     goMenu->removeItemAt( goMenu->count() - 1 );
     QObjectList *lst = (QObjectList*)Toolbar->children();
     QObject *obj;
@@ -537,14 +527,10 @@ void MainWindow::saveToolbarSettings()
     Config::configuration()->setMainWindowLayout( mainWindowLayout );
 }
 
-
-
-
 TabbedBrowser* MainWindow::browsers()
 {
     return tabs;
 }
-
 
 void MainWindow::showSearchLink( const QString &link, const QStringList &terms )
 {
@@ -598,4 +584,9 @@ void MainWindow::showGoActionLink()
 void MainWindow::showAssistantHelp()
 {
     showLink( "assistant.html" );
+}
+
+HelpDialog* MainWindow::helpDialog()
+{
+    return helpDock;
 }

@@ -34,6 +34,8 @@ public:
     void setSource( const QString &name );
     QPopupMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
+    void openLinkInNewWindow( const QString &link );
+    void openLinkInNewPage( const QString &link );
 
 signals:
     void chooseWebBrowser();

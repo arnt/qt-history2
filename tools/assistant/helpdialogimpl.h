@@ -31,8 +31,10 @@
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvalidator.h>
+#include <qpopupmenu.h>
 #include <qdict.h>
 #include <qmime.h>
+#include <qpopupmenu.h>
 
 class QProgressBar;
 class MainWindow;
@@ -115,8 +117,11 @@ signals:
 
 private slots:
     void lastWinClosed();
+    void showResultPage( int page );
     void showResultPage( QListBoxItem *i );
     void setIndexingProgress( int prog );
+    void showItemMenu( QListBoxItem *item, const QPoint &pos );
+    void showItemMenu( QListViewItem *item, const QPoint &pos );
 
 private:
     typedef QValueList<ContentItem> ContentList;
@@ -136,7 +141,7 @@ private:
     QMap<QString, uint> categoryMap;
     bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;
     bool lwClosed;
-    MainWindow *help;    
+    MainWindow *help;
     QString documentationPath;
     Index *fullTextIndex;
     QStringList terms, foundDocs;
@@ -145,6 +150,7 @@ private:
     void getAllContents();
     QDict<ContentList> contentList;
     QMimeSourceFactory *contentFactory;
+    QPopupMenu *itemPopup;
 };
 
 #endif

@@ -188,12 +188,24 @@ void HelpWindow::openLinkInNewWindow()
     shiftPressed = oldShiftPressed;
 }
 
+void HelpWindow::openLinkInNewWindow( const QString &link )
+{
+    lastAnchor = link;
+    openLinkInNewWindow();
+}
+
 void HelpWindow::openLinkInNewPage()
 {
     if( lastAnchor.isEmpty() )
 	return;
     mw->browsers()->newTab( lastAnchor );
     lastAnchor = QString::null;
+}
+
+void HelpWindow::openLinkInNewPage( const QString &link )
+{
+    lastAnchor = link;
+    openLinkInNewPage();
 }
 
 QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )

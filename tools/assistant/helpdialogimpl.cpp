@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Assistant.
 **
@@ -24,6 +24,7 @@
 #include "docuparser.h"
 #include "mainwindow.h"
 #include "config.h"
+#include "tabbedbrowser.h"
 
 #include <qprogressbar.h>
 #include <qfile.h>
@@ -165,6 +166,8 @@ void HelpDialog::initialize()
 	     this, SLOT( showTopic() ) );
     connect( listContents, SIGNAL( returnPressed(QListViewItem*) ),
 	     this, SLOT( showTopic() ) );
+    connect( listContents, SIGNAL( contextMenuRequested( QListViewItem*, const QPoint&, int ) ),
+	     this, SLOT( showItemMenu( QListViewItem*, const QPoint& ) ) );
     connect( editIndex, SIGNAL( returnPressed() ),
 	     this, SLOT( showTopic() ) );
     connect( editIndex, SIGNAL( textChanged(const QString&) ),
@@ -177,6 +180,8 @@ void HelpDialog::initialize()
 	     this, SLOT( showTopic() ) );
     connect( listIndex, SIGNAL( currentChanged(QListBoxItem*) ),
 	     this, SLOT( currentIndexChanged(QListBoxItem*) ) );
+    connect( listIndex, SIGNAL( contextMenuRequested( QListBoxItem*, const QPoint& ) ),
+	     this, SLOT( showItemMenu( QListBoxItem*, const QPoint& ) ) );
     connect( listBookmarks, SIGNAL( clicked(QListViewItem*) ),
 	     this, SLOT( showTopic() ) );
     connect( listBookmarks, SIGNAL( returnPressed(QListViewItem*) ),
@@ -185,6 +190,10 @@ void HelpDialog::initialize()
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
     connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
+    connect( listBookmarks, SIGNAL( contextMenuRequested( QListViewItem*, const QPoint&, int ) ),
+	     this, SLOT( showItemMenu( QListViewItem*, const QPoint& ) ) );
+    connect( resultBox, SIGNAL( contextMenuRequested( QListBoxItem*, const QPoint& ) ),
+	     this, SLOT( showItemMenu( QListBoxItem*, const QPoint& ) ) );
 
     contentFactory = new QMimeSourceFactory();
     contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
@@ -202,6 +211,11 @@ void HelpDialog::initialize()
     connect( qApp, SIGNAL(lastWindowClosed()), SLOT(lastWinClosed()) );
 
     termsEdit->setValidator( new SearchValidator( termsEdit ) );
+
+    itemPopup = new QPopupMenu( this );
+    itemPopup->insertItem( tr( "Open Link in Current Page" ), 0 );
+    itemPopup->insertItem( tr( "Open Link in New Window" ), 1 );
+    itemPopup->insertItem( tr( "Open Link in New Page" ), 2 );
 
     contentList.setAutoDelete( TRUE );
     contentList.clear();
@@ -968,8 +982,9 @@ void HelpDialog::startSearch()
     QString msg( QString( "%1 documents found." ).arg( foundDocs.count() ) );
     help->statusBar()->message( tr( msg ), 3000 );
     resultBox->clear();
-    for ( it = foundDocs.begin(); it != foundDocs.end(); ++it )
-	resultBox->insertItem( fullTextIndex->getDocumentTitle( *it )  );
+    for ( it = foundDocs.begin(); it != foundDocs.end(); ++it ) {
+	resultBox->insertItem( fullTextIndex->getDocumentTitle( *it ) );
+    }
 
     terms.clear();
     bool isPhrase = FALSE;
@@ -1003,4 +1018,136 @@ void HelpDialog::showSearchHelp()
 void HelpDialog::showResultPage( QListBoxItem *i )
 {
     emit showSearchLink( foundDocs[resultBox->index( i )], terms );
+}
+
+void HelpDialog::showItemMenu( QListBoxItem *item, const QPoint &pos )
+{
+    if ( !item )
+	return;
+    int id = itemPopup->exec( pos );
+    if ( id == 0 ) {
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) )
+	    showTopic();
+	else
+	    showResultPage( item );
+    } else if ( id > 0 ) {
+	HelpWindow *hw = help->browsers()->currentBrowser();
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
+	    editIndex->blockSignals( TRUE );
+	    editIndex->setText( item->text() );
+	    editIndex->blockSignals( FALSE );
+
+	    HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
+
+	    QStringList links = hi->links();
+	    if ( links.count() == 1 ) {
+		if ( id == 1 )
+		    hw->openLinkInNewWindow( links.first() );
+		else
+		    hw->openLinkInNewPage( links.first() );
+	    } else {
+		QStringList::Iterator it = links.begin();
+		QStringList linkList;
+		QStringList linkNames;
+		for ( ; it != links.end(); ++it ) {
+		    linkList << *it;
+		    linkNames << titleOfLink( *it );
+		}
+		QString link = TopicChooser::getLink( this, linkNames, linkList, item->text() );
+		if ( !link.isEmpty() ) {
+		    if ( id == 1 )
+			hw->openLinkInNewWindow( link );
+		    else
+			hw->openLinkInNewPage( link );
+		}
+	    }
+	} else {
+	    QString link = foundDocs[ resultBox->index( item ) ];
+	    if ( id == 1 )
+		hw->openLinkInNewWindow( link );
+	    else
+		hw->openLinkInNewPage( link );
+	}
+    }
+}
+
+void HelpDialog::showItemMenu( QListViewItem *item, const QPoint &pos )
+{
+    if ( !item )
+	return;
+    int id = itemPopup->exec( pos );
+    if ( id == 0 ) {
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) )
+	    showContentsTopic();
+	else
+	    showBookmarkTopic();
+    } else if ( id > 0 ) {
+	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
+	QString absPath = "";
+	if ( QFileInfo( i->link() ).isRelative() )
+	    absPath = documentationPath + "/";
+	if ( id == 1 )
+	    help->browsers()->currentBrowser()->openLinkInNewWindow( absPath + i->link() );
+	else
+	    help->browsers()->currentBrowser()->openLinkInNewPage( absPath + i->link() );
+    }
+}
+
+void HelpDialog::showItemMenu( QListBoxItem *item, const QPoint &pos )
+{
+    if ( !item )
+	return;
+    int id = itemPopup->exec( pos );
+    if ( id == 0 ) {
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) )
+	    showTopic();
+	else
+	    showResultPage( item );
+    } else if ( id == 1 ) {
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Index" ) ) ) {
+	    editIndex->blockSignals( TRUE );
+	    editIndex->setText( item->text() );
+	    editIndex->blockSignals( FALSE );
+
+	    HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
+
+	    QStringList links = hi->links();
+	    if ( links.count() == 1 ) {
+		viewer->openLinkInNewWindow( links.first() );
+	    } else {
+		QStringList::Iterator it = links.begin();
+		QStringList linkList;
+		QStringList linkNames;
+		for ( ; it != links.end(); ++it ) {
+		    linkList << *it;
+		    linkNames << titleOfLink( *it );
+		}
+		QString link = TopicChooser::getLink( this, linkNames, linkList, item->text() );
+		if ( !link.isEmpty() )
+		    viewer->openLinkInNewWindow( link );
+	    }
+	} else {
+	    QString link = foundDocs[ resultBox->index( item ) ];
+	    viewer->openLinkInNewWindow( link );
+	}
+    }
+}
+
+void HelpDialog::showItemMenu( QListViewItem *item, const QPoint &pos )
+{
+    if ( !item )
+	return;
+    int id = itemPopup->exec( pos );
+    if ( id == 0 ) {
+	if ( stripAmpersand( tabWidget->tabLabel( tabWidget->currentPage() ) ).contains( tr( "Contents" ) ) )
+	    showContentsTopic();
+	else
+	    showBookmarkTopic();
+    } else if ( id == 1 ) {
+	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
+	QString absPath = "";
+	if ( QFileInfo( i->link() ).isRelative() )
+	    absPath = documentationPath + "/";
+	viewer->openLinkInNewWindow( absPath + i->link() );
+    }
 }
