@@ -163,7 +163,10 @@ static void resolveUsp10()
 	ScriptTextOut = (fScriptTextOut) lib.resolve( "ScriptTextOut" );
 	ScriptBreak = (fScriptBreak) lib.resolve( "ScriptBreak" );
 	ScriptGetProperties = (fScriptGetProperties) lib.resolve( "ScriptGetProperties" );
-	if ( !ScriptFreeCache ) 
+
+	// Using the below features is causing memory corruption,
+	// disable it until Lars comes up with a fix.
+	// if ( !ScriptFreeCache )
 	    return;
 
 	hasUsp10 = TRUE;
@@ -435,7 +438,7 @@ static inline bool isAsian( unsigned short ch )
 // (b) seems to work wrongly when trying to use it with a base level != 0.
 //
 // This function does uses Uniscribe to do the script analysis and creates items from this.
-static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir) 
+static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
 {
     QScriptItemArray &items = engine->items;
     const QChar *text = engine->string.unicode();
