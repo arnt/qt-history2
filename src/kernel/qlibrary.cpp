@@ -671,7 +671,8 @@ QRESULT QLibrary::queryInterface( const QUuid& request, QUnknownInterface** ifac
 	createInstanceInternal();
 
     if( entry )
-	return entry->queryInterface( request, iface );
+	entry->queryInterface( request, iface );
+    //### return value
 }
 
 #endif // QT_NO_COMPONENT
