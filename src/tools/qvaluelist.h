@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#23 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#24 $
 **
 ** Definition of QValueList class
 **
@@ -76,25 +76,25 @@ class Q_EXPORT QValueListIterator
     //T* operator->() const { return &(node->data); }
 
     QValueListIterator<T>& operator++() {
-        node = node->next;
-        return *this;
+	node = node->next;
+	return *this;
     }
 
     QValueListIterator<T> operator++(int) {
-        QValueListIterator<T> tmp = *this;
-        node = node->next;
-        return tmp;
+	QValueListIterator<T> tmp = *this;
+	node = node->next;
+	return tmp;
     }
 
     QValueListIterator<T>& operator--() {
-        node = node->prev;
-        return *this;
+	node = node->prev;
+	return *this;
     }
 
     QValueListIterator<T> operator--(int) {
-        QValueListIterator<T> tmp = *this;
-        node = node->prev;
-        return tmp;
+	QValueListIterator<T> tmp = *this;
+	node = node->prev;
+	return tmp;
     }
 };
 
@@ -128,25 +128,25 @@ class Q_EXPORT QValueListConstIterator
     //const T* operator->() const { return &(node->data); }
 
     QValueListConstIterator<T>& operator++() {
-        node = node->next;
-        return *this;
+	node = node->next;
+	return *this;
     }
 
     QValueListConstIterator<T> operator++(int) {
-        QValueListConstIterator<T> tmp = *this;
-        node = node->next;
-        return tmp;
+	QValueListConstIterator<T> tmp = *this;
+	node = node->next;
+	return tmp;
     }
 
     QValueListConstIterator<T>& operator--() {
-        node = node->prev;
-        return *this;
+	node = node->prev;
+	return *this;
     }
 
     QValueListConstIterator<T> operator--(int) {
-        QValueListConstIterator<T> tmp = *this;
-        node = node->prev;
-        return tmp;
+	QValueListConstIterator<T> tmp = *this;
+	node = node->prev;
+	return tmp;
     }
 };
 
@@ -167,109 +167,115 @@ public:
      */
     QValueListPrivate() { node = new Node; node->next = node->prev = node; nodes = 0; }
     QValueListPrivate( const QValueListPrivate& _p ) : QShared() {
-        node = new Node; node->next = node->prev = node; nodes = 0;
-        Iterator b( _p.node->next );
-        Iterator e( _p.node );
-        Iterator i( node );
-        while( b != e )
-            insert( i, *b++ );
+	node = new Node; node->next = node->prev = node; nodes = 0;
+	Iterator b( _p.node->next );
+	Iterator e( _p.node );
+	Iterator i( node );
+	while( b != e )
+	    insert( i, *b++ );
+    }
+
+    void derefAndDelete() // ### hack to get around hp-cc brain damage
+    {
+	if ( deref() )
+	    delete this;
     }
 
     ~QValueListPrivate() {
-        NodePtr p = node->next;
-        while( p != node ) {
-            NodePtr x = p->next;
-            delete p;
-            p = x;
-        }
-        delete node;
+	NodePtr p = node->next;
+	while( p != node ) {
+	    NodePtr x = p->next;
+	    delete p;
+	    p = x;
+	}
+	delete node;
     }
 
     Iterator insert( Iterator it, const T& x ) {
-        NodePtr p = new Node( x );
-        p->next = it.node;
-        p->prev = it.node->prev;
-        it.node->prev->next = p;
-        it.node->prev = p;
-        nodes++;
-        return p;
+	NodePtr p = new Node( x );
+	p->next = it.node;
+	p->prev = it.node->prev;
+	it.node->prev->next = p;
+	it.node->prev = p;
+	nodes++;
+	return p;
     }
 
     Iterator remove( Iterator it ) {
-        ASSERT ( it.node != node );
-        NodePtr next = it.node->next;
-        NodePtr prev = it.node->prev;
-        prev->next = next;
-        next->prev = prev;
-        delete it.node;
-        nodes--;
-        return Iterator( next );
+	ASSERT ( it.node != node );
+	NodePtr next = it.node->next;
+	NodePtr prev = it.node->prev;
+	prev->next = next;
+	next->prev = prev;
+	delete it.node;
+	nodes--;
+	return Iterator( next );
     }
 
     NodePtr find( NodePtr start, const T& x ) const {
-        ConstIterator first( start );
-        ConstIterator last( node );
-        while( first != last) {
-            if ( *first == x )
-                return first.node;
-            ++first;
-        }
-        return last.node;
+	ConstIterator first( start );
+	ConstIterator last( node );
+	while( first != last) {
+	    if ( *first == x )
+		return first.node;
+	    ++first;
+	}
+	return last.node;
     }
 
     int findIndex( NodePtr start, const T& x ) const {
-        ConstIterator first( start );
-        ConstIterator last( node );
-        int pos = 0;
-        while( first != last) {
-            if ( *first == x )
-                return pos;
-            ++first;
-            ++pos;
-        }
-        return -1;
+	ConstIterator first( start );
+	ConstIterator last( node );
+	int pos = 0;
+	while( first != last) {
+	    if ( *first == x )
+		return pos;
+	    ++first;
+	    ++pos;
+	}
+	return -1;
     }
 
     uint contains( const T& x ) const {
-        uint result = 0;
-        Iterator first = Iterator( node->next );
-        Iterator last = Iterator( node );
-        while( first != last) {
-            if ( *first == x )
-                ++result;
-            ++first;
-        }
-        return result;
+	uint result = 0;
+	Iterator first = Iterator( node->next );
+	Iterator last = Iterator( node );
+	while( first != last) {
+	    if ( *first == x )
+		++result;
+	    ++first;
+	}
+	return result;
     }
 
     void remove( const T& x ) {
-        Iterator first = Iterator( node->next );
-        Iterator last = Iterator( node );
-        while( first != last) {
-            if ( *first == x )
-                first = remove( first );
-            else
-                ++first;
-        }
+	Iterator first = Iterator( node->next );
+	Iterator last = Iterator( node );
+	while( first != last) {
+	    if ( *first == x )
+		first = remove( first );
+	    else
+		++first;
+	}
     }
 
     NodePtr at( uint i ) const {
-        ASSERT( i <= nodes );
-        NodePtr p = node->next;
-        for( uint x = 0; x < i; ++x )
-            p = p->next;
-        return p;
+	ASSERT( i <= nodes );
+	NodePtr p = node->next;
+	for( uint x = 0; x < i; ++x )
+	    p = p->next;
+	return p;
     }
 
     void clear() {
-        nodes = 0;
-        NodePtr p = node->next;
-        while( p != node ) {
-            NodePtr next = p->next;
-            delete p;
-            p = next;
-        }
-        node->next = node->prev = node;
+	nodes = 0;
+	NodePtr p = node->next;
+	while( p != node ) {
+	    NodePtr next = p->next;
+	    delete p;
+	    p = next;
+	}
+	node->next = node->prev = node;
     }
 
     NodePtr node;
@@ -296,37 +302,37 @@ public:
 
     QValueList<T>& operator= ( const QValueList<T>& l )
     {
-        if ( sh->deref() ) delete sh;
-        sh = l.sh;
-        sh->ref();
-        return *this;
+	sh->derefAndDelete();
+	sh = l.sh;
+	sh->ref();
+	return *this;
     }
 
     QValueList<T> operator+ ( const QValueList<T>& l ) const
     {
-        QValueList<T> l2( *this );
-        for( ConstIterator it = l.begin(); it != l.end(); ++it )
-            l2.append( *it );
-        return l2;
+	QValueList<T> l2( *this );
+	for( ConstIterator it = l.begin(); it != l.end(); ++it )
+	    l2.append( *it );
+	return l2;
     }
 
     QValueList<T>& operator+= ( const QValueList<T>& l )
     {
-        for( ConstIterator it = l.begin(); it != l.end(); ++it )
-            append( *it );
-        return *this;
+	for( ConstIterator it = l.begin(); it != l.end(); ++it )
+	    append( *it );
+	return *this;
     }
 
     bool operator== ( const QValueList<T>& l ) const
     {
-        if ( count() != l.count() )
-            return FALSE;
-        ConstIterator it2 = begin();
-        ConstIterator it = l.begin();
-        for( ; it != l.end(); ++it, ++it2 )
-            if ( !( *it == *it2 ) )
-                return FALSE;
-        return TRUE;
+	if ( count() != l.count() )
+	    return FALSE;
+	ConstIterator it2 = begin();
+	ConstIterator it = l.begin();
+	for( ; it != l.end(); ++it, ++it2 )
+	    if ( !( *it == *it2 ) )
+		return FALSE;
+	return TRUE;
     }
 
     bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
@@ -371,13 +377,13 @@ public:
 
     QValueList<T>& operator+= ( const T& x )
     {
-        append( x );
-        return *this;
+	append( x );
+	return *this;
     }
     QValueList<T>& operator<< ( const T& x )
     {
-        append( x );
-        return *this;
+	append( x );
+	return *this;
     }
 
 
@@ -401,9 +407,9 @@ QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
     s >> c;
     for( uint i = 0; i < c; ++i )
     {
-        T t;
-        s >> t;
-        l.append( t );
+	T t;
+	s >> t;
+	l.append( t );
     }
     return s;
 }
@@ -414,7 +420,7 @@ QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
     s << l.count();
     QValueList<T>::ConstIterator it = l.begin();
     for( ; it != l.end(); ++it )
-        s << *it;
+	s << *it;
     return s;
 }
 
