@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#213 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#214 $
 **
 ** Implementation of QListBox widget class
 **
@@ -47,6 +47,7 @@ public:
 	numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
 	mousePressRow( -1 ), mousePressColumn( -1 ),
+	mouseMoveRow( -1 ), mouseMoveColumn( -1 ),
 	scrollTimer( 0 ), updateTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 )
@@ -73,6 +74,8 @@ public:
     int currentColumn;
     int mousePressRow;
     int mousePressColumn;
+    int mouseMoveRow;
+    int mouseMoveColumn;
 
     QTimer * scrollTimer;
     QTimer * updateTimer;
@@ -939,7 +942,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 
 
 /*!  Returns a pointer to the item at position \a index, or 0 if \a
-index is out of bounds. \sa
+index is out of bounds. \sa index()
 */
 
 QListBoxItem *QListBox::item( int index ) const
@@ -1083,7 +1086,9 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	x = 0;
 	dx = -1;
     }
-    int col = columnAt( x + contentsX() );
+    d->mouseMoveColumn = columnAt( x + contentsX() );
+    if ( d->mouseMoveColumn < 0 )
+	d->mouseMoveColumn = dx >= 0 ? numColumns()-1 : 0;
 
     int dy = 0;
     int y = e->y();
@@ -1094,20 +1099,40 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	y = 0;
 	dy = -1;
     }
-    d->scrollPos = QPoint( dx, dy );
-    int row = rowAt( y + contentsY() );
+    d->mouseMoveRow = rowAt( y + contentsY() );
+    if ( d->mouseMoveRow < 0 )
+	d->mouseMoveRow = dy >= 0 ? numRows()-1 : 0;
 
-    if ( col >= 0 && row >= 0 &&
+    d->scrollPos = QPoint( dx, dy );
+
+    if ( ( dx || dy ) && !d->scrollTimer ) {
+	d->scrollTimer = new QTimer( this );
+	connect( d->scrollTimer, SIGNAL(timeout()),
+		 this, SLOT(doAutoScroll()) );
+	d->scrollTimer->start( 100, FALSE );
+	doAutoScroll();
+    } else {
+	updateSelection();
+    }
+
+}
+
+
+
+void QListBox::updateSelection()
+{
+    if ( d->mouseMoveColumn >= 0 && d->mouseMoveRow >= 0 &&
 	 d->mousePressColumn >= 0 && d->mousePressRow >= 0 ) {
-	QListBoxItem * i = item( col * numRows() + row );
+	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
+				 d->mouseMoveRow );
 	if ( selectionMode() == Single ) {
 	    if ( i )
 		setSelected( i, TRUE );
 	} else {
-	    int c = QMIN( col, d->mousePressColumn );
-	    int r = QMIN( row, d->mousePressRow );
-	    int c2 = QMAX( col, d->mousePressColumn );
-	    int r2 = QMAX( row, d->mousePressRow );
+	    int c = QMIN( d->mouseMoveColumn, d->mousePressColumn );
+	    int r = QMIN( d->mouseMoveRow, d->mousePressRow );
+	    int c2 = QMAX( d->mouseMoveColumn, d->mousePressColumn );
+	    int r2 = QMAX( d->mouseMoveRow, d->mousePressRow );
 	    while( c < c2 ) {
 		QListBoxItem * i = item( c*numRows()+r );
 		while( i && r < r2 ) {
@@ -1121,10 +1146,7 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	if ( i )
 	    setCurrentItem( i );
     }
-
-
 }
-
 
 /*!
   Handles key press events.
@@ -2012,34 +2034,53 @@ void QListBox::ensureCurrentVisible()
 
 /*! \internal */
 
-void QListBox::autoScroll()
+void QListBox::doAutoScroll()
 {
-    debug( "as" );
     if ( d->scrollPos.x() < 0 ) {
 	// scroll left
 	int x = contentsX() - horizontalScrollBar()->lineStep();
 	if ( x < 0 )
 	    x = 0;
-	setContentsPos( x, contentsY() );
-    } else if ( d->scrollPos.x() >= viewport()->width() ) {
-	// scroll left
+	if ( x != contentsX() ) {
+	    d->mouseMoveColumn = columnAt( x );
+	    updateSelection();
+	    setContentsPos( x, contentsY() );
+	}
+    } else if ( d->scrollPos.x() > 0 ) {
+	// scroll right
 	int x = contentsX() + horizontalScrollBar()->lineStep();
 	if ( x + viewport()->width() > contentsWidth() )
 	    x = contentsWidth() - viewport()->width();
-	setContentsPos( x, contentsY() );
-    } else if ( d->scrollPos.y() < 0 ) {
+	if ( x != contentsX() ) {
+	    d->mouseMoveColumn = columnAt( x + viewport()->width() - 1 );
+	    updateSelection();
+	    setContentsPos( x, contentsY() );
+	}
+    }
+
+    if ( d->scrollPos.y() < 0 ) {
 	// scroll up
 	int y = contentsY() - verticalScrollBar()->lineStep();
 	if ( y < 0 )
 	    y = 0;
-	setContentsPos( contentsX(), y );
-    } else if ( d->scrollPos.y() >= viewport()->height() ) {
+	if ( y != contentsY() ) {
+	    d->mouseMoveRow = rowAt( y );
+	    updateSelection();
+	    setContentsPos( contentsX(), y );
+	}
+    } else if ( d->scrollPos.y() > 0 ) {
 	// scroll down
 	int y = contentsY() + verticalScrollBar()->lineStep();
 	if ( y + viewport()->height() > contentsHeight() )
 	    y = contentsHeight() - viewport()->height();
-	setContentsPos( contentsX(), y );
-    } else {
+	if ( y != contentsY() ) {
+	    d->mouseMoveRow = rowAt( y + viewport()->height() - 1 );
+	    updateSelection();
+	    setContentsPos( contentsX(), y );
+	}
+    }
+
+    if ( d->scrollPos == QPoint( 0, 0 ) ) {
 	delete d->scrollTimer;
 	d->scrollTimer = 0;
     }
@@ -2338,4 +2379,17 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     if ( d->current == i && hasFocus() )
 	style().drawFocusRect( p, QRect( 1, 1, cw-2, ch-2 ),
 			       g, &g.highlight(), TRUE );
+}
+
+
+long QListBox::maxItemWidth() const
+{
+    if ( d->layoutDirty )
+	doLayout();
+    long m = 0;
+    int i = d->columnPos.size()-1;
+    while( i-- )
+	if ( m < d->columnPos[i] )
+	    m = d->columnPos[i];
+    return m;
 }
