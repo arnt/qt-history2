@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#23 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -419,11 +419,13 @@ void QDragManager::move( const QPoint & globalPos )
 	return;
     }
 
-    if ( target == 0 )
-	target = qt_xrootwin();
-    else
+    if ( target != 0 )
 	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
 
+    if ( target == 0 )
+	target = qt_xrootwin();
+
+    
     QWidget * w = QWidget::find( (WId)target );
 
     if ( target != qt_xdnd_current_target ) {
