@@ -35,7 +35,7 @@ protected:
     bool            isActive() const;
     const QSqlDriver* driver() const {return sqldriver;}
     virtual QVariant data( int i ) = 0;
-    virtual bool    isNull( int i ) const = 0;
+    virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
     virtual bool    fetch( int i ) = 0;
     virtual bool    fetchNext();
@@ -43,8 +43,8 @@ protected:
     virtual bool    fetchFirst() = 0;
     virtual bool    fetchLast() = 0;
     virtual QSqlFieldList   fields() = 0;
-    virtual int             size() const = 0;
-    virtual int             affectedRows() const = 0;
+    virtual int             size() = 0;
+    virtual int             affectedRows() = 0;
 private:
     const QSqlDriver*   sqldriver;
     int             idx;
