@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#60 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#59 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#60 $")
 
 
 /*----------------------------------------------------------------------------
@@ -513,9 +513,11 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	    p->setPen( isDown() ? white : g.text() );
 	    break;
 	case Win3Style:
-	    dt = 1;
+	    dt = 2;
+	    break;
 	case WindowsStyle:
-	    dt++;
+	    dt = 1;
+	    break;
 	case PMStyle:
 	case MotifStyle:
 	    p->setPen( g.text() );
