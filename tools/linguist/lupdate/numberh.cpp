@@ -92,12 +92,12 @@ static QString translationAttempt( const QString& oldTranslation,
     int pass;
 
     /*
-      This algorithm is hard to follow, so we'll consider an example all along:
-      oldTranslation is "XeT 3.0", oldSource is "TeX 3.0" and newSource is
-      "XeT 3.1".
+      This algorithm is hard to follow, so we'll consider an example
+      all along: oldTranslation is "XeT 3.0", oldSource is "TeX 3.0"
+      and newSource is "XeT 3.1".
 
-      First, we set up two tables: oldNumbers and newNumbers.  In our example,
-      oldNumber[0] is "3.0" and newNumber[0] is "3.1".
+      First, we set up two tables: oldNumbers and newNumbers. In our
+      example, oldNumber[0] is "3.0" and newNumber[0] is "3.1".
     */
     for ( i = 0, j = 0; i < oldSourceLen; i++, j++ ) {
 	m = numberLength( oldSource + i );
@@ -114,10 +114,10 @@ static QString translationAttempt( const QString& oldTranslation,
     }
 
     /*
-      We now go over the old translation, "XeT 3.0", one letter at a time,
-      looking for numbers found in oldNumbers.  Whenever such a number is met,
-      it is replaced with its newNumber equivalent.  In our example, the "3.0"
-      of "XeT 3.0" becomes "3.1".
+      We now go over the old translation, "XeT 3.0", one letter at a
+      time, looking for numbers found in oldNumbers. Whenever such a
+      number is met, it is replaced with its newNumber equivalent. In
+      our example, the "3.0" of "XeT 3.0" becomes "3.1".
     */
     for ( i = 0; i < (int) oldTranslation.length(); i++ ) {
 	attempt += oldTranslation[i];
@@ -129,10 +129,11 @@ static QString translationAttempt( const QString& oldTranslation,
 	}
 
 	/*
-	  Let's find out if the last character ended a match.  We make two
-	  passes over the data.  In the first pass, we try to match only
-	  numbers that weren't matched yet; if that fails, the second pass does
-	  the trick.  This is useful in some suspicious cases, flagged below.
+	  Let's find out if the last character ended a match. We make
+	  two passes over the data. In the first pass, we try to
+	  match only numbers that weren't matched yet; if that fails,
+	  the second pass does the trick. This is useful in some
+	  suspicious cases, flagged below.
 	*/
 	for ( pass = 0; pass < 2; pass++ ) {
 	    best = p; // an impossible value
@@ -158,11 +159,12 @@ static QString translationAttempt( const QString& oldTranslation,
     }
 
     /*
-      We flag two kinds of suspicious cases.  They are identified as such with
-      comments such as "{2000?}" at the end.
+      We flag two kinds of suspicious cases. They are identified as
+      such with comments such as "{2000?}" at the end.
 
-      Example of the first kind: old source text "TeX 3.0" translated as
-      "XeT 2.0" is flagged "TeX 2.0 {3.0?}", no matter what the new text is.
+      Example of the first kind: old source text "TeX 3.0" translated
+      as "XeT 2.0" is flagged "TeX 2.0 {3.0?}", no matter what the
+      new text is.
     */
     for ( k = 0; k < p; k++ ) {
 	if ( !met[k] )
@@ -170,9 +172,9 @@ static QString translationAttempt( const QString& oldTranslation,
     }
 
     /*
-      Example of the second kind: "1 of 1" translated as "1 af 1", with new
-      source text "1 of 2", generates "1 af 2 {1 or 2?}" because it's not clear
-      which of "1 af 2" and "2 af 1" is right.
+      Example of the second kind: "1 of 1" translated as "1 af 1",
+      with new source text "1 of 2", generates "1 af 2 {1 or 2?}"
+      because it's not clear which of "1 af 2" and "2 af 1" is right.
     */
     for ( k = 0; k < p; k++ ) {
 	for ( ell = 0; ell < p; ell++ ) {
@@ -186,13 +188,13 @@ static QString translationAttempt( const QString& oldTranslation,
 }
 
 /*
-  Augments a MetaTranslator with translations easily derived from similar
-  existing (probably obsolete) translations.
+  Augments a MetaTranslator with translations easily derived from
+  similar existing (probably obsolete) translations.
 
-  For example, if "TeX 3.0" is translated as "XeT 3.0" and "TeX 3.1" has no
-  translation, "XeT 3.1" is added to the translator and is marked Unfinished.
+  For example, if "TeX 3.0" is translated as "XeT 3.0" and "TeX 3.1"
+  has no translation, "XeT 3.1" is added to the translator and is
+  marked Unfinished.
 */
-
 void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
 {
     TMM translated, untranslated;
@@ -213,7 +215,7 @@ void applyNumberHeuristic( MetaTranslator *tor, bool verbose )
     for ( u = untranslated.begin(); u != untranslated.end(); ++u ) {
 	t = translated.find( u.key() );
 	if ( t != translated.end() && !t.key().isEmpty() &&
-	    qstrcmp((*t).sourceText(), (*u).sourceText()) != 0 ) {
+	     qstrcmp((*t).sourceText(), (*u).sourceText()) != 0 ) {
 	    MetaTranslatorMessage m( *u );
 	    m.setTranslation( translationAttempt((*t).translation(),
 						 (*t).sourceText(),

@@ -49,10 +49,10 @@ static const char MagicComment[] = "TRANSLATOR ";
   Notice that the 0 doesn't produce any token.
 */
 
-enum { Tok_Eof, Tok_class, Tok_namespace, Tok_tr, Tok_trUtf8,
-       Tok_translate, Tok_Ident, Tok_Comment, Tok_String,
+enum { Tok_Eof, Tok_class, Tok_false, Tok_namespace, Tok_tr, Tok_trUtf8,
+       Tok_translate, Tok_true, Tok_Ident, Tok_Comment, Tok_String, Tok_Colon,
        Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_TRUE, Tok_FALSE };
+       Tok_RightParen, Tok_Comma, Tok_Semicolon };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -133,7 +133,7 @@ static int getToken()
 	    switch ( yyIdent[0] ) {
 	    case 'F':
 		if ( qstricmp(yyIdent + 1, "alse") == 0 )
-		    return Tok_FALSE;
+		    return Tok_false;
 		break;
 	    case 'Q':
 		if ( qstrcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
@@ -146,7 +146,7 @@ static int getToken()
 		    // TR() for when all else fails
 		    return Tok_tr;
 		} else if ( qstricmp(yyIdent + 1, "RUE") == 0 ) {
-		    return Tok_TRUE;
+		    return Tok_true;
 		}
 		break;
 	    case 'c':
@@ -155,7 +155,7 @@ static int getToken()
 		break;
 	    case 'f':
 		if ( qstrcmp(yyIdent + 1, "alse") == 0 )
-		    return Tok_FALSE;
+		    return Tok_false;
 		break;
 	    case 'n':
 		if ( qstrcmp(yyIdent + 1, "amespace") == 0 )
@@ -173,7 +173,7 @@ static int getToken()
 		else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 )
 		    return Tok_translate;
 		else if ( qstrcmp(yyIdent + 1, "rue") == 0 )
-		    return Tok_TRUE;
+		    return Tok_true;
 	    }
 	    return Tok_Ident;
 	} else {
@@ -273,7 +273,7 @@ static int getToken()
 		    yyCh = getChar();
 		    return Tok_Gulbrandsen;
 		}
-		break;
+		return Tok_Colon;
 	    case '\'':
 		yyCh = getChar();
 		if ( yyCh == '\\' )
@@ -347,8 +347,8 @@ static bool matchString( QCString *s )
 
 static bool matchBool( bool *b )
 {
-    bool matches = ( yyTok == Tok_TRUE || yyTok == Tok_FALSE );
-    *b = ( yyTok == Tok_TRUE );
+    bool matches = ( yyTok == Tok_true || yyTok == Tok_false );
+    *b = ( yyTok == Tok_true );
     yyTok = getToken();
     return matches;
 }
@@ -375,8 +375,24 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    yyTok = getToken();
 	    if ( yyBraceDepth == (int) namespaces.count() &&
 		 yyParenDepth == 0 ) {
-		functionContext = yyIdent;
-		yyTok = getToken();
+		do {
+		    /*
+		      This code should execute only once, but we play
+		      safe with impure definitions such as
+		      'class Q_EXPORT QMessageBox', in which case
+		      'QMessageBox' is the class name, not 'Q_EXPORT'.
+
+		      Incidentally, the token Tok_Colon is necessary
+		      for this code to work, even though it is not
+		      used explicitly. Otherwise,
+		      'class Foo : public Bar' would be tokenized as
+		      'class Foo Bar' and functionContext would be set
+		      to 'Bar', not 'Foo'.
+		    */
+		    functionContext = yyIdent;
+		    yyTok = getToken();
+		} while ( yyTok == Tok_Ident );
+
 		while ( yyTok == Tok_Gulbrandsen ) {
 		    yyTok = getToken();
 		    functionContext += "::";
