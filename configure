@@ -949,7 +949,7 @@ for a in $QMAKE_PROJECTS ; do
 	fi
     fi
 
-    echo -n "  Creating $a"
+    echo -n "  for $a"
     if [ "$VERBOSE" = "yes" ]; then
 	echo " (`basename $CONF`)"
 	echo -n $EXEC
