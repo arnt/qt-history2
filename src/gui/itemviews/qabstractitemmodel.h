@@ -180,6 +180,15 @@ public:
     virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
                                int count = 1);
 
+    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex::Null)
+    { return insertRows(row, parent, 1); }
+    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex::Null)
+    { return insertColumns(column, parent, 1); }
+    inline bool removeRow(int row, const QModelIndex &parent = QModelIndex::Null)
+    { return removeRows(row, parent, 1); }
+    inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex::Null)
+    { return removeColumns(column, parent, 1); }
+
     virtual void fetchMore(const QModelIndex &parent);
 
     virtual ItemFlags flags(const QModelIndex &index) const;
