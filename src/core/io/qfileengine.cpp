@@ -689,8 +689,6 @@ QFSFileEngine::open(int flags)
         if ((st.st_mode & S_IFMT) != S_IFREG) {
             d->sequential = 1;
         } else {
-            struct stat st;
-            ::fstat(d->fd, &st);
             char char_read;
             if(!st.st_size && read(&char_read, 1) == 1) {
                 d->ungetchBuffer += char_read;
