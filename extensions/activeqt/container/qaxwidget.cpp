@@ -129,6 +129,7 @@ class QAxHostWidget : public QWidget
     friend class QAxClientSite;
 public:
     QAxHostWidget(QWidget *parent, QAxClientSite *ax);
+    ~QAxHostWidget();
     
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -154,14 +155,6 @@ private:
     QAxClientSite *axhost;
 };
 
-QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
-: QWidget(parent), setFocusTimer(0), hasFocus(false), axhost(ax)
-{
-    setAttribute(Qt::WA_NoSystemBackground);
-    setObjectName("QAxHostWidget");
-}
-
-
 /*  \class QAxClientSite qaxwidget.cpp
     \brief The QAxClientSite class implements the client site interfaces.
 \if defined(commercial)
@@ -179,7 +172,6 @@ class QAxClientSite : public IDispatch,
                     public IAdviseSink
 {
     friend class QAxHostWidget;
-    friend class QAxWidget;
 public:
     QAxClientSite(QAxWidget *c);
     virtual ~QAxClientSite();
@@ -188,11 +180,15 @@ public:
 
     void releaseAll();
     void deactivate();
-    QWidget *hostWidget() const
+    inline void reset(QWidget *p)
     {
-        return host;
+        if (widget == p)
+            widget = 0;
+        else if (host == p)
+            host = 0;
     }
-    IOleInPlaceActiveObject *inPlaceObject() const
+
+    inline IOleInPlaceActiveObject *inPlaceObject() const
     {
         return m_spInPlaceActiveObject;
     }
@@ -363,7 +359,8 @@ public:
     
     QSize sizeHint() const { return sizehint; }
     QSize minimumSizeHint() const;
-    
+    inline void resize(QSize sz) { if (host) host->resize(sz); }
+
     bool translateKeyEvent(int message, int keycode) const
     {
         if (!widget)
@@ -372,8 +369,6 @@ public:
     }
     
     int qt_metacall(QMetaObject::Call, int isignal, void **argv);
-    
-protected:
     void windowActivationChange();
     
 private:
@@ -405,7 +400,7 @@ private:
     QSize sizehint;
     unsigned long ref;
     QAxWidget *widget;
-    QPointer<QAxHostWidget> host;
+    QAxHostWidget *host;
     QPointer<QMenuBar> menuBar;
     QMap<QAction*,OleMenuItem> menuItemMap;
 };
@@ -596,6 +591,15 @@ bool QAxClientSite::activateObject(bool initialized)
         }
     }
 
+    host->resize(widget->size());
+    if (!host->isHidden())
+        host->show();
+    
+    if (host->focusPolicy() != Qt::NoFocus) {
+        widget->setFocusProxy(host);
+        widget->setFocusPolicy(host->focusPolicy());
+    }
+
     return true;
 }
 
@@ -706,13 +710,15 @@ HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
 {
     if (!pVarResult)
         return E_POINTER;
+    if (!widget || !host)
+        return E_UNEXPECTED;
     
     switch(dispIdMember) {
     case DISPID_AMBIENT_USERMODE:
 #if defined(QT_PLUGIN)
         pVarResult->vt = VT_BOOL;
-        if (runsInDesignMode && hostWidget()) {
-            bool isPreview = !hostWidget()->topLevelWidget()->inherits("MainWindow");
+        if (runsInDesignMode) {
+            bool isPreview = !host->topLevelWidget()->inherits("MainWindow");
             pVarResult->boolVal = isPreview;
         } else {
             pVarResult->boolVal = true;
@@ -843,9 +849,9 @@ HRESULT WINAPI QAxClientSite::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* 
 HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, DWORD /*grfModifiers*/)
 {
     QT_WA_INLINE(
-        SendMessage(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam),
-        SendMessageA(hostWidget()->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam)
-        );
+        SendMessage(host->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam),
+        SendMessageA(host->winId(), lpMsg->message, lpMsg->wParam, lpMsg->lParam)
+    );
     return S_OK;
 }
 
@@ -933,7 +939,7 @@ HRESULT WINAPI QAxClientSite::GetWindowContext(IOleInPlaceFrame **ppFrame, IOleI
     lpFrameInfo->fMDIApp = false;
     lpFrameInfo->haccel = 0;
     lpFrameInfo->cAccelEntries = 0;
-    lpFrameInfo->hwndFrame = widget->topLevelWidget()->winId();
+    lpFrameInfo->hwndFrame = widget ? widget->topLevelWidget()->winId() : 0;
     
     return S_OK;
 }
@@ -1326,7 +1332,7 @@ HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveOb
 {
     AX_DEBUG(QAxClientSite::SetActiveObject);
 
-    if (pszObjName)
+    if (pszObjName && widget)
         widget->setWindowTitle(QString::fromUtf16((BSTR)pszObjName));
     
     if (m_spInPlaceActiveObject)
@@ -1395,7 +1401,7 @@ void QAxClientSite::windowActivationChange()
 {
     AX_DEBUG(QAxClientSite::windowActivationChange);
 
-    if (m_spInPlaceActiveObject) {
+    if (m_spInPlaceActiveObject && widget) {
         QWidget *modal = QApplication::activeModalWidget();
         if (modal && inPlaceModelessEnabled) {
             m_spInPlaceActiveObject->EnableModeless(false);
@@ -1410,6 +1416,19 @@ void QAxClientSite::windowActivationChange()
 
 
 //**** QWidget
+
+QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
+: QWidget(parent), setFocusTimer(0), hasFocus(false), axhost(ax)
+{
+    setAttribute(Qt::WA_NoSystemBackground);
+    setObjectName("QAxHostWidget");
+}
+
+QAxHostWidget::~QAxHostWidget()
+{
+    axhost->reset(this);
+}
+
 
 int QAxHostWidget::qt_metacall(QMetaObject::Call call, int isignal, void **argv)
 {
@@ -1659,7 +1678,7 @@ QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WFlags f)
 QAxWidget::~QAxWidget()
 {
     if (container)
-        container->widget = 0;
+        container->reset(this);
     clear();
 }
 
@@ -1699,17 +1718,9 @@ bool QAxWidget::createHostWindow(bool initialized)
         previous_filter = QAbstractEventDispatcher::instance()->setEventFilter(axc_FilterProc);
     ++filter_ref;
 
-    container->hostWidget()->resize(size());
-    if (!container->hostWidget()->isHidden())
-        container->hostWidget()->show();
-    
-    if (container->hostWidget()->focusPolicy() != Qt::NoFocus) {
-        setFocusProxy(container->hostWidget());
-        setFocusPolicy(container->hostWidget()->focusPolicy());
-    }
     if (parentWidget())
         QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
-    
+
     return true;
 }
 
@@ -1868,8 +1879,8 @@ void QAxWidget::changeEvent(QEvent *e)
 */
 void QAxWidget::resizeEvent(QResizeEvent *e)
 {
-    if (container && container->hostWidget())
-        container->hostWidget()->resize(size());
+    if (container)
+        container->resize(size());
     
     QWidget::resizeEvent(e);
 }
