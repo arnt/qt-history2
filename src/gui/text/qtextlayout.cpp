@@ -375,6 +375,23 @@ QTextLine QTextLayout::findLine(int pos) const
     return QTextLine();
 }
 
+/*!
+  The global position of the layout. Independent of the bounding rect and
+  layouting process.
+
+  This can be used to move the whole layout to a different place.
+*/
+QPoint QTextLayout::position() const
+{
+    return d->position;
+}
+
+void QTextLayout::setPosition(const QPoint &p)
+{
+    d->position = p;
+}
+
+
 QRect QTextLayout::boundingRect() const
 {
     if (!d->boundingRect.isValid()) {
@@ -392,6 +409,13 @@ QRect QTextLayout::boundingRect() const
         d->boundingRect = QRect(xmin.toInt(), ymin.toInt(), (xmax-xmin).toInt(), (ymax-ymin).toInt());
     }
     return d->boundingRect;
+}
+
+QRect QTextLayout::rect() const
+{
+    QRect r = boundingRect();
+    r.moveBy(d->position);
+    return r;
 }
 
 int QTextLayout::minimumWidth() const
@@ -449,6 +473,8 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         clipe = clipy + cr.height();
     }
 
+    QPoint position = pos + d->position;
+
     for (int i = 0; i < d->lines.size(); i++) {
         QTextLine l(i, d);
         const QScriptLine &sl = d->lines[i];
@@ -459,7 +485,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         int from = sl.from;
         int length = sl.length;
 
-        l.draw(p, pos.x(), pos.y());
+        l.draw(p, position.x(), position.y());
         if (selections) {
             for (int j = 0; j < nSelections; ++j) {
                 const Selection &s = selections[j];
@@ -469,17 +495,17 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                     continue;
 
                 if (s.from() + s.length() > from && s.from() < from+length) {
-                    QRect highlight = QRect(QPoint(pos.x() + l.cursorToX(qMax(s.from(), from)),
-                                                   pos.y() + sl.y.toInt()),
-                                            QPoint(pos.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
-                                                   pos.y() + (sl.y + sl.ascent + sl.descent).toInt())).normalize();
-                    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, pos, j);
+                    QRect highlight = QRect(QPoint(position.x() + l.cursorToX(qMax(s.from(), from)),
+                                                   position.y() + sl.y.toInt()),
+                                            QPoint(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
+                                                   position.y() + (sl.y + sl.ascent + sl.descent).toInt())).normalize();
+                    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }
             }
         }
         if (sl.from <= cursorPos && sl.from + (int)sl.length >= cursorPos) {
             int x = l.cursorToX(cursorPos);
-            p->drawLine(pos.x() + x, pos.y() + sl.y.toInt(), pos.x() + x, pos.y() + (sl.y + sl.ascent + sl.descent).toInt());
+            p->drawLine(position.x() + x, position.y() + sl.y.toInt(), position.x() + x, position.y() + (sl.y + sl.ascent + sl.descent).toInt());
         }
     }
 

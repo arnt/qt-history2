@@ -420,6 +420,7 @@ public:
     mutable int used;
     Q26Dot6 minWidth;
     QRect boundingRect;
+    QPoint position;
 
     int cursorPos;
     const QTextLayout::Selection *selections;

@@ -46,7 +46,7 @@ public:
 int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const
 {
     const QTextLayout *tl = bl.layout();
-    QPoint pos = point - tl->boundingRect().topLeft();
+    QPoint pos = point - tl->rect().topLeft();
 
     QTextBlockFormat blockFormat = bl.blockFormat();
 
@@ -61,7 +61,7 @@ int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &poi
         return bl.position();
     }
 
-    QRect textrect = bl.layout()->boundingRect();
+    QRect textrect = bl.layout()->rect();
 
     if (pos.y() < textrect.top())
         return bl.position();
@@ -94,8 +94,7 @@ void QTextDocumentLayoutPrivate::drawListItem(QPainter *painter, const QAbstract
     QFontMetrics fontMetrics(charFormat.font());
     const int style = bl.blockFormat().listFormat().style();
     QString itemText;
-    QPoint pos = bl.layout()->boundingRect().topLeft();
-    qDebug("list item at pos %d/%d", pos.x(), pos.y());
+    QPoint pos = bl.layout()->rect().topLeft();
     QSize size;
 
     switch (style) {
@@ -174,11 +173,9 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
     else
         cursor = -1;
 
-    QPoint pos = bl.layout()->boundingRect().topLeft();
-
     QColor bgCol = blockFormat.backgroundColor();
     if (bgCol.isValid())
-        painter->fillRect(bl.layout()->boundingRect(), bgCol);
+        painter->fillRect(bl.layout()->rect(), bgCol);
 
     QTextLayout::Selection s;
     int nSel = 0;
@@ -195,6 +192,8 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 
     if (tl->numLines() == 0) {
 
+        QPoint pos = tl->rect().topLeft();
+
         pos.rx() += blockFormat.leftMargin() + indent(bl);
         pos.ry() += blockFormat.topMargin();
 
@@ -206,7 +205,7 @@ void QTextDocumentLayoutPrivate::drawBlock(QPainter *painter, const QAbstractTex
 
     const_cast<QTextLayout *>(tl)->setPalette(context.palette);
 
-    tl->draw(painter, pos, cursor, &s, nSel, painter->clipRegion().boundingRect());
+    tl->draw(painter, QPoint(0, 0), cursor, &s, nSel, painter->clipRegion().boundingRect());
 }
 
 void QTextDocumentLayoutPrivate::recreateAllBlocks()
@@ -221,7 +220,7 @@ void QTextDocumentLayoutPrivate::recreateAllBlocks()
             it = layoutTable(it, &pos, width);
         } else {
             layoutBlock(it, pos, width);
-            pos.setY(it.layout()->boundingRect().bottom());
+            pos.setY(it.layout()->rect().bottom());
             ++it;
         }
     }
@@ -233,7 +232,7 @@ QTextBlockIterator QTextDocumentLayoutPrivate::layoutCell(QTextBlockIterator it,
     QTextFormatGroup *group = it.blockFormat().group();
 
     layoutBlock(it, *pos, width);
-    pos->setY(it.layout()->boundingRect().bottom());
+    pos->setY(it.layout()->rect().bottom());
     ++it;
 
     while (1) {
@@ -251,7 +250,7 @@ QTextBlockIterator QTextDocumentLayoutPrivate::layoutCell(QTextBlockIterator it,
             it = layoutTable(it, pos, width);
         } else {
             layoutBlock(it, *pos, width);
-            pos->setY(it.layout()->boundingRect().bottom());
+            pos->setY(it.layout()->rect().bottom());
             ++it;
         }
     }
@@ -312,8 +311,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl, const QPoint
     tl->useDesignMetrics(true);
 //     tl.enableKerning(true);
 
-    int x = blockFormat.leftMargin() + indent(bl) + p.x();
-    int y = blockFormat.topMargin() + p.y();
+    int x = blockFormat.leftMargin() + indent(bl);
+    int y = blockFormat.topMargin();
 
     const int lw = width - blockFormat.rightMargin() - x;
 
@@ -328,6 +327,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlockIterator bl, const QPoint
     } else {
         tl->createLine(0, y, x, x + lw);
     }
+    tl->setPosition(p);
 }
 
 
@@ -347,8 +347,9 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
         d->drawBlock(painter, context, it);
 }
 
-void QTextDocumentLayout::documentChange(int /* from */, int /* oldLength */, int /* length */)
+void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
+    qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
     d->recreateAllBlocks();
 }
 
@@ -356,7 +357,7 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
 {
     QTextBlockIterator it = begin();
     for (; it != end(); ++it) {
-        QRect r = it.layout()->boundingRect();
+        QRect r = it.layout()->rect();
         if (r.contains(point))
             return d->hitTest(it, point, accuracy);
     }
@@ -364,7 +365,7 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
     if (accuracy == QText::FuzzyHit) {
         it = end();
         --it;
-        QRect r = it.layout()->boundingRect();
+        QRect r = it.layout()->rect();
         QPoint relative(point.x(), r.bottom() - 1);
 
         return d->hitTest(it, relative, accuracy);
@@ -377,7 +378,7 @@ int QTextDocumentLayout::totalHeight() const
     int height = 0;
     QTextBlockIterator it = begin();
     for (; it != end(); ++it)
-        height = qMax(height, it.layout()->boundingRect().bottom());
+        height = qMax(height, it.layout()->rect().bottom());
 
     return height;
 }
