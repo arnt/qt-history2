@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#57 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#57 $");
 
 
 /*!
@@ -260,16 +260,17 @@ void QMenuData::setAllDirty( bool dirty )
   \code
     QMenuBar   *mainMenu = new QMenuBar;
     QPopupMenu *fileMenu = new QPopupMenu;
-    fileMenu->insert( "New",  myView, SLOT(newFile()), CTRL+Key_N );
-    fileMenu->insert( "Open", myView, SLOT(open()),    CTRL+Key_O );
-    mainMenu->insert( "File", fileMenu );
+    fileMenu->insertItem( "New",  myView, SLOT(newFile()), CTRL+Key_N );
+    fileMenu->insertItem( "Open", myView, SLOT(open()),    CTRL+Key_O );
+    mainMenu->insertItem( "File", fileMenu );
   \endcode
 
   In the example above, pressing CTRL+N or selecting "open" from the
   menu activates the myView->open() function.
 
   Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel object.
+  menu bar. For stand-alone popup menus, use an independent QAccel
+  object.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qkeycode.h
@@ -589,10 +590,11 @@ int QMenuData::accel( int id ) const
 
 void QMenuData::setAccel( int key, int id )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi ) {
 	mi->accel_key = key;
-	menuContentsChanged();
+	parent->menuContentsChanged();
     }
 }
 
@@ -628,7 +630,8 @@ QPixmap *QMenuData::pixmap( int id ) const
 
 void QMenuData::changeItem( const char *text, int id )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi ) {					// item found
 	if ( mi->text_data == text )		// same string
 	    return;
@@ -637,7 +640,7 @@ void QMenuData::changeItem( const char *text, int id )
 	    mi->pixmap_data = 0;
 	}
 	mi->text_data = text;
-	menuContentsChanged();
+	parent->menuContentsChanged();
     }
 }
 
@@ -648,7 +651,8 @@ void QMenuData::changeItem( const char *text, int id )
 
 void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi ) {					// item found
 	register QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
@@ -659,10 +663,10 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 	    mi->text_data.resize( 0 );
 	mi->pixmap_data = new QPixmap( pixmap );
 	delete i; // old mi->pixmap_data, could be &pixmap
-	if ( fast_refresh )			// fast update
-	    updateItem( id );
+	if ( fast_refresh )
+	    parent->updateItem( id );
 	else
-	    menuContentsChanged();
+	    parent->menuContentsChanged();
     }
 }
 
@@ -674,7 +678,8 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 
 void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi ) {					// item found
 	QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
@@ -686,11 +691,10 @@ void QMenuData::changeItem( const QPixmap &pixmap, const char *text, int id )
 	}
 	mi->pixmap_data = new QPixmap( pixmap );
 	delete i; // old mi->pixmap_data, could be &pixmap
-	if ( fast_refresh ) {			// fast update
-	    updateItem( id );
-	} else {
-	    menuContentsChanged();
-	}
+	if ( fast_refresh )
+	    parent->updateItem( id );
+	else
+	    parent->menuContentsChanged();
     }
 }
 
@@ -715,12 +719,13 @@ bool QMenuData::isItemEnabled( int id ) const
 
 void QMenuData::setItemEnabled( int id, bool enable )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi && (bool)mi->is_enabled != enable ) {
 	mi->is_enabled = enable;
 	if ( mi->popup() )
 	    mi->popup()->enableAccel( enable );
-	menuStateChanged();
+	parent->menuStateChanged();
     }
 }
 
@@ -744,10 +749,11 @@ bool QMenuData::isItemChecked( int id ) const
 
 void QMenuData::setItemChecked( int id, bool check )
 {
-    QMenuItem *mi = findItem( id );
+    QMenuData *parent;
+    QMenuItem *mi = findItem( id, &parent );
     if ( mi && (bool)mi->is_checked != check ) {
 	mi->is_checked = check;
-	menuStateChanged();
+	parent->menuStateChanged();
     }
 }
 
@@ -760,6 +766,23 @@ void QMenuData::setItemChecked( int id, bool check )
 
 QMenuItem *QMenuData::findItem( int id ) const
 {
+    return findItem( id, 0 );
+}
+
+
+/*!
+  Returns a pointer to the menu item with identifier \a id, or 0 if
+  there is no item with such an identifier, and changes \a parent to
+  point to the parent of the return value.
+
+  \sa indexOf()
+*/
+
+QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
+{
+    if ( parent )
+	*parent = (QMenuData *)this;		// ###
+
     if ( id == -1 )				// bad identifier
 	return 0;
     QMenuItemListIt it( *mitems );
@@ -773,7 +796,7 @@ QMenuItem *QMenuData::findItem( int id ) const
     while ( (mi=it.current()) ) {		// search submenus
 	++it;
 	if ( mi->popup_menu ) {
-	    mi = mi->popup_menu->findItem( id );
+	    mi = mi->popup_menu->findItem( id, parent );
 	    if ( mi )				// found item
 		return mi;
 	}

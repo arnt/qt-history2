@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#46 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#47 $
 **
 ** Definition of QMenuData class
 **
@@ -101,9 +101,9 @@ public:
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
-    int		insertItem( const QPixmap &pixmap, const char *text, 
+    int		insertItem( const QPixmap &pixmap, const char *text,
 			    int id=-1, int index=-1 );
-    int		insertItem( const QPixmap &pixmap, const char *text, 
+    int		insertItem( const QPixmap &pixmap, const char *text,
 			    QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
@@ -140,6 +140,7 @@ public:
 				const QObject *receiver, const char *member );
 
     QMenuItem  *findItem( int id )	const;
+    QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 
 protected:
     int		   actItem;
