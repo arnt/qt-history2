@@ -29,8 +29,14 @@ public:
     QRect boundingRect() const { return svgEngine.boundingRect(); }
     QPaintEngine *paintEngine() const { return (QPaintEngine *)&svgEngine; }
     bool play(QPainter *p) { return svgEngine.play(p); }
+    int metric(PaintDeviceMetric m) const;
 
-    int metric(PaintDeviceMetric m) const {
+private:
+    Q3SVGPaintEngine svgEngine;
+};
+
+int Q3SvgDevice::metric(PaintDeviceMetric m) const
+{
         int val;
         QRect br = svgEngine.boundingRect();
         switch (m) {
@@ -63,11 +69,7 @@ public:
             qWarning("Q3SvgDevice::metric: Invalid metric command");
         }
         return val;
-    }
-
-private:
-    Q3SVGPaintEngine svgEngine;
-};
+}
 
 #define d d_func()
 #define q q_func()
