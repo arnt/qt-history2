@@ -678,7 +678,12 @@ int QAccel::stringToKey( const QString & s )
     }
     int fnum;
     if ( name.length() == 1 ) {
-	k = name[0].unicode() | UNICODE_ACCEL;
+	if ( name.at(0).isLetterOrNumber() ) {
+	    QString uppname = name.upper();
+	    k = uppname[0].unicode();
+	} else {
+	    k = name[0].unicode() | UNICODE_ACCEL;
+	}
     } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
 	k = Key_F1 + fnum - 1;
     } else {
