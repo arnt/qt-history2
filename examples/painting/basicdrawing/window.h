@@ -3,12 +3,11 @@
 
 #include <QWidget>
 
-#include "renderarea.h"
-
 class QCheckBox;
 class QComboBox;
 class QLabel;
 class QSpinBox;
+class RenderArea;
 
 class Window : public QWidget
 {

@@ -15,8 +15,8 @@ AnalogClock::AnalogClock(QWidget *parent)
 
 void AnalogClock::paintEvent(QPaintEvent *)
 {
-    static int hourHand[6] = { 7, 8, -7, 8, 0, -40 };
-    static int minuteHand[6] = { 7, 8, -7, 8, 0, -70 };
+    static const int hourHand[6] = { 7, 8, -7, 8, 0, -40 };
+    static const int minuteHand[6] = { 7, 8, -7, 8, 0, -70 };
     QColor hourColor(127, 0, 127);
     QColor minuteColor(0, 127, 127, 191);
 

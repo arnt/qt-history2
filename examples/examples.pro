@@ -4,6 +4,7 @@ SUBDIRS       = dialogs \
                 layouts \
                 mainwindows \
                 network \
+		painting \
                 sql \
 		threads \
                 tools \

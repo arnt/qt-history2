@@ -64,14 +64,14 @@ void RenderArea::paintEvent(QPaintEvent *)
     path.lineTo(20, 30);
     path.curveTo(80, 0, 50, 50, 80, 80);
 
-    int alpha = 30 * 16;
-    int beta = 120 * 16;
+    int startAngle = 30 * 16;
+    int arcLength = 120 * 16;
 
     QPainter painter(this);
     painter.setPen(pen);
     painter.setBrush(brush);
-    painter.setRenderHint(QPainter::Antialiasing, antialiased);
-    painter.setRenderHint(QPainter::TextAntialiasing, antialiased);
+    if (antialiased)
+        painter.setRenderHint(QPainter::Antialiasing);
 
     for (int x = 0; x < width(); x += 100) {
         for (int y = 0; y < height(); y += 100) {
@@ -107,13 +107,13 @@ void RenderArea::paintEvent(QPaintEvent *)
                 painter.drawEllipse(rect);
                 break;
             case Arc:
-                painter.drawArc(rect, alpha, beta);
+                painter.drawArc(rect, startAngle, arcLength);
                 break;
             case Chord:
-                painter.drawChord(rect, alpha, beta);
+                painter.drawChord(rect, startAngle, arcLength);
                 break;
             case Pie:
-                painter.drawPie(rect, alpha, beta);
+                painter.drawPie(rect, startAngle, arcLength);
                 break;
             case Path:
                 painter.drawPath(path);

@@ -97,7 +97,7 @@ void PaintWidget::transformPainter(QPainter &painter)
                 painter.scale(0.75, 0.75);
                 break;
             case Rotate:
-                painter.rotate(-90);
+                painter.rotate(60);
                 break;
             case NoTransformation:
             default:

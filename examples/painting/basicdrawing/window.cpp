@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "renderarea.h"
 #include "window.h"
 
 const int IdRole = QAbstractItemModel::UserRole;
@@ -122,13 +123,14 @@ Window::Window()
     mainLayout->addWidget(brushStyleComboBox, 6, 1);
     mainLayout->addLayout(checkBoxLayout, 7, 0, 1, 2);
 
-    setWindowTitle(tr("Basic Drawing"));
     shapeChanged();
     penChanged();
     brushChanged();
     penChanged();
     renderArea->setAntialiased(false);
     renderArea->setTransformed(false);
+
+    setWindowTitle(tr("Basic Drawing"));
 }
 
 void Window::shapeChanged()

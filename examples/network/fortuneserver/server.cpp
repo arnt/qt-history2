@@ -5,8 +5,6 @@
 
 #include "server.h"
 
-using namespace std;
-
 Server::Server(QWidget *parent)
     : QDialog(parent)
 {
