@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#30 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#31 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -120,7 +120,8 @@ cp gif/*.gif doc/html
 cd include
 ln -s ../src/*/q*.h .
 cd ../src/moc
-make mocgen.cpp
+yacc -d moc.y
+mv y.tab.c mocgen.cpp
 cd ../..
 
 export QTDIR=$base/head/qt
