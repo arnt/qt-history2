@@ -53,14 +53,19 @@
 #include "qslider.h"
 #include <limits.h>
 
+class QSGIStylePrivate 
+{
+public:
+    QSGIStylePrivate()
+	: hotWidget( 0 ), mousePos( -1, -1 ), lastScrollbarRect( 0, -1, 0, -1 ), lastSliderRect( 0, -1, 0, -1 )
+    {
+    }
 
-static bool sliderMoving                = FALSE;
-static bool sliderHandleActive          = FALSE;
-static bool repaintByMouseMove          = FALSE;
-
-static int activeScrollBarElement       = 0;
-static QWidget *hotWidget		= 0;
-static QPoint mousePos			= QPoint(-1,-1);
+    const QWidget *hotWidget;
+    QPoint mousePos;
+    QRect lastScrollbarRect;
+    QRect lastSliderRect;
+};
 
 /*!
   \class QSGIStyle qsgistyle.h
@@ -83,6 +88,7 @@ static QPoint mousePos			= QPoint(-1,-1);
 */
 QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
+    d = new QSGIStylePrivate;
 }
 
 /*!
@@ -90,6 +96,7 @@ QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ),
 */
 QSGIStyle::~QSGIStyle()
 {
+    delete d;
 }
 
 /*!
@@ -242,44 +249,45 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
     switch ( e->type() ) {
     case QEvent::MouseButtonPress:
         {
-            if ( widget->inherits("QSlider") ) {
-/*
-                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
-                sliderLastPosition.slider = (QWidget*)o;
-                sliderMoving = TRUE;
-*/
+	    if ( widget->inherits( "QScrollBar" ) ) {
+		d->lastScrollbarRect = ((QScrollBar*)widget)->sliderRect();
+		widget->repaint( FALSE );
+	    } else  if ( widget->inherits("QSlider") ) {
+                d->lastSliderRect = ((QSlider*)widget)->sliderRect();
+		widget->repaint( FALSE );
             }
         }
         break;
 
     case QEvent::MouseButtonRelease:
         {
-            if ( widget->inherits("QSlider") )
-            {
-/*
-                sliderLastPosition.pos = QRect( 0, -1, 0, -1 );
-                sliderLastPosition.slider = 0;
-                sliderMoving = FALSE;
-                ((QWidget*) o)->repaint( FALSE );
-*/
+	    if ( widget->inherits( "QScrollBar" ) ) {
+		QRect oldRect = d->lastScrollbarRect;
+		d->lastScrollbarRect = QRect( 0, -1, 0, -1 );
+		widget->repaint( oldRect, FALSE );		
+	    } else if ( widget->inherits("QSlider") ) {
+		QRect oldRect = d->lastSliderRect;
+		d->lastSliderRect = QRect( 0, -1, 0, -1 );
+		widget->repaint( oldRect, FALSE );
+		
             }
         }
         break;
 
     case QEvent::MouseMove:
-	hotWidget = widget;
-        mousePos = ((QMouseEvent*)e)->pos();
+	d->hotWidget = widget;
+        d->mousePos = ((QMouseEvent*)e)->pos();
 	widget->repaint( FALSE );
         break;
 
     case QEvent::Enter:
-        hotWidget = widget;
+        d->hotWidget = widget;
         widget->repaint( FALSE );
         break;
 
     case QEvent::Leave:
-        if ( widget == hotWidget) {
-            hotWidget = 0;
+        if ( widget == d->hotWidget) {
+            d->hotWidget = 0;
             widget->repaint( FALSE );
         }
         break;
@@ -488,7 +496,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     const int h = r.height();
     const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
     const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
-    const bool hot = ( flags & Style_MouseOver ) && r.contains( mousePos );
+    const bool hot = ( flags & Style_MouseOver ) && r.contains( d->mousePos );
 
     switch ( pe ) {
     case PE_ButtonCommand:
@@ -783,7 +791,7 @@ void QSGIStyle::drawControl( ControlElement element,
 		  SFlags flags,
 		  void **data ) const
 {
-    if ( widget == hotWidget )
+    if ( widget == d->hotWidget )
 	flags |= Style_MouseOver;
 
     switch ( element ) {
@@ -903,14 +911,16 @@ void QSGIStyle::drawControl( ControlElement element,
 		p->drawPixmap( pmr.topLeft(), pixmap );
 	    } else {
 		if ( checkable ) {
+/*
 		    int mw = checkcol;
 		    int mh = h - 2*sgiItemFrame;
 
-/*		    if ( act && !dis )
-			cg.setColor( QColorGroup::Background, cg.light() );*/
-/*		    if ( mi->isChecked() )
+		    if ( act && !dis )
+			cg.setColor( QColorGroup::Background, cg.light() );
+		    if ( mi->isChecked() )
 			drawIndicator( p, x+sgiItemFrame, y+sgiItemFrame, mw, mh, citemg,
-					QButton::On, act, enabled );*/
+					QButton::On, act, enabled );
+*/
 		}
 	    }
 
@@ -1025,7 +1035,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 			 SCFlags subActive,
 			 void **data ) const
 {
-    if ( widget == hotWidget )
+    if ( widget == d->hotWidget )
 	flags |= Style_MouseOver;
 
     switch ( control ) {
@@ -1048,6 +1058,8 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
 		    drawPrimitive( PE_FocusRect, p, fr, cg, flags & ~Style_MouseOver );
 		}
+		if ( d->lastSliderRect.isValid() )
+		    qDrawShadePanel( p, d->lastSliderRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
 	    }
 
 	    if (( sub & SC_SliderHandle ) && handle.isValid()) {
@@ -1127,10 +1139,14 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_ScrollBarAddPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddPage, data ), widget );
 		drawPrimitive( PE_ScrollBarAddPage, p, er, cg, flags & ~Style_MouseOver, data );
+		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) )
+		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
 	    }
 	    if ( sub & SC_ScrollBarSubPage ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSubPage, data ), widget );
 		drawPrimitive( PE_ScrollBarSubPage, p, er, cg, flags & ~Style_MouseOver, data );
+		if ( d->lastScrollbarRect.isValid() && er.intersects( d->lastScrollbarRect ) )
+		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
 	    }
 	    if ( sub & SC_ScrollBarSlider ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarSlider, data ), widget );
