@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#3 $
+** $Id: //depot/qt/main/examples/listbox_combo/listbox_combo.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -59,13 +59,13 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     row2->setMargin( 5 );
 
     QVBox *box1 = new QVBox( row2 );
-    
+
     // Create a non-editable Combobox and a label below...
     QComboBox *cb1 = new QComboBox( FALSE, box1 );
     label1 = new QLabel( "Current Item: Combobox Item 0", box1 );
     label1->setMaximumHeight( label1->sizeHint().height() * 2 );
     label1->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    
+
     //...and insert 50 items into the Combobox
     for ( i = 0; i < 50; i++ ) {
         str = QString( "Combobox Item %1" ).arg( i );
@@ -73,7 +73,7 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
     }
 
     QVBox *box2 = new QVBox( row2 );
-    
+
     // Create an editable Combobox and a label below...
     QComboBox *cb2 = new QComboBox( TRUE, box2 );
     label2 = new QLabel( "Current Item: Combobox Item 0", box2 );
@@ -108,11 +108,11 @@ void ListBoxCombo::slotLeft2Right()
             // ...and it is a text item...
             if ( !item->text().isEmpty() )
                 // ...insert an item with the same text into the second ListBox
-                lb2->insertItem( new QListBoxText( item->text() ) );
+                lb2->insertItem( new QListBoxText( item->text() ), lb2->item( 0 ) );
             // ...and if it is a pixmap item...
             else if ( item->pixmap() )
                 // ...insert an item with the same pixmap into the second ListBox
-                lb2->insertItem( new QListBoxPixmap( *item->pixmap() ) );
+                lb2->insertItem( new QListBoxPixmap( *item->pixmap() ), lb2->item( 0 ) );
         }
     }
 }
@@ -124,7 +124,7 @@ void ListBoxCombo::slotLeft2Right()
  * in the first Combobox (and is now the value of s) to
  * the first Label.
  */
- 
+
 void ListBoxCombo::slotCombo1Activated( const QString &s )
 {
     label1->setText( QString( "Current Item: %1" ).arg( s ) );
