@@ -5869,6 +5869,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
 */
 QDomDocument::QDomDocument()
 {
+    impl = new QDomDocumentPrivate;
 }
 
 /*!
