@@ -15,6 +15,8 @@
 #include <qprogressbar.h>
 #include <qlayout.h>
 
+#include <qmotifstyle.h>
+
 /*
  * Constructor
  *
@@ -27,12 +29,12 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
     setMargin( 10 );
 
     QGridLayout* toplayout = new QGridLayout( layout(), 2, 2, 5);
- 
+
     setRadioButtonExclusive( TRUE );
 
     // insert three radiobuttons which the user can use
     // to set the speed of the progress and two pushbuttons
-    // to start/pause/continue and reset the progress 
+    // to start/pause/continue and reset the progress
     slow = new QRadioButton( "&Slow", this );
     normal = new QRadioButton( "&Normal", this );
     fast = new QRadioButton( "&Fast", this );
@@ -49,9 +51,10 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
     toplayout->addLayout( vb2, 0, 1 );
     vb2->addWidget( start );
     vb2->addWidget( reset );
-    
+
     // Create the progressbar
     progress = new QProgressBar( 100, this );
+    //    progress->setStyle( new QMotifStyle() );
     toplayout->addMultiCellWidget( progress, 1, 1, 0, 1 );
 
     // connect the clicked() SIGNALs of the pushbuttons to SLOTs
@@ -63,8 +66,8 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
 
     // Let's start with normal speed...
     normal->setChecked( TRUE );
-    
-    
+
+
     // some contraints
     start->setFixedWidth( 80 );
     setMinimumWidth( 300 );
@@ -138,7 +141,7 @@ void ProgressBar::slotReset()
 /*
  * SLOT slotTimeout
  *
- * This SLOT is called each ms when the timer is 
+ * This SLOT is called each ms when the timer is
  * active (== progress is running)
  */
 
@@ -146,6 +149,7 @@ void ProgressBar::slotTimeout()
 {
     int p = progress->progress();
 
+#if 1
     // If the progress is complete...
     if ( p == progress->totalSteps() )  {
         // ...rename the start/pause/continue button to Start...
@@ -155,7 +159,8 @@ void ProgressBar::slotTimeout()
         // ...and return
         return;
     }
-    
+#endif
+
     // If the process is not complete increase it
     progress->setProgress( ++p );
 }
