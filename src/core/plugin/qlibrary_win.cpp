@@ -37,11 +37,13 @@ bool QLibraryPrivate::load_sys()
         });
     }
 
+#if defined(QT_DEBUG_COMPONENT)
     if (!pHnd) {
         qWarning("QLibrary::load_sys: Cannot load %s (%s)",
                  QFile::encodeName(fileName).constData(),
                  qt_error_string(GetLastError()).latin1());
     }
+#endif
     return pHnd != 0;
 }
 
