@@ -1932,6 +1932,31 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
             p->drawLineSegments(a);         // draw arrow
             break;
         }
+    case PE_HeaderArrow:
+	{
+	    p->save();
+	    if (flags & Style_Up) { // invert logic to follow Windows style guide
+		QPointArray pa(3);
+		p->setPen(pal.light());
+		p->drawLine(r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height());
+		p->setPen(pal.dark());
+		pa.setPoint(0, r.x() + r.width() / 2, r.height());
+		pa.setPoint(1, r.x(), r.y());
+		pa.setPoint(2, r.x() + r.width(), r.y());
+		p->drawPolyline(pa);
+	    } else {
+		QPointArray pa(3);
+		p->setPen(pal.light());
+		pa.setPoint(0, r.x(), r.height());
+		pa.setPoint(1, r.x() + r.width(), r.height());
+		pa.setPoint(2, r.x() + r.width() / 2, r.y());
+		p->drawPolyline(pa);
+		p->setPen(pal.dark());
+		p->drawLine(r.x(), r.height(), r.x() + r.width() / 2, r.y());
+	    }
+	    p->restore();
+	    break;
+	}
 
     case PE_ButtonDefault:
         {
