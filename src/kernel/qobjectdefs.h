@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Macros and definitions related to QObject
 **
 ** Created : 930419
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -161,6 +161,10 @@ class QSignalVec;
 class QObjectList;
 class QObjectListIt;
 class QMemberDict;
+
+Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
+#define Q_CHILD(parent,type,name) \
+	((type*)qt_find_obj_child(parent,#type,name))
 
 
 #endif // QOBJECTDEFS_H
