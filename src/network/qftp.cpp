@@ -39,14 +39,6 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
 
-#if 0
-#if defined(Q_OS_WIN32)
-#include <winsock.h>
-#else
-#include "qplatformdefs.h"
-#endif
-#endif
-
 #include "qsocket.h"
 #include "qurlinfo.h"
 #include "qurloperator.h"
@@ -187,6 +179,7 @@ signals:
     void finished( const QString& );
     void error( const QString& );
     void dataSize( int );
+    void rawFtpReply( int, const QString& );
 
 private slots:
     void hostFound();
@@ -668,21 +661,6 @@ void QFtpPI::abort()
 	return;
 
     abortState = AbortStarted;
-#if 0
-    // ### at least the FTP server on trueblue does not understand this:
-    // send Telnet IP and Synch followed by ABOR (as describe in RFC 959 p. 35)
-#if defined(QFTPPI_DEBUG)
-    qDebug( "QFtpPI send: Telnet IP" );
-#endif
-    uchar ip = 244;
-    commandSocket.writeBlock( (char*)&ip, 1 );
-#if defined(QFTPPI_DEBUG)
-    qDebug( "QFtpPI send: Telnet Synch (as urgent)" );
-#endif
-    uchar dm = 242;
-    send( commandSocket.socket(), &dm, 1, MSG_OOB );
-#endif
-
 #if defined(QFTPPI_DEBUG)
     qDebug( "QFtpPI send: ABOR" );
 #endif
@@ -844,6 +822,7 @@ bool QFtpPI::processReply()
 
     // special actions on certain replies
     int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
+    emit rawFtpReply( replyCodeInt, replyText );
     if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
 	int l = replyText.find( "(" );
@@ -1077,6 +1056,8 @@ void QFtp::init()
 	    SLOT(piError(const QString&)) );
     connect( &d->pi, SIGNAL(dataSize(int)),
 	    SIGNAL(dataSize(int)) );
+    connect( &d->pi, SIGNAL(rawFtpReply(int, const QString&)),
+	    SLOT(piFtpReply(int, const QString&)) );
 
     connect( &d->pi.dtp, SIGNAL(newData(const QByteArray&)),
 	    SIGNAL(newData(const QByteArray&)) );
@@ -1144,6 +1125,13 @@ void QFtp::init()
 */
 /*!  \fn void QFtp::dataProgress( int size )
   This signal is emitted ###
+*/
+/*!  \fn void QFtp::ftpCommandReply( int replyCode, const QString &detail );
+    This signal is emitted in reply to the ftpCommand() function. \a replyCode
+    is the 3 digit reply code and \a detail is the textthat follows the reply
+    code.
+
+    \sa ftpCommand()
 */
 
 /*!
@@ -1272,7 +1260,7 @@ int QFtp::get( const QString &file )
     return addCommand( new QFtpCommand( Get, cmds ) );
 }
 
-/*!
+/*! \overload
   Downloads the file \a file from the server and stores it on the IO device \a
   dev. Make sure that the \a dev pointer is valid throughout the whole pending
   operation (it is safe to emit it when the finishedSuccess() or
@@ -1291,7 +1279,7 @@ int QFtp::get( const QString &file, QIODevice *dev )
     return addCommand( new QFtpCommand( Get, cmds, dev ) );
 }
 
-/*!
+/*! \overload
   Stores the data \a data under \a file on the server. The progress of the
   upload is reported by the dataSize() and dataProgress() signals.
 
@@ -1387,6 +1375,27 @@ int QFtp::rmdir( const QString &dir )
 }
 
 /*!
+    Sends the raw FTP command \a command to the FTP server. This is useful for
+    low-level FTP access; if there is a QFtp function for the FTP command you
+    want to issue, it is in general easier and safer to use that one instead.
+
+    This function returns immediately; the command is scheduled and its
+    execution is done asynchronous. In order to identify this command, the
+    function returns a unique identifier.
+
+    When the command is started the start() signal is emitted. When it is
+    finished, either the finishedSuccess() or finishedError() signal is
+    emitted.
+
+    \sa ftpCommandReply() start() finishedSuccess() finishedError()
+*/
+int QFtp::ftpCommand( const QString &command )
+{
+    QString cmd = command.stripWhiteSpace() + "\r\n";
+    return addCommand( new QFtpCommand( FtpCommand, QStringList(cmd) ) );
+}
+
+/*!
   Aborts the current command and deletes all scheduled commands.
 
   If there is a started but not finished command (i.e. a command for which the
@@ -1478,6 +1487,7 @@ int QFtp::addCommand( QFtpCommand *cmd )
 void QFtp::startNextCommand()
 {
     QFtpPrivate *d = ::d( this );
+
     QFtpCommand *c = d->pending.getFirst();
     if ( c == 0 )
 	return;
@@ -1602,6 +1612,12 @@ void QFtp::piConnectState( int state )
 	d->close_waitForStateChange = FALSE;
 	piFinished( tr( "Connection closed" ) );
     }
+}
+
+void QFtp::piFtpReply( int code, const QString &text )
+{
+    if ( currentCommand() == FtpCommand )
+	emit ftpCommandReply( code, text );
 }
 
 //

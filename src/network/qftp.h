@@ -105,6 +105,8 @@ public:
     int mkdir( const QString &dir );
     int rmdir( const QString &dir );
 
+    int ftpCommand( const QString &command );
+
     int currentId() const;
     Command currentCommand() const;
     State state() const;
@@ -118,6 +120,7 @@ signals:
     void newData( const QByteArray& );
     void dataSize( int );
     void dataProgress( int );
+    void ftpCommandReply( int, const QString& );
 
     void start( int );
     void finishedSuccess( int );
@@ -160,6 +163,7 @@ private slots:
     void piFinished( const QString& );
     void piError( const QString& );
     void piConnectState( int );
+    void piFtpReply( int, const QString& );
 
 protected slots:
     // ### make these private in Qt 4.0
