@@ -28,7 +28,7 @@ public:
     virtual ~MetaMakefileGenerator();
 
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
-    static MakefileGenerator *createMakefileGenerator(QMakeProject *proj);
+    static MakefileGenerator *createMakefileGenerator(QMakeProject *proj, bool noIO = false);
 
     inline QMakeProject *projectFile() const { return project; }
 

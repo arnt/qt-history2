@@ -102,8 +102,7 @@ BuildsMetaMakefileGenerator::write(const QString &oldpwd)
     Build *glue = 0;
     if(!makefiles.isEmpty() && !makefiles.first()->name.isNull()) {
         glue = new Build;
-        glue->makefile = createMakefileGenerator(project);
-        glue->makefile->setNoIO(true);
+        glue->makefile = createMakefileGenerator(project, true);
         makefiles += glue;
     }
 
@@ -333,7 +332,7 @@ SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 #endif
 
 MakefileGenerator *
-MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
+MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
 {
     MakefileGenerator *mkfile = NULL;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
@@ -374,8 +373,10 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.toLatin1().constData());
     }
-    if (mkfile)
+    if (mkfile) {
+        mkfile->setNoIO(noIO);
         mkfile->setProjectFile(proj);
+    }
     return mkfile;
 }
 
