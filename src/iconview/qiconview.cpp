@@ -153,7 +153,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 
 #ifndef QT_NO_DRAGANDDROP
 
-class QIconDragData
+class Q_EXPORT QIconDragData
 {
 public:
     QIconDragData();
