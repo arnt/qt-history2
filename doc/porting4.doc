@@ -57,11 +57,15 @@
     ### what to do with virtual functions that aren't virtual anymore
     ### what to do with virtual functions that changed signature
 
+    ### <qtl.h> -- stuff that vanished?
+    ### implicit sharing
+    ### uint -> int indexes
+
     Table of contents:
 
     \tableofcontents{4}
 
-    \section1 Header files
+    \section1 Header Files
 
     ### New style of headers
 
@@ -71,6 +75,86 @@
     \endtable
 
     ### Some headers don't include each other anymore...
+
+    \section1 Global Functions
+
+    \table
+    \header \i Qt 3 function \i Qt 4 equivalent
+    \row \i cstrcmp() \i strcmp()
+    \row \i cstrcpy() \i strcpy()
+    \row \i cstrlen() \i strlen()
+    \row \i cstrncmp() \i strncmp()
+    \row \i qmemmove() \i memmove()
+    \endtable
+
+    qGLVersion() ###
+
+    copyBlt() ###
+    bitBlt()
+
+    #ifdef compat classes:
+        * QLayoutIterator
+        * QColorGroup
+        * QMenuItem
+
+    QWidget visibleRect property \compat
+    QWidget::BackgroundOrigin \compat
+
+    \section1 Enum Values
+
+    ###
+
+    \section1 Null vs. Empty
+
+    ###
+
+    \section1 Explicit Sharing
+
+    Qt 4 is the first version of Qt that contains no \link
+    http://doc.trolltech.com/3.3/shclass.html explicitly shared
+    \endlink classes. All classes that were explicitly shared in Qt 3
+    are \e implicitly shared in Qt 4: 
+
+    \list
+    \i QImage
+    \i QMovie
+    \i QBitArray
+    \i QByteArray
+    \i QPointArray
+    \endlist
+
+    This means that if you took a copy of an instance of the class
+    (using operator=() or the class's copy constructor), any
+    modification to the copy would affect the original and vice
+    versa. Needless to say, this behavior is rarely desirable.
+
+    Fortunately, nearly all Qt 3 applications don't rely on explicit
+    sharing. When porting, you typically only need to remove calls to
+    detach() and/or copy(), which aren't necessary anymore.
+
+    If you deliberately rely on explicit sharing in your application,
+    you can use pointers or references to achieve the same result in
+    Qt 4.
+
+    \oldcode
+        void asciify(QByteArray array)
+        {
+            for (int i = 0; i < (int)array.size(); ++i) {
+                if ((uchar)array[i] >= 128)
+                    array[i] = '?';
+            }
+        }
+    \newcode
+        void asciify(QByteArray &array)
+        {
+            for (int i = 0; i < (int)array.size(); ++i) {
+                if ((uchar)array[i] >= 128)
+                    array[i] = '?';
+            }
+        }
+    \endcode
+
+    (Notice the \c & in the parameter declaration.)
 
     \section1 QAccel
 
@@ -104,7 +188,7 @@
     \i QApplication::setFont() - the \c informAllWidgets boolean parameter is gone.
     \i QApplication::setPalette() - the \c informAllWidgets boolean parameter is gone.
     \i QApplication::widgetAt() - the \c child boolean parameter
-       is gone. The function always returns the exact widget at a certain position.
+       is gone. The function always returns the exact widget at a given position.
        Use QWidget::topLevelWidget() to obtain this widgets's top level widget (the window).
     \endlist
 
@@ -114,7 +198,11 @@
 
     \section1 QAsciiCache<T>
 
-    QAsciiCacheIterator<T>
+    QAsciiCache<T> has been moved to the \l{Qt 3 compatibility
+    library}. It has been replaced by QCache<QByteArray, T>.
+
+    For details, read the \l{#qcache.section}{section on QCache<T>},
+    mentally substituting QByteArray for QString.
 
     \section1 QAsciiDict<T>
 
@@ -136,9 +224,44 @@
     For details, read the \l{#qdict.section}{section on QDict<T>},
     mentally substituting QByteArray for QString.
 
+    \section1 QBitArray
+
+    In Qt 3, QBitArray inherited from QByteArray. In Qt 4, QBitArray
+    is a totally independent class. This makes very little difference
+    to the user, except that the new QBitArray doesn't provide any of
+    QByteArray's byte-based API anymore. These calls will result in a
+    compile-time error, except calls to QBitArray::truncate(), whose
+    parameter was a number of \e bytes in Qt 3 and a number of bits
+    in Qt 4.
+
+    QBitArray was an explicitly shared class in Qt 3. See \l{Explicit
+    Sharing} for more information.
+
+    The QBitVal class has been renamed QBitRef.
+
     \section1 QButton
 
-    ###
+    The QButton class has been replaced by QAbstractButton in Qt 4.
+    Classes like QPushButton and QRadioButton inherit from
+    QAbstractButton. As a help when porting older Qt applications,
+    the \l{Qt 3 compatibility library} contains a QButton class
+    implemented in terms of the new QAbstractButton.
+
+    If you used the QButton class as a base class for your own button
+    type and want to port your code to the newer QAbstractButton, you
+    need to be aware that QAbstractButton has no equivalent for the
+    QButton::drawButton(QPainter *) and
+    QButton::drawButtonLable(QPainter *) virtual functions. The
+    solution is to reimplement QWidget::paintEvent() in your
+    QAbstractButton subclass as follows:
+
+    \code
+        void MyButton::paintEvent(QPaintEvent *)
+        {
+            QPainter painter(this);
+            drawButton(&painter);
+        }
+    \endcode
 
     \section1 QButtonGroup
 
@@ -146,27 +269,67 @@
 
     Q3ButtonGroup
 
+    \target qbytearray.section
     \section1 QByteArray
 
-    QByteArray is now implicitly shared. It provides most of the
-    functionality QCString used to provide and is favored over the
-    deprecated QCString.
+    In Qt 3, QByteArray was simply a typedef for QMemArray<char>. In
+    Qt 4, QByteArray is a class in its own right, with a higher-level
+    API in the style of QString.
 
-    \list
-    \i at() now returns a copy and not a reference. If you use at() as an
-    lvalue use the [] operator instead
+    Here are the main issues to be aware of when porting to Qt 4:
 
-    \i sort() and bsearch() have been removed
+    \list 1
+    \i  The QMemArray(int size) constructor has been replaced with
+        QByteArray(int size, char ch). The second argument specifies
+        which character should be used for initializing the array;
+        pass '\\0' if you have no specific needs.
 
-    \i contains() returns a bool and not an integer. If you want to count
-      the number of occurences of a substring use count() instead.
+        \oldcode
+        QByteArray ba(64);
+        \newcode
+        QByteArray ba(64, '\0');
+        \endcode
 
-    \i copy() is obsolete, use regular assignment instead.
+    \i  QMemArray::at() returned a non-const reference, whereas the
+        new QByteArray::at() returns a const value. Code like
+
+        \code
+        ba.at(0) = 'X';
+        \endcode
+
+        will no longer compile. Instead, use QByteArray::operator[]:
+
+        \code
+        ba[0] = 'X';
+        \endcode
+
+    \i  The QMemArray::contains(char) function has been renamed
+        QByteArray::count(char). In addition, there now exists a
+        QByteArray::contains(char) function that returns a boolean
+        value. Replace old calls to contains() with either count() or
+        contains(), depending on whether you care about the specific
+        number of occurrences of a character in the byte array or
+        only care about whether the array contains that character or
+        not.
+
+    \i  The new QByteArray has no assign() function. Calls to
+        QMemArray::assign(const QMemArray &) can be replaced by calls
+        to QByteArray::operator=(). Calls to QMemArray::assign(const
+        T *, uint) have no equivalent in Qt 4; if you use it, the
+        solution is either to use QByteArray::fromRawData() and to
+        call free() yourself to avoid a memory leak, or to use the
+        QByteArray(const char *, int) constructor, which will take a
+        deep copy of the data.
+
+    \i  QMemArray::bsearch() and QMemArray::sort() have no equivalent
+        in the new QByteArray class. Use \l qBinaryFind() and \l
+        qHeapSort() if you need that functionality.
     \endlist
 
-    * case sensitive find() has been removed. Use QString instead
-    (with QString::indexOf()).
+    QByteArray was an explicitly shared class in Qt 3. See
+    \l{Explicit Sharing} for more information.
 
+    \target qcache.section
     \section1 QCache<T>
 
     QCache<T> has been renamed Q3Cache<T> and moved to the \l{Qt 3
@@ -191,12 +354,11 @@
     Remarks:
 
     \list 1
-    \i  Q3Cache requires the user to allocate a certain number of
+    \i  Q3Cache requires the user to allocate a specific number of
         buckets by passing a prime number (17 by default) to the
-        constructor. In
-        contrast, the new QCache's hash table automatically grows and
-        shrinks as needed, and the constructor doesn't take a prime
-        number.
+        constructor. In contrast, the new QCache's hash table
+        automatically grows and shrinks as needed, and the
+        constructor doesn't take a prime number.
 
     \i  Q3Cache supportes case-insensitive lookups by passing false as
         second argument to the constructor. This feature has no
@@ -221,7 +383,7 @@
         cache.insert(key, object);
         \endcode
 
-    \i  The new QCache class \i always takes ownership of the items
+    \i  The new QCache class \e always takes ownership of the items
         it stores (i.e. auto-delete is always on). If you use Q3Cache
         with auto-delete turned off (the rarely useful default), you
         cannot use QCache as a direct substitute. One unelegant trick
@@ -242,10 +404,11 @@
         becomes
 
         \code
-            QCache<QString, QWidget *> cache;
-            cache.insert(widget->name(), new QWidget *(widget));
+            typedef QWidget *QWidgetPtr;
+            QCache<QString, QWidgetPtr> cache;
+            cache.insert(widget->name(), new QWidgetPtr(widget));
             ...
-            QWidget **ptr = cache.take("foo");
+            QWidgetPtr *ptr = cache.take("foo");
             if (ptr) {
                 QWidget *foo = *ptr;
                 delete ptr;
@@ -256,9 +419,9 @@
         An alternative is to stick to using Q3Cache.
     \endlist
 
-
     QCacheIterator<T> has been renamed Q3CacheIterator<T> and moved
-    to the \l{Qt 3 compatibility library}.
+    to the \l{Qt 3 compatibility library}. The new QCache class
+    doesn't offer any iterator types.
 
     \section1 QCanvas
 
@@ -281,24 +444,124 @@
 
     \section1 QCString
 
-    QCString is deprecated. QByteArray should do everything you need from
-    an 8-bit string class. For text handling use QString instead.
+    In Qt 3, QCString inherited from QByteArray. The main drawback of
+    this approach is that the user had the responsibility of ensuring
+    that the string is '\\0'-terminated. Another important issue was
+    that conversions between QCString and QByteArray often gave
+    confusing results. (See the
+    \l{http://doc.trolltech.com/qq/qq05-achtung.html#qcstringisastringofchars}{Achtung!
+    Binary and Character Data} article in \e{Qt Quarterly} for an
+    overview of the pitfalls.)
 
-    The class is now implicitly shared.
+    Qt 4 solves that problem by merging the QByteArray and QCString
+    classes into one class called QByteArray. Most functions that
+    were in QCString previously have been moved to QByteArray. The
+    '\\0' issue is handled by having QByteArray allocate one extra
+    byte that it always sets to '\\0'. For example:
 
-    Removed methods:
+    \code
+        QByteArray ba("Hello");
+        ba.size();             // returns 5 (the '\0' is not counted)
+        ba.length();           // returns 5
+        ba.data()[5];          // returns '\0'
+    \endcode
+
+    The \l{Qt 4 compatibility library} contains a class called
+    QCString that inherits from the new QByteArray class and that
+    extends it to provide an API that is as close to the old QCString
+    class as possible. Note that the following functions aren't
+    provided by the compatibility QCString class:
 
     \list
-    \i All methods involving QRegExp as argument have been removed. Use
-    QString instead if you need to use regular expressions on a string.
+    \i QCString::find(const QRegExp &, int)
+    \i QCString::findRev(const QRegExp &, int)
+    \i QCString::contains(const QRegExp &)
+    \i QCString::replace(const QRegExp &, const char *)
     \endlist
 
-    Changed methods:
+    The following functions have lost their last parameter, which
+    specified whether the search was case sensitive or not:
 
     \list
-    \i at() now returns a copy and not a reference. If you use at() as an
-    lvalue use the [] operator instead
+    \i QByteArray::find(char, int)
+    \i QByteArray::find(const char *, int)
+    \i QByteArray::findRev(char, int)
+    \i QByteArray::findRev(const char *, int)
+    \i QByteArray::contains(char)
+    \i QByteArray::contains(const char *)
     \endlist
+
+    In both cases, the solution is to convert the QCString to a
+    QString and use the corresponding QString functions instead.
+
+    Also be aware that QCString::size() (inherited from QByteArray)
+    used to return the size of the character data \e including the
+    '\\0'-terminator, whereas the new QByteArray::size() is just a
+    synonym for QByteArray::length(). This brings QByteArray
+    semantics in line with QString's.
+
+    When porting to Qt 4, occurrences of QCString should be replaced
+    with QByteArray or QString. The following table summarizes the
+    API differences between the QCString compatibility class and the
+    Qt 4 QByteArray and QString classes:
+
+    \table
+    \header \i QCString function \i Qt 4 equivalent
+    \row \i QCString::QCString(const char *, uint) \i See remark below
+    \row \i QCString::QCString(int) \i QByteArray::QByteArray(int, char)
+    \row \i QCString::leftJustify() \i QString::leftJustified()
+    \row \i QCString::length() \i QByteArray::length() or QByteArray::size() (equivalent)
+    \row \i QCString::lower() \i QByteArray::toLower()
+    \row \i QCString::rightJustify() \i QString::rightJustified()
+    \row \i QCString::setExpand() \i See remark below
+    \row \i QCString::simplifyWhiteSpace() \i QByteArray::simplified()
+    \row \i QCString::sprintf() \i QString::sprintf()
+    \row \i QCString::stripWhiteSpace() \i QByteArray::trimmed()
+    \row \i QCString::toDouble() \i QString::toDouble()
+    \row \i QCString::toFloat() \i QString::toFloat()
+    \row \i QCString::toInt() \i QString::toInt()
+    \row \i QCString::toLong() \i QString::toLong()
+    \row \i QCString::toShort() \i QString::toShort()
+    \row \i QCString::toUInt() \i QString::toUInt()
+    \row \i QCString::toULong() \i QString::toULong()
+    \row \i QCString::toUShort() \i QString::toUShort()
+    \row \i QCString::upper() \i QByteArray::toUpper()
+    \endtable
+
+    Remarks:
+
+    \list 1
+    \i  QCString(const char *str, uint max) constructs a string of
+        length strlen(str) or \e max - 1, whichever is shorter.
+        QByteArray(const char *data, int size) constructs a byte
+        array containing exactly \e size bytes.
+
+        \oldcode
+            QCString str1("Hello", 4);           // "Hel"
+            QCString str2("Hello world!", n);
+        \newcode
+            QByteArray str1("Hello", 3);
+            QByteArray str2("Hello world!");
+            str2.truncate(n - 1);
+        \endcode
+
+    \i  QCString::setExpand(uint index, char ch) has no equivalent in
+        Qt 4.
+
+        \oldcode
+            QCString str("Hello world");
+            str.setExpand(16, '\n');            // "Hello world     \n"
+        \newcode
+            QCString str("Hello world");
+            while (str.size() < 16)
+                str += ' ';
+            str += '\n';
+        \endcode
+    \endlist
+
+    Since the old QCString class inherited from QByteArray,
+    everything that is said in the \l{qbytearray.section}{QByteArray
+    section} applies for QCString as well.
 
     \section1 QDataBrowser
 
@@ -326,7 +589,24 @@
 
     \section1 QDeepCopy<T>
 
-    The \l QDeepCopy<T> class in Qt 3 provided ###
+    The QDeepCopy<T> class in Qt 3 provided a means of ensuring that
+    implicitly shared and explicitly shared classes referenced unique
+    data. This was necessary because the reference counting in Qt's
+    container classes was done in a thread-unsafe manner.
+
+    With Qt 4, QDeepCopy<T> has been moved to the \l{Qt 4
+    compatibility library}. Removing it from existing code is
+    straightforward.
+
+    \oldcode
+        QString str1 = "I am a string";
+        QDeepCopy<QString> str2 = str1;
+        QString str3 = QDeepCopy<QString>(str2);
+    \newcode
+        QString str1 = "I am a string";
+        QString str2 = str1;
+        QString str3 = str2;
+    \endcode
 
     \target qdict.section
     \section1 QDict<T>
@@ -380,7 +660,7 @@
     Remarks:
 
     \list 1
-    \i  QDict requires the user to allocate a certain number of
+    \i  QDict requires the user to allocate a specific number of
         buckets by passing a prime number (17 by default) to the
         constructor and/or calling QDict::resize() later on. In
         contrast, QMultiHash's hash table automatically grows and
@@ -399,7 +679,7 @@
     \i  If there are multiple items with the same key,
         QDict::remove() removes only the most recently inserted item,
         whereas QMultiHash::remove() removes all items that share a
-        certain key. To remove only the most recently inserted item,
+        particular key. To remove only the most recently inserted item,
         call QMultiHash::take().
 
     \i  QDict has only one [] operator (QDict::operator[]()),
@@ -558,9 +838,7 @@
     The QDropSite class has been obsolete ever since Qt 2.0. The only
     thing it does is call QWidget::setAcceptDrops(true).
 
-    For example,
-
-    \code
+    \oldcode
     class MyWidget : public QWidget, public QDropSite
     {
     public:
@@ -570,11 +848,7 @@
         }
         ...
     }
-    \endcode
-
-    becomes
-
-    \code
+    \newcode
     class MyWidget : public QWidget
     {
     public:
@@ -651,15 +925,11 @@
     \list 1
     \i  The Q3FileDialog::addFilter(const QString &) function has no
         direct equivalent in the new QFileDialog. Use
-        QFileDialog::setFilters() instead. For example,
+        QFileDialog::setFilters() instead.
 
-        \code
+        \oldcode
         fileDialog->addFilter(tr("JPEG files (*.jpg *.jpeg)"));
-        \endcode
-
-        becomes
-
-        \code
+        \newcode
         QStringList filters = fileDialog->filters();
         filters << tr("JPEG files (*.jpg *.jpeg)");
         fileDialog->setFilters(filters);
@@ -667,15 +937,11 @@
 
     \i  The Q3FileDialog::setSelectedFilter(int) overload has no direct
         equivalent in the new QFileDialog. Use
-        QFileDialog::selectFilter(const QString &) instead. For example,
+        QFileDialog::selectFilter(const QString &) instead.
 
-        \code
+        \oldcode
         fileDialog->setSelectedFilter(3);
-        \endcode
-
-        becomes
-
-        \code
+        \newcode
         fileDialog->selectFilter(fileDialog->filters().at(3));
         \endcode
     \endlist
@@ -705,6 +971,8 @@
     \section1 QGuardedPtr<T>
 
     The QGuardedPtr<T> class has been renamed QPointer<T> in Qt 4.
+    The \l{Qt 3 compatibility library} contains a trivial
+    implementation of QGuardedPtr<T> in terms of QPointer<T>.
 
     \section1 QHeader
 
@@ -746,7 +1014,11 @@
 
     \section1 QIntCache<T>
 
-    ###
+    QIntCache<T> has been moved to the \l{Qt 3 compatibility
+    library}. It has been replaced by QCache<int, T>.
+
+    For details, read the \l{#qcache.section}{section on QCache<T>},
+    mentally substituting \c int for QString.
 
     \section1 QIntDict<T>
 
@@ -811,7 +1083,44 @@
 
     \section1 QMemArray<T>
 
-    ###
+    QMemArray<T> has been moved to the \l{Qt 3 compatibility
+    library}. It has been replaced by the QVector<T> class.
+
+    The following table summarizes the API differences between the
+    two classes.
+
+    \table
+    \row \i QMemArray::assign(const QMemArray<T> &) \i QVector::operator=()
+    \row \i QMemArray::assign(const T *, uint) \i See remark below
+    \row \i QMemArray::duplicate(const QMemArray &) \i QVector::operator=()
+    \row \i QMemArray::duplicate(const T *, uint) \i See remark below
+    \row \i QMemArray::setRawData(const T *, uint) \i N/A
+    \row \i QMemArray::resetRawData(const T *, uint) \i N/A
+    \row \i QMemArray::find(const T &, uint) \i QVector::indexOf(const T &, int)
+    \row \i QMemArray::contains(const T &) \i QVector::count(const T &)
+    \row \i QMemArray::sort() \i \l qHeapSort()
+    \row \i QMemArray::bsearch(const T &d) \i \l qBinaryFind()
+    \row \i QMemArray::at(uint) \i QVector::operator[]()
+    \row \i QMemArray::operator const T *() \i QVector::constData()
+    \endtable
+
+    Remarks:
+
+    \list
+    \i  QMemArray::assign(const T *, uint) and QMemArray::duplicate(const T *, uint)
+        can be replaced by QVector::resize() and qCopy().
+
+        \oldcode
+        QMemArray<QSize> array;
+        ...
+        array.assign(data, size);
+        \newcode
+        QVector<QSize> vector;
+        ...
+        vector.resize(size);
+        qCopy(data, data + size, vector.begin());
+        \endcode
+    \endlist
 
     \section1 QMimeSourceFactory
 
@@ -1231,12 +1540,12 @@
     \section1 QValueList<T>
 
     The QValueList<T> class has been replaced by QList<T> and
-    QLinkedList<T> in Qt 4. For compatibility, the \l{Qt 3
-    compatibility library} contains a QValueList<T> class implemented
-    in terms of the new QLinkedList<T>. Similarly, it contains
-    QValueListIterator<T> and QValueListConstIterator<T> classes
-    implemented in terms of QLinkedList<T>::iterator and
-    QLinkedList<T>::const_iterator.
+    QLinkedList<T> in Qt 4. As a help when porting older Qt
+    applications, the \l{Qt 3 compatibility library} contains a
+    QValueList<T> class implemented in terms of the new
+    QLinkedList<T>. Similarly, it contains QValueListIterator<T> and
+    QValueListConstIterator<T> classes implemented in terms of
+    QLinkedList<T>::iterator and QLinkedList<T>::const_iterator.
 
     When porting to Qt 4, you have the choice of using QList<T> or
     QLinkedList<T> as alternatives to QValueList<T>. QList<T> has an
@@ -1256,19 +1565,15 @@
         \l{QLinkedList::insert()}{insert()} repeatedly instead.
 
     \i  QValueList::fromLast() doesn't exist in QList or QLinkedList. Use
-        QValueList::end() instead. For example,
+        QValueList::end() instead.
 
-        \code
+        \oldcode
         for (QValueList<T>::iterator i = list.fromLast(); i != list.end(); ++i)
             do_something(*i);
-        \endcode
-
-        becomes
-
-        \code
+        \newcode
         QLinkedList<T>::iterator i = list.end();
         while (i != list.begin()) {
-            ++i; // increment i before using it
+            --i; // decrement i before using it
             do_something(*i);
         }
         \endcode
@@ -1289,9 +1594,9 @@
     \section1 QValueVector<T>
 
     The QValueVector<T> class has been replaced by QVector<T> in Qt
-    4. For compatibility, the \l{Qt 3 compatibility library} contains
-    a QValueVector<T> class implemented in terms of the new
-    QVector<T>.
+    4. As a help when porting older Qt applications, the \l{Qt 3
+    compatibility library} contains a QValueVector<T> class
+    implemented in terms of the new QVector<T>.
 
     When porting from QValueVector<T> to QVector<T>, you might run
     into the following incompatibilities:
@@ -1300,7 +1605,7 @@
     \i QValueVector(const std::vector<T> &) doesn't exist in QVector.
        You can simulate it by calling QVector::append()} in a loop.
     \i QValueVector::resize(int, const T &) doesn't exist in QVector.
-       If you want the new items to be initialized with a certain
+       If you want the new items to be initialized with a particular
        value, use QVector::insert() instead.
     \i QValueVector::at() on a non-const vector returns a non-const
        reference. This corresponds to QVector::operator[]().
