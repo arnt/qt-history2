@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#6 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#7 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -108,7 +108,7 @@ public:
 	PMStyle, // OBSOLETE
 	MotifStyle
     };
-    
+
     enum Modifier {		// accelerator modifiers
 	SHIFT = 0x00002000,
 	CTRL = 0x00004000,
@@ -119,8 +119,8 @@ public:
     enum Key {
 	Key_Escape = 0x1000,		// misc keys
 	Key_Tab = 0x1001,
-	Key_Backtab = 0x1002,
-	Key_Backspace = 0x1003,
+	Key_Backtab = 0x1002, Key_BackTab = Key_Backtab,
+	Key_Backspace = 0x1003, Key_BackSpace = Key_Backspace,
 	Key_Return = 0x1004,
 	Key_Enter = 0x1005,
 	Key_Insert = 0x1006,
