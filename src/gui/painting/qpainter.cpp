@@ -2002,10 +2002,16 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     QPainterPath path;
 
+    int subtract =
+#if 0
+        d->state->pen != Qt::NoPen && d->state->pen.width() == 0 ? -1 :
+#endif
+        0;
+
     int x = rect.x();
     int y = rect.y();
-    int w = rect.width();
-    int h = rect.height();
+    int w = rect.width() - subtract;
+    int h = rect.height() - subtract;
     int rxx = w*xRnd/200;
     int ryy = h*yRnd/200;
     // were there overflows?
