@@ -4058,12 +4058,12 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 	return isVisible();
     const QWidget * w = this;
     while ( w
-	    && !w->isHidden()
+	    && w->isShown()
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget() != ancestor )
 	w = w->parentWidget();
-    return isShown();
+    return w->isShown();
 }
 
 
