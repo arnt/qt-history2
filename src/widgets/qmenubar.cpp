@@ -129,7 +129,7 @@ static bool inMenu = FALSE;
     QMenuBar on Qt/Mac is a wrapper for talking to the system-wide
     menubar. However if you have multiple menubars in one dialog the
     outermost menubar (normally inside a widget with WType_TopLevel) will
-    be used for the global menubar. 
+    be used for the global menubar.
 
   <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
@@ -1004,6 +1004,8 @@ void QMenuBar::drawContents( QPainter *p )
 	    void *data[1];
 	    data[0] = (void *) mi;
 	    QStyle::SFlags flags = QStyle::Style_Default;
+	    if (isEnabled() && mi->isEnabled())
+		flags |= QStyle::Style_Enabled;
 	    if ( i == actItem )
 		flags |= QStyle::Style_Active;
 	    if ( actItemDown )
