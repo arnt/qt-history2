@@ -6,8 +6,10 @@
 <include location="global" impldecl="in implementation">qapplication.h</include>
 <include location="global" impldecl="in implementation">qfiledialog.h</include>
 <include location="global" impldecl="in implementation">qtextstream.h</include>
+<include location="local" implDecl="in declaration">richedit.ui.h</include>
 <variable>QString fileName;</variable>
 <pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>EditorForm</cstring>
@@ -16,8 +18,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>678</width>
-            <height>452</height>
+            <width>650</width>
+            <height>438</height>
         </rect>
     </property>
     <property name="caption">
@@ -111,8 +113,8 @@
             <string>Toolbar</string>
         </property>
         <action name="leftAlignAction"/>
-        <action name="rightAlignAction"/>
         <action name="centerAlignAction"/>
+        <action name="rightAlignAction"/>
         <separator/>
         <action name="boldAction"/>
         <action name="italicAction"/>
@@ -461,7 +463,7 @@
                 <bool>true</bool>
             </property>
             <property name="iconSet">
-                <iconset>textright</iconset>
+                <iconset>textcenter</iconset>
             </property>
             <property name="text">
                 <string>center</string>
@@ -473,121 +475,121 @@
     </actiongroup>
 </actions>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>fileNewAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>fileNew()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fileOpenAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>fileOpen()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>fileSave()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fileSaveAsAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>fileSaveAs()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fileExitAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>fileExit()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>helpIndexAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>helpIndex()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>helpContentsAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>helpContents()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>helpAboutAction</sender>
         <signal>activated()</signal>
         <receiver>EditorForm</receiver>
         <slot>helpAbout()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>SpinBox2</sender>
         <signal>valueChanged(int)</signal>
         <receiver>textEdit</receiver>
         <slot>setPointSize(int)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editCutAction</sender>
         <signal>activated()</signal>
         <receiver>textEdit</receiver>
         <slot>cut()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editPasteAction</sender>
         <signal>activated()</signal>
         <receiver>textEdit</receiver>
         <slot>paste()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editCopyAction</sender>
         <signal>activated()</signal>
         <receiver>textEdit</receiver>
         <slot>copy()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editRedoAction</sender>
         <signal>activated()</signal>
         <receiver>textEdit</receiver>
         <slot>redo()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>editUndoAction</sender>
         <signal>activated()</signal>
         <receiver>textEdit</receiver>
         <slot>undo()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>alignActionGroup</sender>
         <signal>selected(QAction*)</signal>
         <receiver>EditorForm</receiver>
         <slot>changeAlignment(QAction*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>underlineAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>textEdit</receiver>
         <slot>setUnderline(bool)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>italicAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>textEdit</receiver>
         <slot>setItalic(bool)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>boldAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>textEdit</receiver>
         <slot>setBold(bool)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fontComboBox</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>textEdit</receiver>
         <slot>setFamily(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>fontComboBox</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>textEdit</receiver>
@@ -603,110 +605,7 @@
     <slot access="public" language="C++" returnType="void">helpAbout()</slot>
     <slot access="public" language="C++" returnType="void">helpContents()</slot>
     <slot access="public" language="C++" returnType="void">helpIndex()</slot>
-    <slot access="public" language="C++" returnType="void">changeAlignment( QAction * align )</slot>
-    <slot access="public" language="C++" returnType="int">saveAndContinue( const QString &amp; action )</slot>
+    <slot access="public" language="C++" returnType="void">changeAlignment(QAction * align)</slot>
+    <slot access="public" language="C++" returnType="int">saveAndContinue(const QString &amp; action)</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    textEdit-&gt;setFocus();  
- 
-    QFontDatabase fonts;
-    fontComboBox-&gt;insertStringList( fonts.families() );
-    QString font = textEdit-&gt;family();
-    font = font.lower();
-    for ( int i = 0 ; i &lt; fontComboBox-&gt;count(); i++ ) {
-	if ( font == fontComboBox-&gt;text( i ) ) {
-	    fontComboBox-&gt;setCurrentItem( i );
-	    break;
-	}
-    }
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="fileExit()" >{
-    if ( saveAndContinue( "Exit" ) )
-	qApp-&gt;exit();
-}</function>
-    <function name="fileNew()" >{
-    if ( saveAndContinue( "New" ) )
-    	textEdit-&gt;clear();
-}</function>
-    <function name="fileOpen()" >{
-    if ( saveAndContinue( "Open" ) ) {
-    	QString fn( QFileDialog::getOpenFileName( 
-			QString::null, 
-			"Rich Text Files (*.htm*)", this ) );   
-	if ( !fn.isEmpty() ) {
-	    fileName = fn;
-	    QFile file( fileName );
-	    if ( file.open( IO_ReadOnly ) ) {
-		QTextStream ts( &amp;file );
-		textEdit-&gt;setText( ts.read() );
-	    }
-	}
-    }
-}</function>
-    <function name="fileSave()" >{
-    if ( fileName.isEmpty() ) {
-	fileSaveAs();
-    } else {
-	QFile f( fileName );
-	if ( f.open( IO_WriteOnly ) ) {
-	    QTextStream ts( &amp;f );
-	    ts &lt;&lt; textEdit-&gt;text();
-	    textEdit-&gt;setModified( FALSE );
-	}
-    }
-}</function>
-    <function name="fileSaveAs()" >{
-    QString fn = QFileDialog::getSaveFileName( 
-    				"", "Rich Text Files (*.htm*)", this );
-    if ( !fn.isEmpty() ) {
-	fileName = fn;
-	fileSave();
-    }
-}</function>
-    <function name="helpAbout()" >{
-    
-}</function>
-    <function name="helpContents()" >{
-    
-}</function>
-    <function name="helpIndex()" >{
-    
-}</function>
-    <function name="changeAlignment(QAction*)" >{
-    if ( align == leftAlignAction ) 
-	textEdit-&gt;setAlignment( Qt::AlignLeft );
-    else if ( align == rightAlignAction )
-	textEdit-&gt;setAlignment( Qt::AlignRight );
-    else if ( align == centerAlignAction )
-	textEdit-&gt;setAlignment( Qt::AlignCenter );
-}</function>
-    <function name="saveAndContinue(const QString&amp;)" >{
-    int continueAction = 1;
-    
-    if ( textEdit-&gt;isModified() ) {  
-	switch( QMessageBox::information(     
-		this, "Rich Edit",   
-		"The document contains unsaved changes.\n"   
-		"Do you want to save the changes?",   
-		"&amp;Save", "&amp;Don't Save", "&amp;Cancel " + action,   
-		0, // Enter == button 0   
-		2 ) ) { // Escape == button 2   
-	case 0: // Save; continue  
-     		fileSave();  
-        	break;   
-    	case 1: // Do not save; continue
-        	break;   
-    	case 2: // Cancel
-		continueAction = 0;
-        	break;  
-    	}	  
-    }  
-    
-    return continueAction;
-}</function>
-</functions>
 </UI>
