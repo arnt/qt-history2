@@ -253,6 +253,7 @@ I_FLAGS=
 L_FLAGS=
 R_FLAGS=
 l_FLAGS=
+QCONFIG_FLAGS=
 XPLATFORM=
 PLATFORM=$QMAKESPEC
 QMAKE_PROJECTS=
@@ -1804,31 +1805,31 @@ then
     done
     if [ -z "$DG" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_8GRAYSCALE"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_8GRAYSCALE"
     fi
     if [ -z "$DV" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_VGA_16"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VGA_16"
     fi
     if [ -z "$D4" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_4"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_4"
     fi
     if [ -z "$D8" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_8"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_8"
     fi
     if [ -z "$D16" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_16"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_16"
     fi
     if [ -z "$D24" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_24"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_24"
     fi
     if [ -z "$D32" ]
     then
-	D_FLAGS="$D_FLAGS QT_NO_QWS_DEPTH_32"
+	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_DEPTH_32"
     fi
 fi
 
@@ -1848,31 +1849,31 @@ fi
 
 if [ -z "$CFG_QWS_VOODOO3" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_VOODOO3"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VOODOO3"
 fi
 if [ -z "$CFG_QWS_MACH64" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_MACH64"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MACH64"
 fi
 if [ -z "$CFG_QWS_SHADOWFB" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_SHADOWFB"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_SHADOWFB"
 fi
 if [ -z "$CFG_QWS_REPEATER" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_REPEATER"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_REPEATER"
 fi
 if [ -z "$CFG_QWS_MATROX" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_MATROX"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MATROX"
 fi
 if [ "$CFG_QWS_QVFB" = "no" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_VFB"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VFB"
 fi
 if [ -z "$CFG_QWS_VNC" -a "$CFG_EMBEDDED" != "no" ]
 then
-    D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_VNC"
 fi
 if [ "$CFG_EMBEDDED" != "no" ]
 then
@@ -1927,14 +1928,30 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 EOF
 if [ "$CFG_STL" = "no" ]
 then
-cat >>$outpath/include/qconfig.h.new << EOF
-#ifndef QT_NO_STL
-#define QT_NO_STL
-#endif
-EOF
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
-QMAKE_CONFIG="$QMAKE_CONFIG stl"
+    QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
+
+
+
+if [ -n "$QCONFIG_FLAGS" ]
+then
+    for cfg in $QCONFIG_FLAGS
+    do
+
+cat >>$outpath/include/qconfig.h.new << EOF
+#ifndef $cfg
+# define $cfg
+#endif
+
+EOF
+    done
+fi
+
+
+
+
 
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
 if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new
