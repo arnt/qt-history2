@@ -58,7 +58,7 @@
   \mainclass
 
   On Unix systems, QSettings uses text files to store settings. On Windows
-  systems, QSettings uses the system registry.  On MacOSX, QSettings will
+  systems, QSettings uses the system registry.  On Mac OS X, QSettings will
   behave as on Unix, and store to text files.
 
   Each setting comprises an identifying key and the data associated with
@@ -182,7 +182,7 @@
     \enum QSettings::System
 
     \value Mac Macintosh execution environments
-    \value Unix MacOSX, Unix, Linux and Unix-like execution environments
+    \value Unix Mac OS X, Unix, Linux and Unix-like execution environments
     \value Windows Windows execution environments
 */
 

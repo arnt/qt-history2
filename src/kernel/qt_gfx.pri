@@ -142,7 +142,6 @@ zlib {
 		  3rdparty/zlib/zutil.c
 }
 !no-zlib:!zlib:unix:LIBS += -lz
-!no-zlib:!zlib:mac:LIBS += -lz
 !no-zlib:!zlib:win32:LIBS += libz.lib
 
 #use Qt gif
