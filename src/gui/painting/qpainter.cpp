@@ -2370,15 +2370,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         if(sx || sy || sw != pm.width() || sh != pm.height()) {
             source = QPixmap(sw, sh, pm.depth());
             QPainter p(&source);
-            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), mode);
+            p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), Qt::SourceCopy);
             p.end();
-            if (mode == Qt::AlphaBlend && pm.mask()) {
-                QBitmap mask(sw, sh);
-                p.begin(&mask);
-                p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), QRect(sx, sy, sw, sh), mode);
-                p.end();
-                source.setMask(mask);
-            }
         } else {
             source = pm;
         }
@@ -2414,10 +2407,10 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         QBitmap bitmap(p->width(), p->height());
         bitmap.fill(Qt::color0);
         QPainter pt(&bitmap);
-        pt.setBrush(Qt::color1);
-        pt.setPen(Qt::NoPen);
+	pt.setPen(Qt::color1);
         const QBitmap *mask = pm.mask();
-        pt.drawPixmap(r.topLeft(), *mask, sr);
+	Q_ASSERT(!mask->mask());
+  	pt.drawPixmap(r, *mask, sr);
         pt.end();
         p->setMask(bitmap);
     }

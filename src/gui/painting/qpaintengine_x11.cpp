@@ -1718,6 +1718,8 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     }
 
     if (mono) {
+ 	XSetClipMask(d->dpy, d->gc, pixmap.handle());
+ 	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
         XSetBackground(d->dpy, d->gc, d->bg_brush.color().pixel(d->scrn));
         XSetFillStyle(d->dpy, d->gc, FillOpaqueStippled);
         XSetStipple(d->dpy, d->gc, pixmap.handle());
@@ -1725,6 +1727,8 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
         XSetTSOrigin(d->dpy, d->gc, 0, 0);
         XSetFillStyle(d->dpy, d->gc, FillSolid);
+        XSetClipMask(d->dpy, d->gc, XNone);
+ 	XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
