@@ -3,9 +3,6 @@
 #include "sqlformwizard.h"
 #include "../../shared/templatewizardiface.h"
 #include <qvaluelist.h>
-#include <qfeatures.h>
-
-#ifndef QT_NO_SQL
 
 class SqlFormWizard : public SqlFormWizardBase
 {
@@ -41,7 +38,5 @@ private:
     QComponentInterface *appIface;
 
 };
-
-#endif
 
 #endif // SQLFORMWIZARD_H

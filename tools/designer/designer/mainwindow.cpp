@@ -54,6 +54,7 @@
 #include <qtoolbar.h>
 #include <qmenubar.h>
 #endif
+#include <qfeatures.h>
 #include <qpixmap.h>
 #include <qbuttongroup.h>
 #include <qapplication.h>
@@ -98,7 +99,9 @@
 #include "actiondnd.h"
 #include "project.h"
 #include "projectsettingsimpl.h"
+#ifndef QT_NO_SQL
 #include "dbconnectionsimpl.h"
+#endif
 #include "../resource/qwidgetfactory.h"
 #include <qvbox.h>
 

@@ -1,7 +1,5 @@
 #include "sqlformwizardimpl.h"
 
-#ifndef QT_NO_SQL
-
 #include <qlistbox.h>
 #include <qwidget.h>
 #include <qcheckbox.h>
@@ -14,10 +12,13 @@
 #include <qpushbutton.h>
 #include <qmultilineedit.h>
 #include <qlistview.h>
+#include <qfeatures.h>
 
+#ifndef QT_NO_SQL
 #include <qsqleditorfactory.h>
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
+#endif
 
 
 #include "../designerinterface.h"
@@ -72,12 +73,14 @@ void SqlFormWizard::autoPopulate( bool populate )
 	QStringList lst = proIface->databaseFieldList( editConnection->text(), editTable->text() );
 	// remove primary index fields, if any
 	proIface->openDatabase( editConnection->text() );
+#ifndef QT_NO_SQL
 	QSqlCursor tab( editTable->text() );
 	QSqlIndex pIdx = tab.primaryIndex();
 	for ( uint i = 0; i < pIdx.count(); i++ ) {
 	    listBoxField->insertItem( pIdx.field( i )->name() );
 	    lst.remove( pIdx.field( i )->name() );
 	}
+#endif
 	proIface->closeDatabase( editConnection->text() );
 	listBoxSelectedField->insertStringList( lst );
 	listBoxSortField->insertStringList( lst );
@@ -235,6 +238,7 @@ void SqlFormWizard::accept()
     if ( !appIface )
 	return;
 
+#ifndef QT_NO_SQL
     DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
     DesignerMetaDatabaseInterface *mdbIface = (DesignerMetaDatabaseInterface*)appIface->queryInterface( IID_DesignerMetaDatabaseInterface );
     DesignerWidgetFactoryInterface *wfIface = (DesignerWidgetFactoryInterface*)appIface->queryInterface( IID_DesignerWidgetFactoryInteface );
@@ -359,8 +363,7 @@ void SqlFormWizard::accept()
     }
 
     proIface->closeDatabase( editConnection->text() );
+#endif
 
     SqlFormWizardBase::accept();
 }
-
-#endif
