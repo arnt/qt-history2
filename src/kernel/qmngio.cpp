@@ -48,6 +48,10 @@
 #include "qiodevice.h"
 #include "qmngio.h"
 
+// Define XMD_H prohibits the included headers of libmng.h to typedef INT32.
+// This is needed for Borland with STL support, since in that case, INT32 is
+// already defined by some Borland header.
+#define XMD_H
 #include <libmng.h>
 #include <stdlib.h>
 
