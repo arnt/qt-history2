@@ -150,6 +150,12 @@ QPicture::~QPicture()
 */
 
 /*!
+  \fn QRect QPicture::boundingRect() const
+  Returns the bounding rectangle of the picture or QRect(0,0,0,0) if the
+  picture contains no data.
+*/
+
+/*!
   Sets the picture data directly from \a data and \a size. This function
   copies the input data.
   \sa data(), size()

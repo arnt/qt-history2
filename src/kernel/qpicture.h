@@ -62,6 +62,8 @@ public:
     bool	load( const QString &fileName );
     bool	save( const QString &fileName );
 
+    QRect boundingRect() const;
+
     QPicture& operator= (const QPicture&);
 
     friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
@@ -79,6 +81,7 @@ private:
     bool	formatOk;
     int		formatMajor;
     int		formatMinor;
+    QRect	brect;
 
 private:       // Disabled copy constructor
 #if defined(Q_DISABLE_COPY)
@@ -102,6 +105,10 @@ inline const char* QPicture::data() const
     return pictb.buffer().data();
 }
 
+inline QRect QPicture::boundingRect() const
+{
+    return brect;
+}
 
 /*****************************************************************************
   QPicture stream functions
