@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#63 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -41,7 +41,7 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel() 
+    QTipLabel()
 	: QLabel( 0, "toolTipTip",
 			  WStyle_Customize | WStyle_NoBorder | WStyle_Tool )
 	{
@@ -49,7 +49,7 @@ public:
 	}
 
 };
-    
+
 // Internal class - don't touch
 
 class QTipManager : public QObject
@@ -432,9 +432,11 @@ void QTipManager::showTip()
 	p.setX( QApplication::desktop()->width() - label->width() );
     if ( p.y() + label->height() > QApplication::desktop()->height() )
 	p.setY( p.y() - 20 - label->height() );
-    label->move( p );
-    label->show();
-    label->raise();
+    if ( label->text().length() ) {
+	label->move( p );
+	label->show();
+	label->raise();
+    }
 
     fallAsleep.start( 5000, TRUE );
     leaveWindow.stop();
@@ -925,7 +927,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.57 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.58 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
