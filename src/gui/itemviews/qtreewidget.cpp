@@ -1008,7 +1008,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
-    : view(0), model(0), par(0),
+    : view(view), model(0), par(0),
       itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsUserCheckable
                 |QAbstractItemModel::ItemIsEnabled)
