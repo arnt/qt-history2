@@ -61,32 +61,32 @@ class QHideEvent;
 class QWidgetData
 {
 public:
-    WId                 winid;
+    WId winid;
     uint widget_state; // will go away, eventually
     uint widget_attributes;
     uint widget_flags;
-    uint         focus_policy : 4;
-    uint          sizehint_forced :1;
-    uint          is_closing :1;
-    uint          in_show : 1;
-    uint          in_show_maximized : 1;
-    uint         fstrut_dirty : 1;
-    uint         im_enabled : 1;
-    QRect         crect;
+    uint focus_policy : 4;
+    uint sizehint_forced :1;
+    uint is_closing :1;
+    uint in_show : 1;
+    uint in_show_maximized : 1;
+    uint fstrut_dirty : 1;
+    uint im_enabled : 1;
+    QRect crect;
 #ifndef QT_NO_PALETTE
-    mutable QPalette         pal;
+    mutable QPalette pal;
 #endif
-    QFont         fnt;
+    QFont fnt;
 #if defined(Q_WS_QWS)
-    QRegion         req_region;                        // Requested region
-    mutable QRegion         paintable_region;        // Paintable region
-    mutable bool         paintable_region_dirty;// needs to be recalculated
-    mutable QRegion      alloc_region;          // Allocated region
-    mutable bool         alloc_region_dirty;    // needs to be recalculated
-    mutable int          overlapping_children;  // Handle overlapping children
+    QRegion req_region;                 // Requested region
+    mutable QRegion paintable_region;   // Paintable region
+    mutable bool paintable_region_dirty;// needs to be recalculated
+    mutable QRegion alloc_region;       // Allocated region
+    mutable bool alloc_region_dirty;    // needs to be recalculated
+    mutable int overlapping_children;   // Handle overlapping children
 
-    int                 alloc_region_index;
-    int                 alloc_region_revision;
+    int alloc_region_index;
+    int alloc_region_revision;
 #endif
     QRect wrect;
 };
@@ -166,25 +166,25 @@ public:
     QWidget(QWidget* parent, const char *name, WFlags f = 0); // deprecated
     ~QWidget();
 
-    WId                 winId() const;
+    WId winId() const;
 #ifndef QT_NO_STYLE
     // GUI style setting
 
-    QStyle     &style() const;
-    void        setStyle(QStyle *);
-    QStyle*        setStyle(const QString&);
+    QStyle &style() const;
+    void setStyle(QStyle *);
+    QStyle *setStyle(const QString&);
 #endif
     // Widget types and states
 
-    bool         isTopLevel()        const;
-    bool         isDialog()        const;
-    bool         isPopup()        const;
-    bool         isDesktop()        const;
-    bool         isModal()        const;
+    bool isTopLevel() const;
+    bool isDialog() const;
+    bool isPopup() const;
+    bool isDesktop() const;
+    bool isModal() const;
 
-    bool         isEnabled()        const;
-    bool         isEnabledTo(QWidget*) const;
-    bool         isEnabledToTLW() const;
+    bool isEnabled() const;
+    bool isEnabledTo(QWidget*) const;
+    bool isEnabledToTLW() const;
 
 public slots:
     void setEnabled(bool);
@@ -193,56 +193,56 @@ public slots:
     // Widget coordinates
 
 public:
-    QRect         frameGeometry() const;
-    const QRect &geometry()        const;
-    int                 x()                const;
-    int                 y()                const;
-    QPoint         pos()                const;
-    QSize         frameSize()    const;
-    QSize         size()                const;
-    int                 width()        const;
-    int                 height()        const;
-    QRect         rect()                const;
-    QRect         childrenRect() const;
-    QRegion         childrenRegion() const;
+    QRect frameGeometry() const;
+    const QRect &geometry() const;
+    int x() const;
+    int y() const;
+    QPoint pos() const;
+    QSize frameSize() const;
+    QSize size() const;
+    int width() const;
+    int height() const;
+    QRect rect() const;
+    QRect childrenRect() const;
+    QRegion childrenRegion() const;
 
-    QSize         minimumSize()         const;
-    QSize         maximumSize()         const;
-    int                 minimumWidth()         const;
-    int                 minimumHeight() const;
-    int                 maximumWidth()         const;
-    int                 maximumHeight() const;
-    void         setMinimumSize(const QSize &);
+    QSize minimumSize() const;
+    QSize maximumSize() const;
+    int minimumWidth() const;
+    int minimumHeight() const;
+    int maximumWidth() const;
+    int maximumHeight() const;
+    void setMinimumSize(const QSize &);
     void setMinimumSize(int minw, int minh);
-    void         setMaximumSize(const QSize &);
+    void setMaximumSize(const QSize &);
     void setMaximumSize(int maxw, int maxh);
-    void         setMinimumWidth(int minw);
-    void         setMinimumHeight(int minh);
-    void         setMaximumWidth(int maxw);
-    void         setMaximumHeight(int maxh);
+    void setMinimumWidth(int minw);
+    void setMinimumHeight(int minh);
+    void setMaximumWidth(int maxw);
+    void setMaximumHeight(int maxh);
 
-    QSize         sizeIncrement() const;
-    void         setSizeIncrement(const QSize &);
+    QSizesizeIncrement() const;
+    void setSizeIncrement(const QSize &);
     void setSizeIncrement(int w, int h);
-    QSize         baseSize() const;
-    void         setBaseSize(const QSize &);
-    void         setBaseSize(int basew, int baseh);
+    QSizebaseSize() const;
+    void setBaseSize(const QSize &);
+    void setBaseSize(int basew, int baseh);
 
-    void        setFixedSize(const QSize &);
-    void        setFixedSize(int w, int h);
-    void        setFixedWidth(int w);
-    void        setFixedHeight(int h);
+    void setFixedSize(const QSize &);
+    void setFixedSize(int w, int h);
+    void setFixedWidth(int w);
+    void setFixedHeight(int h);
 
     // Widget coordinate mapping
 
-    QPoint         mapToGlobal(const QPoint &)         const;
-    QPoint         mapFromGlobal(const QPoint &) const;
-    QPoint         mapToParent(const QPoint &)         const;
-    QPoint         mapFromParent(const QPoint &) const;
-    QPoint         mapTo(QWidget *, const QPoint &) const;
-    QPoint         mapFrom(QWidget *, const QPoint &) const;
+    QPoint mapToGlobal(const QPoint &) const;
+    QPoint mapFromGlobal(const QPoint &) const;
+    QPoint mapToParent(const QPoint &) const;
+    QPoint mapFromParent(const QPoint &) const;
+    QPoint mapTo(QWidget *, const QPoint &) const;
+    QPoint mapFrom(QWidget *, const QPoint &) const;
 
-    QWidget        *topLevelWidget()   const;
+    QWidget *topLevelWidget() const;
 
 #ifndef QT_NO_PALETTE
     // Widget appearance functions
@@ -310,33 +310,32 @@ public:
     bool isFocusEnabled() const;
     void clearFocus();
 
-    FocusPolicy                focusPolicy() const;
+    FocusPolicy focusPolicy() const;
     void setFocusPolicy(FocusPolicy);
-    bool                hasFocus() const;
-    static void                setTabOrder(QWidget *, QWidget *);
+    bool hasFocus() const;
+    static void setTabOrder(QWidget *, QWidget *);
     void setFocusProxy(QWidget *);
-    QWidget *                focusProxy() const;
+    QWidget *focusProxy() const;
 
     void setInputMethodEnabled(bool b);
     bool isInputMethodEnabled() const;
-    // Grab functions
 
-    void                grabMouse();
+    // Grab functions
+    void grabMouse();
 #ifndef QT_NO_CURSOR
-    void                grabMouse(const QCursor &);
+    void grabMouse(const QCursor &);
 #endif
-    void                releaseMouse();
-    void                grabKeyboard();
-    void                releaseKeyboard();
-    static QWidget *        mouseGrabber();
-    static QWidget *        keyboardGrabber();
+    void releaseMouse();
+    void grabKeyboard();
+    void releaseKeyboard();
+    static QWidget *mouseGrabber();
+    static QWidget *keyboardGrabber();
 
     // Update/refresh functions
-
-    bool                isUpdatesEnabled() const;
+    bool isUpdatesEnabled() const;
 
 #if 0 //def Q_WS_QWS
-    void                repaintUnclipped(const QRegion &, bool erase = true);
+    void repaintUnclipped(const QRegion &, bool erase = true);
 #endif
 
     void setUpdatesEnabled(bool enable);
@@ -380,25 +379,25 @@ public:
     void setGeometry(int x, int y, int w, int h);
     void setGeometry(const QRect &);
     void adjustSize();
-    bool                isVisible()        const;
-    bool                isVisibleTo(QWidget*) const;
-    bool                 isHidden() const;
-    bool                 isShown() const;
-    bool                isMinimized() const;
-    bool                isMaximized() const;
-    bool                isFullScreen() const;
+    bool isVisible() const;
+    bool isVisibleTo(QWidget*) const;
+    bool isHidden() const;
+    bool isShown() const;
+    bool isMinimized() const;
+    bool isMaximized() const;
+    bool isFullScreen() const;
 
     uint windowState() const;
     void setWindowState(uint windowState);
 
-    virtual QSize        sizeHint() const;
-    virtual QSize        minimumSizeHint() const;
-    virtual QSizePolicy        sizePolicy() const;
-    void        setSizePolicy(QSizePolicy);
-    void                 setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = false);
+    virtual QSize sizeHint() const;
+    virtual QSize minimumSizeHint() const;
+    virtual QSizePolicy sizePolicy() const;
+    void setSizePolicy(QSizePolicy);
+    void setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = false);
     virtual int heightForWidth(int) const;
 
-    QRegion        clipRegion() const;
+    QRegion clipRegion() const;
 
     void setContentsMargins(int left, int top, int right, int bottom);
     QRect contentsRect() const;
@@ -407,23 +406,23 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout() const;
 #endif
-    void                updateGeometry();
+    void updateGeometry();
 
     inline void setParent(QWidget *parent) { setParent_helper(parent); }
     void setParent(QWidget *parent, WFlags f);
 
-    void                scroll(int dx, int dy);
-    void                scroll(int dx, int dy, const QRect&);
+    void scroll(int dx, int dy);
+    void scroll(int dx, int dy, const QRect&);
 
     // Misc. functions
 
-    QWidget *                focusWidget() const;
+    QWidget *focusWidget() const;
     // #### Find a reasonable name
     QWidget *nextInFocusChain() const;
-    QRect               microFocusHint() const;
+    QRect microFocusHint() const;
 
     // drag and drop
-    bool                acceptDrops() const;
+    bool acceptDrops() const;
     void setAcceptDrops(bool on);
 
     //actions
@@ -434,20 +433,21 @@ public:
 
     // transparency and pseudo transparency
     void setAutoMask(bool);
-    bool                autoMask() const;
+    bool autoMask() const;
 
     QWidget *parentWidget() const;
 
-    WState                testWState(WState s) const;
-    WFlags                testWFlags(WFlags f) const;
-    static QWidget *        find(WId);
+    WState testWState(WState s) const;
+    WFlags testWFlags(WFlags f) const;
+    static QWidget *find(WId);
     static QWidgetMapper *wmapper();
 
     QWidget *childAt(int x, int y) const;
-    inline QWidget *childAt(const QPoint &p) const { return childAt(p.x(), p.y()); }
+    inline QWidget *childAt(const QPoint &p) const 
+    { return childAt(p.x(), p.y()); }
 
 #if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)
-    virtual QGfx * graphicsContext(bool clip_children=true) const;
+    virtual QGfx *graphicsContext(bool clip_children=true) const;
 #endif
 #if defined(Q_WS_X11)
     QX11Info *x11Info() const;
@@ -486,7 +486,7 @@ public:
         WA_CompositeChild,
         WA_CustomWhatsThis,
         WA_LayoutOnEntireRect,
-                WA_OutsideWSRange
+        WA_OutsideWSRange
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
@@ -495,7 +495,7 @@ public:
 
 protected:
     // Event handlers
-    bool         event(QEvent *);
+    bool event(QEvent *);
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void mouseDoubleClickEvent(QMouseEvent *);
@@ -550,14 +550,14 @@ protected:
     // Misc. protected functions
     virtual void changeEvent(QEvent *);
 
-    int                 metric(int)        const;
+    int metric(int) const;
 
-    void         resetInputContext();
+    void resetInputContext();
 
     void create(WId = 0, bool initializeWindow = true,
                          bool destroyOldWindow = true);
     void destroy(bool destroyWindow = true,
-                          bool destroySubWindows = true);
+                 bool destroySubWindows = true);
 
     WState getWState() const;
     void setWState(WState f);
@@ -574,20 +574,20 @@ protected:
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:
-    void         setWinId(WId);
-    void         showWindow();
-    void         hideWindow();
-    void         showChildren(bool spontaneous);
-    void         hideChildren(bool spontaneous);
-    void         setParent_helper(QObject *parent);
-    void         reparent_helper(QWidget *parent, WFlags, const QPoint &,  bool showIt);
-    void         deactivateWidgetCleanup();
-    void         setGeometry_helper(int, int, int, int, bool);
-    void         show_helper();
-    void         hide_helper();
-    void         setEnabled_helper(bool);
-    void         reparentFocusWidgets(QWidget *);
-    void         updateFrameStrut() const;
+    void setWinId(WId);
+    void showWindow();
+    void hideWindow();
+    void showChildren(bool spontaneous);
+    void hideChildren(bool spontaneous);
+    void setParent_helper(QObject *parent);
+    void reparent_helper(QWidget *parent, WFlags, const QPoint &,  bool showIt);
+    void deactivateWidgetCleanup();
+    void setGeometry_helper(int, int, int, int, bool);
+    void show_helper();
+    void hide_helper();
+    void setEnabled_helper(bool);
+    void reparentFocusWidgets(QWidget *);
+    void updateFrameStrut() const;
 
     bool testAttribute_helper(WidgetAttribute) const;
 
@@ -702,22 +702,26 @@ public:
     QT_COMPAT void erase(const QRect &);
     QT_COMPAT void erase(const QRegion &);
     QT_COMPAT void drawText(const QPoint &p, const QString &s)
-        { drawText_helper(p.x(), p.y(), s); }
+    { drawText_helper(p.x(), p.y(), s); }
     inline QT_COMPAT void drawText(int x, int y, const QString &s)
-        { drawText_helper(x, y, s); }
+    { drawText_helper(x, y, s); }
     QT_COMPAT bool close(bool);
     inline QT_COMPAT QWidget *childAt(int x, int y, bool includeThis) const
-    { QWidget *w = childAt(x, y);
-      return w ? w : ((includeThis && rect().contains(x,y))?const_cast<QWidget*>(this):0); }
+    {
+        QWidget *w = childAt(x, y);
+        return w ? w : ((includeThis && rect().contains(x,y))?const_cast<QWidget*>(this):0);
+    }
     inline QT_COMPAT QWidget *childAt(const QPoint &p, bool includeThis) const
-    { QWidget *w = childAt(p);
-      return w ? w : ((includeThis && rect().contains(p))?const_cast<QWidget*>(this):0); }
+    {
+        QWidget *w = childAt(p);
+        return w ? w : ((includeThis && rect().contains(p))?const_cast<QWidget*>(this):0);
+    }
     inline QT_COMPAT void setCaption(const QString &c)   { setWindowTitle(c); }
     inline QT_COMPAT void setIcon(const QPixmap &i)      { setWindowIcon(i); }
     inline QT_COMPAT void setIconText(const QString &it) { setWindowIconText(it); }
-    inline QT_COMPAT QString caption() const  { return windowTitle(); }
+    inline QT_COMPAT QString caption() const             { return windowTitle(); }
     QT_COMPAT const QPixmap *icon() const;
-    inline QT_COMPAT QString iconText() const { return windowIconText(); }
+    inline QT_COMPAT QString iconText() const            { return windowIconText(); }
 private:
     void drawText_helper(int x, int y, const QString &);
     void erase_helper(int x, int y, int w, int h);
@@ -877,14 +881,10 @@ inline void QWidget::clearWFlags(WFlags f)
 { data->widget_flags &= ~f; }
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
-{
-    setSizePolicy(QSizePolicy(hor, ver, hfw));
-}
+{ setSizePolicy(QSizePolicy(hor, ver, hfw)); }
 
 inline bool QWidget::isInputMethodEnabled() const
-{
-    return (bool)data->im_enabled;
-}
+{ return (bool)data->im_enabled; }
 
 inline bool QWidget::testAttribute(WidgetAttribute attribute) const
 {
