@@ -5,6 +5,10 @@
 CONFIG += console
 CONFIG -= opengl qt
 DESTIR = ../bin/
+DEPENDPATH += generators generators/unix generators/win32 \
+              generators/mac $(QTDIR)/include $(QTDIR)/qmake
+INCLUDEPATH += $$DEPENDPATH
+DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
 
 #qmake code
 SOURCES+=project.cpp main.cpp makefile.cpp \
@@ -21,20 +25,27 @@ SOURCES+=qstring.cpp qtextstream.cpp \
 	 qdatastream.cpp qgarray.cpp \
 	 qbuffer.cpp qglist.cpp \
 	 qptrcollection.cpp qfile.cpp \
-	 qfile_unix.cpp qregexp.cpp \
+	 qregexp.cpp \
 	 qgvector.cpp qgcache.cpp \
 	 qbitarray.cpp qdir.cpp \
-	 qfileinfo_unix.cpp qdir_unix.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
 	 qstringlist.cpp qmap.cpp
+#where to find the Qt code, and platform dependant SOURCES
+unix {
+   VPATH = $$QT_SOURCE_TREE/src/tools
+   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
+}
+win32 {
+   VPATH = $$QTDIR/src/tools
+   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
+}
+macx-* {
+     INCLUDEPATH += /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/
+     LIBS += -framework Carbon
+}
 
-DEPENDPATH += generators generators/unix generators/win32 \
-              generators/mac $(QTDIR)/include $(QTDIR)/qmake
-INCLUDEPATH += $$DEPENDPATH
-VPATH = $$DEPENDPATH $$QT_SOURCE_TREE/src/tools
 
-DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
-
+#installation
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
@@ -42,8 +53,3 @@ INSTALLS        += target
 mkspecs.path=$$QT_PREFIX/mkspecs
 mkspecs.files=$(QTDIR)/mkspecs
 INSTALLS        += mkspecs
-
-macx-* {
-     INCLUDEPATH += /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/
-     LIBS += -framework Carbon
-}

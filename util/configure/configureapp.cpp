@@ -942,8 +942,8 @@ void Configure::findProjects( const QString& dirName )
 
     if( dictionary[ "NOPROCESS" ] == "no" ) {
 	while( ( fi = it.current() ) ) {
-	    entryName = dirName + "/" + fi->fileName();
-	    if( fi->fileName()[ 0 ] != '.' ) {
+	    if( fi->fileName()[ 0 ] != '.' && fi->fileName() != "qmake.pro" ) {
+		entryName = dirName + "/" + fi->fileName();
 		if( fi->isDir() ) {
 		    findProjects( entryName );
 		} else {
