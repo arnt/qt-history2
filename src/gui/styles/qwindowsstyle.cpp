@@ -290,7 +290,6 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
                 thick += pixelMetric(PM_SliderLength, sl) / 4;
 
             space -= thick;
-            //### the two sides may be unequal in size
             if (space > 0)
                 thick += (space * 2) / (n + 2);
             ret = thick;
@@ -1833,7 +1832,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (cmb->activeParts == SC_ComboBoxArrow)
                     flags |= Style_Sunken;
-                QStyleOption arrowOpt(0, QStyleOption::Default);
+                QStyleOption arrowOpt(0);
                 arrowOpt.rect = ar;
                 arrowOpt.palette = cmb->palette;
                 arrowOpt.state = flags;
