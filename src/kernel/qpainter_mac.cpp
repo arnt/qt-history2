@@ -1666,10 +1666,10 @@ void QPainter::initPaintDevice(bool force) {
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
-	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
-	    clippedreg = paintevents.current()->region();
         else if ( w->testWFlags(WPaintUnclipped) ) 
 	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
+	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
+	    clippedreg = paintevents.current()->region();
 	else 
 	    clippedreg = w->clippedRegion();
 
