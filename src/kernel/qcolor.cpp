@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#30 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#30 $")
 
 
 /*!
@@ -115,6 +115,7 @@ Constructs a color that is a copy of \e c.
 */
 
 
+bool QColor::ginit  = FALSE;			// global color not init'ed
 bool QColor::lalloc = TRUE;			// lazy color allocation
 
 /*!

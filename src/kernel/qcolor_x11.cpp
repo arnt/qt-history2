@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#31 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#31 $")
 
 
 // --------------------------------------------------------------------------
@@ -76,8 +76,10 @@ static int highest_bit( ulong v )
 
 void QColor::initialize()			// called from startup routines
 {
-    if ( g_cmap )				// already initialized
+    if ( ginit )				// already initialized
 	return;
+    ginit = TRUE;
+
     Display *dpy    = qt_xdisplay();
     int	     screen = qt_xscreen();
     int dd  = DefaultDepth( dpy, screen );	// default depth of display
@@ -173,8 +175,19 @@ QColor::QColor( const char *name )		// load color from database
 
 QColor::QColor( const QColor &c )		// copy color
 {
+    if ( !ginit )
+	initialize();
     rgbVal = c.rgbVal;
     pix    = c.pix;
+}
+
+QColor &QColor::operator=( const QColor &c )	// copy color
+{
+    if ( !ginit )
+	initialize();
+    rgbVal = c.rgbVal;
+    pix    = c.pix;
+    return *this;
 }
 
 
