@@ -45,36 +45,35 @@
 /*
    The operating system, must be one of: (Q_OS_x)
 
-     MACX		- Mac OS X
-     MAC9		- Mac OS 9
-     MSDOS		- MS-DOS and Windows
-     OS2		- OS/2
-     OS2EMX		- XFree86 on OS/2 (not PM)
-     WIN32		- Win32 (Windows 95/98/ME and Windows NT/2000/XP)
-     WIN64		- ###
-     SUN		- SunOS
-     SOLARIS		- Sun Solaris
-     HPUX		- HP-UX
-     ULTRIX		- DEC Ultrix
-     LINUX		- Linux
-     FREEBSD		- FreeBSD
-     NETBSD		- NetBSD
-     OPENBSD		- OpenBSD
-     BSDI		- BSD/OS
-     IRIX		- SGI Irix
-     OSF		- Compaq Tru64
-     UNIXWARE		- SCO UnixWare
-     SCO		- SCO OpenServer
-     AIX		- AIX
-     HURD		- GNU Hurd
-     DGUX		- DG/UX
-     DYNIX		- DYNIX/ptx
-     RELIANT		- Reliant UNIX
-     QNX		- QNX
-     QNX6		- QNX 6.1
-     LYNX		- LynxOS
-     BSD4		- Any BSD 4.4 system
-     UNIX		- Any UNIX BSD/SYSV system
+     MACX	  - Mac OS X
+     MAC9	  - Mac OS 9
+     MSDOS  - MS-DOS and Windows
+     OS2	  - OS/2
+     OS2EMX - XFree86 on OS/2 (not PM)
+     WIN32  - Win32 (Windows 95/98/ME and Windows NT/2000/XP)
+     SUN	  - SunOS
+     SOLARIS	 - Sun Solaris
+     HPUX	  - HP-UX
+     ULTRIX - DEC Ultrix
+     LINUX  - Linux
+     FREEBSD	 - FreeBSD
+     NETBSD - NetBSD
+     OPENBSD    - OpenBSD
+     BSDI	  - BSD/OS
+     IRIX	  - SGI Irix
+     OSF	  - Compaq Tru64
+     UNIXWARE	 - SCO UnixWare 2
+     SCO	  - SCO OpenServer, UnixWare 7, Open UNIX
+     AIX	  - AIX
+     HURD	  - GNU Hurd
+     DGUX	  - DG/UX
+     DYNIX  - DYNIX/ptx
+     RELIANT	 - Reliant UNIX
+     QNX	  - QNX
+     QNX6   - QNX RTP 6.1
+     LYNX	  - LynxOS
+     BSD4	  - Any BSD 4.4 system
+     UNIX	  - Any UNIX BSD/SYSV system
 */
 
 #if defined(__APPLE__) && defined(__GNUC__)
