@@ -903,7 +903,7 @@ void QFontDialog::setFont( const QFont &f )
     }
 
     if ( d->sizeList->count() != 0 ) {
-	int pSize = f.pointSize();
+	int pSize = QFontInfo(f).pointSize();
 	for ( i = 0 ; i < (int)d->sizeList->count() - 1 ; i++ ) {
 	    QString tmp = d->sizeList->text(i);
 	    if ( tmp.toInt() >= pSize )
