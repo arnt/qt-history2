@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#12 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#13 $
 **
 ** Definition of QMainWindow class
 **
@@ -71,6 +71,7 @@ protected slots:
 protected:
     void paintEvent( QPaintEvent * );
     bool event( QEvent * );
+    bool eventFilter( QObject*, QEvent* );
     
 private:
     QMainWindowPrivate * d;

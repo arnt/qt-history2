@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#18 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#18 $");
 
 /*notready
   \class QMainWindow
@@ -139,6 +139,7 @@ void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
     if ( d->mb )
 	delete d->mb;
     d->mb = newMenuBar;
+    d->mb->installEventFilter( this );
     triggerLayout();
 }
 
@@ -163,6 +164,7 @@ QMenuBar * QMainWindow::menuBar() const
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
     delete l;
     ((QMainWindowPrivate*)d)->mb = b;
+    d->mb->installEventFilter( this );
     ((QMainWindow *)this)->triggerLayout();
     return b;
 }
@@ -187,6 +189,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
 	     d->sb, SLOT(message(const char *)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
+    d->sb->installEventFilter( this );
     triggerLayout();
 }
 
@@ -507,6 +510,7 @@ void QMainWindow::show()
 void QMainWindow::setCentralWidget( QWidget * w )
 {
     d->mc = w;
+    d->mc->installEventFilter( this );
     triggerLayout();
 }
 
@@ -538,7 +542,19 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 
 /*!
+  Monitors events to ensure layout is updated.  
+*/
 
+bool QMainWindow::eventFilter( QObject* o, QEvent *e )
+{
+    if ( e->type() == Event_Show
+      || e->type() == Event_Hide )
+	triggerLayout();
+    return QWidget::eventFilter(o,e);
+}
+
+/*!
+  Monitors events to ensure layout is updated.  
 */
 
 bool QMainWindow::event( QEvent * e )
