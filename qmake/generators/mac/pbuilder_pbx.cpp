@@ -734,92 +734,92 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t" << "};" << "\n";
     }
     { //INSTALL BUILDPHASE (sh script)
-        QString targ = project->first("TARGET");
-        if(project->first("TEMPLATE") == "app" ||
-           (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
-            project->isActiveConfig("frameworklib")))
-            targ = project->first("QMAKE_ORIG_TARGET");
-        int slsh = targ.lastIndexOf(Option::dir_sep);
-        if(slsh != -1)
-            targ = targ.right(targ.length() - slsh - 1);
-        fixEnvVariables(targ);
-        QStringList links;
-        if(project->first("TEMPLATE") == "app") {
-            if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
-                targ += ".app";
-        } else if(!project->isActiveConfig("staticlib") &&
-           !project->isActiveConfig("frameworklib")) {
-            QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
-            for(int n = 0; !li[n].isNull(); n++) {
-                QString t = project->first(li[n]);
-                slsh = t.lastIndexOf(Option::dir_sep);
-                if(slsh != -1)
-                    t = t.right(t.length() - slsh);
-                fixEnvVariables(t);
-                links << t;
-            }
-        }
-        QString script = pbx_dir + Option::dir_sep + "qt_install.sh";
-        QFile shf(script);
-        if(shf.open(IO_WriteOnly | IO_Translate)) {
-            debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
-            QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
-            if(project->first("TEMPLATE") == "app") {
-                targ = project->first("TARGET");
-                if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
-                    targ += ".app";
-                    cpflags += "-r ";
-                }
-            } else if(!project->isActiveConfig("frameworklib")) {
-                if(project->isActiveConfig("staticlib"))
-                    targ = project->first("TARGET");
-                else
-                    targ = project->first("TARGET_");
-                int slsh = targ.lastIndexOf(Option::dir_sep);
-                if(slsh != -1)
-                    targ = targ.right(targ.length() - slsh - 1);
-            }
-            QTextStream sht(&shf);
-            QString dstdir = project->first("DESTDIR");
-            fixEnvVariables(dstdir);
+	QString targ = project->first("TARGET");
+	if(project->first("TEMPLATE") == "app" ||
+	   (project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
+	    project->isActiveConfig("frameworklib")))
+	    targ = project->first("QMAKE_ORIG_TARGET");
+	int slsh = targ.lastIndexOf(Option::dir_sep);
+	if(slsh != -1)
+	    targ = targ.right(targ.length() - slsh - 1);
+	fixEnvVariables(targ);
+	QStringList links;
+	if(project->first("TEMPLATE") == "app") {
+	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+		targ += ".app";
+	} else if(!project->isActiveConfig("staticlib") &&
+	   !project->isActiveConfig("frameworklib")) {
+	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
+	    for(int n = 0; !li[n].isNull(); n++) {
+		QString t = project->first(li[n]);
+		slsh = t.lastIndexOf(Option::dir_sep);
+		if(slsh != -1)
+		    t = t.right(t.length() - slsh);
+		fixEnvVariables(t);
+		links << t;
+	    }
+	}
+	QString script = pbx_dir + Option::dir_sep + "qt_install.sh";
+	QFile shf(script);
+	if(shf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
+	    QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
+	    if(project->first("TEMPLATE") == "app") {
+		targ = project->first("TARGET");
+		if(!project->isActiveConfig("console")) {
+		    targ += ".app";
+		    cpflags += "-r ";
+		}
+	    } else if(!project->isActiveConfig("frameworklib")) {
+		if(project->isActiveConfig("staticlib"))
+		    targ = project->first("TARGET");
+		else
+		    targ = project->first("TARGET_");
+	    }
+            int slsh = targ.lastIndexOf(Option::dir_sep);
+            if(slsh != -1)
+                targ = targ.right(targ.length() - slsh - 1);
 
-            sht << "#!/bin/sh" << endl;
-            //copy the actual target
-            sht << "OUT_TARG=\"" << targ << "\"\n"
-                << "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
-            sht << "[ \"$OUT_TARG\" = \""
-                << (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || "
-                << "[ \"$OUT_TARG\" = \"" << targ << "\" ] || "
-                << "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
-            //rename as a framework
-            if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
-                sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
-            //create all the version symlinks (just to be like unixmake)
-            for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
-                if(targ != (*it))
-                    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
-            }
-            shf.close();
+	    QString dstdir = project->first("DESTDIR");
+	    fixEnvVariables(dstdir);
+
+	    QTextStream sht(&shf);
+	    sht << "#!/bin/sh" << endl;
+	    //copy the actual target
+	    sht << "OUT_TARG=\"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n" 
+                << "[ \"$OUT_TARG\" = \"" 
+		<< (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || " 
+		<< "[ \"$OUT_TARG\" = \"" << targ << "\" ] || " 
+		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
+	    //rename as a framework
+	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
+		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
+	    //create all the version symlinks (just to be like unixmake)
+	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
+		if(targ != (*it)) 
+		    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
+	    }
+	    shf.close();
 #ifdef Q_OS_UNIX
             chmod(script.latin1(), S_IRWXU | S_IRWXG);
 #endif
-            QString phase_key = keyFor("QMAKE_PBX_INSTALL_BUILDPHASE");
-            script = fileFixify(script, QDir::currentDirPath());
-            project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
-            t << "\t\t" << phase_key << " = {" << "\n"
-              << "\t\t\t" << "buildActionMask = 8;" << "\n" //only on install!
-              << "\t\t\t" << "files = (" << "\n"
-              << "\t\t\t" << ");" << "\n"
-              << "\t\t\t" << "generatedFileNames = (" << "\n"
-              << "\t\t\t" << ");" << "\n"
-              << "\t\t\t" << "isa = PBXShellScriptBuildPhase;" << "\n"
-              << "\t\t\t" << "name = \"Qt Install\";" << "\n"
-              << "\t\t\t" << "neededFileNames = (" << "\n"
-              << "\t\t\t" << ");" << "\n"
-              << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
-              << "\t\t\t" << "shellScript = \"" << script << "\";" << "\n"
-              << "\t\t" << "};" << "\n";
-        }
+	    QString phase_key = keyFor("QMAKE_PBX_INSTALL_BUILDPHASE");
+	    script = fileFixify(script, QDir::currentDirPath());
+	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
+	    t << "\t\t" << phase_key << " = {" << "\n"
+	      << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
+	      << "\t\t\t" << "files = (" << "\n"
+	      << "\t\t\t" << ");" << "\n"
+	      << "\t\t\t" << "generatedFileNames = (" << "\n"
+	      << "\t\t\t" << ");" << "\n"
+	      << "\t\t\t" << "isa = PBXShellScriptBuildPhase;" << "\n"
+	      << "\t\t\t" << "name = \"Qt Install\";" << "\n"
+	      << "\t\t\t" << "neededFileNames = (" << "\n"
+	      << "\t\t\t" << ");" << "\n"
+	      << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
+	      << "\t\t\t" << "shellScript = \"" << script << "\";" << "\n"
+	      << "\t\t" << "};" << "\n";
+	}
     }
     if(/*ideType() == MAC_XCODE &&*/ !project->isEmpty("QMAKE_PBX_PRESCRIPT_BUILDPHASES")) {
         // build reference
