@@ -40,9 +40,9 @@
 
     These three states require some explanation. An \c Invalid string
     is \e clearly invalid. \c Intermediate is less obvious: the
-    concept of validity is slippery when the string is incomplete
-    (still being edited). QValidator defines \c Intermediate as the
-    property of a string that is neither clearly invalid nor
+    concept of validity is difficult to apply when the string is
+    incomplete (still being edited). QValidator defines \c Intermediate
+    as the property of a string that is neither clearly invalid nor
     acceptable as a final result. \c Acceptable means that the string
     is acceptable as a final result. One might say that any string
     that is a plausible intermediate state during entry of an \c
@@ -54,7 +54,7 @@
 
     \i For a line edit that accepts integers from 0 to 999 inclusive,
     42 and 123 are \c Acceptable, the empty string and 1114 are \c
-    Intermediate and asdf is \c Invalid.
+    Intermediate, and "asdf" is \c Invalid.
 
     \i For an editable combobox that accepts URLs, any well-formed URL
     is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate
@@ -64,7 +64,7 @@
     a new URL) and "http:///./" is \c Invalid.
 
     \i For a spin box that accepts lengths, "11cm" and "1in" are \c
-    Acceptable, "11" and the empty string are \c Intermediate and
+    Acceptable, "11" and the empty string are \c Intermediate, and
     "http://www.trolltech.com" and "hour" are \c Invalid.
 
     \endlist
@@ -87,13 +87,12 @@
     This enum type defines the states in which a validated string can
     exist.
 
-    \value Invalid  the string is \e clearly invalid.
+    \value Invalid       The string is \e clearly invalid.
+    \value Intermediate  The string is a plausible intermediate value
+                         during editing.
+    \value Acceptable    The string is acceptable as a final result;
+                         i.e. it is valid.
 
-    \value Intermediate  the string is a plausible intermediate value
-    during editing.
-
-    \value Acceptable  the string is acceptable as a final result,
-    i.e. it is valid.
 */
 
 
@@ -119,17 +118,17 @@ QValidator::~QValidator()
 
 
 /*!
-    \fn QValidator::State QValidator::validate(QString& input, int& pos) const
+    \fn QValidator::State QValidator::validate(QString &input, int &pos) const
 
-    This pure virtual function returns \c Invalid if \a input is
-    invalid according to this validator's rules, \c Intermediate if it
+    This virtual function returns \c Invalid if \a input is invalid
+    according to this validator's rules, \c Intermediate if it
     is likely that a little more editing will make the input
-    acceptable (e.g. the user types '4' into a widget which accepts
-    integers between 10 and 99) and \c Acceptable if the input is
+    acceptable (e.g. the user types "4" into a widget which accepts
+    integers between 10 and 99), and \c Acceptable if the input is
     valid.
 
-    The function can change \a input and \a pos (the cursor position)
-    if it wants to.
+    The function can change both \a input and \a pos (the cursor position)
+    if required.
 */
 
 
@@ -157,16 +156,16 @@ void QValidator::fixup(QString &) const
 
 /*!
     \class QIntValidator
-    \brief The QIntValidator class provides a validator which ensures
-    that a string contains a valid integer within a specified range.
+    \brief The QIntValidator class provides a validator that ensures
+    a string contains a valid integer within a specified range.
 
     \ingroup misc
 
     Example of use:
 
     \code
-    QValidator* validator = new QIntValidator(100, 999, this);
-    QLineEdit* edit = new QLineEdit(this);
+    QValidator *validator = new QIntValidator(100, 999, this);
+    QLineEdit *edit = new QLineEdit(this);
 
     // the edit lineedit will only accept integers between 100 and 999
     edit->setValidator(validator);
@@ -200,7 +199,7 @@ void QValidator::fixup(QString &) const
     v.validate(str, pos);     // returns Invalid
     \endcode
 
-    The minimum and maximum values are set in one call with setRange()
+    The minimum and maximum values are set in one call with setRange(),
     or individually with setBottom() and setTop().
 
     \sa QDoubleValidator QRegExpValidator
@@ -208,7 +207,7 @@ void QValidator::fixup(QString &) const
 
 
 /*!
-    Constructs a validator called \a name with parent \a parent, that
+    Constructs a validator with a \a parent object and a \a name that
     accepts all integers.
 */
 
@@ -221,7 +220,7 @@ QIntValidator::QIntValidator(QObject * parent, const char *name)
 
 
 /*!
-    Constructs a validator called \a name with parent \a parent, that
+    Constructs a validator called \a name with a \a parent, that
     accepts integers from \a minimum to \a maximum inclusive.
 */
 
@@ -235,7 +234,7 @@ QIntValidator::QIntValidator(int minimum, int maximum,
 
 
 /*!
-    Destroys the validator, freeing any resources allocated.
+    Destroys the validator.
 */
 
 QIntValidator::~QIntValidator()
@@ -245,6 +244,8 @@ QIntValidator::~QIntValidator()
 
 
 /*!
+    \fn QValidator::State QIntValidator::validate(QString &input, int &pos) const
+
     Returns \c Acceptable if the \a input is an integer within the
     valid range, \c Intermediate if the \a input is an integer outside
     the valid range and \c Invalid if the \a input is not an integer.
@@ -264,6 +265,8 @@ QIntValidator::~QIntValidator()
     v.validate(s, pos); // returns Invalid
 
     \endcode
+
+    By default, the \a pos parameter is not used by this validator.
 */
 
 QValidator::State QIntValidator::validate(QString & input, int &) const
@@ -332,7 +335,7 @@ void QIntValidator::setTop(int top)
 
     \ingroup misc
 
-    QDoubleValidator provides an upper bound, a lower bound and a
+    QDoubleValidator provides an upper bound, a lower bound, and a
     limit on the number of digits after the decimal point. It does not
     provide a fixup() function.
 
@@ -345,8 +348,8 @@ void QIntValidator::setTop(int top)
 */
 
 /*!
-    Constructs a validator object with parent \a parent, called \a
-    name, which accepts any double.
+    Constructs a validator object with a \a parent object and a \a name
+    that accepts any double.
 */
 
 QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
@@ -359,7 +362,7 @@ QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
 
 
 /*!
-    Constructs a validator object with parent \a parent, called \a
+    Constructs a validator object with a \a parent object, called \a
     name. This validator will accept doubles from \a bottom to \a top
     inclusive, with up to \a decimals digits after the decimal point.
 */
@@ -375,7 +378,7 @@ QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
 
 
 /*!
-    Destroys the validator, freeing any resources used.
+    Destroys the validator.
 */
 
 QDoubleValidator::~QDoubleValidator()
@@ -384,17 +387,21 @@ QDoubleValidator::~QDoubleValidator()
 
 
 /*!
+    \fn QValidator::State QDoubleValidator::validate(QString &input, int &pos) const
+
     Returns \c Acceptable if the string \a input contains a double
     that is within the valid range and is in the correct format.
 
     Returns \c Intermediate if \a input contains a double that is
-    outside the range or is in the wrong format, e.g. with too many
+    outside the range or is in the wrong format; e.g. with too many
     digits after the decimal point or is empty.
 
     Returns \c Invalid if the \a input is not a double.
 
-    Note: If the valid range consists of just positive doubles (e.g. 0.0 - 100.0)
-    and \a input is a negative double then Invalid is returned.
+    Note: If the valid range consists of just positive doubles (e.g. 0.0 to 100.0)
+    and \a input is a negative double then \c Invalid is returned.
+
+    By default, the \a pos parameter is not used by this validator.
 */
 
 QValidator::State QDoubleValidator::validate(QString & input, int &) const
@@ -501,13 +508,14 @@ void QDoubleValidator::setDecimals(int decimals)
 
     \ingroup misc
 
-    QRegExpValidator contains a regular expression, "regexp", used to
+    QRegExpValidator uses a regular expression (regexp) to
     determine whether an input string is \c Acceptable, \c
-    Intermediate or \c Invalid.
+    Intermediate, or \c Invalid. The regexp can either be supplied
+    when the QRegExpValidator is constructed, or at a later time.
 
     The regexp is treated as if it begins with the start of string
-    assertion, <b>^</b>, and ends with the end of string assertion
-    <b>$</b> so the match is against the entire input string, or from
+    assertion, \bold{^}, and ends with the end of string assertion
+    \bold{$} so the match is against the entire input string, or from
     the given position if a start position greater than zero is given.
 
     For a brief introduction to Qt's regexp engine see \l QRegExp.
@@ -516,9 +524,9 @@ void QDoubleValidator::setDecimals(int decimals)
     \code
     // regexp: optional '-' followed by between 1 and 3 digits
     QRegExp rx("-?\\d{1,3}");
-    QValidator* validator = new QRegExpValidator(rx, this);
+    QValidator *validator = new QRegExpValidator(rx, this);
 
-    QLineEdit* edit = new QLineEdit(this);
+    QLineEdit *edit = new QLineEdit(this);
     edit->setValidator(validator);
     \endcode
 
@@ -563,9 +571,8 @@ void QDoubleValidator::setDecimals(int decimals)
 */
 
 /*!
-    Constructs a validator that accepts any string (including an empty
-    one) as valid. The object's parent is \a parent and its name is \a
-    name.
+    Constructs a validator with a \a parent object and \a name that accepts
+    any string (including an empty one) as valid.
 */
 
 QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
@@ -574,12 +581,11 @@ QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
 }
 
 /*!
-    Constructs a validator which accepts all strings that match the
-    regular expression \a rx. The object's parent is \a parent and its
-    name is \a name.
+    Constructs a validator with a \a parent object and a \a name that
+    accepts all strings that match the regular expression \a rx.
 
-    The match is made against the entire string, e.g. if the regexp is
-    <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
+    The match is made against the entire string; e.g. if the regexp is
+    \bold{[A-Fa-f0-9]+} it will be treated as \bold{^[A-Fa-f0-9]+$}.
 */
 
 QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent,
@@ -589,7 +595,7 @@ QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent,
 }
 
 /*!
-    Destroys the validator, freeing any resources allocated.
+    Destroys the validator.
 */
 
 QRegExpValidator::~QRegExpValidator()
@@ -604,9 +610,9 @@ QRegExpValidator::~QRegExpValidator()
 
     The \a pos parameter is set to the length of the \a input parameter.
 
-    For example, if the regular expression is <b>\\w\\d\\d</b> (that
-    is, word-character, digit, digit) then "A57" is \c Acceptable,
-    "E5" is \c Intermediate and "+9" is \c Invalid.
+    For example, if the regular expression is \bold{\\w\\d\\d}
+    (word-character, digit, digit) then "A57" is \c Acceptable,
+    "E5" is \c Intermediate, and "+9" is \c Invalid.
 
     \sa QRegExp::exactMatch()
 */
