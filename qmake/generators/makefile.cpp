@@ -582,7 +582,7 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const Q
  		generateDependencies(dirs, (*recurse_list)[i], recurse);
  		QStringList &deplist = findDependencies((*recurse_list)[i]);
  		for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
- 		    if(recurse_list->indexOf((*it)) == -1)
+ 		    if(recurse_list->indexOf((*it)) == -1 && (*recuse_list)[i] != fn))
  			recurse_list->append((*it));
  	    }
   	}
@@ -1556,7 +1556,7 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 {
     QStringList &uil = project->variables()[ui];
     for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
-	QString deps = findDependencies((*it)).join(" \\\n\t\t"), decl, impl;
+	QString decl, impl;
 	{
 	    QString tmp = (*it), impl_dir, decl_dir;
 	    decl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::h_ext.first());
@@ -1591,14 +1591,16 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	    createDir(impl_dir);
 	    createDir(decl_dir);
 	}
-	t << decl << ": " << (*it) << " " << deps << "\n\t"
+	QStringList deps = findDependencies((*it));
+	deps.remove(decl); //avoid circular dependencies..
+	t << decl << ": " << (*it) << " " << deps.join(" \\\n\t\t") << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
 
 	QString mildDecl = decl;
 	int k = mildDecl.lastIndexOf(Option::dir_sep);
 	if(k != -1)
 	    mildDecl = mildDecl.mid(k + 1);
-	t << impl << ": " << decl << " " << (*it) << " " << deps << "\n\t"
+	t << impl << ": " << decl << " " << (*it) << " " << deps.join(" \\\n\t\t") << "\n\t"
 	  << "$(UIC)";
 	t << " " << (*it) << " -i " << mildDecl << " -o " << impl << endl << endl;
     }
