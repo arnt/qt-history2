@@ -2395,9 +2395,9 @@ QPopupMenu *QLineEdit::createPopupMenu()
 #else
     d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) + ACCEL_KEY( A ) );
 #endif
-    bool enableUndo = !d->readonly && d->parag->commands()->isUndoAvailable();
+    bool enableUndo = !d->readonly && isUndoAvailable();
     popup->setItemEnabled( d->id[ IdUndo ], enableUndo );
-    bool enableRedo = !d->readonly && d->parag->commands()->isRedoAvailable();
+    bool enableRedo = !d->readonly && isRedoAvailable();
     popup->setItemEnabled( d->id[ IdRedo ], enableRedo );
 #ifndef QT_NO_CLIPBOARD
     bool enableCut = !d->readonly && hasSelectedText();
@@ -2487,7 +2487,10 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
 */
 bool QLineEdit::isUndoAvailable() const
 {
-    return d->parag->commands()->isUndoAvailable();
+    if ( hasMask() )
+	return FALSE;
+    else
+	return d->parag->commands()->isUndoAvailable();
 }
 
 /* IGNORE!
@@ -2496,7 +2499,10 @@ bool QLineEdit::isUndoAvailable() const
 */
 bool QLineEdit::isRedoAvailable() const
 {
-    return d->parag->commands()->isRedoAvailable();
+    if ( hasMask() )
+	return FALSE;
+    else
+	return d->parag->commands()->isRedoAvailable();
 }
 
 /*!
