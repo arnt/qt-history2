@@ -338,8 +338,7 @@ static uchar *pat_tbl[] = {
    if ( bs == CustomPattern || pat ) {
         QPixmap *pm;
         if ( pat ) {
-            QString key;
-            key.sprintf( "$qt-brush$%d", bs );
+            QString key="$qt-brush$" + QString::number( bs );
             pm = QPixmapCache::find( key );
             bool del = FALSE;
             if ( !pm ) {                        // not already in pm dict
@@ -761,10 +760,6 @@ void QPainter::drawPoint( int x, int y )
 		return;
 	    }
 	    map( x, y, &x, &y );
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    pdev->cmd( QPaintDevice::PdcDrawPoint, this, param );
-	    return;
 	}
 	gfx->drawPoint(x,y);
     }
