@@ -103,7 +103,7 @@ QVariant QMimeDataPrivate::getData(const QString &format) const
     Usually, it is easier to rely on QMimeData's support for QImage and QPixmap when
     handling images.
 
-    \sa QClipboard QDrag \link Drag and Drop\endlink
+    \sa QClipboard QMimeData QDrag \link Drag and Drop\endlink
 */
 
 /*!
