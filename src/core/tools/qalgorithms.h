@@ -20,48 +20,23 @@
 #include "qtextstream.h"
 #endif // QT_H
 
-#ifndef QT_NO_TEXTSTREAM
-template <class T>
-class QTextOStreamIterator
+template <typename InputIterator, typename OutputIterator>
+inline OutputIterator qCopy(InputIterator begin, InputIterator end, OutputIterator dest)
 {
-protected:
-    QTextOStream &stream;
-    QString separator;
-
-public:
-    QTextOStreamIterator(QTextOStream &s) : stream(s) {}
-    QTextOStreamIterator(QTextOStream &s, const QString &sep)
-        : stream(s), separator(sep)  {}
-    QTextOStreamIterator<T> &operator= (const T &x) {
-        stream << x;
-        if (!separator.isEmpty())
-            stream << separator;
-        return *this;
-    }
-    QTextOStreamIterator<T> &operator*() { return *this; }
-    QTextOStreamIterator<T> &operator++() { return *this; }
-    QTextOStreamIterator<T> &operator++(int) { return *this; }
-};
-#endif //QT_NO_TEXTSTREAM
-
-template <class InputIterator, class OutputIterator>
-inline OutputIterator qCopy(InputIterator _begin, InputIterator _end,
-                            OutputIterator _dest)
-{
-    while(_begin != _end)
-        *_dest++ = *_begin++;
-    return _dest;
+    while (begin != end)
+        *dest++ = *begin++;
+    return dest;
 }
 
-template <class BiIterator1, class BiIterator2>
-inline BiIterator2 qCopyBackward(BiIterator1 _begin, BiIterator1 _end, BiIterator2 _dest)
+template <typename BiIterator1, typename BiIterator2>
+inline BiIterator2 qCopyBackward(BiIterator1 begin, BiIterator1 end, BiIterator2 dest)
 {
-    while (_begin != _end)
-        *--_dest = *--_end;
-    return _dest;
+    while (begin != end)
+        *--dest = *--end;
+    return dest;
 }
 
-template <class InputIterator1, class InputIterator2>
+template <typename InputIterator1, typename InputIterator2>
 inline bool qEqual(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)
 {
     for (; first1 != last1; ++first1, ++first2)
@@ -70,35 +45,22 @@ inline bool qEqual(InputIterator1 first1, InputIterator1 last1, InputIterator2 f
     return true;
 }
 
-template <class ForwardIterator, class T>
+template <typename ForwardIterator, typename T>
 inline void qFill(ForwardIterator first, ForwardIterator last, const T &val)
 {
     for (; first != last; ++first)
         *first = val;
 }
 
-#if 0
-template <class BiIterator, class OutputIterator>
-inline OutputIterator qReverseCopy(BiIterator _begin, BiIterator _end, OutputIterator _dest)
-{
-    while (_begin != _end) {
-        --_end;
-        *_dest = *_end;
-        ++_dest;
-    }
-    return _dest;
-}
-#endif
-
-template <class InputIterator, class T>
+template <typename InputIterator, typename T>
 inline InputIterator qFind(InputIterator first, InputIterator last, const T &val)
 {
-    while (first != last && *first != val)
+    while (first != last && !(*first == val))
         ++first;
     return first;
 }
 
-template <class InputIterator, class T, class Size>
+template <typename InputIterator, typename T, typename Size>
 inline void qCount(InputIterator first, InputIterator last, const T &value, Size &n)
 {
     for (; first != last; ++first)
@@ -106,71 +68,91 @@ inline void qCount(InputIterator first, InputIterator last, const T &value, Size
             ++n;
 }
 
-template <class T>
-inline void qSwap(T &_value1, T &_value2)
+template <typename T>
+inline void qSwap(T &value1, T &value2)
 {
-    T tmp = _value1;
-    _value1 = _value2;
-    _value2 = tmp;
+    T tmp = value1;
+    value1 = value2;
+    value2 = tmp;
 }
 
-template <class BiIterator>
-void qBubbleSort(BiIterator b, BiIterator e)
+template <typename T>
+bool qLess(const T &t1, const T &t2)
+{ return t1 < t2; }
+
+template <typename T>
+bool qGreater(const T &t1, const T &t2)
+{ return t1 > t2; }
+
+template <typename BiIterator, typename LessThan>
+void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
     // Goto last element;
-    BiIterator last = e;
+    BiIterator last = end;
     --last;
     // only one element or no elements ?
-    if (last == b)
+    if (last == begin)
         return;
 
     // So we have at least two elements in here
-    while(b != last) {
+    while (begin != last) {
         bool swapped = false;
-        BiIterator swap_pos = b;
-        BiIterator x = e;
+        BiIterator swapPos = begin;
+        BiIterator x = end;
         BiIterator y = x;
         y--;
         do {
             --x;
             --y;
-            if (*x < *y) {
+            if (lessThan(*x, *y)) {
                 swapped = true;
                 qSwap(*x, *y);
-                swap_pos = y;
+                swapPos = y;
             }
-        } while(y != b);
+        } while (y != begin);
         if (!swapped)
             return;
-        b = swap_pos;
-        b++;
+        begin = swapPos;
+        ++begin;
     }
 }
 
-template <class Container>
+template <typename BiIterator, typename T>
+void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
+{
+    qBubbleSort(begin, end, qLess<T>);
+}
+
+template <typename BiIterator>
+void qBubbleSort(BiIterator begin, BiIterator end)
+{
+    qBubbleSortHelper(begin, end, *begin);
+}
+
+template <typename Container>
 inline void qBubbleSort(Container &c)
 {
     qBubbleSort(c.begin(), c.end());
 }
 
-template <class Value>
-void qHeapSortPushDown(Value *heap, int first, int last)
+template <typename T, typename LessThan>
+void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
 {
     int r = first;
     while (r <= last / 2) {
         if (last == 2 * r) {
             // node r has only one child
-            if (heap[2 * r] < heap[r])
+            if (lessThan(heap[2 * r], heap[r]))
                 qSwap(heap[r], heap[2 * r]);
             r = last;
         } else {
             // node r has two children
-            if (heap[2 * r] < heap[r] && !(heap[2 * r + 1] < heap[2 * r])) {
+            if (lessThan(heap[2 * r], heap[r]) && !lessThan(heap[2 * r + 1], heap[2 * r])) {
                 // swap with left child
                 qSwap(heap[r], heap[2 * r]);
                 r *= 2;
-            } else if (heap[2 * r + 1] < heap[r]
-                        && heap[2 * r + 1] < heap[2 * r]) {
+            } else if (lessThan(heap[2 * r + 1], heap[r])
+                       && lessThan(heap[2 * r + 1], heap[2 * r])) {
                 // swap with right child
                 qSwap(heap[r], heap[2 * r + 1]);
                 r = 2 * r + 1;
@@ -181,18 +163,27 @@ void qHeapSortPushDown(Value *heap, int first, int last)
     }
 }
 
-template <class BiIterator, class Value>
-void qHeapSortHelper(BiIterator b, BiIterator e, Value, uint n)
+template <typename BiIterator, typename T, typename LessThan>
+void qHeapSortHelper(BiIterator begin, BiIterator end, T, LessThan lessThan)
 {
+    BiIterator it = begin;
+    uint n = 0;
+    while (it != end) {
+        ++n;
+        ++it;
+    }
+    if (n == 0)
+        return;
+
     // Create the heap
-    BiIterator insert = b;
-    Value *realheap = new Value[n];
-    Value *heap = realheap - 1;
+    BiIterator insert = begin;
+    T *realheap = new T[n];
+    T *heap = realheap - 1;
     int size = 0;
-    for(; insert != e; ++insert) {
+    for(; insert != end; ++insert) {
         heap[++size] = *insert;
         int i = size;
-        while (i > 1 && heap[i] < heap[i / 2]) {
+        while (i > 1 && lessThan(heap[i], heap[i / 2])) {
             qSwap(heap[i], heap[i / 2]);
             i /= 2;
         }
@@ -200,139 +191,113 @@ void qHeapSortHelper(BiIterator b, BiIterator e, Value, uint n)
 
     // Now do the sorting
     for (int i = n; i > 0; i--) {
-        *b++ = heap[1];
+        *begin++ = heap[1];
         if (i > 1) {
             heap[1] = heap[i];
-            qHeapSortPushDown(heap, 1, i - 1);
+            qHeapSortPushDown(heap, 1, i - 1, lessThan);
         }
     }
 
     delete[] realheap;
 }
 
-template <class BiIterator>
-void qHeapSort(BiIterator b, BiIterator e)
+template <typename BiIterator, typename T>
+void qHeapSortHelper(BiIterator begin, BiIterator end, T dummy)
 {
-    // Empty?
-    if (b == e)
-        return;
-
-    // How many entries have to be sorted?
-    BiIterator it = b;
-    uint n = 0;
-    while (it != e) {
-        ++n;
-        ++it;
-    }
-
-    // The second last parameter is a hack to retrieve the value type
-    // Do the real sorting here
-    qHeapSortHelper(b, e, *b, n);
+    qHeapSortHelper(begin, end, dummy, qLess<T>);
 }
 
-template <class Container>
+template <typename BiIterator, typename LessThan>
+void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
+{
+    qHeapSortHelper(begin, end, *begin, lessThan);
+}
+
+template <typename BiIterator>
+void qHeapSort(BiIterator begin, BiIterator end)
+{
+    qHeapSortHelper(begin, end, *begin);
+}
+
+template <typename Container>
 void qHeapSort(Container &c)
 {
-    if (c.begin() == c.end())
-        return;
-
-    // The second last parameter is a hack to retrieve the value type
-    // Do the real sorting here
-    qHeapSortHelper(c.begin(), c.end(), *c.begin(), uint(c.count()));
+    qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
-template <class RandomAccessIterator, class T>
-RandomAccessIterator qLowerBound(RandomAccessIterator b, RandomAccessIterator e, const T &value)
+template <typename RandomAccessIterator, typename T>
+RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     RandomAccessIterator middle;
-    int n = e - b;
+    int n = end - begin;
     int half;
 
     while (n > 0) {
         half = n >> 1;
-        middle = b + half;
+        middle = begin + half;
         if (*middle < value) {
-            b = middle + 1;
+            begin = middle + 1;
             n -= half + 1;
         } else {
             n = half;
         }
     }
-    return b;
+    return begin;
 }
 
-template <class RandomAccessIterator, class T>
-RandomAccessIterator qUpperBound(RandomAccessIterator b, RandomAccessIterator e, const T &value)
+template <typename RandomAccessIterator, typename T>
+RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     RandomAccessIterator middle;
-    int n = e - b;
+    int n = end - begin;
     int half;
 
     while (n > 0) {
         half = n >> 1;
-        middle = b + half;
+        middle = begin + half;
         if (value < *middle) {
             n = half;
         } else {
-            b = middle + 1;
+            begin = middle + 1;
             n -= half + 1;
         }
     }
-    return b;
+    return begin;
 }
 
-template <class RandomAccessIterator, class T>
-RandomAccessIterator qBinaryFind(RandomAccessIterator b, RandomAccessIterator e, const T &value)
+template <typename RandomAccessIterator, typename T>
+RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
 {
     int l = 0;
-    int r = e - b - 1;
+    int r = end - begin - 1;
     if (r <= 0)
-        return e;
+        return end;
     int i = (l + r + 1) / 2;
     while (r != l) {
-        if (value < b[i])
+        if (value < begin[i])
             r = i - 1;
         else
             l = i;
         i = (l + r + 1) / 2;
     }
-    if (b[i] < value || value < b[i])
-        return e;
+    if (begin[i] < value || value < begin[i])
+        return end;
     else
-        return b + i;
+        return begin + i;
 }
 
-template <class ForwardIterator>
-void qDeleteAll(ForwardIterator b, ForwardIterator e)
+template <typename ForwardIterator>
+void qDeleteAll(ForwardIterator begin, ForwardIterator end)
 {
-    while (b != e) {
-        delete *b;
-        ++b;
+    while (begin != end) {
+        delete *begin;
+        ++begin;
     }
 }
 
-template <class Container>
+template <typename Container>
 void qDeleteAll(const Container &c)
 {
     qDeleteAll(c.begin(), c.end());
 }
-
-template <class Container>
-class QBackInsertIterator
-{
-public:
-    inline explicit QBackInsertIterator(Container &c): container(&c) {}
-    inline QBackInsertIterator<Container>&operator=(const typename Container::value_type &value)
-    { container->push_back(value); return *this; }
-    inline QBackInsertIterator<Container> &operator*() { return *this; }
-    inline QBackInsertIterator<Container> &operator++() { return *this; }
-    inline QBackInsertIterator<Container> &operator++(int) { return *this; }
-protected:
-    Container *container;
-};
-
-template <class Container>
-inline QBackInsertIterator<Container> qBackInserter(Container &c)
-{ return QBackInsertIterator<Container>(c); }
-
 #endif
