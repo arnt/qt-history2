@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_THUMBWHEEL
 
-class QThumbWheel : public QFrame, public QRangeControl
+class QThumbWheel : public Q3Frame, public QRangeControl
 {
     Q_OBJECT
 

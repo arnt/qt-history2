@@ -12,32 +12,30 @@ void WidgetsBase::destroy()
 void WidgetsBase::resetColors()
 {
     groupBox->setPalette( palette(), FALSE );
-    if(QObjectList chldn = groupBox->queryList()) {
-	QObjectList::ConstIterator obj = chldn.begin();
-	while(*obj) {
-	    if((*obj)->isWidgetType()) {
-		QWidget *w = (QWidget *)(*obj);
-		if(!w->isTopLevel())
-		    w->setPalette(palette(), FALSE);
-	    }
-	    ++obj;
+    QObjectList chldn = groupBox->queryList();
+    QObjectList::ConstIterator obj = chldn.begin();
+    while(*obj) {
+        if((*obj)->isWidgetType()) {
+            QWidget *w = (QWidget *)(*obj);
+	    if(!w->isTopLevel())
+	        w->setPalette(palette(), FALSE);
 	}
+        ++obj;
     }
 }
 
 void WidgetsBase::setColor( const QString & color )
 {
     groupBox->setPalette( QColor( color ), FALSE );
-    if(QObjectList chldn = groupBox->queryList()) {
-	QObjectList::ConstIterator obj = chldn.begin();
-	while(*obj) {
-	    if((*obj)->isWidgetType()) {
-		QWidget *w = (QWidget *)(*obj);
-		if(!w->isTopLevel())
-		    w->setPalette(QColor(color), FALSE);
-	    }
-	    ++obj;
+    QObjectList chldn = groupBox->queryList();
+    QObjectList::ConstIterator obj = chldn.begin();
+    while(*obj) {
+        if((*obj)->isWidgetType()) {
+            QWidget *w = (QWidget *)(*obj);
+	    if(!w->isTopLevel())
+	        w->setPalette(QColor(color), FALSE);
 	}
+	++obj;
     }
 }
 

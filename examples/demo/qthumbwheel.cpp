@@ -25,7 +25,7 @@ static const double m_pi = 3.14159265358979323846;
 static const double rad_factor = 180.0 / m_pi;
 
 QThumbWheel::QThumbWheel( QWidget *parent, const char *name )
-    : QFrame( parent, name )
+    : Q3Frame( parent, name )
 {
     orient = Vertical;
     init();
