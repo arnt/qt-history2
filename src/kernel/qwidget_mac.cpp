@@ -120,7 +120,6 @@ static WId parentw;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
-QPaintDevice *g_cur_paintdev = 0;
 
 static WId qt_root_win() {
     WindowPtr ret = NULL;

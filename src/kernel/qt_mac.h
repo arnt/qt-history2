@@ -23,7 +23,7 @@
 #endif
 #undef OLD_DEBUG
 
-extern int mac_window_count;
+extern int mac_window_count; //qwidget_mac.cpp
 
 class QMacSavedFontInfo 
 {
@@ -57,7 +57,7 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
 }
 
 #include <qpaintdevice.h>
-extern QPaintDevice *g_cur_paintdev;
+extern QPaintDevice *g_cur_paintdev; //qpainter_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -66,6 +66,7 @@ class QMacSavedPortInfo
     PenState pen; //go pennstate
     RGBColor back, fore;
     QMacSavedFontInfo *fi;
+    QPaintDevice *dev;
     void init();
 public:
     inline QMacSavedPortInfo() { init(); }
@@ -106,6 +107,7 @@ inline void QMacSavedPortInfo::init()
 	clip = NewRgn();
 	GetClip(clip);
 	GetPenState(&pen);
+	dev = g_cur_paintdev;
     }
 }
 
@@ -119,6 +121,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 	SetPenState(&pen);
 	RGBForeColor(&fore);
 	RGBBackColor(&back);
+	g_cur_paintdev = dev;
     }
     if(fi)
 	delete fi;

@@ -787,7 +787,6 @@ void QPainter::drawPoint( int x, int y )
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
 	updatePen();
-	PenSize(1, 0);
 	MoveTo(x + offx, y+offy);
 	Line(0,1);
     }
@@ -825,13 +824,10 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
     if ( cpen.style() != NoPen ) {
 	initPaintDevice();
 	updatePen();
-
-	::RGBColor f;
-	f.red = cpen.color().red()*256;
-	f.green = cpen.color().green()*256;
-	f.blue = cpen.color().blue()*256;
-	for (int i=0; i<npoints; i++) 
-	    SetCPixel(pa[index+i].x()+offx,pa[index+i].y()+offy,&f);
+	for (int i=0; i<npoints; i++) {
+	    MoveTo(pa[index+i].x()+offx, pa[index+i].y()+offy);
+	    Line(0,1);
+	}
     }
 }
 
@@ -1746,64 +1742,12 @@ QPoint QPainter::pos() const
     return QPoint(pt.h - offx, pt.v - offy);
 }
 
-#define TRY_CACHE 
-#ifdef TRY_CACHE
-int ldev = QInternal::UndefinedDevice;
-#endif
 inline void QPainter::initPaintDevice(bool force) {
     if(!force && pdev == g_cur_paintdev) {
 	updateClipRegion();
 	return;
     }
 
-#ifdef TRY_CACHE
-    if(!force && ldev != QInternal::UndefinedDevice) {
-	if(pdev->devType() == ldev) {
-#ifndef ONE_PIXEL_LOCK
-	    bool need_unlock = FALSE;
-#endif
-	    bool use_cache = FALSE;
-	    switch(pdev->devType()) {
-	    case QInternal::Pixmap:
-#ifndef ONE_PIXEL_LOCK
-		need_unlock = TRUE;
-		Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle())));
-		//fallthrough..
-#endif
-	    case QInternal::Printer:
-	    {
-		GWorldPtr g;
-		GDHandle h;
-		GetGWorld(&g, &h);
-		if(g == (GWorldPtr)pdev->handle())
-		    use_cache = TRUE;
-	    }
-	    break;
-	    case QInternal::Widget:
-	    {
-		GrafPtr p;
-		GetPort(&p);
-		if(p == GetWindowPort((WindowPtr)pdev->handle()))
-		    use_cache = TRUE;
-	    }
-	    break;
-	    default:
-		break;
-	    }
-#ifndef ONE_PIXEL_LOCK
-	    if(need_unlock) 
-		Q_ASSERT(UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle())));
-#endif
-	    if(use_cache) {
-		updateClipRegion();
-		return;
-	    }
-	}
-    }
-#else
-    Q_UNUSED(force);
-#endif
-    
     paintreg = clippedreg = QRegion(); //empty    
     QMacSavedPortInfo::setPaintDevice(pdev);
 
@@ -1837,18 +1781,14 @@ inline void QPainter::initPaintDevice(bool force) {
 	    locked = TRUE;
 	}
 #endif
-
 	//clip out my bounding rect
 	clippedreg = QRegion(0, 0, pm->width(), pm->height());
     } 
 
     updateClipRegion();
-#ifdef TRY_CACHE  //save to cache
-    ldev = pdev->devType();
-#endif
 }
 
-void QPainter::updateClipRegion()
+inline void QPainter::updateClipRegion()
 {
     if(paintreg.isNull()) {
 	if(testf(ClipOn) && !crgn.isNull()) {
@@ -1860,15 +1800,5 @@ void QPainter::updateClipRegion()
 	    paintreg = clippedreg;
 	}
     }
-#ifdef TRY_CACHE 
-    else { //!paintreg.isNull()
-	static RgnHandle cclip = NULL;
-	if(!cclip) 
-	    cclip = NewRgn();
-	GetClip(cclip);
-	if(EqualRgn(cclip, (RgnHandle)paintreg.handle())) 
-	    return;
-    }
-#endif    
     SetClip((RgnHandle)paintreg.handle());
 }

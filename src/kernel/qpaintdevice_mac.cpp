@@ -42,6 +42,8 @@
 #include "qapplication.h"
 #include "qt_mac.h"
 
+QPaintDevice *g_cur_paintdev = 0; 
+
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
