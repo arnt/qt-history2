@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#164 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#163 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#164 $")
 
 
 /*****************************************************************************
@@ -2091,6 +2091,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
     if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
 	QKeyEvent a( Event_Accel, code, count > 0 ? ascii[0] : 0, state );
+	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
 	    return TRUE;

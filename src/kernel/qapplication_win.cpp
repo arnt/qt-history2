@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#50 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#49 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#50 $")
 
 
 /*****************************************************************************
@@ -1454,6 +1454,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     }
     if ( type == Event_KeyPress && !grab ) {	// send accel event to tlw
 	QKeyEvent a( Event_Accel, code, ascii, state );
+	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )
 	    return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#25 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -311,7 +311,6 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	    key |= CTRL;
 	if ( k->state() & AltButton )
 	    key |= ALT;
-	k->ignore();
 	QAccelItem *item = find_key(aitems,key,k->ascii());
 	if ( item && item->enabled ) {
 	    if ( item->signal )
