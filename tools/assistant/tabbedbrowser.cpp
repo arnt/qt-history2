@@ -210,11 +210,7 @@ void TabbedBrowser::init()
     ui.tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
-    QPixmap defaultPix(QString::fromUtf8(":/trolltech/assistant/images/closetab.png"));
-    QIcon is(defaultPix);
-    QPixmap disabledPix(QString::fromUtf8(":/trolltech/assistant/images/d_closetab.png"));
-    is.setPixmap(disabledPix, QIconSet::Small, QIconSet::Disabled);
-    closeTabButton->setIcon(is);
+    closeTabButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/closetab.png")));
     closeTabButton->setFixedSize(s, s);
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
     closeTabButton->setToolTip(tr("Close page"));

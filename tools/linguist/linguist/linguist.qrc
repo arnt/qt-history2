@@ -1,53 +1,31 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/images/">
-    <file name="accelerator.png">./images/accelerator.png</file>
-    <file name="appicon.png">./images/appicon.png</file>
-    <file name="book.png">./images/book.png</file>
-    <file name="d_accelerator.png">./images/d_accelerator.png</file>
-    <file name="d_book.png">./images/d_book.png</file>
-    <file name="d_doneandnext.png">./images/d_doneandnext.png</file>
-    <file name="d_editcopy.png">./images/d_editcopy.png</file>
-    <file name="d_editcut.png">./images/d_editcut.png</file>
-    <file name="d_editpaste.png">./images/d_editpaste.png</file>
-    <file name="d_fileopen.png">./images/d_fileopen.png</file>
-    <file name="d_filesave.png">./images/d_filesave.png</file>
-    <file name="d_next.png">./images/d_next.png</file>
-    <file name="d_nextunfinished.png">./images/d_nextunfinished.png</file>
-    <file name="d_phrase.png">./images/d_phrase.png</file>
-    <file name="d_prev.png">./images/d_prev.png</file>
-    <file name="d_prevunfinished.png">./images/d_prevunfinished.png</file>
-    <file name="d_print.png">./images/d_print.png</file>
-    <file name="d_punctuation.png">./images/d_punctuation.png</file>
-    <file name="d_redo.png">./images/d_redo.png</file>
-    <file name="d_s_check_danger.png">./images/d_s_check_danger.png</file>
-    <file name="d_s_check_obs.png">./images/d_s_check_obs.png</file>
-    <file name="d_s_check_off.png">./images/d_s_check_off.png</file>
-    <file name="d_s_check_on.png">./images/d_s_check_on.png</file>
-    <file name="d_searchfind.png">./images/d_searchfind.png</file>
-    <file name="d_undo.png">./images/d_undo.png</file>
-    <file name="doneandnext.png">./images/doneandnext.png</file>
-    <file name="editcopy.png">./images/editcopy.png</file>
-    <file name="editcut.png">./images/editcut.png</file>
-    <file name="editpaste.png">./images/editpaste.png</file>
-    <file name="fileopen.png">./images/fileopen.png</file>
-    <file name="filesave.png">./images/filesave.png</file>
-    <file name="next.png">./images/next.png</file>
-    <file name="nextunfinished.png">./images/nextunfinished.png</file>
-    <file name="pagecurl.png">./images/pagecurl.png</file>
-    <file name="phrase.png">./images/phrase.png</file>
-    <file name="prev.png">./images/prev.png</file>
-    <file name="prevunfinished.png">./images/prevunfinished.png</file>
-    <file name="print.png">./images/print.png</file>
-    <file name="punctuation.png">./images/punctuation.png</file>
-    <file name="redo.png">./images/redo.png</file>
-    <file name="s_check_danger.png">./images/s_check_danger.png</file>
-    <file name="s_check_empty.png">./images/s_check_empty.png</file>
-    <file name="s_check_obs.png">./images/s_check_obs.png</file>
-    <file name="s_check_off.png">./images/s_check_off.png</file>
-    <file name="s_check_on.png">./images/s_check_on.png</file>
-    <file name="searchfind.png">./images/searchfind.png</file>
-    <file name="splash.png">./images/splash.png</file>
-    <file name="undo.png">./images/undo.png</file>
-    <file name="whatsthis.png">./images/whatsthis.png</file>
+<RCC>
+<qresource>
+    <file>images/accelerator.png</file>
+    <file>images/appicon.png</file>
+    <file>images/book.png</file>
+    <file>images/doneandnext.png</file>
+    <file>images/editcopy.png</file>
+    <file>images/editcut.png</file>
+    <file>images/editpaste.png</file>
+    <file>images/fileopen.png</file>
+    <file>images/filesave.png</file>
+    <file>images/next.png</file>
+    <file>images/nextunfinished.png</file>
+    <file>images/pagecurl.png</file>
+    <file>images/phrase.png</file>
+    <file>images/prev.png</file>
+    <file>images/prevunfinished.png</file>
+    <file>images/print.png</file>
+    <file>images/punctuation.png</file>
+    <file>images/redo.png</file>
+    <file>images/s_check_danger.png</file>
+    <file>images/s_check_empty.png</file>
+    <file>images/s_check_obs.png</file>
+    <file>images/s_check_off.png</file>
+    <file>images/s_check_on.png</file>
+    <file>images/searchfind.png</file>
+    <file>images/splash.png</file>
+    <file>images/undo.png</file>
+    <file>images/whatsthis.png</file>
 </qresource>
 </RCC>

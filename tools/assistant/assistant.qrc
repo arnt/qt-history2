@@ -18,6 +18,5 @@
   <file>images/appicon.png</file>
   <file>images/addtab.png</file>
   <file>images/closetab.png</file>
-  <file>images/d_closetab.png</file>
 </qresource>
 </RCC>

@@ -119,7 +119,6 @@ private slots:
     void onWhatsThis();
 
 private:
-    static QIcon loadPixmap(const QString &imageName);
 
     typedef QHash<QString, PhraseBook> PBD;
 
@@ -155,7 +154,7 @@ private:
     void insertMessage(MessageItem *m);
     void printDanger(MessageItem *m);
     bool updateDanger(MessageItem *m, bool verbose = false);
-        
+
     bool searchItem(const QString &searchWhat, int c, int m);
     void doCharCounting( const QString& text, int& trW, int& trC, int& trCS );
 
