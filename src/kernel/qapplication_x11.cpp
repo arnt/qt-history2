@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#508 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#509 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -221,7 +221,7 @@ static timeval	watchtime;			// watch if time is turned back
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
 
-#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6))
+#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
 #define NO_XIM
 #endif
 
