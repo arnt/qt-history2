@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#2 $
 **
 ** Implementation of QDir class
 **
@@ -20,8 +20,9 @@
 #include<unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#2 $";
 #endif
+
 
 static QString currentDirString()
 {
@@ -456,12 +457,12 @@ QString QDir::cleanPathName( const char *pathName )
     if ( name.isEmpty() )
         return name;
 
-    bool addedSlash;
+    bool addedSeparator;
     if ( name.at( 0 ) != separator() ) {
-        addedSlash = TRUE;
+        addedSeparator = TRUE;
         name.insert( 0, Q_SEPARATOR );
     } else {
-        addedSlash = FALSE;
+        addedSeparator = FALSE;
     }
 
     int ePos, pos, upLevel;
@@ -485,7 +486,7 @@ QString QDir::cleanPathName( const char *pathName )
         }
         ePos = pos;
     }
-    if ( addedSlash ) {
+    if ( addedSeparator ) {
         while( upLevel-- )
             newPath.insert( 0, Q_SEPARATOR ".." );
         if ( !newPath.isEmpty() )
