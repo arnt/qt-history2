@@ -1,109 +1,163 @@
-- aclock
-  This example displays an analog clock widget.
+This examples directory contains lots of Qt examples. And there are
+additional examples in ../tools/designer/examples/ and in the
+extensions subdirectories. The documentation contains two detailed Qt
+tutorials and additional tutorials for Qt Designer. The examples here
+are useful for learning particular Qt classes and techniques, but to
+learn Qt itself we recommend starting with the documentation's short
+"How to Learn Qt" document.
 
-- action
-  Just like the application example but uses QAction to build
-  the menu and the toolbar.
 
-- addressbook
-  This examples shows how to write a very simple, but complete application
-  using a very simple address book as example.
+aclock
+    This example displays an analog clock widget.
+    It shows how to create a custom widget (QWidget subclass) and how
+    to create a timer using QTimer.
 
-- application
-  This example program looks like a complete modern application. It has
-  a menu bar, it has a tool bar, it has a status bar and works like a
-  simple text editor.
+action
+    A single document interface application example with a menu bar,
+    tool bar and status bar that provides simple text editing.
+    It shows how to implement a typical modern application, how to
+    create a QMainWindow subclass, and how to create actions that can
+    be assigned to menus (QPopupMenu) and toolbars (QToolBar) using
+    QAction. It also shows how to print using QSimpleRichText.
 
-- biff (Unix only)
-  Biff is a simple graphical program to indicate whether there is new mail;
-  it looks exactly like xbiff but is much shorter.
+addressbook [obsolete]
 
-- buttongroups
-  This examples shows different types of Groupboxes (Buttongroups, etc.)
-  and lots of different kinds of Buttons (Checkboxes, Radiobuttons,
-  Pushbuttons, etc.)
+application [obsolete; see the action example instead]
 
-- canvas
-  Demonstrates many of QCanvas's facilities, but by no means all of
-  them!
+biff [Unix-specific]
+    Biff is a simple graphical program to indicate whether there is
+    new mail; it looks like xbiff but is much shorter.
 
-- checklists
-  Lists with checkbox and radio button items (like those often used by
-  setup programs).
+buttongroups
+    This examples shows different types of group boxes (QButtonGroup,
+    and QGroupBox), and different kinds of buttons (QCheckBox,
+    QRadioButton, and QPushButton). It also shows how to add a
+    QPopupMenu to a button.
 
-- cursor
-  This example shows how to set a mouse cursor for a widget. Shows
-  both Qt's cursors and a custom cursor.
+canvas
+    This examples demonstrates many of QCanvasView's facilities, but
+    by no means all of them. It uses QCanvasItem, QCanvasLine,
+    QCanvasRectangle, QCanvasEllipse, QCanvasSprite, and of course
+    QCanvas.
 
-- customlayout
-  This examples demonstrates how to write a customized layout (geometry)
-  manager, like a Card-Layout, Border-Layout and Flow-Layout.
+chart
+    An application for maintaining simple numeric data and visualising
+    the data using pie and bar charts.
+    Tutorial #2 explains this application in detail.
+    
+checklists
+    Shows two list views with check box and radio button items. (These
+    kinds of lists are often used with setup programs.)
+    Shows the use of QListView, QListViewItem, QCheckListItem,
+    QListViewItemIterator, and QValueList.
 
-- dclock
-  This example displays a digital LCD clock and can switch between time
-  and date.
+cursor
+    This example shows how to set the mouse cursor for a widget. Shows
+    Qt's cursors and a custom cursor using QLabel and QCursor.
 
-- demo
-  Run this to see almost all Qt's widgets in action, including drag
-  and drop, 2D graphics, etc.
+customlayout
+    This examples demonstrates how to write a customized layout
+    (geometry) manager, like a Card-Layout, Border-Layout and
+    Flow-Layout.
 
-- desktop
-  The desktop demo contains three routines, each of which draws something
-  on the desktop. It does some nice stuff with QPainter, and also
-  demonstrates how one can treat the desktop as a widget like any other.
+dclock
+    This example displays a digital LCD clock and can switch between
+    time and date.
+    It uses the QLCDNumber widget and a couple of QTimers.
 
-- dirview
-  This example program demonstrates how to use a ListView and ListView
-  Items to build a multi-column hierarchical, memory- and CPU-efficient
-  directory browser. It also demonstrates how to use Drag'n'Drop in a
-  Listview.
+demo
+    Run this to see almost all of Qt's widgets in action, including
+    drag and drop, 2D graphics, etc.
 
-- dragdrop
-  Demonstrates image and text drag and drop.
+desktop
+    The desktop demo contains three routines, each of which draws
+    something on the desktop. It does some nice stuff with QPainter,
+    and also demonstrates how one can treat the desktop as a widget
+    like any other.
 
-- drawdemo
-  Draws a color wheel, text and shapes. This example demonstrates
-  several drawing functions and printer output. You can easily add you
-  own drawing functions. See "ourDrawFunctions".
+directpainter [Qt/Embedded-specific]
+    Shows the use of QDirectPainter.
 
-- drawlines
-  This example shows very simple mouse-based user interaction and
-  painting without any world transform matrix or other advanced
-  features. Run the program, click the button, move the mouse,
-  release the button, and watch the lines get drawn.
+dirview
+    This example program demonstrates how to use a QListView and
+    QListViewItems to build a multi-column hierarchical, memory- and
+    CPU-efficient directory browser. It also demonstrates how to use
+    Drag'n'Drop in a QListview. (See also the fileiconview example.)
 
-- fileiconview
-  This example implements a simple and not full functional file manager using
-  a widget derived from QIconView to display the current directory and the
-  widget of the DirectoryView example to display the directory tree.
+distributor
+    This is a utility program that can be used to modify the paths
+    used in the Qt library binary to make the binary suitable for
+    distribution. For experts only.
 
-- forever
-  See how fast Qt can draw colored rectangles. This example
-  continuously draws rectangles in a window and has another widget
-  that counts the number of rectangles that are drawn per second.
-  WARNING: this program has a strobe effect.
+dragdrop
+    Demonstrates image and text drag and drop.
 
-- gridview
-  A grid view with 100x100 cells.
+drawdemo
+    Draws a color wheel, text and shapes. This example demonstrates
+    several drawing functions and printer output using QPainter,
+    QWMatrix, QFont, QFontMetrics, QColor, QBrush, and QPrinter. You
+    can easily add you own drawing functions. See "ourDrawFunctions".
 
-- hello
-  Hello world with colored animated wavy text.
+drawlines
+    This example shows very simple mouse-based user interaction and
+    painting without any world transform matrix or other advanced
+    features. Run the program, click the button, move the mouse,
+    release the button, and watch the lines get drawn.
 
-- helpviewer
-  The HelpViewer example implements a simple HTML help browser using
-  Qt's richtext capabilities.
+extension
+    An extension dialog with simple and advanced appearances
+    controlled by a toggle button.
+
+fileiconview
+    This example partially implements a very basic file manager using
+    a widget derived from QIconView to display the current directory.
+    It uses the DirectoryView widget from the dirview example to
+    display the directory tree.
+    It also shows how to add a QComboBox to a QToolBar and how to
+    implement a context menu using QPopupMenu.
+
+fonts [obsolete]
+
+forever
+    WARNING: this program has a strobe effect.
+    See how fast Qt can draw colored rectangles. This example
+    continuously draws rectangles in a window and has another widget
+    that counts the number of rectangles that are drawn per second.
+
+gridview
+    A QGridView with 100x100 cells.
+
+hello
+    Hello world with colored animated wavy text.
+
+helpdemo
+    Shows how to use Qt Assistant as an application's online help
+    tool. (See also the helpsystem example.)
+
+helpsystem
+    This example shows how to implement context-sensitive help in
+    various ways in a Qt application using QToolTip, QWhatsThis, and
+    QAssistantClient to control Qt Assistant.
+
+helpviewer
+    The HelpViewer example implements a simple HTML help browser using
+    Qt's richtext capabilities.
 
 - i18n
   This example shows how to internationalize applications. Start it with
-  	# i18n de
+  	./i18n de
   to get a german version and with
-  	# i18n en
+  	./i18n en
   to get the english version.
 
 - iconview
   This example implements a flexible icon view which can store
   lots of icon items. It supports Drag'n'Drop, different selection modes,
   view modes, rubberband selection, etc.
+
+- kiosk
+
+- launcher
 
 - layout
   This example shows simple and intermediate use of Qt's layout
@@ -141,6 +195,10 @@
   The Movies example displays animated GIF files using the QMovie and
   QLabel classes.
 
+- network
+
+- opengl
+
 - picture
   This example shows how to make, store to file, and read a picture as
   a set of drawing commands.
@@ -148,6 +206,8 @@
 - popup
   This examples shows how to implement widgets which should
   popup.
+
+- process
 
 - progress
   This example displays either a simple (text-only) or a
@@ -205,10 +265,14 @@
   This example reads and displays an image in any supported image
   format (GIF, BMP, PPM, XMP etc.)
 
+- sound
+
 - splitter
   This example shows how to use Splitters. Splitters can contain
   multiple child items and using the Splitter the user can decide
   herself/himself, how much space each child should get.
+
+- sql
 
 - tabdialog
   This example shows how to use a dialog with multiple tabs (pages).
@@ -222,6 +286,8 @@
   arrays.
   Left-click the mouse to set a current cell. Press the arrow buttons to
   move the current mark around. Type something to edit a cell's contents.
+
+- tablet
 
 - tetrix
   This is the Qt implementation of the well known game Tetris.
@@ -250,8 +316,11 @@
   time you click on them, the red one is static. There are dynamic
   tool tips on the blue rectangles and a static tool tip on the red one.
 
-- validator
-  This example shows how to write and use your own validator.
+- toplevel
+
+- trayicon
+
+- tux
 
 - widgets
   Shows the Qt widgets (see the demo example too).
@@ -264,3 +333,5 @@
 - xform
   This example lets the user rotate, shear and scale text and graphics
   arbitrarily.
+
+- xml
