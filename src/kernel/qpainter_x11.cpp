@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#56 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#55 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#56 $";
 #endif
 
 
@@ -657,6 +657,7 @@ static char *pat_tbl[] = {
 	bool mono = pdev->devType() == PDT_PIXMAP &&
 	            ((QPixMap*)pdev)->depth() == 1;
 	gc_brush = alloc_painter_gc( dpy, hd, mono );
+	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
 	if ( rop != CopyROP ) {			// update raster op for brush
 	    RasterOp r = (RasterOp)rop;
 	    rop = CopyROP;			// force a change
@@ -1039,15 +1040,15 @@ void QPainter::updateXForm()			// update xform params
       x = xx/65536;  y /= 65536; }
 
 #define WXFORM_R(x,y,w,h)					\
-    { int x1 = wm11*x+wm21*y+wdx;				\
-      int y1 = wm12*x+wm22*y+wdy; 				\
-      int x2 = wm11*(x+w-1)+wm21*(y+h-1)+wdx;			\
-      int y2 = wm12*(x+w-1)+wm22*(y+h-1)+wdy;			\
-      x1 += x1>0 ? 32768 : -32768;				\
-      y1 += y1>0 ? 32768 : -32768;				\
-      x2 += x2>0 ? 32768 : -32768;				\
-      y2 += y2>0 ? 32768 : -32768;				\
-      x=x1/65536; y=y1/65536; w=(x2-x1)/65536+1; h=(y2-y1)/65536+1; }
+    { x = wm11*x+wdx;						\
+      y = wm22*y+wdy;						\
+      w = wm11*w;						\
+      h = wm22*h;						\
+      x += x>0 ? 32768 : -32768;				\
+      y += y>0 ? 32768 : -32768;				\
+      w += w>0 ? 32768 : -32768;				\
+      h += h>0 ? 32768 : -32768;				\
+      x/=65536; y/=65536; w/=65536; h/=65536; }
 
 
 QPoint QPainter::xForm( const QPoint &pv ) const
@@ -1068,8 +1069,15 @@ QRect QPainter::xForm( const QRect &rv ) const
 	return rv;
     int x, y, w, h;
     rv.rect( &x, &y, &w, &h );
-    if ( testf(WxF) ) {				// world xform (no rot./shear)
-	WXFORM_R(x,y,w,h)
+    if ( testf(WxF) ) {				// world xform
+	if ( wm12 == 0 && wm21 == 0 ) {		// scaling+translation only
+	    WXFORM_R(x,y,w,h);
+	}
+	else {					// return bounding rect
+	    QPointArray a( rv );
+	    a = xForm( a );
+	    return a.boundingRect();
+	}
     }
     else if ( testf(VxF) ) {			// view xform
 	VXFORM_P(x,y);
@@ -1320,11 +1328,11 @@ static void fix_neg_rect( int *x, int *y, int *w, int *h )
 {
     if ( *w < 0 ) {
 	*w = -*w;
-	*x -= *w;
+	*x -= *w - 1;
     }
     if ( *h < 0 ) {
 	*h = -*h;
-	*y -= *h;
+	*y -= *h - 1;
     }
 }
 
@@ -1402,7 +1410,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    return;
 	}
 	if ( testf(WxF) ) {			// world transform
-	    if ( wm12 == 99 && wm21 == 0 ) {	// scaling+translation only
+	    if ( wm12 == 0 && wm21 == 0 ) {	// scaling+translation only
 		WXFORM_R(x,y,w,h);
 	    }
 	    else {
@@ -1868,11 +1876,19 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	int shape = quickwxf ? Nonconvex : Complex;
 	XFillPolygon( dpy, hd, gc_brush, (XPoint*)(pa->data()+index),
 		      npoints, shape, CoordModeOrigin );
+	if ( cpen.style() == NoPen ) {		// draw fake outline
+	    XDrawLines( dpy, hd, gc_brush, (XPoint*)(pa->data()+index),
+			npoints, CoordModeOrigin );
+	    int x1, y1, x2, y2;			// connect last to first point
+	    pa->point( index+npoints-1, &x1, &y1 );
+	    pa->point( index, &x2, &y2 );
+	    XDrawLine( dpy, hd, gc_brush, x1, y1, x2, y2 );
+	}
     }
     if ( cpen.style() != NoPen ) {		// draw outline
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa->data()+index), npoints,
 		    CoordModeOrigin );
-	if ( pa->point(0) != a.point(index+npoints-1) ) {
+	if ( pa->point(index) != a.point(index+npoints-1) ) {
 	    int x1, y1, x2, y2;			// connect last to first point
 	    pa->point( index+npoints-1, &x1, &y1 );
 	    pa->point( index, &x2, &y2 );
@@ -2081,7 +2097,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	if ( testf(WxF) ) {			// draw transformed text
 	    QFontMetrics fm(cfont);
 	    QRect bbox = fm.boundingRect( str, len );
-	    int w = bbox.width(), h=bbox.height();
+	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    QWorldMatrix eff_mat( wm11/65536.0, wm12/65536.0,
 				  wm21/65536.0, wm22/65536.0,
@@ -2100,24 +2116,32 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.end();
 		wx_bm = bm.xForm( mat );	// transform bitmap
 	    }
-	    WXFORM_P( x, y );
 	    mat = QBitMap::trueMatrix( mat, w, h );
+#if 1
+	    WXFORM_P( x, y );
 	    int dx, dy;
 	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
 	    x -= dx;  y -= dy;
+#else
+            QWorldMatrix wm = mat * eff_mat;
+	    wm.map( x, y, &x, &y );
+#endif
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
-		QPointArray a(4);
+		QPointArray a(5);
 		int m, n;
-		mat.map( 0, 0, &m, &n );  a.setPoint( 0, m, n );
-		mat.map( w, 0, &m, &n );  a.setPoint( 1, m, n );
-		mat.map( w, h, &m, &n );  a.setPoint( 2, m, n );
-		mat.map( 0, h, &m, &n );  a.setPoint( 3, m, n );
+		mat.map(   0,   0, &m, &n );  a.setPoint( 0, m, n );
+					      a.setPoint( 4, m, n );
+		mat.map( w-1,   0, &m, &n );  a.setPoint( 1, m, n );
+		mat.map( w-1, h-1, &m, &n );  a.setPoint( 2, m, n );
+		mat.map(   0, h-1, &m, &n );  a.setPoint( 3, m, n );
 		a.move( x, y );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
-		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(),
-			      a.size(), Convex, CoordModeOrigin );
+		XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.data(), 4,
+			      Convex, CoordModeOrigin );
+		XDrawLines( dpy, hd, gc_brush, (XPoint*)a.data(), 5,
+			    CoordModeOrigin );
 		setBrush( oldBrush );
 	    }
 	    bool do_clip = hasClipping();
