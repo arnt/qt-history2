@@ -946,10 +946,13 @@ void QHeader::setLabel( int section, const QString &s, int size )
 
 QString QHeader::label( int section ) const
 {
+    extern bool qt_table_return_null_strings; // qtable.cpp
     if ( section < 0 || section >= count() )
 	return QString::null;
     if ( d->labels[ section ] )
 	return *( d->labels[ section ] );
+    else if ( qt_table_return_null_strings )
+	return QString::null;
     else
 	return QString::number( section + 1 );
 }
