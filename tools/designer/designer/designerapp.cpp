@@ -56,7 +56,7 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 	    if ( arg[0] != '-' ) {
 		QObjectList* l = MainWindow::self->queryList( "FormWindow" );
 		FormWindow* fw = (FormWindow*) l->first();
-		FormWindow* totop;
+		FormWindow* totop = 0;
 		bool haveit = FALSE;
 		while ( fw ) {
 		    haveit = haveit || fw->fileName() == arg;
@@ -69,7 +69,7 @@ bool DesignerApplication::winEventFilter( MSG *msg )
 		if ( !haveit ) {
 		    FlashWindow( MainWindow::self->winId(), TRUE );
 		    MainWindow::self->openFile( arg );
-		} else {
+		} else if ( totop ) {
 		    totop->setFocus();
 		}
 		delete l;
