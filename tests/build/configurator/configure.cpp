@@ -17,12 +17,12 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
     listViewAdvanced->setSorting( -1 );
     QCheckListItem* item;
 
-    connect( &qmake, SIGNAL( processExited() ),
-	     this, SLOT( qmakeDone() ) );
-    connect( &qmake, SIGNAL( readyReadStdout() ),
-	     this, SLOT( readQmakeOutput() ) );
-    connect( &qmake, SIGNAL( readyReadStderr() ),
-	     this, SLOT( readQmakeOutput() ) );
+    connect( &configure, SIGNAL( processExited() ),
+	     this, SLOT( configDone() ) );
+    connect( &configure, SIGNAL( readyReadStdout() ),
+	     this, SLOT( readConfigureOutput() ) );
+    connect( &configure, SIGNAL( readyReadStderr() ),
+	     this, SLOT( readConfigureOutput() ) );
 
     QString qtdir = getenv( "QTDIR" );
 
@@ -180,73 +180,60 @@ void ConfigureQtDialogImpl::execute()
 {
     // ## add embedded?
 
-    editOutput->setText( "Execute qmake...\n" );
+    editOutput->setText( "Execute configure...\n" );
     tabs->setCurrentPage( 2 );
 
     QStringList args;
     QStringList entries;
-    QString entry;
     QSettings settings;
+    QString entry;
+    QStringList::Iterator it;
 
-    QString qmakeConfig;
-    QString qmakeVars;
-    QString qmakeOutDir;
-	QString qmakeDefines;
-
-    args += QString( getenv( "QTDIR" ) ) + "/bin/qmake";
-
+#ifdef Q_WS_WIN
+    args << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
+#endif
+#ifdef Q_WS_X11
+    args << QString( getenv( "QTDIR" ) ) + "/configure";
+#endif
     entry = settings.readEntry( "/.configure_qt_build/Mode" );
-    if ( entry == "Debug" ) {
-	qmakeConfig += "debug";
-	qmakeOutDir += "debug";
-    } else {
-	qmakeConfig += "release";
-	qmakeOutDir += "release";
-    }
+    if ( entry == "Debug" )
+	args += "-debug";
+    else
+	args += "-release";
 
     entry = settings.readEntry( "/.configure_qt_build/Build" );
     if ( entry == "Static" )
-	{
-		qmakeConfig += " staticlib";
-	}
+	args += "-static";
     else
-	{
-		qmakeConfig += " dll";
-		qmakeDefines += "QT_MAKEDLL";	// Needed for shared library building on Windows
-	}
+	args += "-shared";
 
     entry = settings.readEntry( "/.configure_qt_build/Threading" );
-    if ( entry == "Threaded" ) {
-	qmakeConfig += " thread";
-	qmakeOutDir += "-mt";
-    }
+    if ( entry == "Threaded" )
+	args += "-thread";
 
     entries = settings.readListEntry( "/.configure_qt_build/Modules", ',' );
-    qmakeConfig += " " + entries.join( " " );
+    for( it = entries.begin(); it != entries.end(); ++it ) {
+	entry = *it;
+	args += QString( "-enable-" ) + entry;
+    }
 
     entries = settings.readListEntry( "/.configure_qt_build/SQL Drivers", ',' );
-    qmakeVars += "\"sql-drivers += " + entries.join( " " ) + "\"";
+#ifdef Q_WS_WIN
+    for( it = entries.begin(); it != entries.end(); ++it ) {
+	entry = *it;
+	args += QString( "-sql-" ) + entry;
+    }
+#endif
+#ifdef Q_WS_X11
+    args += QString( "-D " ) + entries.join( " " );
+#endif
 
-//     entry = settings.readEntry( "/.configure_qt_build/Platform-Compiler" );
-//     args += "-platform " + entry;
-
-
-    args += "\"CONFIG+=" + qmakeConfig + "\"";
-	args += "\"DEFINES+=" + qmakeDefines + "\"";
-    args += "OBJECTS_DIR=.obj/" + qmakeOutDir;
-    args += "MOC_DIR=.moc/" + qmakeOutDir;
-    args += qmakeVars;
-
-    args += QString( "-o" );
-    args += QString( getenv( "QTDIR" ) ) + QString( "/src/Makefile" );
-    args += QString( getenv( "QTDIR" ) ) + "/src/qt.pro";
-
-    qmake.setWorkingDirectory( QString( getenv( "QTDIR" ) ) + "/src" );
-    qmake.setArguments( args );
+    configure.setWorkingDirectory( QString( getenv( "QTDIR" ) ) );
+    configure.setArguments( args );
     editOutput->setText( editOutput->text() + args.join( " " ) + "\n" );
 
-    //## write .qmake.cache here
-    qmake.start();
+    // Start the configure process
+    configure.start();
 }
 
 void ConfigureQtDialogImpl::saveSettings()
@@ -298,17 +285,17 @@ void ConfigureQtDialogImpl::saveSet( QListView* list )
     }
 }
 
-void ConfigureQtDialogImpl::readQmakeOutput()
+void ConfigureQtDialogImpl::readConfigureOutput()
 {
-    editOutput->setText( editOutput->text() + QString(qmake.readStdout() ) );
-    editOutput->setText( editOutput->text() + QString(qmake.readStderr() ) );
+    editOutput->setText( editOutput->text() + QString(configure.readStdout() ) );
+    editOutput->setText( editOutput->text() + QString(configure.readStderr() ) );
 }
 
-void ConfigureQtDialogImpl::qmakeDone()
+void ConfigureQtDialogImpl::configDone()
 {
-    if ( !qmake.normalExit() )
-	editOutput->setText( editOutput->text() + "qmake exited abnormally." );
+    if ( !configure.normalExit() )
+	editOutput->setText( editOutput->text() + "configure exited abnormally." );
     else {
-	editOutput->setText( editOutput->text() + "qmake finished." );
+	editOutput->setText( editOutput->text() + "configure finished." );
     }
 }

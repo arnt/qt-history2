@@ -20,8 +20,8 @@ protected slots:
     void saveSettings();
     void execute();
 
-    void qmakeDone();
-    void readQmakeOutput();
+    void configDone();
+    void readConfigureOutput();
 private:
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
@@ -30,7 +30,7 @@ private:
     QCheckListItem* mkspec;
     QCheckListItem* sqldrivers;
 
-    QProcess qmake;
+    QProcess configure;
 
     void loadSettings();
     void set( QCheckListItem* parent, const QString& setting );
