@@ -5085,6 +5085,8 @@ QTextFormatter::QTextFormatter()
 QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line,
 						   QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
+    if ( lastChar < startChar )
+	return new QTextLineStart;
 #ifndef QT_NO_COMPLEXTEXT
     if( string->isBidi() )
 	return bidiReorderLine( parag, string, line, startChar, lastChar, align, space );
@@ -5134,7 +5136,7 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
     else
 	line->w = 0;
 
-    return new QTextLineStart();
+    return new QTextLineStart;
 }
 
 #ifndef QT_NO_COMPLEXTEXT
@@ -5470,7 +5472,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParagraph *parag
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = formatLine( parag, parag->string(), lineStart, firstChar, SPACE(c-1) );
+	    lineStart = formatLine( parag, parag->string(), lineStart, firstChar, c-1 );
 	    lineStart->y = y;
 	    insertLineStart( parag, i, lineStart );
 	    lineStart->baseLine = c->ascent();
