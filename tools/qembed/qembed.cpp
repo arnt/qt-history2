@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 ** It reads a binary file and generates a C array with the binary data.
@@ -8,7 +8,7 @@
 ** Author  : Haavard Nord
 ** Created : 951017
 **
-** Copyright (C) 1995-1998 by Trolltech AS.  All rights reserved.
+** Copyright (C) 1995-2001 by Trolltech AS.  All rights reserved.
 **
 ** Permission to use, copy, modify, and distribute this software and its
 ** documentation for any purpose and without fee is hereby granted, provided
