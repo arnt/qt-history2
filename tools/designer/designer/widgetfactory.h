@@ -97,6 +97,8 @@ public:
 
     static QVariant property( QObject *w, const char *name );
 
+    static QString defaultSignal( QObject *w );
+
 private:
     static QWidget *createWidget( const QString &className, QWidget *parent, const char *name, bool init,
 				  const QRect *r = 0, Qt::Orientation orient = Qt::Horizontal );

@@ -1165,6 +1165,22 @@ const char* WidgetFactory::classNameOf( QObject* o )
     return o->className();
 }
 
+QString WidgetFactory::defaultSignal( QObject *w )
+{
+    if ( w->inherits( "QRadioButton" ) || w->inherits( "QCheckBox" ) )
+	return "toggled";
+    else if ( w->inherits( "QButton" ) )
+	return "clicked";
+    else if ( w->inherits( "QLineEdit" ) || w->inherits( "QTextEdit" ) )
+	return "textChanged";
+    else if ( w->inherits( "QListView" ) || w->inherits( "QIconView" ) ||
+	      w->inherits( "QListBox" ) || w->inherits( "QTable" ) )
+	return "selectionChanged";
+    else if ( w->inherits( "QTabWidget" ) )
+	return "selected";
+    return QString::null;
+}
+
 /*!  As some properties are set by default when creating a widget this
   functions markes this properties as changed. Has to be in sync with
   createWidget()!
@@ -1592,3 +1608,4 @@ QWidget *CustomWidgetFactory::createWidget( const QString &className, QWidget *p
 	return 0;
     return WidgetFactory::createCustomWidget( parent, name, w );
 }
+

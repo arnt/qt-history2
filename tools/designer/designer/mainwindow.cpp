@@ -2500,9 +2500,44 @@ ActionEditor *MainWindow::actioneditor() const
     return actionEditor;
 }
 
-bool MainWindow::openEditor( QWidget *w, FormWindow * )
+bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 {
-    if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
+    if ( f && f->project()->language() != "C++" && !WidgetFactory::isPassiveInteractor( w ) ) {
+	QString defSignal = WidgetFactory::defaultSignal( w );
+	if ( defSignal.isEmpty() ) {
+	    editSource();
+	} else {
+	    QString s = QString( w->name() ) + "_" + defSignal;
+	    QStringList funcs = MetaDataBase::eventFunctions( w, defSignal, f->project()->language() );
+	    if ( funcs.find( s ) == funcs.end() )
+		funcs << s;
+	    QValueList<MetaDataBase::EventDescription> l =
+		MetaDataBase::events( w, f->project()->language() );
+	    QString ev;
+	    for ( QValueList<MetaDataBase::EventDescription>::Iterator it = l.begin(); it != l.end(); ++it ) {
+		if ( (*it).name.left( (*it).name.find( '(' ) ) == defSignal ) {
+		    ev = (*it).name;
+		    break;
+		}
+	    }
+	
+	    if ( ev.isEmpty() ) {
+		editSource();
+	    } else {
+		if ( MetaDataBase::setEventFunctions( w, f, f->project()->language(), ev, funcs ) ) {
+		    objectHierarchy()->updateFormDefinitionView();
+		    propertyEditor->eventList()->setup();
+		    editFunction( s, f->project()->language(), TRUE );
+		    f->formFile()->setModified( TRUE );
+		} else {
+		    editFunction( s, f->project()->language(), TRUE );
+		}
+	    }
+	}
+	return TRUE;
+    }
+    if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::
+					  idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	statusBar()->message( tr( "Edit %1..." ).arg( w->className() ) );
 	WidgetFactory::editWidget( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ), this, w, formWindow() );
 	statusBar()->clear();
