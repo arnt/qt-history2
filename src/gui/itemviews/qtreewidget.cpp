@@ -1640,8 +1640,11 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 {
     QModelIndexList indexes = selectedIndexes();
     QList<QTreeWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items.append(d->model()->item(indexes.at(i)));
+    for (int i = 0; i < indexes.count(); ++i) {
+        QTreeWidgetItem *item = d->model()->item(indexes.at(i));
+        if (!items.contains(item)) // ### slow, optimize later
+            items.append(item);
+    }
     return items;
 }
 
