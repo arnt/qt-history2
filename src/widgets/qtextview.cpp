@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#7 $
 **
 ** Implementation of the QTextView class
 **
@@ -351,10 +351,7 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 void QTextView::resizeEvent( QResizeEvent* e )
 {
     QSize vw = viewportSize( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
-    {
-	QPainter p( this );
-	currentDocument().setWidth( &p, vw.width() );
-    }
+    currentDocument().setWidth( &QPainter( this ), vw.width() );
     resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
     QScrollView::resizeEvent( e );
     viewport()->update();
