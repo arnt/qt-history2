@@ -42,7 +42,7 @@
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qdesktopwidget.h>
-#include <qdockwindow.h>
+//#include <qdockwindow.h>
 #include <qstackedwidget.h>
 #include <qtabwidget.h>
 #include <qdrawutil.h>
@@ -1015,16 +1015,6 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         int bef_v = mid_v;
         int aft_h = mid_h;
         int aft_v = mid_v;
-        if (option->state & State_Children) {
-            int delta = decoration_size / 2;
-            bef_h -= delta;
-            bef_v -= delta;
-            aft_h += delta;
-            aft_v += delta;
-            XPThemeData theme(0, p, "TREEVIEW");
-            theme.rec = QRect(bef_h, bef_v, decoration_size, decoration_size);
-            theme.drawBackground(TVP_GLYPH, flags & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED);
-        }
         QBrush brush(option->palette.dark().color(), Qt::Dense4Pattern);
         if (option->state & State_Item) {
             if (QApplication::isRightToLeft())
@@ -1036,6 +1026,16 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             p->fillRect(mid_h, aft_v, 1, option->rect.bottom() - aft_v + 1, brush);
         if (option->state & (State_Open | State_Children | State_Item | State_Sibling))
             p->fillRect(mid_h, option->rect.y(), 1, bef_v - option->rect.y(), brush);
+        if (option->state & State_Children) {
+            int delta = decoration_size / 2;
+            bef_h -= delta;
+            bef_v -= delta;
+            aft_h += delta;
+            aft_v += delta;
+            XPThemeData theme(0, p, "TREEVIEW");
+            theme.rec = QRect(bef_h, bef_v, decoration_size, decoration_size);
+            theme.drawBackground(TVP_GLYPH, flags & QStyle::State_Open ? GLPS_OPENED : GLPS_CLOSED);
+        }
         return; }
     default:
         break;
@@ -1466,7 +1466,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             if (sub & SC_SpinBoxUp) {
                 theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget));
                 partId = SPNP_UP;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) || (!flags & State_Enabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled) || !(flags & State_Enabled))
                     stateId = UPS_DISABLED;
                 else if (sb->activeSubControls == SC_SpinBoxUp)
                     stateId = UPS_PRESSED;
@@ -1479,7 +1479,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             if (sub & SC_SpinBoxDown) {
                 theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget));
                 partId = SPNP_DOWN;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) || (!flags & State_Enabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled) || !(flags & State_Enabled))
                     stateId = DNS_DISABLED;
                 else if (sb->activeSubControls == SC_SpinBoxDown)
                     stateId = DNS_PRESSED;
@@ -2527,6 +2527,9 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
             else
                 return '*';
         }
+
+    case SH_SpinControls_DisableOnBounds:
+        return 0;
 
     default:
         return QWindowsStyle::styleHint(hint, option, widget, returnData);

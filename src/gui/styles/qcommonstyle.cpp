@@ -3037,7 +3037,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_FocusFrame_Mask:
-        ret = true;
+        ret = 1;
         if (widget) {
             if(QStyleHintReturnMask *mask = qt_cast<QStyleHintReturnMask*>(hret)) {
                 mask->region = widget->rect();
@@ -3049,7 +3049,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_RubberBand_Mask:
-        ret = false;
+        ret = 0;
         if (widget && (opt->state & State_Rectangle)) {
             ret = true;
             if(QStyleHintReturnMask *mask = qt_cast<QStyleHintReturnMask*>(hret)) {
@@ -3058,6 +3058,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
                 mask->region -= opt->rect.adjusted(margin, margin, -margin, -margin);
             }
         }
+        break;
+
+    case SH_SpinControls_DisableOnBounds:
+        ret = 1;
         break;
 
     default:

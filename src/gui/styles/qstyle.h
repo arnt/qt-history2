@@ -515,6 +515,7 @@ public:
         SH_ToolButton_PopupDelay,
         SH_FocusFrame_Mask,
         SH_RubberBand_Mask,
+        SH_SpinControls_DisableOnBounds,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT
