@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#56 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#57 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -2195,15 +2195,25 @@ private:
   <li> can do namespace processing
   </ul>
 
-  For getting started see also the
-  <a href="xml-sax.html#quickStart">Quick start</a>.
+  To get started see also the
+  \link xml-sax-walkthrough.html tiny SAX2 parser walkthrough. \endlink
 */
 
-//guaranteed not to be a characater
+//guaranteed not to be a character
 const QChar QXmlSimpleReader::QEOF = QChar((ushort)0xffff);
 
 /*!
-  Constructs a simple XML reader.
+  Constructs a simple XML reader with the following feature settings:
+  <ul>
+  <li> \e http://xml.org/sax/features/namespaces TRUE
+  <li> \e http://xml.org/sax/features/namespace-prefixes FALSE
+  <li> \e http://trolltech.com/xml/features/report-whitespace-only-CharData TRUE
+  </ul>
+
+  More information about features can be found in the \link xml-sax.html#features
+  Qt SAX2 overview. \endlink
+
+  \sa setFeature()
 */
 QXmlSimpleReader::QXmlSimpleReader()
 {
@@ -2253,19 +2263,28 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 }
 
 /*!  \reimp
-  Sets the state of the feature \a name to \a value. If the feature is not
-  recognized, it is ignored.
+  Sets the state of the feature \a name to \a value: 
 
-  Supported features are:
+  \walkthrough xml/tagreader-with-features/tagreader.cpp
+  \skipto reader
+  \printline reader
+  \skipto setFeature
+  \printline setFeature
+
+  (Code taken from xml/tagreader-with-features/tagreader.cpp)
+
+  If the feature is not recognized, it is ignored.
+
+  The following features are supported:
   <ul>
-  <li> http://xml.org/sax/features/namespaces:
+  <li> \e http://xml.org/sax/features/namespaces:
        if this feature is TRUE, namespace processing is performed
-  <li> http://xml.org/sax/features/namespace-prefixes:
+  <li> \e http://xml.org/sax/features/namespace-prefixes:
        if this feature is TRUE, the the original prefixed names and attributes
        used for namespace declarations are reported
-  <li> http://trolltech.com/xml/features/report-whitespace-only-CharData:
-       if this feature is TRUE, CharData that consists only of whitespace (and
-       no other characters) is not reported via
+  <li> \e http://trolltech.com/xml/features/report-whitespace-only-CharData:
+       if this feature is TRUE, CharData that consist of whitespace only (and
+       no other characters) are not reported via
        QXmlContentHandler::characters()
   </ul>
 
