@@ -389,14 +389,14 @@ void QProcessManager::sigchldHnd( int fd )
 		int nbytes = 0;
 		if ( ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
+		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStdout );
 		}
 		nbytes = 0;
 		if ( ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
+		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
 #endif
 		    process->socketRead( proc->socketStderr );
 		}
@@ -559,9 +559,9 @@ void QProcess::reset()
 QByteArray* QProcess::bufStdout()
 {
     if ( d->proc && d->proc->socketStdout ) {
-	// ### can this cause a blocking behaviour (maybe do a ioctl() to see
-	// if data is available)?
-	socketRead( d->proc->socketStdout );
+	int nbytes = 0;
+	if ( ::ioctl(d->proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
+	    socketRead( d->proc->socketStdout );
     }
     return &d->bufStdout;
 }
@@ -569,9 +569,9 @@ QByteArray* QProcess::bufStdout()
 QByteArray* QProcess::bufStderr()
 {
     if ( d->proc && d->proc->socketStderr ) {
-	// ### can this cause a blocking behaviour (maybe do a ioctl() to see
-	// if data is available)?
-	socketRead( d->proc->socketStderr );
+	int nbytes = 0;
+	if ( ::ioctl(d->proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
+	    socketRead( d->proc->socketStderr );
     }
     return &d->bufStderr;
 }
@@ -1040,6 +1040,7 @@ void QProcess::socketRead( int fd )
 	// blocking read otherwise.
 	return;
     }
+
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::socketRead(): %d", fd );
 #endif
