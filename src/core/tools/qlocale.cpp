@@ -3339,7 +3339,14 @@ static bool compareNoCase(const QChar *uc1, const QString &s)
     return uc1->unicode() == 0 && uc2->unicode() == 0;
 }
 
-// Converts a number in locale to its representation in the C locale.
+/*
+    Converts a number in locale to its representation in the C locale.
+    Only has to guarantee that a string that is a correct representation of
+    a number will be converted. If junk is passed in, junk will be passed
+    out and the error will be detected during the actual conversion to a
+    number. We can't detect junk here, since we don't even know the base
+    of the number.
+*/
 QByteArray QLocalePrivate::numberToCLocale(const QString &num,
                                             GroupSeparatorMode group_sep_mode) const
 {
@@ -3389,15 +3396,13 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
             result.append(',');
         else if (c == exponential() || c == exponential().toUpper())
             result.append('e');
-        else if (c.unicode() == 'x' || c.unicode() == 'X') // hex number
-            result.append('x');
         else if (c == list())
             result.append(';');
         else if (c == percent())
             result.append('%');
-        else if (c.unicode() >= 'A' && c.unicode() <= 'F')
+        else if (c.unicode() >= 'A' && c.unicode() <= 'Z')
             result.append(c.toLower().latin1());
-        else if (c.unicode() >= 'a' && c.unicode() <= 'f')
+        else if (c.unicode() >= 'a' && c.unicode() <= 'z')
             result.append(c.latin1());
         else if (c.isSpace())
             break;
