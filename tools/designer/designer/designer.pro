@@ -445,4 +445,4 @@ designertranlations.files = *.qm
 designertranlations.path = $$translations.path
 INSTALLS += designertranlations
 
-PRECOMPILED_HEADER = designer_pch.h
+!macx-g++:PRECOMPILED_HEADER = designer_pch.h
