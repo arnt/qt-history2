@@ -167,6 +167,7 @@ signals:
 protected slots:
     virtual void setUpLayout();
     virtual bool showDockMenu( const QPoint &globalPos );
+    void menuAboutToShow();
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -176,7 +177,6 @@ protected:
 
 private slots:
     void slotPlaceChanged();
-    void menuAboutToShow();
     void doLineUp() { lineUpDockWindows( TRUE ); }
 
 private:
