@@ -40,7 +40,6 @@
 #include "qdatastream.h"
 
 
-// NOT REVISED
 /*!
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.
@@ -55,8 +54,8 @@
   It might sometimes be practical to have direct access to the list nodes
   in a QList, but it is seldom required.
 
-  \warning Be very careful if you want to access the list nodes. The heap
-  can easily get corrupted if you make a mistake.
+  Be very careful if you want to access the list nodes. The heap can
+  easily get corrupted if you make a mistake.
 
   \sa QList::currentNode(), QList::removeNode(), QList::takeNode()
 */
@@ -71,20 +70,14 @@
   \class QGList qglist.h
   \brief The QGList class is an internal class for implementing Qt collection classes.
 
-  QGList is a strictly internal class that acts as a base class for several
-  \link collection.html collection classes\endlink; QList, QQueue and
-  QStack.
+  QGList is a strictly internal class that acts as a base class for
+  several collection classes; QList, QQueue and QStack.
 
-  QGList has some virtual functions that can be reimplemented to customize
-  the subclasses:
-  <ul>
-  <li> compareItems() compares two collection/list items.
-  <li> read() reads a collection/list item from a QDataStream.
-  <li> write() writes a collection/list item to a QDataStream.
-  </ul>
-  Normally, you do not have to reimplement any of these functions.
-  If you still want to reimplement them, see the QStrList class (qstrlist.h),
-  which is a good example.
+  QGList has some virtual functions that can be reimplemented to
+  customize the subclasses, namely compareItems(), read() and
+  write. Normally, you do not have to reimplement any of these
+  functions.  If you still want to reimplement them, see the QStrList
+  class (qstrlist.h) for an example.
 */
 
 
@@ -211,13 +204,11 @@ QGList::~QGList()
 	i = (QGListIterator*)iterators->next();
     }
     delete iterators;
-#if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
     // Workaround for GCC 2.7.* bug. Compiler constructs 'static' QGList
     // instances twice on the same address and therefore tries to destruct
     // twice on the same address! This is insane but let's try not to crash
     // here.
     iterators = 0;
-#endif                                                                        
 }
 
 

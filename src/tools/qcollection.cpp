@@ -92,27 +92,26 @@
 
 /*!
   \fn bool QCollection::autoDelete() const
-  Returns the setting of the auto-delete option (default is FALSE).
+  
+  Returns the setting of the auto-delete option. The default is FALSE.
+
   \sa setAutoDelete()
 */
 
 /*!
   \fn void QCollection::setAutoDelete( bool enable )
 
-  Sets the auto-delete option of the collection.
+  Sets the collection to auto-delete its contents if \a enable is TRUE
+  and to never delete them if \a enable is FALSE.
 
-  Enabling auto-delete (\e enable is TRUE) will delete objects that
-  are removed from the collection.  This can be useful if the
-  collection has the only reference to the objects.  (Note that the
-  object can still be copied using the copy constructor - copying such
-  objects is a good way to get memory leaks, reading freed memory or
-  both.)
-
-  Disabling auto-delete (\e enable is FALSE) will \e not delete objects
-  that are removed from the collection.	 This is useful if the objects
-  are part of many collections.
-
-  The default setting is FALSE.
+  If auto-deleting is turned on, all the items in a collection are
+  deleted when the collection itself is deleted. This can be quite
+  convenient if the collection has the only pointer to the
+  items.
+  
+  The default setting is FALSE, for safety. If you turn it on, be
+  careful about copying the collection - you might find yourself with
+  two collections deleting the same items.
 
   \sa autoDelete()
 */
