@@ -9,7 +9,7 @@
 class QXPathNS {
 public:
     enum Token {
-	TkError,	// an error occured during parsing
+	TkError,	// an error occured during tokenizing
 	TkLeftParen,	// '('
 	TkRightParen,	// ')'
 	TkLeftBracket,	// '['
@@ -87,43 +87,247 @@ public:
 	VariableReference,
 	Literal,
 	Number,
+	Operator,
 	FunctionCall
     };
 
-    QXPathAtom( Type t );
-    ~QXPathAtom();
+    QXPathAtom()
+    {
+	parent = 0;
+    }
+    virtual ~QXPathAtom()
+    {}
 
-    void addChild( QXPathAtom* child );
+    virtual bool evaluate( QXPathDataType* ret ) = 0;
+    virtual Type type() = 0;
 
-    Type type;
     QXPathAtom *parent;
+};
+
+
+// Location Path node
+class QXPathAtomLocationPath : public QXPathAtom
+{
+public:
+    QXPathAtomLocationPath() : QXPathAtom()
+    {
+	children.setAutoDelete( TRUE );
+    }
+    ~QXPathAtomLocationPath()
+    {
+	children.clear();
+    }
+
+    void addChild( QXPathAtom* child )
+    {
+	children.append( child );
+	child->parent = this;
+    }
+
+    bool evaluate( QXPathDataType* )
+    {
+	QXPathAtom *it;
+	for ( it=children.first(); it!=0; it=children.next() ) {
+	    QXPathDataType *t;
+	    it->evaluate( t );
+	}
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return LocationPath;
+    }
+
+private:
     QList<QXPathAtom> children; // QList is more complex than needed
 };
 
-/*!
-  Constructor.
-*/
-QXPathAtom::QXPathAtom( Type t ) : type(t), parent(0)
+// Location Step node
+class QXPathAtomLocationStep : public QXPathAtom
 {
-    children.setAutoDelete( TRUE );
-}
+public:
+    QXPathAtomLocationStep( QXPathNS::Axis axis, const QString &nodeTest, QXPathAtom *predicate ) : QXPathAtom()
+    {
+	valueAxis = axis;
+	valueNodeTest = nodeTest;
+	valuePredicate = predicate;
+    }
+    ~QXPathAtomLocationStep()
+    {
+	delete valuePredicate;
+    }
 
-/*!
-  Destructor.
-*/
-QXPathAtom::~QXPathAtom()
-{
-    children.clear();
-}
+    bool evaluate( QXPathDataType* )
+    {
+	return TRUE;
+    }
 
-/*!
-  Adds a child node.
-*/
-void QXPathAtom::addChild( QXPathAtom* child )
+    Type type()
+    {
+	return LocationStep;
+    }
+
+private:
+    QXPathNS::Axis  valueAxis;
+    QString	    valueNodeTest; // ### use something else?
+    QXPathAtom	    *valuePredicate;
+};
+
+// Variable Reference node
+class QXPathAtomVariableReference : public QXPathAtom
 {
-    children.append( child );
-    child->parent = this;
-}
+public:
+    QXPathAtomVariableReference( const QString &name ) : QXPathAtom()
+    {
+	value = name;
+    }
+    ~QXPathAtomVariableReference()
+    {}
+
+    bool evaluate( QXPathDataType* )
+    {
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return VariableReference;
+    }
+
+private:
+    QString value;
+};
+
+// String Literal node
+class QXPathAtomLiteral : public QXPathAtom
+{
+public:
+    QXPathAtomLiteral( const QString string ) : QXPathAtom()
+    {
+	value = string;
+    }
+    ~QXPathAtomLiteral()
+    {}
+
+    bool evaluate( QXPathDataType* )
+    {
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return Literal;
+    }
+
+private:
+    QString value;
+};
+
+// Number node
+class QXPathAtomNumber : public QXPathAtom
+{
+public:
+    QXPathAtomNumber( double number ) : QXPathAtom()
+    {
+	value = number;
+    }
+    ~QXPathAtomNumber()
+    {}
+
+    bool evaluate( QXPathDataType* )
+    {
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return Number;
+    }
+
+private:
+    double value;
+};
+
+// Operator node
+class QXPathAtomOperator : public QXPathAtom
+{
+public:
+    QXPathAtomOperator( QXPathNS::Operator op ) : QXPathAtom()
+    {
+	value = op;
+	children.setAutoDelete( TRUE );
+    }
+    ~QXPathAtomOperator()
+    {
+	children.clear();
+    }
+
+    void addChild( QXPathAtom* child )
+    {
+	children.append( child );
+	child->parent = this;
+    }
+
+    bool evaluate( QXPathDataType* )
+    {
+	QXPathAtom *it;
+	for ( it=children.first(); it!=0; it=children.next() ) {
+	    QXPathDataType *t;
+	    it->evaluate( t );
+	}
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return Operator;
+    }
+
+private:
+    QXPathNS::Operator value;
+    QList<QXPathAtom> children; // QList is more complex than needed
+};
+
+// Function Call node
+class QXPathAtomFunctionCall : public QXPathAtom
+{
+public:
+    QXPathAtomFunctionCall( const QString &name ) : QXPathAtom()
+    {
+	value = name;
+	children.setAutoDelete( TRUE );
+    }
+    ~QXPathAtomFunctionCall()
+    {
+	children.clear();
+    }
+
+    void addChild( QXPathAtom* child )
+    {
+	children.append( child );
+	child->parent = this;
+    }
+
+    bool evaluate( QXPathDataType* )
+    {
+	QXPathAtom *it;
+	for ( it=children.first(); it!=0; it=children.next() ) {
+	    QXPathDataType *t;
+	    it->evaluate( t );
+	}
+	return TRUE;
+    }
+
+    Type type()
+    {
+	return FunctionCall;
+    }
+
+private:
+    QString value;
+    QList<QXPathAtom> children; // QList is more complex than needed
+};
 
 
 /***************************************************************
