@@ -337,6 +337,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	bool hasBeenHidden = w->isHidden();
 	bool hasSize = w->testWState( WState_Resized );
 	bool hasPos = w->x() != 0 || w->y() != 0;
+	if ( !hasSize && w->sizeHint().isValid() )
+	    w->adjustSize();
 
 	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
