@@ -63,6 +63,9 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());
     int defaultCharFormat = formats->indexForFormat(cursor.charFormat());
 
+    const bool documentWasEmpty = (destPieceTable->length() <= 1);
+    bool firstFragmentWasBlock = false;
+
     for (int i = 0; i < fragments.count(); ++i) {
         const TextFragment &f = fragments.at(i);
         int blockFormatIdx = -2;
@@ -78,11 +81,20 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 
         QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
 
-        if (blockFormatIdx == -2)
+        if (blockFormatIdx == -2) {
             destPieceTable->insert(cursor.position(), text, formatIdx);
-        else
+        } else {
             destPieceTable->insertBlock(text.at(0), cursor.position(), blockFormatIdx, formatIdx);
+            if (i == 0)
+                firstFragmentWasBlock = true;
+        }
     }
+
+    // if before the insertion the document was empty then we consider the
+    // insertion as a replacement and must now also remove the initial block
+    // that existed before, in case our fragment started with a block
+    if (documentWasEmpty && firstFragmentWasBlock)
+        destPieceTable->remove(0, 1);
 
     // ### UNDO
     if (hasTitle)
@@ -287,7 +299,6 @@ QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QSt
     : d(_d), indent(0)
 {
     parse(html);
-    //dumpHtml();
 }
 
 void QTextHTMLImporter::import()
