@@ -10,31 +10,18 @@
 #include <qregexp.h>
 #include "../../tools/designer/plugins/designerinterface.h"
 
-/* 
- *  Constructs a LibraryInspector which is a child of 'parent', with the 
- *  name 'name' and widget flags set to 'f' 
- *
- *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
- */
 LibraryInspector::LibraryInspector( QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : LibraryInspectorBase( parent, name, modal, fl )
+    : LibraryInspectorBase( parent, name, modal, fl | WGroupLeader )
 {
     libDict.setAutoDelete( TRUE );
     path = "";
 }
 
-/*  
- *  Destroys the object and frees any allocated resources
- */
 LibraryInspector::~LibraryInspector()
 {
     // no need to delete child widgets, Qt does it all for us
 }
 
-/*
-  Shows the contents of the library
-*/
 void LibraryInspector::showLibrary( QListViewItem *item )
 {
     if ( !item )
@@ -152,6 +139,7 @@ void LibraryInspector::selectPath()
     if ( p != path ) {
 	libDict.clear();
 	view->clear();
+	details->setText( QString::null );
 	itemDict.clear();
 
 	pathEdit->setText( p );
