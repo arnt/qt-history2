@@ -45,7 +45,6 @@
 #include "qtextstream.h"
 #include "qfile.h"
 #include "qapplication.h"
-#include "qclipboard.h"
 #include "qmap.h"
 #include "qfileinfo.h"
 #include "qstylesheet.h"
@@ -64,6 +63,8 @@
 
 #include <stdlib.h>
 
+static QTextCursor* richTextExportStart = 0;
+static QTextCursor* richTextExportEnd = 0;
 
 class QTextFormatCollection;
 
@@ -1422,7 +1423,7 @@ struct Q_EXPORT QTextDocumentTag {
 #define NEWPAR       do{ if ( !hasNewPar) { \
 		    if ( !textEditMode && curpar && curpar->length()>1 && curpar->at( curpar->length()-2)->c == QChar_linesep ) \
 			curpar->remove( curpar->length()-2, 1 ); \
-		    curpar = createParagraph( this, curpar ); styles.append( vec ); vec = 0;} \
+		    curpar = createParagraph( this, curpar, curpar->next() ); styles.append( vec ); vec = 0;} \
 		    hasNewPar = TRUE; \
 		    curpar->rtext = TRUE;  \
 		    curpar->align = curtag.alignment; \
@@ -1450,7 +1451,7 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     setRichTextInternal( text );
 }
 
-void QTextDocument::setRichTextInternal( const QString &text )
+void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* cursor )
 {
     QTextParagraph* curpar = lParag;
     int pos = 0;
@@ -1473,7 +1474,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QPtrList< QPtrVector<QStyleSheetItem> > styles;
     styles.setAutoDelete( TRUE );
 
-    NEWPAR;
+    if ( cursor ) {
+	cursor->splitAndInsertEmptyParagraph();
+	QTextCursor tmp = *cursor;
+	tmp.gotoPreviousLetter();
+	stylesPar = curpar = tmp.paragraph();
+	hasNewPar = TRUE;
+	textEditMode = TRUE;
+    } else {
+	NEWPAR;
+    }
 
     // set rtext spacing to FALSE for the initial paragraph.
     curpar->rtext = FALSE;
@@ -1876,7 +1886,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    }
 	}
     }
-    if ( hasNewPar && curpar != fParag ) {
+    if ( hasNewPar && curpar != fParag && !cursor ) {
 	// cleanup unused last paragraphs
 	curpar = curpar->p;
 	delete curpar->n;
@@ -1886,7 +1896,14 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	anchorName = QString::null;
     }
 
+
     setRichTextMarginsInternal( styles, stylesPar );
+
+    if ( cursor ) {
+ 	cursor->gotoPreviousLetter();
+  	cursor->remove();
+     }
+
 }
 
 void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParagraph* stylesPar )
@@ -1895,7 +1912,15 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
     QPtrVector<QStyleSheetItem>* prevStyle = 0;
     QPtrVector<QStyleSheetItem>* curStyle = styles.first();
     QPtrVector<QStyleSheetItem>* nextStyle = styles.next();
-    while ( stylesPar && curStyle ) {
+    while ( stylesPar ) {
+	if ( !curStyle ) {
+	    stylesPar = stylesPar->next();
+	    prevStyle = curStyle;
+	    curStyle = nextStyle;
+	    nextStyle = styles.next();
+	    continue;
+	}
+	
 	int i, mar;
 	QStyleSheetItem* mainStyle = curStyle->size() ? (*curStyle)[curStyle->size()-1] : 0;
 	if ( mainStyle && mainStyle->displayMode() == QStyleSheetItem::DisplayListItem )
@@ -2036,41 +2061,37 @@ void QTextDocument::setText( const QString &text, const QString &context )
 	setPlainText( text );
 }
 
-QString QTextDocument::plainText( QTextParagraph *p ) const
+QString QTextDocument::plainText() const
 {
-    if ( !p ) {
-	QString buffer;
-	QString s;
-	QTextParagraph *p = fParag;
-	while ( p ) {
-	    if ( !p->mightHaveCustomItems ) {
-		s = p->string()->toString();
-	    } else {
-		for ( int i = 0; i < p->length() - 1; ++i ) {
-		    if ( p->at( i )->isCustom() ) {
-			if ( p->at( i )->customItem()->isNested() ) {
-			    s += "\n";
-			    QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			    QPtrList<QTextTableCell> cells = t->tableCells();
-			    for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
-				s += c->richText()->plainText() + "\n";
-			    s += "\n";
-			}
-		    } else {
-			s += p->at( i )->c;
+    QString buffer;
+    QString s;
+    QTextParagraph *p = fParag;
+    while ( p ) {
+	if ( !p->mightHaveCustomItems ) {
+	    s = p->string()->toString();
+	} else {
+	    for ( int i = 0; i < p->length() - 1; ++i ) {
+		if ( p->at( i )->isCustom() ) {
+		    if ( p->at( i )->customItem()->isNested() ) {
+			s += "\n";
+			QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			QPtrList<QTextTableCell> cells = t->tableCells();
+			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			    s += c->richText()->plainText() + "\n";
+			s += "\n";
 		    }
+		} else {
+		    s += p->at( i )->c;
 		}
 	    }
-	    s.remove( s.length() - 1, 1 );
-	    if ( p->next() )
-		s += "\n";
-	    buffer += s;
-	    p = p->next();
 	}
-	return buffer;
-    } else {
-	return p->string()->toString();
+	s.remove( s.length() - 1, 1 );
+	if ( p->next() )
+	    s += "\n";
+	buffer += s;
+	p = p->next();
     }
+    return buffer;
 }
 
 static QString align_to_string( int a )
@@ -2138,10 +2159,8 @@ static QString margin_to_string( QStyleSheetItem* style, int t, int b, int l, in
     return QString::null;
 }
 
-QString QTextDocument::richText( QTextParagraph *p ) const
+QString QTextDocument::richText() const
 {
-    if ( p )
-	return p->richText();
     QString s = "";
     if ( !par ) {
 	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\" /></head><body style=\"font-size:" ;
@@ -2150,7 +2169,7 @@ QString QTextDocument::richText( QTextParagraph *p ) const
 	s += formatCollection()->defaultFormat()->font().family();
 	s +="\">";
     }
-    p = fParag;
+    QTextParagraph* p = fParag;
 
     QStyleSheetItem* item_p = styleSheet()->item("p");
     QStyleSheetItem* item_ul = styleSheet()->item("ul");
@@ -2193,6 +2212,10 @@ QString QTextDocument::richText( QTextParagraph *p ) const
 	if ( listDepth > 0 && p->next() )
 	    futureListDepth = p->next()->listDepth();
 	
+	if ( richTextExportStart && richTextExportStart->paragraph() ==p &&
+	     richTextExportStart->index() == 0 )
+	    s += "<selstart/>";
+	
 	if ( p->isListItem() ) {
 	    s += "<li";
 	    if ( p->listStyle() != listStyles[listDepth] )
@@ -2232,7 +2255,7 @@ QString QTextDocument::text() const
 {
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
-    return plainText( 0 );
+    return plainText();
 }
 
 QString QTextDocument::text( int parag ) const
@@ -2242,9 +2265,9 @@ QString QTextDocument::text( int parag ) const
 	return QString::null;
 
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
-	return richText( p );
+	return p->richText();
     else
-	return plainText( p );
+	return p->string()->toString();
 }
 
 void QTextDocument::invalidate()
@@ -2495,9 +2518,8 @@ bool QTextDocument::removeSelection( int id )
     return TRUE;
 }
 
-QString QTextDocument::selectedText( int id, bool withCustom ) const
+QString QTextDocument::selectedText( int id, bool asRichText ) const
 {
-    // ######## TODO: look at textFormat() and return rich text or plain text (like the text() method!)
     QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return QString::null;
@@ -2521,7 +2543,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
        entire table. This is still far better than the 3.0.2, where
        you always got the entire table.
 
-       ### Fix this properly for 3.0.4.
+       ### Fix this properly when refactoring
      */
     while ( c2.nestedDepth() > c1.nestedDepth() )
 	c2.oneUp();
@@ -2532,7 +2554,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 	c1.oneUp();
 	c2.oneUp();
     }
-    // do not trust sel_swapped with tables. Fix this properly for 3.0.4 as well
+    // do not trust sel_swapped with tables. Fix this properly when refactoring as well
     if ( c1.paragraph()->paragId() > c2.paragraph()->paragId() ||
 	 (c1.paragraph() == c2.paragraph() && c1.index() > c2.index() ) ) {
 	QTextCursor tmp = c1;
@@ -2542,6 +2564,18 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 
     // end selection 3.0.3 improvement
 
+    if ( asRichText && !parent() ) {
+	richTextExportStart = &c1;
+	richTextExportEnd = &c2;
+	
+	QString sel = richText();
+	int from = sel.find( "<selstart/>" );
+	int to = sel.findRev( "<selend/>" );
+	if ( from >= 0 && from <= to )
+	    sel = sel.mid( from + 11, to - from - 11 );
+	richTextExportStart = richTextExportEnd = 0;
+	return sel;
+    }
 
     if ( c1.paragraph() == c2.paragraph() ) {
 	QString s;
@@ -2550,7 +2584,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 #ifndef QT_NO_TEXTCUSTOMITEM
 	if ( p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
-	if ( !withCustom || !p->mightHaveCustomItems ) {
+	if ( !p->mightHaveCustomItems ) {
 	    s += p->string()->toString().mid( c1.index(), end - c1.index() );
 	} else {
 	    for ( int i = c1.index(); i < end; ++i ) {
@@ -2582,7 +2616,7 @@ QString QTextDocument::selectedText( int id, bool withCustom ) const
 #ifndef QT_NO_TEXTCUSTOMITEM
 	if ( p == c2.paragraph() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
-	if ( !withCustom || !p->mightHaveCustomItems ) {
+	if ( !p->mightHaveCustomItems ) {
 	    s += p->string()->toString().mid( start, end - start );
 	    if ( p != c2.paragraph() )
 		s += "\n";
@@ -2645,16 +2679,6 @@ void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
 	p = p->next();
     }
     c2.paragraph()->setFormat( 0, c2.index(), f, TRUE, flags );
-}
-
-void QTextDocument::copySelectedText( int id )
-{
-#ifndef QT_NO_CLIPBOARD
-    if ( !hasSelection( id ) )
-	return;
-
-    QApplication::clipboard()->setText( selectedText( id ) );
-#endif
 }
 
 void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
@@ -4684,7 +4708,14 @@ QString QTextParagraph::richText() const
     QString s;
     QTextStringChar *formatChar = 0;
     QString spaces;
-    for ( int i = 0; i < length()-1; ++i ) {
+    bool doStart = richTextExportStart && richTextExportStart->paragraph() == this;
+    bool doEnd = richTextExportEnd && richTextExportEnd->paragraph() == this;
+    int i;
+    for ( i = 0; i < length()-1; ++i ) {
+	if ( doStart && i && richTextExportStart->index() == i )
+	    s += "<selstart/>";
+	if ( doEnd && richTextExportEnd->index() == i )
+	    s += "<selend/>";
 	QTextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
 	    if ( c->anchorName().contains( '#' ) ) {
@@ -4716,6 +4747,8 @@ QString QTextParagraph::richText() const
 	else
 	    s += c->c;
     }
+    if ( doEnd && richTextExportEnd->index() == i )
+	s += "<selend/>";
     if ( formatChar )
 	s += formatChar->format()->makeFormatEndTags( formatCollection()->defaultFormat(), formatChar->anchorHref() );
     return s;

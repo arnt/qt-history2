@@ -779,8 +779,7 @@ public:
     int numSelections() const { return nSelections; }
     void addSelection( int id );
 
-    QString selectedText( int id, bool withCustom = TRUE ) const;
-    void copySelectedText( int id );
+    QString selectedText( int id, bool asRichText = FALSE ) const;
     void removeSelectedText( int id, QTextCursor *cursor );
     void indentSelection( int id );
 
@@ -845,8 +844,8 @@ public:
 
     void setPlainText( const QString &text );
     void setRichText( const QString &text, const QString &context );
-    QString richText( QTextParagraph *p = 0 ) const;
-    QString plainText( QTextParagraph *p = 0 ) const;
+    QString richText() const;
+    QString plainText() const;
 
     bool focusNextPrevChild( bool next );
 
@@ -895,7 +894,7 @@ private:
     QChar parseHTMLSpecialChar(const QChar* doc, int length, int& pos);
     QString parseWord(const QChar* doc, int length, int& pos, bool lower = TRUE);
     QChar parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
-    void setRichTextInternal( const QString &text );
+    void setRichTextInternal( const QString &text, QTextCursor* cursor = 0 );
     void setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParagraph* stylesPar );
 
 private:

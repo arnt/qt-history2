@@ -2839,7 +2839,7 @@ void QTextEdit::cut()
 	return;
 
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	doc->copySelectedText( QTextDocument::Standard );
+	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 	removeSelectedText();
     }
     updateMicroFocusHint();
@@ -2855,11 +2855,11 @@ void QTextEdit::copy()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText() );
-    else if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
-	doc->copySelectedText( QTextDocument::Standard );
+    else if ( doc->hasSelection( QTextDocument::Standard ) )
+	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 #else
-    if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
-	doc->copySelectedText( QTextDocument::Standard );
+    if ( doc->hasSelection( QTextDocument::Standard ) )
+	QApplication::clipboard()->setText( doc->selectedText( QTextDocument::Standard ) );
 #endif
 }
 
@@ -4029,10 +4029,9 @@ void QTextEdit::append( const QString &text )
     }
 #endif
     // flush and clear the undo/redo stack if necessary
-    if ( isReadOnly() && undoRedoInfo.valid() ) {
-	undoRedoInfo.clear();
-	doc->commands()->clear();
-    }
+    undoRedoInfo.clear();
+    doc->commands()->clear();
+
     doc->removeSelection( QTextDocument::Standard );
     TextFormat f = doc->textFormat();
     if ( f == AutoText ) {
@@ -4323,7 +4322,27 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 {
     QCString st = subtype;
     QString t = QApplication::clipboard()->text(st);
+    removeSelection( QTextDocument::Standard );
     if ( !t.isEmpty() ) {
+	
+#if 0
+	// we cannot undo that yet :-(
+	undoRedoInfo.clear();
+	doc->commands()->clear();
+	lastFormatted = cursor->paragraph();
+	if ( lastFormatted->prev() )
+	    lastFormatted = lastFormatted->prev();
+	doc->setRichTextInternal( t, cursor );
+	
+	// cursor now at end. Reggie, please do undo magic with readFormats
+	formatMore();
+	setModified();
+	emit textChanged();
+	repaintChanged();
+	ensureCursorVisible();
+	return;
+#endif
+	
 #if defined(Q_OS_WIN32)
 	// Need to convert CRLF to LF
 	int index = t.find( QString::fromLatin1("\r\n"), 0 );
