@@ -2,10 +2,13 @@
 #include <qpainter.h>
 
 #include "qfontdatabase.h"
+#include "qlabel.h"
 
 #include <private/qcomplextext_p.h>
 #include <qdatetime.h>
 #include "editwidget.h"
+
+
 
 // const char *family = "Arial Unicode Ms"; // generic
 const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,Rama,TCRC Youtso Unicode"; // Devanagari
@@ -118,7 +121,11 @@ int main( int argc, char **argv )
 //     QFontMetrics( f ).boundingRect( 0, 0, 50000, 1000, Qt::WordBreak, QString::fromUtf8( s ) );
 //     qDebug("fm.boundingrect(%d) took %dms (%dus/char)", QString::fromUtf8( s ).length(), t.elapsed(), t.elapsed()*1000/QString::fromUtf8( s ).length() );
 
+#if 1
     EditWidget *w = new EditWidget( 0, 0 );
+#else
+    QLabel *w = new QLabel( 0, 0 );
+#endif
     w->setText( QString::fromUtf8( s ) );
     w->resize( 600, 300 );
     w->show();
