@@ -320,8 +320,8 @@ static const struct QTextHtmlElement
     { "a", Html_a, QTextHtmlElement::DisplayInline },
     { "b", Html_b, QTextHtmlElement::DisplayInline },
     { "big", Html_big, QTextHtmlElement::DisplayInline },
-    { "body", Html_body, QTextHtmlElement::DisplayInline },
     { "blockquote", Html_blockquote, QTextHtmlElement::DisplayBlock },
+    { "body", Html_body, QTextHtmlElement::DisplayInline },
     { "br", Html_br, QTextHtmlElement::DisplayInline },
     { "center", Html_center, QTextHtmlElement::DisplayBlock },
     { "code", Html_code, QTextHtmlElement::DisplayInline },
@@ -381,7 +381,9 @@ static const QTextHtmlElement *lookupElement(const QString &element)
 {
     const QTextHtmlElement *start = &elements[0];
     const QTextHtmlElement *end = &elements[Html_NumElements];
-    return qBinaryFind(start, end, element);
+    const QTextHtmlElement *e = qBinaryFind(start, end, element);
+    Q_ASSERT(!e->name || e->name == element);
+    return e;
 }
 
 int QTextHtmlParser::lookupElement(const QString &element)
@@ -669,7 +671,7 @@ void QTextHtmlParser::parseTag()
 
     if (node->wsm != QTextHtmlParserNode::WhiteSpacePre)
         eatSpace();
-
+ 
     if (node->mayNotHaveChildren()) {
         newNode(node->parent);
         resolveNode();
@@ -811,9 +813,10 @@ void QTextHtmlParser::resolveParent()
            || at(p).id == Html_hr
            || at(p).id == Html_br
            || at(p).id == Html_img
-       ){
+       ) {
         p = at(p).parent;
     }
+
     node->parent = p;
 
     // makes it easier to traverse the tree, later
