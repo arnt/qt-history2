@@ -15,26 +15,26 @@ WigglyWidget::WigglyWidget(QWidget *parent)
     timer.start(60, this);
 }
 
-void WigglyWidget::paintEvent(QPaintEvent *)
+void WigglyWidget::paintEvent(QPaintEvent * /* event */)
 {
-    static int sine_table[16] = {
+    static const int sine_table[16] = {
         0, 38, 71, 92, 100, 92, 71, 38,	0, -38, -71, -92, -100, -92, -71, -38
     };
 
-    QFontMetrics fm(font());
-    int h = fm.height() * 2;
-    int x = (width() - fm.width(text)) / 2;
-    int y = (h / 2) + fm.descent();
+    QFontMetrics metrics(font());
+    int h = metrics.height() * 2;
+    int x = (width() - metrics.width(text)) / 2;
+    int y = (h / 2) + metrics.descent();
     QColor color;
 
     QPainter painter(this);
-    for (int i = 0; i < text.length(); ++i) {
+    for (int i = 0; i < text.size(); ++i) {
         int index = (step + i) % 16;
         color.setHsv((15 - index) * 16, 255, 255);
         painter.setPen(color);
         painter.drawText(x, y - ((sine_table[index] * h) / 800),
                          QString(text[i]));
-        x += fm.width(text[i]);
+        x += metrics.width(text[i]);
     }
 }
 
