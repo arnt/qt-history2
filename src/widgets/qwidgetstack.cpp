@@ -254,8 +254,13 @@ void QWidgetStack::raiseWidget( QWidget *w )
 	    if (p)
 		p->setFocus();
 	} else {
-	    // rather hacky.....
-	    static_cast<QWidgetPrivate*>(((QWidgetStack *)topWidget)->d_ptr)->focus_child = 0;
+	    // the focus wasn't on the old page, so we have to ensure focus doesn't go to
+	    // the widget in the page that last had focus when we show the page again.
+	    QWidget *oldfw = topWidget->focusWidget();
+	    if (oldfw)
+		oldfw->clearFocus();
+	    // rather hacky, but achieves the same without function calls.....
+// 	    static_cast<QWidgetPrivate*>(((QWidgetStack *)topWidget)->d_ptr)->focus_child = 0;
 	}
     }
 
