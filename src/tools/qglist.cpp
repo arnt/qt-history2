@@ -329,12 +329,8 @@ QLNode *QGList::locate( uint index )
     int	 distance = index - curIndex;		// node distance to cur node
     bool forward;				// direction to traverse
 
-    if ( index >= numNodes ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning( "QGList::locate: Index %d out of range", index );
-#endif
+    if ( index >= numNodes )
 	return 0;
-    }
 
     if ( distance < 0 )
 	distance = -distance;
