@@ -3520,8 +3520,6 @@ int QRegExp::search( const QString& str, int start ) const
 
   Returns the position of the first match, or -1 if there was no match.
 
-  You might prefer to use QString::findRev().
-
   \sa search() matchedLength() capturedTexts()
 */
 int QRegExp::searchRev( const QString& str, int start )
@@ -3580,11 +3578,11 @@ int QRegExp::matchedLength()
 /*!
   Returns a list of the captured text strings.
 
-    The first string in the list is the entire matched string. Each
-    subsequent list element contains a string that matched a
-    (capturing) subexpression of the regexp.
+  The first string in the list is the entire matched string. Each
+  subsequent list element contains a string that matched a
+  (capturing) subexpression of the regexp.
 
-    For example:
+   For example:
   \code
     QRegExp rx( "(\\d+)(\\s*)(cm|inch(es)?)" );
     int pos = rx.search( "Length: 36 inches" );
@@ -3617,7 +3615,7 @@ int QRegExp::matchedLength()
   corresponds to the next capturing open left parentheses. Thus
   capturedTexts()[1] is the text of the first capturing parentheses,
   capturedTexts()[2] is the text of the second and so on (corresponding
-  to $1, $2 etc. in some other regexp languages).
+  to $1, $2, etc., in some other regexp languages).
 
   \sa cap() pos()
 */

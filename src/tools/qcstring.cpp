@@ -1289,16 +1289,6 @@ QCString &QCString::replace( uint index, uint len, const char *s )
   Returns the position of the next match, or -1 if \e rx was not found.
 */
 
-int QCString::find( QRegExp &rx, int index ) const
-{
-    QString d = QString::fromLatin1( data() );
-    return d.find( rx, index );
-}
-
-/*!
-  \overload
-*/
-
 int QCString::find( const QRegExp& rx, int index ) const
 {
     QString d = QString::fromLatin1( data() );
@@ -1313,16 +1303,6 @@ int QCString::find( const QRegExp& rx, int index ) const
 
   Returns the position of the next match (backwards), or -1 if \e rx was not
   found.
-*/
-
-int QCString::findRev( QRegExp &rx, int index ) const
-{
-    QString d = QString::fromLatin1( data() );
-    return d.findRev( rx, index );
-}
-
-/*!
-  \overload
 */
 
 int QCString::findRev( const QRegExp& rx, int index ) const

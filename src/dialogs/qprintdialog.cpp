@@ -463,16 +463,13 @@ static void parseSpoolInterface( QListView * printers )
 
 	while( !configFile.atEnd() &&
 	       configFile.readLine(line.data(), 1024) > 0 ) {
-
-	    if ( line.find(typeKey) == 0 ) {
+	    if ( typeKey.search(line) == 0 ) {
 		printerType = line.mid( typeKey.matchedLength() );
 		printerType = printerType.simplifyWhiteSpace();
-	    }
-	    if ( line.find(hostKey) == 0 ) {
+	    } else if ( hostKey.search(line) == 0 ) {
 		hostName = line.mid( hostKey.matchedLength() );
 		hostName = hostName.simplifyWhiteSpace();
-	    }
-	    if ( line.find(hostPrinterKey) == 0 ) {
+	    } else if ( hostPrinterKey.search(line) == 0 ) {
 		hostPrinter = line.mid( hostPrinterKey.matchedLength() );
 		hostPrinter = hostPrinter.simplifyWhiteSpace();
 	    }

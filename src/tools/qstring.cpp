@@ -13946,30 +13946,17 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
 }
 
 
-
 /*!
-  Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index. If \a index is -1, the search starts at the last
-  character; if -2, at the next to last character; etc.
-
-  Returns the position of the next match or -1 if \a rx was not found.
-
-  \sa findRev() replace() contains()
-*/
-
-int QString::find( QRegExp &rx, int index ) const
-{
-    return rx.search( *this, index );
-}
-
-/*! \overload
-
   Finds the first occurrence of the constant regular expression \a rx, 
   starting at
   position \a index. If \a index is -1, the search starts at the last
   character; if -2, at the next to last character; etc.
 
   Returns the position of the next match or -1 if \a rx was not found.
+
+  This function does not set QRegExp::matchedLength(),
+  QRegExp::capturedTexts() and friends. Use QRegExp::search() for
+  that.
 
   \sa findRev() replace() contains()
 */
@@ -13989,23 +13976,9 @@ int QString::find( const QRegExp &rx, int index ) const
   Returns the position of the next match (backwards) or -1 if \a rx was not
   found.
 
-  \sa find()
-*/
-
-int QString::findRev( QRegExp &rx, int index ) const
-{
-    return rx.searchRev( *this, index );
-}
-
-/*! \overload
-
-  Finds the first occurrence of the regular expression \a rx, starting at
-  position \a index and searching backwards. If \a index is -1, the
-  search starts at the last character; if -2, at the next to last
-  character; etc.
-
-  Returns the position of the next match (backwards) or -1 if \a rx was not
-  found.
+  This function does not set QRegExp::matchedLength(),
+  QRegExp::capturedTexts() and friends. Use QRegExp::searchRev()
+  for that.
 
   \sa find()
 */

@@ -176,11 +176,9 @@ public:
 
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const char *str, int index=0, bool cs=TRUE ) const;
-    int		find( QRegExp &, int index=0 ) const;
     int		find( const QRegExp &, int index=0 ) const;
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
-    int		findRev( QRegExp &, int index=-1 ) const;
     int		findRev( const QRegExp &, int index=-1 ) const;
     int		contains( char c, bool cs=TRUE ) const;
     int		contains( const char *str, bool cs=TRUE ) const;

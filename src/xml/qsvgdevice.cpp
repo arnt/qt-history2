@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#28 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#29 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -782,10 +782,10 @@ void QSvgDevice::setTransform( const QString &tr )
 
     QRegExp reg( "\\s*([\\w]+)\\s*\\(([^\\(]*)\\)" );
     int index = 0;
-    while (( index = reg.search( t, index )) >= 0 ) {
+    while ( (index = reg.search(t, index)) >= 0 ) {
 	QString command = reg.cap( 1 );
 	QString params = reg.cap( 2 );
-	QStringList plist = QStringList::split( QRegExp( "[,\\s]" ), params );
+	QStringList plist = QStringList::split( QRegExp("[,\\s]"), params );
 	if ( command == "translate" ) {
 	    double tx = 0, ty = 0;
 	    tx = plist[0].toDouble();
