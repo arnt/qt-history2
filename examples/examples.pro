@@ -14,6 +14,7 @@ SUBDIRS	=	aclock \
 		dclock \
 		demo \
 		dirview \
+		distributor \
 		dragdrop \
 		drawdemo \
 		drawlines \
