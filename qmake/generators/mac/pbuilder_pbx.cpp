@@ -559,6 +559,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     QString r = opt.right(opt.length() - 2);
                     fixEnvVariables(r);
                     libdirs.append(r);
+                } else if(opt == "-seg1addr") {
+		    it = tmp.erase(it);
+		    if(it == tmp.end())
+			break;
+                    remove = true;
                 } else if(opt == "-prebind") {
                     project->variables()["QMAKE_DO_PREBINDING"].append("TRUE");
                     remove = true;
