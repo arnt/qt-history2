@@ -87,11 +87,6 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
          ee->type() != QEvent::ShortcutOverride)
         return false;
 
-    if (o != widget
-        && ee->type() != QEvent::ShortcutOverride
-        && ee->type() != QEvent::KeyPress)
-        return false;
-
     QWidget *w = childOf(widget, (QWidget*)o);
     if (!w
 #ifndef QT_NO_SIZEGRIP
@@ -253,7 +248,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
         geom = QRect(widget->geometry().topLeft(), QPoint(p.x(), widget->geometry().bottom())) ;
         break;
     case Center:
-        if (movingEnabled || moveResizeMode)
+        if (moveResizeMode)
             geom.moveTopLeft(pp);
         break;
     default:
