@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#3 $
+** $Id: //depot/qt/main/src/tools/qdict.h#4 $
 **
 ** Definition of QDict template/macro class
 **
@@ -38,6 +38,7 @@ public:									      \
     QDictM(type)(int size=17,bool cs=TRUE,bool ck=TRUE):QGDict(size,cs,ck,0){}\
    ~QDictM(type)()			{ clear(); }			      \
     uint  count()   const		{ return QGDict::count(); }	      \
+    uint  size()    const		{ return QGDict::size; }	      \
     bool  isEmpty() const		{ return QGDict::count() == 0; }      \
     bool  insert( const char *k, const type *d )			      \
 					{ return QGDict::look(k,GCI(d),1)!=0;}\
@@ -65,7 +66,7 @@ class QDictIteratorM(type) : public QGDictIterator			      \
 public:									      \
     QDictIteratorM(type)(const QDictM(type) &d) :QGDictIterator((QGDict &)d){}\
    ~QDictIteratorM(type)()    {}					      \
-    int	  count()   const     { return dict->count(); }			      \
+    uint  count()   const     { return dict->count(); }			      \
     bool  isEmpty() const     { return dict->count() == 0; }		      \
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }   \
     operator type *() const   { return (type *)QGDictIterator::get(); }	      \
@@ -91,6 +92,7 @@ public:
     QDictT(int size=17,bool cs=TRUE,bool ck=TRUE) : QGDict(size,cs,ck,0) {}
    ~QDictT()				{ clear(); }
     uint  count()   const		{ return QGDict::count(); }
+    uint  size()    const		{ return QGDict::size; }
     bool  isEmpty() const		{ return QGDict::count() == 0; }
     bool  insert( const char *k, const type *d )
 					{ return QGDict::look(k,GCI(d),1)!=0; }
@@ -116,7 +118,7 @@ template<class type> class QDictIteratorT : public QGDictIterator
 public:
     QDictIteratorT(const QDictT<type> &d) :QGDictIterator((QGDict &)d) {}
    ~QDictIteratorT()	      {}
-    int	  count()   const     { return dict->count(); }
+    uint  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *() const   { return (type *)QGDictIterator::get(); }
