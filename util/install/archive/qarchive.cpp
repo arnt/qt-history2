@@ -13,7 +13,7 @@ static bool createDir( const QString& fullPath )
     bool success;
 
     for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
-	pathComponent = *it + "\\";
+	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
 	success = dirTmp.mkdir( tmpPath );
     }
@@ -108,7 +108,11 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		    }
 		}
 
-		emit operationFeedback( QString( "done. %1 => %2 (%3%)\n" ).arg( ztream.total_in ).arg( ztream.total_out ).arg( int( double( ztream.total_out ) / double( ztream.total_in ) * 100 ) ) );
+		emit operationFeedback( QString( "done. %1 => %2 (%3%)\n" )
+					.arg( ztream.total_in )
+					.arg( ztream.total_out )
+					.arg( int( 
+					    double( ztream.total_out ) / double( ztream.total_in ) * 100 ) ) );
 		deflateEnd( &ztream );
 		// Now write the compressed data to the output
 		outStream << ztream.total_out;
@@ -126,15 +130,12 @@ bool QArchive::setDirectory( const QString& dirName )
     if( arcFile.isOpen() ) {
 	QString fullName = dirName;
 	QDataStream outStream( &arcFile );
-
-	if( fullName.right( 1 ) == "/" )
-	    fullName.truncate(fullName.length()-1);
-
+	if( fullName.right( 1 ) != "/" )
+	    fullName += "/";
 	outStream << fullName.latin1();
-
-	return true;
+	return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 bool QArchive::writeDir( const QString& dirName, bool includeLastComponent, QString localPath )
@@ -142,20 +143,24 @@ bool QArchive::writeDir( const QString& dirName, bool includeLastComponent, QStr
     if( arcFile.isOpen() ) {
 	QFileInfo fi( dirName );
 
-	if( includeLastComponent ) {
+	if( includeLastComponent ) 
 	    setDirectory( fi.fileName() );
-	}
 	QDir dir( dirName );
 	const QFileInfoList* dirEntries = dir.entryInfoList();
 	QFileInfoListIterator dirIter( *dirEntries );
 	QDataStream outStream( &arcFile );
 	QFileInfo* pFi;
 
+	if(localPath.right(1) == "/")
+	    localPath.truncate(localPath.length()-1);
+
 	dirIter.toLast();
 	while( ( pFi = dirIter.current() ) ) {
 	    if( pFi->fileName()[0] != '.' ) {
 		if( pFi->isDir() )
-		    writeDir( pFi->absFilePath(), true, localPath + "/" + pFi->fileName() ); // Subdirs should always get its name in the archive.
+		    writeDir( pFi->absFilePath(), 
+			      TRUE, localPath + "/" + 
+			      pFi->fileName() ); // Subdirs should always get its name in the archive.
 		else
 		    writeFile( pFi->absFilePath(), localPath );
 	    }
@@ -232,14 +237,9 @@ bool QArchive::readArchive( QString outpath )
 		if( verbosityMode & Destination )
 		    emit operationFeedback( "Directory " + dirName + "... " );
 
-		if( outDir.exists( dirName ) )
-		    outDir.cd( dirName );
-		else {
-		    if( createDir( dirName ) )
-			outDir.cd( dirName );
-		    else
-			return FALSE;
-		}
+		if( !outDir.exists( dirName ) && createDir( dirName ) )
+		    return FALSE;
+		outDir.cd( dirName );
 	    }
 	} else {
 	    QDateTime timeStamp;

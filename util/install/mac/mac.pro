@@ -1,4 +1,4 @@
-TARGET = unpack
+TARGET = unpackage
 TEMPLATE = app
 SOURCES = main.cpp
 INCLUDEPATH += ../archive
