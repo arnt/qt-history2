@@ -42,7 +42,7 @@ class SexChooser : public QTableItem
 {
 public:
     SexChooser( QTable *t )
-	: QTableItem( t, "female" ) { setTypeChangeAllowed( FALSE ); setEditType( Always ); }
+	: QTableItem( t, "female" ), cb( 0 ) { setTypeChangeAllowed( FALSE ); setEditType( Always ); }
     QWidget *editor() const {
 	( (SexChooser*)this )->cb = new QComboBox( table()->viewport() );
 	cb->insertItem( "female" );
@@ -56,16 +56,18 @@ public:
 	    QTableItem::setContentFromEditor( w );
     }
     void setText( const QString &s ) {
-	if ( s == "male" )
-	    cb->setCurrentItem( 1 );
-	else
-	    cb->setCurrentItem( 0 );
+	if ( cb ) {
+	    if ( s == "male" )
+		cb->setCurrentItem( 1 );
+	    else
+		cb->setCurrentItem( 0 );
+	}
 	QTableItem::setText( s );
     }
-    
+
 private:
     QComboBox *cb;
-    
+
 };
 
 class CheckItem : public QTableItem
@@ -122,7 +124,7 @@ int main( int argc, char **argv )
     t->setCellText( 0, 1, "Mustermann" );
     t->setCellText( 0, 2, "Max" );
     ( (SexChooser*)t->cellContent( 0, 3 ) )->setText( "male" );
-    
+
     t->horizontalHeader()->setLabel( 0, "Number" );
     t->horizontalHeader()->setLabel( 1, "Last Name" );
     t->horizontalHeader()->setLabel( 2, "First Name" );
