@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#37 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#37 $");
 
 
 /*!
@@ -332,3 +332,15 @@ void QButtonGroup::buttonToggled( bool on )
     }
 }
 
+
+
+/*!  Sets the button with id \a id to be on, and if this is an
+  exclusive group, all other button in the group to be off.
+*/
+
+void QButtonGroup::setButton( int id )
+{
+    QButton * b = find( id );
+    if ( b )
+	b->setOn( TRUE );
+}
