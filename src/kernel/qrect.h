@@ -79,6 +79,11 @@ public:
     void   setX( int x );
     void   setY( int y );
 
+    void   setTopLeft( const QPoint &p );
+    void   setBottomRight( const QPoint &p );
+    void   setTopRight( const QPoint &p );
+    void   setBottomLeft( const QPoint &p );
+
     QPoint topLeft()	 const;
     QPoint bottomRight() const;
     QPoint topRight()	 const;
