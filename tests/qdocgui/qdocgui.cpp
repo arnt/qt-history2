@@ -1,6 +1,7 @@
 #include <qapplication.h>
 #include <qdict.h>
 #include <qinputdialog.h>
+#include <qheader.h>
 #include <qmessagebox.h>
 #include <qprocess.h>
 #include <qpushbutton.h>
@@ -47,6 +48,7 @@ QDocMainWindow::QDocMainWindow( const QString& qtdir,
     vb = new QVBoxLayout( this );
     classList = new QListView( this );
     classList->addColumn( "Text" );
+    classList->header()->hide();
     classList->setRootIsDecorated( TRUE );
     vb->addWidget( classList );
     QHBoxLayout* hb = new QHBoxLayout();
