@@ -397,6 +397,12 @@ void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
 }
 
 /*!
+    Removes the \a dockwindow from the main window.
+*/
+void QMainWindow::removeDockWindow(QDockWindow *dockwindow)
+{ d->layout->removeWidget(dockwindow); }
+
+/*!
     Returns the \c Qt::DockWindowArea for \a dockwindow.
 
     \sa addDockWindow() extendDockWindowArea() splitDockWindow() Qt::DockWindowArea
