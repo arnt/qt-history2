@@ -56,9 +56,9 @@ var checkoutRemove = [ new RegExp("^tests"),
 
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
-		       new RegExp("^src/gui/itemviews/qlistview"),
-		       new RegExp("^src/gui/itemviews/qtreeview"),
-		       new RegExp("^src/gui/itemviews/qtableview"),
+		       new RegExp("^src/gui/itemviews/qlistwidget"),
+		       new RegExp("^src/gui/itemviews/qtreewidget"),
+		       new RegExp("^src/gui/itemviews/qtablewidget"),
 		       new RegExp("^LICENSE.TROLL") ];
 var checkoutKeep = [ /./ ];
 
