@@ -245,82 +245,95 @@ button to finish.
 \section2 The Settings Dialog
 
 This dialog is used to set your preferences for \QA. In order to 
-confirm your changes click \Button OK, respectively \Button Cancel
-if you want to keep the previous settings. \QA will remember your 
+confirm your changes click \Button OK or click \Button Cancel
+to keep the previous settings. \QA will remember your 
 settings between sessions, including window sizes and positions, 
-and which page(s) you have open. The dialog contains the following 
-tabs:
+and which page(s) you have open. The Settings dialog contains the
+following tabs:
 
 \list
 \i General Settings
 
-Here you can change the base font used throughout by choosing a 
-new font from the Font combobox. You can choose a new fixed-width 
-font, e.g. used to show code snippets, by choosing a new font from 
-the 'Fixed font' combobox. You can change the color of hypertext 
-links by clicking the 'Link color' color button. Uncheck the 
+To change the base font used throughout \QA, select a 
+font type from the Font combobox. To choose a new fixed-width 
+font for example, to show code snippets, choose a font type from 
+the 'Fixed font' combobox. To change the color of hypertext 
+links, click the 'Link color' color button. Click the 
 'Underline links' checkbox if you don't want underlined links. 
 
 \i Web Settings 
 
-Some pages contain links to the World Wide Web. In order to get them
-displayed you have to specify a webbrowser. You can use either the 
-\Button Browse or the line edit to set your favourite browser.
+Some pages contain links to the World Wide Web. In order to display
+the links, you must specify a web browser. Click \Button Browse to
+invoke the \Widget Assistant dialog and navigate until you find the
+web browser you would like to select. Click \OK to accept the
+selection. Alternatively, type in the line edit to set your favorite
+browser.
 
-\i Documentation Path
+\i Documentation Paths
 
-If you want to add your own documentation in the \QA, use the
-\Button Add and choose the directory in which the concerning files
-are. Read more about adding your own documentation in the next
-chapter. If a documentation is obsolete you can remove it by clicking
-the \Button Delete.
+To add your own documentation to \QA, click \Button Add to invoke the
+\Widget Assistant dialog. Navigate through the directories until you find
+the documentation you want to add and then click \OK. Click \Button
+Delete to remove obselete documentation from the Documentation Paths
+list box. Read more about adding your own documentation in the next
+chapter, \l {Adding Documentation to \QA}. 
 
 \i Categories
 
-Every documentation belong to a certain category. Such categories could
-be e.g. development, office or multimedia. Since you can add your own
-documentation you can also add new categories. Enter in the line edit
-the category name and click the \Button Add. Now, the new category
-appears in the list on the left site. There is a checkbox in front of
-each category. If it is checked all available documentation of this
-category will be displayed. You can remove a category by selecting
-it and clicking the \Button Delete. For further information about
-categories read the next chapter.
+All documentation belongs to certain categories, for example,
+development, office or multimedia. To add a new category, type the
+name in the Category Name line edit and click \Button Add. The
+new category appears in the Categories list box with a checkbox to the
+left of it. Leave the box checked to display all of the category's
+available documentation. To remove a category, select it from the list
+box and click \Button Delete. For further information about
+categories read the next chapter, \l {Adding Documentation to \QA}.
 \endlist
 
-\chapter Adding none Qt Documentation
+\chapter Adding Documentation to \QA
 
-If you want to add your own documentation you have to tell \QA where
-the new documentation is located and if it belongs to new category.
-Furthermore, \QA needs two special xml files. One for the contents 
-(contents.xml) and one for the indexwords (index.xml) of the new 
-documentation. The names of these files are fixed. Have a look at
-section Fileformats to learn more about these files.
+New documentation can be added to \QA by following some basic steps.
+To add documentation, you must specify where the new documentation is
+located and whether it belongs to a new category. Furthermore, \QA
+requires two special xml files, one for the contents (contents.xml) and
+one for the indexwords (index.xml) of the new documentation. The names
+of these files are fixed. 
 
-\section1 Set documentation path
+\section1 Add Documentation
 
-In order to set the documentation path use the settingsdialog. There 
-you can add or remove search paths for additional documentation. Be 
-sure that this path contains the files content.xml and index.xml.  
+The following steps show how to add
+documentation to \QA: 
 
-\section1 Adding categories
+\list
 
-If the new documentation belongs to a category which is currently 
-unknown add this category in the settingsdialog. The spelling have
-to be the same as it have been specified in the xml files.
+\i Set documentation path
 
-\section1 Fileformats
+To set the documentation path, open the \Widget Settings dialog and 
+add or remove search paths for additional documentation. Be sure that
+this path contains the files content.xml and index.xml.  
 
-As mentioned before \QA needs one file for the contents and one for
-the index keywords. The only thing which have to be equal in these 
-two files is the category.
+\i Adding categories
+
+If the new documentation belongs to a category which does not appear
+in the Categories list box, add the category in the \Widget Settings
+dialog. The spelling has to be the same as specified in the xml files.
+
+\i Fileformats
+
+\QA needs one file for the contents and one for the index keywords.
+Be sure that the category in these two files is the the same. The
+sections that follow explain the Content and Index files in more
+detail.
+
+\endlist
 
 \section2 Content file
 
 The content file contains the table of contents of the documentation.
-The sections can be nested as deep as neccessary. All references should
-be relatively. An example of a content file with all avialable tags is
-displayed below. 
+The sections can be nested as deep as necessary. All references should
+be related. An example of a content file with all avialable tags is
+displayed below:
 
 content.xml:
 \code
@@ -352,8 +365,8 @@ content.xml:
 
 The index file contains all important keywords. Since one keyword
 may have more than one reference, add to each reference a description.
-This description appears later in the topicchooser. For the structure
-of the index file have a look at the following example.
+This description appears later in the topic chooser. The following
+example shows the structure of the index file:
 
 index.xml
 \code
