@@ -1267,6 +1267,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	else if ( e->state() & ControlButton )
 	    copy();
 #endif
+	else 
+	    setOverwriteMode( !isOverwriteMode() );
 	break;
     case Key_Backspace:
 #if defined (Q_WS_WIN)
