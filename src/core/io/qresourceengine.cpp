@@ -91,7 +91,7 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
     for(int i = 0; i < entries.size(); i++) {
         QString fn = entries[i]->name();
 #ifndef QT_NO_REGEXP
-        if(!(filters & QDir::AllDirs && d->resource->isContainer())) {
+        if(!(filters & QDir::AllDirs && entries.at(i)->isContainer())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
                 QRegExp rx(*sit,
@@ -106,8 +106,8 @@ QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringL
                 continue;
         }
 #endif
-        if  ((doDirs && d->resource->isContainer()) ||
-             (doFiles && !d->resource->isContainer()))
+        if  ((doDirs && entries.at(i)->isContainer()) ||
+             (doFiles && !entries.at(i)->isContainer()))
             ret.append(fn);
     }
     return ret;
