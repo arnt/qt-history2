@@ -50,11 +50,14 @@ void TreeWalker::accept(DomLayoutItem *layoutItem)
 {
     switch (layoutItem->kind()) {
         case DomLayoutItem::Widget:
-            return accept(layoutItem->elementWidget());
+            accept(layoutItem->elementWidget());
+	    return;
         case DomLayoutItem::Layout:
-            return accept(layoutItem->elementLayout());
+            accept(layoutItem->elementLayout());
+	    return;
         case DomLayoutItem::Spacer:
-            return accept(layoutItem->elementSpacer());
+            accept(layoutItem->elementSpacer());
+	    return;
         case DomLayoutItem::Unknown:
             break;
     }
