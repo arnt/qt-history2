@@ -62,6 +62,7 @@ QStringList AccessibleFactory::keys() const
     list << "QTitleBar";
     list << "QWorkspaceChild";
     list << "QSizeGrip";
+    list << "QSplitter";
     list << "QSplitterHandle";
     list << "QToolBarSeparator";
     list << "QDockWindowHandle";
@@ -163,6 +164,8 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
 	iface = new QAccessibleWidget(widget, Window);
     } else if (classname == "QSizeGrip") {
 	iface = new QAccessibleWidget(widget, Grip);
+    } else if (classname == "QSplitter") {
+	iface = new QAccessibleWidget(widget, Splitter);
     } else if (classname == "QSplitterHandle") {
 	iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "QToolBarSeparator") {

@@ -327,7 +327,7 @@ static QListViewItem *findLVItem(QListView* listView, int child)
   Constructs a QAccessibleListView object for \a o.
 */
 QAccessibleListView::QAccessibleListView(QWidget *o)
-    : QAccessibleScrollView(o, Outline)
+    : QAccessibleScrollView(o, Tree)
 {
 }
 
@@ -395,7 +395,7 @@ QAccessible::Role QAccessibleListView::role(int child) const
 {
     if (!child)
 	return QAccessibleScrollView::role(child);
-    return OutlineItem;
+    return TreeItem;
 }
 
 /*! \reimp */
@@ -551,7 +551,7 @@ static QIconViewItem *findIVItem(QIconView *iconView, int child)
   Constructs a QAccessibleIconView object for \a o.
 */
 QAccessibleIconView::QAccessibleIconView(QWidget *o)
-    : QAccessibleScrollView(o, Outline)
+    : QAccessibleScrollView(o, List)
 {
     Q_ASSERT(widget()->inherits("QIconView"));
 }
@@ -602,7 +602,7 @@ QAccessible::Role QAccessibleIconView::role(int child) const
 {
     if (!child)
 	return QAccessibleScrollView::role(child);
-    return OutlineItem;
+    return ListItem;
 }
 
 /*! \reimp */

@@ -11,7 +11,7 @@
   Creates a QAccessibleWidgetStack object for \a w.
 */
 QAccessibleWidgetStack::QAccessibleWidgetStack(QWidget *w)
-: QAccessibleWidget(w)
+: QAccessibleWidget(w, LayeredPane)
 {
     Q_ASSERT(widgetStack());
     setDescription("This is a widgetstack");
