@@ -6094,22 +6094,21 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
-    if ( section < 0 )
+    if ( section < 0 || cellSize( section ) <= 0 )
 	return;
-
-    if ( cellSize( section ) <= 0 )
-	return;
-
-    if ( sectionState( index ) != Selected ||
-	 orientation() == Horizontal && isRowSelection( table->selectionMode() ) ) {
-	QHeader::paintSection( p, index, fr );
-    } else {
-	style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
-			       colorGroup(), QStyle::Style_Down |
-			       ( orientation() == Horizontal ?
-				 QStyle::Style_Horizontal : 0 ));
-	paintSectionLabel( p, index, fr );
+    QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+    if(isClickEnabled()) {
+	if(sectionState(index) == Selected) {
+	    flags |= QStyle::Style_Down;
+	    if(!mousePressed)
+		flags |= QStyle::Style_Sunken;
+	}
     }
+    if(!(flags & QStyle::Style_Down))
+	flags |= QStyle::Style_Raised;
+    style().drawPrimitive( QStyle::PE_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+			   colorGroup(), flags );
+    paintSectionLabel( p, index, fr );
 }
 
 static int real_pos( const QPoint &p, Qt::Orientation o )
@@ -6260,6 +6259,15 @@ void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 	emit sectionSizeChanged( resizedSection );
 	updateStretches();
     }
+
+    //Make sure all newly selected sections are painted one last time
+    QRect selectedRects;
+    for ( int i = 0; i < count(); i++ ) {
+	if(sectionState( i ) == Selected) 
+	    selectedRects |= sRect( i );
+    }
+    if(!selectedRects.isNull())
+	repaint(selectedRects);
 }
 
 /*! \reimp

@@ -473,10 +473,10 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
     case PE_HeaderSection: {
 	QPixmap px;
 	QString nstr = QString::number(r.height()), mod;
-	if(flags & Style_Down)
-	    mod = "down_";
-	else if(flags & Style_Sunken && qAquaActive(cg))
+	if((flags & Style_Sunken) && qAquaActive(cg)) 
 	    mod = "act_";
+	else if(flags & Style_Down)
+	    mod = "down_";
 	qAquaPixmap("hdr_" + mod + nstr, px);
 	p->drawTiledPixmap(r, px);
 	//separator

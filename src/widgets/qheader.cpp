@@ -389,7 +389,6 @@ int QHeader::count() const
 void QHeader::init( int n )
 {
     state = Idle;
-    cachedIdx = 0; // unused
     cachedPos = 0; // unused
     d = new QHeaderData( n );
     d->height = 0;
@@ -397,7 +396,7 @@ void QHeader::init( int n )
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
-    handleIdx = 0;
+    oldHIdxSize = handleIdx = 0;
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -635,6 +634,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton || state != Idle )
 	return;
+    oldHIdxSize = handleIdx;
     handleIdx = 0;
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
@@ -664,6 +664,8 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	state = d->clicks[ d->i2s[handleIdx]  ] ? Pressed : Blocked;
 	clickPos = c;
 	repaint( sRect( handleIdx ) );
+	if(oldHandleIdx != handleIdx)
+	    repaint( sRect( oldHandleIdx ) );
 	emit pressed( section );
     }
 }
@@ -675,17 +677,23 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	return;
+    int oldOldHandleIdx = oldHandleIdx;
     State oldState = state;
     state = Idle;
     switch ( oldState ) {
     case Pressed: {
 	int section = d->i2s[handleIdx];
-	repaint(sRect( handleIdx ), FALSE);
 	emit released( section );
 	if ( sRect( handleIdx ).contains( e->pos() ) ) {
+	    oldHandleIdx = handleIdx;
 	    emit sectionClicked( handleIdx );
 	    emit clicked( section );
+	} else {
+	    handleIdx = oldHandleIdx;
 	}
+	repaint(sRect( handleIdx ), FALSE);
+	if(oldOldHandleIdx != handleIdx)
+	    repaint(sRect(oldOldHandleIdx ), FALSE );
 	} break;
     case Sliding: {
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
@@ -701,17 +709,23 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	int section = d->i2s[handleIdx];
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveSection( section, moveToIdx );
+	    handleIdx = oldHandleIdx;
 	    repaint(); // a bit overkill, but removes the handle as well
 	    emit moved( handleIdx, moveToIdx );
 	    emit indexChange( section, handleIdx, moveToIdx );
 	    emit released( section );
 	} else {
-	    repaint(sRect( handleIdx ), FALSE );
 	    if ( sRect( handleIdx).contains( e->pos() ) ) {
+		oldHandleIdx = handleIdx;
 		emit released( section );
 		emit sectionClicked( handleIdx );
 		emit clicked( section );
+	    } else {
+		handleIdx = oldHandleIdx;
 	    }
+	    repaint(sRect( handleIdx ), FALSE );
+	    if(oldOldHandleIdx != handleIdx)
+		repaint(sRect(oldOldHandleIdx ), FALSE );
 	}
 	break;
     }
@@ -1391,18 +1405,14 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if ( cellSize( section ) <= 0 )
 	return;
 
-    QStyle::SFlags flags = QStyle::Style_Raised;
-    flags |= ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
-    if ( isEnabled() )
-	flags |= QStyle::Style_Enabled;
-    if(index == handleIdx) {
-	if(state == Pressed || state == Moving)
-	    flags |= QStyle::Style_Down;
-	else if(state != Sliding)
-	    flags |= QStyle::Style_Sunken;
-	else
-	    flags |= QStyle::Style_Raised;
-    } else
+    QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+    if(isClickEnabled()) {
+	if(index == oldHandleIdx) 
+	    flags |= QStyle::Style_Sunken; //currently selected
+	if((state == Pressed || state == Moving) && index == handleIdx) 
+	    flags |= QStyle::Style_Down; //currently pressed
+    }
+    if(!(flags & QStyle::Style_Down))
 	flags |= QStyle::Style_Raised;
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
