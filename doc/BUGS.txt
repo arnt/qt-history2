@@ -14,6 +14,12 @@ QApplication::widgetAt (Win32)
 drawText() on a printer (Win32)
     Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)
 
+QClipboard on Win32
+    Pasting images from e.g. MS Paint doesn't work, or only for some color depths
+
+QCursor on Win32
+    Some cursors (e.g. Cross) only work for the default cursor set
+    Custom cursors are not masked correctly on 8bit color depth
 
 Small
 -----
@@ -39,3 +45,6 @@ QPrintDialog
 
 QFileDialog
     QFileDialog::getOpenFileName( "*" ) gets confused.
+
+QEffects
+    Submenus are not on top of parent while fading

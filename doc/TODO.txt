@@ -61,8 +61,8 @@ QFileDialog
   setSelectedFilter( const QString&/int ) to set used filter
   set filter to initial file-extension
 
-QSizeGrip (Win32)
-  Outlined resize as set in the system properties
+QSizeGrip (Win32) (Volker)
+  Outlined resize as set in the system properties 
 
 QButtonGroup
   Should work not only for QRadioButtons
@@ -119,8 +119,8 @@ Extending existing functionality
 Action/Mainwindow editor (Reggie)
     Actioneditor for QMainWindow so that one can drag'n'drop
     actions in a special mode between the actin editor (which shows
-    all available actios) and the menus and toolbars. Allows also
-    creating new toolbars and menus (?) on the fly. Like you can doe
+    all available actions) and the menus and toolbars. Allows also
+    creating new toolbars and menus (?) on the fly. Like you can do
     in Visual Studio and MS-Office
 
 QTextView, QTextBrowser, QTextEdit, QRichText (Matthias, Reggie)
@@ -134,3 +134,7 @@ Text drawing in Qt (Matthias, Reggie, Lars)
     drawing in Qt, like QPainter's magic draw_format_text. Probably
     don't use it everywhere (too much memory wasting), but everwhere
     where more than one line, richtext or BiDi is displayed.
+
+QThread (Volker, Brad)
+    Evaluate possibility of event-loop passing and provide API for
+    accessing low-level properties (e.g. priority and rights)
