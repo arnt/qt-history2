@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 //
-// $QTDIR/lib/fonts/fontdir lists a sequence of:
+// INSTALL/lib/fonts/fontdir lists a sequence of:
 //
 //    <name> <file> <renderer> <italic> <weight> <size> <flags>
 //
@@ -63,9 +63,16 @@
 
 QString qws_topdir()
 {
-    const char* r = getenv("QTDIR");
-    if ( !r ) r = "/usr/local/qt-embedded";
-    return r;
+    QString ret( QT_INSTALL_PREFIX );
+
+    // ### REMOVE ME 3.1
+    // we shouldn't use QTDIR to change the behavior of the library at
+    // runtime.  the install prefix above should be enough when
+    // switching between Qt versions.
+    const char *r = getenv( "QTDIR" );
+    if ( r ) ret = QString( r );
+
+    return ret;
 }
 
 QFontManager * qt_fontmanager=0;
@@ -109,7 +116,7 @@ void QFontManager::cleanup()
   \internal (for now)
 
   The font is specified by a QFont, and is thus rendered at a
-  given weight, family and point size, 
+  given weight, family and point size,
   italic or not, and so on. There is one and only one QRenderedFont
   for each particular QFont specification; if you specify two Times 10pt
   bold italic QFonts they will both refer to the same QRenderedFont.
@@ -150,7 +157,7 @@ QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
 \fn QRenderedFont::~QRenderedFont()
 Destroys a QRenderedFont
 */
- 
+
 QRenderedFont::~QRenderedFont()
 {
 }
@@ -203,9 +210,9 @@ int QRenderedFont::maxWidth()
 
 /*!
 Creates a font manager. This method reads in the font definition file
-from $QTDIR/lib/fonts/fontdir (or /usr/local/qt-embedded/lib/fonts/fontdir
-if QTDIR isn't defined) and creates a list of QDiskFonts to hold the 
-information in the file. It also constructs any defined font factories.
+from \c INSTALL/lib/fonts/fontdir, where \c INSTALL is the directory
+where Qt/Embedded was installed, and creates a list of QDiskFonts to hold
+the information in the file. It also constructs any defined font factories.
 */
 
 QFontManager::QFontManager()
@@ -227,7 +234,7 @@ QFontManager::QFontManager()
     FILE* fontdef=fopen(fn.local8Bit(),"r");
     if(!fontdef) {
 	QCString temp=fn.local8Bit();
-	qWarning("Cannot find font definition file %s - is $QTDIR set correctly?",
+	qWarning("Cannot find font definition file %s - is Qt installed correctly?",
 	       temp.data());
 	exit(1);
 	//return;
@@ -347,7 +354,7 @@ void QDefaultCachePolicy::cache(QRenderedFont * f)
 {
     if( !qt_fontmanager->cachedfonts.findRef( f ) ) {
         qt_fontmanager->cachedfonts.append(f);
-    } 
+    }
 }
 
 void QDefaultCachePolicy::uncache(QRenderedFont * f)
