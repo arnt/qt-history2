@@ -63,7 +63,7 @@ public:
 	if ( key == "QRadioButton" )
 	    return new QRadioButton( parent, name );
 	if ( key == "QPushButton" )
-	    return new QPushButton( parent, name );
+	    return new QPushButton( parent );
 	if ( key == "QToolButton" ) {
 	    QToolButton *tb = new QToolButton( parent, name );
 	    tb->setPixmap( QPixmap(fileopen) );
