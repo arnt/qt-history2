@@ -913,11 +913,8 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *target)
 
     QRect r = rect;
     Q_ASSERT(r.isValid());
-    r.moveTopLeft(container->mapFromGlobal(r.topLeft()));
+    r.moveTopLeft(gridPoint(container->mapFromGlobal(r.topLeft())));
 
-    // normalize to grid
-    r = QRect(gridPoint(r.topLeft()), gridPoint(r.bottomRight()));
-    
     SetPropertyCommand *geom_cmd = new SetPropertyCommand(this);
     geom_cmd->init(w, "geometry", r); // ### use rc.size()
     m_commandHistory->push(geom_cmd);
@@ -963,7 +960,8 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
 {
     Q_ASSERT(isDescendant(this, widget));
 
-    QRect r(gridPoint(geometry.topLeft()), gridPoint(geometry.bottomRight()));
+    QRect r = geometry;
+    r.moveTopLeft(gridPoint(geometry.topLeft()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
     cmd->init(widget, "geometry", r);
     cmd->setDescription(tr("Resize"));
