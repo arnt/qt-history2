@@ -63,8 +63,8 @@ protected:
     bool parse(const QString &str);
     void setValid(bool);
 
-    QHttpHeader(QHttpHeaderPrivate &d, const QString &str = QString());
-    QHttpHeader(QHttpHeaderPrivate &d, const QHttpHeader &header);
+    QHttpHeader(QHttpHeaderPrivate &dd, const QString &str = QString());
+    QHttpHeader(QHttpHeaderPrivate &dd, const QHttpHeader &header);
     QHttpHeaderPrivate *d_ptr;
 
 private:
@@ -133,7 +133,7 @@ class Q_NETWORK_EXPORT QHttp : public QObject
     Q_OBJECT
 
 public:
-    QHttp(QObject *parent = 0);
+    explicit QHttp(QObject *parent = 0);
     QHttp(const QString &hostname, Q_UINT16 port = 80, QObject *parent = 0);
     virtual ~QHttp();
 
@@ -235,4 +235,5 @@ private:
 };
 
 #endif
-#endif
+
+#endif // QHTTP_H

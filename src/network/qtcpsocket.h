@@ -22,7 +22,7 @@ class Q_NETWORK_EXPORT QTcpSocket : public QAbstractSocket
 {
     Q_OBJECT
 public:
-    QTcpSocket(QObject *parent = 0);
+    explicit QTcpSocket(QObject *parent = 0);
     virtual ~QTcpSocket();
 
 private:

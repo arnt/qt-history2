@@ -61,4 +61,4 @@ private:
     Q_DISABLE_COPY(QOpenGLPaintEngine)
 };
 
-#endif
+#endif // QPAINTENGINE_OPENGL_P_H

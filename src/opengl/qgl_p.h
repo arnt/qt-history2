@@ -70,7 +70,7 @@ class QGLContextPrivate
 {
     Q_DECLARE_PUBLIC(QGLContext)
 public:
-    QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
+    explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
     GLuint bindTexture(const QImage &image, GLint format, int key);
     void init(QPaintDevice *dev, const QGLFormat &format);
@@ -99,4 +99,5 @@ public:
     QColor transpColor;
     QGLContext *q_ptr;
 };
-#endif
+
+#endif // QGL_P_H

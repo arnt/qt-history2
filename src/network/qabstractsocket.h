@@ -125,7 +125,7 @@ protected:
     void setSocketError(SocketError socketError);
 
 protected:
-    QAbstractSocket(SocketType socketType, QAbstractSocketPrivate &p, QObject *parent);
+    QAbstractSocket(SocketType socketType, QAbstractSocketPrivate &dd, QObject *parent = 0);
 
 private:
     Q_DECLARE_PRIVATE(QAbstractSocket)
@@ -165,4 +165,4 @@ signals:
 #endif
 };
 
-#endif
+#endif // QABSTRACTSOCKET_H

@@ -13,8 +13,8 @@
 
 #ifndef QABSTRACTSOCKET_P_H
 #define QABSTRACTSOCKET_P_H
-#include "qabstractsocket.h"
 
+#include "qabstractsocket.h"
 #include <private/qinternal_p.h>
 #include <private/qiodevice_p.h>
 #include <qbytearray.h>
@@ -79,4 +79,4 @@ public:
     QAbstractSocket::SocketError socketError;
 };
 
-#endif
+#endif // QABSTRACTSOCKET_P_H

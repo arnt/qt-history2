@@ -27,7 +27,7 @@ class Q_NETWORK_EXPORT QFtp : public QObject
     Q_OBJECT
 
 public:
-    QFtp(QObject *parent = 0);
+    explicit QFtp(QObject *parent = 0);
     virtual ~QFtp();
 
     enum State {
@@ -134,4 +134,5 @@ private:
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP
-#endif
+
+#endif // QFTP_H

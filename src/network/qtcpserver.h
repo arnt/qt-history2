@@ -25,7 +25,7 @@ class Q_NETWORK_EXPORT QTcpServer : public QObject
 {
     Q_OBJECT
 public:
-    QTcpServer(QObject *parent = 0);
+    explicit QTcpServer(QObject *parent = 0);
     virtual ~QTcpServer();
 
     bool listen(const QHostAddress &address, Q_UINT16 port);
@@ -62,4 +62,4 @@ private:
     Q_DECLARE_PRIVATE(QTcpServer)
 };
 
-#endif
+#endif // QTCPSERVER_H

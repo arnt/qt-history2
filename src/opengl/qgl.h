@@ -229,11 +229,12 @@ class Q_OPENGL_EXPORT QGLWidget : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGLWidget)
 public:
-    QGLWidget(QWidget* parent=0, const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
-    QGLWidget(QGLContext *context, QWidget* parent=0, const QGLWidget* shareWidget = 0,
-              Qt::WFlags f=0);
-    QGLWidget(const QGLFormat& format, QWidget* parent=0, const QGLWidget* shareWidget = 0,
-              Qt::WFlags f=0);
+    explicit QGLWidget(QWidget* parent=0,
+                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    explicit QGLWidget(QGLContext *context, QWidget* parent=0,
+                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
+    explicit QGLWidget(const QGLFormat& format, QWidget* parent=0,
+                       const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QGLWidget(QWidget* parent, const char* name,
                                     const QGLWidget* shareWidget = 0, Qt::WFlags f=0);
@@ -370,4 +371,5 @@ inline bool QGLFormat::hasOverlay() const
 {
     return testOption(QGL::HasOverlay);
 }
-#endif
+
+#endif // QGL_H

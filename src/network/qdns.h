@@ -53,4 +53,4 @@ private:
     QDnsHostInfoPrivate *d;
 };
 
-#endif
+#endif // QDNS_H

@@ -110,4 +110,4 @@ public:
     QString hostName;
 };
 
-#endif
+#endif // QDNS_P_H

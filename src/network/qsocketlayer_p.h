@@ -151,4 +151,4 @@ public:
     QSocketLayer *q;
 };
 
-#endif
+#endif // QSOCKETLAYER_P_H

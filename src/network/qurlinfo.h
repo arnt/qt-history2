@@ -83,4 +83,4 @@ private:
     QUrlInfoPrivate *d;
 };
 
-#endif
+#endif // QURLINFO_H

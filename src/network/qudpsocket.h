@@ -23,7 +23,7 @@ class Q_NETWORK_EXPORT QUdpSocket : public QAbstractSocket
 {
     Q_OBJECT
 public:
-    QUdpSocket(QObject *parent = 0);
+    explicit QUdpSocket(QObject *parent = 0);
     virtual ~QUdpSocket();
 
     bool bind(const QHostAddress &address, Q_UINT16 port);
@@ -41,4 +41,4 @@ private:
     Q_DECLARE_PRIVATE(QUdpSocket)
 };
 
-#endif // QUdpSOCKET_H
+#endif // QUDPSOCKET_H

@@ -81,4 +81,4 @@ private:
     QHostAddressPrivate *d;
 };
 
-#endif
+#endif // QHOSTADDRESS_H

@@ -64,4 +64,4 @@ inline void QGLColormap::detach()
         detach_helper();
 }
 
-#endif
+#endif // QGLCOLORMAP_H
