@@ -996,7 +996,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     }
 }
 
-#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
+#if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
 void streamDebug(QDebug dbg, const QVariant &v)
 {
     switch(v.type()) {
@@ -1090,7 +1090,7 @@ const QVariant::Handler qt_kernel_variant_handler = {
     compare,
     convert,
     canConvert,
-#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
+#if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
     streamDebug
 #else
     0
@@ -2348,16 +2348,16 @@ bool QVariant::isNull() const
     return handler->isNull(&d);
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QVariant &v)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QVariant(" << v.typeName() << ", ";
     QVariant::handler->debugStream(dbg, v);
     dbg.nospace() << ')';
     return dbg.space();
 #else
-    qWarning("This compiler does not support streaming QDebug");
+    qWarning("This compiler doesn't support streaming QVariant to QDebug");
     return dbg;
     Q_UNUSED(v);
 #endif
@@ -2365,13 +2365,13 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
 
 QDebug operator<<(QDebug dbg, const QVariant::Type p)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QVariant::" << QVariant::typeToName(p);
     return dbg.space();
 #else
-    qWarning("This compiler does not support streaming QDebug");
-    Q_UNUSED(p)
+    qWarning("This compiler doesn't support streaming QVariant::Type to QDebug");
     return dbg;
+    Q_UNUSED(p);
 #endif
 }
 #endif

@@ -463,10 +463,10 @@ bool QSqlField::isValid() const
     return d->type != QVariant::Invalid;
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QSqlField &f)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QSqlField(\"" << f.name() << "\", " << QVariant::typeToName(f.type());
     if (f.length() >= 0)
         dbg.nospace() << ", length: " << f.length();
@@ -483,9 +483,9 @@ QDebug operator<<(QDebug dbg, const QSqlField &f)
     dbg.nospace() << ")";
     return dbg.space();
 #else
-    qWarning("This compiler does not support streaming QDebug");
+    qWarning("This compiler doesn't support streaming QSqlField to QDebug");
     return dbg;
-    Q_UNUSED(v);
+    Q_UNUSED(f);
 #endif
 }
 #endif

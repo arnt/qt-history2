@@ -144,7 +144,7 @@ inline const QPoint operator/(const QPoint &p, qreal c)
     return QPoint(qRound(p.xp/c), qRound(p.yp/c));
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QPoint &);
 #endif
 
@@ -318,7 +318,7 @@ inline QPoint QPointF::toPoint() const
     return QPoint(qRound(xp), qRound(yp));
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
 

@@ -192,7 +192,7 @@ Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QUrl &);
 Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QUrl &);
 #endif
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QUrl &);
 #endif
 

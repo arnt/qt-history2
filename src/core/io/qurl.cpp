@@ -2878,7 +2878,7 @@ QDataStream &operator>>(QDataStream &in, QUrl &url)
 }
 #endif // QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug d, const QUrl &url)
 {
     d.maybeSpace() << "QUrl(" << url.toString() << ")";

@@ -1352,7 +1352,7 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     return db;
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
 {
     if (!d.isValid()) {

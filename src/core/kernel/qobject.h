@@ -340,7 +340,7 @@ template <> inline IFace *qobject_cast<IFace *>(const QObject *object) \
 
 #endif
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QObject *);
 #endif
 

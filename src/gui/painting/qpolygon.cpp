@@ -372,17 +372,17 @@ QRect QPolygon::boundingRect() const
     return QRect(QPoint(minx,miny), QPoint(maxx,maxy));
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QPolygon &a)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QPolygon(";
     for (int i = 0; i < a.count(); ++i)
         dbg.nospace() << a.at(i);
     dbg.nospace() << ')';
     return dbg.space();
 #else
-    qWarning("This compiler doesn't support the streaming of QDebug");
+    qWarning("This compiler doesn't support streaming QPolygon to QDebug");
     return dbg;
     Q_UNUSED(a);
 #endif
@@ -608,17 +608,17 @@ QDataStream &operator>>(QDataStream &s, QPolygonF &a)
 }
 #endif //QT_NO_DATASTREAM
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QPolygonF &a)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QPolygonF(";
     for (int i = 0; i < a.count(); ++i)
         dbg.nospace() << a.at(i);
     dbg.nospace() << ')';
     return dbg.space();
 #else
-    qWarning("This compiler doesn't support the streaming of QDebug");
+    qWarning("This compiler doesn't support streaming QPolygonF to QDebug");
     return dbg;
     Q_UNUSED(a);
 #endif

@@ -306,15 +306,15 @@ bool QPersistentModelIndex::isValid() const
     return d->index.isValid();
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column()
                   << "," << idx.data() << "," << idx.model() << ")";
     return dbg.space();
 #else
-    qWarning("This compiler doesn't support the streaming of QDebug");
+    qWarning("This compiler doesn't support streaming QModelIndex to QDebug");
     return dbg;
     Q_UNUSED(idx);
 #endif

@@ -555,7 +555,7 @@ void QSqlRecord::detach()
     qAtomicDetach(d);
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 {
     dbg.nospace() << "QSqlRecord(" << r.count() << ")";

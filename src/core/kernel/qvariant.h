@@ -292,7 +292,7 @@ class Q_CORE_EXPORT QVariant
 protected:
     friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
     friend bool qRegisterGuiVariant();
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
     friend Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 #endif
     Private d;
@@ -526,7 +526,7 @@ template<typename T> T qVariant_to(const QVariant &v)
 Q_DECLARE_SHARED(QVariant);
 Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant::Type);
 #endif

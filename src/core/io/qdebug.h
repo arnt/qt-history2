@@ -18,7 +18,7 @@
 #include "QtCore/qtextstream.h"
 #include "QtCore/qstring.h"
 
-#if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM )
+#if !defined(QT_NO_DEBUG_STREAM)
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
@@ -88,10 +88,7 @@ inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(QtDebugMsg); }
 inline Q_CORE_EXPORT QDebug qWarning() { return QDebug(QtWarningMsg); }
 inline Q_CORE_EXPORT QDebug qCritical() { return QDebug(QtCriticalMsg); }
 
-#else // QT_NO_DEBUG_OUTPUT || QT_NO_TEXTSTREAM
-#ifndef QT_NO_DEBUG_OUTPUT
-#define QT_NO_DEBUG_OUTPUT
-#endif
+#else // QT_NO_DEBUG_STREAM
 
 class QNoDebug
 {

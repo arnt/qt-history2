@@ -87,7 +87,7 @@ private:
 Q_DECLARE_TYPEINFO(QKeySequence, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QKeySequence);
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QKeySequence &);
 #endif
 

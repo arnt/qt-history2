@@ -588,7 +588,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
     return qcoreVariantHandler()->canConvert(d, t);
 }
 
-#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
+#if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
 static void streamDebug(QDebug dbg, const QVariant &v)
 {
     switch(v.type()) {
@@ -660,7 +660,7 @@ const QVariant::Handler qt_gui_variant_handler = {
     compare,
     convert,
     canConvert,
-#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
+#if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
     streamDebug
 #else
     0

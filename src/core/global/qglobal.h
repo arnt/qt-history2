@@ -271,7 +271,7 @@
 #    endif
 /* Apple's GCC 3.1 chokes on our streaming qDebug() */
 #    if defined(Q_OS_DARWIN) && __GNUC__ == 3 && (__GNUC_MINOR__ >= 1 && __GNUC_MINOR__ < 3)
-#      define Q_NO_STREAMING_DEBUG
+#      define Q_BROKEN_DEBUG_STREAM
 #    endif
 #    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #      define Q_PACKED __attribute__ ((__packed__))
@@ -1167,6 +1167,9 @@ class QNoDebug;
 #endif
 #ifdef QT_NO_WARNING_OUTPUT
 #  define qWarning if(1); else qWarning
+#endif
+#if (defined(QT_NO_DEBUG_OUTPUT) || defined(QT_NO_TEXTSTREAM)) && !defined(QT_NO_DEBUG_STREAM)
+#define QT_NO_DEBUG_STREAM
 #endif
 
 inline void qt_noop() {}

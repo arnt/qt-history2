@@ -355,19 +355,12 @@ int QPoint::manhattanLength() const
     return qAbs(x())+qAbs(y());
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QPoint &p) {
     dbg.nospace() << "QPoint(" << p.x() << ',' << p.y() << ')';
     return dbg.space();
 }
-#endif
 
-
-
-
-
-
-#ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug d, const QPointF &p)
 {
     d << "QPointF(" << p.x() << ", " << p.y() << ")";

@@ -451,7 +451,7 @@ inline bool operator!=(const QRect &r1, const QRect &r2)
     return r1.x1!=r2.x1 || r1.x2!=r2.x2 || r1.y1!=r2.y1 || r1.y2!=r2.y2;
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QRect &);
 #endif
 
@@ -712,7 +712,7 @@ inline QRect QRectF::toRect() const
     return QRect(qRound(xp), qRound(yp), qRound(w), qRound(h));
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QRectF &);
 #endif
 

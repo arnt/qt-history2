@@ -47,7 +47,7 @@ public:
     void putPoints(int index, int nPoints, const QPolygon & from, int fromIndex=0);
 };
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygon &);
 #endif
 
@@ -90,7 +90,7 @@ public:
     QRectF boundingRect() const;
 };
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QPolygonF &);
 #endif
 

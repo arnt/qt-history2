@@ -189,7 +189,7 @@ inline bool QLineF::operator==(const QLineF &d) const
     return p1 == d.p1 && p2 == d.p2;
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QLineF &p);
 #endif
 

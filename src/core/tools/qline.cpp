@@ -380,7 +380,7 @@ qreal QLineF::angle(const QLineF &l) const
 }
 
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug d, const QLineF &p)
 {
     d << "QLineF(" << p.start() << "," << p.end() << ")";

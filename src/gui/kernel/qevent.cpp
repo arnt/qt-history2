@@ -2207,11 +2207,10 @@ QShortcutEvent::~QShortcutEvent()
 {
 }
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QEvent *e) {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     // More useful event output could be added here
-
     if (!e)
         return dbg << "QEvent(this = 0x0)";
     const char *n;
@@ -2334,7 +2333,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';
     return dbg.space();
 #else
-    qWarning("This compiler doesn't support the streaming of QDebug");
+    qWarning("This compiler doesn't support streaming QEvent to QDebug");
     return dbg;
     Q_UNUSED(e);
 #endif

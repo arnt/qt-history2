@@ -1685,14 +1685,14 @@ uint QColor::pixel(int screen) const
   QColor stream functions
  *****************************************************************************/
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QColor &c)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#ifndef Q_BROKEN_DEBUG_STREAM
     dbg.nospace() << "QColor(" << c.name() << ')';
     return dbg.space();
 #else
-    qWarning("This compiler doesn't support the streaming of QDebug");
+    qWarning("This compiler doesn't support streaming QColor to QDebug");
     return dbg;
     Q_UNUSED(c);
 #endif

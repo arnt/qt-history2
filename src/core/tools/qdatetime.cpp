@@ -17,7 +17,7 @@
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qregexp.h"
-#if !defined( QT_NO_DEBUG_OUTPUT )
+#ifndef QT_NO_DEBUG_STREAM
 #include "qdebug.h"
 #endif
 #if defined(Q_OS_WIN32)
@@ -3190,7 +3190,7 @@ void QDateTimePrivate::getUTC(QDate &outDate, QTime &outTime) const
         localToUtc(outDate, outTime, (int)spec);
 }
 
-#if !defined( QT_NO_DEBUG_OUTPUT ) && !defined( QT_NO_TEXTSTREAM )
+#ifndef QT_NO_DEBUG_STREAM
 QDebug operator<<(QDebug dbg, const QDate &date)
 {
     dbg.nospace() << "QDate(" << date.toString() << ")";

@@ -72,7 +72,7 @@ private:
     QSqlFieldPrivate* d;
 };
 
-#ifndef QT_NO_DEBUG_OUTPUT
+#ifndef QT_NO_DEBUG_STREAM
 Q_SQL_EXPORT QDebug operator<<(QDebug, const QSqlField &);
 #endif
 
