@@ -1521,7 +1521,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	break;
 
-    default:	
+    default:
 	break;
     }
 
@@ -1537,7 +1537,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( widget->winEvent(&msg) )		// send through widget filter
 	RETURN(0);
-    
+
     if ( qt_sn_msg && msg.message == qt_sn_msg ) {	// socket notifier message
 	int type = -1;
 #ifndef Q_OS_TEMP
@@ -2165,40 +2165,12 @@ static bool qt_blocked_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 {
-    if ( qApp->activePopupWidget() )
+    QWidget * top = 0;
+
+    if ( qt_tryModalHelper( widget, &top ) )
 	return TRUE;
 
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
     int	 type  = msg->message;
-
-    QWidget* groupLeader = widget;
-    widget = widget->topLevelWidget();
-
-    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
-	modal = widget;
-
-    if ( !top || modal == top )			// don't block event
-	return TRUE;
-
-    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
-	groupLeader = groupLeader->parentWidget();
-
-    if ( groupLeader ) {
-	// Does groupLeader have a child in qt_modal_stack?
-	bool unrelated = TRUE;
-	modal = qt_modal_stack->first();
-	while ( modal && unrelated ) {
-	    QWidget* p = modal->parentWidget();
-	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
-		p = p->parentWidget();
-	    }
-	    modal = qt_modal_stack->next();
-	    if ( p == groupLeader ) unrelated = FALSE;
-	}
-
-	if ( unrelated )
-	    return TRUE;		// don't block event
-    }
 
     bool block_event = FALSE;
 #ifndef Q_OS_TEMP

@@ -3257,6 +3257,66 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 }
 
 
+#ifdef Q_WS_MACX
+extern QWidget *qt_tryModalHelperMac( QWidget * top ); //qapplication_mac.cpp
+#endif
+
+
+/*!\internal
+
+  Called from qapplication_<platform>.cpp, returns TRUE
+  if the widget should accept the event.
+ */
+bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
+    if ( qApp->activePopupWidget() )
+	return TRUE;
+
+    QWidget *modal=0, *top=QApplication::activeModalWidget();
+
+#ifdef Q_WS_MACX
+    top = qt_tryModalHelperMac( top );
+#endif
+
+    if ( rettop ) *rettop = top;
+
+    QWidget* groupLeader = widget;
+    widget = widget->topLevelWidget();
+
+    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
+	modal = widget;
+    if ( !top || modal == top )			// don't block event
+	return TRUE;
+
+    QWidget * p = widget->parentWidget(); // Check if the active modal widget is a parent of our widget
+    while ( p ) {
+	if ( p == top )
+	    return TRUE;
+	p = p->parentWidget();
+    }
+
+    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
+	groupLeader = groupLeader->parentWidget();
+
+    if ( groupLeader ) {
+	// Does groupLeader have a child in qt_modal_stack?
+	bool unrelated = TRUE;
+	modal = qt_modal_stack->first();
+	while (modal && unrelated) {
+	    QWidget* p = modal->parentWidget();
+	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
+		p = p->parentWidget();
+	    }
+	    modal = qt_modal_stack->next();
+	    if ( p == groupLeader ) unrelated = FALSE;
+	}
+
+	if ( unrelated )
+	    return TRUE;		// don't block event
+    }
+    return FALSE;
+}
+
+
 /*!
   Returns the desktop widget (also called the root window).
 

@@ -3696,38 +3696,8 @@ void qt_leave_modal( QWidget *widget )
 
 bool qt_try_modal( QWidget *widget, XEvent *event )
 {
-    if ( qApp->activePopupWidget() )
+    if ( qt_tryModalHelper( widget ) )
 	return TRUE;
-
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
-
-    QWidget* groupLeader = widget;
-    widget = widget->topLevelWidget();
-
-    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
-	modal = widget;
-    if ( !top || modal == top )			// don't block event
-	return TRUE;
-
-    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
-	groupLeader = groupLeader->parentWidget();
-
-    if ( groupLeader ) {
-	// Does groupLeader have a child in qt_modal_stack?
-	bool unrelated = TRUE;
-	modal = qt_modal_stack->first();
-	while (modal && unrelated) {
-	    QWidget* p = modal->parentWidget();
-	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
-		p = p->parentWidget();
-	    }
-	    modal = qt_modal_stack->next();
-	    if ( p == groupLeader ) unrelated = FALSE;
-	}
-
-	if ( unrelated )
-	    return TRUE;		// don't block event
-    }
 
     bool block_event  = FALSE;
     switch ( event->type ) {

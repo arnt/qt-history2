@@ -176,7 +176,7 @@ public:
 static QIntDict<QTSMDocumentWrapper> *qt_mac_tsm_dict=NULL;
 void qt_mac_unicode_init(QWidget *w) {
     if(!qt_mac_tsm_dict) {
-	qt_mac_tsm_dict = new QIntDict<QTSMDocumentWrapper>(); 
+	qt_mac_tsm_dict = new QIntDict<QTSMDocumentWrapper>();
 	qt_mac_tsm_dict->setAutoDelete(TRUE);
     } else if(qt_mac_tsm_dict->find((long)w->handle())) {
 	return;
@@ -188,9 +188,9 @@ void qt_mac_unicode_cleanup(QWidget *w) {
     if(w && qt_mac_tsm_dict && w->isTopLevel())
 	qt_mac_tsm_dict->remove((long)w->handle());
 }
-static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w) 
+static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
-    if(!w || !qt_mac_tsm_dict) 
+    if(!w || !qt_mac_tsm_dict)
 	return 0;
     return qt_mac_tsm_dict->find((long)w->handle());
 }
@@ -212,15 +212,15 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
     }
 }
 
-void qt_mac_command_set_enabled(UInt32 cmd, bool b) 
+void qt_mac_command_set_enabled(UInt32 cmd, bool b)
 {
     if(b) {
 	EnableMenuCommand(NULL, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu()) 
+	if(MenuRef mr = GetApplicationDockTileMenu())
 	    EnableMenuCommand(mr, cmd);
     } else {
 	DisableMenuCommand(NULL, cmd);
-	if(MenuRef mr = GetApplicationDockTileMenu()) 
+	if(MenuRef mr = GetApplicationDockTileMenu())
 	    DisableMenuCommand(mr, cmd);
     }
 }
@@ -277,31 +277,31 @@ void qt_mac_update_os_settings()
 	RGBColor c;
 	QPalette pal = QApplication::palette();
 	if(!GetThemeBrushAsColor(-3, 32, true, &c))
-	    pal.setBrush(QPalette::Active, QColorGroup::Highlight, 
+	    pal.setBrush(QPalette::Active, QColorGroup::Highlight,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
 	if(!GetThemeBrushAsColor(-4, 32, true, &c))
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Highlight, 
+	    pal.setBrush(QPalette::Inactive, QColorGroup::Highlight,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
 	if(!GetThemeBrushAsColor(kThemeBrushButtonActiveDarkShadow, 32, true, &c))
-	    pal.setBrush(QPalette::Active, QColorGroup::Shadow, 
+	    pal.setBrush(QPalette::Active, QColorGroup::Shadow,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
 	if(!GetThemeBrushAsColor(kThemeBrushButtonInactiveDarkShadow, 32, true, &c))
-	    pal.setBrush(QPalette::Inactive, QColorGroup::Shadow, 
+	    pal.setBrush(QPalette::Inactive, QColorGroup::Shadow,
 			 QColor(c.red / 256, c.green / 256, c.blue / 256));
 	if(!GetThemeTextColor(kThemeTextColorDialogActive, 32, true, &c)) {
-	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 	    pal.setColor(QPalette::Active, QColorGroup::Text, qc);
 	    pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
 	    pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
 	}
 	if(!GetThemeTextColor(kThemeTextColorDialogInactive, 32, true, &c)) {
-	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+	    qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 	    pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
 	    pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
 	    pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 	}
 	pal.setDisabled(pal.inactive());
-	if(!(pal == QApplication::palette())) 
+	if(!(pal == QApplication::palette()))
 	    QApplication::setPalette(pal);
     }
     { //setup the fonts
@@ -329,10 +329,10 @@ void qt_mac_update_os_settings()
 		      (bool)(f_style & ::italic));
 	    bool set_font = TRUE;
 	    if(QApplication::app_fonts) {
-		if(QFont *oldfnt = QApplication::app_fonts->find(mac_widget_fonts[i].qt_class)) 
+		if(QFont *oldfnt = QApplication::app_fonts->find(mac_widget_fonts[i].qt_class))
 		    set_font = !(fnt == *oldfnt);
 	    }
-	    if(set_font) 
+	    if(set_font)
 		QApplication::setFont(fnt, TRUE, mac_widget_fonts[i].qt_class);
 	}
     }
@@ -356,13 +356,13 @@ void qt_mac_update_os_settings()
 	for(int i = 0; mac_widget_colours[i].qt_class; i++) {
 	    QPalette pal = QApplication::palette();
 	    if(!GetThemeTextColor(mac_widget_colours[i].active, 32, true, &c)) {
-		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 		pal.setColor(QPalette::Active, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Active, QColorGroup::Foreground, qc);
 		pal.setColor(QPalette::Active, QColorGroup::HighlightedText, qc);
 	    }
 	    if(!GetThemeTextColor(mac_widget_colours[i].inactive, 32, true, &c)) {
-		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);		
+		qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
 		pal.setColor(QPalette::Inactive, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::Text, qc);
 		pal.setColor(QPalette::Inactive, QColorGroup::Foreground, qc);
@@ -380,10 +380,10 @@ void qt_mac_update_os_settings()
 	    }
 	    bool set_palette = TRUE;
 	    if(QApplication::app_palettes) {
-		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class)) 
+		if(QPalette *oldpal = QApplication::app_palettes->find(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
-	    if(set_palette) 
+	    if(set_palette)
 		QApplication::setPalette(pal, TRUE, mac_widget_colours[i].qt_class);
 	}
     }
@@ -1249,77 +1249,22 @@ void qt_leave_modal(QWidget *widget)
     app_do_modal = qt_modal_stack != 0;
 }
 
-
-static bool qt_try_modal(QWidget *widget, EventRef event)
-{
-#ifdef DEBUG_MODAL_EVENTS
-    qDebug("Deducing modality (qt_try_modal) %s::%s (%p)", widget ? widget->className() : "Unknown",
-	   widget ? widget->name() : "Unknown", widget);
-#endif
-
-    if(qApp->activePopupWidget()) {
-#ifdef DEBUG_MODAL_EVENTS
-	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
-#endif
-	return TRUE;
-    }
-    // a bit of a hack: use WStyle_Tool as a general ignore-modality
-    // allow tool windows; disallow tear off popups
-   if(widget->testWFlags(Qt::WStyle_Tool) && widget->inherits("QPopupMenu")) {
-#ifdef DEBUG_MODAL_EVENTS
-	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
-#endif
-	return TRUE;
-   }
-
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
+QWidget *qt_tryModalHelperMac( QWidget * top ) {
     if(top && qt_mac_is_macsheet(top) && !MacIsWindowVisible((WindowPtr)top->handle())) {
 	if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
 	    if(QWidget *sheet = QWidget::find((WId)wp))
 		top = sheet;
 	}
     }
+    return top;
+}
 
-    QWidget* groupLeader = widget;
-    widget = widget->topLevelWidget();
+static bool qt_try_modal(QWidget *widget, EventRef event)
+{
+    QWidget * top = 0;
 
-    if(widget->testWFlags(Qt::WShowModal))	// widget is modal
-	modal = widget;
-#ifdef DEBUG_MODAL_EVENTS
-    qDebug("%s:%d -- %s::%s(%p) -- %s::%s(%p)", __FILE__, __LINE__, modal ? modal->className() : "Unknown",
-	   modal ? modal->name() : "Unknown", modal,
-	   top ? top->className() : "Unknown", top ? top->name() : "Unknown", top);
-#endif
-    if(!top || modal == top) {			// don't block event
-#ifdef DEBUG_MODAL_EVENTS
-	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
-#endif
+    if ( qt_tryModalHelper( widget, &top ) )
 	return TRUE;
-    }
-
-    while(groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
-	groupLeader = groupLeader->parentWidget();
-
-    if(groupLeader) {
-	// Does groupLeader have a child in qt_modal_stack?
-	bool unrelated = TRUE;
-	modal = qt_modal_stack->first();
-	while(modal && unrelated) {
-	    QWidget* p = modal->parentWidget();
-	    while(p && p != groupLeader && !p->testWFlags(Qt::WGroupLeader)) {
-		p = p->parentWidget();
-	    }
-	    modal = qt_modal_stack->next();
-	    if(p == groupLeader) unrelated = FALSE;
-	}
-
-	if(unrelated) {
-#ifdef DEBUG_MODAL_EVENTS
-	    qDebug("%s:%d -- unrelated (TRUE)", __FILE__, __LINE__);
-#endif
-	    return TRUE;		// don't block event
-	}
-    }
 
     bool block_event  = FALSE;
     bool paint_event = FALSE;
@@ -1855,7 +1800,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		Point pt;
 		pt.h = mp.x();
 		pt.v = mp.y();
-		SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint, 
+		SetEventParameter(event, kEventParamTextInputReplyPoint, typeQDPoint,
 				  sizeof(pt), &pt);
 		handled_event = TRUE;
 	    }
@@ -1897,12 +1842,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			}
 		    } else {
 			if(fixed_length > 0) {
-			    QIMEvent imend(QEvent::IMEnd, text.left(fixed_length / sizeof(UniChar)), 
+			    QIMEvent imend(QEvent::IMEnd, text.left(fixed_length / sizeof(UniChar)),
 					   fixed_length / sizeof(UniChar));
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
 			    if(imend.isAccepted()) {
 				handled_event = TRUE;
-				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length / sizeof(UniChar)), 
+				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length / sizeof(UniChar)),
 						 (fixed_length - text.length()) / sizeof(UniChar));
 				QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
 				if(imstart.isAccepted())
@@ -1911,7 +1856,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			} else {
 			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
-			    if(imcompose.isAccepted()) 
+			    if(imcompose.isAccepted())
 				handled_event = TRUE;
 			}
 		    }
@@ -2240,15 +2185,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QApplication::sendSpontaneousEvent(QApplication::app_style, &ev);
 	    }
 
-	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget)) 
+	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
 		ActivateTSMDocument(doc->document());
-	    if(app_do_modal && !qt_try_modal(widget, event)) 
+	    if(app_do_modal && !qt_try_modal(widget, event))
 		break;
 
 	    if(widget && widget->topLevelWidget()->isVisible()) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool))) 
+							    !tlw->testWFlags(WStyle_Tool)))
 		    app->setActiveWindow(tlw);
 		if(widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -2261,7 +2206,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowDeactivated) {
 	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
 		DeactivateTSMDocument(doc->document());
-	    if(widget && widget == active_window) 
+	    if(widget && widget == active_window)
 		app->setActiveWindow(NULL);
 	} else {
 	    handled_event = FALSE;
@@ -2394,7 +2339,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(!GetEventParameter(event, kEventParamMenuContext, typeUInt32,
 					  NULL, sizeof(command_flags), NULL, &command_flags)) {
 			by_accel = (command_flags & kMenuContextKeyMatching);
-		    } else 
+		    } else
 #endif
 		    {
 			UInt32 keyc;

@@ -83,7 +83,6 @@ extern int qt_ncols_option;
 
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
-
-
+extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
 #endif

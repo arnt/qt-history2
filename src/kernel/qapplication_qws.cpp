@@ -2244,42 +2244,10 @@ void qt_leave_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, QWSEvent *event )
 {
-    if ( qApp->activePopupWidget() )
+    QWidget * top = 0;
+
+    if ( qt_tryModalHelper( widget, &top ) )
 	return TRUE;
-    // a bit of a hack: use WStyle_Tool as a general ignore-modality
-    // flag, also for complex widgets with children.
-    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
-	return TRUE;
-
-    QWidget *modal=0, *top=QApplication::activeModalWidget();
-
-    QWidget* groupLeader = widget;
-    widget = widget->topLevelWidget();
-
-    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
-	modal = widget;
-    if ( !top || modal == top )			// don't block event
-	return TRUE;
-
-    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
-	groupLeader = groupLeader->parentWidget();
-
-    if ( groupLeader ) {
-	// Does groupLeader have a child in qt_modal_stack?
-	bool unrelated = TRUE;
-	modal = qt_modal_stack->first();
-	while (modal && unrelated) {
-	    QWidget* p = modal->parentWidget();
-	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
-		p = p->parentWidget();
-	    }
-	    modal = qt_modal_stack->next();
-	    if ( p == groupLeader ) unrelated = FALSE;
-	}
-
-	if ( unrelated )
-	    return TRUE;		// don't block event
-    }
 
     bool block_event  = FALSE;
     bool paint_event = FALSE;
