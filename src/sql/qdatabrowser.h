@@ -140,6 +140,8 @@ public slots:
     virtual void writeFields();
     virtual void clearValues();
 
+    void updateBoundary();
+
 protected:
     virtual bool insertCurrent();
     virtual bool updateCurrent();
@@ -159,7 +161,6 @@ private:
 	Prev
     };
     void nav( Nav nav );
-    void updateBoundary();
     class QDataBrowserPrivate;
     QDataBrowserPrivate* d;
 };
