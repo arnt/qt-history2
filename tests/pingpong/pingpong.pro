@@ -8,3 +8,4 @@ SOURCES		= pingpongapp.cpp \
 		  main.cpp \
 		  cursors.cpp
 TARGET		= pingpong
+unix:LIBS      += -lpthread

@@ -6,12 +6,14 @@
 #include <qsqltable.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
+#include <qtoolbar.h>
 #include <qpopupmenu.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qfont.h>
 #include <qframe.h>
 #include <qapplication.h>
+#include <qaction.h>
 
 MatchTable::MatchTable( QWidget * parent = 0, const char * name = 0 )
     : QSqlTable( parent, name )
@@ -42,27 +44,38 @@ PingPongApp::PingPongApp( QWidget * parent, const char * name )
 void PingPongApp::init()
 {
     setCaption( "National Pingpong Association (NPA) League Table" );
-    QPixmap ppicon( "pingpong.xpm" );
-    setIcon( ppicon );
+    QPixmap icon( "pingpong.xpm" );
+    setIcon( icon );
 
-    // Setup menus
+    // Menus
     QPopupMenu * menu = new QPopupMenu( this );
     menu->insertItem( "Edit &Teams", this, SLOT( editTeams() ), CTRL+Key_T );
     menu->insertSeparator();
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
 
-    resize( 700, 400 );
-
+    // Toolbar
+    QToolBar * tbar = new QToolBar( this );
+    QAction * a = new QAction( "Insert new result", QPixmap( "new.png" ),
+		     QString::null, 0, this, 0 );
+    connect( a, SIGNAL( activated() ), SLOT( insertMatch() ) );
+    a->addTo( tbar );
+    a = new QAction( "Update result", QPixmap( "edit.png" ), QString::null, 
+		     0, this, 0 );
+    connect( a, SIGNAL( activated() ), SLOT( updateMatch() ) );
+    a->addTo( tbar );
+    a = new QAction( "Delete result", QPixmap( "delete.png" ), QString::null,
+		     0, this, 0 );
+    connect( a, SIGNAL( activated() ), SLOT( deleteMatch() ) );
+    a->addTo( tbar );
+    
     QFrame * f1       = new QFrame( this );
     QVBoxLayout * vb1 = new QVBoxLayout( f1 );
 
     vb1->setMargin( 5 );
     vb1->setSpacing( 5 );
 
-    //
-    // Set up the different widgets
-    //
+    // Layout the central widget
     QFont f = font();
     f.setBold( TRUE );
 
@@ -76,31 +89,10 @@ void PingPongApp::init()
     matchTable = new MatchTable( f1 );
     vb1->addWidget( matchTable );
 
-    // insert/update/delete buttons
-    QFrame * buttonFrame = new QFrame( f1 );
-    QHBoxLayout * chl = new QHBoxLayout( buttonFrame );
-    chl->setSpacing( 2 );
-
-    chl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				   QSizePolicy::Minimum ) );
-
-    QPushButton * button = new QPushButton( "U&pdate", buttonFrame );
-    chl->addWidget( button );
-    connect( button, SIGNAL( clicked() ), this, SLOT( updateMatch() ) );
-
-    button = new QPushButton( "I&nsert", buttonFrame );
-    chl->addWidget( button );
-    connect( button, SIGNAL( clicked() ), this, SLOT( insertMatch() ) );
-
-    button = new QPushButton( "D&elete", buttonFrame );
-    chl->addWidget( button );
-    connect( button, SIGNAL( clicked() ), this, SLOT( deleteMatch() ) );
-
-    vb1->addWidget( buttonFrame );
-
     setCentralWidget( f1 );
+    resize( 700, 400 );
 
-    // match table
+    // Setup initial match table
     matchCr.select( matchCr.index( "date" ) );    
     matchTable->setConfirmEdits( TRUE );
     matchTable->setConfirmCancels( TRUE );
