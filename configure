@@ -281,7 +281,7 @@ QMAKE_PROJECTS=
 QMAKE_IGNORE_PROJECTS=
 OPT_CONCURRENT=0
 OPT_SHADOW=maybe
-OPT_FAST=no
+OPT_FAST=auto
 OPT_VERBOSE=no
 OPT_HELP=
 
@@ -1085,6 +1085,13 @@ for e in gawk nawk awk; do
     	break
     fi
 done
+if [ "$OPT_FAST" = "auto" ]; then
+   if [ ! -z "$AWK" ] && [ "$Edition" = "troll" ]; then
+       OPT_FAST=yes
+   else
+       OPT_FAST=no
+   fi
+fi
 
 # find a make command
 if ( gmake /dev/null ) >/dev/null 2>&1; then
@@ -1923,7 +1930,15 @@ Qt/Embedded only:
                          linked to at run time.
     -no-gfx-<driver> ... Disable graphics <driver> entirely.
 
-                         Possible values for <driver>: [ $CFG_GFX_AVAILABLE ]
+    -qt-kbd-<driver> ... Enable a keyboard <driver> in the Qt Library.
+    -no-kbd-<driver> ... Disable keyboard <driver> entirely.
+
+                         Possible values for <driver>: [ sl5000 tty usb yopy vr41xx ]
+
+    -qt-mouse-<driver> ... Enable a mouse <driver> in the Qt Library.
+    -no-mouse-<driver> ... Disable mouse <driver> entirely.
+
+                         Possible values for <driver>: [ pc bus linuxtp yopy vr41xx ]
 
 EOF
 fi
