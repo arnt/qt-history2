@@ -62,7 +62,7 @@
   that have the workspace as parent widget.  When you call show(),
   hide(), showMaximized(), setCaption(), etc on a document window, it
   is shown, hidden etc. with a frame, caption, icon and icon text,
-  just as you'd expect. You can provide widget flags which will be 
+  just as you'd expect. You can provide widget flags which will be
   used for the layout of the decoration or the behaviour of the widget
   itself.
 
@@ -536,7 +536,7 @@ public:
     int menuId;
     int controlId;
     QString topCaption;
-    
+
 };
 
 /*!
@@ -675,7 +675,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     if (!d->active)
 	return;
 
-    if ( d->maxWindow && d->maxWindow != d->active && 
+    if ( d->maxWindow && d->maxWindow != d->active &&
 	d->active->windowWidget()->testWFlags( WStyle_MinMax ) )
 	maximizeWindow( d->active->windowWidget() );
 
@@ -702,35 +702,108 @@ QWidget* QWorkspace::activeWindow() const
 
 void QWorkspace::place( QWidget* w)
 {
-    int tx,ty;
+    int overlap, minOverlap = 0;
+    int possible;
+
+    QRect r1(0, 0, 0, 0);
+    QRect r2(0, 0, 0, 0);
     QRect maxRect = rect();
-    if (d->px < maxRect.x())
-	d->px = maxRect.x();
-    if (d->py < maxRect.y())
-	d->py = maxRect.y();
+    int x = maxRect.left(), y = maxRect.top();
+    QPoint wpos(maxRect.left(), maxRect.top());
 
-    d->px += OFFSET;
-    d->py += 2*OFFSET;
+    bool firstPass = TRUE;
 
-    if (d->px > maxRect.width()/2)
-	d->px = maxRect.x() + OFFSET;
-    if (d->py > maxRect.height()/2)
-	d->py = maxRect.y() + OFFSET;
-    tx = d->px;
-    ty = d->py;
-    if (tx + w->width() > maxRect.right()){
-	tx = maxRect.right() - w->width();
-	if (tx < 0)
-	    tx = 0;
-	d->px = maxRect.x();
+    do {
+	if ( y + w->height() > maxRect.bottom() ) {
+	    overlap = -1;
+	} else if( x + w->width() > maxRect.right() ) {
+	    overlap = -2;
+	} else {
+	    overlap = 0;
+
+	    r1.setRect(x, y, w->width(), w->height());
+	    	    
+	    QWidget *l;
+	    for (l = d->windows.first(); l ; l = d->windows.next()) {
+		if (! d->icons.contains(l) && l != w ) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+
+		    if (r2.intersects(r1)) {
+			r2.setCoords(QMAX(r1.left(), r2.left()),
+				     QMAX(r1.top(), r2.top()),
+				     QMIN(r1.right(), r2.right()),
+				     QMIN(r1.bottom(), r2.bottom())
+				     );
+			
+			overlap += (r2.right() - r2.left()) *
+				   (r2.bottom() - r2.top());
+		    }
+		}
+	    }
+	}
+
+	if (overlap == 0) {
+	    wpos = QPoint(x, y);
+	    break;
+	}
+	
+	if (firstPass) {
+	    firstPass = FALSE;
+	    minOverlap = overlap;
+	} else if ( overlap >= 0 && overlap < minOverlap) {
+	    minOverlap = overlap;
+	    wpos = QPoint(x, y);
+	}
+
+	if ( overlap > 0 ) {
+	    possible = maxRect.right();
+	    if ( possible - w->width() > x) possible -= w->width();
+
+	    QWidget *l;
+	    for(l = d->windows.first(); l; l = d->windows.next()) {
+		if (! d->icons.contains(l) && l != w ) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+
+		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
+			if( r2.right() > x )
+			    possible = possible < r2.right() ?
+				       possible : r2.right();
+
+			if( r2.left() - w->width() > x )
+			    possible = possible < r2.left() - w->width() ?
+				       possible : r2.left() - w->width();
+		    }
+		}
+	    }
+	    
+	    x = possible;
+	} else if ( overlap == -2 ) {
+	    x = maxRect.left();
+	    possible = maxRect.bottom();
+
+	    if ( possible - w->height() > y ) possible -= w->height();
+
+	    QWidget *l;
+	    for (l = d->windows.first(); l; l = d->windows.next()) {
+		if (l != w && ! d->icons.contains(w)) {
+		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+				    
+		    if( r2.bottom() > y)
+			possible = possible < r2.bottom() ?
+				   possible : r2.bottom();
+
+		    if( r2.top() - w->height() > y )
+			possible = possible < r2.top() - w->height() ?
+				   possible : r2.top() - w->height();
+		}
+	    }
+	    
+	    y = possible;
+	}
     }
-    if (ty + w->height() > maxRect.bottom()){
-	ty = maxRect.bottom() - w->height();
-	if (ty < 0)
-	    ty = 0;
-	d->py = maxRect.y();
-    }
-    w->move( tx, ty );
+    while( overlap != 0 && overlap != -1 );
+
+    w->move(wpos);
 }
 
 
@@ -893,7 +966,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	else {
 	    activatePreviousWindow();
 	    QWorkspaceChild* c = d->active;
-	    while ( d->active && 
+	    while ( d->active &&
 		    d->active->windowWidget() &&
 		    d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
 		activatePreviousWindow();
@@ -922,7 +995,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	inCaptionChange = TRUE;
 	if ( o == topLevelWidget() )
 	    d->topCaption = ((QWidget*)o)->caption();
-	
+
 	if ( d->maxWindow )
 	    topLevelWidget()->setCaption( QString("%1 - [%2]")
 		.arg(d->topCaption).arg(d->maxWindow->caption()));
@@ -995,7 +1068,7 @@ void QWorkspace::showMaximizeControls()
 	    restoreB->setAutoRaise( TRUE );
 	    closeB->setAutoRaise( TRUE );
 	}
-	
+
 	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2+2*d->maxcontrols->frameWidth(),
 				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
@@ -1089,7 +1162,7 @@ void QWorkspace::showOperationMenu()
 }
 
 void QWorkspace::popupOperationMenu( const QPoint&  p)
-{    
+{
     if  ( d->active && d->active->windowWidget()->testWFlags( WStyle_SysMenu ) )
 	d->popup->popup( p );
 }
@@ -1342,7 +1415,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     shadeB->setFocusPolicy( NoFocus );
     connect( shadeB, SIGNAL( clicked() ),
 	     this, SIGNAL( doShade() ) );
-    
+
     iconL = new QLabel( this, "icon" );
     iconL->setAlignment( AlignCenter );
     iconL->setFocusPolicy( NoFocus );
@@ -1550,7 +1623,7 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 
     titleL->setRightMargin( win32 ? width() - right : 0 );
     titleL->setLeftMargin( 2 + (win32 ? left : 0) );
-	
+
     if ( win32 || (imode && !isActive()) ) {
 	titleL->setGeometry( QRect( QPoint( win32 ? 0 : left, 0 ),
 				    QPoint( win32 ? rect().right() : right, bottom ) ) );
@@ -1644,7 +1717,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 this, SLOT( showShaded() ) );
     }
 
-    
+
     if ( window && window->testWFlags( WStyle_Tool ) ) {
 	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
 	setLineWidth( 1 );
@@ -1668,7 +1741,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     if ( !hasBeenResized )
 	cs = childWidget->sizeHint();
-    else 
+    else
 	cs = childWidget->size();
 
     if ( titlebar ) {
@@ -1773,8 +1846,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		((QWorkspace*)parentWidget())->removeIcon( w );
 		delete w;
 	    }
-	    hide();	    
-	} 
+	    hide();
+	}
 	break;
     case QEvent::CaptionChange:
 	setCaption( childWidget->caption() );
@@ -2328,7 +2401,7 @@ void QWorkspaceChild::internalRaise()
     QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
 
     for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
-	if ( c->windowWidget() && 
+	if ( c->windowWidget() &&
 	    !c->windowWidget()->isHidden() &&
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
@@ -2467,10 +2540,10 @@ void QWorkspaceChildTitleLabel::drawLabel()
     }
     drawFrame( &p );
     p.setPen( textc );
-    p.drawText( contentsRect().x() + leftm, contentsRect().y(), 
-	contentsRect().width() - rightm, contentsRect().height(), 
+    p.drawText( contentsRect().x() + leftm, contentsRect().y(),
+	contentsRect().width() - rightm, contentsRect().height(),
 	AlignLeft | AlignVCenter | SingleLine, cuttext );
-    
+
     p.end();
 
     // why does it flicker using update()?
@@ -2492,7 +2565,7 @@ void QWorkspaceChildTitleLabel::resizeEvent( QResizeEvent* e )
     QFrame::resizeEvent( e );
 
     buffer.resize( size() );
-    cutText();  
+    cutText();
 }
 
 void QWorkspaceChildTitleLabel::setActive( bool a )
