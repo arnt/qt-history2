@@ -1370,6 +1370,7 @@ QCoreVariant& QCoreVariant::operator=(const QCoreVariant &variant)
     } else {
         d.type = variant.d.type;
         handler->construct(&d, variant.constData());
+        d.is_null = variant.d.is_null;
     }
 
     return *this;
