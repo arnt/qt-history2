@@ -47,7 +47,7 @@
 #endif // QT_H
 
 #ifndef QT_BUILTIN_GIF_READER
-#define QT_BUILTIN_GIF_READER 1
+#define QT_BUILTIN_GIF_READER 0
 #endif
 
 bool qt_builtin_gif_reader();
