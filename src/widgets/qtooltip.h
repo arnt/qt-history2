@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#18 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#19 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -10,14 +10,13 @@
 #ifndef QTOOLTIP_H
 #define QTOOLTIP_H
 
-#include "qobject.h"
-#include "qrect.h"
+#include "qwidget.h"
 #include "qtimer.h"
-#include "qintdict.h"
 
-class QWidget;
+
 class QTipManager;
 class QLabel;
+
 
 class QToolTipGroup: public QObject
 {
@@ -40,6 +39,11 @@ class QToolTip
 public:
     QToolTip( QWidget *, QToolTipGroup * = 0 );
 
+    static QFont    font();
+    static void	    setFont( const QFont & );
+    static QPalette palette();
+    static void	    setPalette( const QPalette & );
+
     static void add( QWidget *, const char * );
     static void add( QWidget *, const char *,
 		     QToolTipGroup *, const char * );
@@ -52,19 +56,25 @@ public:
 
 protected:
     virtual void maybeTip( const QPoint & ) = 0;
-    void tip( const QRect &, const char * );
-    void tip( const QRect &, const char *, const char * );
-    void clear();
+    void    tip( const QRect &, const char * );
+    void    tip( const QRect &, const char *, const char * );
+    void    clear();
 
 public:
-    QWidget * parentWidget() const { return p; }
-    QToolTipGroup * group() const { return g; }
+    QWidget	  *parentWidget() const { return p; }
+    QToolTipGroup *group()	  const { return g; }
 
 private:
-    QWidget * p;
-    QToolTipGroup * g;
+    QWidget	    *p;
+    QToolTipGroup   *g;
+    static QFont    *ttFont;
+    static QPalette *ttPalette;
+
+    static void initialize();
+    static void cleanup();
 
     friend class QTipManager;
 };
 
-#endif
+
+#endif // QTOOLTIP_H
