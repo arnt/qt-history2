@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.cpp#3 $
 **
 ** Implementation of the QSimpleTextDocument class
 **
@@ -81,12 +81,27 @@ void QSimpleTextDocument::setWidth( QPainter* p, int w)
 }
 
 /*!
-  Returns the width of the document, in pixels.
+  Returns the set width of the document, in pixels.
+  
+  \sa widthUsed()
 */
 int QSimpleTextDocument::width() const
 {
     return d->doc->width;
 }
+
+
+/*!
+  Returns the width in pixels that is actually used by the document.
+  This can be smaller or wider than the set width.
+  
+  \sa width()
+ */
+int QSimpleTextDocument::widthUsed() const
+{
+    return d->doc->widthUsed;
+}
+
 
 /*!
   Returns the height of the document, in pixels.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#4 $
 **
 ** Implementation of the QTextView class
 **
@@ -143,7 +143,7 @@ void QTextView::setText( const QString& doc)
 	     currentDocument().width + /*###*/ 16 /*###*/ > vs.width() )
 	    currentDocument().setWidth( p, vs.width()-16 );
 	delete p;
-	resizeContents( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
+	resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
@@ -330,7 +330,7 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 			   *paper().pixmap(), ox, oy);
     else
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
-
+    
     qApp->syncX();
 
     p->setClipping( FALSE );
@@ -349,12 +349,12 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 */
 void QTextView::resizeEvent( QResizeEvent* e )
 {
-    QSize vw = viewportSize( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
+    QSize vw = viewportSize( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
     {
 	QPainter p( this );
 	currentDocument().setWidth( &p, vw.width() );
     }
-    resizeContents( QMAX( currentDocument().realWidth, currentDocument().width), currentDocument().height );
+    resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width), currentDocument().height );
     QScrollView::resizeEvent( e );
 }
 
@@ -733,7 +733,7 @@ void QTextEdit::updateScreen()
 	    p.fillRect(0, 0, viewport()->width(), viewport()->height(), paper());
     }
     showCursor();
-    resizeContents( QMAX( currentDocument().realWidth, currentDocument().width(), currentDocument().height );
+    resizeContents( QMAX( currentDocument().widthUsed, currentDocument().width(), currentDocument().height );
     ensureVisible(cursor->x, cursor->y);
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#7 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -233,7 +233,7 @@ QTextRow::QTextRow()
 }
 
 QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
-		    QTextIterator& it, int w, int align)
+		    QTextIterator& it, int w, int& min, int align)
 {
     x = y = width = height = base = 0;
     dirty = TRUE;
@@ -256,11 +256,12 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     if ( first->isBox ) {
 	QTextBox* b = (QTextBox*)first;
 	b->setWidth(p, width );
-	width = QMAX( b->realWidth, width );
+	width = QMAX( b->widthUsed, width );
 	height = b->height;
 	base = height;
 	last = first;
 	it = b->end();
+	min = b->widthUsed;
 	return;
     }
 
@@ -289,7 +290,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    a = fm.ascent();
 	    d = h-a;
 	}
-	else if ( !it->isContainer ) { 
+	else if ( !it->isContainer ) {
 	    QTextCustomNode* c = (QTextCustomNode*)*it;
 	    if ( c->expandsHorizontally() ) {
 		c->width = width;
@@ -299,7 +300,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    a = h;
 	    d = 0;
 	}
-	else if ( it->isContainer ){ 
+	else if ( it->isContainer ){
 	    if ( it->isBox )
 		break;
 	    else {
@@ -356,7 +357,9 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	width = lastWidth;
 	fill = 0;
     }
-	
+
+    min = lastWidth;
+    
     ++it;
 
 }
@@ -907,7 +910,7 @@ QTextBox::QTextBox( const QStyleSheetItem *stl)
     rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
-    width = height = realWidth = 0;
+    width = height = widthUsed = 0;
 }
 
 QTextBox::QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr )
@@ -916,7 +919,7 @@ QTextBox::QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr )
     rows.setAutoDelete(TRUE);
     isSimpleNode = 0;
     isBox = 1;
-    width = height = realWidth = 0;
+    width = height = widthUsed = 0;
 }
 
 QTextContainer* QTextBox::copy() const
@@ -1041,7 +1044,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     rows.setAutoDelete( TRUE );
 
     width = newWidth;
-    realWidth = 0;
+    widthUsed = 0;
     height = 0;
 
     int label_offset = 0;
@@ -1067,26 +1070,27 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     if ( it != end() ) {
 	p->setFont( it.parentNode()->font() );
 	QFontMetrics fm = p->fontMetrics();
+	int min = 0;
 	while ( it != end() ) {
 	    row = new QTextRow(p, fm, it,
-			       colwidth-marginhorizontal - label_offset, alignment() );
+			       colwidth-marginhorizontal - label_offset, min,
+			       alignment() );
 	    rows.append(row);
 	    row->x = marginleft + label_offset;
 	    row->y = h;
 	    h += row->height;
-	    realWidth = QMAX( realWidth , row->width + marginhorizontal + label_offset);
+	    widthUsed = QMAX( widthUsed , min + marginhorizontal + label_offset);
 	}
     }
 
     height = h;
 
     // adapt colwidth in case some rows didn't fit
-    colwidth = QMAX( width, ncols * realWidth) / ncols;
+    widthUsed *= ncols;
+    colwidth = QMAX( width, widthUsed) / ncols;
     if (colwidth < 10)
-	colwidth = 10;
-
-    realWidth = ncols * colwidth;
-
+ 	colwidth = 10;
+    
     if (!oldRows.isEmpty() || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
 	// optimize the refresh
@@ -1154,13 +1158,16 @@ void QTextBox::update(QPainter* p, QTextRow* r)
 	bool fast_exit = TRUE;
 	QFontMetrics fm = p->fontMetrics();
 	if (prev) {
+	    int min = 0;
 	    QTextIterator it( prev->first, prev->parent );
-	    QTextRow tr (p, fm, it, prev->width);
+	    QTextRow tr (p, fm, it, prev->width, min);
 	    fast_exit &= prev->last == tr.last;
 	}
 	if (fast_exit) {
+	    int min = 0;
 	    QTextIterator it( r->first, r->parent );
-	    QTextRow tr (p, fm, it,  r->width, alignment() );
+	    QTextRow tr (p, fm, it,  r->width, min, alignment() );
+	    widthUsed = QMAX( widthUsed, min * numberOfColumns() );
 	    fast_exit &= r->last == tr.last && r->height == tr.height;
 	    if (fast_exit) {
 		r->dirty = TRUE;

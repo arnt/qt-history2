@@ -92,7 +92,7 @@ class QTextRow
 public:
     QTextRow();
     QTextRow(QPainter* p, QFontMetrics &fm,
-	     QTextIterator& it, int w, int align = QStyleSheetItem::AlignLeft);
+	     QTextIterator& it, int w, int& min, int align = QStyleSheetItem::AlignLeft);
     ~QTextRow();
     int x;
     int y;
@@ -477,7 +477,7 @@ public:
     QList<QTextRow> rows;
 
     int width;
-    int realWidth;
+    int widthUsed;
     int height;
 
     //    QTextNode* locate(int x, int y);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.h#1 $
+** $Id: //depot/qt/main/src/kernel/qsimpletextdocument.h#2 $
 **
 ** Definition of the QSimpleTextDocument class
 **
@@ -45,6 +45,9 @@ public:
 
     void setWidth( QPainter*, int );
     int width() const;
+    
+    int widthUsed() const;
+    
     int height() const;
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
