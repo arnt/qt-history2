@@ -8,6 +8,5 @@ int main(int argc, char *argv[])
     Dialog dialog;
     app.setMainWidget(&dialog);
     dialog.show();
-
     return app.exec();
 }

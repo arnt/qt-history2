@@ -1,17 +1,16 @@
 #include "dialog.h"
 
-const QString MESSAGE = QObject::tr(
-        "<p align=\"center\">Message boxes have a caption, a text, "
-        "and one, two, or three buttons, each with standard or custom texts."
-        "<p align=\"center\">Click a button or press Esc.");
-
+#define MESSAGE \
+    Dialog::tr("<p align=\"center\">Message boxes have a caption, a text, " \
+               "and up to three buttons, each with standard or custom texts." \
+               "<p align=\"center\">Click a button or press Esc.")
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
     errorMessageDialog = new QErrorMessage(this);
 
-    int frameStyle = QFrame::Sunken|QFrame::Panel;
+    int frameStyle = QFrame::Sunken | QFrame::Panel;
 
     integerLabel = new QLabel(this);
     integerLabel->setFrameStyle(frameStyle);
@@ -155,7 +154,6 @@ Dialog::Dialog(QWidget *parent)
     setWindowTitle(tr("Built-in Dialogs"));
 }
 
-
 void Dialog::setInteger()
 {
     bool ok;
@@ -165,7 +163,6 @@ void Dialog::setInteger()
     if (ok)
         integerLabel->setText(QString("%1%%").arg(i));
 }
-
 
 void Dialog::setDouble()
 {
@@ -177,7 +174,6 @@ void Dialog::setDouble()
     if (ok)
         doubleLabel->setText(QString("$%1").arg(d));
 }
-
 
 void Dialog::setItem()
 {
@@ -191,7 +187,6 @@ void Dialog::setItem()
         itemLabel->setText(season);
 }
 
-
 void Dialog::setText()
 {
     bool ok;
@@ -202,39 +197,33 @@ void Dialog::setText()
         textLabel->setText(name);
 }
 
-
 void Dialog::setColor()
 {
     QColor color = QColorDialog::getColor(Qt::green, this);
     if (color.isValid()) {
         colorLabel->setText(color.name());
-        // TODO Set the label's background colour to color.
+        colorLabel->setPalette(QPalette(color));
     }
 }
 
-
 void Dialog::setFont()
 {
-    /* TODO Correct once Qt 4 version works.
     bool ok;
-    QFont font = QFontDialog(&ok, QFont(fontLabel->text()), this);
+    QFont font = QFontDialog::getFont(&ok, QFont(fontLabel->text()), this);
     if (ok)
         fontLabel->setText(font.key());
-    */
 }
-
 
 void Dialog::setExistingDirectory()
 {
     QString directory = QFileDialog::getExistingDirectory(
                                 this, tr("QFileDialog::getExistingDirectory()"),
                                 directoryLabel->text(),
-                                QFileDialog::DontResolveSymlinks|
+                                QFileDialog::DontResolveSymlinks |
                                 QFileDialog::ShowDirsOnly);
     if (!directory.isEmpty())
         directoryLabel->setText(directory);
 }
-
 
 void Dialog::setOpenFileName()
 {
@@ -245,7 +234,6 @@ void Dialog::setOpenFileName()
     if (!filename.isEmpty())
         openFileNameLabel->setText(filename);
 }
-
 
 void Dialog::setOpenFileNames()
 {
@@ -259,7 +247,6 @@ void Dialog::setOpenFileNames()
     }
 }
 
-
 void Dialog::setSaveFileName()
 {
     QString filename = QFileDialog::getSaveFileName(
@@ -269,7 +256,6 @@ void Dialog::setSaveFileName()
     if (!filename.isEmpty())
         saveFileNameLabel->setText(filename);
 }
-
 
 void Dialog::criticalMessage()
 {
@@ -288,13 +274,11 @@ void Dialog::criticalMessage()
     criticalLabel->setText(answer);
 }
 
-
 void Dialog::informationMessage()
 {
     QMessageBox::information(this, tr("QMessageBox::information()"), MESSAGE);
     informationLabel->setText(tr("Closed with OK or Esc"));
 }
-
 
 void Dialog::questionMessage()
 {
@@ -303,16 +287,13 @@ void Dialog::questionMessage()
                                       QMessageBox::Yes,
                                       QMessageBox::No,
                                       QMessageBox::Cancel);
-    QString answer;
     if (reply == QMessageBox::Yes)
-        answer = tr("Yes");
+        questionLabel->setText(tr("Yes"));
     else if (reply == QMessageBox::No)
-        answer = tr("No");
+        questionLabel->setText(tr("No"));
     else
-        answer = tr("Cancel");
-    questionLabel->setText(answer);
+        questionLabel->setText(tr("Cancel"));
 }
-
 
 void Dialog::warningMessage()
 {
@@ -328,7 +309,6 @@ void Dialog::warningMessage()
     warningLabel->setText(answer);
 }
 
-
 void Dialog::errorMessage()
 {
     errorMessageDialog->message(
@@ -341,4 +321,3 @@ void Dialog::errorMessage()
     errorLabel->setText(tr("If the box is unchecked the message "
                            "won't appear again."));
 }
-
