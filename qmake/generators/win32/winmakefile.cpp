@@ -246,6 +246,17 @@ void Win32MakefileGenerator::processVars()
     processRcFileVar();
     processFileTagsVar();
     processQtConfig();
+
+    QStringList &incDir = project->variables()["INCLUDEPATH"];
+    for(QStringList::Iterator incDir_it = incDir.begin(); incDir_it != incDir.end(); ++incDir_it) {
+    if(!(*incDir_it).isEmpty())
+        (*incDir_it) = Option::fixPathToTargetOS((*incDir_it), false, false);
+    }
+    QStringList &libDir = project->variables()["QMAKE_LIBDIR"];
+    for(QStringList::Iterator libDir_it = libDir.begin(); libDir_it != libDir.end(); ++libDir_it) {
+    if(!(*libDir_it).isEmpty())
+        (*libDir_it) = Option::fixPathToTargetOS((*libDir_it), false, false);
+    }
 }
 
 void Win32MakefileGenerator::fixTargetExt()
