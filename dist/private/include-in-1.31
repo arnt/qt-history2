@@ -4,6 +4,7 @@ QPopupMenu updating of itmes on accelerators?
 
 QProgressBar colors not fixed anymore.
 
+Check that unreleased widgets are not in doc/html/*.gif 
 
 
 --- qbutton.cpp Tue Sep 30 17:22:15 1997
@@ -17,3 +18,22 @@ QProgressBar colors not fixed anymore.
 	drawButton( &paint );
 	paint.end();
 
+--- qprogbar.cpp	Fri Oct  3 09:30:12 1997
++++ qprogbar.cpp	Fri Oct  3 09:30:12 1997
+@@ -231,14 +231,14 @@
+     } else {
+ 	int pw = bar.width() * progress_val / total_steps;
+ 
+-	p->setPen( white );
++	p->setPen( colorGroup().base() );
+ 	p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
+ 	p->fillRect( bar, QApplication::winStyleHighlightColor() );
+ 	p->drawText( bar, AlignCenter, progress_str );
+ 
+ 	p->setPen( QApplication::winStyleHighlightColor() );
+ 	p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+-	p->fillRect( bar, white );
++	p->fillRect( bar, colorGroup().base() );
+ 	p->drawText( bar, AlignCenter, progress_str );
+     }
+ }
