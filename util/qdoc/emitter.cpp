@@ -606,7 +606,7 @@ void DocEmitter::emitHtml() const
 	QMap<QString, QValueList<QPair<QString, QString> > > keywordMap;
 	QMap<QString, StringSet>::ConstIterator ell = lmap.begin();
 	while ( ell != lmap.end() ) {
-	    QString keyword = ell.key();
+	    QString keyword = QStringList::split( "::", ell.key() ).last();
 	    StringSet::ConstIterator s = (*ell).begin();
 	    while ( s != (*ell).end() ) {
 		QString link = *s;
