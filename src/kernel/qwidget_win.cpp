@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#118 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1078,13 +1078,8 @@ HRGN bitmapToRegion(QBitmap bitmap)
     };
     RData data;
 
-#define AddSpan \
-	    data.rect[n].top=y; \
-	    data.rect[n].bottom=y; \
-	    data.rect[n].left=prev1; \
-	    data.rect[n].right=x-1; \
-	    n++; \
-	    if ( n == maxrect ) { \
+#define FlushSpans \
+    { \
 		data.header.dwSize = sizeof(RGNDATAHEADER); \
 		data.header.iType = RDH_RECTANGLES; \
 		data.header.nCount = n; \
@@ -1093,44 +1088,69 @@ HRGN bitmapToRegion(QBitmap bitmap)
 		HRGN r = ExtCreateRegion(0,sizeof(data),(RGNDATA*)&data); \
 		if ( region ) { \
 		    CombineRgn(region, region, r, RGN_OR); \
+		    DeleteObject( r ); \
 		} else { \
 		    region = r; \
 		} \
 		data.header.rcBound.top = y; \
 		n=0; \
-	    }
+	}
+
+#define AddSpan \
+	{ \
+	    data.rect[n].left=prev1; \
+	    data.rect[n].top=y; \
+	    data.rect[n].right=x-1+1; \
+	    data.rect[n].bottom=y+1; \
+	    n++; \
+	    if ( n == maxrect ) { \
+		FlushSpans \
+	    } \
+	}
 
     data.header.rcBound.top = 0;
     data.header.rcBound.left = 0;
     data.header.rcBound.right = image.width()-1;
     int n=0;
+
+    // deal with 0<->1 problem
+    int zero=(qGray(image.color(0)) < qGray(image.color(1))
+	    ? 0x00 : 0xff);
+
     for (int y=0; y<image.height(); y++) {
 	uchar *line = image.scanLine(y);
 	int w = image.width();
-	uchar all=0;
+	uchar all=zero;
 	int prev1 = -1;
-	for (int x=0; x<w; x++) {
+	for (int x=0; x<w; ) {
 	    uchar byte = line[x/8];
-	    if ( x&7 || x>w-8 || byte!=all ) {
-		for ( int b=0; b<8; b++ ) {
+	    if ( x>w-8 || byte!=all ) {
+		for ( int b=8; b>0 && x<w; b-- ) {
 		    if ( !(byte&0x80) == !all ) {
 			// More of the same
 		    } else {
 			// A change.
-			if ( all ) {
-			    AddSpan
-			    prev1 = x-1;
+			if ( all!=zero ) {
+			    AddSpan;
+			    all = zero;
+			} else {
+			    prev1 = x;
+			    all = ~zero;
 			}
-			all = ~all;
 		    }
+		    byte <<= 1;
+		    x++;
 		}
 	    } else {
 		x+=8;
 	    }
-	    if ( all ) {
-		AddSpan
-	    }
 	}
+	if ( all != zero ) {
+	    AddSpan;
+	}
+    }
+    if ( n ) {
+	FlushSpans;
     }
 
     if ( !region ) {
