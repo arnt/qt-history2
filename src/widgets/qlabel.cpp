@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#33 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -306,6 +306,32 @@ void QLabel::adjustSize()
 }
 
 
+/*! \fn int QLabel::margin()
+
+  Returns the margin of the label in pixels.
+
+  The margin applies to the left edge if alignment() is \c AlignLeft,
+  to the right edge if alignment() is \c AlignRight, to the top edge
+  if alignment() is \c AlignTop, and to to the bottom edge if
+  alignment() is \c AlignBottom.
+
+  \sa setMargin() */
+
+
+/*! Sets the margin of the label to \e pixels.
+
+  The margin applies to the left edge if alignment() is \c AlignLeft,
+  to the right edge if alignment() is \c AlignRight, to the top edge
+  if alignment() is \c AlignTop, and to to the bottom edge if
+  alignment() is \c AlignBottom.
+
+  \sa margin() */
+
+void QLabel::setMargin( int pixels ) {
+    m = pixels >= 0 ? pixels : 0;
+}
+
+
 /*----------------------------------------------------------------------------
   Draws the label contents using the painter \e p.
  ----------------------------------------------------------------------------*/
@@ -314,6 +340,14 @@ void QLabel::drawContents( QPainter *p )
 {
     p->setPen( colorGroup().text() );
     QRect cr = contentsRect();
+    if ( align & AlignLeft )
+	cr.setLeft( cr.left() + m );
+    if ( align & AlignRight )
+	cr.setRight( cr.right() - m );
+    if ( align & AlignTop )
+	cr.setTop( cr.top() + m );
+    if ( align & AlignBottom )
+	cr.setBottom( cr.bottom() - m );
     if ( lpixmap ) {
 	int fw = frameWidth();
 	int x, y, w, h;
