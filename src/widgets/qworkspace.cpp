@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#23 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -804,7 +804,9 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
     titleL->setAlignment( AlignVCenter );
-    titleL->setFont( QFont(QString::fromLatin1("helvetica"), 12, QFont::Bold) );
+    QFont fnt = font();
+    fnt.setBold( TRUE );
+    titleL->setFont( fnt );
 
     iconL = new QLabel( this, "left" );
     iconL->setFocusPolicy( NoFocus );
