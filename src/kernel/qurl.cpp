@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#19 $
 **
 ** Implementation of QFileDialog class
 **
@@ -94,6 +94,7 @@ struct QUrlPrivate
   \a action gives more information about it, this can be one of
 	ActListDirectory
 	ActCopyFile
+	ActMoveFiles
 	ActPut
 */
 
@@ -151,13 +152,13 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::data( const QString &data )
+  \fn void QUrl::data( const QCString &data )
 
   This signal is emitted when new \a data has been received.
 */
 
 /*!
-  \fn void QUrl::putSuccessful( const QString &data )
+  \fn void QUrl::putSuccessful( const QCString &data )
 
   This signal is emitted after successfully calling put(). \a data is the data
   which has been put.
@@ -197,19 +198,29 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::emitFinished()
+  \fn void QUrl::emitFinished( int action )
 
   Emits the signal finished(). This method is mainly
   provided for implementations of network protocols which are
   working together with the QUrl class.
+  \a action can be one of
+	ActListDirectory
+	ActCopyFile
+	ActMoveFiles
+	ActPut
 */
 
 /*!
-  \fn void QUrl::emitStart()
+  \fn void QUrl::emitStart( int action )
 
   Emits the signal start(). This method is mainly
   provided for implementations of network protocols which are
   working together with the QUrl class.
+  \a action can be one of
+	ActListDirectory
+	ActCopyFile
+	ActMoveFiles
+	ActPut
 */
 
 /*!
@@ -245,7 +256,7 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::emitData( const QString &d )
+  \fn void QUrl::emitData( const QCString &d )
 
   Emits the signal data( const QString & ). This method is mainly
   provided for implementations of network protocols which are
@@ -269,7 +280,7 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::emitPutSuccessful( const QString &d )
+  \fn void QUrl::emitPutSuccessful( const QCString &d )
 
   Emits the signal putSuccessful( const QString & ). This method is mainly
   provided for implementations of network protocols which are

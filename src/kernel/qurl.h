@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#9 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -153,7 +153,7 @@ public:
     void emitData( const QCString &d );
     void emitUrlIsDir();
     void emitUrlIsFile();
-    void emitPutSuccessful( const QString &d );
+    void emitPutSuccessful( const QCString &d );
     void emitCopyProgress( const QString &from, const QString &to,
 			   int step, int total );
 
@@ -166,7 +166,7 @@ signals:
     void itemChanged( const QString &oldname, const QString &newname );
     void error( int ecode, const QString &msg );
     void data( const QCString & );
-    void putSuccessful( const QString & );
+    void putSuccessful( const QCString & );
     void urlIsDir();
     void urlIsFile();
     void copyProgress( const QString &, const QString &,
@@ -237,7 +237,7 @@ inline void QUrl::emitUrlIsFile()
     emit urlIsFile();
 }
 
-inline void QUrl::emitPutSuccessful( const QString &d )
+inline void QUrl::emitPutSuccessful( const QCString &d )
 {
     emit putSuccessful( d );
 }
