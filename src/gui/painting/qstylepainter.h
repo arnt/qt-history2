@@ -38,7 +38,7 @@ public:
     inline void drawComplexControlMask(QStyle::ComplexControl cc, const QStyleOptionComplex &opt);
     inline void drawItemText(const QRect &r, int flags, const QPalette &pal, bool enabled,
                              const QString &text, const QColor *penColor = 0);
-    inline void drawItemPixmap(const QRect &r, int flags, const QPalette &pal, bool enabled,
+    inline void drawItemPixmap(const QRect &r, int flags, const QPalette &pal,
                                const QPixmap &pixmap, const QColor *penColor = 0);
     inline QStyle *style() const { return wstyle; }
 
@@ -78,10 +78,12 @@ void QStylePainter::drawItemText(const QRect &r, int flags, const QPalette &pal,
     wstyle->drawItemText(this, r, flags, pal, enabled, text, penColor);
 }
 
-void QStylePainter::drawItemPixmap(const QRect &r, int flags, const QPalette &pal, bool enabled,
+void QStylePainter::drawItemPixmap(const QRect &r, int flags, const QPalette &pal,
                                    const QPixmap &pixmap, const QColor *penColor)
 {
-    wstyle->drawItemPixmap(this, r, flags, pal, enabled, pixmap, penColor);
+    wstyle->drawItemPixmap(this, r, flags, pal, pixmap, penColor);
 }
+
+
 
 #endif

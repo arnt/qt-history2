@@ -928,14 +928,12 @@ void QAbstractButton::focusOutEvent(QFocusEvent *e)
 /*! \reimp */
 void QAbstractButton::changeEvent(QEvent *e)
 {
-    Q_D(QAbstractButton);
+//     Q_D(QAbstractButton);
     switch (e->type()) {
     case QEvent::EnabledChange:
         if (!isEnabled())
             setDown(false);
         break;
-    case QEvent::PaletteChange:
-        d->icon.clearGenerated();
     default:
         break;
     }

@@ -2105,8 +2105,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 q->drawItemPixmap(p, mi->rect,
                                   Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                   | Qt::TextSingleLine,
-                                  mi->palette, mi->state & QStyle::State_Enabled,
-                                  mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
+                                  mi->palette,
+                                  mi->icon.pixmap(Qt::SmallIconSize, (mi->state & QStyle::State_Enabled)QIcon::Normal:QIcon::Disabled),
                                   &mi->palette.buttonText().color());
             } else {
                 q->drawItemText(p, mi->rect,
@@ -3735,8 +3735,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (!mi->icon.isNull()) {
             q->drawItemPixmap(p, mi->rect,
                         Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
-                        mi->palette, mi->state & QStyle::State_Enabled,
-                        mi->icon.pixmap(Qt::SmallIconSize, QIcon::Normal),
+                        mi->palette, mi->icon.pixmap(Qt::SmallIconSize, (mi->state & QStyle::State_Enabled)? QIcon::Normal : QIcon::Disabled),
                         &mi->palette.buttonText().color());
             } else {
                 q->drawItemText(p, mi->rect,
@@ -5183,9 +5182,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 
                 QRect pixr = header->rect;
                 pixr.setY(header->rect.center().y() - (pixmap.height() - 1) / 2);
-                drawItemPixmap(p, pixr, Qt::AlignVCenter, header->palette,
-                               mode != QIcon::Disabled
-                               || !header->icon.isGenerated(Qt::SmallIconSize, mode), pixmap);
+                drawItemPixmap(p, pixr, Qt::AlignVCenter, header->palette, pixmap);
                 textr.translate(pixmap.width() + 2, 0);
             }
 

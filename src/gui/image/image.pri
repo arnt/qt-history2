@@ -17,7 +17,9 @@ HEADERS += \
 	image/qpictureformatplugin.h \
 	image/qpixmap.h \
 	image/qpixmap_p.h \
-	image/qpixmapcache.h
+	image/qpixmapcache.h \
+	image/qiconengine.h \
+	image/qiconengineplugin.h
 
 
 SOURCES += \
@@ -32,7 +34,9 @@ SOURCES += \
 	image/qpicture.cpp \
 	image/qpictureformatplugin.cpp \
 	image/qpixmap.cpp \
-	image/qpixmapcache.cpp
+	image/qpixmapcache.cpp \
+	image/qiconengine.cpp \
+	image/qiconengineplugin.cpp
 
 
 win32:SOURCES += image/qpixmap_win.cpp

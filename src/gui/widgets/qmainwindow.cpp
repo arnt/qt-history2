@@ -30,7 +30,7 @@ class QMainWindowPrivate : public QWidgetPrivate
 {
 public:
     inline QMainWindowPrivate()
-        : layout(0), iconSize(Qt::AutomaticIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+        : layout(0), iconSize(Qt::SmallIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
     { }
     QMainWindowLayout *layout;
     Qt::IconSize iconSize;
@@ -142,7 +142,7 @@ QMainWindow::~QMainWindow()
 /*! \property QMainWindow::iconSize
     \brief size of toolbar icons in this mainwindow.
 
-    The default is Qt::AutomaticIconSize.
+    The default is Qt::SmallIconSize.
 */
 
 Qt::IconSize QMainWindow::iconSize() const

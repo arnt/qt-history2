@@ -417,7 +417,7 @@ void QStyle::drawItemText(QPainter *painter, const QRect &rect, int alignment, c
 */
 
 void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
-                            const QPalette &pal, bool enabled, const QPixmap &pixmap,
+                            const QPalette &pal, const QPixmap &pixmap,
                             const QColor *penColor) const
 {
     int x, y, w, h;
@@ -435,11 +435,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         x += w/2 - pm.width()/2;
     else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::isRightToLeft()) // Qt::AlignAuto && rightToLeft
         x += w - pm.width();
-
-    QStyleOption option(0);
-    option.palette = pal;
-    if (!enabled)
-        pm = generatedIconPixmap(QIcon::Disabled, pm, &option);
 
     int fillX = qMax(rect.x(), x);
     int fillY = qMax(rect.y(), y);
@@ -1173,6 +1168,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_DefaultToplevelMargin
     \value PM_DefaultChildMargin
     \value PM_DefaultLayoutSpacing
+
+    \value PM_SmallIconSize Default small icon size
+    \value PM_LargeIconSize Default large icon size
+
 
     \sa pixelMetric()
 */

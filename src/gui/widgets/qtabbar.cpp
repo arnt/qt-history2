@@ -297,7 +297,7 @@ void QTabBarPrivate::layoutTabs()
             maxHeight = qMax(maxHeight, sz.height());
             x += sz.width();
         }
-        
+
         // Go through the list again and make sure we have a consistent height
         for (i = 0; i < tabList.count(); ++i)
             tabList[i].rect.setHeight(maxHeight);
@@ -314,7 +314,7 @@ void QTabBarPrivate::layoutTabs()
             maxWidth = qMax(0, sz.width());
             y += sz.height();
         }
-        
+
         // Consistent width
         for (i = 0; i < tabList.count(); ++i)
             tabList[i].rect.setWidth(maxWidth);
@@ -717,7 +717,7 @@ QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {
         QSize iconSize = tab->icon.isNull() ? QSize()
-                                            : tab->icon.pixmapSize(Qt::SmallIconSize);
+                         : QIcon::sizeHint(Qt::SmallIconSize);
         QStyleOptionTab opt = d->getStyleOption(index);
         int hframe  = style()->pixelMetric(QStyle::PM_TabBarTabHSpace, &opt, this);
         int vframe  = style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt, this);
@@ -726,7 +726,7 @@ QSize QTabBar::tabSizeHint(int index) const
                   qMax(fm.height(), iconSize.height()) + vframe);
         if (verticalTabs(d->shape))
             csz.transpose();
-        
+
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
     return QSize();

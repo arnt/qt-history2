@@ -73,9 +73,7 @@ static QIcon createIconSet(const QString &name)
     if (result.isNull())
         qWarning("Failed to load \"%s\"", path.toLatin1().constData());
 
-    QIcon icon;
-    icon.setPixmap(result, Qt::AutomaticIconSize, QIcon::Normal);
-    return icon;
+    return QIcon(result);
 }
 
 static QDomElement childElement(QDomNode node, const QString &tag,

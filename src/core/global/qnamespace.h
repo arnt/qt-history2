@@ -23,7 +23,7 @@ namespace Qt {
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType)
-    Q_ENUMS(ToolButtonStyle IconSize)
+    Q_ENUMS(ToolButtonStyle)
     Q_FLAGS(Alignment)
 public:
 #endif
@@ -1165,7 +1165,6 @@ public:
     };
 
     enum IconSize {
-        AutomaticIconSize,
         SmallIconSize,
         LargeIconSize
     };

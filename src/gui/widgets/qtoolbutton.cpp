@@ -212,7 +212,7 @@ void QToolButtonPrivate::init()
     popupMode = QToolButton::DelayedPopup;
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
-    iconSize = Qt::AutomaticIconSize;
+    iconSize = Qt::SmallIconSize;
 
     q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -298,15 +298,10 @@ QSize QToolButton::sizeHint() const
     if (icon().isNull() && !text().isNull() && d->toolButtonStyle == Qt::ToolButtonIconOnly) {
         w = fm.width(text());
         h = fm.height();
-    } else if (iconSize() == Qt::LargeIconSize) {
-        QPixmap pm = icon().pixmap(Qt::LargeIconSize, QIcon::Normal);
-        QSize iconSize = QIcon::pixmapSize(Qt::LargeIconSize);
-        w = qMax(pm.width(), iconSize.width());
-        h = qMax(pm.height(), iconSize.height());
-    } else if (!icon().isNull()) {
-        QPixmap pm = icon().pixmap(Qt::SmallIconSize, QIcon::Normal);
-        w = qMax(pm.width(), 16);
-        h = qMax(pm.height(), 16);
+    } else {
+        QSize sz = QIcon::sizeHint(d->iconSize);
+        w = sz.width();
+        h = sz.height();
     }
 
     if (d->toolButtonStyle != Qt::ToolButtonIconOnly) {
@@ -376,7 +371,7 @@ QSize QToolButton::minimumSizeHint() const
     signal in the QMainWindow in which it resides. We strongly
     recommend that you use QMainWindow::iconSize() instead.
 
-    The default size is Qt::AutomaticIconSize.
+    The default size is Qt::SmallIconSize.
 */
 
 /*!

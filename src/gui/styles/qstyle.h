@@ -52,14 +52,14 @@ public:
 
     virtual QRect itemPixmapRect(const QRect &r, int flags, const QPixmap &pixmap) const;
 
-    virtual void drawItemText(QPainter *p, const QRect &r,
-                          int flags, const QPalette &pal, bool enabled,
-                          const QString &text, const QColor *penColor = 0) const;
+    virtual void drawItemText(QPainter *painter, const QRect &rect,
+                              int flags, const QPalette &pal, bool enabled,
+                              const QString &text, const QColor *penColor = 0) const;
 
-    virtual void drawItemPixmap(QPainter *p, const QRect &r,
-                          int flags, const QPalette &pal, bool enabled,
-                          const QPixmap &pixmap,
-                          const QColor *penColor = 0) const;
+    virtual void drawItemPixmap(QPainter *painter, const QRect &rect,
+                                int alignment, const QPalette &pal,
+                                const QPixmap &pixmap,
+                                const QColor *penColor = 0) const;
 
     enum StateFlag {
         State_None    =       0x00000000,
@@ -408,6 +408,9 @@ public:
         PM_DefaultToplevelMargin,
         PM_DefaultChildMargin,
         PM_DefaultLayoutSpacing,
+
+        PM_SmallIconSize,
+        PM_LargeIconSize,
 
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000

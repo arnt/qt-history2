@@ -213,7 +213,7 @@ void TabbedBrowser::init()
     QPixmap defaultPix(QString::fromUtf8(":/trolltech/assistant/images/closetab.png"));
     QIcon is(defaultPix);
     QPixmap disabledPix(QString::fromUtf8(":/trolltech/assistant/images/d_closetab.png"));
-    is.setPixmap(disabledPix, Qt::SmallIconSize, QIconSet::Disabled);
+    is.setPixmap(disabledPix, QIconSet::Small, QIconSet::Disabled);
     closeTabButton->setIcon(is);
     closeTabButton->setFixedSize(s, s);
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));

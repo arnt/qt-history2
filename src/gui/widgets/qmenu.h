@@ -192,7 +192,7 @@ public:
         return QString(); }
     inline QT_COMPAT QPixmap pixmap(int id) const {
         if(QAction *act = findActionForId(id))
-            return act->icon().pixmap();
+            return act->icon().pixmap(Qt::SmallIconSize);
         return QPixmap(); }
     inline QT_COMPAT void setWhatsThis(int id, const QString &w) {
         if(QAction *act = findActionForId(id))

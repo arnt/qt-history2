@@ -821,13 +821,13 @@ void QListView::internalDrag(QDrag::DropActions supportedActions)
 QStyleOptionViewItem QListView::viewOptions() const
 {
     QStyleOptionViewItem option = QAbstractItemView::viewOptions();
-    if (d->iconSize == Qt::AutomaticIconSize ? !d->wrap : d->iconSize == Qt::SmallIconSize) {
-        option.decorationSize = QStyleOptionViewItem::Small;
-        option.decorationPosition = QStyleOptionViewItem::Left;
-    } else {
+    if (d->iconSize != Qt::SmallIconSize) {
         option.decorationSize = QStyleOptionViewItem::Large;
         option.decorationPosition = QStyleOptionViewItem::Top;
         option.displayAlignment = Qt::AlignHCenter|Qt::AlignBottom;
+    } else {
+        option.decorationSize = QStyleOptionViewItem::Small;
+        option.decorationPosition = QStyleOptionViewItem::Left;
     }
     return option;
 }

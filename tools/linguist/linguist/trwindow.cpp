@@ -1994,10 +1994,10 @@ QIcon TrWindow::loadPixmap(const QString &imageName)
         QIcon s(enabledPix);
         if (imageName != QLatin1String("whatsthis.png")) {
             QPixmap disabledPix(":/images/d_" + imageName);
-            s.setPixmap(disabledPix, Qt::SmallIconSize, QIcon::Disabled);
+            s.addPixmap(disabledPix, QIcon::Disabled);
         }
         return s;
-	}
+    }
 
     return QIcon();
 }

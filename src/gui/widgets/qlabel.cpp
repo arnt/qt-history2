@@ -724,6 +724,7 @@ bool QLabel::event(QEvent *e)
 */
 void QLabel::paintEvent(QPaintEvent *)
 {
+    QStyle *style = QWidget::style();
     QPainter paint(this);
     drawFrame(&paint);
     QRect cr = contentsRect();
@@ -766,7 +767,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style()->itemPixmapRect(cr, align, mov->framePixmap());
+        QRect r = style->itemPixmapRect(cr, align, mov->framePixmap());
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
     }
@@ -787,7 +788,7 @@ void QLabel::paintEvent(QPaintEvent *)
         context.textColorFromPalette = true;
         QStyleOption opt(0);
         opt.init(this);
-        if (!isEnabled() && style()->styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
+        if (!isEnabled() && style->styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
             context.palette = palette();
             context.palette.setColor(QPalette::Text, context.palette.light().color());
             QRect r = cr;
@@ -858,13 +859,16 @@ void QLabel::paintEvent(QPaintEvent *)
 #endif
         QStyleOption opt(0);
         opt.init(this);
-        if ((align & Qt::TextShowMnemonic) && !style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
+        if ((align & Qt::TextShowMnemonic) && !style->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             align |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
-        if (!pix.isNull())
-            style()->drawItemPixmap(&paint, cr, align, palette(), isEnabled(), pix);
-        else
-            style()->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext);
+        if (!pix.isNull()) {
+            if (!isEnabled() )
+                pix = style->generatedIconPixmap(QIcon::Disabled, pix, &opt);
+            style->drawItemPixmap(&paint, cr, align, palette(), pix);
+        } else {
+            style->drawItemText(&paint, cr, align, palette(), isEnabled(), d->ltext);
+        }
 
     }
 }
