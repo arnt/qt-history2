@@ -183,7 +183,7 @@ static uint computeNewMax( uint len )
     QString::localeAwareCompare() though.)
 
     The conversion functions include unicode() (to a scalar), latin1()
-    (to scalar, but converts all non-Latin1 characters to 0), row()
+    (to scalar, but converts all non-Latin-1 characters to 0), row()
     (gives the Unicode row), cell() (gives the Unicode cell),
     digitValue() (gives the integer value of any of the numerous digit
     characters), and a host of constructors.
@@ -330,14 +330,14 @@ static uint computeNewMax( uint len )
 /*!
     \fn QChar::QChar( char c )
 
-    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
 */
 
 
 /*!
     \fn QChar::QChar( uchar c )
 
-    Constructs a QChar corresponding to ASCII/Latin1 character \a c.
+    Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
 */
 
 
@@ -669,7 +669,7 @@ QChar QChar::upper() const
 /*!
     \fn QChar::operator char() const
 
-    Returns the Latin1 character equivalent to the QChar, or 0. This
+    Returns the Latin-1 character equivalent to the QChar, or 0. This
     is mainly useful for non-internationalized software.
 
     \sa unicode()
@@ -712,7 +712,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
+    Returns TRUE if \a c is the ASCII/Latin-1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -722,7 +722,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
+    Returns TRUE if \a c is the ASCII/Latin-1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -741,7 +741,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
+    Returns TRUE if \a c is not the ASCII/Latin-1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -751,7 +751,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
+    Returns TRUE if \a c is not the ASCII/Latin-1 character \a ch;
     otherwise returns FALSE.
 */
 
@@ -772,7 +772,7 @@ QChar QChar::upper() const
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is less than or
-    equal to that of the ASCII/Latin1 character \a ch; otherwise
+    equal to that of the ASCII/Latin-1 character \a ch; otherwise
     returns FALSE.
 */
 
@@ -782,7 +782,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
     character \a ch is less than or equal to that of \a c; otherwise
     returns FALSE.
 */
@@ -804,7 +804,7 @@ QChar QChar::upper() const
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is greater than
-    or equal to that of the ASCII/Latin1 character \a ch; otherwise
+    or equal to that of the ASCII/Latin-1 character \a ch; otherwise
     returns FALSE.
 */
 
@@ -814,7 +814,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
     character \a ch is greater than or equal to that of \a c;
     otherwise returns FALSE.
 */
@@ -835,7 +835,7 @@ QChar QChar::upper() const
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is less than that
-    of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
+    of the ASCII/Latin-1 character \a ch; otherwise returns FALSE.
 */
 
 /*!
@@ -844,7 +844,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
     character \a ch is less than that of \a c; otherwise returns
     FALSE.
 */
@@ -865,7 +865,7 @@ QChar QChar::upper() const
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c is greater than
-    that of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
+    that of the ASCII/Latin-1 character \a ch; otherwise returns FALSE.
 */
 
 /*!
@@ -874,7 +874,7 @@ QChar QChar::upper() const
     \overload
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
+    Returns TRUE if the numeric Unicode value of the ASCII/Latin-1
     character \a ch is greater than that of \a c; otherwise returns
     FALSE.
 */
@@ -1439,7 +1439,7 @@ QString::QString( const QChar* unicode, uint length )
     If \a str is 0, then a null string is created.
 
     This is a cast constructor, but it is perfectly safe: converting a
-    Latin1 const char* to QString preserves all the information. You
+    Latin-1 \c{const char *} to QString preserves all the information. You
     can disable this constructor by defining \c QT_NO_CAST_ASCII when
     you compile your applications. You can also make QString objects
     by using setLatin1(), fromLatin1(), fromLocal8Bit(), and
@@ -1705,19 +1705,17 @@ void QString::setLength( uint newLen )
     This function will return a string that replaces the lowest
     numbered occurrence of \c %1, \c %2, ..., \c %9 with \a a.
 
-    The \a fieldwidth value specifies the minimum amount of space that
+    The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to. A positive value will produce right-aligned
     text, whereas a negative value will produce left-aligned text.
 
     \code
-	QString firstName( "Joe" );
-	QString lastName( "Bloggs" );
-	QString fullName;
-	fullName = QString( "First name is '%1', last name is '%2'" )
-		    .arg( firstName )
-		    .arg( lastName );
-
-	// fullName == First name is 'Joe', last name is 'Bloggs'
+	QString firstName( "James" );
+	QString lastName( "Bond" );
+	QString fullName = QString( "My name is %2, %1 %2" )
+			   .arg( firstName )
+			   .arg( lastName );
+	// fullName == "My name is Bond, James Bond"
     \endcode
 
     Note that using arg() to construct sentences as we've done in the
@@ -1726,49 +1724,114 @@ void QString::setLength( uint newLen )
     languages.
 
     If there is no place marker (\c %1 or \c %2, etc.), a warning
-    message (qWarning()) is output and the text is appended at the
-    end of the string. We recommend that the correct number of place
-    markers is always used in production code.
+    message (qWarning()) is output and the result is undefined.
 */
-QString QString::arg( const QString& a, int fieldwidth ) const
+QString QString::arg( const QString& a, int fieldWidth ) const
 {
-    int pos, len;
-    QString r = *this;
-
-    if ( !findArg( pos, len ) ) {
-	qWarning( "QString::arg(): Argument missing: %s, %s",
-		  latin1(), a.latin1() );
-	// Make sure the text at least appears SOMEWHERE
-	r += ' ';
-	pos = r.length();
-	len = 0;
+    QString paddedArg = a;
+    if ( fieldWidth != 0 ) {
+	int n = QABS( fieldWidth );
+	if ( n > (int) a.length() ) {
+	    QString padding;
+	    while ( n > (int) a.length() ) {
+		padding += ' ';
+		n--;
+	    }
+	    if ( fieldWidth < 0 ) {
+		paddedArg.append( padding );
+	    } else {
+		paddedArg.prepend( padding );
+	    }
+	}
     }
 
-    r.replace( pos, len, a );
-    if ( fieldwidth < 0 ) {
-	QString s;
-	while ( (uint)-fieldwidth > a.length() ) {
-	    s += ' ';
-	    fieldwidth++;
+    register const QChar *uc = d->unicode;
+    const int len = (int) length();
+    const int end = len - 1;
+    int numOccurrences = 0;
+    int firstDigit = 10;
+    int i;
+
+    for ( i = 0; i < end; i++ ) {
+	if ( uc[i] == '%' ) {
+	    int digit = uc[i + 1].unicode() - '0';
+	    if ( digit >= 0 && digit <= firstDigit ) {
+		if ( digit < firstDigit ) {
+		    firstDigit = digit;
+		    numOccurrences = 0;
+		}
+		numOccurrences++;
+	    }
 	}
-	r.insert( pos + a.length(), s );
-    } else if ( fieldwidth ) {
-	QString s;
-	while ( (uint)fieldwidth > a.length() ) {
-	    s += ' ';
-	    fieldwidth--;
-	}
-	r.insert( pos, s );
     }
 
-    return r;
+    if ( firstDigit == 10 ) {
+	qWarning( "QString::arg(): Argument missing: %s, %s", latin1(),
+		  a.latin1() );
+	return *this;
+    } else {
+	QString result;
+	i = 0;
+	while ( i < len ) {
+	    if ( uc[i] == '%' && i != end ) {
+		int digit = uc[i + 1].unicode() - '0';
+		if ( digit == firstDigit ) {
+		    result += paddedArg;
+		    i += 2;
+		    if ( --numOccurrences == 0 ) {
+			result += mid( i );
+			return result;
+		    }
+		    continue;
+		}
+	    }
+	    result += uc[i++];
+	}
+	return result;
+    }
 }
 
+/*!
+    \fn QString QString::arg( const QString& a1, const QString& a2 ) const
+    \overload
+
+    This is the same as str.arg(\a a1).arg(\a a2), except that
+    the strings are replaced in one pass. This can make a difference
+    if \a a1 contains e.g. \c{%1}:
+
+    \code
+    QString str( "%1 %2" );
+    str.arg( "Hello", "world" );        // returns "Hello world"
+    str.arg( "Hello" ).arg( "world" );  // returns "Hello world"
+
+    str.arg( "(%1)", "Hello" );           // returns "(%1) Hello"
+    str.arg( "(%1)" ).arg( "Hello" );     // returns "(Hello) %2"
+    \endcode
+*/
+
+/*!
+    \fn QString QString::arg( const QString& a1, const QString& a2,
+			      const QString& a3 ) const
+    \overload
+
+    This is the same as calling str.arg(\a a1).arg(\a a2).arg(\a a3),
+    except that the strings are replaced in one pass.
+*/
+
+/*!
+    \fn QString QString::arg( const QString& a1, const QString& a2,
+			      const QString& a3, const QString& a4 ) const
+    \overload
+
+    This is the same as calling
+    str.arg(\a a1).arg(\a a2).arg(\a a3).arg(\a a4),
+    except that the strings are replaced in one pass.
+*/
 
 /*!
     \overload
 
-    The \a fieldwidth value specifies the minimum amount of space that
+    The \a fieldWidth value specifies the minimum amount of space that
     \a a is padded to. A positive value will produce a right-aligned
     number, whereas a negative value will produce a left-aligned
     number.
@@ -1783,9 +1846,9 @@ QString QString::arg( const QString& a, int fieldwidth ) const
 	// str == "Decimal 63 is 3f in hexadecimal"
     \endcode
 */
-QString QString::arg( long a, int fieldwidth, int base ) const
+QString QString::arg( long a, int fieldWidth, int base ) const
 {
-    return arg( QString::number(a, base), fieldwidth );
+    return arg( QString::number(a, base), fieldWidth );
 }
 
 /*!
@@ -1794,13 +1857,13 @@ QString QString::arg( long a, int fieldwidth, int base ) const
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
 */
-QString QString::arg( ulong a, int fieldwidth, int base ) const
+QString QString::arg( ulong a, int fieldWidth, int base ) const
 {
-    return arg( QString::number(a, base), fieldwidth );
+    return arg( QString::number(a, base), fieldWidth );
 }
 
 /*!
-    \fn QString QString::arg( int a, int fieldwidth, int base ) const
+    \fn QString QString::arg( int a, int fieldWidth, int base ) const
 
     \overload
 
@@ -1809,7 +1872,7 @@ QString QString::arg( ulong a, int fieldwidth, int base ) const
 */
 
 /*!
-    \fn QString QString::arg( uint a, int fieldwidth, int base ) const
+    \fn QString QString::arg( uint a, int fieldWidth, int base ) const
 
     \overload
 
@@ -1818,7 +1881,7 @@ QString QString::arg( ulong a, int fieldwidth, int base ) const
 */
 
 /*!
-    \fn QString QString::arg( short a, int fieldwidth, int base ) const
+    \fn QString QString::arg( short a, int fieldWidth, int base ) const
 
     \overload
 
@@ -1827,7 +1890,7 @@ QString QString::arg( ulong a, int fieldwidth, int base ) const
 */
 
 /*!
-    \fn QString QString::arg( ushort a, int fieldwidth, int base ) const
+    \fn QString QString::arg( ushort a, int fieldWidth, int base ) const
 
     \overload
 
@@ -1839,23 +1902,23 @@ QString QString::arg( ulong a, int fieldwidth, int base ) const
 /*!
     \overload
 
-    \a a is assumed to be in the Latin1 character set.
+    \a a is assumed to be in the Latin-1 character set.
 */
-QString QString::arg( char a, int fieldwidth ) const
+QString QString::arg( char a, int fieldWidth ) const
 {
     QString c;
     c += a;
-    return arg( c, fieldwidth );
+    return arg( c, fieldWidth );
 }
 
 /*!
     \overload
 */
-QString QString::arg( QChar a, int fieldwidth ) const
+QString QString::arg( QChar a, int fieldWidth ) const
 {
     QString c;
     c += a;
-    return arg( c, fieldwidth );
+    return arg( c, fieldWidth );
 }
 
 /*!
@@ -1886,33 +1949,70 @@ QString QString::arg( QChar a, int fieldwidth ) const
 	// ds == "1.234E+001"
     \endcode
 */
-QString QString::arg( double a, int fieldwidth, char fmt, int prec ) const
+QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
 {
-    return arg( QString::number( a, fmt, prec ), fieldwidth );
+    return arg( QString::number( a, fmt, prec ), fieldWidth );
 }
 
-
-/*
-    Just 1-digit arguments.
-*/
-bool QString::findArg( int& pos, int& len ) const
+QString QString::multiArg( int numArgs, const QString& a1, const QString& a2,
+			   const QString& a3, const QString& a4 ) const
 {
-    char lowest=0;
+    QString result;
+    union {
+	int digitUsed[10];
+	int argForDigit[10];
+    };
     register const QChar *uc = d->unicode;
-    const uint l = length();
-    for (uint i = 0; i < l; i++) {
-	if ( uc[i] == '%' && i+1<l ) {
-	    QChar dig = uc[i+1];
-	    if ( dig >= '0' && dig <= '9' ) {
-		if ( !lowest || dig < lowest ) {
-		    lowest = dig;
-		    pos = i;
-		    len = 2;
-		}
-	    }
+    const QString *args[4];
+    const int len = (int) length();
+    const int end = len - 1;
+    int digits[4];
+    int lastDigit = -1;
+    int i;
+
+    memset( digitUsed, 0, sizeof(digitUsed) );
+    args[0] = &a1;
+    args[1] = &a2;
+    args[2] = &a3;
+    args[3] = &a4;
+
+    for ( i = 0; i < end; i++ ) {
+	if ( uc[i] == '%' ) {
+	    int digit = uc[i + 1].unicode() - '0';
+	    if ( digit >= 0 && digit <= 9 )
+		digitUsed[digit]++;
 	}
     }
-    return lowest != 0;
+
+    for ( i = 0; i < numArgs; i++ ) {
+	do {
+	    ++lastDigit;
+	} while ( lastDigit < 10 && digitUsed[lastDigit] == 0 );
+
+	if ( lastDigit == 10 ) {
+	    qWarning( "QString::arg(): Argument missing: %s, %s",
+		      latin1(), args[i]->latin1() );
+	    numArgs = i;
+	    lastDigit = 9;
+	    break;
+	}
+	digits[i] = lastDigit;
+	argForDigit[lastDigit] = i;
+    }
+
+    i = 0;
+    while ( i < len ) {
+	if ( uc[i] == '%' && i != end ) {
+	    int digit = uc[i + 1].unicode() - '0';
+	    if ( digit >= 0 && digit <= lastDigit ) {
+		result += *args[argForDigit[digit]];
+		i += 2;
+		continue;
+	    }
+	}
+	result += uc[i++];
+    }
+    return result;
 }
 
 /*!
@@ -5365,7 +5465,7 @@ QString &QString::setAscii( const char *str, int len )
 }
 
 /*!
-    Sets this string to \a str, interpreted as a classic Latin1 C
+    Sets this string to \a str, interpreted as a classic Latin-1 C
     string. If \a len is -1 (the default), then it is set to
     strlen(str).
 

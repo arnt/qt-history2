@@ -415,16 +415,22 @@ public:
 
     QString     copy()  const;
 
-    QString arg( long a, int fieldwidth=0, int base=10 ) const;
-    QString arg( ulong a, int fieldwidth=0, int base=10 ) const;
-    QString arg( int a, int fieldwidth=0, int base=10 ) const;
-    QString arg( uint a, int fieldwidth=0, int base=10 ) const;
-    QString arg( short a, int fieldwidth=0, int base=10 ) const;
-    QString arg( ushort a, int fieldwidth=0, int base=10 ) const;
-    QString arg( char a, int fieldwidth=0 ) const;
-    QString arg( QChar a, int fieldwidth=0 ) const;
-    QString arg( const QString& a, int fieldwidth=0 ) const;
-    QString arg( double a, int fieldwidth=0, char fmt='g', int prec=-1 ) const;
+    QString arg( long a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( ulong a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( int a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( uint a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( short a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( ushort a, int fieldWidth = 0, int base = 10 ) const;
+    QString arg( double a, int fieldWidth = 0, char fmt = 'g',
+		 int prec = -1 ) const;
+    QString arg( char a, int fieldWidth = 0 ) const;
+    QString arg( QChar a, int fieldWidth = 0 ) const;
+    QString arg( const QString& a, int fieldWidth = 0 ) const;
+    QString arg( const QString& a1, const QString& a2 ) const;
+    QString arg( const QString& a1, const QString& a2,
+		 const QString& a3 ) const;
+    QString arg( const QString& a1, const QString& a2, const QString& a3,
+		 const QString& a4 ) const;
 
 #ifndef QT_NO_SPRINTF
     QString    &sprintf( const char* format, ... )
@@ -684,7 +690,9 @@ private:
     void deref();
     void real_detach();
     void subat( uint );
-    bool findArg(int& pos, int& len) const;
+    QString multiArg( int numArgs, const QString& a1, const QString& a2,
+		      const QString& a3 = QString::null,
+		      const QString& a4 = QString::null ) const;
 
     void checkSimpleText() const;
 
@@ -903,17 +911,31 @@ inline QString &QString::setNum( uint n, int base )
 inline QString &QString::setNum( float n, char f, int prec )
 { return setNum((double)n,f,prec); }
 
-inline QString QString::arg(int a, int fieldwidth, int base) const
-{ return arg((long)a, fieldwidth, base); }
+inline QString QString::arg( int a, int fieldWidth, int base ) const
+{ return arg( (long)a, fieldWidth, base ); }
 
-inline QString QString::arg(uint a, int fieldwidth, int base) const
-{ return arg((ulong)a, fieldwidth, base); }
+inline QString QString::arg( uint a, int fieldWidth, int base ) const
+{ return arg( (ulong)a, fieldWidth, base ); }
 
-inline QString QString::arg(short a, int fieldwidth, int base) const
-{ return arg((long)a, fieldwidth, base); }
+inline QString QString::arg( short a, int fieldWidth, int base ) const
+{ return arg( (long)a, fieldWidth, base ); }
 
-inline QString QString::arg(ushort a, int fieldwidth, int base) const
-{ return arg((ulong)a, fieldwidth, base); }
+inline QString QString::arg( ushort a, int fieldWidth, int base ) const
+{ return arg( (ulong)a, fieldWidth, base ); }
+
+inline QString QString::arg( const QString& a1, const QString& a2 ) const {
+    return multiArg( 2, a1, a2 );
+}
+
+inline QString QString::arg( const QString& a1, const QString& a2,
+			     const QString& a3 ) const {
+    return multiArg( 3, a1, a2, a3 );
+}
+
+inline QString QString::arg( const QString& a1, const QString& a2,
+			     const QString& a3, const QString& a4 ) const {
+    return multiArg( 4, a1, a2, a3, a4 );
+}
 
 inline int QString::find( char c, int index, bool cs ) const
 { return find(QChar(c), index, cs); }
