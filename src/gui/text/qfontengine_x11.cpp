@@ -142,19 +142,23 @@ void QFontEngineBox::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     } else {
 	if ( p->painterState()->txop == QPainter::TxTranslate )
 	    p->painterState()->painter->map( x, y, &x, &y );
-	XRectangle _rects[32];
-	XRectangle *rects = _rects;
-	if ( si.num_glyphs > 32 )
-	    rects = new XRectangle[si.num_glyphs];
-	for (int k = 0; k < si.num_glyphs; k++) {
-	    rects[k].x = x + (k * _size);
-	    rects[k].y = y - _size + 2;
-	    rects[k].width = rects[k].height = _size - 3;
-	}
+	XRectangle rects[64];
 
-	XDrawRectangles(dpy, hd, gc, rects, si.num_glyphs);
-	if ( rects != _rects )
-	    delete [] rects;
+	int gl = 0;
+	while (gl < si.num_glyphs) {
+	    int toDraw = qMin(64, si.num_glyphs-gl);
+	    int adv = toDraw*_size;
+	    if (x + adv < SHRT_MAX && x > SHRT_MIN) {
+		for (int k = 0; k < toDraw; k++) {
+		    rects[k].x = x + (k * _size);
+		    rects[k].y = y - _size + 2;
+		    rects[k].width = rects[k].height = _size - 3;
+		}
+		XDrawRectangles(dpy, hd, gc, rects, toDraw);
+	    }
+	    gl += toDraw;
+	    x += adv;
+	}
     }
 
     if ( textFlags != 0 )
@@ -410,7 +414,8 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 
 	    int xp = (x+glyphs[i].offset.x).toInt();
 	    int yp = (y+glyphs[i].offset.y).toInt();
-	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+	    if (xp < SHRT_MAX && xp > SHRT_MIN)
+		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 
 	    if (glyphs[i].nKashidas) {
 		QChar ch(0x640); // Kashida character
@@ -423,7 +428,8 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 
 		    int xp = (x+g[0].offset.x).toInt();
 		    int yp = (y+g[0].offset.y).toInt();
-		    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+		    if (xp < SHRT_MAX && xp > SHRT_MIN)
+			XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 		}
 	    } else {
 		x -= Q26Dot6(glyphs[i].space_18d6, F26Dot6);
@@ -435,7 +441,8 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 	while( i < si.num_glyphs ) {
 	    int xp = (x+glyphs[i].offset.x).toInt();
 	    int yp = (y+glyphs[i].offset.y).toInt();
-	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+	    if (xp < SHRT_MAX && xp > SHRT_MIN)
+		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
 	    x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
 	    y += glyphs[i].advance.y;
 	    i++;
@@ -1364,11 +1371,14 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    gpos.y += glyphs[i].offset.y;
 	    if ( transform )
 		gpos = map(p->painterState()->worldMatrix, gpos);
-	    glyphSpec[nGlyphs].x = gpos.x.toInt();
-	    glyphSpec[nGlyphs].y = gpos.y.toInt();
-	    glyphSpec[nGlyphs].glyph = glyphs[i].glyph;
-	    ++nGlyphs;
-
+	    int xp = gpos.x.toInt();
+	    int yp = gpos.y.toInt();
+	    if (xp > SHRT_MIN && xp < SHRT_MAX) {
+		glyphSpec[nGlyphs].x = xp;
+		glyphSpec[nGlyphs].y = yp;
+		glyphSpec[nGlyphs].glyph = glyphs[i].glyph;
+		++nGlyphs;
+	    }
 	    if (glyphs[i].nKashidas) {
 		glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
 		QChar ch(0x640); // Kashida character
@@ -1382,9 +1392,13 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 		    Q26Dot6Offset gpos = pos;
 		    if ( transform )
 			gpos = map(p->painterState()->worldMatrix, gpos);
-		    glyphSpec[nGlyphs].x = gpos.x.toInt();
-		    glyphSpec[nGlyphs].y = gpos.y.toInt();
-		    glyphSpec[nGlyphs].glyph = g[0].glyph;
+		    int xp = gpos.x.toInt();
+		    int yp = gpos.y.toInt();
+		    if (xp > SHRT_MIN && xp < SHRT_MAX) {
+			glyphSpec[nGlyphs].x = xp;
+			glyphSpec[nGlyphs].y = yp;
+			glyphSpec[nGlyphs].glyph = g[0].glyph;
+		    }
 		    ++nGlyphs;
 		}
 	    } else {
@@ -1406,10 +1420,14 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    gpos.y += glyphs[i].offset.y;
 	    if ( transform )
 		gpos = map(p->painterState()->worldMatrix, gpos);
-	    glyphSpec[i].x = gpos.x.toInt();
-	    glyphSpec[i].y = gpos.y.toInt();
-	    glyphSpec[i].glyph = glyphs[i].glyph;
-
+	    int xp = gpos.x.toInt();
+	    int yp = gpos.y.toInt();
+	    if (xp > SHRT_MIN && xp < SHRT_MAX) {
+		glyphSpec[i].x = xp;
+		glyphSpec[i].y = yp;
+		glyphSpec[i].glyph = glyphs[i].glyph;
+		++nGlyphs;
+	    }
 #ifdef FONTENGINE_DEBUG
 	    glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
 	    qDebug("bounding %d ci[%x]=%d %d (%d/%d) / %d %d   offs=(%d/%d) advance=(%d/%d)", i, glyphs[i].glyph,
@@ -1421,14 +1439,18 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    pos.y += glyphs[i].advance.y;
 	    ++i;
 	}
-	nGlyphs = si.num_glyphs;
     }
 
 #ifdef FONTENGINE_DEBUG
     p->painterState()->painter->restore();
 #endif
 
-    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, nGlyphs );
+    int i = 0;
+    while (i < nGlyphs) {
+	int toDraw = qMin(64, nGlyphs-i);
+	XftDrawGlyphSpec( draw, &col, fnt, glyphSpec+i, toDraw );
+	i += toDraw;
+    }
 
 }
 

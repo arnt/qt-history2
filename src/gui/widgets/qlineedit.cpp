@@ -1935,7 +1935,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.setText( str, q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
     textLayout.beginLayout( QTextLayout::SingleLine );
-    QTextLine l = textLayout.createLine(0, 0, 0, INT_MAX);
+    QTextLine l = textLayout.createLine(0, 0, 0, 0x100000);
     ascent = l.ascent();
 }
 
