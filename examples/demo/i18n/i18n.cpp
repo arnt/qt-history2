@@ -3,6 +3,7 @@
 #include "../textdrawing/textedit.h"
 
 #include <qaction.h>
+#include <qlayout.h>
 #include <qvbox.h>
 #include <qworkspace.h>
 #include <qpopupmenu.h>
@@ -126,6 +127,7 @@ void I18nDemo::newSlot(int id)
     wrapper->setCaption(tr("--language--"));
 
     TextEdit *te = new TextEdit(wrapper);
+    te->layout()->setResizeMode( QLayout::FreeResize );
     te->setMinimumSize(500, 400);
     te->fileNew();
     te->currentEditor()->
