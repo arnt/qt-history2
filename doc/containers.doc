@@ -281,8 +281,8 @@
     \code
         QListIterator<QString> i(list);
         i.toBack();
-        while (i.hasPrev())
-            cout << i.prev().ascii() << endl;
+        while (i.hasPrevious())
+            cout << i.previous().ascii() << endl;
     \endcode
 
     The code is symmetric with iterating forward, except that we
@@ -291,7 +291,7 @@
 
     The diagram below illustrates the effect of calling
     \link QListIterator::next() next() \endlink and
-    \link QListIterator::prev() prev() \endlink on an iterator:
+    \link QListIterator::previous() previous() \endlink on an iterator:
 
     \img javaiterators2.png
 
@@ -309,11 +309,11 @@
             \i Returns the next item and advances the iterator by one position
     \row    \i \link QListIterator::peekNext() peekNext() \endlink
             \i Returns the next item without moving the iterator
-    \row    \i \link QListIterator::hasPrev() hasPrev() \endlink
+    \row    \i \link QListIterator::hasPrevious() hasPrevious() \endlink
             \i Returns true if the iterator isn't at the front of the list
-    \row    \i \link QListIterator::prev() prev() \endlink
+    \row    \i \link QListIterator::previous() previous() \endlink
             \i Returns the previous item and moves the iterator back by one position
-    \row    \i \link QListIterator::peekPrev() peekPrev() \endlink
+    \row    \i \link QListIterator::peekPrevious() peekPrevious() \endlink
             \i Returns the previous item without moving the iterator
     \endtable
 
@@ -341,8 +341,8 @@
     \code
         QListMutableIterator<int> i(list);
         i.toBack();
-        while (i.hasPrev()) {
-            if (i.prev() % 2 != 0)
+        while (i.hasPrevious()) {
+            if (i.previous() % 2 != 0)
                 i.remove();
         }
     \endcode
@@ -386,12 +386,12 @@
     QMapIterator::hasNext() hasNext() \endlink, \link
     QMapIterator::next() next() \endlink, \link
     QMapIterator::peekNext() peekNext() \endlink, \link
-    QMapIterator::hasPrev() hasPrev() \endlink, \link
-    QMapIterator::prev() prev() \endlink, \link
-    QMapIterator::peekPrev() peekPrev() \endlink, and \link
-    QMapIterator::remove() peekPrev() \endlink. The key and value
+    QMapIterator::hasPrevious() hasPrevious() \endlink, \link
+    QMapIterator::previous() previous() \endlink, \link
+    QMapIterator::peekPrevious() peekPrevious() \endlink, and \link
+    QMapIterator::remove() peekPrevious() \endlink. The key and value
     components are extracted by calling key() and value() on the
-    object returned by next(), peekNext(), prev(), or peekPrev().
+    object returned by next(), peekNext(), previous(), or peekPrevious().
 
     The following example removes all (capital, country) pairs where
     the capital's name ends with "City":
@@ -430,7 +430,7 @@
 
     If we want to iterate through all the items with the same
     value, we can use \link QMapIterator::findNext() findNext()
-    \endlink or \link QMapIterator::findPrev() findPrev() \endlink.
+    \endlink or \link QMapIterator::findPrevious() findPrevious() \endlink.
     Here's an example where we remove all the items with a particular
     value:
 
@@ -441,7 +441,7 @@
     \endcode
 
     Similarly, the \link QMapIterator::findNextKey() findNextKey()
-    \endlink or \link QMapIterator::findPrevKey() findPrevKey()
+    \endlink or \link QMapIterator::findPreviousKey() findPreviousKey()
     \endlink functions allow us to iterate through all the items with
     the same key (for example, in a multi-map):
 

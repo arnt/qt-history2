@@ -44,12 +44,12 @@
     \code
 	QListIterator<float> i(list);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     Multiple iterators can be used on the same list. If the list is
     modified while a QListIterator is active, the QListIterator will
@@ -100,12 +100,12 @@
     \code
 	QLinkedListIterator<float> i(list);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     Multiple iterators can be used on the same list. If the list is
     modified while a QLinkedListIterator is active, the
@@ -161,12 +161,12 @@
     \code
 	QVectorIterator<float> i(vector);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     Multiple iterators can be used on the same vector. If the vector
     is modified while a QVectorIterator is active, the QVectorIterator
@@ -223,12 +223,12 @@
     \code
 	QListMutableIterator<float> i(list);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     If you want to remove items as you iterate over the list, use
     remove(). If you want to modify the value of an item, use
@@ -296,12 +296,12 @@
     \code
 	QLinkedListMutableIterator<float> i(list);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     If you want to remove items as you iterate over the list, use
     remove(). If you want to modify the value of an item, use
@@ -374,12 +374,12 @@
     \code
 	QVectorMutableIterator<float> i(vector);
         i.toBack();
-        while (i.hasPrev())
-	    cout << i.prev() << endl;
+        while (i.hasPrevious())
+	    cout << i.previous() << endl;
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop.
+    findNext() or findPrevious() in a loop.
 
     If you want to remove items as you iterate over the vector, use
     remove(). If you want to modify the value of an item, use
@@ -468,7 +468,7 @@
     Moves the iterator to the back of the container (after the last
     item).
 
-    \sa toFront(), prev()
+    \sa toFront(), previous()
 */
 
 /*! \fn bool QListIterator::hasNext() const
@@ -482,7 +482,7 @@
     i.e. the iterator is \e not at the back of the container;
     otherwise returns false.
 
-    \sa hasPrev(), next()
+    \sa hasPrevious(), next()
 */
 
 /*! \fn const T &QListIterator::next()
@@ -494,7 +494,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), peekNext(), prev()
+    \sa hasNext(), peekNext(), previous()
 */
 
 /*! \fn T &QListMutableIterator::next()
@@ -507,7 +507,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), peekNext(), prev()
+    \sa hasNext(), peekNext(), previous()
 */
 
 /*! \fn const T &QListIterator::peekNext() const
@@ -519,7 +519,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), next(), peekPrev()
+    \sa hasNext(), next(), peekPrevious()
 */
 
 /*! \fn T &QListMutableIterator::peekNext() const
@@ -531,26 +531,26 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), next(), peekPrev()
+    \sa hasNext(), next(), peekPrevious()
 */
 
-/*! \fn bool QListIterator::hasPrev() const
-    \fn bool QLinkedListIterator::hasPrev() const
-    \fn bool QVectorIterator::hasPrev() const
-    \fn bool QListMutableIterator::hasPrev() const
-    \fn bool QLinkedListMutableIterator::hasPrev() const
-    \fn bool QVectorMutableIterator::hasPrev() const
+/*! \fn bool QListIterator::hasPrevious() const
+    \fn bool QLinkedListIterator::hasPrevious() const
+    \fn bool QVectorIterator::hasPrevious() const
+    \fn bool QListMutableIterator::hasPrevious() const
+    \fn bool QLinkedListMutableIterator::hasPrevious() const
+    \fn bool QVectorMutableIterator::hasPrevious() const
 
     Returns true if there is at least one item behind the iterator,
     i.e. the iterator is \e not at the front of the container;
     otherwise returns false.
 
-    \sa hasNext(), prev()
+    \sa hasNext(), previous()
 */
 
-/*! \fn const T &QListIterator::prev()
-    \fn const T &QLinkedListIterator::prev()
-    \fn const T &QVectorIterator::prev()
+/*! \fn const T &QListIterator::previous()
+    \fn const T &QLinkedListIterator::previous()
+    \fn const T &QVectorIterator::previous()
 
     Returns the previous item and moves the iterator back by one
     position.
@@ -558,15 +558,15 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), peekPrev(), next()
+    \sa hasPrevious(), peekPrevious(), next()
 */
 
-/*! \fn T &QListMutableIterator::prev()
-    \fn T &QLinkedListMutableIterator::prev()
-    \fn T &QVectorMutableIterator::prev()
-    \fn T &QListMutableIterator::peekPrev() const
-    \fn T &QLinkedListMutableIterator::peekPrev() const
-    \fn T &QVectorMutableIterator::peekPrev() const
+/*! \fn T &QListMutableIterator::previous()
+    \fn T &QLinkedListMutableIterator::previous()
+    \fn T &QVectorMutableIterator::previous()
+    \fn T &QListMutableIterator::peekPrevious() const
+    \fn T &QLinkedListMutableIterator::peekPrevious() const
+    \fn T &QVectorMutableIterator::peekPrevious() const
 
     Returns a reference to the previous item and moves the iterator
     back by one position.
@@ -574,19 +574,19 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), peekPrev(), next()
+    \sa hasPrevious(), peekPrevious(), next()
 */
 
-/*! \fn const T &QListIterator::peekPrev() const
-    \fn const T &QLinkedListIterator::peekPrev() const
-    \fn const T &QVectorIterator::peekPrev() const
+/*! \fn const T &QListIterator::peekPrevious() const
+    \fn const T &QLinkedListIterator::peekPrevious() const
+    \fn const T &QVectorIterator::peekPrevious() const
 
     Returns the previous item without moving the iterator.
 
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), prev(), peekNext()
+    \sa hasPrevious(), previous(), peekNext()
 */
 
 /*! \fn bool QListIterator::findNext(const T &value)
@@ -603,15 +603,15 @@
     just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
-    \sa findPrev()
+    \sa findPrevious()
 */
 
-/*! \fn bool QListIterator::findPrev(const T &value)
-    \fn bool QLinkedListIterator::findPrev(const T &value)
-    \fn bool QVectorIterator::findPrev(const T &value)
-    \fn bool QListMutableIterator::findPrev(const T &value)
-    \fn bool QLinkedListMutableIterator::findPrev(const T &value)
-    \fn bool QVectorMutableIterator::findPrev(const T &value)
+/*! \fn bool QListIterator::findPrevious(const T &value)
+    \fn bool QLinkedListIterator::findPrevious(const T &value)
+    \fn bool QVectorIterator::findPrevious(const T &value)
+    \fn bool QListMutableIterator::findPrevious(const T &value)
+    \fn bool QLinkedListMutableIterator::findPrevious(const T &value)
+    \fn bool QVectorMutableIterator::findPrevious(const T &value)
 
     Searches for \a value starting from the current iterator position
     backward. Returns true if \a value is found; otherwise returns
@@ -627,7 +627,7 @@
 /*! \fn void QListMutableIterator::remove()
 
     Removes the last item that was jumped over using one of the
-    traversal functions (next(), prev(), findNext(), findPrev()).
+    traversal functions (next(), previous(), findNext(), findPrevious()).
 
     Example:
     \code
@@ -645,7 +645,7 @@
 /*! \fn void QLinkedListMutableIterator::remove()
 
     Removes the last item that was jumped over using one of the
-    traversal functions (next(), prev(), findNext(), findPrev()).
+    traversal functions (next(), previous(), findNext(), findPrevious()).
 
     Example:
     \code
@@ -663,7 +663,7 @@
 /*! \fn void QVectorMutableIterator::remove()
 
     Removes the last item that was jumped over using one of the
-    traversal functions (next(), prev(), findNext(), findPrev()).
+    traversal functions (next(), previous(), findNext(), findPrevious()).
 
     Example:
     \code
@@ -683,8 +683,8 @@
     Replaces the value of the last item that was jumped over using
     one of the traversal functions with \a value.
 
-    The traversal functions are next(), prev(), findNext(), and
-    findPrev().
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
 
     Example:
     \code
@@ -703,8 +703,8 @@
     Replaces the value of the last item that was jumped over using
     one of the traversal functions with \a value.
 
-    The traversal functions are next(), prev(), findNext(), and
-    findPrev().
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
 
     Example:
     \code
@@ -723,8 +723,8 @@
     Replaces the value of the last item that was jumped over using
     one of the traversal functions with \a value.
 
-    The traversal functions are next(), prev(), findNext(), and
-    findPrev().
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious().
 
     Example:
     \code
@@ -743,11 +743,11 @@
     \fn const T &QVectorMutableIterator::value() const
 
     Returns the value of the last item that was jumped over using one
-    of the traversal functions (next(), prev(), findNext(),
-    findPrev()).
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious()).
 
     After a call to next() or findNext(), value() is equivalent to
-    peekPrev(). After a call to prev() or findPrev(), value() is
+    peekPrevious(). After a call to previous() or findPrevious(), value() is
     equivalent to peekNext().
 
     \sa setValue()
@@ -808,14 +808,14 @@
     \code
 	QMapIterator<int, QWidget *> i(map);
         i.toBack();
-        while (i.hasPrev()) {
-	    i.prev();
+        while (i.hasPrevious()) {
+	    i.previous();
 	    cout << i.key() << ": " << i.value() << endl;
 	}
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop. For example:
+    findNext() or findPrevious() in a loop. For example:
 
     \code
 	QMapIterator<int, QWidget *> i(map);
@@ -825,7 +825,7 @@
         }
     \endcode
 
-    QMapIterator also provides findNextKey() and findPrevKey() to
+    QMapIterator also provides findNextKey() and findPreviousKey() to
     find all occurrences of a particular key.
 
     Multiple iterators can be used on the same map. If the map is
@@ -882,14 +882,14 @@
     \code
 	QHashIterator<int, QWidget *> i(hash);
         i.toBack();
-        while (i.hasPrev()) {
-	    i.prev();
+        while (i.hasPrevious()) {
+	    i.previous();
 	    cout << i.key() << ": " << i.value() << endl;
 	}
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop. For example:
+    findNext() or findPrevious() in a loop. For example:
 
     \code
 	QHashIterator<int, QWidget *> i(hash);
@@ -899,7 +899,7 @@
         }
     \endcode
 
-    QHashIterator also provides findNextKey() and findPrevKey() to
+    QHashIterator also provides findNextKey() and findPreviousKey() to
     find all occurrences of a particular key.
 
     Multiple iterators can be used on the same hash. If the hash is
@@ -956,14 +956,14 @@
     \code
 	QMapMutableIterator<int, QWidget *> i(map);
         i.toBack();
-        while (i.hasPrev()) {
-	    i.prev();
+        while (i.hasPrevious()) {
+	    i.previous();
 	    cout << i.key() << ": " << i.value() << endl;
 	}
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop. For example:
+    findNext() or findPrevious() in a loop. For example:
 
     \code
 	QMapMutableIterator<int, QWidget *> i(map);
@@ -973,7 +973,7 @@
         }
     \endcode
 
-    QMapMutableIterator also provides findNextKey() and findPrevKey()
+    QMapMutableIterator also provides findNextKey() and findPreviousKey()
     to find all occurrences of a particular key.
 
     If you want to remove items as you iterate over the map, use
@@ -1043,14 +1043,14 @@
     \code
 	QHashMutableIterator<int, QWidget *> i(hash);
         i.toBack();
-        while (i.hasPrev()) {
-	    i.prev();
+        while (i.hasPrevious()) {
+	    i.previous();
 	    cout << i.key() << ": " << i.value() << endl;
 	}
     \endcode
 
     If you want to find all occurrences of a particular value, use
-    findNext() or findPrev() in a loop. For example:
+    findNext() or findPrevious() in a loop. For example:
 
     \code
 	QHashMutableIterator<int, QWidget *> i(hash);
@@ -1060,7 +1060,7 @@
         }
     \endcode
 
-    QHashMutableIterator also provides findNextKey() and findPrevKey()
+    QHashMutableIterator also provides findNextKey() and findPreviousKey()
     to find all occurrences of a particular key.
 
     If you want to remove items as you iterate over the hash, use
@@ -1139,7 +1139,7 @@
     Moves the iterator to the back of the container (after the last
     item).
 
-    \sa toFront(), prev()
+    \sa toFront(), previous()
 */
 
 /*! \fn bool QMapIterator::hasNext() const
@@ -1151,7 +1151,7 @@
     i.e. the iterator is \e not at the back of the container;
     otherwise returns false.
 
-    \sa hasPrev(), next()
+    \sa hasPrevious(), next()
 */
 
 /*! \fn QMapIterator::Item QMapIterator::next()
@@ -1165,7 +1165,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), peekNext(), prev()
+    \sa hasNext(), peekNext(), previous()
 */
 
 /*! \fn QMapMutableIterator::Item QMapMutableIterator::next()
@@ -1179,7 +1179,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), peekNext(), prev()
+    \sa hasNext(), peekNext(), previous()
 */
 
 /*! \fn QMapIterator::Item QMapIterator::peekNext() const
@@ -1193,7 +1193,7 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), next(), peekPrev()
+    \sa hasNext(), next(), peekPrevious()
 */
 
 /*! \fn QMapMutableIterator::Item QMapMutableIterator::peekNext() const
@@ -1207,23 +1207,23 @@
     Calling this function on an iterator located at the back of the
     container leads to undefined results.
 
-    \sa hasNext(), next(), peekPrev()
+    \sa hasNext(), next(), peekPrevious()
 */
 
-/*! \fn bool QMapIterator::hasPrev() const
-    \fn bool QHashIterator::hasPrev() const
-    \fn bool QMapMutableIterator::hasPrev() const
-    \fn bool QHashMutableIterator::hasPrev() const
+/*! \fn bool QMapIterator::hasPrevious() const
+    \fn bool QHashIterator::hasPrevious() const
+    \fn bool QMapMutableIterator::hasPrevious() const
+    \fn bool QHashMutableIterator::hasPrevious() const
 
     Returns true if there is at least one item behind the iterator,
     i.e. the iterator is \e not at the front of the container;
     otherwise returns false.
 
-    \sa hasNext(), prev()
+    \sa hasNext(), previous()
 */
 
-/*! \fn QMapIterator::Item QMapIterator::prev()
-    \fn QHashIterator::Item QHashIterator::prev()
+/*! \fn QMapIterator::Item QMapIterator::previous()
+    \fn QHashIterator::Item QHashIterator::previous()
 
     Returns the previous item and moves the iterator back by one
     position.
@@ -1234,11 +1234,11 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), peekPrev(), next()
+    \sa hasPrevious(), peekPrevious(), next()
 */
 
-/*! \fn QMapMutableIterator::Item QMapMutableIterator::prev() const
-    \fn QHashMutableIterator::Item QHashMutableIterator::prev() const
+/*! \fn QMapMutableIterator::Item QMapMutableIterator::previous() const
+    \fn QHashMutableIterator::Item QHashMutableIterator::previous() const
 
     Returns the previous item and moves the iterator back by one
     position.
@@ -1249,11 +1249,11 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), peekPrev(), next()
+    \sa hasPrevious(), peekPrevious(), next()
 */
 
-/*! \fn QMapIterator::Item QMapIterator::peekPrev() const
-    \fn QHashIterator::Item QHashIterator::peekPrev() const
+/*! \fn QMapIterator::Item QMapIterator::peekPrevious() const
+    \fn QHashIterator::Item QHashIterator::peekPrevious() const
 
     Returns the previous item without moving the iterator.
 
@@ -1263,11 +1263,11 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), prev(), peekNext()
+    \sa hasPrevious(), previous(), peekNext()
 */
 
-/*! \fn QMapMutableIterator::Item QMapMutableIterator::peekPrev() const
-    \fn QHashMutableIterator::Item QHashMutableIterator::peekPrev() const
+/*! \fn QMapMutableIterator::Item QMapMutableIterator::peekPrevious() const
+    \fn QHashMutableIterator::Item QHashMutableIterator::peekPrevious() const
 
     Returns the previous item without moving the iterator.
 
@@ -1277,19 +1277,19 @@
     Calling this function on an iterator located at the front of the
     container leads to undefined results.
 
-    \sa hasPrev(), prev(), peekNext()
+    \sa hasPrevious(), previous(), peekNext()
 */
 
 /*! \fn const T &QMapIterator::value() const
     \fn const T &QHashIterator::value() const
 
     Returns the value of the last item that was jumped over using one
-    of the traversal functions (next(), prev(), findNext(),
-    findPrev(), findNextKey(), findPrevKey()).
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious(), findNextKey(), findPreviousKey()).
 
     After a call to next() or findNext() or findNextKey(), value() is
-    equivalent to peekPrev().value(). After a call to prev() or
-    findPrev() or findPrevKey(), value() is equivalent to
+    equivalent to peekPrevious().value(). After a call to previous() or
+    findPrevious() or findPreviousKey(), value() is equivalent to
     peekNext().value().
 
     \sa key()
@@ -1300,12 +1300,12 @@
     \fn const T &QHashMutableIterator::value() const
 
     Returns the value of the last item that was jumped over using one
-    of the traversal functions (next(), prev(), findNext(),
-    findPrev(), findNextKey(), findPrevKey()).
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious(), findNextKey(), findPreviousKey()).
 
     After a call to next() or findNext() or findNextKey(), value() is
-    equivalent to peekPrev().value(). After a call to prev() or
-    findPrev() or findPrevKey(), value() is equivalent to
+    equivalent to peekPrevious().value(). After a call to previous() or
+    findPrevious() or findPreviousKey(), value() is equivalent to
     peekNext().value().
 
     \sa key(), setValue()
@@ -1317,12 +1317,12 @@
     \fn const Key &QHashMutableIterator::key() const
 
     Returns the key of the last item that was jumped over using one
-    of the traversal functions (next(), prev(), findNext(),
-    findPrev(), findNextKey(), findPrevKey()).
+    of the traversal functions (next(), previous(), findNext(),
+    findPrevious(), findNextKey(), findPreviousKey()).
 
     After a call to next() or findNext() or findNextKey(), key() is
-    equivalent to peekPrev().key(). After a call to prev() or
-    findPrev() or findPrevKey(), key() is equivalent to
+    equivalent to peekPrevious().key(). After a call to previous() or
+    findPrevious() or findPreviousKey(), key() is equivalent to
     peekNext().key().
 
     \sa value()
@@ -1341,13 +1341,13 @@
     just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
-    \sa findNextKey(), findPrev()
+    \sa findNextKey(), findPrevious()
 */
 
-/*! \fn bool QMapIterator::findPrev(const T &value)
-    \fn bool QHashIterator::findPrev(const T &value)
-    \fn bool QMapMutableIterator::findPrev(const T &value)
-    \fn bool QHashMutableIterator::findPrev(const T &value)
+/*! \fn bool QMapIterator::findPrevious(const T &value)
+    \fn bool QHashIterator::findPrevious(const T &value)
+    \fn bool QMapMutableIterator::findPrevious(const T &value)
+    \fn bool QHashMutableIterator::findPrevious(const T &value)
 
     Searches for \a value starting from the current iterator position
     backward. Returns true if a (key, value) pair with value \a value
@@ -1357,7 +1357,7 @@
     just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
-    \sa findPrevKey(), findNext()
+    \sa findPreviousKey(), findNext()
 */
 
 /*! \fn bool QMapIterator::findNextKey(const Key &key)
@@ -1373,13 +1373,13 @@
     just after the matching item; otherwise, the iterator is
     positioned at the back of the container.
 
-    \sa findPrevKey(), findNext()
+    \sa findPreviousKey(), findNext()
 */
 
-/*! \fn bool QMapIterator::findPrevKey(const Key &key)
-    \fn bool QHashIterator::findPrevKey(const Key &key)
-    \fn bool QMapMutableIterator::findPrevKey(const Key &key)
-    \fn bool QHashMutableIterator::findPrevKey(const Key &key)
+/*! \fn bool QMapIterator::findPreviousKey(const Key &key)
+    \fn bool QHashIterator::findPreviousKey(const Key &key)
+    \fn bool QMapMutableIterator::findPreviousKey(const Key &key)
+    \fn bool QHashMutableIterator::findPreviousKey(const Key &key)
 
     Searches for \a key starting from the current iterator position
     backward. Returns true if a (key, value) pair with key \a key is
@@ -1389,15 +1389,15 @@
     just before the matching item; otherwise, the iterator is
     positioned at the front of the container.
 
-    \sa findNextKey(), findPrev()
+    \sa findNextKey(), findPrevious()
 */
 
 /*! \fn void QMapMutableIterator::remove()
     \fn void QHashMutableIterator::remove()
 
     Removes the last item that was jumped over using one of the
-    traversal functions (next(), prev(), findNext(), findPrev(),
-    findNextKey(), findPrevKey()).
+    traversal functions (next(), previous(), findNext(), findPrevious(),
+    findNextKey(), findPreviousKey()).
 
     \sa setValue()
 */
@@ -1408,8 +1408,8 @@
     Replaces the value of the last item that was jumped over using
     one of the traversal functions with \a value.
 
-    The traversal functions are next(), prev(), findNext(), and
-    findPrev(), findNextKey(), and findPrevKey().
+    The traversal functions are next(), previous(), findNext(), and
+    findPrevious(), findNextKey(), and findPreviousKey().
 
     \sa key(), value(), remove()
 */
