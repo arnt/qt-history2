@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#367 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#368 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -122,7 +122,6 @@ static bool	popupCloseDownMode = FALSE;
 static bool	qt_try_modal( QWidget *, MSG *, int& ret );
 
 QWidget	       *qt_button_down = 0;		// widget got last button-down
-QWidget	       *qt_spontaneous_show = 0;	// widget is shown spontaneously
 
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
@@ -131,6 +130,40 @@ static void	releaseAutoCapture();
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
+
+VFPTR qt_set_preselect_handler (VFPTR);
+static VFPTR qt_preselect_handler = 0;
+VFPTR qt_set_postselect_handler (VFPTR);
+static VFPTR qt_postselect_handler = 0;
+Q_EXPORT VFPTR qt_set_preselect_handler (VFPTR handler)
+{
+    VFPTR old_handler = qt_preselect_handler;
+    qt_preselect_handler = handler;
+    return old_handler;
+}
+Q_EXPORT VFPTR qt_set_postselect_handler (VFPTR handler)
+{
+    VFPTR old_handler = qt_postselect_handler;
+    qt_postselect_handler = handler;
+    return old_handler;
+}
+
+typedef int (*QWinEventFilter) (MSG*);
+QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
+
+static QWinEventFilter qt_win_event_filter = 0;
+QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
+{
+    QWinEventFilter old_filter = qt_win_event_filter;
+    qt_win_event_filter = filter;
+    return old_filter;
+}
+static bool qt_winEventFilter( MSG* msg )
+{
+    if ( qt_win_event_filter && qt_win_event_filter( msg )  )
+	return TRUE;
+    return qApp->winEventFilter( msg );
+}
 
 static void	msgHandler( QtMsgType, const char* );
 static void     unregWinClasses();
@@ -446,7 +479,7 @@ static void qt_set_windows_resources()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
-void qt_init( int *argcptr, char **argv )
+void qt_init( int */*argcptr*/, char **/*argv*/ )
 {
     // Detect the Windows version
     (void) QApplication::winVersion();
@@ -1341,7 +1374,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.wParam = wParam;
     msg.lParam = lParam;
 
-    if ( qApp->winEventFilter(&msg) )		// send through app filter
+    if ( qt_winEventFilter(&msg) )		// send through app filter
 	return 0;
 
     widget = (QETWidget*)QWidget::find( hwnd );
@@ -1896,7 +1929,7 @@ static void dispatchTimer( uint timerId, MSG *msg )
 {
 #if defined(USE_HEARTBEAT)
     if ( timerId != (WPARAM)heartBeat ) {
-	if ( !msg || !qApp || !qApp->winEventFilter(msg) )
+	if ( !msg || !qApp || !qt_winEventFilter(msg) )
 	    activateTimer( timerId );
     } else if ( curWin && qApp ) {		// process heartbeat
 	POINT p;
@@ -1912,7 +1945,7 @@ static void dispatchTimer( uint timerId, MSG *msg )
 	}
     }
 #else
-    if ( !msg || !qApp || !qApp->winEventFilter(msg) )
+    if ( !msg || !qApp || !qt_winEventFilter(msg) )
 	activateTimer( timerId );
 #endif
 }

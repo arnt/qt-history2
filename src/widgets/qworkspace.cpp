@@ -1191,6 +1191,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 		emit doNormal();
 	    else
 		emit doMaximize();
+	    return TRUE;
 	}
     } else if ( o == iconL ) {
 	if ( e->type() == QEvent::MouseButtonPress ) {

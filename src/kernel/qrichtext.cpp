@@ -162,7 +162,7 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	place = PlaceLeft;
     else if ( attr["align"] == "right" )
 	place = PlaceRight;
-    
+
     tmpwidth = width;
     width = -1; // force realize
 }
@@ -177,8 +177,9 @@ void QTextImage::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    width *= metrics.logicalDpiX() / 72;
-    height *= metrics.logicalDpiY() / 72;
+    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
+    width *= metrics.logicalDpiX() / defmetrics.logicalDpiX();
+    height *= metrics.logicalDpiY() / defmetrics.logicalDpiY();
     if ( !pm.isNull() ) {
 	QImage img = pm.convertToImage().smoothScale( width, height );
 	pm.convertFromImage( img );
@@ -214,7 +215,8 @@ void QTextHorizontalLine::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    height *= metrics.logicalDpiY() / 72;
+    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
+    height *= metrics.logicalDpiY() / defmetrics.logicalDpiY();
 }
 
 
@@ -1483,8 +1485,9 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     if ( !formatinuse ) { // ### a bit hacky
 	if ( p && p->device()->devType() == QInternal::Printer ) {
 	    QPaintDeviceMetrics metrics(p->device());
-	    xscale = metrics.logicalDpiX() / 72;
-	    yscale = metrics.logicalDpiY() / 72;
+	    QPaintDeviceMetrics defmetrics( QApplication::desktop() );
+	    xscale = metrics.logicalDpiX() / defmetrics.logicalDpiX();
+	    yscale = metrics.logicalDpiY() / defmetrics.logicalDpiY();
 	}
     }
 
@@ -2319,7 +2322,8 @@ void QTextTable::realize( QPainter* p)
     painter = p;
     if ( p && p->device()->devType() != QInternal::Printer ) {
 	QPaintDeviceMetrics metrics(p->device());
-	double xscale = metrics.logicalDpiX() / 72;
+	QPaintDeviceMetrics defmetrics( QApplication::desktop() );
+	double xscale = metrics.logicalDpiX() / defmetrics.logicalDpiX();
 	cellspacing = int(cellspacing * xscale);
 	border = int(border * xscale);
 	innerborder = int(innerborder * xscale);
