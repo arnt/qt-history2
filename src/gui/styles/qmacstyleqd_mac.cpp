@@ -451,7 +451,7 @@ void QMacStyleQD::unPolish(QWidget* w)
 int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
-    switch(metric) {
+    switch (metric) {
     case PM_TabBarTabVSpace:
         ret = 4;
         break;
@@ -664,6 +664,9 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
         break; }
     case PM_MenuVMargin:
         ret = 4;
+        break;
+    case PM_MenuFrameWidth:
+        ret = 0;
         break;
     default:
         ret = QWindowsStyle::pixelMetric(metric, widget);

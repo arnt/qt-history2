@@ -454,6 +454,9 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_MenuVMargin:
         ret = 4;
         break;
+    case PM_MenuFrameWidth:
+        ret = 0;
+        break;
     case PM_TitleBarHeight: {
         if (!widget)
             break;
