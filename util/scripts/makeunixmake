@@ -1,0 +1,40 @@
+#!/bin/sh
+
+if [ "$1" = -v ] ; then echo 'Building top-level make files...' >&2; fi
+
+export UNIX_MKDIST_QT=1
+( cd ${DISTDIR}/qt/src/moc; TMAKEPATH=$DISTDIR}/qttmake:$TMAKEPATH tmake moc.pro >Makefile.in)
+if [ "$1" = -p ] ; then echo 'src/moc/Makefile.in' ; fi
+
+${DISTDIR}/qt/util/scripts/mkconfigs
+${DISTDIR}/qt/util/scripts/makemake
+(cd ${DISTDIR}/qt/src; tmake -t ../tmake/propagate.t qt.pro |
+    perl -p -e "s{$DISTDIR/qt}{\\\$(QTDIR)}" >Makefile.in )
+if [ "$1" = -p ] ; then echo 'src/Makefile.in' ; fi
+
+cp ${DISTDIR}/qt/util/scripts/propagate ${DISTDIR}/qt
+if [ "$1" = -p ] ; then echo 'propagate' ; fi
+
+if [ "$1" = -v ] ; then echo "Build tutorial, example, and extensions Makefiles" >&2 ; fi
+
+find ${DISTDIR}/qt/tutorial \
+ ${DISTDIR}/qt/examples \
+ ${DISTDIR}/qt/extensions -name '*.pro' |
+    while read pro_file
+    do
+	DIR=$(dirname $pro_file)
+	cd $DIR # we are in a subshell
+	TEMPLATE=$(echo $(basename $DIR).t)
+	if [ ! -f $TEMPLATE ]
+	then
+	    if [ "${platform}" = "x11" ]; then
+		TEMPLATE=${DISTDIR}/qt/tmake/propagate.t
+	    else
+		TEMPLATE=app
+	    fi
+	fi
+	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
+        if [ "$1" = -p ] ; then echo "$DIR/Makefile.in" ; fi
+    done
+
+
