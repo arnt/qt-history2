@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#67 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#67 $")
 
 
 /*----------------------------------------------------------------------------
@@ -455,12 +455,13 @@ void QObject::setName( const char *name )
 
   The event() function can be reimplemented to customize the behavior
   of an object.
+
   \sa QWidget::event(), installEventFilter()
  ----------------------------------------------------------------------------*/
 
-bool QObject::event( QEvent *e )		// receive event
+bool QObject::event( QEvent *e )
 {
-    return activate_filters( e );
+    return eventFilters ? activate_filters(e) : FALSE;
 }
 
 /*----------------------------------------------------------------------------
