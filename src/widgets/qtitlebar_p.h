@@ -89,6 +89,7 @@ protected:
     bool event( QEvent *);
     void resizeEvent( QResizeEvent *);
     void contextMenuEvent( QContextMenuEvent * );
+    void changeEvent( QEvent * );
     void mousePressEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );

@@ -1340,6 +1340,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	if(tbar->window()) {
 	    if(tbar->window()->isMinimized())
 		twa |= kThemeWindowIsCollapsed;
+	    if(tbar->window()->isWindowModified())
+		twa |= kThemeWindowHasDirty;
 	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	} else if(tbar->testWFlags(WStyle_SysMenu)) {
 	    twa |= kThemeWindowHasCloseBox;
@@ -1428,7 +1430,10 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		ThemeDrawState ctrl_tds = wtds;
 		if(qAquaActive(pal) && (subActive & types[i].qt_type))
 		    ctrl_tds = kThemeStatePressed;
-		DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, types[i].mac_type);
+		ThemeTitleBarWidget twt = types[i].mac_type;
+		if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox) 
+		    twt = kThemeWidgetDirtyCloseBox;
+		DrawThemeTitleBarWidget(macWinType, wm_rect, ctrl_tds, &tm, twa, twt);
 	    }
 	}
 	break; }

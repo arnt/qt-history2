@@ -226,6 +226,13 @@ void QTitleBar::readColors()
     setActive( d->act );
 }
 
+void QTitleBar::changeEvent( QEvent *ev )
+{
+    if(ev->type() == QEvent::ModifiedChange)
+	update();
+    QWidget::changeEvent(ev);
+}
+
 void QTitleBar::mousePressEvent( QMouseEvent * e)
 {
     if ( !d->act )

@@ -1583,8 +1583,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		QRect ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarLabel ), widget );
 
 		p->setPen( pal2.highlightedText() );
+		QString caption = titlebar->visibleText();
+		if(styleHint(SH_GUIStyle, titlebar, opt, 0) == WindowsStyle && 
+		   titlebar->window() && titlebar->window()->isWindowModified())
+		    caption += " *";
 		p->drawText(ir.x()+2, ir.y(), ir.width()-2, ir.height(),
-			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
+			    AlignAuto | AlignVCenter | SingleLine, caption );
 	    }
 
 	    QRect ir;
