@@ -796,25 +796,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #endif
     create();					// platform-dependent init
 #ifndef QT_NO_PALETTE
-    pal = QApplication::palette(this);
-    if(!isTopLevel()) {
-	for(QWidget *p = parentWidget(TRUE); p; p = p->parentWidget(TRUE)) {
-	    if(p->ownPalette()) {
-		pal = p->palette();
-		break;
-	    }
-	}
-    }
+    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
 #endif
-    fnt = QApplication::font(this);    
-    if(!isTopLevel()) {
-	for(QWidget *p = parentWidget(TRUE); p; p = p->parentWidget(TRUE)) {
-	    if(p->ownFont()) {
-		fnt = p->font();
-		break;
-	    }
-	}
-    }
+    fnt = isTopLevel() ? QApplication::font() : parentWidget()->font();
 #if defined(Q_WS_X11)
     fnt.x11SetScreen( x11Screen() );
 #endif // Q_WS_X11
