@@ -58,6 +58,12 @@ class QIODevice;
 
 class QHttpPrivate;
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class QM_EXPORT_HTTP QMap<QString, QString>;
+// MOC_SKIP_END
+#endif
+
 class QM_EXPORT_HTTP QHttpHeader
 {
 public:
