@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#49 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -25,7 +25,6 @@
 #include "qimage.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
-#include "qmessagebox.h"
 #include "qbitmap.h"
 #include "qt_windows.h"
 #include <shlobj.h>
