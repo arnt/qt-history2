@@ -907,12 +907,14 @@ enum {
 
 void QTextView::contentsWheelEvent( QWheelEvent *e )
 {
-    if ( e->state() & ControlButton ) {
-	if ( e->delta() > 0 )
-	    zoomOut();
-	else if ( e->delta() < 0 )
-	    zoomIn();
-	return;
+    if ( isReadOnly() ) {
+	if ( e->state() & ControlButton ) {
+	    if ( e->delta() > 0 )
+		zoomOut();
+	    else if ( e->delta() < 0 )
+		zoomIn();
+	    return;
+	}
     }
     QScrollView::contentsWheelEvent( e );
 }
