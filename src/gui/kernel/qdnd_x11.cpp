@@ -19,6 +19,7 @@
 
 #include "qwidget.h"
 #include "qpixmap.h"
+#include "qbitmap.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qdatetime.h"
