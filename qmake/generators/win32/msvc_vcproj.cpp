@@ -290,7 +290,23 @@ void VcprojGenerator::initLinkerTool()
 {
     vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LFLAGS"] );
     vcProject.Configuration.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
-    vcProject.Configuration.linker.OutputFile = project->first("MSVCPROJ_TARGET");
+
+    switch ( projectTarget ) {
+	case StaticLib:
+	case Application:
+	    vcProject.Configuration.linker.OutputFile = project->first("DESTDIR");
+	    break;
+	case SharedLib:
+	    vcProject.Configuration.linker.ImportLibrary = project->first("DESTDIR");
+	    vcProject.Configuration.linker.ImportLibrary += project->first("QMAKE_ORIG_TARGET") + ".lib";
+	    vcProject.Configuration.linker.OutputFile = project->first("DLLDESTDIR");
+	    break;
+    }
+
+    if( vcProject.Configuration.linker.OutputFile.isEmpty() )
+	vcProject.Configuration.linker.OutputFile = ".";
+
+    vcProject.Configuration.linker.OutputFile += "\\" + project->first("MSVCPROJ_TARGET");
     vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
     if ( project->isActiveConfig("release") ){
