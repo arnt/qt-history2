@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#33 $
 **
 ** Implementation of QPicture class
 **
@@ -17,7 +17,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#33 $")
 
 
 /*!
@@ -28,12 +28,12 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#32 $")
   \ingroup paintdevice
 
   A picture serializes painter commands to an IO device in a
-  platform-independent format.  A picture created under Windows
+  platform-independent format.	A picture created under Windows
   can be read on a Sun SPARC.
 
   Pictures are called meta-files on some platforms.
 
-  Qt pictures use a proprietary binary format.  Unlike native picture
+  Qt pictures use a proprietary binary format.	Unlike native picture
   (meta-file) formats on many window systems, Qt pictures have no
   limitations regarding the contents.  Everything that can be painted can
   also be stored in a picture (fonts, pixmaps, regions, transformed
@@ -558,6 +558,48 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
     }
     pictb.at( newpos );				// set to new position
     return TRUE;
+}
+
+
+/*!
+  Internal implementation of the virtual QPaintDevice::metric() function.
+
+  Use the QPaintDeviceMetrics class instead.
+
+  A picture has the following hard coded values:
+  width=640, height=480. widthMM=236, heightMM=176, numcolors=16777216
+  and depth=24.
+*/
+
+long QPicture::metric( int m ) const
+{
+    long val;
+    switch ( m ) {
+	case PDM_WIDTH:
+	    val = 640;
+	    break;
+	case PDM_HEIGHT:
+	    val = 480;
+	    break;
+	case PDM_WIDTHMM:
+	    val = 236;
+	    break;
+	case PDM_HEIGHTMM:
+	    val = 176;
+	    break;
+	case PDM_NUMCOLORS:
+	    val = 16777216;
+	    break;
+	case PDM_DEPTH:
+	    val = 24;
+	    break;
+	default:
+	    val = 0;
+#if defined(CHECK_RANGE)
+	    warning( "QPicture::metric: Invalid metric command" );
+#endif
+    }
+    return val;
 }
 
 

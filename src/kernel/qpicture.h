@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#9 $
 **
 ** Definition of QPicture class
 **
@@ -30,6 +30,7 @@ public:
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
+    long	metric( int ) const;
 
 private:
     bool	exec( QPainter *, QDataStream &, long );
