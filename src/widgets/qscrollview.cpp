@@ -256,7 +256,7 @@ outside the normal coordinate range (but they are still limited in
 size).
 
 To provide content for the widget, inherit from QScrollView and
-reimplement drawContentsOffset(), and use resizeContents() to set the size
+reimplement drawContents(), and use resizeContents() to set the size
 of the viewed area.  Use addChild() / moveChild() to position widgets
 on the view.  For large numbers of such child widgets, consider using
 packChildWidgets() to improve performance.
@@ -1240,7 +1240,7 @@ void QScrollView::contentsWheelEvent( QWheelEvent * e )
 
 /*!
   This is a low-level painting routine that draws the viewport
-  contents.  Reimplement this if drawContentsOffset() is too high-level.
+  contents.  Reimplement this if drawContents() is too high-level.
   (for example, if you don't want to open a QPainter on the viewport).
 */
 void QScrollView::viewportPaintEvent( QPaintEvent* pe )
