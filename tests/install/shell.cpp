@@ -320,3 +320,27 @@ QString WinShell::OLESTR2QString( LPOLESTR str )
 
     return tmp;
 }
+
+/*!
+  Returns the free space for the directory.  The space is returned in bytes,
+  and should only be considered valid for this particular directory.
+*/
+ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
+{
+    ULARGE_INTEGER freeSpace;
+
+    freeSpace.QuadPart = 0;
+
+    if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceExA" ) ) {
+	ULARGE_INTEGER ulBytesAvailable, ulBytesTotal;
+	if( GetDiskFreeSpaceExA( dirPath.latin1(), &ulBytesAvailable, &ulBytesTotal, NULL ) )
+	    freeSpace = ulBytesAvailable;
+    }
+    else if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceA" ) ) {
+	DWORD dwSPC, dwBPS, dwClusters, dwTotalClusters;
+	if( GetDiskFreeSpaceA( dirPath.latin1(), &dwSPC, &dwBPS, &dwClusters, &dwTotalClusters ) )
+	    freeSpace.QuadPart = dwSPC * dwBPS * dwClusters;
+    }
+    return freeSpace;
+}
+

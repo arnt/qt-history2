@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>461</width>
-            <height>329</height>
+            <width>457</width>
+            <height>327</height>
         </rect>
     </property>
     <property name="caption">
@@ -210,7 +210,7 @@
                             <cstring>pathLabel</cstring>
                         </property>
                         <property name="text">
-                            <string>Destination path</string>
+                            <string>Destination path (appr. 250Mb free space required)</string>
                         </property>
                     </widget>
                     <widget class="QLayoutWidget">

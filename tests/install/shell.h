@@ -26,4 +26,5 @@ public:
     static QPixmap* getClosedFolderImage();
     static QPixmap* getFileImage();
     static QPixmap* getInfoImage();
+    static ULARGE_INTEGER dirFreeSpace( QString dirPath );
 };

@@ -411,10 +411,16 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	}
     }
     else if( newPage == optionsPage ) {
-	installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
+	if( !installPath->text().length() )
+	    installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
 	sysGroup->setButton( 0 );
     }
     else if( newPage == foldersPage ) {
+	ULARGE_INTEGER freeSpace = WinShell::dirFreeSpace( installPath->text() );
+	if( ( freeSpace.HighPart == 0 ) && ( freeSpace.LowPart < 250 * 1024 * 1024 ) ) {
+	    QMessageBox::warning( this, "Disk space", "There is not enough disk space available\non this drive." );
+	    showPage( optionsPage );
+	}
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
 	folderPath->setText( QString( "Qt " ) + DISTVER );
