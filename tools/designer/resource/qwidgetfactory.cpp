@@ -158,8 +158,23 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 	else if ( widgetFactory->toplevel->inherits( "QDesignerSqlDialog" ) )
 	    ( (QDesignerSqlDialog*)widgetFactory->toplevel )->
 		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
+	
+	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
+	    QSqlTable *table = (QSqlTable*)widgetFactory->toplevel->child( it.key(), "QSqlTable" );
+	    if ( !table )
+		continue;
+	    QString conn = (*it)[ 0 ];
+	    QSqlCursor* c = 0;
+	    if ( conn.isEmpty() || conn == "(default)" )
+		c = new QSqlCursor( (*it)[ 1 ] );
+	    else
+		c = new QSqlCursor( (*it)[ 1 ], conn );
+	    table->setCursor( c );
+	    table->setSorting( TRUE );  // show off features
+	    table->setAutoDelete( TRUE );
+	}
     }
-    
+
     delete widgetFactory;
 
     return w;
@@ -184,7 +199,7 @@ bool QWidgetFactory::openDatabaseConnections( const QString &dbFileName )
     conf.setGroup( "Connections" );
 
     QString name, driver, dbName, username, password, hostname;
-    
+
     QStringList conns = conf.readListEntry( "Connections", ',' );
     for ( QStringList::Iterator it = conns.begin(); it != conns.end(); ++it ) {
 	name = *it;
