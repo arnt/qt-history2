@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#78 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -625,7 +625,7 @@ void QSpinBox::setValidator( const QValidator* v )
 }
 
 
-/*!  
+/*!
   Returns the validator which constrains editing for this spin box if
   there is any, or else 0.
 
@@ -875,8 +875,9 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 
 // this function uses the pixmap cache for a Different Reason: the
 // pixmap cache also preserves QPixmap::serialNumber().  by doing
-// this, we can skip QButton::setPixmap() and avoid flicker most of
-// the time.
+// this, QButton::setPixmap() is able to avoid flicker e.g. when the
+// spin box is resized in such a way that the height of the buttons
+// does not change (common the default size policy).
 
 void QSpinBox::updateButtonSymbols()
 {
@@ -917,9 +918,7 @@ void QSpinBox::updateButtonSymbols()
 	QPixmapCache::insert( key + QString::fromLatin1( "$up" ), bm );
     }
 
-    if ( up->pixmap() == 0 ||
-	 up->pixmap()->serialNumber() != bm.serialNumber() )
-	up->setPixmap( bm );
+    up->setPixmap( bm );
 
     // do down.
     if ( !QPixmapCache::find( key + QString::fromLatin1( "$down" ), bm ) ) {
@@ -956,7 +955,5 @@ void QSpinBox::updateButtonSymbols()
 	QPixmapCache::insert( key + QString::fromLatin1( "$down" ), bm );
     }
 
-    if ( down->pixmap() == 0 ||
-	 down->pixmap()->serialNumber() != bm.serialNumber() )
-	down->setPixmap( bm );
+    down->setPixmap( bm );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#152 $
 **
 ** Implementation of QButton widget class
 **
@@ -350,6 +350,9 @@ void QButton::setText( const QString &text )
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
+    if ( bpixmap && bpixmap->serialNumber() == pixmap.serialNumber() )
+	return;
+
     bool newSize;
     if ( bpixmap ) {
 	newSize = pixmap.width() != bpixmap->width() ||
