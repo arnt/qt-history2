@@ -582,7 +582,7 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    interpretText();
     } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
-	
+
 	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
 	    qApp->sendEvent( this, ev );
 	    return TRUE;
@@ -640,9 +640,11 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 
 
 
-/*!
-  This method gets called by QRangeControl whenever the value has changed.
-  Updates the display and emits the valueChanged() signals.
+/*!  This virtual function is called by QRangeControl whenever the
+  value has changed.  The QSpinBox reimplementation updates the
+  display and emits the valueChanged() signals; if you need additional
+  processing, you may either reimplement this or connect to one of the
+  valueChanged() signals.
 */
 
 void QSpinBox::valueChange()
@@ -653,18 +655,14 @@ void QSpinBox::valueChange()
 }
 
 
-/*!
-  This method gets called by QRangeControl whenever the range has
-  changed.  It adjusts the default validator and updates the display.
+/*! This virtual function is called by QRangeControl whenever the
+  range has changed.  It adjusts the default validator and updates the
+  display; if you need additional processing, you may reimplement this
+  function.
 */
 
 void QSpinBox::rangeChange()
 {
-#if QT_VERSION >= 300
-#if defined(Q_CC_GNU)
-#warning "Use a virtual function - but what?"
-#endif
-#endif
     if ( validate->inherits( "QIntValidator" ) )
 	((QIntValidator*)validate)->setRange( minValue(), maxValue() );
     updateDisplay();
@@ -798,7 +796,7 @@ void QSpinBox::textChanged()
 
   If you reimplement this, you may also need to reimplement
   mapTextToValue().
-  
+
   \sa updateDisplay(), mapTextToValue()
 */
 
@@ -821,7 +819,7 @@ QString QSpinBox::mapValueToText( int v )
 
   Note that Qt handles specialValueText() specially; this function is
   only concerned with the other values.
-  
+
   The default implementation tries to interpret it as an integer in
   the standard way and returns the integer value.
 
