@@ -42,7 +42,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_COMPACT
+#if !defined(QT_NO_STYLE_COMPACT) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_COMPACT
@@ -57,7 +57,7 @@ public:
 
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 );
 
-    void drawControl( ControlElement element, QPainter *p, const QWidget *w, const QRect &r, 
+    void drawControl( ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
 		      const QColorGroup &cg, SFlags how = Style_Default, const QStyleOption& = QStyleOption::Default );
 
 private:	// Disabled copy constructor and operator=

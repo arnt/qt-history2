@@ -37,7 +37,7 @@
 
 #include "qcompactstyle.h"
 
-#ifndef QT_NO_STYLE_COMPACT
+#if !defined(QT_NO_STYLE_COMPACT) || defined(QT_PLUGIN)
 
 #include "qfontmetrics.h"
 #include "qpalette.h"

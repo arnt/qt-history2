@@ -43,7 +43,7 @@
 #include "qmotifstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_MOTIFPLUS
+#if !defined(QT_NO_STYLE_MOTIFPLUS) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_MOTIFPLUS

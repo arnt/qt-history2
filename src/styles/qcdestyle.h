@@ -43,7 +43,7 @@
 #include "qmotifstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_CDE
+#if !defined(QT_NO_STYLE_CDE) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_CDE

@@ -32,7 +32,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_WINDOWSXP
+#if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_WINDOWSXP

@@ -43,7 +43,7 @@
 #include "qmotifstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_INTERLACE
+#if !defined(QT_NO_STYLE_INTERLACE) || defined(QT_PLUGIN)
 
 #include "qpalette.h"
 

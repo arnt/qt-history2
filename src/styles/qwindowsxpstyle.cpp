@@ -27,7 +27,7 @@
 
 #include "qwindowsxpstyle.h"
 
-#ifndef QT_NO_STYLE_WINDOWSXP
+#if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
 #include "qmenubar.h"
 #include <qpainter.h>

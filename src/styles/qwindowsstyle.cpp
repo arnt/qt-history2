@@ -37,7 +37,7 @@
 
 #include "qwindowsstyle.h"
 
-#ifndef QT_NO_STYLE_WINDOWS
+#if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
 #include "qpopupmenu.h"
 #include "qapplication.h"

@@ -31,7 +31,7 @@
 
 #include "qcheckbox.h"
 
-#ifndef QT_NO_STYLE_AQUA
+#if !defined(QT_NO_STYLE_AQUA) || defined(QT_PLUGIN)
 #include "qaquastyle.h"
 #include "qapplication.h"
 #include "qpainter.h"

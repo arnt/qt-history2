@@ -37,7 +37,7 @@
 
 #include "qcdestyle.h"
 
-#ifndef QT_NO_STYLE_CDE
+#if !defined(QT_NO_STYLE_CDE) || defined(QT_PLUGIN)
 
 #include "qpainter.h"
 #include "qdrawutil.h"

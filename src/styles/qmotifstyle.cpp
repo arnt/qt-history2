@@ -37,7 +37,7 @@
 
 #include "qmotifstyle.h"
 
-#ifndef QT_NO_STYLE_MOTIF
+#if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
 #include "qpopupmenu.h"
 #include "qapplication.h"

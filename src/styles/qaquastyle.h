@@ -37,7 +37,7 @@
 #include "qpalette.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_AQUA
+#if !defined(QT_NO_STYLE_AQUA) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_AQUA

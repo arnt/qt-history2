@@ -42,7 +42,7 @@
 #include "qcommonstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_WINDOWS
+#if !defined(QT_NO_STYLE_WINDOWS) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_WINDOWS
@@ -100,7 +100,7 @@ public:
     QPixmap stylePixmap( StylePixmap stylepixmap,
 			 const QWidget *widget = 0,
 			 const QStyleOption& = QStyleOption::Default ) const;
-    
+
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
 

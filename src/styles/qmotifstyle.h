@@ -42,7 +42,7 @@
 #include "qcommonstyle.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_MOTIF
+#if !defined(QT_NO_STYLE_MOTIF) || defined(QT_PLUGIN)
 
 class QPalette;
 

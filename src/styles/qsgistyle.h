@@ -44,7 +44,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_STYLE_SGI
+#if !defined(QT_NO_STYLE_SGI) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_EXPORT_STYLE_SGI

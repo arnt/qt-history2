@@ -37,7 +37,7 @@
 
 #include "qsgistyle.h"
 
-#ifndef QT_NO_STYLE_SGI
+#if !defined(QT_NO_STYLE_SGI) || defined(QT_PLUGIN)
 
 #include "qpopupmenu.h"
 #include "qapplication.h"

@@ -39,7 +39,7 @@
 
 #include "qinterlacestyle.h"
 
-#ifndef QT_NO_STYLE_INTERLACE
+#if !defined(QT_NO_STYLE_INTERLACE) || defined(QT_PLUGIN)
 
 #include "qapplication.h"
 #include "qpainter.h"
@@ -239,7 +239,7 @@ QRect QInterlaceStyle::pushButtonContentsRect( QPushButton *btn )
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
-	
+
     return buttonRect( fw+5, fw, btn->width()-2*fw-10, btn->height()-2*fw );
 }
 
@@ -339,7 +339,7 @@ void QInterlaceStyle::drawPushButton( QPushButton* btn, QPainter *p)
     if ( btn->hasFocus() )
 	g.setBrush( QColorGroup::Dark, black );
     drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, &fill );
-	
+
     if ( btn->isMenuButton() ) {
 	int dx = (y1-y2-4)/3;
 	drawArrow( p, DownArrow, FALSE,

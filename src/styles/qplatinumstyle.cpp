@@ -37,7 +37,7 @@
 
 #include "qplatinumstyle.h"
 
-#ifndef QT_NO_STYLE_PLATINUM
+#if !defined(QT_NO_STYLE_PLATINUM) || defined(QT_PLUGIN)
 
 #include "qapplication.h"
 #include "qcombobox.h"
