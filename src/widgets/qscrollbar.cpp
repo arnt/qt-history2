@@ -433,7 +433,10 @@ void QScrollBar::wheelEvent( QWheelEvent *e ){
 	offset = 0;
     }
     e->accept();
-    offset += -e->delta()*QMAX(pageStep()/8,2*lineStep())/120;
+    int step = QMAX(pageStep()/8,2*lineStep() );
+    if ( e->state() & ControlButton )
+	step = pageStep();
+    offset += -e->delta()*step/120;
     if (QABS(offset)<1)
 	return;
     setValue( value() + int(offset) );
