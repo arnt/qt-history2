@@ -1939,7 +1939,7 @@ QPSPrinter::~QPSPrinter()
 }
 
 
-const static struct {
+static const struct {
     const char * input;
     const char * roman;
     const char * italic;
