@@ -66,16 +66,25 @@ QRegion::QRegion( bool is_null )
 
 QRegion::QRegion( const QRect &r, RegionType t )
 {
-    QRect rr = r.normalize();
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->is_null = FALSE;
-    if ( t == Rectangle ) {			// rectangular region
-	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
-				   rr.right()+1, rr.bottom()+1 );
-    } else if ( t == Ellipse ) {		// elliptic region
-	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
-				       rr.right()+1, rr.bottom()+1 );
+    if ( r.isEmpty() ) {
+	if ( !empty_region ) {			// avoid too many allocs
+	    qAddPostRoutine( cleanup_empty_region );
+	    empty_region = new QRegion( TRUE );
+	    Q_CHECK_PTR( empty_region );
+	}
+	data = empty_region->data;
+	data->ref();
+    } else {
+	data = new QRegionData;
+	Q_CHECK_PTR( data );
+	data->is_null = FALSE;
+	if ( t == Rectangle ) {			// rectangular region
+	    data->rgn = CreateRectRgn( r.left(),	 r.top(),
+				       r.right()+1, r.bottom()+1 );
+	} else if ( t == Ellipse ) {		// elliptic region
+	    data->rgn = CreateEllipticRgn( r.left(),    r.top(),
+					   r.right()+1, r.bottom()+1 );
+	}
     }
 }
 

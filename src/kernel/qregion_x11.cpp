@@ -69,7 +69,7 @@ QRegion::QRegion()
     data->ref();
 }
 
-/*!
+/*! \internal
   Internal constructor that creates a null region.
 */
 
@@ -82,28 +82,39 @@ QRegion::QRegion( bool is_null )
 }
 
 /*!
-\overload
+  \overload
+
+  If the rectangle is invalid a null region will be created.
  */
 
 QRegion::QRegion( const QRect &r, RegionType t )
 {
-    QRect rr = r.normalize();
-    data = new QRegionData;
-    Q_CHECK_PTR( data );
-    data->is_null = FALSE;
-    if ( t == Rectangle ) {			// rectangular region
-	data->rgn = XCreateRegion();
-	XRectangle xr;
-	xr.x = rr.x();
-	xr.y = rr.y();
-	xr.width  = rr.width();
-	xr.height = rr.height();
-	XUnionRectWithRegion( &xr, data->rgn, data->rgn );
-    } else if ( t == Ellipse ) {		// elliptic region
-	QPointArray a;
-	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );
-	data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
-				    EvenOddRule );
+    if ( r.isEmpty() ) {
+	if ( !empty_region ) {			// avoid too many allocs
+	    qAddPostRoutine( cleanup_empty_region );
+	    empty_region = new QRegion( TRUE );
+	    Q_CHECK_PTR( empty_region );
+	}
+	data = empty_region->data;
+	data->ref();
+    } else {
+	data = new QRegionData;
+	Q_CHECK_PTR( data );
+	data->is_null = FALSE;
+	if ( t == Rectangle ) {			// rectangular region
+	    data->rgn = XCreateRegion();
+	    XRectangle xr;
+	    xr.x = r.x();
+	    xr.y = r.y();
+	    xr.width  = r.width();
+	    xr.height = r.height();
+	    XUnionRectWithRegion( &xr, data->rgn, data->rgn );
+	} else if ( t == Ellipse ) {		// elliptic region
+	    QPointArray a;
+	    a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
+	    data->rgn = XPolygonRegion( (XPoint*)a.shortPoints(), a.size(),
+					EvenOddRule );
+	}
     }
 }
 
