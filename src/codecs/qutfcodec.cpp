@@ -70,6 +70,12 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     return rstr;
 }
 
+QString QUtf8Codec::toUnicode(const char* chars, int len) const
+{
+    return QString::fromUtf8( chars, len );
+}
+
+
 const char* QUtf8Codec::name() const
 {
     return "UTF-8";
