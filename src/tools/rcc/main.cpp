@@ -50,13 +50,14 @@ listResourceFile(const QString &file)
         fprintf(stderr, "Unable to open %s", file.latin1());
         return ret;
     }
+    QString filePath = QFileInfo(file).path() + '/';
     QDomDocument document;
     document.setContent(&in);
     QDomElement root = document.firstChild().toElement();
     if(root.tagName() != QLatin1String("RCC")) {
         RCCResource resource;
         RCCFileInfo resource_file;
-        resource_file.fileinfo = QFileInfo(file);
+        resource_file.fileinfo = QFileInfo(filePath + file);
         resource_file.name = resource_file.fileinfo.filePath();
         resource.files.append(resource_file);
         ret << resource;
@@ -71,7 +72,7 @@ listResourceFile(const QString &file)
             resource.prefix = child.attribute("prefix");
             for(QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                 if(res.toElement().tagName() == QLatin1String("file")) {
-                    QFileInfo file(res.firstChild().toText().data());
+                    QFileInfo file(filePath + res.firstChild().toText().data());
                     QString name;
                     if(res.toElement().hasAttribute("name")) 
                         name = res.toElement().attribute("name");
