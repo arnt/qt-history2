@@ -24,7 +24,7 @@ class Q_CORE_EXPORT QProcess : public QIODevice
     Q_OBJECT
 public:
     enum ProcessError {
-        FailedToStart,
+        FailedToStart, //### file not found
         Crashed,
         Timedout,
         ReadError,
@@ -96,11 +96,12 @@ private:
     Q_DECLARE_PRIVATE(QProcess)
     Q_DISABLE_COPY(QProcess)
 
-    Q_PRIVATE_SLOT(d, void readyReadStandardOutput(int));
-    Q_PRIVATE_SLOT(d, void readyReadStandardError(int));
-    Q_PRIVATE_SLOT(d, void readyWrite(int));
-    Q_PRIVATE_SLOT(d, void startupNotification(int));
+    Q_PRIVATE_SLOT(d, void readyReadStandardOutput());
+    Q_PRIVATE_SLOT(d, void readyReadStandardError());
+    Q_PRIVATE_SLOT(d, void readyWrite());
+    Q_PRIVATE_SLOT(d, void startupNotification());
     Q_PRIVATE_SLOT(d, void processDied());
+    Q_PRIVATE_SLOT(d, void notified());
     friend class QProcessManager;
 };
 

@@ -14,23 +14,44 @@
 #include "qprocess.h"
 #include "qprocess_p.h"
 
+#include <qdatetime.h>
+#include <qfileinfo.h>
+#include <qtimer.h>
+
+#define SLEEPMIN 10
+#define SLEEPMAX 500
+#define NOTIFYTIMEOUT 100
+
+ 
 void QProcessPrivate::createPipe(Q_PIPE pipe[2])
 {
     // Open the pipes.  Make non-inheritable copies of input write and output
     // read handles to avoid non-closable handles (this is done by the
     // DuplicateHandle() call).
 
-    HANDLE tmpPipe;
-    SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
-    if (!CreatePipe(&pipe[0], &tmpPipe, &secAtt, 0)) {
-	    return; //### false;
-	}
-	if (!DuplicateHandle(GetCurrentProcess(), tmpPipe, GetCurrentProcess(), &pipe[1], 0, FALSE, DUPLICATE_SAME_ACCESS)) {
-	    return; //### false;
-	}
-	if (!CloseHandle(tmpPipe)) {
-	    return;  //### false;
-	}
+      SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
+    
+    HANDLE tmpStdin, tmpStdout, tmpStderr;
+        if ( !CreatePipe( &writePipe[0], &tmpStdin, &secAtt, 0 ) ) {
+           
+        }
+        if ( !DuplicateHandle( GetCurrentProcess(), tmpStdin, GetCurrentProcess(), &writePipe[1], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+        }
+        if ( !CloseHandle( tmpStdin ) ) {
+        }
+    
+        if ( !CreatePipe( &tmpStdout, &standardReadPipe[1], &secAtt, 0 ) ) {
+        }
+        if ( !DuplicateHandle( GetCurrentProcess(), tmpStdout, GetCurrentProcess(), &standardReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+        }
+        if ( !CloseHandle( tmpStdout ) ) {
+        }
+        if ( !CreatePipe( &tmpStderr, &errorReadPipe[1], &secAtt, 0 ) ) {
+        }
+        if ( !DuplicateHandle( GetCurrentProcess(), tmpStderr, GetCurrentProcess(), &errorReadPipe[0], 0, FALSE, DUPLICATE_SAME_ACCESS ) ) {
+        }
+        if ( !CloseHandle( tmpStderr ) ) {
+        }
 }
 
 void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
@@ -48,16 +69,18 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
 
 void QProcessPrivate::startProcess()
 {
-    Q_Q(QProcess);
+     Q_Q(QProcess);
 
+ 
     createPipe(standardReadPipe);
-    createPipe(errorReadPipe);
-    createPipe(writePipe);
+  //  createPipe(errorReadPipe);
+  //  createPipe(writePipe);
 
     // construct the arguments for CreateProcess()
+    
     QString args;
-    QString appName = QString::null;
-
+    // add the prgram as the first arrg ... it works better
+    args = program + " ";
     for (int i=0; i<arguments.size(); ++i) {
         ///### handle .bat files
    	    QString tmp = arguments.at(i);
@@ -81,9 +104,13 @@ void QProcessPrivate::startProcess()
 
     bool success;
     
+    if (pid) {
+        delete pid;
+        pid = 0;
+    }
     pid = new PROCESS_INFORMATION;
     memset(pid, 0, sizeof(PROCESS_INFORMATION));
-
+    
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
@@ -97,9 +124,6 @@ void QProcessPrivate::startProcess()
 	        0, 0, 0,
 	        writePipe[0], standardReadPipe[1], errorReadPipe[1]
 	    };
-        //### why dump
-	    WCHAR *applicationName = _wcsdup((const WCHAR*)program.constData());
-	    WCHAR *commandLine = _wcsdup((const WCHAR*)args.ucs2());
         QByteArray envlist;
 	    if (environment.isEmpty()) {
 	        int pos = 0;
@@ -127,14 +151,17 @@ void QProcessPrivate::startProcess()
 	        envlist[pos++] = 0;
 	        envlist[pos++] = 0;
 	    }
-	    success = CreateProcessW(applicationName, commandLine,
-		0, 0, TRUE,  CREATE_UNICODE_ENVIRONMENT, 
-        environment.isEmpty() ? 0 : envlist.data(),
-		(WCHAR*)workingDirectory.ucs2(),
-		&startupInfo, (PROCESS_INFORMATION*)pid);
-	
-        free(applicationName);
-	    free(commandLine);
+
+        qDebug("Creating process");
+        qDebug("   program : [%s]", program.latin1());
+        qDebug("   args : %s", args.latin1());
+        qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
+        
+        success = CreateProcessW(0, (WCHAR*)args.utf16(),
+		                         0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW, 
+                                 environment.isEmpty() ? 0 : envlist.data(),
+                                 workingDirectory.isEmpty() ? 0 : (WCHAR*)workingDirectory.ucs2(),
+		                         &startupInfo, (PROCESS_INFORMATION*)pid);
     } else
 #endif // UNICODE
     {
@@ -171,16 +198,16 @@ void QProcessPrivate::startProcess()
 	        envlist[pos++] = 0;
 	        envlist[pos++] = 0;
 	    }
-	    success = CreateProcessA(program.toLocal8Bit().constData(), args.toLocal8Bit().data(),
+        qDebug("Creating process");
+        qDebug("   program : %s", program.latin1());
+        qDebug("   args : %s", args.latin1());
+
+	    success = CreateProcessA(program.toLocal8Bit().data(), args.toLocal8Bit().data(),
 		0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
 		workingDirectory.local8Bit(), &startupInfo, (PROCESS_INFORMATION*)pid);
 #endif // Q_OS_TEMP
     }
-    if (!success) {
-	    delete pid;
-        pid = 0;
-        //### emit error
-    }
+    
 #ifndef Q_OS_TEMP
     CloseHandle(writePipe[0]);
     standardReadPipe[1] = INVALID_Q_PIPE;
@@ -189,83 +216,207 @@ void QProcessPrivate::startProcess()
     CloseHandle(errorReadPipe[1]);
     errorReadPipe[1] = INVALID_Q_PIPE;
 #endif
+    
+    qDebug("call startupNotification()");
+
     processState = QProcess::Running;
-    emit q->stateChanged(processState);
-    emit q->started();
+    startupNotification();
+
+    // now that we have started, start the timer;
+    if (notifier) {
+        delete notifier;
+        notifier = 0;
+    }
+    notifier = new QTimer(q);
+    QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(notified()));
+    notifier->start(NOTIFYTIMEOUT);
+    
+    qDebug("started");
 }
 
 void QProcessPrivate::execChild()
 {
-    qWarning("QProcessPrivate::execChild() unimplemented for win32 (use Q3Process instead)");
 }
 
 bool QProcessPrivate::processStarted()
 {
-    qWarning("QProcessPrivate::processStarted() unimplemented for win32 (use Q3Process instead)");
-    return false;
+    return processState == QProcess::Running;
 }
 
 Q_LONGLONG QProcessPrivate::bytesAvailableFromStdout() const
 {
-    qWarning("QProcessPrivate::bytesAvailableFromStdout() unimplemented for win32 (use Q3Process instead)");
-    return -1;
+    DWORD bytesAvail = 0;
+    DWORD r;
+    char dummy;    
+    PeekNamedPipe(standardReadPipe[0], &dummy, 1, &r, &bytesAvail, 0);
+    qDebug("bytesAvailableFromStdout() = %d", bytesAvail); 
+    return bytesAvail;
 }
 
 Q_LONGLONG QProcessPrivate::bytesAvailableFromStderr() const
 {
-    qWarning("QProcessPrivate::bytesAvailableFromStderr() unimplemented for win32 (use Q3Process instead)");
-    return -1;
+    DWORD bytesAvail = 0; 
+    PeekNamedPipe(errorReadPipe[0], 0, 0, 0, &bytesAvail, 0);
+    qDebug("bytesAvailableFromStderr() = %d", bytesAvail);
+    return bytesAvail;
 }
 
 Q_LONGLONG QProcessPrivate::readFromStdout(char *data, Q_LONGLONG maxlen)
 {
-    qWarning("QProcessPrivate::readFromStdout() unimplemented for win32 (use Q3Process instead)");
-    Q_UNUSED(data);
-    Q_UNUSED(maxlen);
-    return -1;
+    DWORD read = qMin(maxlen, bytesAvailableFromStdout());
+    DWORD bytesRead = 0;
+
+    if (read > 0 && !ReadFile(standardReadPipe[0], data, read, &bytesRead, 0))
+        bytesRead = -1;
+    qDebug("readFromStdout() = %d", bytesRead);
+    return bytesRead;
 }
 
 Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
 {
-    qWarning("QProcessPrivate::readFromStderr() unimplemented for win32 (use Q3Process instead)");
-    Q_UNUSED(data);
-    Q_UNUSED(maxlen);
-    return -1;
+    DWORD read = qMin(maxlen, bytesAvailableFromStderr());
+    DWORD bytesRead = 0;
+
+    if (read > 0 && !ReadFile(errorReadPipe[0], data, read, &bytesRead, 0))
+        bytesRead = -1;
+
+    qDebug("readFromStdout() = %d", bytesRead);
+    return bytesRead;
 }
 
 void QProcessPrivate::killProcess()
 {
-    qWarning("QProcessPrivate::killProcess() unimplemented for win32 (use Q3Process instead)");
+    if (pid)
+	    TerminateProcess(((PROCESS_INFORMATION*)pid)->hProcess, 0xf291);
 }
 
-bool QProcessPrivate::waitForStarted(int msecs)
+bool QProcessPrivate::waitForStarted(int)
 {
-    qWarning("QProcessPrivate::waitForStarted() unimplemented for win32 (use Q3Process instead)");
-    Q_UNUSED(msecs);
-    return false;
+    Q_Q(QProcess);
+
+    if (processStarted())
+        return true;
+
+    processError = QProcess::Timedout;
+    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+    return false; 
 }
 
 bool QProcessPrivate::waitForReadyRead(int msecs)
 {
-    qWarning("QProcessPrivate::waitForReadyRead() unimplemented for win32 (use Q3Process instead)");
-    Q_UNUSED(msecs);
+    Q_Q(QProcess);
+
+    HANDLE pipe = (processChannel == QProcess::StandardOutput)
+             ? standardReadPipe[0] : errorReadPipe[0];
+
+
+    QTime start;
+    start.start();
+
+    int nextSleep = SLEEPMIN; 
+    for (;;) {
+        DWORD bytesAvail = 0; 
+        if (PeekNamedPipe(pipe, 0, 0, 0, &bytesAvail, 0) == 0 || bytesAvail != 0)
+            return true;
+        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
+        if (nextSleep >= 0)
+            break;
+        Sleep(nextSleep);
+        nextSleep *= 2;
+    }
+
+    processError = QProcess::Timedout;
+    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
     return false;
 }
 
+
+bool isProcessStopped(QProcessPrivate * that, int msecs)
+{
+    qDebug("isProcessStopped");
+
+    if (!that->pid)
+        return true;
+
+    if (WaitForSingleObject(((PROCESS_INFORMATION*)that->pid)->hProcess, msecs) == WAIT_TIMEOUT) {
+        return false;
+    }
+
+    DWORD theExitCode;
+    if (GetExitCodeProcess(((PROCESS_INFORMATION*)that->pid)->hProcess, &theExitCode)) {
+        if (theExitCode != STILL_ACTIVE) { // this should ever be true?
+            that->exitCode = theExitCode;
+            that->crashed = that->exitCode != 0xf291;
+        }
+    }
+    return true;
+}
+
+
 bool QProcessPrivate::waitForFinished(int msecs)
 {
-    qWarning("QProcessPrivate::waitForFinished() unimplemented for win32 (use Q3Process instead)");
-    Q_UNUSED(msecs);
-    return false;
+    Q_Q(QProcess);
+
+    qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
+    if (!isProcessStopped(this, msecs)) {
+        qDebug("timeout");
+        processError = QProcess::Timedout;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
+        return false;
+    }
+    qDebug("finished");
+    processDied();
+    return true;
 }
 
 Q_LONGLONG QProcessPrivate::writeToStdin(const char *data, Q_LONGLONG maxlen)
 {
-    return 0;
+    Q_LONGLONG totalWritten = 0;
+    
+    while (totalWritten < maxlen) {
+        DWORD written = 0;
+        DWORD write = qMin(8192, maxlen - totalWritten);
+        data += totalWritten;
+        if (!WriteFile(writePipe[1], data, write, &written, 0)) {
+            totalWritten = -1;
+            break;
+        }
+		totalWritten += written;
+    }
+    qDebug("writeToStdin() = %d", totalWritten); 
+    return totalWritten;
 }
 
-bool QProcessPrivate::waitForWrite(int msecs)
+bool QProcessPrivate::waitForWrite(int)
 {
+    Q_Q(QProcess);
+
+    if (processStarted())
+        return true;
+
+    processError = QProcess::Timedout;
+    q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
     return false;
 }
 
+void QProcessPrivate::notified()
+{
+    notifier->stop();
+
+    if (pid && isProcessStopped(this, 0)) {
+        qDebug("processs is stopped");
+        processDied();
+        return;
+    }
+    
+    if (!writeBuffer.isEmpty())
+        readyWrite();
+
+    if (bytesAvailableFromStdout())
+        readyReadStandardOutput();
+    
+    if (bytesAvailableFromStderr())
+        readyReadStandardError();
+    
+    notifier->start(NOTIFYTIMEOUT);
+}

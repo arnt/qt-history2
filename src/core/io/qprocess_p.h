@@ -30,6 +30,7 @@ typedef int Q_PIPE;
 
 
 class QSocketNotifier;
+class QTimer;
 
 class QProcessPrivate : public QIODevicePrivate
 {
@@ -40,11 +41,12 @@ public:
     virtual ~QProcessPrivate();
 
     // private slots
-    void readyReadStandardOutput(int);
-    void readyReadStandardError(int);
-    void readyWrite(int);
-    void startupNotification(int);
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+    void readyWrite();
+    void startupNotification();
     void processDied();
+    void notified();
 
     QProcess::ProcessChannel processChannel;
     QProcess::ProcessError processError;
@@ -71,6 +73,9 @@ public:
     QSocketNotifier *errorReadSocketNotifier;
     QSocketNotifier *writeSocketNotifier;
     QSocketNotifier *startupSocketNotifier;
+
+    // the wonderfull windows notifier
+    QTimer * notifier;
 
     void startProcess();
     void execChild();

@@ -20,6 +20,7 @@
 #include <qdatetime.h>
 #include <qcoreapplication.h>
 #include <qsocketnotifier.h>
+#include <qtimer.h>
 
 /*! \class QProcess
 
@@ -43,6 +44,7 @@ QProcessPrivate::QProcessPrivate()
     errorReadSocketNotifier = 0;
     writeSocketNotifier = 0;
     startupSocketNotifier = 0;
+    notifier = 0;
     standardReadPipe[0] = INVALID_Q_PIPE;
     standardReadPipe[1] = INVALID_Q_PIPE;
     errorReadPipe[0] = INVALID_Q_PIPE;
@@ -67,8 +69,14 @@ void QProcessPrivate::cleanup()
     processChannel = QProcess::StandardOutput;
     processError = QProcess::UnknownError;
     processState = QProcess::NotRunning;
+#ifdef Q_OS_WIN
+    if (pid) {
+        delete pid;
+    }
+#endif
     pid = 0;
     exitCode = 0;
+    crashed = false;
     if (standardReadSocketNotifier) {
         standardReadSocketNotifier->setEnabled(false);
         delete standardReadSocketNotifier;
@@ -89,15 +97,17 @@ void QProcessPrivate::cleanup()
         delete startupSocketNotifier;
         startupSocketNotifier = 0;
     }
+    if (notifier) {
+        delete notifier;
+        notifier = 0;
+    }
     destroyPipe(standardReadPipe);
     destroyPipe(errorReadPipe);
     destroyPipe(writePipe);
     destroyPipe(childStartedPipe);
-    exitCode = 0;
-    crashed = false;
 }
 
-void QProcessPrivate::readyReadStandardOutput(int)
+void QProcessPrivate::readyReadStandardOutput()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStdout();
@@ -119,14 +129,16 @@ void QProcessPrivate::readyReadStandardOutput(int)
     }
     outputReadBuffer.truncate(available - readBytes);
 
-    if (readBytes == 0)
-        standardReadSocketNotifier->setEnabled(false);
-    else if (processChannel == QProcess::StandardOutput)
+    if (readBytes == 0) {
+        if (standardReadSocketNotifier)
+            standardReadSocketNotifier->setEnabled(false);
+    } else if (processChannel == QProcess::StandardOutput) {
         emit q->readyRead();
+    }
     emit q->readyReadStandardOutput();
 }
 
-void QProcessPrivate::readyReadStandardError(int)
+void QProcessPrivate::readyReadStandardError()
 {
     Q_Q(QProcess);
     Q_LONGLONG available = bytesAvailableFromStderr();
@@ -148,17 +160,20 @@ void QProcessPrivate::readyReadStandardError(int)
     }
     errorReadBuffer.truncate(available - readBytes);
 
-    if (readBytes == 0)
-        errorReadSocketNotifier->setEnabled(false);
-    else if (processChannel == QProcess::StandardError)
+    if (readBytes == 0) {
+        if (errorReadSocketNotifier)
+            errorReadSocketNotifier->setEnabled(false);
+    } else if (processChannel == QProcess::StandardError) {
         emit q->readyRead();
+    }
     emit q->readyReadStandardError();
 }
 
-void QProcessPrivate::readyWrite(int)
+void QProcessPrivate::readyWrite()
 {
     Q_Q(QProcess);
-    writeSocketNotifier->setEnabled(false);
+    if (writeSocketNotifier)
+        writeSocketNotifier->setEnabled(false);
 
     if (writeBuffer.isEmpty())
         return;
@@ -173,7 +188,8 @@ void QProcessPrivate::readyWrite(int)
     }
 
     writeBuffer.free(written);
-    writeSocketNotifier->setEnabled(true);
+    if (writeSocketNotifier)
+        writeSocketNotifier->setEnabled(true);
 }
 
 void QProcessPrivate::processDied()
@@ -183,8 +199,8 @@ void QProcessPrivate::processDied()
     // in case there is data in the pipe line and this slot by chance
     // got called before the read notifications, call these two slots
     // so the data is made available before the process dies.
-    readyReadStandardOutput(0);
-    readyReadStandardError(0);
+    readyReadStandardOutput();
+    readyReadStandardError();
 
     processState = QProcess::Finishing;
     emit q->stateChanged(processState);
@@ -203,10 +219,11 @@ void QProcessPrivate::processDied()
     emit q->finished(code);
 }
 
-void QProcessPrivate::startupNotification(int)
+void QProcessPrivate::startupNotification()
 {
     Q_Q(QProcess);
-    startupSocketNotifier->setEnabled(false);
+    if (startupSocketNotifier)
+        startupSocketNotifier->setEnabled(false);
     if (processStarted()) {
         processState = QProcess::Running;
         emit q->started();
@@ -280,7 +297,7 @@ bool QProcess::flush()
         if (!d->waitForWrite()) {
             return false;
         }
-        d->readyWrite(0);
+        d->readyWrite();
     }
     return true;
 }
@@ -356,11 +373,11 @@ bool QProcess::waitForReadyRead(int msecs)
     bool emitReadyRead = false;
     if (d->processChannel == QProcess::StandardOutput) {
         int size = d->outputReadBuffer.size();
-        d->readyReadStandardOutput(0);
+        d->readyReadStandardOutput();
         emitReadyRead = (size < d->outputReadBuffer.size());
     } else {
         int size = d->errorReadBuffer.size();
-        d->readyReadStandardError(0);
+        d->readyReadStandardError();
         emitReadyRead = (size < d->errorReadBuffer.size());
     }
     if (emitReadyRead) {
@@ -425,13 +442,15 @@ Q_LONGLONG QProcess::writeData(const char *data, Q_LONGLONG len)
     Q_D(QProcess);
     if (len == 1) {
         d->writeBuffer.putChar(*data);
-        d->writeSocketNotifier->setEnabled(true);
+        if (d->writeSocketNotifier)
+            d->writeSocketNotifier->setEnabled(true);
         return 1;
     }
 
     char *dest = d->writeBuffer.reserve(len);
     memcpy(dest, data, len);
-    d->writeSocketNotifier->setEnabled(true);
+    if (d->writeSocketNotifier)
+        d->writeSocketNotifier->setEnabled(true);
     return len;
 }
 
