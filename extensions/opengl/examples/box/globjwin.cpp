@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#4 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.cpp#5 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -49,6 +49,13 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     // Create an openGL widget
     GLBox* c = new GLBox( f, "glbox");
+    if ( !c->isValid() ) {
+	// Try without double-buffering
+	QGLFormat fmt( FALSE );
+	c->setFormat( fmt );
+	if ( !c->isValid() )
+	    fatal("Failed to create OpenGL rendering context on this display");
+    }
     c->setMinimumSize( 50, 50 );
     flayout->addWidget( c, 1 );
     flayout->activate();

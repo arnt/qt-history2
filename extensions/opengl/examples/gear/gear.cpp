@@ -261,6 +261,13 @@ int main( int argc, char **argv )
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
     GearWidget w;
+    if ( !w.isValid() ) {
+	// Try without double-buffering
+	QGLFormat fmt( FALSE );
+	w.setFormat( fmt );
+	if ( !w.isValid() )
+	    fatal("Failed to create OpenGL rendering context on this display");
+    }
     a.setMainWidget( &w );
     w.show();
     return a.exec();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#26 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#27 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -957,47 +957,94 @@ void QGLContext::swapBuffers()
 
   \extension OpenGL
 
-  It is easy to render OpenGL graphics in Qt applications. You can
-  create a subclass of QGLWidget and reimplement two functions:
-  resizeGL() and paintGL(). The resizeGL() method is called whenever
-  the widget has been resized (and also when it shown for the first
-  time, since all newly created widgets get a resize event
-  automatically). paintGL() is called when the widget needs to be
-  updated.
+  QGLWidget provides functionality for displaying OpenGL graphics
+  integrated in a Qt application. It is very simple to use: you
+  inherit from it and use the subclass like any other QWidget, only
+  that instead of drawing the widget's contents using QPainter & al.,
+  you use the standard OpenGL rendering commands.
+
+  QGLWidget provides three convenient virtual functions that you can
+  reimplement in your subclass to perform the typical OpenGL tasks:
+
+  <ul>
+  <li> paintGL() - Render the OpenGL scene. Gets called whenever the widget
+  needs to be updated.
+  <li> resizeGL() - Set up OpenGL viewport, projection etc. Gets called
+  whenever the the widget has been resized (and also when it shown
+  for the first time, since all newly created widgets get a resize
+  event automatically).
+  <li> initializeGL() - Set up the OpenGL rendering context, define display
+  lists etc. Gets called once before the first time resizeGL() or
+  paintGL() is called.
+  </ul>
+
+  Here is a rough outline of how your QGLWidget subclass may look:
 
   \code
     class MyGLDrawer : public QGLWidget
     {
-        Q_OBJECT	// include this if you use Qt signals/slots
+        Q_OBJECT	// must include this if you use Qt signals/slots
 
     public:
         MyGLDrawer( QWidget *parent, const char *name )
 	    : QGLWidget(parent,name) {}
 
     protected:
-        void paintGL()
+
+        void initializeGL()
 	{
-	  // draw the scene
+	  // Set up the rendering context, define display lists etc.:
+	  ...
+	  glClearColor( 0.0, 0.0, 0.0, 0.0 );
+	  glEnable(GL_DEPTH_TEST);
+	  ...
 	}
 
 	void resizeGL( int w, int h )
 	{
-	  // setup viewport, projection etc.
+	  // setup viewport, projection etc.:
+	  glViewport( 0, 0, (GLint)w, (GLint)h );
+	  ...
+	  glFrustum( ... );
+	  ...
 	}
+
+        void paintGL()
+	{
+	  // draw the scene:
+	  ...
+	  glRotatef( ... );
+	  glMaterialfv( ... );
+	  glBegin( GL_QUADS );
+	  glVertex3f( ... );
+	  glVertex3f( ... );
+	  ...
+	  glEnd();
+	  ...
+	}
+
     };
   \endcode
 
-  If you need to repaint from other places than paintGL() (a typical
-  example is when using \link QTimer timers\endlink to animate scenes),
-  you can call the updateGL() function.
+  If you need to trigger a repaint from other places than paintGL() (a
+  typical example is when using \link QTimer timers\endlink to animate
+  scenes), you should call the widget's updateGL() function.
 
-  When paintGL() or resizeGL() is called, your widget has been made
-  current.  If you need to call the standard OpenGL API functions from
-  other places (e.g. in your widget's constructor), you must call
-  makeCurrent() first.
+  When paintGL(), resizeGL() or initializeGL() is called, your
+  widget's OpenGL rendering context has been made current.  If you
+  need to call the standard OpenGL API functions from other places
+  (e.g. in your widget's constructor), you must call makeCurrent()
+  first.
 
-  Like QGLContext, QGLWidget has advanced functions for requesting a
-  new display format, and you can even set a new rendering context.
+  QGLWidget provides advanced functions for requesting a new display
+  \link QGLFormat format\endlink, and you can even set a new rendering
+  \link QGLContext context\endlink.
+
+  You can achieve sharing of OpenGL display lists between QGLWidgets,
+  see the documentation of the QGLWidget constructors for details.
+  <em>Portability note:</em> Some window systems require that the
+  sharing widgets/contexts have the same \link QGLFormat
+  format\endlink.
 */
 
 
@@ -1119,6 +1166,10 @@ QGLWidget::~QGLWidget()
 /*!
   Sets a new format for this widget. The widget becomes invalid if the
   requested format cannot be satisfied.
+
+  The widget will be assigned a new QGLContext, and the initializeGL()
+  function will be executed for this new context before the first
+  resizeGL() or paintGL().
 
   Calling setFormat() will not alter any display list sharing this
   widget currently has.
@@ -1246,6 +1297,9 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
   \e new.  QGLWidget will delete the context when another context is set
   or when the widget is destroyed.
 
+  The initializeGL() function will be executed for the new context
+  before the first resizeGL() or paintGL().
+
   Calling setContext() will not alter any display list sharing this
   widget currently has, unless you explicitly request sharing with a
   different context by giving a \a shareContext parameter that points
@@ -1360,10 +1414,10 @@ void QGLWidget::setContext( QGLContext *context,
 /*!
   This virtual function is called one time before the first call to
   paintGL() or resizeGL(), and then one time whenever the widget has
-  been assigned a new OpenGL context.  Reimplement it in a subclass.
+  been assigned a new QGLContext.  Reimplement it in a subclass.
 
-  This function should take care of setting OpenGL rendering flags,
-  defining display lists, etc.
+  This function should take care of setting any required OpenGL
+  context rendering flags, defining display lists, etc.
 
   There is no need to call makeCurrent() because this has already been
   done when this function is called.

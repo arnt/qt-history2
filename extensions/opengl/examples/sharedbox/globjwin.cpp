@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/sharedbox/globjwin.cpp#3 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -51,6 +51,8 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     // Create an openGL widget
     c1 = new GLBox( f, "glbox1");
+    if ( !c1->isValid() )
+	fatal("Failed to create OpenGL rendering context on this display");
     c1->setMinimumSize( 50, 50 );
     flayout->addWidget( c1, 1 );
     flayout->activate();
@@ -67,6 +69,8 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 
     // Create another openGL widget which shares display lists with the first
     c2 = new GLBox( f2, "glbox2", c1 );
+    if ( !c2->isValid() )
+	fatal("Failed to create OpenGL rendering context on this display");
     c2->setMinimumSize( 50, 50 );
     flayout2->addWidget( c2, 1 );
     flayout2->activate();
