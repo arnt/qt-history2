@@ -2269,7 +2269,7 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     if(!quote.isNull()) //put the quotes back
         ret = quote + ret + quote;
     debug_msg(3, "Fixed %s :: to :: %s [%s::%s] [%s::%s]", orig_file.toLatin1().constData(), 
-              ret.toLatin1().constData(), in_d.toLatin1(), out_d.toLatin1().constData(), 
+              ret.toLatin1().constData(), in_d.toLatin1().constData(), out_d.toLatin1().constData(), 
               pwd.toLatin1().constData(), Option::output_dir.toLatin1().constData());
     cache->insert(cacheKey, ret);
     return ret;
