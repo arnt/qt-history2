@@ -503,7 +503,10 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QVector<T> &vector)
+    : d(&QListData::shared_null)
 {
+    ++d->ref;
+    detach_helper();
     p.realloc(vector.size());
     for (int i = 0; i < vector.size(); ++i)
 	append(vector.at(i));
