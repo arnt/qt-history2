@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#25 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#26 $ 
 **
 ** Global type declarations and definitions
 **
@@ -164,7 +164,7 @@ const bool TRUE = !0;
 #define QMIN(a,b)	((a) < (b) ? (a) : (b))
 #define QABS(a)		((a) >= 0  ? (a) : -(a))
 
-inline int QROUND( double d )
+inline int qRound( double d )
 {
     return d > 0.0 ? int(d+0.5) : int(d-0.5);
 }
