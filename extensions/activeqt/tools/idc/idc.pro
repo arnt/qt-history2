@@ -15,9 +15,11 @@ SOURCES         = main.cpp \
                     $$QT_SOURCE_TREE/src/core/io/qfile_win.cpp \
                     $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp    \
                     $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
+                    $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
 		    $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
 		    $$QT_SOURCE_TREE/src/core/tools/qlist.cpp \
 		    $$QT_SOURCE_TREE/src/core/tools/qlocale.cpp \
                     $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
 		    $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
+		    $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
 		    $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
