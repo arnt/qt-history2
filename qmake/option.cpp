@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <qlibraryinfo.h>
+#include <qhash.h>
 
 //convenience
 QString Option::prf_ext;
@@ -542,63 +543,80 @@ bool Option::postProcessProject(QMakeProject *project)
     return true;
 }
 
-void fixEnvVariables(QString &x)
+struct FixStringCacheKey
 {
-    int rep;
-    QRegExp reg_var("\\$\\(.*\\)");
-    reg_var.setMinimal(true);
-    while((rep = reg_var.indexIn(x)) != -1)
-        x.replace(rep, reg_var.matchedLength(), QString(qgetenv(x.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData())));
-}
-static QString fixPath(QString x)
-{
-#if 0
-    QFileInfo fi(x);
-    if(fi.isDir()) {
-        QDir dir(x);
-        x = dir.canonicalPath();
-    } else {
-        QString dir = fi.dir().canonicalPath();
-        if(!dir.isEmpty() && dir.right(1) != Option::dir_sep)
-            dir += Option::dir_sep;
-        x = dir + fi.fileName();
+    mutable uint hash;
+    QString string, pwd;
+    uchar flags;
+    FixStringCacheKey(const QString &s, uchar f)
+    {
+        hash = 0;
+        pwd = qmake_getpwd();
+        string = s;
+        flags = f;
     }
+    bool operator==(const FixStringCacheKey &f) const
+    {
+        return (f.string == string &&
+                f.flags == flags &&
+                f.pwd == pwd);
+    }
+    uint hashCode() const {
+        if(!hash)
+            hash = qHash(string) | qHash(flags) | qHash(pwd);
+        return hash;
+    }
+};
+uint qHash(const FixStringCacheKey &f) { return f.hashCode(); }
+
+QString
+Option::fixString(QString string, uchar flags)
+{
+    static QHash<FixStringCacheKey, QString> *cache = 0;
+    if(!cache)
+        cache = new QHash<FixStringCacheKey, QString>;
+    FixStringCacheKey cacheKey(string, flags);
+    if(cache->contains(cacheKey))
+        return cache->value(cacheKey);
+
+    //fix the environment variables
+    if(flags & Option::FixEnvVars) {
+        int rep;
+        QRegExp reg_var("\\$\\(.*\\)");
+        reg_var.setMinimal(true);
+        while((rep = reg_var.indexIn(string)) != -1)
+            string.replace(rep, reg_var.matchedLength(),
+                           QString(qgetenv(string.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData())));
+    }
+
+    //canonicalize it (and treat as a path)
+    if(flags & Option::FixPathCanonicalize) {
+#if 0
+        string = QFileInfo(string).canonicalFilePath();
 #endif
-    return QDir::cleanPath(x);
-}
+        string = QDir::cleanPath(string);
+    }
 
-
-QString
-Option::fixPathToTargetOS(const QString& in, bool fix_env, bool canonical)
-{
-    QString tmp(in);
-    if(fix_env)
-        fixEnvVariables(tmp);
-    if(canonical)
-        tmp = fixPath(tmp);
-    QString rep;
-    if(Option::target_mode == TARG_MAC9_MODE)
-        tmp = tmp.replace('/', Option::dir_sep).replace('\\', Option::dir_sep);
-    else if(Option::target_mode == TARG_WIN_MODE)
-        tmp = tmp.replace('/', Option::dir_sep);
-    else
-        tmp = tmp.replace('\\', Option::dir_sep);
-    return tmp;
-}
-
-QString
-Option::fixPathToLocalOS(const QString& in, bool fix_env, bool canonical)
-{
-    QString tmp(in);
-    if(fix_env)
-        fixEnvVariables(tmp);
-    if(canonical)
-        tmp = fixPath(tmp);
+    //fix separators
+    Q_ASSERT(!((flags & Option::FixPathToLocalSeparators) && (flags & Option::FixPathToTargetSeparators)));
+    if(flags & Option::FixPathToLocalSeparators) {
 #if defined(Q_OS_WIN32)
-    return tmp.replace('/', '\\');
+        string = string.replace('/', '\\');
 #else
-    return tmp.replace('\\', '/');
+        string = string.replace('\\', '/');
 #endif
+    } else if(flags & Option::FixPathToTargetSeparators) {
+        if(Option::target_mode == TARG_MAC9_MODE)
+            string = string.replace('/', Option::dir_sep).replace('\\', Option::dir_sep);
+        else if(Option::target_mode == TARG_WIN_MODE)
+            string = string.replace('/', Option::dir_sep);
+        else
+            string = string.replace('\\', Option::dir_sep);
+    }
+
+    //cache
+    cache->insert(cacheKey, string);
+    return string;
 }
 
 const char *qmake_version()

@@ -27,7 +27,6 @@ const char *qmake_version();
 QString qmake_getpwd();
 bool qmake_setpwd(const QString &p);
 
-void fixEnvVariables(QString &x);
 #define debug_msg if(Option::debug_level) debug_msg_internal
 void debug_msg_internal(int level, const char *fmt, ...); //don't call directly, use debug_msg
 enum QMakeWarn {
@@ -66,9 +65,34 @@ struct Option
     static bool init(int argc=0, char **argv=0); //parse cmdline
     static bool postProcessProject(QMakeProject *);
 
+    enum StringFixFlags {
+        FixNone                 = 0x00,
+        FixEnvVars              = 0x01,
+        FixPathCanonicalize     = 0x02,
+        FixPathToLocalSeparators  = 0x04,
+        FixPathToTargetSeparators = 0x08
+    };
+    static QString fixString(QString string, uchar flags);
+
     //and convenience functions
-    static QString fixPathToLocalOS(const QString& in, bool fix_env=true, bool canonical=true);
-    static QString fixPathToTargetOS(const QString& in, bool fix_env=true, bool canonical=true);
+    inline static QString fixPathToLocalOS(const QString &in, bool fix_env=true, bool canonical=true)
+    {
+        uchar flags = FixPathToLocalSeparators;
+        if(fix_env)
+            flags |= FixEnvVars;
+        if(canonical)
+            flags |= FixPathCanonicalize;
+        return fixString(in, flags);
+    }
+    inline static QString fixPathToTargetOS(const QString &in, bool fix_env=true, bool canonical=true)
+    {
+        uchar flags = FixPathToTargetSeparators;
+        if(fix_env)
+            flags |= FixEnvVars;
+        if(canonical)
+            flags |= FixPathCanonicalize;
+        return fixString(in, flags);
+    }
 
     //global qmake mode, can only be in one mode per invocation!
     enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE,
@@ -117,5 +141,6 @@ private:
     static int parseCommandLine(int, char **, int=0);
 };
 
+inline void fixEnvVariables(QString &x) { x = Option::fixString(x, Option::FixEnvVars); }
 
 #endif /* __OPTION_H__ */
