@@ -1629,7 +1629,8 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
     {
         QStringList subdirs = project->variables()["SUBDIRS"];
         for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
-            QString file = subdirs[subdir];
+            // Required since dir_sep is '\\'.
+            QString file = QDir::convertSeparators(subdirs[subdir]);
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)";
@@ -1659,9 +1660,6 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             st->target = "sub-" + file;
             st->target.replace('/', '-');
             st->target.replace('.', '_');
-
-            // Required since nmake doesn't accept cd into a / separated directory structure.
-            st->directory = QDir::convertSeparators(st->directory);
         }
     }
     if(project->isActiveConfig("build_all"))
