@@ -1972,7 +1972,8 @@ void QHttp::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (d->socket->peerName() != d->hostname || d->socket->socketState() != Qt::ConnectedState) {
+    if (d->socket->peerName() != d->hostname || d->socket->peerPort() != d->port 
+        || d->socket->socketState() != Qt::ConnectedState) {
         setState(QHttp::Connecting);
         if (d->proxyHost.isEmpty())
             d->socket->connectToHost(d->hostname, d->port);
