@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#31 $
 **
 ** Implementation of validator classes.
 **
@@ -327,8 +327,23 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	return QValidator::Valid;
     bool ok = TRUE;
     double tmp = input.toDouble( &ok );
-    if ( !ok )
-	return QValidator::Invalid;
+    if ( !ok ) {
+	QRegExp expexpexp( QString::fromLatin1("e-?\\d*$"), FALSE );
+	int eeePos = expexpexp.match( input ); // EXPlicit EXPonent regEXP!
+	int nume = input.contains( 'e', FALSE );
+	if ( eeePos > 0 && nume < 2 ) {
+	    QString mantissa = input.left( eeePos );
+	    tmp = input.toDouble( &ok );
+	    if ( ok )
+		return QValidator::Valid;
+	}
+	else if ( eeePos == 0 ) {
+	    return QValidator::Valid;
+	}
+	else {
+	    return QValidator::Invalid;
+	}
+    }
 
     int i = input.find( '.' );
     if ( i >= 0 ) {
