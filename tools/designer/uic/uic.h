@@ -113,6 +113,7 @@ private:
     uint cg_used : 1;
     uint pal_used : 1;
     uint stdsetdef : 1;
+    uint externPixmaps : 1;
 
     QString nameOfClass;
     QString pixmapLoaderFunction;
@@ -122,7 +123,7 @@ private:
     bool isFrameworkCodeGenerated( const QDomElement& e );
     QString getDatabaseInfo( const QDomElement& e, const QString& tag );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
-    QStringList                  dbConnections;
+    QStringList dbConnections;
     QMap< QString, QStringList > dbCursors;
     QMap< QString, QStringList > dbForms;
 

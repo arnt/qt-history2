@@ -93,7 +93,7 @@ static QString mkStdSet( const QString& prop )
 Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const QString &trm, const QString& subClass  )
     : out( outStream ), trmacro( trm )
 {
-
+    externPixmaps = FALSE;
     indent = "    "; // default indent
 
     item_used = cg_used = pal_used = 0;
@@ -108,8 +108,11 @@ Uic::Uic( QTextStream &outStream, QDomDocument doc, bool decl, bool subcl, const
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
     QDomElement firstWidget = doc.firstChild().firstChild().toElement();
-    while ( firstWidget.tagName() != "widget" )
+    while ( firstWidget.tagName() != "widget" ) {
+	if ( firstWidget.tagName() == "pixmapinproject" )
+	    externPixmaps = TRUE;
 	firstWidget = firstWidget.nextSibling().toElement();
+    }
 
     if ( nameOfClass.isEmpty() )
 	nameOfClass = getObjectName( firstWidget );
@@ -763,14 +766,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	requiredImages += nl.item(j).firstChild().toText().data();
     }
 
-    if (!requiredImages.isEmpty() ) {
+    if ( !requiredImages.isEmpty() || externPixmaps ) {
 	out << "#include <qimage.h>" << endl;
 	out << "#include <qpixmap.h>" << endl << endl;
     }
 
     QStringList images;
     QStringList xpmImages;
-    if ( pixmapLoaderFunction.isEmpty() ) {
+    if ( pixmapLoaderFunction.isEmpty() && !externPixmaps ) {
 	// create images
 	for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( n.tagName()  == "images" ) {
@@ -814,6 +817,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	    }
 	}
 	out << endl;
+    } else if ( externPixmaps ) {
+	out << "extern QPixmap uic_findPixmap( const char *name );" << endl << endl;
+	pixmapLoaderFunction = "uic_findPixmap";
     }
 
     // register the object and unify its name
@@ -1611,8 +1617,8 @@ QString Uic::createListBoxItemImpl( const QDomElement &e, const QString &parent 
 	    else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-		    pix.prepend( pixmapLoaderFunction + "( " );
-		    pix.append( " )" );
+		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		    pix.append(  QString( externPixmaps ? "\"" : "" ) + " )" );
 		}
 	    }
 	}
@@ -1645,8 +1651,8 @@ QString Uic::createIconViewItemImpl( const QDomElement &e, const QString &parent
 	    else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-		    pix.prepend( pixmapLoaderFunction + "( " );
-		    pix.append( " )" );
+		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		    pix.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 		}
 	    }
 	}
@@ -1701,8 +1707,8 @@ QString Uic::createListViewItemImpl( const QDomElement &e, const QString &parent
 	    else if ( attrib == "pixmap" ) {
 		QString pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-		    pix.prepend( pixmapLoaderFunction + "( " );
-		    pix.append( " )" );
+		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		    pix.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 		}
 		pixmaps << pix;
 	    }
@@ -1743,8 +1749,8 @@ QString Uic::createListViewColumnImpl( const QDomElement &e, const QString &pare
 	    else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-		    pix.prepend( pixmapLoaderFunction + "( " );
-		    pix.append( " )" );
+		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		    pix.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 		}
 	    } else if ( attrib == "clickable" )
 		clickable = v.toBool();
@@ -1783,8 +1789,8 @@ QString Uic::createTableRowColumnImpl( const QDomElement &e, const QString &pare
 	    else if ( attrib == "pixmap" ) {
 		pix = v.toString();
 		if ( !pix.isEmpty() && !pixmapLoaderFunction.isEmpty() ) {
-		    pix.prepend( pixmapLoaderFunction + "( " );
-		    pix.append( " )" );
+		    pix.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		    pix.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 		}
 	    } else if ( attrib == "field" )
 		field = v.toString();
@@ -2114,12 +2120,17 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "pixmap" ) {
 	v = e.firstChild().toText().data();
 	if ( !pixmapLoaderFunction.isEmpty() ) {
-	    v.prepend( pixmapLoaderFunction + "( " );
-	    v.append( " )" );
+	    v.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+	    v.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 	}
     } else if ( e.tagName() == "iconset" ) {
 	v = "QIconSet( %1 )";
-	v = v.arg( e.firstChild().toText().data() );
+	QString s = e.firstChild().toText().data();
+	if ( !pixmapLoaderFunction.isEmpty() ) {
+	    s.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+	    s.append( QString( externPixmaps ? "\"" : "" ) + " )" );
+	}
+	v = v.arg( s );
     } else if ( e.tagName() == "image" ) {
 	v = e.firstChild().toText().data() + ".convertToImage()";
     } else if ( e.tagName() == "enum" ) {
@@ -2309,8 +2320,8 @@ void Uic::createColorGroupImpl( const QString& name, const QDomElement& e )
 	} else if ( n.tagName() == "pixmap" ) {
 	    QString pixmap = n.firstChild().toText().data();
 	    if ( !pixmapLoaderFunction.isEmpty() ) {
-		pixmap.prepend( pixmapLoaderFunction + "( " );
-		pixmap.append( " )" );
+		pixmap.prepend( pixmapLoaderFunction + "( " + QString( externPixmaps ? "\"" : "" ) );
+		pixmap.append( QString( externPixmaps ? "\"" : "" ) + " )" );
 	    }
 	    out << indent << name << ".setBrush( QColorGroup::"
 		<< ColorRole[r] << ", QBrush( " << color << ", " << pixmap << " ) );" << endl;
