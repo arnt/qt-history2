@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#30 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#30 $");
 
 
 /*!
@@ -324,10 +324,6 @@ void QTabDialog::show()
 	    d->children[i]->hide();
     if ( c >= 0 )
 	showTab( c );
-
-    // fake a resize event to trigger child widget moves
-    QResizeEvent r( size(), size() );
-    resizeEvent( &r );
 
     QDialog::show();
 }
