@@ -256,19 +256,6 @@ QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
     init(query, db);
 }
 
-/*! \overload
-
-    Convenience function that takes a latin1 \a query. For
-    queries with non-latin1 characters, the QString overload
-    must be used. Uses the database \a db or the default
-    database if \a db is not valid.
- */
-QSqlQuery::QSqlQuery(const char *query, QSqlDatabase db)
-{
-    init(QString::fromLatin1(query), db);
-}
-
-
 /*!
     Creates a QSqlQuery object using the database \a db. If \a db is
     0, the application's default database is used.

@@ -207,6 +207,15 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     emit columnsInserted(QModelIndex(), 0, d->bottom.column());
 }
 
+/*! \overload
+    Convenience method, executes the query \a query for the given connection \a db.
+    If no database is specified, the default connection is used.
+ */
+void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
+{
+    setQuery(QSqlQuery(query, db));
+}
+
 /*!
     Clears the model and releases all aquired resources
  */

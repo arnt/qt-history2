@@ -15,6 +15,7 @@
 #define QSQLQUERYMODEL_H
 
 #include <qabstractitemmodel.h>
+#include <qsqldatabase.h>
 
 class QSqlQueryModelPrivate;
 class QSqlError;
@@ -43,6 +44,7 @@ public:
     bool removeColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
 
     virtual void setQuery(const QSqlQuery &query);
+    void setQuery(const QString &query, const QSqlDatabase &db = QSqlDatabase());
     const QSqlQuery query() const;
     virtual void clear();
 
