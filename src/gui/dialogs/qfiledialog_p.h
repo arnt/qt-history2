@@ -28,6 +28,7 @@
 #include <private/qdialog_p.h>
 #include <qitemselectionmodel.h>
 #include <qabstractitemview.h>
+#include <qtoolbutton.h>
 
 class QListView;
 class QTreeView;
@@ -35,7 +36,6 @@ class QDirModel;
 class QComboBox;
 class QAction;
 class QPushButton;
-class QToolButton;
 class QFileDialogLineEdit;
 class QGridLayout;
 
