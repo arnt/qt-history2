@@ -747,9 +747,8 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 	if ( !pdev->cmd( QPaintDevice::PdcSetClipRegion, this, param ) )
 	    return; // device cannot clip
     }
-
-    setf( ClipOn );
-    gfx->setClipRegion(crgn);
+    clearf( ClipOn );
+    setClipping( TRUE );
 }
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
