@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#289 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#290 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#289 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#290 $");
 
 
 /*****************************************************************************
@@ -1263,18 +1263,49 @@ void qt_x11SendPostedEvents()			// transmit posted events
 }
 
 
+/*!
+  Immediately despatches all events which have been previously enqueued
+  with QApplication::postEvent() and which are for the object \a receiver
+  and have the \a event_type.
+
+  Some event compression may occur.  Note that events from the
+  server are \e not despatched by this function.
+*/
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
     if ( !postedEvents )
 	return;
     QPostEventListIt it(*postedEvents);
     QPostEvent *pe;
+
+    // For accumulating compressed events
+    QPoint oldpos, newpos;
+    QSize oldsize, newsize;
+    bool first=TRUE;
+
     while ( (pe = it.current()) ) {
 	if ( pe->event
 	  && pe->receiver == receiver
 	  && pe->event->type() == event_type )
 	{
-	    sendEvent( pe->receiver, pe->event );
+	    switch ( event_type ) {
+	      case Event_Move:
+		if ( first ) {
+		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
+		    first = FALSE;
+		}
+		newpos = ((QMoveEvent*)pe->event)->pos();
+		break;
+	      case Event_Resize:
+		if ( first ) {
+		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
+		    first = FALSE;
+		}
+		newsize = ((QResizeEvent*)pe->event)->size();
+		break;
+	      default:
+		sendEvent( receiver, pe->event );
+	    }
 	    if ( pe == it.current() ) {
 		((QPEvent*)pe->event)->clearPostedFlag();
 		++it;
@@ -1283,6 +1314,25 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	} else {
 	    ++it;
+	}
+    }
+    if ( !first ) {
+	// Got one
+	switch ( event_type ) {
+	  case Event_Move:
+	    {
+		QMoveEvent e(newpos, oldpos);
+		sendEvent( receiver, &e );
+	    }
+	    break;
+	  case Event_Resize:
+	    {
+		QResizeEvent e(newsize, oldsize);
+		sendEvent( receiver, &e );
+	    }
+	    break;
+	  default:
+	    ; // Nothing
 	}
     }
 }

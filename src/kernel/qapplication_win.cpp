@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#128 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#128 $");
 
 
 /*****************************************************************************
@@ -634,12 +634,35 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	return;
     QPostEventListIt it(*postedEvents);
     QPostEvent *pe;
+
+    // For accumulating compressed events
+    QPoint oldpos, newpos;
+    QSize oldsize, newsize;
+    bool first=TRUE;
+
     while ( (pe = it.current()) ) {
 	if ( pe->event
 	  && pe->receiver == receiver
 	  && pe->event->type() == event_type )
 	{
-	    QApplication::sendEvent( pe->receiver, pe->event );
+	    switch ( event_type ) {
+	      case Event_Move:
+		if ( first ) {
+		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
+		    first = FALSE;
+		}
+		newpos = ((QMoveEvent*)pe->event)->pos();
+		break;
+	      case Event_Resize:
+		if ( first ) {
+		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
+		    first = FALSE;
+		}
+		newsize = ((QResizeEvent*)pe->event)->size();
+		break;
+	      default:
+		sendEvent( receiver, pe->event );
+	    }
 	    if ( pe == it.current() ) {
 		((QPEvent*)pe->event)->clearPostedFlag();
 		++it;
@@ -648,6 +671,25 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    }
 	} else {
 	    ++it;
+	}
+    }
+    if ( !first ) {
+	// Got one
+	switch ( event_type ) {
+	  case Event_Move:
+	    {
+		QMoveEvent e(newpos, oldpos);
+		sendEvent( receiver, &e );
+	    }
+	    break;
+	  case Event_Resize:
+	    {
+		QResizeEvent e(newsize, oldsize);
+		sendEvent( receiver, &e );
+	    }
+	    break;
+	  default:
+	    ; // Nothing
 	}
     }
 }

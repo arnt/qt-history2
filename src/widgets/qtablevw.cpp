@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#72 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#72 $");
 
 
 const int sbDim = 16;
@@ -285,12 +285,6 @@ void QTableView::setNumRows( int rows )
 	    repaint();
     }
     updateScrollBars( verRange );
-    if ( yOffset() > 0 && testTableFlags( Tbl_autoVScrollBar ) &&
-	 !testTableFlags( Tbl_vScrollBar ) ) {
-	setYOffset( 0 );
-	if ( autoUpdate() )
-	    update();
-    }
 }
 
 /*!
@@ -327,12 +321,6 @@ void QTableView::setNumCols( int cols )
 	    repaint();
     }
     updateScrollBars( horRange );
-    if ( xOffset() > 0 && testTableFlags( Tbl_autoHScrollBar ) &&
-	 !testTableFlags( Tbl_hScrollBar ) ) {
-	setXOffset( 0 );
-	if ( autoUpdate() )
-	    update();
-    }
 }
 
 
@@ -2073,10 +2061,24 @@ void QTableView::updateScrollBars( uint f )
 	 testTableFlags(Tbl_autoVScrollBar) && (sbDirty & verRange) )
 					// if range change and auto
 	doAutoScrollBars();		// turn scroll bars on/off if needed
-    if ( !autoUpdate() || !isVisible() ) {
+
+    if ( !autoUpdate() ) {
 	inSbUpdate = FALSE;
 	return;
     }
+    if ( yOffset() > 0 && testTableFlags( Tbl_autoVScrollBar ) &&
+	 !testTableFlags( Tbl_vScrollBar ) ) {
+	setYOffset( 0 );
+    }
+    if ( xOffset() > 0 && testTableFlags( Tbl_autoHScrollBar ) &&
+	 !testTableFlags( Tbl_hScrollBar ) ) {
+	setXOffset( 0 );
+    }
+    if ( !isVisible() ) {
+	inSbUpdate = FALSE;
+	return;
+    }
+
     if ( testTableFlags(Tbl_hScrollBar) && (sbDirty & horMask) != 0 ) {
 	if ( sbDirty & horGeometry )
 	    hScrollBar->setGeometry( 0,height() - sbDim,
@@ -2194,7 +2196,7 @@ int QTableView::maxXOffset()
 
 
 /*!
-  Returns the maximum horizontal offset within the table of the
+  Returns the maximum vertical offset within the table of the
   view's top edge, in \e table coordinates.
 
   This is used mainly to set the vertical scroll bar's range.
