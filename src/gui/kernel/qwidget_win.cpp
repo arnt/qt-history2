@@ -1152,7 +1152,12 @@ void QWidget::showWindow()
     if (testWFlags(WStyle_Tool) || isPopup())
         sm = SW_SHOWNOACTIVATE;
 
-    ShowWindow(winId(), sm);
+    ShowWindow( winId(), sm );
+    if (IsIconic(winId()))
+        setWState(WState_Minimized);
+    if (IsZoomed(winId()))
+        setWState(WState_Maximized);
+
     UpdateWindow(winId());
 }
 
