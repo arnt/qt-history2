@@ -365,7 +365,7 @@ for $platform ( "x11", "qws" ) {
 	sub {
 	    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
 		   ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
-	}, $qtdir;
+	}, $qtdir
     )
 
     # copy the dist things into a supplemental directory
