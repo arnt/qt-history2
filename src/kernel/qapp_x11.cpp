@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#56 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#55 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#56 $";
 #endif
 
 
@@ -809,24 +809,25 @@ bool QApplication::x11EventFilter( XEvent * )	// X11 event filter
 // A modal widget without a parent becomes application-modal.
 // A modal widget with a parent becomes modal to its parent and grandparents..
 //
-// qXEnterModal()
+// qt_enter_modal()
 //	Enters modal state and returns when the widget is hidden/closed
 //	Arguments:
 //	    QWidget *widget	A modal widget
 //
-// qXLeaveModal()
+// qt_leave_modal()
 //	Leaves modal state for a widget
 //	Arguments:
 //	    QWidget *widget	A modal widget
 //
 
 typedef declare(QListM,QWidgetList) QWLList;	// list of widget lists
+typedef declare(QListIteratorM,QWidgetList) QWLListIt;
 
 static QWidgetList *app_modals = 0;		// list of app-modal widgets
 static QWLList     *modal_list = 0;		// list of modal lists
 
 
-void qXEnterModal( QWidget *widget )		// enter modal state
+void qt_enter_modal( QWidget *widget )		// enter modal state
 {
     QWidget *parent = widget->parentWidget();
     if ( !parent ) {				// no parent: app modal
@@ -834,7 +835,7 @@ void qXEnterModal( QWidget *widget )		// enter modal state
 	    app_modals = new QWidgetList;
 	    CHECK_PTR( app_modals );
 	}
-	app_modals->append( widget );
+	app_modals->insert( widget );
     }
     else {					// has parent: relative modal
 	if ( !modal_list ) {
@@ -842,7 +843,7 @@ void qXEnterModal( QWidget *widget )		// enter modal state
 	    CHECK_PTR( modal_list );
 	    modal_list->setAutoDelete( TRUE );
 	}
-	QWidgetList *wl;
+	QWidgetList *wl = 0;
 	bool create_new_list = TRUE;
 	if ( parent->testFlag(WType_Modal) ) {	// has modal parent
 	    wl = modal_list->first();
@@ -857,16 +858,16 @@ void qXEnterModal( QWidget *widget )		// enter modal state
 	if ( create_new_list ) {
 	    wl = new QWidgetList;
 	    CHECK_PTR( wl );
-	    modal_list->append( wl );
+	    modal_list->insert( wl );
 	}
-	wl->append( widget );
+	wl->insert( widget );
     }
     app_do_modal = TRUE;
     qApp->enter_loop();
 }
 
 
-void qXLeaveModal( QWidget *widget )		// leave modal state
+void qt_leave_modal( QWidget *widget )		// leave modal state
 {
     bool found = FALSE;
     if ( app_modals ) {				// widget in app-modal list?
@@ -880,22 +881,26 @@ void qXLeaveModal( QWidget *widget )		// leave modal state
 	}
     }
     if ( !found && modal_list ) {		// relatively modal?
-	QWidgetList *wl = modal_list->first();
-	while ( wl ) {				// scan all lists
+	QWLListIt    it( *modal_list );
+	QWidgetList *wl;
+	while ( (wl=it.current()) ) {		// scan all lists
+	    ++it;
 	    if ( wl->findRef(widget) >= 0 ) {
 		found = TRUE;
 		wl->remove();
-		if ( wl->isEmpty() )
+		if ( wl->isEmpty() ) {
+		    ASSERT( modal_list->findRef( wl ) >= 0 );
 		    modal_list->remove();
+		}
 		break;
 	    }
-	    wl = modal_list->next();
 	}
 	if ( modal_list->isEmpty() ) {
 	    delete modal_list;
 	    modal_list = 0;
 	}
     }
+    debug( "qt_leave_modal %x %d", widget,found );
     if ( found )
 	qApp->exit_loop();
     app_do_modal = !(app_modals == 0 && modal_list == 0);
@@ -926,31 +931,35 @@ static bool doModal( QWidget *widget, XEvent *event )
     if ( !widget->testFlag(WType_Modal) ) {	// widget is not modal
 	while ( TRUE ) {			// find an overlapped parent
 	    if ( widget->testFlag(WType_Overlap) )
-		 break;
+		break;
 	    widget = widget->parentWidget();
 	    if ( !widget )
 		break;
 	}
-	if ( widget->testFlag(WType_Modal) )
+	if ( widget->testFlag(WType_Modal) )	// overlapped parent is modal
 	    modal = widget;
     }
     else					// widget is modal
 	modal = widget;
 
     if ( app_modals ) {				// application-modal
-	if ( modal == app_modals->last() )
+	if ( modal == app_modals->getFirst() )
 	    block_event = expose_event = FALSE;
 	if ( (block_event || expose_event) )	// force raise
-	    XRaiseWindow( appDpy, app_modals->last()->id() );
+	    XRaiseWindow( appDpy, app_modals->getFirst()->id() );
     }
     else if ( block_event ) {			// relative-modal
 	bool found = FALSE;
 	ASSERT( modal_list );
-	QWidgetList *wl = modal_list->first();
-	while ( wl ) {
+	QWLListIt    it( *modal_list );
+	QWidgetList *wl;
+	while ( (wl=it.current()) ) {
+	    ++it;
 	    if ( modal ) {
-		if ( modal == wl->last() )
+		if ( modal == wl->getFirst() ) {
+		    found = TRUE;
 		    break;
+		}
 	    }
 	    else {
 		QWidget *m = wl->first();
@@ -964,13 +973,9 @@ static bool doModal( QWidget *widget, XEvent *event )
 	    }
 	    if ( found )
 		break;
-	    else
-		wl = modal_list->next();
 	}
-	if ( !found ) {
+	if ( !found )
 	    block_event = FALSE;
-//	    debug( "WIN NOT FOUND" );
-	}
     }
 
     return !block_event;
@@ -980,12 +985,12 @@ static bool doModal( QWidget *widget, XEvent *event )
 // --------------------------------------------------------------------------
 // Popup widget mechanism
 //
-// qXOpenPopup()
+// qt_open_popup()
 //	Adds a widget to the list of popup widgets
 //	Arguments:
 //	    QWidget *widget	The popup widget to be added
 //
-// qXClosePopup()
+// qt_close_popup()
 //	Removes a widget from the list of popup widgets
 //	Arguments:
 //	    QWidget *widget	The popup widget to be removed
@@ -994,7 +999,7 @@ static bool doModal( QWidget *widget, XEvent *event )
 QWidgetList *popupWidgets = 0;			// list of popup widgets
 bool popupCloseDownMode = FALSE;
 
-void qXOpenPopup( QWidget *popup )		// add popup widget
+void qt_open_popup( QWidget *popup )		// add popup widget
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
@@ -1014,7 +1019,7 @@ void qXOpenPopup( QWidget *popup )		// add popup widget
     }
 }
 
-void qXClosePopup( QWidget *popup )		// remove popup widget
+void qt_close_popup( QWidget *popup )		// remove popup widget
 {
     if ( !popupWidgets )
 	return;

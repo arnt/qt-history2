@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#51 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,14 +24,14 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#51 $";
 #endif
 
 
-void qXEnterModal( QWidget * );			// def in qapp_x11.cpp
-void qXLeaveModal( QWidget * );			// def in qapp_x11.cpp
-void qXOpenPopup( QWidget * );			// def in qapp_x11.cpp
-void qXClosePopup( QWidget * );			// def in qapp_x11.cpp
+void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
+void qt_leave_modal( QWidget * );		// --- "" ---
+void qt_open_popup( QWidget * );		// --- "" ---
+void qt_close_popup( QWidget * );		// --- "" ---
 
 
 // --------------------------------------------------------------------------
@@ -178,7 +178,7 @@ bool QWidget::destroy()				// destroy widget
 {
     if ( this == activeWidget )
 	activeWidget = 0;
-    if ( testFlag( WState_Created ) ) {
+    if ( testFlag(WState_Created) ) {
 	clearFlag( WState_Created );
 	if ( children() ) {
 	    QObjectListIt it(*children());
@@ -191,7 +191,9 @@ bool QWidget::destroy()				// destroy widget
 	    }
 	}
 	if ( testFlag(WType_Modal) )		// just be sure we leave modal
-	    qXLeaveModal( this );		//   state
+	    qt_leave_modal( this );
+	else if ( testFlag(WType_Popup) )
+	    qt_close_popup( this );
 	if ( !testFlag(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
@@ -497,9 +499,9 @@ void QWidget::show()				// show widget
     setFlag( WState_Visible );
     clearFlag( WExplicitHide );
     if ( testFlag(WType_Modal) )
-	qXEnterModal( this );
+	qt_enter_modal( this );
     else if ( testFlag(WType_Popup) )
-	qXOpenPopup( this );
+	qt_open_popup( this );
 }
 
 void QWidget::hide()				// hide widget
@@ -509,9 +511,9 @@ void QWidget::hide()				// hide widget
 	return;
     }
     if ( testFlag(WType_Modal) )
-	qXLeaveModal( this );
+	qt_leave_modal( this );
     else if ( testFlag(WType_Popup) )
-	qXClosePopup( this );
+	qt_close_popup( this );
     XUnmapWindow( dpy, ident );
     clearFlag( WState_Visible );
 }
