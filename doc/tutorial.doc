@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.9 1997/08/19 11:26:11 paul Exp $
+** $Id: tutorial.doc,v 2.10 1997/09/29 17:02:18 eiriken Exp $
 **
 ** Tutorial
 **
@@ -95,9 +95,7 @@ QPushButton can show either a text or a \link QPixmap pixmap\endlink.
 The \c main() function is the entry point to the program.  Almost always
 when using Qt, main() only needs to perform some kind of initialization
 before passing the control to the Qt library, which then tells the
-program about the user's actions via events.  If you are new to
-event-driven GUI programming, you should probably read our \link
-event-driven.html introduction\endlink to this.
+program about the user's actions via events.
 
 \c argc is the number of command-line arguments and \c argv is the array
 of command-line arguments. This is a C/C++ feature. It is not Qt specific,
@@ -154,8 +152,8 @@ these on to the appropriate widgets.
 
 <h2>Behavior</h2>
 
-You should now try to \link makefiles.html compile\endlink and \link
-QApplication::QApplication() run\endlink this program.
+You should now try to compile and \link QApplication::QApplication()
+run\endlink this program.
 
 When you run it, you will see a small window filled with a single
 button, and on it you can read the famous words, Hello World!
@@ -499,10 +497,9 @@ Nothing new compared to the previous chapter.
 MyWidget now gains the ability to handle resize event.
 
 resizeEvent() is one of many virtual functions in QWidget which are used
-to pass events of various kinds to widgets.  These \link event-system.html
-event functions \endlink are one of the the central control flow
-mechanisms in Qt, the other is the \link metaobjects.html signal/slot
-mechanism\endlink.
+to pass events of various kinds to widgets.  These event functions are one
+of the the central control flow mechanisms in Qt, the other is the \link
+metaobjects.html signal/slot mechanism\endlink.
 
 This one is called, unsurprisingly, whenever the user or a part of the
 program resizes the widget.
@@ -1056,9 +1053,9 @@ provide an interface using the same idiom as for value in LCDRange.
 \line protected
 \line paintEvent
 
-This is the second of the many \link event-system.html event handlers\endlink
-in QWidget that we encounter.  This virtual function is called by Qt
-whenever a widget needs to update itself (i.e. paint the widget's surface).
+This is the second of the many event handlers in QWidget that we
+encounter.  This virtual function is called by Qt whenever a widget needs
+to update itself (i.e. paint the widget's surface).
 
 
 <h3>\link t8-cannon-cpp.html cannon.cpp\endlink</h3>
