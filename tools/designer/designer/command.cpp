@@ -18,7 +18,6 @@
 **
 **********************************************************************/
 
-#include <iostream.h>
 #include "command.h"
 #include "formwindow.h"
 #include "widgetfactory.h"
@@ -796,7 +795,6 @@ AddTabPageCommand::AddTabPageCommand( const QString &n, FormWindow *fw,
 				      QTabWidget *tw, const QString &label )
     : Command( n, fw ), tabWidget( tw ), tabLabel( label )
 {
-    cout << "create" << endl;
     tabPage = new QDesignerWidget( formWindow(), tabWidget, "tab" );
     tabPage->hide();
     index = -1;
@@ -805,7 +803,6 @@ AddTabPageCommand::AddTabPageCommand( const QString &n, FormWindow *fw,
 
 void AddTabPageCommand::execute()
 {
-    cout << "execute" << endl;
     if ( index == -1 )
 	index = ( (QDesignerTabWidget*)tabWidget )->count();
     tabWidget->insertTab( tabPage, tabLabel, index );
@@ -816,7 +813,6 @@ void AddTabPageCommand::execute()
 
 void AddTabPageCommand::unexecute()
 {
-    cout << "unexecute" << endl;
     tabWidget->removePage( tabPage );
     tabPage->hide();
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
@@ -829,14 +825,12 @@ MoveTabPageCommand::MoveTabPageCommand( const QString &n, FormWindow *fw,
 				      QTabWidget *tw, QWidget* page, int nIndex, int oIndex )
     : Command( n, fw ), tabWidget( tw ), tabPage( page )
 {
-    cout << "create" << endl;
     newIndex = nIndex;
     oldIndex = oIndex;
 }
 
 void MoveTabPageCommand::execute()
 {
-    cout << "execute" << endl;
     ((QDesignerTabWidget*)tabWidget )->movePage( tabPage, newIndex );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->tabsChanged( tabWidget );
@@ -844,7 +838,6 @@ void MoveTabPageCommand::execute()
 
 void MoveTabPageCommand::unexecute()
 {
-    cout << "unexecute" << endl;
     ((QDesignerTabWidget*)tabWidget )->movePage( tabPage, oldIndex );
     formWindow()->emitUpdateProperties( formWindow()->currentWidget() );
     formWindow()->mainWindow()->objectHierarchy()->tabsChanged( tabWidget );
