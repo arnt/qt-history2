@@ -781,8 +781,8 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 	if ( controls & AddLine && addB.isValid() ) {
 	    drawButton( p, addB.x(), addB.y(),
 			addB.width(), addB.height(), g, FALSE,
-			(deviceUnderMouse == p->device() 
-			&& addB.contains(mousePos) 
+			(deviceUnderMouse == p->device()
+			&& addB.contains(mousePos)
 			&& !ADD_LINE_ACTIVE ) ?
 			    &g.brush( QColorGroup::Midlight ) : &fill );
 	    drawArrow( p, VERTICAL ? DownArrow : RightArrow,
@@ -792,7 +792,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 	if ( controls & SubLine && subB.isValid() ) {
 	    drawButton( p, subB.x(), subB.y(),
 			subB.width(), subB.height(), g, FALSE,
-			(deviceUnderMouse == p->device() 
+			(deviceUnderMouse == p->device()
 			&& subB.contains(mousePos)
 			&& !SUB_LINE_ACTIVE ) ?
 			    &g.brush( QColorGroup::Midlight ) : &fill );
@@ -859,7 +859,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 		else
 		    drawBevelButton( p, sliderR.x(), sliderR.y(),
 				 sliderR.width(), sliderR.height(), g );
-			    
+			
 		if (sliderLength >= 20 ) {
 		    p->setClipping( FALSE );
 
@@ -944,7 +944,7 @@ QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
 	return;
 
     if ( sliderMoving && sliderStartOldPos.isValid() )
-        p->setClipRegion( QRegion( x,y,w,h ) 
+        p->setClipRegion( QRegion( x,y,w,h )
 	    - QRegion(sliderStartOldPos) );
 
     qDrawShadePanel( p, x, y, w, h, g, TRUE, 1 );
@@ -1058,7 +1058,6 @@ QSGIStyle::drawPopupPanel( QPainter *p, int x, int y, int w, int h,
 
 static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
 {
-    int fh = p->fontMetrics().height();
     if ( miText && (!!(*miText)) ) {
 	int amp = 0;
 	bool nextAmp = FALSE;
@@ -1188,10 +1187,10 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 			y+m, tab, h-2*m, text_flags, miText.mid( t+1 ) );
 	    miText = s.mid( 0, t );
 	}
-	QRect br = p->fontMetrics().boundingRect( x+xm, y+m, w-xm-tab+1, h-2*m, 
+	QRect br = p->fontMetrics().boundingRect( x+xm, y+m, w-xm-tab+1, h-2*m,
 		AlignVCenter|DontClip|SingleLine, mi->text() );
 
-	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(miText[0]), 
+	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(miText[0]),
 		br.y()+br.height()+p->fontMetrics().underlinePos()-2, &miText );
 	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, miText, miText.length() );
     } else {
@@ -1214,19 +1213,19 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 /*!
     \reimp
 */
-void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h, 
+void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				QMenuItem* mi, QColorGroup& g, bool enabled )
 {
     if ( mi->pixmap() )
-	drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine, 
+	drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine,
 		g, enabled, mi->pixmap(), "", -1, &g.buttonText() );
 
     if ( !!mi->text() ) {
 	QString* text = new QString(mi->text());
-	QRect br = p->fontMetrics().boundingRect( x, y-2, w+1, h, 
+	QRect br = p->fontMetrics().boundingRect( x, y-2, w+1, h,
 		AlignCenter|DontClip|SingleLine|ShowPrefix, mi->text() );
 
-	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(*text[0]), 
+	drawSGIPrefix( p, br.x()+p->fontMetrics().leftBearing(*text[0]),
 		br.y()+br.height()+p->fontMetrics().underlinePos()-2, text );
 	p->drawText( x, y-2, w+1, h, AlignCenter|DontClip|SingleLine, *text, text->length() );
 	delete text;
@@ -1291,7 +1290,7 @@ QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	        ((QWidget*) o)->repaint( FALSE );
 	    }
 
-	    if ( lastWidget && o == lastWidget && lastWidget->ownPalette() && 
+	    if ( lastWidget && o == lastWidget && lastWidget->ownPalette() &&
 		 lastWidget->testWState( WState_Created ))
                 lastWidget->unsetPalette();
 	}

@@ -843,7 +843,6 @@ void QMenuBar::drawContents( QPainter *p )
 		else // other item
 		    p->fillRect(r, palette().normal().brush( QColorGroup::Button ));
 	    }
-	    QColor btext = g.buttonText();
 	    style().drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
 			    mi, g, e );
 	}

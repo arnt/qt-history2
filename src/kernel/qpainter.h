@@ -126,6 +126,7 @@ public:
     void	shear( double sh, double sv );
     void	rotate( double a );
 
+    void	resetXForm();
 #else
     void	resetXForm();
     void	translate( int dx, int dy );	// ###
@@ -241,14 +242,14 @@ public:
     void	setTabArray( int * );
 
     // Other functions
-    
+
 #if defined(_WS_WIN_)
     HDC		handle() const;
 #elif defined(_WS_X11_)
     HANDLE	handle() const;
 #endif
 
-    
+
     static void initialize();
     static void cleanup();
 
