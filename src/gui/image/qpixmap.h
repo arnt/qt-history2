@@ -38,7 +38,8 @@ public:
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
     QPixmap(const QString& fileName, const char *format = 0,
-            Qt::ImageConversionFlags flags = Qt::AutoColor, Optimization = DefaultOptim);
+            Qt::ImageConversionFlags flags = Qt::AutoColor,
+            Optimization = DefaultOptim);
 #endif
     QPixmap(const char * const xpm[]);
     QPixmap(const QPixmap &);
@@ -213,4 +214,3 @@ QT_COMPAT Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy, const QPixmap 
 #endif // QT_COMPAT
 
 #endif // QPIXMAP_H
-
