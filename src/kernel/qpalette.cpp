@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#36 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -83,6 +83,15 @@ QColorGroup::QColorGroup()
   Constructs a color group that is an independent copy of another color group.
 */
 QColorGroup::QColorGroup(const QColorGroup& other)
+{
+    for (int i=0; i<MaxColorRole; i++)
+	br[i] = other.br[i];
+}
+
+/*!
+  Copies the colours of \a other to this color group.
+*/
+QColorGroup& QColorGroup::operator =(const QColorGroup& other)
 {
     for (int i=0; i<MaxColorRole; i++)
 	br[i] = other.br[i];

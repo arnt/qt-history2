@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#39 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#40 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -49,6 +49,7 @@ public:
 
    ~QColorGroup();
 
+    QColorGroup& operator =(const QColorGroup&);
 
     // Do not change the order, the serialization format depends on it
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
