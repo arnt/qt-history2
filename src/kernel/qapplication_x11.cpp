@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#452 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#453 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -50,6 +50,12 @@
 #include <locale.h>
 #include <errno.h>
 #define	 GC GC_QQQ
+
+#if defined(_OS_LINUX_) && defined(DEBUG)
+#include "qfile.h"
+#include <unistd.h>
+#endif
+
 #if defined(_OS_WIN32_)
 #undef gettimeofday
 #endif
@@ -58,10 +64,6 @@
 #include <X11/Xlocale.h>
 #endif
 
-#if defined(_OS_LINUX_) && defined(DEBUG)
-#include "qfile.h"
-#include <unistd.h>
-#endif
 
 #if defined(_OS_IRIX_)
 #include <bstring.h>
@@ -2152,7 +2154,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    } else if ( event->xclient.message_type == qt_embedded_window_focus_in ) {
 	        widget->setFocus();
 	    }
-	      
+	
 	}
 	else if ( event->xclient.format == 16 ) {
 	    if ( event->xclient.message_type == qt_unicode_key_press
