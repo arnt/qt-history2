@@ -176,13 +176,8 @@ void QFileInfo::doStat() const
 #if defined(Q_OS_UNIX)
     that->symLink = FALSE;
 #endif
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 *b = &that->fic->st;
-    int r = ::stat64( QFile::encodeName(QDir::convertSeparators(fn)), b );
-#else
     struct stat *b = &that->fic->st;
     int r = ::stat( QFile::encodeName(QDir::convertSeparators(fn)), b );
-#endif
     if ( r != 0 ) {
 	delete that->fic;
 	that->fic = 0;

@@ -90,11 +90,7 @@ bool QFile::open( int m )
 	return FALSE;
     }
     bool ok = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-#else
     struct stat st;
-#endif
     if ( isRaw() ) {
 	int oflags = O_RDONLY;
 	if ( isReadable() && isWritable() )
@@ -119,18 +115,10 @@ bool QFile::open( int m )
 	else
 	    oflags |= O_BINARY;
 #endif
-#if defined(QT_LARGE_FILE_SUPPORT)
-	fd = ::open64( QFile::encodeName(QDir::convertSeparators(fn)), oflags, 0666 );
-#else
 	fd = ::open( QFile::encodeName(QDir::convertSeparators(fn)), oflags, 0666 );
-#endif
 
 	if ( fd != -1 ) {			// open successful
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ::fstat64( fd, &st ); // get the stat for later usage
-#else
 	    ::fstat( fd, &st ); // get the stat for later usage
-#endif
 	} else {
 	    ok = FALSE;
 	}
@@ -164,11 +152,7 @@ bool QFile::open( int m )
 #endif
 	for (;;) { // At most twice
 
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    fh = fopen64( QFile::encodeName(QDir::convertSeparators(fn)), perm2 );
-#else
 	    fh = fopen( QFile::encodeName(QDir::convertSeparators(fn)), perm2 );
-#endif
 
 	    if ( !fh && try_create ) {
 		perm2[0] = 'w';			// try "w+" instead of "r+"
@@ -178,11 +162,7 @@ bool QFile::open( int m )
 	    }
 	}
 	if ( fh ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ::fstat64( fileno(fh), &st ); // get the stat for later usage
-#else
 	    ::fstat( fileno(fh), &st ); // get the stat for later usage
-#endif
 	} else {
 	    ok = FALSE;
 	}
@@ -233,15 +213,9 @@ bool QFile::open( int m, FILE *f )
     setState( IO_Open );
     fh = f;
     ext_f = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-    ::fstat64( fileno(fh), &st );
-    ioIndex = (Offset)ftello64( fh );
-#else
     struct stat st;
     ::fstat( fileno(fh), &st );
     ioIndex = (Offset)ftell( fh );
-#endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
 	// non-seekable
 	setType( IO_Sequential );
@@ -276,15 +250,9 @@ bool QFile::open( int m, int f )
     setState( IO_Open );
     fd = f;
     ext_f = TRUE;
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-    ::fstat64( fd, &st );
-    ioIndex = (Offset)::lseek64(fd, 0, SEEK_CUR);
-#else
     struct stat st;
     ::fstat( fd, &st );
     ioIndex = (Offset)::lseek(fd, 0, SEEK_CUR);
-#endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
@@ -309,23 +277,11 @@ bool QFile::open( int m, int f )
 
 QIODevice::Offset QFile::size() const
 {
-#if defined(QT_LARGE_FILE_SUPPORT)
-    struct stat64 st;
-#else
     struct stat st;
-#endif
     if ( isOpen() ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	::fstat64( fh ? fileno(fh) : fd, &st );
-#else
 	::fstat( fh ? fileno(fh) : fd, &st );
-#endif
     } else {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	::stat64( QFile::encodeName(fn), &st );
-#else
 	::stat( QFile::encodeName(fn), &st );
-#endif
     }
     return st.st_size;
 }
@@ -341,28 +297,16 @@ bool QFile::at( Offset pos )
     }
     bool ok;
     if ( isRaw() ) {
-#if defined(QT_LARGE_FILE_SUPPORT)
-	pos = (Offset)::lseek64( fd, pos, SEEK_SET );
-#else
 	pos = (Offset)::lseek( fd, pos, SEEK_SET );
-#endif
 	ok = (long int) pos != -1;		// ### fix this bad hack!
     } else {					// buffered file
-#if defined(QT_LARGE_FILE_SUPPORT)
-	ok = ::fseeko64(fh, pos, SEEK_SET) == 0;
-#else
 	ok = ::fseek(fh, pos, SEEK_SET) == 0;
-#endif
     }
     if ( ok )
 	ioIndex = pos;
 #if defined(QT_CHECK_RANGE)
     else
-#if defined(QT_LARGE_FILE_SUPPORT)
-	qWarning( "QFile::at: Cannot set file position %llu", pos );
-#else
 	qWarning( "QFile::at: Cannot set file position %lu", pos );
-#endif
 #endif
     return ok;
 }
@@ -443,17 +387,9 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 	else
 	    setStatus( IO_WriteError );
 	if ( isRaw() )				// recalc file position
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ioIndex = (Offset)::lseek64( fd, 0, SEEK_CUR );
-#else
 	    ioIndex = (Offset)::lseek( fd, 0, SEEK_CUR );
-#endif
 	else
-#if defined(QT_LARGE_FILE_SUPPORT)
-	    ioIndex = ::fseeko64( fh, 0, SEEK_CUR );
-#else
 	    ioIndex = ::fseek( fh, 0, SEEK_CUR );
-#endif
     } else {
 	ioIndex += nwritten;
     }
