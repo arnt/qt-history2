@@ -577,7 +577,7 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
 */
 bool QAccessible::isActive()
 {
-    return qInterfaceCache != 0;
+    return qAccessibleManager != 0;
 }
 
 /*!
