@@ -35,24 +35,36 @@ A collection class is a class that can contain a number of items in a
 certain data structure and perform operations on the contained items;
 insert, remove, find etc.
 
-Qt has many collection classes:
+Qt has many reference based collection classes and some value based
+collections.
+
+The reference based collections are:
 <ul>
-<li> \link QCache QCache\endlink and \link QIntCache QIntCache\endlink;
+<li> \l QCache QCache and \l QIntCache
 	LRU (least recently used) cache structures.
-<li> \link QDict QDict\endlink, \link QIntDict QIntDict\endlink, and
-	    \link QPtrDict QPtrDict\endlink; reference based dictionary structures.
-<li> \link QList QList\endlink; a reference based doubly linked list structure.
-<li> \link QQueue QQueue\endlink; a FIFO (first in, first out) queue structure.
-<li> \link QStack QStack\endlink; a LIFO (last in, first out) stack structure.
-<li> \link QVector QVector\endlink; a vector structure.
-<li> \link QValueList QValueList\endlink; a value based list
-<li> \link QValueStack QValueStack\endlink; a value based stack structure
-<li> \link QMap QMap\endlink; a value based dictionary structure
-<li> \link QArray QArray\endlink;
+<li> \l QDict, \l QIntDict and \l QPtrDict dictionary structures.
+<li> \l QList a double linked list structure.
+<li> \l QQueue a FIFO (first in, first out) queue structure.
+<li> \l QStack a LIFO (last in, first out) stack structure.
+<li> \l QVector a vector structure.
 </ul>
 
+The value based collections are:
+<ul>
+<li> \l QValueList a value based list
+<li> \l QValueStack a value based stack structure
+<li> \l QMap a value based dictionary structure
+</ul>
+
+The reference based collection classes work with pointers to items,
+while the value based classes store copies of their items. An
+exception is \l QArray. It is neither reference nor value based, but
+memory based. For maximum effiency with the simple data types usually
+used in arrays, it uses bitwise operations to copy and compare array
+elements.
+
 Some of these classes have corresponding iterators.  An iterator
-is a class for safely traversing the items in a collection:
+is a class for traversing the items in a collection:
 <ul>
 <li> \link QCacheIterator QCacheIterator\endlink and
 	\link QIntCacheIterator QIntCacheIterator\endlink
@@ -66,10 +78,12 @@ is a class for safely traversing the items in a collection:
 	\link QMapConstIterator QMapConstIterator\endlink
 </ul>
 
-The refrence based collection classes work with pointers to items
-while the value based one store copies instead of pointers.
+The value based collections plus algorithms operating on them are
+grouped together in <a href="qtl.html">the Qt Template
+Library</a>. See the respective documentation for details. The rest of
+this page talks about the reference based containers only.
 
-<h2>Architecture</h2>
+<h2>Architecture of the reference based containers</h2>
 
 There are three internal base classes for the reference based
 containers; \l QGCache, \l QGDict and \l QGList that operate on \c
@@ -79,13 +93,6 @@ collections by casting item pointers to and from \c void*.
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inline-able calls to
 the base classes), while it does not hurt performance too much.
-
-<a href="qtl.html">The Qt Template Library</a> in contrast is more
-like the C++ Standard Template Library (STL). It provides classes like
-\l QValueList and \l QMap that are not reference based but store real
-copies instead.  This is extremely efficient for implicit shared
-values like QString, or any standard C++ data type like int, bool or
-double.
 
 <h2>A QList Example</h2>
 
@@ -132,87 +139,25 @@ Program output:
 	Bill earns 50000
 \endcode
 
-<h2>A QValueList Example</h2>
-
-This example shows something compareable to the QList example above,
-but uses the value-based \l QValueList container:
-
-\code
-  Example:
-  \code
-    #include <qvaluelist.h>
-    #include <qstring.h>
-    #include <stdio.h>
-
-    class Employee
-    {
-    public:
-	Employee(): s(0){}
-	Employee( const QString& name, int salary )
-	    : n(name), s(salary)
-	{}
-
-	QString     name()   const	 	{ return n; }
-	int	    salary() const	 	{ return s; }
-	void	    setSalary( int salary )	{ s = salary; }
-    private:
-	QString     n;
-	int         s;
-    };
-
-    void main()
-    {
-	typedef QValueList<Employee> EmployeeList;
-	EmployeeList list;		// list of Employee
-
-	list.append( Employee("Bill", 50000) );
-	list.append( Employee("Steve",80000) );
-	list.append( Employee("Ron",  60000) );
-
-	Employee joe( "Joe", 50000 );
-	list.append( joe );
-	joe.setSalary( 4000 );
-	
-	EmployeeList::Iterator it;
-	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
-    }
-\endcode
-
-Program output:
-\code
-	Bill earns 50000
-	Steve earns 80000
-	Ron earns 60000
-	Joe earns 50000
-\endcode
-
-As you can see, the latest changes to Joes salary did not affect the value
-in the list because the list created a copy of Joes entry.
-
-For more informations about value based containers see <a
-href="qtl.html">The Qt Template Library</a>.
-
 <h2>Managing Collection Items</h2>
 
-All reference based collections inherit the \link QCollection QCollection\endlink base
-class.  This class knows only the number of items in the collection and
-the delete strategy.
+All reference based collections inherit the \l QCollection base class.
+This class knows only the number of items in the collection and the
+delete strategy.
 
 Items in a collection are by default not deleted when they are removed
-from the collection. The \link QCollection::setAutoDelete()
-QCollection::setAutoDelete()\endlink function specifies the delete
-strategy. In the list example, we enable auto-deletion to make the list
-delete the items when they are removed from the list.
+from the collection. The \l QCollection::setAutoDelete() function
+specifies the delete strategy. In the list example, we enable
+auto-deletion to make the list delete the items when they are removed
+from the list.
 
-When inserting an item into a collection, only the pointer is copied, not
-the item itself. This is called a shallow copy. It is possible to make the
-collection copy all of the item's data (known as a deep copy) when an item
-is inserted.  All collection functions that insert an item call the
-virtual function \link QCollection::newItem()
-QCollection::newItem()\endlink for the item to be inserted.  Inherit a
-collection and reimplement it if you want to have deep copies in your
-collection.
+When inserting an item into a collection, only the pointer is copied,
+not the item itself. This is called a shallow copy. It is possible to
+make the collection copy all of the item's data (known as a deep copy)
+when an item is inserted.  All collection functions that insert an
+item call the virtual function \l QCollection::newItem() for the item
+to be inserted.  Inherit a collection and reimplement it if you want
+to have deep copies in your collection.
 
 When removing an item from a list, the virtual function \link
 QCollection::deleteItem() QCollection::deleteItem()\endlink is called.
@@ -226,8 +171,8 @@ A reference based collection class, for instance QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
-We discuss \link QList QList\endlink here, but the same applies for all
-reference based collection classes and all collection class iterators.
+We discuss \l QList here, but the same applies for all reference based
+collection classes and all collection class iterators.
 
 Template instantiation:
 \code
@@ -251,36 +196,26 @@ to the list definition.
 
 <h2>Iterators</h2>
 
-Although \link QList QList\endlink has member functions to traverse the
-list, it can often be better to make use of an iterator. \link
-QListIterator QListIterator\endlink is very safe and can traverse lists
-that are being modified at the same time.  Multiple iterators can work
-independently on the same collection.
+Although \l QList has member functions to traverse the list, it can
+often be better to make use of an iterator. \l QListIterator is very
+safe and can traverse lists that are being modified at the same time.
+Multiple iterators can work independently on the same collection.
 
 A QList has an internal list of all iterators that are currently operating
 on the list.  When a list entry is removed, the list updates all iterators
 to point to this entry.
 
-The \link QDict QDict\endlink and \link QCache QCache\endlink collections
-have no traversal functions. To traverse these collections, you must
-use \link QDictIterator QDictIterator\endlink or \link QCacheIterator
-QCacheIterator\endlink.
-
-The value based containers do not have internal iterators. The reason
-is that these iterators are only 32 or 64 bit large depending on your
-CPU architecture. This means that the CPU can hold such an iterator in
-one of its registers and that in turn makes these iterators very
-quick.
+The \l QDict and \l QCache collections have no traversal functions. To
+traverse these collections, you must use \l QDictIterator or \l
+QCacheIterator.
 
 <h2>Predefined Collections</h2>
 
 Qt has the following predefined collection classes:
 <ul>
-<li> String lists; \link QStrList QStrList\endlink and
-	\link QStrIList QStrIList\endlink (\link qstrlist.h qstrlist.h\endlink) and
-	\link QStringList QStringList\endlink (\link qstringlist.h qstringlist.h\endlink)
-<li> String vectors; \link QStrVec QStrVec\endlink and
-	\link QStrIVec QStrIVec\endlink (\link qstrvec.h qstrvec.h\endlink)
+<li> String lists; \l QStrList, \l QStrIList (\l qstrlist.h ) and
+	\l QStringList (\l qstringlist.h )
+<li> String vectors; \l QStrVec  and \l QStrIVec (\l qstrvec.h )
 </ul>
 
 In almost all cases you would choose QStringList, which is a value

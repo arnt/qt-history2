@@ -180,8 +180,8 @@ The Qt API consists of the following modules:
 <dt><a href="nsplugin.html">LiveConnect Plugins</a>
 <dd> Qt-based web browser plugins for Netscape and MS Internet Explorer</a>
 <dt><a href="xt.html">Xt/Motif Legacy Code Support (X11R6 only)</a>
-<dd> Assists the migration of old Xt and Motif based code to the more 
-comfortable Qt toolkit. 
+<dd> Assists the migration of old Xt and Motif based code to the more
+comfortable Qt toolkit.
 <dt><a href="xembed.html">X Window Embedding Support (X11 only)</a>
 <dd> Graphical embedding of external Qt applications running X11.
 </dl>
@@ -201,7 +201,7 @@ independently of the GUI classes.
 and so can be used in non-GUI programs.
 
 <p>See also the <a href="collection.html">introduction to Qt collection
-classes</a> and <a href="qtl.html">The Qt Template Libarary</a>.
+classes</a>.
 
 */
 
