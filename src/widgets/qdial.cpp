@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#24 $
 **
 ** Implementation of something useful.
 **
@@ -168,7 +168,9 @@ QDial::~QDial()
 
 
 /*!
-
+  If \a enable is TRUE, tracking is enabled. This means that
+  the arrow can be moved using the mouse. Else this is not
+  possible.
 */
 
 void QDial::setTracking( bool enable )
@@ -505,7 +507,8 @@ void QDial::focusOutEvent( QFocusEvent * )
 }
 
 /*!
-
+  \internal
+  Does blinking of the arrow when it has the focus.
 */
 
 void QDial::blink()
@@ -613,7 +616,9 @@ double QDial::angle( const QPoint &p1, const QPoint &p2 ) const
 }
 
 /*!
-
+  If \a enable is TRUE, wrapping is enabled. This means
+  that the arrow can be turned around 360°. Else there is
+  some space at the bottom which is skipped by the arrow.
 */
 
 void QDial::setWrapping( bool enable )
@@ -627,7 +632,9 @@ void QDial::setWrapping( bool enable )
 
 
 /*!
-
+  Returns TRUE if wrapping is enabled, else FALSE.
+  
+  \sa QDial::setWrapping()
 */
 
 bool QDial::wrapping() const
