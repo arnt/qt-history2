@@ -276,7 +276,7 @@ QObject::QObject(QObject *parent)
     setParent(parent);
 }
 
-
+#ifdef QT_COMPAT
 /*!
     \overload
     \obsolete
@@ -287,9 +287,9 @@ QObject::QObject(QObject *parent, const char *name)
     d_ptr->q_ptr = this;
     d->thread = parent ? parent->thread() : QThread::currentQThread();
     setParent(parent);
-    if (name)
-        setObjectName(name);
+    setObjectName(name);
 }
+#endif
 
 /*! \internal
  */

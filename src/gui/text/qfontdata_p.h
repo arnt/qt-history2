@@ -184,6 +184,7 @@ public:
 
 class QFontCache : public QObject
 {
+    Q_OBJECT
 public:
     static QFontCache *instance;
 

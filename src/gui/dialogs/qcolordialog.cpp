@@ -851,9 +851,9 @@ class QColorShowLabel;
 class QColIntValidator: public QIntValidator
 {
 public:
-    QColIntValidator(int bottom, int top,
-                   QWidget * parent, const char *name = 0)
-        :QIntValidator(bottom, top, parent, name) {}
+    QColIntValidator(int bottom, int top, QWidget * parent)
+        : QIntValidator(bottom, top, parent)
+        {}
 
     QValidator::State validate(QString &, int &) const;
 };

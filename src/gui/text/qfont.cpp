@@ -2812,7 +2812,7 @@ static QSingleCleanupHandler<QFontCache> cleanup_fontcache;
 
 
 QFontCache::QFontCache()
-    : QObject(qApp, "global font cache"), total_cost(0), max_cost(min_cost),
+    : QObject(qApp), total_cost(0), max_cost(min_cost),
       current_timestamp(0), fast(false), timer_id(-1)
 {
     Q_ASSERT(instance == 0);

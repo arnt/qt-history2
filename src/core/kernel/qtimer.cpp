@@ -82,7 +82,20 @@
 
 static const int INV_TIMER = -1;                // invalid timer id
 
+/*!
+    Constructs a timer with a \a parent.
 
+    Note that the parent object's destructor will destroy this timer
+    object.
+*/
+
+QTimer::QTimer(QObject *parent)
+    : QObject(parent), id(INV_TIMER), single(0), nulltimer(0)
+{
+}
+
+
+#ifdef QT_COMPAT
 /*!
     Constructs a timer called \a name, with a \a parent.
 
@@ -91,9 +104,11 @@ static const int INV_TIMER = -1;                // invalid timer id
 */
 
 QTimer::QTimer(QObject *parent, const char *name)
-    : QObject(parent, name), id(INV_TIMER), single(0), nulltimer(0)
+    : QObject(parent), id(INV_TIMER), single(0), nulltimer(0)
 {
+    setObjectName(name);
 }
+#endif
 
 /*!
     Destroys the timer.
@@ -231,7 +246,7 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 
 #include "qtimer.moc"
 
-/*! 
+/*!
     \reentrant
     This static function calls a slot after a given time interval.
 

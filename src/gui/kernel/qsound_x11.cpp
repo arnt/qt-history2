@@ -232,7 +232,8 @@ void QAuServerNAS::dataReceived()
 #endif
 
 
-class QAuServerNull : public QAuServer {
+class QAuServerNull : public QAuServer
+{
 public:
     QAuServerNull(QObject* parent);
 
@@ -242,8 +243,8 @@ public:
     bool okay() { return false; }
 };
 
-QAuServerNull::QAuServerNull(QObject* parent) :
-    QAuServer(parent,"Null Audio Server")
+QAuServerNull::QAuServerNull(QObject* parent)
+    : QAuServer(parent)
 {
 }
 
@@ -251,12 +252,11 @@ QAuServerNull::QAuServerNull(QObject* parent) :
 QAuServer* qt_new_audio_server()
 {
 #ifdef QT_NAS_SUPPORT
-    QAuServer* s=new QAuServerNAS(qApp);
-    if (s->okay()) {
+    QAuServer* s = new QAuServerNAS(qApp);
+    if (s->okay())
         return s;
-    } else {
+    else
         delete s;
-    }
 #endif
     return new QAuServerNull(qApp);
 }

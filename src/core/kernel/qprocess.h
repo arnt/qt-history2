@@ -34,9 +34,14 @@ class Q_CORE_EXPORT QProcess : public QObject
 {
     Q_OBJECT
 public:
-    QProcess(QObject *parent=0, const char *name=0);
-    QProcess(const QString& arg0, QObject *parent=0, const char *name=0);
-    QProcess(const QStringList& args, QObject *parent=0, const char *name=0);
+    QProcess(QObject *parent = 0);
+    QProcess(const QString& arg0, QObject *parent = 0);
+    QProcess(const QStringList& args, QObject *parent = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QProcess(QObject *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QProcess(const QString& arg0, QObject *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QProcess(const QStringList& args, QObject *parent, const char *name);
+#endif
     ~QProcess();
 
     // set and get the arguments and working directory

@@ -242,7 +242,7 @@ void QMenuPrivate::popupAction(QMenuAction *action, int delay, bool activateFirs
         } else {
             static QTimer *menuDelayTimer = 0;
             if(!menuDelayTimer)
-                menuDelayTimer = new QTimer(qApp, "menu submenu timer");
+                menuDelayTimer = new QTimer(qApp);
             menuDelayTimer->disconnect(SIGNAL(timeout()));
             QObject::connect(menuDelayTimer, SIGNAL(timeout()),
                              q, SLOT(internalDelayedPopup()));
@@ -1676,7 +1676,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
     if(d->sloppyRegion.contains(e->pos())) {
         static QTimer *sloppyDelayTimer = 0;
         if(!sloppyDelayTimer)
-            sloppyDelayTimer = new QTimer(qApp, "menu sloppy timer");
+            sloppyDelayTimer = new QTimer(qApp);
         sloppyDelayTimer->disconnect(SIGNAL(timeout()));
         QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
                          q, SLOT(internalSetSloppyAction()));

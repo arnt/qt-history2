@@ -82,7 +82,8 @@ private:
 };
 
 QWindowsStyle::Private::Private(QWindowsStyle *parent)
-: QObject(parent, "QWindowsStylePrivate"), alt_down(false), menuBarTimer(0)
+    : QObject(parent),
+      alt_down(false), menuBarTimer(0)
 {
 }
 

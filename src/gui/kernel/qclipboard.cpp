@@ -125,8 +125,8 @@
     more than one object to represent it is almost certainly an error.
 */
 
-QClipboard::QClipboard(QObject *parent, const char *name)
-    : QObject(parent, name)
+QClipboard::QClipboard(QObject *parent)
+    : QObject(parent)
 {
     // nothing
 }

@@ -125,9 +125,8 @@
 
 
 /*!
-    Constructs a socket notifier called \a name, with the given
-    \a parent. It enables the \a socket, and watches for events of the
-    given \a type.
+    Constructs a socket notifier with the given \a parent. It enables
+    the \a socket, and watches for events of the given \a type.
 
     It is generally advisable to explicitly enable or disable the
     socket notifier, especially for write notifiers.
@@ -135,9 +134,8 @@
     \sa setEnabled(), isEnabled()
 */
 
-QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
-                                  const char *name)
-    : QObject(parent, name)
+QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent)
+    : QObject(parent)
 {
     if (socket < 0)
         qWarning("QSocketNotifier: Invalid socket specified");
@@ -151,6 +149,37 @@ QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
     QEventLoop::instance(thread())->registerSocketNotifier(this);
 }
 
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
+    Constructs a socket notifier called \a name, with the given
+    \a parent. It enables the \a socket, and watches for events of the
+    given \a type.
+
+    It is generally advisable to explicitly enable or disable the
+    socket notifier, especially for write notifiers.
+
+    \sa setEnabled(), isEnabled()
+*/
+
+QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
+                                  const char *name)
+    : QObject(parent)
+{
+    setObjectName(name);
+    if (socket < 0)
+        qWarning("QSocketNotifier: Invalid socket specified");
+#if defined(Q_OS_UNIX)
+    if (socket >= FD_SETSIZE)
+        qWarning("QSocketNotifier: Socket descriptor too large for select()");
+#endif
+    sockfd = socket;
+    sntype = type;
+    snenabled = true;
+    QEventLoop::instance(thread())->registerSocketNotifier(this);
+}
+#endif
 /*!
     Destroys the socket notifier.
 */

@@ -28,7 +28,10 @@ public:
     static bool isAvailable();
     static void play(const QString& filename);
 
-    QSound(const QString& filename, QObject* parent=0, const char* name=0);
+    QSound(const QString& filename, QObject* parent = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSound(const QString& filename, QObject* parent, const char* name);
+#endif
     ~QSound();
 
     /* Coming soon...
@@ -79,7 +82,7 @@ class QAuServer : public QObject {
     Q_OBJECT
 
 public:
-    QAuServer(QObject* parent, const char* name);
+    QAuServer(QObject* parent);
     ~QAuServer();
 
     virtual void init(QSound*);

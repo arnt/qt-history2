@@ -20,8 +20,8 @@
 
 static QList<QAuServer*> *servers=0;
 
-QAuServer::QAuServer(QObject* parent, const char* name) :
-    QObject(parent,name)
+QAuServer::QAuServer(QObject* parent)
+    : QObject(parent)
 {
     if (!servers) {
         servers = new QList<QAuServer*>;
@@ -132,12 +132,32 @@ void QSound::play(const QString& filename)
     The \a parent and \a name arguments (default 0) are passed on to
     the QObject constructor.
 */
-QSound::QSound(const QString& filename, QObject* parent, const char* name) :
-    QObject(parent,name),
+QSound::QSound(const QString& filename, QObject* parent) :
+    QObject(parent),
     d(new QSoundData(filename))
 {
     server().init(this);
 }
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+    Constructs a QSound that can quickly play the sound in a file
+    named \a filename.
+
+    This may use more memory than the static \c play function.
+
+    The \a parent and \a name arguments (default 0) are passed on to
+    the QObject constructor.
+*/
+QSound::QSound(const QString& filename, QObject* parent, const char* name) :
+    QObject(parent),
+    d(new QSoundData(filename))
+{
+    setObjectName(name);
+    server().init(this);
+}
+#endif
 
 /*!
     Destroys the sound object.

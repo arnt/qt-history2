@@ -76,7 +76,6 @@ class Q_CORE_EXPORT QObject
 
 public:
     QObject(QObject *parent=0);
-    QObject(QObject *parent, const char *name); // deprecated
     virtual ~QObject();
 
 #ifdef Q_QDOC
@@ -187,6 +186,7 @@ protected:
 
 #ifdef QT_COMPAT
 public:
+    QT_COMPAT_CONSTRUCTOR QObject(QObject *parent, const char *name);
     inline QT_COMPAT void insertChild(QObject *o)
         { if (o) o->setParent(this); }
     inline QT_COMPAT void removeChild(QObject *o)

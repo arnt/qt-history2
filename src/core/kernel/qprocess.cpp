@@ -192,21 +192,83 @@
 */
 
 /*!
+    Constructs a QProcess object. The \a parent parameter is passed to
+    the QObject constructor.
+
+    \sa setArguments() addArgument() start()
+*/
+QProcess::QProcess(QObject *parent)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
+{
+    init();
+}
+
+/*!
+    Constructs a QProcess with \a arg0 as the command to be executed.
+    The \a parent parameter is passed to the QObject constructor.
+
+    The process is not started. You must call start() or launch() to
+    start the process.
+
+    \sa setArguments() addArgument() start()
+*/
+QProcess::QProcess(const QString& arg0, QObject *parent)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
+{
+    init();
+    addArgument(arg0);
+}
+
+/*!
+    Constructs a QProcess with \a args as the arguments of the
+    process. The first element in the list is the command to be
+    executed. The other elements in the list are the arguments to this
+    command. The \a parent parameter is passed to the QObject
+    constructor.
+
+    The process is not started. You must call start() or launch() to
+    start the process.
+
+    \sa setArguments() addArgument() start()
+*/
+QProcess::QProcess(const QStringList& args, QObject *parent)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
+{
+    init();
+    setArguments(args);
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
     Constructs a QProcess object. The \a parent and \a name parameters
     are passed to the QObject constructor.
 
     \sa setArguments() addArgument() start()
 */
 QProcess::QProcess(QObject *parent, const char *name)
-    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
-    wroteToStdinConnected(false),
-    readStdoutCalled(false), readStderrCalled(false),
-    comms(Stdin|Stdout|Stderr)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
 {
+    setObjectName(name);
     init();
 }
 
 /*!
+  \obsolete
+
     Constructs a QProcess with \a arg0 as the command to be executed.
     The \a parent and \a name parameters are passed to the QObject
     constructor.
@@ -217,16 +279,19 @@ QProcess::QProcess(QObject *parent, const char *name)
     \sa setArguments() addArgument() start()
 */
 QProcess::QProcess(const QString& arg0, QObject *parent, const char *name)
-    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
-    wroteToStdinConnected(false),
-    readStdoutCalled(false), readStderrCalled(false),
-    comms(Stdin|Stdout|Stderr)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
 {
+    setObjectName(name);
     init();
     addArgument(arg0);
 }
 
 /*!
+  \obsolete
+
     Constructs a QProcess with \a args as the arguments of the
     process. The first element in the list is the command to be
     executed. The other elements in the list are the arguments to this
@@ -239,15 +304,16 @@ QProcess::QProcess(const QString& arg0, QObject *parent, const char *name)
     \sa setArguments() addArgument() start()
 */
 QProcess::QProcess(const QStringList& args, QObject *parent, const char *name)
-    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
-    wroteToStdinConnected(false),
-    readStdoutCalled(false), readStderrCalled(false),
-    comms(Stdin|Stdout|Stderr)
+    : QObject(parent), ioRedirection(false), notifyOnExit(false),
+      wroteToStdinConnected(false),
+      readStdoutCalled(false), readStderrCalled(false),
+      comms(Stdin|Stdout|Stderr)
 {
+    setObjectName(name);
     init();
     setArguments(args);
 }
-
+#endif
 
 /*!
     Returns the list of arguments that are set for the process.

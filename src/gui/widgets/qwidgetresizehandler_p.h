@@ -46,7 +46,7 @@ public:
         Any        = Move|Resize
     };
 
-    QWidgetResizeHandler(QWidget *parent, QWidget *cw = 0, const char *name = 0);
+    QWidgetResizeHandler(QWidget *parent, QWidget *cw = 0);
     void setActive(bool b) { setActive(Any, b); }
     void setActive(Action ac, bool b);
     bool isActive() const { return isActive(Any); }

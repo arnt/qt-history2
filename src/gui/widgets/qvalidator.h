@@ -28,7 +28,10 @@ class Q_GUI_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
-    QValidator(QObject * parent, const char *name = 0);
+    QValidator(QObject * parent);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QValidator(QObject * parent, const char *name);
+#endif
     ~QValidator();
 
     enum State { Invalid, Intermediate, Valid=Intermediate, Acceptable };
@@ -51,9 +54,12 @@ class Q_GUI_EXPORT QIntValidator : public QValidator
     Q_PROPERTY(int top READ top WRITE setTop)
 
 public:
-    QIntValidator(QObject * parent, const char *name = 0);
-    QIntValidator(int bottom, int top,
-                   QObject * parent, const char *name = 0);
+    QIntValidator(QObject * parent);
+    QIntValidator(int bottom, int top, QObject * parent);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QIntValidator(QObject * parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QIntValidator(int bottom, int top, QObject * parent, const char *name);
+#endif
     ~QIntValidator();
 
     QValidator::State validate(QString &, int &) const;
@@ -84,9 +90,13 @@ class Q_GUI_EXPORT QDoubleValidator : public QValidator
     Q_PROPERTY(int decimals READ decimals WRITE setDecimals)
 
 public:
-    QDoubleValidator(QObject * parent, const char *name = 0);
-    QDoubleValidator(double bottom, double top, int decimals,
-                      QObject * parent, const char *name = 0);
+    QDoubleValidator(QObject * parent);
+    QDoubleValidator(double bottom, double top, int decimals, QObject * parent);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QDoubleValidator(QObject * parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QDoubleValidator(double bottom, double top, int decimals,
+                                           QObject * parent, const char *name);
+#endif
     ~QDoubleValidator();
 
     QValidator::State validate(QString &, int &) const;
@@ -117,9 +127,12 @@ class Q_GUI_EXPORT QRegExpValidator : public QValidator
     // Q_PROPERTY(QRegExp regExp READ regExp WRITE setRegExp)
 
 public:
-    QRegExpValidator(QObject *parent, const char *name = 0);
-    QRegExpValidator(const QRegExp& rx, QObject *parent,
-                      const char *name = 0);
+    QRegExpValidator(QObject *parent);
+    QRegExpValidator(const QRegExp& rx, QObject *parent);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QRegExpValidator(QObject *parent, const char *name);
+    QT_COMPAT_CONSTRUCTOR QRegExpValidator(const QRegExp& rx, QObject *parent, const char *name);
+#endif
     ~QRegExpValidator();
 
     virtual QValidator::State validate(QString& input, int& pos) const;

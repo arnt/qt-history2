@@ -69,9 +69,10 @@ static int cache_limit = 1024;                        // 1024 KB cache limit
 
 class QPMCache : public QObject, public QCache<QString, QPixmap>
 {
+    Q_OBJECT
 public:
     QPMCache()
-        : QObject(0, "global pixmap cache"),
+        : QObject(0),
           QCache<QString, QPixmap>(cache_limit * 1024),
           id(0), ps(0), t(false) { }
     ~QPMCache() { }

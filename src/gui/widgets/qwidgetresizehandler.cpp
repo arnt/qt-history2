@@ -30,8 +30,8 @@
 static bool resizeHorizontalDirectionFixed = false;
 static bool resizeVerticalDirectionFixed = false;
 
-QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw, const char *name)
-    : QObject(parent, name), widget(parent), childWidget(cw ? cw : parent),
+QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw)
+    : QObject(parent), widget(parent), childWidget(cw ? cw : parent),
       extrahei(0), buttonDown(false), moveResizeMode(false), sizeprotect(true), moving(true)
 {
     mode = Nowhere;

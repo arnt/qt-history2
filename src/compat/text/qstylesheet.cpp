@@ -1045,8 +1045,9 @@ int QStyleSheetItem::lineSpacing() const
     By default the style sheet has the tag definitions defined above.
 */
 QStyleSheet::QStyleSheet(QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent)
 {
+    setObjectName(name);
     init();
 }
 

@@ -26,7 +26,10 @@ class Q_CORE_EXPORT QTimer : public QObject
     Q_OBJECT
 
 public:
-    QTimer(QObject *parent=0, const char *name=0);
+    QTimer(QObject *parent = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QTimer(QObject *parent, const char *name);
+#endif
     ~QTimer();
 
     static void singleShot(int msec, QObject *receiver, const char *member);

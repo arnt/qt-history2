@@ -2191,7 +2191,7 @@ QDesktopWidget *QApplication::desktop()
 QClipboard *QApplication::clipboard()
 {
     if (qt_clipboard == 0) {
-        qt_clipboard = new QClipboard;
+        qt_clipboard = new QClipboard(0);
     }
     return qt_clipboard;
 }

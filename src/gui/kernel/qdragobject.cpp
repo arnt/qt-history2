@@ -222,7 +222,7 @@ QDragManager * qt_dnd_manager = 0;
 
 
 QDragManager::QDragManager()
-    : QObject(qApp, "global drag manager")
+    : QObject(qApp)
 {
     n_cursor = 3;
     pm_cursor = new QPixmap[n_cursor];

@@ -98,15 +98,28 @@
 
 
 /*!
+    Sets up the validator. The \a parent parameter is
+    passed on to the QObject constructor.
+*/
+
+QValidator::QValidator(QObject * parent)
+    : QObject(parent)
+{
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
     Sets up the validator. The \a parent and \a name parameters are
     passed on to the QObject constructor.
 */
 
 QValidator::QValidator(QObject * parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent)
 {
+    setObjectName(name);
 }
-
+#endif
 
 /*!
     Destroys the validator, freeing any storage and other resources
@@ -208,12 +221,12 @@ void QValidator::fixup(QString &) const
 
 
 /*!
-    Constructs a validator with a \a parent object and a \a name that
+    Constructs a validator with a \a parent object that
     accepts all integers.
 */
 
-QIntValidator::QIntValidator(QObject * parent, const char *name)
-    : QValidator(parent, name)
+QIntValidator::QIntValidator(QObject * parent)
+    : QValidator(parent)
 {
     b = INT_MIN;
     t = INT_MAX;
@@ -221,18 +234,52 @@ QIntValidator::QIntValidator(QObject * parent, const char *name)
 
 
 /*!
+    Constructs a validator with a \a parent, that accepts integers
+    from \a minimum to \a maximum inclusive.
+*/
+
+QIntValidator::QIntValidator(int minimum, int maximum,
+                              QObject * parent)
+    : QValidator(parent)
+{
+    b = minimum;
+    t = maximum;
+}
+
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
+    Constructs a validator with a \a parent object and a \a name that
+    accepts all integers.
+*/
+
+QIntValidator::QIntValidator(QObject * parent, const char *name)
+    : QValidator(parent)
+{
+    setObjectName(name);
+    b = INT_MIN;
+    t = INT_MAX;
+}
+
+
+/*!
+  \obsolete
+
     Constructs a validator called \a name with a \a parent, that
     accepts integers from \a minimum to \a maximum inclusive.
 */
 
 QIntValidator::QIntValidator(int minimum, int maximum,
                               QObject * parent, const char* name)
-    : QValidator(parent, name)
+    : QValidator(parent)
 {
+    setObjectName(name);
     b = minimum;
     t = maximum;
 }
-
+#endif
 
 /*!
     Destroys the validator.
@@ -349,12 +396,12 @@ void QIntValidator::setTop(int top)
 */
 
 /*!
-    Constructs a validator object with a \a parent object and a \a name
+    Constructs a validator object with a \a parent object
     that accepts any double.
 */
 
-QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
-    : QValidator(parent, name)
+QDoubleValidator::QDoubleValidator(QObject * parent)
+    : QValidator(parent)
 {
     b = -HUGE_VAL;
     t = HUGE_VAL;
@@ -363,6 +410,41 @@ QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
 
 
 /*!
+    Constructs a validator object with a \a parent object. This
+    validator will accept doubles from \a bottom to \a top inclusive,
+    with up to \a decimals digits after the decimal point.
+*/
+
+QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
+                                    QObject * parent)
+    : QValidator(parent)
+{
+    b = bottom;
+    t = top;
+    d = decimals;
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
+    Constructs a validator object with a \a parent object and a \a name
+    that accepts any double.
+*/
+
+QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
+    : QValidator(parent)
+{
+    setObjectName(name);
+    b = -HUGE_VAL;
+    t = HUGE_VAL;
+    d = 1000;
+}
+
+
+/*!
+  \obsolete
+
     Constructs a validator object with a \a parent object, called \a
     name. This validator will accept doubles from \a bottom to \a top
     inclusive, with up to \a decimals digits after the decimal point.
@@ -370,13 +452,14 @@ QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
 
 QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
                                     QObject * parent, const char* name)
-    : QValidator(parent, name)
+    : QValidator(parent)
 {
+    setObjectName(name);
     b = bottom;
     t = top;
     d = decimals;
 }
-
+#endif
 
 /*!
     Destroys the validator.
@@ -572,16 +655,45 @@ void QDoubleValidator::setDecimals(int decimals)
 */
 
 /*!
+    Constructs a validator with a \a parent object that accepts
+    any string (including an empty one) as valid.
+*/
+
+QRegExpValidator::QRegExpValidator(QObject *parent)
+    : QValidator(parent), r(QString::fromLatin1(".*"))
+{
+}
+
+/*!
+    Constructs a validator with a \a parent object that
+    accepts all strings that match the regular expression \a rx.
+
+    The match is made against the entire string; e.g. if the regexp is
+    \bold{[A-Fa-f0-9]+} it will be treated as \bold{^[A-Fa-f0-9]+$}.
+*/
+
+QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent)
+    : QValidator(parent), r(rx)
+{
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
+
     Constructs a validator with a \a parent object and \a name that accepts
     any string (including an empty one) as valid.
 */
 
 QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
-    : QValidator(parent, name), r(QString::fromLatin1(".*"))
+    : QValidator(parent), r(QString::fromLatin1(".*"))
 {
+        setObjectName(name);
 }
 
 /*!
+  \obsolete
+
     Constructs a validator with a \a parent object and a \a name that
     accepts all strings that match the regular expression \a rx.
 
@@ -591,9 +703,11 @@ QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
 
 QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent,
                                     const char *name)
-    : QValidator(parent, name), r(rx)
+    : QValidator(parent), r(rx)
 {
+        setObjectName(name);
 }
+#endif
 
 /*!
     Destroys the validator.
