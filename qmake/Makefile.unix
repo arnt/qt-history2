@@ -163,7 +163,7 @@ winmakefile.o: generators/win32/winmakefile.cpp
 project.o: project.cpp project.h option.h
 	$(CXX) -c -o $@ $(CXXFLAGS) project.cpp
 
-proprerty.o: property.cpp project.h option.h
+property.o: property.cpp project.h option.h
 	$(CXX) -c -o $@ $(CXXFLAGS) property.cpp
 
 meta.o: meta.cpp project.h option.h
