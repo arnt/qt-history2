@@ -132,8 +132,12 @@ static QString asListing( const QVariant& v )
 	    s += asListing( l[i] ) + (i<l.count()-1?QString(","):QString(")"));
 	break;
     }
+    case QVariant::Bool:
+	s = v.toBool() ? "true" : "false";
+	break;
     default:
 	s = v.toString();
+	break;
     }
     if ( s.isNull() )
 	s = ".";
@@ -427,6 +431,7 @@ static void reverse( qdb::ColumnKey& colkey, uint elements )
 
 bool ResultSet::sort( const qdb::List& index )
 {
+    qDebug("ResultSet::sort");
     if ( !env ) {
 	env->setLastError( "internal error:ResultSet::sort: no environment" );
 	return FALSE;
@@ -435,8 +440,9 @@ bool ResultSet::sort( const qdb::List& index )
 	env->setLastError( "internal error:ResultSet::sort: no header" );
 	return FALSE;
     }
-    if ( !data.count() ) /* nothing to do */
+    if ( !data.count() || data.count() == 1 ) { /* nothing to do */
 	return TRUE;
+    }
     if ( !index.count() ) {
 	env->setLastError("internal error:ResultSet::sort: no fields defined");
 	return 0;
