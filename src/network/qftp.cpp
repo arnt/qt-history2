@@ -656,7 +656,15 @@ void QFtp::okGoOn( int code, const QCString &data )
 	    }
 	}
     } break;
-    case 226: // listing directory (in passive mode) finished and data socket closing
+    case 226:
+	if ( !passiveMode && operationInProgress() && !errorInListChildren
+		&& operationInProgress()->operation() == OpPut )
+	{
+	    // data socket closing
+	    operationInProgress()->setState( StDone );
+	    emit finished( operationInProgress() );
+	}
+	// else just listing directory (in passive mode) finished
 	break;
     case 257: { // mkdir worked
 	if ( operationInProgress() && operationInProgress()->operation() == OpMkDir ) {
@@ -843,20 +851,24 @@ void QFtp::dataConnected()
 
 void QFtp::dataClosed()
 {
+    if ( operationInProgress() ) {
+	if ( operationInProgress()->operation() == OpPut )
+	    return;
+
+	passiveMode = FALSE;
+	if ( !errorInListChildren ) {
+	    operationInProgress()->setState( StDone );
+	    emit finished( operationInProgress() );
+	}
+    }
+
     // switch back to ASCII mode
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
-	qDebug( "QFtp S: TYPE A" );
+    qDebug( "QFtp S: TYPE A" );
 #endif
     commandSocket->writeBlock( "TYPE A\r\n", 8 );
 
-    passiveMode = FALSE;
-
     reinitCommandSocket();
-
-    if ( !errorInListChildren && operationInProgress() ) {
-	operationInProgress()->setState( StDone );
-	emit finished( operationInProgress() );
-    }
 }
 
 /*!
