@@ -623,13 +623,13 @@ since the custom delegate will control data entry. We construct a
 table view to display the contents of the model, and this will use
 the custom delegate for editing.
 
-\img spinbox-delegate.png
+\img itemviews-spinboxdelegate.png
 
 We subclass the delegate from \l QItemDelegate because we do not want
 to write custom display functions. However, we must still provide
 functions to manage the editor widget:
 
-\quotefile spinbox-delegate/delegate.h
+\quotefile spinboxdelegate/delegate.h
 \skipto class SpinBoxDelegate
 \printuntil };
 
@@ -645,7 +645,7 @@ for the item being modified. The
 supplied with everything that the delegate needs to be able to set up
 a suitable widget:
 
-\quotefile spinbox-delegate/delegate.cpp
+\quotefile spinboxdelegate/delegate.cpp
 \skipto QWidget *SpinBoxDelegate::createEditor
 \printuntil }
 
@@ -685,7 +685,7 @@ When the user has finished editing the value in the spin box, the view
 asks the delegate to store the edited value in the model by calling the
 \l{QAbstractItemDelegate::setModelData()}{setModelData()} function.
 
-\quotefile spinbox-delegate/delegate.cpp
+\quotefile spinboxdelegate/delegate.cpp
 \skipto void SpinBoxDelegate::setModelData
 \printuntil /^\}/
 
