@@ -541,10 +541,10 @@ class QTextParag
 {
 public:
     struct LineStart {
-	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), space( 0 ), bidicontext( 0 ) {}
-	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ), space( 0 ),
+	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {}
+	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ), 
 	    bidicontext(0) {}
-	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0), space( 0 ),
+	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
 	    bidicontext( c ), status( s ) { if(bidicontext) bidicontext->ref(); }
 	~LineStart() { if(bidicontext) bidicontext->deref(); }
 	void setContext( QTextBidiContext *c ) 
@@ -556,7 +556,7 @@ public:
 	}
 	QTextBidiContext *context() const { return bidicontext; }
     public:
-	ushort y, baseLine, h, space;
+	ushort y, baseLine, h;
     private:
 	QTextBidiContext *bidicontext;
     public:
@@ -737,8 +737,10 @@ public:
 
 protected:
     QTextDocument *doc;
-    QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
-    QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
+    QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, 
+				       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
+    QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, 
+					    QTextString::Char *last, int align, int space );
     bool isBreakable( QTextString *string, int pos );
 };
 

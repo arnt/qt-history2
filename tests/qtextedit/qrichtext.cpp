@@ -3156,10 +3156,41 @@ QTextFormatter::QTextFormatter( QTextDocument *d )
 /* only used for bidi or complex text reordering
  */
 QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextParag::LineStart *line,
-				 QTextString::Char *start, QTextString::Char *last )
+				 QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     if( string->isBidi() )
-	return bidiReorderLine( string, line, start, last );
+	return bidiReorderLine( string, line, startChar, lastChar, align, space );
+
+    int start = (startChar - &string->at(0));
+    int last = (lastChar - &string->at(0) );
+    // do alignment Auto == Left in this case
+    if ( align & Qt::AlignHCenter || align & Qt::AlignRight ) {
+	if ( align & Qt::AlignHCenter )
+	    space /= 2;
+	for ( int j = start; j <= last; ++j )
+	    string->at( j ).x += space;
+    } else if ( align & Qt::AlignJustify ) {
+	int numSpaces = 0;
+	for ( int j = start; j <= last; ++j ) {
+	    if( isBreakable( string, j ) ) {
+		numSpaces++;
+		qDebug( "space at %d", j );
+	    }
+	}
+	qDebug( " num space = %d space = %d", numSpaces, space );
+	int toAdd = 0;
+	for ( int j = start + 1; j <= last; ++j ) {
+	    if( isBreakable( string, j ) && numSpaces ) {
+		int s = space / numSpaces;
+		toAdd += s;
+		space -= s;
+		numSpaces--;
+		qDebug( "toadd = %d", toAdd );
+	    }
+	    string->at( j ).x += toAdd;
+	}
+    }	
+        
     return new QTextParag::LineStart();
 }
 
@@ -3197,7 +3228,7 @@ struct QTextBidiRun {
 
 // collects one line of the paragraph and transforms it to visual order
 QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line,
-				 QTextString::Char *startChar, QTextString::Char *lastChar )
+				 QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) );
@@ -3691,24 +3722,51 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 
     // now construct the reordered string out of the runs...
 
+    int x = 0;
+    int numSpaces = 0;
+    // set the correct alignment. This is a bit messy....
+    if( align == Qt::AlignAuto ) {
+	// align according to directionality of the paragraph...
+	if ( text->isRightToLeft() )
+	    align = Qt::AlignRight;
+    }
+
+    if ( align & Qt::AlignHCenter )
+	x += space/2;
+    else if ( align & Qt::AlignRight ) 
+	x += space;
+    else if ( align & Qt::AlignJustify ) {
+	for ( int j = start; j <= last; ++j ) {
+	    if( isBreakable( text, j ) ) {
+		numSpaces++;
+	    }
+	}
+    }
+    int toAdd = 0;
+        
     // in rtl text the leftmost character is usually a space
     // this space should not take up visible space on the left side, to get alignment right.
     // the following bool is used for that purpose
     bool first = TRUE;
     r = runs.first();
-    int x = 0;
     while ( r ) {
 	if(r->level %2) {
 	    // odd level, need to reverse the string
 	    int pos = r->stop;
 	    while(pos >= r->start) {
 		QTextString::Char *c = &text->at(pos);
+		if( numSpaces && !first && isBreakable( text, pos ) ) {
+		    int s = space / numSpaces;
+		    toAdd += s;
+		    space -= s;
+		    numSpaces--;
+		}
 		if ( first ) {
 		    first = FALSE;
 		    if ( c->c == ' ' )
 			x -= c->width();
 		}
-		c->x = x;
+		c->x = x + toAdd;
 		c->rightToLeft = TRUE;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
@@ -3724,12 +3782,18 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
 	    int pos = r->start;
 	    while(pos <= r->stop) {
 		QTextString::Char* c = &text->at(pos);
+		if( numSpaces && !first && isBreakable( text, pos ) ) {
+		    int s = space / numSpaces;
+		    toAdd += s;
+		    space -= s;
+		    numSpaces--;
+		}
 		if ( first ) {
 		    first = FALSE;
 		    if ( c->c == ' ' )
 			x -= c->width();
 		}
-		c->x = x;
+		c->x = x + toAdd;
 		int ww = 0;
 		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
 		    ww = c->width();
@@ -3901,6 +3965,9 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
     int tmpBaseLine = 0, tmph = 0;
     bool lastWasNonInlineCustom = FALSE;
 
+    int align = parag->alignment();
+
+    
     for ( ; i < len; ++i ) {
 	c = &string->at( i );
 	if ( i > 0 && x > curLeft || lastWasNonInlineCustom ) {
@@ -3924,8 +3991,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	
 	if ( c->isCustom && c->customItem()->ownLine() ) {
 // 	    doc->setMinimumWidth( c->customItem()->minimumWidth(), parag ); ##### needed for minimum width stuff
-	    lineStart->space = w - x;
-	    lineStart = formatLine( string, lineStart, firstChar, c-1 );
+	    lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
 	    x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 	    w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 	    c->customItem()->width = dw;
@@ -3955,8 +4021,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
 		}
-		lineStart->space = w - x;
-		lineStart = formatLine( string, lineStart, firstChar, c-1 );
+		lineStart = formatLine( string, lineStart, firstChar, c-1, align, w - x );
 		
 		x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 		w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
@@ -3976,8 +4041,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		lastBreak = -1;
 	    } else {
 		i = lastBreak;
-		lineStart->space = w - string->at( i ).x;
-		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ) );
+		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 );
 		w = dw - parag->document()->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 );
 		if ( x != left || w != dw )
@@ -4018,73 +4082,12 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	h = QMAX( h, tmph );
 	lineStart->h = h;
-	lineStart->space = w - x;
-	lineStart = formatLine( string, lineStart, firstChar, c );
+	// last line in a paragraph is not justified
+	if ( align == Qt::AlignJustify )
+	    align = Qt::AlignAuto;
+	lineStart = formatLine( string, lineStart, firstChar, c, align, w - x );
 	delete lineStart;
     }
-
-    int align = parag->alignment();
-    if( align == Qt::AlignAuto ) {
-	// align according to directionality of the paragraph...
-	if ( string->isRightToLeft() )
-	    align = Qt::AlignRight;
-    }
-    
-    if ( align & Qt::AlignHCenter || align & Qt::AlignRight ) {
-	int last = 0;
-	QMap<int, QTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
-	while ( TRUE ) {
-	    int space = it.data()->space;
-	    it++;
-	    int i = 0;
-	    if ( it == parag->lineStartList().end() )
-		i = parag->length() - 1;
-	    else
-		i = it.key() - 1;
-	    c = &string->at( i );
-	    if ( parag->alignment() & Qt::AlignHCenter )
-		space /= 2;
-	    for ( int j = last; j <= i; ++j )
-		string->at( j ).x += space;
-	    last = i + 1;
-	    if ( it == parag->lineStartList().end() )
-		break;
-	}
-    } else if ( align & Qt::AlignJustify ) {
-	int last = 0;
-	QMap<int, QTextParag::LineStart*>::Iterator it = parag->lineStartList().begin();
-	while ( TRUE ) {
-	    int space = it.data()->space;
-	    it++;
-	    int i = 0;
-	    if ( it == parag->lineStartList().end() )
-		i = parag->length() - 1;
-	    else
-		i = it.key() - 1;
-	    c = &string->at( i );
-	    if ( parag->alignment() & Qt::AlignHCenter )
-		space /= 2;
-	    int numSpaces = 0;
-	    for ( int j = last; j <= i; ++j ) {
-		if( isBreakable( string, j ) ) {
-		    numSpaces++;
-		}
-	    }
-	    int toAdd = 0;
-	    for ( int j = last + 1; j <= i; ++j ) {
-		if( isBreakable( string, i ) && numSpaces ) {
-		    int s = space / numSpaces;
-		    toAdd += s;
-		    space -= s;
-		    numSpaces--;
-		}
-		string->at( j ).x += toAdd;
-	    }
-	    last = i + 1;
-	    if ( it == parag->lineStartList().end() )
-		break;
-	}
-    }	
 
     int m = parag->bottomMargin();
     if ( parag->next() )
