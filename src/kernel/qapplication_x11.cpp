@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#412 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#413 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2890,14 +2890,13 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    // backward rotation respectively.
 		    delta *= 120*(event->xbutton.button == Button4?1:-1);
 		
-		    QWheelEvent e( pos, delta, state );
-		    e.ignore();	
 		
 		    // send the event to the widget that has the focus or its ancestors
 		    QWidget* w = qApp->focusWidget();
 		    if (w){
 			do {
-			    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+			    QWheelEvent e( w->mapFromGlobal(globalPos), delta, state );
+			    e.ignore();	
 			    QApplication::sendEvent( w, &e );
 			    if ( e.isAccepted() )
 				return TRUE;
