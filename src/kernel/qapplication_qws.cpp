@@ -36,6 +36,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qwidget.h"
+#include "qwidget_p.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
@@ -1343,8 +1344,6 @@ static int parseGeometry( const char* string,
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    extern int qt_widget_tlw_gravity;		// in qwidget_qws.cpp
-
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
 	if ( mwTitle ) {

@@ -49,6 +49,7 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qwidget.h"
+#include "qwidget_p.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
@@ -1712,7 +1713,6 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 #if QT_VERSION >= 300
     ASSERT(!mainWidget->parentWidget()); // catch silly error
 #endif
-    extern int qt_widget_tlw_gravity;		// in qwidget_x11.cpp
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
 	XSetWMProperties( main_widget->x11Display(), main_widget->winId(),
