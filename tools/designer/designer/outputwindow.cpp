@@ -5,6 +5,8 @@
 #include <qtextedit.h>
 #include <qapplication.h>
 #include <qheader.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static QTextEdit *debugoutput = 0;
 bool debugToStderr = FALSE;
@@ -21,7 +23,8 @@ OutputWindow::~OutputWindow()
 {
     debugoutput = debugView = 0;
     errorView = 0;
-    qInstallMsgHandler( oldMsgHandler );
+    if ( !debugToStderr )
+	qInstallMsgHandler( oldMsgHandler );
     delete iface;
 }
 
@@ -41,10 +44,10 @@ void debugMessageOutput( QtMsgType type, const char *msg )
     QString s( msg );
 
     if ( type != QtFatalMsg ) {
-	if( debugToStderr )
-	else if ( debugoutput )
+	if ( debugoutput )
 	    debugoutput->append( s + "\n" );
     } else {
+	fprintf( stderr, msg );
 	abort();
     }
 
@@ -56,7 +59,8 @@ void OutputWindow::setupDebug()
     debugoutput = debugView = new QTextEdit( this, "OutputWindow::debugView" );
     addTab( debugView, "Debug Output" );
 
-    oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
+    if ( !debugToStderr )
+	oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
 
 void OutputWindow::setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear )
