@@ -928,7 +928,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	setWinId(id);
 	ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
-	    QMacSavedPortInfo::setAlphaTransparency(this, 0.85);
+	    setWindowTransparency(180);
 #if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    SetDrawerOffsets((WindowPtr)hd, 0.0, 25.0);

@@ -477,9 +477,7 @@ void QMacStyle::polish(QWidget* w)
 	QPopupMenu *popup = (QPopupMenu*)w;
 	popup->setMargin(0);
 	popup->setLineWidth(0);
-#ifdef Q_WS_MAC
-	QMacSavedPortInfo::setAlphaTransparency(w, 0.9);
-#endif
+	w->setWindowTransparency(200);
     } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
@@ -496,7 +494,7 @@ void QMacStyle::unPolish(QWidget* w)
     }
 #ifdef Q_WS_MAC
     else if(w->inherits("QPopupMenu")) {
-	QMacSavedPortInfo::setAlphaTransparency(w, 1);
+	w->setWindowTransparency(255);
     }
 #endif
 
