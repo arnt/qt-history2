@@ -782,25 +782,29 @@ QMakeProject::read(uchar cmd)
             base_vars["TEMPLATE_PREFIX"] = Option::user_template_prefix;
 
         if(cmd & ReadCache && Option::mkfile::do_cache) {        // parse the cache
-            if(Option::mkfile::cachefile.isEmpty())  { //find it as it has not been specified
+            int cache_depth = -1;
+            QString qmake_cache = Option::mkfile::cachefile;
+            if(qmake_cache.isEmpty())  { //find it as it has not been specified
                 QString dir = QDir::convertSeparators(Option::output_dir);
-                while(!QFile::exists((Option::mkfile::cachefile = dir +
-                                      QDir::separator() + ".qmake.cache"))) {
+                while(!QFile::exists((qmake_cache = dir + QDir::separator() + ".qmake.cache"))) {
                     dir = dir.left(dir.lastIndexOf(QDir::separator()));
                     if(dir.isEmpty() || dir.indexOf(QDir::separator()) == -1) {
-                        Option::mkfile::cachefile = "";
+                        qmake_cache = "";
                         break;
                     }
-                    if(Option::mkfile::cachefile_depth == -1)
-                        Option::mkfile::cachefile_depth = 1;
+                    if(cache_depth == -1)
+                        cache_depth = 1;
                     else
-                        Option::mkfile::cachefile_depth++;
+                        cache_depth++;
                 }
             }
-            if(!Option::mkfile::cachefile.isEmpty()) {
-                read(Option::mkfile::cachefile, cache);
-                if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
-                    Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
+            if(!qmake_cache.isEmpty()) {
+                if(read(qmake_cache, cache)) {
+                    Option::mkfile::cachefile_depth = cache_depth;
+                    Option::mkfile::cachefile = qmake_cache;
+                    if(Option::mkfile::qmakespec.isEmpty() && !cache["QMAKESPEC"].isEmpty())
+                        Option::mkfile::qmakespec = cache["QMAKESPEC"].first();
+                }
             }
         }
         if(cmd & ReadConf) {             // parse mkspec
