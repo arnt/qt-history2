@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#111 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#112 $
 **
 ** Implementation of QTextStream class
 **
@@ -290,11 +290,11 @@ public:
 #if defined(CHECK_STATE)
 	CHECK_PTR( p );
 	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QBuffer::readBlock: Buffer not open" );
+	    qWarning( "QStringBuffer::readBlock: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QBuffer::readBlock: Read operation not permitted" );
+	    qWarning( "QStringBuffer::readBlock: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -316,23 +316,23 @@ public:
     {
 #if defined(CHECK_NULL)
 	if ( p == 0 && len != 0 )
-	    qWarning( "QBuffer::writeBlock: Null pointer error" );
+	    qWarning( "QStringBuffer::writeBlock: Null pointer error" );
 #endif
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QBuffer::writeBlock: Buffer not open" );
+	    qWarning( "QStringBuffer::writeBlock: Buffer not open" );
 	    return -1;
 	}
 	if ( !isWritable() ) {                      // writing not permitted
-	    qWarning( "QBuffer::writeBlock: Write operation not permitted" );
+	    qWarning( "QStringBuffer::writeBlock: Write operation not permitted" );
 	    return -1;
 	}
 	if ( ioIndex&1 ) {
-	    qWarning( "QBuffer::writeBlock: non-even index - non Unicode" );
+	    qWarning( "QStringBuffer::writeBlock: non-even index - non Unicode" );
 	    return -1;
 	}
 	if ( len&1 ) {
-	    qWarning( "QBuffer::writeBlock: non-even length - non Unicode" );
+	    qWarning( "QStringBuffer::writeBlock: non-even length - non Unicode" );
 	    return -1;
 	}
 #endif
@@ -345,11 +345,11 @@ public:
     {
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QBuffer::getch: Buffer not open" );
+	    qWarning( "QStringBuffer::getch: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QBuffer::getch: Read operation not permitted" );
+	    qWarning( "QStringBuffer::getch: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -373,11 +373,11 @@ public:
     {
 #if defined(CHECK_STATE)
 	if ( !isOpen() ) {                          // buffer not open
-	    qWarning( "QBuffer::ungetch: Buffer not open" );
+	    qWarning( "QStringBuffer::ungetch: Buffer not open" );
 	    return -1;
 	}
 	if ( !isReadable() ) {                      // reading not permitted
-	    qWarning( "QBuffer::ungetch: Read operation not permitted" );
+	    qWarning( "QStringBuffer::ungetch: Read operation not permitted" );
 	    return -1;
 	}
 #endif
@@ -600,7 +600,9 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-	if ( isNetworkOrder() ) {
+	if ( internalOrder ) {
+	    dev->writeBlock( (char*)&c, sizeof(QChar) );
+	} else if ( isNetworkOrder() ) {
 	    dev->putch(c.row());
 	    dev->putch(c.cell());
 	} else {
