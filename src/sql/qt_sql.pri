@@ -134,7 +134,8 @@ sql {
 			LIBS += -L$SYBASE/lib -lsybdb
 		}
 		win32 {
-			LIBS += NTWDBLIB.LIB
+			!win32-borland:LIBS += NTWDBLIB.LIB
+			win32-borland:LIBS += $(BCB)/lib/PSDK/NTWDBLIB.LIB
 #			win32-msvc: { 
 #				LIBS *= delayimp.lib
 #				QMAKE_LFLAGS += /DELAYLOAD:ntwdblib.dll
