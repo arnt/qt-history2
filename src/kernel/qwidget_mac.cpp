@@ -680,10 +680,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(ptl && ptl->testWFlags(WStyle_StaysOnTop))
 	    setWFlags(WStyle_StaysOnTop);
     }
-    if(!testWFlags(WStyle_Customize) && !(desktop || popup)) 
-	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
     if(dialog && !testWFlags(WShowModal) && parentWidget() && parentWidget()->testWFlags(WShowModal))
 	setWFlags(WShowModal);
+    if(!testWFlags(WStyle_Customize) && !(desktop || popup) && !testWFlags(WShowModal)) 
+	setWFlags(WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
     if(desktop) {                            // desktop widget
 	dialog = popup = FALSE;                  // force these flags off
