@@ -451,8 +451,7 @@ QObject::~QObject()
 	delete childObjects;
     }
 
-    if ( d )
-	delete d;
+    delete d;
 }
 
 
