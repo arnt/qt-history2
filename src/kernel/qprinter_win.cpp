@@ -1060,26 +1060,36 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( paint ) {
                 bool wxf = paint->hasWorldXForm();
                 bool vxf = paint->hasViewXForm();
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 		bool complexWxf = FALSE;
+#endif
                 if ( wxf ) {
 		    QWMatrix m = paint->worldMatrix();
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 		    complexWxf = m.m12() != 0 || m.m21() != 0;
 		    if ( complexWxf ) {
-			//qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+//			qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
 			if ( image.isNull() ) {
 			    image = pixmap;
-			    //qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+//			    qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
 			    pixmap = QPixmap();
 			}
 			image.setAlphaBuffer( TRUE );
+
+//			QRgb bla = image.pixel( 0, 0 );
+//			qDebug( "%d %d %d %d", qRed(bla), qGreen(bla), qBlue(bla), qAlpha(bla) );
+
 			image = image.xForm( m );
 			int origW = w;
 			int origH = h;
 			w = image.width();
 			h = image.height();
-			rect.setWidth( rect.width()*w / origW );
-			rect.setHeight( rect.height()*h / origH );
-			//qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
+			rect.setWidth( rect.width() * w / origW );
+			rect.setHeight( rect.height() * h / origH );
+
+//			bla = image.pixel( 0, 0 );
+//			qDebug( "%d %d %d %d", qRed(bla), qGreen(bla), qBlue(bla), qAlpha(bla) );
+//			qDebug( "yes alphaBuffer=%d colorDepth=%d", image.hasAlphaBuffer(), image.depth() );
 
 			// The image is already transformed. For the transformation
 			// of pos, we need a modified world matrix:
@@ -1096,7 +1106,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			QPoint p2 = paint->worldMatrix() * pos;
 			p1 = p2 - p1 - pos;
 			paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
-		    } else {
+		    } else
+#endif
+		    {
 			xs = m.m11();
 			ys = m.m22();
 		    }
@@ -1110,8 +1122,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 if ( wxf || vxf ) {             // map position
                     pos = paint->xForm( pos );
                 }
+#ifndef QT_NO_IMAGE_TRANSFORMATION
 		if ( complexWxf )
 		    paint->restore();
+#endif
             }
             int dw = qRound( xs * rect.width() );
             int dh = qRound( ys * rect.height() );
