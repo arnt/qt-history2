@@ -102,7 +102,7 @@ void QSqlResultPrivate::positionalToNamedBinding()
     QRegExp rx("'[^']*'|\\?");
     QString q = sql;
     int i = 0, cnt = -1;
-    while ((i = rx.search(q, i)) != -1) {
+    while ((i = rx.indexIn(q, i)) != -1) {
         if (rx.cap(0) == "?") {
             q = q.replace(i, 1, ":f" + QString::number(++cnt));
         }
@@ -116,7 +116,7 @@ void QSqlResultPrivate::namedToPositionalBinding()
     QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
     QString q = sql;
     int i = 0, cnt = -1;
-    while ((i = rx.search(q, i)) != -1) {
+    while ((i = rx.indexIn(q, i)) != -1) {
         if (rx.cap(1).isEmpty()) {
             i += rx.matchedLength();
         } else {
@@ -440,7 +440,7 @@ bool QSqlResult::prepare(const QString& query)
 {
     QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");
     int i = 0;
-    while ((i = rx.search(query, i)) != -1) {
+    while ((i = rx.indexIn(query, i)) != -1) {
         if (!rx.cap(1).isEmpty())
             d->holders.append(Holder(rx.cap(0), i));
         i += rx.matchedLength();

@@ -171,7 +171,7 @@ bool QSvgDevice::play(QPainter *painter)
     if (attr.contains("viewBox")) {
         QRegExp re(QString::fromLatin1("\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
                                         "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*"));
-        if (re.search(attr.namedItem("viewBox").nodeValue()) < 0) {
+        if (re.indexIn(attr.namedItem("viewBox").nodeValue()) < 0) {
             qWarning("QSvgDevice::play: Invalid viewBox attribute");
             return false;
         } else {
@@ -1030,7 +1030,7 @@ QColor QSvgDevice::parseColor(const QString &col)
     QString c = col;
     c.replace(QRegExp(QString::fromLatin1("\\s*")), "");
     QRegExp reg(QString::fromLatin1("^rgb\\((\\d+)(%?),(\\d+)(%?),(\\d+)(%?)\\)$"));
-    if (reg.search(c) >= 0) {
+    if (reg.indexIn(c) >= 0) {
         int comp[3];
         for (int i = 0; i < 3; i++) {
             comp[i] = reg.cap(2*i+1).toInt();
@@ -1056,7 +1056,7 @@ QColor QSvgDevice::parseColor(const QString &col)
 double QSvgDevice::parseLen(const QString &str, bool *ok, bool horiz) const
 {
     QRegExp reg(QString::fromLatin1("([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$"));
-    if (reg.search(str) == -1) {
+    if (reg.indexIn(str) == -1) {
         qWarning("QSvgDevice::parseLen: couldn't parse %s", str.latin1());
         if (ok)
             *ok = false;
@@ -1235,7 +1235,7 @@ void QSvgDevice::setTransform(const QString &tr)
 
     QRegExp reg(QString::fromLatin1("\\s*([\\w]+)\\s*\\(([^\\(]*)\\)"));
     int index = 0;
-    while ((index = reg.search(t, index)) >= 0) {
+    while ((index = reg.indexIn(t, index)) >= 0) {
         QString command = reg.cap(1);
         QString params = reg.cap(2);
         QStringList plist = QStringList::split(QRegExp(QString::fromLatin1("[,\\s]")), params);
@@ -1314,7 +1314,7 @@ void QSvgDevice::drawPath(const QString &data)
         double arg[maxArgs];
         int numArgs = cmdArgs[cmd];
         for (int i = 0; i < numArgs; i++) {
-            int pos = reg.search(data, idx);
+            int pos = reg.indexIn(data, idx);
             if (pos == -1) {
                 qWarning("QSvgDevice::drawPath: Error parsing arguments");
                 return;

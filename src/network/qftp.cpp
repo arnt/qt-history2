@@ -826,7 +826,7 @@ bool QFtpPI::processReply()
         // they are missing. We need to scan for the address and host
         // info.
         QRegExp addrPortPattern("(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)");
-        if (addrPortPattern.search(replyText) == -1) {
+        if (addrPortPattern.indexIn(replyText) == -1) {
 #if defined(QFTPPI_DEBUG)
             qDebug("QFtp: bad 227 response -- address and port information missing");
 #endif

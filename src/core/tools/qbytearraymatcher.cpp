@@ -45,28 +45,47 @@ static inline int bm_find(const uchar *cc, uint l, int index, const uchar *puc, 
     return -1; // not found
 }
 
+/*! \class QByteArrayMatcher
+    \brief The QByteArrayMatcher class ...
+*/
+
+/*!
+
+*/
 QByteArrayMatcher::QByteArrayMatcher()
     : d(0)
 {
     qMemSet(q_skiptable, 0, sizeof(q_skiptable));
 }
 
+/*!
+
+*/
 QByteArrayMatcher::QByteArrayMatcher(const QByteArray &pattern)
     : d(0)
 {
     setPattern(pattern);
 }
 
+/*!
+
+*/
 QByteArrayMatcher::QByteArrayMatcher(const QByteArrayMatcher &other)
     : d(0)
 {
     operator=(other);
 }
 
+/*!
+
+*/
 QByteArrayMatcher::~QByteArrayMatcher()
 {
 }
 
+/*!
+
+*/
 QByteArrayMatcher &QByteArrayMatcher::operator=(const QByteArrayMatcher &other)
 {
     q_pattern = other.q_pattern;
@@ -74,6 +93,9 @@ QByteArrayMatcher &QByteArrayMatcher::operator=(const QByteArrayMatcher &other)
     return *this;
 }
 
+/*!
+
+*/
 void QByteArrayMatcher::setPattern(const QByteArray &pattern)
 {
     bm_init_skiptable(reinterpret_cast<const uchar *>(pattern.constData()), pattern.size(),
@@ -81,6 +103,9 @@ void QByteArrayMatcher::setPattern(const QByteArray &pattern)
     q_pattern = pattern;
 }
 
+/*!
+
+*/
 int QByteArrayMatcher::indexIn(const QByteArray &ba, int from) const
 {
     // ### what if (from < 1)

@@ -1073,7 +1073,8 @@ QList<QRegExp> qt_makeFilterList(const QString &filter)
 
     (See \link qregexp.html#wildcard-matching QRegExp wildcard
     matching.\endlink)
-    \sa QRegExp::search()
+
+    \sa QRegExp::exactMatch()
 */
 
 bool QDir::match(const QStringList &filters, const QString &fileName)
@@ -1095,7 +1096,8 @@ bool QDir::match(const QStringList &filters, const QString &fileName)
 
     (See \link qregexp.html#wildcard-matching QRegExp wildcard
     matching.\endlink)
-    \sa QRegExp::search()
+
+    \sa QRegExp::exactMatch()
 */
 
 bool QDir::match(const QString &filter, const QString &fileName)

@@ -5824,7 +5824,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         // we have an XML declaration
         QString data = n->nodeValue();
         QRegExp encoding(QString::fromLatin1("encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))"));
-        encoding.search(data);
+        encoding.indexIn(data);
         QString enc = encoding.cap(3);
         if (enc.isEmpty()) {
             enc = encoding.cap(5);
