@@ -52,51 +52,13 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
     
     
     QMap<QString, QString> tagMap;
-    bool stillProcess = true; // If include() has a $$tag then we need to reprocess
-
-    while(stillProcess) {
-
         /*
             Strip any commments before we try to include.  We
             still need to do it after we include to make sure the
             included file does not have comments
         */
         t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
-
-        /*
-            Process include() commands.
-            $$PWD is a special case so we have to change it while
-            we know where the included file is.
-        */
-        QRegExp callToInclude("include\\s*\\(\\s*([^()\\s]+)\\s*\\)");
-        int i = 0;
-        while ( (i = callToInclude.indexIn(t, i)) != -1 ) {
-            bool doneWithVar = false;
-            QString fileName = callToInclude.cap(1);
-            QString after = fileName.replace("$$PWD", currentPath);
-            if (!tagMap.isEmpty() && after.contains("$$")) {
-                QRegExp var( "\\$\\$[({]?([a-zA-Z0-9_]+)[)}]?" );
-                int ii = 0;
-                while ((ii = after.indexOf(var, ii)) != -1) {
-                    if (tagMap.contains(var.cap(1))) {
-                        after.replace(ii, var.cap(0).length(), tagMap[var.cap(1)]);
-                    } else { // Couldn't find it
-                        doneWithVar = true;
-                        break;
-                    }
-                }
-
-            }
-            if (doneWithVar || !after.contains("$$")) {
-                after = loadFile(after);
-                QFileInfo fi(callToInclude.cap(1));
-                after.replace("$$PWD", fi.path());
-                t.replace( i, callToInclude.matchedLength(), after );
-            }
-            i += after.length();
-        }
-
-        /*
+      /*
             Strip comments, merge lines ending with backslash, add
             spaces around '=' and '+=', replace '\n' with ';', and
             simplify white spaces.
@@ -195,7 +157,5 @@ QMap<QString, QString> proFileTagMap( const QString& text, QString currentPath )
                 i += after.length();
             }
         }
-        stillProcess = callToInclude.indexIn(t) != -1;
-    }
     return tagMap;
 }

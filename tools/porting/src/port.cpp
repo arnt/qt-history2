@@ -93,16 +93,16 @@ int projectMode(QString inFile)
 void usage(char **argv)
 {
     using namespace std;
-    cout << "Usage: " << argv[0] << " infile.cpp/h/pro" << endl;
+    cout << "Usage: " << argv[0] << " infile.cpp/h/pro/pri" << endl;
     cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
     cout << "and compatibility functions in the core library." << endl;
     cout << endl;
     cout << "qt3to4 has two usage modes: " << endl;
     cout << "* File mode:     qt3to4 infile.cpp/h" << endl;
-    cout << "* Project mode:  qt3to4 infile.pro " << endl;
+    cout << "* Project mode:  qt3to4 infile.pro/pri " << endl;
     cout << endl;
     cout << "In file mode a single file is ported, while in project mode all files specified" << endl;
-    cout << "in the .pro file is ported." << endl;
+    cout << "in the .pro or .pri file are ported." << endl;
     cout << endl;
     cout << "See README for more info." << endl;
 }
@@ -134,7 +134,7 @@ int main(int argc, char**argv)
 
 
     int retval;
-    if(in.endsWith(".pro"))
+    if(in.endsWith(".pro") || in.endsWith(".pri"))
         retval = projectMode(in);
     else
         retval = fileMode(in);
