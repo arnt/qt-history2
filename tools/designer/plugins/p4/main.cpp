@@ -56,7 +56,7 @@ bool P4Interface::connectNotify( QApplication* theApp )
     if ( !theApp )
 	return FALSE;
 
-    appInterface = theApp->requestApplicationInterface();
+    appInterface = theApp->queryInterface();
     if ( !appInterface )
 	return FALSE;
 
