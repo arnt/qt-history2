@@ -307,7 +307,8 @@ QBool QStringList::contains(const QString &str,
 {
     QStringMatcher matcher(str, cs);
     for (int i = 0; i < size(); ++i) {
-        if (matcher.indexIn(at(i)) != -1)
+        QString string(at(i));
+        if (string.length() == str.length() && matcher.indexIn(string) == 0)
             return QBool(true);
     }
     return QBool(false);
