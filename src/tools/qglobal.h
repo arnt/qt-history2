@@ -694,7 +694,7 @@ typedef Q_UINT64		Q_ULLONG;	// unsigned long long
 
 
 //
-// Data stream functions is provided by many classes (defined in qdatastream.h)
+// Data stream functions are provided by many classes (defined in qdatastream.h)
 //
 
 class QDataStream;
@@ -1022,11 +1022,16 @@ typedef bool QBool;
 template <typename T> inline void qInit(T &) { }
 template <typename T> inline void qDelete(T &) { }
 template <typename T> inline bool qIsDetached(T &) { return true; }
-template <typename T> class QTypeInfo { public:
-    enum { isComplex = true,
-	   isStatic  = true,
-	   isLarge   = (sizeof(T)>sizeof(void*)),
-	   isPointer = false
+
+template <typename T>
+class QTypeInfo
+{
+public:
+    enum {
+	isPointer = false,
+	isComplex = true,
+	isStatic  = true,
+	isLarge   = (sizeof(T)>sizeof(void*))
     };
 };
 
@@ -1035,11 +1040,17 @@ template <typename T> class QTypeInfo { public:
 */
 template <typename T> inline void qInit(T *&t) { t = 0; }
 template <typename T> inline void qDelete(T *&t) { delete t; }
-template <typename T> class QTypeInfo<T*> { public:
-    enum { isComplex = false,
-	   isStatic  = false,
-	   isLarge   = false,
-	   isPointer = true };
+
+template <typename T>
+class QTypeInfo<T*>
+{
+public:
+    enum {
+	isPointer = true,
+	isComplex = false,
+	isStatic  = false,
+	isLarge   = false
+    };
 };
 
 #else
@@ -1048,47 +1059,73 @@ template <typename T> class QTypeInfo<T*> { public:
   Lack of partial template specialization mostly on MSVC compilers
   makes it hard to distinguish between pointers and non-pointer types.
  */
-template <typename T>
-inline void QTypeInfoNoPartialSpecializationIniter(T*(*)(), void* ptr){ *(void**)ptr = 0; }
-inline void QTypeInfoNoPartialSpecializationIniter(...){};
-template <typename T>
-inline void qInit(T &t){ QTypeInfoNoPartialSpecializationIniter((T(*)())0, (void*)&t); }
-template <typename T>
-inline void QTypeInfoNoPartialSpecializationDeleter(T*(*)(), void* ptr){ delete*(T**)ptr; }
-inline void QTypeInfoNoPartialSpecializationDeleter(...){};
-template <typename T>
-inline void qDelete(T &t){ QTypeInfoNoPartialSpecializationDeleter((T(*)())0, (void*)&t); }
+template <typename T> inline void QInitHelper(T*(*)(), void* ptr) { *(void**)ptr = 0; }
+template <typename T> inline void QDeleteHelper(T*(*)(), void* ptr) { delete*(T**)ptr; }
+inline void qInitHelper(...) { }
+inline void qDeleteHelper(...) { }
+
+template <typename T> char QTypeInfoHelper(T*(*)());
+void* QTypeInfoHelper(...);
+
+template <typename T> inline void qInit(T &t){ qInitHelper((T(*)())0, (void*)&t); }
+template <typename T> inline void qDelete(T &t){ qDeleteHelper((T(*)())0, (void*)&t); }
 template <typename T> inline bool qIsDetached(T &) { return true; }
 template <typename T>
-char QTypeInfoNoPartialSpecializationHelper(T*(*)());
-void* QTypeInfoNoPartialSpecializationHelper(...);
-template <typename T> class QTypeInfo { public:
-    enum { isLarge   = (sizeof(T)>sizeof(void*)),
-	   isPointer = (1 == sizeof(QTypeInfoNoPartialSpecializationHelper((T(*)())0))),
-	   isComplex = !isPointer,
-	   isStatic  = !isPointer
+class QTypeInfo
+{
+public:
+    enum {
+	isPointer = (1 == sizeof(QTypeInfoNoPartialSpecializationHelper((T(*)())0))),
+	isComplex = !isPointer,
+	isStatic  = !isPointer,
+	isLarge   = (sizeof(T)>sizeof(void*))
     };
 };
 
 #endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 
-// specialize a specific type
-enum {  Q_COMPLEX_TYPE = 0, Q_PRIMITIVE_TYPE = 1, Q_STATIC_TYPE = 0, Q_MOVABLE_TYPE = 2 };
-#define Q_DECLARE_TYPEINFO(TYPE, FLAGS) \
-    inline void qInit(TYPE &) { } \
-    inline void qDelete(TYPE &) { } \
-    template <> class QTypeInfo<TYPE> { public: \
-	enum { isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0), \
-	    isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0),\
-	    isLarge   = (sizeof(TYPE)>sizeof(void*)), \
-	    isPointer = false }; \
-    }
+/*
+  Specialize a specific type with:
 
+    Q_DECLARE_TYPEINFO(type, flags);
 
-// shared type specialization
-#define Q_DECLARE_SHARED(T) \
-    template<> inline bool qIsDetached(T &t) {  return t.isDetached(); }
+  where 'type' is the name of the type to specialize and 'flags' is
+  logically-OR'ed combination of the flags below.
+*/
+enum { // TYPEINFO flags
+    Q_COMPLEX_TYPE   = 0,
+    Q_PRIMITIVE_TYPE = 1,
+    Q_STATIC_TYPE    = 0,
+    Q_MOVABLE_TYPE   = 2
+};
+
+#define Q_DECLARE_TYPEINFO(TYPE, FLAGS)					       		\
+template <> inline void qInit(TYPE &) { }				       		\
+template <> inline void qDelete(TYPE &) { }				       		\
+template <>								       		\
+class QTypeInfo<TYPE>									\
+{											\
+public:											\
+    enum {										\
+	isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0),					\
+	isStatic  = ((FLAGS & (Q_MOVABLE_TYPE|Q_PRIMITIVE_TYPE)) == 0),			\
+	isLarge   = (sizeof(TYPE)>sizeof(void*)),					\
+	isPointer = false								\
+    };											\
+}
+
+/*
+  Specialize a shared type with:
+
+    Q_DECLARE_SHARED(type);
+
+  where 'type' is the name of the type to specialize.  NOTE: shared
+  types must declare a 'bool isDetached(void) const;' member for this
+  to work.
+*/
+#define Q_DECLARE_SHARED(TYPE) \
+template <> inline bool qIsDetached(TYPE &t) {  return t.isDetached(); }
 
 /*
   QTypeInfo primitive specializations
@@ -1116,11 +1153,12 @@ Q_DECLARE_TYPEINFO(const bool, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(const double, Q_PRIMITIVE_TYPE);
 
-// void* and const void* are special, since deleting them is undefined
+/*
+  void*, const void* and function pointers are special, since deleting
+  them is undefined.
+*/
 template <> inline void qDelete(const void *&) { }
 template <> inline void qDelete(void *&) { }
-
-// cannot delete functions
 typedef void (*QFunctionPointer)();
 typedef void (*QFunctionPointerWithArgs)(...);
 template <> inline void qDelete(QFunctionPointer &) { }
