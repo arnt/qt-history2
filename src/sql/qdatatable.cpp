@@ -1260,7 +1260,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	return;
 
     if( !caseSensitive )
-	tmp = str.lower();
+	tmp = str.toLower();
     else
 	tmp = str;
 
@@ -1274,7 +1274,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	    {
 		text = r->value( indexOf( i ) ).toString();
 		if( !caseSensitive ){
-		    text = text.lower();
+		    text = text.toLower();
 		}
 		if( text.contains( tmp ) ){
 		    setCurrentCell( row, i );

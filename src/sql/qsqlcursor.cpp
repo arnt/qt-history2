@@ -757,7 +757,7 @@ bool QSqlCursor::isCalculated( const QString& name ) const
     Sets field \a{name}'s trimmed status to \a trim. If the field \a
     name does not exist, nothing happens.
 
-    When a trimmed field of type string or cstring is read from the
+    When a trimmed field of type string is read from the
     database any trailing (right-most) spaces are removed.
 
     \sa isTrimmed() QVariant
@@ -1378,7 +1378,7 @@ void QSqlCursor::sync()
 	    }
 	    if ( QSqlRecord::isGenerated( i ) ) {
 		QVariant v = QSqlQuery::value( j );
-		if ( ( v.type() == QVariant::String || v.type() == QVariant::CString ) &&
+		if ( ( v.type() == QVariant::String ) &&
 			d->infoBuffer[ i ].isTrim() ) {
 		    v = qTrim( v.toString() );
 		}

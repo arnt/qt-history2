@@ -244,10 +244,10 @@ QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cur
 	    desc = TRUE;
 	    f = f.mid( 0, f.length()-4 );
 	}
-	int dot = f.findRev( '.' );
+	int dot = f.lastIndexOf( '.' );
 	if ( dot != -1 )
 	    f = f.mid( dot+1 );
-	const QSqlField* field = cursor->field( f.simplifyWhiteSpace() );
+	const QSqlField* field = cursor->field( f.trimmed() );
 	if ( field )
 	    newSort.append( *field, desc );
 	else

@@ -40,7 +40,7 @@ public:
 	}
 	bool isValid() const
 	{
-	    return !field.name().isNull();
+	    return !field.name().isEmpty();
 	}
 	Q_DUMMY_COMPARISON_OPERATOR(info)
 	QSqlField field;
@@ -272,7 +272,7 @@ QString QSqlRecord::fieldName( int i ) const
 int QSqlRecord::position( const QString& name ) const
 {
     for ( int i = 0; i < count(); ++i ) {
-	if ( fieldName(i).upper() == name.upper() )
+	if ( fieldName(i).toUpper() == name.toUpper() )
 	    return i;
     }
     qWarning( "QSqlRecord::position: unable to find field " + name );
@@ -399,7 +399,7 @@ bool QSqlRecord::isEmpty() const
 bool QSqlRecord::contains( const QString& name ) const
 {
     for ( int i = 0; i < count(); ++i ) {
-	if ( fieldName(i).upper() == name.upper() )
+	if ( fieldName(i).toUpper() == name.toUpper() )
 	    return TRUE;
     }
     return FALSE;
@@ -663,9 +663,9 @@ QSqlRecordInfo::QSqlRecordInfo( const QSqlRecord& other )
 QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) const
 {
    size_type i = 0;
-   QString fName = fieldName.upper();
+   QString fName = fieldName.toUpper();
    for( const_iterator it = begin(); it != end(); ++it ) {
-	if ( (*it).name().upper() == fName ) {
+	if ( (*it).name().toUpper() == fName ) {
 	    ++i;
 	}
     }
@@ -679,9 +679,9 @@ QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) c
 */
 QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
 {
-   QString fName = fieldName.upper();
+   QString fName = fieldName.toUpper();
    for( const_iterator it = begin(); it != end(); ++it ) {
-	if ( (*it).name().upper() == fName ) {
+	if ( (*it).name().toUpper() == fName ) {
 	    return *it;
 	}
     }
