@@ -298,16 +298,19 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         return true;
     }
 
+    bool isOk = true;
     switch (d->strategy) {
     case OnFieldChange: {
         d->clearEditBuffer();
         d->editBuffer.setValue(index.column(), value);
-        if (update(index.row(), d->editBuffer))
-            d->query.exec(d->query.lastQuery()); // ### Refresh
+        isOk = update(index.row(), d->editBuffer);
+        if (isOk)
+            select();
         break;
     }
     case OnRowChange:
         if (d->editIndex != index.row()) {
+            // ### TODO: refresh/emit after row change
             if (d->editBuffer.isEmpty())
                 d->clearEditBuffer();
             else if (d->editIndex != -1)
@@ -329,7 +332,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         emit dataChanged(index, index);
         break;
     }
-    return true;
+    return isOk;
 }
 
 /*! \reimp
@@ -432,9 +435,9 @@ bool QSqlTableModel::submitChanges()
             return true;
         if (!update(d->editIndex, d->editBuffer))
             return false;
-        d->query.exec(d->query.lastQuery()); // ### Refresh
         d->clearEditBuffer();
         d->editIndex = -1;
+        select();
         break;
     case OnManualSubmit:
         QSqlTableModelPrivate::CacheHash::const_iterator i = d->cache.constBegin();
@@ -447,7 +450,7 @@ bool QSqlTableModel::submitChanges()
         }
         if (isOk) {
             d->cache.clear();
-            d->query.exec(d->query.lastQuery()); // ### Refresh
+            select();
         }
         break;
     }
@@ -730,12 +733,12 @@ int QSqlTableModel::rowCount(const QModelIndex &parent) const
   Returns an invalid model index if \a item is out of bounds or if
   \a item does not point to a value in the result set.
  */
-QModelIndex QSqlTableModel::dataIndex(const QModelIndex &it) const
+QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
 {
-    QModelIndex item = QSqlModel::dataIndex(it);
-    if (d->insertIndex >= 0 && item.row() >= d->insertIndex)
-        return createIndex(item.row() - 1, item.column(), item.data(), item.type());
-    return item;
+    QModelIndex it = QSqlModel::dataIndex(item);
+    if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
+        return createIndex(it.row() - 1, it.column(), it.data(), it.type());
+    return it;
 }
 
 /*!
