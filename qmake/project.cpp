@@ -542,6 +542,9 @@ QMakeProject::read(uchar cmd)
 	    while(Option::mkfile::qmakespec.endsWith(QString(QChar(QDir::separator()))))
 		Option::mkfile::qmakespec.truncate(Option::mkfile::qmakespec.length()-1);
 	    QString spec = Option::mkfile::qmakespec + QDir::separator() + "qmake.conf";
+	    if(!QFile::exists(spec) && 
+	       QFile::exists(Option::mkfile::qmakespec + QDir::separator() + "tmake.conf"))
+		spec = Option::mkfile::qmakespec + QDir::separator() + "tmake.conf";
 	    debug_msg(1, "QMAKESPEC conf: reading %s", spec.latin1());
 	    if(!read(spec, base_vars)) {
 		fprintf(stderr, "Failure to read QMAKESPEC conf file %s.\n", spec.latin1());
