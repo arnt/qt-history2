@@ -278,6 +278,8 @@ QToolBar
 QListBoxItem::setEnabled()
   Allow the user to be able to set a list box item to be disabled.
 
+QKeyEvent
+  Get the current state of the CAPS lock, NUM lock and SCROLL lock keys.
 
 
 
