@@ -45,6 +45,7 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
     QPopupMenu *popup = new QPopupMenu( this );
     popup->insertItem( tr( "New &Action" ), this, SLOT( newAction() ) );
     popup->insertItem( tr( "New Action &Group" ), this, SLOT( newActionGroup() ) );
+    popup->insertItem( tr( "New &Dropdown Action Group" ), this, SLOT( newDropDownActionGroup() ) );
     buttonNewAction->setPopup( popup );
 
     connect( listActions, SIGNAL( insertAction() ), this, SLOT( newAction() ) );
@@ -114,6 +115,13 @@ void ActionEditor::newAction()
     i->setText( 0, n );
     i->action()->setName( n );
     i->action()->setText( i->action()->name() );
+    if ( actionParent && actionParent->actionGroup() &&
+	 actionParent->actionGroup()->usesDropDown() ) {
+	i->action()->setToggleAction( TRUE );
+	MetaDataBase::setPropertyChanged( i->action(), "toggleAction", TRUE );
+    }
+    MetaDataBase::setPropertyChanged( i->action(), "text", TRUE );
+    MetaDataBase::setPropertyChanged( i->action(), "name", TRUE );
     listActions->setCurrentItem( i );
     if ( !actionParent )
 	formWindow->actionList().append( i->action() );
@@ -135,15 +143,24 @@ void ActionEditor::newActionGroup()
 	i = new ActionItem( listActions, TRUE );
 
     MetaDataBase::addEntry( i->actionGroup() );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "usesDropDown", TRUE );
     QString n = "ActionGroup";
     formWindow->unify( i->action(), n, TRUE );
     i->setText( 0, n );
     i->actionGroup()->setName( n );
     i->actionGroup()->setText( i->actionGroup()->name() );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "text", TRUE );
+    MetaDataBase::setPropertyChanged( i->actionGroup(), "name", TRUE );
     listActions->setCurrentItem( i );
     i->setOpen( TRUE );
     if ( !actionParent )
 	formWindow->actionList().append( i->actionGroup() );
+}
+
+void ActionEditor::newDropDownActionGroup()
+{
+    newActionGroup();
+    ( (ActionItem*)listActions->currentItem() )->actionGroup()->setUsesDropDown( TRUE );
 }
 
 void ActionEditor::setFormWindow( FormWindow *fw )

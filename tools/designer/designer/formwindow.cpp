@@ -2122,7 +2122,16 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 	    }
 	}
 	if ( !found ) {
-	    for ( QAction *a = actions.first(); a; a = actions.next() ) {
+	    QList<QAction> al;
+	    QAction *a = 0;
+	    for ( a = actions.first(); a; a = actions.next() ) {
+		QObjectList *l = a->queryList( "QAction" );
+		al.append( a );
+		for ( QObject *ao = l->first(); ao; ao = l->next() )
+		    al.append( (QAction*)ao );
+		delete l;
+	    }
+	    for ( a = al.first(); a; a = al.next() ) {
 		if ( a != w &&
 		     qstrcmp( a->name(), s.latin1() ) == 0 ) {
 		    found = TRUE;

@@ -46,6 +46,7 @@ protected slots:
     void deleteAction();
     void newAction();
     void newActionGroup();
+    void newDropDownActionGroup();
     void connectionsClicked();
 
 signals:
