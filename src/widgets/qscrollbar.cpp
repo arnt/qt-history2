@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#73 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#73 $");
 
 
 /*!
@@ -415,6 +415,10 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     if ( !(e->button() == LeftButton ||
 	   (style() == MotifStyle && e->button() == MidButton) ) )
 	return;
+
+    if ( maxValue() == minValue() ) // nothing to be done
+	return;
+
     clickedAt	   = TRUE;
     pressedControl = PRIV->pointOver( e->pos() );
 
@@ -680,10 +684,8 @@ void QScrollBar_Private::action( ScrollControl control )
 void QScrollBar_Private::drawControls( uint controls,
 				       uint activeControl ) const
 {
-    QPainter p;
-    p.begin( this );
+    QPainter p ( this );
     drawControls( controls, activeControl, &p );
-    p.end();
 }
 
 
@@ -735,66 +737,88 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	sliderR .setRect( b, sliderStart(), sliderW, sliderLength );
     }
 
-    switch ( style() ) {
-	case WindowsStyle:
-	    if ( controls & ADD_LINE ) {
-		qDrawWinPanel( p, addB.x(), addB.y(),
-			       addB.width(), addB.height(), g,
-			       ADD_LINE_ACTIVE );
-		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,WindowsStyle,
+    if ( style() == WindowsStyle ) {
+	bool maxedOut = (maxValue() == minValue());
+	if ( controls & ADD_LINE ) {
+	    qDrawWinPanel( p, addB.x(), addB.y(),
+			   addB.width(), addB.height(), g,
+			   ADD_LINE_ACTIVE );
+	    if ( maxedOut ) {
+		// ### need something better here
+		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
+			    WindowsStyle,
+			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+			    addB.width()-4, addB.height()-4,
+			    palette().disabled() );
+	    } else {
+		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
+			    WindowsStyle,
 			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 			    addB.width()-4, addB.height()-4, g );
 	    }
-	    if ( controls & SUB_LINE ) {
-		qDrawWinPanel( p, subB.x(), subB.y(),
-			       subB.width(), subB.height(), g,
-			       SUB_LINE_ACTIVE );
-		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
+	}
+	if ( controls & SUB_LINE ) {
+	    qDrawWinPanel( p, subB.x(), subB.y(),
+			   subB.width(), subB.height(), g,
+			   SUB_LINE_ACTIVE );
+	    if ( maxedOut ) {
+		// ### need something better here
+		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+			    WindowsStyle,
+			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+			    subB.width()-4, subB.height()-4,
+			    palette().disabled() );
+	    } else {
+		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+			    WindowsStyle,
 			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			    subB.width()-4, subB.height()-4, g );
 	    }
-	    p->setBrush( QBrush(white,Dense4Pattern) );
-	    p->setPen( NoPen );
-	    p->setBackgroundMode( OpaqueMode );
-	    if ( controls & SUB_PAGE )
-		p->drawRect( subPageR );
-	    if ( controls & ADD_PAGE )
-		p->drawRect( addPageR );
-	    if ( controls & SLIDER ) {
+	}
+	p->setBrush( QBrush(white,Dense4Pattern) );
+	p->setPen( NoPen );
+	p->setBackgroundMode( OpaqueMode );
+	if ( controls & SUB_PAGE )
+	    p->drawRect( subPageR );
+	if ( controls & ADD_PAGE )
+	    p->drawRect( addPageR );
+	if ( controls & SLIDER ) {
+	    if ( maxedOut ) {
+		p->fillRect( sliderR, g.background().light( 120 ) );
+	    } else {
 		QBrush fill( g.background() );
 		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
 			       sliderR.width(), sliderR.height(), g,
 			       FALSE, &fill );
-		if ( hasFocus() ) {
-		    //### drawWinFocusFrame
-		    qDrawPlainRect( p, sliderR.x() + 2 , sliderR.y() + 2,
-		    	       sliderR.width() - 5, sliderR.height() - 5, black );
-		}
 	    }
-	    break;
-	default:
-	case MotifStyle:
-	    if ( controls & ADD_LINE )
-		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
-			    ADD_LINE_ACTIVE, addB.x(), addB.y(),
-			    addB.width(), addB.height(), g );
-	    if ( controls & SUB_LINE )
-		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
-			    SUB_LINE_ACTIVE, subB.x(), subB.y(),
-			    subB.width(), subB.height(), g );
-	    if ( controls & SUB_PAGE )
-		p->fillRect( subPageR, g.mid() );
-	    if ( controls & ADD_PAGE )
-		p->fillRect( addPageR, g.mid() );
-	    if ( controls & SLIDER ) {
-		QBrush fill( g.background() );
-		qDrawShadePanel( p, sliderR, g, FALSE, 2, &fill );
-	    }
-	    break;
+	    if ( hasFocus() )
+		p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
+				    sliderR.width()-5, sliderR.height()-5 );
+	}
+    } else {
+	if ( controls & ADD_LINE )
+	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
+			ADD_LINE_ACTIVE, addB.x(), addB.y(),
+			addB.width(), addB.height(), g );
+	if ( controls & SUB_LINE )
+	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
+			SUB_LINE_ACTIVE, subB.x(), subB.y(),
+			subB.width(), subB.height(), g );
+	if ( controls & SUB_PAGE )
+	    p->fillRect( subPageR, g.mid() );
+	if ( controls & ADD_PAGE )
+	    p->fillRect( addPageR, g.mid() );
+	if ( controls & SLIDER ) {
+	    QBrush fill( g.background() );
+	    qDrawShadePanel( p, sliderR, g, FALSE, 2, &fill );
+	}
+
     }
+}
+
+
 #undef ADD_LINE_ACTIVE
 #undef SUB_LINE_ACTIVE
-}
 
 
 static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
