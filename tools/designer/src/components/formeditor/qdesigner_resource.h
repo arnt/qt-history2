@@ -79,6 +79,10 @@ protected:
     virtual DomLayout *createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget);
 
+    virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
+    virtual QString iconToFilePath(const QIcon &pm) const;
+    virtual QString iconToQrcPath(const QIcon &pm) const;
+
     virtual bool checkProperty(QObject *obj, const QString &prop) const;
 
     bool checkProperty(QDesignerTabWidget *widget, const QString &prop) const;

@@ -25,6 +25,7 @@
 // shared
 #include <layoutinfo.h>
 #include <spacer_widget.h>
+#include <resourcefile.h>
 #include <qdesigner_promotedwidget.h>
 
 // sdk
@@ -53,6 +54,8 @@
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {
+    setWorkingDirectory(formWindow->absolutePath(QString()));
+
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
 
@@ -328,36 +331,10 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
             QString propertyName = properties.at(i)->attributeName();
+
             int index = sheet->indexOf(propertyName);
             if (index != -1) {
-                QVariant v;
-                if (p->kind() == DomProperty::IconSet || p->kind() == DomProperty::Pixmap) {
-                    DomResourcePixmap *resource = 0;
-                    if (p->kind() == DomProperty::IconSet)
-                        resource = p->elementIconSet();
-                    else
-                        resource = p->elementPixmap();
-
-                    if (resource != 0) {
-                        QString icon_path = resource->text();
-                        QString qrc_path = resource->attributeResource();
-
-                        if (qrc_path.isEmpty())
-                            icon_path = m_formWindow->absolutePath(icon_path);
-                        else
-                            qrc_path = m_formWindow->absolutePath(qrc_path);
-
-                        if (p->kind() == DomProperty::IconSet) {
-                            QIcon icon = m_core->iconCache()->nameToIcon(icon_path, qrc_path);
-                            v = qVariantFromValue(icon);
-                        } else {
-                            QPixmap pixmap = m_core->iconCache()->nameToPixmap(icon_path, qrc_path);
-                            v = qVariantFromValue(pixmap);
-                        }
-                    }
-                } else {
-                    v = toVariant(o->metaObject(), p);
-                }
+                QVariant v = toVariant(o->metaObject(), p);
                 sheet->setProperty(index, v);
                 sheet->setChanged(index, true);
             }
@@ -1043,37 +1020,6 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         p->setAttributeName(propertyName);
         p->setElementSet(keys.join(QLatin1String("|")));
         return p;
-    } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
-        DomResourcePixmap *r = new DomResourcePixmap;
-        QString icon_path;
-        QString qrc_path;
-        if (value.type() == QVariant::Icon) {
-            QIcon icon = qvariant_cast<QIcon>(value);
-            icon_path = m_core->iconCache()->iconToFilePath(icon);
-            qrc_path = m_core->iconCache()->iconToQrcPath(icon);
-        } else {
-            QPixmap pixmap = qvariant_cast<QPixmap>(value);
-            icon_path = m_core->iconCache()->pixmapToFilePath(pixmap);
-            qrc_path = m_core->iconCache()->pixmapToQrcPath(pixmap);
-        }
-
-        if (qrc_path.isEmpty())
-            icon_path = m_formWindow->relativePath(icon_path);
-        else
-            qrc_path = m_formWindow->relativePath(qrc_path);
-
-        r->setText(icon_path);
-        if (!qrc_path.isEmpty())
-            r->setAttributeResource(qrc_path);
-        DomProperty *p = new DomProperty;
-
-        if (value.type() == QVariant::Icon)
-            p->setElementIconSet(r);
-        else
-            p->setElementPixmap(r);
-
-        p->setAttributeName(propertyName);
-        return p;
     }
 
     return Resource::createProperty(object, propertyName, value);
@@ -1105,4 +1051,36 @@ DomResources *QDesignerResource::saveResources()
     dom_resources->setElementInclude(dom_include);
 
     return dom_resources;
+}
+
+QIcon QDesignerResource::nameToIcon(const QString &filePath, const QString &qrcPath)
+{
+    QString file_path = filePath;
+    QString qrc_path = qrcPath;
+
+    if (qrc_path.isEmpty())
+        file_path = absolutePath(file_path);
+    else
+        qrc_path = absolutePath(qrc_path);
+
+    return core()->iconCache()->nameToIcon(file_path, qrc_path);
+}
+
+QString QDesignerResource::iconToFilePath(const QIcon &pm) const
+{
+    QString file_path = core()->iconCache()->iconToFilePath(pm);
+    QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
+    if (qrc_path.isEmpty())
+        return relativePath(file_path);
+
+    return file_path;
+}
+
+QString QDesignerResource::iconToQrcPath(const QIcon &pm) const
+{
+    QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
+    if (qrc_path.isEmpty())
+        return QString();
+
+    return relativePath(qrc_path);
 }

@@ -798,8 +798,6 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
         p.setPen(QPen(QColor(255, 0, 0, 35), 1, Qt::SolidLine));
 
         int index = 0;
-        QMap<int, int> rows;
-        QMap<int, int> columns;
 
         while (QLayoutItem *item = layout()->itemAt(index)) {
             ++index;

@@ -19,8 +19,12 @@
 #include <pluginmanager.h>
 #include <qextensionmanager.h>
 #include <abstractformeditor.h>
+#include <abstracticoncache.h>
+#include <resourcefile.h>
 
 #include <QtCore/QBuffer>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtGui/QWidget>
 
 QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
@@ -93,5 +97,22 @@ bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
     return FormBuilder::addItem(ui_item, item, layout);
+}
+
+QIcon QDesignerFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
+{
+    QString icon_path = filePath;
+    QString qrc_path = QFileInfo(QDir(workingDirectory()), qrcPath).absoluteFilePath();
+
+    if (!qrc_path.isEmpty()) {
+        ResourceFile rf(qrc_path);
+        if (rf.load())
+            return QIcon(rf.resolvePath(filePath));
+    } else {
+        icon_path = QFileInfo(QDir(workingDirectory()), filePath).absoluteFilePath();
+        return QIcon(icon_path);
+    }
+
+    return QIcon();
 }
 

@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef RESOURCEFILE_H
 #define RESOURCEFILE_H
 
@@ -18,12 +31,12 @@ public:
     bool load();
     bool save();
     QString errorMessage() const { return m_error_message; }
-    
+
     QString resolvePath(const QString &path) const;
 
     QStringList prefixList() const;
     QStringList fileList(int pref_idx) const;
-    
+
     int prefixCount() const;
     QString prefix(int idx) const;
     int fileCount(int prefix_idx) const;
@@ -35,18 +48,18 @@ public:
     void removeFile(int prefix_idx, int file_idx);
     void replacePrefix(int prefix_idx, const QString &prefix);
     void replaceFile(int pref_idx, int file_idx, const QString &file);
-    
+
     int indexOfPrefix(const QString &prefix) const;
     int indexOfFile(int pref_idx, const QString &file) const;
     bool contains(const QString &prefix, const QString &file = QString()) const;
     bool contains(int pref_idx, const QString &file) const;
-        
+
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
-        
+
     static QString fixPrefix(const QString &prefix);
     bool split(const QString &path, QString *prefix, QString *file) const;
-    
+
     bool isEmpty() const;
 
 private:
@@ -71,7 +84,7 @@ class QT_SHARED_EXPORT ResourceModel : public QAbstractItemModel
 
 public:
     ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
-    
+
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -104,9 +117,10 @@ public:
     bool dirty() const { return m_dirty; }
     void setDirty(bool b);
 
+
 signals:
     void dirtyChanged(bool b);
-    
+
 private:
     ResourceFile m_resource_file;
     bool m_dirty;

@@ -17,6 +17,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QMetaProperty>
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
@@ -24,6 +26,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 #include <QtGui/QPixmap>
+#include <QtGui/QListWidget>
+#include <QtGui/QComboBox>
 
 #include <QtXml/QDomDocument>
 
@@ -492,10 +496,31 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         v = QVariant(dt);
     } break;
 
+    case DomProperty::Pixmap:
     case DomProperty::IconSet: {
-        DomResourcePixmap *iconset = p->elementIconSet();
-        QIcon icon(QPixmap(iconset->text()));
-        v = qVariantFromValue(icon);
+        DomResourcePixmap *resource = 0;
+        if (p->kind() == DomProperty::IconSet)
+            resource = p->elementIconSet();
+        else
+            resource = p->elementPixmap();
+
+        if (resource != 0) {
+            QString icon_path = resource->text();
+            QString qrc_path = resource->attributeResource();
+
+            if (qrc_path.isEmpty())
+                icon_path = absolutePath(icon_path);
+            else
+                qrc_path = absolutePath(qrc_path);
+
+            if (p->kind() == DomProperty::IconSet) {
+                QIcon icon = nameToIcon(icon_path, qrc_path);
+                v = qVariantFromValue(icon);
+            } else {
+                QPixmap pixmap = nameToPixmap(icon_path, qrc_path);
+                v = qVariantFromValue(pixmap);
+            }
+        }
     } break;
 
     case DomProperty::Palette: {
@@ -914,6 +939,36 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
             dom_prop->setElementSizePolicy(dom);
         } break;
 
+        case QVariant::Pixmap:
+        case QVariant::Icon: {
+            DomResourcePixmap *r = new DomResourcePixmap;
+            QString icon_path;
+            QString qrc_path;
+            if (v.type() == QVariant::Icon) {
+                QIcon icon = qvariant_cast<QIcon>(v);
+                icon_path = iconToFilePath(icon);
+                qrc_path = iconToQrcPath(icon);
+            } else {
+                QPixmap pixmap = qvariant_cast<QPixmap>(v);
+                icon_path = pixmapToFilePath(pixmap);
+                qrc_path = pixmapToQrcPath(pixmap);
+            }
+
+            if (qrc_path.isEmpty())
+                icon_path = relativePath(icon_path);
+            else
+                qrc_path = relativePath(qrc_path);
+
+            r->setText(icon_path);
+            if (!qrc_path.isEmpty())
+                r->setAttributeResource(qrc_path);
+
+            if (v.type() == QVariant::Icon)
+                dom_prop->setElementIconSet(r);
+            else
+                dom_prop->setElementPixmap(r);
+        } break;
+
         default: {
             qWarning("support for property `%s' of type `%d' not implemented yet!!",
                 pname.toLatin1().data(), v.type());
@@ -1055,18 +1110,264 @@ DomResources *Resource::saveResources()
     return 0;
 }
 
+void Resource::saveListWidgetExtraInfo(QListWidget *listWidget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
+{
+    Q_UNUSED(ui_parentWidget);
+
+    QList<DomItem*> ui_items = ui_widget->elementItem();
+
+    for (int i=0; i<listWidget->count(); ++i) {
+        QListWidgetItem *item = listWidget->item(i);
+        DomItem *ui_item = new DomItem();
+
+        QList<DomProperty*> properties;
+
+        // text
+        DomString *str = new DomString;
+        str->setText(item->text());
+
+        DomProperty *p = 0;
+
+        p = new DomProperty;
+        p->setAttributeName(QLatin1String("text"));
+        p->setElementString(str);
+        properties.append(p);
+
+        if (!item->icon().isNull()) {
+            QString iconPath = iconToFilePath(item->icon());
+            QString qrcPath = iconToQrcPath(item->icon());
+
+            p = new DomProperty;
+
+            DomResourcePixmap *pix = new DomResourcePixmap;
+            if (!qrcPath.isEmpty())
+                pix->setAttributeResource(qrcPath);
+
+            pix->setText(iconPath);
+
+            p->setAttributeName(QLatin1String("icon"));
+            p->setElementIconSet(pix);
+
+            properties.append(p);
+        }
+
+        ui_item->setElementProperty(properties);
+        ui_items.append(ui_item);
+    }
+
+    ui_widget->setElementItem(ui_items);
+}
+
+void Resource::saveComboBoxExtraInfo(QComboBox *comboBox, DomWidget *ui_widget, DomWidget *ui_parentWidget)
+{
+    Q_UNUSED(ui_parentWidget);
+
+    QList<DomItem*> ui_items = ui_widget->elementItem();
+
+    for (int i=0; i<comboBox->count(); ++i) {
+        DomItem *ui_item = new DomItem();
+
+        QList<DomProperty*> properties;
+
+        // text
+        DomString *str = new DomString;
+        str->setText(comboBox->itemText(i));
+
+        DomProperty *p = 0;
+
+        p = new DomProperty;
+        p->setAttributeName(QLatin1String("text"));
+        p->setElementString(str);
+        properties.append(p);
+
+#if 0 // ### implement me
+        p = new DomProperty;
+        p->setAttributeName(QLatin1String("icon"));
+        p->setElementIconSet();
+        properties.append(p);
+#endif
+
+        ui_item->setElementProperty(properties);
+        ui_items.append(ui_item);
+    }
+
+    ui_widget->setElementItem(ui_items);
+}
+
 void Resource::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
-    Q_UNUSED(widget);
-    Q_UNUSED(ui_widget);
-    Q_UNUSED(ui_parentWidget);
+    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
+        saveListWidgetExtraInfo(listWidget, ui_widget, ui_parentWidget);
+    } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
+        saveComboBoxExtraInfo(comboBox, ui_widget, ui_parentWidget);
+    }
 }
+
+void Resource::loadListWidgetExtraInfo(DomWidget *ui_widget, QListWidget *listWidget, QWidget *parentWidget)
+{
+    Q_UNUSED(parentWidget);
+
+    foreach (DomItem *ui_item, ui_widget->elementItem()) {
+        QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
+        QListWidgetItem *item = new QListWidgetItem(listWidget);
+
+        DomProperty *p = 0;
+
+        p = properties.value(QLatin1String("text"));
+        if (p && p->kind() == DomProperty::String) {
+            item->setText(p->elementString()->text());
+        }
+
+        p = properties.value(QLatin1String("icon"));
+        if (p && p->kind() == DomProperty::IconSet) {
+            DomResourcePixmap *icon = p->elementIconSet();
+            Q_ASSERT(icon != 0);
+            QString iconPath = icon->text();
+            QString qrcPath = icon->attributeResource();
+
+            item->setIcon(nameToIcon(iconPath, qrcPath));
+        }
+    }
+}
+
+void Resource::loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget)
+{
+    Q_UNUSED(parentWidget);
+
+    foreach (DomItem *ui_item, ui_widget->elementItem()) {
+        QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
+        QString text;
+        QIcon icon;
+
+        DomProperty *p = 0;
+
+        p = properties.value(QLatin1String("text"));
+        if (p && p->kind() == DomProperty::String) {
+            text = p->elementString()->text();
+        }
+
+        p = properties.value(QLatin1String("icon"));
+        if (p && p->kind() == DomProperty::IconSet) {
+            // ### not implemented yet
+        }
+
+        comboBox->addItem(text, icon);
+    }
+}
+
 
 void Resource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    Q_UNUSED(ui_widget);
-    Q_UNUSED(widget);
-    Q_UNUSED(parentWidget);
+    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
+        loadListWidgetExtraInfo(ui_widget, listWidget, parentWidget);
+    } else if (QComboBox *comboBox = qobject_cast<QComboBox*>(widget)) {
+        loadComboBoxExtraInfo(ui_widget, comboBox, parentWidget);
+    }
 }
+
+QIcon Resource::nameToIcon(const QString &filePath, const QString &qrcPath)
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(qrcPath);
+
+    return QIcon();
+}
+
+QString Resource::iconToFilePath(const QIcon &pm) const
+{
+    Q_UNUSED(pm);
+    return QString();
+}
+
+QString Resource::iconToQrcPath(const QIcon &pm) const
+{
+    Q_UNUSED(pm);
+    return QString();
+}
+
+QPixmap Resource::nameToPixmap(const QString &filePath, const QString &qrcPath)
+{
+    Q_UNUSED(filePath);
+    Q_UNUSED(qrcPath);
+
+    return QPixmap();
+}
+
+QString Resource::pixmapToFilePath(const QPixmap &pm) const
+{
+    Q_UNUSED(pm);
+    return QString();
+}
+
+QString Resource::pixmapToQrcPath(const QPixmap &pm) const
+{
+    Q_UNUSED(pm);
+    return QString();
+}
+
+QString Resource::absolutePath(const QString &rel_path) const
+{
+    if (QFileInfo(rel_path).isAbsolute())
+        return rel_path;
+    // ### broken for links
+    return QFileInfo(QDir(workingDirectory()), rel_path).absoluteFilePath();
+}
+
+QString Resource::relativePath(const QString &abs_path) const
+{
+    if (QFileInfo(abs_path).isRelative())
+        return abs_path;
+    return relativeToDir(workingDirectory(), abs_path);
+}
+
+QString Resource::workingDirectory() const
+{
+    return m_workingDirectory;
+}
+
+void Resource::setWorkingDirectory(const QString &directory)
+{
+    m_workingDirectory = directory;
+}
+
+QString Resource::relativeToDir(const QString &_dir, const QString &_file)
+{
+    QString dir = QDir::cleanPath(_dir);
+    QString file = QDir::cleanPath(_file);
+
+#ifdef Q_OS_WIN
+    QString root_path = QDir(dir).rootPath();
+    if (root_path != QDir(QFileInfo(file).path()).rootPath()) {
+        return file;
+    } else {
+        dir.remove(0, root_path.size() - 1);
+        file.remove(0, root_path.size() - 1);
+    }
+    // QDir::cleanPath return always a '/' as separator.
+    // Stupid workarround for Windows for now.
+    dir = dir.replace("/", "\\");
+    file = file.replace("/", "\\");
+#endif
+
+    QString result;
+    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
+    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
+
+    int i = 0;
+    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
+        ++i;
+
+    for (int j = 0; j < dir_elts.size() - i; ++j)
+        result += QLatin1String("..") + QDir::separator();
+
+    for (int j = i; j < file_elts.size(); ++j) {
+        result += file_elts.at(j);
+        if (j < file_elts.size() - 1)
+        result += QDir::separator();
+    }
+
+    return result;
+}
+
 
 #include "resource.moc"

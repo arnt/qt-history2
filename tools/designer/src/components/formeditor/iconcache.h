@@ -25,8 +25,8 @@ public:
     QString itemToQrcPath(const Item &item) const;
 
     QList<Item> itemList() const;
-    
-private:    
+
+private:
     typedef QPair<QString, QString> Key;
     typedef QMap<Key, Item> KeyToItemMap;
     typedef QMap<int, Key> SerialToKeyMap;
@@ -65,7 +65,7 @@ Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcP
         return Item();
     m_key_to_item.insert(key, item);
     m_serial_to_key.insert(item.serialNumber(), key);
-    
+
     return item;
 }
 
@@ -116,7 +116,7 @@ public:
         { return m_pixmap_cache.itemList(); }
     QList<QIcon> iconList() const
         { return m_icon_cache.itemList(); }
-          
+
 private:
     ResourceCache<QIcon> m_icon_cache;
     ResourceCache<QPixmap> m_pixmap_cache;

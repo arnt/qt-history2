@@ -21,9 +21,12 @@
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
+class QIcon;
 class QObject;
 class QVariant;
 class QWidget;
+class QListWidget;
+class QComboBox;
 class QLayout;
 class QLayoutItem;
 class QSpacerItem;
@@ -53,8 +56,13 @@ public:
     Resource();
     virtual ~Resource();
 
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &directory);
+
     virtual QWidget *load(QIODevice *dev, QWidget *parentWidget=0);
     virtual void save(QIODevice *dev, QWidget *widget);
+
+    static QString relativeToDir(const QString &_dir, const QString &_file); // ### move me!
 
 protected:
 //
@@ -110,13 +118,29 @@ protected:
     virtual void layoutInfo(DomWidget *widget, QObject *parent, int *margin, int *spacing);
     virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);
 
+    virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
+    virtual QString iconToFilePath(const QIcon &pm) const;
+    virtual QString iconToQrcPath(const QIcon &pm) const;
+    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath);
+    virtual QString pixmapToFilePath(const QPixmap &pm) const;
+    virtual QString pixmapToQrcPath(const QPixmap &pm) const;
+
+    void loadListWidgetExtraInfo(DomWidget *ui_widget, QListWidget *listWidget, QWidget *parentWidget);
+    void loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget);
+
+    void saveListWidgetExtraInfo(QListWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+    void saveComboBoxExtraInfo(QComboBox *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+
 //
 // utils
 //
     QVariant toVariant(const QMetaObject *meta, DomProperty *property);
     static bool toBool(const QString &str);
     static QString toString(const DomString *str);
+
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
+    QString absolutePath(const QString &rel_path) const;
+    QString relativePath(const QString &abs_path) const;
 
     QHash<QObject*, bool> m_laidout;
     QHash<QString, QAction*> m_actions;
@@ -128,6 +152,7 @@ private:
 
     int m_defaultMargin;
     int m_defaultSpacing;
+    QString m_workingDirectory;
 
 private:
     Resource(const Resource &other);

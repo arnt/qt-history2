@@ -528,6 +528,7 @@ void QDesignerActions::previewForm()
         layout->setMargin(0);
 
         QDesignerFormBuilder builder(core());
+        builder.setWorkingDirectory(fw->absolutePath(QString()));
 
         QByteArray bytes = fw->contents().toUtf8();
         QBuffer buffer(&bytes);

@@ -1,7 +1,21 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef ABSTRACTICONCACHE_H
 #define ABSTRACTICONCACHE_H
 
-#include <QObject>
+#include <QtCore/QObject>
+
 #include "sdk_global.h"
 
 class QIcon;
@@ -14,10 +28,13 @@ class QT_SDK_EXPORT AbstractIconCache : public QObject
 public:
     AbstractIconCache(QObject *parent)
         : QObject(parent) {}
+
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath = QString()) = 0;
+    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath = QString()) = 0;
+
     virtual QString iconToFilePath(const QIcon &pm) const = 0;
     virtual QString iconToQrcPath(const QIcon &pm) const = 0;
-    virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath = QString()) = 0;
+
     virtual QString pixmapToFilePath(const QPixmap &pm) const = 0;
     virtual QString pixmapToQrcPath(const QPixmap &pm) const = 0;
 

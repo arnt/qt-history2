@@ -103,9 +103,9 @@ void Spacer::setSizeType(QSizePolicy::Policy t)
 {
     QSizePolicy sizeP;
     if (orient == Qt::Vertical)
-        sizeP = QSizePolicy(QSizePolicy::Minimum, (QSizePolicy::Policy)t);
+        sizeP = QSizePolicy(QSizePolicy::Minimum, t);
     else
-        sizeP = QSizePolicy((QSizePolicy::Policy)t, QSizePolicy::Minimum);
+        sizeP = QSizePolicy(t, QSizePolicy::Minimum);
     setSizePolicy(sizeP);
 }
 
