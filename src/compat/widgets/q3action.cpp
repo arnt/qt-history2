@@ -702,7 +702,7 @@ QString Q3Action::toolTip() const
     \brief the action's status tip
 
     The statusTip is displayed on all status bars that this action's
-    toplevel parent widget provides, and is provided as the parameter
+    top-level parent widget provides, and is provided as the parameter
     of the showStatusMessage() signal.
 
     If no status tip is defined, the action uses the tool tip text.
@@ -1322,7 +1322,7 @@ void Q3Action::objectDestroyed()
     \fn void Q3Action::showStatusMessage(const QString &text)
 
     This signal is emitted before \a text is displayed in the
-    application's statusbar. \a text can be QString::null when the
+    application's status bar. \a text can be QString::null when the
     status bar is cleared.
 
     Connect to this signal to provide additional handling of
