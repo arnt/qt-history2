@@ -535,7 +535,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 
 
 
-void QScriptEngineArabic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
+void QScriptEngineArabic::charAttributes( const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {

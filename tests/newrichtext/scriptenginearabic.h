@@ -7,7 +7,7 @@
 class QScriptEngineArabic : public QScriptEngineBasic
 {
 public:
-    void charAttributes( const QString &text, int from, int len, CharAttributes *attributes );
+    void charAttributes( const QString &text, int from, int len, QCharAttributes *attributes );
     void shape( QShapedItem *result );
 
 protected:

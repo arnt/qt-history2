@@ -234,7 +234,7 @@ void QScriptEngine::heuristicSetGlyphAttributes( QShapedItem *shaped )
     }
 }
 
-void QScriptEngineBasic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
+void QScriptEngineBasic::charAttributes( const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {

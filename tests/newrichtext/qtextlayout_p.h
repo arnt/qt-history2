@@ -192,7 +192,7 @@ public:
     QShapedItemPrivate *d;
 };
 
-struct CharAttributes {
+struct QCharAttributes {
     int softBreak      :1;     // Potential linebreak point
     int whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     int charStop       :1;     // Valid cursor position (for left/right arrow)
@@ -200,36 +200,36 @@ struct CharAttributes {
     int reserved       :4;
 };
 
-struct CharAttributesArrayPrivate {
+struct QCharAttributesArrayPrivate {
     unsigned int alloc;
     unsigned int size;
-    CharAttributes attributes[1];
+    QCharAttributes attributes[1];
 };
 
-class CharAttributesArray
+class QCharAttributesArray
 {
 public:
-    CharAttributesArray() : d( 0 ) {}
-    ~CharAttributesArray();
+    QCharAttributesArray() : d( 0 ) {}
+    ~QCharAttributesArray();
 
-    CharAttributesArray( const CharAttributesArray & ) {}
-    CharAttributesArray & operator=( const CharAttributesArray & ) { return *this; }
+    QCharAttributesArray( const QCharAttributesArray & ) {}
+    QCharAttributesArray & operator=( const QCharAttributesArray & ) { return *this; }
 
-    const CharAttributes &operator [] (int i) const {
+    const QCharAttributes &operator [] (int i) const {
 	return d->attributes[i];
     }
 
-    CharAttributesArrayPrivate *d;
+    QCharAttributesArrayPrivate *d;
 };
 
-class TextLayout
+class QTextLayoutIFace
 {
 public:
-    static const TextLayout *instance();
+    static const QTextLayoutIFace *instance();
 
     virtual void itemize( QScriptItemArray &items, const QString & ) const = 0;
 
-    virtual void attributes( CharAttributesArray &attrs, const QString &string,
+    virtual void attributes( QCharAttributesArray &attrs, const QString &string,
 		     const QScriptItemArray &items, int item ) const = 0;
 
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
@@ -249,7 +249,7 @@ public:
 
     virtual int width( QShapedItem &shaped ) const = 0;
     virtual int width( QShapedItem &shaped, int charFrom, int numChars ) const = 0;
-    virtual bool split( QScriptItemArray &items, int item, QShapedItem &, CharAttributesArray &,
+    virtual bool split( QScriptItemArray &items, int item, QShapedItem &, QCharAttributesArray &,
 			int width, QShapedItem *splitoff = 0 ) const = 0;
 
 //    static QScriptProperties scriptProperties( int script );

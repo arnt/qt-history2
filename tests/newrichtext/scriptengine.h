@@ -8,7 +8,7 @@
 class QScriptEngine
 {
 public:
-    virtual void charAttributes( const QString &text, int from, int len, CharAttributes *attributes ) = 0;
+    virtual void charAttributes( const QString &text, int from, int len, QCharAttributes *attributes ) = 0;
     // shaped is an in/out paramter. It already contains the correct font engine
     virtual void shape( QShapedItem *shaped ) = 0;
     virtual void position( QShapedItem *shaped ) = 0;

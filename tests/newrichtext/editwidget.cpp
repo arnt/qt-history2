@@ -107,7 +107,7 @@ void EditWidget::resizeEvent( QResizeEvent * )
 void EditWidget::paintEvent( QPaintEvent * )
 {
     QPainter painter( this );
-    const TextLayout *layout = TextLayout::instance();
+    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
     int start = 0;
     int y = 5;
     for ( int j = 0; j < d->lineBreaks.size(); j++ ) {
@@ -170,7 +170,7 @@ void EditWidget::recalculate()
 {
     QTime t;
     t.start();
-    const TextLayout *layout = TextLayout::instance();
+    const QTextLayoutIFace *layout = QTextLayoutIFace::instance();
 
     layout->itemize( d->items, d->text );
 
@@ -191,7 +191,7 @@ void EditWidget::recalculate()
 // 	qDebug("width(%d)=%d", i, cw );
 	if ( 0 && lw + cw > w ) {
 	    // need to split the current item
-	    CharAttributesArray attrs;
+	    QCharAttributesArray attrs;
 	    layout->attributes( attrs, d->text, d->items, i );
 	    if ( layout->split( d->items, i, shaped, attrs, w - lw ) ) {
 		layout->shape( shaped, d->font, d->text, d->items, i );

@@ -49,7 +49,7 @@ void QScriptItemArray::split( int pos )
 }
 
 
-CharAttributesArray::~CharAttributesArray()
+QCharAttributesArray::~QCharAttributesArray()
 {
     free( d );
 }
@@ -113,13 +113,13 @@ int QShapedItem::descent() const
 
 QScriptEngine **scriptEngines = 0;
 
-class TextLayoutQt : public TextLayout
+class QTextLayoutQt : public QTextLayoutIFace
 {
 public:
 
     void itemize( QScriptItemArray &items, const QString & ) const;
 
-    void attributes( CharAttributesArray &attributes, const QString &string,
+    void attributes( QCharAttributesArray &attributes, const QString &string,
 		     const QScriptItemArray &items, int item ) const;
 
     void shape( QShapedItem &shaped, const QFont &font, const QString &string,
@@ -130,7 +130,7 @@ public:
 
     int width( QShapedItem &shaped ) const;
     int width( QShapedItem &shaped, int charFrom, int numChars ) const;
-    bool split( QScriptItemArray &items, int item, QShapedItem &shaped, CharAttributesArray &attrs,
+    bool split( QScriptItemArray &items, int item, QShapedItem &shaped, QCharAttributesArray &attrs,
 		int width, QShapedItem *splitoff ) const;
 
 private:
@@ -142,12 +142,12 @@ private:
 
 
 
-static TextLayout *_instance = 0;
+static QTextLayoutIFace *_instance = 0;
 
-const TextLayout *TextLayout::instance()
+const QTextLayoutIFace *QTextLayoutIFace::instance()
 {
     if ( !_instance ) {
-	_instance = new TextLayoutQt();
+	_instance = new QTextLayoutQt();
 
         if ( !scriptEngines ) {
 	    scriptEngines = (QScriptEngine **) malloc( QFont::NScripts * sizeof( QScriptEngine * ) );
@@ -165,13 +165,13 @@ const TextLayout *TextLayout::instance()
 }
 
 
-void TextLayout::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const
+void QTextLayoutIFace::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const
 {
     ::bidiReorder(numRuns, levels, visualOrder );
 }
 
 
-void TextLayoutQt::itemize( QScriptItemArray &items, const QString &string ) const
+void QTextLayoutQt::itemize( QScriptItemArray &items, const QString &string ) const
 {
     if ( !items.d ) {
 	int size = 1;
@@ -185,7 +185,7 @@ void TextLayoutQt::itemize( QScriptItemArray &items, const QString &string ) con
 }
 
 
-void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string,
+void QTextLayoutQt::attributes( QCharAttributesArray &attrs, const QString &string,
 			       const QScriptItemArray &items, int item ) const
 {
     const QScriptItem &si = items[item];
@@ -194,13 +194,13 @@ void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
 
-    attrs.d = (CharAttributesArrayPrivate *)realloc( attrs.d, sizeof( CharAttributesArrayPrivate ) +
-						     sizeof(CharAttributes)*len );
+    attrs.d = (QCharAttributesArrayPrivate *)realloc( attrs.d, sizeof( QCharAttributesArrayPrivate ) +
+						     sizeof(QCharAttributes)*len );
 
     scriptEngines[si.analysis.script]->charAttributes( string, from, len, attrs.d->attributes );
 }
 
-void TextLayoutQt::shape( QShapedItem &shaped, const QFont &f, const QString &string,
+void QTextLayoutQt::shape( QShapedItem &shaped, const QFont &f, const QString &string,
 			 const QScriptItemArray &items, int item ) const
 {
     const QScriptItem &si = items[item];
@@ -219,7 +219,7 @@ void TextLayoutQt::shape( QShapedItem &shaped, const QFont &f, const QString &st
     shaped.d->isPositioned = FALSE;
 }
 
-void TextLayoutQt::shape( QShapedItem &shaped ) const
+void QTextLayoutQt::shape( QShapedItem &shaped ) const
 {
     if ( shaped.d->isShaped )
 	return;
@@ -229,7 +229,7 @@ void TextLayoutQt::shape( QShapedItem &shaped ) const
     shaped.d->isShaped = TRUE;
 }
 
-void TextLayoutQt::position( QShapedItem &shaped ) const
+void QTextLayoutQt::position( QShapedItem &shaped ) const
 {
     if ( !shaped.d->isShaped )
 	shape( shaped );
@@ -241,7 +241,7 @@ void TextLayoutQt::position( QShapedItem &shaped ) const
     shaped.d->isPositioned = TRUE;
 }
 
-int TextLayoutQt::cursorToX( QShapedItem &shaped, int cpos, Edge edge ) const
+int QTextLayoutQt::cursorToX( QShapedItem &shaped, int cpos, Edge edge ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -274,7 +274,7 @@ int TextLayoutQt::cursorToX( QShapedItem &shaped, int cpos, Edge edge ) const
     return x;
 }
 
-int TextLayoutQt::xToCursor( QShapedItem &shaped, int x ) const
+int QTextLayoutQt::xToCursor( QShapedItem &shaped, int x ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -324,7 +324,7 @@ int TextLayoutQt::xToCursor( QShapedItem &shaped, int x ) const
 }
 
 
-int TextLayoutQt::width( QShapedItem &shaped ) const
+int QTextLayoutQt::width( QShapedItem &shaped ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -335,7 +335,7 @@ int TextLayoutQt::width( QShapedItem &shaped ) const
     return width;
 }
 
-int TextLayoutQt::width( QShapedItem &shaped, int charFrom, int numChars ) const
+int QTextLayoutQt::width( QShapedItem &shaped, int charFrom, int numChars ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
@@ -366,12 +366,12 @@ int TextLayoutQt::width( QShapedItem &shaped, int charFrom, int numChars ) const
     return width;
 }
 
-bool TextLayoutQt::split( QScriptItemArray &items, int item, QShapedItem &shaped, CharAttributesArray &attrs, int width, QShapedItem *splitoff ) const
+bool QTextLayoutQt::split( QScriptItemArray &items, int item, QShapedItem &shaped, QCharAttributesArray &attrs, int width, QShapedItem *splitoff ) const
 {
     if ( !shaped.d->isPositioned )
 	position( shaped );
 
-//     qDebug("TextLayoutQt::split: item=%d, width=%d", item, width );
+//     qDebug("QTextLayoutQt::split: item=%d, width=%d", item, width );
     // line breaks are always done in logical order
     QShapedItemPrivate *d = shaped.d;
 
