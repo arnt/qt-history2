@@ -199,15 +199,12 @@ void qws_mapPixmaps(bool from)
  *****************************************************************************/
 static int qt_pixmap_serial = 0;
 
-void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
+void QPixmap::init(int w, int h, int d, bool bitmap)
 {
     int dd = defaultDepth();
 
     if (!QwsPixmap::pixmapData)
         QwsPixmap::pixmapData = new QList<QPixmapData*>;
-
-    if (optim == DefaultOptim)                // use default optimization
-        optim = defOptim;
 
     data = new QPixmapData;
 
@@ -220,7 +217,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->uninit = true;
     data->bitmap = bitmap;
     data->ser_no = ++qt_pixmap_serial;
-    data->optim         = optim;
     data->clut=0;
     data->numcols = 0;
     data->hasAlpha = false;
@@ -260,7 +256,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     data->rw = qt_screen->mapToDevice(QSize(w,h)).width();
     data->rh = qt_screen->mapToDevice(QSize(w,h)).height();
 
-    data->id=memorymanager->newPixmap(data->rw, data->rh, data->d, optim);
+    data->id=memorymanager->newPixmap(data->rw, data->rh, data->d);
     if (data->id == 0)
         data->w = data->h = 0; // out of memory -- create null pixmap
 }
@@ -281,7 +277,7 @@ QPixmapData::~QPixmapData()
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
 {                                                // for bitmaps only
-    init(0, 0, 0, false, defOptim);
+    init(0, 0, 0, false);
     if (w <= 0 || h <= 0)                        // create null pixmap
         return;
 
@@ -309,7 +305,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
         return;
     }
 
-    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d, optimization());
+    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d);
     if (data->id == 0) {
         // out of memory -- create null pixmap.
         data->w = data->h = 0;
@@ -353,11 +349,6 @@ int QPixmap::defaultDepth()
     int dd = d ? d->pixmapDepth() : 16;
     return dd;
 #endif
-}
-
-
-void QPixmap::setOptimization(Optimization)
-{
 }
 
 
@@ -417,7 +408,7 @@ QImage QPixmap::toImage() const
     int        d  = depth();
     bool mono = d == 1;
 
-    const QBitmap* msk = mask();
+    const QBitmap* msk = data->mask;
 
     if(d == 15 || d == 16) {
 #ifndef QT_NO_QWS_DEPTH_16
@@ -474,8 +465,8 @@ QImage QPixmap::toImage() const
         image.setNumColors(numCols());
         for (int i = 0; i < numCols(); i++)
             image.setColor(i, clut()[i]);
-        if (mask()) {                                // which pixels are used?
-            QImage alpha = mask()->toImage();
+        if (msk) {                                // which pixels are used?
+            QImage alpha = msk->toImage();
             alpha = qt_screen->mapToDevice(alpha);
             bool ale = alpha.bitOrder() == QImage::LittleEndian;
             register uchar *p;
@@ -525,8 +516,8 @@ QImage QPixmap::toImage() const
             }
             image.setAlphaBuffer(true);
         }
-    } else if (d == 32 && mask()) {
-        QImage alpha = mask()->toImage();
+    } else if (d == 32 && msk) {
+        QImage alpha = msk->toImage();
         bool ale = alpha.bitOrder() == QImage::LittleEndian;
         for (int i=0; i<h; i++) {
             uchar* asrc = alpha.scanLine(i);
@@ -563,8 +554,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int         h   = image.height();
     int         d   = image.depth();        // source depth
     int         dd  = defaultDepth();        //destination depth
-    bool force_mono = (dd == 1 || isQBitmap() ||
-                       (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
+    bool force_mono = (dd == 1 && (flags & Qt::ColorMode_Mask) == Qt::MonoOnly);
 
     if (force_mono) {                                // must be monochrome
         if (d != 1) {
@@ -639,20 +629,14 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             dd=32;
     }
 
-    // for drivers that do not accelerate alpha blt
-    Optimization optim = partialalpha ? NoOptim : defOptim;
-
     QImage rimg = qt_screen->mapToDevice(image);
 
-    // detach other references and re-init()
-    bool ibm = isQBitmap();
-    detach();
-    deref();
-    init(w, h, dd, ibm, optim);
+    pixmap.deref();
+    pixmap.init(w, h, dd, false);
 
     QWSPaintEngine *p = new QWSPaintEngine;
-    p->begin(this);
-    p->blt(rimg, 0,0,data->w,data->h,0,0);
+    p->begin(&pixmap);
+    p->blt(rimg, 0, 0, pixmap.data->w, pixmap.data->h, 0, 0);
     p->end();
     delete p;
     if (image.hasAlphaBuffer()) {
@@ -660,14 +644,14 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         if (!partialalpha) {
             QBitmap m;
             m = image.createAlphaMask(flags);
-            setMask(m);
+            pixmap.setMask(m);
         } else
 #endif
-            data->hasAlpha = true;
+            pixmap.data->hasAlpha = true;
     }
-    data->uninit = false;
+    pixmap.data->uninit = false;
 
-    return true;
+    return pixmap;
 }
 
 
@@ -709,7 +693,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently!
         QImage image = toImage();
-        return QPixmap(image.transform(matrix, mode));
+        return QPixmap::fromImage(image.transform(matrix, mode));
     }
 
     int           w, h;                                // size of target pixmap
@@ -743,7 +727,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
              if (w==0 || h==0)
                  return *this;
 
-             QPixmap pm(w, h, depth(), NormalOptim);
+             QPixmap pm(w, h, depth());
              QWSPaintEngine *pe = new QWSPaintEngine;
              if (pe) {
                  pe->begin(&pm);
@@ -792,7 +776,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     hs=height();
 
     QImage destImg;
-    QPixmap pm(1, 1, depth(), data->bitmap, NormalOptim);
+    QPixmap pm(1, 1, depth(), data->bitmap);
     pm.data->uninit = false;
     if (qt_screen->isTransformed()) {
         destImg.create(w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder());

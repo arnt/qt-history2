@@ -604,9 +604,9 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
     \sa uncache()
 */
 
-uchar * QLinuxFbScreen::cache(int amount, int optim)
+uchar * QLinuxFbScreen::cache(int amount)
 {
-    if(!canaccel || entryp==0 || optim == int(QPixmap::NoOptim)) {
+    if(!canaccel || entryp==0) {
         return 0;
     }
 

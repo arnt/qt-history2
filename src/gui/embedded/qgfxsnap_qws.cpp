@@ -1184,12 +1184,10 @@ be called if the screen is locked.
 level (same values as QPixmap::Optimization).
 */
 
-uchar * QSNAPScreen::cache(
-    int amount,
-    int optim)
+uchar * QSNAPScreen::cache(int amount)
 {
     // Check to see if we should cache the bitmap in memory
-    if (!useOffscreen || entryp == 0 || optim == int(QPixmap::NoOptim) )
+    if (!useOffscreen || entryp == 0)
         return NULL;
 
     // Get exclusive access to video memory

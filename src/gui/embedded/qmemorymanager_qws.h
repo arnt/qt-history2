@@ -30,7 +30,7 @@ public:
 
     // Pixmaps
     typedef int PixmapID;
-    PixmapID newPixmap(int w, int h, int d, int optim);
+    PixmapID newPixmap(int w, int h, int d);
     void deletePixmap(PixmapID);
     bool inVRAM(PixmapID) const;
     void findPixmap(PixmapID,

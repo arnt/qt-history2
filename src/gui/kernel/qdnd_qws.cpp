@@ -65,8 +65,8 @@ public:
     void setPixmap(QPixmap pm)
     {
         pixmap = pm;
-        if (pixmap.mask()) {
-            setMask(*pixmap.mask());
+        if (!pixmap.mask().isNull()) {
+            setMask(pixmap.mask());
         } else {
             clearMask();
         }
@@ -244,7 +244,7 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 QDragManager *manager = QDragManager::self();
                 QMimeData *dropData = manager->object ? manager->dragPrivate()->data : manager->dropData;
 
-                QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), possible_actions, dropData, 
+                QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), possible_actions, dropData,
                               me->buttons(), me->modifiers());
                 QApplication::sendEvent(object->target(), &de);
 

@@ -647,8 +647,7 @@ inline static const int calcLineStep(int w, int d, bool vram)
 }
 
 // Pixmaps
-QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d,
-                                                   int optim)
+QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 {
     uchar* data;
     PixmapID id;
@@ -661,7 +660,7 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d,
 
     // Find space in vram.
 
-    data=qt_screen->cache(siz, optim);
+    data=qt_screen->cache(siz);
 
     if (data) {
         xoffset = 0; // XXX

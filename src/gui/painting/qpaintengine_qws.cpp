@@ -329,15 +329,17 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
         clearf(ClipOn);
 }
 
-void QWSPaintEngine::drawLine(const QLineF *lines, int lineCount)
+void QWSPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
-    for (int i=0; i<lineCount; ++i)
-        d->gfx->drawLine(qRound(line.x1()), qRound(line.y1()), qRound(line.x2()), qRound(line.y2()));
+    for (int i=0; i<lineCount; ++i) {
+        d->gfx->drawLine(qRound(lines->x1()), qRound(lines->y1()), qRound(lines->x2()), qRound(lines->y2()));
+        ++lines;
+    }
 }
 
-void QWSPaintEngine::drawRect(const QRectF *rects, int rectCount)
+void QWSPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
@@ -382,8 +384,10 @@ void QWSPaintEngine::drawRect(const QRectF *rects, int rectCount)
 
 void QWSPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
-    for (int i=0; i<pointCount; ++i)
-        d->gfx->drawPoint(qRound(p.x()), qRound(p.y()));
+    for (int i=0; i<pointCount; ++i) {
+        d->gfx->drawPoint(qRound(points->x()), qRound(points->y()));
+        ++points;
+    }
 }
 
 void QWSPaintEngine::drawPolyInternal(const QPolygon &a, bool close)
@@ -461,7 +465,7 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
     int sh = qRound(sr.height());
 
     bool hasAlpha = pixmap.data->hasAlpha;
-    bool hasMask = pixmap.mask();
+    bool hasMask = !pixmap.mask().isNull();
 
     if ((w != sw || h != sh) && (sx != 0 || sy != 0))
         qDebug("QWSPaintEngine::drawPixmap offset stretch not implemented");
@@ -470,7 +474,7 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
     if (hasAlpha && hasMask) {
         // convert the mask to alpha 0, since gfx doesn't yet support both mask and alpha
         QImage img = pixmap.toImage();
-        no_mask = img;
+        no_mask = QPixmap::fromImage(img);
         d->gfx->setSource(&no_mask);
         hasMask = false;
     } else {
@@ -478,9 +482,9 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
     }
 
     if(mode == Qt::ComposePixmap && hasMask) {
-        QBitmap * mymask=((QBitmap *)pixmap.mask());
-        const unsigned char * thebits=mymask->qwsScanLine(0);
-        int ls=mymask->qwsBytesPerLine();
+        QBitmap mymask = pixmap.mask();
+        const unsigned char * thebits = mymask.qwsScanLine(0);
+        int ls = mymask.qwsBytesPerLine();
         d->gfx->setAlphaType(QGfx::LittleEndianMask);
         d->gfx->setAlphaSource(const_cast<uchar*>(thebits),ls);
     } else {

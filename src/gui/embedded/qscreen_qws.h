@@ -211,7 +211,7 @@ public:
     int deviceHeight() const { return dh; }
     uchar * base() const { return data; }
     // Ask for memory from card cache with alignment
-    virtual uchar * cache(int,int) { return 0; }
+    virtual uchar * cache(int) { return 0; }
     virtual void uncache(uchar *) {}
 
     int screenSize() const { return size; }

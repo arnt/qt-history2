@@ -944,8 +944,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     Q_D(QRasterPaintEngine);
 
     // Decide on which span func to use
-    FillData fillData = { d->rasterBuffer, 0, 0 };
-    d->fillForBrush(d->pen.brush(), &fillData, 0);
+    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
 
     qt_span_func func = fillData.callback;
     void *data = fillData.data;
