@@ -119,7 +119,9 @@ public:
 
     void ensureCursorVisible();
 
+#if defined(QT_COMPAT)
     void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
+#endif
 
 public slots:
     void setFontPointSize(float s);
