@@ -35,7 +35,7 @@
 **********************************************************************/
 
 #include <qsqldriverinterface.h>
-#include "qsql_psql.h"
+#include "../../../../src/sql/drivers/psql/qsql_psql.h"
 
 class QPSQLDriverPlugin : public QSqlDriverFactoryInterface
 {
