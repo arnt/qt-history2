@@ -153,7 +153,7 @@ QWidget *QAccessibleWidget::widget() const
 
 /*!
     Returns the associated widget's parent object, which is either the
-    parent widget, or qApp for toplevel widgets.
+    parent widget, or qApp for top-level widgets.
 */
 QObject *QAccessibleWidget::parentObject() const
 {
