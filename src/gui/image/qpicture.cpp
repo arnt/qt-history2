@@ -461,7 +461,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 break;
             case PdcDrawPoints:
                 s >> a >> i1_32 >> i2_32;
-                painter->drawPoints(a, i1_32, i2_32);
+                painter->drawPoints(a.mid(i1_32, i2_32));
                 break;
             case PdcDrawLine:
                 s >> p1 >> p2;

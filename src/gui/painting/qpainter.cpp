@@ -1460,8 +1460,7 @@ void QPainter::drawRect(const QRect &r)
 	return;
     }
 
-    if ((d->state->VxF || d->state->WxF)
-        && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
   	    drawPolygon(QPointArray(rect));
 #if 0 // NB! keep this golden magic nugget of code
@@ -1580,27 +1579,15 @@ void QPainter::drawPoint(const QPoint &p)
 /*!
     Draws the array of points \a pa using the current pen's color.
 
-    If \a index is non-zero (the default is zero), only points
-    starting from \a index are drawn. If \a npoints is negative (the
-    default) the rest of the points from \a index are drawn. If \a
-    npoints is zero or greater, \a npoints points are drawn.
-
     \sa QPen
 */
-void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
+void QPainter::drawPoints(const QPointArray &pa)
 {
     if (!isActive())
         return;
     d->engine->updateState(d->state);
 
-    if (npoints < 0)
-        npoints = pa.size() - index;
-    if (index + npoints > (int)pa.size())
-        npoints = pa.size() - index;
-    if (!isActive() || npoints < 1 || index < 0)
-        return;
-
-    QPointArray a = pa.mid(index, npoints);
+    QPointArray a = pa;
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         a = xForm(a);
 
@@ -2286,6 +2273,22 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
     Draws the pixmap \a pm with its origin at point \a p.
 */
+void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+{
+    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, QRect(0, 0, pm.width(), pm.height()), mode);
+}
+
+
+/*!
+    \fn void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+    \overload
+
+    Draws the pixmap \a pm into the rectangle \a r.
+*/
+void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, Qt::PixmapDrawingMode mode)
+{
+    drawPixmap(r, pm, QRect(0, 0, pm.width(), pm.height()), mode);
+}
 
 /*!
     Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
@@ -2428,7 +2431,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
     \sa QPainter::TextDirection
 */
 
-void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
+void QPainter::drawText(const QPoint &p, const QString &str, TextDirection dir)
 {
     if (!isActive())
         return;
@@ -2457,7 +2460,7 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     if (d->state->font.overline()) textFlags |= Qt::TextOverline;
     if (d->state->font.strikeOut()) textFlags |= Qt::TextStrikeOut;
 
-    line.draw(this, x, qRound(y - sl.ascent));
+    line.draw(this, p.x(), qRound(p.y() - sl.ascent));
 }
 
 /*!
@@ -2707,34 +2710,31 @@ void QPainter::drawPicture(int x, int y, const QPicture &p)
 
 
 /*!
-    \fn void QPainter::eraseRect(const QRect &r)
-
-    \overload
-
-    Erases the area inside the rectangle \a r.
+    Erases the area inside the rectangle \a r. Equivalent to
+    \c{fillRect(r, backgroundColor())}.
 */
-
-/*!
-    Erases the area inside \a x, \a y, \a w, \a h. Equivalent to
-    \c{fillRect(x, y, w, h, backgroundColor())}.
-*/
-
-void QPainter::eraseRect(int x, int y, int w, int h)
+void QPainter::eraseRect(const QRect &r)
 {
     if (!isActive())
         return;
     d->engine->updateState(d->state);
 
     if (d->state->bgBrush.pixmap())
-        drawTiledPixmap(QRect(x, y, w, h), *d->state->bgBrush.pixmap(), -d->state->bgOrigin);
+        drawTiledPixmap(r, *d->state->bgBrush.pixmap(), -d->state->bgOrigin);
     else
-        fillRect(x, y, w, h, d->state->bgBrush);
+        fillRect(r, d->state->bgBrush);
 }
 
-/*! \fn void QPainter::fillRect(const QRect &r, const QBrush &brush)
+/*!
+  \fn void QPainter::eraseRect(int x, int y, int w, int h)
+  \overload
 
-    \overload
+    Erases the area inside \a x, \a y, \a w, \a h. Equivalent to
+    \c{fillRect(x, y, w, h, backgroundColor())}.
+*/
 
+
+/*!
     Fills the rectangle \a r with the \a brush.
 
     You can specify a QColor as \a brush, since there is a QBrush
@@ -2743,8 +2743,25 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 
     \sa drawRect()
 */
+void QPainter::fillRect(const QRect &r, const QBrush &brush)
+{
+    QPen oldPen   = pen();
+    bool swap = oldPen.style() != Qt::NoPen;
+    if (swap)
+        setPen(Qt::NoPen);
+    QBrush oldBrush = this->brush();
+    setBrush(brush);
+    drawRect(r);
+    setBrush(oldBrush);
+    if (swap)
+        setPen(oldPen);
+}
 
 /*!
+  \fn void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
+
+    \overload
+
     Fills the rectangle (\a{x}, \a{y}, \a{w}, \a{h}) with the \a brush.
 
     You can specify a QColor as \a brush, since there is a QBrush
@@ -2753,20 +2770,6 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 
     \sa drawRect()
 */
-
-void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
-{
-    QPen oldPen   = pen();
-    bool swap = oldPen.style() != Qt::NoPen;
-    if (swap)
-        setPen(Qt::NoPen);
-    QBrush oldBrush = this->brush();
-    setBrush(brush);
-    drawRect(x, y, w, h);
-    setBrush(oldBrush);
-    if (swap)
-        setPen(oldPen);
-}
 
 
 /*!
@@ -3149,18 +3152,35 @@ QPainter::RenderHints QPainter::renderHints() const
     return d->engine->renderHints();
 }
 
-double QPainter::m11() const { return d->state->matrix.m11(); }
-double QPainter::m12() const { return d->state->matrix.m12(); }
-double QPainter::m21() const { return d->state->matrix.m21(); }
-double QPainter::m22() const { return d->state->matrix.m22(); }
-double QPainter::dx() const { return d->state->matrix.dx(); }
-double QPainter::dy() const { return d->state->matrix.dy(); }
-double QPainter::im11() const { return d->invMatrix.m11(); }
-double QPainter::im12() const { return d->invMatrix.m12(); }
-double QPainter::im21() const { return d->invMatrix.m21(); }
-double QPainter::im22() const { return d->invMatrix.m22(); }
-double QPainter::idx() const { return d->invMatrix.dx(); }
-double QPainter::idy() const { return d->invMatrix.dy(); }
+#ifdef QT_COMPAT
+/*!
+  \fn void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
+
+  \overload
+  \obsolete
+
+    Draws the array of points \a pa using the current pen's color.
+
+    If \a index is non-zero (the default is zero), only points
+    starting from \a index are drawn. If \a npoints is negative (the
+    default) the rest of the points from \a index are drawn. If \a
+    npoints is zero or greater, \a npoints points are drawn.
+
+    \sa drawPoints
+*/
+void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
+{
+    if (npoints < 0)
+        npoints = pa.size() - index;
+    if (index + npoints > (int)pa.size())
+        npoints = pa.size() - index;
+    if (!isActive() || npoints < 1 || index < 0)
+        return;
+
+    QPointArray a = pa.mid(index, npoints);
+    drawPoints(a);
+}
+#endif
 
 struct QPaintDeviceRedirection
 {
