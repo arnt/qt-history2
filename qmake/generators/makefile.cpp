@@ -1467,7 +1467,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
     QString ret = var;
     QRegExp reg_var("\\$\\{.*\\}");
     reg_var.setMinimal(true);
-    for(int rep = 0; (rep = reg_var.indexIn(ret, rep)) != -1; rep += reg_var.matchedLength()) {
+    for(int rep = 0; (rep = reg_var.indexIn(ret, rep)) != -1; ) {
         QString val;
         const QString var = ret.mid(rep + 2, reg_var.matchedLength() - 3);
         if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_")))
@@ -1488,8 +1488,12 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             if(var == QLatin1String("QMAKE_FILE_OUT"))
                 val = out;
         }
-        if(!val.isNull())
+        if(!val.isNull()) {
             ret.replace(rep, reg_var.matchedLength(), val);
+            rep += val.length();
+        } else {
+            rep += reg_var.matchedLength();
+        }
     }
 
     //cache the value
