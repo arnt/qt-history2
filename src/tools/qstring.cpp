@@ -11889,7 +11889,7 @@ unsigned char QChar::combiningClass() const
     const Q_UINT8 *rowp = combining_info[row()];
     if ( !rowp )
         return 0;
-    return *(rowp+cell())>128;
+    return *(rowp+cell());
 #else
     return 0;
 #endif
