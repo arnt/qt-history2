@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#38 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#38 $");
 
 
 /*!
@@ -95,7 +95,7 @@ void QButtonGroup::init()
 {
     buttons = new QButtonList;
     CHECK_PTR( buttons );
-    buttons->setAutoDelete( TRUE );
+    buttons->setAutoDelete( FALSE );
     excl_grp = FALSE;
 }
 
