@@ -84,7 +84,7 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     Products="qt-free"
 # Evaluation version.
 elif [ -f $relpath/LICENSE.EVAL ]; then
-    [ "$QWS_PLATFORM" = "maybe" ] && QWS_PLATFORM=yes
+    [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="eval"
     Licensee="Evaluation"
     Products="qt-eval"
@@ -212,7 +212,7 @@ fi
 
 # licensed modules depend on type of commercial license
 MODULES="styles tools kernel widgets dialogs iconview workspace"
-[ "$QWS_PLATFORM" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
+[ "$PLATFORM_QWS" = "yes" ] && [ "$Products" = "qt-professional" ] && MODULES="$MODULES network"
 [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 AVAIL_MODULES=$MODULES
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
@@ -1842,11 +1842,11 @@ if [ "$Edition" = "free" ]; then
     done
 elif [ "$Edition" = "eval" ]; then
     while true; do
-	if [ "$QWS_PLATFORM" = "yes" ]; then
+	if [ "$PLATFORM_QWS" = "yes" ]; then
 	    echo
 	    echo "This is the Qt/Embedded Evaluation version."
 	    echo
-	elif [ "$X11_PLATFORM" = "yes" ]; then
+	elif [ "$PLATFORM_X11" = "yes" ]; then
 	    echo
 	    echo "This is the Qt/X11 Evaluation version."
 	    echo
