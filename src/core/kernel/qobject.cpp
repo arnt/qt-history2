@@ -2419,7 +2419,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             try {
                 c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
             } catch (...) {
-                QObjectPrivate::resetCurrentSender((senders->orphaned
+                QObjectPrivate::resetCurrentSender((senders->orphaned || !c->receiver
                                                     ? senders :
                                                     c->receiver->d->senders),
                                                    sender, was_senders_active);
@@ -2433,7 +2433,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
                 throw;
             }
 #endif
-            QObjectPrivate::resetCurrentSender((senders->orphaned
+            QObjectPrivate::resetCurrentSender((senders->orphaned || !c->receiver
                                                 ? senders :
                                                 c->receiver->d->senders),
                                                sender, was_senders_active);
