@@ -350,14 +350,6 @@ QSize QScrollBar::sizeHint() const
     }
 }
 
-/*!\reimp
-*/
-QSizePolicy QScrollBar::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
 
 /*!
   \internal

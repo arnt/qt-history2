@@ -459,7 +459,7 @@ void QTabWidget::removePage( QWidget * w )
 /*!  Returns the text in the tab for page \a w.
 */
 
-QString QTabWidget::tabLabel( QWidget * w)
+QString QTabWidget::tabLabel( QWidget * w ) const
 {
     QTab * t = d->tabs->tab( d->stack->id( w ) );
     return t ? t->label : QString::null;
@@ -734,16 +734,6 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 	return TRUE;
     }
     return FALSE;
-}
-
-
-/*!\reimp
- */
-
-QSizePolicy QTabWidget::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 #endif

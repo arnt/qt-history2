@@ -43,6 +43,7 @@
 #include "qpixmap.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "qmainwindow.h"
 #include "qtooltip.h"
 #include "qtoolbar.h"
 #include "qimage.h"
@@ -330,15 +331,6 @@ QSize QToolButton::sizeHint() const
 	    w = tw;
     }
     return QSize( w + 7, h + 6 ).expandedTo( QApplication::globalStrut() );
-}
-
-
-/*!\reimp
-*/
-QSizePolicy QToolButton::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 

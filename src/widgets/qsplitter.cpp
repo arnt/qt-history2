@@ -57,7 +57,6 @@ public:
     bool opaque() const { return s->opaqueResize(); }
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     int id() const { return myId; } // data->list.at(id())->wid == this
     void setId( int i ) { myId = i; }
@@ -86,12 +85,6 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 {
     s = parent;
     setOrientation(o);
-}
-
-QSizePolicy QSplitterHandle::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 QSize QSplitterHandle::sizeHint() const

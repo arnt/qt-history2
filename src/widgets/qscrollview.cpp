@@ -2215,8 +2215,7 @@ bool QScrollView::hasStaticBackground() const
   translated to
     a point on the viewport() widget.
 */
-//### make this const in 3.0
-QPoint QScrollView::contentsToViewport(const QPoint& p)
+QPoint QScrollView::contentsToViewport( const QPoint& p ) const
 {
     if ( d->clipped_viewport ) {
 	return QPoint( p.x() - contentsX() - d->clipped_viewport->x(),
@@ -2233,8 +2232,7 @@ QPoint QScrollView::contentsToViewport(const QPoint& p)
   translated to
     a point in the contents.
 */
-//### make this const in 3.0
-QPoint QScrollView::viewportToContents(const QPoint& vp)
+QPoint QScrollView::viewportToContents( const QPoint& vp ) const
 {
     if ( d->clipped_viewport ) {
 	return QPoint( vp.x() + contentsX() + d->clipped_viewport->x(),
@@ -2252,7 +2250,7 @@ QPoint QScrollView::viewportToContents(const QPoint& vp)
   to
     a point (\a vx, \a vy) on the viewport() widget.
 */
-void QScrollView::contentsToViewport(int x, int y, int& vx, int& vy)
+void QScrollView::contentsToViewport( int x, int y, int& vx, int& vy ) const
 {
     const QPoint v = contentsToViewport(QPoint(x,y));
     vx = v.x();
@@ -2265,21 +2263,11 @@ void QScrollView::contentsToViewport(int x, int y, int& vx, int& vy)
   to
     a point (\a x, \a y) in the contents.
 */
-void QScrollView::viewportToContents(int vx, int vy, int& x, int& y)
+void QScrollView::viewportToContents( int vx, int vy, int& x, int& y ) const
 {
     const QPoint c = viewportToContents(QPoint(vx,vy));
     x = c.x();
     y = c.y();
-}
-
-
-/*!
-  \reimp
-*/
-QSizePolicy QScrollView::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 

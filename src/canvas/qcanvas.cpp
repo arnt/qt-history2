@@ -38,13 +38,13 @@
 
 #include "qcanvas.h"
 #ifndef QT_NO_CANVAS
-#include <qpainter.h>
-#include <qimage.h>
-#include <qwidget.h>
-#include <qfile.h>
-#include <qtl.h>
-#include <qtimer.h>
-#include <qpolygonscanner.h>
+#include "qpainter.h"
+#include "qimage.h"
+#include "qbitmap.h"
+#include "qwidget.h"
+#include "qtl.h"
+#include "qtimer.h"
+#include "qpolygonscanner.h"
 
 #include <stdlib.h>
 

@@ -70,6 +70,7 @@
 #include "qmap.h"
 #include "qnetworkprotocol.h"
 #include "qsemimodal.h"
+#include "qpainter.h"
 
 #include <time.h>
 #include <ctype.h>

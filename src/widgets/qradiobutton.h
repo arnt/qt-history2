@@ -57,7 +57,6 @@ public:
     virtual void    setChecked( bool check );
 
     QSize    sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
 protected:
     bool    hitButton( const QPoint & ) const;
@@ -65,7 +64,6 @@ protected:
     void    drawButtonLabel( QPainter * );
 
     void    resizeEvent( QResizeEvent* );
-    void    focusInEvent( QFocusEvent * );
 
     void    updateMask();
 

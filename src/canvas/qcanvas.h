@@ -39,11 +39,13 @@
 #define QCANVAS_H
 
 #ifndef QT_H
-#include <qbitmap.h>
-#include <qwidget.h>
-#include <qscrollview.h>
-#include <qlist.h>
-#include <qptrdict.h>
+#include "qscrollview.h"
+#include "qpixmap.h"
+#include "qlist.h"
+#include "qptrdict.h"
+#include "qbrush.h"
+#include "qpen.h"
+#include "qpointarray.h"
 #endif // QT_H
 
 #ifndef QT_NO_CANVAS

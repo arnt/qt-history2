@@ -432,14 +432,6 @@ QSize QPushButton::sizeHint() const
 
 /*!\reimp
 */
-QSizePolicy QPushButton::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-/*!\reimp
-*/
 void QPushButton::move( int x, int y )
 {
     QWidget::move( x, y );

@@ -179,16 +179,6 @@ QSize QRadioButton::sizeHint() const
 
 /*!\reimp
 */
-
-QSizePolicy QRadioButton::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
-/*!\reimp
-*/
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
     return rect().contains( pos );
@@ -384,11 +374,4 @@ void QRadioButton::updateMask()
     setMask(bm);
 }
 
-
-/*! \reimp */
-
-void QRadioButton::focusInEvent( QFocusEvent *e  )
-{
-    QButton::focusInEvent( e ); // ### 3.0 remove
-}
 #endif

@@ -125,9 +125,6 @@ private:
     static QFont    *ttFont;
     static QPalette *ttPalette;
 
-    static void initialize();
-    static void cleanup();
-
     friend class QTipManager;
     friend class QIconViewToolTip;
 };

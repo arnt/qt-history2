@@ -652,19 +652,6 @@ void QTipManager::allowAnimation()
 */
 
 
-/*
-  Global settings for tool tips.
-*/
-
-void QToolTip::initialize() // ## remove 3.0
-{
-}
-
-void QToolTip::cleanup() // ## remove 3.0
-{
-}
-
-
 /*!
   Returns the font common to all tool tips.
   \sa setFont()

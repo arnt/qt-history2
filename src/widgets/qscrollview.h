@@ -112,27 +112,24 @@ public:
     void	updateContents( const QRect& r );
     void	repaintContents( int x, int y, int w, int h, bool erase=TRUE );
     void	repaintContents( const QRect& r, bool erase=TRUE );
-//### make this const in 3.0
-    void	contentsToViewport(int x, int y, int& vx, int& vy);
-//### make this const in 3.0
-    void	viewportToContents(int vx, int vy, int& x, int& y);
-    QPoint	contentsToViewport(const QPoint&);
-    QPoint	viewportToContents(const QPoint&);
-    void	enableClipper(bool y);
+    void	contentsToViewport( int x, int y, int& vx, int& vy ) const;
+    void	viewportToContents( int vx, int vy, int& x, int& y ) const;
+    QPoint	contentsToViewport( const QPoint& ) const;
+    QPoint	viewportToContents( const QPoint& ) const;
+    void	enableClipper( bool y );
 
-    void     setStaticBackground(bool y);
-    bool     hasStaticBackground() const;
+    void	setStaticBackground( bool y );
+    bool	hasStaticBackground() const;
 
     QSize	viewportSize( int, int ) const;
-    QSizePolicy sizePolicy() const;
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
     void	removeChild(QObject* child);
 
 #ifndef QT_NO_DRAGANDDROP
-    void	setDragAutoScroll( bool b ); // #### virtual in 3.0
-    bool	dragAutoScroll() const;
+    virtual void setDragAutoScroll( bool b );
+    bool	 dragAutoScroll() const;
 #endif
 
 signals:
@@ -141,7 +138,7 @@ signals:
 public slots:
     virtual void resizeContents( int w, int h );
     void	scrollBy( int dx, int dy );
-    virtual void        setContentsPos( int x, int y );
+    virtual void setContentsPos( int x, int y );
     void	ensureVisible(int x, int y);
     void	ensureVisible(int x, int y, int xmargin, int ymargin);
     void	center(int x, int y);

@@ -43,7 +43,6 @@ class QTimer;
 #ifndef QT_H
 #include "qwidget.h"
 #include "qrangecontrol.h"
-#include "qdrawutil.h" // REMOVE THIS IN 3.0
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -76,7 +75,6 @@ public:
 
     virtual void setPalette( const QPalette & );
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     int	 minValue() const;
     int	 maxValue() const;

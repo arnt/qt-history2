@@ -87,14 +87,13 @@ public:
     bool 		wrapping() const;
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
-    void		setButtonSymbols( ButtonSymbols ); // 3.0: virtual
+    virtual void	setButtonSymbols( ButtonSymbols );
     ButtonSymbols	buttonSymbols() const;
 
     virtual void	setValidator( const QValidator* v );
     const QValidator * validator() const;
 
     QSize 		sizeHint() const;
-    QSizePolicy 	sizePolicy() const;
 
     int	 minValue() const;
     int	 maxValue() const;

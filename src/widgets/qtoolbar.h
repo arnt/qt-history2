@@ -130,11 +130,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-// Remove in 3.0
-#ifndef QT_H
-#include "qmainwindow.h"
-#endif // QT_H
-
 #endif // QT_NO_COMPLEXWIDGETS
 
 #endif // QTOOLBAR_H

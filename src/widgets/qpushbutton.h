@@ -65,17 +65,16 @@ public:
     ~QPushButton();
 
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     void	move( int x, int y );
     void	move( const QPoint &p );
     void	resize( int w, int h );
     void	resize( const QSize & );
-    virtual void setGeometry( int x, int y, int w, int h );
+    void	setGeometry( int x, int y, int w, int h );
 
-    virtual void setGeometry( const QRect & );
+    void	setGeometry( const QRect & );
 
-    virtual void setToggleButton( bool ); //### fjern virtual 3.0
+    void setToggleButton( bool );
 
     bool	autoDefault()	const	{ return autoDefButton; }
     virtual void setAutoDefault( bool autoDef );

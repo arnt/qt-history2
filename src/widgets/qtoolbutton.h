@@ -81,7 +81,6 @@ public:
     ~QToolButton();
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     void setOnIconSet( const QIconSet& );
     void setOffIconSet( const QIconSet& );

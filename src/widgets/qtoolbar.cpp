@@ -107,7 +107,6 @@ public:
     QToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
 
     QSize sizeHint() const;
-    QSizePolicy sizePolicy() const;
     Orientation orientation() const { return orient; }
 public slots:
    void setOrientation( Orientation );
@@ -154,12 +153,6 @@ void QToolBarSeparator::styleChange( QStyle& )
 QSize QToolBarSeparator::sizeHint() const
 {
     return orientation() == Vertical ? QSize( 0, 6 ) : QSize( 6, 0 );
-}
-
-QSizePolicy QToolBarSeparator::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
 }
 
 #include "qtoolbar.moc"

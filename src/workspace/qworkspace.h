@@ -60,7 +60,6 @@ public:
     QWidget* activeWindow() const;
     QWidgetList windowList() const;
 
-    QSizePolicy sizePolicy() const;
     QSize sizeHint() const;
 
 signals:

@@ -649,14 +649,6 @@ QWorkspace::~QWorkspace()
 }
 
 /*!\reimp
-*/
-QSizePolicy QWorkspace::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-/*!\reimp
  */
 QSize QWorkspace::sizeHint() const
 {
