@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Rules>
-    <Count>3420</Count>
+    <Count>3444</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -120,10 +120,6 @@
     <item Type="RenamedHeader" >
         <Qt4>q3groupbox.h</Qt4>
         <Qt3>qgroupbox.h</Qt3>
-    </item>
-    <item Type="RenamedHeader" >
-        <Qt4>q3guardedptr.h</Qt4>
-        <Qt3>qguardedptr.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3gvector.h</Qt4>
@@ -523,6 +519,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
+        <Name>Q3ColorDrag</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
         <Name>Q3ComboTableItem</Name>
     </item>
     <item Type="Qt4Class" >
@@ -584,6 +584,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3DockWindow</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
+        <Name>Q3DragObject</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -655,11 +659,11 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3GuardedPtr</Name>
+        <Name>Q3GVector</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3GVector</Name>
+        <Name>Q3HButtonGroup</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -696,6 +700,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3IconViewItem</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
+        <Name>Q3ImageDrag</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -923,6 +931,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
+        <Name>Q3StoredDrag</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
         <Name>Q3StrIList</Name>
     </item>
     <item Type="Qt4Class" >
@@ -979,6 +991,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
+        <Name>Q3TextDrag</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
         <Name>Q3TextEdit</Name>
     </item>
     <item Type="Qt4Class" >
@@ -996,6 +1012,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3ToolBar</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
+        <Name>Q3UriDrag</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -1024,6 +1044,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3ValueVector</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
+        <Name>Q3VButtonGroup</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -1148,6 +1172,14 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QBackInsertIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtCore</Library>
+        <Name>QBasicAtomic</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtCore</Library>
+        <Name>QBasicAtomicPointer</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -2739,6 +2771,14 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
+        <Name>QTableWidgetItemCreator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QTableWidgetItemCreatorBase</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
         <Name>QTableWidgetSelectionRange</Name>
     </item>
     <item Type="Qt4Class" >
@@ -4153,6 +4193,7 @@
     <item Type="qt4Header" >Q3CanvasView</item>
     <item Type="qt4Header" >Q3CheckListItem</item>
     <item Type="qt4Header" >Q3CheckTableItem</item>
+    <item Type="qt4Header" >Q3ColorDrag</item>
     <item Type="qt4Header" >Q3ComboTableItem</item>
     <item Type="qt4Header" >Q3DataBrowser</item>
     <item Type="qt4Header" >Q3DataTable</item>
@@ -4168,6 +4209,7 @@
     <item Type="qt4Header" >Q3DockArea</item>
     <item Type="qt4Header" >Q3DockAreaLayout</item>
     <item Type="qt4Header" >Q3DockWindow</item>
+    <item Type="qt4Header" >Q3DragObject</item>
     <item Type="qt4Header" >Q3DropSite</item>
     <item Type="qt4Header" >Q3EditorFactory</item>
     <item Type="qt4Header" >Q3FileDialog</item>
@@ -4186,7 +4228,7 @@
     <item Type="qt4Header" >Q3GVector</item>
     <item Type="qt4Header" >Q3GridView</item>
     <item Type="qt4Header" >Q3GroupBox</item>
-    <item Type="qt4Header" >Q3GuardedPtr</item>
+    <item Type="qt4Header" >Q3HButtonGroup</item>
     <item Type="qt4Header" >Q3Header</item>
     <item Type="qt4Header" >Q3Http</item>
     <item Type="qt4Header" >Q3HttpHeader</item>
@@ -4196,6 +4238,7 @@
     <item Type="qt4Header" >Q3IconDragItem</item>
     <item Type="qt4Header" >Q3IconView</item>
     <item Type="qt4Header" >Q3IconViewItem</item>
+    <item Type="qt4Header" >Q3ImageDrag</item>
     <item Type="qt4Header" >Q3IntBucket</item>
     <item Type="qt4Header" >Q3IntCache</item>
     <item Type="qt4Header" >Q3IntCacheIterator</item>
@@ -4253,6 +4296,7 @@
     <item Type="qt4Header" >Q3SqlPropertyMap</item>
     <item Type="qt4Header" >Q3SqlRecordInfo</item>
     <item Type="qt4Header" >Q3SqlSelectCursor</item>
+    <item Type="qt4Header" >Q3StoredDrag</item>
     <item Type="qt4Header" >Q3StrIList</item>
     <item Type="qt4Header" >Q3StrIVec</item>
     <item Type="qt4Header" >Q3StrList</item>
@@ -4268,13 +4312,16 @@
     <item Type="qt4Header" >Q3TableItem</item>
     <item Type="qt4Header" >Q3TableSelection</item>
     <item Type="qt4Header" >Q3TextBrowser</item>
+    <item Type="qt4Header" >Q3TextDrag</item>
     <item Type="qt4Header" >Q3TextEdit</item>
     <item Type="qt4Header" >Q3TextEditOptimPrivate</item>
     <item Type="qt4Header" >Q3TextView</item>
     <item Type="qt4Header" >Q3TimeEdit</item>
     <item Type="qt4Header" >Q3ToolBar</item>
+    <item Type="qt4Header" >Q3UriDrag</item>
     <item Type="qt4Header" >Q3Url</item>
     <item Type="qt4Header" >Q3UrlOperator</item>
+    <item Type="qt4Header" >Q3VButtonGroup</item>
     <item Type="qt4Header" >Q3ValueList</item>
     <item Type="qt4Header" >Q3ValueListConstIterator</item>
     <item Type="qt4Header" >Q3ValueListIterator</item>
@@ -4327,6 +4374,8 @@
     <item Type="qt4Header" >QAxSelect</item>
     <item Type="qt4Header" >QAxWidget</item>
     <item Type="qt4Header" >QBackInsertIterator</item>
+    <item Type="qt4Header" >QBasicAtomic</item>
+    <item Type="qt4Header" >QBasicAtomicPointer</item>
     <item Type="qt4Header" >QBasicTimer</item>
     <item Type="qt4Header" >QBitArray</item>
     <item Type="qt4Header" >QBitRef</item>
@@ -4758,6 +4807,8 @@
     <item Type="qt4Header" >QTableView</item>
     <item Type="qt4Header" >QTableWidget</item>
     <item Type="qt4Header" >QTableWidgetItem</item>
+    <item Type="qt4Header" >QTableWidgetItemCreator</item>
+    <item Type="qt4Header" >QTableWidgetItemCreatorBase</item>
     <item Type="qt4Header" >QTableWidgetSelectionRange</item>
     <item Type="qt4Header" >QTabletEvent</item>
     <item Type="qt4Header" >QTcpServer</item>
@@ -4971,6 +5022,10 @@
     <item Type="RenamedClass" >
         <Qt4>QMatrix</Qt4>
         <Qt3>QWMatrix</Qt3>
+    </item>
+    <item Type="RenamedClass" >
+        <Qt4>QPointer</Qt4>
+        <Qt3>QGuardedPtr</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>Q3Accel</Qt4>
@@ -5227,10 +5282,6 @@
     <item Type="RenamedClass" >
         <Qt4>Q3GroupBox</Qt4>
         <Qt3>QGroupBox</Qt3>
-    </item>
-    <item Type="RenamedClass" >
-        <Qt4>Q3GuardedPtr</Qt4>
-        <Qt3>QGuardedPtr</Qt3>
     </item>
     <item Type="RenamedClass" >
         <Qt4>Q3HButtonGroup</Qt4>
@@ -9196,6 +9247,14 @@
         <Header>Q3ValueList</Header>
     </item>
     <item Type="NeedHeader" >
+        <Class>Q3MemArray</Class>
+        <Header>Q3MemArray</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3StrList</Class>
+        <Header>Q3StrList</Header>
+    </item>
+    <item Type="NeedHeader" >
         <Class>QPaintEvent</Class>
         <Header>QPaintEvent</Header>
     </item>
@@ -9270,5 +9329,9 @@
     <item Type="NeedHeader" >
         <Class>QLabel</Class>
         <Header>QLabel</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>QImageIO</Class>
+        <Header>QImageIO</Header>
     </item>
 </Rules>
