@@ -66,6 +66,12 @@
 void QPixmap::init( int, int, int, bool, Optimization )
 {
     qDebug( "QPixmap::init" );
+
+    data = new QPixmapData;
+    CHECK_PTR( data );
+
+    memset( data, 0, sizeof(QPixmapData) );
+
 }
 
 

@@ -36,10 +36,8 @@
 **********************************************************************/
 
 // NOT REVISED
-
-#define select		_qt_hide_select
-#define gettimeofday	_qt_hide_gettimeofday
-
+#include <errno.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include "qglobal.h"
 
@@ -80,6 +78,11 @@
 #include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
 
+
+#include <sys/time.h>
+#include <sys/select.h>
+#include <unistd.h>
+
 #define	 GC GC_QQQ
 
 #if defined(QT_THREAD_SUPPORT)
@@ -95,6 +98,91 @@ static int mouse_button_state = 0;
 static char    *appName;                        // application name
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
+
+
+
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
+
+void qt_install_preselect_handler( VFPTR );
+void qt_remove_preselect_handler( VFPTR );
+static QVFuncList *qt_preselect_handler = 0;
+void qt_install_postselect_handler( VFPTR );
+void qt_remove_postselect_handler( VFPTR );
+static QVFuncList *qt_postselect_handler = 0;
+void qt_install_preselect_handler( VFPTR handler )
+{
+    if ( !qt_preselect_handler )
+	qt_preselect_handler = new QVFuncList;
+    qt_preselect_handler->append( handler );
+}
+void qt_remove_preselect_handler( VFPTR handler )
+{
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator it = qt_preselect_handler->find( handler );
+	if ( it != qt_preselect_handler->end() )
+		qt_preselect_handler->remove( it );
+    }
+}
+void qt_install_postselect_handler( VFPTR handler )
+{
+    if ( !qt_postselect_handler )
+	qt_postselect_handler = new QVFuncList;
+    qt_postselect_handler->prepend( handler );
+}
+void qt_remove_postselect_handler( VFPTR handler )
+{
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator it = qt_postselect_handler->find( handler );
+	if ( it != qt_postselect_handler->end() )
+		qt_postselect_handler->remove( it );
+    }
+}
+
+//timer stuff
+static void	initTimers();
+static void	cleanupTimers();
+static timeval	watchtime;			// watch if time is turned back
+timeval		*qt_wait_timer();
+timeval 	*qt_wait_timer_max = 0;
+int 		qt_activate_timers();
+
+struct QSockNot {
+    QObject *obj;
+    int	     fd;
+    fd_set  *queue;
+};
+
+typedef QList<QSockNot> QSNList;
+typedef QListIterator<QSockNot> QSNListIt;
+
+static int	sn_highest = -1;
+static QSNList *sn_read	   = 0;
+static QSNList *sn_write   = 0;
+static QSNList *sn_except  = 0;
+
+static fd_set	sn_readfds;			// fd set for reading
+static fd_set	sn_writefds;			// fd set for writing
+static fd_set	sn_exceptfds;			// fd set for exceptions
+static fd_set	sn_queued_read;
+static fd_set	sn_queued_write;
+static fd_set	sn_queued_except;
+
+static fd_set	app_readfds;			// fd set for reading
+static fd_set	app_writefds;			// fd set for writing
+static fd_set	app_exceptfds;			// fd set for exceptions
+
+static struct SN_Type {
+    QSNList **list;
+    fd_set   *fdspec;
+    fd_set   *fdres;
+    fd_set   *queue;
+} sn_vec[3] = {
+    { &sn_read,	  &sn_readfds,	 &app_readfds,   &sn_queued_read },
+    { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
+    { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
+
+static QSNList *sn_act_list = 0;
 
 
 // one day in the future we will be able to have static objects in libraries....
@@ -157,12 +245,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 void qt_cleanup()
 {
     qDebug( "qt_cleanup()" );
-}
-
-bool qt_set_socket_handler( int, int, QObject *, bool )
-{
-    qDebug( "qt_set_socket_handler" );
-    return FALSE;
+    cleanupTimers();
 }
 
 /*****************************************************************************
@@ -523,6 +606,434 @@ int QApplication::exec()
 }
 
 
+//
+// Internal data structure for timers
+//
+
+struct TimerInfo {				// internal timer info
+    int	     id;				// - timer identifier
+    timeval  interval;				// - timer interval
+    timeval  timeout;				// - when to sent event
+    QObject *obj;				// - object to receive event
+};
+
+typedef QList<TimerInfo> TimerList;	// list of TimerInfo structs
+
+static QBitArray *timerBitVec;			// timer bit vector
+static TimerList *timerList	= 0;		// timer list
+
+
+//
+// Internal operator functions for timevals
+//
+
+static inline bool operator<( const timeval &t1, const timeval &t2 )
+{
+    return t1.tv_sec < t2.tv_sec ||
+	  (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec);
+}
+
+static inline timeval &operator+=( timeval &t1, const timeval &t2 )
+{
+    t1.tv_sec += t2.tv_sec;
+    if ( (t1.tv_usec += t2.tv_usec) >= 1000000 ) {
+	t1.tv_sec++;
+	t1.tv_usec -= 1000000;
+    }
+    return t1;
+}
+
+static inline timeval operator+( const timeval &t1, const timeval &t2 )
+{
+    timeval tmp;
+    tmp.tv_sec = t1.tv_sec + t2.tv_sec;
+    if ( (tmp.tv_usec = t1.tv_usec + t2.tv_usec) >= 1000000 ) {
+	tmp.tv_sec++;
+	tmp.tv_usec -= 1000000;
+    }
+    return tmp;
+}
+
+static inline timeval operator-( const timeval &t1, const timeval &t2 )
+{
+    timeval tmp;
+    tmp.tv_sec = t1.tv_sec - t2.tv_sec;
+    if ( (tmp.tv_usec = t1.tv_usec - t2.tv_usec) < 0 ) {
+	tmp.tv_sec--;
+	tmp.tv_usec += 1000000;
+    }
+    return tmp;
+}
+
+
+//
+// Internal functions for manipulating timer data structures.
+// The timerBitVec array is used for keeping track of timer identifiers.
+//
+
+static int allocTimerId()			// find avail timer identifier
+{
+    int i = timerBitVec->size()-1;
+    while ( i >= 0 && (*timerBitVec)[i] )
+	i--;
+    if ( i < 0 ) {
+	i = timerBitVec->size();
+	timerBitVec->resize( 4 * i );
+	for( int j=timerBitVec->size()-1; j > i; j-- )
+	    timerBitVec->clearBit( j );
+    }
+    timerBitVec->setBit( i );
+    return i+1;
+}
+
+static void insertTimer( const TimerInfo *ti )	// insert timer info into list
+{
+    TimerInfo *t = timerList->first();
+    int index = 0;
+    while ( t && t->timeout < ti->timeout ) {	// list is sorted by timeout
+	t = timerList->next();
+	index++;
+    }
+    timerList->insert( index, ti );		// inserts sorted
+}
+
+static inline void getTime( timeval &t )	// get time of day
+{
+    gettimeofday( &t, 0 );
+    while ( t.tv_usec >= 1000000 ) {		// NTP-related fix
+	t.tv_usec -= 1000000;
+	t.tv_sec++;
+    }
+    while ( t.tv_usec < 0 ) {
+	if ( t.tv_sec > 0 ) {
+	    t.tv_usec += 1000000;
+	    t.tv_sec--;
+	} else {
+	    t.tv_usec = 0;
+	    break;
+	}
+    }
+}
+
+static void repairTimer( const timeval &time )	// repair broken timer
+{
+    if ( !timerList )				// not initialized
+	return;
+    timeval diff = watchtime - time;
+    register TimerInfo *t = timerList->first();
+    while ( t ) {				// repair all timers
+	t->timeout = t->timeout - diff;
+	t = timerList->next();
+    }
+}
+
+
+//
+// Timer activation functions (called from the event loop)
+//
+
+/*
+  Returns the time to wait for the next timer, or null if no timers are
+  waiting.
+*/
+
+timeval *qt_wait_timer()
+{
+    static timeval tm;
+    bool first = TRUE;
+    timeval currentTime;
+    if ( timerList && timerList->count() ) {	// there are waiting timers
+	getTime( currentTime );
+	if ( first ) {
+	    if ( currentTime < watchtime )	// clock was turned back
+		repairTimer( currentTime );
+	    first = FALSE;
+	    watchtime = currentTime;
+	}
+	TimerInfo *t = timerList->first();	// first waiting timer
+	if ( currentTime < t->timeout ) {	// time to wait
+	    tm = t->timeout - currentTime;
+	} else {
+	    tm.tv_sec  = 0;			// no time to wait
+	    tm.tv_usec = 0;
+	}
+	return &tm;
+    }
+    return 0;					// no timers
+}
+
+/*
+  Activates the timer events that have expired. Returns the number of timers
+  (not 0-timer) that were activated.
+*/
+
+int qt_activate_timers()
+{
+    if ( !timerList || !timerList->count() )	// no timers
+	return 0;
+    bool first = TRUE;
+    timeval currentTime;
+    int maxcount = timerList->count();
+    int n_act = 0;
+    register TimerInfo *t;
+    while ( maxcount-- ) {			// avoid starvation
+	getTime( currentTime );			// get current time
+	if ( first ) {
+	    if ( currentTime < watchtime )	// clock was turned back
+		repairTimer( currentTime );
+	    first = FALSE;
+	    watchtime = currentTime;
+	}
+	t = timerList->first();
+	if ( !t || currentTime < t->timeout )	// no timer has expired
+	    break;
+	timerList->take();			// unlink from list
+	t->timeout += t->interval;
+	if ( t->timeout < currentTime )
+	    t->timeout = currentTime + t->interval;
+	insertTimer( t );			// relink timer
+	if ( t->interval.tv_usec > 0 || t->interval.tv_sec > 0 )
+	    n_act++;
+	QTimerEvent e( t->id );
+	QApplication::sendEvent( t->obj, &e );	// send event
+    }
+    return n_act;
+}
+
+
+//
+// Timer initialization and cleanup routines
+//
+
+static void initTimers()			// initialize timers
+{
+    timerBitVec = new QBitArray( 128 );
+    CHECK_PTR( timerBitVec );
+    int i = timerBitVec->size();
+    while( i-- > 0 )
+	timerBitVec->clearBit( i );
+    timerList = new TimerList;
+    CHECK_PTR( timerList );
+    timerList->setAutoDelete( TRUE );
+}
+
+static void cleanupTimers()			// cleanup timer data structure
+{
+    if ( timerList ) {
+	delete timerList;
+	timerList = 0;
+	delete timerBitVec;
+	timerBitVec = 0;
+    }
+}
+
+//
+// Main timer functions for starting and killing timers
+//
+
+int qStartTimer( int interval, QObject *obj )
+{
+    if ( !timerList )				// initialize timer data
+	initTimers();
+    int id = allocTimerId();			// get free timer id
+    if ( id <= 0 ||
+	 id > (int)timerBitVec->size() || !obj )// cannot create timer
+	return 0;
+    timerBitVec->setBit( id-1 );		// set timer active
+    TimerInfo *t = new TimerInfo;		// create timer
+    CHECK_PTR( t );
+    t->id = id;
+    t->interval.tv_sec  = interval/1000;
+    t->interval.tv_usec = (interval%1000)*1000;
+    timeval currentTime;
+    getTime( currentTime );
+    t->timeout = currentTime + t->interval;
+    t->obj = obj;
+    insertTimer( t );				// put timer in list
+    return id;
+}
+
+bool qKillTimer( int id )
+{
+    register TimerInfo *t;
+    if ( !timerList || id <= 0 ||
+	 id > (int)timerBitVec->size() || !timerBitVec->testBit( id-1 ) )
+	return FALSE;				// not init'd or invalid timer
+    t = timerList->first();
+    while ( t && t->id != id )			// find timer info in list
+	t = timerList->next();
+    if ( t ) {					// id found
+	timerBitVec->clearBit( id-1 );		// set timer inactive
+	return timerList->remove();
+    }
+    else					// id not found
+	return FALSE;
+}
+
+bool qKillTimer( QObject *obj )
+{
+    register TimerInfo *t;
+    if ( !timerList )				// not initialized
+	return FALSE;
+    t = timerList->first();
+    while ( t ) {				// check all timers
+	if ( t->obj == obj ) {			// object found
+	    timerBitVec->clearBit( t->id-1 );
+	    timerList->remove();
+	    t = timerList->current();
+	} else {
+	    t = timerList->next();
+	}
+    }
+    return TRUE;
+}
+
+static void sn_cleanup()
+{
+    delete sn_act_list;
+    sn_act_list = 0;
+    for ( int i=0; i<3; i++ ) {
+	delete *sn_vec[i].list;
+	*sn_vec[i].list = 0;
+    }
+}
+
+
+static void sn_init()
+{
+    if ( !sn_act_list ) {
+	sn_act_list = new QSNList;
+	CHECK_PTR( sn_act_list );
+	qAddPostRoutine( sn_cleanup );
+    }
+}
+
+
+bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
+{
+    if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QSocketNotifier: Internal error" );
+#endif
+	return FALSE;
+    }
+
+    QSNList  *list = *sn_vec[type].list;
+    fd_set   *fds  =  sn_vec[type].fdspec;
+    QSockNot *sn;
+
+    if ( enable ) {				// enable notifier
+	if ( !list ) {
+	    sn_init();
+	    list = new QSNList;			// create new list
+	    CHECK_PTR( list );
+	    list->setAutoDelete( TRUE );
+	    *sn_vec[type].list = list;
+	    FD_ZERO( fds );
+	    FD_ZERO( sn_vec[type].queue );
+	}
+	sn = new QSockNot;
+	CHECK_PTR( sn );
+	sn->obj = obj;
+	sn->fd	= sockfd;
+	sn->queue = sn_vec[type].queue;
+	if ( list->isEmpty() ) {
+	    list->insert( 0, sn );
+	} else {				// sort list by fd, decreasing
+	    QSockNot *p = list->first();
+	    while ( p && p->fd > sockfd )
+		p = list->next();
+#if defined(CHECK_STATE)
+	    if ( p && p->fd == sockfd ) {
+		static const char *t[] = { "read", "write", "exception" };
+		qWarning( "QSocketNotifier: Multiple socket notifiers for "
+			 "same socket %d and type %s", sockfd, t[type] );
+	    }
+#endif
+	    if ( p )
+		list->insert( list->at(), sn );
+	    else
+		list->append( sn );
+	}
+	FD_SET( sockfd, fds );
+	sn_highest = QMAX(sn_highest,sockfd);
+
+    } else {					// disable notifier
+
+	if ( list == 0 )
+	    return FALSE;			// no such fd set
+	QSockNot *sn = list->first();
+	while ( sn && !(sn->obj == obj && sn->fd == sockfd) )
+	    sn = list->next();
+	if ( !sn )				// not found
+	    return FALSE;
+	FD_CLR( sockfd, fds );			// clear fd bit
+	FD_CLR( sockfd, sn->queue );
+	if ( sn_act_list )
+	    sn_act_list->removeRef( sn );	// remove from activation list
+	list->remove();				// remove notifier found above
+	if ( sn_highest == sockfd ) {		// find highest fd
+	    sn_highest = -1;
+	    for ( int i=0; i<3; i++ ) {
+		if ( *sn_vec[i].list && (*sn_vec[i].list)->count() )
+		    sn_highest = QMAX(sn_highest,  // list is fd-sorted
+				      (*sn_vec[i].list)->getFirst()->fd);
+	    }
+	}
+    }
+
+    return TRUE;
+}
+
+
+//
+// We choose a random activation order to be more fair under high load.
+// If a constant order is used and a peer early in the list can
+// saturate the IO, it might grab our attention completely.
+// Also, if we're using a straight list, the callback routines may
+// delete other entries from the list before those other entries are
+// processed.
+//
+
+static int sn_activate()
+{
+    if ( !sn_act_list )
+	sn_init();
+    int i, n_act = 0;
+    for ( i=0; i<3; i++ ) {			// for each list...
+	if ( *sn_vec[i].list ) {		// any entries?
+	    QSNList  *list = *sn_vec[i].list;
+	    fd_set   *fds  = sn_vec[i].fdres;
+	    QSockNot *sn   = list->first();
+	    while ( sn ) {
+		if ( FD_ISSET( sn->fd, fds ) &&	// store away for activation
+		     !FD_ISSET( sn->fd, sn->queue ) ) {
+		    sn_act_list->insert( (rand() & 0xff) %
+					 (sn_act_list->count()+1),
+					 sn );
+		    FD_SET( sn->fd, sn->queue );
+		}
+		sn = list->next();
+	    }
+	}
+    }
+    if ( sn_act_list->count() > 0 ) {		// activate entries
+	QEvent event( QEvent::SockAct );
+	QSNListIt it( *sn_act_list );
+	QSockNot *sn;
+	while ( (sn=it.current()) ) {
+	    ++it;
+	    sn_act_list->removeRef( sn );
+	    if ( FD_ISSET(sn->fd, sn->queue) ) {
+		FD_CLR( sn->fd, sn->queue );
+		QApplication::sendEvent( sn->obj, &event );
+		n_act++;
+	    }
+	}
+    }
+    return n_act;
+}
+
 /*!
   Processes the next event and returns TRUE if there was an event
   (excluding posted events or zero-timer events) to process.
@@ -533,23 +1044,96 @@ int QApplication::exec()
   \sa processEvents()
 */
 
-bool QApplication::processNextEvent( bool )
+bool QApplication::processNextEvent( bool canWait )
 {
-    qDebug( "QApplication::processNextEvent" );
-    EventRecord event;
+  //  qDebug( "QApplication::processNextEvent" );
+  EventRecord event;
+  int	   nevents = 0;
+
+  if(qt_is_gui_used) {
     sendPostedEvents();
-    do {
-	WaitNextEvent ( everyEvent, &event, 15L, nil);
-	if ( event.what == nullEvent ) {
-	    macProcessEvent( (MSG *)(&event) );
-	}
-    } while( event.what == nullEvent );
-    if ( macProcessEvent( (MSG *)(&event)) == 1 )
-	return TRUE;
-    if ( quit_now || app_exit_loop )
-	return FALSE;
-    sendPostedEvents();
-    return TRUE;
+
+    while(EventAvail(everyEvent, &event)) {
+      while(EventAvail(everyEvent, &event)) {
+	if(app_exit_loop)
+	  return FALSE;
+
+	GetNextEvent(everyEvent, &event);
+	nevents++;
+
+	if(macProcessEvent( (MSG *)(&event) ) == 1)
+	  return TRUE;
+      }
+      sendPostedEvents(); //let them accumulate
+    } 
+  }
+
+  if ( quit_now || app_exit_loop )
+    return FALSE;
+  sendPostedEvents();
+
+  static timeval zerotm;
+  timeval *tm = qt_wait_timer();		// wait for timer or X event
+  if ( !canWait ) {
+    if ( !tm )
+      tm = &zerotm;
+    tm->tv_sec  = 0;			// no time to wait
+    tm->tv_usec = 0;
+  }
+  if ( sn_highest >= 0 ) {			// has socket notifier(s)
+    if ( sn_read )
+      app_readfds = sn_readfds;
+    else
+      FD_ZERO( &app_readfds );
+    if ( sn_write )
+      app_writefds = sn_writefds;
+    if ( sn_except )
+      app_exceptfds = sn_exceptfds;
+  } else {
+    FD_ZERO( &app_readfds );
+  }
+
+  if ( qt_preselect_handler ) {
+    QVFuncList::Iterator end = qt_preselect_handler->end();
+    for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
+      (**it)();
+  }
+
+  //we don't need this for now, when we want to to socket's and stuff we'll need to massage this some.
+#if 0
+  printf("Doing select..\n");
+  int nsel = select( sn_highest + 1,
+		     (&app_readfds),
+		     (sn_write  ? &app_writefds  : 0),
+		     (sn_except ? &app_exceptfds : 0),
+		     tm );
+  printf("Done selecting..\n");
+#else
+  int nsel = 0;
+#endif
+
+
+  if ( qt_postselect_handler ) {
+    QVFuncList::Iterator end = qt_postselect_handler->end();
+    for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
+      (**it)();
+  }
+
+  if ( nsel == -1 ) {
+    if ( errno == EINTR || errno == EAGAIN ) {
+      errno = 0;
+      return (nevents > 0);
+    } else {
+      ; // select error
+    }
+  } else if ( nsel > 0 && sn_highest >= 0 ) {
+    nevents += sn_activate();
+  }
+
+  nevents += qt_activate_timers();		// activate timers
+  //  qt_reset_color_avail();			// color approx. optimization
+  
+  return (nevents > 0);
 }
 
 
@@ -920,24 +1504,6 @@ void QApplication::closePopup( QWidget * )
     qDebug( "QApplication::closePopup" );
 }
 
-int qStartTimer( int, QObject * )
-{
-    qDebug( "qStartTimer" );
-    return 0;
-}
-
-bool qKillTimer( int )
-{
-    qDebug( "qKillTimer" );
-    return FALSE;
-}
-
-bool qKillTimer( QObject * )
-{
-    qDebug( "qKillTimer QObject" );
-    return FALSE;
-}
-
 /*****************************************************************************
   Event translation; translates X11 events to Qt events
  *****************************************************************************/
@@ -1090,6 +1656,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect )
     qDebug( "QApplication::isEffectEnabled" );
     return FALSE;
 }
+
+
 
 /*****************************************************************************
   Session management support

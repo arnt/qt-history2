@@ -432,9 +432,15 @@ void QWidget::unsetCursor()
   \sa caption(), setIcon(), setIconText()
 */
 
-void QWidget::setCaption( const QString & )
+void QWidget::setCaption( const QString &cap )
 {
     qDebug( "QWidget::setCaption" );
+
+    unsigned char title[255];
+    memset(title, '\0', sizeof(title));
+    title[0] = cap.length();
+    strncpy((char *)title+1, cap.latin1(), 255);
+    SetWTitle((WindowPtr)winid, title);
 }
 
 /*!

@@ -183,7 +183,7 @@ void QPainter::updateFont()
 void QPainter::updatePen()
 {
     qDebug( "QPainter::updatePen implemented" );
-    if ( !pdev->handle() )
+    if ( !pdev || !pdev->handle() )
 	return;
     WindowPtr p = (WindowPtr)pdev->handle();
     SetPortWindowPort( p );
@@ -203,7 +203,7 @@ void QPainter::updatePen()
 void QPainter::updateBrush()
 {
     qDebug( "QPainter::updateBrush implemented" );
-    if( !pdev->handle() )
+    if( !pdev || !pdev->handle() )
 	return;
 
     if ( testf( ExtDev ) ) {
