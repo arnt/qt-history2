@@ -15,13 +15,13 @@
     $e = 0;
     foreach ( @f ) {
 	if ( ! $ff_dict{$_} ) {
-	    print STDERR "File $_ not found\n";
+	    print "File $_ not found\n";
 	    $e++;
 	}
     }
     foreach ( @ff ) {
 	if ( ! $f_dict{$_} ) {
-	    print STDERR "File $_ should not be in the distribution\n";
+	    print "File $_ should not be in the distribution\n";
 	    $e++;
 	}
     }
