@@ -570,7 +570,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	}
 	*translatedTextAboutQt += tr ("<p>This program uses Qt version %1.</p>"
 	    "<p>Qt is a C++ toolkit for cross-platform GUI &amp; "
-	    "application development from Trolltech.</p>"
+	    "application development.</p>"
 	    "<p>Qt provides single-source "
 	    "portability across Windows 95/98/NT4/ME/2000, Mac&nbsp;OS&nbsp;X, "
 	    "Linux, Solaris, "
@@ -592,7 +592,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    "<h3>About Qt</h3>"
 	    "<p>This program uses Qt version %1.</p>"
 	    "<p>Qt is a C++ toolkit for cross-platform GUI &amp; "
-	    "application development from Trolltech.</p>"
+	    "application development.</p>"
 	    "<p>Qt provides single-source "
 	    "portability across Windows 95/98/NT4/ME/2000, Mac&nbsp;OS&nbsp;X, "
 	    "Linux, Solaris, "
