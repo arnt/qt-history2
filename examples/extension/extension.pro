@@ -1,5 +1,5 @@
 SOURCES	+= main.cpp
-unix {
+unix:!mac {
   UI_DIR = .ui
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
