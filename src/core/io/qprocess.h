@@ -84,6 +84,7 @@ public:
 
     // QIODevice
     Q_LONGLONG bytesAvailable() const;
+    Q_LONGLONG bytesToWrite() const;
     bool isSequential() const;
     bool canReadLine() const;
     void close();

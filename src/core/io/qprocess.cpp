@@ -569,6 +569,14 @@ Q_LONGLONG QProcess::bytesAvailable() const
     return readBuffer->size();
 }
 
+/*! \reimp
+*/
+Q_LONGLONG QProcess::bytesToWrite() const
+{
+    Q_D(const QProcess);
+    return d->writeBuffer.size();
+}
+
 /*!
     Returns the type of error that occurred last.
 
