@@ -1280,13 +1280,6 @@ bool QAxHostWidget::winEvent(MSG *msg)
 bool QAxHostWidget::event(QEvent *e)
 {
     switch (e->type()) {
-    case QEvent::ShowToParent:
-        if (axhost) {
-            qDebug("ShowToParent");
-            RECT rcPos = { x(), y(), x()+size().width(), y()+size().height() };
-            axhost->m_spOleObject->DoVerb(OLEIVERB_SHOW, 0, (IOleClientSite*)axhost, 0, winId(), &rcPos);
-        }
-        break;
     case QEvent::Timer:
         if (axhost && ((QTimerEvent*)e)->timerId() == setFocusTimer) {
             killTimer(setFocusTimer);
