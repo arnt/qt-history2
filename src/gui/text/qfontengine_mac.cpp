@@ -243,11 +243,6 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     valueSizes[arr] = sizeof(fond);
     values[arr] = &fond;
     arr++;
-    tags[arr] = kATSUQDItalicTag;
-    valueSizes[arr] = sizeof(Boolean);
-    Boolean italicBool = fontDef.italic ? true : false;
-    values[arr] = &italicBool;
-    arr++;
     tags[arr] = kATSUQDBoldfaceTag;
     valueSizes[arr] = sizeof(Boolean);
     Boolean boldBool = ((fontDef.weight == QFont::Bold) ? true : false);
@@ -395,6 +390,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         }
         if(fontDef.stretch != 100)
             tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
+        if(fontDef.italic)   //we cannot do italic since ATSUI just skews the matrix
+            tf.c = Fix2X(kATSItalicQDSkew);
 
         const ATSUAttributeTag tag = kATSUFontMatrixTag;
         ByteCount size = sizeof(tf);
