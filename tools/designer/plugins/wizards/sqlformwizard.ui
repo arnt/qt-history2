@@ -126,25 +126,12 @@
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLabel" row="0" column="0" rowspan="1" colspan="2">
-                        <property name="name">
-                            <cstring>TextLabel1</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&lt;big&gt;&lt;b&gt;Database Connection and Table&lt;/b&gt;&lt;/big&gt;</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignAuto|AlignCenter</set>
-                        </property>
-                        <property name="hAlign" stdset="0">
-                        </property>
-                    </widget>
                     <widget class="QLabel" row="1" column="0">
                         <property name="name">
                             <cstring>TextLabel3_3</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Connection:</string>
+                            <string>Database &amp;Connection:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>listBoxConnection</cstring>
@@ -202,25 +189,6 @@
                 </property>
                 <property name="pixmap">
                     <pixmap>qtwizards_table_2</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="0" column="1">
-                <property name="name">
-                    <cstring>TextLabel1_2</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>7</hsizetype>
-                        <vsizetype>5</vsizetype>
-                    </sizepolicy>
-                </property>
-                <property name="text">
-                    <string>&lt;big&gt;&lt;b&gt;Displayed Fields&lt;/b&gt;&lt;/big&gt;</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignAuto|AlignCenter</set>
-                </property>
-                <property name="hAlign" stdset="0">
                 </property>
             </widget>
             <widget class="QLayoutWidget" row="1" column="1">
@@ -690,25 +658,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>TextLabel1_2_2</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>7</hsizetype>
-                                <vsizetype>5</vsizetype>
-                            </sizepolicy>
-                        </property>
-                        <property name="text">
-                            <string>&lt;big&gt;&lt;b&gt;Navigation and Editing&lt;/b&gt;&lt;/big&gt;</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignAuto|AlignCenter</set>
-                        </property>
-                        <property name="hAlign" stdset="0">
-                        </property>
-                    </widget>
                     <widget class="QCheckBox">
                         <property name="name">
                             <cstring>checkBoxNavig</cstring>
@@ -1215,25 +1164,6 @@
                 </property>
                 <property name="pixmap">
                     <pixmap>qtwizards_table_4</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="0" column="1">
-                <property name="name">
-                    <cstring>TextLabel1_2_2_2</cstring>
-                </property>
-                <property name="sizePolicy">
-                    <sizepolicy>
-                        <hsizetype>7</hsizetype>
-                        <vsizetype>5</vsizetype>
-                    </sizepolicy>
-                </property>
-                <property name="text">
-                    <string>&lt;big&gt;&lt;b&gt;Table Properties&lt;/b&gt;&lt;/big&gt;</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignAuto|AlignCenter</set>
-                </property>
-                <property name="hAlign" stdset="0">
                 </property>
             </widget>
             <spacer row="3" column="1">
