@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#61 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -651,6 +651,9 @@ bool QProcess::start()
     return TRUE;
 
 error:
+#if defined(QT_QPROCESS_DEBUG)
+    qDebug( "QProcess::start(): error starting process" );
+#endif
     ::close( d->socketStdin[1] );
     ::close( d->socketStdout[0] );
     ::close( d->socketStderr[0] );
