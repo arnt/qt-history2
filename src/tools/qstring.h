@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#15 $
+** $Id: //depot/qt/main/src/tools/qstring.h#16 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -201,6 +201,7 @@ public:
     QString    &insert( uint index, char );
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const char * );
+    QString    &replace( const QRegExp &, const char * );
 
     short	toShort( bool *ok=0 )	const;	// convert string to short
     ushort	toUShort( bool *ok=0 )	const;	// convert string to ushort
