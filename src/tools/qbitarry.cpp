@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#39 $
 **
 ** Implementation of QBitArray class
 **
@@ -12,7 +12,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#39 $");
 
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
@@ -42,7 +42,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#38 $");
 /*!
   \fn QBitVal& QBitVal::operator= (const QBitVal& v) 
 
-  Sets the value referenced by the QBitVal to that reference by another
+  Sets the value referenced by the QBitVal to that referenced by another
   QBitVal.
 */
 
