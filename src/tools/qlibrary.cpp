@@ -5,7 +5,7 @@
 **
 ** Created : 000101
 **
-** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -326,10 +326,10 @@ QString QLibrary::library() const
     if ( filename.find( ".dylib" ) == -1 )
 	filename += ".dylib";
 #else
-#ifndef Q_OS_HPUX
-    QString filter = ".so";
-#else
+#if defined(Q_OS_HPUX)
     QString filter = ".sl";
+#else
+    QString filter = ".so";
 #endif
     if ( filename.find(filter) == -1 ) {
 	const int x = filename.findRev( "/" );

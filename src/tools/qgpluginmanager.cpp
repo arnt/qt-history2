@@ -3,7 +3,7 @@
 **
 ** Implementation of QGPluginManager class
 **
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -318,6 +318,8 @@ void QGPluginManager::addLibraryPath( const QString& path )
     QString filter = "dll";
 #elif defined(Q_OS_MACX)
     QString filter = "dylib";
+#elif defined(Q_OS_HPUX)
+    QString filter = "sl";
 #elif defined(Q_OS_UNIX)
     QString filter = "so";
 #endif
