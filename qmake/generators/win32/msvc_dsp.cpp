@@ -275,7 +275,7 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["TMAKE_LIB_FLAG"].isEmpty() ) {
 	    project->variables()["TARGET_EXT"].append(
-		QStringList::split('.', project->variables()["VERSION"].first(), ".")[0] + ".dll");
+		QStringList::split('.', project->variables()["VERSION"].first())[0] + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
