@@ -1640,23 +1640,19 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	return TRUE;
     else if ( object == d->ed ) {
 	if ( event->type() == QEvent::KeyPress ) {
-	    QKeyEvent* ke = (QKeyEvent*)event;
-	    bool isAccepted = ke->isAccepted();
-	    keyPressEvent( ke );
-	    if ( ke->isAccepted() ) {
+	    bool isAccepted = ( (QKeyEvent*)event )->isAccepted();
+	    keyPressEvent( (QKeyEvent *)event );
+	    if ( ((QKeyEvent *)event)->isAccepted() ) {
 		d->completeNow = FALSE;
 		return TRUE;
-	    } else if ( ke->key() != Key_End ) {
+	    } else if ( ((QKeyEvent *)event)->key() != Key_End ) {
 		d->completeNow = TRUE;
 		d->completeAt = d->ed->cursorPosition();
 	    }
-	    if ( ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return ) {
-		return TRUE;
-	    }
 	    if ( isAccepted )
-		ke->accept();
+		( (QKeyEvent*)event )->accept();
 	    else
-		ke->ignore();
+		( (QKeyEvent*)event )->ignore();
 	} else if ( event->type() == QEvent::KeyRelease ) {
 	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );
