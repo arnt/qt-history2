@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#95 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#94 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#95 $")
 
 
 /*----------------------------------------------------------------------------
@@ -184,13 +184,26 @@ QWidget::~QWidget()
 }
 
 
-void QWidget::createMapper()			// create widget mapper
+/*----------------------------------------------------------------------------
+  \internal
+  Creates the global widget mapper.
+  The widget mapper converts window handles to widget pointers.
+  \sa destroyMapper()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::createMapper()
 {
     mapper = new QWidgetMapper;
     CHECK_PTR( mapper );
 }
 
-void QWidget::destroyMapper()			// destroy widget mapper
+/*----------------------------------------------------------------------------
+  \internal
+  Destroys the global widget mapper.
+  \sa createMapper()
+ ----------------------------------------------------------------------------*/
+
+void QWidget::destroyMapper()
 {
     if ( !mapper )				// already gone
 	return;
@@ -287,7 +300,7 @@ void QWidget::deleteExtra()
   \sa wmapper(), id()
  ----------------------------------------------------------------------------*/
 
-QWidget *QWidget::find( WId id )		// find widget with id
+QWidget *QWidget::find( WId id )
 {
     return mapper ? mapper->find( id ) : 0;
 }
@@ -346,6 +359,7 @@ QWidget *QWidget::find( WId id )		// find widget with id
 
   Portable in principle, but if you use it you are probably about to do
   something non-portable. Be careful.
+
   \sa find()
  ----------------------------------------------------------------------------*/
 
@@ -356,7 +370,7 @@ QWidget *QWidget::find( WId id )		// find widget with id
   \sa setStyle(), QApplication::style()
  ----------------------------------------------------------------------------*/
 
-GUIStyle QWidget::style() const			// get widget GUI style
+GUIStyle QWidget::style() const
 {
     return extra ? extra->guistyle : QApplication::style();
 }
@@ -369,7 +383,7 @@ GUIStyle QWidget::style() const			// get widget GUI style
   \sa style(), QApplication::setStyle()
  ----------------------------------------------------------------------------*/
 
-void QWidget::setStyle( GUIStyle style )	// set widget GUI style
+void QWidget::setStyle( GUIStyle style )
 {
 #if defined(LINUX_RESTRICTED)
     if ( style != MotifStyle ) {
@@ -393,7 +407,7 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
   QKeyEvent, QMouseEvent
  ----------------------------------------------------------------------------*/
 
-void QWidget::enable()				// enable events
+void QWidget::enable()
 {
     if ( testWFlags(WState_Disabled) ) {
 	clearWFlags( WState_Disabled );
@@ -412,7 +426,7 @@ void QWidget::enable()				// enable events
   QKeyEvent, QMouseEvent
  ----------------------------------------------------------------------------*/
 
-void QWidget::disable()				// disable events
+void QWidget::disable()
 {
     if ( !testWFlags(WState_Disabled) ) {
 	setWFlags( WState_Disabled );
@@ -689,7 +703,7 @@ const QColorGroup &QWidget::colorGroup() const
   \sa palette(), colorGroup(), setBackgroundColor()
  ----------------------------------------------------------------------------*/
 
-void QWidget::setPalette( const QPalette &p )	// set widget palette
+void QWidget::setPalette( const QPalette &p )
 {
     pal = p;
     setBackgroundColor( colorGroup().background() );
@@ -838,7 +852,7 @@ bool QWidget::hasFocus() const
   parent's coordinate system.
  ----------------------------------------------------------------------------*/
 
-void QWidget::setFRect( const QRect &r )	// set frect, update crect
+void QWidget::setFRect( const QRect &r )
 {
     crect.setLeft( crect.left() + r.left() - frect.left() );
     crect.setTop( crect.top() + r.top() - frect.top() );
@@ -858,7 +872,7 @@ void QWidget::setFRect( const QRect &r )	// set frect, update crect
   decorative borders, in its parent's coordinate system.
  ----------------------------------------------------------------------------*/
 
-void QWidget::setCRect( const QRect &r )	// set crect, update frect
+void QWidget::setCRect( const QRect &r )
 {
     frect.setLeft( frect.left() + r.left() - crect.left() );
     frect.setTop( frect.top() + r.top() - crect.top() );
@@ -908,7 +922,7 @@ void QWidget::setAcceptFocus( bool enable )
  ----------------------------------------------------------------------------*/
 
 QPoint QWidget::mapToParent( const QPoint &p ) const
-{						// map to parent coordinates
+{
     return p + crect.topLeft();
 }
 
@@ -921,7 +935,7 @@ QPoint QWidget::mapToParent( const QPoint &p ) const
  ----------------------------------------------------------------------------*/
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
-{						// map from parent coordinate
+{
     return p - crect.topLeft();
 }
 
