@@ -1101,19 +1101,7 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	}
     }
 
-    if ( atParagStart() ) {
-	QTextParag *p = string->prev();
-	QTextParag *s = doc->createParag( doc, p, string, updateIds );
-	if ( f )
-	    s->setFormat( 0, 1, f, TRUE );
-	s->copyParagData( string );
-	if ( ind ) {
-	    s->indent();
-	    s->format();
-	    indent();
-	    string->format();
-	}
-    } else if ( atParagEnd() ) {
+    if ( atParagEnd() ) {
 	QTextParag *n = string->next();
 	QTextParag *s = doc->createParag( doc, string, n, updateIds );
 	if ( f )
@@ -1127,6 +1115,18 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	} else {
 	    string = s;
 	    idx = 0;
+	}
+    } else if ( atParagStart() ) {
+	QTextParag *p = string->prev();
+	QTextParag *s = doc->createParag( doc, p, string, updateIds );
+	if ( f )
+	    s->setFormat( 0, 1, f, TRUE );
+	s->copyParagData( string );
+	if ( ind ) {
+	    s->indent();
+	    s->format();
+	    indent();
+	    string->format();
 	}
     } else {
 	QString str = string->string()->toString().mid( idx, 0xFFFFFF );
