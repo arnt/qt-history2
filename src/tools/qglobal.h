@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#11 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#12 $
 **
 ** Global type declarations and definitions
 **
@@ -143,6 +143,13 @@ typedef const char     *pcchar;
 const bool FALSE = 0;
 const bool TRUE = !FALSE;
 #endif
+
+
+// Useful macros
+
+#define QMAX(a,b)	((a) > (b) ? (a) : (b))
+#define QMIN(a,b)	((a) < (b) ? (a) : (b))
+#define QABS(a)		((a) >= 0  ? (a) : -(a))
 
 
 // Size-dependent types (architechture-dependent byte order)
