@@ -349,8 +349,7 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 		p*=(t >> 5);
 		matrox_regw(DWGCTL,DWG_TRAP | DWG_SOLID | DWG_ARZERO |
 			    DWG_SGNZERO | DWG_SHIFTZERO | DWG_TRANSC | tmprop);
-		matrox_regw(FXLEFT,x3);
-		matrox_regw(FXRIGHT,x4+1);
+		matrox_regw(FXBNDRY,x3 | ((x4+1) << 16));
 		matrox_regw(YDST,p);
 		matrox_regw(LEN | EXEC,hh);
 	    }
