@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhgroupbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qhgroupbox.cpp#2 $
 **
 ** Implementation of QHGroupBox class
 **
@@ -28,7 +28,7 @@
 /*!
   \class QHGroupBox qhgroupbox.h
 
-  \brief The QHGroupBox widget organizes QButton widgets in a group
+  \brief The QHGroupBox widget organizes widgets in a group
   with one horizontal row.
 
   \ingroup realwidgets
@@ -37,7 +37,7 @@
   QGroupBox. Think of it as a QHBox that offers a frame with a title.
 */
 
-/*!  
+/*!
   Constructs a horizontal group box with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvgroupbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qvgroupbox.cpp#2 $
 **
 ** Implementation of QVGroupBox class
 **
@@ -28,7 +28,7 @@
 /*!
   \class QVGroupBox qvgroupbox.h
 
-  \brief The QVGroupBox widget organizes QButton widgets in a group
+  \brief The QVGroupBox widget organizes widgets in a group
   with one vertical column.
 
   \ingroup realwidgets
@@ -37,7 +37,7 @@
   QGroupBox. Think of it as a QVBox that offers a frame with a title.
 */
 
-/*!  
+/*!
   Constructs a vertical group box with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
