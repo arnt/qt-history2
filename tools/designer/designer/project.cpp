@@ -134,7 +134,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 	conn->setPort( prt );
 	success = conn->open();
 	if ( !success ) {
-	    switch( QMessageBox::warning( MainWindow::self, QApplication::tr( "Connection" ),
+	    switch( QMessageBox::warning( project->messageBoxParent(), QApplication::tr( "Connection" ),
 					  QApplication::tr( "Could not connect to the database.\n"
 							    "Press 'OK' to continue or 'Cancel' to "
 							    "specify different\nconnection information.\n" )
@@ -213,7 +213,7 @@ Project::Project( const QString &fn, const QString &pName,
 
 Project::~Project()
 {
-    if ( MainWindow::self->singleProjectMode() )
+    if ( singleProjectMode() )
 	removeTempProject();
     delete iface;
     delete pixCollection;
@@ -243,7 +243,7 @@ void Project::setFileName( const QString &fn, bool doClear )
     if ( fn == filename )
 	return;
 
-    if ( MainWindow::self->singleProjectMode() ) {
+    if ( singleProjectMode() ) {
 	if ( fn == singleProFileName )
 	    return;
 	singleProFileName = fn;
@@ -589,7 +589,7 @@ void Project::save( bool onlyProjectFile )
 	return;
 
     if ( !modified ) {
-	if ( MainWindow::self->singleProjectMode() ) {
+	if ( singleProjectMode() ) {
 	    LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	    if ( iface && iface->supports( LanguageInterface::CompressProject ) )
 		iface->compressProject( makeAbsolute( filename ), singleProFileName, anythingModified );
@@ -706,7 +706,8 @@ void Project::save( bool onlyProjectFile )
     }
 
     if ( !f.open( IO_WriteOnly | IO_Translate ) ) {
-	QMessageBox::warning( MainWindow::self, "Save Project Failed", "Couldn't write project file " + filename );
+	QMessageBox::warning( messageBoxParent(),
+			      "Save Project Failed", "Couldn't write project file " + filename );
 	return;
     }
 
@@ -719,7 +720,7 @@ void Project::save( bool onlyProjectFile )
 
     setModified( FALSE );
 
-    if ( MainWindow::self->singleProjectMode() ) {
+    if ( singleProjectMode() ) {
 	LanguageInterface *iface = MetaDataBase::languageInterface( language() );
 	if ( iface && iface->supports( LanguageInterface::CompressProject ) )
 	    iface->compressProject( makeAbsolute( filename ), singleProFileName, TRUE );
@@ -1245,6 +1246,7 @@ void Project::addObject( QObject *o )
     objs.append( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
+    // ###### QSA-cleanup: formwindow has to work without a MainWindow, fix that here when that works
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
 				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
     fw->setProject( this );
@@ -1253,13 +1255,17 @@ void Project::addObject( QObject *o )
     if ( QFile::exists( ff->absFileName() ) )
 	Resource::loadExtraSource( fw, ff->absFileName(),
 				   MetaDataBase::languageInterface( language() ), FALSE );
+    // ###### QSA-cleanup: formwindow has to work without a MainWindow, fix that here when that works
     fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
-    QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
+    if ( MainWindow::self ) {
+	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
+	// #### QSA-cleanup: if we have no MainWindow, we have to make this connection at some later point, when it gets created
+	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
+		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
+    }
     fw->parentWidget()->setFixedSize( 1, 1 );
     fw->show();
-    connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
-	     MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     emit objectAdded( o );
     modified = wasModified;
 }
@@ -1310,7 +1316,7 @@ QObject *Project::objectForFakeFormFile( FormFile *ff ) const
 
 void Project::removeTempProject()
 {
-    if ( !MainWindow::self->singleProjectMode() )
+    if ( !singleProjectMode() )
 	return;
     QDir d( QFileInfo( filename ).dirPath() );
     if ( !d.exists( QFileInfo( filename ).dirPath() ) )
@@ -1367,7 +1373,8 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 	    }
 	
 	    if ( openDeveloper ) {
-		MainWindow::self->editSource( f );
+		if ( MainWindow::self )
+		    MainWindow::self->editSource( f );
 		f->editor()->setFunction( func, "" );
 	    }
 	
@@ -1397,4 +1404,14 @@ QString Project::qualifiedName( QObject *o )
 	p = p->parent();
     }
     return name;
+}
+
+bool Project::singleProjectMode() const
+{
+    return !MainWindow::self || MainWindow::self->singleProjectMode();
+}
+
+QWidget *Project::messageBoxParent() const
+{
+    return MainWindow::self;
 }

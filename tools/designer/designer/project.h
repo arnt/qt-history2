@@ -105,6 +105,8 @@ private:
 class Project : public QObject
 {
     Q_OBJECT
+    friend class DatabaseConnection;
+
 public:
     Project( const QString &fn, const QString &pName = QString::null,
 	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE,
@@ -223,6 +225,9 @@ private:
     void removePlatformSettings( QString &contents, const QString &setting );
     void writePlatformSettings( QString &contents, const QString &setting,
 				const QMap<QString, QString> &input );
+    bool singleProjectMode() const;
+    QWidget *messageBoxParent() const;
+
 private:
     QString filename;
     QString proName;
