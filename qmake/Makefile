@@ -41,11 +41,13 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj
 
 #qt code
-QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
-      qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
-      qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
-      qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
-      qconfig.o qhash.o
+QTOBJS=qchar.obj qstring.obj quuid.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qbytearray.obj qcstring.obj qdatastream.obj \
+	qgarray.obj qbuffer.obj qglist.obj qlist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj \
+	qvector.obj qbitarray.obj qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qhash.obj \
+	qstringlist.obj qmap.obj qlibrary.obj qlibrary_win.obj qconfig.obj qsettings.obj qsettings_win.obj qunicodetables.obj qlinkedlist.obj
+
+
+
 
 qmake.exe: $(OBJS) $(QTOBJS)
 	$(LINKQMAKE)
@@ -155,12 +157,6 @@ qsettings_win.obj: ..\src\tools\qsettings_win.cpp
 
 qfileinfo_win.obj: ..\src\tools\qfileinfo_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qfileinfo_win.cpp
-
-qhash.o: /Users/kent/p4/qt/src/tools/qhash.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) /Users/kent/p4/qt/src/tools/qhash.cpp
-
-quuid.o: /Users/kent/p4/qt/src/tools/quuid.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) /Users/kent/p4/qt/src/tools/quuid.cpp
 
 qdir_win.obj: ..\src\tools\qdir_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\tools\qdir_win.cpp
