@@ -1118,13 +1118,13 @@ void QTextDocumentPrivate::contentsChanged()
     if (editBlock)
         return;
 
-    emit q->contentsChanged();
-
     if (lastUnmodifiedUndoStackPos != -1
         && lastUnmodifiedUndoStackPos == undoPosition)
         setModified(false);
     else
         setModified(true);
+
+    emit q->contentsChanged();
 }
 
 void QTextDocumentPrivate::setModified(bool m)
