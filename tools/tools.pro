@@ -1,12 +1,11 @@
-TEMPLATE	= subdirs
+TEMPLATE        = subdirs
 no-png {
     message("Tools not available without PNG support")
 } else {
-    SUBDIRS		= assistant/lib \
-		      designer \
-		      assistant \
-		      linguist
-    unix:SUBDIRS	+= qtconfig
+    SUBDIRS                = assistant/lib \
+                      assistant \
+                      linguist
+    unix:SUBDIRS        += qtconfig
 }
 
 CONFIG+=ordered
