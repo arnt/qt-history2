@@ -1606,3 +1606,13 @@ bool QColorDialog::selectColor(const QColor& col)
 #include "moc_qcolordialog.cpp"
 
 #endif
+
+/*!
+    \fn QColor QColorDialog::getColor(const QColor &init, QWidget *parent, const char *name)
+    \compat
+*/
+
+/*!
+    \fn QRgb QColorDialog::getRgba(QRgb rgba, bool *ok, QWidget *parent, const char *name)
+    \compat
+*/

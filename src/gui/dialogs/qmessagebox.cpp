@@ -731,6 +731,17 @@ void QMessageBox::setIcon(Icon icon)
 }
 
 #ifdef QT_COMPAT
+/*!
+    \compat
+
+    Constructs a message box with the given \a parent, \a name, and
+    window flags, \a f.
+    The window title is specified by \a caption, and the message box
+    displays message text and an icon specified by \a text and \a icon.
+
+    The buttons that the user can access to respond to the message are
+    defined by \a button0, \a button1, and \a button2.
+*/
 QMessageBox::QMessageBox(const QString& caption,
                           const QString &text, Icon icon,
                           int button0, int button1, int button2,
@@ -750,6 +761,9 @@ QMessageBox::QMessageBox(const QString& caption,
     setIcon(icon);
 }
 
+/*!
+    Constructs a message box with the given \a parent and \a name.
+*/
 QMessageBox::QMessageBox(QWidget *parent, const char *name)
     : QDialog(*new QMessageBoxPrivate, parent,
               Qt::WStyle_Customize | Qt::WStyle_DialogBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu)
@@ -1605,3 +1619,91 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
 #define d d_func()
 #include "moc_qmessagebox.cpp"
 #endif
+
+/*!
+    \fn int QMessageBox::information(QWidget *parent, const QString &caption,
+                                     const QString &text, int button0,
+                                     int button1, int button2)
+    \compat
+
+    Use showInformation() instead.
+*/
+
+/*!
+    \fn int QMessageBox::information(QWidget *parent, const QString &caption,
+        const QString &text, const QString &button0Text,
+        const QString &button1Text, const QString &button2Text,
+        int defaultButtonNumber, int escapeButtonNumber)
+    \compat
+
+    Use showInformation() instead.
+*/
+
+/*!
+    \fn int QMessageBox::question(QWidget *parent, const QString &caption,
+                     const QString &text, int button0, int button1, int button2)
+    \compat
+
+    Use showQuestion() instead.
+*/
+
+/*!
+    \fn int QMessageBox::question(QWidget *parent, const QString &caption,
+        const QString &text, const QString &button0Text,
+        const QString &button1Text, const QString &button2Text,
+        int defaultButtonNumber, int escapeButtonNumber)
+    \compat
+
+    Use showQuestion() instead.
+*/
+
+/*!
+    \fn int QMessageBox::warning(QWidget *parent, const QString &caption,
+        const QString &text, int button0, int button1, int button2)
+    \compat
+
+    Use showWarning() instead.
+*/
+
+/*!
+    \fn int QMessageBox::warning(QWidget *parent, const QString &caption,
+        const QString &text, const QString &button0Text,
+        const QString &button1Text, const QString &button2Text,
+        int defaultButtonNumber, int escapeButtonNumber)
+    \compat
+
+    Use showWarning() instead.
+*/
+
+/*!
+    \fn int QMessageBox::critical(QWidget *parent, const QString &caption,
+        const QString &text, int button0, int button1, int button2)
+    \compat
+
+    Use showCritical() instead.
+*/
+
+/*!
+    \fn int QMessageBox::critical(QWidget *parent, const QString &caption,
+        const QString &text, const QString &button0Text,
+        const QString &button1Text, const QString &button2Text,
+        int defaultButtonNumber, int escapeButtonNumber)
+    \compat
+
+    Use showCritical() instead.
+*/
+
+/*!
+    \fn void QMessageBox::about(QWidget *parent, const QString &caption,
+                                const QString &text)
+    \compat
+
+    Use showAbout() instead.
+*/
+
+/*!
+    \fn void QMessageBox::aboutQt(QWidget *parent, const QString& caption)
+    \compat
+
+    Use showAboutQt() instead.
+*/
