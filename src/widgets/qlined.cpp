@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#134 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1354,7 +1354,7 @@ void QLineEdit::insert( const char * newText )
 	cp = minMark();
     }
     test.insert( cp, t );
-    cp += t.length();
+    cp = QMIN( cp+t.length(), (uint)maxLength() );
     cursorOn = FALSE;
     blinkSlot();
     validateAndSet( test, cp, cp, cp );
