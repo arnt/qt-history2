@@ -51,16 +51,6 @@
 #include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 
-// QFont_Private accesses QFont protected functions
-
-class QFont_Private : public QFont
-{
-public:
-};
-
-#undef  PRIV
-#define PRIV ((QFont_Private*)this)
-
 
 /*****************************************************************************
   QFontInternal contains FB font data
@@ -406,10 +396,15 @@ void QFontPrivate::load()
     request.dirty = FALSE;
 }
 
+QRect QFontPrivate::boundingRect( const QChar &ch )
+{
+    return QRect(0, 0, 1204, 768); //take that
+}
 
-/*****************************************************************************
-  QFont_Private member functions
- *****************************************************************************/
+int QFontPrivate::textWidth( const QString &str, int pos, int len )
+{
+    return 1000;
+}
 
 /*****************************************************************************
   QFontMetrics member functions
