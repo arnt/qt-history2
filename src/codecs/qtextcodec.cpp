@@ -968,6 +968,7 @@ struct QMultiByteUnicodeTable {
     QMultiByteUnicodeTable* multibyte;
 };
 
+#ifndef QT_NO_CODECS
 static int getByte(char* &cursor)
 {
     int byte = 0;
@@ -982,7 +983,6 @@ static int getByte(char* &cursor)
     return byte&0xff;
 }
 
-#ifndef QT_NO_CODECS
 class QTextCodecFromIOD;
 
 class QTextCodecFromIODDecoder : public QTextDecoder {
