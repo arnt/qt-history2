@@ -7,6 +7,7 @@
 #include <Xm/Form.h>
 #include <Xm/Text.h>
 
+
 static const char* QTEDMSG =
     "This is a Qt widget.\nIt is a QMultiLineEdit.";
 
