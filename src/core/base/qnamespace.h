@@ -719,7 +719,7 @@ public:
 	MV_PANTHER      = MV_10_DOT_3
     };
 
-#ifdef QT_COMPAT
+#if defined(Q_OS_WIN) && defined(QT_COMPAT)
     // documented in qapplication_win.cpp
     enum WindowsVersion {
 	WV_32s 		= QSysInfo::WV_32s,
