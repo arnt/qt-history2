@@ -1115,11 +1115,14 @@ QStyle *QApplication::style()
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
-    if (!QApplicationPrivate::sys_pal)
-        QApplicationPrivate::sys_pal = new QPalette(QApplicationPrivate::app_style->standardPalette());
+    if (!QApplicationPrivate::sys_pal) {
+        QStyle * style = QApplicationPrivate::app_style;
+        QPalette pal = QApplicationPrivate::app_style->standardPalette();
+        QApplicationPrivate::sys_pal = new QPalette(pal);
+    }
     QApplication::setPalette(QApplicationPrivate::set_pal
                              ? *QApplicationPrivate::set_pal : *QApplicationPrivate::sys_pal);
-
+    
 
     QApplicationPrivate::app_style->polish(qApp);
 #endif
