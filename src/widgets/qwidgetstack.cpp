@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#28 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -106,9 +106,9 @@ void QWidgetStack::addWidget( QWidget * w, int id )
 {
     if (!w)
 	return;
-    
+
     dict->insert( id+1, w );
-    
+
     // preserve existing focus
     QWidget * f = w->focusWidget();
     while( f && f != w )
@@ -118,7 +118,7 @@ void QWidgetStack::addWidget( QWidget * w, int id )
 	    focusWidgets = new QPtrDict<QWidget>( 17 );
 	focusWidgets->replace( w, w->focusWidget() );
     }
-    
+
     if ( w->parent() != this )
 	w->reparent( this, 0, QPoint(0,0), FALSE );
 }
@@ -163,15 +163,15 @@ void QWidgetStack::raiseWidget( QWidget * w )
     setBackgroundMode( NoBackground );
 
     topWidget = w;
-    if ( !isVisible() )
-	return;
-
-    emit aboutToShow( w );
-    if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
-	// ### O(n)
-	int i = id( w );
-	if ( i )
-	    emit aboutToShow( i );
+    if ( isVisible() ) {
+	
+	emit aboutToShow( w );
+	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
+	    // ### O(n)
+	    int i = id( w );
+	    if ( i )
+		emit aboutToShow( i );
+	}
     }
 
     // try to move focus onto the incoming widget if focus
