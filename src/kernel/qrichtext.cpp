@@ -5432,13 +5432,15 @@ void QTextImage::adjustToPainter( QPainter* p )
 }
 
 #if !defined(Q_WS_X11)
+#include <qbitmap.h>
+#include <qcleanuphandler.h>
 static QPixmap *qrt_selection = 0;
 static QCleanupHandler<QPixmap> qrt_cleanup_pixmap;
 static void qrt_createSelectionPixmap( const QColorGroup &cg )
 {
     qrt_selection = new QPixmap( 2, 2 );
-    qtr_cleanup_pixmap.add( qiv_selection );
-    qtr_selection->fill( Qt::color0 );
+    qrt_cleanup_pixmap.add( qrt_selection );
+    qrt_selection->fill( Qt::color0 );
     QBitmap m( 2, 2 );
     m.fill( Qt::color1 );
     QPainter p( &m );
@@ -5447,8 +5449,8 @@ static void qrt_createSelectionPixmap( const QColorGroup &cg )
 	p.drawPoint( j % 2, j );
     }
     p.end();
-    qtr_selection->setMask( m );
-    qtr_selection->fill( cg.highlight() );
+    qrt_selection->setMask( m );
+    qrt_selection->fill( cg.highlight() );
 }
 #endif
 
