@@ -1531,7 +1531,7 @@ QFtp::State QFtp::state() const
 }
 
 /*!
-    Returns the last error that occured. This is useful to find out details
+    Returns the last error that occurred. This is useful to find out details
     about the failure when receiving a commandFinished() or a done() signal
     with the \c error argument \c FALSE.
 
@@ -1544,7 +1544,7 @@ QFtp::Error QFtp::error() const
 }
 
 /*!
-    Returns a human readable description of the last error that occured. This
+    Returns a human-readable description of the last error that occurred. This
     is useful to present a error message to the user when receiving a
     commandFinished() or a done() signal with the \c error argument \c FALSE.
 
