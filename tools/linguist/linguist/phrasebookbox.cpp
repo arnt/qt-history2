@@ -191,7 +191,7 @@ void PhraseBookBox::selectionChanged()
 
 void PhraseBookBox::selectItem(const QModelIndex &index)
 {
-    phraseList->ensureVisible(index);
+    phraseList->scrollTo(index);
     phraseList->setCurrentIndex(index);
 }
 

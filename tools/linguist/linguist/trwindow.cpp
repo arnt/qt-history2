@@ -1193,7 +1193,7 @@ void TrWindow::prevUnfinished()
 void TrWindow::prev()
 {
     if(prev(false))
-        stv->ensureVisible(stv->currentIndex());
+        stv->scrollTo(stv->currentIndex());
 }
 
 bool TrWindow::prev(bool checkUnfinished)
@@ -1613,27 +1613,27 @@ void TrWindow::setupToolBars()
 void TrWindow::setCurrentContext(const QModelIndex &indx)
 {
     tv->setCurrentIndex(indx);
-    tv->ensureVisible(indx);
+    tv->scrollTo(indx);
 }
 
 void TrWindow::setCurrentContextRow(int row)
 {
     QModelIndex mdlI = cmdl->index(row,1);
     tv->setCurrentIndex(mdlI);
-    tv->ensureVisible(mdlI);
+    tv->scrollTo(mdlI);
 }
 
 void TrWindow::setCurrentMessage(const QModelIndex &indx)
 {
     stv->setCurrentIndex(indx);
-    stv->ensureVisible(indx);
+    stv->scrollTo(indx);
 }
 
 void TrWindow::setCurrentMessageRow(int row)
 {
     QModelIndex mdlI = mmdl->index(row,1);
     stv->setCurrentIndex(mdlI);
-    stv->ensureVisible(mdlI);
+    stv->scrollTo(mdlI);
 }
 
 QString TrWindow::friendlyPhraseBookName(const PhraseBook &pb) const
