@@ -366,9 +366,11 @@ void QProgressBar::drawContents( QPainter *p )
 
     QPixmap pm;
     pm.resize( bar.size() );
-    pm.fill( backgroundColor() );
 
     QPainter paint( &pm );
+    QBrush fbrush = backgroundPixmap() ? QBrush( backgroundColor(), *backgroundPixmap() ) : QBrush( backgroundColor() );
+    paint.fillRect( bar, fbrush );
+
     paint.setFont( p->font() );
 
     if ( !total_steps ) { // draw busy indicator
@@ -462,17 +464,17 @@ void QProgressBar::drawContents( QPainter *p )
 	}
 	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
 	    paint.setPen( colorGroup().highlightedText() );
-	    paint.setClipRect( bar.x(), bar.y(), x, bar.height() );
-	    paint.drawText( bar, AlignCenter, progress_str );
+	    paint.setClipRect( bar.x(), bar.y(), x+2, bar.height() );
+	    paint.drawText( bar, AlignCenter | SingleLine, progress_str );
 	    if ( progress_val != total_steps ) {
-		paint.setClipRect( bar.x() + x, bar.y(), bar.width() - x, bar.height() );
+		paint.setClipRect( bar.x() + x+2, bar.y(), bar.width() - x - 2, bar.height() );
 		paint.setPen( colorGroup().highlight() );
-		paint.drawText( bar, AlignCenter, progress_str );	    
+		paint.drawText( bar, AlignCenter | SingleLine, progress_str );	    
 	    }
 	} else if ( hasExtraIndicator ) {
 	    paint.setPen( colorGroup().foreground() );
 	    paint.drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
-		AlignRight | AlignVCenter, progress_str );
+		AlignCenter | SingleLine, progress_str );
 	}
     }
 
