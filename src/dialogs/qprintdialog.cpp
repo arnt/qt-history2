@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#48 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#49 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -1010,7 +1010,7 @@ void QPrintDialog::okClicked()
     d->printer->setPageOrder( d->pageOrder2 );
     d->printer->setColorMode( d->colorMode2 );
     d->printer->setNumCopies( d->numCopies );
-    if ( d->printAllButton->isEnabled() )
+    if ( d->printAllButton->isChecked() )
 	d->printer->setFromTo( d->printer->minPage(), d->printer->maxPage() );
     else
 	d->printer->setFromTo( d->firstPage->value(), d->lastPage->value() );
