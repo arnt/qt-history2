@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#74 $
 **
 ** Implementation of QScrollBar class
 **
@@ -11,11 +11,10 @@
 
 #include "qscrbar.h"
 #include "qpainter.h"
-#include "qdrawutl.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#74 $");
 
 
 /*!
@@ -743,37 +742,17 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    qDrawWinPanel( p, addB.x(), addB.y(),
 			   addB.width(), addB.height(), g,
 			   ADD_LINE_ACTIVE );
-	    if ( maxedOut ) {
-		// ### need something better here
-		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
-			    WindowsStyle,
-			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-			    addB.width()-4, addB.height()-4,
-			    palette().disabled() );
-	    } else {
-		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
-			    WindowsStyle,
-			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
-			    addB.width()-4, addB.height()-4, g );
-	    }
+	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
+			WindowsStyle, ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
+			addB.width()-4, addB.height()-4, g, !maxedOut );
 	}
 	if ( controls & SUB_LINE ) {
 	    qDrawWinPanel( p, subB.x(), subB.y(),
 			   subB.width(), subB.height(), g,
 			   SUB_LINE_ACTIVE );
-	    if ( maxedOut ) {
-		// ### need something better here
-		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-			    WindowsStyle,
-			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-			    subB.width()-4, subB.height()-4,
-			    palette().disabled() );
-	    } else {
-		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
-			    WindowsStyle,
-			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
-			    subB.width()-4, subB.height()-4, g );
-	    }
+	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow,
+			WindowsStyle, SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
+			subB.width()-4, subB.height()-4, g, !maxedOut );
 	}
 	p->setBrush( QBrush(white,Dense4Pattern) );
 	p->setPen( NoPen );
@@ -793,17 +772,17 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    }
 	    if ( hasFocus() )
 		p->drawWinFocusRect( sliderR.x()+2, sliderR.y()+2,
-				    sliderR.width()-5, sliderR.height()-5 );
+				     sliderR.width()-5, sliderR.height()-5 );
 	}
     } else {
 	if ( controls & ADD_LINE )
 	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow, MotifStyle,
 			ADD_LINE_ACTIVE, addB.x(), addB.y(),
-			addB.width(), addB.height(), g );
+			addB.width(), addB.height(), g, value()<maxValue() );
 	if ( controls & SUB_LINE )
 	    qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, MotifStyle,
 			SUB_LINE_ACTIVE, subB.x(), subB.y(),
-			subB.width(), subB.height(), g );
+			subB.width(), subB.height(), g, value()>minValue() );
 	if ( controls & SUB_PAGE )
 	    p->fillRect( subPageR, g.mid() );
 	if ( controls & ADD_PAGE )
@@ -821,183 +800,9 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 #undef SUB_LINE_ACTIVE
 
 
-static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
-			   int x, int y, int w, int h,
-			   const QColorGroup &g )
-{
-    QPointArray a;				// arrow polygon
-    switch ( type ) {
-	case UpArrow:
-	    a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
-	    break;
-	case DownArrow:
-	    a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
-	    break;
-	case LeftArrow:
-	    a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
-	    break;
-	case RightArrow:
-	    a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
-	    break;
-    }
-    if ( a.isNull() )
-	return;
-
-    if ( down ) {
-	x++;
-	y++;
-    }
-    a.translate( x+w/2, y+h/2 );
-
-    QPen savePen = p->pen();			// save current pen
-    p->fillRect( x, y, w, h, g.background() );
-    p->setPen( g.foreground() );
-    p->drawLineSegments( a, 0, 3 );		// draw arrow
-    p->drawPoint( a[6] );
-    p->setPen( savePen );			// restore pen
-}
-
-
-#if defined(_CC_MSVC_)
-#pragma warning(disable: 4244)
-#endif
-
-static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
-			     int x, int y, int w, int h,
-			     const QColorGroup &g )
-{
-    QPointArray bFill;				// fill polygon
-    QPointArray bTop;				// top shadow.
-    QPointArray bBot;				// bottom shadow.
-    QPointArray bLeft;				// left shadow.
-    QWMatrix	matrix;				// xform matrix
-    bool vertical = type == UpArrow || type == DownArrow;
-    bool horizontal = !vertical;
-    int	 dim = w < h ? w : h;
-    int	 colspec = 0x0000;			// color specification array
-
-    if ( dim < 2 )				// too small arrow
-	return;
-
-    if ( dim > 3 ) {
-	if ( dim > 6 )
-	    bFill.resize( dim & 1 ? 3 : 4 );
-	bTop.resize( (dim/2)*2 );
-	bBot.resize( dim & 1 ? dim + 1 : dim );
-	bLeft.resize( dim > 4 ? 4 : 2 );
-	bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
-	if ( dim > 4 )
-	    bLeft.putPoints( 2, 2, 1,2, 1,dim-3 );
-	bTop.putPoints( 0, 4, 1,0, 1,1, 2,1, 3,1 );
-	bBot.putPoints( 0, 4, 1,dim-1, 1,dim-2, 2,dim-2, 3,dim-2 );
-
-	for( int i=0; i<dim/2-2 ; i++ ) {
-	    bTop.putPoints( i*2+4, 2, 2+i*2,2+i, 5+i*2, 2+i );
-	    bBot.putPoints( i*2+4, 2, 2+i*2,dim-3-i, 5+i*2,dim-3-i );
-	}
-	if ( dim & 1 )				// odd number size: extra line
-	    bBot.putPoints( dim-1, 2, dim-3,dim/2, dim-1,dim/2 );
-	if ( dim > 6 ) {			// dim>6: must fill interior
-	    bFill.putPoints( 0, 2, 1,dim-3, 1,2 );
-	    if ( dim & 1 )			// if size is an odd number
-		bFill.setPoint( 2, dim - 3, dim / 2 );
-	    else
-		bFill.putPoints( 2, 2, dim-4,dim/2-1, dim-4,dim/2 );
-	}
-    }
-    else {
-	if ( dim == 3 ) {			// 3x3 arrow pattern
-	    bLeft.setPoints( 4, 0,0, 0,2, 1,1, 1,1 );
-	    bTop .setPoints( 2, 1,0, 1,0 );
-	    bBot .setPoints( 2, 1,2, 2,1 );
-	}
-	else {					// 2x2 arrow pattern
-	    bLeft.setPoints( 2, 0,0, 0,1 );
-	    bTop .setPoints( 2, 1,0, 1,0 );
-	    bBot .setPoints( 2, 1,1, 1,1 );
-	}
-    }
-
-    if ( type == UpArrow || type == LeftArrow ) {
-	matrix.translate( x, y );
-	if ( vertical ) {
-	    matrix.translate( 0, h - 1 );
-	    matrix.rotate( -90 );
-	} else {
-	    matrix.translate( w - 1, h - 1 );
-	    matrix.rotate( 180 );
-	}
-	if ( down )
-	    colspec = horizontal ? 0x2334 : 0x2343;
-	else
-	    colspec = horizontal ? 0x1443 : 0x1434;
-    }
-    else if ( type == DownArrow || type == RightArrow ) {
-	matrix.translate( x, y );
-	if ( vertical ) {
-	    matrix.translate( w-1, 0 );
-	    matrix.rotate( 90 );
-	}
-	if ( down )
-	    colspec = horizontal ? 0x2443 : 0x2434;
-	else
-	    colspec = horizontal ? 0x1334 : 0x1343;
-    }
-
-    QColor *cols[5];
-    cols[0] = 0;
-    cols[1] = (QColor *)&g.background();
-    cols[2] = (QColor *)&g.mid();
-    cols[3] = (QColor *)&g.light();
-    cols[4] = (QColor *)&g.dark();
-#define CMID	*cols[ (colspec>>12) & 0xf ]
-#define CLEFT	*cols[ (colspec>>8) & 0xf ]
-#define CTOP	*cols[ (colspec>>4) & 0xf ]
-#define CBOT	*cols[ colspec & 0xf ]
-
-    QPen     savePen   = p->pen();		// save current pen
-    QBrush   saveBrush = p->brush();		// save current brush
-    QWMatrix wxm = p->worldMatrix();
-    QPen     pen( NoPen );
-    QBrush   brush( CMID );
-
-    p->setPen( pen );
-    p->setBrush( brush );
-    p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
-    p->drawPolygon( bFill );			// fill arrow
-    p->setBrush( NoBrush );			// don't fill
-
-    p->setPen( CLEFT );
-    p->drawLineSegments( bLeft );
-    p->setPen( CTOP );
-    p->drawLineSegments( bTop );
-    p->setPen( CBOT );
-    p->drawLineSegments( bBot );
-
-    p->setWorldMatrix( wxm );
-    p->setBrush( saveBrush );			// restore brush
-    p->setPen( savePen );			// restore pen
-
-#undef CMID
-#undef CLEFT
-#undef CTOP
-#undef CBOT
-}
-
-
 void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
-		 int x, int y, int w, int h, const QColorGroup &g )
+		 int x, int y, int w, int h,
+		 const QColorGroup & g )
 {
-    switch ( style ) {
-	case WindowsStyle:
-	    qDrawWinArrow( p, type, down, x, y, w, h, g );
-	    break;
-	case MotifStyle:
-	    qDrawMotifArrow( p, type, down, x, y, w, h, g );
-	    break;
-	default:
-#if defined(CHECK_RANGE)
-	    warning( "qDrawArrow: Requested GUI style not supported" );
-#endif
-    }
+    qDrawArrow( p, type, style, down, x, y, w, h, g, TRUE );
 }

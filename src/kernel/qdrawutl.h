@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.h#7 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.h#8 $
 **
 ** Definition of draw utilities
 **
@@ -77,5 +77,11 @@ void qDrawItem( QPainter *p, GUIStyle gs, int x, int y, int w, int h,
 		int flags, const QColorGroup &g, bool enabled,
 		const QPixmap *pixmap, const char *text, int len=-1 );
 
+enum ArrowType
+    { UpArrow, DownArrow, LeftArrow, RightArrow };
+
+void qDrawArrow( QPainter *p, ArrowType type, GUIStyle style, bool down,
+		 int x, int y, int w, int h,
+		 const QColorGroup &g, bool enabled );
 
 #endif // QDRAWUTL_H
