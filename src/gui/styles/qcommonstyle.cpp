@@ -2791,7 +2791,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         break;
 
     case SH_Table_GridLineColor:
-        ret = -1;
+        if (opt)
+            ret = opt->palette.color(QPalette::Mid).rgb();
+        else
+            ret = -1;
         break;
 
     case SH_LineEdit_PasswordCharacter:

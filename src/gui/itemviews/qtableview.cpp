@@ -384,10 +384,8 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     const bool showGrid = d->showGrid;
     const int gridSize = showGrid ? 1 : 0;
-    const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
-    const QColor gridColor = gridHint != -1
-                             ? static_cast<QRgb>(gridHint)
-                             : palette().color(QPalette::Mid);
+    const int gridHint = style()->styleHint(QStyle::SH_Table_GridLineColor, &option, this);
+    const QColor gridColor = static_cast<QRgb>(gridHint);
     const QPen gridPen = QPen(gridColor, 0, d->gridStyle);
     const QItemSelectionModel *sels = selectionModel();
     const QHeaderView *verticalHeader = d->verticalHeader;
