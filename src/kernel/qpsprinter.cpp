@@ -5620,8 +5620,8 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
     scale = 72. / ((float) m.logicalDpiY());
-    int mx = printer->margins().width();
-    int my = printer->margins().height();
+    uint mtop, mleft, mbottom, mright;
+    printer->margins( &mtop, &mleft, &mbottom, &mright );
     int width = m.width();
     int height = m.height();
     bool fullPage = printer->fullPage();
@@ -5633,7 +5633,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
             boundingBox.setRect( 0, 0, width, height );
 	if ( printer->orientation() == QPrinter::Landscape ) {
 	    if ( !fullPage )
-		boundingBox.moveBy( -mx, -my );
+		boundingBox.moveBy( -mleft, -mtop );
 	    outStream << " EPSF-3.0\n%%BoundingBox: "
 		      << (int)(m.height() - boundingBox.bottom())*scale << " " // llx
 		      << (int)(m.width() - boundingBox.right())*scale - 1 << " " // lly
@@ -5641,7 +5641,7 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 		      << (int)(m.width() - boundingBox.left())*scale; // ury
 	} else {
 	    if ( !fullPage )
-		boundingBox.moveBy( mx, -my );
+		boundingBox.moveBy( mleft, -mtop );
 	    outStream << " EPSF-3.0\n%%BoundingBox: "
 		      << (int)(boundingBox.left())*scale << " "
 		      << (int)(m.height() - boundingBox.bottom())*scale - 1 << " "
@@ -5649,8 +5649,8 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 		      << (int)(m.height() - boundingBox.top())*scale;
 	}
     } else {
-	int w = width + (fullPage ? 0 : 2*mx);
-        int h = height + (fullPage ? 0 : 2*my);
+	int w = width + (fullPage ? 0 : mleft + mright);
+        int h = height + (fullPage ? 0 : mtop + mbottom);
 	w = (int)(w*scale);
 	h = (int)(h*scale);
         // set a bounding box according to the DSC
@@ -5701,11 +5701,11 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     outStream << "/pageinit {\n";
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )
-            outStream << mx*scale << " "
-                   << my*scale << " translate\n";
+            outStream << mleft*scale << " "
+                   << mtop*scale << " translate\n";
         else
-            outStream << my*scale << " "
-                   << mx*scale << " translate\n";
+            outStream << mtop*scale << " "
+                   << mleft*scale << " translate\n";
     }
     if ( printer->orientation() == QPrinter::Portrait ) {
         outStream << "% " << m.widthMM() << "*" << m.heightMM()

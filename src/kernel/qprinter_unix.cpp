@@ -552,7 +552,7 @@ int QPrinter::metric( int m ) const
 QSize QPrinter::margins() const
 {
     if ( d )
-	return QSize( d->topMargin, d->leftMargin );
+	return QSize( d->leftMargin, d->topMargin );
     
     if (orient == Portrait)
         return QSize( res/2, res/3 );
