@@ -3126,7 +3126,7 @@ void QWidget::move( int x, int y )
     internalSetGeometry( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
-    if ( isVisible() && oldp != pos() && children() ) {
+    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() && children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
 	QWidget *widget;
@@ -3136,7 +3136,7 @@ void QWidget::move( int x, int y )
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() ) 
 		    widget->update();
 	    }
 	}
@@ -3164,7 +3164,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QPoint oldp( pos( ));
     internalSetGeometry( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if ( isVisible() && oldp != pos() && children() ) {
+    if ( isVisible() && !isTopLevel() && !testWFlags(Qt::WSubWindow) && oldp != pos() && children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
 	QWidget *widget;
@@ -3174,7 +3174,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
-		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
+		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() ) 
 		    widget->update();
 	    }
 	}
