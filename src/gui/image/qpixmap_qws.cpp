@@ -453,14 +453,11 @@ QImage QPixmap::toImage() const
         else
             image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian);//####### endianness
 
-        QWSPaintEngine *engine=static_cast<QWSPaintEngine*>(image.paintEngine());
-        if(engine) {
-            engine->begin(&image);
-            engine->blt(*this,0,0,width(),height(),0,0);
-            engine->end();
-        } else {
-            qWarning("No image paintengine for convertToImage!");
-        }
+        QWSPaintEngine *engine=new QWSPaintEngine;
+        engine->begin(&image);
+        engine->blt(*this,0,0,width(),height(),0,0);
+        engine->end();
+        delete engine;
         image.setAlphaBuffer(data->hasAlpha);
     }
 
