@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#85 $
 **
 ** Implementation of QScrollView class
 **
@@ -933,6 +933,7 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 	cy=0;
     }
 
+#ifdef QT_1x_SEMANTICS
     if ( x < -cx+xmargin )
 	cx = -x+pw-xmargin;
     else if ( x >= -cx+pw-xmargin )
@@ -942,6 +943,17 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 	cy = -y+ph-ymargin;
     else if ( y >= -cy+ph-ymargin )
 	cy = -y+ymargin;
+#else
+    if ( x < -cx+xmargin )
+	cx = -x+xmargin;
+    else if ( x >= -cx+pw-xmargin )
+	cx = -x+pw-xmargin;
+
+    if ( y < -cy+ymargin )
+	cy = -y+ymargin;
+    else if ( y >= -cy+ph-ymargin )
+	cy = -y+ph-ymargin;
+#endif
 
     if ( cx > 0 )
 	cx=0;
