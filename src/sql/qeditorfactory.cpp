@@ -1,3 +1,4 @@
+#include <qcleanuphandler.h>
 #include <qwidget.h>
 #include <qlabel.h>
 #include <qlineedit.h>
@@ -26,6 +27,23 @@ QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
 QEditorFactory::~QEditorFactory()
 {
 
+}
+
+static QEditorFactory * defaultfactory = 0;
+QCleanUpHandler< QEditorFactory > q_cleanup_editor_factory;
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QEditorFactory * QEditorFactory::defaultFactory()
+{
+    if( defaultfactory == 0 ){
+	defaultfactory = new QEditorFactory();
+	q_cleanup_editor_factory.addCleanUp( defaultfactory );
+    }
+
+    return defaultfactory;
 }
 
 /*!

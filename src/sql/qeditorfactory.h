@@ -16,6 +16,8 @@ public:
     ~QEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
     virtual QWidget * createEditor( QWidget * parent, const QSqlField & f );
+    
+    static QEditorFactory * defaultFactory();
 };
 
 #endif // QT_NO_SQL
