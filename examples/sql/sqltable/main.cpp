@@ -47,8 +47,8 @@ int main( int argc, char ** argv )
     db->setHostName( HOST );
 
     if( !db->open() ){
-	QMessageBox::information( 0, "Unable to open database",
-				  db->lastError().databaseText() + "\nPlease read the README file in the sqltable directory for more information.");
+	db->lastError().display( "An error occured. Please read the README in the sqltable dir for more "
+				 "information.\n\n" );
 	return 1;
     }
 
