@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/dirview.h#3 $
+** $Id: //depot/qt/main/examples/dirview/dirview.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -58,7 +58,7 @@ signals:
 protected slots:
     void slotFolderSelected( QListViewItem * );
     void openFolder();
-    
+
 protected:
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
@@ -66,6 +66,7 @@ protected:
     void contentsDropEvent( QDropEvent *e );
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMousePressEvent( QMouseEvent *e );
+    void contentsMouseReleaseEvent( QMouseEvent *e );
 
 private:
     QString fullPath(QListViewItem* item);
@@ -74,7 +75,8 @@ private:
     QListViewItem *dropItem;
     QTimer autoopen_timer;
     QPoint presspos;
-
+    bool mousePressed;
+    
     // ############# Move this to QScrollView
 private:
     QTimer autoscroll_timer;
