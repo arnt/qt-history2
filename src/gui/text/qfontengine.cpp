@@ -17,6 +17,8 @@
 #include "qpainter.h"
 #include "qpainterpath.h"
 
+#include <math.h>
+
 void QFontEngine::addOutlineToPath(qReal x, qReal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
 {
     addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
@@ -150,10 +152,12 @@ qReal QFontEngineBox::maxCharWidth() const
     return _size;
 }
 
+#ifdef Q_WS_X11
 int QFontEngineBox::cmap() const
 {
     return -1;
 }
+#endif
 
 const char *QFontEngineBox::name() const
 {
