@@ -2840,15 +2840,6 @@ void QSettings::setUserIniPath(const QString &dir)
     concept of "search path".
 */
 
-/*! \enum QSettings::Scope
-    \compat
-
-    \value User The settings are specific to the current user (same as QSettings::UserScope).
-    \value Global The settings are shared by all users on the current machine (same as QSettings::SystemScope).
-
-    \sa setPath()
-*/
-
 /*! \fn void QSettings::setPath(const QString &organization, const QString &application, \
                                 Scope scope)
 
