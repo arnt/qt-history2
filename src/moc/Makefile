@@ -46,7 +46,7 @@ $(TARGET): $(OBJECTS)
 
 rcs:: ./RCS/$$@,v
 
-depend: $(SRCMETA) $(TARGET)
+depend: $(SRCMETA)
 	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
 
 clean:
