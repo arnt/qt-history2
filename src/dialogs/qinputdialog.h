@@ -61,7 +61,7 @@ private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
     QInputDialog( const QString &label, QWidget* parent=0, const char* name=0,
-		 bool modal = TRUE, Type type = LineEdit );
+		 bool modal = TRUE, Type type = LineEdit ); //### 4.0: widget flag!
     ~QInputDialog();
 
     QLineEdit *lineEdit() const;
@@ -73,6 +73,7 @@ private:
     Type type() const;
 
 public:
+    //### 4.0: widget flag!
     static QString getText( const QString &caption, const QString &label, QLineEdit::EchoMode echo = QLineEdit::Normal,
 			    const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
     static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647,
