@@ -58,6 +58,8 @@ public:
     {
         connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
     }
+    ~QDnsAgent()
+    { cleanup(); }
 
     void run();
     static QDnsHostInfo getHostByName(const QString &hostName);
