@@ -33,7 +33,7 @@ unix:!no_mocdepend {
      moc_source.depends += $$QMAKE_MOC
      moc_header.depends += $$QMAKE_MOC
      !contains(TARGET, moc) { #auto build moc
-         isEmpty(QMAKE_MOC_SRC):QMAKE_MOC_SRC = "$(QTDIR)/src/moc"
+         isEmpty(QMAKE_MOC_SRC):QMAKE_MOC_SRC = "$(QTDIR)/src/tools/moc"
 	 make_moc.target = $$QMAKE_MOC
 	 make_moc.commands = (cd $$QMAKE_MOC_SRC && $(MAKE))
 	 QMAKE_EXTRA_TARGETS += make_moc
