@@ -245,7 +245,16 @@ int main( int argc, char ** argv )
     QSettings *config = new QSettings();
     config->insertSearchPath( QSettings::Windows, "/Trolltech" );
     if( !catlist.isEmpty() ) {
-	config->writeEntry( keybase + "CategoriesSelected", catlist );
+	QStringList buf;
+	QStringList oldCatList = config->readListEntry( keybase + "CategoriesAvailable" );
+	for ( QStringList::iterator it1 = catlist.begin(); it1 != catlist.end(); ++it1 ) {
+	    for ( QStringList::Iterator it2 = oldCatList.begin(); it2 != oldCatList.end(); ++it2 ) {
+		if ( (*it2).startsWith( *it1 ) )
+		    buf << (*it2);
+	    }
+	}
+	config->writeEntry( keybase + "CategoriesSelected", buf );
+	config->writeEntry( keybase + "NewDoc", TRUE );
     }
     bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE );
     QString link = config->readEntry( keybase + "Source", "" );
