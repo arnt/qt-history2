@@ -4,6 +4,4 @@ TARGET   = vcr
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= vcr.db
-PROJECTNAME	= Vcr
 LANGUAGE	= C++
-CPP_ALWAYS_CREATE_SOURCE	= TRUE

@@ -7,5 +7,4 @@ TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= credit.db
 IMAGEFILE	= images.cpp
-PROJECTNAME	= credit
 LANGUAGE	= C++

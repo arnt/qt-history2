@@ -1,7 +1,6 @@
 SOURCES	+= main.cpp 
 TARGET      = receiver
 IMAGEFILE	= images.cpp
-PROJECTNAME	= receiver
 FORMS	= mainform.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release

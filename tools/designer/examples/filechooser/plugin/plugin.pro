@@ -10,5 +10,4 @@ TEMPLATE     = lib
 CONFIG      += qt warn_on release plugin
 INCLUDEPATH += $(QTDIR)/tools/designer/interfaces
 DBFILE       = plugin.db
-PROJECTNAME  = Plugin
 LANGUAGE     = C++

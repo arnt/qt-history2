@@ -4,5 +4,4 @@ HEADERS		=
 SOURCES		= main.cpp
 DEPENDPATH	=../../../include
 TARGET		= test
-PROJECTNAME	= test
 REQUIRES=full-config

@@ -59,7 +59,9 @@
     'Creating Custom Widgets' section in the 'Creating Custom Widgets'
     chapter, for a complete example of a QWidgetPlugin.
 
-  See also the \link plugins-howto.html Plugins documentation\endlink.
+  See also the \link plugins-howto.html Plugins documentation\endlink
+  and the \l{QWidgetFactory} class that is supplied with \link
+  designer-manual.book Qt Designer\endlink.
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface, QLibraryInterface

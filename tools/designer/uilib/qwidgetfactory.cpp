@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -153,13 +153,14 @@ static void setupWidgetListAndMap()
 
   \list
 
-  \i Dynamically creating widgets from \e{Qt Designer} user interface
-  description files. You can do this using the static function
-  QWidgetFactory::create(). This function also performs signal and
-  slot connections, tab ordering, etc., as defined in the .ui file, and
-  returns the top-level widget in the .ui file. After creating the
-  widget you can use QObject::child() and QObject::queryList() to
-  access child widgets of this returned widget.
+  \i Dynamically creating widgets from \link designer-manual.book Qt
+  Designer\endlink\e{Qt Designer} user interface description files.
+  You can do this using the static function QWidgetFactory::create().
+  This function also performs signal and slot connections, tab
+  ordering, etc., as defined in the .ui file, and returns the
+  top-level widget in the .ui file. After creating the widget you can
+  use QObject::child() and QObject::queryList() to access child
+  widgets of this returned widget.
 
   \i Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
@@ -170,8 +171,10 @@ static void setupWidgetListAndMap()
   must link against \c libqui.so (Unix) or \c qui.lib (Windows), which is
   built into \c $(QTDIR)/lib if you built \e{Qt Designer}.
 
-  See the Creating Dynamic Dialogs from .ui Files section of the \link
-  designer-manual.book Qt Designer manual\endlink for an example.
+  See the "Creating Dynamic Dialogs from .ui Files" section of the \link
+  designer-manual.book Qt Designer manual\endlink for an example. See
+  also the \l{QWidgetPlugin} class and the \link plugins-howto.html
+  Plugins documentation\endlink.
 */
 
 /*! Constructs a QWidgetFactory. */
@@ -478,7 +481,7 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
     widgetFactories.append( factory );
 }
 
-/*!  Creates a widget of the type \c className passing \a parent and
+/*!  Creates a widget of the type \a className passing \a parent and
   \a name to its constructor.
 
   If \a className is a widget in the Qt library, it is directly

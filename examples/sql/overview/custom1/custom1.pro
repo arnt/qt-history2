@@ -5,7 +5,6 @@ HEADERS	    =	main.h
 
 SOURCES	    =	main.cpp 
 TARGET		= test
-PROJECTNAME	= test
 
 
 REQUIRES=full-config
