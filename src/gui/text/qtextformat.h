@@ -60,6 +60,7 @@ public:
 	FontFixedPitch = 0x2008,
 
 	Color = 0x2010,
+	BackgroundColor = 0x2011,
 
 	IsAnchor = 0x2020,
 	AnchorHref = 0x2021,
@@ -205,7 +206,12 @@ public:
     void setColor(const QColor &color)
     { setProperty(Color, int(color.rgb())); }
     QColor color() const
-    { return QColor(intProperty(Color)); }
+    { if (hasProperty(Color)) return QColor(intProperty(Color)); else return QColor(); }
+
+    void setBackgroundColor(const QColor &color)
+    { setProperty(BackgroundColor, int(color.rgb())); }
+    QColor backgroundColor() const
+    { if (hasProperty(BackgroundColor)) return QColor(intProperty(BackgroundColor)); else return QColor(); }
 
     void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
