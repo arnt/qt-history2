@@ -5,7 +5,7 @@ CONFIG         += console release warn_off qtinc
 CONFIG	       -= qt
 DESTDIR         = ../../../../bin
 
-DEFINES        += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM QT_NO_REGEXP 
+DEFINES        += QT_NO_CODECS QT_NO_COMPONENT QT_NO_STL QT_NODLL QT_NO_DATASTREAM QT_NO_REGEXP \
                   QT_NO_COMPRESS QT_NO_SPRINTF QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_QFILE_QOBJECT
 INCLUDEPATH     = ../../../../include/qtcore .
 DEPENDPATH      = ../../../../include .
@@ -32,6 +32,6 @@ SOURCES		+= ../../../../src/core/io/qdir.cpp \
                    ../../../../src/core/io/qiodevice.cpp \
                    ../../../../src/core/io/qtemporaryfile.cpp
 
-win32:SOURCES   += ../../../../src/core/io/qfileengine_win.cpp \
+win32:SOURCES   += ../../../../src/core/io/qfileengine_win.cpp
 
-unix:SOURCES    += ../../../../src/core/io/qfileengine_unix.cpp \
+unix:SOURCES    += ../../../../src/core/io/qfileengine_unix.cpp
