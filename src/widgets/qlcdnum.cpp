@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#16 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#16 $";
 #endif
 
 
@@ -189,7 +189,7 @@ char *getSegments( char ch )			// gets list of segments for ch
 QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
-    ndigits = 1;
+    ndigits = 5;
     init();
 }
 
