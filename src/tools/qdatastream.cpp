@@ -595,6 +595,13 @@ QDataStream &QDataStream::operator>>( Q_INT32 &i )
 }
 
 /*!
+    \overload QDataStream &QDataStream::operator>>( Q_UINT64 &i )
+
+    Reads an unsigned 64-bit integer from the stream, into \a i, and
+    returns a reference to the stream.
+*/
+
+/*!
     \overload
 
     Reads a signed 64-bit integer from the stream into \a i, and
@@ -912,6 +919,13 @@ QDataStream &QDataStream::operator<<( Q_INT32 i )
     }
     return *this;
 }
+
+/*!
+    \overload QDataStream &QDataStream::operator<<( Q_UINT64 i )
+
+    Writes an unsigned 64-bit integer, \a i, to the stream and returns a
+    reference to the stream.
+*/
 
 /*!
     \overload
