@@ -1,12 +1,10 @@
-Troll Tech is proud to relase a free version of Qt for the X Window
-System. This release, Qt 0.99, is free for non-commercial use on all
-operating systems that support the X Window System and includes the
-complete Qt source code for X.
+Troll Tech is proud to release a free version of Qt for the X Window
+System. This release, Qt 0.99, is free for free software development
+on all operating systems that support the X Window System and includes
+the complete Qt source code for X.
 
-Qt 0.99 is intended as a bugfix release.
-
-Qt 0.99 includes makefiles for Linux, Solaris, SunOS, FreeBSD and
-OSF/1. New platforms will be added in the near future.
+Qt 0.99 includes makefiles for Linux, Solaris, SunOS, FreeBSD, OSF/1,
+Irix, BSD/OS, SCO and HP-UX. New platforms may be added in the future.
 
 Qt is a complete and well-developed object-oriented framework for
 developing graphical user interface applications using C++. It has been
@@ -50,7 +48,7 @@ Qt is available under several licenses:
 Note that the toolkit is the same, only the licenses differ.
 
 The Qt GUI toolkit is copyright Troll Tech AS.  It is available (at the
-time of writing) for Windows 95/NT and several variations of unix (X11
+time of writing) for Windows 95/NT and several variations of Unix (X11
 release 5 or later).  See http://www.troll.no/ for more availability
 information, or fax Troll Tech at +47 22646949.
 
@@ -75,15 +73,15 @@ And here is the LSM entry:
 Begin3
 Title:          Qt toolkit
 Version:        0.99
-Entered-date:   00jul96
+Entered-date:   06sep96
 Description:    C++ GUI class library with Motif look and feel
 Keywords:       gui library motif c++
 Author:         qt-bugs@troll.no
 Maintained-by:  qt-bugs@troll.no
 Primary-site:   sunsite.unc.edu /pub/Linux/X11/devel
-                1359kB qt-0.99.tar.gz
+                1277kB qt-0.99.tar.gz
 Alternate-site: ftp.troll.no /qt/linux
-                1359kB qt-0.99.tar.gz
+                1277kB qt-0.99.tar.gz
 Platform:       linux/X11R6
 Copying-policy: freely distributable with certain restrictions
 End
