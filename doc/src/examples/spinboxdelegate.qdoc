@@ -1,4 +1,13 @@
 /*!
     \example itemviews/spinboxdelegate
     \title Spin Box Delegate
+
+    The Spin Box Delegate example shows how to create an editor for a delegate in
+    the model/view framework by reusing a standard Qt editor widget.
+
+    \image spinboxdelegate-example.png
+
+    This example is covered in detail in the
+    \l{model-view-delegate.html}{Delegate Classes} chapter of the
+    \l{model-view-programming.html}{Model/View Programming} overview.
 */

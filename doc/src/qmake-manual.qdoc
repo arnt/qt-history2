@@ -50,7 +50,7 @@
 /*!
     \page qmake-using.html
     \title Using qmake
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-manual.html qmake Manual
     \nextpage qmake-project-files.html Project Files
 
@@ -105,7 +105,7 @@
 /*!
     \page qmake-project-files.html
     \title Project Files
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-using.html Using qmake
     \nextpage qmake-running.html Running qmake
 
@@ -390,7 +390,7 @@
 /*!
     \page qmake-running.html
     \title Running qmake
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-project-files.html Project Files
     \nextpage qmake-advanced-usage.html Advanced Usage
 
@@ -584,31 +584,24 @@
 /*!
     \page qmake-reference.html
     \title Reference
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-advanced-usage.html Advanced Usage
     \nextpage qmake-variable-reference.html Variable Reference
 
     This reference is a detailed index of all the variables and function
     that are available for use in \c qmake project files.
 
-    \list
-    \o The \l{qmake-variable-reference.html}{Variable Reference}
-       describes the variables that are recognized by \c qmake when
-       configuring the build process for projects.
-    \omit
-      \list
-      \tableofcontents{4 qmake-variable-reference.html}
-      \endlist
-    \endomit
-    \o The \l{qmake-function-reference.html}{Function Reference}
-       describes the function that can be used to process the contents
-       of variables defined in project files.
-    \omit
-      \list
-      \tableofcontents{2 qmake-function-reference.html}
-      \endlist
-    \endomit
-    \endlist
+    \section1 Variable Reference
+
+    The \l{qmake-variable-reference.html}{Variable Reference}
+    describes the variables that are recognized by \c qmake when
+    configuring the build process for projects.
+
+    \section1 Function Reference
+
+    The \l{qmake-function-reference.html}{Function Reference}
+    describes the function that can be used to process the contents
+    of variables defined in project files.
 
     \target FrequentlyUsedVariables
     \section1 Frequently Used Variables
@@ -642,12 +635,19 @@
     \o \l{qmake-variable-reference.html#DISTFILES}{DISTFILES}
     \o \l{qmake-variable-reference.html#YACCSOURCES}{YACCSOURCES}
     \endlist
+
+    \section1 Environment Variables and Configuration
+
+    The \l{qmake-environment-reference.html}{Environment Variables and
+    Configuration} chapter of this manual describes the environment
+    variables that \c qmake uses when configuring the build process.
+
 */
 
 /*!
     \page qmake-variable-reference.html
     \title Variable Reference
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-reference.html Reference
     \nextpage qmake-function-reference.html Function Reference
 
@@ -2204,7 +2204,7 @@
 /*!
     \page qmake-function-reference.html
     \title Function Reference
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-variable-reference.html Variable Reference
     \nextpage qmake-environment-reference.html Environment Variables and Configuration
 
@@ -2540,7 +2540,7 @@
 
 /*!
     \page qmake-environment-reference.html
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-function-reference.html Function Reference
     \nextpage qmake-tutorial.html qmake Tutorial
 
@@ -2776,7 +2776,7 @@
 /*!
     \page qmake-advanced-usage.html
     \title Advanced Usage
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-running.html Running qmake
     \nextpage qmake-reference.html Reference
 
@@ -3226,7 +3226,7 @@
 /*!
     \page qmake-tutorial.html
     \title qmake Tutorial
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-function-reference.html Function Reference
     \nextpage qmake-common-projects.html Common Projects
 
@@ -3604,7 +3604,7 @@
 /*!
     \page qmake-common-projects.html
     \title Common Projects
-    \contentspage qmake-manual.html qmake Manual
+    \contentspage qmake-manual.html Contents
     \previouspage qmake-tutorial.html qmake Tutorial
 
     This chapter describes how to set up \c qmake project files for three
