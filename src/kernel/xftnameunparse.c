@@ -73,10 +73,13 @@ _XftNameUnparseValue (XftValue v, char *escape, char **destp, int *lenp)
 	return _XftNameUnparseString (v.u.s, escape, destp, lenp);
     case XftTypeBool:
 	return _XftNameUnparseString (v.u.b ? "True" : "False", 0, destp, lenp);
-    case XftTypeMatrix:
-	sprintf (temp, "%g %g %g %g",
-		 v.u.m->xx, v.u.m->xy, v.u.m->yx, v.u.m->yy);
-	return _XftNameUnparseString (temp, 0, destp, lenp);
+
+	/*
+	  case XftTypeMatrix:
+	  sprintf (temp, "%g %g %g %g",
+	  v.u.m->xx, v.u.m->xy, v.u.m->yx, v.u.m->yy);
+	  return _XftNameUnparseString (temp, 0, destp, lenp);
+	*/
     }
     return False;
 }
