@@ -1,8 +1,9 @@
 #include "qcomponentinterface.h"
+#ifndef QT_NO_PLUGIN
+
 #include "qapplication.h"
 #include "qdir.h"
-
-#ifndef QT_NO_PLUGIN
+#include "qstringlist.h"
 
 class QInterfaceList : public QList<QUnknownInterface>
 {
