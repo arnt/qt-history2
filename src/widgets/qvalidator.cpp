@@ -475,32 +475,70 @@ void QDoubleValidator::setDecimals( int decimals )
 /*!
   \class QRegExpValidator qvalidator.h
 
-  \brief The QRegExpValidator class provides checking of a string against a
+  \brief The QRegExpValidator class is used to check a string against a
   regular expression.
 
   \ingroup misc
 
-  QRegExpValidator contains a regular expression used to determine whether an
-  input string is acceptable, intermediate or invalid.
+  QRegExpValidator contains a regular expression, "regexp", used to
+  determine whether an input string is \c Acceptable, \c Intermediate or
+  \c Invalid. 
+  
+  The regexp is treated as if it begins with the start of string
+  assertion, <tt>^</tt>, and ends with the end of string assertion
+  <tt>$</tt> so the match is against the entire input string, or from
+  the given position if a start position greater than zero is given.
 
-  Example:
+  For a brief introduction to Qt's regexp engine see QRegExp().
+
+  Examples:
   \code
-    QRegExp rx( "[+-]?0*[0-9]{1,3}" );  // integers -999 to +999
+    // Integers -999 to +999 (optional sign followed by up to 3 digits)
+    QRegExp rx( "[+-]?\\d{1,3}" );  
     QRegExpValidator v( rx, 0 );
     QString s;
-    int i = 0;
 
-    s = "++";   v.validate( s, i );     // Invalid
-    s = "1234"; v.validate( s, i );     // Invalid
-    s = "-";    v.validate( s, i );     // Intermediate
-    s = "-1";   v.validate( s, i );     // Valid
+    s = "++";   
+    v.validate( s, 0 );		// Returns Invalid (The zero is the start position)
+
+    s = "1234"; 
+    v.validate( s, 0 );		// Returns Invalid
+
+    s = "-";    
+    v.validate( s, 0 );		// Returns Intermediate
+
+    s = "-1";   
+    v.validate( s, 0 );		// Returns Valid
+
+    rx.setPattern( "\S+" );		// One or more non-whitespace characters
+    v.setRegExp( rx );
+    v.validate( "myfile.txt", 0 );  // Returns Valid
+    v.validate( "my file.txt", 0 ); // Returns Invalid
+
+    // A, B or C followed by exactly five digits followed by W, X, Y or Z
+    rx.setPattern( "[A-C]\\d{5}[W-Z]" );
+    v.setRegExp( rx );
+    v.validate( "a12345Z", 0 );	// Returns Invalid
+    v.validate( "A12345Z", 0 );	// Returns Valid
+    v.validate( "B12", 0 );	// Returns Intermediate
+    
+    // Match most 'readme' files
+    rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
+    rx.setCaseSensitive( FALSE );
+    v.setRegExp( rx );
+    v.validate( "readme", 0 );	    // Returns Valid
+    v.validate( "README.1ST", 0 );  // Returns Valid
+    v.validate( "read me.txt", 0 ); // Returns Invalid
+    v.validate( "readm", 0 );	    // Returns Intermediate
+    
   \endcode
 
   \sa QRegExp QIntValidator QDoubleValidator
 */
 
 /*!
-  Constructs a validator object that accepts any string.
+  Constructs a validator object that accepts any string (including an
+  empty one) as valid.
 */
 
 QRegExpValidator::QRegExpValidator( QWidget *parent, const char *name )
@@ -520,7 +558,7 @@ QRegExpValidator::QRegExpValidator( const QRegExp& rx, QWidget *parent,
 }
 
 /*!
-  Destructs the validator, freeing any storage and other resources used.
+  Destroys the validator, freeing any storage and other resources used.
 */
 
 QRegExpValidator::~QRegExpValidator()
@@ -528,13 +566,18 @@ QRegExpValidator::~QRegExpValidator()
 }
 
 /*!
-  Returns \c Acceptable if \a input is matched precisely by the regular
-  expression for this validator, \c Intermediate if it's matched partially, and
+  Returns \c Acceptable if \a input is matched by the regular expression
+  for this validator, \c Intermediate if it has matched partially (i.e.
+  could be a valid match if additional valid characters are added), and
   \c Invalid if \a input is not matched.
 
-  For example, suppose the regular expression is <b>abc</b>.  Then, input string
-  <tt>abc</tt> is \c Acceptable, <tt>ab</tt> is \c Intermediate, and
-  <tt>hab</tt> is \c Invalid.
+  The start position is the beginning of the string unless \a pos is
+  given and is > 0 in which case the regexp is matched from \a pos until
+  the end of the string.
+
+  For example, if the regular expression is
+  <b>\\</b><b>w</b><b>\\</b><b>d</b><b>\\</b><b>d</b> then
+  "A57" is \c Acceptable, "E5" is \c Intermediate and "+9" is \c Invalid.
 
   \sa QRegExp::match()
 */
