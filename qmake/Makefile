@@ -30,7 +30,7 @@ CFLAGS	    =	-c -o$@ \
  		-DHAVE_QCONFIG_CPP
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
-LIBS	    =	import32.lib cw32i.lib advapi32.lib
+LIBS	    =	import32.lib cw32i.lib
 LINKQMAKE   =	ilink32 $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
 ADDCLEAN    =	qmake.tds
 !ENDIF
