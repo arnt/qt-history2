@@ -693,7 +693,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently!
         QImage image = toImage();
-        return QPixmap::fromImage(image.transform(matrix, mode));
+        return QPixmap::fromImage(image.transformed(matrix, mode));
     }
 
     int           w, h;                                // size of target pixmap
@@ -738,7 +738,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
              if (data->mask) {
                  QBitmap bm =
                      data->selfmask ? *((QBitmap*)(&pm)) :
-                     data->mask->transform(matrix);
+                     data->mask->transformed(matrix);
                  pm.setMask(bm);
              }
              pm.data->hasAlpha = data->hasAlpha;
@@ -824,7 +824,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         if (depth1 && data->selfmask)               // pixmap == mask
             pm.setMask(*((QBitmap*)(&pm)));
         else
-            pm.setMask(data->mask->transform(matrix));
+            pm.setMask(data->mask->transformed(matrix));
     }
     pm.data->hasAlpha = data->hasAlpha;
 
