@@ -5226,7 +5226,6 @@ void QTextEdit::optimSetText( const QString &str )
 // 	return;
     d->od->numLines = 0;
     d->od->lines.clear();
-    d->od->len = str.length();
     d->od->maxLineWidth = 0;
     d->od->clearTags();
     QFontMetrics fm( QScrollView::font() );
@@ -5235,6 +5234,7 @@ void QTextEdit::optimSetText( const QString &str )
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
  	    optimParseTags( &*it );
+	    d->od->len += (*it).length();
 	    d->od->lines[ d->od->numLines++ ] = *it;
 	    lWidth = fm.width( *it );
 	    if ( lWidth > d->od->maxLineWidth )
@@ -5443,7 +5443,6 @@ void QTextEdit::optimAppend( const QString &str )
     if ( str.isEmpty() || str.isNull() )
 	return;
 
-    d->od->len += str.length();
     QStringList strl = QStringList::split( '\n', str, TRUE );
     QStringList::Iterator it = strl.begin();
 
@@ -5451,6 +5450,7 @@ void QTextEdit::optimAppend( const QString &str )
     int lWidth = 0;
     for ( ; it != strl.end(); ++it ) {
  	optimParseTags( &*it );
+	d->od->len += (*it).length();
 	d->od->lines[ d->od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
 	if ( lWidth > d->od->maxLineWidth )
@@ -5862,20 +5862,18 @@ int QTextEdit::optimCharIndex( const QString &str )
     if ( mx > fm.width( str ) )
 	return str.length();
 
-    // ### tab character does not return correct width
+    int tabs = 0;
+    int tabWidth = tabStopWidth() - fm.width('\t');
     while ( i < str.length() ) {
-	dd = fm.width( str.left( i ) ) - mx;
+	tabs = str.left(i).contains( '\t' );
+	dd = fm.width(str.left( i )) + tabs*tabWidth - mx;
 	if ( QABS(dd) < dist || dist == dd ) {
 	    dist = QABS(dd);
-	    if ( mx >= fm.width( str.left( i ) ) )
+	    if ( mx >= (fm.width(str.left( i )) + tabs*tabWidth) )
 		curpos = i;
 	}
 	i++;
     }
-// debug
-//     qWarning("x: %d, y: %d, c: %d, tabwidth: %d, strwidth(1): %d",
-// 	     mousePos.x(), mousePos.y(), curpos, fm.width("\t"),
-// 	     fm.width(str.left(1) ) );
     return curpos;
 }
 
