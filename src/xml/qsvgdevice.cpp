@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#37 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#38 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -56,7 +56,23 @@ const char piData[] = "version=\"1.0\" standalone=\"no\"";
 const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
 const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
+struct ImgElement {
+    QDomElement element;
+    QImage image;
+};
+
+struct PixElement {
+    QDomElement element;
+    QPixmap pixmap;
+};
+
+typedef QValueList<ImgElement> ImageList;
+typedef QValueList<PixElement> PixmapList;
+
 class QSvgDevice::Private {
+public:
+    ImageList images;
+    PixmapList pixmaps;
 };
 
 enum ElementType {
@@ -203,10 +219,8 @@ QString QSvgDevice::toString() const
 bool QSvgDevice::save( const QString &fileName )
 {
     // guess svg id from fileName
-    if ( fileName.endsWith( ".svg" ) )
-	svgName = fileName.left( fileName.length()-4 );
-    else
-	svgName = fileName;
+    QString svgName = fileName.endsWith( ".svg" ) ?
+		      fileName.left( fileName.length()-4 ) : fileName;
 
     // now we have the info about name and dimensions available
     QDomElement root = doc.documentElement();
@@ -215,6 +229,23 @@ bool QSvgDevice::save( const QString &fileName )
     root.setAttribute( "y", brect.y() );
     root.setAttribute( "width", brect.width() );
     root.setAttribute( "height", brect.height() );
+
+    // ... and know how to name any image files to be written out
+    int icount = 0;
+    ImageList::Iterator iit = d->images.begin();
+    for ( ; iit != d->images.end(); iit++ ) {
+	QString href = QString( "%1_%2.png" ).arg( svgName ).arg( icount );
+	(*iit).image.save( href, "PNG" );
+	(*iit).element.setAttribute( "xlink:href", href );
+	icount++;
+    }
+    PixmapList::Iterator pit = d->pixmaps.begin();
+    for ( ; pit != d->pixmaps.end(); pit++ ) {
+	QString href = QString( "%1_%2.png" ).arg( svgName ).arg( icount );
+	(*pit).pixmap.save( href, "PNG" );
+	(*pit).element.setAttribute( "xlink:href", href );
+	icount++;
+    }
 
     QFile f( fileName );
     if ( !f.open ( IO_WriteOnly ) )
@@ -295,7 +326,6 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
     pt = painter;
 
     if ( c == PdcBegin ) {
-	svgName = "test";	// ###
 	QDomImplementation domImpl;
 	QDomDocumentType docType = domImpl.createDocumentType( "svg",
 							       publicId,
@@ -305,7 +335,8 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	doc.insertBefore( doc.createProcessingInstruction( "xml", piData ),
 			  doc.firstChild() );
 	current = doc.documentElement();
-	imageCount = 0;
+	d->images.clear();
+	d->pixmaps.clear();
 	dirtyTransform = dirtyStyle = FALSE; // ###
 	return TRUE;
     } else if ( c == PdcEnd ) {
@@ -452,17 +483,23 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	e = doc.createElement( "image" );
 	e.setAttribute( "x", p[0].point->x() );
 	e.setAttribute( "y", p[0].point->y() );
-	str = svgName + "_" + QString::number( imageCount++ ) + ".png";
 	if ( c == PdcDrawImage ) {
 	    e.setAttribute( "width", p[1].image->width() );
 	    e.setAttribute( "height", p[1].image->height() );
-	    p[1].image->save( str, "PNG" );
+	    ImgElement ie;
+	    ie.element = e;
+	    ie.image = *p[1].image;
+	    d->images.append( ie );
 	} else {
 	    e.setAttribute( "width", p[1].pixmap->width() );
 	    e.setAttribute( "height", p[1].pixmap->height() );
-	    p[1].pixmap->save( str, "PNG" );
+	    PixElement pe;
+	    pe.element = e;
+	    pe.pixmap = *p[1].pixmap;
+	    d->pixmaps.append( pe );
 	}
-	e.setAttribute( "xlink:href", str );
+	// saving to disk and setting the xlink:href attribute will be
+	// done later in save() once we now the svg document name.
 	break;
     case PdcSave:
 	e = doc.createElement( "g" );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#3 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice_p.h#4 $
 **
 ** Definition of the QSvgDevice class
 **
@@ -113,8 +113,6 @@ private:
     QPainter *pt;			// used by play() et al
 
     // writing
-    int imageCount;			// incremental counter for ext. images
-    QString svgName;			// name of the SVG document
     bool dirtyTransform, dirtyStyle;
 
     class Private;
