@@ -16,7 +16,7 @@ class TrayIcon::TrayIconPrivate : public QWidget
 {
 public:
     TrayIconPrivate( TrayIcon *object ) 
-	: QWidget( 0 ), hIcon( 0 ), iconObject( object )
+	: QWidget( 0 ), hIcon( 0 ), hMask( 0 ), iconObject( object )
     {
 	if ( !MYWM_TASKBARCREATED ) {
 #if defined(UNICODE)
@@ -30,8 +30,10 @@ public:
 
     ~TrayIconPrivate()
     {
+	if ( hMask )
+	    DeleteObject( hMask );
 	if ( hIcon )
-	    DestroyIcon( hIcon );
+	    DestroyIcon( hIcon );	
     }
 
     // the unavoidable A/W versions. Don't forget to keep them in sync!
@@ -166,6 +168,7 @@ public:
     }
 
     HICON		hIcon;
+    HBITMAP		hMask;
     TrayIcon		*iconObject;
 };
 
@@ -184,7 +187,7 @@ static HBITMAP createIconMask( const QPixmap &qp )
     return hbm;
 }
 
-static HICON createIcon( const QPixmap &pm )
+static HICON createIcon( const QPixmap &pm, HBITMAP &hbm )
 {
     QPixmap maskpm( pm.size(), pm.depth(), QPixmap::NormalOptim );
     QBitmap mask( pm.size(), FALSE, QPixmap::NormalOptim );
@@ -199,6 +202,7 @@ static HICON createIcon( const QPixmap &pm )
     ICONINFO iconInfo;
     iconInfo.fIcon    = TRUE;
     iconInfo.hbmMask  = createIconMask(mask);
+    hbm = iconInfo.hbmMask;
     iconInfo.hbmColor = pm.hbm();
 
     return CreateIconIndirect( &iconInfo );
@@ -210,7 +214,7 @@ void TrayIcon::sysInstall()
 	return;
 
     d = new TrayIconPrivate( this );
-    d->hIcon = createIcon( pm );
+    d->hIcon = createIcon( pm, d->hMask );
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
@@ -241,10 +245,12 @@ void TrayIcon::sysUpdateIcon()
     if ( !d )
 	return;
 
+    if ( d->hMask )
+	DeleteObject( d->hMask );
     if ( d->hIcon )
 	DestroyIcon( d->hIcon );
 
-    d->hIcon = createIcon( pm );
+    d->hIcon = createIcon( pm, d->hMask );
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
