@@ -834,7 +834,16 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
         html += QLatin1String(" />");
     } else {
-        html += QText::escape(fragment.text());
+        // split for [\n{LineSeparator}]
+        QString s = QString::fromLatin1("[\\na]");
+        s[3] = QChar::LineSeparator;
+
+        QStringList lines = QText::escape(txt).split(QRegExp(s));
+        for (int i = 0; i < lines.count(); ++i) {
+            if (i > 0)
+                html += QLatin1String("<br />"); // space on purpose for compatibility with Netscape, Lynx & Co.
+            html += lines.at(i);
+        }
     }
 
     if (attributesEmitted)
