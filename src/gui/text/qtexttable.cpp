@@ -218,9 +218,9 @@ void QTextTable::insertRows(int pos, int num)
 
     int cursorPos;
     if (pos < 0 || pos >= nRows) {
-	cursorPos = d->blocks.last().position() + 1;
+	cursorPos = d->blocks.last().position();
     } else {
-        cursorPos = d->rowStart(pos).position();
+        cursorPos = d->rowStart(pos).position() - 1;
     }
 
     for (int i = 0; i < num; ++i) {
@@ -506,7 +506,7 @@ void QTextTable::removeBlock(const QTextBlockIterator &block)
     QTextFormatGroup::removeBlock(block);
 }
 
-void QTextTable::blockFormatChanged(const QTextBlockIterator &it)
+void QTextTable::blockFormatChanged(const QTextBlockIterator &)
 {
 //     qDebug("blockFormatChanged for block %d", it.position());
     d->dirty = true;
@@ -575,10 +575,9 @@ QTextBlockIterator QTextTablePrivate::rowStart(int row) const
 {
     if (dirty) updateGrid();
 
-    int c = 0;
-    if (row != 0) {
+    if (row >= 0 && row < nRows) {
 	// find column
-	for (; c < nCols; ++c) {
+	for (int c = 0; c < nCols; ++c) {
 	    QTextBlockIterator cell = cellAt(row, c);
 	    if (cell != cellAt(row-1, c))
 		return cell;
@@ -591,12 +590,13 @@ QTextBlockIterator QTextTablePrivate::rowEnd(int row) const
 {
     if (dirty) updateGrid();
 
-    int c = nCols-1;
-    // find column
-    for (; c >= 0; --c) {
-	QTextBlockIterator cell = cellAt(row, c);
-	if (!cell.atEnd())
-	    return cell;
+    if (row >= 0 && row < nRows) {
+	// find column
+	for (int c = nCols - 1; c >= 0; --c) {
+	    QTextBlockIterator cell = cellAt(row, c);
+	    if (!cell.atEnd())
+		return cell;
+	}
     }
     return QTextBlockIterator();
 }
