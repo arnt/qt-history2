@@ -1284,16 +1284,19 @@ void QPainter::restoreWorldMatrix()
 #endif // QT_NO_TRANSFORMATIONS
 
 /*!
-  Translates the coordinate system by \a (dx,dy).
+  Translates the coordinate system by \a (dx, dy).  After this call,
+  \a (dx, dy) is added to points.
 
-  For example, the following code draws a single vertical line 30 pixels high.
+  For example, the following code draws the same point twice:
   \code
     void MyWidget::paintEvent()
     {
 	QPainter paint( this );
-	paint.drawLine( 10, 0, 10, 20 );
-	paint.translate( 100.0, 100.0 );
-	paint.drawLine( -90, -80, -90, -70 );
+
+	paint.drawPoint( 0, 0 );
+
+	paint.translate( 100.0, 40.0 );
+	paint.drawPoint( -100, -40 );
     }
   \endcode
 
@@ -1316,7 +1319,7 @@ void QPainter::translate( double dx, double dy )
 
 #ifndef QT_NO_TRANSFORMATIONS
 /*!
-  Scales the coordinate system by \a (sx,sy).
+  Scales the coordinate system by \a (sx, sy).
   \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
   xForm()
 */
@@ -1329,7 +1332,7 @@ void QPainter::scale( double sx, double sy )
 }
 
 /*!
-  Shears the coordinate system \a (sh,sv).
+  Shears the coordinate system \a (sh, sv).
   \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(),
   xForm()
 */
