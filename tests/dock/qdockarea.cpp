@@ -138,9 +138,6 @@ int QDockArea::findDockWidget( QDockWidget *w )
 
 void QDockArea::setupLayout()
 {
-    if ( !sections )
-	return;
-
     if ( orientation() == Horizontal )
 	setupHorizontalLayout();
     else
@@ -152,7 +149,10 @@ void QDockArea::setupHorizontalLayout()
     delete layout;
     layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
     insertedSplitters.clear();
-    
+
+    if ( !sections )
+	return;
+
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     QVector<QBoxLayout> splitters;
@@ -168,6 +168,12 @@ void QDockArea::setupHorizontalLayout()
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
 	layouts[ d->section ]->addWidget( d->dockWidget );
 	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
+	if ( d->dockWidget->isResizeEnabled() ) {
+	    QWidget *w = new QDockAreaHandle( Vertical, this );
+	    w->show();
+	    insertedSplitters.append( w );
+	    layouts[ d->section ]->addWidget( w );
+	}
     }
 
     for ( i = 0; i < sections; ++i ) {
@@ -178,7 +184,7 @@ void QDockArea::setupHorizontalLayout()
 	    insertedSplitters.append( w );
 	}
     }
-        
+
     layout->activate();
 }
 
@@ -187,7 +193,10 @@ void QDockArea::setupVerticalLayout()
     delete layout;
     layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
     insertedSplitters.clear();
-    
+
+    if ( !sections )
+	return;
+
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
     QVector<QBoxLayout> splitters;
@@ -203,6 +212,12 @@ void QDockArea::setupVerticalLayout()
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
 	layouts[ d->section ]->addWidget( d->dockWidget );
 	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
+	if ( d->dockWidget->isResizeEnabled() ) {
+	    QWidget *w = new QDockAreaHandle( Horizontal, this );
+	    w->show();
+	    insertedSplitters.append( w );
+	    layouts[ d->section ]->addWidget( w );
+	}
     }
 
     for ( i = 0; i < sections; ++i ) {
@@ -213,6 +228,6 @@ void QDockArea::setupVerticalLayout()
 	    insertedSplitters.append( w );
 	}
     }
-        
+
     layout->activate();
 }
