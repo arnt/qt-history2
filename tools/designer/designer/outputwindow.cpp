@@ -44,7 +44,7 @@ static void debugMessageOutput( QtMsgType type, const char *msg )
 
     if ( type != QtFatalMsg ) {
 	if ( debugoutput )
-	    debugoutput->append( s );
+	    debugoutput->append( s + "\n" );
     } else {
 	fprintf( stderr, msg );
 	abort();
@@ -79,7 +79,7 @@ DesignerOutputDock *OutputWindow::iFace()
 
 void OutputWindow::appendDebug( const QString &text )
 {
-    debugView->append( text );
+    debugView->append( text + "\n" );
 }
 
 void OutputWindow::clearErrorMessages()
