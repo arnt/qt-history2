@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#75 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#76 $
 **
 ** Global type declarations and definitions
 **
@@ -191,6 +191,8 @@
 #if defined(bool)
 #define HAS_BOOL_TYPE
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
+#define HAS_BOOL_TYPE
+#elif __BORLANDC__ >= 0x500
 #define HAS_BOOL_TYPE
 #endif
 
