@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#11 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -658,12 +658,14 @@ QString QMultiLineEdit::textLine( int line ) const
 
 /*!
   Returns a copy of the whole text. If the multi line edit contains no
-  text, the empty string is returned.
+  text, a
+  \link QString::operator!() null string\endlink
+  is returned.
 */
 
 QString QMultiLineEdit::text() const
 {
-    QString tmp("");
+    QString tmp;
     for( int i = 0 ; i < (int)contents->count() ; i++ ) {
 	tmp += *(contents->at( i ));
 	if ( i+1 < (int)contents->count() )
