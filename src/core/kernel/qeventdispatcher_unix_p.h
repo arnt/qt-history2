@@ -16,9 +16,6 @@ struct Q_CORE_EXPORT QSockNot
     QSocketNotifier *obj;
     int fd;
     fd_set *queue;
-#ifdef Q_OS_MAC
-    QMacSockNotPrivate *mac_d;
-#endif
 };
 
 class Q_CORE_EXPORT QSockNotType
