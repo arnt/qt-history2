@@ -1205,6 +1205,11 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   moves the mouse cursor onto such a handle, the label of the toolbar
   is displayed in a tool tip (see QToolBar::label()).
 
+  Normally toolbars are moved transparently (this means while the user
+  drags one, a rectangle is drawn on the screen). With setOpaqueMoving()
+  it's possible to switch betrween opaque and transparent moving
+  of toolbars.
+  
   By default the menubar of the mainwindow is not movable. If you need that,
   you can just create another toolbar, and create a QMenuBar using this
   toolbar as parent. Then set the menubar as the stretchable widget
@@ -2686,10 +2691,10 @@ bool QMainWindow::toolBarsMovable() const
 }
 
 /*!
-  If you set \a b to TRUE, the use can move the 
+  If you set \a b to TRUE, the use can move the
   toolbars opaque, otherwise this is done transparent. This
   setting makes only sense, if toolBarsMovable() is set to TRUE.
-  
+
   \sa setToolbarsMovable()
 */
 
@@ -2699,9 +2704,9 @@ void QMainWindow::setOpaqueMoving( bool b )
 }
 
 /*!
-  Returns whether the toolbars of the mainwindow can 
+  Returns whether the toolbars of the mainwindow can
   be moved opaque or transparent.
-  
+
   \sa setOpaqueMoving()
 */
 
@@ -2709,4 +2714,4 @@ bool QMainWindow::opaqueMoving() const
 {
     return d->opaque;
 }
-					 
+					
