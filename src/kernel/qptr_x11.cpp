@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#102 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#101 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#102 $";
 #endif
 
 
@@ -2340,6 +2340,8 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    VXFORM_R( x, y, w, h );
     }
     XSetArcMode( dpy, gc_brush, ArcPieSlice );
+    w--;
+    h--;
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 )
 	    return;
