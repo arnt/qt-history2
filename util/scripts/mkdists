@@ -255,8 +255,11 @@ fi
 
 #setup branch correctly..
 if [ "$REL_VERSION" = "0.0.0" ]; then
-    REL_VERSION=`grep VERSION $DISTDIR/qt/src/qt.pro | awk '{print $3;}'`
-    BRANCH=$REL_VERSION
+    V=`grep VERSION $DISTDIR/qt/src/qt.pro | awk '{print $3;}'`
+    if [ ! -z $V ]; then
+	BRANCH=$V
+	REL_VERSION=$V
+    fi
 fi
 BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
 [ -z "$BRANCH_DIGITS" ] && BRANCH_DIGITS="000"
