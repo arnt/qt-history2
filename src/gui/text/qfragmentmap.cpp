@@ -101,8 +101,9 @@ uint QFragmentMapData::createFragment()
 #ifndef NDEBUG
     Q_ASSERT(F(freePos).parent == 0xdeadbeef);
     F(freePos).parent = 0;
-    if (nextPos < head->allocated)
+    if (nextPos < head->allocated) {
         Q_ASSERT(F(nextPos).parent == 0xdeadbeef);
+    }
 #endif
 
     ++head->node_count;
@@ -116,8 +117,9 @@ void QFragmentMapData::freeFragment(uint i)
     PMDEBUG("===> freeFragment at %d", i);
 #ifndef NDEBUG
     Q_ASSERT(F(i).parent != 0xdeadbeef);
-    if (head->freelist < head->allocated)
+    if (head->freelist < head->allocated) {
         Q_ASSERT(F(head->freelist).parent == 0xdeadbeef);
+    }
     F(i).parent = 0xdeadbeef;
 #endif
     F(i).right = head->freelist;
