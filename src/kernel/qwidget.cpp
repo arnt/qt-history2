@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#230 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#229 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#230 $");
 
 
 /*!
@@ -642,6 +642,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
 QWidget::~QWidget()
 {
+    // remove myself from the can-take-focus list
+    QFocusData *f = focusData();
+    if ( f )
+	f->focusWidgets.removeRef( this );
+
     if ( parentObj ) {
 	QChildEvent e( Event_ChildRemoved, this );
 	QApplication::sendEvent( parentObj, &e );
@@ -681,10 +686,6 @@ QWidget::~QWidget()
     // better to give focus to someone else
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;
-    // remove myself from the can-take-focus list
-    QFocusData *f = focusData();
-    if ( f )
-	f->focusWidgets.removeRef( this );
 
     destroy();					// platform-dependent cleanup
     if ( extra )
