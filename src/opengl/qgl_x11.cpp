@@ -23,6 +23,7 @@
 #include "qlibrary.h"
 #include <private/qfontengine_p.h>
 #include <private/qt_x11_p.h>
+#include <qdebug.h>
 
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
@@ -237,6 +238,65 @@ static void find_trans_colors()
         lastsize = j;
         trans_colors.resize(lastsize);
     }
+}
+
+/*
+   Returns the GL extension string.
+   We need to have a current GL context in order for the glGet*
+   calls to work.
+*/
+static QString get_gl_extensions()
+{
+    Window win;
+    int attribs[] = { GLX_RGBA, XNone };
+    int attribs_dbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER, XNone };
+
+    XSetWindowAttributes attr;
+    unsigned long mask;
+    Window root;
+    GLXContext ctx;
+    XVisualInfo *visinfo;
+    int width = 100, height = 100;
+
+    root = RootWindow(X11->display, 0);
+
+    visinfo = glXChooseVisual(X11->display, 0, attribs);
+    if (!visinfo) {
+        visinfo = glXChooseVisual(X11->display, 0, attribs_dbl);
+        if (!visinfo) {
+            qDebug("QGLContext: couldn't find any RGB visuals.");
+            return QString();
+        }
+    }
+
+    attr.background_pixel = 0;
+    attr.border_pixel = 0;
+    attr.colormap = XCreateColormap(X11->display, root, visinfo->visual, AllocNone);
+    attr.event_mask = StructureNotifyMask | ExposureMask;
+    mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
+    win = XCreateWindow(X11->display, root, 0, 0, width, height, 0,
+                        visinfo->depth, InputOutput, visinfo->visual, mask, &attr);
+
+    ctx = glXCreateContext(X11->display, visinfo, NULL, true);
+
+    if (visinfo)
+        XFree(visinfo);
+
+    if (!ctx) {
+        qDebug("QGLContext: glXCreateContext failed.");
+        XDestroyWindow(X11->display, win);
+        return QString();
+    }
+
+    QString gl_extensions;
+    if (glXMakeCurrent(X11->display, win, ctx)) {
+        gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
+    } else {
+        qDebug("QGLContext: glXMakeCurrent() failed.");
+    }
+    glXDestroyContext(X11->display, ctx);
+    XDestroyWindow(X11->display, win);
+    return gl_extensions;
 }
 
 
@@ -455,6 +515,7 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
+    static QString extensions = get_gl_extensions();
 
 #if defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
     static bool useTranspExt = false;
@@ -530,7 +591,8 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
         spec[i++] = GLX_BUFFER_SIZE;
         spec[i++] = bufDepth;
     }
-    if (f.sampleBuffers()) {
+
+    if (f.sampleBuffers() && extensions.contains("multisample")) {
         spec[i++] = GLX_SAMPLE_BUFFERS_ARB;
         spec[i++] = 1;
         spec[i++] = GLX_SAMPLES_ARB;
