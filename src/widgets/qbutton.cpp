@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#154 $
 **
 ** Implementation of QButton widget class
 **
@@ -83,6 +83,14 @@ void QButton::ensureData()
     }
 }
 
+
+/*! Returns a pointer to the group of which this button is a member.
+
+  If the button is not a member of any QButtonGroup, this function
+  returns 0.
+
+  \sa setGroup() QButtonGroup
+*/  
 
 QButtonGroup *QButton::group() const
 {
@@ -200,6 +208,37 @@ QTimer *QButton::timer()
   \sa QButtonGroup
   <a href="http://www.microsoft.com/win32dev/uiguide/uigui161.htm">Microsoft Style Guide</a>
 */
+
+
+/*! \enum QButton::ToggleType
+
+  This enum type defines what a button can do in response to a
+  mouse/keyboard press: <ul>
+
+  <li> \c SingleShot - pressing the button causes an action, then the
+  button returns to the unpressed state.
+
+  <li> \c Toggle - pressing the button toggles it between an \c On and
+  and \c Off state.
+
+  <li> \c Tristate - pressing the button cycles between the three
+  states \c On, \c Off and \c NoChange
+
+  </ul>
+
+*/
+
+/*! \enum QButton::ToggleState
+
+  This enum defines the state of a toggle button at any moment.  The possible values are: <ul>
+
+  <li> \c Off - the button is in the "off" state
+  <li> \c NoChange - the button is in the default/unchanged state
+  <li> \c On - the button is in the "on" state
+
+  </ul>
+*/
+
 
 /*!
   Constructs a standard button with a parent widget and a name.
@@ -551,28 +590,19 @@ void QButton::setDown( bool enable )
 */
 
 /*!
-  \fn void QButton::setState(ToggleState)
-  Protected function to set the button state into one of the
-  three states:
-  <ul>
-   <li>\c QButton::Off - isOn() is FALSE
-   <li>\c QButton::On - isOn() is TRUE
-   <li>\c QButton::NoChange - the button is in the
-	    \link QCheckBox::setTristate() NoChanged\endlink state.
-  </ul>
+  \fn void QButton::setState( ToggleState t)
+
+  This protected function sets the button state into state t but does
+  \e not cause repainting.
 
   \sa setToggleType()
 */
 
 /*!
   \fn QButton::ToggleState QButton::state() const
-  Returns the state of the button, one of:
-  <ul>
-   <li>\c QButton::Off - isOn() is FALSE
-   <li>\c QButton::On - isOn() is TRUE
-   <li>\c QButton::NoChange - the button is in the
-	    \link QCheckBox::setTristate() NoChanged\endlink state.
-  </ul>
+  Returns the state of the button.
+
+  \sa ToggleState ToggleType setState()
 */
 
 /*!
@@ -896,15 +926,7 @@ void QButton::toggle()
 }
 
 /*!
-  Sets the type of toggling behavior.  \a type is one of:
-  <ul>
-   <li>\c SingleShot - pressing the button causes an action, then the
-			button returns to the unpressed state.
-   <li>\c Toggle - pressing the button toggles between an On and and Off
-			state.
-   <li>\c Tristate - pressing the button cycles between three states -
-	    On, Off, and \link QCheckBox::setTristate() NoChanged\endlink.
-  </ul>
+  Sets the type of toggling behavior.  The default is \a SingleShot.
 
   Subclasses use this, and present it with a more comfortable interface.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#73 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#74 $
 **
 ** Definition of QButton widget class
 **
@@ -31,11 +31,11 @@
 #endif // QT_H
 
 
-class QButtonGroup;				// button group (qbuttongroup.h)
+class QButtonGroup;
 struct QButtonData;
 
 
-class Q_EXPORT QButton : public QWidget			// button class
+class Q_EXPORT QButton : public QWidget
 {
     Q_OBJECT
 public:
