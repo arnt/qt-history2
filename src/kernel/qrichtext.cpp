@@ -1807,7 +1807,9 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 
 		    /* ignore whitespace for inline elements if there
 		       was already one*/
-		    if ( !textEditMode && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal
+		    if ( !textEditMode &&
+			 (curtag.wsm == QStyleSheetItem::WhiteSpaceNormal
+			  || curtag.wsm == QStyleSheetItem::WhiteSpaceNoWrap)
 			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
 			eatSpace( doc, length, pos );
 
