@@ -54,6 +54,37 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
+#define POW3(x) ( (x)*(x)*(x) )
+#define POW2(x) ( (x)*(x) )
+#define BEZIER_Q(t, tm, a, b, c, d) (a)*POW3(tm) + (b)*t*POW2(tm) + (c)*POW2(t)*tm + (d)*POW3(t)
+
+QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
+{
+    QList<QPointF> a;
+
+    double a_x = p1.x();
+    double b_x = 3 * p2.x();
+    double c_x = 3 * p3.x();
+    double d_x = p4.x();
+
+    double a_y = p1.y();
+    double b_y = 3 * p2.y();
+    double c_y = 3 * p3.y();
+    double d_y = p4.y();
+
+    double step = 0.025;
+    double tm, x, y;
+    for (double t = 0; t <= 1; t += step) {
+        tm = 1 - t;
+        x = BEZIER_Q(t, tm, a_x, b_x, c_x, d_x);
+        y = BEZIER_Q(t, tm, a_y, b_y, c_y, d_y);
+        a << QPointF(x, y);
+    }
+
+    a << p4;
+    return a;
+}
+
 void QPainterSubpath::close()
 {
     Q_ASSERT(!elements.isEmpty());
