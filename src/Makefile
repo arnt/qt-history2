@@ -29,7 +29,7 @@ SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.6
 
 #######	Sub directories (excluding moc)
 
-DIRS		= tools kernel widgets dialogs doc
+DIRS		= tools kernel widgets dialogs
 
 #######	Build rules
 
