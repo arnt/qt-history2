@@ -16,7 +16,7 @@
 ** sqliteRegisterDateTimeFunctions() found at the bottom of the file.
 ** All other code has file scope.
 **
-** $Id: date.c,v 1.1 2003/11/01 01:53:54 drh Exp $
+** $Id: date.c,v 1.16 2004/02/29 01:08:18 drh Exp $
 **
 ** NOTES:
 **
@@ -47,12 +47,14 @@
 **      Willmann-Bell, Inc
 **      Richmond, Virginia (USA)
 */
-#ifndef SQLITE_OMIT_DATETIME_FUNCS
+#include "os.h"
+#include "sqliteInt.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "sqliteInt.h"
-#include "os.h"
+#include <time.h>
+
+#ifndef SQLITE_OMIT_DATETIME_FUNCS
 
 /*
 ** A structure for holding a single date and time.
@@ -72,17 +74,50 @@ struct DateTime {
 
 
 /*
-** Convert N digits from zDate into an integer.  Return
-** -1 if zDate does not begin with N digits.
+** Convert zDate into one or more integers.  Additional arguments
+** come in groups of 5 as follows:
+**
+**       N       number of digits in the integer
+**       min     minimum allowed value of the integer
+**       max     maximum allowed value of the integer
+**       nextC   first character after the integer
+**       pVal    where to write the integers value.
+**
+** Conversions continue until one with nextC==0 is encountered.
+** The function returns the number of successful conversions.
 */
-static int getDigits(const char *zDate, int N){
-  int val = 0;
-  while( N-- ){
-    if( !isdigit(*zDate) ) return -1;
-    val = val*10 + *zDate - '0';
+static int getDigits(const char *zDate, ...){
+  va_list ap;
+  int val;
+  int N;
+  int min;
+  int max;
+  int nextC;
+  int *pVal;
+  int cnt = 0;
+  va_start(ap, zDate);
+  do{
+    N = va_arg(ap, int);
+    min = va_arg(ap, int);
+    max = va_arg(ap, int);
+    nextC = va_arg(ap, int);
+    pVal = va_arg(ap, int*);
+    val = 0;
+    while( N-- ){
+      if( !isdigit(*zDate) ){
+        return cnt;
+      }
+      val = val*10 + *zDate - '0';
+      zDate++;
+    }
+    if( val<min || val>max || (nextC!=0 && nextC!=*zDate) ){
+      return cnt;
+    }
+    *pVal = val;
     zDate++;
-  }
-  return val;
+    cnt++;
+  }while( nextC );
+  return cnt;
 }
 
 /*
@@ -90,38 +125,9 @@ static int getDigits(const char *zDate, int N){
 ** the number of digits converted.
 */
 static int getValue(const char *z, double *pR){
-  double r = 0.0;
-  double rDivide = 1.0;
-  int isNeg = 0;
-  int nChar = 0;
-  if( *z=='+' ){
-    z++;
-    nChar++;
-  }else if( *z=='-' ){
-    z++;
-    isNeg = 1;
-    nChar++;
-  }
-  if( !isdigit(*z) ) return 0;
-  while( isdigit(*z) ){
-    r = r*10.0 + *z - '0';
-    nChar++;
-    z++;
-  }
-  if( *z=='.' && isdigit(z[1]) ){
-    z++;
-    nChar++;
-    while( isdigit(*z) ){
-      r = r*10.0 + *z - '0';
-      rDivide *= 10.0;
-      nChar++;
-      z++;
-    }
-    r /= rDivide;
-  }
-  if( *z!=0 && !isspace(*z) ) return 0;
-  *pR = isNeg ? -r : r;
-  return nChar;
+  const char *zEnd;
+  *pR = sqliteAtoF(z, &zEnd);
+  return zEnd - z;
 }
 
 /*
@@ -149,14 +155,10 @@ static int parseTimezone(const char *zDate, DateTime *p){
     return *zDate!=0;
   }
   zDate++;
-  nHr = getDigits(zDate, 2);
-  if( nHr<0 || nHr>14 ) return 1;
-  zDate += 2;
-  if( zDate[0]!=':' ) return 1;
-  zDate++;
-  nMn = getDigits(zDate, 2);
-  if( nMn<0 || nMn>59 ) return 1;
-  zDate += 2;
+  if( getDigits(zDate, 2, 0, 14, ':', &nHr, 2, 0, 59, 0, &nMn)!=2 ){
+    return 1;
+  }
+  zDate += 5;
   p->tz = sgn*(nMn + nHr*60);
   while( isspace(*zDate) ){ zDate++; }
   return *zDate!=0;
@@ -172,16 +174,16 @@ static int parseTimezone(const char *zDate, DateTime *p){
 static int parseHhMmSs(const char *zDate, DateTime *p){
   int h, m, s;
   double ms = 0.0;
-  h = getDigits(zDate, 2);
-  if( h<0 || zDate[2]!=':' ) return 1;
-  zDate += 3;
-  m = getDigits(zDate, 2);
-  if( m<0 || m>59 ) return 1;
-  zDate += 2;
+  if( getDigits(zDate, 2, 0, 24, ':', &h, 2, 0, 59, 0, &m)!=2 ){
+    return 1;
+  }
+  zDate += 5;
   if( *zDate==':' ){
-    s = getDigits(&zDate[1], 2);
-    if( s<0 || s>59 ) return 1;
-    zDate += 3;
+    zDate++;
+    if( getDigits(zDate, 2, 0, 59, 0, &s)!=1 ){
+      return 1;
+    }
+    zDate += 2;
     if( *zDate=='.' && isdigit(zDate[1]) ){
       double rScale = 1.0;
       zDate++;
@@ -220,7 +222,7 @@ static void computeJD(DateTime *p){
     M = p->M;
     D = p->D;
   }else{
-    Y = 2000;
+    Y = 2000;  /* If no YMD specified, assume 2000-Jan-01 */
     M = 1;
     D = 1;
   }
@@ -258,20 +260,21 @@ static void computeJD(DateTime *p){
 ** date.
 */
 static int parseYyyyMmDd(const char *zDate, DateTime *p){
-  int Y, M, D;
+  int Y, M, D, neg;
 
-  Y = getDigits(zDate, 4);
-  if( Y<0 || zDate[4]!='-' ) return 1;
-  zDate += 5;
-  M = getDigits(zDate, 2);
-  if( M<=0 || M>12 || zDate[2]!='-' ) return 1;
-  zDate += 3;
-  D = getDigits(zDate, 2);
-  if( D<=0 || D>31 ) return 1;
-  zDate += 2;
+  if( zDate[0]=='-' ){
+    zDate++;
+    neg = 1;
+  }else{
+    neg = 0;
+  }
+  if( getDigits(zDate,4,0,9999,'-',&Y,2,1,12,'-',&M,2,1,31,0,&D)!=3 ){
+    return 1;
+  }
+  zDate += 10;
   while( isspace(*zDate) ){ zDate++; }
-  if( isdigit(*zDate) ){
-    if( parseHhMmSs(zDate, p) ) return 1;
+  if( parseHhMmSs(zDate, p)==0 ){
+    /* We got the time */
   }else if( *zDate==0 ){
     p->validHMS = 0;
   }else{
@@ -279,7 +282,7 @@ static int parseYyyyMmDd(const char *zDate, DateTime *p){
   }
   p->validJD = 0;
   p->validYMD = 1;
-  p->Y = Y;
+  p->Y = neg ? -Y : Y;
   p->M = M;
   p->D = D;
   if( p->validTZ ){
@@ -305,15 +308,12 @@ static int parseYyyyMmDd(const char *zDate, DateTime *p){
 ** as there is a year and date.
 */
 static int parseDateOrTime(const char *zDate, DateTime *p){
-  int i;
   memset(p, 0, sizeof(*p));
-  for(i=0; isdigit(zDate[i]); i++){}
-  if( i==4 && zDate[i]=='-' ){
-    return parseYyyyMmDd(zDate, p);
-  }else if( i==2 && zDate[i]==':' ){
-    return parseHhMmSs(zDate, p);
+  if( parseYyyyMmDd(zDate,p)==0 ){
     return 0;
-  }else if( i==0 && sqliteStrICmp(zDate,"now")==0 ){
+  }else if( parseHhMmSs(zDate, p)==0 ){
+    return 0;
+  }else if( sqliteStrICmp(zDate,"now")==0){
     double r;
     if( sqliteOsCurrentTime(&r)==0 ){
       p->rJD = r;
@@ -322,7 +322,7 @@ static int parseDateOrTime(const char *zDate, DateTime *p){
     }
     return 1;
   }else if( sqliteIsNumber(zDate) ){
-    p->rJD = atof(zDate);
+    p->rJD = sqliteAtoF(zDate, 0);
     p->validJD = 1;
     return 0;
   }
@@ -335,17 +335,23 @@ static int parseDateOrTime(const char *zDate, DateTime *p){
 static void computeYMD(DateTime *p){
   int Z, A, B, C, D, E, X1;
   if( p->validYMD ) return;
-  Z = p->rJD + 0.5;
-  A = (Z - 1867216.25)/36524.25;
-  A = Z + 1 + A - (A/4);
-  B = A + 1524;
-  C = (B - 122.1)/365.25;
-  D = 365.25*C;
-  E = (B-D)/30.6001;
-  X1 = 30.6001*E;
-  p->D = B - D - X1;
-  p->M = E<14 ? E-1 : E-13;
-  p->Y = p->M>2 ? C - 4716 : C - 4715;
+  if( !p->validJD ){
+    p->Y = 2000;
+    p->M = 1;
+    p->D = 1;
+  }else{
+    Z = p->rJD + 0.5;
+    A = (Z - 1867216.25)/36524.25;
+    A = Z + 1 + A - (A/4);
+    B = A + 1524;
+    C = (B - 122.1)/365.25;
+    D = 365.25*C;
+    E = (B-D)/30.6001;
+    X1 = 30.6001*E;
+    p->D = B - D - X1;
+    p->M = E<14 ? E-1 : E-13;
+    p->Y = p->M>2 ? C - 4716 : C - 4715;
+  }
   p->validYMD = 1;
 }
 
@@ -368,6 +374,65 @@ static void computeHMS(DateTime *p){
 }
 
 /*
+** Compute both YMD and HMS
+*/
+static void computeYMD_HMS(DateTime *p){
+  computeYMD(p);
+  computeHMS(p);
+}
+
+/*
+** Clear the YMD and HMS and the TZ
+*/
+static void clearYMD_HMS_TZ(DateTime *p){
+  p->validYMD = 0;
+  p->validHMS = 0;
+  p->validTZ = 0;
+}
+
+/*
+** Compute the difference (in days) between localtime and UTC (a.k.a. GMT)
+** for the time value p where p is in UTC.
+*/
+static double localtimeOffset(DateTime *p){
+  DateTime x, y;
+  time_t t;
+  struct tm *pTm;
+  x = *p;
+  computeYMD_HMS(&x);
+  if( x.Y<1971 || x.Y>=2038 ){
+    x.Y = 2000;
+    x.M = 1;
+    x.D = 1;
+    x.h = 0;
+    x.m = 0;
+    x.s = 0.0;
+  } else {
+    int s = x.s + 0.5;
+    x.s = s;
+  }
+  x.tz = 0;
+  x.validJD = 0;
+  computeJD(&x);
+  t = (x.rJD-2440587.5)*86400.0 + 0.5;
+  sqliteOsEnterMutex();
+  pTm = localtime(&t);
+  y.Y = pTm->tm_year + 1900;
+  y.M = pTm->tm_mon + 1;
+  y.D = pTm->tm_mday;
+  y.h = pTm->tm_hour;
+  y.m = pTm->tm_min;
+  y.s = pTm->tm_sec;
+  sqliteOsLeaveMutex();
+  y.validYMD = 1;
+  y.validHMS = 1;
+  y.validJD = 0;
+  y.validTZ = 0;
+  computeJD(&y);
+  return y.rJD - x.rJD;
+}
+
+/*
 ** Process a modifier to a date-time stamp.  The modifiers are
 ** as follows:
 **
@@ -383,6 +448,8 @@ static void computeHMS(DateTime *p){
 **     start of day
 **     weekday N
 **     unixepoch
+**     localtime
+**     utc
 **
 ** Return 0 on success and 1 if there is any kind of error.
 */
@@ -390,12 +457,27 @@ static int parseModifier(const char *zMod, DateTime *p){
   int rc = 1;
   int n;
   double r;
-  char z[30];
-  for(n=0; n<sizeof(z)-1; n++){
+  char *z, zBuf[30];
+  z = zBuf;
+  for(n=0; n<sizeof(zBuf)-1 && zMod[n]; n++){
     z[n] = tolower(zMod[n]);
   }
   z[n] = 0;
   switch( z[0] ){
+    case 'l': {
+      /*    localtime
+      **
+      ** Assuming the current time value is UTC (a.k.a. GMT), shift it to
+      ** show local time.
+      */
+      if( strcmp(z, "localtime")==0 ){
+        computeJD(p);
+        p->rJD += localtimeOffset(p);
+        clearYMD_HMS_TZ(p);
+        rc = 0;
+      }
+      break;
+    }
     case 'u': {
       /*
       **    unixepoch
@@ -405,9 +487,15 @@ static int parseModifier(const char *zMod, DateTime *p){
       */
       if( strcmp(z, "unixepoch")==0 && p->validJD ){
         p->rJD = p->rJD/86400.0 + 2440587.5;
-        p->validYMD = 0;
-        p->validHMS = 0;
-        p->validTZ = 0;
+        clearYMD_HMS_TZ(p);
+        rc = 0;
+      }else if( strcmp(z, "utc")==0 ){
+        double c1;
+        computeJD(p);
+        c1 = localtimeOffset(p);
+        p->rJD -= c1;
+        clearYMD_HMS_TZ(p);
+        p->rJD += c1 - localtimeOffset(p);
         rc = 0;
       }
       break;
@@ -416,16 +504,14 @@ static int parseModifier(const char *zMod, DateTime *p){
       /*
       **    weekday N
       **
-      ** Move the date to the beginning of the next occurrance of
+      ** Move the date to the same time on the next occurrance of
       ** weekday N where 0==Sunday, 1==Monday, and so forth.  If the
-      ** date is already on the appropriate weekday, this is equivalent
-      ** to "start of day".
+      ** date is already on the appropriate weekday, this is a no-op.
       */
       if( strncmp(z, "weekday ", 8)==0 && getValue(&z[8],&r)>0
                  && (n=r)==r && n>=0 && r<7 ){
         int Z;
-        computeYMD(p);
-        p->validHMS = 0;
+        computeYMD_HMS(p);
         p->validTZ = 0;
         p->validJD = 0;
         computeJD(p);
@@ -433,8 +519,7 @@ static int parseModifier(const char *zMod, DateTime *p){
         Z %= 7;
         if( Z>n ) Z -= 7;
         p->rJD += n - Z;
-        p->validYMD = 0;
-        p->validHMS = 0;
+        clearYMD_HMS_TZ(p);
         rc = 0;
       }
       break;
@@ -447,22 +532,22 @@ static int parseModifier(const char *zMod, DateTime *p){
       ** or month or year.
       */
       if( strncmp(z, "start of ", 9)!=0 ) break;
-      zMod = &z[9];
+      z += 9;
       computeYMD(p);
       p->validHMS = 1;
       p->h = p->m = 0;
       p->s = 0.0;
       p->validTZ = 0;
       p->validJD = 0;
-      if( strcmp(zMod,"month")==0 ){
+      if( strcmp(z,"month")==0 ){
         p->D = 1;
         rc = 0;
-      }else if( strcmp(zMod,"year")==0 ){
+      }else if( strcmp(z,"year")==0 ){
         computeYMD(p);
         p->M = 1;
         p->D = 1;
         rc = 0;
-      }else if( strcmp(zMod,"day")==0 ){
+      }else if( strcmp(z,"day")==0 ){
         rc = 0;
       }
       break;
@@ -481,28 +566,47 @@ static int parseModifier(const char *zMod, DateTime *p){
     case '9': {
       n = getValue(z, &r);
       if( n<=0 ) break;
-      zMod = &z[n];
-      while( isspace(zMod[0]) ) zMod++;
-      n = strlen(zMod);
+      if( z[n]==':' ){
+        /* A modifier of the form (+|-)HH:MM:SS.FFF adds (or subtracts) the
+        ** specified number of hours, minutes, seconds, and fractional seconds
+        ** to the time.  The ".FFF" may be omitted.  The ":SS.FFF" may be
+        ** omitted.
+        */
+        const char *z2 = z;
+        DateTime tx;
+        int day;
+        if( !isdigit(*z2) ) z2++;
+        memset(&tx, 0, sizeof(tx));
+        if( parseHhMmSs(z2, &tx) ) break;
+        computeJD(&tx);
+        tx.rJD -= 0.5;
+        day = (int)tx.rJD;
+        tx.rJD -= day;
+        if( z[0]=='-' ) tx.rJD = -tx.rJD;
+        computeJD(p);
+        clearYMD_HMS_TZ(p);
+       p->rJD += tx.rJD;
+        rc = 0;
+        break;
+      }
+      z += n;
+      while( isspace(z[0]) ) z++;
+      n = strlen(z);
       if( n>10 || n<3 ) break;
-      strcpy(z, zMod);
       if( z[n-1]=='s' ){ z[n-1] = 0; n--; }
       computeJD(p);
       rc = 0;
       if( n==3 && strcmp(z,"day")==0 ){
         p->rJD += r;
       }else if( n==4 && strcmp(z,"hour")==0 ){
-        computeJD(p);
         p->rJD += r/24.0;
       }else if( n==6 && strcmp(z,"minute")==0 ){
-        computeJD(p);
         p->rJD += r/(24.0*60.0);
       }else if( n==6 && strcmp(z,"second")==0 ){
-        computeJD(p);
         p->rJD += r/(24.0*60.0*60.0);
       }else if( n==5 && strcmp(z,"month")==0 ){
         int x, y;
-        computeYMD(p);
+        computeYMD_HMS(p);
         p->M += r;
         x = p->M>0 ? (p->M-1)/12 : (p->M-12)/12;
         p->Y += x;
@@ -514,16 +618,14 @@ static int parseModifier(const char *zMod, DateTime *p){
           p->rJD += (r - y)*30.0;
         }
       }else if( n==4 && strcmp(z,"year")==0 ){
-        computeYMD(p);
+        computeYMD_HMS(p);
         p->Y += r;
         p->validJD = 0;
         computeJD(p);
       }else{
         rc = 1;
       }
-      p->validYMD = 0;
-      p->validHMS = 0;
-      p->validTZ = 0;
+      clearYMD_HMS_TZ(p);
       break;
     }
     default: {
@@ -542,9 +644,9 @@ static int parseModifier(const char *zMod, DateTime *p){
 static int isDate(int argc, const char **argv, DateTime *p){
   int i;
   if( argc==0 ) return 1;
-  if( parseDateOrTime(argv[0], p) ) return 1;
+  if( argv[0]==0 || parseDateOrTime(argv[0], p) ) return 1;
   for(i=1; i<argc; i++){
-    if( parseModifier(argv[i], p) ) return 1;
+    if( argv[i]==0 || parseModifier(argv[i], p) ) return 1;
   }
   return 0;
 }
@@ -577,8 +679,7 @@ static void datetimeFunc(sqlite_func *context, int argc, const char **argv){
   DateTime x;
   if( isDate(argc, argv, &x)==0 ){
     char zBuf[100];
-    computeYMD(&x);
-    computeHMS(&x);
+    computeYMD_HMS(&x);
     sprintf(zBuf, "%04d-%02d-%02d %02d:%02d:%02d",x.Y, x.M, x.D, x.h, x.m,
            (int)(x.s));
     sqlite_set_result_string(context, zBuf, -1);
@@ -640,7 +741,7 @@ static void strftimeFunc(sqlite_func *context, int argc, const char **argv){
   char *z;
   const char *zFmt = argv[0];
   char zBuf[100];
-  if( isDate(argc-1, argv+1, &x) ) return;
+  if( argv[0]==0 || isDate(argc-1, argv+1, &x) ) return;
   for(i=0, n=1; zFmt[i]; i++, n++){
     if( zFmt[i]=='%' ){
       switch( zFmt[i+1] ){
@@ -681,8 +782,7 @@ static void strftimeFunc(sqlite_func *context, int argc, const char **argv){
     if( z==0 ) return;
   }
   computeJD(&x);
-  computeYMD(&x);
-  computeHMS(&x);
+  computeYMD_HMS(&x);
   for(i=j=0; zFmt[i]; i++){
     if( zFmt[i]!='%' ){
       z[j++] = zFmt[i];
@@ -720,11 +820,11 @@ static void strftimeFunc(sqlite_func *context, int argc, const char **argv){
         case 'm':  sprintf(&z[j],"%02d",x.M); j+=2; break;
         case 'M':  sprintf(&z[j],"%02d",x.m); j+=2; break;
         case 's': {
-          sprintf(&z[j],"%d",(int)((x.rJD-2440587.5)*86400.0));
+          sprintf(&z[j],"%d",(int)((x.rJD-2440587.5)*86400.0 + 0.5));
           j += strlen(&z[j]);
           break;
         }
-        case 'S':  sprintf(&z[j],"%02d",(int)x.s); j+=2; break;
+        case 'S':  sprintf(&z[j],"%02d",(int)(x.s+0.5)); j+=2; break;
         case 'w':  z[j++] = (((int)(x.rJD+1.5)) % 7) + '0'; break;
         case 'Y':  sprintf(&z[j],"%04d",x.Y); j+=strlen(&z[j]); break;
         case '%':  z[j++] = '%'; break;
@@ -756,7 +856,7 @@ void sqliteRegisterDateTimeFunctions(sqlite *db){
 #ifndef SQLITE_OMIT_DATETIME_FUNCS
     { "julianday", -1, SQLITE_NUMERIC, juliandayFunc   },
     { "date",      -1, SQLITE_TEXT,    dateFunc        },
-    { "time",       1, SQLITE_TEXT,    timeFunc        },
+    { "time",      -1, SQLITE_TEXT,    timeFunc        },
     { "datetime",  -1, SQLITE_TEXT,    datetimeFunc    },
     { "strftime",  -1, SQLITE_TEXT,    strftimeFunc    },
 #endif
