@@ -495,9 +495,7 @@ MakefileGenerator::init()
 
     QMap<QString, QStringList> &v = project->variables();
     { //paths
-	if ( v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() )
-	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].append( "" );
-	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
+	QString &asp = v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty() ? QString::null : v["QMAKE_ABSOLUTE_SOURCE_PATH"].first();
 	asp = Option::fixPathToTargetOS(asp);
 	if(!asp.isEmpty() && asp == Option::output_dir) //if they're the same, why bother?
 	    v["QMAKE_ABSOLUTE_SOURCE_PATH"].clear();

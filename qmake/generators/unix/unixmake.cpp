@@ -314,9 +314,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     fixEnvVariables(target);
     fixEnvVariables(moc);
     if(target != moc) {
-	if ( project->variables()["QMAKE_MOC_SRC"].isEmpty() )
-	    project->variables()["QMAKE_MOC_SRC"].append( "" );
-	QString mocsrcd = project->variables()["QMAKE_MOC_SRC"].first();
+	QString mocsrcd = project->variables()["QMAKE_MOC_SRC"].isEmpty() ? QString("") : project->variables()["QMAKE_MOC_SRC"].first();
 	if(mocsrcd.isEmpty())
 	    mocsrcd = "$(QTDIR)/src/moc";
 	t << "$(MOC): \n\t"
@@ -680,7 +678,7 @@ UnixMakefileGenerator::init()
 	project->variables()["DESTDIR_TARGET"].append("$(TARGET)");
 	if ( !project->variables()["DESTDIR"].isEmpty() )
 	    project->variables()["DESTDIR_TARGET"].first().prepend(project->variables()["DESTDIR"].first());
-	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty() )
+	if(!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty() && !project->variables()["TARGET_x"].isEmpty())
 	    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->variables()["TARGET_x"].first();
 	if(project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
