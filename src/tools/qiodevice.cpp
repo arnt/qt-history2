@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#7 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,13 +13,15 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#7 $";
 #endif
 
 
 /*!
 \class QIODevice qiodev.h
 \brief The QIODevice class is the base class of IO devices.
+
+  \ingroup tools
 
 An IO device represents a medium that one can read bytes from and write
 bytes to.  The QIODevice class itself is not capable of reading or writing

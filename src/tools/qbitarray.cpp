@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#15 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#15 $";
 #endif
 
 
@@ -23,6 +23,8 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#14 $";
 /*! \class QBitArray qbitarry.h
 
   \brief The QBitArray class provides an array of bits.
+
+  \ingroup tools
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the

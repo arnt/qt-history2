@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#12 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#12 $";
 #endif
 
 
@@ -26,6 +26,8 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#11 $";
 \class QTextStream qtstream.h
 \brief The QTextStream class provides basic functions for reading and
 writing text to an QIODevice.
+
+  \ingroup tools
 
 The text stream class a functional interface that is very similar to
 that of the standard C++ iostream class.  The difference between

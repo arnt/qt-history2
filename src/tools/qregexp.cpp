@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#15 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#15 $";
 #endif
 
 
@@ -28,6 +28,8 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#14 $";
 
 \brief The QRegExp class provides pattern matching using regular
 expressions and wildcards.
+
+  \ingroup tools
 
 QRegExp knows these regexp primitives:
 <ul plain>

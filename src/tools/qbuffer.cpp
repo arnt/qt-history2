@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#9 $
 **
 ** Implementation of QBuffer class
 **
@@ -14,13 +14,15 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#9 $";
 #endif
 
 /*! \class QBuffer qbuffer.h
 
   \brief The QBuffer class is an IO device that uses a QByteArray
   rather than external storage.
+
+  \ingroup tools
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
