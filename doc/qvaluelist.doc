@@ -507,51 +507,17 @@
   \ingroup qtl
   \ingroup tools
 
-  You can not create an iterator by yourself. Instead you have to
-  ask a list to give you one. An iterator has only the size of a pointer.
-  On 32 bit machines that means 4 bytes otherwise 8 bytes. That makes them
-  very fast. In fact they resemble the semantics of pointers as good as possible
-  and they are almost as fast as usual pointers.
+  An iterator is an class for iterating across container classes - a
+  generalization of the index in an array. A pointer into a
+  <code>const char *</code> and an index into an <code>int[]</code>
+  are both iterators, and the general idea is to provide that
+  functionality for any data structure.
+
+  The QValueListIterator class is an iterator for QValueList
+  instantiations.
 
   Example:
-  \code
-    #include <qvaluelist.h>
-    #include <qstring.h>
-    #include <stdio.h>
-
-    class Employee
-    {
-    public:
-	Employee(): s(0) {}
-	Employee( const QString& name, int salary )
-	    : n(name), s(salary)
-	{}
-
-	QString     name()   const		{ return n; }
-	int	    salary() const		{ return s; }
-	void	    setSalary( int salary )	{ s = salary; }
-    private:
-	QString     n;
-	int         s;
-    };
-
-    void main()
-	{
-	    typedef QValueList<Employee> EmployeeList;
-	    EmployeeList list;		// list of Employee
-
-	    list.append( Employee("Bill", 50000) );
-	    list.append( Employee("Steve",80000) );
-	    list.append( Employee("Ron",  60000) );
-
-	    Employee joe( "Joe", 50000 );
-	    list.append( joe );
-	    joe.setSalary( 4000 );
-	
-	    EmployeeList::Iterator it;
-	    for( it = list.begin(); it != list.end(); ++it )
-		printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary() );
-	}
+  \include qtl/qvaluelistiterator.cpp
   \endcode
 
   Program output:
@@ -562,20 +528,24 @@
 	Joe earns 50000
   \endcode
 
-  In contrast to QList there are no built in functions in QValueList to
-  traverse the list. The only way to do this is to use iterators.
-  QValueList is highly optimized for performance and memory usage.
-  On the other hand that means that you have to be a bit more careful
-  by what you are doing. QValueList does not know about all its iterators
-  and the iterators dont even know to which list they belong. That makes
-  things fast and slim but a bit dangerous because it is up to you to make
-  sure that iterators you are using are still valid. QListIterator will be able
-  to give warnings while QValueListIterator may end up in an undefined state.
+  In contrast to QList there are no built in functions in QValueList
+  to traverse the list. The only way to do this is to use iterators.
 
-  For every Iterator there is a ConstIterator. When accessing a QValueList
-  in a const environment or if the reference or pointer to the list is itself
-  const, then you have to use the ConstIterator. Its semantics are the same,
-  but it returns only const references to the item it points to.
+  QValueList is highly optimized for performance and memory usage.  On
+  the other hand that means that you have to be a bit more careful by
+  what you are doing. QValueList does not know about all its iterators
+  and the iterators don't know to which list they belong. That makes
+  things very fast, but if you're not careful, you can get spectacular
+  bugs.
+
+  QListIterator will be able to give warnings while QValueListIterator
+  may end up in an undefined state.
+
+  For every Iterator there is a ConstIterator. When accessing a
+  QValueList in a const environment or if the reference or pointer to
+  the list is itself const, then you have to use the
+  ConstIterator. Its semantics are the same as the Iterator, but it
+  returns only const references.
 
   \sa QValueList, QValueListConstIterator
 */
@@ -770,4 +740,37 @@
 /*!
   \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const
   Compares both iterators and returns TRUE if they point to different items.
+*/
+
+
+/*! \enum QValueList::Iterator
+
+  This iterator is an instantiation of QValueListIterator for the same
+  type as this QValueList.  In other words, if you instantiate
+  QValueList<int>, Iterator is a QValueListIterator<int>.  Several
+  member function use it, such as QValueList::begin(), which returns
+  an iterator pointing to the first item in the list.
+
+  Functionally, this is almost the same as ConstIterator. The only
+  difference is you cannot use ConstIterator for non-const operations,
+  and that the compiler often can generate better code if you use
+  ConstIterator.
+
+  \sa QValueListIterator ConstIterator
+*/
+
+/*! \enum QValueList::ConstIterator
+
+  This iterator is an instantiation of QValueListConstIterator for the
+  same type as this QValueList.  In other words, if you instantiate
+  QValueList<int>, ConstIterator is a QValueListConstIterator<int>.
+  Several member function use it, such as QValueList::begin(), which
+  returns an iterator pointing to the first item in the list.
+
+  Functionally, this is almost the same as Iterator. The only
+  difference is you cannot use ConstIterator for non-const operations,
+  and that the compiler often can generate better code if you use
+  ConstIterator.
+
+  \sa QValueListIterator Iterator
 */
