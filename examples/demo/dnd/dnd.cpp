@@ -72,21 +72,21 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
                          + "When Cromwell spake the word Democracy!<br>" );
 
 
-    items.insert( "copy", IconItem( "Copy", "editcopy.xpm" ) );
-    items.insert( "cut", IconItem( "Cut", "editcut.xpm" ));
-    items.insert( "paste", IconItem( "Paste", "editpaste.xpm" ));
-    items.insert( "raise", IconItem( "Raise", "editraise.xpm" ));
-    items.insert( "lower", IconItem( "Lower", "editlower.xpm" ));
-    items.insert( "new", IconItem( "New", "filenew.xpm" ));
-    items.insert( "load", IconItem( "Load", "fileopen.xpm" ));
-    items.insert( "save", IconItem( "Save", "filesave.xpm" ));
-    items.insert( "undo", IconItem( "Undo", "undo.xpm" ));
-    items.insert( "redo", IconItem( "Redo", "redo.xpm" ));
-    items.insert( "delete", IconItem( "Delete", "editdelete.xpm" ));
-    items.insert( "help", IconItem( "Help", "help.xpm" ));
-    items.insert( "home", IconItem( "Home", "home.xpm" ));
+    items.insert( tr("copy"), IconItem( tr("Copy"), "editcopy.xpm" ) );
+    items.insert( tr("cut"), IconItem( tr("Cut"), "editcut.xpm" ));
+    items.insert( tr("paste"), IconItem( tr("Paste"), "editpaste.xpm" ));
+    items.insert( tr("raise"), IconItem( tr("Raise"), "editraise.xpm" ));
+    items.insert( tr("lower"), IconItem( tr("Lower"), "editlower.xpm" ));
+    items.insert( tr("new"), IconItem( tr("New"), "filenew.xpm" ));
+    items.insert( tr("load"), IconItem( tr("Load"), "fileopen.xpm" ));
+    items.insert( tr("save"), IconItem( tr("Save"), "filesave.xpm" ));
+    items.insert( tr("undo"), IconItem( tr("Undo"), "undo.xpm" ));
+    items.insert( tr("redo"), IconItem( tr("Redo"), "redo.xpm" ));
+    items.insert( tr("delete"), IconItem( tr("Delete"), "editdelete.xpm" ));
+    items.insert( tr("help"), IconItem( tr("Help"), "help.xpm" ));
+    items.insert( tr("home"), IconItem( tr("Home"), "home.xpm" ));
 
-    listView->addColumn( "Actions", 240 );
+    listView->addColumn( tr("Actions"), 240 );
     listView->setColumnWidthMode( 0, QListView::Maximum );
 
     QMap<QString,IconItem>::Iterator it;

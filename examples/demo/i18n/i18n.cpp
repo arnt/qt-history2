@@ -96,8 +96,8 @@ void I18nDemo::initMenuBar()
     actionCascade->addTo(windowMenu);
     windowMenu->insertSeparator();
 
-    menuBar()->insertItem("&New", newMenu);
-    menuBar()->insertItem("&Window", windowMenu);
+    menuBar()->insertItem(tr("&New"), newMenu);
+    menuBar()->insertItem(tr("&Window"), windowMenu);
 }
 
 

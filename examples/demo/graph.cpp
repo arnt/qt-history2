@@ -437,7 +437,7 @@ void FigureEditor::initialize()
 
     graph->canvas->advance();
 
-    QCanvasItem* i = new BouncyText( "Drag the nodes around!", QFont("helvetica", 24), graph->canvas);
+    QCanvasItem* i = new BouncyText( tr( "Drag the nodes around!" ), QFont("helvetica", 24), graph->canvas);
     i->show();
     setCanvas( graph->canvas );
 }
