@@ -982,7 +982,7 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
 
 void streamDebug(QDebug dbg, const QVariant &v)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
     switch(v.type()) {
     case QVariant::Int:
         dbg.nospace() << v.toInt();
@@ -1058,6 +1058,9 @@ void streamDebug(QDebug dbg, const QVariant &v)
     default:
         break;
     }
+#else
+    Q_UNUSED(dbg)
+    Q_UNUSED(v)
 #endif
 }
 

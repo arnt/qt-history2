@@ -590,7 +590,7 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
 
 static void streamDebug(QDebug dbg, const QVariant &v)
 {
-#ifndef Q_NO_STREAMING_DEBUG
+#if !defined(Q_NO_STREAMING_DEBUG) && !defined(QT_NO_DEBUG_OUTPUT)
     switch(v.type()) {
     case QVariant::Cursor:
 #ifndef QT_NO_CURSOR
