@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#344 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#345 $
 **
 ** Implementation of QWidget class
 **
@@ -2240,16 +2240,18 @@ bool QWidget::focusNextPrevChild( bool next )
 	return p->focusNextPrevChild(next);
 
     QFocusData *f = focusData( TRUE );
+
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
 
-    while ( w && !candidate && w != startingPoint ) {
-	if ( (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
-	     && w->isEnabledToTLW() && !w->focusProxy() && w->isVisibleToTLW())
+    do {
+	if ( w && w != startingPoint &&
+	     (w->focusPolicy() == TabFocus || w->focusPolicy() == StrongFocus)
+	     && !w->focusProxy() && w->isVisibleToTLW() && w->isEnabledToTLW())
 	    candidate = w;
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
-    }
+    } while( w && !(candidate && w==startingPoint) );
 
     if ( !candidate )
 	return FALSE;
@@ -2257,7 +2259,6 @@ bool QWidget::focusNextPrevChild( bool next )
     candidate->setFocus();
     return TRUE;
 }
-
 
 /*!
   Returns the focus widget in this widget's window.  This
