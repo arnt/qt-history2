@@ -373,8 +373,6 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
     // this will update the accelerators
     t->setText( label );
 
-    d->tabs->layoutTabs();
-
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();
     d->tabs->blockSignals( TRUE );
@@ -403,10 +401,8 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
         t->iconset = 0;
     }
     // this will update the accelerators
-    t->setText( label );
     t->iconset = new QIconSet( iconset );
-
-     d->tabs->layoutTabs();
+    t->setText( label );
 
     int ct = d->tabs->currentTab();
     bool block = d->tabs->signalsBlocked();

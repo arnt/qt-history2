@@ -1269,7 +1269,8 @@ void QTab::setText( const QString& text )
 	if ( p )
 	    tb->d->a->insertItem( p, id );
 #endif
-        tb->repaint();
+	tb->layoutTabs();
+	tb->repaint();
     }
 }
 
