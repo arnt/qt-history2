@@ -62,10 +62,29 @@ public:
 
   \ingroup basic
 
-  ### describe at least: setIconSet, setAutoRaise, setPopup, setPopupDelay, usesBigPixmaps, usesTextLabel
-
-
-  \sa QPushButton QToolButton
+  A QToolButton is a special case of a QPushButton which should be used in
+  QToolBars. A tool button normally contains an icon and optionally a text
+  label. By default only the icon is shown, but this can be changed using
+  setUsesTextLabel(). (See also QMainWindow::setUsesTextLabel()). But
+  it's suggested always to set a text label (see setTextLabel()) for a QToolButton.
+  
+  As a tool bar can either show tool buttons with small or large icons,
+  QToolButton supports that too. So, using setUsesBigPixmap() it can be 
+  specified which size of icons the button should show (see also 
+  QMainWindow::setUsesBigPixmap()). So as the tool button has to support 
+  different sizes of icons, it doesn't take a single QPixmap but a QIconSet instead
+  when specifying the icon (see setIconSet()).
+  
+  A QToolButton also supports auto-raising. This means normally the button
+  just shows the pixmap (and optionally the text label), but no raised frame. Only
+  if the user moves the mouse cursor over the button, a raised frame is drawn.
+  This behaviour can be controlled with setAutoRaise().
+  
+  A tool button can also be used to show a popup menu. You can set the popup
+  menu using setPopup(). By default the popup shows up 600 ms after the user
+  pressed the button, if you want to change that delay, use setPopupDelay().
+  
+  \sa QPushButton QToolBar QMainWindow
   <a href="guibooks.html#fowler">GUI Design Handbook: Push Button</a>
 */
 

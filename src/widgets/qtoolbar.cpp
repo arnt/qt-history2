@@ -633,6 +633,7 @@ void QToolBar::updateArrowStuff()
 	    if ( !d->arrow ) {
 		d->arrow = new QToolButton( RightArrow, this );
 		d->arrow->setAutoRaise( TRUE );
+		d->arrow->setAutoRepeat( FALSE );
 		d->arrow->setPopupDelay( 0 );
 	    }
 	    if ( d->menu && d->menu->count() > 0 ) {
@@ -679,6 +680,7 @@ void QToolBar::updateArrowStuff()
 	    }
 	    if ( !d->arrow ) {
 		d->arrow = new QToolButton( DownArrow, this );
+		d->arrow->setAutoRepeat( FALSE );
 		d->arrow->setAutoRaise( TRUE );
 		d->arrow->setPopupDelay( 0 );
 	    }
