@@ -23,9 +23,15 @@
 #include <windows.h>
 
 
-class QGLCmapPrivate : public QSharedTemporary
+class QGLCmapPrivate
 {
 public:
+    // ####### use atomic refcounting
+    QGLCmapPrivate() : count(1) { }
+    void ref()                { ++count; }
+    bool deref()        { return !--count; }
+    uint count;
+
     enum AllocState{ UnAllocated = 0, Allocated = 0x01, Reserved = 0x02 };
 
     int maxSize;
