@@ -629,6 +629,23 @@ bool QAction::isToggleAction() const
 }
 
 /*!
+  Toggles the state of a toggle action.
+
+  \sa on, toggled(), isToggleAction()
+*/
+void QAction::toggle()
+{
+    if ( !isToggleAction() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAction::setOn() (%s) Only toggle actions "
+		  "may be switched", name( "unnamed" ) );
+#endif
+	return;
+    }
+    setOn( !isOn() );
+}
+
+/*!
   \property QAction::on
   \brief whether a toggle action is on
 

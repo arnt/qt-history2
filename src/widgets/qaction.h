@@ -90,7 +90,6 @@ public:
     QKeySequence accel() const;
     virtual void setToggleAction( bool );
     bool isToggleAction() const;
-    virtual void setOn( bool );
     bool isOn() const;
     bool isEnabled() const;
     virtual bool addTo( QWidget* );
@@ -101,6 +100,8 @@ protected:
     virtual void addedTo( int index, QPopupMenu *menu );
 
 public slots:
+    void toggle();
+    virtual void setOn( bool );
     virtual void setEnabled( bool );
 
 signals:
