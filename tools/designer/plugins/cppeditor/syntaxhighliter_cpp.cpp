@@ -292,11 +292,25 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParag *string, int
 		break;
 	    case '(': case '[': case '{':
 		input = InputParen;
-		paragData->parenList << Paren( Paren::Open, c, i );
+		if ( state == StateStandard ||
+		     state == StateNumber ||
+		     state == StatePreProcessor ||
+		     state == StateCCommentEnd2 ||
+		     state == StateCCommentEnd1 ||
+		     state == StateString2End ||
+		     state == StateStringEnd )
+		    paragData->parenList << Paren( Paren::Open, c, i );
 		break;
 	    case ')': case ']': case '}':
 		input = InputParen;
-		paragData->parenList << Paren( Paren::Closed, c, i );
+		if ( state == StateStandard ||
+		     state == StateNumber ||
+		     state == StatePreProcessor ||
+		     state == StateCCommentEnd2 ||
+		     state == StateCCommentEnd1 ||
+		     state == StateString2End ||
+		     state == StateStringEnd )
+		    paragData->parenList << Paren( Paren::Closed, c, i );
 		break;
 	    case '#':
 		input = InputHash;
