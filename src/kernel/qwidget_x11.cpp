@@ -2514,11 +2514,11 @@ void QWidgetPrivate::focusInputContext()
 #endif // QT_NO_XIM
 }
 
-void QWidget::setWindowTransparency(int)
+void QWidget::setWindowTransparency(double)
 {
 }
 
-int QWidget::windowTransparency() const
+double QWidget::windowTransparency() const
 {
-    return 255;
+    return 1.0;
 }

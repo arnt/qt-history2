@@ -5542,7 +5542,7 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
   \brief the transparency of a toplevel window.
 
   The valid range of transparency is from 0 (completly transparent) to
-  255 (completly opaqcue). Only top level windows can be transparent.
+  1 (completly opaqcue). Only top level windows can be transparent.
 
   This feature is only present on MacOS and Windows 2000 and newer.
 */

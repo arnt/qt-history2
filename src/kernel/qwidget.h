@@ -120,7 +120,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
     Q_PROPERTY( bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false )
-    Q_PROPERTY(int windowTransparency READ windowTransparency WRITE setWindowTransparency)
+    Q_PROPERTY( double windowTransparency READ windowTransparency WRITE setWindowTransparency )
 
 public:
     explicit QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
@@ -263,8 +263,8 @@ public slots:
     void setFocus();
     void clearFocus();
 
-    void setWindowTransparency(int level);
-    int windowTransparency() const;
+    void setWindowTransparency(double level);
+    double windowTransparency() const;
 
 public:
     enum FocusPolicy {
