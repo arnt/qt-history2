@@ -611,9 +611,11 @@ then
 	PLATFORM=freebsd-g++
 	;;
      OpenBSD:*)
+	LIBDL=no
 	PLATFORM=openbsd-g++
 	;;
      NetBSD:*)
+	LIBDL=no
 	PLATFORM=netbsd-g++
 	;;
      IRIX64:*)
