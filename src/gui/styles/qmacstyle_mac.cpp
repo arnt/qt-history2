@@ -122,9 +122,9 @@ class QAquaFocusWidget : public QWidget
     Q_OBJECT
 public:
     QAquaFocusWidget(bool noerase=true, QWidget *w=0);
-    ~QAquaFocusWidget() {}
-    void setFocusWidget(QWidget * widget);
-    QWidget *widget() const { return focusedWidget; }
+    ~QAquaFocusWidget() { }
+    void setFocusedWidget(QWidget * widget);
+    QWidget *focusedWidget() const { return mFocusedWidget; }
     QSize sizeHint() const { return QSize(0, 0); }
 
 protected:
@@ -139,7 +139,7 @@ protected:
     QRegion focusRegion() const;
 private:
     void drawFocusRect(QPainter *p) const;
-    QPointer<QWidget> focusedWidget;
+    QPointer<QWidget> mFocusedWidget;
 };
 
 QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
@@ -159,27 +159,27 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
 #define FOCUS_WIDGET_PARENT(x) (x->isTopLevel() ? 0 : x->parentWidget())
 #endif
 
-void QAquaFocusWidget::setFocusWidget(QWidget *widget)
+void QAquaFocusWidget::setFocusedWidget(QWidget *widget)
 {
     hide();
-    if (focusedWidget) {
-        if (focusedWidget->parentWidget())
-            focusedWidget->parentWidget()->removeEventFilter(this);
-        focusedWidget->removeEventFilter(this);
+    if (mFocusedWidget) {
+        if (mFocusedWidget->parentWidget())
+            mFocusedWidget->parentWidget()->removeEventFilter(this);
+        mFocusedWidget->removeEventFilter(this);
     }
-    focusedWidget = 0;
+    mFocusedWidget = 0;
     if (widget && widget->parentWidget()) {
-        focusedWidget = widget;
-        setParent(FOCUS_WIDGET_PARENT(focusedWidget));
+        mFocusedWidget = widget;
+        setParent(FOCUS_WIDGET_PARENT(mFocusedWidget));
         move(pos());
-        focusedWidget->installEventFilter(this);
-        focusedWidget->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
+        mFocusedWidget->installEventFilter(this);
+        mFocusedWidget->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
         QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
                     widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
         setMask(QRegion(rect()) - focusRegion());
-        stackUnder(focusedWidget);
+        stackUnder(mFocusedWidget);
         show();
     }
 }
@@ -191,10 +191,10 @@ bool QAquaFocusWidget::eventFilter(QObject *o, QEvent *e)
         if (e->type() == QEvent::ChildRemoved)
             o->removeEventFilter(this); //once we're removed, stop listening
         return true; //block child events
-    } else if (o == focusedWidget) {
+    } else if (o == mFocusedWidget) {
         switch (e->type()) {
         case QEvent::PaletteChange:
-            setPalette(focusedWidget->palette());
+            setPalette(mFocusedWidget->palette());
             break;
         case QEvent::Hide:
             hide();
@@ -203,7 +203,7 @@ bool QAquaFocusWidget::eventFilter(QObject *o, QEvent *e)
             show();
             break;
         case QEvent::Move: {
-            QPoint p(focusedWidget->mapTo(parentWidget(), QPoint(0, 0)));
+            QPoint p(mFocusedWidget->mapTo(parentWidget(), QPoint(0, 0)));
             move(p.x() - focusOutset(), p.y() - focusOutset());
             break;
         }
@@ -215,8 +215,8 @@ bool QAquaFocusWidget::eventFilter(QObject *o, QEvent *e)
             break;
         }
         case QEvent::Reparent: {
-            QWidget *newp = FOCUS_WIDGET_PARENT(focusedWidget);
-            QPoint p(focusedWidget->mapTo(newp, QPoint(0, 0)));
+            QWidget *newp = FOCUS_WIDGET_PARENT(mFocusedWidget);
+            QPoint p(mFocusedWidget->mapTo(newp, QPoint(0, 0)));
             newp->installEventFilter(this);
             setParent(newp);
             show();
@@ -305,7 +305,7 @@ public:
 
     bool doAnimate(Animates);
     inline int animateSpeed(Animates) const { return 33; }
-    void setFocusWidget(QWidget *);
+    void focusOnWidget(QWidget *);
     void doFocus(QWidget *w);
 
     struct PolicyState {
@@ -378,7 +378,7 @@ public:
     } buttonState;
     UInt8 progressFrame;
     CFAbsoluteTime defaultButtonStart;
-    QAquaFocusWidget *focusWidget;
+    QPointer<QAquaFocusWidget> aquaFocus;
     QMacStyle *q;
 };
 
@@ -966,7 +966,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
 }
 
 QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
-    : useHITheme(false), timerID(-1), progressFrame(0), focusWidget(0), q(style)
+    : useHITheme(false), timerID(-1), progressFrame(0), aquaFocus(0), q(style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !getenv("QT_MAC_USE_APPMANAGER")
@@ -1035,7 +1035,7 @@ bool QMacStylePrivate::focusable(const QWidget *w) const
                      || qt_cast<QComboBox *>(w->parentWidget())))));
 }
 
-void QMacStylePrivate::setFocusWidget(QWidget *w)
+void QMacStylePrivate::focusOnWidget(QWidget *w)
 {
     if (w) {
         QWidget *top = w->parentWidget();
@@ -1077,7 +1077,7 @@ void QMacStylePrivate::setFocusWidget(QWidget *w)
 void QMacStylePrivate::objDestroyed(QObject *o)
 {
     if (o == animationFocusWidget)
-        setFocusWidget(0);
+        focusOnWidget(0);
 }
 
 
@@ -1085,7 +1085,7 @@ bool QMacStylePrivate::addWidget(QWidget *w)
 {
     if (focusable(w)) {
         if (w->hasFocus())
-            setFocusWidget(w);
+            focusOnWidget(w);
         w->installEventFilter(this);
     }
     //already knew of it
@@ -1109,7 +1109,7 @@ bool QMacStylePrivate::addWidget(QWidget *w)
 void QMacStylePrivate::removeWidget(QWidget *w)
 {
     if (animationFocusWidget == w)
-        setFocusWidget(0);
+        focusOnWidget(0);
     QPushButton *btn = qt_cast<QPushButton *>(w);
     if (btn && btn == defaultButton) {
         stopAnimate(AquaPushButton, btn);
@@ -1189,12 +1189,12 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
         && ((e->type() == QEvent::FocusOut && animationFocusWidget == o)
             || (e->type() == QEvent::FocusIn && animationFocusWidget != o)))  { //restore it
         if (static_cast<QFocusEvent *>(e)->reason() != QFocusEvent::Popup)
-            setFocusWidget(0);
+            focusOnWidget(0);
     }
     if (o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
         QWidget *w = static_cast<QWidget *>(o);
         if (focusable(w))
-            setFocusWidget(w);
+            focusOnWidget(w);
     }
     //animate
     if (QProgressBar *pb = qt_cast<QProgressBar *>(o)) {
@@ -1264,9 +1264,9 @@ bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
 
 void QMacStylePrivate::doFocus(QWidget *w)
 {
-    if (!focusWidget)
-        focusWidget = new QAquaFocusWidget(w);
-    focusWidget->setFocusWidget(w);
+    if (!aquaFocus)
+        aquaFocus = new QAquaFocusWidget(w);
+    aquaFocus->setFocusedWidget(w);
 }
 
 void QMacStylePrivate::HIThemePolish(QWidget *w)
