@@ -39,8 +39,6 @@
 /BSt 0 d                             % brush style
 /LWi 1 d                             % line width
 /PSt 1 d                             % pen style
-/Cx  0 d                             % current x position
-/Cy  0 d                             % current y position
 /WFi false d                 % winding fill
 /OMo false d                 % opaque mode (not transparent)
 
@@ -254,22 +252,22 @@
     /x1 exch def
     /LinGrad 
     << 
-      /PatternType 2 d
+      /PatternType 2
       /Shading 
 	<<
-        /ShadingType 2 d
-	/ColorSpace [/DeviceRGB] d
-	/Coords [x1 y1 x2 y2] d
-	/Extend [true true] d
+        /ShadingType 2
+	/ColorSpace [/DeviceRGB]
+	/Coords [x1 y1 x2 y2]
+	/Extend [true true]
 	/Function 
 	  <<
-	  /FunctionType 2 d
-	  /Domain [0 1] d
-	  /C0 c1 d
-	  /C1 c2 d
-	  /N 1 d
-	  >> d
-	>> d
+	  /FunctionType 2
+	  /Domain [0 1]
+	  /C0 c1
+	  /C1 c2
+	  /N 1
+	  >>
+	>>
       >>
     matrix makepattern def
   } { pop } ifelse
@@ -388,18 +386,6 @@
   0  1 RL
   CP
   fill
-} D
-
-/M {                                 % PdcMoveTo [x y]
-  /Cy ED /Cx ED
-} D
-
-/L {                                 % PdcLineTo [x y]
-  NP
-  Cx Cy MT
-  /Cy ED /Cx ED
-  Cx Cy LT
-  QS
 } D
 
 /DL {                                % PdcDrawLine [x1 y1 x0 y0]
@@ -585,8 +571,6 @@
 /QI {
   /C save d
   pageinit
-  /Cx  0 d                         % reset current x position
-  /Cy  0 d                         % reset current y position
   /OMo false d
 } D
 
@@ -601,7 +585,7 @@
 %    key value SPD -
 /SPD {
   /setpagedevice where {
-    << 3 1 roll def >>
+    << 3 1 roll >>
     setpagedevice
   } { pop pop } ifelse
 } D
