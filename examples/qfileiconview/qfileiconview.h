@@ -171,7 +171,8 @@ public:
     virtual bool acceptDrop( const QMimeSource *e ) const;
 
     virtual void setText( const QString &text );
-
+    virtual QPixmap *pixmap() const;
+    
     virtual void dragEntered();
     virtual void dragLeft();
 
@@ -185,7 +186,8 @@ protected:
     ItemType itemType;
     bool checkSetText;
     QTimer timer;
-
+    QtFileIconView::ViewMode vm;
+    
 protected slots:
     void openFolder();
 

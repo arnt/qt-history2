@@ -152,8 +152,8 @@ public:
     virtual void setDragEnabled( bool allow );
     virtual void setDropEnabled( bool allow );
 
-    QString text() const;
-    QPixmap icon() const;
+    virtual QString text() const;
+    virtual QPixmap *pixmap() const;
     virtual QString key() const;
 
     bool renameEnabled() const;
@@ -187,7 +187,7 @@ public:
     QSize size() const;
     QPoint pos() const;
     QRect textRect( bool relative = TRUE ) const;
-    QRect iconRect( bool relative = TRUE ) const;
+    QRect pixmapRect( bool relative = TRUE ) const;
     bool contains( QPoint pnt ) const;
     bool intersects( QRect r ) const;
 
@@ -203,9 +203,9 @@ signals:
 
 public slots:
     virtual void setText( const QString &text );
-    virtual void setIcon( const QPixmap &icon );
+    virtual void setPixmap( const QPixmap &icon );
     virtual void setText( const QString &text, bool recalc, bool redraw = TRUE );
-    virtual void setIcon( const QPixmap &icon, bool recalc, bool redraw = TRUE );
+    virtual void setPixmap( const QPixmap &icon, bool recalc, bool redraw = TRUE );
     virtual void setKey( const QString &k );
 
 protected slots:
@@ -231,7 +231,7 @@ private:
     QIconView *view;
     QString itemText, itemKey;
     QString tmpText;
-    QPixmap itemIcon;
+    QPixmap *itemIcon;
     QIconViewItem *prev, *next;
     bool allow_rename, allow_drag, allow_drop;
     bool selected, selectable;
@@ -442,7 +442,7 @@ private:
     void appendItemContainer();
     void rebuildContainers();
     void *firstItemContainer( const QPoint &pos ) const;
-    
+
     QIconViewPrivate *d;
 
 };

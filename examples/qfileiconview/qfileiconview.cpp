@@ -468,6 +468,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
       itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
 {
+    vm = QtFileIconView::Large;
     setView( parent );
 
     if ( itemFileInfo->isDir() )
@@ -494,34 +495,38 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
 void QtFileIconViewItem::viewModeChanged( QtFileIconView::ViewMode m )
 {
+    vm = m;
+    setDropEnabled( itemType == Dir && QDir( itemFileName ).isReadable() );
+    calcRect();
+}
+
+QPixmap *QtFileIconViewItem::pixmap() const
+{
     switch ( itemType ) {
     case Dir: {
 	if ( !QDir( itemFileName ).isReadable() ) {
-	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderLockedSmall, TRUE, FALSE );
+	    if ( vm == QtFileIconView::Small )
+		return iconFolderLockedSmall;
 	    else
-		setIcon( *iconFolderLockedLarge, TRUE, FALSE );
+		return iconFolderLockedLarge;
 	} else {
-	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFolderSmall, TRUE, FALSE );
+	    if ( vm == QtFileIconView::Small )
+		return iconFolderSmall;
 	    else
-		setIcon( *iconFolderLarge, TRUE, FALSE );
+		return iconFolderLarge;
 	}
-	setDropEnabled( QDir( itemFileName ).isReadable() );
-    } break;
-    case File: {
-	    if ( m == QtFileIconView::Small )
-		setIcon( *iconFileSmall, TRUE, FALSE );
-	    else
-		setIcon( *iconFileLarge, TRUE, FALSE );
-	    setDropEnabled( FALSE );
     } break;
     case Link: {
-	    if ( m == QtFileIconView::Small )
-		setIcon( *iconLinkSmall, TRUE, FALSE );
+	    if ( vm == QtFileIconView::Small )
+		return iconLinkSmall;
 	    else
-		setIcon( *iconLinkLarge, TRUE, FALSE );
-	    setDropEnabled( FALSE );
+		return iconLinkLarge;
+    } break;
+    default: {
+	    if ( vm == QtFileIconView::Small )
+		return iconFileSmall;
+	    else
+		return iconFileLarge;
     } break;
     }
 }
@@ -766,14 +771,14 @@ QDragObject *QtFileIconView::dragObject()
 
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
     QtFileIconDrag *drag = new QtFileIconDrag( viewport() );
-    drag->setPixmap( QPixmap( currentItem()->icon() ),
- 		     QPoint( currentItem()->iconRect().width() / 2, currentItem()->iconRect().height() / 2 ) );
+    drag->setPixmap( *currentItem()->pixmap(),
+ 		     QPoint( currentItem()->pixmapRect().width() / 2, currentItem()->pixmapRect().height() / 2 ) );
     for ( QtFileIconViewItem *item = (QtFileIconViewItem*)firstItem(); item;
 	  item = (QtFileIconViewItem*)item->nextItem() )
 	if ( item->isSelected() )
-	    drag->append( QtFileIconDragItem( QRect( item->iconRect( FALSE ).x() - orig.x(),
-						     item->iconRect( FALSE ).y() - orig.y(),
-						     item->iconRect().width(), item->iconRect().height() ),
+	    drag->append( QtFileIconDragItem( QRect( item->pixmapRect( FALSE ).x() - orig.x(),
+						     item->pixmapRect( FALSE ).y() - orig.y(),
+						     item->pixmapRect().width(), item->pixmapRect().height() ),
 					      QRect( item->textRect( FALSE ).x() - orig.x(),
 						     item->textRect( FALSE ).y() - orig.y(), 	
 						     item->textRect().width(), item->textRect().height() ),
