@@ -50,6 +50,7 @@
 #include <qtooltip.h>
 #include <qeventloop.h>
 #include <qdatetime.h>
+#include <qcursor.h>
 
 class QCategoryButton : public QToolButton
 {
@@ -145,49 +146,51 @@ public:
 
 void QCategoryButton::drawButton( QPainter *p )
 {
+    QStyle::SFlags flags = QStyle::Style_Default;
+
+    if ( isEnabled() )
+	flags |= QStyle::Style_Enabled;
+    if ( selected )
+	flags |= QStyle::Style_Selected;
+    if ( hasFocus() )
+	flags |= QStyle::Style_HasFocus;
+    style().drawControl( QStyle::CE_CategoryBarTab, p, this, rect(),
+			 colorGroup(), flags );
+
+    int d = 20 + height() - 3;
+    QRect tr, ir;
+    if ( iconSet().isNull() ) {
+	tr = QRect( 2, 2, width() - d - 5, height() );
+    } else {
+	int iw = iconSet().pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
+	ir = QRect( 0, 0, iw + 2, height() );
+	tr = QRect( ir.width() + 4, 0, width() - (ir.width() + 4) - d - 5, height() );
+    }
+
+    QString txt;
+    if ( p->fontMetrics().width( text() ) < tr.width() ) {
+	txt = text();
+    } else {
+	txt = text().left( 1 );
+	int ew = p->fontMetrics().width( "..." );
+	int i = 1;
+	while ( p->fontMetrics().width( txt ) + ew +
+		p->fontMetrics().width( text()[i] )  < tr.width() )
+	    txt += text()[i++];
+	txt += "...";
+    }
+
     if ( selected ) {
 	QFont f( p->font() );
 	f.setBold( TRUE );
 	p->setFont( f );
     }
 
-    int d = 20 + height() - 3;
+    style().drawItem( p, tr, AlignLeft | AlignVCenter | ShowPrefix, colorGroup(),
+		      isEnabled(), 0, txt );
 
-    QPointArray a( 7 );
-    a.setPoint( 0, -1, height() + 1 );
-    a.setPoint( 1, -1, 1 );
-    a.setPoint( 2, width() - d, 1 );
-    a.setPoint( 3, width() - 20, height() - 2 );
-    a.setPoint( 4, width() - 1, height() - 2 );
-    a.setPoint( 5, width() - 1, height() + 1 );
-    a.setPoint( 6, -1, height() + 1 );
-
-
-    if ( selected )
-	p->setBrush( colorGroup().light() );
-    else
-	p->setBrush( colorGroup().brush( QColorGroup::Background ) );
-
-    p->setPen( colorGroup().mid().dark( 150 ) );
-    p->drawPolygon( a );
-    p->setPen( colorGroup().light() );
-    p->drawLine( 0, 2, width() - d, 2 );
-    p->drawLine( width() - d - 1, 2, width() - 21, height() - 1 );
-    p->drawLine( width() - 20, height() - 1, width(), height() - 1 );
-    p->setBrush( NoBrush );
-
-    p->setPen( colorGroup().buttonText() );
-    if ( p->fontMetrics().width( text() ) < width() - d - 5 ) {
-	p->drawText( 2, 2, width(), height() - 2, AlignVCenter | AlignLeft, text() );
-    } else {
-	QString s = text().left( 1 );
-	int ew = p->fontMetrics().width( "..." );
-	int i = 1;
-	while ( p->fontMetrics().width( s ) + ew + p->fontMetrics().width( text()[i] )  < width() - d - 5 )
-	    s += text()[i++];
-	s += "...";
-	p->drawText( 2, 2, width(), height() - 2, AlignVCenter | AlignLeft, s );
-    }
+    if ( !txt.isEmpty() && hasFocus() )
+	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, colorGroup() );
 }
 
 
@@ -379,7 +382,7 @@ void QCategoryBar::setCurrentPage( QWidget *page )
 	d->currentPage->hide();
     d->currentPage = page;
     d->currentPage->show();
-    // #### is this needed, seems hack
+    // #### is this needed, seems hacky
     set_background_mode( d->currentPage, PaletteLight );
     updateTabs();
     emit currentChanged( page );

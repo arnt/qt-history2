@@ -274,6 +274,8 @@ public:
 	CE_PopupMenuScroller,
 	CE_DockWindowEmptyArea,
 
+	CE_CategoryBarTab,
+
 	// do not add any values below/greater than this
 	CE_CustomBase =		0xf0000000
     };

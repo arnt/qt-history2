@@ -792,6 +792,33 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 #endif // QT_NO_TABBAR
 
+    case CE_CategoryBarTab:
+	{
+	    int d = 20 + r.height() - 3;
+	    QPointArray a( 7 );
+	    a.setPoint( 0, -1, r.height() + 1 );
+	    a.setPoint( 1, -1, 1 );
+	    a.setPoint( 2, r.width() - d, 1 );
+	    a.setPoint( 3, r.width() - 20, r.height() - 2 );
+	    a.setPoint( 4, r.width() - 1, r.height() - 2 );
+	    a.setPoint( 5, r.width() - 1, r.height() + 1 );
+	    a.setPoint( 6, -1, r.height() + 1 );
+
+	    if ( flags & Style_Selected )
+		p->setBrush( cg.light() );
+	    else
+		p->setBrush( cg.brush( QColorGroup::Background ) );
+
+	    p->setPen( cg.mid().dark( 150 ) );
+	    p->drawPolygon( a );
+	    p->setPen( cg.light() );
+	    p->drawLine( 0, 2, r.width() - d, 2 );
+	    p->drawLine( r.width() - d - 1, 2, r.width() - 21, r.height() - 1 );
+	    p->drawLine( r.width() - 20, r.height() - 1, r.width(), r.height() - 1 );
+	    p->setBrush( NoBrush );
+	    break;
+	}
+
     case CE_ProgressBarGroove:
 	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
 	break;
@@ -1054,7 +1081,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	else if(r == SR_DialogButtonAbort)
 	    srch = QDialogButtons::Abort;
 
-	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget),
 		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget),
 		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
 		      fw = pixelMetric(PM_DefaultFrameWidth, widget);
@@ -1079,7 +1106,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 		}
 		cnt++;
 		if(btns[i] == srch) {
-		    if(dbtns->orientation() == Horizontal) 
+		    if(dbtns->orientation() == Horizontal)
 			return QRect(start, wrect.bottom() - fw - mheight, mwidth, mheight);
 		    else
 			return QRect(fw, start, mwidth, mheight);
@@ -1087,7 +1114,7 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    }
 	}
 	if(r == SR_DialogButtonCustom) {
-	    if(dbtns->orientation() == Horizontal) 
+	    if(dbtns->orientation() == Horizontal)
 		return QRect(fw, fw, start - fw - bspace, wrect.height() - (fw*2));
 	    else
 		return QRect(fw, start, wrect.width() - (fw*2), wrect.height() - start - (fw*2));
@@ -2311,14 +2338,14 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_DialogButtons: {
 	const QDialogButtons *dbtns = (const QDialogButtons *)widget;
 	int w = contentsSize.width(), h = contentsSize.height();
-	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget), 
+	const int bwidth = pixelMetric(PM_DialogButtonsButtonWidth, widget),
 		  bspace = pixelMetric(PM_DialogButtonsSeparator, widget),
 		 bheight = pixelMetric(PM_DialogButtonsButtonHeight, widget);
 	if(dbtns->orientation() == Horizontal) {
 	    if(!w)
 		w = bwidth;
 	} else {
-	    if(!h) 
+	    if(!h)
 		h = bheight;
 	}
 	QDialogButtons::Button btns[] = { QDialogButtons::All, QDialogButtons::Reject, QDialogButtons::Accept, //reverse order (right to left)
@@ -2333,10 +2360,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 		else
 		    w = QMAX(w, mwidth);
 
-		if(cnt) 
+		if(cnt)
 		    w += bspace;
 		cnt++;
-		if(dbtns->orientation() == Horizontal) 
+		if(dbtns->orientation() == Horizontal)
 		    w += mwidth;
 		else
 		    h += mheight;
