@@ -4173,6 +4173,7 @@ bool QWidget::event( QEvent *e )
 	    update();
 	    break;
 #endif
+#if defined(Q_WS_X11)
 	case QEvent::UpdateRequest:
 	    if (!d->invalidated_region.isEmpty()) {
 		QRegion rgn = d->invalidated_region;
@@ -4180,6 +4181,7 @@ bool QWidget::event( QEvent *e )
 		repaint(rgn);
 	    }
 	    break;
+#endif
 	default:
 	    return FALSE;
     }
