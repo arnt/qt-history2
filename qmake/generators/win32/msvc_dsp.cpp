@@ -15,6 +15,7 @@
 #include "option.h"
 
 #include <qdir.h>
+#include <qset.h>
 
 #include <stdlib.h>
 
@@ -31,42 +32,16 @@ bool DspMakefileGenerator::writeMakefile(QTextStream &t)
         return true;
     }
 
-    if(project->first("TEMPLATE") == "vcapp" ||
-       project->first("TEMPLATE") == "vclib") {
+    if ((project->first("TEMPLATE") == "vcapp" 
+       || project->first("TEMPLATE") == "vclib") 
+       && !project->isActiveConfig("build_pass")) {
         return writeDspParts(t);
     } else if(project->first("TEMPLATE") == "subdirs") {
         writeSubDirs(t);
         return true;
     }
-    return false;
+    return true;
 }
-
-static inline QString postfixForConfig(const QString &config, bool &isDebug)
-{
-    if (config.contains("debug", Qt::CaseInsensitive)) {
-        isDebug = true;
-        return "DBG";
-    }
-    isDebug = false;
-    return "REL";
-}
-
-#define begin_configs(config) \
-for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) { \
-    QString config(configurations.at(iconfig)); \
-    bool isDebug = false; \
-    QString postfix(postfixForConfig(config, isDebug)); \
-    if (!iconfig) \
-        t << "!IF"; \
-    t << "  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << config << "\"" << endl; \
-    t << endl \
-
-#define end_configs() \
-    if (iconfig == configurations.count() - 1) \
-        t << "!ENDIF " << endl; \
-    else \
-        t << "!ELSEIF"; \
-} \
 
 bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
 {
@@ -88,206 +63,38 @@ QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, 
     return ret;
 }
 
-bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file)
+bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
 {
-    if (usePCH) {
-        if (file.endsWith(".c")) {
-            t << "# SUBTRACT CPP /FI\"" << namePCH << "\" /Yu\"" << namePCH << "\" /Fp" << endl;
-            return true;
-        } else if (precompH.endsWith(file)) {
-            // ### dependency list quickly becomes too long for VS to grok...
-            t << "USERDEP_" << file << "=" << valGlue(findDependencies(precompH), "\"", "\"\t\"", "\"") << endl;
-            t << endl;
-            begin_configs(config);
-                t << "# Begin Custom Build - Creating precompiled header from " << file << "..." << endl;
-                t << "InputPath=.\\" << file << endl << endl;
-                t << precompPch + ": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"" << endl;
-                t << "\tcl.exe /TP /W3 /FD /c /Yc /Fp" << precompPch << " /Fo" << precompObj << " /Fd\"$(IntDir)\\\\\" " << file << " ";
-                t << var("MSVCDSP_INCPATH") << " " << var("MSVCDSP_DEFINES") << " " << var("MSVCDSP_CXXFLAGS") << " " << var("MSVCDSP_CXXFLAGS_" + postfix) << endl;
-                t << "# End Custom Build" << endl << endl;
-            end_configs();
-
-            return true;
-        }
-    }
-
-    QString fileBase = file.left(file.lastIndexOf('.'));
-    fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
-
-    bool hasBuiltin = hasBuiltinCompiler(file);
-    BuildStep allSteps(configurations.count());
-
-    if (!swappedBuildSteps.contains(file)) {
-        QStringList compilers = project->variables()["QMAKE_EXTRA_COMPILERS"];
-        for (int i = 0; i < compilers.count(); ++i) {
-            QString compiler = compilers.at(i);
-            if (project->variables()[compiler + ".input"].isEmpty())
-                continue;
-            QString input = project->variables()[compiler + ".input"].first();
-            QStringList inputList = project->variables()[input];
-            if (!inputList.contains(file))
-                continue;
-
-            QStringList compilerCommands = project->variables()[compiler + ".commands"];
-            QStringList compilerOutput = project->variables()[compiler + ".output"];
-            if (compilerCommands.isEmpty() || compilerOutput.isEmpty())
-                continue;
-
-            QStringList compilerName = project->variables()[compiler + ".name"];
-            if (compilerName.isEmpty())
-                compilerName << compiler;
-            QStringList compilerDepends = project->variables()[compiler + ".depends"];
-            QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
-
-            if (!verifyExtraCompiler(compiler, file))
-                continue;
-
-            bool combineAll = compilerConfig.contains("combine");
-            if (combineAll && inputList.first() != file)
-                continue;
-
-            QString fileIn("$(InputPath)");
-
-            if (combineAll && !inputList.isEmpty()) {
-                fileIn = inputList.join(" ");
-                compilerDepends += inputList;
-            }
-
-            QString fileOut(compilerOutput.first());
-            fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
-            fileOut.replace('/', '\\');
-
-            BuildStep step(configurations.count());
-            for (int i2 = 0; i2 < compilerDepends.count(); ++i2) {
-                QString dependency = compilerDepends.at(i2);
-                dependency.replace("${QMAKE_FILE_BASE}", fileBase);
-                dependency.replace('/', '\\');
-                if (!step.deps.contains(dependency, Qt::CaseInsensitive))
-                    step.deps << dependency;
-            }
-
-            QString mappedFile;
-            if (hasBuiltin) {
-                mappedFile = fileOut;
-                fileOut = fileIn;
-                fileIn = file;
-            }
-
-            for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) {
-                QString config(configurations.at(iconfig));
-                QString &buildName = step.buildNames[iconfig];
-                QString &buildStep = step.buildSteps[iconfig];
-                QStringList &buildOutput = step.buildOutputs[iconfig];
-
-                buildStep += " \\\n\t";
-                QString command(compilerCommands.join(" "));
-                // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
-                command.replace("${QMAKE_FILE_IN}", fileIn);
-                command.replace("${QMAKE_FILE_BASE}", fileBase);
-                command.replace("${QMAKE_FILE_OUT}", fileOut);
-
-                command = replaceExtraCompilerVariables(command, fileIn, fileOut);
-
-                buildName = compilerName.first();
-                buildStep += command;
-                buildOutput += fileOut;
-            }
-            if (hasBuiltin) {
-                step.deps << fileIn;
-                swappedBuildSteps[mappedFile] = step;
-            } else {
-                allSteps << step;
-            }
-        }
-    } else {
-        allSteps << swappedBuildSteps.value(file);
-    }
-
-    if (allSteps.buildSteps.at(0).isEmpty())
-        return true;
-
-    int i;
-    QStringList dependencyList;
-    // remove dependencies that are also output
-    for (i = 0; i < configurations.count(); ++i) {
-        QString config = configurations.at(i);
-        QStringList buildOutput(allSteps.buildOutputs.at(configurations.indexOf(config)));
-
-        for (int i2 = 0; i2 < allSteps.deps.count(); ++i2) {
-            QString dependency = allSteps.deps.at(i2);
-            if (!buildOutput.contains(dependency) && !dependencyList.contains(dependency))
-                dependencyList << dependency;
-        }
-    }
-    QString allDependencies = valGlue(dependencyList, "\"", "\"\t\"", "\"");
-    t << "USERDEP_" << file << "=" << allDependencies << endl;
-    begin_configs(config);
-        QString buildName(allSteps.buildNames.at(iconfig));
-        QString buildStep(allSteps.buildSteps.at(iconfig));
-        QStringList buildOutputList(allSteps.buildOutputs.at(iconfig));
-        t << "# Begin Custom Build - Running " << buildName << " on " << file << endl;
-        t << "InputPath=" << file << endl;
-        t << "BuildCmds= " << buildStep << endl;
-        for (i = 0; i < buildOutputList.count(); ++i) {
-            t << "\"" << buildOutputList.at(i)
-              << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
-        }
-        t << endl;
-        t << "# End Custom Build" << endl;
-    end_configs();
-
-    return true;
-}
-
-bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &files, const QString &group, const QString &filter)
-{
-    if (files.isEmpty())
-        return false;
-
-    t << "# Begin Group \"" << group << "\"" << endl;
-    t << "# PROP Default_Filter \"" << filter << "\"" << endl;
-    for (int i = 0; i < files.count(); ++i) {
-        QString file = files.at(i);
-        t << "# Begin Source File" << endl;
-        t << "SOURCE=" << file << endl;
-        writeBuildstepForFile(t, file);
-        t << "# End Source File" << endl;
-        t << endl;
-    }
-    t << "# End Group" << endl;
-    t << endl;
-
-    return true;
-}
-
-bool
-DspMakefileGenerator::writeDspParts(QTextStream &t)
-{
-    bool staticLibTarget = var("MSVCDSP_DSPTYPE") == "0x0104";
-
+    DspMakefileGenerator * config = this;
+    if (mergedProjects.count())
+        config = mergedProjects.at(0);
+    
     t << "# Microsoft Developer Studio Project File - Name=\"" << var("MSVCDSP_PROJECT") << "\" - Package Owner=<4>" << endl;
     t << "# Microsoft Developer Studio Generated Build File, Format Version 6.00" << endl;
     t << "# ** DO NOT EDIT **" << endl;
     t << endl;
     t << "# TARGTYPE \"Win32 (x86) " << var("MSVCDSP_TARGETTYPE") << "\" " << var("MSVCDSP_DSPTYPE") << endl;
     t << endl;
-    t << "CFG=" << var("MSVCDSP_PROJECT") << " - " << platform << " " << configurations.first() << endl;
+    t << "CFG=" << config->name << endl;
     t << "!MESSAGE This is not a valid makefile. To build this project using NMAKE," << endl;
     t << "!MESSAGE use the Export Makefile command and run" << endl;
     t << "!MESSAGE " << endl;
-    t << "!MESSAGE NMAKE /f \"" << var("MSVCDSP_PROJECT") << ".mak\"." << endl;
+    t << "!MESSAGE NMAKE /f \"" << var("TARGET") << ".mak\"." << endl;
     t << "!MESSAGE " << endl;
     t << "!MESSAGE You can specify a configuration when running NMAKE" << endl;
     t << "!MESSAGE by defining the macro CFG on the command line. For example:" << endl;
     t << "!MESSAGE " << endl;
-    t << "!MESSAGE NMAKE /f \"" << var("MSVCDSP_PROJECT") << ".mak\" CFG=\"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << configurations.first() << "\"" << endl;
+    t << "!MESSAGE NMAKE /f \"" << var("TARGET") << ".mak\" CFG=\"" << config->name << "\"" << endl;
     t << "!MESSAGE " << endl;
     t << "!MESSAGE Possible choices for configuration are:" << endl;
     t << "!MESSAGE " << endl;
-    int i;
-    for (i = 0; i < configurations.count(); ++i) {
-        QString config = configurations.at(i);
-        t << "!MESSAGE \"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << config << "\" (based on \"Win32 (x86) " << var("MSVCDSP_TARGETTYPE") << "\")" << endl;
+    if (mergedProjects.count()) {
+        for (int i = 0; i < mergedProjects.count(); ++i) {
+            DspMakefileGenerator * config = mergedProjects.at(i);
+            t << "!MESSAGE \"" << config->name << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
+        }
+    } else {
+        t << "!MESSAGE \"" << config->name << "\" (based on \"Win32 (x86) " << config->var("MSVCDSP_TARGETTYPE") << "\")" << endl;
     }
     t << "!MESSAGE " << endl;
     t << endl;
@@ -299,61 +106,45 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << "MTL=midl.exe" << endl;
     t << "RSC=rc.exe" << endl;
     t << "BSC32=bscmake.exe" << endl;
-    t << endl;
 
-    begin_configs(config);
-        t << "# PROP BASE Use_MFC 0" << endl;
-        t << "# PROP BASE Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
-        t << "# PROP BASE Output_Dir \"" << var("MSVCDSP_TARGETDIR_" + postfix) << "\"" << endl;
-        t << "# PROP BASE Intermediate_Dir \"" << var("MSVCDSP_OBJECTSDIR_" + postfix) << "\"" << endl;
-        t << "# PROP BASE Target_Dir \"\"" << endl;
-        t << "# PROP Use_MFC 0" << endl;
-        t << "# PROP Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
-        t << "# PROP Output_Dir \"" << var("MSVCDSP_TARGETDIR_" + postfix) << "\"" << endl;
-        t << "# PROP Intermediate_Dir \"" << var("MSVCDSP_OBJECTSDIR_" + postfix) << "\"" << endl;
-        if (project->isActiveConfig("dll") || project->isActiveConfig("plugin"))
-            t << "# PROP Ignore_Export_Lib 1" << endl;
-        t << "# PROP Target_Dir \"\"" << endl;
-        t << "# ADD CPP " << var("MSVCDSP_INCPATH") << " /c /FD " << var("MSVCDSP_CXXFLAGS_" + postfix) << " " << var("MSVCDSP_DEFINES") << " " << var("PRECOMPILED_FLAGS") << endl;
-        t << "# ADD MTL /nologo /mktyplib203 /win32 /D " << (isDebug ? "\"_DEBUG\"" : "\"NDEBUG\"") << endl;
-        t << "# ADD RSC /l 0x409 /d " << (isDebug ? "\"_DEBUG\"" : "\"NDEBUG\"") << endl;
-        t << "# ADD BSC32 /nologo" << endl;
-        if (staticLibTarget) {
-            t << "LIB32=link.exe -lib" << endl;
-            t << "# ADD LIB32 -nologo " << var("MSVCDSP_TARGET") << " " << var("PRECOMPILED_OBJECT") << endl;
-        } else {
-            t << "LINK32=link.exe" << endl;
-            t << "# ADD LINK32 " << var("MSVCDSP_LFLAGS") << " " << var("MSVCDSP_LFLAGS_" + postfix) << " " << var("MSVCDSP_LIBS") << " " << var("MSVCDSP_TARGET") << " " << var("PRECOMPILED_OBJECT") << endl;
-        }
+    return true;
+}
 
-        if (!project->variables()["MSVCDSP_POST_LINK_" + postfix].isEmpty())
-            t << project->variables()["MSVCDSP_POST_LINK_" + postfix].first();
-        t << endl;
-    end_configs();
 
+bool DspMakefileGenerator::writeDspParts(QTextStream &t)
+{
+    bool staticLibTarget = var("MSVCDSP_DSPTYPE") == "0x0104";
+
+    writeDspHeader(t);
+    writeDspConfig(t, this);
     t << endl;
     t << "# Begin Target" << endl;
     t << endl;
-    for (i = 0; i < configurations.count(); ++i) {
-        QString config = configurations.at(i);
-        t << "# Name \"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << config << "\"" << endl;
-    }
+    t << "# Name \"" << name << "\"" << endl;
     t << endl;
 
     if (project->isActiveConfig("flat")) {
-        writeFileGroup(t, project->variables()["SOURCES"] + project->variables()["DEF_FILE"],
-            "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-        writeFileGroup(t, project->variables()["HEADERS"], "Header Files", "h;hpp;hxx;hm;inl");
-        writeFileGroup(t, project->variables()["FORMS"] + project->variables()["INTERFACES"],
-            "Form Files", "ui");
-        writeFileGroup(t, project->variables()["IMAGES"], "Image Files", "");
-        writeFileGroup(t, project->variables()["RESOURCES"] + project->variables()["RC_FILE"],
-            "Resources", "");
-        writeFileGroup(t, project->variables()["TRANSLATIONS"], "Translations", "ts");
-        writeFileGroup(t, project->variables()["LEXSOURCES"], "Lexables", "l");
-        writeFileGroup(t, project->variables()["YACCSOURCES"], "Yaccables", "y");
-        writeFileGroup(t, project->variables()["TYPELIBS"], "Type Libraries", "tlb;olb");
+
+        project->variables()["SOURCES"] += project->variables()["DEF_FILE"];
+        project->variables()["FORMS"] += project->variables()["INTERFACES"];
+                
+        writeFileGroup(t, "SOURCES", "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+        writeFileGroup(t, "HEADERS", "Header Files", "h;hpp;hxx;hm;inl");
+        writeFileGroup(t, "FORMS", "Form Files", "ui");
+        writeFileGroup(t, "IMAGES", "Image Files", "");
+        writeFileGroup(t, "RC_FILE", "Resources rc", "rc");
+        writeFileGroup(t, "RESOURCES", "Resources qrc", "qrc");
+        writeFileGroup(t, "TRANSLATIONS", "Translations", "ts");
+        writeFileGroup(t, "LEXSOURCES", "Lexables", "l");
+        writeFileGroup(t, "YACCSOURCES", "Yaccables", "y");
+        writeFileGroup(t, "TYPELIBS", "Type Libraries", "tlb;olb");            
+
+        project->variables()["GENERATED_SOURCES"] += project->variables()["UIC3_HEADERS"] + swappedBuildSteps.keys();
+        
+        writeFileGroup(t, "GENERATED_SOURCES", "Generated", "");
+
     } else { // directory mode
+        /* //###
         QStringList list(project->variables()["SOURCES"]
             + project->variables()["GENERATED_SOURCES"]
             + project->variables()["DEF_FILE"]
@@ -385,11 +176,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
             t << endl;
         }
         endGroups(t);
+        */
     }
 
-    writeFileGroup(t, project->variables()["GENERATED_SOURCES"] + project->variables()["UIC3_HEADERS"]
-                      + swappedBuildSteps.keys(), "Generated", "");
-
+  
     t << "# End Target" << endl;
     t << "# End Project" << endl;
     return true;
@@ -407,13 +197,7 @@ DspMakefileGenerator::init()
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
         platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
-    if(project->isActiveConfig("debug"))
-        configurations << "Release" << "Debug";
-    else
-        configurations << "Debug" << "Release";
-
-
-	// this should probably not be here, but I'm using it to wrap the .t files
+    // this should probably not be here, but I'm using it to wrap the .t files
     if(project->first("TEMPLATE") == "vcapp")
         project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "vclib")
@@ -422,8 +206,9 @@ DspMakefileGenerator::init()
     if(project->variables()["QMAKESPEC"].isEmpty())
         project->variables()["QMAKESPEC"].append(qgetenv("QMAKESPEC"));
 
-    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
-
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    processVars();
+    
     if(!project->variables()["VERSION"].isEmpty()) {
         QString version = project->variables()["VERSION"].first();
         int firstDot = version.indexOf(".");
@@ -433,71 +218,12 @@ DspMakefileGenerator::init()
         project->variables()["MSVCDSP_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 
-    // start temp fix
-    if (!project->variables()["VERSION"].isEmpty()) {
-        QStringList l = project->first("VERSION").split('.');
-        project->variables()["VER_MAJ"].append(l[0]);
-        project->variables()["VER_MIN"].append(l[1]);
-    }
-
-    // TARGET_VERSION_EXT will be used to add a version number onto the target name
-    if (project->variables()["TARGET_VERSION_EXT"].isEmpty()
-        && !project->variables()["VER_MAJ"].isEmpty())
-        project->variables()["TARGET_VERSION_EXT"].append(project->variables()["VER_MAJ"].first());
-    // end temp fix
-
-    if(project->isActiveConfig("qt")) {
-        if(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-        } else {
-            if(!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-                int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-                if(hver != -1) {
-                    QString ver;
-                    ver.sprintf("qt" QTDLL_POSTFIX "%d.lib", hver);
-                    QStringList &libs = project->variables()["QMAKE_LIBS"];
-                    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-                        (*libit).replace(QRegExp("qt\\.lib"), ver);
-                }
-            }
-        }
-    }
-
-    if(project->isActiveConfig("debug")) {
-        if(!project->first("OBJECTS_DIR").isEmpty())
-            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList(project->first("OBJECTS_DIR"));
-        else
-            project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList("Debug");
-        project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList("Release");
-        if(!project->first("DESTDIR").isEmpty())
-            project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList(project->first("DESTDIR"));
-        else
-            project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList("Debug");
-        project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList("Release");
-    } else {
-        if(!project->first("OBJECTS_DIR").isEmpty())
-            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList(project->first("OBJECTS_DIR"));
-        else
-            project->variables()["MSVCDSP_OBJECTSDIR_REL"] = QStringList("Release");
-        project->variables()["MSVCDSP_OBJECTSDIR_DBG"] = QStringList("Debug");
-        if(!project->first("DESTDIR").isEmpty())
-            project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList(project->first("DESTDIR"));
-        else
-            project->variables()["MSVCDSP_TARGETDIR_REL"] = QStringList("Release");
-        project->variables()["MSVCDSP_TARGETDIR_DBG"] = QStringList("Debug");
-    }
-
-    fixTargetExt();
-
     QString msvcdsp_project;
     if(project->variables()["TARGET"].count())
         msvcdsp_project = project->variables()["TARGET"].first();
-
-   // project->variables()["TARGET"].first() += project->first("TARGET_EXT");
-
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    processFileTagsVar();
-
+    
     MakefileGenerator::init();
+
     if(msvcdsp_project.isEmpty())
         msvcdsp_project = Option::output.fileName();
 
@@ -508,6 +234,7 @@ DspMakefileGenerator::init()
     msvcdsp_project.replace("-", "");
 
     project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
+    
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
     for(QStringList::Iterator it = proj.begin(); it != proj.end(); ++it)
@@ -535,58 +262,14 @@ DspMakefileGenerator::init()
         }
     }
 
-    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
-
-    findLibraries();
-    processPrlFiles();
-
     project->variables()["MSVCDSP_LFLAGS"] += project->variables()["QMAKE_LFLAGS"];
+    
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
         project->variables()["MSVCDSP_LFLAGS"].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
-
-    if(!project->variables()["QMAKE_LFLAGS_DEBUG"].isEmpty())
-        project->variables()["MSVCDSP_LFLAGS_DBG"].append(var("QMAKE_LFLAGS_DEBUG"));
-    if(!project->variables()["QMAKE_LFLAGS_RELEASE"].isEmpty())
-        project->variables()["MSVCDSP_LFLAGS_REL"].append(var("QMAKE_LFLAGS_RELEASE"));
-
-    // Create different compiler flags for release and debug: use default, remove opposite config, add current config
-    QStringList msvcdsp_cxxflags = project->variables()["QMAKE_CXXFLAGS"];
-    QStringList msvcdsp_cxxflags_rel(msvcdsp_cxxflags);
-    QStringList msvcdsp_cxxflags_deb(msvcdsp_cxxflags);
-
-    QStringList relflags(project->variables()["QMAKE_CXXFLAGS_RELEASE"]);
-    QStringList dbgflags(project->variables()["QMAKE_CXXFLAGS_DEBUG"]);
-    if (project->isActiveConfig("shared")) {
-        relflags += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
-        dbgflags += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
-    } else {
-        relflags += project->variables()["QMAKE_CXXFLAGS_MT"];
-        dbgflags += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
-    }
-
-    int i;
-    for (i = 0; i < relflags.count(); ++i) {
-        QString flag(relflags.at(i));
-        msvcdsp_cxxflags_deb.removeAll(flag);
-        if (!msvcdsp_cxxflags_rel.contains(flag))
-            msvcdsp_cxxflags_rel.append(flag);
-    }
-    for (i = 0; i < dbgflags.count(); ++i) {
-        QString flag(dbgflags.at(i));
-        msvcdsp_cxxflags_rel.removeAll(flag);
-        if (!msvcdsp_cxxflags_deb.contains(flag))
-            msvcdsp_cxxflags_deb.append(flag);
-    }
-
-    project->variables()["MSVCDSP_CXXFLAGS_REL"] += msvcdsp_cxxflags_rel;
-    project->variables()["MSVCDSP_CXXFLAGS_DBG"] += msvcdsp_cxxflags_deb;
 
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(" /D \"WIN32\" ");
-
-    if (!project->variables()["RES_FILE"].isEmpty())
-	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
 
     QStringList &libs = project->variables()["QMAKE_LIBS"];
     for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
@@ -614,12 +297,14 @@ DspMakefileGenerator::init()
 
     // dont destroy the target, it is used by prl writer.
     if(!project->variables()["DESTDIR"].isEmpty()) {
+        dest = project->first("DESTDIR");
+        if(dest.startsWith("$(QTDIR)"))
+            dest.replace("$(QTDIR)", qgetenv("QTDIR"));
+        project->variables()["DESTDIR"].first() = dest;
         dest = project->variables()["TARGET"].first() + project->first("TARGET_EXT");
         dest.prepend(project->first("DESTDIR"));
         Option::fixPathToTargetOS(dest);
         dest;
-        if(dest.startsWith("$(QTDIR)"))
-            dest.replace("$(QTDIR)", qgetenv("QTDIR"));
         project->variables()["MSVCDSP_TARGET"].append(
             QString("/out:\"") + dest + "\"");
         if(project->isActiveConfig("dll")) {
@@ -639,13 +324,7 @@ DspMakefileGenerator::init()
     }
 
     if(!postLinkStep.isEmpty() || !copyDllStep.isEmpty()) {
-        project->variables()["MSVCDSP_POST_LINK_DBG"].append(
-            "# Begin Special Build Tool\n"
-            "SOURCE=$(InputPath)\n"
-            "PostBuild_Desc=Post Build Step\n"
-            "PostBuild_Cmds=" + postLinkStep + copyDllStep + "\n"
-            "# End Special Build Tool\n");
-        project->variables()["MSVCDSP_POST_LINK_REL"].append(
+        project->variables()["MSVCDSP_POST_LINK"].append(
             "# Begin Special Build Tool\n"
             "SOURCE=$(InputPath)\n"
             "PostBuild_Desc=Post Build Step\n"
@@ -660,7 +339,7 @@ DspMakefileGenerator::init()
     }
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
 
-    // Move some files around
+    // Move some files around //### is this compat?
     if (!project->variables()["IMAGES"].isEmpty()) {
         QString imageFactory(project->variables()["QMAKE_IMAGE_COLLECTION"].first());
         project->variables()["GENERATED_SOURCES"] += imageFactory;
@@ -686,6 +365,16 @@ DspMakefileGenerator::init()
         project->variables()["PRECOMPILED_OBJECT"] = QStringList(precompObj);
         project->variables()["PRECOMPILED_PCH"]    = QStringList(precompPch);
     }
+
+    QString buildName;
+    if (!var("BUILD_NAME").isEmpty())
+        buildName =  var("BUILD_NAME");
+    else if (project->isActiveConfig("debug"))
+        buildName = "Debug";
+    else
+        buildName = "Release";
+
+    name = var("MSVCDSP_PROJECT").remove('d') + " - " + platform + " " + buildName; ///## now i remove the d suffix stuff
 }
 
 void DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
@@ -787,4 +476,392 @@ bool DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
         file.setFileName(Option::fixPathToLocalOS(qmake_getpwd() + Option::dir_sep + ofile));
     }
     return Win32MakefileGenerator::openOutput(file, build);
+}
+
+bool DspMakefileGenerator::mergeBuildProject(MakefileGenerator *other)
+{
+   
+    mergedProjects += static_cast<DspMakefileGenerator*>(other);
+    return true;
+}
+
+bool DspMakefileGenerator::writeProjectMakefile()
+{
+    bool ret = true;
+    
+    QTextStream t(&Option::output);
+    // Check if all requirements are fullfilled
+    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+        fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
+        return true;
+    }
+
+    // Generate project file
+    if(project->first("TEMPLATE") == "vcapp" ||
+       project->first("TEMPLATE") == "vclib") {
+        if (!mergedProjects.count()) {
+            warn_msg(WarnLogic, "Generator: MSVC.NET: no single configuration created, cannot output project!");
+            return false;
+        }
+        debug_msg(1, "Generator: MSVC 6: Writing project file");
+
+        writeDspHeader(t);
+        int i = 0;
+        for (i = 0; i < mergedProjects.count(); ++i) {
+            DspMakefileGenerator* config = mergedProjects.at(i);
+            t << endl;
+            if (i == 0)
+                t << "!IF";
+            else
+                t << "!ELSEIF";
+            t << "  \"$(CFG)\" == \"" << config->name << "\"" << endl;
+            t << endl;
+            writeDspConfig(t, config);
+        }
+        t << endl;
+        t << "!ENDIF " << endl;
+        t << endl;
+        t << "# Begin Target" << endl;
+        t << endl;
+        for (i = 0; i < mergedProjects.count(); ++i)
+            t << "# Name \"" << mergedProjects.at(i)->name << "\"" << endl;
+        t << endl;
+
+        if (project->isActiveConfig("flat")) {
+            
+            QMap< QString, QSet<QString> > files;
+            
+            // merge source files
+            int i = 0;
+            for (i = 0; i < mergedProjects.count(); ++i) {
+                
+                DspMakefileGenerator* config = mergedProjects.at(i);
+
+                config->project->variables()["SOURCES"] += config->project->variables()["DEF_FILE"];
+               
+                files["SOURCES"] += config->project->variables()["SOURCES"].toSet();
+                files["HEADERS"] += config->project->variables()["HEADERS"].toSet();
+
+                config->project->variables()["FORMS"] += config->project->variables()["INTERFACES"];
+
+                files["FORMS"] += config->project->variables()["FORMS"].toSet();
+                files["IMAGES"] += config->project->variables()["IMAGES"].toSet();
+                files["RC_FILE"] += config->project->variables()["RC_FILE"].toSet();
+                files["RESOURCES"] += config->project->variables()["RESOURCES"].toSet();
+                files["TRANSLATIONS"] += config->project->variables()["TRANSLATIONS"].toSet();
+                files["LEXSOURCES"] += config->project->variables()["LEXSOURCES"].toSet();
+                files["YACCSOURCES"] += config->project->variables()["YACCSOURCES"].toSet();
+                files["TYPELIBS"] += config->project->variables()["TYPELIBS"].toSet();
+            }
+
+            project->variables()["SOURCES"] = QList<QString>::fromSet(files["SOURCES"]);
+            project->variables()["HEADERS"] = QList<QString>::fromSet(files["HEADERS"]);
+            project->variables()["FORMS"] = QList<QString>::fromSet(files["FORMS"]);
+            project->variables()["IMAGES"] = QList<QString>::fromSet(files["IMAGES"]);
+            project->variables()["RC_FILE"] = QList<QString>::fromSet(files["RC_FILE"]);
+            project->variables()["RESOURCES"] = QList<QString>::fromSet(files["RESOURCES"]);
+            project->variables()["TRANSLATIONS"] = QList<QString>::fromSet(files["TRANSLATIONS"]);
+            project->variables()["LEXSOURCES"] = QList<QString>::fromSet(files["LEXSOURCES"]);
+            project->variables()["YACCSOURCES"] = QList<QString>::fromSet(files["YACCSOURCES"]);
+            project->variables()["TYPELIBS"] = QList<QString>::fromSet(files["TYPELIBS"]);
+            
+            writeFileGroup(t, "SOURCES", "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+            writeFileGroup(t, "HEADERS", "Header Files", "h;hpp;hxx;hm;inl");
+            writeFileGroup(t, "FORMS", "Form Files", "ui");
+            writeFileGroup(t, "IMAGES", "Image Files", "");
+            writeFileGroup(t, "RC_FILE", "Resources rc", "rc");
+            writeFileGroup(t, "RESOURCES", "Resources qrc", "qrc");
+            writeFileGroup(t, "TRANSLATIONS", "Translations", "ts");
+            writeFileGroup(t, "LEXSOURCES", "Lexables", "l");
+            writeFileGroup(t, "YACCSOURCES", "Yaccables", "y");
+            writeFileGroup(t, "TYPELIBS", "Type Libraries", "tlb;olb");            
+
+            // done last as generated may have changed when creating build rules for the above
+            for (i = 0; i < mergedProjects.count(); ++i) {
+                
+                DspMakefileGenerator* config = mergedProjects.at(i);
+                
+                config->project->variables()["GENERATED_SOURCES"] += config->project->variables()["UIC3_HEADERS"] + config->swappedBuildSteps.keys();
+
+                files["GENERATED_SOURCES"] += config->project->variables()["GENERATED_SOURCES"].toSet();
+            }
+
+            project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
+            writeFileGroup(t, "GENERATED_SOURCES", "Generated", "");
+
+        }
+    }
+    t << endl;
+    t << "# End Target" << endl;
+    t << "# End Project" << endl;
+
+    return ret;
+}
+
+bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QString &listName, const QString &group, const QString &filter)
+{
+    QStringList files = project->variables()[listName];
+    files.sort();
+
+    if (files.isEmpty())
+        return false;
+
+    t << "# Begin Group \"" << group << "\"" << endl;
+    t << "# PROP Default_Filter \"" << filter << "\"" << endl;
+    for (int i = 0; i < files.count(); ++i) {
+        QString file = files.at(i);
+        t << "# Begin Source File" << endl;
+        t << "SOURCE=" << file << endl;
+        writeBuildstepForFile(t, file, listName);
+        t << "# End Source File" << endl;
+        t << endl;
+    }
+    t << "# End Group" << endl;
+    t << endl;
+
+    return true;
+}
+
+bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName)
+{
+
+    if (!mergedProjects.count()) {
+        t << writeBuildstepForFileForConfig(file, listName, this);
+        return true;
+    }
+
+    //only add special build rules when needed
+
+    QStringList specialBuilds;
+    int i = 0;  
+    for (int i = 0; i < mergedProjects.count(); ++i)
+        specialBuilds += writeBuildstepForFileForConfig(file, listName, mergedProjects.at(i));
+    
+    // no specail build just return
+    if (specialBuilds.join("").isEmpty())
+        return true;
+
+    bool allBuildEqual = true;
+    for (i = 0; i < specialBuilds.count(); ++i) {
+        if (i < specialBuilds.count() -1 && specialBuilds.at(i) != specialBuilds.at(i+1)) {
+            allBuildEqual = false;
+            break;
+        }
+    }
+    
+    if (allBuildEqual) {
+    
+        t << endl;
+        t << specialBuilds.at(0);
+        t << endl;
+    
+    } else {
+
+        for (i = 0; i < mergedProjects.count(); ++i)
+        {
+            if (i == 0)
+                t << "!IF";
+            else 
+                t << "!ELSEIF";
+            t << "\"$(CFG)\" == \"" << mergedProjects.at(i)->name << "\"" << endl;
+            t << endl;
+            t << specialBuilds.at(i);
+            t << endl;
+        }
+
+        t << "!ENDIF" << endl;
+    }
+
+    return true;
+}
+
+bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *config)
+{
+
+    bool isDebug = config->project->isActiveConfig("debug");
+    bool staticLibTarget = config->var("MSVCDSP_DSPTYPE") == "0x0104";
+
+    QString outDir = config->project->first("DESTDIR");
+    while (outDir.endsWith(Option::dir_sep))
+        outDir.chop(1);
+    
+    QString intDir = config->project->first("OBJECTS_DIR");
+    while (intDir.endsWith(Option::dir_sep))
+        intDir.chop(1);
+    
+    t << "# PROP BASE Use_MFC 0" << endl;
+    t << "# PROP BASE Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
+    t << "# PROP BASE Output_Dir \"" << outDir << "\"" << endl;
+    t << "# PROP BASE Intermediate_Dir \"" << intDir << "\"" << endl;
+    t << "# PROP BASE Target_Dir \"\"" << endl;
+    t << "# PROP Use_MFC 0" << endl;
+    t << "# PROP Use_Debug_Libraries " << (isDebug ? "1" : "0") << endl;
+    
+    t << "# PROP Output_Dir \"" << outDir << "\"" << endl;
+    t << "# PROP Intermediate_Dir \"" << intDir << "\"" << endl;
+    if (config->project->isActiveConfig("dll") || config->project->isActiveConfig("plugin"))
+        t << "# PROP Ignore_Export_Lib 1" << endl;
+    t << "# PROP Target_Dir \"\"" << endl;
+    t << "# ADD CPP " << config->var("MSVCDSP_INCPATH") << " /c /FD " << config->var("QMAKE_CXXFLAGS") << " " << config->var("MSVCDSP_DEFINES") << " " << config->var("PRECOMPILED_FLAGS") << endl;
+    t << "# ADD MTL /nologo /mktyplib203 /win32 /D " << (isDebug ? "\"_DEBUG\"" : "\"NDEBUG\"") << endl;
+    t << "# ADD RSC /l 0x409 /d " << (isDebug ? "\"_DEBUG\"" : "\"NDEBUG\"") << endl;
+    t << "# ADD BSC32 /nologo" << endl;
+    if (staticLibTarget) {
+        t << "LIB32=link.exe -lib" << endl;
+        t << "# ADD LIB32 -nologo " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
+    } else {
+        t << "LINK32=link.exe" << endl;
+        t << "# ADD LINK32 " << config->var("MSVCDSP_LFLAGS") << " " << config->var("MSVCDSP_LIBS") << " " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
+    }
+
+    if (!config->project->variables()["MSVCDSP_POST_LINK"].isEmpty())
+        t << config->project->variables()["MSVCDSP_POST_LINK"].first();
+    
+    return true;
+}
+
+QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file, const QString &listName, DspMakefileGenerator *config)
+{
+    QString ret;
+    QTextStream t(&ret);
+
+    // exclude from build
+    if (!config->project->variables()[listName].contains(file)) {
+        t << "# PROP Exclude_From_Build 1" << endl;
+        return ret;
+    }
+
+    if (config->usePCH) {
+        if (file.endsWith(".c")) {
+            t << "# SUBTRACT CPP /FI\"" << config->namePCH << "\" /Yu\"" << config->namePCH << "\" /Fp" << endl;
+            return ret;
+        } else if (config->precompH.endsWith(file)) {
+            // ### dependency list quickly becomes too long for VS to grok...
+            t << "USERDEP_" << file << "=" << config->valGlue(config->findDependencies(config->precompH), "\"", "\"\t\"", "\"") << endl;
+            t << endl;
+            t << "# Begin Custom Build - Creating precompiled header from " << file << "..." << endl;
+            t << "InputPath=.\\" << file << endl << endl;
+            t << config->precompPch + ": $(SOURCE) \"$(IntDir)\" \"$(OUTDIR)\"" << endl;
+            t << "\tcl.exe /TP /W3 /FD /c /Yc /Fp" << config->precompPch << " /Fo" << config->precompObj << " /Fd\"$(IntDir)\\\\\" " << file << " ";
+            t << config->var("MSVCDSP_INCPATH") << " " << config->var("MSVCDSP_DEFINES") << " " << config->var("QMAKE_CXXFLAGS") << endl;
+            t << "# End Custom Build" << endl << endl;
+            return ret;
+        }
+    }
+
+    QString fileBase = file.left(file.lastIndexOf('.'));
+    fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
+
+    bool hasBuiltin = config->hasBuiltinCompiler(file);
+    BuildStep allSteps;
+
+    if (!config->swappedBuildSteps.contains(file)) {
+        QStringList compilers = config->project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for (int i = 0; i < compilers.count(); ++i) {
+            QString compiler = compilers.at(i);
+            if (config->project->variables()[compiler + ".input"].isEmpty())
+                continue;
+            QString input = config->project->variables()[compiler + ".input"].first();
+            QStringList inputList = config->project->variables()[input];
+            if (!inputList.contains(file))
+                continue;
+
+            QStringList compilerCommands = config->project->variables()[compiler + ".commands"];
+            QStringList compilerOutput = config->project->variables()[compiler + ".output"];
+            if (compilerCommands.isEmpty() || compilerOutput.isEmpty())
+                continue;
+
+            QStringList compilerName = config->project->variables()[compiler + ".name"];
+            if (compilerName.isEmpty())
+                compilerName << compiler;
+            QStringList compilerDepends = config->project->variables()[compiler + ".depends"];
+            QStringList compilerConfig = config->project->variables()[compiler + ".CONFIG"];
+
+            if (!config->verifyExtraCompiler(compiler, file))
+                continue;
+
+            bool combineAll = compilerConfig.contains("combine");
+            if (combineAll && inputList.first() != file)
+                continue;
+
+            QString fileIn("$(InputPath)");
+
+            if (combineAll && !inputList.isEmpty()) {
+                fileIn = inputList.join(" ");
+                compilerDepends += inputList;
+            }
+
+            QString fileOut(compilerOutput.first());
+            fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
+            fileOut.replace('/', '\\');
+
+            BuildStep step;
+            for (int i2 = 0; i2 < compilerDepends.count(); ++i2) {
+                QString dependency = compilerDepends.at(i2);
+                dependency.replace("${QMAKE_FILE_BASE}", fileBase);
+                dependency.replace('/', '\\');
+                if (!step.deps.contains(dependency, Qt::CaseInsensitive))
+                    step.deps << dependency;
+            }
+
+            QString mappedFile;
+            if (hasBuiltin) {
+                mappedFile = fileOut;
+                fileOut = fileIn;
+                fileIn = file;
+            }
+
+            step.buildStep += " \\\n\t";
+            QString command(compilerCommands.join(" "));
+            // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
+            command.replace("${QMAKE_FILE_IN}", fileIn);
+            command.replace("${QMAKE_FILE_BASE}", fileBase);
+            command.replace("${QMAKE_FILE_OUT}", fileOut);
+
+            command = config->replaceExtraCompilerVariables(command, fileIn, fileOut);
+
+            step.buildName = compilerName.first();
+            step.buildStep += command;
+            step.buildOutputs += fileOut;
+
+            if (hasBuiltin) {
+                step.deps << fileIn;
+                config->swappedBuildSteps[mappedFile] = step;
+            } else {
+                allSteps << step;
+            }
+        }
+    } else {
+        allSteps << config->swappedBuildSteps.value(file);
+    }
+
+    if (allSteps.buildStep.isEmpty())
+        return ret;
+
+    int i;
+    QStringList dependencyList;
+    // remove dependencies that are also output
+    for (i = 0; i < 1; ++i) {
+        QStringList buildOutput(allSteps.buildOutputs.at(i));
+
+        for (int i2 = 0; i2 < allSteps.deps.count(); ++i2) {
+            QString dependency = allSteps.deps.at(i2);
+            if (!buildOutput.contains(dependency) && !dependencyList.contains(dependency))
+                dependencyList << dependency;
+        }
+    }
+    QString allDependencies = config->valGlue(dependencyList, "\"", "\"\t\"", "\"");
+    t << "USERDEP_" << file << "=" << allDependencies << endl;
+    t << "# Begin Custom Build - Running " << allSteps.buildName << " on " << file << endl;
+    t << "InputPath=" << file << endl;
+    t << "BuildCmds= " << allSteps.buildStep << endl;
+    for (i = 0; i < allSteps.buildOutputs.count(); ++i) {
+        t << "\"" << allSteps.buildOutputs.at(i)
+          << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
+    }
+    t << endl;
+    t << "# End Custom Build" << endl;
+    
+    return ret;
 }

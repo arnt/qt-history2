@@ -23,62 +23,61 @@ class DspMakefileGenerator : public Win32MakefileGenerator
     void endGroups(QTextStream &);
 
     bool init_flag;
+    bool writeDspHeader(QTextStream &);
     bool writeDspParts(QTextStream &);
-    bool writeFileGroup(QTextStream &t, const QStringList &files, const QString &group, const QString &filter);
-    bool writeBuildstepForFile(QTextStream &t, const QString &file);
+    bool writeFileGroup(QTextStream &t, const QString &listName, const QString &group, const QString &filter);
+    bool writeBuildstepForFile(QTextStream &t, const QString &file, const QString &listName);
+    static bool writeDspConfig(QTextStream &t, DspMakefileGenerator *config);
+    static QString writeBuildstepForFileForConfig(const QString &file, const QString &listName, DspMakefileGenerator *config);
 
     bool writeMakefile(QTextStream &);
+    bool writeProjectMakefile();
     void init();
 
 public:
     DspMakefileGenerator();
     ~DspMakefileGenerator();
 
-    bool supportsMetaBuild() { return false; }
     bool openOutput(QFile &file, const QString &build) const;
     bool hasBuiltinCompiler(const QString &filename) const;
 
 protected:
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+    virtual bool supportsMetaBuild() { return true; }
+    virtual bool supportsMergedBuilds() { return true; }
+    virtual bool mergeBuildProject(MakefileGenerator *other);
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
 
+    bool usePCH;
     QString precompH, namePCH,
             precompObj, precompPch;
 
     QString platform;
-    QStringList configurations;
-    bool usePCH;
 
     struct BuildStep {
         BuildStep() {}
-        BuildStep(int configurations) {
-            configs = configurations;
-            while (configurations--) {
-                deps << QString();
-                buildSteps << QString();
-                buildNames << QString();
-                buildOutputs << QStringList();
-            }
-        }
-
         BuildStep &operator<<(const BuildStep &other) {
-            for (int i = 0; i < configs; ++i) {
-                deps << other.deps;
-                buildSteps[i] += other.buildSteps[i];
-                buildNames[i] += other.buildNames[i];
-                buildOutputs[i] += other.buildOutputs[i];
-            }
+            deps << other.deps;
+            buildStep += other.buildStep;
+            buildName += other.buildName;
+            buildOutputs += other.buildOutputs;
             return *this;
         }
 
         QStringList deps;
-        QStringList buildSteps;
-        QStringList buildNames;
-        QList<QStringList> buildOutputs;
-        int configs;
+        QString buildStep;
+        QString buildName;
+        QStringList buildOutputs;
     };
     QMap<QString, BuildStep> swappedBuildSteps;
+
+
+
+    QString name;
+    
+    // Holds all configurations for glue (merged) project
+    QList<DspMakefileGenerator*> mergedProjects;
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()

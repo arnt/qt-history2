@@ -31,11 +31,7 @@ CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt 
 CONFIG          -= fix_output_dirs
 !macx-xcode:CONFIG += debug_and_release
-win32-msvc {
-    equals(TEMPLATE_PREFIX, "vc"):CONFIG -= debug_and_release
-    equals(TEMPLATE, "vcapp"):CONFIG -= debug_and_release
-    equals(TEMPLATE, "vclib"):CONFIG -= debug_and_release
-}
+
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 contains(QT_CONFIG, largefile):CONFIG += largefile
 
