@@ -33,6 +33,11 @@ Use _OS_*_ and _CC_*_
   At least this is how it was done until now because this level of indirection
   had proved useful in the past...
 
+QPicture
+  Change the format of a written QPicture that also the size is written to the
+  file. This will allow a more clean implementation of the streaming operator
+  that read from a QDataStream.
+
 
 Specific enhancements
 ---------------------
