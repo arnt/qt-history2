@@ -108,7 +108,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 			if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
 			    if(total_size_read >= (x + 20)) {
 				if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"", 
+				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
 					      fn_target.latin1(), line_count);
 				    x += 20;
 				    ignore_qobject = !ignore_qobject;
@@ -127,7 +127,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    }
 	}
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
-			(x <= '0' && x >= '9') || x == '_') 
+			(x <= '0' && x >= '9') || x == '_')
 	bool interesting = *(big_buffer+x) == 'Q' && (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) ||
 						      !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN));
 	if(interesting) {
@@ -165,7 +165,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
-		
+
 		if(!mocFile.isEmpty()) {
 		    mocFile = Option::fixPathToTargetOS(mocFile);
 		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
@@ -176,7 +176,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	}
 	    while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
 		x++;
-	if(*(big_buffer+x) == '\n') 
+	if(*(big_buffer+x) == '\n')
 	    line_count++;
     }
 #undef OBJ_LEN
@@ -547,6 +547,8 @@ MakefileGenerator::init()
 	    if ( !v[dirs[x]].isEmpty() ) {
 		{
 		    QString &path = v[dirs[x]].first();
+		    if(QDir::isRelativePath(path) && !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+			path.prepend(Option::output_dir + Option::dir_sep);
 		    fileFixify(path);
 		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 			path += Option::dir_sep;
@@ -640,7 +642,7 @@ MakefileGenerator::init()
 		decl = project->first("UI_DIR") + fi.baseName() + Option::h_ext;
 
 		QString d = fi.dirPath();
-		if( d == ".") 
+		if( d == ".")
 		    d = QDir::currentDirPath();
 		fileFixify(d);
 		if( !project->variables()["INCLUDEPATH"].contains(d))
@@ -679,7 +681,7 @@ MakefileGenerator::init()
 		QStringList &lexdeps = depends[(*it)];
 		QStringList &impldeps = depends[impl];
 		for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
-		    if(!impldeps.contains(*d))		    
+		    if(!impldeps.contains(*d))
 			impldeps.append(*d);
 		}
 		lexdeps.clear();
@@ -704,7 +706,7 @@ MakefileGenerator::init()
 	    // attribute deps of yacc file to impl file
 	    QStringList &yaccdeps = depends[(*it)];
 	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
-		if(!impldeps.contains(*d))		
+		if(!impldeps.contains(*d))
 		    impldeps.append(*d);
 	    }
 	    if( project->isActiveConfig("lex_included")) {
@@ -948,7 +950,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 			    continue;
 			fileFixify(file);
 			QFileInfo fi(file);
-			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") + 
+			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
 				  " " + dirstr + file + " " + dst + "\n\t";
 		    }
 		}
@@ -1170,7 +1172,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	if(QDir::isRelativePath(file))
 	    return FALSE;
 	QString match_dir = Option::output_dir;
-	if(file.left(match_dir.length()) == match_dir && 
+	if(file.left(match_dir.length()) == match_dir &&
 	   QString(file.at(match_dir.length())) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
 	} else {

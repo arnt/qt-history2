@@ -150,20 +150,20 @@ fi
 
 if [ -f $outpath/include/qconfig.h ]
 then
-    mv $outpath/include/qconfig.h qconfig.h-hold
+    mv -f $outpath/include/qconfig.h qconfig.h-hold
 fi
 echo "// All features enabled while configuring" >$outpath/include/qconfig.h
 
+if [ -f $outpath/include/qmodules.h ]
+then
+    mv -f $outpath/include/qmodules.h qmodules.h-hold
+fi
+echo "// All modules enablee while configuring" >$outpath/include/qmodules.h
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
 then
     HELP=yes
 else
-    #back up and generate some qconfig/qmodules for configure
-    [ -r "$relpath/src/tools/qconfig.h" ] && mv -f $relpath/src/tools/qconfig.h qconfig.h-hold
-    echo "// All features enabled while configuring" >$relpath/src/tools/qconfig.h
-    [ -r "$relpath/src/tools/qmodules.h" ] && mv -f $relpath/src/tools/qmodules.h qmodules.h-hold
-    echo "// All modules enabled while configuring" >$relpath/src/tools/qmodules.h
 
 # Find a make command
 if ( gmake /dev/null ) >/dev/null 2>/dev/null
@@ -1249,7 +1249,7 @@ fi
 
 if [ -x "$relpath/bin/syncqt" ]
 then
-    QTDIR=$relpath $relpath/bin/syncqt -inc $outpath/include
+    QTDIR=$relpath $relpath/bin/syncqt -inc $relpath/include
 fi
 
 if true #[ '!' -f "$outpath/bin/qmake" ]
@@ -1581,9 +1581,9 @@ mv -f Makefile.tmp Makefile
 
 
 #do modules.h
-[ -r qmodules.h-hold ] && mv -f qmodules.h-hold $relpath/src/tools/qmodules.h
-rm -f $relpath/src/tools/qmodules.h.new
-cat >$relpath/src/tools/qmodules.h.new << EOF
+[ -r qmodules.h-hold ] && mv -f qmodules.h-hold $outpath/include/qmodules.h
+rm -f $outpath/include/qmodules.h.new
+cat >$outpath/include/qmodules.h.new << EOF
 // These modules are present in this configuration of Qt
 EOF
 for MODULE in $MODULES
@@ -1591,17 +1591,17 @@ do
     if [ -d "$relpath/src/$MODULE" ]
     then
 	M=`echo $MODULE | tr '[a-z]' '[A-Z]'`
-	echo "#define QT_MODULE_$M" >>$relpath/src/tools/qmodules.h.new
+	echo "#define QT_MODULE_$M" >>$outpath/include/qmodules.h.new
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
-cat >>$relpath/src/tools/qmodules.h.new << EOF
+cat >>$outpath/include/qmodules.h.new << EOF
 
 // Compile time features
 EOF
 if [ "$STL" = "no" ]
 then
-cat >>$relpath/src/tools/qmodules.h.new << EOF
+cat >>$outpath/include/qmodules.h.new << EOF
 #ifndef QT_NO_STL
 #define QT_NO_STL
 #endif
@@ -1609,14 +1609,14 @@ EOF
 fi
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing...
-QMOD_CHANGES=`diff $relpath/src/tools/qmodules.h $relpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f $relpath/src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
+QMOD_CHANGES=`diff $outpath/include/qmodules.h $outpath/include/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $outpath/include/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
 then
-    rm -f $relpath/src/tools/qmodules.h.new
+    rm -f $outpath/include/qmodules.h.new
 else
-    [ -f $relpath/src/tools/qmodules.h ] && chmod +w $relpath/src/tools/qmodules.h
-    mv -f $relpath/src/tools/qmodules.h.new $relpath/src/tools/qmodules.h
-    chmod -w $relpath/src/tools/qmodules.h
+    [ -f $outpath/include/qmodules.h ] && chmod +w $outpath/include/qmodules.h
+    mv -f $outpath/include/qmodules.h.new $outpath/include/qmodules.h
+    chmod -w $outpath/include/qmodules.h
 fi
 
 ##

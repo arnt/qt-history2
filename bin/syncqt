@@ -90,8 +90,12 @@ if ( check_unix() ) {
 	    unlink $h;
 	}
 	if ( ! -l $h ) {
-	    symlink($basedir . "/" . $f, $h);
-	    print "symlink created for $f\n";
+	    if (  $h eq "qconfig.h" || $h eq "qmodules.h" ) {
+	        print "skipping $f\n";
+	    } else {
+	        symlink($basedir . "/" . $f, $h);
+	        print "symlink created for $f\n";
+            }
 	}
     }
     chdir $privatedir;
