@@ -2,6 +2,7 @@
 #define QPLUGINMANAGER_H
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qlibrary.h"
 #include "qcom.h"
 #include "qdict.h"
@@ -16,8 +17,9 @@ template class Q_EXPORT QDict<QLibrary>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QGPluginManager
+class Q_EXPORT QGPluginManager : public QObject
 {
+    Q_OBJECT
 public:
     QGPluginManager( const QUuid& id, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE );
     virtual ~QGPluginManager();
@@ -29,6 +31,10 @@ public:
 
     virtual QLibrary* addLibrary( const QString& file ) = 0;
     virtual bool removeLibrary( const QString& file ) = 0;
+
+signals:
+    void featureAdded( const QString &, QLibrary * );
+    void featureRemoved( const QString &, QLibrary * );
 
 protected:
     QUuid interfaceId;

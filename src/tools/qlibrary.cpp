@@ -37,7 +37,6 @@
 #include "qcom.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-#define QT_DEBUG_COMPONENT 1
 
 #ifndef QT_H
 #include "qwindowdefs.h"
@@ -47,6 +46,8 @@
 #include "qtimer.h"
 #endif
 #endif // QT_H
+
+//#define QT_DEBUG_COMPONENT 1
 
 /*
   Private helper class that saves the platform dependent handle
@@ -110,7 +111,7 @@ public slots:
 	if ( library->unload() )
 	    qDebug( "%s has been automatically unloaded", library->library().latin1() );
     #else
-	library()->unload();
+	library->unload();
     #endif
     }
 

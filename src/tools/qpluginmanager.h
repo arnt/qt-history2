@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_COMPONENT
 
-#define QT_DEBUG_COMPONENT
+//#define QT_DEBUG_COMPONENT
 
 template<class Type>
 class Q_EXPORT QPluginManager : public QGPluginManager
@@ -97,6 +97,7 @@ public:
 #ifdef QT_DEBUG_COMPONENT
 		qDebug("Adding feature %s", (*f).latin1() );
 #endif
+		emit featureAdded( *f, plugin );
 #ifdef QT_CHECK_RANGE
 		QLibrary *old = 0;
 		if ( !(old = plugDict[*f]) )
@@ -159,8 +160,10 @@ public:
 	    else if ( cpiFace )
 		fl << cpiFace->name();
 
-	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ )
+	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		plugDict.remove( *f );
+		emit featureRemoved( *f, plugin );
+	    }
 
 	    if ( fliFace )
 		fliFace->release();
@@ -183,6 +186,14 @@ public:
 	if ( plugin )
 	    plugin->queryInterface( interfaceId, (QUnknownInterface**)iface );
     }
+
+#ifndef QT_QDOC
+    void addLibraryPath( const QString& path );
+    void setDefaultPolicy( QLibrary::Policy pol );
+    QLibrary::Policy defaultPolicy() const;
+    QLibrary* library( const QString& feature ) const;
+    QStringList featureList() const;
+#endif
 };
 
 #endif //QT_NO_COMPONENT
