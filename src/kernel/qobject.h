@@ -43,6 +43,8 @@ class QVariant;
 
 class Q_EXPORT QObject: public Qt
 {
+    Q_PROPERTY( QCString, "name", name, setName )
+	
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
