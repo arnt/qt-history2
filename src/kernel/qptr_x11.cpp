@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#207 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#206 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#207 $");
 
 
 /*****************************************************************************
@@ -429,16 +429,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 }
 
 
-/*!
-  Constructs a painter.
-
-  Notice that all painter settings (setPen,setBrush etc.) are reset to
-  default values when begin() is called.
-
-  \sa begin(), end()
-*/
-
-QPainter::QPainter()
+void QPainter::init()
 {
     flags = IsStartingUp;
     bg_col = white;				// default background color
@@ -456,15 +447,70 @@ QPainter::QPainter()
 }
 
 /*!
+  Constructs a painter.
+
+  Notice that all painter settings (setPen,setBrush etc.) are reset to
+  default values when begin() is called.
+
+  \sa begin(), end()
+*/
+
+QPainter::QPainter()
+{
+    init();
+}
+
+/*!
+  Constructs a painter that begins painting the paint device \a pd
+  immediately.
+
+  This constructor is convenient for short-lived painters, e.g. in
+  a \link QWidget::paintEvent() paint event\endlink and should be
+  used only once. The constructor calls begin() for you and the QPainter
+  destructor automatically calls end().
+
+  Example using begin() and end():
+  \code
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
+	QPainter p;
+	p.begin( this );
+	p.drawLine( ... );	// drawing code
+	p.end();
+    }
+  \endcode
+
+  Example using this constructor:
+  \code
+    void MyWidget::paintEvent( QPaintEvent * )
+    {
+	QPainter p( this );
+	p.drawLine( ... );	// drawing code
+    }
+  \endcode
+
+  \sa begin(), end()
+*/
+
+QPainter::QPainter( const QPaintDevice *pdev )
+{
+    init();
+    begin( pd );
+    flags |= CtorBegin;
+}
+
+/*!
   Destroys the painter.
 */
 
 QPainter::~QPainter()
 {
     if ( isActive() ) {
+	if ( (flags & CtorBegin) == 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter: Painting wasn't properly end()'ed" );
+	    warning( "QPainter: You called begin() but not end()" );
 #endif
+	}
 	end();
     }
     if ( tabarray )				// delete tab array
@@ -726,8 +772,16 @@ static uchar *pat_tbl[] = {
 
 
 /*!
-  Begins painting the paint device \e pd and returns TRUE if successful,
-  or FALSE if it cannot begin painting.
+  Begins painting the paint device \a pd and returns TRUE if successful,
+  or FALSE if it cannot begin painting. Call end() when you have finished
+  painting.
+
+  On the X Window System, paint commands are buffered and may not appear
+  on the screen immediately. The flush() function flushes the buffer.
+
+  As an alternative to calling begin() and end(), you  use the QPainter
+  constructor that takes a paint device argument. This is for short-lived
+  painters, for example in \link QWidget::paintEvent() paint events\endlink.
 
   This function initializes all painter settings:
   <ul>
@@ -762,7 +816,7 @@ static uchar *pat_tbl[] = {
 
   \warning A paint device can only be painted by one painter at a time.
 
-  \sa end(), setFont(), setPen(), setBrush(), setBackgroundColor(),
+  \sa end(), flush(), setFont(), setPen(), setBrush(), setBackgroundColor(),
   setBackgroundMode(), setRasterOp(), setBrushOrigin(), setViewXForm(),
   setWindow(), setViewport(), setWorldXForm(), setWorldMatrix(),
   setClipRegion()

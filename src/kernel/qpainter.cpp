@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#90 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#90 $");
 
 
 /*!
@@ -28,9 +28,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $");
 
   \ingroup drawing
 
-  The painter provides graphics rendering of many different varieties
-  on any QPaintDevice object, from simple line drawing to scaling,
-  rotating, dithering dithered and finaly drawing a pixmap.
+  The painter provides efficient graphics rendering on any QPaintDevice
+  object. QPainter can draw everything from simple lines to complex shapes
+  like pies and chords. It can also draw aligned text and pixmaps.
 
   Graphics can be transformed using view transformation, world
   transformation or a combination of these two.	 View transformation
@@ -60,8 +60,21 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $");
     }
   \endcode
 
+  If you use the QPainter constructor that takes a paint device argument,
+  begin() and end() become superfluous:
+  \code
+    void MyWidget::paintEvent()
+    {
+	QPainter paint( this );			// start painting widget
+	paint.setPen( blue );			// set blue pen
+	paint.drawText( rect(),			// draw a text, centered
+			AlignCenter,		//   in the widget
+			"The Text" );
+    }
+  \endcode
+
   QPainter is almost never used outside \link QWidget::paintEvent()
-  paintEvent(). \endlink Any widget <em>must</em> be able to repaint
+  paintEvent()\endlink.  Any widget <em>must</em> be able to repaint
   itself at any time via paintEvent(), therefore the only sane design
   is to do the painting in paintEvent() and use either
   QWidget::update() or QWidget::repaint() force a paint event as
@@ -74,7 +87,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#89 $");
   changing a paint device's attributes will have effect only the next
   time a painter is opened on it.
 
-  \warning QPainter::begin resets all attributes to their default
+  \warning QPainter::begin() resets all attributes to their default
   values, from the device, thus setting fonts, brushes, etc, before
   begin() will have \e no effect.
 

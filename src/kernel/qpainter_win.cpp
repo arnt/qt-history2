@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#65 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#65 $");
 
 
 /*
@@ -320,7 +320,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 }
 
 
-QPainter::QPainter()
+void QPainter::init()
 {
     flags = IsStartingUp;
     bg_col = white;				// default background color
@@ -338,12 +338,27 @@ QPainter::QPainter()
     winFont = 0;
 }
 
+
+QPainter::QPainter()
+{
+    init();
+}
+
+QPainter::QPainter( const QPaintDevice *pd )
+{
+    init();
+    begin( pd );
+    flags |= CtorBegin;
+}
+
 QPainter::~QPainter()
 {
     if ( isActive() ) {
+	if ( (flags & CtorBegin) == 0 ) {
 #if defined(CHECK_STATE)
-	warning( "QPainter: Painting wasn't properly end()'ed" );
+	    warning( "QPainter: You called begin() but not end()" );
 #endif
+	}
 	end();
     }
     if ( tabarray )				// delete tab array

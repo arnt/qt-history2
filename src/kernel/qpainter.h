@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#87 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#88 $
 **
 ** Definition of QPainter class
 **
@@ -41,6 +41,7 @@ class QPainter					// painter class
 {
 public:
     QPainter();
+    QPainter( const QPaintDevice * );
    ~QPainter();
 
     bool	begin( const QPaintDevice * );
@@ -196,7 +197,7 @@ public:
     static void cleanup();
 
 private:
-    void	drawPolyInternal( const QPointArray & );
+    void	init();
     void	updateFont();
     void	updatePen();
     void	updateBrush();
@@ -206,11 +207,12 @@ private:
     void	map( int, int, int, int, int *, int *, int *, int * ) const;
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
+    void	drawPolyInternal( const QPointArray & );
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
 	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000 };
+	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
