@@ -135,6 +135,7 @@ void TabbedBrowser::init()
     newTabButton->setPixmap( QPixmap::fromMimeSource( "addtab.png" ) );
     newTabButton->setFixedSize( s, s );
     QObject::connect( newTabButton, SIGNAL( clicked() ), this, SLOT( newTab() ) );
+    QToolTip::add( newTabButton, tr( "Add page" ) );
 
     QToolButton *closeTabButton = new QToolButton( this );
     tab->setCornerWidget( closeTabButton, Qt::TopRight );
@@ -143,6 +144,7 @@ void TabbedBrowser::init()
     closeTabButton->setPixmap( QPixmap::fromMimeSource( "closetab.png" ) );
     closeTabButton->setFixedSize( s, s );
     QObject::connect( closeTabButton, SIGNAL( clicked() ), this, SLOT( closeTab() ) );
+    QToolTip::add( closeTabButton, tr( "Close page" ) );
 }
 
 void TabbedBrowser::setMimePath( QStringList lst )
