@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#48 $
+** $Id: //depot/qt/main/src/tools/qstring.h#49 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -141,7 +141,7 @@ public:
     QString( int size );			// allocate size incl. \0
     QString( const QString &s ) : QByteArray( s ) {}
     QString( const char *str );			// deep copy
-    QString( const char *str, int len );	// deep copy, max length
+    QString( const char *str, uint maxlen );	// deep copy, max length
 
     QString    &operator=( const QString &s );	// shallow copy
     QString    &operator=( const char *str );	// deep copy

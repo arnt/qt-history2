@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#93 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#94 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#94 $");
 
 
 /*****************************************************************************
@@ -425,7 +425,8 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   \sa resize(), isNull()
 */
 
-QString::QString( int size ) : QByteArray( size )
+QString::QString( int size )
+    : QByteArray( size )
 {
     if ( size > 0 ) {
 	*data() = '\0';				// set terminator
@@ -449,19 +450,19 @@ QString::QString( const char *str )
 
 /*!
   Constructs a string that is a deep copy of \e str, and but no more
-  than \a len bytes long.
+  than \a maxlen bytes long.
 
-  If \a str contains a 0 byte within the first \a len bytes, the
+  If \a str contains a 0 byte within the first \a maxlen bytes, the
   resulting QString will be terminated by the 0.  If \a str is 0 a
   null string is created.
 
   \sa isNull()
 */
 
-QString::QString( const char *str, int len )
+QString::QString( const char *str, uint maxlen )
 {
-    int l2 = strlen(str)+1;
-    duplicate( str, QMIN( len, l2 ) );
+    uint len = strlen(str)+1;
+    duplicate( str, QMIN(maxlen,len) );
 }
 
 
