@@ -1,6 +1,6 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
-<title>Customizing &amp; Integrating Qt Designer</title>
+<title>Customizing and Integrating Qt Designer</title>
 
 <sect1 id="customizingqtdesigner">
 <title>Customizing Qt Designer </title>
@@ -14,22 +14,23 @@ Widgets". This section will focus on customizing \qd itself.
 \qd's toolbars are all dockable so they can be dragged by their toolbar
 handles and arranged how you like. The Files, Object Hierarchy, Property
 Editor and Output Windows are also dockable so you can also drag them to
-the positions that you prefer.
+the positions that you prefer. You can also make them into floating
+windows by dragging them outside \qd's dock areas.
 </para>
 <para>
 General preferences can be set by clicking
 <guimenuitem>Edit|Preferences</guimenuitem> to invoke the Preferences
-dialog. If you check the Restore last workspace on startup checkbox \qd
-will remember the sizes and positions of the toolbars and the dockable
-windows. You can change \qd's main window background either by selecting
-a color or a pixmap. You can also switch off the grid (uncheck Show
-Grid) since using layouts makes the grid redundant.
+dialog. If you check the 'Restore last workspace on startup' checkbox
+then \qd will remember the sizes and positions of the toolbars and the
+dockable windows. You can change \qd's main window background either by
+selecting a color or a pixmap. You can also switch off the grid (uncheck
+Show Grid) since using layouts makes the grid redundant.
 </para>
 <para>
 The C++ Editor tab is used to set your preferred fonts for
 syntax highlighting in \qd's code editor. The base font for all elements
-is set in the 'Standard' element (which is the last item in the list),
-so if you want one font to be used throughout set the 'Standard' font
+is set in the 'Standard' element which is the last item in the list.
+If you want one font to be used throughout then set the 'Standard' font
 and all the other elements will inherit its setting. 
 </para>
 
@@ -38,39 +39,40 @@ and all the other elements will inherit its setting.
 <para>
 The code editor provides the following keystrokes:
 <itemizedlist>
-<listitem><para>Left Arrow -- Move the cursor one character left</para></listitem>
-<listitem><para>Right Arrow -- Move the cursor one character right</para></listitem>
-<listitem><para>Up Arrow -- Move the cursor one line up</para></listitem>
-<listitem><para>Down Arrow -- Move the cursor one line down</para></listitem>
-<listitem><para>Page Up -- Move the cursor one page up</para></listitem>
-<listitem><para>Page Down -- Move the cursor one page down</para></listitem>
-<listitem><para>Backspace -- Delete the character to the left of the cursor</para></listitem>
-<listitem><para>Home -- Move the cursor to the beginning of the line</para></listitem>
-<listitem><para>End -- Move the cursor to the end of the line</para></listitem>
-<listitem><para>Delete -- Delete the character to the right of the cursor</para></listitem>
-<listitem><para>Ctrl+A -- Move the cursor to the beginning of the line</para></listitem>
-<listitem><para>Ctrl+B -- Move the cursor one character left</para></listitem>
-<listitem><para>Ctrl+C -- Copy the selected text to the clipboard (also Ctrl+Insert under Windows)</para></listitem>
-<listitem><para>Ctrl+D -- Delete the character to the right of the cursor</para></listitem>
-<listitem><para>Ctrl+E -- Move the cursor to the end of the line</para></listitem>
-<listitem><para>Ctrl+F -- Invoke the Find Text dialog</para></listitem>
-<listitem><para>Ctrl+G -- Invoke the Goto Line dialog</para></listitem>
-<listitem><para>Ctrl+H -- Delete the character to the left of the cursor</para></listitem>
-<listitem><para>Alt+I -- Incremental search (see below)</para></listitem>
-<listitem><para>Ctrl+K -- Delete to end of line</para></listitem>
-<listitem><para>Ctrl+N -- Move the cursor one line down</para></listitem>
-<listitem><para>Ctrl+P -- Move the cursor one line up</para></listitem>
-<listitem><para>Ctrl+R -- Invoke the Replace Text dialog</para></listitem>
-<listitem><para>Ctrl+V -- Paste the clipboard text into line edit (also Shift+Insert under Windows)</para></listitem>
-<listitem><para>Ctrl+X -- Cut the marked text, copy to clipboard (also Shift+Delete under Windows)</para></listitem>
-<listitem><para>Ctrl+Y -- Redo the last operation</para></listitem>
-<listitem><para>Ctrl+Z -- Undo the last operation</para></listitem>
-<listitem><para>Ctrl+Left Arrow -- Move the cursor one word left</para></listitem>
-<listitem><para>Ctrl+Right Arrow -- Move the cursor one word right</para></listitem>
-<listitem><para>Ctrl+Up Arrow -- Move the cursor one word up</para></listitem>
-<listitem><para>Ctrl+Down Arrow -- Move the cursor one word down</para></listitem>
-<listitem><para>Ctrl+Home Arrow -- Move the cursor to the beginning of the text</para></listitem>
-<listitem><para>Ctrl+End Arrow -- Move the cursor to the end of the text</para></listitem>
+<listitem><para>Left Arrow -- Moves the cursor one character left</para></listitem>
+<listitem><para>Right Arrow -- Moves the cursor one character right</para></listitem>
+<listitem><para>Up Arrow -- Moves the cursor one line up</para></listitem>
+<listitem><para>Down Arrow -- Moves the cursor one line down</para></listitem>
+<listitem><para>Page Up -- Moves the cursor one page up</para></listitem>
+<listitem><para>Page Down -- Moves the cursor one page down</para></listitem>
+<listitem><para>Backspace -- Deletes the character to the left of the cursor</para></listitem>
+<listitem><para>Home -- Moves the cursor to the beginning of the line</para></listitem>
+<listitem><para>End -- Moves the cursor to the end of the line</para></listitem>
+<listitem><para>Delete -- Deletes the character to the right of the cursor</para></listitem>
+<listitem><para>Ctrl+A -- Moves the cursor to the beginning of the line</para></listitem>
+<listitem><para>Ctrl+B -- Moves the cursor one character left</para></listitem>
+<listitem><para>Ctrl+C -- Copies the selected text to the clipboard (also Ctrl+Insert under Windows)</para></listitem>
+<listitem><para>Ctrl+D -- Deletes the character to the right of the cursor</para></listitem>
+<listitem><para>Ctrl+E -- Moves the cursor to the end of the line</para></listitem>
+<listitem><para>Ctrl+F -- Invokes the Find Text dialog</para></listitem>
+<listitem><para>Ctrl+G -- Invokes the Goto Line dialog</para></listitem>
+<listitem><para>Ctrl+H -- Deletes the character to the left of the cursor</para></listitem>
+<listitem><para>Alt+I -- Starts incremental search (see below)</para></listitem>
+<listitem><para>Ctrl+K -- Deletes from the cursor position to the end of
+the line</para></listitem>
+<listitem><para>Ctrl+N -- Moves the cursor one line down</para></listitem>
+<listitem><para>Ctrl+P -- Moves the cursor one line up</para></listitem>
+<listitem><para>Ctrl+R -- Invokes the Replace Text dialog</para></listitem>
+<listitem><para>Ctrl+V -- Pastes the clipboard text into line edit (also Shift+Insert under Windows)</para></listitem>
+<listitem><para>Ctrl+X -- Cuts the marked text, copy to clipboard (also Shift+Delete under Windows)</para></listitem>
+<listitem><para>Ctrl+Y -- Redoes the last operation</para></listitem>
+<listitem><para>Ctrl+Z -- Undoes the last operation</para></listitem>
+<listitem><para>Ctrl+Left Arrow -- Moves the cursor one word left</para></listitem>
+<listitem><para>Ctrl+Right Arrow -- Moves the cursor one word right</para></listitem>
+<listitem><para>Ctrl+Up Arrow -- Moves the cursor one word up</para></listitem>
+<listitem><para>Ctrl+Down Arrow -- Moves the cursor one word down</para></listitem>
+<listitem><para>Ctrl+Home Arrow -- Moves the cursor to the beginning of the text</para></listitem>
+<listitem><para>Ctrl+End Arrow -- Moves the cursor to the end of the text</para></listitem>
 <listitem><para>Tab -- Completion (see below)</para></listitem>
 </itemizedlist>
 </para>
@@ -115,11 +117,11 @@ ignore the list.
 <sect1 id="creatingandusingtemplates">
 <title>Creating and Using Templates </title>
 <para>
-\qd supports two approaches to template forms. The simplest approach
-involves little more than saving a <filename>.ui</filename> file into
-the templates directory. The second approach involves creating a
-container widget class to be used as a base class for forms that use the
-template. We will explain both techniques.
+\qd supports two approaches to creating template forms. The simplest
+approach involves little more than saving a <filename>.ui</filename>
+file into the templates directory. The second approach involves creating
+a container widget class to be used as a base class for forms that use
+the template. We will explain both techniques.
 </para>
 
 
@@ -127,8 +129,8 @@ template. We will explain both techniques.
 <title>Simple Templates </title>
 <para>
 These templates are most useful when you want to create a whole set of
-forms which all have some common widgets. For example you might have a
-project that will require many forms all of which need to be branded
+forms which all have some common widgets. For example, you might have a
+project that will require many forms, all of which need to be branded
 with a company name and logo.
 </para>
 
@@ -159,7 +161,7 @@ Press <keycap>Ctrl+L</keycap> to lay them out vertically.
 </listitem>
 <listitem>
 <para>
-Click the <guibutton>Save</guibutton> toolbar button. In the Save as
+Click the <guibutton>Save</guibutton> toolbar button. In the Save As
 dialog, navigate to \qd's templates directory,
 (<filename>qt/tools/designer/templates</filename> relative to wherever
 Qt is installed). Type in the name 'Simple_Dialog.ui' and click
@@ -262,7 +264,7 @@ Click <guimenuitem>Build|Set Active Configuration</guimenuitem> and in
 the list click 'QMsDev - Win32 Release', then click \ok. Now click
 <guimenuitem>Build|Build qmsdev.dll</guimenuitem>. You should now copy
 the file
-<filename>%QTDIR%\tools\designer\integration\qmsdev\release\qmsdev.dll</filename>
+<filename>%QTDIR%\tools\designer\integration\qmsdev\Release\qmsdev.dll</filename>
 into <filename>\Program Files\Microsoft Visual
 Studio\Common\MSDev98\AddIns</filename>. Now click
 <guimenuitem>Tools|Customize</guimenuitem>. Click the Add-in Macro Files
@@ -277,7 +279,7 @@ A new toolbar will appear in Visual Studio with the following toolbar
 buttons:
 <itemizedlist>
 <listitem><para>New Qt Project -- A small application wizard</para></listitem>
-<listitem><para>Generate Qt Project -- Runs \cmd[qmake] with a <filename>.pro</filename> file</para></listitem>
+<listitem><para>Generate Qt Project -- Runs \cmd[qmake] (or the functionally equivalent \cmd[tmake]) with a <filename>.pro</filename> file</para></listitem>
 <listitem><para>New Qt Dialog -- Add an empty Qt Dialog to the active project</para></listitem>
 <listitem><para>Qt GUI Designer -- Run \qd</para></listitem>
 <listitem><para>Use Qt -- Add the Qt libraries to the active project</para></listitem>
@@ -287,8 +289,8 @@ Double clicking a <filename>.ui</filename> file in the workspace
 overview will now launch \qd.
 </para>
 <para>
-If you wish to delete the add-in simply delete the
-<filename>qmsdev.dll</filename> file from the add-ins directory. 
+If you wish to delete the add-in remove it from the toolbar then delete
+the <filename>qmsdev.dll</filename> file from the add-ins directory. 
 </para>
 
 <sect2 id="creatingmakefileswithoutqmake">
@@ -309,7 +311,11 @@ e.g. those which use slots and signals, require an additional
 <filename>.cpp</filename> file to be generated. These files are
 generated by the \cmd[moc] and are named
 '<emphasis>moc_</emphasis>file.cpp' where the original
-<filename>.cpp</filename> file is called 'file.cpp'.
+<filename>.cpp</filename> file is called 'file.cpp'. If
+<classname>QObject</classname> appears in the <filename>.cpp</filename>
+file an additional <filename>.cpp</filename>, 'file.moc' is generated
+which must be <literal>#include</literal>d in the
+<filename>.cpp</filename>.
 </para>
 <para>
 Processing <filename>.ui</filename> files with \cmd[uic] is done
@@ -329,6 +335,9 @@ uic -subimpl Form formbase.h formbase.ui -o form.cpp
 </programlisting>
 First we generate the header and implementation file for our base class.
 Then we generate the header and implementation skeletons for our subclass.
+Note that the use of \cmd[uic] to generate skeletons is not something
+that would be done in a Makefile, we mention it here because it can be
+useful for command line users.
 </para>
 <para>
 For implementation files that contain classes which inherit from
@@ -361,6 +370,10 @@ myform.cpp: myform.h myform.ui
 myform.h: myform.ui
         uic myform.ui -o myform.h
 </programlisting>
+Note that you may need to include the full path to the commands in your
+Makefile, and under Windows the filenames are <filename>moc.exe</filename> and <filename>uic.exe</filename>.
+</para>
+<para>
 In Unix/Linux environments the \cmd[make] command may be able to
 do more for us, so we should be able to use a simpler Makefile like
 this:
