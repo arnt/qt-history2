@@ -44,14 +44,18 @@
 /*!
   \class QGenericTreeView qgenerictreeview.h
 
-  \brief Tree view implementation
+  \brief The QGenericTreeView class provides a default model/view implementation of a tree view.
 
   \ingroup model-view
 
   This class implements a tree representation of a QGenericItemView working
   on a QAbstractItemModel.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+  \omit
+  Describe the opening/closing concept if not covered elsewhere.
+  \endomit
+
+  \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
@@ -63,6 +67,10 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
+/*!
+  \internal
+*/
+
 QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model,
                                    QWidget *parent)
     : QAbstractItemView(dd, model, parent)
@@ -73,14 +81,26 @@ QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemMod
     setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
+/*!
+  Destroys the tree view.
+*/
+
 QGenericTreeView::~QGenericTreeView()
 {
 }
+
+/*!
+  Returns the header for the tree view.
+*/
 
 QGenericHeader *QGenericTreeView::header() const
 {
     return d->header;
 }
+
+/*!
+  Sets the \a header for the tree view.
+*/
 
 void QGenericTreeView::setHeader(QGenericHeader *header)
 {
@@ -110,36 +130,74 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
     updateGeometries();
 }
 
+/*!
+  Returns the indentation of the root items in the tree view.
+
+  \sa setIndentation()
+*/
+
 int QGenericTreeView::indentation() const
 {
     return d->indent;
 }
+
+/*!
+  \fn void QGenericTreeView::setIndentation(int amount)
+
+  Sets the indentation of items in the leftmost column to the \a amount
+  given.
+*/
 
 void QGenericTreeView::setIndentation(int i)
 {
     d->indent = i;
 }
 
+/*!
+  Returns the column that is currently being edited.
+
+  \sa setEditColumn()
+*/
+
 int QGenericTreeView::editColumn() const
 {
     return d->editColumn;
 }
+
+/*!
+  Sets the \a column that is currently being edited.
+*/
 
 void QGenericTreeView::setEditColumn(int column)
 {
     d->editColumn = column;
 }
 
+/*!
+  Returns true if root items are displayed with controls for opening and
+  closing them; otherwise returns false.
+
+  \sa setShowRootDecoration()
+*/
+
 bool QGenericTreeView::showRootDecoration() const
 {
     return d->rootDecoration;
 }
+
+/*!
+  Controls whether to \a show controls for opening and closing items
+  alongside the items in the leftmost column.
+*/
 
 void QGenericTreeView::setShowRootDecoration(bool show)
 {
     d->rootDecoration = show;
     d->viewport->update();
 }
+
+/*!
+*/
 
 int QGenericTreeView::columnViewportPosition(int column) const
 {
@@ -149,10 +207,18 @@ int QGenericTreeView::columnViewportPosition(int column) const
     return colp + (d->header->x() - d->viewport->x());
 }
 
+/*!
+*/
+
 int QGenericTreeView::columnWidth(int column) const
 {
     return d->header->sectionSize(column);
 }
+
+/*!
+  Returns the column in the tree view whose header covers the \a x
+  coordinate given.
+*/
 
 int QGenericTreeView::columnAt(int x) const
 {
@@ -162,15 +228,32 @@ int QGenericTreeView::columnAt(int x) const
     return d->header->sectionAt(p - (d->header->x() - d->viewport->x()));
 }
 
+/*!
+  Returns true if the \a column is hidden; otherwise returns false.
+
+  \sa hideColumn
+*/
+
 bool QGenericTreeView::isColumnHidden(int column) const
 {
     return d->header->isSectionHidden(column);
 }
 
+/*!
+  Hides the \a column given.
+
+  \sa */
+
 void QGenericTreeView::hideColumn(int column)
 {
     d->header->hideSection(column);
 }
+
+/*!
+  \fn void QGenericTreeView::open(const QModelIndex &index)
+
+  Opens the model item given by the \a index.
+*/
 
 void QGenericTreeView::open(const QModelIndex &item)
 {
@@ -183,6 +266,9 @@ void QGenericTreeView::open(const QModelIndex &item)
         d->opened.append(item);
 }
 
+/*!
+*/
+
 void QGenericTreeView::close(const QModelIndex &item)
 {
     if (!item.isValid())
@@ -194,10 +280,20 @@ void QGenericTreeView::close(const QModelIndex &item)
         d->opened.remove(d->opened.indexOf(item));
 }
 
+/*!
+  \fn bool QGenericTreeView::isOpen(const QModelIndex &index) const
+
+  Returns true if the model item \a index is open; otherwise returns
+  false.
+*/
+
 bool QGenericTreeView::isOpen(const QModelIndex &item) const
 {
     return d->opened.contains(item);
 }
+
+/*!
+*/
 
 QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
 {
@@ -219,6 +315,11 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
     int h = itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(vi)).height();
     return QRect(x, y, w, h);
 }
+
+/*!
+  Scroll the contents of the tree view until the model item \a index is
+  visible.
+*/
 
 void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
 {
@@ -265,6 +366,10 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
 }
+
+/*!
+  \reimp
+*/
 
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
@@ -329,6 +434,14 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
+/*!
+  Draws the row in the tree view that contains the model item \a index,
+  using the \a painter given. The \a options control how the item is
+  displayed.
+
+  \sa QItemOptions
+*/
+
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
 {
     int y = options->itemRect.y();
@@ -367,6 +480,13 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     }
 }
 
+/*!
+  Draws the branches in the tree view on the same row as the model item
+  \a index, using the \a painter given. Only the branches within the
+  rectangle given by \a rect are drawn.
+
+*/
+
 void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
     QModelIndex parent = model()->parent(index);
@@ -403,6 +523,10 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     }
 }
 
+/*!
+  \reimp
+*/
+
 void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 {
     bool reverse = QApplication::reverseLayout();
@@ -429,11 +553,21 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
     }
 }
 
+/*!
+  \fn QModelIndex QGenericTreeView::itemAt(int x, int y) const
+
+  Returns the model index of the item at point \a(x, y).
+*/
+
 QModelIndex QGenericTreeView::itemAt(int, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
     return model()->sibling(mi.row(), d->editColumn, mi);
 }
+
+/*!
+  Layout the items in the tree view.
+*/
 
 void QGenericTreeView::doItemsLayout()
 {
@@ -445,10 +579,17 @@ void QGenericTreeView::doItemsLayout()
     d->viewport->update();
 }
 
+/*!
+  Returns the horizontal offset.
+*/
+
 int QGenericTreeView::horizontalOffset() const
 {
     return d->header->offset();
 }
+
+/*!
+*/
 
 int QGenericTreeView::verticalOffset() const
 {
@@ -458,6 +599,8 @@ int QGenericTreeView::verticalOffset() const
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
+
+/*!                                                                                       \fn QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState buttons)                                                                                                                                                         Move the cursor to the                                                                                                                                                        */
 
 QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
@@ -488,6 +631,13 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
     }
     return current;
 }
+
+/*!
+  Applies the selection \a command to the items in or touched by the
+  rectangle, \a rect.
+
+  \sa selectionCommand()
+*/
 
 void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
@@ -542,6 +692,9 @@ void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     selectionModel()->select(selection, command);
 }
 
+/*!
+*/
+
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (selection.count() <= 0 || d->items.count() <= 0)
@@ -567,6 +720,10 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
 }
+
+/*!
+  Scrolls the contents of the tree view by \a (dx, dy).
+*/
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
@@ -629,20 +786,35 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
     d->viewport->scroll(dx, dy);
 }
 
+/*!
+  This signal is emitted whenever the contents of the tree view are changed.
+  \omit
+  ### This should be a signal.
+  \endomit
+*/
+
 void QGenericTreeView::dataChanged()
 {
     QAbstractItemView::dataChanged(QModelIndex(), QModelIndex());
 }
+
+/*!
+*/
 
 void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
 {
     d->relayout(parent);
 }
 
+/*!
+*/
 void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int, int)
 {
     d->relayout(parent);
 }
+
+/*!
+*/
 
 void QGenericTreeView::columnCountChanged(int, int)
 {
@@ -650,11 +822,18 @@ void QGenericTreeView::columnCountChanged(int, int)
         updateGeometries();
 }
 
+/*!
+  Resizes the \a column given to the size of its contents.
+*/
+
 void QGenericTreeView::resizeColumnToContents(int column)
 {
     int size = columnSizeHint(column);
     d->header->resizeSection(column, size);
 }
+
+/*!
+*/
 
 void QGenericTreeView::columnWidthChanged(int column, int, int)
 {
@@ -666,6 +845,11 @@ void QGenericTreeView::columnWidthChanged(int column, int, int)
     updateGeometries();
     updateEditors();
 }
+
+/*!
+  Updates the items in the tree view.
+  \internal
+*/
 
 void QGenericTreeView::updateGeometries()
 {
@@ -709,6 +893,13 @@ void QGenericTreeView::updateGeometries()
     horizontalScrollBar()->setRange(0, max);
 }
 
+/*!
+  Moves the vertical scroll bar in the way described by the \a action.
+
+  \sa QScrollBar::SliderAction
+
+*/
+
 void QGenericTreeView::verticalScrollbarAction(int action)
 {
     QItemOptions options = viewOptions();
@@ -751,6 +942,12 @@ void QGenericTreeView::verticalScrollbarAction(int action)
     }
 }
 
+/*!
+Moves the horizontal scroll bar in the way described by the \a action.
+
+\sa QScrollBar::SliderAction
+*/
+
 void QGenericTreeView::horizontalScrollbarAction(int action)
 {
     // horizontal
@@ -785,6 +982,9 @@ void QGenericTreeView::horizontalScrollbarAction(int action)
         horizontalScrollBar()->setSliderPosition(value);
     }
 }
+
+/*!
+*/
 
 int QGenericTreeView::columnSizeHint(int column) const
 {
