@@ -274,8 +274,16 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     function does nothing if \c QT_NO_DEBUG was defined during
     compilation.
 
-    This function takes a format string and a list of arguments,
-    similar to the C printf() function.
+    A more convenient syntax is also available:
+    \code
+	qDebug() << "Brush:" << myQBrush << "Other value:" << i;
+    \endcode
+    This syntax automatically puts a single space between each item,
+    and outputs a newline at the end. It supports many C++ and Qt
+    types.
+
+    If you pass the function a format string and a list of arguments,
+    it works in similar way to the C printf() function.
 
     Example:
     \code

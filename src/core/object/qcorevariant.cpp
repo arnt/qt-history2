@@ -1035,6 +1035,16 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     Constructs an invalid variant.
 */
 
+
+/*!
+    \fn QCoreVariant::QCoreVariant(Type type, void *v)
+
+    \internal
+
+    Constructs a variant of type \a type, and initializes with \a v if
+    \a v is not 0.
+*/
+
 /*!
     \fn QCoreVariant::create(Type type, const void *v)
 
@@ -1210,6 +1220,18 @@ QCoreVariant& QCoreVariant::operator=(const QCoreVariant &variant)
 	cleanUp(x);
     return *this;
 }
+
+/*!
+    \fn void QCoreVariant::detach()
+
+    \internal
+*/
+
+/*!
+    \fn bool QCoreVariant::isDetached() const
+
+    \internal
+*/
 
 /*!
     \internal
@@ -1916,8 +1938,13 @@ const void *QCoreVariant::constData() const
     }
 }
 
-/*! \internal
- */
+/*!
+    \fn const void* QCoreVariant::data() const
+
+    \internal
+*/
+
+/*! \internal */
 void* QCoreVariant::data()
 {
     detach();

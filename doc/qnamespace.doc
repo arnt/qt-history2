@@ -162,6 +162,7 @@
     \value BDiagPattern
     \value FDiagPattern
     \value DiagCrossPattern
+    \value LinearGradientPattern
     \value CustomPattern
 
     \img brush-styles.png Brush Styles

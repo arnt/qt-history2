@@ -201,6 +201,13 @@ QWidget *QViewport::viewport() const
     return d->viewport;
 }
 
+/*!
+    \enum Qt::ScrollBarPolicy
+
+    \value ScrollBarAsNeeded
+    \value ScrollBarAlwaysOff
+    \value ScrollBarAlwaysOn
+*/
 
 
 /*!

@@ -113,7 +113,7 @@ public:
 };
 
 
-/*!
+/*
   \class QtMultiLineEdit qtmultilineedit.h
   \brief The QtMultiLineEdit widget is a simple editor for inputting text.
   \internal
@@ -136,7 +136,7 @@ public:
   <img src=qmlined-m.png> <img src=qmlined-w.png>
 */
 
-/*!
+/*
     \property QtMultiLineEdit::numLines
     \brief the number of lines in the multi-line edit
 
@@ -144,25 +144,25 @@ public:
   includes any empty lines at top and bottom, so for an empty editor
   this method will return 1.
 */
-/*!
+/*
     \property QtMultiLineEdit::atBeginning
     \brief whether the cursor is at the beginning
 
     atBeginning() returns TRUE if the cursor is placed at the
     beginning of the text.
 */
-/*!
+/*
     \property QtMultiLineEdit::atEnd
     \brief whether the cursor is at the end
 
   atEnd() returns TRUE if the cursor is placed at the end of the text.
 */
-/*!
+/*
     \property QtMultiLineEdit::maxLineWidth
     \brief the maximum line width in pixels
   Returns the width in pixels of the longest text line in this editor.
 */
-/*!
+/*
     \property QtMultiLineEdit::alignment
     \brief the alignment
 
@@ -170,7 +170,7 @@ public:
     AlignRight.
   \sa Qt::AlignmentFlags
 */
-/*!
+/*
     \property QtMultiLineEdit::edited
     \brief whether the text had been edited
 
@@ -192,11 +192,11 @@ editing the line edit.  Another example is to detect whether the
 contents need saving.
 
 */
-/*!
+/*
     \property QtMultiLineEdit::echoMode
     \brief the echo mode
 */
-/*!
+/*
     \property QtMultiLineEdit::maxLength
     \brief the maximum length of the text
 
@@ -204,7 +204,7 @@ contents need saving.
   no limit (this is the default).
 
 */
-/*!
+/*
     \property QtMultiLineEdit::maxLines
     \brief the maximum number of lines
   The currently set line limit, or -1 if there is
@@ -216,12 +216,12 @@ contents need saving.
   to use removeLine(0) prior to adding an excess line.
 
 */
-/*!
+/*
     \property QtMultiLineEdit::hMargin
     \brief the horizontal margin
   The horizontal margin current set.  The default is 3.
 */
-/*!
+/*
     \property QtMultiLineEdit::wordWrap
     \brief the word wrap mode
 
@@ -232,20 +232,20 @@ contents need saving.
 
   \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
 */
-/*!
+/*
     \property QtMultiLineEdit::wrapColumnOrWidth
     \brief the wrap width in columns or pixels
   The wrap column or wrap width, depending on the word wrap
   mode.
   \sa setWordWrap(), setWrapColumnOrWidth()
 */
-/*!
+/*
     \property QtMultiLineEdit::wrapPolicy
     \brief the wrap policy mode
    The default is \c AtWhiteSpace.
 
 */
-/*!
+/*
     \property QtMultiLineEdit::autoUpdate
     \brief whether auto update is enabled
 
@@ -272,11 +272,11 @@ contents need saving.
   \sa autoUpdate() repaint()
 
 */
-/*!
+/*
     \property QtMultiLineEdit::undoEnabled
     \brief whether undo is enabled
 */
-/*!
+/*
     \property QtMultiLineEdit::undoDepth
     \brief the undo depth
 
@@ -284,19 +284,19 @@ contents need saving.
 
   \sa setUndoDepth()
 */
-/*!
+/*
     \property QtMultiLineEdit::readOnly
     \brief whether the multi-line edit is read-only
 */
-/*!
+/*
     \property QtMultiLineEdit::overWriteMode
     \brief the overwrite mode
 */
-/*!
+/*
     \property QtMultiLineEdit::text
     \brief the multi-line edit's text
 */
-/*!
+/*
     \property QtMultiLineEdit::length
     \brief the length of the text
 */
@@ -450,7 +450,7 @@ static int tabStopDist( const QFontMetrics &fm )
 }
 
 
-/*!
+/*
   Sets the distance between tab stops for all QtMultiLineEdit instances
   to \a ex, which is measured in multiples of the width of a lower case 'x'
   in the widget's font. The initial value is 8.
@@ -468,7 +468,7 @@ void QtMultiLineEdit::setDefaultTabStop( int ex )
 
 
 
-/*!
+/*
   Returns the distance between tab stops.
 
   \sa setDefaultTabStop();
@@ -554,7 +554,7 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
     return i;
 }
 
-/*!
+/*
   Constructs a new, empty, QtMultiLineEdit with parent \a parent and
   called \a name.
 */
@@ -626,17 +626,17 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
     }
 }
 
-/*!
+/*
   \fn int QtMultiLineEdit::lineLength( int line ) const
   Returns the number of characters at line number \a line.
 */
 
-/*! \fn QString *QtMultiLineEdit::getString( int line ) const
+/* \fn QString *QtMultiLineEdit::getString( int line ) const
 
   Returns a pointer to the text at line \a line.
 */
 
-/*! \fn void QtMultiLineEdit::textChanged()
+/* \fn void QtMultiLineEdit::textChanged()
 
   This signal is emitted when the text is changed by an event or by a
   slot. Note that the signal is not emitted when you call a non-slot
@@ -645,7 +645,7 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
   \sa returnPressed()
 */
 
-/*! \fn void QtMultiLineEdit::returnPressed()
+/* \fn void QtMultiLineEdit::returnPressed()
 
   This signal is emitted when the user presses the return or enter
   key. It is not emitted if isReadOnly() is TRUE.
@@ -653,7 +653,7 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
   \sa textChanged()
 */
 
-/*!
+/*
   \fn void QtMultiLineEdit::undoAvailable (bool yes)
 
   This signal is emitted when the availability of undo changes.
@@ -661,7 +661,7 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
   undoAvailable( FALSE ) is next emitted.
 */
 
-/*!
+/*
   \fn void QtMultiLineEdit::redoAvailable (bool yes)
 
   This signal is emitted when the availability of redo changes.
@@ -669,7 +669,7 @@ QtMultiLineEdit::QtMultiLineEdit( QWidget *parent , const char *name )
   redoAvailable( FALSE ) is next emitted.
 */
 
-/*!
+/*
   \fn void QtMultiLineEdit::copyAvailable (bool yes)
 
   This signal is emitted when the availability of cut/copy changes.
@@ -702,7 +702,7 @@ int QtMultiLineEdit::maxLineWidth() const
     return d->maxLineWidth;
 }
 
-/*!
+/*
   Destroys the QtMultiLineEdit
 */
 
@@ -732,7 +732,7 @@ static QPixmap *getCacheBuffer( QSize sz )
     return buffer;
 }
 
-/*!
+/*
   Implements the basic drawing logic. Paints the line at row \a row
   using painter \a painter. The \a col parameter is ignored.
 */
@@ -856,7 +856,7 @@ void QtMultiLineEdit::paintCell( QPainter *painter, int row, int )
 }
 
 
-/*!
+/*
     \overload
   Returns the width in pixels of the string \a s.
   NOTE: only appropriate for whole lines.
@@ -873,7 +873,7 @@ int QtMultiLineEdit::textWidth( const QString &s )
 }
 
 
-/*!
+/*
   Returns the width in pixels of the text at line \a line.
 */
 
@@ -887,7 +887,7 @@ int QtMultiLineEdit::textWidth( int line )
     return r?r->w:0;
 }
 
-/*!
+/*
   Starts the cursor blinking.
 */
 
@@ -901,14 +901,14 @@ void QtMultiLineEdit::focusInEvent( QFocusEvent * )
 }
 
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::leaveEvent( QEvent * )
 {
 }
 
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
@@ -921,7 +921,7 @@ void QtMultiLineEdit::focusOutEvent( QFocusEvent * )
 }
 
 
-/*!
+/*
   \reimp
   Present for binary compatibility only!
 */
@@ -951,7 +951,7 @@ void QtMultiLineEdit::doDrag()
 }
 #endif
 
-/*!
+/*
   If there is marked text, sets \a line1, \a col1, \a line2 and \a col2
   to the start and end of the marked region and returns TRUE. Returns
   FALSE if there is no marked text.
@@ -985,7 +985,7 @@ bool QtMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 }
 
 
-/*!
+/*
   Returns TRUE if there is marked text.
 */
 
@@ -995,7 +995,7 @@ bool QtMultiLineEdit::hasMarkedText() const
 }
 
 
-/*!
+/*
   Returns a copy of the marked text.
 */
 
@@ -1037,7 +1037,7 @@ QString QtMultiLineEdit::markedText() const
 
 
 
-/*!
+/*
   Returns the text at line number \a line (possibly the empty string),
   or a \link QString::operator!() null string\endlink if \a line is invalid.
 */
@@ -1074,7 +1074,7 @@ QString QtMultiLineEdit::text() const
 }
 
 
-/*!
+/*
   Selects all text without moving the cursor.
 */
 
@@ -1091,7 +1091,7 @@ void QtMultiLineEdit::selectAll()
 
 
 
-/*!
+/*
   Deselects all text (i.e. removes marking) and leaves the cursor at the
   current position.
 */
@@ -1126,7 +1126,7 @@ void QtMultiLineEdit::setText( const QString &s )
 }
 
 
-/*!
+/*
   Appends \a s to the text.
 */
 
@@ -1139,7 +1139,7 @@ void QtMultiLineEdit::append( const QString &s )
     emit textChanged();
 }
 
-/*! \reimp
+/* \reimp
 Passes wheel events to the vertical scrollbar.
 */
 void QtMultiLineEdit::wheelEvent( QWheelEvent *e ){
@@ -1147,7 +1147,7 @@ void QtMultiLineEdit::wheelEvent( QWheelEvent *e ){
 }
 
 
-/*!
+/*
   The key press event handler converts a key press in event \a e to
   some line editor action.
 
@@ -1435,7 +1435,7 @@ void QtMultiLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*!
+/*
   Moves the cursor one page down.  If \a mark is TRUE, the text
   is marked.
 */
@@ -1488,7 +1488,7 @@ void QtMultiLineEdit::pageDown( bool mark )
 }
 
 
-/*!
+/*
   Moves the cursor one page up.  If \a mark is TRUE, the text
   is marked.
 */
@@ -1607,7 +1607,7 @@ void QtMultiLineEdit::insertAtAux( const QString &txt, int line, int col, bool m
 }
 
 
-/*!
+/*
   Inserts \a txt at line number \a line. If \a line is less than zero,
   or larger than the number of rows, the new text is put at the end.
   If \a txt contains newline characters, several lines are inserted.
@@ -1632,7 +1632,7 @@ void QtMultiLineEdit::insertLine( const QString &txt, int line )
     cursorY = oldYPos;
 }
 
-/*!
+/*
   Deletes the line at line number \a line. If \a
   line is less than zero, or larger than the number of lines,
   no line is deleted.
@@ -1667,7 +1667,7 @@ void QtMultiLineEdit::removeLine( int line )
     d->edited = TRUE;
 }
 
-/*!
+/*
   Inserts \a s at the current cursor position.
 */
 void QtMultiLineEdit::insert( const QString& s )
@@ -1675,7 +1675,7 @@ void QtMultiLineEdit::insert( const QString& s )
     insert( s, FALSE );
 }
 
-/*!
+/*
   Inserts \a c at the current cursor position.
   (this function is provided for backward compatibility -
   it simply calls insert()).
@@ -1685,7 +1685,7 @@ void QtMultiLineEdit::insertChar( QChar c )
     insert(c);
 }
 
-/*!
+/*
     \overload
   Inserts string \a str at the current cursor position. If \a mark is
   TRUE the string is marked.
@@ -1711,7 +1711,7 @@ void QtMultiLineEdit::insert( const QString& str, bool mark )
 	addUndoCmd( new QEndCommand() );
 }
 
-/*!
+/*
   Makes a line break at the current cursor position.
 */
 
@@ -1720,7 +1720,7 @@ void QtMultiLineEdit::newLine()
     insert("\n");
 }
 
-/*!
+/*
   Deletes text from the current cursor position to the end of the line.
 */
 
@@ -1749,7 +1749,7 @@ void QtMultiLineEdit::killLineAux()
 }
 
 
-/*!
+/*
   Moves the cursor one character to the left. If \a mark is TRUE, the text
   is marked. If \a wrap is TRUE, the cursor moves to the end of the
   previous line  if it is placed at the beginning of the current line.
@@ -1798,7 +1798,7 @@ void QtMultiLineEdit::cursorLeft( bool mark, bool clear_mark, bool wrap )
 	turnMark( FALSE );
 }
 
-/*!
+/*
   Moves the cursor one character to the right.  If \a mark is TRUE, the text
   is marked. If \a wrap is TRUE, the cursor moves to the beginning of the next
   line if it is placed at the end of the current line.
@@ -1843,7 +1843,7 @@ void QtMultiLineEdit::cursorRight( bool mark, bool clear_mark, bool wrap )
 	turnMark( FALSE );
 }
 
-/*!
+/*
   Moves the cursor up one line.  If \a mark is TRUE, the text
   is marked.
   \sa cursorDown() cursorLeft() cursorRight()
@@ -1881,7 +1881,7 @@ void QtMultiLineEdit::cursorUp( bool mark, bool clear_mark )
 	turnMark( FALSE );
 }
 
-/*!
+/*
   Moves the cursor one line down.  If \a mark is TRUE, the text
   is marked.
   \sa cursorUp() cursorLeft() cursorRight()
@@ -1920,7 +1920,7 @@ void QtMultiLineEdit::cursorDown( bool mark, bool clear_mark )
 	turnMark( FALSE );
 }
 
-/*!
+/*
   Turns off marked text
 */
 void QtMultiLineEdit::turnMark( bool on )
@@ -1936,7 +1936,7 @@ void QtMultiLineEdit::turnMark( bool on )
 
 
 
-/*!
+/*
   Deletes the character on the left side of the text cursor and moves
   the cursor one position to the left. If a text has been marked by
   the user (e.g. by clicking and dragging) the cursor is put at the
@@ -2054,7 +2054,7 @@ void QtMultiLineEdit::delAux()
     makeVisible();
 }
 
-/*!
+/*
   Moves the text cursor to the left end of the line. If \a mark is
   TRUE, text is marked towards the first position. If it is FALSE and
   the cursor is moved, all marked text is unmarked.
@@ -2083,7 +2083,7 @@ void QtMultiLineEdit::home( bool mark )
     makeVisible();
 }
 
-/*!
+/*
   Moves the text cursor to the right end of the line. If \a mark is TRUE
   text is marked towards the last position.  If it is FALSE and the
   cursor is moved, all marked text is unmarked.
@@ -2113,7 +2113,7 @@ void QtMultiLineEdit::end( bool mark )
 	turnMark( FALSE );
 }
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::mousePressEvent( QMouseEvent *e )
 {
@@ -2293,7 +2293,7 @@ void QtMultiLineEdit::stopAutoScroll()
     }
 }
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
@@ -2353,7 +2353,7 @@ void QtMultiLineEdit::extendSelectionWord( int &newX, int&newY)
 
 
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -2397,7 +2397,7 @@ void QtMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 {
@@ -2419,7 +2419,7 @@ void QtMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*!
+/*
   \reimp
 */
 
@@ -2429,7 +2429,7 @@ void QtMultiLineEdit::dragEnterEvent( QDragEnterEvent * )
     updateCell( cursorY, 0, FALSE );
 }
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 {
@@ -2447,7 +2447,7 @@ void QtMultiLineEdit::dragMoveEvent( QDragMoveEvent* event )
 	event->acceptAction();
 }
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::dragLeaveEvent( QDragLeaveEvent* )
 {
@@ -2458,7 +2458,7 @@ void QtMultiLineEdit::dragLeaveEvent( QDragLeaveEvent* )
     stopAutoScroll();
 }
 
-/*!\reimp
+/*\reimp
 */
 void QtMultiLineEdit::dropEvent( QDropEvent* event )
 {
@@ -2511,7 +2511,7 @@ void QtMultiLineEdit::dropEvent( QDropEvent* event )
 #endif // QT_NO_DRAGANDDROP
 
 
-/*!
+/*
   Returns TRUE if line \a line is invisible or partially invisible.
 */
 
@@ -2528,7 +2528,7 @@ bool QtMultiLineEdit::partiallyInvisible( int line )
     return FALSE;
 }
 
-/*!
+/*
   Scrolls such that the cursor is visible
 */
 
@@ -2553,7 +2553,7 @@ void QtMultiLineEdit::makeVisible()
     }
 }
 
-/*!
+/*
   Computes the character position in line \a line which corresponds
   to pixel \a xPos
 */
@@ -2574,7 +2574,7 @@ int QtMultiLineEdit::mapFromView( int xPos, int line )
     return index;
 }
 
-/*!
+/*
   Computes the pixel position in line \a line which corresponds to
   character position \a xIndex
 */
@@ -2594,7 +2594,7 @@ int QtMultiLineEdit::mapToView( int xIndex, int line )
     return d->lr_marg + w;
 }
 
-/*!
+/*
   Traverses the list and finds an item with the maximum width, and
   updates the internal list box structures accordingly.
 */
@@ -2631,7 +2631,7 @@ void QtMultiLineEdit::updateCellWidth()
 }
 
 
-/*!
+/*
   Sets the bottommost visible line to \a line.
 */
 
@@ -2644,7 +2644,7 @@ void QtMultiLineEdit::setBottomCell( int line )
 
 #ifndef QT_NO_CLIPBOARD
 
-/*!
+/*
   Copies text in MIME subtype \a subtype from the clipboard onto the current
   cursor position.
   Any marked text is first deleted.
@@ -2681,7 +2681,7 @@ void QtMultiLineEdit::pasteSubType(const QCString& subtype)
     addUndoCmd( new QEndCommand );
 }
 
-/*!
+/*
   Copies plain text from the clipboard onto the current cursor position.
   Any marked text is first deleted.
 */
@@ -2691,7 +2691,7 @@ void QtMultiLineEdit::paste()
 }
 
 #ifndef QT_NO_MIMECLIPBOARD
-/*!
+/*
   Prompts the user for a type from a list of text types available,
   Then copies text from the clipboard onto the current cursor position.
   Any marked text is first deleted.
@@ -2736,7 +2736,7 @@ QCString QtMultiLineEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QP
 #endif // QT_NO_CLIPBOARD
 
 
-/*!
+/*
   Removes all text.
 */
 
@@ -2760,7 +2760,7 @@ void QtMultiLineEdit::clear()
 }
 
 
-/*!\reimp
+/*\reimp
 */
 
 void QtMultiLineEdit::setFont( const QFont &font )
@@ -2775,7 +2775,7 @@ void QtMultiLineEdit::setFont( const QFont &font )
     updateCellWidth();
 }
 
-/*!
+/*
   Sets a new marked text limit, does not repaint the widget.
 */
 
@@ -2821,7 +2821,7 @@ bool QtMultiLineEdit::inMark( int posx, int posy ) const
 	&& (y2 > posy || y2 == posy && x2 >= posx);
 }
 
-/*!
+/*
   Marks the word at character position \a posx, \a posy.
  */
 void QtMultiLineEdit::markWord( int posx, int posy )
@@ -2849,7 +2849,7 @@ void QtMultiLineEdit::markWord( int posx, int posy )
 #endif
 }
 
-/*!
+/*
   This may become a protected virtual member in a future Qt.
   This implementation is an example of a useful classification
   that aids selection of common units like filenames and URLs.
@@ -2864,7 +2864,7 @@ int QtMultiLineEdit::charClass( QChar ch )
 }
 
 #ifndef QT_NO_CLIPBOARD
-/*!
+/*
   Copies the marked text to the clipboard.  Will copy only
   if echoMode() is Normal.
 */
@@ -2888,7 +2888,7 @@ void QtMultiLineEdit::copy() const
     }
 }
 
-/*! \obsolete
+/* \obsolete
 
   Backward compatibility.
 */
@@ -2897,7 +2897,7 @@ void QtMultiLineEdit::copyText() const
     copy();
 }
 
-/*!
+/*
   Copies the selected text to the clipboard and deletes the selected text.
 */
 
@@ -2914,7 +2914,7 @@ void QtMultiLineEdit::cut()
 
 #endif
 
-/*!
+/*
   This private slot is activated when this line edit owns the clipboard and
   some other widget/application takes over the clipboard. (X11 only)
 */
@@ -2930,7 +2930,7 @@ void QtMultiLineEdit::clipboardChanged()
 }
 
 
-/*!
+/*
    Sets maxLineWidth() and maybe cellWidth() to \a w without updating the entire widget.
  */
 
@@ -2951,7 +2951,7 @@ void QtMultiLineEdit::setWidth( int w )
 }
 
 
-/*!
+/*
   Sets the cursor position to character number \a col in line number \a line.
   The parameters are adjusted to lie within the legal range.
 
@@ -2983,7 +2983,7 @@ void QtMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 
 
-/*! \obsolete
+/* \obsolete
 
   Use getCursorPosition() instead.
 */
@@ -2994,7 +2994,7 @@ void QtMultiLineEdit::cursorPosition( int *line, int *col ) const
 }
 
 
-/*!
+/*
   Returns the current line and character
   position within that line, in the variables pointed to
   by \a line and \a col respectively.
@@ -3031,7 +3031,7 @@ void QtMultiLineEdit::setAutoUpdate( bool enable )
     QtTableView::setAutoUpdate( enable );
 }
 
-/*!
+/*
   Sets the fixed height of the QtMultiLineEdit so that \a lines text lines
   are visible given the current font.
 
@@ -3046,7 +3046,7 @@ void QtMultiLineEdit::setFixedVisibleLines( int lines )
 
 
 
-/*!
+/*
   Returns the top center point where the cursor is drawn
 */
 
@@ -3066,7 +3066,7 @@ QPoint QtMultiLineEdit::cursorPoint() const
 }
 
 
-/*! \reimp
+/* \reimp
 */
 QSizePolicy QtMultiLineEdit::sizePolicy() const
 {
@@ -3075,7 +3075,7 @@ QSizePolicy QtMultiLineEdit::sizePolicy() const
 }
 
 
-/*!\reimp
+/*\reimp
 */
 QSize QtMultiLineEdit::sizeHint() const
 {
@@ -3098,7 +3098,7 @@ QSize QtMultiLineEdit::sizeHint() const
 }
 
 
-/*!
+/*
   Returns a size sufficient for one character, and scroll bars.
 */
 
@@ -3119,7 +3119,7 @@ QSize QtMultiLineEdit::minimumSizeHint() const
 
 
 
-/*!\reimp
+/*\reimp
 */
 
 void QtMultiLineEdit::resizeEvent( QResizeEvent *e )
@@ -3169,7 +3169,7 @@ int QtMultiLineEdit::alignment() const
 }
 
 
-/*!
+/*
   Not supported at this time.
   \a v is the validator to set.
 */
@@ -3179,7 +3179,7 @@ void QtMultiLineEdit::setValidator( const QValidator *v )
     // #### validate text now
 }
 
-/*!
+/*
   Not supported at this time.
 */
 const QValidator * QtMultiLineEdit::validator() const
@@ -3201,7 +3201,7 @@ bool QtMultiLineEdit::edited() const
     return d->edited;
 }
 
-/*! \enum QtMultiLineEdit::EchoMode
+/* \enum QtMultiLineEdit::EchoMode
 
   This enum type describes the ways in which QLineEdit can display its
   contents.  The currently defined values are: \list
@@ -3247,7 +3247,7 @@ QtMultiLineEdit::EchoMode QtMultiLineEdit::echoMode() const
 }
 
 
-/*!
+/*
   Returns the string shown at line \a row, including
   processing of the echoMode().
 */
@@ -3308,7 +3308,7 @@ int QtMultiLineEdit::length() const
 }
 
 
-/*!
+/*
   Sets the maximum length of lines to \a m.  Use -1 for unlimited
   (the default).  Existing long lines will be truncated.
 
@@ -3332,7 +3332,7 @@ void QtMultiLineEdit::setMaxLineLength(int m)
     }
 }
 
-/*!
+/*
   Returns the currently set line length limit, or -1 if there is
   no limit (this is the default).
 
@@ -3396,7 +3396,7 @@ int QtMultiLineEdit::hMargin() const
     return d->lr_marg;
 }
 
-/*!
+/*
   Marks the text starting at \a row_from, \a col_from and ending
   at \a row_to, \a col_to.
 */
@@ -3408,7 +3408,7 @@ void QtMultiLineEdit::setSelection( int row_from, int col_from,
 }
 
 
-/*!
+/*
   Moves the cursor one word to the right.  If \a mark is TRUE, the text
   is marked.
   \sa cursorWordBackward()
@@ -3448,7 +3448,7 @@ void QtMultiLineEdit::cursorWordForward( bool mark )
     d->blinkTimer->start( QApplication::cursorFlashTime() / 2, FALSE );
 }
 
-/*!
+/*
   Moves the cursor one word to the left.  If \a mark is TRUE, the text
   is marked.
   \sa cursorWordForward()
@@ -3664,7 +3664,7 @@ void QtMultiLineEdit::rebreakAll()
 }
 
 
-/*! \enum QtMultiLineEdit::WordWrap
+/* \enum QtMultiLineEdit::WordWrap
 
   This enum describes the multiline edit's word wrap mode.
 
@@ -3743,7 +3743,7 @@ int QtMultiLineEdit::wrapColumnOrWidth() const
 }
 
 
-/*! \enum QtMultiLineEdit::WrapPolicy
+/* \enum QtMultiLineEdit::WrapPolicy
 
   Defines where text can be wrapped in word wrap mode.
 
@@ -3785,7 +3785,7 @@ QtMultiLineEdit::WrapPolicy QtMultiLineEdit::wrapPolicy() const
     return d->wrappolicy;
 }
 
-/*!
+/*
   Returns wether \a row is the last row in a paragraph.
 
   This function is only interesting in word wrap mode, otherwise its
@@ -3861,7 +3861,7 @@ void QtMultiLineEdit::offsetToPositionInternal( int position,
 }
 
 
-/*!
+/*
   Processes an undo/redo command \a cmd, depending on \a undo.
  */
 void QtMultiLineEdit::processCmd( QtMultiLineEditCommand* cmd, bool undo)
@@ -3896,7 +3896,7 @@ void QtMultiLineEdit::processCmd( QtMultiLineEditCommand* cmd, bool undo)
     }
 }
 
-/*!
+/*
   Undoes the last text operation.
  */
 void QtMultiLineEdit::undo()
@@ -3923,7 +3923,7 @@ void QtMultiLineEdit::undo()
     textDirty = FALSE;
 }
 
-/*!
+/*
   Redoes the last text operation.
  */
 void QtMultiLineEdit::redo()
@@ -3952,7 +3952,7 @@ void QtMultiLineEdit::redo()
     textDirty = FALSE;
 }
 
-/*!
+/*
   Inserts \a s at line number \a line, after character number \a col
   in the line.
   If \a s contains newline characters, new lines are inserted.
@@ -3992,7 +3992,7 @@ void QtMultiLineEdit::deleteNextChar( int offset, int row, int col )
     setCursorPosition( row, col, FALSE );
 }
 
-/*!
+/*
   Deletes text from the current cursor position to the end of the line.
 */
 
@@ -4024,7 +4024,7 @@ void QtMultiLineEdit::killLine()
 	killLineAux();
 }
 
-/*!
+/*
   Deletes the character on the right side of the text cursor. If a
   text has been marked by the user (e.g. by clicking and dragging) the
   cursor is put at the beginning of the marked text and the marked
@@ -4182,7 +4182,7 @@ int QtMultiLineEdit::setNumRowsAndTruncate()
     return r;
 }
 
-/*! \reimp
+/* \reimp
 */
 bool QtMultiLineEdit::event( QEvent * e )
 {
@@ -4223,7 +4223,7 @@ bool QtMultiLineEdit::event( QEvent * e )
     return QWidget::event( e );
 }
 
-/*! \reimp
+/* \reimp
 */
 
 bool QtMultiLineEdit::focusNextPrevChild( bool )
