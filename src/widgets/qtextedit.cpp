@@ -4419,7 +4419,14 @@ void QTextEdit::setPaper( const QBrush& pap )
     doc->setPaper( new QBrush( pap ) );
     setPaletteBackgroundColor( pap.color() );
     viewport()->setPaletteBackgroundColor( pap.color() );
-    updateContents();
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    // force a repaint of the entire viewport - using updateContents()
+    // would clip the coords to the content size
+    if (d->optimMode)
+ 	repaintContents(contentsX(), contentsY(), viewport()->width(), viewport()->height());
+    else
+#endif
+	updateContents();
 }
 
 QBrush QTextEdit::paper() const
