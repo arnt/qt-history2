@@ -218,16 +218,16 @@ QTextFormat::PropertyType QTextFormatCollectionState::stringToPropertyType(const
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
 {
+    if (!cursor.hasSelection())
+	return;
+
     const QTextPieceTable *p = cursor.d->pieceTable;
     pieceTable = const_cast<QTextPieceTable *>(p);
     Q_ASSERT(pieceTable);
 
-    int pos = cursor.position();
-    int endPos = cursor.adjustedAnchor();
-    Q_ASSERT (pos != endPos);
-
-    if (pos > endPos)
-	qSwap(pos, endPos);
+    int pos = cursor.selectionStart();
+    int endPos = cursor.selectionEnd();
+    Q_ASSERT (pos < endPos);
 
     QList<int> usedFormats;
 

@@ -354,6 +354,69 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
 }
 
 /*!
+    \class QTextCursor qtextcursor.h
+    \brief The QTextCursor class offers an API to access and modify QTextDocuments.
+
+    \ingroup text
+
+    A QTextCursor is an object that can be used to access and
+    manipulate a QTextDocument. It is a combination of what is usually
+    seen as a cursor and a selection.
+
+    A QTextCursor has an \a anchor and a current position. The range
+    between anchor and position is the current selection. When there
+    is no selection both anchor and position point to the same
+    position in the document.
+
+    A cursor can be used to access, modify and set the current
+    character and block formats. It canbe used to insert lists, list
+    items, tables or fragments of a document at it's current position.
+
+    You can move a cursor using \a moveTo, creating selections if
+    needed, insert and remove characters and selections.
+
+    Movements of the cursor are limited to valid cursor positions. In
+    Latin writing this is usually after every character in the
+    text. In other writing systems however cursor movements is limited
+    to so called clusters (e.g. a syllable in Devanagari, or a base
+    letter plus diacritics). Functions as \a moveTo and \a deleteChar
+    limit cursor movement to these valid positions.
+
+*/
+
+/*!
+    \enum QTextCursor::MoveOperation
+    \value NoMove Keep the cursor where it is
+
+    \value Start Move to the start of the document
+    \value StartOfLine Move to the start of the current line
+    \value PreviousBlock move to the start of the previous block
+    \value PreviousCharacter move to the previous character
+    \value PreviousWord move to the beginning of the previous word
+    \value Up move one line up
+    \value Left move one character to the left
+    \value WordLeft move one word to the left
+
+    \value End move to the end of the document
+    \value EndOfLine move to the end of the current line
+    \value NextBlock move to the beginning of the next block
+    \value NextCharacter move to the next character
+    \value NextWord move to the next word
+    \value Down move one line down
+    \value Right move one character to the right
+    \value WordRight move one word to the right
+
+    \sa moveTo()
+*/
+
+/*!
+    \enum QTextCursor::MoveMode
+
+    \value MoveAnchor Moves the anchor to the same position as the cursor itself.
+    \value KeepAnchor Keeps the anchor where it was.
+*/
+
+/*!
     Constructs a null cursor.
  */
 QTextCursor::QTextCursor()
@@ -453,13 +516,15 @@ int QTextCursor::anchor() const
     return d->anchor;
 }
 
-int QTextCursor::adjustedAnchor() const
-{
-    if (!d)
-	return -1;
-    return d->adjusted_anchor;
-}
+/*!
+  Moves the cursor by MoveOperation \op, using MoveMode \a mode.
 
+  Using KeepAnchor as the \a mode, makes it possible to have a
+  selection in the cursor. It corresponds to moving the cursor with a
+  pressed Shift Key in a widget.
+
+  \sa MoveOperation, MoveMode
+*/
 bool QTextCursor::moveTo(MoveOperation op, MoveMode mode)
 {
     if (!d)
@@ -512,8 +577,13 @@ void QTextCursor::insertText(const QString &text, const QTextCharFormat &format)
     d->pieceTable->endEditBlock();
 }
 
-void QTextCursor::deleteChar()
-{
+/*!
+  Deletes the next character after the current cursor position. If
+  the cursor contains a selection, the selection is deleted instead.
+
+
+*/
+void QTextCursor::deleteChar() {
     if (!d)
 	return;
 
@@ -527,6 +597,10 @@ void QTextCursor::deleteChar()
     d->setX();
 }
 
+/*!
+  Deletes the last character before the current cursor position. If
+  the cursor contains a selection, the selection is deleted instead.
+*/
 void QTextCursor::deletePreviousChar()
 {
     if (!d)
@@ -543,11 +617,17 @@ void QTextCursor::deletePreviousChar()
     d->setX();
 }
 
+/*!
+  \returns true if the cursor contains a selection.
+*/
 bool QTextCursor::hasSelection() const
 {
     return d && d->position != d->anchor;
 }
 
+/*!
+  Clears the current selection.
+*/
 void QTextCursor::clearSelection()
 {
     if (!d)
@@ -555,6 +635,9 @@ void QTextCursor::clearSelection()
     d->adjusted_anchor = d->anchor = d->position;
 }
 
+/*!
+  Removes the current selection. Does nothing if the cursor doesn't have a selection.
+*/
 void QTextCursor::removeSelection()
 {
     if (!d || d->position == d->anchor)
@@ -564,6 +647,9 @@ void QTextCursor::removeSelection()
     d->setX();
 }
 
+/*!
+  \returns the start of the selection or the current position if the cursor doesn't have a selection.
+*/
 int QTextCursor::selectionStart() const
 {
     if (!d)
@@ -571,6 +657,9 @@ int QTextCursor::selectionStart() const
     return qMin(d->position, d->adjusted_anchor);
 }
 
+/*!
+  \returns the end of the selection or the current position if the cursor doesn't have a selection.
+*/
 int QTextCursor::selectionEnd() const
 {
     if (!d)
@@ -604,6 +693,10 @@ QTextBlockFormat QTextCursor::blockFormat() const
     return d->block().blockFormat();
 }
 
+/*!
+  Modifies the format of the selection by \a modifier. Does nothing if the cursor
+  doesn't have a selection.
+*/
 void QTextCursor::applyFormatModifier(const QTextFormat &modifier) const
 {
     if (!d || d->position == d->anchor)
@@ -620,6 +713,10 @@ void QTextCursor::applyFormatModifier(const QTextFormat &modifier) const
 	->setFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
+/*!
+  Modifies the block format of the current block (or all blocks
+  that are contained in the selection) with \a modifier.
+*/
 void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier) const
 {
     if (!d)
@@ -680,6 +777,9 @@ QTextCharFormat QTextCursor::charFormat() const
     return d->pieceTable->formatCollection()->charFormat(idx);
 }
 
+/*!
+  \returns true if the cursor is at the start of a block
+*/
 bool QTextCursor::atBlockStart() const
 {
     if (!d)
@@ -688,6 +788,9 @@ bool QTextCursor::atBlockStart() const
     return d->position == d->block().start();
 }
 
+/*!
+  \returns true if the cursor is at the end of a block
+*/
 bool QTextCursor::atEnd() const
 {
     if (!d)
@@ -696,6 +799,10 @@ bool QTextCursor::atEnd() const
     return d->position == d->pieceTable->length() - 1;
 }
 
+/*!
+  Inserts a new block at the current position with the block format of
+  the previous block into the document.
+*/
 void QTextCursor::insertBlock()
 {
     if (!d)
@@ -707,6 +814,11 @@ void QTextCursor::insertBlock()
     d->insertBlock(bfmt);
 }
 
+/*!
+  \overload
+  Inserts a new block at the current position with block format \a format
+  into the document.
+*/
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
 {
     if (!d)
@@ -859,6 +971,12 @@ QTextTable *QTextCursor::currentTable() const
     return d->pieceTable->tableManager()->tableAt(d->position);
 }
 
+
+/*!
+    Inserts \a fragments at the current position.
+
+    \sa QTextFragment
+ */
 void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
 {
     if (!d || fragment.isNull())
@@ -870,6 +988,9 @@ void QTextCursor::insertFragment(const QTextDocumentFragment &fragment)
     d->pieceTable->endEditBlock();
 }
 
+/*!
+  Inserts the image defined by \a format at the current position.
+*/
 void QTextCursor::insertImage(const QTextImageFormat &format)
 {
     insertText(QString(QTextObjectReplacementChar), format);
