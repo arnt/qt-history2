@@ -24,6 +24,24 @@ public:
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
 
+    void drawPushButton( QPushButton* btn, QPainter *p);
+
+    void drawPanel( QPainter *p, int x, int y, int w, int h,
+                    const QColorGroup &, bool sunken=FALSE,
+                    int lineWidth = 1, const QBrush *fill = 0 );
+
+    // RadioButton
+    QSize exclusiveIndicatorSize() const;
+
+    void drawExclusiveIndicator( QPainter* p, int x, int y, int w, int h,
+		    const QColorGroup &g, bool on, bool down = FALSE, bool enabled = TRUE );
+
+    // CheckBox
+    QSize indicatorSize() const;
+
+    void drawIndicator( QPainter* p, int x, int y, int w, int h, const QColorGroup &g,
+			    int state, bool down = FALSE, bool enabled = TRUE );
+
 private:	// Disabled copy constructor and operator=
     class Private;
     Private *d;
