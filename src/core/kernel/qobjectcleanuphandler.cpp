@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qobjectcleanuphandler.h"
-#include "qlist.h"
 
 /*!
     \class QObjectCleanupHandler qobjectcleanuphandler.h
