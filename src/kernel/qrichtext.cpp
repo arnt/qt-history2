@@ -1021,7 +1021,7 @@ void QTextCursor::gotoHome()
 void QTextCursor::gotoEnd()
 {
     if ( doc && !doc->lastParag()->isValid() )
-	return;
+	doc->lastParag()->format();
 
     tmpIndex = -1;
     if ( doc )
@@ -3368,7 +3368,7 @@ void QTextString::checkBidi() const
     } else {
 	((QTextString *)this)->rightToLeft = FALSE;
     }	
-    
+
     int len = data.size();
     const QTextStringChar *c = data.data();
     ((QTextString *)this)->bidi = FALSE;
@@ -3543,10 +3543,10 @@ QTextStringChar *QTextStringChar::clone() const
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), listS( QStyleSheetItem::ListDisc ), 
-      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), 
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), listS( QStyleSheetItem::ListDisc ),
+      numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
 #ifndef QT_NO_TEXTCUSTOMITEM
-      tc( 0 ), numCustomItems( 0 ), 
+      tc( 0 ), numCustomItems( 0 ),
 #endif
       pFormatter( 0 ), tArray( 0 ), tabStopWidth( 0 ),
       eData( 0 ), pntr( 0 ), commandHistory( 0 )
@@ -4327,7 +4327,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     if ( dir != QPainter::RTL && start + len == length() ) // don't draw the last character (trailing space)
 	len--;
-    
+
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
 	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
