@@ -9,28 +9,21 @@
 
 // Local includes
 #include "pageeditdialog.h"
+#include "page.h"
 
 // Qt includes
 #include <qapplication.h>
+#include <qeventloop.h>
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
+#include <qpainter.h>
+#include <qpaintdevicemetrics.h>
+#include <qprinter.h>
+#include <qsimplerichtext.h>
 #include <qstatusbar.h>
 
-#include <qmotifwidget.h>
-#include <qmotifdialog.h>
-
 #include <unistd.h>
-
-// Motif includes
-#include <Xm/Xm.h>
-
-// Demo includes
-#include "page.h"
-
-extern "C" {
-#include <Xmd/Print.h>
-}
 
 extern int modified;
 
@@ -54,43 +47,11 @@ void AdjustPages(int startpage, int ins)
   }
 }
 
-// Print callback called by the print dialog
-static
-void Print(Widget, char *, XmdPrintCallbackStruct *cb)
-{
-  int i;
-  FILE *temp;
-  int from, to;
-
-  temp = fopen("/tmp/.todoout", "w");
-
-  if (cb -> first == cb -> last &&
-      cb -> first == 0) {
-    from = 0;
-    to = maxpages - 1;
-  } else {
-    from = QMAX(0, cb -> first - 1);
-    to = QMIN(maxpages, cb -> last - 1);
-  }
-
-  for (i = from; i <= to; i++) {
-    if (pages[i] -> label != NULL) {
-      fprintf(temp, "Subject: %s\n", pages[i] -> label);
-      fprintf(temp, "---------------------------\n\n\n");
-    }
-    fprintf(temp, "%s", pages[i] -> page);
-    if (i != (maxpages - 1)) fprintf(temp, "\f");
-  }
-
-  fclose(temp);
-  XmdPrintDocument("/tmp/.todoout", cb);
-}
-
 
 void MainWindow::fileNew()
 {
     char buf[128];
-    Boolean found = False;
+    bool found = FALSE;
     int i = 0;
 
     while(! found) {
@@ -154,22 +115,69 @@ void MainWindow::fileSaveAs()
 
 void MainWindow::filePrint()
 {
-    QMotifDialog dialog( this );
-    (void) XtCreateWidget( "print dialog", xmdPrintWidgetClass,
-			   dialog.shell(), NULL, 0 );
+    QPrinter printer( QPrinter::HighResolution );
+    printer.setFullPage(TRUE);
+    if ( ! printer.setup( this ) ) return;
 
-    // the print callback calls QMotifDialog::acceptCallback()
-    XtAddCallback( dialog.dialog(), XmdNprintCallback,
-		   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
-    // the cancel callback calls QMotifDialog::rejectCallback()
-    XtAddCallback( dialog.dialog(), XmNcancelCallback,
-		   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
+    QPainter p( &printer );
+    if ( ! p.isActive() || ! p.device() ) return;
 
-    // the print callback also calls the original Print() function
-    XtAddCallback( dialog.dialog(), XmdNprintCallback,
-		   (XtCallbackProc) Print, NULL );
+    qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 
-    dialog.exec();
+    // compose rich text string
+    const QString prelabel  = QString::fromLatin1( "<b>Subject: " );
+    const QString postlabel = QString::fromLatin1( "</b>" );
+    const QString prepage   = QString::fromLatin1( "<p>" );
+    const QString postpage  = QString::fromLatin1( "</p>" );
+    const QString pagebreak = QString::fromLatin1( "<hr>" );
+
+    QString printtext;
+    for( int i = 0 ; i <= maxpages ; i++ ) {
+	if ( pages[i]->label ) {
+	    printtext += prelabel;
+	    printtext += QString::fromLocal8Bit( pages[i]->label );
+	    printtext += postlabel;
+	}
+
+	printtext += prepage;
+	printtext += QString::fromLocal8Bit( pages[i]->page );
+	printtext += postpage;
+
+	if ( i != maxpages )
+	    printtext += pagebreak;
+    }
+
+    QPaintDeviceMetrics metrics( p.device() );
+    int dpiy = metrics.logicalDpiY();
+    int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
+    QRect body( margin, margin, metrics.width() - 2*margin,
+		metrics.height() - 2*margin );
+
+    QFont font( font() );
+    font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
+
+    QSimpleRichText richText( printtext, font, QString::null, 0, 0, body.height() );
+    richText.setWidth( &p, body.width() );
+    QRect view( body );
+    int page = 1;
+    do {
+	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+
+	richText.draw( &p, body.left(), body.top(), view, colorGroup() );
+	view.moveBy( 0, body.height() );
+	p.translate( 0 , -body.height() );
+	p.setFont( font );
+
+	QString pageString = QString::number( page );
+	p.drawText( view.right() - p.fontMetrics().width( pageString ),
+		    view.bottom() + p.fontMetrics().ascent() + 5, pageString );
+	if ( view.top()  >= richText.height() )
+	    break;
+	printer.newPage();
+	page++;
+    } while (TRUE);
+
+    qApp->restoreOverrideCursor();
 }
 
 
@@ -205,7 +213,7 @@ void MainWindow::selProperties()
     delete [] pages[currentPage] -> minorTab;
     qstr = pedlg.minorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
-    if (strlen(temp) > 0)
+    if ( qstrlen(temp) > 0 )
 	pages[currentPage] -> minorTab = temp;
     else {
 	delete [] temp;
@@ -215,7 +223,7 @@ void MainWindow::selProperties()
     delete [] pages[currentPage] -> majorTab;
     qstr = pedlg.majorEdit->text().simplifyWhiteSpace();
     temp = qstrdup( qstr.local8Bit().data() );
-    if (strlen(temp) > 0)
+    if ( qstrlen(temp) > 0 )
 	pages[currentPage] -> majorTab = temp;
     else {
 	delete [] temp;
@@ -287,7 +295,7 @@ void MainWindow::setPage( int pageNumber )
 		QString::fromLocal8Bit( pages[pageNumber]->label );
 	} else {
 	    labeltext =
-		QString::fromLocal8Bit("Page %1" ). arg( pageNumber + 1 );
+		QString::fromLocal8Bit( "Page %1" ). arg( pageNumber + 1 );
 	}
 
 	if ( pages[pageNumber]->majorTab ) {
@@ -301,11 +309,13 @@ void MainWindow::setPage( int pageNumber )
 		QString::fromLocal8Bit( " - " ) +
 		QString::fromLocal8Bit( pages[pageNumber]->minorTab );
 	}
+
+	textlabel->setText( labeltext );
     } else {
 	textedit->clear();
 
 	QString labeltext =
-	    QString::fromLocal8Bit("Page %1 (Invalid Page)").arg( pageNumber + 1 );
+	    QString::fromLocal8Bit( "Page %1 (Invalid Page)" ).arg( pageNumber + 1 );
 	textlabel->setText( labeltext );
     }
 }

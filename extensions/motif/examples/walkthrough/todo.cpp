@@ -49,7 +49,6 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 
 // Qt includes
 #include <qapplication.h>
-#include <qmotif.h>
 
 #include <pwd.h>
 #include <unistd.h>
@@ -77,7 +76,6 @@ int main( int argc, char **argv )
     return(0);
   }
 
-  QMotif integrator( APP_CLASS );
   QApplication app( argc, argv );
   MainWindow mainwindow;
   app.setMainWidget( &mainwindow );

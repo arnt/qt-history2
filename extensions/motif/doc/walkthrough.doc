@@ -1381,9 +1381,92 @@ using our \c mainwindow instance.
 The \e View widget has now been replaced.  After building our project,
 we confirm that the application works correctly.
 
-<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
-
 \section1 Replacing the \e {Print} Dialog
+
+The \e {Print} dialog is the last component in our application that
+uses Motif.  The current \c Print() function does nothing more than
+write the plain text to a temporary file, and then executes 'lpr' to
+send the text to the printer.  Since we will use QPrinter, we do not
+this function anymore, so we remove it.  The current \c
+MainWindow::filePrint() implementation is removed as well.  We will
+write a new \c MainWindow::filePrint() implementation in \c
+mainwindow.ui.h.
+
+Note: The steps involved in using the QPrinter class are beyond the
+scope of this walkthrough and will not be discussed here.  The
+QPrinter Class Reference, QSimpleRichText Class Reference and the
+\link simple-application.html Simple Application Walkthrough\endlink
+contain information on the use of QPrinter.
+
+For completeness, the code to initialize a QPrinter object is included below.
+
+\quotefile walkthrough/mainwindow.ui.h
+\skipto void MainWindow::filePrint()
+\printto qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
+
+\section2 Using Rich Text for Printing
+
+Qt provides rich text using a subset of HTML.  The QSimpleRichText
+class makes rich-text printing simple.  All we need to do is create a
+string with the proper format tags inserted at the apprioriate
+places.  For our example, we will keep the printing output similar to
+previous versions.
+
+First, we create the format tags that we will use.
+
+\skipto compose rich text string
+\printuntil const QString pagebreak = QString::fromLatin1( "<hr>" );
+
+Next we just loop over all pages, appending the page label, contents
+and formatting characters to a \c printtext variable (which is a
+QString).
+
+\printuntil printtext += pagebreak;
+\printline
+
+The rest of the \c MainWindow::filePrint() function is the actual
+printing code.  Here we simply create a QSimpleRichText object using
+the string we created above, and draw this string on the QPrinter
+object using QPainter.
+
+\skipto QPaintDeviceMetrics metrics( p.device() );
+\printuntil qApp->restoreOverrideCursor();
+\printline
+
+\section2 Removing the Dependency on Xt/Motif
+
+Our application no longer uses any Xt or Motif widgets.  We can now
+finish removing the dependencies on Xt and Motif.
+
+First, we cleanup the \c #include statements in \c mainwindow.ui.h.
+
+\quotefile walkthrough/mainwindow.ui.h
+
+\skipto // Local includes
+\printuntil #include <unistd.h>
+
+The \c MainWindow::fileNew() function uses the \c Boolean and \c False
+keywords from the Xt library.  C++ has these built into the language,
+so we use \c bool and \c false instead.
+
+The last modification needed to completely remove Xt and Motif from
+our application is to stop using the QMotif class.  We remove the
+qmotif.h \c #include statement from \c todo.cpp, and remove the
+instantiaion from the \c main() function.
+
+After doing this, we can remove the \c -lXm and \c -lqmotif from the
+\c LIBS variable in our project file.  Our project file also contains
+source and headers for the the old custom Motif widgets previously
+used in our application.  We remove these as well.
+
+After regenerating the \c Makefile and building our project, we
+confirm that the application works correctly.
+
+
+
+
+
+<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
 
 \section1 Continuing Development
 

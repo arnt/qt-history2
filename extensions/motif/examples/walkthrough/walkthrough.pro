@@ -3,27 +3,11 @@
 ######################################################################
 
 TEMPLATE = app
-DEPENDPATH += Exm Xmd
-INCLUDEPATH += . Exm Xmd
-LIBS += -lXm -lqmotif
+TARGET = walkthrough
 
 # Input
 FORMS    = pageeditdialog.ui \
            mainwindow.ui
-HEADERS += page.h \
-           Exm/CommandB.h \
-           Exm/CommandBP.h \
-           Exm/ExmString.h \
-           Exm/ExmStringP.h \
-           Exm/Simple.h \
-           Exm/SimpleP.h \
-           Xmd/Menus.h \
-           Xmd/Print.h \
-           Xmd/PrintP.h
+HEADERS += page.h 
 SOURCES += io.cpp \
-           todo.cpp \
-           Exm/CommandB.c \
-           Exm/ExmString.c \
-           Exm/Simple.c \
-           Xmd/Menus.c \
-           Xmd/Print.c
+           todo.cpp
