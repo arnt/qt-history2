@@ -1107,7 +1107,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	QString filters = filterlist.join( ";;" );
 
 	if ( fn.isEmpty() )
-	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, inProject ? tr("Insert") : tr("Open" ), &lastOpenFilter );
+	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, (inProject ? tr("Insert") : tr("Open" )), &lastOpenFilter );
 	else
 	    filename = fn;
 	if ( !filename.isEmpty() ) {
