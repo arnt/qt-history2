@@ -614,6 +614,7 @@ void QMenuBar::accelActivated( int id )
 {
     if ( !isEnabled() )				// the menu bar is disabled
 	return;
+    setAltMode( TRUE );
     setActiveItem( indexOf( id ) );
 }
 #endif
