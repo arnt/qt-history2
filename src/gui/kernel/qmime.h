@@ -107,6 +107,8 @@ public:
     virtual QVariant convertToMime(const QString &mimeType, struct IDataObject *pDataObj, QVariant::Type preferredType) const = 0;
     virtual QString mimeForFormat(const FORMATETC &formatetc) const = 0;
 
+    static int registerMimeType(const QString &mime);
+
 private:
     friend class QClipboardWatcher;
     friend class QDragManager;
@@ -117,7 +119,6 @@ private:
     static QStringList allMimesForFormats(struct IDataObject *pDataObj);
     static QWindowsMime *converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData);
     static QVector<FORMATETC> allFormatsForMime(const QMimeData *mimeData);
-    static int registerMimeType(const QString &mime);
 };
 
 #endif
