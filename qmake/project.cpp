@@ -76,6 +76,8 @@ static QString varMap(const QString &x)
 	ret = "QMAKE_POST_LINK";
     else if(ret == "TARGETDEPS")
 	ret = "POST_TARGETDEPS";
+    else if(ret == "LIBPATH")
+	ret = "QMAKE_LIBDIR";
     return ret;
 }
 
