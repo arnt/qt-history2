@@ -1,0 +1,100 @@
+New classes
+================================
+
+- QIconFactory
+- QObjectUserData
+
+
+QCanvas
+------------------
+New functions:
+	void invalidate()
+	bool isValid() const
+
+QUtf{8,16}Codec
+------------------
+New functions:
+	QString toUnicode(const char* chars, int len) const
+
+QColorDialog
+------------------
+New functions:
+	static void setStandardColor( int, QRgb )
+
+QFileDialog
+------------------
+New functions:
+	bool isReadable( const QString & filename ) #####
+
+QIconViewItem
+------------------
+New functions:
+	QString tempText() const
+
+QAccel
+------------------
+New signals:
+	void activatedAmbiguously( int id )
+
+QApplication
+------------------
+New functions:
+	QEventLoop *eventLoop() const
+	void setEventLoop( QEventLoop * )
+	QString sessionKey() const
+
+QClipboard
+------------------
+New functions:
+	void clear( Mode mode )
+	bool supportsSelection() const
+	bool ownsSelection() const
+	bool ownsClipboard() const
+	QString text( Mode mode )  const
+	QString text( QCString& subtype, Mode mode ) const
+	void setText( const QString &, Mode mode )
+	QMimeSource *data( Mode mode ) const
+	void setData( QMimeSource*, Mode mode )
+	QImage image( Mode mode ) const
+	QPixmap pixmap( Mode mode ) const
+	void setImage( const QImage &, Mode mode )
+	void setPixmap( const QPixmap &, Mode mode )
+
+QDesktopWidget:
+------------------
+New functions:
+	const QRect& screenGeometry( QWidget *widget ) const
+	const QRect& screenGeometry( const QPoint &point ) const
+	const QRect& availableGeometry( int screen ) const
+	const QRect& availableGeometry( QWidget *widget ) const
+	const QRect& availableGeometry( const QPoint &point ) const
+
+QKeyEvent
+------------------
+New functions:
+	in selectionLength() const
+
+QIconSet
+------------------
+New functions:
+	void installIconFactory( QIconFactory *factory )
+
+QImage
+------------------
+New functions:
+	static QImage fromMimeSource( const QString& abs_name )
+
+QMetaObject
+------------------
+New functions:
+	QStrList enumeratorNames( bool super ) const
+	int numEnumerators( bool super ) const
+	static bool hasMetaObject( const char *class_name )
+
+QObject
+------------------
+New functions:
+	static uint registerUserData()
+	void setUserData( uint id, QObjectUserData* data )
+	QObjectUserData* userData( uint id ) const
+
