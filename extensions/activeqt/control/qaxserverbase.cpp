@@ -315,7 +315,6 @@ private:
     unsigned isInPlaceActive	:1;
     unsigned isUIActive		:1;
     unsigned wasUIActive	:1;
-    unsigned isBindable		:1;
     unsigned inDesignMode	:1;
     unsigned canTakeFocus	:1;
     short freezeEvents;
@@ -961,7 +960,6 @@ void QAxServerBase::init()
     isInPlaceActive	= FALSE;
     isUIActive		= FALSE;
     wasUIActive		= FALSE;
-    isBindable		= FALSE;
     inDesignMode	= FALSE;
     canTakeFocus	= FALSE;
     freezeEvents = 0;
@@ -1141,7 +1139,6 @@ void QAxServerBase::internalBind()
 {
     QAxBindable *axb = (QAxBindable*)qt.object->qt_cast( "QAxBindable" );
     if ( axb ) {
-	isBindable = TRUE;
 	// no addref; this is aggregated
 	axb->activex = this;
 	if (!aggregatedObject)
@@ -2305,9 +2302,6 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT )
 		return DISP_E_BADPARAMCOUNT;
 
-	    if ( isBindable && !emitRequestPropertyChange( property->name(), dispidMember ) )
-		break;
-
 	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
 	    if ( !var.isValid() ) {
 		if ( puArgErr )
@@ -2320,8 +2314,6 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_TYPEMISMATCH;
 	    }
 	    
-	    if ( isBindable )
-		emitPropertyChanged( property->name(), dispidMember );
 	    res = S_OK;
 
 	    if ( m_spAdviseSink )
