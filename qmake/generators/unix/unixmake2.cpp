@@ -308,7 +308,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(do_incremental) {
 	    //utility variables
 	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
-	    QString incr_target = var("QMAKE_ORIG_TARGET").replace("\\." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
+	    QString incr_target = var("QMAKE_ORIG_TARGET").replace(QRegExp("\\." + s_ext), "").replace(QRegExp("^lib"), "") + "_incremental";
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
 
