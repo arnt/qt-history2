@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#86 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#87 $
 **
 ** Implementation of QTextStream class
 **
@@ -484,7 +484,7 @@ QTextStream::QTextStream( FILE *fh, int mode )
 /*!
   Destroys the text stream.
 
-  The destructor will not affect the current IO device.
+  The destructor does not affect the current IO device.
 */
 
 QTextStream::~QTextStream()
