@@ -1552,10 +1552,10 @@ static bool check_signal_macro(const QObject *sender, const char *signal,
     if (sigcode != QSIGNAL_CODE) {
         if (sigcode == QSLOT_CODE)
             qWarning("Object::%s: Attempt to %s non-signal %s::%s",
-                     func, op, sender->className(), signal+1);
+                     func, op, sender->metaObject()->className(), signal+1);
         else
             qWarning("Object::%s: Use the SIGNAL macro to %s %s::%s",
-                     func, op, sender->className(), signal);
+                     func, op, sender->metaObject()->className(), signal);
         return false;
     }
     return true;
@@ -1566,7 +1566,7 @@ static bool check_member_code(int code, const QObject *object,
 {
     if (code != QSLOT_CODE && code != QSIGNAL_CODE) {
         qWarning("Object::%s: Use the SLOT or SIGNAL macro to "
-                 "%s %s::%s", func, func, object->className(), member);
+                 "%s %s::%s", func, func, object->metaObject()->className(), member);
         return false;
     }
     return true;
@@ -1582,10 +1582,10 @@ static void err_member_notfound(int code, const QObject *object,
     }
     if (strchr(member,')') == 0)                // common typing mistake
         qWarning("Object::%s: Parentheses expected, %s %s::%s",
-                 func, type, object->className(), member);
+                 func, type, object->metaObject()->className(), member);
     else
         qWarning("Object::%s: No such %s %s::%s",
-                 func, type, object->className(), member);
+                 func, type, object->metaObject()->className(), member);
 }
 
 
@@ -1873,9 +1873,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
 #ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
         qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
-                 sender ? sender->className() : "(null)",
+                 sender ? sender->metaObject()->className() : "(null)",
                  signal ? signal+1 : "(null)",
-                 receiver ? receiver->className() : "(null)",
+                 receiver ? receiver->metaObject()->className() : "(null)",
                  member ? member+1 : "(null)");
         return false;
     }
@@ -1946,8 +1946,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
     if (!QMetaObject::checkConnectArgs(signal, member)) {
         qWarning("Object::connect: Incompatible sender/receiver arguments"
                  "\n\t%s::%s --> %s::%s",
-                 sender->className(), signal,
-                 receiver->className(), member);
+                 sender->metaObject()->className(), signal,
+                 receiver->metaObject()->className(), member);
         return false;
     }
 #endif
@@ -2425,7 +2425,7 @@ bool QObject::setProperty(const char *name, const QCoreVariant &value)
 #ifndef QT_NO_DEBUG
     if (!p.isWritable())
         qWarning("%s::setProperty(\"%s\", value) failed: property invalid,"
-                  " read-only or does not exist", className(), name);
+                  " read-only or does not exist", metaObject()->className(), name);
 #endif
     return p.write(this, value);
 }
@@ -2452,7 +2452,7 @@ QCoreVariant QObject::property(const char *name) const
     if (!p.isReadable())
         qWarning("%s::property(\"%s\") failed:"
                   " property invalid or does not exist",
-                  className(), name);
+                  metaObject()->className(), name);
 #endif
     return p.read(this);
 }
@@ -2487,7 +2487,7 @@ static void dumpRecursive(int level, QObject *object)
             }
         }
 #endif
-        qDebug("%s%s::%s %s", (const char*)buf, object->className(), name.local8Bit(),
+        qDebug("%s%s::%s %s", (const char*)buf, object->metaObject()->className(), name.local8Bit(),
             flags.latin1());
         QObjectList children = object->children();
         if (!children.isEmpty()) {
@@ -2526,7 +2526,8 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(QT_DEBUG)
-    qDebug("OBJECT %s::%s", className(), objectName().isEmpty() ? "unnamed" : objectName().local8Bit());
+    qDebug("OBJECT %s::%s", metaObject()->className(),
+           objectName().isEmpty() ? "unnamed" : objectName().local8Bit());
     //#### signals and slots info missing
 #endif
 }
@@ -2570,7 +2571,7 @@ QObjectUserData* QObject::userData(uint id) const
 QDebug operator<<(QDebug dbg, const QObject *o) {
     if (!o)
         return dbg << "QObject(0x0) ";
-    dbg.nospace() << o->className() << "(" << (void *)o;
+    dbg.nospace() << o->metaObject()->className() << "(" << (void *)o;
     if (!o->objectName().isEmpty())
         dbg << ", name = \"" << o->objectName() << '\"';
     dbg << ')';
