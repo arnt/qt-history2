@@ -817,7 +817,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     <li>\c &lt;img/&gt;
 	- An image. The image name for the mime source
 	factory  is given in the source attribute, for example
-	\c &lt;img \c source="qt.xpm"/&gt; The image tag also
+	\c &lt;img \c src="qt.xpm"/&gt; The image tag also
 	understands the attributes \c width and \c height that determine
 	the size of the image. If the pixmap does not fit to the specified
 	size, it will be scaled automatically ( by using QImage::smoothScale() ).

@@ -164,10 +164,10 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 
     reg = 0;
     QImage img;
-    QString imageName = attr["source"];
+    QString imageName = attr["src"];
 
     if (!imageName)
-	imageName = attr["src"];
+	imageName = attr["source"];
 
     if ( !imageName.isEmpty() ) {
 	const QMimeSource* m =
@@ -384,7 +384,7 @@ QString QRichText::context() const
     return contxt;
 }
 
-#define ENSURE_ENDTOKEN     if ( (current==this&&!current->child) || curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
+#define ENSURE_ENDTOKEN     if ( curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
 		     || curstyle->displayMode() == QStyleSheetItem::DisplayListItem ){ \
 		    (dummy?dummy:current)->text.append( "\n", fmt ); \
 		}
@@ -465,9 +465,14 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 	    QTextCustomItem* custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom || tagname == "br") {
 		PROVIDE_DUMMY
-		if ( custom )
+		if ( custom ) {
 		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
-		else {// br
+		    if ( custom->ownLine() && custom->placeInline() ) {
+			(dummy?dummy:current)->text.append( "\n", fmt ) ;
+			if ( wsm != QStyleSheetItem::WhiteSpacePre )
+			    eatSpace(doc, pos);
+		    }
+		} else {// br
 		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
 		    if ( wsm != QStyleSheetItem::WhiteSpacePre )
 			eatSpace(doc, pos);
@@ -479,7 +484,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		QTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
 		custom = parseTable( attr, nfmt, doc, pos );
 		(dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
- 		(dummy?dummy:current)->text.append( "", fmt ) ;
+  		(dummy?dummy:current)->text.append( "\n", fmt ) ;
 		if ( custom->placeInline() ) {
 		    // inline tables need to be at the end of a paragraph for proper selection handling
 		    if ( !current->text.isEmpty() ){
@@ -492,6 +497,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    dummy = 0;
 		}
 		CLOSE_TAG
+		eatSpace( doc, pos );
 	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
@@ -1182,15 +1188,6 @@ void QTextParagraph::invalidateLayout()
     }
 }
 
-
-QTextParagraph* QTextParagraph::realParagraph() const
-{
-    // to work around dummy paragraphs
-    if ( parent &&style->name().isEmpty() )
-	return parent->realParagraph();
-    return (QTextParagraph*) this;
-}
-
 QStyleSheetItem::ListStyle QTextParagraph::listStyle()
 {
     QString s =  attributes()["type"];
@@ -1573,12 +1570,11 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	y_ += height + 1; // first pixel below us
 	int m = paragraph->bottomMargin();
 	QTextParagraph* nid = paragraph->nextInDocument();
-	if ( nid ) {
+	if ( nid )
 	    m -= nid->topMargin();
-	    if ( m > 0 ) {
-		flow->adjustFlow( y_, widthUsed, m ) ;
-		y_ += m;
-	    }
+	if ( m > 0 ) {
+	    flow->adjustFlow( y_, widthUsed, m ) ;
+	    y_ += m;
 	}
 	width = flow->width;
 	lmargin = flow->adjustLMargin( y_, static_lmargin );
@@ -1779,7 +1775,7 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 		w -= fm.width( c.mid( to.selend.c ) );
 		only_partially_highlighted = TRUE;
 	    }
-	    highlight.setRect( gx-ox+currentx+offsetx, gy-oy, w- offsetx, height );
+	    highlight.setRect( gx-ox+currentx+offsetx, gy-oy+1, w- offsetx, height );
 	    p->fillRect( highlight, cg.highlight() );
 	    if ( !only_partially_highlighted )
 		p->setPen( cg.highlightedText() );
@@ -2075,18 +2071,19 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 		rdesc = currentdesc;
 
 	    gotoNextItem( p );
-	    if ( custombreak ) {
-		// also break _behind_ a custom expander
-		++current;
-		lastc = '\n';
-	    }
+   	    if ( custombreak ) {
+   		// also break _behind_ a custom expander
+   		++current;
+  		lastc = '\n';
+   	    }
 	}
 	// if a wordbreak is possible and required, do it. Unless we
 	// have a newline, of course. In that case we break after the
 	// newline to avoid empty lines.
 	if ( currentx > width - rmargin - space_width
-	     && !noSpaceFound && lastc != '\n' )
+	     && !noSpaceFound && lastc != '\n' ) {
 	    break;
+	}
 
 	// word break is possible (a) after a space, (b) after a
 	// newline, (c) before expandable item  or (d) at the end of the paragraph.
@@ -2104,20 +2101,12 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     }
 
     last = lastSpace;
-    if ( last == paragraph->text.length() ) // can happen with break behind custom expanders
-	last--;
-
     rh = lastHeight;
     rasc = lastAsc;
     rdesc = lastDesc;
 
     height = QMAX(rh, rasc+rdesc+1);
     base = rasc;
-
-    if ( first == last ) { // empty line
-	height = 0;
-	base = 0;
-    }
 
     fill = 0;
     switch ( paragraph->alignment() ) {
@@ -2524,7 +2513,7 @@ void QTextTableCell::realize()
 	return;
 
     richtext->doLayout(painter(), QWIDGETSIZE_MAX );
-    maxw = richtext->flow()->widthUsed;
+    maxw = richtext->flow()->widthUsed + 6;
     richtext->doLayout(painter(), 0 );
     minw = richtext->flow()->widthUsed;
 }

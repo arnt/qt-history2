@@ -237,7 +237,6 @@ public:
 
     ~QTextParagraph();
 
-    QTextParagraph* realParagraph() const;
     QTextParagraph* parent;
     QTextFormatCollection* formats;
     QTextCharFormat format;
@@ -291,7 +290,7 @@ public:
 
     inline int labelMargin() const
     {
-	return style->displayMode() == QStyleSheetItem::DisplayListItem ? 25: 0;
+	return style->displayMode() == QStyleSheetItem::DisplayListItem ? 18: 0;
     }
 
     inline int totalMargin(QStyleSheetItem::Margin m) const
