@@ -58,6 +58,7 @@ public:
     SourceFiles();
     ~SourceFiles();
 
+    SourceFile *lookupMocFile(const QString &mocfile);
     SourceFile *lookupFile(const char *);
     inline SourceFile *lookupFile(const QString &f) { return lookupFile(f.latin1()); }
     inline SourceFile *lookupFile(const QMakeLocalFileName &f) { return lookupFile(f.local().latin1()); }
@@ -114,6 +115,22 @@ SourceFile *SourceFiles::lookupFile(const char *file)
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
         if(!strcmp(p->key, k)) {
             return p->file;
+        }
+    }
+    return 0;
+}
+
+SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
+{
+    for(register int n = 0; n < num_nodes; n++) {
+        if(nodes[n]) {
+            for(SourceFileNode *next = nodes[n]; next; nodes[n]->next) {
+                if (next->file->mocable
+                    && mocfile == next->file->mocfile.local()) {
+                    return next->file;
+                }
+                next = next->next;
+            }
         }
     }
     return 0;
@@ -179,10 +196,16 @@ bool QMakeSourceFileInfo::mocable(const QString &file)
 
 QString QMakeSourceFileInfo::mocFile(const QString &file)
 {
-    QString ret;
     if(SourceFile *node = files->lookupFile(file))
-        return ret = node->mocfile.local();
-    return ret;
+        return node->mocfile.local();
+    return QString();
+}
+
+QString QMakeSourceFileInfo::mocSource(const QString &mocfile)
+{
+    if (SourceFile *node = files->lookupMocFile(mocfile))
+        return node->file.local();
+    return QString();
 }
 
 QMakeSourceFileInfo::QMakeSourceFileInfo()

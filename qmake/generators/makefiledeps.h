@@ -49,6 +49,7 @@ public:
     QStringList dependencies(const QString &file);
 
     QString mocFile(const QString &file);
+    QString mocSource(const QString &mocfile);
     bool mocable(const QString &file);
 };
 
