@@ -370,7 +370,7 @@ bool QApplicationPrivate::animate_toolbox = false;
 bool QApplicationPrivate::widgetCount = false;
 
 bool tabletChokeMouse = false;
-
+static bool force_reverse = false;
 
 int qt_double_buffer_timer = 0;
 
@@ -565,6 +565,7 @@ void QApplication::process_cmdline()
             }
 #endif
         } else if (qstrcmp(arg, "-reverse") == 0) {
+            force_reverse = true;
             setLayoutDirection(Qt::RightToLeft);
         } else if (qstrcmp(arg, "-widgetcount") == 0) {
             QApplicationPrivate::widgetCount = true;
@@ -1800,10 +1801,11 @@ void QApplication::aboutQt()
 #ifndef QT_NO_TRANSLATION
 static bool qt_detectRTLLanguage()
 {
-    return QApplication::tr("QT_LAYOUT_DIRECTION",
-            "Translate this string to the string 'LTR' in left-to-right"
-            " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-            " and Arabic) to get proper widget layout.") == "RTL";
+    return force_reverse ^
+        QApplication::tr("QT_LAYOUT_DIRECTION",
+                         "Translate this string to the string 'LTR' in left-to-right"
+                         " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+                         " and Arabic) to get proper widget layout.") == "RTL";
 }
 #endif
 
