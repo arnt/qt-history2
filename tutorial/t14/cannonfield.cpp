@@ -244,7 +244,7 @@ bool CannonField::barrelHit(const QPoint &pos) const
     QMatrix matrix;
     matrix.translate(0, height());
     matrix.rotate(-ang);
-    matrix = matrix.invert();
+    matrix = matrix.inverted();
     return barrelRect.contains(matrix.map(pos));
 }
 
