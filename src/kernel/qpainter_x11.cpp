@@ -2704,10 +2704,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    XRenderComposite(dpy, PictOpOver, pixmap.x11RenderHandle(),
 			     alpha->x11RenderHandle(), rendhd,
 			     sx, sy, sx, sy, x, y, sw, sh);
-	} else {
+	} else 
+#endif // QT_NO_XRENDER
+	{
 	    XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
 	}
-#endif // QT_NO_XRENDER
     }
 
     if ( mask ) {                               // restore clipping
