@@ -99,8 +99,11 @@ void QPainter::restore()
     d->states.pop_back();
     ds = d->states.back();
 
-    if (dgc)
+    if (dgc) {
+	if (dgc->changeFlag & QAbstractGC::DirtyTransform)
+	    updateXForm();
 	dgc->updateState(ds);
+    }
     delete tmp;
 }
 
@@ -423,6 +426,8 @@ void QPainter::resetXForm()
     ds->worldMatrix = QWMatrix();
     setWorldXForm(false);
     setViewXForm(false);
+    if (dgc)
+	dgc->setDirty(QAbstractGC::DirtyTransform);
 }
 
 void QPainter::translate(double dx, double dy)
@@ -1319,6 +1324,14 @@ void QPainter::updateXForm()
 			      ds->matrix.dy()-d->redirection_offset.y());
     }
     dgc->setDirty(QAbstractGC::DirtyTransform);
+//     printf("VxF=%d, WxF=%d\n", ds->VxF, ds->WxF);
+//     printf("Using matrix: %f, %f, %f, %f, %f, %f\n",
+// 	   ds->matrix.m11(),
+// 	   ds->matrix.m12(),
+// 	   ds->matrix.m21(),
+// 	   ds->matrix.m22(),
+// 	   ds->matrix.dx(),
+// 	   ds->matrix.dy() );
 }
 
 void QPainter::updateInvXForm()

@@ -127,6 +127,8 @@ protected:
 
 private:
     QAbstractGCPrivate *d_ptr;
+
+    friend class QPainter;
 };
 
 //

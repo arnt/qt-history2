@@ -69,10 +69,10 @@ public:
     const QBrush &background() const;
     const QPoint &backgroundOrigin() const;
 
-    QRegion clipRegion(CoordinateMode = CoordPainter) const;
-    void setClipRect(const QRect &, CoordinateMode = CoordPainter);
-    void setClipRect(int x, int y, int w, int h, CoordinateMode = CoordPainter);
-    void setClipRegion(const QRegion &, CoordinateMode = CoordPainter);
+    QRegion clipRegion(CoordinateMode = CoordDevice) const;
+    void setClipRect(const QRect &, CoordinateMode = CoordDevice);
+    void setClipRect(int x, int y, int w, int h, CoordinateMode = CoordDevice);
+    void setClipRegion(const QRegion &, CoordinateMode = CoordDevice);
     void setClipping(bool enable);
     bool hasClipping() const;
 
