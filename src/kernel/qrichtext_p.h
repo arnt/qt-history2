@@ -196,6 +196,12 @@ public:
     QTextCursor *undo( QTextCursor *c );
     QTextCursor *redo( QTextCursor *c );
 
+    bool isUndoAvailable();
+    bool isRedoAvailable();
+    
+    void setUndoDepth( int d ) { steps = d; }
+    int undoDepth() const { return steps; }
+    
 private:
     QList<QTextCommand> history;
     int current, steps;
@@ -424,11 +430,17 @@ public:
     void setTabArray( int *a );
     void setTabStops( int tw );
 
+    void setUndoDepth( int d ) { commandHistory->setUndoDepth( d ); }
+    int undoDepth() const { return commandHistory->undoDepth(); }
+
+    int length() const;
+    QTextCommandHistory *commands() const { return commandHistory; }
+    void clear( bool createEmptyParag = FALSE );
+    
 signals:
     void minimumWidthChanged( int );
 
 private:
-    void clear();
     QPixmap *bufferPixmap( const QSize &s );
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
@@ -490,7 +502,8 @@ private:
     int align;
     int *tArray;
     int tStopWidth;
-
+    int uDepth;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -773,7 +786,6 @@ private:
     QTextTableCell *tc;
     int numCustomItems;
     QRect docRect;
-    QTextFormatCollection *fCollection;
     QTextFormatter *pFormatter;
     int *tabArray;
     int tabStopWidth;
@@ -791,12 +803,22 @@ public:
     virtual ~QTextFormatter() {}
     virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts ) = 0;
 
+    bool isWrapEnabled() const { return wrapEnabled;}
+    int wrapAtColumn() const { return wrapColumn;}
+    virtual void setWrapEnabled( bool b ) { wrapEnabled = b; }
+    virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
+    
 protected:
     virtual QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
     virtual QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
 						    QTextString::Char *last, int align, int space );
     virtual bool isBreakable( QTextString *string, int pos ) const;
+
+private:
+    bool wrapEnabled;
+    int wrapColumn;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1317,6 +1339,7 @@ inline void QTextDocument::setPreProcessor( QTextPreProcessor * sh )
 
 inline void QTextDocument::setFormatter( QTextFormatter *f )
 {
+    delete pFormatter;
     pFormatter = f;
 }
 
@@ -2226,15 +2249,6 @@ inline int QTextParag::documentX() const
 inline int QTextParag::documentY() const
 {
     return doc ? doc->y() : docRect.y();
-}
-
-inline QTextFormatCollection *QTextParag::formatCollection() const
-{
-    if ( doc )
-	return doc->formatCollection();
-    if ( fCollection )
-	return fCollection;
-    return ( ( (QTextParag*)this )->fCollection = new QTextFormatCollection );
 }
 
 inline QTextFormatter *QTextParag::formatter() const

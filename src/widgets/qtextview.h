@@ -67,6 +67,9 @@ class Q_EXPORT QTextView : public QScrollView
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
     Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
     Q_PROPERTY( QString documentTitle READ documentTitle )
+    Q_PROPERTY( int undoDepth READ undoDepth WRITE setUndoDepth )
+    Q_PROPERTY( bool overWriteMode READ isOverwriteMode WRITE setOverwriteMode )
+    Q_PROPERTY( int length READ length )
 
 public:
     QTextView( const QString& text, const QString& context = QString::null,
@@ -85,12 +88,12 @@ public:
     TextFormat textFormat() const;
     QString fileName() const;
 
-    void cursorPosition( int &parag, int &index );
-    void selection( int &parag_from, int &index_from,
-		    int &parag_to, int &index_to );
+    void getCursorPosition( int &parag, int &index ) const;
+    void getSelection( int &parag_from, int &index_from,
+		    int &parag_to, int &index_to ) const;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
 		       int *parag = 0, int *index = 0 );
-    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = FALSE );
+    void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE );
 
     int paragraphs() const;
     int lines() const;
@@ -141,13 +144,42 @@ public:
     void repaintChanged();
     void updateStyles();
 
+    void setOverwriteMode( bool b ) { overWrite = b; }
+    bool isOverwriteMode() const { return overWrite; }
+
+    enum WordWrap {
+	NoWrap,
+	WidgetWidth,
+	FixedPixelWidth,
+	FixedColumnWidth
+    };
+    WordWrap wordWrap() const;
+    int wrapColumnOrWidth() const;
+
+    enum WrapPolicy {
+	AtWhiteSpace,
+	Anywhere
+    };
+    WrapPolicy wrapPolicy() const;
+
+    int undoDepth() const;
+    int length() const;
+
+    int tabStopWidth() const;
+    void  setHScrollBarMode( ScrollBarMode );
+
 public slots:
+    virtual void setWordWrap( WordWrap mode );
+    virtual void setWrapColumnOrWidth( int );
+    virtual void setWrapPolicy( WrapPolicy policy );
+
     virtual void undo();
     virtual void redo();
 
     virtual void cut();
     virtual void copy();
     virtual void paste();
+    virtual void pasteSubType(const QCString& subtype);
 
     virtual void indent();
 
@@ -164,7 +196,7 @@ public slots:
     virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
 
     virtual void setTextFormat( TextFormat f );
-    void setText( const QString &txt ) { setText( txt, QString::null ); }
+    virtual void setText( const QString &txt ) { setText( txt, QString::null ); }
     virtual void setText( const QString &txt, const QString &context );
 
     virtual void load( const QString &fn );
@@ -175,10 +207,14 @@ public slots:
 			       int parag_to, int index_to );
 
     virtual void setModified( bool m );
-    virtual void selectAll( bool select );
+    virtual void selectAll( bool select = TRUE );
 
     virtual void setMaxLines( int l );
     virtual void resetFormat();
+
+    virtual void setUndoDepth( int d );
+    virtual void setTabStops( int ts );
+    virtual void clear();
 
 signals:
     void currentFontChanged( const QFont &f );
@@ -189,6 +225,10 @@ signals:
     void linkClicked( const QString& );
     void cursorPositionChanged( QTextCursor *c );
     void selectionChanged();
+    void returnPressed();
+    void undoAvailable( bool );
+    void redoAvailable( bool );
+    void copyAvailable( bool );
 
 protected:
     enum KeyboardAction {
@@ -211,6 +251,7 @@ protected:
 
     void setFormat( QTextFormat *f, int flags );
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
+    bool event( QEvent *e );
     void keyPressEvent( QKeyEvent *e );
     void resizeEvent( QResizeEvent *e );
     void contentsMousePressEvent( QMouseEvent *e );
@@ -271,6 +312,12 @@ private:
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
     void makeParagVisible( QTextParag *p );
+#ifndef QT_NO_MIME
+    QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
+#endif
+#ifndef QT_NO_MIMECLIPBOARD
+    void pasteSpecial(const QPoint&);
+#endif
 
 private:
     QTextDocument *doc;
@@ -292,7 +339,12 @@ private:
     int mLines;
     bool firstResize;
     QString onLink;
-
+    bool overWrite;
+    WordWrap wrapMode;
+    WrapPolicy wPolicy;
+    int wrapWidth;
+    QScrollView::ScrollBarMode setMode;
+    
 };
 
 inline QTextDocument *QTextView::document() const

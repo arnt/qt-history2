@@ -62,6 +62,8 @@
 //#define DEBUG_COLLECTION ---> also in qrichtext_p.h
 //#define DEBUG_TABLE_RENDERING
 
+static QTextFormatCollection *qFormatCollection = 0;
+
 #if defined(PARSER_DEBUG)
 static QString debug_indent;
 #endif
@@ -129,6 +131,16 @@ QTextCursor *QTextCommandHistory::redo( QTextCursor *c )
 	}
     }
     return 0;
+}
+
+bool QTextCommandHistory::isUndoAvailable()
+{
+    return current > -1;
+}
+
+bool QTextCommandHistory::isRedoAvailable()
+{
+   return current > -1 || history.count() > 0;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -969,14 +981,16 @@ QTextDocument::~QTextDocument()
 	delete [] tArray;
 }
 
-void QTextDocument::clear()
+void QTextDocument::clear( bool createEmptyParag )
 {
     while ( fParag ) {
 	QTextParag *p = fParag->next();
 	delete fParag;
 	fParag = p;
     }
-    fParag = 0;
+    fParag = lParag = 0;
+    if ( createEmptyParag )
+	fParag = lParag = new QTextParag( this );
 }
 
 int QTextDocument::widthUsed() const
@@ -1000,11 +1014,12 @@ bool QTextDocument::setMinimumWidth( int w, QTextParag *p )
 {
     if ( p == minwParag ) {
 	minw = w;
+	emit minimumWidthChanged( minw );
     } else if ( w > minw ) {
 	minw = w;
 	minwParag = p;
+	emit minimumWidthChanged( minw );
     }
-    emit minimumWidthChanged( minw );
     cw = QMAX( minw, cw );
     return TRUE;
 }
@@ -1022,11 +1037,8 @@ void QTextDocument::setPlainText( const QString &text )
 	if ( !fParag )
 	    fParag = lParag;
 	s = *it;
-	if ( !s.isEmpty() ) {
-	    if ( s.right( 1 ) != " " )
-		s += " ";
+	if ( !s.isEmpty() )
 	    lParag->append( s );
-	}
     }
 
     if ( !lParag )
@@ -1252,7 +1264,9 @@ QString QTextDocument::plainText( QTextParag *p, bool formatted ) const
 	QTextParag *p = fParag;
 	while ( p ) {
 	    s = p->string()->toString();
-	    s += "\n";
+	    s.remove( s.length() - 1, 1 );
+	    if ( p->next() )
+		s += "\n";
 	    buffer += s;
 	    p = p->next();
 	}
@@ -2136,6 +2150,17 @@ bool QTextDocument::focusNextPrevChild( bool next )
     return FALSE;
 }
 
+int QTextDocument::length() const
+{
+    int l = 0;
+    QTextParag *p = fParag;
+    while ( p ) {
+	l += p->length();
+	p = p->next();
+    }
+    return l;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextString::QTextString()
@@ -2288,9 +2313,9 @@ void QTextDocument::updateStyles()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( -1 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), tc( 0 ),
-      numCustomItems( 0 ), fCollection( 0 ), pFormatter( 0 ),
+      numCustomItems( 0 ), pFormatter( 0 ),
       tabArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
     defFormat = formatCollection()->defaultFormat();
@@ -3100,6 +3125,15 @@ void QTextParag::setPainter( QPainter *p )
     }
 }
 
+QTextFormatCollection *QTextParag::formatCollection() const
+{
+    if ( doc )
+	return doc->formatCollection();
+    if ( !qFormatCollection )
+	qFormatCollection = new QTextFormatCollection;
+    return qFormatCollection;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -3110,6 +3144,7 @@ QTextPreProcessor::QTextPreProcessor()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatter::QTextFormatter()
+    : wrapEnabled( TRUE ), wrapColumn( -1 )
 {
 }
 
@@ -3799,6 +3834,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     int rm = parag->rightMargin();
     int w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
     bool fullWidth = TRUE;
+    int minw = 0;
 
     start = 0;
     if ( start == 0 )
@@ -3808,7 +3844,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
     parag->lineStartList().insert( 0, lineStart );
 
-    for ( ; i < len; ++i ) {
+    int col = 0;
+    int ww = 0;
+    for ( ; i < len; ++i, ++col ) {
 	c = &parag->string()->at( i );
 	if ( i > 0 ) {
 	    c->lineStart = 0;
@@ -3816,7 +3854,6 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    c->lineStart = 1;
 	    firstChar = c;
 	}
-	int ww = 0;
 	if ( c->c.unicode() >= 32 || c->isCustom ) {
 	    ww = c->width();
 	} else if ( c->c == '\t' ) {
@@ -3847,7 +3884,8 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    continue;
 	}
 
-	if ( x + ww > w ) {
+	if ( isWrapEnabled() && 
+	     wrapAtColumn() == -1 && x + ww > w || wrapAtColumn() != -1 && col >= wrapAtColumn() ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    if ( x != left )
 		fullWidth = FALSE;
@@ -3861,6 +3899,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    lineStart->h = c->height();
 	    c->lineStart = 1;
 	    firstChar = c;
+	    col = 0;
+	    if ( wrapAtColumn() != -1 )
+		minw = QMAX( minw, w );
 	} else if ( lineStart ) {
 	    lineStart->baseLine = QMAX( lineStart->baseLine, c->ascent() );
 	    h = QMAX( h, c->height() );
@@ -3881,6 +3922,10 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	m = (int)( (double)m * yscale );
     }
     y += h + m;
+    if ( !isWrapEnabled() )
+	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
+    if ( doc )
+	doc->setMinimumWidth( minw, parag );
     return y;
 }
 
@@ -3926,7 +3971,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     if ( align == Qt::AlignAuto && doc && doc->alignment() != Qt::AlignAuto )
 	align = doc->alignment();
 
-    for ( ; i < len; ++i ) {
+    int col = 0;
+    int ww = 0;
+    for ( ; i < len; ++i, ++col ) {
 	c = &string->at( i );
 	if ( i > 0 && x > curLeft || lastWasNonInlineCustom ) {
 	    c->lineStart = 0;
@@ -3940,7 +3987,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	else
 	    lastWasNonInlineCustom = FALSE;
 	
-	int ww = 0;
 	if ( c->c.unicode() >= 32 || c->isCustom ) {
 	    ww = c->width();
 	} else if ( c->c == '\t' ) {
@@ -3979,7 +4025,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	if ( c->c != '\t' )
 	    minw = QMAX( ww, minw );
 	
-	if ( x + ww > w ) {
+	if ( isWrapEnabled() && wrapAtColumn() == -1 && x + ww > w || wrapAtColumn() != -1 && col >= wrapAtColumn() ) {
 	    if ( lastBreak == -1 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
@@ -4004,6 +4050,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
+		if ( wrapAtColumn() != -1 )
+		    minw = QMAX( minw, w );
+		col = 0;
 	    } else {
 		i = lastBreak;
 		lineStart = formatLine( string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
@@ -4023,6 +4072,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
+		col = 0;
+		if ( wrapAtColumn() != -1 )
+		    minw = QMAX( minw, w );
 		continue;
 	    }
 	} else if ( lineStart && isBreakable( string, i ) ) {
@@ -4065,6 +4117,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     }
     y += h + m;
 
+    if ( !isWrapEnabled() )
+	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
     if ( doc )
 	doc->setMinimumWidth( minw, parag );
 

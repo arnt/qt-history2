@@ -51,7 +51,7 @@
 #include "qcursor.h"
 #include "qkeycode.h"
 #include "qapplication.h"
-#include "qmultilineedit.h"
+#include "qtextedit.h"
 #include "qarray.h"
 #include "qlist.h"
 #include "qvbox.h"
@@ -325,7 +325,7 @@ struct QIconViewItemPrivate
  *
  *****************************************************************************/
 
-class QIconViewItemLineEdit : public QMultiLineEdit
+class QIconViewItemLineEdit : public QTextEdit
 {
     friend class QIconViewItem;
 
@@ -346,29 +346,23 @@ protected:
 
 QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent,
 					      QIconViewItem *theItem, const char *name )
-    : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
+    : QTextEdit( parent, name ), item( theItem ), startText( text )
 {
-    setWordWrap( QMultiLineEdit::FixedPixelWidth );
+    setFrameStyle( QFrame::Plain | QFrame::Box );
+    setLineWidth( 1 );
+
+    setHScrollBarMode( AlwaysOff );
+    setVScrollBarMode( AlwaysOff );
+
+    setWordWrap( FixedPixelWidth );
     setWrapColumnOrWidth( item->iconView()->maxItemWidth() -
 			  ( item->iconView()->itemTextPos() == QIconView::Bottom ?
 			    0 : item->pixmapRect().width() ) );
-    setWrapPolicy( QMultiLineEdit::Anywhere );
-    setMaxLength( item->iconView()->maxItemTextLength() );
-    setAlignment( Qt::AlignCenter );
+    resize( 200, 200 ); // ### some size, there should be a forceReformat()
     setText( text );
-    clearTableFlags();
+    setAlignment( Qt::AlignCenter );
 
-    int w = width();
-    int h = height();
-    w = totalWidth();
-    h = totalHeight();
-    QSize s( size() );
-    resize( w, h );
-    if ( s != QSize( w, h ) ) {
-	item->calcRect( QMultiLineEdit::text() );
-	item->repaint();
-    }
-    item->calcRect( QMultiLineEdit::text() );
+    resize( wrapColumnOrWidth() + 6, heightForWidth( wrapColumnOrWidth() ) + 6 );
 }
 
 void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
@@ -380,19 +374,8 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 		e->key() == Key_Return ) {
 	item->renameItem();
     } else {
-	QMultiLineEdit::keyPressEvent( e );
-	int w = width();
-	int h = height();
-	w = totalWidth();
-	h = totalHeight();
-	QSize s( size() );
-	parentWidget()->resize( w + 6, h + 6 );
-	if ( s != QSize( w, h ) ) {
-	    item->calcRect( text() );
-	    item->iconView()->moveChild( parentWidget(), item->textRect( FALSE ).x() - 3,
-					 item->textRect( FALSE ).y() - 3 );
-	    item->repaint();
-	}
+	QTextEdit::keyPressEvent( e );
+	resize( wrapColumnOrWidth() + 6, heightForWidth( wrapColumnOrWidth() ) + 6 );
     }
 }
 
@@ -1454,19 +1437,13 @@ void QIconViewItem::rename()
     if ( !view )
 	return;
     oldRect = rect();
-    QVBox *box = new QVBox( view->viewport() );
-    renameBox = new QIconViewItemLineEdit( itemText, box, this );
-    box->setFrameStyle( QFrame::Plain | QFrame::Box );
-    box->setMargin( 2 );
-    box->setBackgroundMode( QWidget::PaletteBase );
-    box->resize( textRect().width() + view->d->fm->width( ' ' ) + 6, textRect().height() + 6 );
-    view->addChild( box, textRect( FALSE ).x() - 3, textRect( FALSE ).y() - 3 );
-    renameBox->setFrameStyle( QFrame::NoFrame );
-    renameBox->setLineWidth( 0 );
+    renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
+    QRect tr( textRect( FALSE ) );
+    view->addChild( renameBox, tr.x() + ( tr.width() / 2 - renameBox->width() / 2 ), tr.y() - 3 );
     renameBox->selectAll();
     view->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
-    box->show();
+    renameBox->show();
 }
 
 /*!
@@ -1538,7 +1515,7 @@ void QIconViewItem::removeRenameBox()
 	return;
 
     bool resetFocus = view->viewport()->focusProxy() == renameBox;
-    delete renameBox->parentWidget();
+    delete renameBox;
     renameBox = 0;
     if ( resetFocus ) {
 	view->viewport()->setFocusProxy( view );
@@ -2272,7 +2249,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->numDragItems = 0;
     d->updateTimer = new QTimer( this );
     d->cachedW = d->cachedH = 0;
-    d->maxItemWidth = 200;
+    d->maxItemWidth = 100;
     d->maxItemTextLength = 255;
     d->inputTimer = new QTimer( this );
     d->currInputString = QString::null;

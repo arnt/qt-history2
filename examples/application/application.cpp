@@ -17,7 +17,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qkeycode.h>
-#include <qmultilineedit.h>
+#include <qtextedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -109,7 +109,7 @@ ApplicationWindow::ApplicationWindow()
     help->insertSeparator();
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1 );
 
-    e = new QMultiLineEdit( this, "editor" );
+    e = new QTextEdit( this, "editor" );
     e->setFocus();
     setCentralWidget( e );
     statusBar()->message( "Ready", 2000 );
@@ -141,29 +141,16 @@ void ApplicationWindow::load()
 }
 
 
-void ApplicationWindow::load( const char *fileName )
+void ApplicationWindow::load( const QString &fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_ReadOnly ) )
 	return;
 
-    e->setAutoUpdate( FALSE );
-    e->clear();
-
-    QTextStream t(&f);
-    while ( !t.eof() ) {
-	QString s = t.readLine();
-	e->append( s );
-    }
-    f.close();
-
-    e->setAutoUpdate( TRUE );
-    e->repaint();
-    e->setEdited( FALSE );
+    e->load( fileName );
+    e->setModified( FALSE );
     setCaption( fileName );
-    QString s;
-    s.sprintf( "Loaded document %s", fileName );
-    statusBar()->message( s, 2000 );
+    statusBar()->message( "Loaded document " + fileName, 2000 );
 }
 
 
@@ -186,7 +173,7 @@ void ApplicationWindow::save()
     t << text;
     f.close();
 
-    e->setEdited( FALSE );
+    e->setModified( FALSE );
 
     setCaption( filename );
 
@@ -209,6 +196,7 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
+    // ###### Rewrite to use QSimpleRichText to print here as well
     const int Margin = 10;
     int pageNo = 1;
 
@@ -223,7 +211,7 @@ void ApplicationWindow::print()
 	QFontMetrics fm = p.fontMetrics();
 	QPaintDeviceMetrics metrics( printer ); // need width/height
 						// of printer surface
-	for( int i = 0 ; i < e->numLines() ; i++ ) {
+	for( int i = 0 ; i < e->lines() ; i++ ) {
 	    if ( Margin + yPos > metrics.height() - Margin ) {
 		QString msg( "Printing (page " );
 		msg += QString::number( ++pageNo );
@@ -235,7 +223,7 @@ void ApplicationWindow::print()
 	    p.drawText( Margin, Margin + yPos,
 			metrics.width(), fm.lineSpacing(),
 			ExpandTabs | DontClip,
-			e->textLine( i ) );
+			e->text( i ) );
 	    yPos = yPos + fm.lineSpacing();
 	}
 	p.end();				// send job to printer
@@ -247,7 +235,7 @@ void ApplicationWindow::print()
 
 void ApplicationWindow::closeEvent( QCloseEvent* ce )
 {
-    if ( !e->edited() ) {
+    if ( !e->isModified() ) {
 	ce->accept();
 	return;
     }

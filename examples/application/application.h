@@ -13,7 +13,7 @@
 
 #include <qmainwindow.h>
 
-class QMultiLineEdit;
+class QTextEdit;
 class QToolBar;
 class QPopupMenu;
 
@@ -23,14 +23,14 @@ class ApplicationWindow: public QMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
-    
+
 protected:
     void closeEvent( QCloseEvent* );
 
 private slots:
     void newDoc();
     void load();
-    void load( const char *fileName );
+    void load( const QString &fileName );
     void save();
     void saveAs();
     void print();
@@ -40,7 +40,7 @@ private slots:
 
 private:
     QPrinter *printer;
-    QMultiLineEdit *e;
+    QTextEdit *e;
     QToolBar *fileTools;
     QString filename;
 };

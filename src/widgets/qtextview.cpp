@@ -58,6 +58,32 @@
 #include "qurl.h"
 #include "qcursor.h"
 #include "qregexp.h"
+#include "qpopupmenu.h"
+
+/*!
+  \fn void QTextView::undoAvailable (bool yes)
+
+  This signal is emitted when the availability of undo changes.
+  If \a yes is TRUE, then undo() will work until
+  undoAvailable( FALSE ) is next emitted.
+*/
+
+/*!
+  \fn void QTextView::redoAvailable (bool yes)
+
+  This signal is emitted when the availability of redo changes.
+  If \a yes is TRUE, then redo() will work until
+  redoAvailable( FALSE ) is next emitted.
+*/
+
+/*!
+  \fn void QTextView::copyAvailable (bool yes)
+
+  This signal is emitted when the availability of cut/copy changes.
+  If \a yes is TRUE, then cut() and copy() will work until
+  copyAvailable( FALSE ) is next emitted.
+*/
+
 
 QTextView::QTextView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase ),
@@ -92,6 +118,11 @@ void QTextView::init()
     inDoubleClick = FALSE;
     modified = FALSE;
     onLink = QString::null;
+    overWrite = FALSE;
+    wrapMode = WidgetWidth;
+    wrapWidth = -1;
+    wPolicy = AtWhiteSpace;
+    setMode = Auto;
 
     doc->setFormatter( new QTextFormatterBreakWords );
     currentFormat = doc->formatCollection()->defaultFormat();
@@ -107,8 +138,6 @@ void QTextView::init()
 #ifndef QT_NO_CURSOR
     viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-    viewport()->setFocusPolicy( WheelFocus );
-
     cursor = new QTextCursor( doc );
 
     formatTimer = new QTimer( this );
@@ -148,6 +177,10 @@ void QTextView::init()
 
     connect( this, SIGNAL( textChanged() ),
 	     this, SLOT( setModified() ) );
+    viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( WheelFocus );
+    viewport()->installEventFilter( this );
+    installEventFilter( this );
 
 #if 0 // ### background paper test code
     QBrush *b = new QBrush( red, QPixmap( "/home/reggie/kde2/share/wallpapers/All-Good-People-1.jpg" ) );
@@ -183,6 +216,105 @@ void QTextView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	p->fillRect( 0, contentsHeight(), visibleWidth(),
 		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
+
+bool QTextView::event( QEvent *e )
+{
+    if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
+	QKeyEvent* ke = (QKeyEvent*) e;
+	if ( ke->state() & ControlButton ) {
+	    switch ( ke->key() ) {
+	    case Key_A:
+	    case Key_E:
+#if defined (_WS_WIN_)
+	    case Key_Insert:
+#endif
+	    case Key_X:
+	    case Key_V:
+	    case Key_C:
+	    case Key_Left:
+	    case Key_Right:
+	    case Key_Up:
+	    case Key_Down:
+	    case Key_Home:
+	    case Key_End:
+		ke->accept();
+	    default:
+		break;
+	    }
+	} else {
+	    switch ( ke->key() ) {
+	    case Key_Delete:
+	    case Key_Home:
+	    case Key_End:
+	    case Key_Backspace:
+		ke->accept();
+	    default:
+		break;
+	    }
+	}
+    }
+    return QWidget::event( e );
+}
+
+/*!
+  The key press event handler converts a key press to some line editor
+  action.
+
+  Here are the default key bindings when isReadOnly() is FALSE:
+  <ul>
+  <li><i> Left Arrow </i> Move the cursor one character leftwards
+  <li><i> Right Arrow </i> Move the cursor one character rightwards
+  <li><i> Up Arrow </i> Move the cursor one line upwards
+  <li><i> Down Arrow </i> Move the cursor one line downwards
+  <li><i> Page Up </i> Move the cursor one page upwards
+  <li><i> Page Down </i> Move the cursor one page downwards
+  <li><i> Backspace </i> Delete the character to the left of the cursor
+  <li><i> Home </i> Move the cursor to the beginning of the line
+  <li><i> End </i> Move the cursor to the end of the line
+  <li><i> Delete </i> Delete the character to the right of the cursor
+  <li><i> Shift - Left Arrow </i> Mark text one character leftwards
+  <li><i> Shift - Right Arrow </i> Mark text one character rightwards
+  <li><i> Control-A </i> Move the cursor to the beginning of the line
+  <li><i> Control-B </i> Move the cursor one character leftwards
+  <li><i> Control-C </i> Copy the marked text to the clipboard
+  <li><i> Control-D </i> Delete the character to the right of the cursor
+  <li><i> Control-E </i> Move the cursor to the end of the line
+  <li><i> Control-F </i> Move the cursor one character rightwards
+  <li><i> Control-H </i> Delete the character to the left of the cursor
+  <li><i> Control-K </i> Delete to end of line
+  <li><i> Control-N </i> Move the cursor one line downwards
+  <li><i> Control-P </i> Move the cursor one line upwards
+  <li><i> Control-V </i> Paste the clipboard text into line edit
+  <li><i> Control-X </i> Cut the marked text, copy to clipboard
+  <li><i> Control-Z </i> Undo the last operation
+  <li><i> Control-Y </i> Redo the last operation
+  <li><i> Control - Left Arrow </i> Move the cursor one word leftwards
+  <li><i> Control - Right Arrow </i> Move the cursor one word rightwards
+  <li><i> Control - Up Arrow </i> Move the cursor one word upwards
+  <li><i> Control - Down Arrow </i> Move the cursor one word downwards
+  <li><i> Control - Home Arrow </i> Move the cursor to the beginning of the text
+  <li><i> Control - End Arrow </i> Move the cursor to the end of the text
+  </ul>
+  In addition, the following key bindings are used on Windows:
+  <ul>
+  <li><i> Shift - Delete </i> Cut the marked text, copy to clipboard
+  <li><i> Shift - Insert </i> Paste the clipboard text into line edit
+  <li><i> Control - Insert </i> Copy the marked text to the clipboard
+  </ul>
+  All other keys with valid ASCII codes insert themselves into the line.
+
+  Here are the default key bindings when isReadOnly() is TRUE:
+  <ul>
+  <li><i> Left Arrow </i> Scrolls the table rightwards
+  <li><i> Right Arrow </i> Scrolls the table rightwards
+  <li><i> Up Arrow </i> Scrolls the table one line downwards
+  <li><i> Down Arrow </i> Scrolls the table one line upwards
+  <li><i> Page Up </i> Scrolls the table one page downwards
+  <li><i> Page Down </i> Scrolls the table one page upwards
+  <li><i> Control-C </i> Copy the marked text to the clipboard
+  </ul>
+
+*/
 
 void QTextView::keyPressEvent( QKeyEvent *e )
 {
@@ -238,6 +370,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	doc->removeSelection( QTextDocument::Standard );
 	clearUndoRedoInfo = FALSE;
 	doKeyboardAction( ActionReturn );
+	emit returnPressed();
 	break;
     case Key_Delete:
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
@@ -292,7 +425,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
 		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
 		} else {
-		    insert( e->text(), TRUE );
+		    insert( e->text(), TRUE, FALSE );
 		}
 		break;
 	    }
@@ -304,7 +437,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		case Key_V:
 		    paste();
 		    break;
-		case Key_X: 
+		case Key_X:
 		    cut();
 		    break;
 		case Key_I: case Key_T: case Key_Tab:
@@ -372,9 +505,11 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	}
     }	
 
-    if ( clearUndoRedoInfo )
+    if ( clearUndoRedoInfo ) {
 	undoRedoInfo.clear();
-
+	emit undoAvailable( doc->commands()->isUndoAvailable() );
+	emit redoAvailable( doc->commands()->isRedoAvailable() );
+    }
     changeIntervalTimer->start( 100, TRUE );
 }
 
@@ -483,6 +618,8 @@ void QTextView::removeSelectedText()
     ensureCursorVisible();
     drawCursor( TRUE );
     undoRedoInfo.clear();
+    emit undoAvailable( doc->commands()->isUndoAvailable() );
+    emit redoAvailable( doc->commands()->isRedoAvailable() );
     emit textChanged();
 }
 
@@ -501,6 +638,7 @@ void QTextView::moveCursor( int direction, bool shift, bool control )
 	}
 	ensureCursorVisible();
 	emit selectionChanged();
+	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     } else {
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
 	moveCursor( direction, control );
@@ -513,8 +651,10 @@ void QTextView::moveCursor( int direction, bool shift, bool control )
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
 	}
-	if ( redraw )
+	if ( redraw ) {
+	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 	    emit selectionChanged();
+	}
     }
 
     drawCursor( TRUE );
@@ -573,7 +713,11 @@ void QTextView::moveCursor( int direction, bool control )
 
 void QTextView::resizeEvent( QResizeEvent *e )
 {
-    if ( !firstResize )
+    if ( !firstResize 
+#if defined(_WS_X11_)
+	 && e->oldSize().width() != e->size().width()
+#endif
+	 )
 	resizeTimer->stop();
     QScrollView::resizeEvent( e );
     if ( !firstResize ) {
@@ -582,9 +726,6 @@ void QTextView::resizeEvent( QResizeEvent *e )
 #endif
 	    resizeTimer->start( 0, TRUE );
     } else {
-#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
-	if ( e->oldSize().width() != e->size().width() )
-#endif
 	    doResize();
     }
 
@@ -607,7 +748,8 @@ void QTextView::ensureCursorVisible()
 
 void QTextView::drawCursor( bool visible )
 {
-    if ( !cursor->parag()->isValid() ||
+    if ( !cursor->parag() ||
+	 !cursor->parag()->isValid() ||
 	 ( !hasFocus() && !viewport()->hasFocus() ) ||
 	 isReadOnly() )
 	return;
@@ -633,6 +775,8 @@ void QTextView::drawCursor( bool visible )
 void QTextView::contentsMousePressEvent( QMouseEvent *e )
 {
     undoRedoInfo.clear();
+    emit undoAvailable( doc->commands()->isUndoAvailable() );
+    emit redoAvailable( doc->commands()->isRedoAvailable() );
     QTextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = FALSE;
@@ -655,6 +799,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
+	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 	    emit selectionChanged();
 	    if ( !( e->state() & ShiftButton ) ) {
 		redraw = doc->removeSelection( QTextDocument::Standard );
@@ -740,6 +885,7 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
 	if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
 	    doc->copySelectedText( QTextDocument::Standard );
 	mousePressed = FALSE;
+	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
 	emit selectionChanged();
     }
     emit cursorPositionChanged( cursor );
@@ -910,8 +1056,12 @@ void QTextView::formatMore()
 
 void QTextView::doResize()
 {
+    if ( wrapMode != WidgetWidth )
+	return;
     resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
+    QScrollView::setHScrollBarMode( AlwaysOff );
     doc->setWidth( visibleWidth() );
+    wrapWidth = visibleWidth();
     doc->invalidate();
     viewport()->repaint( FALSE );
     lastFormatted = doc->firstParag();
@@ -930,7 +1080,7 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
     if ( !o || !e )
 	return TRUE;
 
-    if ( ( o == this || o == viewport() ) ) {
+    if ( o == this || o == viewport() ) {
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    return TRUE;
@@ -941,15 +1091,11 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 	}
     }
 
-
     return QScrollView::eventFilter( o, e );
 }
 
 void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
 {
-    if ( isReadOnly() )
-	return;
-
     QString txt( text );
     if ( mLines == 1 )
 	txt = txt.replace( QRegExp( "\n" ), " " );
@@ -994,6 +1140,8 @@ void QTextView::undo()
 	return;
 
     undoRedoInfo.clear();
+    emit undoAvailable( doc->commands()->isUndoAvailable() );
+    emit redoAvailable( doc->commands()->isRedoAvailable() );
     drawCursor( FALSE );
     QTextCursor *c = doc->undo( cursor );
     if ( !c ) {
@@ -1012,6 +1160,8 @@ void QTextView::redo()
 	return;
 
     undoRedoInfo.clear();
+    emit undoAvailable( doc->commands()->isUndoAvailable() );
+    emit redoAvailable( doc->commands()->isRedoAvailable() );
     drawCursor( FALSE );
     QTextCursor *c = doc->redo( cursor );
     if ( !c ) {
@@ -1030,17 +1180,17 @@ void QTextView::paste()
 #ifndef QT_NO_CLIPBOARD
     if ( isReadOnly() )
 	return;
-
-    QString s = QApplication::clipboard()->text();
-    if ( !s.isEmpty() )
-	insert( s, FALSE, TRUE );
+    pasteSubType( "plain" );
 #endif
 }
 
 void QTextView::checkUndoRedoInfo( UndoRedoInfo::Type t )
 {
-    if ( undoRedoInfo.valid() && t != undoRedoInfo.type )
+    if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
 	undoRedoInfo.clear();
+	emit undoAvailable( doc->commands()->isUndoAvailable() );
+	emit redoAvailable( doc->commands()->isRedoAvailable() );
+    }
     undoRedoInfo.type = t;
 }
 
@@ -1266,6 +1416,7 @@ void QTextView::setText( const QString &txt, const QString &context )
 {
     lastFormatted = 0;
     doc->setText( txt, context );
+    resizeContents( 0, 0 );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     viewport()->repaint( FALSE );
@@ -1332,7 +1483,7 @@ void QTextView::setCursorPosition( int parag, int index )
     drawCursor( TRUE );
 }
 
-void QTextView::cursorPosition( int &parag, int &index )
+void QTextView::getCursorPosition( int &parag, int &index ) const
 {
     parag = cursor->parag()->paragId();
     index = cursor->index();
@@ -1366,8 +1517,8 @@ void QTextView::setSelection( int parag_from, int index_from,
     drawCursor( TRUE );
 }
 
-void QTextView::selection( int &parag_from, int &index_from,
-			   int &parag_to, int &index_to )
+void QTextView::getSelection( int &parag_from, int &index_from,
+			      int &parag_to, int &index_to ) const
 {
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
 	parag_from = -1;
@@ -1517,6 +1668,7 @@ void QTextView::selectAll( bool select )
 	doc->removeSelection( QTextDocument::Standard );
 	repaintChanged();
     }
+    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
     emit selectionChanged();
 }
 
@@ -1608,19 +1760,18 @@ int QTextView::heightForWidth( int w ) const
 {
     int oldw = doc->width();
     doc->doLayout( 0, w );
-    return doc->height();
-/* ### what is this dead code for?
+    int h = doc->height();
     doc->setWidth( oldw );
     doc->invalidate();
     ( (QTextView*)this )->formatMore();
-*/
+    return h;
 }
 
-void QTextView::append( const QString& text )
+void QTextView::append( const QString &text )
 {
     QTextCursor oldc( *cursor );
     cursor->gotoEnd();
-    insert( text, FALSE, TRUE );
+    insert( text + "\n", FALSE, TRUE );
     *cursor = oldc;
 }
 
@@ -1718,7 +1869,10 @@ QString QTextView::anchorAt( const QPoint& pos )
 
 void QTextView::setRealWidth( int w )
 {
-    resizeContents( w, contentsHeight() );
+    if ( w > contentsWidth() ) {
+	resizeContents( w, contentsHeight() );
+	QScrollView::setHScrollBarMode( setMode );
+    }
 }
 
 void QTextView::updateStyles()
@@ -1733,5 +1887,266 @@ void QTextView::setDocument( QTextDocument *dc )
     doc = dc;
     cursor->setDocument( doc );
     undoRedoInfo.clear();
+    emit undoAvailable( doc->commands()->isUndoAvailable() );
+    emit redoAvailable( doc->commands()->isRedoAvailable() );
     lastFormatted = 0;
+}
+
+#ifndef QT_NO_CLIPBOARD
+
+/*!
+  Copies text in MIME subtype \a subtype from the clipboard onto the current
+  cursor position.
+  Any marked text is first deleted.
+*/
+void QTextView::pasteSubType( const QCString& subtype )
+{
+    QCString st = subtype;
+    QString t = QApplication::clipboard()->text(st);
+    if ( !t.isEmpty() ) {
+#if defined(_OS_WIN32_)
+	// Need to convert CRLF to NL
+	QRegExp crlf( QString::fromLatin1("\r\n") );
+	t.replace( crlf, QChar('\n') );
+#endif
+	for ( int i=0; (uint) i<t.length(); i++ ) {
+	    if ( t[ i ] < ' ' && t[ i ] != '\n' && t[ i ] != '\t' )
+		t[ i ] = ' ';
+	}
+	if ( !t.isEmpty() )
+	    insert( t, FALSE, TRUE );
+    }
+}
+
+#ifndef QT_NO_MIMECLIPBOARD
+/*!
+  Prompts the user for a type from a list of text types available,
+  Then copies text from the clipboard onto the current cursor position.
+  Any marked text is first deleted.
+*/
+void QTextView::pasteSpecial( const QPoint& pt )
+{
+    QCString st = pickSpecial( QApplication::clipboard()->data(), TRUE, pt );
+    if ( !st.isEmpty() )
+	pasteSubType( st );
+}
+#endif
+#ifndef QT_NO_MIME
+QCString QTextView::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint& pt )
+{
+    if ( ms )  {
+	QPopupMenu popup( this );
+	QString fmt;
+	int n = 0;
+	QDict<void> done;
+	for (int i = 0; !( fmt = ms->format( i ) ).isNull(); i++) {
+	    int semi = fmt.find( ";" );
+	    if ( semi >= 0 )
+		fmt = fmt.left( semi );
+	    if ( fmt.left( 5 ) == "text/" ) {
+		fmt = fmt.mid( 5 );
+		if ( !done.find( fmt ) ) {
+		    done.insert( fmt,(void*)1 );
+		    popup.insertItem( fmt, i );
+		    n++;
+		}
+	    }
+	}
+	if ( n ) {
+	    int i = n ==1 && !always_ask ? popup.idAt( 0 ) : popup.exec( pt );
+	    if ( i >= 0 )
+		return popup.text(i).latin1();
+	}
+    }
+    return QCString();
+}
+#endif // QT_NO_MIME
+#endif // QT_NO_CLIPBOARD
+
+/*! \enum QTextView::WordWrap
+
+  This enum describes the multiline edit's word wrap mode.
+
+  The following values are valid:
+    <ul>
+    <li> \c NoWrap - no word wrap at all.
+    <li> \c WidgetWidth - word wrap depending on the current
+     width of the editor widget
+    <li> \c FixedPixelWidth - wrap according to a fix amount
+     of pixels ( see wrapColumnOrWidth() )
+    <li> \c FixedColumnWidth - wrap according to a fix character
+     column. This is useful whenever you need formatted text that
+     can also be displayed gracefully on devices with monospaced
+     fonts, for example a standard VT100 terminal. In that case
+     wrapColumnOrWidth() should typically be set to 80.
+  </ul>
+
+ \sa setWordWrap()
+*/
+
+/*!
+  Sets the word wrap mode.
+
+  Per default, wrapping keeps words intact. To allow breaking within
+  words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
+
+  The default wrap mode is \c NoWrap.
+
+  \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
+ */
+void QTextView::setWordWrap( WordWrap mode )
+{
+    wrapMode = mode;
+    switch ( mode ) {
+    case NoWrap:
+	document()->formatter()->setWrapEnabled( FALSE );
+	document()->formatter()->setWrapAtColumn( -1 );
+	break;
+    case WidgetWidth:
+	document()->formatter()->setWrapEnabled( TRUE );
+	document()->formatter()->setWrapAtColumn( -1 );
+	doResize();
+	break;
+    case FixedPixelWidth:
+	document()->formatter()->setWrapEnabled( TRUE );
+	document()->formatter()->setWrapAtColumn( -1 );
+	setWrapColumnOrWidth( wrapWidth );
+	break;
+    case FixedColumnWidth:
+	document()->formatter()->setWrapEnabled( TRUE );
+	document()->formatter()->setWrapAtColumn( wrapWidth );
+	setWrapColumnOrWidth( wrapWidth );
+	break;
+    }
+}
+
+/*!
+  Returns the current word wrap mode.
+
+  \sa setWordWrap()
+ */
+QTextView::WordWrap QTextView::wordWrap() const
+{
+    return wrapMode;
+}
+
+/*!
+  Sets the wrap column or wrap width, depending on the word wrap mode.
+
+  \sa setWordWrap()
+ */
+void QTextView::setWrapColumnOrWidth( int value )
+{
+    wrapWidth = value;
+    if ( wrapMode == FixedColumnWidth ) {
+	document()->formatter()->setWrapAtColumn( wrapWidth );
+    } else {
+	document()->formatter()->setWrapAtColumn( -1 );
+	resizeContents( wrapWidth, contentsHeight() );
+	doc->setWidth( wrapWidth );
+	doc->invalidate();
+	viewport()->repaint( FALSE );
+	lastFormatted = doc->firstParag();
+	interval = 0;
+	formatMore();
+    }
+}
+
+/*!
+  Returns the wrap column or wrap width, depending on the word wrap
+  mode.
+
+  \sa setWordWrap(), setWrapColumnOrWidth()
+ */
+int QTextView::wrapColumnOrWidth() const
+{
+    return wrapWidth;
+}
+
+
+/*! \enum QTextView::WrapPolicy
+
+  Defines where text can be wrapped in word wrap mode.
+
+  The following values are valid:
+  <ul>
+  <li> \c AtWhiteSpace - break only after whitespace
+  <li> \c Anywhere - break anywhere
+   </ul>
+
+   \sa setWrapPolicy()
+*/
+
+/*!
+  Defines where text can be wrapped in word wrap mode.
+
+   The default is \c AtWhiteSpace.
+
+  \sa setWordWrap(), wrapPolicy()
+ */
+void QTextView::setWrapPolicy( WrapPolicy policy )
+{
+    if ( wPolicy == policy )
+	return;
+    QTextFormatter *formatter;
+    if ( policy == AtWhiteSpace )
+	formatter = new QTextFormatterBreakWords;
+    else
+	formatter = new QTextFormatterBreakInWords;
+    formatter->setWrapAtColumn( document()->formatter()->wrapAtColumn() );
+    formatter->setWrapEnabled( document()->formatter()->isWrapEnabled() );
+    document()->setFormatter( formatter );
+    doc->invalidate();
+    viewport()->repaint( FALSE );
+    lastFormatted = doc->firstParag();
+    interval = 0;
+    formatMore();
+}
+
+/*!
+
+  Returns the current word wrap policy.
+
+  \sa setWrapPolicy()
+ */
+QTextView::WrapPolicy QTextView::wrapPolicy() const
+{
+    return wPolicy;
+}
+
+void QTextView::clear()
+{
+    doc->clear( TRUE );
+    cursor->setParag( doc->firstParag() );
+    cursor->setIndex( 0 );
+}
+
+int QTextView::undoDepth() const
+{
+    return document()->undoDepth();
+}
+
+int QTextView::length() const
+{
+    return document()->length();
+}
+
+int QTextView::tabStopWidth() const
+{
+    return document()->tabStopWidth();
+}
+
+void QTextView::setUndoDepth( int d )
+{
+    document()->setUndoDepth( d );
+}
+
+void QTextView::setTabStops( int ts )
+{
+    document()->setTabStops( ts );
+}
+
+void  QTextView::setHScrollBarMode( ScrollBarMode sm )
+{
+    setMode = sm;
 }

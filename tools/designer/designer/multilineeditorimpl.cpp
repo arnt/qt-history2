@@ -32,11 +32,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWind
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     mlined = (QMultiLineEdit*)editWidget;
     preview->setAlignment( mlined->alignment() );
-    preview->setEchoMode( mlined->echoMode() );
-    preview->setMaxLength( mlined->maxLength() );
-    preview->setMaxLineLength( mlined->maxLineLength() );
     preview->setMaxLines( mlined->maxLines() );
-    preview->setHMargin( mlined->hMargin() );
     preview->setWordWrap( mlined->wordWrap() );
     preview->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
     preview->setWrapPolicy( mlined->wrapPolicy() );

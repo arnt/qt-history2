@@ -99,6 +99,8 @@
 class QTextBrowserData
 {
 public:
+    QTextBrowserData() {}
+    
     QString searchPath;
     QString buttonDown;
     QString highlight;
@@ -120,7 +122,6 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     d = new QTextBrowserData;
 
     viewport()->setMouseTracking( TRUE );
-//     viewport()->setAcceptDrops( TRUE );
     connect( this, SIGNAL( linkClicked( const QString & ) ),
 	     this, SLOT( setSource( const QString & ) ) );
 }
