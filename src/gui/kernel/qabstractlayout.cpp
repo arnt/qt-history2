@@ -701,7 +701,7 @@ QLayout::QLayout(QLayout *parentLayout, int spacing, const char *name)
 
 {
     setObjectName(name);
-    d->insideSpacing = spacing < 0 ? parentLayout->d->insideSpacing : spacing;
+    d->insideSpacing = spacing;
     parentLayout->addItem(this);
 }
 
@@ -770,7 +770,7 @@ void QLayout::addWidget(QWidget *w)
     \brief the spacing between widgets inside the layout
 
     The default value is -1, which signifies that the layout's spacing
-    should not override the widget's spacing.
+    is inherited from the parent layout, or from the style settings for the parent widget.
 
     \sa margin
 */
@@ -781,9 +781,18 @@ int QLayout::margin() const
     return d->outsideBorder;
 }
 
+
+//#### style settings
 int QLayout::spacing() const
 {
-    return d->insideSpacing;
+    if (d->insideSpacing >=0)
+        return d->insideSpacing;
+    else if (d->topLevel)
+        return d->outsideBorder; //#### get style settings here
+    else if (parent())
+        return static_cast<QLayout*>(parent())->spacing();
+    else
+        return -1; //this is a layout that hasn't been inserted yet
 }
 
 #ifndef QT_NO_MENUBAR
@@ -805,21 +814,9 @@ void QLayout::setMargin(int margin)
 }
 
 
-//########## Fix margin/spacing inheritance
 void QLayout::setSpacing(int spacing)
 {
-    if (spacing < 0) {
-        if (d->topLevel)
-            d->insideSpacing = d->outsideBorder;
-        else if (parent())
-            d->insideSpacing = static_cast<QLayout*>(parent())->d->insideSpacing;
-        else
-            d->insideSpacing = -1; //propagate later
-    } else {
-        d->insideSpacing = spacing;
-    }
-    if (spacing >= 0)
-        propagateSpacing(this);
+    d->insideSpacing = spacing;
     invalidate();
 }
 
@@ -1121,10 +1118,6 @@ void QLayout::addChildLayout(QLayout *l)
         return;
     }
     l->setParent(this);
-    if (l->d->insideSpacing < 0) {
-        l->d->insideSpacing = d->insideSpacing;
-        propagateSpacing(l);
-    }
 }
 
 /*!
@@ -1849,20 +1842,6 @@ void QLayout::setEnabled(bool enable)
 bool QLayout::isEnabled() const
 {
     return d->enabled;
-}
-
-void QLayout::propagateSpacing(QLayout *parent)
-{
-    int i = 0;
-    QLayoutItem *child;
-    while ((child = parent->itemAt(i))) {
-        QLayout *childLayout = child->layout();
-        if (childLayout && childLayout->d->insideSpacing < 0) {
-            childLayout->d->insideSpacing = parent->d->insideSpacing;
-            propagateSpacing(childLayout);
-        }
-        ++i;
-    }
 }
 
 #endif // QT_NO_LAYOUT

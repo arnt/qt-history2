@@ -225,7 +225,6 @@ private:
     QLayout &operator=(const QLayout &);
 #endif
 
-    static void propagateSpacing(QLayout *layout);
 #ifdef QT_COMPAT
 public:
     explicit QT_COMPAT QLayout(QWidget *parent, int margin, int spacing = -1,
