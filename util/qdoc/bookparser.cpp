@@ -950,6 +950,7 @@ class HtmlSynthetizer : public Synthetizer
 public:
     HtmlSynthetizer( const QString& filePath, const Analyzer *analyzer,
 		     const Resolver *resolver );
+    ~HtmlSynthetizer();
 
 protected:
     virtual bool supportsCodeHtml() const { return TRUE; }
@@ -998,6 +999,7 @@ private:
     SectionNumber sectionCounter;
     QValueList<const Section *> htmlPageSequence;
     int delta;
+    XmlSection rootXmlSection;
 };
 
 HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
@@ -1028,6 +1030,15 @@ HtmlSynthetizer::HtmlSynthetizer( const QString& filePath,
 	*/
 	delta = 1;
     }
+}
+
+HtmlSynthetizer::~HtmlSynthetizer()
+{
+    QString product = outFileBase();
+    product.replace( QRegExp("-manual"), "" );
+    rootXmlSection.ref = outFileBase() + QString( ".html" );
+    rootXmlSection.title = analyzer()->title();
+    generateXmlSections( rootXmlSection, product + ".xml", "qt/" + product );
 }
 
 void HtmlSynthetizer::processAlias( const QString& alias,
@@ -1235,15 +1246,23 @@ void HtmlSynthetizer::processSectionHeadingEnd( int level, int topLevel )
 
     if ( level <= analyzer()->granularity() ) {
 	banners.push( makeBanner() );
-	w.push( new HtmlWriter(location(),
-			       outFileBase() + sectionCounter.fileSuffix(n) +
-			       QString(".html")) );
+	QString htmlFileName = outFileBase() + sectionCounter.fileSuffix( n ) +
+			       QString( ".html" );
+	w.push( new HtmlWriter(location(), htmlFileName) );
 	w.top()->setTitle( heading.latin1() );
 	w.top()->putsMeta( banners.top().latin1() );
 	w.top()->printfMeta( "<h%d align=\"center\">",
 			     level - topLevel + delta );
 	w.top()->putsMeta( heading.latin1() );
 	w.top()->printfMeta( "</h%d>\n", level - topLevel + delta );
+
+	XmlSection sub;
+	sub.ref = htmlFileName;
+	sub.title = heading;
+	XmlSection *parent = &rootXmlSection;
+	for ( int i = 0; i < n; i++ )
+	    parent = &parent->subsections->last();
+	appendXmlSubSection( parent, sub );
     }
 }
 

@@ -114,7 +114,6 @@ void DocEmitter::start()
 	parseCppHeaderFile( this, *s );
 	++s;
     }
-
     nailDownDecls();
 
     QStringList sourceFiles =
@@ -339,6 +338,8 @@ void DocEmitter::emitHtml() const
 	++s;
     }
 
+    XmlSection rootSection;
+
     /*
       Examples are generated first, so that the documentation can link
       to them.
@@ -354,6 +355,11 @@ void DocEmitter::emitHtml() const
 	    else
 		out.setHeading( (*ex)->title() );
 	    (*ex)->printHtml( out );
+
+	    XmlSection exampleSection;
+	    exampleSection.title = out.heading();
+	    exampleSection.ref = htmlFileName;
+	    appendXmlSubSection( &rootSection, exampleSection );
 	}
 	++ex;
     }
@@ -372,6 +378,26 @@ void DocEmitter::emitHtml() const
 		res->setCurrentClass( classDecl );
 		HtmlWriter out( (*child)->doc()->location(), htmlFileName );
 		classDecl->printHtmlLong( out );
+
+		XmlSection classSection;
+		classSection.title = out.heading();
+		classSection.ref = htmlFileName;
+
+		XmlSection membersSection;
+		membersSection.title = "List of All Member Functions";
+		membersSection.ref =
+			config->classMembersHref( classDecl->name() );
+		appendXmlSubSection( &classSection, membersSection );
+
+		if ( hlist.contains(classDecl->headerFile()) ) {
+		    XmlSection headerSection;
+		    headerSection.title = "Header File";
+		    headerSection.ref =
+			    config->verbatimHref( classDecl->headerFile() );
+		    appendXmlSubSection( &classSection, headerSection );
+		}
+
+		appendXmlSubSection( &rootSection, classSection );
 	    }
 	}
 	++child;
@@ -509,7 +535,7 @@ void DocEmitter::emitHtml() const
     }
 
     /*
-      Write a fifth special file: propertydocs. It's an XML file.
+      Write another special file: propertydocs. It's an XML file.
     */
     if ( props.count() > 0 ) {
 	BinaryWriter propertydocs( QString("propertydocs") );
@@ -537,6 +563,15 @@ void DocEmitter::emitHtml() const
 	}
 	propertydocs.puts( "</PROP>\n" );
     }
+
+    /*
+      Write the <product>.xml file for Assistant.
+    */
+    rootSection.title = config->product() + " Reference Documentation";
+    rootSection.ref = "index.html";
+    sortXmlSubSections( &rootSection );
+    generateXmlSections( rootSection, config->product().lower() + ".xml",
+			 config->product().lower() + "/reference" );
 }
 
 void DocEmitter::addHtmlFile( const QString& fileName )

@@ -5,6 +5,7 @@
 #ifndef PARSEHELPERS_H
 #define PARSEHELPERS_H
 
+#include <qpair.h>
 #include <qstringlist.h>
 #include <qvaluelist.h>
 
@@ -73,6 +74,53 @@ struct Section
 
 QValueList<Section *> recursiveSectionResolve( QValueList<Section> *sects,
 					       const QStringList& toks );
+
+struct XmlSection
+{
+    QString title;
+    QString ref;
+    QValueList<QPair<QString, QString> > keywords;
+    QValueList<XmlSection> *subsections;
+
+    XmlSection() : subsections( 0 ) { }
+    XmlSection( const XmlSection& other ) : subsections( 0 ) {
+	operator=( other );
+    }
+    ~XmlSection() { delete subsections; }
+
+    XmlSection& operator=( const XmlSection& other ) {
+	delete subsections;
+	if ( other.subsections == 0 ) {
+	    subsections = 0;
+	} else {
+	    subsections = new QValueList<XmlSection>( *other.subsections );
+	}
+	title = other.title;
+	ref = other.ref;
+	keywords = other.keywords;
+	return *this;
+    }
+};
+
+inline bool operator<( const XmlSection& s1, const XmlSection& s2 )
+{
+    int delta = s1.title.lower().compare( s2.title.lower() );
+    if ( delta == 0 ) {
+	delta = s1.title.compare( s2.title );
+	if ( delta == 0 )
+	    delta = s1.ref.localeAwareCompare( s2.ref );
+    }
+    return delta < 0;
+}
+
+class BinaryWriter;
+
+void appendXmlSubSection( XmlSection *xmlSect, const XmlSection& sub );
+void sortXmlSubSections( XmlSection *xmlSect );
+void generateXmlSubSections( QString indent, BinaryWriter& out,
+			     const XmlSection& sect );
+void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
+			  const QString& category );
 
 /*
   HASH() combines a character (the first character of a word) and a

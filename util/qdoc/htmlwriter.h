@@ -40,6 +40,7 @@ public:
     QString endRecording();
 
     const QString& fileName() const { return fn; }
+    const QString& heading() const { return h; }
 
 private:
 #if defined(Q_DISABLE_COPY)

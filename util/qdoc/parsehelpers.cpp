@@ -4,6 +4,8 @@
 
 #include <qstring.h>
 
+#include "binarywriter.h"
+#include "html.h"
 #include "location.h"
 #include "messages.h"
 #include "parsehelpers.h"
@@ -180,6 +182,55 @@ QValueList<Section *> recursiveSectionResolve( QValueList<Section> *sects,
 	++s;
     }
     return candidates;
+}
+
+void appendXmlSubSection( XmlSection *xmlSect, const XmlSection& sub )
+{
+    if ( xmlSect->subsections == 0 )
+	xmlSect->subsections = new QValueList<XmlSection>;
+    xmlSect->subsections->append( sub );
+}
+
+void sortXmlSubSections( XmlSection *xmlSect )
+{
+    if ( xmlSect->subsections != 0 )
+	qHeapSort( *xmlSect->subsections );
+}
+
+void generateXmlSubSections( QString indent, BinaryWriter& out,
+			     const XmlSection& sect )
+{
+    indent += "    ";
+    QValueList<XmlSection>::ConstIterator ss = sect.subsections->begin();
+    while ( ss != sect.subsections->end() ) {
+	out.puts( indent + "<section ref=\"" + htmlProtect( (*ss).ref, FALSE ) +
+		  "\" title=\"" + htmlProtect( (*ss).title, FALSE ) + "\"" );
+	if ( (*ss).keywords.isEmpty() && (*ss).subsections == 0 ) {
+	    out.puts( "/>\n" );
+	} else {
+	    out.puts( ">\n" );
+	    // output the keyword
+	    if ( (*ss).subsections != 0 )
+		generateXmlSubSections( indent, out, *ss );
+	    out.puts( indent + "</section>\n" );
+	}
+	++ss;
+    }
+}
+
+void generateXmlSections( const XmlSection& rootSect, const QString& fileName,
+			  const QString& category )
+{
+    BinaryWriter out( fileName );
+
+    out.puts( "<!DOCTYPE DOC>\n" );
+    out.puts( "<DOC ref=\"" + htmlProtect(rootSect.ref, FALSE) +
+	      "\" category=\"" + htmlProtect(category, FALSE) + "\" title=\"" +
+	      htmlProtect(rootSect.title, FALSE) + "\">\n" );
+
+    generateXmlSubSections( "", out, rootSect );
+
+    out.puts( "</DOC>\n" );
 }
 
 void skipSpaces( const QString& in, int& pos )
