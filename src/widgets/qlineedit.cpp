@@ -2083,25 +2083,6 @@ void QLineEdit::blinkSlot()
 bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
 {
-    QString t = newText;
-    for ( uint i=0; i<t.length(); i++ ) {
-	if ( t[(int)i] < ' ' )  // unprintable/linefeed becomes space
-	    t[(int)i] = ' ';
-    }
-    if ( (int)newText.length() > maxLength() )
-	return FALSE;
-
-    QString old = this->text();
-
-#ifndef QT_NO_VALIDATOR
-    const QValidator * v = validator();
-
-    int pos = d->cursor->index();
-    if ( v && v->validate( t, newPos ) == QValidator::Invalid &&
-	 v->validate( old, pos ) != QValidator::Invalid ) {
-	return FALSE;
-    }
-#endif
     return validateAndSet( newText, newPos, newMarkAnchor, newMarkDrag, FALSE );
 }
 
@@ -3164,7 +3145,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    t[(int)i] = ' ';
     }
 
-    t.truncate( maxLength() );
+    if ( (int)newText.length() > maxLength() )
+	return FALSE;
 
     if ( hasMask() && !masked ) {
  	t = maskString( 0, t );
