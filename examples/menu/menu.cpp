@@ -168,7 +168,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 #else
-#warning "Do we want something like this?!"
+#warning "Do we want something like this?! -Sam"
 #endif
 
     isBold = FALSE;
@@ -216,7 +216,8 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
 
 class MyFancyMenu : public QMenu
 {
-    const int margin;
+    const QString text;
+    int margin;
     QFont myFont() const {
         QFont ret = font();
         ret.setPixelSize(30);
@@ -224,11 +225,14 @@ class MyFancyMenu : public QMenu
         return ret;
     }
 public:
-    MyFancyMenu(QWidget *widget) : QMenu(widget),margin(80) { setContentsMargins(margin, 0, 0, 0); }
-
+    MyFancyMenu(const QString &t, QWidget *widget) : QMenu(widget), text(t) { 
+        margin = QFontMetrics(myFont()).height() + 10;
+        setContentsMargins(margin, 0, 0, 0); 
+    }
+    
     QSize sizeHint() const {
         QSize ret = QMenu::sizeHint();
-        int length = QFontMetrics(myFont()).width("Context!");
+        int length = QFontMetrics(myFont()).width(text);
         if(ret.height() < length)
             ret.setHeight(length);
         return ret;
@@ -239,19 +243,22 @@ protected:
         QMenu::paintEvent(e);
 
         QPainter p(this);
+        //draw gradiant
         p.setClipRect(QRect(0, 0, margin, height()));
         p.setBrush(QBrush(QPoint(margin/2, 0), black, QPoint(margin/2, height()), red));
         p.drawRect(0, 0, margin, height());
+        //draw text
         p.setPen(white);
         p.setFont(myFont());
-        p.rotate(90);
-        p.drawText((margin/2)-(p.fontMetrics().height()/2), height(), "Context!");
+        p.translate((margin/2)+(p.fontMetrics().ascent()/2), height());
+        p.rotate(-90);
+        p.drawText(0, 0, text);
     }
 };
 
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
-    MyFancyMenu contextMenu(this);
+    MyFancyMenu contextMenu(tr("Context!"), this);
     contextMenu.addAction("&New",  this, SLOT(news()), CTRL+Key_N);
     contextMenu.addAction("&Open...", this, SLOT(open()), CTRL+Key_O);
     contextMenu.addAction("&Save", this, SLOT(save()), CTRL+Key_S);
