@@ -768,6 +768,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     DisposeRgn( polyRegion );
 }
 
+bool fuck = FALSE;
 void QPainter::drawPoint( int x, int y )
 {
     if ( !isActive() )
@@ -791,7 +792,8 @@ void QPainter::drawPoint( int x, int y )
 	f.red = cpen.color().red()*256;
 	f.green = cpen.color().green()*256;
 	f.blue = cpen.color().blue()*256;
-	SetCPixel(x+offx,y+offy,&f);
+	if(!fuck)
+	    SetCPixel(x+offx,y+offy,&f);
     }
 }
 
@@ -1752,7 +1754,12 @@ QPoint QPainter::pos() const
 #ifdef TRY_CACHE
 int ldev = QInternal::UndefinedDevice;
 #endif
-void QPainter::initPaintDevice(bool force) {
+inline void QPainter::initPaintDevice(bool force) {
+    if(!force && pdev == g_cur_paintdev) {
+	updateClipRegion();
+	return;
+    }
+
 #ifdef TRY_CACHE
     if(!force && ldev != QInternal::UndefinedDevice) {
 	if(pdev->devType() == ldev) {
@@ -1802,9 +1809,10 @@ void QPainter::initPaintDevice(bool force) {
 #endif
     
     paintreg = clippedreg = QRegion(); //empty    
+    //setup the gworld
+    QMacSavedPortInfo::setPaintDevice(pm);
     if( pdev->devType() == QInternal::Printer ) {
 	if(pdev->handle()) {
-	    SetGWorld((GrafPtr)pdev->handle(), 0); //set the gworld
 	    clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth), 
 				 pdev->metric(QPaintDeviceMetrics::PdmHeight));
 	}
@@ -1815,9 +1823,6 @@ void QPainter::initPaintDevice(bool force) {
 	QPoint wp(posInWindow(w));
 	offx = wp.x();
 	offy = wp.y();
-
-	//set the correct window prot
-	SetPortWindowPort((WindowPtr)w->handle());
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
@@ -1830,8 +1835,6 @@ void QPainter::initPaintDevice(bool force) {
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
 
-	//setup the gworld
-	SetGWorld((GWorldPtr)pm->handle(),0);
 #ifndef ONE_PIXEL_LOCK
 	if(!locked) {
 	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));

@@ -56,6 +56,8 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
     }
 }
 
+#include <qpaintdevice.h>
+extern QPaintDevice *g_cur_paintdev;
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -64,13 +66,38 @@ class QMacSavedPortInfo
     PenState pen; //go pennstate
     RGBColor back, fore;
     QMacSavedFontInfo *fi;
+    void init();
 public:
-    QMacSavedPortInfo();
+    inline QMacSavedPortInfo() { init(); }
+    inline QMacSavedPortInfo(QPaintDevice *pd) { init(); setPaintDevice(pd); }
     ~QMacSavedPortInfo();
+    static bool setPaintDevice(QPaintDevice *);
 };
 
-inline QMacSavedPortInfo::QMacSavedPortInfo() : fi(NULL)
+inline bool
+QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
+    if(pd == g_cur_paintdev || !(g_cur_paintdev = pd))
+	return FALSE;
+    switch(pd->devType()) {
+    case QInternal::Printer:
+    case QInternal::Pixmap:
+	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
+	break;
+    case QInternal::Widget:
+	SetPortWindowPort((WindowPtr)pd->handle());
+	break;
+    default:
+	qDebug("ugh?!");
+	return FALSE;
+    }
+    return TRUE;
+}
+    
+
+inline void QMacSavedPortInfo::init()
+{
+    fi = NULL;
     if(mac_window_count) {
 	GetBackColor(&back);
 	GetForeColor(&fore);
@@ -84,6 +111,7 @@ inline QMacSavedPortInfo::QMacSavedPortInfo() : fi(NULL)
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
+    setPaintDevice(NULL);
     if(mac_window_count) {
 	SetGWorld(world,handle); //always do this one first
 	SetClip(clip);

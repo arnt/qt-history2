@@ -124,7 +124,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     if(src->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)src;
 	srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
-	SetPortWindowPort((WindowPtr)w->handle()); //wtf?
+	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
 	QPoint p(posInWindow(w));
 	srcoffx = p.x();
@@ -176,7 +176,7 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
 	QWidget *w = (QWidget *)dst;
 	dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
-	SetPortWindowPort((WindowPtr)w->handle()); //wtf?
+	QMacSavedPortInfo::setPaintDevice(w); //wtf?
 
 	QPoint p(posInWindow(w));
 	dstoffx = p.x();
@@ -298,12 +298,11 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
   QMacSavedPortInfo saveportstate; 
     
   if(dst && dst->devType() == QInternal::Widget) {
-      SetPortWindowPort((WindowPtr)((QWidget *)dst)->handle()); 
+      QMacSavedPortInfo::setPaintDevice(dst);
       SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
   } else if(dst && dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
-      //I'm paranoid..
-      QRegion rgn(0,0,pm->width(),pm->height());
+      QRegion rgn(0,0,pm->width(),pm->height()); //I'm paranoid..
       SetClip((RgnHandle)rgn.handle());
   }
   unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask);

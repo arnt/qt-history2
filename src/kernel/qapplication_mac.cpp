@@ -426,8 +426,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
 
     //find the child
     if(child) {
-	QMacSavedPortInfo savedInfo;
-	SetPortWindowPort( wp );
+	QMacSavedPortInfo savedInfo(widget);
 	GlobalToLocal( &p ); //now map it to the window
 	widget = recursive_match(widget, p.h, p.v);
     }
@@ -1063,8 +1062,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	DragWindow( wp, *pt, 0 );
 
 	int ox = widget->crect.x(), oy = widget->crect.y();
-	QMacSavedPortInfo savedInfo;
-	SetPortWindowPort( wp );
+	QMacSavedPortInfo savedInfo(widget);
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
 	widget->crect.setRect( p.h, p.v, widget->width(), widget->height() );
@@ -1321,7 +1319,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	bool special_close = FALSE;
 	if( app->inPopupMode() ) {
 	    qt_closed_popup = FALSE;
-	    QMacSavedPortInfo savedInfo;
 
 	    WindowPtr wp;
 	    FindWindow(where,&wp);
@@ -1332,7 +1329,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 	    if(!popupwidget)
 		popupwidget = activePopupWidget();
-	    SetPortWindowPort((WindowPtr)popupwidget->handle());
+	    QMacSavedPortInfo savedInfo(popupwidget);
 	    Point gp = where;
 	    GlobalToLocal( &gp ); //now map it to the window
 	    popupwidget = recursive_match(popupwidget, gp.h, gp.v);
@@ -1554,7 +1551,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    widget->crect.setWidth( metricWidth - 1 );
 	    widget->crect.setHeight( metricHeight - 1 );
 
-	    QMacSavedPortInfo savedInfo;
+	    QMacSavedPortInfo savedInfo(widget);
 	    BeginUpdate((WindowPtr)widget->handle());
 	    widget->propagateUpdates();
 	    EndUpdate((WindowPtr)widget->handle());

@@ -120,6 +120,7 @@ static WId parentw;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
+QPaintDevice *g_cur_paintdev = 0;
 
 static WId qt_root_win() {
     WindowPtr ret = NULL;
@@ -158,7 +159,7 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
         {
                 Point px = { 0, 0 };
                 QMacSavedPortInfo si;
-                SetPortWindowPort((WindowPtr)widget->handle());
+		QMacSavedPortInfo::setPaintDevice(widget);
                 LocalToGlobal(&px);
                 reg.translate(-px.h, -px.v);
         }
@@ -291,7 +292,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	if(!mac_window_count++)
-	    SetPortWindowPort((WindowPtr)id);
+	    QMacSavedPortInfo::setPaintDevice(this);
 
 	hd = (void *)id;
 	setWinId(id);
@@ -463,8 +464,7 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
   mac_p.h = mp.x() + pos.x();
   mac_p.v = mp.y() + pos.y();
   if(handle()) {
-    QMacSavedPortInfo savedInfo;
-    SetPortWindowPort((WindowPtr)handle());
+    QMacSavedPortInfo savedInfo(((QWidget *)this));
     LocalToGlobal(&mac_p);
   }
   return QPoint(mac_p.h, mac_p.v);
@@ -477,8 +477,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   mac_p.h = pos.x();
   mac_p.v = pos.y();
   if(handle()) {
-    QMacSavedPortInfo savedInfo;
-    SetPortWindowPort((WindowPtr)handle());
+    QMacSavedPortInfo savedInfo(((QWidget *)this));
     GlobalToLocal(&mac_p);
   }
   for(const QWidget *p = this; p && !p->isTopLevel(); p = p->parentWidget()) {
@@ -508,8 +507,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
     }
 
     if(isTopLevel()) {
-	QMacSavedPortInfo savedInfo;
-	SetPortWindowPort((WindowPtr)hd);
+	QMacSavedPortInfo savedInfo(this);
 	RGBColor f;
 	f.red = bg_col.red() * 256;
 	f.green = bg_col.green() * 256;;
@@ -801,8 +799,7 @@ void QWidget::showMaximized()
 	InvalWindowRect( (WindowPtr)hd, &bounds );
 
 	QRect orect(x(), y(), width(), height());
-	QMacSavedPortInfo savedInfo;
-	SetPortWindowPort( (WindowPtr)hd );
+	QMacSavedPortInfo savedInfo(this);
 	Point p = { 0, 0 };
 	LocalToGlobal(&p);
 	crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
@@ -839,8 +836,7 @@ void QWidget::showNormal()
 	    InvalWindowRect( (WindowPtr)hd, &bounds );
 
 	    QRect orect(x(), y(), width(), height());
-	    QMacSavedPortInfo savedInfo;
-	    SetPortWindowPort( (WindowPtr)hd );
+	    QMacSavedPortInfo savedInfo(this);
 	    Point p = { 0, 0 };
 	    LocalToGlobal(&p);
 	    crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
@@ -992,8 +988,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    } else if( isMove && !isTopLevel() && !oldregion.isEmpty() ) {
 		//save the window state, and do the grunt work
 		int ow = olds.width(), oh = olds.height();
-		QMacSavedPortInfo saveportstate;
-		SetPortWindowPort((WindowPtr)handle());
+		QMacSavedPortInfo saveportstate(this);
 		::RGBColor f;
 		f.red = f.green = f.blue = 0;
 		RGBForeColor( &f );
@@ -1337,7 +1332,6 @@ void QWidget::setName( const char * )
 
 void QWidget::propagateUpdates()
 {
-    SetPortWindowPort((WindowPtr)handle());
     QRect paintRect( 0, 0, width(), height());
     setWState( WState_InPaintEvent );
     QPaintEvent e( paintRect );

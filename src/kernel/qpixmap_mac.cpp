@@ -325,9 +325,7 @@ void QPixmap::fill( const QColor &fillColor )
     RGBColor rc;
 
     //at the end of this function this will go out of scope and the destructor will restore the state
-    QMacSavedPortInfo saveportstate; 
-
-    SetGWorld((GWorldPtr)hd,0);
+    QMacSavedPortInfo saveportstate(this); 
 #ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif

@@ -407,8 +407,7 @@ QMAC_PASCAL OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
     Point local;
     local.h = mouse.h;
     local.v = mouse.v;
-    QMacSavedPortInfo savedInfo;
-    SetPortWindowPort( (WindowPtr)macDndExtra->widget->winId() );
+    QMacSavedPortInfo savedInfo(macDndExtra->widget);;
     GlobalToLocal( &local );
     QWidget *widget = recursive_match( macDndExtra->widget, local.h, local.v );
 
