@@ -533,7 +533,7 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 		break;
 	    }
 	}
-    }	
+    }
 
     if ( clearUndoRedoInfo )
 	clearUndoRedo();
@@ -964,7 +964,7 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 		pressedLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    }
 	}
-	
+
 #ifndef QT_NO_DRAGANDDROP
 	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) ) {
 	    mightStartDrag = TRUE;
@@ -1003,7 +1003,12 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
 	    repaintChanged();
 	}
     } else if ( e->button() == MidButton ) {
-	paste();
+	if (QApplication::clipboard()->supportsSelection()) {
+	    // only do middle-click pasting on systems that have selections (ie. X11)
+	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    paste();
+	    QApplication::clipboard()->setSelectionMode(FALSE);
+	}
     }
     updateCurrentFormat();
 }
@@ -1064,11 +1069,17 @@ void QTextView::contentsMouseReleaseEvent( QMouseEvent * )
     }
 #endif
     if ( mousePressed ) {
-	if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
-	    doc->copySelectedText( QTextDocument::Standard );
 	mousePressed = FALSE;
-	emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
-	emit selectionChanged();
+	if (QApplication::clipboard()->supportsSelection()) {
+	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    // only do middle-click selection on systems that support it (ie. X11)
+	    if ( !doc->selectedText( QTextDocument::Standard ).isEmpty() )
+		doc->copySelectedText( QTextDocument::Standard );
+	    QApplication::clipboard()->setSelectionMode(FALSE);
+
+	    emit copyAvailable( doc->hasSelection( QTextDocument::Standard ) );
+	    emit selectionChanged();
+	}
     }
     emitCursorPositionChanged( cursor );
     updateCurrentFormat();
@@ -1336,7 +1347,7 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
 	    c2.gotoRight();
 	}
     }
-	
+
     emit textChanged();
 }
 
