@@ -33,6 +33,7 @@ void DomUI::clear(bool clear_all)
     delete m_images;
     delete m_includes;
     delete m_resources;
+    delete m_connections;
 
     if (clear_all) {
     m_text = QString();
@@ -51,6 +52,7 @@ void DomUI::clear(bool clear_all)
     m_images = 0;
     m_includes = 0;
     m_resources = 0;
+    m_connections = 0;
 }
 
 DomUI::DomUI()
@@ -68,6 +70,7 @@ DomUI::DomUI()
     m_images = 0;
     m_includes = 0;
     m_resources = 0;
+    m_connections = 0;
 }
 
 DomUI::~DomUI()
@@ -82,6 +85,7 @@ DomUI::~DomUI()
     delete m_images;
     delete m_includes;
     delete m_resources;
+    delete m_connections;
 }
 
 void DomUI::read(const QDomElement &node)
@@ -168,6 +172,12 @@ void DomUI::read(const QDomElement &node)
             setElementResources(v);
             continue;
         }
+        if (tag == QLatin1String("connections")) {
+            DomConnections *v = new DomConnections();
+            v->read(e);
+            setElementConnections(v);
+            continue;
+        }
     }
 
     m_text = node.text();
@@ -226,6 +236,9 @@ QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
 
     if (m_resources != 0)
         e.appendChild(m_resources->write(doc, QLatin1String("resources")));
+
+    if (m_connections != 0)
+        e.appendChild(m_connections->write(doc, QLatin1String("connections")));
 
     if (!m_text.isEmpty())
         e.appendChild(doc.createTextNode(m_text));
@@ -306,6 +319,12 @@ void DomUI::setElementResources(DomResources* a)
 {
     delete m_resources;
     m_resources = a;
+}
+
+void DomUI::setElementConnections(DomConnections* a)
+{
+    delete m_connections;
+    m_connections = a;
 }
 
 void DomIncludes::clear(bool clear_all)
@@ -399,6 +418,13 @@ void DomInclude::read(const QDomElement &node)
         setAttributeLocation(node.attribute(QLatin1String("location")));
     if (node.hasAttribute(QLatin1String("impldecl")))
         setAttributeImpldecl(node.attribute(QLatin1String("impldecl")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
 
     m_text = node.text();
 }
@@ -515,6 +541,13 @@ void DomResource::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("location")))
         setAttributeLocation(node.attribute(QLatin1String("location")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
 
     m_text = node.text();
 }
@@ -795,6 +828,13 @@ void DomActionRef::read(const QDomElement &node)
     if (node.hasAttribute(QLatin1String("name")))
         setAttributeName(node.attribute(QLatin1String("name")));
 
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
+
     m_text = node.text();
 }
 
@@ -974,6 +1014,13 @@ void DomImageData::read(const QDomElement &node)
         setAttributeFormat(node.attribute(QLatin1String("format")));
     if (node.hasAttribute(QLatin1String("length")))
         setAttributeLength(node.attribute(QLatin1String("length")).toInt());
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
 
     m_text = node.text();
 }
@@ -1368,6 +1415,13 @@ void DomPropertyData::read(const QDomElement &node)
     if (node.hasAttribute(QLatin1String("type")))
         setAttributeType(node.attribute(QLatin1String("type")));
 
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
+
     m_text = node.text();
 }
 
@@ -1490,6 +1544,13 @@ void DomLayoutDefault::read(const QDomElement &node)
     if (node.hasAttribute(QLatin1String("margin")))
         setAttributeMargin(node.attribute(QLatin1String("margin")).toInt());
 
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
+
     m_text = node.text();
 }
 
@@ -1538,6 +1599,13 @@ void DomLayoutFunction::read(const QDomElement &node)
         setAttributeSpacing(node.attribute(QLatin1String("spacing")));
     if (node.hasAttribute(QLatin1String("margin")))
         setAttributeMargin(node.attribute(QLatin1String("margin")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
 
     m_text = node.text();
 }
@@ -3602,6 +3670,13 @@ void DomResourcePixmap::read(const QDomElement &node)
     if (node.hasAttribute(QLatin1String("resource")))
         setAttributeResource(node.attribute(QLatin1String("resource")));
 
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
+
     m_text = node.text();
 }
 
@@ -3643,6 +3718,13 @@ void DomString::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("notr")))
         setAttributeNotr(node.attribute(QLatin1String("notr")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+    }
 
     m_text = node.text();
 }
@@ -4188,6 +4270,326 @@ void DomProperty::setElementDateTime(DomDateTime* a)
     clear(false);
     m_kind = DateTime;
     m_dateTime = a;
+}
+
+void DomConnections::clear(bool clear_all)
+{
+    for (int i = 0; i < m_connection.size(); ++i)
+        delete m_connection[i];
+    m_connection.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+}
+
+DomConnections::DomConnections()
+{
+}
+
+DomConnections::~DomConnections()
+{
+    for (int i = 0; i < m_connection.size(); ++i)
+        delete m_connection[i];
+    m_connection.clear();
+}
+
+void DomConnections::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("connection")) {
+            DomConnection *v = new DomConnection();
+            v->read(e);
+            m_connection.append(v);
+            continue;
+        }
+    }
+
+    m_text = node.text();
+}
+
+QDomElement DomConnections::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QLatin1String("connections") : tagName.toLower());
+
+    QDomElement child;
+
+    for (int i = 0; i < m_connection.size(); ++i) {
+        DomConnection* v = m_connection[i];
+        QDomNode child = v->write(doc, QLatin1String("connection"));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomConnections::setElementConnection(const QList<DomConnection*>& a)
+{
+    m_connection = a;
+}
+
+void DomConnection::clear(bool clear_all)
+{
+    delete m_hints;
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+    m_hints = 0;
+}
+
+DomConnection::DomConnection()
+{
+    m_hints = 0;
+}
+
+DomConnection::~DomConnection()
+{
+    delete m_hints;
+}
+
+void DomConnection::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("sender")) {
+            setElementSender(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("signal")) {
+            setElementSignal(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("receiver")) {
+            setElementReceiver(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("slot")) {
+            setElementSlot(e.text());
+            continue;
+        }
+        if (tag == QLatin1String("hints")) {
+            DomConnectionHints *v = new DomConnectionHints();
+            v->read(e);
+            setElementHints(v);
+            continue;
+        }
+    }
+
+    m_text = node.text();
+}
+
+QDomElement DomConnection::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QLatin1String("connection") : tagName.toLower());
+
+    QDomElement child;
+
+    child = doc.createElement(QLatin1String("sender"));
+    child.appendChild(doc.createTextNode(m_sender));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("signal"));
+    child.appendChild(doc.createTextNode(m_signal));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("receiver"));
+    child.appendChild(doc.createTextNode(m_receiver));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("slot"));
+    child.appendChild(doc.createTextNode(m_slot));
+    e.appendChild(child);
+
+    if (m_hints != 0)
+        e.appendChild(m_hints->write(doc, QLatin1String("hints")));
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomConnection::setElementSender(const QString& a)
+{
+    m_sender = a;
+}
+
+void DomConnection::setElementSignal(const QString& a)
+{
+    m_signal = a;
+}
+
+void DomConnection::setElementReceiver(const QString& a)
+{
+    m_receiver = a;
+}
+
+void DomConnection::setElementSlot(const QString& a)
+{
+    m_slot = a;
+}
+
+void DomConnection::setElementHints(DomConnectionHints* a)
+{
+    delete m_hints;
+    m_hints = a;
+}
+
+void DomConnectionHints::clear(bool clear_all)
+{
+    for (int i = 0; i < m_hint.size(); ++i)
+        delete m_hint[i];
+    m_hint.clear();
+
+    if (clear_all) {
+    m_text = QString();
+    }
+
+}
+
+DomConnectionHints::DomConnectionHints()
+{
+}
+
+DomConnectionHints::~DomConnectionHints()
+{
+    for (int i = 0; i < m_hint.size(); ++i)
+        delete m_hint[i];
+    m_hint.clear();
+}
+
+void DomConnectionHints::read(const QDomElement &node)
+{
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("hint")) {
+            DomConnectionHint *v = new DomConnectionHint();
+            v->read(e);
+            m_hint.append(v);
+            continue;
+        }
+    }
+
+    m_text = node.text();
+}
+
+QDomElement DomConnectionHints::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QLatin1String("connectionhints") : tagName.toLower());
+
+    QDomElement child;
+
+    for (int i = 0; i < m_hint.size(); ++i) {
+        DomConnectionHint* v = m_hint[i];
+        QDomNode child = v->write(doc, QLatin1String("hint"));
+        e.appendChild(child);
+    }
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomConnectionHints::setElementHint(const QList<DomConnectionHint*>& a)
+{
+    m_hint = a;
+}
+
+void DomConnectionHint::clear(bool clear_all)
+{
+
+    if (clear_all) {
+    m_text = QString();
+    m_has_attr_type = false;
+    }
+
+    m_x = 0;
+    m_y = 0;
+}
+
+DomConnectionHint::DomConnectionHint()
+{
+    m_has_attr_type = false;
+    m_x = 0;
+    m_y = 0;
+}
+
+DomConnectionHint::~DomConnectionHint()
+{
+}
+
+void DomConnectionHint::read(const QDomElement &node)
+{
+    if (node.hasAttribute(QLatin1String("type")))
+        setAttributeType(node.attribute(QLatin1String("type")));
+
+    for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
+        if (!n.isElement())
+            continue;
+        QDomElement e = n.toElement();
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("x")) {
+            setElementX(e.text().toInt());
+            continue;
+        }
+        if (tag == QLatin1String("y")) {
+            setElementY(e.text().toInt());
+            continue;
+        }
+    }
+
+    m_text = node.text();
+}
+
+QDomElement DomConnectionHint::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement e = doc.createElement(tagName.isEmpty() ? QLatin1String("connectionhint") : tagName.toLower());
+
+    QDomElement child;
+
+    if (hasAttributeType())
+        e.setAttribute(QLatin1String("type"), attributeType());
+
+    child = doc.createElement(QLatin1String("x"));
+    child.appendChild(doc.createTextNode(QString::number(m_x)));
+    e.appendChild(child);
+
+    child = doc.createElement(QLatin1String("y"));
+    child.appendChild(doc.createTextNode(QString::number(m_y)));
+    e.appendChild(child);
+
+    if (!m_text.isEmpty())
+        e.appendChild(doc.createTextNode(m_text));
+
+    return e;
+}
+
+void DomConnectionHint::setElementX(int a)
+{
+    m_x = a;
+}
+
+void DomConnectionHint::setElementY(int a)
+{
+    m_y = a;
 }
 
 

@@ -18,6 +18,20 @@
 #include <QStringList>
 #include <QtXml/QDomDocument>
 
+
+#include <qglobal.h>
+#if defined(QT_DESIGNER) && defined(Q_OS_WIN)
+#    ifdef QT_UILIB_LIBRARY
+#        define QT_UI4_EXPORT __declspec(dllexport)
+#    else
+#        define QT_UI4_EXPORT __declspec(dllimport)
+#    endif
+#endif
+
+#ifndef QT_UI4_EXPORT
+#    define QT_UI4_EXPORT
+#endif
+
 /*******************************************************************************
 ** Forward declarations
 */
@@ -64,12 +78,16 @@ class DomStringList;
 class DomResourcePixmap;
 class DomString;
 class DomProperty;
+class DomConnections;
+class DomConnection;
+class DomConnectionHints;
+class DomConnectionHint;
 
 /*******************************************************************************
 ** Declarations
 */
 
-class DomUI {
+class QT_UI4_EXPORT DomUI {
 public:
     DomUI();
     ~DomUI();
@@ -130,6 +148,9 @@ public:
     inline DomResources* elementResources() { return m_resources; }
     void setElementResources(DomResources* a);
 
+    inline DomConnections* elementConnections() { return m_connections; }
+    void setElementConnections(DomConnections* a);
+
 private:
     QString m_text;
     void clear(bool clear_all = true);
@@ -155,12 +176,13 @@ private:
     DomImages* m_images;
     DomIncludes* m_includes;
     DomResources* m_resources;
+    DomConnections* m_connections;
 
     DomUI(const DomUI &other);
     void operator = (const DomUI&other);
 };
 
-class DomIncludes {
+class QT_UI4_EXPORT DomIncludes {
 public:
     DomIncludes();
     ~DomIncludes();
@@ -187,7 +209,7 @@ private:
     void operator = (const DomIncludes&other);
 };
 
-class DomInclude {
+class QT_UI4_EXPORT DomInclude {
 public:
     DomInclude();
     ~DomInclude();
@@ -226,7 +248,7 @@ private:
     void operator = (const DomInclude&other);
 };
 
-class DomResources {
+class QT_UI4_EXPORT DomResources {
 public:
     DomResources();
     ~DomResources();
@@ -261,7 +283,7 @@ private:
     void operator = (const DomResources&other);
 };
 
-class DomResource {
+class QT_UI4_EXPORT DomResource {
 public:
     DomResource();
     ~DomResource();
@@ -292,7 +314,7 @@ private:
     void operator = (const DomResource&other);
 };
 
-class DomActionGroup {
+class QT_UI4_EXPORT DomActionGroup {
 public:
     DomActionGroup();
     ~DomActionGroup();
@@ -339,7 +361,7 @@ private:
     void operator = (const DomActionGroup&other);
 };
 
-class DomAction {
+class QT_UI4_EXPORT DomAction {
 public:
     DomAction();
     ~DomAction();
@@ -386,7 +408,7 @@ private:
     void operator = (const DomAction&other);
 };
 
-class DomActionRef {
+class QT_UI4_EXPORT DomActionRef {
 public:
     DomActionRef();
     ~DomActionRef();
@@ -417,7 +439,7 @@ private:
     void operator = (const DomActionRef&other);
 };
 
-class DomImages {
+class QT_UI4_EXPORT DomImages {
 public:
     DomImages();
     ~DomImages();
@@ -444,7 +466,7 @@ private:
     void operator = (const DomImages&other);
 };
 
-class DomImage {
+class QT_UI4_EXPORT DomImage {
 public:
     DomImage();
     ~DomImage();
@@ -479,7 +501,7 @@ private:
     void operator = (const DomImage&other);
 };
 
-class DomImageData {
+class QT_UI4_EXPORT DomImageData {
 public:
     DomImageData();
     ~DomImageData();
@@ -518,7 +540,7 @@ private:
     void operator = (const DomImageData&other);
 };
 
-class DomCustomWidgets {
+class QT_UI4_EXPORT DomCustomWidgets {
 public:
     DomCustomWidgets();
     ~DomCustomWidgets();
@@ -545,7 +567,7 @@ private:
     void operator = (const DomCustomWidgets&other);
 };
 
-class DomHeader {
+class QT_UI4_EXPORT DomHeader {
 public:
     DomHeader();
     ~DomHeader();
@@ -576,7 +598,7 @@ private:
     void operator = (const DomHeader&other);
 };
 
-class DomCustomWidget {
+class QT_UI4_EXPORT DomCustomWidget {
 public:
     DomCustomWidget();
     ~DomCustomWidget();
@@ -631,7 +653,7 @@ private:
     void operator = (const DomCustomWidget&other);
 };
 
-class DomProperties {
+class QT_UI4_EXPORT DomProperties {
 public:
     DomProperties();
     ~DomProperties();
@@ -658,7 +680,7 @@ private:
     void operator = (const DomProperties&other);
 };
 
-class DomPropertyData {
+class QT_UI4_EXPORT DomPropertyData {
 public:
     DomPropertyData();
     ~DomPropertyData();
@@ -689,7 +711,7 @@ private:
     void operator = (const DomPropertyData&other);
 };
 
-class DomSizePolicyData {
+class QT_UI4_EXPORT DomSizePolicyData {
 public:
     DomSizePolicyData();
     ~DomSizePolicyData();
@@ -720,7 +742,7 @@ private:
     void operator = (const DomSizePolicyData&other);
 };
 
-class DomLayoutDefault {
+class QT_UI4_EXPORT DomLayoutDefault {
 public:
     DomLayoutDefault();
     ~DomLayoutDefault();
@@ -759,7 +781,7 @@ private:
     void operator = (const DomLayoutDefault&other);
 };
 
-class DomLayoutFunction {
+class QT_UI4_EXPORT DomLayoutFunction {
 public:
     DomLayoutFunction();
     ~DomLayoutFunction();
@@ -798,7 +820,7 @@ private:
     void operator = (const DomLayoutFunction&other);
 };
 
-class DomTabStops {
+class QT_UI4_EXPORT DomTabStops {
 public:
     DomTabStops();
     ~DomTabStops();
@@ -825,7 +847,7 @@ private:
     void operator = (const DomTabStops&other);
 };
 
-class DomLayout {
+class QT_UI4_EXPORT DomLayout {
 public:
     DomLayout();
     ~DomLayout();
@@ -868,7 +890,7 @@ private:
     void operator = (const DomLayout&other);
 };
 
-class DomLayoutItem {
+class QT_UI4_EXPORT DomLayoutItem {
 public:
     DomLayoutItem();
     ~DomLayoutItem();
@@ -939,7 +961,7 @@ private:
     void operator = (const DomLayoutItem&other);
 };
 
-class DomRow {
+class QT_UI4_EXPORT DomRow {
 public:
     DomRow();
     ~DomRow();
@@ -966,7 +988,7 @@ private:
     void operator = (const DomRow&other);
 };
 
-class DomColumn {
+class QT_UI4_EXPORT DomColumn {
 public:
     DomColumn();
     ~DomColumn();
@@ -993,7 +1015,7 @@ private:
     void operator = (const DomColumn&other);
 };
 
-class DomItem {
+class QT_UI4_EXPORT DomItem {
 public:
     DomItem();
     ~DomItem();
@@ -1024,7 +1046,7 @@ private:
     void operator = (const DomItem&other);
 };
 
-class DomWidget {
+class QT_UI4_EXPORT DomWidget {
 public:
     DomWidget();
     ~DomWidget();
@@ -1107,7 +1129,7 @@ private:
     void operator = (const DomWidget&other);
 };
 
-class DomSpacer {
+class QT_UI4_EXPORT DomSpacer {
 public:
     DomSpacer();
     ~DomSpacer();
@@ -1142,7 +1164,7 @@ private:
     void operator = (const DomSpacer&other);
 };
 
-class DomColor {
+class QT_UI4_EXPORT DomColor {
 public:
     DomColor();
     ~DomColor();
@@ -1177,7 +1199,7 @@ private:
     void operator = (const DomColor&other);
 };
 
-class DomColorGroup {
+class QT_UI4_EXPORT DomColorGroup {
 public:
     DomColorGroup();
     ~DomColorGroup();
@@ -1204,7 +1226,7 @@ private:
     void operator = (const DomColorGroup&other);
 };
 
-class DomPalette {
+class QT_UI4_EXPORT DomPalette {
 public:
     DomPalette();
     ~DomPalette();
@@ -1239,7 +1261,7 @@ private:
     void operator = (const DomPalette&other);
 };
 
-class DomFont {
+class QT_UI4_EXPORT DomFont {
 public:
     DomFont();
     ~DomFont();
@@ -1290,7 +1312,7 @@ private:
     void operator = (const DomFont&other);
 };
 
-class DomPoint {
+class QT_UI4_EXPORT DomPoint {
 public:
     DomPoint();
     ~DomPoint();
@@ -1321,7 +1343,7 @@ private:
     void operator = (const DomPoint&other);
 };
 
-class DomRect {
+class QT_UI4_EXPORT DomRect {
 public:
     DomRect();
     ~DomRect();
@@ -1360,7 +1382,7 @@ private:
     void operator = (const DomRect&other);
 };
 
-class DomSizePolicy {
+class QT_UI4_EXPORT DomSizePolicy {
 public:
     DomSizePolicy();
     ~DomSizePolicy();
@@ -1399,7 +1421,7 @@ private:
     void operator = (const DomSizePolicy&other);
 };
 
-class DomSize {
+class QT_UI4_EXPORT DomSize {
 public:
     DomSize();
     ~DomSize();
@@ -1430,7 +1452,7 @@ private:
     void operator = (const DomSize&other);
 };
 
-class DomDate {
+class QT_UI4_EXPORT DomDate {
 public:
     DomDate();
     ~DomDate();
@@ -1465,7 +1487,7 @@ private:
     void operator = (const DomDate&other);
 };
 
-class DomTime {
+class QT_UI4_EXPORT DomTime {
 public:
     DomTime();
     ~DomTime();
@@ -1500,7 +1522,7 @@ private:
     void operator = (const DomTime&other);
 };
 
-class DomDateTime {
+class QT_UI4_EXPORT DomDateTime {
 public:
     DomDateTime();
     ~DomDateTime();
@@ -1547,7 +1569,7 @@ private:
     void operator = (const DomDateTime&other);
 };
 
-class DomStringList {
+class QT_UI4_EXPORT DomStringList {
 public:
     DomStringList();
     ~DomStringList();
@@ -1574,7 +1596,7 @@ private:
     void operator = (const DomStringList&other);
 };
 
-class DomResourcePixmap {
+class QT_UI4_EXPORT DomResourcePixmap {
 public:
     DomResourcePixmap();
     ~DomResourcePixmap();
@@ -1605,7 +1627,7 @@ private:
     void operator = (const DomResourcePixmap&other);
 };
 
-class DomString {
+class QT_UI4_EXPORT DomString {
 public:
     DomString();
     ~DomString();
@@ -1636,7 +1658,7 @@ private:
     void operator = (const DomString&other);
 };
 
-class DomProperty {
+class QT_UI4_EXPORT DomProperty {
 public:
     DomProperty();
     ~DomProperty();
@@ -1757,6 +1779,142 @@ private:
 
     DomProperty(const DomProperty &other);
     void operator = (const DomProperty&other);
+};
+
+class QT_UI4_EXPORT DomConnections {
+public:
+    DomConnections();
+    ~DomConnections();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QList<DomConnection*> elementConnection() { return m_connection; }
+    void setElementConnection(const QList<DomConnection*>& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QList<DomConnection*> m_connection;
+
+    DomConnections(const DomConnections &other);
+    void operator = (const DomConnections&other);
+};
+
+class QT_UI4_EXPORT DomConnection {
+public:
+    DomConnection();
+    ~DomConnection();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QString elementSender() { return m_sender; }
+    void setElementSender(const QString& a);
+
+    inline QString elementSignal() { return m_signal; }
+    void setElementSignal(const QString& a);
+
+    inline QString elementReceiver() { return m_receiver; }
+    void setElementReceiver(const QString& a);
+
+    inline QString elementSlot() { return m_slot; }
+    void setElementSlot(const QString& a);
+
+    inline DomConnectionHints* elementHints() { return m_hints; }
+    void setElementHints(DomConnectionHints* a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QString m_sender;
+    QString m_signal;
+    QString m_receiver;
+    QString m_slot;
+    DomConnectionHints* m_hints;
+
+    DomConnection(const DomConnection &other);
+    void operator = (const DomConnection&other);
+};
+
+class QT_UI4_EXPORT DomConnectionHints {
+public:
+    DomConnectionHints();
+    ~DomConnectionHints();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    // child element accessors
+    inline QList<DomConnectionHint*> elementHint() { return m_hint; }
+    void setElementHint(const QList<DomConnectionHint*>& a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    // child element data
+    QList<DomConnectionHint*> m_hint;
+
+    DomConnectionHints(const DomConnectionHints &other);
+    void operator = (const DomConnectionHints&other);
+};
+
+class QT_UI4_EXPORT DomConnectionHint {
+public:
+    DomConnectionHint();
+    ~DomConnectionHint();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString());
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &s) { m_text = s; }
+
+    // attribute accessors
+    inline bool hasAttributeType() { return m_has_attr_type; }
+    inline QString attributeType() { return m_attr_type; }
+    inline void setAttributeType(const QString& a) { m_attr_type = a; m_has_attr_type = true; }
+    inline void clearAttributeType() { m_has_attr_type = false; }
+
+    // child element accessors
+    inline int elementX() { return m_x; }
+    void setElementX(int a);
+
+    inline int elementY() { return m_y; }
+    void setElementY(int a);
+
+private:
+    QString m_text;
+    void clear(bool clear_all = true);
+
+    // attribute data
+    QString m_attr_type;
+    bool m_has_attr_type;
+
+    // child element data
+    int m_x;
+    int m_y;
+
+    DomConnectionHint(const DomConnectionHint &other);
+    void operator = (const DomConnectionHint&other);
 };
 
 #endif // UI4_H
