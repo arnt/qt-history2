@@ -210,10 +210,11 @@ file. Here's an example project file (or .pro file):
 
 \code
     HEADERS         = funnydialog.h \
-		      wackywidget.h \
+		      wackywidget.h
     SOURCES         = funnydialog.cpp \
 		      main.cpp \
 		      wackywidget.cpp
+    INTERFACES      = fancybox.ui
     TRANSLATIONS    = superapp_dk.ts \
 		      superapp_fi.ts \
 		      superapp_no.ts \
@@ -225,9 +226,9 @@ have to give the name of the project file as a command-line
 argument.
 
 In this example, four exotic languages are supported: Danish,
-Finnish, Norwegian and Swedish. If you use tmake, you don't
-need an extra project file for \e lupdate; your tmake project
-file will do, if you add the TRANSLATIONS lines.
+Finnish, Norwegian and Swedish. If you use tmake or qmake, you
+don't need an extra project file for \e lupdate; your tmake
+project file will do, if you add the TRANSLATIONS lines.
 
 In your application, you have to \l QTranslator::load()
 the translation files appropriate for the user's language, and
