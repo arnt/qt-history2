@@ -196,8 +196,8 @@ inline bool isSpace( const QChar &ch )
 inline int lineBreakClass( const QChar &ch )
 {
 #ifdef QT_NO_UNICODETABLES
-    return ch.row() ? QUnicodeTables::LineBreak_AL
-	: QUnicodeTables::latin1_line_break_info[ch.cell()];
+    return ch.row() ? (int)QUnicodeTables::LineBreak_AL
+	: (int)QUnicodeTables::latin1_line_break_info[ch.cell()];
 #else
     register int pos = ((int)QUnicodeTables::line_break_info[ch.row()] << 8) + ch.cell();
     return QUnicodeTables::line_break_info[pos];
