@@ -15,9 +15,9 @@ $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/getaddrinf
 cd $OUTDIR/config.tests/unix/getaddrinfo
 
 if [ "$VERBOSE" = "yes" ]; then
-  (make && ./getaddrinfo)
+  make
 else
-  (make && ./getaddrinfo) >/dev/null 2>&1
+  make >/dev/null 2>&1
 fi
 GETADDRINFO=$?
 
