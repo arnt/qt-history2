@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#175 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1749,7 +1749,7 @@ inline int qAlpha(QRgb c)
 
 inline QRgb qRgba(int r, int g, int b, int a)
 {
-    return qRgb(r,g,b) | a<<24;
+    return qRgb(r,g,b) | (a<<24);
 }
 
 static
