@@ -48,9 +48,10 @@
 
 // NOT REVISED
 
-void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
-int  qt_sip_count( QWidget* );			// --- "" ---
-bool qt_wstate_iconified( WId );		// --- "" ---
+// defined in qapplication_x11.cpp
+void qt_insert_sip( QWidget*, int, int ); 
+int  qt_sip_count( QWidget* );
+bool qt_wstate_iconified( WId );
 void qt_updated_rootinfo();
 
 #ifndef NO_XIM
@@ -67,14 +68,16 @@ extern void qt_clear_paintevent_clipping();
 extern bool qt_dnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
-extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.cpp
-extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.cpp
+// defined in qapplication_x11.cpp
+extern void qt_deferred_map_add( QWidget* );
+extern void qt_deferred_map_take( QWidget* );
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
-extern Time qt_x_time; // defined in qapplication_x11.cpp
-extern bool qt_use_xrender; // defined in qapplication_x11.cpp
+// defined in qapplication_x11.cpp
+extern Time qt_x_time;
+extern bool qt_use_xrender;
 
 int qt_x11_create_desktop_on_screen = -1;
 
@@ -839,22 +842,6 @@ void QWidget::setBackgroundX11Relative()
     XSetWindowBackgroundPixmap( x11Display(), winId(), ParentRelative );
 }
 
-
-/*!
-  Sets the widget cursor shape to \e cursor.
-
-  The mouse cursor will assume this shape when it's over this widget.
-  See a list of predefined cursor objects with a range of useful
-  shapes in the QCursor documentation.
-
-  An editor widget would for example use an I-beam cursor:
-  \code
-    setCursor( ibeamCursor );
-  \endcode
-
-  \sa cursor(), unsetCursor(), QApplication::setOverrideCursor()
-*/
-
 void QWidget::setCursor( const QCursor &cursor )
 {
     if ( cursor.handle() != arrowCursor.handle()
@@ -869,16 +856,6 @@ void QWidget::setCursor( const QCursor &cursor )
 		   oc ? oc->handle() : cursor.handle() );
     XFlush( x11Display() );
 }
-
-
-/*!
-  Unset the cursor for this widget. The widget will use the cursor of
-  its parent from now on.
-
-  This functions does nothing for top-level windows.
-
-  \sa cursor(), setCursor(), QApplication::setOverrideCursor()
- */
 
 void QWidget::unsetCursor()
 {
@@ -942,26 +919,16 @@ qstring_to_xtp( const QString& s )
     return &tp;
 }
 
-/*!
-  Sets the window caption (title) to \a caption.
-  \sa caption(), setIcon(), setIconText()
-*/
-
 void QWidget::setCaption( const QString &caption )
 {
     if ( QWidget::caption() == caption )
-	return; // for less flicker
+	return;
+
     topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
-
-/*!
-  Sets the window icon to \a pixmap.
-  \sa icon(), setIconText(), setCaption(),
-      \link appicon.html Setting the Application Icon\endlink
-*/
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
@@ -998,12 +965,6 @@ void QWidget::setIcon( const QPixmap &pixmap )
     QEvent e( QEvent::IconChange );
     QApplication::sendEvent( this, &e );
 }
-
-
-/*!
-  Sets the text of the window's icon to \e iconText.
-  \sa iconText(), setIcon(), setCaption()
-*/
 
 void QWidget::setIconText( const QString &iconText )
 {
@@ -1230,7 +1191,6 @@ QWidget *QWidget::keyboardGrabber()
 {
     return keyboardGrb;
 }
-
 
 /*!
   Sets the top-level widget containing this widget to be the active
@@ -1515,9 +1475,10 @@ void QWidget::showMinimized()
     setWState( WState_Minimized );
 }
 
-/*!
-  Returns TRUE if this widget is a top-level widget that is minimized
-  (iconified), or else FALSE.
+/*! \property QWidget::minimized
+    \brief whether this widget is minimized (iconified)
+
+  This property is relevant only for top-level widgets.
 
   \sa showMinimized(), isVisible(), show(), hide(), showNormal()
  */
@@ -1820,20 +1781,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 
 /*!
-  \overload void QWidget::setMinimumSize( const QSize &size )
-*/
+  \overload
 
-/*!
-  Sets the minimum size of the widget to \e w by \e h pixels.
-
-  The widget cannot be resized to a smaller size than the minimum widget
-  size. The widget's size is forced to the minimum size if the current
-  size is smaller.
-
-  If you use a layout inside the widget, the minimum size will be set by the layout and
-  not by setMinimumSize, unless you set the layouts resize mode to QLayout::FreeResize.
-
-  \sa minimumSize(), setMaximumSize(), setSizeIncrement(), resize(), size(), QLayout::setResizeMode()
+  This function corresponds to setMinimumSize( QSize(minw, minh) ).
 */
 
 void QWidget::setMinimumSize( int minw, int minh )
@@ -1851,7 +1801,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 	bool resized = testWState( WState_Resized );
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
 	if ( !resized )
-	    clearWState( WState_Resized ); //not a user resize
+	    clearWState( WState_Resized ); // not a user resize
     }
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
@@ -1859,19 +1809,10 @@ void QWidget::setMinimumSize( int minw, int minh )
 }
 
 /*!
-  \overload void QWidget::setMaximumSize( const QSize &size )
+  \overload
+
+  This function corresponds to setMaximumSize( QSize(\a maxw, \a maxh) ).
 */
-
-/*!
-  Sets the maximum size of the widget to \e w by \e h pixels.
-
-  The widget cannot be resized to a larger size than the maximum widget
-  size. The widget's size is forced to the maximum size if the current
-  size is greater.
-
-  \sa maximumSize(), setMinimumSize(), setSizeIncrement(), resize(), size()
-*/
-
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
 #if defined(QT_CHECK_RANGE)
@@ -1900,32 +1841,14 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	bool resized = testWState( WState_Resized );
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
 	if ( !resized )
-	    clearWState( WState_Resized ); //not a user resize
+	    clearWState( WState_Resized ); // not a user resize
     }
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
     updateGeometry();
 }
 
-/*!
-  Sets the size increment of the widget.  When the user resizes the
-  window, the size will move in steps of \e w pixels horizontally and
-  \e h pixels vertically, with baseSize() as basis. Preferred widget sizes are therefore for
-  non-negative integers \e i and \e j:
-  \code
-  width = baseSize().width() + i * sizeIncrement().width();
-  height = baseSize().height() + j * sizeIncrement().height();
-  \endcode
-
-  Note that while you can set the size increment for all widgets, it
-  has no effect except for top-level widgets.
-
-  \warning The size increment has no effect under Windows, and may be
-  disregarded by the window manager on X.
-
-  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), resize(), size()
-*/
-
+/*! \overload */
 void QWidget::setSizeIncrement( int w, int h )
 {
     QTLWExtra* x = topData();
@@ -1936,18 +1859,12 @@ void QWidget::setSizeIncrement( int w, int h )
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
 }
-/*!
-  \overload void QWidget::setSizeIncrement( const QSize& )
-*/
-
 
 /*!
-  Sets the base size of the widget.  The base size is important only
-  in combination with size increments. See setSizeIncrement() for details.
+  \overload
 
-  \sa baseSize()
+  This corresponds to setBaseSize( QSize(\a basew, \a baseh) ).
 */
-
 void QWidget::setBaseSize( int basew, int baseh )
 {
     createTLExtra();
@@ -1959,12 +1876,6 @@ void QWidget::setBaseSize( int basew, int baseh )
     if ( testWFlags(WType_TopLevel) )
 	do_size_hints( this, extra );
 }
-
-
-
-/*!
-  \overload void QWidget::setBaseSize( const QSize& )
-*/
 
 /*!
   \overload void QWidget::erase()
@@ -2212,37 +2123,29 @@ void QWidget::deleteTLSysExtra()
     destroyInputContext();
 }
 
+/*! \property QWidget::acceptDrops
+    \brief whether drop events are enabled for this widget
 
-/*!
-  Returns TRUE if drop events are enabled for this widget.
+  Setting this property to TRUE announces to the system that this
+  widget \e may be able to accept drop events.
 
-  \sa setAcceptDrops()
+  If the widgets is the desktop (QWidget::isDesktop()), this may fail
+  if another application is using the desktop; you can call
+  acceptDrops() to test if this occurs.
 */
-
 bool QWidget::acceptDrops() const
 {
-    return testWState(WState_DND);
+    return testWState( WState_DND );
 }
-
-/*!
-  Announces to the system that this widget \e may be able to
-  accept drop events.
-
-  If the widgets is \link QWidget::isDesktop() the desktop\endlink,
-  this may fail if another application is using the desktop - you
-  can call acceptDrops() to test if this occurs.
-
-  \sa acceptDrops()
-*/
 
 void QWidget::setAcceptDrops( bool on )
 {
     if ( testWState(WState_DND) != on ) {
 	if ( qt_dnd_enable( this, on ) ) {
 	    if ( on )
-		setWState(WState_DND);
+		setWState( WState_DND );
 	    else
-		clearWState(WState_DND);
+		clearWState( WState_DND );
 	}
     }
 }
