@@ -34,6 +34,7 @@
 #include <qdatabrowser.h>
 #include <qsqlcursor.h>
 #include <qstring.h>
+#include <qmap.h>
 
 class QSqlDatabase;
 class QSqlForm;

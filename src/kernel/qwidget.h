@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qobject.h"
+#include "qevent.h"
 #include "qpaintdevice.h"
 #include "qpalette.h"
 #include "qfont.h"

@@ -48,7 +48,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-
+#include "qmap.h"
 
 /*!
     \class QTab qtabbar.h

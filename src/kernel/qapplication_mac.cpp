@@ -225,12 +225,12 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
     for(int grp = 0; grp < QPalette::NColorGroups; grp++) {
 	for(int role = 0; role < QColorGroup::NColorRoles; role++) {
 	    QBrush b = pal.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role);
-	    qDebug("  %s::%s %d::%d::%d [%p]%s", groups[grp], roles[role], b.color().red(), 
+	    qDebug("  %s::%s %d::%d::%d [%p]%s", groups[grp], roles[role], b.color().red(),
 		   b.color().green(), b.color().blue(), b.pixmap(),
 		   pal2.brush((QPalette::ColorGroup)grp, (QColorGroup::ColorRole)role) != b ? " (*)" : "");
 	}
     }
-    
+
 }
 #else
 #define qt_mac_debug_palette(x, y, z)
@@ -381,7 +381,7 @@ void qt_mac_update_os_settings()
 	    if(set_font) {
 		QApplication::setFont(fnt, TRUE, mac_widget_fonts[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
-		qDebug("qt-internal: Font for %s [%s::%d::%d::%d]", mac_widget_fonts[i].qt_class, 
+		qDebug("qt-internal: Font for %s [%s::%d::%d::%d]", mac_widget_fonts[i].qt_class,
 		       fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
 	    }
@@ -1177,7 +1177,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	return TRUE; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
 	bool set_active = TRUE;
-	if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow) 
+	if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow)
 	    set_active = !(GetCurrentKeyModifiers() & cmdKey);
 	if(set_active) {
 	    widget->raise();
@@ -1522,9 +1522,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    l->macHandleSelect(&tm);
 	} else if(ekind == kEventQtRequestContext) {
 	    bool send = FALSE;
-	    if((send = (event == request_context_hold_pending))) 
+	    if((send = (event == request_context_hold_pending)))
 		request_context_hold_pending = NULL;
-	    else if((send = (event == request_context_pending))) 
+	    else if((send = (event == request_context_pending)))
 		request_context_pending = NULL;
 	    if(send) {
 		//figure out which widget to send it to
@@ -1809,7 +1809,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) 
+		(button == QMouseEvent::LeftButton && (modifiers & controlKey))))
 		qt_event_request_context();
 
 #ifdef DEBUG_MOUSE_MAPS
@@ -1868,7 +1868,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(imstart.isAccepted()) {
 			handled_event = TRUE;
 			doc->setInputWidget(widget);
-			QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+			QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
 		    }
 		} else if(doc->inputWidget()) {
@@ -1896,7 +1896,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				    handled_event = TRUE;
 			    }
 			} else {
-			    QIMComposeEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
+			    QIMEvent imcompose(QEvent::IMCompose, text, text.length(), 0);
 			    QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
 			    if(imcompose.isAccepted())
 				handled_event = TRUE;
@@ -2421,7 +2421,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			by_accel = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
 						      NULL, sizeof(keyc), NULL, &keyc) && keyc;
 		    }
-		    if(by_accel || !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel)) 
+		    if(by_accel || !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel))
 #endif
 			handled_event = FALSE;
 		}

@@ -52,6 +52,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qpoint.h"
 #endif // QT_H
 #ifndef QT_NO_RESIZEHANDLER
 class QMouseEvent;
@@ -111,7 +112,7 @@ private:
     uint moveResizeMode	    :1;
     uint activeForResize    :1;
     uint sizeprotect	    :1;
-    uint moving		    :1; 
+    uint moving		    :1;
     uint activeForMove	    :1;
 
     void setMouseCursor( MousePosition m );

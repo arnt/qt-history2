@@ -32,6 +32,7 @@
 #include <qdict.h>
 #include <qdatastream.h>
 #include <qobject.h>
+#include <qvaluelist.h>
 
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}

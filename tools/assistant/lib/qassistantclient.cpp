@@ -31,6 +31,7 @@
 #include <qprocess.h>
 #include <qtimer.h>
 #include <qfileinfo.h>
+#include <qmap.h>
 
 class QAssistantClientPrivate
 {

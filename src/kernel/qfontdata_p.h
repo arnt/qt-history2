@@ -52,6 +52,8 @@
 
 #include "qobject.h"
 #include "qfont.h"
+#include "qshared.h"
+#include "qmap.h"
 
 // forwards
 class QFontEngine;

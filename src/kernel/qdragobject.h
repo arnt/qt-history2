@@ -47,6 +47,7 @@ class QImageDragData;
 #include "qimage.h"
 #include "qstrlist.h"
 #include "qcolor.h"
+#include "qmime.h"
 #endif // QT_H
 
 #ifndef QT_NO_MIME

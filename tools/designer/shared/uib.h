@@ -29,6 +29,7 @@
 
 #include <qdatastream.h>
 #include <qcstring.h>
+#include <qstring.h>
 
 const Q_UINT32 UibMagic = 0xb77c61d8;
 

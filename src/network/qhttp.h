@@ -42,6 +42,7 @@
 #include "qobject.h"
 #include "qnetworkprotocol.h"
 #include "qstringlist.h"
+#include "qmap.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )

@@ -44,6 +44,7 @@
 #include "qptrvector.h"
 #include "qdict.h"
 #include "qobject.h"
+#include "qmime.h"
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT

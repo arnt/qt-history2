@@ -41,8 +41,9 @@
 #ifndef QT_H
 #include "qobjectdefs.h"
 #include "qwindowdefs.h"
-#include "qevent.h"
 #include "qnamespace.h"
+#include "qstring.h"
+#include "qbytearray.h"
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
@@ -57,6 +58,10 @@ class QObjectUserData;
 #endif
 class QObjectList;
 class QGuardedPtrData;
+class QEvent;
+class QTimerEvent;
+class QChildEvent;
+class QCustomEvent;
 
 class Q_EXPORT QObject: public Qt
 {

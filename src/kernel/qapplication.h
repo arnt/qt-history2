@@ -44,6 +44,7 @@
 #include "qpalette.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 class QSessionManager;

@@ -28,6 +28,7 @@
 #define QASSISTANTCLIENT_H
 
 #include <qobject.h>
+#include <qstringlist.h>
 
 class QSocket;
 class QProcess;

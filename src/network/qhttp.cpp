@@ -49,6 +49,7 @@
 #include "qurloperator.h"
 #include "qtimer.h"
 #include "private/qinternal_p.h"
+#include "qevent.h"
 
 //#define QHTTP_DEBUG
 
@@ -1175,7 +1176,7 @@ QHttp::QHttp( QObject* parent, const char* name )
 /*!
     Constructs a QHttp object. Subsequent requests are done by
     connecting to the server \a hostname on port \a port. The
-    parameters \a parent and \a name are passed on to the 
+    parameters \a parent and \a name are passed on to the
     QNetworkProtocol constructor.
 
     \sa setHost()

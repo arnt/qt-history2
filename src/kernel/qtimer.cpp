@@ -38,6 +38,7 @@
 #include "qtimer.h"
 #include "qsignal.h"
 #include "qobjectlist.h"
+#include "qevent.h"
 
 /*!
     \class QTimer qtimer.h

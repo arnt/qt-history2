@@ -44,6 +44,7 @@
 #include "qptrvector.h"
 #include "qvaluelist.h"
 #include "qptrlist.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTEDIT

@@ -48,6 +48,7 @@
 #include "qdragobject.h"
 #include "qbitmap.h"
 #include "qpicture.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_ICONVIEW

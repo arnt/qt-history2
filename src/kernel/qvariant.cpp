@@ -62,6 +62,7 @@
 #include "qbitarray.h"
 #include "qkeysequence.h"
 #include "qpen.h"
+#include "qmap.h"
 
 #ifndef DBL_DIG
 #define DBL_DIG 10

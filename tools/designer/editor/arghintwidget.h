@@ -28,6 +28,7 @@
 #define ARGHINTWIDGET_H
 
 #include <qframe.h>
+#include <qmap.h>
 
 class QLabel;
 class ArrowButton;

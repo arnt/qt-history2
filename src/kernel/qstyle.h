@@ -39,6 +39,8 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qrect.h"
+#include "qsize.h"
 #endif // QT_H
 
 
