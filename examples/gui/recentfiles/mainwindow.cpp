@@ -3,8 +3,6 @@
 
 #include "mainwindow.h"
 
-QList<MainWindow *> MainWindow::windowList;
-
 MainWindow::MainWindow()
 {
     setAttribute(Qt::WA_DeleteOnClose);
@@ -15,15 +13,9 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
     (void)statusBar();
-    windowList.append(this);
 
     setWindowTitle(tr("Recent Files"));
     resize(400, 300);
-}
-
-MainWindow::~MainWindow()
-{
-    windowList.removeAll(this);
 }
 
 void MainWindow::newFile()
@@ -219,8 +211,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
     settings.sync();
 #endif
 
-    foreach (MainWindow *win, windowList)
-        win->updateRecentFileActions();
+    foreach (QWidget *widget, QApplication::topLevelWidgets()) {
+        MainWindow *mainWin = qt_cast<MainWindow *>(widget);
+        if (mainWin)
+            mainWin->updateRecentFileActions();
+    }
 }
 
 void MainWindow::updateRecentFileActions()

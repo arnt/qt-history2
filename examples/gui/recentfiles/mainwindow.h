@@ -14,7 +14,6 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    ~MainWindow();
 
 private slots:
     void newFile();
@@ -51,8 +50,6 @@ private:
 
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActs[MaxRecentFiles];
-
-    static QList<MainWindow *> windowList;
 };
 
 #endif
