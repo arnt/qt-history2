@@ -552,7 +552,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     //selection flags
     if(t->rect().contains(mapFromGlobal(QCursor::pos())))
 	flags |= QStyle::Style_MouseOver;
-    if(t == d->pressed) 
+    if(t == d->pressed)
 	flags |= QStyle::Style_Sunken;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags, QStyleOption(t) );
@@ -719,8 +719,12 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	e->ignore();
-    if(d->pressed) 
+    /* ### I do not known which style this needs, but it flickers
+      horrible with standard styles. Fix this properly.
+      
+    if(d->pressed)
 	repaint(d->pressed->rect(), FALSE);
+    */
 }
 
 /*!\reimp
