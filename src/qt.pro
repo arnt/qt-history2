@@ -24,7 +24,7 @@ internal:MODULES	+= $$MODULES_ENT
 
 CONFIG		+= $$MODULES
 
-# internal:CONFIG	+= png zlib  # Done differently in external system
+internal:CONFIG	+= png zlib  # Done differently in external system
 embedded:CONFIG	+= png zlib
 win32:CONFIG	+= png zlib
 internal:CONFIG -= opengl
