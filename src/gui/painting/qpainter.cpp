@@ -276,7 +276,6 @@ QRegion QPainter::clipRegion(CoordinateMode m) const
 
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
 {
-    Q_ASSERT(d->engine);
     setClipRegion(QRegion(rect), mode);
 }
 

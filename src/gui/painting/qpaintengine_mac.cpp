@@ -595,6 +595,8 @@ QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoint
 {
     Q_ASSERT(isActive());
     int x1, y1, x2, y2, xsave, ysave;
+    if (npoints == -1)
+	npoints = pa.size();
     pa.point(index+npoints-2, &x1, &y1);      // last line segment
     pa.point(index+npoints-1, &x2, &y2);
     xsave = x2; ysave = y2;
