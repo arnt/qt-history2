@@ -714,6 +714,8 @@ void QTextEdit::init()
     wPolicy = AtWhiteSpace;
     inDnD = FALSE;
     doc->setFormatter( new QTextFormatterBreakWords );
+    doc->formatCollection()->defaultFormat()->setFont( QScrollView::font() );
+    doc->formatCollection()->defaultFormat()->setColor( colorGroup().color( QColorGroup::Text ) );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
 
@@ -2429,6 +2431,21 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	} else if ( e->type() == QEvent::FocusOut ) {
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
+	}
+    }
+
+    if ( o == this && e->type() == QEvent::PaletteChange ) {
+	QColor old( viewport()->colorGroup().color( QColorGroup::Text ) );
+	if ( old != colorGroup().color( QColorGroup::Text ) ) {
+	    QColor c( colorGroup().color( QColorGroup::Text ) );
+	    doc->setMinimumWidth( -1 );
+	    doc->updateColors( c, old );
+	    lastFormatted = doc->firstParag();
+	    formatMore();
+	    repaintChanged();
+	    QFont f = currentFormat->font();
+	    currentFormat->removeRef();
+	    currentFormat = doc->formatCollection()->format( f, c );
 	}
     }
 

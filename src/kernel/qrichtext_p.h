@@ -141,7 +141,7 @@ public:
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void loseCustomItem();
-#endif    
+#endif
 
     union {
 	QTextFormat* format;
@@ -821,6 +821,7 @@ public:
     void setStyleSheet( QStyleSheet *s );
     void updateFontSizes( int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
+    void updateColors( const QColor &c, const QColor &old );
 #ifndef QT_NO_MIME
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
 #endif
@@ -1597,6 +1598,7 @@ public:
 
     void updateFontSizes( QStyleSheet* sheet, int base, bool usePixels );
     void updateFontAttributes( const QFont &f, const QFont &old );
+    void updateColors( const QColor &c, const QColor &old );
     QDict<QTextFormat> dict() const { return cKey; }
 
     QPaintDevice *paintDevice() const { return paintdevice; }

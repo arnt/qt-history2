@@ -3758,6 +3758,14 @@ void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
     fCollection->updateFontAttributes( f, old );
 }
 
+void QTextDocument::updateColors( const QColor &c, const QColor &old )
+{
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->updateColors( c, old );
+    invalidate();
+    fCollection->updateColors( c, old );
+}
+
 void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
@@ -6333,6 +6341,25 @@ void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &o
 	fm->fn.setWeight( f.weight() );
 	fm->fn.setItalic( f.italic() );
 	fm->fn.setUnderline( f.underline() );
+	fm->update();
+    }
+    updateKeys();
+}
+
+void QTextFormatCollection::updateColors( const QColor &c, const QColor &old )
+{
+    QDictIterator<QTextFormat> it( cKey );
+    QTextFormat *fm;
+    while ( ( fm = it.current() ) ) {
+	++it;
+	if ( fm->col == old ) {
+	    fm->col = c;
+	    fm->update();
+	}
+    }
+    fm = defFormat;
+    if ( fm->col == old ) {
+	fm->col = c;
 	fm->update();
     }
     updateKeys();
