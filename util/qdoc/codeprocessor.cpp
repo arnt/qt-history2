@@ -17,19 +17,17 @@ static QString untabified( const QString& in )
 {
     QString res;
     int col = 0;
-    int i = 0;
 
-    while ( i < (int) in.length() ) {
+    for ( int i = 0; i < (int) in.length(); i++ ) {
 	if ( in[i] == QChar('\t') ) {
 	    res += QString( "        " + (col & 0x7) );
-	    col = ( col + 8 ) & 0x7;
-	    i++;
-	} else if ( in[i] == QChar('\n') ) {
-	    res += in[i++];
-	    col = 0;
+	    col = ( col + 8 ) & ~0x7;
 	} else {
-	    res += in[i++];
-	    col++;
+	    res += in[i];
+	    if ( in[i] == QChar('\n') )
+		col = 0;
+	    else
+		col++;
 	}
     }
     return res;
