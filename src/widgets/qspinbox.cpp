@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#64 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -495,11 +495,9 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	QKeyEvent* k = (QKeyEvent*)ev;
 	if ( k->key() == Key_Up ) {
 	    stepUp();
-	    k->accept();
 	    return TRUE;
 	} else if ( k->key() == Key_Down ) {
 	    stepDown();
-	    k->accept();
 	    return TRUE;
 	} else if ( k->key() == Key_Return ) {
 	    interpretText();
@@ -589,7 +587,6 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 	offset_owner = this;
 	offset = 0;
     }
-    e->accept();
     offset += -e->delta()/120;
     if (QABS(offset) < 1)
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#217 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#218 $
 **
 ** Implementation of QListView widget class
 **
@@ -2671,7 +2671,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	if ( i && !i->isSelectable() &&
 	     ( i->childCount() || i->isExpandable() ) ) {
-	    e->accept();
 	    i->setOpen( !i->isOpen() );
 	    return;
 	}
@@ -2682,12 +2681,10 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Down:
 	i = i->itemBelow();
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Up:
 	i = i->itemAbove();
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Next:
 	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
@@ -2704,7 +2701,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i2;
 	}
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Prior:
 	i2 = itemAt( QPoint( 0, 0 ) );
@@ -2720,13 +2716,11 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i = i2;
 	}
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Plus:
 	if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Right:
 	if ( i->isOpen() && i->childItem )
@@ -2736,13 +2730,11 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	else if ( contentsX() + viewport()->width() < contentsWidth() )
 	    horizontalScrollBar()->addLine();
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Minus:
 	if ( i->isOpen() )
 	    setOpen( i, FALSE );
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Left:
 	if ( i->isOpen() )
@@ -2752,15 +2744,13 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	else if ( contentsX() )
 	    horizontalScrollBar()->subtractLine();
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Space:
 	i->activate();
 	d->currentPrefix.truncate( 0 );
-	e->accept();
 	break;
     case Key_Escape:
-	e->ignore();
+	e->ignore(); // For QDialog
 	break;
     default:
 	if ( e->ascii() && isalnum( e->ascii() ) ) {
@@ -2800,8 +2790,8 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    keyItem = d->r;
 		}
 	    }
-	    e->accept();
 	} else {
+	    e->ignore();
 	    return;
 	}
     }

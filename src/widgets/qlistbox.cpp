@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#220 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#221 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1247,7 +1247,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
 	}
-	e->accept();
 	break;
     case Key_Down:
 	if ( currentRow() < numRows()-1 ) {
@@ -1255,7 +1254,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
 	}
-	e->accept();
 	break;
     case Key_Left:
 	if ( currentColumn() > 0 ) {
@@ -1265,7 +1263,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
-	e->accept();
 	break;
     case Key_Right:
 	if ( currentColumn() < numColumns()-1 &&
@@ -1276,10 +1273,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
-	e->accept();
 	break;
     case Key_Next:
-	e->accept();
 #if 0
 	if ( style() == MotifStyle) {
 	    if ( lastRowVisible() == (int) count() - 1){
@@ -1314,7 +1309,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 #endif
 	break;
     case Key_Prior:
-	e->accept();
 #if 0
 	if ( style() != MotifStyle) {
 	    if (currentItem() != topItem() || topItem() == 0){
@@ -1348,7 +1342,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
     case Key_Space:
 	toggleCurrentItem();
-	e->accept();
 	break;
 
     case Key_Return:
@@ -1359,10 +1352,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( !tmp.isEmpty() )
 		emit selected( tmp );
 	}
-	// do NOT accept here.  qdialog.  yuck.
 	break;
     default:
-	break;
+	e->ignore();
+	return;
     }
     emitChangedSignal( FALSE );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#81 $
 **
 ** Implementation of QSlider class
 **
@@ -662,7 +662,6 @@ void QSlider::wheelEvent( QWheelEvent * e){
 	offset_owner = this;
 	offset = 0;
     }
-    e->accept();
     offset += -e->delta()*QMAX(pageStep(),lineStep())/120;
     if (QABS(offset)<1)
 	return;
@@ -803,7 +802,6 @@ void QSlider::keyPressEvent( QKeyEvent *e )
 	e->ignore();
 	return;
     }
-    e->accept();
 }
 
 

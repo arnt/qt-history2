@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#64 $
 **
 ** Implementation of QTabBar class
 **
@@ -587,7 +587,6 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	}
 	if ( d->focus < 0 )
 	    d->focus = old;
-	e->accept();
     } else if ( e->key() == Key_Right ) {
 	// right - ditto
 	if ( d->focus < d->id-1 ) {
@@ -601,10 +600,10 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	}
 	if ( d->focus >= d->id )
 	    d->focus = old;
-	e->accept();
     } else {
 	// other keys - ignore
 	e->ignore();
+	return;
     }
 
     // if the focus moved, repaint and signal
@@ -618,7 +617,6 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
 	if ( t ) {
 	    l->append( l->take() );
 	    r = r.unite( t->r );
-	    e->accept();
 	    updateMask();
 	    if ( r.isValid() )
 		repaint( r );

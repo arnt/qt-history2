@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#11 $
 **
 ** Implementation of something useful.
 **
@@ -289,7 +289,6 @@ void QDial::paintEvent( QPaintEvent * e )
 
 void QDial::keyPressEvent( QKeyEvent * e )
 {
-    e->accept();
     switch ( e->key() ) {
     case Key_Left:
 	subtractLine();

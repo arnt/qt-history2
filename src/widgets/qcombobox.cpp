@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#198 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#199 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1223,7 +1223,6 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     if ( e->key() == Key_F4 ||
 	 ( e->key() == Key_Down && (e->state() & AltButton) ) ||
 	 ( !d->ed && e->key() == Key_Space ) ) {
-	e->accept();
 	if ( count() ) {
 	    d->popup->setActiveItem( d->current );
 	    popup();
@@ -1235,14 +1234,12 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( c-1 );
 	else
 	    setCurrentItem( count()-1 );
-	e->accept();
     } else if ( d->usingListBox && e->key() == Key_Down ) {
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
 	else
 	    setCurrentItem( 0 );
-	e->accept();
     } else {
 	e->ignore();
 	return;
@@ -1522,12 +1519,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    case Key_F4:
 	    case Key_Escape:
 		popDownListBox();
-		((QKeyEvent*)event)->accept();
 		return TRUE;
 	    case Key_Enter:
 	    case Key_Return:
-		// magic to work around QDialog's enter handling
-		((QKeyEvent*)event)->accept();
+		// work around QDialog's enter handling
 		return FALSE;
 	    default:
 		break;
