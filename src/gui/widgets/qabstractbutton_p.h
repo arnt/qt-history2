@@ -43,7 +43,6 @@ public:
     uint autoRepeat :1;
     uint autoExclusive :1;
     uint down :1;
-    uint mlbDown :1;
     uint blockRefresh :1;
 
     QButtonGroup* group;

@@ -146,7 +146,7 @@ public:
 
 QAbstractButtonPrivate::QAbstractButtonPrivate()
     :shortcutId(0), checkable(false), checked(false), autoRepeat(false), autoExclusive(false),
-     down(false), mlbDown(false), blockRefresh(false), group(0)
+     down(false), blockRefresh(false), group(0)
 {}
 
 QButtonGroup::QButtonGroup(QObject *parent)
@@ -618,7 +618,7 @@ void QAbstractButton::setAutoRepeat(bool autoRepeat)
     if (d->autoRepeat == autoRepeat)
         return;
     d->autoRepeat = autoRepeat;
-    if (d->autoRepeat && d->mlbDown && d->down)
+    if (d->autoRepeat && d->down)
         d->repeatTimer.start(AUTO_REPEAT_DELAY, this);
     else
         d->repeatTimer.stop();
@@ -793,7 +793,6 @@ void QAbstractButton::mousePressEvent(QMouseEvent *e)
     }
     Q_D(QAbstractButton);
     if (hitButton(e->pos())) {
-        d->mlbDown = true;
         setDown(true);
         emit pressed();
     }
@@ -805,17 +804,11 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QAbstractButton);
     if (e->button() != Qt::LeftButton) {
         // clean up apperance if left button has been pressed
-        if (d->mlbDown || d->down) {
-            d->mlbDown = false;
+        if (d->down)
             setDown(false);
-        }
         e->ignore();
         return;
     }
-
-    if (!d->mlbDown)
-        return;
-    d->mlbDown = false;
 
     if (!d->down)
         return;
@@ -830,7 +823,7 @@ void QAbstractButton::mouseReleaseEvent(QMouseEvent *e)
 void QAbstractButton::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QAbstractButton);
-    if (!d->mlbDown || !(e->buttons() & Qt::LeftButton)) {
+    if (!(e->buttons() & Qt::LeftButton)) {
         e->ignore();
         return;
     }
@@ -909,7 +902,7 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
     Q_D(QAbstractButton);
     if (e->timerId() == d->repeatTimer.timerId()) {
         d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
-        if (d->mlbDown && d->down) {
+        if (d->down) {
             emit released();
             emit clicked();
             emit pressed();
