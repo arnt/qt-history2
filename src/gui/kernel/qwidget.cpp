@@ -3412,7 +3412,7 @@ QSize QWidget::frameSize() const
 /*!
     \overload
 
-    This corresponds to move(QSize(\a x, \a y)).
+    This corresponds to move(QPoint(\a x, \a y)).
 */
 
 void QWidget::move(int x, int y)
