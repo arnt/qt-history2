@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#34 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#34 $";
 #endif
 
 
@@ -71,6 +71,32 @@ static inline bool checkIndex( const char *method, int count, int index )
   \class QListBox qlistbox.h
   \brief The QListBox widget provides a single-column list of items that
   can be scrolled.
+
+  Each item in a QListBox can contain either a string (QString or
+  char*) or a pixmap.  One of the items can be the current item.  The
+  highlighted() signal is emitted when the user selects a new current
+  item, and selected() is emitted when the user actually selects the
+  current item.
+
+  If the user does not select anything, no signals are emitted and the
+  currentItem() returns -1.
+
+  New items may be inserted using either insertItem(), insertStrList()
+  and inSort().
+
+  By default, vertical and horizontal scroll bars are added and
+  removed as necessary.  setAutoScrollBar() can be used to force a
+  specific policy.
+
+  If you need a list box that contains other types, you must inherit
+  QLBItem and QListBox and reimplement deleteItem(), newItem(),
+  itemWidth(), itemHeight() and paintItem().  You must also call
+  setUserItems( TRUE ) in the subclass constructor.
+
+  QLBItem is at present not documented, see qlistbox.h for its
+  declaration.
+
+  \sa QComboBox, QPopupMenu, QStrList, QPixmap, QString.
 
   \ingroup realwidgets
  ----------------------------------------------------------------------------*/
@@ -233,6 +259,10 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 
 /*----------------------------------------------------------------------------
   Inserts \e string into the list and sorts the list.
+
+  inSort() treats any pixmap (or user-defined type) as
+  lexicographically less than any string.
+
   \sa insertItem()
  ----------------------------------------------------------------------------*/
 
@@ -679,7 +709,16 @@ void QListBox::deleteItem( QLBItem *i )
     delete i;
 }
 
-/*----------------------------------------------------------------------------
+/*!
+  This is a no-op, provided as a placeholder for subclassing.
+
+  All subclasses that setUserItems(TRUE) must reimplement this function.
+
+  \warning Do not paint outside the area that your itemHeight() and
+  itemWidth() functions indicate.  QListBox does not guarantee correct
+  clipping.
+
+  \sa itemHeight() itemWidth() setUserItems() paintCell()
  ----------------------------------------------------------------------------*/
 
 void QListBox::paintItem( QPainter *, int )
@@ -843,6 +882,10 @@ bool QListBox::itemVisible( int index )
   Repaints the cell at position \e row using \e p.  The \e column
   argument is ignored, it is present because QTableView is more
   general.
+
+  \bug When userItems() is TRUE, this function will call paintItem()
+  for \e all items.  This is possibly not the correct behaviour.
+  Feedback appreciated.
 
   \sa QTableView::paintCell()
  ----------------------------------------------------------------------------*/
