@@ -111,8 +111,10 @@ public:
 
     QDOC_PROPERTY(int section)
     QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(int textAlignment)
     QDOC_PROPERTY(int alignment)
     QDOC_PROPERTY(QIcon icon)
+    QDOC_PROPERTY(int iconAligment)
 
 protected:
     QStyleOptionHeader(int version);
