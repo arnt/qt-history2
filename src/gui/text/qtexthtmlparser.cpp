@@ -635,7 +635,7 @@ void QTextHtmlParser::parse() {
                         c = QChar::LineSeparator;
                     else if (c == QLatin1Char('\r'))
                         continue;
-                } else { // non-pre mode: collapse whitespace except nbsp
+                } else if (wsm != QTextHtmlParserNode::WhiteSpacePreWrap) { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
                            && txt.at(pos) != QChar::Nbsp)
                         pos++;
@@ -702,7 +702,8 @@ void QTextHtmlParser::parseTag()
     while (pos < len && txt.at(pos++) != QLatin1Char('>'))
         ;
 
-    if (node->wsm != QTextHtmlParserNode::WhiteSpacePre)
+    if (node->wsm != QTextHtmlParserNode::WhiteSpacePre
+        && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
         eatSpace();
  
     if (node->mayNotHaveChildren()) {
@@ -1069,6 +1070,20 @@ static void setWidthAttribute(QTextLength *width, QString value)
     }
 }
 
+static QTextHtmlParserNode::WhiteSpaceMode stringToWhiteSpaceMode(const QString &s)
+{
+    if (s == QLatin1String("normal"))
+        return QTextHtmlParserNode::WhiteSpaceNormal;
+    else if (s == QLatin1String("pre"))
+        return QTextHtmlParserNode::WhiteSpacePre;
+    else if (s == QLatin1String("nowrap"))
+        return QTextHtmlParserNode::WhiteSpaceNoWrap;
+    else if (s == QLatin1String("pre-wrap"))
+        return QTextHtmlParserNode::WhiteSpacePreWrap;
+
+    return QTextHtmlParserNode::WhiteSpaceModeUndefined;
+}
+
 void QTextHtmlParser::parseAttributes()
 {
     QTextHtmlParserNode *node = &nodes.last();
@@ -1218,8 +1233,12 @@ void QTextHtmlParser::parseAttributes()
                     if (setIntAttribute(&node->cssListIndent, s)) {
                         node->hasCssListIndent = true;
                     }
+                } else if (style.startsWith(QLatin1String("white-space:"))) {
+                    const QString s = style.mid(12).trimmed().toLower();
+                    QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);
+                    if (ws != QTextHtmlParserNode::WhiteSpaceModeUndefined)
+                        node->wsm = ws;
                 }
-
             }
         } else if (key == QLatin1String("align")) {
             if (value == QLatin1String("left"))

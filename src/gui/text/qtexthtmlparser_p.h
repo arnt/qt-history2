@@ -112,6 +112,7 @@ struct QTextHtmlParserNode {
         WhiteSpaceNormal,
         WhiteSpacePre,
         WhiteSpaceNoWrap,
+        WhiteSpacePreWrap,
         WhiteSpaceModeUndefined = -1
     };
 

@@ -743,17 +743,12 @@ QString QTextHtmlExporter::toHtml()
 
     html = QLatin1String("<html><body");
 
-    QLatin1String style(" style=\"");
-    html += style;
+    html += QLatin1String(" style=\" white-space: pre-wrap;");
 
     QTextCharFormat fmt;
     fmt.setFont(defaultFont);
-    const bool styleEmitted = emitCharFormatStyle(fmt, true /*ignore difference to default font*/);
-
-    if (styleEmitted)
-        html += QLatin1Char('"');
-    else
-        html.chop(qstrlen(style.latin1()));
+    emitCharFormatStyle(fmt, true /*ignore difference to default font*/);
+    html += QLatin1Char('"');
 
     html += QLatin1Char('>');
 
