@@ -49,6 +49,18 @@ public:
     inline const Option &option() const
     { return opt; }
 
+    inline QString pixmapFunction() const
+    { return pixFunction; }
+
+    inline void setPixmapFunction(const QString &f)
+    { pixFunction = f; }
+
+    inline bool hasExternalPixmap() const
+    { return externalPix; }
+
+    inline void setExternalPixmap(bool b)
+    { externalPix = b; }
+
     inline const DatabaseInfo *databaseInfo() const
     { return &info; }
 
@@ -72,6 +84,8 @@ private:
     const Option &opt;
     DatabaseInfo info;
     CustomWidgetsInfo cWidgetsInfo;
+    QString pixFunction;
+    bool externalPix;
 };
 
 #endif // UIC_H

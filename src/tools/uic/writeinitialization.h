@@ -93,8 +93,6 @@ private:
     Driver *driver;
     QTextStream &output;
     const Option &option;
-
-    QString m_pixmapFunction;
     bool m_stdsetdef;
 
     struct Buddy
@@ -114,7 +112,6 @@ private:
     int m_defaultMargin;
     int m_defaultSpacing;
 
-    bool m_externPixmap;
     QString m_generatedClass;
 
     QString m_delayedInitialization;

@@ -48,6 +48,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     DomUI *ui = new DomUI;
     ui->setAttributeVersion("4.0");
 
+    QString pixmapFunction = QLatin1String("qPixmapFromMimeSource");
     QStringList ui_tabstops;
     QList<DomInclude*> ui_includes;
     QList<DomWidget*> ui_toolbars;
@@ -67,6 +68,8 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                 }
                 n2 = n2.nextSibling().toElement();
             }
+        } else if (tagName == QLatin1String("pixmapfunction")) {
+            pixmapFunction = n.firstChild().toText().data();
         } else if (tagName == QLatin1String("includes")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
@@ -209,6 +212,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
     ui->setElementWidget(w);
     ui->setElementClass(w->attributeName()); // ### remove me!
+
+    if (!ui->elementImages())
+        ui->setElementPixmapFunction(pixmapFunction);
 
     for (int i=0; i<ui_customwidget_list.size(); ++i) {
         QString name = ui_customwidget_list.at(i)->elementClass();

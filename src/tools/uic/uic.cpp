@@ -40,7 +40,8 @@ Uic::Uic(Driver *d)
        out(d->output()),
        opt(d->option()),
        info(d),
-       cWidgetsInfo(d)
+       cWidgetsInfo(d),
+       externalPix(true)
 {
 }
 
@@ -106,6 +107,12 @@ bool Uic::write(DomUI *ui)
 
     if (opt.headerProtection)
         writeHeaderProtectionStart();
+
+    pixFunction = ui->elementPixmapFunction();
+    if (pixFunction == QLatin1String("QPixmap::fromMimeSource"))
+        pixFunction = QLatin1String("qPixmapFromMimeSource");
+
+    externalPix = ui->elementImages() == 0;
 
     info.accept(ui);
     cWidgetsInfo.accept(ui);

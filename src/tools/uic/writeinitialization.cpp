@@ -22,7 +22,7 @@
 
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
-      m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true),
+      m_defaultMargin(0), m_defaultSpacing(0),
       refreshOut(&m_delayedInitialization, IO_WriteOnly)
 {
     this->uic = uic;
@@ -33,12 +33,6 @@ void WriteInitialization::accept(DomUI *node)
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);
-
-    m_pixmapFunction = node->elementPixmapFunction();
-
-    m_externPixmap = node->elementImages() == 0;
-    if (m_externPixmap)
-        m_pixmapFunction = QLatin1String("qPixmapFromMimeSource");
 
     accept(node->elementLayoutDefault());
 
@@ -907,12 +901,12 @@ QString WriteInitialization::pixCall(const QString &pix) const
     QString s = pix;
 
     bool declaredPix = driver->containsPixmap(pix);
-    if (s.isEmpty() || m_externPixmap || m_pixmapFunction.size() || !declaredPix) {
-        if (m_externPixmap || !declaredPix)
+    if (s.isEmpty() || uic->hasExternalPixmap() || uic->pixmapFunction().size() || !declaredPix) {
+        if (uic->hasExternalPixmap() || !declaredPix)
             s = "\"" + s + "\"";
 
-        if (m_pixmapFunction.size())
-            s = m_pixmapFunction + "(" + s + ")";
+        if (uic->pixmapFunction().size())
+            s = uic->pixmapFunction() + "(" + s + ")";
 
         return QString("QPixmap(%1)").arg(s);
     }
