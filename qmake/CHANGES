@@ -1,3 +1,10 @@
+1.07a -
+
+   qmake has been changed to allow features to be introduced without changes to
+   C++ sources (ie project files).
+
+   $$printf() added to allow easy expansion of complex strings (using %1..%n)
+
 1.06b -
   
    support for reading and writing libtool (.la) files

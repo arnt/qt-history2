@@ -1314,6 +1314,17 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		for(QStringList::ConstIterator arg_it = arg_list.begin();
 		    arg_it != arg_list.end(); ++arg_it)
 		    lst += split_value_list((*arg_it));
+	    } else if(val.lower() == "printf") {
+		if(arg_list.count() < 1) {
+		    fprintf(stderr, "%s:%d: printf(format, ...) requires one argument.\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    replacement = arg_list.first().replace("\"", "" );
+		    QStringList::Iterator arg_it = arg_list.begin();
+		    ++arg_it;
+		    for( ; arg_it != arg_list.end(); ++arg_it) 
+			replacement = replacement.arg((*arg_it).replace("\"", "" ));
+		}
 	    } else if(val.lower() == "join") {
 		if(arg_list.count() < 1 || arg_list.count() > 4) {
 		    fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
