@@ -9,6 +9,7 @@ QCONFIG = core compat
 # Qt network module
 
 network {
+	PRECOMPILED_HEADER = ../core/base/qt_pch.h
 	HEADERS += qdns.h \
 		    qftp.h \
 		    qhttp.h \

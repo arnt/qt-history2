@@ -10,8 +10,8 @@ unix {
 
 
         xftfreetype {
-	   INCLUDEPATH += $$QT_SOURCE_TREE/src/3rdparty/opentype
-	   SOURCES += $$QT_SOURCE_TREE/src/3rdparty/opentype/ftxopentype.c
+	   INCLUDEPATH += ../3rdparty/opentype
+	   SOURCES += ../3rdparty/opentype/ftxopentype.c
         }
 }
 

@@ -6,14 +6,11 @@ QCONFIG = core gui
 
 DEFINES += QT_BUILD_SQL_LIB
 
+PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
+
 include(../qbase.pri)
 
 sql {
-
-	!table {
-		message(table must be enabled for sql support)
-		REQUIRES += table
-	}
 	
 	SQL_P	    = sql
 	HEADERS     += qsql.h \

@@ -7,7 +7,8 @@ QCONFIG         = core gui network sql
 DEFINES += QT_BUILD_COMPAT_LIB 
 
 include(../qbase.pri)
-include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
+
+PRECOMPILED_HEADER = ../gui/base/qt_gui_pch.h
 
 include(tools/tools.pri)
 include(other/other.pri)
