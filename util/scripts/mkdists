@@ -668,6 +668,13 @@ for plat in mac win x11 qws; do
 	rm -rf "$PLATDIR/tmake"
 	rm -rf "$PLATDIR/util"
 	rm -rf "$PLATDIR/tests"
+	if [ "$plat" != "mac" ]; then
+	    rm -f "$PLATDIR/src/styles/qaquastyle.h"
+	    rm -f "$PLATDIR/include/qaquastyle.h"
+	    rm -f "$PLATDIR/src/styles/qaquastyle.cpp"
+	    rm -rf "$PLATDIR/src/styles/src/aqua"
+	fi
+
 	mkdir -p $PLATDIR/lib
 	echo "If this directory is empty, you forgot to build the Qt library" >$PLATDIR/lib/README
 	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
