@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#275 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#274 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#275 $");
 
 
 /*****************************************************************************
@@ -152,6 +152,11 @@ static void	cleanupPostedEvents();
 static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
+
+#if (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
+// these have broken Xlibs, so we pretend they're X11R4
+#define X11R4
+#endif
 
 #if !defined(X11R4)
 static XIM	xim;
