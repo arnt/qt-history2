@@ -450,7 +450,7 @@ UnixMakefileGenerator::init()
 	return; /* subdirs is done */
     }
 
-    if( project->variables()["QMAKE_EXTENTION_SHLIB"].first().isEmpty() )
+    if( project->variables()["QMAKE_EXTENTION_SHLIB"].isEmpty() )
 	project->variables()["QMAKE_EXTENTION_SHLIB"].append( "so" );
 
     bool extern_libs = !project->isActiveConfig("dll")  || (project->variables()["TARGET"].first() == "qt" ||
