@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#2 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qgl.h"
-
+#include <qpixmap.h>
 
 void qwglError( const char* method, const char* func )
 {
