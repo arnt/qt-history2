@@ -154,7 +154,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         indent = "    ";
 
     if (!(category & OnlyInlines)) {
-        // constructor
+        // constructors
         out << "class " << nameSpace.toUpper() << "_EXPORT " << className << " : public ";
         if (category & ActiveX)
             out << "QAxWidget";
@@ -187,6 +187,23 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << "        setControl(\"" << controlID << "\");" << endl;
         out << "    }" << endl;
         out << endl;
+
+        for (int ci = mo->classInfoOffset(); ci < mo->classInfoCount(); ++ci) {
+            QMetaClassInfo info = mo->classInfo(ci);
+            QByteArray iface_name = info.name();
+            if (iface_name.startsWith("Event "))
+                continue;
+
+            QByteArray iface_class = info.value();
+
+            out << "    " << className << "(" << iface_class << " *iface)" << endl;
+            out << "    : QAxObject()" << endl;
+            out << "    {" << endl;
+            out << "        initializeFrom(iface);" << endl;
+            out << "        delete iface;" << endl;
+            out << "    }" << endl;
+            out << endl;
+        }
     }
 
     functions << className;
@@ -247,13 +264,21 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                 out << indent << "    if (!qax_result.constData()) return 0;" << endl;
             out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
             if (qax_qualified_usertypes.contains(simplePropType)) {
+                simplePropType = propertyType;
+                simplePropType.replace('*', "");
                 if (foreignNamespace) {
-                    out << indent << "    return 0; // foreign namespace not supported at this point" << endl;
-                } else {
-                    simplePropType = propertyType;
-                    simplePropType.replace('*', "");
-                    out << indent << "    return new " << simplePropType << "(*(IDispatch**)qax_result.constData());" << endl;
+                    out << "#ifdef QAX_DUMPCPP_";
+                    out << propertyType.left(propertyType.indexOf("::")).toUpper();
+                    out << "_H" << endl;                    
                 }
+
+                out << indent << "    return new " << simplePropType << "(*(IDispatch**)qax_result.constData());" << endl;
+                if (foreignNamespace) {
+                    out << "#else" << endl;
+                    out << indent << "    return 0; // foreign namespace not included" << endl;
+                    out << "#endif" << endl;
+                }
+
             } else {
                 out << indent << "    return *(" << propertyType << "*)qax_result.constData();" << endl;
             }
@@ -702,7 +727,6 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     return true;
 }
 
-
 bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, ObjectCategory category)
 {
     QString typeLibFile(typeLib);
@@ -768,8 +792,11 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     QFile declFile(cppFile + ".h");
     QTextStream declOut(&declFile);
-    QString inlines;
+    QByteArray classes;
+    QTextStream classesOut(&classes, QIODevice::WriteOnly);
+    QByteArray inlines;
     QTextStream inlinesOut(&inlines, QIODevice::WriteOnly);
+
     QMap<QByteArray, QList<QByteArray> > namespaces;
 
     if(!(category & NoDeclaration)) {
@@ -862,6 +889,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             declOut << "// forward declarations" << endl;
         for (int c = 0; c < classes.count(); ++c)
             declOut << "    class " << classes.at(c) << ";" << endl;
+
+        declOut << endl;
     }
 
     UINT typeCount = typelib->GetTypeInfoCount();
@@ -888,6 +917,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             object_category |= ActiveX;
 
         QMetaObject *metaObject = 0;
+        QUuid guid(typeattr->guid);
 
         switch (typekind) {
         case TKIND_COCLASS:
@@ -901,11 +931,15 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         }
 
         if (metaObject) {
-            QUuid guid(typeattr->guid);
             QByteArray className(metaObject->className());
             if (declFile.isOpen()) {
-                generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
-                declOut << endl;
+                if (typekind == TKIND_COCLASS) { // write those later...
+                    generateClassDecl(classesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
+                    classesOut << endl;
+                } else {
+                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
+                    declOut << endl;
+                }
                 generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|OnlyInlines));
                 inlinesOut << endl;
             }
@@ -924,6 +958,10 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     delete namespaceObject;
 
     if (declFile.isOpen()) {
+        if (classes.size()) {
+            declOut << "// Actual coclasses" << endl;
+            declOut << classes;
+        }
         if (inlines.size()) {
             declOut << "// member function implementation" << endl;
             declOut << "#ifndef QAX_DUMPCPP_" << libName.toUpper() << "_NOINLINES" << endl;
@@ -945,7 +983,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 int main(int argc, char **argv)
 {
     extern bool qax_dispatchEqualsIDispatch;
-//    qax_dispatchEqualsIDispatch = false;
+    // qax_dispatchEqualsIDispatch = false;
 
     CoInitialize(0);
 
