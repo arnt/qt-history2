@@ -671,7 +671,7 @@ Q_GUI_EXPORT int qWinAppCmdShow()                        // get main window show
 }
 
 
-Q_GUI_EXPORT HDC qt_display_dc()                        // get display DC
+Q_GUI_EXPORT HDC qt_win_display_dc()                        // get display DC
 {
     if (!displayDC)
         displayDC = GetDC(0);
@@ -988,7 +988,7 @@ void QApplication::restoreOverrideCursor()
   Internal function called from QWidget::setCursor()
 */
 
-void qt_set_cursor(QWidget *w, const QCursor& /* c */)
+void qt_win_set_cursor(QWidget *w, const QCursor& /* c */)
 {
     if (!curWin)
         return;

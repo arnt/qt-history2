@@ -306,6 +306,7 @@ QCoreApplication::QCoreApplication(int &argc, char **argv)
 }
 
 extern void set_winapp_name();
+extern void qt_set_library_config_file(const QString &); //qlibraryinfo.cpp
 
 // ### move to QCoreApplicationPrivate constructor?
 void QCoreApplication::init()
@@ -319,7 +320,7 @@ void QCoreApplication::init()
     d->app_libpaths = 0;
 #endif
 
-    Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object.");
+    Q_ASSERT_X(!self, "QCoreApplication", "there should be only one application object");
     QCoreApplication::self = this;
 
     QThread::initialize();
@@ -346,10 +347,8 @@ void QCoreApplication::init()
             }
             QByteArray arg = d->argv[i];
             if (arg.indexOf("-qtconfig=", 0) != -1) {
-                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
                 qt_set_library_config_file(arg.right(arg.length() - 10));
             } else if (arg == "-qtconfig" && i < d->argc-1) {
-                extern void qt_set_library_config_file(QString); //qlibraryinfo.cpp
                 qt_set_library_config_file(d->argv[++i]);
             } else {
                 d->argv[j++] = d->argv[i];

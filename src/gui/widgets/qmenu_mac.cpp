@@ -202,10 +202,9 @@ static QKeySequence qt_mac_menu_merge_accel(MenuCommand cmd)
     return ret;
 }
 
-//backdoors to disable/enable certain features of the menubar bindings
-void qt_mac_set_no_menubar_icons(bool b) { qt_mac_no_menubar_icons = b; } //disable menubar icons
-void qt_mac_set_no_native_menubar(bool b) { qt_mac_no_native_menubar = b; } //disable menubars entirely
-void qt_mac_set_no_menubar_merge(bool b) { qt_mac_no_menubar_merge = b; } //disable command merging
+void Q_GUI_EXPORT qt_mac_set_menubar_icons(bool b) { qt_mac_no_menubar_icons = !b; }
+void Q_GUI_EXPORT qt_mac_set_native_menubar(bool b) { qt_mac_no_native_menubar = !b; }
+void Q_GUI_EXPORT qt_mac_set_menubar_merge(bool b) { qt_mac_no_menubar_merge = !b; }
 
 bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e, bool by_accel)
 {

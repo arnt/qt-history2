@@ -37,7 +37,7 @@ static QColormapPrivate *screenMap = 0;
 
 void QColormap::initialize()
 {
-    HDC dc = qt_display_dc();
+    HDC dc = qt_win_display_dc();
 
     screenMap = new QColormapPrivate;
     screenMap ->ref = 1;

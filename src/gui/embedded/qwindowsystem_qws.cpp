@@ -74,7 +74,7 @@
 
 //#include <qdebug.h>
 
-extern void qt_setMaxWindowRect(const QRect& r);
+extern void qt_qws_set_max_window_rect(const QRect& r);
 
 QWSServer *qwsServer=0;
 
@@ -1467,7 +1467,7 @@ void QWSServer::endDisplayReconfigure()
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
 #endif
-    qt_setMaxWindowRect(QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()));
+    qt_qws_set_max_window_rect(QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()));
     QSize olds = qApp->desktop()->size();
     qApp->desktop()->resize(qt_screen->width(), qt_screen->height());
     qApp->postEvent(qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds));

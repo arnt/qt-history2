@@ -141,7 +141,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 
 #ifndef Q_OS_TEMP
     if (data->d == dd)                        // compatible bitmap
-        data->hbm = CreateCompatibleBitmap(qt_display_dc(), w, h);
+        data->hbm = CreateCompatibleBitmap(qt_win_display_dc(), w, h);
     else                                        // monocrome bitmap
         data->hbm = CreateBitmap(w, h, 1, 1, 0);
 #else
@@ -197,7 +197,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
                 break;
             }
         }
-        DATA_HBM = CreateDIBSection(qt_display_dc(),
+        DATA_HBM = CreateDIBSection(qt_win_display_dc(),
                                      bmi,
                                      DIB_RGB_COLORS,
                                      (void**)&(data->ppvBits),
@@ -304,7 +304,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     coltbl[1] = 0xffffff;
     coltbl[0] = 0x0;
 
-    DATA_HBM = CreateDIBSection(qt_display_dc(),
+    DATA_HBM = CreateDIBSection(qt_win_display_dc(),
                                  bmi,
                                  DIB_RGB_COLORS,
                                  (void**)&(data->ppvBits),
@@ -336,7 +336,7 @@ int QPixmap::defaultDepth()
 {
     static int dd = 0;
     if (dd == 0)
-        dd = GetDeviceCaps(qt_display_dc(), BITSPIXEL);
+        dd = GetDeviceCaps(qt_win_display_dc(), BITSPIXEL);
     return dd;
 }
 
@@ -539,7 +539,7 @@ QImage QPixmap::toImage() const
     if (mcp)                                        // disable multi cell
         QPixmapData::freeCell(data);
 
-    GetDIBits(qt_display_dc(), data->bm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS);
+    GetDIBits(qt_win_display_dc(), data->bm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS);
 
     // Opaque images need to have alpha channel set to 0xff. Windows ignores
     // this, but we need it for platform consistancy. (OpenGL conversion
@@ -996,7 +996,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         memcpy(sptr, data->realAlphaBits, sbpl*hs);
         result = 1;
     } else {
-        result = GetDIBits(qt_display_dc(), data->bm(), 0, hs, sptr, bmi, DIB_RGB_COLORS);
+        result = GetDIBits(qt_win_display_dc(), data->bm(), 0, hs, sptr, bmi, DIB_RGB_COLORS);
     }
 #else
     if (data->realAlphaBits) {
@@ -1314,7 +1314,7 @@ void QPixmapData::freeCell(QPixmapData *data, bool terminate)
         data->hbm = 0;
     } else {
         if (data->d == QPixmap::defaultDepth())
-            data->hbm = CreateCompatibleBitmap(qt_display_dc(), data->w, data->h);
+            data->hbm = CreateCompatibleBitmap(qt_win_display_dc(), data->w, data->h);
         else
             data->hbm = CreateBitmap(data->w, data->h, 1, 1, 0);
         HDC hdc = data->mem_dc.hdc;

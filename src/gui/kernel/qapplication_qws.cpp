@@ -89,7 +89,7 @@
 const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.
 
-extern void qt_setMaxWindowRect(const QRect& r);
+extern void qt_qws_set_max_window_rect(const QRect& r);
 extern QRect qt_maxWindowRect;
 
 static bool servermaxrect=false; // set to true once.
@@ -189,12 +189,12 @@ QString qws_qtePipeFilename()
     return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
 }
 
-extern void qt_setMaxWindowRect(const QRect&);
+extern void qt_qws_set_max_window_rect(const QRect&);
 static void setMaxWindowRect(const QRect& r)
 {
     QRect tr = qt_screen->mapFromDevice(r,
         qt_screen->mapToDevice(QSize(qt_screen->width(),qt_screen->height())));
-    qt_setMaxWindowRect(tr);
+    qt_qws_set_max_window_rect(tr);
 }
 
 
@@ -1358,24 +1358,17 @@ void QWSDisplay::setTransformation(int t)
 
     // only update the mwr if it is full screen.
     if (isFullScreen)
-        qt_setMaxWindowRect(QRect(0,0, qt_screen->width(), qt_screen->height()));
+        qt_qws_set_max_window_rect(QRect(0,0, qt_screen->width(), qt_screen->height()));
 
 #endif
 }
 #endif
 
-static bool        qt_try_modal(QWidget *, QWSEvent *);
-
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
+static bool qt_try_modal(QWidget *, QWSEvent *);
 
 /*****************************************************************************
   qt_init() - initializes Qt/FB
  *****************************************************************************/
-
-
 
 static void qt_set_qws_resources()
 

@@ -770,7 +770,7 @@ void QWin32PrintEnginePrivate::initialize()
 
     switch(mode) {
     case QPrinter::ScreenResolution:
-	d->resolution = GetDeviceCaps(qt_display_dc(), LOGPIXELSY);
+	d->resolution = GetDeviceCaps(qt_win_display_dc(), LOGPIXELSY);
 	break;
     case QPrinter::HighResolution:
 	d->resolution = GetDeviceCaps(hdc, LOGPIXELSY);

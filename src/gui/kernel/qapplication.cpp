@@ -380,7 +380,7 @@ static bool force_reverse = false;
 
 int qt_double_buffer_timer = 0;
 
-void qt_setMaxWindowRect(const QRect& r)
+Q_GUI_EXPORT void qt_qws_set_max_window_rect(const QRect& r)
 {
     qt_maxWindowRect = r;
     // Re-resize any maximized windows

@@ -351,12 +351,6 @@ extern bool qt_xdnd_dragging;
 extern bool qt_is_gui_used;
 extern bool qt_app_has_font;
 
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
-
-
 class QETWidget : public QWidget                // event translator widget
 {
 public:

@@ -28,10 +28,6 @@
 #include "qcolormap.h"
 #include "qdebug.h"
 
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
 extern bool qt_reuse_double_buffer; // declared in qapplication_x11.cpp
 
 #include <private/qpixmap_p.h>
@@ -250,7 +246,7 @@ Q_GUI_EXPORT void qt_x11_enforce_cursor(QWidget * w)
     }
 }
 
-Q_GUI_EXPORT void qt_wait_for_window_manager(QWidget* w)
+Q_GUI_EXPORT void qt_x11_wait_for_window_manager(QWidget* w)
 {
     QApplication::flush();
     XEvent ev;
@@ -1773,7 +1769,7 @@ void QWidgetPrivate::show_sys()
             && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                  && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
             XMapWindow(X11->display, q->winId());
-            qt_wait_for_window_manager(q);
+            qt_x11_wait_for_window_manager(q);
 
             // if the wm was not smart enough to adjust our size, do that manually
             updateFrameStrut();
@@ -1797,7 +1793,7 @@ void QWidgetPrivate::show_sys()
 
         if (q->isFullScreen() && !qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             XMapWindow(X11->display, q->winId());
-            qt_wait_for_window_manager(q);
+            qt_x11_wait_for_window_manager(q);
             return;
         }
     }

@@ -67,9 +67,6 @@ enum {
 /*****************************************************************************
   Externals
  *****************************************************************************/
-extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
-extern void qt_clear_paintevent_clipping(); //qpaintengine_mac.cpp
-extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
 extern void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 extern bool qt_event_remove_activate(); //qapplication_mac.cpp
 extern void qt_mac_event_release(QWidget *w); //qapplication_mac.cpp

@@ -72,9 +72,6 @@ static HHOOK   journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc(HWND, UINT, WPARAM, LPARAM);
 
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
 #define d d_func()
 #define q q_func()
 
@@ -522,7 +519,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 
 void QWidgetPrivate::updateSystemBackground() {}
 
-extern void qt_set_cursor(QWidget *, const QCursor &); // qapplication_win.cpp
+extern void qt_win_set_cursor(QWidget *, const QCursor &); // qapplication_win.cpp
 
 void QWidget::setCursor(const QCursor &cursor)
 {
@@ -533,7 +530,7 @@ void QWidget::setCursor(const QCursor &cursor)
         d->extra->curs = new QCursor(cursor);
     }
     setAttribute(Qt::WA_SetCursor);
-    qt_set_cursor(this, QWidget::cursor());
+    qt_win_set_cursor(this, QWidget::cursor());
 }
 
 void QWidget::unsetCursor()
@@ -544,7 +541,7 @@ void QWidget::unsetCursor()
     }
     if (!isWindow())
         setAttribute(Qt::WA_SetCursor, false);
-    qt_set_cursor(this, cursor());
+    qt_win_set_cursor(this, cursor());
 }
 
 void QWidget::setWindowModified(bool mod)
@@ -1366,7 +1363,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     UpdateWindow(winId());
 }
 
-extern Q_GUI_EXPORT HDC qt_display_dc();
+extern Q_GUI_EXPORT HDC qt_win_display_dc();
 
 int QWidget::metric(PaintDeviceMetric m) const
 {
@@ -1376,7 +1373,7 @@ int QWidget::metric(PaintDeviceMetric m) const
     } else if (m == PdmHeight) {
         val = data->crect.height();
     } else {
-        HDC gdc = qt_display_dc();
+        HDC gdc = qt_win_display_dc();
         switch (m) {
         case PdmDpiX:
         case PdmPhysicalDpiX:

@@ -193,8 +193,8 @@ void QSplashScreen::finish(QWidget *mainWin)
 {
     if (mainWin) {
 #if defined(Q_WS_X11)
-        extern void qt_wait_for_window_manager(QWidget *mainWin);
-        qt_wait_for_window_manager(mainWin);
+        extern void qt_x11_wait_for_window_manager(QWidget *mainWin);
+        qt_x11_wait_for_window_manager(mainWin);
 #endif
     }
     close();

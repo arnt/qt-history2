@@ -98,17 +98,13 @@ Q_GLOBAL_STATIC(FallBackHash, fallBackHash)
 QString qt_fallback_font_family(int script)
 {
     FallBackHash *hash = fallBackHash();
-    if (!hash)
-        return QString();
     return hash->value(script);
 }
 
 // Sets the fallback family for the specified script.
-void qt_set_fallback_font_family(int script, const QString &family)
+Q_GUI_EXPORT void qt_x11_set_fallback_font_family(int script, const QString &family)
 {
     FallBackHash *hash = fallBackHash();
-    if (!hash)
-        return;
     if (!family.isEmpty())
         hash->insert(script, family);
     else

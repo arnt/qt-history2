@@ -27,7 +27,7 @@
 #include "qconfig.cpp"
 
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
-Q_CORE_EXPORT void qt_set_library_config_file(QString p) { *(qt_library_config_file()) = p; }
+Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
 
 class QLibraryInfoPrivate
 {

@@ -36,7 +36,7 @@ static bool qt_sequence_no_mnemonics = true;
 #else
 static bool qt_sequence_no_mnemonics = false;
 #endif
-void Q_GUI_EXPORT qt_setSequenceAutoMnemonic(bool b) { qt_sequence_no_mnemonics = b; }
+void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemonics = !b; }
 
 /*!
     \class QKeySequence

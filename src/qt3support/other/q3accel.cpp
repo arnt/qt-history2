@@ -199,7 +199,7 @@ static bool qt_accel_no_shortcuts = true;
 #else
 static bool qt_accel_no_shortcuts = false;
 #endif
-void Q_COMPAT_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = b; }
+void Q_COMPAT_EXPORT qt_set_accel_auto_shortcuts(bool b) { qt_accel_no_shortcuts = b; }
 
 /*
     \internal

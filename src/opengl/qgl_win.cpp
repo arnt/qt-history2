@@ -413,7 +413,7 @@ bool QGLFormat::hasOpenGLOverlays()
 
     if (!checkDone) {
         checkDone = true;
-        HDC dc = qt_display_dc();
+        HDC dc = qt_win_display_dc();
         int pfiMax = DescribePixelFormat(dc, 0, 0, NULL);
         PIXELFORMATDESCRIPTOR pfd;
         for (int pfi = 1; pfi <= pfiMax; pfi++) {

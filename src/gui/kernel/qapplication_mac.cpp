@@ -256,9 +256,9 @@ void qt_mac_set_app_icon(const QPixmap &pixmap)
     }
 }
 
-void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; } //backdoor to enable press and hold
+Q_GUI_EXPORT void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; }
 
-void qt_mac_secure_keyboard(bool b)
+Q_GUI_EXPORT void qt_mac_secure_keyboard(bool b)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(b) {
@@ -736,7 +736,7 @@ void qt_event_send_clipboard_changed()
 
 /* app menu */
 static QMenu *qt_mac_dock_menu = 0;
-void qt_mac_set_dock_menu(QMenu *menu)
+Q_GUI_EXPORT void qt_mac_set_dock_menu(QMenu *menu)
 {
     qt_mac_dock_menu = menu;
     SetApplicationDockTileMenu(menu->macMenu());

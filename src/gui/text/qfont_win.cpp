@@ -95,7 +95,7 @@ void QFont::initialize()
 {
     if (QFontCache::instance)
         return;
-    shared_dc = CreateCompatibleDC(qt_display_dc());
+    shared_dc = CreateCompatibleDC(qt_win_display_dc());
     if (!shared_dc)
         qErrnoWarning("QFont::initialize: CreateCompatibleDC failed");
     new QFontCache();
