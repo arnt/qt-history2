@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#2 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#3 $
 **
 ** Includes X11 system header files.
 **
@@ -32,6 +32,15 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>
+
+//#define QT_NO_SHAPE
+#ifdef QT_NO_SHAPE
+#define XShapeCombineRegion(a,b,c,d,e,f,g)
+#define XShapeCombineMask(a,b,c,d,e,f,g)
+#else
+#include <X11/extensions/shape.h>
+#endif
+
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;
