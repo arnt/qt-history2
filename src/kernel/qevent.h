@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#3 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#4 $
 **
 ** Definition of QEvent classes
 **
@@ -28,8 +28,8 @@
 #define Event_Paint		    8		// paint widget
 #define Event_Move		    9		// move widget
 #define Event_Resize		   10		// resize widget
-#define Event_Create		   11		// before widget is created
-#define Event_Destroy		   12		// after widget was destroyed
+#define Event_Create		   11		// after object creation
+#define Event_Destroy		   12		// during object destruction
 #define Event_Show		   13		// before widget is displayed
 #define Event_Hide		   14		// before widget is hidden
 #define Event_Close		   15		// request to close widget
@@ -51,7 +51,7 @@ protected:
 };
 
 
-class QTimerEvent : public QEvent		// timer event class
+class QTimerEvent : public QEvent		// timer event
 {
 public:
     QTimerEvent( int timerId )
@@ -74,7 +74,7 @@ enum ButtonState {				// mouse/keyboard state values
     AltButton	   = 0x20
 };
 
-class QMouseEvent : public QEvent		// mouse event class
+class QMouseEvent : public QEvent		// mouse event
 {
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
@@ -91,23 +91,26 @@ protected:
 #define Q_MOUSE_EVENT(x)	((QMouseEvent*)x)
 
 
-class QKeyEvent : public QEvent			// keyboard event class
+class QKeyEvent : public QEvent			// keyboard event
 {
 public:
     QKeyEvent( int type, int kc, char ac, int state )
-	: QEvent(type)		{ k=(ushort)kc, a=ac, st=(ushort)state; }
+	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state; d=0; }
     int	   key()	const	{ return k; }	// key code (Key_Code)
     char   ascii()	const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
+    bool   discard()	const	{ return d; }	// discard key event
+    void   discard( bool doIt ) { d = (char)doIt; }
 protected:
     ushort k, st;
     char   a;
+    char   d;
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
 
 
-class QPaintEvent : public QEvent		// widget paint event class
+class QPaintEvent : public QEvent		// widget paint event
 {
 public:
     QPaintEvent( const QRect &paintRect )
@@ -120,7 +123,7 @@ protected:
 #define Q_PAINT_EVENT(x)	((QPaintEvent*)x)
 
 
-class QMoveEvent : public QEvent		// widget move event class
+class QMoveEvent : public QEvent		// widget move event
 {
 public:
     QMoveEvent( const QPoint &pos )
@@ -133,7 +136,7 @@ protected:
 #define Q_MOVE_EVENT(x)		((QMoveEvent*)x)
 
 
-class QResizeEvent : public QEvent		// widget resize event class
+class QResizeEvent : public QEvent		// widget resize event
 {
 public:
     QResizeEvent( const QSize &size )
@@ -144,6 +147,37 @@ protected:
 };
 
 #define Q_RESIZE_EVENT(x)	((QResizeEvent*)x)
+
+
+class QShowEvent : public QEvent		// widget show event
+{
+public:
+    QShowEvent() : QEvent(Event_Show)	{}
+};
+
+#define Q_SHOW_EVENT(x)		((QShowEvent*)x)
+
+
+class QHideEvent : public QEvent		// widget hide event
+{
+public:
+    QHideEvent() : QEvent(Event_Hide)	{}
+};
+
+#define Q_HIDE_EVENT(x)		((QHideEvent*)x)
+
+
+class QCloseEvent : public QEvent		// widget close event
+{
+public:
+    QCloseEvent() : QEvent(Event_Close)	{ close_it = FALSE; }
+    bool	close()		const	{ return close_it; }
+    void	close( bool doIt )	{ close_it = doIt; }
+protected:
+    bool	close_it;
+};
+
+#define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
 
 
 #endif // QEVENT_H
