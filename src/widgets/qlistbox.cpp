@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#231 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#232 $
 **
 ** Implementation of QListBox widget class
 **
@@ -100,6 +100,7 @@ QListBoxPrivate::~QListBoxPrivate()
 
 /*!
   \class QListBoxItem qlistbox.h
+
   \brief This is the base class of all list box items.
 
   This class is the abstract base class of all list box items. If you
@@ -367,6 +368,53 @@ int QListBoxPixmap::width( const QListBox * ) const
 
   \ingroup realwidgets
 
+  This is typically a single-column list where zero or one item items
+  are selected at once, but can also be used in many other ways.
+
+  QListBox will add scroll bars as necessary, but isn't intended for
+  \e really big lists.  If you want more than a few thousand items,
+  it's probably better to use a different widget, chiefly because the
+  scroll bars won't provide very good navigation, but also because
+  QListBox may become slow at larger sizes.
+
+  There is a variety of \link QListBox::SelectionMode
+  selection modes. \endlink The default is single-selection, but you
+  can change it using setSelectionMode().
+
+  The list box normally arranges its items in a single column with a
+  vertical scroll bar if necessary, but it is also possible to have a
+  different fixed number of columns (setColumnMode()), or as many
+  columns as will fit in the list box' assigned screen space
+  (setColumnMode( FitToWidth )), or to have a fixed number of rows
+  (setRowMode()), or as many rows as will fit in the list box'
+  assigned screen space (setRowMode( FitToHeight )).  In all these
+  cases, QListBox will add scroll bars as appropriate in at least one
+  direction.
+
+  If multiple rows is used, each row can be as high as necessary (the
+  normal setting), or you can request that all items will have the
+  same height by calling setVariableHeight( FALSE ).  Of course there
+  is a similar setVariableWidth().
+
+  The items discussed are QListBoxItem objects.  QListBox provides
+  methods to insert new items as a string, as pixmaps, and as
+  QListBoxItem * (insertItem() with various arguments), and to replace
+  an existing item with a new string, pixmap or QListBoxItem
+  (changeItem() with various arguments).  You can also remove items
+  (surprise: removeItem()) and clear() the entire list box.  Note that
+  if you create a QListBoxItem yourself and insert it, it becomes the
+  property of QListBox and you may not delete it.  (QListBox will
+  delete it when appropriate.)
+
+
+
+
+
+
+
+
+
+
   The list of items can be arbitrarily big; if necessary, QListBox
   adds scroll bars.  It can be single-column (as most list boxes are)
   or multi-column, and offers both single and multiple selection.
@@ -427,7 +475,34 @@ highlighted.
   sections)</a>
 */
 
+/*! \enum QListBox::SelectionMode
 
+  This enumerated type is used by QListBox to indicate how it reacts
+  to selection by the user.  It has three values: <ul>
+
+  <li> \c Single - When the user selects an item, any already-selected
+  item becomes unselected, and the user cannot unselect the selected
+  item.  This means that the user can never clear the selection, even
+  though the selection may be cleared by the application programmer
+  using QListBox::clear().
+
+  <li> \c Extended - When the user selects an item in the most
+  ordinary way, the selection is cleared and the new item selected.
+  However, if the user then selects more items <em>in the same
+  operation</em> (by dragging the mouse), these other items are also
+  selected.  There may also be other ways to select multiple items.
+
+  <li> \c Multi - When the user selects an item in the most ordinary
+  way, the selection status of that item is toggled and the other
+  items are left alone.
+
+  </ul>
+
+  In other words, \c Single is a real single-selection list box, \c
+  Multi a real multi-selection list box, and \c Extended list box
+  where users can select multiple items but usually want to select
+  either just one or a range of contiguous items..
+*/
 
 /*!
   Constructs a list box.  The arguments are passed directly to the
@@ -748,7 +823,7 @@ is emitted.
 
 void QListBox::removeItem( int index )
 {
-    d->count = -1;
+    d->count--;
     delete item( index );
 }
 
@@ -868,7 +943,7 @@ int QListBox::numItemsVisible() const
     if ( i < (int)d->columnPos.size()-1 &&
 	 d->columnPos[i] > x )
 	columns++;
-    x += viewport()->width();
+    x += visibleWidth();
     while ( i < (int)d->columnPos.size()-1 &&
 	   d->columnPos[i] < x ) {
 	i++;
@@ -883,7 +958,7 @@ int QListBox::numItemsVisible() const
     if ( i < (int)d->rowPos.size()-1 &&
 	 d->rowPos[i] > y )
 	rows++;
-    y += viewport()->height();
+    y += visibleHeight();
     while ( i < (int)d->rowPos.size()-1 &&
 	   d->rowPos[i] < y ) {
 	i++;
@@ -1012,8 +1087,8 @@ bool QListBox::itemVisible( QListBoxItem * item )
     int i = index( item );
     int col = i/numRows();
     int row = i%numCols();
-    return ( d->columnPos[col] < contentsX()+viewport()->width() &&
-	     d->rowPos[row] < contentsY()+viewport()->height() &&
+    return ( d->columnPos[col] < contentsX()+visibleWidth() &&
+	     d->rowPos[row] < contentsY()+visibleHeight() &&
 	     d->columnPos[col+1] > contentsX() &&
 	     d->rowPos[row+1] > contentsY() );
 }
@@ -1140,8 +1215,8 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     // figure out in what direction to drag-select and perhaps scroll
     int dx = 0;
     int x = e->x();
-    if ( x >= viewport()->width() ) {
-	x = viewport()->width()-1;
+    if ( x >= visibleWidth() ) {
+	x = visibleWidth()-1;
 	dx = 1;
     } else if ( x < 0 ) {
 	x = 0;
@@ -1162,8 +1237,8 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     // repeat for y
     int dy = 0;
     int y = e->y();
-    if ( y >= viewport()->height() ) {
-	y = viewport()->height()-1;
+    if ( y >= visibleHeight() ) {
+	y = visibleHeight()-1;
 	dy = 1;
     } else if ( y < 0 ) {
 	y = 0;
@@ -1830,6 +1905,8 @@ void QListBox::doLayout() const
 	if ( columnMode() == FixedNumber ) {
 	    tryGeometry( (count()+d->numColumns-1)/d->numColumns,
 			 d->numColumns );
+	    if ( d->numColumns == 1 && d->columnPos[1] < visibleWidth() )
+		d->columnPos[1] = visibleWidth();
 	} else if ( d->head ) { // FitToWidth, at least one item
 	    int maxw = 0;
 	    QListBoxItem * i = d->head;
@@ -2002,7 +2079,7 @@ void QListBox::setTopItem( int index )
     int col = index / numRows();
     int y = d->rowPos[index-col*numRows()];
     if ( d->columnPos[col] >= contentsX() &&
-	 d->columnPos[col+1] <= contentsX() + viewport()->width() )
+	 d->columnPos[col+1] <= contentsX() + visibleWidth() )
 	setContentsPos( contentsX(), y );
     else
 	setContentsPos( d->columnPos[col], y );
@@ -2020,11 +2097,11 @@ void QListBox::setBottomItem( int index )
     if ( index >= (int)count() )
 	return;
     int col = index / numRows();
-    int y = d->rowPos[1+index-col*numRows()] - viewport()->height();
+    int y = d->rowPos[1+index-col*numRows()] - visibleHeight();
     if ( y < 0 )
 	y = 0;
     if ( d->columnPos[col] >= contentsX() &&
-	 d->columnPos[col+1] <= contentsX() + viewport()->width() )
+	 d->columnPos[col+1] <= contentsX() + visibleWidth() )
 	setContentsPos( contentsX(), y );
     else
 	setContentsPos( d->columnPos[col], y );
@@ -2078,32 +2155,6 @@ void QListBox::ensureCurrentVisible()
     int column = currentColumn();
 
     ensureVisible( d->columnPos[column] + w, d->rowPos[row] + h, w, h);
-
-//     int row = currentRow();
-//     int column = currentColumn();
-
-//     if ( d->rowPos[row] >= contentsY() &&
-// 	 d->rowPos[row+1] <= contentsY()+viewport()->height() &&
-// 	 d->columnPos[column] >= contentsX() &&
-// 	 d->columnPos[column+1] <= contentsX()+viewport()->width() )
-// 	return;
-
-//     int y = (d->rowPos[row] - d->rowPos[row+1] - viewport()->height())/2;
-//     // fuddle y to get good-looking alignment?
-
-//     // see whether mere vertical scrolling will do
-//     if ( contentsX() < d->columnPos[column] &&
-// 	 contentsX()+contentsWidth() < d->columnPos[column+1] &&
-// 	 contentsY() < d->rowPos[row] &&
-// 	 contentsY()+contentsHeight() < d->rowPos[row+1] ) {
-// 	setContentsPos( contentsX(), y );
-//     } else {
-// 	int x = (d->columnPos[column] +
-// 		 d->columnPos[column+1] -
-// 		 viewport()->width())/2;
-// 	// fuddle x too?
-// 	setContentsPos( x, y );
-//     }
 }
 
 
@@ -2124,10 +2175,10 @@ void QListBox::doAutoScroll()
     } else if ( d->scrollPos.x() > 0 ) {
 	// scroll right
 	int x = contentsX() + horizontalScrollBar()->lineStep();
-	if ( x + viewport()->width() > contentsWidth() )
-	    x = contentsWidth() - viewport()->width();
+	if ( x + visibleWidth() > contentsWidth() )
+	    x = contentsWidth() - visibleWidth();
 	if ( x != contentsX() ) {
-	    d->mouseMoveColumn = columnAt( x + viewport()->width() - 1 );
+	    d->mouseMoveColumn = columnAt( x + visibleWidth() - 1 );
 	    updateSelection();
 	    setContentsPos( x, contentsY() );
 	}
@@ -2147,12 +2198,12 @@ void QListBox::doAutoScroll()
     } else if ( d->scrollPos.y() > 0 ) {
 	// scroll down
 	int y = contentsY() + verticalScrollBar()->lineStep();
-	if ( y + viewport()->height() > contentsHeight() )
-	    y = contentsHeight() - viewport()->height();
+	if ( y + visibleHeight() > contentsHeight() )
+	    y = contentsHeight() - visibleHeight();
 	if ( y != contentsY() ) {
 	    setContentsPos( contentsX(), y );
 	    y = contentsY() + verticalScrollBar()->lineStep();
-	    d->mouseMoveRow = rowAt(y + viewport()->height() - 1 );
+	    d->mouseMoveRow = rowAt(y + visibleHeight() - 1 );
 	    updateSelection();
 	}
     }
@@ -2176,9 +2227,9 @@ int QListBox::topItem() const
     while ( col < numColumns() && d->columnPos[col] < contentsX() )
 	col++;
     if ( ( col < numColumns() &&
-	   d->columnPos[col+1] <= contentsX()+viewport()->width() ) ||
+	   d->columnPos[col+1] <= contentsX()+visibleWidth() ) ||
 	 col == 0 ||
-	 d->columnPos[col] < contentsX()+viewport()->width()/2 )
+	 d->columnPos[col] < contentsX()+visibleWidth()/2 )
 	return col*numRows();
     return (col-1)*numRows();
 }
@@ -2254,16 +2305,14 @@ void QListBox::refreshSlot()
     QListBoxItem * i = item( col*numRows() );
 
     while ( i && (int)col < numCols() &&
-	    d->columnPos[col] < x + viewport()->width()  ) {
+	    d->columnPos[col] < x + visibleWidth()  ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
-	if ( numColumns() == 1 && columnMode() == FixedNumber )
-	    cw = viewport()->width();
 	while ( i && row < top ) {
 	    i = i->n;
 	    row++;
 	}
 	while ( i && row < numRows() && d->rowPos[row] <
-		y + viewport()->height() ) {
+		y + visibleHeight() ) {
 	    if ( i->dirty )
 		r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
 				    cw, d->rowPos[row+1] - d->rowPos[row] ) );
@@ -2322,8 +2371,6 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
 	while ( i && (int)row < numRows() && d->rowPos[row] < y + h ) {
 	    int ch = d->rowPos[row+1] - d->rowPos[row];
 	    QRect itemRect( d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch );
-	    if ( numColumns() == 1  && columnMode() == FixedNumber )
-		itemRect.setWidth( viewport()->width() );
 	    QRegion itemPaintRegion( QRegion( itemRect ).intersect( r  ) );
 	    if ( !itemPaintRegion.isEmpty() ) {
 		p.save();
@@ -2447,8 +2494,6 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 {
     const QColorGroup & g = colorGroup();
     int cw = d->columnPos[col+1] - d->columnPos[col];
-    if ( numColumns() == 1 && columnMode() == FixedNumber )
-	cw = viewport()->width();
     int ch = d->rowPos[row+1] - d->rowPos[row];
     QListBoxItem * i = item( col*numRows()+row );
     if ( i->s ) {
