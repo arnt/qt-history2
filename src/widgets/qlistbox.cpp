@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#12 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#12 $";
 #endif
 
 #include "qstring.h"
@@ -201,7 +201,7 @@ void QListBox::insertItem( const char *string, int index )
     }
 }
 
-void QListBox::insertItem( const QBitMap *bitmap, int index )
+void QListBox::insertItem( const QBitmap *bitmap, int index )
 {
     if ( !checkInsertIndex( "insertItem", count(), &index ) )
 	return;
@@ -255,7 +255,7 @@ const char *QListBox::string( int index ) const
     return tmp->type == LBI_String ? tmp->string : 0;
 }
 
-QBitMap *QListBox::bitmap( int index ) const
+QBitmap *QListBox::bitmap( int index ) const
 {
     if ( !checkIndex( "bitmap", count(), index ) )
 	return 0;
@@ -270,7 +270,7 @@ void QListBox::changeItem( const char *string, int index )
     changeAny( string, 0, 0, index );
 }
 
-void QListBox::changeItem( const QBitMap *bitmap, int index )
+void QListBox::changeItem( const QBitmap *bitmap, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
@@ -587,7 +587,7 @@ void QListBox::clearList()
     setAutoUpdate( a );
 }
 
-QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
+QLBItem *QListBox::newAny( const char *s, const QBitmap *bm )
 {
 #if defined(DEBUG)
     if ( !s && !bm )
@@ -601,13 +601,13 @@ QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
 	    tmp->string = s;
 	tmp->type = LBI_String;
     } else {
-	tmp->bitmap = (QBitMap *)bm;
+	tmp->bitmap = (QBitmap *)bm;
 	tmp->type   = LBI_BitMap;
     }
     return tmp;
 }
 
-void QListBox::insertAny( const char *s, const QBitMap *bm, 
+void QListBox::insertAny( const char *s, const QBitmap *bm, 
 			  const QLBItem *lbi, int index )
 {
 #if defined(DEBUG)
@@ -621,7 +621,7 @@ void QListBox::insertAny( const char *s, const QBitMap *bm,
     itemList->insert( index, lbi );
 }
 
-void QListBox::changeAny( const char *s, const QBitMap *bm, 
+void QListBox::changeAny( const char *s, const QBitmap *bm, 
 			  const QLBItem *lbi, int index )
 {
 #if defined(DEBUG)

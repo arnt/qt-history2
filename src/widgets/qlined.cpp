@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#18 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#18 $";
 #endif
 
 /*!
@@ -261,7 +261,7 @@ void QLineEdit::focusInEvent( QFocusEvent * )
         return;
     inTextFocus = TRUE;
 //    debug( "IN focus" );
-    pm = new QPixMap( width(), height() );
+    pm = new QPixmap( width(), height() );
     CHECK_PTR( pm );
     startTimer( blinkTime );
     cursorOn = TRUE;
@@ -301,7 +301,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 {
     if ( inTextFocus ) {
 	delete pm;
-	pm = new QPixMap( e->size().width(), e->size().height() );
+	pm = new QPixmap( e->size().width(), e->size().height() );
     }
     paint();
 }

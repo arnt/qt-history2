@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#14 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#15 $
 **
 ** Definition of QMenuData class
 **
@@ -33,7 +33,7 @@ public:
 
     int		id()	      const { return ident; }
     const char *string()      const { return string_data; }
-    QPixMap    *pixMap()      const { return pixMap_data; }
+    QPixmap    *pixmap()      const { return pixmap_data; }
     QPopupMenu *popup()	      const { return popup_menu; }
     long	key()	      const { return accel_key; }
     QSignal    *signal()      const { return signal_data; }
@@ -46,7 +46,7 @@ public:
 private:
     int		ident;				// item identifier
     QString	string_data;			// item text
-    QPixMap    *pixMap_data;			// item pixMap
+    QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
     long	accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
@@ -63,7 +63,7 @@ typedef declare(QListIteratorM,QMenuItem) QMenuItemListIt;
 
 class QMenuItem;
 class QMenuItemList;
-class QPixMap;
+class QPixmap;
 
 #endif
 
@@ -80,8 +80,8 @@ public:
     void	insertItem( const char *string, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
-    void	insertItem( const QPixMap &pixMap, int id=-1, int index=-1 );
-    void	insertItem( const QPixMap &pixMap, QPopupMenu *popup,
+    void	insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
+    void	insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
 
     void	insertSeparator( int index=-1 );
@@ -93,9 +93,9 @@ public:
     void	setAccel( long key, int id );	// set accelerator key
 
     const char *string( int id ) const;		// get string of item id
-    QPixMap    *pixMap( int id )  const;	// get pixMap of item id
+    QPixmap    *pixmap( int id )  const;	// get pixmap of item id
     void	changeItem( const char *string, int id );
-    void	changeItem( const QPixMap &pixMap, int id );
+    void	changeItem( const QPixmap &pixmap, int id );
 
     bool	isItemDisabled( int id ) const;
     bool	isItemEnabled( int id )	 const	{ return !isItemDisabled(id); }
@@ -138,7 +138,7 @@ protected:
     virtual void   menuDelPopup( QPopupMenu * );
 
 private:
-    void	insertAny( const char *, QPixMap *, QPopupMenu *, int, int );
+    void	insertAny( const char *, QPixmap *, QPopupMenu *, int, int );
     void	removePopup( QPopupMenu * );
 };
 

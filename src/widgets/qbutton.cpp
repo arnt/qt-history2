@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#18 $
 **
 ** Implementation of QButton widget class
 **
@@ -10,13 +10,13 @@
 **
 *****************************************************************************/
 
-#define	 QPixMapDict QDictM_QPixMap
+#define	 QPixmapDict QDictM_QPixmap
 #include "qbutton.h"
 #include "qbttngrp.h"
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#18 $";
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#24 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#24 $";
 #endif
 
 
@@ -313,9 +313,9 @@ void QMenuBar::updateRects()
     while ( i < mitems->count() ) {		// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w, h;
-	if ( mi->pixMap() ) {			// pixMap item
-	    w = mi->pixMap()->width();
-	    h = mi->pixMap()->height();
+	if ( mi->pixmap() ) {			// pixmap item
+	    w = mi->pixmap()->width();
+	    h = mi->pixmap()->height();
 	}
 	else {					// text item
 	    w = fm.width( mi->string() ) + 2*motifItemHMargin;
@@ -391,10 +391,10 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	else					// incognito frame
 	    p->drawShadePanel( r, g.background(), g.background(),
 			       motifItemFrame );
-	if ( mi->pixMap() )
+	if ( mi->pixmap() )
 	    p->drawPixMap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
-			   mi->pixMap() );
+			   *mi->pixmap() );
 	else if ( mi->string() ) {
 	    if ( mi->isDisabled() )
 		p->setPen( palette().disabled().text() );

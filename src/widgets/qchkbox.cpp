@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#18 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#18 $";
 #endif
 
 
@@ -96,7 +96,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QString pmkey;				// pixmap key
     pmkey.sprintf( "$qt_check_%d_%d_%d_%d", gs, palette().serialNumber(),
 		   isDown(), isOn() );
-    QPixMap *pm = QPixMap::find( pmkey );
+    QPixmap *pm = QPixmap::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixMap( x, y, *pm );
 	if ( label() ) {			// draw text extra
@@ -110,7 +110,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QPainter pmpaint;
     int wx, wy;
     if ( use_pm ) {
-	pm = new QPixMap( w, h );		// create new pixmap
+	pm = new QPixmap( w, h );		// create new pixmap
 	CHECK_PTR( pm );
 	pmpaint.begin( pm );
 	p = &pmpaint;				// draw in pixmap
@@ -205,7 +205,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	p = paint;				// draw in default device
 	p->drawPixMap( wx, wy, *pm );
 	w += wx;
-	QPixMap::insert( pmkey, pm );		// save for later use
+	QPixmap::insert( pmkey, pm );		// save for later use
     }
 #endif
     if ( label() ) {				// draw check box text

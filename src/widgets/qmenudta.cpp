@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#18 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#18 $";
 #endif
 
 
@@ -35,7 +35,7 @@ QMenuItem::QMenuItem()				// initialize menu item
 {
     ident        = -1;
     is_separator = is_disabled = is_checked = FALSE;
-    pixMap_data  = 0;
+    pixmap_data  = 0;
     popup_menu   = 0;
     accel_key    = 0;
     signal_data  = 0;
@@ -43,7 +43,7 @@ QMenuItem::QMenuItem()				// initialize menu item
 
 QMenuItem::~QMenuItem()
 {
-    delete pixMap_data;
+    delete pixmap_data;
     delete signal_data;
 }
 
@@ -96,9 +96,9 @@ void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 }
 
 
-void QMenuData::insertAny( const char *string, QPixMap *pixMap,
+void QMenuData::insertAny( const char *string, QPixmap *pixmap,
 			   QPopupMenu *popup, int id, int index )
-{						// insert pixMap + sub menu
+{						// insert pixmap + sub menu
     if ( index > (int)mitems->count() ) {
 #if defined(CHECK_RANGE)
 	warning( "QMenuData::insertItem: Index %d out of range", index );
@@ -114,12 +114,12 @@ void QMenuData::insertAny( const char *string, QPixMap *pixMap,
     mi->ident = id == -1 ? index : id;
     if ( mi->ident == -2 )
 	mi->ident = -1;
-    if ( string == 0 && pixMap == 0 && popup == 0 )
+    if ( string == 0 && pixmap == 0 && popup == 0 )
 	mi->is_separator = TRUE;		// separator
     else {
 	mi->string_data = string;
-	if ( pixMap )
-	    mi->pixMap_data = new QPixMap( *pixMap );
+	if ( pixmap )
+	    mi->pixmap_data = new QPixmap( *pixmap );
 	mi->popup_menu = popup;
 	if ( popup ) {
 	    menuInsPopup( popup );
@@ -164,15 +164,15 @@ void QMenuData::insertItem( const char *string, QPopupMenu *popup,
     insertAny( string, 0, popup, id, index );
 }
 
-void QMenuData::insertItem( const QPixMap &pixMap, int id, int index )
-{						// insert pixMap item
-    insertAny( 0, &pixMap, 0, id, index );
+void QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
+{						// insert pixmap item
+    insertAny( 0, &pixmap, 0, id, index );
 }
 
-void QMenuData::insertItem( const QPixMap &pixMap, QPopupMenu *popup,
+void QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id, int index )
 {						// insert bitmap + popup menu
-    insertAny( 0, &pixMap, popup, id, index );
+    insertAny( 0, &pixmap, popup, id, index );
 }
 
 /*!
@@ -231,10 +231,10 @@ const char *QMenuData::string( int id ) const	// get string
     return mi ? mi->string() : 0;
 }
 
-QPixMap *QMenuData::pixMap( int id ) const	// get pixMap
+QPixmap *QMenuData::pixmap( int id ) const	// get pixmap
 {
     QMenuItem *mi = findItem( id );
-    return mi ? mi->pixMap() : 0;
+    return mi ? mi->pixmap() : 0;
 }
 
 void QMenuData::changeItem( const char *string, int id )
@@ -243,27 +243,27 @@ void QMenuData::changeItem( const char *string, int id )
     if ( mi ) {					// item found
 	if ( mi->string_data == string )	// same string
 	    return;
-	if ( mi->pixMap ) {			// delete pixMap
-	    delete mi->pixMap_data;
-	    mi->pixMap_data = 0;
+	if ( mi->pixmap ) {			// delete pixmap
+	    delete mi->pixmap_data;
+	    mi->pixmap_data = 0;
 	}
 	mi->string_data = string;
 	menuContentsChanged();
     }
 }
 
-void QMenuData::changeItem( const QPixMap &pixMap, int id )
+void QMenuData::changeItem( const QPixmap &pixmap, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {					// item found
 	if ( !mi->string_data.isNull() )	// delete string
 	    mi->string_data.resize( 0 );
-	register QPixMap *i = mi->pixMap_data;
+	register QPixmap *i = mi->pixmap_data;
 	bool fast_refresh = i != 0 &&
-	    i->width() == pixMap.width() &&
-	    i->height() == pixMap.height();
-	delete mi->pixMap_data;
-	mi->pixMap_data = new QPixMap( pixMap );
+	    i->width() == pixmap.width() &&
+	    i->height() == pixmap.height();
+	delete mi->pixmap_data;
+	mi->pixmap_data = new QPixmap( pixmap );
 	if ( fast_refresh )			// fast update
 	    updateItem( id );
 	else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#25 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#25 $";
 #endif
 
 
@@ -317,9 +317,9 @@ void QPopupMenu::updateSize()			// update popup size params
 	    hasSubMenu = TRUE;
 	if ( mi->isSeparator() )
 	    height += motifSepHeight;
-	else if ( mi->pixMap() ) {
-	    height += mi->pixMap()->height() + 2*motifItemFrame;
-	    w = mi->pixMap()->width();
+	else if ( mi->pixmap() ) {
+	    height += mi->pixmap()->height() + 2*motifItemFrame;
+	    w = mi->pixmap()->width();
 	}
 	else if ( mi->string() ) {
 	    height += cellh;
@@ -565,8 +565,8 @@ int QPopupMenu::cellHeight( long row )
     int h = 0;					// default cell height
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
-    else if ( mi->pixMap() )			// pixMap height
-	h = mi->pixMap()->height() + 2*motifItemFrame;
+    else if ( mi->pixmap() )			// pixmap height
+	h = mi->pixmap()->height() + 2*motifItemFrame;
     else {					// text height
         QFontMetrics fm = fontMetrics();
 	h = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
@@ -603,13 +603,13 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	p->drawShadePanel( 0, 0, cellw, cellh, g.background(), g.background(),
 			   motifItemFrame );
     p->setPen( g.text() );
-    if ( mi->pixMap() ) {			// draw pixMap
-	QPixMap *pixMap = mi->pixMap();
-	if ( pixMap->depth() == 1 )
+    if ( mi->pixmap() ) {			// draw pixmap
+	QPixmap *pixmap = mi->pixmap();
+	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( OpaqueMode );
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *pixMap );
-	if ( pixMap->depth() == 1 )
+		       *pixmap );
+	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
     }
     else if ( mi->string() ) {			// draw text

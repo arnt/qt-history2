@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#7 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#8 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -53,7 +53,7 @@ private:
     bool    end();
 
     QString t;
-    QPixMap *pm;
+    QPixmap *pm;
     uint    cursorPos;
     uint    offset;
     uint    maxLen;

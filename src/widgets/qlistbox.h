@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#5 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#6 $
 **
 ** Definition of QListBox widget class
 **
@@ -20,15 +20,15 @@
 #define LBI_BitMap	2
 #define LBI_UserDefined 1000
 
-class QBitMap;
+class QBitmap;
 
 struct QLBItem {				// list box item
     QLBItem(){}
-    QLBItem( QBitMap	*bm )  { bitmap=bm; type=LBI_BitMap; }
+    QLBItem( QBitmap	*bm )  { bitmap=bm; type=LBI_BitMap; }
     QLBItem( const char *s  )  { string=s;  type=LBI_String; }
     int type;	 
     union {
-	QBitMap	   *bitmap;
+	QBitmap	   *bitmap;
 	const char *string;
 	void	   *data;
     };
@@ -52,15 +52,15 @@ public:
     void	 insertStrList( const char**, int numStrings, int index=-1 );
 
     void	 insertItem( const char *string, int index=-1 );
-    void	 insertItem( const QBitMap *bitmap, int index=-1 );
+    void	 insertItem( const QBitmap *bitmap, int index=-1 );
     void	 inSort( const char *string );
     void	 removeItem( int index );
 
     const char	*string( int index ) const;	// get string at index
-    QBitMap	*bitmap( int index ) const;	// get bitmap at index
+    QBitmap	*bitmap( int index ) const;	// get bitmap at index
 
     void	 changeItem( const char *string, int index );
-    void	 changeItem( const QBitMap *bitmap, int index );
+    void	 changeItem( const QBitmap *bitmap, int index );
     void	 clear();
     void	 setStringCopy( bool );
     bool	 stringCopy();
@@ -124,10 +124,10 @@ protected:
     void	 clearList();	 
 
 private:
-    QLBItem	*newAny( const char *, const QBitMap * );
-    void	 insertAny( const char *, const QBitMap *, 
+    QLBItem	*newAny( const char *, const QBitmap * );
+    void	 insertAny( const char *, const QBitmap *, 
 			    const QLBItem *, int );
-    void	 changeAny( const char *, const QBitMap *, 
+    void	 changeAny( const char *, const QBitmap *, 
 			    const QLBItem *, int );
     void	 updateNumRows();
     void	 init();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#12 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#13 $
 **
 ** Definition of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qwidget.h"
 
 
-class QPixMapDict;
+class QPixmapDict;
 
 
 class QButton : public QWidget			// button class
