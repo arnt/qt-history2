@@ -122,12 +122,12 @@
 	str << map["Weis"] << map["Ettrich"] << endl;
 
 	const QMap<QString,QString>& map2 = map;
-	str << map["Weis"] << map["Reggie"] << endl;
+	str << map2["Weis"] << map2["Reggie"] << endl;
 	
   \endcode
 
-  The code fragment will print out "Weis", "" and the second part will
-  print "Weis", "". In addition the first fragment inserted an empty entry
+  The code fragment will print out "Torben", "" and the second part will
+  print "Torben", "". In addition the first fragment inserted an empty entry
   with key "Ettrich". The second one did not insert an empty entry with
   key "Reggie" because the const operator[] was used which can not do insertion.
   So if you are not sure whether a certain element is in the map you should
