@@ -23,18 +23,17 @@ class Smtp : public QObject
     Q_OBJECT
 
 public:
-    Smtp( const QString &, const QString &, const QString &, const QString & );
+    Smtp( const QString &from, const QString &to,
+	  const QString &subject, const QString &body );
     ~Smtp();
 
 signals:
-    void finished();
     void status( const QString & );
 
 private slots:
+    void dnsLookupHelper();
     void readyRead();
     void connected();
-    void deleteMe();
-    void dnsLookupHelper();
 
 private:
     enum State {

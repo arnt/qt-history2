@@ -16,48 +16,7 @@
 #include <qtimer.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
-
-
-void replace( QString& str, const QString& before, const QString& after )
-{
-    if ( before.length() == 0 )
-        return;
-
-    int maxsize;
-    if ( before.length() > after.length() )
-        maxsize = str.length();
-    else
-        maxsize = ( str.length() / before.length() ) * after.length();
-
-    QChar *buf = new QChar[maxsize + 1]; // + 1 in case maxsize is 0
-    const QChar *strBuf = str.unicode();
-
-    int prev = 0;
-    int cur = 0;
-    int i = 0;
-    bool changed = FALSE;
-
-    while ( (uint) (cur = str.find(before, prev)) < str.length() ) {
-        if ( cur > prev ) {
-            memcpy( buf + i, strBuf + prev, sizeof(QChar) * (cur - prev) );
-            i += cur - prev;
-        }
-        if ( after.length() > 0 ) {
-            memcpy( buf + i, after.unicode(), sizeof(QChar) * after.length() );
-            i += after.length();
-        }
-        prev = cur + before.length();
-        changed = TRUE;
-    }
-
-    if ( changed ) {
-        memcpy( buf + i, strBuf + prev,
-		sizeof(QChar) * (str.length() - prev) );
-        i += str.length() - prev;
-        str = QString( buf, i );
-    }
-    delete[] buf;
-}
+#include <qregexp.h>
 
 
 Smtp::Smtp( const QString &from, const QString &to,
@@ -78,10 +37,10 @@ Smtp::Smtp( const QString &from, const QString &to,
 	      QString::fromLatin1( "\nTo: " ) + to +
 	      QString::fromLatin1( "\nSubject: " ) + subject +
 	      QString::fromLatin1( "\n\n" ) + body + "\n";
-    replace( message, QString::fromLatin1( "\n" ),
-	     QString::fromLatin1( "\r\n" ) );
-    replace( message, QString::fromLatin1( "\r\n.\r\n" ),
-	     QString::fromLatin1( "\r\n..\r\n" ) );
+    message.replace( QString::fromLatin1( "\n" ),
+		     QString::fromLatin1( "\r\n" ) );
+    message.replace( QString::fromLatin1( "\r\n.\r\n" ),
+		     QString::fromLatin1( "\r\n..\r\n" ) );
 
     this->from = from;
     rcpt = to;
@@ -94,6 +53,19 @@ Smtp::~Smtp()
 {
     delete t;
     delete socket;
+}
+
+
+void Smtp::dnsLookupHelper()
+{
+    QValueList<QDns::MailServer> s = mxLookup->mailServers();
+    if ( s.isEmpty() && mxLookup->isWorking() )
+	return;
+
+    emit status( tr( "Connecting to %1" ).arg( s.first().name ) );
+
+    socket->connectToHost( s.first().name, 25 );
+    t = new QTextStream( socket );
 }
 
 
@@ -139,7 +111,7 @@ void Smtp::readyRead()
 	state = Close;
 	emit status( tr( "Message sent" ) );
     } else if ( state == Close ) {
-	// we ignore it
+	delete this;
     } else {
 	// something broke.
 	QMessageBox::warning( qApp->activeWindow(),
@@ -150,27 +122,4 @@ void Smtp::readyRead()
     }
 
     response = "";
-
-    if ( state == Close ) {
-	QTimer::singleShot( 0, this, SLOT(deleteMe()) );
-    }
-}
-
-
-void Smtp::deleteMe()
-{
-    delete this;
-}
-
-
-void Smtp::dnsLookupHelper()
-{
-    QValueList<QDns::MailServer> s = mxLookup->mailServers();
-    if ( s.isEmpty() && mxLookup->isWorking() )
-	return;
-
-    emit status( tr( "Connecting to %1" ).arg( s.first().name ) );
-    
-    socket->connectToHost( s.first().name, 25 );
-    t = new QTextStream( socket );
 }
