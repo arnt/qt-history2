@@ -3136,24 +3136,24 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
     QString dummy;
     vector += "/";
     vector += psname;
-    vector += dummy.sprintf("-ENC-%02x 256 array def\n",range);
-    vector += dummy.sprintf("0 1 255 {");
-    vector += psname;
-    vector += dummy.sprintf("-ENC-%02x exch /.notdef put} for\n",range);
-    
+    vector += dummy.sprintf("-ENC-%02x [\n",range);
+
+    QString line;
     for(int k=0; k<256; k++ ) {
       while( unicodetoglyph[l].u < (range*256)+k )
 	l++;
       if ( (range*256)+k != 0xffff && glyphindex[ (range*256)+k ] != 0xffff )  {
 	inuse[range] = true;
 	glyphname = glyphName( glyphindex[ (range*256)+k ] );
-	vector += psname;
-	vector += dummy.sprintf("-ENC-%02x %d",range,k);
-	vector += QString::fromLatin1(" /");
-	vector += glyphname;
-	vector += " put\n";
+      } else
+	  glyphname = "ND";
+      if ( line.length() + glyphname.length() > 76 ) {
+	  vector += line + "\n";
+	  line = "";
       }
+      line += "/" + glyphname;
     }
+    vector += line + "] def\n";
     if (inuse[range]) s << vector;
   }
 
