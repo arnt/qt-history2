@@ -18,4 +18,5 @@ contains(QT_PRODUCT,qt-professional) {
 	include( $(QTDIR)/src/xml/qt_xml.pri )
 	include( $(QTDIR)/src/network/qt_network.pri )
 	DEFINES     += QT_MODULE_XML QT_MODULE_NETWORK
+	DEFINES     += QT_LICENSE_PROFESSIONAL
 }
