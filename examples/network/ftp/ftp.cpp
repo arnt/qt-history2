@@ -37,8 +37,8 @@ Ftp::Ftp(QWidget *parent)
             this, SLOT(processItem(QListWidgetItem *)));
     connect(fileList, SIGNAL(returnPressed(QListWidgetItem *)),
             this, SLOT(processItem(QListWidgetItem *)));
-    connect(fileList, SIGNAL(currentChanged(QListWidgetItem *, QListWidgetItem *)),
-            this, SLOT(enableDownloadButton(QListWidgetItem *)));
+    connect(fileList, SIGNAL(selectionChanged()),
+            this, SLOT(enableDownloadButton()));
     connect(ftp, SIGNAL(commandFinished(int, bool)),
             this, SLOT(ftpCommandFinished(int, bool)));
     connect(ftp, SIGNAL(listInfo(const QUrlInfo &)),
@@ -101,6 +101,7 @@ void Ftp::downloadFile()
                                  tr("Unable to save the file %1: %2.")
                                  .arg(fileName).arg(file->errorString()));
         delete file;
+        return;
     }
 
     ftp->get(fileList->currentItem()->text(), file);
@@ -112,9 +113,7 @@ void Ftp::downloadFile()
 
 void Ftp::cancelDownload()
 {
-    file->remove();
-    delete file;
-    file = 0;
+    ftp->abort();
 }
 
 void Ftp::ftpCommandFinished(int, bool error)
@@ -137,10 +136,18 @@ void Ftp::ftpCommandFinished(int, bool error)
     }
 
     if (ftp->currentCommand() == QFtp::Get) {
+        if (error) {
+            statusLabel->setText(tr("Canceled download of %1.").arg(file->fileName()));
+            file->close();
+            file->remove();
+            delete file;
+            enableDownloadButton();
+            return;
+        }
+
         statusLabel->setText(tr("Downloaded %1.").arg(file->fileName()));
         file->close();
         delete file;
-        file = 0;
     }
 
     if (ftp->currentCommand() == QFtp::List) {
@@ -202,7 +209,7 @@ void Ftp::enableConnectButton()
     connectButton->setEnabled(!ftpServerLineEdit->text().isEmpty());
 }
 
-void Ftp::enableDownloadButton(QListWidgetItem *current)
+void Ftp::enableDownloadButton()
 {
-    downloadButton->setEnabled(!isDirectory.value(current->text()));
+    downloadButton->setEnabled(!isDirectory.value(fileList->currentItem()->text()));
 }

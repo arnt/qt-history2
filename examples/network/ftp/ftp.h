@@ -31,7 +31,7 @@ private slots:
     void cdToParent();
     void updateDataTransferProgress(Q_LLONG readBytes, Q_LLONG totalBytes);
     void enableConnectButton();
-    void enableDownloadButton(QListWidgetItem *currentItem);
+    void enableDownloadButton();
 
 private:
     QLabel *ftpServerLabel;
