@@ -506,6 +506,24 @@ int QTableSelection::numCols() const
 
 */
 
+/*!
+    Creates a table item that is a child of table \a table with no
+    text. The item has the \l EditType \a et.
+
+    The table item will use a QLineEdit for its editor, will not
+    word-wrap and will occupy a single cell. Insert the table item
+    into a table with QTable::setItem().
+
+    The table takes ownership of the table item, so a table item
+    should not be inserted into more than one table at a time.
+*/
+
+QTableItem::QTableItem( QTable *table, EditType et )
+    : txt(), pix(), t( table ), edType( et ), wordwrap( FALSE ),
+      tcha( TRUE ), rw( -1 ), cl( -1 ), rowspan( 1 ), colspan( 1 )
+{
+    enabled = TRUE;
+}
 
 /*!
     Creates a table item that is a child of table \a table with text

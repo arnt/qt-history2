@@ -116,6 +116,7 @@ class QM_EXPORT_TABLE QTableItem : public Qt
 public:
     enum EditType { Never, OnTyping, WhenCurrent, Always };
 
+    QTableItem( QTable *table, EditType et );
     QTableItem( QTable *table, EditType et, const QString &text );
     QTableItem( QTable *table, EditType et, const QString &text,
                 const QPixmap &p );
@@ -171,8 +172,7 @@ private:
     int rw, cl;
     int rowspan, colspan;
 #if (QT_VERSION >= 0x040000)
-#error "Add a setAlignment() function in 4.0 and a d pointer also"
-#error "RS: No, do not add a d pointer, this is an item class and memory consumption has to be kept as small as possible"
+#error "Add a setAlignment() function in 4.0 (but no d pointer)"
 #endif
 };
 
