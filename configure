@@ -386,7 +386,7 @@ BIG_CODECS=yes
 ZLIB=yes
 LIBPNG=yes
 JPEG=no
-MNG=no
+MNG=yes
 XRENDER=auto
 XFTFREETYPE=auto
 TABLET=auto
@@ -580,7 +580,7 @@ do
    -system-zlib)
 	ZLIB=system
 	;;
-   -no-png)
+   -no-libpng)
 	LIBPNG=no
 	;;
    -qt-libpng)
@@ -594,6 +594,9 @@ do
 	;;
    -system-libmng)
 	MNG=system
+	;;
+   -qt-libmng)
+        MNG=yes
 	;;
    -no-jpeg)
 	JPEG=no
@@ -1108,7 +1111,8 @@ Installation options:
     -system-libpng ..... Use libpng from the operating system.
 			 See http://www.libpng.org/pub/png
 
- *  -no-mng ............ Do not compile in MNG I/O support.
+ *  -qt-libmng ......... Use the libmng bundled with Qt.
+    -no-mng ............ Do not compile in MNG I/O support.
     -system-libmng ..... Use libmng from the operating system.
 			 See http://www.libmng.com
 
@@ -1261,8 +1265,8 @@ Qt/Embedded only:
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
-    -no-png ............ Turn off PNG support
-    -no-zlib ........... No compression library -- implies -no-png
+    -no-libpng ......... Turn off PNG support
+    -no-zlib ........... No compression library -- implies -no-libpng
 
     -qconfig local ..... Use src/tools/qconfig-local.h rather than the
 			 default ($QCONFIG).
