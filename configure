@@ -1945,7 +1945,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	  echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
 	  EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
-        elif [ $EMBEDDED = "qnx6" ]; then
+        elif [ "$EMBEDDED" = "qnx6" ]; then
 	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
 	  echo "QNX_CFLAGS += -lcpp" >>$mkfile
 	  EXTRA_LFLAGS="$EXTRA_CFLAGS \$(QNX_LFLAGS)"
