@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#10 $
+** $Id: //depot/qt/main/src/emoc/moc.y#11 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,6 +43,7 @@
 void yyerror( char *msg );
 
 #include "qlist.h"
+#include "qasciidict.h"
 #include "qdict.h"
 #include "qstringlist.h"
 #include "qstring.h"
@@ -144,7 +145,8 @@ QCString   Q_BUILDERcomment;			// Comment to show in the builder ( maybe empty )
 QCString   Q_BUILDERpixmap;			// Pixmap to show in the builder ( maybe empty )
 bool	   Q_INSPECTORdetected;			// TRUE if current class
 						// contains the Q_INSPECTOR macro
-QCString   Q_INSPECTORclass;			// Class for which this inspector should be used
+
+QAsciiDict<QString> tmpMetaProperties;		// Stores properties of the QMetaObject
 
 QCString   tmpExpression;
 
@@ -214,6 +216,7 @@ const int  formatRevision = 4;			// moc output format revision
 %token			Q_OBJECT
 %token			Q_BUILDER
 %token			Q_INSPECTOR
+%token			Q_METAPROP
 %token			Q_CUSTOM_FACTORY
 
 %type  <string>		class_name
@@ -665,15 +668,12 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 				  Q_BUILDERdetected = TRUE; Q_BUILDERcomment = $4;
 				  Q_BUILDERpixmap = $6; }
 			| Q_INSPECTOR { BEGIN IN_BUILDER; }
-			  '(' STRING ')'
-				{ if ( tmpAccessPerm )
-				  	moc_warn("Q_INSPECTOR is not in the private"
-						 " section of the class.\n"
-						 "Q_INSPECTOR is a macro that resets"
-						 " access permission to \"private\".");
-				  Q_INSPECTORdetected = TRUE; Q_INSPECTORclass = $4;
-				  if ( Q_INSPECTORclass.isEmpty() )
-				      moc_warn("No parameter to Q_INSPECTOR macro.\n" ); }
+			  '(' IDENTIFIER ')' {
+				  Q_INSPECTORdetected = TRUE;
+				  tmpMetaProperties.insert( "qt_inspector", new QString( $4 ) ); }
+			| Q_METAPROP { BEGIN IN_BUILDER; }
+			  '(' STRING ',' STRING ')'
+				  { tmpMetaProperties.insert( $4, new QString( $6 ) ); }
 			;
 
 slot_area:		  SIGNALS ':'	     { moc_err( "Signals cannot "
@@ -1274,7 +1274,7 @@ void initClass()				 // prepare for new class
     Q_BUILDERcomment   = "";
     Q_BUILDERpixmap    = "";
     Q_INSPECTORdetected = FALSE;
-    Q_INSPECTORclass   = "";
+    tmpMetaProperties.clear();
     slots.clear();
     signals.clear();
     props.clear();
@@ -1889,13 +1889,31 @@ int generateEnums()
   return enums.count();
 }
 
+int generateMetaProps()
+{
+	if ( tmpMetaProperties.count() == 0 )
+		return 0;
+
+	fprintf( out, "    QMetaMetaProperty* meta_props_tbl = new QMetaMetaProperty[ %i ];\n", tmpMetaProperties.count() );
+	
+	QAsciiDictIterator<QString> it( tmpMetaProperties );
+	int i = 0;
+	for( ; it.current(); ++it )
+	{
+		fprintf( out, "    meta_props_tbl[%i].name = \"%s\";\n", i, it.currentKey() );
+		fprintf( out, "    meta_props_tbl[%i].value = \"%s\";\n", i++, it.current()->latin1() );
+	}
+
+	return tmpMetaProperties.count();
+}
+
 void generateClass()		      // generate C++ source code for a class
 {
     static int gen_count = 0;
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.10 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.11 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1914,9 +1932,8 @@ void generateClass()		      // generate C++ source code for a class
 	Q_BUILDERdetected = TRUE;
 	Q_BUILDERcomment = TorbensHack[ti++];
 	Q_BUILDERpixmap = TorbensHack[ti++];
-	Q_INSPECTORclass = TorbensHack[ti++];
-	printf("comm=%s pix=%s class=%s\n",Q_BUILDERcomment.data(), Q_BUILDERpixmap.data(),
-	       Q_INSPECTORclass.data() );
+	// Skip inspector
+	++ti;
 	while( TorbensHack[ti] != 0 && TorbensHack[ti][0] != '+' )
 	{
 	  if ( strcmp( TorbensHack[ti], "enum" ) == 0 )
@@ -2068,7 +2085,7 @@ void generateClass()		      // generate C++ source code for a class
     }
     bool hasFactory = TRUE;
 
-    if ( ( Q_BUILDERdetected && !Q_CUSTOM_FACTORYdetected ) || Q_INSPECTORdetected )
+    if ( Q_BUILDERdetected && !Q_CUSTOM_FACTORYdetected )
     {
         // Torbens incrdible hack start here
         bool layout = FALSE;
@@ -2159,16 +2176,6 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "#endif\n\n" );
 
 //
-// Initialize the meta object of the class for which
-// this class acts as an inspector
-//
-    if ( Q_INSPECTORdetected  )
-    {
-        fprintf( out, "    QMetaObject* iobj = %s::initMetaObject();\n", (const char*)Q_INSPECTORclass.data() );
-	fprintf( out, "    iobj->setInspector( (QInspectorFactory)%s::factory );\n", (const char*)className );
-    }
-
-//
 // Build the enums array in staticMetaObject()
 // Enums HAVE to be generated BEFORE the properties
 //
@@ -2178,6 +2185,11 @@ void generateClass()		      // generate C++ source code for a class
 // Build property array in staticMetaObject()
 //
    int n_props = generateProps();
+
+//
+// Build meta properties array in staticMetaObject()
+//
+   int n_meta_props = generateMetaProps();
 
 //
 // Build slots array in staticMetaObject()
@@ -2208,7 +2220,11 @@ void generateClass()		      // generate C++ source code for a class
     else
 	fprintf( out, "\t0, 0,\n" );
     if ( n_enums )
-	fprintf( out, "\tenums, %d );\n", n_enums );
+	fprintf( out, "\tenums, %d,\n", n_enums );
+    else
+	fprintf( out, "\t0, 0,\n" );
+    if ( n_meta_props )
+	fprintf( out, "\tmeta_props_tbl, %d );\n", n_meta_props );
     else
 	fprintf( out, "\t0, 0 );\n" );
 

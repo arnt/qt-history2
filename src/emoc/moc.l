@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.l#2 $
+** $Id: //depot/qt/main/src/emoc/moc.l#3 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -49,7 +49,7 @@ int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
 int fctLevel         = 1;  /* Depth of nested parentheses in IN_FCT */
 int templLevel       = 1;  /* Depth of levels in IN_TEMPL_ARGS */
 
-int lastState        = 0;  /* Remembers the state when a 
+int lastState        = 0;  /* Remembers the state when a
                               MOC_SKIP_BEGIN is encountered */
 int skipLevel        = 0; /* Depth of MOC_SKIP_BEGINs */
 
@@ -83,7 +83,7 @@ extern void moc_warn( char *msg );
 <IN_FCT>"{"			{ fctLevel++;Y; }
 <IN_FCT>"}"			{ fctLevel--;Y;if (fctLevel==0){X;return '}';}}
 <IN_CLASS>"{"			{ classPLevel++;Y; }
-<IN_CLASS>"}"			{ classPLevel--;Y;if (classPLevel == 0) 
+<IN_CLASS>"}"			{ classPLevel--;Y;if (classPLevel == 0)
                                                       {X;return '}';} }
 <IN_CLASS>"public"		{ X;return PUBLIC; }
 <IN_CLASS>"protected"		{ X;return PROTECTED; }
@@ -93,6 +93,7 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"q_properties"	{ X;return QPROPERTIES; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
+<IN_CLASS>"Q_METAPROP"		{ X;return Q_METAPROP; }
 <IN_CLASS>"Q_BUILDER"		{ X;return Q_BUILDER; }
 <IN_CLASS>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 
@@ -108,47 +109,48 @@ extern void moc_warn( char *msg );
 <IN_NAMESPACE>"namespace"	{ X;
 				  BEGIN QT_DEF;
 				  return NAMESPACE; }
-<IN_NAMESPACE>"using"		{ X; 
+<IN_NAMESPACE>"using"		{ X;
                                   BEGIN QT_DEF;
 				  return USING; }
 
 <QT_DEF>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <QT_DEF>"Q_BUILDER"		{ X;return Q_BUILDER; }
 <QT_DEF>"Q_INSPECTOR"		{ X;return Q_INSPECTOR; }
+<QT_DEF>"Q_METAPROP"		{ X;return Q_METAPROP; }
 <QT_DEF>"Q_CUSTOM_FACTORY"	{ X;return Q_CUSTOM_FACTORY; }
 <IN_BUILDER>"("			{ X;return '('; }
 <IN_BUILDER>","			{ X;return ','; }
 <IN_BUILDER>")"			{ X; BEGIN QT_DEF; return ')'; }
 <IN_EXPR>"("			{ expLevel++;Y; }
-<IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0) 
+<IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
 <IN_EXPR>"["			{ expLevel++;Y; }
-<IN_EXPR>"]"			{ expLevel--;Y;if (expLevel == 0) 
+<IN_EXPR>"]"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
-<IN_EXPR>","			{ if (expLevel == 0) 
+<IN_EXPR>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
 <IN_EXPR>";"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
 <IN_ENUM>"("			{ expLevel++;Y; }
-<IN_ENUM>")"			{ expLevel--;Y;if (expLevel == 0) 
+<IN_ENUM>")"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
 <IN_ENUM>"["			{ expLevel++;Y; }
-<IN_ENUM>"]"			{ expLevel--;Y;if (expLevel == 0) 
+<IN_ENUM>"]"			{ expLevel--;Y;if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
-<IN_ENUM>","			{ if (expLevel == 0) 
+<IN_ENUM>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
 <IN_ENUM>";"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
 <IN_ENUM>"}"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return '}' ;} }
 <IN_TEMPL_ARGS>"<"		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>">"		{ templLevel--;Y;if (templLevel == 0) 
+<IN_TEMPL_ARGS>">"		{ templLevel--;Y;if (templLevel == 0)
 					{ X; BEGIN QT_DEF; return '>';} }
 <IN_TEMPL_ARGS>"("		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>")"		{ templLevel--;Y;if (templLevel == 0) 
+<IN_TEMPL_ARGS>")"		{ templLevel--;Y;if (templLevel == 0)
 					{ X; BEGIN QT_DEF; return ')';} }
 <IN_TEMPL_ARGS>"["		{ templLevel++;Y; }
-<IN_TEMPL_ARGS>"]"		{ templLevel--;Y;if (templLevel == 0) 
+<IN_TEMPL_ARGS>"]"		{ templLevel--;Y;if (templLevel == 0)
 					{ X; BEGIN QT_DEF; return ']';} }
 <QT_DEF>"friend"		{ X;return FRIEND; }
 <QT_DEF>"typedef"		{ X;return TYPEDEF; }
@@ -243,7 +245,7 @@ extern void moc_warn( char *msg );
 			  }
 			}
 
-<IN_BUILDER>\"[^"]*     { 
+<IN_BUILDER>\"[^"]*     {
 			  if (yytext[yyleng - 1] == '\\') {
 			    yymore();
 			  }
@@ -390,7 +392,7 @@ extern void moc_warn( char *msg );
 			}
 
 ^[ \t]*#.*		{ /* preprocessor commands are skipped */}
-"//"[^\n]*		{ /* C++ comment */ 
+"//"[^\n]*		{ /* C++ comment */
 			  QCString s = yytext;
                           if ( s.contains( "MOC_SKIP_BEGIN" ) ) {
                             skipLevel++;
