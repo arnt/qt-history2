@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#25 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#24 $")
  ----------------------------------------------------------------------------*/
 
 
-declare(QListM,QGDictIterator);			// list of iterators (Qditlst)
+declare(QListM,QGDictIterator);			// list of iterators: QGDItList
 
 /*****************************************************************************
   Default implementation of virtual functions
@@ -526,7 +526,7 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     dict = (QGDict *)&d;			// get reference to dict
     toFirst();					// set to first noe
     if ( !dict->iterators ) {
-	dict->iterators = new Qditlst;		// create iterator list
+	dict->iterators = new QGDItList;	// create iterator list
 	CHECK_PTR( dict->iterators );
     }
     dict->iterators->append( this );		// notify dict about iterator
