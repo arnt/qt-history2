@@ -29,6 +29,8 @@
 SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInterface *liface )
     : QVBox( parent ), iFace( iface ), lIface( liface ), formWindow( 0 )
 {
+    iFace->addRef();
+    lIface->addRef();
     iFace->editor( this, MainWindow::self->designerInterface() );
     resize( 600, 400 );
 }
@@ -36,6 +38,7 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 SourceEditor::~SourceEditor()
 {
     iFace->release();
+    lIface->release();
 }
 
 void SourceEditor::setForm( FormWindow *fw )

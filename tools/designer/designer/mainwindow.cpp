@@ -1416,6 +1416,7 @@ void MainWindow::fileOpen()
 		}
 		statusBar()->message( tr( "Importing %1 using import filter ...").arg( filename ) );
 		QStringList list = iface->import( filter, filename );
+		iface->release();
 		if ( list.isEmpty() ) {
 		    statusBar()->message( tr( "Nothing to load in %1").arg( filename ), 3000 );
 		    return;
@@ -1842,6 +1843,9 @@ void MainWindow::editSource()
 	if ( !lIface )
 	    return;
 	editor = new SourceEditor( workSpace(), eIface, lIface );
+	eIface->release();
+	lIface->release();
+
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }
@@ -1986,6 +1990,9 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 		    QApplication::restoreOverrideCursor();
 		    return 0;
 		}
+		if ( eiface )
+		    eiface->release();
+		lIface->release();
 	    }
 	}
     }
@@ -3844,7 +3851,6 @@ void MainWindow::setupActionManager()
 	    continue;
 
 	QString grp = iface->group( *it );
-	iface->release();
 	if ( grp.isEmpty() )
 	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
@@ -3867,6 +3873,8 @@ void MainWindow::setupActionManager()
 
 	a->addTo( menu );
 	a->addTo( tb );
+
+	iface->release();
     }
 }
 
@@ -3892,6 +3900,9 @@ void MainWindow::editFunction( const QString &func )
 	if ( !lIface )
 	    return;
 	editor = new SourceEditor( workSpace(), eIface, lIface );
+	eIface->release();
+	lIface->release();
+
 	editor->setLanguage( lang );
 	sourceEditors.append( editor );
     }

@@ -533,6 +533,7 @@ void FunctionList::setup()
 		item->setRenameEnabled( TRUE );
 	    }
 	}
+	lIface->release();
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( hierarchyView->formWindow() );
@@ -624,6 +625,7 @@ void FunctionList::save( QListViewItem *p )
 	i = i->nextSibling();
     }
     lIface->setDefinitionEntries( p->text( 0 ), lst, hierarchyView->formWindow()->mainWindow()->designerInterface() );
+    lIface->release();
     setup();
 }
 

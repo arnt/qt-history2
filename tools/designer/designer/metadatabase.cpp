@@ -1039,6 +1039,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o )
 	d.args = get_arguments( *it );
 	list << d;
     }
+    iface->release();
 
     return list;
 }
