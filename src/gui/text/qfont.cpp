@@ -221,7 +221,7 @@ QFontEngineData::~QFontEngineData()
     }
 #else
     if (engine)
-        --engine->ref;
+        engine->ref.deref();
     engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
 }
