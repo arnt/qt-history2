@@ -263,13 +263,14 @@ QInputContext::QInputContext(QWidget *widget)
 					   (char *) 0);
     }
 
-    if (preedit_attr)
+    if (preedit_attr) {
 	ic = XCreateIC(qt_xim,
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
 		       XNPreeditAttributes, preedit_attr,
 		       (char *) 0);
-    else
+	XFree(preedit_attr);
+    } else
 	ic = XCreateIC(qt_xim,
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
