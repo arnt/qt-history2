@@ -1947,10 +1947,10 @@ echo "GIF support.......... $GIF"
 echo "MNG support.......... $MNG ($LIBMNG)"
 echo "JPEG support......... $JPEG ($LIBJPEG)"
 echo "PNG support.......... $PNG ($LIBPNG)"
-echo "NAS sound support.... $NAS_SOUND"
 [ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support..... $EMBEDDED"
 if [ "$X11_PLATFORM" = "yes" ]
 then
+    echo "NAS sound support.... $NAS_SOUND"
     echo "Session management... $SM"
     echo "Xinerama support..... $XINERAMA"
     echo "Tablet support ...... $TABLET"

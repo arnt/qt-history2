@@ -686,7 +686,6 @@ for plat in mac win x11 embedded; do
     case $plat in
     mac)
 	[ "x$DO_MAC" = "xyes" ] || continue
-	pack_US=no
 	plat2=unix
 	plat3=mac9
 	;;
