@@ -192,23 +192,135 @@
     \endcode
 
     The ActiveQt framework will expose properties and public slots as ActiveX 
-    properties and methods, and signals as ActiveX events.
+    properties and methods, and signals as ActiveX events, and convert between
+    the Qt data types and the equivalent COM data types.
 
-    The Qt data types that are supported for properties and
-    signal/slot parameters are:
-    \list
+    The Qt data types that are supported for properties are:
+    \table
+    \header
+    \i Qt data type
+    \i COM property
+    \row
     \i bool
-    \i double
-    \i int
-    \i unsigned int
-    \i QColor
-    \i QDate
-    \i QDateTime
-    \i QTime
-    \i QFont
+    \i VARIANT_BOOL
+    \row
     \i QString
+    \i BSTR
+    \row
     \i QCString
-    \endlist
+    \i BSTR
+    \row
+    \i int
+    \i int
+    \row
+    \i uint
+    \i unsigned int
+    \row
+    \i double
+    \i double
+    \row
+    \i QColor
+    \i OLE_COLOR
+    \row
+    \i QDate
+    \i DATE
+    \row
+    \i QDateTime
+    \i DATE
+    \row
+    \i QFont
+    \i IFontDisp*
+    \row
+    \i QPixmap
+    \i IPictureDisp*
+    \row
+    \i QValueList
+    \i SAFEARRAY(VARIANT)
+    \endtable
+    
+    The Qt data types that are supported for parameters in signals and
+    slots are:
+    \table
+    \header
+    \i Qt data type
+    \i COM parameter
+    \row
+    \i bool
+    \i [in] VARIANT_BOOL
+    \row
+    \i bool&
+    \i [in, out] VARIANT_BOOL*
+    \row
+    \i QString, const QString&
+    \i [in] BSTR
+    \row
+    \i QString&
+    \i [in, out] BSTR*
+    \row
+    \i QCString, const QCString&
+    \i [in] BSTR
+    \row
+    \i QString&
+    \i [in, out] BSTR*
+    \row
+    \i int
+    \i [in] int
+    \row
+    \i int&
+    \i [in,out] int
+    \row
+    \i uint
+    \i [in] unsigned int
+    \row
+    \i uint&
+    \i [in, out] unsigned int*
+    \row
+    \i double
+    \i [in] double
+    \row
+    \i double&
+    \i [in, out] double*
+    \row
+    \i QColor, const QColor&
+    \i [in] OLE_COLOR
+    \row
+    \i QColor&
+    \i [in, out] OLE_COLOR*
+    \row
+    \i QDate, const QDate&
+    \i [in] DATE
+    \row
+    \i QDate&
+    \i [in, out] DATE*
+    \row
+    \i QDateTime, const QDateTime&
+    \i [in] DATE
+    \row
+    \i QDateTime&
+    \i [in, out] DATE*
+    \row
+    \i QFont, const QFont&
+    \i [in] IFontDisp*
+    \row
+    \i QFont&
+    \i [in, out] IFontDisp**
+    \row
+    \i QPixmap, const QPixmap&
+    \i [in] IPictureDisp*
+    \row
+    \i QPixmap&
+    \i [in, out] IPictureDisp**
+    \row
+    \i QValueList<QVariant>, const QValueList<QVariant>&
+    \i [in] SAFEARRAY(VARIANT)
+    \row
+    \i QValueList<QVariant>&
+    \i [in, out] SAFEARRAY(VARIANT)*
+    \endtable
+
+    Also supported are exported enums and sets (see Q_ENUMS and Q_SETS).
+    The in-parameter types are also supported as return values.
+
     Properties and signals/slots that have parameters using any other
     data types are ignored by the QActiveX framework.
 
