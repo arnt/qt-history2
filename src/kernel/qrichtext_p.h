@@ -409,14 +409,14 @@ public:
     virtual ~QTextCustomItem();
     virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected ) = 0;
 
-    virtual void setPainter( QPainter*, bool adjust );
+    virtual void adjustToPainter( QPainter* );
 
     enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
     virtual Placement placement() const;
     bool placeInline() { return placement() == PlaceInline; }
 
     virtual bool ownLine() const;
-    virtual void resize( QPainter*, int nwidth );
+    virtual void resize( int nwidth );
     virtual void invalidate();
     virtual int ascent() const { return height; }
 
@@ -464,7 +464,7 @@ public:
     virtual ~QTextImage();
 
     Placement placement() const { return place; }
-    void setPainter( QPainter*, bool );
+    void adjustToPainter( QPainter* );
     int minimumWidth() const { return width; }
 
     QString richText() const;
@@ -490,7 +490,7 @@ public:
 			 QMimeSourceFactory &factory );
     virtual ~QTextHorizontalLine();
 
-    void setPainter( QPainter*, bool );
+    void adjustToPainter( QPainter* );
     void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
     QString richText() const;
 
@@ -584,7 +584,7 @@ public:
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
-    void setPainter( QPainter*, bool );
+    void adjustToPainter( QPainter* );
 
     int row() const { return row_; }
     int column() const { return col_; }
@@ -595,7 +595,7 @@ public:
     QTextDocument* richText()  const { return richtext; }
     QTextTable* table() const { return parent; }
 
-    void draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
+    void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool selected );
 
     QBrush *backGround() const { return background; }
     virtual void invalidate();
@@ -604,7 +604,6 @@ public:
     int horizontalAlignmentOffset() const;
 
 private:
-    QPainter* painter() const;
     QRect geom;
     QTextTable* parent;
     QTextDocument* richtext;
@@ -640,7 +639,7 @@ public:
     QTextTable( QTextDocument *p, const QMap<QString, QString> &attr );
     virtual ~QTextTable();
 
-    void setPainter( QPainter *p, bool adjust );
+    void adjustToPainter( QPainter *p );
     void pageBreak( int  y, QTextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QColorGroup& cg, bool selected );
@@ -649,7 +648,7 @@ public:
     bool ownLine() const { return TRUE; }
     Placement placement() const { return place; }
     bool isNested() const { return TRUE; }
-    void resize( QPainter*, int nwidth );
+    void resize( int nwidth );
     virtual void invalidate();
 
     virtual bool enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
@@ -674,7 +673,6 @@ private:
 private:
     QGridLayout* layout;
     QPtrList<QTextTableCell> cells;
-    QPainter* painter;
     int cachewidth;
     int fixwidth;
     int cellpadding;
@@ -1303,8 +1301,7 @@ public:
     void setTabArray( int *a );
     void setTabStops( int tw );
 
-    void setPainter( QPainter *p, bool adjust  );
-    QPainter *painter() const { return pntr; }
+    void adjustToPainter( QPainter *p );
 
     void setNewLinesAllowed( bool b );
     bool isNewLinesAllowed() const;
@@ -1376,7 +1373,6 @@ private:
     int *tArray;
     int tabStopWidth;
     QTextParagData *eData;
-    QPainter *pntr;
     int list_val;
     QColor *bgcol;
     QPaintDevice *paintdevice;
@@ -1548,7 +1544,8 @@ public:
     QString makeFormatChangeTags( QTextFormat *f, const QString& oldAnchorHref, const QString& anchorHref ) const;
     QString makeFormatEndTags( const QString& anchorHref ) const;
 
-    void setPainter( QPainter *p );
+    static void setPainter( QPainter *p );
+    static QPainter* painter();
     void updateStyle();
     void updateStyleFlags();
     void setStyle( const QString &s );
@@ -1577,7 +1574,7 @@ private:
     QString k;
     int logicalFontSize;
     int stdPointSize;
-    QPainter *painter;
+    static QPainter *pntr;
     QString style;
     int different;
 
@@ -1610,7 +1607,6 @@ public:
     virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
     void debug();
 
-    void setPainter( QPainter *p );
     QStyleSheet *styleSheet() const { return sheet; }
     void setStyleSheet( QStyleSheet *s ) { sheet = s; }
     void updateStyles();
@@ -1623,7 +1619,7 @@ public:
 
 private:
     void updateKeys();
-    
+
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextFormat> cKey;

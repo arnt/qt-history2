@@ -2796,24 +2796,20 @@ void QTextDocument::doLayout( QPainter *p, int w )
     if ( !is_printer( p ) )
 	p = 0;
     withoutDoubleBuffer = ( p != 0 );
+    QPainter * oldPainter = QTextFormat::painter();
+    QTextFormat::setPainter( p );
     flow_->setWidth( w );
     cw = w;
     vw = w;
-    fCollection->setPainter( p );
     QTextParag *parag = fParag;
     while ( parag ) {
 	parag->invalidate( 0 );
-	parag->setPainter( p, TRUE );
+	if ( p )
+	    parag->adjustToPainter( p );
 	parag->format();
 	parag = parag->next();
     }
-
-    fCollection->setPainter( 0 );
-    parag = fParag;
-    while ( parag ) {
-	parag->setPainter( 0, FALSE );
-	parag = parag->next();
-    }
+    QTextFormat::setPainter( oldPainter );
 }
 
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
@@ -2896,7 +2892,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
     bool useDoubleBuffer = !parag->document()->parent();
     if ( !useDoubleBuffer && parag->document()->nextDoubleBuffered )
 	useDoubleBuffer = TRUE;
-    if ( p->device()->devType() == QInternal::Printer )
+    if ( is_printer( p ) )
 	useDoubleBuffer = FALSE;
 
     if ( useDoubleBuffer  ) {
@@ -3253,7 +3249,7 @@ int QTextFormat::width( const QChar &c ) const
 {
     if ( c.unicode() == 0xad ) // soft hyphen
 	return 0;
-    if ( !painter || !painter->isActive() ) {
+    if ( !pntr || !pntr->isActive() ) {
 	if ( c == '\t' )
 	    return fm.width( 'x' ) * 8;
 	if ( ha == AlignNormal ) {
@@ -3278,9 +3274,9 @@ int QTextFormat::width( const QChar &c ) const
     QFont f( fn );
     if ( ha != AlignNormal )
 	f.setPointSize( ( f.pointSize() * 2 ) / 3 );
-    painter->setFont( f );
+    pntr->setFont( f );
 
-    return painter->fontMetrics().width( c );
+    return pntr->fontMetrics().width( c );
 }
 
 int QTextFormat::width( const QString &str, int pos ) const
@@ -3288,7 +3284,7 @@ int QTextFormat::width( const QString &str, int pos ) const
     int w = 0;
     if ( str[ pos ].unicode() == 0xad )
 	return w;
-    if ( !painter || !painter->isActive() ) {
+    if ( !pntr || !pntr->isActive() ) {
 	if ( ha == AlignNormal ) {
 	    w = fm.charWidth( str, pos );
 	} else {
@@ -3301,8 +3297,8 @@ int QTextFormat::width( const QString &str, int pos ) const
 	QFont f( fn );
 	if ( ha != AlignNormal )
 	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
-	painter->setFont( f );
-	w = painter->fontMetrics().charWidth( str, pos );
+	pntr->setFont( f );
+	w = pntr->fontMetrics().charWidth( str, pos );
     }
     return w;
 }
@@ -3682,7 +3678,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 #endif
       listS( QStyleSheetItem::ListDisc ),
       numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
-      tArray(0), tabStopWidth(0), eData( 0 ), pntr( 0 )
+      tArray(0), tabStopWidth(0), eData( 0 )
 {
     if ( ! (hasdoc = docOrPseudo != 0 ) )
 	docOrPseudo = new QTextParagPseudoDocument;
@@ -4393,7 +4389,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    startX = chr->x + string()->width( i );
 		    bw = 0;
 		} else {
-		    chr->customItem()->resize( pntr, chr->customItem()->width );
+		    chr->customItem()->resize( chr->customItem()->width );
 		    paintStart = i+1;
 		    paintEnd = -1;
 		    formatChar = chr;
@@ -4502,7 +4498,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     if ( drawSelections ) {
 	const int nSels = hasdoc ? document()->numSelections() : 1;
-	const int startSel = painter.device()->devType() != QInternal::Printer ? 0 : 1;
+	const int startSel = is_printer( 0 ) ? 1 : 0;
 	for ( int j = startSel; j < nSels; ++j ) {
 	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
 		if ( !hasdoc || document()->invertSelectionText( j ) )
@@ -4802,13 +4798,12 @@ int QTextParag::nextTab( int, int x )
     }
 }
 
-void QTextParag::setPainter( QPainter *p, bool adjust  )
+void QTextParag::adjustToPainter( QPainter *p )
 {
-    pntr = p;
 #ifndef QT_NO_TEXTCUSTOMITEM
     for ( int i = 0; i < length(); ++i ) {
 	if ( at( i )->isCustom() )
-	    at( i )->customItem()->setPainter( p, adjust  );
+	    at( i )->customItem()->adjustToPainter( p );
     }
 #endif
 }
@@ -4940,7 +4935,7 @@ int QTextParag::topMargin() const
 		break;
 	}
     }
-    m = scale( m, painter() );
+    m = scale( m, QTextFormat::painter() );
 
     ( (QTextParag*)this )->tm = m;
     return tm;
@@ -4972,7 +4967,7 @@ int QTextParag::bottomMargin() const
 		break;
 	}
     }
-    m = scale ( m, painter() );
+    m = scale ( m, QTextFormat::painter() );
 
     ( (QTextParag*)this )->bm = m;
     return bm;
@@ -4994,17 +4989,18 @@ int QTextParag::leftMargin() const
 	    int mar = item->margin( QStyleSheetItem::MarginLeft );
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	    if ( item->name() == "ol" || item->name() == "ul" ) {
-		defFormat->setPainter( 0 );
+		QPainter* oldPainter = QTextFormat::painter();
+		QTextFormat::setPainter( 0 );
 		m += defFormat->width( '1' ) +
 		     defFormat->width( '2' ) +
 		     defFormat->width( '3' ) +
 		     defFormat->width( '.' );
-		defFormat->setPainter( painter() );
+		QTextFormat::setPainter( oldPainter );
 	    }
 	}
     }
 
-    m = scale ( m, painter() );
+    m = scale ( m, QTextFormat::painter() );
 
     ( (QTextParag*)this )->lm = m;
     return lm;
@@ -5028,7 +5024,7 @@ int QTextParag::firstLineMargin() const
 	}
     }
 
-    m = scale( m, painter() );
+    m = scale( m, QTextFormat::painter() );
 
     ( (QTextParag*)this )->flm = m;
     return flm;
@@ -5051,7 +5047,7 @@ int QTextParag::rightMargin() const
 	    m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	}
     }
-    m = scale( m, painter() );
+    m = scale( m, QTextFormat::painter() );
 
     ( (QTextParag*)this )->rm = m;
     return rm;
@@ -5066,7 +5062,7 @@ int QTextParag::lineSpacing() const
     int ls = item->lineSpacing();
     if ( ls == QStyleSheetItem::Undefined )
 	return 0;
-    ls = scale( ls, painter() );
+    ls = scale( ls, QTextFormat::painter() );
 
     return ls;
 }
@@ -5445,7 +5441,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
     QTextParagLineStart *lineStart = new QTextParagLineStart( y, y, 0 );
     insertLineStart( parag, 0, lineStart );
 
-    QPainter *painter = parag->painter();
+    QPainter *painter = QTextFormat::painter();
 
     int col = 0;
     int ww = 0;
@@ -5480,7 +5476,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
-	    c->customItem()->resize( parag->painter(), w - x );
+	    c->customItem()->resize( w - x );
 	    w = dw;
 	    y += h;
 	    h = c->height();
@@ -5590,8 +5586,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	align = doc->alignment();
 
     align &= Qt::AlignHorizontal_Mask;
-    
-    QPainter *painter = parag->painter();
+
+    QPainter *painter = QTextFormat::painter();
     int col = 0;
     int ww = 0;
     QChar lastChr;
@@ -5635,7 +5631,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
 	    QTextParagLineStart *lineStart2 = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
-	    ci->resize( parag->painter(), w - x);
+	    ci->resize( w - x);
 	    if ( ci->width < w - x ) {
 		if ( align & Qt::AlignHCenter )
 		    x = ( w - ci->width ) / 2;
@@ -5793,7 +5789,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     }
 
     minw = QMAX( minw, tminw );
-    
+
     int m = parag->bottomMargin();
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
@@ -5992,16 +5988,6 @@ void QTextFormatCollection::remove( QTextFormat *f )
     cKey.remove( f->key() );
 }
 
-void QTextFormatCollection::setPainter( QPainter *p )
-{
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *f;
-    while ( ( f = it.current() ) ) {
-	++it;
-	f->setPainter( p );
-    }
-}
-
 void QTextFormatCollection::debug()
 {
 #ifdef DEBUG_COLLECTION
@@ -6169,12 +6155,6 @@ void QTextFormat::setColor( const QColor &c )
     if ( c == col )
 	return;
     col = c;
-    update();
-}
-
-void QTextFormat::setPainter( QPainter *p )
-{
-    painter = p;
     update();
 }
 
@@ -6487,12 +6467,10 @@ QString QTextImage::richText() const
     return s;
 }
 
-void QTextImage::setPainter( QPainter* p, bool adjust  )
+void QTextImage::adjustToPainter( QPainter* p )
 {
-    if ( adjust ) {
-	width = scale( tmpwidth, p );
-	height = scale( tmpheight, p );
-    }
+    width = scale( tmpwidth, p );
+    height = scale( tmpheight, p );
 }
 
 #if !defined(Q_WS_X11)
@@ -6543,7 +6521,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     else
 	p->drawPixmap( cx , cy, pm, cx - x, cy - y, cw, ch );
 
-    if ( selected && placement() == PlaceInline && p->device()->devType() != QInternal::Printer ) {
+    if ( selected && placement() == PlaceInline && is_printer( p ) ) {
 #if defined(Q_WS_X11)
 	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
@@ -6554,10 +6532,9 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     }
 }
 
-void QTextHorizontalLine::setPainter( QPainter* p, bool adjust  )
+void QTextHorizontalLine::adjustToPainter( QPainter* p )
 {
-    if ( adjust )
-	height = scale( tmpheight, p );
+    height = scale( tmpheight, p );
 }
 
 
@@ -7352,7 +7329,7 @@ void QTextCustomItem::pageBreak( int /*y*/ , QTextFlow* /*flow*/ )
 }
 
 QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
-    : QTextCustomItem( p ), painter( 0 )
+    : QTextCustomItem( p )
 {
     cells.setAutoDelete( FALSE );
 #if defined(PARSER_DEBUG)
@@ -7454,20 +7431,17 @@ QString QTextTable::richText() const
     return s;
 }
 
-void QTextTable::setPainter( QPainter* p, bool adjust )
+void QTextTable::adjustToPainter( QPainter* p )
 {
-    painter = p;
-    if ( adjust ) {
-	cellspacing = scale( us_cs, p );
-	cellpadding = scale( us_cp, p );
-	border = scale( us_b , p );
-	innerborder = scale( us_ib, p );
-	outerborder = scale( us_ob ,p );
-	width = 0;
-	cachewidth = 0;
-    }
+    cellspacing = scale( us_cs, p );
+    cellpadding = scale( us_cp, p );
+    border = scale( us_b , p );
+    innerborder = scale( us_ib, p );
+    outerborder = scale( us_ob ,p );
+    width = 0;
+    cachewidth = 0;
     for ( QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
-	cell->setPainter( p, adjust );
+	cell->adjustToPainter( p );
 }
 
 void QTextTable::adjustCells( int y , int shift )
@@ -7521,20 +7495,18 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	y = ypos;
     }
 
-    painter = p;
-
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
-	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg, selected );
+	    cell->draw( p, x+outerborder, y+outerborder, cx, cy, cw, ch, cg, selected );
 	    if ( border ) {
 		QRect r( x+outerborder+cell->geometry().x() - innerborder,
 			 y+outerborder+cell->geometry().y() - innerborder,
 			 cell->geometry().width() + 2 * innerborder,
 			 cell->geometry().height() + 2 * innerborder );
-		if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
+		if ( is_printer( p ) ) {
 		    QPen oldPen = p->pen();
 		    QRect r2 = r;
 		    r2.addCoords( innerborder/2, innerborder/2, -innerborder/2, -innerborder/2 );
@@ -7556,7 +7528,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
     }
     if ( border ) {
 	QRect r ( x, y, width, height );
-	if ( is_printer( p ) || ( p && p->device() && p->device()->devType() == QInternal::Printer ) ) {
+	if ( is_printer( p ) ) {
  	    QRect r2 = r;
  	    r2.addCoords( border/2, border/2, -border/2, -border/2 );
 	    QPen oldPen = p->pen();
@@ -7588,7 +7560,7 @@ int QTextTable::minimumWidth() const
     return (layout ? layout->minimumSize().width() : 0) + 2 * outerborder;
 }
 
-void QTextTable::resize( QPainter* p, int nwidth )
+void QTextTable::resize( int nwidth )
 {
     if ( fixwidth && cachewidth != 0 )
 	return;
@@ -7598,7 +7570,6 @@ void QTextTable::resize( QPainter* p, int nwidth )
 
     cachewidth = nwidth;
     int w = nwidth;
-    painter = p;
 
     format( w );
 
@@ -7630,7 +7601,7 @@ void QTextTable::format( int w )
 {
     for ( int i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
- 	cell->richText()->doLayout( painter, w-2*outerborder );
+ 	cell->richText()->doLayout( QTextFormat::painter(), w-2*outerborder );
  	cell->cached_width = w-2*outerborder;
     }
 }
@@ -7996,7 +7967,7 @@ void QTextTableCell::setGeometry( const QRect& r )
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding );
     if ( r.width() != cached_width )
-	richtext->doLayout( painter(), r.width() - extra );
+	richtext->doLayout( QTextFormat::painter(), r.width() - extra );
     cached_width = r.width();
     geom = r;
 }
@@ -8018,25 +7989,19 @@ int QTextTableCell::heightForWidth( int w ) const
 
     if ( cached_width != w ) {
 	QTextTableCell* that = (QTextTableCell*) this;
-	that->richtext->doLayout( painter(), w - extra );
+	that->richtext->doLayout( QTextFormat::painter(), w - extra );
 	that->cached_width = w;
     }
     return richtext->height() + extra;
 }
 
-void QTextTableCell::setPainter( QPainter* p, bool adjust )
+void QTextTableCell::adjustToPainter( QPainter* p )
 {
-    richtext->formatCollection()->setPainter( p );
     QTextParag *parag = richtext->firstParag();
     while ( parag ) {
-	parag->setPainter( p, adjust  );
+	parag->adjustToPainter( p );
 	parag = parag->next();
     }
-}
-
-QPainter* QTextTableCell::painter() const
-{
-    return parent->painter;
 }
 
 int QTextTableCell::horizontalAlignmentOffset() const
@@ -8053,10 +8018,10 @@ int QTextTableCell::verticalAlignmentOffset() const
     return parent->cellpadding;
 }
 
-void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
+void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg, bool )
 {
     if ( cached_width != geom.width() ) {
-	richtext->doLayout( painter(), geom.width() );
+	richtext->doLayout( p, geom.width() );
 	cached_width = geom.width();
     }
     QColorGroup g( cg );
@@ -8065,27 +8030,27 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
     else if ( richtext->paper() )
 	g.setBrush( QColorGroup::Base, *richtext->paper() );
 
-    painter()->save();
-    painter()->translate( x + geom.x(), y + geom.y() );
+    p->save();
+    p->translate( x + geom.x(), y + geom.y() );
     if ( background )
-	painter()->fillRect( 0, 0, geom.width(), geom.height(), *background );
+	p->fillRect( 0, 0, geom.width(), geom.height(), *background );
     else if ( richtext->paper() )
-	painter()->fillRect( 0, 0, geom.width(), geom.height(), *richtext->paper() );
+	p->fillRect( 0, 0, geom.width(), geom.height(), *richtext->paper() );
 
-    painter()->translate( horizontalAlignmentOffset(), verticalAlignmentOffset() );
+    p->translate( horizontalAlignmentOffset(), verticalAlignmentOffset() );
 
     QRegion r;
     QTextCursor *c = 0;
     if ( richtext->parent()->tmpCursor )
 	c = richtext->parent()->tmpCursor;
     if ( cx >= 0 && cy >= 0 )
-	richtext->draw( painter(), cx - ( x + horizontalAlignmentOffset() + geom.x() ),
+	richtext->draw( p, cx - ( x + horizontalAlignmentOffset() + geom.x() ),
 			cy - ( y + geom.y() + verticalAlignmentOffset() ),
 			cw, ch, g, FALSE, (c != 0), c );
     else
-	richtext->draw( painter(), -1, -1, -1, -1, g, FALSE, (c != 0), c );
+	richtext->draw( p, -1, -1, -1, -1, g, FALSE, (c != 0), c );
 
-    painter()->restore();
+    p->restore();
 }
 #endif // QT_NO_TEXTCUSTOMITEM
 

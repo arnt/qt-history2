@@ -45,11 +45,11 @@ QTextCommand::Commands QTextCommand::type() const { return Invalid; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 QTextCustomItem::~QTextCustomItem() {}
-void QTextCustomItem::setPainter( QPainter*, bool adjust ){ if ( adjust ) width = 0; }
+void QTextCustomItem::adjustToPainter( QPainter* p){ if ( p ) width = 0; }
 QTextCustomItem::Placement QTextCustomItem::placement() const { return PlaceInline; }
 
 bool QTextCustomItem::ownLine() const { return FALSE; }
-void QTextCustomItem::resize( QPainter*, int nwidth ){ width = nwidth; }
+void QTextCustomItem::resize( int nwidth ){ width = nwidth; }
 void QTextCustomItem::invalidate() {}
 
 bool QTextCustomItem::isNested() const { return FALSE; }
@@ -162,7 +162,7 @@ QTextFormat::~QTextFormat()
 
 QTextFormat::QTextFormat()
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
-      painter( 0 ), different( NoFlags )
+      different( NoFlags )
 {
     ref = 0;
     missp = FALSE;
@@ -172,7 +172,7 @@ QTextFormat::QTextFormat()
 
 QTextFormat::QTextFormat( const QStyleSheetItem *style )
     : fm( QFontMetrics( fn ) ), linkColor( TRUE ), logicalFontSize( 3 ), stdPointSize( qApp->font().pointSize() ),
-      painter( 0 ), different( NoFlags )
+      different( NoFlags )
 {
     ref = 0;
     this->style = style->name();
@@ -201,8 +201,7 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
 
 QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection *parent )
     : fn( f ), col( c ), fm( QFontMetrics( f ) ), linkColor( TRUE ),
-      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), painter( 0 ),
-      different( NoFlags )
+      logicalFontSize( 3 ), stdPointSize( f.pointSize() ), different( NoFlags )
 {
     ref = 0;
     collection = parent;
@@ -226,7 +225,6 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     collection = 0;
     fn = f.fn;
     col = f.col;
-    painter = f.painter;
     leftBearing = f.leftBearing;
     rightBearing = f.rightBearing;
     memset( widths, 0, 256 );
@@ -282,44 +280,58 @@ void QTextFormat::update()
     updateStyleFlags();
 }
 
+
+QPainter* QTextFormat::pntr = 0;
+
+void QTextFormat::setPainter( QPainter *p )
+{
+    pntr = p;
+}
+
+QPainter*  QTextFormat::painter()
+{
+    return pntr;
+}
+
+
 int QTextFormat::minLeftBearing() const
 {
-    if ( !painter || !painter->isActive() )
+    if ( !pntr || !pntr->isActive() )
 	return leftBearing;
-    painter->setFont( fn );
-    return painter->fontMetrics().minLeftBearing();
+    pntr->setFont( fn );
+    return pntr->fontMetrics().minLeftBearing();
 }
 
 int QTextFormat::minRightBearing() const
 {
-    if ( !painter || !painter->isActive() )
+    if ( !pntr || !pntr->isActive() )
 	return rightBearing;
-    painter->setFont( fn );
-    return painter->fontMetrics().minRightBearing();
+    pntr->setFont( fn );
+    return pntr->fontMetrics().minRightBearing();
 }
 
 int QTextFormat::height() const
 {
-    if ( !painter || !painter->isActive() )
+    if ( !pntr || !pntr->isActive() )
 	return hei;
-    painter->setFont( fn );
-    return painter->fontMetrics().lineSpacing();
+    pntr->setFont( fn );
+    return pntr->fontMetrics().lineSpacing();
 }
 
 int QTextFormat::ascent() const
 {
-    if ( !painter || !painter->isActive() )
+    if ( !pntr || !pntr->isActive() )
 	return asc;
-    painter->setFont( fn );
-    return painter->fontMetrics().ascent() + (painter->fontMetrics().leading()+1)/2;
+    pntr->setFont( fn );
+    return pntr->fontMetrics().ascent() + (pntr->fontMetrics().leading()+1)/2;
 }
 
 int QTextFormat::descent() const
 {
-    if ( !painter || !painter->isActive() )
+    if ( !pntr || !pntr->isActive() )
 	return dsc;
-    painter->setFont( fn );
-    return painter->fontMetrics().descent();
+    pntr->setFont( fn );
+    return pntr->fontMetrics().descent();
 }
 
 void QTextFormat::generateKey()
