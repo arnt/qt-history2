@@ -43,11 +43,11 @@
 #include "qstring.h"
 #endif // QT_H
 
-// Visual Age C++ 5.0[0-2] has Defect 121 of the C++ Standard
-#if defined(Q_CC_XLC)
-#define Q_TYPENAME typename
-#else
+// ### add compilers that don't know about typename
+#if 0
 #define Q_TYPENAME
+#else
+#define Q_TYPENAME typename
 #endif
 
 #ifndef QT_NO_TEXTSTREAM
@@ -283,6 +283,47 @@ inline void qHeapSort( Container &c )
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
     qHeapSortHelper( c.begin(), c.end(), *(c.begin()), (uint)c.count() );
+}
+
+template <class Container>
+class QBackInsertIterator
+{
+public:
+    Q_EXPLICIT QBackInsertIterator( Container &c )
+	: container( &c )
+    {
+    }
+
+    QBackInsertIterator<Container>&
+    operator=( const Q_TYPENAME Container::value_type &value )
+    {
+	container->push_back( value );
+	return *this;
+    }
+
+    QBackInsertIterator<Container>& operator*()
+    {
+	return *this;
+    }
+
+    QBackInsertIterator<Container>& operator++()
+    {
+	return *this;
+    }
+
+    QBackInsertIterator<Container>& operator++(int)
+    {
+	return *this;
+    }
+
+protected:
+    Container *container;
+};
+
+template <class Container>
+inline QBackInsertIterator<Container> qBackInserter( Container &c )
+{
+    return QBackInsertIterator<Container>( c );
 }
 
 #endif
