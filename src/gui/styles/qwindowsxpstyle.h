@@ -38,52 +38,30 @@ public:
     void polish(QWidget*);
     void unPolish(QWidget*);
 
-    void drawPrimitive(PrimitiveElement op,
-                        QPainter *p,
-                        const QRect &r,
-                        const QPalette &pal,
-                        SFlags flags = Style_Default
-                        /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                       const QWidget *w = 0) const;
 
-    void drawControl(ControlElement element,
-                      QPainter *p,
-                      const QWidget *widget,
-                      const QRect &r,
-                      const QPalette &pal,
-                      SFlags how = Style_Default
-                      /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                     const QWidget *widget = 0) const;
 
-    void drawControlMask(ControlElement element,
-                          QPainter *p,
-                          const QWidget *widget,
-                          const QRect &r
-                          /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
+                         const QWidget *w = 0) const;
 
-    void drawComplexControl(ComplexControl control,
-                             QPainter* p,
-                             const QWidget* w,
-                             const QRect& r,
-                             const QPalette &pal,
-                             SFlags flags = Style_Default,
-                             SCFlags sub = SC_All,
-                             SCFlags subActive = SC_None
-                             /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    void drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt, QPainter* p,
+                            const QWidget* w = 0) const;
 
 
-    int pixelMetric(PixelMetric metic, const QStyleOption *option = 0, const QWidget *widget = 0) const;
+    int pixelMetric(PixelMetric metic, const QStyleOption *option = 0,
+                    const QWidget *widget = 0) const;
 
-    QRect querySubControlMetrics(ComplexControl control,
-                                 const QWidget *widget,
-                                 SubControl sc
-                                 /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QRect querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt, SubControl sc,
+                                 const QWidget *w = 0) const;
 
-    QSize sizeFromContents(ContentsType contents, const QWidget *widget,
-                           const QSize &contentsSize
-                           /*const Q3StyleOption& = Q3StyleOption::Default*/) const;
+    QSize sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                           const QSize &contentsSize, const QWidget *widget = 0) const;
 
-    int styleHint(StyleHint stylehint, const QWidget *widget = 0,
-                  /*const Q3StyleOption& = Q3StyleOption::Default, */
-                  QStyleHintReturn *returnData = 0) const;
+    int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
+                  QStyleHintReturn *shret = 0) const;
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);

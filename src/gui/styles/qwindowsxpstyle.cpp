@@ -665,15 +665,20 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     }
 }
 
-/*!
-    \reimp
-*/
+/*
 void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
                                     QPainter *p,
                                     const QRect &r,
                                     const QPalette &pal,
                                     SFlags flags,
                                     const Q3StyleOption &opt) const
+                                    */
+
+/*!
+    \reimp
+*/
+void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
+                                    const QWidget *w) const
 {
     if (!use_xp) {
         QWindowsStyle::drawPrimitive(op, p, r, pal, flags, opt);
@@ -1079,9 +1084,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement op,
     theme.drawBackground();
 }
 
-/*!
-    \reimp
-*/
+/*
 void QWindowsXPStyle::drawControl(ControlElement element,
                                   QPainter *p,
                                   const QWidget *widget,
@@ -1089,6 +1092,13 @@ void QWindowsXPStyle::drawControl(ControlElement element,
                                   const QPalette &pal,
                                   SFlags flags,
                                   const Q3StyleOption &opt) const
+                                  */
+
+/*!
+    \reimp
+*/
+void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *opt, QPainter *p,
+                                  const QWidget *w) const
 {
     bool doFlipp = false;
     d->currentWidget = widget;
@@ -1433,14 +1443,18 @@ void QWindowsXPStyle::drawControl(ControlElement element,
     d->currentWidget = 0;
 }
 
-/*!
-    \reimp
-*/
+/*
 void QWindowsXPStyle::drawControlMask(ControlElement element,
                                       QPainter *p,
                                       const QWidget *widget,
                                       const QRect &r,
                                       const Q3StyleOption &option) const
+                                      */
+/*!
+    \reimp
+*/
+void QWindowsXPStyle::drawControlMask(ControlElement element, const QStyleOption *opt, QPainter *p,
+                                      const QWidget *w) const
 {
     if (!use_xp) {
         QWindowsStyle::drawControlMask(element, p, widget, r, option);
@@ -1487,6 +1501,7 @@ void QWindowsXPStyle::drawControlMask(ControlElement element,
     p->restore();
 }
 
+// Porting note: This shouldn't be necessary anymore, it's part of QStyle now -- tws
 static int qPositionFromValue(const QRangeControl * rc, int logical_val,
                                int span)
 {
@@ -1516,9 +1531,7 @@ static int qPositionFromValue(const QRangeControl * rc, int logical_val,
     // span <= 4096
 }
 
-/*!
-    \reimp
-*/
+/*
 void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                          QPainter* p,
                                          const QWidget* w,
@@ -1528,6 +1541,13 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                          SCFlags sub,
                                          SCFlags subActive,
                                          const Q3StyleOption &opt) const
+                                         */
+
+/*!
+    \reimp
+*/
+void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+                                         QPainter *p, const QWidget *w) const
 {
     d->currentWidget = w;
 
@@ -2301,9 +2321,13 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
     d->currentWidget = 0;
 }
 
-/*! \reimp */
+/*
 int QWindowsXPStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
                                  const QWidget *widget) const
+                                 */
+/*! \reimp */
+int QWindowsXPStyle::pixelMetric(PixelMetric m, const QStyleOption *opt,
+                                 const QWidget *widget) const;
 {
     if (!use_xp)
         return QWindowsStyle::pixelMetric(metric, option, widget);
@@ -2433,10 +2457,14 @@ int QWindowsXPStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
     \reimp
 */
+/*
 QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
                                               SubControl sc,
                                               const Q3StyleOption &option) const
+                                              */
+QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
+                                              SubControl sc, const QWidget *w = 0) const
 {
     if (!use_xp)
         return QWindowsStyle::querySubControlMetrics(control, widget, sc, option);
@@ -2520,13 +2548,17 @@ QRect QWindowsXPStyle::querySubControlMetrics(ComplexControl control,
     return QWindowsStyle::querySubControlMetrics(control, widget, sc, option);
 }
 
-/*!
-    \reimp
-*/
+/*
 QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
                                         const QWidget *widget,
                                         const QSize &contentsSize,
                                         const Q3StyleOption& opt) const
+                                        */
+/*!
+    \reimp
+*/
+QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
+                                        const QSize &contentsSize, const QWidget *widget) const
 {
     if (!use_xp)
         return QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
@@ -2593,11 +2625,15 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
-/*! \reimp */
+/*
 int QWindowsXPStyle::styleHint(StyleHint stylehint,
                            const QWidget *widget,
                            const Q3StyleOption& opt,
                            QStyleHintReturn* returnData) const
+                           */
+/*! \reimp */
+int QWindowsXPStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
+                               QStyleHintReturn *shret) const
 {
     if (!use_xp)
         return QWindowsStyle::styleHint(stylehint, widget, opt, returnData);
@@ -2632,6 +2668,7 @@ int QWindowsXPStyle::styleHint(StyleHint stylehint,
 }
 
 // HotSpot magic
+
 /*! \reimp */
 bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
 {
@@ -2759,7 +2796,7 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    \reimp
+  Repaints the active tab if is changed.
 */
 void QWindowsXPStyle::activeTabChanged()
 {
