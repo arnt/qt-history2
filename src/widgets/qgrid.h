@@ -46,12 +46,15 @@ class Q_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
-    enum Direction { Horizontal, Vertical };
-    QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0 );
-    QGrid( int n, Direction, QWidget *parent=0, const char *name=0,
-	   WFlags f=0 );
+    QGrid( int n, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    QGrid( int n, Orientation orient, QWidget *parent = 0, const char *name = 0,
+	   WFlags f = 0 );
     void setSpacing( int );
     QSize sizeHint() const;
+
+#ifndef QT_NO_COMPAT
+    typedef Orientation Direction;
+#endif
 
 protected:
     void frameChanged();

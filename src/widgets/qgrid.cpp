@@ -54,23 +54,22 @@
   <img src=qgrid-m.png>
 
   For more general control over grid layout, including multi-column and
-  multi-row widgets, use the QGridLayout class directly.
+  multi-row widgets, use \l QGridLayout directly.
 
-  \sa QVBox and QHBox
- */
-
-
+  \sa QVBox QHBox
+*/
 
 /*!
-  Constructs a grid widget with parent \a parent and name \a name. If \a dir is
-  \c Horizontal, \a n specifies the number of columns. If \a dir is \c Vertical,
-  \a n specifies the number of rows.
- */
-QGrid::QGrid( int n, Direction dir, QWidget *parent, const char *name, WFlags f )
-    :QFrame( parent, name, f )
+  Constructs a grid widget with parent \a parent and name \a name. If
+  \a orient is \c Horizontal, \a n specifies the number of columns.
+  If \a dir is \c Vertical, \a n specifies the number of rows.
+*/
+QGrid::QGrid( int n, Orientation orient, QWidget *parent, const char *name,
+	      WFlags f )
+    : QFrame( parent, name, f )
 {
     int nCols, nRows;
-    if ( dir == Horizontal ) {
+    if ( orient == Horizontal ) {
 	nCols = n;
 	nRows = -1;
     } else {
@@ -88,7 +87,7 @@ QGrid::QGrid( int n, Direction dir, QWidget *parent, const char *name, WFlags f 
   \a n specifies the number of columns.
  */
 QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
-    :QFrame( parent, name, f )
+    : QFrame( parent, name, f )
 {
     lay = new QGridLayout( this, -1, n, 0, 0, name );
     lay->setAutoAdd( TRUE );
