@@ -113,6 +113,7 @@ private slots:
     void continueCopy( QNetworkOperation *op );
     void finishedCopy();
     void addEntry( const QValueList<QUrlInfo> &i );
+    void slotItemChanged( QNetworkOperation *op );
 
 private:
     void deleteOperation( QNetworkOperation *op );

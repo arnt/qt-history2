@@ -855,6 +855,8 @@ void QUrlOperator::getNetworkProtocol()
 
     d->networkProtocol = (QNetworkProtocol *)p;
     d->networkProtocol->setUrl( this );
+    connect( d->networkProtocol, SIGNAL( itemChanged( QNetworkOperation * ) ),
+	     this, SLOT( slotItemChanged( QNetworkOperation * ) ) );
 }
 
 /*!
@@ -863,8 +865,7 @@ void QUrlOperator::getNetworkProtocol()
 
 void QUrlOperator::deleteNetworkProtocol()
 {
-    if ( d->networkProtocol )
-	delete d->networkProtocol;
+    delete d->networkProtocol;
     d->networkProtocol = 0;
 }
 
@@ -886,9 +887,7 @@ void QUrlOperator::setPath( const QString& path )
 void QUrlOperator::reset()
 {
     QUrl::reset();
-    if ( d->networkProtocol )
-	delete d->networkProtocol;
-    d->networkProtocol = 0;
+    deleteNetworkProtocol();
     d->nameFilter = "*";
 }
 
@@ -1092,5 +1091,41 @@ void QUrlOperator::deleteOperation( QNetworkOperation *op )
     if ( op )
 	d->oldOps.append( op );
 }
+
+/*!
+  \internal
+  updates the entryMap after a network operation finished
+*/
+
+void QUrlOperator::slotItemChanged( QNetworkOperation *op )
+{
+    if ( !op )
+	return;
+
+    switch ( op->operation() ) {
+    case QNetworkProtocol::OpRename :
+    {
+	if ( op->arg( 0 ) == op->arg( 1 ) )
+	    return;
+
+	QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find( op->arg( 0 ) );
+	if ( mi != d->entryMap.end() ) {
+	    d->entryMap[ op->arg( 1 ) ] = mi.data();
+	    d->entryMap.erase( mi );
+	}
+	break;
+    }
+    case QNetworkProtocol::OpRemove :
+    {
+	QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find( op->arg( 0 ) );
+	if ( mi != d->entryMap.end() )
+	    d->entryMap.erase( mi );	
+	break;
+    }
+    default:
+	break;
+    }
+}
+
 
 #endif // QT_NO_NETWORKPROTOCOL
