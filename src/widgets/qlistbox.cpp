@@ -398,9 +398,12 @@ void QListBoxItem::setCustomHighlighting( bool b )
 /*!
     \fn int QListBoxItem::width( const QListBox* lb ) const
 
-    Implement this function to return the width of your item. The \a
+    Reimplement this function to return the width of your item. The \a
     lb parameter is the same as listBox() and is provided for
     convenience and compatibility.
+
+    The default implementation returns
+    \l{QApplication::globalStrut()}'s width.
 
     \sa paint(), height()
 */
@@ -415,6 +418,9 @@ int QListBoxItem::width(const QListBox*)  const
     Implement this function to return the height of your item. The \a
     lb parameter is the same as listBox() and is provided for
     convenience and compatibility.
+
+    The default implementation returns
+    \l{QApplication::globalStrut()}'s height.
 
     \sa paint(), width()
 */
@@ -446,8 +452,8 @@ const QPixmap *QListBoxItem::pixmap() const
 }
 
 /*!
-    If \a b is TRUE then this item can be selected by the user;
-    otherwise this item cannot be selected by the user.
+    If \a b is TRUE (the default) then this item can be selected by
+    the user; otherwise this item cannot be selected by the user.
 
     \sa isSelectable()
 */
@@ -464,7 +470,8 @@ void QListBoxItem::setSelectable( bool b )
 }
 
 /*!
-    Returns TRUE if this item is selectable; otherwise returns FALSE.
+    Returns TRUE if this item is selectable (the default); otherwise
+    returns FALSE.
 
     \sa setSelectable()
 */

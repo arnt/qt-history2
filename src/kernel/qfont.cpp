@@ -345,6 +345,7 @@
     \value LatinExtendedA_4 For internal use only.
     \value LatinExtendedA_14 For internal use only.
     \value LatinExtendedA_15 For internal use only.
+    \value KatakanaHalfWidth For internal use only.
 
     \value LastPrivateScript For internal use only.
 

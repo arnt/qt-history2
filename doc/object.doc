@@ -49,18 +49,18 @@ Qt adds these features to C++:
 \list
 \i a very powerful mechanism for seamless object
   communication called \link signalsandslots.html signals and
-  slots \endlink,
+  slots \endlink;
 \i queryable and designable \link properties.html object
-  properties \endlink,
+  properties \endlink;
 \i powerful \link eventsandfilters.html events and event filters \endlink,
-\i contextual \link i18n.html string translation for internationalization \endlink,
+\i contextual \link i18n.html string translation for internationalization \endlink;
 \i sophisticated interval driven \link timers.html timers \endlink
   that make it possible to elegantly integrate many tasks in an
-  event-driven GUI.
+  event-driven GUI;
 \i hierarchical and queryable \link objecttrees.html object
-  trees \endlink that organize object ownership in a natural way.
+  trees \endlink that organize object ownership in a natural way;
 \i guarded pointers, \l QGuardedPtr, that are automatically
-  set to null when the referenced object is destroyed, unlike normal C++
+  set to 0 when the referenced object is destroyed, unlike normal C++
   pointers which become "dangling pointers" when their objects are destroyed.
 \endlist
 
@@ -93,7 +93,7 @@ unique integer timer id. The timer will now "fire" every \e interval
 milliseconds, until you explicitly call \l QObject::killTimer() with
 the timer id.
 
-For this mechanism to work, the application has to run in an event
+For this mechanism to work, the application must run in an event
 loop. You start an event loop with \l QApplication::exec(). When a
 timer fires, the application sends a QTimerEvent, and the flow of
 control leaves the event loop until the timer event is processed. This
@@ -102,15 +102,15 @@ something else. In other words: the accuracy of timers depends on the
 granularity of your application.
 
 There is practically no upper limit for the interval value (more than
-one year is possible).  The accuracy depends on the underlying operating
+one year is possible). The accuracy depends on the underlying operating
 system. Windows 95/98 has 55 millisecond (18.2 times per second)
-accuracy; other systems that we have tested (UNIX X11, Windows NT and
-OS/2) can handle 1 millisecond intervals.
+accuracy; other systems that we have tested (UNIX X11 and Windows NT)
+can handle 1 millisecond intervals.
 
-The main API for the timer functionality is \l QTimer.  That class
+The main API for the timer functionality is \l QTimer. That class
 provides regular timers that emit a signal when the timer fires, and
-inherit \l QObject so that it fits well into the ownership structure
-of most GUI programs.  The normal way of using it is like this:
+inherits \l QObject so that it fits well into the ownership structure
+of most GUI programs. The normal way of using it is like this:
 \code
     QTimer * counter = new QTimer( this );
     connect( counter, SIGNAL(timeout()),
@@ -119,12 +119,12 @@ of most GUI programs.  The normal way of using it is like this:
 \endcode
 
 The counter timer is made into a child of this widget, so that when
-this widget is deleted, the timer is deleted too.  Next, its timeout
+this widget is deleted, the timer is deleted too. Next, its timeout
 signal is connected to the slot that will do the work, and finally
 it's started.
 
-QTimer also provides a simple one-shot timer API.  \l QButton uses it
-to show the button being pressed down and then (0.1 second later) be
+QTimer also provides a simple one-shot timer API. \l QButton uses this
+to show the button being pressed down and then (0.1 seconds later) be
 released when the keyboard is used to "press" a button, for example:
 
 \code
@@ -136,15 +136,15 @@ animateTimeout() slot is called.
 
 Here is an outline of a slightly longer example that combines object
 communication via signals and slots with a QTimer object. It
-demonstrates how to use timers to perform intensive calculations
-in a single-threaded application without blocking the user interface.
+demonstrates how to use timers to perform intensive calculations in a
+single-threaded application without blocking the user interface.
 
   \code
     // The Mandelbrot class uses a QTimer to calculate the mandelbrot
-    // set one scanline at a time without blocking the CPU.  It
-    // inherits QObject to use signals and slots.  Calling start()
+    // set one scanline at a time without blocking the CPU. It
+    // inherits QObject to use signals and slots. Calling start()
     // starts the calculation. The done() signal is emitted when it
-    // has finished.  Note that this example is not complete, just an
+    // has finished. Note that this example is not complete, just an
     // outline.
 
     class Mandelbrot : public QObject
@@ -222,17 +222,17 @@ property. Properties can only be declared in classes that inherit \l
 QObject. A second macro, \c Q_OVERRIDE, can be used to override some
 aspects of an inherited property in a subclass.
 
-To the outer world, a property appears quite similar to a data
-member. However, properties have several features that distinguish
-them from ordinary data members:
+To the outer world, a property appears to be similar to a data member.
+But properties have several features that distinguish them from
+ordinary data members:
 
 \list
-\i A read function.  This always exists.
+\i A read function. This always exists.
 
-\i A write function.  This is optional: read-only properties like \l
+\i A write function. This is optional: read-only properties like \l
 QWidget::isDesktop() do not have one.
 
-\i An attribute "stored" that indicates persistence.  Most properties
+\i An attribute "stored" that indicates persistence. Most properties
 are stored, but a few virtual properties are not. For example, \l
 QWidget::minimumWidth() isn't stored, since it's just a view of
 \l QWidget::minimumSize(), and has no data of its own.
@@ -245,7 +245,7 @@ the context specific font'.
 \i An attribute "designable" that indicates whether it makes sense to
 make the property available in a GUI builder (e.g. \link
 designer-manual.book Qt Designer\endlink). For most properties this 
-makes sense, but not for all, e.g. \l QButton::isDown().  The user can
+makes sense, but not for all, e.g. \l QButton::isDown(). The user can
 press buttons, and the application programmer can make the program
 press its own buttons, but a GUI design tool can't press buttons.
 
@@ -257,7 +257,7 @@ that member functions must be inherited from the first inherited class
 in the case of multiple inheritance.
 
 Properties can be read and written through generic functions in
-QObject without knowing anything about the class in use.  These two
+QObject without knowing anything about the class in use. These two
 function calls are equivalent:
 
 \code
@@ -267,15 +267,15 @@ function calls are equivalent:
 \endcode
 
 Equivalent, that is, except that the first is faster, and provides
-much better diagnostics at compile time.  When practical, the first is
-better.  However, since you can get a list of all available properties
+much better diagnostics at compile time. When practical, the first is
+better. However, since you can get a list of all available properties
 for any QObject through its \l QMetaObject, \l QObject::setProperty()
 can give you control over classes that weren't available at compile
 time.
 
 As well as QObject::setProperty(), there is a corresponding \l
 QObject::property() function. \l QMetaObject::propertyNames() returns
-the names of all available properties.  \l QMetaObject::property()
+the names of all available properties. \l QMetaObject::property()
 returns the property data for a named property: a \l QMetaProperty
 object.
 
@@ -322,7 +322,7 @@ possible to set a value by name, like this:
     obj->setProperty( "priority", "VeryHigh" );
 \endcode
 
-Enumeration types are registered with the \c Q_ENUMS macro.  Here's the
+Enumeration types are registered with the \c Q_ENUMS macro. Here's the
 final class declaration including the property related declarations:
 
 \code
@@ -343,28 +343,28 @@ final class declaration including the property related declarations:
 
 Another similar macro is \c Q_SETS. Like \c Q_ENUMS, it registers an
 enumeration type but marks it in addition as a "set", i.e. the
-enumeration values can be OR'ed together.  An I/O class might have
+enumeration values can be OR-ed together. An I/O class might have
 enumeration values "Read" and "Write" and accept "Read|Write": such an
 enum is best handled with \c Q_SETS, rather than \c Q_ENUMS.
 
 The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
-DESIGNABLE, \c SCRIPTABLE and STORED.
+DESIGNABLE, \c SCRIPTABLE and \c STORED.
 
 \c RESET names a function that will set the property to its default
-state (which may have changed since initialization).  The function
+state (which may have changed since initialization). The function
 must return void and take no arguments.
 
 \c DESIGNABLE declares whether this property is suitable for
-modification by a GUI design tool.  The default is \c TRUE for
+modification by a GUI design tool. The default is \c TRUE for
 writable properties; otherwise \c FALSE. Instead of \c TRUE or \c
 FALSE, you can specify a boolean member function.
 
 \c SCRIPTABLE declares whether this property is suited for access by a
-scripting engine.  The default is \c TRUE. Instead of \c TRUE or \c FALSE,
+scripting engine. The default is \c TRUE. Instead of \c TRUE or \c FALSE,
 you can specify a boolean member function.
 
 \c STORED declares whether the property's value must be remembered
-when storing an object's state.  Stored makes only sense for writable
+when storing an object's state. Stored makes only sense for writable
 properties. The default value is \c TRUE. Technically superfluous
 properties (like QPoint pos if QRect geometry is already a property)
 define this to be \c FALSE.
@@ -387,10 +387,10 @@ through the meta object, see \l QMetaObject::classInfo() for details.
 
 \title Events and Event Filters
 
-In Qt, an event is an object that inherits \l QEvent.  Events are
+In Qt, an event is an object that inherits \l QEvent. Events are
 delivered to objects that inherit \l QObject through calling \l
-QObject::event().  Event delivery means that an event has occurred, the
-QEvent indicates precisely what, and the QObject needs to respond.  Most
+QObject::event(). Event delivery means that an event has occurred, the
+QEvent indicates precisely what, and the QObject needs to respond. Most
 events are specific to \l QWidget and its subclasses, but there are
 important events that aren't related to graphics, for example, socket
 activation, which is the event used by \l QSocketNotifier for its
@@ -398,7 +398,7 @@ work.
 
 Some events come from the window system, e.g. \l QMouseEvent, some
 from other sources, e.g. \l QTimerEvent, and some come from the
-application program.  Qt is symmetric, as usual, so you can send
+application program. Qt is symmetric, as usual, so you can send
 events in exactly the same ways as Qt's own event loop does.
 
 Most events types have special classes, most commonly \l QResizeEvent,
@@ -406,31 +406,31 @@ Most events types have special classes, most commonly \l QResizeEvent,
 There are many others, perhaps forty or so, but most are rather odd.
 
 Each class subclasses QEvent and adds event-specific functions; see,
-for example, \l QResizeEvent.  In the case of QResizeEvent, \l
+for example, \l QResizeEvent. In the case of QResizeEvent, \l
 QResizeEvent::size() and \l QResizeEvent::oldSize() are added.
 
-Some classes support more than one event type.  \l QMouseEvent
+Some classes support more than one event type. \l QMouseEvent
 supports mouse moves, presses, shift-presses, drags, clicks,
 right-presses, etc.
 
 Since programs need to react in varied and complex ways, Qt's
-event delivery mechanisms are flexible.  The documentation for
+event delivery mechanisms are flexible. The documentation for
 \l QApplication::notify() concisely tells the whole story, here we
 will explain enough for 99% of applications.
 
 The normal way for an event to be delivered is by calling a virtual
-function.  For example, \l QPaintEvent is delivered by calling \l
-QWidget::paintEvent().  This virtual function is responsible for
+function. For example, \l QPaintEvent is delivered by calling \l
+QWidget::paintEvent(). This virtual function is responsible for
 reacting appropriately, normally by repainting the widget.
 
 Occasionally there isn't such an event-specific function, or the
-event-specific function isn't sufficient.  The most common example is
-tab key presses.  Normally, those are interpreted by QWidget to move
+event-specific function isn't sufficient. The most common example is
+tab key presses. Normally, those are interpreted by QWidget to move
 the keyboard focus, but a few widgets need the tab key for themselves.
 
 These objects can reimplement \l QObject::event(), the general event
 handler, and either do their event handling before or after the usual
-handling, or replace it completely.  A very unusual widget that both
+handling, or replace it completely. A very unusual widget that both
 interprets tab and has an application-specific custom event might
 contain:
 
@@ -452,21 +452,21 @@ contain:
   }
 \endcode
 
-More commonly, an object needs to look at another's events.  Qt
+More commonly, an object needs to look at another's events. Qt
 supports this using \l QObject::installEventFilter() (and the
-corresponding remove).  For example, dialogs commonly want to filter
+corresponding remove). For example, dialogs commonly want to filter
 key presses for some widgets, e.g. to modify Return-key handling.
 
 An event filter gets to process events before the target object does.
 The filter's \l QObject::eventFilter() implementation is called, and
 can accept or reject the filter, and allow or deny further processing
-of the event.  If all the event filters allow further processing of an
-event, the event is sent to the target object itself.  If one of them
+of the event. If all the event filters allow further processing of an
+event, the event is sent to the target object itself. If one of them
 stops processing, the target and any later event filters don't get to
 see the event at all.
 
 It's also possible to filter \e all events for the entire application,
-by installing an event filter on \l QApplication.  This is what \l
+by installing an event filter on \l QApplication. This is what \l
 QToolTip does in order to see \e all the mouse and keyboard activity.
 This is very powerful, but it also slows down event delivery of every
 single event in the entire application, so it's best avoided.
@@ -482,14 +482,14 @@ QApplication::postEvent().
 
 sendEvent() processes the event immediately - when sendEvent()
 returns, (the event filters and) the object have already processed the
-event.  For many event classes there is a function called isAccepted()
+event. For many event classes there is a function called isAccepted()
 that tells you whether the event was accepted or rejected by the last
 handler that was called.
 
-postEvent() posts the event on a queue for later dispatch.  The next
+postEvent() posts the event on a queue for later dispatch. The next
 time Qt's main event loop runs, it dispatches all posted events, with
-some optimization.  For example, if there are several resize events,
-they are are compacted into one.  The same applies to paint events: \l
+some optimization. For example, if there are several resize events,
+they are are compacted into one. The same applies to paint events: \l
 QWidget::update() calls postEvent(), which minimizes flickering and
 increases speed by avoiding multiple repaints.
 
@@ -500,7 +500,7 @@ initialization of the object is complete.
 To create events of a custom type, you need to define an event number,
 which must be greater than \c QEvent::User, and probably you also need
 to subclass \l QCustomEvent in order to pass characteristics about
-your custom event.  See the documentation to \l QCustomEvent for
+your custom event. See the documentation to \l QCustomEvent for
 details.
 
 */
@@ -512,8 +512,8 @@ details.
 \link QObject QObjects\endlink organize themselves in object trees.
 When you create a QObject with another object as parent, it's added to
 the parent's \link QObject::children() children() \endlink list, and
-is deleted when the parent is.  It turns out that this approach fits
-the needs of GUI objects very well.  For example, a \l QAccel (keyboard
+is deleted when the parent is. It turns out that this approach fits
+the needs of GUI objects very well. For example, a \l QAccel (keyboard
 accelerator) is a child of the relevant window, so when the user closes
 that window, the accelerator is deleted too.
 
@@ -523,14 +523,14 @@ the root objects that currently exist.
 \l QWidget, the base class of everything that appears on the screen,
 extends the parent-child relationship. A child normally also becomes a
 child widget, i.e. it is displayed in its parent's coordinate system
-and is graphically clipped by its parent's boundaries.  For example,
+and is graphically clipped by its parent's boundaries. For example,
 when the an application deletes a message box after it has been
 closed, the message box's buttons and label are also deleted, just as
 we'd want, because the buttons and label are children of the message
 box.
 
 You can also delete child objects yourself, and they will remove
-themselves from their parents.  For example, when the user removes a
+themselves from their parents. For example, when the user removes a
 toolbar it may lead to the application deleting one of its \l QToolBar
 objects, in which case the tool bar's \l QMainWindow parent would
 detect the change and reconfigure its screen space accordingly.
@@ -640,11 +640,11 @@ generated and connected from Qt Designer's XML <tt>ui</tt> files.
 <h3>4. Calling performance is not everything</h3>
 
 Qt's signals and slots implementation is not as fast as a template-based
-solution.  While emitting a signal is approximately the cost of four
+solution. While emitting a signal is approximately the cost of four
 ordinary function calls with common template implementations, Qt
 requires effort comparable to about ten function calls. This is not
 surprising since the Qt mechanism includes a generic marshaller,
-introspection and ultimately scriptability.  It does not rely on
+introspection and ultimately scriptability. It does not rely on
 excessive inlining and code expansion and it provides unmatched runtime
 safety. Qt's iterators are safe while those of faster template-based
 systems are not. Even during the process of emitting a signal to several

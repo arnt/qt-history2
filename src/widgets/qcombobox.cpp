@@ -1027,9 +1027,11 @@ void QComboBox::setAutoResize( bool enable )
 
 
 /*!
-    This implementation caches the sizeHint to avoid resizing of 
-    the control when the contents change dynamically. To invalidate 
-    the cached value call setFont().
+    \reimp
+
+    This implementation caches the size hint to avoid resizing when
+    the contents change dynamically. To invalidate the cached value
+    call setFont().
 */
 QSize QComboBox::sizeHint() const
 {
