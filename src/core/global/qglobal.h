@@ -1062,7 +1062,6 @@ public:
     };
     static const MacVersion MacintoshVersion;
 #endif
-    static QString hostName();
 };
 
 Q_CORE_EXPORT const char *qVersion();

@@ -61,18 +61,6 @@ static const unsigned int qt_one = 1;
 const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian : LittleEndian);
 #endif
 
-/*!
-    Returns the host name of this machine.
-*/
-QString QSysInfo::hostName()
-{
-    char hostName[512];
-    if (gethostname(hostName, sizeof(hostName)) == -1)
-        return QString::null;
-    hostName[sizeof(hostName) - 1] = '\0';
-    return QString(hostName);
-}
-
 #if !defined(QWS) && defined(Q_OS_MAC)
 
 #include <private/qcore_mac_p.h>
