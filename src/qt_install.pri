@@ -16,7 +16,7 @@ false:macx {
 
 #headers
 INSTALL_HEADERS =
-HEADERS_PRI = $QT_BUILD_TREE/include/$$TARGET/install.pri
+HEADERS_PRI = $$QT_BUILD_TREE/include/$$TARGET/install.pri
 exists($$HEADERS_PRI) {
     INSTALL_HEADERS = $$fromfile($$HEADERS_PRI, HEADER_FILES)
     equals(TARGET, QtCore) {
