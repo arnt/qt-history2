@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#34 $
+** $Id: //depot/qt/main/src/moc/moc.y#35 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#35 $";
 #endif
 
 
@@ -618,9 +618,8 @@ char *stradd( const char *s1, const char *s2 )	// adds two strings
 
 // Generate C++ code for building member function table
 
-const int Method_Num = 1;
-const int Slot_Num   = 2;
-const int Signal_Num = 3;
+const int Slot_Num   = 1;
+const int Signal_Num = 2;
 
 void generateFuncs( FuncList *list, char *functype, int num )
 {
@@ -719,11 +718,6 @@ void generate()                                 // generate C++ source code
     fprintf( out, "    if ( !%s::metaObject() )\n\t%s::initMetaObject();\n",
  	     (char*)superclassName, (char*)superclassName );
 //
-// Build methods array in initMetaObject()
-//
-    generateFuncs( &methods, "method", Method_Num );
-
-//
 // Build slots array in initMetaObject()
 //
     generateFuncs( &slots, "slot", Slot_Num );
@@ -738,10 +732,6 @@ void generate()                                 // generate C++ source code
 //
     fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
              (char*)className, (char*)superclassName );
-    if ( methods.count() )
-        fprintf( out, "\tmethod_tbl, %d,\n", methods.count() );
-    else
-        fprintf( out, "\t0, 0,\n" );
     if ( slots.count() )
         fprintf( out, "\tslot_tbl, %d,\n", slots.count() );
     else
@@ -759,13 +749,9 @@ void generate()                                 // generate C++ source code
 //
 // Generate internal signal functions
 //'
-    if ( signals.count() ) {
-	fprintf( out, "\n#include <qlist.h>\n" );
-	fprintf( out, "declare(QListM,QConnection);\n" );
-	fprintf( out, "declare(QListIteratorM,QConnection);\n" );
-    }
     Function *f;
     f = signals.first();                        // make internal signal methods
+    bool included_list_stuff = FALSE;
     while ( f ) {
         QString typstr = "";                    // type string
         QString valstr = "";                    // value string
@@ -773,8 +759,6 @@ void generate()                                 // generate C++ source code
         int  count = 0;
         char buf[12];
                                                 // method header
-        fprintf( out, "\n// SIGNAL %s\n", (char*)f->name );
-        fprintf( out, "void %s::%s(", (char*)className, (char*)f->name );
         Argument *a = f->args->first();
         while ( a ) {                           // argument list
             if ( count++ ) {
@@ -793,12 +777,27 @@ void generate()                                 // generate C++ source code
             a = f->args->next();
         }
 
+	bool predef_call = FALSE;
+	if ( typstr.isEmpty() || typstr == "short" || typstr == "int" ||
+	     typstr == "long" || typstr == "char*" || typstr == "const char*"){
+	    predef_call = TRUE;
+        }	
+	if ( !predef_call && !included_list_stuff ) {
+	    fprintf( out, "\n#include <qlist.h>\n" );
+	    fprintf( out, "declare(QListM,QConnection);\n" );
+	    fprintf( out, "declare(QListIteratorM,QConnection);\n" );
+	    included_list_stuff = TRUE;
+	}
+
+        fprintf( out, "\n// SIGNAL %s\n", (char*)f->name );
+        fprintf( out, "void %s::%s(", (char*)className, (char*)f->name );
+
 	if ( argstr.isEmpty() )
 	    fprintf( out, ")\n{\n" );
 	else
 	    fprintf( out, " %s )\n{\n", (char*)argstr );
-	if ( typstr.isEmpty() || typstr == "short" || typstr == "int" ||
-	     typstr == "long" || typstr == "char*" || typstr == "const char*"){
+
+	if ( predef_call ) {
 	    fprintf( out, "    activate_signal( \"%s(%s)\"",
 		     (char*)f->name, (char*)typstr );
 	    if ( !valstr.isEmpty() )
@@ -807,6 +806,7 @@ void generate()                                 // generate C++ source code
 	    f = signals.next();
 	    continue;
 	}
+
 	fprintf( out, "    QConnectionList *clist;\n" );
 	fprintf( out, "    if ( signalsBlocked() || "
 		      "!(clist=receivers(\"%s(%s)\")) )\n",
@@ -849,7 +849,6 @@ void addMember( QString type, char m )
     CHECK_PTR( tmpArgList );
     if ( !skipFunc ) {
 	switch( m ) {
-	    case 'm': methods.append( tmpFunc ); break;
 	    case 's': signals.append( tmpFunc ); break;
 	    case 't': slots.  append( tmpFunc ); break;
 	}
