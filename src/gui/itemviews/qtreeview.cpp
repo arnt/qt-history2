@@ -888,8 +888,9 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
 
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
-    int items = qMin(d->items.count(), d->viewport->height() / fontMetrics().height());
-    int max_dy = verticalFactor() * items;
+    int itemCount = d->items.count() - d->hidden.count();
+    int viewCount = d->viewport->height() / fontMetrics().height(); // FIXME: this may be the wrong height
+    int max_dy = verticalFactor() * qMin(itemCount, viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (QABS(dy) > max_dy) {
@@ -921,9 +922,9 @@ void QTreeView::scrollContentsBy(int dx, int dy)
 
         QStyleOptionViewItem option = viewOptions();
         QAbstractItemDelegate *delegate = itemDelegate();
-        const QTreeViewItem *items = d->items.constData();
-        QModelIndex current_index = items[current_item].index;
-        QModelIndex previous_index = items[previous_item].index;
+        const QVector<QTreeViewItem> items = d->items;
+        QModelIndex current_index = items.at(current_item).index;
+        QModelIndex previous_index = items.at(previous_item).index;
 
         int current_height = delegate->sizeHint(option, d->model, current_index).height();
         int previous_height = delegate->sizeHint(option, d->model, previous_index).height();
@@ -933,10 +934,16 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         dy = current_y - previous_y;
         if (current_item > previous_item)
             for (int i = previous_item; i < current_item; ++i)
-                dy -= delegate->sizeHint(option, d->model, items[i].index).height();
+                if (items.at(i).hidden)
+                    qDebug("item %d is hidden", i);
+                else
+                    dy -= delegate->sizeHint(option, d->model, items.at(i).index).height();
         else if (current_item < previous_item)
             for (int i = previous_item; i > current_item; --i)
-                dy += delegate->sizeHint(option, d->model, items[i].index).height();
+                if (items.at(i).hidden)
+                    qDebug("item %d is hidden", i);
+                else
+                    dy += delegate->sizeHint(option, d->model, items.at(i).index).height();
 
         verticalScrollBar()->repaint();
     }
@@ -1088,32 +1095,50 @@ void QTreeView::verticalScrollbarAction(int action)
     QAbstractItemDelegate *delegate = itemDelegate();
     QAbstractItemModel *model = d->model;
 
-    int factor = d->verticalFactor;
-    int value = verticalScrollBar()->value();
-    int item = value / factor;
-    int iheight = delegate->sizeHint(option, model, d->modelIndex(item)).height();
-    int above = (value % factor) * iheight;
-    int y = -(above / factor); // above the page
+    int verticalFactor = d->verticalFactor;
+    int scrollbarValue = verticalScrollBar()->value();
+    int viewItemIndex = scrollbarValue / verticalFactor;
+    int viewItemHeight = delegate->sizeHint(option, model, d->modelIndex(viewItemIndex)).height();
+    int aboveViewport = (scrollbarValue % verticalFactor) * viewItemHeight;
+    int y = -(aboveViewport / verticalFactor); // starting above the viewport
+
+    const QVector<QTreeViewItem> items = d->items;
 
     if (action == QScrollBar::SliderPageStepAdd) {
-        // go down to the bottom of the page
-        int h = d->viewport->height();
-        while (y < h && item < d->items.count())
-            y += delegate->sizeHint(option, model, d->modelIndex(item++)).height();
-        value = item * factor; // i is now the last item on the page
-        if (y > h && item)
-            value -= factor * (y - h) / delegate->sizeHint(option, model,
-                                                           d->modelIndex(item - 1)).height();
-        verticalScrollBar()->setSliderPosition(value);
+        // go down to the bottom of the viewport
+        int itemsCount = d->items.count();
+        int viewportHeight = d->viewport->height();
+        while(y < viewportHeight && viewItemIndex < itemsCount) {
+            QModelIndex index = d->modelIndex(viewItemIndex);
+            y += delegate->sizeHint(option, model, index).height();
+            viewItemIndex = d->below(viewItemIndex);
+        }
+        viewItemIndex = d->below(viewItemIndex);
+        // viewItemIndex is now the last item in the viewport
+        scrollbarValue = viewItemIndex * verticalFactor;
+        if (y > viewportHeight && viewItemIndex > 0) {
+            QModelIndex index = d->modelIndex(viewItemIndex - 1);
+            int hint = delegate->sizeHint(option, model, index).height();
+            scrollbarValue -= verticalFactor * (y - viewportHeight) / hint;
+        }
+        verticalScrollBar()->setSliderPosition(scrollbarValue);
     } else if (action == QScrollBar::SliderPageStepSub) {
         y += d->viewport->height();
-        // go up to the top of the page
-        while (y > 0 && item > 0)
-            y -= delegate->sizeHint(option, model, d->modelIndex(--item)).height();
-        value = item * factor; // i is now the first item in the page
-        if (y < 0)
-            value += factor * -y / delegate->sizeHint(option, model, d->modelIndex(item)).height();
-        verticalScrollBar()->setSliderPosition(value);
+        // go up to the top of the viewport
+        while (y > 0 && viewItemIndex > 0) {
+            viewItemIndex = d->above(viewItemIndex);
+            QModelIndex index = d->modelIndex(viewItemIndex);
+            int hint = delegate->sizeHint(option, model, index).height();
+            y -= hint;
+        }
+        // viewItemIndex  is now the first item in the viewport
+        scrollbarValue = viewItemIndex * verticalFactor;
+        if (y < 0) {
+            QModelIndex index = d->modelIndex(viewItemIndex);
+            int hint = delegate->sizeHint(option, model, index).height();
+            scrollbarValue += verticalFactor * -y / hint;
+        }
+        verticalScrollBar()->setSliderPosition(scrollbarValue);
     }
 }
 
