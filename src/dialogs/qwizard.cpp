@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#18 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#19 $
 **
 ** Implementation of something useful.
 **
@@ -129,7 +129,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 	     this, SLOT(help()) );
 
     QAccel * a = new QAccel( this, "arrow-key accel" );
-    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Left ), 
+    a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Left ),
 		    this, SLOT(back()) );
     a->connectItem( a->insertItem( Qt::ALT + Qt::Key_Right ),
 		    this, SLOT(next()) );
@@ -632,6 +632,8 @@ void QWizard::removePage( QWidget * page )
     int i = d->pages.size();
     while( --i >= 0 && d->pages[i] && d->pages[i]->w != page )
 	;
+    if ( i < 0 )
+	return;
     QWizardPrivate::Page * p = d->pages[i];
     d->pages.remove( i );
     delete p;
