@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#2 $
 **
 ** Implementation of QStringList
 **
@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qstringlist.h"
+#include "qdatastream.h"
 
 QDataStream &operator>>( QDataStream& s, QStringList& l )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#67 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#68 $
 **
 ** Definition of QObject class
 **
@@ -123,7 +123,7 @@ protected:
     const QObject *sender();
 
     virtual void initMetaObject();
-    static QMetaObject* staticMetaObject();
+    static void staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );

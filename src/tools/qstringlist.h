@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#1 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#2 $
 **
 ** Definition of QStringList class
 **
@@ -28,11 +28,12 @@
 
 #ifndef QT_H
 #include "qvaluelist.h"
-#include "qdatastream.h"
 #include "qstring.h"
 #endif // QT_H
 
 typedef QValueList<QString> QStringList;
+
+class QDataStream;
   
 Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
