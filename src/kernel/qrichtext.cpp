@@ -2141,8 +2141,8 @@ QString QTextDocument::plainText() const
     QTextParagraph *p = fParag;
     while ( p ) {
 	if ( !p->mightHaveCustomItems ) {
-	    // with FALSE we don't fix spaces (nbsp)
-	    s = p->string()->toString( FALSE );
+	    const QTextString *ts = p->string(); // workaround VC++ bug...
+	    s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
 	} else {
 	    for ( int i = 0; i < p->length() - 1; ++i ) {
 #ifndef QT_NO_TEXTCUSTOMITEM
