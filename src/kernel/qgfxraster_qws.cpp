@@ -58,7 +58,14 @@ typedef unsigned int __u32;
 #endif
 
 
-#ifdef __MIPSEL__
+#ifndef QT_NO_QWS_GFX_SPEED
+ #define QWS_EXPERIMENTAL_FASTPATH
+ #define GFX_INLINE inline
+#else
+ #define GFX_INLINE
+#endif
+
+#if defined(__MIPSEL__) || defined(QT_NO_QWS_GFX_SPEED)
 #define QWS_NO_WRITE_PACKING
 #endif
 
@@ -68,8 +75,6 @@ typedef double QuadByte;
 #else
 typedef long long QuadByte;
 #endif
-
-#define QWS_EXPERIMENTAL_FASTPATH
 
 #define QGfxRaster_Generic 0
 
@@ -227,8 +232,8 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 	int y = data->y - data->hoty;
 
 	// clipping
-	int startCol = x < 0 ? abs(x) : 0;
-	int startRow = y < 0 ? abs(y) : 0;
+	int startCol = x < 0 ? QABS(x) : 0;
+	int startRow = y < 0 ? QABS(y) : 0;
 	int endRow = y + data->height > height ? height - y : data->height;
 	int endCol = x + data->width > width ? width - x : data->width;
 
@@ -262,8 +267,8 @@ void QScreenCursor::saveUnder()
     int y = data->y - data->hoty;
 
     // clipping
-    int startRow = y < 0 ? abs(y) : 0;
-    int startCol = x < 0 ? abs(x) : 0;
+    int startRow = y < 0 ? QABS(y) : 0;
+    int startCol = x < 0 ? QABS(x) : 0;
     int endRow = y + data->height > height ? height - y : data->height;
     int endCol = x + data->width > width ? width - x : data->width;
 
@@ -302,8 +307,8 @@ void QScreenCursor::drawCursor()
     int y = data->y - data->hoty;
 
     // clipping
-    int startRow = y < 0 ? abs(y) : 0;
-    int startCol = x < 0 ? abs(x) : 0;
+    int startRow = y < 0 ? QABS(y) : 0;
+    int startCol = x < 0 ? QABS(x) : 0;
     int endRow = y + data->height > height ? height - y : data->height;
     int endCol = x + data->width > width ? width - x : data->width;
 
@@ -1043,7 +1048,7 @@ void QGfxRasterBase::setSourcePen()
 }
 
 // Convert between pixel values for different depths
-inline unsigned int QGfxRasterBase::get_value_32(
+GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
@@ -1141,7 +1146,7 @@ inline unsigned int QGfxRasterBase::get_value_32(
 }
 
 
-inline unsigned int QGfxRasterBase::get_value_16(
+GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
@@ -1242,7 +1247,7 @@ inline unsigned int QGfxRasterBase::get_value_16(
 }
 
 // ### 15 bpp support incomplete
-inline unsigned int QGfxRasterBase::get_value_15(
+GFX_INLINE unsigned int QGfxRasterBase::get_value_15(
 		       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
@@ -1823,8 +1828,8 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 #endif
     // Bresenham algorithm from Graphics Gems
 
-    int ax=abs(dx)*2;
-    int ay=abs(dy)*2;
+    int ax=QABS(dx)*2;
+    int ay=QABS(dy)*2;
     int sx=dx>0 ? 1 : -1;
     int sy=dy>0 ? 1 : -1;
     int x=x1;
@@ -2002,7 +2007,11 @@ inline void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char*
 	    *(myptr++) = pixel;
     } else if ( depth == 16 ) {
 	unsigned short int *myptr=(unsigned short int *)l;
-
+#ifdef QWS_NO_WRITE_PACKING
+	int w = x2-x1+1;
+	while ( w-- )
+	    *(myptr++) = pixel;
+#else
 	int frontadd;
 	int backadd;
 	int count;
@@ -2026,7 +2035,7 @@ inline void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char*
 	}
 	while ( backadd-- )
 	    *(myptr++)=pixel;
-
+#endif
     } else if ( depth == 8 ) {
 	unsigned char *myptr=l;
 	myptr+=x1;
@@ -2094,7 +2103,7 @@ inline void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char*
 
 
 template <const int depth, const int type>
-inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
+GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 						    unsigned char* l,
 						    unsigned char * srcdata,
 						    bool reverse)
@@ -2255,6 +2264,10 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    unsigned char *fun = (unsigned char *)&put;
 	    if(reverse) {
 		// 64-bit writes
+#ifdef QWS_NO_WRITE_PACKING
+		while ( w-- )
+		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
+#else
 		int frontadd;
 		int backadd;
 		int count;
@@ -2266,7 +2279,6 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		QuadByte dput;
 		fun=(unsigned char *)&dput;
 
-#ifndef QWS_NO_WRITE_PACKING
 		while ( backadd-- )
 		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
 
@@ -2282,10 +2294,14 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    *((QuadByte*)myptr) = dput;
 		    myptr -= 8;
 		}
-#endif
 		while ( frontadd-- )
 		    *(myptr--)=get_value_8(srcdepth,&srcdata,true);
+#endif
 	    } else {
+#ifdef QWS_NO_WRITE_PACKING
+		while ( w-- )
+		    *(myptr++)=get_value_8(srcdepth,&srcdata);
+#else
 		// 64-bit writes
 		int frontadd;
 		int backadd;
@@ -2299,7 +2315,6 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		while ( frontadd-- )
 		    *(myptr++)=get_value_8(srcdepth,&srcdata);
 
-#ifndef QWS_NO_WRITE_PACKING
 		while ( count-- ) {
 		    *(fun+0) = get_value_8(srcdepth,&srcdata);
 		    *(fun+1) = get_value_8(srcdepth,&srcdata);
@@ -2403,7 +2418,7 @@ inline void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 }
 
 template <const int depth, const int type>
-inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
+GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 						    unsigned char* l,
 						    unsigned char * srcdata,
 						    unsigned char * alphas)
@@ -3032,18 +3047,6 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 }
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::eraseRect ( int x,int y,int w,int h )
-{
-    QBrush oldbrush=cbrush;
-    QPen oldpen=cpen;
-    setBrush(QColor(200,200,200));
-    setPen(NoPen);
-    drawRect(x,y,w,h);
-    setBrush(oldbrush);
-    setPen(oldpen);
-}
-
-template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
 {
     if(optype)
@@ -3109,7 +3112,7 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
            to match the algoritm using this function
 
  */
-static inline unsigned char * find_pointer(unsigned char * base,int x,int y,
+static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
 					   int linestep,int & astat,unsigned char &
 					   ahold,bool is_bigendian)
 {
@@ -3165,66 +3168,50 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 
     int bytesPerPixel = depth/8;
     int bytesPerLine = linestep();
-    int bytesDy = abs(dy) * bytesPerLine;
+    int bytesDy = QABS(dy) * bytesPerLine;
     int bytesDx = dx * bytesPerPixel;
     unsigned char *src, *dest;
     bool plot=FALSE;
 
-    GFX_START(QRect(QMIN(rx,sx), QMIN(ry,sy), w+abs(dx)+1, h+abs(dy)+1))
+    GFX_START(QRect(QMIN(rx,sx), QMIN(ry,sy), w+QABS(dx)+1, h+QABS(dy)+1))
 
-    if (dy > 0)
-    {
-	for (int row = ry; row < ry + h; row++)
-	{
-	    if ( ! cr.contains( QPoint(rx,row) ) )
-		plot = inClip(rx,row,&cr);
-	    int x=rx;
-	    for (;;) {
-		int x2 = cr.right();
-		if ( x2 >= rx+w-1 ) {
-		    if (plot) {
-			dest = buffer + bytesPerLine * row + x * bytesPerPixel;
-			src = dest + bytesDy + bytesDx;
-			memmove(dest, src, (rx+w-x) * bytesPerPixel);
-		    }
-		    break;
-		} else {
-		    if (plot) {
-			dest = buffer + bytesPerLine * row + x * bytesPerPixel;
-			src = dest + bytesDy + bytesDx;
-			memmove(dest, src, (x2-x+1) * bytesPerPixel);
-		    }
-		    x=x2+1;
-		    plot=inClip(x,row,&cr,plot);
-		}
-	    }
-	}
+    int dr;
+    int row;
+    int tr;
+
+    if ( dy >= 0 ) {
+	dr = 1;
+	row = ry;
+	tr = ry + h;
+    } else {
+	dr = -1;
+	row = ry + h - 1;
+	tr = ry - 1;
+	bytesDy = -bytesDy;
     }
-    else
+
+    for ( ; row != tr; row += dr )
     {
-	for (int row = ry + h - 1; row >= ry; row--)
-	{
-	    if ( ! cr.contains( QPoint(rx,row) ) )
-		plot = inClip(rx,row,&cr);
-	    int x=rx;
-	    for (;;) {
-		int x2 = cr.right();
-		if ( x2 >= rx+w-1 ) {
-		    if (plot) {
-			dest = buffer + bytesPerLine * row + x * bytesPerPixel;
-			src = dest - bytesDy + bytesDx;
-			memmove(dest, src, (rx+w-x) * bytesPerPixel);
-		    }
-		    break;
-		} else {
-		    if (plot) {
-			dest = buffer + bytesPerLine * row + x * bytesPerPixel;
-			src = dest - bytesDy + bytesDx;
-			memmove(dest, src, (x2-x+1) * bytesPerPixel);
-		    }
-		    x=x2+1;
-		    plot=inClip(x,row,&cr,plot);
+	if ( ! cr.contains( QPoint(rx,row) ) )
+	    plot = inClip(rx,row,&cr);
+	int x=rx;
+	for (;;) {
+	    int x2 = cr.right();
+	    if ( x2 >= rx+w-1 ) {
+		if (plot) {
+		    dest = buffer + bytesPerLine * row + x * bytesPerPixel;
+		    src = dest + bytesDy + bytesDx;
+		    memmove(dest, src, (rx+w-x) * bytesPerPixel);
 		}
+		break;
+	    } else {
+		if (plot) {
+		    dest = buffer + bytesPerLine * row + x * bytesPerPixel;
+		    src = dest + bytesDy + bytesDx;
+		    memmove(dest, src, (x2-x+1) * bytesPerPixel);
+		}
+		x=x2+1;
+		plot=inClip(x,row,&cr,plot);
 	    }
 	}
     }
@@ -3398,8 +3385,8 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
     /* ???
     if (buffer_offset >= 0 && src_buffer_offset >= 0) {
 	cursRect = QRect( QMIN(rx,srcoffs.x()), QMIN(ry,srcoffs.y()),
-			QMAX(w, sw)+abs(rx - srcoffs.x())+1,
-			QMAX(h, sh)+abs(ry - srcoffs.y())+1 );
+			QMAX(w, sw)+QABS(rx - srcoffs.x())+1,
+			QMAX(h, sh)+QABS(ry - srcoffs.y())+1 );
     } else if (src_buffer_offset >= 0) {
 	cursRect = QRect(srcoffs.x(), srcoffs.y(), sw+1, sh+1);
     }

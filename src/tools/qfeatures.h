@@ -234,6 +234,12 @@
 /*! Saving of fonts */
 //#define QT_NO_QWS_SAVEFONTS
 
+/*!
+    Favour code size over graphics speed
+    <p>Smaller, slower code will be used for drawing operations.
+    <p>Only supported on Qt/Embedded.
+*/
+//#define QT_NO_QWS_GFX_SPEED
 
 /*!
     Drawing utility functions

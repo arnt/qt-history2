@@ -225,7 +225,6 @@ public:
     virtual void drawPoints( const QPointArray &,int,int );
     virtual void drawLine( int,int,int,int );
     virtual void drawRect( int,int,int,int );
-    virtual void eraseRect( int,int,int,int );
     virtual void drawPolyline( const QPointArray &,int,int );
     virtual void drawPolygon( const QPointArray &,bool,int,int );
     virtual void blt( int,int,int,int );

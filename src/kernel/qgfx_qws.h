@@ -176,7 +176,6 @@ public:
     virtual void moveTo( int,int )=0;
     virtual void lineTo( int,int )=0;
     virtual void drawLine( int,int,int,int )=0;
-    virtual void eraseRect ( int,int,int,int )=0;
     virtual void drawPolyline( const QPointArray &,int,int )=0;
 
     // Fill operations - these use the current source (pixmap,

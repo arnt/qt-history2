@@ -21,6 +21,7 @@
 #define QT_NO_QWS_VFB
 #define QT_NO_QWS_DEPTH_16
 #define QT_NO_QWS_DEPTH_32
+#define QT_NO_QWS_GFX_SPEED
 #define QT_NO_DNS
 #define QT_NO_NETWORKPROTOCOL
 #define QT_NO_COLORNAMES
