@@ -39,6 +39,14 @@
 # undef truncate
 #endif
 
+#ifndef QT_DLOPEN_OPENGL
+extern "C" {
+    Status XmuLookupStandardColormap( Display *dpy, int screen, VisualID visualid,
+				      unsigned int depth, Atom property,
+				      Bool replace, Bool retain );
+}
+#endif
+
 #ifdef QT_DLOPEN_OPENGL
 #include "qlibrary.h"
 #include "qgl_x11_p.h"
@@ -245,9 +253,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	if (!qt_XmuLookupStandardColormap)
 	    qFatal("Unable to resolve Xmu symbols - please check your Xmu library installation.");
 #define XmuLookupStandardColormap qt_XmuLookupStandardColormap
-#else
- 	Status XmuLookupStandardColormap( Display *dpy, int screen, VisualID visualid, unsigned int depth,
- 					  Atom property, Bool replace, Bool retain );
+
 #endif
 
 	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
