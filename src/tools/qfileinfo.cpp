@@ -559,9 +559,14 @@ bool QFileInfo::isDir() const
   Returns the file size in bytes, or 0 if the file does not exist or if
   the size is 0 or if the size cannot be fetched.
 */
-#if (QT_VERSION-0 >= 400)
+#ifdef QT_LARGE_FILE
+QIODevice::Offset QFileInfo::size() const
+{
+#error "large file support not yet implemented!"
+}
+#elif (QT_VERSION-0 >= 400)
 #error "QFileInfo::size() should return QIODevice::Offset instead of uint"
-#endif
+#else
 uint QFileInfo::size() const
 {
     if ( !fic || !cache )
@@ -571,6 +576,7 @@ uint QFileInfo::size() const
     else
 	return 0;
 }
+#endif
 
 /*!
   Returns the date and time when the file was created.
