@@ -79,7 +79,7 @@ struct UnicodeData {
         p.joining = QChar::OtherJoining;
         otherCase = 0;
         p.titleCaseDiffersFromUpper = false;
-        p.age = QChar::Unassigned;
+        p.age = QChar::Unicode_Unassigned;
         p.unused = 0;
         p.mirrorDiff = 0;
         p.caseDiff = 0;
@@ -275,7 +275,7 @@ static void readUnicodeData()
     if (!f.exists())
         qFatal("Couldn't find UnicodeData.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -327,9 +327,9 @@ static void readUnicodeData()
         }
         if (data.otherCase == 0)
             data.otherCase = codepoint;
-        if (QABS(codepoint - data.otherCase) > maxCaseDiff)
-            maxCaseDiff = QABS(codepoint - data.otherCase);
-        if (QABS(codepoint - data.otherCase) >= 0x8000)
+        if (qAbs(codepoint - data.otherCase) > maxCaseDiff)
+            maxCaseDiff = qAbs(codepoint - data.otherCase);
+        if (qAbs(codepoint - data.otherCase) >= 0x8000)
             qFatal("case diff not in range at codepoint %x: othercase=%x", codepoint, data.otherCase);
         data.p.caseDiff = data.otherCase - codepoint;
 
@@ -369,7 +369,7 @@ static void readBidiMirroring()
     if (!f.exists())
         qFatal("Couldn't find BidiMirroring.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -394,10 +394,10 @@ static void readBidiMirroring()
 
         UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
         d.mirroredChar = mirror;
-        if (QABS(codepoint-d.mirroredChar) > maxMirroredDiff) {
-            maxMirroredDiff = QABS(codepoint - d.mirroredChar);
+        if (qAbs(codepoint-d.mirroredChar) > maxMirroredDiff) {
+            maxMirroredDiff = qAbs(codepoint - d.mirroredChar);
         }
-        Q_ASSERT(QABS(codepoint - d.mirroredChar) < 0x8000);
+        Q_ASSERT(qAbs(codepoint - d.mirroredChar) < 0x8000);
         d.p.mirrorDiff = d.mirroredChar - codepoint;
         unicodeData.insert(codepoint, d);
     }
@@ -409,7 +409,7 @@ static void readArabicShaping()
     if (!f.exists())
         qFatal("Couldn't find ArabicShaping.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -451,7 +451,7 @@ static void readDerivedAge()
     if (!f.exists())
         qFatal("Couldn't find DerivedAge.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -480,7 +480,7 @@ static void readDerivedAge()
         if (cl.size() == 2)
             to = cl[1].toInt(&ok, 16);
 
-        QChar::UnicodeVersion age = QChar::Unassigned;
+        QChar::UnicodeVersion age = QChar::Unicode_Unassigned;
         QByteArray ba = l[1];
         if (ba == "1.1")
             age = QChar::Unicode_1_1;
@@ -496,7 +496,7 @@ static void readDerivedAge()
             age = QChar::Unicode_3_2;
         else if (ba == "4.0")
             age = QChar::Unicode_4_0;
-        Q_ASSERT(age != QChar::Unassigned);
+        Q_ASSERT(age != QChar::Unicode_Unassigned);
 
         for (int codepoint = from; codepoint <= to; ++codepoint) {
             UnicodeData d = unicodeData.value(codepoint, UnicodeData(codepoint));
@@ -513,7 +513,7 @@ static void readCompositionExclusion()
     if (!f.exists())
         qFatal("Couldn't find CompositionExclusions.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -571,7 +571,7 @@ static QByteArray createNormalizationCorrections()
     if (!f.exists())
         qFatal("Couldn't find NormalizationCorrections.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     QByteArray out;
 
@@ -652,7 +652,7 @@ static void readLineBreak()
     if (!f.exists())
         qFatal("Couldn't find LineBreak.txt");
 
-    f.open(QFile::IO_ReadOnly);
+    f.open(QFile::ReadOnly);
 
     while (!f.atEnd()) {
         QByteArray line;
@@ -721,7 +721,305 @@ static void readLineBreak()
     }
 }
 
+#if 0
+static QList<QByteArray> blockNames;
+struct BlockInfo
+{
+    int blockIndex;
+    int firstCodePoint;
+    int lastCodePoint;
+};
+static QList<BlockInfo> blockInfoList;
 
+static void readBlocks()
+{
+    QFile f("data/Blocks.txt");
+    if (!f.exists())
+        qFatal("Couldn't find Blocks.txt");
+
+    f.open(QFile::ReadOnly);
+
+    while (!f.atEnd()) {
+        QByteArray line = f.readLine();
+        line.resize(line.size() - 1);
+
+        int comment = line.indexOf("#");
+        if (comment >= 0)
+            line = line.left(comment);
+
+        line.replace(" ", "");
+
+        if (line.isEmpty())
+            continue;
+
+        int semicolon = line.indexOf(';');
+        Q_ASSERT(semicolon >= 0);
+        QByteArray codePoints = line.left(semicolon);
+        QByteArray blockName = line.mid(semicolon + 1);
+
+        int blockIndex = blockNames.indexOf(blockName);
+        if (blockIndex < 0) {
+            blockNames.append(blockName);
+            blockIndex = blockNames.indexOf(blockName);
+            Q_ASSERT(blockIndex >= 0);
+        }
+
+        int dotdot = codePoints.indexOf("..");
+        Q_ASSERT(dotdot >= 0);
+        bool unused;
+        int first = codePoints.left(dotdot).toInt(&unused, 16);
+        int last = codePoints.mid(dotdot + 2).toInt(&unused, 16);
+
+        BlockInfo blockInfo = { blockIndex, first, last };
+        blockInfoList.append(blockInfo);
+    }
+}
+#endif
+
+static QList<QByteArray> scriptNames;
+static QHash<int, int> scriptAssignment;
+static QHash<int, int> unicodeScriptHash;
+
+struct ExtraBlock {
+    int block;
+    QVector<int> vector;
+};
+
+static QList<ExtraBlock> extraBlockList;
+
+
+static void readScripts()
+{
+    scriptNames.append("UC_Common");
+
+    static const char *files[] = {
+        "data/ScriptsInitial.txt",
+        "data/Scripts.txt",
+        "data/ScriptsCorrections.txt"
+    };
+    enum { fileCount = sizeof(files) / sizeof(const char *) };
+
+    for (int i = 0; i < fileCount; ++i) {
+        QFile f(files[i]);
+        if (!f.exists())
+            qFatal("Couldn't find %s", files[i]);
+
+
+        f.open(QFile::ReadOnly);
+
+        while (!f.atEnd()) {
+            QByteArray line = f.readLine();
+            line.resize(line.size() - 1);
+
+            int comment = line.indexOf("#");
+            if (comment >= 0)
+                line = line.left(comment);
+
+            line.replace(" ", "");
+            line.replace("_", "");
+
+            if (line.isEmpty())
+                continue;
+
+            int semicolon = line.indexOf(';');
+            Q_ASSERT(semicolon >= 0);
+            QByteArray codePoints = line.left(semicolon);
+            QByteArray scriptName = line.mid(semicolon + 1);
+            scriptName.prepend("UC_");
+
+            int scriptIndex = scriptNames.indexOf(scriptName);
+            if (scriptIndex < 0) {
+                scriptNames.append(scriptName);
+                scriptIndex = scriptNames.indexOf(scriptName);
+                Q_ASSERT(scriptIndex >= 0);
+            }
+
+            int dotdot = codePoints.indexOf("..");
+            bool unused;
+            int first = -1, last = -1;
+            if (dotdot >= 0) {
+                first = codePoints.left(dotdot).toInt(&unused, 16);
+                last = codePoints.mid(dotdot + 2).toInt(&unused, 16);
+            } else {
+                first = codePoints.toInt(&unused, 16);
+            }
+
+            if (last != -1) {
+                for (int i = first; i <= last; ++i)
+                    scriptAssignment[i] = scriptIndex;
+            } else {
+                scriptAssignment[first] = scriptIndex;
+            }
+        }
+    }
+}
+
+
+static int unicodeScriptSentinel = 0;
+
+QByteArray createUnicodeScriptEnumDeclaration()
+{
+    static const char *specialScripts[] = {
+        "UC_Common",
+        "UC_Arabic",
+        "UC_Bengali",
+        "UC_Devanagari",
+        "UC_Gujarati",
+        "UC_Gurmukhi",
+        "UC_Hangul",
+        "UC_Hebrew",
+        "UC_Kannada",
+        "UC_Khmer",
+        "UC_Lao",
+        "UC_Malayalam",
+        "UC_Myanmar",
+        "UC_Oriya",
+        "UC_Sinhala",
+        "UC_Syriac",
+        "UC_Tamil",
+        "UC_Telugu",
+        "UC_Thaana",
+        "UC_Thai",
+        "UC_Tibetan"
+    };
+    const int specialScriptsCount = sizeof(specialScripts) / sizeof(const char *);
+
+    // generate script enum
+    QByteArray declaration = "enum {\n    UC_Common";
+    for (int i = 1; i < scriptNames.size(); ++i) {
+        QByteArray scriptName = scriptNames.at(i);
+        // does the script require special processing?
+        bool special = false;
+        for (int s = 0; !special && s < specialScriptsCount; ++s) {
+            if (scriptName == specialScripts[s])
+                special = true;
+        }
+        if (!special) {
+            scriptName += " = UC_Common";
+            unicodeScriptHash[i] =  0; // alias for 'UC_Common'
+        } else {
+            unicodeScriptHash[i] = i;
+        }
+
+        declaration += ",\n    ";
+        declaration += scriptName;
+    }
+    declaration += "\n};\n\n";
+
+    unicodeScriptSentinel = ((scriptNames.size() + 16) / 32) * 32; // a multiple of 32
+    declaration += "enum { UnicodeScriptSentinel = ";
+    declaration += QByteArray::number(unicodeScriptSentinel);
+    declaration += " };\n\n";
+    return declaration;
+}
+
+QByteArray createUnicodeScriptTableDeclaration()
+{
+    Q_ASSERT(unicodeScriptSentinel > 0);
+
+    QByteArray declaration;
+
+    const int unicodeBlockCount = 512; // number of unicode blocks
+    const int unicodeBlockSize = 128; // size of each block
+    declaration = "enum { UnicodeBlockCount = ";
+    declaration += QByteArray::number(unicodeBlockCount);
+    declaration += " }; // number of unicode blocks\n";
+    declaration += "enum { UnicodeBlockSize = ";
+    declaration += QByteArray::number(unicodeBlockSize);
+    declaration += " }; // size of each block\n\n";
+
+    // block table
+    declaration += "const unsigned char uc_scripts[] = {\n";
+
+    for (int i = 0; i < unicodeBlockCount; ++i) {
+        int block = (((i << 7) & 0xff00) | ((i & 1) * 0x80));
+        int blockAssignment[unicodeBlockSize];
+        for (int x = 0; x < unicodeBlockSize; ++x) {
+            int codePoint = (i << 7) | x;
+            blockAssignment[x] = scriptAssignment.value(codePoint, 0);
+        }
+        bool allTheSame = true;
+        const int originalScript = blockAssignment[0];
+        const int unicodeScript = unicodeScriptHash.value(originalScript);
+        for (int x = 1; allTheSame && x < unicodeBlockSize; ++x) {
+            const int s = unicodeScriptHash.value(blockAssignment[x]);
+            if (s != unicodeScript)
+                allTheSame = false;
+        }
+
+        if (allTheSame) {
+            declaration += "    ";
+            declaration += scriptNames.value(originalScript);
+            declaration += ", /* U+";
+            declaration += QByteArray::number(block, 16).rightJustified(4, '0');
+            declaration += '-';
+            declaration +=
+                QByteArray::number(block + unicodeBlockSize - 1, 16).rightJustified(4, '0');
+            declaration += " */\n";
+        } else {
+            const int value = extraBlockList.size() + unicodeScriptSentinel;
+            const int offset =
+                ((value - unicodeScriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
+
+            declaration += "    ";
+            declaration += QByteArray::number(value);
+            declaration += ", /* U+";
+            declaration += QByteArray::number(block, 16).rightJustified(4, '0');
+            declaration += '-';
+            declaration +=
+                QByteArray::number(block + unicodeBlockSize - 1, 16).rightJustified(4, '0');
+            declaration += " at offset ";
+            declaration += QByteArray::number(offset);
+            declaration += " */\n";
+
+            ExtraBlock extraBlock;
+            extraBlock.block = block;
+            extraBlock.vector.resize(unicodeBlockSize);
+            for (int x = 0; x < unicodeBlockSize; ++x)
+                extraBlock.vector[x] = blockAssignment[x];
+
+            extraBlockList.append(extraBlock);
+        }
+    }
+
+    for (int i = 0; i < extraBlockList.size(); ++i) {
+        const int value = i + unicodeScriptSentinel;
+        const int offset =
+            ((value - unicodeScriptSentinel) * unicodeBlockSize) + unicodeBlockCount;
+        const ExtraBlock &extraBlock = extraBlockList.at(i);
+        const int block = extraBlock.block;
+
+        declaration += "\n\n    /* U+";
+        declaration += QByteArray::number(block, 16).rightJustified(4, '0');
+        declaration += '-';
+        declaration +=
+            QByteArray::number(block + unicodeBlockSize - 1, 16).rightJustified(4, '0');
+        declaration += " at offset ";
+        declaration += QByteArray::number(offset);
+        declaration += " */\n";
+
+        for (int x = 0; x < extraBlock.vector.size(); ++x) {
+            const int o = extraBlock.vector.at(x);
+
+            declaration += "    ";
+            declaration += scriptNames.value(o);
+            if (x < extraBlock.vector.size() - 1 || i < extraBlockList.size() - 1)
+                declaration += ',';
+            declaration += " /* U+";
+            declaration +=
+                QByteArray::number(block + x, 16).rightJustified(4, '0');
+            declaration += " */\n";
+        }
+    }
+    declaration += "};\n\n";
+
+    qDebug("createUnicodeScriptTableDeclaration: table size is %d bytes",
+           unicodeBlockCount + (extraBlockList.size() * unicodeBlockSize));
+
+    return declaration;
+}
+
+#if 0
 static void dump(int from, int to)
 {
     for (int i = from; i <= to; ++i) {
@@ -735,6 +1033,7 @@ static void dump(int from, int to)
     }
     qDebug(" ");
 }
+#endif
 
 struct PropertyBlock {
     PropertyBlock() { index = -1; }
@@ -1130,7 +1429,7 @@ static QByteArray createLigatureInfo()
             QList<Ligature> l = ligatureHashes.value(uc);
             if (!l.isEmpty()) {
                 b.decompositionPositions.append(tableIndex);
-                qBubbleSort(l);
+                qHeapSort(l);
 
                 ligatures.append(l.size());
                 for (int i = 0; i < l.size(); ++i) {
@@ -1227,23 +1526,28 @@ int main(int, char **)
     readDerivedAge();
     readCompositionExclusion();
     readLineBreak();
+    // readBlocks();
+    readScripts();
 
     computeUniqueProperties();
     QByteArray properties = createPropertyInfo();
     QByteArray compositions = createCompositionInfo();
     QByteArray ligatures = createLigatureInfo();
     QByteArray normalizationCorrections = createNormalizationCorrections();
+    QByteArray unicodeScriptEnumDeclaration = createUnicodeScriptEnumDeclaration();
+    QByteArray unicodeScriptTableDeclaration = createUnicodeScriptTableDeclaration();
 
     QFile f("../../src/core/tools/qunicodedata.cpp");
-    f.open(IO_WriteOnly|IO_Truncate);
+    f.open(QFile::WriteOnly|QFile::Truncate);
 
     QByteArray header =
         "/****************************************************************************\n"
         "**\n"
         "** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.\n"
         "**\n"
-        "** This file is part of the kernel module of the Qt GUI Toolkit.\n"
-        "** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE\n"
+        "** This file is part of the $MODULE$ of the Qt Toolkit.\n"
+        "**\n"
+        "** $LICENSE$\n"
         "**\n"
         "** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE\n"
         "** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.\n"
@@ -1252,11 +1556,13 @@ int main(int, char **)
 
         "/* This file is autogenerated from the Unicode 4.0.1 database. Do not edit */\n\n";
 
-    f.writeBlock(header.data(), header.length());
-    f.writeBlock(properties.data(), properties.length());
-    f.writeBlock(compositions.data(), compositions.length());
-    f.writeBlock(ligatures.data(), ligatures.size());
-    f.writeBlock(normalizationCorrections.data(), normalizationCorrections.size());
+    f.write(header.data(), header.length());
+    f.write(properties.data(), properties.length());
+    f.write(compositions.data(), compositions.length());
+    f.write(ligatures.data(), ligatures.size());
+    f.write(normalizationCorrections.data(), normalizationCorrections.size());
+    f.write(unicodeScriptEnumDeclaration, unicodeScriptEnumDeclaration.size());
+    f.write(unicodeScriptTableDeclaration, unicodeScriptTableDeclaration.size());
 
     qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);
 #if 0
