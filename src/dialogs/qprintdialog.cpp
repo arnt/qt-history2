@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -58,6 +58,7 @@
 #include "qapplication.h"
 #include "qheader.h"
 #include "qcleanuphandler.h"
+#include "qstyle.h"
 
 #include "qstring.h"
 #include "qregexp.h"
