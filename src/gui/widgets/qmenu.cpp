@@ -67,7 +67,7 @@ public:
     void actionEvent(QActionEvent *e)
     {
         QMenu::actionEvent(e);
-        resize(sizeHint());
+        resize(sizeHint()+contentsMarginSize());
     }
 };
 #include "qmenu.moc"
@@ -761,7 +761,7 @@ void QMenu::setTearOffEnabled(bool b)
 
     d->itemsDirty = true;
     if(isVisible())
-        resize(sizeHint());
+        resize(sizeHint()+contentsMarginSize());
 }
 
 bool QMenu::isTearOffEnabled() const
@@ -786,7 +786,7 @@ void QMenu::setCheckable(bool b)
 
     d->itemsDirty = true;
     if(isVisible())
-        resize(sizeHint());
+        resize(sizeHint()+contentsMarginSize());
 }
 
 bool QMenu::isCheckable() const
@@ -911,7 +911,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
     d->updateActions();
     QPoint pos = p;
-    QSize size = sizeHint();
+    QSize size = sizeHint() + contentsMarginSize();;
     QRect screen = QApplication::desktop()->geometry();
     const int desktopFrame = style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, this);
     if(d->ncols != 1) {
@@ -1275,7 +1275,7 @@ void QMenu::changeEvent(QEvent *e)
         d->itemsDirty = 1;
         setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
         if(isVisible())
-            resize(sizeHint());
+            resize(sizeHint() + contentsMarginSize());
         if(style().styleHint(QStyle::SH_Menu_Scrollable, this)) {
             delete d->scroll;
             d->scroll = 0;
@@ -1664,7 +1664,7 @@ void QMenu::internalDelayedPopup()
         d->activeMenu->setParent(this, d->activeMenu->getWFlags());
 
     bool on_left = false;     //find "best" position
-    const QSize menuSize(d->activeMenu->sizeHint());
+    const QSize menuSize(d->activeMenu->sizeHint() + d->activeMenu->contentsMarginSize());
     if(QApplication::reverseLayout()) {
         on_left = true;
         QMenu *caused = qt_cast<QMenu*>(d->causedPopup);
