@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#51 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#52 $
 **
 ** Definition of QComboBox class
 **
@@ -86,6 +86,8 @@ public:
 
 public slots:
     void	clearValidator();
+    void	clearEdit();
+    void	setEditText( const char * );
 
 signals:
     void	activated( int index );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#122 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#122 $");
 
 
 /*!
@@ -75,7 +75,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $");
   Read-only combo boxes can contain pixmaps as well as texts; the
   insert() and changeItem() functions are suitably overloaded.  If you
   try to insert a pixmap in a read-write combo box, QComboBox simply
-  ignores you.
+  ignores you.  For read-write combo boxes, the function clearEdit()
+  is provided, to clear the displayed string without changing the
+  combo box' contents.
 
   A combo box emits two signals, activated() and highlighted(), when a
   new item has been activated (selected) or highlighted (set to
@@ -101,10 +103,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $");
   A combo box has a default focusPolicy() of \c TabFocus, i.e. it will
   not grab focus if clicked.  This differs from both Windows and Motif.
 
-  <img src=qcombo1-m.gif>(Motif 1, read-only)<br clear=all>
-  <img src=qcombo2-m.gif>(Motif 2, read-write)<br clear=all>
-  <img src=qcombo3-m.gif>(Motif 2, read-only)<br clear=all>
-  <img src=qcombo1-w.gif>(Windows style)
+  <img src="qcombo1-m.gif">(Motif 1, read-only)<br clear=all>
+  <img src="qcombo2-m.gif">(Motif 2, read-write)<br clear=all>
+  <img src="qcombo3-m.gif">(Motif 2, read-only)<br clear=all>
+  <img src="qcombo1-w.gif">(Windows style)
 */
 
 
@@ -737,7 +739,7 @@ QSize QComboBox::sizeHint() const
 
     int extraW = 20;
     int maxW = 5 * fm.height() + 18;;
-    int maxH = QMAX( fm.height(), style()==WindowsStyle ? 16 : 18 );
+    int maxH = QMAX( fm.height(), 12 );
 
     for( i = 0; i < count(); i++ ) {
 	tmp = text( i );
@@ -759,6 +761,9 @@ QSize QComboBox::sizeHint() const
 	if ( h > maxH )
 	    maxH = h;
     }
+    if ( maxH <= 16 && parentWidget() &&
+	 parentWidget()->inherits( "QToolBar" ) )
+	maxH = 12;
     return QSize( 4 + 4 + maxW + extraW, maxH + 5 + 5 );
 }
 
@@ -1279,51 +1284,15 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	return TRUE;
     else if ( object == d->ed ) {
 	if ( event->type() == Event_KeyPress ) {
-	    QKeyEvent * e = (QKeyEvent *) event;
-	    int c;
-	    if ( d->usingListBox &&
-		 (e->key() == Key_Up ||
-		  (style() == MotifStyle && e->key() == Key_Left && !d->ed)) ){
-		c = currentItem();
-		if ( c > 0 )
-		    setCurrentItem( c-1 );
-		else
-		    setCurrentItem( count()-1 );
-		e->accept();
-	    } else if ( d->usingListBox &&
-			(e->key() == Key_Down ||
-			 (style() == MotifStyle && e->key() == Key_Right &&
-			  !d->ed)) ) {
-		c = currentItem();
-		if ( ++c < count() )
-		    setCurrentItem( c );
-		else
-		    setCurrentItem( 0 );
-		e->accept();
-	    } else if ( style() == MotifStyle &&
-			!d->usingListBox &&
-			e->key() == Key_Space ) {
-		e->accept();
-		popup();
-		return FALSE;
-	    } else {
-		return FALSE;
-	    }
-
-	    c = currentItem();
-	    emit highlighted( c );
-	    if ( text( c ) )
-		emit activated( text( c ) );
-	    emit activated( c );
-	    return TRUE;
+	    keyPressEvent( (QKeyEvent *)event );
+	    return ((QKeyEvent *)event)->isAccepted();
+	} else if ( event->type() == Event_KeyRelease ) {
+	    keyReleaseEvent( (QKeyEvent *)event );
+	    return ((QKeyEvent *)event)->isAccepted();
 	} else if ( (event->type() == Event_FocusIn ||
 		     event->type() == Event_FocusOut ) ) {
 	    // to get the focus indication right
 	    update();
-	} else if ( event->type() == Event_MouseButtonPress &&
-		    !hasFocus() && !d->ed->hasFocus() &&
-		    (focusPolicy() & ClickFocus) ) {
-	    setFocus();
 	}
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
@@ -1648,4 +1617,40 @@ void QComboBox::setListBox( QListBox * newListBox )
 QListBox * QComboBox::listBox() const
 {
     return d && d->usingListBox ? d->listBox : 0;
+}
+
+
+/*!  Clears the line edit without changing the combo's contents.  Does
+  nothing if the combo isn't editable.
+
+  This is particularly handy when using a combo box as a line edit
+  with history.  For example you can connect the combo's activated()
+  signal to clearEdit() in order to present the user with a new, empty
+  line as soon as return is pressed.
+  
+  \sa setEditText()
+*/
+
+void QComboBox::clearEdit()
+{
+    if ( d && d->ed )
+	d->ed->clear();
+}
+
+
+/*!  Sets the text in the embedded line edit to \a newText without
+  changing the combo's contents.  Does nothing if the combo isn't
+  editable.
+  
+  This is useful e.g. for providing a good starting point for the
+  user's editing and entering the change in the combo only when the
+  user presses enter.
+  
+  \sa clearEditText() insertItem()
+*/
+
+void QComboBox::setEditText( const char * newText )
+{
+    if ( d && d->ed )
+	d->ed->setText( newText );
 }
