@@ -756,7 +756,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 			continue;
 		}
 
-		ts << makeIndent( indent ) << "<property name=\"" << fake.key() << "\">" << endl;
+		ts << makeIndent( indent ) << "<property name=\"" << fake.key() << "\" stdset=\"0\">" << endl;
 		indent++;
 		saveProperty( w, fake.key(), *fake, (*fake).type(), ts, indent );
 		indent--;
