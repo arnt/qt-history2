@@ -1997,7 +1997,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	return file0;
     QString key = file0;
     if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix)
-	key.prepend(in_d + "--" + out_d + "--" + QString::number(force_fix) + "-");
+	key.prepend(in_d + "--" + out_d + "--" + QString::number((int)force_fix) + "-");
     if(fileFixed.contains(key)) 
 	return fileFixed[key];
 
