@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#86 $
+# $Id: //depot/qt/main/src/Makefile#87 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -28,8 +28,24 @@ qtmain-release: NMakefile.qtmain-release
 
 NMakefile.qtmain-debug: qtmain.pro
 	tmake qtmain.pro -o NMakefile.qtmain-debug \
-		"CONFIG+=debug" "OBJECTS_DIR=obj/debug"
+		"CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
 
 NMakefile.qtmain-release: qtmain.pro
 	tmake qtmain.pro -o NMakefile.qtmain-release \
-		"CONFIG+=release" "OBJECTS_DIR=obj/release"
+		"CONFIG+=release" "OBJECTS_DIR=.obj/release"
+
+qtmain-borland-debug: NMakefile.qtmain-borland-debug
+	bmake -f NMakefile.qtmain-borland-debug
+
+qtmain-borland-release: NMakefile.qtmain-borland-release
+	bmake -f NMakefile.qtmain-borland-release
+
+NMakefile.qtmain-borland-debug: qtmain.pro Makefile
+	tmake "TMAKEPATH=\tmake\lib\win32-borland" \
+		qtmain.pro -o NMakefile.qtmain-borland-debug \
+		"CONFIG+=debug" "OBJECTS_DIR=borland/debug"
+
+NMakefile.qtmain-borland-release: qtmain.pro Makefile
+	tmake "TMAKEPATH=\tmake\lib\win32-borland" \
+		qtmain.pro -o NMakefile.qtmain-borland-release \
+		"CONFIG+=release" "OBJECTS_DIR=borland/release"
