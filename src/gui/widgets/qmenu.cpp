@@ -75,7 +75,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     if(!itemsDirty)
         return actionItems;
 
-    QList<QMenuAction*> ret;
+    QList<QMenuAction*> actionList;
     QList<QAction*> items = q->actions();
     int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuHMargin, q),
@@ -153,7 +153,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
             QMenuAction *item = new QMenuAction;
             item->action = action;
             item->rect = QRect(0, 0, sz.width(), sz.height());
-            ret.append(item);
+            actionList.append(item);
         }
     }
     if(tabWidth)
@@ -162,8 +162,8 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     //calculate position
     int x = hmargin;
     y = vmargin;
-    for(int i = 0; i < ret.count(); i++) {
-        QMenuAction *action = ret.at(i);
+    for(int i = 0; i < actionList.count(); i++) {
+        QMenuAction *action = actionList.at(i);
         if(!scroll &&
            y+action->rect.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
             ncols--;
@@ -176,7 +176,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         action->rect.setWidth(max_column_width); //uniform width
         y += action->rect.height();
     }
-    return ret;
+    return actionList;
 }
 
 void QMenuPrivate::updateActions()
@@ -681,38 +681,41 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
     \overload
 
     This convenience function creates a new action with the text \a
-    text. The action's triggered() signal is connected to the \a
-    receiver's \a member slot. The function adds the newly created
-    action to the menu's list of actions and returns it.
+    text and an optional shortcut \a shortcut. The action's
+    triggered() signal is connected to the \a receiver's \a member
+    slot. The function adds the newly created action to the menu's
+    list of actions and returns it.
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member)
+QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut)
 {
-    QAction *ret = new QAction(text, this);
-    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
-    addAction(ret);
-    return ret;
+    QAction *action = new QAction(text, this);
+    action->setShortcut(shortcut);
+    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    addAction(action);
+    return action;
 }
 
 /*!
     \overload
 
     This convenience function creates a new action with an \a icon and
-    some \a text.  The action's triggered() signal is connected to the
-    \a member slot of the \a receiver object. The function adds the
-    newly created action to the menu's list of actions, and returns
-    it.
+    some \a text and an optional shortcut \a shortcut. The action's
+    triggered() signal is connected to the \a member slot of the \a
+    receiver object. The function adds the newly created action to the
+    menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver,
-                          const char* member)
+                          const char* member, const QKeySequence &shortcut)
 {
-    QAction *ret = new QAction(icon, text, this);
-    QObject::connect(ret, SIGNAL(triggered()), receiver, member);
-    addAction(ret);
-    return ret;
+    QAction *action = new QAction(icon, text, this);
+    action->setShortcut(shortcut);
+    QObject::connect(action, SIGNAL(triggered()), receiver, member);
+    addAction(action);
+    return action;
 }
 
 /*!
@@ -723,10 +726,10 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 */
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    addAction(ret);
-    return ret;
+    QAction *action = new QAction(text, this);
+    action->setMenu(menu);
+    addAction(action);
+    return action;
 }
 
 /*!
@@ -741,11 +744,11 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 */
 QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    ret->setIcon(icon);
-    addAction(ret);
-    return ret;
+    QAction *action = new QAction(text, this);
+    action->setMenu(menu);
+    action->setIcon(icon);
+    addAction(action);
+    return action;
 }
 
 /*!
@@ -758,10 +761,10 @@ QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
 */
 QAction *QMenu::addSeparator()
 {
-    QAction *ret = new QAction(this);
-    ret->setSeparator(true);
-    addAction(ret);
-    return ret;
+    QAction *action = new QAction(this);
+    action->setSeparator(true);
+    addAction(action);
+    return action;
 }
 
 /*!
@@ -774,10 +777,10 @@ QAction *QMenu::addSeparator()
 */
 QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    insertAction(before, ret);
-    return ret;
+    QAction *action = new QAction(text, this);
+    action->setMenu(menu);
+    insertAction(before, action);
+    return action;
 }
 
 /*!
@@ -792,11 +795,11 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 */
 QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(text, this);
-    ret->setMenu(menu);
-    ret->setIcon(icon);
-    insertAction(before, ret);
-    return ret;
+    QAction *action = new QAction(text, this);
+    action->setMenu(menu);
+    action->setIcon(icon);
+    insertAction(before, action);
+    return action;
 }
 
 /*!
@@ -809,10 +812,10 @@ QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString 
 */
 QAction *QMenu::insertSeparator(QAction *before)
 {
-    QAction *ret = new QAction(this);
-    ret->setSeparator(true);
-    insertAction(before, ret);
-    return ret;
+    QAction *action = new QAction(this);
+    action->setSeparator(true);
+    insertAction(before, action);
+    return action;
 }
 
 /*!
@@ -1166,10 +1169,10 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
     popup(p, action);
     qApp->enter_loop();
 
-    QAction *ret = d->syncAction;
+    action = d->syncAction;
     d->syncAction = 0;
     d->sync = 0;
-    return ret;
+    return action;
 }
 
 /*!
