@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>MainWindow</class>
 <widget class="QMainWindow">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>812</width>
-            <height>596</height>
+            <height>599</height>
         </rect>
     </property>
     <property name="caption">
@@ -66,6 +66,9 @@
     </property>
     <item text="&amp;File" name="PopupMenu">
         <action name="FileNewGroup"/>
+        <item text="New" name="FileNewGroup_2" accel="">
+            <action name="actionNewWindow"/>
+        </item>
         <separator/>
         <action name="actionFileClose"/>
     </item>
@@ -187,6 +190,9 @@
             <cstring>actionFileClose</cstring>
         </property>
         <property name="text">
+            <string>Close</string>
+        </property>
+        <property name="menuText">
             <string>C&amp;lose</string>
         </property>
     </action>
@@ -345,9 +351,6 @@
         <slot>newWindow()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
-</includes>
 <forwards>
     <forward>class QProgressBar</forward>
 </forwards>
