@@ -201,11 +201,17 @@ public:
 	WMouseNoMask		= 0x00200000,
 	WStaticContents		= 0x00400000,
 	WRepaintNoErase		= 0x00800000,
+#ifdef Q_WS_X11
 	WX11BypassWM		= 0x01000000,
+	WWinOwnDC		= 0x00000000,
+#else
+	WX11BypassWM		= 0x00000000,
+	WWinOwnDC		= 0x01000000,
+#endif
 	WGroupLeader 		= 0x02000000,
 	WShowModal 	       	= 0x04000000,
 	WNoMousePropagation	= 0x08000000,
-	WWinOwnDC		= 0x10000000
+	WSubWindow              = 0x10000000
 #ifndef QT_NO_COMPAT
 	,
 	WNorthWestGravity	= WStaticContents,

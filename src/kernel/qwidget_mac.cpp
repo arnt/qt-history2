@@ -1295,9 +1295,14 @@ void QWidget::erase( const QRegion& reg )
 	    xoff = x();
 	    yoff = y();
 	} else if(backgroundOrigin() == QWidget::WindowOrigin ) {
-	    QPoint mp(posInWindow(this));
-	    xoff = mp.x();
-	    yoff = mp.y();
+	    QWidget *topl = widget;
+	    do {
+		if(topl->isTopLevel() || topl->testWFlags(WSubWindow))
+		    break;
+	    } while((topl = topl->parentWidget(TRUE)));
+	    QPoint p = widget->mapTo( topl, QPoint(0,0) );
+	    xoff = p.x();
+	    yoff = p.y();
 	}
     }
 

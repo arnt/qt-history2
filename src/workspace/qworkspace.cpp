@@ -1271,7 +1271,7 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose | WNoMousePropagation )
+	      WStyle_Customize | WStyle_NoBorder  | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
     widgetResizeHandler->setMovingEnabled( FALSE );

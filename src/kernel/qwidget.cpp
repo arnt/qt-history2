@@ -3135,7 +3135,7 @@ void QWidget::move( int x, int y )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() &&
+		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
 		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
@@ -3173,7 +3173,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isHidden() && !widget->isTopLevel() &&
+		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) && 
 		     widget->backgroundOrigin() == WindowOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }

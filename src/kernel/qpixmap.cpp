@@ -534,7 +534,12 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 		    yofs += widget->y();
 		    break;
 		case QWidget::WindowOrigin: {
-		    QPoint p = widget->mapTo( widget->topLevelWidget(), QPoint(0,0) );
+		    const QWidget *topl = widget;
+		    do {
+			if(topl->isTopLevel() || topl->testWFlags(Qt::WSubWindow))
+			    break;
+		    } while((topl = topl->parentWidget(TRUE)));
+		    QPoint p = widget->mapTo( ((QWidget *)topl), QPoint(0,0) );
 		    xofs += p.x();
 		    yofs += p.y();
 		    } break;
