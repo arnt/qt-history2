@@ -72,25 +72,25 @@ tools kernel widgets dialogs: dodepend FORCE
 	mv -f $@/*.o $(OBJDIR)/$@
 
 static:
-	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/static/*/*.o
 	ranlib $(STATICTARGET)
 
 staticdbg:
-	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
 	/bin/rm -f $(STATICTARGET)
 	ar q $(STATICTARGET) obj/staticdbg/*/*.o
 	ranlib $(STATICTARGET)
 
 shared:
-	$(MAKE) lib 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
 		obj/shared/*/*.o -lX11 -lgcc -lc
 
 shareddbg:
-	$(MAKE) lib 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
+	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
 	/bin/rm -f $(SHAREDTARGET)
 	$(CC) -shared -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
 		obj/shareddbg/*/*.o -lX11 -lgcc -lc
