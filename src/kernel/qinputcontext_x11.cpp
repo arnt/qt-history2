@@ -225,7 +225,14 @@ QInputContext::QInputContext(QWidget *widget)
     XVaNestedList preedit_attr = 0;
     XIMCallback startcallback, drawcallback, donecallback, caretcallback;
 
-    setXFontSet(0);
+    int missCount;
+    char** missList;
+    char* defStr;
+    fontset = XCreateFontSet(QPaintDevice::x11AppDisplay(), "-*-fixed-*--14-*",
+			     &missList, &missCount, &defStr);
+    if(missCount > 0)
+	XFreeStringList(missList);
+    font = QApplication::font();
 
     if (qt_xim_style & XIMPreeditArea) {
 	rect.x = 0;
@@ -400,15 +407,16 @@ void QInputContext::setXFontSet(QFont *f)
     char** missList;
     char* defStr;
 
-    if (f && font == *f) // nothing to do
+    if ( ( f && font == *f) || ( font == QApplication::font() ) ) // nothing to do
 	return;
 
     if (!f && fontset) // save the server roundtrip
         return;
 
-    if (fontset)
+    if (fontset) {
 	XFreeFontSet(QPaintDevice::x11AppDisplay(),
 		     fontset);
+    }
 
     if (f) {
 #if defined(QT_NO_XFTFREETYPE)
@@ -431,9 +439,13 @@ void QInputContext::setXFontSet(QFont *f)
 	fontset = XCreateFontSet(dpy, rawName.latin1(),
 				 &missList, &missCount, &defStr);
 #endif // !QT_NO_XFTFREETYPE
-    } else
+
+	font = *f;
+    } else {
 	fontset = XCreateFontSet(dpy, "-*-fixed-*--14-*",
 				 &missList, &missCount, &defStr);
+	font = QApplication::font();
+    }
 
     if(missCount > 0)
 	XFreeStringList(missList);
