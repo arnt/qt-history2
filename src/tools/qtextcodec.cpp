@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#54 $
 **
 ** Implementation of QTextCodec class
 **
@@ -147,9 +147,9 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
   The abstract virtual functions describe the encoder to the
   system and the coder is used as required in the different
-  text formats supported QTextStream and, under X11 for the
+  text file formats supported QTextStream and, under X11 for the
   locale-specific character input and output (under Windows NT
-  codecs are not needed for user I/O since the system works
+  codecs are not needed for GUI I/O since the system works
   with Unicode already).
 
   More recently created QTextCodec objects take precedence
