@@ -52,10 +52,6 @@
 #include <qregexp.h>
 #include <qdir.h>
 
-#if defined(Q_OS_WIN32)
-Qt::WindowsVersion qt_winver;
-#endif
-
 extern int line_count;
 extern "C" void yyerror(const char *foo)
 {
