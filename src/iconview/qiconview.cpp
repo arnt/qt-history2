@@ -1910,98 +1910,66 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 	return;
     }
 #endif
-    // ### get rid of code duplication
-    if ( view->itemTextPos() == QIconView::Bottom ) {
-	int w = ( pixmap() ? pixmap() : unknown_icon )->width();
+    bool textOnBottom = ( view->itemTextPos() == QIconView::Bottom );
+    int dim;
+    if ( textOnBottom )
+	dim = ( pixmap() ? pixmap() : unknown_icon)->width();
+    else
+	dim = ( pixmap() ? pixmap() : unknown_icon)->height();
+    if ( isSelected() ) {
+	QPixmap *pix = pixmap() ? pixmap() : unknown_icon;
+	if ( pix && !pix->isNull() ) {
+	    QPixmap *buffer = get_qiv_buffer_pixmap( pix->size() );
+	    QBitmap mask = view->mask( pix );
 
-	if ( isSelected() ) {
-	    QPixmap *pix = pixmap() ? pixmap() : unknown_icon;
-	    if ( pix && !pix->isNull() ) {
-		QPixmap *buffer = get_qiv_buffer_pixmap( pix->size() );
-		QBitmap mask = view->mask( pix );
-
-		QPainter p2( buffer );
-		p2.fillRect( pix->rect(), white );
-		p2.drawPixmap( 0, 0, *pix );
-		p2.end();
-		buffer->setMask( mask );
-		p2.begin( buffer );
+	    QPainter p2( buffer );
+	    p2.fillRect( pix->rect(), white );
+	    p2.drawPixmap( 0, 0, *pix );
+	    p2.end();
+	    buffer->setMask( mask );
+	    p2.begin( buffer );
 #if defined(Q_WS_X11)
-		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
+	    p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
-		if ( iconView()->d->drawActiveSelection ) {
-		    if ( !qiv_selection )
-			createSelectionPixmap( cg );
-		    p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
-		}
-#endif
-		p2.end();
-		QRect cr = pix->rect();
-		p->drawPixmap( x() + ( width() - w ) / 2, y(), *buffer, 0, 0, cr.width(), cr.height() );
+	    if ( iconView()->d->drawActiveSelection ) {
+		if ( !qiv_selection )
+		    createSelectionPixmap( cg );
+		p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(),
+				    *qiv_selection );
 	    }
-	} else {
-	    p->drawPixmap( x() + ( width() - w ) / 2, y(), *( pixmap() ? pixmap() : unknown_icon ) );
+#endif
+	    p2.end();
+	    QRect cr = pix->rect();
+	    if ( textOnBottom )
+		p->drawPixmap( x() + ( width() - dim ) / 2, y(), *buffer, 0, 0,
+			       cr.width(), cr.height() );
+	    else
+		p->drawPixmap( x() , y() + ( height() - dim ) / 2, *buffer, 0, 0,
+			       cr.width(), cr.height() );
 	}
-
-	p->save();
-	if ( isSelected() ) {
-	    p->fillRect( textRect( FALSE ), cg.highlight() );
-	    p->setPen( QPen( cg.highlightedText() ) );
-	} else if ( view->d->itemTextBrush != NoBrush )
-	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
-
-	int align = AlignHCenter;
-	if ( view->d->wordWrapIconText )
-	    align |= WordBreak | BreakAnywhere;
-	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
-
-	p->restore();
     } else {
-	int h = ( pixmap() ? pixmap() : unknown_icon )->height();
-
-	if ( isSelected() ) {
-	    QPixmap *pix = pixmap() ? pixmap() : unknown_icon;
-	    if ( pix && !pix->isNull() ) {
-		QPixmap *buffer = get_qiv_buffer_pixmap( pix->size() );
-		QBitmap mask = view->mask( pix );
-
-		QPainter p2( buffer );
-		p2.fillRect( pix->rect(), white );
-		p2.drawPixmap( 0, 0, *pix );
-		p2.end();
-		buffer->setMask( mask );
-		p2.begin( buffer );
-#if defined(Q_WS_X11)
-		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
-#else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
-		if ( iconView()->d->drawActiveSelection ) {
-		    if ( !qiv_selection )
-			createSelectionPixmap( cg );
-		    p2.drawTiledPixmap( 0, 0, pix->width(), pix->height(), *qiv_selection );
-		}
-#endif
-		p2.end();
-		QRect cr = pix->rect();
-		p->drawPixmap( x() , y() + ( height() - h ) / 2, *buffer, 0, 0, cr.width(), cr.height() );
-	    }
-	} else {
-	    p->drawPixmap( x() , y() + ( height() - h ) / 2, *( pixmap() ? pixmap() : unknown_icon ) );
-	}
-
-	p->save();
-	if ( isSelected() ) {
-	    p->fillRect( textRect( FALSE ), cg.highlight() );
-	    p->setPen( QPen( cg.highlightedText() ) );
-	} else if ( view->d->itemTextBrush != NoBrush )
-	    p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
-
-	int align = AlignAuto;
-	if ( view->d->wordWrapIconText )
-	    align |= WordBreak | BreakAnywhere;
-	p->drawText( textRect( FALSE ), align, view->d->wordWrapIconText ? itemText : tmpText );
-
-	p->restore();
+	if ( textOnBottom )
+	    p->drawPixmap( x() + ( width() - dim ) / 2, y(),
+			   *( pixmap() ? pixmap() : unknown_icon ) );
+	else
+	    p->drawPixmap( x() , y() + ( height() - dim ) / 2,
+			   *( pixmap() ? pixmap() : unknown_icon ) );
     }
+
+    p->save();
+    if ( isSelected() ) {
+	p->fillRect( textRect( FALSE ), cg.highlight() );
+	p->setPen( QPen( cg.highlightedText() ) );
+    } else if ( view->d->itemTextBrush != NoBrush )
+	p->fillRect( textRect( FALSE ), view->d->itemTextBrush );
+
+    int align = AlignHCenter;
+    if ( view->d->wordWrapIconText )
+	align |= WordBreak | BreakAnywhere;
+    p->drawText( textRect( FALSE ), align,
+		 view->d->wordWrapIconText ? itemText : tmpText );
+
+    p->restore();
 
     p->restore();
 }
