@@ -658,6 +658,7 @@ public:
 	AutoText
     };
 
+    // Documented in qmainwindow.cpp
     enum Dock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
     // compatibility
     typedef Dock ToolBarDock;
