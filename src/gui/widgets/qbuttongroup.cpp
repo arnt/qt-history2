@@ -24,14 +24,14 @@
     \mainclass
 
     An \l exclusive button group switches off all toggle buttons
-    except the one that was clicked. A button group is, by default,
+    except the one that was clicked. By default, a button group is
     exclusive. The buttons in a button group are usually toggle
     QPushButton's, \l{QCheckBox}es (normally for non-exclusive button
     groups), or \l{QRadioButton}s.
 
     A button is added to the group with addButton(). It can be removed
     from the group with removeButton(). If the group is exclusive, the
-    currently checked button is available as checkedButton(), and if a
+    currently checked button is available as checkedButton(). If a
     button is checked the buttonChecked() signal is emitted. The
     number of buttons in the group is returned by count().
 
@@ -44,7 +44,7 @@
 /*!
     \fn QButtonGroup::QButtonGroup(QObject *parent)
 
-    Constructs a new, empty, button group with the given \a parent.
+    Constructs a new, empty button group with the given \a parent.
 
     \sa addButton() setExclusive()
 */
