@@ -332,6 +332,11 @@ bool QFile::open( int m, FILE *f )
   When a QFile is opened using this function, close() does not actually
   close the file.
 
+  The QFile that is opened using this function, is automatically set to be in
+  raw mode; this means that the file input/output functions are slow. If you
+  run into performance issues, you should try to use one of the other open
+  functions.
+
   \warning If \a f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
   be able to seek. size() is set to \c INT_MAX (in limits.h).
 

@@ -10,6 +10,7 @@
 
 #include <winable.h>
 #include <oleacc.h>
+#include <comdef.h>
 
 void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
@@ -303,28 +304,226 @@ ULONG STDMETHODCALLTYPE QWindowsAccessible::Release()
   IDispatch
 */
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfoCount( unsigned int * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfoCount( unsigned int * pctinfo)
 {
-    qDebug( "qaccessible_win.cpp: Better implement IDispatch" );
-    return DISP_E_MEMBERNOTFOUND;
+    // We don't use a type library
+    *pctinfo = 0;
+    return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigned long, ITypeInfo ** )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int itinfo, unsigned long lcid, ITypeInfo **pptinfo )
 {
-    qDebug( "qaccessible_win.cpp: Better implement IDispatch" );
-    return DISP_E_MEMBERNOTFOUND;
+    // We don't use a type library
+    *pptinfo = NULL;
+    return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetIDsOfNames( const _GUID &riid, wchar_t **rgszNames, unsigned int cNames, unsigned long lcid, long *rgdispid )
 {
-    qDebug( "qaccessible_win.cpp: Better implement IDispatch" );
-    return DISP_E_MEMBERNOTFOUND;
+    // PROPERTIES:  Hierarchical
+    if ( _bstr_t(rgszNames[0]) == _bstr_t(L"accParent") ) 
+	rgdispid[0] = DISPID_ACC_PARENT;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accChildCount") ) 
+	rgdispid[0] = DISPID_ACC_CHILDCOUNT;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accChild") ) 
+	rgdispid[0] = DISPID_ACC_CHILD;
+
+    // PROPERTIES:  Descriptional
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accName(") ) 
+	rgdispid[0] = DISPID_ACC_NAME;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accValue") ) 
+	rgdispid[0] = DISPID_ACC_VALUE;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accDescription") ) 
+	rgdispid[0] = DISPID_ACC_DESCRIPTION;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accRole") ) 
+	rgdispid[0] = DISPID_ACC_ROLE;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accState") ) 
+	rgdispid[0] = DISPID_ACC_STATE;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accHelp") ) 
+	rgdispid[0] = DISPID_ACC_HELP;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accHelpTopic") ) 
+	rgdispid[0] = DISPID_ACC_HELPTOPIC;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accKeyboardShortcut") ) 
+	rgdispid[0] = DISPID_ACC_KEYBOARDSHORTCUT;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accFocus") ) 
+	rgdispid[0] = DISPID_ACC_FOCUS;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accSelection") ) 
+	rgdispid[0] = DISPID_ACC_SELECTION;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accDefaultAction") ) 
+	rgdispid[0] = DISPID_ACC_DEFAULTACTION;
+
+    // METHODS
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accSelect") ) 
+	rgdispid[0] = DISPID_ACC_SELECT;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accLocation") ) 
+	rgdispid[0] = DISPID_ACC_LOCATION;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accNavigate") ) 
+	rgdispid[0] = DISPID_ACC_NAVIGATE;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accHitTest") ) 
+	rgdispid[0] = DISPID_ACC_HITTEST;
+    else if( _bstr_t(rgszNames[0]) == _bstr_t(L"accDoDefaultAction") ) 
+	rgdispid[0] = DISPID_ACC_DODEFAULTACTION;
+    else 
+	return DISP_E_UNKNOWNINTERFACE;
+
+    return S_OK;
 }
 
-HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned short, tagDISPPARAMS *, tagVARIANT *, tagEXCEPINFO *, unsigned int * )
+HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _GUID &riid, unsigned long lcid, unsigned short wFlags, tagDISPPARAMS *pDispParams, tagVARIANT *pVarResult, tagEXCEPINFO *pExcepInfo, unsigned int *puArgErr )
 { 
-    qDebug( "qaccessible_win.cpp: Better implement IDispatch" );
-    return DISP_E_MEMBERNOTFOUND;
+    HRESULT hr = DISP_E_MEMBERNOTFOUND;
+
+    switch( dispIdMember )
+    {
+	case DISPID_ACC_PARENT:
+	    if ( wFlags == DISPATCH_PROPERTYGET ) {
+		if ( pVarResult == NULL )
+		    return E_INVALIDARG;
+		hr = get_accParent( &pVarResult->pdispVal );
+	    } else {
+		hr = DISP_E_MEMBERNOTFOUND;
+	    }
+	    break;
+
+	case DISPID_ACC_CHILDCOUNT:
+	    if ( wFlags == DISPATCH_PROPERTYGET ) {
+		if ( pVarResult == NULL )
+		    return E_INVALIDARG;
+		hr = get_accChildCount( &pVarResult->lVal );
+	    } else {
+		hr = DISP_E_MEMBERNOTFOUND;
+	    }
+	    break;
+	
+	case DISPID_ACC_CHILD:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accChild( pDispParams->rgvarg[0], &pVarResult->pdispVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_NAME:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accName( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+    	    else if ( wFlags == DISPATCH_PROPERTYPUT )
+		hr = put_accName( pDispParams->rgvarg[0], pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_VALUE:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accValue( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+	    else if ( wFlags == DISPATCH_PROPERTYPUT )
+		hr = put_accValue( pDispParams->rgvarg[0], pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_DESCRIPTION:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accDescription( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_ROLE:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accRole( pDispParams->rgvarg[0], pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_STATE:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accState( pDispParams->rgvarg[0], pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_HELP:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accHelp( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_HELPTOPIC:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accHelpTopic( &pDispParams->rgvarg[2].bstrVal, pDispParams->rgvarg[1], &pDispParams->rgvarg[0].lVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_KEYBOARDSHORTCUT:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accKeyboardShortcut( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_FOCUS:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accFocus( pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_SELECTION:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accSelection( pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_DEFAULTACTION:
+	    if ( wFlags == DISPATCH_PROPERTYGET )
+		hr = get_accDefaultAction( pDispParams->rgvarg[0], &pVarResult->bstrVal );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_SELECT:
+	    if ( wFlags == DISPATCH_METHOD )
+		hr = accSelect( pDispParams->rgvarg[1].lVal, pDispParams->rgvarg[0] );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_LOCATION:
+	    if ( wFlags == DISPATCH_METHOD )
+		hr = accLocation( &pDispParams->rgvarg[4].lVal, &pDispParams->rgvarg[3].lVal, &pDispParams->rgvarg[2].lVal, &pDispParams->rgvarg[1].lVal, pDispParams->rgvarg[0] );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_NAVIGATE:
+	    if ( wFlags == DISPATCH_METHOD )
+		hr = accNavigate( pDispParams->rgvarg[1].lVal, pDispParams->rgvarg[0], pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_HITTEST:
+	    if ( wFlags == DISPATCH_METHOD )
+		hr = accHitTest( pDispParams->rgvarg[1].lVal, pDispParams->rgvarg[0].lVal, pVarResult );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	case DISPID_ACC_DODEFAULTACTION:
+	    if ( wFlags == DISPATCH_METHOD )
+		hr = accDoDefaultAction( pDispParams->rgvarg[0] );
+	    else
+		hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+
+	default:
+	    hr = DISP_E_MEMBERNOTFOUND;
+	    break;
+    } 
+    
+    return hr;
 }
 
 /* 
