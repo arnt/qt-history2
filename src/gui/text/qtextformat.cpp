@@ -2165,7 +2165,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextImageFormat::setName(const QString &name)
 
-    Sets the \a name of the image. The \a name is used to locate the image.
+    Sets the \a name of the image. The \a name is used to locate the image
+    in the application's resources.
 
     \sa name()
 */
@@ -2174,7 +2175,8 @@ QFont QTextCharFormat::font() const
 /*!
     \fn QString QTextImageFormat::name() const
 
-    Returns the name of the image.
+    Returns the name of the image. The name refers to an entry in the
+    application's resources file.
 
     \sa setName()
 */
