@@ -132,6 +132,8 @@ public:
     virtual void customize();
     virtual bool isCustomizable() const;
 
+    bool appropriate( QDockWindow *dw ) const;
+
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -140,6 +142,7 @@ public slots:
     virtual void setOpaqueMoving( bool );
     virtual void setDockMenuEnabled( bool );
     virtual void whatsThis();
+    virtual void setAppropriate( QDockWindow *dw, bool a );
 
     // compatibility stuff
     void setToolBarsMovable( bool );

@@ -461,6 +461,7 @@ public:
     QHideDock *hideDock;
 
     QPopupMenu *rmbMenu;
+    QMap<QDockWindow*, bool> appropriate;
 
 };
 
@@ -1207,6 +1208,7 @@ void QMainWindow::childEvent( QChildEvent* e)
 	    triggerLayout();
 	} else if ( e->child()->isWidgetType() ) {
 	    removeDockWindow( (QDockWindow *)(e->child()) );
+	    d->appropriate.remove( (QDockWindow*)e->child() );
 	    triggerLayout();
 	}
     } else if ( e->type() == QEvent::ChildInserted ) {
@@ -1630,6 +1632,14 @@ void QMainWindow::setDockMenuEnabled( bool b )
 
   If you need a specialized popup menu here, you can reimplement that
   function.
+
+  The default implementation creates a menu which contains all
+  Toolbars and Dockwindows. Toolbars and Dockwindows which are not
+  appropriate (see setAppropriate()) are not listed in the menu. Also
+  an item to lign up the toolbars in the dock is added. If
+  isCustomizable() returns TRUE, an item to customize the Toolbars and
+  Dockwindows is added to the end of the menu, which calls customize()
+  if it is activated.
 */
 
 bool QMainWindow::showDockMenu( const QPoint &globalPos )
@@ -1645,13 +1655,24 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
     QObjectList *l = queryList( "QDockWindow" );
     QIntDict<QDockWindow> id2Widget;
     if ( l && !l->isEmpty() ) {
-	for ( QObject *o = l->first(); o; o = l->next() ) {
+	QObject *o = 0;
+	for ( o = l->first(); o; o = l->next() ) {
 	    QDockWindow *dw = (QDockWindow*)o;
-	    QString label;
-	    if ( dw->inherits( "QToolBar" ) )
-		label = ( (QToolBar*)dw )->label();
-	    if ( label.isEmpty() )
-		label = dw->caption();
+	    if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) )
+		continue;
+	    QString label = dw->caption();
+	    if ( !label.isEmpty() ) {
+		int id = d->rmbMenu->insertItem( label );
+		d->rmbMenu->setItemChecked( id, dw->isVisible() );
+		id2Widget.insert( id, dw );
+	    }
+	}
+	d->rmbMenu->insertSeparator();
+	for ( o = l->first(); o; o = l->next() ) {
+	    QDockWindow *dw = (QDockWindow*)o;
+	    if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) )
+		continue;
+	    QString label = ( (QToolBar*)dw )->label();
 	    if ( !label.isEmpty() ) {
 		int id = d->rmbMenu->insertItem( label );
 		d->rmbMenu->setItemChecked( id, dw->isVisible() );
@@ -1780,6 +1801,37 @@ void QMainWindow::customize()
 bool QMainWindow::isCustomizable() const
 {
     return FALSE;
+}
+
+/*! Returns whether it is appropriate to show or hide the dockwindow
+  \a dw at the moment.
+
+  \sa setAppropriate()
+*/
+
+bool QMainWindow::appropriate( QDockWindow *dw ) const
+{
+    QMap<QDockWindow*, bool>::ConstIterator it = d->appropriate.find( dw );
+    if ( it == d->appropriate.end() )
+	return TRUE;
+    return *it;
+}
+
+/*! QMainWindow offers a menu which pops up when the user presses with
+  the right mouse button onto a dockwindow or an empty place in a
+  dock. By default this menu offers the user to show/hide all
+  available toolbars and dockwindows. Often, depending on the state of
+  the application, it is not apprpriate to let the user show or hide a
+  toolbar or dockwindow. To avoid that in this case the dockwindow or
+  toolbar appears in this menu, call setAppropriate() for this
+  dockwindow.
+
+  For further details about customizing this menu, see showDockMenu().
+*/
+
+void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
+{
+    d->appropriate.replace( dw, a );
 }
 
 #ifndef QT_NO_TEXTSTREAM
