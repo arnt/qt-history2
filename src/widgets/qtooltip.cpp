@@ -318,9 +318,8 @@ void QTipManager::remove( QWidget *w )
 
 void QTipManager::removeFromGroup( QToolTipGroup *g )
 {
-    QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin();
-    QTipManager::Tip *t;
-    while( (t = it.value()) != 0 ) {
+    for(QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin(); it != tips->end(); ) {
+	QTipManager::Tip *t = it.value();
 	++it;
 	while ( t ) {
 	    if ( t->group == g ) {
