@@ -718,6 +718,9 @@ an arrow head that points to the destination object, indicating that a
 connection will be made between the two objects when you release the
 mouse button.
 
+You can abandon the connection at any point while you are dragging the
+connection path by pressing \key{Escape}.
+
 \target MakingAConnection
 \table
 \row
@@ -733,6 +736,10 @@ When you are satisfied that the correct objects will be connected, release
 the mouse button to make the connection. A dialog displays the signals
 from the source object and the slots from the destination object that
 can be used to connect the two objects.
+
+To complete the connection, select a signal from the source object and a
+slot from the destination object, then click the \key OK button. Click
+\key Cancel if you wish to abandon the connection.
 
 \target ChoosingSignalsAndSlots
 \table
@@ -752,24 +759,33 @@ slots in the destination object is updated to show all the slots that
 are compatible with the currently selected signal.
 \endtable
 
-To complete the connection, select a signal from the source object and a
-slot from the destination object, then click the \key OK button. Click
-\key Cancel if you wish to abandon the connection.
+You can make as many connections as you like between objects on the form,
+and it is possible to connect signals from objects to slots in the form
+itself. As a result, the signal and slot connections in many dialogs can
+be completely configured from within \QD.
 
-You can make as many connections as you like between objects on the form.
-If you connect a lot of objects together, it may be necessary to tidy
-up the connections to make the form maintainable for other designers.
-\QD provides facilities for editing the appearance of connections on the
-form which do not influence the way that the widgets behave when your
-application is deployed.
+\target ConnectingToTheForm
+\table
+\row
+\i \inlineimage designer-connection-to-form.png
+\i \bold{Connecting to a form}
+
+Connections can be made between objects on the form and the form itself.
+Instead of dragging a connection path to another object, position the
+cursor over the form and release the mouse button.
+
+To make it clear that the connection will be made with the form itself,
+the end point of the connection changes to an electrical "ground" symbol.
+\endtable
 
 \target EditingConnections
-\section1 Editing Connections
+\section1 Editing and Deleting Connections
 
 By default, connection paths are created with two labels that show
 the signal and slot involved in the connection. These labels are usually
 oriented along the line of the connection, and they can be moved around
-inside their host widgets by dragging the red connection end point.
+inside their host widgets by dragging the red square at each end of the
+connection path.
 
 The signal and slot used in a connection can be changed after it has
 been set up. To do this, simply double click on the connection path
@@ -960,7 +976,7 @@ input widget, such as a QLineEdit.
 \i \inlineimage designer-buddy-making.png
 \i \bold{Making Buddies}
 
-To nomiate a buddy widget for a label, click on the label, drag the
+To define a buddy widget for a label, click on the label, drag the
 connection to another widget on the form, and release the mouse button.
 The connection shown indicates how the input focus is passed to the
 buddy widget.
@@ -971,11 +987,14 @@ preview} to test the connections between each label and its buddy.
 
 \section1 Removing Buddy Connections
 
-Since buddy editing mode uses the same way of making connections between
-widgets used in connection editing mode, connections between labels and
-their buddies are removed in the same way as signal-slot connections.
-Each connection is selected by clicking on the connection path, and
-it is deleted by pressing the \key Delete key.
+Only one buddy widget can be defined for each label. To change the buddy
+used, it is therefore necessary to delete any existing budy connection and
+create a new one.
+
+Connections between labels and their buddy widgets can be deleted in the
+same way as signal-slot connections in connection mode. Select the buddy
+connection by clicking on it, and press the \key Delete key. This
+operation does not modify either the label or its buddy in any way.
 */
 
 /*!
@@ -1028,9 +1047,10 @@ resource editing mode allows resources to be defined on a per-form basis.
 
 \tableofcontents
 
-\section1
+\section1 The Resource Editor
 
-
+Each form has an associated resource editor which can be activated by
+opening the \key Edit menu and selecting \key{Edit Resources}.
 */
 
 /*!
