@@ -21,6 +21,9 @@ int main( int argc, char **argv )
 #if defined(_OS_LINUX_)
     printf("Operating system: _OS_LINUX_\n");
 #endif
+#if defined(_OS_LYNXOS_)
+    printf("Operating system: _OS_LYNXOS_\n");
+#endif
 #if defined(_OS_MAC_)
     printf("Operating system: _OS_MAC_\n");
 #endif
@@ -29,6 +32,9 @@ int main( int argc, char **argv )
 #endif
 #if defined(_OS_NETBSD_)
     printf("Operating system: _OS_NETBSD_\n");
+#endif
+#if defined(_OS_OPENBSD_)
+    printf("Operating system: _OS_OPENBSD_\n");
 #endif
 #if defined(_OS_OS2EMX_)
     printf("Operating system: _OS_OS2EMX_\n");
