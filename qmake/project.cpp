@@ -2110,7 +2110,7 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
 
         bool ret = false;
-        QMap<QString, QStringList> tmp = place;
+        QMap<QString, QStringList> tmp;
         if(doProjectInclude(Option::fixPathToLocalOS(args[0]), false, tmp, args[1]) == IncludeSuccess) {
             if(args.count() == 2) {
                 ret = tmp.contains(args[1]);
