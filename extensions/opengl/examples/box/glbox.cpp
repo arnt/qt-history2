@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/glbox.cpp#2 $
 **
 ** Implementation of GLBox
 ** This is a simple QGLWidget displaying an openGL wireframe box
@@ -20,7 +20,7 @@ GLBox::GLBox( QWidget* parent, const char* name )
     : QGLWidget( parent, name )
 {
     xRot = yRot = zRot = 0.0;		// default object rotation
-    scale = 1.0;			// default object scale
+    scale = 1.25;			// default object scale
 
     makeCurrent();
     object = makeObject();		// Generate an OpenGL display list
@@ -76,6 +76,8 @@ GLuint GLBox::makeObject()
     list = glGenLists( 1 );
 
     glNewList( list, GL_COMPILE );
+
+    glLineWidth( 2.0 );
 
     glBegin( GL_LINE_LOOP );
     glVertex3f(  1.0,  0.5, -0.4 );
