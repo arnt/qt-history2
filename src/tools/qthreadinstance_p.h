@@ -54,7 +54,9 @@
 #ifdef Q_OS_UNIX
 #include "qwaitcondition.h"
 #endif // Q_OS_UNIX
-
+#ifdef Q_OS_WIN32
+#include <windows.h>
+#endif // Q_OS_WIN32
 
 class QThreadInstance {
 public:
