@@ -491,7 +491,7 @@ void QTextDrag::setSubtype(const QString & st)
 */
 void QTextDrag::setText(const QString &text)
 {
-    d->data->setText(text);
+    d->txt = text;
 }
 
 
