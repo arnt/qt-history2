@@ -1370,11 +1370,21 @@ public:
     int heuristicContentMatch(const char* chars, int len) const;
 
     int heuristicNameMatch(const char* hint) const;
+    bool canEncode( QChar ch ) const;
 
 private:
+    void buildReverseMap();
+    
     int forwardIndex;
+#ifndef Q_WS_QWS
+    QArray<char> *reverseMap;
+#endif
 };
 
+#ifdef Q_WS_QWS
+static const QSimpleTextCodec * reverseOwner = 0;
+static QArray<char> * reverseMap = 0;
+#endif
 
 #define LAST_MIB 2259
 
@@ -1836,24 +1846,80 @@ static struct {
     // if you add more chacater sets at the end, change LAST_MIB above
 };
 
-
-static const QSimpleTextCodec * reverseOwner = 0;
-static QArray<char> * reverseMap = 0;
-
-
 QSimpleTextCodec::QSimpleTextCodec( int i )
     : QTextCodec(), forwardIndex( i )
 {
+#ifndef Q_WS_QWS
+    reverseMap = 0;
+#endif
 }
 
 
 QSimpleTextCodec::~QSimpleTextCodec()
 {
+#ifndef Q_WS_QWS
+    delete reverseMap;
+#else
     if ( reverseOwner == this ) {
         delete reverseMap;
         reverseMap = 0;
         reverseOwner = 0;
     }
+#endif
+}
+
+void QSimpleTextCodec::buildReverseMap()
+{
+#ifdef Q_WS_QWS
+    if ( reverseOwner != this ) {
+        int m = 0;
+        int i = 0;
+        while( i < 128 ) {
+            if ( unicodevalues[forwardIndex].values[i] > m &&
+                 unicodevalues[forwardIndex].values[i] < 0xfffd )
+                m = unicodevalues[forwardIndex].values[i];
+            i++;
+        }
+        m++;
+        if ( !reverseMap )
+            reverseMap = new QArray<char>( m );
+        if ( m > (int)(reverseMap->size()) )
+            reverseMap->resize( m );
+        for( i = 0; i < 128 && i < m; i++ )
+            (*reverseMap)[i] = (char)i;
+        for( ;i < m; i++ )
+            (*reverseMap)[i] = 0;
+        for( i=128; i<256; i++ ) {
+            int u = unicodevalues[forwardIndex].values[i-128];
+            if ( u < m )
+                (*reverseMap)[u] = (char)(unsigned char)(i);
+        }
+        reverseOwner = this;
+    }
+#else
+    if ( !reverseMap ) {
+	QArray<char> **map = &((QSimpleTextCodec *)this)->reverseMap;
+        int m = 0;
+        int i = 0;
+        while( i < 128 ) {
+            if ( unicodevalues[forwardIndex].values[i] > m &&
+                 unicodevalues[forwardIndex].values[i] < 0xfffd )
+                m = unicodevalues[forwardIndex].values[i];
+            i++;
+        }
+        m++;
+	*map = new QArray<char>( m );
+        for( i = 0; i < 128 && i < m; i++ )
+            (**map)[i] = (char)i;
+        for( ;i < m; i++ )
+            (**map)[i] = 0;
+        for( i=128; i<256; i++ ) {
+            int u = unicodevalues[forwardIndex].values[i-128];
+            if ( u < m )
+                (**map)[u] = (char)(unsigned char)(i);
+        }
+    }
+#endif
 }
 
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
@@ -1881,31 +1947,13 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 
 QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 {
-    if ( reverseOwner != this ) {
-        int m = 0;
-        int i = 0;
-        while( i < 128 ) {
-            if ( unicodevalues[forwardIndex].values[i] > m &&
-                 unicodevalues[forwardIndex].values[i] < 0xfffd )
-                m = unicodevalues[forwardIndex].values[i];
-            i++;
-        }
-        m++;
-        if ( !reverseMap )
-            reverseMap = new QArray<char>( m );
-        if ( m > (int)(reverseMap->size()) )
-            reverseMap->resize( m );
-        for( i = 0; i < 128 && i < m; i++ )
-            (*reverseMap)[i] = (char)i;
-        for( ;i < m; i++ )
-            (*reverseMap)[i] = '?';
-        for( i=128; i<256; i++ ) {
-            int u = unicodevalues[forwardIndex].values[i-128];
-            if ( u < m )
-                (*reverseMap)[u] = (char)(unsigned char)(i);
-        }
-        reverseOwner = this;
-    }
+#ifdef Q_WS_QWS
+    if ( this != reverseOwner )
+#else
+    if ( !reverseMap )
+#endif
+	((QSimpleTextCodec *)this)->buildReverseMap();
+    
     if ( len <0 || len > (int)uc.length() )
         len = uc.length();
     QCString r( len+1 );
@@ -1918,7 +1966,9 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     while( i-- )
     {
         u = ucp->unicode();
-        *rp++ = u < 128 ? u : (( u < rmsize ) ? (*(rmp+u)) : '?' );
+        *rp = u < 128 ? u : (( u < rmsize ) ? (*(rmp+u)) : '?' );
+        if ( *rp == 0 ) *rp = '?';
+        rp++;
         ucp++;
     }
     r[len] = 0;
@@ -1928,12 +1978,33 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 
 unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
-    // ### optimize!!!!
-    int len = 1;
-    QCString result = fromUnicode(QString(str[pos]), len);
-    return (unsigned short)(unsigned char) result[0];
+#ifdef Q_WS_QWS
+    if ( this != reverseOwner )
+#else
+    if ( !reverseMap )
+#endif
+	((QSimpleTextCodec *)this)->buildReverseMap();
+    
+    unsigned short u = str[pos].unicode();
+    char* rmp = reverseMap->data();
+    int rmsize = (int) reverseMap->size();
+    return u < 128 ? u : (( u < rmsize ) ? (*(rmp+u)) : 0 );
 }
 
+bool QSimpleTextCodec::canEncode( QChar ch ) const
+{
+#ifdef Q_WS_QWS
+    if ( this != reverseOwner )
+#else
+    if ( !reverseMap )
+#endif
+	((QSimpleTextCodec *)this)->buildReverseMap();
+    
+    unsigned short u = ch.unicode();
+    char* rmp = reverseMap->data();
+    int rmsize = (int) reverseMap->size();
+    return u < 128 ? TRUE : (( u < rmsize ) ? (*(rmp+u) != 0) : FALSE );
+}
 
 const char* QSimpleTextCodec::name() const
 {

@@ -40,11 +40,6 @@
   \brief The QJpUnicodeConv class provides implementation support for
   QJisCodec, QSjisCodec, and QEucJpCodec.
 
-  You should not need to use this class directly.  If you do, keep in
-  mind that the function names will change in Qt 3.0: Every function
-  name will get a lower-case first letter: Jisx0212ToUnicode becomes
-  jisx0212ToUnicode, and so on.  We apologize for the upheaval.
-
   The environment variable \c UNICODEMAP_JP can be used to fine-tune how
   QJpUnicodeConv, QEucJpCodec, QJisCodec and QSjisCodec do their work.
   The mapping names are as for the Japanese XML working group's <a
@@ -142,27 +137,27 @@
 #define	IsSjisUDC1(c)	(((c) >= 0xf0) && ((c) <= 0xfc))
 #define	IsSjisChar2(c)	(((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
 
-static uint Jisx0208ToSjis(uint h, uint l);
+static uint jisx0208ToSjis(uint h, uint l);
 static
-inline uint Jisx0208ToSjis(uint jis)
+inline uint jisx0208ToSjis(uint jis)
 {
-    return Jisx0208ToSjis((jis & 0xff00) >> 8, (jis & 0x00ff));
+    return jisx0208ToSjis((jis & 0xff00) >> 8, (jis & 0x00ff));
 }
 
-static uint SjisToJisx0208(uint h, uint l);
+static uint sjisToJisx0208(uint h, uint l);
 static
-inline uint SjisToJisx0208(uint sjis)
+inline uint sjisToJisx0208(uint sjis)
 {
-    return SjisToJisx0208((sjis & 0xff00) >> 8, (sjis & 0x00ff));
+    return sjisToJisx0208((sjis & 0xff00) >> 8, (sjis & 0x00ff));
 }
 
-static uint Jisx0201ToUnicode11(uint h, uint l);
-static uint Jisx0208ToUnicode11(uint h, uint l);
-static uint Jisx0212ToUnicode11(uint h, uint l);
+static uint jisx0201ToUnicode11(uint h, uint l);
+static uint jisx0208ToUnicode11(uint h, uint l);
+static uint jisx0212ToUnicode11(uint h, uint l);
 
-static uint Unicode11ToJisx0201(uint h, uint l);
-static uint Unicode11ToJisx0208(uint h, uint l);
-static uint Unicode11ToJisx0212(uint h, uint l);
+static uint unicode11ToJisx0201(uint h, uint l);
+static uint unicode11ToJisx0208(uint h, uint l);
+static uint unicode11ToJisx0212(uint h, uint l);
 
 /*
  * Unicode 1.1 conversion.
@@ -175,7 +170,7 @@ static uint Unicode11ToJisx0212(uint h, uint l);
 
 
 /*! \internal */
-uint QJpUnicodeConv::AsciiToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::asciiToUnicode(uint h, uint l) const
 {
     if ((h == 0) && (l < 0x80)) {
 	return l;
@@ -184,75 +179,75 @@ uint QJpUnicodeConv::AsciiToUnicode(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::Jisx0201ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::jisx0201ToUnicode(uint h, uint l) const
 {
     if (h == 0) {
 	if (IsLatin(l)) {
-	    return Jisx0201LatinToUnicode(h, l);
+	    return jisx0201LatinToUnicode(h, l);
 	} else if (IsKana(l)) {
-	    return Jisx0201KanaToUnicode(h, l);
+	    return jisx0201KanaToUnicode(h, l);
 	}
     }
     return 0x0000;
 }
 
 /*! \internal */
-uint QJpUnicodeConv::Jisx0201LatinToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::jisx0201LatinToUnicode(uint h, uint l) const
 {
     if ((h == 0) && IsLatin(l)) {
-	return Jisx0201ToUnicode11(h, l);
+	return jisx0201ToUnicode11(h, l);
     }
     return 0x0000;
 }
 
 /*! \internal */
-uint QJpUnicodeConv::Jisx0201KanaToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::jisx0201KanaToUnicode(uint h, uint l) const
 {
     if ((h == 0) && IsKana(l)) {
-	return Jisx0201ToUnicode11(h, l);
+	return jisx0201ToUnicode11(h, l);
     }
     return 0x0000;
 }
 
 /*! \internal */
-uint QJpUnicodeConv::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::jisx0208ToUnicode(uint h, uint l) const
 {
-    if (rule & JU_UDC){
+    if (rule & UDC){
 	if ((0x75 <= h) && (h <= 0x7e) && IsJisChar(l)/*0x21 - 0x7e*/) {
 	    // User Defined Char (mapped to Private Use Area)
 	    return 0xe000 + (h - 0x75) * 0x5e + (l - 0x21);
 	}
     }
-    if ((rule & JU_NEC_VDC) == 0) {
+    if ((rule & NEC_VDC) == 0) {
 	if ((h == 0x2d) && (IsJisChar(l)/*0x21 - 0x7c*/)) {
 	    // NEC Vendor Defined Char
 	    return 0x0000;
 	}
     }
-    return Jisx0208ToUnicode11(h, l);
+    return jisx0208ToUnicode11(h, l);
 }
 
 /*! \internal */
-uint QJpUnicodeConv::Jisx0212ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::jisx0212ToUnicode(uint h, uint l) const
 {
-    if (rule & JU_UDC){
+    if (rule & UDC){
 	if ((0x75 <= h) && (h <= 0x7e) && IsJisChar(l)/*0x21 - 0x7e*/) {
 	    // User Defined Char (mapped to Private Use Area)
 	    return 0xe3ac + (h - 0x75) * 0x5e + (l - 0x21);
 	}
     }
-    if ((rule & JU_IBM_VDC) == 0){
+    if ((rule & IBM_VDC) == 0){
 	if (((h == 0x73) && (0x73 <= l) && (l <= 0x7e)) ||
 	    ((h == 0x74) && (IsJisChar(l)/*0x21 - 0x7e*/))) {
 	    // IBM Vendor Defined Char
 	    return 0x0000;
 	}
     }
-    return Jisx0212ToUnicode11(h, l);
+    return jisx0212ToUnicode11(h, l);
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToAscii(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToAscii(uint h, uint l) const
 {
     if ((h == 0) && (l < 0x80)) {
 	return l;
@@ -261,21 +256,21 @@ uint QJpUnicodeConv::UnicodeToAscii(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToJisx0201(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToJisx0201(uint h, uint l) const
 {
     uint jis;
-    if ((jis = UnicodeToJisx0201Latin(h, l)) != 0) {
+    if ((jis = unicodeToJisx0201Latin(h, l)) != 0) {
 	return jis;
-    } else if ((jis = UnicodeToJisx0201Kana(h, l)) != 0) {
+    } else if ((jis = unicodeToJisx0201Kana(h, l)) != 0) {
 	return jis;
     }
     return 0x0000;
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToJisx0201Latin(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToJisx0201Latin(uint h, uint l) const
 {
-    uint jis = Unicode11ToJisx0201(h, l);
+    uint jis = unicode11ToJisx0201(h, l);
     if (IsLatin(jis)) {
 	return jis;
     }
@@ -283,9 +278,9 @@ uint QJpUnicodeConv::UnicodeToJisx0201Latin(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToJisx0201Kana(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToJisx0201Kana(uint h, uint l) const
 {
-    uint jis = Unicode11ToJisx0201(h, l);
+    uint jis = unicode11ToJisx0201(h, l);
     if (IsKana(jis)) {
 	return jis;
     }
@@ -293,9 +288,9 @@ uint QJpUnicodeConv::UnicodeToJisx0201Kana(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToJisx0208(uint h, uint l) const
 {
-    if (rule & JU_UDC){
+    if (rule & UDC){
 	uint unicode = (h << 8) | l;
 	if ((0xe000 <= unicode) && (unicode <= 0xe3ab)) {
 	    // User Defined Char (mapped to Private Use Area)
@@ -303,8 +298,8 @@ uint QJpUnicodeConv::UnicodeToJisx0208(uint h, uint l) const
 	    return ((0x75 + unicode / 0x5e ) << 8) | (0x21 + unicode % 0x5e);
 	}
     }
-    uint jis = Unicode11ToJisx0208(h, l);
-    if ((rule & JU_NEC_VDC) == 0) {
+    uint jis = unicode11ToJisx0208(h, l);
+    if ((rule & NEC_VDC) == 0) {
 	if ((0x2d21 <= jis) && (jis <= 0x2d7c)) {
 	    // NEC Vendor Defined Char
 	    return 0x0000;
@@ -314,9 +309,9 @@ uint QJpUnicodeConv::UnicodeToJisx0208(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToJisx0212(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToJisx0212(uint h, uint l) const
 {
-    if (rule & JU_UDC){
+    if (rule & UDC){
 	uint unicode = (h << 8) | l;
 	if ((0xe3ac <= unicode) && (unicode <= 0xe757)) {
 	    // User Defined Char (mapped to Private Use Area)
@@ -324,8 +319,8 @@ uint QJpUnicodeConv::UnicodeToJisx0212(uint h, uint l) const
 	    return ((0x75 + unicode / 0x5e ) << 8) | (0x21 + unicode % 0x5e);
 	}
     }
-    uint jis = Unicode11ToJisx0212(h, l);
-    if ((rule & JU_IBM_VDC) == 0){
+    uint jis = unicode11ToJisx0212(h, l);
+    if ((rule & IBM_VDC) == 0){
 	if (((0x7373 <= jis) && (jis <= 0x737e)) ||
 	    ((0x7421 <= jis) && (jis <= 0x747e))) {
 	    // IBM Vendor Defined Char
@@ -336,25 +331,25 @@ uint QJpUnicodeConv::UnicodeToJisx0212(uint h, uint l) const
 }
 
 /*! \internal */
-uint QJpUnicodeConv::SjisToUnicode(uint h, uint l) const
+uint QJpUnicodeConv::sjisToUnicode(uint h, uint l) const
 {
     if (h == 0) {
-	return Jisx0201ToUnicode(h, l);
+	return jisx0201ToUnicode(h, l);
     } else if (IsSjisChar1(h) && IsSjisChar2(l)) {
-	return Jisx0208ToUnicode(SjisToJisx0208(h, l));
+	return jisx0208ToUnicode(sjisToJisx0208(h, l));
     }
     return 0x0000;
 }
 
 /*! \internal */
-uint QJpUnicodeConv::UnicodeToSjis(uint h, uint l) const
+uint QJpUnicodeConv::unicodeToSjis(uint h, uint l) const
 {
     uint jis;
-    if ((jis = UnicodeToJisx0201(h, l)) != 0x0000) {
+    if ((jis = unicodeToJisx0201(h, l)) != 0x0000) {
 	return jis;
-    } else if ((jis = UnicodeToJisx0208(h, l)) != 0x0000) {
-	return Jisx0208ToSjis(jis);
-    } else if ((jis = UnicodeToJisx0212(h, l)) != 0x0000) {
+    } else if ((jis = unicodeToJisx0208(h, l)) != 0x0000) {
+	return jisx0208ToSjis(jis);
+    } else if ((jis = unicodeToJisx0212(h, l)) != 0x0000) {
 	return 0x0000;
     }
     return 0x0000;
@@ -395,34 +390,34 @@ public:
 //    uint Jisx0201ToUnicode(uint h, uint l) const;
 //    uint Jisx0201LatinToUnicode(uint h, uint l) const;
 //    uint Jisx0201KanaToUnicode(uint h, uint l) const;
-    uint Jisx0208ToUnicode(uint h, uint l) const;
-    uint Jisx0212ToUnicode(uint h, uint l) const;
+    uint jisx0208ToUnicode(uint h, uint l) const;
+    uint jisx0212ToUnicode(uint h, uint l) const;
 
 //    uint UnicodeToAscii(uint h, uint l) const;
 //    uint UnicodeToJisx0201(uint h, uint l) const;
 //    uint UnicodeToJisx0201Latin(uint h, uint l) const;
 //    uint UnicodeToJisx0201Kana(uint h, uint l) const;
-    uint UnicodeToJisx0208(uint h, uint l) const;
-    uint UnicodeToJisx0212(uint h, uint l) const;
+    uint unicodeToJisx0208(uint h, uint l) const;
+    uint unicodeToJisx0212(uint h, uint l) const;
 };
 
-uint QJpUnicodeConv_Unicode_ASCII::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Unicode_ASCII::jisx0208ToUnicode(uint h, uint l) const
 {
     if ((h == 0x21) && (l == 0x40)) {
 	return 0xff3c;
     }
-    return QJpUnicodeConv::Jisx0208ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0208ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Unicode_ASCII::Jisx0212ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Unicode_ASCII::jisx0212ToUnicode(uint h, uint l) const
 {
     if ((h == 0x22) && (l == 0x37)) {
 	return 0xff5e;
     }
-    return QJpUnicodeConv::Jisx0212ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0212ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv_Unicode_ASCII::unicodeToJisx0208(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0x5c)) {
 	return 0x0000;
@@ -430,11 +425,11 @@ uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0208(uint h, uint l) const
     if ((h == 0xff) && (l == 0x3c)) {
 	return 0x2140;
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
 /*! \internal */
-uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0212(uint h, uint l) const
+uint QJpUnicodeConv_Unicode_ASCII::unicodeToJisx0212(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0x7e)) {
 	return 0x0000;
@@ -442,7 +437,7 @@ uint QJpUnicodeConv_Unicode_ASCII::UnicodeToJisx0212(uint h, uint l) const
     if ((h == 0xff) && (l == 0x5e)) {
 	return 0x2237;
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
 /*
@@ -453,40 +448,40 @@ class QJpUnicodeConv_JISX0221_JISX0201 : public QJpUnicodeConv {
 public:
     QJpUnicodeConv_JISX0221_JISX0201(int r) : QJpUnicodeConv(r) {}
 
-    uint AsciiToUnicode(uint h, uint l) const;
+    uint asciiToUnicode(uint h, uint l) const;
 //    uint Jisx0201ToUnicode(uint h, uint l) const;
 //    uint Jisx0201LatinToUnicode(uint h, uint l) const;
 //    uint Jisx0201KanaToUnicode(uint h, uint l) const;
-    uint Jisx0208ToUnicode(uint h, uint l) const;
+    uint jisx0208ToUnicode(uint h, uint l) const;
 //    uint Jisx0212ToUnicode(uint h, uint l) const;
 
-    uint UnicodeToAscii(uint h, uint l) const;
+    uint unicodeToAscii(uint h, uint l) const;
 //    uint UnicodeToJisx0201(uint h, uint l) const;
 //    uint UnicodeToJisx0201Latin(uint h, uint l) const;
 //    uint UnicodeToJisx0201Kana(uint h, uint l) const;
-    uint UnicodeToJisx0208(uint h, uint l) const;
+    uint unicodeToJisx0208(uint h, uint l) const;
 //    uint UnicodeToJisx0212(uint h, uint l) const;
 };
 
-uint QJpUnicodeConv_JISX0221_JISX0201::AsciiToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_JISX0201::asciiToUnicode(uint h, uint l) const
 {
-    return Jisx0201LatinToUnicode(h, l);
+    return jisx0201LatinToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_JISX0201::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_JISX0201::jisx0208ToUnicode(uint h, uint l) const
 {
     if ((h == 0x21) && (l == 0x3d)) {
 	return 0x2014;
     }
-    return QJpUnicodeConv::Jisx0208ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0208ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_JISX0201::UnicodeToAscii(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_JISX0201::unicodeToAscii(uint h, uint l) const
 {
-    return UnicodeToJisx0201Latin(h, l);
+    return unicodeToJisx0201Latin(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_JISX0201::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_JISX0201::unicodeToJisx0208(uint h, uint l) const
 {
 #ifdef STRICT
     if ((h == 0x20) && (l == 0x15)) {
@@ -496,7 +491,7 @@ uint QJpUnicodeConv_JISX0221_JISX0201::UnicodeToJisx0208(uint h, uint l) const
     if ((h == 0x20) && (l == 0x14)) {
 	return 0x213d;
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
 /*
@@ -509,25 +504,25 @@ public:
 
 //    uint AsciiToUnicode(uint h, uint l) const;
 //    uint Jisx0201ToUnicode(uint h, uint l) const;
-    uint Jisx0201LatinToUnicode(uint h, uint l) const;
+    uint jisx0201LatinToUnicode(uint h, uint l) const;
 //    uint Jisx0201KanaToUnicode(uint h, uint l) const;
-    uint Jisx0208ToUnicode(uint h, uint l) const;
-    uint Jisx0212ToUnicode(uint h, uint l) const;
+    uint jisx0208ToUnicode(uint h, uint l) const;
+    uint jisx0212ToUnicode(uint h, uint l) const;
 
 //    uint UnicodeToAscii(uint h, uint l) const;
 //    uint UnicodeToJisx0201(uint h, uint l) const;
-    uint UnicodeToJisx0201Latin(uint h, uint l) const;
+    uint unicodeToJisx0201Latin(uint h, uint l) const;
 //    uint UnicodeToJisx0201Kana(uint h, uint l) const;
-    uint UnicodeToJisx0208(uint h, uint l) const;
-    uint UnicodeToJisx0212(uint h, uint l) const;
+    uint unicodeToJisx0208(uint h, uint l) const;
+    uint unicodeToJisx0212(uint h, uint l) const;
 };
 
-uint QJpUnicodeConv_JISX0221_ASCII::Jisx0201LatinToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::jisx0201LatinToUnicode(uint h, uint l) const
 {
-    return AsciiToUnicode(h, l);
+    return asciiToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_ASCII::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::jisx0208ToUnicode(uint h, uint l) const
 {
     if (h == 0x21) {
 	if (l == 0x31) {
@@ -540,23 +535,23 @@ uint QJpUnicodeConv_JISX0221_ASCII::Jisx0208ToUnicode(uint h, uint l) const
 	    return 0x00a5;
 	}
     }
-    return QJpUnicodeConv::Jisx0208ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0208ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_ASCII::Jisx0212ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::jisx0212ToUnicode(uint h, uint l) const
 {
     if ((h == 0x22) && (l == 0x37)) {
 	return 0xff5e;
     }
-    return QJpUnicodeConv::Jisx0212ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0212ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0201Latin(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::unicodeToJisx0201Latin(uint h, uint l) const
 {
-    return QJpUnicodeConv::UnicodeToAscii(h, l);
+    return QJpUnicodeConv::unicodeToAscii(h, l);
 }
 
-uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::unicodeToJisx0208(uint h, uint l) const
 {
 #ifdef STRICT
     if (((h == 0x00) && (l == 0x5c)) ||
@@ -580,11 +575,11 @@ uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0208(uint h, uint l) const
     } else if ((h == 0xff) && (l == 0x3c)) {
 	return 0x2140;
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
 /*! \internal */
-uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0212(uint h, uint l) const
+uint QJpUnicodeConv_JISX0221_ASCII::unicodeToJisx0212(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0x7e)) {
 	return 0x0000;
@@ -592,7 +587,7 @@ uint QJpUnicodeConv_JISX0221_ASCII::UnicodeToJisx0212(uint h, uint l) const
     if ((h == 0xff) && (l == 0x5e)) {
 	return 0x2237;
     }
-    return QJpUnicodeConv::UnicodeToJisx0212(h, l);
+    return QJpUnicodeConv::unicodeToJisx0212(h, l);
 }
 
 /*
@@ -605,33 +600,33 @@ public:
 
 //    uint AsciiToUnicode(uint h, uint l) const;
 //    uint Jisx0201ToUnicode(uint h, uint l) const;
-    uint Jisx0201LatinToUnicode(uint h, uint l) const;
+    uint jisx0201LatinToUnicode(uint h, uint l) const;
 //    uint Jisx0201KanaToUnicode(uint h, uint l) const;
-    uint Jisx0208ToUnicode(uint h, uint l) const;
-    uint Jisx0212ToUnicode(uint h, uint l) const;
+    uint jisx0208ToUnicode(uint h, uint l) const;
+    uint jisx0212ToUnicode(uint h, uint l) const;
 
-    uint UnicodeToAscii(uint h, uint l) const;
+    uint unicodeToAscii(uint h, uint l) const;
 //    uint UnicodeToJisx0201(uint h, uint l) const;
-    uint UnicodeToJisx0201Latin(uint h, uint l) const;
+    uint unicodeToJisx0201Latin(uint h, uint l) const;
 //    uint UnicodeToJisx0201Kana(uint h, uint l) const;
-    uint UnicodeToJisx0208(uint h, uint l) const;
-    uint UnicodeToJisx0212(uint h, uint l) const;
+    uint unicodeToJisx0208(uint h, uint l) const;
+    uint unicodeToJisx0212(uint h, uint l) const;
 };
 
-uint QJpUnicodeConv_Sun::Jisx0201LatinToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Sun::jisx0201LatinToUnicode(uint h, uint l) const
 {
-    return AsciiToUnicode(h, l);
+    return asciiToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Sun::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Sun::jisx0208ToUnicode(uint h, uint l) const
 {
     if ((h == 0x21) && (l == 0x40)) {
 	return 0xff3c;
     }
-    return QJpUnicodeConv::Jisx0208ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0208ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Sun::Jisx0212ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Sun::jisx0212ToUnicode(uint h, uint l) const
 {
 #if 1
     // Added by Serika Kususugawa to avoid conflict on U+007c.
@@ -639,25 +634,25 @@ uint QJpUnicodeConv_Sun::Jisx0212ToUnicode(uint h, uint l) const
 	return 0xff5e;
     }
 #endif
-    return QJpUnicodeConv::Jisx0212ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0212ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Sun::UnicodeToAscii(uint h, uint l) const
+uint QJpUnicodeConv_Sun::unicodeToAscii(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0xa5)) {
 	return 0x005c;
     } else if ((h == 0x20) && (l == 0x3e)) {
 	return 0x007e;
     }
-    return QJpUnicodeConv::UnicodeToAscii(h, l);
+    return QJpUnicodeConv::unicodeToAscii(h, l);
 }
 
-uint QJpUnicodeConv_Sun::UnicodeToJisx0201Latin(uint h, uint l) const
+uint QJpUnicodeConv_Sun::unicodeToJisx0201Latin(uint h, uint l) const
 {
-    return QJpUnicodeConv::UnicodeToAscii(h, l);
+    return QJpUnicodeConv::unicodeToAscii(h, l);
 }
 
-uint QJpUnicodeConv_Sun::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv_Sun::unicodeToJisx0208(uint h, uint l) const
 {
     if ((h == 0x00) && (l == 0xa5)) {
 	return 0x0000;
@@ -666,11 +661,11 @@ uint QJpUnicodeConv_Sun::UnicodeToJisx0208(uint h, uint l) const
     } else if ((h == 0xff) && (l == 0x3c)) {
 	return 0x2140;
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
 /*! \internal */
-uint QJpUnicodeConv_Sun::UnicodeToJisx0212(uint h, uint l) const
+uint QJpUnicodeConv_Sun::unicodeToJisx0212(uint h, uint l) const
 {
 #if 1
     // Added by Serika Kususugawa to avoid conflict on U+007c.
@@ -681,7 +676,7 @@ uint QJpUnicodeConv_Sun::UnicodeToJisx0212(uint h, uint l) const
 	return 0x2237;
     }
 #endif
-    return QJpUnicodeConv::UnicodeToJisx0212(h, l);
+    return QJpUnicodeConv::unicodeToJisx0212(h, l);
 }
 
 /*
@@ -694,25 +689,25 @@ public:
 
 //    uint AsciiToUnicode(uint h, uint l) const;
 //    uint Jisx0201ToUnicode(uint h, uint l) const;
-    uint Jisx0201LatinToUnicode(uint h, uint l) const;
+    uint jisx0201LatinToUnicode(uint h, uint l) const;
 //    uint Jisx0201KanaToUnicode(uint h, uint l) const;
-    uint Jisx0208ToUnicode(uint h, uint l) const;
-    uint Jisx0212ToUnicode(uint h, uint l) const;
+    uint jisx0208ToUnicode(uint h, uint l) const;
+    uint jisx0212ToUnicode(uint h, uint l) const;
 
 //    uint UnicodeToAscii(uint h, uint l) const;
 //    uint UnicodeToJisx0201(uint h, uint l) const;
-    uint UnicodeToJisx0201Latin(uint h, uint l) const;
+    uint unicodeToJisx0201Latin(uint h, uint l) const;
 //    uint UnicodeToJisx0201Kana(uint h, uint l) const;
-    uint UnicodeToJisx0208(uint h, uint l) const;
-    uint UnicodeToJisx0212(uint h, uint l) const;
+    uint unicodeToJisx0208(uint h, uint l) const;
+    uint unicodeToJisx0212(uint h, uint l) const;
 };
 
-uint QJpUnicodeConv_Microsoft::Jisx0201LatinToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::jisx0201LatinToUnicode(uint h, uint l) const
 {
-    return AsciiToUnicode(h, l);
+    return asciiToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Microsoft::Jisx0208ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::jisx0208ToUnicode(uint h, uint l) const
 {
     if (h == 0x21) {
 	if (l == 0x40) {
@@ -733,10 +728,10 @@ uint QJpUnicodeConv_Microsoft::Jisx0208ToUnicode(uint h, uint l) const
 	    return 0xffe2;
 	}
     }
-    return QJpUnicodeConv::Jisx0208ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0208ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Microsoft::Jisx0212ToUnicode(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::jisx0212ToUnicode(uint h, uint l) const
 {
     if (h == 0x22) {
 	if (l == 0x37) {
@@ -745,15 +740,15 @@ uint QJpUnicodeConv_Microsoft::Jisx0212ToUnicode(uint h, uint l) const
 	    return 0xffe4;
 	}
     }
-    return QJpUnicodeConv::Jisx0212ToUnicode(h, l);
+    return QJpUnicodeConv::jisx0212ToUnicode(h, l);
 }
 
-uint QJpUnicodeConv_Microsoft::UnicodeToJisx0201Latin(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::unicodeToJisx0201Latin(uint h, uint l) const
 {
-    return QJpUnicodeConv::UnicodeToAscii(h, l);
+    return QJpUnicodeConv::unicodeToAscii(h, l);
 }
 
-uint QJpUnicodeConv_Microsoft::UnicodeToJisx0208(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::unicodeToJisx0208(uint h, uint l) const
 {
 #ifdef STRICT
     if (((h == 0x00) && ((l == 0x5c) || (l == 0xa2) || (l == 0xa3) || (l == 0xac))) ||
@@ -784,10 +779,10 @@ uint QJpUnicodeConv_Microsoft::UnicodeToJisx0208(uint h, uint l) const
 	    return 0x224c;
 	}
     }
-    return QJpUnicodeConv::UnicodeToJisx0208(h, l);
+    return QJpUnicodeConv::unicodeToJisx0208(h, l);
 }
 
-uint QJpUnicodeConv_Microsoft::UnicodeToJisx0212(uint h, uint l) const
+uint QJpUnicodeConv_Microsoft::unicodeToJisx0212(uint h, uint l) const
 {
 #ifdef STRICT
     if ((h == 0x00) && ((l == 0x7e) || (l == 0xa6))) {
@@ -805,7 +800,7 @@ uint QJpUnicodeConv_Microsoft::UnicodeToJisx0212(uint h, uint l) const
 	    return 0x2243;
 	}
     }
-    return QJpUnicodeConv::UnicodeToJisx0212(h, l);
+    return QJpUnicodeConv::unicodeToJisx0212(h, l);
 }
 
 
@@ -813,7 +808,7 @@ uint QJpUnicodeConv_Microsoft::UnicodeToJisx0212(uint h, uint l) const
 const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
     const char * e = 0;
-    if ( rule == JU_Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
+    if ( rule == Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
 	QCString env( e );
 	for (int i = 0; i < (int)env.length(); ) {
 	    int j = env.find(',', i);
@@ -826,48 +821,48 @@ const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 		i = j + 1;
 	    }
 	    if (qstricmp(s, "unicode-0.9") == 0) {
-		rule = (rule & 0xff00) | JU_Unicode;
+		rule = (rule & 0xff00) | Unicode;
 	    } else if (qstricmp(s, "unicode-0201") == 0) {
-		rule = (rule & 0xff00) | JU_Unicode_JISX0201;
+		rule = (rule & 0xff00) | Unicode_JISX0201;
 	    } else if (qstricmp(s, "unicode-ascii") == 0) {
-		rule = (rule & 0xff00) | JU_Unicode_ASCII;
+		rule = (rule & 0xff00) | Unicode_ASCII;
 	    } else if (qstricmp(s, "jisx0221-1995") == 0) {
-		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
+		rule = (rule & 0xff00) | JISX0221_JISX0201;
 	    } else if ((qstricmp(s, "open-0201") == 0) ||
 		       (qstricmp(s, "open-19970715-0201") == 0)) {
-		rule = (rule & 0xff00) | JU_JISX0221_JISX0201;
+		rule = (rule & 0xff00) | JISX0221_JISX0201;
 	    } else if ((qstricmp(s, "open-ascii") == 0) ||
 		       (qstricmp(s, "open-19970715-ascii") == 0)) {
-		rule = (rule & 0xff00) | JU_JISX0221_ASCII;
+		rule = (rule & 0xff00) | JISX0221_ASCII;
 	    } else if ((qstricmp(s, "open-ms") == 0) ||
 		       (qstricmp(s, "open-19970715-ms") == 0)) {
-		rule = (rule & 0xff00) | JU_Microsoft_CP932;
+		rule = (rule & 0xff00) | Microsoft_CP932;
 	    } else if (qstricmp(s, "cp932") == 0) {
-		rule = (rule & 0xff00) | JU_Microsoft_CP932;
+		rule = (rule & 0xff00) | Microsoft_CP932;
 	    } else if (qstricmp(s, "jdk1.1.7") == 0) {
-		rule = (rule & 0xff00) | JU_Sun_JDK117;
+		rule = (rule & 0xff00) | Sun_JDK117;
 	    } else if (qstricmp(s, "nec-vdc") == 0) {
-		rule = rule | JU_NEC_VDC;
+		rule = rule | NEC_VDC;
 	    } else if (qstricmp(s, "ibm-vdc") == 0) {
-		rule = rule | JU_IBM_VDC;
+		rule = rule | IBM_VDC;
 	    } else if (qstricmp(s, "udc") == 0) {
-		rule = rule | JU_UDC;
+		rule = rule | UDC;
 	    }
 	}
     }
 
     switch (rule & 0x00ff) {
-    case JU_Unicode_JISX0201:
+    case Unicode_JISX0201:
 	return new QJpUnicodeConv_Unicode_JISX0201(rule);
-    case JU_Unicode_ASCII:
+    case Unicode_ASCII:
 	return new QJpUnicodeConv_Unicode_ASCII(rule);
-    case JU_JISX0221_JISX0201:
+    case JISX0221_JISX0201:
 	return new QJpUnicodeConv_JISX0221_JISX0201(rule);
-    case JU_JISX0221_ASCII:
+    case JISX0221_ASCII:
 	return new QJpUnicodeConv_JISX0221_ASCII(rule);
-    case JU_Sun_JDK117:
+    case Sun_JDK117:
 	return new QJpUnicodeConv_Sun(rule);
-    case JU_Microsoft_CP932:
+    case Microsoft_CP932:
 	return new QJpUnicodeConv_Microsoft(rule);
     default:
 	return new QJpUnicodeConv_Unicode_ASCII(rule);
@@ -879,7 +874,7 @@ const QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
  * JISX0208 <-> ShiftJIS conversion.
  */
 
-static uint Jisx0208ToSjis(uint h, uint l)
+static uint jisx0208ToSjis(uint h, uint l)
 {
     if ((0x0021 <= h) && (h <= 0x007e) && (0x0021 <= l) && (l <= 0x007e)) {
 	return ((((h - 1) >> 1) + ((h <= 0x5e) ? 0x71 : 0xb1)) << 8) |
@@ -888,7 +883,7 @@ static uint Jisx0208ToSjis(uint h, uint l)
     return 0x0000;
 }
 
-static uint SjisToJisx0208(uint h, uint l)
+static uint sjisToJisx0208(uint h, uint l)
 {
     if ((((0x81 <= h) && (h <= 0x9f)) || ((0xe0 <= h) && (h <= 0xef))) &&
 	((0x40 <= l) && (l != 0x7f) && (l <= 0xfc))) {
@@ -914,7 +909,7 @@ static uint SjisToJisx0208(uint h, uint l)
 #define	JISX0201_OVERLINE	0x007e
 #define	UNICODE_OVERLINE	0x203e
 
-static uint Jisx0201ToUnicode11(uint h, uint l)
+static uint jisx0201ToUnicode11(uint h, uint l)
 {
     if (h == 0x00) {
 	if (l < 0x80) {
@@ -937,7 +932,7 @@ static uint Jisx0201ToUnicode11(uint h, uint l)
  * JIS X 0201 (1976) to Unicode mapping table version 0.9 .
  */
 
-static uint Unicode11ToJisx0201(uint h, uint l)
+static uint unicode11ToJisx0201(uint h, uint l)
 {
     if ((h == 0x00) && (l < 0x80)) {
 	if ((l == JISX0201_YEN_SIGN) ||
@@ -2185,7 +2180,7 @@ static unsigned short const jisx0208_to_unicode[] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 
-static uint Jisx0208ToUnicode11(uint h, uint l)
+static uint jisx0208ToUnicode11(uint h, uint l)
 {
     if ((0x0021 <= h) && (h <= 0x007e) && (0x0021 <= l) && (l <= 0x007e)) {
 	return jisx0208_to_unicode[(h - 0x0021) * 0x005e + (l - 0x0021)];
@@ -5654,7 +5649,7 @@ static unsigned short const unicode_to_jisx0208_ff[] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 
-static unsigned short const *unicode_to_jisx0208_map[0x100] = {
+static unsigned short const * const unicode_to_jisx0208_map[0x100] = {
 	/* 0x00XX - 0x0fXX */
 	unicode_to_jisx0208_00,
 	0, 0,
@@ -5782,7 +5777,7 @@ static unsigned short const *unicode_to_jisx0208_map[0x100] = {
 	unicode_to_jisx0208_ff,
 };
 
-static uint Unicode11ToJisx0208(uint h, uint l)
+static uint unicode11ToJisx0208(uint h, uint l)
 {
     unsigned short const *table;
 
@@ -7028,7 +7023,7 @@ static unsigned short const jisx0212_to_unicode[] = {
 #endif
 
 #ifdef USE_JISX0212
-static uint Jisx0212ToUnicode11(uint h, uint l)
+static uint jisx0212ToUnicode11(uint h, uint l)
 {
     if ((0x0021 <= h) && (h <= 0x007e) && (0x0021 <= l) && (l <= 0x007e)) {
 	return jisx0212_to_unicode[(h - 0x0021) * 0x005e + (l - 0x0021)];
@@ -7036,7 +7031,7 @@ static uint Jisx0212ToUnicode11(uint h, uint l)
     return 0x0000;
 }
 #else
-static uint Jisx0212ToUnicode11(uint h, uint l)
+static uint jisx0212ToUnicode11(uint h, uint l)
 {
     return 0x0000;
 }
@@ -10361,7 +10356,7 @@ static unsigned short const unicode_to_jisx0212_ff[] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 
-static unsigned short const *unicode_to_jisx0212_map[0x100] = {
+static unsigned short const * const unicode_to_jisx0212_map[0x100] = {
 	/* 0x00XX - 0x0fXX */
 	unicode_to_jisx0212_00,
 	unicode_to_jisx0212_01,
@@ -10489,7 +10484,7 @@ static unsigned short const *unicode_to_jisx0212_map[0x100] = {
 #endif
 
 #ifdef USE_JISX0212
-static uint Unicode11ToJisx0212(uint h, uint l)
+static uint unicode11ToJisx0212(uint h, uint l)
 {
     unsigned short const *table;
 
@@ -10500,7 +10495,7 @@ static uint Unicode11ToJisx0212(uint h, uint l)
     return 0x0000;
 }
 #else
-static uint Unicode11ToJisx0212(uint h, uint l)
+static uint unicode11ToJisx0212(uint h, uint l)
 {
     return 0x0000;
 }

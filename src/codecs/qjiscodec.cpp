@@ -122,7 +122,7 @@ static const char * const Esc_SEQ[] = { Esc_Ascii,
 					Esc_JISX0212 };
 
 /*! \internal */
-QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
+QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Default))
 {
 }
 
@@ -156,7 +156,7 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		state = Ascii;
 	    }
 	    j = ch.cell();
-	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    if (j < 0x80) {
 		// JIS X 0201 Latin
 		if (state != Ascii ||
@@ -168,10 +168,10 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		state = JISX0201_Kana;
 		j &= 0x7f;
 	    }
-	} else if ((j = conv->UnicodeToJisx0208(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0208(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    state = JISX0208_1983;
-	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212
 	    state = JISX0212;
 	} else {
@@ -280,25 +280,25 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
 		}
 		/* fall throught */
 	      case JISX0201_Latin:
-		u = conv->Jisx0201ToUnicode(ch);
+		u = conv->jisx0201ToUnicode(ch);
 		result += QValidChar(u);
 		break;
 	      case JISX0201_Kana:
-		u = conv->Jisx0201ToUnicode(ch | 0x80);
+		u = conv->jisx0201ToUnicode(ch | 0x80);
 		result += QValidChar(u);
 		break;
 	      case JISX0208_1978:
 	      case JISX0208_1983:
 		if ( i < len-1 ) {
 		    uchar c2 = chars[++i];
-		    u = conv->Jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
+		    u = conv->jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
 		    result += QValidChar(u);
 		}
 		break;
 	      case JISX0212:
 		if ( i < len-1 ) {
 		    uchar c2 = chars[++i];
-		    u = conv->Jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
+		    u = conv->jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
 		    result += QValidChar(u);
 		}
 		break;
@@ -583,11 +583,11 @@ public:
 			    }
 			    /* fall throught */
 			  case JISX0201_Latin:
-			    u = conv->Jisx0201ToUnicode(ch);
+			    u = conv->jisx0201ToUnicode(ch);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0201_Kana:
-			    u = conv->Jisx0201ToUnicode(ch | 0x80);
+			    u = conv->jisx0201ToUnicode(ch | 0x80);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0208_1978:
@@ -604,11 +604,11 @@ public:
 			switch (state) {
 			  case JISX0208_1978:
 			  case JISX0208_1983:
-			    u = conv->Jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+			    u = conv->jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
 			    result += QValidChar(u);
 			    break;
 			  case JISX0212:
-			    u = conv->Jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+			    u = conv->jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
 			    result += QValidChar(u);
 			    break;
 			  default:

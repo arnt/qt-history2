@@ -15,7 +15,7 @@ const QJpUnicodeConv * QFontJis0208Codec::convJP;
 QFontJis0208Codec::QFontJis0208Codec()
 {
     if ( !convJP )
-	convJP = QJpUnicodeConv::newConverter(JU_Default);
+	convJP = QJpUnicodeConv::newConverter(QJpUnicodeConv::Default);
 }
 
 const char* QFontJis0208Codec::name() const
@@ -57,7 +57,7 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 		ch = QChar( ch.cell()-' ', 255 );
 	}
 
-	ch = convJP->UnicodeToJisx0208(ch.unicode());
+	ch = convJP->unicodeToJisx0208(ch.unicode());
 
 	if ( ! ch.isNull() ) {
 	    *rdata++ = ch.row();
@@ -74,7 +74,10 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
-
+bool QFontJis0208Codec::canEncode( QChar ch ) const
+{
+    return ( convJP->unicodeToJisx0208(ch.unicode()) != 0 );
+}
 // ----------------------------------------------------------
 
 extern unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
@@ -136,6 +139,10 @@ QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
+bool QFontKsc5601Codec::canEncode( QChar ch ) const
+{
+    return (qt_UnicodeToKsc5601(ch) != 0);
+}
 
 /********
 
@@ -210,6 +217,12 @@ QCString QFontGB2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     return result;
 }
 
+bool QFontGB2312Codec::canEncode( QChar ch ) const
+{
+    ch = qt_UnicodeToGBK( ch );
+    return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
+}
+
 // ----------------------------------------------------------------
 
 extern unsigned int qt_UnicodeToBig5(unsigned int unicode);
@@ -267,6 +280,12 @@ QCString QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     }
     lenInOut *=2;
     return result;
+}
+
+bool QFontBig5Codec::canEncode( QChar ch ) const
+{
+    ch = qt_UnicodeToBig5( ch );
+    return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
 }
 
 // ---------------------------------------------------------------

@@ -101,7 +101,7 @@ static const uchar Esc = 0x1b;
   Creates a Shift-JIS codec.  Note that this is done automatically by
   the QApplication, you do not need construct your own.
 */
-QSjisCodec::QSjisCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
+QSjisCodec::QSjisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Default))
 {
 }
 
@@ -137,14 +137,14 @@ QCString QSjisCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0201 Latin or JIS X 0201 Kana
 	    *cursor++ = j;
-	} else if ((j = conv->UnicodeToSjis(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToSjis(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    *cursor++ = (j >> 8);
 	    *cursor++ = (j & 0xff);
-	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212 (can't be encoded in ShiftJIS !)
 	    *cursor++ = 0x81;	// white square
 	    *cursor++ = 0xa0;	// white square
@@ -168,7 +168,7 @@ QString QSjisCodec::toUnicode(const char* chars, int len) const
 	uchar ch = chars[i];
 	if ( ch < 0x80 || IsKana(ch) ) {
 	    // JIS X 0201 Latin or JIS X 0201 Kana
-	    uint u = conv->Jisx0201ToUnicode(ch);
+	    uint u = conv->jisx0201ToUnicode(ch);
 	    result += QValidChar(u);
 	} else if ( IsSjisChar1(ch) ) {
 	    // JIS X 0208
@@ -178,7 +178,7 @@ QString QSjisCodec::toUnicode(const char* chars, int len) const
 		    if ( IsUserDefinedChar1(ch) ) {
 			result += QChar::replacement;
 		    } else {
-			uint u = conv->SjisToUnicode(ch, c2);
+			uint u = conv->sjisToUnicode(ch, c2);
 			result += QValidChar(u);
 		    }
 		} else {
@@ -294,7 +294,7 @@ public:
 	      case 0:
 		if ( ch < 0x80 || IsKana(ch) ) {
 		    // JIS X 0201 Latin or JIS X 0201 Kana
-		    uint u = conv->Jisx0201ToUnicode(ch);
+		    uint u = conv->jisx0201ToUnicode(ch);
 		    result += QValidChar(u);
 		} else if ( IsSjisChar1(ch) ) {
 		    // JIS X 0208
@@ -311,7 +311,7 @@ public:
 		    if ( IsUserDefinedChar1(buf[0]) ) {
 			result += QChar::replacement;
 		    } else {
-			uint u = conv->SjisToUnicode(buf[0], ch);
+			uint u = conv->sjisToUnicode(buf[0], ch);
 			result += QValidChar(u);
 		    }
 		} else {

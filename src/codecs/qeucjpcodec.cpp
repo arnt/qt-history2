@@ -125,7 +125,7 @@ static const uchar Ss3 = 0x8f;	// Single Shift 3
 /*!
   Constructs a QEucJpCodec.
 */
-QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter(JU_Default))
+QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter( QJpUnicodeConv::Default ))
 {
 }
 
@@ -176,7 +176,7 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if ((j = conv->UnicodeToJisx0201(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
 	    if (j < 0x80) {
 		// JIS X 0201 Latin ?
 		*cursor++ = j;
@@ -185,11 +185,11 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& len_in_out) const
 		*cursor++ = Ss2;
 		*cursor++ = j;
 	    }
-	} else if ((j = conv->UnicodeToJisx0208(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0208(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0208
 	    *cursor++ = (j >> 8)   | 0x80;
 	    *cursor++ = (j & 0xff) | 0x80;
-	} else if ((j = conv->UnicodeToJisx0212(ch.row(), ch.cell())) != 0) {
+	} else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
 	    // JIS X 0212
 	    *cursor++ = Ss3;
 	    *cursor++ = (j >> 8)   | 0x80;
@@ -220,7 +220,7 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
 	    if ( i < len-1 ) {
 		uchar c2 = chars[++i];
 		if ( IsKana(c2) ) {
-		    uint u = conv->Jisx0201ToUnicode(c2);
+		    uint u = conv->jisx0201ToUnicode(c2);
 		    result += QValidChar(u);
 		} else {
 		    i--;
@@ -235,7 +235,7 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
 		    if ( i < len-1 ) {
 			uchar c3 = chars[++i];
 			if ( IsEucChar(c3) ) {
-			    uint u = conv->Jisx0212ToUnicode(c2 & 0x7f, c3 & 0x7f);
+			    uint u = conv->jisx0212ToUnicode(c2 & 0x7f, c3 & 0x7f);
 			    result += QValidChar(u);
 			} else {
 			    i--;
@@ -256,7 +256,7 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
 	    if ( i < len-1 ) {
 		uchar c2 = chars[++i];
 		if ( IsEucChar(c2) ) {
-		    uint u = conv->Jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
+		    uint u = conv->jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
 		    result += QValidChar(u);
 		} else {
 		    i--;
@@ -415,7 +415,7 @@ public:
 		if ( buf[0] == Ss2 ) {
 		    // JIS X 0201 Kana
 		    if ( IsKana(ch) ) {
-			uint u = conv->Jisx0201ToUnicode(ch);
+			uint u = conv->jisx0201ToUnicode(ch);
 			result += QValidChar(u);
 		    } else {
 			result += QChar::replacement;
@@ -434,7 +434,7 @@ public:
 		} else {
 		    // JIS X 0208-1990
 		    if ( IsEucChar(ch) ) {
-			uint u = conv->Jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+			uint u = conv->jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
 			result += QValidChar(u);
 		    } else {
 			// Error
@@ -446,7 +446,7 @@ public:
 	    case 2:
 		// JIS X 0212
 		if ( IsEucChar(ch) ) {
-		    uint u = conv->Jisx0212ToUnicode(buf[1] & 0x7f, ch & 0x7f);
+		    uint u = conv->jisx0212ToUnicode(buf[1] & 0x7f, ch & 0x7f);
 		    result += QValidChar(u);
 		} else {
 		    result += QChar::replacement;
