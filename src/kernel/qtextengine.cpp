@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include "qtextformat.h"
 #include "qtextengine_p.h"
 #include "qtextlayout_p.h"
 
@@ -17,7 +18,6 @@
 #include <qfont.h>
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
-#include "qtextformat.h"
 #include <qstring.h>
 #include <private/qunicodetables_p.h>
 #include <stdlib.h>

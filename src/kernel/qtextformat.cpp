@@ -16,7 +16,7 @@ class QTextFormatProperty
 public:
     QTextFormatProperty() : type(QTextFormat::Undefined) {}
 
-    QTextFormatProperty(bool value) : type(QTextFormat::Boolean)
+    QTextFormatProperty(bool value) : type(QTextFormat::Bool)
     { data.boolValue = value; }
 
     QTextFormatProperty(int value) : type(QTextFormat::Integer)
@@ -65,7 +65,7 @@ QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 {
     switch (property.type) {
 	case QTextFormat::Undefined: debug << "[Undefined]"; break;
-	case QTextFormat::Boolean: debug << "[" << "Boolean:" << property.data.boolValue << "]"; break;
+	case QTextFormat::Bool: debug << "[" << "Bool:" << property.data.boolValue << "]"; break;
 	case QTextFormat::Integer: debug << "[" << "Integer:" << property.data.intValue << "]"; break;
 	case QTextFormat::Float: debug << "[" << "Float:" << property.data.floatValue << "]"; break;
 	case QTextFormat::String: debug << "[" << "String:" << property.stringValue() << "]"; break;
@@ -165,7 +165,7 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 
     switch (type) {
 	case QTextFormat::Undefined: return true;
-	case QTextFormat::Boolean: return data.boolValue == rhs.data.boolValue;
+	case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
 	case QTextFormat::FormatReference:
 	case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
 	case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
@@ -296,9 +296,9 @@ QTextImageFormat QTextFormat::toImageFormat() const
     return QTextImageFormat(*d);
 }
 
-bool QTextFormat::booleanProperty(int propertyId, bool defaultValue) const
+bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Boolean);
+    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Bool);
 
     if (!prop.isValid())
 	return defaultValue;

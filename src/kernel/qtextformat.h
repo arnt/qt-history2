@@ -70,6 +70,11 @@ public:
 	TableNumRows = 0x4000,
 	TableNumCols = 0x4001,
 
+	// table cell properties
+	TableCellEndOfRow = 0x4800,
+	TableCellRowSpan = 0x4810,
+	TableCellColSpan = 0x4811,
+
 	// image properties
 	ImageName = 0x5000,
 	ImageWidth = 0x5010,
@@ -81,7 +86,7 @@ public:
 
     enum PropertyType {
 	Undefined,
-	Boolean,
+	Bool,
 	Integer,
 	Float,
 	String,
@@ -121,7 +126,7 @@ public:
     QTextTableFormat toTableFormat() const;
     QTextImageFormat toImageFormat() const;
 
-    bool booleanProperty(int propertyId, bool defaultValue = false) const;
+    bool boolProperty(int propertyId, bool defaultValue = false) const;
     int intProperty(int propertyId, int defaultValue = 0) const;
     float floatProperty(int propertyId, float defaultValue = 0.0) const;
     QString stringProperty(int propertyId, const QString &defaultValue = QString::null) const;
@@ -172,27 +177,27 @@ public:
     void setFontItalic(bool italic)
     { setProperty(FontItalic, italic); }
     bool fontItalic() const
-    { return booleanProperty(FontItalic); }
+    { return boolProperty(FontItalic); }
 
     void setFontUnderline(bool underline)
     { setProperty(FontUnderline, underline); }
     bool fontUnderline() const
-    { return booleanProperty(FontUnderline); }
+    { return boolProperty(FontUnderline); }
 
     void setFontOverline(bool overline)
     { setProperty(FontOverline, overline); }
     bool fontOverline() const
-    { return booleanProperty(FontOverline); }
+    { return boolProperty(FontOverline); }
 
     void setFontStrikeOut(bool strikeOut)
     { setProperty(FontStrikeOut, strikeOut); }
     bool fontStrikeOut() const
-    { return booleanProperty(FontStrikeOut); }
+    { return boolProperty(FontStrikeOut); }
 
     void setFontFixedPitch(bool fixedPitch)
     { setProperty(FontFixedPitch, fixedPitch); }
     bool fontFixedPitch() const
-    { return booleanProperty(FontFixedPitch); }
+    { return boolProperty(FontFixedPitch); }
 
     void setColor(const QColor &color)
     { setProperty(Color, int(color.rgb())); }
@@ -202,7 +207,7 @@ public:
     void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
     bool isAnchor() const
-    { return booleanProperty(IsAnchor); }
+    { return boolProperty(IsAnchor); }
 
     void setAnchorHref(const QString &value)
     { setProperty(AnchorHref, value); }
@@ -278,6 +283,19 @@ public:
     { setProperty(BlockIndent, indent); }
     int indent() const
     { return intProperty(BlockIndent); }
+
+    void setTableCellEndOfRow(bool eor)
+    { setProperty(TableCellEndOfRow, eor); }
+    bool tableCellEndOfRow() const
+    { return boolProperty(TableCellEndOfRow); }
+    void setTableCellRowSpan(int tableCellRowSpan)
+    { setProperty(TableCellRowSpan, tableCellRowSpan); }
+    int tableCellRowSpan() const
+    { return intProperty(TableCellRowSpan); }
+    void setTableCellColSpan(int tableCellColSpan)
+    { setProperty(TableCellColSpan, tableCellColSpan); }
+    int tableCellColSpan() const
+    { return intProperty(TableCellColSpan); }
 
 };
 
