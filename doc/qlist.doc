@@ -167,7 +167,7 @@
 */
 
 /*!
-  \fn void QList::sort() const
+  \fn void QList::sort()
 
   Sorts the list by the result of the virtual compareItems() function.
 
