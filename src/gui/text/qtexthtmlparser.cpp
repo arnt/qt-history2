@@ -852,10 +852,11 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontPointSize = parent->fontPointSize;
     fontWeight = parent->fontWeight;
     color = parent->color;
-    bgColor = parent->bgColor;
 
-    if (parent->id != Html_table)
+    if (parent->id != Html_table) {
         alignment = parent->alignment;
+        bgColor = parent->bgColor;
+    }
 
     listStyle = parent->listStyle;
     anchorHref = parent->anchorHref;

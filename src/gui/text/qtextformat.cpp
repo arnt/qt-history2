@@ -1882,6 +1882,21 @@ QFont QTextCharFormat::font() const
     \sa setAlignment()
 */
 
+/*!
+    \fn void QTextTableFormat::setBackgroundColor(const QColor &color)
+
+    Sets the table's background \a color.
+
+    \sa backgroundColor()
+*/
+
+/*!
+    \fn QColor QTextTableFormat::backgroundColor() const
+
+    Returns the table's background color.
+
+    \sa setBackgroundColor()
+*/
 
 
 /*!

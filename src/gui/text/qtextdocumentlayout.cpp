@@ -412,13 +412,20 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
 //                 qDebug("drawing column at %d/%d %d %d", off.x() + td->columnPositions.at(i), off.y() + fd->margin, fd->border, h);
                 painter->drawRect(off.x() + td->columnPositions.at(i) - fd->border, off.y() + fd->margin, fd->border, h);
             }
-
         }
         */
         painter->restore();
     }
 
     if (table) {
+        const QColor bgCol = table->format().backgroundColor();
+        if (bgCol.isValid()) {
+            QRect bgRect = fd->boundingRect;
+            const int margin = fd->margin + fd->border;
+            bgRect.addCoords(margin, margin, -margin, -margin);
+            painter->fillRect(bgRect, bgCol);
+        }
+
         const int rows = table->rows();
         const int columns = table->columns();
         QTextTableData *td = static_cast<QTextTableData *>(data(table));
@@ -479,7 +486,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 }
 
                 {
-                    QColor bgCol = cell.format().tableCellBackgroundColor();
+                    const QColor bgCol = cell.format().tableCellBackgroundColor();
                     if (bgCol.isValid())
                         painter->fillRect(cellRect, bgCol);
                 }

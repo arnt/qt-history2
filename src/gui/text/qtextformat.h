@@ -103,6 +103,7 @@ public:
         TableColumnConstraints = 0x4200,
         TableColumnConstraintValues = 0x4201,
         TableCellSpacing = 0x4300,
+        TableBackgroundColor = 0x4400,
 
         // table cell properties
         TableCellRowSpan = 0x4810,
@@ -477,6 +478,11 @@ public:
     { setProperty(BlockAlignment, int(alignment), Qt::AlignAuto); }
     inline Qt::Alignment alignment() const
     { return QFlag(intProperty(BlockAlignment, Qt::AlignAuto)); }
+
+    inline void setBackgroundColor(const QColor &color)
+    { setProperty(TableBackgroundColor, color); }
+    inline QColor backgroundColor() const
+    { return colorProperty(TableBackgroundColor); }
 };
 
 #endif
