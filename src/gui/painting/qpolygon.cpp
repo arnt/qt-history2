@@ -389,18 +389,6 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
 }
 #endif
 
-/*!
-   \fn QPolygon QPolygon::copy() const
-
-   Use simple assignment instead.
-*/
-
-/*!
-   \fn bool QPolygon::isNull()
-
-   Use isEmpty() instead.
-*/
-
 
 /*!
     \class QPolygonF qpolygon.h
