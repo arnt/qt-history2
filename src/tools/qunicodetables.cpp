@@ -11853,7 +11853,7 @@ const unsigned char QUnicodeTables::otherScripts [118] = {
     0xaf, Mongolian, 0xff, Unicode,		       	// row 0x18, index 46
 #define SCRIPTS_20 52
     0x6f, Unicode, 0x9f, NumberForms,
-    0xab, CurrencySymbols, 0xac, LatinExtendedA_15,
+    0xab, CurrencySymbols, 0xac, Latin,
     0xcf, CurrencySymbols, 0xff, CombiningMarks,		// row 0x20, index 50
 #define SCRIPTS_21 64
     0x4f, LetterlikeSymbols, 0x8f, NumberForms,
