@@ -274,7 +274,7 @@ private:
     double idx() const;
     double idy() const;
 
-    QPainterPrivate *d;
+    QPainterPrivate *data;
 
     friend class QFontEngine;
     friend class QFontEngineBox;
