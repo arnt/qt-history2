@@ -52,7 +52,7 @@ public:
 	: cell_idx(-1), eor_idx(-1),grid(0), nCols(0), nRows(0), dirty(true) {}
     ~QTextTablePrivate();
 
-    bool isEmpty() const { return rowList.isEmpty(); }
+    inline bool isEmpty() const { return rowList.isEmpty(); }
 
     QTextPieceTable::BlockIterator cellStart(int cursor) const;
     QTextPieceTable::BlockIterator cellEnd(int cursor) const;
@@ -63,18 +63,18 @@ public:
 
     int rowAt(int cursor) const;
 
-    int rows() const { if (dirty) updateGrid(); return nRows; }
-    int cols() const { if (dirty) updateGrid(); return nCols; }
+    inline int rows() const { if (dirty) updateGrid(); return nRows; }
+    inline int cols() const { if (dirty) updateGrid(); return nCols; }
 
-    bool operator == (const QTextTablePrivate &o) {
+    inline bool operator == (const QTextTablePrivate &o) {
 	return (cell_idx == o.cell_idx);
     }
-    bool operator != (const QTextTablePrivate &o) {
+    inline bool operator != (const QTextTablePrivate &o) {
 	return (cell_idx != o.cell_idx);
     }
 
     void updateGrid() const;
-    QFragmentMap<QTextBlock>::ConstIterator cellAt(int r, int c) const {
+    inline QFragmentMap<QTextBlock>::ConstIterator cellAt(int r, int c) const {
 	if (dirty) updateGrid();
 	// nCols is without the 'eor column', however in the grid we store the
 	// eor cells, hence the +1
@@ -92,9 +92,9 @@ public:
     QList<int> columnWidth;
     QList<int> columnMinWidth;
     QList<int> rowHeight;
-    void setDirty() { dirty = true; }
+    inline void setDirty() { dirty = true; }
 private:
-    void setCell(int r, int c, const QFragmentMap<QTextBlock>::ConstIterator block) const
+    inline void setCell(int r, int c, const QFragmentMap<QTextBlock>::ConstIterator block) const
 	{ grid[r*nCols + c] = block; }
     mutable QFragmentMap<QTextBlock>::ConstIterator *grid;
     mutable int nCols;

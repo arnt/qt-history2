@@ -15,18 +15,18 @@ public:
 
     QTextFormat format(int idx, int defaultFormatType = -1) const;
 
-    QTextBlockFormat blockFormat(int index) const
+    inline QTextBlockFormat blockFormat(int index) const
     { return format(index, QTextFormat::BlockFormat).toBlockFormat(); }
-    QTextCharFormat charFormat(int index) const
+    inline QTextCharFormat charFormat(int index) const
     { return format(index, QTextFormat::CharFormat).toCharFormat(); }
-    QTextListFormat listFormat(int index) const
+    inline QTextListFormat listFormat(int index) const
     { return format(index, QTextFormat::ListFormat).toListFormat(); }
-    QTextTableFormat tableFormat(int index) const
+    inline QTextTableFormat tableFormat(int index) const
     { return format(index, QTextFormat::TableFormat).toTableFormat(); }
-    QTextImageFormat imageFormat(int index) const
+    inline QTextImageFormat imageFormat(int index) const
     { return format(index, QTextFormat::ImageFormat).toImageFormat(); }
 
-    int numFormats() const { return formats.count(); }
+    inline int numFormats() const { return formats.count(); }
 
 private:
     int indexToReference(int idx) const;

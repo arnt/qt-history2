@@ -19,7 +19,7 @@ namespace QText
 struct QTextDocumentConfig
 {
     // ### sane defaults?
-    QTextDocumentConfig() : indentValue(40) {}
+    inline QTextDocumentConfig() : indentValue(40) {}
 
     int indentValue;
 

@@ -28,13 +28,13 @@ public:
 class QTextListItem
 {
 public:
-    QTextListItem() : item(-1) {}
+    inline QTextListItem() : item(-1) {}
     QTextListItem(const QTextPieceTable::BlockIterator &block);
     QTextListItem(QTextList *_list, int _item);
 
     QString text() const;
 
-    int itemNumber() const { return item; }
+    inline int itemNumber() const { return item; }
 
 private:
     QPointer<QTextList> list;

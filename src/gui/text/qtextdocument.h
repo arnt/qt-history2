@@ -43,7 +43,7 @@ public:
     bool isUndoRedoEnabled() const;
 
     // ###
-    QTextPieceTablePointer &table() { return pieceTable; }
+    inline QTextPieceTablePointer &table() { return pieceTable; }
 
     QString documentTitle() const;
 

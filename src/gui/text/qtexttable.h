@@ -17,16 +17,16 @@ public:
     QTextTableCellProperties();
     ~QTextTableCellProperties();
 
-    int row() const { return r; }
-    int col() const { return c; }
+    inline int row() const { return r; }
+    inline int col() const { return c; }
 
-    int rowSpan() const { return rSpan; }
-    int colSpan() const { return cSpan; }
+    inline int rowSpan() const { return rSpan; }
+    inline int colSpan() const { return cSpan; }
 
-    bool isValid() const { return r > 0 && c > 0; }
+    inline bool isValid() const { return r > 0 && c > 0; }
 
-    QTextCursor start() const { return s; }
-    QTextCursor end() const { return e; }
+    inline QTextCursor start() const { return s; }
+    inline QTextCursor end() const { return e; }
 
     inline bool operator==(const QTextTableCellProperties &other) const
     { return r == other.r && c == other.c; }
@@ -73,10 +73,10 @@ public:
     void setFormat(const QTextTableFormat &format);
     QTextTableFormat format() const;
 
-    bool operator == (const QTextTable &o) {
+    inline bool operator == (const QTextTable &o) {
 	return (d == o.d);
     }
-    bool operator != (const QTextTable &o) {
+    inline bool operator != (const QTextTable &o) {
 	return (d != o.d);
     }
 

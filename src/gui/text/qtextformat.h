@@ -110,19 +110,19 @@ public:
     inline QTextFormat operator+(const QTextFormat &other) const
     { QTextFormat result(*this); result += other; return result; }
 
-    bool isValid() const { return type() != -1; }
+    inline bool isValid() const { return type() != -1; }
 
-    int type() const { return _type; }
-    int inheritedType() const { return _inheritedType; }
+    inline int type() const { return _type; }
+    inline int inheritedType() const { return _inheritedType; }
 
-    bool inheritsFormatType(int otherType) const
+    inline bool inheritsFormatType(int otherType) const
     { return type() == otherType || inheritedType() == otherType; }
 
-    bool isCharFormat() const { return inheritsFormatType(CharFormat); }
-    bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
-    bool isListFormat() const { return inheritsFormatType(ListFormat); }
-    bool isTableFormat() const { return inheritsFormatType(TableFormat); }
-    bool isImageFormat() const { return inheritsFormatType(ImageFormat); }
+    inline bool isCharFormat() const { return inheritsFormatType(CharFormat); }
+    inline bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
+    inline bool isListFormat() const { return inheritsFormatType(ListFormat); }
+    inline bool isTableFormat() const { return inheritsFormatType(TableFormat); }
+    inline bool isImageFormat() const { return inheritsFormatType(ImageFormat); }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
@@ -158,78 +158,78 @@ private:
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 {
 public:
-    QTextCharFormat() : QTextFormat(CharFormat) {}
+    inline QTextCharFormat() : QTextFormat(CharFormat) {}
 
     void setFont(const QFont &font);
     QFont font() const;
 
-    void setFontFamily(const QString &family)
+    inline void setFontFamily(const QString &family)
     { setProperty(FontFamily, family); }
-    QString fontFamily() const
+    inline QString fontFamily() const
     { return stringProperty(FontFamily); }
 
-    void setFontPointSize(float size)
+    inline void setFontPointSize(float size)
     { setProperty(FontPointSize, size); }
-    float fontPointSize() const
+    inline float fontPointSize() const
     { return floatProperty(FontPointSize); }
 
-    void setFontWeight(int weight)
+    inline void setFontWeight(int weight)
     { setProperty(FontWeight, weight); }
-    int fontWeight() const
+    inline int fontWeight() const
     { return intProperty(FontWeight); }
 
-    void setFontItalic(bool italic)
+    inline void setFontItalic(bool italic)
     { setProperty(FontItalic, italic); }
-    bool fontItalic() const
+    inline bool fontItalic() const
     { return boolProperty(FontItalic); }
 
-    void setFontUnderline(bool underline)
+    inline void setFontUnderline(bool underline)
     { setProperty(FontUnderline, underline); }
-    bool fontUnderline() const
+    inline bool fontUnderline() const
     { return boolProperty(FontUnderline); }
 
-    void setFontOverline(bool overline)
+    inline void setFontOverline(bool overline)
     { setProperty(FontOverline, overline); }
-    bool fontOverline() const
+    inline bool fontOverline() const
     { return boolProperty(FontOverline); }
 
-    void setFontStrikeOut(bool strikeOut)
+    inline void setFontStrikeOut(bool strikeOut)
     { setProperty(FontStrikeOut, strikeOut); }
-    bool fontStrikeOut() const
+    inline bool fontStrikeOut() const
     { return boolProperty(FontStrikeOut); }
 
-    void setFontFixedPitch(bool fixedPitch)
+    inline void setFontFixedPitch(bool fixedPitch)
     { setProperty(FontFixedPitch, fixedPitch); }
-    bool fontFixedPitch() const
+    inline bool fontFixedPitch() const
     { return boolProperty(FontFixedPitch); }
 
-    void setColor(const QColor &color)
+    inline void setColor(const QColor &color)
     { setProperty(Color, int(color.rgb())); }
-    QColor color() const
+    inline QColor color() const
     { if (hasProperty(Color)) return QColor(intProperty(Color)); else return QColor(); }
 
-    void setAnchor(bool anchor)
+    inline void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
-    bool isAnchor() const
+    inline bool isAnchor() const
     { return boolProperty(IsAnchor); }
 
-    void setAnchorHref(const QString &value)
+    inline void setAnchorHref(const QString &value)
     { setProperty(AnchorHref, value); }
-    QString anchorHref() const
+    inline QString anchorHref() const
     { return stringProperty(AnchorHref); }
 
-    void setAnchorName(const QString &name)
+    inline void setAnchorName(const QString &name)
     { setProperty(AnchorName, name); }
-    QString anchorName() const
+    inline QString anchorName() const
     { return stringProperty(AnchorName); }
 
-    void setNonDeletable(bool d)
+    inline void setNonDeletable(bool d)
     { setProperty(NonDeletable, d); }
-    bool nonDeletable() const
+    inline bool nonDeletable() const
     { return boolProperty(NonDeletable); }
 
 protected:
-    QTextCharFormat(int type) : QTextFormat(type, CharFormat) {}
+    inline QTextCharFormat(int type) : QTextFormat(type, CharFormat) {}
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextCharFormat
@@ -237,88 +237,88 @@ class Q_GUI_EXPORT QTextBlockFormat : public QTextCharFormat
 public:
     enum Direction { LeftToRight, RightToLeft, AutoDirection };
 
-    QTextBlockFormat() : QTextCharFormat(BlockFormat) {}
+    inline QTextBlockFormat() : QTextCharFormat(BlockFormat) {}
 
-    void setDirection(Direction dir)
+    inline void setDirection(Direction dir)
     { setProperty(BlockDirection, dir); }
-    Direction direction() const
+    inline Direction direction() const
     { return static_cast<Direction>(intProperty(BlockDirection, AutoDirection)); }
 
-    void setAlignment(Qt::Alignment alignment)
+    inline void setAlignment(Qt::Alignment alignment)
     { setProperty(BlockAlignment, int(alignment)); }
-    Qt::Alignment alignment() const
+    inline Qt::Alignment alignment() const
     { return intProperty(BlockAlignment); }
 
-    void setListFormatIndex(int idx)
+    inline void setListFormatIndex(int idx)
     { setFormatReferenceProperty(BlockListFormatIndex, idx); }
-    int listFormatIndex() const
+    inline int listFormatIndex() const
     { return formatReferenceProperty(BlockListFormatIndex); }
 
     // ################# shouldn't we ensure you can only set one reference?
     // both a table and a list reference don't make sense
-    void setTableFormatIndex(int idx)
+    inline void setTableFormatIndex(int idx)
     { setFormatReferenceProperty(BlockTableFormatIndex, idx); }
-    int tableFormatIndex() const
+    inline int tableFormatIndex() const
     { return formatReferenceProperty(BlockTableFormatIndex); }
 
-    void setTopMargin(int margin)
+    inline void setTopMargin(int margin)
     { setProperty(BlockTopMargin, margin); }
-    int topMargin() const
+    inline int topMargin() const
     { return intProperty(BlockTopMargin); }
 
-    void setBottomMargin(int margin)
+    inline void setBottomMargin(int margin)
     { setProperty(BlockBottomMargin, margin); }
-    int bottomMargin() const
+    inline int bottomMargin() const
     { return intProperty(BlockBottomMargin); }
 
-    void setLeftMargin(int margin)
+    inline void setLeftMargin(int margin)
     { setProperty(BlockLeftMargin, margin); }
-    int leftMargin() const
+    inline int leftMargin() const
     { return intProperty(BlockLeftMargin); }
 
-    void setRightMargin(int margin)
+    inline void setRightMargin(int margin)
     { setProperty(BlockRightMargin, margin); }
-    int rightMargin() const
+    inline int rightMargin() const
     { return intProperty(BlockRightMargin); }
 
-    void setFirstLineMargin(int margin)
+    inline void setFirstLineMargin(int margin)
     { setProperty(BlockFirstLineMargin, margin); }
-    int firstLineMargin() const
+    inline int firstLineMargin() const
     { return intProperty(BlockFirstLineMargin); }
 
-    void setIndent(int indent)
+    inline void setIndent(int indent)
     { setProperty(BlockIndent, indent); }
-    int indent() const
+    inline int indent() const
     { return intProperty(BlockIndent); }
 
-    void setTableCellEndOfRow(bool eor)
+    inline void setTableCellEndOfRow(bool eor)
     { setProperty(TableCellEndOfRow, eor); }
-    bool tableCellEndOfRow() const
+    inline bool tableCellEndOfRow() const
     { return boolProperty(TableCellEndOfRow); }
-    void setTableCellRowSpan(int tableCellRowSpan)
+    inline void setTableCellRowSpan(int tableCellRowSpan)
     { setProperty(TableCellRowSpan, tableCellRowSpan); }
-    int tableCellRowSpan() const
+    inline int tableCellRowSpan() const
     { return intProperty(TableCellRowSpan, 1); }
-    void setTableCellColSpan(int tableCellColSpan)
+    inline void setTableCellColSpan(int tableCellColSpan)
     { setProperty(TableCellColSpan, tableCellColSpan); }
-    int tableCellColSpan() const
+    inline int tableCellColSpan() const
     { return intProperty(TableCellColSpan, 1); }
 
-    void setNonBreakableLines(bool b)
+    inline void setNonBreakableLines(bool b)
     { setProperty(BlockNonBreakableLines, b); }
-    bool nonBreakableLines() const
+    inline bool nonBreakableLines() const
     { return boolProperty(BlockNonBreakableLines); }
 
-    void setBackgroundColor(const QColor &color)
+    inline void setBackgroundColor(const QColor &color)
     { setProperty(BlockBackgroundColor, int(color.rgb())); }
-    QColor backgroundColor() const
+    inline QColor backgroundColor() const
     { if (hasProperty(BlockBackgroundColor)) return QColor(intProperty(BlockBackgroundColor)); else return QColor(); }
 };
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
 {
 public:
-    QTextListFormat() : QTextFormat(ListFormat) {}
+    inline QTextListFormat() : QTextFormat(ListFormat) {}
 
     enum Style {
 	ListDisc = -1,
@@ -332,14 +332,14 @@ public:
 #endif
     };
 
-    void setStyle(int style)
+    inline void setStyle(int style)
     { setProperty(ListStyle, style); }
-    int style() const
+    inline int style() const
     { return intProperty(ListStyle, ListStyleUndefined); }
 
-    void setIndent(int indent)
+    inline void setIndent(int indent)
     { setProperty(ListIndent, indent); }
-    int indent() const
+    inline int indent() const
     { return intProperty(ListIndent); }
 
 };
@@ -347,32 +347,32 @@ public:
 class Q_GUI_EXPORT QTextTableFormat : public QTextFormat
 {
 public:
-    QTextTableFormat() : QTextFormat(TableFormat) {}
+    inline QTextTableFormat() : QTextFormat(TableFormat) {}
 
-    void setBorder(int border)
+    inline void setBorder(int border)
     { setProperty(TableBorder, border); }
-    int border() const
+    inline int border() const
     { return intProperty(TableBorder, 1); }
 };
 
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
-    QTextImageFormat() : QTextCharFormat(ImageFormat) {}
+    inline QTextImageFormat() : QTextCharFormat(ImageFormat) {}
 
-    void setName(const QString &name)
+    inline void setName(const QString &name)
     { setProperty(ImageName, name); }
-    QString name() const
+    inline QString name() const
     { return stringProperty(ImageName); }
 
-    void setWidth(int width)
+    inline void setWidth(int width)
     { setProperty(ImageWidth, width); }
-    int width() const
+    inline int width() const
     { return intProperty(ImageWidth); }
 
-    void setHeight(int height)
+    inline void setHeight(int height)
     { setProperty(ImageHeight, height); }
-    int height() const
+    inline int height() const
     { return intProperty(ImageHeight); }
 };
 

@@ -28,9 +28,9 @@ private slots:
 private:
     struct Handler
     {
-	Handler() : iface(0), component(0) {}
+	inline Handler() : iface(0), component(0) {}
 
-	bool isNull() const { return !component; }
+	inline bool isNull() const { return !component; }
 
 	QTextInlineObjectInterface *iface;
 	QObject *component;

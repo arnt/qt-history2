@@ -43,14 +43,14 @@ public:
 
     struct Fragment;
 
-    void appendBlock(const QTextBlockFormat &format)
+    inline void appendBlock(const QTextBlockFormat &format)
     { appendText(QString(QTextParagraphSeparator), format); }
-    void appendBlock(int formatIdx)
+    inline void appendBlock(int formatIdx)
     { appendText(QString(QTextParagraphSeparator), formatIdx); }
-    void appendText(const QString &text, const QTextFormat &format)
+    inline void appendText(const QString &text, const QTextFormat &format)
     { appendText(text, localFormatCollection.indexForFormat(format)); }
     void appendText(const QString &text, int formatIdx, int origPos = -1);
-    void appendImage(const QTextImageFormat &format)
+    inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QTextObjectReplacementChar), format); }
 
     struct Fragment

@@ -33,9 +33,9 @@ inline void qDelete(QTextCursorPrivate *) {}
 class QTextFragment : public QFragment
 {
 public:
-    void initialize() {}
-    void invalidate() const {}
-    void free() {}
+    inline void initialize() {}
+    inline void invalidate() const {}
+    inline void free() {}
     int position;
     int format;
 };
@@ -43,11 +43,11 @@ public:
 class QTextBlock : public QFragment
 {
 public:
-    void initialize()
+    inline void initialize()
     { layout = 0; layoutDirty = true; textDirty = true; rect = QRect(); }
-    void invalidate() const
+    inline void invalidate() const
     { layoutDirty = true; textDirty = true; }
-    void free()
+    inline void free()
     { if (layoutDirty) delete layout; }
 
     // ##### probably store a QTextEngine * here!
@@ -101,10 +101,10 @@ public:
     {
 	const QTextPieceTable *pt;
     public:
-	BlockIterator(const QFragmentMap<QTextBlock>::ConstIterator i, const QTextPieceTable *p)
+	inline BlockIterator(const QFragmentMap<QTextBlock>::ConstIterator i, const QTextPieceTable *p)
 	    : QFragmentMap<QTextBlock>::ConstIterator(i),  pt(p) {}
 
-	const QTextPieceTable *pieceTable() const { return pt; }
+	inline const QTextPieceTable *pieceTable() const { return pt; }
 	QTextLayout *layout() const;
 
 	QString blockText() const;
@@ -114,7 +114,7 @@ public:
 	void setBlockFormat(const QTextBlockFormat &format);
 	QTextBlockFormat blockFormat() const;
 	int blockFormatIndex() const;
-	bool contains(int position) const
+	inline bool contains(int position) const
 	    { return position >= start() && position <= end(); }
     };
 
@@ -132,27 +132,27 @@ public:
     void setFormat(int pos, int length, const QTextFormat &newFormat, FormatChangeMode mode = SetFormat);
 
     void undoRedo(bool undo);
-    void undo();
-    void redo();
+    inline void undo() { undoRedo(true); }
+    inline void redo() { undoRedo(false); }
     void appendUndoItem(QAbstractUndoItem *);
     void truncateUndoStack();
-    void beginUndoBlock() { undoBlock++; }
+    inline void beginUndoBlock() { undoBlock++; }
     void endUndoBlock();
     void enableUndoRedo(bool enable);
-    bool isUndoRedoEnabled() const { return undoEnabled; }
+    inline bool isUndoRedoEnabled() const { return undoEnabled; }
 
-    QString buffer() const { return text; }
+    inline QString buffer() const { return text; }
     QString plainText() const;
-    int length() const { return fragments.length(); }
+    inline int length() const { return fragments.length(); }
 
-    QTextFormatCollection *formatCollection() { return &formats; }
-    const QTextFormatCollection *formatCollection() const { return &formats; }
-    QTextListManager *listManager() const { return lists; }
-    QTextTableManager *tableManager() const { return tables; }
-    QTextObjectManager *objectManager() const { return objects; }
-    QTextDocumentLayout *layout() const { return lout; }
+    inline QTextFormatCollection *formatCollection() { return &formats; }
+    inline const QTextFormatCollection *formatCollection() const { return &formats; }
+    inline QTextListManager *listManager() const { return lists; }
+    inline QTextTableManager *tableManager() const { return tables; }
+    inline QTextObjectManager *objectManager() const { return objects; }
+    inline QTextDocumentLayout *layout() const { return lout; }
 
-    FragmentIterator find(int pos) const { return fragments.find(pos); }
+    inline FragmentIterator find(int pos) const { return fragments.find(pos); }
     inline FragmentIterator begin() const { return fragments.begin(); }
     inline FragmentIterator end() const { return fragments.end(); }
 
@@ -161,8 +161,8 @@ public:
     inline BlockIterator blocksFind(int pos) const { return BlockIterator(blocks.find(pos), this); }
     inline int numBlocks() const { return blocks.numNodes(); }
 
-    QTextDocumentConfig *config() { return &docConfig; }
-    const QTextDocumentConfig *config() const { return &docConfig; }
+    inline QTextDocumentConfig *config() { return &docConfig; }
+    inline const QTextDocumentConfig *config() const { return &docConfig; }
 
     int nextCursorPosition(int position, QTextLayout::CursorMode mode) const;
     int previousCursorPosition(int position, QTextLayout::CursorMode mode) const;
@@ -183,8 +183,8 @@ private:
     void insertWithoutUndo(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
 
 public:
-    void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
-    void removeCursor(QTextCursorPrivate *c) { cursors.remove(c); }
+    inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
+    inline void removeCursor(QTextCursorPrivate *c) { cursors.remove(c); }
 
 private:
     QTextPieceTable(const QTextPieceTable& m);
@@ -211,8 +211,5 @@ private:
 
     QTextDocumentConfig docConfig;
 };
-
-inline void QTextPieceTable::undo() { undoRedo(true); }
-inline void QTextPieceTable::redo() { undoRedo(false); }
 
 #endif // QPIECEMAP_H

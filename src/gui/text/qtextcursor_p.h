@@ -24,9 +24,9 @@ public:
     void insertBlock(const QTextBlockFormat &format);
     bool moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    QTextPieceTable::BlockIterator block() const
+    inline QTextPieceTable::BlockIterator block() const
     { return pieceTable->blocksFind(position-1); }
-    QTextBlockFormat blockFormat() const
+    inline QTextBlockFormat blockFormat() const
     { return block().blockFormat(); }
 
     void adjustCursor(int dir);

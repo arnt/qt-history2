@@ -32,7 +32,7 @@ struct QTextHtmlParserAttribute {
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
-    QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isTableCell(false), isAnchor(false), 
+    inline QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isTableCell(false), isAnchor(false), 
 			  isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
 			  fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
 			  alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),

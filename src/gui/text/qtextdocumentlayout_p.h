@@ -43,14 +43,14 @@ public:
     QTextPieceTable::BlockIterator layoutCell(QTextPieceTable::BlockIterator block, QPoint *pos);
     QTextPieceTable::BlockIterator layoutTable(QTextPieceTable::BlockIterator block, QPoint *pos);
 
-    QTextPieceTable *pieceTable() const { return static_cast<QTextPieceTable *>(parent()); }
+    inline QTextPieceTable *pieceTable() const { return static_cast<QTextPieceTable *>(parent()); }
 
-    void setPageSize(const QSize &size) { pgSize = size; }
-    QSize pageSize() const { return pgSize; }
+    inline void setPageSize(const QSize &size) { pgSize = size; }
+    inline QSize pageSize() const { return pgSize; }
 
-    QRect pageRect(int /*page*/) const
-	{ return QRect(0, 0, pgSize.width(), totalHeight()); } // ####
-    int numPages() const { return 1; } // #####
+    inline QRect pageRect(int /*page*/) const
+    { return QRect(0, 0, pgSize.width(), totalHeight()); } // ####
+    inline int numPages() const { return 1; } // #####
 
     // ### remove me
     int totalHeight() const;

@@ -19,7 +19,7 @@ public:
 
     int count() const;
 
-    bool isEmpty() const
+    inline bool isEmpty() const
     { return count() == 0; }
 
     QTextCursor item(int i) const;
