@@ -532,6 +532,7 @@ bool QDateTimeEdit::setFormat(const QString &format)
         d->sizehintdirty = true;
 	d->update();
         d->edit->setCursorPosition(0);
+        d->editorCursorPositionChanged(-1, 0); // ### Why do I need to do this?
 	return true;
     }
     return false;
@@ -826,6 +827,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
             }
         }
     }
+//     qDebug("oldpos %d newpos %d", oldpos, newpos);
 //     qDebug("(%s)currentsection = %s (%s)oldsection = %s",
 //            sectionName(currentsection).latin1(),
 //            sectionName(s).latin1(),
@@ -851,9 +853,9 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 
 /*!
     \internal
-    Gets the digit from a variant. E.g.
+    Gets the digit from a corevariant. E.g.
 
-    QVariant var(QDate(2004, 02, 02));
+    QCoreVariant var(QDate(2004, 02, 02));
     int digit = getDigit(var, Year);
     // digit = 2004
 */
@@ -873,6 +875,7 @@ int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
     case MinutesSection: return t.toTime().minute();
     case SecondsSection: return t.toTime().second();
     case MSecsSection: return t.toTime().msec();
+    case YearsTwoDigitsSection: return (t.toDate().year() % 100);
     case YearsSection: return t.toDate().year();
     case MonthsShortNameSection:
     case MonthsSection: return t.toDate().month();
@@ -1125,7 +1128,7 @@ QDateTimeEdit::Section QDateTimeEditPrivate::publicSection(Section s) const
 QDateTimeEditPrivate::Section QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int pos)
 {
     for (int i=0; i<list->size(); ++i) {
-	if (list->at(i).section == ds)
+	if ((list->at(i).section & ~Internal) == (ds & ~Internal))
 	    return ds;
     }
     SectionNode s;
@@ -1163,6 +1166,9 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 
     Parses the format \a newFormat. If successful, returns true and
     sets up the format. Else keeps the old format and returns false.
+
+
+    ### What to do if people set yy and have a date/min/max that is before 1900?
 */
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not escape yet
@@ -1224,7 +1230,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 		break; }
 	    case 'y':
 		if (newFormat.at(i+1) == 'y') {
-		    const bool four = (i + 3 <(int)newFormat.length() && newFormat.at(i+2) == 'y' && newFormat.at(i+3) == 'y');
+                    const bool four = (i + 3 <(int)newFormat.length() && newFormat.at(i+2) == 'y' && newFormat.at(i+3) == 'y');
 		    error = addSection(&list, four ? YearsSection : YearsTwoDigitsSection, i);
                     newSeparators << newFormat.mid(index, i - index);
                     index = (i += (four ? 3 : 1)) + 1;
@@ -1252,17 +1258,21 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
 		    continue;
 		}
 		break;
+	    case '\\':
+                // ### this should do something about something
+                break;
+
 	    default: break;
 	    }
 	}
     }
     if (error != NoSection) {
-	qWarning("Could not parse format. '%s' occurs twice in '%s'.",
-		 sectionName(error).latin1(), newFormat.latin1());
+// 	qWarning("Could not parse format. '%s' occurs twice in '%s'.",
+// 		 sectionName(error).latin1(), newFormat.latin1());
 	return false;
     } else if (list.isEmpty()) {
-	qWarning("Could not parse format. No sections in format '%s'.",
-		 newFormat.latin1());
+// 	qWarning("Could not parse format. No sections in format '%s'.",
+// 		 newFormat.latin1());
 	return false;
     }
 
