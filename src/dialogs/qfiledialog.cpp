@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#319 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#320 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1257,7 +1257,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	return info.name();
     case 1:
 	if ( info.isFile() )
-	    return QString().sprintf( "%d", info.size() );
+	    return QString::number(info.size());
 	else
 	    return QString::fromLatin1("");
     case 2:
