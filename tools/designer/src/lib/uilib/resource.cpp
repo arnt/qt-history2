@@ -802,26 +802,9 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
             dom_prop->setElementCstring(v.toByteArray());
         } break;
 
-#if 0
-        case QVariant::Int: {
-            if (prop.isFlagType())
-                qWarning("flags property not supported yet!!");
-
-            if (prop.isEnumType()) {
-                QString scope = QString::fromUtf8(prop.enumerator().scope());
-                if (scope.size())
-                    scope += QString::fromUtf8("::");
-                QString e = prop.enumerator().valueToKey(v.toInt());
-                if (e.size())
-                    dom_prop->setElementEnum(scope + e);
-            } else
-                dom_prop->setElementNumber(v.toInt());
-        } break;
-#else
         case QVariant::Int: {
             dom_prop->setElementNumber(v.toInt());
         } break;
-#endif
 
         case QVariant::UInt: {
             dom_prop->setElementNumber(v.toUInt());
@@ -837,6 +820,15 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
             pt->setElementX(point.x());
             pt->setElementY(point.y());
             dom_prop->setElementPoint(pt);
+        } break;
+
+        case QVariant::Color: {
+            DomColor *clr = new DomColor();
+            QColor color = qvariant_cast<QColor>(v);
+            clr->setElementRed(color.red());
+            clr->setElementGreen(color.green());
+            clr->setElementBlue(color.blue());
+            dom_prop->setElementColor(clr);
         } break;
 
         case QVariant::Size: {
