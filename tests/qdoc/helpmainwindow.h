@@ -50,13 +50,17 @@ private slots:
     void setupHistoryMenu();
     void showFromHistory( int id );
 
+    void preparePorgress( int );
+    void incProcess();
+    void finishProgress();
+    
 private:
     QPopupMenu *history;
     QString docDir;
     bool indexCreated;
     QProgressBar *bar;
     QLabel *label;
-    
+
 };
 
 #endif

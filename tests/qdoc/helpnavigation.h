@@ -12,6 +12,8 @@ class QListBox;
 class QLineEdit;
 class QListView;
 class QProgressBar;
+class QComboBox;
+class QPushButton;
 
 class HelpNavigationListItem : public QListBoxText
 {
@@ -69,22 +71,31 @@ public:
 signals:
     void showLink( const QString &s, const QString& t );
     void moveFocusToBrowser();
-
+    void preparePorgress( int );
+    void incProcess();
+    void finishProgress();
+    
 private slots:
     void searchInIndexLine( const QString &s );
     void showTopic( QListBoxItem * );
     void setIndexTopic( QListBoxItem * );
     void showContents( QListViewItem * );
-
+    void startSearch();
+    
 private:
+    QListViewItem *doSearch( const QString &fn, const QString &query, QListViewItem *after );
+    
     QTabWidget *tabWidget;
     QLineEdit *indexEdit;
     QListBox *indexList;
     QMap<QString, QString> titleMap;
-    QListView *contentsView, *bookmarkList;
-    QWidget *contentsTab, *indexTab, *bookmarkTab;
+    QListView *contentsView, *bookmarkList, *searchList;
+    QWidget *contentsTab, *indexTab, *bookmarkTab, *searchTab;
     QString docDir;
-
+    QComboBox *searchCombo;
+    QPushButton *searchButton;
+    bool inSearch;
+    
 };
 
 #endif

@@ -16,6 +16,8 @@
 #include <qtl.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
+#include <qcombobox.h>
+#include <qdir.h>
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
     : QListBoxText( ls, txt )
@@ -57,7 +59,7 @@ QString HelpNavigationContentsItem::link() const
 }
 
 HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
-    : QWidget( parent ), docDir( dd )
+    : QWidget( parent ), docDir( dd ), inSearch( FALSE )
 {
     QVBoxLayout *layout = new QVBoxLayout( this );
     layout->setMargin( 5 );
@@ -82,7 +84,8 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 	     this, SLOT( showContents( QListViewItem * ) ) );
     connect( contentsView, SIGNAL( returnPressed( QListViewItem * ) ),
 	     this, SIGNAL( moveFocusToBrowser() ) );
-
+    contentsView->setFocus();
+    
     // ----------- index tab -----------
     indexTab = new QWidget( tabWidget );
     tabWidget->addTab( indexTab, tr( "&Index" ) );
@@ -128,12 +131,13 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
     bookmarkLayout->setMargin( 5 );
     bookmarkLayout->setSpacing( 5 );
 
-    l = new QLabel( tr( "Topics:" ), bookmarkTab );
+    l = new QLabel( tr( "&Topics:" ), bookmarkTab );
     bookmarkLayout->addWidget( l );
-
+        
     bookmarkList = new QListView( bookmarkTab );
     bookmarkLayout->addWidget( bookmarkList );
-
+    l->setBuddy( bookmarkList );
+    
     QHBoxLayout *buttonLayout = new QHBoxLayout( bookmarkLayout );
     buttonLayout->setSpacing( 5 );
     QPushButton *pb = new QPushButton( tr( "&Add bookmark" ), bookmarkTab );
@@ -153,6 +157,45 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 	     this, SLOT( showContents( QListViewItem * ) ) );
     connect( bookmarkList, SIGNAL( returnPressed( QListViewItem * ) ),
 	     this, SIGNAL( moveFocusToBrowser() ) );
+    bookmarkList->setFocus();
+    
+    // ------------------ search tab ---------------
+    searchTab = new QWidget( tabWidget );
+    tabWidget->addTab( searchTab, tr( "&Search" ) );
+
+    QVBoxLayout *searchLayout = new QVBoxLayout( searchTab );
+    searchLayout->setMargin( 5 );
+    searchLayout->setSpacing( 5 );
+
+    l = new QLabel( tr( "Type in the &query:" ), searchTab );
+    searchLayout->addWidget( l );
+
+    searchCombo = new QComboBox( TRUE, searchTab );
+    l->setBuddy( searchCombo );
+    connect( searchCombo, SIGNAL( activated( int ) ),
+	     this, SLOT( startSearch() ) );
+    searchLayout->addWidget( searchCombo );
+    
+    searchButton = new QPushButton( tr( "&Start Search" ), searchTab );
+    searchButton->setFixedSize( searchButton->sizeHint() );
+    connect( searchButton, SIGNAL( clicked() ),
+	     this, SLOT( startSearch() ) );
+    searchLayout->addWidget( searchButton );
+    
+    searchList = new QListView( searchTab );
+    searchLayout->addWidget( searchList );
+    searchList->addColumn( "" );
+    searchList->header()->hide();
+
+    connect( searchList, SIGNAL( doubleClicked( QListViewItem * ) ),
+	     this, SLOT( showContents( QListViewItem * ) ) );
+    connect( searchList, SIGNAL( returnPressed( QListViewItem * ) ),
+	     this, SLOT( showContents( QListViewItem * ) ) );
+    connect( searchList, SIGNAL( returnPressed( QListViewItem * ) ),
+	     this, SIGNAL( moveFocusToBrowser() ) );
+    
+    searchCombo->setFocus();
+    
 }
 
 
@@ -429,6 +472,9 @@ void HelpNavigation::setViewMode( ViewMode m )
     case Bookmarks:
 	tabWidget->showPage( bookmarkTab );
 	break;
+    case Search:
+	tabWidget->showPage( searchTab );
+	break;
     }
 }
 
@@ -475,4 +521,58 @@ void HelpNavigation::loadBookmarks()
 	i->setText( 0, ts.readLine() );
 	i->setLink( ts.readLine() );
     }
+}
+
+void HelpNavigation::startSearch()
+{
+    if ( inSearch ) {
+	inSearch = FALSE;
+	searchButton->setText( tr( "Start Search" ) );
+	searchCombo->setEnabled( TRUE );
+	searchCombo->setFocus();
+	return;
+    }
+    
+    inSearch = TRUE;
+    searchButton->setText( tr( "Stop Search" ) );
+    searchCombo->setEnabled( FALSE );
+    searchList->clear();
+    searchList->setSorting( -1 );
+    
+    QDir d( docDir );
+    QStringList files = d.entryList( QDir::Files );
+
+    emit preparePorgress( files.count() );
+    
+    QString query = searchCombo->currentText();
+    QStringList::Iterator it = files.begin();
+    QListViewItem *after = 0;
+    for ( ; it != files.end(); ++it ) {
+	qApp->processEvents();
+	emit incProcess();
+	after = doSearch( docDir + "/" + *it, query, after );
+	if ( !inSearch )
+	    break;
+    }
+    
+    emit finishProgress();
+    startSearch();
+}
+
+QListViewItem *HelpNavigation::doSearch( const QString &fn, const QString &query, QListViewItem *after )
+{
+    QFile f( fn );
+    if ( !f.open( IO_ReadOnly ) )
+	return after;
+    QTextStream ts( &f );
+    QString contents = ts.read().lower();
+    f.close();
+    
+    if ( contents.find( query ) != -1 ) {
+	HelpNavigationContentsItem *i = new HelpNavigationContentsItem( searchList, after );
+	i->setText( 0, titleOfLink( fn ) );
+	i->setLink( QUrl( fn ).fileName() );
+	return i;
+    }
+    return after;
 }

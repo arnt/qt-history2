@@ -225,12 +225,18 @@ HelpMainWindow::HelpMainWindow()
 	     this, SLOT( showFromHistory( int ) ) );
     indexCreated = FALSE;
 
-//     statusBar()->addWidget( new QWidget( statusBar() ), 4, TRUE );
     label = new QLabel(  statusBar() );
     statusBar()->addWidget( label, 2, TRUE );
     bar = new QProgressBar( statusBar() );
     statusBar()->addWidget( bar, 1, TRUE );
     label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
+
+    connect( navigation, SIGNAL( preparePorgress( int ) ),
+	     this, SLOT( preparePorgress( int ) ) );
+    connect( navigation, SIGNAL( incProcess() ),
+	     this, SLOT( incProcess() ) );
+    connect( navigation, SIGNAL( finishProgress() ),
+	     this, SLOT( finishProgress() ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -360,7 +366,7 @@ void HelpMainWindow::showEvent( QShowEvent *e )
 
 void HelpMainWindow::createDatabase()
 {
-    bar->setTotalSteps( QFileInfo( docDir + "/index" ).size() + 
+    bar->setTotalSteps( QFileInfo( docDir + "/index" ).size() +
 			QFileInfo( docDir + "/titleindex" ).size() );
     bar->setProgress( 0 );
     label->setText( tr( "Creating Index Database..." ) );
@@ -413,4 +419,27 @@ void HelpMainWindow::showFromHistory( int id )
     }
 }
 
+void HelpMainWindow::preparePorgress( int total )
+{
+    statusBar()->addWidget( label, 2, TRUE );
+    statusBar()->addWidget( bar, 1, TRUE );
+    bar->setTotalSteps( total );
+    bar->setProgress( 0 );
+    label->show();
+    bar->show();
+    label->setText( tr( "Searching...." ) );
+}
+
+void HelpMainWindow::incProcess()
+{
+    bar->setProgress( bar->progress() + 1 );
+}
+
+void HelpMainWindow::finishProgress()
+{
+    statusBar()->removeWidget( bar );
+    statusBar()->removeWidget( label );
+    bar->hide();
+    label->hide();
+}
 
