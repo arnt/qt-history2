@@ -764,7 +764,7 @@ bool QPrinter::setup( QWidget *parent )
         if (pd.hDevMode)
             result = TRUE;
         else {
-            pd.Flags = PD_RETURNDEFAULT;
+            pd.Flags = PD_RETURNDEFAULT | PD_NOSELECTION;
             result = PrintDlg( &pd ) != 0;
         }
 
@@ -831,7 +831,7 @@ bool QPrinter::setup( QWidget *parent )
         if (pd.hDevMode)
             result = TRUE;
         else {
-            pd.Flags         = PD_RETURNDEFAULT;
+            pd.Flags         = PD_RETURNDEFAULT | PD_NOSELECTION;
             result = PrintDlgA( &pd ) != 0;
         }
 
