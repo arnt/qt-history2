@@ -181,7 +181,7 @@ of your program, \e make can take care of running moc when
 necessary and handling the moc output.
 
 We recommend using Trolltech's free makefile generation tool, \link
-qmake.html qmake\endlink, for building your Makefiles. This tool
+qmake-manual.book qmake\endlink, for building your Makefiles. This tool
 recognizes both Method A and B style source files, and generates a
 Makefile that does all necessary moc handling.
 

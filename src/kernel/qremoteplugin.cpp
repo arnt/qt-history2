@@ -6,9 +6,9 @@
 #include "qobjectcleanuphandler.h"
 #include "qremoteinterface_p.h"
 
-/*! \internal      
+/* \internal
   \class QRemotePlugin qremoteplugin.h
-  \brief The QRemotePlugin class provides an abstract base for custom 
+  \brief The QRemotePlugin class provides an abstract base for custom
   QRemoteInterface plugins.
   \ingroup plugins
 
@@ -22,7 +22,7 @@
   plugins-howto.html plugins documentation\endlink for an example.
 */
 
-/*! \internal    
+/* \internal
     \fn QStringList QRemotePlugin::keys() const
 
   Returns the list of remote control keys this plugin supports.
@@ -33,7 +33,7 @@
   \sa create()
 */
 
-/*! \internal    
+/* \internal
     \fn QRemoteInterface* QRemotePlugin::create( const QString& key )
 
   Creates and returns a QRemoteInterface object for the rc key \a key. The
@@ -99,7 +99,7 @@ QStringList QRemotePluginPrivate::featureList() const
 QRemoteInterface *QRemotePluginPrivate::create( const QString &key )
 {
     QRemoteInterface *c = plugin->create( key );
-    // We use singletons here, so 'create()' may return a pointer that is already in 
+    // We use singletons here, so 'create()' may return a pointer that is already in
     // controls. So we remove it first, and then insert it again.
     // There's no harm done if the pointer wasn't already in controls.
     controls.remove( c );
@@ -123,7 +123,7 @@ bool QRemotePluginPrivate::canUnload() const
 }
 
 
-/*! \internal   
+/*! \internal
   Constructs a remote plugin. This is invoked automatically by
   the Q_EXPORT_PLUGIN macro.
 */
@@ -133,7 +133,7 @@ QRemotePlugin::QRemotePlugin() : QGPlugin(0)
     setIface( (QRemoteFactoryInterface*)d );
 }
 
-/*! \internal   
+/*! \internal
   Destroys the remote plugin.
 
   You never have to call this explicitly. Qt destroys a plugin

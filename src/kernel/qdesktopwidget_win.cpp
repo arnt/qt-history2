@@ -162,10 +162,11 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     workrects = 0;
 }
 
-/*!
-  \omit Function is commented out in header
+/*
+  \omit
+  Function is commented out in header
   \fn void *QDesktopWidget::handle( int screen ) const
-  
+
   Returns the window system handle of the display device with the
   index \a screen, for low-level access.  Using this function is not
   portable.

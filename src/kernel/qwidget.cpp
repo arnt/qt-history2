@@ -2843,7 +2843,7 @@ void QWidget::setFocus()
     }
 
     QFocusData * f = focusData( TRUE );
-    if ( f->it.current() == this && qApp->focusWidget() == this 
+    if ( f->it.current() == this && qApp->focusWidget() == this
 #if defined(Q_WS_WIN)
 	&& GetFocus() == winId()
 #endif
@@ -4870,7 +4870,7 @@ void QWidget::hideEvent( QHideEvent * )
 {
 }
 
-/*!
+/*
   \fn QWidget::x11Event( MSG * )
 
   This special event handler can be reimplemented in a subclass to receive

@@ -2803,25 +2803,30 @@ void QTextEdit::setText( const QString &text, const QString &context )
 */
 
 /*!
-    Finds the next occurrence of the string, \a expr, starting from
-    character position \e *\a index within paragraph \e *\a para. Both
-    \a index and \a para must be non-null int pointers.
+    Finds the next occurrence of the string, \a expr. Returns TRUE if
+    \a expr is found; otherwise returns FALSE.
 
-    If \e *\a para and \e *\a index are both 0 the search begins from
-    the start of the text. If \a cs is TRUE the search is case
-    sensitive, otherwise it is case insensitive. If \a wo is TRUE the
-    search looks for whole word matches only; otherwise it searches for
-    any matching text. If \a forward is TRUE (the default) the search
-    works forward from the starting position to the end of the text,
-    otherwise it works backwards to the beginning of the text.
+    If \a para and \a index are both null the search begins from the
+    start of the text. If \a para and \a index are both not null, the
+    search begins from the \e *\a index character position in the \e
+    *\a para paragraph.
 
-    If \a expr is found the function returns TRUE and sets \e *\a para
-    to the number of the paragraph in which the first character of the
-    match was found and sets \e *\a index to the index position of that
-    character within the \e *\a para.
+    If \a cs is TRUE the search is case sensitive, otherwise it is
+    case insensitive. If \a wo is TRUE the search looks for whole word
+    matches only; otherwise it searches for any matching text. If \a
+    forward is TRUE (the default) the search works forward from the
+    starting position to the end of the text, otherwise it works
+    backwards to the beginning of the text.
 
-    If \a expr is not found the function returns FALSE and the contents
-    of \a index and \a para are undefined.
+    If \a expr is found the function returns TRUE. If \a index and \a
+    para are not null, the number of the paragraph in which the first
+    character of the match was found is put into \e *\a para, and the
+    index position of that character within the paragraph is put into
+    \e *\a index.
+
+    If \a expr is not found the function returns FALSE. If \a index
+    and \a para are not null and \a expr is not found, \e *\a index
+    and \e *\a para are undefined.
 */
 
 bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,

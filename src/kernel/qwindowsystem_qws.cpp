@@ -2689,6 +2689,10 @@ void QWSServer::screenSaverSleep()
     qt_disable_lowpriority_timers=TRUE;
 }
 
+/*!
+    Replaces the existing screensave with the screensaver specified in
+    \a ss.
+*/
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
     delete qwsServer->d->saver;

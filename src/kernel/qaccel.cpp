@@ -648,21 +648,20 @@ bool QAccel::ignoreWhatsThis() const
 
 \title Standard Accelerator Keys
 
-Applications invariably need to define accelerator keys for actions,
-and Qt provides functions to help with that, most importantly \l
-QAccel::shortcutKey().
+Applications invariably need to define accelerator keys for actions.
+Qt fully supports accelerators, for example with \l QAccel::shortcutKey().
 
-Here is Microsoft's recommendations for accelerator key choice, with
+Here are Microsoft's recommendations for accelerator keys, with
 comments about the Open Group's recommendations where they exist and
 differ.  For most commands, the Open Group either has no advice or
 agrees with Microsoft.
 
-The boldfaced letter plus Alt is Microsoft's recommended choice, and
+The emboldened letter plus Alt is Microsoft's recommended choice, and
 we recommend supporting it.  For an Apply button, for example, we
 recommend QButton::setText( \link QWidget::tr() tr \endlink("&Apply") );
 
 If you have conflicting commands (e.g. About and Apply buttons in the
-same dialog), you're on your own.
+same dialog), you have to decide for yourself.
 
 \list
 \i <b><u>A</u></b>bout
@@ -737,7 +736,7 @@ The \link http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t
 Microsoft book \endlink has ISBN 0735605661.  The corresponding Open Group
 book is very hard to find, rather expensive and we cannot recommend
 it. However, if you really want it, OGPubs@opengroup.org might be able
-to help. Ask then for ISBN 1859121047.
+to help. Ask them for ISBN 1859121047.
 
 */
 

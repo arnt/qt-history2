@@ -5339,7 +5339,7 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
     GFX_END
 }
 
-/*!
+/*
 This takes the currently-set brush and stores its color value in the
 variable pixel for drawing points, lines and rectangles.
 */
@@ -5364,7 +5364,7 @@ GFX_INLINE void QGfxRaster<depth,type>::useBrush()
     }
 }
 
-/*!
+/*
 This takes the currently-set pen and stores its color value in the
 variable pixel for drawing points, lines and rectangles.
 */
