@@ -780,10 +780,10 @@ then
 	PLATFORM=unixware-g++
 	;;
      UnixWare:5*)
-	#PLATFORM=unixware7-g++
-	PLATFORM=unixware7-cc
+	PLATFORM=unixware7-g++
+	#PLATFORM=unixware7-cc
 	PLATFORM_NOTES="
-	    - Also available for UnixWare 7: unixware7-g++
+	    - Also available for UnixWare 7: unixware7-cc
 	"
 	;;
      *:3.2)
