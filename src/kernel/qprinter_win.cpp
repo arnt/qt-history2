@@ -1433,10 +1433,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			image = image.xForm( m );
 			int origW = w;
 			int origH = h;
-			w = image.width();
-			h = image.height();
-			rect.setWidth( rect.width() * w / origW );
-			rect.setHeight( rect.height() * h / origH );
+ 			w = image.width();
+ 			h = image.height();
+ 			rect.setWidth( rect.width() * w / origW );
+ 			rect.setHeight( rect.height() * h / origH );
 
 			// The image is already transformed. For the transformation
 			// of pos, we need a modified world matrix:
@@ -1452,7 +1452,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			QPoint p1 = QPixmap::trueMatrix( paint->worldMatrix(), origW, origH ) * QPoint(0,0);
 			QPoint p2 = paint->worldMatrix() * pos;
 			p1 = p2 - p1 - pos;
-			paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
+   			paint->setWorldMatrix( QWMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
 		    } else
 #endif
 		    {
@@ -1467,7 +1467,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                     ys = ys * vr.height() / wr.height();
                 }
                 if ( wxf || vxf ) {             // map position
-                    pos = paint->xForm( pos );
+		    pos = paint->xForm( pos );
                 }
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 		if ( complexWxf )
@@ -1482,12 +1482,16 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             uchar *bits;
 
 
+	    // Since we scale the image in the StretchXXX below, we scale the
+	    // bitmask to make the transparency clip region correct.
 	    if ( paint && image.hasAlphaBuffer() ) {
 		QWMatrix::TransformationMode tmpMode = QWMatrix::transformationMode();
 		QWMatrix::setTransformationMode( QWMatrix::Areas );
 		QImage mask = image.createAlphaMask();
 		QBitmap bm;
 		bm = mask;
+		xs = dw/(double)image.width();
+		ys = dh/(double)image.height();
 		if( xs!=1 || ys!=1 )
 		    bm = bm.xForm( QWMatrix( xs, 0, 0, ys, 0, 0 ) );
 		QRegion r( bm );
