@@ -2058,7 +2058,7 @@ void QTextView::setText( const QString &text, const QString &context )
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
 
-    if ( qApp->font().pointSize() != QScrollView::font().pointSize() )
+    if ( qApp->font() != QScrollView::font() )
 	setFont( QScrollView::font() );
 
     viewport()->repaint( FALSE );
