@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#121 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#122 $
 **
 ** Definition of QPainter class
 **
@@ -113,10 +113,10 @@ public:
     const QWMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const QWMatrix &, bool combine=FALSE );
 
-    void	translate( float dx, float dy );
-    void	scale( float sx, float sy );
-    void	shear( float sh, float sv );
-    void	rotate( float a );
+    void	translate( double dx, double dy );
+    void	scale( double sx, double sy );
+    void	shear( double sh, double sv );
+    void	rotate( double a );
     void	resetXForm();
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
@@ -265,11 +265,29 @@ private:
     int		tabstops;
     int	       *tabarray;
     int		tabarraylen;
+
+    // Transformations
     QCOORD	wx, wy, ww, wh;
     QCOORD	vx, vy, vw, vh;
     QWMatrix	wxmat;
-    int		wm11, wm12, wm21, wm22, wdx, wdy;
-    int		im11, im12, im21, im22, idx, idy;
+
+    // Cached composition (and inverse) of transformations
+    QWMatrix	xmat;
+    QWMatrix	ixmat;
+
+    double	m11() const { return xmat.m11(); }
+    double      m12() const { return xmat.m12(); }
+    double      m21() const { return xmat.m21(); }
+    double      m22() const { return xmat.m22(); }
+    double      dx() const { return xmat.dx(); }
+    double      dy() const { return xmat.dy(); }
+    double	im11() const { return ixmat.m11(); }
+    double      im12() const { return ixmat.m12(); }
+    double      im21() const { return ixmat.m21(); }
+    double      im22() const { return ixmat.m22(); }
+    double      idx() const { return ixmat.dx(); }
+    double      idy() const { return ixmat.dy(); }
+
     int		txop;
     bool	txinv;
     void       *penRef;				// pen cache ref

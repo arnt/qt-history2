@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#197 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1778,7 +1778,7 @@ void pnmscale(const QImage& src, QImage& dst)
     int rows, cols, rowsread, newrows, newcols;
     register int row, col, needtoreadrow;
     const uchar maxval = 255;
-    float xscale, yscale;
+    double xscale, yscale;
     long sxscale, syscale;
     register long fracrowtofill, fracrowleft;
     long* as;
@@ -1792,8 +1792,8 @@ void pnmscale(const QImage& src, QImage& dst)
     newcols = dst.width();
     newrows = dst.height();
 
-    xscale = (float) newcols / (float) cols;
-    yscale = (float) newrows / (float) rows;
+    xscale = (double) newcols / (double) cols;
+    yscale = (double) newrows / (double) rows;
 
     sxscale = (long)(xscale * SCALE);
     syscale = (long)(yscale * SCALE);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#159 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -950,7 +950,7 @@ const QWMatrix &QPainter::worldMatrix() const
   and are implemented like this:
 
   \code
-    void QPainter::rotate( float a )
+    void QPainter::rotate( double a )
     {
 	wxmat.rotate( a );
 	setWorldMatrix( wxmat );
@@ -1009,7 +1009,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
 */
 
-void QPainter::translate( float dx, float dy )
+void QPainter::translate( double dx, double dy )
 {
     wxmat.translate( dx, dy );
     setWorldMatrix( wxmat );
@@ -1021,7 +1021,7 @@ void QPainter::translate( float dx, float dy )
   xForm()
 */
 
-void QPainter::scale( float sx, float sy )
+void QPainter::scale( double sx, double sy )
 {
     wxmat.scale( sx, sy );
     setWorldMatrix( wxmat );
@@ -1033,7 +1033,7 @@ void QPainter::scale( float sx, float sy )
   xForm()
 */
 
-void QPainter::shear( float sh, float sv )
+void QPainter::shear( double sh, double sv )
 {
     wxmat.shear( sv, sh );
     setWorldMatrix( wxmat );
@@ -1045,7 +1045,7 @@ void QPainter::shear( float sh, float sv )
   xForm()
 */
 
-void QPainter::rotate( float a )
+void QPainter::rotate( double a )
 {
     wxmat.rotate( a );
     setWorldMatrix( wxmat );
@@ -1094,18 +1094,13 @@ void QPainter::updateXForm()
 	else
 	    m = wxmat;
     }
-    wm11 = qRound((double)m.m11()*65536.0);	// make integer matrix
-    wm12 = qRound((double)m.m12()*65536.0);
-    wm21 = qRound((double)m.m21()*65536.0);
-    wm22 = qRound((double)m.m22()*65536.0);
-    wdx	 = qRound((double)m.dx() *65536.0);
-    wdy	 = qRound((double)m.dy() *65536.0);
+    xmat = m;
 
     txinv = FALSE;				// no inverted matrix
     txop  = TxNone;
-    if ( wm12 == 0 && wm21 == 0 && wm11 >= 0 && wm22 >= 0 ) {
-	if ( wm11 == 65536 && wm22 == 65536 ) {
-	    if ( wdx != 0 || wdy != 0 )
+    if ( m12() == 0.0 && m21() == 0.0 && m11() >= 0.0 && m22() >= 0.0 ) {
+	if ( m11() == 1.0 && m22() == 1.0 ) {
+	    if ( dx() != 0.0 || dy() != 0.0 )
 		txop = TxTranslate;
 	} else {
 	    txop = TxScale;
@@ -1146,13 +1141,7 @@ void QPainter::updateInvXForm()
 	else
 	    m = wxmat;
     }
-    m = m.invert( &invertible );		// invert matrix
-    im11 = qRound((double)m.m11()*65536.0);	// make integer matrix
-    im12 = qRound((double)m.m12()*65536.0);
-    im21 = qRound((double)m.m21()*65536.0);
-    im22 = qRound((double)m.m22()*65536.0);
-    idx	 = qRound((double)m.dx() *65536.0);
-    idy	 = qRound((double)m.dy() *65536.0);
+    ixmat = m.invert( &invertible );		// invert matrix
 }
 
 
@@ -1168,21 +1157,22 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
 	    *rx = x;  *ry = y;
 	    break;
 	case TxTranslate:
-	    *rx = x + wdx/65536;
-	    *ry = y + wdy/65536;
+	    // #### "Why no rounding here?", Warwick asked of Haavard.
+	    *rx = int(x + dx());
+	    *ry = int(y + dy());
 	    break;
-	case TxScale:
-	    *rx = wm11*x + wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm22*y + wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    break;
-	default:
-	    *rx = wm11*x + wm21*y+wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm12*x + wm22*y+wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    break;
+	case TxScale: {
+	    double tx = m11()*x + dx();
+	    double ty = m22()*y + dy();
+	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+	    } break;
+	default: {
+	    double tx = m11()*x + m21()*y+dx();
+	    double ty = m12()*x + m22()*y+dy();
+	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+	    } break;
     }
 }
 
@@ -1201,20 +1191,21 @@ void QPainter::map( int x, int y, int w, int h,
 	    *rw = w;  *rh = h;
 	    break;
 	case TxTranslate:
-	    *rx = x + wdx/65536;
-	    *ry = y + wdy/65536;
+	    // #### "Why no rounding here?", Warwick asked of Haavard.
+	    *rx = int(x + dx());
+	    *ry = int(y + dy());
 	    *rw = w;  *rh = h;
 	    break;
-	case TxScale:
-	    *rx = wm11*x + wdx;
-	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-	    *ry = wm22*y + wdy;
-	    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-	    *rw = wm11*w;
-	    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
-	    *rh = wm22*h;
-	    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
-	    break;
+	case TxScale: {
+	    double tx = m11()*x + dx();
+	    double ty = m22()*y + dy();
+	    double tw = m11()*w;
+	    double th = m22()*h;
+	    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+	    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+	    *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
+	    *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
+	    } break;
 	default:
 #if defined(CHECK_STATE)
 	    warning( "QPainter::map: Internal error" );
@@ -1234,10 +1225,10 @@ void QPainter::mapInv( int x, int y, int *rx, int *ry ) const
     if ( !txinv )
 	warning( "QPainter::mapInv: Internal error" );
 #endif
-    *rx = im11*x + im21*y+idx;
-    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-    *ry = im12*x + im22*y+idy;
-    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
+    double tx = im11()*x + im21()*y+idx();
+    double ty = im12()*x + im22()*y+idy();
+    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
 }
 
 /*!
@@ -1253,14 +1244,14 @@ void QPainter::mapInv( int x, int y, int w, int h,
     if ( !txinv || txop == TxRotShear )
 	warning( "QPainter::mapInv: Internal error" );
 #endif
-    *rx = im11*x + idx;
-    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
-    *ry = im22*y + idy;
-    *ry = *ry > 0 ? (*ry + 32768)/65536 : (*ry - 32768)/65536;
-    *rw = im11*w;
-    *rw = *rw > 0 ? (*rw + 32768)/65536 : (*rw - 32768)/65536;
-    *rh = im22*h;
-    *rh = *rh > 0 ? (*rh + 32768)/65536 : (*rh - 32768)/65536;
+    double tx = im11()*x + idx();
+    double ty = im22()*y + idy();
+    double tw = im11()*w;
+    double th = im22()*h;
+    *rx = tx >= 0 ? int(tx + 0.5) : int(tx - 0.5);
+    *ry = ty >= 0 ? int(ty + 0.5) : int(ty - 0.5);
+    *rw = tw >= 0 ? int(tw + 0.5) : int(tw - 0.5);
+    *rh = th >= 0 ? int(th + 0.5) : int(th - 0.5);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#80 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -421,9 +421,13 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     LOGFONT lf;
     memset( &lf, 0, sizeof(LOGFONT) );
     if ( hdc )
-	lf.lfHeight = -int((float)(d->req.pointSize*GetDeviceCaps(hdc,LOGPIXELSY))/(float)720+0.5);
+	lf.lfHeight = -int((double)(d->req.pointSize
+				*GetDeviceCaps(hdc,LOGPIXELSY))
+			    /(double)720+0.5);
     else
-	lf.lfHeight = -int((float)d->req.pointSize*GetDeviceCaps(shared_dc, LOGPIXELSY)/(float)720+0.5);
+	lf.lfHeight = -int((double)d->req.pointSize
+				*GetDeviceCaps(shared_dc, LOGPIXELSY)
+			    /(double)720+0.5);
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;

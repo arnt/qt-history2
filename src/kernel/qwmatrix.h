@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#11 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#12 $
 **
 ** Definition of QWMatrix class
 **
@@ -35,31 +35,31 @@ class Q_EXPORT QWMatrix					// 2D transform matrix
 {
 public:
     QWMatrix();
-    QWMatrix( float m11, float m12, float m21, float m22,
-	      float dx,	 float dy );
+    QWMatrix( double m11, double m12, double m21, double m22,
+	      double dx, double dy );
 
-    void	setMatrix( float m11, float m12, float m21, float m22,
-			   float dx,  float dy );
+    void	setMatrix( double m11, double m12, double m21, double m22,
+			   double dx,  double dy );
 
-    float	m11() const { return _m11; }
-    float	m12() const { return _m12; }
-    float	m21() const { return _m21; }
-    float	m22() const { return _m22; }
-    float	dx()  const { return _dx; }
-    float	dy()  const { return _dy; }
+    double	m11() const { return _m11; }
+    double	m12() const { return _m12; }
+    double	m21() const { return _m21; }
+    double	m22() const { return _m22; }
+    double	dx()  const { return _dx; }
+    double	dy()  const { return _dy; }
 
     void	map( int x, int y, int *tx, int *ty )	      const;
-    void	map( float x, float y, float *tx, float *ty ) const;
+    void	map( double x, double y, double *tx, double *ty ) const;
     QPoint	map( const QPoint & )	const;
     QRect	map( const QRect & )	const;
     QPointArray map( const QPointArray & ) const;
 
     void	reset();
 
-    QWMatrix   &translate( float dx, float dy );
-    QWMatrix   &scale( float sx, float sy );
-    QWMatrix   &shear( float sh, float sv );
-    QWMatrix   &rotate( float a );
+    QWMatrix   &translate( double dx, double dy );
+    QWMatrix   &scale( double sx, double sy );
+    QWMatrix   &shear( double sh, double sv );
+    QWMatrix   &rotate( double a );
 
     QWMatrix	invert( bool * = 0 ) const;
 
@@ -69,9 +69,9 @@ public:
 
 private:
     QWMatrix   &bmul( const QWMatrix & );
-    float	_m11, _m12;
-    float	_m21, _m22;
-    float	_dx,  _dy;
+    double	_m11, _m12;
+    double	_m21, _m22;
+    double	_dx,  _dy;
 };
 
 

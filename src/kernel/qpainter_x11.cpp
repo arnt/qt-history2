@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#274 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#275 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2205,9 +2205,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		    return;
 	    }
 	    if ( txop == TxScale || txop == TxRotShear ) {
-		QWMatrix mat( wm11/65536.0, wm12/65536.0,
-			      wm21/65536.0, wm22/65536.0,
-			      wdx/65536.0,  wdy/65536.0 );
+		QWMatrix mat( m11(), m12(),
+			      m21(), m22(),
+			      dx(),  dy() );
 		mat = QPixmap::trueMatrix( mat, sw, sh );
 		QPixmap pm = pixmap.xForm( mat );
 		if ( !pm.mask() && txop == TxRotShear ) {
@@ -2487,9 +2487,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    bool empty = w == 0 || h == 0;
-	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
-			   wm21/65536.0, wm22/65536.0,
-			   wdx /65536.0, wdy /65536.0 );
+	    QWMatrix mat1( m11(), m12(),
+			   m21(), m22(),
+			   dx(),  dy() );
 	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QBitmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
@@ -2538,9 +2538,9 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    }
 	    if ( empty )
 		return;
-	    float fx=x, fy=y, nfx, nfy;
+	    double fx=x, fy=y, nfx, nfy;
 	    mat1.map( fx,fy, &nfx,&nfy );
-	    float tfx=tx, tfy=ty, dx, dy;
+	    double tfx=tx, tfy=ty, dx, dy;
 	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);

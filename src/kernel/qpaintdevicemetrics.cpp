@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#19 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -36,7 +36,7 @@
   Example:
   \code
     QPaintDeviceMetrics pdm( myWidget );
-    float aspect = (float)pdm.widthMM / (float)pdm.heightMM();
+    double aspect = (double)pdm.widthMM / (double)pdm.heightMM();
   \endcode
 */
 

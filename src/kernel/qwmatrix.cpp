@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#25 $
 **
 ** Implementation of QWMatrix class
 **
@@ -113,9 +113,9 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 
   The same example, but using basic matrix operations:
   \code
-    float a    = pi/180 * 25;			// convert 25 to radians
-    float sina = sin(a);
-    float cosa = cos(a);
+    double a    = pi/180 * 25;			// convert 25 to radians
+    double sina = sin(a);
+    double cosa = cos(a);
     QWMatrix m1(0, 0, 0, 0, 10, -20);		// translation matrix
     QWMatrix m2( cosa, sina,			// rotation matrix
 		-sina, cosa, 0, 0 );
@@ -147,16 +147,16 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 
 QWMatrix::QWMatrix()
 {
-    _m11 = _m22 = (float)1.0;
-    _m12 = _m21 = _dx = _dy = (float)0.0;
+    _m11 = _m22 = 1.0;
+    _m12 = _m21 = _dx = _dy = 0.0;
 }
 
 /*!
   Constructs a matrix with the specified elements.
 */
 
-QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
-		    float dx, float dy )
+QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
+		    double dx, double dy )
 {
     _m11 = m11;	 _m12 = m12;
     _m21 = m21;	 _m22 = m22;
@@ -168,8 +168,8 @@ QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
   Sets the matrix elements to the specified values.
 */
 
-void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
-			  float dx, float dy )
+void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
+			  double dx, double dy )
 {
     _m11 = m11;	 _m12 = m12;
     _m21 = m21;	 _m22 = m22;
@@ -178,32 +178,32 @@ void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
 
 
 /*!
-  \fn float QWMatrix::m11() const
+  \fn double QWMatrix::m11() const
   Returns the X scaling factor.
 */
 
 /*!
-  \fn float QWMatrix::m12() const
+  \fn double QWMatrix::m12() const
   Returns the vertical shearing factor.
 */
 
 /*!
-  \fn float QWMatrix::m21() const
+  \fn double QWMatrix::m21() const
   Returns the horizontal shearing factor.
 */
 
 /*!
-  \fn float QWMatrix::m22() const
+  \fn double QWMatrix::m22() const
   Returns the Y scaling factor.
 */
 
 /*!
-  \fn float QWMatrix::dx() const
+  \fn double QWMatrix::dx() const
   Returns the horizontal translation.
 */
 
 /*!
-  \fn float QWMatrix::dy() const
+  \fn double QWMatrix::dy() const
   Returns the vertical translation.
 */
 
@@ -217,7 +217,7 @@ void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
   \endcode
 */
 
-void QWMatrix::map( float x, float y, float *tx, float *ty ) const
+void QWMatrix::map( double x, double y, double *tx, double *ty ) const
 {
     *tx = _m11*x + _m21*y + _dx;
     *ty = _m12*x + _m22*y + _dy;
@@ -234,8 +234,8 @@ void QWMatrix::map( float x, float y, float *tx, float *ty ) const
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 {
-    double fx = (double)x;
-    double fy = (double)y;
+    double fx = x;
+    double fy = y;
     *tx = qRound(_m11*fx + _m21*fy + _dx);
     *ty = qRound(_m12*fx + _m22*fy + _dy);
 }
@@ -246,8 +246,8 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 QPoint QWMatrix::map( const QPoint &p ) const
 {
-    double fx = (double)p.x();
-    double fy = (double)p.y();
+    double fx = p.x();
+    double fy = p.y();
     return QPoint( qRound(_m11*fx + _m21*fy + _dx),
 		   qRound(_m12*fx + _m22*fy + _dy) );
 }
@@ -298,8 +298,8 @@ QPointArray QWMatrix::map( const QPointArray &a ) const
 
 void QWMatrix::reset()
 {
-    _m11 = _m22 = (float)1.0;
-    _m12 = _m21 = _dx = _dy = (float)0.0;
+    _m11 = _m22 = 1.0;
+    _m12 = _m21 = _dx = _dy = 0.0;
 }
 
 
@@ -312,7 +312,7 @@ void QWMatrix::reset()
   \sa scale(), shear(), rotate()
 */
 
-QWMatrix &QWMatrix::translate( float dx, float dy )
+QWMatrix &QWMatrix::translate( double dx, double dy )
 {
     QWMatrix result( 1.0F, 0.0F, 0.0F, 1.0F, dx, dy );
     return bmul( result );
@@ -327,7 +327,7 @@ QWMatrix &QWMatrix::translate( float dx, float dy )
   \sa translate(), shear(), rotate()
 */
 
-QWMatrix &QWMatrix::scale( float sx, float sy )
+QWMatrix &QWMatrix::scale( double sx, double sy )
 {
     QWMatrix result( sx, 0.0F, 0.0F, sy, 0.0F, 0.0F );
     return bmul( result );
@@ -341,13 +341,13 @@ QWMatrix &QWMatrix::scale( float sx, float sy )
   \sa translate(), scale(), rotate()
 */
 
-QWMatrix &QWMatrix::shear( float sh, float sv )
+QWMatrix &QWMatrix::shear( double sh, double sv )
 {
     QWMatrix result( 1.0F, sv, sh, 1.0F, 0.0F, 0.0F );
     return bmul( result );
 }
 
-const float deg2rad = .017453292519943295769F;	// pi/180
+const double deg2rad = 0.017453292519943295769;	// pi/180
 
 /*!
   Rotates the coordinate system \e a degrees counterclockwise.
@@ -357,15 +357,15 @@ const float deg2rad = .017453292519943295769F;	// pi/180
   \sa translate(), scale(), shear()
 */
 
-QWMatrix &QWMatrix::rotate( float a )
+QWMatrix &QWMatrix::rotate( double a )
 {
     double b = deg2rad*a;			// convert to radians
 #if defined(_WS_X11_)
-    float sina = qsincos(b,FALSE);		// fast and convenient
-    float cosa = qsincos(b,TRUE);
+    double sina = qsincos(b,FALSE);		// fast and convenient
+    double cosa = qsincos(b,TRUE);
 #else
-    float sina = (float)sin(b);
-    float cosa = (float)cos(b);
+    double sina = sin(b);
+    double cosa = cos(b);
 #endif
     QWMatrix result( cosa, sina, -sina, cosa, 0.0F, 0.0F );
     return bmul( result );
@@ -395,10 +395,10 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 	if ( invertible )
 	    *invertible = TRUE;
 	double dinv = 1.0/det;
-	QWMatrix imatrix( (float)(_m22*dinv),	(float)(-_m12*dinv),
-			  (float)(-_m21*dinv), (float)( _m11*dinv),
-			  (float)((_m21*_dy - _m22*_dx)*dinv),
-			  (float)((_m12*_dx - _m11*_dy)*dinv) );
+	QWMatrix imatrix( (_m22*dinv),	(-_m12*dinv),
+			  (-_m21*dinv), ( _m11*dinv),
+			  ((_m21*_dy - _m22*_dx)*dinv),
+			  ((_m12*_dx - _m11*_dy)*dinv) );
 	return imatrix;
     }
 }
@@ -479,7 +479,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
   Writes a matrix to the stream and returns a reference to the stream.
 
   Serialization format: m11, m12, m21, m22, dx and dy are serialized as
-  \c float in the listed order.
+  \c double in the listed order.
 */
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
@@ -495,7 +495,7 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )
 {
-    float m11, m12, m21, m22, dx, dy;
+    double m11, m12, m21, m22, dx, dy;
     s >> m11;  s >> m12;  s >> m21;  s >> m22;
     s >> dx;   s >> dy;
     m.setMatrix( m11, m12, m21, m22, dx, dy );

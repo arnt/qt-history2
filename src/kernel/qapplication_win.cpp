@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#213 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -258,7 +258,8 @@ static void qt_set_windows_resources()
     if (ncm.lfMenuFont.lfWeight != FW_DONTCARE) {
 	menuFont.setWeight(ncm.lfMenuFont.lfWeight*99/900);
     }
-    float mps = ((float) -ncm.lfMenuFont.lfHeight*72)/ ((float) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
+    double mps = ((double) -ncm.lfMenuFont.lfHeight*72)/
+		    ((double) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
     menuFont.setPointSize(int(mps+0.5));
 
     if (menuFont != QFont::defaultFont()) {

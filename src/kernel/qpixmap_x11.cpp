@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#140 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1568,21 +1568,21 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    const float dt = (float)0.0001;
-    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    float xx = (float)ws - 1;
-    float yy = (float)hs - 1;
+    const double dt = 0.0001;
+    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    double xx = (double)ws - 1;
+    double yy = (double)hs - 1;
 
     matrix.map( dt, dt, &x1, &y1 );
     matrix.map( xx, dt, &x2, &y2 );
     matrix.map( xx, yy, &x3, &y3 );
     matrix.map( dt, yy, &x4, &y4 );
 
-    float ymin = y1;				// lowest y value
+    double ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    float xmin = x1;				// lowest x value
+    double xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
@@ -1873,21 +1873,21 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {
-    const float dt = (float)0.0001;
-    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    float xx = (float)w - 1;
-    float yy = (float)h - 1;
+    const double dt = (double)0.0001;
+    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    double xx = (double)w - 1;
+    double yy = (double)h - 1;
 
     matrix.map( dt, dt, &x1, &y1 );
     matrix.map( xx, dt, &x2, &y2 );
     matrix.map( xx, yy, &x3, &y3 );
     matrix.map( dt, yy, &x4, &y4 );
 
-    float ymin = y1;				// lowest y value
+    double ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    float xmin = x1;				// lowest x value
+    double xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
