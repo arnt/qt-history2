@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#5 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#5 $";
 #endif
 
 
@@ -546,7 +546,7 @@ bool QPixmap::convertFromImage( const QImage *image )
     int dd  = DefaultDepth(dpy,scr);
 
     if ( (dd == 1 || isBitmap()) && d > 1 ) {	// force to bitmap
-	image->convertDepth( 1, &tmp_image );	// dither
+	tmp_image = image->convertDepth( 1 );	// dither
 	image = &tmp_image;
 	d = 1;
     }
@@ -673,7 +673,7 @@ bool QPixmap::convertFromImage( const QImage *image )
     }
 
     if ( d == 24 && !trucol ) {			// convert to 8 bit
-	image->convertDepth( 8, &tmp_image );
+	tmp_image = image->convertDepth( 8 );
 	d = 8;					//   then process 8 bit image
 	image = &tmp_image;
 	nbytes = image->numBytes();		// recalc image size
