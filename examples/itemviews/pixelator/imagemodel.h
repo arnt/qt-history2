@@ -1,3 +1,4 @@
+//depot/qt/main/examples/itemviews/pixelator/imagemodel.h#1 - branch change 154710 (text)
 #ifndef IMAGEMODEL_H
 #define IMAGEMODEL_H
 
@@ -10,8 +11,8 @@ class ImageModel : public QAbstractTableModel
 public:
     ImageModel::ImageModel(const QImage &image, QObject *parent = 0);
 
-    int rows() const;
-    int columns() const;
+    int rowCount() const;
+    int columnCount() const;
 
     QVariant data(const QModelIndex &index, int role) const;
 
