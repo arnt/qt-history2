@@ -204,7 +204,7 @@ protected:
     int		deciPointSize()		const;
 
 private:
-    QFont( QFontData * );
+    QFont( QFontData *, bool deep = TRUE );
     void	init();
     void	detach();
     void	initFontInfo() const;

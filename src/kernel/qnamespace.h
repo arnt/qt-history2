@@ -90,21 +90,26 @@ public:
     };
 
     // Text formatting flags for QPainter::drawText and QLabel
-
+    // the following four enums can be combined to one integer which
+    // is passed as textflag to drawText and qt_format_text.
+    
     // documented in qpainter.cpp
     enum AlignmentFlags {
 	AlignAuto = 0x0000, 		// text alignment
 	AlignLeft	= 0x0001,
 	AlignRight	= 0x0002,
 	AlignHCenter	= 0x0004,
-	AlignJustify              = 0x0008,
-	AlignHorizontal        = AlignLeft | AlignRight | AlignHCenter | AlignJustify,
+	AlignJustify 	= 0x0008,
+	AlignHorizontal_Mask 	= AlignLeft | AlignRight | AlignHCenter | AlignJustify,
 	AlignTop	= 0x0010,
 	AlignBottom	= 0x0020,
 	AlignVCenter	= 0x0040,
-	AlignVertical 	= AlignTop | AlignBottom | AlignVCenter,
+	AlignVertical_Mask 	= AlignTop | AlignBottom | AlignVCenter,
 	AlignCenter	= AlignVCenter | AlignHCenter,
-
+    };
+    
+    // ### document me!!!
+    enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
 	DontClip	= 0x0100,
 	ExpandTabs	= 0x0200,
@@ -113,6 +118,21 @@ public:
 	DontPrint	= 0x1000		// internal
     };
 
+    // ### document me!!!
+    enum WordWrap {
+	NoWrap 		= 0x0000,
+	WidgetWidth 	= 0x2000,
+	FixedPixelWidth = 0x3000,
+	FixedColumnWidth= 0x4000
+    };
+
+    // ### document me!!!
+    enum WrapPolicy {
+	AtWordBoundary 	= 0x0000,
+	AtWhiteSpace 	= AtWordBoundary, // deprecated, don't use
+	Anywhere 	= 0x8000
+    };
+  
     // QWidget state flags (internal, not documented but should be)
     enum WidgetState {
 	WState_Created		= 0x00000001,

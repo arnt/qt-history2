@@ -388,7 +388,7 @@ QSize QPushButton::sizeHint() const
 	QSize sz = fm.size( ShowPrefix, s );
 	w = sz.width() + style().buttonMargin();
 	h = sz.height() + sz.height()/8 + 4 + style().buttonMargin();
-	w += h;
+//	w += h;
     }
 
 

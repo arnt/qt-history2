@@ -44,7 +44,7 @@
 #endif // QT_H
 
 class QTextCodec;
-
+class QTextParag;
 
 class Q_EXPORT QFontMetrics
 {
@@ -75,10 +75,10 @@ public:
     QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
 			      const QString& str, int len=-1, int tabstops=0,
-			      int *tabarray=0, char **intern=0 ) const;
+			      int *tabarray=0, QTextParag **intern=0 ) const;
     QSize	size( int flags,
 		      const QString& str, int len=-1, int tabstops=0,
-		      int *tabarray=0, char **intern=0 ) const;
+		      int *tabarray=0, QTextParag **intern=0 ) const;
 
     int		underlinePos()	const;
     int		strikeOutPos()	const;
@@ -104,7 +104,7 @@ private:
     friend class QWidget;
     friend class QPainter;
 
-    QFontInternal *fin;
+    QFontData *d;
     QPainter      *painter;
     int		   flags;
 

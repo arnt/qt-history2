@@ -1263,7 +1263,7 @@ void QLineEdit::cut()
 void QLineEdit::setAlignment( int flag ){
     if ( flag == alignmentFlag )
 	return;
-    if ( !(flag & Qt::AlignVertical ) ) {
+    if ( !(flag & Qt::AlignVertical_Mask ) ) {
 	alignmentFlag = flag;
 	updateOffset();
 	update();

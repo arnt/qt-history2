@@ -240,15 +240,21 @@ void QFont::init()
 
 /*!
   \internal
-  Constructs a font that gets a
+  Constructs a font that gets by default a
   \link shclass.html deep copy \endlink of \e data.
+  If \a deep is false, the copy will be shallow.
 */
 
-QFont::QFont( QFontData *data )
+QFont::QFont( QFontData *data, bool deep )
 {
-    d = new QFontData( *data );
-    CHECK_PTR( d );
-    d->count = 1;                               // now a single reference
+    if ( deep ) {
+	d = new QFontData( *data );
+	CHECK_PTR( d );
+	d->count = 1;                               // now a single reference
+    } else {
+	d = data;
+	d->ref();
+    }
 }
 
 /*!
@@ -1517,7 +1523,8 @@ void QFontMetrics::reset( const QPainter *painter )
 QFontMetrics::QFontMetrics( const QFont &font )
 {
     font.handle();
-    fin = font.d->fin;
+    d = font.d;
+    d->ref();
     painter = 0;
     flags = 0;
     if ( font.underline() )
@@ -1543,7 +1550,8 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     //if ( painter->testf(DirtyFont) )
     // painter->updateFont();
     painter->setf( QPainter::FontMet );
-    fin = painter->cfont.d->fin;
+    d = painter->cfont.d;
+    d->ref();
     flags = 0;
     insertFontMetrics( this );
 }
@@ -1553,8 +1561,9 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 */
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : fin(fm.fin), painter(fm.painter), flags(fm.flags)
+    : d(fm.d), painter(fm.painter), flags(fm.flags)
 {
+    d->ref();
     if ( painter )
         insertFontMetrics( this );
 }
@@ -1567,6 +1576,8 @@ QFontMetrics::~QFontMetrics()
 {
     if ( painter )
         removeFontMetrics( this );
+    if ( d->deref() )
+        delete d;
 }
 
 
@@ -1578,7 +1589,12 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
     if ( painter )
         removeFontMetrics( this );
-    fin = fm.fin;
+    if ( d != fm.d ) {
+	if ( d->deref() )
+	    delete d;
+	d = fm.d;
+	d->ref();
+    }
     painter = fm.painter;
     flags = fm.flags;
     if ( painter )
@@ -1671,7 +1687,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
 QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
                                   const QString& str, int len, int tabstops,
-                                  int *tabarray, char **intern ) const
+                                  int *tabarray, QTextParag **intern ) const
 {
     if ( len < 0 )
         len = str.length();
@@ -1681,11 +1697,12 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
         while (tabarray[tabarraylen])
             tabarraylen++;
 
-    QRect r;
-    qt_format_text( *this, x, y, w, h, flgs, str, len, &r,
+    QRect rb;
+    QRect r(x, y, w, h);
+    qt_format_text( QFont( d, FALSE ), r, flgs, str, len, &rb,
                     tabstops, tabarray, tabarraylen, intern, 0 );
 
-    return r;
+    return rb;
 }
 
 /*!
@@ -1719,7 +1736,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 */
 
 QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
-                          int *tabarray, char **intern ) const
+                          int *tabarray, QTextParag **intern ) const
 {
     return boundingRect(0,0,1,1,flgs,str,len,tabstops,tabarray,intern).size();
 }

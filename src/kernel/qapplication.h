@@ -415,7 +415,7 @@ inline QString	QApplication::translate( const char *, const char *key,
 
 inline int QApplication::horizontalAlignment( int align )
 {
-    align &= AlignHorizontal;
+    align &= AlignHorizontal_Mask;
     if ( align == AlignAuto ) {
 	if ( reverseLayout() )
 	    align = AlignRight;

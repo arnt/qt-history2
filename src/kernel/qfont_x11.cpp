@@ -1914,7 +1914,7 @@ const QFontDef *QFontMetrics::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return fin->spec();
+	return d->fin->spec();
     }
 }
 
@@ -1936,7 +1936,7 @@ void *QFontMetrics::fontStruct() const
 	}
 	return painter->cfont.d->fin->fontStruct();
     } else {
-	return fin->fontStruct();
+	return d->fin->fontStruct();
     }
 }
 
@@ -1946,7 +1946,7 @@ void *QFontMetrics::fontSet() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->fontSet();
     } else {
-	return fin->fontSet();
+	return d->fin->fontSet();
     }
 }
 
@@ -1956,12 +1956,12 @@ const QTextCodec *QFontMetrics::mapper() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->mapper();
     } else {
-	return fin->mapper();
+	return d->fin->mapper();
     }
 }
 
 #undef  FS
-#define FS (painter ? (XFontStruct*)fontStruct() : fin->fontStruct())
+#define FS (painter ? (XFontStruct*)fontStruct() : d->fin->fontStruct())
 #undef  SET
 #define SET ((XFontSet)fontSet())
 
@@ -2509,7 +2509,7 @@ int QFontMetrics::lineWidth() const
 	painter->cfont.handle();
 	return printerAdjusted(painter->cfont.d->fin->lineWidth());
     } else {
-	return fin->lineWidth();
+	return d->fin->lineWidth();
     }
 }
 

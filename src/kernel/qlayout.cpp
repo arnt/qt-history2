@@ -1005,9 +1005,9 @@ QSize QGridLayout::maximumSize() const
 {
     QSize s =   array->maximumSize( spacing() ) + QSize(2*margin(),2*margin())
 	.boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    if ( alignment() & Qt::AlignHorizontal )
+    if ( alignment() & Qt::AlignHorizontal_Mask )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if ( alignment() & Qt::AlignVertical )
+    if ( alignment() & Qt::AlignVertical_Mask )
 	s.setHeight( QWIDGETSIZE_MAX );
 
     return s;
@@ -1690,9 +1690,9 @@ QSize QBoxLayout::maximumSize() const
     }
     QSize s =  (data->maxSize + QSize(2*margin(),2*margin()))
 	       .boundedTo(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    if ( alignment() & Qt::AlignHorizontal )
+    if ( alignment() & Qt::AlignHorizontal_Mask )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if ( alignment() & Qt::AlignVertical )
+    if ( alignment() & Qt::AlignVertical_Mask )
 	s.setHeight( QWIDGETSIZE_MAX );
 
     return s;

@@ -352,22 +352,22 @@ static QSize smartMinSize( const QWidgetItem *i )
 static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
-    if ( align & Qt::AlignHorizontal && align & Qt::AlignVertical )
+    if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
 	return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
     QSize s = w->maximumSize();
-    if ( s.width() == QWIDGETSIZE_MAX && !(align&Qt::AlignHorizontal) )
+    if ( s.width() == QWIDGETSIZE_MAX && !(align&Qt::AlignHorizontal_Mask) )
 	if ( !w->sizePolicy().mayGrowHorizontally() )
 	    s.setWidth( w->sizeHint().width() );
 
-    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&Qt::AlignVertical) )
+    if ( s.height() ==  QWIDGETSIZE_MAX && !(align&Qt::AlignVertical_Mask) )
 	if ( !w->sizePolicy().mayGrowVertically() )
 	    s.setHeight( w->sizeHint().height() );
 
     s = s.expandedTo( w->minimumSize() );
 
-    if (align & Qt::AlignHorizontal )
+    if (align & Qt::AlignHorizontal_Mask )
 	s.setWidth( QWIDGETSIZE_MAX );
-    if (align & Qt::AlignVertical )
+    if (align & Qt::AlignVertical_Mask )
 	s.setHeight( QWIDGETSIZE_MAX );
     return s;
 }
@@ -392,11 +392,11 @@ void QWidgetItem::setGeometry( const QRect &r )
     QSize s = r.size().boundedTo( smartMaxSize( this ) );
     int x = r.x();
     int y = r.y();
-    if ( align & (Qt::AlignHorizontal|Qt::AlignVertical) ) {
+    if ( align & (Qt::AlignHorizontal_Mask | Qt::AlignVertical_Mask) ) {
 	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
-	if ( align & Qt::AlignHorizontal )
+	if ( align & Qt::AlignHorizontal_Mask )
 	    s.setWidth( QMIN( s.width(), pref.width() ) );
-	if ( align & Qt::AlignVertical ) {
+	if ( align & Qt::AlignVertical_Mask ) {
 	    if ( hasHeightForWidth() )
 		s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
 	    else
@@ -491,13 +491,13 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    if ( isEmpty() || align&Qt::AlignHorizontal && align&Qt::AlignVertical )
+    if ( isEmpty() || align&Qt::AlignHorizontal_Mask && align&Qt::AlignVertical_Mask )
 	return QSizePolicy::NoDirection;
     int e =  wid->layout() ? wid->layout()->expanding()
 	     : wid->sizePolicy().expanding();
-    if ( align&Qt::AlignHorizontal )
+    if ( align&Qt::AlignHorizontal_Mask )
 	e = e & ~QSizePolicy::Horizontal;
-    else if  ( align&Qt::AlignVertical )
+    else if  ( align&Qt::AlignVertical_Mask)
 	e = e & ~QSizePolicy::Vertical;
 
     return (QSizePolicy::ExpandData)e;
@@ -1766,10 +1766,10 @@ QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
     int a = alignment();
-    if ( expanding() & QSizePolicy::Horizontal || !(a & Qt::AlignHorizontal ) ) {
+    if ( expanding() & QSizePolicy::Horizontal || !(a & Qt::AlignHorizontal_Mask ) ) {
 	s.setWidth( r.width() );
     }
-    if ( expanding() & QSizePolicy::Vertical || !(a & Qt::AlignVertical )) {
+    if ( expanding() & QSizePolicy::Vertical || !(a & Qt::AlignVertical_Mask )) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );

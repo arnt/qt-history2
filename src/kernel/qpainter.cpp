@@ -44,6 +44,8 @@
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
 #include "qapplication.h"
+#include "qrichtext_p.h"
+#include "qregexp.h"
 #ifdef _WS_QWS_
 #include "qgfx_qws.h"
 #endif
@@ -2175,9 +2177,9 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   \sa boundingRect()
 */
 
-void QPainter::drawText( int x, int y, int w, int h, int tf,
+void QPainter::drawText( const QRect &r, int tf,
 			 const QString& str, int len, QRect *brect,
-			 char **internal )
+			 QTextParag **internal )
 {
     if ( !isActive() )
 	return;
@@ -2191,7 +2193,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    updateFont();
 	if ( testf(ExtDev) && (tf & DontPrint) == 0 ) {
 	    QPDevCmdParam param[3];
-	    QRect r( x, y, w, h );
 	    QString newstr = str;
 	    newstr.truncate( len );
 	    param[0].rect = &r;
@@ -2216,468 +2217,103 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
     }
 
-    const QFontMetrics & fm = fontMetrics();		// get font metrics
-
-    qt_format_text(fm, x, y, w, h, tf, str, len, brect,
+    qt_format_text(font(), r, tf, str, len, brect,
 		   tabstops, tabarray, tabarraylen, internal, this);
 }
 
 
-void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
+void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
-		     char **internal, QPainter* painter )
+		     QTextParag **internal, QPainter* painter )
 {
-    if ( w <= 0 || h <= 0 )
-	fix_neg_rect( &x, &y, &w, &h );
-
-    struct text_info {				// internal text info
-	char  tag[4];				// contains "qptr"
-	int   w;				// width
-	int   h;				// height
-	int   tf;				// flags (alignment etc.)
-	int   len;				// text length
-	int   maxwidth;				// max text width
-	Q_INT16 mlb;				// min left bearing
-	Q_INT16 mrb;				// min right bearing
-	int   nlines;				// number of lines
-	int   codelen;				// length of encoding
-    };
-
-    uint codearray[200];
-    int	   codelen    = 200;
-    bool   code_alloc = FALSE;
-    uint *codes     = codearray;
-    uint cc = 0;				// character code
     bool   decode     = internal && *internal;	// decode from internal data
     bool   encode     = internal && !*internal; // build internal data
-
-    if ( len > 150 && !decode ) {		// need to alloc code array
-	codelen = len + len/2; // ### enough? 200 != 150*1.5 -- WWA
-	codes	= (uint *)malloc( codelen*sizeof(uint) );
-	code_alloc = TRUE;
-    }
-
-    const uint BEGLINE  = 0x80000000;	// encoding 0x8000zzzz, z=width
-    const uint TABSTOP  = 0x40000000;	// encoding 0x4000zzzz, z=tab pos
-    const uint PREFIX   = 0x20000000;	// encoding 0x2000hilo
-    const uint HI       = 0x0000ff00;	//  hi,lo=QChar
-    const uint LO       = 0x000000ff;
-    const int HI_SHIFT = 8;
-    const int LO_SHIFT = 0;
-    // An advanced display function might provide for different fonts, etc.
-    const int WIDTHBITS= 0x1fffffff;	// bits for width encoding
-    const int MAXWIDTH = 0x1fffffff;	// max width value
-
-    const QChar *p = str.unicode();
-    int nlines;					// number of lines
-    int index;					// index for codes
-    int begline;				// index at beginning of line
-    int breakindex;				// index where to break
-    int breakwidth;				// width of text at breakindex
-    int maxwidth;				// maximum width of a line
-    int tabindex;				// tab array index
-    int cw;					// character width
-    int k;					// index for p
-    int tw;					// text width
-    int minleftbearing = 0;
-    int minrightbearing = 0;
-
-#define ENCCHAR(x) (((x).cell() << LO_SHIFT) | ((x).row() << HI_SHIFT))
-#define DECCHAR(x) QChar(((x)&LO)>>LO_SHIFT,((x)&HI)>>HI_SHIFT)
-#define CWIDTH(x) fm.width(DECCHAR(x)) // Could cache, but put that it in fm
-#define ISPRINT(x) ((x).row() || (x).cell()>' ')
-    // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
     bool wordbreak  = (tf & Qt::WordBreak)  == Qt::WordBreak;
     bool expandtabs = (tf & Qt::ExpandTabs) == Qt::ExpandTabs;
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
-    int	 spacewidth = CWIDTH( QChar(' ') );	// width of space char
+    //qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
+    QTextParag *parag;
 
-    nlines = 0;
-    index  = 1;					// first index contains BEGLINE
-    begline = breakindex = breakwidth = maxwidth = tabindex = 0;
-    k = tw = 0;
-
-    if ( decode )				// skip encoding
-	k = len;
-
-    int localTabStops = 0;	       		// tab stops
-    if ( tabstops )
-	localTabStops = tabstops;
-    else
-	localTabStops = fm.width(QChar('x'))*8;       	// default to 8 times x
-
-    QString word;
-
-    bool fakeBreak = FALSE;
-    bool breakwithinwords = FALSE;
-    //qDebug("painting string %s pointSize=%d width=%d", str.latin1(), fm.height(), w);
-    while ( k <= len ) {				// convert string to codes
-	//qDebug("at position %d fakeBreak=%d", k, fakeBreak);
-	if ( !fakeBreak && k < len && ISPRINT(*p) ) {			// printable character
-	    if ( *p == '&' && showprefix ) {
-		cc = '&';			// assume ampersand
-		if ( k < len-1 ) {
-		    k++;
-		    p++;
-		    if ( *p != '&' && ISPRINT(*p) )
-			cc = PREFIX | ENCCHAR(*p);// use prefix char
-		}
-	    } else {
-		cc = ENCCHAR(*p);
-	    }
-
-	    cw = 0;
- 	    if ( breakwithinwords ) {
- 		breakwidth += CWIDTH(cc);
- 		if ( !word.isEmpty() && breakwidth > w ) {
- 		    fakeBreak = TRUE;
- 		    continue;
- 		}
- 	    }
-	    word += *p;
-	} else {				// not printable (except ' ')
-	    // somehow the assertion fm.width(word) == breakwidth seems not to hold in 100%
-	    // of the cases (maybe an X11 bug). This led to an endless loop in a very special case.
-	    if ( !breakwithinwords || fakeBreak ) {
-		cw = fm.width(word);
-		//qDebug("%s: word = %s, width=%d", str.latin1(), word.latin1(), cw);
-	    } else {
-		cw = breakwidth - CWIDTH(cc);
-		//qDebug( "cw gets set to %d - would have been %d", cw, fm.width(word) );
-	    }
-	    if ( !fakeBreak && wordbreak ) {
-		if ( tw+cw > w ) {
-		    if ( breakindex > 0 ) {
-			breakwithinwords = FALSE;
-			codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
-			maxwidth = QMAX(maxwidth,tw);
-			begline = breakindex;
-			tw = cw;
-			breakindex = tabindex = 0;
-			cw = 0;
-			nlines++;
-		    }
-		    if ( /* do not add !breakwithinwords &&*/
-			tw+cw > w && word.length() > 1) {
-			breakwithinwords = TRUE;
-			breakwidth = 0;
-			p -= word.length();
-			k -= word.length();
-			index = begline+1;
-			tw = 0;
-			word = "";
-			continue;
-		    }
-		}
-	    }
-	    word = "";
-
- 	    if ( fakeBreak ) {
- 		cc = BEGLINE;
- 		fakeBreak = FALSE;
-  		--k;
-  		--p;
- 	    }
- 	    else
-	    if ( k == len ) {
-		// end (*p not valid)
-		cc = 0;
-	    } else if ( *p == ' ' ) {			// the space character
-		cc = ' ';
-		cw += spacewidth;
-	    } else if ( *p == '\n' ) {		// newline
-		if ( singleline ) {
-		    cc = ' ';			// convert newline to space
-		    cw += spacewidth;
-		} else {
-		    cc = BEGLINE;
-		}
-	    } else if ( *p == '\r' ) {		// ignore carriage return for now (convert to space)
-		cc = ' ';
-		cw += spacewidth;
-	    } else if ( *p == '\t' ) {		// TAB character
-		if ( expandtabs ) {
-		    int ccw = 0;
-		    if ( tabarray ) {		// use tab array
-			while ( tabindex < tabarraylen ) {
-			    if ( tabarray[tabindex] > (tw+cw) ) {
-				ccw = tabarray[tabindex] - (tw+cw);
-				tabindex++;
-				break;
-			    }
-			    tabindex++;
-			}
-		    }
-		    if ( ccw == 0 )		// use fixed tab stops
-			ccw = localTabStops - (tw+cw)%localTabStops;
-		    cw += ccw;
-		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
-		} else {			// convert TAB to space
-		    cc = ' ';
-		    cw += spacewidth;
-		}
-	    } else {				// ignore character
-		k++;
-		p++;
-		continue;
-	    }
-	    breakindex = index;
-	    breakwidth = 0;
-	}
-
-	tw += cw;				// increment text width
-
-	if ( cc == BEGLINE ) {
-	    breakwithinwords = FALSE;
-	    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
-	    maxwidth = QMAX(maxwidth,tw);
-	    begline = index;
-	    nlines++;
-	    tw = 0;
-	    breakindex = tabindex = 0;
-	}
-	codes[index++] = cc;
-	if ( index >= codelen - 1 ) {		// grow code array
-	    codelen *= 2;
-	    if ( code_alloc ) {
-		codes = (uint *)realloc( codes, sizeof(uint)*codelen );
-	    } else {
-		codes = (uint *)malloc( sizeof(uint)*codelen );
-		code_alloc = TRUE;
-	    }
-	}
-	k++;
-	p++;
-    }
-
-    if ( !decode ) {
-	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
-	maxwidth = QMAX(maxwidth,tw);
-	nlines++;
-	codes[index++] = 0;
-	codelen = index;
-
-	uint* cptr = codes;
-	while ( *cptr ) { 			// determine bearings
-	    int lw = *cptr++ & WIDTHBITS;
-	    if ( !lw ) {			// ignore empty line
-		while ( *cptr && (*cptr & BEGLINE) != BEGLINE )
-		    cptr++;
-		continue;
-	    }
-	    if ( *cptr && (*cptr & (BEGLINE|TABSTOP)) == 0 ) {
-		int lb = fm.leftBearing( DECCHAR(*cptr) );
-		minleftbearing = QMIN( minleftbearing, lb );
-	    }
-	    while ( *cptr && (*cptr & BEGLINE) != BEGLINE )
-		cptr++;
-	    cptr--;
-	    if ( *cptr && (*cptr & (BEGLINE|TABSTOP)) == 0 ) {
-		int rb = fm.rightBearing( DECCHAR(*cptr) );
-		minrightbearing = QMIN( minrightbearing, rb );
-	    }
-	    cptr++;
-	}
-    }
-
-    if ( decode ) {				// decode from internal data
-	char	  *data = *internal;
-	text_info *ti	= (text_info*)data;
-	if ( qstrncmp(ti->tag,"qptr",4)!=0 || ti->w != w || ti->h != h ||
-	     ti->tf != tf || ti->len != len ) {
-#if defined(CHECK_STATE)
-	    qWarning( "QPainter::drawText: Internal text info is invalid" );
-#endif
-	    return;
-	}
-	maxwidth = ti->maxwidth;		// get internal values
-	minleftbearing = ti->mlb;
-	minrightbearing = ti->mrb;
-	nlines	 = ti->nlines;
-	codelen	 = ti->codelen;
-	codes	 = (uint *)(data + sizeof(text_info));
-    }
-
-    if ( encode ) {				// build internal data
-	char	  *data = new char[sizeof(text_info)+codelen*sizeof(uint)];
-	text_info *ti	= (text_info*)data;
-	strncpy( ti->tag, "qptr", 4 );		// set tag
-	ti->w	     = w;			// save parameters
-	ti->h	     = h;
-	ti->tf	     = tf;
-	ti->len	     = len;
-	ti->maxwidth = maxwidth;
-	ti->mlb	     = minleftbearing;
-	ti->mrb	     = minrightbearing;
-	ti->nlines   = nlines;
-	ti->codelen  = codelen;
-	memcpy( data+sizeof(text_info), codes, codelen*sizeof(uint) );
-	*internal = data;
-    }
-
-    int	    fascent  = fm.ascent();		// get font measurements
-    int	    fheight  = fm.height();
-    int	    xp, yp;
-    int	    xc;					// character xp
-
-    int overflow = -minleftbearing - minrightbearing;
-    maxwidth += overflow;
-    if ( (tf & Qt::AlignVCenter) == Qt::AlignVCenter )	// vertically centered text
-	yp = h/2 - nlines*fheight/2;
-    else if ( (tf & Qt::AlignBottom) == Qt::AlignBottom)// bottom aligned
-	yp = h - nlines*fheight;
-    else					// top aligned
-	yp = 0;
-    if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
-	xp = w - maxwidth;			// right aligned
-    } else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	xp = w/2 - maxwidth/2;			// centered text
-    } else if ( (tf & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() ) {
-	xp = w - maxwidth;			// automatic alignment is right in revered layout
-    } else {
-	xp = 0;				// left aligned
-    }
-
-#if defined(CHECK_RANGE)
-    int hAlignFlags = 0;
-    if ( (tf & Qt::AlignRight) == Qt::AlignRight )
-	hAlignFlags++;
-    if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter )
-	hAlignFlags++;
-    if ( (tf & Qt::AlignLeft ) == Qt::AlignLeft )
-	hAlignFlags++;
-
-    if ( hAlignFlags > 1 )
-	qWarning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
-		 "\t\t    and AlignHCenter set in the tf parameter.");
-
-    int vAlignFlags = 0;
-    if ( (tf & Qt::AlignTop) == Qt::AlignTop )
-	vAlignFlags++;
-    if ( (tf & Qt::AlignVCenter) == Qt::AlignVCenter )
-	vAlignFlags++;
-    if ( (tf & Qt::AlignBottom ) == Qt::AlignBottom )
-	vAlignFlags++;
-
-    if ( vAlignFlags > 1 )
-	qWarning("QPainter::drawText: More than one of AlignTop, AlignBottom\n"
-		 "\t\t    and AlignVCenter set in the tf parameter.");
-#endif // CHECK_RANGE
-
-    //qDebug("%s: nlines = %d height=%d width needed=%d", str.latin1(), nlines, fheight, maxwidth);
-    QRect br( x+xp, y+yp, maxwidth, nlines*fheight );
-    if ( brect )				// set bounding rect
-	*brect = br;
-
-    if ( !painter || (tf & Qt::DontPrint) != 0 ) {// can't/don't print any text
-	if ( code_alloc )
-	    free( codes );
-	return;
-    }
-
-    // From here, we have a painter.
-
-    QRegion save_rgn = painter->crgn;		// save the current region
-    bool    clip_on  = painter->testf(QPainter::ClipOn);
-
-    if ( br.x() >= x && br.y() >= y && br.width() < w && br.height() < h )
-	tf |= Qt::DontClip;				// no need to clip
-
-    if ( (tf & Qt::DontClip) == 0 ) {		// clip text
-	QRegion new_rgn;
-	QRect r( x, y, w, h );
-#ifndef QT_NO_TRANSFORMATIONS
-	if ( painter->txop == TxRotShear ) {		// world xform active
-	    QPointArray a( r );			// complex region
-	    a = painter->xForm( a );
-	    new_rgn = QRegion( a );
-	} else {
-#endif
-	    r = painter->xForm( r );
-	    new_rgn = QRegion( r );
-#ifndef QT_NO_TRANSFORMATIONS
-	}
-#endif
-	if ( clip_on )				// combine with existing region
-	    new_rgn = new_rgn.intersect( painter->crgn );
-	painter->setClipRegion( new_rgn );
-    }
-
-    yp += fascent;
-
-    uint *cp = codes;
-
-#if 0
-    int i = 0;
-    while ( *cp ) {
-	qDebug("code[%d] = %x", i, *cp);
-	cp++;
-	i++;
-    }
-    cp = codes;
-#endif
+    QRect rect = r;
+    if( !wordbreak && !decode )
+	rect.setWidth(0x1fffffff);	// max width value
     
-    while ( *cp ) {				// finally, draw the text
-	tw = *cp++ & WIDTHBITS;			// text width
-
-	if ( tw == 0 ) {			// ignore empty line
-	    while ( *cp && (*cp & BEGLINE) != BEGLINE )
-		cp++;
-	    yp += fheight;
-	    continue;
+    if ( decode ) { 
+	parag = *internal;
+    } else {
+	QString parStr = str;
+	// need to build paragraph
+	parag = new QTextParag( 0, 0, 0, FALSE );
+	QTextFormat *f = new QTextFormat( font, painter ? painter->pen().color() : QColor() );
+	parag->setFormat( f );
+	if ( singleline ) {
+	    parStr.replace(QRegExp("[\n\r]"), " ");
 	}
-	
-	if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
-	    xc = w - tw + minrightbearing;
-	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	    xc = w/2 - (tw-minleftbearing-minrightbearing)/2 - minleftbearing;
-	} else if ( (tf & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() ) {
-	    xc = w - tw + minrightbearing;
-	} else {
-	    xc = -minleftbearing;
-	}
-
-	int bxc = xc;				// base x position (chars)
-	while ( TRUE ) {
-	    QString chunk;
-	    while ( *cp && (*cp & (BEGLINE|TABSTOP)) == 0 ) {
-		if ( (*cp & PREFIX) == PREFIX ) {
-		    int xcpos = fm.width( chunk );
-		    painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
-				       CWIDTH(*cp), fm.lineWidth(),
-				       painter->cpen.color() );
+	if ( showprefix ) {
+	    int idx = -1;
+	    int start = 0;
+	    int len = str.length();
+	    QTextFormat *underline = new QTextFormat( *f );
+	    f->setUnderline( TRUE );
+	    int num = 0;
+	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
+		parag->append( parStr.mid( start, idx - start ) );
+		if ( idx == len -1 || str[idx+1] == '&' )
+		    parag->append( QString( "&" ) );
+		else {
+		    parag->append( parStr.mid(idx + 1, 1) );
+		    parag->setFormat(idx - num, 1, f );
+		    num++;
 		}
-		chunk += DECCHAR(*cp);
-		++cp;
+		start = idx + 2;
 	    }
-	    painter->drawText( x+xc, y+yp, chunk );// draw the text
-	    if ( (*cp & TABSTOP) == TABSTOP ) {
-		int w = (*cp++ & WIDTHBITS);
-		xc = bxc + w;
-	    } else {				// *cp == 0 || *cp == BEGLINE
-		break;
-	    }
+	    parag->append( parStr.mid( start ) );
+	} else 
+	    parag->append( parStr );
+	if ( expandtabs ) {
+	    parag->setTabArray( tabarray );
+	    parag->setTabStops( tabstops );
 	}
-	yp += fheight;
+	//qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
+	parag->setDocumentRect( rect );
+	parag->invalidate( 0 );
+	parag->format();
     }
-
-    if ( (tf & Qt::DontClip) == 0 ) {		// restore clipping
-	if ( clip_on ) {
-	    painter->setClipRegion( save_rgn );
-	} else {
-	    painter->setClipping( FALSE );
-	}
+    if ( painter ) {
+	QColorGroup cg;
+ 	painter->save();
+	int xoff = r.x();
+	int yoff = r.y();
+	QRect parRect = parag->rect();
+	//qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+	int align = QApplication::horizontalAlignment( tf );
+	if ( align & Qt::AlignRight ) 
+	    xoff += r.width() - parag->rect().width();
+	else if ( align & Qt::AlignHCenter )
+	    xoff += (r.width() - parag->rect().width())/2;
+	if ( tf & Qt::AlignBottom )
+	    yoff += r.height() - parag->rect().height();
+	else if ( tf & Qt::AlignVCenter )
+	    yoff += (r.height() - parag->rect().height())/2;
+  	painter->translate( xoff, yoff);
+	parag->paint( *painter, cg );
+	painter->restore();
     }
-
-    if ( code_alloc )
-	free( codes );
+    if ( brect ) {
+	*brect = parag->rect();
+	//qDebug("par: %d/%d", brect->width(), brect->height() );
+    }
+    if ( encode ) {
+	*internal = parag;
+    } else {
+	delete parag;
+    }
 }
-
-
+    
 /*!
 
   Returns the bounding rectangle of the aligned text that would be
@@ -2714,14 +2350,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   \sa drawText(), fontMetrics(), QFontMetrics::boundingRect(), Qt::AlignmentFlags
 */
 
-QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
-			      const QString& str, int len, char **internal )
+QRect QPainter::boundingRect( const QRect &r, int tf,
+			      const QString& str, int len, QTextParag **internal )
 {
     QRect brect;
     if ( str.isEmpty() )
-	brect.setRect( x,y, 0,0 );
+	brect.setRect( r.x(),r.y(), 0,0 );
     else
-	drawText( x, y, w, h, tf | DontPrint, str, len, &brect, internal );
+	drawText( r, tf | DontPrint, str, len, &brect, internal );
     return brect;
 }
 
