@@ -282,11 +282,12 @@ QWidget *WidgetFactory::create( int id, QWidget *parent, const char *name, bool 
     }
 
     QWidget *w = 0;
+    QString str = WidgetDatabase::createWidgetName( id );
+    const char *s = str.latin1();
     if ( !WidgetDatabase::isCustomWidget( id ) )
-	w = createWidget( n, parent, name ? name : (const char*)WidgetDatabase::createWidgetName( id ).data(), init, r, orient );
+	w = createWidget( n, parent, name ? name : s, init, r, orient );
     else
-	w = createCustomWidget( parent, name ? name : (const char*)WidgetDatabase::createWidgetName( id ).data(),
-				MetaDataBase::customWidget( id ) );
+	w = createCustomWidget( parent, name ? name : s, MetaDataBase::customWidget( id ) );
     if ( !w )
 	return 0;
     MetaDataBase::addEntry( w );
