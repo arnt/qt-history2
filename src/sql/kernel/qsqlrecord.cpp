@@ -212,7 +212,7 @@ const QSqlField* QSqlRecord::fieldPtr(const QString& name) const
 }
 
 /*!
-    returns the field at position \i. If the position does not exist,
+    returns the field at position \a i. If the position does not exist,
     an empty field is returned.
  */
 QSqlField QSqlRecord::field(int i) const
