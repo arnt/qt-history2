@@ -1672,7 +1672,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSetFillColorSpace((CGContextRef)d->hd, cs);
     const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
     CGContextSetFillPattern((CGContextRef)d->hd, pat, &tmp_float);
-    CGContextSetPatternPhase((CGContextRef)d->hd, CGSizeMake(-p.x(), -p.y()));
+    CGContextSetPatternPhase((CGContextRef)d->hd, CGSizeMake(r.x()-p.x(), r.y()-p.y()));
     //fill the rectangle
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextFillRect((CGContextRef)d->hd, mac_rect);

@@ -368,9 +368,9 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 			if(was_unclipped)
 			    widget->setWFlags(Qt::WPaintUnclipped);
 			p.setClipRegion(qrgn);
-			if(bg.pixmap())
-			    p.drawTiledPixmap(rr, *bg.pixmap(), QPoint(rr.x()+(bg.pixmap()->width()),
-								       rr.y()+(bg.pixmap()->height())));
+			if(bg.pixmap()) 
+			    p.drawTiledPixmap(rr, *bg.pixmap(), QPoint(rr.x()%bg.pixmap()->width(),
+								       rr.y()%bg.pixmap()->height()));
 			else 
 			    p.fillRect(rr, bg.color());
 		    }
