@@ -411,7 +411,13 @@ static int mapPageSizeDevmode( QPrinter::PageSize s )
 */
 short QPrinter::winPageSize() const
 {
-    return hdevmode ? ((DEVMODE *)hdevmode)->dmPaperSize : 0;
+    DEVMODE *dm = (DEVMODE*) GlobalLock( hdevmode );
+    int wps = 0;
+    if( dm ) {
+	wps = dm->dmPaperSize;
+	GlobalUnlock( dm );
+    }
+    return wps;
 }
 
 
