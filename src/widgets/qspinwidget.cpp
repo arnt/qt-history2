@@ -41,8 +41,6 @@
 #include "qstyle.h"
 #include "qpainter.h"
 
-static uint theButton = 0;
-
 class QSpinWidgetPrivate
 {
 public:
@@ -51,14 +49,16 @@ public:
 	upEnabled = TRUE;
 	downEnabled = TRUE;
 	buttonDown = 0;
+	theButton = 0;
 	up = QRect();
 	down = QRect();
 	auRepTimer = 0;
 	bsyms = QSpinWidget::UpDownArrows;
     }
-    bool upEnabled;
-    bool downEnabled;
-    uint buttonDown;
+    uint upEnabled :1;
+    uint downEnabled :1;
+    uint theButton :2;
+    uint buttonDown :2;
     QRect up;
     QRect down;
     QTimer *auRepTimer;
@@ -137,7 +137,7 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
     else
 	d->buttonDown = 0;
 
-    theButton = d->buttonDown;
+    d->theButton = d->buttonDown;
     if ( oldButtonDown != d->buttonDown ) {
 	if ( !d->buttonDown ) {
 	    repaint( d->down.unite( d->up ), FALSE );
@@ -215,9 +215,9 @@ void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
     if ( e->button() != LeftButton )
 	return;
 
-    uint oldButtonDown = theButton;
-    theButton = 0;
-    if ( oldButtonDown != theButton ) {
+    uint oldButtonDown = d->theButton;
+    d->theButton = 0;
+    if ( oldButtonDown != d->theButton ) {
 	if ( oldButtonDown & 1 )
 	    repaint( d->down, FALSE );
 	else if ( oldButtonDown & 2 )
@@ -239,26 +239,26 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
     if ( !(e->state() & LeftButton ) )
 	return;
 
-    uint oldButtonDown = theButton;
+    uint oldButtonDown = d->theButton;
     if ( oldButtonDown & 1 && !d->down.contains( e->pos() ) ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->stop();
-	theButton = 0;
+	d->theButton = 0;
 	repaint( d->down, FALSE );
     } else if ( oldButtonDown & 2 && !d->up.contains( e->pos() ) ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->stop();
-	theButton = 0;
+	d->theButton = 0;
 	repaint( d->up, FALSE );
     } else if ( !oldButtonDown && d->up.contains( e->pos() ) && d->buttonDown & 2 ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->start( 500 );
-	theButton = 2;
+	d->theButton = 2;
 	repaint( d->up, FALSE );
     } else if ( !oldButtonDown && d->down.contains( e->pos() ) && d->buttonDown & 1 ) {
 	if ( d->auRepTimer )
 	    d->auRepTimer->start( 500 );
-	theButton = 1;
+	d->theButton = 1;
 	repaint( d->down, FALSE );
     }
 }
@@ -302,9 +302,9 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 	flags |= QStyle::Style_HasFocus;
 
     QStyle::SCFlags active;
-    if (theButton & 1)
+    if ( d->theButton & 1 )
 	active = QStyle::SC_SpinWidgetDown;
-    else if (theButton & 2)
+    else if ( d->theButton & 2 )
 	active = QStyle::SC_SpinWidgetUp;
     else
 	active = QStyle::SC_None;
@@ -361,13 +361,13 @@ void QSpinWidget::updateDisplay()
 	d->upEnabled = FALSE;
 	d->downEnabled = FALSE;
     }
-    if ( theButton & 1 && ( d->downEnabled ) == 0 ) {
-	theButton &= ~1;
+    if ( d->theButton & 1 && ( d->downEnabled ) == 0 ) {
+	d->theButton &= ~1;
 	d->buttonDown &= ~1;
     }
 
-    if ( theButton & 2 && ( d->upEnabled ) == 0 ) {
-	theButton &= ~2;
+    if ( d->theButton & 2 && ( d->upEnabled ) == 0 ) {
+	d->theButton &= ~2;
 	d->buttonDown &= ~2;
     }
     repaint( FALSE );
@@ -392,7 +392,7 @@ void QSpinWidget::enableChanged( bool )
 
 void QSpinWidget::setUpEnabled( bool on )
 {
-    if ( d->upEnabled != on ) {
+    if ( (bool)d->upEnabled != on ) {
 	d->upEnabled = on;
 	updateDisplay();
     }
@@ -413,7 +413,7 @@ bool QSpinWidget::isUpEnabled() const
 
 void QSpinWidget::setDownEnabled( bool on )
 {
-    if ( d->downEnabled != on ) {
+    if ( (bool)d->downEnabled != on ) {
 	d->downEnabled = on;
 	updateDisplay();
     }
