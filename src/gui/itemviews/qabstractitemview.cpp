@@ -72,8 +72,6 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 
 void QAbstractItemViewPrivate::init()
 {
-    viewport->installEventFilter(q);
-
     q->setItemDelegate(new QItemDelegate(q));
     q->setModel(new QDefaultModel(q));
 
@@ -896,10 +894,13 @@ bool QAbstractItemView::event(QEvent *e)
         d->viewport->update();
         break;
     case QEvent::KeyPress: {
-        // FIXME: hack to get Tab key before QWidget changes the focus
+        // This is to avoid loosing focus on Tab and Backtab
         QKeyEvent *ke = static_cast<QKeyEvent*>(e);
-        keyPressEvent(ke);
-        return ke->isAccepted(); }
+        if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
+            keyPressEvent(ke);
+            return ke->isAccepted();
+        }
+        break;}
     default:
         break;
     }
@@ -1961,7 +1962,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionC
     switch (event->type()) {
     case QEvent::MouseMove: // Toggle on MouseMove
         modifiers = static_cast<const QMouseEvent*>(event)->modifiers();
-        if (modifiers & Qt::ControlModifier) // FIXME: problem here ?
+        if (modifiers & Qt::ControlModifier)
             return QItemSelectionModel::ToggleCurrent|selectionBehaviorFlags();
         break;
     case QEvent::MouseButtonPress: {// NoUpdate when pressing without modifiers on a selected item

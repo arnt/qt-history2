@@ -554,8 +554,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
     if (!editor)
         return false;
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        switch (keyEvent->key()) {
+        switch (static_cast<QKeyEvent *>(event)->key()) {
         case Qt::Key_Tab:
             emit commitData(editor);
             emit doneEditing(editor);
@@ -575,6 +574,7 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             emit editingAccepted();
             return true;
         case Qt::Key_Escape:
+            // don't commit data
             emit doneEditing(editor);
             emit editingAborted();
             return true;
