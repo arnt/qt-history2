@@ -150,6 +150,7 @@ QString FormFile::code()
 	txt = cod;
     }
     if ( createSource ) {
+	/*
 	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
 	QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
 	for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
@@ -165,6 +166,28 @@ QString FormFile::code()
 						 (*it).returnType ),
 					       (*it).access );
 	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeSlot( (*it).slot ) );
+	    if ( bit != bodies.end() )
+		txt += "\n" + *bit + "\n\n";
+	    else
+		txt += "\n" + iface->createEmptyFunction() + "\n\n";
+	}
+	*/
+
+	QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
+	QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
+	for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
+	    if ( (*it).language != pro->language() )
+		continue;
+	    QString fu( (*it).function );
+	    QString comments = MetaDataBase::functionComments( formWindow(), fu );
+	    if ( !comments.isEmpty() )
+		txt += comments + "\n";
+	    txt += iface->createFunctionStart( formWindow()->name(), make_func_pretty( fu ),
+					       ( (*it).returnType.isEmpty() ?
+						 QString( "void" ) :
+						 (*it).returnType ),
+					       (*it).access );
+	    QMap<QString, QString>::Iterator bit = bodies.find( MetaDataBase::normalizeFunction( (*it).function ) );
 	    if ( bit != bodies.end() )
 		txt += "\n" + *bit + "\n\n";
 	    else
@@ -457,9 +480,10 @@ static const char * const comment =
 "/****************************************************************************\n"
 "** ui.h extension file, included from the uic-generated form implementation.\n"
 "**\n"
-"** If you wish to add, delete or rename slots use Qt Designer which will\n"
-"** update this file, preserving your code. Create an init() slot in place of\n"
-"** a constructor, and a destroy() slot in place of a destructor.\n"
+"** If you wish to add, delete or rename functions respectively slots use\n"
+"** Qt Designer which will update this file, preserving your code. Create an\n" 
+"** init() function in place of a constructor, and a destroy() function in\n" 
+"** place of a destructor.\n"
 "*****************************************************************************/\n";
 
 
@@ -481,9 +505,9 @@ void FormFile::createFormCode()
 	cod = comment;
     else
 	cod = "";
-    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
-    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
-	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).slot),
+    QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
+    for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
+	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).function),
 						    (*it).returnType.isEmpty() ?
 						    QString( "void" ) :
 						    (*it).returnType, (*it).access ) +
@@ -530,42 +554,46 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
     if ( !iface )
 	return;
     QValueList<LanguageInterface::Function> functions;
-    QValueList<MetaDataBase::Slot> newSlots, oldSlots;
-    oldSlots = MetaDataBase::slotList( formWindow() );
+    QValueList<MetaDataBase::Function> newFunctions, oldFunctions;
+    oldFunctions = MetaDataBase::functionList( formWindow() );
     iface->functions( txt, &functions );
     QMap<QString, QString> funcs;
     for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin();
 	  it != functions.end(); ++it ) {
 	bool found = FALSE;
-	for ( QValueList<MetaDataBase::Slot>::Iterator sit = oldSlots.begin();
-	      sit != oldSlots.end(); ++sit ) {
-	    QString s( (*sit).slot );
-	    if ( MetaDataBase::normalizeSlot( s ) ==
-		 MetaDataBase::normalizeSlot( (*it).name ) ) {
+	for ( QValueList<MetaDataBase::Function>::Iterator fit = oldFunctions.begin();
+	      fit != oldFunctions.end(); ++fit ) {
+	    QString f( (*fit).function );
+	    if ( MetaDataBase::normalizeFunction( f ) ==
+		 MetaDataBase::normalizeFunction( (*it).name ) ) {
 		found = TRUE;
-		MetaDataBase::Slot slot;
-		slot.slot = make_func_pretty( (*it).name );
-		slot.specifier = (*sit).specifier;
+		MetaDataBase::Function function;
+		function.function = make_func_pretty( (*it).name );
+		function.specifier = (*fit).specifier;
+		function.type = (*fit).type;
 		if ( pro->language() != "C++" )
-		    slot.access = (*it).access;
+		    function.access = (*it).access;
 		else
-		    slot.access = (*sit).access;
-		slot.language = (*sit).language;
-		slot.returnType = (*it).returnType;
-		newSlots << slot;
+		    function.access = (*fit).access;
+		function.language = (*fit).language;
+		function.returnType = (*it).returnType;
+		newFunctions << function;
 		funcs.insert( (*it).name, (*it).body );
-		oldSlots.remove( sit );
+		oldFunctions.remove( fit );
 		break;
 	    }
 	}
 	if ( !found ) {
-	    MetaDataBase::Slot slot;
-	    slot.slot = make_func_pretty( (*it).name );
-	    slot.specifier = "virtual";
-	    slot.access = "public";
-	    slot.language = pro->language();
-	    slot.returnType = (*it).returnType;
-	    newSlots << slot;
+	    MetaDataBase::Function function;
+	    function.function = make_func_pretty( (*it).name );
+	    function.specifier = "virtual";
+	    function.access = "public";
+	    if ( function.function == "init()" || function.function == "destroy()" )
+		function.access = "private";
+	    function.type = "function";
+	    function.language = pro->language();
+	    function.returnType = (*it).returnType;
+	    newFunctions << function;
 	    funcs.insert( (*it).name, (*it).body );
 	    if ( allowModify )
 		setFormWindowModified( TRUE );
@@ -573,10 +601,10 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
 	MetaDataBase::setFunctionComments( formWindow(), (*it).name, (*it).comments );
     }
 
-    if ( allowModify && oldSlots.count() > 0 )
+    if ( allowModify && oldFunctions.count() > 0 )
 	setFormWindowModified( TRUE );
 	
-    MetaDataBase::setSlotList( formWindow(), newSlots );
+    MetaDataBase::setFunctionList( formWindow(), newFunctions );
     MetaDataBase::setFunctionBodies( formWindow(), funcs, pro->language(), QString::null );
 }
 
@@ -605,7 +633,7 @@ void FormFile::checkTimeStamp()
 		QTextStream ts( &f );
 		editor()->editorInterface()->setText( ts.read() );
 		editor()->save();
-		MainWindow::self->slotsChanged();
+		MainWindow::self->functionsChanged();
 	    }
 	}
     } else {
@@ -613,7 +641,7 @@ void FormFile::checkTimeStamp()
     }
 }
 
-void FormFile::addSlotCode( MetaDataBase::Slot slot )
+void FormFile::addFunctionCode( MetaDataBase::Function function )
 {
     if ( !hasFormCode() && !codeEdited )
 	return;
@@ -621,7 +649,7 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
     if ( !iface )
 	return;
     QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formWindow() );
-    QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeSlot( slot.slot ) );
+    QMap<QString, QString>::Iterator it = functionBodies.find( MetaDataBase::normalizeFunction( function.function ) );
     if ( it == functionBodies.end() ) {
 	if ( !codeEdited && !timeStamp.isUpToDate() )
 	    loadCode();
@@ -630,14 +658,14 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 	if ( cn.isEmpty() )
 	    cn = formWindow()->name();
 	QString body = "\n\n" + iface->createFunctionStart( cn,
-							    make_func_pretty( slot.slot ),
-							    slot.returnType.isEmpty() ?
+							    make_func_pretty( function.function ),
+							    function.returnType.isEmpty() ?
 							    QString( "void" ) :
-							    slot.returnType, slot.access ) +
+							    function.returnType, function.access ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
 	MetaDataBase::addFunctionBody( formWindow(),
-				       MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );
+				       MetaDataBase::normalizeFunction( function.function ), iface->createEmptyFunction() );
 	if ( codeEdited ) {
 	    setModified( TRUE );
 	    emit somethingChanged( this );

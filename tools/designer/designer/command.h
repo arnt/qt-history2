@@ -79,8 +79,8 @@ public:
 	RenameWizardPage,
 	AddConnection,
 	RemoveConnection,
-	AddSlot,
-	RemoveSlot,
+	//AddSlot,
+	//RemoveSlot,
 	Lower,
 	Raise,
 	Paste,
@@ -99,7 +99,9 @@ public:
 	RenameMenu,
 	MoveMenu,
 	AddToolBar,
-	RemoveToolBar
+	RemoveToolBar,
+	AddFunction,
+	RemoveFunction
     };
 
     QString name() const;
@@ -552,6 +554,8 @@ private:
 
 };
 
+// --- obsolete...
+/*
 class AddSlotCommand : public Command
 {
 public:
@@ -589,6 +593,47 @@ private:
     QString returnType;
 
 };
+
+// ----------------------*/
+
+class AddFunctionCommand : public Command
+{
+public:
+    AddFunctionCommand( const QString &name, FormWindow *fw, const QCString &f, const QString& spec,
+		        const QString &a, const QString &t, const QString &l, const QString &rt );
+
+    void execute();
+    void unexecute();
+    Type type() const { return AddFunction; }
+
+private:
+    QCString function;
+    QString specifier;
+    QString access;
+    QString functionType;
+    QString language;
+    QString returnType;
+};
+
+class RemoveFunctionCommand : public Command
+{
+public:
+    RemoveFunctionCommand( const QString &name, FormWindow *fw, const QCString &f, const QString& spec,
+		           const QString &a, const QString &t, const QString &l, const QString &rt );
+
+    void execute();
+    void unexecute();
+    Type type() const { return RemoveFunction; }
+
+private:
+    QCString function;
+    QString specifier;
+    QString access;
+    QString functionType;
+    QString language;
+    QString returnType;
+};
+
 
 class LowerCommand : public Command
 {

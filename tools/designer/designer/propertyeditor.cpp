@@ -3436,8 +3436,8 @@ void EventList::setup()
 	    QValueList<MetaDataBase::Connection> conns =
 		MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
 	    for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin(); cit != conns.end(); ++cit ) {
-		if ( MetaDataBase::normalizeSlot( QString( (*cit).signal ) ) !=
-		     MetaDataBase::normalizeSlot( QString( it.current() ) ) )
+		if ( MetaDataBase::normalizeFunction( QString( (*cit).signal ) ) !=
+		     MetaDataBase::normalizeFunction( QString( it.current() ) ) )
 		    continue;
 		HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
 							 (*cit).slot, QString::null, QString::null );
@@ -3559,8 +3559,8 @@ void EventList::renamed( QListViewItem *i )
 	    formWindow->commandHistory()->addCommand( cmd );
 	    // #### we should look if the specified slot already
 	    // exists and if we can connect to this one
-	    MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), "virtual", "public",
-				   formWindow->project()->language(), "void" );
+	    MetaDataBase::addFunction( formWindow, i->text( 0 ).latin1(), "virtual", "public",
+				       "slot", formWindow->project()->language(), "void" );
 	    editor->formWindow()->mainWindow()->
 		editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
 			      editor->formWindow()->project()->language(), TRUE );

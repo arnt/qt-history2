@@ -72,7 +72,7 @@ public:
     void createFormCode();
     void syncCode();
     void checkTimeStamp();
-    void addSlotCode( MetaDataBase::Slot slot );
+    void addFunctionCode( MetaDataBase::Function function );
     void functionNameChanged( const QString &oldName, const QString &newName );
 
     void showFormWindow();

@@ -135,7 +135,7 @@ void FormWindow::init()
 {
     fake = qstrcmp( name(), "qt_fakewindow" ) == 0;
     MetaDataBase::addEntry( this );
-    ff->setFormWindow( this );
+    ff->setFormWindow( this ); // mhhh, too early! First we should set up the MetaDataBase!!!
     iface = 0;
     proj = 0;
     propertyWidget = 0;
@@ -193,6 +193,11 @@ void FormWindow::setMainWindow( MainWindow *w )
     initSlots();
 }
 
+void FormWindow::tryingParseCode()
+{
+    //formFile()->tryingParseCode();
+}
+
 void FormWindow::initSlots()
 {
     if ( isFake() )
@@ -203,11 +208,11 @@ void FormWindow::initSlots()
     else
 	lang = MainWindow::self->currProject()->language();
     if ( lang != "C++" ) {
-	if ( !MetaDataBase::hasSlot( this, "init()" ) )
-	    MetaDataBase::addSlot( this, "init()", "", "public",
+	if ( !MetaDataBase::hasFunction( this, "init()" ) )
+	    MetaDataBase::addFunction( this, "init()", "", "private", "function",
 				   mainWindow()->currProject()->language(), "void" );
-	if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
-	    MetaDataBase::addSlot( this, "destroy()", "", "public",
+	if ( !MetaDataBase::hasFunction( this, "destroy()" ) )
+	    MetaDataBase::addFunction( this, "destroy()", "", "private", "function",
 				   mainWindow()->currProject()->language(), "void" );
     } else {
 	QString code = formFile()->code();
@@ -216,9 +221,9 @@ void FormWindow::initSlots()
 		"/****************************************************************************\n"
 		"** ui.h extension file, included from the uic-generated form implementation.\n"
 		"**\n"
-		"** If you wish to add, delete or rename slots use Qt Designer which will\n"
-		"** update this file, preserving your code. Create an init() slot in place of\n"
-		"** a constructor, and a destroy() slot in place of a destructor.\n"
+		"** If you wish to add, delete or rename functions use Qt Designer which will\n"
+		"** update this file, preserving your code. Create an init() function in place\n"
+		"** of a constructor, and a destroy() function in place of a destructor.\n"
 		"*****************************************************************************/\n";
 	    formFile()->setCode( code );
 	}

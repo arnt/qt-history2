@@ -330,11 +330,21 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	    if ( n.tagName() == "variable" )
 		widgetFactory->variables << n.firstChild().toText().data();
     }
-    if ( !slots.isNull() ) {
+    if ( !slots.isNull() ) {   // for compatibility
 	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    if ( n.tagName() == "slot" ) {
 		QString s = n.firstChild().toText().data();
 		widgetFactory->languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
+	    }
+    }
+
+    if ( !functions.isNull() ) {
+	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "function" ) {
+		QString type = n.attribute( "type", "function" );				
+		QString s = n.firstChild().toText().data();
+		if ( type == "slot" )  // just neccessary for slots
+		    widgetFactory->languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
 	    }
     }
 
@@ -353,10 +363,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
 
-
-    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
+    /*
+    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas 
 	widgetFactory->loadFunctions( functions );
-
+    */
 
     if ( !languageInterfaceManager )
 	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
@@ -413,7 +423,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		InterpreterInterface *interpreterInterface = 0;
 		interpreterInterfaceManager->queryInterface( *lit, &interpreterInterface );
 		if ( eventInterface && interpreterInterface ) {
-		    interpreterInterface->init();
+		    interpreterInterface->init();		    
 		    QMap<QString, Functions*>::Iterator fit = widgetFactory->languageFunctions.find( *lit );
 		    if ( fit != widgetFactory->languageFunctions.end() ) {
 			QString funcs = (*fit)->functions;
@@ -428,8 +438,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 				interpreterInterface->exec( widgetFactory->toplevel, funcs );
 			}
 		    }
+		    
 		    if ( widgetFactory->languageFunctions.isEmpty() && qwf_execute_code )
-			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );
+			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );		    
+		    
 		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
 			  it != widgetFactory->eventMap.end(); ++it ) {
 			QStringList::Iterator eit;
@@ -1631,50 +1643,9 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 
 
 // compatibility with early 3.0 betas
+// ### remove for 4.0
 void QWidgetFactory::loadFunctions( const QDomElement &e )
 {
-    QDomElement n = e.firstChild().toElement();
-    QMap<QString, QString> bodies;
-    QString s;
-    if ( !interpreterInterfaceManager )
-	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
-
-    while ( !n.isNull() ) {
-	if ( n.tagName() == "function" ) {
-	    QString name = n.attribute( "name" );
-	    int pos = name.find( "(" );
-	    QString ident = name.left( pos );
-	    QMap<QString, QString>::Iterator it = languageSlots.find( ident );
-	    if ( it != languageSlots.end() ) {
-		InterpreterInterface *interpreterInterface = 0;
-		interpreterInterfaceManager->queryInterface( *it, &interpreterInterface );
-		Functions *funcs = 0;
-		QMap<QString, Functions*>::Iterator fit = languageFunctions.find( *it );
-		if ( fit == languageFunctions.end() ) {
-		    funcs = new Functions;
-		    languageFunctions.insert( *it, funcs );
-		} else {
-		    funcs = *fit;
-		}
-		QString body = n.firstChild().toText().data();
-		if ( interpreterInterface ) {
-		    QString s = interpreterInterface->createFunctionDeclaration( name, body );
-		    funcs->functions += s;
-		    if ( qwf_language && *qwf_language == *it ) {
-			if ( !qwf_functions )
-			    qwf_functions = new QMap<QWidget*, QString>;
-			if ( !qwf_forms )
-			    qwf_forms = new QMap<QWidget*, QString>;
-			(*(qwf_functions))[ toplevel ].append( s );
-		    }
-		    interpreterInterface->release();
-		}
-
-	    }
-	}
-	n = n.nextSibling().toElement();
-    }
 }
 
 QAction *QWidgetFactory::findAction( const QString &name )
@@ -1772,6 +1743,7 @@ void QWidgetFactory::loadExtraSource()
 	    }
 	    for ( QValueList<LanguageInterface::Function>::Iterator fit2 = functions.begin();
 		  fit2 != functions.end(); ++fit2 ) {
+		// should this be really interpreted as slot?
 		languageSlots.insert( (*fit2).name.left( (*fit2).name.find( '(' ) ), lang );
 		QString s;
 		QString comments = (*fit2).comments;

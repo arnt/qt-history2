@@ -720,16 +720,19 @@ void DesignerFormWindowImpl::preview() const
 {
 }
 
-void DesignerFormWindowImpl::addSlot( const QCString &slot, const QString& specifier,
-				      const QString &access, const QString &language, const QString &returnType )
-{
-    MetaDataBase::addSlot( formWindow, slot, specifier, access, language, returnType );
-}
-
 void DesignerFormWindowImpl::addConnection( QObject *sender, const char *signal, QObject *receiver, const char *slot )
 {
     MetaDataBase::addConnection( formWindow, sender, signal, receiver, slot );
 }
+
+void DesignerFormWindowImpl::addFunction( const QCString &function, const QString &specifier,
+					  const QString &access, const QString &type, 
+					  const QString &language, const QString &returnType )
+{
+    MetaDataBase::addFunction( formWindow, function, specifier, access, type, language, returnType );
+}
+
+
 
 void DesignerFormWindowImpl::setProperty( QObject *o, const char *property, const QVariant &value )
 {

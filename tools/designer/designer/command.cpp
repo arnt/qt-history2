@@ -1094,48 +1094,52 @@ void RemoveConnectionCommand::unexecute()
 
 // ------------------------------------------------------------
 
-AddSlotCommand::AddSlotCommand( const QString &name, FormWindow *fw, const QCString &s,
-				const QString& spec, const QString &a, const QString &l, const QString &rt )
-    : Command( name, fw ), slot( s ), specifier( spec ), access( a ), language( l ), returnType( rt )
+AddFunctionCommand::AddFunctionCommand( const QString &name, FormWindow *fw, const QCString &f,
+					const QString& spec, const QString &a, const QString &t,
+					const QString &l, const QString &rt )
+    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ), 
+      returnType( rt )
 {
 }
 
-void AddSlotCommand::execute()
+void AddFunctionCommand::execute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
-    formWindow()->mainWindow()->slotsChanged();
+    MetaDataBase::addFunction( formWindow(), function, specifier, access, functionType, language, returnType );
+    formWindow()->mainWindow()->functionsChanged();
     if ( formWindow()->formFile() )
 	formWindow()->formFile()->setModified( TRUE );
 }
 
-void AddSlotCommand::unexecute()
+void AddFunctionCommand::unexecute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
-    formWindow()->mainWindow()->slotsChanged();
+    MetaDataBase::removeFunction( formWindow(), function, specifier, access, functionType,  language, returnType );
+    formWindow()->mainWindow()->functionsChanged();
     if ( formWindow()->formFile() )
 	formWindow()->formFile()->setModified( TRUE );
 }
 
 // ------------------------------------------------------------
 
-RemoveSlotCommand::RemoveSlotCommand( const QString &name, FormWindow *fw, const QCString &s,
-				      const QString& spec, const QString &a, const QString &l, const QString &rt )
-    : Command( name, fw ), slot( s ), specifier( spec ), access( a ), language( l ), returnType( rt )
+RemoveFunctionCommand::RemoveFunctionCommand( const QString &name, FormWindow *fw, const QCString &f,
+						const QString& spec, const QString &a, const QString &t, 
+						const QString &l, const QString &rt )
+    : Command( name, fw ), function( f ), specifier( spec ), access( a ), functionType( t ), language( l ), 
+      returnType( rt )
 {
 }
 
-void RemoveSlotCommand::execute()
+void RemoveFunctionCommand::execute()
 {
-    MetaDataBase::removeSlot( formWindow(), slot, specifier, access, language, returnType );
-    formWindow()->mainWindow()->slotsChanged();
+    MetaDataBase::removeFunction( formWindow(), function, specifier, access, functionType, language, returnType );
+    formWindow()->mainWindow()->functionsChanged();
     if ( formWindow()->formFile() )
 	formWindow()->formFile()->setModified( TRUE );
 }
 
-void RemoveSlotCommand::unexecute()
+void RemoveFunctionCommand::unexecute()
 {
-    MetaDataBase::addSlot( formWindow(), slot, specifier, access, language, returnType );
-    formWindow()->mainWindow()->slotsChanged();
+    MetaDataBase::addFunction( formWindow(), function, specifier, access, functionType, language, returnType );
+    formWindow()->mainWindow()->functionsChanged();
     if ( formWindow()->formFile() )
 	formWindow()->formFile()->setModified( TRUE );
 }

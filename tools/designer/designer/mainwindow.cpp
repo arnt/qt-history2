@@ -144,9 +144,9 @@ MainWindow::MainWindow( bool asClient, bool single )
     desInterface->addRef();
     inDebugMode = FALSE;
 
-    updateSlotsTimer = new QTimer( this );
-    connect( updateSlotsTimer, SIGNAL( timeout() ),
-	     this, SLOT( doSlotsChanged() ) );
+    updateFunctionsTimer = new QTimer( this );
+    connect( updateFunctionsTimer, SIGNAL( timeout() ),
+	     this, SLOT( doFunctionsChanged() ) );
 
     set_splash_status( "Loading Plugins..." );
     setupPluginManagers();
@@ -486,7 +486,7 @@ void MainWindow::setupRMBMenus()
     actionEditBreakLayout->addTo( rmbFormWindow );
     rmbFormWindow->insertSeparator();
     if ( !singleProjectMode() ) {
-	actionEditSlots->addTo( rmbFormWindow );
+	actionEditFunctions->addTo( rmbFormWindow );
 	actionEditConnections->addTo( rmbFormWindow );
     }
     actionEditSource->addTo( rmbFormWindow );
@@ -2160,8 +2160,8 @@ void MainWindow::writeConfig()
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	    l << QString( fixArgs( *it ) );
 	l << QString::number( w->lstSlots.count() );
-	for ( QValueList<MetaDataBase::Slot>::Iterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
-	    l << fixArgs( (*it2).slot );
+	for ( QValueList<MetaDataBase::Function>::Iterator it2 = w->lstSlots.begin(); it2 != w->lstSlots.end(); ++it2 ) {
+	    l << fixArgs( (*it2).function );
 	    l << (*it2).access;
 	}
 	l << QString::number( w->lstProperties.count() );
@@ -2257,8 +2257,8 @@ void MainWindow::readConfig()
 	    int numSlots = l[ c ].toInt();
 	    c++;
 	    for ( int i = 0; i < numSlots; ++i ) {
-		MetaDataBase::Slot slot;
-		slot.slot = fixArgs2( l[ c ] );
+		MetaDataBase::Function slot;
+		slot.function = fixArgs2( l[ c ] );
 		c++;
 		slot.access = l[ c ];
 		c++;
@@ -2386,8 +2386,8 @@ void MainWindow::readOldConfig()
 	    int numSlots = l[ c ].toInt();
 	    c++;
 	    for ( int i = 0; i < numSlots; ++i ) {
-		MetaDataBase::Slot slot;
-		slot.slot = fixArgs2( l[ c ] );
+		MetaDataBase::Function slot;
+		slot.function = fixArgs2( l[ c ] );
 		c++;
 		slot.access = l[ c ];
 		c++;
@@ -2813,8 +2813,8 @@ void MainWindow::showDialogHelp()
 	link += "dialog-file-new";
     else if ( w->inherits( "CreateTemplate" ) )
 	link += "dialog-file-create-template";
-    else if ( w->inherits( "EditSlotsBase" ) )
-	link += "dialog-edit-slots";
+    else if ( w->inherits( "EditFunctionsBase" ) )
+	link += "dialog-edit-functions";
     else if ( w->inherits( "ConnectionViewerBase" ) )
 	link += "dialog-view-connections";
     else if ( w->inherits( "FormSettingsBase" ) )
@@ -2920,7 +2920,7 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
     SourceEditor *editor = 0;
     QString lang = l;
     if ( lang.isEmpty() )
-	lang = MetaDataBase::languageOfSlot( formWindow(), func.latin1() );
+	lang = MetaDataBase::languageOfFunction( formWindow(), func.latin1() );
     if ( !MetaDataBase::hasEditor( lang ) )
 	return;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
@@ -3183,12 +3183,12 @@ void MainWindow::editorClosed( SourceEditor *e )
     sourceEditors.take( sourceEditors.findRef( e ) );
 }
 
-void MainWindow::slotsChanged()
+void MainWindow::functionsChanged()
 {
-    updateSlotsTimer->start( 0, TRUE );
+    updateFunctionsTimer->start( 0, TRUE );
 }
 
-void MainWindow::doSlotsChanged()
+void MainWindow::doFunctionsChanged()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
 	e->refresh( FALSE );
@@ -3664,14 +3664,14 @@ void MainWindow::showGUIStuff( bool b )
 	menubar->removeItem( toolsMenuId + 1 );
 	menubar->removeItem( toolsMenuId + 2 );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
-	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
+	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditFunctions, SLOT( setEnabled(bool) ) );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
 	disconnect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
 	actionEditFormSettings->setEnabled( FALSE );
 	actionEditSource->setEnabled( FALSE );
 	actionEditConnections->setEnabled( FALSE );
-	actionEditSlots->setEnabled( FALSE );
+	actionEditFunctions->setEnabled( FALSE );
 	actionEditAccels->setEnabled( FALSE );
 	( (QDockWindow*)propertyEditor->parentWidget() )->
 	    setCaption( tr( "Signal Handlers" ) );
@@ -3701,14 +3701,14 @@ void MainWindow::showGUIStuff( bool b )
 	menubar->insertItem( tr( "&Layout" ), layoutMenu, toolsMenuId + 1, toolsMenuIndex + 1 );
 	menubar->insertItem( tr( "&Preview" ), previewMenu, toolsMenuId + 2, toolsMenuIndex + 2 );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
-	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
+	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFunctions, SLOT( setEnabled(bool) ) );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSource, SLOT( setEnabled(bool) ) );
 	connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFormSettings, SLOT( setEnabled(bool) ) );
 	actionEditFormSettings->setEnabled( TRUE );
 	actionEditSource->setEnabled( TRUE );
 	actionEditConnections->setEnabled( TRUE );
-	actionEditSlots->setEnabled( TRUE );
+	actionEditFunctions->setEnabled( TRUE );
 	actionEditAccels->setEnabled( TRUE );
 	( (QDockWindow*)propertyEditor->parentWidget() )->
 	    setCaption( tr( "Property Editor/Signal Handlers" ) );

@@ -293,7 +293,7 @@ void SignalItem::senderChanged( QObject *sender )
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)sender )->customWidget();
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin();
 	      it != w->lstSignals.end(); ++it )
-	    lst << MetaDataBase::normalizeSlot( *it );
+	    lst << MetaDataBase::normalizeFunction( *it );
     }
 
     if ( sender == formWindow->mainContainer() ) {
@@ -378,7 +378,7 @@ void SlotItem::updateSlotList()
 	return;
     }
 
-    QString signal = MetaDataBase::normalizeSlot( lastSignal );
+    QString signal = MetaDataBase::normalizeFunction( lastSignal );
     int n = lastReceiver->metaObject()->numSlots( TRUE );
     QStringList slts;
 
@@ -392,23 +392,23 @@ void SlotItem::updateSlotList()
 	     !ignoreSlot( md->name ) &&
 	     checkConnectArgs( signal.latin1(), lastReceiver, md->name ) )
 	    if ( lst.find( md->name ) == lst.end() )
-		lst << MetaDataBase::normalizeSlot( md->name );
+		lst << MetaDataBase::normalizeFunction( md->name );
     }
 
     LanguageInterface *iface =
 	MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( !iface || iface->supports( LanguageInterface::ConnectionsToCustomSlots ) ) {
 	if ( formWindow->isMainContainer( (QWidget*)lastReceiver ) ) {
-	    QValueList<MetaDataBase::Slot> moreSlots = MetaDataBase::slotList( formWindow );
+	    QValueList<MetaDataBase::Function> moreSlots = MetaDataBase::slotList( formWindow );
 	    if ( !moreSlots.isEmpty() ) {
-		for ( QValueList<MetaDataBase::Slot>::Iterator it = moreSlots.begin();
+		for ( QValueList<MetaDataBase::Function>::Iterator it = moreSlots.begin();
 		      it != moreSlots.end(); ++it ) {
-		    QCString s = (*it).slot;
+		    QCString s = (*it).function;
 		    if ( !s.data() )
 			continue;
-		    s = MetaDataBase::normalizeSlot( s );
+		    s = MetaDataBase::normalizeFunction( s );
 		    if ( checkConnectArgs( signal.latin1(), lastReceiver, s ) ) {
-			if ( lst.find( (*it).slot ) == lst.end() )
+			if ( lst.find( (*it).function ) == lst.end() )
 			    lst << s;
 		    }
 		}
@@ -418,14 +418,14 @@ void SlotItem::updateSlotList()
 
     if ( lastReceiver->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)lastReceiver )->customWidget();
-	for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin();
+	for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin();
 	      it != w->lstSlots.end(); ++it ) {
-	    QCString s = (*it).slot;
+	    QCString s = (*it).function;
 	    if ( !s.data() )
 		continue;
-	    s = MetaDataBase::normalizeSlot( s );
+	    s = MetaDataBase::normalizeFunction( s );
 	    if ( checkConnectArgs( signal.latin1(), lastReceiver, s ) ) {
-		if ( lst.find( (*it).slot ) == lst.end() )
+		if ( lst.find( (*it).function ) == lst.end() )
 		    lst << s;
 	    }
 	}

@@ -8,7 +8,7 @@
 
 #include "mainwindow.h"
 #include "formwindow.h"
-#include "editslotsimpl.h"
+#include "editfunctionsimpl.h"
 
 static const char *valid_connection[] = {
     "16 14 7 1",
@@ -258,7 +258,8 @@ void ConnectionDialog::deleteClicked()
 
 void ConnectionDialog::editSlots()
 {
-    EditSlots dlg( this, MainWindow::self->formWindow() );
+    EditFunctions dlg( this, MainWindow::self->formWindow(), TRUE );
+    dlg.functionAdd( QString::null, "slot" );
     dlg.exec();
     int currentCol = connectionsTable->currentColumn();
     connectionsTable->setCurrentCell( connectionsTable->currentRow(), 0 );

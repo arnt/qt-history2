@@ -71,7 +71,7 @@ public:
     QMap<QString, QString> propertyComments;
     int spacing, margin;
     QValueList<MetaDataBase::Connection> connections;
-    QValueList<MetaDataBase::Slot> slotList;
+    QValueList<MetaDataBase::Function> functionList;
     QValueList<MetaDataBase::Include> includes;
     QStringList forwards, variables, sigs;
     QWidgetList tabOrder;
@@ -533,161 +533,6 @@ void MetaDataBase::doConnections( QObject *o )
     }
 }
 
-void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& specifier,
-			    const QString &access, const QString &language, const QString &returnType )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    Slot s;
-    s.slot = slot;
-    s.specifier = specifier;
-    s.access = access;
-    s.language = language;
-    s.returnType = returnType;
-    QValueList<MetaDataBase::Slot>::Iterator it = r->slotList.find( s );
-    if ( it != r->slotList.end() )
-	r->slotList.remove( it );
-    r->slotList.append( s );
-    ( (FormWindow*)o )->formFile()->addSlotCode( s );
-}
-
-void MetaDataBase::setSlotList( QObject *o, const QValueList<Slot> &slotList )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-    r->slotList = slotList;
-}
-
-void MetaDataBase::removeSlot( QObject *o, const QCString &slot, const QString& specifier,
-			       const QString &access, const QString &language, const QString &returnType )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	if ( s.slot == slot &&
-	     s.specifier == specifier &&
-	     s.access == access &&
-	     ( language.isEmpty() || s.language == language ) &&
-	       ( returnType.isEmpty() || s.returnType == returnType ) ) {
-	    r->slotList.remove( it );
-	    break;
-	}
-    }
-}
-
-void MetaDataBase::removeSlot( QObject *o, const QString &slot )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
-	    r->slotList.remove( it );
-	    break;
-	}
-    }
-}
-
-QValueList<MetaDataBase::Slot> MetaDataBase::slotList( QObject *o )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return QValueList<Slot>();
-    }
-
-    return r->slotList;
-}
-
-bool MetaDataBase::isSlotUsed( QObject *o, const QCString &slot )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return FALSE;
-    }
-
-    QValueList<Connection> conns = connections( o );
-    for ( QValueList<Connection>::Iterator it = conns.begin(); it != conns.end(); ++it ) {
-	if ( (*it).slot == slot )
-	    return TRUE;
-    }
-    return FALSE;
-}
-
-void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString &newName,
-			       const QString &access )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
-	    (*it).slot = newName;
-	    (*it).access = access;
-	    return;
-	}
-    }
-}
-
-void MetaDataBase::changeSlotAttributes( QObject *o, const QCString &slot,
-					 const QString& specifier, const QString &access,
-					 const QString &language, const QString &returnType )
-{
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) ) {
-	    (*it).specifier = specifier;
-	    (*it).access = access;
-	    (*it).language = language;
-	    (*it).returnType = returnType;
-	    return;
-	}
-    }
-}
-
 bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 {
     setupDataBase();
@@ -712,6 +557,232 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 
 	if ( o->inherits( "CustomWidget" ) ) {
 	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
+	    for ( QValueList<Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
+		QCString s = (*it).function;
+		if ( !s.data() )
+		    continue;
+		if ( s == slot )
+		    return TRUE;
+	    }
+	}
+    }
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( normalizeFunction( f.function ) == normalizeFunction( slot ) && f.type == "slot" )
+	    return TRUE;
+    }
+
+    return FALSE;
+}
+
+bool MetaDataBase::isSlotUsed( QObject *o, const QCString &slot )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+	          o, o->name(), o->className() );
+	return FALSE;
+    }
+
+    QValueList<Connection> conns = connections( o );
+    for ( QValueList<Connection>::Iterator it = conns.begin(); it != conns.end(); ++it ) {
+	if ( (*it).slot == slot )
+	return TRUE;
+    }
+    return FALSE;
+}
+
+
+void MetaDataBase::addFunction( QObject *o, const QCString &function, const QString &specifier,
+				const QString &access, const QString &type, const QString &language, 
+				const QString &returnType )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    Function f;
+    f.function = function;
+    f.specifier = specifier;
+    f.access = access;
+    f.type = type;
+    f.language = language;
+    f.returnType = returnType;
+    QValueList<MetaDataBase::Function>::Iterator it = r->functionList.find( f );
+    if ( it != r->functionList.end() )
+	r->functionList.remove( it );
+    r->functionList.append( f );
+    ( (FormWindow*)o )->formFile()->addFunctionCode( f );
+}
+
+void MetaDataBase::setFunctionList( QObject *o, const QValueList<Function> &functionList )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+    
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) 
+	Function f = *it;
+    
+    r->functionList = functionList;
+}
+
+void MetaDataBase::removeFunction( QObject *o, const QCString &function, const QString &specifier,
+				   const QString &access, const QString &type, const QString &language, 
+				   const QString &returnType )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( f.function == function &&
+	     f.specifier == specifier &&
+	     f.access == access &&
+	     f.type == type &&
+	     ( language.isEmpty() || f.language == language ) &&
+	       ( returnType.isEmpty() || f.returnType == returnType ) ) {
+	    r->functionList.remove( it );
+	    break;
+	}
+    }
+}
+
+void MetaDataBase::removeFunction( QObject *o, const QString &function )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
+	    r->functionList.remove( it );
+	    break;
+	}
+    }
+}
+
+QValueList<MetaDataBase::Function> MetaDataBase::functionList( QObject *o )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QValueList<Function>();
+    }
+
+    return r->functionList;
+}
+
+QValueList<MetaDataBase::Function> MetaDataBase::slotList( QObject *o )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QValueList<Function>();
+    }
+    QValueList<Function> slotList;
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	if ( (*it).type == "slot" )
+	    slotList.append( *it );	
+    }
+    return slotList;
+}
+
+void MetaDataBase::changeFunction( QObject *o, const QCString &function, const QCString &newName,
+				   const QString &access )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
+	    (*it).function = newName;
+	    (*it).access = access;
+	    return;
+	}
+    }
+}
+
+void MetaDataBase::changeFunctionAttributes( QObject *o, const QCString &function,
+					     const QString &specifier, const QString &access,
+					     const QString &type, const QString &language, 
+					     const QString &returnType )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
+	    (*it).specifier = specifier;
+	    (*it).access = access;
+	    (*it).type = type;
+	    (*it).language = language;
+	    (*it).returnType = returnType;
+	    return;
+	}
+    }
+}
+
+bool MetaDataBase::hasFunction( QObject *o, const QCString &function, bool onlyCustom )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return FALSE;
+    }
+    /*
+    if ( !onlyCustom ) {
+	QStrList functionList = o->metaObject()->slotNames( TRUE ); 
+	if ( functionList.find( function ) != -1 )
+	    return TRUE;
+
+	if ( o->inherits( "FormWindow" ) ) {
+	    o = ( (FormWindow*)o )->mainContainer();
+	    functionList = o->metaObject()->functionNames( TRUE );
+	    if ( functionList.find( function ) != -1 )
+		return TRUE;
+	}
+
+	if ( o->inherits( "CustomWidget" ) ) {
+	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
 	    for ( QValueList<Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
 		QCString s = (*it).slot;
 		if ( !s.data() )
@@ -721,17 +792,17 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 	    }
 	}
     }
-
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	if ( normalizeSlot( s.slot ) == normalizeSlot( slot ) )
+    */
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	if ( normalizeFunction( f.function ) == normalizeFunction( function ) )
 	    return TRUE;
     }
 
     return FALSE;
 }
 
-QString MetaDataBase::languageOfSlot( QObject *o, const QCString &slot )
+QString MetaDataBase::languageOfFunction( QObject *o, const QCString &function )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -741,14 +812,14 @@ QString MetaDataBase::languageOfSlot( QObject *o, const QCString &slot )
 	return QString::null;
     }
 
-    QString sl = slot;
-    sl = normalizeSlot( sl );
-    for ( QValueList<Slot>::Iterator it = r->slotList.begin(); it != r->slotList.end(); ++it ) {
-	Slot s = *it;
-	QString sl2 = s.slot;
-	sl2 = normalizeSlot( sl2 );
-	if ( sl == sl2 )
-	    return s.language;
+    QString fu = function;
+    fu = normalizeFunction( fu );
+    for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
+	Function f = *it;
+	QString fu2 = f.function;
+	fu2 = normalizeFunction( fu2 );
+	if ( fu == fu2 )
+	    return f.language;
     }
     return QString::null;
 }
@@ -763,8 +834,8 @@ bool MetaDataBase::addCustomWidget( CustomWidget *wid )
 		if ( !w->hasSignal( *it ) )
 		    w->lstSignals.append( *it );
 	    }
-	    for ( QValueList<Slot>::ConstIterator it2 = wid->lstSlots.begin(); it2 != wid->lstSlots.end(); ++it2 ) {
-		if ( !w->hasSlot( MetaDataBase::normalizeSlot( (*it2).slot ).latin1() ) )
+	    for ( QValueList<Function>::ConstIterator it2 = wid->lstSlots.begin(); it2 != wid->lstSlots.end(); ++it2 ) {
+		if ( !w->hasSlot( MetaDataBase::normalizeFunction( (*it2).function ).latin1() ) )
 		    w->lstSlots.append( *it2 );
 	    }
 	    for ( QValueList<Property>::ConstIterator it3 = wid->lstProperties.begin(); it3 != wid->lstProperties.end(); ++it3 ) {
@@ -1094,7 +1165,7 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
     if ( sigList.find( signal ) != -1 )
 	return TRUE;
     for ( QValueList<QCString>::ConstIterator it = lstSignals.begin(); it != lstSignals.end(); ++it ) {
-	if ( normalizeSlot( *it ) == normalizeSlot( signal ) )
+	if ( normalizeFunction( *it ) == normalizeFunction( signal ) )
 	    return TRUE;
     }
     return FALSE;
@@ -1103,11 +1174,11 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 {
     QStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
-    if ( slotList.find( normalizeSlot( slot ) ) != -1 )
+    if ( slotList.find( normalizeFunction( slot ) ) != -1 )
 	return TRUE;
 
-    for ( QValueList<MetaDataBase::Slot>::ConstIterator it = lstSlots.begin(); it != lstSlots.end(); ++it ) {
-	if ( normalizeSlot( (*it).slot ) == normalizeSlot( slot ) )
+    for ( QValueList<MetaDataBase::Function>::ConstIterator it = lstSlots.begin(); it != lstSlots.end(); ++it ) {
+	if ( normalizeFunction( (*it).function ) == normalizeFunction( slot ) )
 	    return TRUE;
     }
     return FALSE;
@@ -1357,15 +1428,18 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 		fName += iface->createArguments( args );
 	}
 	fName += ")";
-	fName = normalizeSlot( fName );
+	fName = normalizeFunction( fName );
 
 	bool needAddSlot = TRUE;
-	for ( QValueList<Slot>::Iterator it = r2->slotList.begin(); it != r2->slotList.end(); ++it ) {
-	    Slot s = *it;
-	    QString sName = normalizeSlot( s.slot );
+	for ( QValueList<Function>::Iterator it = r2->functionList.begin(); it != r2->functionList.end(); ++it ) {
+	    Function f = *it;
+	    QString sName = normalizeFunction( f.function );
 	    if ( sName.left( sName.find( '(' ) ) == fName.left( fName.find( '(' ) ) &&
 		 liface->canConnect( sName, fName ) ) {
-		needAddSlot = FALSE;
+		if ( f.type = "slot" ) 
+		    needAddSlot = FALSE;
+		else 
+		    qDebug( "requested slot is defined as normal function!" );
 		break;
 	    }
 	}
@@ -1374,7 +1448,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	    slotExists = FALSE;
 
 	if ( needAddSlot && addIfNotExisting )
-	    addSlot( form, fName.latin1(), "virtual", "public", lang, "void" );
+	    addFunction( form, fName.latin1(), "virtual", "public", "slot", lang, "void" );
     }
 
     r->eventFunctions.insert( event, functions );
@@ -1501,28 +1575,29 @@ void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &
     if ( !lang.isEmpty() ) {
 	r->functionBodies.clear();
 	for ( QMap<QString, QString>::ConstIterator it = bodies.begin(); it != bodies.end(); ++it ) {
-	    r->functionBodies.insert( normalizeSlot( it.key() ), *it );
-	    bool foundSlot = FALSE;
+	    r->functionBodies.insert( normalizeFunction( it.key() ), *it );
+	    bool foundFunction = FALSE;
 	    int idx = 0;
-	    for ( QValueList<Slot>::Iterator sit = r->slotList.begin(); sit != r->slotList.end(); ++sit, ++idx ) {
-		Slot s = *sit;
-		if ( normalizeSlot( s.slot ) == normalizeSlot( it.key() ) ) {
-		    foundSlot = TRUE;
-		    if ( QString( s.slot ) != it.key() ) {
-			s.slot = make_pretty( it.key() ).latin1();
-			r->slotList[idx] = s;
+	    for ( QValueList<Function>::Iterator fit = r->functionList.begin(); fit != r->functionList.end(); ++fit, ++idx ) {
+		Function f = *fit;
+		if ( normalizeFunction( f.function ) == normalizeFunction( it.key() ) ) {
+		    foundFunction = TRUE;
+		    if ( QString( f.function ) != it.key() ) {
+			f.function = make_pretty( it.key() ).latin1();
+			r->functionList[idx] = f;
 		    }
 		    break;
 		}
 	    }
-	    if ( !foundSlot ) {
-		Slot sl;
-		sl.slot = make_pretty( it.key() ).latin1();
-		sl.specifier = "virtual";
-		sl.access = "public";
-		sl.language = lang;
-		sl.returnType = returnType;
-		r->slotList.append( sl );
+	    if ( !foundFunction ) {
+		Function fu;
+		fu.function = make_pretty( it.key() ).latin1();
+		fu.specifier = "virtual";
+		fu.access = "public";
+		fu.type = "function";
+		fu.language = lang;
+		fu.returnType = returnType;
+		r->functionList.append( fu );
 	    }
 	}
     } else {
@@ -1564,9 +1639,9 @@ QStringList MetaDataBase::languages()
     return langList;
 }
 
-QString MetaDataBase::normalizeSlot( const QString &s )
+QString MetaDataBase::normalizeFunction( const QString &f )
 {
-    return Parser::cleanArgs( s );
+    return Parser::cleanArgs( f );
 }
 
 LanguageInterface *MetaDataBase::languageInterface( const QString &lang )
@@ -1723,12 +1798,12 @@ void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, cons
 	return;
     }
 
-    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( oldName ) );
+    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeFunction( oldName ) );
     if ( it == r->functionBodies.end() )
 	return;
     QString body = *it;
     r->functionBodies.remove( it );
-    r->functionBodies.insert( normalizeSlot( newName ), body );
+    r->functionBodies.insert( normalizeFunction( newName ), body );
     ( (FormWindow*)o )->formFile()->functionNameChanged( oldName, newName );
 }
 

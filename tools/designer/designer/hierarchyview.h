@@ -42,14 +42,19 @@ public:
     enum Type {
 	Widget,
 	SlotParent,
-	Public,
-	Protected,
-	Private,
+	SlotPublic,
+	SlotProtected,
+	SlotPrivate,
 	Slot,
 	DefinitionParent,
 	Definition,
 	Event,
-	EventFunction
+	EventFunction,
+	FunctParent,
+	FunctPublic,
+	FunctProtected,
+	FunctPrivate,
+	Function
     };
 
     HierarchyItem( Type type, QListViewItem *parent,
@@ -155,7 +160,7 @@ private slots:
 private:
     bool popupOpen;
     HierarchyItem *itemSlots, *itemPrivate, *itemProtected, *itemPublic;
-
+    HierarchyItem *itemFunct, *itemFunctPriv, *itemFunctProt, *itemFunctPubl;
 };
 
 

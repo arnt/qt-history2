@@ -51,7 +51,7 @@
 #include "workspace.h"
 #include "createtemplate.h"
 #include "hierarchyview.h"
-#include "editslotsimpl.h"
+#include "editfunctionsimpl.h"
 #include "finddialog.h"
 #include "replacedialog.h"
 #include "gotolinedialog.h"
@@ -166,13 +166,12 @@ void MainWindow::setupEditActions()
     connect( actionEditAccels, SIGNAL( activated() ), this, SLOT( editAccels() ) );
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditAccels, SLOT( setEnabled(bool) ) );
 
-
-    actionEditSlots = new QAction( tr( "Slots" ), createIconSet("editslots.xpm"),
+    actionEditFunctions = new QAction( tr( "Slots" ), createIconSet("editslots.xpm"),
 				   tr( "S&lots..." ), 0, this, 0 );
-    actionEditSlots->setStatusTip( tr("Opens a dialog for editing slots") );
-    actionEditSlots->setWhatsThis( whatsThisFrom( "Edit|Slots" ) );
-    connect( actionEditSlots, SIGNAL( activated() ), this, SLOT( editSlots() ) );
-    connect( this, SIGNAL( hasActiveForm(bool) ), actionEditSlots, SLOT( setEnabled(bool) ) );
+    actionEditFunctions->setStatusTip( tr("Opens a dialog for editing slots") );
+    actionEditFunctions->setWhatsThis( whatsThisFrom( "Edit|Slots" ) );
+    connect( actionEditFunctions, SIGNAL( activated() ), this, SLOT( editFunctions() ) );
+    connect( this, SIGNAL( hasActiveForm(bool) ), actionEditFunctions, SLOT( setEnabled(bool) ) );
 
     actionEditConnections = new QAction( tr( "Connections" ), createIconSet("connecttool.xpm"),
 					 tr( "Co&nnections..." ), 0, this, 0 );
@@ -240,7 +239,7 @@ void MainWindow::setupEditActions()
 #endif
     menu->insertSeparator();
     if ( !singleProjectMode() ) {
-	actionEditSlots->addTo( menu );
+	actionEditFunctions->addTo( menu );
 	actionEditConnections->addTo( menu );
     }
     actionEditFormSettings->addTo( menu );
@@ -1802,13 +1801,13 @@ void MainWindow::editAccels()
     formWindow()->checkAccels();
 }
 
-void MainWindow::editSlots()
+void MainWindow::editFunctions()
 {
     if ( !formWindow() )
 	return;
 
     statusBar()->message( tr( "Edit the current form's slots..." ) );
-    EditSlots dlg( this, formWindow() );
+    EditFunctions dlg( this, formWindow(), TRUE );
     dlg.exec();
     statusBar()->clear();
 }

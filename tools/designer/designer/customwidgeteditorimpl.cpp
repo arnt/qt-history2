@@ -121,8 +121,8 @@ void CustomWidgetEditor::setupSlots()
     if ( !w )
 	return;
     listSlots->clear();
-    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
-	(void)new QListViewItem( listSlots, (*it).slot, (*it).access );
+    for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
+	(void)new QListViewItem( listSlots, (*it).function, (*it).access );
 
     if ( listSlots->firstChild() ) {
 	listSlots->setCurrentItem( listSlots->firstChild() );
@@ -460,14 +460,14 @@ void CustomWidgetEditor::slotAccessChanged( const QString &s )
     if ( !w || !listSlots->currentItem() )
 	return;
 
-    MetaDataBase::Slot slot;
-    slot.slot = listSlots->currentItem()->text( 0 );
+    MetaDataBase::Function slot;
+    slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.find( slot );
+    QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
     if ( it != w->lstSlots.end() )
 	w->lstSlots.remove( it );
     listSlots->currentItem()->setText( 1, s );
-    slot.slot = listSlots->currentItem()->text( 0 );
+    slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
     w->lstSlots.append( slot );
 }
@@ -478,14 +478,14 @@ void CustomWidgetEditor::slotNameChanged( const QString &s )
     if ( !w || !listSlots->currentItem() )
 	return;
 
-    MetaDataBase::Slot slot;
-    slot.slot = listSlots->currentItem()->text( 0 );
+    MetaDataBase::Function slot;
+    slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
-    QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.find( slot );
+    QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.find( slot );
     if ( it != w->lstSlots.end() )
 	w->lstSlots.remove( it );
     listSlots->currentItem()->setText( 0, s );
-    slot.slot = listSlots->currentItem()->text( 0 );
+    slot.function = listSlots->currentItem()->text( 0 );
     slot.access = listSlots->currentItem()->text( 1 );
     w->lstSlots.append( slot );
 }
@@ -497,26 +497,27 @@ void CustomWidgetEditor::addSlot()
     listSlots->setSelected( i, TRUE );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
     if ( w ) {
-	MetaDataBase::Slot slot;
-	slot.slot = "slot()";
+	MetaDataBase::Function slot;
+	slot.function = "slot()";
 	slot.access = "public";
+	slot.type = "slot";
 	w->lstSlots.append( slot );
     }
 }
 
 void CustomWidgetEditor::removeSlot()
 {
-    MetaDataBase::Slot slot;
-    slot.slot = "1 2 3";
+    MetaDataBase::Function slot;
+    slot.function = "1 2 3";
     if ( listSlots->currentItem() ) {
-	slot.slot = listSlots->currentItem()->text( 0 );
+	slot.function = listSlots->currentItem()->text( 0 );
 	slot.access = listSlots->currentItem()->text( 1 );
     }
     delete listSlots->currentItem();
     if ( listSlots->currentItem() )
 	listSlots->setSelected( listSlots->currentItem(), TRUE );
     MetaDataBase::CustomWidget *w = findWidget( boxWidgets->item( boxWidgets->currentItem() ) );
-    if ( w && slot.slot != "1 2 3" )
+    if ( w && slot.function != "1 2 3" )
 	w->lstSlots.remove( slot );
 }
 
@@ -713,8 +714,8 @@ void CustomWidgetEditor::saveDescription()
 		ts << makeIndent2( indent ) << "<signal>" << entitize2( *it ) << "</signal>" << endl;
 	}
 	if ( !w->lstSlots.isEmpty() ) {
-	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
-		ts << makeIndent2( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize2( (*it).slot ) << "</slot>" << endl;
+	    for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it )
+		ts << makeIndent2( indent ) << "<slot access=\"" << (*it).access << "\">" << entitize2( (*it).function ) << "</slot>" << endl;
 	}
 	if ( !w->lstProperties.isEmpty() ) {
 	    for ( QValueList<MetaDataBase::Property>::Iterator it = w->lstProperties.begin(); it != w->lstProperties.end(); ++it )

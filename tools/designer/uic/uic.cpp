@@ -102,13 +102,7 @@ QString Uic::mkStdSet( const QString& prop )
 
 bool Uic::isEmptyFunction( const QString& fname )
 {
-    QMap<QString, QString>::Iterator fit = functionImpls.find( Parser::cleanArgs( fname ) );
-    if ( fit != functionImpls.end() ) {
-	int begin = (*fit).find( "{" );
-	QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
-	return body.simplifyWhiteSpace().isEmpty();
-    }
-    return FALSE;
+    return TRUE;
 }
 
 
@@ -126,7 +120,7 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
       nofwd( omitForwardDecls )
 {
     fileName = fn;
-    writeSlotImpl = TRUE;
+    writeFunctImpl = TRUE;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
     externPixmaps = FALSE;

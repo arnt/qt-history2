@@ -50,23 +50,25 @@ public:
 	}
     };
 
-    struct Slot
+    struct Function
     {
 	QString returnType;
-	QCString slot;
+	QCString function;
 	QString specifier;
 	QString access;
+	QString type;
 	QString language;
-	bool operator==( const Slot &s ) const {
-	    return ( returnType == s.returnType &&
-		     slot == s.slot &&
-		     access == s.access &&
-		     specifier == s.specifier &&
-		     language == s.language
+	bool operator==( const Function &f ) const {
+	    return ( returnType == f.returnType &&
+		     function == f.function &&
+		     specifier == f.specifier &&
+		     access == f.access &&
+		     type == f.type &&
+		     language == f.language 
 		     );
 	}
-    };
-
+    };    
+    
     struct Property
     {
 	QCString property;
@@ -97,7 +99,7 @@ public:
 	QSizePolicy sizePolicy;
 	QPixmap *pixmap;
 	QValueList<QCString> lstSignals;
-	QValueList<Slot> lstSlots;
+	QValueList<Function> lstSlots;
 	QValueList<Property> lstProperties;
 	int id;
 	bool isContainer;
@@ -160,19 +162,27 @@ public:
     static QValueList<Connection> connections( QObject *o, QObject *object );
     static void doConnections( QObject *o );
 
-    static void addSlot( QObject *o, const QCString &slot, const QString& specifier, const QString &access, const QString &language, const QString &returnType );
-    static void removeSlot( QObject *o, const QCString &slot, const QString& specifier, const QString &access, const QString &language, const QString &returnType );
-    static void removeSlot( QObject *o, const QString &slot );
-    static QValueList<Slot> slotList( QObject *o );
+    static void addFunction( QObject *o, const QCString &function, const QString &specifier, 
+			     const QString &access, const QString &type, const QString &language, 
+			     const QString &returnType );
+    static void removeFunction( QObject *o, const QCString &function, const QString &specifier, 
+				const QString &access, const QString &type, const QString &language, 
+				const QString &returnType );
+    static void removeFunction( QObject *o, const QString &function );
+    static QValueList<Function> functionList( QObject *o );
+    static QValueList<Function> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
+    static bool hasFunction( QObject *o, const QCString &function, bool onlyCustom = FALSE );
     static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
-    static void changeSlot( QObject *o, const QCString &slot, const QCString &newName,
-			    const QString &access );
-    static void changeSlotAttributes( QObject *o, const QCString &slot,
-				      const QString& specifier, const QString &access,
-				      const QString &language, const QString &returnType );
-    static QString languageOfSlot( QObject *o, const QCString &slot );
-    static void setSlotList( QObject *o, const QValueList<Slot> &slotList );
+    static void changeFunction( QObject *o, const QCString &function, const QCString &newName,
+				const QString &access );
+    static void changeFunctionAttributes( QObject *o, const QCString &function,
+				      const QString &specifier, const QString &access,
+				      const QString &type, const QString &language, 
+				      const QString &returnType );
+    static QString languageOfFunction( QObject *o, const QCString &function );
+    static void setFunctionList( QObject *o, const QValueList<Function> &functionList );
+
 
     static bool addCustomWidget( CustomWidget *w );
     static void removeCustomWidget( CustomWidget *w );
@@ -224,19 +234,25 @@ public:
     static QStringList eventFunctions( QObject *o, const QString &event, const QString &lang );
     static bool hasEventFunctions( QObject *o );
     static QMap<QString, QStringList> eventFunctions( QObject *o );
+    
+    
+    
     static void setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies, const QString &lang, const QString &returnType );
     static void addFunctionBody( QObject *o, const QString &func, const QString &body );
     static void setFunctionComments( QObject *o, const QString &func, const QString &comments );
     static QMap<QString, QString> functionBodies( QObject *o );
     static QString functionComments( QObject *o, const QString &func );
 
+    
+    
+    
     static void setupInterfaceManagers();
     static QStringList languages();
 
     static LanguageInterface *languageInterface( const QString &lang );
 
-    static QString normalizeSlot( const QString &slot );
-
+    static QString normalizeFunction( const QString &f );
+    
     static void clear( QObject *o );
 
     static void setBreakPoints( QObject *o, const QValueList<int> &l );

@@ -144,10 +144,9 @@ private:
     static QString getComment( const QDomNode& n );
     QVariant defSpacing, defMargin;
     QString fileName;
-    bool writeSlotImpl;
+    bool writeFunctImpl;
 
     bool isEmptyFunction( const QString& fname );
-    QMap<QString, QString> functionImpls;
 
 };
 

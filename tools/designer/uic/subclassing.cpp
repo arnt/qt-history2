@@ -68,47 +68,112 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     out << "    ~" << subClass << "();" << endl;
     out << endl;
 
-    // find additional slots
+    // find additional functions 
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
-    QMap<QString, QString> functionImpls;
+    QStringList publicFuncts, protectedFuncts, privateFuncts;
+    QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
+    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;    
+      
+    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots"
+	if ( n.parentNode().toElement().tagName() != "slots" 
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
-	if ( slotName.endsWith( ";" ) )
-	    slotName = slotName.left( slotName.length() - 1 );
+	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( functionName.endsWith( ";" ) )
+	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {
-	    protectedSlots += slotName;
+	    protectedSlots += functionName;
 	    protectedSlotTypes += returnType;
 	    protectedSlotSpecifier += specifier;
 	} else if ( access == "private" ) {
-	    privateSlots += slotName;
+	    privateSlots += functionName;
 	    privateSlotTypes += returnType;
 	    privateSlotSpecifier += specifier;
 	} else {
-	    publicSlots += slotName;
+	    publicSlots += functionName;
 	    publicSlotTypes += returnType;
 	    publicSlotSpecifier += specifier;
 	}
+    }   
+    
+    nl = e.parentNode().toElement().elementsByTagName( "function" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	n = nl.item(i).toElement();
+	if ( n.parentNode().toElement().tagName() != "functions" )
+	    continue;
+	if ( n.attribute( "language", "C++" ) != "C++" )
+	    continue;
+	QString type = n.attribute( "type", "function" );
+	QString returnType = n.attribute( "returnType", "void" );
+	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( functionName.endsWith( ";" ) )
+	    functionName = functionName.left( functionName.length() - 1 );
+	QString specifier = n.attribute( "specifier" );
+	QString access = n.attribute( "access" );
+	if ( type == "slot" ) { 
+	    if ( access == "protected" ) {
+		protectedSlots += functionName;
+		protectedSlotTypes += returnType;
+		protectedSlotSpecifier += specifier;
+	    } else if ( access == "private" ) {
+		privateSlots += functionName;
+		privateSlotTypes += returnType;
+		privateSlotSpecifier += specifier;
+	    } else {
+		publicSlots += functionName;
+		publicSlotTypes += returnType;
+		publicSlotSpecifier += specifier;
+	    }
+	} else {
+	    if ( access == "protected" ) {
+		protectedFuncts += functionName;
+		protectedFunctRetTyp += returnType;
+		protectedFunctSpec += specifier;
+	    } else if ( access == "private" ) {
+		privateFuncts += functionName;
+		privateFunctRetTyp += returnType;
+		privateFunctSpec += specifier;
+	    } else {
+		publicFuncts += functionName;
+		publicFunctRetTyp += returnType;
+		publicFunctSpec += specifier;
+	    }
+	}
     }
 
-    // compatibility with early 3.0 betas
+    /* compatibility with early 3.0 betas ### not any longer supported!
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
 	QString fname = n.attribute( "name" );
 	fname = Parser::cleanArgs( fname );
 	functionImpls.insert( fname, n.firstChild().toText().data() );
+    }
+    */
+
+    if ( !publicFuncts.isEmpty() ) {
+	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
+	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) )
+		out << "    " << type << " " << (*it) << ";" << endl;
+	}
+	out << endl;
     }
 
     // create public additional slots
@@ -128,6 +193,22 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	out << endl;
     }
 
+    if ( !protectedFuncts.isEmpty() ) {
+	out << "protected:" << endl;
+	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
+	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) )
+		out << "    " << type << " " << (*it) << ";" << endl;
+	}
+	out << endl;
+    }    
+
     // create protected additional slots
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
@@ -144,7 +225,23 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	}
 	out << endl;
     }
-
+    
+    if ( !privateFuncts.isEmpty() ) {
+	out << "private:" << endl;
+	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
+	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) )
+		out << "    " << type << " " << (*it) << ";" << endl;
+	}
+	out << endl;
+    }    
+    
     // create private additional slots
     if ( !privateSlots.isEmpty() ) {
 	out << "private slots:" << endl;
@@ -215,49 +312,122 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     out << "}" << endl;
     out << endl;
 
-    // find additional slots
+
+    // find additional functions 
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
-    QMap<QString, QString> functionImpls;
+    QStringList publicFuncts, protectedFuncts, privateFuncts;
+    QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
+    QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;    
+    
+        
+    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
-	if ( n.parentNode().toElement().tagName() != "slots"
+	if ( n.parentNode().toElement().tagName() != "slots" 
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
 	QString returnType = n.attribute( "returnType", "void" );
-	QString slotName = n.firstChild().toText().data().stripWhiteSpace();
-	if ( slotName.endsWith( ";" ) )
-	    slotName = slotName.left( slotName.length() - 1 );
+	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( functionName.endsWith( ";" ) )
+	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {
-	    protectedSlots += slotName;
+	    protectedSlots += functionName;
 	    protectedSlotTypes += returnType;
 	    protectedSlotSpecifier += specifier;
 	} else if ( access == "private" ) {
-	    privateSlots += slotName;
+	    privateSlots += functionName;
 	    privateSlotTypes += returnType;
 	    privateSlotSpecifier += specifier;
 	} else {
-	    publicSlots += slotName;
+	    publicSlots += functionName;
 	    publicSlotTypes += returnType;
 	    publicSlotSpecifier += specifier;
 	}
     }
+    
+    nl = e.parentNode().toElement().elementsByTagName( "function" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	n = nl.item(i).toElement();
+	if ( n.parentNode().toElement().tagName() != "functions" )
+	    continue;
+	if ( n.attribute( "language", "C++" ) != "C++" )
+	    continue;
+	QString type = n.attribute( "type", "function" );
+	QString returnType = n.attribute( "returnType", "void" );
+	QString functionName = n.firstChild().toText().data().stripWhiteSpace();
+	if ( functionName.endsWith( ";" ) )
+	    functionName = functionName.left( functionName.length() - 1 );
+	QString specifier = n.attribute( "specifier" );
+	QString access = n.attribute( "access" );
+	if ( type == "slot" ) { 
+	    if ( access == "protected" ) {
+		protectedSlots += functionName;
+		protectedSlotTypes += returnType;
+		protectedSlotSpecifier += specifier;
+	    } else if ( access == "private" ) {
+		privateSlots += functionName;
+		privateSlotTypes += returnType;
+		privateSlotSpecifier += specifier;
+	    } else {
+		publicSlots += functionName;
+		publicSlotTypes += returnType;
+		publicSlotSpecifier += specifier;
+	    }
+	} else {
+	    if ( access == "protected" ) {
+		protectedFuncts += functionName;
+		protectedFunctRetTyp += returnType;
+		protectedFunctSpec += specifier;
+	    } else if ( access == "private" ) {
+		privateFuncts += functionName;
+		privateFunctRetTyp += returnType;
+		privateFunctSpec += specifier;
+	    } else {
+		publicFuncts += functionName;
+		publicFunctRetTyp += returnType;
+		publicFunctSpec += specifier;
+	    }
+	}
+    }
 
-
-    // compatibility with early 3.0 betas
+    /* compatibility with early 3.0 betas ### not any longer supported!
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	QString fname = n.attribute( "name" );
 	fname = Parser::cleanArgs( fname );
 	functionImpls.insert( fname, n.firstChild().toText().data() );
     }
-
+    */
+    
+    if ( !publicFuncts.isEmpty() ) {
+	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
+	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) ) {
+		out << "/* " << endl;
+		out << " * public function" << endl;
+		out << " */" << endl;
+		out << type << " " << subClass << "::" << (*it) << endl;
+		out << "{" << endl;
+		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+		out << "}" << endl << endl;
+	    }
+	}
+	out << endl;
+    }    
+    
     // create stubs for public additional slots
     if ( !publicSlots.isEmpty() ) {
 	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
@@ -280,6 +450,30 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	}
 	out << endl;
     }
+
+
+    if ( !protectedFuncts.isEmpty() ) {
+	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
+	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) ) {
+		out << "/* " << endl;
+		out << " * protected function" << endl;
+		out << " */" << endl;
+		out << type << " " << subClass << "::" << (*it) << endl;
+		out << "{" << endl;
+		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+		out << "}" << endl << endl;
+	    }
+	}
+	out << endl;
+    }
+    
 
     // create stubs for protected additional slots
     if ( !protectedSlots.isEmpty() ) {
@@ -304,6 +498,28 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	out << endl;
     }
 
+
+    if ( !privateFuncts.isEmpty() ) {
+	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
+	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
+	    QString pure;
+	    QString type = *it2;
+	    if ( type.isEmpty() )
+		type = "void";
+	    if ( *it3 == "non virtual" )
+		continue;
+	    if ( !isEmptyFunction( *it ) ) {
+		out << "/* " << endl;
+		out << " * private function" << endl;
+		out << " */" << endl;
+		out << type << " " << subClass << "::" << (*it) << endl;
+		out << "{" << endl;
+		out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
+		out << "}" << endl << endl;
+	    }
+	}
+	out << endl;
+    }
 
     // create stubs for private additional slots
     if ( !privateSlots.isEmpty() ) {

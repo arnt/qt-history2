@@ -157,7 +157,7 @@ public:
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void setModified( bool b, QWidget *window );
-    void slotsChanged();
+    void functionsChanged();
     void updateFunctionList();
     void updateWorkspace();
     QObjectList *runProject( bool execMain );
@@ -259,7 +259,7 @@ public slots:
     void editLayoutContainerGrid();
     void editBreakLayout();
     void editAccels();
-    void editSlots();
+    void editFunctions();
     void editConnections();
     SourceEditor *editSource();
     SourceEditor *editSource( SourceFile *f );
@@ -361,7 +361,7 @@ private:
     QString whatsThisFrom( const QString &key );
 
 private slots:
-    void doSlotsChanged();
+    void doFunctionsChanged();
     bool openProjectSettings( Project *pro );
 
 private:
@@ -403,7 +403,7 @@ private:
     *actionEditAdjustSize,
     *actionEditHLayout, *actionEditVLayout, *actionEditGridLayout,
     *actionEditSplitHorizontal, *actionEditSplitVertical,
-    *actionEditSelectAll, *actionEditBreakLayout, *actionEditSlots, *actionEditConnections,
+    *actionEditSelectAll, *actionEditBreakLayout, *actionEditFunctions, *actionEditConnections,
     *actionEditLower, *actionEditRaise;
     QActionGroup *actionGroupTools, *actionGroupProjects;
     QAction* actionPointerTool, *actionConnectTool, *actionOrderTool;
@@ -453,7 +453,7 @@ private:
     QValueList<Tab> preferenceTabs;
     QValueList<Tab> projectTabs;
     bool databaseAutoEdit;
-    QTimer *updateSlotsTimer;
+    QTimer *updateFunctionsTimer;
     QLineEdit *incrementalSearch;
     QGuardedPtr<FindDialog> findDialog;
     QGuardedPtr<ReplaceDialog> replaceDialog;
