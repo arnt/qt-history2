@@ -2155,22 +2155,22 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             if (cc == QStyle::CC_Slider) {
-                if (slider->activeParts == QStyle::SC_SliderHandle)
+                if (slider->activeSubControls == QStyle::SC_SliderHandle)
                     tdi.trackInfo.slider.pressState = kThemeThumbPressed;
-                else if (slider->activeParts == QStyle::SC_SliderGroove)
+                else if (slider->activeSubControls == QStyle::SC_SliderGroove)
                     tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
             } else {
-                if (slider->activeParts == QStyle::SC_ScrollBarSubLine)
+                if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
                                                          | kThemeLeftOutsideArrowPressed;
-                else if (slider->activeParts == QStyle::SC_ScrollBarAddLine)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
                                                          | kThemeRightOutsideArrowPressed;
-                else if (slider->activeParts == QStyle::SC_ScrollBarAddPage)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-                else if (slider->activeParts == QStyle::SC_ScrollBarSubPage)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-                else if (slider->activeParts == QStyle::SC_ScrollBarSlider)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider)
                     tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
             }
             HIRect macRect;
@@ -2184,7 +2184,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             }
             HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, cg,
                              kHIThemeOrientationNormal);
-            if (cc == QStyle::CC_Slider && slider->parts & QStyle::SC_SliderTickmarks) {
+            if (cc == QStyle::CC_Slider && slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numMarks;
                 if (slider->tickInterval) {
                     if (slider->orientation == Qt::Horizontal)
@@ -2215,9 +2215,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         break;
     case QStyle::CC_ListView:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->parts & QStyle::SC_ListView)
+            if (lv->subControls & QStyle::SC_ListView)
                 q->QWindowsStyle::drawComplexControl(cc, lv, p, widget);
-            if (lv->parts & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
+            if (lv->subControls & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
                 int y = lv->rect.y();
                 int h = lv->rect.height();
                 int x = lv->rect.right() - 10;
@@ -2245,7 +2245,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
-            if (sb->parts & QStyle::SC_SpinBoxFrame) {
+            if (sb->subControls & QStyle::SC_SpinBoxFrame) {
                 QStyleOptionFrame lineedit(0);
                 lineedit.rect = QStyle::visualRect(q->querySubControlMetrics(QStyle::CC_SpinBox,
                                                                          sb,
@@ -2258,7 +2258,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 lineedit.midLineWidth = 0;
                 q->drawPrimitive(QStyle::PE_PanelLineEdit, &lineedit, p, widget);
             }
-            if (sb->parts & (QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown)) {
+            if (sb->subControls & (QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown)) {
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;
                 QAquaWidgetSize aquaSize = qt_aqua_size_constrain(widget);
@@ -2284,9 +2284,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
                                         | QAbstractSpinBox::StepDownEnabled)))
                     tds = kThemeStateUnavailable;
-                if (sb->activeParts == QStyle::SC_SpinBoxDown)
+                if (sb->activeSubControls == QStyle::SC_SpinBoxDown)
                     tds = kThemeStatePressedDown;
-                else if (sb->activeParts == QStyle::SC_SpinBoxUp)
+                else if (sb->activeSubControls == QStyle::SC_SpinBoxUp)
                     tds = kThemeStatePressedUp;
                 bdi.state = tds;
                 bdi.value = kThemeButtonOff;
@@ -2321,7 +2321,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             QRect comborect(cmb->rect);
             bdi.adornment = opt->state & QStyle::Style_HasFocus
                                 ? kThemeAdornmentFocus : kThemeAdornmentNone;
-            bdi.state = opt->activeParts & QStyle::SC_ComboBoxArrow
+            bdi.state = opt->activeSubControls & QStyle::SC_ComboBoxArrow
                                 ? ThemeDrawState(kThemeStatePressed) : tds;
             if (cmb->editable) {
                 bdi.adornment |= kThemeAdornmentArrowDownArrow;
@@ -2392,7 +2392,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             newr.moveBy(newr.x() - (int)titleRect.origin.x, newr.y() - (int)titleRect.origin.y);
             HIRect finalRect = qt_hirectForQRect(newr, p, false);
             HIThemeDrawWindowFrame(&finalRect, &wdi, cg, kHIThemeOrientationNormal, 0);
-            if (titlebar->parts & QStyle::SC_TitleBarLabel) {
+            if (titlebar->subControls & QStyle::SC_TitleBarLabel) {
                 int iw = 0;
                 if (!titlebar->icon.isNull()) {
                     QCFType<HIShapeRef> titleRegion2;
@@ -2421,7 +2421,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     p->restore();
                 }
             }
-            if (titlebar->parts & (QStyle::SC_TitleBarCloseButton | QStyle::SC_TitleBarMaxButton
+            if (titlebar->subControls & (QStyle::SC_TitleBarCloseButton | QStyle::SC_TitleBarMaxButton
                                    | QStyle::SC_TitleBarMinButton | QStyle::SC_TitleBarNormalButton)) {
                 HIThemeWindowWidgetDrawInfo wwdi;
                 wwdi.version = qt_mac_hitheme_version;
@@ -2443,7 +2443,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     wwdi.widgetType = tbw;
                     if (sc == QStyle::SC_TitleBarMinButton)
                         tmp |= QStyle::SC_TitleBarNormalButton;
-                    if (active && (titlebar->activeParts & tmp))
+                    if (active && (titlebar->activeSubControls & tmp))
                         wwdi.widgetState = kThemeStatePressed;
                     /*
                     if (titlebar->window() && titlebar->window()->isWindowModified()
@@ -2482,12 +2482,12 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
 	    QStyle::SFlags bflags = tb->state,
             mflags = tb->state;
-            if (tb->parts & QStyle::SC_ToolButton)
+            if (tb->subControls & QStyle::SC_ToolButton)
                 bflags |= QStyle::Style_Down;
-            if (tb->parts & QStyle::SC_ToolButtonMenu)
+            if (tb->subControls & QStyle::SC_ToolButtonMenu)
                 mflags |= QStyle::Style_Down;
 
-            if (tb->parts & QStyle::SC_ToolButton) {
+            if (tb->subControls & QStyle::SC_ToolButton) {
                 if(bflags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Raised)) {
                     HIThemeButtonDrawInfo bdi;
                     bdi.version = qt_mac_hitheme_version;
@@ -2521,7 +2521,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 }
             }
 
-            if (tb->parts & QStyle::SC_ToolButtonMenu) {
+            if (tb->subControls & QStyle::SC_ToolButtonMenu) {
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;
                 bdi.state = tds;
@@ -2530,7 +2530,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 bdi.value = bkind;
                 if (tb->state & QStyle::Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     bdi.adornment |= kThemeAdornmentFocus;
-                if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeParts & QStyle::SC_ToolButtonMenu))
+                if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeSubControls & QStyle::SC_ToolButtonMenu))
                     bdi.value |= kThemeStatePressed;
                 HIRect hirect = qt_hirectForQRect(menuarea, p, false);
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
@@ -2683,7 +2683,7 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
             HIRect macRect;
-            // Luckily, the slider and scrollbar parts don't overlap so we can do it in one go.
+            // Luckily, the slider and scrollbar subControls don't overlap so we can do it in one go.
             switch (sc) {
             case QStyle::SC_SliderGroove:
                 HIThemeGetTrackBounds(&tdi, &macRect);
@@ -3685,22 +3685,22 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             ThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, p, &tdi, widget);
             if (cc == QStyle::CC_Slider) {
-                if (slider->activeParts == QStyle::SC_SliderGroove)
+                if (slider->activeSubControls == QStyle::SC_SliderGroove)
                     tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-                else if (slider->activeParts == QStyle::SC_SliderHandle)
+                else if (slider->activeSubControls == QStyle::SC_SliderHandle)
                     tdi.trackInfo.slider.pressState = kThemeThumbPressed;
             } else {
-                if (slider->activeParts == QStyle::SC_ScrollBarSubLine)
+                if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
                                                          | kThemeLeftOutsideArrowPressed;
-                else if (slider->activeParts == QStyle::SC_ScrollBarAddLine)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
                                                          | kThemeRightOutsideArrowPressed;
-                else if(slider->activeParts == QStyle::SC_ScrollBarAddPage)
+                else if(slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-                else if(slider->activeParts == QStyle::SC_ScrollBarSubPage)
+                else if(slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-                else if(slider->activeParts == QStyle::SC_ScrollBarSlider)
+                else if(slider->activeSubControls == QStyle::SC_ScrollBarSlider)
                     tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
             }
 
@@ -3722,7 +3722,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             DrawThemeTrack(&tdi, tracking ? 0 : r, 0, 0);
             if (!tracking)
                 qt_mac_dispose_rgn(r);
-            if (slider->parts & QStyle::SC_SliderTickmarks) {
+            if (slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numTicks;
                 if (slider->tickInterval) {
                     if (slider->orientation == Qt::Horizontal)
@@ -3745,10 +3745,10 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
         break;
     case QStyle::CC_ListView:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->parts & QStyle::SC_ListView)
+            if (lv->subControls & QStyle::SC_ListView)
                 q->QWindowsStyle::drawComplexControl(cc, lv, p, widget);
 
-            if (lv->parts & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
+            if (lv->subControls & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
                 int y = lv->rect.y(),
                 h = lv->rect.height(),
                 x = lv->rect.right() - 10;
@@ -3782,7 +3782,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
     case QStyle::CC_SpinBox:
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
             QStyleOptionSpinBox newSB = *sb;
-            if (sb->parts & QStyle::SC_SpinBoxFrame) {
+            if (sb->subControls & QStyle::SC_SpinBoxFrame) {
                 QStyleOptionFrame lineedit(0);
                 lineedit.rect = q->querySubControlMetrics(QStyle::CC_SpinBox, sb, QStyle::SC_SpinBoxFrame, widget),
                 lineedit.palette = sb->palette;
@@ -3791,13 +3791,13 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                 lineedit.midLineWidth = 0;
                 q->drawPrimitive(QStyle::PE_PanelLineEdit, &lineedit, p, widget);
             }
-            if (sb->parts & (QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxUp)) {
+            if (sb->subControls & (QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxUp)) {
                 if (!(sb->stepEnabled & (QAbstractSpinBox::StepUpEnabled
                                         | QAbstractSpinBox::StepDownEnabled)))
                     tds = kThemeStateUnavailable;
-                if (sb->activeParts == QStyle::SC_SpinBoxDown)
+                if (sb->activeSubControls == QStyle::SC_SpinBoxDown)
                     tds = kThemeStatePressedDown;
-                else if (sb->activeParts == QStyle::SC_SpinBoxUp)
+                else if (sb->activeSubControls == QStyle::SC_SpinBoxUp)
                     tds = kThemeStatePressedUp;
                 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                 if (sb->state & QStyle::Style_HasFocus
@@ -3865,12 +3865,12 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             menuarea = q->querySubControlMetrics(cc, tb, QStyle::SC_ToolButtonMenu, widget);
 	    QStyle::SFlags bflags = tb->state,
             mflags = tb->state;
-            if (tb->parts & QStyle::SC_ToolButton)
+            if (tb->subControls & QStyle::SC_ToolButton)
                 bflags |= QStyle::Style_Down;
-            if (tb->parts & QStyle::SC_ToolButtonMenu)
+            if (tb->subControls & QStyle::SC_ToolButtonMenu)
                 mflags |= QStyle::Style_Down;
 
-            if (tb->parts & QStyle::SC_ToolButton) {
+            if (tb->subControls & QStyle::SC_ToolButton) {
                 if(bflags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Raised)) {
                     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                     if (tb->state & QStyle::Style_HasFocus && QMacStyle::focusRectPolicy(widget)
@@ -3901,11 +3901,11 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                 }
             }
 
-            if (tb->parts & QStyle::SC_ToolButtonMenu) {
+            if (tb->subControls & QStyle::SC_ToolButtonMenu) {
                 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                 if (tb->state & QStyle::Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
                     info.adornment |= kThemeAdornmentFocus;
-                if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeParts & QStyle::SC_ToolButtonMenu))
+                if (tb->state & (QStyle::Style_On | QStyle::Style_Down) || (tb->activeSubControls & QStyle::SC_ToolButtonMenu))
                     info.value |= kThemeStatePressed;
                 qt_mac_set_port(p);
                 DrawThemeButton(qt_glb_mac_rect(menuarea, p, false), bkind, &info, 0, 0, 0, 0);
@@ -3920,7 +3920,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
             if (cmb->state & QStyle::Style_HasFocus)
                 info.adornment |= kThemeAdornmentFocus;
-            if (cmb->activeParts & QStyle::SC_ComboBoxArrow)
+            if (cmb->activeSubControls & QStyle::SC_ComboBoxArrow)
                 info.state = kThemeStatePressed;
             p->fillRect(cmb->rect, cmb->palette.brush(QPalette::Button)); //make sure it is filled
             if (cmb->editable) {
@@ -3988,7 +3988,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             newr.moveBy(newr.x() - br.left, newr.y() - br.top);
             qt_mac_dispose_rgn(rgn);
         }
-        if (tbar->parts & QStyle::SC_TitleBarLabel) {
+        if (tbar->subControls & QStyle::SC_TitleBarLabel) {
             int iw = 0;
             if (!tbar->icon.isNull()) {
                 RgnHandle rgn = qt_mac_get_rgn();
@@ -4041,7 +4041,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
                                      &twm, twa, 0, 0);
             }
         }
-        if (tbar->parts & (QStyle::SC_TitleBarCloseButton | QStyle::SC_TitleBarMaxButton | QStyle::SC_TitleBarMinButton
+        if (tbar->subControls & (QStyle::SC_TitleBarCloseButton | QStyle::SC_TitleBarMaxButton | QStyle::SC_TitleBarMinButton
                            | QStyle::SC_TitleBarNormalButton)) {
             ThemeDrawState wtds = tds;
             if (tbar->state & QStyle::Style_MouseOver)
@@ -4061,7 +4061,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc, const
             qt_mac_set_port(p);
             for (int i = 0; types[i].qt_type; ++i) {
                 ThemeDrawState ctrl_tds = wtds;
-                if (active && (tbar->activeParts & types[i].qt_type))
+                if (active && (tbar->activeSubControls & types[i].qt_type))
                     ctrl_tds = kThemeStatePressed;
                 ThemeTitleBarWidget twt = types[i].mac_type;
                 /*
@@ -5062,8 +5062,8 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, cons
                 QStyleOptionComboBox cmb(0);
                 cmb.init(widget->parentWidget());
                 cmb.editable = false;
-                cmb.parts = QStyle::SC_ComboBoxEditField;
-                cmb.activeParts = QStyle::SC_None;
+                cmb.subControls = QStyle::SC_ComboBoxEditField;
+                cmb.activeSubControls = QStyle::SC_None;
                 w = qMax(w, querySubControlMetrics(QStyle::CC_ComboBox, &cmb, QStyle::SC_ComboBoxEditField,
                                                    widget->parentWidget())
                             .width());

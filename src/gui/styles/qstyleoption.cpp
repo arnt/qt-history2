@@ -532,12 +532,12 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 /*!
     Constructs a QStyleOptioncomplex of type \a type and version \a version.
     Usually this constructor is called by structures derived
-    QStyleOptionComplex.  The \l parts parameter is initialized to \l
-    QStyle::SC_All and the \l activeParts is linked to \l QStyle::SC_None.
+    QStyleOptionComplex.  The \l subControls parameter is initialized to \l
+    QStyle::SC_All and the \l activeSubControls is linked to \l QStyle::SC_None.
 */
 
 QStyleOptionComplex::QStyleOptionComplex(int version, int type)
-    : QStyleOption(version, type), parts(QStyle::SC_All), activeParts(QStyle::SC_None)
+    : QStyleOption(version, type), subControls(QStyle::SC_All), activeSubControls(QStyle::SC_None)
 {
 }
 

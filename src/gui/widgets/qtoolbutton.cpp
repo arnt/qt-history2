@@ -261,15 +261,15 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
         opt.state |= QStyle::Style_Raised;
     }
 
-    opt.parts = QStyle::SC_ToolButton;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_ToolButton;
+    opt.activeSubControls = QStyle::SC_None;
     if (down)
-        opt.activeParts |= QStyle::SC_ToolButton;
+        opt.activeSubControls |= QStyle::SC_ToolButton;
 
     if ((menu || !q->actions().isEmpty()) && !delay) {
-        opt.parts |= QStyle::SC_ToolButtonMenu;
+        opt.subControls |= QStyle::SC_ToolButtonMenu;
         if (instantPopup || down)
-            opt.activeParts |= QStyle::SC_ToolButtonMenu;
+            opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
     }
     opt.features = QStyleOptionToolButton::None;
     if (usesTextLabel)

@@ -1934,8 +1934,8 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
 {
     QStyleOptionListView opt(0);
     opt.init(lv);
-    opt.parts = QStyle::SC_None;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_None;
+    opt.activeSubControls = QStyle::SC_None;
     QWidget *vp = lv->viewport();
     opt.viewportPalette = vp->palette();
     opt.viewportBGRole = vp->backgroundRole();
@@ -2138,8 +2138,8 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
             QStyleOptionListView opt = getStyleOption(lv, this);
             opt.rect.setRect(0, textheight, w + 1, height() - textheight + 1);
             opt.palette = pal;
-            opt.parts = QStyle::SC_ListViewExpand;
-            opt.activeParts = QStyle::SC_All;
+            opt.subControls = QStyle::SC_ListViewExpand;
+            opt.activeSubControls = QStyle::SC_All;
             lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
         }
     }
@@ -2229,8 +2229,8 @@ void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
     QStyleOptionListView opt = getStyleOption(lv, this);
     opt.rect.setRect(0, y, w, h);
     opt.palette = pal;
-    opt.parts = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
+    opt.activeSubControls = QStyle::SC_None;
     lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
 }
 
@@ -7767,7 +7767,7 @@ bool Q3ListView::selectRange(Q3ListViewItem *newItem, Q3ListViewItem *oldItem, Q
         bottom = newItem;
     }
 
-    // removes the parts of the old selection that will no longer be selected
+    // removes the subControls of the old selection that will no longer be selected
     bool changed = false;
     int topPos    = top ? top->itemPos() : 0,
         bottomPos = bottom ? bottom->itemPos() : 0;

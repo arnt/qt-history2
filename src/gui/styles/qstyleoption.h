@@ -278,8 +278,8 @@ class QStyleOptionComplex : public QStyleOption
 public:
     enum { Type = SO_Complex };
 
-    QStyle::SubControls parts;
-    QStyle::SubControls activeParts;
+    QStyle::SubControls subControls;
+    QStyle::SubControls activeSubControls;
 
     QStyleOptionComplex(int version, int type = SO_Complex);
 

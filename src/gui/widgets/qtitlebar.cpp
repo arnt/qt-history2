@@ -145,8 +145,8 @@ QStyleOptionTitleBar QTitleBarPrivate::getStyleOption() const
     opt.init(q);
     opt.text = q->windowTitle();
     opt.icon = q->windowIcon();
-    opt.parts = QStyle::SC_All;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_All;
+    opt.activeSubControls = QStyle::SC_None;
     opt.titleBarState = titleBarState();
     opt.titleBarFlags = q->getWFlags();
     return opt;
@@ -459,27 +459,27 @@ void QTitleBar::resizeEvent(QResizeEvent *r)
 void QTitleBar::paintEvent(QPaintEvent *)
 {
     QStyleOptionTitleBar opt = d->getStyleOption();
-    opt.parts = QStyle::SC_TitleBarLabel;
-    opt.activeParts = d->buttonDown;
+    opt.subControls = QStyle::SC_TitleBarLabel;
+    opt.activeSubControls = d->buttonDown;
     if (testWFlags(Qt::WStyle_SysMenu)) {
         if (testWFlags(Qt::WStyle_Tool)) {
-            opt.parts |= QStyle::SC_TitleBarCloseButton;
+            opt.subControls |= QStyle::SC_TitleBarCloseButton;
             if (d->window && testWFlags(Qt::WStyle_MinMax)) {
                 if (d->window->isMinimized())
-                    opt.parts |= QStyle::SC_TitleBarUnshadeButton;
+                    opt.subControls |= QStyle::SC_TitleBarUnshadeButton;
                 else
-                    opt.parts |= QStyle::SC_TitleBarShadeButton;
+                    opt.subControls |= QStyle::SC_TitleBarShadeButton;
             }
         } else {
-            opt.parts |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
+            opt.subControls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
             if (d->window && testWFlags(Qt::WStyle_Minimize)) {
                 if(d->window && d->window->isMinimized())
-                    opt.parts |= QStyle::SC_TitleBarNormalButton;
+                    opt.subControls |= QStyle::SC_TitleBarNormalButton;
                 else
-                    opt.parts |= QStyle::SC_TitleBarMinButton;
+                    opt.subControls |= QStyle::SC_TitleBarMinButton;
             }
             if (d->window && testWFlags(Qt::WStyle_Maximize) && !d->window->isMaximized())
-                opt.parts |= QStyle::SC_TitleBarMaxButton;
+                opt.subControls |= QStyle::SC_TitleBarMaxButton;
         }
     }
 
@@ -487,7 +487,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     if(autoRaise() && underMouse()) {
         under_mouse = style().querySubControl(QStyle::CC_TitleBar, &opt,
                                               mapFromGlobal(QCursor::pos()), this);
-        opt.parts = QStyle::SubControls(opt.parts ^ under_mouse);
+        opt.subControls = QStyle::SubControls(opt.subControls ^ under_mouse);
     }
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
@@ -495,7 +495,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     style().drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
     if (under_mouse != QStyle::SC_None) {
         opt.state |= QStyle::Style_MouseOver;
-        opt.parts = under_mouse;
+        opt.subControls = under_mouse;
         style().drawComplexControl(QStyle::CC_TitleBar, &opt, &p, this);
     }
 }

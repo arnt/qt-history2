@@ -90,8 +90,8 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
 {
     QStyleOptionSlider opt(0);
     opt.init(q);
-    opt.parts = QStyle::SC_None;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_None;
+    opt.activeSubControls = QStyle::SC_None;
     opt.orientation = orientation;
     opt.maximum = maximum;
     opt.minimum = minimum;
@@ -280,10 +280,10 @@ void QSlider::paintEvent(QPaintEvent *)
     QPainter p(this);
     QStyleOptionSlider opt = d->getStyleOption();
 
-    opt.parts = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
+    opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
     if (d->tickSetting != NoMarks)
-        opt.parts |= QStyle::SC_SliderTickmarks;
-    opt.activeParts = d->pressedControl;
+        opt.subControls |= QStyle::SC_SliderTickmarks;
+    opt.activeSubControls = d->pressedControl;
 
     style().drawComplexControl(QStyle::CC_Slider, &opt, &p, this);
 }
@@ -360,7 +360,7 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
     if (oldPressed == QStyle::SC_SliderHandle)
         setSliderDown(false);
     QStyleOptionSlider opt = d->getStyleOption();
-    opt.parts = oldPressed;
+    opt.subControls = oldPressed;
     update(style().querySubControlMetrics(QStyle::CC_Slider, &opt, oldPressed, this));
 }
 

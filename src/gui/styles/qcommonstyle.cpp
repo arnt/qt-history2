@@ -1384,7 +1384,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     switch (cc) {
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            if (slider->parts == SC_SliderTickmarks) {
+            if (slider->subControls == SC_SliderTickmarks) {
                 int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
                 int ticks = slider->tickmarks;
                 int thickness = pixelMetric(PM_SliderControlThickness, slider, widget);
@@ -1434,85 +1434,85 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->minimum == scrollbar->maximum)
                 saveFlags |= Style_Enabled;
 
-            if (scrollbar->parts & SC_ScrollBarSubLine) {
+            if (scrollbar->subControls & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSubLine, widget),
                                                                       widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarSubLine)
+                    if (scrollbar->activeSubControls & SC_ScrollBarSubLine)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarSubLine, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarAddLine) {
+            if (scrollbar->subControls & SC_ScrollBarAddLine) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarAddLine, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarAddLine)
+                    if (scrollbar->activeSubControls & SC_ScrollBarAddLine)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarAddLine, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarSubPage) {
+            if (scrollbar->subControls & SC_ScrollBarSubPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSubPage, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarSubPage)
+                    if (scrollbar->activeSubControls & SC_ScrollBarSubPage)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarSubPage, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarAddPage) {
+            if (scrollbar->subControls & SC_ScrollBarAddPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarAddPage, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarAddPage)
+                    if (scrollbar->activeSubControls & SC_ScrollBarAddPage)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarAddPage, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarFirst) {
+            if (scrollbar->subControls & SC_ScrollBarFirst) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarFirst, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarFirst)
+                    if (scrollbar->activeSubControls & SC_ScrollBarFirst)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarFirst, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarLast) {
+            if (scrollbar->subControls & SC_ScrollBarLast) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarLast, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarLast)
+                    if (scrollbar->activeSubControls & SC_ScrollBarLast)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarLast, &newScrollbar, p, widget);
                 }
             }
-            if (scrollbar->parts & SC_ScrollBarSlider) {
+            if (scrollbar->subControls & SC_ScrollBarSlider) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
                 newScrollbar.rect = visualRect(querySubControlMetrics(cc, &newScrollbar,
                                                                       SC_ScrollBarSlider, widget),
                                                widget);
                 if (newScrollbar.rect.isValid()) {
-                    if (scrollbar->activeParts & SC_ScrollBarSlider)
+                    if (scrollbar->activeSubControls & SC_ScrollBarSlider)
                         newScrollbar.state |= Style_Down;
                     drawPrimitive(PE_ScrollBarSlider, &newScrollbar, p, widget);
 
@@ -1530,7 +1530,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         break;
     case CC_ListView:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->parts & SC_ListView)
+            if (lv->subControls & SC_ListView)
                 p->fillRect(lv->rect, lv->viewportPalette.brush(lv->viewportBGRole));
         }
         break;
@@ -1539,11 +1539,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             QStyleOptionSpinBox copy = *sb;
             PrimitiveElement pe;
 
-            if (sb->parts & SC_SpinBoxFrame)
+            if (sb->subControls & SC_SpinBoxFrame)
                 qDrawWinPanel(p, sb->rect, sb->palette, true); //cstyle == Sunken);
 
-            if (sb->parts & SC_SpinBoxUp) {
-                copy.parts = SC_SpinBoxUp;
+            if (sb->subControls & SC_SpinBoxUp) {
+                copy.subControls = SC_SpinBoxUp;
                 QPalette pal2 = sb->palette;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
@@ -1551,7 +1551,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 copy.palette = pal2;
 
-                if (sb->activeParts == SC_SpinBoxUp) {
+                if (sb->activeSubControls == SC_SpinBoxUp) {
                     copy.state |= Style_On;
                     copy.state |= Style_Sunken;
                 } else {
@@ -1564,8 +1564,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(pe, &copy, p, widget);
             }
 
-            if (sb->parts & SC_SpinBoxDown) {
-                copy.parts = SC_SpinBoxDown;
+            if (sb->subControls & SC_SpinBoxDown) {
+                copy.subControls = SC_SpinBoxDown;
                 copy.state = sb->state;
                 QPalette pal2 = sb->palette;
                 if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
@@ -1573,7 +1573,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
                 copy.palette = pal2;
 
-                if (sb->activeParts == SC_SpinBoxDown) {
+                if (sb->activeSubControls == SC_SpinBoxDown) {
                     copy.state |= Style_On;
                     copy.state |= Style_Sunken;
                 } else {
@@ -1587,10 +1587,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 drawPrimitive(pe, &copy, p, widget);
             }
 
-            if (sb->parts & PE_SpinBoxSlider) {
+            if (sb->subControls & PE_SpinBoxSlider) {
                 copy.state = sb->state;
                 pe = PE_SpinBoxSlider;
-                copy.parts = SC_SpinBoxSlider;
+                copy.subControls = SC_SpinBoxSlider;
                 copy.rect = sb->rect;
                 copy.rect = querySubControlMetrics(CC_SpinBox, &copy, SC_SpinBoxSlider, widget);
                 drawPrimitive(pe, &copy, p, widget);
@@ -1610,14 +1610,14 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             SFlags bflags = toolbutton->state,
                    mflags = toolbutton->state;
 
-            if (toolbutton->activeParts & SC_ToolButton)
+            if (toolbutton->activeSubControls & SC_ToolButton)
                 bflags |= Style_Down;
-            if (toolbutton->activeParts & SC_ToolButtonMenu)
+            if (toolbutton->activeSubControls & SC_ToolButtonMenu)
                 mflags |= Style_Down;
 
             QStyleOption tool(0);
             tool.palette = toolbutton->palette;
-            if (toolbutton->parts & SC_ToolButton) {
+            if (toolbutton->subControls & SC_ToolButton) {
                 if (bflags & (Style_Down | Style_On | Style_Raised)) {
                     tool.rect = button;
                     tool.state = bflags;
@@ -1625,7 +1625,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 }
             }
 
-            if (toolbutton->parts & SC_ToolButtonMenu) {
+            if (toolbutton->subControls & SC_ToolButtonMenu) {
                 tool.rect = menuarea;
                 tool.state = mflags;
                 if (mflags & (Style_Down | Style_On | Style_Raised))
@@ -1646,7 +1646,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             QRect ir;
-            if (opt->parts & SC_TitleBarLabel) {
+            if (opt->subControls & SC_TitleBarLabel) {
                 QColor left = tb->palette.highlight();
                 QColor right = tb->palette.base();
 
@@ -1684,10 +1684,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             QStyleOption tool(0);
             tool.palette = tb->palette;
-            if (tb->parts & SC_TitleBarCloseButton) {
+            if (tb->subControls & SC_TitleBarCloseButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarCloseButton,
                                                        widget), widget);
-                down = tb->activeParts & SC_TitleBarCloseButton;
+                down = tb->activeSubControls & SC_TitleBarCloseButton;
                 if (tb->titleBarFlags & Qt::WStyle_Tool
 #ifndef QT_NO_MAINWINDOW
                      || qt_cast<const QDockWindow *>(widget)
@@ -1708,11 +1708,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->parts & SC_TitleBarMaxButton) {
+            if (tb->subControls & SC_TitleBarMaxButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMaxButton,
                                                        widget), widget);
 
-                down = tb->activeParts & SC_TitleBarMaxButton;
+                down = tb->activeSubControls & SC_TitleBarMaxButton;
                 pm = standardPixmap(SP_TitleBarMaxButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
@@ -1726,16 +1726,16 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->parts & SC_TitleBarNormalButton || tb->parts & SC_TitleBarMinButton) {
+            if (tb->subControls & SC_TitleBarNormalButton || tb->subControls & SC_TitleBarMinButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarMinButton,
                                                        widget), widget);
-                QStyle::SubControl ctrl = (tb->parts & SC_TitleBarNormalButton ?
+                QStyle::SubControl ctrl = (tb->subControls & SC_TitleBarNormalButton ?
                                            SC_TitleBarNormalButton :
                                            SC_TitleBarMinButton);
-                QStyle::StandardPixmap spixmap = (tb->parts & SC_TitleBarNormalButton ?
+                QStyle::StandardPixmap spixmap = (tb->subControls & SC_TitleBarNormalButton ?
                                                SP_TitleBarNormalButton :
                                                SP_TitleBarMinButton);
-                down = tb->activeParts & ctrl;
+                down = tb->activeSubControls & ctrl;
                 pm = standardPixmap(spixmap, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
@@ -1749,11 +1749,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->parts & SC_TitleBarShadeButton) {
+            if (tb->subControls & SC_TitleBarShadeButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarShadeButton,
                                                        widget), widget);
 
-                down = tb->activeParts & SC_TitleBarShadeButton;
+                down = tb->activeSubControls & SC_TitleBarShadeButton;
                 pm = standardPixmap(SP_TitleBarShadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
@@ -1766,11 +1766,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 
-            if (tb->parts & SC_TitleBarUnshadeButton) {
+            if (tb->subControls & SC_TitleBarUnshadeButton) {
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarUnshadeButton,
                                                        widget), widget);
 
-                down = tb->activeParts & SC_TitleBarUnshadeButton;
+                down = tb->activeSubControls & SC_TitleBarUnshadeButton;
                 pm = standardPixmap(SP_TitleBarUnshadeButton, &tool, widget);
                 tool.rect = ir;
                 tool.state = down ? Style_Down : Style_Raised;
@@ -1783,7 +1783,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->restore();
             }
 #ifndef QT_NO_WIDGET_TOPEXTRA
-            if (tb->parts & SC_TitleBarSysMenu) {
+            if (tb->subControls & SC_TitleBarSysMenu) {
                 if (!tb->icon.isNull()) {
                     ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarSysMenu,
                                                            widget), widget);

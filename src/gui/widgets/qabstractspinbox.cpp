@@ -462,7 +462,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
     QStyleOptionSpinBox sb = d->styleOption();
-    sb.parts = QStyle::SC_SpinBoxEditField;
+    sb.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                                         QStyle::SC_SpinBoxEditField, this));
     QWidget::resizeEvent(e);
@@ -697,7 +697,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox sb = d->styleOption();
-    sb.parts = QStyle::SC_All;
+    sb.subControls = QStyle::SC_All;
     if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepUpEnabled) || d->buttonstate != None) {
@@ -1026,19 +1026,19 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     QStyleOptionSpinBox opt(0);
     opt.init(q);
     opt.stepEnabled = q->stepEnabled();
-    opt.activeParts = 0;
+    opt.activeSubControls = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+    opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
     if (slider)
-        opt.parts |= QStyle::SC_SpinBoxSlider;
+        opt.subControls |= QStyle::SC_SpinBoxSlider;
 
     if (frame)
-        opt.parts |= QStyle::SC_SpinBoxFrame;
+        opt.subControls |= QStyle::SC_SpinBoxFrame;
 
     if (buttonstate & Up)
-        opt.activeParts = QStyle::SC_SpinBoxUp;
+        opt.activeSubControls = QStyle::SC_SpinBoxUp;
     else if (buttonstate & Down)
-        opt.activeParts = QStyle::SC_SpinBoxDown;
+        opt.activeSubControls = QStyle::SC_SpinBoxDown;
 
     opt.percentage = (value - minimum) / (maximum - minimum);
     opt.slider = slider;

@@ -596,8 +596,8 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionTitleBar opt(0);
     opt.init(this);
-    opt.parts = QStyle::SC_All;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_All;
+    opt.activeSubControls = QStyle::SC_None;
     opt.text = windowTitle();
     opt.icon = windowIcon();
     opt.titleBarState = window() ? window()->windowState() : 0;

@@ -1259,8 +1259,8 @@ void QComboTableItem::paint(QPainter *p, const QPalette &pal,
     opt.rect = fakeCombo->rect();
     opt.palette = pal2;
     opt.state = flags;
-    opt.parts = QStyle::SC_All;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_All;
+    opt.activeSubControls = QStyle::SC_None;
     opt.editable = fakeCombo->editable();
     table()->style().drawComplexControl(QStyle::CC_ComboBox, &opt, p, fakeCombo);
 

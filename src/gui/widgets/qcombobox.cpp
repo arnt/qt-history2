@@ -218,8 +218,8 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
         if (comboBox->isEditable()) {
             QStyleOptionComboBox opt(0);
             opt.init(comboBox);
-            opt.parts = QStyle::SC_All;
-            opt.activeParts = QStyle::SC_ComboBoxArrow;
+            opt.subControls = QStyle::SC_All;
+            opt.activeSubControls = QStyle::SC_ComboBoxArrow;
             ignoreRect = QStyle::visualRect(style().querySubControlMetrics(
                                                 QStyle::CC_ComboBox, &opt,
                                                 QStyle::SC_ComboBoxArrow, comboBox), comboBox);
@@ -484,11 +484,11 @@ QStyleOptionComboBox QComboBoxPrivate::getStyleOption() const
 {
     QStyleOptionComboBox opt(0);
     opt.init(q);
-    opt.parts = QStyle::SC_All;
+    opt.subControls = QStyle::SC_All;
     if (arrowDown)
-        opt.activeParts = QStyle::SC_ComboBoxArrow;
+        opt.activeSubControls = QStyle::SC_ComboBoxArrow;
     else
-        opt.activeParts = QStyle::SC_None;
+        opt.activeSubControls = QStyle::SC_None;
     opt.editable = q->isEditable();
     return opt;
 }

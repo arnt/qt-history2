@@ -167,8 +167,8 @@ QStyleOptionSlider QScrollBarPrivate::getStyleOption() const
 {
     QStyleOptionSlider opt(0);
     opt.init(q);
-    opt.parts = QStyle::SC_None;
-    opt.activeParts = QStyle::SC_None;
+    opt.subControls = QStyle::SC_None;
+    opt.activeSubControls = QStyle::SC_None;
     opt.orientation = orientation;
     opt.minimum = minimum;
     opt.maximum = maximum;
@@ -324,9 +324,9 @@ void QScrollBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOptionSlider opt = d->getStyleOption();
-    opt.parts = QStyle::SC_All;
+    opt.subControls = QStyle::SC_All;
     if (!d->pointerLeftControl)
-        opt.activeParts = (QStyle::SubControl)d->pressedControl;
+        opt.activeSubControls = (QStyle::SubControl)d->pressedControl;
     style().drawComplexControl(QStyle::CC_ScrollBar, &opt, &p, this);
 }
 
@@ -421,7 +421,7 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
     } else if (!style().styleHint(QStyle::SH_ScrollBar_ScrollWhenPointerLeavesControl, &opt, this)) {
         // stop scrolling when the mouse pointer leaves a control
         // similar to push buttons
-        opt.parts = d->pressedControl;
+        opt.subControls = d->pressedControl;
         QRect pr = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ScrollBar,
                                                                      &opt,
                                                                      d->pressedControl,

@@ -1736,7 +1736,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             QRect handle = QCommonStyle::querySubControlMetrics(CC_Slider, slider,
                                                                 SC_SliderHandle, widget);
 
-            if ((slider->parts & SC_SliderGroove) && groove.isValid()) {
+            if ((slider->subControls & SC_SliderGroove) && groove.isValid()) {
                 int mid = thickness / 2;
 
                 if (ticks & QSlider::TickMarksAbove)
@@ -1758,13 +1758,13 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
             }
 
-            if (slider->parts & SC_SliderTickmarks) {
+            if (slider->subControls & SC_SliderTickmarks) {
                 QStyleOptionSlider tmpSlider = *slider;
-                tmpSlider.parts = SC_SliderTickmarks;
+                tmpSlider.subControls = SC_SliderTickmarks;
                 QCommonStyle::drawComplexControl(cc, &tmpSlider, p, widget);
             }
 
-            if (slider->parts & SC_SliderHandle) {
+            if (slider->subControls & SC_SliderHandle) {
                 // 4444440
                 // 4333310
                 // 4322210
@@ -1933,9 +1933,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
     case CC_ListView:
         if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
             int i;
-            if (lv->parts & SC_ListView)
+            if (lv->subControls & SC_ListView)
                 QCommonStyle::drawComplexControl(cc, lv, p, widget);
-            if (lv->parts & (SC_ListViewBranch | SC_ListViewExpand)) {
+            if (lv->subControls & (SC_ListViewBranch | SC_ListViewExpand)) {
                 if (lv->items.isEmpty())
                     break;
                 QStyleOptionListViewItem item = lv->items.at(0);
@@ -1943,7 +1943,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 int c;
                 int dotoffset = 0;
                 QPointArray dotlines;
-                if (lv->activeParts == SC_All && lv->parts == SC_ListViewExpand) {
+                if (lv->activeSubControls == SC_All && lv->subControls == SC_ListViewExpand) {
                     c = 2;
                     dotlines.resize(2);
                     dotlines[0] = QPoint(lv->rect.right(), lv->rect.top());
@@ -2048,7 +2048,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 }
 
                 int line; // index into dotlines
-                if (lv->parts & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
+                if (lv->subControls & SC_ListViewBranch) for(line = 0; line < c; line += 2) {
                     // assumptions here: lines are horizontal or vertical.
                     // lines always start with the numerically lowest
                     // coordinate.
@@ -2086,7 +2086,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
         break;
     case CC_ComboBox:
         if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (cmb->parts & SC_ComboBoxArrow) {
+            if (cmb->subControls & SC_ComboBoxArrow) {
                 SFlags flags = Style_Default;
 
                 qDrawWinPanel(p, opt->rect, opt->palette, true,
@@ -2097,7 +2097,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, cmb,
                                                                             SC_ComboBoxArrow,
                                                                             widget), widget);
-                if (cmb->activeParts == SC_ComboBoxArrow) {
+                if (cmb->activeSubControls == SC_ComboBoxArrow) {
                     p->setPen(cmb->palette.dark());
                     p->setBrush(cmb->palette.brush(QPalette::Button));
                     p->drawRect(ar);
@@ -2110,7 +2110,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 if (opt->state & Style_Enabled)
                     flags |= Style_Enabled;
 
-                if (cmb->activeParts == SC_ComboBoxArrow)
+                if (cmb->activeSubControls == SC_ComboBoxArrow)
                     flags |= Style_Sunken;
                 QStyleOption arrowOpt(0);
                 arrowOpt.rect = ar;
@@ -2118,7 +2118,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 arrowOpt.state = flags;
                 drawPrimitive(PE_ArrowDown, &arrowOpt, p, widget);
             }
-            if (cmb->parts & SC_ComboBoxEditField) {
+            if (cmb->subControls & SC_ComboBoxEditField) {
                 QRect re =
                     QStyle::visualRect(QCommonStyle::querySubControlMetrics(CC_ComboBox, cmb,
                                                                             SC_ComboBoxEditField,

@@ -150,7 +150,7 @@ static QStyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
 {
     QStyleOptionSpinBox opt(0);
     opt.init(spin);
-    opt.parts = 0;
+    opt.subControls = 0;
     opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();
     opt.percentage = 0; // no way to get this information as it is in QRangeControl.
     opt.slider = false;
@@ -159,7 +159,7 @@ static QStyleOptionSpinBox getStyleOption(const QSpinWidget *spin)
         opt.stepEnabled |= QAbstractSpinBox::StepUpEnabled;
     if (spin->isDownEnabled())
         opt.stepEnabled |= QAbstractSpinBox::StepDownEnabled;
-    opt.activeParts = 0;
+    opt.activeSubControls = 0;
     return opt;
 }
 
@@ -317,15 +317,15 @@ void QSpinWidget::paintEvent(QPaintEvent *)
     QStyleOptionSpinBox opt = getStyleOption(this);
 
     if (d->theButton & 1)
-        opt.activeParts = QStyle::SC_SpinBoxDown;
+        opt.activeSubControls = QStyle::SC_SpinBoxDown;
     else if (d->theButton & 2)
-        opt.activeParts = QStyle::SC_SpinBoxUp;
+        opt.activeSubControls = QStyle::SC_SpinBoxUp;
     else
-        opt.activeParts = QStyle::SC_None;
+        opt.activeSubControls = QStyle::SC_None;
     opt.rect = QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                                                  QStyle::SC_SpinBoxFrame, this),
                                   this);
-    opt.parts = QStyle::SC_All;
+    opt.subControls = QStyle::SC_All;
     style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
 
