@@ -36,7 +36,7 @@
 #endif
 
 #if defined(_OS_WIN32_)
-#include "qt_windows.h"
+#include <windows.h>
 #endif
 
 //#define QSOCKET_DEBUG

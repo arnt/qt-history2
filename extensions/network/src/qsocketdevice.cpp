@@ -24,10 +24,11 @@
 *****************************************************************************/
 
 #include "qsocketdevice.h"
+#include "qwindowdefs.h"
 #include <string.h>
 
 #if defined(_OS_WIN32_)
-#include "qt_windows.h"
+#include <windows.h>
 #endif
 
 #if defined(UNIX)
@@ -432,7 +433,7 @@ int QSocketDevice::option( Option opt ) const
     }
     if ( n != -1 ) {
 	SOCKLEN_T len = sizeof(v);
-	if ( ::getsockopt( sock_fd, SOL_SOCKET, n, (void*)&v, &len ) < 0 )
+	if ( ::getsockopt( sock_fd, SOL_SOCKET, n, (char*)&v, &len ) < 0 )
 	    return -1;			// error
     }
     return v;
@@ -713,8 +714,13 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	return -1;
     }
 #if defined(_OS_WIN32_)
-#warningerror "This OS is not supported"
-    // haavard?
+    struct sockaddr_in a;
+    memset( &a, 0, sizeof(a) );
+    a.sin_family = AF_INET;
+    a.sin_port = ntohs( port );
+    a.sin_addr.s_addr = ntohl( host.ip4Addr() );
+    return ::sendto( sock_fd, data, len, 0,
+		     (struct sockaddr *)(&a), sizeof(sockaddr_in) );
 #elif defined(UNIX)
     struct sockaddr_in a;
     memset( &a, 0, sizeof(a) );
