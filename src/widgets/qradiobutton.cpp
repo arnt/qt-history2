@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#64 $
 **
 ** Implementation of QRadioButton class
 **
@@ -18,7 +18,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#64 $");
 
 
 /*!
@@ -223,10 +223,12 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPolyline( a );
 	a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	a.translate( x, y );
-	p->setPen( NoPen );
-	p->setBrush( isDown() ? g.background() : g.base() );
+	QColor fillColor = isDown() ? g.background() : g.base();
+	p->setPen( fillColor );
+	p->setBrush( fillColor );
 	p->drawPolygon( a );
 	if ( isOn() ) {
+	    p->setPen( NoPen );
 	    p->setBrush( g.foreground() );
 	    p->drawRect( x+5, y+4, 2, 4 );
 	    p->drawRect( x+4, y+5, 4, 2 );
