@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#100 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#101 $
 **
 ** Implementation of QDir class
 **
@@ -1336,7 +1336,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 
 /*!
   Returns TRUE if the \e fileName matches the wildcard \e filter.
-  \a Filter may also contain multiple wildcards speprated by spaces or 
+  \a Filter may also contain multiple wildcards speprated by spaces or
   semiclolons.
   \sa QRegExp
 */

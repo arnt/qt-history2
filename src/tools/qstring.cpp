@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#259 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#260 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9615,11 +9615,11 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
   Returns the row (most significant byte) of the Unicode character.
 */
 /*!
-  \fn uchar& QChar::cell () 
+  \fn uchar& QChar::cell ()
   Returns a reference to the cell (least significant byte) of the Unicode character.
 */
 /*!
-  \fn uchar& QChar::row () 
+  \fn uchar& QChar::row ()
   Returns a reference to the row (most significant byte) of the Unicode character.
 */
 
@@ -11690,7 +11690,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
     }
 
     if ( index >= olen ) {			// insert after end of string
-	setLength( nlen+index-olen );
+	setLength( len+index );
 	int n = index-olen;
 	QChar* uc = d->unicode+olen;
 	while (n--)

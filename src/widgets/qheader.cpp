@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#93 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -586,16 +586,9 @@ void QHeader::handleColumnResize( int index, int s, bool final )
     int repaintPos = QMIN( oldPos, s );
 
     if ( orient == Horizontal ) {
-	int left = pPos( index - 1 );
-	repaint( left, 0, newSize + 1,
-		 height(), FALSE );
-
-	if ( mapFromGlobal( QCursor::pos() ).x() < width() ) {
-	
-	    scroll( newSize - oldSize, 0, QRect( left + cellSize( mapToActual( lIdx ) ) + 1, 0,
-						 width() - left + cellSize( mapToActual( lIdx ) ),
-						 height() ) );
-	}
+	if ( repaintPos < width() )
+	    scroll( delta, 0, QRect( repaintPos, 0, width() - repaintPos,  height() ) );
+	repaint( repaintPos - 4, 0, 4, height(), FALSE ); // border between the items
     } else
 	repaint(0, repaintPos-oldSize+2, width(), height());
 

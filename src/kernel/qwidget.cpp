@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#452 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#453 $
 **
 ** Implementation of QWidget class
 **
@@ -3325,8 +3325,10 @@ QSize QWidget::minimumSizeHint() const
   <dt>WPaintDesktop<dd> The widget wants desktop paint events.
   <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
   <dt>WPaintClever<dd> The widget wants every update rectangle.
-  <dt>WPaintAllPixels<dd> The Widget paints all its pixels. Resizing, scrolling
-			 and focus changes should therefore not erase the widget. 
+  <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
+			 This allows smart-repainting to avoid flicker.
+  <dt>WRepaintNoErase<dd> The Widget paints all its pixels. Scrolling and focus 
+			 changes should therefore not erase the widget. 
 			 This allows smart-repainting to avoid flicker.
   <dt>WResizeNoErase<dd> Same as WPaintAllPixels.
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
@@ -3721,7 +3723,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 void QWidget::focusInEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ) {
-	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+	repaint( visibleRect(), !testWFlags(WRepaintNoErase) );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
 	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
@@ -3746,7 +3748,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ){
-	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+	repaint( visibleRect(), !testWFlags(WRepaintNoErase) );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
     }

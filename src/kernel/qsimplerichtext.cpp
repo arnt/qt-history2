@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#9 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -44,7 +44,7 @@
 
   Once constructed from a string, the contents cannot be changed, only
   resized.  If the contents should change, just throw the rich text
-  object away and make a new one with the new contents.  
+  object away and make a new one with the new contents.
 
   For large documents, see QTextView or QTextBrowser.
 */
@@ -56,18 +56,16 @@ public:
 };
 
 /*!
-  Constructs a QSimpleRichText from the rich text string  \a text.
+  Constructs a QSimpleRichText from the rich text string \a text
+  and the font \a fnt.
 
-  If a font \a fnt is specified, this font will be used as basis for
-  the text rendering. When using rich text rendering on a certain
-  widget \e w, you would generally specify the widget's font as shown in
-  the following code example:
+  The font is used as basis for the text rendering. When using rich
+  text rendering on a certain widget \e w, you would regularily
+  specify the widget's font as shown in the following code example:
 
   \code
   QSimpleRichText myrichtext( contents, mywidget->font() );
   \endcode
-
-  If no font has been specified, the application's default font is used.
 
   \a context is the optional context of the document. This becomes
   important if \a text contains relative references, for example
@@ -242,7 +240,7 @@ static uint int_sqrt(uint n)
 
 /*!
   Adjusts the richt text document to a reasonable size.
-  
+
   \sa setWidth()
 */
 void QSimpleRichText::adjustSize( QPainter* p )

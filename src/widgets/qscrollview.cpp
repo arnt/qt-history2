@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#115 $
 **
 ** Implementation of QScrollView class
 **
@@ -393,7 +393,7 @@ as well as \c WNorthWestGravity is propagated to the viewport() widget.
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & ~WNorthWestGravity, FALSE )
 {
-    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
+    d = new QScrollViewData(this,WResizeNoErase|WRepaintNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
@@ -1827,12 +1827,6 @@ void QScrollView::changeFrameRect(const QRect& r)
     QRect oldr = frameRect();
     if (oldr != r) {
 	setFrameRect(r);
-	//### do _not_ update, we'll receive a paint event anyway
- 	if ( frameWidth() ) {
- 	    // Redraw frames
- 	    update(r);
- 	    update(oldr);
- 	}
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#390 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#391 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1771,19 +1771,19 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     }
 
     // Don't let the server be bogged-down with repaint events
-    bool repaint_immediately = testWState(WResizeNoErase) || qt_sip_count( this ) < 3;
+    bool repaint_immediately = qt_sip_count( this ) < 3;
 
     if ( dx ) {
 	int x = x2 == sr.x() ? sr.x()+w : sr.x();
 	if ( repaint_immediately )
-	    repaint( x, sr.y(), QABS(dx), sr.height(), !testWFlags(WResizeNoErase) );
-	else 
+	    repaint( x, sr.y(), QABS(dx)+1, sr.height(), !testWFlags(WRepaintNoErase) );
+	else
 	    XClearArea( dpy, winid, x, sr.y(), QABS(dx), sr.height(), TRUE );
     }
     if ( dy ) {
 	int y = y2 == sr.y() ? sr.y()+h : sr.y();
 	if ( repaint_immediately )
-	    repaint( sr.x(), y, sr.width(), QABS(dy), !testWFlags(WResizeNoErase) );
+	    repaint( sr.x(), y, sr.width(), QABS(dy)+1, !testWFlags(WRepaintNoErase) );
 	else
 	    XClearArea( dpy, winid, sr.x(), y, sr.width(), QABS(dy), TRUE );
     }

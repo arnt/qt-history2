@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#284 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#285 $
 **
 ** Implementation of QListView widget class
 **
@@ -2151,8 +2151,8 @@ void QListView::show()
 {
     if ( !isVisible() ) {
 	QWidget * v = viewport();
-	if ( v )
-	    v->setBackgroundMode( NoBackground );
+ 	if ( v )
+	    v->setBackgroundMode( PaletteBase );
 
 	reconfigureItems();
 	updateGeometries();
@@ -2203,22 +2203,23 @@ void QListView::updateGeometries()
 
 void QListView::handleSizeChange( int section, int os, int ns )
 {
+    viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
-
-    int left = d->h->cellPos( d->h->mapToActual( section ) ) - contentsX();
-    int dx = 0;
-    if ( columnAlignment( d->h->mapToActual( section ) ) == AlignLeft )
-        dx = QMIN( os, ns ) - 1 - ( ( hasFocus() || viewport()->hasFocus() ) ? 1 : 0 );
-
-    left += dx;
-
-        viewport()->repaint( left, 0, d->h->cellSize( d->h->mapToActual( section ) ) - dx,
-                             visibleHeight(), FALSE );
-    if ( viewport()->mapFromGlobal( QCursor::pos() ).x() < viewport()->width() ) {
-        viewport()->scroll( ns - os, 0, QRect( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx, 0,
-                                               visibleWidth() - ( left + d->h->cellSize( d->h->mapToActual( section ) ) - dx ),
-                                               visibleHeight() ) );
-    }
+    viewport()->setUpdatesEnabled( TRUE );
+    
+    int actual = d->h->mapToActual( section );
+    int dx = ns - os;
+    int left = d->h->cellPos( actual ) - contentsX() + d->h->cellSize( actual );
+    if ( dx > 0)
+	left -= dx;
+    if ( left < visibleWidth() )
+	viewport()->scroll( dx, 0, QRect( left, 0, visibleWidth() - left, visibleHeight() ) );
+    viewport()->repaint( left-4, 0, 4, visibleHeight(), FALSE ); // border between the items
+    
+    if ( columnAlignment( actual ) != AlignLeft )
+	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0, 
+			     d->h->cellSize( actual ), visibleHeight() );
+    
 }
 
 
