@@ -1142,20 +1142,21 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
     QMap<QString, QMap<QString, const Node *> >::ConstIterator f = funcIndex.begin();
     while (f != funcIndex.end()) {
 	out() << "<li>";
+	out() << protect(f.key()) << ":";
 
 	currentLetter = f.key()[0].unicode();
 	while (islower(currentLetter) && currentLetter >= nextLetter) {
-	    out() << QString("<a name=\"%1\"></a>\n").arg(nextLetter);
+	    out() << QString("<a name=\"%1\"></a>").arg(nextLetter);
 	    nextLetter++;
 	}
 
-	out() << protect(f.key()) << ":";
 	QMap<QString, const Node *>::ConstIterator s = (*f).begin();
 	while ( s != (*f).end() ) {
 	    out() << " ";
 	    generateFullName((*s)->parent(), relative, marker, *s);
 	    ++s;
 	}
+        out() << "\n";
 	++f;
     }
     out() << "</ul>\n";

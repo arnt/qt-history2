@@ -1,3 +1,8 @@
+  * fix automatic links in \sectionX (e.g. qt4-getting-started.html)
+  * fix links in compat pages
+  * don't generate a "compat" link for classes with no compat functions
+  * make links within document and beyond documents work
+
   * make \macro work (?)
   * implement \target and \keyword
   * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description
