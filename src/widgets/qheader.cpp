@@ -987,8 +987,9 @@ void QHeader::setSectionSizeAndHeight( int section, int size, const QString& s )
 int QHeader::addLabel( const QString &s, int size )
 {
     int n = ++d->count;
-    if ( (int)d->iconsets.size() < n  ) {
+    if ( (int)d->iconsets.size() < n  )
 	d->iconsets.resize( n );
+    if ( (int)d->sizes.size() < n  ) {
 	d->labels.resize( n );
 	d->sizes.resize( n );
 	d->positions.resize( n );
