@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#98 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#99 $
 **
 ** Implementation of QTextStream class
 **
@@ -582,7 +582,8 @@ void QTextStream::ts_putc( QChar c )
     if ( mapper ) {
 	int len = 1;
 	QString s = c;
-	dev->writeBlock( mapper->fromUnicode( s, len ), len );
+	QCString block = mapper->fromUnicode( s, len );
+	dev->writeBlock( block, len );
     } else if ( latin1 ) {
 	if( c.row )
 	    dev->putch( '?' ); //######unknown character???
