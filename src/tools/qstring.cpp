@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#2 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#2 $";
 #endif
 
 
@@ -106,28 +106,28 @@ UINT16 qchecksum( const char *str, uint len )	// return IP checksum
 
 
 // --------------------------------------------------------------------------
-// QStream functions for reading and writing QByteArray
+// QDataStream functions for reading and writing QByteArray
 //
 
-#include "qstream.h"
+#include "qdstream.h"
 
-QStream &operator<<( QStream &s, const QByteArray &a )
+QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {
-    return s.write( a.data(), a.size() );
+    return s.writeBytes( a.data(), a.size() );
 }
 
-QStream &operator>>( QStream &s, QByteArray &a )
+QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
     UINT32 len;
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
-	warning( "QStream: Not enough memory to read QByteArray" );
+	warning( "QDataStream: Not enough memory to read QByteArray" );
 #endif
 	len = 0;
     }
     if ( len > 0 )				// not null array
-	s.readBytes( a.data(), (uint)len );
+	s.readRawBytes( a.data(), (uint)len );
     return s;
 }
 

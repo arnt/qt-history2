@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#2 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#3 $
 **
 ** Definition of QGVector class
 **
@@ -15,15 +15,15 @@
 
 #include "qcollect.h"
 
-class QStream;
+class QDataStream;
 
 
 class QGVector : public QCollection		// generic vector
 {
 friend class QGList;				// needed by QGList::asVector
 public:
-    QStream &read( QStream & );			// read vector from stream
-    QStream &write( QStream & ) const;		// write vector to stream
+    QDataStream &read( QDataStream & );		// read vector from stream
+    QDataStream &write( QDataStream & ) const;	// write vector to stream
 
 protected:
     QGVector();					// create empty vector
@@ -67,8 +67,9 @@ protected:
     int	 apply( GCF, void * ) const;		// apply function to all items
 
     virtual int compareItems( GCI, GCI );
-    virtual QStream &read( QStream &, GCI & );	// read item from stream
-    virtual QStream &write( QStream &, GCI ) const; // write item to stream
+
+    virtual QDataStream &read( QDataStream &, GCI & );
+    virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
     void  qsort( GCI*, GCI* );			// vector quicksort
@@ -82,8 +83,8 @@ private:
 // QGVector stream functions
 //
 
-QStream &operator>>( QStream &, QGVector & );
-QStream &operator<<( QStream &, const QGVector & );
+QDataStream &operator>>( QDataStream &, QGVector & );
+QDataStream &operator<<( QDataStream &, const QGVector & );
 
 
 #endif // QGVECTOR_H

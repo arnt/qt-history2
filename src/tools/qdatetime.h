@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#1 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#2 $
 **
 ** Definition of date and time classes
 **
@@ -16,16 +16,14 @@
 #include "qstring.h"
 
 
-class QStream;
-
 // --------------------------------------------------------------------------
 // QDate class
 //
 
 class QDate
 {
-friend QStream &operator<<( QStream &, const QDate & );
-friend QStream &operator>>( QStream &, QDate & );
+friend QDataStream &operator<<( QDataStream &, const QDate & );
+friend QDataStream &operator>>( QDataStream &, QDate & );
 public:
     QDate()  { jd=0; }				// set null date
     QDate( uint y, uint m, uint d );		// set date
@@ -78,8 +76,8 @@ protected:
 class QTime
 {
 friend class QDateTime;
-friend QStream &operator<<( QStream &, const QTime & );
-friend QStream &operator>>( QStream &, QTime & );
+friend QDataStream &operator<<( QDataStream &, const QTime & );
+friend QDataStream &operator>>( QDataStream &, QTime & );
 public:
     QTime() { ds=0; }				// set null time
     QTime( uint h, uint m, uint s=0 );		// set time
@@ -119,8 +117,8 @@ protected:
 
 class QDateTime
 {
-friend QStream &operator<<( QStream &, const QDateTime & );
-friend QStream &operator>>( QStream &, QDateTime & );
+friend QDataStream &operator<<( QDataStream &, const QDateTime & );
+friend QDataStream &operator>>( QDataStream &, QDateTime & );
 public:
     QDateTime() {}				// set null date and null time
     QDateTime( const QDate & );			// set date and null time
@@ -157,15 +155,15 @@ private:
 
 
 // --------------------------------------------------------------------------
-// QStream functions for reading and writing date and time classes
+// QDataStream functions for reading and writing date and time classes
 //
 
-QStream &operator<<( QStream &, const QDate & );
-QStream &operator>>( QStream &, QDate & );
-QStream &operator<<( QStream &, const QTime & );
-QStream &operator>>( QStream &, QTime & );
-QStream &operator<<( QStream &, const QDateTime & );
-QStream &operator>>( QStream &, QDateTime & );
+QDataStream &operator<<( QDataStream &, const QDate & );
+QDataStream &operator>>( QDataStream &, QDate & );
+QDataStream &operator<<( QDataStream &, const QTime & );
+QDataStream &operator>>( QDataStream &, QTime & );
+QDataStream &operator<<( QDataStream &, const QDateTime & );
+QDataStream &operator>>( QDataStream &, QDateTime & );
 
 
 #endif // QDATETM_H

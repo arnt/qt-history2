@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#2 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -13,10 +13,10 @@
 #define NO_WARNINGS
 #include "qglist.h"
 #include "qgvector.h"
-#include "qstream.h"
+#include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#2 $";
 #endif
 
 
@@ -29,14 +29,14 @@ int QGList::compareItems( GCI d1, GCI d2 )
     return d1 != d2;				// compare pointers
 }
 
-QStream &QGList::read( QStream &s, GCI &d )	// read item from stream
-{
+QDataStream &QGList::read( QDataStream &s, GCI &d )
+{						// read item from stream
     d = 0;
     return s;
 }
 
-QStream &QGList::write( QStream &s, GCI ) const // write item to stream
-{
+QDataStream &QGList::write( QDataStream &s, GCI ) const
+{						// write item to stream
     return s;
 }
 
@@ -456,17 +456,17 @@ int QGList::apply( GCF f, void *x ) const	// apply function to all items
 // QGList stream functions
 //
 
-QStream &operator>>( QStream &s, QGList &list ) // read list
-{
+QDataStream &operator>>( QDataStream &s, QGList &list )
+{						// read list
     return list.read( s );
 }
 
-QStream &operator<<( QStream &s, const QGList &list )
+QDataStream &operator<<( QDataStream &s, const QGList &list )
 {						// write list
     return list.write( s );
 }
 
-QStream& QGList::read( QStream &s )		// read list from stream
+QDataStream &QGList::read( QDataStream &s )	// read list from stream
 {
     uint num;
     s >> num;					// read number of items
@@ -494,8 +494,8 @@ QStream& QGList::read( QStream &s )		// read list from stream
     return s;
 }
 
-QStream& QGList::write( QStream &s ) const	// write list to stream
-{
+QDataStream &QGList::write( QDataStream &s ) const
+{						// write list to stream
     s << count();				// write number of items
     Qdnode *n = firstNode;
     while ( n ) {				// write all items

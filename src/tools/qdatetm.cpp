@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#2 $
 **
 ** Implementation of date and time classes
 **
@@ -11,12 +11,12 @@
 *****************************************************************************/
 
 #include "qdatetm.h"
-#include "qstream.h"
+#include "qdstream.h"
 #include <stdio.h>
 #include <time.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#2 $";
 #endif
 
 
@@ -420,35 +420,35 @@ QDateTime QDateTime::currentDateTime()		// get current datetime
 
 
 // --------------------------------------------------------------------------
-// QStream functions for reading and writing date and time classes
+// QDataStream functions for reading and writing date and time classes
 //
 
-QStream &operator<<( QStream &s, const QDate &d )
+QDataStream &operator<<( QDataStream &s, const QDate &d )
 {
     return s << d.jd;
 }
 
-QStream &operator>>( QStream &s, QDate &d )
+QDataStream &operator>>( QDataStream &s, QDate &d )
 {
     return s >> d.jd;
 }
 
-QStream &operator<<( QStream &s, const QTime &t )
+QDataStream &operator<<( QDataStream &s, const QTime &t )
 {
     return s << t.ds;
 }
 
-QStream &operator>>( QStream &s, QTime &t )
+QDataStream &operator>>( QDataStream &s, QTime &t )
 {
     return s >> t.ds;
 }
 
-QStream &operator<<( QStream &s, const QDateTime &dt )
+QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
 {
     return s << dt.d << dt.t;
 }
 
-QStream &operator>>( QStream &s, QDateTime &dt )
+QDataStream &operator>>( QDataStream &s, QDateTime &dt )
 {
     s >> dt.d;
     return s >> dt.t;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#4 $
 **
 ** Implementation of QBitArray class
 **
@@ -16,7 +16,7 @@
 #include "qbitarry.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#4 $";
 #endif
 
 
@@ -215,28 +215,28 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 // QBitArray stream functions
 //
 
-#include "qstream.h"
+#include "qdstream.h"
 
-QStream &operator<<( QStream &s, const QBitArray &a )
+QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {
     UINT32 len = a.size();
     s << len;					// write size of array
     if ( len )					// write data
-	s.writeBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
+	s.writeRawBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
     return s;
 }
 
-QStream &operator>>( QStream &s, QBitArray &a )
+QDataStream &operator>>( QDataStream &s, QBitArray &a )
 {
     UINT32 len;
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
 #if defined(CHECK_NULL)
-	warning( "QStream: Not enough memory to read QBitArray" );
+	warning( "QDataStream: Not enough memory to read QBitArray" );
 #endif
 	len = 0;
     }
     if ( len > 0 )				// read data
-	s.readBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
+	s.readRawBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
     return s;
 }

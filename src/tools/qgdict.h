@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#1 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#2 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 
 #include "qcollect.h"
 
-class QStream;
+class QDataStream;
 
 
 class Qbucket;					// internal classes
@@ -34,8 +34,8 @@ public:
     uint    count() const { return numItems; }	// return number of items
     GCI	    look( const char *key, GCI, bool);	// find/insert item
 
-    QStream &read( QStream & );			// read dict from stream
-    QStream &write( QStream & ) const;		// write dict to stream
+    QDataStream &read( QDataStream & );		// read dict from stream
+    QDataStream &write( QDataStream & ) const;	// write dict to stream
 
 protected:
     QGDict( uint sz, bool cs, bool ck, bool th );
@@ -46,8 +46,8 @@ protected:
 
     void    statistics() const;			// output statistics
 
-    virtual QStream &read( QStream &, GCI & );	// read item from stream
-    virtual QStream &write( QStream &, GCI ) const; // write item to stream
+    virtual QDataStream &read( QDataStream &, GCI & );
+    virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
     Qbucket **vec;				// hash array
@@ -65,8 +65,8 @@ private:
 // QGDict stream functions
 //
 
-QStream& operator>>( QStream &, QGDict & );
-QStream& operator<<( QStream &, const QGDict & );
+QDataStream &operator>>( QDataStream &, QGDict & );
+QDataStream &operator<<( QDataStream &, const QGDict & );
 
 
 // --------------------------------------------------------------------------

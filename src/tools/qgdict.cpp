@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#3 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -13,11 +13,11 @@
 #include "qgdict.h"
 #include "qlist.h"
 #include "qstring.h"
-#include "qstream.h"
+#include "qdstream.h"
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#3 $";
 #endif
 
 
@@ -51,14 +51,14 @@ int QGDict::hashKey( const char *key )		// make hash value
 }
 
 
-QStream& QGDict::read( QStream &s, GCI &d )	// read item from stream
-{
+QDataStream& QGDict::read( QDataStream &s, GCI &d )
+{						// read item from stream
     d = 0;
     return s;
 }
 
-QStream& QGDict::write( QStream &s, GCI ) const // write item to stream
-{
+QDataStream& QGDict::write( QDataStream &s, GCI ) const
+{						// write item to stream
     return s;
 }
 
@@ -272,17 +272,17 @@ void QGDict::statistics() const			// show statistics
 // QGDict stream functions
 //
 
-QStream &operator>>( QStream &s, QGDict &dict ) // read dict
-{
+QDataStream &operator>>( QDataStream &s, QGDict &dict )
+{						// read dict
     return dict.read( s );
 }
 
-QStream &operator<<( QStream &s, const QGDict &dict )
+QDataStream &operator<<( QDataStream &s, const QGDict &dict )
 {						// write dict
     return dict.write( s );
 }
 
-QStream& QGDict::read( QStream &s )		// read dict from stream
+QDataStream &QGDict::read( QDataStream &s )	// read dict from stream
 {
     uint num;
     s >> num;					// read number of items
@@ -303,8 +303,8 @@ QStream& QGDict::read( QStream &s )		// read dict from stream
     return s;
 }
 
-QStream& QGDict::write( QStream &s ) const	// write dict to stream
-{
+QDataStream& QGDict::write( QDataStream &s ) const
+{						// write dict to stream
     s << count();				// write number of items
     uint i = 0;
     while ( i<size ) {

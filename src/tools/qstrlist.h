@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#1 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#2 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -17,7 +17,7 @@
 
 #include "qstring.h"
 #include "qlist.h"
-#include "qstream.h"
+#include "qdstream.h"
 
 
 declare(QListM,char);
@@ -34,9 +34,9 @@ private:
     void  deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
     int	  compareItems( GCI s1, GCI s2 )
 				{ return strcmp((char*)s1,(char*)s2); }
-    QStream& read( QStream &s, GCI &d )
+    QDataStream &read( QDataStream &s, GCI &d )
 				{ s >> (char *&)d; return s; }
-    QStream& write( QStream &s, GCI d ) const
+    QDataStream &write( QDataStream &s, GCI d ) const
 				{ return s << (char *)d; }
     bool  dc;
 };

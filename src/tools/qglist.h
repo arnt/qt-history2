@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#1 $
+** $Id: //depot/qt/main/src/tools/qglist.h#2 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -15,7 +15,7 @@
 
 #include "qcollect.h"
 
-class QStream;
+class QDataStream;
 
 
 // --------------------------------------------------------------------------
@@ -47,8 +47,8 @@ friend class QGVector;				// needed by QGVector::asList
 public:
     uint  count() const	 { return numNodes; }	// return number of nodes
 
-    QStream &read( QStream & );			// read list from stream
-    QStream &write( QStream & ) const;		// write list to stream
+    QDataStream &read( QDataStream & );		// read list from stream
+    QDataStream &write( QDataStream & ) const;	// write list to stream
 
 protected:
     QGList();					// create empty list
@@ -92,8 +92,9 @@ protected:
     int	  apply( GCF, void * ) const;		// apply function to all items
 
     virtual int compareItems( GCI, GCI );
-    virtual QStream &read( QStream &, GCI & );	// read item from stream
-    virtual QStream &write( QStream &, GCI ) const; // write item to stream
+
+    virtual QDataStream &read( QDataStream &, GCI & );
+    virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
     Qdnode *firstNode;				// first node
@@ -141,8 +142,8 @@ inline GCI QGList::cfirst() const
 // QGList stream functions
 //
 
-QStream &operator>>( QStream &, QGList & );
-QStream &operator<<( QStream &, const QGList & );
+QDataStream &operator>>( QDataStream &, QGList & );
+QDataStream &operator<<( QDataStream &, const QGList & );
 
 
 // --------------------------------------------------------------------------

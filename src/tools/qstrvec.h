@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#1 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#2 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -17,7 +17,7 @@
 
 #include "qstring.h"
 #include "qvector.h"
-#include "qstream.h"
+#include "qdstream.h"
 
 
 declare(QVectorM,char);
@@ -34,9 +34,9 @@ private:
     void deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
     int	 compareItems( GCI s1, GCI s2 )
 				{ return strcmp((char*)s1,(char*)s2); }
-    QStream& read( QStream &s, GCI &d )
+    QDataStream &read( QDataStream &s, GCI &d )
 				{ s >> (char *&)d; return s; }
-    QStream& write( QStream &s, GCI d ) const
+    QDataStream &write( QDataStream &s, GCI d ) const
 				{ return s << (char *)d; }
     bool dc;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#3 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#4 $
 **
 ** Definition of QBitArray class
 **
@@ -110,8 +110,8 @@ inline QBitVal &QBitVal::operator=( int v )
 // QBitArray stream functions
 //
 
-QStream &operator<<( QStream &, const QBitArray & );
-QStream &operator>>( QStream &, QBitArray & );
+QDataStream &operator<<( QDataStream &, const QBitArray & );
+QDataStream &operator>>( QDataStream &, QBitArray & );
 
 
 #endif // QBITARRY_H

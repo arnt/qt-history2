@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#3 $
 **
 ** Implementation of QGVector class
 **
@@ -27,11 +27,11 @@
 #include "qgvector.h"
 #include "qglist.h"
 #include "qstring.h"
-#include "qstream.h"
+#include "qdstream.h"
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#3 $";
 #endif
 
 
@@ -64,14 +64,14 @@ int QGVector::compareItems( GCI d1, GCI d2 )
     return d1 != d2;				// compare pointers
 }
 
-QStream &QGVector::read( QStream &s, GCI &d )	// read item from stream
-{
+QDataStream &QGVector::read( QDataStream &s, GCI &d )
+{						// read item from stream
     d = 0;
     return s;
 }
 
-QStream &QGVector::write( QStream &s, GCI ) const // write item to stream
-{
+QDataStream &QGVector::write( QDataStream &s, GCI ) const
+{						// write item to stream
     return s;
 }
 
@@ -454,17 +454,17 @@ int QGVector::apply( GCF f, void *x ) const	// apply function to all items
 // QGVector stream functions
 //
 
-QStream &operator>>( QStream &s, QGVector &vec )// read vector
-{
+QDataStream &operator>>( QDataStream &s, QGVector &vec )
+{						// read vector
     return vec.read( s );
 }
 
-QStream &operator<<( QStream &s, const QGVector &vec )
+QDataStream &operator<<( QDataStream &s, const QGVector &vec )
 {						// write vector
     return vec.write( s );
 }
 
-QStream &QGVector::read( QStream &s )		// read vector from stream
+QDataStream &QGVector::read( QDataStream &s )	// read vector from stream
 {
     uint num;
     s >> num;					// read number of items
@@ -481,8 +481,8 @@ QStream &QGVector::read( QStream &s )		// read vector from stream
     return s;
 }
 
-QStream &QGVector::write( QStream &s ) const	// write vector to stream
-{
+QDataStream &QGVector::write( QDataStream &s ) const
+{						// write vector to stream
     uint num = count();
     s << num;					// number of items to write
     num = size();
