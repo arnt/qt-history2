@@ -51,6 +51,7 @@ ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
 
     connect( listActions, SIGNAL( insertAction() ), this, SLOT( newAction() ) );
     connect( listActions, SIGNAL( insertActionGroup() ), this, SLOT( newActionGroup() ) );
+    connect( listActions, SIGNAL( insertDropDownActionGroup() ), this, SLOT( newDropDownActionGroup() ) );
     connect( listActions, SIGNAL( deleteAction() ), this, SLOT( deleteAction() ) );
 }
 

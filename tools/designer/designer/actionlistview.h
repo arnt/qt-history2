@@ -66,6 +66,7 @@ private slots:
 signals:
     void insertAction();
     void insertActionGroup();
+    void insertDropDownActionGroup();
     void deleteAction();
 
 };
