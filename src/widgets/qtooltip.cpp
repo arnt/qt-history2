@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#10 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#10 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -579,6 +579,8 @@ void QToolTip::tip( const QRect & rect, const char * text,
 
 void QToolTip::clear()
 {
+    if ( tipManager )
+	tipManager->remove( parentWidget() );
 }
 
 
