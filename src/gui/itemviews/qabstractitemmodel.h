@@ -106,6 +106,9 @@ public:
         BackgroundColorRole = 7,
         TextColorRole = 8,
         CheckStateRole = 9,
+        // Accessibility
+        AccessibleText = 10,
+        AccessibleDescription = 11,
         // Reserved
         UserRole = 32
     };
