@@ -644,11 +644,8 @@ void QAbstractButton::click()
     d->down = true;
     emit pressed();
     d->down = false;
-    if (d->checkable) {
-        d->blockRefresh = true;
+    if (d->checkable)
         nextCheckState();
-        d->blockRefresh = false;
-    }
     emit released();
     emit clicked();
 }
@@ -769,7 +766,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
     case Key_Space:
         if (!e->isAutoRepeat()) {
             setDown(true);
-            e->ignore();
+            emit pressed();
         }
         break;
     case Key_Up:
@@ -791,6 +788,7 @@ void QAbstractButton::keyPressEvent(QKeyEvent *e)
     case Key_Escape:
         if (d->down) {
             setDown(false);
+            emit released();
             break;
         }
         // fall through

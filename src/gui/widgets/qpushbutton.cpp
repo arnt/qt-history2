@@ -26,9 +26,29 @@
 #include "qdesktopwidget.h"
 #include "qtoolbar.h"
 #include "qstyle.h"
+#include "qevent.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+
+#include "private/qabstractbutton_p.h"
+
+
+class QPushButtonPrivate : public QAbstractButtonPrivate
+{
+    Q_DECLARE_PUBLIC(QPushButton);
+public:
+    QPushButtonPrivate():autoDefault(true), defaultButton(false), flat(false){}
+    void init();
+    void popupPressed();
+    QPointer<QMenu> menu;
+    uint autoDefault : 1;
+    uint defaultButton : 1;
+    uint flat : 1;
+};
+
+#define d d_func()
+#define q q_func()
 
 /*!
     \class QPushButton qpushbutton.h
@@ -102,7 +122,7 @@
     but tool buttons. Qt provides a special class (QToolButton) for
     these buttons.
 
-    If you need toggle behavior (see setToggleButton()) or a button
+    If you need toggle behavior (see setCheckable()) or a button
     that auto-repeats the activation signal when being pushed down
     like the arrows in a scroll bar (see setAutoRepeat()), a command
     button is probably not what you want. When in doubt, use a tool
@@ -110,7 +130,7 @@
 
     A variation of a command button is a menu button. These provide
     not just one command, but several, since when they are clicked
-    they pop up a menu of options. Use the method setPopup() to
+    they pop up a menu of options. Use the method setMenu() to
     associate a popup menu with a push button.
 
     Other classes of buttons are option buttons (see QRadioButton) and
@@ -118,14 +138,9 @@
 
     <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
-    In Qt, the QButton abstract base class provides most of the modes
+    In Qt, the QAbstractButton base class provides most of the modes
     and other API, and QPushButton provides GUI logic. See QButton for
     more information about the API.
-
-    \important text, setText, text, pixmap, setPixmap, accel, setAccel,
-    isToggleButton, setDown, isDown, isOn, state, autoRepeat,
-    isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
-    clicked, toggled, state stateChanged
 
     \sa QToolButton, QRadioButton QCheckBox
     \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
@@ -190,108 +205,45 @@
     This property's default is false.
 */
 
-/*!
-    \property QPushButton::iconSet
-    \brief the icon set on the push button
 
-    This property will return 0 if the push button has no iconset.
-*/
 
 /*!
-    \property QPushButton::on
-    \brief whether the push button is toggled
-
-    This property should only be set for toggle push buttons. The
-    default value is false.
-
-    \sa isOn(), toggle(), toggled(), isToggleButton()
+    Constructs a push button with no text and a \a parent.
 */
 
-/*!
-    \property QPushButton::toggleButton
-    \brief whether the button is a toggle button
-
-    Toggle buttons have an on/off state similar to \link QCheckBox
-    check boxes. \endlink A push button is initially not a toggle
-    button.
-
-    \sa setOn(), toggle(), isToggleButton() toggled()
-*/
-
-/*! \property QPushButton::menuButton
-    \brief whether the push button has a menu button on it
-    \obsolete
-
-  If this property is set to true, then a down arrow is drawn on the push
-  button to indicate that a menu will pop up if the user clicks on the
-  arrow.
-*/
-
-class QPushButtonPrivate
+QPushButton::QPushButton(QWidget *parent)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
 {
-public:
-    QPushButtonPrivate()
-        :iconset(0)
-    {}
-    ~QPushButtonPrivate()
-    {
-#ifndef QT_NO_ICONSET
-        delete iconset;
-#endif
-    }
-#ifndef QT_NO_POPUPMENU
-    QPointer<QPopupMenu> popup;
-#endif
-    QIconSet* iconset;
-};
-
-
-/*!
-    Constructs a push button with no text.
-
-    The \a parent and \a name arguments are sent on to the QWidget
-    constructor.
-*/
-
-QPushButton::QPushButton(QWidget *parent, const char *name)
-        : QButton(parent, name)
-{
-    init();
+    d->init();
 }
 
 /*!
-    Constructs a push button called \a name with the parent \a parent
-    and the text \a text.
+    Constructs a push button with the parent \a parent and the text \a
+    text.
 */
 
-QPushButton::QPushButton(const QString &text, QWidget *parent,
-                          const char *name)
-        : QButton(parent, name)
+QPushButton::QPushButton(const QString &text, QWidget *parent)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
 {
-    init();
+    d->init();
     setText(text);
 }
 
 
 /*!
-    Constructs a push button with an \a icon and a \a text.
+    Constructs a push button with an \a icon and a \a text,  and a \a parent.
 
     Note that you can also pass a QPixmap object as an icon (thanks to
     the implicit type conversion provided by C++).
 
-    The \a parent and \a name arguments are sent to the QWidget
-    constructor.
 */
-#ifndef QT_NO_ICONSET
-QPushButton::QPushButton(const QIconSet& icon, const QString &text,
-                          QWidget *parent, const char *name)
-        : QButton(parent, name)
+QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *parent)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
 {
-    init();
+    d->init();
     setText(text);
     setIconSet(icon);
 }
-#endif
 
 
 /*!
@@ -299,72 +251,39 @@ QPushButton::QPushButton(const QIconSet& icon, const QString &text,
 */
 QPushButton::~QPushButton()
 {
-    delete d;
 }
 
-void QPushButton::init()
+void QPushButtonPrivate::init()
 {
-    d = 0;
-    defButton = false;
-    lastEnabled = false;
-    hasMenuArrow = false;
-    flt = false;
 #ifndef QT_NO_DIALOG
-    autoDefButton = qt_cast<QDialog*>(topLevelWidget()) != 0;
-#else
-    autoDefButton = false;
+    d->autoDefault = (qt_cast<QDialog*>(q->topLevelWidget()) != 0);
 #endif
-    setAttribute(WA_BackgroundInherited);
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
+    q->setAttribute(QWidget::WA_BackgroundInherited);
+    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
-
-/*
-  Makes the push button a toggle button if \a enable is true or a normal
-  push button if \a enable is false.
-
-  Toggle buttons have an on/off state similar to \link QCheckBox check
-  boxes. \endlink A push button is initially not a toggle button.
-
-  \sa setOn(), toggle(), isToggleButton() toggled()
-*/
-
-void QPushButton::setToggleButton(bool enable)
-{
-    QButton::setToggleButton(enable);
-}
-
-
-/*
-  Switches a toggle button on if \a enable is true or off if \a enable is
-  false.
-  \sa isOn(), toggle(), toggled(), isToggleButton()
-*/
-
-void QPushButton::setOn(bool enable)
-{
-    if (!isToggleButton())
-        return;
-    QButton::setOn(enable);
-}
 
 void QPushButton::setAutoDefault(bool enable)
 {
-    if ((bool)autoDefButton == enable)
+    if (d->autoDefault == enable)
         return;
-    autoDefButton = enable;
+    d->autoDefault = enable;
     update();
     updateGeometry();
 }
 
+bool QPushButton::autoDefault() const
+{
+    return d->autoDefault;
+}
 
 void QPushButton::setDefault(bool enable)
 {
-    if ((bool)defButton == enable)
-        return;                                        // no change
-    defButton = enable;
+    if (d->defaultButton == enable)
+        return;
+    d->d->defaultButton = enable;
 #ifndef QT_NO_DIALOG
-    if (defButton && qt_cast<QDialog*>(topLevelWidget()))
+    if (d->defaultButton && qt_cast<QDialog*>(topLevelWidget()))
         ((QDialog*)topLevelWidget())->setMainDefault(this);
 #endif
     update();
@@ -373,6 +292,10 @@ void QPushButton::setDefault(bool enable)
 #endif
 }
 
+bool QPushButton::isDefault() const
+{
+    return d->defaultButton;
+}
 
 /*!
     \reimp
@@ -416,68 +339,12 @@ QSize QPushButton::sizeHint() const
             expandedTo(QApplication::globalStrut()));
 }
 
-
 /*!
-    \reimp
+    Draws the push button bevel. Called from paintEvent().
+
+    \sa drawLabel()
 */
-void QPushButton::move(int x, int y)
-{
-    QWidget::move(x, y);
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::move(const QPoint &p)
-{
-    move(p.x(), p.y());
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::resize(int w, int h)
-{
-    QWidget::resize(w, h);
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::resize(const QSize &s)
-{
-    resize(s.width(), s.height());
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::setGeometry(int x, int y, int w, int h)
-{
-    QWidget::setGeometry(x, y, w, h);
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::setGeometry(const QRect &r)
-{
-    QWidget::setGeometry(r);
-}
-
-/*!
-    \reimp
- */
-void QPushButton::resizeEvent(QResizeEvent *)
-{
-    if (autoMask())
-        updateMask();
-}
-
-/*!
-    \reimp
-*/
-void QPushButton::drawButton(QPainter *paint)
+void QPushButton::drawBevel(QPainter *paint)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
@@ -490,20 +357,19 @@ void QPushButton::drawButton(QPainter *paint)
         flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
         flags |= QStyle::Style_Raised;
-    if (isDefault())
+    if (d->defaultButton)
         flags |= QStyle::Style_ButtonDefault;
 
     style().drawControl(QStyle::CE_PushButton, paint, this, rect(), palette(), flags);
-    drawButtonLabel(paint);
-
-    lastEnabled = isEnabled();
 }
 
 
 /*!
-    \reimp
+    Draws the push button label. Called from paintEvent().
+
+    \sa drawBevel()
 */
-void QPushButton::drawButtonLabel(QPainter *paint)
+void QPushButton::drawLabel(QPainter *paint)
 {
 
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -517,7 +383,7 @@ void QPushButton::drawButtonLabel(QPainter *paint)
         flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
         flags |= QStyle::Style_Raised;
-    if (isDefault())
+    if (d->defaultButton)
         flags |= QStyle::Style_ButtonDefault;
 
     style().drawControl(QStyle::CE_PushButtonLabel, paint, this,
@@ -542,19 +408,55 @@ void QPushButton::updateMask()
     setMask(bm);
 }
 
+
+/*
+  Paints the button, by first calling drawBevel() and then
+  drawLabel(). If you reimplement paintEvent() in order to draw a
+  different label only, you can call drawBevel() from your code.
+
+  \code
+    QPainter p(this);
+    drawBevel(&p);
+    // ... your label drawing code
+  \endcode
+*/
+void QPushButton::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    drawBevel(&p);
+    drawLabel(&p);
+}
+
+
+/*! \reimp */
+void QPushButton::keyPressEvent(QKeyEvent *e)
+{
+    switch (e->key()) {
+    case Key_Enter:
+    case Key_Return:
+        if (d->autoDefault || d->defaultButton) {
+            click();
+            break;
+        }
+        // fall through
+    default:
+        QAbstractButton::keyPressEvent(e);
+    }
+}
+
 /*!
     \reimp
 */
 void QPushButton::focusInEvent(QFocusEvent *e)
 {
-    if (autoDefButton && !defButton) {
-        defButton = true;
+    if (d->autoDefault && !d->defaultButton) {
+        d->defaultButton = true;
 #ifndef QT_NO_DIALOG
-        if (defButton && qt_cast<QDialog*>(topLevelWidget()))
+        if (qt_cast<QDialog*>(topLevelWidget()))
             ((QDialog*)topLevelWidget())->setDefault(this);
 #endif
     }
-    QButton::focusInEvent(e);
+    QAbstractButton::focusInEvent(e);
 }
 
 /*!
@@ -562,77 +464,49 @@ void QPushButton::focusInEvent(QFocusEvent *e)
 */
 void QPushButton::focusOutEvent(QFocusEvent *e)
 {
+    if (d->autoDefault && d->defaultButton) {
 #ifndef QT_NO_DIALOG
-    if (defButton && autoDefButton) {
         if (qt_cast<QDialog*>(topLevelWidget()))
             ((QDialog*)topLevelWidget())->setDefault(0);
+        else
+#endif
+            d->defaultButton = false;
     }
-#endif
 
-    QButton::focusOutEvent(e);
-#ifndef QT_NO_POPUPMENU
-    if (popup() && popup()->isVisible())        // restore pressed status
+    QAbstractButton::focusOutEvent(e);
+    if (d->menu && d->menu->isVisible())        // restore pressed status
         setDown(true);
-#endif
 }
 
 
-#ifndef QT_NO_POPUPMENU
 /*!
-    Associates the popup menu \a popup with this push button and thus
+    Associates the popup menu \a menu with this push button and thus
     turns it into a menu button.
 
-    Ownership of the popup menu is \e not transferred to the push
-    button.
+    Ownership of the menu is \e not transferred to the push button.
 
-    \sa popup()
+    \sa menu()
 */
-void QPushButton::setPopup(QPopupMenu* popup)
+void QPushButton::setMenu(QMenu* menu)
 {
-    if (!d)
-        d = new QPushButtonPrivate;
-    if (popup && !d->popup)
+    if (menu && !d->menu) {
+        disconnect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
         connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
-
-    d->popup = popup;
-    setIsMenuButton(popup != 0);
-}
-#endif //QT_NO_POPUPMENU
-#ifndef QT_NO_ICONSET
-void QPushButton::setIconSet(const QIconSet& icon)
-{
-    if (!d)
-        d = new QPushButtonPrivate;
-    if (!icon.isNull()) {
-        if (d->iconset)
-            *d->iconset = icon;
-        else
-            d->iconset = new QIconSet(icon);
-    } else if (d->iconset) {
-        delete d->iconset;
-        d->iconset = 0;
     }
-
+    d->menu = menu;
     update();
     updateGeometry();
 }
 
-
-QIconSet* QPushButton::iconSet() const
-{
-    return d ? d->iconset : 0;
-}
-#endif // QT_NO_ICONSET
-#ifndef QT_NO_POPUPMENU
 /*!
     Returns the button's associated popup menu or 0 if no popup menu
     has been set.
 
-    \sa setPopup()
+    \sa setMenu()
 */
-QPopupMenu* QPushButton::popup() const
+QMenu* QPushButton::menu() const
 {
-    return d ? (QPopupMenu*)d->popup : 0;
+    return d->menu;
 }
 
 /*!
@@ -640,70 +514,95 @@ QPopupMenu* QPushButton::popup() const
     menu, this function does nothing. This function does not return
     until the popup menu has been closed by the user.
 */
-void QPushButton::openPopup()
+void QPushButton::popupMenu()
 {
-    if (!d || !d->popup)
+    if (!d || !d->menu)
         return;
     setDown(true);
-    popupPressed();
+    d->popupPressed();
 }
 
-void QPushButton::popupPressed()
+void QPushButtonPrivate::popupPressed()
 {
-    QPopupMenu* popup = d ? (QPopupMenu*) d->popup : 0;
-    if (isDown() && popup) {
-        bool horizontal = true;
-        bool topLeft = true;                        // ### always true
+    if (!down || !menu)
+        return;
+
+    bool horizontal = true;
+    bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR
-        QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
-        if (tb && tb->orientation() == Vertical)
-            horizontal = false;
+    QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
+    if (tb && tb->orientation() == Vertical)
+        horizontal = false;
 #endif
-        if (horizontal) {
-            if (topLeft) {
-                if (mapToGlobal(QPoint(0, rect().bottom())).y() + popup->sizeHint().height() <= qApp->desktop()->height())
-                    popup->exec(mapToGlobal(rect().bottomLeft()));
-                else
-                    popup->exec(mapToGlobal(rect().topLeft() - QPoint(0, popup->sizeHint().height())));
-            } else {
-                QSize sz(popup->sizeHint());
-                QPoint p = mapToGlobal(rect().topLeft());
-                p.ry() -= sz.height();
-                popup->exec(p);
-            }
+    QRect rect = q->rect();
+    if (horizontal) {
+        if (topLeft) {
+            if (q->mapToGlobal(QPoint(0, rect.bottom())).y() + menu->sizeHint().height() <= qApp->desktop()->height())
+                menu->exec(q->mapToGlobal(rect.bottomLeft()));
+            else
+                menu->exec(q->mapToGlobal(rect.topLeft() - QPoint(0, menu->sizeHint().height())));
+        } else {
+            QSize sz(menu->sizeHint());
+            QPoint p = q->mapToGlobal(rect.topLeft());
+            p.ry() -= sz.height();
+            menu->exec(p);
         }
-        else {
-            if (topLeft) {
-                if (mapToGlobal(QPoint(rect().right(), 0)).x() + popup->sizeHint().width() <= qApp->desktop()->width())
-                    popup->exec(mapToGlobal(rect().topRight()));
-                else
-                    popup->exec(mapToGlobal(rect().topLeft() - QPoint(popup->sizeHint().width(), 0)));
-            } else {
-                QSize sz(popup->sizeHint());
-                QPoint p = mapToGlobal(rect().topLeft());
-                p.rx() -= sz.width();
-                popup->exec(p);
-            }
-        }
-        setDown(false);
     }
+    else {
+        if (topLeft) {
+            if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + menu->sizeHint().width() <= qApp->desktop()->width())
+                menu->exec(q->mapToGlobal(rect.topRight()));
+            else
+                menu->exec(q->mapToGlobal(rect.topLeft() - QPoint(menu->sizeHint().width(), 0)));
+        } else {
+            QSize sz(menu->sizeHint());
+            QPoint p = q->mapToGlobal(rect.topLeft());
+            p.rx() -= sz.width();
+            menu->exec(p);
+        }
+    }
+    q->setDown(false);
 }
-#endif
 
-void QPushButton::setFlat(bool f)
+void QPushButton::setFlat(bool flat)
 {
-    flt = f;
+    if (d->flat == flat)
+        return;
+    d->flat = flat;
     update();
+    updateGeometry();
 }
 
 bool QPushButton::isFlat() const
 {
-    return flt;
+    return d->flat;
 }
 
-/*!
-    \obsolete
-    \fn virtual void QPushButton::setIsMenuButton(bool enable)
-*/
+#ifdef QT_COMPAT
+QPushButton::QPushButton(QWidget *parent, const char *name)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
+{
+    setObjectName(name);
+    d->init();
+}
 
+QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
+{
+    setObjectName(name);
+    d->init();
+    setText(text);
+}
+
+QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char *name)
+    : QAbstractButton(*new QPushButtonPrivate, parent)
+{
+    setObjectName(name);
+    d->init();
+    setText(text);
+    setIconSet(icon);
+}
+#endif
+
+#include "moc_qpushbutton.cpp"
 #endif

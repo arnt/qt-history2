@@ -16,101 +16,66 @@
 #define QPUSHBUTTON_H
 
 #ifndef QT_H
-#include "qbutton.h"
-#include "qiconset.h"
+#include "qabstractbutton.h"
 #endif // QT_H
 
 #ifndef QT_NO_PUSHBUTTON
 class QPushButtonPrivate;
-class QPopupMenu;
+class QMenu;
 
-class Q_GUI_EXPORT QPushButton : public QButton
+class Q_GUI_EXPORT QPushButton : public QAbstractButton
 {
     Q_OBJECT
-
+    Q_DECLARE_PRIVATE(QPushButton);
     Q_PROPERTY(bool autoDefault READ autoDefault WRITE setAutoDefault)
     Q_PROPERTY(bool default READ isDefault WRITE setDefault)
-    Q_PROPERTY(bool menuButton READ isMenuButton DESIGNABLE false)
-    Q_PROPERTY(QIconSet iconSet READ iconSet WRITE setIconSet)
-    Q_OVERRIDE(bool toggleButton WRITE setToggleButton)
-    Q_OVERRIDE(bool on WRITE setOn)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QPushButton(QWidget *parent=0, const char* name=0);
-    QPushButton(const QString &text, QWidget *parent=0, const char* name=0);
-#ifndef QT_NO_ICONSET
-    QPushButton(const QIconSet& icon, const QString &text, QWidget *parent=0, const char* name=0);
-#endif
+    QPushButton(QWidget *parent=0);
+    QPushButton(const QString &text, QWidget *parent=0);
+    QPushButton(const QIconSet& icon, const QString &text, QWidget *parent=0);
     ~QPushButton();
 
-    QSize        sizeHint() const;
+    QSize sizeHint() const;
 
-    void        move(int x, int y);
-    void        move(const QPoint &p);
-    void        resize(int w, int h);
-    void        resize(const QSize &);
-    void        setGeometry(int x, int y, int w, int h);
+    bool autoDefault() const;
+    void setAutoDefault(bool);
+    bool isDefault() const;
+    void setDefault(bool);
 
-    void        setGeometry(const QRect &);
+    void setMenu(QMenu* menu);
+    QMenu* menu() const;
 
-    void setToggleButton(bool);
-
-    bool        autoDefault()        const        { return autoDefButton; }
-    virtual void setAutoDefault(bool autoDef);
-    bool        isDefault()        const        { return defButton; }
-    virtual void setDefault(bool def);
-
-    virtual void setIsMenuButton(bool enable) {  // obsolete functions
-        if ((bool)hasMenuArrow == enable)
-            return;
-        hasMenuArrow = enable ? 1 : 0;
-        update();
-        updateGeometry();
-    }
-    bool        isMenuButton() const { return hasMenuArrow; }
-
-#ifndef QT_NO_POPUPMENU
-    void setPopup(QPopupMenu* popup);
-    QPopupMenu* popup() const;
-#endif
-#ifndef QT_NO_ICONSET
-    void setIconSet(const QIconSet&);
-    QIconSet* iconSet() const;
-#endif
     void setFlat(bool);
     bool isFlat() const;
 
 public slots:
-    virtual void setOn(bool);
-    void openPopup();
+    void popupMenu();
 
 protected:
-    void        drawButton(QPainter *);
-    void        drawButtonLabel(QPainter *);
-    void        focusInEvent(QFocusEvent *);
-    void        focusOutEvent(QFocusEvent *);
-    void        resizeEvent(QResizeEvent *);
-    void        updateMask();
-private slots:
-#ifndef QT_NO_POPUPMENU
-    void popupPressed();
-#endif
+    void drawBevel(QPainter *);
+    void drawLabel(QPainter *);
+    void paintEvent(QPaintEvent *);
+    void keyPressEvent(QKeyEvent *);
+    void focusInEvent(QFocusEvent *);
+    void focusOutEvent(QFocusEvent *);
+    void updateMask();
 private:
-    void        init();
-
-    uint        autoDefButton        : 1;
-    uint        defButton        : 1;
-    uint        flt                : 1;
-    uint        reserved                : 1; // UNUSED
-    uint        lastEnabled        : 1; // UNUSED
-    uint        hasMenuArrow        : 1;
-
-    QPushButtonPrivate* d;
-
+    Q_PRIVATE_SLOT(void popupPressed())
     friend class QDialog;
 
+public:
+#ifdef QT_COMPAT
+    QPushButton(QWidget *parent, const char* name);
+    QPushButton(const QString &text, QWidget *parent, const char* name);
+    QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char* name);
+    inline QT_COMPAT void openPopup()  { popupMenu(); }
+    inline QT_COMPAT bool isMenuButton() const { return popup() !=  0; }
+    inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
+    inline QT_COMPAT QMenu* popup() const { return menu(); }
+#endif
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPushButton(const QPushButton &);
