@@ -347,32 +347,18 @@ return 0;
 class QWindowsMimeText : public QWindowsMime
 {
 public:
-    QWindowsMimeText();
     bool canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const;
     QVariant convertToMime(const QString &mime, LPDATAOBJECT pDataObj, QVariant::Type preferredType) const;
     QString mimeForFormat(const FORMATETC &formatetc) const;
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM *pmedium) const;
     QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const;
-private:
-    QMap<int, QString> mimeMapping;
 };
-
-
-QWindowsMimeText::QWindowsMimeText()
-{
-    QT_WA({
-        mimeMapping.insert(CF_UNICODETEXT, "text/plain;charset=ISO-10646-UCS-2");
-    } , {
-        mimeMapping.insert(CF_UNICODETEXT, "text/plain;charset=utf16");
-    });
-    mimeMapping.insert(CF_TEXT, "text/plain");
-}
 
 bool QWindowsMimeText::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
     int cf = getCf(formatetc);
-    return (cf == CF_TEXT || cf == CF_UNICODETEXT) && !mimeData->text().isEmpty();
+    return (cf == CF_UNICODETEXT || cf == CF_TEXT) && mimeData->hasText();
 }
 
 /*
@@ -447,73 +433,32 @@ bool QWindowsMimeText::convertFromMime(const FORMATETC &formatetc, const QMimeDa
             r[byteLength+1] = 0;
             return setData(r, pmedium);
         }
-        /* ///#### what is this ???
-        if (data.size() < 2)
-        return QByteArray();
-        
-          // Windows uses un-marked little-endian nul-terminated Unicode
-          if ((uchar)data[0] == uchar(0xff) && (uchar)data[1] == uchar(0xfe))
-          {
-          // Right way - but skip header and add nul
-          QByteArray r(data.size(), '\0');
-          memcpy(r.data(),data.constData()+2,data.size()-2);
-          r[(int)data.size()-2] = 0;
-          r[(int)data.size()-1] = 0;
-          return r;
-          } else {
-          // Wrong way - reorder.
-          int s = data.size();
-          if (s&1) {
-          // Odd byte - drop last
-          s--;
-          }
-          const char* i = data.data();
-          if ((uchar)i[0] == uchar(0xfe) && (uchar)i[1] == uchar(0xff)) {
-          i += 2;
-          s -= 2;
-          }
-          QByteArray r(s+2, '\0');
-          char* o = r.data();
-          while (s) {
-          o[0] = i[1];
-          o[1] = i[0];
-          i += 2;
-          o += 2;
-          s -= 2;
-          }
-          r[(int)r.size()-2] = 0;
-          r[(int)r.size()-1] = 0;
-          return r;
-          }
-        */
     }
     return false;
 }
 
 bool QWindowsMimeText::canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const
 {
-    //### be smarter
-    QList<int> possibles = mimeMapping.keys(mimeType);
-    for (int i=0; i<possibles.size(); i++) {
-        if (canGetData(possibles.at(i), pDataObj))
-            return true;
-    }
-    return false;
+    return mimeType.startsWith("text/plain") 
+           && (canGetData(CF_UNICODETEXT, pDataObj)
+           || canGetData(CF_TEXT, pDataObj));
 }
 
 QString QWindowsMimeText::mimeForFormat(const FORMATETC &formatetc) const
 {
-    return mimeMapping.value(getCf(formatetc));
+    int cf = getCf(formatetc);
+    if (cf == CF_UNICODETEXT || cf == CF_TEXT)
+        return "text/plain";
+    return QString();
 }
 
 
 QVector<FORMATETC> QWindowsMimeText::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatics;
-    QList<int> cfs = mimeMapping.keys(mimeType);
-    for (int i=0; i<cfs.size(); i++) {
-        if (canConvertFromMime(setCf(cfs.at(i)), mimeData))
-            formatics += setCf(cfs.at(i));
+    if (mimeType.startsWith("text/plain") && mimeData->hasText()) {
+        formatics += setCf(CF_UNICODETEXT);
+        formatics += setCf(CF_TEXT);
     }
     return formatics;
 }
@@ -523,40 +468,31 @@ QVariant QWindowsMimeText::convertToMime(const QString &mime, LPDATAOBJECT pData
     QVariant ret;
     
     if (canConvertToMime(mime, pDataObj)) {
-        if (mime == "text/plain") {
-            QByteArray data = getData(CF_TEXT, pDataObj);
-            const char* d = data.data();
-            const int s = qstrlen(d);
-            QByteArray r(data.size()+1, '\0');
-            char* o = r.data();
-            int j=0;
-            for (int i=0; i<s; i++) {
-                char c = d[i];
-                if (c!='\r')
-                    o[j++]=c;
+        QString str;
+        QByteArray data = getData(CF_UNICODETEXT, pDataObj);
+        if (!data.isEmpty()) {
+            str = QString::fromUtf16((const unsigned short *)data.data());
+        } else {
+            data = getData(CF_TEXT, pDataObj);
+            if (!data.isEmpty()) {
+                const char* d = data.data();
+                const int s = qstrlen(d);
+                QByteArray r(data.size()+1, '\0');
+                char* o = r.data();
+                int j=0;
+                for (int i=0; i<s; i++) {
+                    char c = d[i];
+                    if (c!='\r')
+                        o[j++]=c;
+                }
+                o[j]=0;
+                str = QString::fromLocal8Bit(r);
             }
-            o[j]=0;
-            if (preferredType == QVariant::String)
-                ret = QString::fromLocal8Bit(r);
-            else
-                ret = r;
-        } else if (mime == "text/plain;charset=utf16" || mime == "text/plain;charset=ISO-10646-UCS-2") {
-            QByteArray data = getData(CF_UNICODETEXT, pDataObj);
-            // Windows uses un-marked little-endian nul-terminated Unicode
-            int ms = data.size();
-            int s;
-            // Find NUL
-            for (s=0; s<ms-1 && (data[s+0] || data[s+1]); s+=2);
-            
-            QByteArray r(s+2, '\0');
-            r[0]=uchar(0xff); // BOM
-            r[1]=uchar(0xfe);
-            memcpy(r.data()+2,data.constData(),s);
-            if (preferredType == QVariant::String)
-                ret = QString::fromUtf16((const unsigned short *)r.data());
-            else
-                ret = r;
         }
+        if (preferredType == QVariant::String)
+            ret = str;
+        else
+            ret = str.toUtf8(); 
     }
     
     return ret;
