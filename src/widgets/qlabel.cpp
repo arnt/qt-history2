@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#45 $
 **
 ** Implementation of QLabel widget class
 **
@@ -13,7 +13,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#45 $");
 
 
 /*!
@@ -120,10 +120,15 @@ void QLabel::setText( const char *text )
 	delete lpixmap;
 	lpixmap = 0;
     }
-    if ( autoresize )
-	adjustSize();
-    else
+    if ( autoresize ) {
+	QSize s = sizeHint();
+	if ( s.isValid() && s != size() )
+	    resize( s );
+	else
+	    repaint();
+    } else {
 	updateLabel();
+    } 
 }
 
 /*!
