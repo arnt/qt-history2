@@ -190,9 +190,8 @@ bool QStandardItemModel::setData(const QModelIndex &index, int role, const QVari
 }
 
 /*!
-Inserts \a count new rows into the model before the given \a row.
-The items in each new column will be children of the item represented by
-the \a parent model index.
+Inserts \a count rows into the model, creating new items as children of
+the given \a parent. The new rows are inserted before the \a row specified.
 
 If \a row is 0, the rows are prepended to any existing rows in the parent.
 If \a row is columnCount(), the rows are appended to any existing rows in
@@ -214,9 +213,9 @@ bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int coun
 }
 
 /*!
-    Inserts \a count new columns into the model before the given \a column.
-    The items in each new column will be children of the item represented by
-    the \a parent model index.
+    Inserts \a count columns into the model, creating new items as children of
+    the given \a parent. The new columns are inserted before the \a column
+    specified.
 
     If \a column is 0, the columns are prepended to any existing columns in the
     parent.
