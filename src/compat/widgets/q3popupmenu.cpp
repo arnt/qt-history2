@@ -1611,19 +1611,13 @@ bool Q3PopupMenu::event(QEvent *e)
             return true;
         }
     break; }
-#if 0
-    // ### FIXME - harald
-    case QEvent::AccessibleQueryHelp: {
-        QAccessibleInterface *iface = 0;
-        Q3MenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
-        if (mi && mi->whatsThis().size()
-            && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
-            iface->setText(QAccessible::Help, 0, mi->whatsThis());
-            iface->release();
+    case QEvent::Accessibility: {
+        QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
+        if (ev->child() > 0 && ev->textType() == QAccessibleEvent::Help) {
+            ev->setValue(whatsThis(idAt(ev->child())));
             return true;
         }
-        break; }
-#endif
+    break; }
     default:
         break;
     }
