@@ -533,6 +533,9 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         d->dirty = true;
         return; // we'll do it later
     }
+    int tabx, taby, stacky, exth, overlap;
+    exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
+    overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
     bool verticalTabs = d->pos == East || d->pos == West;
     QSize t(0, d->stack->frameWidth());
     if (d->tabs->isVisibleTo(this))
@@ -541,7 +544,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         t.transpose();
     int lcw = 0;
     if (d->leftCornerWidget && d->leftCornerWidget->isVisible()) {
-        QSize sz = d->leftCornerWidget->sizeHint();
+        QSize sz = d->leftCornerWidget->sizeHint().boundedTo(t - QSize(exth,exth));
         d->leftCornerWidget->resize(sz);
         if (verticalTabs)
             sz.transpose();
@@ -551,7 +554,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
      }
     int rcw = 0;
     if (d->rightCornerWidget && d->rightCornerWidget->isVisible()) {
-        QSize sz = d->rightCornerWidget->sizeHint();
+        QSize sz = d->rightCornerWidget->sizeHint().boundedTo(t - QSize(exth,exth));
         d->rightCornerWidget->resize(sz);
         if (verticalTabs)
             sz.transpose();
@@ -566,10 +569,6 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         t.setWidth(tw);
     int lw = d->stack->lineWidth();
     bool reverse = !verticalTabs && isRightToLeft();
-    int tabx, taby, stacky, exth, overlap;
-
-    exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
-    overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
 
     if (reverse)
         tabx = qMin(availLength - t.width(), availLength - t.width() - lw + 2) - lcw;
@@ -618,7 +617,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
         if (tabPosition() == QTabWidget::South)
             ++y;
-        int x = (reverse ? availLength - lcw + y : y);
+        int x = (reverse ? availLength - lcw: 0);
         if (verticalTabs)
             d->leftCornerWidget->move(y + taby, x);
         else
@@ -630,7 +629,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         int y = ((t.height() - BORDER) / 2) - (cwThickness / 2);
         if (tabPosition() == QTabWidget::South)
             ++y;
-        int x = (reverse ? y : availLength - rcw + y);
+        int x = (reverse ? 0 : availLength - rcw);
         if (verticalTabs)
             d->rightCornerWidget->move(y + taby, x);
         else

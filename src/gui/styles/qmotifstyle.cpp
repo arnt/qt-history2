@@ -1189,7 +1189,10 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                 fr.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
-            drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
+            QStyleOptionToolButton label = *toolbutton;
+            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            label.rect = button.adjusted(fw, fw, -fw, -fw);
+            drawControl(CE_ToolButtonLabel, &label, p, widget);
         }
         break;
     case CC_SpinBox:

@@ -786,8 +786,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SR_ProgressBarContents  Area for the progress indicator
     \value SR_ProgressBarLabel  Area for the text label
 
-    \value SR_ToolButtonContents  Area for the tool button's label
-
     \value SR_DialogButtonAccept  Area for a dialog's accept button
     \value SR_DialogButtonReject  Area for a dialog's reject button
     \value SR_DialogButtonApply  Area for a dialog's apply button

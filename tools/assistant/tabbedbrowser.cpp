@@ -186,10 +186,6 @@ void TabbedBrowser::init()
         opt.shape = tabBar->shape();
     }
 
-    int m = (tabBar ? style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt)
-              + style()->pixelMetric(QStyle::PM_TabBarBaseHeight, &opt) : 0);
-    int s = ui.tab->height() - m;
-
     // workaround for sgi style
     QPalette pal = palette();
     pal.setColor(QPalette::Active, QPalette::Button, pal.color(QPalette::Active, QPalette::Background));
@@ -201,7 +197,6 @@ void TabbedBrowser::init()
     newTabButton->setCursor(Qt::arrowCursor);
     newTabButton->setAutoRaise(true);
     newTabButton->setIcon(QPixmap(QString::fromUtf8(":/trolltech/assistant/images/addtab.png")));
-    newTabButton->setFixedSize(s, s);
     QObject::connect(newTabButton, SIGNAL(clicked()), this, SLOT(newTab()));
     newTabButton->setToolTip(tr("Add page"));
 
@@ -211,7 +206,6 @@ void TabbedBrowser::init()
     closeTabButton->setCursor(Qt::arrowCursor);
     closeTabButton->setAutoRaise(true);
     closeTabButton->setIcon(QIcon(QLatin1String(":/trolltech/assistant/images/closetab.png")));
-    closeTabButton->setFixedSize(s, s);
     QObject::connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
     closeTabButton->setToolTip(tr("Close page"));
     closeTabButton->setEnabled(false);

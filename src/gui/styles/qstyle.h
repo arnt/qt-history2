@@ -233,7 +233,6 @@ public:
         SR_ProgressBarContents,
         SR_ProgressBarLabel,
 
-        SR_ToolButtonContents,
 
         SR_DialogButtonAccept,
         SR_DialogButtonReject,

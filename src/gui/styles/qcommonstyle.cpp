@@ -1644,10 +1644,6 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             }
         }
         break;
-    case SR_ToolButtonContents:
-        if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt))
-            r = subControlRect(CC_ToolButton, tb, SC_ToolButton, widget);
-        break;
     case SR_ComboBoxFocusRect:
         r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
         break;
@@ -1971,7 +1967,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 fr.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
-            drawControl(CE_ToolButtonLabel, toolbutton, p, widget);
+            QStyleOptionToolButton label = *toolbutton;
+            int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
+            label.rect = button.adjusted(fw, fw, -fw, -fw);
+            drawControl(CE_ToolButtonLabel, &label, p, widget);
         }
         break;
     case CC_TitleBar:
