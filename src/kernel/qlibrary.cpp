@@ -96,19 +96,28 @@ static void* qt_resolve_symbol( HINSTANCE handle, const char* f )
 
 static void* qt_load_library( const QString& lib )
 {
-    shl_load( lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    shl_t *handle = shl_load( lib.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+    if ( !handle )
+	qDebug( "Failed to load library %1!", lib.latin1() );
+#endif
+    return (void*)handle;
 }
 
 static bool qt_free_library( void* handle )
 {
-    return shl_unload( handle );
+    return shl_unload( (shl_t*)handle );
 }
 
-static void* qt_resolve_symbol( const QString& symbol, void* handle )
+static void* qt_resolve_symbol( void* handle, const char* symbol )
 {
     void* address;
-    if ( !shl_findsym( symbol, handle, TYPE_UNDFINED, address ) )
+    if ( shl_findsym( (shl_t*)handle, symbol, TYPE_UNDEFINED, address ) < 0 ) {
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+	qDebug( "Couldn't resolve symbol \"%1\"", symbol );
+#endif
 	return 0;
+    }
     return address;
 }
 
