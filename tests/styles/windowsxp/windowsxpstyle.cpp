@@ -246,16 +246,15 @@ void QWindowsXPStyle::unPolish( QApplication *app )
 
 void QWindowsXPStyle::polish( QApplication *app )
 {
-    d->init();
     QWindowsStyle::polish( app );
+    d->init();
 }
 
 void QWindowsXPStyle::polish( QWidget *widget )
 {
-    if ( !use_xp ) {
-	QWindowsStyle::polish( widget );
+    QWindowsStyle::polish( widget );
+    if ( !use_xp )
 	return;
-    }
 
     if ( widget->inherits( "QButton" ) ) {
 	widget->installEventFilter( this );
@@ -290,7 +289,6 @@ void QWindowsXPStyle::polish( QWidget *widget )
     }
 
     updateRegion( widget );
-    QWindowsStyle::polish( widget );
 }
 
 void QWindowsXPStyle::unPolish( QWidget *widget )
@@ -303,6 +301,10 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 	}
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
+    } else if ( widget->inherits( "QWidgetStack" ) &&
+		widget->parentWidget() &&
+		widget->parentWidget()->inherits( "QTabWidget" ) ) {
+	widget->setPaletteBackgroundPixmap( QPixmap() );
     }
     QWindowsStyle::unPolish( widget );
 }
@@ -639,16 +641,6 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	}
 	break;
 
-    case CE_CheckBox:
-	//    case CE_CheckBoxLabel:
-	drawPrimitive( PE_Indicator, p, subRect( SR_CheckBoxIndicator, widget ), cg, flags, opt );
-	return;
-
-    case CE_RadioButton:
-	//    case CE_RadioButtonLabel:
-	drawPrimitive( PE_ExclusiveIndicator, p, subRect( SR_RadioButtonIndicator, widget ), cg, flags, opt );
-	return;
-
     case CE_TabBarTab:
 	//    case CE_TabBarLabel:
 	name = L"TAB";
@@ -756,19 +748,20 @@ void QWindowsXPStyle::drawControlMask( ControlElement element,
 	break;
     }
 
-    XPThemeData theme( widget, p, name, partId, stateId, r );
-    if ( !theme.isValid() ) {
+    QRect rect = r;
+    rect.addCoords( 0, 0, 1, 1 );
+    XPThemeData theme( widget, p, name, partId, stateId, rect );
+    HRGN rgn = theme.mask();
+
+    if ( !rgn ) {
 	QWindowsStyle::drawControlMask( element, p, widget, r, option );
 	return;
     }
 
-    HRGN rgn = theme.mask();
-    if ( rgn ) {
-	p->save();
-	p->setBrush( color1 );
-	PaintRgn( p->handle(), rgn );
-	p->restore();
-    }
+    p->save();
+    p->setBrush( color1 );
+    PaintRgn( p->handle(), rgn );
+    p->restore();
 }
 
 static int qPositionFromValue( const QRangeControl * rc, int logical_val,
