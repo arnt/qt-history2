@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#7 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#8 $
 **
 ** Definition of QObject class
 **
@@ -71,14 +71,15 @@ protected:
     uint	blockSig   : 1;			// blocking signals
 
 private:
-    bool	bind( const char *, const QObject *, const char * );
+    bool	 bind( const char *, const QObject *, const char * );
+    QMetaObject *queryMetaObject();
     static QMetaObject *metaObj;		// meta object for class
-    QString	  objname;			// object name
-    QObject      *parentObj;			// parent object
-    QObjectList  *childObjects;			// list of children objects
-    QConnections *connections;			// connections (signals out)
-    QObjectList  *senderObjects;		// list of sender objects
-    QObject	 *sigSender;			// sender of last signal
+    QString	 objname;			// object name
+    QObject     *parentObj;			// parent object
+    QObjectList *childObjects;			// list of children objects
+    QSignalDict *connections;			// connections (signals out)
+    QObjectList *senderObjects;			// list of sender objects
+    QObject	*sigSender;			// sender of last signal
 };
 
 
