@@ -64,8 +64,6 @@ static Time Dnd_selection_time;
 static Atom * src_targets ;
 static ushort num_src_targets ;
 
-extern bool qt_motifdnd_active;
-
 // Motif definitions
 #define DndVersion 1
 #define DndRevision 0
@@ -628,9 +626,9 @@ static int _DndIndexToTargets(Display * display,
 }
 
 
-const char *qt_motifdnd_format(int n)
+const char *QX11Data::motifdndFormat(int n)
 {
-    if (! qt_motifdnd_active)
+    if (!motifdnd_active)
         return 0; // should not happen
 
     if (n == 0)
@@ -660,7 +658,7 @@ const char *qt_motifdnd_format(int n)
 }
 
 
-QByteArray qt_motifdnd_obtain_data(const char *mimeType)
+QByteArray QX11Data::motifdndObtainData(const char *mimeType)
 {
     QByteArray result;
 
@@ -672,7 +670,7 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
     int n=0;
     const char* f;
     do {
-        f = qt_motifdnd_format(n);
+        f = motifdndFormat(n);
         if (!f)
             return result;
         n++;
@@ -691,7 +689,7 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
         // X11->xdndAtomToString(conversion_type));
     }
 
-    if (XGetSelectionOwner(qt_xdisplay(),
+    if (XGetSelectionOwner(X11->display,
                              Dnd_selection) == XNone) {
         return result; // should never happen?
     }
@@ -702,10 +700,10 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
     }
 
     // convert selection to the appropriate type
-    XConvertSelection (qt_xdisplay(), Dnd_selection, conversion_type,
+    XConvertSelection (X11->display, Dnd_selection, conversion_type,
                        Dnd_selection, tw->winId(), Dnd_selection_time);
 
-    XFlush(qt_xdisplay());
+    XFlush(X11->display);
 
     XEvent xevent;
     bool got=X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
@@ -717,7 +715,7 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
     }
 
     //   we have to convert selection in order to indicate success to the initiator
-    XConvertSelection (qt_xdisplay(), Dnd_selection, ATOM(XmTRANSFER_SUCCESS),
+    XConvertSelection (X11->display, Dnd_selection, ATOM(XmTRANSFER_SUCCESS),
                        Dnd_selection, tw->winId(), Dnd_selection_time);
 
     // wait again for SelectionNotify event
@@ -731,10 +729,9 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
 }
 
 
-void qt_motifdnd_enable(QWidget *widget, bool)
+void QX11Data::motifdndEnable(QWidget *widget, bool)
 {
-    DndWriteReceiverProperty(X11->display, widget->winId(),
-                              DND_DRAG_DYNAMIC);
+    DndWriteReceiverProperty(display, widget->winId(), DND_DRAG_DYNAMIC);
 }
 
 
@@ -850,7 +847,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
         /* get the size of our drop site for later use */
 
         cur_window = dnd_data.src_window ;
-        qt_motifdnd_active = true;
+        motifdnd_active = true;
 
         /* no answer needed, just read source property */
         DndReadSourceProperty (event.xclient.display,
@@ -870,7 +867,7 @@ void QX11Data::motifdndHandle(QWidget * /* w */ , const XEvent * xe, bool /* pas
     case DND_DROP_START:
         if (!in_drop_site) {
             // we have to convert selection in order to indicate failure to the initiator
-            XConvertSelection (qt_xdisplay(), dnd_data.property, ATOM(XmTRANSFER_FAILURE),
+            XConvertSelection (X11->display, dnd_data.property, ATOM(XmTRANSFER_FAILURE),
                                dnd_data.property, cur_window, dnd_data.time);
 
             if (drop_widget) {

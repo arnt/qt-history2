@@ -1172,7 +1172,7 @@ static void qt_get_net_virtual_roots()
 
 static void qt_net_update_user_time(QWidget *tlw)
 {
-    XChangeProperty(QX11Info::display(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
+    XChangeProperty(X11->display, tlw->winId(), ATOM(_NET_WM_USER_TIME),
                     XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
 }
 
@@ -1241,6 +1241,8 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->userTime = CurrentTime;
     X11->ignore_badwindow = false;
     X11->seen_badwindow = false;
+
+    X11->motifdnd_active = false;
 
     X11->default_im = "imsw-multi";
 
@@ -2853,7 +2855,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 break;
             if (ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal){
                 enter = event_widget;
-                XPutBackEvent(widget->x11Info().display(), &ev);
+                XPutBackEvent(X11->display, &ev);
                 break;
             }
             if (ev.xcrossing.mode != NotifyNormal ||
@@ -2914,7 +2916,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         return x11ClientMessage(widget,event,False);
 
     case ReparentNotify:                        // window manager reparents
-        while (XCheckTypedWindowEvent(widget->x11Info().display(),
+        while (XCheckTypedWindowEvent(X11->display,
                                       widget->winId(),
                                       ReparentNotify,
                                       event))
@@ -3143,7 +3145,7 @@ void QApplication::openPopup(QWidget *popup)
         QApplicationPrivate::popupWidgets = new QWidgetList;
     }
     QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
-    Display *dpy = popup->x11Info().display();
+    Display *dpy = X11->display;
     if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
         int r = XGrabKeyboard(dpy, popup->winId(), false,
                               GrabModeAsync, GrabModeAsync, X11->time);
@@ -3181,7 +3183,7 @@ void QApplication::closePopup(QWidget *popup)
         delete QApplicationPrivate::popupWidgets;
         QApplicationPrivate::popupWidgets = 0;
         if (!qt_nograb() && popupGrabOk) {        // grabbing not disabled
-            Display *dpy = popup->x11Info().display();
+            Display *dpy = X11->display;
             if (mouseButtonState != 0
                 || popup->geometry().contains(QPoint(mouseGlobalXPos, mouseGlobalYPos))
                 || popup->testAttribute(Qt::WA_NoMouseReplay)) {
@@ -3218,7 +3220,7 @@ void QApplication::closePopup(QWidget *popup)
 
         // regrab the keyboard and mouse in case 'popup' lost the grab
         if (QApplicationPrivate::popupWidgets->count() == 1 && !qt_nograb()){ // grab mouse/keyboard
-            Display *dpy = aw->x11Info().display();
+            Display *dpy = X11->display;
             int r = XGrabKeyboard(dpy, aw->winId(), false,
                                   GrabModeAsync, GrabModeAsync, X11->time);
             if ((popupGrabOk = (r == GrabSuccess))) {
@@ -3359,10 +3361,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                 // or not)
                 int delta = 1;
                 XEvent xevent;
-                while (XCheckTypedWindowEvent(x11Info().display(),winId(),
-                                              ButtonPress,&xevent)){
+                while (XCheckTypedWindowEvent(X11->display, winId(), ButtonPress, &xevent)){
                     if (xevent.xbutton.button != event->xbutton.button){
-                        XPutBackEvent(x11Info().display(), &xevent);
+                        XPutBackEvent(X11->display, &xevent);
                         break;
                     }
                     delta++;
@@ -3431,8 +3432,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
 #endif
             if (manualGrab) {                        // release manual grab
                 manualGrab = false;
-                XUngrabPointer(x11Info().display(), X11->time);
-                XFlush(x11Info().display());
+                XUngrabPointer(X11->display, X11->time);
+                XFlush(X11->display);
             }
 
             type = QEvent::MouseButtonRelease;
@@ -3475,7 +3476,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             break;                                // nothing for mouse move
         }
 
-        Display* dpy = x11Info().display(); // store display, send() may destroy us
+        Display* dpy = X11->display; // store display, send() may destroy us
         int oldOpenPopupCount = openPopupCount;
 
         // deliver event
@@ -4592,7 +4593,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     if (sm_blockUserInput) // block user interaction during session management
         return true;
 
-    Display *dpy = x11Info().display();
+    Display *dpy = X11->display;
 
     if (!isEnabled())
         return true;
@@ -4842,7 +4843,7 @@ bool translateBySips(QWidget* that, QRect& paintRect)
 void QWidgetPrivate::removePendingPaintEvents()
 {
     XEvent xevent;
-    while (XCheckTypedWindowEvent(q->x11Info().display(), q->winId(), Expose, &xevent) &&
+    while (XCheckTypedWindowEvent(X11->display, q->winId(), Expose, &xevent) &&
             ! qt_x11EventFilter(&xevent)  &&
             ! q->x11Event(&xevent)) // send event through filter
         ;
@@ -4866,7 +4867,7 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     d->invalidated_region = QRegion();
 
     // WARNING: this is O(number_of_events * number_of_matching_events)
-    while (XCheckIfEvent(x11Info().display(),&xevent,isPaintOrScrollDoneEvent,
+    while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
                          (XPointer)&info) &&
            !qt_x11EventFilter(&xevent)  &&
            !x11Event(&xevent)) // send event through filter
@@ -4942,7 +4943,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
         if (! d->extra || d->extra->compress_events) {
             // ConfigureNotify compression for faster opaque resizing
             XEvent otherEvent;
-            while (XCheckTypedWindowEvent(x11Info().display(), winId(), ConfigureNotify,
+            while (XCheckTypedWindowEvent(X11->display, winId(), ConfigureNotify,
                                             &otherEvent)) {
                 if (qt_x11EventFilter(&otherEvent))
                     continue;
@@ -4990,7 +4991,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             }
             // remove unnecessary paint events from the queue
             XEvent xevent;
-            while (XCheckTypedWindowEvent(x11Info().display(), winId(), Expose, &xevent) &&
+            while (XCheckTypedWindowEvent(X11->display, winId(), Expose, &xevent) &&
                     ! qt_x11EventFilter(&xevent)  &&
                     ! x11Event(&xevent)) // send event through filter
                 ;
@@ -4999,7 +5000,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
         }
     } else {
         XEvent xevent;
-        while (XCheckTypedWindowEvent(x11Info().display(),winId(), ConfigureNotify,&xevent) &&
+        while (XCheckTypedWindowEvent(X11->display,winId(), ConfigureNotify,&xevent) &&
                 !qt_x11EventFilter(&xevent)  &&
                 !x11Event(&xevent)) // send event through filter
             ;

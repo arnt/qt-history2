@@ -255,6 +255,7 @@ extern QX11Data *qt_x11Data;
 struct QX11Data
 {
     Window findClientWindow(Window, Atom, bool);
+
     // from qclipboard_x11.cpp
     bool clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout);
     bool clipboardReadProperty(Window win, Atom property, bool deleteProperty,
@@ -262,6 +263,7 @@ struct QX11Data
     QByteArray clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm);
 
     // from qdnd_x11.cpp
+    bool dndEnable(QWidget* w, bool on);
     static void xdndSetup();
     void xdndHandleEnter(QWidget *, const XEvent *, bool);
     void xdndHandlePosition(QWidget *, const XEvent *, bool);
@@ -276,6 +278,10 @@ struct QX11Data
 
     // from qmotifdnd_x11.cpp
     void motifdndHandle(QWidget *, const XEvent *, bool);
+    void motifdndEnable(QWidget *, bool);
+    QByteArray motifdndObtainData(const char *format);
+    const char *motifdndFormat(int n);
+    bool motifdnd_active;
 
     Display *display;
     char *displayName;

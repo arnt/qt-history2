@@ -97,19 +97,17 @@ void QDesktopWidgetPrivate::init()
 #ifndef QT_NO_XINERAMA
     XineramaScreenInfo *xinerama_screeninfo = 0;
     int unused;
-    use_xinerama = (XineramaQueryExtension(QX11Info::display(),
-                                           &unused, &unused) &&
-                    XineramaIsActive(QX11Info::display()));
+    use_xinerama = (XineramaQueryExtension(X11->display, &unused, &unused) && XineramaIsActive(X11->display));
 
     if (use_xinerama) {
         xinerama_screeninfo =
-            XineramaQueryScreens(QX11Info::display(), &screenCount);
+            XineramaQueryScreens(X11->display, &screenCount);
         defaultScreen = 0;
     } else
 #endif // QT_NO_XINERAMA
     {
-        defaultScreen = DefaultScreen(QX11Info::display());
-        screenCount = ScreenCount(QX11Info::display());
+        defaultScreen = DefaultScreen(X11->display);
+        screenCount = ScreenCount(X11->display);
     }
 
     delete [] rects;
@@ -132,8 +130,8 @@ void QDesktopWidgetPrivate::init()
             {
                 x = 0;
                 y = 0;
-                w = WidthOfScreen(ScreenOfDisplay(QX11Info::display(), i));
-                h = HeightOfScreen(ScreenOfDisplay(QX11Info::display(), i));
+                w = WidthOfScreen(ScreenOfDisplay(X11->display, i));
+                h = HeightOfScreen(ScreenOfDisplay(X11->display, i));
             }
 
         rects[i].setRect(x, y, w, h);
@@ -221,7 +219,7 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
         unsigned char *data = 0;
         unsigned long nitems, after;
 
-        e = XGetWindowProperty(QX11Info::display(),
+        e = XGetWindowProperty(X11->display,
                                 QX11Info::appRootWindow(screen),
                                 ATOM(_NET_WORKAREA), 0, 4, False, XA_CARDINAL,
                                 &ret, &format, &nitems, &after, &data);

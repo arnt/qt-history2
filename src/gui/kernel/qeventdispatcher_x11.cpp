@@ -33,10 +33,10 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // Two loops so that posted events accumulate
     do {
-        while (!d->interrupt && XEventsQueued(QX11Info::display(), QueuedAlready)) {
+        while (!d->interrupt && XEventsQueued(X11->display, QueuedAlready)) {
             // process events from the X server
             XEvent event;
-            XNextEvent(QX11Info::display(), &event);
+            XNextEvent(X11->display, &event);
 
             if (flags & QEventLoop::ExcludeUserInputEvents) {
                 switch (event.type) {
@@ -71,7 +71,7 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
         }
-    } while (!d->interrupt && XEventsQueued(QX11Info::display(), QueuedAfterFlush));
+    } while (!d->interrupt && XEventsQueued(X11->display, QueuedAfterFlush));
 
     if (d->interrupt) {
         d->interrupt = false;
@@ -93,18 +93,18 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 bool QEventDispatcherX11::hasPendingEvents()
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
-    return (qGlobalPostedEventsCount() || XPending(QX11Info::display()));
+    return (qGlobalPostedEventsCount() || XPending(X11->display));
 }
 
 void QEventDispatcherX11::flush()
 {
-    XFlush(QX11Info::display());
+    XFlush(X11->display);
 }
 
 void QEventDispatcherX11::startingUp()
 {
     Q_D(QEventDispatcherX11);
-    d->xfd = XConnectionNumber(QX11Info::display());
+    d->xfd = XConnectionNumber(X11->display);
 }
 
 void QEventDispatcherX11::closingDown()
