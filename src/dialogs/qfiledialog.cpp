@@ -3795,7 +3795,7 @@ void QFileDialog::cdUpClicked()
 
 void QFileDialog::newFolderClicked()
 {
-    QString dirname( tr( "New Folder 1" ) );
+    QString foldername( tr( "New Folder 1" ) );
     int i = 0;
     QStringList lst;
     QListViewItemIterator it( files );
@@ -3804,10 +3804,10 @@ void QFileDialog::newFolderClicked()
 	    lst.append( it.current()->text( 0 ) );
 
     if ( !lst.count() == 0 )
-	while ( lst.contains( dirname ) )
-	    dirname = tr( "New Folder %1" ).arg( ++i );
+	while ( lst.contains( foldername ) )
+	    foldername = tr( "New Folder %1" ).arg( ++i );
 
-    d->url.mkdir( dirname );
+    d->url.mkdir( foldername );
 }
 
 void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
