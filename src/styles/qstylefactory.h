@@ -5,6 +5,8 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_STYLE
+
 class QString;
 class QStyle;
 
@@ -14,5 +16,7 @@ public:
     static QStyle *create( const QString& );
     static QStringList styles();
 };
+
+#endif //QT_NO_STYLE
 
 #endif //QSTYLEFACTORY_H
