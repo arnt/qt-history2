@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#107 $
 **
 ** Definition of QIconView widget class
 **
@@ -1825,6 +1825,10 @@ int QIconView::index( const QIconViewItem *item ) const
 	return j;
     }
 }
+
+/*!
+  Returns the selected item. This only works in single selection mode.
+*/
 
 QIconViewItem *QIconView::selectedItem() const
 {
