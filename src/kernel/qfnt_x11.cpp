@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#13 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
 ** Author  : Eirik Eng
 ** Created : 940515
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#13 $";
 #endif
 
 
@@ -809,7 +809,8 @@ QFontMetrics::QFontMetrics( const QFont &font )
 
 QFontMetrics::~QFontMetrics()
 {
-    delete data;
+    if ( data->deref() )
+	delete data;
 }
 
 int QFontMetrics::ascent() const
