@@ -187,8 +187,7 @@ QWidget *QMainWindow::centerWidget() const
     Sets the given \a widget to be the main window's center widget.
 
     \warning This function should be called at most once for each main
-    window instance, and the widget passed must be a child of the main
-    window.
+    window instance
 
     \sa centerWidget()
 */
@@ -198,8 +197,6 @@ void QMainWindow::setCenterWidget(QWidget *widget)
 	       "QMainWindow::setCenterWidget()", "parameter cannot be zero");
     Q_ASSERT_X(!d->layout->centerWidget(),
 	       "QMainWindow::setCenterWidget()", "center widget already set");
-    Q_ASSERT_X(widget->parentWidget() == this,
-	       "QMainWindow::setCenterWidget()", "center widget parent must be the main window");
     d->layout->setCenterWidget(widget);
 }
 

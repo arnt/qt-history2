@@ -167,7 +167,7 @@ QWidget *QMainWindowLayout::centerWidget() const
 
 void QMainWindowLayout::setCenterWidget(QWidget *cw)
 {
-    Q_ASSERT(cw->parentWidget() == parentWidget());
+    addChildWidget(cw);
     Q_ASSERT(!layout_info[CENTER].item);
     layout_info[CENTER].item = new QWidgetItem(cw);
     layout_info[CENTER].size = QSize();
