@@ -43,8 +43,7 @@ private:
 class QItemEditorFactory
 {
 public:
-    inline QItemEditorFactory()
-    {}
+    inline QItemEditorFactory() {}
     virtual ~QItemEditorFactory();
 
     virtual QWidget *createEditor(QVariant::Type type, QWidget *parent) const;

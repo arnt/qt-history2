@@ -332,7 +332,8 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
     that it has the focus, using the given \a painter and style \a option.
 */
 
-void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
+void QItemDelegate::drawFocus(QPainter *painter,
+                              const QStyleOptionViewItem &option,
                               const QRect &rect) const
 {
     if (option.state & QStyle::Style_HasFocus) {
@@ -486,10 +487,10 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
                                           option.state & QStyle::Style_Open
                                           ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
-        static QPixmap checked(QApplication::style()->standardPixmap(QStyle::SP_ItemChecked,
-                                                                    &option));
-        static QPixmap unchecked(QApplication::style()->standardPixmap(QStyle::SP_ItemUnchecked,
-                                                                      &option));
+        static QPixmap checked(QApplication::style()->standardPixmap(
+                                   QStyle::SP_ItemChecked, &option));
+        static QPixmap unchecked(QApplication::style()->standardPixmap(
+                                     QStyle::SP_ItemUnchecked, &option));
         return variant.toBool() ? checked : unchecked; }
     case QVariant::Color: {
         static QPixmap pixmap(20, 20);
@@ -521,13 +522,13 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
                                      QPalette::Highlight);
         uint rgb = color.rgb();
         for (int i = 0; i < img.height(); ++i) {
-            uint *p = (uint *) img.scanLine(i);
+            uint *p = (uint *)(img.scanLine(i));
             uint *end = p + img.width();
             for (; p < end; ++p) {
                 *p = (0xff000000 & *p)
-                     | (0xff & (int)(qRed(*p) * 0.70 + qRed(rgb) * 0.30)) << 16
-                     | (0xff & (int)(qGreen(*p) * 0.70 + qGreen(rgb) * 0.30)) << 8
-                     | (0xff & (int)(qBlue(*p) * 0.70 + qBlue(rgb) * 0.30));
+                     | (0xff & static_cast<int>(qRed(*p) * 0.70 + qRed(rgb) * 0.30)) << 16
+                     | (0xff & static_cast<int>(qGreen(*p) * 0.70 + qGreen(rgb) * 0.30)) << 8
+                     | (0xff & static_cast<int>(qBlue(*p) * 0.70 + qBlue(rgb) * 0.30));
             }
         }
         pm = new QPixmap;

@@ -51,8 +51,7 @@ void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorB
 class QDefaultItemEditorFactory: public QItemEditorFactory
 {
 public:
-    inline QDefaultItemEditorFactory()
-    {}
+    inline QDefaultItemEditorFactory() {}
     QWidget *createEditor(QVariant::Type type, QWidget *parent) const;
     QByteArray valuePropertyName(QVariant::Type) const;
 };
@@ -94,15 +93,12 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
 
 QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) const
 {
-    static const QByteArray text("text"); // optimization
-    static const QByteArray value("value"); // optimization
-
     switch (type) {
     case QVariant::Bool:
         return "currentItem";
     case QVariant::UInt:
     case QVariant::Int:
-        return value;
+        return "value";
     case QVariant::Date:
         return "date";
     case QVariant::Time:
@@ -113,7 +109,7 @@ QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) con
     case QVariant::Double:
     default:
         // the default editor is a lineedit
-        return text;
+        return "text";
     }
 }
 
