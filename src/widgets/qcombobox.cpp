@@ -1,4 +1,3 @@
-//depot/qt/main/src/widgets/qcombobox.cpp#408 - integrate change 59933 (text)
 /**********************************************************************
 ** $Id$
 **
