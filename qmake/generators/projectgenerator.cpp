@@ -193,9 +193,10 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     WRITE_VAR("YACCSOURCES");
     WRITE_VAR("SOURCES");
 #undef WRITE_VAR
-    for(QStringList::Iterator it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
+    QStringList::Iterator it;
+    for(it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
 	t << (*it) << endl;
-    for(QStringList::Iterator it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
+    for(it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
 	t << (*it) << endl;
     return TRUE;
 }
