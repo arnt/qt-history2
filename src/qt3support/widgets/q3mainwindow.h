@@ -68,8 +68,7 @@ public:
     virtual void moveDockWindow(Q3DockWindow *, Qt::Dock, bool nl, int index, int extraOffset = -1);
     virtual void removeDockWindow(Q3DockWindow *);
 
-    void show();
-    void hide();
+    void setVisible(bool);
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 

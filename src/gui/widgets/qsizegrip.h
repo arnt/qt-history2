@@ -28,8 +28,7 @@ public:
 
     QSize sizeHint() const;
 
-    void show();
-    void hide();
+    void setVisible(bool);
 protected:
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);

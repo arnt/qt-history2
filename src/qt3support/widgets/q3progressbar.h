@@ -49,7 +49,7 @@ public:
     bool percentageVisible() const;
     void setPercentageVisible(bool);
 
-    void show();
+    void setVisible(bool visible);
 
 public slots:
     void reset();

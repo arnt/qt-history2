@@ -1279,32 +1279,24 @@ void Q3MainWindow::setUpLayout()
     }
 }
 
-/*! \internal */
-void Q3MainWindow::show()
+/*! \reimp */
+void Q3MainWindow::setVisible(bool visible)
 {
-    if (!d->tll)
-        setUpLayout();
+    if (visible) {
+        if (!d->tll)
+            setUpLayout();
 
-    // show all floating dock windows not explicitly hidden
-    if (!isVisible()) {
-        for (int i = 0; i < d->dockWindows.size(); ++i) {
-            Q3DockWindow *dw = d->dockWindows.at(i);
-            if (dw->isWindow() && !dw->isVisible() && !dw->testAttribute(Qt::WA_WState_Hidden)) {
-                reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden);
-                dw->show();
+        // show all floating dock windows not explicitly hidden
+        if (!isVisible()) {
+            for (int i = 0; i < d->dockWindows.size(); ++i) {
+                Q3DockWindow *dw = d->dockWindows.at(i);
+                if (dw->isWindow() && !dw->isVisible() && !dw->testAttribute(Qt::WA_WState_Hidden)) {
+                    reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden);
+                    dw->show();
+                }
             }
         }
-    }
-
-    // show us last so we get focus
-    QWidget::show();
-}
-
-
-/*! \internal */
-void Q3MainWindow::hide()
-{
-    if (isVisible()) {
+    } else if (isVisible()) {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *dw = d->dockWindows.at(i);
             if (dw->isWindow() && dw->isVisible()) {
@@ -1313,8 +1305,7 @@ void Q3MainWindow::hide()
             }
         }
     }
-
-    QWidget::hide();
+    QWidget::setVisible(visible);
 }
 
 

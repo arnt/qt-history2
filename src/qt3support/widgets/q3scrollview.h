@@ -49,12 +49,7 @@ public:
     int childX(QWidget* child);
     int childY(QWidget* child);
     bool childIsVisible(QWidget* child) { return child->isVisible(); } // obsolete functions
-    void showChild(QWidget* child, bool yes=true) {
-	if ( yes )
-	    child->show();
-	else
-	    child->hide();
-    }
+    void showChild(QWidget* child, bool yes=true) { child->setVisible(yes); }
 
     enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 
@@ -84,7 +79,7 @@ public:
 
     void	resize( int w, int h );
     void	resize( const QSize& );
-    void	show();
+    void	setVisible(bool visible);
 
     void	updateContents( int x, int y, int w, int h );
     void	updateContents( const QRect& r );

@@ -397,28 +397,17 @@ void Q3ToolBar::styleChange(QStyle &oldStyle)
     Q3DockWindow::styleChange(oldStyle);
 }
 
-/*!
-    \internal
-*/
-
-void Q3ToolBar::show()
-{
-    Q3DockWindow::show();
-    if (mw)
-        mw->triggerLayout(false);
-    checkForExtension(size());
-}
-
 
 /*!
-    \internal
+    \reimp
 */
-
-void Q3ToolBar::hide()
+void Q3ToolBar::setVisible(bool visible)
 {
-    Q3DockWindow::hide();
+    Q3DockWindow::setVisible(visible);
     if (mw)
         mw->triggerLayout(false);
+    if (visible)
+        checkForExtension(size());
 }
 
 /*!

@@ -140,7 +140,7 @@ protected:
     bool event(QEvent *e);
 
 private slots:
-    void toggleVisible() { if (!isVisible()) show(); else hide(); }
+    void toggleVisible() { setVisible(!isVisible()); }
 
 private:
     Q3DockWindow(Place p, QWidget* parent, const char* name, Qt::WFlags f, bool toolbar);

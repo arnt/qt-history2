@@ -1053,15 +1053,17 @@ void Q3ScrollView::updateScrollBars()
 
 
 /*!
-    \internal
+    \reimp
 */
-void Q3ScrollView::show()
+void Q3ScrollView::setVisible(bool visible)
 {
-    if (isVisible())
-        return;
-    QWidget::show();
-    updateScrollBars();
-    d->hideOrShowAll(this);
+    if (visible && !isVisible()) {
+        QWidget::setVisible(visible);
+        updateScrollBars();
+        d->hideOrShowAll(this);
+    } else {
+        QWidget::setVisible(visible);
+    }
 }
 
 /*!

@@ -319,12 +319,13 @@ void Q3ProgressBar::setPercentageVisible(bool on)
 }
 
 /*!
-    \internal
+    \reimp
 */
-void Q3ProgressBar::show()
+void Q3ProgressBar::setVisible(bool visible)
 {
-    setIndicator(progress_str, progress_val, total_steps);
-    QFrame::show();
+    if (visible)
+        setIndicator(progress_str, progress_val, total_steps);
+    QFrame::setVisible(visible);
 }
 
 void Q3ProgressBar::initFrame()

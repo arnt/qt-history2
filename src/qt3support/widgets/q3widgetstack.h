@@ -34,7 +34,7 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    void show();
+    void setVisible(bool visible);
 
     QWidget * widget(int) const;
     int id(QWidget *) const;

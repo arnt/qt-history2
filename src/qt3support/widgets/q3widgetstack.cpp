@@ -337,29 +337,31 @@ void Q3WidgetStack::setChildGeometries()
 
 
 /*!
-    \internal
+    \reimp
 */
-void Q3WidgetStack::show()
+void Q3WidgetStack::setVisible(bool visible)
 {
-    //  Reimplemented in order to set the children's geometries
-    //  appropriately and to pick the first widget as d->topWidget if no
-    //  topwidget was defined
-    QObjectList c = children();
-    if (!isVisible() && !c.isEmpty()) {
-        for (int i = 0; i < c.size(); ++i) {
-            QObject * o = c.at(i);
-            if (o->isWidgetType()) {
-                if (!topWidget && o != invisible)
-                    topWidget = static_cast<QWidget*>(o);
-                if (o == topWidget)
-                    static_cast<QWidget *>(o)->show();
-                else
-                    static_cast<QWidget *>(o)->hide();
+    if (visible) {
+        //  Reimplemented in order to set the children's geometries
+        //  appropriately and to pick the first widget as d->topWidget if no
+        //  topwidget was defined
+        QObjectList c = children();
+        if (!isVisible() && !c.isEmpty()) {
+            for (int i = 0; i < c.size(); ++i) {
+                QObject * o = c.at(i);
+                if (o->isWidgetType()) {
+                    if (!topWidget && o != invisible)
+                        topWidget = static_cast<QWidget*>(o);
+                    if (o == topWidget)
+                        static_cast<QWidget *>(o)->show();
+                    else
+                        static_cast<QWidget *>(o)->hide();
+                }
             }
+            setChildGeometries();
         }
-        setChildGeometries();
     }
-    Q3Frame::show();
+    Q3Frame::setVisible(visible);
 }
 
 

@@ -270,20 +270,12 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     }
 }
 
-/*! \internal */
-void QSizeGrip::show()
+/*! \reimp */
+void QSizeGrip::setVisible(bool visible)
 {
     Q_D(QSizeGrip);
-    d->hiddenByUser = false;
-    QWidget::show();
-}
-
-/*! \internal */
-void QSizeGrip::hide()
-{
-    Q_D(QSizeGrip);
-    d->hiddenByUser = true;
-    QWidget::hide();
+    d->hiddenByUser = !visible;
+    QWidget::setVisible(visible);
 }
 
 
@@ -292,15 +284,12 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
     Q_D(QSizeGrip);
     if (!d->hiddenByUser && e->type() == QEvent::WindowStateChange && o == d->tlw) {
-        if((d->tlw->windowState() &
-                  (Qt::WindowFullScreen
+        QWidget::setVisible((d->tlw->windowState() &
+                             (Qt::WindowFullScreen
 #ifndef Q_WS_MAC
-                   | Qt::WindowMaximized
+                              | Qt::WindowMaximized
 #endif
-                      ))==0)
-            QWidget::show();
-        else
-            QWidget::hide();
+                                 ))==0);
     }
     return false;
 }

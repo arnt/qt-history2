@@ -37,8 +37,7 @@ public:
 
     void addSeparator();
 
-    void show();
-    void hide();
+    void setVisible(bool visible);
 
     Q3MainWindow * mainWindow() const;
 
