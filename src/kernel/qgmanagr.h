@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.h#6 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.h#7 $
 **
 ** Definition of QGManager class (workhorse for QLayout classes)
 **
@@ -51,6 +51,8 @@ public:
     void  setMenuBar( QWidget *w ) { menuBar = w; }
 
     QWidget *mainWidget() { return main; }
+
+    void remove( QWidget *w );
 
 protected:
     bool  eventFilter( QObject *, QEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#42 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#43 $
 **
 ** Definition of event classes
 **
@@ -45,6 +45,9 @@
 #define Event_DragLeave		   61		// drag leaves or is cancelled
 #define	Event_Drop		   62		// actual drop
 #define	Event_DragResponse	   63		// drag accepted/rejected
+#define Event_ChildInserted	   70		// new child widget
+#define Event_ChildRemoved	   71		// deleted child widget
+#define Event_LayoutHint	   72		// child min/max size changed
 #define Event_User		 1000		// first user event id
 
 
@@ -248,6 +251,19 @@ protected:
     bool   accpt;
     const QString fmt;
     const QByteArray enc;
+};
+
+
+class QChildEvent : public QEvent
+{
+public:
+    QChildEvent( int type, QWidget *child )
+	: QEvent(type), c(child) {}
+    QWidget *child() const	{ return c; }
+    bool inserted() const { return t == Event_ChildInserted; }
+    bool removed() const { return t == Event_ChildRemoved; }
+protected:
+    QWidget *c;
 };
 
 

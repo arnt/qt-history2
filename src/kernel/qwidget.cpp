@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#223 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#222 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#223 $");
 
 
 /*!
@@ -622,6 +622,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    }
 	}
     }
+    if ( parent ) {
+	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
+	QApplication::postEvent( parent, e );
+    }
 }
 
 
@@ -634,6 +638,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
 QWidget::~QWidget()
 {
+    if ( parentObj ) {
+	QChildEvent e( Event_ChildRemoved, this );
+	QApplication::sendEvent( parentObj, &e );
+    }
     if ( deferredMoves ) {
 	deferredMoves->take( (long)this );	// clean deferred move/resize
 	deferredResizes->take( (long)this );

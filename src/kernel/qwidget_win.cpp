@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#94 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#94 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -313,8 +313,11 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 
     reparentFocusWidgets( parent );		// fix focus chains
 
-    if ( parentObj )				// remove from parent
+    if ( parentObj ) {				// remove from parent
+	QChildEvent e( Event_ChildRemoved, this );
+	QApplication::sendEvent( parentObj, &e );
 	parentObj->removeChild( this );
+    }
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
 	parent->insertChild( this );
@@ -360,6 +363,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	((QAccel*)obj)->repairEventFilter();
     }
     delete accelerators;
+    if ( parent ) {
+	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
+	QApplication::postEvent( parent, e );
+    }
 }
 
 
@@ -848,6 +855,11 @@ void QWidget::setMinimumSize( int minw, int minh )
     extra->minh = minh;
     if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
+    if ( parentWidget() ) {
+	QEvent *e = new QEvent( Event_LayoutHint );
+	QApplication::postEvent( parentWidget(), e );
+    }
+
 }
 
 void QWidget::setMaximumSize( int maxw, int maxh )
@@ -864,6 +876,10 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     extra->maxh = maxh;
     if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
+    if ( parentWidget() ) {
+	QEvent *e = new QEvent( Event_LayoutHint );
+	QApplication::postEvent( parentWidget(), e );
+    }
 }
 
 void QWidget::setSizeIncrement( int w, int h )

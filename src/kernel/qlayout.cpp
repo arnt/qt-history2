@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#27 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#27 $");
 
 
 /*!
@@ -26,10 +26,6 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#26 $");
 
   To make a new layout manager, you need to implement the functions
   mainVerticalChain(), mainHorizontalChain() and initGM()
-
-  \warning The current version does not support deletion of child widgets.
-  If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.
 */
 
 
@@ -258,10 +254,6 @@ void QLayout::setMenuBar( QMenuBar *w )
   A QBoxLayout can contain widgets or other layouts.
 
   QHBoxLayout and QVBoxLayout are convenience classes.
-
-  \warning The current version does not support deletion of child widgets.
-  If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first. 
  */
 
 static inline bool horz( QGManager::Direction dir )
@@ -585,10 +577,6 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 
   The contents are arranged left to right, they will stretch to fill
   the available space. 
-
-  \warning The current version does not support deletion of child widgets.
-  If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.
 */
 
 
@@ -628,11 +616,6 @@ QHBoxLayout::~QHBoxLayout()
 
   The contents are arranged top to bottom, they will stretch to fill
   the available space.
-
-
-  \warning The current version does not support deletion of child widgets.
-  If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.
 */
 
 /*!
@@ -678,10 +661,6 @@ QVBoxLayout::~QVBoxLayout()
 
   Note that a widget which spans several rows or columns does not
   influence the minimum size of any of the rows/columns it spans.
-
-  \warning The current version does not support deletion of child widgets.
-  If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.  
 */
 
 

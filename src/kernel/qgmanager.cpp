@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#22 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#22 $");
 
 
 
@@ -127,6 +127,10 @@ public:
 
     QGManager::Direction direction() { return dir; }
 
+    virtual bool removeWidget( QWidget * ) { return FALSE; }
+    virtual void annihilate() {}
+
+
 protected:
     virtual bool addC( QChain *s ) = 0;
 private:
@@ -164,6 +168,8 @@ public:
 
     int minSize()
     {
+	if ( !widget )
+	    return 0;
 	QSize s = widget->minimumSize();
 	if ( horz( direction() ) )
 	    return s.width();
@@ -172,6 +178,8 @@ public:
     }
     int maxSize()
     {
+	if ( !widget )
+	    return QGManager::unlimited;
 	QSize s = widget->maximumSize();
 	if ( horz( direction() ) )
 	    return s.width();
@@ -179,8 +187,17 @@ public:
 	    return s.height();
     }
 
+    bool removeWidget( QWidget *w ) {
+	if ( w == widget ) {
+	    widget = 0; 
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
+    }
+
     void distribute( wDict & wd, int pos, int space ) {
-	setWinfo( widget, wd, direction(),  pos, space );
+	if ( widget ) setWinfo( widget, wd, direction(),  pos, space );
     }
 
 private:
@@ -202,6 +219,7 @@ public:
     void recalc();
 
     void distribute( wDict &, int, int );
+    bool removeWidget( QWidget *w );
 
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
@@ -242,6 +260,7 @@ public:
 
     void recalc();
     void distribute( wDict &, int, int);
+    bool removeWidget( QWidget *w );
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
 
@@ -274,6 +293,19 @@ void QParChain::distribute( wDict & wd, int pos, int space )
     }
 }
 
+bool QParChain::removeWidget( QWidget *w )
+{
+    QChain *c = chain.first();
+    while ( c ) {
+	if ( c->removeWidget( w ) ) {
+	    return TRUE; //only one in a chain
+	}
+	c = chain.next();
+    }
+    return FALSE;
+}
+
+
 QSerChain::~QSerChain()
 {
     int i;
@@ -304,6 +336,26 @@ bool QSerChain::addBranch( QChain *b, int from, int to )
     d->to = to;
     branches.append( d );
     return TRUE;
+}
+
+
+
+
+bool QSerChain::removeWidget( QWidget *w )
+{
+    int i;
+    for ( i = 0; i < (int)branches.count(); i++ ) {
+	if ( branches.at(i)->chain->removeWidget( w ) )
+	    return TRUE;
+    }
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	if ( chain.at(i)->removeWidget( w ) )
+	    return TRUE;
+    }
+    return FALSE;
+
+    //######## Memory leak and extra space problem
+
 }
 
 
@@ -720,12 +772,22 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
 	return FALSE;
 
     QWidget *w = (QWidget*)o;
-
-    if ( e->type() == Event_Resize ) {
+    switch ( e->type() ) { 
+    case Event_Resize: {
 	QResizeEvent *r = (QResizeEvent*)e;
 	resizeHandle( w, r->size() );
+	break;
     }
-
+    case Event_ChildRemoved: {
+	QChildEvent *c = (QChildEvent*)e;
+	remove( c->child() );
+	break;
+    }
+    case Event_LayoutHint:
+	debug( "QGManager::eventFilter() Event_LayoutHint" );
+	resizeAll(); //######## should be optimized somehow...
+	break;
+    }
     return FALSE;			    // standard event processing
 }
 
@@ -813,9 +875,9 @@ void QGManager::resizeAll()
     if ( menuBar && mbh != menuBarHeight ) {
 	int ombh = menuBarHeight;
 	menuBarHeight = mbh;
-	main->setMinimumSize( min.width(), min.height() + mbh - ombh );
+	main->setMinimumHeight(  min.height() + mbh - ombh );
 	if ( max.height() < unlimited )
-	    main->setMaximumSize( max.width(), max.height() + mbh - ombh );
+	    main->setMaximumHeight( max.height() + mbh - ombh );
     }
     ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
@@ -844,8 +906,6 @@ void QGManager::resizeAll()
   The branch goes from the beginning of the item at \a fromIndex to the
   end of the item at \a toIndex. Note: remember to count spacing when
   calculating indices.
-  
-  \warning This feature is new and not comprehensively tested.
 */
 
 bool QGManager::addBranch( QChain *destination, QChain *branch,
@@ -870,3 +930,30 @@ void QGManager::setStretch( QChain *c, int s )
 {
     c->setStretch( s );
 }
+
+
+/*!
+  Removes the widget \a w from geometry management. Will not remove spacing
+  around the widget. This function is called automatically if the
+  widget is deleted.
+*/
+
+void QGManager::remove( QWidget *w )
+{
+    debug( "QGManager::remove %p", w );
+    xC->removeWidget( w );
+    yC->removeWidget( w );
+}
+
+#if 0
+/*!
+  Removes the chain \a c from geometry management. Will not remove spacing
+  around the chain.
+*/
+
+void QGManager::remove( QChain *c )
+{
+    c->annihilate();
+}
+
+#endif

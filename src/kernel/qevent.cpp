@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#46 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#46 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -120,7 +120,7 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn QEvent::QEvent( int type )
-  Contructs an event object with a \e type. The file qevent.h lists
+  Contructs an event object with a \a type. The file qevent.h lists
   all event types.
 */
 
@@ -160,7 +160,7 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn QTimerEvent::QTimerEvent( int timerId )
-  Constructs a timer event object with the timer identifier set to \e timerId.
+  Constructs a timer event object with the timer identifier set to \a timerId.
 */
 
 /*!
@@ -284,9 +284,9 @@ void QEvent::peErrMsg()				// posted event error message
   \fn QKeyEvent::QKeyEvent( int type, int key, int ascii, int state )
   Constructs a key event object.
 
-  The \e type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
+  The \a type parameter must be \c Event_KeyPress or \c Event_KeyRelease.
 
-  If \e key is 0, the event is not a result of a known key (e.g. it
+  If \a key is 0, the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
 
   The accept flag is set to TRUE.
@@ -365,7 +365,7 @@ void QEvent::peErrMsg()				// posted event error message
   \fn QFocusEvent::QFocusEvent( int type )
   Constructs a focus event object.
 
-  The \e type parameter must be either \e Event_FocusIn or \e Event_FocusOut.
+  The \a type parameter must be either \a Event_FocusIn or \a Event_FocusOut.
 */
 
 /*!
@@ -569,6 +569,45 @@ void QEvent::peErrMsg()				// posted event error message
 
 
 /*!
+  \class QChildEvent qevent.h
+  \brief The QChildEvent class contains event parameters for child widget
+  events.
+
+  \ingroup event
+
+  Child events are sent to widgets when children are inserted or removed.
+
+  In this release of Qt, no event handlers are defined to receive child events.
+*/
+
+#if QT_VERSION >= 200
+#error "Implement child event handlers"
+#endif
+
+/*!
+  \fn QChildEvent::QChildEvent( int type, QWidget *child )
+  Constructs a child event object.
+
+  The \a type parameter must be either \a Event_ChildInserted 
+  or \a Event_ChildRemoved.
+*/
+
+/*!
+  \fn bool QChildEvent::inserted() const
+  Returns TRUE if the widget received a new child.
+*/
+
+/*!
+  \fn bool QChildEvent::removed() const
+  Returns TRUE if the widget lost a child.
+*/
+
+
+
+
+
+
+/*!
   \class QCustomEvent qevent.h
   \brief The QCustomEvent class provides support for custom events.
 
@@ -584,8 +623,8 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn QCustomEvent::QCustomEvent( int type, void *data )
-  Constructs a custom event object with the event type \e type and a
-  pointer to \e data.
+  Constructs a custom event object with the event type \a type and a
+  pointer to \a data.
 */
 
 /*!
