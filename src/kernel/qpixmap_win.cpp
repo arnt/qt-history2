@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#34 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#34 $");
 
 
 bool QPixmap::optimAll = TRUE;
@@ -413,8 +413,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    image = image.convertDepth( 1 );	// dither
 	    d = 1;
 	}
-    }
-    else {					// can be both
+    } else {					// can be both
 	bool conv8 = FALSE;
 	if ( mode == Color )			// native depth wanted
 	    conv8 = d == 1;
@@ -506,8 +505,28 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-    QPixmap null;
-    return null;
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 ) {
+	    QPixmap nullPixmap;
+	    return nullPixmap;
+	}
+	RECT r;
+	GetWindowRect( window, &r );
+	if ( w < 0 )
+	    w = (r.right - r.left) + 1;
+	if ( h < 0 )
+	    h = (r.bottom - r.top) + 1;
+    }
+    QPixmap pm( w, h );
+    bool tmp_hdc = pm.hdc == 0;
+    if ( tmp_hdc )
+	pm.allocMemDC();
+    HANDLE src_dc = GetDC( window );
+    BitBlt( pm.hdc, 0, 0, w, h, src_dc, x, y, SRCCOPY );
+    ReleaseDC( window, src_dc );
+    if ( tmp_hdc )
+	pm.freeMemDC();
+    return pm;
 }
 
 
