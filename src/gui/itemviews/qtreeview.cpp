@@ -150,25 +150,7 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
     QAbstractItemView::setSelectionModel(selectionModel);
 }
 
-/*!
-  \reimp
-*/
 
-QModelIndexList QTreeView::selectedIndexes() const
-{
-    QModelIndexList viewSelected;
-    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
-    for (int i=0; i<modelSelected.count(); ++i) {
-        // check that neither the parents nor the index is hidden before we add
-        QModelIndex index = modelSelected.at(i);
-        while (index.isValid() && !isIndexHidden(index))
-            index = model()->parent(index);
-        if (index.isValid())
-            continue;
-        viewSelected.append(modelSelected.at(i));
-    }
-    return viewSelected;
-}
 
 /*!
   Returns the header for the tree view.
@@ -861,6 +843,25 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     int topPos = d->coordinate(top);
 
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
+}
+
+/*!
+  \reimp
+*/
+QModelIndexList QTreeView::selectedIndexes() const
+{
+    QModelIndexList viewSelected;
+    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    for (int i=0; i<modelSelected.count(); ++i) {
+        // check that neither the parents nor the index is hidden before we add
+        QModelIndex index = modelSelected.at(i);
+        while (index.isValid() && !isIndexHidden(index))
+            index = model()->parent(index);
+        if (index.isValid())
+            continue;
+        viewSelected.append(modelSelected.at(i));
+    }
+    return viewSelected;
 }
 
 /*!

@@ -32,7 +32,6 @@ public:
 
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
-    QModelIndexList selectedIndexes() const;
 
     QHeaderView *header() const;
     void setHeader(QHeaderView *header);
@@ -95,6 +94,7 @@ protected:
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
+    QModelIndexList selectedIndexes() const;
 
     void paintEvent(QPaintEvent *e);
     virtual void drawRow(QPainter *painter,

@@ -524,20 +524,6 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 }
 
 /*!
-  Returns a list of all selected and non-hidden item indexes in the
-  view. The list contains no duplicates, and is not sorted.
-*/
-QModelIndexList QAbstractItemView::selectedIndexes() const
-{
-    QModelIndexList viewSelected;
-    foreach (QModelIndex index, selectionModel()->selectedIndexes()) {
-        if (!isIndexHidden(index) && model()->parent(index) == root())
-            viewSelected.append(index);
-    }
-    return viewSelected;
-}
-
-/*!
     Sets the item delegate for this view and its model to \a delegate.
     This is useful if you want complete control over the editing and
     display of items.
@@ -1236,6 +1222,18 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->autoScrollTimer)
         doAutoScroll();
+}
+
+/*!
+  This convenience function returns a list of all selected and
+  non-hidden item indexes in the view. The list contains no
+  duplicates, and is not sorted.
+
+  The default implementation does nothing.
+*/
+QModelIndexList QAbstractItemView::selectedIndexes() const
+{
+    return QModelIndexList();
 }
 
 /*!

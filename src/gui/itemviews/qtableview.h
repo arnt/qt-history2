@@ -92,6 +92,7 @@ protected:
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
+    QModelIndexList selectedIndexes() const;
 
     void updateGeometries();
 

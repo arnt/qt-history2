@@ -75,7 +75,6 @@ public:
 
     virtual void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel *selectionModel() const;
-    virtual QModelIndexList selectedIndexes() const;
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
@@ -181,6 +180,7 @@ protected:
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
+    virtual QModelIndexList selectedIndexes() const;
 
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &index, bool accepted = true);

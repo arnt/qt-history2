@@ -1041,6 +1041,21 @@ QRect QListView::selectionViewportRect(const QItemSelection &selection) const
 }
 
 /*!
+  \reimp
+*/
+QModelIndexList QListView::selectedIndexes() const
+{
+    QModelIndexList viewSelected;
+    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    for (int i=0; i<modelSelected.count(); ++i) {
+        QModelIndex index = modelSelected.at(i);
+        if (!isIndexHidden(index) && model()->parent(index) == root() && index.column() == 0)
+            viewSelected.append(index);
+    }
+    return viewSelected;
+}
+
+/*!
     \internal
 
     Layout the items according to the flow and wrapping properties.

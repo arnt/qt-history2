@@ -597,6 +597,23 @@ QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
     return QRect(leftPos, topPos, rightPos - leftPos, bottomPos - topPos);
 }
 
+
+/*!
+  \reimp
+*/
+QModelIndexList QTableView::selectedIndexes() const
+{
+    QModelIndexList viewSelected;
+    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    for (int i=0; i<modelSelected.count(); ++i) {
+        QModelIndex index = modelSelected.at(i);
+        if (!isIndexHidden(index) && model()->parent(index) == root())
+            viewSelected.append(index);
+    }
+    return viewSelected;
+}
+
+
 /*!
     This slot is called whenever rows are added or deleted. The
     previous number of rows is specified by \a oldCount, and the new

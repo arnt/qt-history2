@@ -67,7 +67,7 @@ public:
 
     void setGridSize(const QSize &size);
     QSize gridSize() const;
-    
+
     void setViewMode(ViewMode mode);
     ViewMode viewMode() const;
 
@@ -75,7 +75,7 @@ public:
 
     bool isRowHidden(int row) const;
     void setRowHidden(int row, bool hide);
-    
+
     QRect itemViewportRect(const QModelIndex &index) const;
     void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
@@ -121,6 +121,7 @@ protected:
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
+    QModelIndexList selectedIndexes() const;
 
     void updateGeometries();
 
