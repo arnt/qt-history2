@@ -22,18 +22,13 @@ int main( int argc, char *argv[] )
     if ( create_connections() ) {
 	QSqlCursor invoiceItemCursor( "invoiceitem" );
 
-	invoiceItemCursor.setDisplayLabel( "pricesid", "Product" );
-	invoiceItemCursor.setDisplayLabel( "quantity", "Quantity" );
-	invoiceItemCursor.setDisplayLabel( "paiddate", "Date" );
-	invoiceItemCursor.setAlignment( "quantity", Qt::AlignRight );
-
 	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
 
 	app.setMainWidget( invoiceItemTable );
 
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "pricesid" ) );
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "quantity" ) );
-	invoiceItemTable->addColumn( invoiceItemCursor.field( "paiddate" ) );
+	invoiceItemTable->addColumn( "pricesid", "PriceID" );
+	invoiceItemTable->addColumn( "quantity", "Quantity" );
+	invoiceItemTable->addColumn( "paiddate", "Paid" );
 
 	invoiceItemTable->refresh();
 	invoiceItemTable->show();
