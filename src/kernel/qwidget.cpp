@@ -3501,7 +3501,7 @@ void QWidget::show()
 #if defined(Q_WS_X11)
 	QRect screen = QApplication::desktop()->screenGeometry( x11Screen() );
 #else // all others
-	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
+	QRect screen = QApplication::desktop()->screenGeometry( pos() );
 #endif
 	s.setWidth( QMIN( s.width(), screen.width()*2/3 ) );
 	s.setHeight( QMIN( s.height(), screen.height()*2/3 ) );

@@ -318,6 +318,23 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 }
 
 /*!
+    \overload const QRect &QDesktopWidget::availableGeometry( QWidget *widget ) const
+
+    Returns the available geometry of the screen which contains \a widget.
+
+    \sa screenGeometry(QWidget*)
+*/
+
+/*!
+    \overload const QRect &QDesktopWidget::availableGeometry( const QPoint &p ) const
+
+    Returns the available geometry of the screen which contains \a p.
+
+    \sa screenGeometry(const QPoint&)
+*/
+
+
+/*!
   Returns the geometry of the screen with index \a screen.
 
   \sa screenNumber()
@@ -333,6 +350,19 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 	return d->rects->at( d->primaryScreen );
     }
 }
+
+/*!
+    \overload const QRect &QDesktopWidget::screenGeometry( QWidget *widget ) const
+    
+    Returns the geometry of the screen which contains \a widget.
+*/
+
+/*!
+    \overload const QRect &QDesktopWidget::screenGeometry( const QPoint &p ) const
+
+    Returns the geometry of the screen which contains \a p.
+*/
+
 
 /*!
   Returns the index of the screen that contains the largest

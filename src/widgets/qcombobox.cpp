@@ -1438,7 +1438,7 @@ void QComboBox::popup()
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox()->resize( d->listBox()->variableWidth() ? d->listBox()->sizeHint().width() : width(),
 			    listHeight( d->listBox(), d->sizeLimit ) + 2 );
-	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( this ) );
+	QRect screen = QApplication::desktop()->screenGeometry( this );
 
 	int sx = screen.x();				// screen pos
 	int sy = screen.y();

@@ -2601,7 +2601,7 @@ void QFileDialog::init()
     d->special = tr( "Special" );
 
     if ( !lastSize ) {
-	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) );
+	QRect screen = QApplication::desktop()->screenGeometry( pos() );
 	if ( screen.width() < 1024 ||
 	     screen.height() < 768 ) {
 	    resize( QMIN(screen.width(),420),
