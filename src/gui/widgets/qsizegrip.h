@@ -18,14 +18,12 @@
 
 #ifndef QT_NO_SIZEGRIP
 
-class Q_GUI_EXPORT QSizeGrip: public QWidget
+class QSizeGripPrivate;
+class Q_GUI_EXPORT QSizeGrip : public QWidget
 {
     Q_OBJECT
 public:
     QSizeGrip(QWidget* parent);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSizeGrip(QWidget* parent, const char* name);
-#endif
     ~QSizeGrip();
 
     QSize sizeHint() const;
@@ -36,13 +34,14 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
 
     bool eventFilter(QObject *, QEvent *);
+    bool event(QEvent *);
 
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QSizeGrip(QWidget* parent, const char* name);
+#endif
 private:
-    void init();
-    QPoint p;
-    QSize s;
-    int d;
-    QWidget *tlw;
+    Q_DECLARE_PRIVATE(QSizeGrip)
+    Q_DISABLE_COPY(QSizeGrip)
 };
 
 #endif //QT_NO_SIZEGRIP

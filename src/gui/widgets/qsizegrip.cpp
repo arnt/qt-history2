@@ -25,10 +25,20 @@
 #include <private/qt_x11_p.h>
 #elif defined (Q_WS_WIN)
 #include "qt_windows.h"
-#elif defined(Q_WS_MAC)
-#include <private/qwidget_p.h>
 #endif
 
+#include <private/qwidget_p.h>
+
+class QSizeGripPrivate : public QWidgetPrivate
+{
+    Q_DECLARE_PUBLIC(QSizeGrip)
+public:
+    void init();
+    QPoint p;
+    QSize s;
+    int d;
+    QWidget *tlw;
+};
 
 static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
@@ -83,9 +93,10 @@ static QWidget* qt_sizegrip_workspace(QWidget* w)
     parent.
 */
 QSizeGrip::QSizeGrip(QWidget * parent)
-    : QWidget(parent)
+    : QWidget(*new QSizeGripPrivate, parent, 0)
 {
-    init();
+    Q_D(QSizeGrip);
+    d->init();
 }
 
 #ifdef QT_COMPAT
@@ -96,36 +107,34 @@ QSizeGrip::QSizeGrip(QWidget * parent)
     parent.
 */
 QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
-    : QWidget(parent)
+    : QWidget(*new QSizeGripPrivate, parent, 0)
 {
+    Q_D(QSizeGrip);
     setObjectName(name);
-    init();
+    d->init();
 }
 #endif
 
-void QSizeGrip::init()
+void QSizeGripPrivate::init()
 {
+    Q_Q(QSizeGrip);
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
-    if (isRightToLeft())
-        setCursor(Qt::SizeBDiagCursor);
-    else
-        setCursor(Qt::SizeFDiagCursor);
+    q->setCursor(q->isRightToLeft() ? Qt::SizeBDiagCursor : Qt::SizeFDiagCursor);
 #endif
 #endif
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 #if defined(Q_WS_X11)
-    if (!qt_sizegrip_workspace(this)) {
-        WId id = winId();
-        XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+    if (!qt_sizegrip_workspace(q)) {
+        WId id = q->winId();
+        XChangeProperty(X11->display, q->topLevelWidget()->winId(),
                         ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
                         (unsigned char *)&id, 1);
     }
 #endif
-    tlw = qt_sizegrip_topLevelWidget(this);
+    tlw = qt_sizegrip_topLevelWidget(q);
     if (tlw)
-        tlw->installEventFilter(this);
-    installEventFilter(this); //for binary compatibility fix in 4.0 with an event() ###
+        tlw->installEventFilter(q);
 }
 
 
@@ -178,8 +187,9 @@ void QSizeGrip::paintEvent(QPaintEvent *e)
 */
 void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
-    p = e->globalPos();
-    s = qt_sizegrip_topLevelWidget(this)->size();
+    Q_D(QSizeGrip);
+    d->p = e->globalPos();
+    d->s = qt_sizegrip_topLevelWidget(this)->size();
 }
 
 
@@ -192,6 +202,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     if (e->buttons() != Qt::LeftButton)
         return;
 
+    Q_D(QSizeGrip);
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
     if (tlw->testWState(Qt::WState_ConfigPending))
         return;
@@ -209,12 +220,12 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     }
 
     int w;
-    int h = np.y() - p.y() + s.height();
+    int h = np.y() - d->p.y() + d->s.height();
 
     if (isRightToLeft())
-        w = s.width() - (np.x() - p.x());
+        w = d->s.width() - (np.x() - d->p.x());
     else
-        w = np.x() - p.x() + s.width();
+        w = np.x() - d->p.x() + d->s.width();
 
     if (w < 1)
         w = 1;
@@ -228,17 +239,17 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         h = ms.height();
 
     if (isRightToLeft()) {
-        if (tlw->isTopLevel()) {
-            int x = tlw->geometry().x() + (np.x()-p.x());
-            int y = tlw->geometry().y();
-            tlw->setGeometry(x,y,w,h);
+        if (d->tlw->isTopLevel()) {
+            int x = d->tlw->geometry().x() + (np.x() - d->p.x());
+            int y = d->tlw->geometry().y();
+            d->tlw->setGeometry(x, y, w, h);
         } else {
-            tlw->resize(w, h);
-            if (tlw->size() == QSize(w,h))
-                tlw->move(tlw->x() + (np.x()-p.x()), tlw->y());
+            d->tlw->resize(w, h);
+            if (d->tlw->size() == QSize(w, h))
+                d->tlw->move(tlw->x() + (np.x() - d->p.x()), tlw->y());
         }
     } else {
-        tlw->resize(w, h);
+        d->tlw->resize(w, h);
     }
 #ifdef Q_WS_WIN
     MSG msg;
@@ -247,16 +258,17 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 #endif
     QApplication::syncX();
 
-    if (isRightToLeft() && tlw->size() == QSize(w,h)) {
-        s.rwidth() = tlw->size().width();
-        p.rx() = np.x();
+    if (isRightToLeft() && d->tlw->size() == QSize(w,h)) {
+        d->s.rwidth() = tlw->size().width();
+        d->p.rx() = np.x();
     }
 }
 
 /*! \reimp */
 bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
-    if (o == tlw) {
+    Q_D(QSizeGrip);
+    if (o == d->tlw) {
         switch (e->type()) {
 #ifndef Q_WS_MAC
         /* The size grip goes no where on Mac OS X when you maximize!  --Sam */
@@ -271,39 +283,43 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
         default:
             break;
         }
-    } else if(o == this) {
-        switch(e->type()) {
-#if defined(Q_WS_MAC)
-        case QEvent::Hide:
-        case QEvent::Show:
-            if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
-                if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-                    if(w->isTopLevel())
-                        QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
-                }
-            }
-            break;
-#endif
-        case QEvent::Resize: {
-            QPointArray pa(3);
-            if (QApplication::isLeftToRight()) {
-                pa.setPoint(0, width() + 1, 0);
-                pa.setPoint(1, width() + 1, height() + 1);
-                pa.setPoint(2, 0, height());
-            } else {
-                pa.setPoint(0, 0, 0);
-                pa.setPoint(1, width() + 1, height() + 1);
-                pa.setPoint(2, 0, height() + 1);
-            }
-            clearMask();
-            setMask(QRegion(pa));
-            break;
-        }
-        default:
-            break;
-        }
     }
     return false;
+}
+
+bool QSizeGrip::event(QEvent *e)
+{
+    switch(e->type()) {
+#if defined(Q_WS_MAC)
+    case QEvent::Hide:
+    case QEvent::Show:
+        if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
+            if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+                if(w->isTopLevel())
+                    QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
+            }
+        }
+        break;
+#endif
+    case QEvent::Resize: {
+        QPointArray pa(3);
+        if (isLeftToRight()) {
+            pa.setPoint(0, width() + 1, 0);
+            pa.setPoint(1, width() + 1, height() + 1);
+            pa.setPoint(2, 0, height());
+        } else {
+            pa.setPoint(0, 0, 0);
+            pa.setPoint(1, width() + 1, height() + 1);
+            pa.setPoint(2, 0, height() + 1);
+        }
+        clearMask();
+        setMask(QRegion(pa));
+        break;
+    }
+    default:
+        break;
+    }
+    return QWidget::event(e);
 }
 
 #endif //QT_NO_SIZEGRIP
