@@ -442,6 +442,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
+
 #ifdef UNICODE
     if ( title )
 	delete [] title;
@@ -487,7 +488,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
-
     // hide and reparent our own window away. Otherwise we might get
     // destroyed when emitting the child remove event below. See QWorkspace.
     if ( isVisible() ) {
@@ -968,7 +968,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 #ifndef Q_OS_TEMP
 	ValidateRgn( winId(), reg.handle() );
 #endif
-	QPaintEvent e( reg );
+	QPaintEvent e( reg, erase );
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase( reg );
