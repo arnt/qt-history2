@@ -106,6 +106,10 @@ extern bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 				   QByteArray *buffer, int *size, Atom *type,
 				   int *format, bool nullterm );
 
+extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
+extern const char* qt_xdnd_atom_to_str( Atom );
+
+
 // Motif definitions
 #define DndVersion 1
 #define DndRevision 0
@@ -686,9 +690,67 @@ static int _DndIndexToTargets(Display * display,
 }
 
 
-QByteArray qt_motifdnd_obtain_data()
+const char *qt_motifdnd_format( int n )
+{
+    if ( ! qt_motifdnd_active )
+	return 0; // should not happen
+
+    if ( n == 0 )
+	return "text/plain";
+    if ( n == 1 )
+	return "text/uri-list";
+    n -= 2;
+
+    if ( n >= num_src_targets )
+	return 0;
+
+    Atom target = src_targets[n];
+
+    // duplicated from qclipboard_x11.cpp - not the best solution
+    static Atom xa_utf8_string = *qt_xdnd_str_to_atom( "UTF8_STRING" );
+    static Atom xa_text = *qt_xdnd_str_to_atom( "TEXT" );
+    static Atom xa_compound_text = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
+
+    if ( target == XA_STRING )
+	return "text/plain;charset=ISO-8859-1";
+    if ( target == xa_utf8_string )
+	return "text/plain;charset=UTF-8";
+    if ( target == xa_text ||
+	 target == xa_compound_text )
+	return "text/plain";
+
+    return qt_xdnd_atom_to_str( target );
+}
+
+
+QByteArray qt_motifdnd_obtain_data( const char *mimeType )
 {
     QByteArray result;
+
+    // try to convert the selection to the requested property
+    qDebug( "trying to convert to '%s'", mimeType );
+
+    int n=0;
+    const char* f;
+    do {
+	f = qt_motifdnd_format( n );
+	if ( !f )
+	    return result;
+	n++;
+    } while( qstricmp( mimeType, f ) );
+
+    // found one
+    Atom conversion_type;
+
+    if ( qstrnicmp( f, "text/", 5 ) == 0 ) {
+	// always convert text to XA_STRING for compatibility with
+	// prior Qt versions
+	conversion_type = XA_STRING;
+    } else {
+	conversion_type = *qt_xdnd_str_to_atom( f );
+	qDebug( "found format '%s' 0x%lx '%s'", f, conversion_type,
+		qt_xdnd_atom_to_str( conversion_type ) );
+    }
 
     if ( XGetSelectionOwner( qt_xdisplay(),
 			     Dnd_selection ) == None ) {
@@ -700,8 +762,8 @@ QByteArray qt_motifdnd_obtain_data()
 	tw = new QWidget;
     }
 
-    // convert selection to a string property
-    XConvertSelection (qt_xdisplay(), Dnd_selection, XA_STRING,
+    // convert selection to the appropriate type
+    XConvertSelection (qt_xdisplay(), Dnd_selection, conversion_type,
 		       Dnd_selection, tw->winId(), Dnd_selection_time);
 
     XFlush( qt_xdisplay() );

@@ -210,7 +210,8 @@ QDragObject * qt_xdnd_source_object = 0;
 
 // Motif dnd
 extern void qt_motifdnd_enable( QWidget *, bool );
-extern QByteArray qt_motifdnd_obtain_data();
+extern QByteArray qt_motifdnd_obtain_data( const char *format );
+extern const char *qt_motifdnd_format( int n );
 
 bool qt_motifdnd_active = FALSE;
 static bool dndCancelled = FALSE;
@@ -251,7 +252,7 @@ static const char* const default_pm[] = {
 };
 
 class QShapedPixmapWidget : public QWidget {
-    
+
 public:
     QShapedPixmapWidget(int screen = -1) :
 	QWidget(QApplication::desktop()->screen( screen ),
@@ -1363,12 +1364,8 @@ bool qt_xdnd_handle_badwindow()
 
 bool QDropEvent::provides( const char *mimeType ) const
 {
-    if ( qt_motifdnd_active ) {
-	if ( 0 == qstrnicmp( mimeType, "text/", 5 ) )
-	    return TRUE;
-	else
-	    return FALSE;
-    }
+    if ( qt_motifdnd_active && qstrnicmp( mimeType, "text/", 5 ) == 0 )
+	return TRUE;
 
     int n=0;
     const char* f;
@@ -1551,7 +1548,7 @@ bool qt_dnd_enable( QWidget* w, bool on )
 QByteArray QDropEvent::encodedData( const char *format ) const
 {
     if ( qt_motifdnd_active )
-	return qt_motifdnd_obtain_data();
+	return qt_motifdnd_obtain_data( format );
     return qt_xdnd_obtain_data( format );
 }
 
@@ -1569,14 +1566,8 @@ QByteArray QDropEvent::encodedData( const char *format ) const
 
 const char* QDropEvent::format( int n ) const
 {
-    if ( qt_motifdnd_active ) {
-	if ( n == 0 )
-	    return "text/plain";
-	else if ( n == 1 )
-	    return "text/uri-list";
-	else
-	    return 0;
-    }
+    if ( qt_motifdnd_active )
+	return qt_motifdnd_format( n );
 
     int i = 0;
     while( i<n && qt_xdnd_types[i] )
