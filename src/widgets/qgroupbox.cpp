@@ -512,11 +512,9 @@ void QGroupBox::setOrientation( Qt::Orientation o )
  */
 void QGroupBox::setColumnLayout(int strips, Orientation direction)
 {
-    if ( layout() ) {
-	if ( d->spacer )
-	    delete d->spacer;
+    if ( layout() )
 	delete layout();
-    }
+
     vbox = 0;
     grid = 0;
 
