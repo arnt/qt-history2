@@ -923,6 +923,8 @@ void QWidget::repaint(const QRegion& rgn)
 
 #ifdef QT_RASTER_PAINTENGINE
     double_buffer = false;
+    QRasterPaintEngine *rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
+    rasterEngine->setFlushOnEnd(false);
 #endif
 
     bool tmphdc = !d->hd;
@@ -973,7 +975,6 @@ void QWidget::repaint(const QRegion& rgn)
         } else {
 #ifdef QT_RASTER_PAINTENGINE
             QPainter p(this);
-            ((QRasterPaintEngine*)p.paintEngine())->setFlushOnEnd(false);
             QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
             p.fillRect(0, 0, bgsize.width(), bgsize.height(), palette().brush(w->d->bg_role));
 #else
@@ -1015,6 +1016,9 @@ void QWidget::repaint(const QRegion& rgn)
         SelectClipRgn((HDC)d->hd, 0);
     }
 
+#ifdef QT_RASTER_PAINTENGINE
+    rasterEngine->setFlushOnEnd(true);
+#endif
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
 
