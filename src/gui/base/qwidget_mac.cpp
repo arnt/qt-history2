@@ -383,6 +383,8 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
 		    QApplication::sendSpontaneousEvent(widget, &e);
 		    qt_clear_paintevent_clipping(widget);
 		    widget->clearWState(WState_InPaintEvent);
+		    if(widget->paintingActive())
+			qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
 		}
 		SetPort(qdref); //restore the state..
 
