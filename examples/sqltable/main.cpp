@@ -9,7 +9,7 @@
 
 #include <qapplication.h>
 #include <qsqldatabase.h>
-#include <qsqltable.h>
+#include <qdatatable.h>
 #include <qsqlcursor.h>
 
 /* This example program expects a table called 'simpletable' to exist
@@ -34,7 +34,7 @@
 #define DATABASE     "simpledb"
 #define USER         "trond"
 #define PASSWORD     "trond"
-#define HOST         "silverfish"
+#define HOST         "silverfish.troll.no"
 
 class SimpleCursor : public QSqlCursor
 {
@@ -67,16 +67,14 @@ int main( int argc, char ** argv )
     }
 
     SimpleCursor cursor;
-    cursor.setDisplayLabel( "name", "Name" );
-    cursor.setDisplayLabel( "address", "Address" );
 
-    QSqlTable table( &cursor );
-    table.addColumn( cursor.field( "name" ) );
-    table.addColumn( cursor.field( "address" ) );
+    QDataTable table( &cursor );
+    table.addColumn( "name", "Name" );
+    table.addColumn( "address", "Address" );
     table.setSorting( TRUE );
 
     a.setMainWidget( &table );
-    table.refresh(); /* load data */
+    table.refresh( TRUE, TRUE ); /* load data */
     table.show();    /* show widget */
 
     return a.exec();
