@@ -70,7 +70,6 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 		soundName = "SystemAsterisk";
 		break;
 	    default:
-		soundName = ".Default";
 		break;
 	    }
 	} else {
