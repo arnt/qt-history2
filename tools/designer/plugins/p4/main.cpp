@@ -5,8 +5,6 @@
 #include <qaction.h>
 #include <qapplication.h>
 
-class QToolBar;
-
 class P4Interface : public QObject, public ActionInterface
 {
     Q_OBJECT
@@ -26,11 +24,19 @@ public:
     QString group( const QString &actionname );
 
 private slots:
+    void p4Aware( bool );
+    void p4Sync();
     void p4Edit();
     void p4Submit();
+    void p4Revert();
+    void p4Add();
+    void p4Delete();
+    void p4Diff();
     void p4MightEdit( bool b, const QString &fn );
 
 private:
+    bool aware;
+
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
 
@@ -38,6 +44,7 @@ private:
 
 P4Interface::P4Interface()
 {
+    aware = FALSE;
 }
 
 P4Interface::~P4Interface()
@@ -66,30 +73,57 @@ bool P4Interface::connectNotify( QApplication* theApp )
 QStringList P4Interface::featureList()
 {
     QStringList list;
-    list << "P4 Edit" << "P4 Submit";
+    list << "P4 Aware" << "P4 Sync" << "P4 Edit" << "P4 Submit" << "P4 Revert" << "P4 Add" << "P4 Delete" << "P4 Diff";
     return list;
 }
 
 QAction* P4Interface::create( const QString& actionname, QObject* parent )
 {
-    if ( actionname == "P4 Edit" ) {
-	QAction* a = new QAction( actionname, QIconSet(), "P4 &Edit", 0, parent, actionname );
+    QAction* a = 0;
+    if ( actionname == "P4 Aware" ) {
+	a = new QAction( actionname, QIconSet(), "A&ware", 0, parent, actionname, TRUE );
+	connect( a, SIGNAL( toggled(bool) ), this, SLOT( p4Aware(bool) ) );
+    } else if ( actionname == "P4 Sync" ) {
+	a = new QAction( actionname, QIconSet(), "&Sync", 0, parent, actionname );
+	connect( a, SIGNAL( activated() ), this, SLOT( p4Sync() ) );
+    } else if ( actionname == "P4 Edit" ) {
+	a = new QAction( actionname, QIconSet(), "&Edit", 0, parent, actionname );
 	connect( a, SIGNAL( activated() ), this, SLOT( p4Edit() ) );
-	actions.addCleanUp( a );
-	return a;
     } else if ( actionname == "P4 Submit" ) {
-	QAction* a = new QAction( actionname, QIconSet(), "P4 &Submit", 0, parent, actionname );
+	a = new QAction( actionname, QIconSet(), "&Submit", 0, parent, actionname );
 	connect( a, SIGNAL( activated() ), this, SLOT( p4Submit() ) );
-	actions.addCleanUp( a );
-	return a;
+    } else if ( actionname == "P4 Revert" ) {
+	a = new QAction( actionname, QIconSet(), "&Revert", 0, parent, actionname );
+	connect( a, SIGNAL( activated() ), this, SLOT( p4Revert() ) );
+    } else if ( actionname == "P4 Add" ) {
+	a = new QAction( actionname, QIconSet(), "&Add", 0, parent, actionname );
+	connect( a, SIGNAL( activated() ), this, SLOT( p4Add() ) );
+    } else if ( actionname == "P4 Delete" ) {
+	a = new QAction( actionname, QIconSet(), "&Delete", 0, parent, actionname );
+	connect( a, SIGNAL( activated() ), this, SLOT( p4Delete() ) );
+    } else if ( actionname == "P4 Diff" ) {
+	a = new QAction( actionname, QIconSet(), "Di&ff", 0, parent, actionname );
+	connect( a, SIGNAL( activated() ), this, SLOT( p4Diff() ) );
     } else {
 	return 0;
     }
+
+    actions.addCleanUp( a );
+    return a;
 }
 
 QString P4Interface::group( const QString & )
 {
     return "P4";
+}
+
+void P4Interface::p4Aware( bool on )
+{
+    aware = on;
+}
+
+void P4Interface::p4Sync()
+{
 }
 
 void P4Interface::p4Edit()
@@ -118,9 +152,25 @@ void P4Interface::p4Submit()
     qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "dileName" ).toString().latin1() );
 }
 
+void P4Interface::p4Revert()
+{
+}
+
+void P4Interface::p4Add()
+{
+}
+
+void P4Interface::p4Delete()
+{
+}
+
+void P4Interface::p4Diff()
+{
+}
+
 void P4Interface::p4MightEdit( bool b, const QString &s )
 {
-    if ( !b || !appInterface )
+    if ( !aware || !b || !appInterface )
 	return;
     QComponentInterface *mwIface = 0;
     if ( !( mwIface = appInterface->queryInterface( "DesignerMainWindowInterface" ) ) )
