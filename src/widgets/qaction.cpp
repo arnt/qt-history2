@@ -98,8 +98,6 @@ public:
     uint toggleaction :1;
     uint on : 1;
     QToolTipGroup* tipGroup;
-    QStatusBar* statusbar;
-
 
     struct MenuItem {
 	MenuItem():popup(0),id(0){}
@@ -123,7 +121,6 @@ QActionPrivate::QActionPrivate()
     enabled = 1;
     toggleaction  = 0;
     on = 0;
-    statusbar = 0;
     menuitems.setAutoDelete( TRUE );
     tipGroup = new QToolTipGroup( 0 );
 }
@@ -383,16 +380,14 @@ QString QAction::toolTip() const
 }
 
 /*!
-  Sets the status tip to \a tip. The tip will be displayed on \a bar,
-  or on all status bars the topmost parent of the action provides if
-  \a bar is NULL.
+  Sets the status tip to \a tip. The tip will be displayed on
+  all status bars the topmost parent of the action provides.
 
   \sa statusTip()
 */
-void QAction::setStatusTip( const QString& tip, QStatusBar* bar )
+void QAction::setStatusTip( const QString& tip )
 {
     d->statustip = tip;
-    d->statusbar = bar;
     d->update();
 }
 
@@ -604,23 +599,18 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-	if ( d->statusbar ) {
-	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), d->statusbar, SLOT(message(const QString&)) );
-	    connect( d->tipGroup, SIGNAL(removeTip()), d->statusbar, SLOT(clear()) );
-	} else {
-	    QObject* par = parent();
-	    while ( par && par->parent() )
-		par = par->parent();
-	    if ( par ) {
-		QObjectList* l = par->queryList("QStatusBar");
-		QStatusBar* bar = (QStatusBar*) l->first();
-		while ( bar ) {
-		    connect( d->tipGroup, SIGNAL(showTip(const QString&)), bar, SLOT(message(const QString&)) );
-		    connect( d->tipGroup, SIGNAL(removeTip()), bar, SLOT(clear()) );
-		    bar = (QStatusBar*) l->next();
-		}
-		delete l;
+        QObject* par = parent();
+        while ( par && par->parent() )
+	    par = par->parent();
+        if ( par ) {
+	    QObjectList* l = par->queryList("QStatusBar");
+	    QStatusBar* bar = (QStatusBar*) l->first();
+	    while ( bar ) {
+		connect( d->tipGroup, SIGNAL(showTip(const QString&)), bar, SLOT(message(const QString&)) );
+		connect( d->tipGroup, SIGNAL(removeTip()), bar, SLOT(clear()) );
+		bar = (QStatusBar*) l->next();
 	    }
+	    delete l;
 	}
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
@@ -665,27 +655,20 @@ void QAction::menuStatusText( int id )
     if ( !found ) 
 	return;
 
-    if ( d->statusbar ) {
-	if ( !text.isEmpty() )
-	    d->statusbar->message( text );
-	else
-	    d->statusbar->clear();
-    } else {
-	QObject* par = parent();
-	while ( par && par->parent() )
-	    par = par->parent();
-	if ( par ) {
-	    QObjectList* l = par->queryList("QStatusBar");
-	    QStatusBar* bar = (QStatusBar*) l->first();
-	    while ( bar ) {
-		if ( !text.isEmpty() )
-		    bar->message( text );
-		else
-		    bar->clear();
-		bar = (QStatusBar*)l->next();
-	    }
-	    delete l;
-	}	    
+    QObject* par = parent();
+    while ( par && par->parent() )
+	par = par->parent();
+    if ( par ) {
+	QObjectList* l = par->queryList("QStatusBar");
+	QStatusBar* bar = (QStatusBar*) l->first();
+	while ( bar ) {
+	    if ( !text.isEmpty() )
+		bar->message( text );
+	    else
+		bar->clear();
+	    bar = (QStatusBar*)l->next();
+	}
+	delete l;
     }
 }
 
@@ -694,26 +677,22 @@ void QAction::menuStatusText( int id )
 */
 void QAction::clearStatusText()
 {
-    if ( d->statusbar ) {
-	d->statusbar->clear();
-    } else {
+    QObject* par = parent();
+    while ( par && par->parent() )
+	par = par->parent();
+    if ( par ) {
 	QObject* par = parent();
 	while ( par && par->parent() )
 	    par = par->parent();
 	if ( par ) {
-	    QObject* par = parent();
-	    while ( par && par->parent() )
-		par = par->parent();
-	    if ( par ) {
-		QObjectList* l = par->queryList("QStatusBar");
-		QStatusBar* bar = (QStatusBar*) l->first();
-		while ( bar ) {
-		    bar->clear();
-		    bar = (QStatusBar*)l->next();
-		}
-		delete l;
-	    }	    
-	}
+	    QObjectList* l = par->queryList("QStatusBar");
+	    QStatusBar* bar = (QStatusBar*) l->first();
+	    while ( bar ) {
+		bar->clear();
+		bar = (QStatusBar*)l->next();
+	    }
+	    delete l;
+	}	
     }
 }
 

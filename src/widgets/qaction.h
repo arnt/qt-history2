@@ -67,7 +67,7 @@ public:
     QString menuText() const;
     virtual void setToolTip( const QString& );
     QString toolTip() const;
-    virtual void setStatusTip( const QString&, QStatusBar* bar = 0 );
+    virtual void setStatusTip( const QString& );
     QString statusTip() const;
     virtual void setWhatsThis( const QString& );
     QString whatsThis() const;
