@@ -493,9 +493,10 @@ function moves all QCanvasItem::animated() canvas items and
 setAdvancePeriod() makes QCanvas move them by itself on a periodic
 basis. In the context of the QCanvas classes to `animate' a canvas item
 is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
-of a canvas item itself, i.e. items which change over time, is achieved
-by subclassing QCanvasSprite. To detect collisions use one of the
-collisions() functions.
+of a canvas item itself, i.e. items which change over time, is enabled
+by calling QCanvasSprite::setFrameAnimation(), or more generally by
+subclassing and reimplementing QCanvasItem::advance(). To detect collisions
+use one of the QCanvasItem::collisions() functions.
 
 The changed parts of the canvas are redrawn (if they are visible in a
 canvas view) whenever update() is called. You can either call update()
@@ -838,7 +839,7 @@ in the QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::addItem(QCanvasItem* item)
 {
-    d->itemDict.insert(item,(void*)1);
+    d->itemDict.insert((void*)item,(void*)1);
 }
 
 /*!
@@ -848,7 +849,7 @@ to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::addAnimation(QCanvasItem* item)
 {
-    d->animDict.insert(item,(void*)1);
+    d->animDict.insert((void*)item,(void*)1);
 }
 
 /*!
@@ -858,7 +859,7 @@ which are no longer to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::removeAnimation(QCanvasItem* item)
 {
-    d->animDict.remove(item);
+    d->animDict.remove((void*)item);
 }
 
 /*!
@@ -868,7 +869,7 @@ in this QCanvas.  The QCanvasItem class calls this.
 */
 void QCanvas::removeItem(QCanvasItem* item)
 {
-    d->itemDict.remove(item);
+    d->itemDict.remove((void*)item);
 }
 
 /*!
@@ -962,7 +963,7 @@ void QCanvas::advance()
 {
     QPtrDictIterator<void> it=d->animDict;
     while ( it.current() ) {
-	QCanvasItem* i = (QCanvasItem*)it.currentKey();
+	QCanvasItem* i = (QCanvasItem*)(void*)it.currentKey();
 	++it;
 	if ( i )
 	    i->advance(0);
@@ -971,7 +972,7 @@ void QCanvas::advance()
     // first pass.
     it.toFirst();
     while ( it.current() ) {
-	QCanvasItem* i = (QCanvasItem*)it.currentKey();
+	QCanvasItem* i = (QCanvasItem*)(void*)it.currentKey();
 	++it;
 	if ( i )
 	    i->advance(1);
@@ -3087,6 +3088,7 @@ QRect QCanvasSprite::boundingRect() const
     return QRect(leftEdge(), topEdge(), width(), height());
 }
 
+
 /*!
   \intenal
   Returns the chunks covered by the item.
@@ -4831,6 +4833,9 @@ The sprite in initially positioned at (0,0) on \a canvas, using frame 0.
 QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* a, QCanvas* canvas) :
     QCanvasItem(canvas),
     frm(0),
+    anim_val(0),
+    anim_state(0),
+    anim_type(0),
     images(a)
 {
 }
@@ -4892,6 +4897,64 @@ void QCanvasSprite::setFrame(int f)
 {
     move(x(),y(),f);
 }
+
+/*!
+    \enum QCanvasSprite::FrameAnimationType
+
+    This enum is used to name the different types of frame 
+    animation of QCanvasSprite.
+
+    \value Cycle
+    \value Oscillate
+*/
+
+/*
+    Sets the animation characteritics for the sprite.
+
+    For \a type == Cyclic, the frames will increase by \a step
+    at each advance, modulo the frameCount().
+
+    For \a type == Oscillate, the frames will increase by \a step
+    at each advance, up to the frameCount(), then decrease by \a step
+    back to 0, etc.
+*/
+void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int state)
+{
+    anim_val = step;
+    anim_type = type;
+    anim_state = state;
+    setAnimated(TRUE);
+}
+
+/*!
+  Extends the default QCanvasItem implementation to provide
+  the functionality of setFrameAnimation().
+
+  \sa QCanvasItem::advance() setVelocity()
+*/
+void QCanvasSprite::advance(int phase)
+{
+    if ( phase==1 ) {
+	int nf = frame();
+	if ( anim_type == Oscillate ) {
+	    if ( anim_state )
+		nf += anim_val;
+	    else
+		nf -= anim_val;
+	    if ( nf < 0 ) {
+		nf = abs(anim_val);
+		anim_state = !anim_state;
+	    } else if ( nf >= frameCount() ) {
+		nf = frameCount()-1-abs(anim_val);
+		anim_state = !anim_state;
+	    }
+	} else {
+	    nf = (nf + anim_val + frameCount()) % frameCount();
+	}
+	move(x()+xVelocity(),y()+yVelocity(),nf);
+    }
+}
+
 
 /*!
 \fn int QCanvasSprite::frame() const

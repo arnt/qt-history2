@@ -443,6 +443,8 @@ public:
     void move(double x, double y);
     virtual void move(double x, double y, int frame);
     void setFrame(int);
+    enum FrameAnimationType { Cycle, Oscillate };
+    virtual void setFrameAnimation(FrameAnimationType=Cycle, int step=1, int state=0);
     int frame() const
 	{ return frm; }
     int frameCount() const
@@ -474,6 +476,7 @@ public:
     virtual QCanvasPixmap* imageAdvanced() const;
     QCanvasPixmap* image(int f) const
 	{ return images->image(f); }
+    virtual void advance(int stage);
 
 public:
     void draw(QPainter& painter);
@@ -484,6 +487,9 @@ private:
     void changeChunks();
 
     int frm;
+    ushort anim_val;
+    uint anim_state:2;
+    uint anim_type:14;
     bool collidesWith( const QCanvasSprite*,
 		       const QCanvasPolygonalItem*,
 		       const QCanvasRectangle*,
