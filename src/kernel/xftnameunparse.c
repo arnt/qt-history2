@@ -37,7 +37,7 @@ typedef struct _XftObjectType {
 } XftObjectType;
 
 
-const XftObjectType _XftObjectTypes[] = {
+static const XftObjectType _XftObjectTypes[] = {
     { XFT_FAMILY,       XftTypeString, },
     { XFT_STYLE,        XftTypeString, },
     { XFT_SLANT,        XftTypeInteger, },
