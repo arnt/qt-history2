@@ -16,6 +16,8 @@
 #include "qprinter_p.h"
 #include "qprintengine_win_p.h"
 
+#include <limits.h>
+
 #include <private/qfont_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
