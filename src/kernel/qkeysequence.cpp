@@ -160,7 +160,7 @@ class QKeySequencePrivate : public QShared
 public:
     inline QKeySequencePrivate()
     {
-	key[0] = key[1] = key[2] = key[3] =  0; 
+	key[0] = key[1] = key[2] = key[3] =  0;
     }
     inline QKeySequencePrivate( QKeySequencePrivate *copy )
     {
@@ -254,7 +254,7 @@ QKeySequence::~QKeySequence()
 	delete d;
 }
 
-/*! 
+/*!
     /internal
     KeySequences should never be modified, but rather just created.
     Internally though we do need to modify to keep pace in event
@@ -280,7 +280,7 @@ void QKeySequence::setKey( int key, int index )
 
 /*!
     Returns the number of keys in the key sequence.
-    Maximum of 4 keys. 
+    Maximum of 4 keys.
  */
 uint QKeySequence::count() const
 {
@@ -317,7 +317,7 @@ int QKeySequence::assign( QString keyseq )
     int n = 0;
     int p = 0, diff = 0;
 
-    // Run through the whole string, but stop 
+    // Run through the whole string, but stop
     // if we have 4 keys before the end.
     while ( keyseq.length() && n < 4 ) {
 	// We MUST use something to seperate each sequence, and space
@@ -505,12 +505,12 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	int a  = (*this)[i],
 	    b  = seq[i];
 
-	// If no Unicode modifier on the current key we are matching
-	// against, then it's probably a non-letter key
-	if ( ( a & Qt::UNICODE_ACCEL ) == 0 &&
-	     ( a == b ) )
-	     continue;
+ 	if ( a == b ) // perfect match
+ 	    continue;
 
+ 	if ( (b & Qt::UNICODE_ACCEL ) == 0 || ( a & Qt::UNICODE_ACCEL) == 0 )
+ 	    return NoMatch; // no unicode representation and no perfect match => no match
+	
 	int   am = a & Qt::MODIFIER_MASK;
 	QChar ac = QChar(a & 0xffff),
 	      bc = QChar(b & 0xffff);
@@ -532,10 +532,9 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	if ( ac == bc &&
 	    (b & (Qt::MODIFIER_MASK^Qt::SHIFT)) == am )
 	    continue;
-	    
-        return NoMatch;
+	
+	return NoMatch;
     }
-
     return match;
 }
 
@@ -615,9 +614,9 @@ QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 
 bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 {
-    return ( d->key[0] == keysequence.d->key[0] && 
-	     d->key[1] == keysequence.d->key[1] && 
-	     d->key[2] == keysequence.d->key[2] && 
+    return ( d->key[0] == keysequence.d->key[0] &&
+	     d->key[1] == keysequence.d->key[1] &&
+	     d->key[2] == keysequence.d->key[2] &&
 	     d->key[3] == keysequence.d->key[3] );
 }
 
@@ -628,9 +627,9 @@ bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 */
 bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
 {
-    return !( d->key[0] == keysequence.d->key[0] && 
-	      d->key[1] == keysequence.d->key[1] && 
-	      d->key[2] == keysequence.d->key[2] && 
+    return !( d->key[0] == keysequence.d->key[0] &&
+	      d->key[1] == keysequence.d->key[1] &&
+	      d->key[2] == keysequence.d->key[2] &&
 	      d->key[3] == keysequence.d->key[3] );
 }
 
@@ -681,8 +680,8 @@ QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )
 
     if ( 1 == list.count() ) {
         keysequence.d->key[0] = *list.at( 0 );
-	keysequence.d->key[1] = 
-	    keysequence.d->key[2] = 
+	keysequence.d->key[1] =
+	    keysequence.d->key[2] =
 	    keysequence.d->key[3] = 0;
     } else {
         keysequence.d->key[0] = *list.at( 0 );

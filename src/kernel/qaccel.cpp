@@ -209,10 +209,10 @@ bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
 
 /*
     /internal
-    Matches the current intermediate key sequence + the latest 
-    keyevent, with and AccelItem. Returns Identical, 
+    Matches the current intermediate key sequence + the latest
+    keyevent, with and AccelItem. Returns Identical,
     PartialMatch or NoMatch, and fills \a temp with the
-    resulting key sequence. 
+    resulting key sequence.
 */
 Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequence& temp )
 {
@@ -220,48 +220,51 @@ Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequ
     int index = intermediate.count();
     temp = intermediate;
 
-    int key = e->key();
-    if ( (0      == key) || // Undefined
-	 (0xffff == key) )  // Key_unknown
-	 key = (int)e->text()[0].unicode();
-
+    int modifier = 0;
     if ( e->state() & ShiftButton )
-	key |= SHIFT;
+	modifier |= SHIFT;
     if ( e->state() & ControlButton )
-	key |= CTRL;
+	modifier |= CTRL;
     if ( e->state() & MetaButton )
-	key |= META;
+	modifier |= META;
     if ( e->state() & AltButton )
-	key |= ALT;
+	modifier |= ALT;
 
-    if ( e->key() == Key_BackTab ) {
-	/*
-	  In QApplication, we map shift+tab to shift+backtab.
+    if ( e->key() && e->key() != Key_unknown) {
+	int key = e->key()  | modifier;
+	if ( e->key() == Key_BackTab ) {
+	    /*
+	    In QApplication, we map shift+tab to shift+backtab.
 	  This code here reverts the mapping in a way that keeps
 	  backtab and shift+tab accelerators working, in that
-	  order, meaning backtab has priority.
-	*/
-	key &= ~SHIFT;
+	  order, meaning backtab has priority.*/
+	    key &= ~SHIFT;
 
-	temp.setKey( key, index );
-	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
-	    return result;
-	if ( e->state() & ShiftButton )
-	    key |= SHIFT;
-	key = Key_Tab | ( key & MODIFIER_MASK );
-	temp.setKey( key, index );
-	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
-	    return result;
-    } else {
-	temp.setKey( key, index );
-	if ( Qt::NoMatch != (result = temp.matches( item->key )) )
-	    return result;
+	    temp.setKey( key, index );
+	    if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+		return result;
+	    if ( e->state() & ShiftButton )
+		key |= SHIFT;
+	    key = Key_Tab | ( key & MODIFIER_MASK );
+	    temp.setKey( key, index );
+	    if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+		return result;
+	} else {
+	    temp.setKey( key, index );
+	    if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+		return result;
+	}
+
+	if ( key == Key_BackTab ) {
+	    if ( e->state() & ShiftButton )
+		key |= SHIFT;
+	    temp.setKey( key, index );
+	    if ( Qt::NoMatch != (result = temp.matches( item->key )) )
+		return result;
+	}
     }
-
-    if ( key == Key_BackTab ) {
-	if ( e->state() & ShiftButton )
-	    key |= SHIFT;
-	temp.setKey( key, index );
+    if ( !e->text().isEmpty() ) {
+	temp.setKey( (int)e->text()[0].unicode() | UNICODE_ACCEL | modifier, index );
 	result = temp.matches( item->key );
     }
     return result;
@@ -269,7 +272,7 @@ Qt::SequenceMatch QAccelManager::match( QKeyEvent *e, QAccelItem* item, QKeySequ
 
 /*
     /internal
-    Checks for possible accelerators, if no widget 
+    Checks for possible accelerators, if no widget
     ate the keypres, or we are in the middle of a
     partial key sequence.
 */
