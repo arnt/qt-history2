@@ -680,7 +680,7 @@ QString QTableItem::content() const
 	QCheckTableItem *that = (QCheckTableItem *)this;
 	return that->isChecked() ? "1" : "0";
     }
-    return text();
+    return txt;
 }
 
 /*!
@@ -2119,6 +2119,7 @@ void QTable::init( int rows, int cols )
 QTable::~QTable()
 {
     delete d;
+    setUpdatesEnabled( FALSE );
     contents.setAutoDelete( TRUE );
     contents.clear();
     widgets.clear();
