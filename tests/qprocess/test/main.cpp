@@ -68,4 +68,5 @@ int main( int argc, char **argv )
 	vb.show();
 	return a.exec();
     }
+    return 0;
 }

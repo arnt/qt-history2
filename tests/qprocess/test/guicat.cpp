@@ -40,7 +40,7 @@ void GuiCat::readOneByte()
     if( !cin.eof() ) {
 	cin >> ch;
 	buf.resize( buf.size() + 1 );
-	buf[ buf.size()-1 ] = ch;
+	buf.at( buf.size()-1 ) = ch;
     }
 }
 
@@ -48,7 +48,7 @@ void GuiCat::readOneByte()
 void GuiCat::writeStdout()
 {
     for ( uint i=0; i<buf.size(); i++ )
-	cout << buf[i];
+	cout << buf.at( i );
     cout.flush();
     buf.resize( 0 );
 }
@@ -57,7 +57,7 @@ void GuiCat::writeStdout()
 void GuiCat::writeStderr()
 {
     for ( uint i=0; i<buf.size(); i++ )
-	cerr << buf[i];
+	cerr << buf.at( i );
     cerr.flush();
     buf.resize( 0 );
 }
