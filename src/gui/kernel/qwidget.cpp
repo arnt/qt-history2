@@ -4247,19 +4247,6 @@ void QWidget::adjustSize()
     QSize s = sizeHint();
 
     if (isTopLevel()) {
-        QString title(windowTitle());
-        if (!title.isEmpty() && testWFlags(Qt::WStyle_Title)) {
-            // Make sure the window is large enough for the title.
-            // This assumes that the title font is a bold version of the
-            // widget's font. Usually the contents are significantely larger
-            // than the title anyway.
-            title += "                "; // some padding
-            QFont titleFont(font());
-            titleFont.setBold(true);
-            QFontMetrics fm(titleFont);
-            s.setWidth(qMax(s.width(), fm.width(title)));
-        }
-
         QSizePolicy::ExpandData exp;
 #ifndef QT_NO_LAYOUT
         if (QLayout *l = layout()) {
