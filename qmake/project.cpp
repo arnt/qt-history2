@@ -755,6 +755,18 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
     return doProjectTest(func.stripWhiteSpace(), args, place);
 }
 
+/* If including a feature it will look in:
+
+   1) environment variable QMAKEFEATURES (as separated by colons)
+   2) environment variable QMAKEPATH (as separated by colons) + FEATURES_DIR
+   3) your QMAKESPEC dir
+   4) environment variable QTDIR + FEATURES_DIR
+
+   FEATURES_DIR is defined as:
+
+   1) mkspecs/features/(unix|win32|macx)
+   2) mkspecs/features
+*/
 bool
 QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
 			       const QString &seek_var)
@@ -764,8 +776,31 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    file += Option::prf_ext;
 	if(file.find(Option::dir_sep) == -1 || !QFile::exists(file)) {
 	    bool found = FALSE;
-	    const QString concat = QDir::separator() + QString("mkspecs") +
-				   QDir::separator() + QString("features");
+	    QStringList concat;
+	    {
+		const QString base_concat = QDir::separator() + QString("mkspecs") + 
+					    QDir::separator() + QString("features");
+		switch(Option::target_mode) {
+		case Option::TARG_MACX_MODE: 		    //also a unix
+		    concat << base_concat + QDir::separator() + "macx";
+		    concat << base_concat + QDir::separator() + "unix";
+		    break;
+		case Option::TARG_UNIX_MODE:
+		    concat << base_concat + QDir::separator() + "unix";
+		    break;
+		case Option::TARG_WIN_MODE: 
+		    concat << base_concat + QDir::separator() + "win32";
+		    break;
+		case Option::TARG_MAC9_MODE: 
+		    concat << base_concat + QDir::separator() + "mac9";
+		    break;
+		case Option::TARG_QNX6_MODE: //also a unix
+		    concat << base_concat + QDir::separator() + "qnx6";
+		    concat << base_concat + QDir::separator() + "unix";
+		    break;
+		}
+		concat << base_concat;
+	    }
 	    QStringList feature_roots;
 	    if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
 #ifdef Q_OS_WIN
@@ -781,29 +816,46 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		QStringList lst = QStringList::split(';', qmakepath);
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
 		    QStringList lst2 = QStringList::split(':', (*it));
-		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
-			feature_roots << ((*it2) + concat);
+		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
+			for(QStringList::Iterator concat_it = concat.begin(); 
+			    concat_it != concat.end(); ++concat_it) 
+			    feature_roots << ((*it2) + (*concat_it));
+		    }
 		}
 #else
 		QStringList lst = QStringList::split(':', qmakepath);
-		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-		    feature_roots << ((*it) + concat);
+		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
+		    for(QStringList::Iterator concat_it = concat.begin(); 
+			concat_it != concat.end(); ++concat_it) 
+			feature_roots << ((*it) + (*concat_it));
 #endif
+		}
 	    }
 	    feature_roots << Option::mkfile::qmakespec;
-	    if(const char *qtdir = getenv("QTDIR"))
-		feature_roots << (qtdir + concat);
+	    if(const char *qtdir = getenv("QTDIR")) {
+		for(QStringList::Iterator concat_it = concat.begin(); 
+		    concat_it != concat.end(); ++concat_it) 
+		    feature_roots << (qtdir + (*concat_it));
+	    }
 #ifdef QT_INSTALL_PREFIX
-	    feature_roots << (QT_INSTALL_PREFIX + concat);
+	    for(QStringList::Iterator concat_it = concat.begin(); 
+		concat_it != concat.end(); ++concat_it) 
+		feature_roots << (QT_INSTALL_PREFIX + (*concat_it));
 #endif
 #if defined(HAVE_QCONFIG_CPP)
-	    feature_roots << (qInstallPath() + concat);
+	    for(QStringList::Iterator concat_it = concat.begin(); 
+		concat_it != concat.end(); ++concat_it) 
+		feature_roots << (qInstallPath() + (*concat_it));
 #endif
 #ifdef QT_INSTALL_DATA
-	    feature_roots << (QT_INSTALL_DATA + concat);
+	    for(QStringList::Iterator concat_it = concat.begin(); 
+		concat_it != concat.end(); ++concat_it) 
+		feature_roots << (QT_INSTALL_DATA + (*concat_it));
 #endif
 #if defined(HAVE_QCONFIG_CPP)
-	    feature_roots << (qInstallPathData() + concat);
+	    for(QStringList::Iterator concat_it = concat.begin(); 
+		concat_it != concat.end(); ++concat_it) 
+		feature_roots << (qInstallPathData() + (*concat_it));
 #endif
 	    for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
 		QString prf = (*it) + QDir::separator() + file;
