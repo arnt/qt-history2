@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#9 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#10 $
 **
 ** Definition of 
 **
@@ -116,6 +116,10 @@ public slots:
 
 signals:
     void sizeChanged();
+
+    void selectionChanged();
+    void selectionChanged( QListViewItem * );
+    void currentChanged( QListViewItem * );
 
 protected:
     bool eventFilter( QObject * o, QEvent * );

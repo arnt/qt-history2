@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#20 $
 **
 ** Implementation of something useful
 **
@@ -21,7 +21,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#20 $");
 
 
 struct QListViewPrivate
@@ -339,6 +339,14 @@ void QListViewItem::setOpen( bool o )
 }
 
 
+/*! \fn bool QListViewItem::isSelected() const
+
+  Returns TRUE if this item is selected, or FALSE if it is not.
+
+  \sa setSelection() selectionChanged() QListViewItem::setSelected()
+*/
+
+
 /*!  Sets this item to be selected \a s is TRUE, and to not be
   selected if \a o is FALSE.  Doesn't repaint anything in either case.
 
@@ -389,9 +397,21 @@ const char * QListViewItem::text( int column ) const
 }
 
 
-/*!  Paint the contents of one cell.
+/*!  This virtual function paints the contents of one cell.
 
-  ### undoc
+  \a p is a QPainter open on the relevant paint device.  \a pa is
+  translated so 0, 0 is the top left pixel in the cell and \a width-1,
+  height()-1 is the bottom right pixel \e in the cell.  The other
+  properties of \a p (pen, brush etc) are undefined.  \a cg is the
+  color group to use.  \a column is the logical column number within
+  the item that is to be painted; 0 is the column which may contain a
+  tree.  \a showFocus is TRUE if this item should indicate that the
+  list view has keyboard focus, FALSE otherwise.
+
+  The rectangle to be painted is in an undefined state when this
+  function is called, so you \e must draw on all the pixels.
+
+  \sa paintBranches(), QListView::drawContentsOffset()
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
@@ -449,6 +469,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
   The update rectangle is in an undefined state when this function is
   called; this function must draw on \e all of the pixels.
+
+  \sa paintCell(), QListView::drawContentsOffset()
 */
 
 void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
@@ -1020,7 +1042,11 @@ QListView * QListViewItem::listView() const
 
 /*! \fn bool QListViewItem::isOpen () const
 
-  Returns TRUE if it wants to.
+  Returns TRUE if this list view item has children \e and they are
+  potentially visible, or FALSE if the item has no children or they
+  are hidden.
+
+  \sa setOpen()
 */
 
 /*! \fn const QListViewItem* QListViewItem::firstChild () const
@@ -1057,6 +1083,42 @@ QListView * QListViewItem::listView() const
 
   This signal is emitted when the list view changes width (or height?
   not at present).
+*/
+
+
+/*! \fn void QListView::selectionChanged()
+
+  This signal is emitted whenever the set of selected items has
+  changed (normally before the screen update).  It is available both
+  in single-selection and multi-selection mode, but is most meaningful
+  in multi-selection mode.
+
+  \sa setSelected() QListViewItem::setSelected()
+*/
+
+
+/*! \fn void QListView::selectionChanged( QListViewItem * )
+
+  This signal is emitted whenever the selected item has changed in
+  single-selection mode (normally after the screen update).  The
+  argument is the newly selected item.
+
+  There is another signal which is more useful in multi-selection
+  mode.
+
+  \sa setSelected() QListViewItem::setSelected() currentChanged()
+*/
+
+
+/*! \fn void QListView::currentChanged( QListViewItem * )
+
+  This signal is emitted whenever the current item has changed
+  (normally after the screen update).  The current item is the item
+  responsible for indicating keyboard focus.
+
+  The argument is the newly current item.
+
+  \sa setCurrentItem() currentItem()
 */
 
 
@@ -1181,8 +1243,11 @@ void QListView::mouseMoveEvent( QMouseEvent * e )
 }
 
 
-/*!
+/*!  Handles focus in events on behalf of viewport().  Since
+  viewport() is this widget's focus proxy by default, you can think of
+  this function as handling this widget's focus in events.
 
+  \sa setFocusPolicy() setFocusProxy() focusOutEvent()
 */
 
 void QListView::focusInEvent( QFocusEvent * )
@@ -1191,8 +1256,11 @@ void QListView::focusInEvent( QFocusEvent * )
 }
 
 
-/*!
+/*!  Handles focus out events on behalf of viewport().  Since
+  viewport() is this widget's focus proxy by default, you can think of
+  this function as handling this widget's focus in events.
 
+  \sa setFocusPolicy() setFocusProxy() focusInEvent()
 */
 
 void QListView::focusOutEvent( QFocusEvent * )
@@ -1201,8 +1269,9 @@ void QListView::focusOutEvent( QFocusEvent * )
 }
 
 
-/*!
-
+/*!  Handles key press events on behalf of viewport().  Since
+  viewport() is this widget's focus proxy by default, you can think of
+  this function as handling this widget's keyboard input.
 */
 
 void QListView::keyPressEvent( QKeyEvent * )
@@ -1308,16 +1377,20 @@ bool QListView::isSelected( QListViewItem * i ) const
 void QListView::setCurrentItem( QListViewItem * i )
 {
     QListViewItem * prev = d->currentSelected;
+    QRect r( 0, 0, -1, -1 );
     d->currentSelected = i;
     if ( prev && prev != i )
-	viewport()->repaint( itemRect( prev ) );
-    if ( i )
-	viewport()->repaint( itemRect( i ) );
+	r = itemRect( prev );
+    viewport()->repaint( i ? r.unite( itemRect( i ) ) : r );
+    if ( prev != i )
+	emit currentChanged( i );
 }
 
 
-/*!
+/*!  Returns a pointer to the currently highlighted item, or 0 if
+  there isn't any.
 
+  \sa setCurrentItem()
 */
 
 QListViewItem * QListView::currentItem() const
