@@ -183,8 +183,8 @@ QTextFormat::QTextFormat( const QStyleSheetItem *style )
     fm = QFontMetrics( fn );
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
+    hei = fm.lineSpacing();
+    asc = fm.ascent() + (fm.leading()+1)/2;
     dsc = fm.descent();
     missp = FALSE;
     ha = AlignNormal;
@@ -203,8 +203,8 @@ QTextFormat::QTextFormat( const QFont &f, const QColor &c, QTextFormatCollection
     collection = parent;
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
+    hei = fm.lineSpacing();
+    asc = fm.ascent() + (fm.leading()+1)/2;
     dsc = fm.descent();
     missp = FALSE;
     ha = AlignNormal;
@@ -273,8 +273,8 @@ void QTextFormat::update()
     fm = QFontMetrics( fn );
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
-    hei = fm.height();
-    asc = fm.ascent();
+    hei = fm.lineSpacing();
+    asc = fm.ascent() + (fm.leading()+1)/2;
     dsc = fm.descent();
     memset( widths, 0, 256 );
     generateKey();
@@ -302,7 +302,7 @@ int QTextFormat::height() const
     if ( !painter || !painter->isActive() )
 	return hei;
     painter->setFont( fn );
-    return painter->fontMetrics().height();
+    return painter->fontMetrics().lineSpacing();
 }
 
 int QTextFormat::ascent() const
@@ -310,7 +310,7 @@ int QTextFormat::ascent() const
     if ( !painter || !painter->isActive() )
 	return asc;
     painter->setFont( fn );
-    return painter->fontMetrics().ascent();
+    return painter->fontMetrics().ascent() + (painter->fontMetrics().leading()+1)/2;
 }
 
 int QTextFormat::descent() const

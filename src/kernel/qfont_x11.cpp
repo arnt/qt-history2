@@ -2962,10 +2962,10 @@ int QFont::x11Screen() const
 // **********************************************************************
 
 /*!
-  Returns the maximum ascent of the font.
+  Returns the ascent of the font.
 
-  The ascent is the distance from the base line to the uppermost line
-  where pixels may be drawn.
+  The ascent of a font is the distance from the baseline to the highest
+  position characters extent to. Some characters may be higher than ascent.
 
   \sa descent()
 */
@@ -2985,16 +2985,17 @@ int QFontMetrics::ascent() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return (int) (f->max_bounds.ascent * qfs->scale);
+    return (int) (QMIN(f->ascent, f->max_bounds.ascent) * qfs->scale);
 }
 
 
 /*!
-  Returns the maximum descent of the font.
+  Returns the descent of the font.
 
-  The descent is the distance from the base line to the lowermost line
-  where pixels may be drawn. (Note that this is different from X, which
-  adds 1 pixel.)
+  The descent is the distance from the base line to the lowest point characters
+  extent to. (Note that this is different from X, which
+  adds 1 pixel.) Some characters may extend below this value. 
+  
 
   \sa ascent()
 */
@@ -3013,7 +3014,7 @@ int QFontMetrics::descent() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return (int) ((f->max_bounds.descent - 1)*qfs->scale);
+    return (int) ((QMIN(f->descent, f->max_bounds.descent) - 1)*qfs->scale);
 }
 
 
@@ -3194,7 +3195,8 @@ int QFontMetrics::height() const
 #endif // QT_NO_XFTFREETYPE
 
     XFontStruct *f = (XFontStruct *) qfs->handle;
-    return (int) ((f->max_bounds.ascent + f->max_bounds.descent) * qfs->scale);
+    return (int) ((QMIN(f->ascent, f->max_bounds.ascent)
+		   + QMIN(f->descent, f->max_bounds.descent)) * qfs->scale);
 }
 
 
@@ -3219,13 +3221,14 @@ int QFontMetrics::leading() const
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = (XftFontStruct *) qfs->xfthandle;
     if (xftfs)
-	l = xftfs->height - (xftfs->ascent + xftfs->descent);
+	l = (int) QMIN( xftfs->height - (xftfs->ascent + xftfs->descent), 
+			((xftfs->ascent + xftfs->descent) >> 4) );
     else
 #endif // QT_NO_XFTFREETYPE
-	l = (int) ((f->ascent + f->descent - f->max_bounds.ascent -
-		    f->max_bounds.descent) * qfs->scale);
+	l = qRound((QMIN(f->ascent, f->max_bounds.ascent)
+		     + QMIN(f->descent, f->max_bounds.descent)) * qfs->scale *0.15 );
 
-    return (l > 0) ? l : 0;
+    return (l > 0) ? l : 1;
 }
 
 
