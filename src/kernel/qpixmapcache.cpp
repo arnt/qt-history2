@@ -164,7 +164,7 @@ static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 QPixmap *QPixmapCache::find( const QString &key )
 {
-    if (!pm_cache->contains(key))
+    if (!pm_cache || !pm_cache->contains(key))
 	return false;
     return &pm_cache->ref(key);
 }
