@@ -513,7 +513,7 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     e->ignore();
     if ( e->button() != LeftButton )
 	return;
-    if ( e->y() < 4 )
+    if ( e->y() < 3 )
 	return;
     e->accept();
     mousePressed = TRUE;
