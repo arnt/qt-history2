@@ -1957,6 +1957,7 @@ Qt::HANDLE QPixmap::xftDrawHandle() const
 
 Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 {
+#ifndef QT_NO_XFT
     if (d == xinfo.depth())
         return hd;
     if (!hd2) {
@@ -1969,6 +1970,9 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
         XRenderFreePicture(xinfo.display(), picture);
     }
     return hd2;
+#else
+    return hd;
+#endif
 }
 
 
