@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#16 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#16 $";
 #endif
 
 
@@ -55,6 +55,11 @@ static void create_palettes()			// creates default palettes
     motifPalette = new QPalette( motif_nor, motif_dis, motif_act );
 }
 
+static void destroy_palettes()
+{
+    delete motifPalette;
+}
+
 
 QApplication::QApplication()
 {
@@ -73,6 +78,9 @@ QApplication::QApplication()
 
 QApplication::~QApplication()
 {
+    destroy_palettes();
+    delete appPal;
+    appPal = 0;
     if ( appFont )
 	delete appFont;
     if ( appCursor )
