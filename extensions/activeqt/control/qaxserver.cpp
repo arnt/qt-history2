@@ -44,15 +44,20 @@ extern CLSID CLSID_QRect;
 extern CLSID CLSID_QSize;
 extern CLSID CLSID_QPoint;
 extern void qax_shutDown();
+extern bool qax_ownQApp;
 
 QAxFactoryInterface *qAxFactory()
 {
     if (!_factory) {
+        bool hadQApp = qApp != 0;
         QUnknownInterface *unknown = ucm_instantiate();
         if (unknown) {
             unknown->queryInterface(IID_QAxFactory, (QUnknownInterface**)&_factory);
             unknown->release();
         }
+        // QAxFactory created a QApplication
+        if (!hadQApp && qApp)
+            qax_ownQApp = true;
     }
     return _factory;
 }
@@ -166,8 +171,12 @@ HRESULT UpdateRegistry(BOOL bRegister)
     settings.insertSearchPath(QSettings::Windows, "/Classes");
     
     // we try to create the ActiveX widgets later on...
-    int argc = 0;
-    QApplication app(argc, 0);
+    bool delete_qApp = false;
+    if (!qApp) {
+        int argc = 0;
+        QApplication app(argc, 0);
+        delete_qApp = true;
+    }
     
     if (bRegister) {
         if (file.right(3).toLower() == "exe") {
@@ -313,6 +322,9 @@ HRESULT UpdateRegistry(BOOL bRegister)
         settings.removeEntry("/TypeLib/" + libId + "/" + typeLibVersion + "/.");
     }
     
+    if (delete_qApp)
+        delete qApp;
+
     qAxCleanup();
     return S_OK;
 }
@@ -937,8 +949,12 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     out << "#include <olectl.h>" << endl << endl;
     
     // dummy application to create widgets
-    int argc;
-    QApplication app(argc, 0);
+    bool delete_qApp = false;
+    if (!qApp) {
+        int argc;
+        QApplication app(argc, 0);
+        delete_qApp = true;
+    }
     
     out << "[" << endl;
     out << "\tuuid(" << typeLibID << ")," << endl;
@@ -1049,6 +1065,9 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     out << "};" << endl;
     
 ErrorInClass:
+    if (delete_qApp)
+        delete_qApp;
+
     delete mapping;
     mapping = 0;
     delete enums;

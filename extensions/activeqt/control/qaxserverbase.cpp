@@ -737,6 +737,7 @@ private:
     unsigned long ref;
 };
 
+// callback for DLL server to hook into non-Qt eventloop
 extern Q_GUI_EXPORT void qWinProcessConfigRequests();
 LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -749,6 +750,8 @@ LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
 
+// filter for executable case to hook into Qt eventloop
+// for DLLs the client calls TranslateAccelerator
 bool qax_winEventFilter(MSG *pMsg, long &res)
 {
     if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
@@ -856,6 +859,10 @@ public:
             qax_ownQApp = true;
             int argc = 0;
             (void)new QApplication(argc, 0);
+        }
+
+        // hook the server in; this allows a server to create his own QApplication object
+        if (!qax_hhook && qax_ownQApp) {
             QT_WA({
                 qax_hhook = SetWindowsHookExW(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
             }, {
