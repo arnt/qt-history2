@@ -2905,7 +2905,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
-	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
+	if ( type == QEvent::MouseButtonPress || type == QEvent::MouseButtonDblClick ) {	// mouse button pressed
 	    // Magic for masked widgets
 	    qt_button_down = findChildWidget( this, pos );
 	    if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
