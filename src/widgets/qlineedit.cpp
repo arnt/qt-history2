@@ -846,7 +846,6 @@ void QLineEdit::drawContents( QPainter *painter )
 {
     int marg = frameWidth() + margin() + 1;
     painter->translate( marg, 0 );
-    updateOffset();
     const QColorGroup & g = colorGroup();
 
     // always double buffer when we have focus, and keep the pixmap
@@ -884,6 +883,7 @@ void QLineEdit::drawContents( QPainter *painter )
     parag->setDocumentRect( r );
     parag->invalidate( 0 );
     parag->format();
+    updateOffset();
     int xoff = 1 - d->offset;
     int yoff = ( height() - parag->rect().height() ) / 2;
     if ( yoff < 0 )
