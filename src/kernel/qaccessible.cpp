@@ -282,7 +282,9 @@
     (e.g. by calling QLabel::setText()) or by user interaction.
 
     If there are no accessibility tools listening to this event, the
-    performance penalty for calling this function is minor.
+    performance penalty for calling this function is minor, but if determining
+    the parameters of the call is expensive you can use isActive() to
+    avoid unnecessary performance penalties if no client is listening.
 */
 
 static QPluginManager<QAccessibleFactoryInterface> *qAccessibleManager = 0;
@@ -351,6 +353,22 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     return QE_NOCOMPONENT;
 }
 
+/*!
+    Returns TRUE if an accessibility implementation has been requested,
+    during the runtime of the application, otherwise returns FALSE. 
+    
+    Use this function to prevent potentially expensive notifications via
+    updateAccessibility().
+
+    \omit
+    QListView uses this function to prevent index-lookups for item based
+    notifications.
+    \endomit
+*/
+bool QAccessible::isActive()
+{
+    return qAccessibleManager != 0;
+}
 
 /*!
     \class QAccessibleInterface qaccessible.h
