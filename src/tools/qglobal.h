@@ -1325,8 +1325,8 @@ public:
     inline bool operator!() const { return !u; }
     inline bool operator==(QFlags f) const { return u == f.u; }
     inline bool operator!=(QFlags f) const { return u != f.u; }
-    inline bool operator==(Enum f) const { return u == (uint)f; }
-    inline bool operator!=(Enum f) const { return u != (uint)f; }
+    inline bool operator==(Enum f) const { return u == (int)f; }
+    inline bool operator!=(Enum f) const { return u != (int)f; }
     inline bool operator==(Zero *) const { return u == 0; }
     inline bool operator!=(Zero *) const { return u != 0; }
 };
