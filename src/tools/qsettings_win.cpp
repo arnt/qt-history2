@@ -278,7 +278,8 @@ bool QSettings::writeEntry( const QString &key, const QString &value )
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	array.resize( value.length() * 2 + 2 );
 	const QChar *data = value.unicode();
-	for ( int i = 0; i < (int)value.length(); ++i ) {
+	int i;
+	for ( i = 0; i < (int)value.length(); ++i ) {
 	    array[ 2*i ] = data[ i ].cell();
 	    array[ (2*i)+1 ] = data[ i ].row();
 	}
@@ -386,7 +387,7 @@ bool QSettings::removeEntry( const QString &key )
 
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
-	res = RegDeleteValueW( handle, (const ushort*)qt_winTchar( e, TRUE ) );
+	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
     else
 #endif
 	res = RegDeleteValueA( handle, e.local8Bit() );
