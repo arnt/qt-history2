@@ -34,6 +34,19 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
+#define LINUX_MOUSE
+#ifdef LINUX_MOUSE
+//mouse stuff:
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+static const char *mouseDev = "/dev/mouse";
+static const int mouseBufSize = 100;
+#endif
+
 static int SWIDTH=640;
 static int SHEIGHT=480;
 
@@ -141,25 +154,40 @@ void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
  *
  *********************************************************************/
 
-//### parent == 0 means use real frame buffer
-
-QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
+QWSServer::QWSServer( bool fake, QObject *parent=0, const char *name=0 ) :
     QServerSocket(QTFB_PORT,parent,name),
-    pending_region_acks(0)
+    mouseBuf(0), pending_region_acks(0)
 {
-    if ( parent ) {
-    shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
-			IPC_CREAT|IPC_EXCL|0666);
-    if ( shmid < 0 )
-	perror("Cannot allocate shared memory.  Server already running?");
-    framebuffer = (uchar*)shmat( shmid, 0, 0 );
-    if ( framebuffer == (uchar*)-1 )
-	perror("Cannot attach to shared memory.");
-    int e=shmctl(shmid, IPC_RMID, 0);
-    if ( e<0 )
-	perror("shmctl IPC_RMID");
+    if ( fake ) {
+	shmid = shmget(IPC_PRIVATE, SWIDTH*SHEIGHT*sizeof(QRgb),
+		       IPC_CREAT|IPC_EXCL|0666);
+	if ( shmid < 0 )
+	    perror("Cannot allocate shared memory.  Server already running?");
+	framebuffer = (uchar*)shmat( shmid, 0, 0 );
+	if ( framebuffer == (uchar*)-1 )
+	    perror("Cannot attach to shared memory.");
+	int e=shmctl(shmid, IPC_RMID, 0);
+	if ( e<0 )
+	    perror("shmctl IPC_RMID");
     } else {
-	shmid = -1;
+	shmid = -1; //let client do all FB handling.
+#ifdef LINUX_MOUSE
+	if ((mouseFD = open( mouseDev, O_RDWR | O_NDELAY)) < 0) {
+	    printf( "Cannot open %s (%s)\n", (const char*)mouseDev,
+		    strerror(errno));
+	    exit(1);
+	}
+	mouseBuf = new uchar[mouseBufSize];
+	mouseIdx = 0;
+	mouseX = 500;
+	mouseY = 300;
+	QSocketNotifier *sn = new QSocketNotifier( mouseFD, 
+						   QSocketNotifier::Read,
+						   this );
+	connect( sn, SIGNAL(activated(int)),this, SLOT(readMouseData()) );
+#endif	
+
+    
     }
     if ( !start() )
 	qFatal("Failed to bind to port %d",QTFB_PORT);
@@ -168,6 +196,8 @@ QWSServer::QWSServer( QObject *parent=0, const char *name=0 ) :
 QWSServer::~QWSServer()
 {
     // XXX destroy all clients
+    if ( mouseBuf )
+	delete[] mouseBuf; //??? is delete[] 0 safe?
 }
 
 void QWSServer::newConnection( int socket )
@@ -463,6 +493,112 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     }
 }
 
+/*
+  mouseIdx is the number of bytes in the buffer (aka the first free
+  position). handleMouseData() moves any data it doesn't use to
+  the beginning of the buffer, and updates mouseIdx.
+ */
+
+void QWSServer::readMouseData()
+{
+#ifdef LINUX_MOUSE    
+    int n;
+    do {
+	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
+	if ( n > 0 ) {
+	    mouseIdx += n;
+	    handleMouseData();
+	}
+    } while ( n > 0 );
+#endif    
+}
+
+
+
+
+/*
+  This implements the Logitech MouseMan(Plus) protocol,
+  wheel not yet supported.
+*/
+
+void QWSServer::handleMouseData()
+{
+    static const int screen_width = 1024; //#####
+    static const int screen_height = 768; //#####
+    static const int accel_limit = 5;
+    static const int accel = 4;
+
+    
+    //    printf( "handleMouseData mouseIdx=%d\n", mouseIdx );
+    
+    
+    int idx = 0;
+    
+    while ( mouseIdx-idx >= 3 ) {
+	int bstate = 0;
+	uchar *mb = mouseBuf+idx;
+	
+	if (mb[0] & 0x01) 
+	    bstate |= Qt::LeftButton;
+	if (mb[0] & 0x02) 
+	    bstate |= Qt::RightButton;
+	if (mb[0] & 0x04) 
+	    bstate |= Qt::MidButton;
+
+	int overflow = (mb[0]>>6 )& 0x03;
+	//### wheel events signalled with overflow bit, ignore for now
+	int dx,dy;
+	if ( !overflow ) {
+	    bool xs = mb[0] & 0x10;
+	    bool ys = mb[0] & 0x20;
+		
+	    dx = xs ? mb[1]-256 : mb[1];
+	    dy = ys ? mb[2]-256 : mb[2];
+	    if ( QABS(dx) > accel_limit || QABS(dy) > accel_limit ) {
+		dx *= accel;
+		dy *= accel;
+	    }		
+	    mouseX += dx;
+	    mouseY -= dy; // turn coordinate system
+		
+	    mouseX = QMIN( QMAX( mouseX, 0 ), screen_width );
+	    mouseY = QMIN( QMAX( mouseY, 0 ), screen_height );
+		
+
+	    sendMouseEvent( QPoint(mouseX,mouseY), bstate );
+	}
+	idx += 3;
+
+
+#if 0 //debug
+	const char *b1 = (mb[0] & 0x01) ? "b1":"  ";//left
+	const char *b2 = (mb[0] & 0x02) ? "b2":"  ";//right
+	const char *b3 = (mb[0] & 0x04) ? "b3":"  ";//mid
+
+	
+	printf( "(%2d) %02x %02x %02x ", idx, mb[0],mb[1],mb[2] );
+	
+	
+	if ( overflow )
+	    printf( "Overflow%d %s %s %s  (%4d,%4d)\n", overflow, 
+		    b1, b2, b3, mouseX, mouseY );
+	else
+	    printf( "%s %s %s (%+3d,%+3d)  (%4d,%4d)\n", 
+		    b1, b2, b3, dx, dy, mouseX, mouseY );
+#endif
+    }
+
+    int surplus = mouseIdx - idx;
+    for ( int i = 0; i < surplus; i++ )
+	mouseBuf[i] = mouseBuf[idx+i];
+    mouseIdx = surplus;
+
+
+    //printf( "exit handleMouseData mouseIdx=%d\n", mouseIdx );
+
+
+}
+
 
 
 class Main : public QWidget {
@@ -483,7 +619,7 @@ public:
 	    setFixedSize(size()); // Allow -geometry to set it, but then freeze.
 	    SWIDTH = width();
 	    SHEIGHT = width();
-	    server = new QWSServer(this);
+	    server = new QWSServer( TRUE, this );
 	    img = QImage( server->frameBuffer(),
 			SWIDTH, SHEIGHT, 32, 0, 0, QImage::BigEndian );
 	    startTimer(refresh_delay);
@@ -539,7 +675,7 @@ main(int argc, char** argv)
 	m->serve(refresh_delay);
 	m->show();
     } else {
-	QWSServer *server = new QWSServer;
+	(void)new QWSServer;
     }
     return app.exec();
 }

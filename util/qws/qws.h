@@ -63,7 +63,7 @@ class QWSServer : public QServerSocket
     Q_OBJECT
 
 public:
-    QWSServer( QObject *parent=0, const char *name=0 );
+    QWSServer( bool fake=FALSE, QObject *parent=0, const char *name=0 );
     ~QWSServer();
     void newConnection( int socket );
 
@@ -85,8 +85,10 @@ private:
 
 private slots:
     void doClient();
+    void readMouseData();
 
 private:
+    void handleMouseData();
     typedef QMapIterator<int,QWSClient*> ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
 
@@ -95,6 +97,11 @@ private:
     ClientMap client;
     QWSPropertyManager propertyManager;
 
+    int mouseFD;
+    int mouseIdx;
+    uchar *mouseBuf;
+    int mouseX, mouseY;
+    
     // Window management
     QList<QWSWindow> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
