@@ -1057,15 +1057,14 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 	::Picture dst = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;
 
 	if (src && dst) {
-	    XPointDouble *poly = new XPointDouble[pa.size()];
+	    QVarLengthArray<XPointDouble> poly(pa.size());
 	    for (int i = 0; i < pa.size(); ++i) {
 		poly[i].x = pa[i].x();
 		poly[i].y = pa[i].y();
 	    }
 	    XRenderCompositeDoublePoly(d->dpy, PictOpOver, src, dst,
 				       XRenderFindStandardFormat(d->dpy, PictStandardARGB32),
-				       0, 0, 0, 0, poly, npoints, (mode == WindingMode));
-	    delete [] poly;
+				       0, 0, 0, 0, poly.data(), npoints, (mode == WindingMode));
 
 	    if (d->cpen.style() != Qt::NoPen) {              // draw outline
 		XDrawLines(d->dpy, d->hd, d->gc, (XPoint*)(pa.shortPoints(0, npoints)),
