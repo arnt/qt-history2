@@ -49,6 +49,10 @@
 
 #define RECT_EXTENSION 300
 
+// MOC_SKIP_BEGIN
+template class QList<QIconViewItem>;
+// MOC_SKIP_END                                                                
+
 static const char *unknown[] = {
     "32 32 11 1",
     "c c #ffffff",
@@ -3486,7 +3490,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
     bool emitClicked = TRUE;
-    
+
     if ( d->rubber ) {
 	QPainter p;
 	p.begin( viewport() );
@@ -3515,7 +3519,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	emit clicked( item );
 	emit clicked( item, e->globalPos() );
     }
-    
+
     if ( e->button() == RightButton ) {
 	emit rightButtonClicked( item, e->globalPos() );
 	if ( item )
