@@ -405,6 +405,12 @@ void QSocket::tryConnecting()
 #endif
 	if ( l.isEmpty() ) {
 	    if ( !d->dns->isWorking() ) {
+		if ( d->dns->recordType() == QDns::A ) {
+		    // no IPv4 address found, try IPv6 instead
+		    d->dns->setRecordType( QDns::Aaaa );
+		    tryConnecting();
+		    return;
+		}
 		d->state = Idle;
 		emit error( ErrHostNotFound );
 	    }
