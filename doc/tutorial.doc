@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 2.4 1996/11/03 17:30:33 agulbra Exp $
+** $Id: tutorial.doc,v 2.5 1996/11/25 20:43:07 agulbra Exp $
 **
 ** Tutorial
 **
@@ -447,12 +447,12 @@ slightly different though.  Just try to resize it to see.
 
 <h2>Excercises</h2>
 
+Try to create another MyWidget object in main().  What happens?
+
 Try to add more buttons, or put in widgets other than QPushButton.
 
 The \link QWidget::setBackgroundColor background color \endlink can be
 changed.
-
-Try creating two or more MyWidgets in main.
 
 You may now go on to \link t5.html chapter five. \endlink
 
