@@ -170,8 +170,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	popup->insertItem("Zwei");
 	popup->insertItem("Drei");
 	popup->insertItem("Vier");
-	tmp->setPopup( popup );
-	
+ 	tmp->setPopup( popup );
 	
 	QToolButton * fileOpen
 	    = new QToolButton( openIcon, "Open File", QString::null,

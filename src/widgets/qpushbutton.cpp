@@ -41,17 +41,17 @@
   \brief The QPushButton widget provides a command button.
 
   \ingroup realwidgets
-  
+
   The push button, also referred to as command button, is perhaps the
   most central widget in any graphical user interface: Push it to
   command the computer to perform some action. Typical actions are Ok,
   Apply, Cancel, Close or Help.
-  
+
   A command button is rectangular (ca. 80x22 pixel) and typically
   displays a text label describing its action. An underscored
   character in the label, marked with an ampersand in the text,
   signals an accelerator key.
-  
+
   This code creates a push button labelled "Rock & Roll".  Due to the
   first ampersand, the c displays underscored and the button gets the
   automatic accelerator key, Alt-C:
@@ -70,13 +70,13 @@
   Connect to this signal to perform the button's action.  Other
   signals of less importance are pressed() when the button is pressed
   down and released() when it is released, respectively.
-  
+
   Command buttons are by default auto-default buttons, i.e. they
   become the default push button automatically when they receive the
   keyboard input focus. A default button is a command button that is
   activated when the users hits the Enter or Return key in a
   dialog. Adjust this behaviour with setAutoDefault().
-  
+
   Being so central, the widget has grown to accomodate a great many
   variations in the past decade, and by now the Microsoft style guide
   shows about ten different states of Windows push buttons, and the
@@ -101,19 +101,19 @@
   performing an action (like for example the buttons in the top/right
   corner of the QFileDialog), are not command buttons, but tool
   buttons. Qt provides a special class QToolButton for these.
-  
+
   Also, if you need toggle behaviour (see setToggleButton()) or a button
   that auto-repeats the activation signal when being pushed down like
   the arrows in a scrollbar (see setAutoRepeat()), a command button is
   probably not what you want. In case of doubt, go with a tool button.
-  
+
   A variation of a command button is a menu button. It provides not
   just one command, but several. Use the method setPopup() to
   associate a popup menu with a push button.
-  
+
   Other classes of buttons are option buttons (see QRadioButton) and
   check boxes (see QCheckBox).
-  
+
   <img src="qpushbt-m.png"> <img src="qpushbt-w.png">
 
   In Qt, the QButton class provides most of the modes and other API,
@@ -265,12 +265,12 @@ void QPushButton::toggle()
 
   An auto-default button becomes the default push button automatically
   when it receives the keyboard input focus.
-  
+
   In some GUI styles, a default button is drawn with an extra frame
   around it, up to 3 pixels or more. Qt automatically keeps this space
   free around auto-default buttons, i.e. auto-default buttons may have
   a slightly larger size hint.
-  
+
   \sa autoDefault(), setDefault()
 */
 
@@ -346,7 +346,7 @@ QSize QPushButton::sizeHint() const
 	w += 2*style().buttonDefaultIndicatorWidth();
 	h += 2*style().buttonDefaultIndicatorWidth();
     }
-    
+
     if ( isMenuButton() )
 	w += style().menuButtonIndicatorWidth( h );
 
@@ -543,7 +543,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 
 
 /*!  \obsolete
-  
+
   Tells this button to draw a menu indication triangle if \a enable
   is TRUE,  and to not draw one if \a enable is FALSE (the default).
 
@@ -566,7 +566,7 @@ void QPushButton::setIsMenuButton( bool enable )
 
 
 /*!  \obsolete
-  
+
   Returns TRUE if this button indicates to the user that pressing
   it will pop up a menu, and FALSE otherwise.  The default is FALSE.
 
@@ -593,6 +593,7 @@ void QPushButton::setPopup( QPopupMenu* popup )
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 
     ::d( this )->popup = popup;
+    autoDefButton = FALSE;
     setIsMenuButton( popup != 0 );
 }
 
