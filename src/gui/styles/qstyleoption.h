@@ -200,8 +200,8 @@ public:
     enum { Type = SO_MenuItem };
     enum { Version = 1 };
 
-    enum MenuItemType { Normal, Separator, SubMenu, Scroller, TearOff, Margin,
-			EmptyArea };
+    enum MenuItemType { Normal, DefaultItem, Separator, SubMenu, Scroller, TearOff, Margin,
+                        EmptyArea };
     enum CheckState { NotCheckable, Checked, Unchecked };
 
     MenuItemType menuItemType;

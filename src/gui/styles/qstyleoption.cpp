@@ -544,6 +544,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     These values indicate the type of menu item that the structure describes.
 
     \value Normal A normal menu item.
+    \value DefaultItem A menu item that is the default action \sa QMenu::defaultAction().
     \value Separator A menu separator.
     \value SubMenu Indicates the menu item points to a sub-menu.
     \value Scroller A popup menu scroller (currently only used on Mac OS X).
