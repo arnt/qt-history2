@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#80 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -20,7 +20,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#79 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#80 $")
 
 
 /*----------------------------------------------------------------------------
@@ -158,8 +158,8 @@ void QPainter::save()
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
 	pss = new QStackM(QPState);
-	pss->setAutoDelete( TRUE );
 	CHECK_PTR( pss );
+	pss->setAutoDelete( TRUE );
 	ps_stack = pss;
     }
     register QPState *ps = new QPState;
