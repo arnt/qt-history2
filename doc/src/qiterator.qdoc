@@ -140,7 +140,7 @@
     \code
 	QVector<float> vector;
         ...
-	QVector<float> i(vector);
+	QVectorIterator<float> i(vector);
         while (i.hasNext())
 	    cout << i.next() << endl;
     \endcode
