@@ -246,8 +246,9 @@ bool QSettingsSysPrivate::writeKey( const QString &key, const QByteArray &value,
     LONG res = ERROR_ACCESS_DENIED;
 
     HKEY handle = 0;
-    for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
-	QString k = *it + "/" + key;
+    
+    for (int i = paths.count()-1; i >= 0; --i) {
+	QString k = paths.at(i) + "/" + key;
 	e = entry( k );
 	handle = openKey( k, TRUE );
 	if ( handle )
@@ -310,12 +311,12 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, ulong &type )
     type = REG_NONE;
 
     if ( user ) {
-	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
+	for ( int i = paths.count()-1; i >= 0; --i ) {
 	    if ( handle ) {
 		RegCloseKey( handle );
 		handle = 0;
 	    }
-	    QString k = *it + "/" + key;
+	    QString k = paths.at(i) + "/" + key;
 	    QString f = folder( k );
 	    e = entry( k );
 	    if ( e == "Default" || e == "." )
@@ -331,13 +332,13 @@ QByteArray QSettingsSysPrivate::readKey( const QString &key, ulong &type )
     }
 
     if ( !size && local ) {
-	for ( QStringList::Iterator it = paths.fromLast(); it != paths.end(); --it ) {
+	for ( int i = paths.count()-1; i >= 0; --i ) {
 	    if ( handle ) {
 		RegCloseKey( handle );
 		handle = 0;
 	    }
 
-	    QString k = *it + "/" + key;
+	    QString k = paths.at(i) + "/" + key;
 	    QString f = folder( k );
 	    e = entry( k );
 	    if ( e == "Default" || e == "." )
@@ -538,8 +539,9 @@ bool QSettingsPrivate::sysRemoveEntry( const QString &key )
     LONG res;
 
     HKEY handle = 0;
-    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key : *it + "/" + key;
+    for ( int i = sysd->paths.count()-1; i >= 0; --i ) {
+	QString path = sysd->paths.at(i);
+	QString k = path.isEmpty() ? key : path + "/" + key;
 	handle = sysd->openKey( k, FALSE, TRUE );
 	e = sysd->entry( k );
 	if ( handle )
@@ -587,8 +589,9 @@ QStringList QSettingsPrivate::sysEntryList( const QString &key ) const
     QStringList result;
 
     HKEY handle = 0;
-    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
+    for ( int i = sysd->paths.count()-1; i >= 0; --i ) {
+	QString path = sysd->paths.at(i);
+	QString k = path.isEmpty() ? key + "/fake" : path + "/" + key + "/fake";
 	handle = sysd->openKey( k, FALSE );
 	if ( handle )
 	    break;
@@ -648,8 +651,9 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
     QStringList result;
 
     HKEY handle = 0;
-    for ( QStringList::Iterator it = sysd->paths.fromLast(); it != sysd->paths.end(); --it ) {
-	QString k = (*it).isEmpty() ? key + "/fake" : *it + "/" + key + "/fake";
+    for ( int i = sysd->paths.count()-1; i >= 0; --i ) {
+	QString path = sysd->paths.at(i);
+	QString k = path.isEmpty() ? key + "/fake" : path + "/" + key + "/fake";
 	handle = sysd->openKey( k, FALSE );
 	if ( handle )
 	    break;
