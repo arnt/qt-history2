@@ -590,7 +590,6 @@ QMenuPrivate::macMenu(MenuRef merge)
     for(int i = 0; i < items.count(); i++) 
         mac_menu->addAction(items[i]);
 
-    
     if(!CountMenuItems(mac_menu->menu) && !q->receivers(SIGNAL(aboutToShow()))) {
         ReleaseMenu(mac_menu->menu);
         mac_menu->menu = 0;
@@ -702,18 +701,21 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
     MenuRef submenu = 0;
     bool release_submenu = false;
     if(action->action->menu()) {
-        submenu = action->action->menu()->macMenu(apple_menu);
-        QWidget *caused = 0;
-        GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
-        SetMenuItemProperty(submenu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
+        if((submenu = action->action->menu()->macMenu(apple_menu))) {
+            QWidget *caused = 0;
+            GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
+            SetMenuItemProperty(submenu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
+        }
     } else {
         release_submenu = true;
         CreateNewMenu(0, 0, &submenu);
     }
-    SetMenuItemHierarchicalMenu(action->menu, qt_mac_menu_find_action(action->menu, action), submenu);
-    SetMenuTitleWithCFString(submenu, qt_mac_no_ampersands(action->action->text()));
-    if(release_submenu)
-        ReleaseMenu(submenu);
+    if(submenu) {
+        SetMenuItemHierarchicalMenu(action->menu, qt_mac_menu_find_action(action->menu, action), submenu);
+        SetMenuTitleWithCFString(submenu, qt_mac_no_ampersands(action->action->text()));
+        if(release_submenu)
+            ReleaseMenu(submenu);
+    }
 }
 
 void
@@ -832,10 +834,11 @@ bool QMenuBar::macUpdateMenuBar()
     static bool first = true;
     bool ret = false;
     if(mb) {
-        MenuRef menu = mb->macMenu();
-        SetRootMenu(menu);
-        if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
-            qt_mac_set_modal_state(menu, qt_modal_state());
+        if(MenuRef menu = mb->macMenu()) {
+            SetRootMenu(menu);
+            if(mb != QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(qApp->activeModalWidget()))
+                qt_mac_set_modal_state(menu, qt_modal_state());
+        }
         ret = true;
 #ifdef QT_COMPAT
     } else if(Q3MenuBar::macUpdateMenuBar()) {

@@ -906,18 +906,30 @@ QSize QMenuBar::sizeHint() const
 {
     ensurePolished();
     QSize ret(0, 0);
-    QList<QMenuAction*> actions = d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
-    for(int i = 0; i < actions.count(); ++i) {
-        QRect actionRect(actions[i]->rect);
-        if(actionRect.right() > ret.width())
-            ret.setWidth(actionRect.right());
-        if(actionRect.bottom() > ret.height())
-            ret.setHeight(actionRect.bottom());
+
+#ifdef Q_WS_MAC
+    const bool as_gui_menubar = d->mac_menubar;
+#else
+    const bool as_gui_menubar = true;
+#endif
+
+    if(as_gui_menubar) {
+        QList<QMenuAction*> actions = d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
+        for(int i = 0; i < actions.count(); ++i) {
+            QRect actionRect(actions[i]->rect);
+            if(actionRect.right() > ret.width())
+                ret.setWidth(actionRect.right());
+            if(actionRect.bottom() > ret.height())
+                ret.setHeight(actionRect.bottom());
+        }
+        if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this)) {
+            ret.setWidth(ret.width()+(fw*2));
+            ret.setHeight(ret.height()+(fw*2));
+        }
+        ret.setWidth(ret.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
+        ret.setHeight(ret.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
     }
-    if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this)) {
-        ret.setWidth(ret.width()+(fw*2));
-        ret.setHeight(ret.height()+(fw*2));
-    }
+
     if(d->leftWidget) {
         QSize sz = d->leftWidget->sizeHint();
         ret.setWidth(ret.width() + sz.width());
@@ -930,9 +942,9 @@ QSize QMenuBar::sizeHint() const
         if(sz.height() > ret.height())
             ret.setHeight(sz.height());
     }
-    ret.setWidth(ret.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
-    ret.setHeight(ret.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
-    return (style().sizeFromContents(QStyle::CT_MenuBar, this, ret.expandedTo(QApplication::globalStrut())));
+    if(as_gui_menubar)
+        return (style().sizeFromContents(QStyle::CT_MenuBar, this, ret.expandedTo(QApplication::globalStrut())));
+    return ret;
 }
 
 /*!
@@ -940,16 +952,27 @@ QSize QMenuBar::sizeHint() const
 */
 int QMenuBar::heightForWidth(int max_width) const
 {
-    QList<QMenuAction*> actions = d->calcActionRects(max_width, 0);
+
+#ifdef Q_WS_MAC
+    const bool as_gui_menubar = d->mac_menubar;
+#else
+    const bool as_gui_menubar = true;
+#endif
+
     int height = 0;
-    for(int i = 0; i < actions.count(); ++i)
-        height = qMax(height, actions[i]->rect.bottom());
+    if(as_gui_menubar) {
+        QList<QMenuAction*> actions = d->calcActionRects(max_width, 0);
+        for(int i = 0; i < actions.count(); ++i)
+            height = qMax(height, actions[i]->rect.bottom());
+        height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
+    }
     if(d->leftWidget)
         height = qMax(d->leftWidget->sizeHint().height(), height);
     if(d->rightWidget)
         height = qMax(d->rightWidget->sizeHint().height(), height);
-    height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
-    return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
+    if(as_gui_menubar)
+        return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
+    return height;
 }
 
 /*!
