@@ -34,9 +34,10 @@ SOURCES		+= ../../../../src/core/io/qbufferedfsfileengine.cpp \
                ../../../../src/core/io/qfile.cpp \
                ../../../../src/core/io/qfileinfo.cpp \
                ../../../../src/core/io/qfileengine.cpp \
+               ../../../../src/core/io/qfsfileengine.cpp \
                ../../../../src/core/io/qiodevice.cpp \
                ../../../../src/core/io/qtemporaryfile.cpp
 
-win32:SOURCES   += ../../../../src/core/io/qfileengine_win.cpp
+win32:SOURCES   += ../../../../src/core/io/qfsfileengine_win.cpp
 
-unix:SOURCES    += ../../../../src/core/io/qfileengine_unix.cpp
+unix:SOURCES    += ../../../../src/core/io/qfsfileengine_unix.cpp
