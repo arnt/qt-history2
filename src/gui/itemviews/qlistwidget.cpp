@@ -220,11 +220,48 @@ void QListModel::itemChanged(QListWidgetItem *item)
 
     \ingroup model-view
 
+    The QListWidgetItem class provides a list item for use with the QListWidget
+    class. List items provide label information that is displayed in list
+    widgets.
+
+    The item view convenience classes use a classic item-based interface
+    rather than a pure Model/View approach. For a more flexible list view
+    widget, consider using the QListView class with a standard model.
+
+    List items can be automatically inserted into a list when they are
+    constructed by specifying the list widget:
+
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
+    \skipto new QListWidgetItem(tr("Hazel
+    \printuntil new QListWidgetItem(tr("Hazel
+
+    They can also be created without a parent widget, and later inserted into
+    a list (see \l{QListWidget::insertItem()}).
+
+    List items are typically used to display text() and an icon(). These are
+    set with the setText() and setIcon() functions. The appearance of the text
+    can be customized with setFont(), setTextColor(), and setBackgroundColor().
+    List items can be aligned using the setAlignment() function.
+    Tooltips, status tips and "What's This?" help can be added to list items
+    with setToolTip(), setStatusTip(), and setWhatsThis().
+
+    Items can be made checkable by calling setFlags() with the appropriate
+    value (see \l{QAbstractItemModel::ItemFlags}). Checkable items can be
+    checked and unchecked with the setChecked() function. The corresponding
+    checked() function indicates whether the item is currently checked.
+
+    The isHidden() function can be used to determine whether the item is hidden.
+    Items can be hidden with setHidden().
+
+    \sa QListWidgetItem
 */
 
 /*!
-    Creates an empty list widget item and inserts it into \a view if
-    view is not 0.
+    \fn QListWidgetItem::QListWidgetItem(QListWidget *parent)
+
+    Constructs an empty list widget item with the given \a parent.
+    If the parent is not specified, the item will need to be inserted into a
+    list widget with QListWidget::insertItem().
 */
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
@@ -238,8 +275,11 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
 }
 
 /*!
-    Creates a list widget item with text \a text and inserts it into
-    \a view if view is not 0.
+    \fn QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *parent)
+
+    Constructs an empty list widget item with the given \a text and \a parent.
+    If the parent is not specified, the item will need to be inserted into a
+    list widget with QListWidget::insertItem().
 */
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
@@ -263,8 +303,8 @@ QListWidgetItem::~QListWidgetItem()
 }
 
 /*!
-  This function sets \a value for a given \a role (see
-  {QAbstractItemModel::Role}). Reimplement this function if you need
+  This function sets the data for a given \a role to the given \a value (see
+  \l{QAbstractItemModel::Role}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
 */
 void QListWidgetItem::setData(int role, const QVariant &value)
@@ -282,7 +322,7 @@ void QListWidgetItem::setData(int role, const QVariant &value)
 }
 
 /*!
-   This function returns the items data for a given \a role (see
+   This function returns the item's data for a given \a role (see
    {QAbstractItemModel::Role}). Reimplement this function if you need
    extra roles or special behavior for certain roles.
 */
@@ -296,7 +336,8 @@ QVariant QListWidgetItem::data(int role) const
 }
 
 /*!
-  Returns true if this items text is less then \a other items text.
+  Returns true if this item's text is less then \a other item's text;
+  otherwise returns false.
 */
 bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 {
@@ -304,7 +345,7 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 }
 
 /*!
-  Removes all item data.
+  Removes all list items.
 */
 void QListWidgetItem::clear()
 {
@@ -314,7 +355,7 @@ void QListWidgetItem::clear()
 }
 
 /*!
-  If \a hide is true the item will be hidden, otherwise it will be shown.
+  If \a hide is true, the item will be hidden; otherwise it will be shown.
 */
 void QListWidgetItem::setHidden(bool hide)
 {
@@ -325,7 +366,7 @@ void QListWidgetItem::setHidden(bool hide)
 }
 
 /*!
-  Returns true if the item is explicitly hidden, otherwise returns false.
+  Returns true if the item is explicitly hidden; otherwise returns false.
 */
 bool QListWidgetItem::isHidden() const
 {
@@ -345,7 +386,7 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn QString QListWidgetItem::text() const
 
-    Returns this list widget item's text.
+    Returns the list item's text.
 
     \sa setText()
 */
@@ -353,7 +394,7 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn QIcon QListWidgetItem::icon() const
 
-    Returns this list widget item's icon.
+    Returns the list item's icon.
 
     \sa setIcon()
 */
@@ -371,7 +412,7 @@ bool QListWidgetItem::isHidden() const
 
     Returns the list item's tooltip.
 
-    \sa setToolTip()
+    \sa setToolTip() statusTip() whatsThis()
 */
 
 /*!
@@ -379,19 +420,20 @@ bool QListWidgetItem::isHidden() const
 
     Returns the list item's "What's This?" help text.
 
-    \sa setWhatsThis()
+    \sa setWhatsThis() statusTip() toolTip()
 */
 
 /*!
   \fn QFont QListWidgetItem::font() const
 
-  Returns the font set for this item.
+  Returns the font used to display this list item's text.
 */
 
 /*!
   \fn int QListWidgetItem::textAlignment() const
 
-  This font returns the text alignment for this item (see {Qt::AlignmentFlag}).
+  This font returns the text alignment for this item (see
+  \l{Qt::AlignmentFlag}).
 */
 
 /*!
@@ -413,19 +455,20 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn int QListWidgetItem::checked() const
 
-    Returns the checked state of the list widget item (see {QCheckBox::ToggleState}).
+    Returns the checked state of the list item (see {QCheckBox::ToggleState}).
 */
 
 /*!
   \fn void QListWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
 
-  Sets the item flags for this item to \a flags (see {QAbstractItemModel::ItemFlags}).
+  Sets the item flags for the list item to \a flags (see
+  \l{QAbstractItemModel::ItemFlags}).
 */
 
 /*!
     \fn void QListWidgetItem::setText(const QString &text)
 
-    Sets this list widget item's \a text.
+    Sets the text for the list widget item's to the given \a text.
 
     \sa text()
 */
@@ -433,7 +476,7 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn void QListWidgetItem::setIcon(const QIcon &icon)
 
-    Sets this list widget item's \a icon.
+    Sets the icon for the list item to the given \a icon.
 
     \sa icon()
 */
@@ -441,44 +484,46 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn void QListWidgetItem::setStatusTip(const QString &statusTip)
 
-    Sets the status tip for this list item to the text specified by
+    Sets the status tip for the list item to the text specified by
     \a statusTip.
 
-    \sa statusTip()
+    \sa statusTip() setToolTip() setWhatsThis()
 */
 
 /*!
     \fn void QListWidgetItem::setToolTip(const QString &toolTip)
 
-    Sets the tooltip for this list item to the text specified by
-    \a toolTip.
+    Sets the tooltip for the list item to the text specified by \a toolTip.
 
-    \sa toolTip()
+    \sa toolTip() setStatusTip() setWhatsThis()
 */
 
 /*!
     \fn void QListWidgetItem::setWhatsThis(const QString &whatsThis)
 
-    Sets the "What's This?" help for this list item to the text specified
+    Sets the "What's This?" help for the list item to the text specified
     by \a whatsThis.
+
+    \sa whatsThis() setStatusTip() setToolTip()
 */
 
 /*!
   \fn void QListWidgetItem::setFont(const QFont &font)
 
-  Sets the \a font used when painting this item.
+  Sets the font used when painting the item to the given \a font.
 */
 
 /*!
   \fn void QListWidgetItem::setTextAlignment(int alignment)
 
-  Sets the item text alignment to \a alignment (see {Qt::AlignmentFlag}).
+  Sets the list item's text alignment to \a alignment (see
+  \l{Qt::AlignmentFlag}).
 */
 
 /*!
     \fn void QListWidgetItem::setBackgroundColor(const QColor &color)
 
-    Sets the background \a color of the list item.
+    Sets the background color of the list item to the given \a color.
 
     \sa backgroundColor() setTextColor()
 */
@@ -486,7 +531,7 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn void QListWidgetItem::setTextColor(const QColor &color)
 
-    Sets the text \a color for this list item.
+    Sets the text color for the list item to the given \a color.
 
     \sa textColor() setBackgroundColor()
 */
@@ -569,21 +614,59 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
 /*!
     \class QListWidget
-    \brief The QListWidget class provides an item-based list or icon view using
-    a default model.
+    \brief The QListWidget class provides an item-based list widget.
 
     \ingroup model-view
     \mainclass
 
-    QListWidget is a convenience class that provides a list view, like that
-    supplied by QListView, but with a classic item-based interface for adding
-    and removing items from the list. QListWidget uses an internal model
-    to manage the items.
+    QListWidget is a convenience class that provides a list view similar to
+    the one supplied by QListView, but with a classic item-based interface
+    for adding and removing items from the list. QListWidget uses an internal
+    model to manage the items.
 
     For a more flexible list view widget, use the QListView class with a
     standard model.
 
-    The number of items in the list can be found using the count() function
+    List widgets are constructed in the same way as other widgets:
+
+    \quotefile snippets/qlistwidget-using/mainwindow.h
+    \skipto QListWidget *
+    \printuntil QListWidget *
+    \quotefile snippets/qlistwidget-using/mainwindow.cpp
+    \skipto listWidget = new
+
+    The selectionMode() of a list widget determines how many of the items in
+    the list can be selected at the same time, and whether complex selections
+    of items can be created. This can be set with the setSelectionMode()
+    function.
+
+    There are two ways to add items to the list: they can be constructed with
+    the list widget as their parent widget, or they can be constructed with
+    no parent widget and added to the list later. If a list widget already
+    exists when the items are constructed, the first method is easier to use:
+
+    \skipto new QListWidgetItem
+    \printuntil new QListWidgetItem(tr("Pine")
+
+    If you need to insert a new item into the list at a particular position,
+    it is more convenient to construct the item without a parent widget and
+    use the insertItem() function to place it within the list:
+
+    \skipto QListWidgetItem *newItem
+    \printuntil newItem->setText
+    \skipto listWidget->insertItem
+    \printuntil listWidget->insertItem
+
+    For multiple items, insertItems() can be used instead. The number of
+    items in the list is found with the count() function.
+
+    The current item in the list can be found with currentItem(), and changed
+    with setCurrentItem(). The user can also change the current item by
+    navigating with the keyboard or clicking on a different item. When the
+    current item changes, the currentChanged() signal is emitted with the
+    new current item and the item that was previously current.
+
+    \sa QListWidgetItem
 */
 
 
@@ -649,7 +732,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
     \fn void QListWidget::keyPressed(QListWidgetItem *item, Qt::Key key, Qt::ButtonState state)
 
     This signal is emitted if keyTracking is turned on an a key was
-    pressed. The \a item is the current item as the key was pressed, the
+    pressed. The \a item is the current item when the key was pressed, the
     \a key tells which key was pressed and \a state which modifier
     keys (see \l{Qt::ButtonState}).
 */
@@ -725,7 +808,7 @@ QListWidget::~QListWidget()
 }
 
 /*!
-    Returns the \a{row}-th item.
+    Returns the item that occupies the given \a row in the list.
 
     \sa row()
 */
@@ -778,7 +861,7 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 }
 
 /*!
-    Removes the item at \a row from the list without deleting it.
+    Removes and returns the item from the given \a row in the list widget.
 
     \sa insertItem() appendItem()
 */
@@ -815,7 +898,7 @@ void QListWidget::setCurrentItem(QListWidgetItem *item)
 }
 
 /*!
-  Sorts all the items in the list widget according to \a order.
+  Sorts all the items in the list widget according to the specified \a order.
 */
 void QListWidget::sortItems(Qt::SortOrder order)
 {
@@ -823,7 +906,7 @@ void QListWidget::sortItems(Qt::SortOrder order)
 }
 
 /*!
-  Opens an editor for the give \a item. The editor remains open after editing.
+  Opens an editor for the given \a item. The editor remains open after editing.
 
   \sa closePersistentEditor()
 */
@@ -835,7 +918,7 @@ void QListWidget::openPersistentEditor(QListWidgetItem *item)
 }
 
 /*!
-  Closes the persistent editor for \a item.
+  Closes the persistent editor for the given \a item.
 
   \sa openPersistentEditor()
 */
@@ -847,7 +930,7 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 }
 
 /*!
-  Returns true if \a item is selected.
+  Returns true if \a item is selected; otherwise returns false.
 */
 bool QListWidget::isSelected(const QListWidgetItem *item) const
 {
@@ -856,7 +939,8 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
 }
 
 /*!
-  Selects or deselects \a item depending on \a select.
+  Selects or deselects the given \a item depending on whether \a select is
+  true of false.
 */
 void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 {
@@ -865,7 +949,7 @@ void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 }
 
 /*!
-  Returns a list of all selected items.
+  Returns a list of all selected items in the list widget.
 */
 
 QList<QListWidgetItem*> QListWidget::selectedItems() const
@@ -878,7 +962,8 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the \a flags (see {QAbstractItemModel::MatchFlags}).
+  Finds items that matches the \a text, using the criteria given in the
+  \a flags (see {QAbstractItemModel::MatchFlags}).
 */
 
 QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
@@ -895,7 +980,7 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
 }
 
 /*!
-  Returns true if the \a item is in the viewport, otherwise returns false.
+  Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
 bool QListWidget::isVisible(const QListWidgetItem *item) const
