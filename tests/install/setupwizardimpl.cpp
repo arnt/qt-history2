@@ -31,6 +31,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     app( NULL ),
     tmpPath( QEnvironment::getTempPath() )
 {
+    totalFiles = 0;
     setNextEnabled( introPage, false );
     setBackEnabled( progressPage, false );
     setNextEnabled( progressPage, false );
@@ -251,7 +252,7 @@ void SetupWizardImpl::doFinalIntegration()
     shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
     shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
-    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\doc\\index.html", "Browse the On-line documentation" );
+    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\assistant.exe", "Browse the On-line documentation" );
     if( int( qWinVersion() ) & int( WV_DOS_based ) )
 	shell.createShortcut( dirName, common, QString( "Build Qt " ) + DISTVER, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
 
@@ -502,7 +503,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	if( qtDirCheck->isChecked() ) {
 	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
+	    QEnvironment::putEnv( "QMAKEPATH", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
 
 	    path.clear();
 	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
@@ -514,7 +515,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	}
 	else {
 	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv );
-	    QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
+	    QEnvironment::putEnv( "QMAKEPATH", mkSpecs[ sysID ], QEnvironment::LocalEnv );
 	}
 
 
@@ -530,7 +531,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QString fromdir = QDir::currentDirPath();
 
 	QString mkspecdir = fromdir + "/mkspecs";
-//	QString mkspecenv = QEnvironment::getEnv( "MKSPEC" );
+//	QString mkspecenv = QEnvironment::getEnv( "QMAKEPATH" );
 //	QFileInfo mkspecenvdirinfo( mkspecenv );
 	QString srcdir = fromdir + "/src";
 	QFileInfo* fi;
@@ -640,7 +641,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
-	    operationProgress->setTotalSteps( 3600 );
+	    operationProgress->setTotalSteps( 4300 );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
@@ -658,6 +659,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		    inFile.close();
 		}
 	    }
+/*
+** These lines are only to be used when changing the filecount estimate
+**
+	    QString tmp( "%1" );
+	    tmp = tmp.arg( totalFiles );
+	    QMessageBox::information( this, tmp, tmp );
+*/
 #endif
 	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = copySuccessful;
@@ -992,6 +1000,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 			if( buffer.size() ) {
 			    inFile.readBlock( buffer.data(), buffer.size() );
 			    outFile.writeBlock( buffer.data(), buffer.size() );
+			    totalFiles++;
 			}
 			outFile.close();
 		    }

@@ -25,6 +25,7 @@ protected:
 private:
     int sysID;
 
+    int totalFiles;
     QProcess configure;
     QProcess make;
     QProcess integrator;
