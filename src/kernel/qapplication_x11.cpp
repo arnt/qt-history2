@@ -3646,8 +3646,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
 		&& !qt_x11EventFilter( &ev ) && !widget->x11Event( &ev ) ) {
 	    if ( ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal ){
-		if ( !enter )
-		    enter = QWidget::find( ev.xcrossing.window );
+		enter = QWidget::find( ev.xcrossing.window );
 		XPutBackEvent( widget->x11Display(), &ev );
 		break;
 	    }
@@ -3835,9 +3834,9 @@ void qt_enter_modal( QWidget *widget )
 	qt_modal_stack = new QWidgetList;
 	Q_CHECK_PTR( qt_modal_stack );
     }
+    qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin) );
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin) );
     curWin = 0;
     ignoreNextMouseReleaseEvent = FALSE;
 }
