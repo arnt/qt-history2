@@ -1265,10 +1265,16 @@ then
 	  echo "CARBON_LFLAGS +=-framework Carbon" >> $mkfile
 	  EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
-       fi
-       echo >>$mkfile
+        fi
+	if [ -z "$QT_INSTALL_BINS" ]; then
+	   BIN_DIR="${QT_INSTALL_PREFIX}/bin"
+	else
+	   BIN_DIR="$QT_INSTALL_BINS"
+        fi
+        echo >>$mkfile
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
+	    -e "s,@QT_INSTALL_BINS@,$BIN_DIR,g" -e "s,@QT_INSTALL_PREFIX@,$QT_INSTALL_PREFIX,g" \
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
