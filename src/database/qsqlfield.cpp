@@ -83,7 +83,7 @@ QVariant& QSqlResultField::value()
 */
 
 QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
-    : QSqlResultField( fieldName, fieldNumber, type ), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE)
+    : QSqlResultField( fieldName, fieldNumber, type ), label(fieldName), ro(FALSE), nul(FALSE), pIdx(FALSE), iv(TRUE), cf(FALSE)
 {
 
 }

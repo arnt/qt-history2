@@ -2,12 +2,13 @@
 #include "datagrid.h"
 #include <qstringlist.h>
 #include <qlistbox.h>
-#include <qsqlrowset.h>
+#include <qsqlview.h>
 #include <qsqlfield.h>
 
 ResultWindow::ResultWindow ( QSqlDatabase* database, QWidget * parent=0, const char * name=0, WFlags f=0 )
     : SqlBrowseWindowBase(parent, name, f),
-      db(database)
+      db(database),
+      view(0)
 {
     QStringList fil = db->tables();
     tableList->insertStringList( fil );
@@ -15,12 +16,14 @@ ResultWindow::ResultWindow ( QSqlDatabase* database, QWidget * parent=0, const c
 }
 ResultWindow::~ResultWindow()
 {
+    if ( view )
+	delete view;
 }
 void ResultWindow::slotExec()
 {
     if ( db->isOpen() ) {
-	QSqlView view( db, tableList->currentText() );
-	view.select(); // all records
+	view = new QSqlView( db, tableList->currentText() );
+	view->select(); // all records
 	dataGrid->take( view );
     }
 }

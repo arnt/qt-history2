@@ -49,7 +49,9 @@ public:
     bool          isPrimaryIndex() const { return pIdx; }
     void          setIsVisible( bool visible ) { iv = visible; }
     bool          isVisible() const { return iv; }
-    
+    void          setCalculated( bool calculated ) { cf = calculated; }
+    bool          isCalculated() const { return cf; }
+
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlField& ) const { return FALSE; }
 #endif
@@ -59,6 +61,7 @@ private:
     bool          nul;
     bool          pIdx;
     bool          iv;
+    bool          cf;
 };
 
 template< class T >
@@ -104,7 +107,7 @@ public:
     T& field( int i ) { return fieldList[ i ]; }
     const T& field( int i ) const { return fieldList[ i ]; }
     T& field( const QString& name ) { return fieldList[ position( name ) ]; }
-    const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }    
+    const T& field( const QString& name ) const { return fieldList[ position( name ) ]; }
     int position( const QString& name )
     {
 	if ( posMap.contains( name ) )

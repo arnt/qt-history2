@@ -181,12 +181,34 @@ QVariant& QSqlRowset::operator[]( const QString& name )
     return QSqlFieldList::operator[]( name );
 }
 
+QVariant& QSqlRowset::value( int i )
+{
+    sync();
+    return QSqlFieldList::value( i ); 
+}
+
+QVariant& QSqlRowset::value( const QString& name )
+{
+    sync();
+    return QSqlFieldList::value( name );
+}
+
+QVariant QSqlRowset::calculateField( uint fieldNumber )
+{
+    Q_UNUSED( fieldNumber );
+    return QVariant();
+}
+
 void QSqlRowset::sync()
 {
     if ( lastAt != at() ) {
 	lastAt = at();
-	for ( unsigned int i = 0; i < count(); ++i ){
-	    QSqlFieldList::operator[](i) = QSql::operator[](i);
+	uint i = 0;
+	for ( i = 0; i < count(); ++i ){
+	    if ( field(i).isCalculated() )
+		value(i) = calculateField( i );
+	    else
+		value(i) = QSql::operator[](i);
 	}
     }
 }

@@ -24,18 +24,20 @@ public:
 
     QVariant& operator[]( int i );
     QVariant& operator[]( const QString& name );
-    QVariant& value( int i ) { return QSqlFieldList::value( i ); }
+    QVariant& value( int i ); 
+    QVariant& value( const QString& name );
 
     bool select();
     bool select( const QSqlIndex& sort );
-    bool select( const QSqlIndex & filter, const QSqlIndex & sort );    
-    bool select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );    
+    bool select( const QSqlIndex & filter, const QSqlIndex & sort );
+    bool select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
     QString name() const { return tableName; }
 
 protected:
     QSqlFieldList & operator=( const QSqlFieldList & list );
     bool query( const QString & str );
     QString fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
+    QVariant calculateField( uint fieldNumber );
 
 private:
     QSqlFieldList   fields() const;     //hide

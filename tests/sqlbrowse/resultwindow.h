@@ -5,6 +5,7 @@
 #include <qstring.h>
 #include <qsql.h>
 #include <qsqldatabase.h>
+#include <qsqlview.h>
 #include <qdialog.h>
 #include <qlayout.h>
 #include <qgroupbox.h>
@@ -26,6 +27,7 @@ public slots:
     void slotExec();
 private:
     QSqlDatabase* db;
+    QSqlView* view;
 };
 
 #endif
