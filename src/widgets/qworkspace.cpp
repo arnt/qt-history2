@@ -62,7 +62,9 @@
   that have the workspace as parent widget.  When you call show(),
   hide(), showMaximized(), setCaption(), etc on a document window, it
   is shown, hidden etc. with a frame, caption, icon and icon text,
-  just as you'd expect.
+  just as you'd expect. You can provide widget flags which will be 
+  used for the layout of the decoration or the behaviour of the widget
+  itself.
 
   A document window becomes active when it gets the keyboard focus.
   You can activate it using setFocus(), and the user can activate it
@@ -359,9 +361,9 @@ protected:
 
 private:
     QPixmap buffer;
-    QColor left;
-    QColor right;
-    QColor textc;
+    QColor left, aleft, ileft;
+    QColor right, aright, iright;
+    QColor textc, atextc, itextc;
     int leftm;
     int rightm;
     QString titletext;
@@ -1592,22 +1594,25 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     iconw = 0;
     lastfocusw = 0;
     shademode = FALSE;
+    titlebar = 0;
 
-    titlebar = new QWorkspaceChildTitleBar( parent, window, this );
-    connect( titlebar, SIGNAL( doActivate() ),
-	     this, SLOT( activate() ) );
-    connect( titlebar, SIGNAL( doClose() ),
-	     window, SLOT( close() ) );
-    connect( titlebar, SIGNAL( doMinimize() ),
-	     this, SLOT( showMinimized() ) );
-    connect( titlebar, SIGNAL( doMaximize() ),
-	     this, SLOT( showMaximized() ) );
-    connect( titlebar, SIGNAL( popupOperationMenu( const QPoint& ) ),
-	     this, SIGNAL( popupOperationMenu( const QPoint& ) ) );
-    connect( titlebar, SIGNAL( showOperationMenu() ),
-	     this, SIGNAL( showOperationMenu() ) );
-    connect( titlebar, SIGNAL( doShade() ),
-	     this, SLOT( showShaded() ) );
+    if ( window && window->testWFlags( WStyle_Title ) ) {
+	titlebar = new QWorkspaceChildTitleBar( parent, window, this );
+	connect( titlebar, SIGNAL( doActivate() ),
+		 this, SLOT( activate() ) );
+	connect( titlebar, SIGNAL( doClose() ),
+		 window, SLOT( close() ) );
+	connect( titlebar, SIGNAL( doMinimize() ),
+		 this, SLOT( showMinimized() ) );
+	connect( titlebar, SIGNAL( doMaximize() ),
+		 this, SLOT( showMaximized() ) );
+	connect( titlebar, SIGNAL( popupOperationMenu( const QPoint& ) ),
+		 this, SIGNAL( popupOperationMenu( const QPoint& ) ) );
+	connect( titlebar, SIGNAL( showOperationMenu() ),
+		 this, SIGNAL( showOperationMenu() ) );
+	connect( titlebar, SIGNAL( doShade() ),
+		 this, SLOT( showShaded() ) );
+    }
 
     
     if ( window && window->testWFlags( WStyle_Tool ) ) {
@@ -1624,25 +1629,36 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	return;
 
     setCaption( childWidget->caption() );
-    if( childWidget->icon() )
-	titlebar->setIcon( *childWidget->icon() );
 
-    int th = titlebar->sizeHint().height();
+    QPoint p;
+    QSize s;
+    QSize cs;
 
     bool hasBeenResized = childWidget->testWState( WState_Resized );
-    childWidget->reparent( this, QPoint( contentsRect().x()+titlebar->border,
-					 th + titlebar->border + TITLEBAR_SEPARATION +
-					 contentsRect().y() ) );
-    if ( !hasBeenResized ) {
-	QSize cs = childWidget->sizeHint();
-	QSize s( cs.width() + 2*frameWidth() + 2*titlebar->border,
+
+    if ( !hasBeenResized )
+	cs = childWidget->sizeHint();
+    else 
+	cs = childWidget->size();
+
+    if ( titlebar ) {
+	if( childWidget->icon() )
+	    titlebar->setIcon( *childWidget->icon() );
+	int th = titlebar->sizeHint().height();
+	p = QPoint( contentsRect().x()+titlebar->border,
+		     th + titlebar->border + TITLEBAR_SEPARATION +
+		     contentsRect().y() );
+	s = QSize( cs.width() + 2*frameWidth() + 2*titlebar->border,
 		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION +
 		 2*titlebar->border );
-	resize( s );
     } else {
-	resize( childWidget->width() + 2*frameWidth() + 2*titlebar->border,
-		childWidget->height() + 2*frameWidth() + th +2*titlebar->border);
+	p = QPoint( contentsRect().x(), contentsRect().y() );
+	s = QSize( cs.width() + 2*frameWidth(),
+		    cs.height() + 2*frameWidth() );
     }
+
+    childWidget->reparent( this, p);
+    resize( s );
 
     childWidget->installEventFilter( this );
 }
@@ -1655,16 +1671,23 @@ QWorkspaceChild::~QWorkspaceChild()
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
     QRect r = contentsRect();
-    int th = titlebar->sizeHint().height();
-    titlebar->setGeometry( r.x() + titlebar->border, r.y() + titlebar->border,
-			   r.width() - 2*titlebar->border, th+2);
+    int th = 0;
+    QRect cr;
+
+    if ( titlebar ) {
+	int th = titlebar->sizeHint().height();
+	titlebar->setGeometry( r.x() + titlebar->border, r.y() + titlebar->border,
+			       r.width() - 2*titlebar->border, th+2);
+	cr = QRect( r.x() + titlebar->border, r.y() + titlebar->border + TITLEBAR_SEPARATION + th+3,
+	      r.width() - 2*titlebar->border,
+	      r.height() - 2*titlebar->border - TITLEBAR_SEPARATION - th-3);
+    } else {
+	cr = r;
+    }
 
     if (!childWidget)
 	return;
 
-    QRect cr( r.x() + titlebar->border, r.y() + titlebar->border + TITLEBAR_SEPARATION + th+3,
-	      r.width() - 2*titlebar->border,
-	      r.height() - 2*titlebar->border - TITLEBAR_SEPARATION - th-2);
     windowSize = cr.size();
     childWidget->setGeometry( cr );
 }
@@ -1728,6 +1751,8 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	setCaption( childWidget->caption() );
 	break;
     case QEvent::IconChange:
+	if ( !titlebar )
+	    break;
 	if ( childWidget->icon() ) {
 	    titlebar->setIcon( *childWidget->icon() );
 	} else {
@@ -1739,10 +1764,11 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	{
 	    QResizeEvent* re = (QResizeEvent*)e;
 	    if ( re->size() != windowSize && !shademode ) {
-		int th = titlebar->sizeHint().height();
-		QSize s( re->size().width() + 2*frameWidth() + 2*titlebar->border,
-			 re->size().height() + 2*frameWidth() + th +
-			 TITLEBAR_SEPARATION+2*titlebar->border );
+		int th = titlebar ? titlebar->sizeHint().height() : 0;
+		int ts = titlebar ? TITLEBAR_SEPARATION : 0;
+		int tb = titlebar ? titlebar->border : 0;
+		QSize s( re->size().width() + 2*frameWidth() + 2*tb,
+			 re->size().height() + 2*frameWidth() + th + ts +2*tb );
 		resize( s );
 	    }
 	}
@@ -1832,12 +1858,14 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
     QPoint p = globalPos + invertedMoveOffset;
     QPoint pp = globalPos - moveOffset;
 
+    int tb = titlebar ? titlebar->border : 0;
+    int th = titlebar ? titlebar->sizeHint().height() : 0;
+    int ts = titlebar ? TITLEBAR_SEPARATION : 0;
+
     int mw = QMAX(childWidget->minimumSizeHint().width(),
-		  childWidget->minimumWidth()) + 2 * titlebar->border + 2 * frameWidth();
+		  childWidget->minimumWidth()) + 2 * tb + 2 * frameWidth();
     int mh = QMAX(childWidget->minimumSizeHint().height(),
-		  childWidget->minimumHeight())
-	     + 2 * titlebar->border +  2 * frameWidth() + TITLEBAR_SEPARATION
-	     + titlebar->sizeHint().height();
+		  childWidget->minimumHeight()) + 2 * tb +  2 * frameWidth() + ts + th;
 
     QSize mpsize( geometry().right() - pp.x() + 1,
 		  geometry().bottom() - pp.y() + 1 );
@@ -1919,7 +1947,8 @@ void QWorkspaceChild::setActive( bool b )
 {
     act = b;
 
-    titlebar->setActive( act );
+    if ( titlebar )
+	titlebar->setActive( act );
     if ( iconw )
 	iconw->setActive( act );
 
@@ -2021,6 +2050,9 @@ void QWorkspaceChild::showNormal()
 
 void QWorkspaceChild::showShaded()
 {
+    if ( !titlebar)
+	return;
+
     QToolTip::remove( titlebar->shadeB );
     ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
     if ( shademode ) {
@@ -2222,7 +2254,8 @@ void QWorkspaceChild::doMove()
 
 void QWorkspaceChild::setCaption( const QString& cap )
 {
-    titlebar->setText( cap );
+    if ( titlebar )
+	titlebar->setText( cap );
     QWidget::setCaption( cap );
 }
 
@@ -2280,6 +2313,30 @@ void QWorkspaceChild::move( int x, int y )
 QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent, const char* name )
     : QLabel( parent, name, WRepaintNoErase | WResizeNoErase )
 {
+#ifdef _WS_WIN_
+    aleft = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION));
+    ileft = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
+    atextc = colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT));
+    itextc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
+
+    aright = aleft;
+    iright = ileft;
+
+    #if defined(SPI_GETGRADIENTCAPTIONS) //Support for gradient titlebar depends on SDK version
+    bool gradient;
+    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+    if ( gradient ) {
+	aright = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+	iright = colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+    }
+    #endif
+#else
+    aleft = aright = palette().active().highlight();
+    ileft = iright = palette().inactive().dark();
+    atextc = palette().active().highlightedText();
+    itextc = palette().inactive().background();
+#endif
+    
     setActive( FALSE );
 }
 
@@ -2364,30 +2421,16 @@ void QWorkspaceChildTitleLabel::resizeEvent( QResizeEvent* e )
 
 void QWorkspaceChildTitleLabel::setActive( bool a )
 {
-#ifdef _WS_WIN_
-    a ? left = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) :
-	left = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
-    a ? textc = colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) :
-	textc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
-
-    right = left;
-
-    #if defined(QT_WINEFFECTS) //Support for gradient titlebar
-    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 ){
-	bool gradient;
-	SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
-	if ( gradient ) {
-	    a ? right = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) :
-		right = colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
-	}
+    if ( a ) {
+	textc = atextc;
+	left = aleft;
+	right = aright;
+    } else {
+	textc = itextc;
+	left = ileft;
+	right = iright;
     }
-    #endif
-#else
-    a ? left = right = palette().active().highlight() :
-	left = right = palette().inactive().dark();
-    a ? textc = palette().active().highlightedText() : 
-	textc = palette().inactive().background();
-#endif
+
     setText( titletext );
 }
 
