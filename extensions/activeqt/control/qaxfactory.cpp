@@ -146,6 +146,9 @@
 	)
     \endcode
 
+    Alternatively you can provide the unique identifiers using the
+    Q_CLASSINFO macro in your class declaration.
+
     Only one QAxFactory implementation may be instantiated and
     exported by an ActiveX server application.
 
@@ -247,14 +250,14 @@ QMetaObject *QAxFactory::metaObject(const QString &key) const
     QUuid if this factory doesn't support the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the classInfo entry "classID".
+    and returns the value of the Q_CLASSINFO entry "ClassID".
 */
 QUuid QAxFactory::classID( const QString &key ) const
 {
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("classID"));
+    QString id = QString::fromLatin1(mo->classInfo("ClassID", TRUE));
 
     return QUuid(id);
 }
@@ -265,14 +268,14 @@ QUuid QAxFactory::classID( const QString &key ) const
     empty QUuid if this factory doesn't support the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the classInfo entry "interfaceID".
+    and returns the value of the Q_CLASSINFO entry "InterfaceID".
 */
 QUuid QAxFactory::interfaceID( const QString &key ) const
 {
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("interfaceID"));
+    QString id = QString::fromLatin1(mo->classInfo("InterfaceID", TRUE));
 
     return QUuid(id);
 }
@@ -284,14 +287,14 @@ QUuid QAxFactory::interfaceID( const QString &key ) const
     the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the classInfo entry "eventsID".
+    and returns the value of the Q_CLASSINFO entry "EventsID".
 */
 QUuid QAxFactory::eventsID( const QString &key ) const
 {
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("eventsID"));
+    QString id = QString::fromLatin1(mo->classInfo("EventsID", TRUE));
 
     return QUuid(id);
 }
@@ -339,16 +342,22 @@ void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) cons
     \a key up to which methods and properties should be exposed by the
     ActiveX control.
 
-    The default implementation returns "QWidget" which means that all
-    the functions and properties of all the super classes including
-    QWidget will be exposed.
+    The default implementation interprets \a key as the class name,
+    and returns the value of the Q_CLASSINFO entry "ToSuperClass". If
+    no such value is set the null-string is returned, and the functions 
+    and properties of all the super classes including QWidget will be 
+    exposed.
 
     To only expose the functions and properties of the class itself,
     reimplement this function to return \a key.
 */
 QString QAxFactory::exposeToSuperClass( const QString &key ) const
 {
-    return "QWidget";
+    QMetaObject *mo = metaObject(key);
+    if (!mo)
+	return QString::null;
+    QString str(mo->classInfo("ToSuperClass", TRUE));
+    return str;
 }
 
 /*!
@@ -375,11 +384,14 @@ bool QAxFactory::stayTopLevel( const QString &key ) const
     \i MouseMove
     \endlist
 
-    The default implementation returns FALSE.
+    The default implementation interprets \a key as the class name,
+    and returns TRUE if the value of the Q_CLASSINFO entry "StockEvents"
+    is "yes". Otherwise this function returns FALSE.
 */
 bool QAxFactory::hasStockEvents( const QString &key ) const
 {
-    return FALSE;
+    QMetaObject *mo = metaObject(key);
+    return mo && !qstricmp(mo->classInfo("StockEvents", TRUE), "yes");
 }
 
 
