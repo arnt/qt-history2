@@ -705,17 +705,19 @@ QGLContext* QGLContext::currentCtx = 0;
 
   \module OpenGL
 
-  An OpenGL<sup>*</sup> rendering context is a complete set of OpenGL state
-  variables.
+  An OpenGL<sup>*</sup> rendering context is a complete set of OpenGL
+  state variables.
 
   The context's \link QGL::FormatOption format\endlink is set in the
   constructor or later with setFormat(). The format options that are
   actually set are returned by format(); the options you asked for are
-  returned by requestedFormat(). The context is created by the create()
-  function which is called from the constructors. The makeCurrent()
-  function makes this context the current rendering context. You can
-  make \e no context current using doneCurrent().
-  The reset() function will reset the context and make it invalid.
+  returned by requestedFormat(). Note that after a QGLContext object
+  have been constructed, the actual OpenGL context have to be created
+  by explicitly calling the \link create() create()\endlink
+  function. The makeCurrent() function makes this context the current
+  rendering context. You can make \e no context current using
+  doneCurrent().  The reset() function will reset the context and make
+  it invalid.
 
   You can examine properties of the context with, e.g. isValid(),
   isSharing(), initialized(), windowCreated() and
@@ -740,8 +742,11 @@ QGLContext* QGLContext::currentCtx = 0;
   be used. After creation, the format() method will return the actual
   format obtained.
 
-  The context will be \link isValid() invalid\endlink if it was not
-  possible to obtain a GL context at all.
+  Note that after a QGLContext object have been constructed, \link
+  create() create()\endlink have to be called explicitly to create the
+  actual OpenGL context. The context will be \link isValid()
+  invalid\endlink if it was not possible to obtain a GL context at
+  all.
 
   \sa format(), isValid()
 */
