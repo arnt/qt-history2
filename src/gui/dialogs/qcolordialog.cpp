@@ -715,7 +715,7 @@ void QColorLuminancePicker::setVal(int v)
         return;
     val = qMax(0, qMin(v,255));
     delete pix; pix=0;
-    repaint(); //###
+    repaint();
     emit newHsv(hue, sat, val);
 }
 
@@ -766,7 +766,7 @@ void QColorLuminancePicker::setCol(int h, int s , int v)
     hue = h;
     sat = s;
     delete pix; pix=0;
-    repaint();//####
+    repaint();
 }
 
 QPoint QColorPicker::colPt()
@@ -1061,7 +1061,7 @@ QColorShower::QColorShower(QWidget *parent, const char *name)
 
     QGridLayout *gl = new QGridLayout(this, 1, 1, 6);
     lab = new QColorShowLabel(this);
-    lab->setMinimumWidth(60); //###
+    lab->setMinimumWidth(60);
     gl->addMultiCellWidget(lab, 0,-1,0,0);
     connect(lab, SIGNAL(colorDropped(QRgb)),
              this, SIGNAL(newCol(QRgb)));
@@ -1132,7 +1132,7 @@ QColorShower::QColorShower(QWidget *parent, const char *name)
 void QColorShower::showCurrentColor()
 {
     lab->setColor(currentColor());
-    lab->repaint(); //###
+    lab->repaint();
 }
 
 void QColorShower::rgbEd()
@@ -1190,8 +1190,11 @@ void QColorShower::setRgb(QRgb rgb)
 
 void QColorShower::setHsv(int h, int s, int v)
 {
+    if (h < -1 || (uint)s > 255 || (uint)v > 255)
+	return;
+
     rgbOriginal = false;
-    hue = h; val = v; sat = s; //Range check###
+    hue = h; val = v; sat = s;
     curCol = QColor(hue, sat, val, QColor::Hsv).rgb();
 
     hEd->setNum(hue);
@@ -1340,7 +1343,7 @@ QColorDialogPrivate::QColorDialogPrivate(QColorDialog *dialog) :
     cLay->addSpacing(lumSpace);
 
     lp = new QColorLuminancePicker(dialog, "qt_luminance_picker");
-    lp->setFixedWidth(20); //###
+    lp->setFixedWidth(20);
     pickLay->addWidget(lp);
 
     connect(cp, SIGNAL(newCol(int,int)), lp, SLOT(setCol(int,int)));
