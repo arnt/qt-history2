@@ -1189,9 +1189,7 @@ void MainWindow::setupPropertyEditor()
 					"new values, open a special dialog or select values from a predefined list. "
 					"Use <b>F1</b> to get detailed help for the selected property.</p>"
 					"<p>You can resize the columns of the editor by dragging the separators of the list "
-					"header.</p>"
-					"<p>On the second tab you can define which function should be called, when a certain "
-					"event of the currently selected widget occures" ) );
+					"header.</p>" ) );
     propGeom = QRect( 0, 0, 300, 600 );
     dw->show();
 }

@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>475</width>
-            <height>408</height>
+            <width>471</width>
+            <height>406</height>
         </rect>
     </property>
     <property name="caption">
@@ -38,7 +38,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Preferences&lt;/b&gt;&lt;p&gt;Change the preferences of the designer application. The preferences will be saved when you exit the designer. They will be restored the next time the designer is started if &lt;b&gt;Restore last workspace&lt;/b&gt; is selected.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Preferences&lt;/b&gt;&lt;p&gt;Change the preferences of the designer application. There is always one tab with general preferenced. Depending on installed plugins, there might be more tabs for plugin preferences.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -299,7 +299,7 @@
                         </vbox>
                     </widget>
                     <spacer row="3" column="0">
-                        <property name="name" stdset="0">
+                        <property name="name">
                             <cstring>Spacer3</cstring>
                         </property>
                         <property name="orientation">
@@ -504,7 +504,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">

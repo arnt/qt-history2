@@ -3063,7 +3063,7 @@ void PropertyEditor::setWidget( QObject *w, FormWindow *fw )
 		removePage( eList );
 	} else {
 	    if ( !formwindow || !MetaDataBase::hasEvents( formwindow->project()->language() ) )
-		addTab( eList, tr( "&Events" ) );
+		addTab( eList, tr( "&Signal Handlers" ) );
 	}
     }
     if ( w && w == wid ) {
