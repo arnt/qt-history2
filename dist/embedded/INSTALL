@@ -7,15 +7,15 @@ to be modified for other platforms.
 Unpack the archive if you have not done so already:
 
 cd <anywhere>
-gunzip qt-qws-2.2.0.tar.gz    # uncompress the archive
-tar xf qt-qws-2.2.0.tar       # unpack it
+gunzip qt-qws-%VERSION%.tar.gz    # uncompress the archive
+tar xf qt-qws-%VERSION%.tar       # unpack it
 
-This document assumes that the archive is installed as ~/qt-2.2.0
+This document assumes that the archive is installed as ~/qt-%VERSION%
 
 Compile the Qt/Embedded library and examples:
 
-cd ~/qt-2.2.0
-export QTDIR=~/qt-2.2.0
+cd ~/qt-%VERSION%
+export QTDIR=~/qt-%VERSION%
 ./configure
 make
 
@@ -23,11 +23,11 @@ You will require a working Linux framebuffer to use Qt/Embedded.
 
 Set $LD_LIBRARY_PATH:
 
-export LD_LIBRARY_PATH=~/qt-2.2.0/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=~/qt-%VERSION%/lib:$LD_LIBRARY_PATH
 
 To run the demo:
 
-cd ~/qt-2.2.0/examples/launcher
+cd ~/qt-%VERSION%/examples/launcher
 ./start_demo
 
 See the HTML documentation in docs/html for detailed installation
