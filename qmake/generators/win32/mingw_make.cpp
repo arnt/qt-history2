@@ -244,8 +244,6 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
 	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
     }
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty())
-	t << "\n\t-$(DEL_FILE) " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
 
