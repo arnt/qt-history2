@@ -897,7 +897,7 @@ bool QMenu::isCheckable() const
 */
 QAction *QMenu::activeAction() const
 {
-    return d->currentAction->action;
+    return d->currentAction ? d->currentAction->action : 0;
 }
 
 /*!
