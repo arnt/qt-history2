@@ -948,8 +948,8 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 static void arabic_shape( int /*script*/, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
-    QFontEngine *font = engine->fontEngine(*si);
 #if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+    QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {

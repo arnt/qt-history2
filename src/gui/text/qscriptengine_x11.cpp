@@ -22,8 +22,8 @@ static void hebrew_shape(int script, const QString &string, int from, int len,
 {
     assert(script == QFont::Hebrew);
 
-    QFontEngine *font = engine->fontEngine(*si);
 #ifndef QT_NO_XFTFREETYPE
+    QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
@@ -49,8 +49,8 @@ static void hebrew_shape(int script, const QString &string, int from, int len,
 static void syriac_shape( int script, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
-    QFontEngine *font = engine->fontEngine(*si);
 #ifndef QT_NO_XFTFREETYPE
+    QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
@@ -67,8 +67,8 @@ static void thaana_shape(int script, const QString &string, int from, int len,
 {
     assert(script == QFont::Thaana);
 
-    QFontEngine *font = engine->fontEngine(*si);
 #ifndef QT_NO_XFTFREETYPE
+    QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
