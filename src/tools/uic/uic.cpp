@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "blockingprocess.h"
 #include "driver.h"
 #include "option.h"
 #include "ui4.h"
@@ -25,12 +24,13 @@
 #include "writeinitialization.h"
 #include "writeiconinitialization.h"
 
-#include <qtextstream.h>
-#include <qfileinfo.h>
-#include <qregexp.h>
 #include <qcoreapplication.h>
 #include <qdebug.h>
 #include <qdom.h>
+#include <qfileinfo.h>
+#include <qregexp.h>
+#include <qprocess.h>
+#include <qtextstream.h>
 
 #if defined Q_WS_WIN
 #include <qt_windows.h>
@@ -76,15 +76,17 @@ bool Uic::write(QIODevice *in)
             return false;
         }
         //qWarning("converting file '%s'", opt.inputFile.latin1());
-        BlockingProcess uic3;
-        QString exe = option().uic3;
-        uic3.setArguments(QStringList() << exe << QLatin1String("-convert") << opt.inputFile);
-        if (!uic3.start()) {
-            fprintf(stderr, "Couldn't start uic3\n");
+        QProcess uic3;
+        uic3.start(option().uic3, QStringList() << QLatin1String("-convert") << opt.inputFile);
+        if (!uic3.waitForStarted()) {
+            fprintf(stderr, "Couldn't start uic3: %s\n", uic3.errorString().local8Bit());
             return false;
         }
 
-        QString contents = QString::fromAscii(uic3.out);
+        QString contents;
+        while (uic3.waitForReadyRead())
+            contents += QString::fromAscii(uic3.readAll());
+
         if (!doc.setContent(contents))
             return false;
 

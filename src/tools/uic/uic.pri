@@ -15,7 +15,6 @@ HEADERS += $$PWD/uic.h \
            $$PWD/writeicondata.h \
            $$PWD/databaseinfo.h \
            $$PWD/customwidgetsinfo.h \
-           $$PWD/blockingprocess.h \
            $$PWD/globaldefs.h
 
 SOURCES += $$PWD/uic.cpp \
@@ -30,5 +29,4 @@ SOURCES += $$PWD/uic.cpp \
            $$PWD/writeicondata.cpp \
            $$PWD/databaseinfo.cpp \
            $$PWD/customwidgetsinfo.cpp \
-           $$PWD/blockingprocess.cpp \
 	   $$PWD/ui4.cpp
