@@ -37,11 +37,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#ifndef Q_OS_TEMP
-# include <locale.h>
-#endif
-#ifdef Q_OS_WIN
+#ifdef Q_OS_TEMP
 # include <qt_windows.h>
+#else
+# include <locale.h>
 #endif
 
 #ifndef LLONG_MAX
@@ -3334,7 +3333,14 @@ QString &QString::sprintf(const char * cformat, ...)
     int pos;
     int len = 0;
 
+#ifdef Q_OS_TEMP
+    const int buffer_size = 10;
+    wchar_t buffer[buffer_size];
+    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
+#else
     char *old_locale = setlocale(LC_NUMERIC, "C");
+#endif
 
     for (;;) {
 	pos = escape.search(format, last);
@@ -3473,7 +3479,11 @@ QString &QString::sprintf(const char * cformat, ...)
     }
     *this = result;
 
+#ifdef Q_OS_TEMP
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
+#else
     setlocale(LC_NUMERIC, old_locale);
+#endif
 
     va_end(ap);
     return *this;
@@ -3957,7 +3967,15 @@ QString &QString::setNum(double n, char f, int prec)
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-#ifndef QT_NO_SPRINTF
+#ifdef Q_OS_TEMP
+    const int buffer_size = 10;
+    wchar_t buffer[buffer_size];
+    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
+    ::sprintf( buf, format, n );        // snprintf is unfortunately not portable
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
+    return setLatin1(buf);
+#elif !defined( QT_NO_SPRINTF )
     sprintf(format, n);
     return *this;
 #else
