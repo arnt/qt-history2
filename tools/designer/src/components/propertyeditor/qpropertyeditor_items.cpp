@@ -370,10 +370,13 @@ QWidget *IntProperty::createEditor(QWidget *parent, const QObject *target, const
 {
     QSpinBox *spinBox = new QSpinBox(parent);
     spinBox->setFrame(0);
-
-    QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
     spinBox->setSpecialValueText(m_specialValue);
     spinBox->setRange(m_low, m_hi);
+    spinBox->setValue(m_value);
+    spinBox->selectAll();
+
+    QObject::connect(spinBox, SIGNAL(valueChanged(int)), target, receiver);
+
     return spinBox;
 }
 
@@ -381,7 +384,6 @@ void IntProperty::updateEditorContents(QWidget *editor)
 {
     if (QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor)) {
         spinBox->setValue(m_value);
-        spinBox->selectAll();
     }
 }
 
