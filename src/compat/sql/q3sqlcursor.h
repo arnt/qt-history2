@@ -33,7 +33,7 @@ public:
                QSqlDatabase db = QSqlDatabase());
     Q3SqlCursor(const Q3SqlCursor & other);
     Q3SqlCursor& operator=(const Q3SqlCursor& other);
-    ~Q3SqlCursor();
+    virtual ~Q3SqlCursor();
 
     enum Mode {
         ReadOnly = 0,

@@ -1467,7 +1467,7 @@ void Q3SqlCursor::sync()
 
 QCoreVariant Q3SqlCursor::value(int i) const
 {
-    sync();
+    const_cast<Q3SqlCursor *>(this)->sync();
     return QSqlRecord::value(i);
 }
 
@@ -1487,7 +1487,7 @@ void Q3SqlCursor::append(const QSqlField& field)
 */
 bool Q3SqlCursor::isNull(int i) const
 {
-    sync();
+    const_cast<Q3SqlCursor *>(this)->sync();
     return QSqlRecord::isNull(i);
 }
 /*!
@@ -1500,7 +1500,7 @@ bool Q3SqlCursor::isNull(int i) const
 */
 bool Q3SqlCursor::isNull(const QString& name) const
 {
-    sync();
+    const_cast<Q3SqlCursor *>(this)->sync();
     return QSqlRecord::isNull(name);
 }
 
