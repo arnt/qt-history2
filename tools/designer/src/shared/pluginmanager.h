@@ -16,8 +16,8 @@
 
 #include "shared_global.h"
 
-#include <QStringList>
-#include <qsettings.h>
+#include <QtCore/QStringList>
+#include <QtCore/QSettings>
 
 class QT_SHARED_EXPORT PluginManager: public QObject
 {
@@ -31,7 +31,7 @@ public:
     QStringList registeredPlugins() const;
     void registerPlugin(const QString &plugin);
     void unregisterPlugin(const QString &plugin);
-    
+
     void registerPath(const QString &path);
 
     QStringList pluginPaths() const;
@@ -41,12 +41,13 @@ public:
 
     void addPluginPath(const QString &path);
     void removePluginPath(const QString &path);
-    
+    bool syncSettings();
 private:
     static QStringList unique(const QStringList &list);
-    
+
 private:
-    QSettings settings;
+    QStringList m_pluginPaths;
+    QStringList m_registeredPlugins;
 };
 
 #endif // PLUGINMANAGER_H

@@ -20,15 +20,18 @@
 #include <qdebug.h>
 
 PluginManager::PluginManager(QObject *parent)
-    : QObject(parent), 
-      settings(Qt::UserScope, "Trolltech/Designer")
+    : QObject(parent)
 {
+    QSettings settings;
     settings.beginGroup("PluginManager");
+    m_registeredPlugins = unique(settings.value("RegisteredPlugins").toStringList());
+    m_pluginPaths = unique(settings.value("PluginPaths").toStringList());
+    settings.endGroup();
 }
 
 PluginManager::~PluginManager()
 {
-    settings.endGroup();
+    syncSettings();
 }
 
 QStringList PluginManager::unique(const QStringList &list)
@@ -36,7 +39,7 @@ QStringList PluginManager::unique(const QStringList &list)
     QMap<QString, bool> m;
     foreach (QString s, list)
         m.insert(s, true);
-        
+
     return m.keys();
 }
 
@@ -58,8 +61,8 @@ void PluginManager::registerPath(const QString &path)
         qWarning("invalid plugin path: %s", path.latin1());
         return;
     }
-        
-    QStringList candidates = dir.entryList(filters, QDir::Files);
+
+    QStringList candidates = dir.entryList(filters);
     foreach (QString plugin, candidates) {
         QString fileName = QDir::cleanPath(path + QLatin1Char('/') + plugin);
         registerPlugin(fileName);
@@ -69,58 +72,46 @@ void PluginManager::registerPath(const QString &path)
 
 QStringList PluginManager::registeredPlugins() const
 {
-    QStringList plugins = settings.value("RegisteredPlugins").toStringList();
-    return unique(plugins);
+    return m_registeredPlugins;
 }
 
 void PluginManager::registerPlugin(const QString &plugin)
 {
-    QStringList plugins = registeredPlugins();
-    
     QPluginLoader loader(plugin);
-    if (loader.load() && !plugins.contains(plugin)) {
-        plugins.append(plugin);
-        settings.setValue("RegisteredPlugins", plugins);
-    }
+    if (loader.load() && !m_registeredPlugins.contains(plugin))
+        m_registeredPlugins += plugin;
 }
 
 void PluginManager::unregisterPlugin(const QString &plugin)
 {
     QPluginLoader loader(plugin);
-    if (loader.unload()) {
-        QStringList plugins = registeredPlugins();
-        plugins.removeAll(plugin);
-        settings.setValue("RegisteredPlugins", plugins);
-    }
+    if (loader.unload())
+        m_registeredPlugins.removeAll(plugin);
 }
 
 QStringList PluginManager::pluginPaths() const
 {
-    return settings.value("PluginPaths").toStringList();
+    return m_pluginPaths;
 }
 
 void PluginManager::setPluginPaths(const QStringList &paths)
 {
-    settings.setValue("PluginPaths", paths);
+    m_pluginPaths = paths;
 }
 
 void PluginManager::clearPluginPaths()
 {
-    setPluginPaths(QStringList());
+    m_pluginPaths.clear();
 }
 
 void PluginManager::addPluginPath(const QString &path)
 {
-    QStringList paths = pluginPaths();
-    paths.append(path);
-    setPluginPaths(paths);
+    m_pluginPaths += path;
 }
 
 void PluginManager::removePluginPath(const QString &path)
 {
-    QStringList paths = pluginPaths();
-    paths.removeAll(path);
-    setPluginPaths(paths);
+    m_pluginPaths.removeAll(path);
 }
 
 QObject *PluginManager::instance(const QString &plugin) const
@@ -128,6 +119,16 @@ QObject *PluginManager::instance(const QString &plugin) const
     QPluginLoader loader(plugin);
     if (loader.load())
         return loader.instance();
-        
+
     return 0;
+}
+
+bool PluginManager::syncSettings()
+{
+    QSettings settings;
+    settings.beginGroup("PluginManager");
+    settings.setValue("PluginPaths", m_pluginPaths);
+    settings.setValue("RegisteredPlugins", m_registeredPlugins);
+    settings.endGroup();
+    return settings.status() == QSettings::NoError;
 }
