@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#6 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#7 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -37,7 +37,7 @@
  ****************************************************************************/
 
 QTMainWindow::QTMainWindow( const char *name )
-    : QMainWindow( 0L, name ), splitter( 0L ), 
+    : QMainWindow( 0L, name ), splitter( 0L ),
       oldCurrent( 0L ), preferences( new QTPreferences ),
       save( FALSE )
 {
@@ -114,18 +114,18 @@ void QTMainWindow::setupCanvas()
         if ( messages )
             delete messages;
     }
-        
-        
+
+
     scopes = new QListView( splitter );
     scopes->addColumn( tr( "Scope            " ) );
     scopes->show();
-    
+
     messages = new QTMessageView( splitter );
     messages->addColumn( tr( "Original Message" ) );
     messages->setAllColumnsShowFocus( TRUE );
     messages->header()->setMovingEnabled( FALSE );
     messages->show();
-    
+
     splitter->setResizeMode( scopes, QSplitter::KeepSize );
 
     connect( scopes, SIGNAL( currentChanged( QListViewItem * ) ),
@@ -324,7 +324,7 @@ void QTMainWindow::fileNew()
         fileSave();
     if ( messages->firstChild() )
         saveScope();
-    
+
     preferences->sources.directories.clear();
     preferences->sources.extensions.clear();
     preferences->translation.directory = QString::null;
@@ -345,7 +345,7 @@ void QTMainWindow::fileOpen()
         fileSave();
     if ( messages->firstChild() )
         saveScope();
-    
+
     QString file = QFileDialog::getOpenFileName( preferences->projectFile );
     if ( !file.isEmpty() ) {
         preferences->sources.directories.clear();
@@ -380,11 +380,11 @@ void QTMainWindow::fileSave()
 void QTMainWindow::fileSaveAs()
 {
     if ( save )
-        QMessageBox::information( this, tr( "Information" ), 
+        QMessageBox::information( this, tr( "Information" ),
                                   tr( "You haven't saved the configuration of the current\n"
                                       "Project. Please choose now a Project File, into which\n"
                                       "the configuration can be saved" ) );
-    
+
     QString file = QFileDialog::getSaveFileName( preferences->projectFile );
     if ( !file.isEmpty() ) {
         setCaption( tr( "QTranslator [%1]" ).arg( file ) );
@@ -398,7 +398,7 @@ void QTMainWindow::editNewLanguage()
     QTAddLangDia dia( this, "addlangdia" );
     connect( &dia, SIGNAL( newLangChosen( const QString & ) ),
              this, SLOT( addNewLanguage( const QString & ) ) );
-    dia.resize( 350, 100 );
+    dia.resize( 360, 100 );
     dia.show();
 }
 
