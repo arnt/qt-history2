@@ -971,7 +971,6 @@ class QDataStream;
 #      define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    endif
 #    define Q_TEMPLATEDLL
-#    define Q_NO_UNRESOLVED_EXTERNALS
 #  elif defined(QT_DLL) /* use a Qt DLL library */
 #    define Q_CORE_EXPORT Q_DECL_IMPORT
 #    define Q_GUI_EXPORT Q_DECL_IMPORT
@@ -982,8 +981,8 @@ class QDataStream;
 #    define Q_XML_EXPORT Q_DECL_IMPORT
 #    define Q_COMPAT_EXPORT Q_DECL_IMPORT
 #    define Q_TEMPLATEDLL
-#    define Q_NO_UNRESOLVED_EXTERNALS
 #  endif
+#  define Q_NO_UNRESOLVED_EXTERNALS
 #elif defined(Q_OS_LINUX) && defined(Q_CC_BOR)
 #  define Q_TEMPLATEDLL
 #  define Q_NO_UNRESOLVED_EXTERNALS
