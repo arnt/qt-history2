@@ -98,8 +98,8 @@ public:
 #endif
     inline void getCoords(int *x1, int *y1, int *x2, int *y2) const;
 
-    void adjust(int x1, int y1, int x2, int y2);
-    QRect adjusted(int x1, int y1, int x2, int y2) const;
+    inline void adjust(int x1, int y1, int x2, int y2);
+    inline QRect adjusted(int x1, int y1, int x2, int y2) const;
 
     QSize size() const;
     int width() const;
@@ -537,8 +537,8 @@ public:
     void setCoords(qreal x1, qreal y1, qreal x2, qreal y2);
     void getCoords(qreal *x1, qreal *y1, qreal *x2, qreal *y2) const;
 
-    void adjust(qreal x1, qreal y1, qreal x2, qreal y2);
-    QRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const;
+    inline void adjust(qreal x1, qreal y1, qreal x2, qreal y2);
+    inline QRectF adjusted(qreal x1, qreal y1, qreal x2, qreal y2) const;
 
     QSizeF size() const;
     qreal width() const;
