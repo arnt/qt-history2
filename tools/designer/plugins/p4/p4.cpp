@@ -498,11 +498,15 @@ void P4Diff::processExited()
 	    s = s.replace( QRegExp( "<" ), "&lt;" );
 	    s = s.replace( QRegExp( ">"), "&gt;" );
 	    if ( s[ 0 ] == '-' )
-		s = "<font color=\"red\">" + s + "</font>";
+		s = "<font color=\"red\"><pre>" + s + "</pre></font>";
 	    else if ( s[ 0 ] == '+' )
-		s = "<font color=\"blue\">" + s + "</font>";
+		s = "<font color=\"blue\"><pre>" + s + "</pre></font>";
 	    else if ( s.left( 4 ) == "====" )
 		s = "<b>" + s + "</b>";
+	    else if ( s.left( 2 ) == "@@" )
+		s = "<b>" + s + "</b>";
+	    else
+		s = "<pre>" + s + "</pre>";
 	    s += "<br>";
 	    diff += s;
 	}
