@@ -960,7 +960,7 @@ void QDateEdit::init()
     d->max = QDate( 8000, 12, 31 );
     d->changed = FALSE;
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 
     refcount++;
 }
@@ -1848,7 +1848,7 @@ void QTimeEdit::init()
     d->max = QTime( 23, 59, 59 );
     d->changed = FALSE;
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 
     refcount++;
 }
@@ -2653,14 +2653,21 @@ Moves and resizes the internal date and time editors.
 */
 void QDateTimeEdit::layoutEditors()
 {
-    int h      = height();
-    int dWidth = width() * 9/16;
-    int tWidth = width() * 7/16;
+    int dw = de->sizeHint().width();
+    int tw = te->sizeHint().width();
+    int w = width();
+    int h = height();
+    int extra = w - ( dw + tw );
 
-    de->resize( dWidth, h );
-    te->resize( tWidth, h );
+    if ( tw + extra < 0 ) {
+	dw = w;
+    } else {
+	dw += 9 * extra / 16;
+    }
+    tw = w - dw;
 
-    te->move( de->x() + de->width(), 0 );
+    de->setGeometry( 0, 0, dw, h );
+    te->setGeometry( dw, 0, tw, h );
 }
 
 /*!  \internal
@@ -2677,6 +2684,7 @@ void QDateTimeEdit::init()
     connect( te, SIGNAL( valueChanged( const QTime& ) ),
 	     this, SLOT( newValue( const QTime& ) ) );
     setFocusProxy( de );
+    setSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
     layoutEditors();
 }
 
