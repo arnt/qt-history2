@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#9 $
 **
 ** Definition of QMultiLineEdit widget class
 **
 ** Created : 961005
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 
@@ -77,7 +77,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 		   //Tbl_cutCellsV | //////###########
 		   //Tbl_scrollLastVCell  |
 		   Tbl_smoothVScrolling |
-		   Tbl_clipCellPainting );
+		   Tbl_clipCellPainting
+		   );
     switch ( style() ) {
 	case WindowsStyle:
 	case MotifStyle:
@@ -91,10 +92,12 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     isInputEnabled = TRUE;
     setAcceptFocus( TRUE );
     setCursor( ibeamCursor );
-    ((QScrollBar*)verticalScrollBar())->setCursor( sizeVerCursor );
-    ((QScrollBar*)horizontalScrollBar())->setCursor( sizeHorCursor );
+    ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );
+    ((QScrollBar*)horizontalScrollBar())->setCursor( arrowCursor );
     insert("");
     dummy = TRUE;
+    markStartX = markStartY = 0;
+    markEndX = markEndY = 0;
 }
 
 /*!
@@ -240,7 +243,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent * )
 
 bool QMultiLineEdit::hasMarkedText() const
 {
-    return FALSE;
+    return markEndY != markStartY || markEndX != markStartX ;
 }
 
 /*!
@@ -253,12 +256,16 @@ void QMultiLineEdit::clipboardChanged()
 }
 
 /*!
-
+  Returns the text at line number \a row, or 0 if row is invalid.
 */
 
-const char * QMultiLineEdit::text() const
+const char * QMultiLineEdit::text( int row ) const
 {
-    return 0;
+    QString *s = contents->at( row );
+    if ( s )
+	return *s;
+    else
+	return 0;
 }
 
 /*!
@@ -274,9 +281,10 @@ void QMultiLineEdit::selectAll()
 
 */
 
-void QMultiLineEdit::setText( const char * )
+void QMultiLineEdit::setText( const char *s )
 {
-    
+    clear();
+    insert( s );
 }
 
 /*!
@@ -497,9 +505,10 @@ void QMultiLineEdit::pageUp()
 }
 
 /*!
-  Inserts a new line containing \a s at line number \a row. If \a
-  row is less than zero, or larger than the number of rows, the new line
-  is put at the end.
+
+  Inserts \a s at line number \a row. If \a row is less than zero, or
+  larger than the number of rows, the new text is put at the end.
+  If \a s contains newline characters, several lines are inserted.
 */
 
 void QMultiLineEdit::insert( QString s, int row )
@@ -509,20 +518,36 @@ void QMultiLineEdit::insert( QString s, int row )
 	//debug ("insert: removing dummy, %d", count() );
 	dummy = FALSE;
     }
-    QString *line = new QString( s );
-    if ( row < 0 || !contents->insert( row, line ) )
-	contents->append( line );
 
-    bool    updt = autoUpdate() && rowIsVisible( row );
+    int to = s.find( '\n' );
+    if ( to < 0 ) { //just one line
+	QString *line = new QString( s );
+	if ( row < 0 || !contents->insert( row, line ) )
+	    contents->append( line );
+	bool updt = autoUpdate() && rowIsVisible( row );
+	int w = textWidth( &s );
+	setCellWidth( QMAX( cellWidth(), w ) );
+	setNumRows( contents->count() );
 
-    setNumRows( contents->count() );
-    int w = textWidth( line );
-    setCellWidth( QMAX( cellWidth(), w ) );
+	if ( updt )
+	    repaint();
+    } else { //multiline
+	int from = 0;
+	if ( row < 0 || row >= count() )
+	    row = count();
+	while ( to > 0 ) {
+	    insert( s.mid( from, to - from ), row++ );
+	    from = to + 1;
+	    to = s.find( '\n', from );
+	}
+	int lastLen = s.length() - from;
+	insert( s.right( lastLen ), row );
+	setNumRows( contents->count() );
+	updateCellWidth();
+    }
     if ( count() == 0 )
 	insert( "" );	// belts and suspenders
     makeVisible();
-    if ( updt )
-	repaint();
 }
 
 /*!
@@ -1072,13 +1097,13 @@ void QMultiLineEdit::paste()
 	QString *s = getString( cursorY );
 	ASSERT( s );
 	/* #################
-	uchar *p = (uchar *) t.data();
-	while ( *p ) {		// unprintable becomes space
-	    if ( *p < 32 )
-		*p = 32;
-	    p++;
-	}
-	*/
+	   uchar *p = (uchar *) t.data();
+	   while ( *p ) {		// unprintable becomes space
+	   if ( *p < 32 )
+	   *p = 32;
+	   p++;
+	   }
+	   */
 
 	int from = 0;
 
@@ -1088,23 +1113,47 @@ void QMultiLineEdit::paste()
 	    int w = textWidth( s );
 	    setCellWidth( QMAX( cellWidth(), w ) );
 	} else { //multiline
-	       QString newString = s->mid( cursorX, s->length() );
-	       s->remove( cursorX, s->length() );
-	       *s += t.left( to );
-	       cursorY++;
-	       from = to + 1;
-	       while ( (to = t.find( '\n', from )) > 0 ) {
-		   insert( t.mid( from, to - from ), cursorY++ );
-		   from = to + 1;
-	       }
-	       int lastLen = t.length() - from;
-	       newString.prepend( t.right( lastLen ) );
-	       insert( newString, cursorY );
-	       cursorX = lastLen;
-
-	       updateCellWidth();
+	    setAutoUpdate( FALSE );
+	    QString newString = s->mid( cursorX, s->length() );
+	    s->remove( cursorX, s->length() );
+	    *s += t.left( to );
+	    cursorY++;
+	    from = to + 1;
+	    while ( (to = t.find( '\n', from )) > 0 ) {
+		insert( t.mid( from, to - from ), cursorY++ );
+		from = to + 1;
+	    }
+	    int lastLen = t.length() - from;
+	    newString.prepend( t.right( lastLen ) );
+	    insert( newString, cursorY );
+	    cursorX = lastLen;
+	    updateCellWidth();
+	    setAutoUpdate( TRUE );
+	    repaint();
 	}
 	curXPos = 0;
     }
 
+}
+
+
+/*!
+  Removes all text.
+*/
+
+void QMultiLineEdit::clear()
+{
+    
+}
+
+
+/*!
+  Reimplements QWidget::setFont() to update the list box line height.
+*/
+
+void QMultiLineEdit::setFont( const QFont &font )
+{
+    QWidget::setFont( font );
+    setCellHeight( fontMetrics().lineSpacing() + 1 );
+    updateCellWidth();
 }

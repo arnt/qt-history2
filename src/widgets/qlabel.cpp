@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#44 $
 **
 ** Implementation of QLabel widget class
 **
@@ -13,7 +13,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#44 $");
 
 
 /*!
@@ -321,7 +321,12 @@ QSize QLabel::sizeHint() const
 {
     QPainter p;
     p.begin( this );
-    QRect br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+    QRect br;
+    QPixmap *pix = pixmap();
+    if ( pix )
+	br = QRect( 0, 0, pix->width(), pix->height() );
+    else
+	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
     int m  = 2*margin();
     int fw = frameWidth();
     if ( m < 0 ) {

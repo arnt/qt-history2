@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#7 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#8 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -23,10 +23,11 @@ public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();
 
-    const char *text() const;
+    const char *text( int row ) const;
 
     void insert( QString s, int row = -1 );
     void remove( int );
+    void clear();
     
     int count();
 
@@ -47,6 +48,7 @@ protected:
     // table view stuff
     void	paintCell( QPainter *, int row, int col );
 
+    void	setFont( const QFont &font );
 
     void	mousePressEvent( QMouseEvent * );
     //    void	mouseMoveEvent( QMouseEvent * );
@@ -70,9 +72,14 @@ private:
     uint	    isInputEnabled : 1;
     uint	    cursorOn : 1;
     uint	    dummy : 1;
+    uint	    markIsOn : 1;
 
     int		cursorX;
     int		cursorY;
+    int		markStartX;
+    int		markStartY;
+    int		markEndX;
+    int		markEndY;
     int		curXPos;	// cell coord of cursor
     enum { BORDER = 3 };
 
