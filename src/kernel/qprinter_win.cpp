@@ -1342,7 +1342,7 @@ like setOrientation() to create a printer HDC with the appropriate settings
 void QPrinter::reinit()
 {
     if ( hdevmode ) {
-	HDC hdcTmp;
+	HDC hdcTmp = 0;
 	QT_WA( {
 	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
 	    if ( dm ) {
@@ -1361,9 +1361,9 @@ void QPrinter::reinit()
 	if ( hdcTmp ) {
 	    DeleteDC( hdc );
 	    hdc = hdcTmp;
+	    setPrinterMapping( hdc, res );
 	}
     }
-    setPrinterMapping( hdc, res );
 }
 
 #endif // QT_NO_PRINTER
