@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#24 $
 **
 ** Implementation of Windows-like style class
 **
@@ -179,7 +179,7 @@ QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		   int lineWidth, const QBrush* fill)
 {
     if ( lineWidth == 2 )
-	qDrawWinPanel(p, x, y, w, h, g, sunken, fill);
+      QWindowsStyle::drawButton(p, x, y, w, h, g, sunken, fill);
     else
 	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
@@ -430,10 +430,10 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     bool enabled,
 				     const QBrush *fill )
 {
-    drawPanel(p, x, y, w, h, g, TRUE, 2,
+    qDrawWinPanel(p, x, y, w, h, g, TRUE,
                    fill?fill:(enabled?&g.brush( QColorGroup::Base ):
                                       &g.brush( QColorGroup::Background )));
-    drawPanel(p, w-2-16,2,16,h-4, g, sunken, 2 );
+    qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     drawArrow( p, QStyle::DownArrow, sunken,
 	       w-2-16+ 2, 2+ 2, 16- 4, h-4- 4, g, enabled, fill );
 
