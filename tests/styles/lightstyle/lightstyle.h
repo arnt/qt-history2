@@ -44,6 +44,11 @@ public:
 		      const QColorGroup &cg,
 		      SFlags flags = Style_Default,
 		      void **data = 0 ) const;
+    void drawControlMask( ControlElement control,
+			  QPainter *p,
+			  const QWidget *widget,
+			  const QRect &r,
+			  void **data = 0 ) const;
 
     void drawComplexControl( ComplexControl control,
 			     QPainter* p,

@@ -949,6 +949,24 @@ void LightStyle::drawControl( ControlElement control,
 }
 
 
+void LightStyle::drawControlMask( ControlElement control,
+				  QPainter *p,
+				  const QWidget *widget,
+				  const QRect &r,
+				  void **data = 0 ) const
+{
+    switch (control) {
+    case CE_PushButton:
+	p->fillRect(r, color1);
+	break;
+
+    default:
+	QWindowsStyle::drawControlMask(control, p, widget, r, data);
+	break;
+    }
+}
+
+
 void LightStyle::drawComplexControl( ComplexControl control,
 				     QPainter* p,
 				     const QWidget* widget,
