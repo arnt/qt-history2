@@ -804,10 +804,6 @@ QPixmap *QIconSet::createDisabled( Size size, State state ) const
     QPixmap normalPix = pixmap( size, Normal, state );
     QImage img;
 
-#ifdef Q_WS_X11
-    QPixmap::x11SetDefaultScreen( normalPix.x11Screen() );
-#endif // Q_WS_X11
-
     if ( normalPix.isNull() )
 	return 0;
 
