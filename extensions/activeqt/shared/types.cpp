@@ -301,6 +301,20 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	arg.cyVal.int64 = qvar.toULongLong();
 	break;
 
+    case 1000: // rawAccess in QAxBase::toVariant
+	if ( type && !qstrcmp(type, "IDispatch*") ) {
+	    arg.vt = VT_DISPATCH;
+	    arg.pdispVal = (IDispatch*)qvar.rawAccess();
+	    if ( arg.pdispVal )
+		arg.pdispVal->AddRef();
+	} else {
+	    arg.vt = VT_UNKNOWN;
+	    arg.punkVal = (IUnknown*)qvar.rawAccess();
+	    if ( arg.punkVal )
+		arg.punkVal->AddRef();
+	}
+	break;
+
     default:
 	return FALSE;
     }
@@ -1287,9 +1301,13 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    if ( !qstrcmp( vartype, "IDispatch*" ) || !qstrcmp( vartype, "IDispatch" ) ) {
 		var.vt = VT_DISPATCH;
 		var.pdispVal = (IDispatch*)ptrvalue;
+		if ( ptrvalue )
+		    var.pdispVal->AddRef();
 	    } else if ( !qstrcmp( vartype, "IUnknown*" ) || !qstrcmp( vartype, "IUnknown" ) ) {
 		var.vt = VT_UNKNOWN;
 		var.punkVal = (IUnknown*)ptrvalue;
+		if ( ptrvalue )
+		    var.punkVal->AddRef();
 	    } else if ( QMetaObject::metaObject( vartype ) ) {
 		var.vt = VT_DISPATCH;
 		var.pdispVal = ptrvalue ? create_object_wrapper( (QObject*)ptrvalue ) : 0;
