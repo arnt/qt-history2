@@ -469,8 +469,8 @@ void QTextEditCursor::indent()
 bool QTextEditCursor::checkOpenParen()
 {
     if ( !doc->isParenCheckingEnabled() )
-	return FALSE; 
-    
+	return FALSE;
+
     QTextEditParag::ParenList parenList = string->parenList();
 
     QTextEditParag::Paren openParen, closedParen;
@@ -681,7 +681,7 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     cy = 2;
     cw = 600;
 
-    selectionColors[ Standard ] = Qt::lightGray;
+    selectionColors[ Standard ] = QApplication::palette().color( QPalette::Normal, QColorGroup::Highlight );
     selectionColors[ ParenMismatch ] = Qt::magenta;
     selectionColors[ ParenMatch ] = Qt::green;
     selectionColors[ Search ] = Qt::yellow;
@@ -1171,7 +1171,7 @@ QTextEditParag::QTextEditParag( QTextEditDocument *d, QTextEditParag *pr, QTextE
     }
     firstHilite = TRUE;
     lastLenForCompletion = -1;
-    
+
     str = new QTextEditString( this );
 }
 
@@ -1200,7 +1200,7 @@ void QTextEditParag::invalidate( int chr )
 void QTextEditParag::insert( int index, const QString &s )
 {
     if ( doc->syntaxHighlighter() )
-	str->insert( index, s, 
+	str->insert( index, s,
 		     doc->syntaxHighlighter()->format( QTextEditSyntaxHighlighter::Standard ) );
     else
 	str->insert( index, s, doc->formatCollection()->defaultFormat() );
@@ -1449,7 +1449,7 @@ QTextEditFormatterBreakInWords::QTextEditFormatterBreakInWords( QTextEditDocumen
     : QTextEditFormatter( d )
 {
 }
-    
+
 int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 {
     QTextEditString::Char *c = 0;
@@ -1504,7 +1504,7 @@ int QTextEditFormatterBreakInWords::format( QTextEditParag *parag, int start )
 	c->x = x;
 	x += ww;
     }
-    
+
     y += h;
     return y;
 }
@@ -1515,7 +1515,7 @@ QTextEditFormatterBreakWords::QTextEditFormatterBreakWords( QTextEditDocument *d
     : QTextEditFormatter( d )
 {
 }
-    
+
 int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 {
     QTextEditString::Char *c = 0;
@@ -1539,7 +1539,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
     parag->lineStartList().insert( 0, lineStart );
     int lastSpace = -1;
     int tmpBaseLine = 0, tmph = 0;
-    
+
     for ( ; i < parag->string()->length(); ++i ) {
 	c = &parag->string()->at( i );
 	if ( i > 0 && x > 0 ) {
@@ -1602,7 +1602,7 @@ int QTextEditFormatterBreakWords::format( QTextEditParag *parag, int start )
 	c->x = x;
 	x += ww;
     }
-    
+
     y += h;
     return y;
 }
@@ -1618,7 +1618,7 @@ QTextEditIndent::QTextEditIndent( QTextEditDocument *d )
 
 QTextEditFormatCollection::QTextEditFormatCollection()
 {
-    defFormat = new QTextEditFormat( QApplication::font(), 
+    defFormat = new QTextEditFormat( QApplication::font(),
 				     QApplication::palette().color( QPalette::Normal, QColorGroup::Text ) );
 }
 

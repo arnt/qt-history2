@@ -115,7 +115,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
 	    painter.begin( db );
 	} else {
-	    painter.fillRect( QRect( 0, 0, s.width(), s.height() ), 
+	    painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
 			      colorGroup().color( QColorGroup::Base ) );
 	}
 	chr = parag->at( 0 );
@@ -178,8 +178,10 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		i == matchEnd || i == mismatchStart || i == mismatchEnd ) {
 		painter.setPen( QPen( lastFormat->color() ) );
 		painter.setFont( lastFormat->font() );
-		if ( i > selStart && i <= selEnd )
+		if ( i > selStart && i <= selEnd ) {
+		    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
 		    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+		}
 		if ( i > matchStart && i <= matchEnd )
 		    painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
 		if ( i > mismatchStart && i <= mismatchEnd )
@@ -201,8 +203,10 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	if ( !buffer.isEmpty() ) {
 	    painter.setPen( QPen( lastFormat->color() ) );
 	    painter.setFont( lastFormat->font() );
-	    if ( i > selStart && i <= selEnd )
+	    if ( i > selStart && i <= selEnd ) {
+		painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
 		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::Standard ) );
+	    }
 	    if ( i > matchStart && i <= matchEnd )
 		painter.fillRect( startX, lastY, bw, h, doc->selectionColor( QTextEditDocument::ParenMatch ) );
 	    if ( i > mismatchStart && i <= mismatchEnd )
@@ -579,9 +583,11 @@ void QTextEdit::drawCursor( bool visible )
     h = cursor->parag()->lineHeightOfChar( cursor->index(), &bl, &y );
     if ( cursor->parag()->hasSelection( QTextEditDocument::Standard ) ) {
 	if ( cursor->parag()->selectionStart( QTextEditDocument::Standard ) <= cursor->index() &&
-	     cursor->parag()->selectionEnd( QTextEditDocument::Standard ) > cursor->index() )
+	     cursor->parag()->selectionEnd( QTextEditDocument::Standard ) > cursor->index() ) {
+	    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
 	    painter.fillRect( chr->x, y, cw, h,
 			      doc->selectionColor( QTextEditDocument::Standard ) );
+	}
     }
     if ( chr->c != '\t' )
 	painter.drawText( chr->x, y + bl, chr->c );
