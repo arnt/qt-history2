@@ -304,6 +304,16 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 }
 
 /*!
+  Removes all item data.
+*/
+void QListWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->itemChanged(this);
+}
+
+/*!
   If \a hide is true the item will be hidden, otherwise it will be shown.
 */
 void QListWidgetItem::setHidden(bool hide)

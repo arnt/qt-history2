@@ -904,8 +904,6 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 /*!
     Sets the value for the item's \a column and \a role to the given
     \a value.
-
-    \sa store()
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
@@ -927,8 +925,6 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 
 /*!
     Returns the value for the item's \a column and \a role.
-
-    \sa store()
 */
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
@@ -940,6 +936,16 @@ QVariant QTreeWidgetItem::data(int column, int role) const
                 return column_values.at(i).value;
     }
     return QVariant();
+}
+
+/*!
+  Removes all item data.
+*/
+void QTreeWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->emitDataChanged(this);
 }
 
 /*!
@@ -955,7 +961,6 @@ void QTreeWidgetItem::appendChild(QTreeWidgetItem *child)
 /*!
   Inserts the \a child item at \a index in the list of children.
 */
-
 void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
     // FIXME: here we have a problem;
@@ -970,7 +975,6 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 /*!
   Removes the item at \a index and returns it.
 */
-
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (model)
@@ -981,7 +985,6 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 /*!
   Returns true if the item is explicitly hidden, otherwise returns false.
 */
-
 bool QTreeWidgetItem::isHidden() const
 {
     if (view && model) {
@@ -997,7 +1000,6 @@ bool QTreeWidgetItem::isHidden() const
 /*!
   Hides the item if \a hide is true, otherwise shows the item.
 */
-
 void QTreeWidgetItem::setHidden(bool hide)
 {
     if (view && model) {
@@ -1015,7 +1017,6 @@ void QTreeWidgetItem::setHidden(bool hide)
   Sorts the children by the value in the given \a column, in the \a order
   specified.
 */
-
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
     LessThan compare = (order == Qt::AscendingOrder

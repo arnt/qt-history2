@@ -449,6 +449,13 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
     return text() < other.text();
 }
 
+void QTableWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->itemChanged(this);
+}
+
 /*!
     \class QTableWidget qtablewidget.h
     \brief The QTableWidget class provides an item-based table view with a default model.

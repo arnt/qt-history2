@@ -238,15 +238,6 @@ QHeaderWidgetItem::~QHeaderWidgetItem()
 }
 
 /*!
-  Returns true if this items text is less then \a other items text.
-*/
-
-bool QHeaderWidgetItem::operator<(const QHeaderWidgetItem &other) const
-{
-    return text() < other.text();
-}
-
-/*!
     This function sets \a value for a given \a role (see
   {QAbstractItemModel::Role}). Reimplement this function if you need
   extra roles or special behavior for certain roles.
@@ -279,6 +270,25 @@ QVariant QHeaderWidgetItem::data(int role) const
         if (values.at(i).role == role)
             return values.at(i).value;
     return QVariant();
+}
+
+/*!
+  Returns true if this items text is less then \a other items text.
+*/
+
+bool QHeaderWidgetItem::operator<(const QHeaderWidgetItem &other) const
+{
+    return text() < other.text();
+}
+
+/*!
+  Removes all item data.
+*/
+void QHeaderWidgetItem::clear()
+{
+    values.clear();
+    if (model)
+        model->emitDataChanged(this);
 }
 
 #define d d_func()

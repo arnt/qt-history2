@@ -82,6 +82,7 @@ public:
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
     virtual bool operator<(const QTableWidgetItem &other) const;
+    virtual void clear();
 
 protected:
     struct Data {

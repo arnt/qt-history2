@@ -85,6 +85,7 @@ public:
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
     virtual bool operator<(const QTreeWidgetItem &other) const;
+    virtual void clear();
 
     inline QTreeWidgetItem *parent() const { return par; }
     inline QTreeWidgetItem *child(int index) const { return children.at(index); }
