@@ -4479,9 +4479,9 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
   Calling this function has no effect for other than \link isTopLevel()
   top-level widgets\endlink.
-  
+
   To return from full-screen mode, call showNormal()
-  
+
   Full-screen mode works fine under Windows, but has certain problems
   under X. These problems are due to limiations of the ICCCM protocol
   (Inter-Client Communication Conventions Manual) that specifies the
@@ -4493,7 +4493,7 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
   happens. When showing an additional dialog window and/or the
   full-screen window looses focus for one or another reason, you are
   very likely in trouble.
-  
+
   Future window managers that follow modern post-ICCCM specifications
   may support full-screen mode properly.
 
@@ -4509,7 +4509,7 @@ void QWidget::showFullScreen()
 	return;
     }
     if ( topData()->normalGeometry.width() < 0 )
-	topData()->normalGeometry = geometry();
+	topData()->normalGeometry = QRect( pos(), size() );
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
 	      QPoint(0,0) );
     topData()->fullscreen = 1;

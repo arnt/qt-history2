@@ -847,7 +847,13 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
-	    topData()->fullscreen = 0;
+	    QRect r = topData()->normalGeometry;
+	    if ( r.width() >= 0 ) {
+		// the widget has been maximized
+		topData()->normalGeometry = QRect(0,0,-1,-1);
+		resize( r.size() );
+		move( r.topLeft() );
+	    }
 	}
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWNORMAL );

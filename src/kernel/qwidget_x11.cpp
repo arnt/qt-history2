@@ -1374,7 +1374,8 @@ void QWidget::showNormal()
 	if ( r.width() >= 0 ) {
 	    // the widget has been maximized
 	    topData()->normalGeometry = QRect(0,0,-1,-1);
-	    setGeometry( r );
+	    resize( r.size() );
+	    move( r.topLeft() );
 	}
     }
     show();
