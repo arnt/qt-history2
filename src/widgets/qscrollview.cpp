@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#113 $
 **
 ** Implementation of QScrollView class
 **
@@ -638,7 +638,10 @@ void QScrollView::updateScrollBars()
     int bottom;
     if ( showh ) {
 	int right = ( showv || cornerWidget() ) ? w-sbDim : w;
-	setHBarGeometry(d->hbar, 0, h-sbDim, right, sbDim );
+	if ( style() == WindowsStyle )
+	    setHBarGeometry(d->hbar, fw, h-sbDim-fw, right-fw-fw, sbDim );
+	else
+	    setHBarGeometry(d->hbar, 0, h-sbDim, right, sbDim );
 	bottom=h-sbDim;
     } else {
 	bottom=h;
@@ -646,18 +649,36 @@ void QScrollView::updateScrollBars()
     if ( showv ) {
 	clipper()->setGeometry( lmarg, tmarg,
 				 w-sbDim-lmarg-rmarg, bottom-tmarg-bmarg );
-	changeFrameRect(QRect(0, 0, w-sbDim, bottom));
-	if (cornerWidget())
-	    setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, h-sbDim );
+	if ( style() == WindowsStyle )
+	    changeFrameRect(QRect(0, 0, w, h) );
 	else
-	    setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, bottom );
+	    changeFrameRect(QRect(0, 0, w-sbDim, bottom));
+	if (cornerWidget()) {
+	    if ( style() == WindowsStyle )
+		setVBarGeometry( d->vbar, w-sbDim-fw, fw, sbDim, h-sbDim-fw-fw );
+	    else
+		setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, h-sbDim );
+	}
+	else {
+	    if ( style() == WindowsStyle )
+		setVBarGeometry( d->vbar, w-sbDim-fw, fw, sbDim, bottom-fw-fw );
+	    else
+		setVBarGeometry( d->vbar, w-sbDim, 0, sbDim, bottom );
+	}
     } else {
-	changeFrameRect(QRect(0, 0, w, bottom));
+	if ( style() == WindowsStyle )
+	    changeFrameRect(QRect(0, 0, w, h));
+	else
+	    changeFrameRect(QRect(0, 0, w, bottom));
 	clipper()->setGeometry( lmarg, tmarg,
 				 w-lmarg-rmarg, bottom-tmarg-bmarg );
     }
-    if ( d->corner )
-	d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
+    if ( d->corner ) {
+	if ( style() == WindowsStyle )
+	    d->corner->setGeometry( w-sbDim-fw, h-sbDim-fw, sbDim, sbDim );
+	else
+	    d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
+    }
 
     if ( contentsX()+visibleWidth() > contentsWidth() ) {
 	int x=QMAX(0,contentsWidth()-visibleWidth());
