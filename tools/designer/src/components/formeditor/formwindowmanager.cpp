@@ -808,6 +808,7 @@ void FormWindowManager::endDrag(const QPoint &pos)
     m_drag_item_list.clear();
     m_last_widget_under_mouse = 0;
     m_last_form_under_mouse = 0;
+    emit itemDragFinished();
 }
 
 bool FormWindowManager::isDecoration(QWidget *widget) const

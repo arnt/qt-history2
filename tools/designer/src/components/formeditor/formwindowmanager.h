@@ -89,6 +89,9 @@ private slots:
 
     void slotUpdateActions();
 
+signals:
+    void itemDragFinished();
+
 private:
     void setupActions();
     FormWindow *findFormWindow(QWidget *w);
