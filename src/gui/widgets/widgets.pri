@@ -1,8 +1,8 @@
 # Qt widgets module
 
 HEADERS += \
-	widgets/qbuttongroup.h \
-	widgets/qdockseparator_p.h \
+        widgets/qbuttongroup.h \
+        widgets/qdockseparator_p.h \
         widgets/qabstractbutton.h \
         widgets/qabstractbutton_p.h \
         widgets/qabstractslider.h \
@@ -16,7 +16,7 @@ HEADERS += \
         widgets/qdial.h \
         widgets/qdialogbuttons_p.h \
         widgets/qdockwidget.h \
-	widgets/qdockwidget_p.h \
+        widgets/qdockwidget_p.h \
         widgets/qdockwidgetlayout_p.h \
         widgets/qdockwidgetseparator_p.h \
         widgets/qframe.h \
@@ -50,10 +50,10 @@ HEADERS += \
         widgets/qtextedit_p.h \
         widgets/qtextbrowser.h \
         widgets/qtoolbar.h \
-	widgets/qtoolbar_p.h \
-	widgets/qtoolbarextension_p.h \
-	widgets/qtoolbarhandle_p.h \
-	widgets/qtoolbarseparator_p.h \
+        widgets/qtoolbar_p.h \
+        widgets/qtoolbarextension_p.h \
+        widgets/qtoolbarhandle_p.h \
+        widgets/qtoolbarseparator_p.h \
         widgets/qtoolbox.h \
         widgets/qtoolbutton.h \
         widgets/qvalidator.h \
@@ -62,8 +62,9 @@ HEADERS += \
         widgets/qabstractscrollarea_p.h \
         widgets/qwidgetplugin.h \
         widgets/qwidgetresizehandler_p.h \
-	widgets/qfocusframe.h \
-        widgets/qscrollarea.h
+        widgets/qfocusframe.h \
+        widgets/qscrollarea.h \
+        widgets/qworkspace.h
 
 SOURCES += \
         widgets/qabstractbutton.cpp \
@@ -108,9 +109,9 @@ SOURCES += \
         widgets/qtextedit.cpp \
         widgets/qtextbrowser.cpp \
         widgets/qtoolbar.cpp \
-	widgets/qtoolbarextension.cpp \
-	widgets/qtoolbarhandle.cpp \
-	widgets/qtoolbarseparator.cpp \
+        widgets/qtoolbarextension.cpp \
+        widgets/qtoolbarhandle.cpp \
+        widgets/qtoolbarseparator.cpp \
         widgets/qtoolbox.cpp \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
@@ -118,8 +119,9 @@ SOURCES += \
         widgets/qabstractscrollarea.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \
-	widgets/qfocusframe.cpp \
-        widgets/qscrollarea.cpp
+        widgets/qfocusframe.cpp \
+        widgets/qscrollarea.cpp \
+        widgets/qworkspace.cpp
 
 
 !embedded:mac:SOURCES += widgets/qmenu_mac.cpp
