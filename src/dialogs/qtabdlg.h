@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#4 $
 **
 ** Definition of tab dialog
 **
@@ -55,6 +55,7 @@ private:
     QPushButton * cb;
     QPushButton * db;
     QRect childRect;
+    int bh;
 
     friend class QTab;
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#4 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#4 $");
 
 
 // a small private class to show the tabs on top
@@ -219,6 +219,7 @@ void QTabDialog::setDefaultButton( bool enable )
 
     if ( enable ) {
 	db = new QPushButton( this, "back to default" );
+	cb->setText( "Defaults" );
 	if ( isVisible() ) {
 	    setSizes();
 	    db->show();
@@ -249,6 +250,7 @@ void QTabDialog::setCancelButton( bool enable )
 
     if ( enable ) {
 	cb = new QPushButton( this, "cancel dialog" );
+	cb->setText( "Cancel" );
 	if ( isVisible() ) {
 	    setSizes();
 	    cb->show();
@@ -276,41 +278,42 @@ void QTabDialog::setCancelButton( bool enable )
 
 void QTabDialog::setSizes()
 {
-    int w,h;
-    ok->adjustSize();
-    w = ok->width();
-    h = ok->height();
+    int bw;
+    QSize s( ok->suggestedSize() );
+    bw = s.width();
+    bh = s.height();
 
     if ( db ) {
-	db->adjustSize();
-	if ( db->width() > w )
-	    w = db->width();
-	if ( db->height() > h )
-	    h = db->height();
+	s = db->suggestedSize();
+	if ( s.width() > bw )
+	    bw = s.width();
+	if ( s.height() > bh )
+	    bh = s.height();
     }
 
     if ( cb ) {
-	cb->adjustSize();
-	if ( cb->width() > w )
-	    w = cb->width();
-	if ( cb->height() > h )
-	    h = cb->height();
+	s = cb->suggestedSize();
+	if ( s.width() > bw )
+	    bw = s.width();
+	if ( s.height() > bh )
+	    bh = s.height();
     }
 
-    ok->resize( w, h );
+    ok->resize( bw, bh );
     if ( db )
-	db->resize( w, h );
+	db->resize( bw, bh );
     if ( cb )
-	cb->resize( w, h );
+	cb->resize( bw, bh );
 
     QTab * t = tabs;
     QFontMetrics fm( fontMetrics() );
-    QSize min(0,0), max(QCOORD_MAX,QCOORD_MAX);
+    QSize min(0,0);
+    QSize max(QCOORD_MAX,QCOORD_MAX);
     int th = fm.height() + 10;
-    int tw = 5;
+    int tw = 10;
     while ( t ) {
-	t->resize( fm.width( t->name )+10, th );
-	tw += t->width();
+	t->resize( fm.width( t->name )+20, th );
+	tw += t->width() + 1;
 	if ( t->w->maximumSize().height() < max.height() )
 	    max.setHeight( t->w->maximumSize().height() );
 	if ( t->w->maximumSize().width() < max.width() )
@@ -324,30 +327,36 @@ void QTabDialog::setSizes()
 
     if ( min.width() < tw )
 	min.setWidth( tw );
+
+    min.setWidth( QMIN( min.width() + 3, 32767 ) );
+    min.setHeight( QMIN( min.height() + bh + th + 18, 32767 ) );
+    max.setWidth( QMIN( max.width() + 3, 32767 ) );
+    max.setHeight( QMIN( max.height() + bh + th + 18, 32767 ) );
+
     if ( max.width() < min.width() )
 	max.setWidth( min.width() );
     if ( max.height() < min.height() )
 	max.setHeight( min.height() );
 
-    setMinimumSize( min.width() + 13, min.height() + th + h + 18 );
-    setMinimumSize( max.width() + 13, max.height() + th + h + 18 );
+    setMinimumSize( min );
+    setMaximumSize( max );
 
     if ( isVisible() ) {
 	// need to set the appropriate positions too
 	int x = width();
 
 	if ( cb ) {
-	    cb->move( x - 5 - cb->width(), height() - 5 - cb->height() );
+	    cb->move( x - 5 - cb->width(), height() - 5 - bh );
 	    x = cb->geometry().x();
 	}
 
 	if ( db ) {
-	    db->move( x - 5 - db->width(), height() - 5 - db->height() );
+	    db->move( x - 5 - db->width(), height() - 5 - bh );
 	    x = db->geometry().x();
 	}
 
 	if ( ok ) {
-	    ok->move( x - 5 - ok->width(), height() - 5 - ok->height() );
+	    ok->move( x - 5 - ok->width(), height() - 5 - bh );
 	}
 
 	t = tabs;
@@ -376,21 +385,21 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 	x = width();
 
 	if ( cb ) {
-	    cb->move( x - 5 - cb->width(), height() - 5 - cb->height() );
+	    cb->move( x - 5 - cb->width(), height() - 5 - bh );
 	    x = cb->geometry().x();
 	}
 
 	if ( db ) {
-	    db->move( x - 5 - db->width(), height() - 5 - db->height() );
+	    db->move( x - 5 - db->width(), height() - 5 - bh );
 	    x = db->geometry().x();
 	}
 
 	if ( ok ) {
-	    ok->move( x - 5 - ok->width(), height() - 5 - ok->height() );
+	    ok->move( x - 5 - ok->width(), height() - 5 - bh );
 	}
 
 	childRect.setRect( 6, tabs->height() + 5, width() - 12,
-			   height() - ok->height() - tabs->height() - 18 );
+			   height() - bh - tabs->height() - 18 );
 	x = 5;
 	for ( QTab * tab = tabs; tab; tab = tab->next ) {
 	    if ( tab->w && tab->w->rect() != childRect )
