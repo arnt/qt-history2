@@ -28,13 +28,6 @@ public:
     
     const QRect& screenGeometry( int screen = -1 ) const;
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *accessibleInterface()
-    {
-	return 0;
-    }
-#endif
-
 private:
     QDesktopWidgetPrivate *d;
 };
