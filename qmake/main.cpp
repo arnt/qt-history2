@@ -149,8 +149,8 @@ int main(int argc, char **argv)
 	if(Option::debug_level) {
 	    QMap<QString, QStringList> &vars = proj.variables();
 	    for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
-		if(!it.key().startsWith(".") && !it.data().isEmpty())
-		    debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" :: ").latin1());
+		if(!it.key().startsWith(".") && !it.value().isEmpty())
+		    debug_msg(1, "%s === %s", it.key().latin1(), it.value().join(" :: ").latin1());
 	    }
 	}
     }

@@ -108,7 +108,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 	dirf += Option::dir_sep;
     QMap<QString, QStringList> &v = proj.variables();
     for(QMap<QString, QStringList>::Iterator it = v.begin(); it != v.end(); ++it) {
-	QStringList lst = it.data();
+	QStringList lst = it.value();
 	if(lst.count() == 1 && (lst.first().startsWith("'") || lst.first().startsWith("\"")) &&
 	   lst.first().endsWith(QString(lst.first()[0])))
 	    lst = lst.first().mid(1, lst.first().length() - 2);

@@ -155,7 +155,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    // Create unique baseID
 		    QString base = (*it);
 		    {
-			base.replace(QRegExp("\\..*$"), "").upper();
+			base.replace(QRegExp("\\..*$"), "").toUpper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 		    }
 		    if(deletePCHcpp && (precomph.compare(*it) == 0)){

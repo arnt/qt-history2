@@ -97,9 +97,9 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 			QMap<QString, QStringList> &vars = tmp_proj.variables();
 			for(QMap<QString, QStringList>::Iterator it = vars.begin();
 			    it != vars.end(); ++it) {
-			    if(it.key().left(1) != "." && !it.data().isEmpty())
+			    if(it.key().left(1) != "." && !it.value().isEmpty())
 				debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(),
-					  it.data().join(" :: ").latin1());
+					  it.value().join(" :: ").latin1());
 			}
 		    }
 		    if(tmp_proj.first("TEMPLATE") == "subdirs") {
@@ -118,13 +118,13 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 			    QString project_key = keyFor(pbxproj + "_PROJECTREF");
 			    if(project->isActiveConfig("flat")) {
 				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
-				if(flat_file.find(Option::dir_sep) != -1) {
+				if(flat_file.indexOf(Option::dir_sep) != -1) {
 				    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
 				    name = dirs.back();
 				}
 			    } else {
 				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
-				if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
+				if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 				    QString last_grp("QMAKE_PBX_HEIR_GROUP");
 				    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
 				    name = dirs.back();
@@ -173,7 +173,7 @@ nextfile:
 	t << "\t\t" << keyFor(grp_it.key()) << " = {" << "\n"
 	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
 	  << "\t\t\t" << "children = (" << "\n"
-	  << valGlue(grp_it.data(), "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << valGlue(grp_it.value(), "\t\t\t\t", ",\n\t\t\t\t", "\n")
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "name = \"" << grp_it.key().section(Option::dir_sep, -1) << "\";" << "\n"
 	  << "\t\t\t" << "refType = 4;" << "\n"
@@ -410,7 +410,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "\t\t" << keyFor(grp_it.key()) << " = {" << "\n"
 	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
 	  << "\t\t\t" << "children = (" << "\n"
-	  << valGlue(grp_it.data(), "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << valGlue(grp_it.value(), "\t\t\t\t", ",\n\t\t\t\t", "\n")
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "name = \"" << grp_it.key().section(Option::dir_sep, -1) << "\";" << "\n"
 	  << "\t\t\t" << "refType = 4;" << "\n"
@@ -1169,7 +1169,7 @@ ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 #endif
     QString ret;
     if(!keys.contains(block)) {
-	ret = qtMD5(block.utf8()).left(24).upper();
+	ret = qtMD5(block.utf8()).left(24).toUpper();
 	keys.insert(block, ret);
     } else {
 	ret = keys[block];

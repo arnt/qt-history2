@@ -368,7 +368,7 @@ MingwMakefileGenerator::init()
 	project->variables()["DEFINES"].append("QT_DLL");
     
     if (project->isActiveConfig("qt_dll"))
-	if (configs.findIndex("qt") == -1)
+	if (configs.indexOf("qt") == -1)
 	    configs.append("qt");
     
     if ( project->isActiveConfig("qt") ) {
@@ -565,7 +565,7 @@ MingwMakefileGenerator::init()
     for ( QStringList::Iterator libit = libs.begin(); libit != libs.end();  ) {
 	if ( (*libit).startsWith( "-L" ) ) {
 	    project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
-	    libit = libs.remove( libit );
+	    libit = libs.erase( libit );
 	} else {
 	    ++libit;
 	}

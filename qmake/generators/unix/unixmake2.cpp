@@ -85,7 +85,7 @@ UnixMakefileGenerator::writeExtraVariables(QTextStream &t)
 		    t << "\n####### Custom Variables" << endl;
 		    first = FALSE;
 		}
-		t << "EXPORT_" << it.key() << " = " << it.data().join(" ") << endl;
+		t << "EXPORT_" << it.key() << " = " << it.value().join(" ") << endl;
 	    }
 	}
     }
@@ -1500,8 +1500,8 @@ UnixMakefileGenerator::writePkgConfigFile()     // ### does make sense only for 
     t << "Name: Qt" << endl;
     QString desc = project->first("QMAKE_PKGCONFIG_DESCRIPTION");
     if(desc.isEmpty()) {
-	desc = project->first("TARGET").lower();
-	desc.replace(0, 1, desc[0].upper());
+	desc = project->first("TARGET").toLower();
+	desc.replace(0, 1, desc[0].toUpper());
 	if(project->first("TEMPLATE") == "lib") {
 	    if(project->isActiveConfig("plugin"))
 	       desc += " Plugin";

@@ -260,9 +260,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    QMap<QString, QStringList> &vars = tmp_proj.variables();
 			    for(QMap<QString, QStringList>::Iterator it = vars.begin();
 				it != vars.end(); ++it) {
-				if(it.key().left(1) != "." && !it.data().isEmpty())
+				if(it.key().left(1) != "." && !it.value().isEmpty())
 				    debug_msg(1, "%s: %s === %s", fn.latin1(), it.key().latin1(),
-						it.data().join(" :: ").latin1());
+						it.value().join(" :: ").latin1());
 			    }
 			}
 
@@ -748,8 +748,8 @@ void VcprojGenerator::initPreLinkEventTools()
 inline bool XLessThanY( QString &x, QString &y, bool flat_mode )
 {
     if ( flat_mode ) {
-	QString subX = x.mid( x.findRev('\\')+1 );
-	QString subY = y.mid( y.findRev('\\')+1 );
+	QString subX = x.mid( x.lastIndexOf('\\')+1 );
+	QString subY = y.mid( y.lastIndexOf('\\')+1 );
 	return QString::compare(subX, subY) < 0;
     }
 
@@ -758,8 +758,8 @@ inline bool XLessThanY( QString &x, QString &y, bool flat_mode )
     int xSlashPos;
     int ySlashPos;
     for (;;) {
-	xSlashPos = x.find('\\', xPos);
-	ySlashPos = y.find('\\', yPos);
+	xSlashPos = x.indexOf('\\', xPos);
+	ySlashPos = y.indexOf('\\', yPos);
 
 	if (xSlashPos == -1 && ySlashPos != -1) {
 	    return false;

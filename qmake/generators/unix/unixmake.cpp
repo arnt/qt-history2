@@ -16,7 +16,7 @@
 #include "option.h"
 #include <qregexp.h>
 #include <qfile.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qdir.h>
 #include <time.h>
 
@@ -481,7 +481,7 @@ QString linkLib(const QString &file, const QString &libName) {
 void
 UnixMakefileGenerator::processPrlFiles()
 {
-    QDict<void> processed;
+    QHash<QString, void*> processed;
     QList<MakefileDependDir*> libdirs;
     libdirs.setAutoDelete(TRUE);
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
@@ -516,7 +516,7 @@ UnixMakefileGenerator::processPrlFiles()
 				    prl.replace(0, (*dep_it)->local_dir.length(), (*dep_it)->real_dir);
 				opt = linkLib(prl, lib);
 				if(!opt.isNull())
-				    processed.insert(opt, (void*)1);
+				    processed.insertMulti(opt, (void*)1);
 				ret = TRUE;
 				break;
 			    }
@@ -540,7 +540,7 @@ UnixMakefileGenerator::processPrlFiles()
 		} else if(!opt.isNull()) {
 		    QString lib = opt;
 		    if(!processed[lib] && processPrlFile(lib)) {
-		      processed.insert(lib, (void*)1);
+		      processed.insertMulti(lib, (void*)1);
 		      ret = TRUE;
 		    }
 #if 0

@@ -15,7 +15,7 @@
 #include "msvc_nmake.h"
 #include "option.h"
 #include <qregexp.h>
-#include <qdict.h>
+#include <qhash.h>
 #include <qdir.h>
 #include <stdlib.h>
 #include <time.h>
@@ -177,15 +177,15 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	project->variables().remove("QMAKE_RUN_CXX");
 	project->variables().remove("QMAKE_RUN_CC");
 
-	QDict<void> source_directories;
-	source_directories.insert(".", (void*)1);
+	QHash<QString, void*> source_directories;
+	source_directories.insertMulti(".", (void*)1);
 	QString directories[] = { QString("MOC_DIR"), QString("UI_SOURCES_DIR"), QString("UI_DIR"), QString::null };
 	for(int y = 0; !directories[y].isNull(); y++) {
 	    QString dirTemp = project->first(directories[y]);
 	    if (dirTemp.endsWith("\\")) 
 		dirTemp.truncate(dirTemp.length()-1);
 	    if(!dirTemp.isEmpty())
-		source_directories.insert(dirTemp, (void*)1);
+		source_directories.insertMulti(dirTemp, (void*)1);
 	}
 	QString srcs[] = { QString("SOURCES"), QString("UICIMPLS"), QString("SRCMOC"), QString::null };
 	for(int x = 0; !srcs[x].isNull(); x++) {
@@ -196,17 +196,17 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 		    sep = "/";
 		QString dir = (*sit).section(sep, 0, -2);
 		if(!dir.isEmpty() && !source_directories[dir])
-		    source_directories.insert(dir, (void*)1);
+		    source_directories.insertMulti(dir, (void*)1);
 	    }
 	}
 
-	for(QDictIterator<void> it(source_directories); it.current(); ++it) {
-	    if(it.currentKey().isEmpty())
+	for(QHash<QString, void*>::Iterator it(source_directories.begin()); it.value(); ++it) {
+	    if(it.key().isEmpty())
 		continue;
 	    for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-		t << "{" << it.currentKey() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
+		t << "{" << it.key() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
 		  << var("QMAKE_RUN_CXX_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
-	    t << "{" << it.currentKey() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
+	    t << "{" << it.key() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
 	      << var("QMAKE_RUN_CC_IMP_BATCH").replace( QRegExp( "\\$@" ), var("OBJECTS_DIR") ) << endl << "\t$<" << endl << "<<" << endl << endl;
 	}
     } else {

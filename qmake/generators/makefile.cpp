@@ -971,7 +971,7 @@ MakefileGenerator::init()
 		    cachet << "[depend]" << endl;
 		    for(QMap<QString, QStringList>::Iterator it = depends.begin();
 			it != depends.end(); ++it)
-			cachet << dependencyKey(it.key()) << " = " << it.data().join(" ") << endl;
+			cachet << dependencyKey(it.key()) << " = " << it.value().join(" ") << endl;
 		    cachet << "[mocable]" << endl;
 		    QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
 		    for(int x = 0; moc_sources[x] != QString::null; x++) {
@@ -1272,7 +1272,7 @@ MakefileGenerator::processPrlFile(QString &file)
 		ret = TRUE;
 		QMap<QString, QStringList> &vars = libinfo.variables();
 		for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
-		    processPrlVariable(it.key(), it.data());
+		    processPrlVariable(it.key(), it.value());
 		if(try_replace_file && !libinfo.isEmpty("QMAKE_PRL_TARGET")) {
 		    QString dir;
 		    int slsh = real_meta_file.lastIndexOf(Option::dir_sep);
