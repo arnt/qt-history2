@@ -715,6 +715,9 @@ static bool block_set_alignment = FALSE;
 
     Sets the font of the current format to \a f.
 
+    If the widget is in \c LogText mode this function will do
+    nothing. Use setFont() instead.
+
     \sa currentFont() setPointSize() setFamily()
 */
 
@@ -3304,6 +3307,8 @@ void QTextEdit::copy()
 }
 
 /*!
+    \internal
+
     Re-indents the current paragraph.
 */
 
@@ -5901,7 +5906,9 @@ bool QTextEdit::checkOptimMode()
 	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
 	    disconnect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
  	    optimSetText( doc->originalText() );
-    	    doc->clear( TRUE );
+    	    doc->clear(TRUE);
+	    delete cursor;
+	    cursor = new QTextCursor( doc );
 	} else {
  	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
 	    connect( doc, SIGNAL( minimumWidthChanged( int ) ), this, SLOT( documentWidthChanged( int ) ) );
