@@ -27,7 +27,9 @@ none
 
 QApplication:
 -------------
-Not yet implemented: lastWindowClosed, bell
+Added beep() to make a sound.
+
+Not yet implemented: lastWindowClosed
 
 QFileInfo
 ---------

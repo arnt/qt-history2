@@ -22,40 +22,22 @@
 4: Can I write software for internal use in my company/organization using
    the free license?
 
-    A: No, if you want to use the free license within an organization,
-       your software must be intended for the free software community.
-       Your software must be suitable for use outside your organization,
-       you must upload it to ftp.troll.no before starting to use it, you
-       have to allow free distribution and you have to include your source
-       code.
+    A: No, if you want to use the free license within an organization, your
+       software must be intended for the free software community.  Your
+       software must be usable outside your organization, you must notify
+       Troll Tech before starting to use it, you have to allow free
+       distribution and you have to make your source code available.
 
-5: Isn't it a bit too much to demand that we upload our software to
-   ftp.troll.no?
-
-    A: This only applies to software written for/by a company/organization.
-
-       The free source code version of Qt is a gesture of appreciation to
-       the free software community. We want to contribute to the creation
-       of high quality free software. It is intended for developers of
-       freely distributable software, i.e. software that is intended for
-       and fit for the free software community.
-
-       If such software is developed within a company/organization we feel
-       that uploading it to ftp.troll.no can be justified considering that
-       the company/organization does not have to buy a Qt commercial
-       license to develop that software.
-
-       We hope that a central archive of Qt applications will be a
-       resource for Qt developers and others searching for free quality
-       software.
-
-       We encourage all developers of software that use Qt to upload
-       their work to ftp.troll.no.
-
-6: Can I write software under the GNU General Public License, GNU
+5: Can I write software under the GNU General Public License, GNU
    General Library Public License or BSD licenses using the Qt free license? 
 
     A: Yes. 
+
+6: Really? Your additional requirements seem to conflict with the GPL.
+
+    A: Really yes. We require cooperation from you, in return you can use 
+       Qt. We could have demanded money (actually, we do for the commercial
+       licence) and still not have been in conflict with the GPL.
 
 7: I want to use Qt to develop free software on Windows. 
 
@@ -63,9 +45,7 @@
 
 8: When will 1.0 be released? 
 
-    A: 1.0 will be released in the summer of '96.  All the features that
-       are scheduled to go into 1.0 exist in-house already, there is only
-       testing and polishing left to do.
+    A: In a few weeks. It will be functionally identical to 0.99.
 
 9: I don't want to give away my source. What do I do? 
 
@@ -75,7 +55,7 @@
 
    A: If you have a commercial license; of course. If you have a free
       license your software must be freely distributable and you must
-      include the source.
+      make the source available.
 
       The free license is intended for _free_ software.  We realize that
       CD-ROMs cost money to produce, for example, so you can charge a
@@ -86,6 +66,9 @@
     A: The latest version of Qt can be downloaded from http://www.troll.no/
        or from ftp.troll.no, or (less often updated) from sunsite.unc.edu
        in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).
+
+       We encourage all developers of software that use Qt to upload
+       their work to ftp.troll.no.
 
 12: Who is Troll Tech and what are your future plans?  
 
@@ -166,3 +149,14 @@
 
        But, of course, if there's too much to do we have to put more
        emphasis on paying customers.
+
+21: Is there a mailing list or something for Qt?
+
+    A: Yes, qt-interest@nvg.unit.no.  To join, send mail containing the
+       single word "subscribe" to qt-interest-request@nvg.unit.no. 
+
+22: Do you have any plans for a graphical designer/dialog builder?
+
+    A: We are working on it now. There will be further announcements on 
+       qt-interest.
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.22 1996/09/02 14:21:42 agulbra Exp $
+** $Id: misc.doc,v 1.23 1996/09/04 16:39:56 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.22 1996/09/02 14:21:42 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.23 1996/09/04 16:39:56 paul Exp $";
 #endif
 
 
@@ -46,55 +46,23 @@ Can I write software for internal use in my company/organization using
 the free license?
 <p>
 A: No, if you want to use the free license within an organization,
-your software must be intended for the free software community.
-Your software must be suitable for use outside your organization,
-you must upload it to ftp.troll.no before starting to use it, you
-have to allow free distribution and you have to include your source
-code.
-<p>
-<li>What does "suitable for use outside your organization" mean?
-<p>
-A: That the software is as usable outside your organization as inside
-it.  It need not be interesting to everyone, but for interested users
-outside your organization, it must be as usable as for the users
-inside your organization.
-<p>
-The chief implications are that your software cannot rely on
-proprietary libraries or secret data formats, and that it cannot be so
-undocumented as to be usable only by people who've attended internal
-seminars.
-<p>
-If you don't want to write proper documentation, or do need to use
-proprietary libraries, you need a commercial license.
-<li>
-Isn't it a bit too much to demand that we upload our software to
-ftp.troll.no?
-<p>
-A: This only applies to software written for/by a company/organization.
-<p>
-The free source code version of Qt is a gesture of appreciation to
-the free software community. We want to contribute to the creation
-of high quality free software. It is intended for developers of
-freely distributable software, i.e. software that is intended for
-and fit for the free software community.
-<p>
-If such software is developed within a company/organization we feel
-that uploading it to ftp.troll.no can be justified considering that
-the company/organization does not have to buy a Qt commercial
-license to develop that software.
-<p>
-We hope that a central archive of Qt applications will be a
-resource for Qt developers and others searching for free quality
-software.
-<p>
-We encourage all developers of software that use Qt to upload
-their work to ftp.troll.no.
+your software must be intended for the free software community.  Your
+software must be usable outside your organization, you must notify
+Troll Tech before starting to use it, you have to allow free
+distribution and you have to make your source code available.
 <p>
 <li>
 Can I write software under the GNU General Public License, GNU
 General Library Public License or BSD licenses using the Qt free license? 
 <p>
 A: Yes. 
+<p>
+<li>
+Really? Your additional requirements seem to conflict with the GPL.
+<p>
+A: Really yes. We require cooperation from you, in return you can use
+Qt. We could have demanded money (actually, we do for the commercial
+licence) and still not have been in conflict with the GPL.
 <p>
 <li>
 I want to use Qt to develop free software on Windows. 
@@ -104,9 +72,7 @@ A: Qt is not free for Windows.  We do however sell commercial licenses.
 <li>
 When will 1.0 be released? 
 <p>
-A: 1.0 will be released in the summer of '96.  All the features that
-are scheduled to go into 1.0 exist in-house already, there is only
-testing and polishing left to do.
+A: In a few weeks. It will be functionally identical to 0.99.
 <p>
 <li>
 I don't want to give away my source. What do I do? 
@@ -130,6 +96,9 @@ Where can I find Qt?
 A: The latest version of Qt can be downloaded from http://www.troll.no/
 or from ftp.troll.no, or (less often updated) from sunsite.unc.edu
 in /pub/Linux/X11/devel/ (or /pub/Linux/Incoming).
+<p>
+We encourage all developers of software that use Qt to upload
+their work to ftp.troll.no.
 <p>
 <li>
 Who is Troll Tech and what are your future plans?  
@@ -219,6 +188,18 @@ they come from.
 <p>
 But, of course, if there's too much to do we have to put more
 emphasis on paying customers.
+<p>
+<li>
+Is there a mailing list or something for Qt?
+<p>
+A: Yes, qt-interest@nvg.unit.no.  To join, send mail containing the
+single word "subscribe" to qt-interest-request@nvg.unit.no. 
+<p>
+<li>
+Do you have any plans for a graphical designer/dialog builder?
+<p>
+A: We are working on it now. There will be further announcements on 
+qt-interest.
 </ol>
 */
 
