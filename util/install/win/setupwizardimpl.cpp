@@ -480,20 +480,20 @@ SetupWizardImpl::SetupWizardImpl( QWidget* parent, const char* name, bool modal,
     if (!regValue.isEmpty())
 	globalInformation.setSysId(GlobalInformation::MSVCNET);
 
-    while (globalInformation.sysId() == GlobalInformation::Other) {
-	globalInformation.setSysId(GlobalInformation::Borland);
-	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-	    break;
-	globalInformation.setSysId(GlobalInformation::MSVCNET);
-	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-	    break;
-	globalInformation.setSysId(GlobalInformation::MinGW);
-	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-	    break;
-	globalInformation.setSysId(GlobalInformation::Watcom);
-	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
-	    break;
-    }
+//     while (globalInformation.sysId() == GlobalInformation::Other) {
+// 	globalInformation.setSysId(GlobalInformation::Borland);
+// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+// 	    break;
+// 	globalInformation.setSysId(GlobalInformation::MSVCNET);
+// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+// 	    break;
+// 	globalInformation.setSysId(GlobalInformation::MinGW);
+// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+// 	    break;
+// 	globalInformation.setSysId(GlobalInformation::Watcom);
+// 	if (findFile(globalInformation.text(GlobalInformation::MakeTool)))
+// 	    break;
+//     }
 #endif
 
     if ( archiveHeader ) {
@@ -738,9 +738,7 @@ void SetupWizardImpl::clickedSystem( int sys )
 	return;
     globalInformation.setSysId( GlobalInformation::SysId(sys) );
     if (sys == GlobalInformation::Other) {
-	if (optionsPage->sysOtherCombo->currentText() == "win32-icc")
-	    globalInformation.setSysId(GlobalInformation::Intel);
-	else if (optionsPage->sysOtherCombo->currentText() == "win32-watcom")
+	if (optionsPage->sysOtherCombo->currentText() == "win32-watcom")
 	    globalInformation.setSysId(GlobalInformation::Watcom);
     }
     if (!isVisible())
@@ -760,7 +758,7 @@ void SetupWizardImpl::clickedSystem( int sys )
 					 "you have difficulties finding the files, or if you don't\n"
 					 "know how to modifiy the environment settings of your system." );
 	}
-	if ( globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW 
+	if ( globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW
 	    && !findFile( "string.h" ) ) {
 	    // ### try to adjust environment
 	    QMessageBox::critical( this, "Environment problems",
@@ -772,6 +770,18 @@ void SetupWizardImpl::clickedSystem( int sys )
 				  "Please contact your local system administration if you have\n"
 				  "difficulties finding the file, or if you don't know how to\n"
 				  "modify the environment settings on your system." );
+	}
+	if (globalInformation.sysId() == GlobalInformation::Intel && !findFile("icl.exe")) {
+	    QMessageBox::critical(this, "Environment problems",
+				  "The Intel C++ compiler (icl.exe) could not be found\n"
+				  "in your PATH. Make sure it is present in the PATH environment\n"
+				  "variable and restart the installation.\n"
+				  "\n"
+				  "You can find the path to the tool using the 'Find' tool\n"
+				  "and add the location to the environment settings of your\n"
+				  "system. Please contact your local system administration if\n"
+				  "you have difficulties finding the files, or if you don't\n"
+				  "know how to modifiy the environment settings of your system." );
 	}
     }
 #endif
@@ -918,7 +928,7 @@ void SetupWizardImpl::doIDEIntegration()
 {
 #if defined(Q_OS_WIN32)
     QDir installDir( optionsPage->installPath->text() );
-    if ( optionsPage->installIDEIntegration->isChecked() && optionsPage->installIDEIntegration->isEnabled() 
+    if ( optionsPage->installIDEIntegration->isChecked() && optionsPage->installIDEIntegration->isEnabled()
 	 && !foldersPage->devSysPath->text().isEmpty() ) {
 	// install the precompiled MS integration
 	if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
@@ -934,8 +944,8 @@ void SetupWizardImpl::doIDEIntegration()
 	    int res = _spawnlp( _P_NOWAIT, "msiexec.exe", "msiexec.exe", "-i", filepath.latin1(), NULL );
 	    if ( res == -1 ) {
 		//MSIExec is not in path, look up in registry (only works for NT machines)
-		QString msiexec = QEnvironment::getRegistryString( "SYSTEM\\CurrentControlSet\\Services\\MSIServer", 
-								   "ImagePath", 
+		QString msiexec = QEnvironment::getRegistryString( "SYSTEM\\CurrentControlSet\\Services\\MSIServer",
+								   "ImagePath",
 								   QEnvironment::LocalMachine );
 		if ( !msiexec.isEmpty() )
 		    msiexec.remove( " /V" );
@@ -943,7 +953,7 @@ void SetupWizardImpl::doIDEIntegration()
 	    }
 
 	    if ( res == -1 ) {
-		QMessageBox::warning( this, "Couldn't execute .NET addin installer script", 
+		QMessageBox::warning( this, "Couldn't execute .NET addin installer script",
 				      "Microsoft Installer (MSI) was not found on your system.\n"
 				      "Please install MSI, then execute the .NET addin installer "
 				      "script,\nlocated at " + filepath );
@@ -1277,7 +1287,7 @@ void SetupWizardImpl::configDone()
 
 void SetupWizardImpl::restartBuild()
 {
-    if ( configure.isRunning() || 
+    if ( configure.isRunning() ||
        (!configure.isRunning() && (!configure.normalExit() || configure.exitStatus())) ) {
 	if ( configure.isRunning() ) {	// Stop configure
 	    configure.kill();
@@ -1291,7 +1301,7 @@ void SetupWizardImpl::restartBuild()
 	    buildPage->restartBuild->setText( "Stop configure" );
 	    logOutput( "\n*** Configure restarted by user...\n" );
 	}
-    } else if ( make.isRunning() || 
+    } else if ( make.isRunning() ||
 	      (!make.isRunning() && (!make.normalExit() || make.exitStatus())) ) {
 	if ( make.isRunning() ) {	// Stop compile
 	    buildPage->restartBuild->setText( "Restart compile" );

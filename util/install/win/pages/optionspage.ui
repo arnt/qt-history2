@@ -278,11 +278,6 @@
                                         <widget class="QComboBox">
                                             <item>
                                                 <property name="text">
-                                                    <string>win32-icc</string>
-                                                </property>
-                                            </item>
-                                            <item>
-                                                <property name="text">
                                                     <string>win32-watcom</string>
                                                 </property>
                                             </item>
@@ -392,6 +387,17 @@
                                     </property>
                                     <property name="buttonGroupId">
                                         <number>3</number>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton">
+                                    <property name="name">
+                                        <cstring>sysIntel</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Intel C++</string>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>6</number>
                                     </property>
                                 </widget>
                             </vbox>
