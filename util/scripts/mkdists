@@ -30,6 +30,7 @@ DO_MAC=yes
 DO_EMBEDDED=yes
 DO_US=yes
 #other
+DO_QMAKE=no
 DO_GZIP=auto
 DO_BZIP=auto
 DO_STUFF=auto
@@ -200,6 +201,7 @@ while [ -n "$1" ]; do
        LABEL="qt/$VAL"
        ;;
    #other
+   qmake) DO_QMAKE=$VAL ;;
    stuff) DO_STUFF=$VAL ;;
    doc) DO_DOC=$VAL ;;
    gzip)DO_GZIP=$VAL;;
@@ -637,6 +639,7 @@ copy_platform_files() {
 }
 
 for plat in mac win x11 embedded; do
+    continue
     #handle commandline options
     platformname=$plat
     plat2=$plat
@@ -897,6 +900,99 @@ for plat in mac win x11 embedded; do
     [ -e "$PLAT_RM_FILE" ] && rm -f $PLAT_RM_FILE
     status "******** Done Packaging $plat *********" "-1"
 done
+
+if [ "$DO_QMAKE" = "yes" ]; then
+    status "Packaging qmake.." "1"
+    for plat in unix win; do
+      case $plat in
+      win) [ "x$DO_WIN"  = "xyes" ] || continue ;;
+      unix) [ "x$DO_X11" = "xno" ] && [ "x$DO_MAC" = "xno" ] && [ "x$DO_EMBEDDED" = "xno" ] && continue ;;
+      esac
+      status "** Packing for $plat **" "1"
+
+      status "Copying files.."
+      #qmake stuff
+      QMAKE_VERSION=`grep 'QMAKE_VERSION "' "$DISTDIR/qt/qmake/option.h" | cut -d ' ' -f3 | sed 's,",,g'`
+      PLATNAME=qmake-${plat}-${QMAKE_VERSION}
+      [ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-snapshot-%Y%m%d"`
+      PLATDIR=$DISTDIR/qmake/$PLATNAME
+      [ -d "$PLATDIR" ] || mkdir -p $PLATDIR
+      #copy qmake stuff now
+      cp -r "$DISTDIR/qt/mkspecs" "$PLATDIR"
+      mkdir "$PLATDIR/src"
+      cp -r $DISTDIR/qt/qmake/* "$PLATDIR/src"
+      if [ "$DO_DOC" = "yes" ]; then
+	mkdir "$PLATDIR/doc"
+	cp $DISTDIR/qt/doc/qmake* "$PLATDIR/doc"
+      fi
+
+      #qt stuff
+      QTPLATNAME=qt-${plat}-${REL_VERSION}
+      [ "$TYPE" = "-snapshot" ] && QTPLATNAME=`date "+${QTPLATNAME}-snapshot-%Y%m%d"`
+      QTPLATDIR=$PLATDIR/$QTPLATNAME
+      mkdir -p "$QTPLATDIR/include"
+      mkdir -p "$QTPLATDIR/src/tools"
+      for a in qstring qtextstream qiodevice qglobal qgdict qcstring qdatastream qgarray qbuffer qglist \
+	qptrcollection qfile qregexp qgvector qgcache qbitarray qdir qfileinfo qdatetime qstringlist qmap qfeatures; do
+	  H_FILE="$DISTDIR/qt/src/tools/${a}.h"
+	  [ -e "$H_FILE" ] && cp "$H_FILE" "$QTPLATDIR/include"
+	  CPP_FILE="$DISTDIR/qt/src/tools/${a}.cpp"
+	  [ -e "$CPP_FILE" ] && cp "$CPP_FILE" "$QTPLATDIR/src/tools"
+	  PLAT_CPP_FILE="$DISTDIR/qt/src/tools/${a}_${plat}.cpp"
+	  [ -e "$PLAT_CPP_FILE" ] && cp "$PLAT_CPP_FILE" "$QTPLATDIR/src/tools"
+      done
+
+      #makefile stuff
+      if [ "$plat" = "unix" ]; then
+         rm -f "$PLATDIR/src/Makefile" #windows stuff
+	 sed -e "s,@REL_QTDIR@,../$QTPLATNAME,g" -e "s,@OUT_QTDIR@,../$QTPLATNAME,g" \
+	    $PLATDIR/src/Makefile.unix >$PLATDIR/src/Makefile
+	 sed -e "s,@REL_QTDIR@,../$QTPLATNAME,g" -e "s,@OUT_QTDIR@,../$QTPLATNAME,g" \
+	    $PLATDIR/src/GNUmakefile.in >$PLATDIR/src/GNUmakefile
+	 rm -f "$PLATDIR/src/Makefile.unix" "$PLATDIR/src/GNUmakefile.in" #don't need them
+      elif [ "$plat" = "win" ]; then
+         rm -f "$PLATDIR/src/Makefile.unix" "$PLATDIR/src/GNUmakefile.in" #unix stuff
+         sed "s,\$(QTDIR),../$QTPLATNAME,g" $PLATDIR/src/Makefile >$TMP_FILE
+	 mv "$TMP_FILE" "$PLATDIR/src/Makefile"
+      fi
+
+      status "Packaging.." "1"
+      (cd "$DISTDIR/qmake"
+      if [ "$plat" = "unix" ]; then
+	status "Tar.."
+	tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
+	[ "$DO_GZIP" = "yes" ] && status "Gzip.." && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
+	[ "$DO_BZIP" = "yes" ] && status "Bzip2.." && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
+        if [ "$plat" = "mac" ] && [ "$DO_STUFF" = "yes" ]; then
+           status "Stuffit.."
+           stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLATNAME}"
+        fi
+      elif [ "$plat" = "win" ]; then
+	txtfiles=""
+	binfiles=""
+	for fl in `find "${PLATNAME}"`; do
+	  extn=`echo $fl | sed "s,.*\.,,"`
+	  case $extn in
+	  dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm) binfiles="$fl $binfiles" ;;
+	  *)  txtfiles="$fl $txtfiles" ;;
+	  esac
+	done
+	if [ ! -z "$txtfiles" ]; then
+	    status "Text files..."
+	    { for a in $txtfiles; do echo $a; done ; } | zip -l9q $OUT_TREE/${PLATNAME}.zip -@
+	fi
+	if [ ! -z "$binfiles" ]; then
+	    status "Binary files..."
+	    { for a in $binfiles; do echo $a; done ; } | zip -9q $OUT_TREE/${PLATNAME}.zip -@
+	fi
+      fi
+      )
+      status "" "-1"
+      status "** Done with $plat **" "-1"
+   done
+   status "Done with qmake" "-1"
+fi
+
 status "(mkdists cleanup..)"
 rm -rf $DISTDIR
 rm -f ${TMP_FILE}
