@@ -52,6 +52,7 @@
 #include "qcleanuphandler.h"
 #include "qstyle.h"
 #include "qmetaobject.h"
+#include "qguardedptr.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -1082,12 +1083,16 @@ void QWidget::deleteExtra()
 
 void QWidget::deactivateWidgetCleanup()
 {
-    extern QWidget *qt_button_down;
     // If this was the active application window, reset it
     if ( this == QApplication::active_window )
 	qApp->setActiveWindow( 0 );
     // If the is the active mouse press widget, reset it
-    if ( qt_button_down == this )
+#ifdef Q_WS_MAC
+    extern QGuardedPtr<QWidget> qt_button_down;
+#else
+    extern QWidget *qt_button_down;
+#endif
+    if ( this == qt_button_down ) 
 	qt_button_down = 0;
 }
 
