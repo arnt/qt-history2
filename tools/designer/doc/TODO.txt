@@ -33,6 +33,10 @@ Add splitter support (Reggie)
     (widgetOfContainer/containerOfWidget/passiveInteractor). Will be
     easy to do.
 
+Add QWidgetStack support (Reggie)
+    Use code of tabwidget support to make a general widget stack
+    support and make tabwidget support a special case of that.
+
 Provide application interfaces for plugins (Reggie, Volker)
     Use property system to enable access to the designer components. This will
     be pretty much an action interface like in the test example.
@@ -64,4 +68,4 @@ Fake property stretchFactor for widgets in a layout (Reggie)
 
 Make it possible to also include additional include files in the generated .h files (Reggie)
 
-Support for namespaces
+Support for namespaces:q
