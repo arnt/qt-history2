@@ -48,6 +48,7 @@
 #include "qvaluelist.h"
 #include "qsqlmanager_p.h"
 #include "qdatetime.h"
+#include "qcursor.h"
 
 //#define QT_DEBUG_DATATABLE
 
@@ -655,6 +656,23 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	    } else {
 		d->continuousEdit = FALSE;
 	    }
+	}
+	QSqlCursor * sql = sqlCursor();
+	if ( sql && sql->driver() && 
+	     !sql->driver()->hasFeature( QSqlDriver::QuerySize ) &&
+	     ke->key() == Key_End && d->dat.mode() == QSql::None ) {
+	    QApplication::setOverrideCursor( Qt::WaitCursor );
+	    int i = sql->at();
+	    if ( i < 0 ) {
+		i = 0;
+		sql->seek(0);
+	    }
+	    while ( sql->next() )
+		i++;
+	    setNumRows( i+1 );
+	    setCurrentCell( i+1, currentColumn() );
+	    QApplication::restoreOverrideCursor();
+	    return TRUE;
 	}
 	break;
     }
