@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#13 $
 **
 ** Implementation of movie classes
 **
@@ -329,7 +329,8 @@ signals:
 public slots:
     void refresh()
     {
-	if (frameperiod < 0) {
+	if (frameperiod < 0 && loop == -1) {
+	    // Only show changes if probably not an animation
 	    showChanges();
 	}
 
@@ -706,7 +707,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.12 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.13 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
