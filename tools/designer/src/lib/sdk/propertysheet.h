@@ -59,7 +59,7 @@ struct FlagType
 namespace Utils 
 {
 
-inline int valueOf(const QVariant &value, bool *ok = false)
+inline int valueOf(const QVariant &value, bool *ok = 0)
 {
     EnumType e;
     FlagType f;
