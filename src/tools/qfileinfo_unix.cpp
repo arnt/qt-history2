@@ -69,7 +69,7 @@ void QFileInfo::makeAbs( QString & )
 extern bool qt_file_access( const QString& fn, int t );
 
 /*!
-  Returns TRUE if we are pointing to a real file.
+  Returns TRUE if this object points to a real file.
   \sa isDir(), isSymLink()
 */
 bool QFileInfo::isFile() const
@@ -105,7 +105,7 @@ bool QFileInfo::isSymLink() const
 }
 
 
-/*!
+/*! 
   Returns the name a symlink points to, or a null QString if the
   object does not refer to a symbolic link.
 
@@ -137,7 +137,7 @@ QString QFileInfo::readLink() const
 static const uint nobodyID = (uint) -2;
 
 /*!
-  Returns the owner of the file.
+  Returns the owner of the file, or a NULL string in case of error.
 
   On systems where files do not have owners this function returns 0.
 

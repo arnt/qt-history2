@@ -12256,7 +12256,7 @@ bool QString::findArg(int& pos, int& len) const
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  The %s escape sequence expects a utf8() encoded string. 
+  The %s escape sequence expects a utf8() encoded string.
   The format string \e cformat is expected to be in latin1. If you need a unicode
   format string, use QString::arg() instead. For typesafe
   string building, with full Unicode support, you can use QTextOStream
@@ -12414,11 +12414,6 @@ QString &QString::sprintf( const char* cformat, ... )
     va_end( ap );
     return *this;
 }
-
-
-#if defined(Q_CC_GNU)
-#warning "fill() Should return *this, or QChar constructor should take count=1"
-#endif
 
 
 /*!

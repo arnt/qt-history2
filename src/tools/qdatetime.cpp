@@ -315,7 +315,7 @@ QString QDate::dayName( int weekday ) const
 
 
 /*!  Returns the date as a string.  The \a f parameter determines the
-  format of the string. 
+  format of the string.
 
   If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using the
   dayName() and monthName() functions to generate the string).
@@ -737,7 +737,7 @@ int QTime::msec() const
 
 /*!  Returns the time as a string.  Milliseconds are not included.
   The \a f parameter determines the format of the string.
-  
+
   If \a f is Qt::TextDate, the string format is HH:MM:SS, e.g. 1
   second before midnight would be "23:59:59".
 
@@ -1255,8 +1255,9 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates and times, which is
-  YYYY-MM-DDTHH:MM:SS. If the datetime is invalid, QString::null is
-  returned.
+  YYYY-MM-DDTHH:MM:SS.
+  
+  If the datetime or \a f is invalid, toString() returns a null string.
 
   \sa QDate::toString() QTime::toString
 
@@ -1264,29 +1265,21 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 
 QString QDateTime::toString( Qt::DateFormat f ) const
 {
-    switch ( f ) {
-    case Qt::ISODate:
-	{
-	    if ( isValid() )
-		return QString( d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate ) );
-	    else 
-		return QString::null;
-	}
-    default:
-    case Qt::TextDate:
-	{
-	    QString buf = d.dayName(d.dayOfWeek());
-	    buf += ' ';
-	    buf += d.monthName(d.month());
-	    buf += ' ';
-	    buf += QString().setNum(d.day());
-	    buf += ' ';
-	    buf += t.toString();
-	    buf += ' ';
-	    buf += QString().setNum(d.year());
-	    return buf;
-	}
+    if ( f == Qt::ISODate && isValid() ) {
+	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
+    } else if ( f == Qt::TextDate ) {
+	QString buf = d.dayName(d.dayOfWeek());
+	buf += ' ';
+	buf += d.monthName(d.month());
+	buf += ' ';
+	buf += QString().setNum(d.day());
+	buf += ' ';
+	buf += t.toString();
+	buf += ' ';
+	buf += QString().setNum(d.year());
+	return buf;
     }
+    return QString::null;
 }
 
 /*!
@@ -1461,35 +1454,33 @@ QDateTime QDateTime::currentDateTime()
  */
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {
-    switch ( f ) {
-    case Qt::ISODate:
-	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ), QTime::fromString( s.mid(11,8), Qt::ISODate ) );
-    case Qt::TextDate:
-	{
-	    QString monthName( s.mid( 4, 3 ) );
-	    int month = -1;
-	    for ( int i = 0; i < 12; ++i ) {
-		if ( monthName == qt_monthNames[i] ) {
-		    month = i+1;
-		    break;
-		}
+    if ( f == Qt::ISODate ) {
+	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
+			  QTime::fromString( s.mid(11,8), Qt::ISODate ) );
+    } else if ( f == Qt::TextDate ) {
+	QString monthName( s.mid( 4, 3 ) );
+	int month = -1;
+	int i = 0;
+	while( i < 12 ) {
+	    if ( monthName == qt_monthNames[i] ) {
+		month = i+1;
+		break;
 	    }
-	    int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
-	    int year = s.right( 4 ).toInt();
-	    QDate date( year, month, day );
-	    QTime time;
-	    int hour, minute, second;
-	    int pivot = s.find( QRegExp("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]") );
-	    if ( pivot != -1 ) {
-		hour = s.mid( pivot, 2 ).toInt();
-		minute = s.mid( pivot+3, 2 ).toInt();
-		second = s.mid( pivot+6, 2 ).toInt();
-		time.setHMS( hour, minute, second );
-	    }
-	    return QDateTime( date, time );
+	    i++;
 	}
-    default:
-	ASSERT(FALSE);
+	int day = s.mid( 8, 2 ).simplifyWhiteSpace().toInt();
+	int year = s.right( 4 ).toInt();
+	QDate date( year, month, day );
+	QTime time;
+	int hour, minute, second;
+	int pivot = s.find( QRegExp("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]") );
+	if ( pivot != -1 ) {
+	    hour = s.mid( pivot, 2 ).toInt();
+	    minute = s.mid( pivot+3, 2 ).toInt();
+	    second = s.mid( pivot+6, 2 ).toInt();
+	    time.setHMS( hour, minute, second );
+	}
+	return QDateTime( date, time );
     }
     return QDateTime();
 }

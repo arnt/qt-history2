@@ -350,23 +350,26 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The do-it-all function; op is one of op_find, op_insert, op_replace
 */
 
-QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d, int op )
+QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d,
+				       int op )
 {
-    QStringBucket *n;
+    QStringBucket *n = 0;
     int	index = hashKeyString(key) % vlen;
     if ( op == op_find ) {			// find
 	if ( cases ) {
-	    for ( n=(QStringBucket*)vec[index]; n;
-		  n=(QStringBucket*)n->getNext() ) {
+	    n = (QStringBucket*)vec[index];
+	    while( n != 0 ) {
 		if ( key == n->getKey() )
 		    return n->getData();	// item found
+		n = (QStringBucket*)n->getNext();
 	    }
 	} else {
 	    QString k = key.lower();
-	    for ( n=(QStringBucket*)vec[index]; n;
-		  n=(QStringBucket*)n->getNext() ) {
+	    n = (QStringBucket*)vec[index];
+	    while( n != 0 ) {
 		if ( k == n->getKey().lower() )
 		    return n->getData();	// item found
+		n = (QStringBucket*)n->getNext();
 	    }
 	}
 	return 0;				// not found
@@ -637,7 +640,7 @@ QAsciiBucket *QGDict::unlink_ascii( const char *key, QCollection::Item d )
 	return 0;
     QAsciiBucket *n;
     QAsciiBucket *prev = 0;
-    int index = hashKeyAscii(key) % vlen;	
+    int index = hashKeyAscii(key) % vlen;
     for ( n=(QAsciiBucket *)vec[index]; n; n=(QAsciiBucket *)n->getNext() ) {
 	bool found = (cases ? qstrcmp(n->getKey(),key)
 		       : qstricmp(n->getKey(),key)) == 0;

@@ -1789,6 +1789,7 @@ static struct {
               0x0E50, 0x0E51, 0x0E52, 0x0E53, 0x0E54, 0x0E55, 0x0E56, 0x0E57,
               0x0E58, 0x0E59, 0x0E5A, 0x0E5B, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD} },
 
+    // if you add more chacater sets at the end, change LAST_MIB above
 };
 
 
@@ -1901,7 +1902,7 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
         if ( QCString(hint) == "koi8-ru" )
             return QTextCodec::heuristicNameMatch("koi8-r")-1;
     } else if ( hint[0] == 't' && QCString(name()) == "ISO 8859-11" ) {
-	// 8859-11 and tis620 are byte by bute equivalent
+	// 8859-11 and tis620 are byte by byte equivalent
 	int i = simpleHeuristicNameMatch("tis620-0", hint);
 	if( !i )
 	    i = simpleHeuristicNameMatch("tis-620", hint);

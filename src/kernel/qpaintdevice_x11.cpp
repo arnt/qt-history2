@@ -203,9 +203,11 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 /*!
   \fn int QPaintDevice::devType() const
 
-  Returns the device type identifier: \c QInternal::Widget, \c
-  QInternal::Pixmap, \c QInternal::Printer, \c QInternal::Picture or
-  \c QInternal::UndefinedDevice.
+  Returns the device type identifier, which is \c QInternal::Widget if
+  the device is a QWidget, \c QInternal::Pixmap if it's a QPixmap, \c
+  QInternal::Printer if it's a QPrinter, \c QInternal::Picture if it's
+  a QPicture or \c QInternal::UndefinedDevice in other cases (which
+  should never happen).
 */
 
 /*!
