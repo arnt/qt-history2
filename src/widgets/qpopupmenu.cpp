@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#191 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#192 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -37,7 +37,7 @@
 
 #define motifPopupFrame	style().defaultFrameWidth()  // popup frame width
 //#define motifItemFrame	style().defaultFrameWidth()	// menu item frame width
-static const motifItemFrame	=2;	// menu item frame width
+static const int motifItemFrame		= 2;	// menu item frame width
 static const int motifSepHeight		= 2;	// separator item height
 static const int motifItemHMargin	= 3;	// menu item hor text margin
 static const int motifItemVMargin	= 2;	// menu item ver text margin
@@ -189,13 +189,13 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 	p->drawLineSegments( a );
 	
 	if (style == QStyle::MotifStyle)
-	    qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE, 
+	    qDrawShadePanel( p, posX-2, posY-2, markW+4, markH+6, g, TRUE,
 			     style.defaultFrameWidth());
     }
     else {
 	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE, style.defaultFrameWidth(), &g.fillMid() );
     }
-    
+
 }
 
 
@@ -1072,7 +1072,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 			mi->pixmap() && !mi->text().isNull() ) {
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &g.fillButton() );
-	    } 
+	    }
 	} else if ( !act ) {
  	    p->fillRect(cm, cm, cellw - 2*cm, cellh - 2*cm, g.fillButton());
 	}		
