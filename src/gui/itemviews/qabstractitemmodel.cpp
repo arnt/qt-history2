@@ -251,9 +251,10 @@ void *QPersistentModelIndex::data() const
 }
 
 /*!
-  \internal
+  Returns the parent QModelIndex for this persistent index, or
+  QModelIndex() if it has no parent.
 
-  Returns the parent QModelIndex for this persisten index.
+  \sa child() sibling() model()
 */
 QModelIndex QPersistentModelIndex::parent() const
 {
@@ -261,7 +262,10 @@ QModelIndex QPersistentModelIndex::parent() const
 }
 
 /*!
-  \internal
+  Returns the sibling of the model index that is stored in the given
+  \a row and \a column of the parent index.
+
+  \sa parent() child()
 */
 
 QModelIndex QPersistentModelIndex::sibling(int row, int column) const
@@ -270,7 +274,10 @@ QModelIndex QPersistentModelIndex::sibling(int row, int column) const
 }
 
 /*!
-  \internal
+  Returns the child of the model index that is stored in the given
+  \a row and \a column.
+
+  \sa parent() sibling()
 */
 
 QModelIndex QPersistentModelIndex::child(int row, int column) const
@@ -279,11 +286,7 @@ QModelIndex QPersistentModelIndex::child(int row, int column) const
 }
 
 /*!
-  \fn QAbstractItemModel *QPersistentModelIndex::model() const
-
-  \internal
-
-  Returns the model the index belongs to.
+  Returns the model that the index belongs to.
 */
 const QAbstractItemModel *QPersistentModelIndex::model() const
 {
@@ -335,16 +338,30 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     selection models to locate an item in the model. QModelIndex objects are
     created by the model.
 
-    An invalid model index can be constructed with the zero argument form of
-    the QModelIndex() constructor. This is useful when referring to top-level
-    items in a model.
+    Model indexes contain all the information required to specify the items
+    they refer to in a model. Indexes are located in a row and a column, and
+    they may have a parent index; use row(), column(), and parent() to obtain
+    this information. Top-level items in a model are represented by model
+    indexes that do not have a parent index - in this case, parent() will
+    return an invalid model index that is equivalent to an index constructed
+    with the zero argument form of the QModelIndex() constructor.
+
+    To obtain a model index that refers to an item in a model, call 
+    \l{QAbstractItemModel::index()}{index()} with the required row and column
+    values, and the parent model index. Supply the zero argument form of
+    the QModelIndex() constructor as the parent index when referring to
+    top-level items in a model.
+
+    The model() function returns the model that the index references as a
+    QAbstractItemModel.
+    The child() function is used to examine the items held beneath the index
+    in the model.
+    The sibling() function allows you to traverse items in the model on the
+    same level as the index.
 
     Model indexes can become invalid over time so they should be used
     immediately and then discarded. If you need to keep a model index
     over time use a QPersistentModelIndex.
-
-    A model index has a parent(), a row(), and a column(). The parent refers
-    to the model containing the item that corresponds to the model index.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QPersistentModelIndex QAbstractItemModel
 */
@@ -414,20 +431,26 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 /*!
     \fn const QAbstractItemModel *QModelIndex::model() const
 
-    \internal
-
     Returns a pointer to the model containing the item that this index
     refers to.
 */
 
 /*!
-    \fn QModelIndex::QModelIndex sibling(int row, int column) const
-    \internal
+    \fn QModelIndex QModelIndex::sibling(int row, int column) const
 
     Returns the sibling of the model index that is stored in the given
-    \a row and \a column of the parent model.
+    \a row and \a column of the parent index.
 
-    \sa parent()
+    \sa parent() child()
+*/
+
+/*!
+    \fn QModelIndex QModelIndex::child(int row, int column) const
+
+    Returns the child of the model index that is stored in the given
+    \a row and \a column.
+
+    \sa parent() sibling()
 */
 
 /*!
@@ -448,7 +471,11 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
 /*!
   \fn QModelIndex QModelIndex::parent() const
-  Return the parent of the model index or QModelIndex() if it has no parent.
+
+  Return the parent of the model index, or QModelIndex() if it has no
+  parent.
+
+  \sa child() sibling() model()
 */
 
 /*!
@@ -509,6 +536,13 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
+*/
+
+/*!
+    \fn bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const = 0
+
+    Returns true if the given \a parent index in the model contains child
+    items; otherwise returns false.
 */
 
 /*!
@@ -829,7 +863,11 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 }
 
 /*!
-  
+    Handles the \a data supplied by a drag and drop operation that ended with
+    the given \a action over the row in the model specified by the \a row
+    and the \a parent index.
+
+    \sa supportedDropActions()
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                                       int row, const QModelIndex &parent)
@@ -852,6 +890,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
 
 /*!
   Returns the drop actions supported by this model.
+
   \sa QDrag::DropActions
 */
 QDrag::DropActions QAbstractItemModel::supportedDropActions() const
@@ -979,10 +1018,12 @@ void QAbstractItemModel::sort(int column, Qt::SortOrder order)
 }
 
 /*!
-  Returns the buddy of the item represented by \a index.
-  When the user wants to edit an item the delegate will
-  ask for the item's buddy, and item instead.
-  In the default implementation an item is it's own buddy.
+  Returns a model index for the buddy of the item represented by \a index.
+  When the user wants to edit an item, the view will call this function to
+  check whether another item in the model should be edited instead, and
+  construct a delegate using the buddy's index returned.
+
+  In the default implementation an item is its own buddy.
 */
 QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 {
