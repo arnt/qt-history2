@@ -53,6 +53,7 @@ public:
 
     bool duplicatesEnabled() const;
     void setDuplicatesEnabled(bool enable);
+    virtual bool contains(const QString &text);
 
     InsertionPolicy insertionPolicy() const;
     void setInsertionPolicy(InsertionPolicy policy);
@@ -103,6 +104,12 @@ public:
     QSize sizeHint() const;
 
     virtual void popup();
+
+public slots:
+    void clear();
+    void clearValidator();
+    void clearEdit();
+    virtual void setEditText(const QString &text);
 
 signals:
     void textChanged(const QString &);

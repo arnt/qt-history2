@@ -262,7 +262,7 @@ void QGenericComboBoxPrivate::returnPressed()
     if (lineEdit && !lineEdit->text().isEmpty()) {
         QString text = lineEdit->text();
         // check for duplicates (if not enabled) and quit
-        if (!d->duplicatesEnabled && d->contains(text, QAbstractItemModel::Role_Edit))
+        if (!d->duplicatesEnabled && q->contains(text))
             return;
         int row = -1;
         switch (insertionPolicy) {
@@ -334,17 +334,6 @@ void QGenericComboBoxPrivate::itemSelected(const QModelIndex &item)
     }
 }
 
-/*
-  \internal
-  returns true if any item under \a root containes \a text in role \a role.
-*/
-bool QGenericComboBoxPrivate::contains(const QString &text, int role)
-{
-    return model->match(model->index(0, 0, q->root()),
-                             role, text, 1, QAbstractItemModel::Match_Exactly
-                             |QAbstractItemModel::Match_Case).count() > 0;
-}
-
 void QGenericComboBoxPrivate::emitActivated(const QModelIndex &index)
 {
     QString text(q->model()->data(index, QAbstractItemModel::Role_Edit).toString());
@@ -413,6 +402,16 @@ bool QGenericComboBox::duplicatesEnabled() const
 void QGenericComboBox::setDuplicatesEnabled(bool enable)
 {
     d->duplicatesEnabled = enable;
+}
+
+/*!
+  Returns true if any item in the combobox model matches \a text.
+*/
+bool QGenericComboBox::contains(const QString &text) {
+    return model()->match(model()->index(0, 0, root()),
+                          QAbstractItemModel::Role_Edit, text, 1,
+                          QAbstractItemModel::Match_Exactly
+                          |QAbstractItemModel::Match_Case).count() > 0;
 }
 
 QGenericComboBox::InsertionPolicy QGenericComboBox::insertionPolicy() const
@@ -717,6 +716,9 @@ QSize QGenericComboBox::sizeHint() const
     QStyleOptionViewItem option(0);
     option.init(this);
     option.decorationPosition = QStyleOptionViewItem::Left;
+    option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;
+    option.decorationAlignment = Qt::AlignCenter;
+    option.decorationSize = QStyleOptionViewItem::Small;
     option.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
     option.state |= (hasFocus()
                      ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
@@ -775,6 +777,29 @@ void QGenericComboBox::popup()
     d->container->show();
 }
 
+void QGenericComboBox::clear()
+{
+    model()->removeRows(0, root(), model()->rowCount(root()));
+}
+
+void QGenericComboBox::clearValidator()
+{
+    if (d->lineEdit)
+        d->lineEdit->setValidator(0);
+}
+
+void QGenericComboBox::clearEdit()
+{
+    if (d->lineEdit)
+        d->lineEdit->clear();
+}
+
+void QGenericComboBox::setEditText(const QString &text)
+{
+    if (d->lineEdit)
+        d->lineEdit->setText(text);
+}
+
 void QGenericComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 {
     if (d->lineEdit)
@@ -816,6 +841,9 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     if (current.isValid()) {
         itemOpt.init(this);
         itemOpt.decorationPosition = QStyleOptionViewItem::Left;
+        itemOpt.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;
+        itemOpt.decorationAlignment = Qt::AlignCenter;
+        itemOpt.decorationSize = QStyleOptionViewItem::Small;
         itemOpt.state |= (isEditable() ? QStyle::Style_Editing : QStyle::Style_Default);
         itemOpt.state |= (q->hasFocus()
                         ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
