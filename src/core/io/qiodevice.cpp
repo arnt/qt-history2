@@ -827,8 +827,11 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
         if (*p++ == '\n')                        // end of line
             break;
     }
-    *p++ = '\0';
-    return p - data;
+    if(p != data) {
+        *p++ = '\0';
+        return p - data;
+    } 
+    return -1;
 }
 
 

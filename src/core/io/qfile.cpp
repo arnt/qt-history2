@@ -211,7 +211,8 @@ QFilePrivate::reset()
 */
 QFile::QFile() : QIODevice(*new QFilePrivate)
 {
-    
+    setFlags(IO_Direct);
+    resetStatus();
 }
 
 /*!
@@ -221,6 +222,8 @@ QFile::QFile() : QIODevice(*new QFilePrivate)
 */
 QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 {
+    setFlags(IO_Direct);
+    resetStatus();
     d->initFileEngine(name);
 }
 
@@ -516,6 +519,7 @@ QFile::open(int mode)
             setType(Sequential);
         return true;
     }
+    setStatus(errno == EMFILE ? IO_ResourceError : IO_OpenError, errno);
     return false;
 }
 
