@@ -385,7 +385,7 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
     repeat     = FALSE;				// not in autorepeat mode
     d	       = 0;
 #ifndef QT_NO_BUTTONGROUP
-    if ( ::qt_cast<QButtonGroup>(parent) ) {
+    if ( qt_cast<QButtonGroup*>(parent) ) {
 	setGroup((QButtonGroup*)parent);
 	group()->insert( this );		// insert into button group
     }
@@ -686,7 +686,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
     case Key_Return:
 	{
 #ifndef QT_NO_PUSHBUTTON
-	    QPushButton *pb = (QPushButton*)qt_cast( "QPushButton" );
+	    QPushButton *pb = qt_cast<QPushButton*>(this);
 	    if ( pb && ( pb->autoDefault() || pb->isDefault() ) )
 		emit clicked();
 	    else
@@ -698,7 +698,7 @@ void QButton::keyPressEvent( QKeyEvent *e )
 	if ( !e->isAutoRepeat() ) {
 	    setDown( TRUE );
 #ifndef QT_NO_PUSHBUTTON
-	    if ( ::qt_cast<QPushButton>(this) )
+	    if ( qt_cast<QPushButton*>(this) )
 		emit pressed();
 	    else
 #endif
@@ -969,7 +969,7 @@ bool QButton::isExclusiveToggle() const
 #ifndef QT_NO_BUTTONGROUP
     return group() && ( group()->isExclusive() ||
 			group()->isRadioButtonExclusive() &&
-			::qt_cast<QRadioButton>(this) );
+			qt_cast<QRadioButton*>(this) );
 #else
     return FALSE;
 #endif

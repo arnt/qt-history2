@@ -42,18 +42,18 @@ ActionListView::ActionListView( QWidget *parent, const char *name )
 ActionItem::ActionItem( QListView *lv, QAction *ac )
     : QListViewItem( lv ), a( 0 ), g( 0 )
 {
-    g = ::qt_cast<QDesignerActionGroup>(ac);
+    g = qt_cast<QDesignerActionGroup*>(ac);
     if ( !g )
-	a = ::qt_cast<QDesignerAction>(ac);
+	a = qt_cast<QDesignerAction*>(ac);
     setDragEnabled( TRUE );
 }
 
 ActionItem::ActionItem( QListViewItem *i, QAction *ac )
     : QListViewItem( i ), a( 0 ), g( 0 )
 {
-    g = ::qt_cast<QDesignerActionGroup>(ac);
+    g = qt_cast<QDesignerActionGroup*>(ac);
     if ( !g )
-	a = ::qt_cast<QDesignerAction>(ac);
+	a = qt_cast<QDesignerAction*>(ac);
     setDragEnabled( TRUE );
     moveToEnd();
 }

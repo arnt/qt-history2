@@ -5,7 +5,7 @@
 **
 ** Created : 930419
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -39,83 +39,49 @@
 #define QOBJECTDEFS_H
 
 #ifndef QT_H
-#include "qglobal.h"
+#include "qstring.h"
 #endif // QT_H
-
-
-#ifndef QT_NO_TRANSLATION
-# ifndef QT_NO_TEXTCODEC
-// full set of tr functions
-#  define QT_TR_FUNCTIONS \
-    static QString tr( const char *, const char * = 0 ); \
-    static QString trUtf8( const char *, const char * = 0 );
-# else
-// no QTextCodec, no utf8
-#  define QT_TR_FUNCTIONS \
-    static QString tr( const char *, const char * = 0 );
-# endif
-#else
-// inherit the ones from QObject
-# define QT_TR_FUNCTIONS
-#endif
-
-#ifndef QT_NO_PROPERTIES
-# define QT_PROP_FUNCTIONS \
-    virtual bool qt_property( int id, int f, QVariant* v); \
-    static bool qt_static_property( QObject* , int, int, QVariant* );
-#else
-# define QT_PROP_FUNCTIONS
-#endif
 
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
-struct QUObject;
 
-#ifdef QT_MOC_CPP
-#define slots			    slots
-#define signals		    signals
-#define Q_CLASSINFO( name, value ) Q_CLASSINFO( name, value )
-#define Q_PROPERTY( text )	    Q_PROPERTY( text )
-#define Q_OVERRIDE( text )	    Q_OVERRIDE( text )
-#define Q_ENUMS( x )		    Q_ENUMS( x )
-#define Q_SETS( x )		    Q_SETS( x )
- /* tmake ignore Q_OBJECT */
-#define Q_OBJECT		    Q_OBJECT
- /* tmake ignore Q_OBJECT */
-#define Q_OBJECT_FAKE		    Q_OBJECT_FAKE
-
-#else
-#define slots					// slots: in class
-#define signals protected			// signals: in class
+#ifndef QT_MOC_CPP
+#define slots
+#define signals protected
 #ifndef QT_NO_EMIT
-#define emit					// emit signal
+#define emit
 #endif
-#define Q_CLASSINFO( name, value )		// class info
-#define Q_PROPERTY( text )			// property
-#define Q_OVERRIDE( text )			// override property
+#define Q_CLASSINFO( name, value )
+#define Q_PROPERTY( text )
+#define Q_OVERRIDE( text )
 #define Q_ENUMS( x )
 #define Q_SETS( x )
-
 /* tmake ignore Q_OBJECT */
-#define Q_OBJECT							\
-public:									\
-    virtual QMetaObject *metaObject() const { 				\
-         return staticMetaObject();					\
-    }									\
-    virtual const char *className() const;				\
-    virtual void* qt_cast( const char* ); 				\
-    virtual bool qt_invoke( int, QUObject* ); 				\
-    virtual bool qt_emit( int, QUObject* ); 				\
-    QT_PROP_FUNCTIONS							\
-    static QMetaObject* staticMetaObject();				\
-    QObject* qObject() { return (QObject*)this; } 			\
-    QT_TR_FUNCTIONS							\
-private:								\
-    static QMetaObject *metaObj;
-
+#define Q_OBJECT \
+public: \
+    virtual const QMetaObject *metaObject() const; \
+    static const QMetaObject staticMetaObject; \
+    virtual void *qt_metacast(const char *); \
+    static inline QString tr(const char *s, const char *c = 0) \
+	{ return staticMetaObject.tr(s, c); } \
+    static inline QString trUtf8(const char *s, const char *c = 0) \
+	{ return staticMetaObject.trUtf8(s, c); } \
+    virtual int qt_metacall(int _f, int _id, void **_o); \
+private:
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT_FAKE Q_OBJECT
-
+#else
+#define slots slots
+#define signals signals
+#define Q_CLASSINFO( name, value ) Q_CLASSINFO( name, value )
+#define Q_PROPERTY( text ) Q_PROPERTY( text )
+#define Q_OVERRIDE( text ) Q_OVERRIDE( text )
+#define Q_ENUMS( x ) Q_ENUMS( x )
+#define Q_SETS( x ) Q_SETS( x )
+ /* tmake ignore Q_OBJECT */
+#define Q_OBJECT Q_OBJECT
+ /* tmake ignore Q_OBJECT */
+#define Q_OBJECT_FAKE Q_OBJECT_FAKE
 #endif
 
 // macro for naming members
@@ -150,26 +116,93 @@ private:								\
 #define QSIGNAL_CODE	2
 
 class QObject;
-class QMetaObject;
-class QSignal;
-class QConnection;
-class QEvent;
-struct QMetaData;
-class QConnectionList;
-class QSignalVec;
-class QObjectList;
-class QMemberDict;
+class QMetaMember;
+class QMetaEnum;
+class QMetaProperty;
+class QMetaClassInfo;
 
-Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
-#define Q_CHILD(parent,type,name) \
-	((type*)qt_find_obj_child(parent,#type,name))
-
-Q_EXPORT void *qt_inheritedBy( QMetaObject *super, const QObject *cls );
-
-template <class Type>
-Q_INLINE_TEMPLATES Type *qt_cast(const QObject *object)
+struct QMetaObject
 {
-    return (Type*)qt_inheritedBy( Type::staticMetaObject(), object );
-}
+    const char *className() const;
+    const QMetaObject *superClass() const;
+
+    QObject *cast(const QObject *obj) const;
+
+#ifndef QT_NO_TRANSLATION
+    QString tr(const char *s, const char *c) const;
+    QString trUtf8(const char *s, const char *c) const;
+#endif // QT_NO_TRANSLATION
+
+    int	slotOffset() const;
+    int	signalOffset() const;
+    int	enumeratorOffset() const;
+    int	propertyOffset() const;
+    int	classInfoOffset() const;
+
+    int	numSlots(bool super = false) const;
+    int	numSignals(bool super = false) const;
+    int	numEnumerators(bool super = false) const;
+    int	numProperties(bool super = false) const;
+    int	numClassInfo(bool super = false) const;
+
+    int	findSlot(const char *slot, bool super = false) const;
+    int	findSignal(const char *signal, bool super = false) const;
+    int findEnumerator(const char *name, bool super = false) const;
+    int findProperty(const char *name, bool super = false) const;
+    int findClassInfo(const char *name, bool super = false) const;
+
+    QMetaMember slot(int index, bool super = false) const;
+    QMetaMember signal(int index, bool super = false) const;
+    QMetaEnum enumerator(int index, bool super = false) const;
+    QMetaProperty property(int index, bool super = false) const;
+    QMetaClassInfo classInfo(int index, bool super = false) const;
+
+    static bool checkConnectArgs(const char *signal, const char *member);
+    static QByteArray normalizeSignature(const char *member);
+
+    // internal index-based connect
+    static bool connect(const QObject *sender,
+			int signal_index,
+			const QObject *receiver,
+			int membcode, int member_index);
+    // internal index-based disconnect
+    static bool disconnect(const QObject *sender,
+			   int signal_index,
+			   const QObject *receiver,
+			   int membcode, int member_index);
+    // internal index-based signal activation
+    static void activate(QObject *obj, int signal_index, void **argv);
+
+#ifndef QT_NO_COMPAT
+    const char *superClassName() const;
+    bool inherits(const char* classname) const;
+#endif
+
+
+    struct { // private data
+	const QMetaObject *superdata;
+	const char *stringdata;
+	const int *data;
+    } d;
+};
+
+inline const char *QMetaObject::className() const
+{ return d.stringdata; }
+
+inline const QMetaObject *QMetaObject::superClass() const
+{ return d.superdata; }
+
+#ifndef QT_NO_COMPAT
+inline const char *QMetaObject::superClassName() const
+{ return d.superdata ? d.superdata->className() : 0; }
+#endif
+
+//### TODO: add interface support using metacast. Also use proper
+//### partial template specialization on systems that support it to
+//### get nicer error messages.
+template <class Type>
+Q_INLINE_TEMPLATES Type qt_cast(const QObject *object)
+{ Type t = 0; return (Type) t->staticMetaObject.cast(object); }
+
 
 #endif // QOBJECTDEFS_H

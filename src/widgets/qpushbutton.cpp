@@ -332,7 +332,7 @@ void QPushButton::init()
     hasMenuArrow = FALSE;
     flt = FALSE;
 #ifndef QT_NO_DIALOG
-    autoDefButton = ::qt_cast<QDialog>(topLevelWidget()) != 0;
+    autoDefButton = qt_cast<QDialog*>(topLevelWidget()) != 0;
 #else
     autoDefButton = FALSE;
 #endif
@@ -386,7 +386,7 @@ void QPushButton::setDefault( bool enable )
 	return;					// no change
     defButton = enable;
 #ifndef QT_NO_DIALOG
-    if ( defButton && ::qt_cast<QDialog>(topLevelWidget()) )
+    if ( defButton && qt_cast<QDialog*>(topLevelWidget()) )
  	((QDialog*)topLevelWidget())->setDefault( this );
 #endif
     update();
@@ -612,7 +612,7 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 	setDefault( TRUE );
 #if 0
     else {
-	if ( ::qt_cast<QDialog>(topLevelWidget()) )
+	if ( qt_cast<QDialog*>(topLevelWidget()) )
 	    ((QDialog*)topLevelWidget())->hideDefault();
     }
 #endif
@@ -626,7 +626,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 {
 #ifndef QT_NO_DIALOG
     if ( defButton && autoDefButton ) {
-	if ( ::qt_cast<QDialog>(topLevelWidget()) )
+	if ( qt_cast<QDialog*>(topLevelWidget()) )
 	    ((QDialog*)topLevelWidget())->setDefault( 0 );
     }
 #endif
@@ -704,7 +704,7 @@ void QPushButton::popupPressed()
 	bool horizontal = TRUE;
 	bool topLeft = TRUE;			// ### always TRUE
 #ifndef QT_NO_TOOLBAR
-	QToolBar *tb = ::qt_cast<QToolBar>(parentWidget());
+	QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
 	if ( tb && tb->orientation() == Vertical )
 	    horizontal = FALSE;
 #endif

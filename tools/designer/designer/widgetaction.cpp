@@ -35,7 +35,7 @@ static QStyle *windowsStyle = 0;
 
 void WidgetAction::addedTo( QWidget *w, QWidget *container )
 {
-    if ( ::qt_cast<QToolButton>(w) && ::qt_cast<QScrollView>(container->parent()->parent()) ) {
+    if ( qt_cast<QToolButton*>(w) && qt_cast<QScrollView*>(container->parent()->parent()) ) {
 	if ( !windowsStyle )
 	    windowsStyle = QStyleFactory::create( "windows" );
 	w->setStyle( windowsStyle );

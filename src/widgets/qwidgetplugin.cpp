@@ -226,7 +226,7 @@ bool QWidgetPluginPrivate::canUnload() const
 
 QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *widget ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->containerOfWidget( key, widget );
     return widget;
@@ -234,7 +234,7 @@ QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *w
 
 int QWidgetPluginPrivate::count( const QString &key, QWidget *container ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->count( key, container );
     return 0;
@@ -242,7 +242,7 @@ int QWidgetPluginPrivate::count( const QString &key, QWidget *container ) const
 
 int QWidgetPluginPrivate::currentIndex( const QString &key, QWidget *container ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->currentIndex( key, container );
     return -1;
@@ -250,7 +250,7 @@ int QWidgetPluginPrivate::currentIndex( const QString &key, QWidget *container )
 
 QString QWidgetPluginPrivate::pageLabel( const QString &key, QWidget *container, int index ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->pageLabel( key, container, index );
     return QString::null;
@@ -258,7 +258,7 @@ QString QWidgetPluginPrivate::pageLabel( const QString &key, QWidget *container,
 
 QWidget *QWidgetPluginPrivate::page( const QString &key, QWidget *container, int index ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->page( key, container, index );
     return 0;
@@ -266,7 +266,7 @@ QWidget *QWidgetPluginPrivate::page( const QString &key, QWidget *container, int
 
 bool QWidgetPluginPrivate::isPassiveInteractor( const QString &key, QWidget *widget ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->isPassiveInteractor( key, widget );
     return FALSE;
@@ -274,7 +274,7 @@ bool QWidgetPluginPrivate::isPassiveInteractor( const QString &key, QWidget *wid
 
 bool QWidgetPluginPrivate::supportsPages( const QString &key ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->supportsPages( key );
     return 0;
@@ -283,7 +283,7 @@ bool QWidgetPluginPrivate::supportsPages( const QString &key ) const
 QWidget *QWidgetPluginPrivate::addPage( const QString &key, QWidget *container,
 				    const QString &name, int index ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->addPage( key, container, name, index );
     return 0;
@@ -292,14 +292,14 @@ QWidget *QWidgetPluginPrivate::addPage( const QString &key, QWidget *container,
 void QWidgetPluginPrivate::insertPage( const QString &key, QWidget *container,
 				       const QString &name, int index, QWidget *page ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	p->insertPage( key, container, name, index, page );
 }
 
 void QWidgetPluginPrivate::removePage( const QString &key, QWidget *container, int index ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	p->removePage( key, container, index );
 }
@@ -307,7 +307,7 @@ void QWidgetPluginPrivate::removePage( const QString &key, QWidget *container, i
 void QWidgetPluginPrivate::movePage( const QString &key, QWidget *container,
 				     int fromIndex, int toIndex ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	p->movePage( key, container, fromIndex, toIndex );
 }
@@ -315,14 +315,14 @@ void QWidgetPluginPrivate::movePage( const QString &key, QWidget *container,
 void QWidgetPluginPrivate::renamePage( const QString &key, QWidget *container,
 				      int index, const QString &newName ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	p->renamePage( key, container, index, newName );
 }
 
 QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->pages( key, container );
     return QWidgetList();
@@ -331,7 +331,7 @@ QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container 
 QString QWidgetPluginPrivate::createCode( const QString &key, const QString &container,
 					  const QString &page, const QString &pageName ) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_cast( "QWidgetContainerPlugin" );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
     if ( p )
 	return p->createCode( key, container, page, pageName );
     return QString::null;

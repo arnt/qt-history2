@@ -320,7 +320,7 @@ void QWellArray::setSelected( int row, int col )
     if ( row >= 0 )
 	emit selected( row, col );
 
-    if ( isVisible() && ::qt_cast<QPopupMenu>(parentWidget()) )
+    if ( isVisible() && qt_cast<QPopupMenu*>(parentWidget()) )
 	parentWidget()->close();
 }
 

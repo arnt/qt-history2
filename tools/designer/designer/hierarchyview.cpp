@@ -249,12 +249,12 @@ QObject *HierarchyList::handleObjectClick( QListViewItem *i )
     if ( o->isWidgetType() ) {
 	QWidget *w = (QWidget*)o;
 	if ( !formWindow->widgets()->find( w ) ) {
-	    if ( ::qt_cast<QWidgetStack>(w->parent()) ) {
-		if (::qt_cast<QTabWidget>(w->parent()->parent()) ) {
+	    if ( qt_cast<QWidgetStack*>(w->parent()) ) {
+		if (qt_cast<QTabWidget*>(w->parent()->parent()) ) {
 		    ((QTabWidget*)w->parent()->parent())->showPage( w );
 		    o = (QWidget*)w->parent()->parent();
 		    formWindow->emitUpdateProperties( formWindow->currentWidget() );
-		} else if ( ::qt_cast<QWizard>(w->parent()->parent()) ) {
+		} else if ( qt_cast<QWizard*>(w->parent()->parent()) ) {
 		    ((QDesignerWizard*)w->parent()->parent())->
 			setCurrentPage( ( (QDesignerWizard*)w->parent()->parent() )->pageNum( w ) );
 		    o = (QWidget*)w->parent()->parent();
@@ -264,15 +264,15 @@ QObject *HierarchyList::handleObjectClick( QListViewItem *i )
 		    if ( (QWidgetStack*)w->parent()->isA( "QDesignerWidgetStack" ) )
 			( (QDesignerWidgetStack*)w->parent() )->updateButtons();
 		}
-	    } else if ( ::qt_cast<QMenuBar>(w) || ::qt_cast<QDockWindow>(w) ) {
+	    } else if ( qt_cast<QMenuBar*>(w) || qt_cast<QDockWindow*>(w) ) {
 		formWindow->setActiveObject( w );
-	    } else if ( ::qt_cast<QPopupMenu>(w) ) {
+	    } else if ( qt_cast<QPopupMenu*>(w) ) {
 		return 0; // ### we could try to find our menu bar and change the currentMenu to our index
 	    } else {
 		return 0;
 	    }
 	}
-    } else if ( ::qt_cast<QAction>(o) ) {
+    } else if ( qt_cast<QAction*>(o) ) {
 	MainWindow::self->actioneditor()->setCurrentAction( (QAction*)o );
 	deselect = TRUE;
     }
@@ -393,7 +393,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     if ( QString( o->name() ).startsWith( "qt_dead_widget_" ) )
 	return;
     bool fakeMainWindow = FALSE;
-    if ( ::qt_cast<QMainWindow>(o) ) {
+    if ( qt_cast<QMainWindow*>(o) ) {
 	QObject *cw = ( (QMainWindow*)o )->centralWidget();
 	if ( cw ) {
 	    o = cw;
@@ -402,7 +402,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     }
     QListViewItem *item = 0;
     QString className = WidgetFactory::classNameOf( o );
-    if ( ::qt_cast<QLayoutWidget>(o) ) {
+    if ( qt_cast<QLayoutWidget*>(o) ) {
 	switch ( WidgetFactory::layoutType( (QWidget*)o ) ) {
 	case WidgetFactory::HBox:
 	    className = "HBox";
@@ -424,15 +424,15 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 #endif
 
     QString name = o->name();
-    if ( ::qt_cast<QWidgetStack>(o->parent()) ) {
-	if ( ::qt_cast<QTabWidget>(o->parent()->parent()) )
+    if ( qt_cast<QWidgetStack*>(o->parent()) ) {
+	if ( qt_cast<QTabWidget*>(o->parent()->parent()) )
 	    name = ( (QTabWidget*)o->parent()->parent() )->tabLabel( (QWidget*)o );
-	else if ( ::qt_cast<QWizard>(o->parent()->parent()) )
+	else if ( qt_cast<QWizard*>(o->parent()->parent()) )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
     }
 
     if ( o->parent() && o->parent()->parent() &&
-	 ::qt_cast<QToolBox>(o->parent()->parent()->parent()) )
+	 qt_cast<QToolBox*>(o->parent()->parent()->parent()) )
 	name = ( (QToolBox*)o->parent()->parent()->parent() )->pageLabel( (QWidget*)o );
 
     if ( fakeMainWindow ) {
@@ -447,18 +447,18 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     item->setOpen( TRUE );
     if ( !parent )
 	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_form.png" ) );
-    else if ( ::qt_cast<QLayoutWidget>(o) )
+    else if ( qt_cast<QLayoutWidget*>(o) )
 	item->setPixmap( 0, QPixmap::fromMimeSource( "designer_layout.png" ));
     else
 	item->setPixmap( 0, WidgetDatabase::iconSet(
 		    WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( o ) ) ).
 			 pixmap( QIconSet::Small, QIconSet::Normal ) );
-    if ( ::qt_cast<QAction>(o) )
+    if ( qt_cast<QAction*>(o) )
 	item->setPixmap( 0, ( (QAction*)o )->iconSet().pixmap() );
 
     ( (HierarchyItem*)item )->setObject( o );
     const QObjectList *l = o->children();
-    if ( ::qt_cast<QDesignerToolBar>(o) )
+    if ( qt_cast<QDesignerToolBar*>(o) )
 	l = 0;
     if ( l ) {
 	QObjectListIterator it( *l );
@@ -468,13 +468,13 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		 ( (QWidget*)it.current() )->isHidden() )
 		continue;
 	    if ( !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
-		if ( ::qt_cast<QWidgetStack>(it.current()->parent()) ||
-		     ::qt_cast<QWidgetStack>(it.current()) ) {
+		if ( qt_cast<QWidgetStack*>(it.current()->parent()) ||
+		     qt_cast<QWidgetStack*>(it.current()) ) {
 		    QObject *obj = it.current();
-		    QDesignerTabWidget *tw = ::qt_cast<QDesignerTabWidget>(it.current()->parent());
-		    QDesignerWizard *dw = ::qt_cast<QDesignerWizard>(it.current()->parent());
+		    QDesignerTabWidget *tw = qt_cast<QDesignerTabWidget*>(it.current()->parent());
+		    QDesignerWizard *dw = qt_cast<QDesignerWizard*>(it.current()->parent());
 		    QWidgetStack *stack = 0;
-		    if ( dw || tw || ::qt_cast<QWidgetStack>(obj) )
+		    if ( dw || tw || qt_cast<QWidgetStack*>(obj) )
 			stack = (QWidgetStack*)obj;
 		    else
 			stack = (QWidgetStack*)obj->parent();
@@ -495,8 +495,8 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 			insertObject( obj, item );
 		    }
 		    delete l2;
-		} else if ( ::qt_cast<QToolBox>(it.current()->parent()) ) {
-		    if ( !::qt_cast<QScrollView>(it.current()) )
+		} else if ( qt_cast<QToolBox*>(it.current()->parent()) ) {
+		    if ( !qt_cast<QScrollView*>(it.current()) )
 			continue;
 		    QToolBox *tb = (QToolBox*)it.current()->parent();
 		    for ( int i = tb->count() - 1; i >= 0; --i )
@@ -513,9 +513,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	for ( QObject *obj = l->first(); obj; obj = l->next() )
 	    insertObject( obj, item );
 	delete l;
-    } else if ( ::qt_cast<QDesignerToolBar>(o) || ::qt_cast<PopupMenuEditor>(o) ) {
+    } else if ( qt_cast<QDesignerToolBar*>(o) || qt_cast<PopupMenuEditor*>(o) ) {
 	QPtrList<QAction> actions;
-	if ( ::qt_cast<QDesignerToolBar>(o) )
+	if ( qt_cast<QDesignerToolBar*>(o) )
 	    actions = ( (QDesignerToolBar*)o )->insertedActions();
 	else
 	    ( (PopupMenuEditor*)o )->insertedActions( actions );
@@ -524,31 +524,31 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	it.toLast();
 	while ( it.current() ) {
 	    QAction *a = it.current();
-	    if ( ::qt_cast<QDesignerAction>(a) ) {
+	    if ( qt_cast<QDesignerAction*>(a) ) {
 		QDesignerAction *da = (QDesignerAction*)a;
 		if ( da->supportsMenu() )
 		    insertObject( da, item );
 		else
 		    insertObject( da->widget(), item );
-	    } else if ( ::qt_cast<QDesignerActionGroup>(a) ) {
+	    } else if ( qt_cast<QDesignerActionGroup*>(a) ) {
 		insertObject( a, item );
 	    }
 	    --it;
 	}
-    } else if ( ::qt_cast<QDesignerActionGroup>(o) && o->children() ) {
+    } else if ( qt_cast<QDesignerActionGroup*>(o) && o->children() ) {
 	QObjectList *l = (QObjectList*)o->children();
 	for ( QObject *obj = l->last(); obj; obj = l->prev() ) {
-	    if ( ::qt_cast<QDesignerAction>(obj) ) {
+	    if ( qt_cast<QDesignerAction*>(obj) ) {
 		QDesignerAction *da = (QDesignerAction*)obj;
 		if ( da->supportsMenu() )
 		    insertObject( da, item );
 		else
 		    insertObject( da->widget(), item );
-	    } else if ( ::qt_cast<QDesignerActionGroup>(obj) ) {
+	    } else if ( qt_cast<QDesignerActionGroup*>(obj) ) {
 		insertObject( obj, item );
 	    }
 	}
-    } else if ( ::qt_cast<MenuBarEditor>(o) ) {
+    } else if ( qt_cast<MenuBarEditor*>(o) ) {
 	MenuBarEditor *mb = (MenuBarEditor*)o;
 	for ( int i = mb->count() -1; i >= 0; --i ) {
 	    MenuBarEditorItem *md = mb->item( i );
@@ -589,7 +589,7 @@ void HierarchyList::showRMBMenu( QListViewItem *i, const QPoint & p )
 
     QWidget *w = (QWidget*)o;
     if ( w->isVisibleTo( formWindow ) ) {
-	if ( !::qt_cast<QTabWidget>(w) && !::qt_cast<QWizard>(w) ) {
+	if ( !qt_cast<QTabWidget*>(w) && !qt_cast<QWizard*>(w) ) {
 	    if ( !normalMenu )
 		normalMenu = formWindow->mainWindow()->setupNormalHierarchyMenu( this );
 	    normalMenu->popup( p );
@@ -610,14 +610,14 @@ void HierarchyList::addTabPage()
     if ( !o || !o->isWidgetType() )
 	return;
     QWidget *w = (QWidget*)o;
-    if ( ::qt_cast<QTabWidget>(w) ) {
+    if ( qt_cast<QTabWidget*>(w) ) {
 	QTabWidget *tw = (QTabWidget*)w;
 	AddTabPageCommand *cmd = new AddTabPageCommand( tr( "Add Page to %1" ).
 							arg( tw->name() ), formWindow,
 							tw, "Tab" );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
-    } else if ( ::qt_cast<QWizard>(w) ) {
+    } else if ( qt_cast<QWizard*>(w) ) {
 	QWizard *wiz = (QWizard*)formWindow->mainContainer();
 	AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).
 							      arg( wiz->name() ), formWindow,
@@ -633,7 +633,7 @@ void HierarchyList::removeTabPage()
     if ( !o || !o->isWidgetType() )
 	return;
     QWidget *w = (QWidget*)o;
-    if ( ::qt_cast<QTabWidget>(w) ) {
+    if ( qt_cast<QTabWidget*>(w) ) {
 	QTabWidget *tw = (QTabWidget*)w;
 	if ( tw->currentPage() ) {
 	    QDesignerTabWidget *dtw = (QDesignerTabWidget*)tw;
@@ -644,7 +644,7 @@ void HierarchyList::removeTabPage()
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}
-    } else if ( ::qt_cast<QWizard>(w) ) {
+    } else if ( qt_cast<QWizard*>(w) ) {
 	QWizard *wiz = (QWizard*)formWindow->mainContainer();
 	if ( wiz->currentPage() ) {
 	    QDesignerWizard *dw = (QDesignerWizard*)wiz;
@@ -1417,7 +1417,7 @@ void HierarchyView::widgetsRemoved( const QWidgetList & )
 void HierarchyView::namePropertyChanged( QWidget *w, const QVariant & )
 {
     QWidget *w2 = w;
-    if ( ::qt_cast<QMainWindow>(w) )
+    if ( qt_cast<QMainWindow*>(w) )
 	w2 = ( (QMainWindow*)w )->centralWidget();
     listview->changeNameOf( w2, w->name() );
 }

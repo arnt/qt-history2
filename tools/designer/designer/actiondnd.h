@@ -48,7 +48,7 @@ class QDesignerActionGroup : public QActionGroup
 
 public:
     QDesignerActionGroup( QObject *parent )
-	: QActionGroup( ::qt_cast<QActionGroup>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ) { init(); }
+	: QActionGroup( qt_cast<QActionGroup*>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ) { init(); }
 
     void init();
 
@@ -83,9 +83,9 @@ class QDesignerAction : public QAction
 
 public:
     QDesignerAction( QObject *parent )
-	: QAction( ::qt_cast<QActionGroup>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) { init(); }
+	: QAction( qt_cast<QActionGroup*>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( 0 ) { init(); }
     QDesignerAction( QWidget *w, QObject *parent )
-	: QAction( ::qt_cast<QActionGroup>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( w ) { init(); }
+	: QAction( qt_cast<QActionGroup*>(parent) ? parent : 0 ), wid( 0 ), idx( -1 ), widgetToInsert( w ) { init(); }
 
     void init();
 

@@ -167,7 +167,7 @@ bool Layout::prepareLayout( bool &needMove, bool &needReparent )
     for ( QWidget *w = widgets.first(); w; w = widgets.next() )
 	w->raise();
     needMove = !layoutBase;
-    needReparent = needMove || ::qt_cast<QLayoutWidget>(layoutBase) || ::qt_cast<QSplitter>(layoutBase);
+    needReparent = needMove || qt_cast<QLayoutWidget*>(layoutBase) || qt_cast<QSplitter*>(layoutBase);
     if ( !layoutBase ) {
 	if ( !useSplitter )
 	    layoutBase = WidgetFactory::create( WidgetDatabase::idFromClassName( "QLayoutWidget" ),
@@ -216,7 +216,7 @@ void Layout::undoLayout()
     }
     formWindow->selectWidget( layoutBase, FALSE );
     WidgetFactory::deleteLayout( layoutBase );
-    if ( parent != layoutBase && !::qt_cast<QMainWindow>(layoutBase) ) {
+    if ( parent != layoutBase && !qt_cast<QMainWindow*>(layoutBase) ) {
 	layoutBase->hide();
 	QString n = layoutBase->name();
 	n.prepend( "qt_dead_widget_" );
@@ -321,13 +321,13 @@ void HorizontalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
-	    if ( ::qt_cast<QLayoutWidget>(w) )
+	    if ( qt_cast<QLayoutWidget*>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
 
-    if ( ::qt_cast<QSplitter>(layoutBase) )
+    if ( qt_cast<QSplitter*>(layoutBase) )
 	( (QSplitter*)layoutBase )->setOrientation( Qt::Horizontal );
 
     finishLayout( needMove, layout );
@@ -385,13 +385,13 @@ void VerticalLayout::doLayout()
 		layout->addWidget( w, 0, ( (Spacer*)w )->alignment() );
 	    else
 		layout->addWidget( w );
-	    if ( ::qt_cast<QLayoutWidget>(w) )
+	    if ( qt_cast<QLayoutWidget*>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	}
 	w->show();
     }
 
-    if ( ::qt_cast<QSplitter>(layoutBase) )
+    if ( qt_cast<QSplitter*>(layoutBase) )
 	( (QSplitter*)layoutBase )->setOrientation( Qt::Vertical );
 
     finishLayout( needMove, layout );
@@ -759,11 +759,11 @@ void GridLayout::doLayout()
 	    if ( needReparent && w->parent() != layoutBase )
 		w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	    if ( rs * cs == 1 ) {
-		layout->addWidget( w, r, c, ::qt_cast<Spacer>(w) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addWidget( w, r, c, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : 0 );
 	    } else {
-		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, ::qt_cast<Spacer>(w) ? ( (Spacer*)w )->alignment() : 0 );
+		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, qt_cast<Spacer*>(w) ? ( (Spacer*)w )->alignment() : 0 );
 	    }
-	    if ( ::qt_cast<QLayoutWidget>(w) )
+	    if ( qt_cast<QLayoutWidget*>(w) )
 		( (QLayoutWidget*)w )->updateSizePolicy();
 	    w->show();
 	} else {

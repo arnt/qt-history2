@@ -1113,6 +1113,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 	s.readRawBytes( a.data(), (uint)len );
     return s;
 }
+#endif //QT_NO_DATASTREAM
 
 
 QConstByteArray::QConstByteArray(const char *chars, int length)
@@ -1122,5 +1123,63 @@ QConstByteArray::QConstByteArray(const char *chars, int length)
     d->data = chars ? (char *)chars : d->array;
     *d->array = '\0';
 }
+/*!
+    Returns a byte array that has whitespace removed from the start
+    and the end, and which has each sequence of internal whitespace
+    replaced with a single space.
 
-#endif //QT_NO_DATASTREAM
+    \sa stripWhiteSpace()
+*/
+QByteArray QByteArray::simplifyWhiteSpace() const
+{
+    if (d->size == 0)
+	return *this;
+    QByteArray result;
+    result.resize(d->size);
+    const char *from = (const char*) d->data;
+    const char *fromend = (const char*) from+d->size;
+    int outc=0;
+    char *to   = (char*) result.d->data;
+    for (;;) {
+	while (from!=fromend && isspace((uchar)*from))
+	    from++;
+	while (from!=fromend && !isspace((uchar)*from))
+	    to[outc++] = *from++;
+	if (from!=fromend)
+	    to[outc++] = ' ';
+	else
+	    break;
+    }
+    if (outc > 0 && to[outc-1] == ' ')
+	outc--;
+    result.resize(outc);
+    return result;
+}
+
+/*!
+    Returns a byte array that has whitespace removed from the start
+    and the end.
+
+    \sa simplifyWhiteSpace()
+*/
+QByteArray QByteArray::stripWhiteSpace() const
+{
+    if (d->size == 0)
+	return *this;
+    const char *s = (const char*)d->data;
+    if (!isspace((uchar)*s) && !isspace((uchar)s[d->size-1]))
+	return *this;
+    int start = 0;
+    int end = d->size - 1;
+    while (start<=end && isspace((uchar)s[start]))  // skip white space from start
+	start++;
+    if (start <= end) {                          // only white space
+	while (end && isspace((uchar)s[end]))           // skip white space from end
+	    end--;
+    }
+    int l = end - start + 1;
+    if (l <= 0)
+    	return QByteArray();
+    return QByteArray(s+start, l);
+}
+

@@ -173,7 +173,6 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QDateTime( *((QDateTime*)d->value.ptr) );
 	    break;
 	case QVariant::ByteArray:
-	case QVariant::CString:
 	    value.ptr = new QByteArray( *((QByteArray*)d->value.ptr) );
 	    break;
 	case QVariant::BitArray:
@@ -303,7 +302,6 @@ void QVariant::Private::clear()
 	    delete (QDateTime*)value.ptr;
 	    break;
 	case QVariant::ByteArray:
-	case QVariant::CString:
 	    delete (QByteArray*)value.ptr;
 	    break;
 	case QVariant::BitArray:
@@ -954,7 +952,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 35;
+static const int ntypes = 34;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -977,7 +975,6 @@ static const char* const type_map[ntypes] =
     "uint",
     "bool",
     "double",
-    "QByteArray",
     "QPointArray",
     "QRegion",
     "QBitmap",
@@ -1016,9 +1013,13 @@ const char* QVariant::typeToName( Type typ )
 */
 QVariant::Type QVariant::nameToType( const char* name )
 {
-    for ( int i = 0; i < ntypes; i++ ) {
-	if ( !qstrcmp( type_map[i], name ) )
-	    return (Type) i;
+    if (name) {
+	if ( strcmp(name, "QCString") == 0 )
+	    return ByteArray;
+	for ( int i = 1; i < ntypes; i++ ) {
+	    if ( !strcmp( type_map[i], name ) )
+		return (Type) i;
+	}
     }
     return Invalid;
 }
@@ -1282,7 +1283,6 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
-    case CString:
     case ByteArray:
 	{
 	    QByteArray* x = new QByteArray;
@@ -1436,7 +1436,6 @@ void QVariant::save( QDataStream& s ) const
     case DateTime:
 	s << *((QDateTime*)d->value.ptr);
 	break;
-    case CString:
     case ByteArray:
 	s << *((QByteArray*)d->value.ptr);
 	break;
@@ -1562,7 +1561,6 @@ QString QVariant::toString() const
     case KeySequence:
 	return (QString) *( (QKeySequence*)d->value.ptr );
 #endif
-    case CString:
     case ByteArray:
 	return QString( *((QByteArray*)d->value.ptr) );
     case Font:
@@ -1960,8 +1958,10 @@ QDateTime QVariant::toDateTime() const
 */
 QByteArray QVariant::toByteArray() const
 {
-    if ( d->typ == ByteArray || d->typ == CString )
+    if (d->typ == ByteArray)
 	return *((QByteArray*)d->value.ptr);
+    else if (d->typ == String)
+	return ((QString*)d->value.ptr)->toAscii();
     return QByteArray();
 }
 
@@ -2039,7 +2039,6 @@ int QVariant::toInt( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toInt( ok );
     case ByteArray:
-    case CString:
 	return QString(*((QByteArray*)d->value.ptr)).toInt( ok );
     case Int:
 	return d->value.i;
@@ -2079,7 +2078,6 @@ uint QVariant::toUInt( bool * ok ) const
     switch( d->typ ) {
     case String:
 	return ((QString*)d->value.ptr)->toUInt( ok );
-    case CString:
     case ByteArray:
 	return QString(*((QByteArray*)d->value.ptr)).toUInt( ok );
     case Int:
@@ -2118,7 +2116,6 @@ Q_LLONG QVariant::toLongLong( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toLongLong( ok );
     case ByteArray:
-    case CString:
 	return QString(*((QByteArray*)d->value.ptr)).toLongLong( ok );
     case Int:
 	return (Q_LLONG)d->value.i;
@@ -2168,7 +2165,6 @@ Q_ULLONG QVariant::toULongLong( bool * ok ) const
     case String:
 	return ((QString*)d->value.ptr)->toULongLong( ok );
     case ByteArray:
-    case CString:
 	return QString(*((QByteArray*)d->value.ptr)).toULongLong( ok );
     default:
 	return 0;
@@ -2227,7 +2223,6 @@ double QVariant::toDouble( bool * ok ) const
     switch ( d->typ ) {
     case String:
 	return ((QString*)d->value.ptr)->toDouble( ok );
-    case CString:
     case ByteArray:
 	return QString(*((QByteArray*)d->value.ptr)).toDouble( ok );
     case Double:
@@ -2802,12 +2797,12 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     switch ( t ) {
     case Bool:
-	return d->typ == Double || d->typ == Int || d->typ == UInt ||
-	       d->typ == LongLong || d->typ == ULongLong || d->typ == String;
+	return d->typ == Double || d->typ == Int || d->typ == UInt
+	     || d->typ == LongLong || d->typ == ULongLong || d->typ == String;
     case Int:
-	return d->typ == String || d->typ == Double || d->typ == Bool ||
-	       d->typ == UInt || d->typ == LongLong || d->typ == ULongLong ||
-	       d->typ == KeySequence;
+	return d->typ == String || d->typ == Double || d->typ == Bool
+	    || d->typ == UInt || d->typ == LongLong || d->typ == ULongLong
+	    || d->typ == KeySequence;
     case UInt:
 	return d->typ == String || d->typ == Double || d->typ == Bool ||
 	       d->typ == Int || d->typ == LongLong || d->typ == ULongLong;
@@ -2816,16 +2811,19 @@ bool QVariant::canCast( Type t ) const
 	       d->typ == Int || d->typ == UInt || d->typ == ULongLong ||
 	       d->typ == KeySequence;
     case ULongLong:
-	return d->typ == String || d->typ == Double || d->typ == Bool ||
-	       d->typ == Int || d->typ == UInt || d->typ == LongLong;
+	return d->typ == String || d->typ == Double || d->typ == Bool
+	    || d->typ == Int || d->typ == UInt || d->typ == LongLong;
     case Double:
-	return d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt;
-    case CString:
-	return d->typ == String;
+	return d->typ == String || d->typ == Int || d->typ == Bool
+	    || d->typ == UInt;
     case String:
-	return d->typ == CString || d->typ == ByteArray || d->typ == Int || d->typ == UInt || d->typ == Bool || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime || d->typ == KeySequence || d->typ == Font || d->typ == Color || d->typ == LongLong || d->typ == ULongLong;
+	return d->typ == ByteArray || d->typ == Int
+	    || d->typ == UInt || d->typ == Bool || d->typ == Double
+	    || d->typ == Date || d->typ == Time || d->typ == DateTime
+	    || d->typ == KeySequence || d->typ == Font || d->typ == Color
+	    || d->typ == LongLong || d->typ == ULongLong;
     case ByteArray:
-	return d->typ == CString;
+	return d->typ == CString || d->typ == String;
     case Date:
 	return d->typ == String || d->typ == DateTime;
     case Time:
@@ -2940,9 +2938,6 @@ bool QVariant::cast( Type t )
     case QVariant::Double:
 	asDouble();
 	break;
-    case QVariant::CString:
-	asCString();
-	break;
     case QVariant::PointArray:
 	asPointArray();
 	break;
@@ -3033,8 +3028,6 @@ bool QVariant::operator==( const QVariant &v ) const
 #endif
     case String:
 	return v.toString() == toString();
-    case CString:
-	return v.toCString() == toCString();
 #ifndef QT_NO_STRINGLIST
     case StringList:
 	return v.toStringList() == toStringList();
@@ -3176,7 +3169,6 @@ bool QVariant::isNull() const
 	    return ((QTime*) d->value.ptr)->isNull();
 	case QVariant::DateTime:
 	    return ((QDateTime*) d->value.ptr)->isNull();
-	case QVariant::CString:
 	case QVariant::ByteArray:
 	    return ((QByteArray*) d->value.ptr)->isNull();
 	case QVariant::BitArray:

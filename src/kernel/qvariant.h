@@ -98,9 +98,6 @@ public:
 	UInt,
 	Bool,
 	Double,
-#ifndef Q_QDOC
-	CString,
-#endif
 	PointArray,
 	Region,
 	Bitmap,
@@ -110,6 +107,9 @@ public:
 	Time,
 	DateTime,
 	ByteArray,
+#ifndef Q_QDOC
+	CString = ByteArray,
+#endif
 	BitArray,
 	KeySequence,
 	Pen,

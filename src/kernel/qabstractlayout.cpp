@@ -747,7 +747,7 @@ QWidget * QLayout::mainWidget()
 {
     if ( !topLevel ) {
 	if ( parent() ) {
-	    Q_ASSERT( ::qt_cast<QLayout>(parent()) );
+	    Q_ASSERT( qt_cast<QLayout*>(parent()) );
 	    return ((QLayout*)parent())->mainWidget();
 	} else {
 	    return 0;
@@ -867,7 +867,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 		QWidget *w = (QWidget *)c->child();
 		if ( !w->isTopLevel() ) {
 #ifndef QT_NO_MENUBAR
-		    if ( ::qt_cast<QMenuBar>(w) && !::qt_cast<QToolBar>(w->parentWidget()) )
+		    if ( qt_cast<QMenuBar*>(w) && !::qt_cast<QToolBar*>(w->parentWidget()) )
 			menubar = (QMenuBar *)w;
 		    else
 #endif

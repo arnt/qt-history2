@@ -147,11 +147,11 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 
 QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 					   const QSqlField * field )
-{    
+{
     if ( !field ) {
 	return 0;
     }
-    
+
     QWidget * w = 0;
     switch( field->type() ){
 	case QVariant::Invalid:
@@ -171,7 +171,6 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent,
 	case QVariant::LongLong:
 	case QVariant::ULongLong:
 	case QVariant::String:
-	case QVariant::CString:
 	case QVariant::Double:
 	    w = new QLineEdit( parent, "qt_editor_double" );
 	    ((QLineEdit*)w)->setFrame( FALSE );

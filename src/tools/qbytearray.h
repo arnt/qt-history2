@@ -120,6 +120,9 @@ public:
     QByteArray lower() const;
     QByteArray upper() const;
 
+    QByteArray stripWhiteSpace() const;
+    QByteArray simplifyWhiteSpace() const;
+
     QByteArray &prepend(char c);
     QByteArray &prepend(const char *s);
     QByteArray &prepend(const QByteArray &a);

@@ -37,7 +37,6 @@
 #include "qbuffer.h"
 #include "qapplication_p.h"
 #include "qt_mac.h"
-#include "qsignalslotimp.h"
 #include <stdlib.h>
 #include <string.h>
 

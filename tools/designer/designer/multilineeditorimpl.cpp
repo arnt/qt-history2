@@ -222,17 +222,17 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	textEdit->document()->setUseFormatCollection( FALSE );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 
-	if ( !callStatic && ::qt_cast<QTextEdit>(editWidget) ) {
+	if ( !callStatic && qt_cast<QTextEdit*>(editWidget) ) {
 	    mlined = (QTextEdit*)editWidget;
 	    mlined->setReadOnly( TRUE );
 
-	    const QMetaProperty *wordWrap = mlined->metaObject()->property(
-					    mlined->metaObject()->findProperty( "wordWrap", TRUE ), TRUE );
+	    QMetaProperty wordWrap = mlined->metaObject()->property(
+		mlined->metaObject()->findProperty( "wordWrap", TRUE ), TRUE );
 	    oldWrapMode = 0;
 	    oldWrapString = "NoWrap";
 	    if ( wordWrap ) {
 		oldWrapMode = mlined->property( "wordWrap" );
-		oldWrapString = QString( wordWrap->valueToKey( oldWrapMode.toInt() ) );
+		oldWrapString = QString( wordWrap.enumerator().valueToKey( oldWrapMode.toInt() ) );
 		if ( oldWrapString != "NoWrap" )
 		    doWrap = TRUE;
 	    }

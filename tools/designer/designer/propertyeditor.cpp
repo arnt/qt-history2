@@ -2425,8 +2425,8 @@ void PropertyCursorItem::setValue()
 
 // --------------------------------------------------------------
 
-PropertyKeysequenceItem::PropertyKeysequenceItem( PropertyList *l, 
-						  PropertyItem *after, 
+PropertyKeysequenceItem::PropertyKeysequenceItem( PropertyList *l,
+						  PropertyItem *after,
 						  PropertyItem *prop,
 						  const QString &propName )
     : PropertyItem( l, after, prop, propName ),
@@ -2472,7 +2472,7 @@ bool PropertyKeysequenceItem::eventFilter( QObject *o, QEvent *e )
 	    return FALSE;
         handleKeyEvent( k );
         return TRUE;
-    } else if ( (e->type() == QEvent::FocusIn) || 
+    } else if ( (e->type() == QEvent::FocusIn) ||
 		(e->type() == QEvent::MouseButtonPress) ) {
 	mouseEnter = ( listview->lastEvent() == PropertyList::MouseEvent ) ||
 		     (e->type() == QEvent::MouseButtonPress);
@@ -2480,8 +2480,8 @@ bool PropertyKeysequenceItem::eventFilter( QObject *o, QEvent *e )
     }
 
     // Lets eat accelerators now..
-    if ( e->type() == QEvent::Accel || 
-	 e->type() == QEvent::AccelOverride  || 
+    if ( e->type() == QEvent::Accel ||
+	 e->type() == QEvent::AccelOverride  ||
 	 e->type() == QEvent::KeyRelease )
 	return TRUE;
     return FALSE;
@@ -2826,19 +2826,16 @@ void PropertyEnumItem::setValue()
     notifyValueChange();
 }
 
-void PropertyEnumItem::setCurrentValues( QStrList lst )
+void PropertyEnumItem::setCurrentValues( const QString &values )
 {
+    QStringList keys = QStringList::split('|', values);
     enumString ="";
-    QStrList::ConstIterator it = lst.begin();
     QValueList<EnumItem>::Iterator eit = enumList.begin();
     for ( ; eit != enumList.end(); ++eit ) {
 	(*eit).selected = FALSE;
-	for ( it = lst.begin(); it != lst.end(); ++it ) {
-	    if ( QString( *it ) == (*eit).key ) {
-		(*eit).selected = TRUE;
-		enumString += "|" + (*eit).key;
-		break;
-	    }
+	if (keys.contains((*eit).key) ) {
+	    (*eit).selected = TRUE;
+	    enumString += "|" + (*eit).key;
 	}
     }
     if ( !enumString.isEmpty() )
@@ -2927,75 +2924,13 @@ void PropertyList::resizeEvent( QResizeEvent *e )
 	( ( PropertyItem* )currentItem() )->showEditor();
 }
 
-static QVariant::Type type_to_variant( const QString &s )
-{
-    if ( s == "Invalid " )
-	return QVariant::Invalid;
-    if ( s == "Map" )
-	return QVariant::Map;
-    if ( s == "List" )
-	return QVariant::List;
-    if ( s == "String" )
-	return QVariant::String;
-    if ( s == "StringList" )
-	return QVariant::StringList;
-    if ( s == "Font" )
-	return QVariant::Font;
-    if ( s == "Pixmap" )
-	return QVariant::Pixmap;
-    if ( s == "Brush" )
-	return QVariant::Brush;
-    if ( s == "Rect" )
-	return QVariant::Rect;
-    if ( s == "Size" )
-	return QVariant::Size;
-    if ( s == "Color" )
-	return QVariant::Color;
-    if ( s == "Palette" )
-	return QVariant::Palette;
-    if ( s == "ColorGroup" )
-	return QVariant::ColorGroup;
-    if ( s == "IconSet" )
-	return QVariant::IconSet;
-    if ( s == "Point" )
-	return QVariant::Point;
-    if ( s == "Image" )
-	return QVariant::Image;
-    if ( s == "Int" )
-	return QVariant::Int;
-    if ( s == "UInt" )
-	return QVariant::UInt;
-    if ( s == "Bool" )
-	return QVariant::Bool;
-    if ( s == "Double" )
-	return QVariant::Double;
-    if ( s == "CString" )
-	return QVariant::CString;
-    if ( s == "PointArray" )
-	return QVariant::PointArray;
-    if ( s == "Region" )
-	return QVariant::Region;
-    if ( s == "Bitmap" )
-	return QVariant::Bitmap;
-    if ( s == "Cursor" )
-	return QVariant::Cursor;
-    if ( s == "SizePolicy" )
-	return QVariant::SizePolicy;
-    if ( s == "Date" )
-	return QVariant::Date;
-    if ( s == "Time" )
-	return QVariant::Time;
-    if ( s == "DateTime" )
-	return QVariant::DateTime;
-    return QVariant::Invalid;
-}
 
 #ifndef QT_NO_SQL
 static bool parent_is_data_aware( QWidget *w )
 {
     QWidget *p = w ? w->parentWidget() : 0;
     while ( p && !p->isTopLevel() ) {
-	if ( qt_cast<QDesignerDataBrowser>(p) || qt_cast<QDesignerDataView>(p) )
+	if ( qt_cast<QDesignerDataBrowser*>(p) || qt_cast<QDesignerDataView*>(p) )
 	    return TRUE;
 	p = p->parentWidget();
     }
@@ -3012,7 +2947,7 @@ void PropertyList::setupProperties()
     if ( !editor->widget() )
 	return;
     bool allProperties = !editor->widget()->inherits( "Spacer" );
-    QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
+    int numProperties = editor->widget()->metaObject()->numProperties(allProperties);
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QObject *w = editor->widget();
@@ -3021,108 +2956,107 @@ void PropertyList::setupProperties()
 	w->isWidgetType() &&
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
-    for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
-	const QMetaProperty* p =
-	    editor->widget()->metaObject()->
-	    property( editor->widget()->metaObject()->findProperty( it.current(), allProperties), allProperties );
+    for (int i = 0; i < numProperties; ++i ) {
+	QMetaProperty p =
+	    editor->widget()->metaObject()->property( i, allProperties );
 	if ( !p )
 	    continue;
-	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
+	if ( unique.contains( QString::fromLatin1( p.name() ) ) )
 	    continue;
 	if ( editor->widget()->inherits( "QDesignerToolBar" ) || editor->widget()->inherits( "QDesignerMenuBar" ) ) {
-	    if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
+	    if ( qstrcmp( p.name(), "minimumHeight" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
+	    if ( qstrcmp( p.name(), "minimumWidth" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "maximumHeight" ) == 0 )
+	    if ( qstrcmp( p.name(), "maximumHeight" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
+	    if ( qstrcmp( p.name(), "maximumWidth" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "geometry" ) == 0 )
+	    if ( qstrcmp( p.name(), "geometry" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "sizePolicy" ) == 0 )
+	    if ( qstrcmp( p.name(), "sizePolicy" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "minimumSize" ) == 0 )
+	    if ( qstrcmp( p.name(), "minimumSize" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "maximumSize" ) == 0 )
+	    if ( qstrcmp( p.name(), "maximumSize" ) == 0 )
 		continue;
 	}
-	unique.insert( QString::fromLatin1( it.current() ), TRUE );
+	unique.insert( QString::fromLatin1( p.name() ), TRUE );
 	if ( editor->widget()->isWidgetType() &&
 	     editor->formWindow()->isMainContainer( (QWidget*)editor->widget() ) ) {
-	    if ( qstrcmp( p->name(), "geometry" ) == 0 )
+	    if ( qstrcmp( p.name(), "geometry" ) == 0 )
 		continue;
 	} else { // hide some toplevel-only stuff
-	    if ( qstrcmp( p->name(), "icon" ) == 0 )
+	    if ( qstrcmp( p.name(), "icon" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "iconText" ) == 0 )
+	    if ( qstrcmp( p.name(), "iconText" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "caption" ) == 0 )
+	    if ( qstrcmp( p.name(), "caption" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "sizeIncrement" ) == 0 )
+	    if ( qstrcmp( p.name(), "sizeIncrement" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "baseSize" ) == 0 )
+	    if ( qstrcmp( p.name(), "baseSize" ) == 0 )
 		continue;
-	    if ( parentHasLayout && qstrcmp( p->name(), "geometry" ) == 0 )
+	    if ( parentHasLayout && qstrcmp( p.name(), "geometry" ) == 0 )
 		continue;
 	    if ( w->inherits( "QLayoutWidget" ) || w->inherits( "Spacer" ) ) {
-		if ( qstrcmp( p->name(), "sizePolicy" ) == 0 )
+		if ( qstrcmp( p.name(), "sizePolicy" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
+		if ( qstrcmp( p.name(), "minimumHeight" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
+		if ( qstrcmp( p.name(), "minimumWidth" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "maximumHeight" ) == 0 )
+		if ( qstrcmp( p.name(), "maximumHeight" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
+		if ( qstrcmp( p.name(), "maximumWidth" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "geometry" ) == 0 )
+		if ( qstrcmp( p.name(), "geometry" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "minimumSize" ) == 0 )
+		if ( qstrcmp( p.name(), "minimumSize" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "maximumSize" ) == 0 )
+		if ( qstrcmp( p.name(), "maximumSize" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "enabled" ) == 0 )
+		if ( qstrcmp( p.name(), "enabled" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "paletteForegroundColor" ) == 0 )
+		if ( qstrcmp( p.name(), "paletteForegroundColor" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "paletteBackgroundColor" ) == 0 )
+		if ( qstrcmp( p.name(), "paletteBackgroundColor" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "paletteBackgroundPixmap" ) == 0 )
+		if ( qstrcmp( p.name(), "paletteBackgroundPixmap" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "palette" ) == 0 )
+		if ( qstrcmp( p.name(), "palette" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "font" ) == 0 )
+		if ( qstrcmp( p.name(), "font" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "cursor" ) == 0 )
+		if ( qstrcmp( p.name(), "cursor" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "mouseTracking" ) == 0 )
+		if ( qstrcmp( p.name(), "mouseTracking" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "focusPolicy" ) == 0 )
+		if ( qstrcmp( p.name(), "focusPolicy" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "acceptDrops" ) == 0 )
+		if ( qstrcmp( p.name(), "acceptDrops" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "autoMask" ) == 0 )
+		if ( qstrcmp( p.name(), "autoMask" ) == 0 )
 		    continue;
-		if ( qstrcmp( p->name(), "backgroundOrigin" ) == 0 )
+		if ( qstrcmp( p.name(), "backgroundOrigin" ) == 0 )
 		    continue;
 	    }
 	}
 	if ( w->inherits( "QActionGroup" ) ) {
-	    if ( qstrcmp( p->name(), "usesDropDown" ) == 0 )
+	    if ( qstrcmp( p.name(), "usesDropDown" ) == 0 )
 		continue;
-	    if ( qstrcmp( p->name(), "toggleAction" ) == 0 )
+	    if ( qstrcmp( p.name(), "toggleAction" ) == 0 )
 		continue;
 	}
-	if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
+	if ( qstrcmp( p.name(), "minimumHeight" ) == 0 )
 	    continue;
-	if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
+	if ( qstrcmp( p.name(), "minimumWidth" ) == 0 )
 	    continue;
-	if ( qstrcmp( p->name(), "maximumHeight" ) == 0 )
+	if ( qstrcmp( p.name(), "maximumHeight" ) == 0 )
 	    continue;
-	if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
+	if ( qstrcmp( p.name(), "maximumWidth" ) == 0 )
 	    continue;
-	if ( qstrcmp( p->name(), "buttonGroupId" ) == 0 ) { // #### remove this when designable in Q_PROPERTY can take a function (isInButtonGroup() in this case)
+	if ( qstrcmp( p.name(), "buttonGroupId" ) == 0 ) { // #### remove this when designable in Q_PROPERTY can take a function (isInButtonGroup() in this case)
 	    if ( !editor->widget()->isWidgetType() ||
 		 !editor->widget()->parent() ||
 		 !editor->widget()->parent()->inherits( "QButtonGroup" ) )
@@ -3131,17 +3065,17 @@ void PropertyList::setupProperties()
 
 	bool isPropertyObject = w->isA( "PropertyObject" );
 
-	if ( ( p->designable(w) ||
-	       isPropertyObject && p->designable( ( (PropertyObject*)w )->widgetList().first() ) ) &&
-	     ( !isPropertyObject || qstrcmp( p->name(), "name" ) != 0 ) ) {
-	    if ( p->isSetType() ) {
-		if ( QString( p->name() ) == "alignment" ) {
+	if ( ( p.isDesignable(w) ||
+	       isPropertyObject && p.isDesignable( ( (PropertyObject*)w )->widgetList().first() ) ) &&
+	     ( !isPropertyObject || qstrcmp( p.name(), "name" ) != 0 ) ) {
+	    if ( p.isSetType() ) {
+		if ( QString( p.name() ) == "alignment" ) {
 		    QStringList lst;
-		    lst << p->valueToKey( AlignAuto )
-			<< p->valueToKey( AlignLeft )
-			<< p->valueToKey( AlignHCenter )
-			<< p->valueToKey( AlignRight )
-			<< p->valueToKey( AlignJustify );
+		    lst << p.enumerator().valueToKey( AlignAuto )
+			<< p.enumerator().valueToKey( AlignLeft )
+			<< p.enumerator().valueToKey( AlignHCenter )
+			<< p.enumerator().valueToKey( AlignRight )
+			<< p.enumerator().valueToKey( AlignJustify );
 		    item = new PropertyListItem( this, item, 0, "hAlign", FALSE );
 		    item->setValue( lst );
 		    setPropertyValue( item );
@@ -3149,9 +3083,9 @@ void PropertyList::setupProperties()
 			item->setChanged( TRUE, FALSE );
 		    if ( !editor->widget()->inherits( "QMultiLineEdit" ) ) {
 			lst.clear();
-			lst << p->valueToKey( AlignTop )
-			    << p->valueToKey( AlignVCenter )
-			    << p->valueToKey( AlignBottom );
+			lst << p.enumerator().valueToKey( AlignTop )
+			    << p.enumerator().valueToKey( AlignVCenter )
+			    << p.enumerator().valueToKey( AlignBottom );
 			item = new PropertyListItem( this, item, 0, "vAlign", FALSE );
 			item->setValue( lst );
 			setPropertyValue( item );
@@ -3165,43 +3099,38 @@ void PropertyList::setupProperties()
 			    item->setChanged( TRUE, FALSE );
 		    }
 		} else {
-		    QStrList lst( p->enumKeys() );
-		    QStringList l;
-		    QPtrListIterator<char> it( lst );
-		    while ( it.current() != 0 ) {
-			l << QString(*it);
-			++it;
-		    }
-		    item = new PropertyEnumItem( this, item, 0, p->name() );
-		    item->setValue( l );
+		    QStringList lst;
+		    for (int i = 0; i < p.enumerator().numKeys(); ++i)
+			lst << QString(p.enumerator().key(i));
+		    item = new PropertyEnumItem( this, item, 0, p.name() );
+		    item->setValue( lst );
 		    setPropertyValue( item );
-		    if ( MetaDataBase::isPropertyChanged( editor->widget(), p->name() ) )
+		    if ( MetaDataBase::isPropertyChanged( editor->widget(), p.name() ) )
 			item->setChanged( TRUE, FALSE );
 		}
-	    } else if ( p->isEnumType() ) {
-		QStrList l = p->enumKeys();
+	    } else if ( p.isEnumType() ) {
 		QStringList lst;
-		for ( uint i = 0; i < l.count(); ++i ) {
-		    QString k = l.at( i );
+		for (int i = 0; i < p.enumerator().numKeys(); ++i) {
+		    QString k = p.enumerator().key(i);
 		    // filter out enum-masks
 		    if ( k[0] == 'M' && k[1].category() == QChar::Letter_Uppercase )
 			continue;
 		    lst << k;
 		}
-		item = new PropertyListItem( this, item, 0, p->name(), FALSE );
+		item = new PropertyListItem( this, item, 0, p.name(), FALSE );
 		item->setValue( lst );
 	    } else {
-		QVariant::Type t = QVariant::nameToType( p->type() );
-		if ( !addPropertyItem( item, p->name(), t ) )
+		QVariant::Type t = QVariant::nameToType( p.type() );
+		if ( !addPropertyItem( item, p.name(), t ) )
 		    continue;
 	    }
 	}
-	if ( item && !p->isSetType() ) {
+	if ( item && !p.isSetType() ) {
 	    if ( valueSet.findIndex( item->name() ) == -1 ) {
 		setPropertyValue( item );
 		valueSet << item->name();
 	    }
-	    if ( MetaDataBase::isPropertyChanged( editor->widget(), p->name() ) )
+	    if ( MetaDataBase::isPropertyChanged( editor->widget(), p.name() ) )
 		item->setChanged( TRUE, FALSE );
 	}
     }
@@ -3253,7 +3182,7 @@ void PropertyList::setupProperties()
 
 #ifndef QT_NO_SQL
     if ( !editor->widget()->inherits( "QDataTable" ) && !editor->widget()->inherits( "QDataBrowser" ) &&
-	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( ::qt_cast<QWidget>(editor->widget()) ) ) {
+	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( qt_cast<QWidget*>(editor->widget()) ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
@@ -3312,7 +3241,7 @@ void PropertyList::setupCusWidgetProperties( MetaDataBase::CustomWidget *cw,
 	if ( unique.contains( QString( (*it).property ) ) )
 	    continue;
 	unique.insert( QString( (*it).property ), TRUE );
-	addPropertyItem( item, (*it).property, type_to_variant( (*it).type ) );
+	addPropertyItem( item, (*it).property, QVariant::nameToType( (*it).type ) );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), (*it).property ) )
 	    item->setChanged( TRUE, FALSE );
@@ -3645,23 +3574,13 @@ void PropertyList::refetchData()
     updateEditorSize();
 }
 
-static void clearAlignList( QStrList &l )
-{
-    if ( l.count() == 1 )
-	return;
-    if ( l.find( "AlignAuto" ) != -1 )
-	l.remove( "AlignAuto" );
-    if ( l.find( "WordBreak" ) != -1 )
-	l.remove( "WordBreak" );
-}
-
 /*!  This method initializes the value of the item \a i to the value
   of the corresponding property.
 */
 
 void PropertyList::setPropertyValue( PropertyItem *i )
 {
-    const QMetaProperty *p =
+    QMetaProperty p =
 	editor->widget()->metaObject()->
 	property( editor->widget()->metaObject()->findProperty( i->name(), TRUE), TRUE );
     if ( !p ) {
@@ -3670,15 +3589,17 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    p = editor->widget()->metaObject()->
 		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignVertical_Mask;
-	    QStrList l = p->valueToKeys( align );
-	    clearAlignList( l );
+	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
+	    l.remove( "AlignAuto" );
+	    l.remove( "WordBreak" );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->
 		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignHorizontal_Mask;
-	    ( (PropertyListItem*)i )->setCurrentItem( p->valueToKeys( align ).last() );
+	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
+	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "wordwrap" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    if ( align & WordBreak )
@@ -3701,11 +3622,11 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	}
 	return;
     }
-    if ( p->isSetType() )
-	( (PropertyEnumItem*)i )->setCurrentValues( p->valueToKeys( editor->widget()->property( i->name() ).toInt() ) );
-    else if ( p->isEnumType() )
-	( (PropertyListItem*)i )->setCurrentItem( p->valueToKey( editor->widget()->property( i->name() ).toInt() ) );
-    else if ( qstrcmp( p->name(), "buddy" ) == 0 )
+    if ( p.isSetType() )
+	( (PropertyEnumItem*)i )->setCurrentValues( p.enumerator().valueToKeys( editor->widget()->property( i->name() ).toInt() ) );
+    else if ( p.isEnumType() )
+	( (PropertyListItem*)i )->setCurrentItem( p.enumerator().valueToKey( editor->widget()->property( i->name() ).toInt() ) );
+    else if ( qstrcmp( p.name(), "buddy" ) == 0 )
 	( (PropertyListItem*)i )->setCurrentItem( editor->widget()->property( i->name() ).toString() );
     else
 	i->setValue( editor->widget()->property( i->name() ) );
@@ -4230,17 +4151,16 @@ QString PropertyEditor::classOfCurrentProperty() const
 	return QString::null;
     QObject *o = wid;
     QString curr = currentProperty();
-    QMetaObject *mo = o->metaObject();
+    const QMetaObject *mo = o->metaObject();
     while ( mo ) {
-	QStrList props = mo->propertyNames( FALSE );
-	if ( props.find( curr.latin1() ) != -1 )
+	if ( mo->findProperty(curr.latin1()) != -1 )
 	    return mo->className();
 	mo = mo->superClass();
     }
     return QString::null;
 }
 
-QMetaObject* PropertyEditor::metaObjectOfCurrentProperty() const
+const QMetaObject* PropertyEditor::metaObjectOfCurrentProperty() const
 {
     if ( !wid )
 	return 0;

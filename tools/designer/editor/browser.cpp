@@ -50,7 +50,7 @@ EditorBrowser::~EditorBrowser()
 
 bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 {
-    if ( ::qt_cast<Editor>(o->parent()) || ::qt_cast<Editor>(o) ) {
+    if ( qt_cast<Editor*>(o->parent()) || qt_cast<Editor*>(o) ) {
 	QMouseEvent *me;
 	QKeyEvent *ke;
 	switch ( e->type() ) {

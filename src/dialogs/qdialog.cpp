@@ -401,7 +401,7 @@ void QDialog::done( int r )
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
     if ( checkLastWindowClosed
-	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
+	 && qApp->receivers(SIGNAL(lastWindowClosed()))	) {
 	/* if there is no non-withdrawn top level window left (except
 	   the desktop, popups, or dialogs with parents), we emit the
 	   lastWindowClosed signal */
@@ -616,7 +616,7 @@ void QDialog::show()
 	QWidget *first = fd->next(); // Get first main widget
 	if ( d->mainDef &&
 	     first != d->mainDef &&
-	     ::qt_cast<QPushButton>(first) )
+	     qt_cast<QPushButton*>(first) )
 	    d->mainDef->setFocus();
     }
 
@@ -631,7 +631,7 @@ void QDialog::show()
 	    QWidget *candidate = home;
 	    Q_ASSERT( candidate == fw );
 	    do {
-		QPushButton *pb = ::qt_cast<QPushButton>(candidate);
+		QPushButton *pb = qt_cast<QPushButton*>(candidate);
 		if ( pb && pb->autoDefault() ) {
 		    pb->setDefault( TRUE );
 		    break;

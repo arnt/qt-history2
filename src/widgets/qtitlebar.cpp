@@ -67,7 +67,7 @@ public:
 
     void maybeTip( const QPoint &pos )
     {
-	if ( !::qt_cast<QTitleBar>(parentWidget()) )
+	if ( !qt_cast<QTitleBar*>(parentWidget()) )
 	    return;
 	QTitleBar *t = (QTitleBar *)parentWidget();
 
@@ -401,7 +401,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 		QPoint p = mapFromGlobal(e->globalPos());
 #ifndef QT_NO_WORKSPACE
 		if(d->window && d->window->parentWidget()->inherits("QWorkspaceChild")) {
-		    QWorkspace *workspace = ::qt_cast<QWorkspace>(d->window->parentWidget()->parentWidget());
+		    QWorkspace *workspace = qt_cast<QWorkspace*>(d->window->parentWidget()->parentWidget());
 		    if(workspace) {
 			p = workspace->mapFromGlobal( e->globalPos() );
 			if ( !workspace->rect().contains(p) ) {

@@ -1474,8 +1474,8 @@ QString Project::locationOfObject( QObject *o )
     if ( MainWindow::self ) {
 	QWidgetList windows = MainWindow::self->qWorkspace()->windowList();
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	    FormWindow *fw = ::qt_cast<FormWindow>(w);
-	    SourceEditor *se = ::qt_cast<SourceEditor>(w);
+	    FormWindow *fw = qt_cast<FormWindow*>(w);
+	    SourceEditor *se = qt_cast<SourceEditor*>(w);
 	    if ( fw ) {
 		if ( fw->isFake() )
 		    return objectForFakeForm( fw )->name() + QString( " [Source]" );
@@ -1492,7 +1492,7 @@ QString Project::locationOfObject( QObject *o )
 	}
     }
 
-    if ( ::qt_cast<SourceFile>(o) ) {
+    if ( qt_cast<SourceFile*>(o) ) {
 	for ( QPtrListIterator<SourceFile> sources = sourceFiles();
 	      sources.current(); ++sources ) {
 	    SourceFile* f = sources.current();

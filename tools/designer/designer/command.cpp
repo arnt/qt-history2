@@ -480,12 +480,12 @@ bool SetPropertyCommand::canMerge( Command *c )
     SetPropertyCommand *cmd = (SetPropertyCommand*)c;
     if ( !widget )
 	return FALSE;
-    const QMetaProperty *p =
+    const QMetaProperty p =
 	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
-    if ( !p ) {
+    if ( p.isReadable() ) {
 	if ( propName == "toolTip" || propName == "whatsThis" )
 	    return TRUE;
-	if ( ::qt_cast<CustomWidget>(widget) ) {
+	if ( qt_cast<CustomWidget*>(widget) ) {
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget*)(QObject*)widget)->customWidget();
 	    if ( !cw )
 		return FALSE;
@@ -498,7 +498,7 @@ bool SetPropertyCommand::canMerge( Command *c )
 	}
 	return FALSE;
     }
-    QVariant::Type t = QVariant::nameToType( p->type() );
+    QVariant::Type t = QVariant::nameToType( p.type() );
     return ( cmd->propName == propName &&
 	     t == QVariant::String || t == QVariant::CString || t == QVariant::Int || t == QVariant::UInt );
 }
@@ -536,7 +536,7 @@ bool SetPropertyCommand::checkProperty()
 	    return FALSE;
 	}
 
-	if ( ::qt_cast<FormWindow>(widget->parent()) )
+	if ( qt_cast<FormWindow*>(widget->parent()) )
 	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)((QWidget*)(QObject*)widget)->parentWidget() );
     }
     return TRUE;
@@ -550,27 +550,27 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	editor->setWidget( widget, formWindow() );
     if ( select )
 	editor->propertyList()->setCurrentProperty( propName );
-    const QMetaProperty *p =
+    QMetaProperty p =
 	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
-    if ( !p ) {
+    if (!p) {
 	if ( propName == "hAlign" ) {
 	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    int align = widget->property( "alignment" ).toInt();
 	    align &= ~( AlignHorizontal_Mask );
-	    align |= p->keyToValue( currentItemText );
-	    widget->setProperty( "alignment", QVariant( align ) );
+	    align |= p.enumerator().keyToValue( currentItemText );
+	    p.write( widget, QVariant( align ) );
 	} else if ( propName == "vAlign" ) {
 	    p = widget->metaObject()->property( widget->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    int align = widget->property( "alignment" ).toInt();
 	    align &= ~( AlignVertical_Mask );
-	    align |= p->keyToValue( currentItemText );
-	    widget->setProperty( "alignment", QVariant( align ) );
+	    align |= p.enumerator().keyToValue( currentItemText );
+	    p.write( widget, QVariant( align ) );
 	} else if ( propName == "wordwrap" ) {
 	    int align = widget->property( "alignment" ).toInt();
 	    align &= ~WordBreak;
 	    if ( v.toBool() )
 		align |= WordBreak;
-	    widget->setProperty( "alignment", QVariant( align ) );
+	    p.write( widget, QVariant( align ) );
 	} else if ( propName == "layoutSpacing" ) {
 	    QVariant val = v;
 	    if ( val.toString() == "default" )
@@ -585,7 +585,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    MetaDataBase::setResizeMode( WidgetFactory::containerOfWidget( (QWidget*)editor->widget() ), currentItemText );
 	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" || propName == "frameworkCode" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
-	} else if ( ::qt_cast<CustomWidget>(editor->widget()) ) {
+	} else if ( qt_cast<CustomWidget*>(editor->widget()) ) {
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget *)(QObject *)widget)->customWidget();
 	    if ( cw ) {
 		MetaDataBase::setFakeProperty( editor->widget(), propName, v );
@@ -602,17 +602,12 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	return;
     }
 
-    if ( p->isSetType() ) {
-	QStrList strlst;
-	QStringList lst = QStringList::split( "|", currentItemText );
-	QValueListConstIterator<QString> it = lst.begin();
-	for ( ; it != lst.end(); ++it )
-	    strlst.append( (*it).latin1() );
-	widget->setProperty( propName, p->keysToValue( strlst ) );
-    } else if ( p->isEnumType() ) {
-	widget->setProperty( propName, p->keyToValue( currentItemText ) );
-    } else if ( qstrcmp( p->name(), "buddy" ) == 0 ) {
-	widget->setProperty( propName, currentItemText );
+    if ( p.isSetType() ) {
+	p.write( widget, p.enumerator().keysToValue( currentItemText ) );
+    } else if ( p.isEnumType() ) {
+	p.write( widget, p.enumerator().keyToValue( currentItemText ) );
+    } else if ( qstrcmp( p.name(), "buddy" ) == 0 ) {
+	p.write( widget, currentItemText );
     } else {
 	QVariant ov;
 	if ( propName == "name" || propName == "itemName" )
@@ -633,10 +628,10 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    if ( formWindow()->isMainContainer( widget ) )
 		formWindow()->setName( v.toCString() );
 	}
-	if ( propName == "name" && ::qt_cast<QAction>(widget) && ::qt_cast<QMainWindow>(formWindow()->mainContainer()) ) {
+	if ( propName == "name" && qt_cast<QAction*>(widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
 	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)(QObject *)widget );
 	}
-	if ( propName == "iconSet" && ::qt_cast<QAction>(widget) && ::qt_cast<QMainWindow>(formWindow()->mainContainer()) ) {
+	if ( propName == "iconSet" && qt_cast<QAction*>(widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
 	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( (QAction*)(QObject *)widget );
 	}
 	if ( propName == "caption" ) {
@@ -783,9 +778,9 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     margin = MetaDataBase::margin( layoutBase );
     layout = 0;
     if ( lay == WidgetFactory::HBox )
-	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter>(layoutBase) );
+	layout = new HorizontalLayout( wl, layoutBase, fw, layoutBase, FALSE, qt_cast<QSplitter*>(layoutBase) );
     else if ( lay == WidgetFactory::VBox )
-	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter>(layoutBase) );
+	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, qt_cast<QSplitter*>(layoutBase) );
     else if ( lay == WidgetFactory::Grid )
 	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( QMAX( 5, fw->grid().x()), QMAX( 5, fw->grid().y()) ), FALSE );
 }
@@ -1771,7 +1766,7 @@ void AddActionToToolBarCommand::execute()
 {
     action->addTo( toolBar );
 
-    if ( ::qt_cast<QDesignerAction>(action) ) {
+    if ( qt_cast<QDesignerAction*>(action) ) {
 	QString s = ( (QDesignerAction*)action )->widget()->name();
 	if ( s.startsWith( "qt_dead_widget_" ) ) {
 	    s.remove( 0, QString( "qt_dead_widget_" ).length() );
@@ -1779,16 +1774,16 @@ void AddActionToToolBarCommand::execute()
 	}
 	toolBar->insertAction( ( (QDesignerAction*)action )->widget(), action );
 	( (QDesignerAction*)action )->widget()->installEventFilter( toolBar );
-    } else if ( ::qt_cast<QDesignerActionGroup>(action) ) {
+    } else if ( qt_cast<QDesignerActionGroup*>(action) ) {
 	if ( ( (QDesignerActionGroup*)action )->usesDropDown() ) {
 	    toolBar->insertAction( ( (QDesignerActionGroup*)action )->widget(), action );
 	    ( (QDesignerActionGroup*)action )->widget()->installEventFilter( toolBar );
 	}
-    } else if ( ::qt_cast<QSeparatorAction>(action) ) {
+    } else if ( qt_cast<QSeparatorAction*>(action) ) {
 	toolBar->insertAction( ( (QSeparatorAction*)action )->widget(), action );
 	( (QSeparatorAction*)action )->widget()->installEventFilter( toolBar );
     }
-    if ( !::qt_cast<QActionGroup>(action) || ( (QActionGroup*)action )->usesDropDown()) {
+    if ( !qt_cast<QActionGroup*>(action) || ( (QActionGroup*)action )->usesDropDown()) {
 	if ( index == -1 )
 	    toolBar->appendAction( action );
 	else
@@ -1802,10 +1797,10 @@ void AddActionToToolBarCommand::execute()
 	    while ( it.current() ) {
 		QObject *o = it.current();
 		++it;
-		if ( !::qt_cast<QAction>(o) )
+		if ( !qt_cast<QAction*>(o) )
 		    continue;
 		// ### fix it for nested actiongroups
-		if ( ::qt_cast<QDesignerAction>(o) ) {
+		if ( qt_cast<QDesignerAction*>(o) ) {
 		    QDesignerAction *ac = (QDesignerAction*)o;
 		    toolBar->insertAction( ac->widget(), ac );
 		    ac->widget()->installEventFilter( toolBar );
@@ -1825,7 +1820,7 @@ void AddActionToToolBarCommand::execute()
 
 void AddActionToToolBarCommand::unexecute()
 {
-    if ( ::qt_cast<QDesignerAction>(action) ) {
+    if ( qt_cast<QDesignerAction*>(action) ) {
 	QString s = ( (QDesignerAction*)action )->widget()->name();
 	s.prepend( "qt_dead_widget_" );
 	( (QDesignerAction*)action )->widget()->setName( s );
@@ -1834,7 +1829,7 @@ void AddActionToToolBarCommand::unexecute()
     toolBar->removeAction( action );
     action->removeFrom( toolBar );
     QObject::disconnect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
-    if ( !::qt_cast<QActionGroup>(action) || ( (QActionGroup*)action )->usesDropDown()) {
+    if ( !qt_cast<QActionGroup*>(action) || ( (QActionGroup*)action )->usesDropDown()) {
 	action->removeEventFilter( toolBar );
     } else {
 	if ( action->children() ) {
@@ -1842,9 +1837,9 @@ void AddActionToToolBarCommand::unexecute()
 	    while ( it.current() ) {
 		QObject *o = it.current();
 		++it;
-		if ( !::qt_cast<QAction>(o) )
+		if ( !qt_cast<QAction*>(o) )
 		    continue;
-		if ( ::qt_cast<QDesignerAction>(o) ) {
+		if ( qt_cast<QDesignerAction*>(o) ) {
 		    o->removeEventFilter( toolBar );
 		    toolBar->removeAction( (QAction*)o );
 		}
@@ -2110,12 +2105,12 @@ QString RenameActionCommand::mangle( QString name )
 {
     QString s;
     QWidget * e = menu->parentEditor();
-    if ( ::qt_cast<PopupMenuEditor>(e) ) {
+    if ( qt_cast<PopupMenuEditor*>(e) ) {
 	PopupMenuEditor * p = ( PopupMenuEditor * ) e;
 	int idx = p->find( menu );
 	PopupMenuEditorItem * i = ( idx > -1 ? p->at( idx ) : 0 );
 	s = ( i ? QString( i->anyAction()->name() ).remove( "Action" ) : QString( "" ) );
-    } else if ( ::qt_cast<MenuBarEditor>(e) ) {
+    } else if ( qt_cast<MenuBarEditor*>(e) ) {
 	MenuBarEditor * b = ( MenuBarEditor * ) e;
 	int idx = b->findItem( menu );
 	MenuBarEditorItem * i = ( idx > -1 ? b->item( idx ) : 0 );

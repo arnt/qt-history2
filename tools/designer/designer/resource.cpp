@@ -894,18 +894,17 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			MetaDataBase::CustomWidget *cw = new MetaDataBase::CustomWidget;
 			cw->className = className;
 			cw->includeFile =  WidgetDatabase::includeFile( classID );
-			QStrList lst = w->metaObject()->signalNames( TRUE );
-			for ( QPtrListIterator<char> it(lst); it.current(); ++it )
-			    cw->lstSignals.append(it.current());
-
 			int i;
+			for (i = 0; i < w->metaObject()->numSignals(true); ++i)
+			    cw->lstSignals.append(w->metaObject()->signal(i,true).signature());
+
 			int total = w->metaObject()->numProperties( TRUE );
 			for ( i = 0; i < total; i++ ) {
-			    const QMetaProperty *p = w->metaObject()->property( i, TRUE );
-			    if ( p->designable(w) ) {
+			    QMetaProperty p = w->metaObject()->property( i, TRUE );
+			    if ( p.isDesignable(w) ) {
 				MetaDataBase::Property prop;
-				prop.property = p->name();
-				QString pType = p->type();
+				prop.property = p.name();
+				QString pType = p.type();
 				// *sigh* designer types are not normal types
 				// Handle most cases, the ones it misses are
 				// probably too difficult to deal with anyway...
@@ -921,27 +920,21 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 
 			total = w->metaObject()->numSlots( TRUE );
 			for ( i = 0; i < total; i++ ) {
-			    const QMetaData *md = w->metaObject()->slot( i, TRUE );
+			    QMetaMember md = w->metaObject()->slot( i, TRUE );
 			    MetaDataBase::Function funky;
-			    // Find out if we have a return type.
-			    if ( md->method->count > 0 ) {
-				const QUParameter p = md->method->parameters[0];
-				if ( p.inOut == QUParameter::InOut )
-				    funky.returnType = p.type->desc();
-			    }
-
-			    funky.function = md->name;
+			    funky.returnType = md.type();
+			    funky.function = md.signature();
 			    funky.language = "C++";
-			    switch ( md->access ) {
-				case QMetaData::Public:
-				    funky.access = "public";
-				    break;
-				case QMetaData::Protected:
-				    funky.access = "protected";
-				    break;
-				case QMetaData::Private:
-				    funky.access = "private";
-				    break;
+			    switch ( md.access() ) {
+			    case QMetaMember::Public:
+				funky.access = "public";
+				break;
+			    case QMetaMember::Protected:
+				funky.access = "protected";
+				break;
+			    case QMetaMember::Private:
+				funky.access = "private";
+				break;
 			    }
 			    cw->lstSlots.append( funky );
 			}
@@ -1262,42 +1255,42 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
-    QStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
-    for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
-	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
+    bool super = !w->inherits( "Spacer" );
+    int numProps = w->metaObject()->numProperties(super);
+    for ( int i = 0; i < numProps; ++i ) {
+	QMetaProperty p = w->metaObject()->property(i, super);
+	if ( changed.find( QString::fromLatin1( p.name() ) ) == changed.end() )
 	    continue;
-	if ( saved.find( QString::fromLatin1( it.current() ) ) != saved.end() )
+	if ( saved.find( QString::fromLatin1( p.name() ) ) != saved.end() )
 	    continue;
-	saved << QString::fromLatin1( it.current() );
-	const QMetaProperty* p = w->metaObject()->
-				 property( w->metaObject()->findProperty( it.current(), TRUE ), TRUE );
-	if ( !p || !p->stored( w ) || ( inLayout && qstrcmp( p->name(), "geometry" ) == 0 ) )
+	saved << QString::fromLatin1( p.name() );
+	if ( !p || !p.isStored( w ) || ( inLayout && qstrcmp( p.name(), "geometry" ) == 0 ) )
 	    continue;
-	if ( w->inherits( "QLabel" ) && qstrcmp( p->name(), "pixmap" ) == 0 &&
+	if ( w->inherits( "QLabel" ) && qstrcmp( p.name(), "pixmap" ) == 0 &&
 	     ( !( (QLabel*)w )->pixmap() || ( (QLabel*)w )->pixmap()->isNull() ) )
 	    continue;
 	if ( w->inherits( "MenuBarEditor" ) &&
-	     ( qstrcmp( p->name(), "itemName" ) == 0 || qstrcmp( p->name(), "itemNumber" ) == 0 ||
-	       qstrcmp( p->name(), "itemText" ) == 0 ) )
+	     ( qstrcmp( p.name(), "itemName" ) == 0 || qstrcmp( p.name(), "itemNumber" ) == 0 ||
+	       qstrcmp( p.name(), "itemText" ) == 0 ) )
 	    continue;
-	if ( qstrcmp( p->name(), "name" ) == 0 )
+	if ( qstrcmp( p.name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
-	if ( !p->isSetType() && !p->isEnumType() && !w->property( p->name() ).isValid() )
+	if ( !p.isSetType() && !p.isEnumType() && !w->property( p.name() ).isValid() )
 	    continue;
 	ts << makeIndent( indent ) << "<property";
-	ts << " name=\"" << it.current() << "\"";
-	if ( !p->stdSet() )
+	ts << " name=\"" << p.name() << "\"";
+	if ( !p.hasStdCppSet() )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
-	if ( strcmp( it.current(), "resizeMode" ) == 0 && w->inherits( "QLayout" ) ) {
-	    saveProperty( w, it.current(), "", QVariant::String, ts, indent );
-	} else if ( p->isSetType() ) {
-	    saveSetProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
-	} else if ( p->isEnumType() ) {
-	    saveEnumProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
+	if ( strcmp( p.name(), "resizeMode" ) == 0 && w->inherits( "QLayout" ) ) {
+	    saveProperty( w, p.name(), "", QVariant::String, ts, indent );
+	} else if ( p.isSetType() ) {
+	    saveSetProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
+	} else if ( p.isEnumType() ) {
+	    saveEnumProperty( w, p.name(), QVariant::nameToType( p.type() ), ts, indent );
 	} else {
-	    saveProperty( w, it.current(), w->property( p->name() ), QVariant::nameToType( p->type() ), ts, indent );
+	    saveProperty( w, p.name(), w->property( p.name() ), QVariant::nameToType( p.type() ), ts, indent );
 	}
 	indent--;
 	ts << makeIndent( indent ) << "</property>" << endl;
@@ -1326,21 +1319,14 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 
 void Resource::saveSetProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
-    QStrList l( p->valueToKeys( w->property( name ).toInt() ) );
-    QString v;
-    for ( uint i = 0; i < l.count(); ++i ) {
-	v += l.at( i );
-	if ( i < l.count() - 1 )
-	    v += "|";
-    }
-    ts << makeIndent( indent ) << "<set>" << v << "</set>" << endl;
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    ts << makeIndent( indent ) << "<set>" << p.enumerator().valueToKeys( w->property( name ).toInt() ) << "</set>" << endl;
 }
 
 void Resource::saveEnumProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
-    const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
-    ts << makeIndent( indent ) << "<enum>" << p->valueToKey( w->property( name ).toInt() ) << "</enum>" << endl;
+    QMetaProperty p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
+    ts << makeIndent( indent ) << "<enum>" << p.enumerator().valueToKey( w->property( name ).toInt() ) << "</enum>" << endl;
 }
 
 void Resource::saveProperty( QObject *w, const QString &name, const QVariant &value, QVariant::Type t, QTextStream &ts, int indent )
@@ -1964,7 +1950,7 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 */
 void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomElement &e )
 {
-    const QMetaProperty *p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
+    QMetaProperty p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
 
     if ( !obj->inherits( "QLayout" )  ) {// no layouts in metadatabase... (RS)
 	if ( obj->inherits( "CustomWidget" ) ) {
@@ -2037,19 +2023,16 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	    n = n.nextSibling().toElement();
 	}
 	v = QPalette( p );
-    } else if ( e.tagName() == "enum" && p && p->isEnumType() && prop != "resizeMode" ) {
+    } else if ( e.tagName() == "enum" && p && p.isEnumType() && prop != "resizeMode" ) {
 	QString key( v.toString() );
-	int vi = p->keyToValue( key );
-	if ( p->valueToKey( vi ) != key )
+	int vi = p.enumerator().keyToValue( key );
+	if ( p.enumerator().valueToKey( vi ) != key )
 	    return; // ignore invalid properties
 	v = QVariant( vi );
-    } else if ( e.tagName() == "set" && p && p->isSetType() ) {
+    } else if ( e.tagName() == "set" && p && p.isSetType() ) {
 	QString keys( v.toString() );
-	QStringList lst = QStringList::split( '|', keys );
-	QStrList l;
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-	    l.append( *it );
-	v = QVariant( p->keysToValue( l ) );
+	int vi = p.enumerator().keysToValue( keys );
+	v = QVariant( vi );
     }
 
     if ( prop == "caption" ) {
@@ -2202,7 +2185,7 @@ static QImage loadImageData( QDomElement &n2 )
     QString format = n2.attribute( "format", "PNG" );
     if ( format == "XPM.GZ" ) {
 	ulong len = n2.attribute( "length" ).toULong();
-	if ( len < data.length() * 5 )
+	if ( len < (ulong)data.length() * 5 )
 	    len = data.length() * 5;
 	// qUncompress() expects the first 4 bytes to be the expected length of
 	// the uncompressed data

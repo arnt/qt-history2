@@ -187,10 +187,10 @@ static void appendChildActions( QAction *action, QStringList &lst )
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
-	if ( !::qt_cast<QAction>(o) )
+	if ( !qt_cast<QAction*>(o) )
 	    continue;
 	lst << o->name();
-	if ( o->children() && ::qt_cast<QActionGroup>(o) )
+	if ( o->children() && qt_cast<QActionGroup*>(o) )
 	    appendChildActions( (QAction*)o, lst );
     }
 }
@@ -203,7 +203,7 @@ static QStringList flatActions( const QPtrList<QAction> &l )
     while ( it.current() ) {
 	QAction *action = it.current();
 	lst << action->name();
-	if ( action->children() && ::qt_cast<QActionGroup>(action) )
+	if ( action->children() && qt_cast<QActionGroup*>(action) )
 	    appendChildActions( action, lst );
 	++it;
     }
@@ -225,9 +225,9 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 	    continue;
 	}
 	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !::qt_cast<QLayoutWidget>(it.current()) &&
-	     !::qt_cast<Spacer>(it.current()) &&
-	     !::qt_cast<SizeHandle>(it.current()) &&
+	     !qt_cast<QLayoutWidget*>(it.current()) &&
+	     !qt_cast<Spacer*>(it.current()) &&
+	     !qt_cast<SizeHandle*>(it.current()) &&
 	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
 	    lst << it.current()->name();
 	}
@@ -282,9 +282,9 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
 	    continue;
 	}
 	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !::qt_cast<QLayoutWidget>(it.current()) &&
-	     !::qt_cast<Spacer>(it.current()) &&
-	     !::qt_cast<SizeHandle>(it.current()) &&
+	     !qt_cast<QLayoutWidget*>(it.current()) &&
+	     !qt_cast<Spacer*>(it.current()) &&
+	     !qt_cast<SizeHandle*>(it.current()) &&
 	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
 	    lst << it.current()->name();
 	}
@@ -338,15 +338,18 @@ SignalItem::SignalItem( QTable *table, FormWindow *fw )
 
 void SignalItem::senderChanged( QObject *sender )
 {
-    QStrList sigs = sender->metaObject()->signalNames( TRUE );
-    sigs.remove( "destroyed()" );
-    sigs.remove( "destroyed(QObject*)" );
-    sigs.remove( "accessibilityChanged(int)" );
-    sigs.remove( "accessibilityChanged(int,int)" );
-
-    QStringList lst = QStringList::fromStrList( sigs );
-
-    if ( ::qt_cast<CustomWidget>(sender) ) {
+    QStringList lst;
+    int numSignals = sender->metaObject()->numSignals(true);
+    for (int i = 0; i < numSignals; ++i) {
+	QString s = sender->metaObject()->signal(i, true).signature();
+	if (s == "destroyed()"
+	    || s == "destroyed(QObject*)"
+	    || s == "accessibilityChanged(int)"
+	    || s == "accessibilityChanged(int,int)" )
+	    continue;
+	lst << s;
+    }
+    if ( qt_cast<CustomWidget*>(sender) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)sender )->customWidget();
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin();
 	      it != w->lstSignals.end(); ++it )
@@ -407,7 +410,7 @@ void SlotItem::signalChanged( const QString &signal )
 bool SlotItem::ignoreSlot( const char* slot ) const
 {
     if ( qstrcmp( slot, "update()" ) == 0 &&
-	 ::qt_cast<QDataBrowser>(lastReceiver) )
+	 qt_cast<QDataBrowser*>(lastReceiver) )
 	return FALSE;
 
     for ( int i = 0; ignore_slots[i]; i++ ) {
@@ -444,15 +447,14 @@ void SlotItem::updateSlotList()
 
     for( int i = 0; i < n; ++i ) {
 	// accept only public slots. For the form window, also accept protected slots
-	const QMetaData* md = lastReceiver->metaObject()->slot( i, TRUE );
-	if ( ( (lastReceiver->metaObject()->slot( i, TRUE )->access == QMetaData::Public) ||
+	QMetaMember mm = lastReceiver->metaObject()->slot( i, TRUE );
+	if ( ( mm.access() == QMetaMember::Public ||
 	       (formWindow->isMainContainer( (QWidget*)lastReceiver ) &&
-		lastReceiver->metaObject()->slot(i, TRUE)->access ==
-		QMetaData::Protected) ) &&
-	     !ignoreSlot( md->name ) &&
-	     checkConnectArgs( signal.latin1(), lastReceiver, md->name ) )
-	    if ( lst.find( md->name ) == lst.end() )
-		lst << MetaDataBase::normalizeFunction( md->name );
+		mm.access() == QMetaMember::Protected) )
+	     && !ignoreSlot( mm.signature() )
+	     && checkConnectArgs( signal.latin1(), lastReceiver, mm.signature() ) )
+	    if ( lst.find( mm.signature() ) == lst.end() )
+		lst << MetaDataBase::normalizeFunction( mm.signature() );
     }
 
     LanguageInterface *iface =
@@ -476,7 +478,7 @@ void SlotItem::updateSlotList()
 	}
     }
 
-    if ( ::qt_cast<CustomWidget>(lastReceiver) ) {
+    if ( qt_cast<CustomWidget*>(lastReceiver) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)lastReceiver )->customWidget();
 	for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin();
 	      it != w->lstSlots.end(); ++it ) {

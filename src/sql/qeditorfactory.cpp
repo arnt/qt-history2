@@ -143,7 +143,6 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	    w = new QSpinBox( -999999, 999999, 1, parent, "qt_editor_int" );
 	    break;
 	case QVariant::String:
-	case QVariant::CString:
 	case QVariant::Double:
 	    w = new QLineEdit( parent, "qt_editor_double" );
 	    ((QLineEdit*)w)->setFrame( FALSE );

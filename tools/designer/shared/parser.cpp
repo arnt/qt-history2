@@ -29,13 +29,6 @@
 #include <qstringlist.h>
 #include <qcstring.h>
 
-class NormalizeObject : public QObject
-{
-public:
-    NormalizeObject() : QObject() {}
-    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
-};
-
 QString Parser::cleanArgs( const QString &func )
 {
     QString slot( func );
@@ -68,6 +61,5 @@ QString Parser::cleanArgs( const QString &func )
 	res += arg;
     }
     res += ")";
-
-    return QString::fromLatin1( NormalizeObject::normalizeSignalSlot( res.latin1() ) );
+    return res;
 }

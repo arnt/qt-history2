@@ -45,6 +45,8 @@
 #include <limits.h>
 
 struct QThreadInstance;
+class QObject;
+class QEvent;
 
 class Q_EXPORT QThread
 {

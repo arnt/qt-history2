@@ -407,7 +407,7 @@ void QButtonGroup::buttonClicked()
 {
     // introduce a QButtonListIt if calling anything
     int id = -1;
-    QButton *bt = ::qt_cast<QButton>(sender());		// object that sent the signal
+    QButton *bt = qt_cast<QButton*>(sender());		// object that sent the signal
 #if defined(QT_CHECK_NULL)
     Q_ASSERT( bt );
 #endif
@@ -433,19 +433,19 @@ void QButtonGroup::buttonToggled( bool on )
     // introduce a QButtonListIt if calling anything
     if ( !on || !excl_grp && !radio_excl )
 	return;
-    QButton *bt = ::qt_cast<QButton>(sender());		// object that sent the signal
+    QButton *bt = qt_cast<QButton*>(sender());		// object that sent the signal
 #if defined(QT_CHECK_NULL)
     Q_ASSERT( bt );
     Q_ASSERT( bt->isToggleButton() );
 #endif
 
-    if ( !excl_grp && !::qt_cast<QRadioButton>(bt) )
+    if ( !excl_grp && !qt_cast<QRadioButton*>(bt) )
 	return;
     QButtonItem * i = buttons->first();
     bool hasTabFocus = FALSE;
 
     while( i != 0 && hasTabFocus == FALSE ) {
-	if ( ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) &&
+	if ( ( excl_grp || qt_cast<QRadioButton*>(i->button) ) &&
 	     (i->button->focusPolicy() & TabFocus) )
 	    hasTabFocus = TRUE;
 	i = buttons->next();
@@ -456,9 +456,9 @@ void QButtonGroup::buttonToggled( bool on )
 	if ( bt != i->button &&
 	     i->button->isToggleButton() &&
 	     i->button->isOn() &&
-	     ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) )
+	     ( excl_grp || qt_cast<QRadioButton*>(i->button) ) )
 	    i->button->setOn( FALSE );
-	if ( ( excl_grp || ::qt_cast<QRadioButton>(i->button) ) &&
+	if ( ( excl_grp || qt_cast<QRadioButton*>(i->button) ) &&
 	     i->button->isToggleButton() &&
 	     hasTabFocus )
 	    i->button->setFocusPolicy( (FocusPolicy)(i->button->focusPolicy() &
@@ -574,12 +574,12 @@ void QButtonGroup::moveFocus( int key )
 	i = buttons->next();
     }
 
-    QButton *buttoncand = ::qt_cast<QButton>(candidate);
-    if ( buttoncand && ::qt_cast<QButton>(f) &&
+    QButton *buttoncand = qt_cast<QButton*>(candidate);
+    if ( buttoncand && qt_cast<QButton*>(f) &&
 	 ((QButton*)f)->isOn() &&
 	 buttoncand->isToggleButton() &&
-	 ( isExclusive() || ( ::qt_cast<QRadioButton>(f) &&
-			      ::qt_cast<QRadioButton>(candidate)))) {
+	 ( isExclusive() || ( qt_cast<QRadioButton*>(f) &&
+			      qt_cast<QRadioButton*>(candidate)))) {
 	if ( f->focusPolicy() & TabFocus ) {
 	    f->setFocusPolicy( (FocusPolicy)(f->focusPolicy() & ~TabFocus) );
 	    candidate->setFocusPolicy( (FocusPolicy)(candidate->focusPolicy()|
@@ -657,7 +657,7 @@ bool QButtonGroup::event( QEvent * e )
 {
     if ( e->type() == QEvent::ChildInserted ) {
 	QChildEvent * ce = (QChildEvent *) e;
-	if ( radio_excl && ::qt_cast<QRadioButton>(ce->child()) ) {
+	if ( radio_excl && qt_cast<QRadioButton*>(ce->child()) ) {
 	    QButton * button = (QButton *) ce->child();
 	    if ( button->isToggleButton() && !button->isOn() &&
 		 selected() && (selected()->focusPolicy() & TabFocus) != 0 )

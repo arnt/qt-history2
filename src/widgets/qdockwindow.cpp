@@ -489,7 +489,7 @@ void QDockWindowHandle::minimize()
     if ( !dockWindow->area() )
 	return;
 
-    QMainWindow *mw = ::qt_cast<QMainWindow>(dockWindow->area()->parentWidget());
+    QMainWindow *mw = qt_cast<QMainWindow*>(dockWindow->area()->parentWidget());
     if ( mw && mw->isDockEnabled( dockWindow, Qt::DockMinimized ) )
 	mw->moveDockWindow( dockWindow, Qt::DockMinimized );
 }
@@ -1002,13 +1002,13 @@ void QDockWindow::init()
     if ( parentWidget() )
 	parentWidget()->installEventFilter( this );
     QWidget *mw = parentWidget();
-    QDockArea *da = ::qt_cast<QDockArea>(parentWidget());
+    QDockArea *da = qt_cast<QDockArea*>(parentWidget());
     if ( da ) {
 	if ( curPlace == InDock )
 	    da->moveDockWindow( this );
 	mw = da->parentWidget();
     }
-    if ( ::qt_cast<QMainWindow>(mw) ) {
+    if ( qt_cast<QMainWindow*>(mw) ) {
 	if ( place() == InDock ) {
 	    Dock myDock = Qt::DockTop;
 	    // make sure we put the window in the correct dock.
@@ -1069,7 +1069,7 @@ QDockWindow::~QDockWindow()
     QDockArea *a = area();
     if ( !a && dockWindowData )
 	a = ( (QDockArea::DockWindowData*)dockWindowData )->area;
-    QMainWindow *mw = a ? ::qt_cast<QMainWindow>(a->parentWidget()) : 0;
+    QMainWindow *mw = a ? qt_cast<QMainWindow*>(a->parentWidget()) : 0;
     if ( mw )
 	mw->removeDockWindow( this );
 
@@ -1111,12 +1111,12 @@ QWidget *QDockWindow::areaAt( const QPoint &gp )
 	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
 
     while ( w ) {
-	if ( ::qt_cast<QDockArea>(w) ) {
+	if ( qt_cast<QDockArea*>(w) ) {
 	    QDockArea *a = (QDockArea*)w;
 	    if ( a->isDockWindowAccepted( this ) )
 		return w;
 	}
-	if ( ::qt_cast<QMainWindow>(w) ) {
+	if ( qt_cast<QMainWindow*>(w) ) {
 	    QMainWindow *mw = (QMainWindow*)w;
 	    QDockArea *a = mw->dockingArea( mw->mapFromGlobal( gp ) );
 	    if ( a && a->isDockWindowAccepted( this ) )
@@ -1144,8 +1144,8 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     if ( titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown )
 	w = 0;
     currRect.moveBy( pos.x(), pos.y() );
-    if ( !::qt_cast<QDockArea>(w) ) {
-	if ( startOrientation != Horizontal && ::qt_cast<QToolBar>(this) )
+    if ( !qt_cast<QDockArea*>(w) ) {
+	if ( startOrientation != Horizontal && qt_cast<QToolBar*>(this) )
 	    swapRect( currRect, Horizontal, startOffset, (QDockArea*)w );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 3 ) );
@@ -1331,20 +1331,20 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     } else {
 	if ( dockArea ) {
 	    QMainWindow *mw = (QMainWindow*)dockArea->parentWidget();
-	    if ( ::qt_cast<QMainWindow>(mw) &&
+	    if ( qt_cast<QMainWindow*>(mw) &&
 		 ( !mw->isDockEnabled( QMainWindow::DockTornOff ) ||
 		   !mw->isDockEnabled( this, QMainWindow::DockTornOff ) ) )
 		return;
 	    delete (QDockArea::DockWindowData*)dockWindowData;
 	    dockWindowData = dockArea->dockWindowData( this );
 	    dockArea->removeDockWindow( this, TRUE,
-		startOrientation != Horizontal && ::qt_cast<QToolBar>(this) );
+		startOrientation != Horizontal && qt_cast<QToolBar*>(this) );
 	}
 	dockArea = 0;
 	move( currRect.topLeft() );
     }
 
-    if ( curPlace == InDock && state == OutsideDock && !::qt_cast<QToolBar>(this) ) {
+    if ( curPlace == InDock && state == OutsideDock && !qt_cast<QToolBar*>(this) ) {
 	if ( lastSize != QSize( -1, -1 ) )
 	    resize( lastSize );
     }
@@ -1358,7 +1358,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
     tmpDockArea = 0;
     if ( doAdjustSize ) {
 	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-	if ( ::qt_cast<QToolBar>(this) )
+	if ( qt_cast<QToolBar*>(this) )
 	    adjustSize();
 	show();
 	if ( parentWidget() && isTopLevel() )
@@ -1622,7 +1622,7 @@ Qt::Orientation QDockWindow::orientation() const
 {
     if ( dockArea )
 	return dockArea->orientation();
-    if ( ::qt_cast<QToolBar>(this) )
+    if ( qt_cast<QToolBar*>(this) )
 	return Horizontal;
     return ( ((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
 	     ((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?
@@ -1777,7 +1777,7 @@ void QDockWindow::undock( QWidget *w )
 {
     QMainWindow *mw = 0;
     if ( area() )
-	mw = ::qt_cast<QMainWindow>(area()->parentWidget());
+	mw = qt_cast<QMainWindow*>(area()->parentWidget());
     if ( mw && !mw->isDockEnabled( this, DockTornOff ) )
 	return;
     if ( (place() == OutsideDock && !w) )
@@ -1789,7 +1789,7 @@ void QDockWindow::undock( QWidget *w )
     if ( dockArea ) {
 	delete (QDockArea::DockWindowData*)dockWindowData;
 	dockWindowData = dockArea->dockWindowData( this );
-	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal && ::qt_cast<QToolBar>(this) );
+	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal && qt_cast<QToolBar*>(this) );
     }
     dockArea = 0;
     if ( lastPos != QPoint( -1, -1 ) && lastPos.x() > 0 && lastPos.y() > 0 )
@@ -1802,7 +1802,7 @@ void QDockWindow::undock( QWidget *w )
     updateGui();
     emit orientationChanged( orientation() );
     QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-    if ( ::qt_cast<QToolBar>(this) )
+    if ( qt_cast<QToolBar*>(this) )
 	adjustSize();
     if ( !w ) {
 	if ( !parentWidget() || parentWidget()->isVisible() )
@@ -2015,7 +2015,7 @@ void QDockWindow::contextMenuEvent( QContextMenuEvent *e )
 {
     QObject *o = this;
     while ( o ) {
-	if ( ::qt_cast<QMainWindow>(o) )
+	if ( qt_cast<QMainWindow*>(o) )
 	    break;
 	o = o->parent();
     }

@@ -75,7 +75,7 @@ void SourceEditor::setObject( QObject *o, Project *p )
 	formWindow()->formFile()->setCodeEdited( FALSE );
 	formWindow()->formFile()->setEditor( 0 );
     }
-    if ( ::qt_cast<FormWindow>(o) )
+    if ( qt_cast<FormWindow*>(o) )
 	( (FormWindow*)o )->formFile()->setCodeEdited( TRUE );
     save();
     bool changed = FALSE;
@@ -117,9 +117,9 @@ QString SourceEditor::sourceOfObject( QObject *o, const QString &,
     QString txt;
     if ( !o )
 	return txt;
-    if ( ::qt_cast<FormWindow>(o) )
+    if ( qt_cast<FormWindow*>(o) )
 	txt = ( (FormWindow*)o )->formFile()->code();
-    else if ( ::qt_cast<SourceFile>(o) )
+    else if ( qt_cast<SourceFile*>(o) )
 	txt = ( (SourceFile*)o )->text();
     return txt;
 }
@@ -305,14 +305,14 @@ bool SourceEditor::saveAs()
 
 SourceFile *SourceEditor::sourceFile() const
 {
-    if ( !::qt_cast<SourceFile>(obj) )
+    if ( !qt_cast<SourceFile*>(obj) )
 	return 0;
     return (SourceFile*)(QObject*)obj;
 }
 
 FormWindow *SourceEditor::formWindow() const
 {
-    if ( !::qt_cast<FormWindow>(obj) )
+    if ( !qt_cast<FormWindow*>(obj) )
 	return 0;
     return (FormWindow*)(QObject*)obj;
 }

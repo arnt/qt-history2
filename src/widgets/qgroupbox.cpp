@@ -657,7 +657,7 @@ void QGroupBox::fixFocus()
 	     && w->isVisibleTo(this) ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON
-		 || ( !best && ::qt_cast<QRadioButton>(w)
+		 || ( !best && qt_cast<QRadioButton*>(w)
 		 && ((QRadioButton*)w)->isChecked() )
 #endif
 		    )

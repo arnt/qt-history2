@@ -2387,16 +2387,17 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	    QUrl u( doc->context(), onLink, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
 	}
-	if (::qt_cast<QTextBrowser>(this)) { // change for 4.0
-	    QConnectionList *clist = receivers(
-			"anchorClicked(const QString&,const QString&)");
-	    if (!signalsBlocked() && clist) {
-		QUObject o[3];
-		static_QUType_QString.set(o+1, d->onName);
-		static_QUType_QString.set(o+2, onLink);
-		activate_signal( clist, o);
-	    }
-	}
+//#### fix this
+//	if (qt_cast<QTextBrowser*>(this)) { // change for 4.0
+// 	    QConnectionList *clist = receivers(
+// 			"anchorClicked(const QString&,const QString&)");
+// 	    if (!signalsBlocked() && clist) {
+// 		QUObject o[3];
+// 		static_QUType_QString.set(o+1, d->onName);
+// 		static_QUType_QString.set(o+2, onLink);
+// 		activate_signal( clist, o);
+// 	    }
+// 	}
 
 	// emitting linkClicked() may result in that the cursor winds
 	// up hovering over a different valid link - check this and
@@ -4641,20 +4642,20 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 		QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
 		emitLinkClicked( u.toString( FALSE, FALSE ) );
 	    }
-	    if (!doc->focusIndicator.name.isEmpty()) {
-		if (::qt_cast<QTextBrowser>(this)) { // change for 4.0
-		    QConnectionList *clist = receivers(
-			    "anchorClicked(const QString&,const QString&)");
-		    if (!signalsBlocked() && clist) {
-			QUObject o[3];
-			static_QUType_QString.set(o+1,
-				doc->focusIndicator.name);
-			static_QUType_QString.set(o+2,
-				doc->focusIndicator.href);
-			activate_signal( clist, o);
-		    }
-		}
-	    }
+//#### fix 	    if (!doc->focusIndicator.name.isEmpty()) {
+// 		if (qt_cast<QTextBrowser*>(this)) { // change for 4.0
+// 		    QConnectionList *clist = receivers(
+// 			    "anchorClicked(const QString&,const QString&)");
+// 		    if (!signalsBlocked() && clist) {
+// 			QUObject o[3];
+// 			static_QUType_QString.set(o+1,
+// 				doc->focusIndicator.name);
+// 			static_QUType_QString.set(o+2,
+// 				doc->focusIndicator.href);
+// 			activate_signal( clist, o);
+// 		    }
+// 		}
+// 	    }
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif

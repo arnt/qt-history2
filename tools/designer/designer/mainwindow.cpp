@@ -738,7 +738,7 @@ void MainWindow::helpContents()
 
     if ( propertyEditor->widget() && !showClassDocu ) {
 	if ( !propertyEditor->currentProperty().isEmpty() ) {
-	    QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
+	    const QMetaObject* mo = propertyEditor->metaObjectOfCurrentProperty();
 	    QString s;
 	    QString cp = propertyEditor->currentProperty();
 	    if ( cp == "layoutMargin" ) {
@@ -1500,41 +1500,41 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
 
 void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
-    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
-    if ( text && qstrcmp( text->type(), "QString") != 0 )
-	text = 0;
-    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
-    if ( title && qstrcmp( title->type(), "QString") != 0 )
-	title = 0;
-    const QMetaProperty* pagetitle =
+    QMetaProperty text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
+    if ( text && qstrcmp( text.type(), "QString") != 0 )
+	text = QMetaProperty();
+    QMetaProperty title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
+    if ( title && qstrcmp( title.type(), "QString") != 0 )
+	title = QMetaProperty();
+    QMetaProperty pagetitle =
 	w->metaObject()->property( w->metaObject()->findProperty( "pageTitle", TRUE ), TRUE );
-    if ( pagetitle && qstrcmp( pagetitle->type(), "QString") != 0 )
-	pagetitle = 0;
-    const QMetaProperty* pixmap =
+    if ( pagetitle && qstrcmp( pagetitle.type(), "QString") != 0 )
+	pagetitle = QMetaProperty();
+    QMetaProperty pixmap =
 	w->metaObject()->property( w->metaObject()->findProperty( "pixmap", TRUE ), TRUE );
-    if ( pixmap && qstrcmp( pixmap->type(), "QPixmap") != 0 )
-	pixmap = 0;
+    if ( pixmap && qstrcmp( pixmap.type(), "QPixmap") != 0 )
+	pixmap = QMetaProperty();
 
-    if ( text && text->designable(w) ||
-	 title && title->designable(w) ||
-	 pagetitle && pagetitle->designable(w) ||
-	 pixmap && pixmap->designable(w) ) {
+    if ( text.isDesignable(w) ||
+	 title.isDesignable(w) ||
+	 pagetitle.isDesignable(w) ||
+	 pixmap.isDesignable(w) ) {
 	int id = 0;
 	if ( ids.isEmpty() )
 	    ids << rmbWidgets->insertSeparator(0);
-	if ( pixmap && pixmap->designable(w) ) {
+	if ( pixmap.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Choose Pixmap..."), -1, 0) );
 	    props.insert( "pixmap", id );
 	}
-	if ( text && text->designable(w) && !w->inherits( "QTextEdit" ) ) {
+	if ( text.isDesignable(w) && !w->inherits( "QTextEdit" ) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Text..."), -1, 0) );
 	    props.insert( "text", id );
 	}
-	if ( title && title->designable(w) ) {
+	if ( title.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Title..."), -1, 0) );
 	    props.insert( "title", id );
 	}
-	if ( pagetitle && pagetitle->designable(w) ) {
+	if ( pagetitle.isDesignable(w) ) {
 	    ids << ( id = rmbWidgets->insertItem( tr("Edit Page Title..."), -1, 0) );
 	    props.insert( "pagetitle", id );
 	}
@@ -2535,9 +2535,9 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	return TRUE;
     }
 
-    const QMetaProperty* text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
-    const QMetaProperty* title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
-    if ( text && text->designable(w) ) {
+    QMetaProperty text = w->metaObject()->property( w->metaObject()->findProperty( "text", TRUE ), TRUE );
+    QMetaProperty title = w->metaObject()->property( w->metaObject()->findProperty( "title", TRUE ), TRUE );
+    if ( text.isDesignable(w) ) {
 	bool ok = FALSE;
 	bool oldDoWrap = FALSE;
 	if ( w->inherits( "QLabel" ) ) {
@@ -2576,7 +2576,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	}
 	return TRUE;
     }
-    if ( title && title->designable(w) ) {
+    if ( title.isDesignable(w) ) {
 	bool ok = FALSE;
 	QString text;
 	text = QInputDialog::getText( tr("Title"), tr( "New title" ), QLineEdit::Normal, w->property("title").toString(), &ok, this );

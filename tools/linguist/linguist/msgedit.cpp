@@ -548,7 +548,7 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
 	QKeyEvent * ke = (QKeyEvent*)e;
 	const int k = ke->key();
 
-	if ( ::qt_cast<QTextEdit>(o) ) {
+	if ( qt_cast<QTextEdit*>(o) ) {
 	    if ( e->type() == QEvent::KeyPress ) {
 		// Hardcode the Tab key to do focus changes when pressed
 		// inside the editor
@@ -592,7 +592,7 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
 		}
 	    }
 	    doFocusChange = TRUE;
-	} else if ( ::qt_cast<QListView>(o) ) {
+	} else if ( qt_cast<QListView*>(o) ) {
 	    // handle the ESC key in the list views
 	    if ( e->type() == QEvent::KeyRelease && k == Key_Escape )
 		editorPage->translationMed->setFocus();

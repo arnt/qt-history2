@@ -47,7 +47,6 @@
 #include "qguardedptr.h"
 #include "qstatusbar.h"
 #include "qdockwindow.h"
-#include "qsignalslotimp.h"
 /*!
     \class QAccel qaccel.h
     \brief The QAccel class handles keyboard accelerator and shortcut keys.
@@ -220,7 +219,7 @@ bool QAccelManager::correctSubWindow( QWidget* w, QAccelPrivate* d ) {
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
-    if ( tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow>(tlw) )
+    if ( tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw) )
 	return tlw->parentWidget()->topLevelWidget() == wtlw;
 
     if ( wtlw  != tlw )
@@ -359,7 +358,7 @@ bool QAccelManager::tryComposeUnicode( QWidget* w, QKeyEvent* e )
 	} else if ( (e->type() == QEvent::KeyRelease) &&
 		    (e->key() == Key_Meta) &&
 		    (QApplication::composedUnicode != 0) ) {
-	    if ( (QApplication::composedUnicode > 0) && 
+	    if ( (QApplication::composedUnicode > 0) &&
 		 (QApplication::composedUnicode < 0xFFFE) ) {
 		QChar ch( QApplication::composedUnicode );
 		QString s( ch );
@@ -401,7 +400,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     QAccelItem* firstitem = 0;
     QAccelPrivate* lastaccel = 0;
     QAccelItem* lastitem = 0;
-    
+
     QKeyEvent pe = *e;
     int n = -1;
     int hasShift = (e->state()&Qt::ShiftButton)?1:0;

@@ -637,7 +637,7 @@ QPixmap QTableItem::pixmap() const
 QString QTableItem::text() const
 {
     QWidget *w = table()->cellWidget( rw, cl );
-    if ( w && ( edType == Always || !::qt_cast<QLineEdit>(w) ) )
+    if ( w && ( edType == Always || !qt_cast<QLineEdit*>(w) ) )
 	( (QTableItem*)this )->setContentFromEditor( w );
     return txt;
 }
@@ -768,7 +768,7 @@ QWidget *QTableItem::createEditor() const
 
 void QTableItem::setContentFromEditor( QWidget *w )
 {
-    QLineEdit *le = ::qt_cast<QLineEdit>(w);
+    QLineEdit *le = qt_cast<QLineEdit*>(w);
     if ( le )
 	setText( le->text() );
 }
@@ -780,7 +780,7 @@ void QTableItem::setContentFromEditor( QWidget *w )
 #endif
 /*!
  */
-void QTableItem::setAlignment( int alignment )
+void QTableItem::setAlignment( int /*alignment*/ )
 {
 }
 
@@ -1219,7 +1219,7 @@ QWidget *QComboTableItem::createEditor() const
 
 void QComboTableItem::setContentFromEditor( QWidget *w )
 {
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb ) {
 	entries.clear();
 	for ( int i = 0; i < cb->count(); ++i )
@@ -1265,7 +1265,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 void QComboTableItem::setCurrentItem( int i )
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb ) {
 	cb->setCurrentItem( i );
 	current = i;
@@ -1302,7 +1302,7 @@ void QComboTableItem::setCurrentItem( const QString &s )
 int QComboTableItem::currentItem() const
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->currentItem();
     return current;
@@ -1317,7 +1317,7 @@ int QComboTableItem::currentItem() const
 QString QComboTableItem::currentText() const
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->currentText();
     return *entries.at( current );
@@ -1330,7 +1330,7 @@ QString QComboTableItem::currentText() const
 int QComboTableItem::count() const
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->count();
     return (int)entries.count();    //### size_t/int cast
@@ -1345,7 +1345,7 @@ int QComboTableItem::count() const
 QString QComboTableItem::text( int i ) const
 {
     QWidget *w = table()->cellWidget( row(), col() );
-    QComboBox *cb = ::qt_cast<QComboBox>(w);
+    QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->text( i );
     return *entries.at( i );
@@ -1459,7 +1459,7 @@ void QCheckTableItem::setText( const QString &t )
 {
     QTableItem::setText( t );
     QWidget *w = table()->cellWidget( row(), col() );
-    QCheckBox *cb = ::qt_cast<QCheckBox>(w);
+    QCheckBox *cb = qt_cast<QCheckBox*>(w);
     if ( cb )
 	cb->setText( t );
 }
@@ -1482,7 +1482,7 @@ QWidget *QCheckTableItem::createEditor() const
 
 void QCheckTableItem::setContentFromEditor( QWidget *w )
 {
-    QCheckBox *cb = ::qt_cast<QCheckBox>(w);
+    QCheckBox *cb = qt_cast<QCheckBox*>(w);
     if ( cb )
 	checked = cb->isChecked();
 }
@@ -1535,7 +1535,7 @@ void QCheckTableItem::setChecked( bool b )
     checked = b;
     table()->updateCell( row(), col() );
     QWidget *w = table()->cellWidget( row(), col() );
-    QCheckBox *cb = ::qt_cast<QCheckBox>(w);
+    QCheckBox *cb = qt_cast<QCheckBox*>(w);
     if ( cb )
 	cb->setChecked( b );
 }
@@ -1554,7 +1554,7 @@ bool QCheckTableItem::isChecked() const
     // #### and end up in an infinite loop that way
     // table()->updateCell( row(), col() );
     QWidget *w = table()->cellWidget( row(), col() );
-    QCheckBox *cb = ::qt_cast<QCheckBox>(w);
+    QCheckBox *cb = qt_cast<QCheckBox*>(w);
     if ( cb )
 	return cb->isChecked();
     return checked;
@@ -3113,7 +3113,7 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 {
     QTableItem *itm = item( row, col );
     QTableItem *oldIitem = item( curRow, curCol );
-    
+
     if ( row > numRows() - 1 )
 	row = numRows() - 1;
     if ( col > numCols() - 1 )
@@ -3452,7 +3452,7 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
 void QTable::selectRow( int row )
 {
     row = QMIN(numRows()-1, row);
-    if ( ::qt_cast<QDataTable>(this) || selectionMode() == SingleRow ) {
+    if ( qt_cast<QDataTable*>(this) || selectionMode() == SingleRow ) {
 	setCurrentCell( row, currentColumn() );
     } else {
 	QTableSelection sel( row, 0, row, numCols() - 1 );
@@ -3569,7 +3569,7 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	QTableItem *itm = item( tmpRow, tmpCol );
 	if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
 	    QWidget *w = cellWidget( tmpRow, tmpCol );
-	    if ( ::qt_cast<QComboBox>(w) || ::qt_cast<QButton>(w) ) {
+	    if ( qt_cast<QComboBox*>(w) || qt_cast<QButton*>(w) ) {
 		QMouseEvent ev( e->type(), w->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
 		QApplication::sendPostedEvents( w, 0 );
@@ -5007,7 +5007,7 @@ void QTable::setCellContentFromEditor( int row, int col )
     if ( i ) {
 	i->setContentFromEditor( editor );
     } else {
-	QLineEdit *le = ::qt_cast<QLineEdit>(editor);
+	QLineEdit *le = qt_cast<QLineEdit*>(editor);
 	if ( le )
 	    setText( row, col, le->text() );
     }

@@ -2856,7 +2856,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    bool drawActiveSelection = hasFocus() ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() ) ||
-			    ::qt_cast<QPopupMenu>(qApp->focusWidget());
+			    qt_cast<QPopupMenu*>(qApp->focusWidget());
 	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
 	    while ( c < lc && d->drawables ) {
@@ -3750,7 +3750,7 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    // nothing
 	    break;
 	}
-    } else if ( ::qt_cast<QLineEdit>(o) ) {
+    } else if ( qt_cast<QLineEdit*>(o) ) {
 	if ( currentItem() && currentItem()->renameBox ) {
 	    if ( e->type() == QEvent::KeyPress ) {
 		QKeyEvent *ke = (QKeyEvent*)e;

@@ -65,7 +65,7 @@ void CppEditorBrowser::showHelp( const QString &w )
 	}
     }
 
-    QMainWindow *mw = ::qt_cast<QMainWindow>(curEditor->topLevelWidget());
+    QMainWindow *mw = qt_cast<QMainWindow*>(curEditor->topLevelWidget());
     if ( mw )
 	mw->statusBar()->message( tr( "Nothing available for '%1'" ).arg( w ), 1500 );
 }

@@ -46,9 +46,14 @@
 class QColor;
 class QCursor;
 
-
 class Q_EXPORT Qt {
+#if Q_MOC_RUN
+    Q_OBJECT
+    Q_ENUMS( Orientation TextFormat BackgroundMode DateFormat )
+    Q_SETS( Alignment )
+#endif
 public:
+    // MOC_SKIP_BEGIN
     QT_STATIC_CONST QColor & color0;
     QT_STATIC_CONST QColor & color1;
     QT_STATIC_CONST QColor & black;
@@ -68,6 +73,7 @@ public:
     QT_STATIC_CONST QColor & darkCyan;
     QT_STATIC_CONST QColor & darkMagenta;
     QT_STATIC_CONST QColor & darkYellow;
+    // MOC_SKIP_END
 
     // documented in qevent.cpp
     enum ButtonState {				// mouse/keyboard state values
@@ -115,6 +121,13 @@ public:
 	AlignVertical_Mask 	= AlignTop | AlignBottom | AlignVCenter,
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
+
+#if Q_MOC_RUN
+    enum Alignment { // public text alignment without masks
+	AlignAuto, AlignLeft, AlignRight, AlignHCenter, AlignJustify,
+	AlignTop, AlignBottom, AlignVCenter, AlignCenter
+    };
+#endif
 
     // documented in qpainter.cpp
     enum TextFlags {
@@ -744,6 +757,7 @@ public:
 
     // Global cursors
 
+    // MOC_SKIP_BEGIN
     QT_STATIC_CONST QCursor & arrowCursor;	// standard arrow cursor
     QT_STATIC_CONST QCursor & upArrowCursor;	// upwards arrow
     QT_STATIC_CONST QCursor & crossCursor;	// crosshair
@@ -762,7 +776,7 @@ public:
     QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
     QT_STATIC_CONST QCursor & forbiddenCursor;	// forbidden cursor (slashed circle)
     QT_STATIC_CONST QCursor & whatsThisCursor;  // arrow with a question mark
-
+    // MOC_SKIP_END
 
     enum TextFormat {
 	PlainText,

@@ -307,8 +307,10 @@ public:
     bool contains ( const Key& k ) const { return findNode( k ) != &d->header; }
     Iterator find ( const Key& k ) { detach(); return findNode( k ); }
     ConstIterator find ( const Key& k ) const { return findNode( k ); }
+    const T value(const Key &key) const;
+    const T value(const Key &key, const T &defaultValue) const;
     T& operator[] ( const Key& k );
-    const T operator[] ( const Key& k ) const;
+    inline const T operator[] ( const Key& k ) const { return value(k);}
 
 
     QValueList<Key> keys() const;
@@ -588,11 +590,17 @@ T & QMap<Key,T>::operator[] ( const Key& k ) {
     }
 
 template<class Key, class T>
-const T QMap<Key,T>::operator[] ( const Key& k ) const
+const T QMap<Key,T>::value( const Key& k ) const
 {
     Node *n = findNode( k );
+    return ( (n == &d->header) ? T() : n->data );
+}
 
-    return (n == &d->header) ? T() : n->data;
+template<class Key, class T>
+const T QMap<Key,T>::value( const Key& k, const T& defaultValue ) const
+{
+    Node *n = findNode( k );
+    return ( (n == &d->header) ? defaultValue : n->data );
 }
 
 template<class Key, class T>

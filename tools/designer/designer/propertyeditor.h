@@ -644,7 +644,7 @@ public:
     void setValue( const QVariant &v );
     QString currentItem() const;
     QString currentItemFromObject() const;
-    void setCurrentValues( QStrList lst );
+    void setCurrentValues( const QString &values );
 
 private slots:
     void setValue();
@@ -768,7 +768,7 @@ public:
 
     QString currentProperty() const;
     QString classOfCurrentProperty() const;
-    QMetaObject* metaObjectOfCurrentProperty() const;
+    const QMetaObject* metaObjectOfCurrentProperty() const;
 
     void resetFocus();
 

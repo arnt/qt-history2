@@ -184,7 +184,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	if ( o != widget )
 	    break;
     case QEvent::MouseButtonPress:
-	if ( ::qt_cast<QScrollView>(o) )
+	if ( qt_cast<QScrollView*>(o) )
 	    break;
     case QEvent::MouseButtonDblClick:
 	setEnabled(TRUE);
@@ -426,7 +426,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	scroll();
 	break;
     case QEvent::MouseButtonPress:
-	if ( ::qt_cast<QScrollView>(o) )
+	if ( qt_cast<QScrollView*>(o) )
 	    break;
     case QEvent::MouseButtonDblClick:
 	if ( done )
@@ -485,7 +485,7 @@ void QRollEffect::run( int time )
 	int dist = 0;
 	if ( orientation & (RightScroll|LeftScroll) )
 	    dist += totalWidth - currentWidth;
-	if ( orientation & (DownScroll|UpScroll) ) 
+	if ( orientation & (DownScroll|UpScroll) )
 	    dist += totalHeight - currentHeight;
 	duration = QMIN( QMAX( dist/3, 50 ), 120 );
     }

@@ -62,18 +62,18 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     setFinishEnabled( finishPage, TRUE );
 
     /* set mode of operation */
-    if ( ::qt_cast<QDataTable>(widget) ) {
+    if ( qt_cast<QDataTable*>(widget) ) {
 	setCaption( "Data Table Wizard" );
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
 	setAppropriate( layoutPage, FALSE );
 	checkBoxAutoEdit->setChecked( FALSE );
-    } else if ( ::qt_cast<QDataBrowser>(widget) ) {
+    } else if ( qt_cast<QDataBrowser*>(widget) ) {
 	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	mode = Browser;
 	checkBoxAutoEdit->setChecked( TRUE );
-    } else if ( ::qt_cast<QDataView>(widget) ) {
+    } else if ( qt_cast<QDataView*>(widget) ) {
 	setCaption( "Data View Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	setAppropriate( navigPage, FALSE );
@@ -443,7 +443,7 @@ void SqlFormWizard::accept()
 		((QLineEdit*)editor)->setAlignment( Qt::AlignRight );
 		formWindow->setPropertyChanged( editor, "alignment", TRUE );
 	    }
-	    if ( ::qt_cast<QSpinBox>(editor) ) {
+	    if ( qt_cast<QSpinBox*>(editor) ) {
 		( (QSpinBox*)editor )->setMaxValue( INT_MAX );
 		formWindow->setPropertyChanged( editor, "maxValue", TRUE );
 	    }

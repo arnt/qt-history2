@@ -429,7 +429,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		r = nullText();
 	    break;
 	case QVariant::String:
-	case QVariant::CString: {
+	{
 	    QString result = field->value().toString();
 	    if ( trimStrings ) {
 		int end = result.length() - 1;

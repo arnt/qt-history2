@@ -142,7 +142,7 @@ void ActionEditor::newAction()
 {
     ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
-	if ( !::qt_cast<QActionGroup>(actionParent->actionGroup()) )
+	if ( !qt_cast<QActionGroup*>(actionParent->actionGroup()) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
 
@@ -175,7 +175,7 @@ void ActionEditor::newActionGroup()
 {
     ActionItem *actionParent = (ActionItem*)listActions->selectedItem();
     if ( actionParent ) {
-	if ( !::qt_cast<QActionGroup>(actionParent->actionGroup()) )
+	if ( !qt_cast<QActionGroup*>(actionParent->actionGroup()) )
 	    actionParent = (ActionItem*)actionParent->parent();
     }
 
@@ -213,18 +213,18 @@ void ActionEditor::setFormWindow( FormWindow *fw )
     listActions->clear();
     formWindow = fw;
     if ( !formWindow ||
-	 !::qt_cast<QMainWindow>(formWindow->mainContainer()) ) {
+	 !qt_cast<QMainWindow*>(formWindow->mainContainer()) ) {
 	setEnabled( FALSE );
     } else {
 	setEnabled( TRUE );
 	for ( QAction *a = formWindow->actionList().first(); a; a = formWindow->actionList().next() ) {
 	    ActionItem *i = 0;
-	    if ( ::qt_cast<QAction>(a->parent()) )
+	    if ( qt_cast<QAction*>(a->parent()) )
 		continue;
 	    i = new ActionItem( listActions, a );
 	    i->setText( 0, a->name() );
 	    i->setPixmap( 0, a->iconSet().pixmap() );
-	    if ( ::qt_cast<QActionGroup>(a) ) {
+	    if ( qt_cast<QActionGroup*>(a) ) {
 		insertChildActions( i );
 	    }
 	}
@@ -243,14 +243,14 @@ void ActionEditor::insertChildActions( ActionItem *i )
     while ( it.current() ) {
 	QObject *o = it.current();
 	++it;
-	if ( !::qt_cast<QAction>(o) )
+	if ( !qt_cast<QAction*>(o) )
 	    continue;
 	QAction *a = (QAction*)o;
 	ActionItem *i2 = new ActionItem( (QListViewItem*)i, a );
 	i->setOpen( TRUE );
 	i2->setText( 0, a->name() );
 	i2->setPixmap( 0, a->iconSet().pixmap() );
-	if ( ::qt_cast<QActionGroup>(a) )
+	if ( qt_cast<QActionGroup*>(a) )
 	    insertChildActions( i2 );
     }
 }
@@ -299,7 +299,7 @@ void ActionEditor::removeAction( QAction *a )
 	MetaDataBase::removeConnection( formWindow, (*it2).sender, (*it2).signal,
 					(*it2).receiver, (*it2).slot );
     // If it's an actiongroup, do the same for its children
-    QActionGroup *ag = (QActionGroup *)a->qt_cast( "QActionGroup" );
+    QActionGroup *ag = (QActionGroup *)a->qt_metacast( "QActionGroup" );
     QObjectList *subActions = ( ag ? ag->queryList( "QAction" ) : 0 );
     if ( subActions && subActions->count() ) {
 	QObjectListIterator subAction( *subActions );

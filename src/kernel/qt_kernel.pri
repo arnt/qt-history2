@@ -15,7 +15,6 @@ kernel {
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_P/qcomplextext_p.h \
-		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
 		  $$KERNEL_H/qdragobject.h \
@@ -71,7 +70,6 @@ kernel {
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
-		  $$KERNEL_H/qsignalslotimp.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
@@ -185,7 +183,6 @@ kernel {
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcomplextext.cpp \
-		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
 		  $$KERNEL_CPP/qdrawutil.cpp \

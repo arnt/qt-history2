@@ -166,8 +166,8 @@ static QImage loadImageData( const QString& format, ulong len, QByteArray data )
 {
     QImage img;
     if ( format == "XPM.GZ" ) {
-	if ( len < data.size() * 10 )
-	    len = data.size() * 10;
+	if ( len < (ulong)data.size() * 10 )
+	    len = (ulong)data.size() * 10;
 	// qUncompress() expects the first 4 bytes to be the expected length of
 	// the uncompressed data
 	QByteArray dataTmp( data.size() + 4 );
@@ -850,7 +850,7 @@ void QWidgetFactory::inputItem( const UibStrTable& strings, QDataStream& in,
 	if ( parent != 0 ) {
 	    if ( parent->inherits("QComboBox") ||
 		 parent->inherits("QListBox") ) {
-		QListBox *listBox = (QListBox *) parent->qt_cast( "QListBox" );
+		QListBox *listBox = (QListBox *) parent;
 		if ( listBox == 0 )
 		    listBox = ((QComboBox *) parent)->listBox();
 
@@ -1219,7 +1219,7 @@ QWidget *QWidgetFactory::createFromUibFile( QDataStream& in,
 		    unpackUInt16( in, labelNo );
 		    unpackUInt16( in, buddyNo );
 		    QLabel *label =
-			(QLabel *) objects[labelNo]->qt_cast( "QLabel" );
+			(QLabel *) objects[labelNo]->qt_metacast( "QLabel" );
 		    if ( label != 0 )
 			label->setBuddy( (QWidget *) objects[buddyNo] );
 		} while ( !END_OF_BLOCK() );
@@ -1817,23 +1817,14 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 	} else {
 	    if ( value.type() == QVariant::String ||
 		 value.type() == QVariant::CString ) {
-		const QMetaProperty *metaProp =
-			obj->metaObject()->property( offset, TRUE );
-		if ( metaProp != 0 && metaProp->isEnumType() ) {
-		    if ( metaProp->isSetType() ) {
-			QStrList flagsCStr;
-			QStringList flagsStr =
-			    QStringList::split( '|', value.asString() );
-			QStringList::ConstIterator f = flagsStr.begin();
-			while ( f != flagsStr.end() ) {
-			    flagsCStr.append( *f );
-			    ++f;
-			}
-			value = QVariant( metaProp->keysToValue(flagsCStr) );
-		    } else {
-			QCString key = value.toCString();
-			value = QVariant( metaProp->keyToValue(key) );
-		    }
+		const QMetaProperty metaProp =
+		    obj->metaObject()->property( offset, TRUE );
+		if ( metaProp.isReadable() && metaProp.isEnumType() ) {
+		    QCString key = value.toCString();
+		    if ( metaProp.isSetType() )
+			value = QVariant( metaProp.enumerator().keysToValue(key) );
+		    else
+			value = QVariant( metaProp.enumerator().keyToValue(key) );
 		}
 	    }
 	    obj->setProperty( prop, value );
@@ -2049,13 +2040,6 @@ struct Connection
     Connection() : sender( 0 ), receiver( 0 ) { }
 };
 
-class NormalizeObject : public QObject
-{
-public:
-    NormalizeObject() : QObject() {}
-    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
-};
-
 void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 {
     QDomElement n = e.firstChild().toElement();
@@ -2101,8 +2085,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		n2 = n2.nextSibling().toElement();
 	    }
 
-	    conn.signal = NormalizeObject::normalizeSignalSlot( conn.signal );
-	    conn.slot = NormalizeObject::normalizeSignalSlot( conn.slot );
+	    conn.signal = QMetaObject::normalizeSignature( conn.signal );
+	    conn.slot = QMetaObject::normalizeSignature( conn.slot );
 
 	    if ( !conn.sender || !conn.receiver ) {
 		n = n.nextSibling().toElement();
@@ -2143,18 +2127,16 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    QString s2 = "1""%1";
 	    s2 = s2.arg( conn.slot );
 
-	    QStrList signalList = sender->metaObject()->signalNames( TRUE );
-	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
 	    // if this is a connection to a custom slot and we have a connector, try this as receiver
-	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {
-		slotList = connector->metaObject()->slotNames( TRUE );
+	    if ( receiver->metaObject()->findSlot(conn.slot) == -1
+		 && receiver == toplevel && connector ) {
 		receiver = connector;
 	    }
 
 	    // avoid warnings
-	    if ( signalList.find( conn.signal ) == -1 ||
-		 slotList.find( conn.slot ) == -1 ) {
+	    if ( sender->metaObject()->findSignal(conn.signal,true) == -1 ||
+		 receiver->metaObject()->findSlot(conn.slot) == -1 ) {
 		n = n.nextSibling().toElement();
 		continue;
 	    }

@@ -231,7 +231,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 {
     if( !widget ) return;
 
-    QMetaObject* mo = widget->metaObject();
+    const QMetaObject* mo = widget->metaObject();
     while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
 	mo = mo->superClass();
     if ( !mo ) {

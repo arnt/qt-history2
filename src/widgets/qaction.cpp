@@ -524,7 +524,7 @@ QAction::QAction( const QString& text, const QString& menuText, QKeySequence acc
 */
 void QAction::init()
 {
-    if ( ::qt_cast<QActionGroup>(parent()) )
+    if ( qt_cast<QActionGroup*>(parent()) )
 	((QActionGroup*) parent())->add( this );		// insert into action group
 }
 
@@ -931,7 +931,7 @@ void QAction::toolButtonToggled( bool on )
 bool QAction::addTo( QWidget* w )
 {
 #ifndef QT_NO_TOOLBAR
-    if ( ::qt_cast<QToolBar>(w) ) {
+    if ( qt_cast<QToolBar*>(w) ) {
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QToolBar*)w)->addSeparator();
 	} else {
@@ -953,7 +953,7 @@ bool QAction::addTo( QWidget* w )
 	}
     } else
 #endif
-    if ( ::qt_cast<QPopupMenu>(w) ) {
+    if ( qt_cast<QPopupMenu*>(w) ) {
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QPopupMenu*)w)->insertSeparator();
 	} else {
@@ -974,7 +974,7 @@ bool QAction::addTo( QWidget* w )
 	    connect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
 	}
     // Makes only sense when called by QActionGroup::addTo
-    } else if ( ::qt_cast<QComboBox>(w) ) {
+    } else if ( qt_cast<QComboBox*>(w) ) {
 	QActionPrivate::ComboItem *ci = new QActionPrivate::ComboItem;
 	ci->combo = (QComboBox*)w;
 	connect( ci->combo, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
@@ -1033,7 +1033,7 @@ void QAction::showStatusText( const QString& text )
     static QPopupMenu *lastmenu = 0;
     QObject *s = (QObject*)sender();
     if ( s ) {
-	QPopupMenu *menu = (QPopupMenu*)s->qt_cast( "QPopupMenu" );
+	QPopupMenu *menu = qt_cast<QPopupMenu*>(s);
 	if ( menu && !!text )
 	    lastmenu = menu;
 	else if ( menu && text.isEmpty() ) {
@@ -1112,7 +1112,7 @@ void QAction::clearStatusText()
 bool QAction::removeFrom( QWidget* w )
 {
 #ifndef QT_NO_TOOLBAR
-    if ( ::qt_cast<QToolBar>(w) ) {
+    if ( qt_cast<QToolBar*>(w) ) {
 	QPtrListIterator<QToolButton> it( d->toolbuttons);
 	QToolButton* btn;
 	while ( ( btn = it.current() ) ) {
@@ -1126,7 +1126,7 @@ bool QAction::removeFrom( QWidget* w )
 	}
     } else
 #endif
-    if ( ::qt_cast<QPopupMenu>(w) ) {
+    if ( qt_cast<QPopupMenu*>(w) ) {
 	QPtrListIterator<QActionPrivate::MenuItem> it( d->menuitems);
 	QActionPrivate::MenuItem* mi;
 	while ( ( mi = it.current() ) ) {
@@ -1139,7 +1139,7 @@ bool QAction::removeFrom( QWidget* w )
 		d->menuitems.removeRef( mi );
 	    }
 	}
-    } else if ( ::qt_cast<QComboBox>(w) ) {
+    } else if ( qt_cast<QComboBox*>(w) ) {
 	QPtrListIterator<QActionPrivate::ComboItem> it( d->comboitems );
 	QActionPrivate::ComboItem *ci;
 	while ( ( ci = it.current() ) ) {
@@ -1268,7 +1268,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     }
     for ( QPtrListIterator<QActionGroupPrivate::MenuItem> pu( menuitems ); pu.current(); ++pu ) {
 	QWidget* parent = pu.current()->popup->parentWidget();
-	if ( ::qt_cast<QPopupMenu>(parent) ) {
+	if ( qt_cast<QPopupMenu*>(parent) ) {
 	    QPopupMenu* ppopup = (QPopupMenu*)parent;
 	    ppopup->setItemEnabled( pu.current()->id, that->isEnabled() );
 	    ppopup->setItemVisible( pu.current()->id, that->isVisible() );
@@ -1278,7 +1278,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
     }
     for ( QPtrListIterator<QPopupMenu> pm( popupmenus ); pm.current(); ++pm ) {
 	QPopupMenu *popup = pm.current();
-	QPopupMenu *parent = ::qt_cast<QPopupMenu>(popup->parentWidget());
+	QPopupMenu *parent = qt_cast<QPopupMenu*>(popup->parentWidget());
 	if ( !parent )
 	    continue;
 
@@ -1564,7 +1564,7 @@ void QActionGroup::addSeparator()
 bool QActionGroup::addTo( QWidget* w )
 {
 #ifndef QT_NO_TOOLBAR
-    if ( ::qt_cast<QToolBar>(w) ) {
+    if ( qt_cast<QToolBar*>(w) ) {
 	if ( d->dropdown ) {
 	    if ( !d->exclusive ) {
 		QPtrListIterator<QAction> it( d->actions);
@@ -1646,7 +1646,7 @@ bool QActionGroup::addTo( QWidget* w )
 	}
     } else
 #endif
-    if ( ::qt_cast<QPopupMenu>(w) ) {
+    if ( qt_cast<QPopupMenu*>(w) ) {
 	QPopupMenu *popup;
 	if ( d->dropdown ) {
 	    QPopupMenu *menu = (QPopupMenu*)w;
@@ -1700,7 +1700,7 @@ bool QActionGroup::removeFrom( QWidget* w )
     }
 
 #ifndef QT_NO_TOOLBAR
-    if ( ::qt_cast<QToolBar>(w) ) {
+    if ( qt_cast<QToolBar*>(w) ) {
 	QPtrListIterator<QComboBox> cb( d->comboboxes );
 	while( cb.current() ) {
 	    QComboBox *box = cb.current();
@@ -1717,7 +1717,7 @@ bool QActionGroup::removeFrom( QWidget* w )
 	}
     } else
 #endif
-    if ( ::qt_cast<QPopupMenu>(w) ) {
+    if ( qt_cast<QPopupMenu*>(w) ) {
 	QPtrListIterator<QActionGroupPrivate::MenuItem> pu( d->menuitems );
 	while ( pu.current() ) {
 	    QActionGroupPrivate::MenuItem *mi = pu.current();
@@ -1876,7 +1876,7 @@ void QActionGroup::childEvent( QChildEvent *e )
     if ( !e->removed() )
 	return;
 
-    QAction *action = ::qt_cast<QAction>(e->child());
+    QAction *action = qt_cast<QAction*>(e->child());
     if ( !action )
 	return;
 

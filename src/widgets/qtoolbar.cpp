@@ -38,6 +38,7 @@
 #include "qtoolbar.h"
 #ifndef QT_NO_TOOLBAR
 
+#include "qapplication.h"
 #include "qmainwindow.h"
 #include "qpushbutton.h"
 #include "qtooltip.h"
@@ -439,7 +440,7 @@ void QToolBar::styleChange( QStyle& )
         QObject *ob = 0;
 	for ( ob = childs->first(); ob; ob = childs->next() ) {
 	    QWidget *w = (QWidget*)ob;
-            if ( ::qt_cast<QToolButton>(w) || ::qt_cast<QToolBarSeparator>(w) )
+            if ( qt_cast<QToolButton*>(w) || qt_cast<QToolBarSeparator*>(w) )
                 w->setStyle( &style() );
         }
     }
@@ -621,7 +622,7 @@ void QToolBar::createPopup()
 	    continue;
 	}
 	QWidget *w = (QWidget*)it.current();
-	if ( ::qt_cast<QComboBox>(w) )
+	if ( qt_cast<QComboBox*>(w) )
 	    j = 1;
 	hide = FALSE;
 	QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
@@ -634,7 +635,7 @@ void QToolBar::createPopup()
 	}
 	if ( hide && !w->isHidden() ) {
 	    doHide = TRUE;
-	    if ( ::qt_cast<QToolButton>(w) ) {
+	    if ( qt_cast<QToolButton*>(w) ) {
 		QToolButton *b = (QToolButton*)w;
 	        QString s = b->textLabel();
 	        if ( s.isEmpty() )
@@ -647,7 +648,7 @@ void QToolBar::createPopup()
 		    d->extensionPopup->setItemChecked( id, b->isOn() );
 		if ( !b->isEnabled() )
 		    d->extensionPopup->setItemEnabled( id, FALSE );
-	    } else if ( ::qt_cast<QButton>(w) ) {
+	    } else if ( qt_cast<QButton*>(w) ) {
 		QButton *b = (QButton*)w;
 		QString s = b->text();
 		if ( s.isEmpty() )
@@ -661,7 +662,7 @@ void QToolBar::createPopup()
 		if ( !b->isEnabled() )
 		    d->extensionPopup->setItemEnabled( id, FALSE );
 #ifndef QT_NO_COMBOBOX
-	    } else if ( ::qt_cast<QComboBox>(w) ) {
+	    } else if ( qt_cast<QComboBox*>(w) ) {
 		QComboBox *c = (QComboBox*)w;
 		if ( c->count() != 0 ) {
 #ifndef QT_NO_WIDGET_TOPEXTRA

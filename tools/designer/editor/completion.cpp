@@ -320,7 +320,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 {
     if ( !enabled )
 	return FALSE;
-    if ( e->type() == QEvent::KeyPress && ::qt_cast<Editor>(o)) {
+    if ( e->type() == QEvent::KeyPress && qt_cast<Editor*>(o)) {
 	curEditor = (Editor*)o;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Tab ) {
@@ -416,7 +416,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
     }
-    if ( o == functionLabel || ::qt_cast<Editor>(o) && functionLabel->isVisible() ) {
+    if ( o == functionLabel || qt_cast<Editor*>(o) && functionLabel->isVisible() ) {
 	if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent*)e;
 	    if ( ke->key() == Key_Escape ) {

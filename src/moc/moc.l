@@ -429,7 +429,7 @@ STRING		{ALMOSTSTRING}\"
 
 ^[ \t]*#.*		{ /* preprocessor commands are skipped */}
 "//"[^\n]*		{ /* C++ comment */
-			  QCString s = yytext;
+			  QByteArray s(yytext);
                           if ( s.contains( "MOC_SKIP_BEGIN" ) ) {
                             skipLevel++;
                             if ( skipLevel == 1 ) {

@@ -75,9 +75,12 @@ public:
     int communication() const;
 
     // start the execution
+    // #### why are those virtual?
     virtual bool start( QStringList *env=0 );
-    virtual bool launch( const QString& buf, QStringList *env=0  );
     virtual bool launch( const QByteArray& buf, QStringList *env=0  );
+    virtual bool launch( const QString& buf, QStringList *env=0  );
+    inline bool launch( const char * buf, QStringList *env=0  )
+	{ return launch(QByteArray(buf), env); }
 
     // inquire the status
     bool isRunning() const;

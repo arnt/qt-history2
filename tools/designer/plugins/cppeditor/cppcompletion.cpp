@@ -73,9 +73,10 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	}
     }
 
-    QStrList props = obj->metaObject()->propertyNames( TRUE );
-    for ( QPtrListIterator<char> pit( props ); pit.current(); ++pit ) {
-	QString f( pit.current() );
+    int numProperties = obj->metaObject()->numProperties(true);
+    for (int i = 0; i < numProperties; ++i) {
+	QMetaProperty p = obj->metaObject()->property(i, true);
+	QString f( p.name() );
 	QChar c = f[ 0 ];
 	f.remove( 0, 1 );
 	f.prepend( c.upper() );
@@ -90,9 +91,10 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	    lst << ce;
     }
 
-    QStrList slts = obj->metaObject()->slotNames( TRUE );
-    for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
-	QString f( sit.current() );
+    int numSlots = obj->metaObject()->numSlots(true);
+    for (int i = 0; i < numSlots; ++i) {
+	QMetaMember mm = obj->metaObject()->slot(i, true);
+	QString f( mm.signature() );
 	f = f.left( f.find( "(" ) );
 	CompletionEntry c;
 	c.type = "slot";
@@ -179,12 +181,13 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     if ( !obj )
 	return QValueList<QStringList>();
 
-    QStrList slts = obj->metaObject()->slotNames( TRUE );
-    for ( QPtrListIterator<char> sit( slts ); sit.current(); ++sit ) {
-	QString f( sit.current() );
+    int numSlots = obj->metaObject()->numSlots(true);
+    for (int i = 0; i < numSlots; ++i) {
+	QMetaMember mm = obj->metaObject()->slot(i, true);
+	QString f( mm.signature() );
 	f = f.left( f.find( "(" ) );
 	if ( f == func ) {
-	    f = QString( sit.current() );
+	    f = QString( mm.signature() );
 	    f.remove( 0, f.find( "(" ) + 1 );
 	    f = f.left( f.find( ")" ) );
 	    QStringList lst = QStringList::split( ',', f );
@@ -196,12 +199,12 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 	}
     }
 
-    const QMetaProperty *prop =
+    QMetaProperty prop =
 	obj->metaObject()->
 	property( obj->metaObject()->findProperty( func[ 3 ].lower() + func.mid( 4 ), TRUE ), TRUE );
     if ( prop ) {
 	QValueList<QStringList> l;
-	l << QStringList( prop->type() );
+	l << QStringList( prop.type() );
 	return l;
     }
 

@@ -1006,7 +1006,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TOOLBUTTON
-#ifndef QT_NO_HEADER	
+#ifndef QT_NO_HEADER
         case CE_HeaderLabel:
 	{
 	    QRect rect = r;
@@ -1607,7 +1607,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    if ( controls & SC_TitleBarCloseButton ) {
 		ir = visualRect( querySubControlMetrics( CC_TitleBar, widget, SC_TitleBarCloseButton ), widget );
 		down = active & SC_TitleBarCloseButton;
-		if ( widget->testWFlags( WStyle_Tool ) || ::qt_cast<QDockWindow>(widget) )
+		if ( widget->testWFlags( WStyle_Tool ) || qt_cast<QDockWindow*>(widget) )
 		    pm = stylePixmap(SP_DockWindowCloseButton, widget);
 		else
 		    pm = stylePixmap(SP_TitleBarCloseButton, widget);
@@ -2196,7 +2196,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	if ( widget ) {
 	    if ( widget->testWFlags( WStyle_Tool ) ) {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 16 );
-	    } else if ( ::qt_cast<QDockWindow>(widget) ) {
+	    } else if ( qt_cast<QDockWindow*>(widget) ) {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 13 );
 	    } else {
 		ret = QMAX( widget->fontMetrics().lineSpacing(), 18 );

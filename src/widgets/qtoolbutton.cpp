@@ -141,7 +141,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 {
     init();
 #ifndef QT_NO_TOOLBAR
-    QToolBar* tb = ::qt_cast<QToolBar>(parent);
+    QToolBar* tb = qt_cast<QToolBar*>(parent);
     if ( tb ) {
 	setAutoRaise( TRUE );
 	if ( tb->mainWindow() ) {
@@ -900,7 +900,7 @@ void QToolButton::popupTimerDone()
     setAutoRepeat( FALSE );
     bool horizontal = TRUE;
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = ::qt_cast<QToolBar>(parentWidget());
+    QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
     if ( tb && tb->orientation() == Vertical )
 	horizontal = FALSE;
 #endif
