@@ -222,7 +222,7 @@ MakefileGenerator::setProjectFile(QMakeProject *p)
 }
 
 QStringList
-MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, const QString &vpath_var)
+MakefileGenerator::findFilesInVPATH(QStringList l, uchar flags, const QString &vpath_var)
 {
     QStringList vpath;
     QMap<QString, QStringList> &v = project->variables();
@@ -230,7 +230,7 @@ MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, co
         bool remove_file = false;
         QString &val = l[val_it];
         if(!val.isEmpty()) {
-            QString file = fileFixify(val, qmake_getpwd(), Option::output_dir);
+            QString file = (flags & VPATH_NoFixify) ? val : fileFixify(val, qmake_getpwd(), Option::output_dir);
             if (file.at(0) == '\"' && file.at(file.length() - 1) == '\"')
                 file = file.mid(1, file.length() - 2);
 
@@ -274,9 +274,9 @@ MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, co
                         debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                   __FILE__, __LINE__,
                                   val.toLatin1().constData(), vpath.join("::").toLatin1().constData());
-                        if(missing == VPATH_RemoveMissingFiles)
+                        if(flags & VPATH_RemoveMissingFiles)
                             remove_file = true;
-                        else if(missing == VPATH_WarnMissingFiles)
+                        else if(flags & VPATH_WarnMissingFiles)
                             warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                     } else {
                         l.removeAt(val_it);
@@ -288,9 +288,9 @@ MakefileGenerator::findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, co
                               __FILE__, __LINE__, real_dir.toLatin1().constData(),
                               QDir::separator().toLatin1(),
                               regex.toLatin1().constData(), real_dir.toLatin1().constData());
-                    if(missing == VPATH_RemoveMissingFiles)
+                    if(flags & VPATH_RemoveMissingFiles)
                         remove_file = true;
-                    else if(missing == VPATH_WarnMissingFiles)
+                    else if(flags & VPATH_WarnMissingFiles)
                         warn_msg(WarnLogic, "Failure to find: %s", val.toLatin1().constData());
                 }
             }
@@ -1223,7 +1223,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
             target += tmp.join(" ");
         }
         //masks
-        tmp = findFilesInVPATH(project->variables()[(*it) + ".files"], VPATH_IgnoreMissingFiles);
+        tmp = fileFixify(findFilesInVPATH(project->variables()[(*it) + ".files"], VPATH_NoFixify));
         if(!tmp.isEmpty()) {
             if(!target.isEmpty())
                 target += "\n";

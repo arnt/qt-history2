@@ -83,7 +83,7 @@ protected:
     struct Compiler
     {
         QString variable_in;
-        enum CompilerFlags {
+        enum CompilerFlag {
             CompilerNoFlags       = 0x00,
             CompilerBuiltin       = 0x01,
             CompilerNoCheckDeps   = 0x02,
@@ -92,8 +92,13 @@ protected:
         uint flags, type;
     };
     void initCompiler(const Compiler &comp);
-    enum VPATHMIssingFiles { VPATH_WarnMissingFiles, VPATH_IgnoreMissingFiles, VPATH_RemoveMissingFiles };
-    QStringList findFilesInVPATH(QStringList l, VPATHMIssingFiles missing, const QString &var="");
+    enum VPATHFlag {
+        VPATH_NoFlag             = 0x00,
+        VPATH_WarnMissingFiles   = 0x01,
+        VPATH_RemoveMissingFiles = 0x02,
+        VPATH_NoFixify           = 0x04
+    };
+    QStringList findFilesInVPATH(QStringList l, uchar flags, const QString &var="");
 
     //subclasses can use these to query information about how the generator was "run"
     QString buildArgs();
