@@ -1472,7 +1472,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    QFileInfo fi(file);
 		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
 			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
-		    if(!fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+		    if(project->isActiveConfig("release") &&
+		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
 		    uninst.append(QString("-$(DEL_FILE) -r") + " \"" + dst + fi.fileName() + "\"");
 		    continue;
@@ -1499,7 +1500,8 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 		    QFileInfo fi(file);
 		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
 			      " \"" + Option::fixPathToTargetOS(fi.filePath(), FALSE) + "\" \"" + dst + "\"\n";
-		    if(!fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
+		    if(project->isActiveConfig("release") &&
+		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
 			target += QString("\t") + var("QMAKE_STRIP") + " \"" + dst + "\"\n";
 		}
 	    }
