@@ -83,13 +83,13 @@ inline int UibStrTable::insertCString( const char *cstr )
 	return 0;
     } else {
 	int nextPos = table.size();
-
 	int len = strlen( cstr );
-	for ( int i = 0; i < nextPos - len; i++ ) {
+	int i;
+	for ( i = 0; i < nextPos - len; i++ ) {
 	    if ( memcmp(table.data() + i, cstr, len + 1) == 0 )
 		return i;
 	}
-	for ( int i = 0; i < len + 1; i++ )
+	for ( i = 0; i < len + 1; i++ )
 	    out << (Q_UINT8) cstr[i];
 	return nextPos;
     }
