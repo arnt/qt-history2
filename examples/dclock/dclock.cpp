@@ -14,6 +14,7 @@
 #include <qevent.h>
 #include <qdatetime.h>
 
+using namespace Qt;
 
 //
 // Constructs a DigitalClock widget with a parent and a name.
@@ -53,7 +54,7 @@ void DigitalClock::timerEvent( QTimerEvent *e )
 
 void DigitalClock::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == QMouseEvent::LeftButton )		// left button pressed
+    if ( e->button() == LeftButton )		// left button pressed
 	showDate();
 }
 

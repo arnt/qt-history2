@@ -9,3 +9,4 @@ QTDIR_build:REQUIRES	= "contains(QT_CONFIG, large-config)"
 HEADERS		= dclock.h
 SOURCES		= dclock.cpp \
 		  main.cpp
+QT	+= compat
