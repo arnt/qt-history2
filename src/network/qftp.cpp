@@ -100,14 +100,31 @@ QFtp::QFtp()
 // new stuff
 //
 
+class QFtpPI;
+
 class QFtpDTP : public QSocket
 {
     Q_OBJECT
 
 public:
-    QFtpDTP( QObject *parent=0, const char *name=0 ) :
-	QSocket( parent, name )
-    { }
+    QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 );
+
+    bool hasError() const;
+    QString errorMessage() const;
+    void clearError();
+
+    static bool parseDir( const QString &buffer, const QString &userName, QUrlInfo *info );
+
+signals:
+    void listInfo( const QUrlInfo& );
+
+private slots:
+    void slotConnected();
+    void slotReadyRead();
+
+private:
+    QFtpPI *pi;
+    QString err;
 };
 
 class QFtpPI : public QObject
@@ -123,20 +140,20 @@ public:
     bool sendCommand( const QString &cmd )
     { return sendCommands( QStringList( cmd ) ); }
 
-    void clearPendingCommands()
-    {
-	pendingCommands.clear();
-	currentCommand = QString::null;
-	state = Idle;
-    }
+    void clearPendingCommands();
 
-    static bool parseDir( const QString &buffer, const QString &userName, QUrlInfo *info );
+    QString currentCommand() const
+    { return currentCmd; }
 
+    QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
+		 // makes the design simpler this way
 signals:
     void connectState( int );
-    void listInfo( const QUrlInfo& );
     void finishedOk( const QString& );
     void error( const QString& );
+    void newData( const QByteArray& );
+    void dataSize( int );
+    void dataProgress( int );
 
 private slots:
     void hostFound();
@@ -146,9 +163,7 @@ private slots:
     void readyRead();
     void error( int );
 
-    void dtpConnected();
     void dtpConnectionClosed();
-    void dtpReadyRead();
 
 private:
     // the states are modelled after the generalized state diagram of RFC 959,
@@ -165,24 +180,240 @@ private:
     bool startNextCmd();
 
     QSocket commandSocket;
-    QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
-		 // makes the design simpler this way
     QString replyText;
     char replyCode[3];
     State state;
     QStringList pendingCommands;
-    QString currentCommand;
+    QString currentCmd;
 
-    QString outOfOrderError; // we might encounter an error that is not
-			     // signalled by a reply code -- use this variable
-			     // to issue these error in sync with the reply
-			     // parsing
     bool waitForDtpToClose;
 };
 
-QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
-    state(Begin), currentCommand(QString::null),
-    outOfOrderError(QString::null),
+class QFtpCommand
+{
+public:
+    QFtpCommand( int i, QFtp::Command cmd, QStringList raw )
+	: id(i), command(cmd), rawCmds(raw)
+    { }
+
+    int id;
+    QFtp::Command command;
+    QStringList rawCmds;
+};
+
+/**********************************************************************
+ *
+ * QFtpDTP implemenatation
+ *
+ *********************************************************************/
+QFtpDTP::QFtpDTP( QFtpPI *p, QObject *parent=0, const char *name=0 ) :
+    QSocket( parent, name ), pi(p),
+    err( QString::null )
+{
+    connect( this, SIGNAL( connected() ),
+	     SLOT( slotConnected() ) );
+    connect( this, SIGNAL( readyRead() ),
+	     SLOT( slotReadyRead() ) );
+#if 0
+    connect( dtp, SIGNAL( bytesWritten( int ) ),
+	     SLOT( slotBytesWritten( int ) ) );
+    connect( dtp, SIGNAL( error( int ) ),
+	     SLOT( slotError( int ) ) );
+#endif
+}
+
+inline bool QFtpDTP::hasError() const
+{
+    return !err.isNull();
+}
+
+inline QString QFtpDTP::errorMessage() const
+{
+    return err;
+}
+
+inline void QFtpDTP::clearError()
+{
+    err = QString::null;
+}
+
+bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo *info )
+{
+    QStringList lst = QStringList::split( " ", buffer );
+
+    if ( lst.count() < 9 )
+	return FALSE;
+
+    QString tmp;
+
+    // permissions
+    tmp = lst[ 0 ];
+
+    if ( tmp[ 0 ] == QChar( 'd' ) ) {
+	info->setDir( TRUE );
+	info->setFile( FALSE );
+	info->setSymLink( FALSE );
+    } else if ( tmp[ 0 ] == QChar( '-' ) ) {
+	info->setDir( FALSE );
+	info->setFile( TRUE );
+	info->setSymLink( FALSE );
+    } else if ( tmp[ 0 ] == QChar( 'l' ) ) {
+	info->setDir( TRUE ); // #### todo
+	info->setFile( FALSE );
+	info->setSymLink( TRUE );
+    } else {
+	return FALSE;
+    }
+
+    static int user = 0;
+    static int group = 1;
+    static int other = 2;
+    static int readable = 0;
+    static int writable = 1;
+    static int executable = 2;
+
+    bool perms[ 3 ][ 3 ];
+    perms[0][0] = (tmp[ 1 ] == 'r');
+    perms[0][1] = (tmp[ 2 ] == 'w');
+    perms[0][2] = (tmp[ 3 ] == 'x');
+    perms[1][0] = (tmp[ 4 ] == 'r');
+    perms[1][1] = (tmp[ 5 ] == 'w');
+    perms[1][2] = (tmp[ 6 ] == 'x');
+    perms[2][0] = (tmp[ 7 ] == 'r');
+    perms[2][1] = (tmp[ 8 ] == 'w');
+    perms[2][2] = (tmp[ 9 ] == 'x');
+
+    // owner
+    tmp = lst[ 2 ];
+    info->setOwner( tmp );
+
+    // group
+    tmp = lst[ 3 ];
+    info->setGroup( tmp );
+
+    // ### not correct
+    info->setWritable( ( userName == info->owner() && perms[ user ][ writable ] ) ||
+	perms[ other ][ writable ] );
+    info->setReadable( ( userName == info->owner() && perms[ user ][ readable ] ) ||
+	perms[ other ][ readable ] );
+
+    int p = 0;
+    if ( perms[ user ][ readable ] )
+	p |= QFileInfo::ReadUser;
+    if ( perms[ user ][ writable ] )
+	p |= QFileInfo::WriteUser;
+    if ( perms[ user ][ executable ] )
+	p |= QFileInfo::ExeUser;
+    if ( perms[ group ][ readable ] )
+	p |= QFileInfo::ReadGroup;
+    if ( perms[ group ][ writable ] )
+	p |= QFileInfo::WriteGroup;
+    if ( perms[ group ][ executable ] )
+	p |= QFileInfo::ExeGroup;
+    if ( perms[ other ][ readable ] )
+	p |= QFileInfo::ReadOther;
+    if ( perms[ other ][ writable ] )
+	p |= QFileInfo::WriteOther;
+    if ( perms[ other ][ executable ] )
+	p |= QFileInfo::ExeOther;
+    info->setPermissions( p );
+
+    // size
+    tmp = lst[ 4 ];
+    info->setSize( tmp.toInt() );
+
+    // date and time
+    QTime time;
+    QString dateStr;
+    dateStr += "Sun ";
+    dateStr += lst[ 5 ];
+    dateStr += ' ';
+    dateStr += lst[ 6 ];
+    dateStr += ' ';
+
+    if ( lst[ 7 ].contains( ":" ) ) {
+	time = QTime( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
+	dateStr += QString::number( QDate::currentDate().year() );
+    } else {
+	dateStr += lst[ 7 ];
+    }
+
+    QDate date = QDate::fromString( dateStr );
+    info->setLastModified( QDateTime( date, time ) );
+
+    if ( lst[ 7 ].contains( ":" ) ) {
+	if( info->lastModified() > QDateTime::currentDateTime() ) {
+	    QDateTime dt = info->lastModified();
+	    QDate d = dt.date();
+	    d.setYMD(d.year()-1, d.month(), d.day());
+	    dt.setDate(d);
+	    info->setLastModified(dt);
+	}
+    }
+
+    // name
+    if ( info->isSymLink() )
+	info->setName( lst[ 8 ].stripWhiteSpace() );
+    else {
+	QString n;
+	for ( uint i = 8; i < lst.count(); ++i )
+	    n += lst[ i ] + " ";
+	n = n.stripWhiteSpace();
+	info->setName( n );
+    }
+    return TRUE;
+}
+
+void QFtpDTP::slotConnected()
+{
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpDTP connected" );
+#endif
+}
+
+void QFtpDTP::slotReadyRead()
+{
+    if ( pi->currentCommand().isEmpty() ) {
+	close();
+	emit connectionClosed(); // ### maybe we should use a "done()" singal for the DTP...
+	return;
+    }
+
+#if defined(QFTPDTP_DEBUG)
+    qDebug( "QFtpDTP slotReadyRead:" );
+#endif
+    if ( pi->currentCommand().startsWith("LIST") ) {
+	while ( canReadLine() ) {
+	    QUrlInfo i;
+	    QString line = readLine();
+#if defined(QFTPDTP_DEBUG)
+	    qDebug( "QFtpDTP read (list): '%s'", line.latin1() );
+#endif
+	    if ( parseDir( line, "", &i ) ) {
+		emit listInfo( i );
+	    } else {
+		// some FTP servers don't return a 550 if the file or directory
+		// does not exist, but rather write a text to the data socket
+		// -- try to catch these cases
+		if ( line.endsWith( "No such file or directory\r\n" ) )
+		    err = line;
+	    }
+	}
+    } else {
+	// ### read and process...
+    }
+}
+
+
+/**********************************************************************
+ *
+ * QFtpPI implemenatation
+ *
+ *********************************************************************/
+QFtpPI::QFtpPI( QObject *parent ) :
+    QObject( parent ),
+    dtp(this),
+    state(Begin), currentCmd(QString::null),
     waitForDtpToClose(FALSE)
 {
     connect( &commandSocket, SIGNAL(hostFound()),
@@ -198,19 +429,8 @@ QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
     connect( &commandSocket, SIGNAL(error(int)),
 	    SLOT(error(int)) );
 
-    connect( &dtp, SIGNAL( connected() ),
-	     SLOT( dtpConnected() ) );
     connect( &dtp, SIGNAL( connectionClosed() ),
 	     SLOT( dtpConnectionClosed() ) );
-    connect( &dtp, SIGNAL( readyRead() ),
-	     SLOT( dtpReadyRead() ) );
-#if 0
-    // ### these should probably be handled by the QFtpDTP class...
-    connect( dtp, SIGNAL( bytesWritten( int ) ),
-	     SLOT( dtpBytesWritten( int ) ) );
-    connect( dtp, SIGNAL( error( int ) ),
-	     SLOT( dtpError( int ) ) );
-#endif
 }
 
 void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
@@ -239,6 +459,13 @@ bool QFtpPI::sendCommands( const QStringList &cmds )
     pendingCommands = cmds;
     startNextCmd();
     return TRUE;
+}
+
+void QFtpPI::clearPendingCommands()
+{
+    pendingCommands.clear();
+    currentCmd = QString::null;
+    state = Idle;
 }
 
 void QFtpPI::hostFound()
@@ -384,7 +611,8 @@ bool QFtpPI::processReply()
 #endif
 
     // special actions on certain replies
-    if ( 100*replyCode[0]+10*replyCode[1]+replyCode[2] == 227 ) {
+    int replyCodeInt = 100*replyCode[0] + 10*replyCode[1] + replyCode[2];
+    if ( replyCodeInt == 227 ) {
 	// 227 Entering Passive Mode (h1,h2,h3,h4,p1,p2)
 	int l = replyText.find( "(" );
 	int r = replyText.find( ")" );
@@ -395,9 +623,13 @@ bool QFtpPI::processReply()
 	    // ### error handling
 	} else {
 	    QStringList lst = QStringList::split( ',', replyText.mid(l+1,r-l-1) );
-	    uint port = ( lst[4].toUInt() << 8 ) + lst[5].toUInt();
-	    dtp.connectToHost( lst[0] + "." + lst[1] + "." + lst[2] + "." + lst[3], port );
+	    QString host = lst[0] + "." + lst[1] + "." + lst[2] + "." + lst[3];
+	    Q_UINT16 port = ( lst[4].toUInt() << 8 ) + lst[5].toUInt();
+	    dtp.connectToHost( host, port );
 	}
+    } else if ( replyCodeInt == 213 ) {
+	if ( currentCmd.startsWith("SIZE ") )
+	    emit dataSize( replyText.simplifyWhiteSpace().toInt() );
     }
 
     // react on new state
@@ -410,19 +642,21 @@ bool QFtpPI::processReply()
 	    state = Idle;
 	    // no break!
 	case Idle:
-	    if ( outOfOrderError.isNull() ) {
-		if ( !startNextCmd() )
-		    emit finishedOk( replyText );
-	    } else {
-		emit error( outOfOrderError );
-		outOfOrderError = QString::null;
+	    if ( dtp.hasError() ) {
+		emit error( dtp.errorMessage() );
+		dtp.clearError();
 	    }
+	    if ( !startNextCmd() )
+		emit finishedOk( replyText );
 	    break;
 	case Waiting:
 	    // ### do nothing
 	    break;
 	case Failure:
 	    emit error( replyText );
+	    state = Idle;
+	    if ( !startNextCmd() )
+		emit finishedOk( replyText );
 	    break;
     }
 #if defined(QFTPPI_DEBUG)
@@ -438,30 +672,23 @@ bool QFtpPI::startNextCmd()
 	qDebug( "QFtpPI startNextCmd: Internal error! QFtpPI called in non-Idle state %d", state );
 #endif
     if ( pendingCommands.isEmpty() ) {
-	currentCommand = QString::null;
+	currentCmd = QString::null;
 	return FALSE;
     }
-    currentCommand = pendingCommands.first();
+    currentCmd = pendingCommands.first();
     pendingCommands.pop_front();
 #if defined(QFTPPI_DEBUG)
-    qDebug( "QFtpPI send: %s", currentCommand.left( currentCommand.length()-2 ).latin1() );
+    qDebug( "QFtpPI send: %s", currentCmd.left( currentCmd.length()-2 ).latin1() );
 #endif
     state = Waiting;
-    commandSocket.writeBlock( currentCommand.latin1(), currentCommand.length() );
+    commandSocket.writeBlock( currentCmd.latin1(), currentCmd.length() );
     return TRUE;
-}
-
-void QFtpPI::dtpConnected()
-{
-#if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtpPI DTP connected" );
-#endif
 }
 
 void QFtpPI::dtpConnectionClosed()
 {
 #if defined(QFTPDTP_DEBUG)
-    qDebug( "QFtp DTP connection closed: %d '%d %s'", waitForDtpToClose, 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
+    qDebug( "QFtpPI DTP connection closed: %d '%d %s'", waitForDtpToClose, 100*replyCode[0]+10*replyCode[1]+replyCode[2], replyText.latin1() );
 #endif
     if ( waitForDtpToClose ) {
 	// there is an unprocessed reply
@@ -474,173 +701,11 @@ void QFtpPI::dtpConnectionClosed()
     readyRead();
 }
 
-void QFtpPI::dtpReadyRead()
-{
-    if (currentCommand.isEmpty() ) {
-	dtp.close();
-	return;
-    }
-
-    if ( currentCommand == "LIST" || currentCommand.startsWith( "LIST" ) ) {
-	while ( dtp.canReadLine() ) {
-	    QUrlInfo i;
-	    QString line = dtp.readLine();
-#if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpPI DTP read: '%s'", line.latin1() );
-#endif
-	    if ( parseDir( line, "", &i ) ) {
-		emit listInfo( i );
-	    } else {
-		// some FTP servers don't return a 550 if the file or directory
-		// does not exist, but rather write a text to the data socket
-		// -- try to catch these cases
-		if ( line.endsWith( "No such file or directory\r\n" ) )
-		    outOfOrderError = line;
-	    }
-	}
-    }
-}
-
-bool QFtpPI::parseDir( const QString &buffer, const QString &userName, QUrlInfo *info )
-{
-    QStringList lst = QStringList::split( " ", buffer );
-
-    if ( lst.count() < 9 )
-	return FALSE;
-
-    QString tmp;
-
-    // permissions
-    tmp = lst[ 0 ];
-
-    if ( tmp[ 0 ] == QChar( 'd' ) ) {
-	info->setDir( TRUE );
-	info->setFile( FALSE );
-	info->setSymLink( FALSE );
-    } else if ( tmp[ 0 ] == QChar( '-' ) ) {
-	info->setDir( FALSE );
-	info->setFile( TRUE );
-	info->setSymLink( FALSE );
-    } else if ( tmp[ 0 ] == QChar( 'l' ) ) {
-	info->setDir( TRUE ); // #### todo
-	info->setFile( FALSE );
-	info->setSymLink( TRUE );
-    } else {
-	return FALSE;
-    }
-
-    static int user = 0;
-    static int group = 1;
-    static int other = 2;
-    static int readable = 0;
-    static int writable = 1;
-    static int executable = 2;
-
-    bool perms[ 3 ][ 3 ];
-    perms[0][0] = (tmp[ 1 ] == 'r');
-    perms[0][1] = (tmp[ 2 ] == 'w');
-    perms[0][2] = (tmp[ 3 ] == 'x');
-    perms[1][0] = (tmp[ 4 ] == 'r');
-    perms[1][1] = (tmp[ 5 ] == 'w');
-    perms[1][2] = (tmp[ 6 ] == 'x');
-    perms[2][0] = (tmp[ 7 ] == 'r');
-    perms[2][1] = (tmp[ 8 ] == 'w');
-    perms[2][2] = (tmp[ 9 ] == 'x');
-
-    // owner
-    tmp = lst[ 2 ];
-    info->setOwner( tmp );
-
-    // group
-    tmp = lst[ 3 ];
-    info->setGroup( tmp );
-
-    // ### not correct
-    info->setWritable( ( userName == info->owner() && perms[ user ][ writable ] ) ||
-	perms[ other ][ writable ] );
-    info->setReadable( ( userName == info->owner() && perms[ user ][ readable ] ) ||
-	perms[ other ][ readable ] );
-
-    int p = 0;
-    if ( perms[ user ][ readable ] )
-	p |= QFileInfo::ReadUser;
-    if ( perms[ user ][ writable ] )
-	p |= QFileInfo::WriteUser;
-    if ( perms[ user ][ executable ] )
-	p |= QFileInfo::ExeUser;
-    if ( perms[ group ][ readable ] )
-	p |= QFileInfo::ReadGroup;
-    if ( perms[ group ][ writable ] )
-	p |= QFileInfo::WriteGroup;
-    if ( perms[ group ][ executable ] )
-	p |= QFileInfo::ExeGroup;
-    if ( perms[ other ][ readable ] )
-	p |= QFileInfo::ReadOther;
-    if ( perms[ other ][ writable ] )
-	p |= QFileInfo::WriteOther;
-    if ( perms[ other ][ executable ] )
-	p |= QFileInfo::ExeOther;
-    info->setPermissions( p );
-
-    // size
-    tmp = lst[ 4 ];
-    info->setSize( tmp.toInt() );
-
-    // date and time
-    QTime time;
-    QString dateStr;
-    dateStr += "Sun ";
-    dateStr += lst[ 5 ];
-    dateStr += ' ';
-    dateStr += lst[ 6 ];
-    dateStr += ' ';
-
-    if ( lst[ 7 ].contains( ":" ) ) {
-	time = QTime( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
-	dateStr += QString::number( QDate::currentDate().year() );
-    } else {
-	dateStr += lst[ 7 ];
-    }
-
-    QDate date = QDate::fromString( dateStr );
-    info->setLastModified( QDateTime( date, time ) );
-
-    if ( lst[ 7 ].contains( ":" ) ) {
-	if( info->lastModified() > QDateTime::currentDateTime() ) {
-	    QDateTime dt = info->lastModified();
-	    QDate d = dt.date();
-	    d.setYMD(d.year()-1, d.month(), d.day());
-	    dt.setDate(d);
-	    info->setLastModified(dt);
-	}
-    }
-
-    // name
-    if ( info->isSymLink() )
-	info->setName( lst[ 8 ].stripWhiteSpace() );
-    else {
-	QString n;
-	for ( uint i = 8; i < lst.count(); ++i )
-	    n += lst[ i ] + " ";
-	n = n.stripWhiteSpace();
-	info->setName( n );
-    }
-    return TRUE;
-}
-
-
-class QFtpCommand
-{
-public:
-    QFtpCommand( int i, QFtp::Command cmd, QStringList raw )
-	: id(i), command(cmd), rawCmds(raw)
-    { }
-
-    int id;
-    QFtp::Command command;
-    QStringList rawCmds;
-};
-
+/**********************************************************************
+ *
+ * QFtpPrivate
+ *
+ *********************************************************************/
 class QFtpPrivate
 {
 public:
@@ -692,6 +757,11 @@ static void delete_d( const QFtp* foo )
   the QObject constructor.
 */
 
+/**********************************************************************
+ *
+ * QFtp implementation
+ *
+ *********************************************************************/
 QFtp::QFtp( QObject *parent, const char *name )
     : QNetworkProtocol(), connectionReady( FALSE ),
       passiveMode( FALSE ), startGetOnFail( FALSE ),
@@ -741,12 +811,19 @@ void QFtp::init()
 
     connect( &d->pi, SIGNAL(connectState(int)),
 	    SIGNAL(connectState(int)) );
-    connect( &d->pi, SIGNAL(listInfo(const QUrlInfo&)),
-	    SIGNAL(listInfo(const QUrlInfo&)) );
     connect( &d->pi, SIGNAL(finishedOk( const QString& )),
 	    SLOT(piFinishedOk( const QString& )) );
     connect( &d->pi, SIGNAL(error(const QString&)),
 	    SLOT(piError(const QString&)) );
+    connect( &d->pi, SIGNAL(newData(const QByteArray&)),
+	    SIGNAL(newData(const QByteArray&)) );
+    connect( &d->pi, SIGNAL(dataSize(int)),
+	    SIGNAL(dataSize(int)) );
+    connect( &d->pi, SIGNAL(dataProgress(int)),
+	    SIGNAL(dataProgress(int)) );
+
+    connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
+	    SIGNAL(listInfo(const QUrlInfo&)) );
 }
 
 /*!
@@ -1027,12 +1104,18 @@ void QFtp::piError( const QString &text )
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();
 
-    d->pi.clearPendingCommands();
+    if ( c->command==Get && d->pi.currentCommand().startsWith("SIZE ") ) {
+	// non-fatal error
+	emit dataSize( -1 );
+	return;
+    }
 
+    d->pi.clearPendingCommands();
     emit finishedError( c->id, text );
 
     d->pending.clear();
     emit doneError( text );
+
 }
 
 void QFtp::piConnectState( int state )
@@ -1230,7 +1313,7 @@ int QFtp::supportedOperations() const
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
-    QFtpPI::parseDir( buffer, url()->user(), &info );
+    QFtpDTP::parseDir( buffer, url()->user(), &info );
 }
 
 /*!  \internal
