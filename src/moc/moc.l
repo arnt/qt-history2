@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#29 $
+** $Id: //depot/qt/main/src/moc/moc.l#30 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -110,7 +110,6 @@ extern void moc_warn( char *msg );
 <QT_DEF>"register"		{ X;return REGISTER; }
 <QT_DEF>"static"		{ X;return STATIC; }
 <QT_DEF>"extern"		{ X;return EXTERN; }
-<QT_DEF>"mutable"		{ X;return MUTABLE; }
 <QT_DEF>"inline"		{ X;return INLINE; }
 <QT_DEF>"virtual"		{ X;return VIRTUAL; }
 <QT_DEF>"const"			{ X;return CONST; }
