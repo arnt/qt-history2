@@ -95,6 +95,8 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     bool ok = FALSE;
     QString cidStr = cid;
+    QRESULT res = QE_NOCOMPONENT;
+
     QUuid uuid( cidStr ); // try to parse, and resolve CLSID if necessary
     if ( uuid.isNull() ) {
 	uuid = settings.readEntry( "/" + cid + "/CLSID/Default", QString::null, &ok );
@@ -102,17 +104,17 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     }
 
     if ( cidStr.isEmpty() )
-	return QE_NOCOMPONENT;
+	return res;
 
     QString file = settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
     if ( !ok )
-	return QE_NOCOMPONENT;
+	return res;
 
     QLibrary *library = new QLibrary( file, QLibrary::Manual );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
-    QRESULT res = QE_NOCOMPONENT;
+
     if ( cfIface ) {
 	res = cfIface->createInstance( uuid, iid, iface, outer );
 	cfIface->release();

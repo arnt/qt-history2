@@ -2,13 +2,15 @@
 
 #include "../interfaces/printinterface.h"
 
-int main( int argc, char **argv )
+void main()
 {
     QInterfacePtr<PrintInterface> iface;
 
-    if ( QComponentFactory::createInstance( "Qt.Example", IID_Print, (QUnknownInterface**)&iface ) == QS_OK ) {
+    if ( QComponentFactory::createInstance( "Qt.Example1", IID_Print, (QUnknownInterface**)&iface ) == QS_OK )
 	iface->sayHello();
-    }
 
-    return 0;
+    iface = 0;
+
+    if ( QComponentFactory::createInstance( "Qt.Example2", IID_Print, (QUnknownInterface**)&iface ) == QS_OK )
+	iface->sayHello();
 }
