@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#178 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -135,7 +135,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    }
 	} else {
 	    style = WS_OVERLAPPED;
-	    if ( !modal ) 
+	    if ( !modal )
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu  );
@@ -720,6 +720,8 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
+    if ( isTopLevel() && parentWidget() && isActiveWindow() )
+	SetFocus( parentWidget()->winId() );
     ShowWindow( winId(), SW_HIDE );
 }
 
