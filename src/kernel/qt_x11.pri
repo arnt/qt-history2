@@ -12,6 +12,5 @@ nas {
 	LIBS	+= -laudio -lXt
 }
 
-sm:CONFIG += x11sm
 !x11sm:DEFINES += QT_NO_SM_SUPPORT
 
