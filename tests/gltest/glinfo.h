@@ -15,7 +15,14 @@
 #include <qstringlist.h>
 
 #if defined(Q_WS_WIN)
-# include <qt_windows.h>
+#include <qt_windows.h>
+#endif
+
+#if defined(Q_WS_MAC)
+#include <qt_mac.h>
+#ifndef QMAC_OPENGL_DOUBLEBUFFER
+#define QMAC_OPENGL_DOUBLEBUFFER
+#endif
 #endif
 
 #if defined(Q_WS_X11)
