@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#70 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#71 $
 **
 ** Definition of QWidget class
 **
@@ -37,13 +37,20 @@ public:
     GUIStyle	 style() const;
     virtual void setStyle( GUIStyle );
 
-  // Widget control functions
+  // Widget types and states
 
-    void	 enable();
-    void	 disable();
-    void	 setEnabled( bool );
+    bool	 isTopLevel()	const;
+    bool	 isModal()	const;
+    bool	 isPopup()	const;
+    bool	 isDesktop()	const;
+
     bool	 isEnabled()	const;
-    bool	 isDisabled()	const;
+    void	 setEnabled( bool );
+#if defined(OBSOLETE)
+    void	 enable()		{ setEnabled(TRUE); }
+    void	 disable()		{ setEnabled(FALSE); }
+    bool	 isDisabled()	const	{ return !isEnabled(); }
+#endif
 
   // Widget coordinates
 
@@ -135,9 +142,7 @@ public:
     virtual void hide();
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
-#if !defined(OBSOLETE)
-    bool	 isActive()	const;
-#endif
+
     void	 raise();
     void	 lower();
     virtual void move( int x, int y );
@@ -148,7 +153,7 @@ public:
     void	 setGeometry( const QRect & );
     virtual void adjustSize();
 
-    void	 recreate( QWidget *parent, WFlags f, const QPoint &p,
+    void	 recreate( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
 
     void	 erase();
@@ -261,11 +266,20 @@ inline bool QWidget::testWFlags( WFlags f ) const
 inline WId QWidget::id() const
 { return ident; }
 
+inline bool QWidget::isTopLevel() const
+{ return testWFlags(WType_TopLevel); }
+
+inline bool QWidget::isModal() const
+{ return testWFlags(WType_Modal); }
+
+inline bool QWidget::isPopup() const
+{ return testWFlags(WType_Popup); }
+
+inline bool QWidget::isDesktop() const
+{ return testWFlags(WType_Desktop); }
+
 inline bool QWidget::isEnabled() const
 { return !testWFlags(WState_Disabled); }
-
-inline bool QWidget::isDisabled() const
-{ return testWFlags(WState_Disabled); }
 
 inline const QRect &QWidget::frameGeometry() const
 { return frect; }

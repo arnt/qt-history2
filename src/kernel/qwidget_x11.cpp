@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#116 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#115 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#116 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -57,43 +57,43 @@ const ulong stdWidgetEventMask =		// X event mask
   Usually called from the QWidget constructor.
  ----------------------------------------------------------------------------*/
 
-bool QWidget::create()				// create widget
+bool QWidget::create()
 {
     if ( testWFlags(WState_Created) )		// already created
 	return FALSE;
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
-	setWFlags( WType_Overlap );		// overlapping widget
+	setWFlags( WType_TopLevel );		// top level widget
 
-    int	   scr	   = qt_xscreen();
-    int	   sw	   = DisplayWidth(dpy,scr);
-    int	   sh	   = DisplayHeight(dpy,scr);
-    bool   overlap = testWFlags(WType_Overlap);
-    bool   popup   = testWFlags(WType_Popup);
-    bool   modal   = testWFlags(WType_Modal);
-    bool   desktop = testWFlags(WType_Desktop);
+    int	   scr	    = qt_xscreen();
+    int	   sw	    = DisplayWidth(dpy,scr);
+    int	   sh	    = DisplayHeight(dpy,scr);
+    bool   topLevel = testWFlags(WType_TopLevel);
+    bool   popup    = testWFlags(WType_Popup);
+    bool   modal    = testWFlags(WType_Modal);
+    bool   desktop  = testWFlags(WType_Desktop);
     Window parentw;
     WId	   id;
 
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal || popup ) {			// these are overlapping, too
-	overlap = TRUE;
-	setWFlags( WType_Overlap );
+    if ( modal || popup ) {			// these are top level, too
+	topLevel = TRUE;
+	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
 	frect.setRect( 0, 0, sw, sh );
-	overlap = popup = FALSE;		// force these flags off
+	topLevel = popup = FALSE;		// force these flags off
     }
-    else if ( overlap )				// parentless widget
+    else if ( topLevel )			// parentless widget
 	frect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
     else					// child widget
 	frect.setRect( 10, 10, 100, 30 );
     crect = frect;				// default client rect
 
-    parentw = overlap || desktop ? RootWindow(dpy,scr) : parentWidget()->id();
+    parentw = topLevel || desktop ? RootWindow(dpy,scr) : parentWidget()->id();
 
     if ( desktop ) {				// desktop widget
 	id = parentw;				// id = root window
@@ -125,7 +125,7 @@ bool QWidget::create()				// create widget
 				 CWOverrideRedirect | CWSaveUnder,
 				 &v );
     }
-    else if ( overlap ) {			// top level widget
+    else if ( topLevel ) {			// top level widget
 	if ( modal ) {
 	    QWidget *p = parentWidget();	// real parent
 	    QWidget *pp = p ? p->parentWidget() : 0;
@@ -173,7 +173,7 @@ bool QWidget::create()				// create widget
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &v );
     }
     setMouseTracking( FALSE );			// also sets event mask
-    if ( overlap ) {				// set X cursor
+    if ( topLevel ) {				// set X cursor
 	QCursor *appc = QApplication::cursor();
 	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
@@ -244,9 +244,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	parentObj->removeChild( this );
     if ( (parentObj = parent) )
 	parentObj->insertChild( this );
-    bool was_disabled = isDisabled();
-    QSize s = size();				// save size
-    QColor bgc = bg_col;			// save colors
+    bool     enable = isEnabled();		// remember some 
+    QSize    s      = size();
+    QPixmap *bgp    = (QPixmap *)backgroundPixmap();
+    QColor   bgc    = bg_col;			// save colors
     flags = f;
     clearWFlags( WState_Created | WState_Visible );
     create();
@@ -264,10 +265,12 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	}
     }
     qPRCreate( this, old_ident );
-    setBackgroundColor( bgc );			// restore colors
+    if ( bgp )
+	XSetWindowBackgroundPixmap( dpy, ident, bgp->handle() );
+    else
+	XSetWindowBackground( dpy, ident, bgc.pixel() );
     setGeometry( p.x(), p.y(), s.width(), s.height() );
-    if ( was_disabled )
-	disable();
+    setEnabled( enable );
     if ( showIt )
 	show();
     if ( old_ident )
@@ -721,11 +724,11 @@ bool QWidget::focusPrevChild()
 
 bool QWidget::enableUpdates( bool enable )
 {
-    bool last = !testWFlags( WState_NoUpdates );
+    bool last = !testWFlags( WState_DisUpdates );
     if ( enable )
-	clearWFlags( WState_NoUpdates );
+	clearWFlags( WState_DisUpdates );
     else
-	setWFlags( WState_NoUpdates );
+	setWFlags( WState_DisUpdates );
     return last;
 }
 
@@ -741,7 +744,7 @@ bool QWidget::enableUpdates( bool enable )
 
 void QWidget::update()
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible )
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible )
 	XClearArea( dpy, ident, 0, 0, 0, 0, TRUE );
 }
 
@@ -760,7 +763,7 @@ void QWidget::update()
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -803,7 +806,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -955,7 +958,7 @@ void QWidget::move( int x, int y )
 	return;
     r.setTopLeft( p );
     setFRect( r );
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PPosition;
 	size_hints.x = x;
@@ -996,7 +999,7 @@ void QWidget::resize( int w, int h )
 	return;
     r.setSize( s );
     setCRect( r );
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = PSize;
 	size_hints.width = w;
@@ -1038,7 +1041,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     if ( testWFlags(WType_Desktop) )
 	return;
     setCRect( r );
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;			// tell window manager
 	size_hints.flags = USPosition | USSize;
 	size_hints.x = x;
@@ -1071,7 +1074,7 @@ void QWidget::setMinimumSize( int w, int h )
     createExtra();
     extra->minw = w;
     extra->minh = h;
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
@@ -1094,7 +1097,7 @@ void QWidget::setMaximumSize( int w, int h )
     createExtra();
     extra->maxw = w;
     extra->maxh = h;
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );
@@ -1119,7 +1122,7 @@ void QWidget::setSizeIncrement( int w, int h )
     createExtra();
     extra->incw = w;
     extra->inch = h;
-    if ( testWFlags(WType_Overlap) ) {
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, ident, extra, &size_hints );

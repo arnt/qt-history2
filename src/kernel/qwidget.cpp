@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#108 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#107 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#108 $")
 
 
 /*----------------------------------------------------------------------------
@@ -144,7 +144,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     focusChild = 0;				// no child has focus
     create();					// platform-dependent init
-    if ( (flags & (WType_Overlap | WType_Modal)) == WType_Overlap ) {
+    if ( (flags & (WType_TopLevel | WType_Modal)) == WType_TopLevel ) {
 	flags |= WDestructiveClose;
     }
 }
@@ -422,42 +422,57 @@ void QWidget::styleChange( GUIStyle )
 
 
 /*----------------------------------------------------------------------------
-  Enables widget input events.
+  \fn bool QWidget::isTopLevel() const
+  Returns TRUE if the widget is a top level widget, otherwise FALSE.
 
-  An enabled widget receives keyboard and mouse events; a disabled
-  widget does not.  Note that an enabled widget receives keyboard
-  events only when it is in focus.
+  A top level widget is a widget which usually has a frame and a \link
+  setCaption() caption\endlink (title bar). \link isPopup() Popup\endlink
+  and \link isDesktop() desktop\endlink widgets are also top level
+  widgets. Modal \link QDialog dialog\endlink widgets are the only top
+  level widgets that can have \link parentWidget() parent widgets\endlink;
+  all other top level widgets have null parents.  Child widgets are the
+  opposite of top level widgets.
 
-  \sa disable(), setEnabled(), isEnabled(), isDisabled(),
-  QKeyEvent, QMouseEvent
+  \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
  ----------------------------------------------------------------------------*/
-
-void QWidget::enable()
-{
-    if ( testWFlags(WState_Disabled) ) {
-	clearWFlags( WState_Disabled );
-	update();
-    }
-}
 
 /*----------------------------------------------------------------------------
-  Disables widget input events.
+  \fn bool QWidget::isModal() const
+  Returns TRUE if the widget is a modal widget, otherwise FALSE.
 
-  An enabled widget receives keyboard and mouse events; a disabled
-  widget does not.  Note that an enabled widget receives keyboard
-  events only when it is in focus.
+  A modal widget is also a top level widget.
 
-  \sa enable(), setEnabled(), isEnabled(), isDisabled(),
-  QKeyEvent, QMouseEvent
+  \sa isTopLevel(), QDialog
  ----------------------------------------------------------------------------*/
 
-void QWidget::disable()
-{
-    if ( !testWFlags(WState_Disabled) ) {
-	setWFlags( WState_Disabled );
-	update();
-    }
-}
+/*----------------------------------------------------------------------------
+  \fn bool QWidget::isPopup() const
+  Returns TRUE if the widget is a popup widget, otherwise FALSE.
+
+  A popup widget is created by specifying the widget flag \c WType_Popup
+  to the widget constructor.
+
+  A popup widget is also a top level widget.
+
+  \sa isTopLevel()
+ ----------------------------------------------------------------------------*/
+  
+
+/*----------------------------------------------------------------------------
+  \fn bool QWidget::isDesktop() const
+  Returns TRUE if the widget is a desktop widget, otherwise FALSE.
+
+  A desktop widget is also a top level widget.
+
+  \sa isTopLevel(), QApplication::desktop()
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn bool QWidget::isEnabled() const
+  Returns TRUE if the widget is enabled, or FALSE if it is disabled.
+  \sa setEnabled()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Enables widget input events if \e enable is TRUE, otherwise disables
@@ -467,29 +482,23 @@ void QWidget::disable()
   widget does not.  Note that an enabled widget receives keyboard
   events only when it is in focus.
 
-  \sa enable(), disable(), isEnabled(), isDisabled(),
-  QKeyEvent, QMouseEvent
+  \sa isEnabled(), QKeyEvent, QMouseEvent
  ----------------------------------------------------------------------------*/
 
 void QWidget::setEnabled( bool enable )
 {
-    if ( enable )
-	this->enable();
-    else
-	disable();
+    if ( enable ) {
+	if ( testWFlags(WState_Disabled) ) {
+	    clearWFlags( WState_Disabled );
+	    repaint();
+	}
+    } else {
+	if ( !testWFlags(WState_Disabled) ) {
+	    setWFlags( WState_Disabled );
+	    repaint();
+	}
+    }
 }
-
-/*----------------------------------------------------------------------------
-  \fn bool QWidget::isEnabled() const
-  Returns TRUE if the widget is enabled, or FALSE if it is disabled.
-  \sa enable(), disable(), setEnabled(), isDisabled()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn bool QWidget::isDisabled() const
-  Returns TRUE if the widget is disabled, or FALSE if it is enabled.
-  \sa enable(), disable(), setEnabled(), isEnabled()
- ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
@@ -647,13 +656,15 @@ bool QWidget::sizeIncrement( int *w, int *h ) const
   A top level widget is an overlapping widget. It usually has no parent.
   Modal \link QDialog dialog widgets\endlink are the only top level
   widgets that can have parent widgets.
+
+  \sa isTopLevel()
  ----------------------------------------------------------------------------*/
 
 QWidget *QWidget::topLevelWidget() const
 {
     QWidget *w = (QWidget *)this;
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(WType_Overlap) && p ) {
+    while ( !w->testWFlags(WType_TopLevel) && p ) {
 	w = p;
 	p = p->parentWidget();
     }
@@ -1096,21 +1107,6 @@ bool QWidget::close( bool forceKill )
   screen.
  ----------------------------------------------------------------------------*/
 
-#if !defined(OBSOLETE)
-
-/*----------------------------------------------------------------------------
-  \fn bool QWidget::isActive() const
-  This function is not used. It will be removed in a future version of Qt.
- ----------------------------------------------------------------------------*/
-
-bool QWidget::isActive() const
-{
-    warning( "QWidget::isActive: This function is OBSOLETE" );
-    return FALSE;
-}
-
-#endif // OBSOLETE
-
 
 /*----------------------------------------------------------------------------
   Virtual function that adjusts the size of the widget to fit the contents.
@@ -1145,34 +1141,38 @@ void QWidget::adjustSize()
   \internal
 
   Here are the flags and what they mean:<dl compact>
-  <dt>WState_Created <dd> Means that the widget has a valid id().
-  <dt>WState_Disabled <dd> Mouse and keyboard events disabled.
-  <dt>WState_Visible <dd> Visible (may be hidden by other windows).
-  <dt>WState_PaintEvent <dd> Currently processing a paint event.
-  <dt>WState_ActiveFocus <dd> The widget has active keyboard focus.
-  <dt>WState_AcceptFocus <dd> The widget can take keyboard focus.
-  <dt>WType_Overlap <dd> Top level widget (not a child).
-  <dt>WType_Modal <dd> Modal widget, implies \c WType_Overlap.
-  <dt>WType_Popup <dd> Popup widget.
-  <dt>WType_Desktop <dd> Desktop widget (root window).
-  <dt>WStyle_Title <dd> NOT USED!
-  <dt>WStyle_Border <dd> NOT USED!
-  <dt>WStyle_Close <dd> NOT USED!
-  <dt>WStyle_Resize <dd> NOT USED!
-  <dt>WStyle_Minimize <dd> NOT USED!
-  <dt>WStyle_Maximize <dd> NOT USED!
-  <dt>WStyle_MinMax <dd> NOT USED!
-  <dt>WStyle_All <dd> All style flags set.
-  <dt>WMouseTracking <dd> The widget receives mouse move events.
-  <dt>WConfigPending <dd> Config event pending.
-  <dt>WResizeNoErase <dd> Widget resizing should not erase the widget.
-  <dt>WExplicitHide <dd> Flags that hide() has been called before first show().
-  <dt>WCursorSet <dd> Flags that a cursor has been set.
-  <dt>WPaintDesktop <dd> Widget wants desktop paint events.
-  <dt>WPaintUnclipped <dd> Paint without clipping child widgets.
-  <dt>WPaintClever <dd> Widget wants every update rectangle.
-  <dt>WNoUpdates <dd> Do not update the widget.
-  <dt>WRecreated <dd> The widet has been recreated.
+  <dt>WState_Created<dd> Means that the widget has a valid id().
+  <dt>WState_Disabled<dd> Mouse and keyboard events are disabled.
+  <dt>WState_Visible<dd> Visible (may be hidden by other windows).
+  <dt>WState_DisUpdates<dd> Repaints and updates are disabled.
+  <dt>WState_PaintEvent<dd> Currently processing a paint event.
+  <dt>WState_ActiveFocus<dd> The widget has active keyboard focus.
+  <dt>WState_AcceptFocus<dd> The widget can take keyboard focus.
+  <dt>WType_TopLevel<dd> Top level widget (not a child).
+  <dt>WType_Modal<dd> Modal widget, implies \c WType_TopLevel.
+  <dt>WType_Popup<dd> Popup widget, implies \c WType_TopLevel.
+  <dt>WType_Desktop<dd> Desktop widget (root window), implies
+	\c WType_TopLevel.
+  <dt>WStyle_Title<dd> NOT USED!
+  <dt>WStyle_Border<dd> NOT USED!
+  <dt>WStyle_Close<dd> NOT USED!
+  <dt>WStyle_Resize<dd> NOT USED!
+  <dt>WStyle_Minimize<dd> NOT USED!
+  <dt>WStyle_Maximize<dd> NOT USED!
+  <dt>WStyle_MinMax<dd> NOT USED!
+  <dt>WStyle_All<dd> All style flags set.
+  <dt>WExportFontMetrics<dd> References to the font's metrics.
+  <dt>WExportFontInfo<dd> References to the font's info.
+  <dt>WCursorSet<dd> Flags that a cursor has been set.
+  <dt>WExplicitHide<dd> Flags that hide() has been called before first show().
+  <dt>WDestructiveClose<dd> The widget is deleted when its closed.
+  <dt>WMouseTracking<dd> The widget receives mouse move events.
+  <dt>WPaintDesktop<dd> Widget wants desktop paint events.
+  <dt>WPaintUnclipped<dd> Paint without clipping child widgets.
+  <dt>WPaintClever<dd> Widget wants every update rectangle.
+  <dt>WConfigPending<dd> Config (resize,move) event pending.
+  <dt>WResizeNoErase<dd> Widget resizing should not erase the widget.
+  <dt>WRecreated<dd> The widet has been recreated.
   </dl>
  ----------------------------------------------------------------------------*/
 

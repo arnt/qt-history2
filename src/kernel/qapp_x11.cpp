@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#144 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#143 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#144 $")
 
 
 /*****************************************************************************
@@ -1200,7 +1200,7 @@ int QApplication::enter_loop()
 		case ButtonPress:		// mouse event
 		case ButtonRelease:
 		case MotionNotify:
-		    if ( !widget->isDisabled() ) {
+		    if ( widget->isEnabled() ) {
 			if ( event.type == ButtonPress &&
 			     event.xbutton.button == Button1 )
 			    widget->setFocus();
@@ -1217,7 +1217,7 @@ int QApplication::enter_loop()
 			widget = (QETWidget*)focus_widget;
 		    else
 			widget = (QETWidget*)widget->topLevelWidget();
-		    if ( !widget->isDisabled() )
+		    if ( widget->isEnabled() )
 			widget->translateKeyEvent( &event );
 		    }
 		    break;
@@ -2149,7 +2149,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.window = id();
     info.w	= width();
     info.h	= height();
-    info.check	= testWFlags(WType_Overlap);
+    info.check	= testWFlags(WType_TopLevel);
     info.config = 0;
 
     while ( TRUE ) {
