@@ -695,20 +695,23 @@ public:
 	return S_OK;
     }
 
+    QString className;
+
 protected:
     CRITICAL_SECTION refCountSection;
     unsigned long ref;
-    QString className;
 };
 
 // Create a QClassFactory object for class \a iid
 HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 {
-    HRESULT nRes = E_OUTOFMEMORY;
     QClassFactory *factory = new QClassFactory( iid );
-    if ( factory )
-	nRes = factory->QueryInterface( IID_IClassFactory, ppUnk );
-    return nRes;
+    if ( !factory )
+	return E_OUTOFMEMORY;
+    if ( factory->className.isEmpty() )
+	return E_NOINTERFACE;
+	
+    return factory->QueryInterface( IID_IClassFactory, ppUnk );
 }
 
 
