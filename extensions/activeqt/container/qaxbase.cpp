@@ -2425,7 +2425,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
         UINT maxNames = 1;
         UINT maxNamesOut;
         typeinfo->GetNames(vardesc->memid, &bstrName, maxNames, &maxNamesOut);
-        if (maxNamesOut != 1) {
+        if (maxNamesOut != 1 || !bstrName) {
             typeinfo->ReleaseVarDesc(vardesc);
             continue;
         }
@@ -3053,7 +3053,7 @@ void QAxBase::connectNotify()
         typelib->GetTypeInfoOfGuid(conniid, &eventinfo);
 
         // always into the cache to avoid recoursion
-        QAxEventSink *eventSink = new QAxEventSink(this);
+        QAxEventSink *eventSink = eventinfo ? new QAxEventSink(this) : 0;
         d->eventSink.insert(connuuid, eventSink);
 
         if (!eventinfo)
