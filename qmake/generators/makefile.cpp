@@ -145,7 +145,7 @@ MakefileGenerator::initOutPaths()
 
             QString &pathRef = v[dirs[x]].first();
             pathRef = fileFixify(pathRef, Option::output_dir, Option::output_dir);
-            
+
 #ifdef Q_WS_WIN
             // We don't want to add a separator for DLLDESTDIR on Windows
             if(!(dirs[x] == "DLLDESTDIR"))
@@ -536,7 +536,7 @@ MakefileGenerator::init()
     { //remove anything in SOURCES which is included (thus it need not be linked in)
         QStringList &sources = v["SOURCES"];
         for(QStringList::Iterator it = sources.begin(); it != sources.end(); ) {
-            if(QMakeSourceFileInfo::included(fileFixify((*it))) > 0)
+            if(QMakeSourceFileInfo::included((*it)) > 0)
                 it = sources.erase(it);
             else
                 ++it;
