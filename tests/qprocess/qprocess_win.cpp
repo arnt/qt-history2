@@ -1,8 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <winsock2.h>
+
 #include "qapplication.h"
 #include "qprocess.h"
+
+
+void QProcess::init()
+{
+    stdinBufRead = 0;
+
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	notifierStdin = 0;
+	notifierStdout = 0;
+	notifierStderr = 0;
+
+	socketStdin[0] = 0;
+	socketStdin[1] = 0;
+	socketStdout[0] = 0;
+	socketStdout[1] = 0;
+	socketStderr[0] = 0;
+	socketStderr[1] = 0;
+
+#if 0
+	overlapStdin.Internal = 0;
+	overlapStdin.InternalHigh = 0;
+	overlapStdin.Offset = 0;
+	overlapStdin.OffsetHigh = 0;
+	overlapStdin.hEvent = 0;
+	overlapStdout.Internal = 0;
+	overlapStdout.InternalHigh = 0;
+	overlapStdout.Offset = 0;
+	overlapStdout.OffsetHigh = 0;
+	overlapStdout.hEvent = 0;
+	overlapStderr.Internal = 0;
+	overlapStderr.InternalHigh = 0;
+	overlapStderr.Offset = 0;
+	overlapStderr.OffsetHigh = 0;
+	overlapStderr.hEvent = 0;
+#endif
+
+	WSADATA wsaData;
+	WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
+    } else {
+	pipeStdin[0] = 0;
+	pipeStdin[1] = 0;
+	pipeStdout[0] = 0;
+	pipeStdout[1] = 0;
+	pipeStderr[0] = 0;
+	pipeStderr[1] = 0;
+    }
+}
 
 
 static bool socketpair( int type, int s[2] )
@@ -13,7 +62,8 @@ static bool socketpair( int type, int s[2] )
     int len = sizeof( sock_in );
 
     // create socket and bind it to unused port
-    so = socket( AF_INET, type, 0 );
+//    so = socket( AF_INET, type, 0 );
+    so = WSASocket( AF_INET, type, 0, 0, 0, 0 );
     if ( so == INVALID_SOCKET ) {
 	return FALSE;
     }
@@ -31,7 +81,8 @@ static bool socketpair( int type, int s[2] )
     listen( so, 2 );
 
     // create the outsocket
-    s[1] = socket (AF_INET, type, 0);
+//    s[1] = socket (AF_INET, type, 0);
+    s[1] = WSASocket( AF_INET, type, 0, 0, 0, 0 );
     if ( s[1] == INVALID_SOCKET ) {
 	closesocket( so );
 	s[1] = 0;
@@ -111,13 +162,13 @@ bool QProcess::start()
 	if ( !socketpair( SOCK_STREAM, socketStderr ) ) {
 	    return FALSE;
 	}
-#if 1
+#if 0
 	// ### test my socketpair function
 	char grmpf[] = "Wet wet wet...";
 	char hmpfl[10];
 	DWORD written, read;
-	OVERLAPPED ov = { 0, 0, 0, 0, 0 };
-	OVERLAPPED *ovp = &ov;//0;
+	//OVERLAPPED ov = { 0, 0, 0, 0, 0 };
+	OVERLAPPED *ovp = 0;
 	if ( !WriteFile( (HANDLE)(socketStdin[1]), grmpf, 5, &written, ovp ) ) {
 	    LPVOID lpMsgBuf;
 	    FormatMessage(     FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -127,7 +178,7 @@ bool QProcess::start()
 		    (LPTSTR) &lpMsgBuf,    0,    NULL );
 	} else {
 	    // try to read
-	    ReadFile( (HANDLE)(socketStdin[0]), hmpfl, 5, &read, ovp );
+	    ReadFile( (HANDLE)(socketStdin[0]), hmpfl, 10, &read, ovp );
 	}
 #endif
 
@@ -305,7 +356,7 @@ void QProcess::socketWrite( int fd )
 	if ( !WriteFile( (HANDLE)(socketStdin[1]),
 	    stdinBuf.head()->data() + stdinBufRead,
 	    stdinBuf.head()->size() - stdinBufRead,
-	    &written, 0 ) ) {
+	    &written, 0 ) ) {//&overlapStdin ) ) {
 	    return;
 	}
     } else {
@@ -323,8 +374,12 @@ void QProcess::socketWrite( int fd )
 	socketWrite( fd );
     }
 
+#if 1
     // ### try to read (just for test purposes)
     if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	char hmpfl[10];
+	DWORD read;
+	ReadFile( (HANDLE)(socketStdout[0]), hmpfl, 10, &read, 0 );//&overlapStdout );
     } else {
 	QByteArray buffer=readStdout();
 	int sz = buffer.size();
@@ -335,6 +390,8 @@ void QProcess::socketWrite( int fd )
 	QString str( buffer );
 	emit dataStdout( str );
     }
+#endif
+
 }
 
 

@@ -17,7 +17,7 @@
   output, etc.
 */
 
-
+#if 0
 void QProcess::init()
 {
     stdinBufRead = 0;
@@ -49,6 +49,7 @@ void QProcess::init()
     }
 #endif
 }
+#endif
 
 /*!
   Constructs a QProcess.
