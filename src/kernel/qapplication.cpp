@@ -4341,6 +4341,16 @@ QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key 
 {
     qt_session_manager_self = this;
     d = new QSessionManagerData;
+#ifdef Q_WS_WIN
+    wchar_t guidstr[40];
+    GUID guid;
+    CoCreateGuid( &guid );
+    StringFromGUID2(guid, guidstr, 40);
+    id = QString::fromUcs2(guidstr);
+    CoCreateGuid( &guid );
+    StringFromGUID2(guid, guidstr, 40);
+    key = QString::fromUcs2(guidstr);
+#endif
     d->sessionId = id;
     d->sessionKey = key;
     d->restartHint = RestartIfRunning;
