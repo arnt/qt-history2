@@ -37,6 +37,8 @@
 // NOT REVISED
 /*! \class QWizard qwizard.h
 
+  \ingroup abstractwidgets
+
   \brief The QWizard class provides a framework for easily writing wizards.
 
   A wizard is a dialog that consists of a sequential number of steps,

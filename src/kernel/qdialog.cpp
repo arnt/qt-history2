@@ -37,6 +37,7 @@
   \brief The QDialog class is the base class of dialog windows.
 
   \ingroup dialogs
+  \ingroup abstractwidgets
 
   A dialog window is a widget used to communicate with the user. It offers
   mechanisms such as default buttons.
