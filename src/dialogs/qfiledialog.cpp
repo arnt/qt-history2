@@ -3114,7 +3114,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
-	dlg->setCaption( QFileDialog::tr( "Save as" ) );
+	dlg->setCaption( QFileDialog::tr( "Save As" ) );
     QString result;
     dlg->setFilters( filters );
     dlg->setMode( QFileDialog::AnyFile );
