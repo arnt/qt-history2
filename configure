@@ -926,23 +926,29 @@ while [ "$#" -gt 0 ]; do
 	if [ "$VAR" = "imgfmt" ]; then
 	    [ "$OPT" = "qt" ] && OPT=yes
 	    # now $OPT is "no", "yes", or "plugin"
-	    if [ "$VAL" = "gif" ] && [ "$OPT" = "yes" ]; then
-	        echo "GIF is only available as a plugin"
-	        CFG_GIF=plugin
-	    else
-	        CFG_GIF=$OPT
+	    if [ "$VAL" = "gif" ]; then
+		if [ "$OPT" = "yes" ]; then
+		    echo "GIF is only available as a plugin"
+		    CFG_GIF=plugin
+		else
+		    CFG_GIF=$OPT
+		fi
 	    fi
-	    if [ "$VAL" = "jpeg" ] && [ "$OPT" = "yes" ]; then
-	        echo "JPEG is only available as a plugin"
-	        CFG_JPEG=plugin
-	    else
-	        CFG_JPEG=$OPT
+	    if [ "$VAL" = "jpeg" ]; then
+		if [ "$OPT" = "yes" ]; then
+		    echo "JPEG is only available as a plugin"
+		    CFG_JPEG=plugin
+		else
+		    CFG_JPEG=$OPT
+		fi
 	    fi
-	    if [ "$VAL" = "png" ] && [ "$OPT" = "plugin" ]; then
-	        echo "PNG is only available as a built-in"
-	        CFG_PNG=yes
-	    else
-	        CFG_PNG=$OPT
+	    if [ "$VAL" = "png" ]; then
+	        if [ "$OPT" = "plugin" ]; then
+		    echo "PNG is only available as a built-in"
+		    CFG_PNG=yes
+		else
+		    CFG_PNG=$OPT
+		fi
 	    fi
 	else
 	    if [ "$VAR" = "style" ]; then
@@ -2198,7 +2204,7 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
 
 Qt/Mac only:
 
-    -framework ......... Build Qt as a series of frameworks and 
+    -framework ......... Build Qt as a series of frameworks and
                          link tools against those frameworks
 EOF
 fi
@@ -3509,7 +3515,7 @@ if [ -z "$QT_INSTALL_QTCONF" ]; then
     QT_INSTALL_QTCONFIG=$QT_INSTALL_PREFIX
 fi
 cat >>$QTCONFIG.tmp <<EOF
-CONFIG += $QTCONFIG_CONFIG 
+CONFIG += $QTCONFIG_CONFIG
 QT_INSTALL_QTCONFIG = $QT_INSTALL_QTCONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
