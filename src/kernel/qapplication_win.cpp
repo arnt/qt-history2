@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#434 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#435 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -279,15 +279,17 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     set_winapp_name();
 
     char *p = cmdParam;
+    char *p_end = p + strlen(p);
+
     argc = 1;
     argv[0] = appName;
 
-    while ( *p ) {				// parse cmd line arguments
+    while ( *p && p < p_end ) {				// parse cmd line arguments
 
 	while ( isspace(*p) )			// skip white space
 	    p++;
 
-	if ( *p ) {				// arg starts
+	if ( *p && p < p_end ) {				// arg starts
 	    int quote;
 	    char *start, *r;
 	    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
@@ -298,7 +300,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		start = p;
 	    }
 	    r = start;
-	    while ( *p ) {
+	    while ( *p && p < p_end ) {
 		if ( *p == '\\' ) {		// escape char?
 		    p++;
 		    if ( *p == '\"' || *p == '\'' )
@@ -322,7 +324,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 		if ( p )
 		    *r++ = *p++;
 	    }
-	    if ( *p )
+	    if ( *p && p < p_end )
 		p++;
 	    *r = '\0';
 
