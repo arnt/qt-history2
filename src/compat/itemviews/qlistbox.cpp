@@ -915,28 +915,29 @@ QListBox::~QListBox()
 
 
 /*!
-    \fn void QListBox::returnPressed(QListBoxItem *)
+    \fn void QListBox::returnPressed(QListBoxItem *item)
 
-    This signal is emitted when Enter or Return is pressed. The
-    argument is currentItem().
+    This signal is emitted when \key{Enter} or \key{Return} is pressed. The
+    \a item passed in the argument is currentItem().
 */
 
 /*!
-    \fn void QListBox::rightButtonClicked(QListBoxItem *, const QPoint&)
+    \fn void QListBox::rightButtonClicked(QListBoxItem *item, const QPoint& point)
 
-    This signal is emitted when the right button is clicked (i.e. when
-    it's released at the same point where it was pressed). The
-    arguments are the relevant QListBoxItem (may be 0) and the point
-    in global coordinates.
+    This signal is emitted when the right button is clicked. The \a
+    item is the item that the button was clicked on (which could be
+    0 if no item was clicked on), and the \a point is where the
+    click took place in global coordinates.
 */
 
 
 /*!
-    \fn void QListBox::rightButtonPressed (QListBoxItem *, const QPoint &)
+    \fn void QListBox::rightButtonPressed (QListBoxItem *item, const QPoint &point)
 
-    This signal is emitted when the right button is pressed. The
-    arguments are the relevant QListBoxItem (may be 0) and the point
-    in global coordinates.
+    This signal is emitted when the right button is pressed. The \a
+    item is the item that the button was pressed over (which could be
+    0 if no item was pressed over), and the \a point is where the
+    press took place in global coordinates.
 */
 
 /*!
@@ -992,22 +993,24 @@ QListBox::~QListBox()
 */
 
 /*!
-    \fn void QListBox::highlighted(QListBoxItem *)
+    \fn void QListBox::highlighted(QListBoxItem *item)
+
     \overload
 
-    This signal is emitted when the user makes a new item the current
-    item. The argument is a pointer to the new current item.
+    This signal is emitted when the user makes a new \a item the current
+    \a item.
 
     \sa currentChanged() selected() currentItem() selectionChanged()
 */
 
 /*!
-    \fn void QListBox::highlighted(const QString &)
+    \fn void QListBox::highlighted(const QString & text)
+
     \overload
 
     This signal is emitted when the user makes a new item the current
-    item and the item is (or has) as string. The argument is the text
-    of the new current item.
+    item and the item is (or has) as string. The argument is the new
+    current item's \a text.
 
     \sa currentChanged() selected() currentItem() selectionChanged()
 */
@@ -1023,23 +1026,24 @@ QListBox::~QListBox()
 */
 
 /*!
-    \fn void QListBox::selected(QListBoxItem *)
+    \fn void QListBox::selected(QListBoxItem *item)
+
     \overload
 
-    This signal is emitted when the user double-clicks on an item or
-    presses Enter on the current item. The argument is a pointer to
-    the new selected item.
+    This signal is emitted when the user double-clicks on an \a item or
+    presses \key{Enter} on the current \a item.
 
     \sa currentChanged() highlighted() selectionChanged()
 */
 
 /*!
-    \fn void QListBox::selected(const QString &)
+    \fn void QListBox::selected(const QString &text)
+
     \overload
 
     This signal is emitted when the user double-clicks on an item or
-    presses Enter on the current item, and the item is (or has) a
-    string. The argument is the text of the selected item.
+    presses \key{Enter} on the current item, and the item is (or has) a
+    string. The argument is the \a text of the selected item.
 
     \sa currentChanged() highlighted() selectionChanged()
 */
