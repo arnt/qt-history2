@@ -57,7 +57,7 @@ public:
     EditorCompletion( Editor *e );
     ~EditorCompletion();
 
-    virtual void addCompletionEntry( const QString &s, QTextDocument *doc );
+    virtual void addCompletionEntry( const QString &s, QTextDocument *doc, bool strict );
     virtual QValueList<CompletionEntry> completionList( const QString &s, QTextDocument *doc ) const;
     virtual void updateCompletionMap( QTextDocument *doc );
 
@@ -90,6 +90,7 @@ protected:
     QValueList<CompletionEntry> cList;
     QMap<QChar, QStringList> completionMap;
     bool enabled;
+    QTextDocument *lastDoc;
 
 };
 

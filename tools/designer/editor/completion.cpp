@@ -94,6 +94,7 @@ private:
 EditorCompletion::EditorCompletion( Editor *e )
 {
     enabled = TRUE;
+    lastDoc = 0;
     completionPopup = new QVBox( 0, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
     completionPopup->setLineWidth( 1 );
@@ -122,23 +123,25 @@ EditorCompletion::~EditorCompletion()
     delete functionLabel;
 }
 
-void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
+void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument *, bool strict )
 {
     QChar key( s[ 0 ] );
     QMap<QChar, QStringList>::Iterator it = completionMap.find( key );
     if ( it == completionMap.end() ) {
 	completionMap.insert( key, QStringList( s ) );
     } else {
-	QStringList::Iterator sit;
-	for ( sit = (*it).begin(); sit != (*it).end(); ) {
-	    QStringList::Iterator it2 = sit;
-	    ++sit;
-	    if ( (*it2).left( s.length() ) == s ) {
-		if ( (*it2)[ (int)s.length() ].isLetter() && (*it2)[ (int)s.length() ].upper() != (*it2)[ (int)s.length() ] )
-		    return;
-	    } else if ( s.left( (*it2).length() ) == *it2 ) {
-		if ( s[ (int)(*it2).length() ].isLetter() && s[ (int)(*it2).length() ].upper() != s[ (int)(*it2).length() ] )
-		    (*it).remove( it2 );
+	if ( strict ) {
+	    QStringList::Iterator sit;
+	    for ( sit = (*it).begin(); sit != (*it).end(); ) {
+		QStringList::Iterator it2 = sit;
+		++sit;
+		if ( (*it2).length() > s.length() && (*it2).left( s.length() ) == s ) {
+		    if ( (*it2)[ (int)s.length() ].isLetter() && (*it2)[ (int)s.length() ].upper() != (*it2)[ (int)s.length() ] )
+			return;
+		} else if ( s.length() > (*it2).length() && s.left( (*it2).length() ) == *it2 ) {
+		    if ( s[ (int)(*it2).length() ].isLetter() && s[ (int)(*it2).length() ].upper() != s[ (int)(*it2).length() ] )
+			(*it).remove( it2 );
+		}
 	    }
 	}
 	(*it).append( s );
@@ -171,6 +174,10 @@ QValueList<CompletionEntry> EditorCompletion::completionList( const QString &s, 
 
 void EditorCompletion::updateCompletionMap( QTextDocument *doc )
 {
+    bool strict = TRUE;
+    if ( doc != lastDoc )
+	strict = FALSE;
+    lastDoc = doc;
     QTextParag *s = doc->firstParag();
     if ( !s->extraData() )
 	s->setExtraData( new ParagData );
@@ -187,12 +194,12 @@ void EditorCompletion::updateCompletionMap( QTextDocument *doc )
 	    if ( c.isLetter() || c.isNumber() || c == '_' || c == '#' ) {
 		buffer += c;
 	    } else {
-		addCompletionEntry( buffer, doc );
+		addCompletionEntry( buffer, doc, strict );
 		buffer = QString::null;
 	    }
 	}
 	if ( !buffer.isEmpty() )
-	    addCompletionEntry( buffer, doc );
+	    addCompletionEntry( buffer, doc, strict );
 
 	( (ParagData*)s->extraData() )->lastLengthForCompletion = s->length();
 	s = s->next();
