@@ -44,6 +44,9 @@ AsciiValidator::~AsciiValidator()
 QValidator::State AsciiValidator::validate( QString &s, int & ) const
 {
     bool inParen = FALSE;
+    if ( !s.isEmpty() && s[0].row() == 0 && s[0].cell() >= '0' && s[0].cell() <= '9' ) {
+	s[0] = '_';
+    }
     for ( int i = 0; i < (int) s.length(); i++ ) {
 	uchar r = s[i].row();
 	uchar c = s[i].cell();
@@ -53,7 +56,6 @@ QValidator::State AsciiValidator::validate( QString &s, int & ) const
 	    s.truncate( i + 1 );
 	    return QValidator::Acceptable;
 	}
-	
 	if ( r == 0 && ( ( c >= '0' && c <= '9' ) ||
 			 ( c >= 'a' && c <= 'z' ) ||
 			 ( c >= 'A' && c <= 'Z' ) ) )
