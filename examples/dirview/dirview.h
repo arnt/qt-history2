@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/dirview.h#2 $
+** $Id: //depot/qt/main/examples/dirview/dirview.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -49,7 +49,7 @@ class DirectoryView : public QListView
     Q_OBJECT
 
 public:
-    DirectoryView( QWidget *parent = 0, const char *name = 0, bool sdo = false );
+    DirectoryView( QWidget *parent = 0, const char *name = 0, bool sdo = FALSE );
     bool showDirsOnly() { return dirsOnly; }
 
 signals:
