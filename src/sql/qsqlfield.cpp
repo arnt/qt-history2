@@ -40,7 +40,7 @@
 
 /*!
     \class QSqlField qsqlfield.h
-    \brief Manipulates SQL database fields.
+    \brief Manipulates the fields in SQL database tables and views
 
     \module sql
 
@@ -49,7 +49,7 @@
     field also contains the value of the database column, which can be
     viewed or changed.
 
-    Field data values are stored as a QVariant type.  Using
+    Field data values are stored as QVariants.  Using
     an incompatible type is not permitted.  For example:
 
     \code
@@ -66,13 +66,22 @@
     \endcode
 
     QSqlField objects are rarely created explicitly in application
-    code.  Rather, use \l QSqlRecord and \l QSqlCursor which already
-    contain a list of fields.  For example:
+    code.  They are usually accessed indirectly through \l QSqlRecord or
+    \l QSqlCursor which already contain a list of fields.  For example:
 
     \code
     QSqlCursor c( "Employee" );          // create cursor using the 'Employee' table
     QSqlField* f = c.field( "name" );    // use the 'name' field
     f->setValue( "Dave" );               // set field value
+    ...
+    \endcode
+
+    In practice we rarely need to extract a pointer to a field at all.
+    The previous example would normally be written:
+
+    \code
+    QSqlCursor c( "Employee" );
+    c.setValue( "name", "Dave" );
     ...
     \endcode
 
@@ -109,9 +118,9 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     return *this;
 }
 
-/*! Returns TRUE if the field is equal to \a other, otherwise FALSE is
-  returned.  Fields are considered equal when the following field
-  properties are the same:
+/*! Returns TRUE if the field is equal to \a other, otherwise returns FALSE.
+  Fields are considered equal when the following field properties are
+  the same:
 
   <ul>
   <li> \c name()
@@ -149,14 +158,14 @@ QSqlField::~QSqlField()
   read-only (isReadOnly() returns TRUE), nothing happens.  If the data
   type of \a value differs from the field's current data type, an
   attempt is made to cast it to the proper type.  This preserves the
-  data type of the field in the face of assigning, e.g. a QString to
+  data type of the field in the cace of assignment, e.g. a QString to
   an integer data type.  For example:
 
   \code
   QSqlCursor myCursor( "Employee" );                      // 'Employee' table
   QSqlField* myField = myCursor.field( "student_count" ); // an integer field
   ...
-  myField->setValue( myLineEdit->text() );                // cast the line edit test to an integer
+  myField->setValue( myLineEdit->text() );                // cast the line edit text to an integer
   \endcode
 
   \sa isReadOnly()
@@ -168,7 +177,8 @@ void QSqlField::setValue( const QVariant& value )
 	return;
     if ( value.type() != val.type() ) {
 	if ( !val.canCast( value.type() ) )
-	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s", nm.local8Bit().data(), value.typeName(), val.typeName() );
+	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s", 
+		      nm.local8Bit().data(), value.typeName(), val.typeName() );
 	QVariant tmp = value;
 	tmp.cast( val.type() );
 	val = tmp;
@@ -234,7 +244,7 @@ void QSqlField::clear( bool nullify )
 
 /*! \fn bool QSqlField::isNull() const
 
-  Returns TRUE if the field is currently null, otherwise FALSE.
+  Returns TRUE if the field is currently null, otherwise returns FALSE.
 */
 
 #endif
