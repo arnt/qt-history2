@@ -419,6 +419,8 @@ private:
 
     glyph_t   glyphIndices [0x200];
     advance_t glyphAdvances[0x200];
+    glyph_t euroIndex;
+    advance_t euroAdvance;
 };
 
 class QScriptItem;

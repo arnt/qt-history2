@@ -800,6 +800,8 @@ QFontEngineLatinXLFD::QFontEngineLatinXLFD( XFontStruct *xfs, const char *name,
 
     memset( glyphIndices, 0, sizeof( glyphIndices ) );
     memset( glyphAdvances, 0, sizeof( glyphAdvances ) );
+    euroIndex = 0;
+    euroAdvance = 0;
 
     unsigned short chars[0x200];
     for ( int i = 0; i < 0x200; ++i )
@@ -887,20 +889,24 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     const int hi = _count << 8;
     ++_count;
 
-    unsigned short chars[0x200];
-    glyph_t glyphs[0x200];
-    advance_t advances[0x200];
+    unsigned short chars[0x201];
+    glyph_t glyphs[0x201];
+    advance_t advances[0x201];
     for ( i = 0; i < 0x200; ++i )
 	chars[i] = i;
-    int glyphCount = 0x200;
-    engine->stringToCMap( (const QChar *) chars, 0x200, glyphs, advances, &glyphCount, FALSE );
+    chars[0x200] = 0x20ac;
+    int glyphCount = 0x201;
+    engine->stringToCMap( (const QChar *) chars, 0x201, glyphs, advances, &glyphCount, FALSE );
 
     // merge member data with the above
     for ( i = 0; i < 0x200; ++i ) {
-	if ( glyphIndices[i] != 0 ) continue;
-	if ( glyphs[i] == 0 ) continue;
+	if ( glyphIndices[i] != 0 || glyphs[i] == 0 ) continue;
 	glyphIndices[i] = hi | glyphs[i];
 	glyphAdvances[i] = advances[i];
+    }
+    if (!euroIndex && glyphs[0x200]) {
+	euroIndex = hi | glyphs[0x200];
+	euroAdvance = advances[0x200];
     }
 }
 
@@ -930,9 +936,13 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
 		    *g = glyphIndices[ch];
 		    *a = glyphAdvances[ch];
 		} else {
-		    // #### fix for Euro et al.
-		    *g = 0;
-		    *a = asc;
+		    if ( c->unicode() == 0x20ac ) {
+			*g = euroIndex;
+			*a = euroAdvance;
+		    } else {
+			*g = 0;
+			*a = asc;
+		    }
 		}
 		missing = ( missing || ( *g == 0 ) );
 	    }
@@ -945,9 +955,13 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
 		    *g = glyphIndices[c->unicode()];
 		    *a = glyphAdvances[c->unicode()];
 		} else {
-		    // #### fix for Euro et al.
-		    *g = 0;
-		    *a = asc;
+		    if ( c->unicode() == 0x20ac ) {
+			*g = euroIndex;
+			*a = euroAdvance;
+		    } else {
+			*g = 0;
+			*a = asc;
+		    }
 		}
 		missing = ( missing || ( *g == 0 ) );
 	    }
@@ -957,16 +971,16 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
 	    while ( c != str ) {
 		--c;
 		--g;
-		// ### fix for Euro et al.
-		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[::mirroredChar(*c).unicode()] : 0 );
+		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[::mirroredChar(*c).unicode()]
+		       : (c->unicode() == 0x20ac) ? euroIndex : 0 );
 		missing = ( missing || ( *g == 0 ) );
 	    }
 	} else {
 	    while ( c != str ) {
 		--c;
 		--g;
-		// ### fix for Euro et al.
-		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[c->unicode()] : 0 );
+		*g = ( ( c->unicode() < 0x200 ) ? glyphIndices[c->unicode()]
+		       : (c->unicode() == 0x20ac) ? euroIndex : 0 );
 		missing = ( missing || ( *g == 0 ) );
 	    }
 	}
@@ -975,15 +989,14 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
     if ( missing ) {
 	for ( i = 0; i < len; ++i ) {
 	    unsigned short uc = str[i].unicode();
-	    // #### fix for Euro
-	    if ( glyphs[i] != 0 || uc >= 0x200 )
+	    if ( glyphs[i] != 0 || (uc >= 0x200 && uc != 0x20ac) )
 		continue;
 
 	    QFontEngineLatinXLFD *that = (QFontEngineLatinXLFD *) this;
 	    that->findEngine( str[i] );
-	    glyphs[i] = that->glyphIndices[uc];
+	    glyphs[i] = (uc == 0x20ac ? euroIndex : that->glyphIndices[uc]);
 	    if ( advances )
-		advances[i] = glyphAdvances[uc];
+		advances[i] = (uc == 0x20ac ? euroAdvance : glyphAdvances[uc]);
 	}
     }
 
@@ -1168,7 +1181,8 @@ bool QFontEngineLatinXLFD::canRender( const QChar *string, int len )
     for ( i = 0; i < len; ++i ) {
 	if ( string[i].unicode() >= 0x200 ||
 	     glyphIndices[string[i].unicode()] == 0 ) {
-	    all = FALSE;
+	    if (string[i].unicode() != 0x20ac || euroIndex == 0)
+		all = FALSE;
 	    break;
 	}
     }
@@ -1178,7 +1192,18 @@ bool QFontEngineLatinXLFD::canRender( const QChar *string, int len )
 
     all = TRUE;
     for ( i = 0; i < len; ++i ) {
-	if ( string[i].unicode() >= 0x200 ) continue;
+	if ( string[i].unicode() >= 0x200 ) {
+	    if (string[i].unicode() == 0x20ac) {
+		if (euroIndex)
+		    continue;
+
+		findEngine(string[i]);
+		if (euroIndex)
+		    continue;
+	    }
+	    all = FALSE;
+	    break;
+	}
 	if ( glyphIndices[string[i].unicode()] != 0 ) continue;
 
 	findEngine( string[i] );
@@ -1188,7 +1213,7 @@ bool QFontEngineLatinXLFD::canRender( const QChar *string, int len )
 	}
     }
 
-    return FALSE;
+    return all;
 }
 
 void QFontEngineLatinXLFD::setScale( double scale )
