@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#49 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#49 $")
 
 
 /*----------------------------------------------------------------------------
@@ -477,8 +477,8 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	const QPixmap *pm = pixmap();
 	if ( pm->width() > w || pm->height() > h )
 	    p->setClipRect( x, y, w, h );
-	if ( pm->depth() == 1 && isUp() )
-	    p->setBackgroundMode( OpaqueMode );
+	if ( pm->depth() == 1 )
+	    p->setBackgroundColor( g.background() );
 	x += w/2 - pm->width()/2;		// center
 	y += h/2 - pm->height()/2;
 	p->drawPixmap( x, y, *pm );
