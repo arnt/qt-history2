@@ -637,7 +637,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     listview = new HierarchyList( this, this );
     addTab( listview, tr( "Widgets" ) );
     fList = new FunctionList( this, this );
-    addTab( fList, tr( "Definitions" ) );
+    addTab( fList, tr( "Exploring" ) );
 
     formwindow = 0;
 }

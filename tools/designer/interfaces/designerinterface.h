@@ -150,6 +150,8 @@ struct DesignerFormWindow
     virtual QStringList declarationIncludes() const = 0;
     virtual void setImplementationIncludes( const QStringList &lst ) = 0;
     virtual void setDeclarationIncludes( const QStringList &lst ) = 0;
+    virtual QStringList forwardDeclarations() const = 0;
+    virtual void setForwardDeclarations( const QStringList &lst ) = 0;
 };
 
 struct DesignerDock

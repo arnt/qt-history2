@@ -583,6 +583,15 @@ void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
     MetaDataBase::setIncludes( formWindow, includes );
 }
 
+QStringList DesignerFormWindowImpl::forwardDeclarations() const
+{
+    return MetaDataBase::forwards( formWindow );
+}
+
+void DesignerFormWindowImpl::setForwardDeclarations( const QStringList &lst )
+{
+    MetaDataBase::setForwards( formWindow, lst );
+}
 
 
 

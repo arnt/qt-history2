@@ -156,6 +156,8 @@ public:
     QStringList declarationIncludes() const;
     void setImplementationIncludes( const QStringList &lst );
     void setDeclarationIncludes( const QStringList &lst );
+    QStringList forwardDeclarations() const;
+    void setForwardDeclarations( const QStringList &lst );
 
 private:
     FormWindow *formWindow;
