@@ -229,8 +229,6 @@ QSqlFieldList& QSqlFieldList::operator=( const QSqlFieldList& other )
     fieldList = other.fieldList;
     fieldListStr = other.fieldListStr;
     posMap = other.posMap;
-    for ( uint i = 0; i < fieldList.count(); ++i )
-	qDebug(fieldList[i].name() + QString(fieldList[i].value().typeName()));
     return *this;
 }
 

@@ -1,6 +1,10 @@
 #include "qsqldatabase.h"
 #ifndef QT_NO_SQL
 
+#ifdef QT_SQL_POSTGRES
+#include "src/psql/qsql_psql.h"
+#endif
+
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverplugin.h"
@@ -109,8 +113,14 @@ QSqlDatabase::QSqlDatabase( const QString& type,
 void QSqlDatabase::init( const QString& type )
 {
     d = new QSqlDatabasePrivate();
-    d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-    d->driver = d->plugIns->create( type );
+    //    d->plugIns = new QSqlDriverPlugInManager( QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
+    //    d->driver = d->plugIns->create( type );
+    if ( !d->driver ) {
+#ifdef QT_SQL_POSTGRES
+	if ( type == "QPSQL" )
+	    d->driver = new QPSQLDriver();
+#endif
+    }
     if ( !d->driver ) {
 #ifdef CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
