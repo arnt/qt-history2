@@ -105,6 +105,8 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     qDebug("QDns::getHostByName(\"%s\", %p, %s)", name.latin1(), receiver, member ? member + 1 : 0);
 #endif
 
+    qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
+
     // Don't start a thread if we don't have to do any lookup.
     QHostAddress addr;
     if (addr.setAddress(name)) {
@@ -137,8 +139,6 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         }
         return;
     }
-
-    qRegisterMetaType<QDnsHostInfo>("QDnsHostInfo");
 
 #if defined Q_OS_WIN32
     QSocketDevice bust; // makes sure WSAStartup was callled
