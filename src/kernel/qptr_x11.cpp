@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#161 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#160 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#161 $")
 
 
 /*****************************************************************************
@@ -2505,7 +2505,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    if ( !pdev->cmd(PDC_DRAWTEXT,this,param) || !hd )
 		return;
 	}
-	if ( txop == TxScale || TxRotShear ) {	// draw transformed text
+	if ( txop == TxScale || txop == TxRotShear ) {
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
@@ -2585,7 +2585,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		ins_text_bitmap( mat, fi, str, len, wx_bm );
 	    return;
 	}
-	map( x, y, &x, &y );
+	if ( txop == TxTranslate )
+	    map( x, y, &x, &y );
     }
 
     if ( cfont.underline() || cfont.strikeOut() ) {
