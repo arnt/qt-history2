@@ -44,7 +44,7 @@ void Clipping::timerEvent(QTimerEvent *e)
     for (int i=0; i<rects.size(); ++i) {
         QRect r = rects.at(i);
         QPoint d = rectDirection.at(i);
-        r.moveBy(d);
+        r.translate(d);
 
         // Move rect horizontally
         if (r.left() < 0) {

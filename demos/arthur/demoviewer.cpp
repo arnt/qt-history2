@@ -74,7 +74,7 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     painter->setPen(Qt::black);
     QRect textRect = r;
     if (selected)
-        textRect.moveBy(1, 1);
+        textRect.translate(1, 1);
     painter->drawText(textRect, Qt::AlignCenter, model->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
