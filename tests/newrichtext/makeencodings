@@ -123,9 +123,12 @@ print out "static const char scripts_for_xlfd_encoding[".$num."][".$num_scripts.
 $i = 0;
 while( $i < $num ) {
   my $j = 0;
+  my @s = split( /,/, $scripts[$i] );
+#printf(join(":",@s)."\n");
   print out "    { ";
   while( $j < $num_scripts ) {
-    if( index( $scripts[$i], $qscripts[$j] ) != -1 ) {
+    if( grep( /^$qscripts[$j]$/, @s ) ) {
+#      printf("$i: $qscripts[$j]\n");
       print out "1";
     } else {
       print out "0";
