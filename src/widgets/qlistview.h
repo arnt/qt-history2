@@ -355,7 +355,7 @@ signals:
     void mouseButtonPressed( int, QListViewItem *, const QPoint& , int );
     void mouseButtonClicked( int, QListViewItem *,  const QPoint&, int );
 
-    void contextMenu( QListViewItem *, const QPoint & );
+    void contextMenu( QListViewItem *, const QPoint &, int );
 
     void onItem( QListViewItem *item );
     void onViewport();

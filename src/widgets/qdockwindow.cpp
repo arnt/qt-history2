@@ -1501,4 +1501,19 @@ bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 }
 
 
+
+void QDockWindow::contextMenuEvent( QContextMenuEvent *e )
+{
+    QObject *o = this;
+    while ( o ) {
+	if ( o->inherits( "QMainWindow" ) )
+	    break;
+	o = o->parent();
+    }
+    if ( !o )
+	return;
+    if ( ( (QMainWindow*)o )->showDockMenu( e->globalPos() ) )
+	e->accept();
+}
+
 #include "qdockwindow.moc"

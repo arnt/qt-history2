@@ -2380,10 +2380,10 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-  \fn void QIconView::showContextMenu( QIconViewItem *item, const QPoint & pos )
+  \fn void QIconView::contextMenu( QIconViewItem *item, const QPoint & pos )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
-  or with special system keys, with \a item being the item under the mouse cursor or the 
+  or with special system keys, with \a item being the item under the mouse cursor or the
   current item, respectively.
 
   \a pos is the position for the context menu in the global coordinate system.
@@ -4163,8 +4163,10 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	emit pressed( item );
 	emit pressed( item, e->globalPos() );
 
-	if ( e->button() == RightButton )
+	if ( e->button() == RightButton ) {
 	    emit rightButtonPressed( item, e->globalPos() );
+	    emit contextMenu( item, e->globalPos() );
+	}
     }
 }
 
@@ -4174,24 +4176,15 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
-	if ( item ) {
-	    QRect r = item->rect();
-	    emit contextMenu( item, mapToGlobal( contentsToViewport( r.center() ) ) );
-	}
+	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );
+	emit contextMenu( item, mapToGlobal( contentsToViewport( r.center() ) ) );
     } else {
-	QIconViewItem *item = findItem( e->pos() );
-	if ( selectionMode() == Extended || ( selectionMode() == Single && !item ) )
-	    clearSelection();
-	if ( item ) {	    
-	    setCurrentItem( item );
-	    if ( selectionMode() != QIconView::NoSelection )
-		setSelected( item, TRUE );
-	    emit contextMenu( item, e->globalPos() );
-	}
+	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	contentsMousePressEvent( &me );
     }
+    e->accept();
 }
 
 /*!

@@ -142,6 +142,7 @@ protected:
     void resizeEvent( QResizeEvent *e );
     void showEvent( QShowEvent *e );
     void hideEvent( QHideEvent *e );
+    void contextMenuEvent( QContextMenuEvent *e );
 
 private slots:
     void toggleVisible() { if ( !isVisible() ) show(); else hide(); }

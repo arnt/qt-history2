@@ -3852,11 +3852,13 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
+	    emit contextMenu( 0, viewport()->mapToGlobal( vp ), -1 );
 	    return;
 	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
+	emit contextMenu( i, viewport()->mapToGlobal( vp ), -1 );
     }
 }
 
@@ -3875,18 +3877,11 @@ void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 		p += QPoint( width() / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
 	    else
 		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
-	    emit contextMenu( item, mapToGlobal( p ) );
+	    emit contextMenu( item, mapToGlobal( p ), -1 );
 	}
     } else {
-	QListViewItem *item = itemAt( e->pos() );
-	if ( selectionMode() == Extended || ( selectionMode() == Single && !item ) )
-	    clearSelection();
-	if ( item ) {
-	    setCurrentItem( item );
-	    if ( selectionMode() != QListView::NoSelection )
-		setSelected( item, TRUE );
-	    emit contextMenu( item, e->globalPos() );
-	}
+	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	contentsMousePressEvent( &me );
     }
 }
 
@@ -4903,13 +4898,16 @@ int QListView::itemMargin() const
 */
 
 /*!
-  \fn void QListView::showContextMenu( QListViewItem *item, const QPoint & pos )
+  \fn void QListView::contextMenu( QListViewItem *item, const QPoint & pos, int col )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
-  or with special system keys, with \a item being the item under the mouse cursor or the 
+  or with special system keys, with \a item being the item under the mouse cursor or the
   current item, respectively.
 
   \a pos is the position for the context menu in the global coordinate system.
+
+  \a col is the column on which the user pressed, or -1 if the signal
+  was triggered by a key event.
 */
 
 /*!\reimp

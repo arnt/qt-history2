@@ -241,7 +241,7 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
-    void contentsContextMenuEvent( QContextMenuEvent * );
+    void contextMenuEvent( QContextMenuEvent * );
 
     void keyPressEvent( QKeyEvent *e );
     void focusInEvent( QFocusEvent *e );

@@ -144,7 +144,7 @@ struct QTableHeaderPrivate
   to exactly this cell; the expandTo() function expands the selection
   rectangle.
 
-  There are various access functions to find out about the area: 
+  There are various access functions to find out about the area:
   anchorRow() and anchorCol() return the anchor's position; leftCol(), rightCol(),
   topRow() and bottomRow() return the rectangle's four edges. All
   four are part of the selection.
@@ -168,7 +168,7 @@ QTableSelection::QTableSelection()
 /*! Sets the selection anchor to row \a row and column \a col and
   the selection to exactly this cell.
 
-  To activate the selection you have to call expandTo(). 
+  To activate the selection you have to call expandTo().
 
   \sa isActive()
 */
@@ -371,12 +371,12 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   To insert the item into a table use QTable::setItem():
 
   \walkthrough table/wineorder2/productlist.cpp
-  \skipto QTableItem * discount 
-  \printline QTableItem * discount 
+  \skipto QTableItem * discount
+  \printline QTableItem * discount
   \printuntil setItem
- 
+
   (Code taken from \link wineorder2-example.html
-  table/wineorder2/productlist.cpp \endlink )  
+  table/wineorder2/productlist.cpp \endlink )
 
   Whilst the parent of the item (i.e. \a table) and the QTable it has been
   inserted into might occasionally be different, a table item can't be inserted into
@@ -471,7 +471,7 @@ QString QTableItem::text() const
 /*! Makes \a p the pixmap of \e this item.
 
   If text() has been defined for the item the pixmap is by
-  default presented on its left hand side. 
+  default presented on its left hand side.
 
   Note that setPixmap() does not update the cell the item belongs to.
   Use QTable::updateCell() to repaint cell contents immediately.
@@ -498,8 +498,8 @@ void QTableItem::setPixmap( const QPixmap &p )
   \printline setText
 
   (Code taken from \link wineorder2-example.html
-  table/wineorder2/productlist.cpp and 
-  table/wineorder2/spinboxitem.cpp \endlink ) 
+  table/wineorder2/productlist.cpp and
+  table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa QTable::setText() text() setPixmap() QTable::updateCell()
 */
@@ -563,7 +563,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
   \skipto return
   \printuntil }
 
-  (Code taken from \link wineorder2-example.html 
+  (Code taken from \link wineorder2-example.html
   table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa QTable::createEditor() setContentFromEditor() QTable::viewport()
@@ -589,9 +589,9 @@ QWidget *QTableItem::createEditor() const
   \skipto setContentFromEditor
   \printline setContentFromEditor
   \printuntil }
- 
+
   (Code taken from \link wineorder2-example.html
-  table/wineorder2/spinboxitem.cpp \endlink )     
+  table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa QTable::setCellContentFromEditor()
 */
@@ -882,13 +882,13 @@ bool QTableItem::isEnabled() const
   real combo box, so that the user can edit the value.
 
   This implementation saves resources: although the user always sees
-  a combo box there is no need for expensive QComboBox widgets 
+  a combo box there is no need for expensive QComboBox widgets
   to be visible all the time.
 
   The menu entries of the combo box are taken from a
   QStringList with the first list item serving as the top most
   combo box entry. After creation the original menu list may
-  be exchanged using setStringList(). 
+  be exchanged using setStringList().
 
   Pixmaps can neither be used in menu entries
   nor can a QComboTableItem be accompanied by icons.
@@ -907,10 +907,10 @@ bool QTableItem::isEnabled() const
   \walkthrough table/euroconversion/converter.cpp
   \skipto QStringList
   \printline QStringList
-  \skipto currencies = 
+  \skipto currencies =
   \printuntil setItem
 
-  (Code taken from \link euroconvert-example.html 
+  (Code taken from \link euroconvert-example.html
   table/euroconversion/converter.cpp \endlink )
 
   A combo box item is deleted like ordinary \l{QTableItem}s
@@ -929,8 +929,8 @@ bool QTableItem::isEnabled() const
   as the top most combo box entry. The menu texts might be changed later using
   setStringList().
 
-  \a editable specifies whether the combo box entries can be edited by the user 
-  or not. QComboTableItems as an entity are of the edit type QTableItem::WhenCurrent. 
+  \a editable specifies whether the combo box entries can be edited by the user
+  or not. QComboTableItems as an entity are of the edit type QTableItem::WhenCurrent.
 
   To use a combo box item as content for a QTable cell use
   QTable::setItem(), e.g.:
@@ -1065,7 +1065,7 @@ int QComboTableItem::currentItem() const
     return current;
 }
 
-/*! Returns the text of the currently selected combo box entry. 
+/*! Returns the text of the currently selected combo box entry.
 
   \sa currentItem() text()
 */
@@ -1075,7 +1075,7 @@ QString QComboTableItem::currentText() const
     return *entries.at( current );
 }
 
-/*! Returns the number of combo box entries. 
+/*! Returns the number of combo box entries.
 */
 
 int QComboTableItem::count() const
@@ -1083,7 +1083,7 @@ int QComboTableItem::count() const
     return entries.count();
 }
 
-/*! Returns the text of combo box entry no. \a i. 
+/*! Returns the text of combo box entry no. \a i.
 
   \sa currentText()
 */
@@ -1095,7 +1095,7 @@ QString QComboTableItem::text( int i ) const
 
 /*! Determines whether the entries of this combo table item
   can be changed by the user (\a b is TRUE) or not (\a b
-  is FALSE). 
+  is FALSE).
 
   \sa isEditable()
 */
@@ -1106,7 +1106,7 @@ void QComboTableItem::setEditable( bool b )
 }
 
 /*! Returns whether combo box entries of \e this item can
-  be changed by the user or not. 
+  be changed by the user or not.
 
   \sa setEditable()
 */
@@ -1118,7 +1118,7 @@ bool QComboTableItem::isEditable() const
 
 /*! \fn int QComboTableItem::rtti() const
 
-  For QComboTableItems this function returns a Run Time Identification 
+  For QComboTableItems this function returns a Run Time Identification
   number of 1.
 
   \sa QTableItem::rtti()
@@ -1132,7 +1132,7 @@ bool QComboTableItem::isEditable() const
   \module table
 
   To fill a table cell with a check box instead of the usual
-  text and pixmap one creates a QCheckTableItem 
+  text and pixmap one creates a QCheckTableItem
   object and uses QTable::setItem() to make it the content of
   a table cell. This results in an item that paints itself like a check
   box but is no real QCheckBox when the relevant cell does not have the focus.
@@ -1140,10 +1140,10 @@ bool QComboTableItem::isEditable() const
   QCheckBox, so that the user can check or uncheck it.
 
   This way the user always perceives the item as a
-  check box without the need of wasting resources by having a real QCheckBox 
+  check box without the need of wasting resources by having a real QCheckBox
   widget present all the time.
 
-  QCheckTableItems are of the edit type WhenCurrent. 
+  QCheckTableItems are of the edit type WhenCurrent.
   To change the check label string use setText().
   Check box items may however not include a pixmap.
 
@@ -1227,7 +1227,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 }
 
 /*! Sets the item's check mark if \a b is TRUE and unchecks the
-  check box if \a b is FALSE. 
+  check box if \a b is FALSE.
 
   \sa isChecked()
 */
@@ -1238,7 +1238,7 @@ void QCheckTableItem::setChecked( bool b )
     table()->updateCell( row(), col() );
 }
 
-/*! Returns whether the item is checked or not. 
+/*! Returns whether the item is checked or not.
 
   \sa setChecked()
 */
@@ -1454,6 +1454,18 @@ bool QCheckTableItem::isChecked() const
   Whenever a selection changes, this signal is emitted.
 
   \sa QTableSelection
+*/
+
+/*!
+  \fn void QTable::contextMenu( int row, int col, const QPoint & pos )
+
+  This signal is emitted when the user invokes a context menu with the
+  right mouse button or with special system keys, with \a row and \a
+  col being the cell under the mouse cursor or the current cell,
+  respectively.
+
+  \a pos is the position for the context menu in the global coordinate
+  system.
 */
 
 /*! Creates an empty table object with the name \a name as a child widget of \a parent.
@@ -2898,6 +2910,24 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
     if ( pressedRow == curRow && pressedCol == curCol )
 	emit clicked( curRow, curCol, e->button(), e->pos() );
 }
+
+/*!
+  \reimp
+*/
+
+void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
+{
+    if ( e->reason() == QContextMenuEvent::Keyboard ) {
+	QRect r = cellGeometry( curRow, curCol );
+	r.moveBy( -contentsX(), -contentsY() );
+	emit contextMenu( curRow, curCol, mapToGlobal( contentsToViewport( r.center() ) ) );
+    } else {
+	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	contentsMousePressEvent( &me );
+    }
+    e->accept();
+}
+
 
 /*! \reimp
 */

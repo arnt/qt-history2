@@ -893,10 +893,10 @@ QListBox::~QListBox()
 */
 
 /*!
-  \fn void QListBox::showContextMenu( QListBoxItem *item, const QPoint & pos )
+  \fn void QListBox::contextMenu( QListBoxItem *item, const QPoint & pos )
 
   This signal is emitted when the user invokes a context menu with the right mouse button
-  or with special system keys, with \a item being the item under the mouse cursor or the 
+  or with special system keys, with \a item being the item under the mouse cursor or the
   current item, respectively.
 
   \a pos is the position for the context menu in the global coordinate system.
@@ -1993,7 +1993,7 @@ void QListBox::updateSelection()
 /*! \reimp
 */
 
-void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
+void QListBox::contextMenuEvent( QContextMenuEvent *e )
 {
     e->accept();
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
@@ -2003,15 +2003,8 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenu( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
 	}
     } else {
-	QListBoxItem * i = itemAt( e->pos() );
-	if ( selectionMode() == Extended || ( selectionMode() == Single && !i ) )
-	    clearSelection();
-	if ( i ) {
-	    setCurrentItem( i );
-	    if ( selectionMode() != QListBox::NoSelection )
-		setSelected( i, TRUE );
-	    emit contextMenu( i, e->globalPos() );
-	}
+	QMouseEvent me( QEvent::MouseButtonPress, e->pos(), e->globalPos(), RightButton, e->state() );
+	mousePressEvent( &me );
     }
 }
 

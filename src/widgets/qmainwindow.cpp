@@ -629,9 +629,13 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d->opaque = FALSE;
     installEventFilter( this );
     d->topDock = new QDockArea( Horizontal, QDockArea::Normal, this, "qt_top_dock" );
+    d->topDock->installEventFilter( this );
     d->bottomDock = new QDockArea( Horizontal, QDockArea::Reverse, this, "qt_bottom_dock" );
+    d->bottomDock->installEventFilter( this );
     d->leftDock = new QDockArea( Vertical, QDockArea::Normal, this, "qt_left_dock" );
+    d->leftDock->installEventFilter( this );
     d->rightDock = new QDockArea( Vertical, QDockArea::Reverse, this, "qt_right_dock" );
+    d->rightDock->installEventFilter( this );
     d->hideDock = new QHideDock( this );
 }
 
@@ -1188,9 +1192,11 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     }
 
     if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-	( ( o->inherits( "QDockWindow" ) && hasDockWindow( (QDockWindow*)o ) ) || o == d->hideDock ) ) {
-	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) )
+	( o->inherits( "QDockArea" ) || o == d->hideDock ) ) {
+	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
+	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
+	}
     }
 
     return QWidget::eventFilter( o, e );
@@ -1755,14 +1761,6 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 
     d->rmbMenu->exec( globalPos );
     return TRUE;
-}
-
-/* \reimp 
-*/
-void QMainWindow::contextMenuEvent( QContextMenuEvent *e )
-{
-    e->accept();
-    showDockMenu( e->globalPos() );
 }
 
 void QMainWindow::slotPlaceChanged()
