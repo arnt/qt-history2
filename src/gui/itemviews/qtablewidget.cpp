@@ -49,16 +49,6 @@ public:
     QModelIndex index(const QTableWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
 
-#ifdef Q_NO_USING_KEYWORD
-    int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-    int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parent); }
-#else
-    using QAbstractItemModel::rowCount;
-    using QAbstractItemModel::columnCount;
-#endif
-    
     void setRowCount(int rows);
     void setColumnCount(int columns);
 

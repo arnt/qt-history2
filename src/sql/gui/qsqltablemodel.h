@@ -42,12 +42,6 @@ public:
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
-#ifdef Q_NO_USING_KEYWORD
-    inline bool setData(const QModelIndex &index, const QVariant &value)
-    { return QAbstractItemModel::setData(index, value); }
-#else
-    using QAbstractItemModel::setData;
-#endif
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
@@ -67,13 +61,6 @@ public:
 
     QString filter() const;
     virtual void setFilter(const QString &filter);
-
-#ifdef Q_NO_USING_KEYWORD
-    inline int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-#else
-    using QAbstractItemModel::rowCount;
-#endif
 
     int rowCount() const;
 

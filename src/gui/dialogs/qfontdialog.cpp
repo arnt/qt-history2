@@ -39,13 +39,6 @@ class QFontListModel : public QAbstractListModel
 public:
     QFontListModel(QObject *parent);
 
-#ifdef Q_NO_USING_KEYWORD
-    int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-#else
-    using QAbstractItemModel::rowCount;
-#endif
-
     int rowCount() const;
     QVariant data(const QModelIndex &index, int role) const;
 

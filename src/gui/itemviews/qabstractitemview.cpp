@@ -40,16 +40,6 @@ public:
     QDefaultModel(QObject *parent) : QAbstractTableModel(parent) {}
     ~QDefaultModel() {}
 
-#ifdef Q_NO_USING_KEYWORD
-    int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-    int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parent); }
-#else
-    using QAbstractItemModel::rowCount;
-    using QAbstractItemModel::columnCount;
-#endif
-
     int rowCount() const { return 0; }
     int columnCount() const { return 0; }
     QVariant data(const QModelIndex &, int) const { return QVariant(); }

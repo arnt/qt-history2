@@ -31,22 +31,6 @@ public:
     QSqlQueryModel(QObject *parent = 0);
     virtual ~QSqlQueryModel();
 
-#ifdef Q_NO_USING_KEYWORD
-    inline int rowCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::rowCount(parent); }
-    inline int columnCount(const QModelIndex &parent) const
-        { return QAbstractItemModel::columnCount(parent); }
-    inline bool insertColumns(int column, int count)
-        { return QAbstractTableModel::insertColumns(column, count); }
-    inline bool removeColumns(int column, int count)
-        { return QAbstractTableModel::removeColumns(column, count); }
-#else
-    using QAbstractItemModel::rowCount;
-    using QAbstractItemModel::columnCount;
-    using QAbstractTableModel::insertColumns;
-    using QAbstractTableModel::removeColumns;
-#endif
-
     int rowCount() const;
     int columnCount() const;
     QSqlRecord record(int row = -1) const;
