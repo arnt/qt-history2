@@ -45,7 +45,7 @@
 extern "C" {
 #endif // Q_C_CALLBACKS
 
-    QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS);
+    static QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS);
 
 #ifdef Q_C_CALLBACKS
 }
@@ -500,7 +500,7 @@ void QProcessPrivate::newProc(pid_t pid, QProcess *process)
  * sigchld handler callback
  *
  **********************************************************************/
-QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS)
+static QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS)
 {
     if (QProcessPrivate::procManager == 0)
         return;

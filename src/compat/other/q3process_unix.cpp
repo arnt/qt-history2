@@ -76,7 +76,7 @@
 extern "C" {
 #endif // Q_C_CALLBACKS
 
-    QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS);
+    static QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS);
 
 #ifdef Q_C_CALLBACKS
 }
@@ -552,7 +552,7 @@ void Q3ProcessPrivate::newProc( pid_t pid, Q3Process *process )
  * sigchld handler callback
  *
  **********************************************************************/
-QT_SIGNAL_RETTYPE qt_C_sigchldHnd( QT_SIGNAL_ARGS )
+static QT_SIGNAL_RETTYPE qt_C_sigchldHnd( QT_SIGNAL_ARGS )
 {
     if ( Q3ProcessPrivate::procManager == 0 )
 	return;
