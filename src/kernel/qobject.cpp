@@ -252,6 +252,7 @@ QObject::QObject( QObject *parent, const char *name )
     parentObj( 0 ),				// no parent yet. It is set by insertChild()
     d_ptr( new QObjectPrivate )
 {
+    d_ptr->q_ptr = this;
     if ( parent )				// add object to parent
 	parent->insertChild( this );
     QEvent e( QEvent::Create );
@@ -272,6 +273,7 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     parentObj( 0 ),				// no parent yet. It is set by insertChild()
     d_ptr(dd)
 {
+    d_ptr->q_ptr = this;
     if ( parent )				// add object to parent
 	parent->insertChild( this );
     QEvent e( QEvent::Create );
