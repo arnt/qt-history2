@@ -14,7 +14,7 @@ unix:INCLUDEPATH += /usr/include/mysql
 win32:INCLUDEPATH += c:\home\db\src\mysql
 
 unix:LIBS       += -lmysqlclient
-win32:LIBS	+= C:\HOME\DB\SRC\MYSQL\LIB\libmySQL.lib
+win32:LIBS	+= libmySQL.lib
 
 TARGET		= qsqlmysql
-DESTDIR		= $(QTDIR)/lib
+DESTDIR		= $(QTDIR)/plugins
