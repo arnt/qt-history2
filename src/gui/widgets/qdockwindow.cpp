@@ -470,6 +470,7 @@ void QDockWindowPrivate::init() {
 
     d->toggleViewAction = new QAction(q);
     d->toggleViewAction->setCheckable(true);
+    d->toggleViewAction->setText(q->windowTitle());
     QObject::connect(d->toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
