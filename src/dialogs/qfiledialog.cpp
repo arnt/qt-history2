@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#255 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#256 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1654,17 +1654,17 @@ void QFileDialog::init()
 
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
-    files->addColumn( tr("Name"), 150 );
-    files->setColumnWidthMode( 0, QListView::Manual );
-    files->addColumn( tr("Size"), 30 + fm.width( tr("Size") ) );
-    files->setColumnWidthMode( 1, QListView::Maximum );
+    files->addColumn( tr("Name") );
+    //files->setColumnWidthMode( 0, QListView::Maximum );
+    files->addColumn( tr("Size") );
+    //files->setColumnWidthMode( 1, QListView::Maximum );
     files->setColumnAlignment( 1, AlignRight );
-    files->addColumn( tr("Type"), 10 + fm.width( tr("Directory") ) );
-    files->setColumnWidthMode( 2, QListView::Maximum );
-    files->addColumn( tr("Date"), 70 );
-    files->setColumnWidthMode( 3, QListView::Maximum );
-    files->addColumn( tr("Attributes"), 20 + fm.width( tr("Attributes") ) );
-    files->setColumnWidthMode( 0, QListView::Maximum );
+    files->addColumn( tr("Type") );
+    //files->setColumnWidthMode( 2, QListView::Maximum );
+    files->addColumn( tr("Date") );
+    //files->setColumnWidthMode( 3, QListView::Maximum );
+    files->addColumn( tr("Attributes") );
+    //files->setColumnWidthMode( 0, QListView::Maximum );
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
@@ -2750,7 +2750,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
     int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
 
     m2.setItemEnabled( stype, FALSE );
-    
+
     if ( sortFilesBy == (int)QDir::Name )
         m2.setItemChecked( sname, TRUE );
     else if ( sortFilesBy == (int)QDir::Size )
@@ -2784,7 +2784,7 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 
     m.move( p );
     int res = m.exec();
-    
+
     if ( res == ok )
         action = PA_Open;
     else if ( res == rename )
