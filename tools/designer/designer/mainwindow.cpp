@@ -1208,6 +1208,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
 
 void MainWindow::activeWindowChanged( QWidget *w )
 {
+    QWidget *old = formWindow();
     if ( w && w->inherits( "FormWindow" ) ) {
 	lastActiveFormWindow = (FormWindow*)w;
 	lastActiveFormWindow->updateUndoInfo();
@@ -1273,7 +1274,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	incrementalSearch->setEnabled( FALSE );
     }
 
-    if ( currentTool() == ORDER_TOOL )
+    if ( currentTool() == ORDER_TOOL && w != old )
 	emit currentToolChanged();
 
     emit hasActiveWindow( !!workspace->activeWindow() );
