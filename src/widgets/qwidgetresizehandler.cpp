@@ -41,6 +41,7 @@
 #include "qframe.h"
 #include "qapplication.h"
 #include "qcursor.h"
+#include "qsizegrip.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -56,7 +57,8 @@ QWidgetResizeHandler::QWidgetResizeHandler( QWidget *parent, QWidget *cw, const 
 {
     mode = Nowhere;
     widget->setMouseTracking( TRUE );
-    range = widget->inherits( "QFrame" ) ? ((QFrame*)widget)->frameWidth() : RANGE;
+    QFrame *frame = ::qt_cast<QFrame>(widget);
+    range = frame ? frame->frameWidth() : RANGE;
     range = QMAX( RANGE, range );
     activeForMove = activeForResize = TRUE;
     qApp->installEventFilter( this );
@@ -107,7 +109,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	return FALSE;
 
     QWidget *w = childOf( widget, (QWidget*)o );
-    if ( !w || o->inherits("QSizeGrip") || qApp->activePopupWidget() ) {
+    if ( !w || ::qt_cast<QSizeGrip>(o) || qApp->activePopupWidget() ) {
 	if ( buttonDown && ee->type() == QEvent::MouseButtonRelease )
 	    buttonDown = FALSE;
 	return FALSE;
@@ -225,8 +227,9 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     int mh = QMAX( childWidget->minimumSizeHint().height(),
 		   childWidget->minimumHeight() );
     if ( childWidget != widget ) {
-	if ( widget->inherits( "QFrame" ) )
-	    fw = ( (QFrame *) widget )->frameWidth();
+	QFrame *frame = ::qt_cast<QFrame>(widget);
+	if ( frame )
+	    fw = frame->frameWidth();
 	mw += 2 * fw;
 	mh += 2 * fw + extrahei;
     }
