@@ -37,12 +37,14 @@
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
-#include <stdlib.h>
-#include <string.h>
-
 #ifdef MACOSX_102
 # define QMAC_USE_BIG_CURSOR_API
 #endif
+#ifdef QMAC_USE_BIG_CURSOR_API
+# include <unistd.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
 
 
 /*****************************************************************************
