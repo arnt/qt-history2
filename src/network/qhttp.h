@@ -88,8 +88,6 @@ private:
     QHttpPrivate *d;
     QHttpClient *client;
     int bytesRead;
-    enum Operation { NoOp, Get, Put };
-    Operation operation;
 };
 
 #endif

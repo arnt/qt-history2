@@ -1548,7 +1548,6 @@ QIODevice* QHttpClient::device() const
 QHttp::QHttp()
 {
     d = 0;
-    operation = NoOp;
     bytesRead = 0;
     client = new QHttpClient( this );
     connect( client, SIGNAL(replyChunk(const QHttpReplyHeader&, const QByteArray&)),
@@ -1579,7 +1578,6 @@ void QHttp::operationGet( QNetworkOperation * )
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
 	return; // ### store the request for later?
 
-    operation = Get;
     QHttpRequestHeader header( "GET", url()->encodedPathAndQuery() );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header );
 }
@@ -1592,7 +1590,6 @@ void QHttp::operationPut( QNetworkOperation *op )
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
 	return; // ### store the request for later?
 
-    operation = Put;
     QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
     //header.setContentType( "text/plain" );
     client->request( url()->host(), url()->port() != -1 ? url()->port() : 80,
@@ -1613,7 +1610,30 @@ bool QHttp::checkConnection( QNetworkOperation * )
 
 void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
 {
-    if ( operation == Get && !dataA.isEmpty() ) {
+    if ( rep.replyCode() >= 400 && rep.replyCode() < 600 ) {
+	operationInProgress()->setState( StFailed );
+	operationInProgress()->setProtocolDetail(
+		QString("%1 %2").arg(rep.replyCode()).arg(rep.replyText())
+		);
+	switch (rep.replyCode() ) {
+	    case 401:
+	    case 403:
+	    case 405:
+		operationInProgress()->setErrorCode( ErrPermissionDenied );
+		break;
+	    case 404:
+		operationInProgress()->setErrorCode(ErrFileNotExisting );
+		break;
+	    default:
+		if ( operationInProgress()->operation() == OpGet )
+		    operationInProgress()->setErrorCode( ErrGet );
+		else
+		    operationInProgress()->setErrorCode( ErrPut );
+		break;
+	}
+    }
+    // ### In cases of an error, should we still emit the data() signals?
+    if ( operationInProgress()->operation() == OpGet && !dataA.isEmpty() ) {
 	emit data( dataA, operationInProgress() );
 	bytesRead += dataA.size();
 	if ( !rep.hasAutoContentLength() ) {
@@ -1625,7 +1645,6 @@ void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
 void QHttp::requestFinished()
 {
     emit finished( operationInProgress() );
-    operation = NoOp;
 }
 
 #endif
