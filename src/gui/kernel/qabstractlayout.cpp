@@ -18,6 +18,7 @@
 #include "qapplication.h"
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
+#include "qtoolbar.h"
 #include "qevent.h"
 #include "qwidget_p.h"
 #include "qlayout_p.h"

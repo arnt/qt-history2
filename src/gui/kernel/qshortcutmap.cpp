@@ -7,6 +7,7 @@
 #include "qapplication.h"
 #include "qworkspace.h"
 #include "qvector.h"
+#include "qdockwindow.h"
 
 // To enable verbose output uncomment below
 //#define Debug_QShortcutMap

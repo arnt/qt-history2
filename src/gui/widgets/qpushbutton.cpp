@@ -28,6 +28,7 @@
 #include "qpushbutton.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
+#include "qtoolbar.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -530,7 +531,7 @@ void QPushButtonPrivate::popupPressed()
     bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->orientation() == Qt::Vertical)
+    if (tb && tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight)
         horizontal = false;
 #endif
     QRect rect = q->rect();

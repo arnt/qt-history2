@@ -337,7 +337,7 @@ QWorkspacePrivate::init()
     shortcutMap.insert(q->grabShortcut(Qt::Key_Back), "activatePreviousWindow");
 
     background = q->palette().dark();
-    q->setAttribute(QWidget::WA_NoBackground, true);
+    q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     d->topTitle = q->topLevelWidget()->windowTitle();
@@ -1641,11 +1641,11 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent,
 
     if (window) {
         switch (window->focusPolicy()) {
-        case QWidget::NoFocus:
-            window->setFocusPolicy(QWidget::ClickFocus);
+        case Qt::NoFocus:
+            window->setFocusPolicy(Qt::ClickFocus);
             break;
-        case QWidget::TabFocus:
-            window->setFocusPolicy(QWidget::StrongFocus);
+        case Qt::TabFocus:
+            window->setFocusPolicy(Qt::StrongFocus);
             break;
         default:
             break;

@@ -8,6 +8,8 @@
 #endif
 #include <qpainter.h>
 #include <qevent.h>
+#include <qmainwindow.h>
+#include <qtoolbar.h>
 
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
@@ -69,13 +71,6 @@ void QMenuBarPrivate::updateActions()
     }
     itemsDirty = 0;
 
-#ifndef QT_NO_MAINWINDOW
-    QMainWindow *mw = qt_cast<QMainWindow*>(q->parent());
-    if(mw) {
-        mw->triggerLayout();
-        mw->update();
-    }
-#endif
 #ifndef QT_NO_LAYOUT
     if(q->parentWidget() && q->parentWidget()->layout())
         q->parentWidget()->layout()->activate();

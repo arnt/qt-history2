@@ -26,6 +26,8 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtooltip.h"
+#include "qmainwindow.h"
+#include "qtoolbar.h"
 
 #include "private/qabstractbutton_p.h"
 
@@ -188,10 +190,10 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
         if (tb->mainWindow()) {
             QObject::connect(tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
                     q, SLOT(setUsesBigPixmap(bool)));
-            usesBigPixmap = tb->mainWindow()->usesBigPixmaps();
+            // usesBigPixmap = tb->mainWindow()->usesBigPixmaps();
             QObject::connect(tb->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
                     q, SLOT(setUsesTextLabel(bool)));
-            usesTextLabel = tb->mainWindow()->usesTextLabel();
+            // usesTextLabel = tb->mainWindow()->usesTextLabel();
         }
     }
 #endif
@@ -766,7 +768,7 @@ void QToolButtonPrivate::popupTimerDone()
     bool horizontal = true;
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
-    if (tb && tb->orientation() == Qt::Vertical)
+    if (tb && tb->area() == Qt::ToolBarAreaLeft || tb->area() == Qt::ToolBarAreaRight)
         horizontal = false;
 #endif
     QPoint p;

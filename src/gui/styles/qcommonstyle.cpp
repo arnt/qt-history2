@@ -20,6 +20,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcheckbox.h"
+#include "qdockwindow.h"
 #include "qdrawutil.h"
 #include "qgroupbox.h"
 #include "qmenu.h"

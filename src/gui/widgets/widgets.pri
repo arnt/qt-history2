@@ -1,8 +1,5 @@
 # Qt widgets module
 
-!build_pass:message("QT_NO_MAINWINDOW is only temporary")
-DEFINES += QT_NO_MAINWINDOW
-
 HEADERS += \
 	widgets/qbuttongroup.h \
 	widgets/qdockseparator_p.h \
