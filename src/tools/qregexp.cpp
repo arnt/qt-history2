@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#24 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,44 +18,43 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#24 $")
 
 
-/*!
-\class QRegExp qregexp.h
-\ingroup tools
-\brief The QRegExp class provides pattern matching using regular
-expressions and wildcards.
+/*----------------------------------------------------------------------------
+  \class QRegExp qregexp.h
+  \ingroup tools
+  \brief The QRegExp class provides pattern matching using regular expressions and wildcards.
 
-QRegExp knows these regexp primitives:
-<ul plain>
-<li><dfn>c</dfn> matches the character 'c'
-<li><dfn>.</dfn> matches any character
-<li><dfn>^</dfn> matches start of input (except [^x] which matches NOT [x])
-<li><dfn>$</dfn>  matches end of input
-<li><dfn>[]</dfn> matches a set of characters, for example [a-z0-9_]
-<li><dfn>a*</dfn> matches a sequence of zero or more a's
-<li><dfn>a+</dfn> matches a sequence of one or more a's
-<li><dfn>a?</dfn> matches an optional a
-<li><dfn>\c</dfn> escape code for matching special characters like \, [, *, +, . etc.
-<li><dfn>\b</dfn> matches the BELL character (7)
-<li><dfn>\t</dfn> matches the TAB character (9)
-<li><dfn>\n</dfn> matches newline (10)
-<li><dfn>\r</dfn> matches return (13)
-<li><dfn>\s</dfn> matches white space (9,10,11,12,13,32)
-<li><dfn>\x12</dfn> matches the character hex 12.
-<li><dfn>\022</dfn> matches the character octal 22.
-</ul>
+  QRegExp knows these regexp primitives:
+  <ul plain>
+  <li><dfn>c</dfn> matches the character 'c'
+  <li><dfn>.</dfn> matches any character
+  <li><dfn>^</dfn> matches start of input (except [^x] which matches NOT [x])
+  <li><dfn>$</dfn>  matches end of input
+  <li><dfn>[]</dfn> matches a set of characters, for example [a-z0-9_]
+  <li><dfn>a*</dfn> matches a sequence of zero or more a's
+  <li><dfn>a+</dfn> matches a sequence of one or more a's
+  <li><dfn>a?</dfn> matches an optional a
+  <li><dfn>\c</dfn> escape code for matching special characters like \, [, *, +, . etc.
+  <li><dfn>\b</dfn> matches the BELL character (7)
+  <li><dfn>\t</dfn> matches the TAB character (9)
+  <li><dfn>\n</dfn> matches newline (10)
+  <li><dfn>\r</dfn> matches return (13)
+  <li><dfn>\s</dfn> matches white space (9,10,11,12,13,32)
+  <li><dfn>\x12</dfn> matches the character hex 12.
+  <li><dfn>\022</dfn> matches the character octal 22.
+  </ul>
 
-In wildcard mode, it only knows three primitives:
-<ul plain>
-<li><dfn>?</dfn> matches any character
-<li><dfn>*</dfn> matches any sequence of characters
-<li><dfn>[]</dfn> matches a defines set of characters,
-e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
-and dot.
-</ul>
-*/
+  In wildcard mode, it only knows three primitives:
+  <ul plain>
+  <li><dfn>?</dfn> matches any character
+  <li><dfn>*</dfn> matches any sequence of characters
+  <li><dfn>[]</dfn> matches a defines set of characters,
+    e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
+    and dot.
+  </ul>
+ ----------------------------------------------------------------------------*/
 
 
 //
@@ -84,13 +83,14 @@ const PatNull		= 1;			// no pattern defined
 const PatSyntax		= 2;			// pattern syntax error
 const PatOverflow	= 4;			// pattern too long
 
-// ---------------------------------------------------------------------------
-// QRegExp member functions
-//
 
-/*!
-Constructs an empty regular expression.
-*/
+/*****************************************************************************
+  QRegExp member functions
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
+  Constructs an empty regular expression.
+ ----------------------------------------------------------------------------*/
 
 QRegExp::QRegExp()
 {
@@ -100,15 +100,18 @@ QRegExp::QRegExp()
     error = PatOk;
 }
 
-/*!
-Constructs a regular expression.
-\arg \e pattern is the regular expression pattern string.
-\arg \e caseSensitive specifies whether or not to use case sensitive matching.
-\arg \e wildcard specifies whether the pattern string should be used for
-wildcard matching (also called globbing expression), normally used for matching
-file names.
-\sa setWildcard().
-*/
+/*----------------------------------------------------------------------------
+  Constructs a regular expression.
+
+  \arg \e pattern is the regular expression pattern string.
+  \arg \e caseSensitive specifies whether or not to use case sensitive
+  matching.
+  \arg \e wildcard specifies whether the pattern string should be used for
+  wildcard matching (also called globbing expression), normally used for
+  matching file names.
+
+  \sa setWildcard()
+ ----------------------------------------------------------------------------*/
 
 QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
 {
@@ -119,10 +122,10 @@ QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
     compile();
 }
 
-/*!
-Constructs a regular expression which is a copy of \e r.
-\sa operator=(const QRegExp&).
-*/
+/*----------------------------------------------------------------------------
+  Constructs a regular expression which is a copy of \e r.
+  \sa operator=(const QRegExp&)
+ ----------------------------------------------------------------------------*/
 
 QRegExp::QRegExp( const QRegExp &r )
 {
@@ -133,19 +136,19 @@ QRegExp::QRegExp( const QRegExp &r )
     compile();
 }
 
-/*!
-Destroys the regular expression and cleans up its internal data.
-*/
+/*----------------------------------------------------------------------------
+  Destroys the regular expression and cleans up its internal data.
+ ----------------------------------------------------------------------------*/
 
 QRegExp::~QRegExp()
 {
     delete [] rxdata;
 }
 
-/*!
-Copies the regexp \e r and returns a reference to this regexp.
-The case-sensitivity and wildcard options are copied, as well.
-*/
+/*----------------------------------------------------------------------------
+  Copies the regexp \e r and returns a reference to this regexp.
+  The case sensitivity and wildcard options are copied, as well.
+ ----------------------------------------------------------------------------*/
 
 QRegExp &QRegExp::operator=( const QRegExp &r )
 {
@@ -154,10 +157,10 @@ QRegExp &QRegExp::operator=( const QRegExp &r )
     return *this;
 }
 
-/*!
-Sets the pattern string to \e pattern and returns a reference to this regexp.
-The case-sensitivity or wildcard options do not change.
-*/
+/*----------------------------------------------------------------------------
+  Sets the pattern string to \e pattern and returns a reference to this regexp.
+  The case sensitivity or wildcard options do not change.
+ ----------------------------------------------------------------------------*/
 
 QRegExp &QRegExp::operator=( const char *pattern )
 {
@@ -167,11 +170,12 @@ QRegExp &QRegExp::operator=( const char *pattern )
 }
 
 
-/*!
-Returns TRUE if this regexp is equal to \e r.
-Two regexp objects are equal if they have equal pattern strings,
-case-sensitivity options and wildcard options.
-*/
+/*----------------------------------------------------------------------------
+  Returns TRUE if this regexp is equal to \e r.
+
+  Two regexp objects are equal if they have equal pattern strings,
+  case sensitivity options and wildcard options.
+ ----------------------------------------------------------------------------*/
 
 bool QRegExp::operator==( const QRegExp &r ) const
 {
@@ -179,35 +183,37 @@ bool QRegExp::operator==( const QRegExp &r ) const
 }
 
 
-/*!
-\fn bool QRegExp::isEmpty() const
-Returns TRUE if the regexp is empty.
-*/
+/*----------------------------------------------------------------------------
+  \fn bool QRegExp::isEmpty() const
+  Returns TRUE if the regexp is empty.
+ ----------------------------------------------------------------------------*/
 
-/*!
-\fn bool QRegExp::isValid() const
-Returns TRUE if the regexp is valid, or FALSE if it is invalid.
+/*----------------------------------------------------------------------------
+  \fn bool QRegExp::isValid() const
+  Returns TRUE if the regexp is valid, or FALSE if it is invalid.
 
-The pattern "[a-z" is an example of an invalid pattern, since it lacks a
-closing bracket.
-*/
+  The pattern "[a-z" is an example of an invalid pattern, since it lacks a
+  closing bracket.
+ ----------------------------------------------------------------------------*/
 
 
-/*!
-\fn bool QRegExp::wildcard() const
-Returns TRUE if wildcard mode is on, otherwise FALSE. \sa setWildcard().
-*/
+/*----------------------------------------------------------------------------
+  \fn bool QRegExp::wildcard() const
+  Returns TRUE if wildcard mode is on, otherwise FALSE. \sa setWildcard().
+ ----------------------------------------------------------------------------*/
 
-/*!  Sets the wildcard option for the regular expression.  The default
-is FALSE.
+/*----------------------------------------------------------------------------
+  Sets the wildcard option for the regular expression.  The default
+  is FALSE.
 
-Setting \e wildcard to TRUE makes it convenient to match filenames
-instead of plain text.
+  Setting \e wildcard to TRUE makes it convenient to match filenames
+  instead of plain text.
 
-For example, "qr*.cpp" matches the string "qregexp.cpp" in wildcard mode,
-but not "qicpp" (which will be matched in normal mode).
+  For example, "qr*.cpp" matches the string "qregexp.cpp" in wildcard mode,
+  but not "qicpp" (which will be matched in normal mode).
 
-\sa wildcard(). */
+  \sa wildcard()
+ ----------------------------------------------------------------------------*/
 
 void QRegExp::setWildcard( bool wildcard )
 {
@@ -217,21 +223,22 @@ void QRegExp::setWildcard( bool wildcard )
     }
 }
 
-/*!
-\fn bool QRegExp::caseSensitive() const
+/*----------------------------------------------------------------------------
+  \fn bool QRegExp::caseSensitive() const
 
-Returns TRUE if case-sensitivity is enabled, otherwise FALSE.  The
-default is TRUE.
+  Returns TRUE if case sensitivity is enabled, otherwise FALSE.  The
+  default is TRUE.
 
-See also: setCaseSensitive(). */
+  \sa setCaseSensitive()
+ ----------------------------------------------------------------------------*/
 
-/*!
-Enables or disables case-sensitive matching.
+/*----------------------------------------------------------------------------
+  Enables or disables case sensitive matching.
 
-In case-sensitive mode, "a.e" matches "axe" but not "Axe".
+  In case sensitive mode, "a.e" matches "axe" but not "Axe".
 
-See also: caseSensitive().
-*/
+  See also: caseSensitive()
+ ----------------------------------------------------------------------------*/
 
 void QRegExp::setCaseSensitive( bool enable )
 {
@@ -242,25 +249,26 @@ void QRegExp::setCaseSensitive( bool enable )
 }
 
 
-/*!
-\fn const char *QRegExp::pattern() const
-Returns the pattern string of the regexp.
-*/
+/*----------------------------------------------------------------------------
+  \fn const char *QRegExp::pattern() const
+  Returns the pattern string of the regexp.
+ ----------------------------------------------------------------------------*/
 
 
-/*!
-Attempts to match in \e str, starting from position \e index.
-Returns the position of the match, or -1 if there was no match.
+/*----------------------------------------------------------------------------
+  Attempts to match in \e str, starting from position \e index.
+  Returns the position of the match, or -1 if there was no match.
 
-If \e len is not a null pointer, the length of the match is stored in
-\e *len.
+  If \e len is not a null pointer, the length of the match is stored in
+  \e *len.
 
-\code
-QRegExp r("[0-9]*\.[0-9]+");		\/ matches floating point
-int	len;
-r.match("pi = 3.1416", 0, &len);	\/ returns 5, len == 6
-\endcode
-*/
+  Example:
+  \code
+    QRegExp r("[0-9]*\.[0-9]+");		// matches floating point
+    int	len;
+    r.match("pi = 3.1416", 0, &len);		// returns 5, len == 6
+  \endcode
+ ----------------------------------------------------------------------------*/
 
 int QRegExp::match( const char *str, int index, int *len ) const
 {
@@ -306,8 +314,14 @@ inline bool iswordchar( int x )
     return isalnum(x) || x == '_';
 }
 
+
+/*----------------------------------------------------------------------------
+  \internal
+  Recursively match string.
+ ----------------------------------------------------------------------------*/
+
 char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
-{						// recursively match string
+{
     register char *p = str;
     ushort *d = rxd;
     while ( *d ) {
@@ -586,13 +600,15 @@ ushort *dump( ushort *p )			// DEBUG !!!
 #endif // DEBUG
 
 
-//
-// Compile the regexp pattern and store the result in rxdata.
-// The 'error' flag is set to non-zero if an error is detected.
-// NOTE: The compile function is not reentrant!!!
-
 const maxlen = 1024;				// max length of regexp array
 static ushort rxarray[ maxlen ];		// tmp regexp array
+
+/*----------------------------------------------------------------------------
+  \internal
+  Compiles the regular expression and stores the result in rxdata.
+  The 'error' flag is set to non-zero if an error is detected.
+  NOTE! This function is not reentrant!!!
+ ----------------------------------------------------------------------------*/
 
 void QRegExp::compile()
 {
@@ -778,34 +794,34 @@ void QRegExp::compile()
 }
 
 
-// ---------------------------------------------------------------------------
-// QString member functions that use QRegExp
-//
+/*****************************************************************************
+  QString member functions that use QRegExp
+ *****************************************************************************/
 
-/*!
-Finds the first occurrence of the regular expression \e rx, starting at
-position \e index.
+/*----------------------------------------------------------------------------
+  Finds the first occurrence of the regular expression \e rx, starting at
+  position \e index.
 
-Returns the position of the next match, or -1 if \e rx was not found.
-*/
+  Returns the position of the next match, or -1 if \e rx was not found.
+ ----------------------------------------------------------------------------*/
 
 int QString::find( const QRegExp &rx, int index ) const
-{						// find substring
+{
     return (uint)index >= size() ? -1 : rx.match( data(), index );
 }
 
-/*!
-Finds the first occurrence of the regular expression \e rx, starting at
-position \e index and searching backwards.
+/*----------------------------------------------------------------------------
+  Finds the first occurrence of the regular expression \e rx, starting at
+  position \e index and searching backwards.
 
-The search will start from the end of the string if \e index is negative.
+  The search will start from the end of the string if \e index is negative.
 
-Returns the position of the next match (backwards), or -1 if \e rx was not
-found.
-*/
+  Returns the position of the next match (backwards), or -1 if \e rx was not
+  found.
+ ----------------------------------------------------------------------------*/
 
 int QString::findRev( const QRegExp &rx, int index ) const
-{						// reverse find substring
+{
     if ( index < 0 ) {				// neg index ==> start from end
 	if ( size() )
 	    index = strlen( data() );
@@ -822,20 +838,21 @@ int QString::findRev( const QRegExp &rx, int index ) const
     return -1;
 }
 
-/*!
-Counts the number of overlapping occurrences of \e rx in the string.
+/*----------------------------------------------------------------------------
+  Counts the number of overlapping occurrences of \e rx in the string.
 
-\code
-QString s = "banana and panama";
-QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
-s.contains( r );		\/ 4 matches
-\endcode
+  Example:
+  \code
+    QString s = "banana and panama";
+    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+    s.contains( r );				// 4 matches
+  \endcode
 
-\sa find(), findRev().
-*/
+  \sa find(), findRev()
+ ----------------------------------------------------------------------------*/
 
 int QString::contains( const QRegExp &rx ) const
-{						// get # substrings
+{
     int count = 0;
     if ( isNull() )				// null string
 	return 0;
@@ -851,15 +868,16 @@ int QString::contains( const QRegExp &rx ) const
 }
 
 
-/*!
-Replaces every occurrence of \e rx in the string with \e str.
-Returns a reference to the string.
+/*----------------------------------------------------------------------------
+  Replaces every occurrence of \e rx in the string with \e str.
+  Returns a reference to the string.
 
-\code
-QString s = "banana";
-s.replace( QRegExp("a.*a"), "" );	\/ becomes "b"
-\endcode
-*/
+  Example:
+  \code
+    QString s = "banana";
+    s.replace( QRegExp("a.*a"), "" );		// becomes "b"
+  \endcode
+ ----------------------------------------------------------------------------*/
 
 QString &QString::replace( const QRegExp &rx, const char *str )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#25 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#25 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -293,7 +293,7 @@ bool QBitArray::toggleBit( uint index )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QBitVal QBitArray::operator[]( uint index )
+  \fn QBitVal QBitArray::operator[]( int index )
   Implements the [] operator for bit arrays.
 
   The returned QBitVal is a context object. It makes it possible to get
@@ -306,6 +306,8 @@ bool QBitArray::toggleBit( uint index )
     a[1] = 1;
     a[2] = a[0] ^ a[1];
   \endcode
+
+  The functions testBit(), setBit() and clearBit() are faster.
 
   \sa at()
  ----------------------------------------------------------------------------*/
