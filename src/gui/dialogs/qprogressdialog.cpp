@@ -257,7 +257,7 @@ void Operation::cancel()
   events are processed when needed.
 
   \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
-  setTotalSteps()
+  setMinimum(), setMaximum()
 */
 
 QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
@@ -269,28 +269,23 @@ QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
 /*!
   Constructs a progress dialog.
 
-   The \a labelText is text used to remind the user what is progressing.
+   The \a labelText is the text used to remind the user what is progressing.
 
    The \a cancelButtonText is the text to display on the cancel button,
-            or 0 if no cancel button is to be shown.
+   or 0 if no cancel button is to be shown.
 
-   The \a totalSteps is the total number of steps in the operation for
+   The \a minimum and \a maximum is the number of steps in the operation for
    which this progress dialog shows progress.  For example, if the
-   operation is to examine 50 files, this value would be 50. Before
-   examining the first file, call setProgress(0). As each file is
-   processed call setProgress(1), setProgress(2), etc., finally
-   calling setProgress(50) after examining the last file.
+   operation is to examine 50 files, this value minimum value would be 0,
+   and the maximum would be 50. Before examining the first file, call 
+   setValue(0). As each file is processed call setValue(1), setValue(2), 
+   etc., finally calling setValue(50) after examining the last file.
 
-   The \a creator argument is the widget to use as the dialog's parent.
-   The \a name, \a modal, and widget flags, \a f, are passed to the
-   QDialog::QDialog() constructor. If \a modal is false (the default),
-   you will must have an event loop proceeding for any redrawing of
-   the dialog to occur. If \a modal is true, the dialog ensures that
-   events are processed when needed.
+   The \a parent argument is the dialog's parent widget. The  and widget flags,
+   \a f, are passed to the QDialog::QDialog() constructor. 
 
-
-  \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
-  setTotalSteps()
+  \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
+  setMinimum(), setMaximum()
 */
 
 QProgressDialog::QProgressDialog(const QString &labelText,
@@ -530,8 +525,19 @@ void QProgressDialog::cancel()
     d->cancellation_flag = true;
 }
 
+
+
 /*!
-  \property QProgressDialog::progress
+    \property QProgressDialog::value
+    \brief the current value of the dialog's progress bar
+*/
+int QProgressDialog::value() const
+{
+    return d->bar->value();
+}
+
+/*!
+  \property QProgressDialog::value
   \brief the current amount of progress made.
 
   For the progress dialog to work as expected, you should initially set
@@ -547,16 +553,6 @@ void QProgressDialog::cancel()
 
   \sa totalSteps
 */
-
-/*!
-    \property QProgressDialog::value
-    \brief the current value of the dialog's progress bar
-*/
-int QProgressDialog::value() const
-{
-    return d->bar->value();
-}
-
 void QProgressDialog::setValue(int progress)
 {
     if (progress == d->bar->value() ||
