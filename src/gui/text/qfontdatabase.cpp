@@ -497,6 +497,12 @@ static inline bool requiresOpenType(int writingSystem)
             || writingSystem == QFontDatabase::Myanmar
             || writingSystem == QFontDatabase::Khmer);
 }
+static inline bool scriptRequiresOpenType(int script)
+{
+    return ((script >= QUnicodeTables::Syriac && script <= QUnicodeTables::Sinhala)
+            || script == QUnicodeTables::Myanmar
+            || script == QUnicodeTables::Khmer);
+}
 #endif
 
 
@@ -994,7 +1000,6 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
         }
     }
 
-
     if (fe) {
         if (fp) {
             QFontDef def = request;
@@ -1009,7 +1014,18 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 );
             QFontCache::instance->insertEngine(key, fe);
         }
+
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
+        if (scriptRequiresOpenType(script)) {
+            QOpenType *ot = fe->openType();
+            if (!ot || !ot->supportsScript(script)) {
+                FM_DEBUG("  OpenType support missing for script");
+                fe = 0;
+            }
+        }
+#endif
     }
+
     if (!fe) {
         if (!request.family.isEmpty())
             return 0;
