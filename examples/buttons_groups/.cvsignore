@@ -1,0 +1,5 @@
+buttons_groups
+*moc*
+*.debug
+*.release
+.obj

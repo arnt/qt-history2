@@ -1,0 +1,5 @@
+richtext
+*moc*
+*.debug
+*.release
+.obj

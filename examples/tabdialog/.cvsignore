@@ -1,0 +1,5 @@
+tabdialog
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+linedits
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+listviews
+*moc*
+*.debug
+*.release
+.obj

@@ -1,0 +1,5 @@
+i18n
+*moc*
+*.debug
+*.release
+.obj
