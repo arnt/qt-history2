@@ -55,28 +55,21 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 0.75 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
 }
 @Place 
-    x { 21.50c }
-    y { 1.0c }
-{
-1.5 @Scale 180d @Rotate
-{ 0.75 1.0 } @Scale @F { info@trolltech.com }
-}
-@Place 
     x { 26.50c }
     y { 3.65c }
 {
 0.75 @Scale black @Colour 90d @Rotate
-Slope @Font 9.25c @Wide ragged @Break {
+Slope @Font 9.25c @Wide { ragged nohyphen } @Break {
 Qt is a C++ toolkit for cross-platform GUI and application
 development. In addition to the Qt C++ class library, the toolkit
 includes tools like Qt Designer that make writing applications fast
 and straightforward. Qt's multiplatform abilities and
-internationalization support ensure that Qt applications can reach the
-widest possible darkgrey @Colour{mark}et. 
+internationalization support means that Qt applications can reach the
+widest darkgrey @Colour{mark}et. 
 }
 }
 @Place
-    x { 27.75c }
+    x { 28.00c }
     y { 13.25c }
 {
 90d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
