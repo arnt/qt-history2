@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#16 $
+** $Id: //depot/qt/main/src/tools/qdict.h#17 $
 **
 ** Definition of QDict template/macro class
 **
@@ -55,7 +55,7 @@ public:									      \
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0);}   \
     void  statistics() const		{ QGDict::statistics(); }	      \
 private:								      \
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }	      \
+    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }	      \
 }
 
 
@@ -77,7 +77,7 @@ public:									      \
     operator type *() const   { return (type *)QGDictIterator::get(); }	      \
     type *current()   const   { return (type *)QGDictIterator::get(); }	      \
     const char *currentKey() const					      \
-			      { return QGDictIterator::getKey();}	      \
+			      { return QGDictIterator::getKey(); }	      \
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }\
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
@@ -117,7 +117,7 @@ public:
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
     void  statistics() const		{ QGDict::statistics(); }
 private:
-    void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
+    void  deleteItem( GCI d )	{ if ( del_item ) delete (type *)d; }
 };
 
 
@@ -137,7 +137,7 @@ public:
     operator type *() const   { return (type *)QGDictIterator::get(); }
     type *current()   const   { return (type *)QGDictIterator::get(); }
     const char *currentKey() const
-			      { return QGDictIterator::getKey();}
+			      { return QGDictIterator::getKey(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrdict.h#1 $
+** $Id: //depot/qt/main/src/tools/qptrdict.h#2 $
 **
 ** Definition of QPtrDict template/macro class
 **
-** Created : 940624
+** Created : 970415
 **
-** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -78,7 +78,7 @@ public:									      \
     operator type *()  const  { return (type *)QGDictIterator::get(); }	      \
     type *current()    const  { return (type *)QGDictIterator::get(); }	      \
     void *currentKey() const  { return (void *)QGDictIterator::getKey(); }    \
-    type *operator()()	      { return (type *)QGDictIterator::operator()();} \
+    type *operator()()	      { return (type *)QGDictIterator::operator()(); }\
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
 }
@@ -137,7 +137,7 @@ public:
     operator type *()  const  { return (type *)QGDictIterator::get(); }
     type *current()    const  { return (type *)QGDictIterator::get(); }
     void *currentKey() const  { return (void *)QGDictIterator::getKey(); }
-    type *operator()()	      { return (type *)QGDictIterator::operator()();}
+    type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
 };
