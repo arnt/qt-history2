@@ -122,9 +122,8 @@ QProcess::~QProcess()
 
 bool QProcess::start()
 {
-    // open the pipes
-    // make non-inheritable copies of input write and output read handles
-    // to avoid non-closable handles
+    // Open the pipes.  Make non-inheritable copies of input write and output
+    // read handles to avoid non-closable handles.
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
@@ -211,7 +210,6 @@ bool QProcess::start()
     CloseHandle( d->pipeStderr[1] );
 
     if ( ioRedirection || notifyOnExit ) {
-	// start the timer
 	d->lookup->start( 100 );
     }
 
@@ -318,7 +316,14 @@ void QProcess::socketWrite( int fd )
     if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
 	d->stdinBufRead = 0;
 	delete d->stdinBuf.dequeue();
+	if ( wroteStdinConnected && d->stdinBuf.isEmpty() ) {
+	    emit wroteStdin();
+	}
 	socketWrite( fd );
+	// start timer if there is still pending data
+	if ( !d->stdinBuf.isEmpty() ) {
+	    d->lookup->start( 100 );
+	}
     }
 }
 
@@ -327,14 +332,20 @@ void QProcess::socketWrite( int fd )
 */
 void QProcess::timeout()
 {
-//    socketWrite( 0 ); // ### I don't need this one, do I?
+    // try to write pending data to stdin
+    if ( !d->stdinBuf.isEmpty() ) {
+	socketWrite( 0 );
+	// stop timer if it is not needed any longer
+	if ( d->stdinBuf.isEmpty() && !ioRedirection && !notifyOnExit )
+	    d->lookup->stop();
+    }
 
     if ( ioRedirection ) {
 	socketRead( 1 ); // try stdout
 	socketRead( 2 ); // try stderr
     }
 
-    // stop timer if process is not running?
+    // stop timer if process is not running also emit processExited() signal
     if ( !isRunning() ) {
 	d->lookup->stop();
 	if ( notifyOnExit ) {
