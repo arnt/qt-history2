@@ -495,22 +495,27 @@ foreach (@modules_to_sync) {
 		if(-d "$file") {
 		    push @subdirs, "$file" unless($t eq "." || $t eq ".." || $t eq "arch");
 		} else {
-		    my $remove_file = 0;
-		    if(open(F, "<$file")) {
-			while(<F>) {
-			    my $line = $_;
-			    chomp $line;
-			    if($line =~ /^\#include \"([^\"]*)\"$/) {
-				my $include = $1;
-				$include = $subdir . "/" . $include unless(substr($include, 0, 1) eq "/");
-				$remove_file = 1 unless(-e "$include");
-			    } else {
-				$remove_file = 0;
-				last;
-			    }
-			}
-			close(F);
-                	unlink "$file" if($remove_file);
+		    my @files = ("$file");
+		    push @files, "$includedir/Qt/$t" if(-e "$includedir/Qt/$t");
+                    foreach (@files) {
+                       my $file = $_;
+		       my $remove_file = 0;
+		       if(open(F, "<$file")) {
+			    while(<F>) {
+			        my $line = $_;
+			        chomp $line;
+			        if($line =~ /^\#include \"([^\"]*)\"$/) {
+				    my $include = $1;
+				    $include = $subdir . "/" . $include unless(substr($include, 0, 1) eq "/");
+				    $remove_file = 1 unless(-e "$include");
+			        } else {
+				    $remove_file = 0;
+				    last;
+			        }
+		 	    }
+			    close(F);
+                	    unlink "$file" if($remove_file);
+                        }
 		    }
 		}
 	    }
