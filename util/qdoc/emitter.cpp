@@ -283,8 +283,8 @@ void DocEmitter::nailDownDocs()
 	    while ( p != classDecl->properties().end() ) {
 		QString key = classDecl->name() + QChar( '/' ) + (*p)->name();
 		QString link = config->classRefHref( classDecl->name() );
-		if ( (*p)->name() == (*p)->readFunction() )
-		    link += QChar( '#' ) + Decl::ref( (*p)->name() );
+		if ( (*p)->doc() != 0 )
+		    link += QChar( '#' ) + (*p)->ref();
 
 		// avoid Q_OVERRIDE
 		if ( !(*p)->readFunction().isEmpty() ) {
