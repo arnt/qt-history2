@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#159 $
 **
 ** Implementation of QApplication class
 **
@@ -908,6 +908,8 @@ bool QApplication::closingDown()
 
   You can call this function occasionally when your program is busy doing a
   long operation (e.g. copying a file).
+
+  \sa processOneEvent(), exec(), QTimer
 */
 
 void QApplication::processEvents()
@@ -922,7 +924,10 @@ void QApplication::processEvents()
   processing must be grafted into existing program loops.  Beware
   that using this function in new applications may be an indication
   of design problems.
+
+  \sa processEvents(), exec(), QTimer
 */
+
 void QApplication::processOneEvent()
 {
     processNextEvent(TRUE);

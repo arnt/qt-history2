@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#352 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#353 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1860,6 +1860,11 @@ static int sn_activate()
   As a special case, modal widgets like QMessageBox can be used before
   calling exec(), because modal widget have a local event loop.
 
+  To make your application perform idle processing, i.e. executing a
+  special function whenever there are no pending events, use a QTimer
+  with 0 timeout. More advanced idle processing schemes can be
+  achieved by using processEvents() and processOneEvent().
+
   \sa quit(), exit(), processEvents(), setMainWidget()
 */
 
@@ -2198,6 +2203,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
   You can call this function occasionally when you program is busy doing a
   long operation (e.g. copying a file).
+
+  \sa processOneEvent(), exec(), QTimer
 */
 void QApplication::processEvents( int maxtime )
 {
