@@ -21,6 +21,9 @@ QRegion::QRegionData QRegion::shared_empty = {Q_ATOMIC_INIT(1), 0, 0, 0};
 void QRegion::updateX11Region() const
 {
     d->rgn = XCreateRegion();
+    if (!d->qt_rgn)
+	return;
+
     for(int i = 0; i < d->qt_rgn->numRects; ++i) {
         XRectangle r;
         const QRect &rect = d->qt_rgn->rects[i];
