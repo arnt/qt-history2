@@ -1372,6 +1372,9 @@ void QMenuBar::activateItemAt( int index )
 /*! \reimp */
 QString	QMenuBar::stateDescription() const
 {
+    if ( actItem == -1 )
+	return QString::null;
+
     QMenuItem *mi = mitems->at( actItem );
     return mi ? tr( "selected menu item: %1" ).arg( mi->text() ) : QString::null;
 }
