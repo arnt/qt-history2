@@ -1473,6 +1473,10 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     QString foundryName;
     QFontDatabase::parseFontName(familyName, foundryName, familyName);
 
+    QString addStyle = request.addStyle;
+    if (addStyle.isEmpty())
+	addStyle = "*";
+
     int score;
 
     QCString bestName;
@@ -1480,7 +1484,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     int start_index = script_table[script].index;
 
     while (! done) {
-	bestName = bestFamilyMember(script, foundryName, familyName, &score);
+	bestName = bestFamilyMember(script, foundryName, familyName, addStyle, &score);
 
 	if (bestName.isNull()) {
 	    if (! script_table[script].list[++script_table[script].index])
@@ -1511,7 +1515,8 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 
 	    while (! done) {
-		bestName = bestFamilyMember(script, foundryName, familyName, &score);
+		bestName = bestFamilyMember(script, foundryName, familyName,
+					    addStyle, &score);
 
 		if (bestName.isNull()) {
 		    if (! script_table[script].list[++script_table[script].index])
@@ -1539,7 +1544,8 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName,
+					addStyle, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
@@ -1564,7 +1570,8 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName,
+					addStyle, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
@@ -1589,7 +1596,8 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 	script_table[script].index = start_index;
 
 	while (! done) {
-	    bestName = bestFamilyMember(script, foundryName, familyName, &score);
+	    bestName = bestFamilyMember(script, foundryName, familyName,
+					addStyle, &score);
 
 	    if (bestName.isNull()) {
 		if (! script_table[script].list[++script_table[script].index])
@@ -1613,6 +1621,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
 QCString QFontPrivate::bestFamilyMember(QFont::Script script,
 					const QString& foundry,
 					const QString& family,
+					const QString& addStyle,
 					int *score ) const
 {
     const int prettyGoodScore = CJKPitchScore | SizeScore | WeightScore |
@@ -1625,7 +1634,7 @@ QCString QFontPrivate::bestFamilyMember(QFont::Script script,
 
     if ( !foundry.isEmpty() ) {
 	QString pattern
-	    = "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-" +
+	    = "-" + foundry + "-" + family + "-*-*-*-" + addStyle + "-*-*-*-*-*-*-" +
 	    (script_table[script].list)[(script_table[script].index)];
 	result = bestMatch(pattern.latin1(), &bestScore, script);
     }
@@ -1643,7 +1652,7 @@ QCString QFontPrivate::bestFamilyMember(QFont::Script script,
 		next = family.length();
 
 	    QString fam = family.mid( alternator, next-alternator );
-	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-" +
+	    QString pattern = "-*-" + fam + "-*-*-*-" + addStyle + "-*-*-*-*-*-*-" +
 			      (script_table[script].list)[(script_table[script].index)];
 	    testResult = bestMatch( pattern.latin1(), &testScore, script );
 	    bestScore -= bias;

@@ -77,6 +77,7 @@ struct QFontDef {
     { ; }
 
     QString family;
+    QString addStyle;
 
     int pixelSize;
     int pointSize;
@@ -377,7 +378,7 @@ public:
     QCString findFont(QFont::Script, bool *) const;
     QCString findXftFont(QFont::Script, bool *) const;
     QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
-			      int *) const;
+			      const QString &, int *) const;
     QCString bestMatch(const char *, int *, QFont::Script) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *,
 		       bool *, QFont::Script) const;

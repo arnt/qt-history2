@@ -2400,6 +2400,7 @@ QString QFontPrivate::key() const
 	return request.family;
 
     int len = (request.family.length() * 2) +
+	      (request.addStyle.length() * 2) +
 	      2 +  // point size
 	      1 +  // font bits
 	      1 +  // weight
@@ -2410,8 +2411,13 @@ QString QFontPrivate::key() const
 
     memcpy((char *) p, (char *) request.family.unicode(),
 	   (request.family.length() * 2));
-
     p += request.family.length() * 2;
+
+    if (request.addStyle.length() > 0) {
+	memcpy((char *) p, (char *) request.addStyle.unicode(),
+	       (request.addStyle.length() * 2));
+	p += request.addStyle.length() * 2;
+    }
 
     *((Q_UINT16 *) p) = request.pointSize; p += 2;
     *p++ = get_font_bits( request );
