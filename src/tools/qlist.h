@@ -384,8 +384,10 @@ Q_OUTOFLINE_TEMPLATE void QList<T>::detach_helper()
 template <typename T>
 Q_INLINE_TEMPLATE QList<T>::~QList()
 {
-    if (!--d->ref  || (QTypeInfo<T>::isPointer && d->autoDelete == this))
-	free(d);
+    QListData::Data *x = &QListData::shared_null;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref || (QTypeInfo<T>::isPointer && x->autoDelete == this))
+	free(x);
 }
 
 template <typename T>
@@ -410,11 +412,8 @@ Q_OUTOFLINE_TEMPLATE bool QList<T>::operator== (const QList<T> &l) const
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QList<T>::free(QListData::Data *data)
 {
-    int db = data->begin;
-    int de = data->end;
-    data->end=data->begin; // re-entrancy protection
-    node_destruct((Node*)(data->array + db),
-		  (Node*)(data->array + de),
+    node_destruct((Node*)(data->array + data->begin),
+		  (Node*)(data->array + data->end),
 		  (data->autoDelete == this));
     data->autoDelete = 0;
     if (data->ref == 0)
