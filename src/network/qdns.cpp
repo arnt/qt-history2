@@ -71,7 +71,7 @@
 #include "qcleanuphandler.h"
 #include <limits.h>
 
-// With _XOPEN_SOURCE_EXTENDED defined,
+// When _XOPEN_SOURCE_EXTENDED is defined,
 // Solaris redefines connect -> __xnet_connect
 #if defined(connect)
 # undef connect

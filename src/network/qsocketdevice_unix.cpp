@@ -55,31 +55,31 @@ static inline int qt_socket_listen(int s, int backlog)
 # define QT_SOCKOPTLEN_T QT_SOCKLEN_T
 #endif
 
-// Tru64 redefines accept() to _accept() when _XOPEN_SOURCE_EXTENDED is
-// defined.  This breaks our sources.
+// When _XOPEN_SOURCE_EXTENDED is defined,
+// Tru64 redefines accept -> _accept
 static inline int qt_socket_accept(int s, struct sockaddr *addr, QT_SOCKLEN_T *addrlen)
 { return ::accept(s, addr, addrlen); }
 #if defined(accept)
 # undef accept
 #endif
 
-// Solaris redefines bind to __xnet_bind when _XOPEN_SOURCE_EXTENDED is
-// defined.  This breaks our sources.
+// When _XOPEN_SOURCE_EXTENDED is defined,
+// Solaris redefines bind -> __xnet_bind
 static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::bind(s, addr, addrlen); }
 #if defined(bind)
 # undef bind
 #endif
 
-// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
-// defined.  This breaks our sources.
+// When _XOPEN_SOURCE_EXTENDED is defined,
+// Solaris redefines connect -> __xnet_connect
 static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
 { return ::connect(s, addr, addrlen); }
 #if defined(connect)
 # undef connect
 #endif
 
-// UnixWare 7 redefines socket() to _socket().  This breaks our sources.
+// UnixWare 7 redefines socket -> _socket
 static inline int qt_socket_socket(int domain, int type, int protocol)
 { return ::socket(domain, type, protocol); }
 #if defined(socket)
