@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#158 $
 **
 ** Implementation of QApplication class
 **
@@ -1012,9 +1012,27 @@ int QApplication::doubleClickInterval()
     return mouseDoubleClickInterval;
 }
 
+
+/*!
+  \fn WindowsVersion QApplication::winVersion()
+
+  Returns the version of the Windows operating system running:
+
+  <ul>
+  <li> \c WV_NT Windows NT.
+  <li> \c WV_95 Windows 95.
+  <li> \c WV_32s Win32s.
+  </ul>
+
+  Note that this function is implemented for the Windows version
+  of Qt only.
+*/
+
+
 /*!
   Tells the builder, if any, about a new top-level widget.
 */
+
 void QApplication::noteTopLevel( QWidget* tlw )
 {
     if ( builder )

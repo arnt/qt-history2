@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#23 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#24 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -165,7 +165,7 @@ static QNPWidget* focussedWidget=0;
 
 #ifdef _WS_WIN_
 // defined in qapplication_win.cpp
-extern bool qt_win_use_simple_timers;
+Q_EXPORT extern bool qt_win_use_simple_timers;
 #endif
 
 #ifdef _WS_X11_

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#177 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -92,7 +92,7 @@ static void     unregWinClasses();
 
 // Simpler timers are needed when Qt does not have the
 // event loop (such as for plugins).
-bool		qt_win_use_simple_timers = FALSE;
+Q_EXPORT bool	qt_win_use_simple_timers = FALSE;
 void CALLBACK   qt_simple_timer_func( HWND, UINT, UINT, DWORD );
 
 static void	initTimers();
@@ -491,6 +491,11 @@ QWidget *QApplication::desktop()
 	CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
+}
+
+WindowsVersion QApplication::winVersion()
+{
+    return qt_winver;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#89 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#90 $
 **
 ** Definition of QApplication class
 **
@@ -80,17 +80,17 @@ public:
     static QFontMetrics fontMetrics();
 
     QWidget	    *mainWidget()  const;
-    virtual void	     setMainWidget( QWidget * );
-    virtual void	     polish( QWidget * );
+    virtual void     setMainWidget( QWidget * );
+    virtual void     polish( QWidget * );
 
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
-    static QWidget  *desktop();
-    static QWidget  *activePopupWidget();
-    static QWidget  *activeModalWidget();
-    static QClipboard *clipboard();
-    QWidget *focusWidget() const;
-    QWidget  *activeWindow() const;
+    static QWidget     *desktop();
+    static QWidget     *activePopupWidget();
+    static QWidget     *activeModalWidget();
+    static QClipboard  *clipboard();
+    QWidget	       *focusWidget() const;
+    QWidget	       *activeWindow() const;
 
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
@@ -123,6 +123,10 @@ public:
 
     static void	    setDoubleClickInterval( int );
     static int      doubleClickInterval();
+
+#if defined(_WS_WIN_)
+    static WindowsVersion winVersion();
+#endif
 
 #if defined(_WS_MAC_)
     virtual bool     macEventFilter( MSG * );
