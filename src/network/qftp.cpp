@@ -382,26 +382,24 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     tmp = lst[ 4 ];
     info.setSize( tmp.toInt() );
 
-    // date, time #### todo
-    QDate date;
-    int month = 1, day;
-    for ( uint i = 1; i <= 12; ++i ) {
-	if ( date.shortMonthName( i ) == lst[ 5 ] ) {
-	    month = i;
-	    break;
-	}
-    }
-    day = lst[ 6 ].toInt();
+    // date and time
+    QTime time;
+    QString dateStr;
+    dateStr += "Sun ";
+    dateStr += lst[ 5 ];
+    dateStr += ' ';
+    dateStr += lst[ 6 ];
+    dateStr += ' ';
 
     if ( lst[ 7 ].contains( ":" ) ) {
-	QTime time( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
-	date = QDate( QDate::currentDate().year(), month, day );
-	info.setLastModified( QDateTime( date, time ) );
+	time = QTime( lst[ 7 ].left( 2 ).toInt(), lst[ 7 ].right( 2 ).toInt() );
+	dateStr += QString::number( QDate::currentDate().year() );
     } else {
-	int year = lst[ 7 ].toInt();
-	date = QDate( year, month, day );
-	info.setLastModified( QDateTime( date, QTime() ) );
+	dateStr += lst[ 7 ];
     }
+
+    QDate date = QDate::fromString( dateStr );
+    info.setLastModified( QDateTime( date, time ) );
 
     // name
     if ( info.isSymLink() )
