@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#116 $
 **
 ** Definition of QIconView widget class
 **
@@ -1635,7 +1635,7 @@ void QIconViewItem::setIconRect( const QRect &r )
 */
 
 /*!
-  \fn void QIconView:mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos)
+  \fn void QIconView::mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos) 
   This signal is emitted wher the user pressed with any mouse button on
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a button is the number of the mouse button which
@@ -1643,7 +1643,7 @@ void QIconViewItem::setIconRect( const QRect &r )
 */
 
 /*!
-  \fn void QIconView:mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos)
+  \fn void QIconView::mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos) 
   This signal is emitted wher the user clicked (pressed + released) with any mouse button on
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a button is the number of the mouse button which
@@ -3859,7 +3859,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
 		    if ( d->itemTextPos == Bottom )
-			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, 
+			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2,
 				    y + ih - item->iconRect().height() );
 		    else
 			item->move( d->spacing, y + ih - item->iconRect().height() );
@@ -3869,7 +3869,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    sp += r;
 		    int x = i * d->rastX + sp * d->spacing;
 		    if ( d->itemTextPos == Bottom )
-			item->move( x + ( r * d->rastX - item->width() ) / 2, 
+			item->move( x + ( r * d->rastX - item->width() ) / 2,
 				    y + ih - item->iconRect().height() );
 		    else
 			item->move( x, y + ih - item->iconRect().height() );

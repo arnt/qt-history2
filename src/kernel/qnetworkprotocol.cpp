@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#18 $
 **
 ** Implementation of QFileDialog class
 **
@@ -97,7 +97,7 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::removed( const QString &name, QNetworkOperation *res )
+  \fn void QNetworkProtocol::removed( QNetworkOperation *res )
 
   This signal is emitted when remove() has been succesful
   and the file has been removed. \a name is the filename
