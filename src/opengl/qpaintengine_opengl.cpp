@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include <private/qpainter_p.h>
-#include <qdebug.h>
 #include <qbrush.h>
 #include <qgl.h>
 #include "qpaintengine_opengl.h"
@@ -48,6 +47,8 @@ bool QOpenGLPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, b
 
     dgl->makeCurrent();
     dgl->qglClearColor(state->bgColor);
+    glShadeModel(GL_FLAT);
+//     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -65,7 +66,8 @@ bool QOpenGLPaintEngine::end()
 void QOpenGLPaintEngine::updatePen(QPainterState *ps)
 {
     dgl->makeCurrent();
-    dgl->qglColor(ps->pen.color());
+//     dgl->qglColor(ps->pen.color());
+    glColor3ub(ps->pen.color().red(), ps->pen.color().green(), ps->pen.color().blue());
     d->cpen = ps->pen;
     d->cbrush = ps->brush;
 }
@@ -136,7 +138,8 @@ void QOpenGLPaintEngine::setRasterOp(RasterOp r)
 void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     dgl->makeCurrent();
-    glBegin(GL_LINES); {
+    glBegin(GL_LINES);
+    {
 	glVertex2i(p1.x(), p1.y());
 	glVertex2i(p2.x(), p2.y());
     }
@@ -147,8 +150,10 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 {
     dgl->makeCurrent();
     if (d->cbrush.style() != NoBrush) {
-	dgl->qglColor(d->cbrush.color());
-	glBegin(GL_POLYGON); {
+// 	dgl->qglColor(d->cbrush.color());
+	glColor3ub(d->cbrush.color().red(), d->cbrush.color().green(), d->cbrush.color().blue());
+ 	glBegin(GL_POLYGON);
+	{
 	    glVertex2i(r.x(), r.y());
 	    glVertex2i(r.x()+r.width(), r.y());
 	    glVertex2i(r.x()+r.width(), r.y());
@@ -159,7 +164,8 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
 	    glVertex2i(r.x(), r.y());
 	}
 	glEnd();
-	dgl->qglColor(d->cpen.color());
+// 	dgl->qglColor(d->cpen.color());
+	glColor3ub(d->cpen.color().red(), d->cpen.color().green(), d->cpen.color().blue());
 	if (d->cpen.style() == NoPen)
 	    return;
     }
@@ -168,32 +174,34 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
     rr.setHeight(r.height()-1);
 
     if (d->cpen.style() != NoPen) {
-	glBegin(GL_LINE_LOOP); {
-	    glVertex2i(rr.x(), r.y());
+ 	glBegin(GL_LINE_LOOP);
+	{
+	    glVertex2i(rr.x(), rr.y());
 	    glVertex2i(rr.x()+rr.width(), rr.y());
 	    glVertex2i(rr.x()+rr.width(), rr.y());
 	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
 	    glVertex2i(rr.x()+rr.width(), rr.y()+rr.height());
 	    glVertex2i(rr.x(), rr.y()+rr.height());
 	}
-	glEnd();
+ 	glEnd();
     }
 }
 
 void QOpenGLPaintEngine::drawPoint(const QPoint &p)
 {
     dgl->makeCurrent();
-    glBegin(GL_POINTS); {
+    glBegin(GL_POINTS);
+    {
 	glVertex2i(p.x(), p.y());
     }
     glEnd();
-
 }
 
 void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
     dgl->makeCurrent();
-    glBegin(GL_POINTS); {
+    glBegin(GL_POINTS);
+    {
 	for (int i = 0; i < pa.size(); ++i)
 	    glVertex2i(pa[i].x(), pa[i].y());
     }
