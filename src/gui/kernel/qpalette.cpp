@@ -341,8 +341,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     or "turquoise". The color roles are enumerated and defined in the
     \l ColorRole documentation.
 
-    We strongly recommend using a system-supplied color group and
-    modifying that as necessary.
+    We strongly recommend that you use a system-supplied color group
+    and modify that as necessary.
 
     You modify a color group by calling the access functions
     setColor() and setBrush(), depending on whether you want a pure

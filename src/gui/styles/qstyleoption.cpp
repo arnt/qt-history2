@@ -1018,10 +1018,12 @@ void QStyleOption::init(const QWidget *w)
 /*!
     \class QStyleOptionViewItem qstyleoption.h
     \brief The QStyleOptionViewItem class is used to describe the
-    parameters used to draw an item in item/views.
+    parameters used to draw an item in a view widget.
 
-    The QStyleOptionViewItem structure is used by Qt's model/view
+    The QStyleOptionViewItem structure is used by Qt's Model/View
     classes to draw their items.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!

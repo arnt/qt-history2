@@ -699,7 +699,7 @@ void QHashData::free()
 
     \overload
 
-    If the hash contains no item with key \a key, the function returns
+    If the hash contains no item with the given \a key, the function returns
     \a defaultValue.
 */
 
