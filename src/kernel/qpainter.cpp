@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#13 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#13 $";
 #endif
 
 
@@ -38,7 +38,7 @@ bool QPainter::redirect( const QPaintDevice *pd )
 }
 
 
-void QPainter::setf( ushort b, bool v )
+void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
 {
     if ( v )
 	setf( b );
@@ -47,23 +47,36 @@ void QPainter::setf( ushort b, bool v )
 }
 
 
-void QPainter::setTabStops( int ts )
+void QPainter::setTabStops( int ts )		// set tab stops
 {
     tabstops = ts;
+    if ( isActive() && testf(ExtDev) ) {	// tell extended device
+	QPDevCmdParam param[1];
+	param[0].ival = ts;
+	pdev->cmd( PDC_SETTABSTOPS, param );
+    }
 }
 
-void QPainter::setTabArray( int *ta )
+void QPainter::setTabArray( int *ta )		// set tab array
 {
-    tabarraylen = 0;
-    delete tabarray;				// delete old array
-    if ( ta ) {
-	while ( ta[tabarraylen++] )
-	    ;
-	tabarray = new int[tabarraylen];	// duplicate ta
-	memcpy( tabarray, ta, sizeof(int)*tabarraylen );
+    if ( ta != tabarray ) {
+	tabarraylen = 0;
+	delete tabarray;			// delete old array
+	if ( ta ) {				// tabarray = copy of 'ta'
+	    while ( ta[tabarraylen] )
+		tabarraylen++;
+	    tabarray = new int[tabarraylen];	// duplicate ta
+	    memcpy( tabarray, ta, sizeof(int)*tabarraylen );
+	}
+	else
+	    tabarray = 0;
     }
-    else
-	tabarray = 0;
+    if ( isActive() && testf(ExtDev) ) {	// tell extended device
+	QPDevCmdParam param[2];
+	param[0].ival = tabarraylen;
+	param[1].ivec = tabarray;
+	pdev->cmd( PDC_SETTABARRAY, param );
+    }
 }
 
 
