@@ -73,7 +73,7 @@ class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
 public:
     QTDSDriver( QObject* parent = 0, const char* name = 0 );
-    QTDSDriver( LOGINREC* rec, DBPROCESS* proc, QObject* parent = 0, const char* name = 0 );
+    QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent = 0, const char* name = 0 );
     ~QTDSDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool		open( const QString & db,
@@ -103,8 +103,8 @@ private:
     void		init();
     bool                inTransaction;
     QTDSPrivate*	d;
-    QString             dbName;
-    QString             hostName;
+    QString             dbName; // ### 4.0: remove - not used
+    QString             hostName; // ### 4.0: put into the private obj.
 };
 
 #endif

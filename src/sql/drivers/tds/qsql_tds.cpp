@@ -430,12 +430,13 @@ QTDSDriver::QTDSDriver( QObject* parent, const char* name )
     init();
 }
 
-QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, QObject* parent, const char* name )
+QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent, const char* name )
     : QSqlDriver( parent,name ? name : "QTDS" ), inTransaction( FALSE )
 {
     init();    
     d->login = rec;
     d->dbproc = proc;
+    hostName = host;
     if ( rec && proc ) {
 	setOpen( TRUE );
 	setOpenError( FALSE );
@@ -531,7 +532,6 @@ bool QTDSDriver::open( const QString & db,
     }
     setOpen( TRUE );
     setOpenError( FALSE );
-    dbName = db;
     hostName = host;
     return TRUE;
 }
@@ -557,13 +557,13 @@ QSqlQuery QTDSDriver::createQuery() const
 {
     QTDSPrivate d2;
     d2.login = d->login;
-
+    
     d2.dbproc = dbopen( d2.login, hostName.local8Bit().data() );
     if ( !d2.dbproc ) {
-	return QSqlQuery();
+	return QSqlQuery( (QSqlResult *) 0 );
     }
-    if ( dbuse( d2.dbproc, dbName.local8Bit().data() ) == FAIL ) {
-	return QSqlQuery();
+    if ( dbuse( d2.dbproc, dbname( d->dbproc ) ) == FAIL ) {
+	return QSqlQuery( (QSqlResult *) 0 );
     }
 
     return QSqlQuery( new QTDSResult( this, &d2 ) );
