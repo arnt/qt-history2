@@ -1141,6 +1141,20 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
+  \fb void QDragMoveEvent::accept( bool y )
+  \reimp
+  \internal
+  Remove in 3.0
+*/
+
+/*!
+  \fb void QDragMoveEvent::ignore()
+  \reimp
+  \internal
+  Remove in 3.0
+*/
+
+/*!
   \fn void QDropEvent::setAction( Action a )
 
   Sets the action.  This is used internally, you should not need to
