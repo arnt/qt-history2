@@ -394,6 +394,15 @@ QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QSt
 //    dumpHtml();
 }
 
+static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
+{
+    if (style == QTextListFormat::ListDisc)
+        return QTextListFormat::ListCircle;
+    else if (style == QTextListFormat::ListCircle)
+        return QTextListFormat::ListSquare;
+    return style;
+}
+
 void QTextHTMLImporter::import()
 {
     bool hasBlock = false;
@@ -411,8 +420,24 @@ void QTextHTMLImporter::import()
             closeTag(i);
 
         if (node->isListStart) {
+
+            QTextListFormat::Style style = node->listStyle;
+
+            if (node->tag == QLatin1String("ul") && !node->hasOwnListStyle && node->parent) {
+                const QTextHtmlParserNode *n = &at(node->parent);
+                while (n) {
+                    if (n->tag == QLatin1String("ul")) {
+                        style = nextListStyle(node->listStyle);
+                    }
+                    if (n->parent)
+                        n = &at(n->parent);
+                    else
+                        n = 0;
+                }
+            }
+
             QTextListFormat listFmt;
-            listFmt.setStyle(node->listStyle);
+            listFmt.setStyle(style);
 
             ++indent;
             listFmt.setIndent(indent);

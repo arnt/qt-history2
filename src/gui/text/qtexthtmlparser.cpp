@@ -497,7 +497,7 @@ static QTextListFormat::Style convertListStyle(QStyleSheetItem::ListStyle style)
 QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       isImage(false), fontItalic(false), fontUnderline(false), fontOverline(false),
-      fontStrikeOut(false), fontFixedPitch(false), fontPointSize(12), fontWeight(QFont::Normal),
+      fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(12), fontWeight(QFont::Normal),
       alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1),
       wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
@@ -1022,6 +1022,7 @@ void QTextHtmlParser::parseAttributes()
         } else if (node->tag == QLatin1String("ol")
                    || node->tag == QLatin1String("ul")) {
             if (key == QLatin1String("type")) {
+                node->hasOwnListStyle = true;
                 if (value == QLatin1String("1")) {
                     node->listStyle = QTextListFormat::ListDecimal;
                 } else if (value == QLatin1String("a")) {
