@@ -598,7 +598,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   If the widget is focus enabled, it will get focus when the user
   traverses the popup menu with the arrow keys. If the widget does not
   accept ArrowUp and ArrowDown in its key event handler, the focus
-  will move back to the menu when the the respective arrow key is hit
+  will move back to the menu when the respective arrow key is hit
   one more time. This works for example with a QLineEdit.  If the
   widget accepts the arrow keys itself, it must also provide the
   possibility to put the focus back on the menu again by calling

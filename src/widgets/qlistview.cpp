@@ -2180,7 +2180,7 @@ int QListView::treeStepSize() const
 }
 
 
-/*!  Sets the the number of pixels a child is offset from its parent,
+/*!  Sets the number of pixels a child is offset from its parent,
   in a tree view to \a l.  The default is 20.
 
   \sa treeStepSize()

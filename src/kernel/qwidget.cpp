@@ -1421,7 +1421,7 @@ QRect QWidget::frameGeometry() const
 
 /*!
   \fn QRect QWidget::rect() const
-  Returns the the internal geometry of the widget, excluding the window frame.
+  Returns the internal geometry of the widget, excluding the window frame.
   rect() equals QRect(0,0,width(),height()).
 
   See the \link geometry.html Window Geometry documentation\endlink

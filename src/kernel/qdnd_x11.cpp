@@ -1296,7 +1296,7 @@ bool qt_xdnd_handle_badwindow()
   \brief Event sent as a drag-and-drop is in progress.
 
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
-  it will receive this event repeatedly while the the drag is inside that
+  it will receive this event repeatedly while the drag is inside that
   widget.  The widget should examine the event, especially
   seeing what data it \link QDragMoveEvent::provides provides\endlink,
   and accept() the drop if appropriate.

@@ -1263,14 +1263,14 @@ void QPainter::restoreWorldMatrix()
 /*!
   Translates the coordinate system by \a (dx,dy).
 
-  For example, the following code draws a single vertical line 20 pixels high.
+  For example, the following code draws a single vertical line 30 pixels high.
   \code
     void MyWidget::paintEvent()
     {
 	QPainter paint( this );
-	paint.drawLine(10,0,10,20);
-	paint.translate(100.0,100.0);
-	paint.drawLine(-90,-80,-90,-70);
+	paint.drawLine( 10, 0, 10, 20 );
+	paint.translate( 100.0, 100.0 );
+	paint.drawLine( -90, -80, -90, -70 );
     }
   \endcode
 
@@ -1856,7 +1856,7 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 /*!
   \fn void QPainter::setClipRect( int x, int y, int w, int h )
 
-  Sets the clip region to the the rectangle \a (x,y,w,h) and enables clipping.
+  Sets the clip region to the rectangle \a (x,y,w,h) and enables clipping.
 
   Note that the clip region is given in physical device coordinates and
   \e not subject to any \link coordsys.html coordinate

@@ -997,7 +997,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   <li> paintGL() - Render the OpenGL scene. Gets called whenever the widget
   needs to be updated.
   <li> resizeGL() - Set up OpenGL viewport, projection etc. Gets called
-  whenever the the widget has been resized (and also when it shown
+  whenever the widget has been resized (and also when it shown
   for the first time, since all newly created widgets get a resize
   event automatically).
   <li> initializeGL() - Set up the OpenGL rendering context, define display

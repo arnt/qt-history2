@@ -357,7 +357,7 @@ errors which can't be easily fixed:
 
   \code
     switch( QMessageBox::warning( this, "Application name here",
-                                  "Could not save the the user preferences,\n"
+                                  "Could not save the user preferences,\n"
 				  "because the disk is full.  You can delete\n"
 				  "some files and press Retry, or you can\n"
 				  "abort the Save Preferences operation.",

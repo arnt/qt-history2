@@ -58,7 +58,7 @@ added and colors touched up afterwards):
 
 Note that all of the pixels drawn by drawRect() are inside the size
 specified (5*4 pixels).  This is different from some toolkits; in Qt
-the size you specify exactly encompasses the the pixels drawn.  This
+the size you specify exactly encompasses the pixels drawn.  This
 applies to all the relevant function in QPainter.
 
 Similarly, the drawLine() call draws both endpoints of the line, not

@@ -499,7 +499,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
   about the progress of the operation, connect to the dataTransferProgress()
   signal. But you have to know, that the get() and the put() operations emit
   this signal through the QUrlOperator! So, the number of transferred and total bytes
-  which you get as argument in this signal isn't related to the the whole copy operation, but
+  which you get as argument in this signal isn't related to the whole copy operation, but
   first to the get() and then to the put() operation. So always check for the type of
   the operation from which the signal comes (you get this by asking for the type of the
   QNetworkOperation pointer you also get as last argument of this signal).

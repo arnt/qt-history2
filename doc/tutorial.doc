@@ -2559,7 +2559,8 @@ because this widget does not know when to end the game.  This is is an
 important design principle in component programming.  We choose to
 make the component as flexible as possible to make it usable with
 different rules.  For example, a multi-player version of this, where
-the first one to hit ten times could use the CannonField unchanged.
+the winner is the first one to hit ten times could use the CannonField
+unchanged.
 
 If the game has already been ended, we return immediately.  If a game is
 going on, we stop the shot, set the game over flag and repaint the entire
@@ -2925,7 +2926,7 @@ not pressed on the barrel.
 
 \skip ::moveShot
 \skip else
-\until }
+\until {
 
 Now that we have a barrier there are three ways to miss.  We test for
 the third, too.

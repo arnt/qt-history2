@@ -262,7 +262,7 @@ Then there are some more special signals which are specific to operations:
   </ul>
 </ul>
 
-And remember, always emit the \c finished() signal the the end!
+And remember, always emit the \c finished() signal at the end!
 
 For more details about the arguments of these signals take a look
 at the \c QNetworkProtocol class documentation.

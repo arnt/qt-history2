@@ -808,7 +808,7 @@ void QTabDialog::setDefaultButton()
 
   The cancel button should always return the application to the state
   it was in before the tab view popped up, or if the user has clicked
-  Apply, back the the state immediately after the last Apply.
+  Apply, back to the state immediately after the last Apply.
 
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.
   The dialog is closed at the same time.

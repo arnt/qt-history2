@@ -135,7 +135,7 @@
   use find() and iterators.
 
   If you just want to know whether a certain key is contained in the map,
-  the the contains() function is what you are looking for. In addition count()
+  the contains() function is what you are looking for. In addition count()
   tells you how many keys there are currently in the map.
 
   Another method for traversing a map is to use the functions begin()

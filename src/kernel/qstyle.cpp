@@ -394,7 +394,7 @@ QRect QStyle::comboButtonRect( int x, int y, int w, int h)
 }
 
 /*! \fn QRect QStyle::comboButtonFocusRect( int x, int y, int w, int h)
-  Returns the rectangle used to draw the the focus rectangle in a combo box.
+  Returns the rectangle used to draw the focus rectangle in a combo box.
 */
 
 /*! \fn void QStyle::drawComboButtonMask( QPainter *p, int x, int y, int w, int h)
