@@ -460,6 +460,9 @@ static inline void makeReference( VARIANT &arg )
     case VT_CY:
 	arg.pcyVal = new CY(arg.cyVal);
 	break;
+    case VT_R4:
+	arg.pfltVal= new float(arg.dblVal);
+	break;
     case VT_R8:
 	arg.pdblVal = new double(arg.dblVal);
 	break;
@@ -532,6 +535,9 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 	    res.vt = VT_I2;
 	else if (param->typeExtra == (void*)1)
 	    res.vt = VT_I1;
+    } else if (variant.type() == QVariant::Double) {
+	if (param->typeExtra == (void*)4)
+	    res.vt = VT_R4;
     }
     bool byref = param && ( param->inOut & QUParameter::Out );
     if ( byref ) {
@@ -1842,6 +1848,9 @@ void clearVARIANT( VARIANT *var )
 	    break;
 	case VT_CY|VT_BYREF:
 	    delete var->pcyVal;
+	    break;
+	case VT_R4|VT_BYREF:
+	    delete var->pfltVal;
 	    break;
 	case VT_R8|VT_BYREF:
 	    delete var->pdblVal;
