@@ -42,8 +42,8 @@ A   USING THE INSTALLATION PROGRAM
 
     5. Configuration of the library: you can choose several options and
        configurations for building the Qt library. The default options
-       should be sufficient for most of the time. The library may also be
-       reconfigured later.
+       should be sufficient for most of the time. The library can also be
+       reconfigured later with the program configurator.
 
     After this, the wizard copies the files into the installation
     directory, and compiles the toolkit. Logs of both the file copy and
