@@ -1,114 +1,89 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MasterChildWindowBase</class>
-<widget>
-    <class>QWidget</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QWidget">
+    <property name="name">
         <cstring>MasterChildWindowBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>601</width>
-            <height>677</height>
+            <width>589</width>
+            <height>671</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Qt Master-Child Example</string>
     </property>
     <grid>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="1"  column="0" >
-            <class>QSqlTable</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>masterTable</cstring>
-            </property>
-            <property stdset="1">
-                <name>minimumSize</name>
-                <size>
-                    <width>0</width>
-                    <height>100</height>
-                </size>
-            </property>
-        </widget>
-        <widget row="3"  column="0" >
-            <class>QSqlTable</class>
-            <property stdset="1">
-                <name>name</name>
-                <cstring>childTable</cstring>
-            </property>
-        </widget>
-        <widget row="0"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
                 <cstring>TextLabel1</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>4</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="text">
                 <string>Master Table</string>
             </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
-                <sizepolicy>
-                    <hsizetype>1</hsizetype>
-                    <vsizetype>4</vsizetype>
-                </sizepolicy>
-            </property>
         </widget>
-        <widget row="2"  column="0" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
                 <cstring>TextLabel2</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
-                <string>Child Table</string>
-            </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
+            <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>1</hsizetype>
                     <vsizetype>4</vsizetype>
                 </sizepolicy>
+            </property>
+            <property name="text">
+                <string>Child Table</string>
+            </property>
+        </widget>
+        <widget class="QSqlTable" row="1" column="0">
+            <property name="name">
+                <cstring>masterTable</cstring>
+            </property>
+            <property name="sorting">
+                <bool>true</bool>
+            </property>
+            <property name="database" stdset="0">
+                <stringlist>
+                    <string>(default)</string>
+                    <string>master</string>
+                </stringlist>
+            </property>
+        </widget>
+        <widget class="QSqlTable" row="3" column="0">
+            <property name="name">
+                <cstring>childTable</cstring>
+            </property>
+            <property name="sorting">
+                <bool>true</bool>
+            </property>
+            <property name="database" stdset="0">
+                <stringlist>
+                    <string>(default)</string>
+                    <string>child</string>
+                </stringlist>
             </property>
         </widget>
     </grid>
 </widget>
-<customwidgets>
-    <customwidget>
-        <class>QSqlTable</class>
-        <header location="global">qsqltable.h</header>
-        <sizehint>
-            <width>-1</width>
-            <height>-1</height>
-        </sizehint>
-        <container>0</container>
-        <sizepolicy>
-            <hordata>5</hordata>
-            <verdata>5</verdata>
-        </sizepolicy>
-        <pixmap>image0</pixmap>
-    </customwidget>
-</customwidgets>
-<images>
-    <image>
-        <name>image0</name>
-        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1ddec44f503c0ae2a154410f53d0ed20e2bf6bdb656dd6861dd23d9a66591b0587fd1654235ebded6f0edcd53e419d87ae7b1f4f9b8f906d0bfe012317426a70b07bdc2f3ec77f8ed6b89559061a0343d06a124cc105596482585094bc0ae599b04646c9018926491b2205e140c485cace25755c175d0a967b622ff900b8cc9c7d29af594ea722d589167f813aa852ba07d94b9dce296e883fe7bb163f23896753</data>
-    </image>
-</images>
-<tabstops>
-</tabstops>
+<connections>
+    <slot access="protected" language="C++">newMasterSelection( const QSqlRecord* fields )</slot>
+</connections>
 </UI>

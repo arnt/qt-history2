@@ -7,12 +7,10 @@ MainWindow::MainWindow ( QWidget * parent, const char * name, WFlags f )
       master( "qsql_master" ),
       child( "qsql_child" )
 {
-    master.select();
-    masterTable->setSorting( TRUE );
-    childTable->setSorting( TRUE );
-    masterTable->setCursor( &master );
-    child.setVisible( "masterid", FALSE );
-    reloadChildTable( 1 );
+    masterTable->setCursor( &master, TRUE );
+    childTable->setCursor( &child, TRUE );
+    childTable->removeColumn( 1 );
+    //    reloadChildTable( 1 ); ## fix this!!
     connect( masterTable, SIGNAL( currentChanged(const QSqlRecord*)),
 	     SLOT( newMasterSelection(const QSqlRecord*)));
 }
@@ -30,7 +28,6 @@ void MainWindow::newMasterSelection( const QSqlRecord* fields )
 
 void MainWindow::reloadChildTable( int masterIdx )
 {
-    child.select( "masterid=" + QString::number(masterIdx) );
-    childTable->setCursor( &child );
+    childTable->setFilter( "masterid=" + QString::number(masterIdx) );
+    childTable->refresh();
 }
-
