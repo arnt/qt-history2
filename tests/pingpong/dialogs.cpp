@@ -40,84 +40,34 @@ void TeamPicker::setTeamId( int id )
 }
 
 //
-//  GenericDialog class
+//  UpdateMatchDialog class
 //
 
-GenericDialog::GenericDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
-			      const char * name )
+UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
+				      const char * name )
     : QDialog( parent, name, TRUE ),
+      matchRecord( buf ),
       mMode( mode )
 {
     QWidget *     w = new QWidget( this );
     QVBoxLayout * g = new QVBoxLayout( this );
     QHBoxLayout * h = new QHBoxLayout;
 
-    QString op, caption;
-    if( mMode == Insert ){
-	op      = "&Insert";
-	caption = "Insert record";
-    } else if( mMode == Update ){
-	op      = "&Update";
-	caption = "Update record";
-    } else if( mMode == Delete ){
-	op      = "&Delete";
-	caption = "Delete record";
-	w->setEnabled( FALSE );
+    QString op;
+    switch ( mMode ) {
+    case Insert:
+	setCaption( "Insert match results" );		
+	op = "&Insert";
+	break;	
+    case Update:
+	setCaption( "Update match results" );	
+	op = "&Update";	
+	break;
+    case Delete:
+	setCaption( "Delete match results" );	
+	op = "&Delete";		
+	break;
     }
-    setCaption( caption );
-
-    form = new QSqlForm( w, buf, 2, this);
-    g->setMargin( 3 );
-
-    QLabel * label = new QLabel( caption, this );
-    QFont f = font();
-    f.setBold( TRUE );
-    label->setFont( f );
-    g->addWidget( label );
-
-    h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
-				 QSizePolicy::Minimum ) );
-
-    QPushButton * button = new QPushButton( op, this );
-    button->setDefault( TRUE );
-    connect( button, SIGNAL( clicked() ), SLOT( execute() ) );
-    h->addWidget( button );
-
-    button = new QPushButton( "&Close", this );
-    connect( button, SIGNAL( clicked() ), SLOT( close() ) );
-    h->addWidget( button );
-
-    g->addWidget( w );
-    g->addLayout( h );
-}
-
-void GenericDialog::close()
-{
-    reject();
-}
-
-void GenericDialog::execute()
-{
-    form->writeRecord();
-    accept();
-}
-
-
-
-//
-//  UpdateMatchDialog class
-//
-
-UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
-				      const char * name )
-    : QDialog( parent, name, TRUE ),
-      matchRecord( buf )
-{
-    QWidget *     w = new QWidget( this );
-    QVBoxLayout * g = new QVBoxLayout( this );
-    QHBoxLayout * h = new QHBoxLayout;
-
-    setCaption( "Update match results" );
 
     // Lay out the editor widgets manually
     QSqlEditorFactory * ef = QSqlEditorFactory::defaultFactory();
@@ -128,7 +78,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     formLayout->setSpacing( 5 );
     formLayout->setMargin( 5 );
 
-    form = new QSqlForm( this, "updatematchform" );
+    form = new QSqlForm( this, "matchform" );
 
     QSqlPropertyMap* pm = new QSqlPropertyMap();
     pm->insert( "TeamPicker", "teamid" );
@@ -188,7 +138,7 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Minimum ) );
 
-    QPushButton * button = new QPushButton( "&Update", this );
+    QPushButton * button = new QPushButton( op, this );
     button->setDefault( TRUE );
     connect( button, SIGNAL( clicked() ), SLOT( execute() ) );
     h->addWidget( button );
@@ -197,6 +147,8 @@ UpdateMatchDialog::UpdateMatchDialog( QSqlRecord* buf, QWidget * parent,
     connect( button, SIGNAL( clicked() ), SLOT( close() ) );
     h->addWidget( button );
 
+    if ( mMode == Delete )
+	w->setEnabled( FALSE );
     updateSets();
     g->addWidget( w );
     g->addLayout( h );

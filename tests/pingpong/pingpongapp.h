@@ -18,6 +18,7 @@ public:
 
 protected:
     QVariant calculateField( uint fieldNumber );
+    void     primeInsert( QSqlRecord* buf );    
 
     QSqlCursor * teamCr;
 };
@@ -41,7 +42,7 @@ protected slots:
 
 protected:
     void editWindow( const QString& cursor, const QString& sortField, const QString& caption );
-    
+
 private:
     QSqlTable * matchTable;
     MatchCursor matchCr;

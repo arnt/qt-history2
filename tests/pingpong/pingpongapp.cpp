@@ -46,9 +46,6 @@ MatchCursor::MatchCursor()
 
 QVariant MatchCursor::calculateField( uint fieldNumber )
 {
-    qDebug("here? %s, %s", (const char *)field(0)->value().toString(),
-       (const char *)field(1)->value().toString());
-
     if( field( fieldNumber )->name() == "winner" ){ // Winner team
 	teamCr->setValue( "id", field("winnerid")->value() );
     } else if( field( fieldNumber )->name() == "loser" ){ // Looser team
@@ -59,6 +56,15 @@ QVariant MatchCursor::calculateField( uint fieldNumber )
 	return teamCr->value( "name" );
     else
 	return QVariant( QString::null );
+}
+
+void MatchCursor::primeInsert( QSqlRecord* buf )
+{
+    QSqlQuery q;
+    q.exec( "select nextval( 'matchid_sequence' );" );
+    if ( q.next() )
+	buf->setValue( "id", q.value(0) );
+    buf->setValue( "date", QDate::currentDate() );
 }
 
 PingPongApp::PingPongApp( QWidget * parent, const char * name )
@@ -143,7 +149,7 @@ void PingPongApp::insertMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
+     UpdateMatchDialog dlg( cr->insertBuffer(), UpdateMatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->insert();
  	matchTable->refresh();
@@ -154,7 +160,7 @@ void PingPongApp::updateMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     UpdateMatchDialog dlg( cr->updateBuffer(), this );
+     UpdateMatchDialog dlg( cr->updateBuffer(), UpdateMatchDialog::Update, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->update();
  	matchTable->refresh();
@@ -165,7 +171,7 @@ void PingPongApp::deleteMatch()
 {
      QSqlCursor * cr = matchTable->cursor();
 
-     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
+     UpdateMatchDialog dlg( cr->updateBuffer(), UpdateMatchDialog::Delete, this );
      if( dlg.exec() == QDialog::Accepted ){
  	cr->del();
  	matchTable->refresh();
@@ -174,7 +180,7 @@ void PingPongApp::deleteMatch()
 
 void PingPongApp::editPlayer()
 {
-    editWindow( "player", "name", "Edit Players" );    
+    editWindow( "player", "name", "Edit Players" );
 }
 
 void PingPongApp::editTeam()
