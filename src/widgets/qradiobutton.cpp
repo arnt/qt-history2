@@ -174,7 +174,15 @@ QSize QRadioButton::sizeHint() const
 */
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
-    return rect().contains( pos );
+    QRect r =
+	QStyle::visualRect( style().subRect( QStyle::SR_RadioButtonFocusRect,
+					     this ), this );
+    if ( qApp->reverseLayout() ) {
+	r.setRight( width() );
+    } else {
+	r.setLeft( 0 );
+    }
+    return r.contains( pos );
 }
 
 

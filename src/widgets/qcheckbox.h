@@ -72,7 +72,7 @@ protected:
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
     void    updateMask();
-
+    virtual bool hitButton( const QPoint &pos ) const;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCheckBox( const QCheckBox & );

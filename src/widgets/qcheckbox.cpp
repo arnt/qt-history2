@@ -345,4 +345,16 @@ void QCheckBox::updateMask()
 
     setMask(bm);
 }
+
+bool QCheckBox::hitButton( const QPoint &pos ) const
+{
+    QRect r = QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxFocusRect, this ), this );
+    if ( qApp->reverseLayout() ) {
+	r.setRight( width() );
+    } else {
+	r.setLeft( 0 );
+    }
+    return r.contains( pos );
+}
+
 #endif
