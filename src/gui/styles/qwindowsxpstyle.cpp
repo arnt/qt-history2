@@ -1172,9 +1172,8 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             bool checkable = menuitem->menuHasCheckableItems;
             bool checked = checkable ? menuitem->checked : false;
 
-            int checkcol = maxpmw;
-            if (checkable)
-                checkcol = qMax(maxpmw, 20);
+            // windows always has a check column, regardless whether we have an icon or not
+            int checkcol = qMax(menuitem->maxIconWidth, 20);
 
             int x, y, w, h;
             rect.getRect(&x, &y, &w, &h);
