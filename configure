@@ -3493,7 +3493,17 @@ fi
 
 QTCONFIG=$outpath/.qt.config
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
+QTCONFIG_CONFIG=
+if [ "$CFG_DEBUG" = "yes" ]; then
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG debug"
+elif [ "$CFG_DEBUG" = "no" ]; then
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG release"
+fi
+if [ "$CFG_STL" = "yes" ]; then
+    QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
+fi
 cat >>$QTCONFIG.tmp <<EOF
+CONFIG += $QTCONFIG_CONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
