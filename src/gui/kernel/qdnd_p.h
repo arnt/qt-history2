@@ -90,15 +90,12 @@ public:
     void updatePixmap();
     QWidget *source() { return object ? object->d_func()->source : 0; }
     QDragPrivate *dragPrivate() { return object ? object->d_func() : 0; }
-    
+
     static QDragManager *self();
     QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
 
     QDrag *object;
-    
-#if defined(Q_WS_QWS)
-    void updateMode(Qt::KeyboardModifiers newstate);  // #### get rid of me
-#endif
+
     void updateCursor();
 
     bool beingCancelled;
@@ -130,12 +127,12 @@ public:
     const QMimeData *mimeData() const;
     DWORD reportedPerformedEffect() const;
 
-    // IUnknown methods 
+    // IUnknown methods
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
     STDMETHOD_(ULONG,AddRef)(void);
     STDMETHOD_(ULONG,Release)(void);
 
-    // IDataObject methods 
+    // IDataObject methods
     STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
     STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
     STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
