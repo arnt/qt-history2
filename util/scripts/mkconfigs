@@ -5,7 +5,7 @@ then
     mkdir $QTDIR/configs
 fi
 
-if [ ! -d "$TMAKEDIR/lib" ]
+if [ -z "$TMAKEDIR" ]
 then
     if [ -d $HOME/tmake/lib ]
     then
