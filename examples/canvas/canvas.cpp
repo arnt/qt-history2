@@ -57,7 +57,7 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
 
 void ImageItem::drawShape( QPainter &p )
 {
-    p.drawImage( x(), y(), image, 0, 0, -1, -1, OrderedAlphaDither );
+    p.drawImage( int(x()), int(y()), image, 0, 0, -1, -1, OrderedAlphaDither );
 }
 
 bool ImageItem::hit( const QPoint &p ) const 
@@ -103,7 +103,7 @@ EdgeItem::EdgeItem( NodeItem *from, NodeItem *to, QCanvas *canvas )
     setBrush( tb );
     from->addOutEdge( this );
     to->addInEdge( this );
-    setPoints( from->x(), from->y(), to->x(), to->y() );
+    setPoints( int(from->x()), int(from->y()), int(to->x()), int(to->y()) );
     setZ( 127 );
 }
 
@@ -127,12 +127,12 @@ void NodeItem::moveBy(double dx, double dy)
     EdgeItem *edge;
     while (( edge = it1.current() )) {
 	++it1;
-	edge->setToPoint( x(), y() );
+	edge->setToPoint( int(x()), int(y()) );
     }
     QListIterator<EdgeItem> it2( outList );
     while (( edge = it2.current() )) {
 	++it2;
-	edge->setFromPoint( x(), y() );
+	edge->setFromPoint( int(x()), int(y()) );
     }
 }
 
@@ -331,7 +331,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     edit->insertItem("Add &Sprite", this, SLOT(addSprite()), CTRL+Key_S);
     edit->insertItem("Create &Mesh", this, SLOT(addMesh()) );
     edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), CTRL+Key_A);
-    file->insertSeparator();
+    edit->insertSeparator();
     edit->insertItem("&Enlarge", this, SLOT(enlarge()), CTRL+Key_Plus);
     edit->insertItem("Shr&ink", this, SLOT(shrink()), CTRL+Key_Minus);
     menu->insertItem("&Edit", edit);
@@ -341,8 +341,10 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     options->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Options",options);
 
+    menu->insertSeparator();
+
     QPopupMenu* help = new QPopupMenu;
-    help->insertItem("&Help...", this, SLOT(help()));
+    help->insertItem("&About", this, SLOT(help()), Key_F1);
     help->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Help",help);
 
@@ -422,9 +424,12 @@ void Main::addButterfly()
     if ( !img ) {
 	img = new QImage[4];
 	img[0].load( butterfly_fn );
-	img[1] = img[0].smoothScale(img[0].width()*0.75,img[0].height()*0.75);
-	img[2] = img[0].smoothScale(img[0].width()*0.5,img[0].height()*0.5);
-	img[3] = img[0].smoothScale(img[0].width()*0.25,img[0].height()*0.25);
+	img[1] = img[0].smoothScale( int(img[0].width()*0.75),
+		int(img[0].height()*0.75) );
+	img[2] = img[0].smoothScale( int(img[0].width()*0.5),
+		int(img[0].height()*0.5) );
+	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
+		int(img[0].height()*0.25) );
     }
     QCanvasPolygonalItem* i = new ImageItem(img[lrand48()%4],&canvas);
     i->move(lrand48()%(canvas.width()-img->width()),
@@ -440,9 +445,12 @@ void Main::addLogo()
     if ( !img ) {
 	img = new QImage[4];
 	img[0].load( logo_fn );
-	img[1] = img[0].smoothScale(img[0].width()*0.75,img[0].height()*0.75);
-	img[2] = img[0].smoothScale(img[0].width()*0.5,img[0].height()*0.5);
-	img[3] = img[0].smoothScale(img[0].width()*0.25,img[0].height()*0.25);
+	img[1] = img[0].smoothScale( int(img[0].width()*0.75),
+		int(img[0].height()*0.75) );
+	img[2] = img[0].smoothScale( int(img[0].width()*0.5),
+		int(img[0].height()*0.5) );
+	img[3] = img[0].smoothScale( int(img[0].width()*0.25),
+		int(img[0].height()*0.25) );
     }
     QCanvasPolygonalItem* i = new ImageItem(img[lrand48()%4],&canvas);
     i->move(lrand48()%(canvas.width()-img->width()),
