@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#25 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#26 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#26 $");
 
 
 /*!
@@ -183,7 +183,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 
 QTabDialog::~QTabDialog()
 {
-    // no cleanup necessary
+    delete d;
 }
 
 

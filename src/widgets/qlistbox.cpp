@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#94 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#94 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -353,7 +353,14 @@ int QListBoxPixmap::width( const QListBox * ) const
 
 #include <qintdict.h>
 
-static QIntDict<int> *qlb_maxLenDict;
+static QIntDict<int> *qlb_maxLenDict = 0;
+
+static void cleanupListbox()
+{
+    delete qlb_maxLenDict;
+    qlb_maxLenDict = 0;
+}
+
 
 /*!
   Constructs a list box.  The arguments are passed directly to the
@@ -389,9 +396,11 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	    setLineWidth( 1 );
     }
     setFocusPolicy( StrongFocus );
-    if ( !qlb_maxLenDict )
+    if ( !qlb_maxLenDict ) {
 	qlb_maxLenDict = new QIntDict<int>;
-    ASSERT( qlb_maxLenDict );
+	CHECK_PTR( qlb_maxLenDict );
+	qAddPostRoutine( cleanupListbox );
+    }
 }
 
 /*!
