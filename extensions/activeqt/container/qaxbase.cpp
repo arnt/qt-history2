@@ -2591,7 +2591,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
-            metaobj->realPrototype[prototype] = it.value().realPrototype;
+            metaobj->realPrototype.insert(prototype, it.value().realPrototype);
         QByteArray tag;
         int flags = it.value().flags;
         
@@ -2617,7 +2617,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
         QByteArray type(it.value().type);
         QByteArray parameters(it.value().parameters);
         if (!it.value().realPrototype.isEmpty())
-            metaobj->realPrototype[prototype] = it.value().realPrototype;
+            metaobj->realPrototype.insert(prototype, it.value().realPrototype);
         QByteArray tag;
         int flags = it.value().flags;
         
@@ -2710,7 +2710,7 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
             }
         }
     }
-    
+
     return metaobj;
 }
 
@@ -3279,7 +3279,8 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     
     int varc = vars.count();
     
-    QByteArray function = name;
+    QByteArray normFunction = QMetaObject::normalizedSignature(name);
+    QByteArray function(normFunction);
     VARIANT staticarg[QAX_NUM_PARAMS];
     VARIANT *arg = 0;
     VARIANTARG *res = (VARIANTARG*)inout;
@@ -3292,16 +3293,16 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     if (function.contains('(')) {
         disptype = DISPATCH_METHOD;
         if (d->useMetaObject)
-            id = mo->indexOfSlot(QMetaObject::normalizedSignature(function));
+            id = mo->indexOfSlot(function);
         if (id >= 0) {
             const QMetaMember slot = mo->slot(id);
             function = slot.signature();
             type = slot.typeName();
         }
         function.truncate(function.indexOf('('));
-        parse = !varc && qstrlen(name) > function.length() + 2;
+        parse = !varc && normFunction.length() > function.length() + 2;
         if (parse) {
-            QString args = QLatin1String(name);
+            QString args = QLatin1String(normFunction);
             args = args.mid(function.length() + 1);
             // parse argument string int list of arguments
             QString curArg;
@@ -3395,7 +3396,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
         }
     } else {
         if (d->useMetaObject)
-            id = mo->indexOfProperty(name);
+            id = mo->indexOfProperty(normFunction);
        
         if (id >= 0) {
             const QMetaProperty prop =mo->property(id);
@@ -3409,7 +3410,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
         }
     }
     if (varc) {
-        varc = qMin(varc, d->metaobj->numParameter(name));
+        varc = qMin(varc, d->metaobj->numParameter(normFunction));
         arg = varc <= QAX_NUM_PARAMS ? staticarg : new VARIANT[varc];
         for (int i = 0; i < varc; ++i) {
             QVariant var(vars.at(i));
@@ -3421,7 +3422,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
             else if (parse || disptype == DISPATCH_PROPERTYGET)
                 paramType = 0;
             else
-                paramType = d->metaobj->paramType(name, i, &out);
+                paramType = d->metaobj->paramType(normFunction, i, &out);
 
             if (!parse && d->useMetaObject && var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
                 int enumIndex =mo->indexOfEnumerator(paramType);
@@ -3446,7 +3447,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     
     if (dispid == DISPID_UNKNOWN) {
 #ifdef QT_CHECK_STATE
-        qax_noSuchFunction(disptype, name, function, this);
+        qax_noSuchFunction(disptype, normFunction, function, this);
 #endif
         return false;
     }
