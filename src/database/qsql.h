@@ -7,6 +7,7 @@
 #include "qvaluelist.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
+#include "qsqlconnection.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -31,7 +32,7 @@ public:
     {
 	d = new QSqlResultShared( r );
     }
-    QSql( const QString& databaseName = "default" );
+    QSql( const QString& databaseName = QSqlConnection::defaultDatabase );
     virtual ~QSql();
     QSql( const QSql& other )
     : d(other.d)

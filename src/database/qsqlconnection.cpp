@@ -41,7 +41,7 @@ QSqlConnection* QSqlConnection::instance()
 #ifdef CHECK_RANGE
 	if ( !qApp )
 	    qWarning("Warning: creating QSqlConnection with no parent.  Use QSqlConnection::free() to clean up resources." );
-#endif	
+#endif
 	sqlConnection = new QSqlConnection( qApp, "QSqlConnection instance" );
     }
     return sqlConnection;

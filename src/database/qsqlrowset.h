@@ -10,6 +10,7 @@
 #include "qsqlerror.h"
 #include "qsqlindex.h"
 #include "qsqlfield.h"
+#include "qsqlconnection.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -19,7 +20,7 @@ class QSqlDatabase;
 class Q_EXPORT QSqlRowset : public QSqlFieldList, public QSql
 {
 public:
-    QSqlRowset( const QString & name, const QString& databaseName = "default" );
+    QSqlRowset( const QString & name, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlRowset( const QSqlRowset & s );
 
     QVariant& operator[]( int i );

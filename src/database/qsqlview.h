@@ -5,6 +5,7 @@
 #include "qstring.h"
 #include "qsqlrowset.h"
 #include "qsqlindex.h"
+#include "qsqlconnection.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -14,7 +15,7 @@ class Q_EXPORT QSqlDatabase;
 class QSqlView : public QSqlRowset
 {
 public:
-    QSqlView( const QString & name, const QString& databaseName = "default" );
+    QSqlView( const QString & name, const QString& databaseName = QSqlConnection::defaultDatabase );
     QSqlView( const QSqlView & s );
 
     QSqlIndex     primaryIndex() const;
