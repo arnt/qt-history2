@@ -2712,6 +2712,9 @@ QCanvasPixmap::~QCanvasPixmap()
   \fn void QCanvasPixmap::setOffset(int x, int y)
 
   Sets the offset of the pixmap's hot spot to (\a x, \a y).
+
+  Note that you must not call this function after passing it
+  in a QCanvasPixmapArray to a QCanvasSprite.
 */
 
 // ### this needs some more words. Lars
