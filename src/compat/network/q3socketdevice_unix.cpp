@@ -748,7 +748,10 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
 	    r = ::read( fd, data, maxlen );
 	}
 	done = true;
-	if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
+        if ( r == 0 && t == Stream ) {
+            // connection closed
+            close();
+        } else if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	    // nothing
 	} else if ( errno == EINTR ) {
 	    done = false;

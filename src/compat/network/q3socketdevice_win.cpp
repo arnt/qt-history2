@@ -630,7 +630,7 @@ Q_LONG Q3SocketDevice::waitForMore( int msecs, bool *timeout ) const
     memset(&fds, 0, sizeof(fd_set));
     fds.fd_count = 1;
     fds.fd_array[0] = fd;
-    
+
     struct timeval tv;
 
     tv.tv_sec = msecs / 1000;
@@ -691,7 +691,10 @@ Q_LONGLONG Q3SocketDevice::readData( char *data, Q_LONGLONG maxlen )
     } else {
 	r = ::recv( fd, data, maxlen, 0 );
     }
-    if ( r == SOCKET_ERROR && e == NoError ) {
+    if ( r == 0 && t == Stream ) {
+        // connection closed
+        close();
+    } else if ( r == SOCKET_ERROR && e == NoError ) {
 	switch( WSAGetLastError() ) {
 	    case WSANOTINITIALISED:
 		e = Impossible;
