@@ -405,7 +405,7 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
         QTextPieceTable::block(blockIt)->invalidate();
 
-    documentChange(pos, length);
+    documentChange(startPos, length);
     emit contentsChanged();
 
     endEditBlock();
