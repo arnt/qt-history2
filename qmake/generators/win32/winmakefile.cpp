@@ -89,6 +89,10 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             QString libpath = opt.mid(2);
             dirs.append(QMakeLocalFileName(libpath));
             modified_opt = true;
+            if (!quote.isNull()) {
+                libpath = quote + libpath + quote;
+                quote = QChar();
+            }
             (*it) = "/LIBPATH:" + libpath;
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
