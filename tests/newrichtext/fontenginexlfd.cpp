@@ -76,7 +76,8 @@ FontEngineXLFD::FontEngineXLFD( XFontStruct *fs, const char *name, QTextCodec *c
 
 FontEngineXLFD::~FontEngineXLFD()
 {
-
+    XFreeFont( QPaintDevice::x11AppDisplay(), _fs );
+    _fs = 0;
 }
 
 FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, int *glyphs, int *nglyphs, bool reverse ) const

@@ -62,6 +62,7 @@
 
 #include "fontengine.h"
 #include "fontenginexlfd.h"
+#include "fontenginexft.h"
 #include "qtextdata.h"
 #include "qt_x11.h"
 
@@ -638,6 +639,216 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 // **********************************************************************
 
 
+
+#ifndef QT_NO_XFTFREETYPE
+
+static XftPattern *checkXftFont( XftPattern *match, const QString &familyName, const QChar &sample )
+{
+#ifndef QT_XFT2
+    char * family_value;
+    XftPatternGetString (match, XFT_FAMILY, 0, &family_value);
+    QString fam = family_value;
+    //qDebug("got family %s for request %s", fam.latin1(), familyName.latin1() );
+
+    if ( fam.lower() != familyName.lower() ) {
+	//qDebug("pattern don't match");
+	XftPatternDestroy(match);
+	match = 0;
+    }
+#else
+    Q_UNUSED( familyName );
+#endif
+
+    if (match && sample.unicode() != 0 ) {
+	// check if the character is actually in the font - this does result in
+	// a font being loaded, but since Xft is completely client side, we can
+	// do this efficiently
+#ifdef QT_XFT2
+    	FcCharSet   *c;
+ 	if (FcPatternGetCharSet(match, FC_CHARSET, 0, &c) == FcResultMatch) {
+ 	    if (!FcCharSetHasChar(c, sample.unicode())) {
+		XftPatternDestroy(match);
+ 		match = 0;
+ 	    }
+ 	}
+#else
+	XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(), match);
+
+	if (xftfs) {
+	    if ( ! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+					  sample.unicode())) {
+		XftPatternDestroy(match);
+		match = 0;
+	    }
+
+	    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
+	}
+#endif
+    }
+
+    return match;
+}
+
+// returns an XftPattern for the font or zero if no found supporting the script could
+// be found
+XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact, double *scale) const
+{
+    // look for foundry/family
+    QString familyName;
+    QString foundryName;
+
+    QFontDatabase::parseFontName(request.family, foundryName, familyName);
+    XftPattern *match = bestXftPattern(familyName, foundryName, sample, scale);
+
+    if ( match )
+	match = checkXftFont( match, familyName, sample );
+
+    *exact = TRUE;
+
+    if (match)
+    	return match;
+
+    *exact = FALSE;
+
+    // try font substitutions
+    QStringList list = QFont::substitutes(request.family);
+    QStringList::Iterator sit = list.begin();
+
+    while (sit != list.end() && ! match) {
+	familyName = *sit++;
+
+	if (request.family != familyName) {
+	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
+	    match = bestXftPattern(familyName, foundryName, sample, scale);
+
+	    if ( match )
+		match = checkXftFont( match, familyName, sample );
+	}
+    }
+
+    return match;
+}
+
+// finds an XftPattern best matching the familyname, foundryname and other
+// requested pieces of the font
+XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
+					 const QString &foundryName,
+					 const QChar &sample, double *scale) const
+{
+    QCString generic_value;
+    int weight_value;
+    int slant_value;
+    double size_value;
+    int mono_value;
+    const char *sizeFormat;
+
+    weight_value = request.weight;
+    if (weight_value == 0)
+	weight_value = XFT_WEIGHT_MEDIUM;
+    else if (weight_value < (QFont::Light + QFont::Normal) / 2)
+	weight_value = XFT_WEIGHT_LIGHT;
+    else if (weight_value < (QFont::Normal + QFont::DemiBold) / 2)
+	weight_value = XFT_WEIGHT_MEDIUM;
+    else if (weight_value < (QFont::DemiBold + QFont::Bold) / 2)
+	weight_value = XFT_WEIGHT_DEMIBOLD;
+    else if (weight_value < (QFont::Bold + QFont::Black) / 2)
+	weight_value = XFT_WEIGHT_BOLD;
+    else
+	weight_value = XFT_WEIGHT_BLACK;
+
+    if (request.italic)
+	slant_value = XFT_SLANT_ITALIC;
+    else
+	slant_value = XFT_SLANT_ROMAN;
+
+    if ( paintdevice &&
+	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() !=
+	  QPaintDevice::x11AppDpiY( x11Screen )) ) {
+	size_value = pixelSize( request, paintdevice, x11Screen );
+	sizeFormat = XFT_PIXEL_SIZE;
+	//qDebug("requesting scaled font, dpy=%d, pixelsize=%f",
+	// QPaintDeviceMetrics( paintdevice ).logicalDpiY(), size_value);
+    } else if ( request.pointSize != -1 ) {
+	size_value = request.pointSize / 10.;
+	sizeFormat = XFT_SIZE;
+    } else {
+	size_value = request.pixelSize;
+	sizeFormat = XFT_PIXEL_SIZE;
+    }
+    if ( size_value > MAXFONTSIZE ) {
+	*scale = (double)size_value/(double)MAXFONTSIZE;
+	size_value = MAXFONTSIZE;
+    } else {
+	*scale = 1.;
+    }
+
+    mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
+
+    switch (request.styleHint) {
+    case QFont::SansSerif:
+    default:
+	generic_value = "sans";
+	break;
+    case QFont::Serif:
+	generic_value = "serif";
+	break;
+    case QFont::TypeWriter:
+	generic_value = "mono";
+	mono_value = XFT_MONO;
+	break;
+    }
+
+    XftResult res;
+    XftPattern *pattern = 0, *result = 0;
+
+    pattern = XftPatternCreate();
+    if ( ! pattern ) return 0;
+
+#ifndef QT_XFT2
+    XftPatternAddString (pattern, XFT_ENCODING, "iso10646-1");
+#endif
+    if (! foundryName.isNull())
+	XftPatternAddString (pattern, XFT_FOUNDRY, foundryName.latin1());
+    if (! familyName.isNull())
+	XftPatternAddString (pattern, XFT_FAMILY, familyName.latin1());
+    XftPatternAddString (pattern, XFT_FAMILY, generic_value.data());
+
+    if (mono_value >= XFT_MONO)
+ 	XftPatternAddInteger (pattern, XFT_SPACING, mono_value);
+
+    XftPatternAddInteger (pattern, XFT_WEIGHT, weight_value);
+    XftPatternAddInteger (pattern, XFT_SLANT, slant_value);
+    XftPatternAddDouble (pattern, sizeFormat, size_value);
+
+#ifdef QT_XFT2
+    if ( sample.unicode() != 0 ) {
+	FcCharSet *cs = FcCharSetCreate ();
+	FcCharSetAddChar (cs, sample.unicode());
+	FcPatternAddCharSet (pattern, FC_CHARSET, cs);
+	FcCharSetDestroy (cs); // let pattern hold last reference
+    }
+#else
+    Q_UNUSED( sample );
+#endif
+
+    if ( !qt_use_antialiasing || request.styleStrategy & ( QFont::PreferAntialias |
+							   QFont::NoAntialias) ) {
+	bool requestAA;
+	if ( !qt_use_antialiasing || request.styleStrategy & QFont::NoAntialias )
+	    requestAA = FALSE;
+	else
+	    requestAA = TRUE;
+	XftPatternAddBool( pattern, XFT_ANTIALIAS,requestAA );
+    }
+
+    result = XftFontMatch(QPaintDevice::x11AppDisplay(),
+			  x11Screen, pattern, &res);
+    XftPatternDestroy(pattern);
+
+    return result;
+}
+
+#endif // QT_NO_XFTFREETYPE
 
 
 // Scoring constants
@@ -1328,6 +1539,10 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     QTextCodec *codec = 0;
     XFontStruct *xfs = 0;
 
+#ifndef QT_NO_XFTFREETYPE
+    XftFont *xftfs = 0;
+    XftPattern *xftmatch = 0;
+#endif // QT_NO_XFTFREETYPE
 
     QString k(key() + script_table[script].list[script_table[script].index]);
     k += "/scr" + QString::number( x11Screen );
@@ -1349,6 +1564,23 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	QString name;
 	bool match;
 	bool use_core = TRUE;
+
+#ifndef QT_NO_XFTFREETYPE
+	if (qt_has_xft && ! (request.styleStrategy & QFont::PreferBitmap) &&
+            ! request.rawMode ) {
+	    xftmatch = findXftFont(sample, &match, &scale);
+
+	    if (xftmatch) {
+		use_core = FALSE;
+
+		char fn[1024];
+		XftNameUnparse(xftmatch, fn, sizeof(fn));
+		fn[1023] = '\0'; // just in case
+
+		name = fn;
+	    }
+	}
+#endif // QT_NO_XFTFREETYPE
 
 	if (use_core) {
 	    if (request.rawMode) {
@@ -1417,6 +1649,32 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	return;
     }
+
+#ifndef QT_NO_XFTFREETYPE
+    // with XftFreeType support - we always load a font using Unicode, so we never
+    // need a codec
+
+    if (! qxfn->useCore) {
+	if (! xftmatch) {
+	    XftResult res;
+	    xftmatch = XftNameParse(qxfn->name.data());
+	    xftmatch = XftFontMatch(QPaintDevice::x11AppDisplay(),
+				    x11Screen, xftmatch, &res);
+	}
+
+#ifdef QFONTLOADER_DEBUG
+	qDebug("QFontLoader: loading xft font '%s'", fontname.data());
+#endif
+
+	// We pass a duplicate to XftFontOpenPattern because either xft font
+	// will own the pattern after the call or the pattern will be
+	// destroyed.
+	XftPattern *dup = XftPatternDuplicate( xftmatch );
+	xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), dup);
+    } else if ( xftmatch ) {
+	qFatal( "this should not happen" );
+    }
+#endif // QT_NO_XFTFREETYPE
 
     if (qxfn->useCore) {
 	// if we have no way to map this script, we give up
@@ -1507,7 +1765,17 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	}
 	cost = ((xfs->max_bounds.ascent + xfs->max_bounds.descent) *
 		(xfs->max_bounds.width * cost / 8));
+	// ### fix cmap index
+	qfs = new FontEngineXLFD( xfs, fontname, codec, 0);
     }
+#ifndef QT_NO_XFTFREETYPE
+    else if (xftfs) {
+	cost = ((xftfs->ascent + xftfs->descent) *
+		(xftfs->max_advance_width * 256 / 8));
+	// ## fix cmap index
+	qfs = new FontEngineXft( xftfs, xftmatch,  0 );
+    }
+#endif // QT_NO_XFTFREETYPE
     else {
 	// couldn't load the font...
 	x11data.fontstruct[script] = (FontEngineIface *) -1;
@@ -1516,8 +1784,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	return;
     }
 
-    // ### fix index
-    qfs = new FontEngineXLFD( xfs, fontname, codec, 0);
     x11data.fontstruct[script] = qfs;
 
 //     initFontInfo(script, scale);
@@ -1601,6 +1867,17 @@ void QFont::initialize()
     }
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
+
+#ifndef QT_NO_XFTFREETYPE
+    qt_has_xft = FALSE;
+
+    if (qt_use_xrender &&
+	XftInit(0) && XftInitFtLibrary()) {
+	QSettings settings;
+	qt_has_xft = settings.readBoolEntry( "/qt/enableXft", TRUE );
+	qt_use_antialiasing = QSettings().readBoolEntry( "/qt/useXft", TRUE );
+    }
+#endif // QT_NO_XFTFREETYPE
 
 #if 0
     QTextCodec *codec = QTextCodec::codecForLocale();
