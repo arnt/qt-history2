@@ -105,22 +105,26 @@ static QStringList split_arg_list(const QString &params)
 
 static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE)
 {
-    int last = 0;
+    QString build;
     QStringList ret;
     QValueStack<QChar> quote;
     for(int x = 0; x < (int)vals.length(); x++) {
-	if(!quote.isEmpty() && vals[x] == quote.top()) {
+	if(x != vals.length()-1 && vals[x] == '\\' && (vals[x+1] == '\'' || vals[x+1] == '"'))
+	    build += vals[x++]; //get that 'escape'
+	else if(!quote.isEmpty() && vals[x] == quote.top())
 	    quote.pop();
-	} else if(vals[x] == '\'' || vals[x] == '"') {
+	else if(vals[x] == '\'' || vals[x] == '"') 
 	    quote.push(vals[x]);
-	} else if(quote.isEmpty() &&
-		  ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
-	    ret << vals.mid(last, x - last);
-	    last = x+1;
+
+	if(quote.isEmpty() && ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
+	    ret << build;
+	    build = "";
+	} else {
+	    build += vals[x];
 	}
     }
-    if(last != (int)vals.length())
-	ret << vals.mid(last);
+    if(!build.isEmpty()) 
+	ret << build;
     return ret;
 }
 
