@@ -1910,11 +1910,25 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int iconWidth = 0;
 
     if ( icon ) {
-	iconWidth = icon->width() + listView()->itemMargin();
-	int x = r;
+        iconWidth = icon->width() + lv->itemMargin();
+	int xo = r;
+	// we default to AlignVCenter.
+	int yo = ( height() - icon->height() ) / 2;
+	
+	// I guess we may as well always respect vertical alignment.
+        if ( align & AlignBottom )
+    	    yo = height() - icon->height();
+
+	// respect horizontal alignment when there is no text for an item.
+	if ( text(column).isEmpty() ) {
+	    if ( align & AlignRight )
+		xo = width - 2 * marg - iconWidth;
+	    else if ( align & AlignHCenter )
+		xo = ( width - iconWidth ) / 2;	    
+	}	
 	if ( reverse )
-	    x = width - 2*marg - iconWidth;
-	p->drawPixmap( x, (height()-icon->height())/2, *icon );
+		xo = width - 2 * marg - iconWidth;
+	p->drawPixmap( xo, yo, *icon );
     }
 
     if ( !t.isEmpty() ) {
