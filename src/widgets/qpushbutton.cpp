@@ -524,7 +524,7 @@ void QPushButton::drawButton( QPainter *paint )
     style().drawPushButton(this, paint);
     drawButtonLabel( paint );
     int x1, y1, x2, y2;
-    style().buttonRect( 0,0,width(),height()).coords( &x1, &y1, &x2, &y2 );	// get coordinates
+    style().buttonRect( diw,diw,width()-2*diw,height()-2*diw).coords( &x1, &y1, &x2, &y2 );	// get coordinates
     if ( hasFocus() ) {
  	QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
  	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
