@@ -97,6 +97,7 @@
 #include <qstack.h>
 #include <qstringlist.h>
 #include <qvarlengtharray.h>
+#include <qdebug.h>
 #include "qurl.h"
 
 #if defined QT3_SUPPORT
@@ -2876,4 +2877,13 @@ QDataStream &operator>>(QDataStream &in, QUrl &url)
     url = QUrl::fromEncoded(u);
     return in;
 }
+
+#ifndef QT_NO_DEBUG_OUTPUT
+QDebug operator<<(QDebug d, const QUrl &url)
+{
+    d.maybeSpace() << "QUrl(" << url.toString() << ")";
+    return d.space();
+}
+#endif
+
 #endif
