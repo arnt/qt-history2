@@ -38,6 +38,7 @@ contains(QT_CONFIG, largefile):CONFIG += largefile
 #mac frameworks
 mac:!static:contains(QT_CONFIG, qt_framework) {
    !debug_and_release|build_pass {
+      CONFIG(debug, debug|release):CONFIG += build_all
       QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
       CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
       CONFIG -= qt_install_headers #no need to install these as well
