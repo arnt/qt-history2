@@ -3703,6 +3703,7 @@ static const KeySym KeyTbl[] = {		// keyboard mapping table
     XK_Hyper_R,		Qt::Key_Hyper_R,
     0x0000FF65,		Qt::Key_Undo,		// hardcoded Sun Undo
     0x0000FF66,		Qt::Key_Redo,		// hardcoded Sun Again
+    0x0000FF68,		Qt::Key_Find,		// hardcoded Sun Find
     0x0000FF69,		Qt::Key_Cancel,		// hardcoded Sun Stop
     0x1005FF72,		Qt::Key_Copy,		// hardcoded Sun Copy
     0x1005FF74,		Qt::Key_Paste,		// hardcoded Sun Paste

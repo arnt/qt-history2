@@ -290,10 +290,11 @@ public:
 	Key_Hyper_R = 0x1057,
 	Key_Undo = 0x1058,		// only on Sun
 	Key_Redo = 0x1059,		// only on Sun
-	Key_Cancel = 0x1060,		// only on Sun
-	Key_Copy = 0x1061,		// only on Sun
-	Key_Paste = 0x1062,		// only on Sun
-	Key_Cut = 0x1063,		// only on Sun
+	Key_Find = 0x1060,		// only on Sun
+	Key_Cancel = 0x1061,		// only on Sun
+	Key_Copy = 0x1062,		// only on Sun
+	Key_Paste = 0x1063,		// only on Sun
+	Key_Cut = 0x1064,		// only on Sun
 	Key_Space = 0x20,		// 7 bit printable ASCII
 	Key_Any = Key_Space,
 	Key_Exclam = 0x21,
