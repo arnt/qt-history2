@@ -383,6 +383,8 @@ QString QDir::convertSeparators( const QString &pathName )
 	if ( n[i] == '/' )
 	    n[i] = ':';
     }
+    if(n.contains(':') && n.left(1) != ':')
+        n.prepend(':');
 #endif
     return n;
 }
