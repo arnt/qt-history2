@@ -5021,7 +5021,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
                     int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
                                 ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
                                 ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
-                    img_mask.setPixel(x, y, diff < 100);
+                    img_mask.setPixel(x, y, diff > 100);
                 }
             }
             QBitmap qmask;
