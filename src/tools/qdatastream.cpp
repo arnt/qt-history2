@@ -215,10 +215,11 @@
 static int  systemWordSize = 0;
 static bool systemBigEndian;
 
-static const int DefaultStreamVersion = 5;
-// ### On next version bump, QPen::width() should not be restricted to 8-bit values.
-// ### On next version bump, when streaming invalid QVariants, just the type should
+static const int DefaultStreamVersion = 6;
+// ### 4.0: QPen::width() should not be restricted to 8-bit values.
+// ### 4.0: when streaming invalid QVariants, just the type should
 // be written, no "data" after it
+// 6 is default in Qt 4.0
 // 5 is default in Qt 3.1
 // 4 is default in Qt 3.0
 // 3 is default in Qt 2.1
@@ -631,9 +632,21 @@ QDataStream &QDataStream::operator>>( Q_INT64 &i )
     if ( printable ) {				// printable data
 	i = read_int_ascii( this );
     } else {
-	Q_UINT32 i1, i2;
-	*this >> i2 >> i1;
-	i = ((Q_UINT64)i1 << 32) + i2;
+	if ( version() < 6 ) {
+	    Q_UINT32 i1, i2;
+	    *this >> i2 >> i1;
+	    i = ((Q_UINT64)i1 << 32) + i2;
+	} else {
+	    if ( noswap ) {			// no conversion needed
+		dev->readBlock( (char *)&i, 8 );
+	    } else {				// swap bytes
+		uchar *p = (uchar *)(&i);
+		char b[8];
+		dev->readBlock( b, 8 );
+		for ( int j = 7; j >= 0; j-- )
+		    *p++ = b[j];
+	    }
+	}
     }
     return *this;
 }
@@ -950,9 +963,21 @@ QDataStream &QDataStream::operator<<( Q_INT64 i )
 #endif
 	dev->writeBlock( buf, strlen(buf) );
     } else {
-	Q_UINT32 i1 = i & 0xffffffff;
-	Q_UINT32 i2 = i >> 32;
-	*this << i1 << i2;
+	if ( version() < 6 ) {
+	    Q_UINT32 i1 = i & 0xffffffff;
+	    Q_UINT32 i2 = i >> 32;
+	    *this << i1 << i2;
+	} else {
+	    if ( noswap ) {			// no conversion needed
+		dev->writeBlock( (char *)&i, 8 );
+	    } else {				// swap bytes
+		register uchar *p = (uchar *)(&i);
+		char b[8];
+		for ( int j = 7; j >= 0; j-- )
+		    b[j] = *p++;
+		dev->writeBlock( b, 8 );
+	    }
+	}
     }
     return *this;
 }
