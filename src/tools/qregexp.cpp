@@ -3138,7 +3138,7 @@ struct QRegExpPrivate
 };
 
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
-static QCache<QString,QRegExpEngine*> engineCache;
+static QCache<QString, QRegExpEngine> engineCache;
 #endif
 
 static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
@@ -3147,9 +3147,9 @@ static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
 #if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD) || defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
     engineCache.ensure_constructed();
 #else
-    static QThreadStorage<QCache<QString, QRegExpEngine *> > engineCaches;
+    static QThreadStorage<QCache<QString, QRegExpEngine> > engineCaches;
     engineCaches.ensure_constructed();
-    QCache<QString, QRegExpEngine *> &engineCache = engineCaches.localData();
+    QCache<QString, QRegExpEngine> &engineCache = engineCaches.localData();
 #endif
 
     if (!deref) {

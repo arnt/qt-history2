@@ -19,19 +19,17 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-
 class Q_GUI_EXPORT QPixmapCache				// global pixmap cache
 {
 public:
-    static  int  cacheLimit();
-    static  void setCacheLimit( int );
-    static  QPixmap *find( const QString &key );
-    static  bool find( const QString &key, QPixmap& );
-    static  bool insert( const QString &key, QPixmap * );
-    static  bool insert( const QString &key, const QPixmap& );
-    static  void remove( const QString &key );
-    static  void clear();
+    static int cacheLimit();
+    static void setCacheLimit(int);
+    static QPixmap *find(const QString &key);
+    static bool find( const QString &key, QPixmap& );
+    static bool insert( const QString &key, QPixmap * );
+    static void insert( const QString &key, const QPixmap& );
+    static void remove( const QString &key );
+    static void clear();
 };
-
 
 #endif // QPIXMAPCACHE_H
