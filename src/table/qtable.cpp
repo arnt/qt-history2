@@ -6458,8 +6458,10 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 	     orientation() == Vertical && r. bottom() >= e->rect().bottom() )
 	    return;
     }
-    if ( !reg.isEmpty() )
-	erase( reg );
+    if ( !reg.isEmpty() ) {
+	p.setClipRegion(reg);
+	p.eraseRect(reg.boundingRect());
+    }
 }
 
 /*!

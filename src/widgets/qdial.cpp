@@ -240,6 +240,11 @@ void QDial::repaintScreen( const QRect *cr )
 
     bool resetClipping = FALSE;
 
+    QRect br( calcDial() );
+    QRect te = br;
+    te.setWidth(te.width()+2);
+    te.setHeight(te.height()+2);
+
     // calculate clip-region for erasing background
     if ( cr ) {
 	p.setClipRect( *cr );
@@ -249,36 +254,14 @@ void QDial::repaintScreen( const QRect *cr )
 	reg = reg.subtract( calcArrow( a ) );
 	p.setClipRegion( reg );
 	resetClipping = TRUE;
+    } else if (d->onlyOutside) {
+	QRegion eraseReg(0, 0, width(), height());
+	eraseReg = eraseReg.subtract(QRegion(te, QRegion::Ellipse));
+	p.setClipRegion(eraseReg);
+	resetClipping = TRUE;
     }
 
-    QRect br( calcDial() );
-    p.setPen( NoPen );
-    // if ( style() == MotifStyle )
-    // p.setBrush( palette().brush( QPalette::Mid ) );
-    // else {
-    QBrush b;
-    if ( palette().brush( QPalette::Light ).pixmap() )
-	b = QBrush( palette().brush( QPalette::Light ) );
-    else
-	b = QBrush( palette().light(), Dense4Pattern );
-    p.setBrush( b );
-    p.setBackgroundMode( OpaqueMode );
-    // }
-
-    QRect te = br;
-    te.setWidth(te.width()+2);
-    te.setHeight(te.height()+2);
-    // erase background of dial
-    if ( !d->onlyOutside ) {
-	p.drawEllipse( te );
-    }
-
-    // erase remaining space around the dial
-    QRegion remaining( 0, 0, width(), height() );
-    remaining = remaining.subtract( QRegion( te, QRegion::Ellipse ) );
-    if ( p.hasClipping() )
-	remaining = remaining.intersect( p.clipRegion() );
-    erase(remaining);
+    p.eraseRect(te);
 
     if ( resetClipping ) {
 	if ( cr )

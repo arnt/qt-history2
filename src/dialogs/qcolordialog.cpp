@@ -732,7 +732,7 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
     QPointArray a;
     int y = val2y(val);
     a.setPoints( 3, w, y, w+5, y+5, w+5, y-5 );
-    erase( w, 0, 5, height() );
+    p.eraseRect( w, 0, 5, height() );
     p.drawPolygon( a );
 }
 
