@@ -103,7 +103,7 @@ for %%c in ( minimal small medium large full ) do (
 echo No such configuration: %QCONFIG%
 set HELP=yes
 :foundconfig
-set QMAKE_CONFIG=%QMAKE_CONFIG% %QMAKE_CONFIGTMP%
+set QMAKE_CONFIG=%QMAKE_CONFIG% %QMAKE_CONFIG_TMP%
 
 rem **************************************
 rem   Display help text if needed
