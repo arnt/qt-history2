@@ -97,7 +97,7 @@ void ListViewContainer::updateScrollers()
                                                                 - list->spacing()*2);
         if(needTop)
             top->show();
-        else 
+        else
             top->hide();
         if(needBottom)
             bottom->show();
@@ -439,9 +439,9 @@ void QComboBoxPrivate::init()
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
-    if (q->style().styleHint(QStyle::SH_ComboBox_Popup)) 
+    if (q->style().styleHint(QStyle::SH_ComboBox_Popup))
         delegate = new MenuDelegate(q);
-    else 
+    else
         delegate = new QItemDelegate(q);
     l->setItemDelegate(delegate);
     QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
@@ -1141,7 +1141,7 @@ void QComboBox::popup()
                      + listView()->spacing();
     QRect listRect(rect());
     listRect.setHeight(itemHeight * qMin(d->sizeLimit, model()->rowCount(root()))
-                       + listView()->spacing()*2);
+                       + 2*listView()->spacing() + 2);
 
     // make sure the widget fits on screen
     //### do horizontally as well
