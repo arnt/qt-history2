@@ -244,7 +244,7 @@ QFile::~QFile()
 QString
 QFile::fileName() const
 {
-    return d->fileName;
+    return fileEngine()->fileName(QFileEngine::DefaultName);
 }
 
 /*!

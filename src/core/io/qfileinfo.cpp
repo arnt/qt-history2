@@ -535,7 +535,7 @@ QFileInfo::filePath() const
 {
     if(!d->data->fileEngine)
         return QLatin1String("");
-    return d->data->fileName;
+    return d->data->fileEngine->fileName(QFileEngine::DefaultName);
 }
 
 /*!
