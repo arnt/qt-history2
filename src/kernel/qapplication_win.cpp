@@ -2170,9 +2170,9 @@ Q_EXPORT void qt_enter_modal( QWidget *widget )
 	Q_CHECK_PTR( qt_modal_stack );
     }
     releaseAutoCapture();
+    qt_dispatchEnterLeave( 0, QWidget::find((WId)curWin));
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin  ) ); // send synthetic leave event
     curWin = 0;
     qt_button_down = 0;
     ignoreNextMouseReleaseEvent = FALSE;
