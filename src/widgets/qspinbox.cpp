@@ -48,7 +48,9 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 class QSpinBoxPrivate
 {

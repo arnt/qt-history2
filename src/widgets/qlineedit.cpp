@@ -52,7 +52,9 @@
 #include <ctype.h>
 #include "../kernel/qrichtext_p.h"
 #include "../kernel/qinternal_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };

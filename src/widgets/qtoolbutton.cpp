@@ -51,7 +51,9 @@
 #include "qtimer.h"
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 static QToolButton * threeDeeButton = 0;
 

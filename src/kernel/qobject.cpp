@@ -53,7 +53,6 @@
 #include "qcursor.h"
 #include "qdatetime.h"
 #include "qucom.h"
-#include "qaccessible.h"
 
 class QObjectPrivate
 {
@@ -1830,6 +1829,9 @@ void QObject::cleanupEventFilter()
 }
 
 /*!
+  \internal
+  ###
+
   This signal is emitted when an object's accessibility information is
   changed.
 
@@ -1852,6 +1854,9 @@ void QObject::accessibilityChanged( int reason )
 }
 
 /*!
+  \internal
+  ###
+
   This slot is connected to the accessibilityChanged() signal and
   notifies the platform dependent accessibility system of the change.
 */
@@ -1869,6 +1874,9 @@ void QObject::notifyAccessibility( int reason )
 }
 
 /*!
+  \internal
+  ###
+
   Reimplement this function for QObject subclasses that are accessible,
   and return a new object that implements the QAccessibleInterface. Do
   not call \link QUnknownInterface::addRef() addRef() \endlink on the 

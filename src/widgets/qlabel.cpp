@@ -49,8 +49,9 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 #include "qlineedit.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
-
+#endif
 
 class QLabelPrivate
 {

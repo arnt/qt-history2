@@ -51,7 +51,9 @@
 #include "qguardedptr.h"
 #include "qeffects_p.h"
 #include "qcursor.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 #include <ctype.h>
 
 //#define ANIMATED_POPUP

@@ -42,7 +42,9 @@
 #include "qpainter.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 #if defined(Q_WS_X11)
 #include "qt_x11.h"

@@ -45,7 +45,9 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qsizegrip.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 // REVISED: warwick
 /*!

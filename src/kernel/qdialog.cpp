@@ -47,7 +47,9 @@
 #include "qsizegrip.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qpopupmenu.h" // ######## dependency
-#include "qaccessiblewidget.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h" // ######## dependency
+#endif
 
 
 // REVISED: arnt

@@ -44,7 +44,9 @@
 #include "qcolor.h"
 #include "qapplication.h"
 #include "qregion.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 #include <math.h> // sin(), cos(), atan()
 //### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!

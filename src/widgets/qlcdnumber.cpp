@@ -39,7 +39,9 @@
 #ifndef QT_NO_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 
 // NOT REVISED

@@ -46,7 +46,9 @@
 #include "qobjectlist.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 // REVISED: arnt
 /*!

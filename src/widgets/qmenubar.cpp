@@ -52,7 +52,9 @@
 #include "qcleanuphandler.h"
 #include <ctype.h>
 #include "../kernel/qinternal_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp

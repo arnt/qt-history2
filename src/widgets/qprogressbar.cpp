@@ -41,7 +41,9 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qpixmap.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 #include <limits.h>
 
 /*!

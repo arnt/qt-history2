@@ -45,7 +45,9 @@
 #include "qbitmap.h"
 #include "qtextstream.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 /*!
   \class QRadioButton qradiobutton.h

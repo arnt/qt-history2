@@ -41,7 +41,9 @@
 #include "qdrawutil.h"
 #include "qframe.h"
 #include "qbitmap.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 // REVISED: warwick
 /*!

@@ -53,7 +53,9 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qwidgetlist.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 static const char * arrow_v_xpm[] = {
     "7 9 3 1",

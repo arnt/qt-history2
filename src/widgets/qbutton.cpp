@@ -46,9 +46,12 @@
 #include "qapplication.h"
 #include "qpushbutton.h"
 #include "qcleanuphandler.h"
-#include "qaccessible.h"
 #include "../kernel/qinternal_p.h"
 #include <ctype.h>
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#include "qaccessiblewidget.h"
+#endif
 
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;

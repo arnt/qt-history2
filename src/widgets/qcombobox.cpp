@@ -50,7 +50,9 @@
 #include "qeffects_p.h"
 #include "qstringlist.h"
 #include "qcombobox.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 #include <limits.h>
 
 // NOT REVISED

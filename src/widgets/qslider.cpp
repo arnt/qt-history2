@@ -42,7 +42,9 @@
 #include "qtimer.h"
 #include "qbitmap.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;

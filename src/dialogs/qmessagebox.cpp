@@ -43,7 +43,9 @@
 #include "qpushbutton.h"
 #include "qimage.h"
 #include "qapplication.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 // Message box icons, from page 210 of the Windows style guide.
 

@@ -41,7 +41,9 @@
 #include "qguardedptr.h"
 #include "qtimer.h"
 #include "qeffects_p.h"
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
+#endif
 
 static bool globally_enabled = TRUE;
 
