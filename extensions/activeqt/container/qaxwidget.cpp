@@ -325,6 +325,8 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 			    eaten = !site->inPlaceObject()->TranslateAccelerator( msg );
 			if ( !eaten )
 			    SendMessage( host->winId(), message, msg->wParam, msg->lParam );
+			else  if ( nCode >= 0 )
+			    return 0;
 		    }
 		} else {
 		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
