@@ -17,7 +17,7 @@ public:
 	ptr = (T*)array;
 	if (s > prealloc)
 	    ptr = (T *) malloc(s * sizeof(T));
-	if (Q_TYPEINFO_COMPLEX(T)) {
+	if (QTypeInfo<T>::isComplex) {
 	    T* b = ptr;
 	    T* i = ptr + s;
 	    while (i != b)
@@ -25,7 +25,7 @@ public:
 	}
     }
     inline ~QStackArray() {
-	if (Q_TYPEINFO_COMPLEX(T)) {
+	if (QTypeInfo<T>::isComplex) {
 	    T *i = ptr + s;
 	    while (i-- != ptr)
 		i->~T();
@@ -77,7 +77,7 @@ void QStackArray<T, prealloc>::realloc(int size, int alloc)
 
     int osize = s;
     s = size;
-    if (Q_TYPEINFO_COMPLEX(T)) {
+    if (QTypeInfo<T>::isComplex) {
 	if (size < osize) {
 	    i = oldPtr + osize;
 	    j = oldPtr + size;
@@ -99,7 +99,7 @@ void QStackArray<T, prealloc>::realloc(int size, int alloc)
 	    qMemCopy(ptr, oldPtr, osize*sizeof(T));
     }
     if (ptr != oldPtr) {
-	if (Q_TYPEINFO_COMPLEX(T)) {
+	if (QTypeInfo<T>::isComplex) {
 	    i = oldPtr + osize;
 	    while (i-- != oldPtr)
 		i->~T();
