@@ -4524,7 +4524,7 @@ bool QWidget::event( QEvent *e )
 		type = QEvent::ShowMaximized;
 	    else
 		type = QEvent::ShowNormal;
-	    QApplication::postEvent(this, new QEvent(type));
+	    QApplication::sendEvent(this, new QEvent(type));
 	    break;
 	}
 
