@@ -35,6 +35,7 @@ class QWorkspaceChild;
 class QWorkspaceData;
 class QShowEvent;
 
+
 class Q_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
@@ -48,11 +49,10 @@ public:
 signals:
     void clientActivated( QWidget* w);
 
-    
 public slots:
     void cascade();
     void tile();
-    
+
 protected:
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
@@ -79,15 +79,17 @@ private:
     void showMaximizeControls();
     void hideMaximizeControls();
     void layoutIcons();
-    QWorkspaceData* d;
     void activateClient( QWidget* w, bool change_focus = TRUE );
     void showClient( QWidget* w);
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);
     void normalizeClient( QWidget* w);
+
     QPopupMenu* popup;
+    QWorkspaceData* d;
+
     friend QWorkspaceChild;
-
-
 };
-#endif
+
+
+#endif // QWORKSPACE_H

@@ -1610,9 +1610,10 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
 
 
 /*!
-  Returns the top-level widget for this widget, i.e. the parent widget
-  that provides the overlapping window.
-
+  Returns the top-level widget for this widget, i.e. the grandparent
+  widget that has a window-system frame (or at least may have one) and
+  has no parent widget inside this application.
+  
   \sa isTopLevel()
 */
 
@@ -1661,7 +1662,7 @@ QWidget *QWidget::topLevelWidget() const
   desktop color scheme has been changed.  (On X11, a quick way to test
   is e.g. "./yourapp -bg paleblue".  On Windows, you have to use the
   control panel.)
-  
+
   \sa setPalette(), QApplication::setPalette(), backgroundColor(),
       setBackgroundPixmap(), setBackgroundMode()
 */
@@ -1688,7 +1689,7 @@ void QWidget::setBackgroundColor( const QColor &color )
   desktop color scheme has been changed.  (On X11, a quick way to test
   is e.g. "./yourapp -bg paleblue".  On Windows, you have to use the
   control panel.)
-  
+
   \sa setBackgroundMode(), backgroundPixmap(), backgroundPixmapChange(),
   setBackgroundColor()
 */
@@ -1875,7 +1876,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
   If there is a background pixmap (set using setBackgroundPixmap()),
   then the return value of this function is indeterminate.
-  
+
   \sa setBackgroundColor(), foregroundColor(), colorGroup(), palette()
 */
 
@@ -1919,7 +1920,7 @@ void QWidget::backgroundColorChange( const QColor & )
   has backgroundMode() NoBackground, the return value is a pixmap for
   which QPixmao:isNull() is true.  If the widget has no pixmap is the
   background, the return value is a null pointer.
-  
+
   \sa setBackgroundPixmap(), setBackgroundMode()
 */
 
@@ -2203,7 +2204,7 @@ const QCursor &QWidget::cursor() const
 /*!
   Returns the widget caption.  If no caption has been set (common for
   child widgets), this functions returns a null string.
-  
+
   \sa setCaption(), icon(), iconText(), QString::isNull()
 */
 
@@ -2309,16 +2310,11 @@ void QWidget::setFocusProxy( QWidget * w )
     }
 
     if ( w ) {
-	setFocusPolicy( NoFocus );
-	extra->focus_proxy = w;
-	connect( extra->focus_proxy, SIGNAL(destroyed()),
+	setFocusPolicy( w->focusPolicy() );
+	connect( w, SIGNAL(destroyed()),
 		 this, SLOT(focusProxyDestroyed()) );
-    } else {
-	QWidget * pfc = extra->focus_proxy;
-	extra->focus_proxy = 0;
-	if ( pfc )
-	    setFocusPolicy( pfc->focusPolicy() );
     }
+    extra->focus_proxy = w;
 }
 
 
@@ -2394,6 +2390,8 @@ void QWidget::setFocus()
     QFocusData * f = focusData(TRUE);
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
+
+    // ### why do we do this twice?
 
     f->it.toFirst();
     while ( f->it.current() != this && !f->it.atLast() )
@@ -3887,18 +3885,15 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus received) for the widget.
 
-  A widget must \link setFocusPolicy() accept focus\endlink initially in
-  order to receive focus events.
+  A widget normally must setFocusPolicy() to something other than
+  NoFocus in order to receive focus events.  (Note that the
+  application programmer can call setFocus() on any widget, even those
+  that do not normally accept focus.)
 
-  The default implementation calls repaint() since the widget's \link
-  QColorGroup color group\endlink changes from normal to active. It
-  also calls setMicroFocusHint(), hinting any system-specific input
-  tools about the focus of the user's attention.
-
-  As a special case to support applications not utilizing focus,
-  \link isTopLevel() Top-level widgets \endlink that have
-  \link focusPolicy() NoFocus policy\endlink will receive focus events and
-  gain keyboard events, but the repaint is not done by default.
+  The default implementation calls repaint() since the widget's
+  colorGroup() changes from normal to active, so the widget probably
+  needs repainting.  It also calls setMicroFocusHint(), hinting any
+  system-specific input tools about the focus of the user's attention.
 
   \sa focusOutEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -3918,12 +3913,15 @@ void QWidget::focusInEvent( QFocusEvent * )
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus lost) for the widget.
 
-  A widget must \link setFocusPolicy() accept focus\endlink initially in
-  order to receive focus events.
+  A widget normally must setFocusPolicy() to something other than
+  NoFocus in order to receive focus events.  (Note that the
+  application programmer can call setFocus() on any widget, even those
+  that do not normally accept focus.)
 
-  The default implementation calls repaint( visibleRect() ) since the
-  widget's \link QColorGroup color group\endlink changes from active
-  to normal.
+  The default implementation calls repaint() since the widget's
+  colorGroup() changes from active to normal, so the widget probably
+  needs repainting.  It also calls setMicroFocusHint(), hinting any
+  system-specific input tools about the focus of the user's attention.
 
   \sa focusInEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -4495,22 +4493,21 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 /*!
   Shows the widget in full-screen mode.
 
-  Calling this function has no effect for other than \link isTopLevel()
-  top-level widgets\endlink.
+  Calling this function has no effect for other than top-level
+  widgets.
 
-  To return from full-screen mode, call showNormal()
+  To return from full-screen mode, call showNormal().
 
   Full-screen mode works fine under Windows, but has certain problems
-  under X. These problems are due to limiations of the ICCCM protocol
-  (Inter-Client Communication Conventions Manual) that specifies the
-  communication between X11 clients and the window manager.
-  Bascially, window managers do not handle full-screen windows at
-  all. This results in all kind of strange effects, depending on the
-  individual window manager. In theory, simply showing a window
-  full-screen should be safe and work fine as long as nothing else
-  happens. When showing an additional dialog window and/or the
-  full-screen window looses focus for one or another reason, you are
-  very likely in trouble.
+  under X.  These problems are due to limitations of the ICCCM
+  protocol that specifies the communication between X11 clients and
+  the window manager.  The ICCCM says that window managers have
+  nothing to do with full-screen windows, so you may get various
+  strange effects, depending on the individual window manager.
+  Showing a window full-screen should be safe and work fine as long as
+  nothing else happens.  When you also show additional dialog window
+  and/or the full-screen window looses focus, you are very likely in
+  trouble.
 
   Future window managers that follow modern post-ICCCM specifications
   may support full-screen mode properly.

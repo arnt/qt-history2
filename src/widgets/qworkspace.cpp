@@ -296,7 +296,8 @@ class Q_EXPORT QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 public:
-    QWorkspaceChild( QWidget* client, QWorkspace *parent=0, const char *name=0 );
+    QWorkspaceChild( QWidget* client,
+		     QWorkspace *parent=0, const char *name=0 );
     ~QWorkspaceChild();
 
     void setActive( bool );
@@ -314,7 +315,7 @@ signals:
     void showOperationMenu();
     void popupOperationMenu( const QPoint& );
 
- public slots:
+public slots:
     void activate();
     void showMinimized();
     void showMaximized();
@@ -333,10 +334,14 @@ protected:
     bool eventFilter( QObject *, QEvent * );
 
 private:
-    QWidget* clientw;
+    QWidget * clientw;
+    QWidget * lastfocusw;
     bool buttonDown;
     enum MousePosition {
-	Nowhere, TopLeft , BottomRight, BottomLeft, TopRight, Top, Bottom, Left, Right, Center
+	Nowhere,
+	TopLeft, BottomRight, BottomLeft, TopRight,
+	Top, Bottom, Left, Right,
+	Center
     };
     MousePosition mode;
     bool moveResizeMode;
@@ -380,89 +385,49 @@ public:
 /*!
   \class QWorkspace qworkspace.h
 
-  \brief The QWorkspace widget provides a workspace that can contain
-  decorated windows as opposed to frameless child widgets.  QWorkspace
-  makes it easy to implement a multidocument interface (MDI).
+  \brief The QWorkspace widget provides a workspace window that can
+  contain decorated windows, e.g. for MDI.
 
   \ingroup application
 
-  An MDI application has one main window that has a menubar. The
-  central widget of this main window is a workspace. The workspace
-  itself contains zero, one or several document windows, each of which
-  displays a document.
+  An MDI application has one main window with a menu bar.  The central
+  widget of this window is a workspace.  The workspace itself contains
+  zero, one or more document windows, each of which displays a
+  document.
 
-  The menubar and the toolbars act as a roadmap to the
-  application. You get to keep the same map all the time, even if you
-  open three different documents in three different child windows and
-  switch around among them.
+  The workspace itself is an ordinary Qt widget.  It has a standard
+  constructor that takes a parent widget and an object name.  The
+  parent window is usually a QMainWindow, but it need not be.
 
-  The workspace itself is an ordinary Qt widget. It has a standard
-  constructor that takes a parent widget and an object name.  Document
-  windows, so-called MDI windows, are also ordinary Qt widgets.  They
-  may even be main windows itself, in case your application design
-  requires specific toolbars or statusbars for them. The only special
-  thing about them is that you create them with the workspace as
-  parent widget. The rest of the magic happens behind the scenes. All
-  you have to do is call QWidget::show() or QWidget::showMaximized()
-  (as you would do with normal toplevel windows) and the document
-  window appears as MDI window inside the workspace.
+  Document windows (alias MDI windows) are also ordinary Qt widgets,
+  that have the workspace as parent widget.  When you call show(),
+  hide(), showMaximized(), setCaption(), etc on a document window, it
+  is shown, hidden etc. with a frame, caption, icon and icon text,
+  just as you'd expect.
 
-  In addition to show, QWidget::hide(), QWidget::showMaximized(),
-  QWidget::showNormal(), QWidget::showMinimized() also work as
-  expected for the document windows.
-
-  A document window becomes active when it gets the focus. This can be
-  achieved by calling QWidget::setFocus(). The workspace emits a
-  signal clientActivated() when it detects the activation change.  The
-  active client itself can be obtained with activeClient().
+  A document window becomes active when it gets the keyboard focus.
+  You can activate it using setFocus(), and the user can activate it
+  by moving focus in the normal ways.  The workspace emits a signal
+  clientActivated() when it detects the activation change, and the
+  function activeClient() always returns a pointer to the active
+  document window.
 
   The convenience function clientList() returns a list of all document
-  windows. This is especially useful to create a popup menu "&Windows"
-  on the fly.
+  windows.  This is useful to create a popup menu "&Windows" on the
+  fly, for example.
 
   QWorkspace provides two built-in layout strategies for child
-  windows, cascade() and tile(). Both are slots, so you can easily
-  provide them in the windows menu.
+  windows, cascade() and tile().  Both are slots, so you can easily
+  connect menu entries to them.
 
-  If the user clicks on the frame of an MDI window, this window
-  becomes active, i.e. it gets the focus. For that reason, all direct
-  children of a QWorkspace have to be focus enabled. If your MDI
-  window does not handle focus itself, use QWidget::setFocusProxy() to
-  install a focus-enabled child widget as focus proxy.
+  In case the toplevel window contains a menu bar and a document
+  window is maximized, QWorkspace moves the child window's minimize,
+  restore and close buttons from the document's frame to the workspace
+  window's menu bar, and inserts a window operations menu on the
+  extreme left of the menu bar.
 
-  In case the toplevel window contains a menu bar and a MDI child
-  window is maximized, QWorkspace places the child window's minimize,
-  restore and close buttons on the menubar, in the same relative
-  positions as in the title bar of the child window.  Futhermore, on
-  the very left, the menubar will contain a window operation menu with
-  the child window's icon as label.
-
-  In general, modern GUI applications should be document-centric
-  rather then application-centric. A single document interface (SDI)
-  guarantees a bijective mapping between open documents and open
-  windows on the screen. This makes the model very easy to understand
-  and therefore the natural choice for applications targeted on
-  inexperienced users. Typical examples are modern
-  wordprocessors. Although most wordprocessors were MDI applications
-  in the past, user interface studies showed that many users never
-  really understood the model.
-
-  If an application is supposed to be used mostly by experienced
-  users, a multiple document interface may neverthless make sense.  A
-  typical example is an integrated development environment (IDE). With
-  an IDE, a document is a project. The project itself consists of an
-  arbitrary number of subdocuments, mainly code files but also other
-  data. MDI offers a good possibility to group these subdocuments
-  together in one main window.  The menubar and the toolbars form a
-  stable working context for the users to grasp and it is
-  crystal-clear which subdocuments belong together. Furthermore, the
-  user effort for window management tasks such as positioning,
-  stacking and sizing is significantly reduced.
-
-  An alternative to MDI with QWorkspace is a multipane structure. This
-  can be achived by tiling the main window into separate panes with a
-  \l QSplitter.
-
+  \warning User interface research indicates that most users have
+  problems with MDI applications.  Use this class cautiously.
 */
 
 
@@ -494,29 +459,37 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 		  this, SLOT( closeActiveClient() ) );
 
     QAccel* a = new QAccel( this );
-    a->connectItem( a->insertItem( ALT + Key_Minus), this, SLOT( showOperationMenu() ) );
-    a->connectItem( a->insertItem( ALT + Key_W), this, SLOT( closeActiveClient() ) );
-    a->connectItem( a->insertItem( ALT + Key_F6), this, SLOT( activateNextClient() ) );
-    a->connectItem( a->insertItem( CTRL + Key_Tab), this, SLOT( activateNextClient() ) );
-    a->connectItem( a->insertItem( CTRL +  ALT + Key_Tab), this, SLOT( activateNextClient() ) );
-    a->connectItem( a->insertItem( ALT + SHIFT + Key_F6), this, SLOT( activatePreviousClient() ) );
-    a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab), this, SLOT( activatePreviousClient() ) );
-    a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab), this, SLOT( activatePreviousClient() ) );
+    a->connectItem( a->insertItem( ALT + Key_Minus),
+		    this, SLOT( showOperationMenu() ) );
+    a->connectItem( a->insertItem( ALT + Key_W),
+		    this, SLOT( closeActiveClient() ) );
+    a->connectItem( a->insertItem( ALT + Key_F6),
+		    this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( CTRL + Key_Tab),
+		    this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( CTRL +  ALT + Key_Tab),
+		    this, SLOT( activateNextClient() ) );
+    a->connectItem( a->insertItem( ALT + SHIFT + Key_F6),
+		    this, SLOT( activatePreviousClient() ) );
+    a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
+		    this, SLOT( activatePreviousClient() ) );
+    a->connectItem( a->insertItem( CTRL +  ALT + SHIFT + Key_Tab),
+		    this, SLOT( activatePreviousClient() ) );
 }
 
-/*!
-  Destructor.
- */
+
+/*!  Destroys the object and frees any allocated resources. */
+
 QWorkspace::~QWorkspace()
 {
     delete d;
 }
 
-/*!\reimp
- */
+
+/*! \reimp */
+
 void QWorkspace::childEvent( QChildEvent * e)
 {
-
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
 	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder )
@@ -611,29 +584,30 @@ void QWorkspace::place( QWidget* w)
     d->py += 2*OFFSET;
 
     if (d->px > maxRect.width()/2)
-	d->px =  maxRect.x() + OFFSET;
+	d->px = maxRect.x() + OFFSET;
     if (d->py > maxRect.height()/2)
-	d->py =  maxRect.y() + OFFSET;
+	d->py = maxRect.y() + OFFSET;
     tx = d->px;
     ty = d->py;
     if (tx + w->width() > maxRect.right()){
 	tx = maxRect.right() - w->width();
 	if (tx < 0)
 	    tx = 0;
-	d->px =  maxRect.x();
+	d->px = maxRect.x();
     }
     if (ty + w->height() > maxRect.bottom()){
 	ty = maxRect.bottom() - w->height();
 	if (ty < 0)
 	    ty = 0;
-	d->py =  maxRect.y();
+	d->py = maxRect.y();
     }
     w->move( tx, ty );
 }
 
+
 void QWorkspace::insertIcon( QWidget* w )
 {
-    if (d->icons.contains(w) )
+    if ( !w || d->icons.contains( w ) )
 	return;
     d->icons.append( w );
     if (w->parentWidget() != this )
@@ -644,16 +618,16 @@ void QWorkspace::insertIcon( QWidget* w )
 
 }
 
+
 void QWorkspace::removeIcon( QWidget* w)
 {
-    if (!d->icons.contains( w ) )
+    if ( !d->icons.contains( w ) )
 	return;
     d->icons.remove( w );
     w->hide();
  }
 
-/*!\reimp
- */
+/*! \reimp  */
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
     if ( d->maxClient )
@@ -661,8 +635,7 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     layoutIcons();
 }
 
-/*!\reimp
- */
+/*! \reimp */
 void QWorkspace::showEvent( QShowEvent *e )
 {
     QWidget::showEvent( e );
@@ -772,8 +745,7 @@ QWidgetList QWorkspace::clientList() const
     return clients;
 }
 
-/*!\reimp
- */
+/*!\reimp*/
 bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
     return QWidget::eventFilter( o, e);
@@ -782,7 +754,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 void QWorkspace::showMaximizeControls()
 {
 
-    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0, FALSE, FALSE );
+    QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
+						   FALSE, FALSE );
     QMenuBar * b = 0;
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
@@ -795,50 +768,55 @@ void QWorkspace::showMaximizeControls()
 	d->maxcontrols = new QFrame( topLevelWidget() );
 	if ( !win32 )
 	    d->maxcontrols->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols, d->maxcontrols->frameWidth(), 0 );
+	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
+					  d->maxcontrols->frameWidth(), 0 );
 	QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
 	l->addWidget( iconB );
 	iconB->setFocusPolicy( NoFocus );
 	iconB->setIconSet( QPixmap( minimize_xpm ));
  	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( iconB, SIGNAL( clicked() ), this, SLOT( minimizeActiveClient() ) );
+	connect( iconB, SIGNAL( clicked() ),
+		 this, SLOT( minimizeActiveClient() ) );
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	l->addWidget( restoreB );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( QPixmap( normalize_xpm ));
  	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( restoreB, SIGNAL( clicked() ), this, SLOT( normalizeActiveClient() ) );
-	
+	connect( restoreB, SIGNAL( clicked() ),
+		 this, SLOT( normalizeActiveClient() ) );
+
 	l->addSpacing( 2 );
 	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
 	l->addWidget( closeB );
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( QPixmap( close_xpm ) );
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
-	connect( closeB, SIGNAL( clicked() ), this, SLOT( closeActiveClient() ) );
+	connect( closeB, SIGNAL( clicked() ),
+		 this, SLOT( closeActiveClient() ) );
 
 	if ( !win32 ) {
 	    iconB->setAutoRaise( TRUE );
 	    restoreB->setAutoRaise( TRUE );
 	    closeB->setAutoRaise( TRUE );
 	}
-	
+
 	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2+2*d->maxcontrols->frameWidth(),
-				    BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
+				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
 
     if ( d->controlId == -1 )
 	d->controlId = b->insertItem( d->maxcontrols, -1, b->count() );
     if ( d->active && d->menuId == -1 ) {
-	if ( d->active->clientWidget()->icon() )
+	if ( d->active->clientWidget()->icon() ) {
 	    d->menuId = b->insertItem( *d->active->clientWidget()->icon(), d->popup, -1, 0 );
-	else {
+	} else {
 	    QPixmap pm(10,12);
 	    pm.fill( white );
 	    d->menuId = b->insertItem( pm, d->popup, -1, 0 );
 	}
     }
 }
+
 
 void QWorkspace::hideMaximizeControls()
 {
@@ -899,7 +877,7 @@ void QWorkspace::operationMenuAboutToShow()
 {
     for ( int i = 1; i < 6; i++ )
 	d->popup->setItemEnabled( i, d->active!= 0 );
-	
+
     if ( !d->active )
 	return;
 
@@ -1206,7 +1184,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 
 
 void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
-{
+{ // NOTE: called with 0 pointer
     int bo = ( height()- BUTTON_HEIGHT) / 2;
     closeB->move( width() - BUTTON_WIDTH - bo, bo  );
     maxB->move( closeB->x() - BUTTON_WIDTH - bo, closeB->y() );
@@ -1241,8 +1219,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	    titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 	}
-    }
-    else {
+    } else {
 	if ( imode ){
 	    iconB->hide();
 	    closeB->hide();
@@ -1261,7 +1238,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	}
     }
     if ( imode )
-	resizeEvent(0);
+	resizeEvent( 0 );
 }
 
 bool QWorkspaceChildTitleBar::isActive() const
@@ -1275,14 +1252,6 @@ QSize QWorkspaceChildTitleBar::sizeHint() const
     return QSize( 196, QMAX( TITLEBAR_HEIGHT, fontMetrics().lineSpacing() ) );
 }
 
-class QWorkSpaceChildProtectedWidget : public QWidget
-{
-public:
-    void reasonableFocus() { if ( !isFocusEnabled() )
-	(void) focusNextPrevChild( TRUE );
-    }
-};
-
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
@@ -1294,6 +1263,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     setMouseTracking( TRUE );
     act = FALSE;
     iconw = 0;
+    lastfocusw = 0;
 
     titlebar = new QWorkspaceChildTitleBar( parent, this );
     connect( titlebar, SIGNAL( doActivate() ),
@@ -1369,13 +1339,13 @@ void QWorkspaceChild::activate()
 bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
 
-    if ( !isActive() ) {
-	if ( e->type() == QEvent::MouseButtonPress || e->type() == QEvent::FocusIn ) {
-	    activate();
-	}
-    }
+    if ( !isActive() && ( e->type() == QEvent::MouseButtonPress ||
+			  e->type() == QEvent::FocusIn ) )
+	activate();
 
-    if (o != clientw)
+    // for all widgets except the client, we that's the only thing we
+    // process, and if we have no clientw we skip totally
+    if ( o != clientw || clientw == 0 )
 	return FALSE;
 
     switch ( e->type() ) {
@@ -1397,31 +1367,32 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	break;
     case QEvent::Hide:
 	if ( !clientw->isVisibleTo( this ) ) {
-	    if (iconw) {
-		((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
-		delete iconw->parentWidget();
+	    QWidget * w = iconw;
+	    if ( w )
+		w = w->parentWidget();
+	    if ( w ) {
+		((QWorkspace*)parentWidget())->removeIcon( w );
+		delete w;
 	    }
 	    hide();
 	}
 	break;
-#if QT_VERSION >= 210
     case QEvent::CaptionChange:
 	titlebar->setText( clientw->caption() );
 	break;
     case QEvent::IconChange:
-	if ( clientw->icon() )
+	if ( clientw->icon() ) {
 	    titlebar->setIcon( *clientw->icon() );
-	else {
+	} else {
 	    QPixmap pm;
 	    titlebar->setIcon( pm );
 	}
 	break;
-#endif
     case QEvent::LayoutHint:
 	//layout()->activate();
 	break;
     case QEvent::Resize:
-	{
+	if ( e ) {
 	    QResizeEvent* re = (QResizeEvent*)e;
 	    if ( re->size() != clientSize ){
 		int th = titlebar->sizeHint().height();
@@ -1548,8 +1519,8 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 
 #ifdef _WS_WIN_
     MSG msg;
-    while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
-      ;
+    while(PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ))
+	;
 #endif
     QApplication::syncX();
 }
@@ -1567,41 +1538,61 @@ void QWorkspaceChild::leaveEvent( QEvent * )
 }
 
 
-void QWorkspaceChild::setActive( bool b)
+static bool isChildOf( QWidget * child, QWidget * parent )
 {
-    if ( b == act || !clientw)
-	return;
+    if ( !parent || !child )
+	return FALSE;
+    QWidget * w = child;
+    while( w && w != parent )
+	w = w->parentWidget();
+    return w != 0;
+}
 
+
+void QWorkspaceChild::setActive( bool b )
+{
     act = b;
 
     titlebar->setActive( act );
-    if (iconw )
+    if ( iconw )
 	iconw->setActive( act );
 
-    if (act) {
-	QObjectList* ol = clientw->queryList( "QWidget" );
+    QObjectList* ol = clientw->queryList( "QWidget" );
+    if ( act ) {
 	QObject *o;
 	for ( o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
-	bool hasFocus = FALSE;
-	for ( o = ol->first(); o; o = ol->next() ) {
-	    hasFocus |= ((QWidget*)o)->hasFocus();
-	}
+	bool hasFocus = isChildOf( focusWidget(), clientw );
 	if ( !hasFocus ) {
-	    clientw->setFocus(); // insufficient, need toplevel semantics ########
-	    ( (QWorkSpaceChildProtectedWidget*)clientw)->reasonableFocus();
+	    if ( lastfocusw && ol->contains( lastfocusw ) &&
+		 lastfocusw->focusPolicy() != NoFocus ) {
+		// this is a bug if lastfocusw has been deleted, a new
+		// widget has been created, and the new one is a child
+		// of the same client as the old one.  but even though
+		// it's a bug the behaviour is reasonable :)
+		lastfocusw->setFocus();
+	    } else if ( clientw->focusPolicy() != NoFocus ) {
+		clientw->setFocus();
+	    } else {
+		// find something, anything, that accepts focus, and use that.
+		o = ol->first();
+		while( o && ((QWidget*)o)->focusPolicy() == NoFocus )
+		    o = ol->next();
+		if ( o )
+		    ((QWidget*)o)->setFocus();
+	    }
 	}
-	delete ol;
-
-    }
-    else {
-	QObjectList* ol = clientw->queryList( "QWidget" );
-	for (QObject* o = ol->first(); o; o = ol->next() ) {
+    } else {
+	lastfocusw = 0;
+	if ( isChildOf( focusWidget(), clientw ) )
+	    lastfocusw = focusWidget();
+	QObject * o;
+	for ( o = ol->first(); o; o = ol->next() ) {
 	    o->removeEventFilter( this );
 	    o->installEventFilter( this );
 	}
-	delete ol;
     }
+    delete ol;
 }
 
 bool QWorkspaceChild::isActive() const
@@ -1840,7 +1831,7 @@ void QWorkspaceChild::doMove()
     moveOffset = mapFromGlobal( QCursor::pos() );
     invertedMoveOffset = rect().bottomRight() - moveOffset;
     grabMouse( arrowCursor );
-    grabKeyboard();	
+    grabKeyboard();
 }
 
 #include "qworkspace.moc"
