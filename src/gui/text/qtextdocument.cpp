@@ -54,6 +54,9 @@ bool QText::mightBeRichText(const QString& text)
             }
             ++start;
         }
+
+        while (start < text.length() && text.at(start).isSpace())
+            ++start;
     }
 
     if (text.mid(start, 5).toLower() == QLatin1String("<!doc"))
