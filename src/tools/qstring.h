@@ -52,7 +52,7 @@ class QRegExp;
 class QString;
 class QCharRef;
 
-class Q_EXPORT Q_PACKED QChar {
+class Q_EXPORT QChar {
 public:
     QChar();
     QChar( char c );
@@ -225,7 +225,7 @@ private:
 #endif
     enum { net_ordered = 0 };
 #endif
-};
+} Q_PACKED;
 
 inline QChar::QChar()
 {
