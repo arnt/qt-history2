@@ -39,8 +39,9 @@ QWidget* QWidgetPlugIn::create( const QString& classname, QWidget* parent, const
 
   \sa QPlugInManager
 */
-QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
-: QPlugInManager<QWidgetPlugIn>( path, pol )
+QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, const QString& filter, 
+					   QPlugIn::LibraryPolicy pol, const char* fn  )
+: QPlugInManager<QWidgetPlugIn>( path, filter, pol, fn )
 {
 }
 

@@ -19,7 +19,8 @@ public:
 class QWidgetPlugInManager : public QPlugInManager<QWidgetPlugIn>, public QWidgetFactory
 {
 public:
-    QWidgetPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::Default );
+    QWidgetPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+	QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
 
     QString factoryName() const { return "QWidgetPlugInManager"; }
 

@@ -39,8 +39,9 @@ QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
 
   \sa QPlugInManager
 */
-QActionPlugInManager::QActionPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
-: QPlugInManager<QActionPlugIn>( path, pol )
+QActionPlugInManager::QActionPlugInManager( const QString& path, const QString& filter, 
+					   QPlugIn::LibraryPolicy pol, const char* fn  )
+: QPlugInManager<QActionPlugIn>( path, filter, pol, fn )
 {
 }
 

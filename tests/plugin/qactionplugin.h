@@ -19,7 +19,8 @@ public:
 class QActionPlugInManager : public QPlugInManager<QActionPlugIn>, public QActionFactory
 {
 public:
-    QActionPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::Default );
+    QActionPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+	QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
 
     QString factoryName() const { return "QActionPlugInManager"; }
 

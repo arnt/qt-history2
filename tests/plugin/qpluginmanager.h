@@ -11,14 +11,15 @@ template<class Type>
 class QPlugInManager : private QObject
 {
 public:
-    QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
+    QPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
+	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
 	: QObject( qApp, path ), defPol( pol )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	plugDict.setAutoDelete( FALSE );
 	if ( !path.isEmpty() )
-	    addPlugInPath( path );
+	    addPlugInPath( path, filter );
     }
 
     virtual ~QPlugInManager()
@@ -98,9 +99,19 @@ public:
 	return defPol;
     }
 
-    QPlugIn *plugIn( const QString &className )
+    void setDefaultFunction( const char* fn )
     {
-	return plugDict[className];
+	defFunction = fn;
+    }
+
+    const char* defaultFunction() const
+    {
+	return defFunction;
+    }
+
+    QPlugIn *plugIn( const QString &feature )
+    {
+	return plugDict[feature];
     }
 
     QPlugIn* plugInFromFile( const QString& fileName )
