@@ -1828,8 +1828,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         exceed 65,535 characters.
 
     \o  On Mac OS X, allKeys() will return some extra keys for global
-        settings that apply to \e all applications. These keys can be
-        read using value() but cannot be change, only shadowed.
+        settings that apply to all applications. These keys can be
+        read using value() but cannot be changed, only shadowed.
         Calling setFallbacksEnabled(false) will hide these global
         settings.
 
@@ -1851,8 +1851,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
 /*! \enum QSettings::Format
 
-    This enum type specifies the storage format used by QCoreSettings
-    and QSettings.
+    This enum type specifies the storage format used by QSettings.
 
     \value NativeFormat  Store the settings using the most
                          appropriate storage format for the platform.
