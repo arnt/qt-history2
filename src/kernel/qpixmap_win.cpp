@@ -354,8 +354,15 @@ int QPixmap::metric( int m ) const
 	    case QPaintDeviceMetrics::PdmNumColors:
 		if ( GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE )
 		    val = GetDeviceCaps( dc, SIZEPALETTE );
-		else
-		    val = GetDeviceCaps( dc, NUMCOLORS );
+		else {
+		    int bpp = GetDeviceCaps( hdc, BITSPIXEL );
+		    if( bpp==32 )
+			val = INT_MAX;
+		    else if( bpp<=8 )
+			val = GetDeviceCaps( hdc, NUMCOLORS );
+		    else
+			val = 1 << ( bpp * GetDeviceCaps( hdc, PLANES ) );
+		}
 		break;
 	    case QPaintDeviceMetrics::PdmDepth:
 		val = depth();
@@ -766,7 +773,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    pm_dc = pm.handle();
 	    pm_sy = 0;
 	}
-#ifndef Q_OS_TEMP	
+#ifndef Q_OS_TEMP
 	SetStretchBltMode( pm_dc, COLORONCOLOR );
 #endif
 	StretchBlt( pm_dc, 0, pm_sy, w, h,	// scale the pixmap
@@ -1050,7 +1057,7 @@ static void cleanup_mcp()
 	for ( int i=0; i<mcp_num_lists; i++ ) {
 	    delete mcp_lists[i];
 	    mcp_lists[i] = 0;
-	}	
+	}
     }
 }
 

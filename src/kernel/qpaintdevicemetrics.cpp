@@ -108,7 +108,9 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
     \fn int QPaintDeviceMetrics::numColors() const
 
     Returns the number of different colors available for the paint
-    device.
+    device. Since this value is an int will not be sufficient to represent
+    the number of colors on 32 bit displays, in which case INT_MAX is
+    returned instead.
 */
 
 /*!

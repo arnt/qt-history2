@@ -1301,8 +1301,15 @@ int QWidget::metric( int m ) const
 	case QPaintDeviceMetrics::PdmNumColors:
 	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )
 		val = GetDeviceCaps( gdc, SIZEPALETTE );
-	    else
-		val = GetDeviceCaps( gdc, NUMCOLORS );
+	    else {
+		int bpp = GetDeviceCaps( hdc, BITSPIXEL );
+		if( bpp==32 )
+		    val = INT_MAX;
+		else if( bpp<=8 )
+		    val = GetDeviceCaps( hdc, NUMCOLORS );
+		else
+		    val = 1 << ( bpp * GetDeviceCaps( hdc, PLANES ) );
+	    }
 	    break;
 	case QPaintDeviceMetrics::PdmDepth:
 	    val = GetDeviceCaps( gdc, BITSPIXEL );

@@ -41,6 +41,8 @@
 #include "qpaintdevicemetrics.h"
 #include "qapplication_p.h"
 
+#include <limits.h>
+
 #if defined(__MINGW32__)
 #include <malloc.h>
 #define DOCINFOA DOCINFO
@@ -1324,7 +1326,15 @@ int QPrinter::metric( int m ) const
         }
         break;
     case QPaintDeviceMetrics::PdmNumColors:
-        val = GetDeviceCaps( hdc, NUMCOLORS );
+        {
+	    int bpp = GetDeviceCaps( hdc, BITSPIXEL );
+	    if( bpp==32 )
+		val = INT_MAX;
+	    else if( bpp<=8 )
+		val = GetDeviceCaps( hdc, NUMCOLORS );
+	    else
+		val = 1 << ( bpp * GetDeviceCaps( hdc, PLANES ) );
+	}
         break;
     case QPaintDeviceMetrics::PdmDepth:
         val = GetDeviceCaps( hdc, PLANES );
