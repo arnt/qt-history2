@@ -544,19 +544,6 @@ QString QHttpResponseHeader::toString() const
     return ret.arg( m_version / 10 ).arg ( m_version % 10 ).arg( m_code ).arg( m_text ).arg( QHttpHeader::toString() );
 }
 
-/*!
-  Returns TRUE if the server did not specify a size of the response data, This is
-  only possible if the server set the connection mode to Close. Otherwise this
-  function returns FALSE.
-*/
-bool QHttpResponseHeader::hasAutoContentLength() const
-{
-    if ( value("connection")=="close" && !hasKey( "content-length" ) )
-	return TRUE;
-
-    return FALSE;
-}
-
 /****************************************************
  *
  * QHttpRequestHeader
@@ -1002,7 +989,7 @@ void QHttpClient::slotClosed()
 
 	// If we got no Content-Length then we know
 	// now that the request has completed.
-	if ( m_response.hasAutoContentLength() ) {
+	if ( m_response.value("connection")=="close" && !m_response.hasKey( "content-length" ) ) {
 	    if ( m_device )
 		emit response( m_response, m_device );
 	    else

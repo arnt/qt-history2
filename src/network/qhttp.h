@@ -111,7 +111,6 @@ public:
     int statusCode() const;
     QString reasonPhrase() const;
     int version() const;
-    bool hasAutoContentLength() const;
 
     virtual QString toString() const;
 
