@@ -136,6 +136,9 @@ static void redirectDebugOutput( QtMsgType type, const char*msg )
 
 void MainWindow::init()
 {
+    QAxScript::registerEngine("PerlScript", ".pl");
+    QAxScript::registerEngine("Python", ".py");
+
     dlgInvoke = 0;
     dlgProperties = 0;
     dlgAmbient = 0;
@@ -338,10 +341,7 @@ void MainWindow::runMacro()
 
 void MainWindow::loadScript()
 {
-    QString file = QFileDialog::getOpenFileName(QString::null, "Script Files (*.dsm *.js);;"
-							       "Macro Files (*.dsm);;"
-							       "JavaScript (*.js);;"
-							       "All Files (*.*)",
+    QString file = QFileDialog::getOpenFileName(QString::null, QAxScript::scriptFileFilter(),
 						this, 0, "Open Script");
 
     if (file.isEmpty())
@@ -363,8 +363,10 @@ void MainWindow::loadScript()
 	script->addObject(ax);
     }
 
-    if (script->load(file, file))
+    QAxObject *scriptlet = script->load(file, file);
+    if (scriptlet) {
 	actionScriptingRun->setEnabled(TRUE);
+    }
 }
 
 void MainWindow::macroError( int code, const QString &description, int sourcePosition, const QString &sourceText )
