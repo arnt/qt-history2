@@ -28,6 +28,7 @@ public:
     ClientInfo( const QString &host, Q_UINT16 port );
 
 private slots:
+    void connectToServer();
     void selectItem( const QString& item );
     void stepBack();
     void sendToServer( const QString& line );

@@ -45,7 +45,7 @@ class ClientSocket : public QSocket
 {
     Q_OBJECT
 public:
-    ClientSocket( int sock, InfoData *i, QObject *parent=0, const char *name=0 );
+    ClientSocket( int sock, InfoData *i, QObject *parent = 0, const char *name = 0 );
 
 private slots:
     void readClient();
@@ -66,7 +66,7 @@ class SimpleServer : public QServerSocket
 {
     Q_OBJECT
 public:
-    SimpleServer( InfoData *i, QObject* parent=0 );
+    SimpleServer( InfoData *i, Q_UINT16 port = infoPort, QObject* parent = 0 );
     void newConnection( int socket );
 
 signals:

@@ -20,21 +20,33 @@
 #include "client.h"
 
 
-ClientInfo::ClientInfo( const QString &host, Q_UINT16 port )
+ClientInfo::ClientInfo( const QString &host, Q_UINT16 port ) :
+    socket( 0 )
 {
+    edHost->setText( "localhost" );
+    edPort->setText( QString::number( infoPort ) );
+
     connect( infoList, SIGNAL(selected(const QString&)), SLOT(selectItem(const QString&)) );
+    connect( btnConnect, SIGNAL(clicked()), SLOT(connectToServer()) );
     connect( btnBack, SIGNAL(clicked()), SLOT(stepBack()) );
     connect( btnQuit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+}
 
+
+void ClientInfo::connectToServer()
+{
+    if ( socket ) {
+	delete socket;
+	socket = 0;
+    }
     socket = new QSocket( this );
     connect( socket, SIGNAL(connected()), SLOT(socketConnected()) );
     connect( socket, SIGNAL(connectionClosed()), SLOT(socketConnectionClosed()) );
     connect( socket, SIGNAL(readyRead()), SLOT(socketReadyRead()) );
     connect( socket, SIGNAL(error(int)), SLOT(socketError(int)) );
 
-    socket->connectToHost( host, port );
+    socket->connectToHost( edHost->text(), edPort->text().toInt() );
 }
-
 
 void ClientInfo::selectItem( const QString& item )
 {
@@ -90,7 +102,7 @@ void ClientInfo::socketReadyRead()
     while ( socket->canReadLine() ) {
 	line = stream.readLine();
 	if ( line.startsWith( "500" ) || line.startsWith( "550" ) ) {
-	    infoText->append( "error: " + line.mid( 4 ) );
+	    infoText->append( tr( "error: " ) + line.mid( 4 ) );
 	} else if ( line.startsWith( "212+" ) ) {
 	    infoList->insertItem( line.mid( 6 ) + QString( ( line[ 4 ] == 'D' ) ? "/" : "" ) );
 	} else if ( line.startsWith( "213+" ) ) {
@@ -103,12 +115,12 @@ void ClientInfo::socketReadyRead()
 void ClientInfo::socketConnectionClosed()
 {
     infoText->clear();
-    infoText->append( "error: Connection closed by the server\n" );
+    infoText->append( tr( "error: Connection closed by the server\n" ) );
 }
 
 void ClientInfo::socketError( int code )
 {
     infoText->clear();
-    infoText->append( QString( "error: Error number %1 occurred\n" ).arg( code ) );
+    infoText->append( tr( "error: Error number %1 occurred\n" ).arg( code ) );
 }
 

@@ -13,6 +13,7 @@
 #include <qpushbutton.h>
 #include <qtextstream.h>
 #include <qapplication.h>
+#include <qmessagebox.h>
 #include <stdlib.h>
 
 #include "server.h"
@@ -142,11 +143,11 @@ bool ClientSocket::processCommand( const QString& command, QStringList *answer )
 
 
 
-SimpleServer::SimpleServer( InfoData *i, QObject* parent ) :
-    QServerSocket( infoPort, 1, parent ), info( i )
+SimpleServer::SimpleServer( InfoData *i, Q_UINT16 port, QObject* parent ) :
+    QServerSocket( port, 1, parent ), info( i )
 {
     if ( !ok() ) {
-	qWarning( "Failed to bind to port %d", infoPort );
+	QMessageBox::critical( 0, tr( "Error" ), tr( "Failed to bind to port %1" ).arg( port ) );
 	exit(1);
     }
 }
@@ -160,13 +161,14 @@ void SimpleServer::newConnection( int socket )
 
 ServerInfo::ServerInfo()
 {
-    SimpleServer *server = new SimpleServer( &info, this );
+    Q_UINT16 port = ( qApp->argc() > 1 ) ? QString( qApp->argv()[ 1 ] ).toInt() : infoPort;
+    SimpleServer *server = new SimpleServer( &info, port, this );
     connect( server, SIGNAL(newConnect()), SLOT(newConnect()) );
     connect( btnQuit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 }
 
 void ServerInfo::newConnect()
 {
-    infoText->append( "New connection\n" );
+    infoText->append( tr( "New connection\n" ) );
 }
 

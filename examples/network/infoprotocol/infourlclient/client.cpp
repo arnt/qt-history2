@@ -70,34 +70,34 @@ void Qip::operationGet( QNetworkOperation * )
 void Qip::socketConnected()
 {
     if ( url() )
-	emit connectionStateChanged( ConConnected, QString( "Connected to host %1" ).arg( url()->host() ) );
+	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
     else
-	emit connectionStateChanged( ConConnected, "Connected to host" );
+	emit connectionStateChanged( ConConnected, tr ("Connected to host" ) );
 }
 
 void Qip::socketConnectionClosed()
 {
     if ( url() )
-	emit connectionStateChanged( ConClosed, QString( "Connection to %1 closed" ).arg( url()->host() ) );
+	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
     else
-	emit connectionStateChanged( ConClosed, "Connection closed" );
+	emit connectionStateChanged( ConClosed, tr ("Connection closed" ) );
 }
 
 void Qip::socketError( int code )
 {
     if ( operationInProgress() ) {
-	QString msg( "Error" );
+	QString msg( tr( "Error" ) );
 	int errCode( ErrUnsupported );
 	if ( code == QSocket::ErrHostNotFound ||
 	     code == QSocket::ErrConnectionRefused ) {
 	    // this signal is called if connecting to the server failed
-	    msg = "Host not found or couldn't connect to: \n" + url()->host();
+	    msg = tr( "Host not found or couldn't connect to: \n" ) + url()->host();
 	    errCode = ErrHostNotFound;
 	} else if ( code == ErrFileNotExisting ) {
-	    msg = "File not found: \n" + url()->path();
+	    msg = tr( "File not found: \n" ) + url()->path();
 	    errCode = ErrFileNotExisting;
 	} else if ( code == ErrValid ) {
-	    msg = "Syntax error";
+	    msg = tr( "Syntax error" );
 	    errCode = ErrValid;
 	}
 	operationInProgress()->setState( StFailed );
@@ -135,7 +135,7 @@ void Qip::socketReadyRead()
 	    emit newChild( inf, operationInProgress() );
 	} else if ( line.startsWith( "213+" ) ) {
 	    state = Data;
-	    emit data( QCString( line.mid( 4 ).latin1() ), operationInProgress() );
+	    emit data( line.mid( 4 ).utf8(), operationInProgress() );
 	}
 	if( line[3] == ' ' && state != Start) {
 	    state = Start;
@@ -175,9 +175,8 @@ QString ClientInfo::getOpenFileName()
 {
     static QString workingDirectory( "qip://localhost/" );
 
-    QFileDialog *dlg = new QFileDialog( workingDirectory,
-	    QString::null, 0, 0, TRUE );
-    dlg->setCaption( "Open" );
+    QFileDialog *dlg = new QFileDialog( workingDirectory, QString::null, 0, 0, TRUE );
+    dlg->setCaption( QFileDialog::tr( "Open" ) );
     dlg->setMode( QFileDialog::ExistingFile );
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {
@@ -191,5 +190,5 @@ QString ClientInfo::getOpenFileName()
 void ClientInfo::newData( const QByteArray &ba )
 {
     // append new data
-    infoText->append( ba );
+    infoText->append( QString::fromUtf8( ba ) );
 }
