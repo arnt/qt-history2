@@ -2553,81 +2553,48 @@ void MainWindow::checkTempFiles()
     }
 }
 
-void MainWindow::openHelpForDialog( const QString &dia )
-{
-    QMessageBox::information( this, tr( "Help" ), tr( "There is no help available for this dialog at the moment." ) );
-    // ##### get this working again when we have a reference manual again
-    Q_UNUSED( dia );
-#if 0
-    QString manualdir = QString( getenv( "QTDIR" ) ) + "/tools/designer/manual/designer-manual.html";
-    if ( !QFile::exists( manualdir ) )
-	manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer/designer-manual.html";
-    QFile file( manualdir );
-    if ( !file.open( IO_ReadOnly ) )
-	return;
-    QTextStream ts( &file );
-    QString text = ts.read();
-
-    int i = text.find( dia );
-    if ( i == -1 )
-	return;
-    i = text.findRev( "href=\"", i );
-    if ( i == -1 )
-	return;
-    int end = text.find( "\"", i + 8 );
-    i += QString( "href=\"" ).length();
-    QString page = text.mid( i, end - i );
-
-    if ( !page.isEmpty() ) {
-	QStringList lst;
-	lst << assistantPath() << QString( "d:" + page );
-	QProcess proc( lst );
-	proc.start();
-    }
-#endif
-}
-
 void MainWindow::showDialogHelp()
 {
     QWidget *w = (QWidget*)sender();
     w = w->topLevelWidget();
 
-    // dialog classname to documentation title mapping
-    if ( w->inherits( "AboutDialog" ) )
-	openHelpForDialog( "The About Dialog" );
-    else if ( w->inherits( "ConnectionEditorBase" ) )
-	openHelpForDialog( "The Connection Editor Dialog (Edit Connections)" );
-    else if ( w->inherits( "ConnectionViewerBase" ) )
-	openHelpForDialog( "The Connection Viewer Dialog (Edit Connections)" );
-    else if ( w->inherits( "CustomWidgetEditorBase" ) )
-	openHelpForDialog( "The Edit Custom Widgets Dialog" );
-    else if ( w->inherits( "IconViewEditorBase" ) )
-	openHelpForDialog( "The Edit Icon View Dialog" );
-    else if ( w->inherits( "ListBoxEditorBase" ) )
-	openHelpForDialog( "The Edit List Box Dialog" );
-    else if ( w->inherits( "ListViewEditorBase" ) )
-	openHelpForDialog( "The Edit List View Dialog" );
-    else if ( w->inherits( "MultiLineEditorBase" ) )
-	openHelpForDialog( "The Edit Multiline Edit Dialog" );
+    QString link = "designer-manual-13.html#";
+
+    if ( w->inherits( "NewFormBase" ) )
+	link += "dialog-file-new";
+    else if ( w->inherits( "CreateTemplate" ) )
+	link += "dialog-file-create-template";
     else if ( w->inherits( "EditSlotsBase" ) )
-	openHelpForDialog( "The Edit Slots Dialog" );
+	link += "dialog-edit-slots";
+    else if ( w->inherits( "ConnectionViewerBase" ) )
+	link += "dialog-view-connections";
     else if ( w->inherits( "FormSettingsBase" ) )
-	openHelpForDialog( "The Form Settings Dialog" );
-    else if ( w->inherits( "HelpDialogBase" ) )
-	openHelpForDialog( "The Help Dialog" );
-    else if ( w->inherits( "NewFormBase" ) )
-	openHelpForDialog( "The New File Dialog" );
-    else if ( w->inherits( "PaletteEditorBase" ) )
-	openHelpForDialog( "The Palette Editor Dialog" );
-    else if ( w->inherits( "PixmapFunction" ) )
-	openHelpForDialog( "The Pixmap Function Dialog" );
+	link += "dialog-edit-form-settings";
     else if ( w->inherits( "Preferences" ) )
-	openHelpForDialog( "The Preferences Dialog" );
-    else if ( w->inherits( "TopicChooserBase" ) )
-	openHelpForDialog( "The Topic Chooser Dialog" );
-    else
+	link += "dialog-edit-preferences";
+    else if ( w->inherits( "PixmapCollectionEditor" ) )
+	link += "dialog-image-collection";
+    else if ( w->inherits( "DatabaseConnectionBase" ) )
+	link += "dialog-edit-database-connections";
+    else if ( w->inherits( "ProjectSettingsBase" ) )
+	link += "dialog-project-settings";
+    else if ( w->inherits( "FindDialog" ) )
+	link += "dialog-find-text";
+    else if ( w->inherits( "ReplaceDialog" ) )
+	link += "dialog-replace-text";
+    else if ( w->inherits( "GotoLineDialog" ) )
+	link += "dialog-go-to-line";
+
+    else {
 	QMessageBox::information( this, tr( "Help" ),
 				  tr( "There is no help available for this dialog at the moment." ) );
+	return;
+    }
+
+    QStringList lst;
+    lst << assistantPath() << link;
+    QProcess proc( lst );
+    proc.start();
 }
 
 void MainWindow::setupActionManager()

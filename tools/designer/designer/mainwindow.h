@@ -321,7 +321,6 @@ private:
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();
     void checkTempFiles();
-    void openHelpForDialog( const QString &dia );
     void openProject( const QString &fn );
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
