@@ -36,6 +36,10 @@ QPopupMenu
   have undesired effects if you previously have worked around it by
   connecting to signals both in menu bar and its submenus.
 
+QPainter:
+---------
+  drawBezier draws cubic bezier, requires 4 control points. 
+
 *************** Changes that might generate compile errors *****************
 **************           when compiling old code           *****************
 
