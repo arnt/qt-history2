@@ -95,37 +95,27 @@ shareddbg:
 	$(CC) -shared -o -Wl,-soname,libqt.so.0 -o $(SHAREDTARGET) \
 		obj/shareddbg/*/*.o -lX11 -lgcc -lc
 
-#static shared clean include depend 
 dist: 
 	-$(RM) -rf $(DISTDIR)
-	# misc
-	mkdir -p $(DISTDIR)/{include,lib/qt/include,lib/qt/doc,lib/qt/src/tools,lib/qt/src/kernel,lib/qt/src/widgets,lib/qt/src/dialogs,lib/qt/moc,bin,man/man1,man/man3}
-	ln -s ../lib/qt/include $(DISTDIR)/include/qt
-	cp -fR /local/qt/install-extra/. $(DISTDIR)
-	rm -rf $(DISTDIR)/RCS
-	cp -f $(INCDIR)/*.h $(DISTDIR)/lib/qt/include
+	mkdir -p $(DISTDIR)/{include,lib,bin,man/man3,man/man1,html,src,arch}
+	(tar cf - . )|(cd $(DISTDIR)/src ; tar xf -)
+	mkdir -p `make -s -C /local/qt/examples showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/examples/_g`
+	set -e ; for a in `find $(DISTDIR)/examples -type d -print` ; \
+	do \
+	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/@/local/qt/@`/RCS/*,v ); \
+	done
+	mkdir -p `make -s -C /local/qt/tutorial showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/tutorial/_g`
+	set -e ; for a in `find $(DISTDIR)/tutorial -type d -print` ; \
+	do \
+	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/@/local/qt/@`/RCS/*,v ); \
+	done
+	( cd $(DISTDIR)/src ; $(QTDIR)/util/makearch.sh )
+	-rm -rf $(DISTDIR)/src/{obj,doc,gif,qdoc,moc/test,makefiles}
+	find $(DISTDIR)/src \( -name \*.o -o -name \*_win.\* -o -name \*_os2.\* -o -name Makefile -o -name RCS \) -print | xargs rm -v
 	co -q -p -q moc/moc.1 > $(DISTDIR)/man/man1/moc.1
 	cp -f /local/man/man3/*.3qt $(DISTDIR)/man/man3
-	cp -f /local/qt/doc/html/*.html $(DISTDIR)/lib/qt/doc
-	cp -f /local/qt/doc/html/*.gif $(DISTDIR)/lib/qt/doc
-	# source
-	set -e ; for a in tools kernel widgets dialogs ; do \
-	    ( set -e ; cd $(DISTDIR)/lib/qt/src/$$a ; ln -s /local/qt/src/$${a}/RCS RCS ; co -q -r Makefile ; co -q -r `make -s showfiles` ; rm RCS ); \
-	done
-	# moc
-	( set -e ; cd $(DISTDIR)/lib/qt/moc ; ln -s /local/qt/src/moc/RCS RCS ; co -q -r Makefile ; make -s checkout ; rm RCS )
-	# examples
-	mkdir -p `make -s -C /local/qt/examples showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/examples/_g`
-	set -e ; for a in `find $(DISTDIR)/lib/qt/examples -type d -print` ; \
-	do \
-	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
-	done
-	# tutorial
-	mkdir -p `make -s -C /local/qt/tutorial showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/tutorial/_g`
-	set -e ; for a in `find $(DISTDIR)/lib/qt/tutorial -type d -print` ; \
-	do \
-	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
-	done
+	cp -f /local/qt/doc/html/*.html $(DISTDIR)/html
+	cp -f /local/qt/doc/html/*.gif $(DISTDIR)/html
 	chmod -R u+w $(DISTDIR)
 
 rpm:
@@ -162,7 +152,7 @@ showsources:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showsources ; done
 
 showheaders:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders" ; done
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d showheaders ; done
 
 clean:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d clean ; done
