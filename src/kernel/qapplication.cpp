@@ -55,6 +55,8 @@
 #include "qstylefactory.h"
 #include "qfile.h"
 #include "qmessagebox.h"
+#include "qdir.h"
+#include "qfileinfo.h"
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
@@ -1473,11 +1475,136 @@ void QApplication::setGlobalStrut( const QSize& strut )
     app_strut = strut;
 }
 
-#ifndef QT_NO_COMPONENT
-
 #ifdef Q_WS_WIN
 extern const char *qAppFileName();
 #endif
+
+#ifndef QT_NO_DIR
+#ifndef Q_WS_WIN
+static QString resolveSymlinks( const QString& path, int depth = 0 )
+{
+    bool foundLink = FALSE;
+    QString linkTarget;
+    QString part = path;
+    int slashPos = path.length();
+
+    // too deep; we give up
+    if ( depth == 128 )
+	return QString::null;
+
+    do {
+	part = part.left( slashPos );
+	QFileInfo fileInfo( part );
+	if ( fileInfo.isSymLink() ) {
+	    foundLink = TRUE;
+	    linkTarget = fileInfo.readLink();
+	    break;
+	}
+    } while ( (slashPos = part.findRev('/')) != -1 );
+
+    if ( foundLink ) {
+	QString path2;
+	if ( linkTarget[0] == '/' ) {
+	    path2 = linkTarget;
+	    if ( slashPos < (int) path.length() )
+		path2 += "/" + path.right( path.length() - slashPos - 1 );
+	} else {
+	    QString relPath;
+	    relPath = part.left( part.findRev('/') ) + linkTarget;
+	    if ( slashPos < (int) path.length() )
+		relPath += path.right( path.length() - slashPos - 1 );
+	    path2 = QDir::current().absFilePath( relPath );
+	}
+	path2 = QDir::cleanDirPath( path2 );
+	return resolveSymlinks( path2, depth + 1 );
+    } else {
+	return path;
+    }
+}
+#endif // Q_WS_WIN
+
+/*!
+    Returns the directory that contains the application executable.
+
+    For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
+    directory, and you run the \c{demo} example, this function will
+    return "C:/Trolltech/Qt/examples/demo".
+
+    \warning This function assumes that argv[0] contains the file
+    name of the executable (which it normally does). On Unix and Mac
+    OS X, it also assumes that the current directory hasn't been
+    changed by the application.
+
+    \sa applicationFilePath()
+*/
+QString QApplication::applicationDirPath()
+{
+    return QFileInfo( applicationFilePath() ).dirPath();
+}
+
+/*!
+    Returns the file path of the application executable.
+
+    For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
+    directory, and you run the \c{demo} example, this function will
+    return "C:/Trolltech/Qt/examples/demo/demo.exe".
+
+    \warning This function assumes that argv[0] contains the file
+    name of the executable (which it normally does). On Unix and Mac
+    OS X, it also assumes that the current directory hasn't been
+    changed by the application.
+
+    \sa applicationDirPath()
+*/
+QString QApplication::applicationFilePath()
+{
+#ifdef Q_WS_WIN
+    return QFile::decodeName( qAppFileName() );
+#else
+    QString argv0 = QFile::decodeName( argv()[0] );
+    QString absPath;
+
+    if ( argv0[0] == '/' ) {
+	/*
+	  If argv0 starts with a slash, it is already an absolute
+	  file path.
+	*/
+	absPath = argv0;
+    } else if ( argv0.find('/') != -1 ) {
+	/*
+	  If argv0 contains one or more slashes, it is a file path
+	  relative to the current directory.
+	*/
+	absPath = QDir::current().absFilePath( argv0 );
+    } else {
+	/*
+	  Otherwise, the file path has to be determined using the
+	  PATH environment variable.
+	*/
+	char *pEnv = getenv( "PATH" );
+	QStringList paths( QStringList::split(QChar(':'), pEnv) );
+	QStringList::const_iterator p = paths.begin();
+	while ( p != paths.end() ) {
+	    QString candidate = QDir::current().absFilePath( *p + "/" + argv0 );
+	    if ( QFile::exists(candidate) ) {
+		absPath = candidate;
+		break;
+	    }
+	    ++p;
+	}
+    }
+
+    absPath = QDir::cleanDirPath( absPath );
+    if ( QFile::exists(absPath) ) {
+	return resolveSymlinks( absPath );
+    } else {
+	return QString::null;
+    }
+#endif
+}
+#endif // QT_NO_DIR
+
+#ifndef QT_NO_COMPONENT
 
 /*!
   Returns a list of paths that the application will search when
@@ -1509,7 +1636,7 @@ QStringList QApplication::libraryPaths()
     if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
 	if ( QFile::exists( qInstallPathPlugins() ) )
-            app_libpaths->append( qInstallPathPlugins() );
+	    app_libpaths->append( qInstallPathPlugins() );
 #ifdef Q_WS_WIN
 	QString app_location = qAppFileName();
 	app_location.truncate( app_location.findRev( '\\' ) );
@@ -2812,7 +2939,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 #if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
-        delete event;
+	delete event;
 	return;
     }
 

@@ -68,7 +68,7 @@ class Q_EXPORT QApplication : public QObject
 {
     Q_OBJECT
 public:
-    QApplication( int &argc, char **argv);
+    QApplication( int &argc, char **argv );
     QApplication( int &argc, char **argv, bool GUIenabled );
     enum Type { Tty, GuiClient, GuiServer };
     QApplication( int &argc, char **argv, Type );
@@ -176,6 +176,10 @@ public:
 				const char * key,
 				const char * comment = 0,
 				Encoding encoding = DefaultCodec ) const;
+#ifndef QT_NO_DIR
+    QString   applicationDirPath();
+    QString   applicationFilePath();
+#endif
 #ifndef QT_NO_PALETTE
     // obsolete functions
     static void      setWinStyleHighlightColor( const QColor &c ) {
@@ -203,11 +207,11 @@ public:
     static QSize     globalStrut();
 
 #ifndef QT_NO_COMPONENT
-    static void      setLibraryPaths(const QStringList &);
+    static void      setLibraryPaths( const QStringList & );
     static QStringList libraryPaths();
-    static void      addLibraryPath(const QString &);
-    static void      removeLibraryPath(const QString &);
-#endif //QT_NO_COMPONENT
+    static void      addLibraryPath( const QString & );
+    static void      removeLibraryPath( const QString & );
+#endif // QT_NO_COMPONENT
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
