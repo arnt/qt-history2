@@ -1,3 +1,4 @@
+//depot/qt/main/doc/src/snippets/stringlistmodel/model.cpp#7 - edit change 157628 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -23,7 +24,7 @@
     in the model.
 */
 
-int StringListModel::rows() const
+int StringListModel::rowCount() const
 {
     return stringList.count();
 }

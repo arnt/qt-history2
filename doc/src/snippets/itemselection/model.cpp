@@ -44,7 +44,7 @@ TableModel::TableModel(int rows, int columns, QObject *parent)
     in the model.
 */
 
-int TableModel::rows() const
+int TableModel::rowCount() const
 {
     return rowList.size();
 }
@@ -54,7 +54,7 @@ int TableModel::rows() const
     columns in the model. All rows should have the same number of columns.
 */
 
-int TableModel::columns() const
+int TableModel::columnCount() const
 {
     return rowList[0].size();
 }
@@ -137,9 +137,11 @@ bool TableModel::setData(const QModelIndex &index, int role,
 bool TableModel::insertRows(int position, const QModelIndex &/*index*/,
                             int rows)
 {
+    int columns = columnCount();
+
     for (int row = 0; row < rows; ++row) {
         QStringList items;
-        for (int column = 0; column < columns(); ++column)
+        for (int column = 0; column < columns; ++column)
             items.append("");
         rowList.insert(position, items);
     }
@@ -157,7 +159,9 @@ bool TableModel::insertRows(int position, const QModelIndex &/*index*/,
 bool TableModel::insertColumns(int position, const QModelIndex &/*index*/,
                                int columns)
 {
-    for (int row = 0; row < rows(); ++row) {
+    int rows = rowCount();
+
+    for (int row = 0; row < rows; ++row) {
         for (int column = position; column < columns; ++column) {
             rowList[row].insert(position, "");
         }
@@ -191,9 +195,10 @@ bool TableModel::removeRows(int position, const QModelIndex &/*index*/,
 bool TableModel::removeColumns(int position, const QModelIndex &/*index*/,
                                int columns)
 {
+    int rows = rowCount();
     emit columnsAboutToBeRemoved(QModelIndex::Null, position, position+columns-1);
 
-    for (int row = 0; row < rows(); ++row) {
+    for (int row = 0; row < rows; ++row) {
         for (int column = 0; column < columns; ++column) {
             rowList[row].removeAt(position);
         }

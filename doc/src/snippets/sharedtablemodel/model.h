@@ -1,3 +1,4 @@
+//depot/qt/main/doc/src/snippets/sharedtablemodel/model.h#4 - edit change 152691 (text)
 /****************************************************************************
 **
 ** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -24,8 +25,8 @@ class TableModel : public QAbstractTableModel
 public:
     TableModel(int rows = 1, int columns = 1, QObject *parent = 0);
 
-    int rows() const;
-    int columns() const;
+    int rowCount() const;
+    int columnCount() const;
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
