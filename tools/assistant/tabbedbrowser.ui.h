@@ -9,6 +9,8 @@
 
 #include <qfileinfo.h>
 #include <qtoolbutton.h>
+#include <qpixmap.h>
+#include <qiconset.h>
 #include <qstyle.h>
 
 #include "config.h"
@@ -93,6 +95,7 @@ void TabbedBrowser::newTab( const QString &lnk )
     if( !link.isNull() ) {
 	win->setSource( link );
     }
+    tab->cornerWidget( Qt::TopRight )->setEnabled( tab->count() > 1 );
 }
 
 void TabbedBrowser::zoomIn()
@@ -141,10 +144,14 @@ void TabbedBrowser::init()
     tab->setCornerWidget( closeTabButton, Qt::TopRight );
     closeTabButton->setCursor( arrowCursor );
     closeTabButton->setAutoRaise( TRUE );
-    closeTabButton->setPixmap( QPixmap::fromMimeSource( "closetab.png" ) );
+    QIconSet is( QPixmap::fromMimeSource( "closetab.png") );
+    QPixmap disabledPix = QPixmap::fromMimeSource( "d_closetab.png" );
+    is.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
+    closeTabButton->setIconSet( is );
     closeTabButton->setFixedSize( s, s );
     QObject::connect( closeTabButton, SIGNAL( clicked() ), this, SLOT( closeTab() ) );
     QToolTip::add( closeTabButton, tr( "Close page" ) );
+    closeTabButton->setEnabled( FALSE );
 }
 
 void TabbedBrowser::setMimePath( QStringList lst )
@@ -263,6 +270,7 @@ void TabbedBrowser::closeTab()
     HelpWindow *win = currentBrowser();
     tab->removePage( win );
     delete win;
+    tab->cornerWidget( Qt::TopRight )->setEnabled( tab->count() > 1 );
 }
 
 QStringList TabbedBrowser::sources()
