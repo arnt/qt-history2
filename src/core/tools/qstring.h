@@ -58,7 +58,6 @@ public:
     void resize(int size);
 
     inline bool operator!() const;
-    inline operator bool() const;
 
     QString &fill(QChar c, int size = -1);
     void truncate(int maxSize);
@@ -422,8 +421,6 @@ inline bool QString::isEmpty() const
 { return d->size == 0; }
 inline bool QString::operator!() const
 { return d->size == 0; }
-inline QString::operator bool() const
-{ return d->size != 0; }
 inline const QChar *QString::unicode() const
 { return (const QChar*) d->data; }
 inline QString::operator const QChar*() const

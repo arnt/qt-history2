@@ -45,7 +45,6 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
 
     inline bool operator!() const { return d->size == 0; }
-    inline operator bool() const { return d->size != 0; }
 
     void clear();
 

@@ -169,7 +169,6 @@ public:
     inline int size() const { return d->size; }
     inline bool isEmpty() const { return d->size == 0; }
     inline bool operator!() const { return d->size == 0; }
-    inline operator bool() const { return d->size != 0; }
 
     void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
