@@ -107,19 +107,6 @@ void QMimeSource::clearCache()
 QMimeSource::~QMimeSource()
 {
     clearCache();
-
-#if defined(Q_WS_X11)
-    if (QApplication::closingDown()) return;
-
-#ifndef QT_NO_MIMECLIPBOARD
-    if (QApplication::clipboard()->data() == this) {
-#ifdef QT_CHECK_RANGE
-	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
-#endif
-	QApplication::clipboard()->clobber();
-    }
-#endif
-#endif // QT_NO_CLIPBOARD
 }
 
 /*!
@@ -538,10 +525,10 @@ void QMimeSourceFactory::setPixmap( const QString& abs_name, const QPixmap& pixm
   Passing 0 for data removes previously stored data.
 */
 void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
-{ 
-    if ( d->stored.contains(abs_name) ) 
+{
+    if ( d->stored.contains(abs_name) )
 	delete d->stored[abs_name];
-    d->stored.replace(abs_name,data); 
+    d->stored.replace(abs_name,data);
 }
 
 /*! Convenience function. Gets the data associated with the absolute
@@ -587,14 +574,14 @@ QImage QMimeSourceFactory::image( const QString &abs_name ) const
 
     \sa setDefaultFactory()
 */
-QMimeSourceFactory* QMimeSourceFactory::defaultFactory() 
-{ 
-    if (!defaultfactory) 
-    { 
+QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
+{
+    if (!defaultfactory)
+    {
 	defaultfactory = new QMimeSourceFactory();
-	qmime_cleanup_factory.set( &defaultfactory ); 
-    } 
-    return defaultfactory; 
+	qmime_cleanup_factory.set( &defaultfactory );
+    }
+    return defaultfactory;
 }
 
 /*!
