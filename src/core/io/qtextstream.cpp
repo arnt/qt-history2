@@ -2071,27 +2071,28 @@ int QTextStream::flags() const
 
 
 /*!
-    \overload
-
     Sets the stream flags to \a f. Returns the previous stream flags.
 
     \sa setf(), unsetf(), flags()
 */
 
-int QTextStream::flags(int f)
+void QTextStream::setFlags(int f)
 {
     Q_D(QTextStream);
-    int oldf = d->fflags;
     d->fflags = f;
-    return oldf;
 }
 
+/*!
+    \fn int QTextStream::flags(int f)
+
+    Use setFlags and flags() instead.
+*/
 
 /*!
     Sets the stream flag bits \a bits. Returns the previous stream
     flags.
 
-    Equivalent to \c{flags(flags() | bits)}.
+    Equivalent to \c{setFlags(flags() | bits)}.
 
     \sa setf(), unsetf()
 */
@@ -2111,7 +2112,7 @@ int QTextStream::setf(int bits)
     Sets the stream flag bits \a bits with a bit mask \a mask. Returns
     the previous stream flags.
 
-    Equivalent to \c{flags((flags() & ~mask) | (bits & mask))}.
+    Equivalent to \c{setFlags((flags() & ~mask) | (bits & mask))}.
 
     \sa setf(), unsetf()
 */
@@ -2129,7 +2130,7 @@ int QTextStream::setf(int bits, int mask)
     Clears the stream flag bits \a bits. Returns the previous stream
     flags.
 
-    Equivalent to \c{flags(flags() & ~mask)}.
+    Equivalent to \c{setFlags(flags() & ~mask)}.
 
     \sa setf()
 */
@@ -2155,19 +2156,20 @@ int QTextStream::width() const
 
 
 /*!
-    \overload
-
-    Sets the field width to \a w. Returns the previous field width.
+    Sets the field width to \a w.
 */
 
-int QTextStream::width(int w)
+void QTextStream::setWidth(int w)
 {
     Q_D(QTextStream);
-    int oldw = d->fwidth;
     d->fwidth = w;
-    return oldw;
 }
 
+/*!
+    \fn int QTextStream::width(int w)
+
+    Use setWidth() and width() instead.
+*/
 
 /*!
     Returns the fill character. The default value is ' ' (space).
@@ -2179,25 +2181,24 @@ int QTextStream::fill() const
     return d->fillchar;
 }
 
-
 /*!
-    \overload
-
-    Sets the fill character to \a f. Returns the previous fill character.
+    Sets the fill character to \a f.
 */
-
-int QTextStream::fill(int f)
+void QTextStream::setFill(int f)
 {
     Q_D(QTextStream);
-    int oldc = d->fillchar;
     d->fillchar = f;
-    return oldc;
 }
+
+/*!
+    \fn int QTextStream::fill(int f)
+
+    Use setFill() and fill() instead.
+*/
 
 /*!
     Returns the precision. The default value is 6.
 */
-
 int QTextStream::precision() const
 {
     Q_D(const QTextStream);
@@ -2205,18 +2206,19 @@ int QTextStream::precision() const
 }
 
 /*!
-    \overload
-
-    Sets the precision to \a p. Returns the previous precision setting.
+    Sets the precision to \a p.
 */
-
-int QTextStream::precision(int p)
+void QTextStream::setPrecision(int p)
 {
     Q_D(QTextStream);
-    int oldp = d->fprec;
     d->fprec = p;
-    return oldp;
 }
+
+/*!
+    \fn int QTextStream::precision(int p)
+
+    Use setPrecision() and precision() instead.
+*/
 
  /*****************************************************************************
   QTextStream manipulators
