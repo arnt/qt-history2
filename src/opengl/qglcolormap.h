@@ -44,8 +44,14 @@
 #include "qshared.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_OPENGL
+#else
+#define QM_EXPORT_OPENGL Q_EXPORT
+#endif
+
 class QWidget;
-class Q_EXPORT QGLColormap
+class QM_EXPORT_OPENGL QGLColormap
 {
 public:
     QGLColormap();

@@ -43,10 +43,16 @@
 #include "qglcolormap.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_OPENGL
+#else
+#define QM_EXPORT_OPENGL Q_EXPORT
+#endif
+
 #ifndef QT_NO_COMPAT
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
-Q_EXPORT inline const char *qGLVersion() {
+QM_EXPORT_OPENGL inline const char *qGLVersion() {
     qObsolete( 0, "qGLVersion", "qVersion" );
     return QGL_VERSION_STR;
 }
@@ -77,7 +83,7 @@ class QGLOverlayWidget;
 #endif
 
 // Namespace class:
-class Q_EXPORT QGL
+class QM_EXPORT_OPENGL QGL
 {
 public:
     enum FormatOption {
@@ -104,7 +110,7 @@ public:
 
 
 
-class Q_EXPORT QGLFormat : public QGL
+class QM_EXPORT_OPENGL QGLFormat : public QGL
 {
 public:
     QGLFormat();
@@ -144,8 +150,8 @@ public:
     static bool		hasOpenGL();
     static bool		hasOpenGLOverlays();
 
-    friend Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
-    friend Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
+    friend QM_EXPORT_OPENGL bool operator==( const QGLFormat&, const QGLFormat& );
+    friend QM_EXPORT_OPENGL bool operator!=( const QGLFormat&, const QGLFormat& );
 
 private:
     uint opts;
@@ -153,10 +159,10 @@ private:
 };
 
 
-Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
-Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
+QM_EXPORT_OPENGL bool operator==( const QGLFormat&, const QGLFormat& );
+QM_EXPORT_OPENGL bool operator!=( const QGLFormat&, const QGLFormat& );
 
-class Q_EXPORT QGLContext : public QGL
+class QM_EXPORT_OPENGL QGLContext : public QGL
 {
 public:
     QGLContext( const QGLFormat& format, QPaintDevice* device );
@@ -247,7 +253,7 @@ private:	// Disabled copy constructor and operator=
 
 
 
-class Q_EXPORT QGLWidget : public QWidget, public QGL
+class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
 public:

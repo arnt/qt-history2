@@ -49,6 +49,11 @@
 #include "qpointarray.h"
 #endif // QT_H
 
+#if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_CANVAS
+#else
+#define QM_EXPORT_CANVAS Q_EXPORT
+
 #ifndef QT_NO_CANVAS
 
 
@@ -68,14 +73,14 @@ class QCanvasPixmap;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QPtrList< QCanvasItem >;
-template class Q_EXPORT QPtrList< QCanvasView >;
-template class Q_EXPORT QValueList< QCanvasItem* >;
+template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
+template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
+template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
 // MOC_SKIP_END
 #endif
 
 
-class Q_EXPORT QCanvasItemList : public QValueList<QCanvasItem*> {
+class QM_EXPORT_CANVAS QCanvasItemList : public QValueList<QCanvasItem*> {
 public:
     void sort();
     void drawUnique( QPainter& painter );
@@ -84,7 +89,7 @@ public:
 
 class QCanvasItemExtra;
 
-class Q_EXPORT QCanvasItem : public Qt
+class QM_EXPORT_CANVAS QCanvasItem : public Qt
 {
 public:
     QCanvasItem(QCanvas* canvas);
@@ -196,7 +201,7 @@ private:
 
 class QCanvasData;
 
-class Q_EXPORT QCanvas : public QObject
+class QM_EXPORT_CANVAS QCanvas : public QObject
 {
     Q_OBJECT
 public:
@@ -339,7 +344,7 @@ private:
 
 class QCanvasViewData;
 
-class Q_EXPORT QCanvasView : public QScrollView
+class QM_EXPORT_CANVAS QCanvasView : public QScrollView
 {
     Q_OBJECT
 public:
@@ -372,7 +377,7 @@ private slots:
 };
 
 
-class Q_EXPORT QCanvasPixmap : public QPixmap
+class QM_EXPORT_CANVAS QCanvasPixmap : public QPixmap
 {
 public:
     QCanvasPixmap(const QString& datafilename);
@@ -400,7 +405,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasPixmapArray
+class QM_EXPORT_CANVAS QCanvasPixmapArray
 {
 public:
     QCanvasPixmapArray();
@@ -432,7 +437,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasSprite : public QCanvasItem
+class QM_EXPORT_CANVAS QCanvasSprite : public QCanvasItem
 {
 public:
     QCanvasSprite(QCanvasPixmapArray* array, QCanvas* canvas);
@@ -505,7 +510,7 @@ private:
 
 class QPolygonalProcessor;
 
-class Q_EXPORT QCanvasPolygonalItem : public QCanvasItem
+class QM_EXPORT_CANVAS QCanvasPolygonalItem : public QCanvasItem
 {
 public:
     QCanvasPolygonalItem(QCanvas* canvas);
@@ -551,7 +556,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasRectangle : public QCanvasPolygonalItem
+class QM_EXPORT_CANVAS QCanvasRectangle : public QCanvasPolygonalItem
 {
 public:
     QCanvasRectangle(QCanvas* canvas);
@@ -588,7 +593,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasPolygon : public QCanvasPolygonalItem
+class QM_EXPORT_CANVAS QCanvasPolygon : public QCanvasPolygonalItem
 {
 public:
     QCanvasPolygon(QCanvas* canvas);
@@ -606,7 +611,7 @@ protected:
 };
 
 
-class Q_EXPORT QCanvasSpline : public QCanvasPolygon
+class QM_EXPORT_CANVAS QCanvasSpline : public QCanvasPolygon
 {
 public:
     QCanvasSpline(QCanvas* canvas);
@@ -625,7 +630,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasLine : public QCanvasPolygonalItem
+class QM_EXPORT_CANVAS QCanvasLine : public QCanvasPolygonalItem
 {
 public:
     QCanvasLine(QCanvas* canvas);
@@ -650,7 +655,7 @@ private:
 };
 
 
-class Q_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
+class QM_EXPORT_CANVAS QCanvasEllipse : public QCanvasPolygonalItem
 {
 
 public:
@@ -691,7 +696,7 @@ private:
 
 class QCanvasTextExtra;
 
-class Q_EXPORT QCanvasText : public QCanvasItem
+class QM_EXPORT_CANVAS QCanvasText : public QCanvasItem
 {
 public:
     QCanvasText(QCanvas* canvas);
