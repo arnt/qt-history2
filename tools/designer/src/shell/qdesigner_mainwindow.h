@@ -53,6 +53,8 @@ private:
     QDesignerWorkbench *m_workbench;
     QDesignerActions *m_actionManager;
     QMenu *m_fileMenu;
+    QMenu *m_editMenu;
+    QMenu *m_formMenu;
     QMenu *m_toolMenu;
     QMenu *m_windowMenu;
 };

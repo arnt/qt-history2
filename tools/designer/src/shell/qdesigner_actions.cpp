@@ -29,6 +29,9 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     Q_ASSERT(m_mainWindow != 0);
     Q_ASSERT(m_mainWindow->core() != 0);
 
+    AbstractFormWindowManager *formWindowManager = m_mainWindow->core()->formWindowManager();
+    Q_ASSERT(formWindowManager != 0);
+
     m_fileActions = new QActionGroup(this);
     m_fileActions->setExclusive(false);
 
@@ -56,52 +59,52 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
     m_quitAction = new QAction(this);
     m_fileActions->addAction(m_quitAction);
 
-    m_undoAction = new QAction(this);
+    m_undoAction = QtUndoManager::manager()->createUndoAction(this);
     m_editActions->addAction(m_undoAction);
 
-    m_redoAction = new QAction(this);
+    m_redoAction = QtUndoManager::manager()->createRedoAction(this);
     m_editActions->addAction(m_redoAction);
 
-    m_cutAction = new QAction(this);
+    m_cutAction = formWindowManager->actionCut();
     m_editActions->addAction(m_cutAction);
 
-    m_copyAction = new QAction(this);
+    m_copyAction = formWindowManager->actionCopy();
     m_editActions->addAction(m_copyAction);
 
-    m_pasteAction = new QAction(this);
+    m_pasteAction = formWindowManager->actionPaste();
     m_editActions->addAction(m_pasteAction);
 
-    m_deleteAction = new QAction(this);
+    m_deleteAction = formWindowManager->actionDelete();
     m_editActions->addAction(m_deleteAction);
 
-    m_sendToBackAction = new QAction(this);
+    m_sendToBackAction = formWindowManager->actionLower();
     m_editActions->addAction(m_sendToBackAction);
 
-    m_bringToFrontAction = new QAction(this);
+    m_bringToFrontAction = formWindowManager->actionRaise();
     m_editActions->addAction(m_bringToFrontAction);
 
-    m_selectAllAction = new QAction(this);
+    m_selectAllAction = formWindowManager->actionSelectAll();
     m_editActions->addAction(m_selectAllAction);
 
-    m_layoutHorizontallyAction = new QAction(this);
+    m_layoutHorizontallyAction = formWindowManager->actionHorizontalLayout();
     m_formActions->addAction(m_layoutHorizontallyAction);
 
-    m_layoutVerticallyAction = new QAction(this);
+    m_layoutVerticallyAction = formWindowManager->actionVerticalLayout();
     m_formActions->addAction(m_layoutVerticallyAction);
 
-    m_layoutHorizontallyInSplitterAction = new QAction(this);
+    m_layoutHorizontallyInSplitterAction = formWindowManager->actionSplitHorizontal();
     m_formActions->addAction(m_layoutHorizontallyInSplitterAction);
 
-    m_layoutVerticallyInSplitterAction = new QAction(this);
+    m_layoutVerticallyInSplitterAction = formWindowManager->actionSplitVertical();
     m_formActions->addAction(m_layoutVerticallyInSplitterAction);
 
-    m_layoutGridAction = new QAction(this);
+    m_layoutGridAction = formWindowManager->actionGridLayout();
     m_formActions->addAction(m_layoutGridAction);
 
-    m_breakLayoutAction = new QAction(this);
+    m_breakLayoutAction = formWindowManager->actionBreakLayout();
     m_formActions->addAction(m_breakLayoutAction);
 
-    m_adjustSizeAction = new QAction(this);
+    m_adjustSizeAction = formWindowManager->actionAdjustSize();
     m_formActions->addAction(m_adjustSizeAction);
 
     m_previewFormAction = new QAction(this);
@@ -120,6 +123,9 @@ QActionGroup *QDesignerActions::fileActions() const
 
 QActionGroup *QDesignerActions::editActions() const
 { return m_editActions; }
+
+QActionGroup *QDesignerActions::formActions() const
+{ return m_formActions; }
 
 QAction *QDesignerActions::newFormAction() const
 { return m_newFormAction; }

@@ -31,6 +31,7 @@ public:
 
     QActionGroup *fileActions() const;
     QActionGroup *editActions() const;
+    QActionGroup *formActions() const;
 
 //
 // file actions

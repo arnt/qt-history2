@@ -50,9 +50,22 @@ void QDesignerMainWindow::initialize()
     m_actionManager = new QDesignerActions(this);
 
     m_fileMenu = menuBar()->addMenu(tr("&File"));
-    m_fileMenu->addAction(tr("New Form"), workbench(), SLOT(createFormWindow()));
+    foreach (QAction *action, m_actionManager->fileActions()->actions()) {
+        m_fileMenu->addAction(action);
+    }
+
+    m_editMenu = menuBar()->addMenu(tr("&Edit"));
+    foreach (QAction *action, m_actionManager->editActions()->actions()) {
+        m_editMenu->addAction(action);
+    }
+
+    m_formMenu = menuBar()->addMenu(tr("F&orm"));
+    foreach (QAction *action, m_actionManager->formActions()->actions()) {
+        m_formMenu->addAction(action);
+    }
 
     m_toolMenu = menuBar()->addMenu(tr("&Tool"));
+
     m_windowMenu = menuBar()->addMenu(tr("&Window"));
 
     connect(workbench(), SIGNAL(formWindowAdded(QDesignerFormWindow*)),
