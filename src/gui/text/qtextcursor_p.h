@@ -52,6 +52,8 @@ public:
     bool hasComplexSelection() const;
     void selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const;
 
+    void setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
+
     int x;
     int position;
     int anchor;

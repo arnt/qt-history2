@@ -496,6 +496,30 @@ void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *fi
     *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
 }
 
+void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+{
+    int pos1 = position;
+    int pos2 = adjusted_anchor;
+    if (pos1 > pos2) {
+        pos1 = adjusted_anchor;
+        pos2 = position;
+    }
+
+    priv->beginEditBlock();
+
+    QTextBlock it = priv->blocksFind(pos1);
+    QTextBlock end = priv->blocksFind(pos2);
+    if (end.isValid())
+        end = end.next();
+
+    for (; it != end; it = it.next()) {
+        const int charFmtPos = qMax(it.position() - 1, 0);
+        priv->setCharFormat(charFmtPos, 1, format, changeMode);
+    }
+
+    priv->endEditBlock();
+}
+
 /*!
     \class QTextCursor qtextcursor.h
     \brief The QTextCursor class offers an API to access and modify QTextDocuments.
@@ -1099,6 +1123,34 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
 }
 
 /*!
+    Returns the block character format of the block the cursor is in.
+
+    \sa setBlockFormat() charFormat()
+ */
+QTextCharFormat QTextCursor::blockCharFormat() const
+{
+    if (!d || !d->priv)
+        return QTextCharFormat();
+
+    return d->block().charFormat();
+}
+
+void QTextCursor::setBlockCharFormat(const QTextCharFormat &format)
+{
+    if (!d || !d->priv)
+        return;
+
+    d->setBlockCharFormat(format, QTextDocumentPrivate::SetFormat);
+}
+
+void QTextCursor::mergeBlockCharFormat(const QTextCharFormat &modifier)
+{
+    if (!d || !d->priv)
+        return;
+
+    d->setBlockCharFormat(modifier, QTextDocumentPrivate::MergeFormat);
+}
+/*!
     Returns the format of the character immediately before the
     cursor position().
 
@@ -1234,31 +1286,38 @@ bool QTextCursor::atEnd() const
 */
 void QTextCursor::insertBlock()
 {
-    if (!d || !d->priv)
-        return;
-
-    d->priv->beginEditBlock();
-    d->remove();
-    d->insertBlock(blockFormat(), charFormat());
-    d->priv->endEditBlock();
+    insertBlock(blockFormat(), charFormat());
 }
 
 /*!
     \overload
 
     Inserts a new empty block at the cursor position() with block
-    format \a format and the current charFormat().
+    format \a format and the current charFormat() as block char format.
 
     \sa setBlockFormat()
 */
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
+{
+    insertBlock(format, charFormat());
+}
+
+/*!
+    \overload
+
+    Inserts a new empty block at the cursor position() with block
+    format \a format and \a charFormat as block char format.
+
+    \sa setBlockFormat()
+*/
+void QTextCursor::insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat)
 {
     if (!d || !d->priv)
         return;
 
     d->priv->beginEditBlock();
     d->remove();
-    d->insertBlock(format, charFormat());
+    d->insertBlock(format, charFormat);
     d->priv->endEditBlock();
 }
 

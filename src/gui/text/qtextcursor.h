@@ -112,6 +112,9 @@ public:
     void setBlockFormat(const QTextBlockFormat &format);
     void mergeBlockFormat(const QTextBlockFormat &modifier);
 
+    QTextCharFormat blockCharFormat() const;
+    void setBlockCharFormat(const QTextCharFormat &format);
+    void mergeBlockCharFormat(const QTextCharFormat &modifier);
 
     bool atBlockStart() const;
     bool atBlockEnd() const;
@@ -120,6 +123,7 @@ public:
 
     void insertBlock();
     void insertBlock(const QTextBlockFormat &format);
+    void insertBlock(const QTextBlockFormat &format, const QTextCharFormat &charFormat);
 
     QTextList *insertList(const QTextListFormat &format);
     QTextList *insertList(int style);
