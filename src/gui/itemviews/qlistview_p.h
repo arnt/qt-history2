@@ -262,6 +262,12 @@ public:
     void init();
     void prepareItemsLayout();
 
+    bool doItemsLayout(int num);
+    void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
+
+    void doStaticLayout(const QRect &bounds, int first, int last);
+    void doDynamicLayout(const QRect &bounds, int first, int last);
+
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
     inline void intersectingSet(const QRect &area) const

@@ -94,12 +94,6 @@ protected:
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
-    bool doItemsLayout(int num);
-    void doItemsLayout(const QRect &bounds, const QModelIndex &first, const QModelIndex &last);
-
-    void doStaticLayout(const QRect &bounds, int first, int last);
-    void doDynamicLayout(const QRect &bounds, int first, int last);
-
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
 

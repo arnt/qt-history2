@@ -667,7 +667,7 @@ void QListView::timerEvent(QTimerEvent *e)
         doItemsLayout(); // showing the scrollbars will trigger a resize event,
         d->startLayoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
     } else if (e->timerId() == d->batchLayoutTimer) {
-        if (doItemsLayout(100)) {
+        if (d->doItemsLayout(100)) {
             // layout is done
             killTimer(d->batchLayoutTimer);
             d->batchLayoutTimer = 0;
@@ -1047,241 +1047,11 @@ void QListView::doItemsLayout()
     d->prepareItemsLayout();
     if (model()->columnCount(root()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
-            doItemsLayout(model()->rowCount(root())); // layout everything
+            d->doItemsLayout(model()->rowCount(root())); // layout everything
         else
             d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
     }
     QAbstractItemView::doItemsLayout();
-}
-
-/*!
-  \internal
-*/
-bool QListView::doItemsLayout(int delta)
-{
-    int max = d->model->rowCount(root()) - 1;
-    int first = d->layoutStart;
-    int last = qMin(first + delta - 1, max);
-
-    if (max < 0)
-        return true; // nothing to do
-
-    if (d->movement == Static) {
-        doStaticLayout(d->layoutBounds, first, last);
-    } else {
-        if (last >= d->tree.itemCount())
-            d->createItems(last + 1);
-        doDynamicLayout(d->layoutBounds, first, last);
-    }
-
-    d->layoutStart = last + 1;
-
-    if (d->layoutStart >= max) { // stop items layout
-        d->flowPositions.resize(d->flowPositions.count());
-        d->wrapPositions.resize(d->wrapPositions.count());
-        d->wrapStartRows.resize(d->wrapStartRows.count());
-        return true; // done
-    }
-    return false; // not done
-}
-
-/*!
-  \internal
-*/
-void QListView::doItemsLayout(const QRect &bounds,
-                              const QModelIndex &first,
-                              const QModelIndex &last)
-{
-    if (first.row() >= last.row() || !first.isValid() || !last.isValid())
-        return;
-    if (d->movement == Static)
-        doStaticLayout(bounds, first.row(), last.row());
-    else
-        doDynamicLayout(bounds, first.row(), last.row());
-}
-
-/*!
-  \internal
-*/
-void QListView::doStaticLayout(const QRect &bounds, int first, int last)
-{
-    const bool useItemSize = !d->gridSize.isValid();
-    const int spacing = useItemSize ? d->spacing : 0; // if we are using a grid ,we don't use spacing
-    const QPoint topLeft = d->initStaticLayout(bounds, spacing, first);
-    const QStyleOptionViewItem option = viewOptions();
-
-    // The static layout data structures are as follows:
-    // One vector contains the coordinate in the direction of layout flow.
-    // Another vector contains the coordinates of the wraps.
-    // A third vector contains the index (model row) of the first item
-    // of each wrap.
-
-    QVector<int> *flowPositions = &(d->flowPositions);
-    QVector<int> *wrapPositions = &(d->wrapPositions);
-    QVector<int> *wrapStartRows = &(d->wrapStartRows);
-    int wrapStartPosition;
-    int wrapEndPosition;
-    int flowPosition;
-    int wrapPosition;
-    int deltaFlowPosition;
-    int deltaWrapPosition;
-    int deltaWrapHint;
-
-    if (d->flow == LeftToRight) {
-        wrapStartPosition = bounds.left();
-        wrapEndPosition = bounds.width();
-        flowPosition = topLeft.x();
-        wrapPosition = topLeft.y();
-        deltaFlowPosition = d->gridSize.width(); // dx
-        deltaWrapPosition = useItemSize ? d->translate : d->gridSize.height(); // dy
-        deltaWrapHint = d->gridSize.height();
-    } else { // d->flow == TopToBottom
-        wrapStartPosition = bounds.top();
-        wrapEndPosition = bounds.height();
-        flowPosition = topLeft.y();
-        wrapPosition = topLeft.x();
-        deltaFlowPosition = d->gridSize.height(); // dy
-        deltaWrapPosition = useItemSize ? d->translate : d->gridSize.width(); // dx
-        deltaWrapHint = d->gridSize.width();
-    }
-    
-    for (int row = first; row <= last; ++row) {
-        if (d->hiddenRows.contains(row)) {
-            flowPositions->append(flowPosition);
-        } else {
-            // if we are not using a grid, we need to find the deltas
-            if (useItemSize) {
-                QModelIndex index = model()->index(row, d->column, root());
-                QSize hint = itemDelegate()->sizeHint(option, index);
-                if (d->flow == LeftToRight) {
-                    deltaFlowPosition = hint.width();
-                    deltaWrapHint = hint.height();
-                } else {
-                    deltaFlowPosition = hint.height();
-                    deltaWrapHint = hint.width();
-                }
-            }
-            // create wrap
-            if (d->wrap && (flowPosition >= wrapEndPosition)) {
-                flowPosition = spacing + wrapStartPosition;
-                wrapPosition += spacing + deltaWrapPosition;
-                wrapPositions->append(wrapPosition);
-                wrapStartRows->append(row);
-                deltaWrapPosition = 0;
-            }
-            // save the flow positon of this item
-            flowPositions->append(flowPosition);
-            // prepare for the next item
-            deltaWrapPosition = qMax(deltaWrapHint, deltaWrapPosition);
-            flowPosition += spacing + deltaFlowPosition;
-        }
-    }
-    // used when laying out next batch
-    d->position = flowPosition;
-    d->translate = deltaWrapPosition;
-    // set the contents size
-    QRect rect = bounds;
-    if (d->flow == LeftToRight) {
-        rect.setRight(wrapPositions->count() == 1 ? flowPosition : bounds.right());
-        rect.setBottom(wrapPosition + deltaWrapPosition);
-    } else {
-        rect.setRight(wrapPosition + deltaWrapPosition);
-        rect.setBottom(wrapPositions->count() == 1 ? flowPosition : bounds.bottom());
-    }
-    resizeContents(rect.right(), rect.bottom());
-    // if the new items are visble, update the viewport
-    QRect changedRect(topLeft, rect.bottomRight());
-    if (clipRegion().boundingRect().intersects(changedRect))
-        d->viewport->update();
-}
-
-/*!
-  \internal
-*/
-void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
-{
-    const bool useItemSize = !d->gridSize.isValid();
-    const int spacing = useItemSize ? d->spacing : 0;
-    const QPoint topLeft = d->initDynamicLayout(bounds, spacing, first);
-
-    int wrapStartPosition;
-    int wrapEndPosition;
-    int deltaFlowPosition;
-    int deltaWrapPosition;
-    int deltaWrapHint;
-    int flowPosition;
-    int wrapPosition;
-
-    if (d->flow == LeftToRight) {
-        wrapStartPosition = bounds.left() + spacing;
-        wrapEndPosition = bounds.right();
-        deltaFlowPosition = d->gridSize.width(); // dx
-        deltaWrapPosition = (useItemSize ? d->translate : d->gridSize.height()); // dy
-        deltaWrapHint = d->gridSize.height();
-        flowPosition = topLeft.x();
-        wrapPosition = topLeft.y();
-    } else {// flow == TopToBottom
-        wrapStartPosition = bounds.top() + spacing;
-        wrapEndPosition = bounds.bottom();
-        deltaFlowPosition = d->gridSize.height(); // dy
-        deltaWrapPosition = (useItemSize ? d->translate : d->gridSize.width()); // dx
-        deltaWrapHint = d->gridSize.width();
-        flowPosition = topLeft.y();
-        wrapPosition = topLeft.x();
-    }
-
-    QRect rect(QPoint(0, 0), d->contentsSize);
-    QListViewItem *item = 0;
-    for (int row = first; row <= last; ++row) {
-        item = d->tree.itemPtr(row);
-        if (d->hiddenRows.contains(row)) {
-            item->invalidate();
-        } else {
-            // set the position of the item
-            if (d->flow == LeftToRight) {
-                item->x = flowPosition;
-                item->y = wrapPosition;
-            } else { // TopToBottom
-                item->y = flowPosition;
-                item->x = wrapPosition;
-            }
-            // if we are not using a grid, we need to find the deltas
-            if (useItemSize) {
-                if (d->flow == LeftToRight) {
-                    deltaFlowPosition = item->w + spacing;
-                    deltaWrapHint = item->h + spacing;
-                } else {
-                    deltaFlowPosition = item->h + spacing;
-                    deltaWrapHint = item->w + spacing;
-                }
-            }
-            // prepare for next item
-            flowPosition += deltaFlowPosition;
-            deltaWrapPosition = qMax(deltaWrapPosition, deltaWrapHint);
-            rect |= item->rect();
-            // create new dynamic wrap
-            if (d->wrap && (flowPosition + deltaFlowPosition >= wrapEndPosition)) {
-                flowPosition = wrapStartPosition;
-                wrapPosition += deltaWrapPosition;
-                deltaWrapPosition = 0;
-            }
-        }
-    }
-    d->translate = deltaWrapPosition;
-    resizeContents(rect.width(), rect.height());
-    // resize tree
-    int insertFrom = first;
-    if (first == 0 || last >= model()->rowCount(root()) - 1) {
-        d->initBinaryTree(rect.size());
-        insertFrom = 0;
-    }
-    // insert items in tree
-    for (int row = insertFrom; row <= last; ++row)
-        d->tree.climbTree(d->tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
-    // if the new items are visble, update the viewport
-    QRect changedRect(topLeft, rect.bottomRight());
-    if (clipRegion().boundingRect().intersects(changedRect))
-        d->viewport->update();
 }
 
 /*!
@@ -1386,6 +1156,233 @@ void QListViewPrivate::prepareItemsLayout()
         wrapStartRows.clear();
         tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
+}
+
+/*!
+  \internal
+*/
+bool QListViewPrivate::doItemsLayout(int delta)
+{
+    int max = model->rowCount(root) - 1;
+    int first = layoutStart;
+    int last = qMin(first + delta - 1, max);
+
+    if (max < 0)
+        return true; // nothing to do
+
+    if (movement == QListView::Static) {
+        doStaticLayout(layoutBounds, first, last);
+    } else {
+        if (last >= d->tree.itemCount())
+            createItems(last + 1);
+        doDynamicLayout(layoutBounds, first, last);
+    }
+
+    layoutStart = last + 1;
+
+    if (layoutStart >= max) { // stop items layout
+        flowPositions.resize(flowPositions.count());
+        wrapPositions.resize(wrapPositions.count());
+        wrapStartRows.resize(wrapStartRows.count());
+        return true; // done
+    }
+    return false; // not done
+}
+
+/*!
+  \internal
+*/
+void QListViewPrivate::doItemsLayout(const QRect &bounds,
+                                     const QModelIndex &first,
+                                     const QModelIndex &last)
+{
+    if (first.row() >= last.row() || !first.isValid() || !last.isValid())
+        return;
+    if (movement == QListView::Static)
+        doStaticLayout(bounds, first.row(), last.row());
+    else
+        doDynamicLayout(bounds, first.row(), last.row());
+}
+
+/*!
+  \internal
+*/
+void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
+{
+    const bool useItemSize = !gridSize.isValid();
+    const int gap = useItemSize ? spacing : 0; // if we are using a grid ,we don't use spacing
+    const QPoint topLeft = initStaticLayout(bounds, gap, first);
+    const QStyleOptionViewItem option = q->viewOptions();
+
+    // The static layout data structures are as follows:
+    // One vector contains the coordinate in the direction of layout flow.
+    // Another vector contains the coordinates of the wraps.
+    // A third vector contains the index (model row) of the first item
+    // of each wrap.
+
+    int wrapStartPosition;
+    int wrapEndPosition;
+    int flowPosition;
+    int wrapPosition;
+    int deltaFlowPosition;
+    int deltaWrapPosition;
+    int deltaWrapHint;
+
+    if (flow == QListView::LeftToRight) {
+        wrapStartPosition = bounds.left();
+        wrapEndPosition = bounds.width();
+        flowPosition = topLeft.x();
+        wrapPosition = topLeft.y();
+        deltaFlowPosition = gridSize.width(); // dx
+        deltaWrapPosition = useItemSize ? translate : gridSize.height(); // dy
+        deltaWrapHint = gridSize.height();
+    } else { // flow == QListView::TopToBottom
+        wrapStartPosition = bounds.top();
+        wrapEndPosition = bounds.height();
+        flowPosition = topLeft.y();
+        wrapPosition = topLeft.x();
+        deltaFlowPosition = gridSize.height(); // dy
+        deltaWrapPosition = useItemSize ? translate : gridSize.width(); // dx
+        deltaWrapHint = gridSize.width();
+    }
+    
+    for (int row = first; row <= last; ++row) {
+        if (hiddenRows.contains(row)) {
+            flowPositions.append(flowPosition);
+        } else {
+            // if we are not using a grid, we need to find the deltas
+            if (useItemSize) {
+                QModelIndex index = model->index(row, column, root);
+                QSize hint = delegate->sizeHint(option, index);
+                if (flow == QListView::LeftToRight) {
+                    deltaFlowPosition = hint.width();
+                    deltaWrapHint = hint.height();
+                } else {
+                    deltaFlowPosition = hint.height();
+                    deltaWrapHint = hint.width();
+                }
+            }
+            // create wrap
+            if (wrap && (flowPosition >= wrapEndPosition)) {
+                flowPosition = gap + wrapStartPosition;
+                wrapPosition += gap + deltaWrapPosition;
+                wrapPositions.append(wrapPosition);
+                wrapStartRows.append(row);
+                deltaWrapPosition = 0;
+            }
+            // save the flow positon of this item
+            flowPositions.append(flowPosition);
+            // prepare for the next item
+            deltaWrapPosition = qMax(deltaWrapHint, deltaWrapPosition);
+            flowPosition += gap + deltaFlowPosition;
+        }
+    }
+    // used when laying out next batch
+    position = flowPosition;
+    translate = deltaWrapPosition;
+    // set the contents size
+    QRect rect = bounds;
+    if (flow == QListView::LeftToRight) {
+        rect.setRight(wrapPositions.count() == 1 ? flowPosition : bounds.right());
+        rect.setBottom(wrapPosition + deltaWrapPosition);
+    } else {
+        rect.setRight(wrapPosition + deltaWrapPosition);
+        rect.setBottom(wrapPositions.count() == 1 ? flowPosition : bounds.bottom());
+    }
+    q->resizeContents(rect.right(), rect.bottom());
+    // if the new items are visble, update the viewport
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (q->clipRegion().boundingRect().intersects(changedRect))
+        viewport->update();
+}
+
+/*!
+  \internal
+*/
+void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
+{
+    const bool useItemSize = !gridSize.isValid();
+    const int gap = useItemSize ? spacing : 0;
+    const QPoint topLeft = initDynamicLayout(bounds, gap, first);
+
+    int wrapStartPosition;
+    int wrapEndPosition;
+    int deltaFlowPosition;
+    int deltaWrapPosition;
+    int deltaWrapHint;
+    int flowPosition;
+    int wrapPosition;
+
+    if (flow == QListView::LeftToRight) {
+        wrapStartPosition = bounds.left() + gap;
+        wrapEndPosition = bounds.right();
+        deltaFlowPosition = gridSize.width(); // dx
+        deltaWrapPosition = (useItemSize ? translate : gridSize.height()); // dy
+        deltaWrapHint = gridSize.height();
+        flowPosition = topLeft.x();
+        wrapPosition = topLeft.y();
+    } else {// flow == QListView::TopToBottom
+        wrapStartPosition = bounds.top() + gap;
+        wrapEndPosition = bounds.bottom();
+        deltaFlowPosition = gridSize.height(); // dy
+        deltaWrapPosition = (useItemSize ? translate : gridSize.width()); // dx
+        deltaWrapHint = gridSize.width();
+        flowPosition = topLeft.y();
+        wrapPosition = topLeft.x();
+    }
+
+    QRect rect(QPoint(0, 0), contentsSize);
+    QListViewItem *item = 0;
+    for (int row = first; row <= last; ++row) {
+        item = tree.itemPtr(row);
+        if (hiddenRows.contains(row)) {
+            item->invalidate();
+        } else {
+            // set the position of the item
+            if (flow == QListView::LeftToRight) {
+                item->x = flowPosition;
+                item->y = wrapPosition;
+            } else { // TopToBottom
+                item->y = flowPosition;
+                item->x = wrapPosition;
+            }
+            // if we are not using a grid, we need to find the deltas
+            if (useItemSize) {
+                if (flow == QListView::LeftToRight) {
+                    deltaFlowPosition = item->w + gap;
+                    deltaWrapHint = item->h + gap;
+                } else {
+                    deltaFlowPosition = item->h + gap;
+                    deltaWrapHint = item->w + gap;
+                }
+            }
+            // prepare for next item
+            flowPosition += deltaFlowPosition;
+            deltaWrapPosition = qMax(deltaWrapPosition, deltaWrapHint);
+            rect |= item->rect();
+            // create new dynamic wrap
+            if (wrap && (flowPosition + deltaFlowPosition >= wrapEndPosition)) {
+                flowPosition = wrapStartPosition;
+                wrapPosition += deltaWrapPosition;
+                deltaWrapPosition = 0;
+            }
+        }
+    }
+    translate = deltaWrapPosition;
+    q->resizeContents(rect.width(), rect.height());
+    // resize tree
+    int insertFrom = first;
+    if (first == 0 || last >= model->rowCount(root) - 1) {
+        initBinaryTree(rect.size());
+        insertFrom = 0;
+    }
+    // insert items in tree
+    for (int row = insertFrom; row <= last; ++row)
+        tree.climbTree(tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
+    // if the new items are visble, update the viewport
+    QRect changedRect(topLeft, rect.bottomRight());
+    if (q->clipRegion().boundingRect().intersects(changedRect))
+        viewport->update();
 }
 
 /*!
