@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#4 $
+** $Id: //depot/qt/main/src/util/msg2qm/msg2qm.cpp#5 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -205,4 +205,5 @@ int main( int argc, char* argv[] )
     }
 
     translate(argv[infile], argc > infile+1 ? argv[infile+1] : "tr.qm");
+    return 0;
 }
