@@ -149,7 +149,6 @@ public:
     virtual void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
 		     const QBrush *fill = 0 );
-    virtual int dropDownButtonWidth() const;    
 
     // "radio button"
     virtual QSize exclusiveIndicatorSize() const = 0;

@@ -354,14 +354,6 @@ QRect QStyle::toolButtonRect( int x, int y, int w, int h)
 }
 
 /*!
-  Returns the width for the splitted section of a tool button with a popup menu.
-*/
-int QStyle::dropDownButtonWidth() const
-{
-    return 14;
-}
-
-/*!
   Returns the rectangle available for contents in a push
   button. Usually this is the entire rectangle minus the border, but
   it may also be smaller when you think about rounded buttons.

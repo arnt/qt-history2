@@ -1294,7 +1294,7 @@ int QMotifStyle::spinBoxFrameWidth() const
  */
 int QMotifStyle::progressChunkWidth() const
 {
-    return 5;
+    return 1;
 }
 
 /*!
