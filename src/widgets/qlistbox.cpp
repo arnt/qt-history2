@@ -2376,7 +2376,7 @@ void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 	    emit contextMenuRequested( i, mapToGlobal( r.topLeft() + QPoint( width() / 2, r.height() / 2 ) ) );
 	}
     } else {
-	QListBoxItem * i = itemAt( e->pos() );
+	QListBoxItem * i = itemAt( contentsToViewport( e->pos() ) );
 	emit contextMenuRequested( i, e->globalPos() );
     }
 }
