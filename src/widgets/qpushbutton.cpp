@@ -261,6 +261,7 @@ QPushButton::~QPushButton()
 
 void QPushButton::init()
 {
+    d = NULL;
     defButton = FALSE;
     lastEnabled = FALSE;
     hasMenuArrow = FALSE;
