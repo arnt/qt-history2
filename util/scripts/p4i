@@ -12,6 +12,7 @@ $ask = 1;
 $force = 0;
 $ignoredeleted = 0;
 $resolve = 1;
+$verbose = 0;
 
 # Simplify program name, if it is a path.
 $orig_argv0 = $0; #save the old $0
@@ -59,12 +60,19 @@ while ( @ARGV ) {
 	$force = 1;
     } elsif ( $arg eq "--checkmissing" ) {
 	$checkmissing = shift @ARGV;
+	$checkmissing = "..." if ( !defined $checkmissing );
+    } elsif ( $arg eq "--user" ) {
+        $userName = shift @ARGV;
+    } elsif ( $arg eq "--nouser" ) {
+        $userName = "";
     } elsif ( $arg eq "--force" ) {
 	$force = 1;
     } elsif ( $arg eq "--ignoredeleted" ) {
 	$ignoredeleted = 1;
     } elsif ( $arg eq "--noresolve" ) {
 	$resolve = 0;
+    } elsif ( $arg eq "--verbose" ) {
+	$verbose = 1;
     } elsif ( $arg =~ /^\d+$/ ) {
 	$change = $arg;
     } else {
@@ -72,40 +80,69 @@ while ( @ARGV ) {
     }
 }
 
+if (defined $userName && $userName ne "") {
+    $p4UserCmd = "-u $userName";
+} else {
+    $p4UserCmd = "";
+    $userName = "all";
+}
+
 if( $checkmissing ) { #just look for missing
-    open( P4, "$P4 changes -u $userName -m 1024 $checkmissing |") || die "$0: Couldn't exec $P4: $!\n";
-    while( $line = <P4> ) {
-	chop $line;
-	next unless($line);
-	next unless($line =~ /Change ([0-9]+) on.*/);
+
+    # Figure out which branch we're checking from and to
+    # Files not matching these will be ignored, and not checked
+    open( P4, "$P4 where $checkmissing |") || die "$0: Couldn't exec $P4: $!\n";
+    my $checkBranch = <P4>;
+    close(P4);
+    @whereComponents = split (/[^\\] /, $checkBranch); #non-escaped spaces
+    @pathComponents = split (/\//, $whereComponents[0]);
+    $product = $pathComponents[3];
+    $fromBranch = $pathComponents[4];
+    my $fromBranch = "$product-$fromBranch";
+    my $toBranch;
+    if (defined($targetBranch{$fromBranch})) {
+        $toBranch = $targetBranch{$fromBranch};
+    } else {
+        print STDERR " ** Error: No target branch found for $product/$fromBranch.\n";
+        print STDERR "           All results would be bogus, cannot continue\n";
+        print STDERR " (If this is a valid branch, please add it to the targetBranch list)\n";
+        exit(1);
+    }
+    
+    # Finding files to check for integration   
+    open( P4, "$P4 changes $p4UserCmd -m 1024 $checkmissing |") || die "$0: Couldn't exec $P4: $!\n";
+    while( $description = <P4> ) {
+	chop $description;
+	next unless($description);
+	next unless($description =~ /Change ([0-9]+) on.*/);
 	my $change = $1;
 
 	#get the files in the change
 	my @files;
-	my $branch = 0;
+	my @ignoredFiles;
 	open( P4DESC, "$P4 -ztag describe $change |") || die "$0: Couldn't exec $P4: $!\n";
 	while( $line = <P4DESC> ) {
-	    if ( $line =~ /\.\.\. depotFile[0-9]+ (\/\/depot\/.*)/ ) { 
+	    if ( $line =~ /\.\.\. depotFile[0-9]+ (\/\/depot\/[^\r\n]*)/ ) { 
 		my $file = $1;
-		if( $file =~ /\/\/depot\/(([^\/]*)\/([^\/]*))\/(.*)/ ) {
+		if( $file =~ /\/\/depot\/(([^\/]*)\/([^\/]*))\/([^\r\n]*)/ ) {
 		    my $file_branch = ${2} . "-" . ${3};
-		    if( !$branch || $branch eq $file_branch) {
+		    if( $file_branch eq $fromBranch ) {
 			push @files, $4;
-			$branch = $file_branch;
 		    } else {
-			print "Files have different branches in change $change!\n";
+			push @ignoredFiles, $4;
 		    }
 		}
 	    } 
 	}
 	close(P4DESC);
-	my $toBranch;
-	if(defined($targetBranch{"$branch"})) {
-	    $toBranch = $targetBranch{"$branch"};
-	} else {
-	    print(" ** Warning: No target branch found for $branch. Assuming qt/main.\n");
-	    $toBranch = "main";
-	}
+
+        my $numIgnored = $#ignoredFiles + 1;
+        if ($numIgnored && $verbose) {
+            print "Change $change contains $numIgnored files not in integration path (ignored):\n";
+            foreach $file (@ignoredFiles) {
+                print "   $file\n";
+            }
+        }
 
 	#check which has not been integrated
 	my @not_integrated;
@@ -123,7 +160,7 @@ if( $checkmissing ) { #just look for missing
 		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/$file/) {
 			$pot_file = 1;
 		    } elsif($line =~ /\.\.\. action[0-9]+ (.*)/ && $pot_file) {
-			$file = 0 if($1 eq "integrate");
+			$file = 0 if($1 =~ /^integrate/);
 			last;
 		    }
 		}
@@ -135,10 +172,12 @@ if( $checkmissing ) { #just look for missing
 
 	#spit out the message
 	if ( $#not_integrated != -1 ) {
+            $description =~ /.* by ([^\r\n]*)/;
+	    my $shortDesc = $verbose ? "(" . $1 . ")" : "";
 	    if($#not_integrated == $#files) {
-		print "Change $change is not integrated!\n";
+		print "Change $change is not integrated! $shortDesc\n";
 	    } else {
-		print "Change $change is not fully integrated:\n";
+		print "Change $change is not fully integrated: $shortDesc\n";
 		foreach $file (@not_integrated) {
 		    print "   $file\n";
 		}
@@ -507,7 +546,7 @@ sub printNeededRevisions {
 }
 
 sub findLastChange {
-   open( P4, "$P4 changes -m $maxChanges -u $userName | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
+   open( P4, "$P4 changes -m $maxChanges $p4UserCmd | cut -f 2 -d\" \" |" ) || die "$0: Couldn't exec $P4: $!\n";
    my @myChanges = <P4>;
    close( P4 );
    chomp @myChanges;
