@@ -56,7 +56,7 @@
 #ifdef CLEAR_ASCII_CACHE
 #undef CLEAR_ASCII_CACHE
 #endif
-#define CLEAR_ASCII_CACHE(d) if (d->c){((QByteArray*)&d->c)->~QByteArray();d->c=0;d->dirty=true;}
+#define CLEAR_ASCII_CACHE(d) if (d->c && d->ref == 1){((QByteArray*)&d->c)->~QByteArray();d->c=0;d->dirty=true;}
 
 static int ucstrcmp(const QString &as, const QString &bs)
 {

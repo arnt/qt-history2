@@ -23,7 +23,7 @@ inline T QStack<T>::pop()
   resize(size()-1); return t; }
 template<class T>
 inline T &QStack<T>::top()
-{ Q_ASSERT(!isEmpty()) return detach()[size()-1]; }
+{ Q_ASSERT(!isEmpty()) detach(); return data()[size()-1]; }
 template<class T>
 inline const T &QStack<T>::top() const
 { Q_ASSERT(!isEmpty()) return data()[size()-1]; }
