@@ -25,7 +25,7 @@ class QUrlOperator;
 class QUrl;
 class QUrlInfoPrivate;
 
-class Q_KERNEL_EXPORT QUrlInfo
+class Q_NETWORK_EXPORT QUrlInfo
 {
 public:
     enum PermissionSpec {
