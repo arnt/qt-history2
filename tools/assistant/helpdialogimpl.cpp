@@ -702,8 +702,10 @@ void HelpDialog::showBookmarkTopic()
 	return;
 
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listBookmarks->currentItem();
-    emit showLink( i->link() );
-
+    QString absPath = "";
+    if ( QFileInfo( i->link() ).isRelative() )
+	absPath = documentationPath + "/";
+    emit showLink( absPath + i->link() );
 }
 
 void HelpDialog::saveBookmarks()
