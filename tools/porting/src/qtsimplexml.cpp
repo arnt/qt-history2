@@ -1,8 +1,6 @@
 #include "qtsimplexml.h"
 
-#include <q3ptrlist.h>
 #include <QDomDocument>
-
 
 QtSimpleXml::QtSimpleXml(const QString &name)
 {
@@ -16,27 +14,35 @@ QtSimpleXml &QtSimpleXml::operator [](int index)
     if (index < 0)
 	return *this;
 
-    if (index >= (int) siblArray.count()) {
-        int orgCount= (int) siblArray.count();
-        for (int i = index; i >= orgCount; --i) {
-            QtSimpleXml *item = new QtSimpleXml("item");
-	    item->parent = this;
-	    siblArray.append(item);
-	}
+    if (index > children.size()) {
+        static QtSimpleXml NIL;
+        qWarning("QtSimpleXml::operator[], Out of range access: size is %i, index is %i",
+                 children.size(), index);
+        return NIL;
     }
 
-    return *siblArray.at((int) index);
+    if (index == children.size()) {
+        QtSimpleXml *item = new QtSimpleXml("item");
+        item->parent = this;
+        children.insert(item->name(), item);
+        return *item;
+    }
+
+    QMultiMap<QString, QtSimpleXml *>::Iterator it = children.begin();
+    while (index--) ++it;
+    return *it.value();
 }
 
 QtSimpleXml &QtSimpleXml::operator [](const QString &key)
 {
-    if (!siblStruct.find(key)) {
+    if (!children.contains(key)) {
 	QtSimpleXml *item = new QtSimpleXml(key);
 	item->parent = this;
-	siblStruct.insert(key, item);
+	children.insert(item->name(), item);
+        return *item;
     }
 
-    return *siblStruct.find(key);
+    return *children.find(key).value();
 }
 
 QtSimpleXml &QtSimpleXml::operator =(const QString &text)
@@ -65,65 +71,38 @@ QDomDocument QtSimpleXml::toDomDocument() const
         doc.appendChild(doc.createTextNode(s));
 
     {
-        Q3DictIterator<QtSimpleXml> it(siblStruct);
-        while (it.current()) {
-            QtSimpleXml *item = it.current();
+        QMultiMap<QString, QtSimpleXml *>::ConstIterator it = children.constBegin();
+        for (; it != children.end(); ++it) {
+            QtSimpleXml *item = it.value();
             if (item->valid) {
-                QDomNode node = it.current()->toDomElement(&doc);
+                QDomNode node = item->toDomElement(&doc);
                 doc.appendChild(node);
             }
-            ++it;
         }
     }
 
-    {
-        Q3PtrListIterator<QtSimpleXml> it(siblArray);
-        while (it.current()) {
-            QtSimpleXml *item = it.current();
-            if (item->valid) {
-                QDomElement node = item->toDomElement(&doc);
-                doc.appendChild(node);
-            }
-            ++it;
-        }
-    }
     return doc;
 }
 
 QDomElement QtSimpleXml::toDomElement(QDomDocument *doc) const
 {
     QDomElement elem = doc->createElement(n);
-    Q3DictIterator<QString> ita(attr);
-    while (ita.current()) {
-	elem.setAttribute(ita.currentKey(), *ita.current());
-	++ita;
-    }
+    QMap<QString, QString>::ConstIterator ita = attr.constBegin();
+    for (; ita != attr.constEnd(); ++ita)
+	elem.setAttribute(ita.key(), ita.value());
 
     if(!s.isEmpty())
         elem.appendChild(doc->createTextNode(s));
 
     {
-        Q3DictIterator<QtSimpleXml> it(siblStruct);
-        while (it.current()) {
-		QtSimpleXml *item = it.current();
-		if (item->valid) {
-		    QDomNode node = it.current()->toDomElement(doc);
-		    elem.appendChild(node);
-		}
-		++it;
-	    }
-    }
-
-    {
-        Q3PtrListIterator<QtSimpleXml> it(siblArray);
-        while (it.current()) {
-            QtSimpleXml *item = it.current();
+        QMultiMap<QString, QtSimpleXml *>::ConstIterator it = children.constBegin();
+        for (; it != children.constEnd(); ++it) {
+            QtSimpleXml *item = it.value();
             if (item->valid) {
-                QDomNode node = it.current()->toDomElement(doc);
+                QDomNode node = item->toDomElement(doc);
                 elem.appendChild(node);
-                }
-                ++it;
             }
+        }
     }
 
     return elem;
@@ -146,13 +125,12 @@ bool QtSimpleXml::isValid() const
 
 void QtSimpleXml::setAttribute(const QString &key, const QString &value)
 {
-    attr.insert(key, new QString(value));
+    attr.insert(key, QString(value));
 }
 
 QString QtSimpleXml::attribute(const QString &key)
 {
-    QString *str = attr[key];
-    return str ? *str : QString();
+    return attr[key];
 }
 
 bool QtSimpleXml::setContent(const QString &content)
@@ -192,7 +170,7 @@ bool QtSimpleXml::setContent(QIODevice *device)
         QtSimpleXml *xmlNode = new QtSimpleXml;
         xmlNode->parse(child);
         xmlNode->parent=this;
-        siblStruct.insert(xmlNode->name(), xmlNode);
+        children.insert(xmlNode->name(), xmlNode);
         do {
             child = child.nextSibling();
         } while (!child.isNull() && !child.isElement());
@@ -215,7 +193,7 @@ void QtSimpleXml::parse(QDomNode node)
     QDomNamedNodeMap attrs = element.attributes();
     for (int i = 0; i < (int) attrs.count(); ++i) {
         QDomAttr attribute = attrs.item(i).toAttr();
-        attr.insert(attribute.name(), new QString(attribute.value()));
+        attr.insert(attribute.name(), attribute.value());
     }
 
     if (element.firstChild().isText()) {
@@ -234,11 +212,7 @@ void QtSimpleXml::parse(QDomNode node)
         while (!child.isNull()) {
             QtSimpleXml *xmlNode = new QtSimpleXml;
             xmlNode->parse(child);
-            if(xmlNode->name()=="item")
-                siblArray.append(xmlNode);
-            else
-                siblStruct.insert(xmlNode->name(), xmlNode);
-
+            children.insert(xmlNode->name(), xmlNode);
 
             node = node.nextSibling();
 

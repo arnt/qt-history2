@@ -1,13 +1,13 @@
 #ifndef QTSIMPLEXML_H
 #define QTSIMPLEXML_H
 #include <QString>
-#include <q3dict.h>
-#include <q3ptrlist.h>
-#include <qiodevice.h>
-#include <QDomNode>
+#include <QMultiMap>
+#include <QMap>
 
 class QDomDocument;
 class QDomElement;
+class QDomNode;
+class QIODevice;
 
 class QtSimpleXml
 {
@@ -19,6 +19,7 @@ public:
 
     bool isValid() const;
 
+    const QtSimpleXml &operator [](int index) const;
     QtSimpleXml &operator [](int index);
     QtSimpleXml &operator [](const QString &key);
     QtSimpleXml &operator =(const QString &text);
@@ -36,9 +37,9 @@ private:
     void parse(QDomNode node);
 
     QtSimpleXml *parent;
-    Q3Dict<QtSimpleXml> siblStruct;
-    Q3PtrList<QtSimpleXml> siblArray;
-    Q3Dict<QString> attr;
+
+    QMultiMap<QString, QtSimpleXml *> children;
+    QMap<QString, QString> attr;
 
     QString s;
     QString n;

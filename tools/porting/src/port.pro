@@ -32,4 +32,4 @@ SOURCES += port.cpp                  \
 
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
-QT += compat xml
+QT += xml
