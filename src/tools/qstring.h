@@ -636,7 +636,7 @@ public:
     operator const char *() const { return ascii(); }
 #endif
 #ifndef QT_NO_STL
-    operator std::string() const { return ascii(); }
+    operator std::string() const { return ascii() ? ascii() : ""; }
 #endif
 
     static QString fromUcs2( const unsigned short *ucs2 );
