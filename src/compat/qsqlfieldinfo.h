@@ -71,6 +71,20 @@ public:
 	gen = generated;
     }
 
+    bool operator==( const QSqlFieldInfo& f ) const
+    {
+	return (nm == f.nm &&
+                typ == f.typ &&
+                req == f.req &&
+                len == f.len &&
+                prec == f.prec &&
+                defValue == f.defValue &&
+                tID == f.tID &&
+                gen == f.gen &&
+                trim == f.trim &&
+                calc == f.calc);
+    }
+
     QSqlField toField() const
     { return QSqlField(nm, typ, req, len, prec, defValue, tID, calc); }
     int isRequired() const
