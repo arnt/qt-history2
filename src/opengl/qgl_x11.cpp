@@ -788,7 +788,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
 #ifndef QT_NO_XFT
     if(engine->type() == QFontEngine::Xft) {
-        qgl_use_font((QFontEngineXft *) engine, 0, 256, listBase);
+        qgl_use_font(static_cast<QFontEngineXft *>(engine), 0, 256, listBase);
         return;
     }
 #endif
@@ -796,7 +796,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     // drivers crash if 0 is passed as the font handle
     f.setStyleStrategy(QFont::OpenGLCompatible);
     if (f.handle() && engine->type() == QFontEngine::XLFD)
-        glXUseXFont((Font) f.handle(), 0, 256, listBase);
+        glXUseXFont(static_cast<Font>(f.handle()), 0, 256, listBase);
 }
 #define d d_func()
 
