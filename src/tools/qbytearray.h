@@ -413,10 +413,10 @@ Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 #endif
 
 #ifndef QT_NO_COMPRESS
-Q_CORE_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
+Q_CORE_EXPORT QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel = -1);
 Q_CORE_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
-inline QByteArray qCompress( const QByteArray& data)
-{ return qCompress( (const uchar*)data.constData(), data.size() ); }
+inline QByteArray qCompress(const QByteArray& data, int compressionLevel = -1)
+{ return qCompress((const uchar *)data.constData(), data.size(), compressionLevel); }
 inline QByteArray qUncompress( const QByteArray& data )
 { return qUncompress( (const uchar*)data.constData(), data.size() ); }
 #endif

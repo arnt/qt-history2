@@ -307,12 +307,19 @@ Q_UINT16 qChecksum( const char *data, uint len )
 }
 
 /*!
-    \fn QByteArray qCompress( const QByteArray& data )
+    \fn QByteArray qCompress( const QByteArray& data, int compressionLevel )
 
     \relates QByteArray
 
     Compresses the array \a data and returns the compressed byte
     array.
+
+    The \a compressionLevel parameter specifies how much compression
+    is desired. The values are between 0 and 9. The value 9
+    corresponds to the best compression (i.e. smaller compressed data)
+    at the cost of a slower algorithm. The value 0 corresponds to no
+    compression at all. The default value is -1, which specifies
+    zlib's default compression.
 
     \sa qUncompress()
 */
@@ -327,22 +334,24 @@ Q_UINT16 qChecksum( const char *data, uint len )
 */
 
 #ifndef QT_NO_COMPRESS
-QByteArray qCompress( const uchar* data, int nbytes )
+QByteArray qCompress( const uchar* data, int nbytes, int compressionLevel )
 {
     if ( nbytes == 0 ) {
 	return QByteArray(4, '\0');
     }
     if ( !data ) {
-	qWarning( "qCompress: data is NULL." );
+	qWarning( "qCompress: Data is null" );
 	return QByteArray();
     }
+    if (compressionLevel < -1 || compressionLevel > 9)
+	compressionLevel = -1;
 
     ulong len = nbytes * 2;
     QByteArray bazip;
     int res;
     do {
 	bazip.resize( len + 4 );
-	res = ::compress(  (uchar*)bazip.data()+4, &len, (uchar*)data, nbytes );
+	res = ::compress2((uchar*)bazip.data()+4, &len, (uchar*)data, nbytes, compressionLevel);
 
 	switch ( res ) {
 	case Z_OK:
@@ -353,7 +362,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
 	    bazip[3] = ( nbytes & 0x000000ff );
 	    break;
 	case Z_MEM_ERROR:
-	    qWarning( "qCompress: Z_MEM_ERROR: Not enough memory." );
+	    qWarning( "qCompress: Z_MEM_ERROR: Not enough memory" );
 	    bazip.resize( 0 );
 	    break;
 	case Z_BUF_ERROR:
@@ -375,12 +384,10 @@ QByteArray qCompress( const uchar* data, int nbytes )
     array.
 
     Returns an empty QByteArray if the input data was corrupt.
-    \omit
-    ADD THE FOLLOWING FOR Qt 4.0
+
     This function will uncompress data compressed with qCompress()
     from this and any earlier Qt version, back to Qt 3.1 when this
     feature was added.
-    \endomit
 
     \sa qCompress()
 */
