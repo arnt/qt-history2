@@ -1,29 +1,29 @@
 <!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>FindDialog</class>
-<comment>*********************************************************************
-** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
-**
-** This file is part of Qt Assistant.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
+<comment>*********************************************************************
+** Copyright (C) 2000-2003 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Assistant.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses may use this file in accordance with the Qt Commercial License
 ** Agreement provided with the Software.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
 *********************************************************************</comment>
 <widget class="QDialog">
     <property name="name">
@@ -34,7 +34,7 @@
             <x>0</x>
             <y>0</y>
             <width>362</width>
-            <height>153</height>
+            <height>156</height>
         </rect>
     </property>
     <property name="caption">
@@ -164,7 +164,10 @@
                         <cstring>PushButton2</cstring>
                     </property>
                     <property name="text">
-                        <string>Close</string>
+                        <string>C&amp;lose</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+L</string>
                     </property>
                 </widget>
                 <widget class="QButtonGroup" row="1" column="0" rowspan="2" colspan="1">
@@ -208,6 +211,9 @@
                     </property>
                     <property name="text">
                         <string>&amp;Find</string>
+                    </property>
+                    <property name="accel">
+                        <string>Alt+F</string>
                     </property>
                     <property name="default">
                         <bool>true</bool>

@@ -92,7 +92,10 @@ void TabbedBrowser::newTab( const QString &lnk )
     connect( win, SIGNAL( highlighted( const QString & ) ),
 	     (const QObject*) (mainWin->statusBar()), SLOT( message( const QString & ) ) );
     connect( win, SIGNAL( chooseWebBrowser() ), mainWin, SLOT( showWebBrowserSettings() ) );
-
+    connect( win, SIGNAL( backwardAvailable(bool) ),
+	     mainWin, SLOT( backwardAvailable(bool) ) );
+    connect( win, SIGNAL( forwardAvailable(bool) ),
+	     mainWin, SLOT( forwardAvailable(bool) ) );
     if( !link.isNull() ) {
 	win->setSource( link );
     }
@@ -110,7 +113,7 @@ void TabbedBrowser::zoomOut()
 }
 
 void TabbedBrowser::init()
-{    
+{
     tabLinkUnderline = FALSE;
     tabStyleSheet = new QStyleSheet( QStyleSheet::defaultSheet() );
     lastCurrentTab = 0;
@@ -131,7 +134,7 @@ void TabbedBrowser::init()
     int m = ( tabBar ? style().pixelMetric( QStyle::PM_TabBarTabVSpace, (QWidget*)tabBar )
 	      + style().pixelMetric( QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar ) : 0 );
     int s = tab->height() - m;
-    
+
     QToolButton *newTabButton = new QToolButton( this );
     tab->setCornerWidget( newTabButton, Qt::TopLeft );
     newTabButton->setCursor( arrowCursor );

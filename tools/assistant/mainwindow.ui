@@ -597,6 +597,8 @@
     <slot>showGoActionLink()</slot>
     <slot>showAssistantHelp()</slot>
     <slot>updateProfileSettings()</slot>
+    <slot>backwardAvailable(bool)</slot>
+    <slot>forwardAvailable(bool)</slot>
 </slots>
 <functions>
     <function access="private">setupGoActions()</function>

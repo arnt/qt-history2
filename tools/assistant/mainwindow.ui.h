@@ -146,6 +146,8 @@ void MainWindow::setup()
     tabs->setMimePath( config->mimePaths() );
 
     setObjectsEnabled( TRUE );
+    actionGoPrevious->setEnabled( FALSE );
+    actionGoNext->setEnabled( FALSE );
 }
 
 void MainWindow::setupGoActions()
@@ -600,6 +602,16 @@ void MainWindow::showAssistantHelp()
 HelpDialog* MainWindow::helpDialog()
 {
     return helpDock;
+}
+
+void MainWindow::backwardAvailable( bool enable )
+{
+    actionGoPrevious->setEnabled( enable );
+}
+
+void MainWindow::forwardAvailable( bool enable )
+{
+    actionGoNext->setEnabled( enable );
 }
 
 void MainWindow::updateProfileSettings()
