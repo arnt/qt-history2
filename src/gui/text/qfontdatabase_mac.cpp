@@ -58,7 +58,7 @@ static void initializeDb()
             DisposeTextToUnicodeInfo(&uni_info);
 
             QtFontFamily *family = db->family(fam_name, true);
-            for(int script = 0; script < QFont::LastPrivateScript; ++script)
+            for(int script = 0; script < QUnicodeTables::ScriptCount; ++script)
                 family->scripts[script] = QtFontFamily::Supported;
             QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
@@ -111,7 +111,7 @@ static inline void load(const QString & = QString::null,  int = -1)
 }
 
 static
-QFontEngine *loadEngine(QFont::Script, const QFontPrivate *, const QFontDef &request,
+QFontEngine *loadEngine(int, const QFontPrivate *, const QFontDef &request,
                         QtFontFamily *family, QtFontFoundry *, QtFontStyle *)
 {
     QFontEngineMac *engine = new QFontEngineMac;

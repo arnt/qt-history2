@@ -720,7 +720,7 @@ void QFontDialogPrivate::updateSample()
 /*!
     \internal
 */
-void QFontDialogPrivate::scriptHighlighted(int index)
+void QFontDialogPrivate::scriptHighlighted(int)
 {
     Q_Q(QFontDialog);
     // ###

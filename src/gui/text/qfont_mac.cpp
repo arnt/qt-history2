@@ -27,8 +27,6 @@
 #include "qtextengine_p.h"
 #include <stdlib.h>
 
-QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
-
 int qt_mac_pixelsize(const QFontDef &def, int dpi)
 {
     float ret;
@@ -46,35 +44,6 @@ int qt_mac_pointsize(const QFontDef &def, int dpi)
     else
         ret = def.pointSize;
     return qRound(ret);
-}
-
-int QFontMetrics::charWidth(const QString &str, int pos) const
-{
-    if (pos < 0 || pos > str.length())
-        return 0;
-
-    const QChar &ch = str.unicode()[pos];
-
-    QFont::Script script;
-    SCRIPT_FOR_CHAR(script, ch);
-
-    int cwidth;
-
-    if (script >= QFont::Arabic && script <= QFont::Khmer) {
-        // complex script shaping. Have to do some hard work
-        int from = qMax(0,  pos - 8);
-        int to = qMin(str.length(), pos + 8);
-        QString cstr(str.unicode() + from, to - from);
-        QTextEngine layout(cstr, d);
-        layout.setMode(QTextEngine::WidthOnly);
-        layout.itemize();
-        cwidth = (int)layout.width(pos - from, 1);
-    } else if (::category(ch) == QChar::Mark_NonSpacing) {
-        cwidth = 0;
-    } else {
-        cwidth = width(ch);
-    }
-    return cwidth;
 }
 
 QString QFont::rawName() const
@@ -96,18 +65,18 @@ void QFont::cleanup()
 Qt::HANDLE QFont::handle() const
 {
     if (! d->engineData)
-        d->load(QFont::NoScript);
+        d->load(QUnicodeTables::Common);
     if (d->engineData && d->engineData->engine)
         return (Qt::HANDLE)((QFontEngineMac*)d->engineData->engine)->familyref;
     return 0;
 }
 
-void QFontPrivate::load(QFont::Script script)
+void QFontPrivate::load(int script)
 {
     // sanity checks
     if (!QFontCache::instance)
         qWarning("Must construct a QApplication before a QFont");
-    Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
+    Q_ASSERT(script >= 0 && script < QUnicodeTables::ScriptCount);
     Q_UNUSED(script);
 
     QFontDef req = request;
@@ -115,7 +84,7 @@ void QFontPrivate::load(QFont::Script script)
 
     // set the point size to 0 to get better caching
     req.pointSize = 0;
-    QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
+    QFontCache::Key key = QFontCache::Key(req, QUnicodeTables::Common, screen);
 
     if(!(engineData = QFontCache::instance->findEngineData(key))) {
         engineData = new QFontEngineData;
