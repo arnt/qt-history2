@@ -308,9 +308,25 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
 void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QRect &rect, const QPixmap &pixmap) const
 {
-    if (option.state & QStyle::Style_Selected && option.decorationSize == QStyleOptionViewItem::Large)
-        painter->fillRect(rect, QBrush(option.palette.highlight(), Qt::Dense4Pattern));
     painter->drawPixmap(rect.topLeft(), pixmap);
+    if (option.state & QStyle::Style_Selected) {
+#if 0
+        painter->save();
+        if (pixmap.mask()) {
+            QRegion r(*pixmap.mask());
+            r.translate(rect.topLeft());
+            painter->setClipRegion(r);
+        }
+        QColor col = option.palette.highlight();
+        col.setRgba(col.red(),  col.green(), col.blue(), 127);
+        painter->fillRect(rect, col);
+        painter->restore();
+#else
+        QColor col = option.palette.highlight();
+        col.setRgba(col.red(),  col.green(), col.blue(), 127);
+        painter->fillRect(rect, col);
+#endif
+    }
 }
 
 /*!
