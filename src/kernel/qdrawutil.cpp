@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#19 $
 **
 ** Implementation of draw utilities
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#19 $");
 
 
 /*!
@@ -185,13 +185,12 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	p->drawLineSegments( a );		// draw bottom/right lines
     }
     else {					// more complicated
-	int t = lineWidth*2+midLineWidth;
 	int m = lineWidth+midLineWidth;
 	int i, j=0, k=m;
 	for ( i=0; i<lineWidth; i++ ) {		// draw top shadow
 	    p->drawLine( x1+j, y2-j, x1+j, y1+j );
 	    p->drawLine( x1+j, y1+j, x2-j, y1+j );
-	    p->drawLine( x1+t/*k*/, y2-k, x2-k, y2-k );
+	    p->drawLine( x1+k, y2-k, x2-k, y2-k );
 	    p->drawLine( x2-k, y2-k, x2-k, y1+k );
 	    j++;
 	    k++;
@@ -211,7 +210,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 	for ( i=0; i<lineWidth; i++ ) {		// draw bottom shadow
 	    p->drawLine( x1+1+j,y2-j, x2-j, y2-j );
 	    p->drawLine( x2-j,	y2-j, x2-j, y1+j+1 );
-	    p->drawLine( x1+k,	y2-m/*k*/, x1+k, y1+k );
+	    p->drawLine( x1+k,	y2-k, x1+k, y1+k );
 	    p->drawLine( x1+k,	y1+k, x2-k, y1+k );
 	    j++;
 	    k++;
