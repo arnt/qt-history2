@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#19 $
 **
 ** Implementation of Motif-like style class
 **
@@ -801,7 +801,7 @@ static const int motifItemVMargin	= 2;	// menu item ver text margin
 static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 static const int motifTabSpacing	= 12;	// space between text and tab
 static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
-static const int motifCheckMarkWidth = 7;       // checkmarks in Motif
+static const int motifCheckMarkSpace    = 12;
 
 
 /*! \reimp
@@ -869,14 +869,9 @@ int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem*
 	    w += motifTabSpacing;
     }
 
-    if ( maxpmw ) { // we have iconsets
-	w += maxpmw;
-	w += 6; // add a little extra border around the iconset
-    }
-
-    if ( checkable && maxpmw < motifCheckMarkWidth ) {
-	w += motifCheckMarkWidth - maxpmw; // space for the checkmarks
-    }
+    if ( checkable )
+	maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
+    w += maxpmw;
 
     if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
 	w += motifCheckMarkHMargin; // add space to separate the columns
@@ -915,7 +910,7 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
 			: pal.normal();
 
     if ( checkable )
-	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+	maxpmw = QMAX( maxpmw, motifCheckMarkSpace );
     int checkcol	  =     maxpmw;
 
 
