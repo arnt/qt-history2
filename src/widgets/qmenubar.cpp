@@ -768,14 +768,14 @@ int QMenuBar::calculateRects( int max_width )
                 separator = i; //### only motif?
         }
         if ( !mi->isSeparator() || mi->widget() ) {
-#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
 	    if ( !mac_eaten_menubar ) {
 #endif
 		if ( gs == MotifStyle ) {
 		    w += 2*motifItemFrame;
 		    h += 2*motifItemFrame;
 		}
-#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
 	    }
 #endif
 
@@ -953,7 +953,7 @@ void QMenuBar::drawContents( QPainter *p )
                                   ( hasFocus() || hasmouse || popupvisible ) );
         }
     }
-#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
 	    if ( !mac_eaten_menubar ) {
 #endif
 		GUIStyle gs = style().guiStyle();
@@ -963,7 +963,7 @@ void QMenuBar::drawContents( QPainter *p )
 		    p->setPen( g.dark() );
 		    p->drawLine( 0, height()-2, width()-1, height()-2 );
 		}
-#if !defined(Q_WS_MAC) || !defined(QMAC_QMENUBAR_NATIVE)
+#if defined(Q_WS_MAC) && defined(QMAC_QMENUBAR_NATIVE)
 	    }
 #endif
 }
