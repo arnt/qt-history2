@@ -592,7 +592,6 @@ do
 	[ "$VAL" = "no" ] && CFG_LIBPNG=no
 	;;
     libpng)
-	echo ":$VAR: :$VAL:"
 	[ "$VAL" = "yes" ] && VAL=qt
 	if [ "$VAL" = "no " ]; then #left for commandline compatibility, not documented
 	    echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
