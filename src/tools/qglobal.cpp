@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#28 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <qdict.h>
 #include <qstring.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -332,7 +332,15 @@ declare(QDictM,int);
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
+    static bool firstWarning = TRUE;
     static QDictM(int) obsoleteDict;
+    if ( firstWarning ) {
+	firstWarning = FALSE;
+	debug( 
+      "You are using obsolete functions in the Qt library. Call the function\n"
+      "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
+	     );
+    }
     QString s( obj );
     s += "::";
     s += oldfunc;
@@ -344,8 +352,17 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     }
 }
 
+static bool suppressObsolete = FALSE;
+
+void qSuppressObsoleteWarnings( bool suppress )
+{
+    suppressObsolete = suppress;
+}
+
 void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
 {
+    if ( suppressObsolete )
+	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
     debug( "%s::%s: This function is obsolete, use %s instead",
@@ -354,6 +371,8 @@ void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
 
 void qObsolete(  const char *obj, const char *oldfunc )
 {
+    if ( suppressObsolete )
+	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
     debug( "%s::%s: This function is obsolete.", obj, oldfunc );

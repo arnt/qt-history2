@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#48 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#49 $
 **
 ** Global type declarations and definitions
 **
@@ -315,14 +315,18 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 #define CHECK_PTR(p)
 #endif
 
+void qSuppressObsoleteWarnings( bool = TRUE );
 void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
 void qObsolete( const char *obj, const char *oldfunc );
-
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*msg_handler)(QtMsgType, const char *);
 msg_handler qInstallMsgHandler( msg_handler );	// install message handler
+
+#if !defined(TEST_OBSOLETE)
+#define OBSOLETE
+#endif
 
 
 #endif // QGLOBAL_H
