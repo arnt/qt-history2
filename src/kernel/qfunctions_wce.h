@@ -191,7 +191,7 @@ BOOL ResizePalette( HPALETTE hpal, UINT nEntries );
 COLORREF PALETTEINDEX( WORD wPaletteIndex );
 
 
-void *bsearch( const void *key, const void *base, size_t num, size_t width, int ( __cdecl *compare ) ( const void *elem1, const void *elem2 ) );
+void *bsearch( const void *key, const void *base0, size_t nmemb, size_t size, int ( __cdecl *compar ) ( const void *, const void * ) );
 
 #define ETO_GLYPH_INDEX              0x0010
 typedef struct tagENUMLOGFONTEX {
