@@ -41,7 +41,7 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
     QVBoxLayout *bl = new QVBoxLayout( 6, "phrase book button layout" );
 
     sourceLed = new QLineEdit( this, "source line edit" );
-    QLabel *source = new QLabel( sourceLed, tr("&Source phrase:"), this,
+    QLabel *source = new QLabel( sourceLed, tr("S&ource phrase:"), this,
 				 "source label" );
     targetLed = new QLineEdit( this, "target line edit" );
     QLabel *target = new QLabel( targetLed, tr("&Translation:"), this,
