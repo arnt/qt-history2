@@ -233,7 +233,6 @@ QDataTable::~QDataTable()
 
 void QDataTable::addColumn( const QString& fieldName, const QString& label, const QIconSet& iconset )
 {
-    qDebug("adding col:" + fieldName + " label:" + label);
     d->fld += fieldName;
     d->fldLabel += label;
     d->fldIcon += iconset;
@@ -1752,19 +1751,12 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
-    qDebug("refresh mode:" + QString::number( mode ) );
     bool refreshData = ( (mode & RefreshData) == RefreshData );
     bool refreshCol = ( (mode & RefreshColumns) == RefreshColumns );
     if ( ( (mode & RefreshAll) == RefreshAll ) ) {
 	refreshData = TRUE;
 	refreshCol = TRUE;
     }
-    //##
-    if ( refreshData )
-	qDebug("QDataTable refreshing data");
-    if ( refreshCol )
-	qDebug("QDataTable refreshing cols");
-
     viewport()->setUpdatesEnabled( FALSE );
     d->haveAllRows = FALSE;
     if ( refreshData )
@@ -1831,7 +1823,7 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
     return found;
 }
 
-/*! \fn void QDataTable::currentChanged( const QSqlRecord* record )
+/*! \fn void QDataTable::currentChanged( QSqlRecord* record )
   This signal is emitted whenever a new row is selected in the table.
   The \a record parameter points to the contents of the newly selected
   record.
@@ -1840,7 +1832,7 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
 /*! \fn void QDataTable::primeInsert( QSqlRecord* buf )
   This signal is emitted after the cursor is primed for insert by the
   table, when an insert action is beginning on the table.  The \a buf
-  parameter points to the record buffer being inserted.  Connect to
+  parameter points to the edit buffer being inserted.  Connect to
   this signal in order to, for example, prime the record buffer with
   default data values.
 */
@@ -1848,30 +1840,30 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
 /*! \fn void QDataTable::primeUpdate( QSqlRecord* buf ) This signal is
   emitted after the cursor is primed for update by the table, when an
   update action is beginning on the table.  The \a buf parameter
-  points to the record buffer being updated.  Connect to this signal
+  points to the edit buffer being updated.  Connect to this signal
   to ###?
 */
 
 /*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) This signal is
   emitted after the cursor is primed for delete by the table, when a
   delete action is beginning on the table.  The \a buf parameter
-  points to the record buffer being deleted.  Connect to this signal
+  points to the edit buffer being deleted.  Connect to this signal
   to ###?
 */
 
 /*! \fn void QDataTable::beforeInsert( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is inserted into the database.
-  The \a buf parameter points to the record buffer being inserted.
+  The \a buf parameter points to the edit buffer being inserted.
 */
 
 /*! \fn void QDataTable::beforeUpdate( QSqlRecord* buf )
   This signal is emitted just before the cursor's edit buffer is updated in the database.
-  The \a buf parameter points to the record buffer being updated.
+  The \a buf parameter points to the edit buffer being updated.
 */
 
 /*! \fn void QDataTable::beforeDelete( QSqlRecord* buf )
   This signal is emitted just before the currently selected record is deleted from the database.
-  The \a buf parameter points to the record buffer being deleted.
+  The \a buf parameter points to the edit buffer being deleted.
 */
 
 /*! \fn void QDataTable::cursorChanged( QSql::Op mode )

@@ -86,11 +86,25 @@ bool QDesignerDataBrowser::event( QEvent* e )
 QDesignerDataView::QDesignerDataView( QWidget *parent, const char *name )
     : QDataView( parent, name )
 {
+    setForm( frm );
 }
 
 bool QDesignerDataView::event( QEvent* e )
 {
-    return QDataView::event( e );
+    bool b = QDataView::event( e );
+    if (
+#if defined(DESIGNER)
+	MainWindow::self->isPreviewing()
+#else
+	TRUE
+#endif
+	) {
+	if ( e->type() == QEvent::Show ) {
+	    setForm( frm );
+	    return TRUE;
+	}
+    }
+    return b;
 }
 
 

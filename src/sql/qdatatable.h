@@ -94,8 +94,6 @@ public:
     bool         autoDelete() const;
     QString      filter() const;
     QStringList  sort() const;
-    void setCursor ( const QCursor & cursor ) { QTable::setCursor( cursor ); }
-    const QCursor& cursor () const { return QTable::cursor(); }
 
     void setCursor( QSqlCursor* cursor ) { setCursor( cursor, FALSE, FALSE ); }
     virtual void setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE ) { setCursor( cursor, autoPopulate, autoDelete ); }
@@ -138,7 +136,7 @@ public:
     bool         findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 signals:
-    void         currentChanged( const QSqlRecord* record );
+    void         currentChanged( QSqlRecord* record );
     void         primeInsert( QSqlRecord* buf );
     void         primeUpdate( QSqlRecord* buf );
     void         primeDelete( QSqlRecord* buf );

@@ -312,7 +312,8 @@ void QSqlForm::readFields()
 			     QSqlPropertyMap::defaultMap() : d->propertyMap;
     for(it = d->map.begin() ; it != d->map.end(); ++it ){
 	f = widgetToField( it.key() );
-	if( !f ) continue;
+	if( !f )
+	    continue;
 	pmap->setProperty( it.key(), f->value() );
     }
 }
@@ -331,7 +332,8 @@ void QSqlForm::writeFields()
 
     for(it = d->map.begin() ; it != d->map.end(); ++it ){
 	f = widgetToField( it.key() );
-	if( !f ) continue;
+	if( !f )
+	    continue;
 	f->setValue( pmap->property( it.key() ) );
     }
 }
@@ -392,9 +394,7 @@ void QSqlForm::sync()
 
 void QSqlForm::clearMap()
 {
-    QMap< QWidget *, QSqlField * >::Iterator it;
-    for( it = d->map.begin(); it != d->map.end(); ++it )
-	d->map.remove( it );
+    d->map.clear();
 }
 
 #endif // QT_NO_SQL

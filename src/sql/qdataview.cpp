@@ -165,4 +165,24 @@ void QDataView::writeFields()
     d->frm.writeFields();
 }
 
+/*! Causes the default form to display the contents of \a record.  The
+  \a record also becomes the default record for all subsequent calls
+  to readFields() and writefields() .  If there is no default form,
+  nothing happens.  This slot is equivelant to calling:
+
+  \code
+  myView.setRecord( record );
+  myView.readFields();
+  \endcode
+
+  \sa setRecord() readFields()
+
+*/
+
+void QDataView::refresh( QSqlRecord* record )
+{
+    setRecord( record );
+    readFields();
+}
+
 #endif
