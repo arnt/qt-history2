@@ -15,6 +15,13 @@ if x%MKSPEC% == x (
 	echo MKSPEC must be defined
 	goto :end)
 
+set DELEXP=yes
+if not %DELEXP%==!DELEXP! (
+	echo Delayed expansion is not enabled.
+	echo Spawning a new shell with delayed expansion enabled...
+	cmd /V:ON /C call configure.bat
+	goto :end)
+
 rem **************************************
 rem   Parse command line arguments
 rem **************************************
