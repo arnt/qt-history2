@@ -1126,7 +1126,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
-	if(btn->isFlat() && !(how & Style_Down))
+	if(btn->isFlat() && !(how & (Style_Down | Style_On)))
 	    break;
 
 	d->addWidget(btn);

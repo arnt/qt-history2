@@ -385,7 +385,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             break;
 	const QPushButton *btn = static_cast<const QPushButton *>(widget);
 	d->addWidget(const_cast<QPushButton*>(btn));
-        if (btn->isFlat() && !(how & Style_Down))
+        if (btn->isFlat() && !(how & (Style_Down | Style_On)))
 	    return;
         HIThemeButtonDrawInfo info;
 	info.version = qt_mac_hitheme_version;

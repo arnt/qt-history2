@@ -74,7 +74,7 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
 
     There are additional issues that should be taken
     into consideration to make an application compatible with the
-    \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+    \link http://developer.apple.com/documentation/UserExperience/Conceptual/OSXHIGuidelines/index.html
     Aqua Style Guidelines \endlink. Some of these issues are outlined
     below.
 
