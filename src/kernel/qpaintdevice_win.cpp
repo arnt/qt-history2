@@ -405,10 +405,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	}
     } else {
-	if ( src_pm && src_pm->data->hasRealAlpha &&
-		( qt_winver == Qt::WV_98 ||
-		  qt_winver == Qt::WV_2000  || 
-		  qt_winver == Qt::WV_XP ) ) {
+	if ( src_pm && src_pm->data->hasRealAlpha ) {
 	    qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
