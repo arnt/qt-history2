@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#18 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#19 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -104,9 +104,7 @@ public:
     int wordWrap() const;
     void setWrapColumnOrWidth( int );
     int wrapColumnOrWidth() const;
-	
 
-q_properties:
     bool autoUpdate()	const;
     virtual void setAutoUpdate( bool );
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#30 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#31 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -48,7 +48,6 @@ public:
 
     virtual void setColumnLayout(int columns, Orientation o);
 
-q_properties:
     QString title() const { return str; }
     virtual void setTitle( const QString &);
 

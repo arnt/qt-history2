@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#52 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#53 $
 **
 ** Definition of QPushButton class
 **
@@ -48,7 +48,6 @@ public:
     virtual void setGeometry( int x, int y, int w, int h );
     virtual void setGeometry( const QRect & );
 
-q_properties:
     virtual void setToggleButton( bool );
 
     bool	autoDefault()	const	{ return autoDefButton; }
