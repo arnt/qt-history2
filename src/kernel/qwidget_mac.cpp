@@ -1093,6 +1093,7 @@ void QWidget::erase( int x, int y, int w, int h )
     erase( QRegion( x, y, w, h ) );
 }
 
+bool fuckery = FALSE;
 void QWidget::erase( const QRegion& reg )
 {
     if ( backgroundMode() == NoBackground )
@@ -1113,9 +1114,7 @@ void QWidget::erase( const QRegion& reg )
 	}
     }
 
-    qt_set_paintevent_clipping( this, reg );
-    QPainter p;
-    p.begin(this);
+    QPainter p(this);
     p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
@@ -1126,7 +1125,6 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(rr, bg_col);
     }
     p.end();
-    qt_clear_paintevent_clipping( this );
 }
 
 
