@@ -11,15 +11,17 @@
 **
 ****************************************************************************/
 
-#include "qapplication.h"
-#include "qdesktopwidget.h"
-#include "qevent.h"
-#include "qhash.h"
-#include "qlabel.h"
-#include "qpointer.h"
-#include "qtimer.h"
-#include "qtooltip.h"
-#include "qstyle.h"
+#include <qapplication.h>
+#include <qdesktopwidget.h>
+#include <qevent.h>
+#include <qhash.h>
+#include <qlabel.h>
+#include <qpointer.h>
+#include <qstyle.h>
+#include <qstyleoption.h>
+#include <qstylepainter.h>
+#include <qtimer.h>
+#include <qtooltip.h>
 #include <private/qeffects_p.h>
 
 /*!
@@ -63,6 +65,7 @@ public:
 protected:
     void enterEvent(QEvent*){hideTip();}
     void timerEvent(QTimerEvent *e);
+    void paintEvent(QPaintEvent *e);
 
 };
 
@@ -74,7 +77,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     delete instance;
     instance = this;
     setMargin(1);
-    setFrameStyle(QFrame::Plain | QFrame::Box);
+    setFrameStyle(QFrame::NoFrame);
     setLineWidth(1);
     setAlignment(Qt::AlignLeft | Qt::AlignTop);
     setIndent(0);
@@ -84,6 +87,21 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     qApp->installEventFilter(this);
     hideTimer.start(10000, this);
     setWindowOpacity(style()->styleHint(QStyle::SH_TipLabel_Opacity, 0, this) / 255.0);
+    // No resources for this yet (unlike on Windows).
+    QPalette pal(Qt::black, QColor(255,255,220),
+                  QColor(96,96,96), Qt::black, Qt::black,
+                  Qt::black, QColor(255,255,220));
+    setPalette(pal);
+}
+
+void QTipLabel::paintEvent(QPaintEvent *ev)
+{
+    QStylePainter p(this);
+    QStyleOptionFrame opt;
+    opt.init(this);
+    opt.lineWidth = 1;
+    p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
+    QLabel::paintEvent(ev);
 }
 
 QTipLabel::~QTipLabel()
@@ -109,14 +127,22 @@ void QTipLabel::timerEvent(QTimerEvent *e)
 bool QTipLabel::eventFilter(QObject *, QEvent *e)
 {
     switch (e->type()) {
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease: {
+        int key = static_cast<QKeyEvent *>(e)->key();
+        Qt::KeyboardModifiers mody = static_cast<QKeyEvent *>(e)->modifiers();
+
+        if ((mody & Qt::KeyboardModifierMask)
+            || (key == Qt::Key_Shift || key == Qt::Key_Control
+                || key == Qt::Key_Alt || key == Qt::Key_Meta))
+            break;
+    }
     case QEvent::Leave:
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
     case QEvent::FocusIn:
     case QEvent::FocusOut:
         hideTip();
@@ -198,7 +224,11 @@ void QToolTip::showText(const QPoint &pos, const QString &text, QWidget *w)
 */
 QPalette QToolTip::palette()
 {
-    return QApplication::palette("QTipLabel");
+    if (QTipLabel::instance)
+        return QTipLabel::instance->palette();
+    return QPalette(Qt::black, QColor(255,255,220),
+                    QColor(96,96,96), Qt::black, Qt::black,
+                    Qt::black, QColor(255,255,220));
 }
 
 /*!

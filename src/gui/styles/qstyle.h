@@ -141,6 +141,7 @@ public:
         PE_IndicatorSpinUp,
         PE_IndicatorToolBarHandle,
         PE_IndicatorToolBarSeparator,
+        PE_PanelTipLabel,
 
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000

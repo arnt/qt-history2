@@ -506,6 +506,16 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->drawPolygon(a);
         p->restore();
         break; }
+    case PE_PanelTipLabel: {
+        QBrush oldBrush = p->brush();
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.foreground().color());
+        p->setBrush(opt->palette.background());
+        p->drawRect(opt->rect.adjusted(0, 0, -1, -1));
+        p->setPen(oldPen);
+        p->setBrush(oldBrush);
+        break;
+    }
     default:
         break;
     }

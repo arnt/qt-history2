@@ -4553,14 +4553,6 @@ QMacStyle::~QMacStyle()
 /*! \reimp */
 void QMacStyle::polish(QPalette &pal)
 {
-    QPalette toolTipPalette(Qt::black, QColor(255,255,220),
-                  QColor(96,96,96), Qt::black, Qt::black,
-                  Qt::black, QColor(255,255,220));
-    if (pal == toolTipPalette) {
-        pal = QPalette(Qt::black, QColor(254, 254, 201), QColor(195, 195, 195),
-                            Qt::black, Qt::black, Qt::black, QColor(254, 254, 201));
-        return;
-    }
     QPixmap px(200, 200);
     QColor pc(Qt::black);
     {
@@ -5195,6 +5187,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             drawPrimitive(PE_FrameTabWidget, &twf, p, w);
             p->restore();
         }
+        break;
+    case PE_PanelTipLabel:
+        p->fillRect(opt->rect, QColor(255, 255, 199));
         break;
     default:
         if (d->useHITheme)

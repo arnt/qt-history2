@@ -487,15 +487,6 @@ QClipboard              *qt_clipboard = 0;        // global clipboard object
 QWidgetList * qt_modal_stack=0;                // stack of modal widgets
 
 
-static void qt_fix_tooltips()
-{
-    // No resources for this yet (unlike on Windows).
-    QPalette pal(Qt::black, QColor(255,255,220),
-                  QColor(96,96,96), Qt::black, Qt::black,
-                  Qt::black, QColor(255,255,220));
-    QApplication::setPalette(pal, "QTipLabel");
-}
-
 /*!
     \internal
 */
@@ -1441,7 +1432,6 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
             all = true;
             hash->clear();
         }
-        qt_fix_tooltips();
     } else if (hash) {
         hash->insert(className, pal);
     }
