@@ -416,8 +416,11 @@ void QTextHTMLImporter::import()
          *      means there was a tag closing in the input html
          *  3) this isn't the last node, as we deal with that at the end
          */
-        if (i > 0 && (node->parent != i - 1) && (i < count() - 1))
-            closeTag(i);
+        if (i > 0 && (node->parent != i - 1) && (i < count() - 1)) {
+            const bool blockTagClosed = closeTag(i);
+            if (hasBlock && blockTagClosed)
+                hasBlock = false;
+        }
 
         if (node->isListStart) {
 
@@ -544,12 +547,14 @@ void QTextHTMLImporter::import()
 
 }
 
-void QTextHTMLImporter::closeTag(int i)
+// returns true if block tag was closed
+bool QTextHTMLImporter::closeTag(int i)
 {
     const bool atLastNode = (i == count() - 1);
     const QTextHtmlParserNode *closedNode = &at(i - 1);
     const int endDepth = atLastNode ? - 1 : depth(i) - 1;
     int depth = this->depth(i - 1);
+    bool blockTagClosed = false;
 
     while (depth > endDepth) {
         if (closedNode->tag == QLatin1String("tr")) {
@@ -566,6 +571,7 @@ void QTextHTMLImporter::closeTag(int i)
             }
 
             t.currentColumnCount = 0;
+            blockTagClosed = true;
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tables.isEmpty());
             QTextCharFormat charFmt;
@@ -573,17 +579,21 @@ void QTextHTMLImporter::closeTag(int i)
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextEndOfFrame);
             tables.resize(tables.size() - 1);
+            blockTagClosed = true;
         } else if (closedNode->isListStart) {
 
             Q_ASSERT(!listReferences.isEmpty());
 
             listReferences.resize(listReferences.size() - 1);
             --indent;
+            blockTagClosed = true;
         }
 
         closedNode = &at(closedNode->parent);
         --depth;
     }
+
+    return blockTagClosed;
 }
 
 void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)

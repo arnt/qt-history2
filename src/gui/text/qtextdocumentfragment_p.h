@@ -111,7 +111,7 @@ public:
     void import();
 
 private:
-    void closeTag(int i);
+    bool closeTag(int i);
 
     void scanTable(int tableNodeIdx, Table *table);
 
