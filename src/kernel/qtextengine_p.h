@@ -346,8 +346,8 @@ public:
 
     void reallocate( int totalGlyphs );
     inline void ensureSpace( int nGlyphs ) const {
-	if ( used + num_glyphs < nGlyphs )
-	    ((QTextEngine *)this)->reallocate( ( (nGlyphs + 16) >> 4 ) << 4 );
+	if ( num_glyphs - used < nGlyphs )
+	    ((QTextEngine *)this)->reallocate( ( (used + nGlyphs + 16) >> 4 ) << 4 );
     }
 
     int allocated;
