@@ -92,17 +92,17 @@ static int ucstrnicmp(const QChar *a, const QChar *b, int l)
 }
 
 
-static bool qIsUpper(char c)
+inline bool qIsUpper(char c)
 {
     return c >= 'A' && c <= 'Z';
 }
 
-static bool qIsDigit(char c)
+inline bool qIsDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
-static char qToLower(char c)
+inline char qToLower(char c)
 {
     if (c >= 'A' && c <= 'Z')
     	return c - 'A' + 'a';
@@ -3892,13 +3892,8 @@ ushort QString::toUShort(bool *ok, int base) const
 
 double QString::toDouble(bool *ok) const
 {
-    char *end;
-
-    const char *a = latin1();
-    double val = strtod(a ? a : "", &end);
-    if (ok)
-	*ok = (a && *a && (end == 0 || (end - a) == (int)length()));
-    return val;
+    QLocale locale(QLocale::C);
+    return locale.d->stringToDouble(*this, ok);
 }
 
 /*!

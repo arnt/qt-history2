@@ -83,7 +83,12 @@ public:
     Q_LLONG stringToLongLong(QString num, int base, bool *ok) const;
     Q_ULLONG stringToUnsLongLong(QString num, int base, bool *ok) const;
 
-    QString &numberToCLocale(QString &locale_num) const;
+
+    static double bytearrayToDouble(QByteArray num, bool *ok);
+    static Q_LLONG bytearrayToLongLong(QByteArray num, int base, bool *ok);
+    static Q_ULLONG bytearrayToUnsLongLong(QByteArray num, int base, bool *ok);
+
+    QByteArray numberToCLocale(const QString &locale_num) const;
 
     Q_UINT32 m_language_id, m_country_id;
 

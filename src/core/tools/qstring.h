@@ -686,6 +686,23 @@ inline bool QByteArray::operator<(const QString &s) const { return constData() <
 inline bool QByteArray::operator>(const QString &s) const { return constData() < s;}
 inline bool QByteArray::operator<=(const QString &s) const { return constData() < s;}
 inline bool QByteArray::operator>=(const QString &s) const { return constData() < s;}
+
+#ifndef QT_NO_CAST_TO_ASCII
+inline QByteArray &QByteArray::append(const QString &s)
+{ return append(s.toAscii()); }
+inline QByteArray &QByteArray::insert(int i, const QString &s)
+{ return insert(i, s.toAscii()); }
+inline QByteArray &QByteArray::replace(char c, const QString &after)
+{ return replace(c, after.toAscii()); }
+inline QByteArray &QByteArray::replace(const QString &before, const char *after)
+{ return replace(before.toAscii(), after); }
+inline QByteArray &QByteArray::operator+=(const QString &s)
+{ return operator+=(s.toAscii()); }
+inline int QByteArray::indexOf(const QString &s, int from) const
+{ return indexOf(s.toAscii(), from); }
+inline int QByteArray::lastIndexOf(const QString &s, int from) const
+{ return lastIndexOf(s.toAscii(), from); }
+#endif // QT_NO_CAST_TO_ASCII
 #endif
 
 inline const QString operator+(const QString &s1, const QString &s2)

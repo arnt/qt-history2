@@ -185,6 +185,37 @@ public:
     inline bool operator>=(const QString &s2) const;
 #endif
 
+    short  toShort(bool *ok=0, int base=10) const;
+    ushort toUShort(bool *ok=0, int base=10) const;
+    int toInt(bool *ok=0, int base=10)   const;
+    uint toUInt(bool *ok=0, int base=10)  const;
+    long toLong(bool *ok=0, int base=10)  const;
+    ulong toULong(bool *ok=0, int base=10) const;
+    Q_LLONG toLongLong(bool *ok=0, int base=10) const;
+    Q_ULLONG toULongLong(bool *ok=0, int base=10) const;
+    float toFloat(bool *ok=0) const;
+    double toDouble(bool *ok=0) const;
+
+    QByteArray &setNum(short, int base=10);
+    QByteArray &setNum(ushort, int base=10);
+    QByteArray &setNum(int, int base=10);
+    QByteArray &setNum(uint, int base=10);
+    QByteArray &setNum(long, int base=10);
+    QByteArray &setNum(ulong, int base=10);
+    QByteArray &setNum(Q_LLONG, int base=10);
+    QByteArray &setNum(Q_ULLONG, int base=10);
+    QByteArray &setNum(float, char f='g', int prec=6);
+    QByteArray &setNum(double, char f='g', int prec=6);
+
+    static QByteArray number(long, int base=10);
+    static QByteArray number(ulong, int base=10);
+    static QByteArray number(int, int base=10);
+    static QByteArray number(uint, int base=10);
+    static QByteArray number(Q_LLONG, int base=10);
+    static QByteArray number(Q_ULLONG, int base=10);
+    static QByteArray number(double, char f='g', int prec=6);
+
+
     typedef char *Iterator;
     typedef const char *ConstIterator;
     Iterator begin();
@@ -437,6 +468,22 @@ inline QByteArray &QByteArray::replace(const QByteArray &before, const char *aft
 { QConstByteArray cb(after, strlen(after)); return replace(before, after); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { QConstByteArray cb(before, strlen(before)); QConstByteArray ca(after, strlen(after)); return replace(cb, ca); }
+
+inline QByteArray &QByteArray::setNum(short n, int base)
+{ return setNum((Q_LLONG)n, base); }
+inline QByteArray &QByteArray::setNum(ushort n, int base)
+{ return setNum((Q_ULLONG)n, base); }
+inline QByteArray &QByteArray::setNum(int n, int base)
+{ return setNum((Q_LLONG)n, base); }
+inline QByteArray &QByteArray::setNum(uint n, int base)
+{ return setNum((Q_ULLONG)n, base); }
+inline QByteArray &QByteArray::setNum(long n, int base)
+{ return setNum((Q_LLONG)n, base); }
+inline QByteArray &QByteArray::setNum(ulong n, int base)
+{ return setNum((Q_ULLONG)n, base); }
+inline QByteArray &QByteArray::setNum(float n, char f, int prec)
+{ return setNum((double)n,f,prec); }
+
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );

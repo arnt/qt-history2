@@ -15,6 +15,8 @@
 #include "qbytearray.h"
 #include "qtools_p.h"
 #include "qstring.h"
+#include "qlocale.h"
+#include "qlocale_p.h"
 #ifndef QT_NO_DATASTREAM
 #include <qdatastream.h>
 #endif
@@ -419,6 +421,26 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 }
 #endif
 
+
+
+
+inline bool qIsUpper(char c)
+{
+    return c >= 'A' && c <= 'Z';
+}
+
+inline bool qIsDigit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+inline char qToLower(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+    	return c - 'A' + 'a';
+    else
+    	return c;
+}
 
 
 Q_CORE_EXPORT QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, shared_null.array, {0} };
@@ -1785,12 +1807,560 @@ QByteArray QByteArray::rightJustified(int width, char fill, bool truncate) const
 
 bool QByteArray::isNull() const { return d == &shared_null; }
 
-#ifndef QT_NO_CAST_TO_ASCII
-QByteArray &QByteArray::append(const QString &s) { return append(s.toAscii()); }
-QByteArray &QByteArray::insert(int i, const QString &s){ return insert(i, s.toAscii()); }
-QByteArray &QByteArray::replace(char c, const QString &after) { return replace(c, after.toAscii()); }
-QByteArray &QByteArray::replace(const QString &before, const char *after){ return replace(before.toAscii(), after); }
-QByteArray &QByteArray::operator+=(const QString &s) { return operator+=(s.toAscii()); }
-int QByteArray::indexOf(const QString &s, int from) const { return indexOf(s.toAscii(), from); }
-int QByteArray::lastIndexOf(const QString &s, int from) const  { return lastIndexOf(s.toAscii(), from); }
-#endif // QT_NO_CAST_TO_ASCII
+
+/*!
+    Returns the string converted to a \c {long long} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base != 0 && (base < 2 || base > 36) ) {
+	qWarning( "QByteArray::toLongLong: Invalid base (%d)", base );
+	base = 10;
+    }
+#endif
+
+    QLocale locale(QLocale::C);
+    return locale.d->bytearrayToLongLong(*this, base, ok);
+}
+
+/*!
+    Returns the string converted to an \c {unsigned long long} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+Q_ULLONG QByteArray::toULongLong(bool *ok, int base) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base != 0 && (base < 2 || base > 36) ) {
+	qWarning( "QByteArray::toULongLong: Invalid base %d", base );
+	base = 10;
+    }
+#endif
+
+    QLocale locale(QLocale::C);
+    return locale.d->bytearrayToUnsLongLong(*this, base, ok);
+}
+
+/*!
+    Returns the string converted to a \c long using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+long QByteArray::toLong(bool *ok, int base) const
+{
+    Q_LLONG v = toLongLong(ok, base);
+    if (v < LONG_MIN || v > LONG_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return long(v);
+}
+
+/*!
+    Returns the string converted to an \c {unsigned long} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+ulong QByteArray::toULong(bool *ok, int base) const
+{
+    Q_ULLONG v = toULongLong(ok, base);
+    if (v > ULONG_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return ulong(v);
+}
+
+/*!
+    Returns the string converted to an \c int using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \code
+	QByteArray str("FF");
+	bool ok;
+	int hex = str.toInt(&ok, 16);     // hex == 255, ok == true
+	int dec = str.toInt(&ok, 10);     // dec == 0, ok == false
+    \endcode
+
+    \sa number()
+*/
+
+int QByteArray::toInt(bool *ok, int base) const
+{
+    long v = toLongLong(ok, base);
+    if (v < INT_MIN || v > INT_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return (int)v;
+}
+
+/*!
+    Returns the string converted to an \c {unsigned int} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+uint QByteArray::toUInt(bool *ok, int base) const
+{
+    ulong v = toULongLong(ok, base);
+    if (v > UINT_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return (uint)v;
+}
+
+/*!
+    Returns the string converted to a \c short using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+short QByteArray::toShort(bool *ok, int base) const
+{
+    long v = toLongLong(ok, base);
+    if (v < SHRT_MIN || v > SHRT_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return (short)v;
+}
+
+/*!
+    Returns the string converted to an \c {unsigned short} using base \a
+    base, which is 10 by default and must be between 2 and 36 or 0. If
+    \a base is 0, the base is determined automatically using the
+    following rules: If the string begins with "0x", it is assumed to
+    be hexadecimal; if it begins with "0", it is assumed to be octal;
+    otherwise it is assumed to be decimal.
+
+    Returns 0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+ushort QByteArray::toUShort(bool *ok, int base) const
+{
+    ulong v = toULongLong(ok, base);
+    if (v > USHRT_MAX) {
+	if (ok)
+	    *ok = false;
+	v = 0;
+    }
+    return (ushort)v;
+}
+
+
+/*!
+    Returns the string converted to a \c double value.
+
+    Returns 0.0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    false; otherwise \a *ok is set to true.
+
+    \code
+	QByteArray string("1234.56");
+	double a = string.toDouble();   // a == 1234.56
+    \endcode
+
+    \sa number()
+*/
+
+double QByteArray::toDouble(bool *ok) const
+{
+    QLocale locale(QLocale::C);
+    return locale.d->bytearrayToDouble(*this, ok);
+}
+
+/*!
+    Returns the string converted to a \c float value.
+
+    Returns 0.0 if the conversion fails.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    false; otherwise \a *ok is set to true.
+
+    \sa number()
+*/
+
+float QByteArray::toFloat(bool *ok) const
+{
+    return (float)toDouble(ok);
+}
+
+
+/*!
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+
+    \code
+	QByteArray string;
+	string = string.setNum(1234);     // string == "1234"
+    \endcode
+*/
+
+QByteArray &QByteArray::setNum(Q_LLONG n, int base)
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QByteArray::setNum: Invalid base %d", base );
+	base = 10;
+    }
+#endif
+    QLocale locale(QLocale::C);
+    *this = locale.d->longLongToString(n, -1, base).latin1();
+    return *this;
+}
+
+/*!
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+QByteArray &QByteArray::setNum(Q_ULLONG n, int base)
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QByteArray::setNum: Invalid base %d", base );
+	base = 10;
+    }
+#endif
+    QLocale locale(QLocale::C);
+    *this = locale.d->unsLongLongToString(n, -1, base).latin1();
+    return *this;
+}
+
+/*!
+    \fn QByteArray &QByteArray::setNum(long n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::setNum(ulong n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::setNum(int n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::setNum(uint n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::setNum(short n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \fn QByteArray &QByteArray::setNum(ushort n, int base)
+
+    \overload
+
+    Sets the string to the printed value of \a n in base \a base and
+    returns a reference to the string.
+
+    The base is 10 by default and must be between 2 and 36.
+*/
+
+/*!
+    \overload
+
+    Sets the string to the printed value of \a n, formatted in format
+    \a f with precision \a prec, and returns a reference to the
+    string.
+
+    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See \link
+    #arg-formats arg \endlink() for an explanation of the formats.
+*/
+
+QByteArray &QByteArray::setNum(double n, char f, int prec)
+{
+    QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+    uint flags = 0;
+
+    if (qIsUpper(f))
+    	flags = QLocalePrivate::CapitalEorX;
+    f = qToLower(f);
+
+    switch (f) {
+	case 'f':
+	    form = QLocalePrivate::DFDecimal;
+	    break;
+	case 'e':
+	    form = QLocalePrivate::DFExponent;
+	    break;
+	case 'g':
+	    form = QLocalePrivate::DFSignificantDigits;
+	    break;
+	default:
+#if defined(QT_CHECK_RANGE)
+	    qWarning( "QByteArray::setNum: Invalid format char '%c'", f );
+#endif
+	    break;
+    }
+
+    QLocale locale(QLocale::C);
+    *this = locale.d->doubleToString(n, prec, form, -1, flags).latin1();
+    return *this;
+}
+
+/*!
+    \fn QByteArray &QByteArray::setNum(float n, char f, int prec)
+
+    \overload
+
+    Sets the string to the printed value of \a n, formatted in format
+    \a f with precision \a prec, and returns a reference to the
+    string.
+
+    The format \a f can be 'f', 'F', 'e', 'E', 'g' or 'G'. See \link
+    #arg-formats arg \endlink() for an explanation of the formats.
+*/
+
+
+/*!
+    A convenience function that returns a string equivalent of the
+    number \a n to base \a base, which is 10 by default and must be
+    between 2 and 36.
+
+    \code
+	long a = 63;
+	QByteArray str = QByteArray::number(a, 16);             // str == "3f"
+	QByteArray str = QByteArray::number(a, 16).upper();     // str == "3F"
+    \endcode
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number(long n, int base)
+{
+    QByteArray s;
+    s.setNum(n, base);
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number(ulong n, int base)
+{
+    QByteArray s;
+    s.setNum(n, base);
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number(int n, int base)
+{
+    QByteArray s;
+    s.setNum(n, base);
+    return s;
+}
+
+/*!
+    \overload
+
+    A convenience factory function that returns a string
+    representation of the number \a n to the base \a base, which is 10
+    by default and must be between 2 and 36.
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number(uint n, int base)
+{
+    QByteArray s;
+    s.setNum(n, base);
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number( Q_LLONG n, int base )
+{
+    QByteArray s;
+    s.setNum( n, base );
+    return s;
+}
+
+/*!
+    \overload
+
+    \sa setNum()
+*/
+QByteArray QByteArray::number( Q_ULLONG n, int base )
+{
+    QByteArray s;
+    s.setNum( n, base );
+    return s;
+}
+
+
+/*!
+    \overload
+
+    Argument \a n is formatted according to the \a f format specified,
+    which is \c g by default, and can be any of the following:
+
+    \table
+    \header \i Format \i Meaning
+    \row \i \c e \i format as [-]9.9e[+|-]999
+    \row \i \c E \i format as [-]9.9E[+|-]999
+    \row \i \c f \i format as [-]9.9
+    \row \i \c g \i use \c e or \c f format, whichever is the most concise
+    \row \i \c G \i use \c E or \c f format, whichever is the most concise
+    \endtable
+
+    With 'e', 'E', and 'f', \a prec is the number of digits after the
+    decimal point. With 'g' and 'G', \a prec is the maximum number of
+    significant digits (trailing zeroes are omitted).
+
+    \code
+    double d = 12.34;
+    QByteArray ds = QByteArray("'E' format, precision 3, gives %1")
+		    .arg(d, 0, 'E', 3);
+    // ds == "1.234E+001"
+    \endcode
+
+    \sa setNum()
+   */
+QByteArray QByteArray::number(double n, char f, int prec)
+{
+    QByteArray s;
+    s.setNum(n, f, prec);
+    return s;
+}
+

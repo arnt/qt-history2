@@ -3024,14 +3024,17 @@ static bool compareSubstr(const QString &s1, int idx, const QString &s2)
     return i == s2.length();
 }
 
+// ######## implementation is inefficient. Avoid the temporary QString.
 // Converts a number in locale to its representation in the C locale.
 // If it fails, returns number unconverted.
-QString &QLocalePrivate::numberToCLocale(QString &l_num) const
+QByteArray QLocalePrivate::numberToCLocale(const QString &locale_num) const
 {
     if (languageId() == QLocale::C)
-	return l_num;
+	return locale_num.toLatin1();
 
     int idx = 0;
+
+    QString l_num = locale_num;
 
     // skip leading white space
     while (idx < l_num.length() && l_num.unicode()[idx].isSpace())
@@ -3103,13 +3106,13 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 
     } while (false);
 
-    return l_num;
+    return locale_num.toLatin1();
 }
 
-double QLocalePrivate::stringToDouble(QString num, bool *ok) const
+double QLocalePrivate::stringToDouble(QString number, bool *ok) const
 {
 //    num = num.stripWhiteSpace();
-    if (num.isEmpty()) {
+    if (number.isEmpty()) {
 	if (ok != 0)
             *ok = false;
 	return 0.0;
@@ -3118,13 +3121,46 @@ double QLocalePrivate::stringToDouble(QString num, bool *ok) const
     if (ok != 0)
         *ok = true;
 
-    num = numberToCLocale(num);
+    QByteArray num = numberToCLocale(number);
+    return bytearrayToDouble(num, ok);
+}
 
+Q_LLONG QLocalePrivate::stringToLongLong(QString number, int base,
+                                    bool *ok) const
+{
+    number = number.trimmed();
+    if (number.isEmpty()) {
+	if (ok != 0)
+            *ok = false;
+	return 0;
+    }
+
+    QByteArray num = numberToCLocale(number);
+    return bytearrayToLongLong(num, base, ok);
+}
+
+Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString number, int base,
+                                    bool *ok) const
+{
+    number = number.trimmed();
+    if (number.isEmpty()) {
+	if (ok != 0)
+            *ok = false;
+	return 0;
+    }
+
+    QByteArray num = numberToCLocale(number);
+    return bytearrayToUnsLongLong(num, base, ok);
+}
+
+
+double QLocalePrivate::bytearrayToDouble(QByteArray num, bool *ok)
+{
     if (num == "nan")
         return NAN;
 
     if (num == "+inf"
-    	    || num == "inf")
+	|| num == "inf")
         return INFINITY;
 
     if (num == "-inf")
@@ -3132,8 +3168,7 @@ double QLocalePrivate::stringToDouble(QString num, bool *ok) const
 
     bool _ok;
     const char *endptr;
-    const char *num_buff = num.latin1();
-    double d = qstrtod(num_buff, &endptr, &_ok);
+    double d = qstrtod(num, &endptr, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3144,22 +3179,11 @@ double QLocalePrivate::stringToDouble(QString num, bool *ok) const
         return d;
 }
 
-Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
-                                    bool *ok) const
+Q_LLONG QLocalePrivate::bytearrayToLongLong(QByteArray num, int base, bool *ok)
 {
-    num = num.trimmed();
-    if (num.isEmpty()) {
-	if (ok != 0)
-            *ok = false;
-	return 0;
-    }
-
-    num = numberToCLocale(num);
-
     bool _ok;
     const char *endptr;
-    const char *num_buff = num.latin1();
-    Q_LLONG l = qstrtoll(num_buff, &endptr, base, &_ok);
+    Q_LLONG l = qstrtoll(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3172,22 +3196,11 @@ Q_LLONG QLocalePrivate::stringToLongLong(QString num, int base,
     return l;
 }
 
-Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
-                                    bool *ok) const
+Q_ULLONG QLocalePrivate::bytearrayToUnsLongLong(QByteArray num, int base, bool *ok)
 {
-    num = num.trimmed();
-    if (num.isEmpty()) {
-	if (ok != 0)
-            *ok = false;
-	return 0;
-    }
-
-    num = numberToCLocale(num);
-
     bool _ok;
     const char *endptr;
-    const char *num_buff = num.latin1();
-    Q_ULLONG l = qstrtoull(num_buff, &endptr, base, &_ok);
+    Q_ULLONG l = qstrtoull(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3199,6 +3212,7 @@ Q_ULLONG QLocalePrivate::stringToUnsLongLong(QString num, int base,
         *ok = true;
     return l;
 }
+
 
 /*-
  * Copyright (c) 1992, 1993

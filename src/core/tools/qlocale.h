@@ -22,6 +22,7 @@ struct QLocalePrivate;
 class Q_CORE_EXPORT QLocale
 {
     friend class QString;
+    friend class QByteArray;
 
 public:
     enum Language {
