@@ -496,12 +496,24 @@ public:
 };
 
 
-#ifndef QT_XFT2
+#ifdef QT_XFT2
+static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
+{
+    FT_UInt x = glyph;
+    XftGlyphExtents( QPaintDevice::x11AppDisplay(), font, &x, 1, xgi );
+}
+#else
 static inline XftFontStruct *getFontStruct( XftFont *font )
 {
     if (font->core)
 	return 0;
     return font->u.ft.font;
+}
+
+static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
+{
+
+    XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
 }
 #endif // QT_XFT2
 
@@ -517,10 +529,6 @@ static inline FT_Face getFTFace( XftFont *font )
 #endif // QT_XFT2
 }
 
-static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
-{
-    XftTextExtents32(QPaintDevice::x11AppDisplay(), font, (XftChar32 *) &glyph, 1, xgi);
-}
 
 
 QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
@@ -767,6 +775,17 @@ const char *QFontEngineXft::name() const
 
 bool QFontEngineXft::canRender( const QChar *string,  int len )
 {
+    bool allExist = TRUE;
+
+#ifdef QT_XFT2
+    for ( int i = 0; i < len; i++ ) {
+	if ( ! XftCharExists( QPaintDevice::x11AppDisplay(), _font,
+			      string[i].unicode() ) ) {
+	    allExist = FALSE;
+	    break;
+	}
+    }
+#else
     glyph_t glyphs[256];
     int nglyphs = 255;
     glyph_t *g = glyphs;
@@ -775,7 +794,6 @@ bool QFontEngineXft::canRender( const QChar *string,  int len )
 	stringToCMap( string, len, g, 0, &nglyphs );
     }
 
-    bool allExist = TRUE;
     for ( int i = 0; i < nglyphs; i++ ) {
 	if ( !XftGlyphExists(QPaintDevice::x11AppDisplay(), _font, g[i]) ) {
 	    allExist = FALSE;
@@ -785,8 +803,9 @@ bool QFontEngineXft::canRender( const QChar *string,  int len )
 
     if ( nglyphs > 255 )
 	free( g );
-	return allExist;
+#endif // QT_XFT2
 
+    return allExist;
 }
 
 QOpenType *QFontEngineXft::openType() const
