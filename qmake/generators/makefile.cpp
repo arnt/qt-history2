@@ -1412,6 +1412,7 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         QFileInfo fi(Option::fixPathToLocalOS(in));
         ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
         ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
+        ret.replace("${QMAKE_FILE_IN}", fi.filePath());
     }
     if(!out.isNull()) {
         ret.replace("${QMAKE_FILE_OUT}", out);
