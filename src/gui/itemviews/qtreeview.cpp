@@ -997,41 +997,13 @@ void QTreeView::updateGeometries()
         d->header->setOffset(vg.width() - hint.width());
     d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
-    if (!d->model)
-        return;
-
-    // update sliders
-    QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    QAbstractItemModel *model = d->model;
-
-    // vertical
-    int h = d->viewport->height();
-    int item = d->items.count();
-    if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
-        return;
-    QModelIndex index = model->index(0, 0);
-    QSize def = delegate->sizeHint(fontMetrics(), option, model, index);
-    verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
-    while (h > 0 && item > 0)
-        h -= delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(--item)).height();
-    int max = item * verticalFactor();
-    if (h < 0)
-         max += 1 + (verticalFactor() * -h /
-                     delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item)).height());
-    verticalScrollBar()->setRange(0, max);
-
-    int w = d->viewport->width();
-    int col = d->model->columnCount(root());
-    if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
-        return;
-    horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
-    while (w > 0 && col > 0)
-        w -= d->header->sectionSize(--col);
-    max = col * horizontalFactor();
-    if (w < 0)
-        max += (horizontalFactor() * -w / d->header->sectionSize(col));
-    horizontalScrollBar()->setRange(0, max);
+    // update scrollbars
+    if (model()) {
+        QModelIndex topLeft = model()->index(0, 0);
+        QSize size = itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), topLeft);
+        d->updateVerticalScrollbar(size.height());
+        d->updateHorizontalScrollbar(size.width());
+    }
 
     QAbstractItemView::updateGeometries();
 }
@@ -1425,4 +1397,70 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
             open(v, update);
         }
     }
+}
+
+void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
+{
+    int factor = q->verticalFactor();
+    int height = viewport->height();
+    int itemCount = items.count();
+    
+    // if we have no viewport or no items, there is nothing to do
+    if (height <= 0 || itemCount <= 0)
+        return;
+
+    // set page step size
+    int visibleItems = height / itemHeight;
+    int pageStepSize = visibleItems * factor;
+    q->verticalScrollBar()->setPageStep(pageStepSize);
+
+    // set the scroller range
+    int y = height;
+    int i = itemCount;
+    QStyleOptionViewItem option = q->viewOptions();
+    QAbstractItemDelegate *delegate = q->itemDelegate();
+    while (y > 0 && i > 0)
+        y -= delegate->sizeHint(q->fontMetrics(), option, model, modelIndex(--i)).height();
+    int max = i * factor;
+
+    if (y < 0) { // if the first item starts above the viewport, we have to backtrack
+        int backtracking = factor * -y;
+        int itemSize = delegate->sizeHint(q->fontMetrics(), option, model, modelIndex(i)).height();
+        if (itemSize > 0) // avoid division by zero
+            max += (backtracking / itemSize) + 1;
+    }
+    
+    q->verticalScrollBar()->setRange(0, max);
+}
+
+void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
+{
+    int factor = q->horizontalFactor();
+    int width = viewport->width();
+    int count = model->columnCount(q->root());
+
+    // if we have no viewport or no columns, there is nothing to do
+    if (width <= 0 || count <= 0)
+        return;
+
+    // set page step size
+    int visibleItems = width / itemWidth;
+    int pageStepSize = visibleItems * factor;
+    q->horizontalScrollBar()->setPageStep(pageStepSize);
+
+    // set the scroller range
+    int x = width;
+    int c = count;
+    while (x > 0 && c > 0)
+        x -= header->sectionSize(--c);
+    int max = c * factor;
+
+    if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
+        int backtracking = factor * -x;
+        int sectionSize = header->sectionSize(c);
+        if (sectionSize > 0) // avoid division by zero
+            max += (backtracking / sectionSize) + 1;
+    }
+
+    q->horizontalScrollBar()->setRange(0, max);
 }

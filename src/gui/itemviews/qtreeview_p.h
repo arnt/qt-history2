@@ -61,6 +61,9 @@ public:
     void relayout(const QModelIndex &parent);
     void reopenChildren(const QModelIndex &parent, bool update);
 
+    void updateVerticalScrollbar(int itemHeight);
+    void updateHorizontalScrollbar(int itemWidth);
+
     QHeaderView *header;
     int indent;
 
