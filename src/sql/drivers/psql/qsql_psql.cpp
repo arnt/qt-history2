@@ -326,7 +326,7 @@ QCoreVariant QPSQLResult::data(int i)
         int nread = 0;
 
         while(size < nread){
-                retval = lo_read(d->connection, fd, p, 32760);
+                retval = lo_read(d->driver->connection, fd, p, 32760);
                 nread += retval;
                 p += retval;
         }
