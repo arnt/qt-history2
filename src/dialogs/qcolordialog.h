@@ -67,6 +67,8 @@ private:
     void setColor( const QColor& );
     QColor color() const;
 
+    bool selectColor( const QColor& );
+
 private:
     void setSelectedAlpha( int );
     int selectedAlpha() const;

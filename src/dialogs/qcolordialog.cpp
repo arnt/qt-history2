@@ -79,6 +79,7 @@ public:
     int selectedColumn() const { return selCol; }
     int selectedRow() const { return selRow; }
 
+    virtual void setCurrent( int row, int col );
     virtual void setSelected( int row, int col );
 
     QSize sizeHint() const;
@@ -91,7 +92,6 @@ signals:
 
 protected:
     void dimensionChange( int oldRows, int oldCols );
-    virtual void setCurrent( int row, int col );
 
     virtual void paintCell( QPainter *, int row, int col );
     virtual void paintCellContents( QPainter *, int row, int col, const QRect& );
@@ -1229,18 +1229,19 @@ public:
     void setCurrentAlpha( int a ) { cs->setCurrentAlpha( a ); }
     void showAlpha( bool b ) { cs->showAlpha( b ); }
 
-private slots:
+public slots:
     void addCustom();
 
     void newHsv( int h, int s, int v );
     void newColorTypedIn( QRgb rgb );
     void newCustom( int, int );
     void newStandard( int, int );
+public:
+    QWellArray *custom;
+    QWellArray *standard;
 private:
     QColorPicker *cp;
     QColorLuminancePicker *lp;
-    QWellArray *custom;
-    QWellArray *standard;
     QColorShower *cs;
     int nextCust;
     bool compact;
@@ -1479,6 +1480,7 @@ QColor QColorDialog::getColor( const QColor& initial, QWidget *parent,
     dlg->setCaption( QColorDialog::tr( "Select color" ) );
 #endif
     dlg->setColor( initial );
+    dlg->selectColor( initial );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
     QColor result;
@@ -1512,6 +1514,7 @@ QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
     dlg->setColor( initial );
+    dlg->selectColor( initial );
     dlg->setSelectedAlpha( qAlpha(initial) );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
@@ -1595,6 +1598,39 @@ int QColorDialog::selectedAlpha() const
     return d->currentAlpha();
 }
 
+/*!
+  Sets focus to the corresponding button, if any.
+*/
+bool QColorDialog::selectColor( const QColor& col )
+{
+    QRgb color = col.rgb();
+    int i = 0, j = 0;
+    // Check standard colors
+    for ( i = 0; i < 6; i++ ) {
+	for ( j = 0; j < 8; j++ ) {
+	    if ( color == stdrgb[i + j*6] ) {
+		d->newStandard( i, j );
+		d->standard->setCurrent( i, j );
+		d->standard->setSelected( i, j );
+		d->standard->setFocus();
+		return TRUE;
+	    }
+	}
+    }
+    // Check custom colors
+    for ( i = 0; i < 2; i++ ) {
+	for ( j = 0; j < 8; j++ ) {
+	    if ( color == cusrgb[i + j*2] ) {
+		d->newCustom( i, j );
+		d->custom->setCurrent( i, j );
+		d->custom->setSelected( i, j );
+		d->custom->setFocus();
+		return TRUE;
+	    }
+	}
+    }
+    return FALSE;
+}
 
 #include "qcolordialog.moc"
 
