@@ -44,6 +44,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 
     switch ( mode ) {
     case PropReplace: {
+	qDebug( "PropReplace" );
 	char *d = qstrdup( data );
 	Property *prop = new Property;
 	prop->len = len;
@@ -51,6 +52,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	properties.replace( key, prop );
     } break;
     case PropAppend: {
+	qDebug( "PropAppend" );
 	Property *orig = properties[ key ];
 	int origLen = 0;
 	if ( orig )
@@ -65,6 +67,7 @@ bool QWSPropertyManager::setProperty( int winId, int property, int mode, const c
 	properties.replace( key, prop );
     } break;
     case PropPrepend: {
+	qDebug( "PropPrepend" );
 	Property *orig = properties[ key ];
 	int origLen = 0;
 	if ( orig )
