@@ -46,6 +46,7 @@
 #include "qregexp.h"
 #include "qtimer.h"
 #include "qfileinfo.h"
+#include "qptrdict.h" // binary compatibility
 
 //#define QFTP_DEBUG
 //#define QFTP_COMMANDSOCKET_DEBUG
@@ -76,7 +77,6 @@
   \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
 
-
 /*!
   Constructs a QFtp object.
 */
@@ -89,6 +89,105 @@ QFtp::QFtp()
 #if defined(QFTP_DEBUG)
     qDebug( "QFtp::QFtp" );
 #endif
+    init();
+}
+
+
+
+/////////////////////////////////////////////////
+// new stuff
+//
+
+class QFtpPI : public QObject
+{
+    Q_OBJECT
+
+public:
+    QFtpPI( QObject *parent=0 );
+
+    void connectToHost( const QString &host, Q_UINT16 port );
+
+signals:
+    void hostFound();
+    void connected();
+    void closed();
+
+private:
+    QSocket commandSocket;
+};
+
+QFtpPI::QFtpPI( QObject *parent ) : QObject( parent )
+{
+    connect( &commandSocket, SIGNAL(hostFound()), SIGNAL(hostFound()) );
+    connect( &commandSocket, SIGNAL(connected()), SIGNAL(connected()) );
+    connect( &commandSocket, SIGNAL(connectionClosed()), SIGNAL(closed()) );
+}
+
+void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
+{
+    commandSocket.connectToHost( host, port );
+}
+
+class QFtpPrivate
+{
+public:
+    QFtpPI pi;
+};
+
+static QPtrDict<QFtpPrivate> *d_ptr = 0;
+static void cleanup_d_ptr()
+{
+    delete d_ptr;
+    d_ptr = 0;
+}
+static QFtpPrivate* d( const QFtp* foo )
+{
+    if ( !d_ptr ) {
+	d_ptr = new QPtrDict<QFtpPrivate>;
+	d_ptr->setAutoDelete( TRUE );
+	qAddPostRoutine( cleanup_d_ptr );
+    }
+    QFtpPrivate* ret = d_ptr->find( (void*)foo );
+    if ( ! ret ) {
+	ret = new QFtpPrivate;
+	d_ptr->replace( (void*) foo, ret );
+    }
+    return ret;
+}
+
+#if 0
+static bool has_d( const QFtp* foo )
+{
+    return d_ptr && d_ptr->find( (void*)foo );
+}
+#endif
+
+static void delete_d( const QFtp* foo )
+{
+    if ( d_ptr )
+	d_ptr->remove( (void*) foo );
+}
+
+/*!
+  Constructs a QFtp object.  The \a parent and \a name parameters are passed to
+  the QObject constructor.
+*/
+
+QFtp::QFtp( QObject *parent, const char *name )
+    : QNetworkProtocol(), connectionReady( FALSE ),
+      passiveMode( FALSE ), startGetOnFail( FALSE ),
+      errorInListChildren( FALSE )
+{
+    if ( parent )
+	parent->insertChild( this );
+    setName( name );
+}
+
+void QFtp::init()
+{
+    ///////////////////////////////////////////////////////////
+    // ### old stuff -- cleanup when you are done with rewrite
+    ///////////////////////////////////////////////////////////
     commandSocket = new QSocket( this, "command socket" );
     dataSocket = new QSocket( this, "data socket" );
 
@@ -114,7 +213,42 @@ QFtp::QFtp()
 	     this, SLOT( dataBytesWritten( int ) ) );
     connect( dataSocket, SIGNAL( error( int ) ),
 	     this, SLOT( error( int ) ) );
+
+    ///////////////////////////////////////////////////////////
+    // ### new stuff -- keep it
+    ///////////////////////////////////////////////////////////
+    QFtpPrivate *d = ::d( this );
+
+    // ### we are using the same signals as the network operation stuff at the
+    // moment -- is this the right approach?
+    connect( &d->pi, SIGNAL(hostFound()), SLOT(hostFound()) );
+    connect( &d->pi, SIGNAL(connected()), SLOT(connected()) );
+    connect( &d->pi, SIGNAL(closed()), SLOT(closed()) );
 }
+
+/*!
+   Connects to the FTP server \a host at the \a port. This function returns
+   immediately and does not block until the connection succeeded. The
+   connectionStateChanged() signal is emitted when the state of the connecting
+   process changes.
+
+   ### I am not sure yet, if it is a wise idea to use the QNetworkProtocol
+   signal for the non-QNetworkProtocol functions.
+*/
+void QFtp::connectToHost( const QString &host, Q_UINT16 port )
+{
+    QFtpPrivate *d = ::d( this );
+    d->pi.connectToHost( host, port );
+}
+
+//
+//  end of new stuff
+/////////////////////////////////////////////////
+
+
+
+
+
 
 /*!
   Destructor
@@ -129,10 +263,10 @@ QFtp::~QFtp()
     close();
     delete commandSocket;
     delete dataSocket;
+    delete_d( this );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationListChildren( QNetworkOperation *op )
@@ -149,8 +283,7 @@ void QFtp::operationListChildren( QNetworkOperation *op )
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationMkDir( QNetworkOperation *op )
@@ -165,8 +298,7 @@ void QFtp::operationMkDir( QNetworkOperation *op )
     commandSocket->writeBlock( cmd, cmd.length() );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationRemove( QNetworkOperation *op )
@@ -182,8 +314,7 @@ void QFtp::operationRemove( QNetworkOperation *op )
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationRename( QNetworkOperation *op )
@@ -199,8 +330,7 @@ void QFtp::operationRename( QNetworkOperation *op )
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationGet( QNetworkOperation *op )
@@ -212,8 +342,7 @@ void QFtp::operationGet( QNetworkOperation *op )
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::operationPut( QNetworkOperation *op )
@@ -225,8 +354,7 @@ void QFtp::operationPut( QNetworkOperation *op )
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 bool QFtp::checkConnection( QNetworkOperation * )
@@ -242,7 +370,7 @@ bool QFtp::checkConnection( QNetworkOperation * )
     }
     if ( commandSocket->isOpen() ) {
 // #if defined(QFTP_DEBUG)
-// 	qDebug( "QFtp: command socket open but connection not ok!" );
+//	qDebug( "QFtp: command socket open but connection not ok!" );
 // #endif
 	return FALSE;
     }
@@ -280,13 +408,12 @@ void QFtp::close()
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
 	qDebug( "QFtp S: quit" );
 #endif
- 	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
- 	commandSocket->close();
+	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
+	commandSocket->close();
     }
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 int QFtp::supportedOperations() const
@@ -996,8 +1123,7 @@ void QFtp::reinitCommandSocket()
 {
 }
 
-/*!
-  \reimp
+/*!  \reimp
 */
 
 void QFtp::error( int code )
@@ -1019,5 +1145,20 @@ void QFtp::error( int code )
 	}
     }
 }
+
+
+
+
+
+/////////////////////////////////////////////////
+// new stuff
+//
+
+#include "qftp.moc"
+
+//
+//  end of new stuff
+/////////////////////////////////////////////////
+
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

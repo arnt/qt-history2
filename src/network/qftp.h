@@ -61,9 +61,14 @@ class QM_EXPORT_FTP QFtp : public QNetworkProtocol
     Q_OBJECT
 
 public:
-    QFtp();
+    QFtp(); // ### get rid of this overload in Qt 4.0
+    QFtp( QObject *parent, const char *name=0 );
     virtual ~QFtp();
+
     int supportedOperations() const;
+
+    // non-QNetworkProtocol functions:
+    void connectToHost( const QString &host, Q_UINT16 port=21 );
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?
@@ -83,6 +88,7 @@ protected:
     bool errorInListChildren;
 
 private:
+    void init();
     bool checkConnection( QNetworkOperation *op );
     void close();
     void reinitCommandSocket();
