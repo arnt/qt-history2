@@ -1293,6 +1293,35 @@ int QFontMetrics::width( const QString &str, int len ) const
     return layout.width( 0, len );
 }
 
+/*!
+    \overload
+
+    Returns the bounding rectangle of the character \a ch relative to
+    the left-most point on the base line.
+
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the text output may cover \e
+    all pixels in the bounding rectangle.
+
+    Note that the rectangle usually extends both above and below the
+    base line.
+
+    \sa width()
+*/
+QRect QFontMetrics::boundingRect( QChar ch ) const
+{
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    QFontEngine *fe = d->x11data.fontstruct[script];
+
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
+}
 
 /*!
     Returns the bounding rectangle of the first \a len characters of
