@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#4 $
 **
 ** Implementation of QStatusBar class
 **
@@ -18,7 +18,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#4 $");
 
 
 /*! \class QStatusBar qstatusbar.h
@@ -294,6 +294,8 @@ void QStatusBar::message( const char * message, int ms )
 
 void QStatusBar::clear()
 {
+    if ( d->temporary.isEmpty() )
+	return;
     if ( d->timer ) {
 	delete d->timer;
 	d->timer = 0;
