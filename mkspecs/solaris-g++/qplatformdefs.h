@@ -82,9 +82,9 @@ static inline int qt_truncate(const char *pathname, off_t length)
 #define QT_STAT_LNK		S_IFLNK
 #define QT_SOCKET_CONNECT	qt_socket_connect
 #define QT_FILENO		fileno
-#define QT_OPEN			::open
+#define QT_OPEN			qt_open
 #define QT_CLOSE		::close
-#define QT_TRUNCATE		::truncate
+#define QT_TRUNCATE		qt_truncate
 #define QT_LSEEK		::lseek
 #define QT_READ			::read
 #define QT_WRITE		::write
