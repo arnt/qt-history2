@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#61 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#61 $");
 
 
 /*!
@@ -426,10 +426,6 @@ QColor QColor::light( int factor ) const
 	return *this;
     else if ( factor < 100 )			// makes color darker
 	return dark( 10000/factor );
-
-    //# QT_VERSION 200 can remove this if QColorGroup::highlight() is improved
-    // Optimize for common Qt 1.3 case
-    if ( factor == 109 && rgb() == 0xeaeaea ) return ::white;
 
     int h, s, v;
     hsv( &h, &s, &v );
