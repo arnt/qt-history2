@@ -178,9 +178,9 @@ static const int wpwidth = 2; // WinPanel lwidth
   \sa setFrameStyle(), frameShape(), frameShadow()
 */
 
-/*!
-  \fn Shape QFrame::frameShape() const
-  Returns the frame shape value from the frame style.
+/*! \property QFrame::frameShape
+    \brief the frame shape value from the frame style
+
   \sa setFrameShape(), frameStyle(), frameShadow()
 */
 
@@ -190,9 +190,9 @@ static const int wpwidth = 2; // WinPanel lwidth
   \sa frameShape(), frameStyle(), setFrameShadow()
 */
 
-/*!
-  \fn Shadow QFrame::frameShadow() const
-  Returns the frame shadow value from the frame style.
+/*! \property QFrame::frameShadow
+    \brief the frame shadow value from the frame style
+    
   \sa setFrameShadow(), frameStyle(), frameShape()
 */
 
@@ -274,11 +274,11 @@ void QFrame::setFrameStyle( int style )
     updateFrameWidth();
 }
 
-/*!
-  \fn int QFrame::lineWidth() const
-  Returns the line width.  (Note that the \e total line width
-  for \c HLine and \c VLine is given by frameWidth(), not
-  lineWidth().)
+/*! \property QFrame::lineWidth
+    \brief the line width
+
+  Note that the \e total line width for \c HLine and \c VLine
+  is given by frameWidth(), not lineWidth().
 
   The default value is 1.
 
@@ -297,9 +297,8 @@ void QFrame::setLineWidth( int w )
     updateFrameWidth();
 }
 
-/*!
-  \fn int QFrame::midLineWidth() const
-  Returns the width of the mid-line.
+/*! \property QFrame::midLineWidth
+    \brief the width of the mid-line
 
   The default value is 0.
 
@@ -319,11 +318,11 @@ void QFrame::setMidLineWidth( int w )
 
 
 
-/*!
-  \fn int QFrame::margin() const
-  Returns the width of the margin. The margin is the distance between the
-  innermost pixel of the frame and the outermost pixel of contentsRect().
-  It is included in frameWidth().
+/*! \property QFrame::margin
+    \brief the width of the margin
+
+  The margin is the distance between the innermost pixel of the frame and 
+  he outermost pixel of contentsRect(). It is included in frameWidth().
 
   The margin is filled according to backgroundMode().
 
@@ -424,9 +423,8 @@ void QFrame::updateFrameWidth()
 }
 
 
-/*!
-  \fn int QFrame::frameWidth() const
-  Returns the width of the frame that is drawn.
+/*! \property QFrame::frameWidth
+    \brief the width of the frame that is drawn.
 
   Note that the frame width depends on the \link setFrameStyle() frame
   style \endlink, not only the line width and the mid-line width.  For
@@ -438,8 +436,8 @@ void QFrame::updateFrameWidth()
 */
 
 
-/*!
-  Returns the frame rectangle.
+/*! \property QFrame::frameRect
+    \brief the frame rectangle
 
   The default frame rectangle is equivalent to the \link
   QWidget::rect() widget rectangle\endlink.
@@ -476,8 +474,9 @@ void QFrame::setFrameRect( const QRect &r )
 }
 
 
-/*!
-  Returns the rectangle inside the frame.
+/*! \property QFrame::contentsRect
+    \brief the rectangle inside the frame
+    
   \sa frameRect(), drawContents()
 */
 
