@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#181 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#182 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -197,102 +197,103 @@ static void qDrawCheckMark( QPainter *p, int x, int y, int w, int h,
 // For instance CTRL+Key_O gives "Ctrl+O".
 //
 
-static QString accel_str( int k )
+QString QPopupMenu::accelString( int k )
 {
     QString s;
     if ( (k & SHIFT) == SHIFT )
-	s = "Shift";
+	s = tr( "Shift" );
     if ( (k & CTRL) == CTRL ) {
-	if ( s.isEmpty() )
-	    s = "Ctrl";
-	else
-	    s += "+Ctrl";
+	if ( !s.isEmpty() )
+	    s += tr( "+" );
+	s += tr( "Ctrl" );
     }
     if ( (k & ALT) == ALT ) {
-	if ( s.isEmpty() )
-	    s = "Alt";
-	else
-	    s += "+Alt";
+	if ( !s.isEmpty() )
+	    s += tr( "+" );
+	s += tr( "Alt" );
     }
     k &= ~(SHIFT | CTRL | ALT);
     QString p;
     if ( (k & ASCII_ACCEL) == ASCII_ACCEL ) {
 	k &= ~ASCII_ACCEL;
 	p.sprintf( "%c", (k & 0xff) );
+	p = tr( p );
     } else if ( k >= Key_F1 && k <= Key_F24 ) {
 	p.sprintf( "F%d", k - Key_F1 + 1 );
+	p = tr( p );
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
+	p = tr( p );
     } else {
 	switch ( k ) {
 	    case Key_Space:
-		p = "Space";
+		p = tr( "Space" );
 		break;
 	    case Key_Escape:
-		p = "Esc";
+		p = tr( "Esc" );
 		break;
 	    case Key_Tab:
-		p = "Tab";
+		p = tr( "Tab" );
 		break;
 	    case Key_Backtab:
-		p = "Backtab";
+		p = tr( "Backtab" );
 		break;
 	    case Key_Backspace:
-		p = "Backspace";
+		p = tr( "Backspace" );
 		break;
 	    case Key_Return:
-		p = "Return";
+		p = tr( "Return" );
 		break;
 	    case Key_Enter:
-		p = "Enter";
+		p = tr( "Enter" );
 		break;
 	    case Key_Insert:
-		p = "Ins";
+		p = tr( "Ins" );
 		break;
 	    case Key_Delete:
-		p = "Del";
+		p = tr( "Del" );
 		break;
 	    case Key_Pause:
-		p = "Pause";
+		p = tr( "Pause" );
 		break;
 	    case Key_Print:
-		p = "Print";
+		p = tr( "Print" );
 		break;
 	    case Key_SysReq:
-		p = "SysReq";
+		p = tr( "SysReq" );
 		break;
 	    case Key_Home:
-		p = "Home";
+		p = tr( "Home" );
 		break;
 	    case Key_End:
-		p = "End";
+		p = tr( "End" );
 		break;
 	    case Key_Left:
-		p = "Left";
+		p = tr( "Left" );
 		break;
 	    case Key_Up:
-		p = "Up";
+		p = tr( "Up" );
 		break;
 	    case Key_Right:
-		p = "Right";
+		p = tr( "Right" );
 		break;
 	    case Key_Down:
-		p = "Down";
+		p = tr( "Down" );
 		break;
 	    case Key_Prior:
-		p = "PgUp";
+		p = tr( "PgUp" );
 		break;
 	    case Key_Next:
-		p = "PgDown";
+		p = tr( "PgDown" );
 		break;
 	    case Key_CapsLock:
-		p = "CapsLock";
+		p = tr( "CapsLock" );
 		break;
 	    case Key_NumLock:
-		p = "NumLock";
+		p = tr( "NumLock" );
 		break;
 	    case Key_ScrollLock:
-		p = "ScrollLock";
+		p = tr( "ScrollLock" );
 		break;
 	    default:
 		p.sprintf( "<%d?>", k );
@@ -302,7 +303,7 @@ static QString accel_str( int k )
     if ( s.isEmpty() )
 	s = p;
     else {
-	s += '+';
+	s += tr( "+" );
 	s += p;
     }
     return s;
@@ -851,7 +852,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    if ( !mi->text().isNull() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
-		QString t = accel_str( k );
+		QString t = accelString( k );
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
 		else {
