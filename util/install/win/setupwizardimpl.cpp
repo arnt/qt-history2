@@ -1969,7 +1969,7 @@ void SetupWizardImpl::logFiles( const QString& entry, bool close )
     }
 
 #if 1
-    progressPage->filesDisplay->append( entry + "\n" );
+    progressPage->filesDisplay->append(entry);
 #else
     progressPage->filesDisplay->setText( "Installing files...\n" + entry + "\n" );
 #endif
@@ -1995,7 +1995,7 @@ void SetupWizardImpl::logOutput( const QString& entry, bool close )
 	    return;
     }
 
-    buildPage->outputDisplay->append( entry + "\n" );
+    buildPage->outputDisplay->append(entry);
 
     static QTextStream outstream;
     outstream.setDevice( &outputLog );
