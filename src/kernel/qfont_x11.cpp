@@ -494,7 +494,7 @@ bool QFontPrivate::fontExists( const QString &fontName )
     char **fontNames;
     int count;
 
-    fontNames = getXFontNames( fontName.ascii(), &count );
+    fontNames = getXFontNames( fontName.latin1(), &count );
 
     XFreeFontNames( fontNames );
 
@@ -527,6 +527,17 @@ bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
     }
 
     return TRUE;
+}
+
+QCString QFontPrivate::fixXLFD( const QCString &xlfd )
+{
+    QCString ret = xlfd;
+    int count = 0;
+    char **fontNames = getXFontNames( xlfd, &count );
+    if ( count > 0 )
+	ret = fontNames[0];
+    XFreeFontNames( fontNames );
+    return ret ;
 }
 
 /*
@@ -563,6 +574,10 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 	return FALSE;
 
     fd->family = QString::fromLatin1(tokens[Family]);
+    QString foundry = QString::fromLatin1(tokens[Foundry]);
+    if ( ! foundry.isEmpty() )
+	fd->family += QString::fromLatin1(" [") + foundry + QString::fromLatin1("]");
+
     fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
@@ -2121,6 +2136,12 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 
     if (exactMatch) {
 	actual = request;
+	actual.dirty = FALSE;
+
+	if ( actual.pointSize == -1 )
+	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
+	else
+	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
 
 #ifndef   QT_NO_XFTFREETYPE
 	if (x11data.fontstruct[script]->xftpattern) {
@@ -2153,15 +2174,31 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 	    actual.weight = weight_value;
 	    actual.italic = (slant_value != XFT_SLANT_ROMAN);
 	    actual.fixedPitch = (spacing_value >= XFT_MONO);
-	}
+	} else
 #endif // QT_NO_XFTFREETYPE
+	    {
+		QFontDef def;
 
-	actual.dirty = FALSE;
-
-	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
-	else
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
+		if ( ! fillFontDef( (XFontStruct *) x11data.fontstruct[script]->handle,
+				    &def, x11Screen ) &&
+		     ! fillFontDef( x11data.fontstruct[script]->name,
+				    &def, x11Screen ) ) {
+		    // failed to parse the XLFD of the exact match font...
+		    // this should never happen...
+		    exactMatch = FALSE;
+		} else if ( def.family     != actual.family    ||
+			    def.addStyle   != actual.addStyle  ||
+			    def.pointSize  != actual.pointSize ||
+			    def.pixelSize  != actual.pixelSize ||
+			    def.weight     != actual.weight    ||
+			    def.italic     != actual.italic    ||
+			    def.fixedPitch != actual.fixedPitch ) {
+		    // the 2 font defs do not match... we have most likely
+		    // made an exact match with a font alias...
+		    actual = def;
+		    exactMatch = FALSE;
+		}
+	    }
 
 	return;
     }
@@ -2961,8 +2998,8 @@ void QFont::setRawName( const QString &name )
 {
     detach();
 
-    bool validXLFD = QFontPrivate::fillFontDef(name.latin1(),
-					       &d->request, d->x11Screen );
+    bool validXLFD = QFontPrivate::fillFontDef( QFontPrivate::fixXLFD( name.latin1() ),
+						&d->request, d->x11Screen ) ;
     d->request.dirty = TRUE;
 
     if ( !validXLFD ) {
