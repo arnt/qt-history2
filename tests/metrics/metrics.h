@@ -1,10 +1,13 @@
 #include <qmainwindow.h>
 #include <qprinter.h>
 
+class QSimpleRichText;
+
 class Paper : public QWidget {
     Q_OBJECT
 public:
     Paper(QWidget* parent=0, const char* name=0, int f=0);
+    ~Paper();
 
     void paintEvent(QPaintEvent* e);
     void paint(QPainter& p);
@@ -17,8 +20,10 @@ public slots:
     void sizeToA4();
 
 private:
+    void setRichText();
     QFont font1, font2;
     QPrinter::PageSize ps;
+    QSimpleRichText* rtext;
 };
 
 class Main : public QMainWindow {
