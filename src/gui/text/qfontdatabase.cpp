@@ -974,11 +974,12 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
              foundry_name.isEmpty() ? "-- any --" : foundry_name.latin1(),
              script, scriptName(script).latin1(),
              request.weight, request.italic, request.stretch, request.pixelSize, pitch);
-
+#ifndef QT_NO_DEBUG
     if (qt_enable_test_font && request.family == QLatin1String("__Qt__Box__Engine__")) {
         fe = new QTestFontEngine(request.pixelSize);
         fe->fontDef = request;
     }
+#endif
 
     bool usesFontConfigFont = false;
 #if defined(Q_WS_X11) && !defined(QT_NO_XFT)
