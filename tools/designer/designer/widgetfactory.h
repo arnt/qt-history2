@@ -170,7 +170,7 @@ private slots:
     void nextPage();
 
 private:
-    QPtrList<QWidget> pages;
+    QList<QWidget*> pages;
     QToolButton *prev, *next;
 
 };

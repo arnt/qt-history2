@@ -12,43 +12,43 @@
 
 #include "propertyobject.h"
 #include "metadatabase.h"
-#include <qptrvector.h>
+#include <qvector.h>
+#include <qlist.h>
 #include <qmetaobject.h>
 #include <qvariant.h>
 
 PropertyObject::PropertyObject( const QWidgetList &objs )
     : QObject(), objects( objs ), mobj( 0 )
 {
-    QPtrVector<QPtrList<QMetaObject> > v;
+    QVector<QList<QMetaObject*> > v;
     v.resize( objects.count() );
-    v.setAutoDelete( TRUE );
 
     for (int i = 0; i < objects.size(); ++i) {
 	QObject *o = objects.at(i);
 	const QMetaObject *m = o->metaObject();
-	QPtrList<QMetaObject> *mol = new QPtrList<QMetaObject>;
+	QList<QMetaObject*> mol;
 	while ( m ) {
-	    mol->insert( 0, m );
+	    mol.insert( 0, (QMetaObject*)m );
 	    m = m->superClass();
 	}
 	v.insert( v.count(), mol );
     }
 
     int numObjects = objects.count();
-    int minDepth = v[0]->count();
+    int minDepth = v[0].count();
     int depth = minDepth;
 
     for ( int i = 0; i < numObjects; ++i ) {
-	depth = (int)v[i]->count();
+	depth = (int)v[i].count();
 	if ( depth < minDepth )
 	    minDepth = depth;
     }
 
-    const QMetaObject *m = v[0]->at( --minDepth );
+    const QMetaObject *m = v[0].at( --minDepth );
 
     for ( int j = 0; j < numObjects; ++j ) {
-	if ( v[j]->at( minDepth ) != m ) {
-	    m = v[0]->at( --minDepth );
+	if ( v[j].at( minDepth ) != m ) {
+	    m = v[0].at( --minDepth );
 	    j = 0;
 	}
     }

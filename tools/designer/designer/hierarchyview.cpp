@@ -338,7 +338,7 @@ void HierarchyList::changeDatabaseOf( QObject *o, const QString &info )
 #endif
 }
 
-static QPtrList<QWidgetStack> *widgetStacks = 0;
+static QList<QWidgetStack*> *widgetStacks = 0;
 
 void HierarchyList::setup()
 {
@@ -362,7 +362,7 @@ void HierarchyList::setup()
     }
 #endif
     if ( !widgetStacks )
-	widgetStacks = new QPtrList<QWidgetStack>;
+	widgetStacks = new QList<QWidgetStack*>;
     if ( w )
 	insertObject( w, 0 );
     widgetStacks->clear();
@@ -459,7 +459,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		    stack = (QWidgetStack*)obj;
 		else
 		    stack = (QWidgetStack*)obj->parent();
-		if ( widgetStacks->findRef( stack ) != -1 )
+		if ( widgetStacks->findIndex( stack ) != -1 )
 		    continue;
 		widgetStacks->append( stack );
 		QObjectList l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );

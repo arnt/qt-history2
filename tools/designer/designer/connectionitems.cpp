@@ -179,13 +179,12 @@ static void appendChildActions( QAction *action, QStringList &lst )
     }
 }
 
-static QStringList flatActions( const QPtrList<QAction> &l )
+static QStringList flatActions( const QList<QAction*> &l )
 {
     QStringList lst;
 
-    QPtrListIterator<QAction> it( l );
-    while ( it.current() ) {
-	QAction *action = it.current();
+    for(QList<QAction *>::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	QAction *action = (*it);
 	lst << action->name();
 	if ( !action->children().isEmpty() && qt_cast<QActionGroup*>(action) )
 	    appendChildActions( action, lst );

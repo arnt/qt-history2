@@ -321,7 +321,7 @@ void QDesignerWidgetStack::nextPage()
 int QDesignerWidgetStack::currentPage() const
 {
     QDesignerWidgetStack* that = (QDesignerWidgetStack*) this;
-    return that->pages.find( visibleWidget() );
+    return that->pages.findIndex( visibleWidget() );
 }
 
 void QDesignerWidgetStack::setCurrentPage( int i )
@@ -376,12 +376,12 @@ int QDesignerWidgetStack::insertPage( QWidget *p, int i )
     raiseWidget( p );
     QApplication::sendPostedEvents();
     updateButtons();
-    return pages.find( p );
+    return pages.findIndex( p );
 }
 
 int QDesignerWidgetStack::removePage( QWidget *p )
 {
-    int i = pages.find( p );
+    int i = pages.findIndex( p );
     pages.remove( p );
     removeWidget( p );
     setCurrentPage( 0 );
