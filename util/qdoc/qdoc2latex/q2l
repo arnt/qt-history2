@@ -42,7 +42,7 @@ if ( $JUSTCLEAN or $RUNCLEAN ) {
     $RUNCLEAN = 1 if $JUSTCLEAN;
 }
 my $YESTOPS = $YES;
-$SIZE = 'letter' if $SIZE eq '1';
+$SIZE = 'letter' if $SIZE ne 'a4';
 
 my $QTDIR = $ENV{'QTDIR'};
 my @tex;
