@@ -44,10 +44,12 @@ int main(int argc, char *argv[])
 
     for (int row = 0; row < 8; row += 2) {
         for (int column = 0; column < 8; column += 2) {
+
             QModelIndex topLeft = model->index(row, column, QModelIndex(),
                 QModelIndex::View);
             QModelIndex bottomRight = model->index(row+1, column+1,
                 QModelIndex(), QModelIndex::View);
+
             QItemSelection selection(topLeft, bottomRight, model);
             if (((row % 4) ^ (column % 4)) != 0)
                 selectionModel->select(selection, QItemSelectionModel::Toggle);
