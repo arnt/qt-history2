@@ -801,7 +801,7 @@ void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier)
     }
 
     QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
-    QTextBlockIterator to = d->pieceTable->blocksFind(pos2-1);
+    QTextBlockIterator to = d->pieceTable->blocksFind(pos2);
     d->pieceTable->setBlockFormat(from, to, modifier, QTextPieceTable::MergeFormat);
 }
 
@@ -960,9 +960,7 @@ QTextList *QTextCursor::currentList() const
 
     QTextBlockFormat b = blockFormat();
     QTextFormatGroup *g = b.group();
-    if (g)
-        return qt_cast<QTextList *>(g);
-    return 0;
+    return qt_cast<QTextList *>(g);
 }
 
 int QTextCursor::listItemNumber() const
