@@ -59,11 +59,11 @@ public:
 
   \module network
 
-  This class is not really meant for use outside Qt.  It can be used
+  This class is not really intended for use outside Qt.  It can be used
   to achieve some things that QSocket does not provide, but it's
   not particularly easy to understand or use.
 
-  The basic purpose of the class is to provide a QIODevice that works
+  The essential purpose of the class is to provide a QIODevice that works
   on sockets, wrapped in a platform-independent API.
 
   \sa QSocket, QSocketNotifier, QHostAddress
@@ -91,7 +91,7 @@ public:
   sd->writeBlock( someData, 42 );
   \endcode
   The libc ::close() closes the socket, but QSocketDevice is not aware
-  of that.  So when you call writeBlock(), the impossible happens.
+  of this.  So when you call writeBlock(), the impossible happens.
 
   \value NoFiles  the operating system will not let QSocketDevice open
   another file.
@@ -117,9 +117,10 @@ public:
 /*!
   Creates a QSocketDevice object for the existing socket \a socket.
 
-  The \a type argument must match the actual socket type;
-  \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
+  The \a type argument must match the actual socket type; use \c
+  QSocketDevice::Stream for a reliable, connection-oriented TCP
+  socket, or \c QSocketDevice::Datagram for an unreliable,
+  connectionless UDP socket.
 */
 QSocketDevice::QSocketDevice( int socket, Type type )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
@@ -168,8 +169,7 @@ QSocketDevice::~QSocketDevice()
 
 
 /*!
-  Returns TRUE if this is a valid socket or FALSE if it is an invalid
-  socket.  This is actually a shortcut for socket() == -1.
+  Returns TRUE if this is a valid socket; otherwise returns FALSE.
 
   \sa socket()
 */
@@ -182,9 +182,8 @@ bool QSocketDevice::isValid() const
 /*!
   \fn Type QSocketDevice::type() const
 
-  Returns the socket type; \c QSocketDevice::Stream for a reliable,
-  connection-oriented TCP socket, or \c QSocketDevice::Datagram for an
-  unreliable UDP socket.
+  Returns the socket type which is either \c QSocketDevice::Stream or
+  \c QSocketDevice::Datagram.
 
   \sa socket()
 */
@@ -209,8 +208,9 @@ int QSocketDevice::socket() const
   Sets the socket device to operate on the existing socket \a socket.
 
   The \a type argument must match the actual socket type;
-  \c QSocketDevice::Stream for a reliable, connection-oriented TCP socket, or
-  \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
+  use \c QSocketDevice::Stream for a reliable, connection-oriented TCP
+  socket, or \c QSocketDevice::Datagram for an unreliable,
+  connectionless UDP socket.
 
   Any existing socket is closed.
 
@@ -365,7 +365,7 @@ bool QSocketDevice::addressReusable() const
   \a enable is FALSE.
 
   When a socket is reusable, other sockets can use the same port
-  number (and IP address), which is in general good.  Of course other
+  number (and IP address), which is, in general, good.  Of course other
   sockets cannot use the same (address,port,peer-address,peer-port)
   4-tuple as this socket, so there is no risk of confusing the two TCP
   connections.
@@ -392,7 +392,7 @@ int QSocketDevice::receiveBufferSize() const
 /*!
   Sets the size of the OS receive buffer to \a size.
 
-  The OS receive buffer size effectively limits two things: How much
+  The OS receive buffer size effectively limits two things: how much
   data can be in transit at any one moment, and how much data can be
   received in one iteration of the main event loop.
 
@@ -435,7 +435,7 @@ void QSocketDevice::setSendBufferSize( uint size )
   Returns the port number of this socket device. This may be 0 for a while,
   but is set to something sensible when there is a sensible value it can have.
 
-  Note that Qt always uses native byte order - 67 is 67 in Qt, there
+  Note that Qt always uses native byte order, i.e. 67 is 67 in Qt, there
   is no need to call htons().
 */
 Q_UINT16 QSocketDevice::port() const

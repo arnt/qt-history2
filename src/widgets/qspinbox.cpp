@@ -63,8 +63,7 @@ public:
 /*!
   \class QSpinBox qspinbox.h
 
-  \brief The QSpinBox class provides a spin box widget (sometimes called
-	  an up-down widget, little arrows widget or spin button).
+  \brief The QSpinBox class provides a spin box widget (spin button).
 
   \ingroup basic
 
@@ -77,24 +76,31 @@ public:
   signal.  The current value can be fetched with value() and set with
   setValue().
 
-  The spin box clamps the value within a numeric range (see
-  QRangeControl for details).  Clicking the up/down buttons or
-  using the keyboard accelerator's up and down arrows will
-  increase or decrease the current value in steps of size lineStep().
+  The spin box keeps the value within a numeric range, and to
+  multiples of the lineStep() size (see QRangeControl for details).
+  Clicking the up/down buttons or using the keyboard accelerator's up
+  and down arrows will increase or decrease the current value in steps
+  of size lineStep(). The minimum and maximum value and the step size
+  can be set using one of the constructors, and can be changed later
+  with setMinValue(), setMaxValue() and setLineStep().
 
   Most spin boxes are directional, but QSpinBox can also operate as a
-  circular spin box, i.e., if the range is 0-99 and the current value
+  circular spin box, i.e. if the range is 0-99 and the current value
   is 99, clicking "up" will give 0.  Use setWrapping() if you want
   circular behavior.
 
-  The displayed value can be prepended and appended with an
-  arbitrary string indicating, for example, the unit of measurement.
-  See setPrefix() and setSuffix().
+  The displayed value can be prepended and appended with arbitrary
+  strings indicating, for example, currency or the unit of
+  measurement. See setPrefix() and setSuffix(). The text in the spin
+  box is retrieved with text() (which includes any prefix() and
+  suffix()), or with cleanText() (which has no prefix(), no suffix()
+  and no leading or trailing whitespace). currentValueText() returns
+  the spin box's current value as text.
 
   Normally the spin box displays up and down arrows in the buttons.
   You can use setButtonSymbols() to change the display to
   show + and - symbols if this is clearer for your intended purpose.
-  In either case the up and down arrow keys work.
+  In either case the up and down arrow keys work as expected.
 
   It is often desirable to give the user a special (often default)
   choice in addition to the range of numeric values.  See
@@ -102,14 +108,18 @@ public:
 
   The default \l QWidget::focusPolicy() is StrongFocus.
 
-  QSpinBox can easily be subclassed to allow the user to input other
-  things than an integer value as long as the allowed input can be
-  mapped down to a range of integers.  This can be done by overriding
+  If using prefix(), suffix() and specialValueText() don't provide
+  enough control, you can ignore them and subclass QSpinBox instead.
+
+  QSpinBox can easily be subclassed to allow the user to input
+  things other than an integer value as long as the allowed input can be
+  mapped to a range of integers.  This can be done by overriding
   the virtual functions mapValueToText() and mapTextToValue(), and
-  setting another suitable validator using setValidator(). For example,
-  these functions could be changed so that the user provided values
-  from 0.0 to 10.0 while the range of integers used inside the program
-  would be 0 to 100:
+  setting another suitable validator using setValidator().
+
+  For example, these functions could be changed so that the user
+  provided values from 0.0 to 10.0, or -1 to signify 'Auto', while the
+  range of integers used inside the program would be -1 to 100:
 
   \code
     class MySpinBox : public QSpinBox
@@ -120,13 +130,19 @@ public:
 
 	QString mapValueToText( int value )
 	{
-	    return QString( "%1.%2" )
+	    if ( value == -1 ) // Special case
+		return QString( "Auto" );
+
+	    return QString( "%1.%2" ) // 0.0 to 10.0
 		   .arg( value / 10 ).arg( value % 10 );
 	}
 
 	int mapTextToValue( bool *ok )
 	{
-	    return (int) ( 10 * text().toFloat() );
+	    if ( text() == "Auto" ) // Special case
+		return -1;
+
+	    return (int) ( 10 * text().toFloat() ); // 0 to 100
 	}
     };
   \endcode
@@ -156,8 +172,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
   inclusive, with step amount \a step.  The value is initially
   set to \a minValue.
 
-  \a parent serves as the parent widget of \e this spin box with the
-  name \a name.
+  The widget's parent is \a parent and the spin box is called \a name.
 
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
@@ -214,7 +229,7 @@ QSpinBox::~QSpinBox()
 /*!
   \property QSpinBox::text
 
-  \brief the current text of the spin box, including any prefix() and suffix()
+  \brief the text of the spin box, including any prefix() and suffix()
 
   \sa value()
 */
@@ -229,8 +244,8 @@ QString QSpinBox::text() const
 /*!
   \property QSpinBox::cleanText
 
-  \brief the current text of the spin box with any prefix or suffix and
-  with the whitespace at the start and end removed.
+  \brief the text of the spin box with any prefix() or suffix() and
+  with any whitespace at the start and end removed.
 
   \sa text, prefix, suffix
 */
@@ -277,16 +292,15 @@ QString QSpinBox::cleanText() const
   choose.  Your code must then interpret the spin box value of -1 as
   the user requesting automatic margin width.
 
-  Neither \link QSpinBox::prefix prefix\endlink nor \link QSpinBox::suffix
-  suffix\endlink, if set, are added to the special-value text when
-  displayed.
+  All values are displayed with the prefix() and suffix() (if set), \e
+  except for the special value, which only shows the special value text.
 
-  To turn off the special-value text display, set this property to
-  an empty string as the parameter. The default is no special-value text,
-  i.e. the numeric value is shown as usual.
+  To turn off the special-value text display, call this function with
+  an empty string. The default is no special-value text, i.e. the
+  numeric value is shown as usual.
 
-  If no special-value text is currently set, the getter function
-  specialValueText() returns a null string.
+  If no special-value text is set, specialValueText() returns a null
+  string.
 */
 
 void QSpinBox::setSpecialValueText( const QString &text )
@@ -314,15 +328,16 @@ QString QSpinBox::specialValueText() const
   to indicate the unit of measurement to the user. For example:
 
   \code
-    sb->setPrefix("$");
+    sb->setPrefix( "$" );
   \endcode
 
   To turn off the prefix display, set this property to an empty
-  string. The default is no prefix.
+  string. The default is no prefix. The prefix is not displayed for
+  the minValue() if specialValueText() is not empty.
 
-  If no prefix is set, the getter function prefix() returns a null string.
+  If no prefix is set, prefix() returns a null string.
 
-  \sa suffix
+  \sa suffix()
 */
 
 void QSpinBox::setPrefix( const QString &text )
@@ -346,14 +361,20 @@ QString QSpinBox::prefix() const
 
   \brief the suffix of the spin box
 
-  The suffix is appended to the end of the displayed value.  Typical use is to
-  indicate the unit of measurement to the user.
-  To turn off the suffix display, set this property to  an empty
-  string. The default is no suffix.
+  The suffix is appended to the end of the displayed value.  Typical
+  use is to indicate the unit of measurement to the user. For example:
 
-  If no suffix is set, the getter function suffix() returns a null string.
+  \code
+    sb->setSuffix( " km" );
+  \endcode
 
-  \sa prefix
+  To turn off the suffix display, set this property to an empty
+  string. The default is no suffix. The suffix is not displayed for
+  the minValue() if specialValueText() is not empty.
+
+  If no suffix is set, suffix() returns a null string.
+
+  \sa prefix()
 */
 
 void QSpinBox::setSuffix( const QString &text )
@@ -378,6 +399,12 @@ QString QSpinBox::suffix() const
   lowest value and vice versa
 
   By default, wrapping is turned off.
+
+  If you have a range of 0..100 and wrapping is off when the user
+  reaches 100 and presses the Up Arrow nothing will happen; but if
+  wrapping is on the value will change from 100 to 0, then to 1, etc.
+  When wrapping is on, navigating past the highest value takes you to
+  the lowest and vice versa.
 
   \sa minValue, maxValue, setRange()
 */
@@ -426,7 +453,7 @@ void QSpinBox::arrangeWidgets()
 /*!
   \property QSpinBox::value
 
-  \brief the current value of the spin box
+  \brief the value of the spin box
 
   \sa QRangeControl::setValue()
 */
@@ -443,9 +470,9 @@ int QSpinBox::value() const
 
 
 /*!
-  Increases the current value one step, wrapping as necessary.  This is
-  the same as clicking on the pointing-up button and can be used for
-  keyboard accelerators, for example.
+  Increases the spin box's value by one lineStep(), wrapping as
+  necessary.  This is the same as clicking on the pointing-up button
+  and can be used for keyboard accelerators, for example.
 
   \sa stepDown(), addLine(), lineStep(), setSteps(), setValue(), value()
 */
@@ -462,9 +489,9 @@ void QSpinBox::stepUp()
 
 
 /*!
-  Decreases the current value one step, wrapping as necessary.  This is
-  the same as clicking on the pointing-down button and can be used
-  for keyboard accelerators, for example.
+  Decreases the spin box's value one lineStep(), wrapping as
+  necessary.  This is the same as clicking on the pointing-down button
+  and can be used for keyboard accelerators, for example.
 
   \sa stepUp(), subtractLine(), lineStep(), setSteps(), setValue(), value()
 */
@@ -482,14 +509,14 @@ void QSpinBox::stepDown()
 
 /*! \fn void QSpinBox::valueChanged( int value )
 
-  This signal is emitted every time the value of the spin box changes
-  to \a value. This is for example caused by setValue(), a keyboard accelerator,
-  mouse clicks, etc.
+  This signal is emitted every time the value of the spin box changes;
+  the new value is passed in \a value. This signal will be emitted as
+  a result of a call to setValue(), or because the user changed the
+  value by using a keyboard accelerator or mouse click, etc.
 
-  Note that the valueChanged() signal is emitted \e every time,
-  not just for the "final" step; i.e.
-  if the user clicks "up" three times, this signal is emitted three
-  times.
+  Note that the valueChanged() signal is emitted \e every time, not
+  just for the "final" step; i.e. if the user clicks "up" three times,
+  this signal is emitted three times.
 
   \sa value()
 */
@@ -500,14 +527,14 @@ void QSpinBox::stepDown()
   \overload
 
   This signal is emitted whenever the valueChanged( int ) signal is
-  emitted, i.e., every time the value of the spin box changes (whatever
-  the cause - by setValue(), by a keyboard accelerator, by mouse
+  emitted, i.e. every time the value of the spin box changes (whatever
+  the cause, e.g. by setValue(), by a keyboard accelerator, by mouse
   clicks, etc.).
 
   The \a valueText parameter is the same string that is
   displayed in the edit field of the spin box.
 
-  \sa value()
+  \sa value() prefix() suffix() specialValueText()
 */
 
 
@@ -595,7 +622,7 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
 /*!  This virtual function is called by QRangeControl whenever the
   value has changed.  The QSpinBox reimplementation updates the
   display and emits the valueChanged() signals; if you need additional
-  processing, you may either reimplement this or connect to one of the
+  processing, either reimplement this or connect to one of the
   valueChanged() signals.
 */
 
@@ -642,7 +669,7 @@ void QSpinBox::setValidator( const QValidator* v )
 
 /*!
   Returns the validator that constrains editing for this spin box if
-  there is any, or else 0.
+  there is any; otherwise returns 0.
 
   \sa setValidator() QValidator
 */
@@ -653,9 +680,9 @@ const QValidator * QSpinBox::validator() const
 }
 
 /*!
-  Updates the contents of the embedded QLineEdit to reflect current
-  value using mapValueToText().  Also enables/disables the push
-  buttons accordingly.
+  Updates the contents of the embedded QLineEdit to reflect the
+  current value using mapValueToText().  Also enables/disables the
+  up/down push buttons accordingly.
 
   \sa mapValueToText()
 */
@@ -676,11 +703,14 @@ void QSpinBox::updateDisplay()
 
 /*!
   QSpinBox calls this after the user has manually edited the contents
-  of the spin box (not using the up/down buttons/keys).
+  of the spin box (i.e. by typing in the embedded QLineEdit, rather
+  than using the up/down buttons/keys).
 
   The default implementation of this function interprets the new text
   using mapTextToValue().  If mapTextToValue() is successful, it
   changes the spin box's value; if not, the value is left unchanged.
+
+  \sa editor()
 */
 
 void QSpinBox::interpretText()
@@ -715,7 +745,7 @@ QRect QSpinBox::upRect() const
 
 
 /*!
-  Returns the geometry of the "up" button.
+  Returns the geometry of the "down" button.
 */
 
 QRect QSpinBox::downRect() const
@@ -749,10 +779,10 @@ void QSpinBox::textChanged()
 /*!  This virtual function is used by the spin box whenever it needs
   to display value \a v.  The default implementation returns a string
   containing \a v printed in the standard way. Reimplementations may
-  return anything.
+  return anything. (See the example in the detailed description.)
 
   Note that Qt does not call this function for specialValueText() and
-  that it prepends prefix() and appends suffix() to the return value.
+  that neither prefix() nor suffix() are included in the return value.
 
   If you reimplement this, you may also need to reimplement
   mapTextToValue().
@@ -771,17 +801,17 @@ QString QSpinBox::mapValueToText( int v )
 /*!  This virtual function is used by the spin box whenever it needs
   to interpret text entered by the user as a value.  The text is
   available as text() and as cleanText(), and this function must parse
-  it if possible, and set the bool \a ok to TRUE if successful and to
+  it if possible, and set the bool \a *ok to TRUE if successful and to
   FALSE otherwise.
 
   Subclasses that need to display spin box values in a non-numeric way
   need to reimplement this function.
 
-  Note that Qt handles specialValueText() specially; this function is
+  Note that Qt handles specialValueText() separately; this function is
   only concerned with the other values.
 
-  The default implementation tries to interpret it as an integer in
-  the standard way and returns the integer value.
+  The default implementation tries to interpret the text() as an
+  integer in the standard way and returns the integer value.
 
   \sa interpretText(), mapValueToText()
 */
@@ -800,7 +830,8 @@ int QSpinBox::mapTextToValue( bool* ok )
 
 /*!
   Returns the full text calculated from the current value, including any
-  prefix, suffix or special-value text.
+  prefix and suffix. If there is special value text and the value is
+  minValue() the specialValueText() is returned.
 */
 
 QString QSpinBox::currentValueText()
@@ -832,8 +863,7 @@ void QSpinBox::styleChange( QStyle& old )
   \value UpDownArrows the buttons show little arrows in the
   classic style.
 
-  \value PlusMinus the buttons show + and - symbols.  In many
-  situations, this is more meaningful than \c UpDownArrows.
+  \value PlusMinus the buttons show + and - symbols.
 
   \sa QSpinBox::buttonSymbols
 */
@@ -884,7 +914,7 @@ QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
   When setting this property, the \l QSpinBox::maxValue is adjusted so
   that the range remains valid if necessary.
 
-  \sa setRange()
+  \sa setRange() setSpecialValueText()
 */
 
 int QSpinBox::minValue() const
@@ -904,7 +934,7 @@ void QSpinBox::setMinValue( int minVal )
   When setting this property, the \l QSpinBox::minValue is adjusted so
   that the range remains valid if necessary.
 
-  \sa setRange()
+  \sa setRange() setSpecialValueText()
 */
 
 int QSpinBox::maxValue() const
@@ -922,8 +952,11 @@ void QSpinBox::setMaxValue( int maxVal )
 
   \brief the line step
 
-  The setter function setLineStep() calls the virtual stepChange() function if
-  the new line step is different from the previous setting.
+    When the user uses the arrows to change the spin box's value the value
+    will be incremented/decremented by the amount of the line step.
+
+  The setLineStep() function calls the virtual stepChange() function
+  if the new line step is different from the previous setting.
 
   \sa QRangeControl::setSteps() setRange()
 */

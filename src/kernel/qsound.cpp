@@ -142,7 +142,7 @@ public:
 */
 
 /*!
-  Plays the sound in a file named \a filename.
+  Plays the sound in a file called \a filename.
 */
 void QSound::play(const QString& filename)
 {
@@ -165,7 +165,7 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 }
 
 /*!
-  Destroys the sound.
+  Destroys the sound object.
 */
 QSound::~QSound()
 {
@@ -188,10 +188,10 @@ void QSound::play()
 }
 
 /*!
-  Returns TRUE if sound facilities exist on the platform. An
-  application may choose either to notify the user if sound is crucial
-  to the application or to operate silently without bothering
-  the user.
+  Returns TRUE if sound facilities exist on the platform; otherwise
+  returns FALSE. An application may choose either to notify the user
+  if sound is crucial to the application or to operate silently
+  without bothering the user.
 
   If no sound is available, all QSound operations work silently
   and quickly.

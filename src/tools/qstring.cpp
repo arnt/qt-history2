@@ -12401,8 +12401,16 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   QString, and \l QByteArray, this causes lots of unnecessary copying
   and might indicate that the true nature of the data you are dealing
   with is uncertain.  If the data is 0-terminated 8-bit data, use \l
-  QCString; if it is unterminated (i.e., contains 0s) 8-bit data, use
+  QCString; if it is unterminated (i.e. contains 0s) 8-bit data, use
   \l QByteArray; if it is text, use QString.
+
+    Lists of strings are handled by the QStringList class. You can
+    split a string into a list of strings using QStringList::split(),
+    and join a list of strings into a single string with an optional
+    separator using QStringList::join(). You can obtain a list of
+    strings from a string list that contain a particular substring or
+    that match a particular \link qregexp.html regex\endlink using
+    QStringList::grep().
 
   <b>Note for C programmers</b>
 

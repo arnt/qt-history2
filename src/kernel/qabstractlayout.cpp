@@ -59,7 +59,7 @@
   \ingroup geomanagement
   \brief The QSpacerItem class provides blank space in a layout.
 
-  This is used by custom layouts.
+  This class is used by custom layouts.
 
   \sa QLayout
 */
@@ -344,8 +344,8 @@ static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 }
 
 /*!
-  This function stores the rect \a r so that it can be returned by
-  geometry().
+  This function stores the spacer item's rect \a r so that it can be
+  returned by geometry().
 */
 void QSpacerItem::setGeometry( const QRect &r ) { rect = r; }
 
@@ -423,7 +423,7 @@ int QWidgetItem::heightForWidth( int w ) const
 }
 
 /*!
-  Returns whether this space item is expanding.
+  Returns whether this spacer item is expanding.
 */
 QSizePolicy::ExpandData QSpacerItem::expanding() const
 {
@@ -451,7 +451,7 @@ QSizePolicy::ExpandData QWidgetItem::expanding() const
 }
 
 /*!
-  Returns the minimum size of this space item.
+  Returns the minimum size of this spacer item.
 */
 QSize QSpacerItem::minimumSize() const
 {
@@ -489,7 +489,7 @@ QSize QWidgetItem::maximumSize() const
 }
 
 /*!
-  Returns the preferred size of this space item.
+  Returns the preferred size of this spacer item.
 */
 QSize QSpacerItem::sizeHint() const
 {
@@ -511,7 +511,7 @@ QSize QWidgetItem::sizeHint() const
 }
 
 /*!
-  Returns TRUE because a space item never contains widgets.
+  Returns TRUE because a spacer item never contains widgets.
 */
 bool QSpacerItem::isEmpty() const
 {

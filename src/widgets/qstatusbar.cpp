@@ -46,7 +46,6 @@
 #include "qapplication.h"
 #include "qsizegrip.h"
 
-// REVISED: warwick
 /*!
   \class QStatusBar qstatusbar.h
 
@@ -65,7 +64,7 @@
     by temporary messages.  Used to display the page and line
     number in a word processor, for example.
   \i \e Permanent - is never hidden.  Used for important mode
-    indications.  Some applications put a Caps Lock indicator in the
+    indications, for example, some applications put a Caps Lock indicator in the
     status bar.
   \endlist
 
@@ -75,7 +74,7 @@
   connecting a suitable signal to it).  To remove a temporary message,
   call clear().
   There are two variants of message(): one that displays the message
-  until the next clear() or mesage() and one that also has a time limit:
+  until the next clear() or mesage() and one that has a time limit:
 
   \code
      connect( loader, SIGNAL(progressMessage(const QString&)),
@@ -132,7 +131,7 @@ public:
 
 /*!
   Constructs a status bar with the parent \a parent and the name
-  \a name and with just a size grip.
+  \a name and with a size grip.
 
   \sa setSizeGripEnabled()
 */
@@ -152,7 +151,8 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 
 
 /*!
-  Destroys the status bar and frees any allocated resources.
+  Destroys the status bar and frees any allocated resources and child
+  widgets.
 */
 QStatusBar::~QStatusBar()
 {
@@ -164,16 +164,16 @@ QStatusBar::~QStatusBar()
 /*!
   Adds \a widget to this status bar.
 
-  \a widget is permanently visible if \a permanent is TRUE and is
+  \a widget is permanently visible if \a permanent is TRUE and may be
   obscured by temporary messages if \a permanent is FALSE.  The
   default is FALSE.
-
-  \a stretch is used to compute a suitable size for \a widget as the
-  status bar grows and shrinks. The default of 0 uses a minimum of space.
 
   If \a permanent is TRUE, \a widget is located at the far right of
   the status bar.  If \a permanent is FALSE (the default), \a widget is
   located just to the left of the first permanent widget.
+
+  \a stretch is used to compute a suitable size for \a widget as the
+  status bar grows and shrinks. The default of 0 uses a minimum of space.
 
   This function may cause some flicker.
 

@@ -61,6 +61,7 @@
   \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
   \ingroup advanced
   \ingroup helpsystem
+  \ingroup text
 
   This class extends QTextEdit (in read-only mode), adding some
   navigation functionality so that users can follow links in hypertext
@@ -440,7 +441,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 }
 
 /*!
-    \overload void QTextBrowser::setText( const QString &txt ) 
+    \overload void QTextBrowser::setText( const QString &txt )
     Sets the text to \a txt.
 */
 

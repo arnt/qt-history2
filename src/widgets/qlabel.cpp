@@ -67,6 +67,7 @@ public:
   \brief The QLabel widget provides a text or image display.
 
   \ingroup basic
+  \ingroup text
 
   QLabel is used for displaying information in the form of text or
   an image. No user interaction functionality is

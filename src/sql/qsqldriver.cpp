@@ -81,12 +81,12 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*! \fn bool QSqlDriver::open( const QString& db, const QString& user,
-    const QString& password, const QString& host, int port ) 
-    
+    const QString& password, const QString& host, int port )
+
     Derived classes must reimplement this abstract virtual function in
     order to open a database connection on database \a db, using user
-    name \a user, password \a password, host \a host and port \a port. 
-    
+    name \a user, password \a password, host \a host and port \a port.
+
     The function \e must return TRUE on success and FALSE on failure.
 
     \sa setOpen()
@@ -141,11 +141,11 @@ bool QSqlDriver::isOpenError() const
 
   The currently defined values are:
 
-  \value Transactions  checks whether the driver supports SQL transactions
-  \value QuerySize  checks whether the database is capable of reporting the size
+  \value Transactions  whether the driver supports SQL transactions
+  \value QuerySize  whether the database is capable of reporting the size
   of a query. Note that some databases do not support returning the size
   (i.e. number of rows returned) of a query, in which case QSqlQuery::size() will return -1
-  \value BLOB  checks whether the driver supports Binary Large Object fields
+  \value BLOB  whether the driver supports Binary Large Object fields
 
   \sa hasFeature()
 
@@ -153,10 +153,12 @@ bool QSqlDriver::isOpenError() const
 
 /*! \fn bool QSqlDriver::hasFeature( DriverFeature f ) const
 
-  Returns TRUE if the driver supports the feature \a f, otherwise FALSE.
+  Returns TRUE if the driver supports feature \a f; otherwise returns FALSE.
 
   Note that some databases need to be open() before this can be
   determined.
+
+  \sa DriverFeature
 
 */
 

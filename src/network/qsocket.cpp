@@ -143,21 +143,21 @@ void QSocketPrivate::close()
   There are several access functions for the socket: state() returns
   whether the object is idle, is doing a DNS lookup, is connecting,
   has an operational connection, etc.  address() and port() return the
-  IP address and port used for the connection, peerAddress() and
-  peerPort() return the IP address and port used by the peer, and
-  peerName() returns the name of the peer (normally the name that was
-  passed to connectToHost()). socket() returns a pointer to the
-  QSocketDevice used for this socket.
+  IP address and port used for the connection. The peerAddress() and
+  peerPort() functions return the IP address and port used by the
+  peer, and peerName() returns the name of the peer (normally the name
+  that was passed to connectToHost()). socket() returns a pointer to
+  the QSocketDevice used for this socket.
 
-  QSocket inherits QIODevice, and reimplements some of the functions.
-  In general, you can treat it as a QIODevice for writing, and mostly
+  QSocket inherits QIODevice, and reimplements some functions. In
+  general, you can treat it as a QIODevice for writing, and mostly
   also for reading.  The match isn't perfect, since the QIODevice API
   is designed for devices that are controlled by the same machine, and
   an asynchronous peer-to-peer network connection isn't quite like
   that.  For example, there is nothing that matches QIODevice::size()
-  exactly.  The documentation for each of open(), close(), flush(),
-  size(), at(), atEnd(), readBlock(), writeBlock(), getch(), putch(),
-  ungetch() and readLine() describe the differences in detail.
+  exactly.  The documentation for open(), close(), flush(), size(),
+  at(), atEnd(), readBlock(), writeBlock(), getch(), putch(),
+  ungetch() and readLine() describes the differences in detail.
 
   \sa QSocketDevice, QHostAddress, QSocketNotifier
 */
@@ -166,7 +166,7 @@ void QSocketPrivate::close()
 /*!
   Creates a QSocket object in \c QSocket::Idle state.
 
-  The \a parent and \a name arguments are passed on as usual
+  The \a parent and \a name arguments are passed on
   to the QObject constructor.
 */
 
@@ -210,12 +210,17 @@ QSocketDevice *QSocket::socketDevice()
 }
 
 /*!
-  Set the internal socket device to \a device. Setting this to NULL will return
-  it to the default platform socket device, any existing connection will be
-  disconnected before using this new device.
+  Sets the internal socket device to \a device. Passing a \a device of
+  0 will cause the internal socket device to be used. Any existing
+  connection will be disconnected before using the new \a device.
 
-  The new device should not be connected before being attached to a
-  QSocket, instead use \c connectToHost following this.
+  The new device should not be connected before being associated with a
+  QSocket; after setting the socket call connectToHost() to make the
+  connection.
+
+  This function is useful if you need to subclass QSocketDevice and
+  want to use the QSocket API, for example, to implement Unix domain
+  sockets.
 */
 
 void QSocket::setSocketDevice( QSocketDevice *device )
@@ -264,15 +269,15 @@ QSocket::State QSocket::state() const
   and return immediately.
 
   Any connection or pending connection is closed immediately, and
-  QSocket goes into \c HostLookup state. When the lookup succeeds, it
-  emits hostFound(), starts a TCP connection and goes into \c
+  QSocket goes into the \c HostLookup state. When the lookup succeeds, it
+  emits hostFound(), starts a TCP connection and goes into the \c
   Connecting state.  Finally, when the connection succeeds, it emits
-  connected() and goes into \c Connected state.  If there is an error
+  connected() and goes into the \c Connected state.  If there is an error
   at any point, it emits error().
 
   \a host may be an IP address in string form, or it may be a DNS
   name. QSocket will do a normal DNS lookup if required.  Note that \a
-  port in native byte order, unlike some other libraries.
+  port is in native byte order, unlike some other libraries.
 
   \sa state()
 */
@@ -370,7 +375,8 @@ void QSocket::tryConnecting()
 /*!
   \fn void QSocket::error( int )
 
-  This signal is emitted after an error occurred.
+  This signal is emitted after an error occurred. The parameter is the
+  \l Error value.
 */
 
 /*!
@@ -412,7 +418,7 @@ void QSocket::tryConnecting()
   If you call close() and there is buffered output data to be written, QSocket
   goes into the \c QSocket::Closing state and returns immediately. It will
   then keep writing to the socket until all the data has been written. Then,
-  the delayCloseFinished() signal is emitted.
+  the delayedCloseFinished() signal is emitted.
 
   \sa close()
 */
@@ -423,10 +429,10 @@ void QSocket::tryConnecting()
 
   This signal is emitted when there is incoming data to be read.
 
-  Every time when there is new incoming data this signal is emitted once. Keep
-  in mind that new incoming data is only reported once; i.e. if you do not read
-  all data, this signal is not emitted again unless new data arrives on the
-  socket.
+  Every time there is new incoming data this signal is emitted once.
+  Bear in mind that new incoming data is only reported once; i.e. if
+  you do not read all data, this signal is not emitted again unless
+  new data arrives on the socket.
 
   \sa readBlock(), readLine(), bytesAvailable()
 */
@@ -435,11 +441,11 @@ void QSocket::tryConnecting()
 /*!
   \fn void QSocket::bytesWritten( int nbytes )
 
-  This signal is emitted when data actually has been written to the
-  network.  The \a nbytes parameter says how many bytes were written.
+  This signal is emitted when data has actually been written to the
+  network.  The \a nbytes parameter specifies how many bytes were written.
 
   The bytesToWrite() function is often used in the same context, and
-  it tells how many buffered bytes there are left to write.
+  it says how many buffered bytes there are left to write.
 
   \sa writeBlock(), bytesToWrite()
 */
@@ -468,7 +474,7 @@ bool QSocket::open( int m )
 /*!
   Closes the socket.
 
-  The mode is set to \c QSocket::Binary and the read buffer is cleared.
+  The read buffer is cleared.
 
   If the output buffer is empty, the state is set to \c QSocket::Idle
   and the connection is terminated immediately.  If the output buffer
@@ -478,7 +484,7 @@ bool QSocket::open( int m )
   to \c QSocket::Idle and the connection is terminated.  At this
   point, the delayedCloseFinished() signal is emitted.
 
-  \sa state(), setMode(), bytesToWrite()
+  \sa state(), bytesToWrite()
 */
 
 void QSocket::close()
@@ -582,8 +588,11 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
 
 
 /*!
-  Scans for any occurrence of \n in the read buffer.
-  Stores the text in the byte array \a store if it is non-null.
+  Scans for any occurrence of '\n' in the read buffer.
+  If \a store is not null the text up to the first '\n' (or terminating 0)
+  is written to \a store, and a terminating 0 is appended to \a store
+  if necessary.
+  Returns TRUE if a '\n' was found; otherwise returns FALSE.
 */
 
 bool QSocket::scanNewline( QByteArray *store )
@@ -757,7 +766,7 @@ bool QSocket::at( Offset index )
 
 
 /*!
-  Returns TRUE if there is no more data to read, otherwise FALSE.
+  Returns TRUE if there is no more data to read; otherwise returns FALSE.
 */
 
 bool QSocket::atEnd() const
@@ -790,9 +799,10 @@ Q_ULONG QSocket::bytesAvailable() const
 
 
 /*!
-  Wait upto \a msecs milliseconds for more data to be available.
+  Wait up to \a msecs milliseconds for more data to be available.
 
   If \a msecs is -1 the call will block indefinitely.
+
   This is a blocking call and should be avoided in event driven
   applications.
 
@@ -931,7 +941,7 @@ int QSocket::getch()
 
 
 /*!
-  Writes the character \a ch into the output buffer.
+  Writes the character \a ch to the output buffer.
 
   Returns \a ch, or -1 if some error occurred.
 
@@ -979,14 +989,14 @@ int QSocket::ungetch( int ch )
 
 
 /*! Returns TRUE if it's possible to read an entire line of text from
-  this socket at this time, or FALSE if not.
+  this socket at this time; otherwise returns FALSE.
 
   Note that if the peer closes the connection unexpectedly, this
   function returns FALSE. This means that loops such as this won't
   work:
 
   \code
-    while( !socket->canReadLine() )
+    while( !socket->canReadLine() ) // Wrong.
 	...
   \endcode
 
@@ -1199,7 +1209,7 @@ int QSocket::socket() const
   Sets the socket to use \a socket and the state() to \c Connected. The socket
   should already be connected.
 
-  This allows one to use the QSocket class as a wrapper for other socket types
+  This allows us to use the QSocket class as a wrapper for other socket types
   (e.g. Unix Domain Sockets under Unix).
 */
 
@@ -1212,8 +1222,8 @@ void QSocket::setSocket( int socket )
 
 
 /*!
-  Sets the socket to \a socket. This is both used by setSocket() and
-  connectToHost() and can be used also on unconnected sockets.
+  Sets the socket to \a socket. This is used by both setSocket() and
+  connectToHost() and can also be used on unconnected sockets.
 */
 
 void QSocket::setSocketIntern( int socket )
@@ -1274,7 +1284,7 @@ Q_UINT16 QSocket::port() const
   connectToHost() function.  If none has been set, this function
   returns 0.
 
-  Note that Qt always uses native byte order - 67 is 67 in Qt, there
+  Note that Qt always uses native byte order, i.e. 67 is 67 in Qt, there
   is no need to call htons().
 */
 
@@ -1286,7 +1296,7 @@ Q_UINT16 QSocket::peerPort() const
 }
 
 
-/*!  Returns the host address of this socket. (This is normally be the
+/*!  Returns the host address of this socket. (This is normally the
   main IP address of the host, but can be e.g. 127.0.0.1 for
   connections to localhost.)
 */

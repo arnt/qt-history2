@@ -105,7 +105,7 @@ void QSqlResultShared::slotResultDestroyed()
     <li>\c prev()
     <li>\c first()
     <li>\c last()
-    <li>\c seek(int)
+    <li>\c \link QSqlQuery::seek() seek\endlink(int)
     </ul>
 
     These functions allow the programmer to move forward, backward or

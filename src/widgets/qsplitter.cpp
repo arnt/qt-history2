@@ -167,7 +167,6 @@ public:
 };
 
 
-// NOT REVISED
 /*!
   \class QSplitter qsplitter.h
   \brief The QSplitter class implements a splitter widget.
@@ -188,14 +187,14 @@ public:
   \endcode
 
   In QSplitter the boundary can be either horizontal or vertical.  The
-  default is horizontal (the children are side by side) and you
+  default is horizontal (the children are side by side) but you
   can use setOrientation( QSplitter::Vertical ) to set it to vertical.
 
   By default, all widgets can be as large or as small as the user
-  wishes, down to \link QWidget::minimumSizeHint() minimumSizeHint()\endlink.
-  You can naturally use setMinimumSize() and/or
-  setMaximumSize() on the children. Use setResizeMode() to specify that
-  a widget should keep its size when the splitter is resized.
+  wishes, down to \link QWidget::minimumSizeHint()
+  minimumSizeHint()\endlink. You can also use setMinimumSize() and
+  setMaximumSize() on the children. Use setResizeMode() to specify
+  that a widget should keep its size when the splitter is resized.
 
   Although QSplitter normally resizes the children only at the end of a
   resize operation, if you call setOpaqueResize( TRUE ) the
@@ -207,7 +206,9 @@ public:
   sizes set by the user.
 
   If you hide() a child its space will be distributed among the other
-  children. It will be reinstated when you show() it again.
+  children. It will be reinstated when you show() it again. It is also
+  possible to reorder the widgets within the splitter using
+  moveToFirst() and moveToLast().
 
   <img src=qsplitter-m.png> <img src=qsplitter-w.png>
 
@@ -230,8 +231,8 @@ static QSize minSize( const QWidget *w )
 }
 
 /*!
-  Constructs a horizontal splitter with parent \a parent called \a
-  name.
+  Constructs a horizontal splitter with the \a parent and \a
+  name arguments being passed on to the QFrame constructor.
 */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
@@ -243,8 +244,8 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs a splitter with orientation \a o with parent \a parent
-  called \a name.
+  Constructs a splitter with orientation \a o with the \a parent
+  and \a name arguments being passed on to the QFrame constructor.
 */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
@@ -256,7 +257,7 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 
 /*!
-  Destroys the splitter.
+  Destroys the splitter and any children.
 */
 
 QSplitter::~QSplitter()
@@ -279,8 +280,8 @@ void QSplitter::init()
 /*!
   \fn void QSplitter::refresh()
 
-  Updates the splitter state. You should not need to call this
-  function during normal use of the splitter.
+  Updates the splitter's state. You should not need to call this
+  function.
 */
 
 
@@ -289,6 +290,7 @@ void QSplitter::init()
   \brief the orientation of the splitter
 
   By default the orientation is horizontal (the widgets are side by side).
+  The possible orientations are Qt:Vertical and Qt::Horizontal.
 
 */
 
@@ -322,8 +324,9 @@ void QSplitter::resizeEvent( QResizeEvent * )
 }
 
 
-/*!
-  Inserts the widget \a w at the end or at the beginning if \a first is TRUE
+/*
+  Inserts the widget \a w at the end (or at the beginning if \a first
+  is TRUE) of the splitter's list of widgets.
 
   It is the responsibility of the caller of this function to make sure
   that \a w is not already in the splitter and to call recalcId if
@@ -367,7 +370,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 
 
 /*!
-  Tells the splitter that a child widget has been inserted/removed.
+  Tells the splitter that a child widget has been inserted or removed.
   The event is passed in \a c.
 */
 
@@ -476,7 +479,7 @@ void QSplitter::drawSplitter( QPainter *p,
 /*!
   Returns the id of the splitter to the right of or below the widget \a w,
   or 0 if there is no such splitter
-  (i.e., it is either not in this QSplitter or it is at the end).
+  (i.e. it is either not in this QSplitter or it is at the end).
 */
 
 int QSplitter::idAfter( QWidget* w ) const
@@ -496,13 +499,14 @@ int QSplitter::idAfter( QWidget* w ) const
 
 /*!
   Moves the left/top edge of the splitter handle with id \a id as
-  close as possible to \a p, which is the distance from the left (or
-  top) edge of the widget.
+  close as possible to position \a p, which is the distance from the
+  left (or top) edge of the widget.
 
-  For hebrew and arabic the layout is reversed, and using this function
-  to set the position of the splitter might lead to unexpected results.
-  Especially, in hebrew and arabic, the position of splitter one is left of
-  the position of splitter zero.
+  For Arabic and Hebrew the layout is reversed, and using this
+  function to set the position of the splitter might lead to
+  unexpected results, since in Arabic and Hebrew the position of
+  splitter one is to the left of the position of splitter zero.
+
   \sa idAfter()
 */
 void QSplitter::moveSplitter( QCOORD p, int id )
@@ -536,7 +540,7 @@ void QSplitter::setG( QWidget *w, int p, int s, bool isSplitter )
 }
 
 
-/*!
+/*
   Places the right/bottom edge of the widget at \a id at position \a pos.
 
   \sa idAfter()
@@ -588,7 +592,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 }
 
 
-/*!
+/*
   Places the left/top edge of the widget at \a id at position \a pos.
 
   \sa idAfter()
@@ -647,7 +651,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 
 
 /*!
-  Returns the valid range of the splitter with id \a id in \a min and \a max.
+  Returns the valid range of the splitter with id \a id in \a *min and \a *max.
 
   \sa idAfter()
 */
@@ -692,7 +696,7 @@ void QSplitter::getRange( int id, int *min, int *max )
 
 
 /*!
-  Returns the legal position closest to \a p of the splitter with id \a id.
+  Returns the closest legal position to \a p of the splitter with id \a id.
 
   \sa idAfter()
 */
@@ -829,8 +833,8 @@ void QSplitter::recalc( bool update )
   \value KeepSize  QSplitter will try to keep this widget's size
   unchanged.
 
-  \value FollowSizeHint  QSplitter will resize the widget when its
-  size hint changes.
+  \value FollowSizeHint  QSplitter will resize the widget when the
+  widget's size hint changes.
 */
 
 /*!
@@ -856,7 +860,7 @@ void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
 
 
 /*!
-  Returns TRUE if opaque resize is on, FALSE otherwise.
+  Returns TRUE if opaque resize is on; otherwise returns FALSE.
 
   \sa setOpaqueResize()
 */
@@ -868,7 +872,9 @@ bool QSplitter::opaqueResize() const
 
 
 /*!
-  Sets opaque resize to \a on. Opaque resize is initially turned off.
+    If \a on is TRUE then opaque resizing is turned on; otherwise
+    opaque resizing is turned off.
+  Opaque resizing is initially turned off.
 
   \sa opaqueResize()
 */
@@ -880,7 +886,7 @@ void QSplitter::setOpaqueResize( bool on )
 
 
 /*!
-  Moves \a w to the leftmost/top position.
+  Moves widget \a w to the leftmost/top position.
 */
 
 void QSplitter::moveToFirst( QWidget *w )
@@ -909,7 +915,7 @@ void QSplitter::moveToFirst( QWidget *w )
 
 
 /*!
-  Moves \a w to the rightmost/bottom position.
+  Moves widget \a w to the rightmost/bottom position.
 */
 
 void QSplitter::moveToLast( QWidget *w )
@@ -1006,7 +1012,7 @@ QSize QSplitter::minimumSizeHint() const
 }
 
 
-/*!
+/*
   Calculates stretch parameters from current sizes
 */
 
@@ -1073,8 +1079,8 @@ bool QSplitter::isHidden( QWidget *w ) const
   Returns a list of the size parameters of all the widgets in this
   splitter.
 
-  Giving the values to setSizes() will give a splitter with the same
-  layout as this one.
+  Giving the values to another splitter's setSizes() function will
+  produce a splitter with the same layout as this one.
 
   \sa setSizes()
 */
@@ -1128,7 +1134,7 @@ void QSplitter::setSizes( QValueList<int> list )
 
 /*!
   Gets all posted child events, ensuring that the internal state of
-  the splitter is consistent with the programmer's idea.
+  the splitter is consistent.
 */
 
 void QSplitter::processChildEvents()
