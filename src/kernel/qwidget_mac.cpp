@@ -921,7 +921,7 @@ void QWidget::setActiveWindow()
 {
     if(!isVisible() || !isTopLevel() || isPopup() || isDesktop() || testWFlags( WStyle_Tool ))
 	return;
-    SelectWindow( (WindowPtr)hd );
+    ActivateWindow((WindowPtr)hd, true);
 }
 
 void QWidget::update()

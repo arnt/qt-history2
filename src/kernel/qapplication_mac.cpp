@@ -1762,9 +1762,24 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    mouse_button_state = after_state;
 	    return 1;
 	}
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) {
-	    mouse_button_state = 0;
-	    return 0;
+
+	if(ekind == kEventMouseDown) {
+	    if(QWidget* w = widget) {
+		while ( w->focusProxy() )
+		    w = w->focusProxy();
+		if(ekind == kEventMouseDown) {
+		    if(QWidget *tlw = w->topLevelWidget()) {
+			tlw->raise();
+			if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
+			   (tlw->isModal() || !tlw->inherits("QDockWindow")))
+			    tlw->setActiveWindow();
+		    }
+		}
+	    }
+	    if(!app->do_mouse_down( &where )) {
+		mouse_button_state = 0;
+		return 0;
+	    }
 	}
 	mouse_button_state = after_state;
 
@@ -1815,14 +1830,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QWidget* w = widget;
 		while ( w->focusProxy() )
 		    w = w->focusProxy();
-		if(ekind == kEventMouseDown) {
-		    if(QWidget *tlw = w->topLevelWidget()) {
-			tlw->raise();
-			if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
-			   (tlw->isModal() || !tlw->isDialog()))
-			    tlw->setActiveWindow();
-		    }
-		}
 		int fp = (ekind == kEventMouseDown) ? QWidget::ClickFocus : QWidget::WheelFocus;
 		if ( w->focusPolicy() & fp) {
 		    QFocusEvent::setReason( QFocusEvent::Mouse);
