@@ -2165,10 +2165,10 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 
     if ( !langIface || formwindow->project()->language() == "C++" ) {
 	QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
-	// do this when the ui.h gets added, not here  ################
 	QString extensionInclude;
 	bool needExtensionInclude = FALSE;
-	if ( langIface && formwindow->project()->language() == "C++" ) {
+	if ( langIface && formwindow->project()->language() == "C++"  &&
+	     formwindow->formFile()->hasFormCode() ) {
 	    extensionInclude = QFileInfo( currFileName ).fileName() + langIface->formCodeExtension();
 	    needExtensionInclude = TRUE;
 	}
@@ -2540,7 +2540,8 @@ void Resource::saveFormCode()
 			"\n" + iface->createEmptyFunction();
 	    }
 	    formwindow->formFile()->setCode( code );
-	} else if ( !langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	} else if ( !langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ||
+		    !formwindow->formFile()->hasFormCode() ) {
 	    return;
 	}
     }

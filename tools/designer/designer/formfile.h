@@ -47,6 +47,7 @@ public:
     void setEditor( SourceEditor *e );
     void setFileName( const QString &fn );
     void setCode( const QString &c );
+    void setHasFormCode( bool b );
     void setModified( bool m, int who = WAnyOrAll );
     void setCodeEdited( bool b );
 

@@ -100,6 +100,11 @@ void FormFile::setCode( const QString &c )
     hFormCode = TRUE;
 }
 
+void FormFile::setHasFormCode( bool b )
+{
+    hFormCode = b;
+}
+
 FormWindow *FormFile::formWindow() const
 {
     return fw;
@@ -173,8 +178,10 @@ bool FormFile::save( bool withMsgBox )
 	return saveAs();
     if ( !isModified() )
 	return TRUE;
-    if ( ed )
+    if ( ed ) {
+	hFormCode = TRUE;
 	ed->save();
+    }
 
     if ( withMsgBox ) {
 	if ( !formWindow()->checkCustomWidgets() )
