@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#6 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#6 $";
 #endif
 
 
@@ -229,11 +229,11 @@ void QPrinter::setCreator( const char *creator )
 
   The page size can be one of:
   <ul>
-  <li>QPrinter::A4</li> (8.26x11.7 inches, 210x297 mm)
-  <li>QPrinter::B5</li> (7.17x10.13 inches, 182x257 mm)
-  <li>QPrinter::Letter</li> (8.5x11 inches, 216x279 mm)
-  <li>QPrinter::Legal</li> (8.5x14 inches, 216x356 mm)
-  <li>QPrinter::Executive</li> (7.5x10 inches, 191x254 mm)
+  <li>\c QPrinter::A4 (210x297 mm, 8.26x11.7 inches)
+  <li>\c QPrinter::B5 (182x257 mm, 7.17x10.13 inches)
+  <li>\c QPrinter::Letter (216x279 mm, 8.5x11 inches)
+  <li>\c QPrinter::Legal (216x356 mm, 8.5x14 inches)
+  <li>\c QPrinter::Executive (191x254 mm, 7.5x10 inches)
   </ul>
 
   \warning Not yet implemented for X-Windows.
@@ -275,8 +275,8 @@ void QPrinter::setOrientation( Orientation orientation )
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::fromPage() const
-  Returns the from-page setting.  The programmer is responsible to read
-  this setting and print accordingly.
+  Returns the from-page setting.  The programmer is responsible for reading
+  this setting and printing accordingly.
   The default value is 1.
 
   \sa setFromPage(), toPage()
@@ -284,8 +284,8 @@ void QPrinter::setOrientation( Orientation orientation )
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::toPage() const
-  Returns the to-page setting.  The programmer is responsible to read
-  this setting and print accordingly.
+  Returns the to-page setting.  The programmer is responsible for reading
+  this setting and printing accordingly.
   The default value is 1.
 
   \sa setFromPage(), fromPage()
