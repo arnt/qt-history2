@@ -392,9 +392,9 @@ void qt_mac_update_os_settings()
 	    QFont fnt(p2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 		      (bool)(f_style & ::italic));
 	    bool set_font = TRUE;
-	    extern QAsciiDict<QFont> *app_fonts;  //qapplication.cpp
+	    extern QHash<QString, QFont*> *app_fonts;  //qapplication.cpp
 	    if(app_fonts) {
-		if(QFont *oldfnt = app_fonts->find(mac_widget_fonts[i].qt_class))
+		if(QFont *oldfnt = app_fonts->value(mac_widget_fonts[i].qt_class))
 		    set_font = !(fnt == *oldfnt);
 	    }
 	    if(set_font) {
@@ -461,9 +461,9 @@ void qt_mac_update_os_settings()
 			     pal.color(QPalette::Active, QPalette::Text));
 	    }
 	    bool set_palette = TRUE;
-	    extern QAsciiDict<QPalette> *app_palettes; //qapplication.cpp
+	    extern QHash<QString, QPalette*> *app_palettes; //qapplication.cpp
 	    if(app_palettes) {
-		if(QPalette *oldpal = app_palettes->find(mac_widget_colours[i].qt_class))
+		if(QPalette *oldpal = app_palettes->value(mac_widget_colours[i].qt_class))
 		    set_palette = !(pal == *oldpal);
 	    }
 	    if(set_palette && pal != apppal) {

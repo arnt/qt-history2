@@ -33,7 +33,7 @@ kernel {
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpaintdevicemetrics.h \
-		  $$KERNEL_H/qpainter.h \
+		  $$KERNEL_H/q3painter.h \
 		  $$KERNEL_H/qpalette.h \
 		  $$KERNEL_H/qpen.h \
 		  $$KERNEL_H/qpicture.h \
@@ -62,7 +62,7 @@ kernel {
 		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_P/qguieventloop_p.h \
 		  $$KERNEL_P/qlayoutengine_p.h \
-		  $$KERNEL_P/qpainter_p.h \
+		  $$KERNEL_P/q3painter_p.h \
 	 	  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_H/qsimplerichtext.h \
@@ -173,7 +173,7 @@ kernel {
 		  $$KERNEL_CPP/qmime.cpp \
 		  $$KERNEL_CPP/qmovie.cpp \
 		  $$KERNEL_CPP/qpaintdevicemetrics.cpp \
-		  $$KERNEL_CPP/qpainter.cpp \
+		  $$KERNEL_CPP/q3painter.cpp \
 		  $$KERNEL_CPP/qpalette.cpp \
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpictureformatplugin.cpp \
@@ -225,8 +225,8 @@ kernel {
 newpainter {
     DEFINES += Q_Q4PAINTER
     #remove
-    HEADERS -= $$KERNEL_H/qpainter.h
-    SOURCES -= $$KERNEL_CPP/qpainter.cpp
+    HEADERS -= $$KERNEL_H/q3painter.h
+    SOURCES -= $$KERNEL_CPP/q3painter.cpp
     #add
     SOURCES += $$KERNEL_CPP/qabstractgc.cpp \
 	       $$KERNEL_CPP/q4painter.cpp \

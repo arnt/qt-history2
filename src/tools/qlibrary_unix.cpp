@@ -31,7 +31,7 @@
 */
 
 #if defined(Q_OS_DARWIN)
-#include "qt_mac.h"
+#include "qkernel_mac.h"
 # define ENUM_DYLD_BOOL
  enum DYLD_BOOL { DYLD_FALSE, DYLD_TRUE };
  extern "C" {

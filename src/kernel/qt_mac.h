@@ -2,8 +2,6 @@
 **
 ** Definition of ???.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
-**
 ** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
@@ -17,50 +15,19 @@
 #ifndef QT_MAC_H
 #define QT_MAC_H
 
-#undef OLD_DEBUG
-#ifdef DEBUG
-#define OLD_DEBUG DEBUG
-#undef DEBUG
-#endif
-#define DEBUG 0
-
-#ifndef __IMAGECAPTURE__
-#define __IMAGECAPTURE__
-#endif
-#include <Carbon/Carbon.h>
-#include <QuickTime/Movies.h>
-#undef QT_BUILD_KEY
-#include <qconfig.h> //We need this to get QT_MACOSX_VERSION
+#include "qkernel_mac.h"
 #include "qglobal.h"
-
-#if defined(Q_WS_MAC)
-# define QMAC_DEFAULT_STYLE "QMacStyle" //DefaultStyle
+#include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
 //#define USE_CORE_GRAPHICS
 
-#endif
-
-#if !defined(Q_WS_MAC) || QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
+#if QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
 # define QMAC_NO_FAKECURSOR
 #endif
 
-/* We don't use the ApplicationEventLoop because it can causes bad behaviour in
-   multithreaded applications. I've left the code in however because using the
-   ApplicationEventLoop solved other problems (ages ago) - for example the gumdrop
-   "hover" effects. */
-//#define QMAC_USE_APPLICATION_EVENT_LOOP
-
-#undef DEBUG
-#ifdef OLD_DEBUG
-#define DEBUG OLD_DEBUG
-#endif
-#undef OLD_DEBUG
-
-#ifdef Q_WS_MAC
 #include "qpainter.h"
 #include "qwidget.h"
-extern int mac_window_count; //qwidget_mac.cpp
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
 #include "qthread.h"
@@ -93,6 +60,7 @@ public:
 
 inline QMacSavedFontInfo::~QMacSavedFontInfo() 
 {
+    extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
 	TextFont(tfont);
 	TextFace(tface);
@@ -102,6 +70,7 @@ inline QMacSavedFontInfo::~QMacSavedFontInfo()
 
 inline void QMacSavedFontInfo::init(CGrafPtr w) 
 {
+    extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
 	tfont = GetPortTextFont(w);
 	tface = GetPortTextFace(w);
@@ -369,6 +338,7 @@ QMacSavedPortInfo::init()
 #else
     painter = qt_mac_current_painter;
 #endif
+    extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
    	GetBackColor(&back);
 	GetForeColor(&fore);
@@ -383,6 +353,7 @@ QMacSavedPortInfo::init()
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
+    extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
 	if(valid_gworld) 
 	    SetGWorld(world,handle); //always do this one first
@@ -407,5 +378,4 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 #endif
 }
 
-#endif //Q_WS_MAC
 #endif // QT_MAC_H

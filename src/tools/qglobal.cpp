@@ -132,7 +132,8 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
 #if !defined(QWS) && defined(Q_OS_MAC)
 
-#include "qt_mac.h"
+#include "qkernel_mac.h"
+#include "qnamespace.h"
 
 int qMacVersion()
 {

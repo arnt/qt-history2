@@ -16,10 +16,9 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
-// ### Fix before 4.0
-#if 0
+#warning "For some reason qprintdialog.cpp including qfiledialog.h is bad, no idea why (but apparently should be fixed for 4.0)..."
 #include "qfiledialog.h"
-#endif
+#include "qdir.h"
 #include "qdesktopwidget.h"
 #include "qfile.h"
 #include "qtextstream.h"

@@ -765,7 +765,7 @@ class QDataStream;
 // and where the application-suite is often a fixed set.
 //
 
-#if !defined(QT_MOC)
+#if !defined(QT_BUILD_MOC)
 #if defined(QCONFIG_LOCAL)
 #include "qconfig-local.h"
 #elif defined(QCONFIG_MINIMAL)

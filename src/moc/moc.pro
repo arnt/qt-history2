@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG = console release qtinc yacc lex_included yacc_no_name_mangle
-DEFINES	       += QT_MOC QT_NO_CODECS QT_NO_TEXTCODEC \
+DEFINES	       += QT_BUILD_MOC QT_NO_CODECS QT_NO_TEXTCODEC \
 		  QT_LITE_UNICODE QT_NO_COMPONENT \
 		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM
 win32:DEFINES  += QT_NODLL

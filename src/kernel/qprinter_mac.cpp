@@ -201,7 +201,7 @@ bool QPrinter::setup(QWidget *w)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
-    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
+    if(qApp->style().inherits("QMacStyle")) {
 	return (printSetup(w) && pageSetup(w));
     } else if(QPrintDialog::getPrinterSetup(this)) {
         if(!prepare(&pformat) || !prepare(&psettings))
@@ -250,7 +250,7 @@ bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
-    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
+    if(qApp->style().inherits("QMacStyle")) {
         Boolean ret;
 	QMacBlockingFunction block;
         //setup
@@ -272,7 +272,7 @@ bool QPrinter::pageSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return FALSE;
-    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) || qApp->style().inherits("QMacStyle")) {
+    if(qApp->style().inherits("QMacStyle")) {
         Boolean ret;
 	QMacBlockingFunction block;
         //page format
