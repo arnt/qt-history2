@@ -229,7 +229,8 @@ FormWindow::~FormWindow()
 
 void FormWindow::closeEvent( QCloseEvent *e )
 {
-    if ( ff->closeEvent() && mainwindow && mainwindow->unregisterClient( this ) )
+    QGuardedPtr<FormWindow> that = this;
+    if ( ff->closeEvent() && ( !that || ( mainwindow && mainwindow->unregisterClient( this ) ) ) )
 	e->accept();
     else
 	e->ignore();
