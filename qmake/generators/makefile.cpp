@@ -1625,14 +1625,15 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
 		// << "$(DEL_FILE) " << tmpfile << endl << endl;
 		
 	    } else {
-	    t << m << ": " << deps << "\n\t"
-	      << "$(MOC)";
-	    if (!precomph.isEmpty()) {
-		t << " -pch "
-		// Correct precomph path, based on moc implementation output
-		<< fileFixify(precomph, QFileInfo(m).dirPath(TRUE), QDir::currentDirPath());
+		t << m << ": " << deps << "\n\t"
+		  << "$(MOC)";
+		if (!precomph.isEmpty()) {
+		    t << " -pch "
+		    // Correct precomph path, based on moc implementation output
+		    << fileFixify(precomph, QFileInfo(m).dirPath(TRUE), QDir::currentDirPath());
+		}
+		t << " " << (*it) << " -o " << m << endl << endl;
 	    }
-	    t << " " << (*it) << " -o " << m << endl << endl;
 	}
     }
 }
