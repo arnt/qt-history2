@@ -303,7 +303,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     </widget>
                     <widget class="QLabel" row="3" column="0">
                         <property name="name">
-                            <cstring>LicenseeLabel</cstring>
+                            <cstring>licenseeLabel</cstring>
                         </property>
                         <property name="text">
                             <string>Licensee</string>
@@ -359,7 +359,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <cstring>introText</cstring>
                 </property>
                 <property name="text">
-                    <string>Just some introduction text</string>
+                    <string>The license could not be found in the package. The package might be corrupted.
+Please contact support@trolltech.com to resolve the problem.</string>
                 </property>
             </widget>
             <widget class="QButtonGroup" row="1" column="1">
@@ -398,7 +399,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     </widget>
                     <widget class="QRadioButton" row="0" column="1">
                         <property name="name">
-                            <cstring>acceptLicence</cstring>
+                            <cstring>acceptLicense</cstring>
                         </property>
                         <property name="text">
                             <string>I accept the license</string>
@@ -1386,8 +1387,14 @@ Alternatively, the installation wizard may read them from a license file.</strin
                         <property name="name">
                             <cstring>filesDisplay</cstring>
                         </property>
+                        <property name="undoDepth">
+                            <number>0</number>
+                        </property>
                         <property name="readOnly">
                             <bool>true</bool>
+                        </property>
+                        <property name="undoRedoEnabled">
+                            <bool>false</bool>
                         </property>
                     </widget>
                     <widget class="QProgressBar">

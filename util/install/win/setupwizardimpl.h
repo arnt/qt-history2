@@ -35,6 +35,7 @@ private:
     QProcess configure;
     QProcess make;
     QProcess integrator;
+    QProcess cleaner;
 
     QString programsFolder;
     QString devSysFolder;
@@ -45,11 +46,14 @@ private:
     void saveSettings();
     void saveSet( QListView* list );
 protected slots:
+    virtual void cleanDone();
     virtual void configDone();
     virtual void makeDone();
     virtual void integratorDone();
     virtual void readConfigureOutput();
     virtual void readConfigureError();
+    virtual void readCleanerOutput();
+    virtual void readCleanerError();
     virtual void readMakeOutput();
     virtual void readMakeError();
     virtual void readIntegratorOutput();
@@ -63,15 +67,25 @@ protected slots:
 //    virtual void envDone();
 
 private:
+    void showPageLicense();
+    void showPageFolders();
+    void showPageConfig();
+    void showPageProgress();
+    void showPageBuild();
+    void showPageFinish();
+
+    void prepareEnvironment();
+
     bool findFileInPaths( QString fileName, QStringList paths );
     void setStaticEnabled( bool se );
     void setJpegDirect( bool jd );
     void readLicenseAgreement();
 
-#if !defined (USE_ARCHIVES)
     bool copyFiles( const QString& sourcePath, const QString& destPath, bool topLevel );
-#endif
     int totalRead;
+
+    QString qt_version_str;
+    QString buildQtShortcutText;
 
     bool filesCopied;
     bool persistentEnv;
@@ -85,12 +99,15 @@ private:
 
     void updateOutputDisplay( QProcess* proc );
     void updateErrorDisplay( QProcess* proc );
+#if defined(Q_OS_WIN32)
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
+#endif
     void doFinalIntegration();
     enum {
 	MSVC = 0,
 	Borland = 1,
-	GCC = 2
+	GCC = 2,
+	MACX = 3
     };
     void logFiles( const QString& entry, bool close = false );
     void logOutput( const QString& entry, bool close = false );
@@ -98,6 +115,7 @@ private:
     void setInstallStep( int step );
     void readLicense( QString filePath );
     void writeLicense( QString filePath );
+
     QFile fileLog;
     QFile outputLog;
     QMap<QString,QString> licenseInfo;
@@ -107,11 +125,8 @@ private:
     QStringList allModules;
 
     QCheckListItem *accOn, *accOff;
-
     QCheckListItem *bigCodecsOn, *bigCodecsOff;
-
     QCheckListItem *tabletOn, *tabletOff;
-
     QCheckListItem *advancedCppOn, *advancedCppOff;
 
     QCheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
@@ -132,4 +147,10 @@ private:
     QCheckListItem *tdsDirect, *tdsPlugin, *tdsOff;
 
     QCheckListItem *staticItem;
+
+#if defined(EVAL)
+    QLineEdit* evalName;
+    QLineEdit* evalCompany;
+    QLineEdit* evalSerialNumber;
+#endif
 };

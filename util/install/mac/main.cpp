@@ -71,6 +71,7 @@ int main( int argc, char** argv )
     QString key;
     bool output = TRUE;
     QStringList files;
+    QApplication app( argc, argv );
     for(int i = 1; i < argc; i++) {
 	//options
 	if(!strcmp(argv[i], "-s")) 
@@ -104,7 +105,6 @@ int main( int argc, char** argv )
 	    archive.close();
 	}
     } else {
-	QApplication app( argc, argv );
 	UnpackDlgImpl dlg(key);
 	dlg.exec();
     }

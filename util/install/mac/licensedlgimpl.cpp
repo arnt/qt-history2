@@ -10,10 +10,10 @@ LicenseDialogImpl::LicenseDialogImpl( QWidget *parent )
 bool LicenseDialogImpl::showLicense( bool licenseUs )
 {
     QFile f;
+    QString path = "qt-mac-commercial-3.0.0.app/Contents/Qt/LICENSE";
     if (licenseUs)
-	f.setName( "LICENSE-US" );
-    else
-	f.setName( "LICENSE" );
+	path.append( "-US" );
+    f.setName( path );
     if ( !f.open( IO_ReadOnly ) )
 	return false;
     

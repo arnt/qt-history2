@@ -1,4 +1,6 @@
 TARGET = unpackage
+mac:TARGET = qt-mac-commercial-3.0.0
+mac:RC_FILE = unpackage.icns
 TEMPLATE = app
 HEADERS = unpackdlgimpl.h licensedlgimpl.h
 SOURCES = main.cpp unpackdlgimpl.cpp licensedlgimpl.cpp

@@ -3,8 +3,13 @@
 #include "folderdlgimpl.h"
 #include <qnamespace.h>
 #include <qdir.h>
+#if defined(Q_OS_WIN32)
 #include <windows.h>
 #include <shlobj.h>
+#else
+#include <sys/param.h>
+#include <sys/mount.h>
+#endif
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -126,15 +131,18 @@ static QPixmap* infoImage = NULL;
 
 WinShell::WinShell()
 {
+#if defined(Q_OS_WIN32)
     QByteArray buffer( MAX_PATH * 2 );
     HRESULT hr;
     IEnumIDList* enumerator = NULL;
     LPITEMIDLIST item;
+#endif
 
     localProgramsFolderName = QString::null;
     commonProgramsFolderName = QString::null;
     windowsFolderName = QString::null;
 
+#if defined(Q_OS_WIN32)
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( SHGetPathFromIDListA( item, buffer.data() ) ) {
@@ -163,6 +171,7 @@ WinShell::WinShell()
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
 	    if( SHGetPathFromIDListA( item, buffer.data() ) ) {
 		localProgramsFolderName = buffer.data();
+		commonProgramsFolderName = buffer.data();
 	    }
 	    else
 		qDebug( "Could not get name of programs folder" );
@@ -170,6 +179,7 @@ WinShell::WinShell()
 	else
 	    qDebug( "Could not get programs folder location" );
     }
+#endif
 
     closedImage = new QPixmap( folder_closed_xpm );
     openImage = new QPixmap( folder_open_xpm );
@@ -218,6 +228,7 @@ QString WinShell::createFolder( QString folderName, bool common )
 }
 
 
+#if defined(Q_OS_WIN32)
 HRESULT WinShell::createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description, QString arguments, QString wrkDir )
 {
     IPersistFile* linkFile;
@@ -297,6 +308,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 
     return hr;
 }
+#endif
 
 bool WinShell::createDir( QString fullPath )
 {
@@ -333,6 +345,7 @@ QPixmap* WinShell::getInfoImage()
     return infoImage;
 }
 
+#if defined(Q_OS_WIN32)
 QString WinShell::OLESTR2QString( LPOLESTR str )
 {
     QString tmp;
@@ -342,11 +355,13 @@ QString WinShell::OLESTR2QString( LPOLESTR str )
 
     return tmp;
 }
+#endif
 
 /*!
   Returns the free space for the directory.  The space is returned in bytes,
   and should only be considered valid for this particular directory.
 */
+#if defined(Q_OS_WIN32)
 ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
 {
     QString drive = dirPath.left( dirPath.find( '\\' ) );
@@ -366,4 +381,13 @@ ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
     }
     return freeSpace;
 }
+#elif defined(Q_OS_MACX)
+long  WinShell::dirFreeSpace( QString dirPath )
+{
+    struct statfs buf;
+    if (statfs( dirPath.local8Bit(), &buf ) != -1)
+	return buf.f_bavail * buf.f_bsize;
+    return 0;
+}
+#endif
 

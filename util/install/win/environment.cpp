@@ -1,6 +1,10 @@
 #include "environment.h"
 #include <stdlib.h>
+#if defined(Q_OS_WIN32)
 #include <windows.h>
+#elif defined(Q_OS_UNIX)
+#include <errno.h>
+#endif
 #include <qnamespace.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -9,6 +13,7 @@
 
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
+#if defined(Q_OS_WIN32)
     OSVERSIONINFOA osvi;
     HKEY hkKey;
     bool isWinMe = false;
@@ -53,6 +58,9 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    return QString( getenv( varName ) );
 	}
     }
+#elif defined(Q_OS_UNIX)
+// Persistent environment on Unix is not supported yet.
+#endif
     if( envBlock & LocalEnv ) {
 	return QString( getenv( varName ) );
     }
@@ -61,6 +69,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 
 void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 {
+#if defined(Q_OS_WIN32)
     OSVERSIONINFOA osvi;
     HKEY hkKey;
     bool isWinMe = false;
@@ -108,12 +117,14 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    }
 	}
     }
+#endif
     if( envBlock & LocalEnv ) {
 	// ### This fails if compiled with Borland! (Unicode issue)
 	putenv( varName + QString( "=" ) + varValue );
     }
 }
 
+#if defined(Q_OS_WIN32)
 bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 {
     HKEY key;
@@ -159,7 +170,9 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     }
     return false;
 }
+#endif
 
+#if defined(Q_OS_WIN32)
 bool QEnvironment::removeUninstall( QString displayName )
 {
     HKEY key;
@@ -176,7 +189,9 @@ bool QEnvironment::removeUninstall( QString displayName )
     }
     return false;
 }
+#endif
 
+#if defined(Q_OS_WIN32)
 QString QEnvironment::getRegistryString( QString keyName, QString valueName, int scope )
 {
     QString value;
@@ -217,12 +232,13 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
 	    RegCloseKey( key );
 	}
     }
-    
     return value;
 }
+#endif    
 
 QString QEnvironment::getTempPath()
 {
+#if defined(Q_OS_WIN32)
     DWORD tmpSize;
     QByteArray tmp;
     QString tmpPath;
@@ -243,7 +259,9 @@ QString QEnvironment::getTempPath()
 	GetTempPathA( tmpSize, tmp.data() );
 	tmpPath = tmp.data();
     }
-
+#elif defined(Q_OS_UNIX)
+    QString tmpPath = "/tmp";
+#endif
     return tmpPath;
 }
 
@@ -254,6 +272,7 @@ QString QEnvironment::getLastError()
 
 QString QEnvironment::getFSFileName( const QString& fileName )
 {
+#if defined(Q_OS_WIN32)
     QByteArray buffer( MAX_PATH );
     QString tmp( fileName );
     
@@ -265,5 +284,8 @@ QString QEnvironment::getFSFileName( const QString& fileName )
 	if( dw > 0 )
 	    tmp = buffer.data();
     }
+#elif defined(Q_OS_UNIX)
+    QString tmp( fileName );
+#endif
     return tmp;
 }

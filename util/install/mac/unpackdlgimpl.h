@@ -9,6 +9,10 @@ public:
 
     virtual void clickedDestButton();
     virtual void clickedUnpack();
+    virtual bool copyFile( const QString& src, const QString& dest );
 public slots:
     virtual void updateProgress( const QString& );
+    virtual void updateProgress( int );
+    virtual void licenseKeyChanged();
+    virtual void reject();
 };

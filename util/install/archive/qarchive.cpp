@@ -13,10 +13,11 @@
 #endif
 
 enum ChunkType {
-    ChunkDirectory = 0,
-    ChunkFile      = 1,
-    ChunkSymlink   = 2,
-    ChunkKey       = 3
+    ChunkDirectory	= 0,
+    ChunkFile		= 1,
+    ChunkSymlink	= 2,
+    ChunkBeginHeader	= 3,
+    ChunkEndHeader	= 4
 };
 
 static bool createDir( const QString& fullPath )
@@ -118,7 +119,8 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		ztream.opaque = (voidpf)NULL;
 		ztream.data_type = Z_BINARY;
 		deflateInit( &ztream, 9 );
-		inFile.readBlock( inBuffer.data(), inBuffer.size() );
+		if ( inBuffer.data() )
+		    inFile.readBlock( inBuffer.data(), inBuffer.size() );
 
 		continueCompressing = true;
 		while( continueCompressing ) {
@@ -166,18 +168,21 @@ bool QArchive::setDirectory( const QString& dirName )
     return FALSE;
 }
 
-bool
-QArchive::writeFeatures( uint features )
+bool QArchive::writeHeader( const QArchiveHeader header )
 {
     if( arcFile.isOpen() ) {
 	QDataStream outStream( &arcFile );
-	outStream << (int)ChunkKey;
-	outStream << features;
+	outStream << (int)ChunkBeginHeader;
+	outStream << header.mayorVersion();
+	outStream << header.minorVersion();
+	outStream << header.features();
+	outStream << header.description();
+	outStream << header.extraData;
+	outStream << (int)ChunkEndHeader;
 	return TRUE;
     }
     return FALSE;
 }
-
 
 bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, const QString &localPath1 )
 {
@@ -239,6 +244,47 @@ void QArchive::setVerbosity( int verbosity )
     verbosityMode = verbosity;
 }
 
+QArchiveHeader* QArchive::readArchiveHeader()
+{
+    QDataStream inStream( &arcFile );
+    return readArchiveHeader( &inStream );
+}
+
+/*
+   Reads the archive header and returns it on success. If an error occurs, it
+   returns 0. The caller has to delete the object.
+*/
+QArchiveHeader* QArchive::readArchiveHeader( QDataStream *inStream )
+{
+    int chunktype;
+    QArchiveHeader *header = new QArchiveHeader;
+
+    *inStream >> chunktype;
+    if( chunktype == ChunkBeginHeader ) {
+	*inStream >> header->_mayorVersion;
+	*inStream >> header->_minorVersion;
+	if ( header->mayorVersion()!=1 || header->minorVersion()!=0 ) {
+	    emit operationFeedback( "Incompatible package version" );
+	    delete header;
+	    return 0;
+	}
+	*inStream >> header->_features;
+	*inStream >> header->_description;
+	*inStream >> header->extraData;
+	*inStream >> chunktype;
+	if ( chunktype != ChunkEndHeader ) {
+	    emit operationFeedback( "Invalid package header" );
+	    delete header;
+	    return 0;
+	}
+    } else {
+	emit operationFeedback( "No package header found." );
+	delete header;
+	return 0;
+    }
+    return header;
+}
+
 bool QArchive::readArchive( const QString &outpath, const QString &key ) 
 {
     QDataStream inStream( &arcFile );
@@ -258,14 +304,13 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
     int entryLength, chunktype;
 
     //get the key
-    *inStream >> chunktype;
-    if(chunktype == ChunkKey) {
-	uint features, infeatures = featuresForKey( key );
-	*inStream >> features;
-	if( (features & infeatures) != features) {
-	    emit operationFeedback( "Invalid key" );
-	    return FALSE;
-	}
+    QArchiveHeader *header = readArchiveHeader( inStream );
+    if ( header == 0 )
+	return FALSE;
+    uint infeatures = featuresForKey( key );
+    if( (header->features() & infeatures) != header->features()) {
+	emit operationFeedback( "Invalid key" );
+	return FALSE;
     }
 
     // Set up the initial directory.
@@ -317,9 +362,9 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		outStream.setDevice( &outFile );
 		*inStream >> entryLength;
 		if( verbosityMode & Source )
-		    emit operationFeedback( "Deflating " + entryName + "..." );
+		    emit operationFeedback( "Expanding " + entryName + "..." );
 		else if( verbosityMode & Destination )
-		    emit operationFeedback( "Deflating " + fileName + "..." );
+		    emit operationFeedback( "Expanding " + fileName + "..." );
 		inBuffer.resize( entryLength );
 		inStream->readRawBytes( inBuffer.data(), entryLength );
 		ztream.next_in = (unsigned char*)inBuffer.data();
