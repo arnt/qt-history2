@@ -1,25 +1,25 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#29 $
 **
-**  Table header
+** Implementation of QHeader widget class (table header)
 **
-**  Created:  961105
+** Created : 961105
 **
-** Copyright (C) 1996-1997 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
+**
 *****************************************************************************/
-#include "qheader.h"
 
+#include "qheader.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
-
-#include "qcursor.h"
 #include "qbitmap.h"
+
 static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;
 
 
-#if (QT_VERSION >= 140)
-#error "Move cursors to QCursor"
+#if QT_VERSION >= 140
+//#error "Move cursors to QCursor"
 #endif
 
 

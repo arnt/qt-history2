@@ -1,18 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#13 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#14 $
 **
-**  Table header
+** Definition of QHeader widget class (table header)
 **
-**  Created:  961105
+** Created : 961105
 **
-** Copyright (C) 1996-1997 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
+
 #ifndef QHEADER_H
 #define QHEADER_H
 
 #include "qtablevw.h"
-#include "qarray.h"
+
 
 class QHeader : public QTableView
 {
