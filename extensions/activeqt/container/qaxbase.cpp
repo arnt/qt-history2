@@ -1024,6 +1024,11 @@ bool QAxBase::initialize( IUnknown **ptr )
     Creates an instance of a licensed control, and returns the IUnknown interface
     to the object in \a ptr. This functions returns TRUE if successful, otherwise
     returns FALSE.
+
+    This function is called by initialize() if the control string contains the 
+    substring "}:". The license key needs to follow this substring.
+
+    \sa initialize()
 */
 bool QAxBase::initializeLicensed(IUnknown** ptr)
 {
@@ -1066,6 +1071,11 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
     Returns an active instance running on the current machine, and returns the
     IUnknown interface to the running object in \a ptr. This function returns TRUE 
     if successful, otherwise returns FALSE.
+
+    This function is called by initialize() if the control string contains the 
+    substring "}&".
+
+    \sa initialize()
 */
 bool QAxBase::initializeActive(IUnknown** ptr)
 {
@@ -1090,6 +1100,12 @@ bool QAxBase::initializeActive(IUnknown** ptr)
     Creates the instance on a remote server, and returns the IUnknown interface
     to the object in \a ptr. This function returns TRUE if successful, otherwise
     returns FALSE.
+
+    This function is called by initialize() if the control string contains the 
+    substring "/{". The information about the remote machine needs to be provided
+    in front of the substring.
+
+    \sa initialize()
 */
 bool QAxBase::initializeRemote(IUnknown** ptr)
 {
