@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#305 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#306 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1319,7 +1319,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	setWFlags( WState_ConfigPending );
 	XSizeHints size_hints;
 	size_hints.flags = USPosition | USSize | PSize;
-	if ( usposition || isMove )
+	if ( isMove )
+	    usposition = 1;
+	if ( usposition )
 	    // also restore the usposition, otherwise it would be cleared
 	    size_hints.flags |= USPosition;
 	size_hints.x = x;
@@ -1327,14 +1329,13 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	size_hints.width = w;
 	size_hints.height = h;
 	do_size_hints( dpy, winid, extra, &size_hints );
-	usposition = isMove;
     }
 
     if ( isMove )
 	XMoveResizeWindow( dpy, winid, x, y, w, h );
     else
 	XResizeWindow( dpy, winid, w, h );
-    
+
     bool isResize = olds != r.size();
 
     if ( isVisible() ) {
