@@ -1026,7 +1026,7 @@ inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
         QPaintEngine::CoordTransform|QPaintEngine::PixmapTransform|
         QPaintEngine::PatternTransform|QPaintEngine::PenWidthTransform|
         QPaintEngine::PainterPaths|QPaintEngine::PixmapScale|
-        QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradients|
+        QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradientFill|
         QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke|
         QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap|
         QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing

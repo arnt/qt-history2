@@ -78,7 +78,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 				       | PixmapScale
 		                       | AlphaFill
 		                       | AlphaPixmap
-				       | LinearGradients
+				       | LinearGradientFill
 		                       | PaintOutsidePaintEvent))
 {
 }

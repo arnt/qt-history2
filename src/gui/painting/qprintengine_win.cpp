@@ -185,7 +185,7 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(PixmapTransform
                                                                              | PixmapScale
                                                                              | UsesFontEngine
-                                                                             | LinearGradients
+                                                                             | LinearGradientFill
                                                                              | AlphaFill
                                                                              | PainterPaths))
 {

@@ -1717,7 +1717,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 
 #ifndef QT_NO_NATIVE_GRADIENT
     if (qGradientFill)
-        commonFeatures |= QPaintEngine::LinearGradients;
+        commonFeatures |= QPaintEngine::LinearGradientFill;
 #endif
 
 #ifndef QT_NO_NATIVE_ALPHA

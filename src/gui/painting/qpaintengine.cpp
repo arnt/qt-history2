@@ -94,7 +94,7 @@ QFont QTextItem::font() const
   paint engine has. If a feature is not supported by the engine,
   QPainter will do a best effort to emulate that feature through other
   means. The features that are currently emulated are: \c
-  CoordTransform, \c PixmapTransform, \c LinearGradients, \c
+  CoordTransform, \c PixmapTransform, \c LinearGradientFill, \c
   PixmapScale, \c AlphaFill and \c ClipTransform.
 
   \value CoordTransform The engine can transform the points in a
@@ -109,7 +109,7 @@ QFont QTextItem::font() const
   \value PixmapTransform The engine can transform pixmaps, including
   rotation and shearing.
 
-  \value LinearGradients The engine can fill with linear gradients
+  \value LinearGradientFill The engine can fill with linear gradients
 
   \value LinearGradientFillPolygon The engine is capable of gradient
   fills in polygons only. Engines that support this feature and not
@@ -719,10 +719,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateBrush(s->brush, s->bgOrigin);
         clearDirty(DirtyBrush);
 
-        if (s->brush.style() == Qt::LinearGradientPattern && !hasFeature(LinearGradients))
-            emulationSpecifier |= LinearGradients;
+        if (s->brush.style() == Qt::LinearGradientPattern && !hasFeature(LinearGradientFill))
+            emulationSpecifier |= LinearGradientFill;
         else
-            emulationSpecifier &= ~LinearGradients;
+            emulationSpecifier &= ~LinearGradientFill;
 
         if (s->brush.style() == Qt::RadialGradientPattern && !hasFeature(RadialGradientFill))
             emulationSpecifier |= RadialGradientFill;

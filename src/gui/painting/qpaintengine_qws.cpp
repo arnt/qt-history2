@@ -50,7 +50,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::PainterPaths
 #endif
 #ifndef QT_NO_NATIVE_GRADIENT
-        | QPaintEngine::LinearGradients
+        | QPaintEngine::LinearGradientFill
 #endif
 #ifndef QT_NO_NATIVE_ALPHA
         | QPaintEngine::AlphaPixmap

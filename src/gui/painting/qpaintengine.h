@@ -56,25 +56,25 @@ class Q_GUI_EXPORT QPaintEngine
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:
     enum PaintEngineFeature {
-        CoordTransform            = 0x0001,               // Points are transformed
-        PenWidthTransform         = 0x0002,               // Pen width is transformed
-        PatternTransform          = 0x0004,               // Brush patterns
-        PatternBrush              = 0x0008,               // Native support for pixmap and pattern brushes
-        PixmapTransform           = 0x0010,               // Pixmap transforms
-        LinearGradients   	  = 0x0020,               // Can fill gradient areas.
-        LinearGradientFillPolygon = 0x0040,               // Can fill polygons with linear gradients.
-        PixmapScale               = 0x0080,               // Can scale (w/o XForm) in drawPixmap
-	AlphaFill                 = 0x0100,               // Can fill with alpha.
-        AlphaFillPolygon          = 0x0200,               // Can fill polygons with alpha.
-        AlphaStroke               = 0x0400,               // Can outline with alpha.
-        AlphaPixmap               = 0x0800,               // Can draw pixmaps with alpha channels
-        PainterPaths              = 0x1000,               // Can fill, outline and clip paths
-        ClipTransform             = 0x2000,               // Can transform clip regions.
-        LineAntialiasing          = 0x4000,               // Can antialias lines
-        FillAntialiasing          = 0x8000,               // Can antialias fills
-        BrushStroke               = 0x10000,              // Can render brush based pens.
-        RadialGradientFill        = 0x20000,              // Can render radial gradients.
-        ConicalGradientFill       = 0x40000,              // Can render conical gradients
+        CoordTransform            = 0x000001,               // Points are transformed
+        PenWidthTransform         = 0x000002,               // Pen width is transformed
+        PatternTransform          = 0x000004,               // Brush patterns
+        PatternBrush              = 0x000008,               // Native support for pixmap and pattern brushes
+        PixmapTransform           = 0x000010,               // Pixmap transforms
+        LinearGradientFill   	  = 0x000020,               // Can fill gradient areas.
+        LinearGradientFillPolygon = 0x000040,               // Can fill polygons with linear gradients.
+        PixmapScale               = 0x000080,               // Can scale (w/o XForm) in drawPixmap
+	AlphaFill                 = 0x000100,               // Can fill with alpha.
+        AlphaFillPolygon          = 0x000200,               // Can fill polygons with alpha.
+        AlphaStroke               = 0x000400,               // Can outline with alpha.
+        AlphaPixmap               = 0x000800,               // Can draw pixmaps with alpha channels
+        PainterPaths              = 0x001000,               // Can fill, outline and clip paths
+        ClipTransform             = 0x002000,               // Can transform clip regions.
+        LineAntialiasing          = 0x004000,               // Can antialias lines
+        FillAntialiasing          = 0x008000,               // Can antialias fills
+        BrushStroke               = 0x010000,              // Can render brush based pens.
+        RadialGradientFill        = 0x020000,              // Can render radial gradients.
+        ConicalGradientFill       = 0x040000,              // Can render conical gradients
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };

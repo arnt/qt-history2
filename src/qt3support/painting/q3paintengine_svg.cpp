@@ -134,7 +134,7 @@ Q3SVGPaintEngine::Q3SVGPaintEngine()
                    | PenWidthTransform
                    | PatternBrush
                    | PixmapTransform
-                   | LinearGradients
+                   | LinearGradientFill
                    | LinearGradientFillPolygon
                    | PixmapScale
                    | AlphaFill
@@ -162,7 +162,7 @@ Q3SVGPaintEngine::Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr)
                    | PenWidthTransform
                    | PatternBrush
                    | PixmapTransform
-                   | LinearGradients
+                   | LinearGradientFill
                    | LinearGradientFillPolygon
                    | PixmapScale
                    | AlphaFill

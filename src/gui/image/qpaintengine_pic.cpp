@@ -47,7 +47,7 @@ QPicturePaintEngine::QPicturePaintEngine()
                    | PenWidthTransform
                    | PatternBrush
                    | PixmapTransform
-                   | LinearGradients
+                   | LinearGradientFill
                    | LinearGradientFillPolygon
                    | PixmapScale
                    | AlphaFill
@@ -69,7 +69,7 @@ QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
                    | PenWidthTransform
                    | PatternBrush
                    | PixmapTransform
-                   | LinearGradients
+                   | LinearGradientFill
                    | LinearGradientFillPolygon
                    | PixmapScale
                    | AlphaFill

@@ -143,7 +143,7 @@ void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
     QPaintEngine *imageEngine = image.paintEngine();
     if (!imageEngine
         || (state->brush.style() == Qt::LinearGradientPattern
-            && !imageEngine->hasFeature(QPaintEngine::LinearGradients))
+            && !imageEngine->hasFeature(QPaintEngine::LinearGradientFill))
         || (state->brush.style() == Qt::RadialGradientPattern
             && !imageEngine->hasFeature(QPaintEngine::RadialGradientFill))
         || (state->brush.style() == Qt::ConicalGradientPattern
@@ -383,7 +383,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
             {    0x0004, "PatternTransform "},
             {    0x0008, "PatternBrush "},
             {    0x0010, "PixmapTransform "},
-            {    0x0020, "LinearGradients "},
+            {    0x0020, "LinearGradientFill "},
             {    0x0040, "LinearGradientFillPolygon "},
             {    0x0080, "PixmapScale "},
             {    0x0100, "AlphaFill "},
@@ -394,6 +394,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
             {    0x2000, "ClipTransform "},
             {    0x4000, "LineAntialiasing "},
             {    0x10000, "BrushStroke"},
+            {    0x20000, "RadialGradientFill" },
+            {    0x40000, "ConicalGradientFill" },
             {0x10000000, "UsesFontEngine "},
             {0x20000000, "PaintOutsidePaintEvent "},
             {       0x0, 0x0},
@@ -423,20 +425,20 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
     if (op & FillDraw) {
 
         // Custom fill, gradients, alpha and patterns
-        if ((emulationSpecifier & QPaintEngine::LinearGradients)
+        if ((emulationSpecifier & QPaintEngine::LinearGradientFill)
             || (emulationSpecifier & QPaintEngine::RadialGradientFill)
             || (emulationSpecifier & QPaintEngine::ConicalGradientFill)
             || (emulationSpecifier & QPaintEngine::AlphaFill)
             || (emulationSpecifier & QPaintEngine::PatternTransform)
             || (emulationSpecifier & QPaintEngine::PatternBrush))
         {
-            if (((emulationSpecifier & QPaintEngine::LinearGradients)
+            if (((emulationSpecifier & QPaintEngine::LinearGradientFill)
                  && engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
                 || ((emulationSpecifier & QPaintEngine::AlphaFill)
                     && engine->hasFeature(QPaintEngine::AlphaFillPolygon))) {
                 q->drawPath(path);
             } else {
-                if ((emulationSpecifier & QPaintEngine::LinearGradients)
+                if ((emulationSpecifier & QPaintEngine::LinearGradientFill)
                     || (emulationSpecifier & QPaintEngine::RadialGradientFill)
                     || (emulationSpecifier & QPaintEngine::ConicalGradientFill))
                     draw_helper_fill_gradient(path);
@@ -1914,9 +1916,9 @@ void QPainter::drawPath(const QPainterPath &path)
 
     save();
 
-    if ((emulationSpecifier & QPaintEngine::LinearGradients)
+    if ((emulationSpecifier & QPaintEngine::LinearGradientFill)
         && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
-        emulationSpecifier &= ~QPaintEngine::LinearGradients;
+        emulationSpecifier &= ~QPaintEngine::LinearGradientFill;
 
     if ((emulationSpecifier & QPaintEngine::AlphaFill)
         && d->engine->hasFeature(QPaintEngine::AlphaFillPolygon))
@@ -3091,9 +3093,9 @@ void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule f
     d->engine->updateState(d->state);
 
     uint emulationSpecifier = d->engine->emulationSpecifier;
-    if ((emulationSpecifier & QPaintEngine::LinearGradients)
+    if ((emulationSpecifier & QPaintEngine::LinearGradientFill)
         && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
-        emulationSpecifier &= ~QPaintEngine::LinearGradients;
+        emulationSpecifier &= ~QPaintEngine::LinearGradientFill;
 
     if ((emulationSpecifier & QPaintEngine::AlphaFill)
         && d->engine->hasFeature(QPaintEngine::AlphaFillPolygon))
