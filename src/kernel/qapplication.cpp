@@ -2177,22 +2177,65 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 {
 }
 
-
+/*!
+  Sets the time after which a drag should start.
+  
+  \sa startDragTime()
+*/
 
 void QApplication::setStartDragTime( int ms )
 {
     drag_time = ms;
 }
 
+/*!
+  If you support drag'n'drop in you application and a drag should
+  start after a mouse click and after a certain time elapsed, you
+  should use the value which this method returns as delay (in ms).
+  
+  Qt internally uses also this delay e.g. in QMultiLineEdit for starting
+  a drag.
+  
+  The defaul value is set to 250 ms.
+  
+  \sa setStartDragTime(), startDragDistance()
+*/
+
 int QApplication::startDragTime()
 {
     return drag_time;
 }
 
+/*!
+  Sets the distance after which a drag should start.
+  
+  \sa startDragDistance()
+*/
+
 void QApplication::setStartDragDistance( int l )
 {
     drag_distance = l;
 }
+
+/*!
+  If you support drag'n'drop in you application and a drag should
+  start after a mouse click and after moving the mouse a certain distance,
+  you should use the value which this method returns as the distance. So
+  if the mouse position of the click is stored in \c startPos and the current 
+  position (e.g. in the mouse move event) is \c currPos, you can find out if a 
+  drag should be started with a code like this:
+  
+  \code
+  if ( ( startPos - currPos ).manhattenLength() > QApplication::startDragDistance() )
+      startTheDrag();
+  \endcode
+  
+  Qt internally uses this value too, e.g. in the QFileDialog.
+  
+  The default value is set to 4 pixels.
+  
+  \sa setStartDragDistance(), startDragDistance()
+*/
 
 int QApplication::startDragDistance()
 {
