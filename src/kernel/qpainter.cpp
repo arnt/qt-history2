@@ -2238,7 +2238,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 #if defined(Q_WS_WIN)
 	if ( !pdev->cmd( QPaintDevice::PdcDrawImage, this, param ) || !hdc )
 	    return;
-#elif defined(Q_WS_MAC)
+#elif defined(Q_WS_MAC) || defined (Q_WS_QWS)
 	pdev->cmd( QPaintDevice::PdcDrawImage, this, param );
 	return;
 #else
