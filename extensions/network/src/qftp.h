@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#6 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -55,8 +55,6 @@ public:
     virtual void isUrlFile();
 
     virtual int supportedOperations() const;
-    
-    virtual QNetworkProtocol *copy() const;
 
 protected:
     enum Command {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#10 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#11 $
 **
 ** Implementation of Network Extension Library
 **
@@ -132,11 +132,6 @@ void QFtp::rename( const QString &/*oldname*/, const QString &/*newname*/ )
 
 void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*move*/ )
 {
-}
-
-QNetworkProtocol *QFtp::copy() const
-{
-    return new QFtp;
 }
 
 void QFtp::isUrlDir()
