@@ -221,53 +221,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                     t << "# End Source File" << endl;
                 }
 //                endGroups(t);
-            } else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
-                if(project->variables()["FORMS"].isEmpty())
-                    continue;
-
-                QString uiSourcesDir;
-                QString uiHeadersDir;
-                if(!project->variables()["UI_DIR"].isEmpty()) {
-                    uiSourcesDir = project->first("UI_DIR");
-                    uiHeadersDir = project->first("UI_DIR");
-                } else {
-                    if(!project->variables()["UI_SOURCES_DIR"].isEmpty())
-                        uiSourcesDir = project->first("UI_SOURCES_DIR");
-                    else
-                        uiSourcesDir = "";
-                    if(!project->variables()["UI_HEADERS_DIR"].isEmpty())
-                        uiHeadersDir = project->first("UI_HEADERS_DIR");
-                    else
-                        uiHeadersDir = "";
-                }
-
-                QStringList list = project->variables()["FORMS"];
-                if(!project->isActiveConfig("flat"))
-                    list.sort();
-                QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
-                for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-                    QString base = (*it);
-                    int dot = base.lastIndexOf(".");
-                    base.replace(dot, base.length() - dot, ext);
-                    QString fname = base;
-
-                    int lbs = fname.lastIndexOf("\\");
-                    QString fpath;
-                    if(lbs != -1)
-                        fpath = fname.left(lbs + 1);
-                    fname = fname.right(fname.length() - lbs - 1);
-
-                    if(ext == ".cpp" && !uiSourcesDir.isEmpty())
-                        fname.prepend(uiSourcesDir);
-                    else if(ext == ".h" && !uiHeadersDir.isEmpty())
-                        fname.prepend(uiHeadersDir);
-                    else
-                        fname = base;
-//                    beginGroupForFile(fname, t);
-                    t << "# Begin Source File\n\nSOURCE=" << fname
-                      << "\n# End Source File" << endl;
-                }
-//                endGroups(t);
             } else if(variable == "MSVCDSP_TRANSLATIONS") {
                 if(project->variables()["TRANSLATIONS"].isEmpty())
                     continue;
@@ -576,80 +529,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if(output_count)
 			t << "\n# End Group\n";
 		}
-            } else if(variable == "MSVCDSP_FORMS") {
-                if(project->variables()["FORMS"].isEmpty())
-                    continue;
-
-                t << "# Begin Group \"Forms\"\n"
-                  << "# Prop Default_Filter \"ui\"\n";
-
-                QString uicpath = var("QMAKE_UIC");
-                uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
-                QString mocpath = var("QMAKE_MOC");
-                mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
-
-                QStringList list = project->variables()["FORMS"];
-                if(!project->isActiveConfig("flat"))
-                    list.sort();
-                for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-                    QString base = (*it);
-//                    beginGroupForFile(base, t);
-                    t <<  "# Begin Source File\n\nSOURCE=" << base << endl;
-
-                    QString fname = base;
-                    fname.replace(".ui", "");
-                    int lbs = fname.lastIndexOf("\\");
-                    QString fpath;
-                    if(lbs != -1)
-                        fpath = fname.left(lbs + 1);
-                    fname = fname.right(fname.length() - lbs - 1);
-
-                    QString mocFile;
-                    if(!project->variables()["MOC_DIR"].isEmpty())
-                        mocFile = project->first("MOC_DIR");
-                    else
-                        mocFile = fpath;
-
-                    QString uiSourcesDir;
-                    QString uiHeadersDir;
-                    if(!project->variables()["UI_DIR"].isEmpty()) {
-                        uiSourcesDir = project->first("UI_DIR");
-                        uiHeadersDir = project->first("UI_DIR");
-                    } else {
-                        if(!project->variables()["UI_SOURCES_DIR"].isEmpty())
-                            uiSourcesDir = project->first("UI_SOURCES_DIR");
-                        else
-                            uiSourcesDir = fpath;
-                        if(!project->variables()["UI_HEADERS_DIR"].isEmpty())
-                            uiHeadersDir = project->first("UI_HEADERS_DIR");
-                        else
-                            uiHeadersDir = fpath;
-                    }
-
-                    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
-
-                    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
-                        "InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
-                                    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
-                                    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
-                                    "\t" + mocpath + " " + uiHeadersDir +
-                                    fname + ".h " + mocargs + " -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
-
-                    build.append("\n\"" + uiHeadersDir + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
-                                 "\t$(BuildCmds)\n\n"
-                                 "\"" + uiSourcesDir + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-                                 "\t$(BuildCmds)\n\n"
-                                 "\"" + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-                                 "\t$(BuildCmds)\n\n");
-
-                    build.append("# End Custom Build\n\n");
-
-                    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
-                      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
-                      << "!ENDIF \n\n" << "# End Source File" << endl;
-                }
-//                endGroups(t);
-                t << "\n# End Group\n";
             } else if(variable == "MSVCDSP_LEXSOURCES") {
                 if(project->variables()["LEXSOURCES"].isEmpty())
                     continue;
