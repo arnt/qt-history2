@@ -6,5 +6,5 @@ HEADERS		= previewstack.h \
 SOURCES		= main.cpp \
 		  previewstack.cpp \
 		  styledbutton.cpp
-INTERFACES	= 
-TARGET		= ../../widgets
+INTERFACES	=
+DESTDIR		= ../../

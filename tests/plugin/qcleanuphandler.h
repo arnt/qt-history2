@@ -1,16 +1,18 @@
 #ifndef QCLEANUPHANDLER_H
 #define QCLEANUPHANDLER_H
 
+#include <qlist.h>
+
 template<class Type>
 class QCleanUpHandler
 {
 public:
-    QCleanUpHandler() 
+    QCleanUpHandler()
     {
 	qDebug( "New Cleanup handler %p", this );
     }
     ~QCleanUpHandler()
-    { 
+    {
 	qDebug( "Running cleanup...  %p (%d)", this, cleanUpObjects.count() );
 	QListIterator<Type> it( cleanUpObjects );
 	while ( it.current() ) {
