@@ -1239,7 +1239,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
 {
     int vsize = 0;
 
-    if (displaySpec.find("Fb") >= 0)
+    if (displaySpec.contains("Fb"))
         virtualBuffer = false;
     else
         virtualBuffer = true;
@@ -1268,7 +1268,7 @@ bool QVNCScreen::connect(const QString &displaySpec)
         QWSServer::setDefaultMouse("None");
         QWSServer::setDefaultKeyboard("None");
     } else {
-        int next = displaySpec.find (':');
+        int next = displaySpec.indexOf (':');
         QString tmpSpec = displaySpec;
         tmpSpec.remove (0, next + 1);
         VNCSCREEN_BASE::connect(tmpSpec);
