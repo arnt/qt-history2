@@ -257,6 +257,7 @@ void MainWindow::setupMDI()
     workspace = new QWorkspace( vbox );
     workspace->setBackgroundMode( PaletteDark );
     workspace->setBackgroundPixmap( PixmapChooser::loadPixmap( "background.png", PixmapChooser::NoSize ) );
+    workspace->setScrollBarsEnabled( TRUE );
     connect( workspace, SIGNAL( windowActivated( QWidget * ) ),
 	     this, SLOT( activeWindowChanged( QWidget * ) ) );
     lastActiveFormWindow = 0;

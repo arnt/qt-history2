@@ -912,6 +912,13 @@ New functions:
 	QGLFormat requestedFormat() const;
 	QImage grabFrameBuffer( bool withAlpha = FALSE );
 
+QWorkspace Module
+
+A new property scrollbarsEnabled makes it possible to add on-demand
+scrollbars to the workspace. We define this property in Qt Designer to
+allows our users to edit forms larger than the remaining space on
+their desktops more comfortable.
+
 
 QXML Module
 Many new functions have been added:

@@ -47,11 +47,12 @@
 
 class QWorkspaceChild;
 class QShowEvent;
-class QWorkspaceData;
+class QWorkspacePrivate;
 
 class Q_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( bool scrollbarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
 public:
     QWorkspace( QWidget *parent=0, const char *name=0 );
     ~QWorkspace();
@@ -60,6 +61,9 @@ public:
     QWidgetList windowList() const;
 
     QSize sizeHint() const;
+    
+    bool scrollBarsEnabled() const;
+    void setScrollBarsEnabled( bool enable );
 
 signals:
     void windowActivated( QWidget* w);
@@ -86,6 +90,7 @@ private slots:
     void toolMenuAboutToShow();
     void activateNextWindow();
     void activatePreviousWindow();
+    void scrollBarChanged();
 
 private:
     void insertIcon( QWidget* w);
@@ -100,9 +105,11 @@ private:
     void maximizeWindow( QWidget* w);
     void minimizeWindow( QWidget* w);
     void normalizeWindow( QWidget* w);
+    
+    void updateScrollbars();
 
     QPopupMenu* popup;
-    QWorkspaceData* d;
+    QWorkspacePrivate* d;
 
     friend class QWorkspaceChild;
 

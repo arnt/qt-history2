@@ -59,6 +59,7 @@ public:
     bool isButtonDown() const { return buttonDown; }
 
     void setExtraHeight( int h ) { extrahei = h; }
+    void setSizeProtection( bool b ) { sizeprotect = b; }
 
     void doResize();
     void doMove();
@@ -88,6 +89,7 @@ private:
     bool moveResizeMode;
     bool active;
     int extrahei;
+    bool sizeprotect;
     bool moving;
 
     void setMouseCursor( MousePosition m );

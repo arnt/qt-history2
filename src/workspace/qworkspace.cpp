@@ -56,6 +56,7 @@
 #include "qtooltip.h"
 #include "qwmatrix.h"
 #include "qimage.h"
+#include "qscrollbar.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessiblewidget.h"
 #endif
@@ -112,6 +113,10 @@
   windows: cascade() and tile().  Both are slots so you can easily
   connect menu entries to them.
 
+  If you want your users to be able to work with document windows
+  larger than the actual workspace, set the scrollBarsEnabled property
+  to TRUE.
+  
   In case the top-level window contains a menu bar and a document
   minimize, restore and close buttons from the document window's frame
   to the workspace window's menu bar. It then inserts a window operations
@@ -168,6 +173,7 @@ protected:
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
     void resizeEvent( QResizeEvent * );
+    void moveEvent( QMoveEvent * );
     bool eventFilter( QObject *, QEvent * );
 
     void mousePressEvent( QMouseEvent *e ) { e->accept(); }
@@ -181,7 +187,7 @@ protected:
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessibleInterface *accessibleInterface();
 #endif
-     
+
 private:
     QWidget* childWidget;
     QWidget* lastfocusw;
@@ -195,10 +201,9 @@ private:
     bool shademode	    :1;
     bool snappedRight	    :1;
     bool snappedDown	    :1;
-
 };
 
-class QWorkspaceData {
+class QWorkspacePrivate {
 public:
     QWorkspaceChild* active;
     QPtrList<QWorkspaceChild> windows;
@@ -218,6 +223,9 @@ public:
     int menuId;
     int controlId;
     QString topCaption;
+
+    QScrollBar *vbar, *hbar;
+    int yoffset, xoffset;
 };
 
 /*!
@@ -226,7 +234,7 @@ public:
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    d = new QWorkspaceData;
+    d = new QWorkspacePrivate;
     d->maxcontrols = 0;
     d->active = 0;
     d->maxWindow = 0;
@@ -252,7 +260,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleMinButton)), tr("Mi&nimize"), 4);
     d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleMaxButton)), tr("Ma&ximize"), 5);
     d->popup->insertSeparator();
-    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)), 
+    d->popup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)),
 				  tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
@@ -265,7 +273,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->toolPopup->setCheckable( TRUE );
     d->toolPopup->insertSeparator();
     d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleShadeButton)), tr("&Roll up"), 6);
-    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)), 
+    d->toolPopup->insertItem(QIconSet(style().titleBarPixmap(0, QStyle::TitleCloseButton)),
 				      tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
 		  this, SLOT( closeActiveWindow() ) );
 
@@ -289,6 +297,12 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
     d->topCaption = topLevelWidget()->caption();
+
+    d->hbar = d->vbar = 0;
+    d->xoffset = d->yoffset = 0;
+
+    updateScrollbars();
+
     topLevelWidget()->installEventFilter( this );
 }
 
@@ -316,7 +330,7 @@ void QWorkspace::childEvent( QChildEvent * e)
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
 	if ( !w || !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
-	     || d->icons.contains( w ) )
+	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar )
 	    return;	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
@@ -347,10 +361,12 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    child->move( wrect.x(), wrect.y() );
 
 	activateWindow( w );
+	updateScrollbars();
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
 	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
+	    updateScrollbars();
 	}
     }
 }
@@ -522,6 +538,7 @@ void QWorkspace::place( QWidget* w)
     while( overlap != 0 && overlap != -1 );
 
     w->move(wpos);
+    updateScrollbars();
 }
 
 
@@ -552,7 +569,7 @@ void QWorkspace::insertIcon( QWidget* w )
 	w->show();
 	w->lower();
     }
-
+    updateScrollbars();
 }
 
 
@@ -564,9 +581,20 @@ void QWorkspace::removeIcon( QWidget* w)
     w->hide();
 }
 
+
 /*! \reimp  */
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
+
+    if ( scrollBarsEnabled() ) {
+	int hsbExt = d->hbar->sizeHint().height();
+	int vsbExt = d->vbar->sizeHint().width();
+
+	d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
+	d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
+    }
+
+
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
 
@@ -603,6 +631,8 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 	if ( x != c->x() || y != c->y() )
 	    c->move( x, y );
     }
+
+    updateScrollbars();
 }
 
 /*! \reimp */
@@ -615,6 +645,8 @@ void QWorkspace::showEvent( QShowEvent *e )
     }
     else if ( d->windows.count() > 0 && !d->active )
 	activateWindow( d->windows.first()->windowWidget() );
+
+    updateScrollbars();
 }
 
 void QWorkspace::minimizeWindow( QWidget* w)
@@ -642,6 +674,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Maximized );
 	fake->setWState( WState_Minimized );
+	
+	updateScrollbars();
     }
 }
 
@@ -666,6 +700,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 
 	hideMaximizeControls();
 	activateWindow( w, TRUE );
+
+	updateScrollbars();
     }
 }
 
@@ -704,6 +740,8 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	QWorkspace *fake = (QWorkspace*)w;
 	fake->clearWState( WState_Minimized );
 	fake->setWState( WState_Maximized );
+
+	updateScrollbars();
     }
 }
 
@@ -715,6 +753,7 @@ void QWorkspace::showWindow( QWidget* w)
 	normalizeWindow( w );
     if ( d->maxWindow )
 	d->maxWindow->raise();
+    updateScrollbars();
 }
 
 
@@ -804,6 +843,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::Show:
 	if ( o->isA("QWorkspaceChild") && !d->focus.containsRef( (QWorkspaceChild*)o ) )
 	    d->focus.append( (QWorkspaceChild*)o );
+	updateScrollbars();
 	break;
     case QEvent::CaptionChange:
 	if ( inCaptionChange )
@@ -829,6 +869,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 	} else if ( o->inherits("QWorkspaceChild") ) {
 	    d->popup->hide();
 	}
+	updateScrollbars();
 	break;
     default:
 	break;
@@ -1034,7 +1075,7 @@ void QWorkspace::toolMenuAboutToShow()
 
 
     if ( d->active->shademode )
-	d->toolPopup->changeItem( 6, 
+	d->toolPopup->changeItem( 6,
 				  QIconSet(style().titleBarPixmap(0, QStyle::TitleShadeButton).xForm(
 				      QWMatrix().rotate( -180 ))), "&Roll down" );
     else
@@ -1193,6 +1234,7 @@ void QWorkspace::cascade()
 	child->setUpdatesEnabled( TRUE );
     }
     setUpdatesEnabled( TRUE );
+    updateScrollbars();
 }
 
 /*!
@@ -1266,6 +1308,7 @@ void QWorkspace::tile()
 	}
     }
     delete [] used;
+    updateScrollbars();
 }
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
@@ -1275,6 +1318,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 {
     widgetResizeHandler = new QWidgetResizeHandler( this, window );
     widgetResizeHandler->setMovingEnabled( FALSE );
+    widgetResizeHandler->setSizeProtection( !parent->scrollBarsEnabled() );
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     setMouseTracking( TRUE );
@@ -1372,6 +1416,11 @@ QWorkspaceChild::~QWorkspaceChild()
 	delete iconw->parentWidget();
 }
 
+void QWorkspaceChild::moveEvent( QMoveEvent * )
+{
+    ((QWorkspace*) parentWidget() )->updateScrollbars();
+}
+
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
     QRect r = contentsRect();
@@ -1391,6 +1440,8 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     windowSize = cr.size();
     childWidget->setGeometry( cr );
+    ((QWorkspace*) parentWidget() )->updateScrollbars();
+
 }
 
 QSize QWorkspaceChild::baseSize() const
@@ -1813,5 +1864,101 @@ QAccessibleInterface *QWorkspaceChild::accessibleInterface()
 }
 #endif
 
+
+bool QWorkspace::scrollBarsEnabled() const
+{
+    return d->vbar != 0;
+}
+
+/*! \property QWorkspace::scrollBarsEnabled
+    \brief whether the workspace provides scrollbars
+
+    If this property is set to TRUE, it is possible to resize child
+    windows over the right or the bottom edge out of the visible area
+    of the workspace. The workspace shows scrollbars to make it
+    possible for the user to access those windows. If this property is
+    set to FALSE, resizing windows out of the visible area of the
+    workspace is not permitted.
+*/
+void QWorkspace::setScrollBarsEnabled( bool enable )
+{
+    if ( (d->vbar != 0) == enable )
+	return;
+
+    d->xoffset = d->yoffset = 0;
+    if ( enable ) {
+	d->vbar = new QScrollBar( Vertical, this );
+	connect( d->vbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
+	d->hbar = new QScrollBar( Horizontal, this );
+	connect( d->hbar, SIGNAL( valueChanged(int) ), this, SLOT( scrollBarChanged() ) );
+	updateScrollbars();
+    } else {
+	delete d->vbar;
+	delete d->hbar;
+	d->vbar = d->hbar = 0;
+    }
+
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild *child = it.current();
+	++it;
+	child->widgetResizeHandler->setSizeProtection( !enable );
+    }
+}
+
+void QWorkspace::updateScrollbars()
+{
+    if ( !scrollBarsEnabled() )
+	return;
+
+    d->vbar->raise();
+    d->hbar->raise();
+
+    QRect r( 0, 0, 0, 0 );
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild *child = it.current();
+	++it;
+	if ( !child->isHidden() )
+	    r = r.unite( child->geometry() );
+    }
+    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - d->hbar->width() );
+    d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - d->vbar->width()  );
+
+    d->vbar->setRange( 0, QMAX( 0, d->yoffset + r.bottom() - height() + d->hbar->height() + 1) );
+    d->hbar->setRange( 0, QMAX( 0, d->xoffset + r.right() - width() + d->vbar->width()  + 1) );
+
+    d->vbar->setValue( d->yoffset );
+    d->hbar->setValue( d->xoffset );
+
+    if ( d->vbar->maxValue() == d->vbar->minValue() &&
+	 d->hbar->maxValue() == d->hbar->minValue() ) {
+	d->vbar->hide();
+	d->hbar->hide();
+    } else {
+	d->vbar->show();
+	d->hbar->show();
+    }
+}
+
+void QWorkspace::scrollBarChanged()
+{
+    int ver = d->yoffset - d->vbar->value();
+    int hor = d->xoffset - d->hbar->value();
+    d->yoffset = d->vbar->value();
+    d->xoffset = d->hbar->value();
+
+    QPtrListIterator<QWorkspaceChild> it( d->windows );
+    while ( it.current () ) {
+	QWorkspaceChild *child = it.current();
+	++it;
+	// we do not use move() due to the reimplementation in QWorkspaceChild
+	child->setGeometry( child->x() + hor, child->y() + ver, child->width(), child->height() );
+    }
+    updateScrollbars();
+}
+
 #include "qworkspace.moc"
 #endif // QT_NO_WORKSPACE
+
+
