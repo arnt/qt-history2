@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#98 $
 **
 ** Implementation of QCheckBox class
 **
@@ -175,7 +175,7 @@ void QCheckBox::drawButton( QPainter *paint )
     if ( isEnabled() )
 	kf |= 2;
     kf |= state() << 2;
-    QTextOStream(pmkey) << "$qt_check_" << style().className() << "_" << palette().serialNumber() << "_" << kf;
+    QTextOStream(&pmkey) << "$qt_check_" << style().className() << "_" << palette().serialNumber() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );

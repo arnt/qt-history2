@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#57 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#58 $
 **
 ** Definition of QTextStream class
 **
@@ -46,7 +46,7 @@ public:
 
     QTextStream();
     QTextStream( QIODevice * );
-    QTextStream( QString &, int mode );
+    QTextStream( QString*, int mode );
     QTextStream( QByteArray, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
@@ -176,7 +176,7 @@ typedef QTextStream QTS;
 
 class Q_EXPORT QTextIStream : public QTextStream {
 public:
-    QTextIStream( QString &s ) :
+    QTextIStream( QString* s ) :
 	QTextStream(s,IO_ReadOnly) { }
     QTextIStream( QByteArray ba ) :
 	QTextStream(ba,IO_ReadOnly) { }
@@ -186,7 +186,7 @@ public:
 
 class Q_EXPORT QTextOStream : public QTextStream {
 public:
-    QTextOStream( QString &s ) :
+    QTextOStream( QString* s ) :
 	QTextStream(s,IO_WriteOnly) { }
     QTextOStream( QByteArray ba ) :
 	QTextStream(ba,IO_WriteOnly) { }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#112 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#113 $
 **
 ** Implementation of QTextStream class
 **
@@ -212,7 +212,7 @@ QTextStream::QTextStream( QIODevice *d )
 //	 simplify this class to only deal with QChar or QString data.
 class QStringBuffer : public QIODevice {
 public:
-    QStringBuffer( QString& str ) :
+    QStringBuffer( QString* str ) :
 	s(str)
     {
     }
@@ -224,6 +224,12 @@ public:
 
     bool  open( int m )
     {
+	if ( !s ) {
+#if defined(CHECK_STATE)
+	    qWarning( "QStringBuffer::open: No string" );
+#endif
+	    return FALSE;
+	}
 	if ( isOpen() ) {                           // buffer already open
 #if defined(CHECK_STATE)
 	    qWarning( "QStringBuffer::open: Buffer already open" );
@@ -232,10 +238,10 @@ public:
 	}
 	setMode( m );
 	if ( m & IO_Truncate ) {                    // truncate buffer
-	    s.truncate( 0 );
+	    s->truncate( 0 );
 	}
 	if ( m & IO_Append ) {                      // append to end of buffer
-	    ioIndex = s.length()*sizeof(QChar);
+	    ioIndex = s->length()*sizeof(QChar);
 	} else {
 	    ioIndex = 0;
 	}
@@ -258,7 +264,7 @@ public:
 
     uint  size() const
     {
-	return s.length()*sizeof(QChar);
+	return s ? s->length()*sizeof(QChar) : 0;
     }
 
     int   at()   const
@@ -274,7 +280,7 @@ public:
 	    return FALSE;
 	}
 #endif
-	if ( (uint)pos >= s.length()*2 ) {
+	if ( (uint)pos >= s->length()*2 ) {
 #if defined(CHECK_RANGE)
 	    qWarning( "QStringBuffer::at: Index %d out of range", pos );
 #endif
@@ -298,16 +304,16 @@ public:
 	    return -1;
 	}
 #endif
-	if ( (uint)ioIndex + len > s.length()*sizeof(QChar) ) {
+	if ( (uint)ioIndex + len > s->length()*sizeof(QChar) ) {
 					     	    // overflow
-	    if ( (uint)ioIndex >= s.length()*sizeof(QChar) ) {
+	    if ( (uint)ioIndex >= s->length()*sizeof(QChar) ) {
 		setStatus( IO_ReadError );
 		return -1;
 	    } else {
-		len = s.length()*2 - (uint)ioIndex;
+		len = s->length()*2 - (uint)ioIndex;
 	    }
 	}
-	memcpy( p, ((const char*)(s.unicode()))+ioIndex, len );
+	memcpy( p, ((const char*)(s->unicode()))+ioIndex, len );
 	ioIndex += len;
 	return len;
     }
@@ -336,7 +342,7 @@ public:
 	    return -1;
 	}
 #endif
-	s.replace(ioIndex/2, len/2, (QChar*)p, len/2);
+	s->replace(ioIndex/2, len/2, (QChar*)p, len/2);
 	ioIndex += len;
 	return len;
     }
@@ -353,11 +359,11 @@ public:
 	    return -1;
 	}
 #endif
-	if ( (uint)ioIndex >= s.length()*2 ) {           // overflow
+	if ( (uint)ioIndex >= s->length()*2 ) {           // overflow
 	    setStatus( IO_ReadError );
 	    return -1;
 	}
-	return *((char*)s.unicode() + ioIndex++);
+	return *((char*)s->unicode() + ioIndex++);
     }
 
     int   putch( int ch )
@@ -391,7 +397,7 @@ public:
     }
 
 protected:
-    QString& s;
+    QString* s;
 
 private:        // Disabled copy constructor and operator=
     QStringBuffer( const QStringBuffer & );
@@ -417,7 +423,7 @@ private:        // Disabled copy constructor and operator=
   or writeRawBytes() on such a stream.
 */
 
-QTextStream::QTextStream( QString& str, int filemode )
+QTextStream::QTextStream( QString* str, int filemode )
 {
     // TODO: optimize for this case as it becomes more common
     //        (see QStringBuffer above)
@@ -1813,7 +1819,7 @@ QTextStream &reset( QTextStream &s )
 */
 
 /*!
-  \fn QTextIStream::QTextIStream( QString &s )
+  \fn QTextIStream::QTextIStream( QString *s )
 
   Constructs a stream to read from string \a s.
 */
@@ -1847,7 +1853,7 @@ QTextStream &reset( QTextStream &s )
 */
 
 /*!
-  \fn QTextOStream::QTextOStream( QString &s )
+  \fn QTextOStream::QTextOStream( QString *s )
 
   Constructs a stream to write to string \a s.
 */
