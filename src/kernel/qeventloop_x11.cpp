@@ -635,7 +635,9 @@ static int sn_activate()
 
 void QEventLoop::init()
 {
-    d->xfd = XConnectionNumber( QPaintDevice::x11AppDisplay() );
+    d->xfd = -1;
+    if ( qt_is_gui_used )
+        d->xfd = XConnectionNumber( QPaintDevice::x11AppDisplay() );
 
 #if defined(Q_OS_UNIX)
     pipe( d->thread_pipe );
