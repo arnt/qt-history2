@@ -203,7 +203,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 
 	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
 	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId );
-	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
+	    //settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
 
 	    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
 	    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
@@ -213,7 +213,7 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    if ( file.right( 3 ).lower() == "exe" )
 		settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
 	    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
-	    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
+	    //settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
 	    if ( file.right( 3 ).lower() == "dll" )
 		settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
 	    else
