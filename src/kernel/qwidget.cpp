@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#461 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#462 $
 **
 ** Implementation of QWidget class
 **
@@ -3125,9 +3125,8 @@ void QWidget::polish()
   FALSE.
 
   If \a alsoDelete is TRUE or the widget has the \c WDestructiveClose
-  widget flag, the widget is also deleted.  Otherwise, the widget can
-  prevent itself from being closed by rejecting the QCloseEvent it
-  gets.
+  widget flag, the widget is also deleted.  The widget can prevent
+  itself from being closed by rejecting the QCloseEvent it gets.
 
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is closed.
