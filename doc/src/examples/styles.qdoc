@@ -5,7 +5,7 @@
     The Styles example illustrates how to create custom widget
     drawing styles using Qt, and demonstrates Qt's predefined styles.
 
-    \image styles-example.png Screenshot of the Styles example
+    \image styles-enabledwood.png Screenshot of the Styles example
 
     A style in Qt is a subclass of QStyle (or of one of its
     subclasses). Styles perform drawing on behalf of widgets. Qt
@@ -22,9 +22,9 @@
     To implement the style, we use some advanced features provided by
     QPainter, such as \l{QPainter::Antialiasing}{antialiasing} (to
     obtain rounder button edges), \l{QColor::alpha()}{alpha blending}
-    (to perform 3D-like effects with the buttons), and
-    \l{QPainterPath}{painter paths} (to draw the buttons). We also
-    use many features of QBrush and QPalette.
+    (to make the buttons appeared raised or sunken), and
+    \l{QPainterPath}{painter paths} (to fill the buttons and draw the
+    outline). We also use many features of QBrush and QPalette.
 
     The example consists of the following classes:
 
@@ -38,59 +38,178 @@
 
     \section1 NorwegianWoodStyle Class Definition
 
-    Foo:
+    Here's the definition of the \c NorwegianWoodStyle class:
 
     \quotefromfile widgets/styles/norwegianwoodstyle.h
     \skipto class NorwegianWood
     \printuntil };
 
-    Foo.
+    The public functions are all declared in QStyle (QMotifStyle's
+    grand-parent) and reimplemented here to override the Motif look
+    and feel. The private functions are helper functions.
 
     \section1 NorwegianWoodStyle Class Implementation
 
-    Foo.
+    We will now review the implementation of the \c
+    NorwegianWoodStyle class.
 
     \quotefromfile widgets/styles/norwegianwoodstyle.cpp
-    \skipto ::NorwegianWood(
-    \printuntil for (
-    \printuntil }
+    \skipto ::polish
+    \printuntil painter.end()
 
-    Foo.
+    The \l{QStyle::polish(QPalette &)}{polish()} function is
+    reimplemented from QStyle. It takes a QPalette as a reference and
+    adapts the palette to fit the style. Most styles don't
+    reimplement that function. The Norwegian Wood style reimplements
+    it to set a "wooden" palette.
 
-    \printline backgroundImage
-    \printline sunkenMidImage
-    \printline for (
-    \printuntil }
+    We start by defining a few \l{QColor}s that we'll need. Then we
+    load two PNG images. The \c : prefix in the file path indicates
+    that the PNG files are embedded \l{resources}.
 
-    Foo.
+    \table
+    \row \o \inlineimage widgets/styles/images/woodbackground.png
 
-    \printline QColor brown
-    \printline QColor beige
+         \o \bold{woodbackground.png}
+
+            This texture is used as the background of most widgets.
+            The wood pattern is horizontal.
+
+    \row \o \inlineimage widgets/styles/images/woodbutton.png
+
+         \o \bold{woodbutton.png}
+
+            This texture is used for filling push buttons and
+            comboboxes. The wood pattern is vertical and slightly
+            darker and more reddish than the texture used for the
+            background.
+    \endtable
+
+    The \c midImage variable is initialized to be the same as \c
+    buttonImage, but then we use a QPainter and fill it with a 25%
+    opaque black color (a black that has an alpha channel of 63). The
+    result is a somewhat darker image than \c buttonImage. This image
+    will be used for filling buttons that the user is holding down.
+
+    \printline palette = QPalette
     \printuntil /^\}/
 
-    Foo.
+    Then we initialize the palette. Palettes have various
+    \l{QPalette::ColorRole}{color roles}, such as QPalette::Base
+    (used for filling text editors, item views, etc.), QPalette::Text
+    (used for foreground text), and QPalette::Background (used for
+    the background of most widgets). Each role has its own QBrush,
+    which usually is a plain color but can also be a brush pattern or
+    even a texture (a QPixmap).
 
-    \printline ::polish
-    \printuntil /^\}/
+    In addition to the roles, palettes have several
+    \l{QPalette::ColorGroup}{color groups}: active, disabled, and
+    inactive. The active color group is used for painting widgets in
+    the active window. The disabled group is used for disabled
+    widgets. The inactive group is used for all other widgets. Most
+    palettes have identical active and inactive groups, while the
+    disabled group uses darker shades.
 
-    Foo.
+    We initialize the QPalette object with a brown color. Qt
+    automatically derivates all color roles for all color groups from
+    that one color. We then override some of the default values. For
+    example, we use Qt::darkGreen instead of the default
+    (Qt::darkBlue) for the QPalette::Highlight role. The
+    QPalette::setBrush() overload that we use here sets the same
+    color or brush for all three color groups.
+
+    The \c setTexture() function is a private function that sets the
+    texture for a certain color role, while preserving the existing
+    color in the QBrush. A QBrush can hold both a solid color and a
+    texture at the same time. The solid color is used for drawing
+    text and other graphical elements where textures don't work.
+
+    At the end, we set the brush for the disabled color group of the
+    palette. We use \c woodbackground.png as the texture for
+    everything, even for buttons, and use a darker color to accompany
+    the texture.
+
+    \image styles-disabledwood.png The Norwegian Wood style with disabled widgets
+
+    Let's move on to the other functions reimplemented from
+    QMotifStyle:
 
     \printline ::pixelMetric
     \printuntil /^\}/
 
-    Foo.
+    The \l{QStyle::pixelMetric()}{pixelMetric()} function returns the
+    size in pixels for a certain user interface element. By
+    reimplementing this function, we can affect the way certain
+    widgets are drawn and their size hint. Here, we return 8 as the
+    width around a shown in a QComboBox, ensuring that there is
+    enough place around the text and the arrow for the Norwegian Wood
+    round corners. (The default value for this setting in the Motif
+    style is 2.)
 
-    \printline ::drawPrimitive
-    \printuntil /^\}/
+    We also change the extent of \l{QScrollBar}s, i.e., the height
+    for a horizontal scroll bar and the width for a vertical scroll
+    bar, to be 4 pixels more than in the Motif style. This makes the
+    style a bit more distinctive.
 
-    Foo.
-
-    \printline ::drawControl
-    \printuntil /^\}/
-
-    Foo.
+    For all other \l{PixelMetric} elements, we use the Motif
+    settings.
 
     \printline ::styleHint
+    \printuntil /^\}/
+
+    The \l{QStyle::styleHint()}{styleHint()} function returns some
+    hints to widgets (or to the base style, in our case QMotifStyle)
+    about how to draw themselves. The Motif style returns \c true for
+    the QStyle::SH_DitherDisabledText hint, resulting in an extremely
+    unpleasing visual effect. We override this behavior and return \c
+    false instead. We also return \c true for the
+    QStyle::SH_EtchDisabledText hint, meaning that disabled text is
+    rendered with an embossed look (like QWindowsStyle).
+
+    \printline ::drawPrimitive
+    \printuntil int radius =
+
+    The \l{QStyle::drawPrimitive()}{drawPrimitive()} function is
+    called by Qt widgets to draw various fundamental graphical
+    elements. Here we reimplement it to draw QPushButton and
+    QComboBox with round corners. The button part of both widgets is
+    drawn using the QStyle::PE_PanelButtonCommand primitive element.
+
+    The \c option parameter, of type QStyleOption, contains
+    everything we need to know about the widget we want to draw on.
+    In particular, \c option->rect gives the rectangle within which
+    to draw the primitive element. The \c painter parameter is a
+    QPainter object that we can use to draw on the widget.
+
+    The \c widget parameter is the widget itself. Normally, all the
+    information we need is available in \c option or \c painter, so
+    we don't need to use it. You can use it to perform special
+    effects; for example, QMacStyle uses it to animate default
+    buttons. If you use it, be aware that the caller is allowed to
+    pass a null pointer.
+
+    We start by defining three \l{QColor}s that we'll need later on.
+    We also put the x, y, width, and height components of the
+    rectangle on which to draw in local variables.
+
+    \printline QBrush brush
+    \printuntil darker = false
+    \printline }
+    \printline }
+
+    We define two variables, \c brush and \c darker, and initialize
+    them based on the state of the button:
+
+    \list
+    \o If the button is a \l{QPushButton::flat}{flat button}, we use
+       the \l{QPalette::Background}{Background} brush. We set \c
+       darker to true if the button is \l{QAbstractButton::down}{down}
+       or \l{QAbstractButton::checked}{checked}.
+    \o 
+    \endlist
+
+
+    \printline ::drawControl
     \printuntil /^\}/
 
     Foo.
@@ -157,7 +276,7 @@
     We skip createTopRightGroupBox(),
     createBottomLeftTabWidget(), createBottomRightGroupBox(),
 
-    \printline ::createProgressBar
+    \skipto ::createProgressBar
     \printuntil /^\}/
 
     Foo.
