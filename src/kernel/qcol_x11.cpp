@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#65 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#65 $");
 
 
 /*****************************************************************************
@@ -209,9 +209,11 @@ void QColor::initialize()
 
 #if QT_VERSION == 200
 #error "Remove old colorspecs"
-    if ( spec == (int)QApplication::ManyColor ) {
+    if ( spec == (int)QApplication::ManyColor ||
+	 qt_visual_option == TrueColor ) {
 #else /* } bracket match */
-    if ( spec & ((int)QApplication::ManyColor | 2) ) {
+    if ( (spec & ((int)QApplication::ManyColor | 2)) ||
+	 (qt_visual_option == TrueColor) ) {
 #endif
 	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
     } else {
