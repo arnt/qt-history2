@@ -86,8 +86,7 @@ static QMutex cache_mutex;
 \endif
 */
 
-class QAxEventSink : public IDispatch,
-public IPropertyNotifySink
+class QAxEventSink : public IDispatch, public IPropertyNotifySink
 {
 public:
     QAxEventSink(QAxBase *com)
@@ -212,7 +211,7 @@ public:
         QByteArray signame = sigs.value(dispIdMember);
         if (!meta || signame.isEmpty())
             return DISP_E_MEMBERNOTFOUND;
-        
+
         QObject *qobject = combase->qObject();
         if (qobject->signalsBlocked())
             return S_OK;
@@ -243,51 +242,73 @@ public:
             // setup parameters (no return values in signals)
             bool ok = true;
             void *static_argv[QAX_NUM_PARAMS + 1];
-            QVariant static_varp[QAX_NUM_PARAMS];
+            void *static_argv_pointer[QAX_NUM_PARAMS + 1];
+            QVariant static_varp[QAX_NUM_PARAMS + 1];
             
             void **argv = 0;
+            void **argv_pointer = 0; // in case we need an additional level of indirection
             QVariant *varp = 0;
             
             if (pcount) {
                 if (pcount <= QAX_NUM_PARAMS) {
                     argv = static_argv;
+                    argv_pointer = static_argv_pointer;
                     varp = static_varp;
                 } else {
                     argv = new void*[pcount + 1];
-                    varp = new QVariant[pcount];
+                    argv_pointer = new void*[pcount + 1];
+                    varp = new QVariant[pcount + 1];
                 }
+
+                argv[0] = 0;
+                argv_pointer[0];
             }
-            
+
             int p;
             for (p = 0; p < pcount && ok; ++p) {
                 // map the VARIANT to the void*
                 QByteArray ptype = meta->paramType(signame, p);
-                varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
-                if (ptype != "QVariant") {
-                    ok = varp[p].isValid();
-                    argv[p + 1] = varp[p].data();
+                varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
+                argv_pointer[p + 1] = 0;
+                if (varp[p + 1].isValid()) {
+                    if (varp[p + 1].type() == QVariant::UserType) {
+                        argv[p + 1] = varp[p + 1].data();
+                    } else if (ptype == "QVariant") {
+                        argv[p + 1] = varp + p + 1;
+                    } else {
+                        argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
+                        if (ptype.endsWith("*")) {
+                            argv_pointer[p + 1] = argv[p + 1];
+                            argv[p + 1] = argv_pointer + p + 1;
+                        }
+                    }
+                } else if (ptype == "QVariant") {
+                    argv[p + 1] = varp + p + 1;
                 } else {
-                    argv[p + 1] = &varp[p];
+                    ok = false;
                 }
             }
-            
-            // emit the generated signal if everything went well
-            bool res = ok && combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
-            
-            // update the VARIANT for references and free memory
-            for (p = 0; p < pcount; ++p) {
-                bool out;
-                QByteArray type = meta->paramType(signame, p, &out);
-                if (out) {
-                    VARIANT *arg = &(pDispParams->rgvarg[pcount-p-1]);
-                    QVariantToVARIANT(varp[p], *arg, type, out);
+
+            if (ok) {
+                // emit the generated signal if everything went well
+                combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
+                // update the VARIANT for references and free memory
+                for (p = 0; p < pcount; ++p) {
+                    bool out;
+                    QByteArray ptype = meta->paramType(signame, p, &out);
+                    if (out) {
+                        if (!QVariantToVARIANT(varp[p], pDispParams->rgvarg[pcount - p - 1], ptype, out))
+                            ok = false;
+                    }
                 }
             }
+
             if (argv != static_argv) {
                 delete [] argv;
+                delete [] argv_pointer;
                 delete [] varp;
             }
-            hres = res ? S_OK : (ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH);
+            hres = ok ? S_OK : (ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH);
         }
 
         return hres;
@@ -2093,7 +2114,7 @@ void MetaObjectGenerator::readEventInfo()
                     addClassInfo("Event Interface " + QByteArray::number(++event_serial), uuidstr.latin1());
                 }
 #endif
-                
+
                 // get information about type
                 if (conniid == IID_IPropertyNotifySink) {
                     // test whether property notify sink has been created already, and advise on it
@@ -2102,6 +2123,7 @@ void MetaObjectGenerator::readEventInfo()
                         eventSink->advise(cpoint, conniid);
                     continue;
                 }
+
                 ITypeInfo *eventinfo = 0;
                 if (typelib)
                     typelib->GetTypeInfoOfGuid(conniid, &eventinfo);
@@ -2120,7 +2142,7 @@ void MetaObjectGenerator::readEventInfo()
                     }
                     
                     QAxEventSink *eventSink = d->eventSink.value(QUuid(conniid));
-                    if (!eventSink) {
+                    if (!eventSink) { 
                         eventSink = new QAxEventSink(that);
                         d->eventSink.insert(QUuid(conniid), eventSink);
                         eventSink->advise(cpoint, conniid);
