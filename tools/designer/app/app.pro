@@ -18,7 +18,7 @@ win32 {
 mac {
    RC_FILE	= designer.icns
    staticlib:CONFIG -= global_init_link_order #yuck
-   TARGETDEPS += $$QT_BUILD_TREE/lib/libdesignercore.dylib
+   staticlib:TARGETDEPS += $$QT_BUILD_TREE/lib/libdesignercore.a
 }
 
 
