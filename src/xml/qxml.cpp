@@ -3628,42 +3628,40 @@ bool QXmlSimpleReader::parseContent()
 		stringClear();
 		break;
 	    case CDS2:
-		// ### the comparision will break incremental parsing
-		if (c != ']') {
+		if ( !atEnd() && c != ']' )
 		    stringAddC( ']' );
-		}
 		break;
 	    case CDS3:
 		// test if this skipping was legal
-		// ### the comparision will break incremental parsing
-		if ( c == '>' ) {
-		    // the end of the CDSect
-		    if ( lexicalHnd ) {
-			if ( !lexicalHnd->startCDATA() ) {
-			    reportParseError( lexicalHnd->errorString() );
-			    return FALSE;
+		if ( !atEnd() ) {
+		    if ( c == '>' ) {
+			// the end of the CDSect
+			if ( lexicalHnd ) {
+			    if ( !lexicalHnd->startCDATA() ) {
+				reportParseError( lexicalHnd->errorString() );
+				return FALSE;
+			    }
 			}
-		    }
-		    if ( contentHnd ) {
-			if ( !contentHnd->characters( string() ) ) {
-			    reportParseError( contentHnd->errorString() );
-			    return FALSE;
+			if ( contentHnd ) {
+			    if ( !contentHnd->characters( string() ) ) {
+				reportParseError( contentHnd->errorString() );
+				return FALSE;
+			    }
 			}
-		    }
-		    if ( lexicalHnd ) {
-			if ( !lexicalHnd->endCDATA() ) {
-			    reportParseError( lexicalHnd->errorString() );
-			    return FALSE;
+			if ( lexicalHnd ) {
+			    if ( !lexicalHnd->endCDATA() ) {
+				reportParseError( lexicalHnd->errorString() );
+				return FALSE;
+			    }
 			}
+		    } else if (c == ']') {
+			// three or more ']'
+			stringAddC( ']' );
+		    } else {
+			// after ']]' comes another character
+			stringAddC( ']' );
+			stringAddC( ']' );
 		    }
-		// ### the comparision will break incremental parsing
-		} else if (c == ']') {
-		    // three or more ']'
-		    stringAddC( ']' );
-		} else {
-		    // after ']]' comes another character
-		    stringAddC( ']' );
-		    stringAddC( ']' );
 		}
 		break;
 	    case Done:
@@ -4117,10 +4115,8 @@ bool QXmlSimpleReader::parsePI()
 		break;
 	    case Qm:
 		// test if the skipping was legal
-		// ### the comparision will break incremental parsing
-		if ( c != '>' ) {
+		if ( !atEnd() && c != '>' )
 		    stringAddC( '?' );
-		}
 		break;
 	    case Done:
 		return TRUE;
@@ -6452,10 +6448,8 @@ bool QXmlSimpleReader::parseComment()
 		break;
 	    case Com2:
 		// if next character is not a dash than don't skip it
-		// ### the comparision will break incremental parsing
-		if ( c != '-' ) {
+		if ( !atEnd() && c != '-' )
 		    stringAddC( '-' );
-		}
 		break;
 	    case Done:
 		return TRUE;
