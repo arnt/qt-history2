@@ -188,21 +188,21 @@ QIODevicePrivate::~QIODevicePrivate()
     \sa QBuffer QFile QTcpSocket
 */
 
-/*! 
+/*!
     \enum QIODevice::Offset
     \obsolete
 
     Use Q_LONGLONG instead.
 */
 
-/*! 
+/*!
     \enum QIODevice::Status
     \obsolete
 
     Use OpenMode instead, or see the documentation for specific devices.
 */
 
-/*! 
+/*!
     \enum QIODevice::OpenModeFlag
 
     This enum is used with open() to describe the mode in which a device
@@ -511,13 +511,14 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
     CHECK_MAXLEN(read, Q_LONGLONG(-1));
     Q_LONGLONG readSoFar = Q_LONGLONG(0);
 
-    int ungetSize = d->ungetBuffer.size();
-    while (ungetSize > 0) {
-        if (readSoFar + 1 > maxlen)
-            return readSoFar;
-        data[readSoFar++] = d->ungetBuffer[ungetSize-- - 1];
+    if (int ungetSize = d->ungetBuffer.size()) {
+        do {
+            if (readSoFar + 1 > maxlen)
+                return readSoFar;
+            data[readSoFar++] = d->ungetBuffer[ungetSize-- - 1];
+        } while (ungetSize > 0);
+        d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
     }
-    d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
 
     Q_LONGLONG ret = readData(data + readSoFar, maxlen - readSoFar);
     if (ret == -1)
@@ -525,7 +526,7 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
     return ret + readSoFar;
 }
 
-/*! 
+/*!
     \overload
 
     Reads at most \a maxlen bytes from the device, and returns the
@@ -553,7 +554,7 @@ QByteArray QIODevice::read(Q_LONGLONG maxlen)
     return tmp;
 }
 
-/*! 
+/*!
     \overload
 
     Reads all available data from the device, and returns it as a
@@ -630,7 +631,7 @@ Q_LONGLONG QIODevice::readLine(char *data, Q_LONGLONG maxlen)
     return readSoFar;
 }
 
-/*! 
+/*!
     \overload
 
     Reads a line from the device, but no more than \a maxlen characters,
@@ -712,7 +713,7 @@ Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
     return writeData(data, maxlen);
 }
 
-/*! 
+/*!
     \overload
 
     Writes the content of \a byteArray to the device. Returns the number of
@@ -815,7 +816,7 @@ QString QIODevice::errorString() const
     return d->errorString;
 }
 
-/*! 
+/*!
     \fn Q_LONGLONG QIODevice::readData(char *data, Q_LONGLONG maxlen)
 
     Reads up to \a maxlen bytes from the device into \a data, and
@@ -827,7 +828,7 @@ QString QIODevice::errorString() const
     \sa read() readLine() writeData()
 */
 
-/*! 
+/*!
     \fn Q_LONGLONG QIODevice::writeData(const char *data, Q_LONGLONG maxlen)
 
     Writes up to \a maxlen bytes from \a data to the device. Returns
@@ -839,7 +840,7 @@ QString QIODevice::errorString() const
     \sa read() write()
 */
 
-/*! 
+/*!
     \fn QIODevice::Offset QIODevice::status() const
     \obsolete
 
@@ -860,14 +861,14 @@ QString QIODevice::errorString() const
     \sa qt_cast<>()
 */
 
-/*! 
+/*!
     \fn Offset QIODevice::at() const
     \obsolete
 
     Use pos() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::at(Offset)
     \obsolete
 
@@ -886,70 +887,70 @@ QString QIODevice::errorString() const
     Use getChar() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isAsynchronous() const
     \obsolete
 
     This function is no longer available.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isBuffered() const
     \obsolete
 
     Use openMode() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isCombinedAccess() const
     \obsolete
 
     Use openMode() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isDirectAccess() const
     \obsolete
 
     Use !isSequential() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isInactive() const
     \obsolete
 
     Use isOpen(), isReadable(), or isWritable() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isRaw() const
     \obsolete
 
     Use openMode() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isSequentialAccess() const
     \obsolete
 
     Use isSequential() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isSynchronous() const
     \obsolete
 
     This function is no longer available.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::isTranslated() const
     \obsolete
 
     Use openMode() instead.
 */
 
-/*! 
+/*!
     \fn bool QIODevice::mode() const
     \obsolete
 
@@ -968,7 +969,7 @@ QString QIODevice::errorString() const
     Use ungetChar() instead.
 */
 
-/*! 
+/*!
     \fn Q_LONG QIODevice::readBlock(char *, Q_ULONG)
     \obsolete
 
@@ -981,14 +982,14 @@ QString QIODevice::errorString() const
     Use isOpen() instead.
 */
 
-/*! 
+/*!
     \fn Q_LONG QIODevice::writeBlock(const char *, Q_ULONG)
     \obsolete
 
     Use write() instead.
 */
 
-/*! 
+/*!
     \fn Q_LONG QIODevice::writeBlock(const QByteArray &)
     \obsolete
 
