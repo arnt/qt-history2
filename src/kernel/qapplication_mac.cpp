@@ -68,6 +68,7 @@
 #include "qmotifplusstyle.h" // ######## dependency
 #include "qpaintdevicemetrics.h"
 #include "qmenubar.h"
+#include "qvariant.h"
 
 #ifdef Q_WS_MACX
 #include <sys/time.h>
@@ -1240,6 +1241,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef ref, EventRef event, void
 		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		QApplication::sendEvent( widget, &qwe);
 	    } else {
+	        if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
+	            QVariant v = widget->property("text");
+	            if(!v.isValid()) v = widget->property("caption");
+	            if(v.isValid()) {
+	                QString s = v.toString();
+	                SpeechChannel ch;
+	                NewSpeechChannel(NULL, &ch);
+	                SpeakText(ch, s.latin1(), s.length());
+	            }
+	        }
 		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		QApplication::sendEvent( widget, &qme );
 	    }
