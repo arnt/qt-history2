@@ -87,7 +87,7 @@ public:
 
     virtual QString toUnicode(const char* chars, int len) const;
     virtual QCString fromUnicode(const QString& uc, int& lenInOut) const;
-
+    
     QCString fromUnicode(const QString& uc) const;
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
@@ -98,6 +98,7 @@ public:
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;
 
+    virtual QByteArray fromUnicode(const QString& uc, int from, int len) const;
     virtual unsigned short characterFromUnicode(const QString &str, int pos) const;
 
 protected:

@@ -1863,7 +1863,6 @@ bool QFontMetrics::inFont(QChar ch) const
 	    ch.cell() <= f->max_char_or_byte2);
 }
 
-
 static
 XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, const QString &str, int pos)
 {
@@ -2239,7 +2238,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     XFontStruct *f;
     int i;
 
-    QCString mapped;
+    QByteArray mapped;
     int currw = 0;
     int lasts = -1;
 
@@ -2256,10 +2255,17 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 		    if (d->x11data.fontstruct[currs]->codec) {
 			mapped = d->x11data.fontstruct[currs]->codec->
-				 fromUnicode(str.mid(lasts, i - lasts));
-		    }
+				 fromUnicode(str, lasts, i - lasts );
 
-		    if (mapped.isNull()) {
+			if (f->max_byte1) {
+			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
+						  mapped.size() / 2);
+			} else {
+			    currw += XTextWidth(f, mapped.data(), mapped.size());
+			}
+
+			mapped.resize(0);
+		    } else {
 			// we are dealing with unicode text and a unicode font - YAY
 			if (f->max_byte1) {
 			    currw +=
@@ -2269,15 +2275,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 			// STOP: we want to use unicode, but don't have a multi-byte
 			// font?  something is seriously wrong... assume we have text
 			// we know nothing about
-		    } else {
-			if (f->max_byte1) {
-			    currw += XTextWidth16(f, (XChar2b *) mapped.data(),
-						  mapped.size() / 2);
-			} else {
-			    currw += XTextWidth(f, mapped.data(), mapped.size()-1);
-			}
-
-			mapped.resize(0);
 		    }
 		}
 	    } else {
@@ -2298,10 +2295,16 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 		if (d->x11data.fontstruct[currs]->codec) {
 		    mapped = d->x11data.fontstruct[currs]->codec->
-			     fromUnicode(str.mid(lasts, i - lasts));
-		}
-
-		if (mapped.isNull()) {
+			     fromUnicode( str, lasts, i - lasts );
+		    if (f->max_byte1) {
+			currw +=
+			    XTextWidth16(f, (XChar2b *) mapped.data(),
+					 mapped.size() / 2);
+		    } else {
+			currw +=
+			    XTextWidth(f, mapped.data(), mapped.size());
+		    }
+		} else {
 		    if (f->max_byte1) {
 			// we are dealing with unicode text and a unicode font - YAY
 			currw +=
@@ -2311,15 +2314,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 		    // STOP: we want to use unicode, but don't have a multi-byte
 		    // font?  something is seriously wrong... assume we have text
 		    // we know nothing about
-		} else {
-		    if (f->max_byte1) {
-			currw +=
-			    XTextWidth16(f, (XChar2b *) mapped.data(),
-					 mapped.size() / 2);
-		    } else {
-			currw +=
-			    XTextWidth(f, mapped.data(), mapped.size()-1);
-		    }
 		}
 	    }
 	} else {
@@ -2387,7 +2381,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     // this algorithm is similar to width(const QString &, int)
     const QChar *uc = str.unicode();
     QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
-    QCString mapped;
+    QByteArray mapped;
     XFontStruct *f;
     XCharStruct overall;
     XCharStruct immediate;
@@ -2415,10 +2409,34 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 		    if (d->x11data.fontstruct[currs]->codec) {
 			mapped = d->x11data.fontstruct[currs]->codec->
-				 fromUnicode(str.mid(lasts, i - lasts));
-		    }
+				 fromUnicode(str, lasts, i - lasts );
+			if (f->max_byte1) {
+			    XTextExtents16(f, (XChar2b *) mapped.data(),
+					   mapped.size() / 2, &unused, &unused,
+					   &unused, &immediate);
 
-		    if (mapped.isNull()) {
+			    overall.lbearing =
+				QMAX(overall.lbearing, immediate.lbearing);
+			    overall.rbearing =
+				QMAX(overall.rbearing, immediate.rbearing);
+			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			    overall.descent = QMAX(overall.descent, immediate.descent);
+			    overall.width += immediate.width;
+			} else {
+			    XTextExtents(f, mapped.data(), mapped.size(), &unused,
+					 &unused, &unused, &immediate);
+
+			    overall.lbearing =
+				QMAX(overall.lbearing, immediate.lbearing);
+			    overall.rbearing =
+				QMAX(overall.rbearing, immediate.rbearing);
+			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			    overall.descent = QMAX(overall.descent, immediate.descent);
+			    overall.width += immediate.width;
+			}
+
+			mapped.resize(0);
+		    } else {
 			// we are dealing with unicode text and a unicode font - YAY
 			if (f->max_byte1) {
 			    XTextExtents16(f, (XChar2b *) (str.unicode() + lasts),
@@ -2436,33 +2454,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 			// STOP: we want to use unicode, but don't have a multi-byte
 			// font?  something is seriously wrong... assume we have text
 			// we know nothing about
-		    } else {
-			if (f->max_byte1) {
-			    XTextExtents16(f, (XChar2b *) mapped.data(),
-					   mapped.size() / 2, &unused, &unused,
-					   &unused, &immediate);
-
-			    overall.lbearing =
-				QMAX(overall.lbearing, immediate.lbearing);
-			    overall.rbearing =
-				QMAX(overall.rbearing, immediate.rbearing);
-			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
-			    overall.descent = QMAX(overall.descent, immediate.descent);
-			    overall.width += immediate.width;
-			} else {
-			    XTextExtents(f, mapped.data(), mapped.size()-1, &unused,
-					 &unused, &unused, &immediate);
-
-			    overall.lbearing =
-				QMAX(overall.lbearing, immediate.lbearing);
-			    overall.rbearing =
-				QMAX(overall.rbearing, immediate.rbearing);
-			    overall.ascent = QMAX(overall.ascent, immediate.ascent);
-			    overall.descent = QMAX(overall.descent, immediate.descent);
-			    overall.width += immediate.width;
-			}
-
-			mapped.resize(0);
 		    }
 		}
 	    } else {
@@ -2483,10 +2474,30 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 
 		if (d->x11data.fontstruct[currs]->codec) {
 		    mapped = d->x11data.fontstruct[currs]->codec->
-			     fromUnicode(str.mid(lasts, i - lasts));
-		}
+			     fromUnicode(str, lasts, i - lasts );
+		    if (f->max_byte1) {
+			XTextExtents16(f, (XChar2b *) mapped.data(),
+				       mapped.size() / 2, &unused, &unused, &unused,
+				       &immediate);
 
-		if (mapped.isNull()) {
+			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
+			overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
+			overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			overall.descent = QMAX(overall.descent, immediate.descent);
+			overall.width += immediate.width;
+		    } else {
+			XTextExtents(f, mapped.data(), mapped.size(), &unused,
+				     &unused, &unused, &immediate);
+
+			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
+			overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
+			overall.ascent = QMAX(overall.ascent, immediate.ascent);
+			overall.descent = QMAX(overall.descent, immediate.descent);
+			overall.width += immediate.width;
+		    }
+
+		    mapped.resize(0);
+		} else {
 		    // we are dealing with unicode text and a unicode font - YAY
 		    if (f->max_byte1) {
 			XTextExtents16(f, (XChar2b *) (str.unicode() + lasts),
@@ -2502,29 +2513,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 		    // STOP: we want to use unicode, but don't have a multi-byte
 		    // font?  something is seriously wrong... assume we have text
 		    // we know nothing about
-		} else {
-		    if (f->max_byte1) {
-			XTextExtents16(f, (XChar2b *) mapped.data(),
-				       mapped.size() / 2, &unused, &unused, &unused,
-				       &immediate);
-
-			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
-			overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
-			overall.ascent = QMAX(overall.ascent, immediate.ascent);
-			overall.descent = QMAX(overall.descent, immediate.descent);
-			overall.width += immediate.width;
-		    } else {
-			XTextExtents(f, mapped.data(), mapped.size()-1, &unused,
-				     &unused, &unused, &immediate);
-
-			overall.lbearing = QMAX(overall.lbearing, immediate.lbearing);
-			overall.rbearing = QMAX(overall.rbearing, immediate.rbearing);
-			overall.ascent = QMAX(overall.ascent, immediate.ascent);
-			overall.descent = QMAX(overall.descent, immediate.descent);
-			overall.width += immediate.width;
-		    }
-
-		    mapped.resize(0);
 		}
 	    }
 	} else {

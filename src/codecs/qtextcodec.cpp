@@ -802,6 +802,17 @@ QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 
 /*!
   \overload QCString QTextCodec::fromUnicode(const QString& uc) const
+  \internal
+*/
+QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
+{
+    QByteArray a = fromUnicode( str.mid(pos, len) );
+    a.resize( a.size() - 1 ); // remove '\0'
+    return a;
+}
+
+/*!
+  \overload QCString QTextCodec::fromUnicode(const QString& uc) const
 */
 QCString QTextCodec::fromUnicode(const QString& uc) const
 {
@@ -838,7 +849,9 @@ QString QTextCodec::toUnicode(const char* chars) const
     return toUnicode(chars,qstrlen(chars));
 }
 
-
+/*!
+  \internal
+*/
 unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
     QCString result = QTextCodec::fromUnicode(QString(str[pos]));

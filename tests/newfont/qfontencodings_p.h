@@ -150,6 +150,7 @@ public:
 
     int heuristicContentMatch(const char *, int) const;
 
+    QByteArray fromUnicode( const QString &str, int from, int len ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 };
 
@@ -173,6 +174,7 @@ public:
 
     int heuristicContentMatch(const char *, int) const;
 
+    QByteArray fromUnicode( const QString &str, int from, int len ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 };
 
