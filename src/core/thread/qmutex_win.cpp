@@ -70,7 +70,8 @@ void QMutex::unlock()
 {
     const int none = 0;
 
-    Q_ASSERT(d->owner == GetCurrentThreadId());
+    Q_ASSERT_X(d->owner == GetCurrentThreadId(), "QMutex::unlock()",
+               "A mutex must be unlocked in the same thread that locked it.");
 
     if (!--d->count) {
         q_atomic_set_int(&d->owner, none);
