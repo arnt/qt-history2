@@ -662,20 +662,22 @@ bool QTextStream::ts_isspace( QChar c )
 
 void QTextStream::ts_ungetc( QChar c )
 {
-    if ( mapper ) {
-	ungetcBuf = c;
-    } else if ( latin1 ) {
-	dev->ungetch( c );
-    } else {
-	if ( isNetworkOrder() ) {
-	    //stream is network ordered
-	// Reverse of put
-	    dev->ungetch(c.cell());
-	    dev->ungetch(c.row());
+    if ( c.unicode() != 0xffff ) {
+	if ( mapper ) {
+	    ungetcBuf = c;
+	} else if ( latin1 ) {
+		dev->ungetch( c );
 	} else {
-	// Reverse of put
-	    dev->ungetch(c.row());
-	    dev->ungetch( c.cell() );
+	    if ( isNetworkOrder() ) {
+		//stream is network ordered
+	    // Reverse of put
+		dev->ungetch(c.cell());
+		dev->ungetch(c.row());
+	    } else {
+	    // Reverse of put
+		dev->ungetch(c.row());
+		dev->ungetch( c.cell() );
+	    }
 	}
     }
 }
