@@ -28,7 +28,6 @@
 #include "qstringlist.h"
 #include "qtextcodec.h"
 #include "qdesktopwidget.h"
-#include "qcstring.h"
 #include <stdlib.h>
 
 /*****************************************************************************
@@ -349,10 +348,8 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
 static QString encodeFileName(const QString &fName)
 {
     QString newStr;
-    QCString cName = fName.utf8();
-    const QCString sChars(
-            "<>#@\"&%$:,;?={}|^~[]\'`\\*"
-           );
+    QByteArray cName = fName.utf8();
+    const QByteArray sChars("<>#@\"&%$:,;?={}|^~[]\'`\\*");
 
     int len = cName.length();
     if (!len)
