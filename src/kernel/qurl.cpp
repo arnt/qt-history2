@@ -1094,7 +1094,11 @@ bool QUrl::isLocalFile() const
 
 QString QUrl::fileName() const
 {
-    if ( d->path.isEmpty() )
+    if ( d->path.isEmpty() || d->path.endsWith( "/" )
+#ifdef Q_WS_WIN
+	|| d->path.endsWith( "\\" )
+#endif
+	)
 	return QString::null;
 
     return QFileInfo( d->path ).fileName();
