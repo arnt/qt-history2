@@ -184,18 +184,10 @@
 */
 
 /*!
-  \fn QGuardedPtr::operator T*() 
+  \fn QGuardedPtr::operator T*() const
 
   Cast operator, implements pointer semantics. Because of this function,
   you can pass a QGuardedPtr<X> to a function where an X* is
-  required.
-*/
-
-/*!
-  \fn QGuardedPtr::operator const T*() const
-
-  Cast operator, implements pointer semantics. Because of this function,
-  you can pass a QGuardedPtr<X> to a function where a const X* is
   required.
 */
 
