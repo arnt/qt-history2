@@ -517,6 +517,9 @@ bool QMainWindow::event(QEvent *event)
 */
 void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (QWidget *w = childAt(event->pos()))
+        if (!qt_cast<QToolBar*>(w) && !qt_cast<QDockWindow*>(w))
+            return;
     QMenu *popup = createPopupMenu();
     if (!popup)
 	return;
