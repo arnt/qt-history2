@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#4 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#4 $";
 #endif
 
 
@@ -49,6 +49,7 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
+static timeval	watchtime;			// watch if time is turned back
 
 void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
@@ -122,6 +123,7 @@ int main( int argc, char **argv )
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
+    gettimeofday( &watchtime, 0 );
 
   // Call user-provided main routine
 
@@ -502,7 +504,7 @@ static inline void getTime( timeval &t )	// get time of day
     gettimeofday( &t, 0 );
 #if defined(_OS_SUN_)
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
-	t.tv_usec -= 1000000;			// same as done in X Intrinsics
+	t.tv_usec -= 1000000;
 	t.tv_sec++;
     }
     while ( t.tv_usec < 0 ) {
@@ -518,6 +520,18 @@ static inline void getTime( timeval &t )	// get time of day
 #endif
 }
 
+static void repairTimer( const timeval &time )	// repair broken timer
+{
+    if ( !timerList )				// not initialized
+	return;
+    timeval diff = watchtime - time;
+    register TimerInfo *t = timerList->first();
+    while ( t ) {				// repair all timers
+	t->timeout = t->timeout - diff;
+	t = timerList->next();
+    }
+}
+
 
 // --------------------------------------------------------------------------
 // Timer activation functions (called from the event loop)
@@ -526,9 +540,16 @@ static inline void getTime( timeval &t )	// get time of day
 static timeval *waitTimer()			// time to wait for next timer
 {
     static timeval tm;
+    bool first = TRUE;
+    timeval currentTime;
     if ( timerList && timerList->count() ) {	// there are waiting timers
-	timeval currentTime;
 	getTime( currentTime );
+	if ( first ) {
+	    if ( currentTime < watchtime )	// clock was turned back
+		repairTimer( currentTime );
+	    first = FALSE;
+	    watchtime = currentTime;
+	}
 	TimerInfo *t = timerList->first();	// first waiting timer
 	if ( currentTime < t->timeout )		// time to wait
 	    tm = t->timeout - currentTime;
@@ -545,11 +566,19 @@ static bool activateTimer()			// activate timer(s)
 {
     if ( !timerList || !timerList->count() )	// no timers
 	return FALSE;
+    bool first = TRUE;
     timeval currentTime;
     int maxcount = timerList->count();
+    register TimerInfo *t;
     while ( maxcount-- ) {			// avoid starvation
-	TimerInfo *t = timerList->first();
 	getTime( currentTime );			// get current time
+	if ( first ) {
+	    if ( currentTime < watchtime )	// clock was turned back
+		repairTimer( currentTime );
+	    first = FALSE;
+	    watchtime = currentTime;
+	}
+	t = timerList->first();
 	if ( currentTime < t->timeout )		// no timer has expired
 	    break;
 	timerList->take();			// unlink from list
