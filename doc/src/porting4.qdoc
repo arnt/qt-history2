@@ -1108,7 +1108,7 @@
     \target qgroubox.section
     \section1 QGroupBox
 
-    The QGroupBox class has been redesigned in Qt 4. The old QUrl
+    The QGroupBox class has been redesigned in Qt 4. The old QGroupBox
     class has been renamed Q3GroupBox and moved to the \l{Qt 3
     compatibility library}.
 

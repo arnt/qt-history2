@@ -207,11 +207,6 @@ application happens to be running on.
 	\i The x coordinate (Q_INT32)
 	\i The y coordinate (Q_INT32)
 	\endlist
-\row \i QPointArray
-     \i \list
-	\i The array size (Q_UINT32)
-	\i The array points (QPoint)
-	\endlist
 \row \i QRect
      \i \list
 	\i left (Q_INT32)
@@ -234,7 +229,7 @@ application happens to be running on.
 \row \i QString
      \i \list
 	\i If the string is null: 0xFFFFFFFF (Q_UINT32)
-	\i Otherwise: The string length (Q_UINT32) followed by the data in UTF-16
+	\i Otherwise: The string length in bytes (Q_UINT32) followed by the data in UTF-16
 	\endlist
 \row \i QTime
      \i \list

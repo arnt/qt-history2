@@ -13,6 +13,26 @@
 ****************************************************************************/
 
 /*!
+    \namespace Qt
+
+    \brief The Qt namespace contains miscellaneous identifiers
+    used throughout the Qt library.
+
+    \ingroup misc
+*/
+
+/*!
+    \enum Qt::Orientation
+
+    This type is used to signify an object's orientation.
+
+    \value Horizontal
+    \value Vertical
+
+    Orientation is used with QScrollBar for example.
+*/
+
+/*!
     \enum Qt::AlignmentFlag
 
     This enum type is used to describe alignment. It contains

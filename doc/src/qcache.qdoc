@@ -204,3 +204,8 @@
     Use QCache(int) instead.
 */
 
+/*!
+    \fn T *QCache::find(const Key &key) const
+
+    Use object() instead.
+*/
