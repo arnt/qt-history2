@@ -24,6 +24,7 @@ private:
 	QSlider* m_pSlider;
 	QLCDNumber* m_pLCD;
 	QMultiLineEdit* m_pEdit;
+	QMultiLineEdit* m_pEdit2;
 
 public:
 // These are pure virtual functions in the baseclass
@@ -33,7 +34,6 @@ public:
 protected:
 // Event handlers
 	virtual void resizeEvent( QResizeEvent* pEvent );
-	virtual void closeEvent( QCloseEvent* pEvent );
 };
 
 #endif // !defined(AFX_TESTWIDGET_H__DA4969C1_5578_42FE_AD7E_8E6924794EBB__INCLUDED_)

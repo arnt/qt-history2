@@ -117,7 +117,6 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
     TCHAR szTokens[] = _T("-/");
 
     int tmp( 0 );
-	pGlobalApp = new QApplication( tmp, NULL );
 
 	int nRet = 0;
     BOOL bRun = TRUE;
@@ -143,6 +142,8 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
 
     if (bRun)
     {
+		// Create our QApplication object before starting our monitor.
+		pGlobalApp = new QApplication( tmp, NULL );
         _Module.StartMonitor();
 #if _WIN32_WINNT >= 0x0400 & defined(_ATL_FREE_THREADED)
         hRes = _Module.RegisterClassObjects(CLSCTX_LOCAL_SERVER, 
@@ -157,13 +158,18 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
 
         MSG msg;
         while (GetMessage(&msg, 0, 0, 0))
-            DispatchMessage(&msg);
+		{
+			DispatchMessage(&msg);
+		}
 
         _Module.RevokeClassObjects();
         Sleep(dwPause); //wait for any threads to finish
+
+		// Delete the application object should be the last thing
+		// we do.
+		delete pGlobalApp;
     }
 
-    delete pGlobalApp;
 
 	_Module.Term();
     CoUninitialize();

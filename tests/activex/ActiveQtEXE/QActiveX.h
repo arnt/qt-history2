@@ -10,7 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // QActiveX
-class QActiveX : 
+class ATL_NO_VTABLE QActiveX : 
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public IDispatchImpl<IQActiveX, &IID_IQActiveX, &LIBID_ACTIVEQTEXELib>,
 	public CComControl<QActiveX>,
@@ -126,6 +126,8 @@ public:
 	{
 		if ( m_pWidget = new CTestWidget() )
 		{
+//			ModifyStyle( WS_CHILD, 0, 0 );
+//			ModifyStyleEx( 0, WS_EX_CONTROLPARENT );
 			m_pWidget->attachToControl( m_hWnd );
 			m_pWidget->InitWidget();
 		}

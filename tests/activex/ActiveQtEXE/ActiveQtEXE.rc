@@ -105,7 +105,6 @@ IDR_QEXETEST            REGISTRY DISCARDABLE    "QExeTest.rgs"
 
 IDB_QEXETEST            BITMAP  DISCARDABLE     "qexetest.bmp"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table

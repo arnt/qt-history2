@@ -28,7 +28,7 @@ void CTestWidget::InitWidget()
 	m_pSlider = new QSlider( 0, 100, 1, 50, QSlider::Horizontal, this );
 	m_pLCD = new QLCDNumber( 3, this );
 	m_pEdit = new QMultiLineEdit( this );
-
+	m_pEdit2 = new QMultiLineEdit( this );
 	// Initialize the state
 	m_pLCD->display( 50 );
 
@@ -52,10 +52,6 @@ void CTestWidget::resizeEvent( QResizeEvent* pEvent )
 {
 	m_pSlider->setGeometry( 0, 0, pEvent->size().width(), pEvent->size().height() >> 2 );
 	m_pLCD->setGeometry( 0, pEvent->size().height() >> 2, pEvent->size().width(), pEvent->size().height() >> 2 );
-	m_pEdit->setGeometry( 0, pEvent->size().height() >> 1, pEvent->size().width(), pEvent->size().height() >> 1 );
-}
-
-void CTestWidget::closeEvent( QCloseEvent* pEvent )
-{
-	pEvent->ignore();
+	m_pEdit->setGeometry( 0, pEvent->size().height() >> 1, pEvent->size().width(), pEvent->size().height() >> 2 );
+	m_pEdit2->setGeometry( 0, ( pEvent->size().height() >> 2 ) + ( pEvent->size().height() >> 1 ), pEvent->size().width(), pEvent->size().height() >> 2 );
 }
