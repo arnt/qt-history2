@@ -4281,6 +4281,13 @@ bool QWidget::event( QEvent *e )
 		return FALSE;
 	    }
 	    break;
+	case QEvent::ContextMenu: {
+	    QContextMenuEvent *c = (QContextMenuEvent *)e;
+	    contextMenuEvent( c );
+	    if ( !c->isAccepted() )
+		return FALSE;
+	    }
+	    break;
 #ifndef QT_NO_DRAGANDDROP
 	case QEvent::Drop:
 	    dropEvent( (QDropEvent*) e);
@@ -4705,6 +4712,22 @@ void QWidget::closeEvent( QCloseEvent *e )
     e->accept();
 }
 
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  widget context menu events.
+
+  The default implementation calls e->accept(), which rejects the context
+  event.
+  See the QContextMenuEvent documentation for more details.
+
+  \sa event(), QContextMenuEvent
+*/
+
+void QWidget::contextMenuEvent( QContextMenuEvent *e )
+{
+    e->accept();
+}
 
 #ifndef QT_NO_DRAGANDDROP
 

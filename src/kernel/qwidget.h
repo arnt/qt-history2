@@ -450,6 +450,7 @@ protected:
     virtual void moveEvent( QMoveEvent * );
     virtual void resizeEvent( QResizeEvent * );
     virtual void closeEvent( QCloseEvent * );
+    virtual void contextMenuEvent( QContextMenuEvent * );
 
 #ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent( QDragEnterEvent * );

@@ -112,6 +112,7 @@ public:
 	ShowWindowRequest = 73,			// widget's window should be mapped
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
+	ContextMenu = 82,                       // context popup menu
 	User = 1000,				// first user event id
 	MaxUser  = 65535                        // last user event id	
     };
@@ -333,6 +334,24 @@ public:
     bool spontaneous() const { return spont; }
 protected:
     bool spont;
+};
+
+class Q_EXPORT QContextMenuEvent : public QEvent
+{
+public:
+    enum Cause { Mouse, Keyboard, Other };
+    QContextMenuEvent(Cause ca)
+	: QEvent(ContextMenu), accpt(FALSE), caus(ca) {}
+
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+
+    Cause cause() const { return Cause(caus); }
+    
+protected:
+    bool   accpt;
+    uint caus:8;
 };
 
 #ifndef QT_NO_DRAGANDDROP

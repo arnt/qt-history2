@@ -1024,6 +1024,79 @@ void QFocusEvent::resetReason()
   \sa accept()
 */
 
+/*!
+  \class QContextMenuEvent qevent.h
+  \brief The QContextMenuEvent class contains parameters that describe a context menu event.
+
+  \ingroup event
+
+  Context events are sent to widgets when a user triggers a menu. What triggers this is 
+  platform dependant, for example on windows pressing the menu button or releasing the
+  right button will cause this event to be sent. It is customary to use this to show a 
+  QPopupMenu when this event is triggered if you have such a context menu.
+
+  ContextMenu events contain a special accept flag that tells whether the
+  receiver accepted the contextMenu.  If the event handler does not accept 
+  the event, then whatever triggered the event will be handled as a regular input
+  event if possible.
+  
+  \sa QPopupMenu
+*/
+
+/*!
+  \fn QContextMenuEvent::QContextMenuEvent()
+  Constructs a context event object with the accept parameter flag set to FALSE.
+*/
+
+/*!
+  \fn bool QContextMenuEvent::isAccepted() const
+  Returns TRUE if the receiver of the event has taken the context.
+  \sa accept(), ignore()
+*/
+
+/*!
+  \fn void QContextMenuEvent::accept()
+  Sets the accept flag of the context event object.
+
+  Setting the accept flag indicates that the receiver of this event has
+  taken the context and whatever input command that caused this event will
+  not be handled as it normally would have.
+
+  The accept flag is not set by default.
+
+  \sa ignore()
+*/
+
+/*!
+  \fn void QContextMenuEvent::ignore()
+  Clears the accept flag of the context event object.
+
+  Clearing the accept flag indicates that the receiver of this event does not
+  need to show a context menu.
+
+  The accept flag is not set by default.
+
+  \sa accept()
+*/
+
+/*!
+  \enum QContextMenuEvent::Cause
+
+  This type describes the action caused the ContextMenuEvent to be sent. 
+  The values are:
+
+   \value Mouse     The mouse caused the event to be sent, normally this means
+            right mouse button was clicked, but this is platform specific.
+   \value Keyboard  The keyboard somehow caused this event to be sent. On windows
+            this means the menu button was pressed.
+*/
+
+
+/*!
+  \fn void QContextMenuEvent::cause()
+  Returns the cause for this context event.
+
+ */
 
 /*!
   \class QChildEvent qevent.h
