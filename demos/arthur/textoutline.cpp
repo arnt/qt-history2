@@ -102,11 +102,11 @@ void TextOutline::stopAnimation()
 
 struct SortHelper
 {
-    SortHelper(TextOutline::DragLocation loc, float dist) : drag(loc), distance(dist) {}
+    SortHelper(TextOutline::DragLocation loc, qReal dist) : drag(loc), distance(dist) {}
     SortHelper() { };
 
     TextOutline::DragLocation drag;
-    float distance;
+    qReal distance;
 
     bool operator<(const SortHelper &other) const {
         return distance < other.distance;
@@ -167,15 +167,15 @@ void TextOutline::showEvent(QShowEvent *)
     }
 }
 
-QPointF TextOutline::mapPoint(float x, float y, bool *mappingOk)
+QPointF TextOutline::mapPoint(qReal x, qReal y, bool *mappingOk)
 {
-    float dx = (x-basePathBounds.x()) / basePathBounds.width();
+    qReal dx = (x-basePathBounds.x()) / basePathBounds.width();
 
     QLineF topLine(pul, pur);
     QLineF bottomLine(pbl, pbr);
     QLineF vertLine(topLine.pointAt(dx), bottomLine.pointAt(dx));
 
-    float dy = (y-basePathBounds.y()) / basePathBounds.height();
+    qReal dy = (y-basePathBounds.y()) / basePathBounds.height();
     QLineF leftLine(pul, pbl);
     QLineF rightLine(pur, pbr);
     QLineF horLine(leftLine.pointAt(dy), rightLine.pointAt(dy));
