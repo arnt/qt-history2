@@ -223,11 +223,6 @@ bool QResourceFileEngine::isSequential() const
     return false;
 }
 
-uchar *QResourceFileEngine::map(Q_LONG /*len*/)
-{
-    return 0;
-}
-
 QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
     Q_D(const QResourceFileEngine);
