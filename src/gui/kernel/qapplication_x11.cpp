@@ -1828,12 +1828,13 @@ void qt_init(QApplicationPrivate *priv, int,
         //     75dpi (12 pixels) and 100dpi (17 pixels).
         // At 95 DPI, a 12 point font should be 16 pixels tall - in which case a 17
         // pixel font is a closer match than a 12 pixel font
-        int ptsz =
-            (int) (((QX11Info::appDpiY() >= 95 ? 17. : 12.) *
-                      72. / (float) QX11Info::appDpiY()) + 0.5);
+        int ptsz = (X11->has_xft
+                    ? 9
+                    : (int) (((QX11Info::appDpiY() >= 95 ? 17. : 12.) *
+                              72. / (float) QX11Info::appDpiY()) + 0.5));
 
         if (!qt_app_has_font) {
-            QFont f("Helvetica", ptsz);
+            QFont f(X11->has_xft ? "Sans Serif" : "Helvetica", ptsz);
             QApplication::setFont(f);
         }
 
