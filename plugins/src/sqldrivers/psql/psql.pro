@@ -11,13 +11,13 @@ unix {
 win32 {
 	OBJECTS_DIR	= obj
 	LIBS	*= libpqdll.lib
-	win32-msvc: { 
-		LIBS *= delayimp.lib
-		QMAKE_LFLAGS += /DELAYLOAD:libpq.dll
-	}
-	win32-borland: {
-		QMAKE_LFLAGS += /dlibpq.dll
-	}		
+#	win32-msvc: { 
+#		LIBS *= delayimp.lib
+#		QMAKE_LFLAGS += /DELAYLOAD:libpq.dll
+#	}
+#	win32-borland: {
+#		QMAKE_LFLAGS += /dlibpq.dll
+#	}		
 }
 
 REQUIRES	= sql

@@ -61,13 +61,13 @@ sql {
 		}
 		win32 {
 			LIBS += libpqdll.lib
-			win32-msvc: { 
-				LIBS *= delayimp.lib
-				QMAKE_LFLAGS += /DELAYLOAD:libpqdll.dll
-			}
-			win32-borland: {
-				QMAKE_LFLAGS += /dlibpqdll.dll
-			}		
+#			win32-msvc: { 
+#				LIBS *= delayimp.lib
+#				QMAKE_LFLAGS += /DELAYLOAD:libpqdll.dll
+#			}
+#			win32-borland: {
+#				QMAKE_LFLAGS += /dlibpqdll.dll
+#			}		
 		}
 	}
 
@@ -80,13 +80,13 @@ sql {
 		}
 		win32 {
 			LIBS += libmysql.lib
-			win32-msvc: { 
-				LIBS *= delayimp.lib
-				QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
-			}
-			win32-borland: {
-				QMAKE_LFLAGS += /dlibmysql.dll
-			}		
+#			win32-msvc: { 
+#				LIBS *= delayimp.lib
+#				QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
+#			}
+#			win32-borland: {
+#				QMAKE_LFLAGS += /dlibmysql.dll
+#			}		
 		}
 	}
 	
@@ -112,13 +112,13 @@ sql {
 		}
 		win32 {
 			LIBS += oci.lib
-			win32-msvc: { 
-				LIBS *= delayimp.lib
-				QMAKE_LFLAGS += /DELAYLOAD:oci.dll
-			}
-			win32-borland: {
-				QMAKE_LFLAGS += /doci.dll
-			}		
+#			win32-msvc: { 
+#				LIBS *= delayimp.lib
+#				QMAKE_LFLAGS += /DELAYLOAD:oci.dll
+#			}
+#			win32-borland: {
+#				QMAKE_LFLAGS += /doci.dll
+#			}		
 		}
 	}
 
@@ -133,13 +133,13 @@ sql {
 		}
 		win32 {
 			LIBS += NTWDBLIB.LIB
-			win32-msvc: { 
-				LIBS *= delayimp.lib
-				QMAKE_LFLAGS += /DELAYLOAD:ntwdblib.dll
-			}
-			win32-borland: {
-				QMAKE_LFLAGS += /dntwdblib.dll
-			}		
+#			win32-msvc: { 
+#				LIBS *= delayimp.lib
+#				QMAKE_LFLAGS += /DELAYLOAD:ntwdblib.dll
+#			}
+#			win32-borland: {
+#				QMAKE_LFLAGS += /dntwdblib.dll
+#			}		
 		}
 	}
 

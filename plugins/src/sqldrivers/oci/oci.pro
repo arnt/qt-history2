@@ -7,13 +7,13 @@ SOURCES		= main.cpp \
 win32 {
 	OBJECTS_DIR	= obj
 	LIBS	*= oci.lib
-	win32-msvc: { 
-		LIBS *= delayimp.lib
-		QMAKE_LFLAGS += /DELAYLOAD:oci.dll
-	}
-	win32-borland: {
-		QMAKE_LFLAGS += /doci.dll
-	}
+#	win32-msvc: { 
+#		LIBS *= delayimp.lib
+#		QMAKE_LFLAGS += /DELAYLOAD:oci.dll
+#	}
+#	win32-borland: {
+#		QMAKE_LFLAGS += /doci.dll
+#	}
 }
 unix {
 	OBJECTS_DIR	= .obj

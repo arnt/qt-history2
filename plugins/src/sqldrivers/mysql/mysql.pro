@@ -12,13 +12,13 @@ unix {
 win32 {
 	OBJECTS_DIR = obj
 	LIBS	*= libmysql.lib
-	win32-msvc: { 
-		LIBS *= delayimp.lib
-		QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
-	}
-	win32-borland: {
-		QMAKE_LFLAGS += /dlibmysql.dll
-	}		
+#	win32-msvc: { 
+#		LIBS *= delayimp.lib
+#		QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
+#	}
+#	win32-borland: {
+#		QMAKE_LFLAGS += /dlibmysql.dll
+#	}		
 }
 
 REQUIRES	= sql
