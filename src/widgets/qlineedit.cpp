@@ -498,13 +498,6 @@ void QLineEdit::init()
     setFrame( TRUE );
 }
 
-/*!
-  Sets the line edit's text.
-
-  Note: Even if a validator has been set setText() ignores this.
-
-  \sa insert()
-*/
 void QLineEdit::setText( const QString &text )
 {
     QString maskText;
@@ -578,7 +571,11 @@ void QLineEdit::deselect()
     Setting this property clears the selection, moves the cursor to
     the end of the line and resets the edited property to FALSE.
 
+    setText() ignores any validator.
+
     The text is truncated to maxLength() length.
+
+    \sa insert()
 */
 
 QString QLineEdit::text() const
@@ -2507,54 +2504,16 @@ bool QLineEdit::isRedoAvailable() const
 	return d->parag->commands()->isRedoAvailable();
 }
 
-/*!
-  Sets the mask for this QLineEdit.
-
-  Unset the mask and return to normal QLineEdit operation by
-  passing an empty string ("") or just calling it with no arguments.
-
-  The mask format takes these mask characters:
-  \list
-  \i \c L - alphabetic character required. A-Z, a-z.
-  \i \c l - alphabetic character permitted but not required.
-  \i \c A - alphanumeric character required. A-Z, a-z, 0-9.
-  \i \c a - alphanumeric character permitted but not required.
-  \i \c C - printable character required.
-  \i \c c - printable character permitted but not required.
-  \i \c 0 - numeric character required. 0-9.
-  \i \c 9 - numeric character permitted but not required.
-  \i \c # - numeric character or plus/minus sign permitted but not required.
-
-  \i \c > - All following alphabetic characters are uppercased.
-  \i \c < - All following alphabetic characters are lowercased.
-  \i \c <> - No case conversion.
-
-  \i <tt>\\</tt> - Use <tt>\\</tt> to escape the above characters to use them as separators.
-  \endlist
-
-  The \a mask string has mask characters, separators and then optionally
-  the character used for blanks (separated by a semi-colon). The default blank character
-  is space.
-
-  Examples:
-  \list
-   \i \c "999.999.999.999;_" IP address, blanks are \c _
-  \i \c "99/99/9999;0" Date, blanks are \c 0
-  \i \c ">AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;#" License number, blanks are \c -
-  and all characters (alphabetic) are converted to uppercase.
-  \endlist
-
-  To get range control (like with an IP address) use masks together with validators.
-
-  \sa mask() hasMask()
-*/
 void QLineEdit::setMask( const QString &mask )
 {
     parseMaskFields( mask );
 }
 
 /*!
-  Returns TRUE if a mask has been set, FALSE otherwise.
+    \property QLineEdit::hasMask
+    \brief Whether a mask has been set.
+
+    \sa setMask()
 */
 bool QLineEdit::hasMask() const
 {
@@ -2574,9 +2533,55 @@ void QLineEdit::clearMask()
 
 
 /*!
-  Returns the set mask. Return a nullstring if there is no mask set.
+    \property QLineEdit::mask
+    \brief The validation mask.
 
-  \sa setMask() hasMask()
+    If no mask is set, mask() returns QString::null.
+
+    Sets the QLineEdit's validation mask. Validators can be used
+    instead of, or in conjunction with masks; see setValidator().
+
+    Unset the mask and return to normal QLineEdit operation by
+    passing an empty string ("") or just calling it with no arguments.
+
+    The mask format takes these mask characters:
+    \table
+    \header \i Character \i Meaning
+    \row \i \c L \i ASCII alphabetic character required. A-Z, a-z.
+    \row \i \c l \i ASCII alphabetic character permitted but not required.
+    \row \i \c A \i ASCII alphanumeric character required. A-Z, a-z, 0-9.
+    \row \i \c a \i ASCII alphanumeric character permitted but not required.
+    \row \i \c C \i Printable character required.
+    \row \i \c c \i Printable character permitted but not required.
+    \row \i \c 0 \i Numeric character required. 0-9.
+    \row \i \c 9 \i Numeric character permitted but not required.
+    \row \i \c # \i Numeric character or plus/minus sign permitted but not required.
+    \row \i \c > \i All following alphabetic characters are uppercased.
+    \row \i \c < \i All following alphabetic characters are lowercased.
+    \row \i \c <> \i No case conversion.
+    \row \i <tt>\\</tt> \i Use <tt>\\</tt> to escape the special
+			   characters listed above to use them as
+			   separators.
+    \endtable
+
+    The mask consists of a string of mask characters and separators,
+    optionally followed by a semi-colon and the character used for
+    blanks. The default blank character is space.
+
+    Examples:
+    \table
+    \header \i Mask \i Notes
+    \row \i \c 990.990.990.990;_ \i IP address; blanks are \c _
+    \row \i \c 0000-90-90;0 \i ISO Date; blanks are \c 0
+    \row \i \c >AAAAA-AAAAA-AAAAA-AAAAA-AAAAA;# \i License number;
+    blanks are \c - and all (alphabetic) characters are converted to
+    uppercase.
+    \endtable
+
+    To get range control (e.g. for an IP address) use masks together
+    with validators.
+
+    \sa hasMask()
 */
 QString QLineEdit::mask() const
 {

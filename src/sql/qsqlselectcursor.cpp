@@ -48,7 +48,7 @@ public:
 };
 
 /*!
-    \class QSqlSelectCursor qsqlselectcursor.h
+    \class QSqlSelectCursor
     \brief The QSqlSelectCursor class provides browsing of general SQL
     queries.
 

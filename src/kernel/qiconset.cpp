@@ -766,6 +766,10 @@ void QIconSet::normalize( Size& which, const QSize& pixSize )
 	which = pixSize.width() > iconSize( Small ).width() ? Large : Small;
 }
 
+/*!
+    Returns a new pixmap that is a copy of \a suppliedPix, scaled to
+    the icon size \a size.
+*/
 QPixmap *QIconSet::createScaled( Size size, const QPixmap *suppliedPix ) const
 {
     if ( !suppliedPix || suppliedPix->isNull() )
@@ -790,6 +794,10 @@ QPixmap *QIconSet::createScaled( Size size, const QPixmap *suppliedPix ) const
     return pixmap;
 }
 
+/*!
+    Returns a new pixmap that has a 'disabled' look, taking as its
+    base the iconset's icon with size \a size and state \a state.
+*/
 QPixmap *QIconSet::createDisabled( Size size, State state ) const
 {
     QBitmap normalMask;

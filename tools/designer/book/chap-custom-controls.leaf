@@ -255,7 +255,7 @@ We have two recommendations that you should consider when creating a
 	the \File qwidget.h header file. We also forward declare the two
 	classes that our widget will be built from.
 
-\skipto class FileChooser
+\skipto FileChooser : public QWidget
 \printto public
 
 	\index Macros!Q_OBJECT

@@ -199,7 +199,9 @@ void QAssistantClient::showPage( const QString &page )
 }
 
 /*!
-    Returns TRUE is Qt Assistant is open; otherwise returns FALSE.
+    \property QAssistantClient::open
+    \brief Whether Qt Assistant is open.
+
 */
 bool QAssistantClient::isOpen() const
 {

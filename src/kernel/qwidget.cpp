@@ -700,7 +700,7 @@ inline bool QWidgetMapper::remove( WId id )
     \value WType_Modal
     \value WWinOwnDC
     \value WX11BypassWM
-    \value WMacNotSheet
+    \value WMacSheet
     \value WStyle_Mask
     \value WType_Mask
 

@@ -5698,6 +5698,17 @@ struct QCheckListItemPrivate
 */
 
 /*!
+    \enum QCheckListItem::ToggleState
+
+    This enum specifies a QCheckListItem's toggle state.
+
+    \value Off
+    \value NoChange
+    \value On
+*/
+
+
+/*!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that a \c RadioButton must be the child of a
     \c RadioButtonController, otherwise it will not toggle.
@@ -6994,6 +7005,25 @@ bool QListView::isRenaming() const
 */
 
 /*!
+    \enum QListViewItemIterator::IteratorFlag
+
+    \value Visible
+    \value Invisible
+    \value Selected
+    \value Unselected
+    \value Selectable
+    \value NotSelectable
+    \value DragEnabled
+    \value DragDisabled
+    \value DropEnabled
+    \value DropDisabled
+    \value Expandable
+    \value NotExpandable
+    \value Checked
+    \value NotChecked
+*/
+
+/*!
     Constructs an empty iterator.
 */
 
@@ -7021,11 +7051,12 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
 }
 
 /*!
-  Constructs an iterator for the QListView that contains the \a item using the
-  flags \a iteratorFlags. The current iterator item is set to point to \a item or the
-  next matching item if \a item don't match the flags.
+    Constructs an iterator for the QListView that contains the \a item
+    using the flags \a iteratorFlags. The current iterator item is set
+    to point to \a item or the next matching item if \a item doesn't
+    match the flags.
 
-  \sa QListView::IteratorFlag
+    \sa QListView::IteratorFlag
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item, int iteratorFlags )
@@ -7072,10 +7103,11 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
 }
 
 /*!
-  Constructs an iterator for the QListView \a lv with the flags \a iteratorFlags. The current
-  iterator item is set to point on the first child (QListViewItem) of \a lv that compare with the flags.
+    Constructs an iterator for the QListView \a lv with the flags \a
+    iteratorFlags. The current iterator item is set to point on the
+    first child (QListViewItem) of \a lv that matches the flags.
 
-  \sa QListView::IteratorFlag
+    \sa QListView::IteratorFlag
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv, int iteratorFlags )

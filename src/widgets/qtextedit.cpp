@@ -559,6 +559,15 @@ static bool block_set_alignment = FALSE;
 */
 
 /*!
+    \enum QTextEdit::AutoFormatting
+
+    \value AutoNone Do not perform any automatic formatting
+    \value AutoBulletList Only automatically format bulletted lists
+    \value AutoAll Apply all available autoformatting
+*/
+
+
+/*!
     \enum QTextEdit::KeyboardAction
 
     This enum is used by doKeyboardAction() to specify which action
@@ -6659,15 +6668,15 @@ void QTextEdit::polish()
 
 
 /*!
-  \property QTextEdit::autoFormatting
-  \brief the enabled set of auto formatting features
+    \property QTextEdit::autoFormatting
+    \brief the enabled set of auto formatting features
 
-  The value can be any combination of the values in the \c
-  AutoFormatting enum.  The default is \a AutoAll. Choose \c AutoNone
-  to disable all auto formatting.
+    The value can be any combination of the values in the \c
+    AutoFormatting enum.  The default is \a AutoAll. Choose \c AutoNone
+    to disable all automatic formatting.
 
-  At present, the only available auto formatting feature is \c
-  AutoBulletList, future versions of Qt may offer more.
+    Currently, the only automatic formatting feature provided is \c
+    AutoBulletList; future versions of Qt may offer more.
 */
 
 void QTextEdit::setAutoFormatting( uint features )

@@ -783,10 +783,15 @@ void QGroupBox::setFlat( bool b )
 
 
 /*!
-  Sets whether the group box has a checkbox as the title or not.
-  If TRUE the checkbox is checked by default and the children are enabled.
+    \property QGroupBox::checkable
+    \brief Whether the group box has a checkbox in its title.
 
-  \sa isCheckable
+    If the group box does have a checkbox, and the checkbox is checked
+    (which is the default), the group box's children are enabled.
+
+    setCheckable() controls whether or not the group box has a
+    checkbox, and isCheckable() controls whether this checkbox is
+    checked or not.
 */
 void QGroupBox::setCheckable( bool b )
 {
@@ -814,22 +819,12 @@ void QGroupBox::setCheckable( bool b )
 }
 
 
-/*!
-  Returns TRUE if the group box has a checkbox as the title.
-
-  \sa setCheckable
-*/
 bool QGroupBox::isCheckable() const
 {
     return ( d->checkbox != 0 );
 }
 
-/*!
-   Returns the checked state of the title checkbox. If the group box has no checkbox
-   (meaning the group box is not checkable) isChecked returns FALSE.
 
-   \sa setChecked isCheckable
-*/
 bool QGroupBox::isChecked() const
 {
     if ( isCheckable() )
@@ -839,8 +834,13 @@ bool QGroupBox::isChecked() const
 }
 
 /*!
-   Sets the title checkbox to checked \ b and enables or disables the
-   children accordingly.
+    \property QGroupBox::checked
+    \brief Whether the group box's checkbox is checked.
+
+    If the group box has a check box (see \l isCheckable()), and the
+    check box is checked (using isChecked()), the group box's children
+    are enabled. If the checkbox is unchecked the children are
+    disabled.
 */
 void QGroupBox::setChecked( bool b )
 {
