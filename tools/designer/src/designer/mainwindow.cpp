@@ -1054,7 +1054,7 @@ void MainWindow::showTheNewStuff()
 void MainWindow::aboutDesigner()
 {
     QString text = tr("<h3>%1</h3>"
-                      "<br/><br/>Version: %2"
+                      "<br/><br/>Version %2"
                       "<br/>Qt Designer is a graphical user interface designer "
                       "for Qt applications.<br/><br/>"
                       "<b>### Insert license information here ###</b>")

@@ -96,5 +96,3 @@ void error( const QString & msg )
 	cout << "usage: scanui file.ui functionname\n";
     exit(0);
 }
-
-
