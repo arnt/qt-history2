@@ -1392,7 +1392,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
 		glyphs[i] = glyph;
 		if ( uc < cmapCacheSize )
-		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
 	    }
 	}
     } else {
@@ -1403,7 +1403,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 		glyph_t glyph = XftCharIndex( QPaintDevice::x11AppDisplay(), _font, uc );
 		glyphs[i] = glyph;
 		if ( uc < cmapCacheSize )
-		    ((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+		    ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
 	    }
 	}
     }
@@ -1435,15 +1435,29 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 		glyphs[i] = str[i].unicode();
 	}
     } else {
-	if ( mirrored ) {
+	if ( _cmap == 1 ) {
+	    // symbol font
+	    for ( int i = 0; i < len; i++ ) {
+		unsigned short uc = str[i].unicode();
+		glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
+		if ( !glyphs[i] ) {
+		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
+		    if(!glyph && uc < 0x100)
+			glyph = FT_Get_Char_Index( _face, uc+0xf000 );
+		    glyphs[i] = glyph;
+		    if ( uc < cmapCacheSize )
+			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
+		}
+	    }
+	} else if ( mirrored ) {
 	    for ( int i = 0; i < len; i++ ) {
 		unsigned short uc = ::mirroredChar(str[i]).unicode();
 		glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
 		if ( !glyphs[i] ) {
-		    glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
+		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
 		    glyphs[i] = glyph;
 		    if ( uc < cmapCacheSize )
-			((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
 		}
 	    }
 	} else {
@@ -1451,10 +1465,10 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, glyp
 		unsigned short uc = str[i].unicode();
 		glyphs[i] = uc < cmapCacheSize ? cmapCache[uc] : 0;
 		if ( !glyphs[i] ) {
-		    glyph_t glyph = FT_Get_Char_Index( _face, str[i].unicode() );
+		    glyph_t glyph = FT_Get_Char_Index( _face, uc );
 		    glyphs[i] = glyph;
 		    if ( uc < cmapCacheSize )
-			((QFontEngineXft *)this)->cmapCache[str[i].unicode()] = glyph;
+			((QFontEngineXft *)this)->cmapCache[uc] = glyph;
 		}
 	    }
 	}

@@ -873,13 +873,16 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    QFont::Script override_script = script;
 	    if ( ! ( family->scripts[script] & QtFontFamily::Supported ) ) {
 		if ( family_name.isEmpty() ||
-		     !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) )
-		    // family doesn't support either the specified
-		    // script or the Unicode script
-		    continue;
-
-		// try with the unicode script instead
-		override_script = QFont::Unicode;
+		     !(family->scripts[QFont::Unicode] & QtFontFamily::Supported) ) {
+		    if (!(family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) )
+			// family doesn't support either the specified
+			// script or the Unicode script or unknown script (ie. symbol fonts)
+			continue;
+		    else
+			override_script = QFont::UnknownScript;
+		} else {
+		    override_script = QFont::Unicode;
+		}
 	    }
 
 	    // as we know the script is supported, we can be sure
@@ -942,15 +945,16 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	      "    weight: %d, italic: %d, oblique: %d\n"
 	      "    stretch: %d\n"
 	      "    pixelSize: %d\n"
-	      "    pitch: %c",
+	      "    pitch: %c\n"
+	      "    encoding: %d\n",
 	      best_family->name.latin1(),
 	      best_foundry->name.isEmpty() ? "-- none --" : best_foundry->name.latin1(),
 	      best_style->key.weight, best_style->key.italic, best_style->key.oblique,
 	      best_style->key.stretch, best_size ? best_size->pixelSize : 0xffff,
 #ifdef Q_WS_X11
-	      best_encoding->pitch
+	      best_encoding->pitch, best_encoding->encoding
 #else
-	      'p'
+	      'p', 0
 #endif
 	      );
 
@@ -962,7 +966,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     if ( fe ) {
 	QChar sample = sampleCharacter( script );
-	if ( ! canRender( fe, sample ) ) {
+	if ( script != QFont::Unicode && !canRender( fe, sample ) ) {
 	    FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x",
 		      sample.unicode() );
 	    delete fe;
@@ -1302,7 +1306,8 @@ QStringList QFontDatabase::families( QFont::Script script ) const
 	if ( f->count == 0 )
 	    continue;
 	if (!(f->scripts[script] & QtFontFamily::Supported) &&
-	    !(f->scripts[QFont::Unicode] & QtFontFamily::Supported))
+	    !(f->scripts[QFont::Unicode] & QtFontFamily::Supported) &&
+	    !(f->scripts[QFont::UnknownScript] & QtFontFamily::Supported))
 	    continue;
 	if ( f->count == 1 ) {
 	    flist.append( f->name );

@@ -988,13 +988,16 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    }
 	    numTables = getUShort( cmap + 2 );
 	    unsigned char *unicode_table = 0;
+	    bool symbol_table = TRUE;
 	    for ( int n = 0; n < numTables; n++ ) {
 		Q_UINT32 version = getUInt( cmap + 4 + 8*n );
 		// accept both symbol and Unicode encodings. prefer unicode.
 		if ( version == 0x00030001 || version == 0x00030000 ) {
 		    unicode_table = cmap + getUInt( cmap + 4 + 8*n + 4 );
-		    if ( version == 0x00030001 )
+		    if ( version == 0x00030001 ) {
+			symbol_table = FALSE;
 			break;
+		    }
 		}
 	    }
 
@@ -1007,14 +1010,22 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    if ( format != 4 )
 		goto error1;
 
-	    for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
-		QChar ch = sampleCharacter( (QFont::Script)i );
-		if ( ch.unicode() != 0 &&
-		     getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
-		    // qDebug("font can render script %d",  i );
-		    family->scripts[i] = QtFontFamily::Supported;
-		} else {
+	    if (symbol_table) {
+		// we set Unicode to supported for symbol fonts. It makes no sense to merge these
+		// with other ones, as they are special in a way.
+		for ( int i = 0; i < QFont::LastPrivateScript; ++i )
 		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+		family->scripts[QFont::UnknownScript] = QtFontFamily::Supported;
+	    } else {
+		for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
+		    QChar ch = sampleCharacter( (QFont::Script)i );
+		    if ( ch.unicode() != 0 &&
+			 getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
+			// qDebug("font can render script %d",  i );
+			family->scripts[i] = QtFontFamily::Supported;
+		    } else {
+			family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+		    }
 		}
 	    }
 	    family->xftScriptCheck = TRUE;
@@ -1257,8 +1268,9 @@ QFontEngine *loadEngine( QFont::Script script,
 	XftPattern *pattern = XftPatternCreate();
 	if ( !pattern ) return 0;
 
+	bool symbol = (family->scripts[QFont::UnknownScript] == QtFontFamily::Supported);
 #  ifndef QT_XFT2
-	XftPatternAddString (pattern, XFT_ENCODING, "iso10646-1");
+	XftPatternAddString( pattern, XFT_ENCODING, symbol ? "adobe-fontspecific" : "iso10646-1");
 #  endif // QT_XFT2
 
 	if ( !foundry->name.isEmpty() )
@@ -1370,7 +1382,7 @@ QFontEngine *loadEngine( QFont::Script script,
 	if ( ! xftfs ) // Xft couldn't find a font?
 	    return 0;
 
-	QFontEngine *fe = new QFontEngineXft( xftfs, result, 0 );
+	QFontEngine *fe = new QFontEngineXft( xftfs, result, symbol ? 1 : 0 );
 	fe->setScale( scale );
 	return fe;
     }
