@@ -483,7 +483,7 @@ bool QIODevice::at( Q_ULONG pos )
 {
 #if defined(QT_CHECK_RANGE)
     if ( (uint)pos > size() ) {
-	qWarning( "QIODevice::at: Index %d out of range", pos );
+	qWarning( "QIODevice::at: Index %ld out of range", pos );
 	return FALSE;
     }
 #endif
