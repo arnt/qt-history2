@@ -31,7 +31,7 @@ MainWindow::MainWindow()
     filemenu->addAction( tr("&Quit"), qApp, SLOT(quit()) );
 
     menuBar()->addMenu(filemenu);
-    statusBar()->message( tr("This is a QMainWindow with an XmText widget.") );
+    statusBar()->showMessage( tr("This is a QMainWindow with an XmText widget.") );
 
     customwidget = new QMotifWidget("form", xmFormWidgetClass, this);
 
