@@ -228,6 +228,16 @@ extern "C" char *XSetIMValues( XIM /* im */, ... );
 
 #endif
 
+#ifndef QT_NO_XIM
+// some platforms (eg. Solaris 2.51) don't have these defines in Xlib.h
+#ifndef XNResetState
+#define XNResetState "resetState"
+#endif
+#ifndef XIMPreserveState
+#define XIMPreserveState (1L<<1)
+#endif
+#endif
+
 
 #ifndef X11R4
 #  include <X11/Xlocale.h>
