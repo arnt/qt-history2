@@ -493,8 +493,14 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	updateSize();
     }
 
-    QRect screen = QApplication::desktop()->availableGeometry(
-	QApplication::reverseLayout() ? pos+QPoint(width(),0) : pos );
+    int screen_num;
+    if (QApplication::desktop()->isVirtualDesktop())
+	screen_num =
+	    QApplication::desktop()->screenNumber( QApplication::reverseLayout() ?
+						   pos+QPoint(width(),0) : pos );
+    else
+	screen_num = QApplication::desktop()->screenNumber( this );
+    QRect screen = QApplication::desktop()->availableGeometry( screen_num );
     int sw = screen.width();			// screen width
     int sh = screen.height();			// screen height
     int sx = screen.x();			// screen pos
@@ -838,7 +844,7 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
     QMenuItemListIt it( *mitems );
     if(d->scroll.scrollable) {
 	if(d->scroll.topScrollableIndex) {
-	    for( ; (mi = it.current()) && row < d->scroll.topScrollableIndex; row++) 
+	    for( ; (mi = it.current()) && row < d->scroll.topScrollableIndex; row++)
 		++it;
 	    if(!mi) {
 		row = 0;
@@ -850,7 +856,7 @@ int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
     int itemw = contentsRect().width() / ncols;
     QSize sz;
     while ( (mi=it.current()) ) {
-	if(d->scroll.scrollable && 
+	if(d->scroll.scrollable &&
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    return -1;
 	++it;
@@ -895,7 +901,7 @@ QRect QPopupMenu::itemGeometry( int index )
 	scrollh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	y += scrollh;
 	if(d->scroll.topScrollableIndex) {
-	    for( ; (mi = it.current()) && row < d->scroll.topScrollableIndex; row++) 
+	    for( ; (mi = it.current()) && row < d->scroll.topScrollableIndex; row++)
 		++it;
 	    if(!mi) {
 		row = 0;
@@ -916,7 +922,7 @@ QRect QPopupMenu::itemGeometry( int index )
 	sz = sz.expandedTo(QSize(itemw, sz.height()));
 	itemw = sz.width();
 	itemh = sz.height();
-	if(d->scroll.scrollable && (y + itemh > contentsRect().height() - scrollh)) 
+	if(d->scroll.scrollable && (y + itemh > contentsRect().height() - scrollh))
 	    itemh = (y + itemh) - (contentsRect().height() - scrollh);
 	if ( ncols > 1 && y + itemh > contentsRect().bottom() ) {
 	    y = contentsRect().y();
@@ -1059,7 +1065,7 @@ void QPopupMenu::updateSize()
 	    max_width = w;
     }
     if(d->scroll.scrollable)
-	setMouseTracking(TRUE); 
+	setMouseTracking(TRUE);
 
     if ( tab )
 	tab -= fontMetrics().minRightBearing();
@@ -1371,7 +1377,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    flags |= QStyle::Style_Enabled;
 	int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
-			    QRect(x, y, contentsRect().width(), sh), 
+			    QRect(x, y, contentsRect().width(), sh),
 			    colorGroup(), flags, QStyleOption(maxPMWidth));
 	y += sh;
     }
@@ -1380,7 +1386,7 @@ void QPopupMenu::drawContents( QPainter* p )
     QSize sz;
     QStyle::SFlags flags;
     while ( (mi=it.current()) ) {
-	if(d->scroll.scrollable && 
+	if(d->scroll.scrollable &&
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    break;
 	++it;
@@ -1416,7 +1422,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	    flags |= QStyle::Style_Enabled;
 	int sh = style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	style().drawControl(QStyle::CE_PopupMenuScroller, p, this,
-			    QRect(x, contentsRect().height() - sh, contentsRect().width(), sh), 
+			    QRect(x, contentsRect().height() - sh, contentsRect().width(), sh),
 			    colorGroup(), flags, QStyleOption(maxPMWidth));
     } else if ( y < contentsRect().bottom() && count() ) {
 	flags = QStyle::Style_Default;
@@ -1499,14 +1505,14 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     // if the user released the mouse outside the menu, pass control
     // to the menubar or our parent menu
     if ( !rect().contains( e->pos() ) && tryMenuBar(e) )
-	return; 
-    
+	return;
+
     if ( actItem < 0 ) { // we do not have an active item
 	// if the release is inside without motion (happens with
 	// oversized popup menus on small screens), ignore it
 	if ( rect().contains( e->pos() ) && motion < 6 )
-	    return; 
-	else 
+	    return;
+	else
 	    byeMenuBar();
     } else {	// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
@@ -1579,14 +1585,14 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	actItem = -1;
 	if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
-	if(d->scroll.scrollable && 
+	if(d->scroll.scrollable &&
 	   e->pos().x() >= rect().x() && e->pos().x() <= rect().width()) {
 	    if(!d->scroll.scrolltimer) {
 		d->scroll.scrolltimer = new QTimer(this, "popup scroll timer");
 		QObject::connect( d->scroll.scrolltimer, SIGNAL(timeout()),
 				  this, SLOT(subScrollTimer()) );
 	    }
-	    if(!d->scroll.scrolltimer->isActive()) 
+	    if(!d->scroll.scrolltimer->isActive())
 		d->scroll.scrolltimer->start(40);
 	} else if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) {
 	    popupSubMenuLater(style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay,
@@ -1884,7 +1890,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		   || mi->isEnabled() ) )
 		break;
 	}
-	if ( i != actItem ) 
+	if ( i != actItem )
 	    setActiveItem( i );
 	if(d->scroll.scrollable) { //need to scroll to make it visible?
 	    QRect r = itemGeometry(actItem);
@@ -1901,8 +1907,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    for(int i = 0, y = sh*2; it.current(); i++, ++it) {
 			if(i >= d->scroll.topScrollableIndex) {
 			    int itemh = itemHeight(it.current());
-			    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this, 
-								QSize(0, itemh), 
+			    QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
+								QSize(0, itemh),
 								QStyleOption(it.current(),maxPMWidth,0));
 			    y += sz.height();
 			    if(y > contentsRect().height()) {
@@ -1912,7 +1918,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 			    }
 			}
 		    }
-		} 
+		}
 		if(refresh)
 		    update();
 	    }
@@ -1980,7 +1986,7 @@ void QPopupMenu::subScrollTimer() {
 	d->scroll.lastScroll = QTime::currentTime();
     } else {
 	int factor=0;
-	if(pos.y() < y()) 
+	if(pos.y() < y())
 	    factor = y() - pos.y();
 	else if(pos.y() > y() + height())
 	    factor = pos.y() - (y() + height());
@@ -1999,7 +2005,7 @@ void QPopupMenu::subScrollTimer() {
 	for(int i = 0, y = contentsRect().y() + sh; it.current(); i++, ++it) {
 	    if(i >= d->scroll.topScrollableIndex) {
 		int itemh = itemHeight(it.current());
-		QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this, QSize(0, itemh), 
+		QSize sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this, QSize(0, itemh),
 						    QStyleOption(it.current(),maxPMWidth,0));
 		y += sz.height();
 		if(y > contentsRect().height() - sh) {
@@ -2009,7 +2015,7 @@ void QPopupMenu::subScrollTimer() {
 		}
 	    }
 	}
-    } 
+    }
 }
 
 /*! This private slot handles the delayed submenu effects */
@@ -2110,7 +2116,7 @@ void QPopupMenu::updateRow( int row )
     if(d->scroll.scrollable) {
 	y += style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this);
 	if(d->scroll.topScrollableIndex) {
-	    for( ; (mi = it.current()) && r < d->scroll.topScrollableIndex; r++) 
+	    for( ; (mi = it.current()) && r < d->scroll.topScrollableIndex; r++)
 		++it;
 	    if(!mi) {
 		r = 0;
@@ -2120,7 +2126,7 @@ void QPopupMenu::updateRow( int row )
     }
     int itemw = contentsRect().width() / ncols;
     while ( (mi=it.current()) ) {
-	if(d->scroll.scrollable && 
+	if(d->scroll.scrollable &&
 	   y >= contentsRect().height() - style().pixelMetric(QStyle::PM_PopupMenuScrollerHeight, this))
 	    break;
 	++it;
