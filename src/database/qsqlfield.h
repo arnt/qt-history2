@@ -48,8 +48,6 @@ public:
     bool          isNull() const { return nul; }
     void          setPrimaryIndex( bool primaryIndex ) { pIdx = primaryIndex; }
     bool          isPrimaryIndex() const { return pIdx; }
-    void          setForeignIndex( bool foreignIndex ) { fIdx = foreignIndex; }
-    bool          isForeignIndex() const { return fIdx; }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QSqlField& ) const { return FALSE; }
@@ -60,7 +58,6 @@ private:
     bool          ro;
     bool          nul;
     bool          pIdx;
-    bool          fIdx;
 };
 
 template< class T >

@@ -12,7 +12,7 @@
 
 /*!
   Constructs an empty SQL field using the field name \a fieldName
-  and field number \a fieldNumber. 
+  and field number \a fieldNumber.
 
 */
 
@@ -29,11 +29,11 @@ QSqlResultField::QSqlResultField( const QString& fieldName = QString::null, int 
 
 QSqlResultField::~QSqlResultField()
 {
-    
+
 }
 
 /*!
-  Returns a reference to the internal value of the field. 
+  Returns a reference to the internal value of the field.
 
 */
 
@@ -85,7 +85,7 @@ QVariant& QSqlResultField::value()
 QSqlField::QSqlField( const QString& fieldName, int fieldNumber, QVariant::Type type )
     : QSqlResultField( fieldName, fieldNumber, type ), label(fieldName), ro(FALSE)
 {
-    
+
 }
 
 /*!
@@ -127,14 +127,6 @@ QSqlField::~QSqlField()
 */
 /*! \fn bool QSqlField::isPrimaryIndex() const
   Returns TRUE if the field is part of a primary index, otherwise FALSE.
-*/
-
-/*! \fn void QSqlField::setForeignIndex( bool foreignIndex )
-  Sets the foreign index flag to \a foreignIndex.
-*/
-
-/*! \fn bool QSqlField::isForeignIndex() const
-  Returns TRUE if the field is part of a foregin inder, otherwise FALSE.
 */
 
 /////////////////

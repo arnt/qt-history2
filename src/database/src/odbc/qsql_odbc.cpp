@@ -234,10 +234,8 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
     if ( r == SQL_SUCCESS ) {
 	bool isNull;
 	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	//	int length = qGetIntData( hStmt, 6, isNull ); // column size
-	//	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
-	fi.setName( fieldname );
-	fi.value() = QVariant( qDecodeODBCType( type ) );
+	QSqlField f( fieldname, 0, qDecodeODBCType( type ) );
+	fi = f;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
     return fi;
@@ -844,10 +842,8 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 	bool isNull;
 	SQLINTEGER lengthIndicator(0);
 	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
-	int type = qGetIntData( hStmt, 4, isNull ); // column type
-	//	int length = qGetIntData( hStmt, 6, isNull ); // column size
-	//	int precision = qGetIntData( hStmt, 8, isNull ); // column prec
-	fil.append( QSqlField( fieldname, count, qDecodeODBCType( type ) ) );
+	QSqlField f = qMakeField( d, tablename, fieldname );
+	fil.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);

@@ -101,9 +101,28 @@ QVariant::Type qFieldType( QPSQLPrivate* p, int i )
     return type;
 }
 
+bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+{
+    bool ispIdx = FALSE;
+    QString pIdx( "select count(1) "
+		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
+		  "where c1.relname='%1' "
+		  "and a.attname='%2' "
+		  "and a.attnum > 0 "
+		  "and c1.oid=x.indrelid "
+		  "and c2.oid=a.attrelid "
+		  "and (x.indexrelid=c2.oid "
+		  "and a.attrelid=c2.oid);");
+    QSql pIdxs = driver->createResult();
+    pIdxs << pIdx.arg( tablename ).arg( fieldname );
+    if ( pIdxs.next() )
+	ispIdx = pIdxs[0].toInt();
+    return ispIdx;
+}
+
 QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
-    QString stmt ( "select a.atttypid, atttypmod, a.attlen "
+    QString stmt ( "select a.atttypid "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
 		   "and a.attname = '%2' "
@@ -113,8 +132,11 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 		   "and (a.attnum > 0)");
     QSql fi = driver->createResult();
     fi << stmt.arg( tablename ).arg( fieldname );
-    if ( fi.next() )
-	return QSqlField( fieldname, 0, qDecodePSQLType(fi[0].toInt()) );
+    if ( fi.next() ) {
+	QSqlField f( fieldname, 0, qDecodePSQLType(fi[0].toInt()) );
+	f.setPrimaryIndex( qIsPrimaryIndex( driver, tablename, fieldname ) );
+	return f;
+    }
     return QSqlField();
 }
 
