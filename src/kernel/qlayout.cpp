@@ -1173,6 +1173,12 @@ void QGridLayout::addWidget( QWidget *w, int fromRow, int fromCol,
 }
 
 /*!
+    \fn void QGridLayout::addWidget(QWidget *w)
+
+    \internal
+*/
+
+/*!
     Places the \a layout at position (\a row, \a col) in the grid. The
     top-left position is (0, 0).
 

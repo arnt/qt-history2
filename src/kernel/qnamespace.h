@@ -100,6 +100,7 @@ public:
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlags);
 
+    // documented in qnamespace.doc
     enum LineBreakMode {
 	NoLineBreak,
 	SmartLineBreak,
@@ -108,7 +109,7 @@ public:
 	AtCharacterBoundary
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
 	DontClip	= 0x0100,
@@ -273,7 +274,7 @@ public:
 	AvoidDither		= 0x00000080
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum BGMode	{				// background mode
 	TransparentMode,
 	OpaqueMode
@@ -632,7 +633,7 @@ public:
 	RightArrow
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum RasterOp { // raster op mode
 	CopyROP,
 	OrROP,
@@ -663,7 +664,7 @@ public:
 	MPenStyle = 0x0f
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum PenCapStyle { // line endcap style
 	FlatCap = 0x00,
 	SquareCap = 0x10,
@@ -671,7 +672,7 @@ public:
 	MPenCapStyle = 0x30
     };
 
-    // documented in qpainter.cpp
+    // documented in qqnamespace.doc
     enum PenJoinStyle { // line join style
 	MiterJoin = 0x00,
 	BevelJoin = 0x40,
@@ -679,7 +680,7 @@ public:
 	MPenJoinStyle = 0xc0
     };
 
-    // documented in qpainter.cpp
+    // documented in qnamespace.doc
     enum BrushStyle { // brush style
 	NoBrush,
 	SolidPattern,
@@ -896,6 +897,7 @@ public:
 	BottomRight = 0x00003
     };
 
+    // Documented in qnamespace.doc
     enum ConnectionType {
 	AutoConnection,
 	DirectConnection,

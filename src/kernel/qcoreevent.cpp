@@ -257,9 +257,21 @@ QEvent::~QEvent()
 */
 
 /*!
+    \fn bool QChildEvent::added() const
+
+    Returns true if a child has been added to the object; otherwise
+    returns false.
+*/
+
+/*!
     \fn bool QChildEvent::removed() const
 
     Returns TRUE if the object lost a child; otherwise returns FALSE.
+*/
+
+/*!
+    \fn bool QChildEvent::polished() const
+
 */
 
 /*!

@@ -4750,6 +4750,12 @@ QDomNode::NodeType QDomComment::nodeType() const
     return CommentNode;
 }
 
+/*!
+    \fn bool QDomComment::isComment() const
+
+    \reimp
+*/
+
 #undef IMPL
 
 /**************************************************************

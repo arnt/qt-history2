@@ -206,6 +206,17 @@ static QMenuItem* whatsThisItem = 0;
     \sa aboutToShow(), setItemEnabled(), setItemChecked(), insertItem(), removeItem()
 */
 
+/*!
+    \fn void QPopupMenu::setWhatsThis( int id, const QString& s)
+
+    Sets the menu text for menu item \a id to the string \a s.
+*/
+
+/*!
+    \fn QString QPopupMenu::whatsThis( int id ) const
+
+    Returns the menu text for menu item \a id.
+*/
 
 
 /*****************************************************************************

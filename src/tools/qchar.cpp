@@ -213,6 +213,16 @@
 */
 
 /*!
+    \enum QChar::SpecialChars
+
+    \value null Character 0x0000. A QChar with this value isNull().
+    \value replacement
+    \value byteOrderMark
+    \value byteOrderSwapped
+    \value nbsp Non-breaking space.
+*/
+
+/*!
     \fn void QChar::setCell(uchar cell)
     \internal
 */
@@ -227,6 +237,14 @@
     \fn QChar::QChar()
 
     Constructs a null QChar (one that isNull()).
+*/
+
+
+/*!
+    \fn QChar::QChar(SpecialChars s)
+
+    Constructs a QChar that has one of the \l SpecialChars values, \a
+    s.
 */
 
 
@@ -301,6 +319,12 @@ QChar::QChar(uchar c)
     Constructs a QChar for the character with Unicode code point \a rc.
 */
 
+
+/*!
+    \fn bool QChar::operator!() const
+
+    Synonym for isNull().
+*/
 
 /*!
     \fn bool QChar::isNull() const
@@ -566,10 +590,19 @@ QChar QChar::toUpper() const
 }
 
 /*!
+    \fn char QChar::latin1() const
+
+    Returns the Latin-1 character equivalent to the QChar, or 0. This
+    is mainly useful for non-internationalized software.
+
+    \sa ascii(), unicode(), QTextCodec::codecForCStrings()
+*/
+
+/*!
     Returns the ascii character equivalent to the QChar, or 0. This
     is mainly useful for non-internationalized software.
 
-    \sa unicode(), QTextCodec::codecForCStrings()
+    \sa latin1(), unicode(), QTextCodec::codecForCStrings()
 */
 char QChar::ascii() const
 {
@@ -582,10 +615,19 @@ char QChar::ascii() const
 }
 
 /*!
+    \fn QChar QChar::fromLatin1(char c)
+
+    Converts the Latin-1 character \a c to it's equivalent QChar. This
+    is mainly useful for non-internationalized software.
+
+    \sa fromAscii(), unicode(), QTextCodec::codecForCStrings()
+*/
+
+/*!
     Converts the ascii character \a c to it's equivalent QChar. This
     is mainly useful for non-internationalized software.
 
-    \sa unicode(), QTextCodec::codecForCStrings()
+    \sa fromLatin1(), unicode(), QTextCodec::codecForCStrings()
 */
 QChar QChar::fromAscii(char c)
 {

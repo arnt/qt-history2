@@ -555,19 +555,22 @@ parameter list and was poorly named:
 \i bool QRegExp::match( const QString \& str, int index = 0,
 			int * len = 0, bool indexIsStart = TRUE ) const
 \endlist
-It will be removed in a future version of Qt. Its \link
-QRegExp::match() documentation \endlink explains how to replace it.
+It will be removed in a future version of Qt. Its
+documentation explains how to replace it. (See QRegExp::search() for
+Qt 4.x.)
 
 \section2 QRegExp::find()
 
 This function was removed, after a brief appearance in Qt 2.2.  Its
-name clashed with QString::find().  Use \l QRegExp::search() or \l
-QString::find() instead.
+name clashed with QString::find().  Use \l QRegExp::search() or
+QString::find() (Qt 3.x) or QString::indexOf() (Qt 4.x) instead.
 
 \section2 QString::findRev() and QString::contains()
 
-\l QString::findRev()'s and \l QString::contains()'s semantics have changed
-between 2.0 and 3.0 to be more consistent with the other overloads.
+QString::findRev()'s (QString::lastIndexOf() Qt 4.x) and
+QString::contains()'s (QString::contains() and QString::count() Qt
+4.x) semantics have changed between 2.0 and 3.0 to be
+more consistent with the other overloads.
 
 For example,
 \code

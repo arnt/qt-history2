@@ -482,3 +482,19 @@ bool QMutex::isLocked()
 
     \sa QMutexLocker::QMutexLocker()
 */
+
+/*!
+    \fn void QMutexLocker::unlock()
+
+    Unlocks this mutex locker.
+
+    \sa relock()
+*/
+
+/*!
+    \fn void QMutexLocker::relock()
+
+    Relocks an  unlocked mutex locker.
+
+    \sa unlock()
+*/

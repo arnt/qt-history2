@@ -83,6 +83,73 @@
 */
 
 /*!
+    \enum Qt::PenStyle
+
+    \value NoPen
+    \value SolidLine
+    \value DashLine
+    \value DotLine
+    \value DashDotLine
+    \value DashDotDotLine
+    \value MPenStyle Mask
+
+    \img pen-styles.png Pen styles
+
+    \sa QPen
+*/
+
+/*!
+    \enum Qt::PenCapStyle
+
+    \value FlatCap
+    \value SquareCap
+    \value RoundCap
+    \value MPenCapStyle
+
+    \img pen-cap-styles.png Pen Cap Styles
+
+    \sa QPen
+*/
+
+/*!
+    \enum Qt::PenJoinStyle
+
+    \value MiterJoin
+    \value BevelJoin
+    \value RoundJoin
+    \value MPenJoinStyle
+
+    \img pen-join-styles.png Pen Join Styles
+
+    \sa QPen
+*/
+
+/*!
+    \enum Qt::BrushStyle
+
+    \value NoBrush
+    \value SolidPattern
+    \value Dense1Pattern
+    \value Dense2Pattern
+    \value Dense3Pattern
+    \value Dense4Pattern
+    \value Dense5Pattern
+    \value Dense6Pattern
+    \value Dense7Pattern
+    \value HorPattern
+    \value VerPattern
+    \value CrossPattern
+    \value BDiagPattern
+    \value FDiagPattern
+    \value DiagCrossPattern
+    \value CustomPattern
+
+    \img brush-styles.png Brush Styles
+
+    \sa QBrush
+*/
+
+/*!
     \enum Qt::StringComparisonFlags
 
     Many Qt string functions accept a StringComparisonFlags argument
@@ -98,17 +165,63 @@
 */
 
 /*!
-    \enum Qt::PenStyle
+    \enum Qt::LineBreakMode
 
-    \value NoPen
-    \value SolidLine
-    \value DashLine
-    \value DotLine
-    \value DashDotLine
-    \value DashDotDotLine
-    \value MPenStyle Mask
+    \value NoLineBreak
+    \value SmartLineBreak
+    \value AtLineBoundary
+    \value AtWordBoundary
+    \value AtCharacterBoundary
+*/
 
-    \img pen-styles.png Pen styles
+/*!
+    \enum Qt::TextFlags
 
-    \sa QPen
+    \value SingleLine
+    \value DontClip
+    \value ExpandTabs
+    \value ShowPrefix
+    \value WordBreak
+    \value BreakAnywhere
+    \value NoAccel
+*/
+
+/*!
+    \enum Qt::BGMode
+
+    \internal
+
+    \value TransparentMode
+    \value OpaqueMode
+*/
+
+/*!
+    \enum Qt::RasterOp
+
+    \value CopyROP
+    \value OrROP
+    \value XorROP
+    \value NotAndROP Synonym: EraseROP
+    \value NotCopyROP
+    \value NotOrROP
+    \value NotXorROP
+    \value AndROP Synonym: NotEraseROP
+    \value NotROP
+    \value ClearROP
+    \value SetROP
+    \value NopROP
+    \value AndNotROP
+    \value OrNotROP
+    \value NandROP
+    \value NorROP Synonym: LastROP
+*/
+
+/*!
+    \enum Qt::ConnectionType
+
+    \internal
+
+    \value AutoConnection
+    \value DirectConnection
+    \value QueuedConnection
 */

@@ -244,6 +244,20 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 */
 
 /*!
+    \enum Qt::DayOfWeek
+
+    \internal
+
+    \value Monday
+    \value Tuesday
+    \value Wednesday
+    \value Thursday
+    \value Friday
+    \value Saturday
+    \value Sunday
+*/
+
+/*!
     \fn QDate::QDate()
 
     Constructs a null date. Null dates are invalid.

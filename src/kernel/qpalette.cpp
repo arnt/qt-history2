@@ -278,6 +278,18 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 */
 
 /*!
+    \fn ColorGroup QPalette::currentColorGroup() const
+
+    Returns the palette's current color group.
+*/
+
+/*!
+    \fn void QPalette::setCurrentColorGroup(ColorGroup cg)
+
+    Set the palette's current color group to \a cg.
+*/
+
+/*!
     \class QPalette qpalette.h
 
     \brief The QPalette class contains color groups for each widget state.
@@ -710,8 +722,10 @@ bool QPalette::operator==(const QPalette &p) const
 }
 
 /*!
-    Returns TRUE (usually quickly) if this ColorGroup \a grp1 is equal to \a grp2;
-    otherwise returns FALSE.
+    \fn bool QPalette::isEqual(ColorGroup cg1, ColorGroup cg2) const
+
+    Returns TRUE (usually quickly) if color group \a cg1 is equal to
+    \a cg2; otherwise returns FALSE.
 */
 bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2) const
 {

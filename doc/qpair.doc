@@ -88,37 +88,28 @@
     and the \c second element with \a t2.
 */
 
-/*
-    \fn bool operator==( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
+/*!
+    \fn QPair<T1, T2>& QPair::operator=( const QPair<T1, T2>& other )
 
-    Returns TRUE if \a x is equal to \a y; otherwise returns FALSE.
-    Two QPairs are equal if both their \c first and \c second elements
-    are equal.
+    Assigns the \a other's values to this pair.
 */
 
-/*
-    \fn bool operator<( const QPair<T1, T2>& x, const QPair<T1, T2>& y )
+/*!
+    \fn QPair qMakePair(T1 t1, T2 t2)
 
-    Returns TRUE if \a x is less than \a y; otherwise returns FALSE.
-    \a x is less than \a y if x.first is less than y.first, or if
-    x.second is less than y.second and x.first is the same as y.first.
+    \relates QPair
 
-    For example, (0, 1) < (0, 4) and (0, 4) < (1, 0).
-*/
+    This is a template convenience function. It is used to create a
+    QPair\<\> object that contains \a t1 and \a t2. For example:
+    \code
+	QMap<QString,QString> m;
+	m.insert( qMakePair("Clinton", "Bill") );
+    \endcode
 
-/* \fn QPair<T1, T2> qMakePair( const T1& x, const T2& y )
-
-    Convenience wrapper for the QPair constructor.
-*/
-
-/* \fn QDataStream& operator>>( QDataStream& s, QPair<T1, T2>& p )
-
-    Reads a pair \a p from the stream \a s. The types T1 and T2 must
-    implement the streaming operator as well.
-*/
-
-/* \fn QDataStream& operator<<( QDataStream& s, const QPair<T1, T2>& p )
-
-    Writes the pair \a p to the stream \a s. The types T1 and T2 must
-    implement the streaming operator as well.
+    The above code is equivalent to:
+    \code
+	QMap<QString,QString> m;
+	QPair<QString,QString> p( "Clinton", "Bill" );
+	m.insert( p );
+    \endcode
 */
