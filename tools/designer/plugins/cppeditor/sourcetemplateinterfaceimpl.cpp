@@ -61,8 +61,8 @@ static QString generateMainCppCode( const QString &formname, const QString &incl
     code += "int main( int argc, char ** argv )\n";
     code += "{\n";
     code += "    QApplication a( argc, argv );\n";
-    code += "    " + formname + " *w = new " + formname + ";\n";
-    code += "    w->show();\n";
+    code += "    " + formname + " w;\n";
+    code += "    w.show();\n";
     code += "    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );\n";
     code += "    return a.exec();\n";
     code += "}\n";
