@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.24 1999/06/16 01:17:37 warwick Exp $
+** $Id: i18n.doc,v 1.25 1999/06/16 01:19:12 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -336,6 +336,8 @@ encodings - those requiring right-to-left input or complex character
 composition (eg. Arabic, Hebrew, and Thai script) will be implemented.
 The current state of activity is:
 <dl compact>
+ <dt><b>All encodings on Windows
+    <dd>On Windows, the local encoding is always supported.
  <dt><b>ISO standard encodings
 	ISO 8859-1,
 	ISO 8859-2,
