@@ -192,13 +192,11 @@ void HelpDialog::initialize()
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
 
     contentFactory = new QMimeSourceFactory();
-    // ###    viewer->setMimeSourceFactory( contentFactory );
     contentFactory->setExtensionType( "html", "text/html;charset=UTF-8" );
 
-    QString base( qInstallPathDocs() );
-    documentationPath = base + "/html";
-    contentFactory->addFilePath( documentationPath );
-    contentFactory->addFilePath( base + "/../gif/" );
+    contentFactory->addFilePath( Config::configuration()->docBasePath() );
+    if( Config::configuration()->isDefaultProfile() )
+	contentFactory->addFilePath( Config::configuration()->docBasePath() + "/../gif/" );
 
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();

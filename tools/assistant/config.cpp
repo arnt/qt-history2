@@ -7,7 +7,6 @@
 #include <qsettings.h>
 #include <qxml.h>
 
-
 static Config *static_configuration = 0;
 
 Config::Config( Profile *p )
@@ -55,11 +54,12 @@ void Config::load()
     pdfApp = settings.readEntry( key + "PDFApplication" );
     fontFam = settings.readEntry( key + "Family", qApp->font().family() );
 
+
     fontFix = settings.readEntry( key + "FixedFamily", "courier" );
     fontSiz = settings.readNumEntry( key + "Size", qApp->font().pointSize() );
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
-    src = settings.readEntry( profkey + "Source" );
+    src = settings.readEntry( profkey + "Source", "assistant_about_text" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
     geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
 		  settings.readNumEntry( key + "GeometryY", 0 ),
@@ -103,9 +103,9 @@ QString Config::title() const
     return profil->props[ "title" ];
 }
 
-QString Config::aboutName() const
+QString Config::aboutApplicationMenuText() const
 {
-    return profil->props[ "aboutname" ];
+    return profil->props[ "aboutmenutext" ];
 }
 
 
@@ -167,4 +167,9 @@ QString Config::docCategory( const QString &docfile ) const
 QString Config::docContentsURL( const QString &docfile ) const
 {
     return parser( docfile )->contentsURL();
+}
+
+QString Config::docBasePath() const
+{
+    return profil->props["docbasepath"];
 }

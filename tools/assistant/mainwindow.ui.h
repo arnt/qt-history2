@@ -30,7 +30,6 @@
 #include <qaccel.h>
 #include <qmetaobject.h>
 
-
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
 void MainWindow::init()
@@ -40,6 +39,7 @@ void MainWindow::init()
     goActions = new QPtrList<QAction>;
     goActionDocFiles = new QMap<QAction*,QString>;
     goActions->setAutoDelete( TRUE );
+
 
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
@@ -54,6 +54,12 @@ void MainWindow::init()
 #ifndef Q_WS_MACX
     setIcon( config->applicationIcon() );
 #endif
+
+    actionAboutApplication->setMenuText( config->aboutApplicationMenuText() );
+
+    if( !config->title().isNull() )
+	setCaption( config->title() );
+
 
     dw = new QDockWindow( QDockWindow::InDock, this );
     helpDock = new HelpDialog( dw, this );
@@ -234,29 +240,46 @@ void MainWindow::destroy()
 
 void MainWindow::about()
 {
-    QString about_text =
-	"<center><img src=\"splash.png\">"
-	"<p>Version " + QString(QT_VERSION_STR) + "</p>"
-	"<p>Copyright (C) 2001-2003 Trolltech AS. All rights reserved.</p>"
-	"</center><p></p>"
-	"<p>This program is licensed to you under the terms of the GNU General "
-	"Public License Version 2 as published by the Free Software Foundation. This "
-	"gives you legal permission to copy, distribute and/or modify this software "
-	"under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
-	"this software distribution. If you did not get the file, send email to "
-	"info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
-	"OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
-	"FOR A PARTICULAR PURPOSE.</p>";
     QMessageBox box( this );
-    box.setText( about_text );
-    box.setCaption( tr( "Qt Assistant" ) );
+    box.setText( "<center><img src=\"splash.png\">"
+		 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
+		 "<p>Copyright (C) 2001-2003 Trolltech AS. All rights reserved.</p>"
+		 "</center><p></p>"
+		 "<p>This program is licensed to you under the terms of the GNU General "
+		 "Public License Version 2 as published by the Free Software Foundation. This "
+		 "gives you legal permission to copy, distribute and/or modify this software "
+		 "under certain conditions. For details, see the file 'LICENSE.GPL' that came with "
+		 "this software distribution. If you did not get the file, send email to "
+		 "info@trolltech.com.</p>\n\n<p>The program is provided AS IS with NO WARRANTY "
+		 "OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS "
+		 "FOR A PARTICULAR PURPOSE.</p>"
+		 );
+    box.setCaption( tr( "About Qt Assistant" ) );
     box.setIcon( QMessageBox::NoIcon );
     box.exec();
 }
 
-void MainWindow::aboutQt()
+void MainWindow::aboutApplication()
 {
-    QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
+    if( Config::configuration()->isDefaultProfile() ) {
+	QMessageBox::aboutQt( this, tr( "Qt Assistant" ) );
+	return;
+    }
+
+
+    QString url = Config::configuration()->aboutURL();
+    QString text;
+    QFile file( url );
+    if( file.exists() && file.open( IO_ReadOnly ) )
+	text = QString( file.readAll() );
+    if( text.isNull() )
+	text = tr( "Failed to open about application contents in file: '%1'" ).arg( url );
+
+    QMessageBox box( this );
+    box.setText( text );
+    box.setCaption( Config::configuration()->aboutApplicationMenuText() );
+    box.setIcon( QMessageBox::NoIcon );
+    box.exec();
 }
 
 void MainWindow::find()
@@ -369,9 +392,17 @@ void MainWindow::showLink( const QString &link )
     const QMimeSource *mime = factory->data( name );
     if( mime ) {
 	tabs->setSource( link );
+    } else if ( link=="assistant_about_text" ) {
+	// No default startup text yet!!
+	QString docfile = Config::configuration()->docFiles()[0];
+	QString url = Config::configuration()->docContentsURL( docfile );
+	tabs->setSource( url );
     } else {
 	// ### Default 404 site!
-	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ) );
+	statusBar()->message( tr( "Failed to open link: '%1'" ).arg( link ), 5000 );
+	tabs->currentBrowser()->setText( tr( "The page could not be found!<br>"
+					     "'%1'").arg( link )
+					 );
     }
 }
 
@@ -560,4 +591,9 @@ void MainWindow::showGoActionLink()
     QString docfile = *( goActionDocFiles->find( action ) );
     QString ref = Config::configuration()->docContentsURL( docfile );
     showLink( ref );
+}
+
+void MainWindow::showAssistantHelp()
+{
+    showLink( "assistant.html" );
 }

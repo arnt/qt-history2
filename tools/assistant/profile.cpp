@@ -120,6 +120,10 @@ Profile *Profile::createDefaultProfile()
     profile->defProf = TRUE;
     profile->props["name"] = "defaultprofile";
     profile->props["applicationicon"] = "appicon.png";
+    profile->props["aboutmenutext"] = "About Qt";
+    profile->props["abouturl"] = "about_qt_url";
+    profile->props["title"] = "Qt Assistant";
+    profile->props["docbasepath"] = qInstallPathDocs() + QString( "/html" );
 
     QString path = QString( qInstallPathDocs() ) + "/html/";
 

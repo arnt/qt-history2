@@ -25,12 +25,13 @@ public:
 
     // From profile, read only
     QString title() const;
-    QString aboutName() const;
+    QString aboutApplicationMenuText() const;
     QString aboutURL() const;
     QStringList docFiles() const;
     QString docTitle( const QString & ) const;
     QString docCategory( const QString & ) const;
     QString docContentsURL( const QString & ) const;
+    QString docBasePath() const;
     QPixmap docIcon( const QString & ) const;
     QPixmap applicationIcon() const;
 
