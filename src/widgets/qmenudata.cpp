@@ -768,6 +768,13 @@ int QMenuData::insertSeparator( int index )
     \sa removeItemAt(), clear()
 */
 
+void QMenuData::removeItem( int id )
+{
+    QMenuData *parent;
+    if ( findItem( id, &parent ) )
+	parent->removeItemAt(parent->indexOf(id));
+}
+
 /*!
     Removes the menu item at position \a index.
 

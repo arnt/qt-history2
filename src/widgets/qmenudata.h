@@ -188,7 +188,7 @@ public:
 
     int		insertSeparator( int index=-1 );
 
-    void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
+    void	removeItem( int id );
     void	removeItemAt( int index );
     void	clear();
 
