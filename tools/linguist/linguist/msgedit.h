@@ -26,6 +26,7 @@
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qtooltip.h>
+#include <qevent.h>
 
 class QAccel;
 class QDockArea;

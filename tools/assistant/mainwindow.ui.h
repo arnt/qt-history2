@@ -21,6 +21,7 @@
 #include <qaccel.h>
 #include <qmetaobject.h>
 #include <qeventloop.h>
+#include <qdesktopwidget.h>
 
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
