@@ -35,6 +35,7 @@
 
 class QActionPrivate;
 class QActionGroupPrivate;
+class QStatusBar;
 
 class Q_EXPORT QAction : public QObject
 {
@@ -66,7 +67,7 @@ public:
     QString menuText() const;
     virtual void setToolTip( const QString& );
     QString toolTip() const;
-    virtual void setStatusTip( const QString& );
+    virtual void setStatusTip( const QString&, QStatusBar* bar = 0 );
     QString statusTip() const;
     virtual void setWhatsThis( const QString& );
     QString whatsThis() const;
