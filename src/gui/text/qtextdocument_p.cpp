@@ -233,7 +233,7 @@ void QTextDocumentPrivate::insert_block(int pos, uint strPos, int format, int bl
 
     QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blockFormat));
     if (group)
-        group->insertBlock(QTextBlock(this, b));
+        group->blockInserted(QTextBlock(this, b));
 
     QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(formats.format(format)));
     if (frame) {
@@ -364,7 +364,7 @@ int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, U
 
     QTextBlockGroup *group = qt_cast<QTextBlockGroup *>(objectForFormat(blocks.fragment(b)->format));
     if (group)
-        group->removeBlock(QTextBlock(this, b));
+        group->blockRemoved(QTextBlock(this, b));
 
     QTextFrame *frame = qt_cast<QTextFrame *>(objectForFormat(fragments.fragment(x)->format));
     if (frame) {
@@ -529,9 +529,9 @@ void QTextDocumentPrivate::setBlockFormat(const QTextBlock &from, const QTextBlo
 
         if (group != oldGroup) {
             if (oldGroup)
-                oldGroup->removeBlock(it);
+                oldGroup->blockRemoved(it);
             if (group)
-                group->insertBlock(it);
+                group->blockInserted(it);
         } else if (group) {
 	    group->blockFormatChanged(it);
 	}
@@ -654,9 +654,9 @@ void QTextDocumentPrivate::undoRedo(bool undo)
             c.format = oldFormat;
             if (group != oldGroup) {
                 if (oldGroup)
-                    oldGroup->removeBlock(it);
+                    oldGroup->blockRemoved(it);
                 if (group)
-                    group->insertBlock(it);
+                    group->blockInserted(it);
             } else if (group) {
                 group->blockFormatChanged(it);
             }
