@@ -646,18 +646,23 @@ buttons.
 \scan eg/richedit/richedit.cpp /::fileOpen/ /^}/ 
 </programlisting>
 	    The \fn[fileOpen()] function asks the user to choose a file
-	    and loads the file. We declare the fileName variable and
-	    initialize it with the result of a call to
-	    \fn[QFileDialog::getOpenFileName()]. 
+	    using \fn[QFileDialog::getOpenFileName()]. If they 
+	    choose a file we set the fileName member to its name, open
+	    it and read its contents directly into the text edit via a
+	    text stream. 
 	    \P
 
 	    \p
 <programlisting>
 \scan eg/richedit/richedit.cpp /::fileSave\(/ /^}/ 
 </programlisting>
-	    The \fn[fileSave] function saves the text, prompting the
-	    user for a file name if necessary by calling
-	    \fn[fileSaveAs()]. 
+	    If there is no current file name we call
+	    <function>fileSaveAs()</function> which will prompt for a
+	    file name and if a file name is given calls
+	    <function>fileSave()</function>. If we have a file name we
+	    open a file and write the text from the text edit into the
+	    file via a text stream. We also set the text edit's modified
+	    property to FALSE.
 	    \P
 
 	    \p
@@ -665,7 +670,8 @@ buttons.
 \scan eg/richedit/richedit.cpp /::fileSaveAs/ /^}/ 
 </programlisting>
 	    The \fn[fileSaveAs] function prompts the user for a file
-	    name and saves the file using the name they chose.
+	    name and if they give a file name, saves the text to the
+	    file by calling <function>fileSave()</function>.
 	    \P
 
 	    \p
@@ -724,8 +730,8 @@ buttons.
 	\p
 	With all the connections and code in place we are now ready to
 	make our application run. Click on the Source tab of the Object
-	Hierarchy window and click on the Includes (in Declaration)
-	item. We need to include those files that our source code
+	Hierarchy window and click on the Includes (in Implementation)
+	item. We need to include the files that our source code
 	depends on. Right click the Includes item and click New. Type in
 	\c[&lt;qapplication.h&gt;] for \fn[fileExit()]'s \fn[exit()] call.
 	In the same way add \c[&lt;qmessagebox.h&gt;] for
@@ -735,8 +741,15 @@ buttons.
 	in \fn[init()].
 	\P
 
+	<para>
+	We referred to a member variable, <literal>fileName</literal>,
+	in our source code so we must add it to the form. Click the
+	Source tab, right click the Class Variables item, click New from
+	the pop up menu, then enter 'QString fileName;'.
+	</para>
+
 	\p
-	Create a a \f[main.cpp] file in a plain text editor. Ours looks
+	Create a \f[main.cpp] file in a plain text editor. Ours looks
 	like this:
 <programlisting>
 \scan eg/richedit/main.cpp /#include/ /^$/  

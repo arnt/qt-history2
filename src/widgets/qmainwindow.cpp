@@ -506,8 +506,8 @@ public:
     that we must write for ourselves; this is the usual approach to
     using QMainWindow. (The source for the extracts in this description
     are taken from \l application/main.cpp, \l
-    application/application.cpp, action/main.cpp, \l
-    and action/application.cpp )
+    application/application.cpp, \l action/main.cpp, 
+    and \l action/application.cpp )
 
     When subclassing we add the menu items and toolbars in the
     subclass's constructor. If we've created a QMainWindow instance
@@ -1462,8 +1462,7 @@ bool QMainWindow::event( QEvent * e )
 
 
 /*!  
-    Returns whether uses big pixmaps is enabled. The initial state is
-    FALSE. 
+    Returns TRUE if big pixmaps is enabled, otherwise returns FALSE.
 
   \sa setUsesBigPixmaps();
 */

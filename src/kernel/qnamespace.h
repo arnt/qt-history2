@@ -697,11 +697,11 @@ public:
     
     // Documented in qstring.cpp
     enum StringComparisonMode {
-        CaseSensitive   = 0x00001,
-        BeginsWith      = 0x00100,
-        EndsWith        = 0x01000,
-        Contains        = 0x10000,
-        ExactMatch      = 0x00010
+        CaseSensitive   = 0x00001, // 0 0001
+        BeginsWith      = 0x00002, // 0 0010
+        EndsWith        = 0x01004, // 0 0100
+        Contains        = 0x10008, // 0 1000
+        ExactMatch      = 0x00010  // 1 0000
     };
 
     // "handle" type for system objects.
