@@ -1096,13 +1096,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		filterlist << *it;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
 	    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		QMap<QString, QString> extensionFilterMap;
-		iface->fileFilters( extensionFilterMap );
-		for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
-		      it != extensionFilterMap.end(); ++it ) {
-		    filterlist << *it;
-		    additionalSources << it.key();
-		}
+		filterlist +=  iface->fileFilterList();
+		additionalSources += iface->fileExtensionList();
 	    }
 	    filterlist << tr( "All Files (*)" );
 	} else {

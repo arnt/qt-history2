@@ -76,15 +76,9 @@ bool SourceFile::save()
 bool SourceFile::saveAs()
 {
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    QMap<QString, QString> extensionFilterMap;
     QString filter;
-    if ( iface ) {
-	iface->fileFilters( extensionFilterMap );
-	for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
-	      it != extensionFilterMap.end(); ++it ) {
-	    filter += ";;" + *it;
-	}
-    }
+    if ( iface )
+	filter = iface->fileFilterList().join(";;");
 
     QString fn = QFileDialog::getSaveFileName( pro->makeAbsolute( filename ), filter );
     if ( fn.isEmpty() )

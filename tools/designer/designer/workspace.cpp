@@ -269,7 +269,7 @@ void WorkspaceItem::setOpen( bool b )
     autoOpen = FALSE;
 }
 
-void WorkspaceItem::setAutoOpen( bool b ) 
+void WorkspaceItem::setAutoOpen( bool b )
 {
     QListViewItem::setOpen( b );
     autoOpen = b;
@@ -296,9 +296,11 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     addColumn( tr( "Files" ) );
     setAllColumnsShowFocus( TRUE );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
-	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
+	     this, SLOT( itemClicked( int, QListViewItem *, const QPoint& ) ) ),
+    connect( this, SIGNAL( doubleClicked( QListViewItem * ) ),
+	     this, SLOT( itemDoubleClicked( QListViewItem * ) ) ),
     connect( this, SIGNAL( contextMenuRequested( QListViewItem *, const QPoint &, int ) ),
-	     this, SLOT( rmbClicked( QListViewItem * ) ) ),
+	     this, SLOT( rmbClicked( QListViewItem *, const QPoint& ) ) ),
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOn );
     viewport()->setAcceptDrops( TRUE );
@@ -421,7 +423,7 @@ void Workspace::activeFormChanged( FormWindow *fw )
     if ( i ) {
 	setCurrentItem( i );
 	setSelected( i, TRUE );
-	if ( !i->isOpen() ) 
+	if ( !i->isOpen() )
 	    i->setAutoOpen( TRUE );
     }
 
@@ -449,7 +451,7 @@ void Workspace::activeEditorChanged( SourceEditor *se )
 	    setSelected( i, TRUE );
 	}
     }
-    
+
     closeAutoOpenItems();
 }
 
@@ -494,7 +496,13 @@ void Workspace::closeEvent( QCloseEvent *e )
     e->accept();
 }
 
-void Workspace::itemClicked( int button, QListViewItem *i )
+void Workspace::itemDoubleClicked( QListViewItem *i )
+{
+    if ( ( (WorkspaceItem*)i)->type()== WorkspaceItem::ProjectType )
+	i->setOpen( TRUE );
+}
+
+void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 {
     if ( !i || button != LeftButton )
 	return;
@@ -551,86 +559,53 @@ void Workspace::contentsDragMoveEvent( QDragMoveEvent *e )
 	e->accept();
 }
 
-void Workspace::rmbClicked( QListViewItem *i )
+void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 {
     if ( !i )
 	return;
-    QPopupMenu menu( this );
     WorkspaceItem* wi = (WorkspaceItem*)i;
-    if ( wi->type() == WorkspaceItem::SourceFileType ) {
- 	const int OPEN_SOURCE = menu.insertItem( tr( "&Open source file..." ) );
- 	int REMOVE_SOURCE = -2;
+    enum { OPEN_SOURCE, REMOVE_SOURCE, OPEN_FORM, REMOVE_FORM, OPEN_FORM_SOURCE };
+    QPopupMenu menu( this );
+    switch ( wi->type() ) {
+    case WorkspaceItem::SourceFileType:
+	menu.insertItem( tr( "&Open source file..." ), OPEN_SOURCE );
 	menu.insertSeparator();
-	REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
-	int id = menu.exec( QCursor::pos() );
-	if ( id == -1 )
-	    return;
-	if ( id == REMOVE_SOURCE ) {
-	    project->removeSourceFile( wi->sourceFile );
-	} else if ( id == OPEN_SOURCE ) {
-	    itemClicked( LeftButton, i );
-	}
+	menu.insertItem( tr( "&Remove source file from project" ), REMOVE_SOURCE );
+	break;
+    case WorkspaceItem::FormFileType:
+	menu.insertItem( tr( "&Open form ..." ), OPEN_FORM );
+	menu.insertSeparator();
+	menu.insertItem( tr( "&Remove form from project" ), REMOVE_FORM );
+	break;
+    case WorkspaceItem::FormSourceType:
+	menu.insertItem( tr( "&Open form source  ..." ), OPEN_FORM_SOURCE );
+	menu.insertSeparator();
+	menu.insertItem( tr( "&Remove form from project" ), REMOVE_FORM );
+	break;
+    default:
+	return;
     }
-
-
-//     if ( i->rtti() == WorkspaceItem::Form || i->text( 0 ) == tr( "Forms" ) ) {
-// 	QPopupMenu menu( this );
-
-// 	const int OPEN_FORM = menu.insertItem( tr( "&Open form" ) );
-// 	int REMOVE_FORM = -2;
-// 	if ( i->rtti() == WorkspaceItem::Form ) {
-// 	    menu.insertSeparator();
-// 	    REMOVE_FORM = menu.insertItem( tr( "&Remove form from project" ) );
-// 	}
-// 	int id = menu.exec( QCursor::pos() );
-
-// 	if ( id == -1 )
-// 	    return;
-
-// 	if ( id == REMOVE_FORM ) {
-// 	    removeFormFromProject( i );
-// 	} else if ( id == OPEN_FORM ) {
-// 	    itemClicked( LeftButton, i );
-// 	}
-//     } else if ( i->rtti() == WorkspaceItem::Source || i->text( 0 ) == tr("Source Files") ) {
-// 	QPopupMenu menu( this );
-
-// 	const int OPEN_SOURCE = menu.insertItem( tr( "&Open source file..." ) );
-// 	int REMOVE_SOURCE = -2;
-// 	if ( i->rtti() == WorkspaceItem::Source ) {
-// 	    menu.insertSeparator();
-// 	    REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
-// 	}
-// 	int id = menu.exec( QCursor::pos() );
-
-// 	if ( id == -1 )
-// 	    return;
-
-// 	if ( id == REMOVE_SOURCE ) {
-// 	    removeSourceFromProject( i );
-// 	} else if ( id == OPEN_SOURCE ) {
-// 	    itemClicked( LeftButton, i );
-// 	}
-//     }
+    switch ( menu.exec( pos ) ) {
+    case REMOVE_SOURCE:
+	project->removeSourceFile( wi->sourceFile );
+	break;
+    case OPEN_SOURCE:
+	itemClicked( LeftButton, i, pos );
+	break;
+    case REMOVE_FORM:
+	project->removeFormFile( wi->formFile );
+	break;
+    case OPEN_FORM:
+	itemClicked( LeftButton, i, pos );
+	break;
+    case OPEN_FORM_SOURCE:
+	itemClicked( LeftButton, i, pos );
+	break;
+    default:
+	break;
+    }
 }
-
-// void Workspace::formNameChanged( FormWindow *fw )
-// {
-//     QListViewItemIterator it( this );
-//     while ( it.current() ) {
-// 	if ( it.current()->rtti() == WorkspaceItem::Form ) {
-// 	    WorkspaceItem *i = (WorkspaceItem*)it.current();
-// 	    if ( i->formWindow() == fw ) {
-// 		bufferEdit->removeCompletionEntry( i->text( 0 ) );
-// 		i->setText( 0, fw->name() );
-// 		bufferEdit->addCompletionEntry( i->text( 0 ) );
-// 		break;
-// 	    }
-// 	}
-// 	++it;
-//     }
-// }
-
+	
 bool Workspace::eventFilter( QObject *o, QEvent * e )
 {
     if ( o ==bufferEdit )
@@ -674,7 +649,7 @@ void Workspace::bufferChosen( const QString &buffer )
     QListViewItemIterator it( this );
     while ( it.current() ) {
 	if ( ( (WorkspaceItem*)it.current())->checkCompletion( buffer ) ) {
-	    itemClicked( LeftButton, it.current() );
+	    itemClicked( LeftButton, it.current(), QPoint() );
 	    break;
 	}
 	++it;

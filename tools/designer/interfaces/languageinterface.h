@@ -91,7 +91,8 @@ struct LanguageInterface : public QUnknownInterface
     virtual QStringList definitionEntries( const QString &definition, QUnknownInterface *designerIface ) const = 0;
     virtual void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface ) = 0;
     virtual bool supports( Support s ) const = 0;
-    virtual void fileFilters( QMap<QString, QString> &extensionFilterMap ) const = 0;
+    virtual QStringList fileFilterList() const = 0;
+    virtual QStringList fileExtensionList() const = 0;
     virtual void preferedExtensions( QMap<QString, QString> &extensionMap ) const = 0;
     virtual QString projectKeyForExtension( const QString &extension ) const = 0;
     virtual void sourceProjectKeys( QStringList &keys ) const = 0;

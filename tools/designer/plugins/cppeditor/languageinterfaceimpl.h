@@ -42,7 +42,8 @@ public:
     QString createArguments( const QStringList &args );
     QString createEmptyFunction();
     bool supports( Support s ) const;
-    void fileFilters( QMap<QString, QString> & ) const;
+    QStringList fileFilterList() const;
+    QStringList fileExtensionList() const;
     void preferedExtensions( QMap<QString, QString> &extensionMap ) const;
     void sourceProjectKeys( QStringList &keys ) const;
     QString projectKeyForExtension( const QString &extension ) const;

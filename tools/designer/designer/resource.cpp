@@ -1851,7 +1851,7 @@ void Resource::saveConnections( QTextStream &ts, int indent )
 		continue;
 	}
 
-	ts << makeIndent( indent ) << "<connection language=\"C++\">" << endl;
+	ts << makeIndent( indent ) << "<connection>" << endl;
 	indent++;
 	ts << makeIndent( indent ) << "<sender>" << entitize( conn.sender->name() ) << "</sender>" << endl;
 	ts << makeIndent( indent ) << "<signal>" << entitize( conn.signal ) << "</signal>" << endl;
@@ -2217,10 +2217,16 @@ void Resource::saveMetaInfo( QTextStream &ts, int indent )
 	    QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
 	    for ( ; it != slotList.end(); ++it ) {
 		MetaDataBase::Slot slot = *it;
-		ts << makeIndent( indent ) << "<slot access=\"" << slot.access
-		   << "\" specifier=\"" << slot.specifier << "\" language=\"" << slot.language
-		   << "\" returnType=\"" << slot.returnType  << "\">"
-		   << entitize( slot.slot ) << "</slot>" << endl;
+		ts << makeIndent( indent ) << "<slot";
+		if ( slot.access != "public" )
+		    ts << " access=\"" << slot.access << "\"";
+		if ( slot.specifier != "virtual" )
+		    ts << " specifier=\"" << slot.specifier << "\"";
+		if ( slot.language != "C++" )
+		    ts << " language=\"" << slot.language<< "\"";
+		if ( slot.returnType != "void" )
+		    ts << " returnType=\"" << slot.returnType  << "\"";
+		ts << ">" << entitize( slot.slot ) << "</slot>" << endl;
 	    }
 	    indent--;
 	    ts << makeIndent( indent ) << "</slots>" << endl;

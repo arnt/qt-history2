@@ -168,17 +168,18 @@ bool LanguageInterfaceImpl::supports( Support s ) const
     return FALSE;
 }
 
-void LanguageInterfaceImpl::fileFilters( QMap<QString, QString> &extensionFilterMap ) const
+QStringList LanguageInterfaceImpl::fileFilterList() const
 {
-    extensionFilterMap.insert( "cpp", "C++ Files (*.cpp)" );
-    extensionFilterMap.insert( "C", "C++ Files (*.C)" );
-    extensionFilterMap.insert( "cxx", "C++ Files (*.cxx)" );
-    extensionFilterMap.insert( "c++", "C++ Files (*.c++)" );
-    extensionFilterMap.insert( "c", "C Files (*.c)" );
-    extensionFilterMap.insert( "h", "Header Files (*.h)" );
-    extensionFilterMap.insert( "H", "Header Files (*.H)" );
-    extensionFilterMap.insert( "hpp", "Header Files (*.hpp)" );
-    extensionFilterMap.insert( "hxx", "Header Files (*.hxx)" );
+    QStringList f;
+    f << "C++ Files (*.cpp *.C *.cxx *.c++ *.c *.h *.H *.hpp *.hxx)";
+    return f;
+    
+}
+QStringList LanguageInterfaceImpl::fileExtensionList() const
+{
+    QStringList f;
+    f << "cpp" << "C" << "cxx" << "c++" << "c" <<"h" << "H" << "hpp" << "hxx"; 
+    return f;
 }
 
 QString LanguageInterfaceImpl::projectKeyForExtension( const QString &extension ) const

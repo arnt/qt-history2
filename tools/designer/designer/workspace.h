@@ -63,10 +63,10 @@ public:
     FormFile* formFile;
 
     void setOpen( bool );
-    
+
     void setAutoOpen( bool );
     bool isAutoOpen() const { return isOpen() && autoOpen; }
-    
+
     bool useOddColor;
 
 private:
@@ -105,8 +105,9 @@ protected:
 
 
 private slots:
-    void itemClicked( int, QListViewItem *i );
-    void rmbClicked( QListViewItem *i );
+    void itemClicked( int, QListViewItem *i, const QPoint& pos  );
+    void itemDoubleClicked( QListViewItem *i );
+    void rmbClicked( QListViewItem *i, const QPoint& pos  );
     void bufferChosen( const QString &buffer );
 
     void projectDestroyed( QObject* );
