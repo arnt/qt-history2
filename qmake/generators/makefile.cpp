@@ -661,7 +661,12 @@ MakefileGenerator::init()
 	if(!project->variables()["MOC_DIR"].isEmpty())
 	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
-	v["SRCMOC"] = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
+
+	QStringList &l = v["SRCMOC"];
+	l = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) 
+	    if(!(*val_it).isEmpty()) 
+		(*val_it) = Option::fixPathToTargetOS((*val_it));
     }
 }
 
@@ -951,7 +956,7 @@ QString MakefileGenerator::build_args()
 	    ret += " QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
 
 	//output
-	QString ofile = Option::output.name();
+	QString ofile = Option::fixPathToTargetOS(Option::output.name());
 	if(ofile.findRev(Option::dir_sep) != -1)
 	    ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 	if (!ofile.isEmpty() && ofile != project->first("QMAKE_MAKEFILE"))
@@ -1001,6 +1006,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+    ofile = Option::fixPathToTargetOS(ofile);
 
     QString qmake = build_args();
     QString pfile = project->projectFile();
@@ -1025,8 +1031,8 @@ MakefileGenerator::fileFixify(QStringList &files) const
 	return FALSE;
     int ret = 0;
     for(QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-	if(!(*it).isEmpty())
-	    ret += (int)fileFixify(*it);
+	if(!(*it).isEmpty()) 
+	    ret += (int)fileFixify((*it));
     return ret != 0;
 }
 

@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 			using_stdout = TRUE;
 		    } else {
 			if(QDir::isRelativePath(Option::output.name()))
-			    Option::output.setName(oldpwd + Option::dir_sep + Option::output.name());
+			    Option::output.setName(Option::fixPathToLocalOS(oldpwd + Option::dir_sep + Option::output.name()));
 
 			QFileInfo fi(Option::output);
 			Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());

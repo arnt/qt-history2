@@ -301,7 +301,7 @@ Option::fixPathToLocalOS(QString in)
 #if defined(Q_OS_WIN32)
     return in.replace(QRegExp("/"), "\\");
 #else
-    return in.replace(QRegExp("\\"), "/");
+    return in.replace(QRegExp("\\\\"), "/");
 #endif
 }
 
