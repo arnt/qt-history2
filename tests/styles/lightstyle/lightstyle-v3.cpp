@@ -716,8 +716,7 @@ void LightStyleV3::drawPrimitive(PrimitiveElement pe,
 		a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
 		break;
 
-	    default:
-		break;
+	    default: break;
 	    }
 
 	    if (a.isNull())
@@ -1103,6 +1102,8 @@ QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
 	    rect.addCoords(-1, -1, 1, 1);
 	    return rect;
 	}
+
+    default: break;
     }
 
     return QCommonStyle::subRect(subrect, widget);
@@ -1395,6 +1396,8 @@ QRect LightStyleV3::querySubControlMetrics(ComplexControl control,
 	    case SC_ComboBoxEditField:
 		return QRect(fw, fw, widget->width() - fw*2 - sb - 1,
 			     widget->height() - fw*2);
+
+	    default: break;
 	    }
 
 	    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
@@ -1457,6 +1460,8 @@ QRect LightStyleV3::querySubControlMetrics(ComplexControl control,
 		if (scrollbar->orientation() == Qt::Horizontal)
 		    return QRect(sliderstart, 0, sliderlen, sbextent);
 		return QRect(0, sliderstart, sbextent, sliderlen);
+
+	    default: break;
 	    }
 
 	    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
@@ -1482,10 +1487,14 @@ QRect LightStyleV3::querySubControlMetrics(ComplexControl control,
 			return QRect(pos + 2, tickOffset + 2, len - 4, thickness - 4);
 		    return QRect(tickOffset + 2, pos + 2, thickness - 4, len - 4);
 		}
+
+	    default: break;
 	    }
 
 	    return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 	}
+
+    default: break;
     }
 
     return QCommonStyle::querySubControlMetrics(control, widget, sc, data);
@@ -1574,6 +1583,8 @@ int LightStyleV3::pixelMetric(PixelMetric metric,
 		thick += (space * 2) / (n + 2);
 	    return thick;
 	}
+
+    default: break;
     }
 
     return QCommonStyle::pixelMetric(metric, widget);
@@ -1673,6 +1684,8 @@ QSize LightStyleV3::sizeFromContents(ContentsType contents,
 
 	    return QSize(w, h);
 	}
+
+    default: break;
     }
 
     return QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
@@ -1703,6 +1716,8 @@ int LightStyleV3::styleHint(StyleHint stylehint,
 
     case SH_ScrollBar_BackgroundMode:
 	return NoBackground;
+
+    default: break;
     }
 
     return QCommonStyle::styleHint(stylehint, widget, option, returnData);
