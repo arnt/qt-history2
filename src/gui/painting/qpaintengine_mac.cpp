@@ -1039,7 +1039,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         w = pat->pixmap->width();
         h = pat->pixmap->height();
         if(!pat->image)
-            pat->image = qt_mac_create_cgimage(*pat->pixmap, true);
+            pat->image = qt_mac_create_cgimage(*pat->pixmap, false);
     }
     CGRect rect = CGRectMake(0, 0, w, h);
     HIViewDrawCGImage(c, &rect, pat->image); //HIViews render the way we want anyway, so just use the convenience..
@@ -1071,13 +1071,13 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev,
-                            GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale|LinearGradientSupport))
+                            GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale|LinearGradientSupport))
+    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
 {
     d->pdev = pdev;
 }
@@ -1616,10 +1616,12 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     if(pm.isNull())
         return;
 
-    CGImageRef image = qt_mac_create_cgimage(pm, imask);
+    const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();        
+    CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
+
     CGContextSaveGState(d->hd);
     QRegion rgn(r); qt_mac_clip_cg(d->hd, rgn, 0);
-    CGRect rect = CGRectMake(r.x()-sr.x(), r.y()-sr.y(), r.width(), r.height());
+    CGImageRef image = qt_mac_create_cgimage(pm, imask);
     HIViewDrawCGImage(d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
     CGContextRestoreGState(d->hd);
     CGImageRelease(image);
