@@ -122,14 +122,14 @@ QTabBar *QAccessibleTabBar::tabBar() const
     return qt_cast<QTabBar*>(object());
 }
 
-QButton *QAccessibleTabBar::button(int child) const
+QAbstractButton *QAccessibleTabBar::button(int child) const
 {
     if (child <= tabBar()->count())
         return 0;
     if (child - tabBar()->count() == 1)
-        return qFindChild<QButton*>(tabBar(), "qt_left_btn");
+        return qFindChild<QAbstractButton*>(tabBar(), "qt_left_btn");
     if (child - tabBar()->count() == 2)
-        return qFindChild<QButton*>(tabBar(), "qt_right_btn");
+        return qFindChild<QAbstractButton*>(tabBar(), "qt_right_btn");
     Q_ASSERT(false);
     return 0;
 }
