@@ -4,7 +4,7 @@
 #include <qabstractbutton.h>
 #include <qbutton.h>
 #include <qevent.h>
-#include <q3header.h>
+#include <qgenericheader.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
@@ -31,20 +31,20 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
 : QAccessibleWidget(w)
 {
     Q_ASSERT(header());
-    addControllingSignal("clicked(int)");
+    addControllingSignal("sectionClicked(int, Qt::ButtonState)");
 }
 
-/*! Returns the Q3Header. */
-Q3Header *QAccessibleHeader::header() const
+/*! Returns the QGenericHeader. */
+QGenericHeader *QAccessibleHeader::header() const
 {
-    return qt_cast<Q3Header*>(object());
+    return qt_cast<QGenericHeader*>(object());
 }
 
 /*! \reimp */
 QRect QAccessibleHeader::rect(int child) const
 {
     QPoint zero = header()->mapToGlobal(QPoint(0, 0));
-    QRect sect = header()->sectionRect(child - 1);
+    QRect sect = header()->itemViewportRect(header()->itemAt(child - 1, 0));
     return QRect(sect.x() + zero.x(), sect.y() + zero.y(), sect.width(), sect.height());
 }
 
@@ -62,7 +62,7 @@ QString QAccessibleHeader::text(Text t, int child) const
     if (child <= childCount()) {
         switch (t) {
         case Name:
-            str = header()->label(child - 1);
+            str = header()->model()->data(header()->itemAt(child - 1, 0)).toString();
             break;
         case Description: {
             QAccessibleEvent event(QAccessibleEvent::Description, child);
@@ -95,15 +95,13 @@ int QAccessibleHeader::state(int child) const
     int state = QAccessibleWidget::state(child);
 
     int section = child ? child - 1 : -1;
-    if (!header()->isClickEnabled(section))
+    if (header()->isSectionHidden(section))
+        state |= Invisible;
+    if (!header()->isClickable())
         state |= Unavailable;
-    else
-        state |= Selectable;
-    if (child && section == header()->sortIndicatorSection())
-        state |= Selected;
-    if (header()->isResizeEnabled(section))
+    if (header()->resizeMode(section) != QGenericHeader::Custom)
         state |= Sizeable;
-    if (child && header()->isMovingEnabled())
+    if (child && header()->isMovable())
         state |= Moveable;
     return state;
 }
@@ -238,7 +236,7 @@ bool QAccessibleTabBar::doAction(int, int child, const QVariantList &)
         return false;
 
     if (child > tabBar()->count()) {
-        QButton *bt = button(child);
+        QAbstractButton *bt = button(child);
         if (!bt->isEnabled())
             return false;
         bt->animateClick();

@@ -2,7 +2,6 @@ TEMPLATE = lib
 TARGET  += qtwidgets
 
 CONFIG  += qt dll plugin
-QT      += compat
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
 VERSION  = 1.0.0
 
@@ -20,5 +19,3 @@ HEADERS  += qaccessiblewidgets.h \
 	    rangecontrols.h \
 	    complexwidgets.h \
 	    qaccessiblemenu.h
-
-DEFINES += QT_COMPAT_WARNINGS

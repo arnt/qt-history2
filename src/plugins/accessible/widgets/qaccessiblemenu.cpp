@@ -76,7 +76,7 @@ QString QAccessiblePopup::text(Text t, int child) const
     case Help:
         return popupMenu()->actions()[child-1]->whatsThis();
     case Accelerator:
-        return (QString)popupMenu()->actions()[child-1]->accel();
+        return (QString)popupMenu()->actions()[child-1]->shortcut();
     default:
         break;
     }
@@ -116,7 +116,7 @@ int QAccessiblePopup::state(int child) const
     return s;
 }
 
-bool QAccessiblePopup::doAction(int act, int child, const QVariantList &)
+bool QAccessiblePopup::doAction(int /*act*/, int child, const QVariantList &)
 {
     if (!child)
         return false;
@@ -253,7 +253,7 @@ int QAccessibleMenuBar::state(int child) const
     return s;
 }
 
-bool QAccessibleMenuBar::doAction(int act, int child, const QVariantList &)
+bool QAccessibleMenuBar::doAction(int /*act*/, int child, const QVariantList &)
 {
     if (!child)
         return false;

@@ -186,7 +186,7 @@ QToolButton *QAccessibleToolButton::toolButton() const
 */
 bool QAccessibleToolButton::isSplitButton() const
 {
-    return toolButton()->popup() && !toolButton()->popupDelay();
+    return toolButton()->menu() && !toolButton()->popupDelay();
 }
 
 /*! \reimp */
@@ -207,7 +207,7 @@ int QAccessibleToolButton::state(int child) const
     int st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
         st |= HotTracked;
-    if (toolButton()->popup() && child != ButtonExecute)
+    if (toolButton()->menu() && child != ButtonExecute)
         st |= HasPopup;
     return st;
 }
@@ -258,7 +258,7 @@ QString QAccessibleToolButton::text(Text t, int child) const
     case Name:
         str = toolButton()->text();
         if (str.isEmpty())
-            str = toolButton()->textLabel();
+            str = toolButton()->text();
         break;
     default:
         break;
@@ -281,7 +281,7 @@ int QAccessibleToolButton::actionCount(int child) const
         return isSplitButton() ? 1 : 0;
     int ac = widget()->focusPolicy() != Qt::NoFocus ? 1 : 0;
     // button itself has two actions if a menu button
-    return ac + (toolButton()->popup() ? 2 : 1);
+    return ac + (toolButton()->menu() ? 2 : 1);
 }
 
 /*!
@@ -304,7 +304,7 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
         case 0:
             return QToolButton::tr("Press");
         case 1:
-            if (toolButton()->popup())
+            if (toolButton()->menu())
                 return QToolButton::tr("Open");
             //fall through
         case 2:
@@ -324,7 +324,7 @@ bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &
     if (action == 1 || child == ButtonDropMenu) {
         if(!child)
             toolButton()->setDown(true);
-        toolButton()->openPopup();
+        toolButton()->showMenu();
         return true;
     }
     return QAccessibleButton::doAction(action, 0, params);
