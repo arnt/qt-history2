@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#41 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#42 $
 **
 ** Implementation of QFontDialog
 **
@@ -190,8 +190,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->colorAccel->setMargin( 2 );
 #endif
 
-    d->sample = new QHGroupBox( tr("sample"), this, "sample text" );
-    d->sample->setTitle( tr("Sample") );
+    d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
 
     // Note that the sample text is *not* translated with tr(), as the

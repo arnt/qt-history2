@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#92 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#93 $
 **
 ** Implementation of QTabDialog class
 **
@@ -194,7 +194,7 @@ QTabPrivate::QTabPrivate()
 	: tw(0),
 	  ok(0), cb(0), db(0), hb(0), ab(0),
 	  tll(0)
-{}
+{ }
 
 /*!
   Constructs a QTabDialog with only an Ok button.

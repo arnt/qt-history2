@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#13 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#14 $
 **
 ** Implementation of QColorDialog class
 **
@@ -392,37 +392,37 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     gl->addMultiCellWidget(lab, 0,-1,0,0);
 
     hEd = new QColNumLineEdit( this );
-    QLabel *l = new QLabel( hEd, tr("Hu&e:"), this );
+    QLabel *l = new QLabel( hEd, QColorDialog::tr("Hu&e:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 0, 1 );
     gl->addWidget( hEd, 0, 2 );
 
     sEd = new QColNumLineEdit( this );
-    l = new QLabel( sEd, tr("&Sat:"), this );
+    l = new QLabel( sEd, QColorDialog::tr("&Sat:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 1, 1 );
     gl->addWidget( sEd, 1, 2 );
 
     vEd = new QColNumLineEdit( this );
-    l = new QLabel( vEd, tr("&Val:"), this );
+    l = new QLabel( vEd, QColorDialog::tr("&Val:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 2, 1 );
     gl->addWidget( vEd, 2, 2 );
 
     rEd = new QColNumLineEdit( this );
-    l = new QLabel( hEd, tr("&Red:"), this );
+    l = new QLabel( hEd, QColorDialog::tr("&Red:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 0, 3 );
     gl->addWidget( rEd, 0, 4 );
 
     gEd = new QColNumLineEdit( this );
-    l = new QLabel( sEd, tr("&Green:"), this );
+    l = new QLabel( sEd, QColorDialog::tr("&Green:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 1, 3 );
     gl->addWidget( gEd, 1, 4 );
 
     bEd = new QColNumLineEdit( this );
-    l = new QLabel( bEd, tr("Bl&ue:"), this );
+    l = new QLabel( bEd, QColorDialog::tr("Bl&ue:"), this );
     l->setAlignment( AlignRight );
     gl->addWidget( l, 2, 3 );
     gl->addWidget( bEd, 2, 4 );
@@ -596,7 +596,8 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     standard = new QColorWell( dialog, 6, 8, stdrgb );
     standard->setCellSize( 28, 24 );
-    QLabel * lab = new QLabel( standard, tr( "&Basic colors") , dialog );
+    QLabel * lab = new QLabel( standard,
+			    QColorDialog::tr( "&Basic colors"), dialog );
     connect( standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
     leftLay->addWidget( lab );
     leftLay->addWidget( standard );
@@ -609,11 +610,12 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     nCust = 0;
 
     connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
-    lab = new QLabel( custom, tr( "&Custom colors") , dialog );
+    lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog );
     leftLay->addWidget( lab );
     leftLay->addWidget( custom );
 
-    QPushButton *custbut = new QPushButton( tr("&Define Custom Colors >>"),
+    QPushButton *custbut =
+	new QPushButton( QColorDialog::tr("&Define Custom Colors >>"),
 					    dialog );
     custbut->setEnabled( FALSE );
     leftLay->addWidget( custbut );
@@ -621,10 +623,10 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QHBoxLayout *buttons = new QHBoxLayout( leftLay );
 
     QPushButton *ok, *cancel;
-    ok = new QPushButton( tr("Ok"), dialog );
+    ok = new QPushButton( QColorDialog::tr("OK"), dialog );
     connect( ok, SIGNAL(clicked()), dialog, SLOT(accept()) );
     ok->setDefault(TRUE);
-    cancel = new QPushButton( tr("Cancel"), dialog );
+    cancel = new QPushButton( QColorDialog::tr("Cancel"), dialog );
     connect( cancel, SIGNAL(clicked()), dialog, SLOT(reject()) );
     buttons->addWidget( ok );
     buttons->addWidget( cancel );
@@ -656,7 +658,8 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     rightLay->addWidget( cs );
 
 
-    QPushButton *addCusBt = new QPushButton( tr("&Add To Custom Colors"),
+    QPushButton *addCusBt = new QPushButton(
+				    QColorDialog::tr("&Add To Custom Colors"),
 					     dialog );
     rightLay->addWidget( addCusBt );
     connect( addCusBt, SIGNAL(clicked()), this, SLOT(addCustom()) );

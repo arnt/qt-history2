@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#70 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#71 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -541,7 +541,7 @@ static QPrintDialog * globalPrintDialog = 0;
 
   At present, the only easy way to use the class is through the static
   function getPrinterSetup().  You can however also call the global
-  QPrintDialot::getPrinterConfigure(), or subclass in order to extend
+  QPrintDialog::getPrinterConfigure(), or subclass in order to extend
   one of the group boxes.
 
   Note that in 1.40 the printer dialog is a little too high for

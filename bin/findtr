@@ -54,7 +54,14 @@ sub outmsg {
     print "\n";
 }
 
+sub justlines {
+    my $l = @_;
+    $l =~ tr|\n||dc;
+    return $l;
+}
+
 print $header;
+
 
 foreach $file ( @ARGV ) {
     next unless open( I, "< $file" );
@@ -69,6 +76,10 @@ foreach $file ( @ARGV ) {
 
     # Hide quoted :: in practically all strings
     $source =~ s/\"([^"\n]*)::([^"\n]*)\"/\"$1$esc:$esc:$esc$2\"/g;
+
+    # strip comments
+    while( $source =~ s|/\*(.*?)\*/|justlines($1)|ges ) { }
+    while( $source =~ s|//(.*?)||g ) { }
 
     while( $source =~ /
 	    (?:

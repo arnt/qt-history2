@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#201 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#202 $
 **
 ** Implementation of QFileDialog class
 **
@@ -438,6 +438,25 @@ void QFileListBox::clear()
     QListBox::clear();
 }
 
+
+// some shared code
+static
+bool tryRename( QWidget* parent, const QString& newfile, QDir& dir, const QString& file, const QString& linetext )
+{
+    if ( QFile::exists( newfile ) ) {
+	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
+	       QFileDialog::tr( "A file with that name already exists." ) );
+	return FALSE;
+    }
+    if ( !dir.rename( file, linetext ) ) {
+	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
+	       QFileDialog::tr( "Could not rename the file." ) );
+	return FALSE;
+    }
+    return TRUE;
+}
+
+
 void QFileListBox::rename()
 {
     if ( !lined->text().isEmpty() ) {
@@ -449,12 +468,8 @@ void QFileListBox::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-            if ( QFile::exists( newfile ) || !dir.rename( file, lined->text() ) ) {
-                QMessageBox::critical( filedialog, tr( "ERROR: Renaming file" ),
-                                       tr( "Couldn't rename this file. Maybe a file\n"
-                                           "with the same already exists." ) );
-                return;
-            }
+	    if ( !tryRename( newfile, dir, file, lined->text() ) )
+		return;
 
             filedialog->rereadDir();
             filedialog->setSelection( newfile );
@@ -589,12 +604,8 @@ void QFileListView::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-            if ( QFile::exists( newfile ) || !dir.rename( file, lined->text() ) ) {
-                QMessageBox::critical( filedialog, tr( "ERROR: Renaming file" ),
-                                       tr( "Couldn't rename this file. Maybe a file\n"
-                                           "with the same already exists." ) );
-                return;
-            }
+	    if ( !tryRename( newfile, dir, file, lined->text() ) )
+		return;
 
             filedialog->rereadDir();
             filedialog->setSelection( newfile );
@@ -1492,7 +1503,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption(
-        qApp->translate("QFileDialog","Save As")
+        qApp->translate("QFileDialog","Save as")
         );
     QString result;
     if ( !initialSelection.isEmpty() )
@@ -1905,12 +1916,19 @@ void QFileDialog::deleteFile( const QString &filename )
         t = "symlink";
 
 
-    if ( QMessageBox::warning( d->moreFiles, tr( "Delete %1" ).arg( t ), QString( tr ("Do you really want to delete the %1\n" ).arg( t )
-                                                                          + filename + tr( "?" ) ),
-                               tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 ) {
+    if ( QMessageBox::warning( d->moreFiles,
+	    tr( "Delete %1" ).arg( t ),
+	    tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
+		.arg( t ).arg(filename),
+	    tr( "Yes" ), tr( "No" ), QString::null, 1 ) == 0 )
+    {
         if ( !cwd.remove( filename ) ) {
-            QMessageBox::critical( d->moreFiles, tr( "ERROR: Delete %1" ).arg( t ), QString( tr( "Could not delete the %1\n" ).arg( t )
-                                                                                    + filename + tr( "." ) ) );
+            QMessageBox::critical( d->moreFiles,
+		tr( "ERROR: Delete %1" ).arg( t ),
+		QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
+			    .arg( t )
+			    .arg(filename) )
+	    );
         }
         rereadDir();
     }
@@ -1971,7 +1989,7 @@ private:
 QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 	: QDialog(parent, name, TRUE)
 {
-	setCaption(tr("New Folder"));
+    setCaption(QFileDialog::tr("New Folder"));
 
     back = new QVBox( this );
     back->setMargin( 10 );
@@ -1979,7 +1997,7 @@ QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
 
     QHBox *row1 = new QHBox( back );
     row1->setSpacing( 5 );
-    QLabel *label = new QLabel( tr("&Folder name:"), row1);
+    QLabel *label = new QLabel( QFileDialog::tr("&Folder name:"), row1);
 	nameEdit = new QLineEdit( row1 );
     label->setBuddy( nameEdit );
     label->setAutoResize(TRUE);
@@ -1987,14 +2005,15 @@ QtNewFolderDialog::QtNewFolderDialog(QWidget *parent, const char *name)
     QHBox *row2 = new QHBox( back );
     row2->setSpacing( 5 );
     (void)new QWidget( row2 );
-	QPushButton *okButton = new QPushButton(tr("OK"), row2);
-	okButton->setDefault(TRUE);
-	connect(okButton, SIGNAL(clicked()), SLOT(accept()));
 
-	QPushButton *cancelButton = new QPushButton(tr("Cancel"), row2);
-	connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
+    QPushButton *okButton = new QPushButton(QFileDialog::tr("OK"), row2);
+    okButton->setDefault(TRUE);
+    connect(okButton, SIGNAL(clicked()), SLOT(accept()));
 
-	nameEdit->setFocus();
+    QPushButton *cancelButton = new QPushButton(QFileDialog::tr("Cancel"), row2);
+    connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
+
+    nameEdit->setFocus();
 
     resize( 300, 100 );
 }
@@ -2018,15 +2037,15 @@ void QFileDialog::newFolderClicked()
         if (!cwd.mkdir(dirname))
             if (cwd.exists(dirname))
                 QMessageBox::warning( this, tr("New Folder"),
-                                      QString( tr("Unable to create directory\n") )
-                                      + cwd.absPath() + "/" + dirname + "\n\n" +
-                                      tr("A file/directory with that name already exists."));
+		  tr("<qt>Unable to create directory \"%1\". "
+		      "A file/directory with that name already exists.</qt>"
+		    ).arg(cwd.absPath() + "/" + dirname) );
             else
                 QMessageBox::warning( this, tr("New Folder"),
-                                      QString( tr("Unable to create directory\n") )
-                                      + cwd.absPath() + "/" + dirname + "\n\n" +
-                                      tr("Please make sure that the current directory\n"
-                                         "is writable."));
+		  tr("<qt>Unable to create directory \"%1\". "
+		    "Please make sure that the current directory "
+		    "is writable.</qt>"
+		    ).arg(cwd.absPath() + "/" + dirname) );
         else
             rereadDir(); // This seem not to work!?
     }
