@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#98 $
 **
 ** Implementation of QTableView class
 **
@@ -1395,7 +1395,7 @@ void QTableView::paintEvent( QPaintEvent *e )
   The scroll bars are moved and cells repainted as necessary.
 */
 
-void QTableView::resizeEvent( QResizeEvent *e )
+void QTableView::resizeEvent( QResizeEvent * )
 {
     bool update = autoUpdate();
     setAutoUpdate( FALSE );
