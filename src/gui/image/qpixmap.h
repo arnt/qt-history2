@@ -214,6 +214,7 @@ protected:
         ColorTable *clut;
         QPixmap *alphapm;
         Qt::HANDLE cg_hd;
+        CGImageRef cgimage;
 #elif defined(Q_WS_QWS)
         int id;
         QRgb * clut;
