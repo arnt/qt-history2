@@ -2892,8 +2892,9 @@ void QTextEdit::setPalette( const QPalette &p )
 }
 
 /*! \internal
-
-  Do not use this function, it will go away.
+  \warning In Qt 3.1 we will provide a cleaer API for the
+  functionality which is provided by this function and in Qt 4.0 this
+  function will go away.
 
   Sets the paragraph style of the current paragraph
   to \a dm. If \a dm is QStyleSheetItem::DisplayListItem, the
@@ -4626,8 +4627,9 @@ void QTextEdit::clearUndoRedo()
 }
 
 /*!  \internal
-
-  Do not use this function, it will go away.
+  \warning In Qt 3.1 we will provide a cleaer API for the
+  functionality which is provided by this function and in Qt 4.0 this
+  function will go away.
 
   This function gets the format of the character at position \a
   index in paragraph \a para. Sets \a font to the character's font, \a
@@ -4654,8 +4656,9 @@ bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color, Vert
 }
 
 /*!  \internal
-
-  Do not use this function, it will go away.
+  \warning In Qt 3.1 we will provide a cleaer API for the
+  functionality which is provided by this function and in Qt 4.0 this
+  function will go away.
 
   This function gets the format of the paragraph \a para. Sets \a
   font to the paragraphs's font, \a color to the paragraph's color, \a
