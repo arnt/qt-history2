@@ -475,25 +475,25 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top><b>PE_Panel</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>line width for drawing the panel.</td>
+      <td valign=top>frame width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>PE_PanelPopup</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>line width for drawing the panel.</td>
+      <td valign=top>frame width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>PE_PanelMenuBar</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>line width for drawing the panel.</td>
+      <td valign=top>frame width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>PE_PanelDockWindow</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>line width for drawing the panel.</td>
+      <td valign=top>frame width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>

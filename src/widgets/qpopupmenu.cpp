@@ -258,6 +258,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tab = 0;
     ncols = 1;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
+    setLineWidth(style().pixelMetric(QStyle::PM_DefaultFrameWidth, this));
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
     connectModalRecursionSafety = 0;

@@ -246,7 +246,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	    tlw->installEventFilter( this );
     }
 
-    setFrameStyle( QFrame::MenuBarPanel );
+    setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
     setLineWidth( style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this) );
 
     QFontMetrics fm = fontMetrics();

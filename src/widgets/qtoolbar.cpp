@@ -377,7 +377,7 @@ void QToolBar::init()
 #endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
-    setFrameStyle( QFrame::ToolBarPanel );
+    setFrameStyle( QFrame::ToolBarPanel | QFrame::Raised);
 }
 
 /*! \reimp */
