@@ -17,9 +17,9 @@ INSTALLS += docs
 
 macx { #mac framework
     framework.path = /System/Library/Frameworks/Qt.framework
-    framework.extra  = -ln -sf $$docs.path /Developer/Documentation/Qt;
-    framework.extra += ln -sf $$target.path/$(TARGET) $$framework.path/Qt;
-    framework.extra += ln -sf $$headers.path $$framework.path/Headers;
-    framework.extra += ln -sf $$headers_p.path $$framework.path/Headers/private
+    framework.extra  = -cp -rf $$docs.path /Developer/Documentation/Qt;
+    framework.extra += cp -rf $$target.path/$(TARGET) $$framework.path/Qt;
+    framework.extra += cp -rf $$headers.path $$framework.path/Headers;
+    framework.extra += cp -rf $$headers_p.path $$framework.path/Headers/private
     INSTALLS += framework
 }
