@@ -1475,7 +1475,7 @@ QMap<QString, QVariant> QVariant::toMap() const
   \fn QDateTime QVariant::toDateTime() const
 
     Returns the variant as a QDateTime if the variant has type()
-    DateTime or String; otherwise returns an invalid date/time.
+    DateTime, Date or String; otherwise returns an invalid date/time.
 
     Note that if the type() is String an invalid date/time will be
     returned if the string cannot be parsed as a Qt::ISODate format
