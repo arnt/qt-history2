@@ -97,7 +97,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "DEBUG" ]	    = "no";
     dictionary[ "SHARED" ]	    = "yes";
 
-    dictionary[ "GIF" ]		    = "no";
+    dictionary[ "GIF" ]		    = "yes";
     dictionary[ "ZLIB" ]	    = "yes";
     dictionary[ "PNG" ]		    = "qt";
     dictionary[ "JPEG" ]	    = "qt";
@@ -107,13 +107,12 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LIBJPEG" ]	    = "qt";
     dictionary[ "LIBMNG" ]	    = "qt";
 
+    dictionary[ "COMPAT" ]	    = "yes";
     dictionary[ "ACCESSIBILITY" ]   = "yes";
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "TABLET" ]	    = "no";
     dictionary[ "OPENGL" ]	    = "yes";
-
-    // Always yes, since it is loaded dynamically
-    dictionary[ "IPV6" ]            = "yes";
+    dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
     dictionary[ "STYLE_MOTIF" ]	    = "no";
@@ -122,7 +121,9 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "STYLE_SGI" ]	    = "no";
     dictionary[ "STYLE_CDE" ]	    = "no";
     dictionary[ "STYLE_WINDOWSXP" ] = "no";
+    dictionary[ "STYLE_COMPACT" ]   = "no";
     dictionary[ "STYLE_POCKETPC" ]  = "no";
+    dictionary[ "STYLE_MAC" ]       = "no";
 
     dictionary[ "SQL_MYSQL" ]	    = "no";
     dictionary[ "SQL_ODBC" ]	    = "no";
@@ -1060,6 +1061,38 @@ void Configure::generateCachefile()
 }
 #endif
 
+QString Configure::addDefine(QString def)
+{
+    QString result, defNeg, defD = def;
+
+    defD.replace(QRegExp("=.*"), "");
+    def.replace(QRegExp("="), " ");
+
+    if(def.startsWith("QT_NO_")) {
+        defNeg = defD;
+        defNeg.replace("QT_NO_", "QT_");
+    } else if(def.startsWith("QT_")) {
+        defNeg = defD;
+        defNeg.replace("QT_", "QT_NO_");
+    }
+
+    if (defNeg.isEmpty()) {
+        result = "#ifndef $DEFD\n"
+                 "# define $DEF\n"
+                 "#endif\n\n";
+    } else {
+        result = "#if defined($DEFD) && defined($DEFNEG)\n"
+                 "# undef $DEFD\n"
+                 "#elif !defined($DEFD)\n"
+                 "# define $DEF\n"
+                 "#endif\n\n";
+    }
+    result.replace("$DEFNEG", defNeg);
+    result.replace("$DEFD", defD);
+    result.replace("$DEF", def);
+    return result;
+}
+
 #if !defined(EVAL)
 void Configure::generateConfigfiles()
 {
@@ -1071,7 +1104,7 @@ void Configure::generateConfigfiles()
     QFile outFile( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream outStream( &outFile );
+	outStream.setDevice(&outFile);
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
 	    outStream << "// Everything" << endl << endl;
@@ -1105,57 +1138,48 @@ void Configure::generateConfigfiles()
 	else
 	    outStream << "#define Q_BYTE_ORDER Q_LITTLE_ENDIAN" << endl;
 
-	outStream << "// Compile time features" << endl;
-	if( dictionary[ "STL" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STL" << endl;
-	    outStream << "#define QT_NO_STL" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_WINDOWS" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_WINDOWS" << endl;
-	    outStream << "#define QT_NO_STYLE_WINDOWS" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_WINDOWSXP" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_WINDOWSXP" << endl;
-	    outStream << "#define QT_NO_STYLE_WINDOWSXP" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_MOTIF" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_MOTIF" << endl;
-	    outStream << "#define QT_NO_STYLE_MOTIF" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_MOTIFPLUS" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_MOTIFPLUS" << endl;
-	    outStream << "#define QT_NO_STYLE_MOTIFPLUS" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_PLATINUM" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_PLATINUM" << endl;
-	    outStream << "#define QT_NO_STYLE_PLATINUM" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_SGI" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_SGI" << endl;
-	    outStream << "#define QT_NO_STYLE_SGI" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if ( dictionary[ "STYLE_CDE" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STYLE_CDE" << endl;
-	    outStream << "#define QT_NO_STYLE_CDE" << endl;
-	    outStream << "#endif" << endl;
-	}
-        if (dictionary["ACCESSIBILITY"] == "no") {
-            outStream << "#ifndef QT_NO_ACCESSIBILITY" << endl
-                      << "#define QT_NO_ACCESSIBILITY" << endl
-                      << "#endif" << endl;
-        }
-        if (dictionary["OPENGL"] == "no") {
-            outStream << "#ifndef QT_NO_OPENGL" << endl
-                      << "#define QT_NO_OPENGL" << endl
-                      << "#endif" << endl;
-        }
+	outStream << endl << "// Compile time features" << endl;
+
+        QStringList qconfigList;
+        if(dictionary["STL"] == "no")               qconfigList += "QT_NO_STL";
+        if(dictionary["STYLE_WINDOWS"] == "no")     qconfigList += "QT_NO_STYLE_WINDOWS";
+	if(dictionary["STYLE_WINDOWSXP"] == "no")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
+	if(dictionary["STYLE_MOTIF"] == "no")       qconfigList += "QT_NO_STYLE_MOTIF";
+	if(dictionary["STYLE_MOTIFPLUS"] == "no")   qconfigList += "QT_NO_STYLE_MOTIFPLUS";
+	if(dictionary["STYLE_PLATINUM"] == "no")    qconfigList += "QT_NO_STYLE_PLATINUM";
+	if(dictionary["STYLE_SGI"] == "no")         qconfigList += "QT_NO_STYLE_SGI";
+	if(dictionary["STYLE_CDE"] == "no")         qconfigList += "QT_NO_STYLE_CDE";
+	if(dictionary["STYLE_COMPACT"] == "no")     qconfigList += "QT_NO_STYLE_COMPACT";
+	if(dictionary["STYLE_POCKETPC"] == "no")    qconfigList += "QT_NO_STYLE_POCKETPC";
+	if(dictionary["STYLE_MAC"] == "no")         qconfigList += "QT_NO_STYLE_MAC";
+
+        if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
+        if(dictionary["PNG"] != "yes")              qconfigList += "QT_NO_IMAGEIO_PNG";
+        if(dictionary["JPEG"] != "yes")             qconfigList += "QT_NO_IMAGEIO_JPEG";
+        if(dictionary["MNG"] != "yes")              qconfigList += "QT_NO_IMAGEIO_MNG";
+        if(dictionary["ZLIB"] == "no")            { qconfigList += "QT_NO_ZLIB";
+                                                    qconfigList += "QT_NO_COMPRESS"; }
+        
+        if(dictionary["COMPAT"] == "no")            qconfigList += "QT_NO_COMPAT";
+        if(dictionary["ACCESSIBILITY"] == "no")     qconfigList += "QT_NO_ACCESSIBILITY";
+        if(dictionary["EXCEPTIONS"] == "no")        qconfigList += "QT_NO_EXCEPTIONS";
+        if(dictionary["BIG_CODECS"] == "no")        qconfigList += "QT_NO_BIG_CODECS";
+        if(dictionary["TABLET"] == "yes")           qconfigList += "QT_TABLET_SUPPORT";
+        if(dictionary["OPENGL"] == "no")            qconfigList += "QT_NO_OPENGL";
+        if(dictionary["IPV6"] == "no")              qconfigList += "QT_NO_IPV6";
+
+        if(dictionary["SQL_MYSQL"] == "yes")        qconfigList += "QT_SQL_MYSQL";
+        if(dictionary["SQL_ODBC"] == "yes")         qconfigList += "QT_SQL_ODBC";
+        if(dictionary["SQL_OCI"] == "yes")          qconfigList += "QT_SQL_OCI";
+        if(dictionary["SQL_PSQL"] == "yes")         qconfigList += "QT_SQL_PSQL";
+        if(dictionary["SQL_TDS"] == "yes")          qconfigList += "QT_SQL_TDS";
+        if(dictionary["SQL_DB2"] == "yes")          qconfigList += "QT_SQL_DB2";
+        if(dictionary["SQL_SQLITE"] == "yes")       qconfigList += "QT_SQL_SQLITE";
+        if(dictionary["SQL_IBASE"] == "yes")        qconfigList += "QT_SQL_IBASE";
+
+        qconfigList.sort();
+        for (int i = 0; i < qconfigList.count(); ++i)
+            outStream << addDefine(qconfigList.at(i));
 
 	outFile.close();
         if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
@@ -1191,7 +1215,7 @@ void Configure::generateConfigfiles()
     outFile.setName( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream outStream( &outFile );
+	outStream.setDevice(&outFile);
 	outStream << "#include <qglobal.h>" << endl << endl;
 
 	outStream << "/* Install paths from configure */" << endl;
@@ -1235,7 +1259,7 @@ void Configure::generateConfigfiles()
     outFile.setName( outName );
 
     if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream outStream( &outFile );
+	outStream.setDevice(&outFile);
 
 	QString version = dictionary["VERSION"];
 	QString prodFile = "qt";

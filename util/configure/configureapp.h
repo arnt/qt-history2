@@ -2,6 +2,7 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qlist.h>
+#include <qtextstream.h>
 
 class MakeItem;
 
@@ -35,6 +36,8 @@ public:
 #if !defined(EVAL)
     void readLicense();
 #endif
+
+    QString addDefine(QString def);
 
     enum ProjectType {
 	App,
@@ -78,6 +81,8 @@ private:
 
     QMap<QString,QString> licenseInfo;
     QString outputLine;
+
+    QTextStream outStream;
 
 #if !defined(EVAL)
     void reloadCmdLine();
