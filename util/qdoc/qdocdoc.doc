@@ -1,0 +1,1576 @@
+/*!
+  \page qdocdoc.html
+
+  \title User's Guide to qdoc
+
+  <center>
+  <img src="badegakk.png" width=192 height=128
+  alt="Badegakk, the official qdoc duck">
+  </center>
+  This document gives an overview of qdoc syntax and usage. It
+  assumes that you understannd the basic idea (documentation in C++
+  comments and a little more). It is not to be distributed outside
+  Trolltech, as our good documentation is a big competitive advantage.
+  A <a href="qtdoc.html">companion document</a> explains how to write
+  documentation for Qt.
+
+  This document has four sections:
+
+  <ul>
+   <li><a href="#commands">Giving commands to qdoc</a>
+   <li><a href="#food">Feeding qdoc</a>
+   <li><a href="#run">Running qdoc</a>
+   <li><a href="#join">Joining the qdoc community</a>
+  </ul>
+
+  <a name="commands"></a>
+
+  <img src="commands.png" align=right width=192 height=192
+  alt="An obeying duck">
+
+  <h2>Giving commands to qdoc</h2>
+
+  Here are all commands recognized by qdoc: <a href="#a">\\a</a>,
+  <a href="#annotatedclasslist">\\annotatedclasslist</a>,
+  <a href="#arg">\\arg</a>,
+  <a href="#base256">\\base256</a>,
+  <a href="#base64">\\base64</a>,
+  <a href="#brief">\\brief</a>,
+  <a href="#bug">\\bug</a>,
+  <a href="#c">\\c</a>,
+  <a href="#class">\\class</a>,
+  <a href="#classhierarchy">\\classhierarchy</a>,
+  <a href="#classlist">\\classlist</a>,
+  <a href="#code">\\code...\\endcode</a>,
+  <a href="#defgroup">\\defgroup</a>,
+  <a href="#define">\\define</a>,
+  <a href="#e">\\e</a>,
+  <a href="#enum">\\enum</a>,
+  <a href="#extension">\\extension</a>,
+  <a href="#extensionlist">\\extensionlist</a>,
+  <a href="#fn">\\fn</a>,
+  <a href="#fnord">\\fnord</a>,
+  <a href="#functionindex">\\functionindex</a>,
+  <a href="#header">\\header</a>,
+  <a href="#headerfilelist">\\headerfilelist</a>,
+  <a href="#heading">\\heading</a>,
+  <a href="#important">\\important</a>,
+  <a href="#include">\\include</a>,
+  <a href="#ingroup">\\ingroup</a>,
+  <a href="#internal">\\internal</a>,
+  <a href="#keyword">\\keyword</a>,
+  <a href="#l">\\l (ell)</a>,
+  <a href="#line">\\line</a>,
+  <a href="#link">\\link...\\endlink</a>,
+  <a href="#module">\\module</a>,
+  <a href="#mustquote">\\mustquote</a>,
+  <a href="#note">\\note</a>,
+  <a href="#obsolete">\\obsolete</a>,
+  <a href="#overload">\\overload</a>,
+  <a href="#page">\\page</a>,
+  <a href="#printline">\\printline</a>,
+  <a href="#printto">\\printto</a>,
+  <a href="#printuntil">\\printuntil</a>,
+  <a href="#quotelist">\\quotelist</a>,
+  <a href="#reimp">\\reimp</a>,
+  <a href="#relates">\\relates</a>,
+  <a href="#sa">\\sa</a>,
+  <a href="#skip">\\skip</a>,
+  <a href="#skipline">\\skipline</a>,
+  <a href="#skipto">\\skipto</a>,
+  <a href="#skipuntil">\\skipuntil</a>,
+  <a href="#title">\\title</a>,
+  <a href="#until">\\until</a>,
+  <a href="#value">\\value</a>,
+  <a href="#version">\\version</a>,
+  <a href="#walkthrough">\\walkthrough</a>,
+  <a href="#warning">\\warning</a>.
+
+  <h3>Ubiquitous commands</h3>
+
+  <ul>
+   <p><li><a name="a"></a>
+    <b>\\a</b> indicates that the next word is a parameter name.
+    Whenever you mention a parameter, you should precede it by this
+    command. That way, the parameter is rendered in italic, and
+    warnings are emitted when parameters are undocumented or misspelt.
+    <pre>
+    /*!
+      Sets the label contents to \\a <u>text</u>.
+    *&#47;
+    void QLabel::setText( const QString& <u>text</u> )
+    {
+	...
+    }</pre>
+    If you need to refer to an unused parameter, you can put its name
+    in a C-style comment:
+    <pre>
+    /*!
+      This function sets the label to allow the \\c HLine
+      and \\c VLine shapes if \\a enable is TRUE, and to
+      disallow these shapes if \\a <u>enable</u> is FALSE.
+
+      In Qt 3.0 and later, this function does nothing: These
+      shapes are always allowed. The function is kept for
+      source compatibility with 2.x; it will be removed in
+      4.0.
+    *&#47;
+    void QLabel::setAllowLines( bool /* <u>enable</u> *&#47; )
+    {
+	// #<!-- ignore me -->## remove in Qt 4.0
+    }</pre>
+
+   <p><li><a name="e"></a>
+    <b>\\e</b> emphasizes (italicizes) the next word. In the old days,
+    \\e was used for parameters. Please change that as you see it.
+
+    You may also apply emphasis to arbitrary braced text:
+    <pre>
+    /*!
+      A \\e {<u>coordinate system</u>} is a mathematical being.
+    *&#47;</pre>
+    Braces can be used similarly with any other command that normally
+    precedes a word (such as <a href="#a">\\a</a> and
+    <a href="#c">\\c</a>).
+
+   <p><li><a name="c"></a>
+    <b>\\c</b> renders a tiny piece of code with a typewriter font:
+    <pre>
+    /*!
+      Please avoid \\c <u>Qt::WindowsStyle</u>.
+    *&#47;</pre>
+    This command, like <a href="#a">\\a</a> and <a href="#e">\\e</a>,
+    supports the brace syntax. However, in most cases, it won't be
+    necessary, because qdoc is smart enough to balance all kinds of
+    brackets and exclude punctuation:
+    <pre>
+    /*!
+      By calling \\c <u>setStyle( Qt::MotifStyle )</u>, you get a
+      good-looking widget set.
+    *&#47;</pre>
+    Use it sparingly.
+
+   <p><li><a name="fn"></a> <b>\\fn</b> allows documentation of an
+    inline function by naming it explicitly. The naming convention is
+    that of a member function definition outside the class
+    definition:
+    <pre>
+    /*! <u>\\fn</u> void QButton::setState( ToggleState t )
+
+      This protected function is underused.
+    *&#47;</pre>
+    When missing, a comment documents the function definition that
+    immediately follows it:
+    <pre>
+    /*!
+      This protected function is underused.
+    *&#47;
+    void QButton::setState( ToggleState t )
+    {
+	...
+    }</pre>
+
+   <p><li><a name="overload"></a>
+    <b>\\overload</b> indicates that this function is a secondary
+    overload of this name. For any overloaded function, qdoc expects
+    one primary version and the rest as overloads.
+
+    The primary version gets most of the documentation; the others
+    get a standard paragraph and whatever you add: "This is an
+    overloaded function, provided for convenience. It behaves
+    essentially like the above function."
+
+    Typically, you will use \\overload alone on its line:
+    <pre>
+    /*!
+      Resizes the widget to size \\a w by \\a h pixels.
+    *&#47;
+    void QWidget::resize( int w, int h )
+    {
+	...
+    }
+
+    /*! <u>\\overload</u> *&#47;
+    void QWidget::resize( const QSize& size )
+    {
+	...
+    }</pre>
+    If the function with the \\overload comment is inlined, you can
+    put its prototype on the same line:
+    <pre>
+    /*! <u>\\overload</u> void QWidget::resize( const QSize& size ) *&#47;</pre>
+    The same effect can be achieved by using \\overload alone on its
+    line together with <a href="#fn">\\fn</a>.
+
+    In the documentation, \\overload expands to "This is an overloaded
+    member function, provided for convenience. It behaves essentially
+    like the above function."
+
+   <p><li><a name="l"></a>
+    <b>\\l</b> (ell) makes an explicit link to almost anything that
+    has a name. Normally, qdoc tries to keep down the number of
+    automatic links. This tags ensures the next word will get a link.
+    Here's an example where \\l is needed:
+    <pre>
+    /*!
+       Returns the rotation angle.
+
+       See the documentation for <u>\\l</u> QPie::getAngle() for a
+       discussion about angle units.
+    *&#47;</pre>
+
+    The command support many kinds of links:
+    <ul>
+     <li> \c {\l QMembuf} - a class
+     <li> \c {\l QMembuf::pullup()} - a member function
+     <li> \c {\l qmembuf.h} - a header file
+     <li> \c {\l nfs/main.cpp} - an example
+     <li> \c {\l memory-buffers.html} - a HTML page (typically a
+       <a href="#page">\\page</a>)
+     <li> \c {\l {memory management}} - a
+       <a href="#keyword">\\keyword</a>.
+    </ul>
+
+   <p><li><a name="sa"></a>
+    <b>\\sa</b> starts the "see also" section. The rest of the doc
+    comment is a comma or white-space separated list of links.
+    <pre>
+    /*!
+      Sets the button to display \\a pixmap and repaints at
+      once.
+
+      <u>\\sa</u> pixmap() setText() setAutoMinimumSize()
+	setAutoResize() setAccel() QPixmap::mask()
+    *&#47;
+    void QButton::setPixmap( const QPixmap &pixmap )
+    {
+	...
+    }</pre>
+    In the documentation, the following will appear: "See also
+    <a href="#fnord">pixmap</a>(),
+    <a href="#fnord">setText</a>(),
+    <a href="#fnord">setAutoMinimumSize</a>(),
+    <a href="#fnord">setAutoResize</a>(),
+    <a href="#fnord">setAccel</a>() and
+    <a href="#fnord">QPixmap::mask</a>()."
+
+    This command supports the same kinds of links as the
+    <a href="#l">\\l (ell)</a> command.
+  </ul>
+
+  <h3>Common commands</h3>
+
+  <ul>
+   <p><li><a name="class"></a>
+    <b>\\class</b> starts a class documentation unit.
+    <pre>
+    /*! <u>\\class</u> QButton
+
+      <u>\\brief</u> The QButton class is the abstract base class of
+      button widgets, providing functionality common to
+      buttons.
+
+      <u>\\ingroup</u> abstractwidgets
+
+      The QButton class implements an abstract button, and
+      lets subclasses do such and such.
+
+      ...
+    *&#47;</pre>
+    The class name (QButton) is passed as sole argument to the
+    command. The documentation for QButton is put in qbutton.html.
+
+    Previously, this command accepted a second argument: the name of
+    the header file defining the class. Remove it as you see it in
+    old code.
+
+    If the class is part of an extension or a module, use
+    <a href="#extension">\\extension</a> or
+    <a href="#module">\\module</a> somewhere in the \\class comment.
+
+   <p><li><a name="brief"></a>
+    <b>\\brief</b> introduces a one-sentence description of a class.
+    This is used for
+    <a href="#annotatedclasslist">\\annotatedclasslist</a> and for
+    introducing the class in its own documentation.
+
+    For qdoc to parse the text correctly, stick to these standard
+    wordings:
+    <ul>
+     <li>The QButton class is ...
+     <li>The QButton class provides ...
+     <li>The QButton class contains ...
+     <li>The QButton class specifies ...
+    </ul>
+
+    The <a href="#class">\\class</a> entry has an example.
+
+   <p><li><a name="ingroup"></a>
+
+    <b>\\ingroup</b> indicates that this class belongs to a certain
+    group of related classes defined using
+    <a href="#defgroup">\\defgroup</a>. A given class may belong to
+    many groups. Specifying groups is strongly recommended.
+
+    See also the <a href="#class">\\class</a> entry for an example.
+
+   <p><li><a name="obsolete"></a>
+    <b>\\obsolete</b> expands to the following text: "<b>This method
+    is obsolete.</b> It is provided to keep old source working, and
+    will probably be removed in a future version of Qt. We strongly
+    advise against using it in new code." It has other minor
+    consequences.
+
+   <p><li><a name="enum"></a>
+    <b>\\enum</b> documents a type that is in a class declaration,
+    usually an enum or a typedef.
+    <pre>
+    /*! <u>\\enum</u> QWidget::MotusPolicy
+
+      This enum type defines the various policies a widget
+      can have with respect to acquiring keyboard motus.
+
+      The policy can be:
+
+      <u>\\value</u> TabMotus The widget accepts motus by tabbing.
+      <u>\\value</u> ClickMotus The widget accepts motus by clicking.
+      <u>\\value</u> StrongMotus The widget accepts motus by both
+	tabbing and clicking.
+      <u>\\value</u> WheelMotus Like StrongMotus plus the widget
+	accepts motus by using the mouse wheel.
+      <u>\\value</u> NoMotus The widget does not accept motus.
+
+      \\c TabMotus is the default for most widgets.
+    *&#47;</pre>
+    Notice the <a href="#value">\\value</a> syntax.
+
+   <p><li><a name="value"></a>
+    <b>\\value</b> starts the documentation of a C++ enum item. The
+    first argument is the enum item. Its associated documentation
+    follows and ends at the next blank line or \\value.
+
+    See the documentation of <a href="#enum">\\enum</a> for a complete
+    example.
+  </ul>
+
+  <h3>Less common commands</h3>
+
+  <ul>
+   <p><li><a name="code"></a>
+    <b>\\code ... \\endcode</b> delimits example C++ code. Within the
+    block, every character stands for itself, including qdoc or HTML
+    metacharacters. It's a good idea to indent the code one step (four
+    spaces) from the absolute left.
+
+    Here's how to use the command:
+    <pre>
+    /*!
+      <u>\\code</u>
+	QString s = "Ys";
+	s.insert( 1, 'e' ); // s == "Yes"
+	s.insert( 3, '!');  // s == "Yes!"
+      <u>\\endcode</u>
+    *&#47;</pre>
+    This will be rendered as
+    <pre>
+    <a href="#fnord">QString</a> s = "Ys";
+    s.<a href="#fnord">insert</a>( 1, 'e' ); // s == "Yes"
+    s.<a href="#fnord">insert</a>( 3, '!');  // s == "Yes!"</pre>
+
+    Theoreticians have shown that C-style comments cannot appear in
+    example code.
+
+   <p><li><a name="internal"></a>
+    <b>\\internal</b> indicates that the function is not part of the
+    public interface, although it is not private C++ sensu. It is
+    rendered as "For internal use only."
+
+    Internal functions need not be documented otherwise. If they are,
+    that will appear only when generating internal documentation, by
+    means of the <a href="#--internal">--internal</a> command-line
+    option for example, and preceded by "<b>Internal comment:</b>".
+
+   <p><li><a name="reimp"></a>
+    <b>\\reimp</b> indicates that this function is a reimplementation
+    of a virtual function, where the reimplementation has no effect on
+    the interface. Most often it is used as follows:
+    <pre>
+    /*! <u>\\reimp</u> *&#47;</pre>
+    Sometimes, it is desirable to add class-specific notes:
+    <pre>
+    /*! <u>\\reimp</u>
+
+      For this subclass, foo() cannot fail, so the return
+      value will never be 0.
+    *&#47;</pre>
+    Think twice before doing so; who knows whether the next version of
+    Qt will introduce some failure here?
+
+   <p><li><a name="relates"></a>
+    <b>\\relates</b> attaches the documentation of a global function
+    to that of a related class. In the following example, the
+    documentation of qWarning() ends up in qapplication.html, in the
+    "Related functions" section:
+    <pre>
+    /*! <u>\\relates</u> QApplication
+
+      Prints a warning message.
+    *&#47;
+    void qWarning( const char *msg, ... )
+    {
+	fprintf( stderr, msg, ... );
+    }</pre>
+
+   <p><li><a name="important"></a>
+    <b>\\important</b> allows to inherit documentation from a parent
+    class. This helps reduce the number of bug reports concerning
+    missing documentation that is in fact elsewhere.
+    <pre>
+    /*!
+      \\class QPushButton
+
+      ...
+
+      <u>\\important</u> text() setText() pixmap() setPixmap()
+	setOn() isOn()
+    *&#47;</pre>
+
+   <p><li><a name="warning"></a>
+    <b>\\warning</b> introduces a warning. It expands to
+    "<b>Warning:</b>".
+
+   <p><li><a name="bug"></a>
+    <b>\\bug</b> introduces the documentation of a bug. It expands to
+    some HTML magic. This command should appear at the end of a
+    comment, just before the <a href="#sa">\\sa</a> (see also)
+    section:
+    <pre>
+    /*!
+      This function shows a widget.
+
+      <u>\\bug</u> It does not support perfectly square widgets.
+      <u>\\bug</u> Elliptic widgets are slightly distorted to fit in
+      a rectangle.
+
+      \\sa hide()
+    *&#47;</pre>
+    This will be rendered in a fashionable way.
+
+   <p><li><a name="page"></a>
+    <b>\\page</b> starts a documentation parcel that will end up in
+    its own HTML file:
+    <pre>
+    /*! <u>\page</u> mouse.html
+
+      <u>\title</u> Mouses or mice?
+
+      Some people use the term \e mouses to refer to
+      multiple pointing devices individually known as a
+      \e mouse. Other call them \e mice.
+
+      Have you ever noticed that the title of half of
+      linguistic articles is of the form "X or Y?"?
+    *&#47;</pre>
+   The command should stand on its own line with the name of the HTML
+   file to generate as argument (mouse.html).
+
+   <p><li><a name="title"></a>
+    <b>\\title</b> sets the title of a documentation page, or allows
+    to override it. It is used in conjunction with
+    <a href="#page">\\page</a> or similar commands. Use
+    <a href="#heading">\\heading</a> if you need to distinguish between
+    the title (\<title\>...\</title\>) and the heading
+    (\<h1\>...\</h1\>).
+
+   <p><li><a name="heading"></a>
+    <b>\\heading</b> sets the heading of a documentation page, or
+    allows to override it. See also the <a href="#title">\\title</a>
+    entry.
+
+    Do not confuse this command with <a href="#header">\\header</a>.
+
+   <p><li><a name="base64"></a>
+    <b>\\base64</b> embeds binary files
+    <img src="finland.png" width=26 height=16 alt="flag of Finland">
+    in C++ comments:
+    <pre>
+    /*! <u>\\base64</u> finland.png
+
+      iVBORw0KGgoAAAANSUhEUgAAABoAAAAQAQMA
+      AAAyH/3rAAAABlBMVEUAM8z///9/www1AAAA
+      FnRFWHRTb2Z0d2FyZQBnaWYycG5nIDIuMy4x
+      PxgAMQAAABRJREFUeNpj+M///wADTgInwKUD
+      APLOHtC/EegpAAAAAElFTkSuQmCC
+    *&#47;</pre>
+    You may use dedicated tools (such as mimencode) to generate the
+    base64-encoded data, or you may use your email client cleverly.
+    If your PNG files don't start with "iVBOR", try another email
+    client.
+
+   <p><li><a name="base256"></a>
+    <b>\\base256</b> embeds plain text files in C++ files.
+    <pre>
+    /*! <u>\base256</u> graph.g1n
+
+      num label
+      10 A
+      24 B
+      12 C
+      7 D
+      34 E
+      15 F
+      19 G
+    *&#47;</pre>
+    It might be renamed \\plainpage in a future version of qdoc.
+
+   <p><li><a name="defgroup"></a>
+    <b>\\defgroup</b> defines a group of related classes:
+    <pre>
+    /*! <u>\\defgroup</u> abstractwidgets
+
+      <u>\\title</u> Abstract Widget Classes
+
+      These classes are abstract widgets; they are generally
+      not usable in themselves, but provide functionality
+      that can be used by inheriting these classes.
+    *&#47;</pre>
+    The command should stand on its own line with a name for the group
+    (abstractwidgets). For the abstractwidgets group, the
+    documentation is generated in abstractwidgets.html. A
+    <a href="#title">\\title</a> should always be used.
+
+    Below the documentation, the members of the group are
+    automatically listed. The <a href="#ingroup">\\ingroup</a>
+    command inside a <a href="#class">\\class</a> comment binds a
+    class to a group.
+  </ul>
+
+  <h3>Exotic commands</h3>
+
+  <ul>
+   <p><li><a name="keyword"></a>
+    <b>\\keyword</b> turns a phrase into a giant magnet. Nearly all
+    occurrences of the phrase link to the \\keyword definition.
+
+    Here's an example. This comment appears in coordsys.doc:
+    <pre>
+    /*! \\page coordsys.html
+
+      \\keyword <u>coordinate system</u>
+
+      A coordinate system is a mathematical being.
+    *&#47;</pre>
+    The following comment appears in qcomplextable.cpp:
+    <pre>
+    /*! \\class QComplexTable
+
+      ...
+
+      \\warning Experience has shown that QComplexTable is
+      hard to use, mostly because it uses six different
+      <u>coordinate systems</u>.
+    *&#47;</pre>
+    In the generated documentation, the \\keyword definition becomes
+    an anchor name: \<a&nbsp;name="coordinate-system"\>. And
+    "coordinate systems" in the qcomplextable.cpp becomes a link to
+    coordsys.html#coordinate-system. Incidentally, it takes more than
+    an s to fool qdoc.
+
+   <p><li><a name="extension"></a>
+    <b>\\extension</b> identifies a class as part of an extension to
+    the software. Put it anywhere in a <a href="#class">\\class</a>
+    comment:
+    <pre>
+    /*! \\class QNPInstance
+
+      <u>\\extension</u> NSPlugin
+
+      ...
+    *&#47;</pre>
+    This is rendered as "This file is part of the <b>Qt NSPlugin
+    Extension</b>." just after the first occurrence of the
+    <a href="#brief">\\brief</a> text.
+
+   <p><li><a name="module"></a>
+    <b>\\module</b> identifies a class as part of a module of the
+    software. Put in anywhere in a <a href="#class">\\class</a>
+    comment:
+    <pre>
+    /*! \\class QTable
+
+      <u>\\module</u> table
+
+      ...
+    *&#47;</pre>
+    This is rendered as "[<a href="#fnord">table module</a>]" just
+    below the "QTable Class Reference" heading. The difference between
+    extension and module is subtle and beyond the scope of qdoc.
+
+   <p><li><a name="header"></a>
+    <b>\\header</b> generates an idiomatic #include directive similar
+    to that generated by \\class automatically. It is very rarely
+    needed.
+
+    A comment like
+    <pre>
+    /*! <u>\\header</u> \<qglobal.h\> *&#47;</pre>
+    will be rendered as
+    <pre>
+    #include &lt;<a href="#fnord">qglobal.h</a>&gt;</pre>
+    in the generated documentation.
+
+    Do not confuse this command with <a href="#heading">\\heading</a>
+    or <a href="#include">\\include</a>.
+
+   <p><li><a name="include"></a>
+    <b>\\include</b> expands to the content of the example file given
+    as argument. Thus,
+    <pre>
+    /*! <u>\\include</u> hello/main.cpp *&#47;</pre>
+    expands to the code found in hello/main.cpp.
+
+    Do not confuse this command with <a href="#header">\\header</a>.
+
+   <p><li><a name="walkthrough"></a>
+    <b>\\walkthrough</b> enables use of walkthrough commands
+    (<a href="#printline">\\printline</a> and friends) to explain the
+    example code chunk by chunk:
+    <pre>
+    /*! <u>\\walkthrough</u> hello/main.cpp *&#47;</pre>
+
+   <p><li><a name="printline"></a>
+    <b>\\printline</b> expands to the next non-blank source code line
+    of the current <a href="#walkthrough">\\walkthrough</a> file.
+
+    To ensure the documentation is always in synch with the example
+    source code, a substring of the code line should always be
+    specified, like this:
+    <pre>
+    /*!
+      \\walkthrough hello/main.cpp
+
+      <u>\\printline</u> qapp
+    *&#47;</pre>
+    If "qapp" is not a substring of the first line of hello/main.cpp
+    (presumably "#include&nbsp;\<qapplication.h\>"), a warning is
+    emitted. This applies to all the other walkthough commands as
+    well: <a href="#printto">\\printto</a>,
+    <a href="#printuntil">\\printuntil</a>,
+    <a href="#skipline">\\skipline</a>,
+     <a href="#skipto">\\skipto</a> and
+    <a href="#skipuntil">\\skipuntil</a>.
+
+   <p><li><a name="printto"></a>
+    <b>\\printto</b> expands to all the lines from the current
+    position up to and \e excluding the next line containing a given
+    substring.
+
+   <p><li><a name="printuntil"></a>
+    <b>\\printuntil</b> expands to all source code lines from the
+    current position up to and \e including the first line containing
+    the given substring.
+
+    The command
+    <pre>
+    /*!
+      ...
+
+      <u>\\printuntil</u> blue
+    *&#47;</pre>
+    is equivalent to
+    <pre>
+    /*!
+      ...
+
+      \\printto blue
+      \\printline blue
+    *&#47;</pre>
+
+   <p><li><a name="skipline"></a>
+    <b>\\skipline</b> skips the next non-black source code line of the
+    current <a href="#walkthrough">\\walkthrough</a> file. This is
+    useful to hide redundant or otherwise boring portions of code. See
+    also <a href="#printline">\\printline</a>.
+
+   <p><li><a name="skipto"></a>
+    <b>\\skipto</b> skips all source code lines up to and \e excluding
+    the next line containing the given substring.
+
+    Let's consider this example program:
+    <pre>
+    QColor c1 = red;
+    QColor c2 = green;
+    QColor c3 = blue;</pre>
+    The walkthrough commands
+    <pre>
+    /*!
+      ...
+
+      <u>\\skipto</u> blue
+      \\printline blue
+    *&#47;</pre>
+    skip the first two lines and then expand to the third one. The
+    generated documentation is
+    <pre>
+    QColor c3 = blue;</pre>
+
+   <p><li><a name="skipuntil"></a>
+    <b>\\skipuntil</b> skips all source code lines up to and
+    \e including the first line containing the given substring.
+
+   <p><li><a name="mustquote"></a>
+    <b>\\mustquote</b> records the rest of the comment (excluding the
+    optional "see also" section) as licensing stuff:
+    <pre>
+    /*! \fn void QPainter::drawCubicBezier( const QPointArray& a,
+					    int index )
+      Draws a cubic Bezier curve.
+
+      <u>\\mustquote</u>
+
+      Copyright (C) 1960 Pierre Bezier.
+      You MAY use THIS software AT your OWN risks.
+
+      \\sa drawQuadBezier()
+    *&#47;</pre>
+    All licensing stuff can be retrieved later using
+    <a href="#quotelist">\\quotelist</a>.
+
+   <p><li><a name="quotelist"></a>
+    <b>\\quotelist</b> expands to all the licensing stuff gathered
+    with <a href="#mustquote">\\mustquote</a>. The stuff is put in
+    some arbitrary order, without duplicates.
+
+   <p><li><a name="annotatedclasslist"></a>
+    <b>\\annotatedclasslist</b> generates a list of classes documented
+    using <a href="#class">\\class</a> comments with the
+    <a href="#brief">\\brief</a> texts. Here's a typical entry of the
+    generated list:
+
+    <table width=80%>
+     <tr bgcolor=#f0f0f0>
+      <td><b><a href="#fnord">QActionGroup</a></b>
+      <td>Combines actions into a group
+    </table>
+
+   <p><li><a name="classlist"></a>
+    <b>\\classlist</b> expands to a five-column list of all classes
+    documented using <a href="#class">\\class</a>. Here's a fragment
+    of such a list:
+
+    <table>
+     <tr>
+      <td width=2%>
+      <td width=18%><a href="#fnord">QCanvasText</a>
+      <td width=2%>
+      <td width=18%><a href="#fnord">QDomProcessingInstruction</a>
+      <td width=2%><b>K</b>
+      <td width=18%><a href="#fnord">QKeyEvent</a>
+      <td width=2%>
+      <td width=18%><a href="#fnord">QScrollView</a>
+      <td width=2%><b>U</b>
+      <td width=18%><a href="#fnord">QUnknownInterface</a>
+     <tr>
+      <td>
+      <td><a href="#fnord">QCanvasView</a>
+      <td>
+      <td><a href="#fnord">QDomText</a>
+      <td><b>L</b>
+      <td><a href="#fnord">QLabel</a>
+      <td>
+      <td><a href="#fnord">QSemaphore</a>
+      <td>
+      <td><a href="#fnord">QUriDrag</a>
+    </table>
+
+   <p><li><a name="classhierarchy"></a>
+    <b>\\classhierarchy</b> expands to an alphabetized class
+    hierarchy of all classes documented with
+    <a href="#class">\\class</a>.
+
+    <ul>
+     <li><a href="#fnord">QPaintDevice</a>
+      <ul>
+       <li><a href="#fnord">QPicture</a>
+       <li><a href="#fnord">QPixmap</a>
+	<ul>
+	 <li><a href="#fnord">QBitmap</a>
+	 <li><a href="#fnord">QCanvasPixmap</a>
+	</ul>
+       <li><a href="#fnord">QPrinter</a>
+       <li><a href="#fnord">QSvgDevice</a>
+      </ul>
+    </ul>
+
+   <p><li><a name="extensionlist"></a>
+    <b>\\extensionlist</b> expands to "* Extension classes of
+    \e {X}<sub>1</sub>, \e {X}<sub>2</sub>, ...,
+    \e {X}<sub>\e {n}</sub>.", where each \e {X}<sub>\e {i}</sub> is
+    the name of an extension.
+
+    If NSPlugin and Xt/Motif are specified using
+    <a href="#extension">\\extension</a> elsewhere, the command
+    expands to "* Extension classes of NSPlugin and Xt/Motif."
+
+   <p><li><a name="functionindex"></a>
+    <b>\\functionindex</b> expands to an alphabetized index of all
+    documented functions. A typical entry looks like this:
+    <ul>
+     <li>isEmpty: <a href="#fnord">QRegExp</a>
+       <a href="#fnord">QString</a>
+       <a href="#fnord">QValueList</a>
+    </ul>
+
+   <p><li><a name="headerfilelist"></a>
+    <b>\\headerfilelist</b> expands to the list of all header files
+    for which verbatim HTML files were generated. These header files
+    are those containing the definitions of classes documented with
+    <a href="#class">\\class</a>, plus those specified with
+    <a href="#header">\\header</a>. A typical entry looks like this:
+    <ul>
+     <li><a href="#fnord">qapplication.h</a>
+    </ul>
+
+   <p><li><a name="version"></a>
+    <b>\\version</b> expands to the version of the documented software
+    (say, Qt). See also the documentation for the configuration
+    variable <a href="#VERSION">VERSION</a>.
+  </ul>
+
+  <h3>Discouraged commands</h3>
+
+  <ul>
+   <p><li><a name="link"></a>
+    <b>\\link ... \\endlink</b> makes an explicit link in the manner
+    of <a href="#l">\\l (ell)</a>, but allows arbitrary user-visible
+    text.
+    <pre>
+    /*! \fn void QButton::stateChanged( int state )
+
+      This signal is emitted whenever a toggle button
+      changes status. \a state is 2 if the button is on,
+      1 if it's in the \\link <u>QCheckBox::setTriState()</u>
+      <u>"no change" state</u> \\endlink or 0 if the button is
+      off.
+    *&#47;</pre>
+    The first argument is the symbol to link to. The rest (up to
+    \\endlink) is the displayed text. Here, we would get "... 1 if
+    it's in the <a href="#fnord">"no change" state</a> or 0 if ...".
+
+    This is to avoid most of the time. In the hypertext version,
+    readers have to click to see what setTriState() is called. In the
+    manpage and paper versions, they cannot see it at all. Instead,
+    it is best to fit setTriState() into the sentence.
+
+   <p><li><a name="note"></a>
+    <b>\\note</b> expands to "Note:". qdoc knows about it only because
+    at least two people thought it did and started using it. Avoid it.
+  </ul>
+
+  <h3>Antediluvian commands</h3>
+
+  <ul>
+   <p><li><a name="arg"></a>
+    <b>\\arg</b> gave way to <a href="#a">\\a</a>. When you see it,
+    consider rewording the sentence and replace it with \\a.
+
+   <p><li><a name="define"></a>
+    <b>\\define</b> means nothing. Just remove it when you see it.
+
+   <p><li><a name="line"></a>
+    <b>\\line</b> has been renamed
+    <a href="#printline">\\printline</a>.
+
+   <p><li><a name="skip"></a>
+    <b>\\skip</b> has been renamed <a href="#skipto">\\skipto</a>.
+
+   <p><li><a name="until"></a>
+    <b>\\until</b> has been renamed
+    <a href="#printuntil">\\printuntil</a>.
+  </ul>
+
+  <a name="food"></a>
+
+  <img src="food.png" align=right width=192 height=192
+  alt="A piece of meat">
+
+  <h2>Feeding qdoc</h2>
+
+  qdoc will run only if you provide it with a configuration file. The
+  name of that configuration file can be passed to qdoc as
+  command-line argument. By default, qdoc uses qdoc.conf in the
+  current directory.
+
+  The configuration file is a list of entries of the form "\e variable
+  = \e {value}". Here's the full list of qdoc variables:
+  <a href="#ADDRESS">ADDRESS</a>,
+  <a href="#AUTOHREFS">AUTOHREFS</a>,
+  <a href="#BASE">BASE</a>,
+  <a href="#COMPANY">COMPANY</a>,
+  <a href="#DEFINE">DEFINE</a>,
+  <a href="#DOCDIRS">DOCDIRS</a>,
+  <a href="#EXAMPLEDIRS">EXAMPLEDIRS</a>,
+  <a href="#FALSE">FALSE</a>,
+  <a href="#FOOTER">FOOTER</a>,
+  <a href="#INCLUDEDIRS">INCLUDEDIRS</a>,
+  <a href="#INTERNAL">INTERNAL</a>,
+  <a href="#MAXSIMILAR">MAXSIMILAR</a>,
+  <a href="#MAXWARNINGS">MAXWARNINGS</a>,
+  <a href="#ONLY">ONLY</a>,
+  <a href="#OUTPUTDIR">OUTPUTDIR</a>,
+  <a href="#POSTHEADER">POSTHEADER</a>,
+  <a href="#PRODUCT">PRODUCT</a>,
+  <a href="#SOURCEDIRS">SOURCEDIRS</a>,
+  <a href="#STYLE">STYLE</a>,
+  <a href="#SUPERVISOR">SUPERVISOR</a>,
+  <a href="#VERSION">VERSION</a>,
+  <a href="#VERSIONSYM">VERSIONSYM</a>,
+  <a href="#WARNINGLEVEL">WARNINGLEVEL</a>.
+
+  <h3>Boring variables</h3>
+
+  Most projects require setting up the following variables first.
+
+  <ul>
+   <p><li><a name="SOURCEDIRS"></a>
+    <b>SOURCEDIRS</b> specifies the directories containing the C++
+    source files (.cpp files). Example:
+    <pre>
+    SOURCEDIRS = $QTDIR/src/kernel $QTDIR/src/tools</pre>
+
+   <p><li><a name="DOCDIRS"></a>
+    <b>DOCDIRS</b> specifies the directories containing the qdoc
+    documentation files (.doc files). These files are treated mostly
+    the same way as C++ source files. Example:
+    <pre>
+    DOCDIRS = $QTDIR/doc</pre>
+
+   <p><li><a name="INCLUDEDIRS"></a>
+    <b>INCLUDEDIRS</b> specifies the directories containing the C++
+    header files (.h files). Example:
+    <pre>
+    INCLUDEDIRS = $QTDIR/include</pre>
+
+   <p><li><a name="EXAMPLEDIRS"></a>
+    <b>EXAMPLEDIRS</b> specifies the directories containing the source
+    code of the example files. Example:
+    <pre>
+    EXAMPLEDIRS = $QTDIR/examples</pre>
+
+   <p><li><a name="COMPANY"></a>
+    <b>COMPANY</b> represents the name of the company. Example:
+    <pre>
+    COMPANY = Trolltech</pre>
+
+   <p><li><a name="PRODUCT"></a>
+    <b>PRODUCT</b> represents the name of the product. Example:
+    <pre>
+    PRODUCT = Qt</pre>
+
+   <p><li><a name="VERSION"></a>
+    <b>VERSION</b> represents the version number of the product. Its
+    value is then accessible with the <a href="#version">\\version</a>
+    command. Example:
+    <pre>
+    VERSION = 2.0.2</pre>
+
+    If the product source code contains the version number, it might
+    be possible to use <a href="#VERSIONSYM">VERSIONSYM</a> instead
+    and avoid redundancy.
+
+    This variable will be renamed VERSIONSTR in a future version of
+    qdoc, because there is an unrelated command-line option called
+    <a href="#--version">--version</a>.
+
+   <p><li><a name="VERSIONSYM"></a>
+    <b>VERSIONSYM</b> specifies the C++ preprocessor symbol expanding
+    to the version number of the product. If the source code of the
+    product contains no such preprocessor symbol,
+    <a href="#VERSION">VERSION</a> can be used.
+
+    If the directive
+    <pre>
+    #define TEX_VERSION "3.14159"</pre>
+    appears somewhere in a source or header file, and the line
+    <pre>
+    VERSIONSYM = TEX_VERSION</pre>
+    appears in the configuration file,
+    <a href="#version">\\version</a> expand to 3.14159 everywhere it
+    appears.
+
+   <p><li><a name="STYLE"></a>
+    <b>STYLE</b> is some CSS stuff that ends up between \<style\> and
+    \</style\> in all generated HTML files.
+
+    In Qt, this is used among other things to get clean links without
+    underlining.
+
+   <p><li><a name="POSTHEADER"></a>
+    <b>POSTHEADER</b> is some HTML stuff that ends up before the
+    document heading in all generated HTML files.
+
+    In Qt, this is used for the "Qt Reference Documentation" banner
+    with the Qt logo at the top of all pages.
+
+   <p><li><a name="FOOTER"></a>
+    <b>FOOTER</b> is some HTML stuff that ends up at the bottom of
+    any class's documentation.
+
+    In Qt, this is used for the "Search the documentation, FAQ,
+    qt-interest archive and more" part of class documentation pages.
+
+   <p><li><a name="ADDRESS"></a>
+    <b>ADDRESS</b>
+    
+    In Qt, this is used for the copyright notice at the bottom of
+    every page.
+  </ul>
+
+  <h3>Exciting variables</h3>
+
+  The following configuration variables are interesting enough to
+  deserve a command-line option with a similar name.
+
+  <ul>
+   <p><li><a name="AUTOHREFS"></a>
+    <b>AUTOHREFS</b> (cf. <a href="#--auto-hrefs">--auto-hrefs</a>)
+    controls whether automatic links are to be generated or not. The
+    following line turns off automatic links:
+    <pre>
+    AUTOHREFS = no</pre>
+
+   <p><li><a name="BASE"></a>
+    <b>BASE</b> (cf. <a href="#--base">--base</a>) represents the URL
+    prefix to use when emitting editorial warnings.
+
+    For example, to get warnings like "qmembuf.cpp:335: New
+    documentation at
+    file:///home/warwick/qt/doc/html/qmembuf.cpp#pullup (257 bytes)",
+    set
+    <pre>
+    BASE = file://$QTDIR/doc/html/</pre>
+
+   <p><li><a name="DEFINE"></a>
+    <b>DEFINE</b> (cf. <a href="#--define">--define</a>) defines
+    preprocessor symbols so that qdoc knows what to do when it meets
+    "#ifdef FOO" or "#if defined(FOO)". By default, no symbol is
+    defined.
+
+    For example,
+    <pre>
+    DEFINE = QDOC SUPPORT_.*</pre>
+    will consider QDOC and any symbol starting with SUPPORT_ as
+    defined.
+
+    qdoc is no C++ preprocessor. It uses simple, StriNg Oriented
+    PreProcessing techniques to break complex predicates into atomic
+    predicates, and tests these. For example, whether the "then" or
+    the "else" branch is taken in the following example depends on the
+    truth value of "defined(LITTLE_ENDIAN)", "PDP" and
+    "ENDIAN == 0x1234":
+    <pre>
+    #if ( !(defined(LITTLE_ENDIAN) || PDP) || ENDIAN == 0x1234 )
+    ...
+    #else
+    ...
+    #endif</pre>The truth value is determined using the DEFINE and
+    FALSE variables. Here's one way to take the "else" branch:
+    <pre>
+    FALSE = "ENDIAN == 0x1234"</pre>
+
+   <p><li><a name="FALSE"></a>
+    <b>FALSE</b> (cf. <a href="#--false">--false</a>) tells qdoc what
+    atomic preprocessor predicates to consider as false. By default,
+    all atomic predicates except "defined(.*)" are taken true.
+
+    For example,
+    <pre>
+    FALSE = 0 "CH4_VERSION < .*"</pre>
+    will make qdoc behave as if "0" were false (indeed, it is in C++)
+    and "CH4_VERSION < 3" were false.
+
+   <p><li><a name="INTERNAL"></a>
+    <b>INTERNAL</b> (cf. <a href="#--internal">--internal</a>)
+    controls whether to generate internal or public documentation.    
+    By default, qdoc generates public documentation. To generate
+    internal documentation, use
+    <pre>
+    INTERNAL = yes</pre>
+
+   <p><li><a name="MAXSIMILAR"></a>
+    <b>MAXSIMILAR</b> (cf.
+    <a href="#--max-similar">--max-similar</a>) sets a limit on the
+    number of similar warnings emitted, so that no overwhelming
+    amounts of "Undocumented parameter 'x'" warnings are emitted. By
+    default,
+    <pre>
+    MAXSIMILAR = 16</pre>
+
+   <p><li><a name="MAXWARNINGS"></a>
+    <b>MAXWARNINGS</b> (cf.
+    <a href="#--max-warnings">--max-warnings</a>) sets a global limit
+    on the number of warnings emitted. By default,
+    <pre>
+    MAXWARNINGS = 64</pre>
+    so only the first 64 warnings are emitted.
+
+   <p><li><a name="ONLY"></a>
+    <b>ONLY</b> (cf. <a href="#--only">--only</a>) allows to generate
+    only a subset of the HTML files. For example, to generate only
+    qpushbutton.html and tutorial.html, use
+    <pre>
+    ONLY = qpushbutton tutorial</pre>
+
+   <p><li><a name="OUTPUTDIR"></a>
+    <b>OUTPUTDIR</b> (cf. <a href="#--output-dir">--output-dir</a>)
+    sets the directory where qdoc puts the generated documentation.
+    Example:
+    <pre>
+    OUTPUTDIR = $QTDIR/doc/html</pre>
+
+   <p><li><a name="SUPERVISOR"></a>
+    <b>SUPERVISOR</b> (cf. <a href="#--supervisor">--supervisor</a>)
+    instructs qdoc to warn or not about changes in the documentation
+    since the previous run.
+
+    This is useful almost exclusively for technical writers who want
+    to go over the editorial changes made by other people.
+
+   <p><li><a name="WARNINGLEVEL"></a>
+    <b>WARNINGLEVEL</b>
+    (cf. <a href="#--warning-level">--warning-level</a>) sets the
+    warning level (between 0 and 4). A higher level means more
+    unimportant warnings.
+
+    The default warning level is 2. Here's how to set it to 3:
+    <pre>
+    WARNINGLEVEL = 3</pre>
+  </ul>
+
+  <a name="run"></a>
+
+  <img src="run.png" align=right width=192 height=192
+  alt="A running duck">
+
+  <h2>Running qdoc</h2>
+
+  Let's assume you have a <a href="#food">qdoc.conf</a> file in the
+  current directory. The command
+  <pre>
+    qdoc</pre>
+  should be enough to generate the whole documentation for the
+  project.
+
+  To get tighter control over qdoc, you can use command-line
+  arguments. Most of these duplicate functionality found in qdoc.conf,
+  because it would be annoying to modify that file too often.
+
+  Both short and long options are provided, to please both the casual
+  user and the arthritic. Let's first cover the long ones:
+
+  <ul>
+   <p><li><a name="--auto-hrefs"></a>
+    <b>--auto-hrefs</b> (cf. <a href="#AUTOHREFS">AUTOHREFS</a>)
+    enables or disables automatic links. Passing "--auto-hrefs=no" to
+    qdoc makes it run faster.
+
+   <p><li><a name="--base"></a>
+    <b>--base</b> (cf. <a href="#BASE">BASE</a>) sets the URL prefix
+    to use when emitting editorial warnings. To get a
+    Netscape-friendly prefix, pass
+    "--base=file:///home/warwick/qt/doc/html" to qdoc (assuming that
+    the documentation is in /home/warwick/qt/doc/html).
+
+   <p><li><a name="--define"></a>
+    <b>--define</b> (cf. <a href="#DEFINE">DEFINE</a>) defines
+    preprocessor symbols to guide qdoc. You can write
+    "--define=DEBUG,QDOC" to define the preprocessor symbols DEBUG and
+    QDOC. You can use regular expression, but beware of special
+    characters of your command interpreter.
+
+   <p><li><a name="--false"></a>
+    <b>--false</b> (cf. <a href="#FALSE">FALSE</a>) specifies what
+    atomic preprocessor predicates to consider as false. The syntax
+    is similar to that of <a href="#--define">--define</a>.
+
+   <p><li><a name="--help"></a>
+    <b>--help</b> displays the list of long options, together with the
+    current values of some options in brackets, and exits.
+
+   <p><li><a name="--help-short"></a>
+    <b>--help-short</b> displays the list of short options, together
+    with the current values of some options in brackets, and exits.
+
+   <p><li><a name="--internal"></a>
+    <b>--internal</b> (cf. <a href="#INTERNAL">INTERNAL</a>) controls
+    whether qdoc generates internal or public documentation. Use
+    "--internal" (or "--internal=yes") to generate internal
+    documentation, and "--internal=no" to generate public
+    documentation.
+
+   <p><li><a name="--max-similar"></a>
+    <b>--max-similar</b> (cf. <a href="#MAXSIMILAR">MAXSIMILAR</a>)
+    sets a limit on the number of similar warnings.
+
+   <p><li><a name="--max-warnings"></a>
+    <b>--max-warnings</b> is equivalent to
+    <a href="#MAXWARNINGS">MAXWARNINGS</a>. It sets a global limit on
+    the number of warnings emitted.
+
+   <p><li><a name="--only"></a>
+    <b>--only</b> is equivalent to <a href="#ONLY">ONLY</a>. It allows
+    to generate only a subset of the HTML files. For example,
+    "--only=qpushbutton,tutorial" makes qdoc run much faster by
+    generating only qpushbutton.html and tutorial.html (and related
+    files).
+
+    The generated files have the same quality as usual, because all
+    the include files and source files are read anyway.
+   <p><li><a name="--output-dir"></a>
+    <b>--output-dir</b> sets the directory where qdoc puts the
+    generated documentation. Example:
+    "--output-dir=/home/warwick/qt/doc/html".
+
+   <p><li><a name="--supervisor"></a>
+    <b>--supervisor</b> instructs qdoc to warn or not about changes in
+    the documentation since the previous run. Use "--supervisor" (or
+    "--supervisor=yes") to enable supervisor mode and
+    "--supervisor=no" to disable it.
+
+   <p><li><a name="--version"></a>
+    <b>--version</b> prints the qdoc version number and exits.
+
+    Try this option now. You should get the following message:
+    <pre>
+    qdoc version 1.94</pre>
+    If you get, say, "qdoc version 2.53", twist
+    <a href="mailto:jasmin@trolltech.com">somebody</a>'s arm and get
+    him to update this documentation.
+
+   <p><li><a name="--warning-level"></a>
+    <b>--warning-level</b> sets the warning level (between 0 and 4).
+    Use "--warning-level=4" to get important and unimportant warnings
+    alike.
+  </ul>
+
+  Here are the short options:
+
+  <ul>
+   <p><li><a name="-a"></a>
+    <b>-a</b> (cf. <a href="#--auto-hrefs">--auto-hrefs</a>) enables
+    automatic links.
+
+   <p><li><a name="-A"></a>
+    <b>-A</b> disable most automatic links.
+
+   <p><li><a name="-D"></a>
+    <b>-D</b> (cf. <a href="#--define">--define</a>) defines
+    preprocessor symbols. For example, "-DDEBUG" defines the symbol
+    DEBUG.
+
+   <p><li><a name="-F"></a>
+    <b>-F</b> (cf. <a href="#--false">--false</a>) defines false
+    preprocessor predicates.
+
+    For example, "-F1" states that "1" is
+    false. This might look silly, but some people got the habit of
+    bracketing code with <nobr>"#if 1 ... #endif"</nobr> to have it
+    processed by C++ but not by qdoc. A better solution is to use
+    <nobr>"#ifdef QDOC ... #endif"</nobr> and to
+    <a href="--define">--define</a> QDOC.
+
+   <p><li><a name="-h"></a>
+    <b>-h</b> (cf. <a href="#--help">--help</a>) displays the list of
+    long options and exits.
+
+   <p><li><a name="-H"></a>
+    <b>-H</b> (cf. <a href="#--help-short">--help-short</a>) displays
+    the list of short options and exits.
+
+   <p><li><a name="-i"></a>
+    <b>-i</b> (cf. <a href="#--internal">--internal</a>) produces
+    internal documentation.
+
+   <p><li><a name="-I"></a>
+    <b>-I</b> produces public documentation.
+
+   <p><li><a name="-m"></a>
+    <b>-m</b> (cf. <a href="#--max-similar">--max-similar</a>) limits
+    the number of similar warnings. For example, "-m32" limits that
+    number to 32.
+
+   <p><li><a name="-M"></a>
+    <b>-M</b> (cf. <a href="#--max-warnings">--max-warnings</a>)
+    limits the number of warnings. For example, "-M128" prints only
+    the 128 first warnings.
+
+   <p><li><a name="-O"></a>
+    <b>-O</b> (cf. <a href="#--only">--only</a>) generates only
+    matching HTML files. For example, "-Oqpushbutton,tutorial"
+    generates only qpushbutton.html and tutorial.html (and related
+    files).
+
+   <p><li><a name="-s"></a>
+    <b>-s</b> (cf. <a href="#--supervisor">--supervisor</a>) enables
+    supervisor mode.
+
+   <p><li><a name="-S"></a>
+    <b>-S</b> disables supervisor mode.
+
+   <p><li><a name="-v"></a>
+    <b>-v</b> prints the version number and exits.
+
+   <p><li><a name="-W"></a>
+    <b>-W</b> (cf. <a href="#--warning-level">--warning-level</a>)
+    controls the warning level: "-W0", "-W1", "-W2", "-W3", "-W4".
+    Also, "-Wall" removes every limit and every warning is emitted,
+    and "-Wnone" shuts off all warnings.
+  </ul>
+
+  <a name="join"></a>
+
+  <img src="join.png" align=right width=192 height=192
+  alt="Three bath ducks">
+
+  <h2>Joining the qdoc community</h2>
+
+  To join Badegakk (the qdoc user group), send your name with your
+  address and a $2.56 check to
+  <blockquote>
+    Badegakk<br>
+    Trolltech AS<br>
+    Waldemar Thranes 98<br>
+    N-0175 Oslo<br>
+    Norway
+  </blockquote>
+
+  <a name="fnord"></a>
+*/
+
+/*! \base64 finland.png
+
+    iVBORw0KGgoAAAANSUhEUgAAABoAAAAQAQMAAAAyH/3rAAAABlBMVEUAM8z///9/www1AAAA
+    FnRFWHRTb2Z0d2FyZQBnaWYycG5nIDIuMy4xPxgAMQAAABRJREFUeNpj+M///wADTgInwKUD
+    APLOHtC/EegpAAAAAElFTkSuQmCCpiVBORw0KGgoAAAANSUhEUgAAABoAAAAQAQMAAAAyH/3
+    rAAAABlBMVEUAM8z///9/www1AAAAFnRFWHRTb2Z0d2FyZQBnaWYycG5nIDIuMy4xPxgAMQA
+    AABRJREFUeNpj+M///wADTgInwKUDAPLOHtC/EegpAAAAAElFTkSuQmC
+*/
+
+/*! \base64 badegakk.png
+
+    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
+    AAAAAElFTkSuQmCC
+*/
+
+/*! \base64 commands.png
+
+    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
+*/
+
+/*! \base64 food.png
+
+    iVBORw0KGgoAAAANSUhEUgAAAMAAAADABAMAAACg8nE0AAAAGFBMVEX+YXf+cpD+gaf+lcf+
+    qtr+vtr+z+3/+PgNBitPAAAAFnRFWHRTb2Z0d2FyZQBnaWYycG5nIDIuMy4xPxgAMQAABKJJ
+    REFUeNrtmU1T2zAQhmVC8DVOW3QNLa2voS3kCrTTXGHaTq6UlvhqKYn192vHjq2P1YcDmWln
+    VsyAsWU92l3p1Uom4sCFIAABCEAAAhCAAAQgAAEIQAACEIAABCAAAf87oHg6PyggSd5+jA8H
+    eEjS6vfBAPmH2kvxgQCbk+aCgoCn7LmAV60lAICNP51R7wgZRQuHAa1nWh91AF55j9lbvtp1
+    8SaaWSPQXd4ZgOG2GZsJyTF/3XbgIrH4kpmXLWBsVJHKely2yOdd7M5mPoCIVcB90yfQhF+n
+    2z9vhGh7ft0TwFOhj6+u7B4ywSWf+QCvFcBvsE4zNFpmLD0sUj5OUgfgTgFQB+B7JwPyw++l
+    334trKNod90ApK7oPiqkeB5J91eZojlG71TAwg7gcrTlB6miOYYFzKZFsfb/NYEbAJAOF827
+    B9oIv8i4SzpWmQ3wwRYDtb31zCNO1AagCiC2ueGddwHoDVDG6cZngBozGTBTAD8sLuL+JeAb
+    DOCq2DFt+DmEwyUPdjXN4UY3acAqRkMALAWHdg41eGIPggRYaOtB7HSkcyZKFjyad3eAM7CL
+    7+MAQAyy9DU5l3zU+WuU+V2UDyFWkepLpixKN8l4RKofMGtic02OZsAAZEa7SjyXRQZ6A57d
+    bS02cwBEiLvh0Ld9mwCS2QdQNO0ZNQeEDM7vRlEChLsDfIWU7BSYs+bYffi5XH75JAQkB8Q5
+    qbgS5p0Fc6eiWnc4UK18vjan1ImZVmb2MEmAzCP2QpxqQ8UePxYIeNReqzwbiX0BvvWwrs3o
+    SwL0F1fk4kgEdAQEsKAXE/GigJD1JhgAzOQidGtpvmnO5ALo7SoQcOmwibhizMLaZ6nDKAIn
+    mX4JkGbtGyil1JdMQAACAewVeHuiA+i+gEtLVpyqAC72jYFtKE+0RX9vgK1SM1KdFqwCZ9kc
+    vH+hAAxDb8+XpT7fWjceZLSLWr62HFxQGSDHeEKqMtr+tgFKzZvuriNxn4yAUAwsgMng3eVt
+    nVpeWcWBduNETKOy3mMMa7GZm+ZRQJS5/E49qdgClAvDgiICDhFgQKaqQALuDw0L1JwBzrwY
+    ocrQrg1dU2iaGoCBdX9k7L+Y5skbaILoLnJs3e1lCM4lDgLyPdSozUdUH21AwHAPsYjh2hTS
+    olwL1JW/+c3EknaDgCgof1dHY2xRVhWw3la7o/0BsuepqeOkE5TSjCOxB4BbQjbTFv3BE/cf
+    HnmSllXqSN+nhFB/RiXc2RM1bpOeKZtnZ86M1coDWPQE8IAzO8X6eU+AeT7qAQR9UKDg9e8g
+    F4Wk18q5YG45UntOkBVBLJLP4JGarTRnk+KPo85YS0cSBesBsNr8nJCwGG+N2J7RnIcB6u6V
+    EqKcHww9iv42GZ2lgYCq4W0ecCzdu15IpxaeNcn7He1h+J7M1XbyxoRVTPxy5f9Qd998dCob
+    IvVycSxYuZsoppHgschnzwXsynW5B3+sqlcfy0plJJUZ06OBeClATvMqI7qsc9JimRmHic8E
+    CFLFeRURKvqUHgC2EHsU/KaPAAQgAAEIQAACEIAABCAAAQhAAAIQgAAEIAABCPjXAH8BPDvh
+    ziL4tBYAAAAASUVORK5CYII=
+*/
+
+/*! \base64 join.png
+
+    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
+*/
+
+/*! \base64 run.png
+
+    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
+    QmCC
+*/
