@@ -911,6 +911,28 @@ if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
     echo "Performing shadow build..."
 fi
 
+#detect how jpeg should be built
+if [ "$CFG_JPEG" = "auto" ]; then
+    if [ "$EMBEDDED" = "yes" ]; then
+	CFG_JPEG=no
+    elif [ "$CFG_SHARED" = "yes" ]; then
+	CFG_JPEG=plugin
+    else
+	CFG_JPEG=yes
+    fi
+fi
+
+#detect how mng should be built
+if [ "$CFG_MNG" = "auto" ]; then
+    if [ "$EMBEDDED" = "yes" ]; then
+	CFG_MNG=no
+    elif [ "$CFG_SHARED" = "yes" ]; then
+	CFG_MNG=plugin
+    else
+	CFG_MNG=yes
+    fi
+fi
+
 # if the source tree is different from the build tree,
 # symlink or copy part of the sources
 if [ "$OPT_SHADOW" = "yes" ]; then
@@ -1227,8 +1249,6 @@ if [ "$PLATFORM_QWS" = "yes" -o "$PLATFORM_QNX" = "yes" ]; then
     CFG_SM=no
     MODULES=`echo $MODULES | sed -e 's/opengl//'`
     PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
-    [ "$CFG_JPEG" = "auto" ] && CFG_JPEG=no
-    [ "$CFG_MNG" = "auto" ] && CFG_MNG=no
 else
     PLATFORMS=`find $relpath/mkspecs/ -type f | grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
 fi
