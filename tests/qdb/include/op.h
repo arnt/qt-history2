@@ -78,7 +78,8 @@ protected:
 class Noop : public Op
 {
 public:
-    Noop() {}
+    Noop( const QString& comment = QString::null )
+	: Op( comment ) {}
     ~Noop() {}
     QString name() const { return "noop"; }
     int exec( localsql::Environment* )
@@ -940,14 +941,14 @@ public:
     }
 };
 
-/* UnMarks the current record of the file identified by 'id'.  The file
+/* Unmarks the current record of the file identified by 'id'.  The file
 must be open and positioned on a valid record.
 */
 
-class UnMark : public Op
+class Unmark : public Op
 {
 public:
-    UnMark( int id )
+    Unmark( int id )
 	: Op( id ) {}
     QString name() const { return "unmark"; }
     int exec( localsql::Environment* env )

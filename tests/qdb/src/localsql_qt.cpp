@@ -22,12 +22,12 @@
 
 */
 
-#include <localsql_qt.h>
+#include "../include/localsql_qt.h"
 
 #include <qdatetime.h>
 #include <qregexp.h>
 #include <qdir.h>
-#include <xdb/localsql.h>
+#include "../include/localsql.h"
 
 class LocalSQLResult::LocalSQLPrivate
 {

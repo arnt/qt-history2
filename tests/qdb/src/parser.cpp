@@ -72,7 +72,10 @@ bool Parser::parse( const QString& commands, localsql::Environment *env )
     yyProg = env->program();
     yyNextLabel = -1;
     yyOK = TRUE;
-    yyOpenedTables.clear();
+    yyOpenedTableMap.clear();
+    yyActiveTableMap.clear();
+    yyActiveTableIds.clear();
+    yyLookedUpColumnMap.clear();
 
     matchSql();
     return yyOK;
@@ -509,7 +512,61 @@ int Parser::getToken()
     return Tok_Eoi;
 }
 
-void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
+void Parser::lookupNames( QVariant *expr )
+{
+    if ( expr->type() == QVariant::List ) {
+	QValueList<QVariant>::Iterator v = expr->asList().begin();
+	int tok = (*v).toInt();
+
+	if ( tok == Tok_Name ) {
+	    QValueList<QVariant>::Iterator updateMe = ++v;
+	    QString tableName = (*updateMe).toString();
+	    QString columnName = (*++v).toString();
+	    QMap<QString, int>::ConstIterator id;
+
+	    if ( tableName.isEmpty() ) {
+		int numTables = (int) yyActiveTableIds.count();
+		if ( numTables == 1 ) {
+		    *updateMe = yyActiveTableIds.first();
+		} else {
+		    id = yyLookedUpColumnMap.find( columnName );
+		    if ( id == yyLookedUpColumnMap.end() ) {
+			int aliasId = -( yyLookedUpColumnMap.count() + 1 );
+			id = yyLookedUpColumnMap.insert( columnName, aliasId );
+
+			QMap<QString, int>::ConstIterator t =
+				yyActiveTableMap.begin();
+			while ( t != yyActiveTableMap.end() ) {
+			    yyProg->append( new Push(*t) );
+			    ++t;
+			}
+			yyProg->append( new MakeList(numTables) );
+			yyProg->append( new LookupUnique(columnName, aliasId) );
+		    }
+		    *updateMe = *id;
+		}
+	    } else {
+		id = yyActiveTableMap.find( tableName );
+		if ( id == yyActiveTableMap.end() ) {
+		    error( "Table '%s' cannot be used in this statement",
+			   tableName.latin1() );
+		    id = yyActiveTableMap.insert( tableName, 666 );
+		    yyActiveTableIds.append( *id );
+		}
+		*updateMe = *id;
+	    }
+	} else {
+	    ++v;
+	    while ( v != expr->asList().end() ) {
+		lookupNames( &*v );
+		++v;
+	    }
+	}
+    }
+}
+
+void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
+		       int falseLab )
 {
     /*
       An expression is an atom or a list. A list has the operator as
@@ -527,26 +584,29 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	case Tok_Name:
 	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
-	    yyProg->append( new PushFieldValue(tableId, field) );
+	    if ( fieldValues )
+		yyProg->append( new PushFieldValue(tableId, field) );
+	    else
+		yyProg->append( new PushFieldDesc(tableId, field) );
 	    break;
 	case Tok_and:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, nextCond, falseLab );
+	    emitExpr( *++v, fieldValues, nextCond, falseLab );
 	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, trueLab, falseLab );
+	    emitExpr( *++v, fieldValues, trueLab, falseLab );
 	    break;
 	case Tok_not:
-	    emitExpr( *++v, falseLab, trueLab );
+	    emitExpr( *++v, fieldValues, falseLab, trueLab );
 	    break;
 	case Tok_or:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, trueLab, nextCond );
+	    emitExpr( *++v, fieldValues, trueLab, nextCond );
 	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, trueLab, falseLab );
+	    emitExpr( *++v, fieldValues, trueLab, falseLab );
 	    break;
 	default:
-	    emitExpr( *++v );
-	    emitExpr( *++v );
+	    emitExpr( *++v, fieldValues );
+	    emitExpr( *++v, fieldValues );
 
 	    switch ( tok ) {
 	    case Tok_Equal:
@@ -580,81 +640,146 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
     }
 }
 
-int Parser::emitOpenTable( const QString& tableName )
+void Parser::emitCondition( const QVariant& cond,
+			    const QValueList<QVariant>& constants,
+			    const QValueList<QVariant>& columnsToSave,
+			    int level )
 {
-    QMap<QString, int>::ConstIterator t = yyOpenedTables.find( tableName );
-    if ( t == yyOpenedTables.end() ) {
-	int tableId = yyOpenedTables.count();
-	yyOpenedTables.insert( tableName, tableId );
-	yyProg->append( new Open(tableId, tableName) );
-	return tableId;
+    int tableId = yyActiveTableIds[level];
+    int lastLevel = (int) yyActiveTableIds.count() - 1;
+    bool saving = !columnsToSave.isEmpty();
+
+#define NEED_A_LOOP() ( cond.isValid() || lastLevel > 0 )
+
+    QValueList<QVariant> constantsForLevel;
+    if ( yyActiveTableIds.count() == 1 ) {
+	constantsForLevel = constants;
     } else {
-	return *t;
+	QValueList<QVariant>::ConstIterator c = constants.begin();
+	while ( c != constants.end() ) {
+	    if ( (*c).toList()[1] == tableId )
+		constantsForLevel.append( *c );
+	    ++c;
+	}
+    }
+
+    if ( constantsForLevel.isEmpty() ) {
+	if ( saving )
+	    yyProg->append( new MarkAll(tableId) );    
+    } else {
+	emitConstants( constants );
+	if ( saving && !NEED_A_LOOP() ) {
+	    emitExprList( columnsToSave, FALSE );
+	    yyProg->append( new MakeList(2) );
+	    yyProg->append( new RangeSave(tableId, 0) );
+	} else {
+	    yyProg->append( new RangeMark(tableId) );
+	}
+    }
+
+    int nextRecord = yyNextLabel--;
+    int endRecords = yyNextLabel--;
+
+    if ( NEED_A_LOOP() ) {
+	yyProg->appendLabel( nextRecord );
+	yyProg->append( new NextMarked(tableId, endRecords) );
+
+	if ( level == lastLevel ) {
+	    if ( saving ) {
+		int saveRecord = yyNextLabel--;
+		emitExpr( cond, TRUE, saveRecord, nextRecord );
+		yyProg->appendLabel( saveRecord );
+		emitExprList( columnsToSave, TRUE );
+		yyProg->append( new SaveResult(0) );
+	    } else {
+		int unmarkRecord = yyNextLabel--;
+		emitExpr( cond, TRUE, nextRecord, unmarkRecord );
+		yyProg->appendLabel( unmarkRecord );
+		yyProg->append( new Unmark(tableId) );
+	    }
+	} else {
+	    emitCondition( cond, constants, columnsToSave, level + 1 );
+	}
+
+	yyProg->append( new Goto(nextRecord) );
+	yyProg->appendLabel( endRecords );
+	// yyProg->append( new Noop );
     }
 }
 
-void Parser::emitCloseTables()
+void Parser::emitExprList( const QValueList<QVariant>& exprs, bool fieldValues )
 {
-    int i = (int) yyOpenedTables.count() - 1;
-    while ( i >= 0 ) {
-	yyProg->append( new Close(i) );
-	i--;
+    QValueList<QVariant>::ConstIterator e = exprs.begin();
+    while ( e != exprs.end() ) {
+	emitExpr( *e, fieldValues );
+	++e;
     }
-    yyOpenedTables.clear();
+    yyProg->append( new MakeList(exprs.count()) );
 }
 
-int Parser::emitConjunctiveClause( const QVariant& expr )
+void Parser::emitConstants( const QValueList<QVariant>& constants )
 {
-    QValueList<QVariant>::ConstIterator v = expr.listBegin();
-    int tok = (*v).toInt();
-    if ( tok == Tok_and ) {
-	return emitConjunctiveClause( *++v ) + emitConjunctiveClause( *++v );
-    } else { /* tok == Tok_Equal */
-	QValueList<QVariant>::ConstIterator w = (*++v).listBegin();
-	int tableId = (*++w).toInt();
-	QString field = (*++w).toString();
-	yyProg->append( new PushFieldDesc(tableId, field) );
+    QValueList<QVariant>::ConstIterator v = constants.begin();
+    while ( v != constants.end() ) {
+	QValueList<QVariant>::ConstIterator w = (*v).listBegin();
+	QValueList<QVariant> nameExpr = (*++w).toList();
+	QVariant valueExpr = *++w;
 
-	emitExpr( *++v );
+	emitExpr( nameExpr, FALSE );
+	emitExpr( valueExpr, FALSE );
 	yyProg->append( new MakeList(2) );
-	return 1;
+	++v;
     }
+    yyProg->append( new MakeList(constants.count()) );
 }
 
-bool Parser::isName( const QVariant& expr )
+int Parser::activateTable( const QString& tableName )
 {
-    return expr.type() == QVariant::List &&
-	   (*expr.listBegin()).toInt() == Tok_Name;
-}
-
-bool Parser::isInNameEqualValueForm( const QVariant& expr )
-{
-    if ( expr.type() == QVariant::List ) {
-	QValueList<QVariant>::ConstIterator v = expr.listBegin();
-	if ( (*v).toInt() != Tok_Equal )
-	    return FALSE;
-	v++;
-	if ( !isName(*v) )
-	    return FALSE;
-	v++;
-	return (*v).type() != QVariant::List;
-    } else {
-	return FALSE;
+    QMap<QString, int>::ConstIterator t = yyOpenedTableMap.find( tableName );
+    if ( t == yyOpenedTableMap.end() ) {
+	int tableId = yyOpenedTableMap.count();
+	t = yyOpenedTableMap.insert( tableName, tableId );
+	yyProg->append( new Open(tableId, tableName) );
     }
+    yyActiveTableMap.insert( tableName, *t );
+    yyActiveTableIds.append( *t );
+    return *t;
 }
 
-bool Parser::isInConjunctiveForm( const QVariant& expr )
+void Parser::deactivateTables()
 {
-    if ( expr.type() != QVariant::List )
-	return FALSE;
+    yyActiveTableMap.clear();
+    yyLookedUpColumnMap.clear();
+}
 
-    QValueList<QVariant>::ConstIterator v = expr.listBegin();
-    int tok = (*v).toInt();
-    if ( tok == Tok_and )
-	return tok == Tok_and && isInConjunctiveForm( *++v ) &&
-	       isInConjunctiveForm( *++v );
-    else
-	return isInNameEqualValueForm( expr );
+void Parser::closeAllTables()
+{
+    int n = (int) yyOpenedTableMap.count();
+    for ( int i = 0; i < n; i++ )
+	yyProg->append( new Close(i) );
+    yyOpenedTableMap.clear();
+}
+
+void Parser::pourConstantsIntoCondition( QVariant *cond,
+					 QValueList<QVariant> *constants )
+{
+    if ( constants == 0 )
+	return;
+
+    QValueList<QVariant>::ConstIterator c = constants->begin();
+    while ( c != constants->end() ) {
+	if ( cond->isValid() ) {
+	    QValueList<QVariant> andExpr;
+	    andExpr.append( (int) Tok_and );
+	    andExpr.append( *c );
+	    andExpr.append( *cond );
+	    *cond = andExpr;
+	} else {
+	    *cond = *c;
+	}
+	++c;
+    }
+    constants->clear();
 }
 
 void Parser::matchOrInsert( int target, const QString& targetStr )
@@ -693,22 +818,23 @@ QString Parser::matchTable()
 
 QVariant Parser::matchColumnRef()
 {
-    QStringList ref;
+    QString tableName;
+    QString columnName;
+    int numDots = 0;
 
-    ref.append( matchName() );
-    if ( yyTok == Tok_Dot ) {
+    while ( TRUE ) {
+	columnName = matchName();
+	if ( yyTok != Tok_Dot || numDots == 2 )
+	    break;
 	yyTok = getToken();
-	ref.append( matchName() );
-	if ( yyTok == Tok_Dot ) {
-	    yyTok = getToken();
-	    ref.append( matchName() );
-	}
+	numDots++;
+	tableName = columnName;
     }
 
     QValueList<QVariant> expr;
     expr.append( (int) Tok_Name );
-    expr.append( 0 ); // ### tableId
-    expr.append( ref.join(QChar('.')) );
+    expr.append( tableName );
+    expr.append( columnName );
     return expr;
 }
 
@@ -740,7 +866,6 @@ QVariant Parser::matchPrimaryExpr()
 	yyTok = getToken();
 	right = matchScalarExpr();
 	matchOrInsert( Tok_RightParen, "')'" );
-	emitExpr( right );
 	break;
     case Tok_Name:
 	right = matchColumnRef();
@@ -859,17 +984,29 @@ QVariant Parser::matchAtomList()
     return atoms;
 }
 
-QVariant Parser::matchPredicate()
+QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 {
     QValueList<QVariant> pred;
     QValueList<QVariant> between;
     QVariant left;
-    bool maybeColumnRef = ( yyTok == Tok_Name );
+    QVariant right;
+    bool leftMayBeColumnRef = ( yyTok == Tok_Name ); // ### leftIs?
 
     left = matchScalarExpr();
 
     switch ( yyTok ) {
     case Tok_Equal:
+	pred.append( yyTok );
+	yyTok = getToken();
+	right = matchScalarExpr();
+	pred.append( left );
+	pred.append( right );
+	if ( constants != 0 && leftMayBeColumnRef &&
+	     right.type() != QVariant::List ) {
+	    constants->append( pred );
+	    return QVariant();
+	}
+	break;
     case Tok_NotEq:
     case Tok_LessThan:
     case Tok_GreaterEq:
@@ -914,7 +1051,7 @@ QVariant Parser::matchPredicate()
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_is:
-	if ( !maybeColumnRef )
+	if ( !leftMayBeColumnRef )
 	    error( "Expected column reference before 'is'" );
 
 	yyTok = getToken();
@@ -958,11 +1095,11 @@ QVariant Parser::matchPredicate()
     return pred;
 }
 
-QVariant Parser::matchPrimarySearchCondition()
+QVariant Parser::matchPrimarySearchCondition( QValueList<QVariant> *constants )
 {
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
-	QVariant expr = matchSearchCondition();
+	QVariant expr = matchSearchCondition( constants );
 	matchOrInsert( Tok_RightParen, "')'" );
 	return expr;
     } else if ( yyTok == Tok_not ) {
@@ -973,68 +1110,84 @@ QVariant Parser::matchPrimarySearchCondition()
 	notExpr.append( matchSearchCondition() );
 	return notExpr;
     } else {
-	return matchPredicate();
+	return matchPredicate( constants );
     }
 }
 
-QVariant Parser::matchAndSearchCondition()
+QVariant Parser::matchAndSearchCondition( QValueList<QVariant> *constants )
 {
     QVariant left;
+    QVariant right;
 
-    left = matchPrimarySearchCondition();
-    while ( yyTok == Tok_and ) {
-	QValueList<QVariant> andCond;
-	andCond.append( yyTok );
+    while ( TRUE ) {
+	right = matchPrimarySearchCondition( constants );
+
+	if ( left.isValid() && right.isValid() ) {
+	    QValueList<QVariant> andCond;
+	    andCond.append( (int) Tok_and );
+	    andCond.append( left );
+	    andCond.append( right );
+	    left = andCond;
+	} else {
+	    left = right;
+	}
+
+	if ( yyTok != Tok_and )
+	    break;
 	yyTok = getToken();
-	andCond.append( left );
-	andCond.append( matchPrimarySearchCondition() );
-	left = andCond;
     }
     return left;
 }
 
-QVariant Parser::matchSearchCondition()
+QVariant Parser::matchSearchCondition( QValueList<QVariant> *constants )
 {
     QVariant left;
 
-    left = matchAndSearchCondition();
-    while ( yyTok == Tok_or ) {
-	QValueList<QVariant> cond;
-	cond.append( yyTok );
-	yyTok = getToken();
-	cond.append( left );
-	cond.append( matchAndSearchCondition() );
-	left = cond;
+    left = matchAndSearchCondition( constants );
+    if ( yyTok == Tok_or ) {
+	pourConstantsIntoCondition( &left, constants );
+	do {
+	    QValueList<QVariant> cond;
+	    cond.append( yyTok );
+	    yyTok = getToken();
+	    cond.append( left );
+	    cond.append( matchAndSearchCondition() );
+	    left = cond;
+	} while ( yyTok == Tok_or );
     }
     return left;
 }
 
-void Parser::matchOptWhereClause( int tableId )
+void Parser::matchOptWhereClause( const QValueList<QVariant>& columnsToSave )
 {
-    QVariant clause;
+    QVariant cond;
+    QValueList<QVariant> constants;
+    QValueList<QVariant> optimizableConstants;
+    QValueList<QVariant> unoptimizableConstants;
 
     if ( yyTok == Tok_where ) {
 	yyTok = getToken();
-	clause = matchSearchCondition();
+	cond = matchSearchCondition( &constants );
+
+	int unoptimizableTableId = -1;
+	if ( yyActiveTableIds.count() > 1 )
+	    unoptimizableTableId = yyActiveTableIds.last();
+
+	lookupNames( &cond );
+	QValueList<QVariant>::Iterator c = constants.begin();
+	while ( c != constants.end() ) {
+	    lookupNames( &*c );
+	    int tableId = (*c).asList()[1].asList()[1].toInt();
+	    if ( tableId < 0 || tableId == unoptimizableTableId )
+		unoptimizableConstants.append( *c );
+	    else
+		optimizableConstants.append( *c );
+	    ++c;
+	}
     }
 
-    if ( tableId >= 0 && isInConjunctiveForm(clause) ) {
-	yyProg->append( new MakeList(emitConjunctiveClause(clause)) );
-	yyProg->append( new RangeMark(tableId) );
-    } else {
-	int nextRecord = yyNextLabel--;
-	int markRecord = yyNextLabel--;
-	int endRecords = yyNextLabel--;
-
-	yyProg->appendLabel( nextRecord );
-	yyProg->append( new Next(tableId, endRecords) );
-	emitExpr( clause, markRecord, nextRecord );
-	yyProg->appendLabel( markRecord );
-	yyProg->append( new Mark(tableId) );
-	yyProg->append( new Goto(nextRecord) );
-	yyProg->appendLabel( endRecords );
-	// yyProg->append( new Noop );
-    }
+    pourConstantsIntoCondition( &cond, &unoptimizableConstants );
+    emitCondition( cond, optimizableConstants, columnsToSave );
 }
 
 void Parser::matchCommitStatement()
@@ -1191,7 +1344,7 @@ void Parser::matchCreateStatement()
 	    yyTok = getToken();
 	}
 	matchOrInsert( Tok_on, "'on'" );
-	tableId = emitOpenTable( matchTable() );
+	tableId = activateTable( matchTable() );
 
 	matchOrInsert( Tok_LeftParen, "'('" );
 	columns = matchColumnList();
@@ -1235,7 +1388,9 @@ void Parser::matchInsertExpr()
 	yyTok = getToken();
 	error( "Null not supported yet" );
     } else {
-	emitExpr( matchScalarExpr() );
+	QVariant expr = matchScalarExpr();
+	lookupNames( &expr );
+	emitExpr( expr, TRUE );
     }
 }
 
@@ -1265,7 +1420,6 @@ void Parser::matchInsertExprList( const QStringList& columns )
     }
     if ( col != columns.end() )
 	error( "Met fewer values than columns" );
-
     yyProg->append( new MakeList(n) );
 }
 
@@ -1275,7 +1429,7 @@ void Parser::matchInsertStatement()
 
     yyTok = getToken();
     matchOrInsert( Tok_into, "'into'" );
-    int tableId = emitOpenTable( matchTable() );
+    int tableId = activateTable( matchTable() );
 
     if ( yyTok == Tok_LeftParen ) {
 	yyTok = getToken();
@@ -1300,7 +1454,15 @@ void Parser::matchRollbackStatement()
 void Parser::matchFromClause()
 {
     matchOrSkip( Tok_from, "'from'" );
-    matchTable();
+    while ( TRUE ) {
+	int tableId = activateTable( matchTable() );
+	if ( yyTok == Tok_Name )
+	    yyActiveTableMap.insert( matchName(), tableId );
+
+	if ( yyTok != Tok_Comma )
+	    break;
+	yyTok = getToken();
+    }
 }
 
 void Parser::matchOrderByClause()
@@ -1337,28 +1499,38 @@ void Parser::matchOrderByClause()
 
 void Parser::matchSelectStatement()
 {
+    QValueList<QVariant> columnsToSave;
+
     yyTok = getToken();
     if ( yyTok == Tok_Aster ) {
 	yyTok = getToken();
     } else {
 	while ( TRUE ) {
-	    matchScalarExpr();
+	    columnsToSave.append( matchScalarExpr() );
 
 	    if ( yyTok != Tok_Comma )
 		break;
 	    yyTok = getToken();
 	}
-	matchFromClause();
-	matchOptWhereClause();
-	if ( yyTok == Tok_order )
-	    matchOrderByClause();
     }
+
+    matchFromClause();
+
+    QValueList<QVariant>::Iterator c = columnsToSave.begin();
+    while ( c != columnsToSave.end() ) {
+	lookupNames( &*c );
+	++c;
+    }
+
+    matchOptWhereClause( columnsToSave );
+    if ( yyTok == Tok_order )
+	matchOrderByClause();
 }
 
 void Parser::matchUpdateStatement()
 {
     yyTok = getToken();
-    int tableId = emitOpenTable( matchTable() );
+    int tableId = activateTable( matchTable() );
     matchOrInsert( Tok_set, "'set'" );
 
     QMap<QString, QVariant> assignments;
@@ -1373,6 +1545,7 @@ void Parser::matchUpdateStatement()
 	    // ###
 	} else {
 	    right = matchScalarExpr();
+	    lookupNames( &right );
 	}
 	assignments.insert( left, right );
 
@@ -1381,7 +1554,7 @@ void Parser::matchUpdateStatement()
 	yyTok = getToken();
     }
 
-    matchOptWhereClause( tableId );
+    matchOptWhereClause();
 
     int nextMarkedRecord = yyNextLabel--;
     int endRecords = yyNextLabel--;
@@ -1393,7 +1566,7 @@ void Parser::matchUpdateStatement()
     QMap<QString, QVariant>::ConstIterator as = assignments.begin();
     while ( as != assignments.end() ) {
 	yyProg->append( new PushFieldDesc(tableId, as.key()) );
-	emitExpr( *as );
+	emitExpr( *as, TRUE );
 	yyProg->append( new MakeList(2) );
 	++as;
     }
@@ -1433,6 +1606,7 @@ void Parser::matchSql()
 {
     while ( yyTok != Tok_Eoi ) {
 	matchManipulativeStatement();
+	deactivateTables();
 
 	if ( yyTok != Tok_Semicolon )
 	    break;
@@ -1441,5 +1615,5 @@ void Parser::matchSql()
     if ( yyTok != Tok_Eoi )
 	error( "Unexpected '%s' where ';' was expected", yyLex );
 
-    emitCloseTables();
+    closeAllTables();
 }

@@ -164,15 +164,25 @@ private:
     localsql::Program *yyProg;
     int yyNextLabel;
     bool yyOK;
-    QMap<QString, int> yyOpenedTables;
+    QMap<QString, int> yyOpenedTableMap;
+    QMap<QString, int> yyActiveTableMap;
+    QValueList<int> yyActiveTableIds;
+    QMap<QString, int> yyLookedUpColumnMap;
 
-    void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
-    int emitOpenTable( const QString& tableName );
-    void emitCloseTables();
-    int emitConjunctiveClause( const QVariant& expr );
-    bool isName( const QVariant& expr );
-    bool isInNameEqualValueForm( const QVariant& expr );
-    bool isInConjunctiveForm( const QVariant& expr );
+    void lookupNames( QVariant *expr );
+    void emitExpr( const QVariant& expr, bool fieldValues, int trueLab = 0,
+		   int falseLab = 0 );
+    void emitCondition( const QVariant& cond,
+			const QValueList<QVariant>& constants,
+			const QValueList<QVariant>& columnsToSave,
+			int level = 0 );
+    void emitExprList( const QValueList<QVariant>& exprs, bool fieldValues );
+    void emitConstants( const QValueList<QVariant>& constants );
+    int activateTable( const QString& tableName );
+    void deactivateTables();
+    void closeAllTables();
+    void pourConstantsIntoCondition( QVariant *cond,
+				     QValueList<QVariant> *constants );
 
     void matchOrInsert( int target, const QString& targetStr );
     void matchOrSkip( int target, const QString& targetStr );
@@ -185,11 +195,12 @@ private:
     QVariant matchScalarExpr();
     QVariant matchAtom();
     QVariant matchAtomList();
-    QVariant matchPredicate();
-    QVariant matchPrimarySearchCondition();
-    QVariant matchAndSearchCondition();
-    QVariant matchSearchCondition();
-    void matchOptWhereClause( int driver = -1 );
+    QVariant matchPredicate( QValueList<QVariant> *constants = 0 );
+    QVariant matchPrimarySearchCondition( QValueList<QVariant> *constants = 0 );
+    QVariant matchAndSearchCondition( QValueList<QVariant> *constants = 0 );
+    QVariant matchSearchCondition( QValueList<QVariant> *constants = 0 );
+    void matchOptWhereClause( const QValueList<QVariant>& columnsToSave =
+			      QValueList<QVariant>() );
     void matchCommitStatement();
     void matchDataType();
     QStringList matchColumnList();
