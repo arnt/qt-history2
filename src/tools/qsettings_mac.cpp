@@ -81,19 +81,22 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
 {
     if(file.isNull())
 	file = ".GlobalPreferences";
-    CFStringRef k = CFStringCreateWithCharacters(NULL, (UniChar *)key.unicode(), key.length()),
-	       id = CFStringCreateWithCharacters(NULL, (UniChar *)file.unicode(), file.length());
-    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)) {
-	if(CFGetTypeID(r) == CFStringGetTypeID()) {
+    CFStringRef k = CFStringCreateWithCharacters(0, (UniChar *)key.unicode(), key.length()),
+	       id = CFStringCreateWithCharacters(0, (UniChar *)file.unicode(), file.length());
+    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser,
+                                                    kCFPreferencesAnyHost)) {
+        CFTypeID typeID = CFGetTypeID(r);
+	if(typeID == CFStringGetTypeID()) {
 	    ret = cfstring2qstring((CFStringRef)r);
-	} else if(CFGetTypeID(r) == CFBooleanGetTypeID()) {
+	} else if(typeID == CFBooleanGetTypeID()) {
 	    ret = CFEqual((CFBooleanRef)r, kCFBooleanTrue) ? "TRUE" : "FALSE";
-	} else if(CFGetTypeID(r) == CFNumberGetTypeID()) {
+	} else if(typeID == CFNumberGetTypeID()) {
 	    int num;
 	    if(CFNumberGetValue((CFNumberRef)r, kCFNumberIntType, &num))
                 ret = QString::number(num);
         } else {
-	    qDebug("qt-internal::QSettings, %s: no hablo %d", key.latin1(), (int)CFGetTypeID(r));
+	    qWarning("qt-internal::QSettings, %s: unknown CFType %d", key.latin1(),
+                     (int)CFGetTypeID(r));
 	}
 	CFRelease(r);
     }
