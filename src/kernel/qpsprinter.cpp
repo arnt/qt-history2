@@ -221,63 +221,10 @@ static const char * const ps_header[] = {
 "  } ifelse",
 "} D",
 
-// uncompresses from currentfile until the string on the stack is full;
-// leaves the string there.  assumes that nothing could conceivably go
-// wrong.
-"/rC {",
-"  /rL 0 d",
-"  0",
-"  {", // string pos
-"    dup 2 index length ge { exit } if",
-"    1 rB",
-"    1 eq {", // compressed
-"      3 rB", // string pos bits
-"      dup 4 ge {",
-"        dup rB", // string pos bits extra
-"        1 index 5 ge {",
-"          1 index 6 ge {",
-"            1 index 7 ge {",
-"              64 add",
-"            } if",
-"            32 add",
-"          } if",
-"          16 add",
-"        } if",
-"        4 add",
-"       exch pop",
-"      } if",
-"      1 add 3 mul",
-"      ", // string pos length
-"      exch 10 rB 1 add 3 mul",
-"      ", // string length pos dist
-"      {",
-"       dup 3 index lt {",
-"         dup",
-"       } {",
-"         2 index",
-"       } ifelse", // string length pos dist length-this-time
-"       4 index 3 index 3 index sub 2 index getinterval",
-"       5 index 4 index 3 -1 roll putinterval",
-"       dup 4 -1 roll add 3 1 roll",
-"       4 -1 roll exch sub ",
-"       dup 0 eq { exit } if",
-"       3 1 roll",
-"      } loop", // string pos dist length
-"      pop pop",
-"    } {", // uncompressed
-"      3 rB 1 add 3 mul",
-"      {",
-"       2 copy 8 rB put 1 add",
-"      } repeat",
-"    } ifelse",
-"  } loop",
-"  pop",
-"} D",
-
 // uncompresses grayscale from currentfile until the string on the
 // stack is full; leaves the string there.  assumes that nothing could
 // conceivably go wrong.
-"/rG {",
+"/uc {",
 "  /rL 0 d",
 "  0",
 "  {", // string pos
@@ -5719,7 +5666,9 @@ static const int hashSize = 29;
 
 static const int None = INT_MAX;
 
-
+/* puts the lowest numBits of data into the out array starting at postion (byte/bit).
+   Adjusts byte and bit to point ot the next position
+*/
 static void emitBits( QByteArray & out, int & byte, int & bit,
                       int numBits, uint data )
 {
@@ -5744,37 +5693,54 @@ static void emitBits( QByteArray & out, int & byte, int & bit,
 
 
 QByteArray compress( const QImage & image, bool gray ) {
-    int size = image.width()*image.height();
+    int width = image.width();
+    int height = image.height();
+    int depth = image.depth();
+    int size = width*height;
+
     int pastPixel[tableSize];
     int mostRecentPixel[hashSize];
-    QRgb *pixel = new QRgb[size+1];
+    if ( depth == 1 )
+	size = (size+7)/8;
+    else if ( !gray )
+	size = size*3;
 
+    unsigned char *pixel = new unsigned char[size+1];
     int i = 0;
-    if ( image.depth() == 8 ) {
-        for( int y=0; y < image.height(); y++ ) {
+    if ( depth == 1 ) {
+	// XXXXXXXXXX
+    } else if ( depth == 8 ) {
+        for( int y=0; y < height; y++ ) {
             uchar * s = image.scanLine( y );
-            for( int x=0; x < image.width(); x++ ) {
-                pixel[i] = image.color( s[x] );
-		// commented out, as it doesn't seem to work correctly with 8bit images.
-#if 0
-               if ( qAlpha( pixel[i] )< 0x40 ) // 25% alpha, convert to white
-                   pixel[i] = qRgb( 0xff, 0xff, 0xff );
-               else
-#endif
-                    pixel[i] &= RGB_MASK;
-                i++;
+            for( int x=0; x < width; x++ ) {
+                QRgb rgb = image.color( s[x] );
+		if ( gray ) {
+		    pixel[i] = (unsigned char) qGray( rgb );
+		    i++;
+		} else {
+		    pixel[i] = (unsigned char) qRed( rgb );
+		    pixel[i+1] = (unsigned char) qGreen( rgb );
+		    pixel[i+2] = (unsigned char) qBlue( rgb );
+		    i += 3;
+		}
             }
         }
     } else {
-        for( int y=0; y < image.height(); y++ ) {
+        for( int y=0; y < height; y++ ) {
             QRgb * s = (QRgb*)(image.scanLine( y ));
-            for( int x=0; x < image.width(); x++ ) {
-		pixel[i] = (*s++);
-		if ( qAlpha( pixel[i] ) < 0x40 ) // 25% alpha, convert to white -
+            for( int x=0; x < width; x++ ) {
+		QRgb rgb = (*s++);
+		if ( qAlpha( rgb ) < 0x40 ) // 25% alpha, convert to white -
 		    pixel[i] = qRgb( 0xff, 0xff, 0xff );
-		else
-		    pixel[i] &= RGB_MASK;
-		i++;
+		if ( gray ) {
+		    pixel[i] = (unsigned char) qGray( rgb );
+		    i++;
+		} else {
+		    pixel[i] = (unsigned char) qRed( rgb );
+		    pixel[i+1] = (unsigned char) qGreen( rgb );
+		    pixel[i+2] = (unsigned char) qBlue( rgb );
+		    i += 3;
+		}
 	    }
 	}
     }
@@ -5945,17 +5911,8 @@ QByteArray compress( const QImage & image, bool gray ) {
                 emitBits( out, outOffset, outBit,
                           quoteSize, l-1 );
                 while( l-- ) {
-                    if ( gray ) {
-                        emitBits( out, outOffset, outBit,
-                                  8, qGray( pixel[emittedUntil] ) );
-                    } else {
-                        emitBits( out, outOffset, outBit,
-                                  8, qRed( pixel[emittedUntil] ) );
-                        emitBits( out, outOffset, outBit,
-                                  8, qGreen( pixel[emittedUntil] ) );
-                        emitBits( out, outOffset, outBit,
-                                  8, qBlue( pixel[emittedUntil] ) );
-                    }
+		    emitBits( out, outOffset, outBit,
+			      8, pixel[emittedUntil] );
                     emittedUntil++;
                 }
             }
@@ -6000,7 +5957,7 @@ QByteArray compress( const QImage & image, bool gray ) {
         outOffset++;
     out.truncate( outOffset );
     i = 0;
-    /* we have to make sure the date is encoded in a stylish way :) */
+    /* we have to make sure the data is encoded in a stylish way :) */
     while( i < outOffset ) {
         uchar c = out[i];
         c += 42;
@@ -6076,6 +6033,8 @@ static const char * psJoin( Qt::PenJoinStyle p ) {
 void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, float h,
                             const QImage &img )
 {
+    if ( !w || !h ) return;
+
     int width  = img.width();
     int height = img.height();
     float scaleX = (float)width/w;
@@ -6106,7 +6065,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
             pageStream << x << " " << y << " TR\n";
         if ( gray ) {
             pageStream << "/sl " << width*height << " string d\n";
-            pageStream << "sl rG\n";
+            pageStream << "sl uc\n";
             QByteArray out;
             out = ::compress( img.convertDepth( 8 ), TRUE );
             ps_r7( pageStream, out, out.size() );
@@ -6114,7 +6073,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
             pageStream << width << ' ' << height << " 8[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}image\n";
         } else {
             pageStream << "/sl " << width*3*height << " string d\n";
-            pageStream << "sl rC\n";
+            pageStream << "sl uc\n";
             QByteArray out;
             if ( img.depth() < 8 )
                 out = ::compress( img.convertDepth( 8 ), FALSE );
