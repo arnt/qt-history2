@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#48 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#48 $")
 
 
 /*!
@@ -479,9 +479,9 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 	    p->fillRect( r, i == actItem ? darkBlue : g.background() );
 	else if ( gs == MotifStyle ) {
 	    if ( i == actItem )				// active item frame
-		drawShadePanel( p, r, g, FALSE, motifItemFrame );
+		qDrawShadePanel( p, r, g, FALSE, motifItemFrame );
 	    else					// incognito frame
-		drawPlainRect( p, r, g.background(), motifItemFrame );
+		qDrawPlainRect( p, r, g.background(), motifItemFrame );
 	}
 	if ( mi->pixmap() )
 	    p->drawPixmap( r.left() + motifItemFrame,

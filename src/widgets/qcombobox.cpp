@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#28 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#28 $")
 
 /*!
   \class QComboBox qcombo.h
@@ -519,8 +519,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 
     if ( getMetrics( width(), height(), &dist, &buttonW, &buttonH ) ) {
 	int xPos = width() - dist - buttonW - 1;
-	drawShadePanel( &p, xPos, height() - 2 - dist - buttonH,
-			buttonW, buttonH, g, FALSE, 2 );
+	qDrawShadePanel( &p, xPos, height() - 2 - dist - buttonH,
+			 buttonW, buttonH, g, FALSE, 2 );
 	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	const char *str = d->popup->string( d->current );
@@ -535,7 +535,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    }
 	}
     }
-    drawShadePanel( &p, rect(), g, FALSE, 2 );
+    qDrawShadePanel( &p, rect(), g, FALSE, 2 );
     p.end();
 }
 

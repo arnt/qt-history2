@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#51 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#51 $")
 
 
 /*----------------------------------------------------------------------------
@@ -349,7 +349,7 @@ void QPushButton::drawButton( QPainter *paint )
 		p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
 	    }
 	    else
-		drawWinButton( p, x1, y1, w, h, g, TRUE );
+		qDrawWinButton( p, x1, y1, w, h, g, TRUE );
 	}
 	else {
 	    if ( defButton ) {
@@ -358,7 +358,7 @@ void QPushButton::drawButton( QPainter *paint )
 		x1++; y1++;
 		x2--; y2--;
 	    }
-	    drawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE );
+	    qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE );
 	}
 	if ( updated )
 	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
@@ -377,8 +377,8 @@ void QPushButton::drawButton( QPainter *paint )
 	}
 	int lw = isDown() ? 1 : 2;
 	QBrush fill( fillcol );
-	drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), lw,
-			updated ? &fill : 0 );
+	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), lw,
+			 updated ? &fill : 0 );
     }
     else if ( gs == PMStyle ) {			// PM push button
 	p->setPen( g.dark() );
@@ -414,15 +414,15 @@ void QPushButton::drawButton( QPainter *paint )
     }
     else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
-	    drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
 	    x1 += extraMotifWidth/2;
 	    y1 += extraMotifHeight/2;
 	    x2 -= extraMotifWidth/2;
 	    y2 -= extraMotifHeight/2;
 	}
 	QBrush fill( fillcol );
-	drawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), 2,
-			updated ? &fill : 0 );
+	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), 2,
+			 updated ? &fill : 0 );
     }
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#27 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#27 $")
 
 
 /*!
@@ -417,24 +417,24 @@ void QFrame::drawFrame( QPainter *p )
 
 	case Box:
 	    if ( style == Plain )
-		drawPlainRect( p, r, g.foreground(), lwidth );
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
 	    else
-		drawShadeRect( p, r, g, style == Sunken, lwidth,
-			       mwidth );
+		qDrawShadeRect( p, r, g, style == Sunken, lwidth,
+				mwidth );
 	    break;
 
 	case Panel:
 	    if ( style == Plain )
-		drawPlainRect( p, r, g.foreground(), lwidth );
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
 	    else
-		drawShadePanel( p, r, g, style == Sunken, lwidth );
+		qDrawShadePanel( p, r, g, style == Sunken, lwidth );
 	    break;
 
 	case WinPanel:
 	    if ( style == Plain )
-		drawPlainRect( p, r, g.foreground(), lwidth );
+		qDrawPlainRect( p, r, g.foreground(), lwidth );
 	    else
-		drawWinPanel( p, r, g, style == Sunken );
+		qDrawWinPanel( p, r, g, style == Sunken );
 	    break;
 
 	case HLine:
@@ -454,8 +454,8 @@ void QFrame::drawFrame( QPainter *p )
 		p->setPen( oldPen );
 	    }
 	    else
-		drawShadeLine( p, p1, p2, g, style == Sunken,
-			       lwidth, mwidth );
+		qDrawShadeLine( p, p1, p2, g, style == Sunken,
+				lwidth, mwidth );
 	    break;
     }
 }

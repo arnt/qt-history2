@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#40 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#40 $")
 
 
 /*!
@@ -414,7 +414,7 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 
     if ( frame ) {
 	QBrush fill( g.base() );
-	drawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
+	qDrawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
     }
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
 		    s.width()  - LEFT_MARGIN - RIGHT_MARGIN + 1,

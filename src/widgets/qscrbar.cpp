@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#49 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#48 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#49 $")
 
 
 /*----------------------------------------------------------------------------
@@ -315,7 +315,7 @@ void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p;
     p.begin( this );
-    drawShadePanel( &p, rect(), colorGroup(), TRUE );
+    qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
 			pressedControl, &p );
     p.end();
@@ -628,17 +628,17 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
     switch ( style() ) {
 	case WindowsStyle:
 	    if ( controls & ADD_LINE ) {
-		drawWinPanel( p, addB.x(), addB.y(),
-			      addB.width(), addB.height(), g,
-			      ADD_LINE_ACTIVE );
+		qDrawWinPanel( p, addB.x(), addB.y(),
+			       addB.width(), addB.height(), g,
+			       ADD_LINE_ACTIVE );
 		qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,WindowsStyle,
 			    ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 			    addB.width()-4, addB.height()-4, g );
 	    }
 	    if ( controls & SUB_LINE ) {
-		drawWinPanel( p, subB.x(), subB.y(),
-			      subB.width(), subB.height(), g,
-			      SUB_LINE_ACTIVE );
+		qDrawWinPanel( p, subB.x(), subB.y(),
+			       subB.width(), subB.height(), g,
+			       SUB_LINE_ACTIVE );
 		qDrawArrow( p, VERTICAL ? UpArrow : LeftArrow, WindowsStyle,
 			    SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			    subB.width()-4, subB.height()-4, g );
@@ -652,9 +652,9 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		p->drawRect( addPageR );
 	    if ( controls & SLIDER ) {
 		QBrush fill( g.background() );
-		drawWinPanel( p, sliderR.x(), sliderR.y(),
-			      sliderR.width(), sliderR.height(), g,
-			      FALSE, &fill );
+		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
+			       sliderR.width(), sliderR.height(), g,
+			       FALSE, &fill );
 	    }
 	    break;
 	default:
@@ -673,7 +673,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		p->fillRect( addPageR, g.mid() );
 	    if ( controls & SLIDER ) {
 		QBrush fill( g.background() );
-		drawShadePanel( p, sliderR, g, FALSE, 2, &fill );
+		qDrawShadePanel( p, sliderR, g, FALSE, 2, &fill );
 	    }
 	    break;
     }
