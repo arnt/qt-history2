@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#46 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#47 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,11 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#46 $");
+#include "qlayout.h"
+#include "qmlined.h"
+#include "qpushbt.h"
+
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#47 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -1176,4 +1180,74 @@ int QMessageBox::critical( QWidget *parent, const char *caption,
     return textBox( parent, Critical, caption, text,
 		    button0Text, button1Text, button2Text,
 		    defaultButtonNumber, escapeButtonNumber );
+}
+
+
+static const char * longTextAboutQt =
+"Qt is cool\n";
+
+
+/*!  Displays a simple message box about Qt, with window caption \a
+  caption and optionally centered over \a parent.
+
+  This is neat for inclusion into the Help menu - see the menu.cpp
+  example.
+*/
+
+void QMessageBox::aboutQt( QWidget *parent, const char *caption )
+{
+    int r;
+    r = information( parent, caption,
+		     "This program uses Qt, a cross-platform GUI library.\n\n"
+		     "Qt is a product of Troll Tech AS (http://www.troll.no)\n"
+		     "and may be used freely for free software on the X\n"
+		     "Window System.\n\n"
+		     "If you want to use Qt on Microsoft Windows or for\n"
+		     "non-free software on the X Window System, please\n"
+		     "look at our web server, or write to sales@troll.no",
+		     "OK", "&More about Qt" );
+    if ( r != 1 )
+	return;
+
+    QDialog * tlw = new QDialog( 0, "Qt blurb", TRUE /* ? */ );
+    CHECK_PTR( tlw );
+
+    tlw->setCaption( QString( "About Qt - " ) + caption );
+
+    QGridLayout * l = new QGridLayout( tlw, 2, 2, 6 );
+    CHECK_PTR( l );
+
+    QMultiLineEdit * m = new QMultiLineEdit( tlw, "details about Qt" );
+    CHECK_PTR( m );
+    l->addMultiCellWidget( m, 0, 0, 0, 1 );
+
+    m->setText( longTextAboutQt );
+
+    QPushButton * ok = new QPushButton( "Close", tlw, "enough blurbery" );
+    CHECK_PTR( ok );
+    ok->setDefault( TRUE );
+    QSize s( ok->minimumSize() );
+    if ( ok->style() == WindowsStyle && s.width() < 75 )
+	s.setWidth( 75 );
+    ok->setFixedSize( s );
+    l->addWidget( ok, 1, 1 );
+
+    connect( ok, SIGNAL(clicked()), tlw, SLOT(accept()) );
+
+    l->activate();
+
+    s = QApplication::desktop()->size();
+    if ( s.width() > 400 )
+	s.setWidth( s.width()/2 );
+    if ( s.width() > 512 )
+	s.setWidth( 512 );
+
+    if ( s.height() > 600 )
+	s.setHeight( s.height()*2/3 );
+    if ( s.height() > 640 )
+	s.setHeight( 640 );
+
+    tlw->resize( s );
+
+    tlw->exec();
 }
