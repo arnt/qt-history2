@@ -1878,6 +1878,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	if ( actItem < 0 )
 	    break;
 	mi = mitems->at( actItem );
+	if ( !mi->isEnabled() )
+	    break;
 	popup = mi->popup();
 	if ( popup ) {
 	    hidePopups();
