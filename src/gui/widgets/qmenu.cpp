@@ -1517,7 +1517,7 @@ void QMenu::wheelEvent(QWheelEvent *e)
 */
 void QMenu::mousePressEvent(QMouseEvent *e)
 {
-    if(d->mouseEventTaken(e))
+    if(d->mouseEventTaken(e) || e->button() != Qt::LeftButton)
         return;
     if(!rect().contains(e->pos())) {
          if (d->noReplayFor
@@ -1537,7 +1537,7 @@ void QMenu::mousePressEvent(QMouseEvent *e)
 */
 void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
-    if(d->mouseEventTaken(e))
+    if(d->mouseEventTaken(e) || e->button() != Qt::LeftButton)
         return;
     if(!d->mouseDown && d->motions < 6)
         return;
