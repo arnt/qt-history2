@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#40 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#40 $")
 
 
 /*****************************************************************************
@@ -218,7 +218,6 @@ void qt_init( int *argcptr, char **argv )
   // Misc. initialization
 
     QColor::initialize();
-    QPixmap::initialize();
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
@@ -250,7 +249,6 @@ void qt_cleanup()
     QPainter::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
-    QPixmap::cleanup();
     QColor::cleanup();
     if ( displayDC )
 	ReleaseDC( 0, displayDC );

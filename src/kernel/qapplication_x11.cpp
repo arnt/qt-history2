@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#151 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#150 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#151 $")
 
 
 /*****************************************************************************
@@ -271,7 +271,6 @@ void qt_init( int *argcptr, char **argv )
   // Misc. initialization
 
     QColor::initialize();
-    QPixmap::initialize();
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
@@ -328,7 +327,6 @@ void qt_cleanup()
     QPainter::cleanup();
     QCursor::cleanup();
     QFont::cleanup();
-    QPixmap::cleanup();
     QColor::cleanup();
 
 #define CLEANUP_GC(g) if (g) XFreeGC(appDpy,g)
