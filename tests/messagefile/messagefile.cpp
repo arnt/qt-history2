@@ -49,7 +49,7 @@ main(int, char** )
     tmp = m.find( 513 );
     if ( tmp != s4 )
 	debug( "squeezed look-up failed(513) (<%s>)", tmp.ascii() );
-    
+
     m.unsqueeze();
     tmp = m.find( 1 );
     if ( tmp != s1 )
@@ -63,4 +63,13 @@ main(int, char** )
     tmp = m.find( 513 );
     if ( tmp != s4 )
 	debug( "unsqueezed look-up failed(513) (<%s>)", tmp.ascii() );
+
+    QMessageFileIterator it( m );
+    if ( !it.toFirst() )
+	debug( "it.toFirst failed" );
+    QString *s;
+    while( (s=it.current()) != 0 ) {
+	debug( "saw %d: <%s> using iterator", it.currentKey(), s->ascii() );
+	++it;
+    }
 }
