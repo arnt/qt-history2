@@ -70,7 +70,7 @@ QSqlResultShared::~QSqlResultShared()
     query must be navigated to a valid record (so that isValid()
     returns TRUE) before values can be retrieved.
 
-    Navigating records is performed with the following methods:
+    Navigating records is performed with the following functions:
 
     <ul>
     <li>\c next()
@@ -80,7 +80,7 @@ QSqlResultShared::~QSqlResultShared()
     <li>\c seek(int)
     </ul>
 
-    These methods allow the programmer to move forward, backward or
+    These functions allow the programmer to move forward, backward or
     arbitrarily through the records returned by the query.  Once an
     active query is positioned on a valid record, data can be
     retrieved using value().  All data is transferred from the SQL
@@ -164,7 +164,7 @@ QSqlQuery& QSqlQuery::operator=( const QSqlQuery& other )
 
 /*!  Returns TRUE if \a field is currently NULL, otherwise returns
      FALSE.  The query must be active and positioned on a valid record
-     before calling this method otherwise it returns FALSE.  Note
+     before calling this function otherwise it returns FALSE.  Note
      that, for some drivers, isNull() will not return accurate
      information until after an attempt is made to retrieve data.
 
@@ -294,7 +294,7 @@ const QSqlResult* QSqlQuery::result() const
 /*! Retrieves the record at position (or offset) \a i, if available, and
     positions the query on the retrieved record.  The first record is at
     position zero. Note that the query must be in an active state and
-    isSelect() must return TRUE before calling this method.
+    isSelect() must return TRUE before calling this function.
 
     The following rules apply:
 
@@ -401,7 +401,7 @@ bool QSqlQuery::seek( int i, bool relative )
 /*! Retrieves the next record in the result, if available, and positions
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
-    this method or it will do nothing and return FALSE.
+    this function or it will do nothing and return FALSE.
 
     The following rules apply:
 
@@ -454,7 +454,7 @@ bool QSqlQuery::next()
 /*! Retrieves the previous record in the result, if available, and positions
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
-    this method or it will do nothing and return FALSE.
+    this function or it will do nothing and return FALSE.
 
     The following rules apply:
 
@@ -506,7 +506,7 @@ bool QSqlQuery::prev()
 /*! Retrieves the first record in the result, if available, and positions
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
-    this method or it will do nothing and return FALSE. Returns TRUE if
+    this function or it will do nothing and return FALSE. Returns TRUE if
     successful. If unsuccessful the query position is set to an invalid
     position and FALSE is returned.
 
@@ -528,7 +528,7 @@ bool QSqlQuery::first()
 /*! Retrieves the last record in the result, if available, and positions
     the query on the retrieved record.  Note that the result must
     be in an active state and isSelect() must return TRUE before calling
-    this method or it will do nothing and return FALSE. Returns TRUE if
+    this function or it will do nothing and return FALSE. Returns TRUE if
     successful. If unsuccessful the query position is set to an invalid
     position and FALSE is returned.
 
