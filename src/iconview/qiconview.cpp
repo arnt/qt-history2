@@ -3438,6 +3438,7 @@ void QIconView::arrangeItemsInGrid( bool update )
     else
 	h += d->spacing;
 
+    bool ue = isUpdatesEnabled();
     viewport()->setUpdatesEnabled( FALSE );
     int vw = visibleWidth();
     int vh = visibleHeight();
@@ -3449,7 +3450,7 @@ void QIconView::arrangeItemsInGrid( bool update )
 	doAgain = visibleHeight() != vh;
     if ( doAgain ) // in the case that the visibleExtend changed because of the resizeContents (scrollbar show/hide), redo layout again
 	arrangeItemsInGrid( FALSE );
-    viewport()->setUpdatesEnabled( TRUE );
+    viewport()->setUpdatesEnabled( ue );
     d->dirty = !isVisible();
     rebuildContainers();
     if ( update && ( !optimize_layout || changedLayout ) )
