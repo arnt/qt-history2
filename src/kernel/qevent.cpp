@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#113 $
 **
 ** Implementation of event classes
 **
@@ -1238,3 +1238,17 @@ QEvent::~QEvent()
     if (posted)
 	QApplication::removePostedEvent( this );
 }
+
+/*!
+  \class QConfigureEvent qevent.h
+  \brief The event is sent when QObject::configure() is called
+
+  \sa QConfigureLayoutEvent
+*/
+
+/*!
+  \class QConfigureLayoutEvent qevent.h
+  \brief The event is sent when QLayout::configure() is called
+
+  \sa QConfigureLayoutEvent
+*/

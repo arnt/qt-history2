@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qxml.cpp#4 $
 **
 ** Implementation of QXML classes
 **
@@ -292,7 +292,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   int ignore_counter = 0;
   Type type;
   int i;
-  
+
  Node1: // accepts
   if ( pos == len )
     goto Ok;
@@ -658,37 +658,6 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     }
     goto Ok;
   }
-  else if ( pos + 7 < len && text[pos] == '[' && text[pos+1] == 'C' && text[pos+2] == 'D' && text[pos+3] == 'A' &&
-	    text[pos+4] == 'T' && text[pos+5] == 'A' && text[pos+6] == '[' )
-  {
-    if ( pos != start && consumer )
-    {
-      QString tmp = text.mid( start, pos - start );
-      tmp = tmp.simplifyWhiteSpace();
-      if ( !tmp.isEmpty() )
-	if ( !consumer->text( tmp ) )
-	  return pos;
-    }
-
-    pos += 7;
-    start = pos;
-    while( pos + 2 <= len && ( text[pos] != ']' || text[pos+1] != ']' ) )
-      ++pos;
-    if ( pos + 2 > len )
-      goto Failed;
-
-    if ( pos != start && consumer )
-    {
-      QString tmp = text.mid( start, pos - start );
-      if ( !tmp.isEmpty() )
-	if ( !consumer->text( tmp ) )
-	  return pos;
-    }
-
-    pos += 2;
-    start = pos;
-    goto Node20;
-  }
   else if ( text[pos] == '&' )
   {
     int begin = pos;
@@ -883,7 +852,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     goto Node1;
   }
   goto Failed;
- Node50: // Doctype
+ Node50: // Doctype and CDATA
   if ( pos == len )
     goto Failed;
   if ( pos + 7 < len && text[pos] == 'D' && text[pos+1] == 'O' && text[pos+2] == 'C' && text[pos+3] == 'T' &&
@@ -892,6 +861,28 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
     pos += 7;
     goto Node51;
   }
+  else if ( pos + 7 < len && text[pos] == '[' && text[pos+1] == 'C' && text[pos+2] == 'D' && text[pos+3] == 'A' &&
+	    text[pos+4] == 'T' && text[pos+5] == 'A' && text[pos+6] == '[' )
+  {
+    pos += 7;
+    start = pos;
+    while( pos + 3 <= len && ( text[pos] != ']' || text[pos+1] != ']' || text[pos+2] != '>' ) )
+      ++pos;
+    if ( pos + 3 > len )
+      goto Failed;
+
+    if ( pos != start && consumer )
+    {
+      QString tmp = text.mid( start, pos - start );
+      if ( !tmp.isEmpty() )
+	if ( !consumer->text( tmp ) )
+	  return pos;
+    }
+
+    pos += 3;
+    goto Node1;
+  }
+
   goto Failed;
  Node51:
   if ( pos == len )
@@ -1683,7 +1674,7 @@ int QXMLSimpleParser::parse( QString text, QXMLConsumer* consumer )
   for( i = 0; i < pos; ++i )
       if ( text[i] == '\n' )
 	  errline++;
-  
+
   if ( consumer )
     consumer->parseError( pos, errline );
   return pos;

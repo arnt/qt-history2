@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#38 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#39 $
 **
 ** Macros and definitions related to QObject
 **
@@ -48,7 +48,8 @@
 public:									\
     QMetaObject *metaObject() const { return metaObj; }			\
     const char  *className()  const;					\
-    static QMetaObject *staticMetaObject();				\
+    static void staticMetaObject();					\
+    static QMetaObject *createMetaObject();				\
     static QString tr(const char*);					\
 protected:								\
     void	 initMetaObject();					\

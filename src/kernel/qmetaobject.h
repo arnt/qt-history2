@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#26 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#27 $
 **
 ** Definition of QMetaObject class
 **
@@ -81,17 +81,16 @@ struct QMetaMetaProperty
 class Q_EXPORT QMetaObject				// meta object class
 {
 public:
+    QMetaObject( const char *class_name, const char *superclass_name,
+		 QMetaData *slot_data,	int n_slots,
+		 QMetaData *signal_data, int n_signals );
 #ifdef QT_BUILDER
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
-		 QMetaProperty *prop_data = 0, int n_props = 0,
-		 QMetaEnum *enum_data = 0, int n_enums = 0,
-		 QMetaMetaProperty* meta_prop_data = 0, int n_meta_props = 0 );
-#else // QT_BUILDER
-    QMetaObject( const char *class_name, const char *superclass_name,
-		 QMetaData *slot_data,	int n_slots,
-		 QMetaData *signal_data, int n_signals );
+		 QMetaProperty *prop_data, int n_props,
+		 QMetaEnum *enum_data, int n_enums,
+		 QMetaMetaProperty* meta_prop_data, int n_meta_props );
 #endif // QT_BUILDER
 
     virtual ~QMetaObject();
@@ -112,18 +111,18 @@ public:
 
 #ifdef QT_BUILDER
     bool inherits( const char* _class ) const;
-    
+
     int            nProperties( bool=FALSE ) const;
     QMetaProperty *property( int index ) const;
     QMetaProperty *property( const char* name, bool super = FALSE ) const;
     QStringList    propertyNames( bool=TRUE ) const;
     QMetaEnum     *enumerator( const char* name, bool super = FALSE ) const;
-    
+
     int		       nMetaProperties( bool=FALSE ) const;
     QMetaMetaProperty *metaProperty( int index ) const;
     const char        *metaProperty( const char* name, bool super = FALSE ) const;
     QStringList        metaPropertyNames( bool=TRUE ) const;
-    
+
     QString	   comment() const;
     QPixmap	   pixmap() const;
     QObjectFactory factory() const;
@@ -135,14 +134,14 @@ public:
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
-					QMetaProperty *prop_data = 0, int n_props = 0,
-					QMetaEnum *enum_data = 0, int n_enums = 0,
-					QMetaMetaProperty* meta_prop_data = 0, int n_meta_props = 0 );
-#else // QT_BUILDER
+					QMetaProperty *prop_data, int n_props,
+					QMetaEnum *enum_data, int n_enums,
+					QMetaMetaProperty* meta_prop_data, int n_meta_props );
+
+#endif // QT_BUILDER
     static QMetaObject *new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int );
-#endif // QT_BUILDER
     static QMetaData   *new_metadata( int );
 
 private:
@@ -160,18 +159,6 @@ private:
     QMetaData	*signalData;			// signal meta data
     QMemberDict *signalDict;			// signal dictionary
 
-#ifdef QT_BUILDER
-    QMetaEnum     *enumData;
-    int		   nEnumData;
-    QMetaProperty *propData;                    // property meta data
-    int            nPropData;
-    QMetaMetaProperty *metaPropData;
-    int		   nMetaPropData;
-    QObjectFactory     objectFactory;
-    const char	*commentData;
-    const char **pixmapData;
-#endif // QT_BUILDER
-
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMetaObject( const QMetaObject & );
@@ -179,23 +166,21 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#ifdef QT_BUILDER
 class Q_EXPORT QMetaObjectInit
 {
 public:
+    // ## To disappear in Qt 3.0
+    QMetaObjectInit(void(*f)());
+#ifdef QT_BUILDER
     QMetaObjectInit(QMetaObject*(*f)());
-
+#endif // QT_BUILDER
+    
     static int init();
+#ifdef QT_BUILDER
     static QMetaObject* metaObject( const char* _class_name );
     static QMetaObject* metaObject( int index );
     static int          nMetaObjects();
+#endif // QT_BUILDER    
 };
-#else // QT_BUILDER
-class Q_EXPORT QMetaObjectInit {
-public:
-    QMetaObjectInit(void(*f)());
-    static int init();
-};
-#endif // QT_BUILDER
 
 #endif // QMETAOBJECT_H

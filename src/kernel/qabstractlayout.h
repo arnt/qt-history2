@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#30 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#31 $
 **
 ** Definition of the abstract layout base class
 **
@@ -39,6 +39,7 @@ class QLayoutItem;
 class QLayout;
 class QSpacerItem;
 class QDomElement;
+class QConfigureLayoutEvent;
 
 class Q_EXPORT QGLayoutIterator : public QShared
 {
@@ -204,7 +205,8 @@ public:
     QLayout *layout();
 
 #ifdef QT_BUILDER
-    virtual bool setConfiguration( const QDomElement&, QWidget* mainwidget );
+    bool configure( const QDomElement&, QWidget* mainwidget );
+    bool event( QEvent* event );
 #endif
 protected:
     bool  eventFilter( QObject *, QEvent * );
@@ -212,6 +214,7 @@ protected:
     void deleteAllItems();
 
 #ifdef QT_BUILDER
+    void configureEvent( QConfigureLayoutEvent* );
     static bool stringToAlign( const QString& _string, int* _align );
 #endif // QT_BUILDER
 

@@ -50,13 +50,13 @@ QWidget* QDomElement::toWidget( QWidget* _parent ) const
     return 0;
   }
 
-  /* if ( !w->setConfiguration( *this ) )
+  /* if ( !w->configure( *this ) )
   {
     delete w;
     return 0;
   }
   */
-  bool res = w->setConfiguration( *this );
+  bool res = w->configure( *this );
 
   return (QWidget*)w;
 }
@@ -90,13 +90,13 @@ QObject* QDomElement::toObject( QObject* _parent ) const
     return 0;
   }
 
-  /* if ( !w->setConfiguration( *this ) )
+  /* if ( !w->configure( *this ) )
   {
     delete w;
     return 0;
   }
   */
-  bool res = w->setConfiguration( *this );
+  bool res = w->configure( *this );
 
   return w;
 }
@@ -142,7 +142,7 @@ QLayout* QDomElement::toLayout( QWidget* _parent ) const
     return 0;
   }
 
-  if ( ! w->setConfiguration( *this, _parent ) )
+  if ( ! w->configure( *this, _parent ) )
   {
     delete w;
     return 0;
@@ -198,7 +198,7 @@ QLayout* QDomElement::toLayout( QLayout* _parent, QWidget* mainwidget ) const
     return 0;
   }
 
-  if ( !w->setConfiguration( *this, mainwidget ) )
+  if ( !w->configure( *this, mainwidget ) )
   {
       delete w;
       return 0;

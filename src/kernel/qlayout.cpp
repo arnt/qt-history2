@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#128 $
 **
 ** Implementation of layout classes
 **
@@ -1292,11 +1292,25 @@ void QGridLayout::invalidate()
 
 #ifdef QT_BUILDER
 
-bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
+bool QGridLayout::event( QEvent* e )
 {
+    if ( e->type() == QEvent::ConfigureLayout )
+    {
+	configureEvent( (QConfigureLayoutEvent*) e );
+	return TRUE;
+    }
+
+    return QLayout::event( e );
+}
+
+void QGridLayout::configureEvent( QConfigureLayoutEvent* ev )
+{
+    const QDomElement* element = ev->element();
+    QWidget* mainwidget = ev->widget();
+	
     int r = 0;
 
-    QDomElement row = element.firstChild().toElement();
+    QDomElement row = element->firstChild().toElement();
     for( ; !row.isNull(); row = row.nextSibling().toElement() )
     {
 	if ( row.tagName() == "Row" )
@@ -1318,11 +1332,18 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 		    if ( cell.hasAttribute( "multicol" ) )
 			multicol = cell.attribute( "multicol" ).toInt();
 		    if ( multicol < 1 )
-			return FALSE;
+		    {
+			ev->ignore();
+			return;
+		    }
 		    if ( cell.hasAttribute( "multirow" ) )
 			multirow = cell.attribute( "multirow" ).toInt();
 		    if ( multirow < 1 )
-			return FALSE;
+		    {
+			ev->ignore();
+			return;
+		    }
+		    
 		    int align = 0;
 		    int x,y;
 		    if ( stringToAlign( cell.attribute( "valign" ), &y ) )
@@ -1346,18 +1367,27 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 		    {
 			w = res.toWidget( mainwidget );
 			if ( !w )
-			    return FALSE;
+		        {
+			    ev->ignore();
+			    return;
+			}
 		    }
 		    else if ( child.tagName() == "Layout" )
 		    {
 			l = res.toLayout( 0, mainwidget );
 			if ( !l )
-			    return FALSE;
+		        {
+			    ev->ignore();
+			    return;
+			}
 		    }
 		    // Unknown tag ?
 		    else if ( !child.isNull() )
-			return FALSE;
-
+		    {
+			ev->ignore();
+			return;
+		    }
+		    
 		    if ( w )
 		    {
 			if ( multicol != 1 || multirow != 1 )
@@ -1381,16 +1411,16 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 		    ++c;
 		}
 		else
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 	    }
 	    ++r;
 	}
     }
 
-    if ( !QLayout::setConfiguration( element, mainwidget ) )
-	return FALSE;
-
-    return TRUE;
+    QLayout::configureEvent( ev );
 }
 
 #endif QT_BUILDER
@@ -1932,58 +1962,79 @@ QHBoxLayout::~QHBoxLayout()
 }
 
 #ifdef QT_BUILDER
-bool QHBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
+bool QHBoxLayout::event( QEvent* e )
 {
-  QDomElement cell = element.firstChild().toElement();
-  for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
-  {
-    if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+    if ( e->type() == QEvent::ConfigureLayout )
     {
-      int stretch = 0;
-      int align = 0;
-      if ( cell.hasAttribute( "stretch" ) )
-	stretch = cell.attribute( "stretch" ).toInt();
-      int x,y;
-      if ( stringToAlign( cell.attribute( "valign" ), &y ) )
-      {
-	if ( y == Qt::AlignCenter )
-	  y = Qt::AlignVCenter;
-	align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
-      }
-      if ( stringToAlign( cell.attribute( "halign" ), &x ) )
-      {
-	if ( x == Qt::AlignCenter )
-	  x = Qt::AlignHCenter;
-	align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
-      }
-
-      if ( cell.tagName() == "Widget" )
-      {
-	QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
-	if ( !w )
-	  return FALSE;
-	addWidget( w, stretch, align );
-      }
-      else // Layout
-      {
-	QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
-	if ( !l )
-	  return FALSE;
-	addLayout( l, stretch );
-      }
+	configureEvent( (QConfigureLayoutEvent*) e );
+	return TRUE;
     }
-    else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
-      addSpacing( cell.attribute( "spacing" ).toInt() );
-    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
-      addStretch( cell.attribute( "stretch" ).toInt() );
-    else
-      return FALSE;
-  }
 
-  if ( !QBoxLayout::setConfiguration( element, mainwidget ) )
-    return FALSE;
+    return QBoxLayout::event( e );
+}
 
-  return TRUE;
+void QHBoxLayout::configureEvent( QConfigureLayoutEvent* ev )
+{
+    const QDomElement* element = ev->element();
+    QWidget* mainwidget = ev->widget();
+    
+    QDomElement cell = element->firstChild().toElement();
+    for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
+    {
+	if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+        {
+	    int stretch = 0;
+	    int align = 0;
+	    if ( cell.hasAttribute( "stretch" ) )
+		stretch = cell.attribute( "stretch" ).toInt();
+	    int x,y;
+	    if ( stringToAlign( cell.attribute( "valign" ), &y ) )
+	    {
+		if ( y == Qt::AlignCenter )
+		    y = Qt::AlignVCenter;
+		align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	    }
+	    if ( stringToAlign( cell.attribute( "halign" ), &x ) )
+	    {
+		if ( x == Qt::AlignCenter )
+		    x = Qt::AlignHCenter;
+		align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	    }
+
+	    if ( cell.tagName() == "Widget" )
+	    {
+		QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
+		if ( !w )
+	        {
+		    ev->ignore();
+		    return;
+		}
+		addWidget( w, stretch, align );
+	    }
+	    else // Layout
+	    {
+		QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
+		if ( !l )
+	        {
+		    ev->ignore();
+		    return;
+		}
+		addLayout( l, stretch );
+	    }
+	}
+	else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
+	    addSpacing( cell.attribute( "spacing" ).toInt() );
+	else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
+	    addStretch( cell.attribute( "stretch" ).toInt() );
+	else
+        {
+	    ev->ignore();
+	    return;
+	}
+
+    }
+    
+    QBoxLayout::configureEvent( ev );
 }
 #endif // QT_BUILDER
 
@@ -2049,58 +2100,79 @@ QVBoxLayout::~QVBoxLayout()
 
 #ifdef QT_BUILDER
 
-bool QVBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
+bool QVBoxLayout::event( QEvent* e )
 {
-  QDomElement cell = element.firstChild().toElement();
-  for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
-  {
-    if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+    if ( e->type() == QEvent::ConfigureLayout )
     {
-      int stretch = 0;
-      int align = 0;
-      if ( cell.hasAttribute( "stretch" ) )
-	stretch = cell.attribute( "stretch" ).toInt();
-      int x,y;
-      if ( stringToAlign( cell.attribute( "valign" ), &y ) )
-      {
-	if ( y == Qt::AlignCenter )
-	  y = Qt::AlignVCenter;
-	align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
-      }
-      if ( stringToAlign( cell.attribute( "halign" ), &x ) )
-      {
-	if ( x == Qt::AlignCenter )
-	  x = Qt::AlignHCenter;
-	align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
-      }
-
-      if ( cell.tagName() == "Widget" )
-      {
-	QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
-	if ( !w )
-	  return FALSE;
-	addWidget( w, stretch, align );
-      }
-      else // Layout
-      {
-	QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
-	if ( !l )
-	  return FALSE;
-	addLayout( l, stretch );
-      }
+	configureEvent( (QConfigureLayoutEvent*) e );
+	return TRUE;
     }
-    else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
-      addSpacing( cell.attribute( "spacing" ).toInt() );
-    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
-      addStretch( cell.attribute( "stretch" ).toInt() );
-    else
-      return FALSE;
-  }
 
-  if ( !QBoxLayout::setConfiguration( element, mainwidget ) )
-    return FALSE;
+    return QBoxLayout::event( e );
+}
 
-  return TRUE;
+void QVBoxLayout::configureEvent( QConfigureLayoutEvent* ev )
+{
+    const QDomElement* element = ev->element();
+    QWidget* mainwidget = ev->widget();
+
+    QDomElement cell = element->firstChild().toElement();
+    for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
+    {
+	if ( cell.tagName() == "Widget" || cell.tagName() == "Layout" )
+        {
+	    int stretch = 0;
+	    int align = 0;
+	    if ( cell.hasAttribute( "stretch" ) )
+		stretch = cell.attribute( "stretch" ).toInt();
+	    int x,y;
+	    if ( stringToAlign( cell.attribute( "valign" ), &y ) )
+	    {
+		if ( y == Qt::AlignCenter )
+		    y = Qt::AlignVCenter;
+		align |= y & ( Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop );
+	    }
+	    if ( stringToAlign( cell.attribute( "halign" ), &x ) )
+	    {
+		if ( x == Qt::AlignCenter )
+		    x = Qt::AlignHCenter;
+		align |= x & ( Qt::AlignHCenter | Qt::AlignLeft | Qt::AlignRight );
+	    }
+
+	    if ( cell.tagName() == "Widget" )
+	    {
+		QWidget* w = cell.firstChild().toElement().toWidget( mainwidget );
+		if ( !w )
+	        {
+		    ev->ignore();
+		    return;
+		}
+		addWidget( w, stretch, align );
+	    }
+	    else // Layout
+	    {
+		QLayout* l = cell.firstChild().toElement().toLayout( 0, mainwidget );
+		if ( !l )
+	        {
+		    ev->ignore();
+		    return;
+		}
+		addLayout( l, stretch );
+	    }
+	}
+	else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
+	    addSpacing( cell.attribute( "spacing" ).toInt() );
+	else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
+	    addStretch( cell.attribute( "stretch" ).toInt() );
+	else
+        {
+	    ev->ignore();
+	    return;
+	}
+
+    }
+    
+    QBoxLayout::configureEvent( ev );
 }
 
 #endif // QT_BUILDER

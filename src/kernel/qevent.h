@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#91 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#92 $
 **
 ** Definition of event classes
 **
@@ -88,6 +88,10 @@ public:
 	LayoutHint = 72,			// child min/max size changed
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
+#ifdef QT_BUILDER	
+	Configure = 82,				// configure an object
+	ConfigureLayout = 83,			// configure a layout
+#endif // QT_BUILDER
 	User = 1000				// first user event id
     };
 
@@ -399,5 +403,45 @@ private:
     void       *d;
 };
 
+#ifdef QT_BUILDER
+class QDomElement;
+class QLayout;
+class QWidget;
+class QConfigureLayoutEvent;
+
+class Q_EXPORT QConfigureEvent : public QCustomEvent
+{
+    friend QObject;
+    friend QConfigureLayoutEvent;
+private:
+    QConfigureEvent( const QDomElement* element ) :
+	QCustomEvent( Configure, (void*)element ) { accpt = TRUE; };
+    QConfigureEvent( Type type, const QDomElement* element ) :
+	QCustomEvent( type, (void*)element ) { accpt = TRUE; };
+
+public:
+    const QDomElement* element() { return (QDomElement*)data(); }
+
+    bool   isAccepted() const	{ return accpt; }
+    void   accept()		{ accpt = TRUE; }
+    void   ignore()		{ accpt = FALSE; }
+    
+private:
+    bool accpt;
+};
+
+class Q_EXPORT QConfigureLayoutEvent : public QConfigureEvent
+{
+    friend QLayout;
+private:
+    QConfigureLayoutEvent( const QDomElement* element, QWidget* mainwidget )
+	: QConfigureEvent( ConfigureLayout, element ), w(mainwidget) { };
+
+    QWidget* w;
+public:
+    QWidget* widget() { return w; }
+};
+
+#endif // QT_BUILDER
 
 #endif // QEVENT_H

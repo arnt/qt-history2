@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#82 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -914,6 +914,7 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
     }
     return FALSE;
 }
+
 /*!
   Performs child widget layout when the parent widget is resized.
   Also handles removal of widgets and child layouts.
@@ -1661,14 +1662,36 @@ bool QLayout::stringToAlign( const QString& tmp, int* _align )
     return TRUE;
 }
 
-bool QLayout::setConfiguration( const QDomElement& element, QWidget* )
+bool QLayout::event( QEvent* e )
 {
-    if ( element.hasAttribute( "margin" ) )
-	setMargin( element.attribute( "margin" ).toInt() );
-    if ( element.hasAttribute( "spacing" ) )
-	setSpacing( element.attribute( "spacing" ).toInt() );
+    if ( e->type() == QEvent::ConfigureLayout )
+    {
+	configureEvent( (QConfigureLayoutEvent*)e );
+	return TRUE;
+    }
 
-    return QObject::setConfiguration( element );
+    return QObject::event( e );
+}
+
+bool QLayout::configure( const QDomElement& element, QWidget* mainwidget )
+{
+    QDomElement e = element;
+    QConfigureLayoutEvent ev( &e, mainwidget );
+    QApplication::sendEvent( this, &ev );
+
+    return TRUE;
+}
+
+void QLayout::configureEvent( QConfigureLayoutEvent* ev )
+{
+    const QDomElement* element = ev->element();
+    
+    if ( element->hasAttribute( "margin" ) )
+	setMargin( element->attribute( "margin" ).toInt() );
+    if ( element->hasAttribute( "spacing" ) )
+	setSpacing( element->attribute( "spacing" ).toInt() );
+
+    QObject::configureEvent( ev );
 }
 
 #endif

@@ -1,15 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.h#4 $
+** $Id: //depot/qt/main/src/kernel/qxml.h#5 $
 **
-**		      ***   INTERNAL HEADER FILE   ***
-**
-**		This file is NOT a part of the Qt interface!
-**		It may change or disappear in a future version of Qt.
-**
-**
-**
-**  The XML classes are used internally by QDom/QResource.
-**
+** Definition of QXML classes
+*
 ** Created : 980128
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
@@ -32,9 +25,7 @@
 #ifndef QXML_H
 #define QXML_H
 
-#ifndef QT_H
 #include "qstring.h"
-#endif // QT_H
 
 class QXMLConsumer
 {

@@ -1,7 +1,6 @@
 #ifndef QDOM_H
 #define QDOM_H
 
-#ifndef QT_H
 #include <qstring.h>
 #include <qdict.h>
 #include <qrect.h>
@@ -11,7 +10,6 @@
 #include <qsize.h>
 #include <qvariant.h>
 #include <qmime.h>
-#endif // QT_H
 
 class QWidget;
 class QLayout;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#244 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#245 $
 **
 ** Definition of QWidget class
 **
@@ -314,9 +314,6 @@ public:
     static QWidget *	find( WId );
     static QWidgetMapper *wmapper();
 
-#ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
-#endif
     // Event handlers
 
 protected:
@@ -345,6 +342,10 @@ protected:
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );
+
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif
 
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event

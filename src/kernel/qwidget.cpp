@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#484 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#485 $
 **
 ** Implementation of QWidget class
 **
@@ -3655,7 +3655,12 @@ bool QWidget::event( QEvent *e )
 	case QEvent::ChildRemoved:
 	    childEvent( (QChildEvent*) e);
 	    break;
-	default:
+#ifdef QT_BUILDER
+        case QEvent::Configure:
+	    configureEvent( (QConfigureEvent*)e );
+	    break;
+#endif // QT_BUILDER
+        default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
 		return TRUE;
@@ -4422,27 +4427,33 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
 #ifdef QT_BUILDER
 
-bool QWidget::setConfiguration( const QDomElement& element )
+void QWidget::configureEvent( QConfigureEvent* ev )
 {
     // Some widgets handle their children on their own.
     if ( !inherits( "QGroupBox" ) ) {
-	QDomElement e = element.firstChild().toElement();
+	QDomElement e = ev->element()->firstChild().toElement();
 	while ( !e.isNull() ) {
-	    if ( e.tagName() == "Widget" ) {
+	    if ( e.tagName() == "Widget" )
+	    {
 		if ( !e.firstChild().toElement().toWidget( this ) )
-		    return FALSE;
-	    } else if ( e.tagName() == "Layout" ) {
+	        {
+		    ev->ignore();
+		    return;
+		}
+	    }
+	    else if ( e.tagName() == "Layout" )
+	    {
 		if ( !( e.firstChild().toElement().toLayout( this ) ) )
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 	    }
 	    e = e.nextSibling().toElement();
 	}
     }
 
-    if ( !QObject::setConfiguration( element ) )
-	return FALSE;
-
-    return TRUE;
+    QObject::configureEvent( ev );
 }
 
 #endif // QT_BUILDER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#233 $
 **
 ** Implementation of QObject class
 **
@@ -681,6 +681,11 @@ bool QObject::event( QEvent *e )
       case QEvent::ChildInserted: case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
+#ifdef QT_BUILDER
+      case QEvent::Configure:
+	  configureEvent( (QConfigureEvent*)e );
+	  return TRUE;
+#endif // QT_BUILDER
       default:
 	break;
     }
@@ -1782,20 +1787,13 @@ void QObject::initMetaObject()
 
 
 #ifdef QT_BUILDER
-QMetaObject* QObject::staticMetaObject()
-{
-    if ( metaObj )
-	return metaObj;
-#else // QT_BUILDER
-
 /*!
   The functionality of initMetaObject(), provided as a static function.
 */
-void QObject::staticMetaObject()
+QMetaObject* QObject::createMetaObject()
 {
     if ( metaObj )
-	return;
-#endif // QT_BUILDER
+	return metaObj;
 
     typedef void(QObject::*m1_t0)();
     m1_t0 v1_0 = &QObject::cleanupEventFilter;
@@ -1807,7 +1805,6 @@ void QObject::staticMetaObject()
     QMetaData *signal_tbl = new QMetaData[1];
     signal_tbl[0].name = "destroyed()";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
-#ifdef QT_BUILDER
     QMetaProperty *props_tbl = new QMetaProperty[1];
     typedef const char*(QObject::*m3_t0)()const;
     typedef void(QObject::*m3_t1)(const char*);
@@ -1824,15 +1821,44 @@ void QObject::staticMetaObject()
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1,
-	props_tbl, 1 );
+	props_tbl, 1,
+	0, 0,
+	0, 0 );
     return metaObj;
-#else // QT_BUILDER
+}
+
+// ## To disappear in Qt 3.0
+void QObject::staticMetaObject()
+{
+    createMetaObject();
+}
+
+#else
+
+// ## To disappear in Qt 3.0
+/*!
+  The functionality of initMetaObject(), provided as a static function.
+*/
+void QObject::staticMetaObject()
+{
+    if ( metaObj )
+	return;
+
+    typedef void(QObject::*m1_t0)();
+    m1_t0 v1_0 = &QObject::cleanupEventFilter;
+    QMetaData *slot_tbl = new QMetaData[1];
+    slot_tbl[0].name = "cleanupEventFilter()";
+    slot_tbl[0].ptr = *((QMember*)&v1_0);
+    typedef void(QObject::*m2_t0)();
+    m2_t0 v2_0 = &QObject::destroyed;
+    QMetaData *signal_tbl = new QMetaData[1];
+    signal_tbl[0].name = "destroyed()";
+    signal_tbl[0].ptr = *((QMember*)&v2_0);
     metaObj = new QMetaObject( "QObject", "",
 	slot_tbl, 1,
 	signal_tbl, 1 );
-#endif // QT_BUILDER
 }
-
+#endif // QT_BUILDER
 
 /*!
   \internal
@@ -1922,11 +1948,11 @@ ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_string, QString )
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_strref, const QString & )
 
 /*!
-  \fn void QObject::activate_signal_bool (const char * signal, bool) 
+  \fn void QObject::activate_signal_bool (const char * signal, bool)
   \internal
 */
 /*!
-  \fn void QObject::activate_signal_string (const char * signal, QString) 
+  \fn void QObject::activate_signal_string (const char * signal, QString)
   \internal
 */
 /*!
@@ -2863,66 +2889,115 @@ bool QObject::property( const char *_name, QVariant* _value ) const
   return FALSE;
 }
 
-bool QObject::setConfiguration( const QDomElement& element )
+/*!
+  The configure function configures the object with the QDom tree \e element.
+  Configuration means that properties specified in the QDom tree are set and
+  child widgets might be generated from the QDom tree. The specific behaviour
+  depends on the widgets implementation of the configureEvent() method.
+  
+  configure() just sends a QConfigureEvent to itself. This event triggers in turn
+  the configureEvent() method of this object. So if your widget must understand special
+  XML tags then you have to overloade configureEvent() and not configure().
+  
+  If the object is derived from QLayout, then you must call the QLayout::configure()
+  method which takes a widget as an additional argument. Calling the QObject::configure()
+  method of a QLayout directly would only set its properties but it would not create child
+  widgets of the layout if any are described in the QDom tree.
+*/
+bool QObject::configure( const QDomElement& element )
 {
-  QMetaObject* m = queryMetaObject();
-  if ( !m )
-    return FALSE;
+    QDomElement e = element;
+    QConfigureEvent ev( &e );
+    QApplication::sendEvent( this, &ev );
 
-  // Process props
-  QStringList props = m->propertyNames();
-  QStringList::Iterator it = props.begin();
-  for( ; it != props.end(); ++it )
-  {
-    QMetaProperty* p = queryMetaObject()->property( *it, TRUE );
-    if ( p && !p->readonly )
-      setProperty( p, element );
-  }
+    return ev.isAccepted();
+}
 
-  QDomElement e = element.firstChild().toElement();
-  for( ; !e.isNull(); e = e.nextSibling().toElement() )
-  {
-    if ( e.tagName() == "Connection" )
+/*!
+  This function is triggered by the QConfigureEvent. It sets all
+  properties of the object which are described in the QDom tree passed by
+  the event.
+  
+  If your widget must understand special XML tags then you have to overload
+  this method, but make shure that you call your super classes configureEvent()
+  method unless you have good reasons for not calling it.
+  
+  If you want to configure an object, call configure(). This will send a QConfigureEvent
+  event which triggers this function.
+  
+  If you intend to implement configuration of a class derived from QLayout, then you
+  must overload QLayout::configure() which features a QWidget as an additional second parameter.
+*/
+void QObject::configureEvent( QConfigureEvent* ev )
+{
+    const QDomElement* element = ev->element();
+    
+    // Need a meta object to set teh properties
+    QMetaObject* m = queryMetaObject();
+    if ( !m )
     {
-      QString signal = e.attribute( "signal" ).prepend("2");
-      QString slot;
-      if ( e.hasAttribute( "slot" ) )
-	slot = e.attribute("slot").prepend("1");
-      else if ( e.hasAttribute( "transmitter" ) )
-	slot = e.attribute("transmitter").prepend("2");
-      else
-	return FALSE;
-
-      QString tmp = e.attribute( "sender" );
-      QObject *sender;
-      if ( tmp == name() )
-	sender = this;
-      else if ( !tmp.isEmpty() )
-	sender = child( tmp );
-      else
-	sender = this;
-      if ( !sender )
-	qDebug("Did not find sender object %s\n", tmp.ascii());
-
-      tmp = e.attribute( "receiver" );
-      QObject *receiver;
-      if ( tmp == name() )
-	receiver = this;
-      else if ( !tmp.isEmpty() )
-	receiver = child( tmp );
-      else
-	receiver = this;
-      if ( !receiver )
-	qDebug("Did not find receiver object %s\n", tmp.ascii());
-
-      if ( !sender || !receiver )
-	return FALSE;
-
-      connect( sender, signal, receiver, slot );
+	ev->ignore();
+	return;
     }
-  }
+    
+    // Process all known properties
+    QStringList props = m->propertyNames();
+    QStringList::Iterator it = props.begin();
+    for( ; it != props.end(); ++it )
+    {
+	QMetaProperty* p = queryMetaObject()->property( *it, TRUE );
+	if ( p && !p->readonly )
+	    setProperty( p, *element );
+    }
 
-  return TRUE;
+    QDomElement e = element->firstChild().toElement();
+    for( ; !e.isNull(); e = e.nextSibling().toElement() )
+    {
+	if ( e.tagName() == "Connection" )
+        {
+	    QString signal = e.attribute( "signal" ).prepend("2");
+	    QString slot;
+	    if ( e.hasAttribute( "slot" ) )
+		slot = e.attribute("slot").prepend("1");
+	    else if ( e.hasAttribute( "transmitter" ) )
+		slot = e.attribute("transmitter").prepend("2");
+	    else
+	    {
+		ev->ignore();
+		return;
+	    }
+	    
+	    QString tmp = e.attribute( "sender" );
+	    QObject *sender;
+	    if ( tmp == name() )
+		sender = this;
+	    else if ( !tmp.isEmpty() )
+		sender = child( tmp );
+	    else
+		sender = this;
+	    if ( !sender )
+		qDebug("Did not find sender object %s\n", tmp.ascii());
+
+	    tmp = e.attribute( "receiver" );
+	    QObject *receiver;
+	    if ( tmp == name() )
+		receiver = this;
+	    else if ( !tmp.isEmpty() )
+		receiver = child( tmp );
+	    else
+		receiver = this;
+	    if ( !receiver )
+		qDebug("Did not find receiver object %s\n", tmp.ascii());
+	    
+	    if ( !sender || !receiver )
+	    {
+		ev->ignore();
+		return;
+	    }
+	    
+	    connect( sender, signal, receiver, slot );
+	}
+    }
 }
 
 bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
@@ -2937,6 +3012,7 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
     return setProperty( name, prop );
 }
 
+#if 0
 QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 {
     QDomElement e = doc.createElement( className() );
@@ -2973,5 +3049,6 @@ QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 
     return e;
 }
+#endif 0
 
 #endif // QT_BUILDER

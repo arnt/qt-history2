@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#47 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#48 $
 **
 ** Definition of layout classes
 **
@@ -54,7 +54,7 @@ public:
     virtual void setColStretch( int col, int stretch );
     int rowStretch( int row ) const;
     int colStretch( int col ) const;
-    
+
     int numRows() const;
     int numCols() const;
 
@@ -84,10 +84,13 @@ public:
     void setGeometry( const QRect& );
 
 #ifdef QT_BUILDER
-    virtual bool setConfiguration( const QDomElement&, QWidget* mainwidget );
+    bool event( QEvent* event );
 #endif // QT_BUILDER
 
 protected:
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureLayoutEvent* );
+#endif // QT_BUILDER
     bool findWidget( QWidget* w, int *r, int *c );
     void add( QLayoutItem*, int row, int col );
 private:
@@ -170,8 +173,13 @@ public:
     ~QHBoxLayout();
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement&, QWidget* mainwidget );
+    bool event( QEvent* event );
 #endif
+
+protected:
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureLayoutEvent* );
+#endif // QT_BUILDER
 };
 
 
@@ -189,8 +197,14 @@ public:
     ~QVBoxLayout();
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement&, QWidget* mainwidget );
+    bool event( QEvent* event );
 #endif
+    
+protected:
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureLayoutEvent* );
+#endif // QT_BUILDER
+
 };
 
 

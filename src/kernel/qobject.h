@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#78 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#79 $
 **
 ** Definition of QObject class
 **
@@ -43,6 +43,7 @@ class QVariant;
 class QDomElement;
 class QDomDocument;
 struct QMetaProperty;
+class QConfigureEvent;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -103,11 +104,11 @@ public:
     void	 dumpObjectInfo();
 
 #ifdef QT_BUILDER
-    virtual bool setProperty( const QMetaProperty* p, const QDomElement& element );
-    virtual bool setProperty( const char *name, const QVariant& value );
-    virtual bool property( const char *name, QVariant* value ) const;
-    virtual bool setConfiguration( const QDomElement& element );
-    virtual QDomElement configuration( QDomDocument& doc, bool properties = TRUE ) const;
+    // ## Make these virtual in Qt 3.0
+    bool setProperty( const char *name, const QVariant& value );
+    bool property( const char *name, QVariant* value ) const;
+    bool configure( const QDomElement& element );
+    // ##### Torben: ??? virtual QDomElement configuration( QDomDocument& doc, bool properties = TRUE ) const;
 #endif
 
 signals:
@@ -133,12 +134,18 @@ protected:
 
     const QObject *sender();
 
+#ifdef QT_BUILDER
+    bool setProperty( const QMetaProperty* p, const QDomElement& element );
+    
+    void configureEvent( QConfigureEvent* );
+#endif // QT_BUILDER
+
     virtual void initMetaObject();
 #ifdef QT_BUILDER
-    static QMetaObject* staticMetaObject();
-#else // QT_BUILDER
-    static void staticMetaObject();
+    static QMetaObject* createMetaObject();
 #endif // QT_BUILDR
+    // ## To disappear in Qt 3.0
+    static void staticMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
     virtual void childEvent( QChildEvent * );

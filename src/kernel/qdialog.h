@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#39 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#40 $
 **
 ** Definition of QDialog class
 **
@@ -32,7 +32,7 @@
 
 
 class QPushButton;
-
+class QConfigureEvent;
 
 class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
@@ -58,7 +58,7 @@ public:
     void	setGeometry( const QRect & );
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
+    bool event( QEvent* event );
 #endif
 
 protected slots:
@@ -70,7 +70,9 @@ protected:
     void	setResult( int r )	{ rescode = r; }
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
-
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif // QT_BUILDER
 private:
     virtual void	setDefault( QPushButton * );
     int		rescode;
