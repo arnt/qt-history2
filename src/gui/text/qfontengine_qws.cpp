@@ -39,7 +39,8 @@ public:
     Q_UINT8 advance;       // Difference between pen positions
     Q_INT8 bearingy;      // Used for putting characters on baseline
 
-    Q_INT16 reserved;      // Do not use
+    bool mono :1;
+    uint reserved:15;
     uchar* data;
 };
 
@@ -53,6 +54,7 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 	qDebug("failed loading glyph %d from font", index);
 	Q_ASSERT(!err);
     }
+
     if (face->glyph->format != FT_GLYPH_FORMAT_BITMAP) {
 	FT_Render_Mode render_mode = FT_RENDER_MODE_NORMAL;
 	if (!smooth)
@@ -71,12 +73,12 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 
     int size = bm.pitch*bm.rows;
     result->data = new uchar[size];
-
-    if ( size )
+    result->mono = bm.pixel_mode == ft_pixel_mode_mono;
+    if ( size ) {
 	memcpy( result->data, bm.buffer, size );
-    else
+    } else {
 	result->data = 0;
-
+    }
     result->bearingx = face->glyph->metrics.horiBearingX/64;
     result->advance = face->glyph->metrics.horiAdvance/64;
     result->bearingy = face->glyph->metrics.horiBearingY/64;
@@ -190,7 +192,6 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 
     QGfx *gfx = GFX(p);
     gfx->setSourcePen();
-    gfx->setAlphaType(smooth ? QGfx::SeparateAlpha : QGfx::BigEndianMask);
 
     if (si.right_to_left)
 	glyphs += si.num_glyphs - 1;
@@ -199,6 +200,7 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 	const QGlyph *glyph = rendered_glyphs[g->glyph];
 	Q_ASSERT(glyph);
 	int myw = glyph->width;
+	gfx->setAlphaType(glyph->mono ? QGfx::BigEndianMask : QGfx::SeparateAlpha);
 	gfx->setAlphaSource(glyph->data, glyph->pitch);
 	int myx = x + (g->offset.x + glyph->bearingx).toInt();
 	int myy = y + (g->offset.y - glyph->bearingy).toInt();
