@@ -58,7 +58,7 @@ optimized. Despite its support for complex unicode scripts, it now
 performs better than its less unicode-capable counterpart in Qt 2.3.
 
 QPixmap now supports pixmaps with alpha channel (semi transparency) on
-all Windows versions except Windows 95 and Windows NT.
+all Windows versions except Windows 95 and Windows NT 4.0.
 
 The print dialog now supports "selection" as a print range as well as
 the possibility to enable/disable all different printer options
