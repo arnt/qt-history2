@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#7 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#7 $";
 #endif
 
 
@@ -64,7 +64,7 @@ QDataStream& QGDict::write( QDataStream &s, GCI ) const
 
 
 // --------------------------------------------------------------------------
-// Qdnode class (internal hash bucket node)
+// Qbucket class (internal hash node)
 //
 
 class Qbucket
@@ -154,18 +154,19 @@ GCI QGDict::look( const char *key, GCI d, bool ins )
     return node->getData();
 }
 
-bool QGDict::remove( const char *key )		// remove item from dictionary
+
+Qbucket *QGDict::unlink( const char *key )
 {
+    if ( numItems == 0 )			// nothing in dictionary
+	return 0;
     register Qbucket *n;
     Qbucket *prev = 0;
     int index;
-    if ( numItems == 0 )			// nothing in dictionary
-	return FALSE;
     if ( trivial )
 	index = (int)(long(key) % vlen);
     else
 	index = hashKey( key ) % vlen;
-    for ( n = vec[index]; n; n=n->getNext() ) { // find item in list
+    for ( n=vec[index]; n; n=n->getNext() ) {	// find item in list
 	bool equal;
 	if ( trivial )
 	    equal = n->getKey() == key;
@@ -185,25 +186,46 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
 		prev->setNext( n->getNext() );
 	    else
 		vec[index] = n->getNext();
-	    if ( copyk )
-		delete n->getKey();
-	    deleteItem( n->getData() );
-	    delete n;				// delete bucket
 	    numItems--;
-	    return TRUE;
+	    return n;
 	}
 	prev = n;
     }
-    return FALSE;
+    return 0;
 }
+
+bool QGDict::remove( const char *key )		// remove item from dictionary
+{
+    register Qbucket *n = unlink( key );
+    if ( n ) {
+	if ( copyk )
+	    delete n->getKey();
+	deleteItem( n->getData() );
+	delete n;				// delete bucket
+    }
+    return n != 0;
+}
+
+GCI QGDict::take( const char *key )		// take out item
+{
+    register Qbucket *n = unlink( key );
+    if ( n ) {
+	if ( copyk )
+	    delete n->getKey();
+	delete n;
+    }
+    return n;
+}
+
 
 void QGDict::clear()				// delete all items
 {
     if ( !numItems )
 	return;
+    register Qbucket *n;
     numItems = 0;				// disable remove() function
     for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
-	register Qbucket *n = vec[j];
+	n = vec[j];
 	while ( n ) {
 	    if ( copyk )
 		delete n->getKey();

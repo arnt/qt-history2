@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#6 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#7 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -41,6 +41,7 @@ protected:
    ~QGDict();
 
     bool    remove( const char *key );
+    GCI	    take( const char *key );
     void    clear();				// delete all items
 
     void    statistics() const;			// output statistics
@@ -56,7 +57,8 @@ private:
     uint    copyk	: 1;			// copy keys
     uint    trivial	: 1;			// trivial hashing
     Qditlst *iterators;				// list of iterators
-    virtual int	  hashKey( const char * );	// hash function
+    Qbucket *unlink( const char * );		// unlink bucket
+    virtual int	hashKey( const char * );	// hash function
 };
 
 

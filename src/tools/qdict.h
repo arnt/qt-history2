@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#7 $
+** $Id: //depot/qt/main/src/tools/qdict.h#8 $
 **
 ** Definition of QDict template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 920821
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -43,6 +43,7 @@ public:									      \
     bool  insert( const char *k, const type *d )			      \
 					{ return QGDict::look(k,(GCI)d,1)!=0;}\
     bool  remove( const char *k )	{ return QGDict::remove(k); }	      \
+    type *take( const char *k )		{ return (type *)QGDict::take(k); }   \
     void  clear()			{ QGDict::clear(); }		      \
     type *find( const char *k ) const					      \
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0);}   \
@@ -99,6 +100,7 @@ public:
     bool  insert( const char *k, const type *d )
 					{ return QGDict::look(k,(GCI)d,1)!=0; }
     bool  remove( const char *k )	{ return QGDict::remove(k); }
+    type *take( const char *k )		{ return (type *)QGDict::take(k); }
     void  clear()			{ QGDict::clear(); }
     type *find( const char *k ) const
 		    { return (type *)((QGDict*)this)->QGDict::look(k,0,0); }
