@@ -29,7 +29,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontFoundry *foundry = f->foundry(foundryname, true);
     QtFontStyle *style = foundry->style(styleKey,  true);
     style->smoothScalable = (pixelSize == 0);
-    QtFontSize *size = style->pixelSize(pixelSize, true);
+    QtFontSize *size = style->pixelSize(pixelSize?pixelSize:SMOOTH_SCALABLE, true);
     size->fileName = file;
 }
 
@@ -190,8 +190,9 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
     Q_ASSERT(size);
 
+
     int pixelSize = size->pixelSize;
-    if (!pixelSize)
+    if (!pixelSize || style->smoothScalable && pixelSize == SMOOTH_SCALABLE)
         pixelSize = request.pixelSize;
 
     if ( foundry->name != QLatin1String("qt") ) { ///#### is this the best way????
