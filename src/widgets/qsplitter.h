@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Defintion of  QSplitter class
+** Defintion of QSplitter class
 **
 **  Created:  980105
 **
@@ -54,7 +54,8 @@ class Q_EXPORT QSplitter : public QFrame
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 
 public:
-    enum ResizeMode { Stretch, KeepSize, FollowSizeHint };
+    // ### Qt 4.0: put Auto first
+    enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
 
     QSplitter( QWidget* parent=0, const char* name=0 );
     QSplitter( Orientation, QWidget* parent=0, const char* name=0 );
