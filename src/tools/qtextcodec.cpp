@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#58 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1288,7 +1288,7 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
     const unsigned char * c = (const unsigned char *)chars;
     for( int i=0; i<len; i++ ) {
 	if ( c[i] > 127 )
-	    r[i] = unicodevalues[i].values[c[i]-128];
+	    r[i] = unicodevalues[forwardIndex].values[c[i]-128];
 	else
 	    r[i] = c[i];
     }
