@@ -601,7 +601,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::appendChild( QDOM_NodePrivate* newChild )
 QDOM_NodePrivate* QDOM_NodePrivate::item( int index )
 {
   QDOM_NodePrivate* p = m_firstChild;
-  int i;
+  int i = 0;
   while( i < index && p )
   {
     p = p->nextSibling();
@@ -613,7 +613,7 @@ QDOM_NodePrivate* QDOM_NodePrivate::item( int index )
 
 uint QDOM_NodePrivate::length() const
 {
-  uint i;
+  uint i = 0;
   QDOM_NodePrivate* p = m_firstChild;
   while( p )
   {
@@ -1488,7 +1488,7 @@ public:
   QDOM_CharacterDataPrivate( QDOM_CharacterDataPrivate* n, bool deep );
   ~QDOM_CharacterDataPrivate();
 
-  uint length() const;
+  uint dataLength() const;
   QString substringData( unsigned long offset, unsigned long count ) const;
   void    appendData( const QString& arg );
   void    insertData( unsigned long offset, const QString& arg );
@@ -1529,7 +1529,7 @@ QDOM_NodePrivate* QDOM_CharacterDataPrivate::cloneNode( bool deep )
   return new QDOM_CharacterDataPrivate( this, deep );
 }
 
-uint QDOM_CharacterDataPrivate::length() const
+uint QDOM_CharacterDataPrivate::dataLength() const
 {
   return m_value.length();
 }
@@ -1606,7 +1606,7 @@ void QDomCharacterData::setData( const QString& v )
 uint QDomCharacterData::length() const
 {
   if ( impl )
-    return IMPL->length();
+    return IMPL->dataLength();
   return 0;
 }
 
@@ -1919,8 +1919,10 @@ QString QDOM_ElementPrivate::attribute( const QString& name ) const
 void QDOM_ElementPrivate::setAttribute( const QString& name, const QString& value )
 {
   QDOM_NodePrivate* n = m_attr->namedItem( name );
-  if ( !n )
-    n = new QDOM_AttrPrivate( ownerDocument(), this, name );
+  if ( n )
+      removeAttributeNode( (QDOM_AttrPrivate*)n );
+
+  n = new QDOM_AttrPrivate( ownerDocument(), this, name );
   n->setNodeValue( value );
 
   m_attr->setNamedItem( n );
@@ -3879,7 +3881,7 @@ class QDOM_MimeSourceFactoryPrivate
 {
 public:
     QMap<int,QString> m_map;
-    
+
     static QDomMimeSourceFactory* s_factory;
 };
 
@@ -3894,24 +3896,24 @@ QDomMimeSourceFactory::~QDomMimeSourceFactory()
 {
     delete d;
 }
-    
+
 QPixmap QDomMimeSourceFactory::pixmap( const QString& name )
 {
     QPixmap pix;
     const QMimeSource* m = data( name );
-    
+
     if ( m && m->provides( "image/x-xpm" ) )
 	pix = m->encodedData( "image/x-xpm" );
     if ( m && m->provides( "image/png" ) )
 	pix = QPixmap( m->encodedData( "image/png" ) );
     if ( m && m->provides( "image/jpeg" ) )
 	pix = QPixmap( m->encodedData( "image/jpeg" ) );
-    
+
     if ( pix.isNull() )
 	return pix;
-    
+
     d->m_map[ pix.serialNumber() ] = name;
-    
+
     return pix;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#98 $
 **
 ** Implementation of QColor class
 **
@@ -582,11 +582,11 @@ QString QColor::name() const
     QString t;
 
     t = QString( "0" ) + QString::number( red(), 16 );
-    r = r + t.left( 2 );
+    r = r + t.right( 2 );
     t = QString( "0" ) + QString::number( green(), 16 );
-    r = r + t.left( 2 );
+    r = r + t.right( 2 );
     t = QString( "0" ) + QString::number( blue(), 16 );
-    r = r + t.left( 2 );
+    r = r + t.right( 2 );
     return r;
 }
 
