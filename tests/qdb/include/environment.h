@@ -109,7 +109,7 @@ namespace qdb {
 	virtual bool rewindMarked() = 0;
 	virtual bool nextMarked() = 0;
 	virtual bool update( const List& data ) = 0;
-	virtual bool rangeScan( const List& data ) = 0;
+	virtual bool rangeMark( const List& data ) = 0;
 	virtual bool createIndex( const List& index, bool unique ) = 0;
 	virtual bool drop() = 0;
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;

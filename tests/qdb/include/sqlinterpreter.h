@@ -33,7 +33,7 @@ public:
     bool rewindMarked();
     bool nextMarked();
     bool update( const qdb::List& data );
-    bool rangeScan( const qdb::List& data );
+    bool rangeMark( const qdb::List& data );
     bool createIndex( const qdb::List& data, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );

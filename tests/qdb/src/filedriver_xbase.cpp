@@ -544,16 +544,16 @@ bool FileDriver::update( const qdb::List& data )
     return TRUE;
 }
 
-bool FileDriver::rangeScan( const qdb::List& data )
+bool FileDriver::rangeMark( const qdb::List& data )
 {
 #ifdef DEBUG_XBASE
-    env->output() << "FileDriver::rangeScan..." << flush;
+    env->output() << "FileDriver::rangeMark..." << flush;
 #endif
     if ( !isOpen() ) {
-	ERROR_RETURN( "internal error:FileDriver::rangeScan: file not open" );
+	ERROR_RETURN( "internal error:FileDriver::rangeMark: file not open" );
     }
     if ( !data.count() ) {
-	ERROR_RETURN( "internal error:FileDriver::rangeScan: no fields defined");
+	ERROR_RETURN( "internal error:FileDriver::rangeMark: no fields defined");
     }
     d->marked.clear();
     bool forceScan = TRUE;
@@ -561,18 +561,18 @@ bool FileDriver::rangeScan( const qdb::List& data )
     QString indexDesc;
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
-	qdb::List rangeScanFieldData = data[i].toList();
-	if ( rangeScanFieldData.count() != 4 ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeScanFieldData: bad field description");
+	qdb::List rangeMarkFieldData = data[i].toList();
+	if ( rangeMarkFieldData.count() != 4 ) {
+	    ERROR_RETURN( "internal error:FileDriver::rangeMarkFieldData: bad field description");
 	}
-	QString name = rangeScanFieldData[0].toString();
+	QString name = rangeMarkFieldData[0].toString();
 	QVariant value = data[++i];
 	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeScan: field not found:" + name );
+	    ERROR_RETURN( "internal error:FileDriver::rangeMark: field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
-	    ERROR_RETURN( "internal error:FileDriver::rangeScan: bad field type:" +
+	    ERROR_RETURN( "internal error:FileDriver::rangeMark: bad field type:" +
 			  QString( value.typeName() ) );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +

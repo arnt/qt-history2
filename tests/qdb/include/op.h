@@ -817,8 +817,8 @@ public:
 };
 
 /* Pop the top of the stack (which must be a 'list', see MakeList) and
-   use it to 'range scan' the record buffer of the file identified by
-   'id'.  A 'range scan' tries to match every record in the file where
+   use it to 'range mark' the record buffer of the file identified by
+   'id'.  A 'range mark' tries to match every record in the file where
    the fields corresponding to the 'list' fields match the values of
    the corresponding list field values.  This can be optimised by
    drivers who use indexes, and therefore speed up the common cases
@@ -828,12 +828,12 @@ public:
    update table set field="blah" where id = 1;
    delete from table where id = 1;
 
-   In the above examples, 'table' can be range scanned based on the
+   In the above examples, 'table' can be range markned based on the
    'id' field.  If the driver uses an index on the 'id' field of
    'table, it can optimize the search.
 
-   All records that match the 'range scan' will be 'marked' (see
-   RangeScan).  The file must be open (see Open).
+   All records that match the 'range mark' will be 'marked' (see
+   RangeMark).  The file must be open (see Open).
 
    The 'list' which is popped from the top of the stack must be of the form:
 
@@ -847,19 +847,13 @@ public:
    name
    data
 
-//## do we need this?: If the P2 parameter is specified, all records
-//which are marked are also saved (see SaveResult). <- but how do we
-//specify what fields are saved?  If this was implemented, we would
-//only have to visit records once when doing a simple range scan &
-//save.
-
 */
-class RangeScan : public Op3
+class RangeMark : public Op3
 {
 public:
-    RangeScan( const QVariant& id )
+    RangeMark( const QVariant& id )
 	: Op3( id ) {}
-    QString name() const { return "rangescan"; }
+    QString name() const { return "rangemark"; }
     int exec( qdb::Environment* env )
     {
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
@@ -867,7 +861,7 @@ public:
 	    error( env, "file not open" );
 	    return 0;
 	}
-	bool b = drv->rangeScan( env->stack()->pop().toList() );
+	bool b = drv->rangeMark( env->stack()->pop().toList() );
 	return b;
     }
 };
