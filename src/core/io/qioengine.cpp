@@ -103,8 +103,10 @@ QByteArray QIOEngine::readAll()
         while (!atEnd()) {
             ba.resize(nread + blocksize);
             int r = readBlock(ba.data()+nread, blocksize);
-            if (r < 0)
-                return QByteArray();
+            if (r < 0) {
+                ba.resize(nread);
+                return ba;
+            }
             nread += r;
         }
         ba.resize(nread);

@@ -566,10 +566,13 @@ QFSFileEngine::readBlock(char *data, Q_LONG len)
     d->resetErrors();
     if(len && ret != len) {
         int read = QT_READ(d->fd, data, len);
-        if(read <= 0)
+        if(read <= 0) {
+            if(!ret)
+                ret = -1;
             d->setError(QIODevice::ReadError, errno);
-        else 
+        } else {
             ret += read;
+        }
     }
     return ret;
 }
