@@ -2,18 +2,18 @@
 **
 ** Definition of QFile class.
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the tools module of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#ifndef __QFILE_H__
+#define __QFILE_H__
 
-#ifndef QFILE_H
-#define QFILE_H
 
 #ifndef QT_H
 #include "qiodevice.h"
@@ -23,10 +23,10 @@
 
 class QFilePrivate;
 
-class Q_CORE_EXPORT QFile : public QIODevice                        // file I/O device class
+class QFile : public QIODevice                        // file I/O device class
 {
+    QFilePrivate *d_ptr;
     Q_DECLARE_PRIVATE(QFile)
-
 public:
     QFile();
     QFile(const QString &name);
@@ -39,7 +39,8 @@ public:
     typedef QString (*DecoderFn)(const QByteArray &localfileName);
     static QByteArray encodeName(const QString &fileName);
     static QString decodeName(const QByteArray &localFileName);
-    static QString decodeName(const char *localFileName);
+    inline static QString decodeName(const char *localFileName) 
+        { return decodeName(QByteArray(localFileName)); };
     static void setEncodingFunction(EncoderFn);
     static void setDecodingFunction(DecoderFn);
 
@@ -62,7 +63,7 @@ public:
 
     Q_LONG readBlock(char *data, Q_ULONG len);
     Q_LONG writeBlock(const char *data, Q_ULONG len);
-    Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.data(), data.size()); }
+    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.data(), data.size()); }
     Q_LONG readLine(char *data, Q_ULONG maxlen);
     Q_LONG readLine(QString &, Q_ULONG maxlen);
 
@@ -79,7 +80,4 @@ private:
 #endif
 };
 
-inline QIODevice::Offset QFile::at() const
-{ return ioIndex; }
-
-#endif // QFILE_H
+#endif /* __QFILE_H__ */

@@ -47,12 +47,12 @@ VPATH += $$QT_SOURCE_TREE/src/core/global \
 	 $$QT_SOURCE_TREE/src/core/io 
 
 unix {
-   SOURCES += qfile_unix.cpp qfileinfo_unix.cpp qdir_unix.cpp 
+   SOURCES += qfsfileengine_unix.cpp qfsfileinfoengine_unix.cpp qfsdirengine_unix.cpp 
    mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
 }
 
 win32 {
-   SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp \
+   SOURCES += qfsfileengine_win.cpp qfsfileinfoengine_win.cpp qfsdirengine_win.cpp \
               qsettings_win.cpp qlibrary_win.cpp qlibrary.cpp 
    win32-msvc*:LIBS += ole32.lib advapi32.lib
 }

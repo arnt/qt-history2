@@ -2,9 +2,9 @@
 **
 ** Implementation of QFile class.
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the tools module of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
@@ -12,348 +12,384 @@
 **
 ****************************************************************************/
 
-#include "qplatformdefs.h"
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
-
 #include "qfile.h"
-#include "qfiledefs_p.h"
-#include "qdatastream.h"
-#include <limits.h>
+#include <qplatformdefs.h>
+#include <qglobal.h>
+#include <private/qiodevice_p.h>
+#include <qfileengine.h>
+#include <qfileinfo.h>
+
+
+#include <errno.h>
 
 #define d d_func()
 #define q q_func()
 
+//************* QFilePrivate
+class QFilePrivate : public QIODevicePrivate
+{
+    QFile *q_ptr;
+    Q_DECLARE_PUBLIC(QFile)
+
+protected:
+    QFilePrivate(QFile*);
+    ~QFilePrivate();
+
+    void initFileEngine(const QString &);
+
+    bool openExternalFile(int fd);
+    void reset();
+
+private:
+    inline static QByteArray locale_encode(const QString &f) 
+           { return f.toLocal8Bit(); }
+    static QFile::EncoderFn encoder;
+    inline static QString locale_decode(const QByteArray &f) 
+           { return QString::fromLocal8Bit(f); }
+    static QFile::DecoderFn decoder;
+    
+    QFileEngine *fileEngine;
+
+    QString fileName;
+    uint external_file : 1;
+    QByteArray ungetchBuffer;
+};
+
+QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
+QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
+
+QFilePrivate::QFilePrivate(QFile *qq) : q_ptr(qq), fileEngine(0), external_file(0)
+{ 
+    reset();
+}
+
 QFilePrivate::~QFilePrivate()
 {
+    delete fileEngine;
+    fileEngine = 0;
 }
 
-void QFilePrivate::init()
+void 
+QFilePrivate::initFileEngine(const QString &file)
 {
-    q->setFlags(IO_Direct);
-    q->resetStatus();
-    q->ioIndex = 0;
-    fh = 0;
-    fd = 0;
-    length = 0;
-    ext_f = false; // not an external file handle
+    Q_ASSERT(!fileEngine || !fileEngine->isOpen());
+    delete fileEngine;
+    fileName = file;
+    fileEngine = new QFSFileEngine;
+    reset();
 }
 
-/*!
-    \class QFile
-    \reentrant
-    \brief The QFile class is an I/O device that operates on files.
-
-    \ingroup io
-    \mainclass
-
-    QFile is an I/O device for reading and writing binary and text
-    files. A QFile may be used by itself or more conveniently with a
-    QDataStream or QTextStream.
-
-    The file name is usually passed in the constructor but can be
-    changed with setName(). You can check for a file's existence with
-    exists() and remove a file with remove().
-
-    The file is opened with open(), closed with close() and flushed
-    with flush(). Data is usually read and written using QDataStream
-    or QTextStream, but you can read with readBlock() and readLine()
-    and write with writeBlock(). QFile also supports getch(),
-    ungetch() and putch().
-
-    The size of the file is returned by size(). You can get the
-    current file position or move to a new file position using the
-    at() functions. If you've reached the end of the file, atEnd()
-    returns true. The file handle is returned by handle().
-
-    Here is a code fragment that uses QTextStream to read a text file
-    line by line. It prints each line with a line number.
-    \code
-    QStringList lines;
-    QFile file("file.txt");
-    if (file.open(IO_ReadOnly)) {
-        QTextStream stream(&file);
-        QString line;
-        int i = 1;
-        while (!stream.atEnd()) {
-            line = stream.readLine(); // line of text excluding '\n'
-            printf("%3d: %s\n", i++, line.latin1());
-            lines += line;
-        }
-        file.close();
-    }
-    \endcode
-
-    Writing text is just as easy. The following example shows how to
-    write the data we read into the string list from the previous
-    example:
-    \code
-    QFile file("file.txt");
-    if (file.open(IO_WriteOnly)) {
-        QTextStream stream(&file);
-        QStringList::ConstIterator i = lines.constBegin();
-        for (; i != lines.constEnd(); ++i)
-            stream << *i << "\n";
-        file.close();
-    }
-    \endcode
-
-    The QFileInfo class holds detailed information about a file, such
-    as access permissions, file dates and file types.
-
-    The QDir class manages directories and lists of file names.
-
-    Qt uses Unicode file names. If you want to do your own I/O on Unix
-    systems you may want to use encodeName() (and decodeName()) to
-    convert the file name into the local encoding.
-
-    \important readAll() at()
-
-    \sa QDataStream, QTextStream
-*/
-
-/*!
-    \fn Q_LONG QFile::writeBlock(const QByteArray& data)
-
-    \overload
-*/
-
-
-/*!
-    Constructs a QFile with no name.
-*/
-
-QFile::QFile()
-    : QIODevice(*new QFilePrivate)
+bool
+QFilePrivate::openExternalFile(int fd)
 {
-    d->init();
+    Q_ASSERT(!fileEngine || !fileEngine->isOpen());
+    delete fileEngine;
+    external_file = true;
+    QFSFileEngine *fe = new QFSFileEngine;
+    fileEngine = fe;
+    reset();
+    return fe->open(fd);
 }
 
-/*!
-    Constructs a QFile with a file name \a name.
-
-    \sa setName()
-*/
-
-QFile::QFile(const QString &name)
-    : QIODevice(*new QFilePrivate)
+void 
+QFilePrivate::reset()
 {
-    d->init();
-    d->fn = name;
+    ungetchBuffer.clear();
 }
 
+//************* QFile
+QFile::QFile() : d_ptr(new QFilePrivate(this))
+{
+    
+}
 
-/*!
-    Destroys a QFile. Calls close().
-*/
+QFile::QFile(const QString &name): d_ptr(new QFilePrivate(this))
+{
+    d->initFileEngine(name);
+}
 
 QFile::~QFile()
 {
-    close();
+    delete d_ptr;
+    d_ptr = 0;
 }
 
-/*!
-    Returns the name set by setName().
-
-    \sa setName(), QFileInfo::fileName()
-*/
-QString QFile::name() const
+QString
+QFile::name() const
 {
-    return d->fn;
+    return d->fileName;
 }
 
-/*!
-    Sets the name of the file to \a name. The name can have no path, a
-    relative path or an absolute absolute path.
-
-    Do not call this function if the file has already been opened.
-
-    If the file name has no path or a relative path, the path used
-    will be whatever the application's current directory path is
-    \e{at the time of the open()} call.
-
-    Example:
-    \code
-        QFile file;
-        QDir::setCurrent("/tmp");
-        file.setName("readme.txt");
-        QDir::setCurrent("/home");
-        file.open(IO_ReadOnly);      // opens "/home/readme.txt" under Unix
-    \endcode
-
-    Note that the directory separator "/" works for all operating
-    systems supported by Qt.
-
-    \sa name(), QFileInfo, QDir
-*/
-
-void QFile::setName(const QString &name)
+void
+QFile::setName(const QString &name)
 {
-    if (isOpen()) {
-        qWarning("QFile::setName: File is open");
-        close();
+    d->fileName = name;
+}
+
+QByteArray
+QFile::encodeName(const QString &fileName)
+{
+    return (*QFilePrivate::encoder)(fileName);
+}
+
+QString
+QFile::decodeName(const QByteArray &localFileName)
+{
+    return (*QFilePrivate::decoder)(localFileName);
+}
+
+void
+QFile::setEncodingFunction(EncoderFn f)
+{
+    QFilePrivate::encoder = f;
+}
+
+void
+QFile::setDecodingFunction(DecoderFn f)
+{
+    QFilePrivate::decoder = f;
+}
+
+bool
+QFile::exists() const
+{
+    return QFileInfo(*this).exists();    
+}
+
+bool
+QFile::exists(const QString &fileName)
+{
+    return QFileInfo(fileName).exists();    
+}
+
+bool
+QFile::remove()
+{
+    if (d->fileName.isEmpty()) {
+        qWarning("QFile::remove: Empty or null file name");
+        return false;
     }
-    d->fn = name;
+    if(!d->fileEngine)
+        return false;
+    return d->fileEngine->remove(d->fileName);
 }
 
-/*!
-    \overload
-
-    Returns true if this file exists; otherwise returns false.
-
-    \sa name()
-*/
-
-bool QFile::exists() const
+bool
+QFile::remove(const QString &fileName)
 {
-    return QFileInfoPrivate::access(d->fn, F_OK);
+    return QFile(fileName).remove();
 }
 
-/*!
-    Returns true if the file given by \a fileName exists; otherwise
-    returns false.
-*/
-
-bool QFile::exists(const QString &fileName)
+bool
+QFile::open(int mode)
 {
-    return QFileInfoPrivate::access(fileName, F_OK);
+    if (d->fileEngine && d->fileEngine->isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
+    }
+    if (d->fileName.isEmpty()) {
+        qWarning("QFile::open: No file name specified");
+        return false;
+    }
+    if(mode & (Append|WriteOnly)) //append implies write
+        mode |= WriteOnly;
+    setFlags(IO_Direct);
+    resetStatus();
+    setMode(mode);
+    if (!(isReadable() || isWritable())) {
+        qWarning("QFile::open: File access not specified");
+        return false;
+    }
+    d->external_file = false;
+    d->reset();
+    if(!d->fileEngine)
+        d->initFileEngine(d->fileName);
+    if(d->fileEngine->open(mode, d->fileName)) {
+        setState(IO_Open);
+        if(d->fileEngine->isSequential())
+            setType(Sequential);
+        return true;
+    }
+    return false;
 }
 
-
-/*!
-    Removes the file specified by the file name currently set. Returns
-    true if successful; otherwise returns false.
-
-    The file is closed before it is removed.
-*/
-
-bool QFile::remove()
+bool
+QFile::open(int mode, FILE *fh)
 {
-    close();
-    return remove(d->fn);
+    return open(mode, QT_FILENO(fh));
 }
 
-#if defined(Q_OS_MAC) || defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
-# define HAS_TEXT_FILEMODE                        // has translate/text filemode
-#endif
-#if defined(O_NONBLOCK)
-# define HAS_ASYNC_FILEMODE
-# define OPEN_ASYNC O_NONBLOCK
-#elif defined(O_NDELAY)
-# define HAS_ASYNC_FILEMODE
-# define OPEN_ASYNC O_NDELAY
-#endif
-
-/*!
-    Flushes the file buffer to the disk.
-
-    close() also flushes the file buffer.
-*/
-
-void QFile::flush()
+bool
+QFile::open(int mode, int fd)
 {
-    if (isOpen() && d->fh)  // can only flush open/buffered files
-        fflush(d->fh);
+    if (d->fileEngine && d->fileEngine->isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
+    }
+    if(mode & (Append|WriteOnly)) //append implies write
+        mode |= WriteOnly;
+    setFlags(IO_Direct);
+    resetStatus();
+    setMode(mode);
+    if (!(isReadable() || isWritable())) {
+        qWarning("QFile::open: File access not specified");
+        return false;
+    }
+    if(d->openExternalFile(fd)) {
+        setState(IO_Open);
+        setMode(mode | IO_Raw);
+        if(d->fileEngine->isSequential())
+            setType(IO_Sequential);
+        return true;
+    }
+    return false;
 }
 
-/*! \reimp
-    \fn QIODevice::Offset QFile::at() const
-*/
+void
+QFile::close()
+{
+    bool closed = true;
+    if(d->external_file) {
+        flush();
+    } else {
+        if(!d->fileEngine->close()) {
+            closed = false;
+            setStatus(IO_UnspecifiedError, errno);
+        }
+    }
+    if(closed) {
+        setFlags(IO_Direct);
+        resetStatus();
+    }
+}
 
-/*!
-    Returns true if the end of file has been reached; otherwise returns false.
-    If QFile has not been open()'d, then the behavior is undefined.
+void
+QFile::flush()
+{
+    if(d->fileEngine && d->fileEngine->isOpen()) {
+        d->ungetchBuffer.clear();
+        d->fileEngine->flush();
+    }
+}
 
-    \sa size()
-*/
+QFile::Offset
+QFile::size() const
+{
+    if(!d->fileEngine)
+        return 0;
+    return d->fileEngine->size();
+}
 
-bool QFile::atEnd() const
+QFile::Offset
+QFile::at() const
+{
+    if (!isOpen()) 
+        return 0;
+    return d->fileEngine->at();
+}
+
+bool
+QFile::at(Offset offset)
+{
+    if (!isOpen()) {
+        qWarning("QFile::at: File is not open");
+        return false;
+    }
+    if (isSequentialAccess()) 
+        return false;
+    if(d->fileEngine->seek(offset)) {
+        d->ungetchBuffer.clear();
+        return true;
+    }
+    return false;
+}
+
+bool
+QFile::atEnd() const
 {
     if (!isOpen()) {
         qWarning("QFile::atEnd: File is not open");
         return false;
     }
-    if (isDirectAccess() && !isTranslated()) {
-        if (at() < d->length)
-            return false;
-    }
-    return QIODevice::atEnd();
+    return d->fileEngine->atEnd();
 }
 
-/*!
-    Reads a line of text.
-
-    Reads bytes from the file into the char* \a p, until end-of-line
-    or \a maxlen bytes have been read, whichever occurs first. Returns
-    the number of bytes read, or -1 if there was an error. Any
-    terminating newline is not stripped.
-
-    This function is only efficient for buffered files. Avoid
-    readLine() for files that have been opened with the \c IO_Raw
-    flag.
-
-    \sa readBlock(), QTextStream::readLine()
-*/
-
-Q_LONG QFile::readLine(char *p, Q_ULONG maxlen)
+Q_LONG
+QFile::readBlock(char *data, Q_ULONG len)
 {
-    if (maxlen == 0)                                // application bug?
+    if (len <= 0) // nothing to do
         return 0;
-    Q_CHECK_PTR(p);
+    Q_CHECK_PTR(data);
+    if (!isOpen()) {
+        qWarning("QFile::readBlock: File not open");
+        return -1;
+    }
+    if (!isReadable()) {
+        qWarning("QFile::readBlock: Read operation not permitted");
+        return -1;
+    }
+
+    Q_ULONG ret = 0;
+    if (!d->ungetchBuffer.isEmpty()) {
+        uint l = d->ungetchBuffer.size();
+        while(ret < l) {
+            *data = d->ungetchBuffer.at(l - ret - 1);
+            data++;
+            ret++;
+        }
+        d->ungetchBuffer.resize(l - ret);
+    }
+    if(ret != len) {
+        ret += d->fileEngine->readBlock(data, len-ret);
+        if (len && ret <= 0) {
+            ret = 0;
+            setStatus(IO_ReadError, errno);
+        }
+    }
+    return ret;
+}
+
+Q_LONG
+QFile::writeBlock(const char *data, Q_ULONG len)
+{
+    if (!len) // nothing to do
+        return 0;
+    Q_CHECK_PTR(data);
     if (!isOpen()) {                                // file not open
+        qWarning("QFile::writeBlock: File not open");
+        return -1;
+    }
+    if (!isWritable()) {                        // writing not permitted
+        qWarning("QFile::writeBlock: Write operation not permitted");
+        return -1;
+    }
+
+    Q_ULONG ret = d->fileEngine->writeBlock(data, len);
+    if (ret != len) // write error
+        setStatus(errno == ENOSPC ? IO_ResourceError : IO_WriteError, errno);
+    return ret;
+}
+
+Q_LONG
+QFile::readLine(char *data, Q_ULONG maxlen)
+{
+    if (maxlen == 0) // application bug?
+        return 0;
+    Q_CHECK_PTR(data);
+    if (!isOpen()) {
         qWarning("QFile::readLine: File not open");
         return -1;
     }
-    if (!isReadable()) {                        // reading not permitted
+    if (!isReadable()) {
         qWarning("QFile::readLine: Read operation not permitted");
         return -1;
     }
-    Q_LONG nread;                                // number of bytes read
-    if (isRaw()) {                                // raw file
-        nread = QIODevice::readLine(p, maxlen);
-    } else {                                        // buffered file
-        p = fgets(p, maxlen, d->fh);
-        if (p) {
-            nread = qstrlen(p);
-            if (!isSequentialAccess())
-                ioIndex += nread;
-        } else {
-            nread = -1;
-            setStatus(IO_ReadError, QFILEERR_READ);
-        }
-    }
-    return nread;
+
+    return QIODevice::readLine(data, maxlen);
 }
 
-
-/*!
-    \overload
-
-    Reads a line of text.
-
-    Reads bytes from the file into string \a s, until end-of-line or
-    \a maxlen bytes have been read, whichever occurs first. Returns
-    the number of bytes read, or -1 if there was an error, e.g. end of
-    file. Any terminating newline is not stripped.
-
-    This function is only efficient for buffered files. Avoid using
-    readLine() for files that have been opened with the \c IO_Raw
-    flag.
-
-    Note that the string is read as plain Latin1 bytes, not Unicode.
-
-    \sa readBlock(), QTextStream::readLine()
-*/
-
-Q_LONG QFile::readLine(QString& s, Q_ULONG maxlen)
+Q_LONG
+QFile::readLine(QString &s, Q_ULONG maxlen)
 {
     QByteArray ba;
     ba.resize(maxlen);
@@ -363,17 +399,8 @@ Q_LONG QFile::readLine(QString& s, Q_ULONG maxlen)
     return l;
 }
 
-
-/*!
-    Reads a single byte/character from the file.
-
-    Returns the byte/character read, or -1 if the end of the file has
-    been reached.
-
-    \sa putch(), ungetch()
-*/
-
-int QFile::getch()
+int
+QFile::getch()
 {
     if (!isOpen()) {                                // file not open
         qWarning("QFile::getch: File not open");
@@ -383,39 +410,19 @@ int QFile::getch()
         qWarning("QFile::getch: Read operation not permitted");
         return EOF;
     }
-
-    int ch;
-
+    char ret;
     if (!d->ungetchBuffer.isEmpty()) {
         int len = d->ungetchBuffer.size();
-        ch = d->ungetchBuffer[len - 1];
+        ret = d->ungetchBuffer[len - 1];
         d->ungetchBuffer.truncate(len - 1);
-        return ch;
+    } else if(readBlock(&ret, 1) != 1) {
+        ret = EOF;
     }
-
-    if (isRaw()) {                                // raw file (inefficient)
-        char buf[1];
-        ch = readBlock(buf, 1) == 1 ? buf[0] : EOF;
-    } else {                                        // buffered file
-        if ((ch = getc(d->fh)) != EOF) {
-            if (!isSequentialAccess())
-                ioIndex++;
-        } else {
-            setStatus(IO_ReadError, QFILEERR_READ);
-        }
-    }
-    return ch;
+    return (int)ret;
 }
 
-/*!
-    Writes the character \a ch to the file.
-
-    Returns \a ch, or -1 if some error occurred.
-
-    \sa getch(), ungetch()
-*/
-
-int QFile::putch(int ch)
+int
+QFile::putch(int ch)
 {
     if (!isOpen()) {                                // file not open
         qWarning("QFile::putch: File not open");
@@ -425,35 +432,15 @@ int QFile::putch(int ch)
         qWarning("QFile::putch: Write operation not permitted");
         return EOF;
     }
-    if (isRaw()) {                                // raw file (inefficient)
-        char buf[1];
-        buf[0] = ch;
-        ch = writeBlock(buf, 1) == 1 ? ch : EOF;
-    } else {                                        // buffered file
-        if ((ch = putc(ch, d->fh)) != EOF) {
-            if (!isSequentialAccess())
-                ioIndex++;
-            if (ioIndex > d->length)                // update file length
-                d->length = ioIndex;
-        } else {
-            setStatus(IO_WriteError, QFILEERR_WRITE);
-        }
-    }
-    return ch;
+
+    char ret = ch;
+    if(writeBlock((char*)&ret, 1) != 1)
+        ret = EOF;
+    return (int)ret;
 }
 
-/*!
-    Puts the character \a ch back into the file and decrements the
-    index if it is not zero.
-
-    This function is normally called to "undo" a getch() operation.
-
-    Returns \a ch, or -1 if an error occurred.
-
-    \sa getch(), putch()
-*/
-
-int QFile::ungetch(int ch)
+int
+QFile::ungetch(int ch)
 {
     if (!isOpen()) {                                // file not open
         qWarning("QFile::ungetch: File not open");
@@ -465,129 +452,14 @@ int QFile::ungetch(int ch)
     }
     if (ch == EOF)                                // cannot unget EOF
         return ch;
-
-    if (isSequentialAccess() && !d->fh) {
-        // pipe or similar: we cannot ungetch, so do it manually
-        d->ungetchBuffer += ch;
-        return ch;
-    }
-
-    if (isRaw()) {                                // raw file (very inefficient)
-        char buf[1];
-        at(ioIndex-1);
-        buf[0] = ch;
-        if (writeBlock(buf, 1) == 1)
-            at(ioIndex - 1);
-        else
-            ch = EOF;
-    } else {                                        // buffered file
-        if ((ch = ungetc(ch, d->fh)) != EOF) {
-            if (!isSequentialAccess())
-                ioIndex--;
-        } else {
-            setStatus(IO_ReadError, QFILEERR_READ);
-        }
-    }
+    d->ungetchBuffer += ch;
     return ch;
 }
 
-
-static QByteArray locale_encoder(const QString &fileName)
+int
+QFile::handle() const
 {
-    return fileName.toLocal8Bit();
-}
-
-
-static QFile::EncoderFn encoder = locale_encoder;
-
-/*!
-    When you use QFile, QFileInfo, and QDir to access the file system
-    with Qt, you can use Unicode file names. On Unix, these file names
-    are converted to an 8-bit encoding. If you want to do your own
-    file I/O on Unix, you should convert the file name using this
-    function. On Windows NT/2000, Unicode file names are supported
-    directly in the file system and this function should be avoided.
-    On Windows 95, non-Latin1 locales are not supported.
-
-    By default, this function converts \a fileName to the local 8-bit
-    encoding determined by the user's locale. This is sufficient for
-    file names that the user chooses. File names hard-coded into the
-    application should only use 7-bit ASCII filename characters.
-
-    The conversion scheme can be changed using setEncodingFunction().
-    This might be useful if you wish to give the user an option to
-    store file names in UTF-8, etc., but be aware that such file names
-    would probably then be unrecognizable when seen by other programs.
-
-    \sa decodeName()
-*/
-
-QByteArray QFile::encodeName(const QString &fileName)
-{
-    return (*encoder)(fileName);
-}
-
-/*!
-    \enum QFile::EncoderFn
-
-    This is used by QFile::setEncodingFunction().
-*/
-
-/*!
-    \nonreentrant
-
-    Sets the function for encoding Unicode file names to \a f. The
-    default encodes in the locale-specific 8-bit encoding.
-
-    \sa encodeName()
-*/
-void QFile::setEncodingFunction(EncoderFn f)
-{
-    encoder = f;
-}
-
-static
-QString locale_decoder(const QByteArray &localFileName)
-{
-    return QString::fromLocal8Bit(localFileName);
-}
-
-static QFile::DecoderFn decoder = locale_decoder;
-
-/*!
-    This does the reverse of QFile::encodeName() using \a localFileName.
-
-    \sa setDecodingFunction()
-*/
-QString QFile::decodeName(const QByteArray &localFileName)
-{
-    return (*decoder)(localFileName);
-}
-
-/*!
-    \overload
-*/
-QString QFile::decodeName(const char *localFileName)
-{
-    return decodeName(QByteArray(localFileName));
-}
-
-/*!
-    \enum QFile::DecoderFn
-
-    This is used by QFile::setDecodingFunction().
-*/
-
-/*!
-    \nonreentrant
-
-    Sets the function for decoding 8-bit file names to \a f. The
-    default uses the locale-specific 8-bit encoding.
-
-    \sa encodeName(), decodeName()
-*/
-
-void QFile::setDecodingFunction(DecoderFn f)
-{
-    decoder = f;
+    if (!isOpen())
+        return -1;
+    return d->fileEngine->handle();
 }

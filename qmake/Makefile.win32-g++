@@ -29,11 +29,14 @@ QTOBJS= \
 	qdatastream.o \
 	qdatetime.o \
 	qdir.o \
-	qdir_win.o \
+	qfsdirengine_win.o \
+	qfsdirengine.o \
 	qfile.o \
-	qfile_win.o \
+	qfsfileengine_win.o \
+	qfsfileengine.o \
 	qfileinfo.o \
-	qfileinfo_win.o \
+	qfsfileinfoengine_win.o \
+	qfsfileinfoengine.o \
 	qglobal.o \
 	qhash.o \
 	qiodevice.o \
@@ -122,6 +125,12 @@ qfile.o: ..\src\core\io\qfile.cpp
 qfile_win.o: ..\src\core\io\qfile_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfile_win.cpp
 
+qfsfileengine_win.o: ..\src\core\io\qfsfileengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine_win.cpp
+
+qfsfileengine.o: ..\src\core\io\qfsfileengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileengine.cpp
+
 qtextcodec.o: ..\src\codecs\qtextcodec.cpp
 	$(CXX) $(CXXFLAGS) ..\src\codecs\qtextcodec.cpp
 
@@ -143,11 +152,17 @@ qsettings.o: ..\src\core\io\qsettings.cpp
 qsettings_win.o: ..\src\core\io\qsettings_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings_win.cpp
 
-qfileinfo_win.o: ..\src\core\io\qfileinfo_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo_win.cpp
+qfsfileinfoengine_win.o: ..\src\core\io\qfsfileinfoengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileinfoengine_win.cpp
 
-qdir_win.o: ..\src\core\io\qdir_win.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qdir_win.cpp
+qfsfileinfoengine.o: ..\src\core\io\qfsfileinfoengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsfileinfoengine.cpp
+
+qfsdirengine_win.o: ..\src\core\io\qfsdirengine_win.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsdirengine_win.cpp
+
+qfsdirengine.o: ..\src\core\io\qfsdirengine.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\io\qfsdirengine.cpp
 
 qfileinfo.o: ..\src\core\io\qfileinfo.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qfileinfo.cpp

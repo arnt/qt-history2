@@ -31,8 +31,11 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qbytearraymatcher.cpp \
 		  ../core/tools/qdatetime.cpp	\
 		  ../core/io/qfile.cpp		\
+                  ../core/io/qfsfileengine.cpp  \
 		  ../core/io/qdir.cpp		\
+                  ../core/io/qfsdirengine.cpp  \
 		  ../core/io/qfileinfo.cpp	\
+                  ../core/io/qfsfileinfoengine.cpp  \
 		  ../core/global/qglobal.cpp		\
 		  ../core/io/qiodevice.cpp	\
 		  ../core/tools/qlist.cpp		\
@@ -46,14 +49,14 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qlocale.cpp
 
 unix:SOURCES += \
-	../core/io/qfile_unix.cpp \
-	../core/io/qdir_unix.cpp \
-	../core/io/qfileinfo_unix.cpp
+	../core/io/qfsfileengine_unix.cpp \
+	../core/io/qfsdirengine_unix.cpp \
+	../core/io/qfsfileinfoengine_unix.cpp
 
 win32:SOURCES += \
-	../core/io/qfile_win.cpp \
-	../core/io/qdir_win.cpp \
-	../core/io/qfileinfo_win.cpp
+	../core/io/qfsfileengine_win.cpp \
+	../core/io/qfsdirengine_win.cpp \
+	../core/io/qfsfileinfoengine_win.cpp
 
 macx: {
 SOURCES += ../core/kernel/qcore_mac.cpp

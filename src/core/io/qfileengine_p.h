@@ -1,0 +1,45 @@
+/****************************************************************************
+**
+** Definition of private QFileEngine classes.
+**
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+#ifndef __QFILEENGINE_P_H__
+#define __QFILEENGINE_P_H__
+
+class QFileEngine;
+class QFileEnginePrivate
+{
+protected:
+    QFileEngine *q_ptr;
+private:
+    Q_DECLARE_PUBLIC(QFileEngine)
+protected:
+    inline QFileEnginePrivate(QFileEngine *qq) : q_ptr(qq) { }
+    ~QFileEnginePrivate() { q_ptr = 0; }
+};
+
+class QFSFileEngine;
+class QFSFileEnginePrivate : public QFileEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QFSFileEngine)
+protected:
+    QFSFileEnginePrivate(QFSFileEngine *qq);
+
+    void init();
+    int sysOpen(const QString &, int flags);
+private:
+
+    int fd;
+    mutable uint sequential : 1;
+    mutable char cachedCharRead;
+};
+
+#endif /* __QFILEENGINE_P_H__ */

@@ -5,10 +5,14 @@ HEADERS +=  \
 	io/qdatastream.h \
 	io/qdebug.h \
 	io/qdir.h \
-	io/qdir_p.h \
 	io/qfile.h \
-	io/qfiledefs_p.h \
 	io/qfileinfo.h \
+        io/qfileinfoengine.h \
+        io/qfileinfoengine_p.h \
+        io/qfileengine.h \
+        io/qfileengine_p.h \
+        io/qdirengine.h \
+        io/qdirengine_p.h \
 	io/qiodevice.h \
 	io/qiodevice_p.h \
 	io/qtextstream.h \
@@ -23,6 +27,9 @@ SOURCES += \
 	io/qdir.cpp \
 	io/qfile.cpp \
 	io/qfileinfo.cpp \
+        io/qfsfileinfoengine.cpp \
+        io/qfsfileengine.cpp \
+        io/qfsdirengine.cpp \
 	io/qiodevice.cpp \
 	io/qtextstream.cpp \
 	io/qsettings.cpp \
@@ -31,20 +38,20 @@ SOURCES += \
 win32 {
 	wince-* {
 		SOURCES += \
-			io/qdir_wce.cpp \
-			io/qfile_wce.cpp \
-			io/qfileinfo_wce.cpp
+			io/qfsdirengine_wce.cpp \
+			io/qfsfileengine_wce.cpp \
+			io/qfsfileinfoengine_wce.cpp
 	} else {
 		SOURCES += \
-			io/qdir_win.cpp \
-			io/qfile_win.cpp \
-			io/qfileinfo_win.cpp
+			io/qfsdirengine_win.cpp \
+			io/qfsfileengine_win.cpp \
+			io/qfsfileinfoengine_win.cpp
 	}
 	SOURCES += io/qsettings_win.cpp
 } else:unix {
 	SOURCES += \
-		io/qdir_unix.cpp \
-		io/qfile_unix.cpp \
-		io/qfileinfo_unix.cpp
+		io/qfsdirengine_unix.cpp \
+		io/qfsfileengine_unix.cpp \
+		io/qfsfileinfoengine_unix.cpp
 	mac:SOURCES += io/qsettings_mac.cpp
 }
