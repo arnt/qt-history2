@@ -99,7 +99,6 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	    buttonDown = FALSE;
 	    widget->releaseMouse();
 	    widget->releaseKeyboard();
-	    widget->setCursor( arrowCursor );
 	}
 	break;
     case QEvent::MouseMove: {
