@@ -93,41 +93,39 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
 
+    bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
-    bool dialog = (type == Qt::Dialog) || (flags & Qt::MSWindowsFixedSizeDialogHint);
+    bool dialog = (type == Qt::Dialog
+                   || type == Qt::Sheet
+                   || type == Qt::Drawer
+                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
-    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
 
     bool customize =  (flags & (
-                           Qt::MSWindowsFixedSizeDialogHint
-                           | Qt::X11BypassWindowManagerHint
-                           | Qt::FramelessWindowHint
-                           | Qt::WindowTitleHint
-                           | Qt::WindowSystemMenuHint
-                           | Qt::WindowMinimizeButtonHint
-                           | Qt::WindowMaximizeButtonHint
-                           | Qt::WindowContextHelpButtonHint
-                           ));
+                                Qt::X11BypassWindowManagerHint
+                                | Qt::FramelessWindowHint
+                                | Qt::WindowTitleHint
+                                | Qt::WindowSystemMenuHint
+                                | Qt::WindowMinimizeButtonHint
+                                | Qt::WindowMaximizeButtonHint
+                                | Qt::WindowContextHelpButtonHint
+                                ));
     HINSTANCE appinst  = qWinAppInst();
-    HWND   parentw, destroyw = 0;
-    WId           id;
+    HWND parentw, destroyw = 0;
+    WId id;
 
-    QString windowClassName = qt_reg_winclass(q->getWFlags());
+    QString windowClassName = qt_reg_winclass(q->windowFlags());
 
     if (!window)                                // always initialize
         initializeWindow = true;
 
     if (popup)
-        q->setWFlags(Qt::WStyle_StaysOnTop); // a popup stays on top
+        flags |= Qt::WindowStaysOnTopHint; // a popup stays on top
 
     if (sw < 0) {                                // get the (primary) screen size
         sw = GetSystemMetrics(SM_CXSCREEN);
         sh = GetSystemMetrics(SM_CYSCREEN);
-    }
-
-    if (dialog || popup || desktop) {                // these are top-level, too
-        topLevel = true;
-        q->setWFlags(Qt::WType_TopLevel);
     }
 
     if (desktop) {                                // desktop widget
@@ -148,76 +146,88 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     const TCHAR *ttitle = 0;
 #endif
     QByteArray title95;
-    int         style = WS_CHILD;
-    int         exsty = WS_EX_NOPARENTNOTIFY;
+    int style = WS_CHILD;
+    int exsty = WS_EX_NOPARENTNOTIFY;
 
     if (window) {
         style = GetWindowLongA(window, GWL_STYLE);
         if (!style)
             qErrnoWarning("QWidget::create: GetWindowLong failed");
         topLevel = false; // #### needed for some IE plugins??
-    } else if (popup) {
+    } else if (popup || type == Qt::ToolTip) {
         style = WS_POPUP;
     } else if (!topLevel) {
-        if (!q->testWFlags(Qt::WStyle_Customize))
-            q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
+        if (!customize)
+            flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint;
     } else if (!desktop) {
-        if (q->testWFlags(Qt::WStyle_Customize)) {
-            if (q->testWFlags(Qt::WStyle_NormalBorder|Qt::WStyle_DialogBorder) == 0) {
+        if (customize) {
+            if (flags & Qt::FramelessWindowHint)
                 style = WS_POPUP;                // no border
-            } else {
+            else
                 style = 0;
-            }
+
+            // All these buttons depend on the system menu, so we enable it
+            if (flags & (Qt::WindowMinimizeButtonHint
+                         | Qt::WindowMaximizeButtonHint
+                         | Qt::WindowContextHelpButtonHint))
+                flags |= Qt::WindowSystemMenuHint;
+
         } else {
             style = WS_OVERLAPPED;
-            if ((q->windowType() == Qt::Dialog))
 #ifndef Q_OS_TEMP
-                q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_ContextHelp);
-            else
-                q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu );
-        }
+            if (type == Qt::Dialog) {
+                flags |= Qt::WindowSystemMenuHint
+                         | Qt::WindowTitleHint
+                         | Qt::WindowContextHelpButtonHint;
+            } else {
+                flags |= Qt::WindowSystemMenuHint
+                         | Qt::WindowTitleHint
+                         | Qt::WindowMinMaxButtonsHint;
+            }
 #else
-                q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_SysMenu);
-            else
-                q->setWFlags(Qt::WStyle_NormalBorder | Qt::WStyle_Title);
-        }
+            if (type == Qt::Dialog) {
+                flags |= Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
+            } else {
+                flags |= Qt::WindowTitleHint;
+            }
 #endif
-        // workaround for some versions of Windows
-        if (q->testWFlags(Qt::WStyle_MinMax))
-            q->clearWFlags(Qt::WStyle_ContextHelp);
+        }
     }
     if (!desktop) {
         // if (!testAttribute(Qt::WA_PaintUnclipped))
         // ### Commented out for now as it causes some problems, but
         // this should be correct anyway, so dig some more into this
-            style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
+        style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
         if (topLevel) {
-#ifndef Q_OS_TEMP
-            if (q->testWFlags(Qt::WStyle_NormalBorder)) {
-                style |= WS_THICKFRAME;
-                if(!q->testWFlags(Qt::WStyle_Title | Qt::WStyle_SysMenu | Qt::WStyle_Minimize | Qt::WStyle_Maximize | Qt::WStyle_ContextHelp))
-                    style |= WS_POPUP;
-            } else if (q->testWFlags(Qt::WStyle_DialogBorder))
-                style |= WS_POPUP | WS_DLGFRAME;
-#else
-            if (q->testWFlags(Qt::WStyle_DialogBorder))
-                style |= WS_POPUP;
-#endif
-            if (q->testWFlags(Qt::WStyle_Title))
-                style |= WS_CAPTION;
-            if (q->testWFlags(Qt::WStyle_SysMenu))
-                style |= WS_SYSMENU;
-            if (q->testWFlags(Qt::WStyle_Minimize))
-                style |= WS_MINIMIZEBOX;
-            if (q->testWFlags(Qt::WStyle_Maximize))
-                style |= WS_MAXIMIZEBOX;
-            if ((q->windowType() == Qt::Tool) | (q->windowType() == Qt::Popup))
-                exsty |= WS_EX_TOOLWINDOW;
-            if (q->testWFlags(Qt::WStyle_ContextHelp))
-                exsty |= WS_EX_CONTEXTHELP;
+            if (type == Qt::Window || dialog || tool) {
+                if ((type == Qt::Window || dialog) && !(flags & Qt::MSWindowsFixedSizeDialogHint)) {
+                    style |= WS_THICKFRAME;
+                    if(!(flags &
+                         ( Qt::WindowSystemMenuHint
+                           | Qt::WindowTitleHint
+                           | Qt::WindowMinMaxButtonsHint
+                           | Qt::WindowContextHelpButtonHint)))
+                        style |= WS_POPUP;
+                } else {
+                    style |= WS_POPUP | WS_DLGFRAME;
+                }
+                if (flags & Qt::WindowTitleHint)
+                    style |= WS_CAPTION;
+                if (flags & Qt::WindowSystemMenuHint)
+                    style |= WS_SYSMENU;
+                if (flags & Qt::WindowMinimizeButtonHint)
+                    style |= WS_MINIMIZEBOX;
+                if (flags & Qt::WindowMaximizeButtonHint)
+                    style |= WS_MAXIMIZEBOX;
+                if (tool || popup)
+                    exsty |= WS_EX_TOOLWINDOW;
+                if (flags & Qt::WindowContextHelpButtonHint)
+                    exsty |= WS_EX_CONTEXTHELP;
+            }
         }
     }
-    if (q->testWFlags(Qt::WStyle_Title)) {
+
+    if (flags & Qt::WindowTitleHint) {
         QT_WA({
             title = q->isWindow() ? qAppName() : q->objectName();
             ttitle = (TCHAR*)title.utf16();
@@ -226,9 +236,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         });
     }
 
-        // The Qt::WA_WState_Created flag is checked by translateConfigEvent() in
-        // qapplication_win.cpp. We switch it off temporarily to avoid move
-        // and resize events during creation
+    // The Qt::WA_WState_Created flag is checked by translateConfigEvent() in
+    // qapplication_win.cpp. We switch it off temporarily to avoid move
+    // and resize events during creationt
     q->setAttribute(Qt::WA_WState_Created, false);
 
     if (window) {                                // override the old window
@@ -249,14 +259,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if (desktop) {                        // desktop widget
 #ifndef Q_OS_TEMP
         id = GetDesktopWindow();
-		QWidget *otherDesktop = QWidget::find(id);        // is there another desktop?
-        if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
-            otherDesktop->d->setWinId(0);        // remove id from widget mapper
-            d->setWinId(id);                     // make sure otherDesktop is
-            otherDesktop->d->setWinId(id);       //   found first
-        } else {
+//         QWidget *otherDesktop = QWidget::find(id);        // is there another desktop?
+//         if (otherDesktop && otherDesktop->testWFlags(Qt::WPaintDesktop)) {
+//             otherDesktop->d->setWinId(0);        // remove id from widget mapper
+//             d->setWinId(id);                     // make sure otherDesktop is
+//             otherDesktop->d->setWinId(id);       //   found first
+//         } else {
             d->setWinId(id);
-        }
+//         }
 #endif
     } else if (topLevel) {                       // create top-level widget
         if (popup)
@@ -277,9 +287,9 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                                 parentw, 0, appinst, 0);
         } , {
             id = CreateWindowExA(exsty, windowClassName.toLatin1(), title95, style,
-                                CW_USEDEFAULT, CW_USEDEFAULT,
-                                CW_USEDEFAULT, CW_USEDEFAULT,
-                                parentw, 0, appinst, 0);
+                                 CW_USEDEFAULT, CW_USEDEFAULT,
+                                 CW_USEDEFAULT, CW_USEDEFAULT,
+                                 parentw, 0, appinst, 0);
         });
 
 #endif
@@ -287,7 +297,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         if (!id)
             qErrnoWarning("QWidget::create: Failed to create window");
         d->setWinId(id);
-        if (q->testWFlags(Qt::WStyle_StaysOnTop))
+        if ((flags & Qt::WindowStaysOnTopHint) || type == Qt::ToolTip)
             SetWindowPos(id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE);
     } else {                                        // create child widget
         QT_WA({
@@ -412,7 +422,7 @@ void QWidgetPrivate::reparentChildren()
             } else if (w->isWindow()) {
                 bool showIt = !w->isExplicitlyHidden();
                 QPoint old_pos = w->pos();
-                w->setParent(q, w->getWFlags());
+                w->setParent(q, w->windowFlags());
                 w->move(old_pos);
                 if (showIt)
                     w->show();
@@ -1179,7 +1189,8 @@ void QWidgetPrivate::show_sys()
         else if (q->isMinimized())
             sm = SW_SHOWMAXIMIZED;
     }
-    if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup))
+    if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup)
+        || q->windowType() == Qt::ToolTip)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(q->winId(), sm);
@@ -1224,7 +1235,7 @@ void QWidget::show_sys()
         d->topData()->showMode = 0; // reset
     }
 
-    if ((windowType() == Qt::Tool) || (windowType() == Qt::Popup))
+    if ((windowType() == Qt::Tool) || (windowType() == Qt::Popup) || windowType() == Qt::ToolTip)
         sm = SW_SHOWNOACTIVATE;
 
     ShowWindow(winId(), sm);

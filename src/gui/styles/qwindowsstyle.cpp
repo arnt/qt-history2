@@ -1071,7 +1071,8 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                         ret = 1;
                     } else if (d->altDown()) {
                         ret = 1;
-                    } else if (qApp->focusWidget() && qApp->focusWidget()(->windowType() == Qt::Popup)) {
+                    } else if (qApp->focusWidget()
+                               && (qApp->focusWidget()->windowType() == Qt::Popup)) {
                         popupMenu = qt_cast<const QMenu *>(qApp->focusWidget());
                         if (qt_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
                             if (d->hasSeenAlt(menuBar))
@@ -1742,7 +1743,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(midlight);
                     p->drawLine(beg, y1 + 1, end, y1 + 1);
                 }
-                // Right 
+                // Right
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
                     p->drawLine(x2, y1 + 2, x2, y2 - (lastTab && selected && rightAligned ? 0 : borderThinkness));
@@ -1780,7 +1781,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(dark);
                     p->drawLine(beg, y2 - 1, end, y2 - 1);
                 }
-                // Right 
+                // Right
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
                     p->drawLine(x2, y2 - 2, x2, y1 + (lastTab && selected && rightAligned ? 0 : borderThinkness));
@@ -1818,7 +1819,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(midlight);
                     p->drawLine(x1 + 1, beg, x1 + 1, end);
                 }
-                // Bottom 
+                // Bottom
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
                     p->drawLine(x1 + 3, y2, x2 - (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);
@@ -1859,7 +1860,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(dark);
                     p->drawLine(x2 - 1, beg, x2 - 1, end);
                 }
-                // Bottom 
+                // Bottom
                 if (lastTab || selected || onlyOne || !nextSelected) {
                     p->setPen(shadow);
                     p->drawLine(x2 - 2, y2, x1 + (lastTab && selected && rightAligned ? 0 : borderThinkness), y2);

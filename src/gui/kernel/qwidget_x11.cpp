@@ -300,30 +300,31 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
     if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
-
+    bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
-    bool dialog = (type == Qt::Dialog) || (flags & Qt::MSWindowsFixedSizeDialogHint);
+    bool dialog = (type == Qt::Dialog
+                   || type == Qt::Sheet
+                   || type == Qt::Drawer
+                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
 
     bool customize =  (flags & (
-                           Qt::MSWindowsFixedSizeDialogHint
-                           | Qt::X11BypassWindowManagerHint
-                           | Qt::FramelessWindowHint
-                           | Qt::WindowTitleHint
-                           | Qt::WindowSystemMenuHint
-                           | Qt::WindowMinimizeButtonHint
-                           | Qt::WindowMaximizeButtonHint
-                           | Qt::WindowContextHelpButtonHint
-                           ));
+                                Qt::X11BypassWindowManagerHint
+                                | Qt::FramelessWindowHint
+                                | Qt::WindowTitleHint
+                                | Qt::WindowSystemMenuHint
+                                | Qt::WindowMinimizeButtonHint
+                                | Qt::WindowMaximizeButtonHint
+                                | Qt::WindowContextHelpButtonHint
+                                ));
 
     // a popup stays on top
     if (popup)
         flags |= Qt::WindowStaysOnTopHint;
 
-    bool topLevel = (flags & Qt::Window);
     Window parentw, destroyw = 0;
-    WId           id;
+    WId id;
 
     // always initialize
     if (!window)
@@ -474,7 +475,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 if (flags & Qt::WindowMaximizeButtonHint)
                     mwmhints.decorations |= MWM_DECOR_MAXIMIZE;
             }
-        } else if (type == Qt::Dialog) {
+        } else if (dialog) {
             flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint;
         }
         else if (type == Qt::SplashScreen) {

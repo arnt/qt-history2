@@ -3197,7 +3197,7 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #endif
 
 #if defined(Q_WS_WIN)
-        if (!f->window()(->windowType() == Qt::Popup))
+        if (!(f->window()->windowType() == Qt::Popup))
             SetFocus(f->winId());
         else {
 #endif

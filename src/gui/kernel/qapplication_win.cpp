@@ -1140,7 +1140,7 @@ void QApplication::winFocus(QWidget *widget, bool gotFocus)
     if (gotFocus) {
         setActiveWindow(widget);
         if (QApplicationPrivate::active_window
-	    && QApplicationPrivate::(active_window->windowType() == Qt::Dialog)) {
+	    && (QApplicationPrivate::active_window->windowType() == Qt::Dialog)) {
             // raise the entire application, not just the dialog
             QWidget* mw = QApplicationPrivate::active_window;
             while(mw->parentWidget() && (mw->windowType() == Qt::Dialog))
@@ -1814,7 +1814,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 if ( x->maxw < QWIDGETSIZE_MAX ) {
 		    mmi->ptMaxTrackSize.x = x->maxw + x->topextra->fright + x->topextra->fleft;
                     // windows with titlebar have an implicit sizelimit of 112 pixels
-                    if (widget->testWFlags(Qt::WStyle_Title))
+                    if (widget->windowFlags() & Qt::WindowTitleHint)
                         mmi->ptMaxTrackSize.x = qMax(mmi->ptMaxTrackSize.x, 112);
                 }
 		if ( x->maxh < QWIDGETSIZE_MAX )
