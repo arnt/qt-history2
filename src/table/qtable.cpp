@@ -2411,7 +2411,7 @@ void QTable::paintCell( QPainter *p, int row, int col,
 	itm->paint( p, cg2, cr, selected );
 	p->restore();
     } else {
-	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : viewport()->backgroundBrush() );
+	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
     }
 
     if ( sGrid ) {
