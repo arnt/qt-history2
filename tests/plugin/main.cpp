@@ -1,5 +1,4 @@
 #include "plugmainwindow.h"
-#include "qwidgetfactory.h"
 
 #include <qvariant.h>
 

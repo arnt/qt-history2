@@ -10,7 +10,7 @@
 
 class QHBox;
 class QScrollView;
-class QWidgetPlugInManager;
+class WidgetPlugInManager;
 class QActionPlugInManager;
 class QPopupMenu;
 class QToolBar;
@@ -32,12 +32,11 @@ protected:
     bool addAction( QAction* );
 
     QPopupMenu* actionMenu;
-    QPopupMenu* widgetMenu;
     QGuardedPtr<QPopupMenu> pluginMenu;
     QGuardedPtr<QToolBar> pluginTool;
     QHBox *box;
     QScrollView *sv;
-    QWidgetPlugInManager* widgetManager;
+    WidgetPlugInManager* widgetManager;
     QActionPlugInManager* actionManager;
 
 private:

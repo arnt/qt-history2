@@ -1,8 +1,10 @@
 #include "plugmainwindow.h"
-#include "qwidgetplugin.h"
+#include "../../tools/designer/designer/widgetplugin.h"
 #include "qactionplugin.h"
 
+#define INCLUDE_MENUITEM_DEF
 #include <qpopupmenu.h>
+#undef INCLUDE_MENUITEM_DEF
 #include <qmenubar.h>
 #include <qfiledialog.h>
 #include <qvbox.h>
@@ -17,12 +19,11 @@
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 : QMainWindow( parent, name, f )
 {
-    QWidgetFactory::installWidgetFactory( new QWidgetFactory );
-    QWidgetFactory::installWidgetFactory( widgetManager = new QWidgetPlugInManager );
-    QActionFactory::installActionFactory( actionManager = new QActionPlugInManager );
+    widgetManager = new WidgetPlugInManager;
+    actionManager = new QActionPlugInManager;
 
-    QPopupMenu* file = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
-    QToolBar* ft = (QToolBar*)QWidgetFactory::create( "QToolBar", this );
+    QPopupMenu* file = new QPopupMenu( this );
+    QToolBar* ft = new QToolBar( this );
     ft->setName( "File" );
 
     QAction* a;
@@ -39,27 +40,17 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     connect( a, SIGNAL(activated()), qApp, SLOT(quit()));
     a->addTo( file );
 
-    widgetMenu = (QPopupMenu*)QWidgetFactory::create( "QPopupMenu", this );
-    connect( widgetMenu, SIGNAL( activated(int) ), this, SLOT( runWidget(int) ) );
-
     pluginMenu = 0;
     pluginTool = 0;
 
     menuBar()->insertItem( "&File", file );
-    menuBar()->insertItem( "&Widgets", widgetMenu );
     addToolBar( ft );
 
     statusBar();
-
-    QStringList wl = QWidgetFactory::widgetList();
-    for ( uint w = 0; w < wl.count(); w++ )
-	menuIDs.insert( widgetMenu->insertItem( wl[w] ), wl[w] );
 }
 
 PlugMainWindow::~PlugMainWindow()
 {
-    QWidgetFactory::removeWidgetFactory( widgetManager );
-    QActionFactory::removeActionFactory( actionManager );
     delete widgetManager;
     delete actionManager;
 }
@@ -75,13 +66,28 @@ void PlugMainWindow::fileOpen()
     if ( ( plugin = widgetManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Widget-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList wl = plugin->featureList();
-	for ( uint i = 0; i < wl.count(); i++ )
-	    menuIDs.insert( widgetMenu->insertItem( wl[i] ), wl[i] );
+	for ( uint i = 0; i < wl.count(); i++ ) {
+	    QPopupMenu* menu = 0;
+	    QString group = ((WidgetPlugIn*)plugin)->group( wl[i] );
+	    for ( uint mi = 0; mi < menuBar()->count(); mi++ ) {
+		QMenuItem* mitem = menuBar()->findItem( menuBar()->idAt( mi ) );
+		if ( mitem->text() == group ) {
+		    menu = mitem->popup();
+		    break;
+		}
+	    }
+	    if ( !menu ) {
+		menu = new QPopupMenu( this );
+		menuBar()->insertItem( group, menu );
+		connect( menu, SIGNAL(activated(int)), this, SLOT(runWidget(int)));
+	    }
+	    menuIDs.insert( menu->insertItem( wl[i] ), wl[i] );
+	}
     } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList al = plugin->featureList();
 	for ( uint a = 0; a < al.count(); a++ )
-	    addAction( QActionFactory::create( al[a], this ) );
+	    addAction( ((QActionPlugIn*)plugin)->create( al[a], this ) );
     } else {
 	QMessageBox::information( this, "Error", tr("Couldn't load plugin\n%1").arg( file ) );
 	return;
@@ -112,9 +118,9 @@ void PlugMainWindow::fileClose()
 
     QList<QPlugIn> pl;
     if ( widgetManager ) {
-	QList<QWidgetPlugIn> pl;
+	QList<WidgetPlugIn> pl;
 	pl = widgetManager->plugInList();
-	QListIterator<QWidgetPlugIn> it( pl );
+	QListIterator<WidgetPlugIn> it( pl );
 	while ( it.current() ) {
 	    QPlugIn* p = it.current();
 	    ++it;
@@ -168,7 +174,7 @@ void PlugMainWindow::fileClose()
 				break;
 			}
 			if ( it != menuIDs.end() ) {
-			    widgetMenu->removeItem( it.key() );
+			    menuBar()->removeItem( it.key() );
 			    menuIDs.remove( it );
 			}
 		    }
@@ -204,14 +210,13 @@ void PlugMainWindow::runWidget( int id )
 	delete centralWidget();
 
     widgetManager->selectFeature( wname);
-
-    QWidget* w = QWidgetFactory::create( wname, this );
+    QWidget* w = widgetManager->create( wname, this );
     if ( !w ) {
 	QMessageBox::information( this, "Error", tr("Couldn't create widget\n%1").arg( wname ) );
 	return;
     }
     setCentralWidget( w );
-    QToolTip::add( w, QString("%1 ( %2 )").arg( wname ).arg( QWidgetFactory::widgetFactory( wname )->factoryName() ) );
+    QToolTip::add( w, widgetManager->toolTip( wname ) );
 }
 
 bool PlugMainWindow::addAction( QAction* action )
