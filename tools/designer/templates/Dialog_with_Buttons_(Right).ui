@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>596</width>
-            <height>472</height>
+            <width>592</width>
+            <height>470</height>
         </rect>
     </property>
     <property name="caption">
@@ -47,14 +47,14 @@
                 <property name="text">
                     <string>OK</string>
                 </property>
+                <property name="accel">
+                    <number>0</number>
+                </property>
                 <property name="autoDefault">
                     <bool>true</bool>
                 </property>
                 <property name="default">
                     <bool>true</bool>
-                </property>
-                <property name="accel">
-                    <number>0</number>
                 </property>
             </widget>
             <widget class="QPushButton">
@@ -64,11 +64,11 @@
                 <property name="text">
                     <string>Cancel</string>
                 </property>
-                <property name="autoDefault">
-                    <bool>true</bool>
-                </property>
                 <property name="accel">
                     <number>0</number>
+                </property>
+                <property name="autoDefault">
+                    <bool>true</bool>
                 </property>
             </widget>
             <widget class="QPushButton">
@@ -76,7 +76,10 @@
                     <cstring>buttonHelp</cstring>
                 </property>
                 <property name="text">
-                    <string>&amp;Help</string>
+                    <string>Help</string>
+                </property>
+                <property name="accel">
+                    <number>4144</number>
                 </property>
                 <property name="autoDefault">
                     <bool>true</bool>
@@ -115,5 +118,7 @@
         <receiver>MyDialog</receiver>
         <slot>reject()</slot>
     </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 </UI>

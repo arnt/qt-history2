@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>532</width>
-            <height>370</height>
+            <width>528</width>
+            <height>368</height>
         </rect>
     </property>
     <property name="caption">
@@ -68,7 +68,10 @@
                         <cstring>buttonHelp</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Help</string>
+                        <string>Help</string>
+                    </property>
+                    <property name="accel">
+                        <number>4144</number>
                     </property>
                     <property name="autoDefault">
                         <bool>true</bool>
@@ -98,14 +101,14 @@
                     <property name="text">
                         <string>OK</string>
                     </property>
+                    <property name="accel">
+                        <number>0</number>
+                    </property>
                     <property name="autoDefault">
                         <bool>true</bool>
                     </property>
                     <property name="default">
                         <bool>true</bool>
-                    </property>
-                    <property name="accel">
-                        <number>0</number>
                     </property>
                 </widget>
                 <widget class="QPushButton">
@@ -115,11 +118,11 @@
                     <property name="text">
                         <string>Cancel</string>
                     </property>
-                    <property name="autoDefault">
-                        <bool>true</bool>
-                    </property>
                     <property name="accel">
                         <number>0</number>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>true</bool>
                     </property>
                 </widget>
             </hbox>
@@ -139,5 +142,7 @@
         <receiver>MyDialog1</receiver>
         <slot>reject()</slot>
     </connection>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
 </UI>
