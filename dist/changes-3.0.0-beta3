@@ -40,3 +40,26 @@ Removed functions:
 	bool QSqlDriver::hasQuerySizeSupport() const;
 	bool QSqlDriver::canEditBinaryFields() const;
 	bool QSqlDriver::hasTransactionSupport() const;
+
+
+QTabWidget
+----------
+
+Use the functions below to add tool tips to the individual tabs in a
+QTabWidget.
+
+New functions:
+    void removeTabTip( QWidget * w );
+    void setTabTip( QWidget * w, const QString & tip );
+    QString tabTip( QWidget * w ) const;
+
+QTabBar
+-------
+
+Use the functions below to add tool tips to the individual tabs in a
+QTabBar.
+
+New functions:
+    void 	removeTabTip( int id );
+    void     	setTabTip( int id, const QString & tip );
+    QString 	tabTip( int id ) const;
