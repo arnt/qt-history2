@@ -2164,10 +2164,10 @@ void QRegExpEngine::CharClass::addRange( ushort from, ushort to )
 {
     if ( from > to )
 	qSwap( from, to );
-    int n = r.size();
-    r.resize( n + 1 );
-    r[n].from = from;
-    r[n].to = to;
+    int m = r.size();
+    r.resize( m + 1 );
+    r[m].from = from;
+    r[m].to = to;
 
 #ifndef QT_NO_REGEXP_OPTIM
     int i;
