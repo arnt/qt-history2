@@ -3112,18 +3112,7 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 {
     QTableItem *itm = item( row, col );
     QTableItem *oldIitem = item( curRow, curCol );
-    if ( itm && itm->rowSpan() > 1 && oldIitem == itm && itm->row() != row ) {
-	if ( row > curRow )
-	    row = itm->row() + itm->rowSpan();
-	else if ( row < curRow )
-	    row = QMAX( 0, itm->row() - 1 );
-    }
-    if ( itm && itm->colSpan() > 1 && oldIitem == itm && itm->col() != col ) {
-	if ( col > curCol )
-	    col = itm->col() + itm->colSpan();
-	else if ( col < curCol )
-	    col = QMAX( 0, itm->col() - 1 );
-    }
+    
     if ( row > numRows() - 1 )
 	row = numRows() - 1;
     if ( col > numCols() - 1 )
