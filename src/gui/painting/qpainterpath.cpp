@@ -84,29 +84,21 @@ void QPainterSubpath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint
     elements.append(elm);
 }
 
-void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
+void QPainterSubpath::addArc(const QRect &rect, int angle, int alen)
 {
-#define RHAT sqrt( (rx*rx*ry*ry) / ( ry*ry*sintheta + ry*ry*costheta ) )
-    const int THETAFACTOR = int(2 * M_PI / (16.0 * 360));
+#define ANGLE(t) ((t) * 2 * M_PI / (16.0 * 360))
 
-    double rx = rect.width() / 2.0;
-    double ry = rect.height() / 2.0;
-    double theta = startAngle * THETAFACTOR;
-    double cx = rect.x() + rx;
-    double cy = rect.y() + ry;
-    double sintheta = sin(theta);
-    double costheta = cos(theta);
-    double rhat = RHAT;
+    double a = rect.width() / 2.0;
+    double b = rect.height() / 2.0;
 
-    QPoint firstPoint(int(cx + rhat * costheta), int(cy + rhat * sintheta));
-    theta = (startAngle + arcLength) * THETAFACTOR;
-    sintheta = sin(theta);
-    costheta = cos(theta);
-    rhat =  RHAT;
-    QPoint lastPoint(int(cx + rhat * costheta), int(cy + rhat * sintheta));
+    QPoint startPoint(a * cos(ANGLE(angle)), - b * sin(ANGLE(angle)));
+    QPoint endPoint(a * cos(ANGLE(angle + alen)), - b * sin(ANGLE(angle + alen)));
 
-    connectLast(firstPoint);
-    this->lastPoint = lastPoint;
+    startPoint += rect.center();
+    endPoint   += rect.center();
+
+    connectLast(startPoint);
+    lastPoint = endPoint;
 
     QPainterPathElement elm;
     elm.type           = QPainterPathElement::Arc;
@@ -114,12 +106,12 @@ void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
     elm.arcData.y      = rect.y();
     elm.arcData.w      = rect.width();
     elm.arcData.h      = rect.height();
-    elm.arcData.start  = startAngle;
-    elm.arcData.length = arcLength;
-    elm.arcData.fpx    = firstPoint.x();
-    elm.arcData.fpy    = firstPoint.y();
-    elm.arcData.lpx    = lastPoint.x();
-    elm.arcData.lpy    = lastPoint.y();
+    elm.arcData.start  = angle;
+    elm.arcData.length = alen;
+    elm.arcData.fpx    = startPoint.x();
+    elm.arcData.fpy    = startPoint.y();
+    elm.arcData.lpx    = endPoint.x();
+    elm.arcData.lpy    = endPoint.y();
     elements.append(elm);
 }
 
