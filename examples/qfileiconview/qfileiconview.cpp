@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#35 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#36 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -487,6 +487,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
 
 QtFileIconViewItem::~QtFileIconViewItem()
 {
+    delete itemFileInfo;
 }
 
 void QtFileIconViewItem::setText( const QString &text )
