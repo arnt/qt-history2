@@ -130,6 +130,7 @@ ifdef BUILD_FREETYPE
   $(FT_LIBRARY): $(OBJECTS_LIST)
 	  -$(DELETE) $@
 	  $(FT_LIBRARIAN) $@ $(OBJECTS_LIST)
+	  mipsel-linux-ranlib $@
 
 endif
 

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#19 $
+# $Id: //depot/qt/main/GNUmakefile.inc#20 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -12,18 +12,26 @@ ifdef QT_EMBEDDED
 ifeq ($(PROJECT),qt)
 PROJECT=qt-e
 endif
-ifeq ($(LIBTARGET),1)
-TMAKEHACK="DESTDIR=../lib-e"
-else
-TMAKEHACK="TMAKE_LIBDIR_QT=$(QTDIR)/lib-e"
+ifeq ($(QT_EMBEDDED),mips)
+# MIPS_OPT="-mcpu=r4000 -mips3" # Doesn't work?
+TMAKEHACKEXTRA="DASHMIPS=-mips" "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++"
 endif
-PROJOBJ=e/
-PROJMAK=-e
+ifeq ($(LIBTARGET),1)
+TMAKEHACK="DESTDIR=../lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+else
+TMAKEHACK="TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
+endif
+PROJOBJ=e-$(QT_EMBEDDED)/
+PROJMAK=-e-$(QT_EMBEDDED)
 TMAKEPATH=$(TMAKEDIR)/lib/linux-qws-g++
 export TMAKEPATH
 ifndef QT_TARGET
 QT_TARGET=release
 endif
+else
+# Should do this too...
+#PROJOBJ=x11/
+#PROJMAK=-x11
 endif
 
 
@@ -55,8 +63,6 @@ $(PROJECT).pro:
 	$(MAKE) -j4 -f GNUmakefile$(PROJMAK).$*
 
 static: static-debug
-
-mips: mips-release
 
 gcc: gcc-debug
 
@@ -146,73 +152,6 @@ endif
 	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-release \
 	    "CONFIG+=staticlib release" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-release" $(TMAKEHACK)
 
-
-
-# MIPS_OPT="-mcpu=r4000 -mips3"
-
-GNUmakefile$(PROJMAK).mips-debug: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	$(SYNCQT)
-endif
-	@mkdir -p .obj/$(PROJOBJ)mips-debug
-ifeq ($(LIBTARGET),1)
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-debug \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "DESTDIR=../lib-mips" \
-	    "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "CONFIG+=debug" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-debug"
-else
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-debug \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fnonnull-objects -fshort-enums -fshared-data" "CONFIG+=debug" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fnonnull-objects" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc $(MIPS_OPT)" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-debug"
-endif
-
-GNUmakefile$(PROJMAK).mips-release: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	$(SYNCQT)
-endif
-	@mkdir -p .obj/$(PROJOBJ)mips-release
-ifeq ($(LIBTARGET),1)
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-release \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "DESTDIR=../lib-mips" \
-	    "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fomit-frame-pointer -msplit-addresses -fconserve-space -fnonnull-objects -fshort-enums -fshared-data" "CONFIG+=release" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fomit-frame-pointer $(MIPS_OPT) -msplit-addresses -fconserve-space --sort-common -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK=mipsel-linux-g++ $(MIPS_OPT) -msplit-addresses -fconserve-space --sort-common -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_CC=mipsel-linux-gcc -fomit-frame-pointer $(MIPS_OPT) -msplit-addresses -fconserve-space -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-release"
-else
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-release \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "TMAKE_CXXFLAGS+=$(MIPS_OPT) -fomit-frame-pointer -msplit-addresses -fconserve-space -fnonnull-objects -fshort-enums -fshared-data" "CONFIG+=release" "TMAKE_LINK_SHLIB=mipsel-linux-g++ -fomit-frame-pointer $(MIPS_OPT) -msplit-addresses -fconserve-space --sort-common -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_LINK=mipsel-linux-g++ $(MIPS_OPT) -msplit-addresses -fconserve-space --sort-common -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_CC=mipsel-linux-gcc -fomit-frame-pointer $(MIPS_OPT) -msplit-addresses -fconserve-space -fnonnull-objects -fshort-enums -fshared-data" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-release"
-endif
-
-GNUmakefile$(PROJMAK).mips-static-debug: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	$(SYNCQT)
-endif
-	@mkdir -p .obj/$(PROJOBJ)mips-static-debug
-ifeq ($(LIBTARGET),1)
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-debug \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "DESTDIR=../lib-mips" \
-	    "CONFIG+=staticlib debug" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-debug"
-else
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-debug \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "CONFIG+=static debug" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-debug"
-endif
-
-GNUmakefile$(PROJMAK).mips-static-release: $(PROJECT).pro GNUmakefile
-ifeq ($(LIBTARGET),1)
-	$(SYNCQT)
-endif
-	@mkdir -p .obj/$(PROJOBJ)mips-static-release
-ifeq ($(LIBTARGET),1)
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-release \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "DESTDIR=../lib-mips" \
-	    "CONFIG+=staticlib release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
-else
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).mips-static-release \
-	    "DASHMIPS=-mips" "TMAKE_LIBDIR_QT=$(QTDIR)/lib-mips" \
-	    "CONFIG+=static release" "TMAKE_LINK=mipsel-linux-g++" "TMAKE_CC=mipsel-linux-gcc" "TMAKE_CXX=mipsel-linux-g++" "OBJECTS_DIR=.obj/$(PROJOBJ)mips-static-release"
-endif
 
 
 showfiles:
