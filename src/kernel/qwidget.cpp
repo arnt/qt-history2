@@ -676,7 +676,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     QApplication::postEvent( this, new QResizeEvent(crect.size(),
 						    crect.size()) );
     if ( isTopLevel() ) {
-	setWState( WState_ForceHide );
+	//setWState( WState_ForceHide );  WWA: This severely breaks reparent().
+
 	if ( testWFlags( WType_Modal ) )
 	    setWState( WState_Modal ); // default for modal windows is to be modal
 	QFocusData *fd = focusData( TRUE );
