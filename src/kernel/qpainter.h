@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#54 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#55 $
 **
 ** Definition of QPainter class
 **
@@ -200,6 +200,10 @@ public:
     int	       *tabArray() const	{ return tabarray; }
     void	setTabArray( int * );
 
+#if defined(_WS_WIN_)
+    HANDLE	handle() const	{ return hdc; }
+#endif
+
     static void initialize();
     static void cleanup();
 
@@ -250,6 +254,7 @@ protected:
     uint	stockBrush	: 1;
     uint	pixmapBrush	: 1;
     uint	tmpHandle	: 1;
+    void       *tm;
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
     int		dh;				// device height
