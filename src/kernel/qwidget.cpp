@@ -2440,7 +2440,7 @@ const QBrush& QWidget::backgroundBrush() const
   with keyboard focus has the QPalette::active() color group, and an
   inactive widget has the QPalette::inactive() color group.
 
-  \sa palette(), setPalette()
+  \sa palette
 */
 #ifndef QT_NO_PALETTE
 const QColorGroup &QWidget::colorGroup() const
