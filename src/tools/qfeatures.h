@@ -88,7 +88,9 @@
     included in source files as they are C code.
     Qt uses this format for some internal images (eg. QMessageBox icons).
 */
-//#define QT_NO_IMAGEIO_XPM
+#if defined(QT_NO_TEXTSTREAM)
+    #define QT_NO_IMAGEIO_XPM
+#endif
 /*!
     PNG image I/O
     <p>The Portable Network Graphics (PNG) is a compressed image format.
@@ -145,20 +147,24 @@
 	on Unix.
     <p>Only supported on Qt/Embedded.
 */
-#if defined(QT_NO_TEXTSTREAM)
+#if defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST)
     #define QT_NO_BDF
 #endif
 /*!
     QFontDatabase
 */
-//#define QT_NO_FONTDATABASE
+#if defined(QT_NO_STRINGLIST)
+    #define QT_NO_FONTDATABASE
+#endif
 
 // Internationalization
 
 /*!
     QObject::tr()
 */
-//#define QT_NO_TRANSLATION
+#if defined(QT_NO_DATASTREAM)
+    #define QT_NO_TRANSLATION
+#endif
 
 /*!
     QTextCodec class and subclasses
@@ -187,11 +193,13 @@
 #if defined(QT_NO_DIR)
     #define QT_NO_MIME
 #endif
-#if defined(QT_NO_MIME)
+#if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM)
     /*!
 	RichText (HTML) display
     */
     #define QT_NO_RICHTEXT
+#endif
+#if defined(QT_NO_MIME)
     /*!
 	Drag and drop
     */
@@ -212,7 +220,9 @@
 /*!
     Properties
 */
-//#define QT_NO_PROPERTIES
+#if defined(QT_NO_STRINGLIST)
+    #define QT_NO_PROPERTIES
+#endif
 
 // Qt/Embedded-specific
 /*!
@@ -333,7 +343,9 @@
 /*!
     Network file access
 */
-//#define QT_NO_NETWORKPROTOCOL
+#if defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
+    #define QT_NO_NETWORKPROTOCOL
+#endif
 #if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
     /*!
 	FTP file access
@@ -359,19 +371,17 @@
 /*!
     Printing
 */
-//#define QT_NO_PRINTER
-#if defined(QT_NO_PRINTER) || defined(QT_NO_TEXTSTREAM)
-    /*!
-	PostScript printing
-    */
-    #define QT_NO_PSPRINTER
+#if defined(QT_NO_TEXTSTREAM)
+    #define QT_NO_PRINTER
 #endif
 
 // Metafiles
 /*!
     QPicture
 */
-//#define QT_NO_PICTURE
+#if defined(QT_NO_DATASTREAM)
+    #define QT_NO_PICTURE
+#endif
 
 // Layout
 /*!
@@ -443,24 +453,6 @@
     #define QT_NO_TEXTBROWSER
 #endif
 
-#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
-    /*!
-	QIconView
-    */
-    #define QT_NO_ICONVIEW
-#endif
-#if defined(QT_NO_HEADER)
-    /*!
-	QListView
-    */
-    #define QT_NO_LISTVIEW
-#endif
-#if defined(QT_NO_LISTBOX)
-    /*!
-	QComboBox
-    */
-    #define QT_NO_COMBOBOX
-#endif    
 #if defined(QT_NO_STYLE)
     /*!
 	Windows style
@@ -470,6 +462,13 @@
 	Motif style
     */
     #define QT_NO_STYLE_MOTIF
+#endif
+
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_STRINGLIST)
+    /*!
+	QListBox
+    */
+    #define QT_NO_LISTBOX
 #endif
 
 #if defined(QT_NO_COMPLEXWIDGETS)
@@ -487,21 +486,9 @@
     */
     #define QT_NO_HEADER
     /*!
-	QIconView
-    */
-    #define QT_NO_ICONVIEW
-    /*!
 	QMenuBar
     */
     #define QT_NO_MENUBAR
-    /*!
-	QListBox
-    */
-    #define QT_NO_LISTBOX
-    /*!
-	QComboBox
-    */
-    #define QT_NO_COMBOBOX
     /*!
 	QCanvas
     */
@@ -522,6 +509,24 @@
 	QAction
     */
     #define QT_NO_ACTION
+#endif
+#if defined(QT_NO_LISTBOX) || defined(QT_NO_COMPLEXWIDGETS)
+    /*!
+	QComboBox
+    */
+    #define QT_NO_COMBOBOX
+#endif    
+#if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DRAGANDDROP) || defined(QT_NO_HEADER)
+    /*!
+	QIconView
+    */
+    #define QT_NO_ICONVIEW
+#endif
+#if defined(QT_NO_HEADER)
+    /*!
+	QListView
+    */
+    #define QT_NO_LISTVIEW
 #endif
 #if defined(QT_NO_COMPLEXWIDGETS) || defined(QT_NO_DIALOG)
    /*!
@@ -554,7 +559,26 @@
     #define QT_NO_STYLE_PLATINUM
 #endif
 
-#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR)
+#if defined(QT_NO_DIALOGS)
+    /*!
+	QColorDialog
+    */
+    #define QT_NO_COLORDIALOG
+    /*!
+	QMessageBox
+    */
+    #define QT_NO_MESSAGEBOX
+    /*!
+	QTabDialog
+    */
+    #define QT_NO_TABDIALOG
+    /*!
+	QWizard
+    */
+    #define QT_NO_WIZARD
+#endif
+
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_LISTVIEW) || defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_COMBOBOX) || defined(QT_NO_DIR) || defined(QT_NO_MESSAGEBOX)
     /*!
 	QFileDialog
     */
@@ -586,24 +610,6 @@
 	QInputDialog
     */
     #define QT_NO_INPUTDIALOG
-#endif
-#if defined(QT_NO_DIALOGS)
-    /*!
-	QColorDialog
-    */
-    #define QT_NO_COLORDIALOG
-    /*!
-	QMessageBox
-    */
-    #define QT_NO_MESSAGEBOX
-    /*!
-	QTabDialog
-    */
-    #define QT_NO_TABDIALOG
-    /*!
-	QWizard
-    */
-    #define QT_NO_WIZARD
 #endif
 
 #if defined(QT_NO_STRINGLIST)

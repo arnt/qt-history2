@@ -197,7 +197,10 @@ void QRadioButton::drawButton( QPainter *paint )
     x = 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
-#define SAVE_RADIOBUTTON_PIXMAPS
+#ifndef QT_NO_TEXTSTREAM
+#define SAVE_CHECKBOX_PIXMAPS
+#endif
+
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
     QString pmkey;				// pixmap key
     int kf = 0;

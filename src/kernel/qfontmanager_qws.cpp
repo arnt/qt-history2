@@ -25,6 +25,7 @@
 #include "qfile.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 //
 // /usr/local/qt-embedded/etc/fonts/fontdir lists a sequence of:

@@ -26,9 +26,6 @@
 #include "qlist.h"
 #endif // QT_H
 
-#include <stdlib.h>
-
-
 // These are stored in the shared memory segment in front of their
 // data, and indexed at the start of the segment
 

@@ -207,7 +207,10 @@ void QCheckBox::drawButton( QPainter *paint )
     x = gs == MotifStyle ? 1 : 0;
     y = (height() - lsz.height() + fm.height() - sz.height())/2;
 
+#ifndef QT_NO_TEXTSTREAM
 #define SAVE_CHECKBOX_PIXMAPS
+#endif
+
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     QString pmkey;				// pixmap key
     int kf = 0;

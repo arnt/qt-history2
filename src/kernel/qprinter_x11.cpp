@@ -25,7 +25,7 @@
 
 #include "qprinter.h"
 
-#ifndef QT_NO_PSPRINTER
+#ifndef QT_NO_PRINTER
 
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"

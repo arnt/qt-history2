@@ -271,8 +271,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     if ( closedir(dir) != 0 ) {
 #if defined(CHECK_NULL) && !defined(_OS_VMS_)
-	qWarning( "QDir::readDirEntries: Cannot close the directory: %s (UTF8)",
-		  dPath.utf8().data() );
+	qWarning( "QDir::readDirEntries: Cannot close the directory: %s",
+		  dPath.local8Bit().data() );
 #endif
     }
 
