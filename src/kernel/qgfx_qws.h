@@ -64,10 +64,9 @@ public:
     virtual void show() {}
     virtual void hide() {}
 
-    bool restoreUnder( const QRect &r, QGfxRasterBase *g = 0 );
-    void saveUnder();
-    void drawCursor();
-    void draw();
+    virtual bool restoreUnder( const QRect &r, QGfxRasterBase *g = 0 );
+    virtual void saveUnder();
+    virtual void drawCursor();
     virtual bool supportsAlphaCursor();
 
     static bool enabled() { return qt_sw_cursor; }
@@ -299,6 +298,8 @@ public:
     virtual void restore()=0;
 
     virtual void setRop(RasterOp)=0;
+
+    bool isScreenGfx() { return is_screen_gfx; } //for cursor..
 
 protected:
     bool is_screen_gfx;
