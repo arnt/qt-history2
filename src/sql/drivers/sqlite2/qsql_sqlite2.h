@@ -34,7 +34,7 @@ class QSQLite2Result : public QSqlCachedResult
     friend class QSQLite2Driver;
     friend class QSQLite2ResultPrivate;
 public:
-    QSQLite2Result(const QSQLite2Driver* db);
+    explicit QSQLite2Result(const QSQLite2Driver* db);
     ~QSQLite2Result();
 
 protected:
@@ -52,8 +52,8 @@ class QSQLite2Driver : public QSqlDriver
 {
     friend class QSQLite2Result;
 public:
-    QSQLite2Driver(QObject *parent = 0);
-    QSQLite2Driver(sqlite *connection, QObject *parent = 0);
+    explicit QSQLite2Driver(QObject *parent = 0);
+    explicit QSQLite2Driver(sqlite *connection, QObject *parent = 0);
     ~QSQLite2Driver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
@@ -80,4 +80,5 @@ public:
 private:
     QSQLite2DriverPrivate* d;
 };
-#endif
+
+#endif // QSQL_SQLITE_H

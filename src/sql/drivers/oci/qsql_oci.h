@@ -94,7 +94,7 @@ private:
 class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
 public:
-    QOCIDriver(QObject* parent = 0);
+    explicit QOCIDriver(QObject* parent = 0);
     QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0);
     ~QOCIDriver();
     bool                hasFeature(DriverFeature f) const;
@@ -124,4 +124,4 @@ private:
     QOCIPrivate*        d;
 };
 
-#endif
+#endif // QSQL_OCI_H

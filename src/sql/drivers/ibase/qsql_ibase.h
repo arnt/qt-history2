@@ -27,7 +27,7 @@ class QIBaseResult : public QSqlCachedResult
     friend class QIBaseResultPrivate;
 
 public:
-    QIBaseResult(const QIBaseDriver* db);
+    explicit QIBaseResult(const QIBaseDriver* db);
     virtual ~QIBaseResult();
 
     bool prepare(const QString& query);
@@ -49,8 +49,8 @@ class QIBaseDriver : public QSqlDriver
     friend class QIBaseDriverPrivate;
     friend class QIBaseResultPrivate;
 public:
-    QIBaseDriver(QObject *parent = 0);
-    QIBaseDriver(void *connection, QObject *parent = 0);
+    explicit QIBaseDriver(QObject *parent = 0);
+    explicit QIBaseDriver(void *connection, QObject *parent = 0);
     virtual ~QIBaseDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
@@ -80,5 +80,5 @@ private:
     QIBaseDriverPrivate* d;
 };
 
-#endif
+#endif // QSQL_IBASE_H
 

@@ -38,7 +38,7 @@ class QMYSQLResult : public QSqlResult
 {
     friend class QMYSQLDriver;
 public:
-    QMYSQLResult(const QMYSQLDriver* db);
+    explicit QMYSQLResult(const QMYSQLDriver* db);
     ~QMYSQLResult();
 
     MYSQL_RES* result();
@@ -67,8 +67,8 @@ class Q_EXPORT_SQLDRIVER_MYSQL QMYSQLDriver : public QSqlDriver
 {
     friend class QMYSQLResult;
 public:
-    QMYSQLDriver(QObject *parent=0);
-    QMYSQLDriver(MYSQL *con, QObject * parent=0);
+    explicit QMYSQLDriver(QObject *parent=0);
+    explicit QMYSQLDriver(MYSQL *con, QObject * parent=0);
     ~QMYSQLDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
@@ -95,5 +95,4 @@ private:
     QMYSQLDriverPrivate* d;
 };
 
-
-#endif
+#endif // QSQL_MYSQL_H

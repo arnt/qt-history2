@@ -42,7 +42,7 @@ class QTDSDriver;
 class QTDSResult : public QSqlCachedResult
 {
 public:
-    QTDSResult(const QTDSDriver* db);
+    explicit QTDSResult(const QTDSDriver* db);
     ~QTDSResult();
     DBPROCESS *dbprocess() const;
 
@@ -62,7 +62,7 @@ class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
     friend class QTDSResult;
 public:
-    QTDSDriver(QObject* parent = 0);
+    explicit QTDSDriver(QObject* parent = 0);
     QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QObject* parent = 0);
     ~QTDSDriver();
     bool hasFeature(DriverFeature f) const;
@@ -91,4 +91,4 @@ private:
     QTDSDriverPrivate *d;
 };
 
-#endif
+#endif // QSQL_TDS_H

@@ -88,7 +88,7 @@ private:
 class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
 {
 public:
-    QODBCDriver(QObject *parent=0);
+    explicit QODBCDriver(QObject *parent=0);
     QODBCDriver(SQLHANDLE env, SQLHANDLE con, QObject * parent=0);
     virtual ~QODBCDriver();
     bool hasFeature(DriverFeature f) const;
@@ -120,4 +120,4 @@ private:
     QODBCDriverPrivate* d;
 };
 
-#endif
+#endif // QSQL_ODBC_H

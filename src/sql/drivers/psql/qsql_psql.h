@@ -70,8 +70,8 @@ public:
         Version73 = 9
     };
 
-    QPSQLDriver(QObject *parent=0);
-    QPSQLDriver(PGconn *conn, QObject *parent=0);
+    explicit QPSQLDriver(QObject *parent=0);
+    explicit QPSQLDriver(PGconn *conn, QObject *parent=0);
     ~QPSQLDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
@@ -103,4 +103,4 @@ private:
     QPSQLDriverPrivate *d;
 };
 
-#endif
+#endif // QSQL_PSQL_H

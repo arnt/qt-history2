@@ -55,7 +55,7 @@ private:
 class Q_EXPORT_SQLDRIVER_DB2 QDB2Driver : public QSqlDriver
 {
 public:
-    QDB2Driver(QObject* parent = 0);
+    explicit QDB2Driver(QObject* parent = 0);
     QDB2Driver(Qt::HANDLE env, Qt::HANDLE con, QObject* parent = 0);
     ~QDB2Driver();
     bool hasFeature(DriverFeature) const;
@@ -81,4 +81,4 @@ private:
     QDB2DriverPrivate* d;
 };
 
-#endif
+#endif // QSQL_DB2_H
