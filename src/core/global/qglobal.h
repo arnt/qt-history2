@@ -1119,6 +1119,9 @@ inline QT_COMPAT int qWinVersion() { return QSysInfo::WindowsVersion; }
 //
 #define Q_UNUSED(x) (void)x;
 
+#define Q_D(Class) Class##Private *d = d_func()
+#define Q_Q(Class) Class *q = q_func()
+
 //
 // Debugging and error handling
 //
