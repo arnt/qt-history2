@@ -1240,6 +1240,12 @@ int QWidget::metric( int m ) const
     } else if ( m == QPaintDeviceMetrics::PdmDepth ) {
 	// FIXME : this is a lie in most cases
 	return 16;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
+	// FIXME : this is a lie in most cases
+	return 80;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
+	// FIXME : this is a lie in most cases
+	return 80;
     } else {
         // FIXME: Handle this case
 	qWarning("QWidget::metric unhandled parameter %d",m);
