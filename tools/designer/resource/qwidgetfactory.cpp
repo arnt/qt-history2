@@ -1193,7 +1193,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 		h->setLabel( i, txt );
 	}
 	if ( !isRow && !field.isEmpty() ) {
-	    fieldMap.append( Field( txt, hasPixmap ? pix : QPixmap(), field ) );
+	    fieldMap.append( Field( txt, (hasPixmap ? pix : QPixmap()), field ) );
 	    fieldMaps.insert( table, fieldMap );
 	}
     }
