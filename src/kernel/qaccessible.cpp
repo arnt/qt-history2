@@ -4,6 +4,7 @@
 
 #include "qwidget.h"
 #include "qapplication.h"
+#include "qobjectlist.h"
 
 /*!
   \class QAccessibleInterface qaccessible.h
@@ -224,13 +225,17 @@ ulong QAccessibleObject::release()
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
 */
 
-QAccessibleWidget::QAccessibleWidget( QWidget *w )
-: QAccessibleObject(), widget( w )
+QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name, 
+    QString description, QString value, QString help, QString defAction, QString accelerator )
+    : QAccessibleObject(), widget( w ), role_(role), name_(name), 
+      description_(description),value_(value),help_(help), 
+      defAction_(defAction), accelerator_(accelerator)
 {
 }
 
 QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
 {
+    *who = -1;
     QPoint gp = widget->mapToGlobal( QPoint( 0, 0 ) );
     if ( !QRect( gp.x(), gp.y(), widget->width(), widget->height() ).contains( x, y ) )
 	return NULL;
@@ -251,6 +256,90 @@ QRect	QAccessibleWidget::location( int who ) const
     return QRect( wpos.x(), wpos.y(), widget->width(), widget->height() );
 }
 
+QAccessibleInterface *QAccessibleWidget::navigate( int dir, int *target ) const
+{
+    *target = -1;
+    QObject *o = 0;
+    switch ( dir ) {
+    case NavFirstChild:
+    case NavLastChild:
+	{
+	    QObjectList *cl = widget->queryList( "QWidget", 0, FALSE, FALSE );
+	    if ( !cl )
+		return 0;
+	    if ( dir == NavFirstChild )
+		o = cl->first();
+	    else
+		o = cl->last();
+	    delete cl;
+	    return o ? o->accessibilityInterface() : 0;
+	}
+	break;
+    case NavNext:
+    case NavPrevious:
+	{
+	    QWidget *parent = widget->parentWidget();
+	    QObjectList *sl = parent ? parent->queryList( "QWidget", 0, FALSE, FALSE ) : 0;
+	    if ( !sl )
+		return 0;
+	    QObject *sib;
+	    QObjectListIt it( *sl );
+	    if ( dir == NavNext ) {
+		while ( ( sib = it.current() ) ) {
+		    ++it;
+		    if ( sib == widget )
+			break;
+		}
+	    } else {
+		it.toLast();
+		while ( ( sib = it.current() ) ) {
+		    --it;
+		    if ( sib == widget )
+			break;
+		}
+	    }
+	    sib = it.current();
+	    if ( sib )
+		return sib->accessibilityInterface();
+	    return 0;
+	}
+	break;
+    default:
+	qDebug( "QAccessibleWidget::navigate: unhandled request" );
+	break;
+    };
+    return 0;
+}
+
+int QAccessibleWidget::childCount() const
+{
+    QObjectList *cl = widget->queryList( "QWidget", 0, FALSE, FALSE );
+    if ( !cl )
+	return 0;
+
+    int count = cl->count();
+    delete cl;
+    return count;
+}
+
+QAccessibleInterface *QAccessibleWidget::child( int who ) const
+{
+    if ( !who )
+	return widget->accessibilityInterface();
+
+    QObjectList *cl = widget->queryList( "QWidget", 0, FALSE, FALSE );
+    if ( !cl )
+	return 0;
+
+    QObject *o = cl->at( who-1 );
+    delete cl;
+
+    if ( !o )
+	return 0;
+
+    return o->accessibilityInterface();    
+}
+
 QAccessibleInterface *QAccessibleWidget::parent() const
 {
     QWidget *p = widget->parentWidget();
@@ -260,47 +349,57 @@ QAccessibleInterface *QAccessibleWidget::parent() const
     return p->accessibilityInterface();
 }
 
-bool	QAccessibleWidget::doDefaultAction( int who )
+bool	QAccessibleWidget::doDefaultAction( int /*who*/ )
 {
     return FALSE;
 }
 
-QString	QAccessibleWidget::defaultAction( int who ) const
+QString	QAccessibleWidget::defaultAction( int /*who*/ ) const
 {
-    return "Ignore";
+    return defAction_;
 }
 
-QString	QAccessibleWidget::description( int who ) const
+QString	QAccessibleWidget::description( int /*who*/ ) const
 {
-    return widget->className();
+#if defined(QT_DEBUG)
+    return !!description_ ? description_ : widget->className();
+#else
+    return description_;
+#endif
 }
 
-QString	QAccessibleWidget::help( int who ) const
+QString	QAccessibleWidget::help( int /*who*/) const
 {
-    return QString::null;
+    return help_;
 }
 
-QString	QAccessibleWidget::accelerator( int who ) const
+QString	QAccessibleWidget::accelerator( int /*who*/ ) const
 {
-    return QString::null;
+    return accelerator_;
 }
 
-QString	QAccessibleWidget::name( int who ) const
+QString	QAccessibleWidget::name( int /*who*/ ) const
 {
-    return widget->className();
+    if ( widget->isTopLevel() )
+	return widget->caption();
+#if defined(QT_DEBUG)
+    return !!name_ ? name_ : widget->name();
+#else
+    return name_;
+#endif
 }
 
-QString	QAccessibleWidget::value( int who ) const
+QString	QAccessibleWidget::value( int /*who*/ ) const
 {
-    return QString::null;
+    return value_;
 }
 
-QAccessible::Role	QAccessibleWidget::role( int who ) const
+QAccessible::Role	QAccessibleWidget::role( int /*who*/ ) const
 {
-    return QAccessible::Client;
+    return role_;
 }
 
-QAccessible::State	QAccessibleWidget::state( int who ) const
+QAccessible::State	QAccessibleWidget::state( int /*who*/ ) const
 {
     int state = QAccessible::Normal;
 
@@ -318,6 +417,7 @@ QAccessible::State	QAccessibleWidget::state( int who ) const
 
 QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 {
+    widget->setActiveWindow();
     if ( !widget->isActiveWindow() )
 	return 0;
 
@@ -327,6 +427,8 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
     }
 
     QWidget *w = qApp->focusWidget();
+    if ( !w )
+	return 0;
 
     // find out if we are the parent of the focusWidget
     QWidget *p = w;

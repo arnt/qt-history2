@@ -210,10 +210,10 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
     if ( varStart.lVal == CHILDID_SELF ) {
 	int target;
 	QAccessibleInterface *acc = accessible->navigate( navDir, &target );
-	if ( target == -1 && !acc ) {
+	if ( !acc ) {
 	    (*pvarEnd).vt = VT_EMPTY;
 	    return S_FALSE;
-	} else if ( !acc ) {
+	} else if ( acc == accessible ) {
 	    (*pvarEnd).vt = VT_I4;
 	    (*pvarEnd).lVal = target;
 	    return S_OK;
@@ -224,10 +224,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accNavigate( long navDir, VARIANT 
 	(*pvarEnd).vt = VT_DISPATCH;
 	(*pvarEnd).pdispVal = disp;
 	return S_OK;
-    } else {
-	qDebug( "Start != Me" );
-    }
+    } // ###
 
+    (*pvarEnd).vt = VT_EMPTY;
     return S_FALSE;
 }
 
@@ -424,16 +423,9 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accFocus( VARIANT *pvarID )
     QWindowsAccessible* wacc = new QWindowsAccessible( acc );
     IDispatch *iface;
     wacc->QueryInterface( IID_IDispatch, (void**)&iface );
-    if ( iface ) {
-	(*pvarID).vt = VT_DISPATCH;
-	(*pvarID).pdispVal = iface;
-	return S_OK;
-    } else {
-	delete wacc;
-    }
-
-    (*pvarID).vt = VT_EMPTY;
-    return DISP_E_MEMBERNOTFOUND;
+    (*pvarID).vt = VT_DISPATCH;
+    (*pvarID).pdispVal = iface;
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection( VARIANT *pvarChildren )

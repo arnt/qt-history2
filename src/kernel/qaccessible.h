@@ -85,8 +85,81 @@ public:
     };
 
     enum Role {
-	NoRole		= 0x0,
-	Client		= 0x01
+	NoRole		= 0x00000000,
+	TitleBar	= 0x00000001,
+	MenuBar		= 0x00000002,
+	ScrollBar	= 0x00000003,
+	Grip		= 0x00000004,
+	Sound		= 0x00000005,
+	Cursor		= 0x00000006,
+	Caret		= 0x00000007,
+	AlertMessage	= 0x00000008,
+	Window		= 0x00000009,
+	Client		= 0x0000000A,
+	MenuPopup	= 0x0000000B,
+	MenuItem	= 0x0000000C,
+	ToolTip		= 0x0000000D,
+	Application	= 0x0000000E,
+	Document	= 0x0000000F,
+	Pane		= 0x00000010,
+	Chart		= 0x00000011,
+	Dialog		= 0x00000012,
+	Border		= 0x00000013,
+	Grouping	= 0x00000014,
+	Separator	= 0x00000015,
+	ToolBar		= 0x00000016,
+	StatusBar	= 0x00000017,
+	Table		= 0x00000018,
+	ColumnHeader	= 0x00000019,
+	RowHeader	= 0x0000001A,
+	Column		= 0x0000001B,
+	Row		= 0x0000001C,
+	Cell		= 0x0000001D,
+	Link		= 0x0000001E,
+	HelpBalloon	= 0x0000001F,
+	Character	= 0x00000020,
+	List		= 0x00000021,
+	ListItem	= 0x00000022,
+	Outline		= 0x00000023,
+	OutlineItem	= 0x00000024,
+	PageTab		= 0x00000025,
+	PropertyPage	= 0x00000026,
+	Indicator	= 0x00000027,
+	Graphic		= 0x00000028,
+	StaticText	= 0x00000029,
+	Text		= 0x0000002A,  // Editable, selectable, etc.
+	PushButton	= 0x0000002B,
+	CheckButton	= 0x0000002C,
+	RadioButton	= 0x0000002D,
+	ComboBox	= 0x0000002E,
+	DropLest	= 0x0000002F,
+	ProgressBar	= 0x00000030,
+	Dial		= 0x00000031,
+	HotkeyField	= 0x00000032,
+	Slider		= 0x00000033,
+	SpinButton	= 0x00000034,
+	Diagram		= 0x00000035,
+	Animation	= 0x00000036,
+	Equation	= 0x00000037,
+	ButtonDropDown	= 0x00000038,
+	ButtonMenu	= 0x00000039,
+	ButtonDropGrid	= 0x0000003A,
+	Whitespace	= 0x0000003B,
+	PageTabList	= 0x0000003C,
+	Clock		= 0x0000003D
+    };
+
+    enum NavDirection {
+	NavDirectionMin	= 0x00000000,
+	NavUp		= 0x00000001,
+	NavDown		= 0x00000002,
+	NavLeft		= 0x00000003,
+	NavRight	= 0x00000004,
+	NavNext		= 0x00000005,
+	NavPrevious	= 0x00000006,
+	NavFirstChild	= 0x00000007,
+	NavLastChild	= 0x00000008,
+	NavDirectionMax	= 0x00000009
     };
 };
 
@@ -106,10 +179,9 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     // navigation and hierarchy
     virtual QAccessibleInterface* hitTest( int x, int y, int *who ) const = 0;
     virtual QRect	location( int who ) const = 0;
-/*    virtual bool	navigate( int dir, int start ) const = 0;
-    virtual QAccessibleInterface* child( int who ) const = 0;
+    virtual QAccessibleInterface* navigate( int direction, int *target ) const = 0;
     virtual int		childCount() const = 0;
-*/
+    virtual QAccessibleInterface* child( int who ) const = 0;
     virtual QAccessibleInterface* parent() const = 0;
 
     // descriptive properties and methods
@@ -122,12 +194,13 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     virtual QString	value( int who ) const = 0;
     virtual Role	role( int who ) const = 0;
     virtual State	state( int who ) const = 0;
-/*
+
     // selection and focus
+    virtual QAccessibleInterface *hasFocus( int *who ) const = 0;
+/*
     virtual void	select( int how, int who ) = 0;
     virtual int		selection() const = 0;
 */
-    virtual QAccessibleInterface *hasFocus( int *who ) const = 0;
 };
 
 class Q_EXPORT QAccessibleObject : public QAccessibleInterface
@@ -147,10 +220,16 @@ private:
 class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 {
 public:
-    QAccessibleWidget( QWidget *w );
+    QAccessibleWidget( QWidget *w, Role r = NoRole, QString name = QString::null, 
+	QString description = QString::null, QString value = QString::null, 
+	QString help = QString::null, QString defAction = QString::null,
+	QString accelerator = QString::null );
 
     QAccessibleInterface* hitTest( int x, int y, int *who ) const;
     QRect	location( int who ) const;
+    QAccessibleInterface* navigate( int direction, int *target ) const;
+    int		childCount() const;
+    QAccessibleInterface *child( int who ) const;
     QAccessibleInterface *parent() const;
 
     bool	doDefaultAction( int who );
@@ -164,8 +243,17 @@ public:
     State	state( int who ) const;
 
     QAccessibleInterface *hasFocus( int *who ) const;
+
 private:
     QWidget *widget;
+
+    Role role_;
+    QString name_;
+    QString description_;
+    QString value_;
+    QString help_;
+    QString defAction_;
+    QString accelerator_;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT
