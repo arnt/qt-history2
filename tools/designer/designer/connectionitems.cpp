@@ -324,8 +324,8 @@ SignalItem::SignalItem( QTable *table, FormWindow *fw )
 void SignalItem::senderChanged( QObject *sender )
 {
     QStringList lst;
-    int numSignals = sender->metaObject()->numSignals();
-    for (int i = 0; i < numSignals; ++i) {
+    int signalCount = sender->metaObject()->signalCount();
+    for (int i = 0; i < signalCount; ++i) {
 	QString s = sender->metaObject()->signal(i).signature();
 	if (s == "destroyed()"
 	    || s == "destroyed(QObject*)"
@@ -429,7 +429,7 @@ void SlotItem::updateSlotList()
     }
 
     QString signal = MetaDataBase::normalizeFunction( lastSignal );
-    int n = lastReceiver->metaObject()->numSlots();
+    int n = lastReceiver->metaObject()->slotCount();
     QStringList slts;
 
     for( int i = 0; i < n; ++i ) {

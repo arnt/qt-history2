@@ -1513,18 +1513,18 @@ void MainWindow::popupWidgetMenu( const QPoint &gp, FormWindow * /*fw*/, QWidget
 
 void MainWindow::setupRMBProperties( QValueList<uint> &ids, QMap<QString, int> &props, QWidget *w )
 {
-    QMetaProperty text = w->metaObject()->property( w->metaObject()->findProperty( "text" ) );
+    QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
     if ( text && qstrcmp( text.type(), "QString") != 0 )
 	text = QMetaProperty();
-    QMetaProperty title = w->metaObject()->property( w->metaObject()->findProperty( "title" ) );
+    QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
     if ( title && qstrcmp( title.type(), "QString") != 0 )
 	title = QMetaProperty();
     QMetaProperty pagetitle =
-	w->metaObject()->property( w->metaObject()->findProperty( "pageTitle" ) );
+	w->metaObject()->property( w->metaObject()->indexOfProperty( "pageTitle" ) );
     if ( pagetitle && qstrcmp( pagetitle.type(), "QString") != 0 )
 	pagetitle = QMetaProperty();
     QMetaProperty pixmap =
-	w->metaObject()->property( w->metaObject()->findProperty( "pixmap" ) );
+	w->metaObject()->property( w->metaObject()->indexOfProperty( "pixmap" ) );
     if ( pixmap && qstrcmp( pixmap.type(), "QPixmap") != 0 )
 	pixmap = QMetaProperty();
 
@@ -2287,9 +2287,9 @@ void MainWindow::readConfig()
 	w->sizeHint.setHeight( l[ 4 ].toInt() );
 	int c = 5;
 	if ( l.count() > c ) {
-	    int numSignals = l[ c ].toInt();
+	    int signalCount = l[ c ].toInt();
 	    c++;
-	    for ( int i = 0; i < numSignals; ++i, c++ )
+	    for ( int i = 0; i < signalCount; ++i, c++ )
 		w->lstSignals.append( fixArgs2( l[ c ] ).latin1() );
 	}
 	if ( l.count() > c ) {
@@ -2547,8 +2547,8 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 	return TRUE;
     }
 
-    QMetaProperty text = w->metaObject()->property( w->metaObject()->findProperty( "text" ) );
-    QMetaProperty title = w->metaObject()->property( w->metaObject()->findProperty( "title" ) );
+    QMetaProperty text = w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
+    QMetaProperty title = w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
     if ( text.isDesignable(w) ) {
 	bool ok = FALSE;
 	bool oldDoWrap = FALSE;

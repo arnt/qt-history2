@@ -37,24 +37,24 @@
     \list
     \i className() to get the name of a class.
     \i superClass() to access the superclass's meta object.
-    \i numSlots(), slot(), numSignals() and signal() to get information
+    \i slotCount(), slot(), signalCount() and signal() to get information
        about a class's signals and slots.
-    \i numEnumerators() and enumerator() to obtain information about
+    \i enumeratorCount() and enumerator() to obtain information about
        a class's enumerators.
-    \i numProperties() and property() to obtain information about a
+    \i propertyCount() and property() to obtain information about a
        class's properties.
     \endlist
 
-    The search functions findSlot(), findSignal(), findEnumerator()
-    and findProperty() map names of member functions, enumerators or
-    properties to indices in the meta object. Qt uses
-    e.g. findSignal() and findSlot() internally when you connect a
-    signal to a slot.
+    The index functions indexOfSlot(), indexOfSignal(),
+    indexOfEnumerator() and indexOfProperty() map names of member
+    functions, enumerators or properties to indices in the meta
+    object. Qt uses e.g. indexOfSignal() and indexOfSlot() internally
+    when you connect a signal to a slot.
 
     Classes may further have a list of name-value pairs of additonal
     class information. The number of pairs is returned by
-    numClassInfo(), single pairs are returned by classInfo(), and you
-    can search for pairs with findClassInfo().
+    classInfoCount(), single pairs are returned by classInfo(), and you
+    can search for pairs with indexOfClassInfo().
 
     \sa \link moc.html moc (Meta QObject Compiler)\endlink
 
@@ -82,11 +82,11 @@ struct QMetaObjectPrivate
 {
     int revision;
     int className;
-    int numClassInfo, classInfoData;
-    int numSignals, signalData;
-    int numSlots, slotData;
-    int numProperties, propertyData;
-    int numEnumerators, enumeratorData;
+    int classInfoCount, classInfoData;
+    int signalCount, signalData;
+    int slotCount, slotData;
+    int propertyCount, propertyData;
+    int enumeratorCount, enumeratorData;
 };
 
 static inline const QMetaObjectPrivate *priv(const uint* data)
@@ -184,7 +184,7 @@ int QMetaObject::slotOffset() const
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-	offset += priv(m->d.data)->numSlots;
+	offset += priv(m->d.data)->slotCount;
 	m = m->d.superdata;
     }
     return offset;
@@ -199,7 +199,7 @@ int QMetaObject::signalOffset() const
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-	offset += priv(m->d.data)->numSignals;
+	offset += priv(m->d.data)->signalCount;
 	m = m->d.superdata;
     }
     return offset;
@@ -214,7 +214,7 @@ int QMetaObject::enumeratorOffset() const
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-	offset += priv(m->d.data)->numEnumerators;
+	offset += priv(m->d.data)->enumeratorCount;
 	m = m->d.superdata;
     }
     return offset;
@@ -229,7 +229,7 @@ int QMetaObject::propertyOffset() const
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-	offset += priv(m->d.data)->numProperties;
+	offset += priv(m->d.data)->propertyCount;
 	m = m->d.superdata;
     }
     return offset;
@@ -244,7 +244,7 @@ int QMetaObject::classInfoOffset() const
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-	offset += priv(m->d.data)->numClassInfo;
+	offset += priv(m->d.data)->classInfoCount;
 	m = m->d.superdata;
     }
     return offset;
@@ -256,12 +256,12 @@ int QMetaObject::classInfoOffset() const
 
     \sa slot()
 */
-int QMetaObject::numSlots() const
+int QMetaObject::slotCount() const
 {
-    int n = priv(d.data)->numSlots;
+    int n = priv(d.data)->slotCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-	n += priv(m->d.data)->numSlots;
+	n += priv(m->d.data)->slotCount;
 	m = m->d.superdata;
     }
     return n;
@@ -273,12 +273,12 @@ int QMetaObject::numSlots() const
 
     \sa signal()
 */
-int QMetaObject::numSignals() const
+int QMetaObject::signalCount() const
 {
-    int n = priv(d.data)->numSignals;
+    int n = priv(d.data)->signalCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-	n += priv(m->d.data)->numSignals;
+	n += priv(m->d.data)->signalCount;
 	m = m->d.superdata;
     }
     return n;
@@ -290,12 +290,12 @@ int QMetaObject::numSignals() const
 
     \sa enumerator()
 */
-int QMetaObject::numEnumerators() const
+int QMetaObject::enumeratorCount() const
 {
-    int n = priv(d.data)->numEnumerators;
+    int n = priv(d.data)->enumeratorCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-	n += priv(m->d.data)->numEnumerators;
+	n += priv(m->d.data)->enumeratorCount;
 	m = m->d.superdata;
     }
     return n;
@@ -307,12 +307,12 @@ int QMetaObject::numEnumerators() const
 
     \sa property()
 */
-int QMetaObject::numProperties() const
+int QMetaObject::propertyCount() const
 {
-    int n = priv(d.data)->numProperties;
+    int n = priv(d.data)->propertyCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-	n += priv(m->d.data)->numProperties;
+	n += priv(m->d.data)->propertyCount;
 	m = m->d.superdata;
     }
     return n;
@@ -322,12 +322,12 @@ int QMetaObject::numProperties() const
     Returns the number of items of class information for this class.
     If \a super is true, inherited classInfo are included.
 */
-int QMetaObject::numClassInfo() const
+int QMetaObject::classInfoCount() const
 {
-    int n = priv(d.data)->numClassInfo;
+    int n = priv(d.data)->classInfoCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-	n += priv(m->d.data)->numClassInfo;
+	n += priv(m->d.data)->classInfoCount;
 	m = m->d.superdata;
     }
     return n;
@@ -336,14 +336,14 @@ int QMetaObject::numClassInfo() const
 /*!
     Finds \a slot and returns its index; otherwise returns -1.
 
-    \sa slot(), numSlots()
+    \sa slot(), slotCount()
 */
-int QMetaObject::findSlot(const char *slot) const
+int QMetaObject::indexOfSlot(const char *slot) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-	for (i = priv(m->d.data)->numSlots-1; i >= 0; --i)
+	for (i = priv(m->d.data)->slotCount-1; i >= 0; --i)
 	    if (strcmp(slot, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->slotData + 4*i] ) == 0) {
 		i += m->slotOffset();
@@ -358,14 +358,14 @@ int QMetaObject::findSlot(const char *slot) const
 
     Finds \a signal and returns its index; otherwise returns -1.
 
-    \sa signal(), numSignals()
+    \sa signal(), signalCount()
 */
-int QMetaObject::findSignal(const char *signal) const
+int QMetaObject::indexOfSignal(const char *signal) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-	for (i = priv(m->d.data)->numSignals-1; i >= 0; --i)
+	for (i = priv(m->d.data)->signalCount-1; i >= 0; --i)
 	    if (strcmp(signal, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->signalData + 4*i] ) == 0) {
 		i += m->signalOffset();
@@ -375,9 +375,9 @@ int QMetaObject::findSignal(const char *signal) const
     }
 #ifndef QT_NO_DEBUG
     if (i >= 0 && m->d.superdata ) {
-	int conflict = m->d.superdata->findSignal(signal);
+	int conflict = m->d.superdata->indexOfSignal(signal);
 	if ( conflict >= 0 )
-	    qWarning( "QMetaObject::findSignal:%s: Conflict with %s::%s",
+	    qWarning( "QMetaObject::indexOfSignal:%s: Conflict with %s::%s",
 		      m->d.stringdata, m->d.superdata->d.stringdata, signal );
     }
 #endif
@@ -389,14 +389,14 @@ int QMetaObject::findSignal(const char *signal) const
     Finds enumerator \a name and returns its index; otherwise returns
     -1.
 
-    \sa enumerator(), numEnumerators()
+    \sa enumerator(), enumeratorCount()
 */
-int QMetaObject::findEnumerator(const char *name) const
+int QMetaObject::indexOfEnumerator(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-	for (i = priv(m->d.data)->numEnumerators-1; i >= 0; --i) {
+	for (i = priv(m->d.data)->enumeratorCount-1; i >= 0; --i) {
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->enumeratorData + 4*i] ) == 0) {
 		i += m->enumeratorOffset();
@@ -412,14 +412,14 @@ int QMetaObject::findEnumerator(const char *name) const
     Finds property \a name and returns its index; otherwise returns
     -1.
 
-    \sa property(), numProperties()
+    \sa property(), propertyCount()
 */
-int QMetaObject::findProperty(const char *name) const
+int QMetaObject::indexOfProperty(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-	for (i = priv(m->d.data)->numProperties-1; i >= 0; --i)
+	for (i = priv(m->d.data)->propertyCount-1; i >= 0; --i)
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(m->d.data)->propertyData + 3*i] ) == 0) {
 		i += m->propertyOffset();
@@ -434,14 +434,14 @@ int QMetaObject::findProperty(const char *name) const
     Finds class information item \a name and returns its index;
     otherwise returns -1.
 
-    \sa classInfo(), numClassInfo()
+    \sa classInfo(), classInfoCount()
 */
-int QMetaObject::findClassInfo(const char *name) const
+int QMetaObject::indexOfClassInfo(const char *name) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-	for (i = priv(m->d.data)->numClassInfo-1; i >= 0; --i)
+	for (i = priv(m->d.data)->classInfoCount-1; i >= 0; --i)
 	    if (strcmp(name, m->d.stringdata
 		       + m->d.data[priv(d.data)->classInfoData + 2*i] ) == 0) {
 		i += m->classInfoOffset();
@@ -463,7 +463,7 @@ QMetaMember QMetaObject::slot(int index) const
 	return d.superdata->slot(index);
 
     QMetaMember result;
-    if (i >= 0 && i <= priv(d.data)->numSlots ) {
+    if (i >= 0 && i <= priv(d.data)->slotCount ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->slotData + 4*i;
     }
@@ -483,7 +483,7 @@ QMetaMember QMetaObject::signal(int index) const
 	return d.superdata->signal(index);
 
     QMetaMember result;
-    if (i >= 0 && i <= priv(d.data)->numSignals ) {
+    if (i >= 0 && i <= priv(d.data)->signalCount ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->signalData + 4*i;
     }
@@ -504,7 +504,7 @@ QMetaEnum QMetaObject::enumerator(int index) const
 	return d.superdata->enumerator(index);
 
     QMetaEnum result;
-    if (i >= 0 && i <= priv(d.data)->numEnumerators ) {
+    if (i >= 0 && i <= priv(d.data)->enumeratorCount ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->enumeratorData + 4*i;
     }
@@ -524,18 +524,18 @@ QMetaProperty QMetaObject::property(int index) const
 	return d.superdata->property(index);
 
     QMetaProperty result;
-    if (i >= 0 && i <= priv(d.data)->numProperties ) {
+    if (i >= 0 && i <= priv(d.data)->propertyCount ) {
 	int handle = priv(d.data)->propertyData + 3*i;
 	int flags = d.data[handle + 2];
 	const char *name = d.stringdata + d.data[handle];
 	const char *type = d.stringdata + d.data[handle + 1];
 	if ((flags & Override) && d.superdata){
-	    result = property(d.superdata->findProperty(name));
+	    result = property(d.superdata->indexOfProperty(name));
  	    if (qstrcmp(result.type(), type)) // type missmatch, no override
  		::memset(&result, 0, sizeof(QMetaProperty));
 	}
 	if (flags & EnumOrSet) {
-	    result.menum = enumerator(findEnumerator(type));
+	    result.menum = enumerator(indexOfEnumerator(type));
 	}
 	if (flags & Readable) {
 	    result.mobj[ReadProperty] = this;
@@ -581,7 +581,7 @@ QMetaClassInfo QMetaObject::classInfo(int index) const
 	return d.superdata->classInfo(index);
 
     QMetaClassInfo result;
-    if (i >= 0 && i <= priv(d.data)->numClassInfo ) {
+    if (i >= 0 && i <= priv(d.data)->classInfoCount ) {
 	result.mobj = this;
 	result.handle = priv(d.data)->classInfoData + 2*i;
     }
@@ -1019,7 +1019,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     QObject::setProperty() and QObject::property() for details.
 
     You receive meta property data through an object's meta object.
-    See QMetaObject::property() and QMetaObject::numProperties() for
+    See QMetaObject::property() and QMetaObject::propertyCount() for
     details.
 */
 

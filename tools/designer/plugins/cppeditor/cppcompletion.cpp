@@ -56,8 +56,8 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	}
     }
 
-    int numProperties = obj->metaObject()->numProperties();
-    for (int i = 0; i < numProperties; ++i) {
+    int propertyCount = obj->metaObject()->propertyCount();
+    for (int i = 0; i < propertyCount; ++i) {
 	QMetaProperty p = obj->metaObject()->property(i);
 	QString f( p.name() );
 	QChar c = f[ 0 ];
@@ -74,8 +74,8 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
 	    lst << ce;
     }
 
-    int numSlots = obj->metaObject()->numSlots();
-    for (int i = 0; i < numSlots; ++i) {
+    int slotCount = obj->metaObject()->slotCount();
+    for (int i = 0; i < slotCount; ++i) {
 	QMetaMember mm = obj->metaObject()->slot(i);
 	QString f( mm.signature() );
 	f = f.left( f.find( "(" ) );
@@ -164,8 +164,8 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
     if ( !obj )
 	return QValueList<QStringList>();
 
-    int numSlots = obj->metaObject()->numSlots();
-    for (int i = 0; i < numSlots; ++i) {
+    int slotCount = obj->metaObject()->slotCount();
+    for (int i = 0; i < slotCount; ++i) {
 	QMetaMember mm = obj->metaObject()->slot(i);
 	QString f( mm.signature() );
 	f = f.left( f.find( "(" ) );
@@ -184,7 +184,7 @@ QValueList<QStringList> CppEditorCompletion::functionParameters( const QString &
 
     QMetaProperty prop =
 	obj->metaObject()->
-	property( obj->metaObject()->findProperty( func[ 3 ].lower() + func.mid( 4 ) ) );
+	property( obj->metaObject()->indexOfProperty( func[ 3 ].lower() + func.mid( 4 ) ) );
     if ( prop ) {
 	QValueList<QStringList> l;
 	l << QStringList( prop.type() );

@@ -1531,7 +1531,7 @@ int QObject::receivers(const char *signal) const
 #endif
 	signal++; // skip code
 	const QMetaObject *smeta = this->metaObject();
-	int signal_index = smeta->findSignal(signal);
+	int signal_index = smeta->indexOfSignal(signal);
 	if (signal_index < 0) {
 #ifndef QT_NO_DEBUG
 	    err_member_notfound(QSIGNAL_CODE, this, signal, "receivers");
@@ -1637,7 +1637,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     signal++; // skip code
 
     const QMetaObject *smeta = sender->metaObject();
-    int signal_index = smeta->findSignal(signal);
+    int signal_index = smeta->indexOfSignal(signal);
     if (signal_index < 0) {
 #ifndef QT_NO_DEBUG
 	err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
@@ -1660,10 +1660,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
     int member_index = -1;
     switch (membcode) {
 	case QSLOT_CODE:
-	    member_index = rmeta->findSlot(member);
+	    member_index = rmeta->indexOfSlot(member);
 	    break;
 	case QSIGNAL_CODE:
-	    member_index = rmeta->findSignal(member);
+	    member_index = rmeta->indexOfSignal(member);
 	    break;
     }
     if (member_index < 0) {
@@ -1801,7 +1801,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     do {
 	int signal_index = -1;
 	if (signal) {
-	    signal_index = smeta->findSignal(signal);
+	    signal_index = smeta->indexOfSignal(signal);
 	    if (signal_index < smeta->signalOffset())
 		continue;
 	    signal_found = true;
@@ -1818,13 +1818,13 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
 		int member_index = -1;
 		switch (membcode) {
 		case QSLOT_CODE:
-		    member_index = rmeta->findSlot(member);
+		    member_index = rmeta->indexOfSlot(member);
 		    if (member_index >= 0)
 			while (member_index < rmeta->slotOffset())
 			    rmeta = rmeta->superClass();
 		    break;
 		case QSIGNAL_CODE:
-		    member_index = rmeta->findSignal(member);
+		    member_index = rmeta->indexOfSignal(member);
 		    if (member_index >= 0)
 			while (member_index < rmeta->signalOffset())
 			    rmeta = rmeta->superClass();
@@ -2011,7 +2011,7 @@ bool QObject::setProperty(const char *name, const QVariant &value)
     if (!value.isValid() || !meta)
 	return false;
 
-    int id = meta->findProperty(name);
+    int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isWritable())
@@ -2037,7 +2037,7 @@ QVariant QObject::property(const char *name) const
     if (!name || !meta)
 	return QVariant();
 
-    int id = meta->findProperty(name);
+    int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isReadable())

@@ -2929,7 +2929,7 @@ void PropertyList::setupProperties()
     bool allProperties = !w->inherits( "Spacer" );
     const QMetaObject *m = w->metaObject();
     int offset = allProperties ? 0 : m->propertyOffset();
-    int numProperties = w->metaObject()->numProperties() - offset;
+    int propertyCount = w->metaObject()->propertyCount() - offset;
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QStringList valueSet;
@@ -2937,7 +2937,7 @@ void PropertyList::setupProperties()
 	w->isWidgetType() &&
 	!editor->formWindow()->isMainContainer( (QWidget*)w ) && ( (QWidget*)w )->parentWidget() &&
 	WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
-    for (int i = 0; i < numProperties; ++i ) {
+    for (int i = 0; i < propertyCount; ++i ) {
 	QMetaProperty p = m->property( i + offset );
 	if ( !p )
 	    continue;
@@ -3561,12 +3561,12 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 {
     QMetaProperty p =
 	editor->widget()->metaObject()->
-	property( editor->widget()->metaObject()->findProperty( i->name()) );
+	property( editor->widget()->metaObject()->indexOfProperty( i->name()) );
     if ( !p ) {
 	if ( i->name() == "hAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->
-		property( editor->widget()->metaObject()->findProperty( "alignment" ) );
+		property( editor->widget()->metaObject()->indexOfProperty( "alignment" ) );
 	    align &= ~AlignVertical_Mask;
 	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
 	    l.remove( "WordBreak" );
@@ -3574,7 +3574,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	} else if ( i->name() == "vAlign" ) {
 	    int align = editor->widget()->property( "alignment" ).toInt();
 	    p = editor->widget()->metaObject()->
-		property( editor->widget()->metaObject()->findProperty( "alignment" ) );
+		property( editor->widget()->metaObject()->indexOfProperty( "alignment" ) );
 	    align &= ~AlignHorizontal_Mask;
 	    QStringList l = QStringList::split('|', p.enumerator().valueToKeys( align ) );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
@@ -4131,7 +4131,7 @@ QString PropertyEditor::classOfCurrentProperty() const
     QString curr = currentProperty();
     const QMetaObject *mo = o->metaObject();
     while ( mo ) {
-	if (mo->findProperty(curr.latin1()) >= mo->propertyOffset())
+	if (mo->indexOfProperty(curr.latin1()) >= mo->propertyOffset())
 	    return mo->className();
 	mo = mo->superClass();
     }

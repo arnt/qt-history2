@@ -1792,7 +1792,7 @@ QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const
 void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
 				  QVariant value )
 {
-    int offset = obj->metaObject()->findProperty( prop );
+    int offset = obj->metaObject()->indexOfProperty( prop );
 
     if ( offset != -1 ) {
 	if ( prop == "geometry" && obj == toplevel ) {
@@ -2104,14 +2104,14 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 
 
 	    // if this is a connection to a custom slot and we have a connector, try this as receiver
-	    if ( receiver->metaObject()->findSlot(conn.slot) == -1
+	    if ( receiver->metaObject()->indexOfSlot(conn.slot) == -1
 		 && receiver == toplevel && connector ) {
 		receiver = connector;
 	    }
 
 	    // avoid warnings
-	    if ( sender->metaObject()->findSignal(conn.signal) == -1 ||
-		 receiver->metaObject()->findSlot(conn.slot) == -1 ) {
+	    if ( sender->metaObject()->indexOfSignal(conn.signal) == -1 ||
+		 receiver->metaObject()->indexOfSlot(conn.slot) == -1 ) {
 		n = n.nextSibling().toElement();
 		continue;
 	    }

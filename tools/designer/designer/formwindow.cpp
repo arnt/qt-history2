@@ -1870,11 +1870,11 @@ void FormWindow::checkAccels()
 	     insertedWidgets[ (void*)o ] ) {
 	    QWidget *w = (QWidget*)o;
 	    QMetaProperty text =
-		w->metaObject()->property( w->metaObject()->findProperty( "text" ) );
+		w->metaObject()->property( w->metaObject()->indexOfProperty( "text" ) );
 	    QMetaProperty title =
-		w->metaObject()->property( w->metaObject()->findProperty( "title" ) );
+		w->metaObject()->property( w->metaObject()->indexOfProperty( "title" ) );
 	    QMetaProperty pageTitle =
-		w->metaObject()->property( w->metaObject()->findProperty( "pageTitle" ) );
+		w->metaObject()->property( w->metaObject()->indexOfProperty( "pageTitle" ) );
 	    if ( text )
 		find_accel( w->property( "text" ).toString(), accels, w );
 	    if ( title )

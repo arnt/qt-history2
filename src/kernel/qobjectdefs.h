@@ -134,17 +134,17 @@ struct Q_EXPORT QMetaObject
     int	propertyOffset() const;
     int	classInfoOffset() const;
 
-    int	numSlots() const;
-    int	numSignals() const;
-    int	numEnumerators() const;
-    int	numProperties() const;
-    int	numClassInfo() const;
+    int	slotCount() const;
+    int	signalCount() const;
+    int	enumeratorCount() const;
+    int	propertyCount() const;
+    int	classInfoCount() const;
 
-    int	findSlot(const char *slot) const;
-    int	findSignal(const char *signal) const;
-    int findEnumerator(const char *name) const;
-    int findProperty(const char *name) const;
-    int findClassInfo(const char *name) const;
+    int	indexOfSlot(const char *slot) const;
+    int	indexOfSignal(const char *signal) const;
+    int indexOfEnumerator(const char *name) const;
+    int indexOfProperty(const char *name) const;
+    int indexOfClassInfo(const char *name) const;
 
     QMetaMember slot(int index) const;
     QMetaMember signal(int index) const;
