@@ -1392,7 +1392,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
             if (slider->subControls == SC_SliderTickmarks) {
                 int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
-                int ticks = slider->tickmarks;
+                int ticks = slider->tickPosition;
                 int thickness = pixelMetric(PM_SliderControlThickness, slider, widget);
                 int len = pixelMetric(PM_SliderLength, slider, widget);
                 int available = pixelMetric(PM_SliderSpaceAvailable, slider, widget);
@@ -2285,7 +2285,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
             int space = (sl->orientation == Qt::Horizontal) ? sl->rect.height()
                                                             : sl->rect.width();
             int thickness = pixelMetric(PM_SliderControlThickness, sl, widget);
-            int ticks = sl->tickmarks;
+            int ticks = sl->tickPosition;
 
             if (ticks == QSlider::Both)
                 ret = (space - thickness) / 2;

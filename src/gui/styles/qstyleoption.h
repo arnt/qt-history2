@@ -358,7 +358,7 @@ public:
     Qt::Orientation orientation;
     int minimum;
     int maximum;
-    QSlider::TickSetting tickmarks;
+    QSlider::TickPosition tickPosition;
     int tickInterval;
     bool useRightToLeft;
     int sliderPosition;
@@ -371,7 +371,7 @@ public:
     QDOC_PROPERTY(Qt::Orientation orientation)
     QDOC_PROPERTY(int minimum)
     QDOC_PROPERTY(int maximum)
-    QDOC_PROPERTY(QSlider::TickSetting tickmarks)
+    QDOC_PROPERTY(QSlider::TickPosition tickPosition)
     QDOC_PROPERTY(int tickInterval)
     QDOC_PROPERTY(bool useRightToLeft)
     QDOC_PROPERTY(int sliderPosition)

@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_OBJECT
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
-    Q_PROPERTY(BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
+    Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(bool draggableItems READ draggableItems WRITE setDraggableItems)
     Q_ENUMS(SelectionMode SelectionBehaviour)
-    Q_FLAGS(BeginEditActions)
+    Q_FLAGS(EditTriggers)
 
 public:
     enum SelectionMode {
@@ -54,17 +54,17 @@ public:
         SelectColumns
     };
 
-    enum BeginEditAction {
-        NeverEdit = 0,
+    enum EditTrigger {
+        NoEditTriggers = 0,
         CurrentChanged = 1,
         DoubleClicked = 2,
         SelectedClicked = 4,
         EditKeyPressed = 8,
         AnyKeyPressed = 16,
-        AlwaysEdit = 31
+        AllEditTriggers = 31
     };
 
-    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction)
+    Q_DECLARE_FLAGS(EditTriggers, EditTrigger)
 
     QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
@@ -87,8 +87,8 @@ public:
     QModelIndex currentIndex() const;
     QModelIndex root() const;
 
-    void setBeginEditActions(BeginEditActions actions);
-    BeginEditActions beginEditActions() const;
+    void setEditTriggers(EditTriggers triggers);
+    EditTriggers editTriggers() const;
 
     void setAutoScroll(bool enable);
     bool hasAutoScroll() const;
@@ -185,7 +185,7 @@ protected:
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
     virtual QModelIndexList selectedIndexes() const;
 
-    virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
+    virtual bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event = 0) const;
@@ -230,6 +230,6 @@ private:
     Q_DECLARE_PRIVATE(QAbstractItemView)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::BeginEditActions);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemView::EditTriggers);
 
 #endif

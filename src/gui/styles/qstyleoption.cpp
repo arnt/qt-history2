@@ -720,7 +720,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 
 QStyleOptionSlider::QStyleOptionSlider()
     : QStyleOptionComplex(Version, SO_Slider), minimum(0), maximum(0),
-      tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false),
+      tickPosition(QSlider::NoTicks), tickInterval(0), useRightToLeft(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0)
 {
 }
@@ -730,7 +730,7 @@ QStyleOptionSlider::QStyleOptionSlider()
 */
 QStyleOptionSlider::QStyleOptionSlider(int version)
     : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
-      tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false),
+      tickPosition(QSlider::NoTicks), tickInterval(0), useRightToLeft(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0)
 {
 }
@@ -753,15 +753,15 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::tickmarks
-    \brief Indicates the type of tickmarks the slider should have, if any.
+    \property QStyleOptionSlider::tickPosition
+    \brief the position of the slider's tick marks, if any.
 
     \sa QSlider::TickSetting
 */
 
 /*!
     \property QStyleOptionSlider::tickInterval
-    \brief The interval that should be drawn between tickmarks.
+    \brief The interval that should be drawn between tick marks.
 */
 
 /*!

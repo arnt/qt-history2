@@ -329,7 +329,7 @@ QPixmap *QIconPrivate::defaultGenerator(const QIcon &, Qt::IconSize, QIcon::Mode
     return 0;
 }
 
-/*! 
+/*!
   \class QIcon
 
   \brief The QIcon class provides different versions of an icon.
@@ -428,15 +428,15 @@ QPixmap *QIconPrivate::defaultGenerator(const QIcon &, Qt::IconSize, QIcon::Mode
 */
 
 /*!
-  \enum QIcon::Size
+  \enum Qt::IconSize
 
   This enum type describes the size at which a pixmap is intended to be
   used.
   The currently defined sizes are:
 
-    \value Automatic  The size of the pixmap is determined from its
+    \value AutomaticIconSize  The size of the pixmap is determined from its
                       pixel size. This is a useful default.
-    \value Small  The pixmap is the smaller of two.
+    \value SmallIconSize  The pixmap is the smaller of two.
     \value Large  The pixmap is the larger of two.
 
   If a Small pixmap is not set by setPixmap(), the Large
@@ -644,7 +644,7 @@ QPixmap QIcon::pixmap(Qt::IconSize size, Mode mode, State state) const
     return d->generatePixmap(this, size, mode, state);
 }
 
-/*! 
+/*!
     \overload
     \obsolete
 

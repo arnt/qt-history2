@@ -32,7 +32,7 @@ class QSliderPrivate : public QAbstractSliderPrivate
 public:
     QStyle::SubControl pressedControl;
     int tickInterval;
-    QSlider::TickSetting tickSetting;
+    QSlider::TickPosition tickPosition;
     int clickOffset;
     int snapBackPosition;
     void init();
@@ -48,7 +48,7 @@ void QSliderPrivate::init()
 {
     pressedControl = QStyle::SC_None;
     tickInterval = 0;
-    tickSetting = QSlider::NoMarks;
+    tickPosition = QSlider::NoMarks;
     q->setFocusPolicy(Qt::TabFocus);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
@@ -95,7 +95,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     opt.orientation = orientation;
     opt.maximum = maximum;
     opt.minimum = minimum;
-    opt.tickmarks = (QSlider::TickSetting)tickSetting;
+    opt.tickPosition = (QSlider::TickPosition)tickPosition;
     opt.tickInterval = tickInterval;
     opt.useRightToLeft = !(orientation == Qt::Horizontal) == !invertedAppearance;
     opt.sliderPosition = position;
@@ -172,17 +172,17 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
 
 
 /*!
-    \enum QSlider::TickSetting
+    \enum QSlider::TickPosition
 
-    This enum specifies where the tickmarks are to be drawn relative
+    This enum specifies where the tick marks are to be drawn relative
     to the slider's groove and the handle the user moves.
 
-    \value NoTickMarks do not draw any tickmarks.
-    \value TickMarksBoth draw tickmarks on both sides of the groove.
-    \value TickMarksAbove draw tickmarks above the (horizontal) slider
-    \value TickMarksBelow draw tickmarks below the (horizontal) slider
-    \value TickMarksLeft draw tickmarks to the left of the (vertical) slider
-    \value TickMarksRight draw tickmarks to the right of the (vertical) slider
+    \value NoTicks do not draw any tick marks.
+    \value TicksBothSides draw tick marks on both sides of the groove.
+    \value TicksAbove draw tick marks above the (horizontal) slider
+    \value TicksBelow draw tick marks below the (horizontal) slider
+    \value TicksLeft draw tick marks to the left of the (vertical) slider
+    \value TicksRight draw tick marks to the right of the (vertical) slider
 
     \omitvalue NoMarks
     \omitvalue Above
@@ -281,7 +281,7 @@ void QSlider::paintEvent(QPaintEvent *)
     QStyleOptionSlider opt = d->getStyleOption();
 
     opt.subControls = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
-    if (d->tickSetting != NoMarks)
+    if (d->tickPosition != NoMarks)
         opt.subControls |= QStyle::SC_SliderTickmarks;
     opt.activeSubControls = d->pressedControl;
 
@@ -293,7 +293,7 @@ void QSlider::paintEvent(QPaintEvent *)
 */
 void QSlider::mousePressEvent(QMouseEvent *ev)
 {
-    if (d->maximum == d->minimum 
+    if (d->maximum == d->minimum
         || (ev->buttons() ^ ev->button())
         || (ev->button() != Qt::LeftButton)) {
         ev->ignore();
@@ -374,9 +374,9 @@ QSize QSlider::sizeHint() const
     const int SliderLength = 84, TickSpace = 5;
     QStyleOptionSlider opt = d->getStyleOption();
     int thick = style()->pixelMetric(QStyle::PM_SliderThickness, &opt, this);
-    if (d->tickSetting & Above)
+    if (d->tickPosition & Above)
         thick += TickSpace;
-    if (d->tickSetting & Below)
+    if (d->tickPosition & Below)
         thick += TickSpace;
     int w = thick, h = SliderLength;
     if (d->orientation == Qt::Horizontal) {
@@ -403,24 +403,24 @@ QSize QSlider::minimumSizeHint() const
 }
 
 /*!
-    \property QSlider::tickmarks
-    \brief the tickmark settings for this slider
+    \property QSlider::tickPosition
+    \brief the tickmark position for this slider
 
-    The valid values are in \l{QSlider::TickSetting}. The default is
-    \c NoMarks.
+    The valid values are in \l{QSlider::TickPosition}. The default is
+    \c NoTicks.
 
     \sa tickInterval
 */
 
-void QSlider::setTickmarks(TickSetting ts)
+void QSlider::setTickPosition(TickPosition position)
 {
-    d->tickSetting = ts;
+    d->tickPosition = position;
     update();
 }
 
-QSlider::TickSetting QSlider::tickmarks() const
+QSlider::TickPosition QSlider::tickPosition() const
 {
-    return d->tickSetting;
+    return d->tickPosition;
 }
 
 /*!
@@ -431,7 +431,7 @@ QSlider::TickSetting QSlider::tickmarks() const
     slider will choose between lineStep() and pageStep(). The initial
     value of tickInterval is 0.
 
-    \sa QRangeControl::lineStep(), QRangeControl::pageStep()
+    \sa tickPosition, QRangeControl::lineStep(), QRangeControl::pageStep()
 */
 
 void QSlider::setTickInterval(int ts)

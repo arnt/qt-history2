@@ -61,7 +61,7 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setFrameStyle(QFrame::NoFrame);
     list->setLineWidth(0);
     list->setSpacing(0);
-    list->setBeginEditActions(QAbstractItemView::NeverEdit);
+    list->setEditTriggers(0);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
     connect(list->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
@@ -412,12 +412,6 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     using QValidator; see setValidator(). By default, any input is
     accepted.
 
-    If the combobox is not editable then it has a default
-    focusPolicy() of \c TabFocus, i.e. it will not grab focus if
-    clicked. This differs from both Windows and Motif. If the combobox
-    is editable then it has a default focusPolicy() of \c StrongFocus,
-    i.e. it will grab focus if clicked.
-
     A combobox can be populated using the insert functions,
     insertStringList() and insertItem() for example. Items can be
     changed with changeItem(). An item can be removed with
@@ -457,7 +451,7 @@ void QComboBoxPrivate::init()
     d->model = l->model();
     container = new ListViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
-    q->setFocusPolicy(Qt::TabFocus);
+    q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = getStyleOption();
@@ -772,7 +766,6 @@ void QComboBox::setEditable(bool editable)
         return;
 
     if (editable) {
-        setFocusPolicy(Qt::StrongFocus);
         setLineEdit(new QLineEdit(this));
     } else {
         delete d->lineEdit;

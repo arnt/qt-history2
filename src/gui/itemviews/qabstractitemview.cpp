@@ -52,7 +52,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionMode(QAbstractItemView::ExtendedSelection),
         selectionBehavior(QAbstractItemView::SelectItems),
         state(QAbstractItemView::NoState),
-        beginEditActions(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
+        editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         hasKeyTracking(false),
         inputInterval(400),
         autoScroll(true),
@@ -684,7 +684,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 {
     if (!index.isValid())
         qWarning("edit: index was invalid");
-    if (!edit(index, AlwaysEdit, 0))
+    if (!edit(index, AllEditTriggers, 0))
         qWarning("edit: editing failed");
 }
 
@@ -710,7 +710,7 @@ void QAbstractItemView::doItemsLayout()
 }
 
 /*!
-    \property QAbstractItemView::beginEditActions
+    \property QAbstractItemView::editTriggers
     \brief which actions will initiate item editing
 
     This property is a selection of flags defined by
@@ -718,14 +718,14 @@ void QAbstractItemView::doItemsLayout()
     operator. The view will only initiate the editing of an item if the
     action performed is set in this property.
 */
-void QAbstractItemView::setBeginEditActions(BeginEditActions actions)
+void QAbstractItemView::setEditTriggers(EditTriggers actions)
 {
-    d->beginEditActions = actions;
+    d->editTriggers = actions;
 }
 
-QAbstractItemView::BeginEditActions QAbstractItemView::beginEditActions() const
+QAbstractItemView::EditTriggers QAbstractItemView::editTriggers() const
 {
-    return d->beginEditActions;
+    return d->editTriggers;
 }
 
 /*!
@@ -1317,7 +1317,7 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
     \sa endEdit()
 */
 bool QAbstractItemView::edit(const QModelIndex &index,
-                             BeginEditAction action,
+                             EditTrigger trigger,
                              QEvent *event)
 {
     QModelIndex buddy = model()->buddy(index);
@@ -1329,7 +1329,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     if (event && itemDelegate()->editorEvent(event, options, buddy))
         return true; // the delegate handled the event
 
-    if (!d->shouldEdit(action, buddy))
+    if (!d->shouldEdit(trigger, buddy))
         return false;
 
     QWidget *editor = d->editor(buddy, options);
@@ -1337,8 +1337,8 @@ bool QAbstractItemView::edit(const QModelIndex &index,
         return false;
 
     if (event && event->type() == QEvent::KeyPress
-        && d->beginEditActions & AnyKeyPressed
-        && action & AnyKeyPressed)
+        && d->editTriggers & AnyKeyPressed
+        && trigger & AnyKeyPressed)
         QApplication::sendEvent(editor->focusProxy() ? editor->focusProxy() : editor, event);
     d->state = EditingState;
     editor->show();
@@ -1905,7 +1905,7 @@ void QAbstractItemView::doAutoScroll()
         horizontalScrollBar()->setValue(horizontalValue - d->autoScrollCount);
     else if (area.right() - pos.x() < margin)
         horizontalScrollBar()->setValue(horizontalValue + d->autoScrollCount);
-    
+
     // if nothing changed or we are no longer dragging, stop scrolling
     bool verticalUnchanged = (verticalValue == verticalScrollBar()->value());
     bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
@@ -2070,7 +2070,7 @@ void QAbstractItemViewPrivate::fetchMore()
         model->fetchMore(root);
 }
 
-bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction action,
+bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger,
                                           const QModelIndex &index)
 {
     if (!index.isValid())
@@ -2079,9 +2079,9 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
         return false;
     if (state == QAbstractItemView::EditingState)
         return false;
-    if (action == QAbstractItemView::AlwaysEdit)
+    if (trigger == QAbstractItemView::AllEditTriggers)
         return true;
-    if (action & beginEditActions)
+    if (trigger & editTriggers)
         return true;
     return d->editors.contains(index); // persistent editor
 }

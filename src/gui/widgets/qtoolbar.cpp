@@ -327,7 +327,7 @@ Qt::ToolButtonStyle QToolBar::toolButtonStyle() const
 
 void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 {
-    if (d->toolButtonStyle = toolButtonStyle)
+    if (d->toolButtonStyle == toolButtonStyle)
         return;
     d->toolButtonStyle = toolButtonStyle;
     emit toolButtonStyleChanged(d->toolButtonStyle);
