@@ -1125,7 +1125,7 @@ int QDockArea::maxSpace( int hint, QDockWindow *dw )
     int i = 0;
     do
 	w = dockWindows->at( index + (++i) );
-    while ( i < (int)dockWindows->count() && ( !w || w->isHidden() ) );
+    while ( i + 1 < (int)dockWindows->count() && ( !w || w->isHidden() ) );
     if ( !w || !w->isResizeEnabled() || i >= (int)dockWindows->count() ) {
 	if ( orientation() == Horizontal )
 	    return dw->width();
