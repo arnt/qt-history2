@@ -383,8 +383,6 @@ void QPrinter::setPrinterName(const QString &name)
   if the output should be sent directly to the printer. The default
   setting is false.
 
-  \warning This function is currently only supported under X11.
-
   \sa setOutputToFile(), setOutputFileName()
 */
 bool QPrinter::outputToFile() const
@@ -399,8 +397,6 @@ bool QPrinter::outputToFile() const
 
   Will output to a file if \a enable is true, or will output
   directly to the printer if \a enable is false.
-
-  \warning This function is currently only supported under X11.
 
   \sa outputToFile(), setOutputFileName()
 */
