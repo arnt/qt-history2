@@ -70,7 +70,6 @@ void GLWidget::initializeGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
 
-    glColor4ub(255, 255, 255, 127);
     glBegin( GL_QUADS );
     {
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
@@ -174,6 +173,7 @@ void GLWidget::paintEvent(QPaintEvent *)
     glRotatef(step % 360, 0, 0, 1);
     glTranslatef(-0.5, -0.5, -0.5);
 
+    glColor4ub(255, 255, 255, dw->attribs()->alpha ? 127 : 255);
     glBindTexture(GL_TEXTURE_2D, cubeTextureId);
     glCallList(cubeList);
 
