@@ -68,7 +68,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	    fields += formWindow->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] );
 	    comboFields->insertStringList( fields );
 	}
-	if ( !lst[ 1 ].isEmpty() )
+	if ( !lst.isEmpty() && !lst[ 1 ].isEmpty() )
 	    labelTableValue->setText( lst[ 1 ] );
     }
 #endif
