@@ -265,7 +265,7 @@ QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags typ
     }
     if(type & FlagsMask) {
         ret |= ExistsFlag;
-        if(d->resource && d->resource->parent())
+        if(d->resource && !d->resource->parent())
             ret |= RootFlag;
     }
     return ret;

@@ -250,6 +250,13 @@ static bool uncListSharesOnServer(const QString &server, QStringList *list)
     return false;
 }
 
+static bool isUncRoot(const QString &server)
+{
+    QString localPath = QDir::convertSeparators(server);
+    QStringList parts = localPath.split('\\', QString::SkipEmptyParts);
+    return localPath.startsWith("\\\\") && parts.count() <= 1;
+}
+
 // can be //server or //server/share
 static bool uncShareExists(const QString &server)
 {
@@ -1174,8 +1181,8 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
                         ret |= HiddenFlag;
                 });
             }
-            if(d->file == "/" || d->file == "//" ||
-                (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
+            if (d->file == "/" || (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/")
+                || isUncRoot(d->file))
                 ret |= RootFlag;
         }
     }
