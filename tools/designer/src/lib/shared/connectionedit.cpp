@@ -30,6 +30,8 @@
 #define LOOP_MARGIN             20
 #define VLABEL_MARGIN            1
 #define HLABEL_MARGIN            3
+#define GROUND_W                20
+#define GROUND_H                25
 
 /*******************************************************************************
 ** Tools
@@ -50,6 +52,20 @@ static QRect endPointRect(const QPoint &pos)
     QRect r(pos + QPoint(-LINE_PROXIMITY_RADIUS, -LINE_PROXIMITY_RADIUS),
             QSize(2*LINE_PROXIMITY_RADIUS, 2*LINE_PROXIMITY_RADIUS));
     return r;
+}
+
+static void paintGround(QPainter *p, const QRect &r)
+{
+    QPoint mid = r.center();
+    p->drawLine(mid.x(), r.top(), mid.x(), mid.y());
+    p->drawLine(r.left(), mid.y(), r.right(), mid.y());
+    int y = r.top() + 4*r.height()/6;
+    int x = GROUND_W/6;
+    p->drawLine(r.left() + x, y, r.right() - x, y);
+    y = r.top() + 5*r.height()/6;
+    x = 2*GROUND_W/6;
+    p->drawLine(r.left() + x, y, r.right() - x, y);
+    p->drawPoint(mid.x(), r.bottom());
 }
 
 static void paintEndPoint(QPainter *p, const QPoint &pos)
@@ -222,7 +238,7 @@ Connection::Connection(ConnectionEdit *edit)
     m_edit = edit;
     m_source = 0;
     m_target = 0;
-
+    
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
 }
@@ -235,6 +251,11 @@ Connection::Connection(ConnectionEdit *edit, QWidget *source, QWidget *target)
 
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
+}
+
+bool Connection::ground() const
+{
+    return m_target != 0 && m_target == m_edit->m_bg_widget;
 }
 
 QPoint Connection::endPointPos(EndPoint::Type type) const
@@ -374,6 +395,8 @@ void Connection::updateKneeList()
     m_knee_list.append(s);
     if (m_target == 0) {
         m_knee_list.append(QPoint(t.x(), s.y()));
+    } else if (m_target == m_edit->m_bg_widget) {
+        m_knee_list.append(QPoint(s.x(), t.y()));
     } else if (tr.contains(sr) || sr.contains(tr)) {
         LineDir dir = closestEdge(t, tr);
         switch (dir) {
@@ -496,6 +519,17 @@ static QRect lineRect(const QPoint &a, const QPoint &b)
     return expand(result, LINE_PROXIMITY_RADIUS);
 }
 
+QRect Connection::groundRect() const
+{
+    if (!ground())
+        return QRect();
+    if (m_knee_list.isEmpty())
+        return QRect();
+
+    QPoint p = m_knee_list.last();
+    return QRect(p.x() - GROUND_W/2, p.y(), GROUND_W, GROUND_H);
+}
+
 QRegion Connection::region() const
 {
     QRegion result;
@@ -507,6 +541,8 @@ QRegion Connection::region() const
         QRect r = m_arrow_head.boundingRect().toRect();
         r = expand(r, 1);
         result = result.unite(r);
+    } else if (ground()) {
+        result = result.unite(groundRect());
     }
 
     result = result.unite(labelRect(EndPoint::Source));
@@ -539,6 +575,8 @@ void Connection::paint(QPainter *p) const
         p->setBrush(p->pen().color());
         p->drawPolygon(m_arrow_head);
         p->restore();
+    } else if (ground()) {
+        paintGround(p, groundRect());
     }
 }
 
@@ -810,7 +848,7 @@ void ConnectionEdit::paintConnection(QPainter *p, Connection *con,
     QWidget *target = con->widget(EndPoint::Target);
     if (source != 0)
         set->insert(source, source);
-    if (target != 0)
+    if (target != 0 && target != m_bg_widget)
         set->insert(target, target);
 }
 
@@ -830,7 +868,7 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     if (m_tmp_con != 0)
         paintConnection(&p, m_tmp_con, &heavy_highlight_set, &light_highlight_set);
 
-    if (!m_widget_under_mouse.isNull())
+    if (!m_widget_under_mouse.isNull() && m_widget_under_mouse != m_bg_widget)
         heavy_highlight_set.insert(m_widget_under_mouse, m_widget_under_mouse);
 
     QColor c = m_active_color;
@@ -867,6 +905,16 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
     }
 }
 
+void ConnectionEdit::abortConnection()
+{
+    m_tmp_con->update();
+    delete m_tmp_con;
+    m_tmp_con = 0;
+    setCursor(QCursor());
+    if (m_widget_under_mouse == m_bg_widget)
+        m_widget_under_mouse = 0;
+}
+
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
@@ -876,11 +924,9 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 
     switch (state()) {
         case Connecting:
-            if (e->button() == Qt::RightButton) {
-                m_tmp_con->update();
-                delete m_tmp_con;
-                m_tmp_con = 0;
-            }
+            if (e->button() == Qt::RightButton)
+                abortConnection();
+            break;
         case Dragging:
             break;
         case Editing:
@@ -931,13 +977,10 @@ void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 
     switch (state()) {
         case Connecting:
-            if (m_widget_under_mouse.isNull()) {
-                m_tmp_con->update();
-                delete m_tmp_con;
-                m_tmp_con = 0;
-            } else {
+            if (m_widget_under_mouse.isNull())
+                abortConnection();
+            else
                 endConnection(m_widget_under_mouse, e->pos());
-            }
             setCursor(QCursor());
             break;
         case Editing:
@@ -954,8 +997,9 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
     Connection *con_under_mouse = connectionAt(pos);
     QWidget *w = con_under_mouse != 0 ? 0 : widgetAt(pos);
 
-    if (w == m_bg_widget)
+    if (state() != Connecting && w == m_bg_widget)
         w = 0;
+    
     if (w != m_widget_under_mouse) {
         if (!m_widget_under_mouse.isNull())
             update(widgetRect(m_widget_under_mouse));
@@ -972,7 +1016,6 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
             setCursor(QCursor());
         m_end_point_under_mouse = hs;
     }
-
 }
 
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
@@ -1008,11 +1051,8 @@ void ConnectionEdit::keyPressEvent(QKeyEvent *e)
                 deleteSelected();
             break;
         case Qt::Key_Escape:
-            if (state() == Connecting) {
-                m_tmp_con->update();
-                delete m_tmp_con;
-                m_tmp_con = 0;
-            }
+            if (state() == Connecting)
+                abortConnection();
             break;
     }
 
@@ -1044,10 +1084,11 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
         new_con->setEndPoint(EndPoint::Target, target, m_tmp_con->endPointPos(EndPoint::Target));
         m_undo_stack->push(new AddConnectionCommand(this, new_con));
     }
-    findObjectsUnderMouse(mapFromGlobal(QCursor::pos()));
-
+    
     delete m_tmp_con;
     m_tmp_con = 0;
+
+    findObjectsUnderMouse(mapFromGlobal(QCursor::pos()));
 }
 
 void ConnectionEdit::continueConnection(QWidget *target, const QPoint &pos)

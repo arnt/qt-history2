@@ -98,6 +98,8 @@ private:
     void trimLine();
     void updatePixmap(EndPoint::Type type);
     LineDir labelDir(EndPoint::Type type) const;
+    bool ground() const;
+    QRect groundRect() const;
 };
 
 class QT_SHARED_EXPORT ConnectionEdit : public QWidget, public CETypes
@@ -153,6 +155,7 @@ private:
     void startConnection(QWidget *source, const QPoint &pos);
     void continueConnection(QWidget *target, const QPoint &pos);
     void endConnection(QWidget *target, const QPoint &pos);
+    void abortConnection();
 
     void findObjectsUnderMouse(const QPoint &pos);
     EndPoint m_end_point_under_mouse;

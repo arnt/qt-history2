@@ -504,6 +504,9 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 {
     if (connections == 0)
         return;
+
+    setBackground(parent);
+        
     QList<DomConnection*> list = connections->elementConnection();
     foreach (DomConnection *dom_con, list) {
         QWidget *source = widgetByName(parent, dom_con->elementSender());
@@ -565,6 +568,9 @@ QWidget *SignalSlotEditor::widgetAt(const QPoint &pos) const
 {
     QWidget *widget = ConnectionEdit::widgetAt(pos);
 
+    if (widget == m_form_window->mainContainer())
+        return widget;
+    
     for (; widget != 0; widget = widget->parentWidget()) {
         AbstractMetaDataBaseItem *item = m_form_window->core()->metaDataBase()->item(widget);
         if (item == 0)
