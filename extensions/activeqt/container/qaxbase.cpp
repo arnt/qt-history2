@@ -216,8 +216,11 @@ public:
         if (qobject->signalsBlocked())
             return S_OK;
 
+        int index = -1;
         // emit the generic signal "as is"
-        int index = meta->indexOfSignal("signal(QString,int,void*)");
+        if (((QAxObject*)qobject)->receivers(SIGNAL(signal(QString,int,void*))))
+            index = meta->indexOfSignal("signal(QString,int,void*)");
+
         if (index != -1) {
             QString nameString(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
@@ -227,8 +230,10 @@ public:
         HRESULT hres = S_OK;
 
         // get the signal information from the metaobject
-        index = meta->indexOfSignal(signame);
-        if (index != -1 && ((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
+        index = -1;
+        if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame))
+            index = meta->indexOfSignal(signame);
+        if (index != -1) {
             const QMetaMember signal = meta->signal(index);
             Q_ASSERT(signame == signal.signature());
             // verify parameter count
