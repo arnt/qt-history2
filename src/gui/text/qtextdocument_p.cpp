@@ -860,7 +860,7 @@ void QTextDocumentPrivate::documentChange(int from, int length)
     }
     int start = qMin(from, docChangeFrom);
     int end = qMax(from + length, docChangeFrom + docChangeLength);
-    int diff = qMax(0, end - from - docChangeLength);
+    int diff = qMax(0, end - start - docChangeLength);
     docChangeFrom = start;
     docChangeOldLength += diff;
     docChangeLength += diff;

@@ -62,10 +62,12 @@ public:
     inline QTextBlockFormat blockFormat() const
         { return block().blockFormat(); }
 
-    bool hasComplexSelection() const;
+    QTextTable *complexSelectionTable() const;
     void selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const;
 
     void setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
+    void setBlockFormat(const QTextBlockFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
+    void setCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
 
     QTextDocumentPrivate *priv;
     qreal x;

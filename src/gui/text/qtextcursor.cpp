@@ -105,11 +105,10 @@ void QTextCursorPrivate::remove()
     }
 
     // deleting inside table? -> delete only content
-    if (hasComplexSelection()) {
+    QTextTable *table = complexSelectionTable();
+    if (table) {
         int startRow, startCol, numRows, numCols;
         selectedTableCells(&startRow, &numRows, &startCol, &numCols);
-
-        QTextTable *table = qobject_cast<QTextTable *>(priv->frameAt(pos1));
         clearCells(table, startRow, startCol, numRows, numCols, op);
     } else {
         priv->remove(pos1, pos2-pos1, op);
@@ -472,21 +471,22 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     return true;
 }
 
-bool QTextCursorPrivate::hasComplexSelection() const
+QTextTable *QTextCursorPrivate::complexSelectionTable() const
 {
     if (position == anchor)
         return false;
 
     QTextTable *t = qobject_cast<QTextTable *>(priv->frameAt(position));
-    if (!t)
-        return false;
+    if (t) {
+        QTextTableCell cell_pos = t->cellAt(position);
+        QTextTableCell cell_anchor = t->cellAt(adjusted_anchor);
 
-    QTextTableCell cell_pos = t->cellAt(position);
-    QTextTableCell cell_anchor = t->cellAt(adjusted_anchor);
+        Q_ASSERT(cell_anchor.isValid());
 
-    Q_ASSERT(cell_anchor.isValid());
-
-    return (cell_pos != cell_anchor);
+        if (cell_pos == cell_anchor)
+            t = 0;
+    }
+    return t;
 }
 
 void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *firstColumn, int *numColumns) const
@@ -517,17 +517,9 @@ void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *fi
     *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
 }
 
-void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1,  int pos2,
+                               const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
-    int pos1 = position;
-    int pos2 = adjusted_anchor;
-    if (pos1 > pos2) {
-        pos1 = adjusted_anchor;
-        pos2 = position;
-    }
-
-    priv->beginEditBlock();
-
     QTextBlock it = priv->blocksFind(pos1);
     QTextBlock end = priv->blocksFind(pos2);
     if (end.isValid())
@@ -537,8 +529,139 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
         const int charFmtPos = qMax(it.position() - 1, 0);
         priv->setCharFormat(charFmtPos, 1, format, changeMode);
     }
+}
 
+void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+{
+    priv->beginEditBlock();
+
+    QTextTable *table = complexSelectionTable();
+    if (table) {
+        int row_start, col_start, num_rows, num_cols;
+        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
+
+                int pos1 = cell.firstPosition();
+                int pos2 = cell.lastPosition();
+                ::setBlockCharFormat(priv, pos1, pos2, format, changeMode);
+            }
+        }
+    } else {
+        int pos1 = position;
+        int pos2 = adjusted_anchor;
+        if (pos1 > pos2) {
+            pos1 = adjusted_anchor;
+            pos2 = position;
+        }
+
+        ::setBlockCharFormat(priv, pos1, pos2, format, changeMode);
+    }
     priv->endEditBlock();
+}
+
+
+void QTextCursorPrivate::setBlockFormat(const QTextBlockFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+{
+    QTextTable *table = complexSelectionTable();
+    if (table) {
+        priv->beginEditBlock();
+        int row_start, col_start, num_rows, num_cols;
+        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
+
+                int pos1 = cell.firstPosition();
+                int pos2 = cell.lastPosition();
+                priv->setBlockFormat(priv->blocksFind(pos1), priv->blocksFind(pos2), format, changeMode);
+            }
+        }
+        priv->endEditBlock();
+    } else {
+        int pos1 = position;
+        int pos2 = adjusted_anchor;
+        if (pos1 > pos2) {
+            pos1 = adjusted_anchor;
+            pos2 = position;
+        }
+
+        priv->setBlockFormat(priv->blocksFind(pos1), priv->blocksFind(pos2), format, changeMode);
+    }
+}
+
+void QTextCursorPrivate::setCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
+{
+    Q_ASSERT(position != anchor);
+
+    QTextTable *table = complexSelectionTable();
+    if (table) {
+        priv->beginEditBlock();
+        int row_start, col_start, num_rows, num_cols;
+        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                int rspan = cell.rowSpan();
+                int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
+
+                int pos1 = cell.firstPosition();
+                int pos2 = cell.lastPosition();
+                priv->setCharFormat(pos1, pos2-pos1, format, changeMode);
+            }
+        }
+        priv->endEditBlock();
+    } else {
+        int pos1 = position;
+        int pos2 = adjusted_anchor;
+        if (pos1 > pos2) {
+            pos1 = adjusted_anchor;
+            pos2 = position;
+        }
+
+        priv->setCharFormat(pos1, pos2-pos1, format, changeMode);
+    }
 }
 
 /*!
@@ -1012,10 +1135,10 @@ bool QTextCursor::hasSelection() const
 */
 bool QTextCursor::hasComplexSelection() const
 {
-    if (!d || d->position == d->anchor)
+    if (!d)
         return false;
 
-    return d->hasComplexSelection();
+    return d->complexSelectionTable() != 0;
 }
 
 /*!
@@ -1124,8 +1247,8 @@ QString QTextCursor::selectedText() const
     const QString docText = d->priv->buffer();
     QString text;
 
-    if (hasComplexSelection()) {
-        QTextTable *table = currentTable();
+    QTextTable *table = d->complexSelectionTable();
+    if (table) {
         int row_start, col_start, num_rows, num_cols;
         selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
 
@@ -1200,16 +1323,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
     if (!d || !d->priv)
         return;
 
-    int pos1 = d->position;
-    int pos2 = d->adjusted_anchor;
-    if (pos1 > pos2) {
-        pos1 = d->adjusted_anchor;
-        pos2 = d->position;
-    }
-
-    QTextBlock from = d->priv->blocksFind(pos1);
-    QTextBlock to = d->priv->blocksFind(pos2);
-    d->priv->setBlockFormat(from, to, format, QTextDocumentPrivate::SetFormat);
+    d->setBlockFormat(format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -1224,16 +1338,7 @@ void QTextCursor::mergeBlockFormat(const QTextBlockFormat &modifier)
     if (!d || !d->priv)
         return;
 
-    int pos1 = d->position;
-    int pos2 = d->adjusted_anchor;
-    if (pos1 > pos2) {
-        pos1 = d->adjusted_anchor;
-        pos2 = d->position;
-    }
-
-    QTextBlock from = d->priv->blocksFind(pos1);
-    QTextBlock to = d->priv->blocksFind(pos2);
-    d->priv->setBlockFormat(from, to, modifier, QTextDocumentPrivate::MergeFormat);
+    d->setBlockFormat(modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!
@@ -1325,15 +1430,7 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
         d->currentCharFormat = d->priv->formatCollection()->indexForFormat(format);
         return;
     }
-
-    int pos1 = d->position;
-    int pos2 = d->adjusted_anchor;
-    if (pos1 > pos2) {
-        pos1 = d->adjusted_anchor;
-        pos2 = d->position;
-    }
-
-    d->priv->setCharFormat(pos1, pos2-pos1, format, QTextDocumentPrivate::SetFormat);
+    d->setCharFormat(format, QTextDocumentPrivate::SetFormat);
 }
 
 /*!
@@ -1347,7 +1444,6 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 {
     if (!d || !d->priv)
         return;
-
     if (d->position == d->anchor) {
         QTextCharFormat format = charFormat();
         format.merge(modifier);
@@ -1355,14 +1451,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
         return;
     }
 
-    int pos1 = d->position;
-    int pos2 = d->adjusted_anchor;
-    if (pos1 > pos2) {
-        pos1 = d->adjusted_anchor;
-        pos2 = d->position;
-    }
-
-    d->priv->setCharFormat(pos1, pos2-pos1, modifier, QTextDocumentPrivate::MergeFormat);
+    d->setCharFormat(modifier, QTextDocumentPrivate::MergeFormat);
 }
 
 /*!
