@@ -411,7 +411,7 @@ QFont QFontDialog::getFont( bool *ok, const QFont *def,
     QFontDialog *dlg = new QFontDialog( parent, name, TRUE );
 
     Q_CHECK_PTR( dlg );
-    dlg->setFont( def ? *def : QFont() );
+    dlg->setFont( ( def ? *def : QFont() ) );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg->setCaption( tr("Select Font") );
 #endif
