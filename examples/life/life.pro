@@ -11,3 +11,4 @@ HEADERS		= life.h \
 SOURCES		= life.cpp \
 		  lifedlg.cpp \
 		  main.cpp
+QT	+= compat

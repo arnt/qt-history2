@@ -18,6 +18,8 @@
 #include <qevent.h>
 #include <qapplication.h>
 
+using namespace Qt;
+
 // The main game of life widget
 
 LifeWidget::LifeWidget( int s, QWidget *parent, const char *name )
@@ -86,7 +88,7 @@ void LifeWidget::mouseMoveEvent( QMouseEvent *e )
 
 void LifeWidget::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == QMouseEvent::LeftButton )
+    if ( e->button() == LeftButton )
 	mouseHandle( e->pos() );
 }
 

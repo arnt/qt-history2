@@ -23,6 +23,7 @@
 
 #include "patterns.cpp"
 
+using namespace Qt;
 
 // A simple timer which has a pause and a setSpeed slot
 
@@ -76,7 +77,7 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
     sp->move( SIDEBORDER, 45 );
     scroll = new QSlider( 0, LifeTimer::MAXSPEED, 50,
 			     LifeTimer::MAXSPEED / 2,
-			     QSlider::Horizontal, this );
+			     Horizontal, this );
     connect( scroll, SIGNAL(valueChanged(int)),
 	     timer,  SLOT(setSpeed(int)) );
 
@@ -120,7 +121,6 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
     cb->insertItem( "Sym Puffer " );
     cb->insertItem( "], Near Ship, Pi Heptomino " );
     cb->insertItem( "R Pentomino " );
-    cb->setAutoResize( FALSE );
     cb->setCurrentItem( sel );
     cb->show();
     connect( cb, SIGNAL(activated(int)), SLOT(getPattern(int)) );
