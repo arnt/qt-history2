@@ -89,10 +89,10 @@ public:
     int preeditLength;
     uint ensureCursorVisibleInShowEvent : 1;
     uint allowTabs : 1;
-#ifdef QT_TEXTEDIT_OPTIMIZATION    
+#ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
-#endif    
+#endif
 };
 
 static bool block_set_alignment = FALSE;
@@ -999,7 +999,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( d->allowTabs ) {
-			if ( textFormat() != Qt::PlainText &&
+			if ( textFormat() == Qt::RichText &&
 			     cursor->index() == 0 && cursor->parag()->style() &&
 			     cursor->parag()->style()->displayMode() ==
 			     QStyleSheetItem::DisplayListItem ) {
@@ -1014,7 +1014,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		    }
 		}
-		if ( textFormat() != Qt::PlainText && ( !cursor->parag()->style() ||
+		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
 		     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayBlock ) &&
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
 		    setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
@@ -1207,7 +1207,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	}
     } break;
     case ActionBackspace:
-	if ( textFormat() != Qt::PlainText &&
+	if ( textFormat() == Qt::RichText &&
 	     cursor->parag()->style() &&
 	     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
 	     cursor->index() == 0 ) {
@@ -4990,7 +4990,7 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
 							  const QString & tag )
 {
     QTextEditOptimPrivate::FormatTag * t = new QTextEditOptimPrivate::FormatTag, * tmp;
-    
+
     if ( d->od->tags == 0 )
 	d->od->tags = t;
     t->line  = d->od->numLines;
@@ -5009,10 +5009,10 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
     return t;
 }
 
-/*! \internal 
-  
+/*! \internal
+
   Find tags in \a line, pull them out and put them in a structure.
- 
+
   A tag is delimited by '<' and '>'. The characters '<' and '>' are
   escaped by using "<<" and ">>". Left-tags marks the starting point for
   formatting, while right-tags mark the ending point. A right-tag is the
@@ -5022,7 +5022,7 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
   Possible valid tags:
   <red>, <#ff0000>, </red>
   Example of valid text:
-  
+
   This is some <red>red text</red>, while this is some <green>green
   text</green>. <blue><yellow>This is yellow</yellow>, while this is
   blue.</blue>
@@ -5031,7 +5031,7 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
   1. A tag cannot span several lines.
   2. Very limited error checking - mismatching right-tags is the
   only thing that is detected.
-  
+
 */
 void QTextEdit::optimParseTags( QString * line )
 {
@@ -5066,7 +5066,7 @@ void QTextEdit::optimParseTags( QString * line )
 	    if ( !tagStr.isEmpty() ) {
 		QTextEditOptimPrivate::FormatTag * tag, * cur, * tmp;
 		tag = optimAppendTag( startIndex, tagStr );
-		if ( tagStr[0] == '/' ) { 
+		if ( tagStr[0] == '/' ) {
 		    // ok, this is a right-tag - search for the left-tag
 		    // and possible parent tag
 		    cur = tag->prev;
@@ -5099,7 +5099,7 @@ void QTextEdit::optimParseTags( QString * line )
 		}
 	    }
 	    if ( startIndex != -1 ) {
-		int l = (endIndex == -1) ? 
+		int l = (endIndex == -1) ?
 			line->length() - startIndex : endIndex - startIndex;
 		line->remove( startIndex, l+1 );
 		len = line->length();
@@ -5139,9 +5139,9 @@ void QTextEdit::optimAppend( const QString &str )
     emit textChanged();
 }
 
-/*! \internal 
+/*! \internal
 
-  Find the first open left-tag appearing before \a line.  
+  Find the first open left-tag appearing before \a line.
  */
 QTextEditOptimPrivate::FormatTag * QTextEdit::optimPreviousLeftTag( int line )
 {
@@ -5225,7 +5225,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     td->setFormat( QTextDocument::Standard, &f,
 		   QTextFormat::Color | QTextFormat::Font );
     td->removeSelection( QTextDocument::Standard );
-    
+
     // add tag formatting
     if ( d->od->tags ) {
 	int i = startLine;
