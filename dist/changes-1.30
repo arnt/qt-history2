@@ -10,7 +10,8 @@ Netscape plugin support. You can now write portable Netscape plugins
 using Qt. See the qt/extensions/nsplugin directory in the distribution.
 
 The ImageIO extension library gives a framework for adding new image
-formats. See the qt/extensions/imageio directory.
+formats, including PNG and JPEG in this release. See the qt/extensions/imageio
+directory in the distribution.
 
 The OpenGL extension for Qt now resides in qt/extensions.
 
