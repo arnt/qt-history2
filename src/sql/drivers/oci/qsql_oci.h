@@ -87,7 +87,6 @@ protected:
     bool                commitTransaction();
     bool                rollbackTransaction();
 private:
-    void                cleanup();
     QOCIPrivate*        d;
 };
 

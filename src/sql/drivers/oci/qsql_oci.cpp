@@ -1291,13 +1291,6 @@ QOCIDriver::QOCIDriver(QObject* parent)
                         (dvoid **) 0);
     if (r != 0)
         qOraWarning("QOCIDriver: unable to alloc error handle:", d);
-    r = OCIHandleAlloc((dvoid *) d->env,
-                        (dvoid **) &d->svc,
-                        OCI_HTYPE_SVCCTX,
-                        (size_t) 0,
-                        (dvoid **) 0);
-    if (r != 0)
-        qOraWarning("QOCIDriver: unable to alloc service context:", d);
     if (r != 0)
         setLastError(qMakeError(tr("QOCIDriver", "Unable to initialize"),
                      QSqlError::ConnectionError, d));
@@ -1318,7 +1311,15 @@ QOCIDriver::QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* pare
 
 QOCIDriver::~QOCIDriver()
 {
-    cleanup();
+    if (isOpen())
+        close();
+    int r = OCIHandleFree((dvoid *) d->err, OCI_HTYPE_ERROR);
+    if (r != OCI_SUCCESS)
+        qWarning("Unable to free Error handle: %d", r);
+    r = OCIHandleFree((dvoid *) d->env, OCI_HTYPE_ENV);
+    if (r != OCI_SUCCESS)
+        qWarning("Unable to free Environment handle: %d", r);
+
     delete d;
 }
 
@@ -1382,8 +1383,9 @@ bool QOCIDriver::open(const QString & db,
         close();
 
     qParseOpts(opts, d);
+
 #ifdef QOCI_USES_VERSION_9
-   r = OCILogon(d->env,
+    r = OCILogon(d->env,
                 d->err,
                 &d->svc,
                 reinterpret_cast<const OraText *>(user.utf16()),
@@ -1409,6 +1411,8 @@ bool QOCIDriver::open(const QString & db,
     if (r != 0) {
         setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
+        OCIHandleFree((dvoid *) d->svc, OCI_HTYPE_SVCCTX);
+        d->svc = 0;
         return false;
     }
 
@@ -1444,19 +1448,10 @@ bool QOCIDriver::open(const QString & db,
 
 void QOCIDriver::close()
 {
-    OCILogoff(d->svc, d->err);
+    OCILogoff(d->svc, d->err); // will deallocate svc
+    d->svc = 0;
     setOpen(false);
     setOpenError(false);
-}
-
-void QOCIDriver::cleanup()
-{
-    if (isOpen()) {
-        OCILogoff(d->svc, d->err);
-    }
-    OCIHandleFree((dvoid *) d->svc, OCI_HTYPE_SVCCTX);
-    OCIHandleFree((dvoid *) d->err, OCI_HTYPE_ERROR);
-    OCIHandleFree((dvoid *) d->env, OCI_HTYPE_ENV);
 }
 
 QSqlResult *QOCIDriver::createResult() const
