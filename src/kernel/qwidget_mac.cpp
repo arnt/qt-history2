@@ -98,9 +98,17 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
 	return;
 
     bool erase = !p->testWFlags(QWidget::WRepaintNoErase);
-    if(now)
-	p->repaint(r, erase);
-    else
+    bool painted = FALSE;
+    if(now) {
+	/* this is stupid, probably should just post, I need to ask mathias! FIXME */
+	if(!p->testWState(QWidget::WState_BlockUpdates)) {
+	    painted = TRUE;
+	    p->repaint(r, erase);
+	} else if(erase) {
+	    p->erase(r);
+	}
+    }
+    if(!painted)
 	QApplication::postEvent(p, new QPaintEvent(r, erase));
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
@@ -969,7 +977,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			       QRegion(QRect(QPoint(0, 0), size()));
 		if(!newr.isEmpty()) 
 		    erase(newr);
-	    } else if( isMove && !isTopLevel() && oldp.x() && oldp.y() && !oldregion.isEmpty() ) {
+	    } else if( isMove && !isTopLevel() && !oldregion.isEmpty() ) {
 		//save the window state, and do the grunt work
 		int ow = olds.width(), oh = olds.height();
 		QMacSavedPortInfo saveportstate; 
