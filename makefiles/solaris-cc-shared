@@ -27,12 +27,12 @@ diff -uwr template/library/Makefile solaris-cc-shared/library/Makefile
 @@ -86,9 +86,8 @@
  
  library: $(OBJECTS) $(METAOBJ)
- 	-rm -f ../../../lib/libqt.so.$(VERSION)
+ 	-rm -f ../lib/libqt.so.$(VERSION)
 -	$(CC) -shared -Wl,-soname,libqt.so.0 \
--		-o ../../../lib/libqt.so.$(VERSION) \
+-		-o ../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
-+	$(CC) -G -o ../../../lib/libqt.so.$(VERSION) \
++	$(CC) -G -o ../lib/libqt.so.$(VERSION) \
 +		$(OBJECTS) $(METAOBJ) -lX11 -lsocket
- 	-rm -f ../../../lib/libqt.so
- 	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
- 	-rm -f ../../../lib/libqt.so.0
+ 	-rm -f ../lib/libqt.so
+ 	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
+ 	-rm -f ../lib/libqt.so.0

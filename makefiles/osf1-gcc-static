@@ -27,17 +27,17 @@ diff -uwr template/library/Makefile osf1-gcc-static/library/Makefile
  # Creates the library when all files have been compiled
  
  library: $(OBJECTS) $(METAOBJ)
--	-rm -f ../../../lib/libqt.so.$(VERSION)
+-	-rm -f ../lib/libqt.so.$(VERSION)
 -	$(CC) -shared -Wl,-soname,libqt.so.0 \
--		-o ../../../lib/libqt.so.$(VERSION) \
+-		-o ../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
--	-rm -f ../../../lib/libqt.so
--	-ln -sf libqt.so.$(VERSION) ../../../lib/libqt.so
--	-rm -f ../../../lib/libqt.so.0
--	-ln -s libqt.so.$(VERSION) ../../../lib/libqt.so.0
+-	-rm -f ../lib/libqt.so
+-	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
+-	-rm -f ../lib/libqt.so.0
+-	-ln -s libqt.so.$(VERSION) ../lib/libqt.so.0
 +	ar q libqt.a $(OBJECTS) $(METAOBJ)
 +	ranlib libqt.a
-+	mv libqt.a ../../../lib
++	mv libqt.a ../lib
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null

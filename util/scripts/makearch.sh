@@ -43,6 +43,8 @@ mkdir arch/template/library
 mkdir arch/template/examples
 mkdir arch/template/tutorial
 mkdir arch/template/moc
+mkdir arch/template/bin
+mkdir arch/template/lib
 
 cp ${BASE}/util/scripts/propagate arch/template/propagate
 
@@ -59,6 +61,10 @@ for a in tools kernel widgets dialogs ; do
     ln -s `make -s showheaders | sed $beta | fmt -1 | sed 's-^-../src/'${a}'/-'` ${BASE}/include
     ln -s `make -s showheaders showsources | sed $beta | fmt -1 | sed 's-^-../../../src/'${a}'/-'` ${BASE}/arch/template/library
 done
+
+# make moc_gen.cpp
+cd ${BASE}/src/moc
+make -s moc_gen.cpp
 
 cd ${BASE}/examples
 for a in `make -s showdirs` ; do
@@ -205,14 +211,14 @@ VERSION=${VERSION}
 # Creates the library when all files have been compiled
 
 library: \$(OBJECTS) \$(METAOBJ)
-	-rm -f ../../../lib/libqt.so.\$(VERSION)
+	-rm -f ../lib/libqt.so.\$(VERSION)
 	\$(CC) -shared -Wl,-soname,libqt.so.0 \\
-		-o ../../../lib/libqt.so.\$(VERSION) \\
+		-o ../lib/libqt.so.\$(VERSION) \\
 		\$(OBJECTS) \$(METAOBJ) -lX11
-	-rm -f ../../../lib/libqt.so
-	-ln -sf libqt.so.\$(VERSION) ../../../lib/libqt.so
-	-rm -f ../../../lib/libqt.so.0
-	-ln -s libqt.so.\$(VERSION) ../../../lib/libqt.so.0
+	-rm -f ../lib/libqt.so
+	-ln -sf libqt.so.\$(VERSION) ../lib/libqt.so
+	-rm -f ../lib/libqt.so.0
+	-ln -s libqt.so.\$(VERSION) ../lib/libqt.so.0
 
 depend:
 	makedepend \$(SOURCES) 2> /dev/null
@@ -297,6 +303,8 @@ cat << EOF
 	@echo configurations supported on that operating system.
 	@echo
 	@echo make list gives a complete list of supported configurations.
+	@echo
+	@echo make alldirs builds _all_ the directories.
 
 list: 
 	@echo Supported configurations:
@@ -310,9 +318,14 @@ done
 echo '	@echo Send mail to qt-info@troll.no for info about other platforms'
 echo
 
+echo alldirs: ../makefiles/*-* | fmt -1 | sed 's-^\.\./makefiles/--' | fmt -70 | sed -e 's/$/ \\/' -e '2,$ s/^/	/' -e '$ s/\s*\\$//'
+
+echo
+
 for a in `echo ../makefiles/*-* | fmt -1 | sed -e 's-.*/--' -e 's/-.*//' | fmt -1 | uniq`
 do
-    echo ${a}':' `echo ../makefiles/${a}-* | sed -e 's-\.\./makefiles/--g'`
+    echo ${a}: ../makefiles/${a}-* | fmt -70 | sed -e 's-\.\./makefiles/--g' \
+	-e 's/$/ \\/' -e '2,$ s/^/	/' -e '$ s/ *\\$//'
     echo
 done
 
@@ -323,7 +336,9 @@ ${PLATFORM}:
 	mkdir ${PLATFORM}
 	cd template ; tar cf - . | ( cd ../${PLATFORM} ; tar xf - )
 EOF
-    [ -s $a ] && echo "	( cd ${PLATFORM} ; patch -p1 -s < ../../makefiles/${PLATFORM} )"
+    [ -s $a ] && ( echo "	( cd ${PLATFORM} ; \\" ; echo "		patch -p1 -s < ../../makefiles/${PLATFORM} )" )
+    echo '	[ -e ../lib ] || ln -s arch/'{$PLATFORM}'/lib ..'
+    echo '	[ -e ../bin ] || ln -s arch/'{$PLATFORM}'/bin ..'
     echo
 
 done
