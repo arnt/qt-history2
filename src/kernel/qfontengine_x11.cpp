@@ -2248,14 +2248,16 @@ bool QOpenType::loadTables( FT_ULong script)
     qDebug("script %s has script index %d", tag_to_string(script), script_index );
 #endif
 
-    TTO_FeatureList featurelist = gsub->FeatureList;
 
 #ifdef OT_DEBUG
-    int numfeatures = featurelist.FeatureCount;
-    qDebug("gsub table has %d features", numfeatures );
-    for( int i = 0; i < numfeatures; i++ ) {
-	TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
-	qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+    {
+	TTO_FeatureList featurelist = gsub->FeatureList;
+	int numfeatures = featurelist.FeatureCount;
+	qDebug("gsub table has %d features", numfeatures );
+	for( int i = 0; i < numfeatures; i++ ) {
+	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
+	    qDebug("   feature '%s'", tag_to_string(r->FeatureTag));
+	}
     }
 #endif
     if ( hasGPos ) {
