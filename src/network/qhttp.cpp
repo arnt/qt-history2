@@ -252,9 +252,9 @@ public:
 void QHttpPGHRequest::start(QHttp *http)
 {
     if (http->d->port && http->d->port != 80)
-	header.setValue( "Host", http->d->hostname + ":" + QString::number(http->d->port));
+	header.setValue("Host", http->d->hostname + ":" + QString::number(http->d->port));
     else
-	header.setValue( "Host", http->d->hostname );
+	header.setValue("Host", http->d->hostname);
     QHttpNormalRequest::start(http);
 }
 
