@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#399 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#400 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -813,7 +813,7 @@ qstring_to_xtp( const QString& s )
 }
 
 /*!
-  Sets the window caption (title).
+  Sets the window caption (title) to \a caption.
   \sa caption(), setIcon(), setIconText()
 */
 
@@ -829,8 +829,8 @@ void QWidget::setCaption( const QString &caption )
 }
 
 /*!
-  Sets the window icon pixmap.
-  \sa icon(), setIconText(), setCaption(), 
+  Sets the window icon to \a pixmap.
+  \sa icon(), setIconText(), setCaption(),
       \link appicon.html Setting the Application Icon\endlink
 */
 
