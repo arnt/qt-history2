@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#322 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#323 $
 **
 ** Implementation of QFileDialog class
 **
@@ -392,7 +392,7 @@ struct QFileDialogPrivate {
 
     bool ignoreNextKeyPress;
     QProgressDialog *progressDia;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1567,7 +1567,7 @@ void QFileDialog::init()
     d->hadDotDot = FALSE;
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
-    
+
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -1943,7 +1943,6 @@ void QFileDialog::setSelection( const QString & filename )
 	emit dirEntered( d->url.dirPath() );
 	nameEdit->setText( QString::fromLatin1("") );
     }
-
 }
 
 /*!
@@ -2214,11 +2213,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( QFileDialog::tr( "Open" ) );
-    if ( !initialSelection.isEmpty() )
-	dlg->setSelection( initialSelection );
     dlg->setFilters( filters );
     dlg->setMode( QFileDialog::ExistingFile );
     QString result;
+    if ( !initialSelection.isEmpty() )
+	dlg->setSelection( initialSelection );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
 	*workingDirectory = dlg->url();
@@ -2302,9 +2301,9 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     CHECK_PTR( dlg );
     dlg->setCaption( QFileDialog::tr( "Save as" ) );
     QString result;
+    dlg->setFilters( filters );
     if ( !initialSelection.isEmpty() )
 	dlg->setSelection( initialSelection );
-    dlg->setFilters( filters );
     if ( dlg->exec() == QDialog::Accepted ) {
 	result = dlg->selectedFile();
 	*workingDirectory = dlg->url();
@@ -2597,7 +2596,7 @@ void QFileDialog::listBoxSelectionChanged()
 {
     if ( d->mode != ExistingFiles )
 	return;
-    
+
     nameEdit->clear();
     QString str;
     QListBoxItem * i = d->moreFiles->item( 0 );
