@@ -66,7 +66,7 @@ public:
 };
 
 template <class T>
-inline QDebug &operator<<(QDebug &debug, const QList<T> &list)
+inline QDebug operator<<(QDebug debug, const QList<T> &list)
 {
     debug << '(';
     for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
