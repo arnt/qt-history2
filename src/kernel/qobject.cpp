@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#109 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#109 $");
 
 
 /*!
@@ -663,6 +663,11 @@ void QObject::killTimer( int id )
 
 /*!
   Kills all timers that this object has started.
+
+  Using this function makes it harder to subclass your class (it kills
+  timers started by subclasses as well as those started by you), so it
+  is generally better to use killTimer().
+
   \sa timerEvent(), startTimer(), killTimer()
 */
 
