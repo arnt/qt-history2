@@ -2958,7 +2958,7 @@ void generateClass()		      // generate C++ source code for a class
     generatePropsStrings();
 
     if ( !g->strings.isEmpty() ) {
-	fprintf( out, "    static const char* s[%d] = {\n", g->strings.count() );
+	fprintf( out, "    static const char* const s[%d] = {\n", g->strings.count() );
 	(void) g->strings.first();
 	const char* s;
 	while ( ( s = g->strings.current() ) ) {
