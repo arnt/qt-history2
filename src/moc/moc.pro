@@ -1,16 +1,20 @@
+TEMPLATE    =	moc.t
+CONFIG	    =   console release
+OBJECTS_DIR =	.
 LEXINPUT    =	moc.l
 YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../../include
 MOCGEN	    =	mocgen.cpp
-TOOLSRC     =	qbuffer.cpp	\
-		qcollect.cpp	\
-		qdatetm.cpp	\
-		qdstream.cpp	\
-		qgarray.cpp	\
-		qgdict.cpp	\
-		qglist.cpp	\
-		qglobal.cpp	\
-		qgvector.cpp	\
-		qiodev.cpp	\
-		qstring.cpp
+SOURCES     =	$$MOCGEN		\
+		../tools/qbuffer.cpp	\
+		../tools/qcollect.cpp	\
+		../tools/qdatetm.cpp	\
+		../tools/qdstream.cpp	\
+		../tools/qgarray.cpp	\
+		../tools/qgdict.cpp	\
+		../tools/qglist.cpp	\
+		../tools/qglobal.cpp	\
+		../tools/qgvector.cpp	\
+		../tools/qiodev.cpp	\
+		../tools/qstring.cpp
 TARGET	    =	moc
