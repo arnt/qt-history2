@@ -103,6 +103,7 @@ struct FunctionBlock : public ParsableBlock
 {
     FunctionBlock() : calling_place(0), scope_level(1), cause_return(false) { }
 
+    QMap<QString, QStringList> vars;
     QMap<QString, QStringList> *calling_place;
     QString return_value;
     int scope_level;
@@ -126,16 +127,17 @@ bool FunctionBlock::exec(const QStringList &args,
     cause_return = false;
 
     //execute
-    QMap<QString, QStringList> func_place = place;
-    func_place["ARGS"] = args;
+    vars = proj->variables();
+    vars["ARGS"] = args;
     for(int i = 0; i < args.count(); i++)
-        func_place[QString::number(i+1)] = QStringList(args[i]);
-    bool ret = ParsableBlock::eval(proj, func_place);
+        vars[QString::number(i+1)] = QStringList(args[i]);
+    bool ret = ParsableBlock::eval(proj, vars);
     functionReturn = return_value;
 
     //restore state
     calling_place = 0;
     return_value = QString::null;
+    vars.clear();
     return ret;
 }
 
@@ -2015,9 +2017,10 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
                     parser.line_no);
             return false;
         }
-        if(!function_blocks.isEmpty()) {
-            FunctionBlock *f = function_blocks.top();
-            if(f->calling_place)
+        for(int i = 0; i < function_blocks.size(); ++i) {
+            FunctionBlock *f = function_blocks.at(i);
+            f->vars[args[0]] = place[args[0]];
+            if(!i && f->calling_place)
                 (*f->calling_place)[args[0]] = place[args[0]];
         }
         return true;
