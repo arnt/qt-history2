@@ -1362,7 +1362,13 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
-    QMacSavedPortInfo::flush(this, copied, TRUE);
+#ifdef Q_WS_MACX
+    if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+	QRegion clean(copied);
+	clean.translate(p.x(), p.y());
+	QMacSavedPortInfo::flush(this, clean, TRUE);
+    }
+#endif
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
 }
 
