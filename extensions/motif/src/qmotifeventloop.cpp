@@ -31,6 +31,25 @@ public:
     int timerid;
 };
 
+/*!
+  \class QMotifEventLoop
+  \brief The QMotifEventLoop class integrates the Xt/Motif and Qt event loops.
+
+  \extension QMotif
+
+  QMotifEventLoop provides a reimplementation of QEventLoop to operate
+  completely through Xt event delivery functions.  This provides
+  seamless integration with Xt/Motif, since all events, timers and
+  external input sources will be handled by one common event loop.
+*/
+
+/*!
+    Creates a QMotifEventLoop.
+
+    The \a motif integrator object is used to keep all events working.
+    The \a parent and \a name arguements are passed on to the
+    QEventLoop constructor.
+*/
 QMotifEventLoop::QMotifEventLoop( QMotif *motif,
 				  QObject *parent, const char *name )
     : QEventLoop( parent, name )
@@ -40,11 +59,16 @@ QMotifEventLoop::QMotifEventLoop( QMotif *motif,
     d->motif->d->eventloop = this;
 }
 
+/*!
+    Destroys the QMotifEventLoop.
+ */
 QMotifEventLoop::~QMotifEventLoop()
 {
     delete d;
 }
 
+/*! \internal
+ */
 void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
 {
     QMotifEventLoop *eventloop = (QMotifEventLoop *) pointer;
@@ -54,6 +78,8 @@ void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
     eventloop->setSocketNotifierPending( socknot );
 }
 
+/*! \reimp
+ */
 void QMotifEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 {
     XtInputMask mask;
@@ -83,6 +109,8 @@ void QMotifEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
     QEventLoop::registerSocketNotifier( notifier );
 }
 
+/*! \reimp
+ */
 void QMotifEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 {
     QIntDictIterator<QSocketNotifier> it( d->socknotDict );
@@ -100,6 +128,8 @@ void QMotifEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
     QEventLoop::unregisterSocketNotifier( notifier );
 }
 
+/*! \internal
+ */
 void qmotif_timeout_handler( XtPointer pointer, XtIntervalId * )
 {
     QMotifEventLoop *eventloop = (QMotifEventLoop *) pointer;
@@ -107,6 +137,8 @@ void qmotif_timeout_handler( XtPointer pointer, XtIntervalId * )
     eventloop->d->timerid = -1;
 }
 
+/*! \reimp
+ */
 bool QMotifEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 {
     // Qt uses posted events to do lots of delayed operations, like repaints... these

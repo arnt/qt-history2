@@ -29,7 +29,7 @@ void qmotif_event_proc( XEvent* event )
 #endif
 
 QMotifPrivate::QMotifPrivate()
-    : appContext(NULL), ownContext( FALSE )
+    : appContext(NULL)
 {
 #if QT_VERSION >= 310
     eventloop = 0;
@@ -152,6 +152,57 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     return False;
 }
 
+/*!
+    \class QMotif
+    \brief The QMotif class is the core behind the QMotif Extension.
+
+    \extension QMotif
+
+    QMotif only provides a few public functions, but is the brains
+    behind the integration.  QMotif is responsible for initializing
+    the Xt toolkit and the Xt application context.  It does not open a
+    connection to the X server, this is done by using QApplication.
+
+    The only member function in QMotif that depends on an X server
+    connection is QMotif::initialize().  QMotif can be created before
+    or after QApplication.
+
+    Example usage of QMotif and QApplication:
+
+    \code
+    static char *resources[] = {
+        ...
+    };
+
+    int main(int argc, char **argv)
+    {
+        QMotif integrator;
+
+        XtAppSetFallbackResources( integrator.applicationContext(),
+                                   resources );
+
+        QApplication app( argc, argv );
+        integrator.initialize( &argc, argv, "AppClass", NULL, 0 );
+
+        ...
+
+
+	int ret = app.exec();
+
+        XtDestroyApplication( integrator.applicationContext() );
+        integrator.setApplicationContext( 0 );
+
+        return ret;
+    }
+    \endcode
+*/
+
+/*!
+  Creates QMotif, which allows Qt and Xt/Motif integration.
+
+  The Xt toolkit is initialized by this constructor by calling
+  XtToolkitInitialize().
+*/
 QMotif::QMotif()
 {
 #if defined(QT_CHECK_STATE)
@@ -164,23 +215,37 @@ QMotif::QMotif()
     XtToolkitInitialize();
 }
 
+
+/*!
+  Destroys QMotif.
+
+  \warning The application context is not destroyed automatically.
+  This must be done before destroying the QMotif instance.
+*/
 QMotif::~QMotif()
 {
     d->unhook();
-    // if ( d->ownContext )
-    // XtDestroyApplicationContext( d->appContext );
     delete d;
 }
 
+/*!
+  Returns the application context.  If no application context has been
+  set, then QMotif creates one.
+
+  The applicaiton context is \e not destroyed in the QMotif destructor
+  if QMotif created the application context.  The application
+  programmer must do this before destroying the QMotif instance.
+*/
 XtAppContext QMotif::applicationContext() const
 {
-    if ( d->appContext == NULL ) {
+    if ( d->appContext == NULL )
 	d->appContext = XtCreateApplicationContext();
-	d->ownContext = TRUE;
-    }
     return d->appContext;
 }
 
+/*!
+  Sets the application context.
+*/
 void QMotif::setApplicationContext( XtAppContext appContext )
 {
 #if defined(QT_CHECK_STATE)
@@ -190,6 +255,10 @@ void QMotif::setApplicationContext( XtAppContext appContext )
     d->appContext = appContext;
 }
 
+/*!
+  Initialize the application context.  All arguments passed to this
+  function are used to call XtDisplayInitialize().
+*/
 void QMotif::initialize( int *argc, char **argv, char *applicationClass,
 			      XrmOptionDescRec *options, int numOptions )
 {
@@ -204,6 +273,29 @@ void QMotif::initialize( int *argc, char **argv, char *applicationClass,
     d->hookMeUp();
 }
 
+/*! \internal
+  Redeliver the given XEvent to Xt.  This is used by QMotifDialog and
+  QMotifWidget.
+
+  Rationale: An XEvent handled by Qt does not go through the Xt event
+  handlers, and the internal state of Xt/Motif widgets will not be
+  updated.  This function should only be used if an event delivered by
+  Qt to a QWidget needs to be sent to an Xt/Motif widget.
+
+  You should not need to call this function.
+*/
+bool QMotif::redeliverEvent( XEvent *event )
+{
+    // redeliver the event to Xt, NOT through Qt
+    if ( QMotif_INSTANCE->d->dispatchers[ event->type ]( event ) )
+	return TRUE;
+    return FALSE;
+};
+
+/*! \internal
+  Returns the the Xt/Motif to QWidget mapper.  This mapper is used for
+  delivery of modal events in QMotifDialog/QMotifWidget.
+*/
 QWidgetIntDict *QMotif::mapper()
 {
 #if defined(QT_CHECK_STATE)
@@ -215,11 +307,3 @@ QWidgetIntDict *QMotif::mapper()
 
     return &QMotif_INSTANCE->d->mapper;
 }
-
-bool QMotif::redeliverEvent( XEvent *event )
-{
-    // redeliver the event to Xt, NOT through Qt
-    if ( QMotif_INSTANCE->d->dispatchers[ event->type ]( event ) )
-	return TRUE;
-    return FALSE;
-};

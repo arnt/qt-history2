@@ -7,6 +7,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/ShellP.h>
 
+#include <X11/Xatom.h>
 
 // ApplicationShell subclass to wrap toplevel motif widgets into QWidgets
 
@@ -122,9 +123,45 @@ public:
     QWidgetIntDict wdict;
 };
 
+/*!
+    \class QMotifWidget
+    \brief The QMotifWidget class provides the QWidget API for Xt/Motif widgets.
 
+    \extension QMotif
 
-// any kind of Motif widget that has a QWidget parent
+    QMotifWidget has 2 main purposes: providing a toplevel QWidget and
+    providing a QWidget that can be used as the central widget in a
+    QMainWindow.
+
+    An Xt/Motif widget created with a toplevel QMotifWidget can begin
+    using the standard Qt dialogs and custom QDialogs while keeping
+    the main Xt/Motif interface of the application.  Using a
+    QMotifWidget as the parent for the various QDialogs will ensure
+    that modality and stacking works properly throughout the entire
+    application.
+
+    Applications moving to Qt can have custom Xt/Motif widgets that
+    will take time to rewrite with Qt. QMotifWidget also provides a
+    way to use custom Xt/Motif widgets as the center widget of a
+    QMainWindow.
+*/
+
+/*!
+    Creates a Motif widget with a QWidget parent.  Any kind of
+    Xt/Motif widget can be used.
+
+    Creates a Shell widget is created if the QWidget parent is zero.
+    The Shell is a special subclass of ApplicationShell.  This allows
+    applications that use QDialogs to have proper modality handling
+    through the QMotif extension.
+
+    Future development will make it possible to use an Xt/Motif widget
+    inside a QWidget parent, which is useful for setting the center
+    widget in a QMainWindow.  Using Xt/Motif widgets with other
+    QWidget parents is beyond the scope of this implementation at the
+    moment, and if this functionality is needed, it will be added
+    later.
+*/
 QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
                             ArgList args, Cardinal argcount,
                             const char *name, WFlags flags )
@@ -150,6 +187,10 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 }
 
+/*!
+    Destroys the QWidget and Xt/Motif widget.  If a Shell widget was
+    created by the constructor, it is also destroyed.
+*/
 QMotifWidget::~QMotifWidget()
 {
     if ( d->shell ) {
@@ -162,11 +203,18 @@ QMotifWidget::~QMotifWidget()
     destroy( FALSE );
 }
 
+/*!
+    Returns the embedded Xt/Motif widget.  If a Shell widget was
+    created by the constructor, you can access it with XtParent().
+*/
 Widget QMotifWidget::motifWidget() const
 {
     return d->widget;
 }
 
+/*!
+    Manages the embedded Xt/Motif widget and shows the widget.
+*/
 void QMotifWidget::show()
 {
     if ( d->shell ) {
@@ -174,11 +222,16 @@ void QMotifWidget::show()
         QMotifWidgetShellWidget motifshell = (QMotifWidgetShellWidget) d->shell;
         XtManageChildren( motifshell->composite.children,
                           motifshell->composite.num_children );
+	if ( ! XtIsRealized( d->shell ) )
+	    XtRealizeWidget( d->shell );
     }
 
     QWidget::show();
 }
 
+/*!
+    Unmanaged the embedded Xt/Motif widget and hides the widget.
+*/
 void QMotifWidget::hide()
 {
     if ( d->shell ) {
@@ -191,6 +244,9 @@ void QMotifWidget::hide()
     QWidget::hide();
 }
 
+/*!
+    Delivers \a event to the widget, or to any Xt/Motif child.
+*/
 bool QMotifWidget::x11Event( XEvent *event )
 {
     // here, lookup a the event window id to see if we have a child motif widget,
@@ -209,12 +265,16 @@ bool QMotifWidget::x11Event( XEvent *event )
     return QWidget::x11Event( event );
 }
 
+/*! \internal
+    Wraps the Motif widget by setting the X window for the
+    QMotifWidget to the X window id of the widget shell.
+*/
 void QMotifWidget::realize( Widget w )
 {
     // use the winid of the dialog shell, reparent any children we have
     if ( XtWindow( w ) != winId() ) {
         // save the geometry of the motif widget, since it has the geometry we want
-        QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
+	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
 
 	Window newid = XtWindow( w );
        	if ( children() ) {
@@ -235,15 +295,48 @@ void QMotifWidget::realize( Widget w )
 
         // re-create this QWidget with the winid from the motif widget... the geometry
         // will be reset to roughly 1/4 of the screen, so we need to restore it below
-	create( newid );
+	create( newid, TRUE, TRUE );
+
+	QString cap;
+	if ( ! caption().isNull() ) {
+	    cap = caption();
+	    setCaption( QString::null );
+	} else {
+	    setCaption( QString::null );
+	    XTextProperty text_prop;
+	    if (XGetWMName( QPaintDevice::x11AppDisplay(), winId(), &text_prop)) {
+		if (text_prop.value && text_prop.nitems > 0) {
+		    if (text_prop.encoding == XA_STRING) {
+			cap = QString::fromLocal8Bit( (char *) text_prop.value );
+		    } else {
+			text_prop.nitems = strlen((char *) text_prop.value);
+
+			char **list;
+			int num;
+			if (XmbTextPropertyToTextList(QPaintDevice::x11AppDisplay(),
+						      &text_prop,
+						      &list, &num) == Success &&
+			    num > 0 && *list) {
+			    cap = QString::fromLocal8Bit( *list );
+			    XFreeStringList(list);
+			}
+		    }
+		}
+	    }
+	}
+
+	setCaption( cap );
 
         // restore geometry of the shell
-        XMoveResizeWindow( QPaintDevice::x11AppDisplay(), winId(),
-                           save.x(), save.y(), save.width(), save.height() );
+	XMoveResizeWindow( QPaintDevice::x11AppDisplay(), winId(),
+			   save.x(), save.y(), save.width(), save.height() );
     }
 }
 
-// motif callback
+/*! \internal
+    Motif callback to resolve a QMotifWidget and call
+    QMotifWidget::realize().
+*/
 void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
                                   XSetWindowAttributes *attr )
 {
@@ -259,7 +352,10 @@ void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
     widget->realize( w );
 }
 
-// motif callback
+/*! \internal
+    Motif callback to resolve a QMotifWidget and set the initial
+    geometry of the widget.
+*/
 void qmotif_widget_shell_change_managed( Widget w )
 {
     XtWidgetProc change_managed =
@@ -272,7 +368,7 @@ void qmotif_widget_shell_change_managed( Widget w )
     if ( ! widget )
 	return;
     widget->setGeometry( widget->d->shell->core.x,
-			 widget->d->shell->core.y,
-			 widget->d->shell->core.width,
-			 widget->d->shell->core.height );
+ 			 widget->d->shell->core.y,
+ 			 widget->d->shell->core.width,
+ 			 widget->d->shell->core.height );
 }

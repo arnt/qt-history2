@@ -1,0 +1,41 @@
+/*
+    Index page for QMotif Extension
+*/
+
+/*! \page qmotif-extension.html
+
+\title QMotif Extension
+\keyword QMotif
+
+The QMotif Extension assists the migration of old Xt and Motif based
+code to the more comfortable Qt toolkit.  This extension replaces the
+older Qt Xt/Motif Supprt Extension included with earlier versions of
+Qt.
+
+\section1 Information
+The QMotif Extension consists of the follow classes:
+\list
+\i QMotif
+\i QMotifWidget
+\i QMotifDialog
+\i QMotifEventLoop
+\endlist
+
+\section1 How-to
+   
+\list 1
+\i Ensure you are using X11R6 and Motif 2.x.
+\i Ensure the programs you wish to port are compilable by a C++
+compiler, or at least that this is the case for the parts which
+need migration.
+\endlist
+
+\section1 Known Bugs and Problems
+
+\list
+\i This documentation is incomplete and unfinished.
+\i QMotifDialog is not completely implemented.
+\i QMotifWidget is not tested with an Xt/Motif widget inside a QMainWindow.
+\endlist
+
+*/
