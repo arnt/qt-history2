@@ -40,6 +40,11 @@ Document width change:
 * full relayout needed
 
 
+Float handling:
+
+* Floats are specified by a special format group.
+* currently only floating images are implemented.
+
 */
 
 enum {
@@ -316,10 +321,10 @@ void QTextDocumentLayoutPrivate::floatMargins(int *left, int *right)
     for (int i = 0; i < floats.size(); ++i) {
         const Float &f = floats.at(i);
         if (f.rect.y() < currentYPos && f.rect.bottom() > currentYPos) {
-            QTextCharFormat format = f.format.toCharFormat();
-            if (format.isValid()) {
-                QTextFormat::FloatPosition pos = format.floatPosition();
-                if (pos == QTextFormat::FloatLeft)
+            QTextFormatGroup *group = f.format.group();
+            if (group) {
+                QTextFloatFormat::Position pos = group->commonFormat().toFloatFormat().position();
+                if (pos == QTextFloatFormat::Left)
                     *left = qMax(*left, f.rect.right());
                 else
                     *right = qMin(*right, f.rect.left());
@@ -405,16 +410,19 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
-    QTextFormat::FloatPosition pos = f.floatPosition();
+    QTextFloatFormat::Position pos = QTextFloatFormat::None;
+    QTextFormatGroup *group = f.group();
+    if (group)
+        pos = group->commonFormat().toFloatFormat().position();
 
     QSize s = handler.iface->intrinsicSize(format);
 
     item.setDescent(0);
-    QSize inlineSize = (pos == QTextFormat::FloatNone ? s : QSize());
+    QSize inlineSize = (pos == QTextFloatFormat::None ? s : QSize());
     item.setWidth(inlineSize.width());
     item.setAscent(inlineSize.height());
 
-    if (pos == QTextFormat::FloatNone)
+    if (pos == QTextFloatFormat::None)
         return;
 
     QTextDocumentLayoutPrivate::Float fl;
@@ -423,7 +431,7 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
     fl.block = d->currentBlock;
     fl.format = format;
 
-    fl.rect = QRect((pos == QTextFormat::FloatLeft ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
+    fl.rect = QRect((pos == QTextFloatFormat::Left ? 0 : d->pageSize.width() - s.width()), d->currentYPos,
                     s.width(), s.height());
 
     int i = d->floats.indexOf(fl);
@@ -442,9 +450,12 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
-    QTextFormat::FloatPosition pos = f.floatPosition();
+    QTextFloatFormat::Position pos = QTextFloatFormat::None;
+    QTextFormatGroup *group = f.group();
+    if (group)
+        pos = group->commonFormat().toFloatFormat().position();
     QRect r = rect;
-    if (pos != QTextFormat::FloatNone) {
+    if (pos != QTextFloatFormat::None) {
         int pos = item.at();
         for (int i = 0; i < d->floats.size(); ++i) {
             const QTextDocumentLayoutPrivate::Float &f = d->floats.at(i);

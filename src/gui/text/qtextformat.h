@@ -17,6 +17,7 @@ class QTextBlockFormat;
 class QTextCharFormat;
 class QTextListFormat;
 class QTextTableFormat;
+class QTextFloatFormat;
 class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
@@ -61,6 +62,7 @@ public:
         CharFormat = 2,
         ListFormat = 3,
         TableFormat = 4,
+        FloatFormat = 5,
 
         UserFormat = 100
     };
@@ -139,12 +141,6 @@ public:
         ImageObject
     };
 
-    enum FloatPosition {
-        FloatNone,
-        FloatLeft,
-        FloatRight
-    };
-
     QTextFormat();
 
     Q_EXPLICIT QTextFormat(int type);
@@ -184,12 +180,14 @@ public:
     inline bool isBlockFormat() const { return type() == BlockFormat; }
     inline bool isListFormat() const { return type() == ListFormat; }
     inline bool isTableFormat() const { return type() == TableFormat; }
+    inline bool isFloatFormat() const { return type() == FloatFormat; }
     inline bool isImageFormat() const { return type() == CharFormat && intProperty(ObjectType) == ImageObject; }
 
     QTextBlockFormat toBlockFormat() const;
     QTextCharFormat toCharFormat() const;
     QTextListFormat toListFormat() const;
     QTextTableFormat toTableFormat() const;
+    QTextFloatFormat toFloatFormat() const;
     QTextImageFormat toImageFormat() const;
 
     bool operator==(const QTextFormat &rhs) const;
@@ -282,11 +280,6 @@ public:
     { setProperty(ObjectType, type); }
     inline int objectType() const
     { return intProperty(ObjectType, NoObject); }
-
-    inline void setFloatPosition(FloatPosition f)
-    { setProperty(Float, (int)f); }
-    inline FloatPosition floatPosition() const
-    { return (FloatPosition)intProperty(Float, FloatNone); }
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
@@ -340,11 +333,6 @@ public:
     { setProperty(BlockIndent, indent); }
     inline int indent() const
     { return intProperty(BlockIndent); }
-
-    inline void setFloatPosition(FloatPosition f)
-    { setProperty(CssFloat, (int)f); }
-    inline FloatPosition floatPosition() const
-    { return (FloatPosition)intProperty(CssFloat, FloatNone); }
 
     inline void setTableCellEndOfRow(bool eor)
     { setProperty(TableCellEndOfRow, eor); }
@@ -435,6 +423,25 @@ public:
     { setProperty(ImageHeight, height); }
     inline int height() const
     { return intProperty(ImageHeight); }
+};
+
+class Q_GUI_EXPORT QTextFloatFormat : public QTextFormat
+{
+public:
+    inline QTextFloatFormat() : QTextFormat(FloatFormat) {}
+
+    bool isValid() const { return isFloatFormat(); }
+
+    enum Position {
+        None,
+        Left,
+        Right
+    };
+
+    inline void setPosition(Position f)
+    { setProperty(CssFloat, (int)f); }
+    inline Position position() const
+    { return (Position)intProperty(CssFloat, None); }
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <qtextblockiterator.h>
 #include <qtextlist.h>
 #include <qtexttable.h>
+#include <qtextfloat.h>
 #include <qdatastream.h>
 
 #include <qstring.h>
@@ -229,6 +230,13 @@ QTextListFormat QTextFormat::toListFormat() const
 QTextTableFormat QTextFormat::toTableFormat() const
 {
     QTextTableFormat f;
+    f.QTextFormat::operator=(*this);
+    return f;
+}
+
+QTextFloatFormat QTextFormat::toFloatFormat() const
+{
+    QTextFloatFormat f;
     f.QTextFormat::operator=(*this);
     return f;
 }
@@ -502,6 +510,8 @@ QTextFormatGroup *QTextFormatCollection::createGroup(int index)
         group = new QTextList(pieceTable);
     else if (f.isTableFormat())
         group = new QTextTable(pieceTable);
+    else if (f.isFloatFormat())
+        group = new QTextFloat(pieceTable);
     else
         group = new QTextFormatGroup(pieceTable);
     group->d_func()->collection = this;
