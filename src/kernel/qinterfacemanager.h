@@ -68,7 +68,7 @@ class Q_EXPORT QInterfaceManager : public QInterfaceManagerSignalEmitter, public
 public:
     QInterfaceManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so",
 	 QApplicationInterface* appIface = 0, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
-	: appInterface( appIface ), defPol( pol )
+	: defPol( pol ), appInterface( appIface )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
