@@ -78,12 +78,15 @@ Possible values for <driver>: [ mysql oci odbc psql tds ]
 Auto-Detected on this system: [ mysql psql ]
 \endcode
 
+Note that on Windows, the configure script doesn't currently do any
+auto-detection.
+
 Note that configure cannot detect the neccessary libraries and include
 files if they are not in the standard paths, so it may be necessary to
 specify these paths using the "-I" and "-L" switches. If your MySQL
 include files are installed in /usr/local/mysql (or in C:\\mysql\\include
 on Windows), then pass the following parameter to configure:
-"-I/usr/local/mysql" (or "-IC:\\mysql\\include" for Windows).
+"-I/usr/local/mysql" (or "-I C:\\mysql\\include" for Windows).
 
 Note that on Windows the parameter -I doesn't allow spaces in filenames, 
 so use the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
