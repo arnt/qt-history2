@@ -66,7 +66,7 @@ public:
 
   Convenient signals and slots are provided to navigate the cursor
   (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
-  update records (see insertRecord(), updateRecord(), deleteRecord()),
+  edit records (see insertRecord(), updateRecord(), deleteRecord()),
   and to update the display according to the cursor's current position
   (see firstRecordAvailable(), lastRecordAvailable(),
   nextRecordAvailable(), prevRecordAvailable()).
