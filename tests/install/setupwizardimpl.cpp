@@ -356,6 +356,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    operationProgress->setTotalSteps( totalSize );
 
+	    filesDisplay->insertItem( *WinShell::getInfoImage(), "Starting copy process" );
 	    readArchive( "build.arq", installPath->text() );
 
 	    readArchive( "qt.arq", installPath->text() );
@@ -366,12 +367,17 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 	    filesCopied = true;
-	    filesDisplay->append( "\n\nAll files have been copied\nThis log will be saved to your installation directory\n" );
+	    filesDisplay->insertItem( *WinShell::getInfoImage(), "All files have been copied." );
+	    filesDisplay->insertItem( *WinShell::getInfoImage(), "This log will be written to the installation directory" );
+	    filesDisplay->setBottomItem( filesDisplay->count() - 1 );
 
 	    QFile logFile( installPath->text() + "\\install.log" );
 	    if( logFile.open( IO_WriteOnly ) ) {
 		QTextStream outStream( &logFile );
-		outStream << filesDisplay->text().latin1();
+		for( int i = filesDisplay->count() - 3; i > 0; i-- ) {
+		    QString entry = filesDisplay->text( i );
+		    outStream << entry.latin1();
+		}
 		logFile.close();
 	    }
 	}
@@ -585,7 +591,8 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			filesDisplay->append( dirName + "\n" );
+			filesDisplay->insertItem( *WinShell::getOpenFolderImage(), dirName );
+			filesDisplay->setBottomItem( filesDisplay->count() - 1 );
 		    }
 		}
 	    }
@@ -600,7 +607,8 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 		    if( app ) {
 			app->processEvents();
 			operationProgress->setProgress( totalRead );
-			filesDisplay->append( fileName + "\n" );
+			filesDisplay->insertItem( *WinShell::getFileImage(), fileName );
+			filesDisplay->setBottomItem( filesDisplay->count() - 1 );
 		    }
 		    // Try to count the files to get some sort of idea of compilation progress
 		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )

@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>529</width>
+            <width>525</width>
             <height>347</height>
         </rect>
     </property>
@@ -545,9 +545,12 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QTextView">
+                    <widget class="QListBox">
                         <property name="name">
                             <cstring>filesDisplay</cstring>
+                        </property>
+                        <property name="selectionMode">
+                            <enum>NoSelection</enum>
                         </property>
                     </widget>
                     <widget class="QProgressBar">
@@ -866,15 +869,15 @@
         <receiver>SetupWizard</receiver>
         <slot>clickedSave()</slot>
     </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">clickedDevSysPath()</slot>
     <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
-    <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
     <slot access="public" language="C++">clickedSave()</slot>
     <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
-    <slot access="protected" language="C++">init()</slot>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>

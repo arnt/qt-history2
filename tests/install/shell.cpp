@@ -6,6 +6,124 @@
 #include <windows.h>
 #include <shlobj.h>
 
+static const char* folder_closed_xpm[]={
+    "16 16 9 1",
+    "g c #808080",
+    "b c #c0c000",
+    "e c #c0c0c0",
+    "# c #000000",
+    "c c #ffff00",
+    ". c None",
+    "a c #585858",
+    "f c #a0a0a4",
+    "d c #ffffff",
+    "..###...........",
+    ".#abc##.........",
+    ".#daabc#####....",
+    ".#ddeaabbccc#...",
+    ".#dedeeabbbba...",
+    ".#edeeeeaaaab#..",
+    ".#deeeeeeefe#ba.",
+    ".#eeeeeeefef#ba.",
+    ".#eeeeeefeff#ba.",
+    ".#eeeeefefff#ba.",
+    ".##geefeffff#ba.",
+    "...##gefffff#ba.",
+    ".....##fffff#ba.",
+    ".......##fff#b##",
+    ".........##f#b##",
+    "...........####."
+};
+
+static const char* folder_open_xpm[]={
+    "16 16 11 1",
+    "# c #000000",
+    "g c #c0c0c0",
+    "e c #303030",
+    "a c #ffa858",
+    "b c #808080",
+    "d c #a0a0a4",
+    "f c #585858",
+    "c c #ffdca8",
+    "h c #dcdcdc",
+    "i c #ffffff",
+    ". c None",
+    "....#ab##.......",
+    "....###.........",
+    "....#acab####...",
+    "###.#acccccca#..",
+    "#ddefaaaccccca#.",
+    "#bdddbaaaacccab#",
+    ".eddddbbaaaacab#",
+    ".#bddggdbbaaaab#",
+    "..edgdggggbbaab#",
+    "..#bgggghghdaab#",
+    "...ebhggghicfab#",
+    "....#edhhiiidab#",
+    "......#egiiicfb#",
+    "........#egiibb#",
+    "..........#egib#",
+    "............#ee#"
+};
+
+static const char* file_xpm []={
+    "16 16 7 1",
+    "# c #000000",
+    "b c #ffffff",
+    "e c #000000",
+    "d c #404000",
+    "c c #c0c000",
+    "a c #ffffc0",
+    ". c None",
+    "................",
+    ".........#......",
+    "......#.#a##....",
+    ".....#b#bbba##..",
+    "....#b#bbbabbb#.",
+    "...#b#bba##bb#..",
+    "..#b#abb#bb##...",
+    ".#a#aab#bbbab##.",
+    "#a#aaa#bcbbbbbb#",
+    "#ccdc#bcbbcbbb#.",
+    ".##c#bcbbcabb#..",
+    "...#acbacbbbe...",
+    "..#aaaacaba#....",
+    "...##aaaaa#.....",
+    ".....##aa#......",
+    ".......##......."
+};
+
+static const char* info_xpm[] = { 
+    "16 16 6 1",
+    "# c #0000ff",
+    "a c #6868ff",
+    "b c #d0d0ff",
+    "c c #ffffff",
+    "- c #000000",
+    ". c none",
+    ".....------.....",
+    "...--######--...",
+    "..-###acca###-..",
+    ".-####cccc####-.",
+    ".-####acca####-.",
+    "-##############-",
+    "-######bcc#####-",
+    "-####ccccc#####-",
+    "-#####cccc#####-",
+    "-#####cccc#####-",
+    "-#####cccc#####-",
+    ".-####cccc####-.",
+    ".-###cccccc###-.",
+    "..-##########-..",
+    "...--#######-...",
+    ".....------....."
+};
+
+static QPixmap* closedImage = NULL;
+static QPixmap* openImage = NULL;
+static QPixmap* fileImage = NULL;
+static QPixmap* infoImage = NULL;
+
 WinShell::WinShell()
 {
     QByteArray buffer( MAX_PATH );
@@ -49,6 +167,11 @@ WinShell::WinShell()
     }
     else
 	qDebug( "Could not get desktop interface" );
+
+    closedImage = new QPixmap( folder_closed_xpm );
+    openImage = new QPixmap( folder_open_xpm );
+    fileImage = new QPixmap( file_xpm );
+    infoImage = new QPixmap( info_xpm );
 } 
 
 WinShell::~WinShell()
@@ -138,7 +261,6 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 {
     IShellLink* link;
     IPersistFile* linkFile;
-    LPITEMIDLIST item;    
     HRESULT hr;
 
     // Add .lnk to shortcut name if needed
@@ -197,4 +319,24 @@ QByteArray WinShell::QString2OLESTR( QString str )
     buffer[ (2*i)+1 ] = 0;
 
     return buffer;
+}
+
+QPixmap* WinShell::getClosedFolderImage()
+{
+    return closedImage;
+}
+
+QPixmap* WinShell::getOpenFolderImage()
+{
+    return openImage;
+}
+
+QPixmap* WinShell::getFileImage()
+{
+    return fileImage;
+}
+
+QPixmap* WinShell::getInfoImage()
+{
+    return infoImage;
 }

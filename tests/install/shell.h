@@ -1,5 +1,6 @@
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qpixmap.h>
 #include <windows.h>
 #include <shlobj.h>
 
@@ -24,4 +25,9 @@ public:
 
     QString createFolder( QString folderName, bool common );
     HRESULT createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description = QString::null, QString arguments = QString::null );
+
+    static QPixmap* getOpenFolderImage();
+    static QPixmap* getClosedFolderImage();
+    static QPixmap* getFileImage();
+    static QPixmap* getInfoImage();
 };
