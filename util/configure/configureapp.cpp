@@ -38,7 +38,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
     dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
-    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+    dictionary[ "QMAKE_INTERNAL" ] = "no";
     dictionary[ "LEAN" ] = "no";
     dictionary[ "NOPROCESS" ] = "no";
     dictionary[ "STL" ] = "no";
@@ -51,6 +51,8 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
 
+    readLicense();
+    
     buildModulesList();
     buildSqlList();
 
@@ -71,8 +73,6 @@ void ConfigureApp::buildModulesList()
 
     allModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql" );
     licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
-    
-    readLicense();
     
     if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
@@ -225,10 +225,10 @@ void ConfigureApp::parseCmdLine()
 	}
 
     }
+    qmakeConfig += enabledModules;
+
     if( dictionary[ "QMAKE_INTERNAL" ] == "yes" )
-	qmakeConfig += modules;
-    else
-	qmakeConfig += enabledModules;
+	qmakeConfig += "internal";
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qmakeConfig.remove( (*it) );
@@ -847,8 +847,10 @@ bool ConfigureApp::readLicense()
     if( QFile::exists( qtDir + "/LICENSE.TROLL" ) ) {
 	if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" )
 	    licenseInfo[ "PRODUCTS" ]= "qt-professional";
-	else
+	else {
 	    licenseInfo[ "PRODUCTS" ] = "qt-enterprise";
+	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+	}
 	return true;
     }
     return false;
