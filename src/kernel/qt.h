@@ -271,7 +271,6 @@
 #include <qwaitcondition.h>
 #include <qwhatsthis.h>
 #include <qapplication.h>
-#include <qfocusdata.h>
 #include <qwidgetplugin.h>
 #include <qwidgetstack.h>
 #include <qcheckbox.h>
