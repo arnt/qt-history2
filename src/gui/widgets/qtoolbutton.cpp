@@ -527,7 +527,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
         return;
     }
     if (e->button() == LeftButton && d->delay <= 0 && d->menu && d->instantPopup && !d->menu->isVisible()) {
-        openMenu();
+        showMenu();
         return;
     }
 
@@ -711,11 +711,11 @@ QMenu* QToolButton::menu() const
 }
 
 /*!
-    Opens (pops up) the associated popup menu. If there is no such
+    Shows (pops up) the associated popup menu. If there is no such
     menu, this function does nothing. This function does not return
     until the popup menu has been closed by the user.
 */
-void QToolButton::openMenu()
+void QToolButton::showMenu()
 {
     if (!d->menu)
         return;

@@ -65,7 +65,7 @@ public:
 
     void setMenu(QMenu* menu);
     QMenu* menu() const;
-    void openMenu();
+    void showMenu();
 
     void setPopupDelay(int delay);
     int popupDelay() const;
@@ -111,7 +111,7 @@ public:
     QT_COMPAT QIconSet offIconSet() const;
     QT_COMPAT QIconSet iconSet(bool on) const;
     inline QT_COMPAT QIconSet iconSet() const { return icon(); }
-    inline QT_COMPAT void openPopup()  { openMenu(); }
+    inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
 #endif

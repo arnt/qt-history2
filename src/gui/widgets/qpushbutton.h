@@ -51,7 +51,7 @@ public:
     bool isFlat() const;
 
 public slots:
-    void openMenu();
+    void showMenu();
 
 protected:
     void drawBevel(QPainter *);
@@ -70,7 +70,7 @@ public:
     QPushButton(QWidget *parent, const char* name);
     QPushButton(const QString &text, QWidget *parent, const char* name);
     QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char* name);
-    inline QT_COMPAT void openPopup()  { openMenu(); }
+    inline QT_COMPAT void openPopup()  { showMenu(); }
     inline QT_COMPAT bool isMenuButton() const { return menu() !=  0; }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
