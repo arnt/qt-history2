@@ -179,6 +179,8 @@ bool isInOut( QCString ctype )
 	return FALSE;
     if ( ctype.right(1) == "&" )
 	return TRUE;
+    if ( ctype.right(2) == "**" )
+	return TRUE;
     return FALSE;
 }
 
@@ -3154,6 +3156,8 @@ void generateClass()		      // generate C++ source code for a class
 			QCString utype = uType( type );
 			if ( utype == "enum" )
 			    fprintf( out, "    t%d = (%s)static_QUType_%s.get(o+%d);\n", offset, type.data(), utype.data(), offset+1 );
+			else if ( utype == "ptr" && type.right(2) == "**" )
+			    fprintf( out, "    *t%d = *(%s)static_QUType_ptr.get(o+%d);\n", offset, type.data(), offset+1 );
 			else
 			    fprintf( out, "    t%d = static_QUType_%s.get(o+%d);\n", offset, utype.data(), offset+1 );
 		    }
