@@ -1553,14 +1553,16 @@ void QTable::keyPressEvent( QKeyEvent* e )
     if ( navigationKey ) {
 	if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	    setCurrentCell( curRow, curCol );
+	    bool justCreated = FALSE;
 	    if ( !currentSelection ) {
+		justCreated = TRUE;
 		currentSelection = new SelectionRange();
 		selections.append( currentSelection );
 		currentSelection->init( oldRow, oldCol );
 	    }
 	    SelectionRange oldSelection = *currentSelection;
 	    currentSelection->expandTo( curRow, curCol );
-	    repaintSelections( &oldSelection, currentSelection );
+	    repaintSelections( justCreated ? 0 : &oldSelection, currentSelection );
 	} else {
 	    clearSelection();
 	    setCurrentCell( curRow, curCol );
@@ -2128,14 +2130,18 @@ int QTable::indexOf( int row, int col ) const
 void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 				bool updateVertical, bool updateHorizontal )
 {
-    if ( *oldSelection == *newSelection )
+    if ( oldSelection && *oldSelection == *newSelection )
 	return;
     bool optimize1, optimize2;
-    QRect old = rangeGeometry( oldSelection->topRow,
-			       oldSelection->leftCol,
-			       oldSelection->bottomRow,
-			       oldSelection->rightCol,
-			       optimize1 );
+    QRect old;
+    if ( oldSelection )
+	old = rangeGeometry( oldSelection->topRow,
+			     oldSelection->leftCol,
+			     oldSelection->bottomRow,
+			     oldSelection->rightCol,
+			     optimize1 );
+    else
+	old = QRect( 0, 0, 0, 0 );
 
     QRect cur = rangeGeometry( newSelection->topRow,
 			       newSelection->leftCol,
