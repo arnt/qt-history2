@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#107 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#107 $");
 
 
 // Motif style parameters
@@ -50,6 +50,14 @@ static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 |
 
 */
+
+
+
+
+// used for internal communication - to be replaced with a class
+// members in 2.0
+static QPopupMenu * syncMenu;
+static int syncMenuId;
 
 
 /*!
@@ -816,6 +824,8 @@ void QPopupMenu::hide()
     hidePopups();
     killTimers();
     QWidget::hide();
+    if ( syncMenu == this && qApp )
+	qApp->exit_loop();
 }
 
 
@@ -1292,11 +1302,6 @@ void QPopupMenu::updateRow( int row )
 }
 
 
-// used for internal communication - to be replaced with a class
-// members in 2.0
-static QPopupMenu * syncMenu;
-static int syncMenuId;
-
 /*!  Execute this popup synchronously.
 
   The return code is the ID of the selected item, or -1 if no item is
@@ -1316,6 +1321,7 @@ int QPopupMenu::exec()
     syncMenuId = -1;
     connect( this, SIGNAL(activated(int)),
 	     this, SLOT(modalActivation(int)) );
+    show();
     qApp->enter_loop();
     disconnect( this, SIGNAL(activated(int)),
 		this, SLOT(modalActivation(int)) );
@@ -1336,7 +1342,6 @@ void QPopupMenu::modalActivation( int id )
 
 void QPopupMenu::closeEvent( QCloseEvent * e )
 {
+    debug( "QPopupMenu::closeEvent()" );
     QTableView::closeEvent( e );
-    if ( syncMenu == this && qApp )
-	qApp->exit_loop();
 }
