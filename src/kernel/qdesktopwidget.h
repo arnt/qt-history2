@@ -3,7 +3,7 @@
 **
 ** Definition of QDesktopWidget class.
 **
-** Created : 
+** Created :
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
@@ -60,13 +60,13 @@ public:
     int screenNumber( const QPoint & ) const;
 
     QWidget *screen( int screen = -1 );
-    
+
     const QRect& screenGeometry( int screen = -1 ) const;
 
 #ifdef Q_WS_MAC
     GDHandle handle( int screen ) const;
 #else
-    void *handle( int screen ) const { return NULL; }
+    void *handle( int ) const { return 0; }
 #endif
 
 private:
