@@ -1291,13 +1291,13 @@ void Dlg2Ui::matchBox( const QDomElement& box )
 	const char *tagName;
 	void (Dlg2Ui::*matchFunc)( const QDomElement& );
     } jumpTable[] = {
-	{ "Box_Layout", &matchBoxLayout },
-	{ "Box_Spacing", &matchBoxSpacing },
-	{ "Box_Stretch", &matchBoxStretch },
-	{ "Grid_Layout", &matchGridLayout },
-	{ "Grid_Row", &matchGridRow },
-	{ "Grid_Spacer", &matchGridSpacer },
-	{ "Layout_Widget", &matchLayoutWidget },
+	{ "Box_Layout", &Dlg2Ui::matchBoxLayout },
+	{ "Box_Spacing", &Dlg2Ui::matchBoxSpacing },
+	{ "Box_Stretch", &Dlg2Ui::matchBoxStretch },
+	{ "Grid_Layout", &Dlg2Ui::matchGridLayout },
+	{ "Grid_Row", &Dlg2Ui::matchGridRow },
+	{ "Grid_Spacer", &Dlg2Ui::matchGridSpacer },
+	{ "Layout_Widget", &Dlg2Ui::matchLayoutWidget },
 	{ 0, 0 }
     };
 
