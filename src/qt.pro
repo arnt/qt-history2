@@ -6,7 +6,7 @@ VERSION		= 3.1.0
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
-CONFIG		+= qt warn_on 
+CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache
 
 win32-borland {
