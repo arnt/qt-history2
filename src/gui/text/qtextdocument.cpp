@@ -816,7 +816,26 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
     else
         html.truncate(html.size() - qstrlen(styleTag.latin1()));
 
-    html += QText::escape(fragment.text());
+    const QString txt = fragment.text();
+    if (txt.count() == 1 && txt.at(0) == QChar::ObjectReplacementCharacter) {
+        Q_ASSERT(format.isImageFormat());
+        QTextImageFormat imgFmt = format.toImageFormat();
+
+        html += QLatin1String("<img");
+
+        if (imgFmt.hasProperty(QTextFormat::ImageName))
+            emitAttribute("src", imgFmt.name());
+
+        if (imgFmt.hasProperty(QTextFormat::ImageWidth))
+            emitAttribute("width", QString::number(imgFmt.width()));
+
+        if (imgFmt.hasProperty(QTextFormat::ImageHeight))
+            emitAttribute("height", QString::number(imgFmt.height()));
+
+        html += QLatin1String(" />");
+    } else {
+        html += QText::escape(fragment.text());
+    }
 
     if (attributesEmitted)
         html += QLatin1String("</span>");
