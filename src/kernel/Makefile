@@ -11,7 +11,7 @@ LIBDIR		= $(BASEDIR)/lib
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		=
+CFLAGS		= -O2
 CC		= gcc
 
 ####### Files

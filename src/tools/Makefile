@@ -20,23 +20,23 @@ HEADERS		= qarray.h	qbitarry.h	qbuffer.h	qcollect.h    \
 		  qdatetm.h	qdict.h		qdstream.h	qfile.h	      \
 		  qgarray.h	qgdict.h	qgeneric.h	qglist.h      \
 		  qglobal.h	qgvector.h	qintdict.h	qiodev.h      \
-		  qipcomm.h	qlist.h		qmemchk.h	qnpipe.h      \
+		  	qlist.h		qmemchk.h	      \
 		  qqueue.h	qres.h		qshared.h	qstack.h      \
-		  qstring.h	qstrlist.h	qstrvec.h	qtcomm.h      \
-		  qtcpcomm.h	qtstream.h	qudpcomm.h	qvector.h     \
+		  qstring.h	qstrlist.h	qstrvec.h	      \
+		  	qtstream.h		qvector.h     \
 		  qregexp.h     qgcache.h
 SOURCES		= qbitarry.cpp	qbuffer.cpp	qcollect.cpp	qdatetm.cpp   \
 		  qdstream.cpp	qfile.cpp	qgarray.cpp	qgdict.cpp    \
 		  qglist.cpp	qglobal.cpp	qgvector.cpp	qiodev.cpp    \
-		  qipcomm.cpp	qmemchk.cpp	qnpipe.cpp	qres.cpp      \
-		  qstring.cpp	qtcomm.cpp	qtcpcomm.cpp	qtstream.cpp  \
-		  qudpcomm.cpp	qregexp.cpp     qgcache.cpp
+		  	qmemchk.cpp		qres.cpp      \
+		  qstring.cpp		qtstream.cpp  \
+		  	qregexp.cpp     qgcache.cpp
 OBJECTS		= qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		  qdstream.o	qfile.o		qgarray.o	qgdict.o      \
 		  qglist.o	qglobal.o	qgvector.o	qiodev.o      \
-		  qipcomm.o	qmemchk.o	qnpipe.o	qres.o	      \
-		  qstring.o	qtcomm.o	qtcpcomm.o	qtstream.o    \
-		  qudpcomm.o	qregexp.o       qgcache.o
+		  	qmemchk.o		qres.o	      \
+		  qstring.o		qtstream.o    \
+		  	qregexp.o       qgcache.o
 TARGET		= $(LIBDIR)/libqtools.a
 MOCSUPPORT	= $(LIBDIR)/libmocsupport.a
 MOCOBJECTS	= qcollect.o	qdatetm.o     	qgarray.o	qglist.o \
@@ -150,15 +150,7 @@ qgvector.o: qiodev.h /usr/include/stdlib.h /usr/include/errno.h
 qgvector.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qgvector.o: /usr/include/malloc.h
 qiodev.o: qiodev.h qglobal.h
-qipcomm.o: qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h
-qipcomm.o: qgarray.h qshared.h qgeneric.h /usr/include/string.h
-qipcomm.o: /usr/include/features.h /usr/include/sys/cdefs.h
-qipcomm.o: /usr/include/stdlib.h /usr/include/errno.h
-qipcomm.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qmemchk.o: qmemchk.h qglobal.h
-qnpipe.o: qnpipe.h qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h
-qnpipe.o: qgarray.h qshared.h qgeneric.h /usr/include/string.h
-qnpipe.o: /usr/include/features.h /usr/include/sys/cdefs.h
 qres.o: qres.h qstrvec.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qres.o: qgeneric.h /usr/include/string.h /usr/include/features.h
 qres.o: /usr/include/sys/cdefs.h qvector.h qgvector.h qcollect.h qdstream.h
@@ -172,23 +164,12 @@ qstring.o: /usr/include/libio.h /usr/include/_G_config.h
 qstring.o: /usr/include/stdlib.h /usr/include/errno.h
 qstring.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qstring.o: /usr/include/ctype.h
-qtcomm.o: qtcomm.h qiodev.h qglobal.h qbuffer.h qstring.h qarray.h qgarray.h
-qtcomm.o: qshared.h qgeneric.h /usr/include/string.h /usr/include/features.h
-qtcomm.o: /usr/include/sys/cdefs.h
-qtcpcomm.o: qtcpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
-qtcpcomm.o: qstring.h qarray.h qgarray.h qshared.h qgeneric.h
-qtcpcomm.o: /usr/include/string.h /usr/include/features.h
-qtcpcomm.o: /usr/include/sys/cdefs.h
 qtstream.o: qtstream.h qiodev.h qglobal.h /usr/include/stdio.h
 qtstream.o: /usr/include/libio.h /usr/include/_G_config.h qfile.h qstring.h
 qtstream.o: qarray.h qgarray.h qshared.h qgeneric.h /usr/include/string.h
 qtstream.o: /usr/include/features.h /usr/include/sys/cdefs.h
 qtstream.o: /usr/include/ctype.h /usr/include/stdlib.h /usr/include/errno.h
 qtstream.o: /usr/include/linux/errno.h /usr/include/alloca.h
-qudpcomm.o: qudpcomm.h qipcomm.h qtcomm.h qiodev.h qglobal.h qbuffer.h
-qudpcomm.o: qstring.h qarray.h qgarray.h qshared.h qgeneric.h
-qudpcomm.o: /usr/include/string.h /usr/include/features.h
-qudpcomm.o: /usr/include/sys/cdefs.h
 qregexp.o: qregexp.h qstring.h qarray.h qgarray.h qshared.h qglobal.h
 qregexp.o: qgeneric.h /usr/include/string.h /usr/include/features.h
 qregexp.o: /usr/include/sys/cdefs.h /usr/include/ctype.h
