@@ -29,6 +29,20 @@ int StringListModel::rowCount() const
 }
 
 /*!
+    Returns a model index for other component to use when referencing the
+    item specified by the given row, column, and type. The parent index
+    is ignored.
+*/
+
+QModelIndex StringListModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
+{
+    if (isValid(row, column, parent))
+        return createIndex(row, column, 0, type);
+    else
+        return QModelIndex();
+}
+
+/*!
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
     If a header is requested then we just return the column or row number,

@@ -28,15 +28,16 @@ int main(int argc, char *argv[])
     QStringList numbers;
     numbers << "One" << "Two" << "Three" << "Four" << "Five";
 
-    QAbstractItemModel *model = new StringListModel(numbers);
-    QAbstractItemView *view = new QListView();
+    StringListModel *model = new StringListModel(numbers);
+    QListView *view = new QListView();
     view->setWindowTitle("View onto a string list model");
     view->setModel(model);
 
     model->insertRows(5, QModelIndex(), 7);
 
     for (int row = 5; row < 12; ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
+        QModelIndex index = model->index(row, 0, QModelIndex(),
+            QModelIndex::View);
         model->setData(index, QAbstractItemModel::EditRole,
             QString::number(row));
     }

@@ -25,6 +25,7 @@ public:
         : QAbstractListModel(parent), stringList(strings) {}
 
     int rowCount() const;
+    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
     QVariant data(const QModelIndex &index, int role) const;
 
     bool isEditable(const QModelIndex &index) const;
