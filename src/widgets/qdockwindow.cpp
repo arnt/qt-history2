@@ -845,9 +845,10 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 /*!
     \fn void QDockWindow::visibilityChanged( bool visible )
 
-    This signal is emitted if the visibility of the dock window is
-    changed. If \a visible is TRUE, the QDockWindow is now visible,
-    otherwise it has been hidden.
+    This signal is emitted when the visibility of the dock window
+    relatively to its dock area is changed. If \a visible is TRUE, the
+    QDockWindow is now visible to the dock area, otherwise it has been
+    hidden.
 
     A dock window can be hidden if it has a close button which the
     user has clicked. In the case of a QMainWindow a dock window can
@@ -1801,8 +1802,6 @@ void QDockWindow::dock()
 void QDockWindow::hideEvent( QHideEvent *e )
 {
     QFrame::hideEvent( e );
-    if ( !e->spontaneous() )
-	emit visibilityChanged( FALSE );
 }
 
 /*! \reimp
@@ -1811,8 +1810,6 @@ void QDockWindow::hideEvent( QHideEvent *e )
 void QDockWindow::showEvent( QShowEvent *e )
 {
     QFrame::showEvent( e );
-    if ( !e->spontaneous() )
-	emit visibilityChanged( TRUE );
 }
 
 /*!
@@ -1908,10 +1905,26 @@ bool QDockWindow::eventFilter( QObject * o, QEvent *e )
 /*! \reimp */
 bool QDockWindow::event( QEvent *e )
 {
-    if ( e->type() == QEvent::WindowDeactivate ) {
+    switch ( e->type() ) {
+    case QEvent::WindowDeactivate:
 	if ( place() == OutsideDock && isTopLevel() && parentWidget()
 	     && parentWidget()->isActiveWindow() )
 	    return TRUE;
+    case QEvent::Hide:
+	if ( !isHidden() )
+	    break;
+	// fall through
+    case QEvent::HideToParent:
+	emit visibilityChanged( FALSE );
+	break;
+    case QEvent::Show:
+	if ( e->spontaneous() )
+	    break;
+    case QEvent::ShowToParent:
+	emit visibilityChanged( TRUE );
+	break;
+    default:
+	break;
     }
     return QFrame::event( e );
 }
