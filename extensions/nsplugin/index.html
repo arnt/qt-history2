@@ -34,19 +34,26 @@ or the browser will ignore them.
 The following example programs are available to demonstrate the use of the
 Qt GUI toolkit for making Netscape Plugins.
 <ul>
- <li><b><a href=examples/grapher/>Grapher</a></b> - graph data <em>without resorting to GIFs</em>
- <li><b><a href=examples/qtimage/>QtImage</a></b> - plugin for Qt-supported image formats, <em>including PNG.</em>
- <li><b><a href=examples/trivial/>Trivial</a></b> - plugin that does almost nothing
+ <li><b><a href=examples/grapher/>Grapher</a></b>
+	- graph your data <em>without resorting to GIFs</em>
+ <li><b><a href=examples/qtimage/>QtImage</a></b>
+	- plugin for Qt-supported image formats, <em>including PNG</em>
+ <li><b><a href=examples/trivial/>Trivial</a></b>
+	- plugin that does almost nothing
 </ul>
 
 <h2>Known Bugs</h2>
+
+The Qt-based LiveConnect Plugin binding code has a number of bugs
+that still make it impractical for production applications.  Most
+of these have known solutions, and we are working on solving all
+remaining problems.
+
 <ul>
  <li> Some instability with Beta release Netscape Communicator for X11.
- <li> When grabbing (eg. popup menus), should not stop trapping Dangerous
-        events until the grabbing finishes.  Need QApplication to have
-        test of need for this (eg. popupActive()).
- <li> Events to popups outside on-page widget area are slow?
- <li> When do we get keyboard focus?
+ <li> Crashes on Windows when Browser in backgrounded.
+ <li> Popup windows can hang X server.
+ <li> Keyboard problems on Windows.
 </ul>
 
 
