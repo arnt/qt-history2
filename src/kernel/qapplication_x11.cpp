@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#489 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#490 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3885,7 +3885,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     if ( !testWFlags(WType_TopLevel) || testWFlags( WType_Popup )
 	 || (!testWFlags( WStyle_DialogBorder ) && !testWFlags( WStyle_NormalBorder)) )
-	return TRUE;				// child widget or override_redirect
+	return TRUE;			// child widget or override_redirect
 
     clearWState(WState_ConfigPending);
 
@@ -4048,13 +4048,10 @@ int QApplication::doubleClickInterval()
 
 
 /*****************************************************************************
-  session management support
+  Session management support (-D QT_SM_SUPPORT to enable it)
  *****************************************************************************/
 
-#define SM_SUPPORT
-
-#ifndef SM_SUPPORT
-
+#ifndef QT_SM_SUPPORT
 
 class QSessionManagerData
 {
@@ -4147,7 +4144,7 @@ void QSessionManager::requestPhase2()
 {
 }
 
-#else // SM_SUPPORT
+#else // QT_SM_SUPPORT
 
 
 #include <X11/SM/SMlib.h>
@@ -4595,5 +4592,4 @@ void QSessionManager::requestPhase2()
 }
 
 
-
-#endif // SM_SUPPORT
+#endif // QT_SM_SUPPORT
