@@ -106,7 +106,9 @@ QSqlQueryModel::QSqlQueryModel(QSqlQueryModelPrivate &dd, QObject *parent = 0)
 
 /*!
     Destroys the object and frees any allocated resources.
- */
+
+    \sa clear()
+*/
 QSqlQueryModel::~QSqlQueryModel()
 {
 }
@@ -138,8 +140,8 @@ int QSqlQueryModel::columnCount(const QModelIndex &) const
 /*!
     Returns the value for the specified \a item and \a role.
 
-    An invalid QVariant is returned if \a item is out of bounds or if
-    an error occured.
+    If \a item is out of bounds or if an error occurred, an invalid
+    QVariant is returned.
 
     \sa lastError()
 */
@@ -167,8 +169,8 @@ QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 }
 
 /*!
-    Returns the header data for the given \a role in the \a section of the
-    header with the specified \a orientation.
+    Returns the header data for the given \a role in the \a section
+    of the header with the specified \a orientation.
 */
 QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -182,8 +184,10 @@ QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, in
 }
 
 /*!
-    This virtual handler is called when the query changes. query()
-    returns the new query.
+    This virtual function is called whenever the query changes. The
+    default implementation does nothing.
+
+    query() returns the new query.
 
     \sa query(), setQuery()
  */
@@ -251,17 +255,19 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
 
 /*! \overload
 
-    Executes the query \a query for the given connection \a db. If no
-    database is specified, the default connection is used.
- */
+    Executes the query \a query for the given database connection \a
+    db. If no database is specified, the default connection is used.
+
+    \sa query(), queryChange()
+*/
 void QSqlQueryModel::setQuery(const QString &query, const QSqlDatabase &db)
 {
     setQuery(QSqlQuery(query, db));
 }
 
 /*!
-    Clears the model and releases all aquired resources
- */
+    Clears the model and releases any aquired resource.
+*/
 void QSqlQueryModel::clear()
 {
     d->error = QSqlError();
@@ -370,19 +376,15 @@ QSqlRecord QSqlQueryModel::record() const
     \a parent parameter must always be an invalid QModelIndex, since
     the model does not support parent-child relationships.
 
+    Returns true if \a column is within bounds; otherwise returns false.
+
     By default, inserted columns are empty. To fill them with data,
     reimplement data() and handle any inserted column separately:
 
-    \code
-    QVariant MyModel::data(const QModelIndex &item, int role) const
-    {
-        if (item.column() == extraColumnNo)
-            return myExtraColumnData(item, role);
-        return QSqlQueryModel::data(item, role);
-    }
-    \endcode
-
-    Returns true if \a column is within bounds; otherwise returns false.
+    \quotefromfile snippets/sqldatabase/sqldatabase.cpp
+    \skipto QSqlQueryModel_snippets
+    \skipto MyModel::data(
+    \printuntil /^\}/
 
     \sa removeColumns()
 */

@@ -163,6 +163,22 @@ void QSqlQueryModel_snippets()
     model.removeRow(4);
 }
 
+class MyModel : public QSqlQueryModel
+{
+public:
+    QVariant data(const QModelIndex &item, int role) const;
+
+    int m_specialColumnNo;
+};
+
+QVariant MyModel::data(const QModelIndex &item, int role) const
+{
+    if (item.column() == m_specialColumnNo) {
+        // handle column separately
+    }
+    return QSqlQueryModel::data(item, role);
+}
+
 int main()
 {
     QSqlDatabase_snippets();
