@@ -372,3 +372,81 @@
         qmake -t vcapp -o hello.dsp hello.pro
     \endcode
 */
+
+/*!
+    \page qmake-common-projects.html
+
+    \section2 The \c app Template
+
+    The \c app template tells \c qmake to generate a Makefile that will build
+    an application.  When using this template the following \c qmake
+    system variables are recognized.  You should use these in your .pro
+    file to specify information about your application.
+
+    \list
+    \i HEADERS - A list of all the header files for the application.
+    \i SOURCES - A list of all the source files for the application.
+    \i FORMS - A list of all the .ui files (created using \c{Qt Designer})
+    for the application.
+    \i LEXSOURCES - A list of all the lex source files for the application.
+    \i YACCSOURCES - A list of all the yacc source files for the application.
+    \i TARGET - Name of the executable for the application. This defaults
+    to the name of the project file. (The extension, if any, is added
+    automatically).
+    \i DESTDIR - The directory in which the target executable is placed.
+    \i DEFINES - A list of any additional pre-processor defines needed for the application.
+    \i INCLUDEPATH - A list of any additional include paths needed for the application.
+    \i DEPENDPATH - The dependency search path for the application.
+    \i VPATH - The search path to find supplied files. 
+    \i DEF_FILE - Windows only: A .def file to be linked against for the application.
+    \i RC_FILE - Windows only: A resource file for the application.
+    \i RES_FILE - Windows only: A resource file to be linked against for the application.
+    \endlist
+
+    You only need to use the system variables that you have values for,
+    for instance, if you don't have any extra INCLUDEPATHs then you don't
+    need to specify any, \c qmake will add in the default ones needed.
+    For instance, an example project file might look like this:
+
+    \code
+        TEMPLATE = app
+        DESTDIR  = c:\helloapp
+        HEADERS += hello.h
+        SOURCES += hello.cpp 
+        SOURCES += main.cpp
+        DEFINES += QT_DLL
+        CONFIG  += qt warn_on release
+    \endcode
+
+    For items that are single valued, e.g. the template or the destination
+    directory, we use "="; but for multi-valued items we use "+=" to \e
+    add to the existing items of that type. Using "=" replaces the item's
+    value with the new value, for example if we wrote \c{DEFINES=QT_DLL},
+    all other definitions would be deleted.
+
+    \section2 The \c lib Template
+
+    The \c lib template tells \c qmake to generate a Makefile that will
+    build a library.  When using this template, in addition to the system variables
+    mentioned above for the \c app template the \c VERSION variable is
+    supported.  You should use these in your .pro file to specify
+    information about the library.
+
+    \list
+    \i VERSION - The version number of the target library, for example, 2.3.1.
+    \endlist
+
+    \section2 The \c subdirs Template
+
+    The \c subdirs template tells qmake to generate a Makefile that will go
+    into the specified subdirectories and generate a Makefile for the
+    project file in the directory and call make on it.
+
+    The only system variable that is recognised for this template is the
+    \c SUBDIRS variable.  This variable contains a list of all the
+    subdirectories that contain project files to be processed.  It is
+    essential that the project file in the sub directory has the same name
+    as the subdirectory, so that \c qmake can find it.  For
+    example, if the subdirectory is called \c myapp then the project file
+    in that directory should be called \c myapp.pro in that directory.
+*/

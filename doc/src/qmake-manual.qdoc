@@ -26,8 +26,8 @@
     \o \l{qmake-quickguide.html}{The Ten-Minute Guide to Using qmake}
     \o \l{qmake-tutorial.html}{qmake Tutorial}
     \o \l{qmake-project-files.html}{Project Files}
-    \o \l{qmake-advancedconcepts.html}{qmake's Advanced Concepts}
-    \o \l{qmake-commandreference.html}{qmake Command Reference}
+    \o \l{qmake-advanced-usage.html}{Advanced Usage}
+    \o \l{qmake-command-reference.html}{qmake Command Reference}
     \endlist
 */
 
@@ -35,192 +35,193 @@
     \page qmake-installing.html
     \title Installing qmake
 
-    \c qmake is built by default when Qt is built.  
-
-    This section explains how to build \c qmake manually. Skip ahead to
-    \l{The 10 minute guide to using qmake}, if you already have \c qmake.
+    \c qmake is built by default when Qt is built, so manual installation
+    should be unnecessary. However, it is possible to manually build and
+    install \c qmake on Windows
 
     \section1 Installing qmake Manually
 
-    Before building Qt manually the following environment variables must
+    Before building \c qmake manually the following environment variables must
     be set:
 
-    \c QTDIR must be set to where Qt is (or will be) installed.
-    For example, \c {c:\\qt} and \c {\\local\\qt} 
+    \list
+    \i \c QTDIR must be set to where Qt is (or will be) installed; for example,
+       \c {c:\\qt}.
+    \i \c QMAKESPEC must be set to the platform and compiler combination that
+       you are using on your system.
+    \endlist
 
     \section2 Configuring qmake
 
     Before \c qmake can be used to build Makefiles, the QMAKESPEC
     environment variable must be set to the platform-compiler combination
-    that is being used on the system.  The QMAKESPEC environment variable
-    tells qmake where to look to find platform and compiler specific
-    information.  This ensures that the right libraries are used, and that
-    the generated Makefile uses the correct syntax.  A list of the
+    that is being used on your system. The \c QMAKESPEC environment
+    variable tells \c qmake where to look to find platform and compiler
+    specific information, ensuring that the right libraries are used, and
+    that the generated Makefile uses the correct syntax.  A list of the
     currently supported platform-compiler combinations can be found in
-    qt/mkspecs.  Just set your environment variable to one of the
-    directories listed.
-
-    For example, if you are using Microsoft Visual Studio on Windows, then
-    you would set the QMAKESPEC environment variable to \c win32-msvc.
-    If you are using gcc on Solaris then you would set your QMAKESPEC
-    environment variable to \c solaris-g++.
-
-    Inside each of the directories in qt/mkspecs, there is a \c qmake.conf
-    file which contains the platform and compiler specific information.
-    These settings are applied to any project that is built using \c
-    qmake and should not be modified unless you're an expert. For example,
-    if all your applications had to link against a particular library, you
-    might add this information to the relevant \c qmake.conf file.
-
-
-    \list
-    \i \c QMAKESPEC must be set to the platform and compiler
-    combination that you are using on your system. For example, if
-    you are using Windows and Microsoft Visual Studio, you would set this
-    environment variable to \c win32-msvc.  If you are using Solaris and
-    g++, you would set this environment variable to \c solaris-g++.
+    the \e mkspecs directory in the top level of the Qt distribution.
+    Set the \c QMAKESPEC environment variable to the name of the
+    directory that reflects the platform and compiler that you are using.
 
     The following is a list of environment variables to choose from when
     setting QMAKESPEC:
 
     \code
-        aix-64       hpux-cc    irix-032      netbsd-g++  solaris-cc   unixware7-g++
-        aix-g++      hpux-g++   linux-cxx     openbsd-g++ solaris-g++  win32-borland    
-        aix-xlc      hpux-n64   linux-g++     openunix-cc sunos-g++    win32-g++ 
-        bsdi-g++     hpux-o64   linux-icc     qnx-g++     tru64-cxx    win32-msvc 
-        dgux-g++     hurd-g++   linux-kcc     reliant-64  tru64-g++    win32-watc
-        freebsd-g++  irix-64    macx-pbuilder reliant-cds ultrix-g++   win32-visa    
-        hpux-acc     irix-g++   macx-g++      sco-g++     unixware-g            
-        hpux-acc     irix-n32   solaris-64    unixware7-cc 
+        win32-borland   win32-g++   win32-msvc  win32-watc  win32-visa    
     \endcode
 
-    The environment variable should be set to qws/envvar where envvar is
-    one of the following:
+    For example, if you are using Microsoft Visual Studio on Windows, then
+    you would set the \c QMAKESPEC environment variable to \c win32-msvc.
 
-    \code
-        linux-arm-g++      linux-generic-g++  linux-mips-g++     linux-x86-g++
-        linux-freebsd-g++  linux-ipaq-g++     linux-solaris-g++  qnx-rtp-g++
-    \endcode
+    Inside each of the directories inside the \e mkspecs directory is a
+    \c qmake.conf file that contains information specific to that platform
+    and compiler. These settings are applied to any project that is built
+    using \c qmake and, for most users, they should not be modified.
+    However, if all your applications had to link against a particular
+    library, you might add this information to the relevant \c qmake.conf
+    file.
 
     \section2 Building qmake
 
-    Once the environment variables are set go into the qmake directory, \c
-    $QTDIR/qmake, e.g. \c{C:\\qt\\qmake}. Now run \c make or \c nmake
-    depending on your compiler.
+    Once the environment variables are set, go into the \e qmake directory
+    in the top level of the Qt distribution (this should be \c $QTDIR/qmake)
+    and run \c make or \c nmake, depending on your compiler.
 
-    When the make has completed, \c qmake is ready for use.
+    When the build has completed, \c qmake is ready for use.
+    \omit
+    location of qmake
+    \endomit
 */
 
 /*!
     \page qmake-using.html
     \title Using qmake
 
-    \section1 Project Files (\c .pro)
+    \c qmake provides a project-oriented system for managing the build
+    process for applications, libraries, and other components. This
+    approach gives developers control over the source files used, and
+    allows each of the steps in the process to be described concisely,
+    typically within a single file. \c qmake expands the information in
+    each project file to a Makefile that executes the necessary commands
+    for compiling and linking.
 
-    A project file is used to tell \c qmake the details it needs to know
-    about creating a Makefile for the application.  For instance, a list
-    of source files and header files that should be put into the project
-    file; any application specific configuration, such as an extra library
-    that should be linked against, or an extra include path.
+    In this document, we describe how to create project files, examine
+    some of the main features of \c qmake, and show how to use \c qmake
+    at the command line.
 
-    \section2 Hash Comments
+    \tableofcontents
+
+    \section1 Describing a Project
+
+    Projects are described by the contents of project (\c .pro) files.
+    The information within these is used by \c qmake to generate a Makefile
+    containing all the commands that are needed to build each project.
+    Project files typically contain a list of source and header files,
+    general configuration information, and any application-specific details,
+    such as a list of extra libraries to link against, or a list of extra
+    include paths to use.
+
+    Project files can contain a number of different elements, including
+    comments, variable declarations, built-in functions, and some simple
+    control structures. In most simple projects, it is only necessary
+    to assign values to some standard variables to indicate the source and
+    header files that are used in the project.
+
+    Complete examples of project files can be found in the
+    \l{qmake-tutorials.html}{qmake Tutorials}.
+
+    \section2 Variables
+
+    In a project file, variables are used to hold lists of string values.
+    In the simplest case, these variables inform \c qmake about the
+    configuration options to use, or paths to supply to the Makefile that
+    it creates.
+    Variables can also be used internally to store temporary lists of values,
+    and existing lists of values can be overwritten or extended with new
+    values.
+
+    The following lines show how lists of values are assigned to variables:
+
+    \quotefromfile snippets/qmake/variables.pro
+    \printuntil SOURCES
+
+    \c qmake looks for certain variables in each project file, and it
+    uses the contents of these to determine what it should write to a
+    Makefile. For example, the list of values in the \c HEADERS and
+    \c SOURCES variables are used to tell \c qmake about header and
+    source files in the same directory as the project file.
+
+    The list of values in a variable is extended in the following way:
+
+    \quotefromfile snippets/qmake/variables.pro
+    \printuntil CONFIG
+
+    The \c CONFIG variable is another special variable that \c qmake
+    uses when generating a Makefile. It is discussed in the section on
+    configuration later in this chapter.
+
+    \section2 Comments
 
     You can add comments to project files. Comments begin with the \c
-    # symbol and run to the end of the line.
+    # symbol and continue to the end of the same line.
 
-    \section2 Project Template
+    \quotefromfile snippets/qmake/comments.pro
+    \printuntil .
 
-    The template variable tells \c qmake what sort of Makefile should be
-    generated for the application. The following choices are available:
+    \section2 Built-in Functions
 
-    \list
-    \i app - Creates a Makefile that builds an application.  This is the
-    default, so if a template is not specified, this is used.
-    \i lib - Creates a Makefile that builds a library.
-    \i vcapp - Creates a Visual Studio Project file which builds an application.
-    \i vclib - Creates a Visual Studio Project file which builds a library.
-    \i subdirs - This is a special template which creates a Makefile which
-    will go into the specified directories and create a Makefile for the
-    project file and call make on it.
-    \endlist
+    \c qmake provides a number of built-in functions to allow the contents
+    of variables to be processed. The most commonly used function in simple
+    project files is the \c include function which takes a filename as an
+    argument. The contents of the given file are included in the project
+    file at the place where the \c include function is used.
 
-    \section2 The \c app Template
+    \quotefromfile snippets/qmake/include.pro
+    \printuntil include
 
-    The \c app template tells \c qmake to generate a Makefile that will build
-    an application.  When using this template the following \c qmake
-    system variables are recognized.  You should use these in your .pro
-    file to specify information about your application.
+    Various other built-in functions are provided to manipulate strings
+    and paths, support user input, and call external tools. A list of
+    the functions available can be found in the
+    \l{qmake-advanced-use.html}{Advanced Use} chapter of this manual.
 
-    \list
-    \i HEADERS - A list of all the header files for the application.
-    \i SOURCES - A list of all the source files for the application.
-    \i FORMS - A list of all the .ui files (created using \c{Qt Designer})
-    for the application.
-    \i LEXSOURCES - A list of all the lex source files for the application.
-    \i YACCSOURCES - A list of all the yacc source files for the application.
-    \i TARGET - Name of the executable for the application. This defaults
-    to the name of the project file. (The extension, if any, is added
-    automatically).
-    \i DESTDIR - The directory in which the target executable is placed.
-    \i DEFINES - A list of any additional pre-processor defines needed for the application.
-    \i INCLUDEPATH - A list of any additional include paths needed for the application.
-    \i DEPENDPATH - The dependency search path for the application.
-    \i VPATH - The search path to find supplied files. 
-    \i DEF_FILE - Windows only: A .def file to be linked against for the application.
-    \i RC_FILE - Windows only: A resource file for the application.
-    \i RES_FILE - Windows only: A resource file to be linked against for the application.
-    \endlist
+    \section2 Control Structures
 
-    You only need to use the system variables that you have values for,
-    for instance, if you don't have any extra INCLUDEPATHs then you don't
-    need to specify any, \c qmake will add in the default ones needed.
-    For instance, an example project file might look like this:
+    Support for conditional structures is made available via \e scopes that
+    behave like \c if statements in programming languages.
 
-    \code
-        TEMPLATE = app
-        DESTDIR  = c:\helloapp
-        HEADERS += hello.h
-        SOURCES += hello.cpp 
-        SOURCES += main.cpp
-        DEFINES += QT_DLL
-        CONFIG  += qt warn_on release
-    \endcode
+    Simple loops are constructed by iterating over lists of values using
+    the built-in \c for function. More complex operations on variables that
+    would usually require loops are provided by built-in functions such as
+    \c find, \c unique, and \c count.
 
-    For items that are single valued, e.g. the template or the destination
-    directory, we use "="; but for multi-valued items we use "+=" to \e
-    add to the existing items of that type. Using "=" replaces the item's
-    value with the new value, for example if we wrote \c{DEFINES=QT_DLL},
-    all other definitions would be deleted.
+    \section1 Project Templates
 
-    \section2 The \c lib Template
+    The \c TEMPLATE variable is used to define the type of project that will
+    be built. If this is not declared in the project file, \c qmake assumes
+    that an application should be built, and will generate an appropriate
+    Makefile (or equivalent file) for the purpose.
 
-    The \c lib template tells \c qmake to generate a Makefile that will
-    build a library.  When using this template, in addition to the system variables
-    mentioned above for the \c app template the \c VERSION variable is
-    supported.  You should use these in your .pro file to specify
-    information about the library.
+    The types of project available are listed in the following table with
+    information about the files that \c qmake will generate for each of them:
 
-    \list
-    \i VERSION - The version number of the target library, for example, 2.3.1.
-    \endlist
+    \table
+    \header \i TEMPLATE      \i Description of \c qmake output
+    \row    \i app (default) \i Creates a Makefile to build an application.
+    \row    \i lib           \i Creates a Makefile to build a library.
+    \row    \i vcapp         \i Creates a Visual Studio Project file to build
+                             an application.
+    \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
+    \row    \i subdirs       \i Creates a Makefile that will go into the specified
+                             directories and run \c qmake on any project files found.
+    \endtable
 
-    \section2 The \c subdirs Template
+    See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
+    writing project files for common types of project.
 
-    The \c subdirs template tells qmake to generate a Makefile that will go
-    into the specified subdirectories and generate a Makefile for the
-    project file in the directory and call make on it.
+    \section1 General Configuration
 
-    The only system variable that is recognised for this template is the
-    \c SUBDIRS variable.  This variable contains a list of all the
-    subdirectories that contain project files to be processed.  It is
-    essential that the project file in the sub directory has the same name
-    as the subdirectory, so that \c qmake can find it.  For
-    example, if the subdirectory is called \c myapp then the project file
-    in that directory should be called \c myapp.pro in that directory.
-
-    \section1 The CONFIG Variable
-
-    The config variable specifies the options that the compiler should use
+    The \c CONFIG variable specifies the options that the compiler should use
     and the libraries that should be linked against.  Anything can be
     added to the config variable, but the options covered below are
     recognised by qmake internally.
@@ -312,8 +313,8 @@
 */
 
 /*!
-    \page qmake-advancedconcepts.html
-    \title qmake's Advanced Concepts
+    \page qmake-advanced-usage.html
+    \title Advanced Usage
 
     The \c qmake project files we've seen up to now have been very simple,
     just a list of \c{name = value} and \c{name += value} lines. \c qmake
@@ -527,7 +528,7 @@
     This will set MY_DEFINES to the value of the evironment variable
     ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
     functions in variable replacing. These functions (not to be confused with
-    Test Functions as enumerated in the next section) are listed below:
+    Conditional Functions as enumerated in the next section) are listed below:
 
     \section2 join(variablename, glue, before, after)
 
@@ -615,7 +616,7 @@
         contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
     \endcode
 
-    \section1 Test Functions
+    \section1 Conditional Functions
 
     \c qmake provides built-in functions that perform simple, yet powerful
     tests. These tests may be used in place of scopes (as described above), in
@@ -921,7 +922,7 @@
 */
 
 /*!
-    \page qmake-commandreference.html
+    \page qmake-command-reference.html
     \title qmake Command Reference
 
     \tableofcontents section1
