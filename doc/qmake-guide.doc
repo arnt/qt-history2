@@ -189,8 +189,8 @@ contain such basic information as the compiler to use, the names of
 system libraries and the location of system headers.  
 
 On startup, <em>qmake</em> will attempt to locate the qmake.conf file
-for your platform by using the QMAKESPEC environment variable.  Alternatively, 
-load all of its default values.  The QMAKESPEC environment variable
+for your platform by using the QMAKESPEC environment variable.  Alternatively, it will 
+load all of the default values.  The QMAKESPEC environment variable
 can be used to tell <em>qmake</em> where to find this file, or a
 command line option can be given.  <em>qmake</em> ships with many
 standard QMAKESPEC files for many platform-compiler combinations.  See
@@ -199,7 +199,9 @@ command reference</a> for more information.
 
 The QMAKESPEC environment variable should point to a directory which
 contains information about your platform and compiler.  When invoked,
-<em>qmake</em> will use $QMAKESPEC to find your compiler specifications.
+<em>qmake</em> will use the QMAKESPEC environment variable to find your 
+compiler specifications.
+
 This configuration file contains compiler options and lists tools and
 libraries.
 
