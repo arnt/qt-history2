@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#2 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#3 $
 **
 ** Definition of QSlider class
 **
-** Created : 961020
+** Created : 961019
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
@@ -54,6 +54,8 @@ protected:
     void	rangeChange();
 
     QRect	sliderRect() const;
+
+    void	paintSlider( QPainter *, const QRect& );
 
 private:
     void	init();

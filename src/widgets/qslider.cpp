@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#4 $
 **
 ** Implementation of QSlider class
 **
-** Created : 961020
+** Created : 961019
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
 **
@@ -13,7 +13,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#4 $");
 
 #define SLIDE_BORDER	2
 #define SLIDE_WIDTH	30
@@ -282,6 +282,29 @@ void QSlider::timerEvent( QTimerEvent *t )
 
 
 /*!
+  Paints the slider button using painter \a p with size and
+  posistion given by \a r. Reimplement this function to change the
+  look of the slider button.  
+*/
+
+void QSlider::paintSlider( QPainter *p, const QRect &r )
+{
+    QColorGroup g = colorGroup();
+    QBrush fill( g.background() );
+
+    qDrawShadePanel( p, r, g, FALSE, 2, &fill );
+    if ( orient == Horizontal ) {
+	QCOORD mid = ( r.left() + r.right() ) / 2;
+	qDrawShadeLine( p, mid,  r.top(), mid,  r.bottom() - 1,
+			g, TRUE, 1);
+    } else {
+	QCOORD mid = ( r.top() + r.bottom() ) / 2;
+	qDrawShadeLine( p, r.left(), mid,  r.right() - 1, mid,
+			g, TRUE, 1);
+    }
+}
+
+/*!
   Removes the old slider and draws the new, with a minimum of flickering.
  */
 
@@ -298,22 +321,11 @@ void QSlider::paintSlider( int oldPos, int newPos )
     else
 	sliderR = QRect ( SLIDE_BORDER, SLIDE_BORDER + newPos,
 			  width() - 2 * SLIDE_BORDER, SLIDE_WIDTH );
-
     switch ( style() ) {
     case WindowsStyle:
     default:
     case MotifStyle:
-	QBrush fill( g.background() );
-	qDrawShadePanel( &p, sliderR, g, FALSE, 2, &fill );
-	if ( orient == Horizontal ) {
-	    QCOORD mid = ( sliderR.left() + sliderR.right() ) / 2;
-	    qDrawShadeLine( &p, mid,  sliderR.top(), mid,  sliderR.bottom() - 1,
-			    g, TRUE, 1);
-	} else {
-	    QCOORD mid = ( sliderR.top() + sliderR.bottom() ) / 2;
-	    qDrawShadeLine( &p, sliderR.left(), mid,  sliderR.right() - 1, mid,
-			    g, TRUE, 1);
-	}
+	paintSlider( &p, sliderR );
 	int c,d;
 	if ( oldPos < newPos ) {
 	    c = oldPos + SLIDE_BORDER;
@@ -328,6 +340,7 @@ void QSlider::paintSlider( int oldPos, int newPos )
 	else
 	    p.fillRect( SLIDE_BORDER, c, 
 			width() - 2*SLIDE_BORDER, d, backgroundColor() ); 
+	break;
     }
     p.end();
 }
@@ -353,17 +366,7 @@ void QSlider::paintEvent( QPaintEvent * )
     case WindowsStyle:
     default:
     case MotifStyle:
-	QBrush fill( g.background() );
-	qDrawShadePanel( &p, sliderR, g, FALSE, 2, &fill );
-	if ( orient == Horizontal ) {
-	        QCOORD mid = ( sliderR.left() + sliderR.right() ) / 2;
-		qDrawShadeLine( &p, mid,  sliderR.top(), mid,  sliderR.bottom() - 1,
-				g, TRUE, 1);
-	} else {
-	        QCOORD mid = ( sliderR.top() + sliderR.bottom() ) / 2;
-		qDrawShadeLine( &p, sliderR.left(), mid,  sliderR.right() - 1, mid,
-				g, TRUE, 1);
-	}
+	paintSlider( &p, sliderR );
     }
     p.end();
 }
@@ -449,5 +452,6 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
     }
     state = None;
 }
+
 
 
