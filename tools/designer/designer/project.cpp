@@ -318,8 +318,10 @@ void Project::save()
 
     QTextStream os( &f );
     os << contents;
-
+    
     f.close();
+    
+    saveConnections();
 }
 
 QList<Project::DatabaseConnection> Project::databaseConnections() const
@@ -418,7 +420,6 @@ QStringList Project::databaseTableList( const QString &connection )
 	qDebug("no connection returned");
 	return QStringList();
     }
-    conn->sync();
     return conn->tables;
 }
 
@@ -427,7 +428,6 @@ QStringList Project::databaseFieldList( const QString &connection, const QString
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn )
 	return QStringList();
-    conn->sync();
     return conn->fields[ table ];
 }
 
