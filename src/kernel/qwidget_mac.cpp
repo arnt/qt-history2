@@ -448,7 +448,6 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 
 			QRegion mask = widget->d->extra->mask;
 			if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
-			    qDebug("has a title..");
 			    QRegion title;
 			    {
 				RgnHandle rgn = qt_mac_get_rgn();
