@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#188 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#189 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#188 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#189 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -1348,8 +1348,11 @@ bool QApplication::processNextEvent( bool canWait )
     if ( quit_now || app_exit_loop )		// break immediatly
 	return FALSE;
 
+    static timeval zerotm;
     timeval *tm = waitTimer();			// wait for timer or X event
     if ( !canWait ) {
+	if ( !tm )
+	    tm = &zerotm;
 	tm->tv_sec  = 0;			// no time to wait
 	tm->tv_usec = 0;
     }
