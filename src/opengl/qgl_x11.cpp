@@ -16,6 +16,7 @@
 
 #include "qmap.h"
 #include "qapplication.h"
+#include "qcolormap.h"
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
 #include "qhash.h"
@@ -609,13 +610,14 @@ QColor QGLContext::overlayTransparentColor() const
 uint QGLContext::colorIndex(const QColor& c) const
 {
     int screen = ((XVisualInfo *)vi)->screen;
+    QColormap colmap = QColormap::instance(screen);
     if (isValid()) {
         if (format().plane()
-             && c.pixel(screen) == overlayTransparentColor().pixel(screen))
-            return c.pixel(screen);                // Special; don't look-up
+             && colmap.pixel(c) == colmap.pixel(overlayTransparentColor()))
+            return colmap.pixel(c);                // Special; don't look-up
         if (((XVisualInfo*)vi)->visualid ==
              XVisualIDFromVisual((Visual *) QX11Info::appVisual(screen)))
-            return c.pixel(screen);                // We're using QColor's cmap
+            return colmap.pixel(c);                // We're using QColor's cmap
 
         XVisualInfo *info = (XVisualInfo *) vi;
         CMapEntryHash *hash = cmap_hash();
@@ -648,7 +650,7 @@ uint QGLContext::colorIndex(const QColor& c) const
             unsigned long color_map_entry;
             if (!XAllocColorCells (QX11Info::display(), x->cmap, true, plane_mask, 0,
                                    &color_map_entry, 1))
-                return c.pixel(screen);
+                return colmap.pixel(c);
 
             XColor col;
             col.flags = DoRed | DoGreen | DoBlue;
@@ -988,9 +990,10 @@ void QGLWidget::setContext(QGLContext *context,
     XVisualInfo *vi = (XVisualInfo*)d->glcx->vi;
     XSetWindowAttributes a;
 
+    QColormap colmap = QColormap::instance(vi->screen);
     a.colormap = choose_cmap(QX11Info::display(), vi);        // find best colormap
-    a.background_pixel = palette().color(backgroundRole()).pixel(vi->screen);
-    a.border_pixel = QColor(Qt::black).pixel(vi->screen);
+    a.background_pixel = colmap.pixel(palette().color(backgroundRole()));
+    a.border_pixel = colmap.pixel(Qt::black);
     Window p = RootWindow(X11->display, vi->screen);
     if (parentWidget())
         p = parentWidget()->winId();
