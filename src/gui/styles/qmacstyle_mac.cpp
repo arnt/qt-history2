@@ -121,6 +121,7 @@ void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
     \value SizeLarge
     \value SizeMini
     \value SizeDefault
+    \omitvalue SizeNone
 */
 
 /*!

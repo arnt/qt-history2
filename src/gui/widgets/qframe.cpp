@@ -169,6 +169,10 @@ QFrame::QFrame(QFramePrivate &dd, QWidget* parent, Qt::WFlags f)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QFrame::QFrame(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QFramePrivate, parent, f)
 {

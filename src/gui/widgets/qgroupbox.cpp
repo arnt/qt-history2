@@ -595,6 +595,10 @@ void QGroupBoxPrivate::updateCheckBoxGeometry()
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QGroupBox::QGroupBox(QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {
@@ -602,6 +606,10 @@ QGroupBox::QGroupBox(QWidget *parent, const char *name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
     : QWidget(*new QGroupBoxPrivate, parent, 0)
 {

@@ -401,3 +401,16 @@ bool QHostAddress::isNull() const
     }
     return true;
 }
+
+/*!
+    \fn bool QHostAddress::isIp4Addr() const
+
+    Use isIPv4Address() instead.
+*/
+
+/*!
+    \fn Q_UINT32 QHostAddress::ip4Addr() const
+
+    Use toIPv4Address() instead.
+*/
+

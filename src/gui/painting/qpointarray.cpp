@@ -983,3 +983,15 @@ QDebug operator<<(QDebug dbg, const QPointArray &a)
 }
 #endif
 
+/*!
+   \fn QPointArray QPointArray::copy() const
+
+   Use simple assignment instead.
+*/
+
+/*!
+   \fn bool QPointArray::isNull()
+
+   Use isEmpty() instead.
+*/
+

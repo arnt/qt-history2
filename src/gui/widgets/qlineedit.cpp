@@ -797,9 +797,18 @@ int QLineEdit::selectionStart() const
 
 
 #ifdef QT_COMPAT
+/*!
+    Use isModified() instead.
+*/
 bool QLineEdit::edited() const { return d->modified; }
+/*!
+    To set isModified() to false use clearModified() or setText.
+*/
 void QLineEdit::setEdited(bool on) { d->modified = on; }
 
+/*!
+###
+*/
 int QLineEdit::characterAt(int xpos, QChar *chr) const
 {
     int pos = d->xToPos(xpos + contentsRect().x() - d->hscroll + innerMargin);
@@ -2609,6 +2618,50 @@ void QLineEditPrivate::redo() {
     textDirty = true;
     emitCursorPositionChanged();
 }
+
+/*!
+    \fn void QLineEdit::repaintArea(int a, int b)
+
+    Use update() instead.
+*/
+
+/*!
+    \fn void QLineEdit::cursorLeft(bool mark, int steps)
+
+    Use cursorForward() with a negative number of steps instead. For
+    example, cursorForward(mark, -steps).
+*/
+
+/*!
+    \fn void QLineEdit::cursorRight(bool mark, int steps)
+
+    Use cursorForward() instead.
+*/
+
+/*!
+    \fn bool QLineEdit::frame() const
+
+    Use hasFrame() instead.
+*/
+
+/*!
+    \fn void QLineEdit::clearValidator()
+
+    Use setValidator(0) instead.
+*/
+
+/*!
+    \fn bool QLineEdit::hasMarkedText() const
+
+    Use hasSelectedText() instead.
+*/
+
+/*!
+    \fn QString QLineEdit::markedText() const
+
+    Use selectedText() instead.
+*/
+
 
 #include "moc_qlineedit.cpp"
 #endif // QT_NO_LINEEDIT

@@ -111,6 +111,10 @@ QServerSocket::QServerSocket(QObject *parent)
 
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
                               QObject *parent, const char *name)
     : QObject(parent)
@@ -120,6 +124,10 @@ QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
     init(QHostAddress(), port, backlog);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
                               int backlog,
                               QObject *parent, const char *name)
@@ -130,6 +138,10 @@ QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
     init(address, port, backlog);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QServerSocket::QServerSocket(QObject *parent, const char *name)
     : QObject(parent)
 {

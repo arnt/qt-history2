@@ -593,22 +593,23 @@ static int getStretch(const QWidget *w)
     return qMax(sp.horStretch(), sp.verStretch());
 }
 
-/*
-    This function tries to simulate the Qt 3.x ResizeMode behavior using
-    QSizePolicy stretch factors. This isn't so easy, because the default
-    ResizeMode was Stretch, not KeepSize, whereas the default stetch factor is
-    0.
+/*!
+    This function tries to simulate the Qt 3.x ResizeMode behavior
+    using QSizePolicy stretch factors. This isn't easy, because the
+    default \c ResizeMode was \c Stretch, not \c KeepSize, whereas the
+    default stetch factor is 0.
 
     So what we do is this: When the user calls setResizeMode() the first time,
     we iterate through all the child widgets and set their stretch factors to
     1. Later on, if children are added (using addWidget()), their stretch
     factors are also set to 1.
 
-    There is just one problem left: Often, setResizeMode() is called *before*
-    addWidget(), because addWidget() is called from the event loop. In that
-    case, we use a special value, 243, instead of 0 to prevent 0 from being
-    overwritten with 1 in addWidget(). This is a evil hack, but fortunately it
-    only occurs as a result of calling a QT_COMPAT function.
+    There is just one problem left: Often, setResizeMode() is called
+    \e{before} addWidget(), because addWidget() is called from the
+    event loop. In that case, we use a special value, 243, instead of
+    0 to prevent 0 from being overwritten with 1 in addWidget(). This
+    is a wicked hack, but fortunately it only occurs as a result of
+    calling a \c QT_COMPAT function.
 */
 void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
 {
@@ -1375,3 +1376,16 @@ QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)
 #endif
 
 #endif
+
+/*!
+    \enum QSplitter::ResizeMode
+
+    \compat
+
+    \value Stretch
+    \value KeepSize
+    \value FollowSizeHint
+    \value Auto
+
+*/
+

@@ -187,6 +187,10 @@ QSpinBox::QSpinBox(QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSpinBox::QSpinBox(QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
@@ -197,6 +201,10 @@ QSpinBox::QSpinBox(QWidget *parent, const char *name)
     setObjectName(name);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
@@ -1044,4 +1052,34 @@ QString QDoubleSpinBoxPrivate::mapValueToText(const QCoreVariant &f) const
 {
     return q->mapValueToText(f.toDouble());
 }
+
+/*!
+    \fn void QSpinBox::setLineStep(int step)
+
+    Use setSingleStep() instead.
+*/
+
+/*!
+    \fn void QSpinBox::setMaxValue(int val)
+
+    Use setMaximum() instead.
+*/
+
+/*!
+    \fn void QSpinBox::setMinValue(int val)
+
+    Use setMinimum() instead.
+*/
+
+/*!
+    \fn int QSpinBox::maxValue() const
+
+    Use maximum() instead.
+*/
+
+/*!
+    \fn int QSpinBox::minValue() const
+
+    Use minimum() instead.
+*/
 

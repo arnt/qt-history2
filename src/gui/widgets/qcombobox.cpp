@@ -332,6 +332,10 @@ QComboBox::QComboBox(QWidget *parent) :
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QComboBox::QComboBox(QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
@@ -340,6 +344,10 @@ QComboBox::QComboBox(QWidget *parent, const char *name) :
     setObjectName(name);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)
 {
@@ -1460,5 +1468,46 @@ void QComboBox::keyPressEvent(QKeyEvent *e)
     }
     setCurrentItem(newRow);
 }
+
+/*!
+    \fn bool QComboBox::editable() const
+
+    Use isEditable() instead.
+*/
+
+/*!
+    \fn void QComboBox::insertItem(const QPixmap &pixmap, int row)
+
+    Use an insertItem() function that takes a QIconSet instead, for
+    example, insertItem(QIconSet(pixmap), row).
+*/
+
+/*!
+    \fn void QComboBox::insertItem(const QPixmap &pixmap, const QString &text, int row)
+
+
+    Use an insertItem() function that takes a QIconSet instead, for
+    example, insertItem(QIconSet(pixmap), text, row).
+*/
+
+/*!
+    \fn void QComboBox::changeItem(const QString &text, int row)
+
+    Use setItemText() instead.
+*/
+
+/*!
+    \fn void QComboBox::changeItem(const QPixmap &pixmap, int row)
+
+    Use setItemIcon() instead, for example,
+    setItemIcon(QIconSet(pixmap), row).
+*/
+
+/*!
+    \fn void QComboBox::changeItem(const QPixmap &pixmap, const QString &text, int row)
+
+    Use setItem() instead, for example, setItem(QIconSet(pixmap), text row).
+*/
+
 
 #include "moc_qcombobox.cpp"

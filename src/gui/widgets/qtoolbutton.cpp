@@ -582,11 +582,17 @@ bool QToolButton::uses3D() const
 
 #ifdef QT_COMPAT
 
+/*!
+    Use icon() instead.
+*/
 QIconSet QToolButton::onIconSet() const
 {
     return icon();
 }
 
+/*!
+    Use icon() instead.
+*/
 QIconSet QToolButton::offIconSet() const
 {
     return icon();
@@ -594,20 +600,10 @@ QIconSet QToolButton::offIconSet() const
 
 
 /*!
-  \property QToolButton::onIconSet
-  \brief the icon set that is used when the button is in an "on" state
-
   \obsolete
 
-  Since Qt 3.0, QIconSet contains both the On and Off icons. There is
-  now an \l QToolButton::iconSet property that replaces both \l
-  QToolButton::onIconSet and \l QToolButton::offIconSet.
+  Use setIcon() instead.
 
-  For ease of porting, this property is a synonym for \l
-  QToolButton::iconSet. You probably want to go over your application
-  code and use the QIconSet On/Off mechanism.
-
-  \sa iconSet QIconSet::State
 */
 void QToolButton::setOnIconSet(const QIconSet& set)
 {
@@ -621,33 +617,15 @@ void QToolButton::setOnIconSet(const QIconSet& set)
 }
 
 /*!
-  \property QToolButton::offIconSet
-  \brief the icon set that is used when the button is in an "off" state
-
   \obsolete
 
-  Since Qt 3.0, QIconSet contains both the On and Off icons. There is
-  now an \l QToolButton::iconSet property that replaces both \l
-  QToolButton::onIconSet and \l QToolButton::offIconSet.
+  Use setIcon() instead.
 
-  For ease of porting, this property is a synonym for \l
-  QToolButton::iconSet. You probably want to go over your application
-  code and use the QIconSet On/Off mechanism.
-
-  \sa iconSet QIconSet::State
 */
 void QToolButton::setOffIconSet(const QIconSet& set)
 {
     setIcon(set);
 }
-
-
-/*! \property QToolButton::pixmap
-    \brief the pixmap of the button
-
-    The pixmap property has no meaning for tool buttons. Use the
-    iconSet property instead.
-*/
 
 
 /*! \overload
@@ -877,6 +855,54 @@ void QToolButton::setTextPosition(TextPosition pos)
     updateGeometry();
     update();
 }
+
+/*!
+    \fn void QToolButton::setPixmap(const QPixmap &pixmap)
+
+    Use setIcon(QIconSet(pixmap)) instead.
+*/
+
+/*!
+    \fn void QToolButton::setIconSet(const QIconSet &icon)
+
+    Use setIcon() instead.
+*/
+
+/*!
+    \fn void QToolButton::setTextLabel(const QString &text, bool tooltip)
+
+    Use setText() and setToolTip() instead.
+*/
+
+/*!
+    \fn QString QToolButton::textLabel() const
+
+    Use text() instead.
+*/
+
+/*!
+    \fn QIconSet QToolButton::iconSet() const
+
+    Use icon() instead.
+*/
+
+/*!
+    \fn void QToolButton::openPopup()
+
+    Use showMenu() instead.
+*/
+
+/*!
+    \fn void QToolButton::setPopup(QMenu* popup)
+
+    Use setMenu() instead.
+*/
+
+/*!
+    \fn QMenu* QToolButton::popup() const
+
+    Use menu() instead.
+*/
 
 #include "moc_qtoolbutton.cpp"
 

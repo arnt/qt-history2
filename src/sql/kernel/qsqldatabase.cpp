@@ -1256,9 +1256,15 @@ bool QSqlDatabase::isValid() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use query.record() instead.
+*/
 QSqlRecord QSqlDatabase::record(const QSqlQuery& query) const
 { return query.record(); }
 
+/*!
+    Use query.record() instead.
+*/
 QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
 { return query.record(); }
 #endif
@@ -1281,4 +1287,12 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     QSqlDatabasePrivate::addDatabase(db, connectionName);
     return db;
 }
+
+/*!
+    \fn QSqlRecord QSqlDatabase::recordInfo(const QString& tablename) const
+
+    Use record() instead.
+*/
+
+
 #endif // QT_NO_SQL

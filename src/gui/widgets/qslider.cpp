@@ -183,6 +183,13 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     \value TickMarksBelow draw tickmarks below the (horizontal) slider
     \value TickMarksLeft draw tickmarks to the left of the (vertical) slider
     \value TickMarksRight draw tickmarks to the right of the (vertical) slider
+
+    \omitvalue NoMarks
+    \omitvalue Above
+    \omitvalue Left
+    \omitvalue Below
+    \omitvalue Right
+    \omitvalue Both
 */
 
 
@@ -216,6 +223,10 @@ QSlider::QSlider(Qt::Orientation orientation, QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSlider::QSlider(QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
@@ -223,6 +234,11 @@ QSlider::QSlider(QWidget *parent, const char *name)
     d->orientation = Qt::Vertical;
     d->init();
 }
+
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSlider::QSlider(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
@@ -231,6 +247,10 @@ QSlider::QSlider(Qt::Orientation orientation, QWidget *parent, const char *name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation,
                  QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)

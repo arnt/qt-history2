@@ -938,6 +938,14 @@ void QGLWidget::updateOverlayGL()
         d->olw->updateGL();
 }
 
+// ### Is this true?
+/*!
+    \internal
+
+    Sets a new QGLContext, \a context, for this QGLWidget, using the
+    shared context, \a shareContext. If \a deleteOldContext is true,
+    the original context is deleted; otherwise it is overridden.
+*/
 void QGLWidget::setContext(QGLContext *context,
                             const QGLContext* shareContext,
                             bool deleteOldContext)

@@ -1019,4 +1019,12 @@ QString QSqlQuery::executedQuery() const
 {
     return d->sqlResult->executedQuery();
 }
+
+/*!
+    \fn bool QSqlQuery::prev()
+
+    Use previous() instead.
+*/
+
+
 #endif // QT_NO_SQL

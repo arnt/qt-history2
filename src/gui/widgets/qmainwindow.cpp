@@ -279,3 +279,16 @@ void QMainWindow::childEvent(QChildEvent *event)
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 { return QWidget::event(event); }
+
+/*!
+    \fn void QMainWindow::setCentralWidget(QWidget *w)
+
+    Use setCenterWidget() instead.
+*/
+
+/*!
+    \fn QWidget *QMainWindow::centralWidget() const
+
+    Use centerWidget() instead.
+*/
+

@@ -1504,7 +1504,7 @@ void QGLWidget::swapBuffers()
 */
 
 
-/*
+/*!
   \obsolete
 
   Sets a new format for this widget.

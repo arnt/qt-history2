@@ -783,6 +783,10 @@ QSocket::QSocket(QObject *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QSocket::QSocket(QObject *parent, const char *name)
     : QObject(parent), QIODevice(*new QSocketPrivate())
 {

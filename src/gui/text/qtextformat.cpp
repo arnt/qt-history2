@@ -326,6 +326,7 @@ uint QTextFormatPrivate::recalcHash() const
 
     \value Undefined
     \value Bool
+    \value Color
     \value Integer
     \value Float
     \value String
@@ -366,7 +367,7 @@ uint QTextFormatPrivate::recalcHash() const
     \value FontStrikeOut
     \value FontFixedPitch
 
-    \value Color
+    \value TextColor
 
     \value IsAnchor
     \value AnchorHref
@@ -718,7 +719,9 @@ void QTextFormat::setProperty(int propertyId, float value, float defaultValue)
 }
 
 /*!
-    Sets the value of the property given by \a propertyId to \a value.
+    Sets the value of the property given by \a propertyId to \a value,
+    unless \a value == \a defaultValue, in which case the property's
+    value is cleared..
 
     \sa stringProperty() PropertyType
 */

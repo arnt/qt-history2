@@ -98,6 +98,11 @@
   \value TopRightCorner    The top-right corner of the rectangle.
   \value BottomLeftCorner  The bottom-left corner of the rectangle.
   \value BottomRightCorner The bottom-right corner of the rectangle.
+
+    \omitvalue TopLeft
+    \omitvalue TopRight
+    \omitvalue BottomLeft
+    \omitvalue BottomRight
 */
 
 /*!
@@ -196,6 +201,10 @@ QTabWidget::QTabWidget(QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QTabWidget::QTabWidget(QWidget *parent, const char *name, Qt::WFlags f)
     : QWidget(*new QTabWidgetPrivate, parent, f)
 {
@@ -874,6 +883,123 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Bottom;
     style().drawPrimitive(QStyle::PE_TabBarBase, &opt, &p, this);
 }
+
+/*!
+    \fn void QTabWidget::insertTab(QWidget * widget, const QString
+    &label, int index)
+
+    Use insertTab(index, widget, label) instead.
+*/
+
+/*!
+    \fn void QTabWidget::insertTab(QWidget *widget, const QIconSet& icon, const QString &label, int index)
+
+    Use insertTab(index, widget, icon, label) instead.
+*/
+
+/*!
+    \fn void QTabWidget::changeTab(QWidget *widget, const QString
+    &label)
+
+    Use setTabText() instead.
+
+*/
+
+/*!
+    \fn void QTabWidget::changeTab(QWidget *widget, const QIconSet& icon, const QString &label)
+
+    Use setTabText() and setTabIcon() instead.
+*/
+
+/*!
+    \fn bool QTabWidget::isTabEnabled( QWidget *widget) const
+
+    Use isTabEnabled(tabWidget->indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QTabWidget::setTabEnabled(QWidget *widget, bool b)
+
+    Use isTabEnabled(tabWidget->indexOf(widget), b) instead.
+*/
+
+/*!
+    \fn QString QTabWidget::tabLabel(QWidget *widget) const
+
+    Use tabText(tabWidget->indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QTabWidget::setTabLabel(QWidget *widget, const QString
+    &label)
+
+    Use setTabText(tabWidget->indexOf(widget), label) instead.
+*/
+
+/*!
+    \fn QIconSet QTabWidget::tabIconSet(QWidget * widget) const
+
+    Use tabIcon(tabWidget->indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QTabWidget::setTabIconSet(QWidget * widget, const QIconSet & icon)
+
+    Use setTabIcon(tabWidget->indexOf(widget), icon) instead.
+*/
+
+/*!
+    \fn void QTabWidget::removeTabToolTip(QWidget * widget)
+
+    Use setTabToolTip(tabWidget->indexOf(widget), QString()) instead.
+*/
+
+/*!
+    \fn void QTabWidget::setTabToolTip(QWidget * widget, const QString & tip)
+
+    Use setTabToolTip(tabWidget->indexOf(widget), tip) instead.
+*/
+
+/*!
+    \fn QString QTabWidget::tabToolTip(QWidget * widget) const
+
+    Use tabToolTip(tabWidget->indexOf(widget)) instead.
+*/
+
+/*!
+    \fn QWidget * QTabWidget::currentPage() const
+
+    Use currentWidget() instead.
+*/
+
+/*!
+    \fn QWidget *QTabWidget::page(int index) const
+
+    Use widget() instead.
+*/
+
+/*!
+    \fn QString QTabWidget::label(int index) const
+
+    Use tabText() instead.
+*/
+
+/*!
+    \fn int QTabWidget::currentPageIndex() const
+
+    Use currentIndex() instead.
+*/
+
+/*!
+    \fn int QTabWidget::margin() const
+###
+*/
+
+/*!
+    \fn void QTabWidget::setMargin(int margin)
+###
+*/
+
 
 #include "moc_qtabwidget.cpp"
 #endif

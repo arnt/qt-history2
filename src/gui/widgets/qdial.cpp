@@ -416,6 +416,10 @@ QDial::QDial(QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QDial::QDial(QWidget *parent, const char *name)
     : QAbstractSlider(*new QDialPrivate, parent)
 {
@@ -423,6 +427,10 @@ QDial::QDial(QWidget *parent, const char *name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QDial::QDial(int minValue, int maxValue, int pageStep, int value,
               QWidget *parent, const char *name)
     : QAbstractSlider(*new QDialPrivate, parent)

@@ -264,6 +264,10 @@ QWorkspace::QWorkspace(QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QWorkspace::QWorkspace(QWidget *parent, const char *name)
     : QWidget(*new QWorkspacePrivate, parent, 0)
 {

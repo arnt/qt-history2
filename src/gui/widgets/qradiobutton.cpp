@@ -229,6 +229,10 @@ void QRadioButton::updateMask()
     setMask(bm);
 }
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QRadioButton::QRadioButton(QWidget *parent, const char* name)
     :QAbstractButton(parent)
 {
@@ -236,6 +240,10 @@ QRadioButton::QRadioButton(QWidget *parent, const char* name)
     qRadioButtonInit(this);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* name)
     :QAbstractButton(parent)
 {

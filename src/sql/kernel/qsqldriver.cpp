@@ -519,4 +519,36 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
     return r;
 }
 
+/*!
+    \fn QSqlRecord QSqlDriver::record(const QSqlQuery& query) const
+
+    Use query.record() instead.
+*/
+
+/*!
+    \fn QSqlRecord QSqlDriver::recordInfo(const QString& tablename) const
+
+    Use record() instead.
+*/
+
+/*!
+    \fn QSqlRecord QSqlDriver::recordInfo(const QSqlQuery& query) const
+
+    Use query.record() instead.
+*/
+
+/*!
+    \fn QString QSqlDriver::nullText() const
+
+    Use tr("NULL") for example, instead.
+*/
+
+/*!
+    \fn QString QSqlDriver::formatValue(const QSqlField *field, bool trimStrings) const
+
+    Use the other formatValue() overload instead.
+
+*/
+
+
 #endif // QT_NO_SQL

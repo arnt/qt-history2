@@ -79,6 +79,10 @@ QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
 
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
@@ -88,6 +92,10 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, const char *name, Q
     lay->setDefaultPositioning(n, orient);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QGrid::QGrid(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {

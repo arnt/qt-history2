@@ -1923,6 +1923,10 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
     return findIdForAction(act);
 }
 
+/*!
+    Use the insertSeparator() overload that takes a QAction *
+    parameter instead..
+*/
 int QMenu::insertSeparator(int index)
 {
     QAction *act = new QAction(this);
@@ -1945,6 +1949,9 @@ QAction *QMenu::findActionForId(int id) const
     return 0;
 }
 
+/*!
+###
+*/
 QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 {
    QList<QAction *> list = actions();
@@ -1961,6 +1968,9 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 }
 
 
+/*!
+###
+*/
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
@@ -1970,6 +1980,9 @@ bool QMenu::setItemParameter(int id, int param)
     return false;
 }
 
+/*!
+###
+*/
 int QMenu::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
@@ -1977,6 +1990,9 @@ int QMenu::itemParameter(int id) const
     return id;
 }
 
+/*!
+    Use style().pixelMetric(QStyle::PM_MenuFrameWidth, this) instead.
+*/
 int QMenu::frameWidth() const
 {
     return style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
@@ -1989,5 +2005,266 @@ int QMenu::findIdForAction(QAction *act) const
     return act->d->id;
 }
 #endif // QT_COMPAT
+
+/*!
+    \fn uint QMenu::count() const
+
+    Use actions().count() instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member, const QKeySequence& shortcut, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QString &text, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QString &text, QMenu *popup, int id, int index)
+
+    Use insertMenu() or one of the addMenu() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id, int index)
+
+    Use insertMenu() or one of the addMenu() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QPixmap &pixmap, int id, int index)
+
+    Use insertAction() or one of the addAction() overloads instead.
+*/
+
+/*!
+    \fn int QMenu::insertItem(const QPixmap &pixmap, QMenu *popup, int id, int index)
+
+    Use insertMenu() or one of the addMenu() overloads instead.
+*/
+
+/*!
+    \fn void QMenu::removeItem(int id)
+
+    Use removeAction() instead.
+*/
+
+/*!
+    \fn void QMenu::removeItemAt(int index)
+
+    Use removeAction() instead.
+*/
+
+/*!
+    \fn QKeySequence QMenu::accel(int id) const
+
+    Use shortcut() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setAccel(const QKeySequence& key, int id)
+
+    Use setShortcut() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QIconSet QMenu::iconSet(int id) const
+
+    Use icon() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QString QMenu::text(int id) const
+
+    Use text() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QPixmap QMenu::pixmap(int id) const
+
+    Use QPixmap(icon()) on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setWhatsThis(int id, const QString &w)
+
+    Use setWhatsThis() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QString QMenu::whatsThis(int id) const
+
+    Use whatsThis() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::changeItem(int id, const QString &text)
+
+    Use setText() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::changeItem(int id, const QPixmap &pixmap)
+
+    Use setText() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::changeItem(int id, const QIconSet &icon, const QString &text)
+
+    Use setIcon() and setText() on the relevant QAction instead.
+*/
+
+/*!
+    \fn bool QMenu::isItemActive(int id) const
+
+    Use activeAction() instead.
+*/
+
+/*!
+    \fn bool QMenu::isItemEnabled(int id) const
+
+    Use isEnabled() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setItemEnabled(int id, bool enable)
+
+    Use setEnabled() on the relevant QAction instead.
+*/
+
+/*!
+    \fn bool QMenu::isItemChecked(int id) const
+
+    Use isChecked() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setItemChecked(int id, bool check)
+
+    Use setChecked() on the relevant QAction instead.
+*/
+
+/*!
+    \fn bool QMenu::isItemVisible(int id) const
+
+    Use isVisible() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setItemVisible(int id, bool visible)
+
+    Use setVisible() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QRect QMenu::itemGeometry(int index)
+
+    Use actionGeometry() on the relevant QAction instead.
+*/
+
+/*!
+    \fn QFont QMenu::itemFont(int id) const
+
+    Use font() on the relevant QAction instead.
+*/
+
+/*!
+    \fn void QMenu::setItemFont(int id, const QFont &font)
+
+    Use setFont() on the relevant QAction instead.
+*/
+
+/*!
+    \fn int QMenu::indexOf(int id) const
+
+    Use actions().indexOf(action) on the relevant QAction instead.
+*/
+
+/*!
+    \fn int QMenu::idAt(int index) const
+###
+*/
+
+/*!
+    \fn void QMenu::activateItemAt(int index)
+
+    Use activate() on the relevant QAction instead.
+*/
+
+/*!
+    \fn bool QMenu::connectItem(int id, const QObject *receiver, const char* member)
+
+    Use connect() on the relevant QAction instead.
+*/
+
+/*!
+    \fn bool QMenu::disconnectItem(int id,const QObject *receiver, const char* member)
+    Use disconnect() on the relevant QAction instead.
+
+*/
+
+/*!
+    \fn QMenuItem *QMenu::findItem(int id) const
+###
+*/
+
+/*!
+    \fn void QMenu::popup(const QPoint & pos, int indexAtPoint)
+
+    Use popup() on the relevant QAction instead.
+*/
+
+/*!
+    \fn int QMenu::insertTearOffHandle(int a, int b)
+
+    Use setTearOffEnabled() instead.
+*/
+
+/*!
+    \fn int QMenu::itemAtPos(const QPoint &p, bool ignoreSeparator)
+###
+*/
+
+/*!
+    \fn int QMenu::columns() const
+
+    Use columnCount() instead.
+*/
+
+/*!
+    \fn int QMenu::itemHeight(int index)
+
+    Use actionGeometry(actions().value(index)).height() instead.
+*/
+
+/*!
+    \fn int QMenu::itemHeight(QMenuItem *mi)
+
+###
+*/
 
 #include "moc_qmenu.cpp"

@@ -513,4 +513,12 @@ QDebug operator<<(QDebug dbg, const QSqlField &f)
 #endif
 #endif
 
+/*!
+    \fn void QSqlField::setNull()
+
+    Use clear() instead.
+*/
+
+
 #endif
+

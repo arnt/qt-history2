@@ -501,19 +501,19 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn float QPointF::&rx()
+    \fn float& QPointF::rx()
 
     Returns a reference to the x-coordinate of the point.
 */
 
 /*!
-    \fn float QPointF::&ry()
+    \fn float& QPointF::ry()
 
     Returns a reference to the y-coordinate of the point.
 */
 
 /*!
-    \fn QPointF QPointF::&operator+=(const QPointF &other)
+    \fn QPointF& QPointF::operator+=(const QPointF &other)
 
     Adds the coordinates of this point to the corresponding coordinates of
     the \a other point, and returns a reference to this point with the new
@@ -523,7 +523,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF QPointF::&operator-=(const QPointF &other)
+    \fn QPointF& QPointF::operator-=(const QPointF &other)
 
     Subtracts the coordinates of the \a other point from the
     corresponding coordinates of this point, and returns a reference to this
@@ -533,7 +533,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF QPointF::&operator*=(float factor)
+    \fn QPointF& QPointF::operator*=(float factor)
 
     Multiplies the coordinates of this point by the given scale \a factor, and
     returns a reference to this point with the new coordinates. (Scalar
@@ -543,7 +543,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn QPointF QPointF::&operator/=(float factor)
+    \fn QPointF& QPointF::operator/=(float factor)
 
     Divides the coordinates of this point by the given scale \a factor, and
     returns a references to this point with the new coordinates. (Scalar

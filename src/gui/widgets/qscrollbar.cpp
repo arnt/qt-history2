@@ -220,6 +220,10 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent)
 
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QScrollBar::QScrollBar(QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate,  parent)
 {
@@ -228,6 +232,10 @@ QScrollBar::QScrollBar(QWidget *parent, const char *name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QScrollBarPrivate,  parent)
 {
@@ -236,6 +244,10 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char 
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QScrollBar::QScrollBar(int minimum, int maximum, int lineStep, int pageStep,
                         int value,  Qt::Orientation orientation,
                         QWidget *parent, const char *name)
@@ -467,3 +479,10 @@ void QScrollBar::hideEvent(QHideEvent *)
         setRepeatAction(SliderNoAction);
     }
 }
+
+/*!
+    \fn bool QScrollBar::draggingSlider()
+
+    Use isSliderDown() instead.
+*/
+

@@ -664,4 +664,52 @@ void QToolBox::itemRemoved(int index)
     Q_UNUSED(index)
 }
 
+/*!
+    \fn void QToolBox::setItemLabel(int index, const QString &text)
+
+    Use setItemText() instead.
+*/
+
+/*!
+    \fn QString QToolBox::itemLabel(int index) const
+
+    Use itemText() instead.
+*/
+
+/*!
+    \fn QWidget *QToolBox::currentItem() const
+
+    Use widget(currentIndex()) instead.
+*/
+
+/*!
+    \fn void QToolBox::setCurrentItem(QWidget *widget)
+
+    Use setCurrentIndex(indexOf(widget)) instead.
+*/
+
+/*!
+    \fn void QToolBox::setItemIconSet(int index, const QIconSet &icon)
+
+    Use setItemIcon() instead.
+*/
+
+/*!
+    \fn QIconSet QToolBox::itemIconSet(int index) const
+
+    Use itemIcon() instead.
+*/
+
+/*!
+    \fn int QToolBox::removeItem(QWidget *widget)
+
+    Use toolbox->removeItem(toolbox->indexOf(widget)) instead.
+*/
+
+/*!
+    \fn QWidget *QToolBox::item(int index) const
+
+    Use widget() instead.
+*/
+
 #endif //QT_NO_TOOLBOX

@@ -565,4 +565,11 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 #endif
 #endif
 
+/*!
+    \fn int QSqlRecord::position(const QString& name) const
+
+    Use indexOf() instead.
+*/
+
+
 #endif

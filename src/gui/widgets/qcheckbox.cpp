@@ -321,6 +321,10 @@ void QCheckBox::nextCheckState()
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QCheckBox::QCheckBox(QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
@@ -328,6 +332,10 @@ QCheckBox::QCheckBox(QWidget *parent, const char* name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
     : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
@@ -339,3 +347,10 @@ QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
 #endif
 
 #endif
+
+/*!
+    \fn void QCheckBox::setNoChange()
+
+    Use setState() instead.
+*/
+

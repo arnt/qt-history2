@@ -757,6 +757,9 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
     \value MoveEnd
     \value MovePageUp
     \value MovePageDown
+
+    \omitvalue MovePgUp
+    \omitvalue MovePgDown
 */
 
 /*!
@@ -769,6 +772,9 @@ QTextEdit::QTextEdit(QWidget *parent)
     d->init();
 }
 
+/*!
+    \internal
+*/
 QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
     : QViewport(dd, parent)
 {
@@ -787,6 +793,10 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QTextEdit::QTextEdit(QWidget *parent, const char *name)
     : QViewport(*new QTextEditPrivate, parent)
 {
@@ -1852,6 +1862,11 @@ void QTextEdit::insertHtml(const QString &text)
     d->cursor.insertFragment(fragment);
 }
 
+/*!
+    Scrolls the text edit so that the anchor with the given \a name is
+    visible; does nothing if the \a name is empty, or is already
+    visible, or isn't found.
+*/
 void QTextEdit::scrollToAnchor(const QString &name)
 {
     if (name.isEmpty())
@@ -2002,6 +2017,9 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 
 
 #ifdef QT_COMPAT
+/*!
+    Use the QTextCursor() class instead.
+*/
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
 {
     if (action == MovePageUp) {
@@ -2031,6 +2049,9 @@ void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
     d->updateCurrentCharFormatAndSelection();
 }
 
+/*!
+    \internal
+*/
 void QTextEdit::doKeyboardAction(KeyboardAction action)
 {
     switch (action) {
@@ -2057,6 +2078,11 @@ void QTextEdit::doKeyboardAction(KeyboardAction action)
     }
 }
 
+/*!
+    Sets the text edit's \a text. The text can be plain text or HTML
+    and the text edit will try to guess the right format.
+    Use setTextFormat() to avoid text edit's guessing.
+*/
 void QTextEdit::setText(const QString &text)
 {
     if (d->textFormat == Qt::AutoText)
@@ -2067,6 +2093,9 @@ void QTextEdit::setText(const QString &text)
         setPlainText(text);
 }
 
+/*!
+    Returns all the text in the text edit as plain text.
+*/
 QString QTextEdit::text() const
 {
     // ########## richtext case
@@ -2074,11 +2103,21 @@ QString QTextEdit::text() const
 }
 
 
+/*!
+    Sets the text format to format \a f.
+
+    \sa textFormat()
+*/
 void QTextEdit::setTextFormat(Qt::TextFormat f)
 {
     d->textFormat = f;
 }
 
+/*!
+    Returns the text format.
+
+    \sa setTextFormat()
+*/
 Qt::TextFormat QTextEdit::textFormat() const
 {
     return d->textFormat;
@@ -2284,5 +2323,134 @@ void QTextEdit::ensureCursorVisible()
             d->vbar->setValue(cursorY + cursorHeight - visibleHeight);
     }
 }
+
+
+/*!
+    \enum QTextEdit::KeyboardAction
+
+    \compat
+
+    \value ActionBackspace
+    \value ActionDelete
+    \value ActionReturn
+    \value ActionKill
+    \value ActionWordBackspace
+    \value ActionWordDelete
+*/
+
+/*!
+    \fn bool QTextEdit::find(const QString &exp, bool cs, bool wo)
+
+    Use the find() overload that takes a QTextDocument::FindFlags
+    argument.
+*/
+
+/*!
+    \fn void QTextEdit::sync()
+
+    Does nothing.
+*/
+
+/*!
+    \fn void QTextEdit::setBold(bool b)
+
+    Use setFontWeight() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setUnderline(bool b)
+
+    Use setFontUnderline() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setItalic(bool i)
+
+    Use setFontItalic() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setFamily(const QString &family)
+
+    Use setFontFamily() instead.
+*/
+
+/*!
+    \fn void QTextEdit::setPointSize(int size)
+
+    Use setFontPointSize() instead.
+*/
+
+/*!
+    \fn bool QTextEdit::italic() const
+
+    Use fontItalic() instead.
+*/
+
+/*!
+    \fn bool QTextEdit::bold() const
+
+    Use fontWeight() >= QFont::Bold instead.
+*/
+
+/*!
+    \fn bool QTextEdit::underline() const
+
+    Use fontUnderline() instead.
+*/
+
+/*!
+    \fn QString QTextEdit::family() const
+
+    Use fontFamily() instead.
+*/
+
+/*!
+    \fn int QTextEdit::pointSize() const
+
+    Use int(fontPointSize()+0.5) instead.
+*/
+
+/*!
+    \fn bool QTextEdit::hasSelectedText() const
+
+    Use cursor().hasSelection() instead.
+*/
+
+/*!
+    \fn QString QTextEdit::selectedText() const
+
+    Use cursor().selectedText() instead.
+*/
+
+/*!
+    \fn bool QTextEdit::isUndoAvailable() const
+
+    Use document()->isUndoAvailable() instead.
+*/
+
+/*!
+    \fn bool QTextEdit::isRedoAvailable() const
+
+    Use document()->isRedoAvailable() instead.
+*/
+
+/*!
+    \fn void QTextEdit::insert(const QString &text)
+
+    Use insertPlainText() instead.
+*/
+
+/*!
+    \fn bool QTextEdit::isModified() const
+
+    Use document()->isModified() instead.
+*/
+
+/*!
+    \fn QColor QTextEdit::color() const
+
+    Use textColor() instead.
+*/
 
 #include "moc_qtextedit.cpp"

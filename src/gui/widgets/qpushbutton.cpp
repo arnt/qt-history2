@@ -578,6 +578,10 @@ bool QPushButton::isFlat() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QPushButton::QPushButton(QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
@@ -585,6 +589,10 @@ QPushButton::QPushButton(QWidget *parent, const char *name)
     d->init();
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
@@ -593,6 +601,10 @@ QPushButton::QPushButton(const QString &text, QWidget *parent, const char *name)
     setText(text);
 }
 
+/*!
+    Use one of the constructors that doesn't take the \a name
+    argument and then use setObjectName() instead.
+*/
 QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char *name)
     : QAbstractButton(*new QPushButtonPrivate, parent)
 {
@@ -602,5 +614,30 @@ QPushButton::QPushButton(const QIconSet& icon, const QString &text, QWidget *par
     setIcon(icon);
 }
 #endif
+
+/*!
+    \fn void QPushButton::openPopup()
+
+    Use showMenu() instead.
+*/
+
+/*!
+    \fn bool QPushButton::isMenuButton() const
+
+    Use menu() != 0 instead.
+*/
+
+/*!
+    \fn void QPushButton::setPopup(QMenu* popup)
+
+    Use setMenu() instead.
+*/
+
+/*!
+    \fn QMenu* QPushButton::popup() const
+
+    Use menu() instead.
+*/
+
 
 #include "moc_qpushbutton.cpp"

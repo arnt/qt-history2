@@ -349,6 +349,9 @@
 
   \value WindowsStyle
   \value MotifStyle
+    \omitvalue MacStyle
+    \omitvalue Win3Style
+    \omitvalue PMStyle
 */
 
 /*!
@@ -1628,6 +1631,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value SH_CustomBase  base value for custom ControlElements.
     Custom values must be greater than this value.
+
+    \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
 */

@@ -749,4 +749,17 @@ void QToolBar::resizeEvent(QResizeEvent *event)
     QFrame::resizeEvent(event);
 }
 
+/*!
+    \fn void QToolBar::setLabel(const QString &label)
+
+    Use setWindowTitle() instead.
+*/
+
+/*!
+    \fn QString QToolBar::label() const
+
+    Use windowTitle() instead.
+*/
+
+
 #include "moc_qtoolbar.cpp"

@@ -653,6 +653,11 @@ void QStyleOption::init(const QWidget *w)
 */
 
 /*!
+    \property QStyleOptionSpinBox::frame
+    \brief Indicates whether a frame should be drawn.
+*/
+
+/*!
     \class QStyleOptionListViewItem qsytleoption.h
     \brief The QStyleOptionListViewItem class is used to describe an
     item drawn in a Q3ListView.
