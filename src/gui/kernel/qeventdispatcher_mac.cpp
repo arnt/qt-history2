@@ -464,8 +464,8 @@ class QMacBlockingFunction::Object : public QObject
 public:
     Object() { startTimer(100); }
 
-    void addRef() { ++ref; }
-    bool subRef() { return (--ref); }
+    void addRef() { ref.ref(); }
+    bool subRef() { return (ref.deref()); }
 
 protected:
     void timerEvent(QTimerEvent *)
