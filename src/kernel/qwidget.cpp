@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#398 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#399 $
 **
 ** Implementation of QWidget class
 **
@@ -2968,9 +2968,13 @@ bool QWidget::close( bool forceKill )
 
 /*!
   \fn bool QWidget::close()
-  Closes the widget.
+  Closes this widget. Returns TRUE if the widget was closed, otherwise
+  FALSE.
 
-  This version of close is usable as a slot. It calls close( FALSE )
+  First it sends the widget a QCloseEvent. The widget is \link hide()
+  hidden\endlink if it \link QCloseEvent::accept() accepts\endlink the
+  close event. The default implementation of QWidget::closeEvent()
+  accepts the close event.
 
   \sa close(bool)
 */
