@@ -253,7 +253,7 @@ void QListModel::itemChanged(QListWidgetItem *item)
     The isHidden() function can be used to determine whether the item is hidden.
     Items can be hidden with setHidden().
 
-    \sa QListWidgetItem
+    \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!
@@ -455,7 +455,7 @@ bool QListWidgetItem::isHidden() const
 /*!
     \fn int QListWidgetItem::checked() const
 
-    Returns the checked state of the list item (see {QCheckBox::ToggleState}).
+    Returns the checked state of the list item (see \l{QCheckBox::ToggleState}).
 */
 
 /*!
@@ -659,6 +659,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 
     For multiple items, insertItems() can be used instead. The number of
     items in the list is found with the count() function.
+    To remove items from the list, use removeItem().
 
     The current item in the list can be found with currentItem(), and changed
     with setCurrentItem(). The user can also change the current item by
@@ -666,7 +667,7 @@ void QListWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
     current item changes, the currentChanged() signal is emitted with the
     new current item and the item that was previously current.
 
-    \sa QListWidgetItem
+    \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
 */
 
 

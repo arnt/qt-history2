@@ -604,6 +604,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
   color. These are specified with the setFont() and setTextColor() functions,
   and read with font() and textColor().
 
+  \sa QTreeWidget
 */
 
 /*!
@@ -750,6 +751,10 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
 /*!
     \fn int QTreeWidgetItem::checkedState(int column) const
+
+    Returns the checked state of the label in the given \a column.
+
+    \sa QCheckBox::ToggleState
 */
 
 /*!
@@ -1021,7 +1026,8 @@ void QTreeWidgetItem::setHidden(bool hide)
 
 /*!
   Sorts the children by the value in the given \a column, in the \a order
-  specified.
+  specified. If \a climb is true, the items below each of the children will
+  also be sorted.
 */
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
@@ -1125,10 +1131,10 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   \ingroup model-view
 
   The QTreeWidget class is a convenience class that provides a standard
-  tree view based on Qt's Model/View architecture with a classic item-based
-  interface similar to that used by the \c QListView class in Qt 3.
-  This class uses a default model to hold items, each of which is a
-  QTreeWidgetItem.
+  tree widget with a classic item-based interface similar to that used by
+  the \c QListView class in Qt 3. 
+  This class is based on Qt's Model/View architecture and uses a default
+  model to hold items, each of which is a QTreeWidgetItem.
 
   Developers who do not need the flexibility of the Model/View framework
   can use this class to create simple hierarchical lists very easily. A more
@@ -1145,7 +1151,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   \endcode
   \endomit
 
-  \sa \link model-view-programming.html Model/View Programming\endlink QTreeModel QTreeWidgetItem
+  \sa \link model-view-programming.html Model/View Programming\endlink QTreeWidgetItem
 */
 
 /*!
@@ -1169,7 +1175,7 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
-  Constructs a tree view with the given \a parent widget.
+  Constructs a tree widget with the given \a parent.
 */
 
 QTreeWidget::QTreeWidget(QWidget *parent)
@@ -1242,7 +1248,7 @@ QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
 }
 
 /*!
-  Returns the number of top level items.
+  Returns the number of top-level items.
 */
 
 int QTreeWidget::topLevelItemCount() const
@@ -1273,7 +1279,7 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 }
 
 /*!
-  Returns the index of the top-level item or -1 if the item
+  Returns the index of the given top-level \a item, or -1 if the item
   cannot be found.
  */
 int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
@@ -1293,9 +1299,8 @@ QTreeWidgetItem *QTreeWidget::headerItem()
 }
 
 /*!
-    Sets the header \a item for the tree widget. The contents of each of the
-    header's columns are supplied by the labels from each of the columns in the
-    item.
+    Sets the header \a item for the tree widget. The label for each column in
+    the header is supplied by the corresponding label in the item.
 
     \sa headerItem()
 */
@@ -1319,7 +1324,7 @@ void QTreeWidget::setHeaderLabels(const QStringList &labels)
 }
 
 /*!
-    Returns the current item in the tree widget. This is usually highlighted.
+    Returns the current item in the tree widget.
 
     \sa setCurrentItem()
 */
@@ -1366,7 +1371,7 @@ void QTreeWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  Returns if sorting is enabled; otherwise returns false.
+  Returns true if sorting is enabled; otherwise returns false.
   Sorting is enabled when the user clicks on a header section.
 */
 
@@ -1437,8 +1442,8 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
-  Returns a list of items that match the \a text, using the criteria given
-  in the \a flags.
+  Returns a list of items that match the given \a text, using the criteria
+  given by the \a flags.
 */
 
 QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
