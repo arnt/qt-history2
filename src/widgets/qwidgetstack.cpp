@@ -468,6 +468,10 @@ QWidget * QWidgetStack::visibleWidget() const
     This signal is emitted just before a managed widget is shown if
     that managed widget has an id != -1. The argument is the numeric
     id of the widget.
+
+    If you call visibleWidget() in a slot connected to aboutToShow(),
+    the widget it returns is the one that is currently visible, not
+    the one that is about to be shown.
 */
 
 
@@ -478,6 +482,10 @@ QWidget * QWidgetStack::visibleWidget() const
 
     This signal is emitted just before a managed widget is shown. The
     argument is a pointer to the widget.
+
+    If you call visibleWidget() in a slot connected to aboutToShow(),
+    the widget returned is the one that is currently visible, not the
+    one that is about to be shown.
 */
 
 
