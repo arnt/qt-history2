@@ -54,3 +54,6 @@ QFileDialog
 
 QEffects
     Submenus are not on top of parent while fading
+
+QMainWindow/QToolBar
+    Hiding toolbars produces debug output (support/arc-08/16011)
