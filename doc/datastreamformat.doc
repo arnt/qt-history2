@@ -76,8 +76,9 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i QByteArray
      \i \list
-	\i The array size (Q_UINT32)
-	\i The array bytes, i.e. size bytes
+        \i If the string is null: 0xffffffff (Q_UINT32)<br>
+	otherwise: the array size (Q_UINT32)
+	followed by the array bytes, i.e. size bytes
 	\endlist
 \row \i QCString
      \i \list
