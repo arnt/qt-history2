@@ -5,9 +5,9 @@ diff -uwr template/Makefile freebsd-gcc-shared/Makefile
  #
  
  CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
-+CFLAGS	= -O2 -fno-strength-reduce -Wall -I/usr/X11R6/include
++CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include
 +LFLAGS	= -lqt -L/usr/X11R6/lib
  
  all: moc library tutorial examples

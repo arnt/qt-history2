@@ -6,7 +6,7 @@ diff -uwr template/Makefile hpux-cc-shared/Makefile
  #
  
 -CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CC	= CC
 +CFLAGS	= -O -w
  LFLAGS	= -lqt

@@ -81,6 +81,7 @@ for a in `make -s showdirs` ; do
 done
 ln ${BASE}/tutorial/Makefile ${BASE}/arch/template/tutorial/Makefile
 cd ${BASE}/arch/template/moc
+sed 's/^static char yysccsid.*//' < ../../../src/moc/moc_gen.cpp > /tmp/moc_gen.cpp && mv /tmp/moc_gen.cpp ../../../src/moc/moc_gen.cpp 
 ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc_gen.cpp ../../../src/moc/lex.yy.c .
 sed -e 's-\.\./tools/-../library/-' < ../../../src/moc/Makefile > Makefile
 
@@ -97,15 +98,15 @@ cat <<EOF
 #
 
 CC	= gcc
-CFLAGS	= -O2 -fno-strength-reduce -Wall
+CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 LFLAGS	= -lqt
 
 all: library tutorial examples
 
-library tutorial examples: moc
+library tutorial examples: moc FORCE
 	cd \$@; \$(MAKE)
 
-moc: variables
+moc: variables FORCE
 	cd \$@; \$(MAKE)
 	[ -d bin ] || mkdir bin
 	cp moc/moc bin/moc

@@ -4,7 +4,7 @@ diff -uwr template/Makefile solaris-gcc-static/Makefile
 @@ -6,7 +6,7 @@
  
  CC	= gcc
- CFLAGS	= -O2 -fno-strength-reduce -Wall
+ CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +LFLAGS	= -lqt -lX11 -lsocket
  

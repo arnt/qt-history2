@@ -5,7 +5,7 @@ diff -uwr template/Makefile linux-gcc-shared-debug/Makefile
  #
  
  CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CFLAGS	= -g -Wall
  LFLAGS	= -lqt
  

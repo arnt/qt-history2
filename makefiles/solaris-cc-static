@@ -6,7 +6,7 @@ diff -uwr template/Makefile solaris-cc-static/Makefile
  #
  
 -CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +CC	= CC
 +CFLAGS	= -O2 -pto

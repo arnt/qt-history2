@@ -6,7 +6,7 @@ diff -ur template/Makefile irix-dcc-shared/Makefile
  #
  
 -CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CC = DCC
 +CFLAGS = -O2 -fullwarn -smart
  LFLAGS	= -lqt

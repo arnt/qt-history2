@@ -6,7 +6,7 @@ diff -uwr template/Makefile osf1-cxx-shared/Makefile
  #
  
 -CC	= gcc
--CFLAGS	= -O2 -fno-strength-reduce -Wall
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CC	= cxx
 +CFLAGS	= -O2 -x cxx
  LFLAGS	= -lqt
