@@ -1441,7 +1441,6 @@ struct Q_EXPORT QTextDocumentTag {
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
 {
-    setTextFormat( Qt::RichText );
     if ( !context.isEmpty() )
 	setContext( context );
     clear();
@@ -1449,6 +1448,7 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     oTextValid = TRUE;
     oText = text;
     setRichTextInternal( text );
+    fParag->rtext = TRUE;
 }
 
 void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* cursor )
@@ -4808,7 +4808,7 @@ int QTextParagraph::bottomMargin() const
 int QTextParagraph::leftMargin() const
 {
     int m = ulm;
-    if ( rtext && listDepth() )
+    if ( listDepth() )
 	m += listDepth() * document()->list_lm;
     return scale( m, QTextFormat::painter() );
 }

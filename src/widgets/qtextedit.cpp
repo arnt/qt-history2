@@ -1123,10 +1123,6 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	}
 
-	if ( !cursor->paragraph()->prev() &&
-	     cursor->atParagStart() )
-	    break;
-
 	doKeyboardAction( ActionBackspace );
 	clearUndoRedoInfo = FALSE;
 
@@ -1439,7 +1435,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    }
 	    cursor->remove();
 	    lastFormatted = cursor->paragraph();
-	} else {
+	} else if ( cursor->paragraph()->prev() ){
 	    clearUndoRedo();
 	    doc->setSelectionStart( QTextDocument::Temp, *cursor );
 	    cursor->gotoPreviousLetter();
