@@ -94,10 +94,16 @@ QPopupMenu *CppEditor::createPopupMenu( const QPoint &p )
 {
     QPopupMenu *m = Editor::createPopupMenu( p );
     m->insertSeparator();
-    m->insertItem( tr( "Add Include File (in Declaration)..." ), this, SLOT( addInclDecl() ) );
-    m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );
-    m->insertItem( tr( "Add Forward Declaration..." ), this, SLOT( addForward() ) );
-    m->insertItem( tr( "Add Class Variable..." ), this, SLOT( addVar() ) );
+    int adddeclid = m->insertItem( tr( "Add Include File (in Declaration)..." ), this, SLOT( addInclDecl() ) );
+    int addimplid = m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );
+    int addforid = m->insertItem( tr( "Add Forward Declaration..." ), this, SLOT( addForward() ) );
+    int addvarid = m->insertItem( tr( "Add Class Variable..." ), this, SLOT( addVar() ) );
+    if ( !dIface->currentForm() ) {
+	m->setItemEnabled( adddeclid, FALSE );
+	m->setItemEnabled( addimplid, FALSE );
+	m->setItemEnabled( addforid, FALSE );
+	m->setItemEnabled( addvarid, FALSE );
+    }
     return m;
 }
 
@@ -106,7 +112,7 @@ void CppEditor::addInclDecl()
     if ( !dIface )
 	return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Declaration)" ),
-				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
+				       tr( "Input this using the format <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
 	return;
     DesignerFormWindow *form = dIface->currentForm();
@@ -120,7 +126,7 @@ void CppEditor::addInclImpl()
     if ( !dIface )
 	return;
     QString s = QInputDialog::getText( tr( "Add Include File (In Implementation)" ),
-				       tr( "You should input that in the form <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
+				       tr( "Input this using the format <b>&lt;include.h&gt;</b> or <b>\"include.h\"</b>" ) );
     if ( s.isEmpty() )
 	return;
     DesignerFormWindow *form = dIface->currentForm();
@@ -134,7 +140,7 @@ void CppEditor::addForward()
     if ( !dIface )
 	return;
     QString s = QInputDialog::getText( tr( "Add Forward Declaration" ),
-				       tr( "You should input that in the form <b>ClassName;</b>" ) );
+				       tr( "Input this using the format <b>ClassName;</b>" ) );
     if ( s.isEmpty() )
 	return;
     DesignerFormWindow *form = dIface->currentForm();
@@ -148,7 +154,7 @@ void CppEditor::addVar()
     if ( !dIface )
 	return;
     QString s = QInputDialog::getText( tr( "Add Class Variable" ),
-				       tr( "You should input that in the form <b>type var;</b>" ) );
+				       tr( "Input this using the format  <b>type var;</b>" ) );
     if ( s.isEmpty() )
 	return;
     DesignerFormWindow *form = dIface->currentForm();
