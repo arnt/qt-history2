@@ -307,6 +307,51 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen        release_obj
 #define release_brush        release_obj
 
+/********************************************************************************
+ * GDI functions we need to dynamically resolve due for 9x based.
+ */
+
+typedef int (__stdcall *PtrModifyWorldTransform)(HDC hdc, const XFORM *, uint);
+typedef int (__stdcall *PtrSetGraphicsMode)(HDC hdc, uint);
+typedef int (__stdcall *PtrSetWorldTransform)(HDC hdc, const XFORM *);
+
+typedef int (__stdcall *PtrAlphaBlend)(HDC, int, int, int, int,
+                                           HDC, int, int, int, int,
+                                           BLENDFUNCTION);
+
+static PtrAlphaBlend qAlphaBlend = 0;
+static PtrModifyWorldTransform qModifyWorldTransform = 0;
+static PtrSetGraphicsMode qSetGraphicsMode = 0;
+static PtrSetWorldTransform qSetWorldTransform = 0;
+
+void qt_resolve_gdi_functions()
+{
+    static bool resolved = false;
+    if (resolved)
+        return;
+    resolved = true;
+
+    QLibrary gdi32("gdi32");
+    gdi32.load();
+    if (gdi32.isLoaded()) {
+        qSetGraphicsMode = (PtrSetGraphicsMode) gdi32.resolve("SetGraphicsMode");
+        qSetWorldTransform = (PtrSetWorldTransform) gdi32.resolve("SetWorldTransform");
+        qModifyWorldTransform = (PtrModifyWorldTransform) gdi32.resolve("ModifyWorldTransform");
+    }
+
+    QLibrary img32("msimg32");
+    img32.load();
+    if (img32.isLoaded()) {
+        qAlphaBlend = (PtrAlphaBlend) img32.resolve("AlphaBlend");
+    }
+
+#ifdef QT_DEBUG_DRAW
+    printf("qSetGraphicsMode..........: %p\n", qSetGraphicsMode);
+    printf("qSetWorldTransform........: %p\n", qSetWorldTransform);
+    printf("qModifyWorldTransform.....: %p\n", qModifyWorldTransform);
+    printf("qAlphaBlend...............: %p\n", qAlphaBlend);
+#endif
+}
 
 QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr,
                                      PaintEngineFeatures caps)
@@ -433,12 +478,6 @@ bool QWin32PaintEngine::end()
     if (d->holdpal) {
         SelectPalette(d->hdc, d->holdpal, true);
         RealizePalette(d->hdc);
-    }
-
-    if (GetGraphicsMode(d->hdc)==GM_ADVANCED) {
-        if (!ModifyWorldTransform(d->hdc, 0, MWT_IDENTITY))
-            qWarning("QWin32PaintEngine::end(). ModifyWorldTransform failed: code: %d\n", GetLastError());
-        SetGraphicsMode(d->hdc, GM_COMPATIBLE);
     }
 
     if (d->pdev->devType() == QInternal::Widget && !d->usesWidgetDC) {
@@ -785,6 +824,7 @@ void QWin32PaintEngine::drawPath(const QPainterPath &p)
 
 void QWin32PaintEngine::initialize()
 {
+    qt_resolve_gdi_functions();
     stock_nullPen    = (HPEN)GetStockObject(NULL_PEN);
     stock_blackPen   = (HPEN)GetStockObject(BLACK_PEN);
     stock_whitePen   = (HPEN)GetStockObject(WHITE_PEN);
@@ -867,8 +907,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
                                    255,               // SourceConstantAlpha, we use pr pixel
                                    AC_SRC_ALPHA       // AlphaFormat
         };
-        if (!AlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
-                        pm_dc, sr.x(), sr.y(), sr.width(), sr.height(), bf)) {
+        if (!qAlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
+                         pm_dc, sr.x(), sr.y(), sr.width(), sr.height(), bf)) {
             qErrnoWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed");
         }
     } else if (mask && mode == Qt::ComposePixmap) {
@@ -1195,9 +1235,6 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
 #endif
     d->brush = brush;
     d->brushStyle = brush.style();
-    d->forceGdiplus |= (d->brushStyle != Qt::NoBrush
-                        && d->brushStyle != Qt::LinearGradientPattern
-                        && brush.color().alpha() != 255);
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateBrush(brush, bgOrigin);
         return;
@@ -1711,7 +1748,7 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     if (useMemDC) {
         if (gcol1.alpha() != 255 || gcol2.alpha() != 255) {
             BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-            AlphaBlend(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, rw, rh, bf);
+            qAlphaBlend(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, rw, rh, bf);
         } else {
             BitBlt(hdc, rect.x(), rect.y(), rw, rh, memdc, 0, 0, SRCCOPY);
         }
@@ -1735,7 +1772,7 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
     Rectangle(memdc, 0, 0, r.width() + 1, r.height() + 1);
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, color.alpha(), 0 };
-    if (!AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf))
+    if (!qAlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf))
         qErrnoWarning("QWin32PaintEngine::fillAlpha: AlphaBlend failed");
 
     DeleteObject(SelectObject(memdc, stock_nullBrush));
@@ -1799,12 +1836,11 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     if (!qt_gdiplus_support)
         return;
+
 #ifdef QT_DEBUG_DRAW
     printf(" - QWin32PaintEnginePrivate::beginGdiplus()\n");
 #endif
 
-    ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
-    SetGraphicsMode(hdc, GM_COMPATIBLE);
     ExtSelectClipRgn(hdc, 0, RGN_COPY);
 
     Q_ASSERT(!gdiplusEngine);
@@ -1835,7 +1871,7 @@ void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
         m.eM22 = mtx.m22();
         m.eDx  = mtx.dx();
         m.eDy  = mtx.dy();
-        SetGraphicsMode(d->hdc, GM_ADVANCED);
+        qSetGraphicsMode(d->hdc, GM_ADVANCED);
         if (!SetWorldTransform(d->hdc, &m)) {
             qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
         }
@@ -1843,9 +1879,9 @@ void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
     } else {
         m.eM11 = m.eM22 = (float)1.0;
         m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
-        SetGraphicsMode(d->hdc, GM_ADVANCED);
-        ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-        SetGraphicsMode(d->hdc, GM_COMPATIBLE);
+        qSetGraphicsMode(d->hdc, GM_ADVANCED);
+        qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
+        qSetGraphicsMode(d->hdc, GM_COMPATIBLE);
         d->advancedMode = false;
     }
 }
