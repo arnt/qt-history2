@@ -1264,8 +1264,7 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
     if ( badSize )
 	return;
     badSize = TRUE;
-    if ( isVisible() )
-	calculateRects();
+    calculateRects();
 }
 
 /*!  Sets actItem to \a i and calls repaint for the
