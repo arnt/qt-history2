@@ -22,6 +22,7 @@
 #include "parser.h"
 #include "widgetdatabase.h"
 #include "domtool.h"
+#include <qregexp.h>
 #include <qsizepolicy.h>
 #include <qstringlist.h>
 #define NO_STATIC_COLORS
@@ -31,8 +32,7 @@
 /*!
   Creates a declaration for the object given in \a e.
 
-  Any children are ignored, this function does _not_ travesere
-  recursively.
+  Children are not traversed recursively.
 
   \sa createObjectImpl()
  */
@@ -163,6 +163,9 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		continue;
 	    }
 	    if ( prop == "frameworkCode" )
+		continue;
+	    if ( objClass == "QMultiLineEdit" &&
+		 QRegExp("echoMode|hMargin|maxLength|maxLines|undoEnabled").exactMatch(prop) )
 		continue;
 	    if ( prop == "geometry" ) {
 		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
