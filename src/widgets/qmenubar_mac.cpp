@@ -193,8 +193,13 @@ uint QMenuBar::isCommand(QMenuItem *it)
 		int st = text.findRev('\t');
 		if(st != -1) 
 		    text.remove(st, text.length()-st);
-		if(ret == kHICommandAbout || text == "About") 
-		    text += QString(" ") + qApp->argv()[0];
+		text.replace(QRegExp("\\.*$"), ""); //no ellipses
+#ifdef Q_WS_MACX
+		if(ret == kHICommandAbout && text == "About") {
+		    QString prog = qApp->argv()[0];
+		    text += " " + prog.section('/', -1, -1);;
+		}
+#endif
 		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu, 
 					       no_ampersands(text), 
 					       activeMenuBar->mac_d->in_apple++, 0, ret);

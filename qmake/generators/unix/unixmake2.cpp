@@ -420,7 +420,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else {
 	    t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<  
 		var("DESTDIR_TARGET") << endl << endl;
-	    t << var("DESTDIR_TARGET") << ": " << " $(SUBLIBS) " << 
+	    t << var("DESTDIR_TARGET") << ":  $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << 
 		var("TARGETDEPS");
 	}
 	if(!destdir.isEmpty())
