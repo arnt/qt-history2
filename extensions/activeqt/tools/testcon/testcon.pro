@@ -13,7 +13,7 @@ FORMS	 = mainwindow.ui invokemethod.ui changeproperties.ui ambientproperties.ui 
 RC_FILE	 = testcon.rc
 
 win32-borland {
-    QMAKE_POST_LINK = midl testcon.idl
+    QMAKE_POST_LINK = -midl testcon.idl
 } else {
     QMAKE_POST_LINK = midl testcon.idl && move testcon.tlb $(TARGETDIR)
 }
