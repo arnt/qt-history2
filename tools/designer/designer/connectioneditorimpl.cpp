@@ -165,6 +165,12 @@ ConnectionEditor::~ConnectionEditor()
 {
 }
 
+static void insertUnique( const QString &item, QStringList &lst )
+{
+    if ( lst.find( item ) == lst.end() )
+	lst << item;
+}
+
 void ConnectionEditor::signalChanged()
 {
     updateConnectButtonState();
@@ -176,6 +182,7 @@ void ConnectionEditor::signalChanged()
     if ( signalBox->currentText().isEmpty() )
 	return;
     int n = receiver->metaObject()->numSlots( TRUE );
+    QStringList slts;
     for( int i = 0; i < n; ++i ) {
 	// accept only public slots. For the form window, also accept protected slots
 	const QMetaData* md =  receiver->metaObject()->slot( i, TRUE  );
@@ -184,7 +191,7 @@ void ConnectionEditor::signalChanged()
 		 receiver->metaObject()->slot(i, TRUE)->access == QMetaData::Protected) ) &&
 	     !ignoreSlot( md->name ) &&
 	     checkConnectArgs( signal.data(), receiver, md->name ) )
-	    slotBox->insertItem( md->name );
+	    insertUnique( md->name, slts );
     }
 
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
@@ -198,7 +205,7 @@ void ConnectionEditor::signalChanged()
 			continue;
 		    s = MetaDataBase::normalizeSlot( s );
 		    if ( checkConnectArgs( signal.data(), receiver, s ) )
-			slotBox->insertItem( QString( (*it).slot ) );
+			insertUnique( (*it).slot, slts);
 		}
 	    }
 	}
@@ -212,9 +219,11 @@ void ConnectionEditor::signalChanged()
 		continue;
 	    s = MetaDataBase::normalizeSlot( s );
 	    if ( checkConnectArgs( signal.data(), receiver, s ) )
-		slotBox->insertItem( QString( (*it).slot ) );
+		insertUnique( (*it).slot, slts );
 	}
     }
+
+    slotBox->insertStringList( slts );
 
     slotsChanged();
 }
