@@ -33,6 +33,15 @@
 #include <comdef.h>
 #endif
 
+void QAccessible::initialize()
+{
+
+}
+void QAccessible::cleanup()
+{
+
+}
+
 void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
     Q_ASSERT(o);

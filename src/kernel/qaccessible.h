@@ -194,6 +194,9 @@ public:
     static QRESULT queryAccessibleInterface( QObject *, QAccessibleInterface ** );
     static void updateAccessibility( QObject *, int who, Event reason );
     static bool isActive();
+
+    static void initialize();
+    static void cleanup();
 };
 
 // {EC86CB9C-5DA0-4c43-A739-13EBDF1C6B14}

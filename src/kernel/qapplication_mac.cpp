@@ -53,6 +53,10 @@
 #  include "qmenubar.h"
 #endif
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+#  include "qaccessible.h"
+#endif
+
 #if defined(QT_THREAD_SUPPORT)
 #  include "qthread.h"
 #endif
@@ -743,6 +747,9 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::initialize();
+#endif
 
 #if defined(QT_THREAD_SUPPORT)
 	qt_mac_port_mutex = new QMutex(TRUE);
@@ -777,6 +784,9 @@ void qt_cleanup()
     }
     QPixmapCache::clear();
     if(qt_is_gui_used) {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	QAccessible::cleanup();
+#endif
 	QPainter::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
