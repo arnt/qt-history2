@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#330 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#331 $
 **
 ** Implementation of QWidget class
 **
@@ -721,6 +721,7 @@ void QWidget::createTLExtra()
 	extra->topextra->embedded = 0;
 	extra->topextra->parentWinId = 0;
 #endif
+	createTLSysExtra();
     }
 }
 
@@ -759,6 +760,7 @@ void QWidget::deleteExtra()
 	delete extra->curs;
 	deleteSysExtra();
 	if ( extra->topextra ) {
+	    deleteTLSysExtra();
 	    delete extra->topextra->icon;
 	    delete extra->topextra->focusData;
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#413 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#414 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3173,10 +3173,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 
     if ( type == QEvent::KeyPress ) {
 	if ( xim ) {
-	    QWExtra * xd = extraData();
+	    QWidget* tlw = topLevelWidget();
+	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0; 
 	    if ( !xd ) {
-		createExtra();
-		xd = extraData();
+		tlw->createTLExtra();
+		xd = tlw->extraData()->topextra;
 	    }
 	    if ( xd->xic == 0 ) {
 		XPoint spot; spot.x = 1; spot.y = 1; // dummmy

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#165 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -980,6 +980,14 @@ void QWidget::deleteSysExtra()
     if ( extra->winIcon )
 	DestroyIcon( extra->winIcon );
     setAcceptDrops( FALSE );
+}
+
+void QWidget::createTLSysExtra()
+{
+}
+
+void QWidget::deleteTLSysExtra()
+{
 }
 
 bool QWidget::acceptDrops() const

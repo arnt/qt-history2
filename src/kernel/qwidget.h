@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#200 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#201 $
 **
 ** Definition of QWidget class
 **
@@ -374,9 +374,11 @@ private:
     void	 hideWindow();
     void	 createTLExtra();
     void	 createExtra();
-    void	 createSysExtra();
     void	 deleteExtra();
+    void	 createSysExtra();
     void	 deleteSysExtra();
+    void	 createTLSysExtra();
+    void	 deleteTLSysExtra();
     void	 internalSetGeometry( int, int, int, int, bool );
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
@@ -592,6 +594,9 @@ struct QTLWExtra {
     WId parentWinId;				// parent window Id (valid after reparenting)
     uint embedded : 1;			// window is embedded in another Qt application
 #endif
+#if defined(_WS_X11_)
+    void    *xic;				// XIM Input Context
+#endif
 };
 
 struct QWExtra {
@@ -607,7 +612,6 @@ struct QWExtra {
 #endif
 #if defined(_WS_X11_)
     WId xDndProxy;				// XDND forwarding to embedded windows
-    void    *xic;				// XIM Input Context
 #endif
     char     bg_mode;				// background mode
     uint sizegrip : 1;				// size grip

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#310 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#311 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -356,12 +356,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
-	if ( extra && extra->xic ) {
-#if !defined(X11R4)
-	    XDestroyIC( (XIC)extra->xic );
-	    extra->xic = 0;
-#endif
-	}
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -1591,12 +1585,26 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
-    extra->xic = 0;
     extra->xDndProxy = 0;
 }
 
 void QWidget::deleteSysExtra()
 {
+}
+
+void QWidget::createTLSysExtra()
+{
+    extra->topextra->xic = 0;
+}
+
+void QWidget::deleteTLSysExtra()
+{
+#if !defined(X11R4)
+    if (extra->topextra->xic) {
+	XDestroyIC( (XIC) extra->topextra->xic );
+	extra->topextra->xic = 0;
+    }
+#endif
 }
 
 /*!
