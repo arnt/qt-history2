@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#28 $
 **
 ** Implementation of QTabBar class
 **
@@ -13,7 +13,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#28 $");
 
 
 QTab::~QTab()
@@ -77,7 +77,8 @@ struct QTabPrivate {
   <img src=qtabbar-m.gif> <img src=qtabbar-w.gif>
 */
 
-/*! \fn void QTabBar::selected( int id )
+/*!
+  \fn void QTabBar::selected( int id )
 
   QTabBar emits this signal whenever any tab is selected, whether by
   the program or the user.  The argument \a id is the ID if the tab
@@ -355,7 +356,8 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 			  w, h ), t, t->id == keyboardFocusTab() );
 }
 
-/*!  Paints the label of tab \a t centered in rectangle \a br using
+/*!
+  Paints the label of tab \a t centered in rectangle \a br using
   painter \a p and draws a focus indication iff \a has_focus is TRUE.
 
   In Qt 2.0, this will be virtual.
@@ -367,7 +369,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     if ( t->enabled ) {
 	p->setPen( palette().normal().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
-    } else if ( shape() == MotifStyle ) {
+    } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().text() );
 	p->drawText( br, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled

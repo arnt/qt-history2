@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#64 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#64 $");
 
 
 const int sbDim = 16;
@@ -1481,11 +1481,11 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	if ( update )
 	    updateScrollBars( horMask | verMask );
 	else
-	    sbDirty |= horMask | verMask;
+	    sbDirty = sbDirty | (horMask | verMask);
 	if ( testTableFlags( Tbl_vScrollBar ) )
 	    coverCornerSquare( TRUE );
 	if ( autoUpdate() )
-	    sbDirty |= horMask;		// so updateScrollBars will show()
+	    sbDirty = sbDirty | horMask;
     } else {
 	tFlags &= ~Tbl_hScrollBar;
 	if ( !hScrollBar )
@@ -1497,7 +1497,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	if ( update )
 	    updateScrollBars( verMask );
 	else
-	    sbDirty |= verMask;
+	    sbDirty = sbDirty | verMask;
 	if ( hideScrollBar && isVisible() )
 	    repaint( hScrollBar->x(), hScrollBar->y(), 
 		     width() - hScrollBar->x(), hScrollBar->height() );
@@ -1530,11 +1530,11 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	if ( update )
 	    updateScrollBars( verMask | horMask );
 	else
-	    sbDirty |= horMask | verMask;
+	    sbDirty = sbDirty | (horMask | verMask);
 	if ( testTableFlags( Tbl_hScrollBar ) )
 	    coverCornerSquare( TRUE );
 	if ( autoUpdate() )
-	    sbDirty |= verMask;		// so updateScrollBars will show()
+	    sbDirty = sbDirty | verMask;
     } else {
 	tFlags &= ~Tbl_vScrollBar;
 	if ( !vScrollBar )
@@ -1546,7 +1546,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	if ( update )
 	    updateScrollBars( horMask );
 	else
-	    sbDirty |= horMask;
+	    sbDirty = sbDirty | horMask;
 	if ( hideScrollBar && isVisible() )
 	    repaint( vScrollBar->x(), vScrollBar->y(), 
 		     vScrollBar->width(), height() - vScrollBar->y() );
@@ -2280,7 +2280,7 @@ void QTableView::showOrHideScrollBars()
     if ( vScrollBar ) {
 	if ( testTableFlags(Tbl_vScrollBar) ) {
 	    if ( !vScrollBar->isVisible() )
-		sbDirty |= verMask;
+		sbDirty = sbDirty | verMask;
 	} else {
 	    if ( vScrollBar->isVisible() )
 	       vScrollBar->hide();
@@ -2289,7 +2289,7 @@ void QTableView::showOrHideScrollBars()
     if ( hScrollBar ) {
 	if ( testTableFlags(Tbl_hScrollBar) ) {
 	    if ( !hScrollBar->isVisible() )
-		sbDirty |= horMask;
+		sbDirty = sbDirty | horMask;
 	} else {
 	    if ( hScrollBar->isVisible() )
 		hScrollBar->hide();

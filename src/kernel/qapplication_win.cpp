@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#111 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,8 +25,12 @@
 #else
 #include <windows.h>
 #endif
+#if defined(__CYGWIN32__)
+#define __INSIDE_CYGWIN32__
+#include <mywinsock.h>
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#111 $");
 
 
 /*****************************************************************************
