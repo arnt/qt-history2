@@ -465,7 +465,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    p->fillRect(r.x(), r.y(), lw, r.height(), cg.background()); //left
 	    p->fillRect(r.right()-lw, r.y(), lw, r.height(), cg.background()); //right
 	    p->fillRect(r.x(), r.y(), r.width(), lw, cg.background()); //top
-	    p->fillRect(r.x(), r.bottom()-lw, r.width(), lw, cg.background()); //bottm
+	    p->fillRect(r.x(), r.bottom()-lw+1, r.width(), lw, cg.background()); //bottm
 
 	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE,
 					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
@@ -1341,8 +1341,6 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
 	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
-	else if(widget && widget->inherits("QLineEdit"))
-	    GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
 	else
 	    ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
