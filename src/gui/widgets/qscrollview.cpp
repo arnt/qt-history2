@@ -102,6 +102,8 @@ QScrollViewPrivate::QScrollViewPrivate(): QFramePrivate()
 
 void QScrollViewPrivate::init()
 {
+    WFlags f = q->getWFlags();
+    flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
     hbar = new QScrollBar( QScrollBar::Horizontal, q, "qt_hbar" );
     vbar = new QScrollBar( QScrollBar::Vertical, q, "qt_vbar" );
     viewport = new QViewportWidget( q, "qt_viewport", flags );
@@ -135,6 +137,31 @@ void QScrollViewPrivate::init()
     fake_scroll = FALSE;
     hbarPressed = FALSE;
     vbarPressed = FALSE;
+
+#ifndef QT_NO_DRAGANDDROP
+    QObject::connect( &autoscroll_timer, SIGNAL( timeout() ),
+             q, SLOT( doDragAutoScroll() ) );
+#endif
+
+    QObject::connect( hbar, SIGNAL( valueChanged(int) ),
+        q, SLOT( hslide(int) ) );
+    QObject::connect( vbar, SIGNAL( valueChanged(int) ),
+        q, SLOT( vslide(int) ) );
+
+    QObject::connect( hbar, SIGNAL(sliderPressed()), q, SLOT(hbarIsPressed()) );
+    QObject::connect( hbar, SIGNAL(sliderReleased()), q, SLOT(hbarIsReleased()) );
+    QObject::connect( vbar, SIGNAL(sliderPressed()), q, SLOT(vbarIsPressed()) );
+    QObject::connect( vbar, SIGNAL(sliderReleased()), q, SLOT(vbarIsReleased()) );
+
+
+    viewport->installEventFilter( q );
+
+    QObject::connect( &scrollbar_timer, SIGNAL( timeout() ),
+             q, SLOT( updateScrollBars() ) );
+
+    q->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+    q->setLineWidth( q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q) );
+    q->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 }
 
 QScrollViewPrivate::~QScrollViewPrivate()
@@ -522,38 +549,19 @@ void QScrollViewPrivate::viewportResized( int w, int h )
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
-    QFrame( *new QScrollViewPrivate(),
-            parent, f & (~WStaticContents) & (~WNoAutoErase) )
+    QFrame(*new QScrollViewPrivate, parent, f & (~WStaticContents) & (~WNoAutoErase))
 {
-    d->flags = WResizeNoErase | (f&WPaintClever) | (f&WNoAutoErase) | (f&WStaticContents);
-    d->init();
     if (name)
         setObjectName(name);
+    d->init();
+}
 
-#ifndef QT_NO_DRAGANDDROP
-    connect( &d->autoscroll_timer, SIGNAL( timeout() ),
-             this, SLOT( doDragAutoScroll() ) );
-#endif
-
-    connect( d->hbar, SIGNAL( valueChanged(int) ),
-        this, SLOT( hslide(int) ) );
-    connect( d->vbar, SIGNAL( valueChanged(int) ),
-        this, SLOT( vslide(int) ) );
-
-    connect( d->hbar, SIGNAL(sliderPressed()), this, SLOT(hbarIsPressed()) );
-    connect( d->hbar, SIGNAL(sliderReleased()), this, SLOT(hbarIsReleased()) );
-    connect( d->vbar, SIGNAL(sliderPressed()), this, SLOT(vbarIsPressed()) );
-    connect( d->vbar, SIGNAL(sliderReleased()), this, SLOT(vbarIsReleased()) );
-
-
-    d->viewport->installEventFilter( this );
-
-    connect( &d->scrollbar_timer, SIGNAL( timeout() ),
-             this, SLOT( updateScrollBars() ) );
-
-    setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
-    setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+QScrollView::QScrollView(QScrollViewPrivate &dd, QWidget* parent, const char* name, WFlags f) :
+    QFrame(dd, parent, f & (~WStaticContents) & (~WNoAutoErase))
+{
+    if (name)
+        setObjectName(name);
+    d->init();
 }
 
 
