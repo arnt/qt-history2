@@ -1741,9 +1741,9 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
 	break;
     case CT_TabBarTab: {
-	SInt32 lth = kThemeLargeTabHeight;
+	SInt32 lth = kThemeLargeTabHeightMax;
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
-	    lth = kThemeSmallTabHeight;
+	    lth = kThemeSmallTabHeightMax;
 	if(sz.height() > lth)
 	    sz.setHeight(lth);
 	break; }
