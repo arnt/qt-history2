@@ -1480,9 +1480,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_FileDialogContentsView
     \value SP_FileDialogListView
     \value SP_FileDialogBack
-    \value SP_ItemChecked
-    \value SP_ItemPartiallyChecked
-    \value SP_ItemUnchecked
     \value SP_DockWidgetCloseButton  Close button on dock windows (see also QDockWidget)
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars

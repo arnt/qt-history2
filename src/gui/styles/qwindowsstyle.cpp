@@ -764,69 +764,6 @@ static const char * const file_link_xpm[]={
     "ccccccccccccc###"};
 
 
-static const char * const unchecked_xpm[] = {
-"16 16 2 1",
-"  c None",
-"# c #000000",
-"                ",
-"                ",
-"  ###########   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  #         #   ",
-"  ###########   ",
-"                ",
-"                ",
-"                "};
-
-static const char * const checked_xpm[] = {
-"16 16 2 1",
-"  c None",
-"# c #000000",
-"                ",
-"                ",
-"  ###########   ",
-"  #         #   ",
-"  #       # #   ",
-"  #      ## #   ",
-"  # #   ##  #   ",
-"  # ## ##   #   ",
-"  #  ###    #   ",
-"  #   #     #   ",
-"  #         #   ",
-"  #         #   ",
-"  ###########   ",
-"                ",
-"                ",
-"                ",};
-
-static const char * const partially_checked_xpm[] = {
-"16 16 3 1",
-"  c None",
-"# c #000000",
-". c #c0c0c0",
-"                ",
-"                ",
-"  ###########   ",
-"  #.........#   ",
-"  #.......#.#   ",
-"  #......##.#   ",
-"  #.#...##..#   ",
-"  #.##.##...#   ",
-"  #..###....#   ",
-"  #...#.....#   ",
-"  #.........#   ",
-"  #.........#   ",
-"  ###########   ",
-"                ",
-"                ",
-"                ",};
 
 #endif //QT_NO_IMAGEIO_XPM
 
@@ -864,12 +801,6 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
         return QPixmap((const char **)critical_xpm);
     case SP_MessageBoxQuestion:
         return QPixmap((const char **)question_xpm);
-    case SP_ItemChecked:
-        return QPixmap((const char **)checked_xpm);
-    case SP_ItemUnchecked:
-        return QPixmap((const char **)unchecked_xpm);
-    case SP_ItemPartiallyChecked:
-        return QPixmap((const char **)partially_checked_xpm);
     default:
         break;
     }
