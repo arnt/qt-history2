@@ -66,6 +66,8 @@ public:
     void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
+    void doItemsLayout();
+    
 public slots:
     void setOffset(int offset);
 

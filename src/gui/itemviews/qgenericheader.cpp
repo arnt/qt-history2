@@ -811,6 +811,16 @@ QModelIndex QGenericHeader::itemAt(int x, int y) const
 }
 
 /*!
+    Resizes the sections in the header.
+*/
+
+void QGenericHeader::doItemsLayout()
+{
+    if (d->stretchSections)
+        resizeSections();
+}
+
+/*!
   Returns the horizontal offset of the header.
 */
 
@@ -1086,13 +1096,11 @@ Qt::SortOrder QGenericHeader::sortIndicatorOrder() const
 }
 
 /*!
-  Updates the sections in the header.
 */
 
 void QGenericHeader::updateGeometries()
 {
-    if (d->stretchSections)
-        resizeSections();
+    doItemsLayout();
 }
 
 int QGenericHeaderPrivate::sectionHandleAt(int position)

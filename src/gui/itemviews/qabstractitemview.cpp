@@ -329,7 +329,8 @@ QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
 /*!
     \internal
 */
-QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
+QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model,
+                                     QWidget *parent)
     : QViewport(dd, parent)
 {
     Q_ASSERT(model);
@@ -1134,7 +1135,8 @@ int QAbstractItemView::verticalFactor() const
   Moves to and selects the item best matching the string \a search.
   If no item is found nothing happens.
 */
-void QAbstractItemView::keyboardSearch(const QString &search) {
+void QAbstractItemView::keyboardSearch(const QString &search)
+{
     QModelIndex start = currentItem().isValid() ? currentItem() : model()->index(0, 0);
     QTime now(QTime::currentTime());
     bool skipRow = false;

@@ -57,7 +57,6 @@ QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
 /*!
   \internal
 */
-
 QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(dd, model, parent)
 {
@@ -71,7 +70,6 @@ QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItem
 /*!
   Destroys the table view.
 */
-
 QGenericTableView::~QGenericTableView()
 {
 }
@@ -88,7 +86,6 @@ QGenericHeader *QGenericTableView::topHeader() const
 /*!
   Returns the header to the left of the table view.
 */
-
 QGenericHeader *QGenericTableView::leftHeader() const
 {
     return d->leftHeader;
@@ -96,7 +93,6 @@ QGenericHeader *QGenericTableView::leftHeader() const
 
 /*!
 */
-
 void QGenericTableView::setTopHeader(QGenericHeader *header)
 {
     if (d->topHeader) {
@@ -125,14 +121,11 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
     QObject::connect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
 
-    // FIXME: this needs to be set in setSelectionModel too
     d->topHeader->setSelectionModel(selectionModel());
-    //columnCountChanged(0, d->topHeader->count()); // FIXME
 }
 
 /*!
 */
-
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
     if (d->leftHeader) {
@@ -161,15 +154,12 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
     QObject::connect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeRowToContents(int)));
 
-    // FIXME: this needs to be set in setSelectionModel too
     d->leftHeader->setSelectionModel(selectionModel());
-    //rowCountChanged(0, d->leftHeader->count());
 }
 
 /*!
   Scroll the contents of the table view by \a(dx, dy).
 */
-
 void QGenericTableView::scrollContentsBy(int dx, int dy)
 {
     if (dx) { // horizontal
@@ -188,6 +178,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         }
         horizontalScrollBar()->repaint();
     }
+    
     if (dy) { // vertical
         int value = verticalScrollBar()->value();
         int section = d->leftHeader->section(value / verticalFactor());
@@ -197,12 +188,12 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         d->leftHeader->setOffset(offset);
         verticalScrollBar()->repaint();
     }
+    
     d->viewport->scroll(dx, dy);
 }
 
 /*!
 */
-
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options = viewOptions();
@@ -246,7 +237,9 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     bool showGrid = d->showGrid;
     int gridSize = showGrid ? 1 : 0;
     int gridHint = style().styleHint(QStyle::SH_Table_GridLineColor, this);
-    QColor gridColor = gridHint != -1 ? static_cast<QRgb>(gridHint) : palette().color(QPalette::Mid);
+    QColor gridColor = gridHint != -1
+                       ? static_cast<QRgb>(gridHint)
+                       : palette().color(QPalette::Mid);
     QPen gridPen = QPen(gridColor, 0, d->gridStyle);
 
     QItemSelectionModel *sels = selectionModel();
@@ -308,15 +301,14 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 /*!
   Returns the model item index corresponding to the item at \a(x, y).
 */
-
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
     return model()->index(rowAt(y), columnAt(x), root());
 }
 
 /*!
-  Returns the horizontal offset of the items in the table view. */
-
+  Returns the horizontal offset of the items in the table view.
+*/
 int QGenericTableView::horizontalOffset() const
 {
     return d->topHeader->offset();
@@ -325,7 +317,6 @@ int QGenericTableView::horizontalOffset() const
 /*!
   Returns the vertical offset of the items in the table view.
 */
-
 int QGenericTableView::verticalOffset() const
 {
     return d->leftHeader->offset();
@@ -339,7 +330,6 @@ information provided by the button \a state.
 
 \sa QAbstractItemView::CursorAction
 */
-
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           Qt::ButtonState)
 {
@@ -379,7 +369,6 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
 
 /*!
 */
-
 void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
@@ -400,7 +389,6 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
   Returns the rectangle from the viewport of the items in the given
   \a selection.
 */
-
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
     QModelIndex bottomRight = model()->bottomRight(root());
@@ -514,8 +502,8 @@ void QGenericTableView::updateGeometries()
 /*!
   Returns the size hint for the \a row's height.
 
-  \sa QWidget::sizeHint*/
-
+  \sa QWidget::sizeHint
+*/
 int QGenericTableView::rowSizeHint(int row) const
 {
     int columnfirst = columnAt(0);
@@ -539,7 +527,6 @@ int QGenericTableView::rowSizeHint(int row) const
 
   \sa QWidget::sizeHint
 */
-
 int QGenericTableView::columnSizeHint(int column) const
 {
     int rowfirst = rowAt(0);
