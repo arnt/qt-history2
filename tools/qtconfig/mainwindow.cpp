@@ -109,7 +109,7 @@ static const char *about_text =
 "<p><b><font size+=4>About Qt Configuration</font></b><br>"
 "A graphical configuration tool for programs using Qt.</p>"
 "<p>Version 1.0-beta</p>"
-"<p>Copyright (C) 2001 Trolltech AS</p>"
+"<p>Copyright (C) 2001-2002 Trolltech AS</p>"
 "<p></p>"
 "<p>This program is licensed to you under the terms of the GNU General "
 "Public License Version 2 as published by the Free Software Foundation. This "
