@@ -1610,6 +1610,12 @@ void setDefaultIncludeFile()
     }
 }
 
+#ifdef Q_CC_MSVC
+#define ErrorFormatString "%s(%d):"
+#else
+#define ErrorFormatString "%s:%d:"
+#endif
+
 #ifndef MOC_MWERKS_PLUGIN
 int main( int argc, char **argv )
 {
@@ -1738,7 +1744,7 @@ int main( int argc, char **argv )
 	fclose( out );
 
     if ( !g->generatedCode && displayWarnings && !g->mocError ) {
-	fprintf( stderr, "%s:%d: Warning: %s\n", g->fileName.data(), 0,
+	fprintf( stderr, ErrorFormatString" Warning: %s\n", g->fileName.data(), 0,
 		 "No relevant classes found. No output generated." );
     }
 
@@ -2129,10 +2135,10 @@ void yyerror( const char *msg )			// print yacc error message
 {
     g->mocError = TRUE;
 #ifndef MOC_MWERKS_PLUGIN
-    fprintf( stderr, "%s:%d: Error: %s\n", g->fileName.data(), lineNo, msg );
+    fprintf( stderr, ErrorFormatString" Error: %s\n", g->fileName.data(), lineNo, msg );
 #else
     char	msg2[200];
-    sprintf(msg2, "%s:%d Error: %s", g->fileName.data(), lineNo, msg);
+    sprintf(msg2, ErrorFormatString" Error: %s", g->fileName.data(), lineNo, msg);
     CWReportMessage(g_ctx, NULL, msg2, NULL, messagetypeError, 0);
 #endif
     if ( errorControl ) {
@@ -2157,7 +2163,7 @@ void moc_err( const char *s1, const char *s2 )
 void moc_warn( const char *msg )
 {
     if ( displayWarnings )
-	fprintf( stderr, "%s:%d: Warning: %s\n", g->fileName.data(), lineNo, msg);
+	fprintf( stderr, ErrorFormatString" Warning: %s\n", g->fileName.data(), lineNo, msg);
 }
 
 void moc_warn( char *s1, char *s2 )
@@ -2165,7 +2171,7 @@ void moc_warn( char *s1, char *s2 )
     static char tmp[1024];
     sprintf( tmp, s1, s2 );
     if ( displayWarnings )
-	fprintf( stderr, "%s:%d: Warning: %s\n", g->fileName.data(), lineNo, tmp);
+	fprintf( stderr, ErrorFormatString" Warning: %s\n", g->fileName.data(), lineNo, tmp);
 }
 
 static bool suppress_func_warn = FALSE;
@@ -2499,7 +2505,7 @@ int generateProps()
 			if ( lit.current()->name == p->type && lit.current()->set )
 			    set = TRUE;
 
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not available.\n",
+		    fprintf( stderr, ErrorFormatString" Warning: Property '%s' not available.\n",
 			     g->fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public get functions \n");
 		    if ( !set ) {
@@ -2615,7 +2621,7 @@ int generateProps()
 			if ( lit.current()->name == p->type && lit.current()->set )
 			    set = TRUE;
 
-		    fprintf( stderr, "%s:%d: Warning: Property '%s' not writable.\n",
+		    fprintf( stderr, ErrorFormatString" Warning: Property '%s' not writable.\n",
 			     g->fileName.data(), p->lineNo, (const char*) p->name );
 		    fprintf( stderr, "   Have been looking for public set functions \n");
 		    if ( !set && p->oredEnum != 1 ) {
