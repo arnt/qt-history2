@@ -163,7 +163,6 @@ public:
 	if ( n >= 0 ) {
 	    if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 		int cf = 0;
-		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
 		    if ( cf == CF_TEXT ) {
 			sawSBText = TRUE;
