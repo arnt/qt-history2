@@ -444,13 +444,14 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	if (!dirty)
 	    return;
     }
-    p->eraseRect(x+obx-ox, y+oby-oy, width, height);
+//     p->eraseRect(x+obx-ox, y+oby-oy, width, height);
     
     dirty = FALSE;
     
     QMLNode* t = start;
     QMLContainer* par = parent;
 
+//     p->setBackgroundMode(Qt::OpaqueMode);
 
     int tx = x;
     do {
@@ -458,13 +459,19 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	QFontMetrics fm = p->fontMetrics();
 	QString s = t->c;
 	QMLNode* tmp;
-	while ( t != end && (tmp = t->nextSibling() ) && tmp->isSimpleNode) {
+	while ( t != end && (tmp = t->nextSibling() ) && tmp->isSimpleNode
+ 		&& !t->isSpace()) {
 	    t = tmp;
 	    s += t->c;
 	}
 // 	debug("D:'%s'", s.data());
+	int tw = fm.width( s );
+	if (t==end)
+	    p->eraseRect(tx+obx-ox, y+oby-oy, width-(tx-x), height);
+	else
+	    p->eraseRect(tx+obx-ox, y+oby-oy, tw, height);
 	p->drawText(tx+obx-ox, y+oby-oy+base, s);
-	tx += fm.width( s );
+	tx += tw;
 	if (t == end)
 	    break;
 	t = box->nextLayout(t, par);
@@ -654,7 +661,7 @@ void QMLBox::resize(QPainter* p, int newWidth)
     if (newWidth == width) // no need to resize
 	return;
 
-    rows.clear();
+    QList<QMLRow> newRows;
 
     width = newWidth;
     height = 0;
@@ -675,22 +682,37 @@ void QMLBox::resize(QPainter* p, int newWidth)
 	row = new QMLRow(this, p, n, par, colwidth-10);
 	row->x = 5;
 	row->y = h;
-	rows.append(row);
+	newRows.append(row);
 	h += row->height;
     }
-    // do multi columns if required
-    row = rows.first();
+
+    // do multi columns if required. Also check with the old rows to
+    // optimize the refresh
+    row = newRows.first();
+    QMLRow* old = rows.first();
     height = 0;
     h /= ncols;
     for (int col = 0; col < ncols; col++) {
 	int colheight = 0;
-	for (; row && colheight < h; row = rows.next()) {
+	for (; row && colheight < h; row = newRows.next()) {
 	    row->x = col  * colwidth + 5;
 	    row->y = colheight;
+	    
+	    if (old) {
+		if (old->start == row->start && old->end == row->end
+		&& old->height == row->height && old->width == old->width
+		&& old->x == row->x && old->y == row->y) // TODO row operator==
+		    row->dirty = FALSE;
+		old = rows.next();
+	    }
+	    
 	    colheight += row->height;
 	}
 	height = QMAX( height, colheight );
     }
+
+    rows.clear();
+    rows = newRows;
 
 }
 
