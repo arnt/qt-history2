@@ -1,27 +1,27 @@
-@Chapter
+@Section
     @Title { Adding Documentation to Qt Assistant }
     @Tag { adding.documentation.to.qt.assistant }
 @Begin
 @LP
-Adding new documentation to @I{Qt Assistant} is straight-forward.
+Adding new documentation to @QAT is straight-forward.
 You simply specify a new documentation content file for @I{Qt
 Assistant} to use.
 
 @PP
-Click @B{Edit"|"Settings} to invoke the @I{Settings} dialog.
-Click the @B{Documentations} tab. Now click @B{Add} to invoke
+Click @Option{Edit"|"Settings} to invoke the @I{Settings} dialog.
+Click the @Option{Documentations} tab. Now click @Option{Add} to invoke
 a file open dialog. Select the new documentation's content file.
-(This file must be an XML file in @I{Qt Assistant}'s documentation
+(This file must be an XML file in @QAT's documentation
 content file format.)
 
 @PP
 Another way to add your own documentation is, to start @I{Qt
 Assistant} with the commandline option '-addContentFile' followed
 by the documentation content file. For example:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 assistant -addContentFile /mycompany/myapp/help.xml
 @End @RawVerbatim
-@I{Qt Assistant} will parse this file, add it and quit, i.e.
+@QAT will parse this file, add it and quit, i.e.
 no mainwindow will be shown. This way can be used when adding
 documentation during an installation process.
 
@@ -29,15 +29,15 @@ documentation during an installation process.
 If the new documentation belongs to a category which does not
 currently appear in the Categories list box, you can add the
 category using the @I{Settings} dialog. It is not normally necessary
-to do this manually since @I{Qt Assistant} detects new categories
+to do this manually since @QAT detects new categories
 and adds them automatically.
 
 @PP
 The format of the documentation content file is described in
 the following section.
 
-@BeginSections
-@Section
+@BeginSubSections
+@SubSection
     @Title { Documentation Content File format }
     @Tag { documentation.content.file.format }
 @Begin
@@ -51,9 +51,9 @@ An example of a content file with all available tags is shown
 below:
 
 @PP
-@F @Verbatim{demodoc.xml}
+@File{demodoc.xml}
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 <!DOCTYPE DCF>
 <DCF ref="demo.html" category="qt/development" title="Development Demo Handbook">
 <section ref="./chap1/chap1.html" title="Chapter1">
@@ -81,14 +81,16 @@ Sections may be nested as deeply as necessary. All references
 should be related.
 
 @PP
-Note that any @F @Verbatim{keyword} tags for a given section
+Note that any @Code{keyword} tags for a given section
 must appear @I{before} any sections nested within the given section.
 
 @PP
-The paths in the @F @Verbatim{refs} attribute are always written
+The paths in the @Code{refs} attribute are always written
 Unix-style (forward slashes) and are relative to the location
 of the documentation content file itself.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @EndSections
 @End @Chapter

@@ -8,9 +8,9 @@
     @Tag { introductionxxxxx }
 @Begin
 @PP
-In @I{Qt Designer}, some of the toolbars, menu options and templates
+In @QDR, some of the toolbars, menu options and templates
 invoke wizards to take you step-by-step through particular tasks.
-In this chapter we explain each @I{Qt Designer} wizard.
+In this chapter we explain each @QDR wizard.
 
 @End @Section
 @Section
@@ -32,14 +32,14 @@ create a main window with actions, menu options and toolbars.
 The 'Choose available menus and toolbars' wizard page appears
 first. It presents three categories of default actions, File
 Actions, Edit Actions and Help Actions. For each category you
-can choose to have @I{Qt Designer} create menu items, toolbar
+can choose to have @QDR create menu items, toolbar
 buttons and signal"/"slots connections for the relevant actions.
 You can always add or delete actions, menu items, toolbar buttons
 and connections later. Check or uncheck the checkboxes to reflect
 your preferences.
 
 @PP
-Click @B{Next} to move on to the next wizard page.
+Click @Option{Next} to move on to the next wizard page.
 
 @PP
 @Figure 0.3 @Scale @IncludeGraphic { "images/qd-mainwinwzdpage2.eps.gz"
@@ -62,9 +62,9 @@ as required and will cause a separator to appear in the finished
 toolbar.
 
 @PP
-Click @B{Back} if you want to return to the 'Choose available
-menus and toolbars' wizard page. Click @B{Finish} to populate
-the main window and to exit the wizard. Click @B{Cancel} on any
+Click @Option{Back} if you want to return to the 'Choose available
+menus and toolbars' wizard page. Click @Option{Finish} to populate
+the main window and to exit the wizard. Click @Option{Cancel} on any
 of the wizard pages to leave the wizard without making any changes.
 
 @End @Section
@@ -87,14 +87,14 @@ is used to create tabular views of database data.
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
-connections listed in the listbox, click @B{Setup Database Connections}
+connections listed in the listbox, click @Option{Setup Database Connections}
 to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
 
 @PP
-Click @B{Next} to move on to the next wizard page.
+Click @Option{Next} to move on to the next wizard page.
 
 @PP
 @Figure 0.3 @Scale @IncludeGraphic { "images/qd-datatablewzdpage2.eps.gz"
@@ -115,7 +115,7 @@ Fields' listbox is the order they are shown in the Data Table,
 with the top-most field being in the left-most column.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
 wizard page.
 
@@ -135,7 +135,7 @@ column sorting' to allow the user to sort the data by clicking
 a column's header (which displays the field name).
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
 
 @PP
@@ -147,7 +147,7 @@ if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
 @PP
 The 'SQL' wizard page is used to apply filters and sorts to the
 data in the table. Click the 'Filter' line edit and enter a valid
-SQL @F @Verbatim{WHERE} clause without the WHERE keyword. The
+SQL @Code{WHERE} clause without the WHERE keyword. The
 filter applies to the data shown in the table.
 
 @PP
@@ -155,12 +155,12 @@ To sort the available fields in the table, click the blue left
 and right arrow buttons to move fields from the 'Available Fields'
 listbox into or out of the 'Sort By' listbox. Click the blue
 up and down arrow buttons to move fields up and down within the
-'Sort By' listbox. Click the @B{A-Z} button to change the sort
+'Sort By' listbox. Click the @Option{A-Z} button to change the sort
 order of the selected field in the 'Sort By' listbox from ascending
 to descending and vice versa.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Table Properties [p.~@PageOf{table.properties}]' wizard page.
 
 @PP
@@ -174,13 +174,13 @@ The 'Finish' wizard page is used to select auto-editing and to
 leave the wizard. If you want user edits, e.g. inserts and updates,
 to be automatically applied when the user navigates to another
 record, check the 'AutoEditing' checkbox. If 'AutoEditing' is
-unchecked, users must press @B{Enter} to confirm their edit before
+unchecked, users must press @Option{Enter} to confirm their edit before
 moving to another record, or their edit will be lost.
 
 @PP
-Click @B{Finish} to create the datatable widget with all of the
-options you selected in the wizard. Click @B{Back} if you want
-to return to the 'SQL' wizard page. Click @B{Cancel} on any of
+Click @Option{Finish} to create the datatable widget with all of the
+options you selected in the wizard. Click @Option{Back} if you want
+to return to the 'SQL' wizard page. Click @Option{Cancel} on any of
 the wizard pages to leave the wizard without making any changes.
 
 @End @Section
@@ -203,14 +203,14 @@ widget is used to create a form view of database data.
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
-connections listed in the listbox, click @B{Setup Database Connections}
+connections listed in the listbox, click @Option{Setup Database Connections}
 to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
 
 @PP
-Click @B{Next} to move on to the next wizard page.
+Click @Option{Next} to move on to the next wizard page.
 
 @PP
 @Figure 0.3 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz"
@@ -227,7 +227,7 @@ blue up and down arrow buttons to move fields up and down within
 the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
 wizard page.
 
@@ -266,11 +266,11 @@ The navigation buttons, and 'Update' and 'Delete' buttons will
 work without requiring any code. Since most database designs
 expect new records to be created with a unique key the 'Insert'
 button will not work. This can easily be fixed by generating
-the key in a slot connected to the @F @Verbatim{QDataBrowser::beforeInsert()}
+the key in a slot connected to the @Func{QDataBrowser::beforeInsert()}
 signal.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
 
 @PP
@@ -282,7 +282,7 @@ if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]'
 @PP
 The 'SQL' wizard page is used to apply filters and sorts to the
 data in the table. Click the 'Filter' line edit and type a valid
-SQL @F @Verbatim{WHERE} clause without the WHERE keyword. The
+SQL @Code{WHERE} clause without the WHERE keyword. The
 filter applies to the data shown in the table.
 
 @PP
@@ -290,12 +290,12 @@ To sort the available fields in the table, click the blue left
 and right arrow buttons to move fields from the 'Available Fields'
 listbox into or out of the 'Sort By' listbox. Click the blue
 up and down arrow buttons to move fields up and down within the
-'Sort By' listbox. Click the @B{A-Z} button to change the sort
+'Sort By' listbox. Click the @Option{A-Z} button to change the sort
 order of the selected field in the 'Sort By' listbox from ascending
 to descending and vice versa.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Navigation and Editing [p.~@PageOf{navigation.and.editing}]' wizard
 page.
 
@@ -325,7 +325,7 @@ You can always break the layouts and redo them later if you change
 your mind.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'SQL' wizard page.
 
 @PP
@@ -339,14 +339,14 @@ The 'Finish' wizard page is used to select auto-editing and to
 leave the wizard. If you want user edits, e.g. inserts and updates,
 to be automatically applied when the user navigates to another
 record, check the 'AutoEditing' checkbox. If 'AutoEditing' is
-unchecked, users must press @B{Enter} to confirm their edit before
+unchecked, users must press @Option{Enter} to confirm their edit before
 moving to another record, or their edit will be lost. This property
 can be changed later if desired.
 
 @PP
-Click @B{Finish} to create the databrowser widget with all of
-the options you selected in the wizard. Click @B{Back} if you
-want to return to the 'Layout' wizard page. Click @B{Cancel}
+Click @Option{Finish} to create the databrowser widget with all of
+the options you selected in the wizard. Click @Option{Back} if you
+want to return to the 'Layout' wizard page. Click @Option{Cancel}
 on any of the wizard pages to leave the wizard without making
 any changes.
 
@@ -370,14 +370,14 @@ is used to create a read-only form view of database data.
 The 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]' wizard page appears first.
 The available databases are displayed in the 'Database Connection'
 listbox. Choose a connection by clicking it. If there are no
-connections listed in the listbox, click @B{Setup Database Connections}
+connections listed in the listbox, click @Option{Setup Database Connections}
 to invoke the Edit Database Connections Dialog [p.~@PageOf{edit.database.connections.dialog}]. The 'Table' listbox
 shows all the tables and views that are available through the
 selected database connection. Select a table or view by clicking
 it.
 
 @PP
-Click @B{Next} to move on to the next wizard page.
+Click @Option{Next} to move on to the next wizard page.
 
 @PP
 @Figure 0.3 @Scale @IncludeGraphic { "images/qd-dataviewwzdpage2.eps.gz"
@@ -394,7 +394,7 @@ blue up and down arrow buttons to move fields up and down within
 the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' listbox.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Choose the Database and Table [p.~@PageOf{choose.the.database.and.tablexx}]'
 wizard page.
 
@@ -413,7 +413,7 @@ radio button. To make labels appear above the data entry fields,
 click the 'Labels on top' radio button.
 
 @PP
-Click @B{Next} to move on to the next wizard page. Click @B{Back}
+Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'Displayed Fields [p.~@PageOf{displayed.fieldsxx}]' wizard page.
 
 @PP
@@ -428,9 +428,9 @@ have selected all the option you want on the previous wizard
 pages.
 
 @PP
-Click @B{Finish} to create the databrowser widget with all of
-the options you selected in the wizard. Click @B{Back} if you
-want to return to the 'Layout' wizard page. Click @B{Cancel}
+Click @Option{Finish} to create the databrowser widget with all of
+the options you selected in the wizard. Click @Option{Back} if you
+want to return to the 'Layout' wizard page. Click @Option{Cancel}
 on any of the wizard pages to leave the wizard without making
 any changes.
 

@@ -16,14 +16,14 @@ the supporting tools provided.
 The @TitlePageRef{release.manager} chapter is aimed at the person with
 overall responsibility for the release of the application. They will
 typically coordinate the work of the software engineers and the
-translator. The chapter describes the use of two tools. The lupdate
-tool is used to synchronize source code and translations. The lrelease
+translator. The chapter describes the use of two tools. The @File{lupdate}
+tool is used to synchronize source code and translations. The @File{lrelease}
 tool is used to create runtime translation files for use by the
 released application.
 
 @PP
 The @TitlePageRef{translators} chapter is for translators. It
-describes the use of the @I{Qt Linguist} tool. No computer knowledge
+describes the use of the @QLT tool. No computer knowledge
 beyond the ability to start a program and use a text editor or word
 processor is required.
 
@@ -54,14 +54,14 @@ and the programmer is able to add additional context information
 to phrases when necessary. The release manager generates a set
 of translation files that are produced from the source files
 and passes these to the translator. The translator opens the
-translation files using @I{Qt Linguist}, enters their translations
+translation files using @QLT, enters their translations
 and saves the results back into the translation files, which
 they pass back to the release manager. The release manager then
 generates fast compact versions of these translation files ready
 for use by the application. The tools are designed to be used
 in repeated cycles as applications change and evolve, preserving
 existing translations and making it easy to identify which new
-translations are required. @I{Qt Linguist} also provides a phrase
+translations are required. @QLT also provides a phrase
 book facility to help ensure consistent translations across multiple
 applications and projects.
 

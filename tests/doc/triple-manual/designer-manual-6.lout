@@ -8,12 +8,12 @@ dynamic.dialogs @Index{ Dynamic Dialogs }
 dialogs @RawIndex{ Dialogs }
 dialogs.dynamic @SubIndex{ Dynamic }@PP
 This chapter describes two different approaches that you can
-take to creating forms with @I{Qt Designer}. Subclassing is used
+take to creating forms with @QDR. Subclassing is used
 to extend the functionality of a form by creating your own class
-based upon a form you create in @I{Qt Designer}. Dynamic dialogs
+based upon a form you create in @QDR. Dynamic dialogs
 are
 
-ui @Index{ .ui } @F @Verbatim{.ui} files which can be executed by a Qt application; this keeps the GUI design and the code separate and is useful in environments where the GUI may have to change more often than the underlying application logic.
+ui @Index{ .ui } @File{.ui} files which can be executed by a Qt application; this keeps the GUI design and the code separate and is useful in environments where the GUI may have to change more often than the underlying application logic.
 @BeginSections
 @Section
     @Title { Subclassing }
@@ -26,43 +26,44 @@ disadvantages compared with putting your code into a form directly;
 see Extending the functionality of a form [p.~@PageOf{extending.the.functionality.of.a.form}] in The Designer Approach [p.~@PageOf{the.designer.approach}]
 chapter for details.
 
-@LD @Heading { Generating Source Code from @I{Qt Designer} .ui Files{@PageMark{generating.source.code.from.qt.designer.ui.files}} }
+@LD @Heading { Generating Source Code from @QDR .ui Files{@PageMark{generating.source.code.from.qt.designer.ui.files}} }
 @PP
-@I{Qt Designer} reads and writes @F @Verbatim{qmake}
+@QDR reads and writes @File{qmake}
 
-pro @Index{ .pro } @F @Verbatim{.pro} (project) files which are used to record the files used to build the application and from which Makefiles are generated. @I{Qt Designer} also reads and writes
-ui @Index{ .ui } @F @Verbatim{.ui} (user interface) files. These are XML files that record the widgets, layouts, source code and settings you've used for a form. Every
-ui @Index{ .ui } @F @Verbatim{.ui} file is converted by the @F @Verbatim{uic} (user interface compiler) into a C++
-h @Index{ .h } @F @Verbatim{.h} file and a C++
-cpp @Index{ .cpp } @F @Verbatim{.cpp} file. These C++ files are then read by @F @Verbatim{moc} (meta object compiler), and finally compiled by your compiler into a working application.
+pro @Index{ .pro } @File{.pro} (project) files which are used to record the files used to build the application and from which Makefiles are generated. @QDR also reads and writes
+ui @Index{ .ui } @File{.ui} (user interface) files. These are XML files that record the widgets, layouts, source code and settings you've used for a form. Every
+ui @Index{ .ui } @File{.ui} file is converted by the @File{uic} (user interface compiler) into a C++
+h @Index{ .h } @File{.h} file and a C++
+cpp @Index{ .cpp } @File{.cpp} file. These C++ files are then read by
+@File{moc} (meta object compiler), and finally compiled by your compiler into a working application.
 
 makefiles @Index{ Makefiles }
 projects @RawIndex{ Projects }
 projects.adding.files @SubIndex{ Adding Files }
 adding @RawIndex{ Adding }
 adding.files.to.projects @SubIndex{ Files to Projects }@PP
-If you create applications wholly within @I{Qt Designer} you
+If you create applications wholly within @QDR you
 only need to create a
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp}.
+main.cpp @Index{ main.cpp } @File{main.cpp}.
 @PP
-If you create the @F @Verbatim{main.cpp} file within @I{Qt Designer},
+If you create the @File{main.cpp} file within @QDR,
 it will automatically be added to your project file by @I{Qt
-Designer}. If you create the @F @Verbatim{main.cpp} file outside
-of @I{Qt Designer} you must add it to the project file manually
+Designer}. If you create the @File{main.cpp} file outside
+of @QDR you must add it to the project file manually
 by adding the following line at the end of your project's
 
-pro @Index{ .pro } @F @Verbatim{.pro} file:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+pro @Index{ .pro } @File{.pro} file:
+@LD @Code @RawVerbatim @Begin
 
 SOURCES += main.cpp
 @End @RawVerbatim
 @PP
-You can then use @F @Verbatim{qmake} to generate the Makefile.
-(For example @F @Verbatim{qmake -o Makefile myproject.pro}.)
-Running @F @Verbatim{make} (Linux, Unix or Borland compilers),
-or @F @Verbatim{nmake} (Visual C++), will then call @F @Verbatim{uic},
-@F @Verbatim{moc} and your compiler as necessary to build your
+You can then use @File{qmake} to generate the Makefile.
+(For example @Code{qmake -o Makefile myproject.pro}.)
+Running @File{make} (Linux, Unix or Borland compilers),
+or @File{nmake} (Visual C++), will then call @File{uic},
+@File{moc} and your compiler as necessary to build your
 application.
 
 
@@ -73,28 +74,30 @@ qmake @RawIndex{ qmake }
 qmake.headers @SubIndex{ HEADERS }
 qmake @RawIndex{ qmake }
 qmake.sources @SubIndex{ SOURCES }@PP
-If you use @I{Qt Designer} to create your main window and dialogs,
+If you use @QDR to create your main window and dialogs,
 but also add other C++ files, or if you subclass any of your
 forms you will need to add these files to the
 
-pro @Index{ .pro } @F @Verbatim{.pro} file so that they are compiled with the rest of your application's source files. Each
-h @Index{ .h } @F @Verbatim{.h} file that you create separately from @I{Qt Designer} should be added to the @F @Verbatim{HEADERS} line, and each
-cpp @Index{ .cpp } @F @Verbatim{.cpp} file should be added to the @F @Verbatim{SOURCES} line, just as we've done for
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp}. If you get undefined reference errors it is worth checking that you've added the names of all your header and implementation files to the
-pro @Index{ .pro } @F @Verbatim{.pro} file.
+pro @Index{ .pro } @File{.pro} file so that they are compiled with the rest of your application's source files. Each
+h @Index{ .h } @File{.h} file that you create separately from @I{Qt
+Designer} should be added to the @Code{HEADERS} line, and each
+cpp @Index{ .cpp } @File{.cpp} file should be added to the @Code{SOURCES} line, just as we've done for
+main.cpp @Index{ main.cpp } @File{main.cpp}. If you get undefined reference errors it is worth checking that you've added the names of all your header and implementation files to the
+pro @Index{ .pro } @File{.pro} file.
 @LD @Heading { Subclassing a Form{@PageMark{subclassing.a.form}} }
 
 subclassing @Index{ Subclassing }@PP
 When subclassing a form it is helpful to use a naming convention
-to help us identify which files are generated from @I{Qt Designer}'s
+to help us identify which files are generated from @QDR's
 
-ui @Index{ .ui } @F @Verbatim{.ui} files and which are hand coded.
+ui @Index{ .ui } @File{.ui} files and which are hand coded.
 @PP
 Suppose, for example, that we are developing a dialog and writing
-the code directly in @I{Qt Designer}. We might call our dialog
+the code directly in @QDR. We might call our dialog
 'OptionsForm' and the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file, @F @Verbatim{optionsform.ui}. The automatically generated files will be @F @Verbatim{optionsform.h} and @F @Verbatim{optionsform.cpp}.
+ui @Index{ .ui } @File{.ui} file, @File{optionsform.ui}. The
+automatically generated files will be @File{optionsform.h} and @File{optionsform.cpp}.
 @PP
 If we were developing another dialog, but this time one that
 we intended to subclass, we want to make it easy to distinguish
@@ -102,47 +105,52 @@ between the automatically generated files and our hand coded
 files. For example, we might call our dialog 'SettingsFormBase'
 and the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file @F @Verbatim{settingsformbase.ui}. The automatically generated files would then be called @F @Verbatim{settingsformbase.h} and @F @Verbatim{settingsformbase.cpp}. We would then call our subclass 'SettingsForm' and code it in the files @F @Verbatim{settingsform.h} and @F @Verbatim{settingsform.cpp}.
+ui @Index{ .ui } @File{.ui} file @File{settingsformbase.ui}. The
+automatically generated files would then be called
+@File{settingsformbase.h} and @File{settingsformbase.cpp}. We would
+then call our subclass 'SettingsForm' and code it in the files
+@File{settingsform.h} and @File{settingsform.cpp}.
 
 q.object @RawIndex{ Q_OBJECT }
 q.object.macros @SubIndex{ Macros }
 macros @RawIndex{ Macros }
 macros.q.object @SubIndex{ Q_OBJECT }
 signals.and.slots @RawIndex{ Signals and Slots }
-signals.and.slots.q.object @SubIndex{ Q_OBJECT }@PP
-Any subclass of a form should include the @F @Verbatim{Q_OBJECT}
+signals.and.slots.q.object @SubIndex{ Q_OBJECT }
+@PP
+Any subclass of a form should include the @Code{Q_OBJECT}
 macro so that slots and signals will work correctly. Once you've
 created your subclass be sure to add the
 
-h @Index{ .h } @F @Verbatim{.h} and the
-cpp @Index{ .cpp } @F @Verbatim{.cpp} files to the
-pro @Index{ .pro } @F @Verbatim{.pro} project file. For example we would add the following lines for our subclassed 'SettingsForm' at the end of the
-pro @Index{ .pro } @F @Verbatim{.pro} file:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+h @Index{ .h } @File{.h} and the
+cpp @Index{ .cpp } @File{.cpp} files to the
+pro @Index{ .pro } @File{.pro} project file. For example we would add the following lines for our subclassed 'SettingsForm' at the end of the
+pro @Index{ .pro } @File{.pro} file:
+@LD @Code @RawVerbatim @Begin
 
 HEADERS += settingsform.h
 SOURCES += settingsform.cpp
 @End @RawVerbatim
 @PP
-The simplest way to create a new source file is by clicking @B{File"|"New}
+The simplest way to create a new source file is by clicking @Option{File"|"New}
 to invoke the 'New File' dialog, then click 'C++ Source' or 'C++
-Header' as appropriate, then click @B{OK}. A new empty source
-window will appear. You don't need to manually edit the @F @Verbatim{.pro}
-file since @I{Qt Designer} will add them for you automatically.
+Header' as appropriate, then click @Option{OK}. A new empty source
+window will appear. You don't need to manually edit the @File{.pro}
+file since @QDR will add them for you automatically.
 
 @PP
-@I{Qt Designer} will have added
+@QDR will have added
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 
 FORMS = settingsformbase.ui
 @End @RawVerbatim
 @PP
-to the project file. The @F @Verbatim{settingsformbase.h} and
-@F @Verbatim{settingsformbase.cpp} files will be generated from
+to the project file. The @File{settingsformbase.h} and
+@File{settingsformbase.cpp} files will be generated from
 the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file automatically.
+ui @Index{ .ui } @File{.ui} file automatically.
 @LD @Heading { A Subclassing Example{@PageMark{a.subclassing.example}} }
 @PP
 We will write a small example dialog to show the use of subclassing
@@ -152,65 +160,65 @@ a specific amount must be given. We'll implement the functionality
 in a subclass. We'll start by creating the base form and connecting
 its signals and slots, then we'll create the subclass and a simple
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} so that we can test it.
+main.cpp @Index{ main.cpp } @File{main.cpp} so that we can test it.
 @LD @I { Designing the Form{@PageMark{designing.the.form}} }
 
 projects @RawIndex{ Projects }
 projects.creating.new @SubIndex{ Creating New }@PP
-We'll begin by creating a new project. Click @B{File"|"New},
-then click the 'C++ Project' icon to invoke the @I{Project Settings}
-dialog. Click the ellipsis button to invoke the @I{Save As} dialog;
+We'll begin by creating a new project. Click @Option{File"|"New},
+then click the 'C++ Project' icon to invoke the @Win{Project Settings}
+dialog. Click the ellipsis button to invoke the @Win{Save As} dialog;
 navigate to the project's directory (creating it if necessary).
 Make sure you're in the project's directory, then enter a project
-name of 'credit.pro'. Click the @B{Save} button to return to
-the @I{Project Settings} dialog, then click @B{OK}. Now we'll
-add a form to the project. Click @B{File"|"New} to invoke the
-@I{New File} dialog. The default form is Dialog which is what
-we want; click @B{OK}. Resize the form to make it smaller; it
+name of 'credit.pro'. Click the @Option{Save} button to return to
+the @Win{Project Settings} dialog, then click @Option{OK}. Now we'll
+add a form to the project. Click @Option{File"|"New} to invoke the
+@Win{New File} dialog. The default form is Dialog which is what
+we want; click @Option{OK}. Resize the form to make it smaller; it
 should be about 2 inches (5 cm) square. Change the form's name
 to 'CreditFormBase' and the caption to 'Credit Rating'. Save
-the form as @F @Verbatim{creditformbase.ui}.
+the form as @File{creditformbase.ui}.
 
 @PP
 We'll now add the widgets we need.
 
 @BulletList
 @LI{
-Click the @B{Button Group} toolbar button, then click near the
+Click the @Option{Button Group} toolbar button, then click near the
 top left of the form. Resize the button group so that it takes
-up approximately half the form. Change the button group's @I{name}
-to 'creditButtonGroup' and its @I{title} property to 'Credit
+up approximately half the form. Change the button group's @Prop{name}
+to 'creditButtonGroup' and its @Prop{title} property to 'Credit
 Rating'.
 }
 @LI{
-We'll now add some radio buttons. @I{Double} click the @B{Radio
+We'll now add some radio buttons. @I{Double} click the @Option{Radio
 Button} toolbar button. Click towards the top of the Credit Rating
 button group and a radio button will appear. Click below this
 button, to create a second radio button, then click below the
 second button to create a third. Now we will switch off the effect
-of the @I{double} click by clicking the @B{Pointer} (arrow) toolbar
+of the @I{double} click by clicking the @Option{Pointer} (arrow) toolbar
 button. The pointer will now behave normally, i.e. clicking the
 form will no longer create more radio buttons. Change the first
-radio button's @I{name} to 'stdRadioButton' and its text to '"&"Standard'.
-Change its @I{checked} property to True. Change the second button's
+radio button's @Prop{name} to 'stdRadioButton' and its text to '"&"Standard'.
+Change its @Prop{checked} property to True. Change the second button's
 name to 'noneRadioButton' and its text to '"&"None'. Change the
 third radio button's properties to 'specialRadioButton' and 'Sp"&"ecial'
 respectively.
 }
 @LI{
 If the user chooses the special credit rating they must specify
-an amount. Click the @B{SpinBox} toolbar button and click the
-form just below the button group. Change the spin box's @I{name}
-to 'amountSpinBox'. Change its @I{prefix} to '$ ' (note the space),
-its @I{maxValue} to '100000' and its @I{lineStep} to '10000'.
-Change its @I{enabled} property to False.
+an amount. Click the @Option{SpinBox} toolbar button and click the
+form just below the button group. Change the spin box's @Prop{name}
+to 'amountSpinBox'. Change its @Prop{prefix} to '$ ' (note the space),
+its @Prop{maxValue} to '100000' and its @Prop{lineStep} to '10000'.
+Change its @Prop{enabled} property to False.
 }
 @LI{
-Click the @B{Push Button} toolbar button and click the form below
-the spin box. Change the button's @I{name} to 'okPushButton',
-its @I{text} to 'OK' and its @I{default} property to 'True'.
+Click the @Option{Push Button} toolbar button and click the form below
+the spin box. Change the button's @Prop{name} to 'okPushButton',
+its @Prop{text} to 'OK' and its @Prop{default} property to 'True'.
 Add a second button to the right of the first. Change the second
-button's @I{name} to 'cancelPushButton' and its @I{text} to 'Cancel'.
+button's @Prop{name} to 'cancelPushButton' and its @Prop{text} to 'Cancel'.
 }
 @EndList
 @PP
@@ -218,16 +226,16 @@ We'll now lay out the widgets and connect up the slots we need.
 
 @BulletList
 @LI{
-Click the credit rating group box then press @B{Ctrl+L} (lay
+Click the credit rating group box then press @Option{Ctrl+L} (lay
 out vertically).
 }
 @LI{
 Click the form so that the button group is no longer selected.
-@B{Ctrl+Click} the OK button and drag the rubber band to touch
-the Cancel button, then release. Press @B{Ctrl+H}.
+@Option{Ctrl+Click} the OK button and drag the rubber band to touch
+the Cancel button, then release. Press @Option{Ctrl+H}.
 }
 @LI{
-Click the form, then press @B{Ctrl+L}.
+Click the form, then press @Option{Ctrl+L}.
 
 
 layouts @RawIndex{ Layouts }
@@ -237,23 +245,23 @@ to fill up the maximum space both vertically and horizontally.
 The buttons look rather large since they've expanded to take
 up the full width of the form. It might look more attractive
 to make the buttons smaller using spacers. Click the OK button,
-then press @B{Ctrl+B} (break layout). Resize both buttons to
+then press @Option{Ctrl+B} (break layout). Resize both buttons to
 make them narrower leaving space on either side of them. Click
-the @B{Spacer} toolbar button then click to the left of the OK
+the @Option{Spacer} toolbar button then click to the left of the OK
 button; click Horizontal from the pop up spacer menu. Copy this
 spacer and place the copy between the two buttons. Copy the spacer
 again and place the copy to the right of the Cancel button. (For
 the second and third spacers, click on the first spacer, press
-@B{Ctrl+C} then @B{Ctrl+V}. Drag the new spacer to the desired
+@Option{Ctrl+C} then @Option{Ctrl+V}. Drag the new spacer to the desired
 position.) Ctrl+Click the left most spacer and drag the rubber
 band so that it touches the buttons and the spacers, then release.
-Press @B{Ctrl+H}. Click the form then press @B{Ctrl+L}.
+Press @Option{Ctrl+H}. Click the form then press @Option{Ctrl+L}.
 }
 @EndList
 
 signals.and.slots @Index{ Signals and Slots }@PP
-We'll now connect the signals and slots. Click @B{Edit"|"Connections}
-to invoke the @I{View and Edit Connections} dialog.
+We'll now connect the signals and slots. Click @Option{Edit"|"Connections}
+to invoke the @Win{View and Edit Connections} dialog.
 
 @PP
 Create a new connection that connects the OK button's clicked()
@@ -271,12 +279,12 @@ amount spin box's setEnabled() slot.
 If the user checks the standard or none radio buttons we want
 to set the amount accordingly. Connect the credit rating button
 group's clicked() signal to a new custom setAmount() slot (which
-you create by clicking the @B{Edit Slots...} button).
+you create by clicking the @Option{Edit Slots...} button).
 
 @PP
 We'll subclass the form to set the amount in the spin box depending
 on which radio button is checked. Save the form as 'creditformbase.ui'
-(press @B{Ctrl+S}).
+(press @Option{Ctrl+S}).
 
 @LD @I { Creating the Test Harness{@PageMark{creating.the.test.harness}} }
 
@@ -286,11 +294,11 @@ creating.test.harnesses.for.forms @Index{ Creating Test Harnesses for Forms }
 subclassing @Index{ Subclassing }@PP
 Although we intend our dialog to be used within an application
 it is useful to create a test harness so that we can develop
-and test it stand-alone. Click @B{File"|"New} to invoke the 'New
-File' dialog, then click 'C++ Source', then click @B{OK}. In
+and test it stand-alone. Click @Option{File"|"New} to invoke the 'New
+File' dialog, then click 'C++ Source', then click @Option{OK}. In
 the editor window that pops up, enter the following code:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 
 #include <qapplication.h>
 #include "creditformbase.h"
@@ -308,14 +316,14 @@ int main( int argc, char *argv[] )
 @End @RawVerbatim
 qapplication @Index{ QApplication }
 @PP
-Note that we're including @F @Verbatim{creditformbase.h} and
+Note that we're including @File{creditformbase.h} and
 instantiating a CreditFormBase object; once we've written our
-subclass we'll replace the header with our subclass, @F @Verbatim{creditform.h},
+subclass we'll replace the header with our subclass, @File{creditform.h},
 and instantiate a CreditForm.
 
 @PP
-We can now generate the application with @F @Verbatim{qmake},
-e.g. @F @Verbatim{qmake -o Makefile credit.pro}, make it and
+We can now generate the application with @File{qmake},
+e.g. @Code{qmake -o Makefile credit.pro}, make it and
 run it. The form should run fine, but doesn't yet have the behaviour
 we require.
 
@@ -323,9 +331,9 @@ we require.
 @PP
 We need to create a header and an implementation file for our
 subclass. The code for our subclass is minimal. The header file
-is @F @Verbatim{qt/tools/designer/examples/credit/creditform.h}:
+is @File{"qt/tools/designer/examples/credit/creditform.h"}:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     #include "creditformbase.h"
 
     class CreditForm : public CreditFormBase
@@ -344,15 +352,16 @@ qwidget @Index{ QWidget }
 macros @RawIndex{ Macros }
 macros.q.object @SubIndex{ Q_OBJECT }
 q.object @Index{ Q_OBJECT } @PP
-We've declared the slot, @F @Verbatim{setAmount()}, that we created
-in @I{Qt Designer}. The @F @Verbatim{Q_OBJECT} macro is included
+We've declared the slot, @Func{setAmount()}, that we created
+in @QDR. The @Code{Q_OBJECT} macro is included
 because it is essential for classes that use signals and slots.
 
 @PP
-The implementation in @F @Verbatim{qt/tools/designer/examples/credit/creditform.cpp}
+The implementation in
+@File{"qt/tools/designer/examples/credit/creditform.cpp"}
 is simple:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     #include <qradiobutton.h>
     #include <qspinbox.h>
     #include "creditform.h"
@@ -376,9 +385,9 @@ is simple:
 @End @RawVerbatim
 qwidget @Index{ QWidget }
 @PP
-We call @F @Verbatim{setAmount()} in the constructor to ensure
+We call @Func{setAmount()} in the constructor to ensure
 that the correct amount is shown when the form starts based on
-whichever radio button we checked in @I{Qt Designer}. In @F @Verbatim{setAmount()}
+whichever radio button we checked in @QDR. In @Func{setAmount()}
 we set the amount if the standard or none radio button is checked.
 If the user has checked the special radio button they are free
 to change the amount themselves.
@@ -391,8 +400,9 @@ qmake @RawIndex{ qmake }
 qmake.sources @SubIndex{ SOURCES }@PP
 To be able to test our subclass we change
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} to include @F @Verbatim{creditform.h} rather than @F @Verbatim{creditformbase.h} and change the instantiation of the creditForm object:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+main.cpp @Index{ main.cpp } @File{main.cpp} to include
+@File{creditform.h} rather than @File{creditformbase.h} and change the instantiation of the creditForm object:
+@LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "creditform.h"
 
@@ -409,18 +419,18 @@ main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} to include @F @Verbatim{credi
 @End @RawVerbatim
 qapplication @Index{ QApplication }
 @PP
-If you created the @F @Verbatim{creditform.h} and @F @Verbatim{creditform.cpp}
-files in @I{Qt Designer}, they are already in the project file,
+If you created the @File{creditform.h} and @File{creditform.cpp}
+files in @QDR, they are already in the project file,
 but if you created them manually you must also update the project
 file by adding these two new lines at the end:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 
 HEADERS += creditform.h
 SOURCES += creditform.cpp
 @End @RawVerbatim
 @PP
-To test the form rerun @F @Verbatim{qmake} to regenerate the
+To test the form rerun @File{qmake} to regenerate the
 Makefile, then make and run.
 
 @PP
@@ -438,11 +448,11 @@ dialogs @RawIndex{ Dialogs }
 dialogs.dynamic @SubIndex{ Dynamic }
 code.editing @RawIndex{ Code Editing }
 code.editing.not.in.dynamic.dialogs @SubIndex{ Not in Dynamic Dialogs }@PP
-Qt programs are capable of loading @I{Qt Designer}
+Qt programs are capable of loading @QDR
 
-ui @Index{ .ui } @F @Verbatim{.ui} files and instantiating the forms represented by the
-ui @Index{ .ui } @F @Verbatim{.ui} files. Since the
-ui @Index{ .ui } @F @Verbatim{.ui} file is not compiled it cannot include any C++ code, (e.g. slot implementations). In this section we will explain how to load a dynamic dialog and how to create a class that can be used to implement the dynamic dialog's custom slots.
+ui @Index{ .ui } @File{.ui} files and instantiating the forms represented by the
+ui @Index{ .ui } @File{.ui} files. Since the
+ui @Index{ .ui } @File{.ui} file is not compiled it cannot include any C++ code, (e.g. slot implementations). In this section we will explain how to load a dynamic dialog and how to create a class that can be used to implement the dynamic dialog's custom slots.
 @PP
 We will use the credit form that we created in the subclassing
 section as our example form. We will start by simply instantiating
@@ -452,13 +462,14 @@ slots.
 @PP
 We'll create a
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} file to use as a test harness, and manually create a project file.
+main.cpp @Index{ main.cpp } @File{main.cpp} file to use as a test harness, and manually create a project file.
 @LD @Heading { Creating the Project File{@PageMark{creating.the.project.file}} }
 @PP
-The project file @F @Verbatim{qt/tools/designer/examples/receiver1/receiver.pro}
+The project file
+@File{"qt/tools/designer/examples/receiver1/receiver.pro"}
 looks like this:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 
 TEMPLATE    = app
 CONFIG     += qt warn_on release
@@ -472,17 +483,17 @@ INCLUDEPATH += $(QTDIR)/tools/designer/uilib
 @End @RawVerbatim
 qtdir @Index{ QTDIR }
 @PP
-We do @I{not} include the @F @Verbatim{creditformbase.ui} file
+We do @I{not} include the @File{creditformbase.ui} file
 since this file will be read at runtime, as we'll see shortly.
-We must include the @F @Verbatim{qui} library since the functionality
+We must include the @File{qui} library since the functionality
 we require is not part of the standard Qt library.
 
 @LD @Heading { Creating main.cpp{@PageMark{creating.main.cppx}} }
 @PP
 The
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} is quite standard. It will invoke the form we're going to create in @I{Qt Designer} as its main form. This form will then load and execute the dynamic dialog.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+main.cpp @Index{ main.cpp } @File{main.cpp} is quite standard. It will invoke the form we're going to create in @QDR as its main form. This form will then load and execute the dynamic dialog.
+@LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "mainform.h"
 
@@ -500,7 +511,7 @@ main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} is quite standard. It will in
 qapplication @Index{ QApplication }
 @PP
 We create a new instance of our MainForm class, set it to be
-the main widget, show it and enter the event loop in the @F @Verbatim{app.exec()}
+the main widget, show it and enter the event loop in the @Code{app.exec()}
 call.
 
 @LD @Heading { Creating the Main Form{@PageMark{creating.the.main.form}} }
@@ -509,17 +520,17 @@ call.
 @LI{
 Open the
 
-receiver.pro @Index{ receiver.pro } @F @Verbatim{receiver.pro} project file in @I{Qt Designer}. We'll create a dialog as our main window which we'll use to invoke the dynamic dialog. Press @B{Ctrl+N} to launch the @I{New File} dialog and click @B{OK} to get the default which is a dialog. Change the dialog's name to 'MainForm' and its caption to 'Main Form'. Add two buttons, one called 'creditPushButton' with the text '"&"Credit Dialog', and the other called 'quitPushButton' with the text '"&"Quit'. (For each button click the @B{Push Button} toolbar button, then click the form. Change the properties in the property window to those we've just described.)}
+receiver.pro @Index{ receiver.pro } @File{receiver.pro} project file in @QDR. We'll create a dialog as our main window which we'll use to invoke the dynamic dialog. Press @Option{Ctrl+N} to launch the @Win{New File} dialog and click @Option{OK} to get the default which is a dialog. Change the dialog's name to 'MainForm' and its caption to 'Main Form'. Add two buttons, one called 'creditPushButton' with the text '"&"Credit Dialog', and the other called 'quitPushButton' with the text '"&"Quit'. (For each button click the @Option{Push Button} toolbar button, then click the form. Change the properties in the property window to those we've just described.)}
 @LI{
 We will now add a couple of labels so that we can show the settings
-the user chose in the dynamic dialog. Click the @B{Text Label}
+the user chose in the dynamic dialog. Click the @Option{Text Label}
 toolbar button, then click the form below the Credit Dialog button.
-Change the label's @I{text} to 'Credit Rating'. Add another text
-label below the Quit button. Change its @I{name} to 'ratingTextLabel'
-and its @I{text} to 'Unrated'.
+Change the label's @Prop{text} to 'Credit Rating'. Add another text
+label below the Quit button. Change its @Prop{name} to 'ratingTextLabel'
+and its @Prop{text} to 'Unrated'.
 }
 @LI{
-We'll now lay out the widgets. Click the form then press @B{Ctrl+G}
+We'll now lay out the widgets. Click the form then press @Option{Ctrl+G}
 (lay out in a grid).
 }
 @LI{
@@ -527,19 +538,19 @@ signals.and.slots @RawIndex{ Signals and Slots }
 
 signals.and.slots.connecting.to.close.a.dialog @SubIndex{ Connecting to Close a Dialog }@PP
 We'll now handle the signals and slots connections. Invoke the
-@I{View and Edit Connections} dialog and connect the credit dialog
+@Win{View and Edit Connections} dialog and connect the credit dialog
 button's clicked() signal to a new creditDialog() custom slot
-(which is created by clicking the @B{Edit Slots...} button).
+(which is created by clicking the @Option{Edit Slots...} button).
 Now connect the Quit button's
 
-clicked @Index{ clicked() } @F @Verbatim{clicked()} signal to the dialog's
-accept @Index{ accept() } @F @Verbatim{accept()} function.}
+clicked @Index{ clicked() } @Func{clicked()} signal to the dialog's
+accept @Index{ accept() } @Func{accept()} function.}
 @EndList
 @PP
-Save the form and call it @F @Verbatim{mainform.ui}. (Press @B{Ctrl+S}
+Save the form and call it @File{mainform.ui}. (Press @Option{Ctrl+S}
 and enter the filename.) In the next section we'll write the
 code for loading and launching the dynamic dialog directly in
-@I{Qt Designer}.
+@QDR.
 
 @LD @I { Loading and Executing a Dynamic Dialog{@PageMark{loading.and.executing.a.dynamic.dialog}} }
 
@@ -554,22 +565,22 @@ includes @Index{ Includes }@PP
 We'll now add the code to invoke the credit dialog. Before we
 can do this we need to add the widget factory's header file to
 the form. Click the Source tab in the Object Hierarchy. Right
-click Includes (in Implementation), then click @B{New}. Type
-in '@F @Verbatim{<qwidgetfactory.h>}', then press @B{Enter}.
+click Includes (in Implementation), then click @Option{New}. Type
+in '@File{<qwidgetfactory.h>}', then press @Option{Enter}.
 Because we will need to access the spin box in the dynamic dialog
 we must add its header file. Right click Includes (in Implmentation),
-then click @B{New}. Type in '@F @Verbatim{<qspinbox.h>}', then
-press @B{Enter}.
+then click @Option{New}. Type in '@File{<qspinbox.h>}', then
+press @Option{Enter}.
 
 @PP
-In our main form we created a slot called @F @Verbatim{creditDialog()}.
-We will implement this slot directly in @I{Qt Designer} and use
+In our main form we created a slot called @Func{creditDialog()}.
+We will implement this slot directly in @QDR and use
 it to load and execute the dynamic dialog. The code is taken
-from @F @Verbatim{qt/tools/designer/examples/receiver1/mainform.ui.h}
-which contains the C++ implementation of @F @Verbatim{mainform.ui}'s
+from @File{"qt/tools/designer/examples/receiver1/mainform.ui.h"}
+which contains the C++ implementation of @File{mainform.ui}'s
 slots.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void MainForm::creditDialog()
     {
         QDialog *creditForm = (QDialog *)
@@ -591,19 +602,21 @@ qspinbox @Index{ QSpinBox }
 @PP
 The
 
-create @Index{ create() } @F @Verbatim{create()} function is a static @B{QWidgetFactory} function. It loads the specified
-ui @Index{ .ui } @F @Verbatim{.ui} file and returns a pointer to the toplevel @B{QWidget} created from the
-ui @Index{ .ui } @F @Verbatim{.ui} file. We have cast the pointer to @B{QDialog} since we know that the @F @Verbatim{creditformbase.ui} file defines a @B{QDialog}. After creating the dialog we
-exec @Index{ exec() } @F @Verbatim{exec()} it. If the user clicked @B{OK} the dialog returns Accepted and we enter the body of the @F @Verbatim{if} statement. We want to know the amount of credit that the user selected. We call the
-child @Index{ child() } @F @Verbatim{child()} function on the dialog passing it the name of the widget we're interested in. The
-child @Index{ child() } @F @Verbatim{child()} function returns a pointer to the widget with the name we passed, or returns 0 if no widget of that name was found. In the example we call
-child @Index{ child() } @F @Verbatim{child()} to get a pointer to the 'amountSpinBox'. If the pointer we get back is not 0 we set the rating text to the amount in the dialog's spin box. At the end we delete the dynamic dialog. Deleting the dialog ensures that we free up its resources as soon as it is no longer required.
+create @Index{ create() } @Func{create()} function is a static @Class{QWidgetFactory} function. It loads the specified
+ui @Index{ .ui } @File{.ui} file and returns a pointer to the toplevel @Class{QWidget} created from the
+ui @Index{ .ui } @File{.ui} file. We have cast the pointer to @Class{QDialog} since we know that the @File{creditformbase.ui} file defines a @Class{QDialog}. After creating the dialog we
+exec @Index{ exec() } @Func{exec()} it. If the user clicked
+@Option{OK} the dialog returns Accepted and we enter the body of the
+@Code{if} statement. We want to know the amount of credit that the user selected. We call the
+child @Index{ child() } @Func{child()} function on the dialog passing it the name of the widget we're interested in. The
+child @Index{ child() } @Func{child()} function returns a pointer to the widget with the name we passed, or returns 0 if no widget of that name was found. In the example we call
+child @Index{ child() } @Func{child()} to get a pointer to the 'amountSpinBox'. If the pointer we get back is not 0 we set the rating text to the amount in the dialog's spin box. At the end we delete the dynamic dialog. Deleting the dialog ensures that we free up its resources as soon as it is no longer required.
 @PP
 We used the
 
-child @Index{ child() } @F @Verbatim{child()} to gain access to a widget within the dynamic dialog, passing it the name of the widget we were interested in. In some situations we might not know what a widget is called. We can access the first widget of a specified class by calling
-child @Index{ child() } @F @Verbatim{child()} with a null widget name and a classname, e.g. @F @Verbatim{child(0,"QPushButton")}. This will return a pointer to the first @B{QPushButton} it finds (or 0 if there isn't one). If you want pointers to all the widgets of a given class you can call the
-qobject.querylist @Index{ QObject::queryList() } @F @Verbatim{QObject::queryList()} function, passing it the name of the class. It returns a @B{QObjectList} pointer which points to every object in the dialog that is derived from the given class. See the online @B{QObject} documentation for further details.
+child @Index{ child() } @Func{child()} to gain access to a widget within the dynamic dialog, passing it the name of the widget we were interested in. In some situations we might not know what a widget is called. We can access the first widget of a specified class by calling
+child @Index{ child() } @Func{child()} with a null widget name and a classname, e.g. @Func{child(0,"QPushButton")}. This will return a pointer to the first @Class{QPushButton} it finds (or 0 if there isn't one). If you want pointers to all the widgets of a given class you can call the
+qobject.querylist @Index{ QObject::queryList() } @Func{QObject::queryList()} function, passing it the name of the class. It returns a @Class{QObjectList} pointer which points to every object in the dialog that is derived from the given class. See the online @Class{QObject} documentation for further details.
 @LD @I { Implementing Slots for Dynamic Dialogs{@PageMark{implementing.slots.for.dynamic.dialogs}} }
 
 signals.and.slots @RawIndex{ Signals and Slots }
@@ -611,18 +624,21 @@ signals.and.slots.dynamic.dialogs @SubIndex{ Dynamic Dialogs }
 dynamic.dialogs @Index{ Dynamic Dialogs }@PP
 There is one outstanding issue that we haven't addressed: the
 dynamic dialog does not have the behaviour of the original credit
-dialog because we have not implemented the @F @Verbatim{setAmount()}
+dialog because we have not implemented the @Func{setAmount()}
 slot. We can implement slots for dynamic dialogs by creating
-a @B{QObject}qobject @Index{ QObject } subclass. We then create an instance of this subclass
+a @Class{QObject}qobject @Index{ QObject } subclass. We then create an instance of this subclass
 and pass a pointer to it to the
 
-qwidgetfactory.create @Index{ QWidgetFactory::create() } @F @Verbatim{QWidgetFactory::create()} function which will connect the dynamic dialog's signals to the slots implemented in our subclass.
+qwidgetfactory.create @Index{ QWidgetFactory::create() } @Func{QWidgetFactory::create()} function which will connect the dynamic dialog's signals to the slots implemented in our subclass.
 @PP
-We need to create a @B{QObject}qobject @Index{ QObject } subclass and change our @F @Verbatim{creditDialog()}
+We need to create a @Class{QObject}qobject @Index{ QObject } subclass and change our @Func{creditDialog()}
 to create an instance of our subclass that can be passed to the
 
-qwidgetfactory.create @Index{ QWidgetFactory::create() } @F @Verbatim{QWidgetFactory::create()} function. Here is the modified @F @Verbatim{creditDialog()} function from the @F @Verbatim{qt/tools/designer/examples/receiver2/mainform.ui.h} file that contains the code for @F @Verbatim{mainform.ui}'s slots:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+qwidgetfactory.create @Index{ QWidgetFactory::create() }
+@Func{QWidgetFactory::create()} function. Here is the modified
+@Func{creditDialog()} function from the
+@File{"qt/tools/designer/examples/receiver2/mainform.ui.h"} file that contains the code for @File{mainform.ui}'s slots:
+@LD @Code @RawVerbatim @Begin
     void MainForm::creditDialog()
     {
         Receiver *receiver = new Receiver;
@@ -648,25 +664,26 @@ qwidgetfactory @Index{ QWidgetFactory }
 qspinbox @Index{ QSpinBox }
 @PP
 We create a new instance of our 'Receiver' subclass. (We'll write
-the code for this class shortly.) We then create the @B{QDialog}qdialog @Index{ QDialog }
+the code for this class shortly.) We then create the @Class{QDialog}qdialog @Index{ QDialog }
 using
 
-qwidgetfactory.create @Index{ QWidgetFactory::create() } @F @Verbatim{QWidgetFactory::create()}. This call differs from our previous example because we pass in the subclass object so that the
-create @Index{ create() } @F @Verbatim{create()} function can set up the signals"/"slots connections automatically for us. Since our slot must access the widgets in the dynamic form we pass a pointer to the form to the receiver object through our @F @Verbatim{setParent()} function. The remainder of the function is the same as before except that we delete our receiver object.
+qwidgetfactory.create @Index{ QWidgetFactory::create() } @Func{QWidgetFactory::create()}. This call differs from our previous example because we pass in the subclass object so that the
+create @Index{ create() } @Func{create()} function can set up the signals"/"slots connections automatically for us. Since our slot must access the widgets in the dynamic form we pass a pointer to the form to the receiver object through our @Func{setParent()} function. The remainder of the function is the same as before except that we delete our receiver object.
 @PP
 Since we are using the 'Receiver' subclass in our main form we
-must include its header file. In @I{Object Explorer}'s Members
-tab, right click Includes (in Implmentation), then click @B{New}.
-Type in '@F @Verbatim{receiver.h}', then press @B{Enter}.
+must include its header file. In @Win{Object Explorer}'s Members
+tab, right click Includes (in Implmentation), then click @Option{New}.
+Type in '@File{receiver.h}', then press @Option{Enter}.
 
 
 dynamic.dialogs @Index{ Dynamic Dialogs }@PP
 We'll now look at the implementation of our 'Receiver' subclass.
-The code is taken from @F @Verbatim{qt/tools/designer/examples/receiver2/receiver.h}
-and the corresponding @F @Verbatim{receiver.cpp} file. We'll
+The code is taken from
+@File{"qt/tools/designer/examples/receiver2/receiver.h"}
+and the corresponding @File{receiver.cpp} file. We'll
 start with the header file.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 #include <qobject.h>
 #include <qdialog.h>
 
@@ -688,26 +705,26 @@ macros @RawIndex{ Macros }
 macros.q.object @SubIndex{ Q_OBJECT }
 q.object @RawIndex{ Q_OBJECT }
 q.object.macros @SubIndex{ Macros }@PP
-Our class must be a @B{QObject}qobject @Index{ QObject } subclass and because we're using
-signals and slots it must include the @F @Verbatim{Q_OBJECT}
-macro. We declare a function and the @F @Verbatim{setAmount()}
-slot that we wish to implement as well as a private @B{QDialog}qdialog @Index{ QDialog }
+Our class must be a @Class{QObject}qobject @Index{ QObject } subclass and because we're using
+signals and slots it must include the @Code{Q_OBJECT}
+macro. We declare a function and the @Func{setAmount()}
+slot that we wish to implement as well as a private @Class{QDialog}qdialog @Index{ QDialog }
 pointer.
 
 @PP
 The implementation requires the header files of the classes it
 uses:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     #include <qradiobutton.h>
     #include <qspinbox.h>
     #include "receiver.h"
 @End @RawVerbatim
 @PP
-We'll discuss the implementation of each function in @F @Verbatim{receiver.cpp}
+We'll discuss the implementation of each function in @File{receiver.cpp}
 separately.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void Receiver::setParent( QDialog *parent )
     {
         p = parent;
@@ -716,15 +733,15 @@ separately.
 @End @RawVerbatim
 qdialog @Index{ QDialog }
 @PP
-The @F @Verbatim{setParent()} function assigns a pointer to the
+The @Func{setParent()} function assigns a pointer to the
 dynamic dialog to our private pointer. We could not do this in
 a constructor call because we have to construct our Receiver
 object before we call
 
-qwidgetfactory.create @Index{ QWidgetFactory::create() } @F @Verbatim{QWidgetFactory::create()}, since we must pass the Receiver object to the
-create @Index{ create() } @F @Verbatim{create()} function. Once we've called
-create @Index{ create() } @F @Verbatim{create()} we then have a pointer to the dynamic dialog which we can then pass via @F @Verbatim{setParent()} to our Receiver class. In the subclass version of this example we called @F @Verbatim{setAmount()} in the constructor; but we cannot do that here because the implementation of @F @Verbatim{setAmount()} depends on knowledge of the dynamic dialog which is not available at construction time. Because of this we call @F @Verbatim{setAmount()} in the @F @Verbatim{setParent()} function.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+qwidgetfactory.create @Index{ QWidgetFactory::create() } @Func{QWidgetFactory::create()}, since we must pass the Receiver object to the
+create @Index{ create() } @Func{create()} function. Once we've called
+create @Index{ create() } @Func{create()} we then have a pointer to the dynamic dialog which we can then pass via @Func{setParent()} to our Receiver class. In the subclass version of this example we called @Func{setAmount()} in the constructor; but we cannot do that here because the implementation of @Func{setAmount()} depends on knowledge of the dynamic dialog which is not available at construction time. Because of this we call @Func{setAmount()} in the @Func{setParent()} function.
+@LD @Code @RawVerbatim @Begin
     void Receiver::setAmount()
     {
         QSpinBox *amount =
@@ -751,9 +768,9 @@ qradiobutton @Index{ QRadioButton }
 Since we may be updating the amount spin box we need to get a
 pointer to it. We call
 
-child @Index{ child() } @F @Verbatim{child()} on the pointer @F @Verbatim{p} which points to the dynamic dialog assigned in the @F @Verbatim{setParent()} call. We cast the resulting pointer to the correct type so that we can call any functions relevant to that type. In the example we call
-child @Index{ child() } @F @Verbatim{child()} to get a pointer to the amount spin box, and then call
-child @Index{ child() } @F @Verbatim{child()} again to get a pointer to the 'stdRadioButton'. If we get a pointer to the radio button and the button is checked we set the amount providing we have a pointer to the amount spin box. If this radio button was checked we're finished so we return. If the 'stdRadioButton' isn't checked we get a pointer to the 'noneRadioButton' and set the amount if this button is checked. We do nothing if the 'specialRadioButton' is checked because the user is free to enter a value of their choice.
+child @Index{ child() } @Func{child()} on the pointer @Code{p} which points to the dynamic dialog assigned in the @Func{setParent()} call. We cast the resulting pointer to the correct type so that we can call any functions relevant to that type. In the example we call
+child @Index{ child() } @Func{child()} to get a pointer to the amount spin box, and then call
+child @Index{ child() } @Func{child()} again to get a pointer to the 'stdRadioButton'. If we get a pointer to the radio button and the button is checked we set the amount providing we have a pointer to the amount spin box. If this radio button was checked we're finished so we return. If the 'stdRadioButton' isn't checked we get a pointer to the 'noneRadioButton' and set the amount if this button is checked. We do nothing if the 'specialRadioButton' is checked because the user is free to enter a value of their choice.
 @Figure
 @Box paint { @LightGreyColour } margin { 0.5f }{@LLP @Centre @Heading{ Compiling vs Dynamically Loading Dialogs}
 
@@ -765,24 +782,24 @@ subclassing @RawIndex{ Subclassing }
 subclassing.dynamic.dialogs @SubIndex{ Dynamic Dialogs }@PP
 The differences between using a 'compiled in'
 
-ui @Index{ .ui } @F @Verbatim{.ui} file and a dynamically loaded
-ui @Index{ .ui } @F @Verbatim{.ui} file are these:
+ui @Index{ .ui } @File{.ui} file and a dynamically loaded
+ui @Index{ .ui } @File{.ui} file are these:
 @NumberedList
 @LI{
 Dynamic dialogs cannot have any C++ code in the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file; any custom slots must be implemented via a @B{QObject} subclass. Compiled dialogs can contain code either in the
-ui @Index{ .ui } @F @Verbatim{.ui} file or in a subclass.}
+ui @Index{ .ui } @File{.ui} file; any custom slots must be implemented via a @Class{QObject} subclass. Compiled dialogs can contain code either in the
+ui @Index{ .ui } @File{.ui} file or in a subclass.}
 @LI{
 Dynamic dialogs will load slower because the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file must be read and a @B{QWidget} instance instantiated based on the
-ui @Index{ .ui } @F @Verbatim{.ui} file's parse tree. Compiled code will load much faster because no file reading or parsing is necessary. Note that the user may not notice any difference in speed since the difference may be mere fractions of a second.}
+ui @Index{ .ui } @File{.ui} file must be read and a @Class{QWidget} instance instantiated based on the
+ui @Index{ .ui } @File{.ui} file's parse tree. Compiled code will load much faster because no file reading or parsing is necessary. Note that the user may not notice any difference in speed since the difference may be mere fractions of a second.}
 @LI{
 Dynamic dialogs allow you to change the
 
-ui @Index{ .ui } @F @Verbatim{.ui} file independently of the code so long as none of the changes impact the code. This means that you can change the appearance of the form, e.g. move widgets and lay them out differently. If you want to change a compiled dialog you must change the
-ui @Index{ .ui } @F @Verbatim{.ui} file and recompile. If you are building an application and want your customers to be able to customize aspects of the user interface you can give them a copy of @I{Qt Designer} (if your license permits this) and use dynamic dialogs.}
+ui @Index{ .ui } @File{.ui} file independently of the code so long as none of the changes impact the code. This means that you can change the appearance of the form, e.g. move widgets and lay them out differently. If you want to change a compiled dialog you must change the
+ui @Index{ .ui } @File{.ui} file and recompile. If you are building an application and want your customers to be able to customize aspects of the user interface you can give them a copy of @QDR (if your license permits this) and use dynamic dialogs.}
 @EndList
 }
 @End @Section

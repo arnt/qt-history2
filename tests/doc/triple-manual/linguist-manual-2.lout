@@ -4,13 +4,13 @@
 @Begin
 release.manager @Index{ Release Manager }
 @LP
-Two tools are provided for the release manager, lupdate and lrelease.
-These tools depend on @I{qmake} project files. You don't have
-to use @I{qmake}, though.
+Two tools are provided for the release manager, @File{lupdate} and @File{lrelease}.
+These tools depend on @File{qmake} project files. You don't have
+to use @File{qmake}, though.
 
 @PP
-A third tool, @F @Verbatim{qm2ts}, can be used for converting
-Qt 2.x message files to @F @Verbatim{.ts} files.
+A third tool, @File{qm2ts}, can be used for converting
+Qt 2.x message files to @File{.ts} files.
 
 @BeginSections
 @Section
@@ -22,13 +22,13 @@ project.files @Index{ Project Files }
 qmake @RawIndex{ qmake }
 qmake.project.files @SubIndex{ Project Files }
 @LP
-@TitlePageRef{lupdate} and @TitlePageRef{lrelease} depend on
-information in the application's @F @Verbatim{.pro} Qt project file.
-There must be an entry in the @F @Verbatim{TRANSLATIONS} section of
+@File{lupdate} and @File{lrelease} depend on
+information in the application's @File{.pro} Qt project file.
+There must be an entry in the @Code{TRANSLATIONS} section of
 the project file for each language that is additional to the native
 language. A typical entry looks like this:
 translations @RawIndex{ TRANSLATIONS }
-translations.in.project.files @SubIndex{ in Project Files }@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+translations.in.project.files @SubIndex{ in Project Files }@LD @Code @RawVerbatim @Begin
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
@@ -45,10 +45,10 @@ forms @RawIndex{ FORMS }
 forms.in.project.files @SubIndex{ in Project Files }
 translations @RawIndex{ TRANSLATIONS }
 translations.in.project.files @SubIndex{ in Project Files }@PP
-An example of a complete @F @Verbatim{.pro} file with four translation
+An example of a complete @File{.pro} file with four translation
 source files:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     HEADERS         = main-dlg.h \
                       options-dlg.h
     SOURCES         = main-dlg.cpp \
@@ -71,17 +71,17 @@ chinese.language @Index{ Chinese Language }
 japanese.language @Index{ Japanese Language }
 
 QApplication::setDefaultCodec() makes it possible to choose
-a 8-bit encoding for literal strings that appear within @F @Verbatim{tr()}
+a 8-bit encoding for literal strings that appear within @Func{tr()}
 calls. This is useful for applications whose source language
 is, for example, Chinese or Japanese. If no encoding is set,
-@F @Verbatim{tr()} uses Latin-1.
+@Func{tr()} uses Latin-1.
 
 @PP
 If you do use the QApplication::defaultCodec() mechanism in your
-application, @I{Qt Linguist} needs you to set the @F @Verbatim{DEFAULTCODEC}
-entry in the @F @Verbatim{.pro} file as well. For example:
+application, @QLT needs you to set the @Code{DEFAULTCODEC}
+entry in the @File{.pro} file as well. For example:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     DEFAULTCODEC    = ISO-8859-5
 @End @RawVerbatim
 @End @Section
@@ -91,39 +91,39 @@ entry in the @F @Verbatim{.pro} file as well. For example:
 @Begin
 lupdate @Index{ lupdate }
 @LP
-Usage: @F @Verbatim{lupdate myproject.pro}
+Usage: @Code{lupdate myproject.pro}
 
 
 qt.designer @Index{ Qt Designer }@PP
-This is a simple command line tool. lupdate reads a Qt @F @Verbatim{.pro}
+This is a simple command line tool. @File{lupdate} reads a Qt @File{.pro}
 project file, finds the translatable strings in the specified
-source, header and @I{Qt Designer} interface files, and produces
-or updates the @F @Verbatim{.ts} translation files listed in
+source, header and @QDR interface files, and produces
+or updates the @File{.ts} translation files listed in
 the project file. The translation files are given to the translator
-who uses @I{Qt Linguist} to read the files and insert the translations.
+who uses @QLT to read the files and insert the translations.
 
 @PP
 Companies that have their own translators in-house may find it
-useful to run lupdate regularly, perhaps monthly, as the application
+useful to run @File{lupdate} regularly, perhaps monthly, as the application
 develops. This will lead to a fairly low volume of translation
 work spread evenly over the life of the project and will allow
 the translators to support a number of projects simultaneously.
 
 @PP
 Companies that hire in translators as required may prefer to
-run lupdate only a few times in the application's life cycle,
+run @File{lupdate} only a few times in the application's life cycle,
 the first time might be just before the first test phase. This
 will provide the translator with a substantial single block of
 work and any bugs that the translator detects may easily be included
 with those found during the initial test phase. The second and
-any subsequent lupdate runs would probably take place during
+any subsequent @File{lupdate} runs would probably take place during
 the final beta phase.
 
 
 ts.files @Index{ .ts Files }
 translation.source.files @Index{ Translation Source Files }
 xml @Index{ XML }@PP
-The @F @Verbatim{.ts} file format is a simple human-readable
+The @File{.ts} file format is a simple human-readable
 XML format that can be used with version control systems if required.
 
 @End @Section
@@ -133,30 +133,30 @@ XML format that can be used with version control systems if required.
 @Begin
 lrelease @Index{ lrelease }
 @LP
-Usage: @F @Verbatim{lrelease myproject.pro}
+Usage: @Code{lrelease myproject.pro}
 
 
 qm.files @Index{ .qm Files }
 qt.message.files @Index{ Qt Message Files }@PP
-This is another simple command line tool. It reads a Qt @F @Verbatim{.pro}
-project file and produces the @F @Verbatim{.qm} files used by
-the application, one for each @F @Verbatim{.ts} translation source
-file listed in the project file. The @F @Verbatim{.qm} file format
+This is another simple command line tool. It reads a Qt @File{.pro}
+project file and produces the @File{.qm} files used by
+the application, one for each @File{.ts} translation source
+file listed in the project file. The @File{.qm} file format
 is a compact binary format that provides extremely fast lookups
 for translations.
 
 @PP
 This tool is run whenever a release of the application is to
 be made, from initial test version through to final release version.
-If the @F @Verbatim{.qm} files are not created, e.g. because
+If the @File{.qm} files are not created, e.g. because
 an alpha release is required before any translation has been
 undertaken, the application will run perfectly well using the
-text the programmers placed in the source files. Once the @F
-@Verbatim{.qm} files are available the application will detect
+text the programmers placed in the source files. Once the 
+@File{.qm} files are available the application will detect
 them and use them automatically.
 
 @PP
-Note that lrelease will only incorporate translations that are
+Note that @File{lrelease} will only incorporate translations that are
 marked as "\""done"\"". If a translation is missing, or has failed
 validation, the original text will be used instead.
 
@@ -166,7 +166,7 @@ validation, the original text will be used instead.
     @Tag { missing.translations }
 @Begin
 @LP
-Both lupdate and lrelease may be used with @F @Verbatim{.ts}
+Both @File{lupdate} and @File{lrelease} may be used with @File{.ts}
 translation source files which are incomplete. Missing translations
 will be replaced with the native language phrases at runtime.
 

@@ -19,9 +19,17 @@ macro @Number {N{+0.25f @VShift{0.8 @Scale{@Underline o}}}} # N°
 
 macro @TTGreenColour		{{cmyk 0.40 0.00 1.00 0.01}}
 macro @LightGreyColour		{{rgb 0.90 0.90 0.90}}
-macro @SidebarTitleBgColour	{ darkcyan }
-macro @SidebarTitleColour	{ white } 
-macro @SidebarBgColour		{ @LightGreyColour }
+
+macro @SBPP { //0.35f 2f @Wide &0c }
+
+def @Code right x { { 0.75 1.00 } @Scale { Courier Base } @Font x }
+def @Class right x { { 0.75 1.00 } @Scale { Courier Bold } @Font x }
+def @File right x { { 0.75 1.00 } @Scale { Courier Base } @Font x } # File or Program
+def @Func right x { { 0.75 1.00 } @Scale { Courier Bold } @Font x } 
+def @Option right x { { Helvetica Base -1p } @Font  x } # Button, toolbar button, menu option or key sequence
+def @Prop right x { { Helvetica Slope -1p } @Font x } # Property
+def @Win right x { Slope @Font x } # Window or dialog
+def @Var right x { { 0.75 1.00 } @Scale { Courier Slope } @Font x } 
 
 
 import @BasicSetup
@@ -35,44 +43,20 @@ def @Key right x {
 import @BasicSetup 
 def @Sidebar
     left title
-    named @Type {}
     right x
 {
     def @DetailsPlace { @Galley }
     def @SendDetails into { @DetailsPlace&&preceding } right x { @OneCol x }
 
-    @OneRow @CD 
+    @CD 
     @Tbl
 	rule { yes }
-	aformat { 
-	    @Cell iv { ctr }
-		  paint { 
-			@Type @Case {
-			    tip	     @Yield { lightyellow }
-			    caution  @Yield { lightred }
-			    exercise @Yield { lightcyan }
-			    note     @Yield { lightgreen }
-			    else     @Yield { lightgrey }
-			}
-		    } A 
-		}
+	aformat { @Cell indent { ctr } iv { ctr } paint { darkgrey }
+			font { Helvetica Bold } white @Colour A }
+	bformat { @Cell paint { @LightGreyColour } A }
     {
-	@Rowa 
-	    A { 
-		1c @Wide 
-		@Type @Case {
-		    tip	     @Yield { { Dingbats Base +2p } @Font 4 } 
-		    caution  @Yield { { Dingbats Base +2p } @Font 8 } 
-		    exercise @Yield { { Dingbats Base +2p } @Font + } 
-		    note     @Yield { { Dingbats Base +2p } @Font - } 
-		    else     @Yield { @Diag { 
-					@Circle margin { 0.2f } 
-					{ Times Bold -1p } @Font i } } 
-		}
-		@B title 
-	    }
-	@Rowa 
-	    A { x }
+	@Rowa A { title }
+	@Rowb A { x }
     }
     //
     @SendDetails x
@@ -86,23 +70,23 @@ def @News right x { @HContract{news{:|0.15s{"/"|0.4fo "/"}x}}}
 import @BasicSetup 
 def @TitlePageRef right x { 
     x @Case {
-	"" @Yield red @Colour { ?? }
-	else @Yield {@TitleOf x [p.~@PageOf{x}]} 
+	"" @Yield { red @Colour { ?? } }
+	else @Yield {``{@TitleOf x}'' [p.~@PageOf{x}]} 
     }
 }
 
 import @BasicSetup 
 def @TitleRef right x { 
     x @Case {
-	"" @Yield red @Colour { ?? }
-	else @Yield {@TitleOf x} 
+	"" @Yield { red @Colour { ?? } }
+	else @Yield {``{@TitleOf x}''} 
     }
 }
 
 import @BasicSetup 
 def @PageRef right x { 
     x @Case {
-	"" @Yield red @Colour { ?? }
+	"" @Yield { red @Colour { ?? } }
 	else @Yield {[p.~@PageOf{ x }]} 
     }
 }

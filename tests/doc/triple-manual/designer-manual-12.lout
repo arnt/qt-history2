@@ -8,7 +8,7 @@
     @Tag { introductionxxx }
 @Begin
 @PP
-@I{Qt Designer}'s toolbar buttons provide fast access to common
+@QDR's toolbar buttons provide fast access to common
 functionality. Toolbar buttons are grouped in several toolbars.
 Toolbars have a handle at the left hand side which can be clicked
 to minimize the toolbar. Toolbars that have been minimized have
@@ -34,19 +34,19 @@ then click the name of the tool dock window you wish to restore.
 }
 @NumberedList
 @LI{
-@B{New}@LLP
+@Option{New}@LLP
 
- Click this toolbar button (or press @B{Ctrl+N}) to create a new project, form or file. This option invokes the New File Dialog.}
+ Click this toolbar button (or press @Option{Ctrl+N}) to create a new project, form or file. This option invokes the New File Dialog.}
 @LI{
-@B{Open}@LLP
+@Option{Open}@LLP
 
- Click this toolbar button (or press @B{Ctrl+O}) to open existing projects, forms or files. This button invokes the File Open Dialog which is used to select files.}
+ Click this toolbar button (or press @Option{Ctrl+O}) to open existing projects, forms or files. This button invokes the File Open Dialog which is used to select files.}
 @LI{
-@B{Save}@LLP
+@Option{Save}@LLP
 
- Click this toolbar button (or press @B{Ctrl+S}) to save the project, forms and files. For a new project that has no forms or files, click 'Save' to save the project before exiting. For new forms, click 'Save' and the Save Form As Dialog appears.}
+ Click this toolbar button (or press @Option{Ctrl+S}) to save the project, forms and files. For a new project that has no forms or files, click 'Save' to save the project before exiting. For new forms, click 'Save' and the Save Form As Dialog appears.}
 @LI{
-@B{Active Project}@LLP
+@Option{Active Project}@LLP
 
  Click the combobox to view the names of the projects that are currently open and select a project name to toggle between the projects.}
 @EndList
@@ -63,25 +63,25 @@ then click the name of the tool dock window you wish to restore.
 }
 @NumberedList
 @LI{
-@B{Undo}@LLP
+@Option{Undo}@LLP
 
- Click this toolbar button (or press @B{Ctrl+Z}) to undo an action. The name of the last action that was performed appears after the word 'Undo' in this toolbar button's tooltip.}
+ Click this toolbar button (or press @Option{Ctrl+Z}) to undo an action. The name of the last action that was performed appears after the word 'Undo' in this toolbar button's tooltip.}
 @LI{
-@B{Redo}@LLP
+@Option{Redo}@LLP
 
- Click this toolbar button (or press @B{Ctrl+Y}) to redo an action. The name of the last action that was performed appears after the word 'Redo' in this toolbar button's tooltip.}
+ Click this toolbar button (or press @Option{Ctrl+Y}) to redo an action. The name of the last action that was performed appears after the word 'Redo' in this toolbar button's tooltip.}
 @LI{
-@B{Cut}@LLP
+@Option{Cut}@LLP
 
- Click this toolbar button (or press @B{Ctrl+X}) to delete the selected item from the current form or file and copy it to the clipboard.}
+ Click this toolbar button (or press @Option{Ctrl+X}) to delete the selected item from the current form or file and copy it to the clipboard.}
 @LI{
-@B{Copy}@LLP
+@Option{Copy}@LLP
 
- Click this toolbar button (or press @B{Ctrl+C}) to copy the selected item from the current form or file to the clipboard.}
+ Click this toolbar button (or press @Option{Ctrl+C}) to copy the selected item from the current form or file to the clipboard.}
 @LI{
-@B{Paste}@LLP
+@Option{Paste}@LLP
 
- Click this toolbar button (or press @B{Ctrl+V}) to paste the selected item (if any) from the clipboard into the current form or file.}
+ Click this toolbar button (or press @Option{Ctrl+V}) to paste the selected item (if any) from the clipboard into the current form or file.}
 @EndList
 @End @Section
 @Section
@@ -96,13 +96,13 @@ then click the name of the tool dock window you wish to restore.
 }
 @NumberedList
 @LI{
-@B{Find}@LLP
+@Option{Find}@LLP
 
- Click this toolbar button (or press @B{Ctrl+F}) to invoke the Find Text Dialog.}
+ Click this toolbar button (or press @Option{Ctrl+F}) to invoke the Find Text Dialog.}
 @LI{
-@B{Find Incremental}@LLP
+@Option{Find Incremental}@LLP
 
- Click this toolbar button (or press @B{Alt+I}) to place the cursor in the text box located next to the @B{Find} toolbar button. Type characters into the text box; as you type, @I{Qt Designer} will highlight the first occurrence of the text that it finds in the file. Press the @B{Enter} key to go to the next occurrence of the text. Press the @B{Esc} key once you have found the word you are looking for to place the cursor in the editor.}
+ Click this toolbar button (or press @Option{Alt+I}) to place the cursor in the text box located next to the @Option{Find} toolbar button. Type characters into the text box; as you type, @QDR will highlight the first occurrence of the text that it finds in the file. Press the @Option{Enter} key to go to the next occurrence of the text. Press the @Option{Esc} key once you have found the word you are looking for to place the cursor in the editor.}
 @EndList
 @End @Section
 @Section
@@ -116,7 +116,7 @@ Toolbox. From Qt 3.1, the tools toolbars are hidden and the Toolbox
 is shown. The Toolbox is divided into groups, with the first
 group being "\""Common Widgets"\"" which contains the widgets you're
 likely to use most often. If you prefer to use the original toolbar
-setup, you can access the toolbars by clicking @B{Windows"|"Toolbars}
+setup, you can access the toolbars by clicking @Option{Windows"|"Toolbars}
 and then selecting the toolbars you want to be visible from the
 context menu.
 
@@ -126,7 +126,7 @@ you can find within each catgory. Click a category name to access
 the toolbuttons in that category. To use a widget in a category,
 click the widget to activate it. Click the 'x' in the right hand
 corner of the Toolbox to close it. To make the Toolbox appear
-again, click @B{Window"|"Views"|"Toolbox}.
+again, click @Option{Window"|"Views"|"Toolbox}.
 
 @PP
 @Figure
@@ -138,7 +138,7 @@ again, click @B{Window"|"Views"|"Toolbox}.
 If you want to add the same kind of widget several times to a
 form, for example, several push buttons, @I{double click} the
 widget's toolbar button. After this, each time you click the
-form a new widget will be added. Click the @B{Pointer} toolbar
+form a new widget will be added. Click the @Option{Pointer} toolbar
 button to leave this mode.
 
 @LD @Heading { Tools{@PageMark{tools}} }
@@ -150,21 +150,21 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{Pointer}@LLP
+@Option{Pointer}@LLP
 
- Click this toolbar button (or press @B{F2}) to de-select any selected widget toolbar button. The pointer is also used to stop inserting new widgets if you double clicked a widget toolbar button. Press the @B{Esc} key to return to the pointer at any time.}
+ Click this toolbar button (or press @Option{F2}) to de-select any selected widget toolbar button. The pointer is also used to stop inserting new widgets if you double clicked a widget toolbar button. Press the @Option{Esc} key to return to the pointer at any time.}
 @LI{
-@B{Connect Signals and Slots}@LLP
+@Option{Connect Signals and Slots}@LLP
 
- Click this toolbar button (or press @B{F3}) to connect signals and slots. Then click on a widget and drag the connection line to the widget (or the form) that you want to connect to. Release the mouse button and the View and Edit Connections Dialog will appear.}
+ Click this toolbar button (or press @Option{F3}) to connect signals and slots. Then click on a widget and drag the connection line to the widget (or the form) that you want to connect to. Release the mouse button and the View and Edit Connections Dialog will appear.}
 @LI{
-@B{Tab Order}@LLP
+@Option{Tab Order}@LLP
 
- Click this toolbar button (or press @B{F4}) to set the tab order for all the widgets on the form that can accept keyboard focus. Click this toolbar button and blue circles with numbers on them appear next to the widgets. Click the widget that you want to be first in the tab order, then click the widget that should be next in the tab order, and continue until all the widgets have the tab order numbers you want. If you make a mistake, double click the first widget and start again. Press @B{Esc} to leave tab order mode. If you want to revert your changes, leave tab order mode, then undo.}
+ Click this toolbar button (or press @Option{F4}) to set the tab order for all the widgets on the form that can accept keyboard focus. Click this toolbar button and blue circles with numbers on them appear next to the widgets. Click the widget that you want to be first in the tab order, then click the widget that should be next in the tab order, and continue until all the widgets have the tab order numbers you want. If you make a mistake, double click the first widget and start again. Press @Option{Esc} to leave tab order mode. If you want to revert your changes, leave tab order mode, then undo.}
 @LI{
-@B{Set Buddy}@LLP
+@Option{Set Buddy}@LLP
 
- Click this toolbar button (or press @B{F5}) to set a buddy to a label. Then click on a label and drag the line to the widget that you want to be the buddy. Release the mouse button and the buddy is set.}
+ Click this toolbar button (or press @Option{F5}) to set a buddy to a label. Then click on a label and drag the line to the widget that you want to be the buddy. Release the mouse button and the buddy is set.}
 @EndList
 @LD @Heading { Buttons{@PageMark{buttons}} }
 @PP
@@ -175,19 +175,19 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{PushButton}@LLP
+@Option{PushButton}@LLP
 
  Click this toolbar button, then click the form, to place a Pushbutton on the form.}
 @LI{
-@B{ToolButton}@LLP
+@Option{ToolButton}@LLP
 
  Click this toolbar button, then click the form, to place a Toolbutton on the form.}
 @LI{
-@B{RadioButton}@LLP
+@Option{RadioButton}@LLP
 
  Click this toolbar button, then click the form, to place a Radiobutton on the form. It is recommended that you place RadioButtons inside ButtonGroups so that Qt will automatically ensure that only one RadioButton in the group is active at any one time.}
 @LI{
-@B{CheckBox}@LLP
+@Option{CheckBox}@LLP
 
  Click this toolbar button, then click the form, to place a CheckBox on the form.}
 @EndList
@@ -200,19 +200,19 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{GroupBox}@LLP
+@Option{GroupBox}@LLP
 
  Click this toolbar button, then click the form, to place a GroupBox on the form.}
 @LI{
-@B{ButtonGroup}@LLP
+@Option{ButtonGroup}@LLP
 
  Click this toolbar button, then click the form, to place a ButtonGroup on the form.}
 @LI{
-@B{Frame}@LLP
+@Option{Frame}@LLP
 
  Click this toolbar button, then click the form, to place a Frame on the form.}
 @LI{
-@B{TabWidget}@LLP
+@Option{TabWidget}@LLP
 
  Click this toolbar button, then click the form, to place a TabWidget on the form. To add or remove tabs, right click the tab widget and choose 'Add Page' or 'Remove Page'.}
 @EndList
@@ -225,19 +225,19 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{ListBox}@LLP
+@Option{ListBox}@LLP
 
  Click this toolbar button, then click the form, to place a ListBox on the form.}
 @LI{
-@B{ListView}@LLP
+@Option{ListView}@LLP
 
  Click this toolbar button, then click the form, to place a ListView on the form.}
 @LI{
-@B{Icon View}@LLP
+@Option{Icon View}@LLP
 
  Click this toolbar button, then click the form, to place an IconView on the form.}
 @LI{
-@B{Table}@LLP
+@Option{Table}@LLP
 
  Click this toolbar button, then click the form to place a Table on the form.}
 @EndList
@@ -250,15 +250,15 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{DataTable}@LLP
+@Option{DataTable}@LLP
 
  Click this toolbar button, then click the form, to place a DataTable on the form.}
 @LI{
-@B{DataBrowser}@LLP
+@Option{DataBrowser}@LLP
 
  Click this toolbar button, then click the form, to place a DataBrowser on the form.}
 @LI{
-@B{DataView}@LLP
+@Option{DataView}@LLP
 
  Click this toolbar button, then click the form, to place a DataView on the form.}
 @EndList
@@ -271,43 +271,43 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{LineEdit}@LLP
+@Option{LineEdit}@LLP
 
  Click this toolbar button, then click the form, to place a LineEdit on the form.}
 @LI{
-@B{SpinBox}@LLP
+@Option{SpinBox}@LLP
 
  Click this toolbar button, then click the form, to place a SpinBox on the form.}
 @LI{
-@B{DateEdit}@LLP
+@Option{DateEdit}@LLP
 
  Click this toolbar button, then click the form, to place a DateEdit on the form.}
 @LI{
-@B{TimeEdit}@LLP
+@Option{TimeEdit}@LLP
 
  Click this toolbar button, then click the form, to place a TimeEdit on the form.}
 @LI{
-@B{DateTimeEdit}@LLP
+@Option{DateTimeEdit}@LLP
 
  Click this toolbar button, then click the form, to place a DateTimeEdit on the form.}
 @LI{
-@B{TextEdit}@LLP
+@Option{TextEdit}@LLP
 
  Click this toolbar button, then click the form, to place a TextEdit on the form.}
 @LI{
-@B{ComboBox}@LLP
+@Option{ComboBox}@LLP
 
  Click this toolbar button, then click the form, to place a ComboBox on the form.}
 @LI{
-@B{Slider}@LLP
+@Option{Slider}@LLP
 
  Click this toolbar button, then click the form, to place a Slider on the form.}
 @LI{
-@B{ScrollBar}@LLP
+@Option{ScrollBar}@LLP
 
  Click this toolbar button, then click the form, to place a Scrollbar on the form.}
 @LI{
-@B{Dial}@LLP
+@Option{Dial}@LLP
 
  Click this toolbar button, then click the form, to place a Dial on the form.}
 @EndList
@@ -320,27 +320,27 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{TextLabel}@LLP
+@Option{TextLabel}@LLP
 
  Click this toolbar button, then click the form, to place a TextLabel on the form.}
 @LI{
-@B{PixmapLabel}@LLP
+@Option{PixmapLabel}@LLP
 
  Click this toolbar button, then click the form, to place a PixmapLabel on the form.}
 @LI{
-@B{LCDNumber}@LLP
+@Option{LCDNumber}@LLP
 
  Click this toolbar button, then click the form, to place a LCDNumber on the form.}
 @LI{
-@B{Line}@LLP
+@Option{Line}@LLP
 
  Click this toolbar button, then click the form, to place a Line on the form.}
 @LI{
-@B{ProgressBar}@LLP
+@Option{ProgressBar}@LLP
 
  Click this toolbar button, then click the form, to place a ProgressBar on the form.}
 @LI{
-@B{TextBrowser}@LLP
+@Option{TextBrowser}@LLP
 
  Click this toolbar button, then click the form, to place a TextBrowser on the form.}
 @EndList
@@ -353,9 +353,9 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{My Custom Widget}@LLP
+@Option{My Custom Widget}@LLP
 
- Click this toolbar button, then click the form, to place a Custom Widget on the form. Note: this toolbar button only appears if you have created a custom widget using @B{Tools"|"Custom"|"Edit Custom Widgets}.}
+ Click this toolbar button, then click the form, to place a Custom Widget on the form. Note: this toolbar button only appears if you have created a custom widget using @Option{Tools"|"Custom"|"Edit Custom Widgets}.}
 @EndList
 @LD @Heading { The Layout Toolbar Buttons{@PageMark{the.layout.toolbar.buttons}} }
 @PP
@@ -366,35 +366,35 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{Adjust Size}@LLP
+@Option{Adjust Size}@LLP
 
- Click this toolbar button (or press @B{Ctrl+J}) to adjust the size of the widget to it's recommended size.}
+ Click this toolbar button (or press @Option{Ctrl+J}) to adjust the size of the widget to it's recommended size.}
 @LI{
-@B{Lay Out Horizontally}@LLP
+@Option{Lay Out Horizontally}@LLP
 
- Click this toolbar button (or press @B{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @B{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button (or press @Option{Ctrl+H}) to lay out the selected widgets or layouts side by side. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
 @LI{
-@B{Lay Out Vertically}@LLP
+@Option{Lay Out Vertically}@LLP
 
- Click this toolbar button (or press @B{Ctrl+L}) to lay out the selected widgets one above the other. Use @B{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button (or press @Option{Ctrl+L}) to lay out the selected widgets one above the other. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
 @LI{
-@B{Lay out in a Grid}@LLP
+@Option{Lay out in a Grid}@LLP
 
- Click the widgets you want and then click this toolbar button (or press @B{Ctrl+G}) to lay out widgets in a grid.}
+ Click the widgets you want and then click this toolbar button (or press @Option{Ctrl+G}) to lay out widgets in a grid.}
 @LI{
-@B{Lay Out Horizontally (in Splitter)}@LLP
+@Option{Lay Out Horizontally (in Splitter)}@LLP
 
- Click this toolbar button to lay out the selected groups of widgets or layouts side by side with a splitter between each group. Use @B{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button to lay out the selected groups of widgets or layouts side by side with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them horizontally. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
 @LI{
-@B{Lay Out Vertically (in Splitter)}@LLP
+@Option{Lay Out Vertically (in Splitter)}@LLP
 
- Click this toolbar button to lay out the selected groups of widgets or layouts one above the other with a splitter between each group. Use @B{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
+ Click this toolbar button to lay out the selected groups of widgets or layouts one above the other with a splitter between each group. Use @Option{Shift+Click} to select each widget or layout, and then choose this toolbar button to group them vertically. Note that for complex widgets it is sometimes easiest to select widgets and layouts by clicking them in the Widgets tab of the Object Explorer Window.}
 @LI{
-@B{Break Layout}@LLP
+@Option{Break Layout}@LLP
 
- Click this toolbar button (or press @B{Ctrl+B}) to break a layout. Click on the layout and select this option; the layout is deleted.}
+ Click this toolbar button (or press @Option{Ctrl+B}) to break a layout. Click on the layout and select this option; the layout is deleted.}
 @LI{
-@B{Add Spacer}@LLP
+@Option{Add Spacer}@LLP
 
  Click this toolbar button to add a spacer to widgets that take up too much space on the form. The spacer consumes extra space in the layout.}
 @EndList
@@ -411,7 +411,7 @@ button to leave this mode.
 }
 @NumberedList
 @LI{
-@B{What's This?}@LLP
+@Option{What's This?}@LLP
 
  Click this menu option to invoke a small question mark that is attached to the mouse pointer. Click on a feature which you would like more information about. A message box appears with information about the feature.}
 @EndList

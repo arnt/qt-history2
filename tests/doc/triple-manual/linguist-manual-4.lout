@@ -52,38 +52,38 @@ lupdate @Index{ lupdate }
 lrelease @Index{ lrelease }
 @NumberedList
 @LI{
-Run lupdate initially to generate the first set of @F @Verbatim{.ts}
+Run @File{lupdate} initially to generate the first set of @File{.ts}
 translation source files with all the user-visible text but no
 translations.
 }
 @LI{
-The @F @Verbatim{.ts} files are given to the translator who adds
-translations using @I{Qt Linguist}. @I{Qt Linguist} takes care
+The @File{.ts} files are given to the translator who adds
+translations using @QLT. @QLT takes care
 of any changed or deleted source text.
 }
 @LI{
-Run lupdate to incorporate any new text added to the application.
-lupdate synchronizes the user-visible text from the application
+Run @File{lupdate} to incorporate any new text added to the application.
+@File{lupdate} synchronizes the user-visible text from the application
 with the translations; it does not destroy any data.
 }
 @LI{
 Steps 2 and 3 are repeated as often as necessary.
 }
 @LI{
-When a release of the application is needed lrelease is run to
-read the @F @Verbatim{.ts} files and produce the @F @Verbatim{.qm}
+When a release of the application is needed @File{lrelease} is run to
+read the @File{.ts} files and produce the @File{.qm}
 files used by the application at runtime.
 }
 @EndList
-For lupdate to work successfully, it must know which translation
+For @File{lupdate} to work successfully, it must know which translation
 files to produce. The files are simply listed in the application's
 pro.files @Index{ .pro Files }
 project.files @Index{ Project Files }
 qmake @RawIndex{ qmake }
 qmake.project.files @SubIndex{ Project Files }
-@F @Verbatim{.pro} Qt project file, for example:
+@File{.pro} Qt project file, for example:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
@@ -91,12 +91,12 @@ qmake.project.files @SubIndex{ Project Files }
 See the @TitlePageRef{lupdate} and @TitlePageRef{lrelease} sections.
 
 @LD @Heading { Loading Translations{@PageMark{loading.translations}} }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
 @End @RawVerbatim
-This is how a simple @F @Verbatim{main()} function of a Qt application
+This is how a simple @Func{main()} function of a Qt application
 begins.
 qapplication @Index{ QApplication }
 main @Index{ main() }
@@ -107,7 +107,7 @@ load.qtranslator @SubIndex{ QTranslator }
 qapplication @RawIndex{ QApplication }
 qapplication.installtranslator @SubIndex{ installTranslator() }
 installtranslator @RawIndex{ installTranslator() }
-installtranslator.qapplication @SubIndex{ QApplication }@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+installtranslator.qapplication @SubIndex{ QApplication }@LD @Code @RawVerbatim @Begin
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
@@ -123,7 +123,7 @@ qapplication @Index{ QApplication }
 qtranslator @Index{ QTranslator }
 
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char **argv )
     {
         QApplication app( argc, argv );
@@ -134,8 +134,8 @@ qtranslator @Index{ QTranslator }
 @End @RawVerbatim
 In production applications a more flexible approach, for example,
 loading translations according to locale, might be more appropriate.
-If the @F @Verbatim{.ts} files are all named according to a convention
-such as @I{appname_locale}, e.g. @F @Verbatim{tt2_fr}, @F @Verbatim{tt2_de}
+If the @File{.ts} files are all named according to a convention
+such as @File{appname_locale}, e.g. @File{tt2_fr}, @File{tt2_de}
 etc, then the code above will load the current locale's translation
 at runtime.
 qapplication @Index{ QApplication }
@@ -149,66 +149,66 @@ will fall back to using the original source text.
 
 @LD @Heading { Making the Application Translate User-Visible Strings{@PageMark{making.the.application.translate.user.visible.strings}} }
 User-visible strings are marked as translation targets by wrapping
-them in a @F @Verbatim{tr()} call, for example:
+them in a @Func{tr()} call, for example:
 tr @Index{ tr() }
 qobject @RawIndex{ QObject }
 qobject.tr @SubIndex{ tr() }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     button = new QPushButton( "&Quit", this );
 @End @RawVerbatim
 qpushbutton @Index{ QPushButton }
 would become
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     button = new QPushButton( tr("&Quit"), this);
 @End @RawVerbatim
-All @B{QObject}qobject @Index{ QObject } subclasses that use the @F
-@Verbatim{Q_OBJECT} macro implement the @F @Verbatim{tr()} function.
+All @Class{QObject}qobject @Index{ QObject } subclasses that use the 
+@Code{Q_OBJECT} macro implement the @Func{tr()} function.
 qpushbutton @Index{ QPushButton }
 q.object @Index{ Q_OBJECT }
 @PP
-Although the @F @Verbatim{tr()} call is normally made directly since
-it is usually called as a member function of a @B{QObject}qobject
+Although the @Func{tr()} call is normally made directly since
+it is usually called as a member function of a @Class{QObject}qobject
 @Index{ QObject } subclass, in other cases an explicit class name can
 be supplied, for example:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     QPushButton::tr("&Quit")
 @End @RawVerbatim
 or
 qpushbutton @Index{ QPushButton }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     QObject::tr("&Quit")
 @End @RawVerbatim
 qobject @Index{ QObject }
 @LD @Heading { Distinguishing Identical Strings That Require Different Translations{@PageMark{distinguishing.identical.strings.that.require.different.translations}} }
-The lupdate program automatically provides a @I{context} for
+The @File{lupdate} program automatically provides a @I{context} for
 every source text. This context is the class name of the class
-that contains the @F @Verbatim{tr()} call. This is sufficient
+that contains the @Func{tr()} call. This is sufficient
 in the vast majority of cases. Sometimes however, the translator
 will need further information to uniquely identify a source text;
 for example, a dialog that contained two separate frames, each
 of which contained an "\""Enabled"\"" option would need each identified
 because in some languages the translation would differ between
 the two. This is easily achieved using the two argument form
-of the @F @Verbatim{tr()} call, e.g.
+of the @Func{tr()} call, e.g.
 translation.contexts @Index{ Translation Contexts }
 contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
 lupdate @Index{ lupdate }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     rbc = new QRadioButton( tr("Enabled", "Color frame"), this );
 @End @RawVerbatim
 and
 qradiobutton @Index{ QRadioButton }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     rbh = new QRadioButton( tr("Enabled", "Hue frame"), this );
 @End @RawVerbatim
 Ctrl key accelerators are also translatable:
 qradiobutton @Index{ QRadioButton }
 ctrl.key @Index{ Ctrl Key }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         file->insertItem( tr("E&xit"), qApp, SLOT(quit()), tr("Ctrl+Q", "Quit") );
 @End @RawVerbatim
-It is strongly recommended that the two argument form of @F @Verbatim{tr()}
+It is strongly recommended that the two argument form of @Func{tr()}
 is used for Ctrl key accelerators. The second argument is the
 only clue the translator has as to the function performed by
 the accelerator.
@@ -216,7 +216,7 @@ the accelerator.
 @LD @Heading { Helping The Translator With Navigation Information{@PageMark{helping.the.translator.with.navigation.information}} }
 In large complex applications it may be difficult for the translator
 to see where a particular source text comes from. This problem
-can be solved by adding a comment using the keyword @I{TRANSLATOR}
+can be solved by adding a comment using the keyword @Code{TRANSLATOR}
 which describes the navigation steps to reach the text in question;
 e.g.
 translator @RawIndex{ TRANSLATOR }
@@ -224,7 +224,7 @@ translator.in.comments @SubIndex{ in Comments }
 translator.comments @Index{ Translator Comments }
 comments @RawIndex{ Comments }
 comments.for.translators @SubIndex{ for Translators }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     /*  TRANSLATOR FindDialog
 
         Choose Edit|Find from the menu bar or press Ctrl+F to pop up the
@@ -234,10 +234,10 @@ comments.for.translators @SubIndex{ for Translators }
 These comments are particularly useful for widget classes.
 
 @LD @Heading { Coping With C++ Namespaces{@PageMark{coping.with.c.namespaces}} }
-C++ namespaces and the @F @Verbatim{using namespace} statement
-can confuse lupdate. It will interpret @F @Verbatim{MyClass::tr()}
-as meaning just that, not as @F @Verbatim{MyNamespace::MyClass::tr()},
-even if @F @Verbatim{MyClass} is defined in the @F @Verbatim{MyNamespace}
+C++ namespaces and the @Code{using namespace} statement
+can confuse @File{lupdate}. It will interpret @Func{MyClass::tr()}
+as meaning just that, not as @Func{MyNamespace::MyClass::tr()},
+even if @Code{MyClass} is defined in the @Code{MyNamespace}
 namespace. Runtime translation of these strings will fail because
 of that.
 namespaces @Index{ Namespaces }
@@ -250,13 +250,13 @@ translator.comments @Index{ Translator Comments }
 comments @RawIndex{ Comments }
 comments.for.translators @SubIndex{ for Translators }
 @PP
-You can work around this limitation by putting a @I{TRANSLATOR}
-comment at the beginning of the source files that use @F @Verbatim{MyClass::tr()}:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+You can work around this limitation by putting a @Code{TRANSLATOR}
+comment at the beginning of the source files that use @Func{MyClass::tr()}:
+@LD @Code @RawVerbatim @Begin
     /* TRANSLATOR MyNamespace::MyClass */
 @End @RawVerbatim
-After the comment, all references to @F @Verbatim{MyClass::tr()}
-will be understood as meaning @F @Verbatim{MyNamespace::MyClass::tr()}.
+After the comment, all references to @Func{MyClass::tr()}
+will be understood as meaning @Func{MyNamespace::MyClass::tr()}.
 @DP
 @LD @Heading { Translating Text that is Outside of a QObject subclass{@PageMark{translating.text.that.is.outside.of.a.qobject.subclass}} }
 @LD @I { Using QApplication::translate(){@PageMark{using.qapplication.translate}} }
@@ -264,7 +264,7 @@ If the quoted text is not in a member function of a QObject subclass,
 use either the tr() function of an appropriate class, or the
 QApplication::translate() function directly:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void some_global_function( LoginWidget *logwid )
     {
         QLabel *label = new QLabel( LoginWidget::tr("Password:"), logwid );
@@ -279,13 +279,13 @@ QApplication::translate() function directly:
 @LD @I { Using QT_TR_NOOP() and QT_TRANSLATE_NOOP(){@PageMark{using.qt.tr.noop.and.qt.translate.noop}} }
 If you need to have translatable text completely outside a function,
 there are two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
-These macros merely mark the text for extraction by lupdate.
+These macros merely mark the text for extraction by @File{lupdate}.
 The macros expand to just the text (without the context).
 qlabel @Index{ QLabel }
 
 @PP
 Example of QT_TR_NOOP():
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     QString FriendlyConversation::greeting( int greet_type )
     {
         static const char* greeting_strings[] = {
@@ -298,7 +298,7 @@ Example of QT_TR_NOOP():
 Example of QT_TRANSLATE_NOOP():
 qstring @Index{ QString }
 qt.tr.noop @Index{ QT_TR_NOOP }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     static const char* greeting_strings[] = {
         QT_TRANSLATE_NOOP( "FriendlyConversation", "Hello" ),
         QT_TRANSLATE_NOOP( "FriendlyConversation", "Goodbye" )
@@ -324,12 +324,12 @@ qstring @Index{ QString }
 @Begin
 @LP
 Three tutorials are presented. The first demonstrates the creation of
-a @B{QTranslator}qtranslator @Index{ QTranslator } object. It also
-shows the simplest use of the @F @Verbatim{tr()} function to mark
+a @Class{QTranslator}qtranslator @Index{ QTranslator } object. It also
+shows the simplest use of the @Func{tr()} function to mark
 user-visible source text for translation. The second tutorial explains
 how to make the application load the translation file applicable to
 the current locale. It also shows the use of the two-argument form of
-@F @Verbatim{tr()} which provides additional information to the
+@Func{tr()} which provides additional information to the
 translator. The third tutorial explains how identical source texts can
 be distinguished even when they occur in the same context. This
 tutorial also discusses how the translation tools help minimize the
@@ -345,14 +345,14 @@ translator's work when an application is upgraded.
     @Caption { 
 @I{Tutorial 1 Screenshot, English version} }
  0.5 @Scale @IncludeGraphic { "images/tt1_en.eps.gz" }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
 CONFIG          += qt warn_on
 SOURCES         = main.cpp
 TRANSLATIONS    = tt1_la.ts
 @End @RawVerbatim
-@QD{@I{{tt1.pro}}}
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@QD{@File{{tt1.pro}}}
+@LD @Code @RawVerbatim @Begin
 /****************************************************************
 **
 ** Translation tutorial 1
@@ -379,7 +379,7 @@ int main( int argc, char **argv )
     return app.exec();
 }
 @End @RawVerbatim
-@QD{ @I{{main.cpp}}}
+@QD{ @File{{main.cpp}}}
 qapplication @Index{ QApplication }
 qtranslator @Index{ QTranslator }
 qpushbutton @Index{ QPushButton }
@@ -389,23 +389,23 @@ Tutorial "#"1, with a Latin translation. The @I{Tutorial 1 Screenshot,
 English version}, above, shows the English version.
 
 @LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.through}} }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     #include <qtranslator.h>
 @End @RawVerbatim
-This line includes the definition of the @B{QTranslator}qtranslator
+This line includes the definition of the @Class{QTranslator}qtranslator
 @Index{ QTranslator } class. Objects of this class provide
 translations for user-visible text.
 qtranslator @Index{ QTranslator }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         QTranslator translator( 0 );
 @End @RawVerbatim
-Creates a @B{QTranslator}qtranslator @Index{ QTranslator } object
+Creates a @Class{QTranslator}qtranslator @Index{ QTranslator } object
 without a parent.
 qtranslator @Index{ QTranslator }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         translator.load( "tt1_la", "." );
 @End @RawVerbatim
-Tries to load a file called @F @Verbatim{tt1_la.qm} (the @F @Verbatim{.qm}
+Tries to load a file called @File{tt1_la.qm} (the @File{.qm}
 file extension is implicit) that contains Latin translations
 for the source texts used in the program. No error will occur
 if the file is not found.
@@ -413,17 +413,17 @@ tt.la.qm @Index{ tt1_la.qm }
 qapplication @RawIndex{ QApplication }
 qapplication.installtranslator @SubIndex{ installTranslator() }
 installtranslator @RawIndex{ installTranslator() }
-installtranslator.qapplication @SubIndex{ QApplication }@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+installtranslator.qapplication @SubIndex{ QApplication }@LD @Code @RawVerbatim @Begin
         app.installTranslator( &translator );
 @End @RawVerbatim
-Adds the translations from @F @Verbatim{tt1_la.qm} to the pool
+Adds the translations from @File{tt1_la.qm} to the pool
 of translations used by the program.
 
-hello.world @Index{ Hello World }@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+hello.world @Index{ Hello World }@LD @Code @RawVerbatim @Begin
         QPushButton hello( QPushButton::tr("Hello world!"), 0 );
 @End @RawVerbatim
-Creates a push button that displays "\""Hello world!"\"". If @F
-@Verbatim{tt1_la.qm} was found and contains a translation for
+Creates a push button that displays "\""Hello world!"\"". If 
+@File{tt1_la.qm} was found and contains a translation for
 "\""Hello world!"\"", the translation appears; if not, the source text
 appears.
 qpushbutton @Index{ QPushButton }
@@ -431,14 +431,14 @@ tr @Index{ tr() }
 qobject @RawIndex{ QObject }
 qobject.tr @SubIndex{ tr() }
 @PP
-All classes that inherit @B{QObject}qobject @Index{ QObject } have a
-@F @Verbatim{tr()} function. Inside a member function of a
-@B{QObject}qobject @Index{ QObject } class, we simply write @F
-@Verbatim{tr("Hello world!")} instead of @F
-@Verbatim{QPushButton::tr("Hello world!")} or @F
-@Verbatim{QObject::tr("Hello world!")}.
+All classes that inherit @Class{QObject}qobject @Index{ QObject } have a
+@Func{tr()} function. Inside a member function of a
+@Class{QObject}qobject @Index{ QObject } class, we simply write 
+@Code{tr("\""Hello world!"\"")} instead of 
+@Code{QPushButton::tr("\""Hello world!"\"")} or
+@Code{QObject::tr("\""Hello world!"\"")}.
 @LD @I { Running the Application in English{@PageMark{running.the.application.in.english}} }
-Since we haven't made the translation file @F @Verbatim{tt1_la.qm},
+Since we haven't made the translation file @File{tt1_la.qm},
 the source text is shown when we run the application:
 english.language @Index{ English Language }
 @Figure
@@ -446,7 +446,7 @@ english.language @Index{ English Language }
 @I{Tutorial 1 Screenshot, English version} }
  0.5 @Scale @IncludeGraphic { "images/tt1_en.eps.gz" }
 @LD @I { Creating a Latin Message File{@PageMark{creating.a.latin.message.file}} }
-The first step is to create a project file, @F @Verbatim{tt1.pro},
+The first step is to create a project file, @File{tt1.pro},
 that lists all the source files for the project. The project
 file can be a qmake project file, or even an ordinary makefile.
 Any file that contains
@@ -455,26 +455,26 @@ latin @Index{ Latin }
 sources @RawIndex{ SOURCES }
 sources.in.project.files @SubIndex{ in Project Files }
 translations @RawIndex{ TRANSLATIONS }
-translations.in.project.files @SubIndex{ in Project Files }@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+translations.in.project.files @SubIndex{ in Project Files }@LD @Code @RawVerbatim @Begin
     SOURCES         = main.cpp
     TRANSLATIONS    = tt1_la.ts
 @End @RawVerbatim
-will work. @I{TRANSLATIONS} specifies the message files we want
+will work. @Code{TRANSLATIONS} specifies the message files we want
 to maintain. In this example, we just maintain one set of translations,
 namely Latin.
 ts.files @Index{ .ts Files }
 translation.source.files @Index{ Translation Source Files }
 qm.files @Index{ .qm Files }
 qt.message.files @Index{ Qt Message Files }@PP
-Note that the file extension is @F @Verbatim{.ts}, not @F @Verbatim{.qm}.
-The @F @Verbatim{.ts} translation source format is designed for
+Note that the file extension is @File{.ts}, not @File{.qm}.
+The @File{.ts} translation source format is designed for
 use during the application's development. Programmers or release
-managers run the lupdate program to generate and update @F @Verbatim{.ts}
+managers run the @File{lupdate} program to generate and update @File{.ts}
 files with the source text that is extracted from the source
-code. Translators read and update the @F @Verbatim{.ts} files
-using @I{Qt Linguist} adding and editing their translations.
+code. Translators read and update the @File{.ts} files
+using @QLT adding and editing their translations.
 @PP
-The @F @Verbatim{.ts} format is human-readable XML that can be
+The @File{.ts} format is human-readable XML that can be
 emailed directly and is easy to put under version control. If
 you edit this file manually, be aware that the default encoding
 for XML is UTF-8, not Latin-1 (ISO 8859-1). One way to type in
@@ -483,34 +483,34 @@ slash) is to use an XML entity: "\"""&""#"xf8;"\"". This will work
 for any Unicode character.
 xml @Index{ XML }
 @PP
-Once the translations are complete the lrelease program is used
-to convert the @F @Verbatim{.ts} files into the @F @Verbatim{.qm}
-Qt message file format. The @F @Verbatim{.qm} format is a compact
+Once the translations are complete the @File{lrelease} program is used
+to convert the @File{.ts} files into the @File{.qm}
+Qt message file format. The @File{.qm} format is a compact
 binary format designed to deliver very fast lookup performance.
-Both lupdate and lrelease read all the project's source and header
+Both @File{lupdate} and @File{lrelease} read all the project's source and header
 files (as specified in the HEADERS and SOURCES lines of the project
-file) and extract the strings that appear in @F @Verbatim{tr()}
+file) and extract the strings that appear in @Func{tr()}
 function calls.
 lupdate @Index{ lupdate }
 @PP
-lupdate is used to create and update the message files (@F @Verbatim{tt1_la.ts}
+@File{lupdate} is used to create and update the message files (@File{tt1_la.ts}
 in this case) to keep them in sync with the source code. It is
-safe to run lupdate at any time, as lupdate does not remove any
+safe to run @File{lupdate} at any time, as @File{lupdate} does not remove any
 information. For example, you can put it in the makefile, so
-the @F @Verbatim{.ts} files are updated whenever the source changes.
+the @File{.ts} files are updated whenever the source changes.
 ts.files @Index{ .ts Files }
 translation.source.files @Index{ Translation Source Files }
 xml @Index{ XML }
 @PP
-Try running lupdate right now, like this:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+Try running @File{lupdate} right now, like this:
+@LD @Code @RawVerbatim @Begin
     lupdate -verbose tt1.pro
 @End @RawVerbatim
-(The @F @Verbatim{-verbose} option instructs @F @Verbatim{lupdate}
+(The @Code{-verbose} option instructs @File{lupdate}
 to display messages that explain what it is doing.) You should
-now have a file @F @Verbatim{tt1_la.ts} in the current directory,
+now have a file @File{tt1_la.ts} in the current directory,
 containing this:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     <!DOCTYPE TS><TS>
     <context>
         <name>QPushButton</name>
@@ -522,43 +522,42 @@ containing this:
     </TS>
 @End @RawVerbatim
 You don't need to understand the file format since it is read
-and updated using tools (lupdate, @I{Qt Linguist}, lrelease).
+and updated using tools (@File{lupdate}, @QLT, @File{lrelease}).
 qpushbutton @Index{ QPushButton }
 @LD @I { Translating to Latin with Qt Linguist{@PageMark{translating.to.latin.with.qt.linguist}} }
-We will use @I{Qt Linguist} to provide the translation, although
+We will use @QLT to provide the translation, although
 you can use any XML or plain text editor to enter a translation
-into a @F @Verbatim{.ts} file.
+into a @File{.ts} file.
 qt.linguist @Index{ Qt Linguist }
 linguist @Index{ Linguist }
-To start @I{Qt Linguist}, type
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+To start @QLT, type
+@LD @Code @RawVerbatim @Begin
     linguist tt1_la.ts
 @End @RawVerbatim
 You should now see the text "\""QPushButton"\"" in the top left pane.
 Double-click it, then click on "\""Hello world!"\"" and enter "\""Orbis,
-te saluto!"\"" in the @I{Translation} pane (the middle right of
+te saluto!"\"" in the @Win{Translation} pane (the middle right of
 the window). Don't forget the exclamation mark!
 @PP
-Click the @I{Done} checkbox and choose @I{File"|"Save} from the
-menu bar. The @F @Verbatim{.ts} file will no longer contain
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+Click the @Option{Done} checkbox and choose @Option{File"|"Save} from the
+menu bar. The @File{.ts} file will no longer contain
+@LD @Code @RawVerbatim @Begin
     <translation type='unfinished'></translation>
 @End @RawVerbatim
 but instead will have
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     <translation>Orbis, te saluto!</translation>
 @End @RawVerbatim
 @LD @I { Running the Application in Latin{@PageMark{running.the.application.in.latin}} }
 To see the application running in Latin, we have to generate
-a @F @Verbatim{.qm} file from the @F @Verbatim{.ts} file. Generating
-a @F @Verbatim{.qm} file can be achieved either from within @I{Qt
-Linguist} (for a single @F @Verbatim{.ts} file), or by using
-the command line program lrelease which will produce one @F @Verbatim{.qm}
-file for each of the @F @Verbatim{.ts} files listed in the project
-file. Generate @F @Verbatim{tt1_la.qm} from @F @Verbatim{tt1_la.ts}
-by choosing @I{File"|"Release} from @I{Qt Linguist}'s menu bar
-and pressing @I{Save} in the file save dialog that pops up. Now
-run the @I{tt1} example program again. This time the button will
+a @File{.qm} file from the @File{.ts} file. Generating
+a @File{.qm} file can be achieved either from within @QLT (for a single @File{.ts} file), or by using
+the command line program @File{lrelease} which will produce one @File{.qm}
+file for each of the @File{.ts} files listed in the project
+file. Generate @File{tt1_la.qm} from @File{tt1_la.ts}
+by choosing @Option{File"|"Release} from @QLT's menu bar
+and pressing @Option{Save} in the file save dialog that pops up. Now
+run the @File{tt1} example program again. This time the button will
 be labelled "\""Orbis, te saluto!"\"".
 latin @Index{ Latin }
 lrelease @Index{ lrelease }
@@ -576,7 +575,7 @@ lrelease @Index{ lrelease }
 @I{Tutorial 2 Screenshot, English version} }
  0.5 @Scale @IncludeGraphic { "images/tt2_en.eps.gz" }
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
 CONFIG          += qt warn_on
 HEADERS         = arrowpad.h \
@@ -587,9 +586,9 @@ SOURCES         = arrowpad.cpp \
 TRANSLATIONS    = tt2_fr.ts \
                   tt2_nl.ts
 @End @RawVerbatim
-@QD{@I{tt2.pro}}
+@QD{@File{tt2.pro}}
 This example is a slightly more involved and introduces a key
-@I{Qt Linguist} concept: "\""contexts"\"".
+@QLT concept: "\""contexts"\"".
 pro.files @Index{ .pro Files }
 project.files @Index{ Project Files }
 qmake @RawIndex{ qmake }
@@ -599,33 +598,33 @@ contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
 @BulletList
 @LI{
-@F @Verbatim{arrowpad.h} contains the definition of @F @Verbatim{ArrowPad},
+@File{arrowpad.h} contains the definition of @Code{ArrowPad},
 a custom widget;
 }
 @LI{
-@F @Verbatim{arrowpad.cpp} contains the implementation of @F
-@Verbatim{ArrowPad};
+@File{arrowpad.cpp} contains the implementation of 
+@Code{ArrowPad};
 }
 @LI{
-@F @Verbatim{mainwindow.h} contains the definition of @F @Verbatim{MainWindow},
-a subclass of @B{QMainWindow}qmainwindow @Index{ QMainWindow }
+@File{mainwindow.h} contains the definition of @Code{MainWindow},
+a subclass of @Class{QMainWindow}qmainwindow @Index{ QMainWindow }
 }
 @LI{
-@F @Verbatim{mainwindow.cpp} contains the implementation of @F
-@Verbatim{MainWindow};
+@File{mainwindow.cpp} contains the implementation of 
+@Code{MainWindow};
 }
 @LI{
-@F @Verbatim{main.cpp} contains main().
+@File{main.cpp} contains @Func{main()}.
 }
 @EndList
 We will use two translations, French and Dutch, although there
 is no effective limit on the number of possible translations
-that can be used with an application. The relevant lines of @F
-@Verbatim{tt2.pro} are
+that can be used with an application. The relevant lines of 
+@File{tt2.pro} are
 tt.pro @Index{ tt2.pro }
 french.language @Index{ French Language }
 dutch.language @Index{ Dutch Language }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     HEADERS         = arrowpad.h \
                       mainwindow.h
     SOURCES         = arrowpad.cpp \
@@ -634,31 +633,31 @@ dutch.language @Index{ Dutch Language }
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
-Run lupdate; it should produce two identical message files @F
-@Verbatim{tt2_fr.ts} and @F @Verbatim{tt2_nl.ts}. These files
+Run @File{lupdate}; it should produce two identical message files 
+@File{tt2_fr.ts} and @File{tt2_nl.ts}. These files
 will contain all the source texts marked for translation with
-@F @Verbatim{tr()} calls and their contexts.
+@Func{tr()} calls and their contexts.
 lupdate @Index{ lupdate }
 tt.fr.ts @Index{ tt2_fr.ts }
 tt.nl.ts @Index{ tt2_nl.ts } 
 
 @LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.throughx}} }
-In @F @Verbatim{arrowpad.h} we define the @F @Verbatim{ArrowPad}
-subclass which is a subclass of @B{QWidget}qwidget @Index{ QWidget }.
+In @File{arrowpad.h} we define the @Code{ArrowPad}
+subclass which is a subclass of @Class{QWidget}qwidget @Index{ QWidget }.
 In the @I{Tutorial 2 Screenshot, English version}, above, the central
-widget with the four buttons is an @F @Verbatim{ArrowPad}.
+widget with the four buttons is an @Code{ArrowPad}.
 arrowpad @RawIndex{ ArrowPad }
 arrowpad.in.translation.tutorial @SubIndex{ in Translation Tutorial }
 english.language @Index{ English Language }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     class ArrowPad : public QGrid
 @End @RawVerbatim
-When lupdate is run it not only extracts the source texts but
+When @File{lupdate} is run it not only extracts the source texts but
 it also groups them into contexts. A context is the name of the
 class in which the source text appears. Thus, in this example,
 "\""ArrowPad"\"" is a context: it is the context of the texts in the
-@F @Verbatim{ArrowPad} class. The @F @Verbatim{Q_OBJECT} macro
-defines @F @Verbatim{tr(x)} in @F @Verbatim{ArrowPad} like this
+@Code{ArrowPad} class. The @Code{Q_OBJECT} macro
+defines @Func{tr(x)} in @Code{ArrowPad} like this
 qgrid @Index{ QGrid }
 q.object @Index{ Q_OBJECT }
 tr @Index{ tr() }
@@ -671,11 +670,10 @@ qapplication @RawIndex{ QApplication }
 qapplication.translate @SubIndex{ translate() }
 translate @RawIndex{ translate() }
 translate.qapplication @SubIndex{ QApplication }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     qApp->translate( "ArrowPad", x )
 @End @RawVerbatim
-Knowing which class each source text appears in enables @I{Qt
-Linguist} to group texts that are logically related together,
+Knowing which class each source text appears in enables @QLT to group texts that are logically related together,
 e.g. all the text in a dialog will have the context of the dialog's
 class name and will be shown together. This provides useful information
 for the translator since the context in which text appears may
@@ -685,12 +683,12 @@ source texts in a particular context (class) grouped together
 makes it easier for the translator to perform any accelerator
 changes without introducing conflicts.
 @PP
-In @F @Verbatim{arrowpad.cpp} we implement the @F @Verbatim{ArrowPad}
+In @File{arrowpad.cpp} we implement the @Code{ArrowPad}
 class.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         (void) new QPushButton( tr("&Up"), this );
 @End @RawVerbatim
-We call @F @Verbatim{ArrowPad::tr()} for each button's label
+We call @Func{ArrowPad::tr()} for each button's label
 since the labels are user-visible text.
 qpushbutton @Index{ QPushButton }
 @Figure
@@ -698,56 +696,56 @@ qpushbutton @Index{ QPushButton }
 @I{Tutorial 2 Screenshot, English version} }
  0.5 @Scale @IncludeGraphic { "images/tt2_en.eps.gz" }
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     class MainWindow : public QMainWindow
     {
         Q_OBJECT
 @End @RawVerbatim
 In the @I{Tutorial 2 Screenshot, English version}, above, the
-whole window is a @F @Verbatim{MainWindow}. This is defined in
-the @F @Verbatim{mainwindow.h} header file. Here too, we use
-@F @Verbatim{Q_OBJECT}, so that @F @Verbatim{MainWindow} will
-become a context in @I{Qt Linguist}.
+whole window is a @Code{MainWindow}. This is defined in
+the @File{mainwindow.h} header file. Here too, we use
+@Code{Q_OBJECT}, so that @Code{MainWindow} will
+become a context in @QLT.
 qmainwindow @Index{ QMainWindow }
 q.object @Index{ Q_OBJECT }
 mainwindow @RawIndex{ MainWindow }
 mainwindow.in.translation.tutorial @SubIndex{ in Translation Tutorial }
 @PP
-In the implementation of @F @Verbatim{MainWindow}, @F @Verbatim{mainwindow.cpp},
-we create an instance of our @F @Verbatim{ArrowPad} class
+In the implementation of @Code{MainWindow}, @File{mainwindow.cpp},
+we create an instance of our @Code{ArrowPad} class
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         ArrowPad *ap = new ArrowPad( this, "arrow pad" );
 @End @RawVerbatim
-We also call @F @Verbatim{MainWindow::tr()} twice, once for the
+We also call @Func{MainWindow::tr()} twice, once for the
 menu item and once for the accelerator.
 ctrl.key @Index{ Ctrl Key }
 alt.key @Index{ Alt Key }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         file->insertItem( tr("E&xit"), qApp, SLOT(quit()), tr("Ctrl+Q", "Quit") );
 @End @RawVerbatim
-Note the use of @F @Verbatim{tr()} to support different keys
+Note the use of @Func{tr()} to support different keys
 in other languages. "\""Ctrl+Q"\"" is a good choice for Quit in English,
 but a Dutch translator might want to use "\""Ctrl+A"\"" (for Afsluiten)
-and a German translator "\""Strg+E"\"" (for Beenden). When using @F
-@Verbatim{tr()} for Ctrl key accelerators, the two argument form
+and a German translator "\""Strg+E"\"" (for Beenden). When using 
+@Func{tr()} for Ctrl key accelerators, the two argument form
 should be used with the second argument describing the function
 that the accelerator performs.
 main @Index{ main() }
 @PP
-Our @F @Verbatim{main()} function is defined in @F @Verbatim{main.cpp}
+Our @Func{main()} function is defined in @File{main.cpp}
 as usual.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         QTranslator translator( 0 );
         translator.load( QString("tt2_") + QTextCodec::locale(), "." );
         app.installTranslator( &translator );
 @End @RawVerbatim
 We choose which translation to use according to the current locale.
-@B{QTextCodec::locale}() can be influenced by setting the @F
-@Verbatim{LANG} environment variable, for example. Notice that
+@Class{QTextCodec::locale}() can be influenced by setting the 
+@Code{LANG} environment variable, for example. Notice that
 the use of a naming convention that incorporates the locale for
-@F @Verbatim{.qm} message files, (and @F @Verbatim{.ts} files),
+@File{.qm} message files, (and @File{.ts} files),
 makes it easy to implement choosing the translation file according
 to locale.
 qtranslator @Index{ QTranslator }
@@ -762,19 +760,19 @@ lang.environment.variable @SubIndex{ Environment Variable }
 environment.variables @RawIndex{ Environment Variables }
 environment.variables.lang @SubIndex{ LANG } 
 @PP
-If there is no @F @Verbatim{.qm} message file for the locale
+If there is no @File{.qm} message file for the locale
 chosen the original source text will be used and no error raised.
 
 @LD @I { Translating to French and Dutch{@PageMark{translating.to.french.and.dutch}} }
 We'll begin by translating the example application into French.
-Start @I{Qt Linguist} with @F @Verbatim{tt2_fr.ts}. You should
+Start @QLT with @File{tt2_fr.ts}. You should
 get the seven source texts ("\"""&"Up"\"", "\"""&"Left"\"", etc.) grouped
 in two contexts ("\""ArrowPad"\"" and "\""MainWindow"\"").
 @PP
 Now, enter the following translations:
 @NumberedList
 @LI{
-@F @Verbatim{ArrowPad}
+@Code{ArrowPad}
 
 @BulletList
 @LI{
@@ -791,7 +789,7 @@ Now, enter the following translations:
 }
 @EndList}
 @LI{
-@F @Verbatim{MainWindow}
+@Code{MainWindow}
 
 @BulletList
 @LI{
@@ -805,15 +803,15 @@ Ctrl+Q - Ctrl+Q
 }
 @EndList}
 @EndList
-It's quickest to press @B{Alt+D} (which clicks the @I{Done "&"
+It's quickest to press @Option{Alt+D} (which clicks the @Option{Done "&"
 Next} button) after typing each translation, since this marks
 the translation as done and moves on to the next source text.
 @PP
-Save the file and do the same for Dutch working with @F @Verbatim{tt2_nl.ts}:
+Save the file and do the same for Dutch working with @File{tt2_nl.ts}:
 
 @NumberedList
 @LI{
-@F @Verbatim{ArrowPad}
+@Code{ArrowPad}
 
 @BulletList
 @LI{
@@ -830,7 +828,7 @@ Save the file and do the same for Dutch working with @F @Verbatim{tt2_nl.ts}:
 }
 @EndList}
 @LI{
-@F @Verbatim{MainWindow}
+@Code{MainWindow}
 
 @BulletList
 @LI{
@@ -845,26 +843,25 @@ File - "&"Bestand
 @EndList}
 @EndList
 
-We have to convert the @F @Verbatim{tt1_fr.ts} and @F @Verbatim{tt1_nl.ts}
-translation source files into @F @Verbatim{.qm} files. We could
-use @I{Qt Linguist} as we've done before; however using the command
-line tool lrelease ensures that @I{all} the @F @Verbatim{.qm}
+We have to convert the @File{tt1_fr.ts} and @File{tt1_nl.ts}
+translation source files into @File{.qm} files. We could
+use @QLT as we've done before; however using the command
+line tool @File{lrelease} ensures that @I{all} the @File{.qm}
 files for the application are created without us having to remember
-to load and @I{File"|"Release} each one individually from @I{Qt
-Linguist}.
+to load and @Option{File"|"Release} each one individually from @QLT.
 
 @PP
-In practice we would include calls to lupdate and lrelease in
+In practice we would include calls to @File{lupdate} and @File{lrelease} in
 the application's makefile to ensure that the latest translations
 are used.
 
 @PP
 Type
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     lrelease tt2.pro
 @End @RawVerbatim
-This should create both @F @Verbatim{tt2_fr.qm} and @F @Verbatim{tt2_nl.qm}.
-Set the @F @Verbatim{LANG} environment variable to @F @Verbatim{fr}.
+This should create both @File{tt2_fr.qm} and @File{tt2_nl.qm}.
+Set the @Code{LANG} environment variable to @Code{fr}.
 In Unix, one of the two following commands should work
 lang @RawIndex{ LANG }
 lang.environment.variable @SubIndex{ Environment Variable }
@@ -873,16 +870,16 @@ export.unix.command @SubIndex{ Unix Command }
 setenv @RawIndex{ setenv }
 setenv.unix.command @SubIndex{ Unix Command }
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     export LANG=fr
     setenv LANG fr
 @End @RawVerbatim
-In Windows, either modify @F @Verbatim{autoexec.bat} or run
+In Windows, either modify @File{autoexec.bat} or run
 autoexec.bat @Index{ autoexec.bat }
 set @RawIndex{ set }
 set.windows.command @SubIndex{ Windows Command }
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     set LANG=fr
 @End @RawVerbatim
 When you run the program, you should now see the French version:
@@ -892,7 +889,7 @@ When you run the program, you should now see the French version:
 @I{Tutorial 2 Screenshot, French version} }
  0.5 @Scale @IncludeGraphic { "images/tt2_fr.eps.gz" }
 @LP
-Try the same with Dutch, by setting @F @Verbatim{LANG=nl}. Now
+Try the same with Dutch, by setting @Code{LANG=nl}. Now
 the Dutch version should appear:
 
 @Figure
@@ -901,19 +898,19 @@ the Dutch version should appear:
  0.5 @Scale @IncludeGraphic { "images/tt2_nl.eps.gz" }
 @LD @I { Exercises{@PageMark{exercises}} }
 
-Mark one of the translations in @I{Qt Linguist} as not done,
-i.e. by unchecking the "\""done"\"" checkbox; run lupdate, then lrelease,
+Mark one of the translations in @QLT as not done,
+i.e. by unchecking the "\""done"\"" checkbox; run @File{lupdate}, then @File{lrelease},
 then the example. What effect did this change have?
 canada @Index{ Canada }
 french.canada @Index{ French Canada }
 @PP
-Set @F @Verbatim{LANG=fr_CA} (French Canada) and run the example
-program again. Explain why the result is the same as with @F
-@Verbatim{LANG=fr}.
+Set @Code{LANG=fr_CA} (French Canada) and run the example
+program again. Explain why the result is the same as with 
+@Code{LANG=fr}.
 
 @PP
 Change one of the accelerators in the Dutch translation to eliminate
-the conflict between @I{}"&"Bestand and @I{}"&"Boven.
+the conflict between @Option{"&"Bestand} and @Option{"&"Boven}.
 @End @SubSection
 @SubSection
     @Title { Tutorial 3: Disambiguating Identical Strings }
@@ -924,7 +921,7 @@ the conflict between @I{}"&"Bestand and @I{}"&"Boven.
 @I{Tutorial 3 Screenshot, "\""Troll Print 1.0"\"", English version} }
  0.5 @Scale @IncludeGraphic { "images/tt3_10_en.eps.gz"
 }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 TEMPLATE        = app
 CONFIG          += qt warn_on
 HEADERS         = mainwindow.h \
@@ -934,8 +931,8 @@ SOURCES         = main.cpp \
                   printpanel.cpp
 TRANSLATIONS    = tt3_pt.ts
 @End @RawVerbatim
-@QD{ @I{{tt3.pro}}}
-We've included a translation file, @F @Verbatim{tt3_pt.ts}, which
+@QD{ @File{{tt3.pro}}}
+We've included a translation file, @File{tt3_pt.ts}, which
 contains some Portuguese translations for this example.
 portuguese.language @Index{ Portuguese Language }
 brazilian.language @Index{ Brazilian Language }
@@ -957,44 +954,44 @@ tt.pro @Index{ tt3.pro }
 tt.pt.ts @Index{ tt3_pt.ts }
 @BulletList
 @LI{
-@F @Verbatim{printpanel.h} contains the definition of PrintPanel;
+@File{printpanel.h} contains the definition of PrintPanel;
 }
 @LI{
-@F @Verbatim{printpanel.cpp} contains the implementation of PrintPanel;
+@File{printpanel.cpp} contains the implementation of PrintPanel;
 }
 @LI{
-@F @Verbatim{mainwindow.h} contains the definition of @F @Verbatim{MainWindow};
+@File{mainwindow.h} contains the definition of @Code{MainWindow};
 }
 @LI{
-@F @Verbatim{mainwindow.cpp} contains the implementation of @F
-@Verbatim{MainWindow};
+@File{mainwindow.cpp} contains the implementation of 
+@Code{MainWindow};
 }
 @LI{
-@F @Verbatim{main.cpp} contains main();
+@File{main.cpp} contains @Func{main()};
 }
 @LI{
-@F @Verbatim{tt3.pro} is the @I{qmake} project file.
+@File{tt3.pro} is the @File{qmake} project file.
 }
 @LI{
-@F @Verbatim{tt3_pt.ts} is the Portuguese message file.
+@File{tt3_pt.ts} is the Portuguese message file.
 }
 @EndList
 @LD @I { Line by Line Walk-through{@PageMark{line.by.line.walk.throughxx}} }
-The PrintPanel is defined in @F @Verbatim{printpanel.h}.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+The PrintPanel is defined in @File{printpanel.h}.
+@LD @Code @RawVerbatim @Begin
     class PrintPanel : public QVBox
     {
         Q_OBJECT
 @End @RawVerbatim
-PrintPanel is a @B{QWidget}qwidget @Index{ QWidget }. It needs the @F
-@Verbatim{Q_OBJECT} macro for @F @Verbatim{tr()} to work properly.
+PrintPanel is a @Class{QWidget}qwidget @Index{ QWidget }. It needs the 
+@Code{Q_OBJECT} macro for @Func{tr()} to work properly.
 qvbox @Index{ QVBox }
 q.object @Index{ Q_OBJECT }
 printpanel @RawIndex{ PrintPanel }
 printpanel.in.translation.tutorial @SubIndex{ in Translation Tutorial } 
 @PP
-The implementation file is @F @Verbatim{printpanel.cpp}.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+The implementation file is @File{printpanel.cpp}.
+@LD @Code @RawVerbatim @Begin
     /*
         QLabel *lab = new QLabel( tr("TROLL PRINT"), this );
         lab->setAlignment( AlignCenter );
@@ -1004,7 +1001,7 @@ Some of the code is commented out in Troll Print 1.0; you will
 uncomment it later, for Troll Print 1.1 [p.~@PageOf{troll.print}].
 qlabel @Index{ QLabel }
 troll.print @Index{ Troll Print } 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         QHButtonGroup *twoSided = new QHButtonGroup( this );
         twoSided->setTitle( tr("2-sided") );
         but = new QRadioButton( tr("Enabled"), twoSided );
@@ -1016,31 +1013,31 @@ troll.print @Index{ Troll Print }
         but = new QRadioButton( tr("Disabled"), colors );
         but->toggle();
 @End @RawVerbatim
-Notice the two occurrences of @F @Verbatim{tr("Enabled")} and
-of @F @Verbatim{tr("Disabled")} in PrintPanel. Since both "\""Enabled"\""s
-and "\""Disabled"\""s appear in the same context @I{Qt Linguist} will
+Notice the two occurrences of @Func{tr("Enabled")} and
+of @Func{tr("Disabled")} in PrintPanel. Since both "\""Enabled"\""s
+and "\""Disabled"\""s appear in the same context @QLT will
 only display one occurrence of each and will use the same translations
 for the duplicates that it doesn't display. Whilst this is a
 useful timesaver, in some languages, such as Portuguese, the
 second occurrence requires a separate translation. We will see
-how @I{Qt Linguist} can be made to display all the occurrences
+how @QLT can be made to display all the occurrences
 for separate translation shortly.
 qhbuttongroup @Index{ QHButtonGroup }
 qradiobutton @Index{ QRadioButton }
 mainwindow @RawIndex{ MainWindow }
 mainwindow.in.translation.tutorial @SubIndex{ in Translation Tutorial }
 @PP
-The header file for @F @Verbatim{MainWindow}, @F @Verbatim{mainwindow.h},
-contains no surprises. In the implementation, @F @Verbatim{mainwindow.cpp},
+The header file for @Code{MainWindow}, @File{mainwindow.h},
+contains no surprises. In the implementation, @File{mainwindow.cpp},
 we have some user-visible source texts that must be marked for
 translation.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         setCaption( tr("Troll Print 1.0") );
 @End @RawVerbatim
 We must translate the window's caption.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         file->insertItem( tr("E&xit"), qApp, SLOT(quit()), tr("Ctrl+Q", "Quit") );
         QPopupMenu *help = new QPopupMenu( this );
         help->insertItem( tr("&About"), this, SLOT(about()), Key_F1 );
@@ -1051,17 +1048,17 @@ We must translate the window's caption.
         menuBar()->insertItem( tr("&Help"), help );
 @End @RawVerbatim
 We also need to translate the menu items. Note that the two argument
-form of @F @Verbatim{tr()} is used for the keyboard accelerator,
+form of @Func{tr()} is used for the keyboard accelerator,
 "\""Ctrl+Q"\"", since the second argument is the only clue the translator
 has to indicate what function that accelerator will perform.
 qpopupmenu @Index{ QPopupMenu }
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
         QTranslator translator( 0 );
         translator.load( QString("tt3_") + QTextCodec::locale(), "." );
         app.installTranslator( &translator );
 @End @RawVerbatim
-The @F @Verbatim{main()} function in @F @Verbatim{main.cpp} is
+The @Func{main()} function in @File{main.cpp} is
 the same as the one in Tutorial 2. In particular it chooses a
 translation file based on the current locale.
 qtranslator @Index{ QTranslator }
@@ -1071,14 +1068,14 @@ main @Index{ main() }
 
 @LD @I { Running Troll Print 1.0 in English and in Portuguese{@PageMark{running.troll.print.in.english.and.in.portuguese}} }
 
-We will use the translations in the @F @Verbatim{tt3_pt.ts} file
+We will use the translations in the @File{tt3_pt.ts} file
 that is provided.
 
 @PP
-Set the @F @Verbatim{LANG} environment variable to @F @Verbatim{pt},
-and then run @F @Verbatim{tt3}. You should still see the English
+Set the @Code{LANG} environment variable to @Code{pt},
+and then run @File{tt3}. You should still see the English
 version, as shown in the @I{Tutorial 3 Screenshot, "\""Troll Print
-1.0"\"", English version}, above. Now run lrelease, e.g. @F @Verbatim{lrelease tt3.pro}, and then run the example again. Now you should see
+1.0"\"", English version}, above. Now run @File{lrelease}, e.g. @Code{lrelease tt3.pro}, and then run the example again. Now you should see
 the Portuguese edition (Troll Imprimir 1.0):
 
 @Figure
@@ -1093,35 +1090,35 @@ should be "\""Ativadas"\"", not "\""Ativado"\"" and the ending for the second
 translation of "\""Disabled"\"" must change similarly too.
 
 @PP
-If you open @F @Verbatim{tt3_pt.ts} using @I{Qt Linguist}, you
+If you open @File{tt3_pt.ts} using @QLT, you
 will see that there is just one occurrence of "\""Enabled"\"" and of
 "\""Disabled"\"" in the translation source file, even though there
-are two of each in the source code. This is because @I{Qt Linguist}
+are two of each in the source code. This is because @QLT
 tries to minimize the translator's work by using the same translation
 for duplicate source texts. In cases such as this where an identical
 translation is wrong, the programmer must disambiguate the duplicate
 occurrences. This is easily achieved by using the two argument
-form of @F @Verbatim{tr()}.
+form of @Func{tr()}.
 
 @PP
 We can easily determine which file must be changed because the
 translator's "\""context"\"" is in fact the class name for the class
 where the texts that must be changed appears. In this case the
-file is @F @Verbatim{printpanel.cpp}, where the there are four
+file is @File{printpanel.cpp}, where the there are four
 lines to change. Add the second argument "\""two-sided"\"" in the appropriate
-@F @Verbatim{tr()} calls to the first pair of radio buttons:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@Func{tr()} calls to the first pair of radio buttons:
+@LD @Code @RawVerbatim @Begin
     but = new QRadioButton( tr("Enabled", "two-sided"), twoSided );
     but = new QRadioButton( tr("Disabled", "two-sided"), twoSided );
 @End @RawVerbatim
-and add the second argument "\""colors"\"" in the appropriate @F @Verbatim{tr()}
+and add the second argument "\""colors"\"" in the appropriate @Func{tr()}
 calls for the second pair of radio buttons:
 qradiobutton @Index{ QRadioButton }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     but = new QRadioButton( tr("Enabled", "colors"), colors );
     but = new QRadioButton( tr("Disabled", "colors"), colors );
 @End @RawVerbatim
-Now run lupdate and open @F @Verbatim{tt3_pt.ts} with @I{Qt Linguist}.
+Now run @File{lupdate} and open @File{tt3_pt.ts} with @QLT.
 You should now see two changes.
 qradiobutton @Index{ QRadioButton }
 lupdate @Index{ lupdate }
@@ -1131,11 +1128,11 @@ tt.pt.ts @Index{ tt3_pt.ts }
 First, the translation source file now contains @I{three} "\""Enabled"\"",
 "\""Disabled"\"" pairs. The first pair is marked "\""(obs.)"\"" signifying
 that they are obsolete. This is because these texts appeared
-in @F @Verbatim{tr()} calls that have been replaced by new calls
+in @Func{tr()} calls that have been replaced by new calls
 with two arguments. The second pair has "\""two-sided"\"" as their
 comment, and the third pair has "\""colors"\"" as their comment. The
-comments are shown in the @I{Source text and comments} area in
-@I{Qt Linguist}.
+comments are shown in the @Win{Source text and comments} area in
+@QLT.
 
 @PP
 Second, the translation text "\""Ativado"\"" and "\""Desativado"\"" have
@@ -1146,8 +1143,8 @@ of each word, but they provide a good starting point.
 
 @PP
 Change the second "\""Ativado"\"" into "\""Ativadas"\"" and the second "\""Desativado"\""
-into "\""Desativadas"\"", then save and quit. Run lrelease to obtain
-an up-to-date binary @F @Verbatim{tt3_pt.qm} file, and run Troll
+into "\""Desativadas"\"", then save and quit. Run @File{lrelease} to obtain
+an up-to-date binary @File{tt3_pt.qm} file, and run Troll
 Print (or rather Troll Imprimir).
 
 @Figure
@@ -1156,8 +1153,8 @@ Print (or rather Troll Imprimir).
  0.5 @Scale @IncludeGraphic { "images/tt3_10_pt_good.eps.gz"
 }
 @LP
-The second argument to @F @Verbatim{tr()} calls, called "\""comments"\""
-in @I{Qt Linguist}, distinguish between identical source texts
+The second argument to @Func{tr()} calls, called "\""comments"\""
+in @QLT, distinguish between identical source texts
 that occur in the same context (class). They are also useful
 in other cases to give clues to the translator, and in the case
 of Ctrl key accelerators are the only means of conveying the
@@ -1176,8 +1173,8 @@ on how to navigate to the particular part of the application
 that contains the source texts they must translate. This helps
 them see the context in which the translation appears and also
 helps them to find and test the translations. This can be achieved
-by using a @I{TRANSLATOR} comment in the source code:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+by using a @Code{TRANSLATOR} comment in the source code:
+@LD @Code @RawVerbatim @Begin
     /* TRANSLATOR MainWindow
 
        In this application the whole application is a MainWindow.
@@ -1188,10 +1185,10 @@ by using a @I{TRANSLATOR} comment in the source code:
 Try adding these comments to some source files, particularly
 to dialog classes, describing the navigation necessary to reach
 the dialogs. You could also add them to the example files, e.g.
-@F @Verbatim{mainwindow.cpp} and @F @Verbatim{printpanel.cpp}
-are appropriate files. Run lupdate and then start @I{Qt Linguist}
-and load in @F @Verbatim{tt3_pt.ts}. You should see the comments
-in the @I{Source text and comments} area as you browse through
+@File{mainwindow.cpp} and @File{printpanel.cpp}
+are appropriate files. Run @File{lupdate} and then start @QLT
+and load in @File{tt3_pt.ts}. You should see the comments
+in the @Win{Source text and comments} area as you browse through
 the list of source texts.
 
 @PP
@@ -1199,7 +1196,7 @@ Sometimes, particularly with large programs, it can be difficult
 for the translator to find their translations and check that
 they're correct. Comments that provide good navigation information
 can save them time:
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     /* TRANSLATOR ZClientErrorDialog
 
         Choose Client|Edit to reach the Client Edit dialog, then choose
@@ -1216,28 +1213,28 @@ text editor and follow these steps:
 
 @NumberedList
 @LI{
-Uncomment the two lines that create a @B{QLabel}qlabel @Index{ QLabel } with the text
-"\""@B{TROLL PRINT}"\"" in @F @Verbatim{printpanel.cpp}.
+Uncomment the two lines that create a @Class{QLabel}qlabel @Index{ QLabel } with the text
+"\""@Option{TROLL PRINT}"\"" in @File{printpanel.cpp}.
 }
 @LI{
-Word-tidying: Replace "\""2-sided"\"" by "\""Two-sided"\"" in @F @Verbatim{printpanel.cpp}.
+Word-tidying: Replace "\""2-sided"\"" by "\""Two-sided"\"" in @File{printpanel.cpp}.
 }
 @LI{
-Replace "\""1.0"\"" with "\""1.1"\"" everywhere it occurs in @F @Verbatim{mainwindow.cpp}.
+Replace "\""1.0"\"" with "\""1.1"\"" everywhere it occurs in @File{mainwindow.cpp}.
 }
 @LI{
-Update the copyright year to 1999-2000 in @F @Verbatim{mainwindow.cpp}.
+Update the copyright year to 1999-2000 in @File{mainwindow.cpp}.
 }
 @EndList
 (Of course the version number and copyright year would be consts
 or "#"defines in a real application.)
 @PP
-Once finished, run lupdate, then open @F @Verbatim{tt3_pt.ts}
-in @I{Qt Linguist}. The following items are of special interest:
+Once finished, run @File{lupdate}, then open @File{tt3_pt.ts}
+in @QLT. The following items are of special interest:
 
 @BulletList
 @LI{
-@F @Verbatim{MainWindow}
+@Code{MainWindow}
 
 @DashList
 @LI{
@@ -1265,31 +1262,31 @@ Inc."\""
 }
 @EndList}
 @LI{
-@F @Verbatim{PrintPanel}
+@Code{PrintPanel}
 
 @DashList
 @LI{
 2-sided - marked "\""(obs.)"\"", obsolete
 }
 @LI{
-@B{TROLL PRINT} - unmarked, i.e. untranslated
+@Option{TROLL PRINT} - unmarked, i.e. untranslated
 }
 @LI{
 Two-sided - unmarked, i.e. untranslated.
 }
 @EndList}
 @EndList
-Notice that lupdate works hard behind the scenes to make revisions
+Notice that @File{lupdate} works hard behind the scenes to make revisions
 easier, and it's pretty smart with numbers.
 
 @PP
-Go over the translations in @F @Verbatim{MainWindow} and mark
-these as "\""done"\"". Translate "\""@B{TROLL PRINT}"\"" as "\""@B{TROLL IMPRIMIR}"\"".
-When you're translating "\""Two-sided"\"", press the @I{Guess Again}
+Go over the translations in @Code{MainWindow} and mark
+these as "\""done"\"". Translate "\""@Option{TROLL PRINT}"\"" as "\""@Option{TROLL IMPRIMIR}"\"".
+When you're translating "\""Two-sided"\"", press the @Option{Guess Again}
 button to translate "\""Two-sided"\"", but change the "\""2"\"" into "\""Dois"\"".
 
 @PP
-Save and quit, then run lrelease. The Portuguese version should
+Save and quit, then run @File{lrelease}. The Portuguese version should
 look like this:
 
 @Figure
@@ -1298,7 +1295,7 @@ look like this:
  0.5 @Scale @IncludeGraphic { "images/tt3_11_pt.eps.gz"
 }
 @LP
-Choose @I{Ajuda"|"Sobre}, (@I{Help"|"About}), to see the about
+Choose @Option{Ajuda"|"Sobre}, (@Option{Help"|"About}), to see the about
 box
 
 @Figure
@@ -1307,7 +1304,7 @@ box
  0.5 @Scale @IncludeGraphic { "images/tt3_11_about_pt.eps.gz"
 }
 @LP
-If you choose @I{Ajuda"|"Sobre Qt}, (@I{Help"|"About Qt}), you'll
+If you choose @Option{Ajuda"|"Sobre Qt}, (@Option{Help"|"About Qt}), you'll
 get an English dialog. Oops! Qt itself needs to be translated.
 See the document Internationalization with Qt for details.
 english.language @Index{ English Language }
@@ -1316,7 +1313,7 @@ qt @RawIndex{ Qt }
 qt.translating.qt @SubIndex{ Translating Qt }
 
 @PP
-Now set @F @Verbatim{LANG=en} to get the original English version:
+Now set @Code{LANG=en} to get the original English version:
 
 @Figure
     @Caption { 
@@ -1329,16 +1326,16 @@ Qt applications for translation.
 
 @PP
 At the beginning of a project add the translation source files
-to be used to the project file and add calls to lupdate and lrelease
+to be used to the project file and add calls to @File{lupdate} and @File{lrelease}
 to the make file.
 
 @PP
 During the project all the programmer must do is wrap any user-visible
-text in @F @Verbatim{tr()} calls. They should also use the two
+text in @Func{tr()} calls. They should also use the two
 argument form for Ctrl key accelerators, or when asked by the
 translator for the cases where the same text translates into
 two different forms in the same context. The programmer should
-also include @I{TRANSLATION} comments to help the translator
+also include @Code{TRANSLATION} comments to help the translator
 navigate the application.
 
 @End @SubSection

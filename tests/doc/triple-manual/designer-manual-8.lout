@@ -6,9 +6,9 @@
 databases @Index{ Databases }
 sql @Index{ SQL }@PP
 This chapter shows you how to use Qt's data-aware widgets from
-within @I{Qt Designer}. It demonstrates @F @Verbatim{INSERT},
-@F @Verbatim{UPDATE} and @F @Verbatim{DELETE} in both @B{QDataTable}qdatatable @Index{ QDataTable }s
-(tables) and @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }s (forms). It also shows how to
+within @QDR. It demonstrates @Code{INSERT},
+@Code{UPDATE} and @Code{DELETE} in both @Class{QDataTable}qdatatable @Index{ QDataTable }s
+(tables) and @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }s (forms). It also shows how to
 code Master-Detail relationships and Drilldown. A simple approach
 to foreign key handling is presented here; a more sophisticated
 approach is shown in the online SQL module documentation.
@@ -44,8 +44,8 @@ databases.data.aware.widgets @SubIndex{ Data Aware Widgets }@PP
 Although you can use the Qt data-aware widgets to browse and
 edit data in SQL databases without having to write any SQL, a
 basic understanding of SQL is highly recommended. We assume that
-you have some familiarity with @F @Verbatim{SELECT}, @F @Verbatim{INSERT},
-@F @Verbatim{UPDATE} and @F @Verbatim{DELETE} statements. We
+you have some familiarity with @Code{SELECT}, @Code{INSERT},
+@Code{UPDATE} and @Code{DELETE} statements. We
 also assume a basic understanding of the concepts of normalisation
 and of primary and foreign keys. A standard text covering SQL
 databases is @I{An Introduction to Database Systems (7th ed.)}
@@ -56,13 +56,13 @@ in.place.editing @Index{ In-place Editing }
 databases @RawIndex{ Databases }
 databases.in.place.editing @SubIndex{ In-place Editing }@PP
 In the following text we describe the creation of a 'book' database
-application. The application demonstrates how to use @B{QDataTable}qdatatable @Index{ QDataTable }s
+application. The application demonstrates how to use @Class{QDataTable}qdatatable @Index{ QDataTable }s
 including in-place record editing and how to set up master-detail
-relationships between @B{QDataTable}qdatatable @Index{ QDataTable }s. It also explains how to
-drill down from a @B{QDataTable}qdatatable @Index{ QDataTable } to another widget, for example,
-to a @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } or a @B{QDataView}qdataview @Index{ QDataView } and how to perform record
-editing in a @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }. A great deal of functionality
-is available from the classes directly in @I{Qt Designer} although
+relationships between @Class{QDataTable}qdatatable @Index{ QDataTable }s. It also explains how to
+drill down from a @Class{QDataTable}qdatatable @Index{ QDataTable } to another widget, for example,
+to a @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } or a @Class{QDataView}qdataview @Index{ QDataView } and how to perform record
+editing in a @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }. A great deal of functionality
+is available from the classes directly in @QDR although
 subclassing is always available for finer control. If you want
 to build the 'book' examples you will need to create the example
 schema on your database.
@@ -77,21 +77,21 @@ schema on your database.
 @Box paint { @LightGreyColour } margin { 0.5f }{@LLP @Centre @Heading{ The Example Schema}
 
 Note that the examples in this chapter all use the tables, views
-and records which are defined in the @F @Verbatim{qt/tools/designer/examples/book/book.sql}
+and records which are defined in the @File{"qt/tools/designer/examples/book/book.sql"}
 file. This file has been tested with PostgreSQL 6 and PostgreSQL
 7. You may need to modify the SQL in this file to recreate the
 example database on your own system.
 
 @PP
-Schema @F @Verbatim{CREATE TABLE} Statements
+Schema @Code{CREATE TABLE} Statements
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     CREATE TABLE author
     ( id integer primary key,
     forename varchar(40),
     surname varchar(40) );
 @End @RawVerbatim
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     CREATE TABLE book
     ( id integer primary key,
     title varchar(40),
@@ -99,7 +99,7 @@ Schema @F @Verbatim{CREATE TABLE} Statements
     authorid integer,
     notes varchar(255) );
 @End @RawVerbatim
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     CREATE TABLE sequence
     ( tablename varchar(10),
     sequence numeric);
@@ -110,7 +110,7 @@ It can only relate a book to a single author (authorid) and lacks
 an ISBN field. The 'sequence' table is used for generating unique
 index values for the example tables. Note that SQL databases
 often provide their own method for creating sequences (for example,
-using the @F @Verbatim{CREATE SEQUENCE} command) which is very
+using the @Code{CREATE SEQUENCE} command) which is very
 likely to be a more optimal solution. For the sake of portability
 the examples will use a 'sequence' table which will work with
 the vast majority of SQL databases.
@@ -127,7 +127,7 @@ databases.connecting.to.database.servers @SubIndex{ Connecting to Database Serve
 connecting @RawIndex{ Connecting }
 connecting.databases.to.database.servers @SubIndex{ Databases to Database Servers }@PP
 There are two aspects of database connections that we must consider.
-Firstly the connection we wish to use within @I{Qt Designer}
+Firstly the connection we wish to use within @QDR
 itself, and secondly the connection we wish to use in the applications
 that we create.
 
@@ -139,8 +139,8 @@ that we create.
  0.3 @Scale @IncludeGraphic { "images/database-connections.eps.gz"
 }
 @PP
-Choose @B{Project"|"Database Connections} from the menu bar.
-The @I{Database Connections} dialog will appear. Click @B{New
+Choose @Option{Project"|"Database Connections} from the menu bar.
+The @Win{Database Connections} dialog will appear. Click @B{New
 Connection}. For applications that use a single database it will
 probably be most convenient to use the default connection name
 of '(default)'. If you use more than one database then each one
@@ -149,46 +149,46 @@ Driver combo box. The database name may be available in the Database
 Name combo box or may have to be typed in. The database name,
 username, password and hostname should be provided by your database
 system administrator. When the Connection information has been
-completed click @B{Connect}. If the connection is made the connection
+completed click @Option{Connect}. If the connection is made the connection
 name will appear in the list box on the left hand side of the
 dialog. You can now close the dialog; the connection settings
 will remain in effect until you change or delete them or exit
-from @I{Qt Designer}.
+from @QDR.
 
 
 projects @RawIndex{ Projects }
 projects.database.connections @SubIndex{ Database Connections }@PP
-@I{Qt Designer} can remember database connection settings in
-@F @Verbatim{qmake} project files. Create a new project, e.g.
-click @B{File"|"New}, then click the 'C++ Project' icon to invoke
-the @I{Project Settings} dialog. Click the ellipsis button to
-invoke the @I{Save As} dialog; navigate to the project's directory
+@QDR can remember database connection settings in
+@File{"qmake"} project files. Create a new project, e.g.
+click @Option{File"|"New}, then click the 'C++ Project' icon to invoke
+the @Win{Project Settings} dialog. Click the ellipsis button to
+invoke the @Win{Save As} dialog; navigate to the project's directory
 (creating it if necessary). Make sure you're in the project's
 directory, then enter a project name of 'book.pro'. Click the
-@B{Save} button to return to the @I{Project Settings} dialog,
-then click @B{OK}. Next time you start @I{Qt Designer} instead
-of opening individual @F @Verbatim{.ui} files open the @F @Verbatim{.pro}
-project file instead and @I{Qt Designer} will automatically reload
+@Option{Save} button to return to the @Win{Project Settings} dialog,
+then click @Option{OK}. Next time you start @QDR instead
+of opening individual @File{".ui"} files open the @File{".pro"}
+project file instead and @QDR will automatically reload
 the project's connection settings. To activate the connection
-click @B{Project"|"Database Connections}. The connections previously
+click @Option{Project"|"Database Connections}. The connections previously
 saved with the project will be listed in the left hand list box.
-Click the connection you wish to use and then click @B{Connect}.
+Click the connection you wish to use and then click @Option{Connect}.
 This connection will be used from now on, e.g. for previewing
-@B{QDataTable}qdatatable @Index{ QDataTable }s. Opening a project file also causes @I{Qt Designer}
+@Class{QDataTable}qdatatable @Index{ QDataTable }s. Opening a project file also causes @QDR
 to load in the list of forms associated with the project into
 the Form List window. In most of the explanation that follows
-we will assume that you use project files and have clicked @B{Connect}
+we will assume that you use project files and have clicked @Option{Connect}
 so that there is always a connection available when you work
-in @I{Qt Designer}.
+in @QDR.
 
 @LD @Heading { Setting Up Connections for Applications{@PageMark{setting.up.connections.for.applications}} }
 @PP
 The applications you create must make their own connections to
-the SQL database. We provide an example function, @F @Verbatim{createConnections()},
+the SQL database. We provide an example function, @Func{createConnections()},
 that you can use as a basis for your own code.
 
 createconnections @Index{ createConnections() }
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
 
 bool createConnections()
 {
@@ -216,13 +216,13 @@ qsqldatabase @Index{ QSqlDatabase }
 qpsql @Index{ QPSQL7 }
 
 adddatabase @Index{ addDatabase() }@PP
-We call @F @Verbatim{addDatabase()} passing it the name of the
+We call @Func{addDatabase()} passing it the name of the
 driver we wish to use. We then set the connection information
-by calling the @F @Verbatim{set}... functions. Finally we attempt
+by calling the @Code{set}... functions. Finally we attempt
 to open the connection. If we succeed we return TRUE, otherwise
-we output some error information and return FALSE. From @F @Verbatim{qt/tools/designer/examples/book/book1/main.cpp}
+we output some error information and return FALSE. From @File{"qt/tools/designer/examples/book/book1/main.cpp"}
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char *argv[] )
     {
         QApplication app( argc, argv );
@@ -244,10 +244,10 @@ databases.connecting.to.multiple.database.servers @SubIndex{ Connecting to Multi
 createconnections @Index{ createConnections() }
 main.cpp @Index{ main.cpp }
 adddatabase @Index{ addDatabase() } @PP
-All the examples presented in this chapter call @F @Verbatim{createConnections()}
-after creating the @B{QApplication}qapplication @Index{ QApplication } object in their @F @Verbatim{main.cpp}
+All the examples presented in this chapter call @Func{createConnections()}
+after creating the @Class{QApplication}qapplication @Index{ QApplication } object in their @File{"main.cpp"}
 file and make use of the default connection. If you need to connect
-to multiple databases use the two-argument form of @F @Verbatim{addDatabase()},
+to multiple databases use the two-argument form of @Func{addDatabase()},
 passing it both the name of the driver and a unique identifier.
 This is explained further in the Qt SQL Module documentation.
 
@@ -257,74 +257,85 @@ You do not need to keep a reference to database connections.
 If you use a single database connection, this becomes the default
 connection and database functions will use this connection automatically.
 We can always get a pointer to any of our connections by calling
-@F @Verbatim{QSqlDatabase::database()}.
+@Func{QSqlDatabase::database()}.
 
 @PP
-If you create a @F @Verbatim{main.cpp} file using @I{Qt Designer},
-this file will @I{not} include @F @Verbatim{createConnections()}.
+If you create a @File{"main.cpp"} file using @QDR,
+this file will @I{not} include @Func{createConnections()}.
 We do not include this function because it needs the username
 and password for the database connection, and you may prefer
 to handle these differently from our simple example function.
-As a result, applications that preview correctly in @I{Qt Designer}
+As a result, applications that preview correctly in @QDR
 will not run unless you implement your own database connections
 function.
 
 @End @Section
 @Section
-    @Title { Using @B{QDataTable} }
+    @Title { Using @Class{QDataTable} }
     @Tag { using.qdatatable }
 @Begin
 @PP
-@B{QDataTable}qdatatable @Index{ QDataTable }s may be placed on any form to provide browsing
-of database tables and views. @B{QDataTable}qdatatable @Index{ QDataTable }s can also be used
+@Class{QDataTable}qdatatable @Index{ QDataTable }s may be placed on any form to provide browsing
+of database tables and views. @Class{QDataTable}qdatatable @Index{ QDataTable }s can also be used
 to update or delete records in-place, i.e. inside the cells themselves.
-Inserting records via a @B{QDataTable}qdatatable @Index{ QDataTable } usually requires connecting
+Inserting records via a @Class{QDataTable}qdatatable @Index{ QDataTable } usually requires connecting
 to the
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal, so that we can generate primary keys for example, or provide default values. If we wish to present records using a form view (perhaps combining data from several tables and views) we might use several @B{QDataBrowser}s and @B{QDataView}s.
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal, so that we can generate primary keys for example, or provide default values. If we wish to present records using a form view (perhaps combining data from several tables and views) we might use several @Class{QDataBrowser}s and @Class{QDataView}s.
 @LD @Heading { Quickly Viewing a Database Table{@PageMark{quickly.viewing.a.database.table}} }
 @PP
 This example, along with all the other examples in this chapter,
 has the project name 'book' and uses the database created by
 the
 
-book.sql @Index{ book.sql } @F @Verbatim{book.sql} script. As we work through the chapter we will build the 'book' application step by step. Create or copy the @F @Verbatim{qt/tools/designer/examples/book/book1/main.cpp} file shown earlier. The project file for this first example is @F @Verbatim{qt/tools/designer/examples/book/book1/book.pro}. Start a new project by clicking @B{File"|"New}, then click the 'C++ Project' icon to invoke the @I{Project Settings} dialog. Click the ellipsis button to invoke the @I{Save As} dialog; navigate to the project's directory (creating it if necessary). Make sure you're in the project's directory, then enter a project name of 'book.pro'. Click the @B{Save} button to return to the @I{Project Settings} dialog, then click @B{OK}. Now click @B{Project"|"Database Connections}. Fill in the connection information appropriate to your database then press @B{Connect}. The connection name should now appear in the left hand list box. (If this doesn't happen you'll need to contact your database systems administrator for help.) Close the dialog.
+book.sql @Index{ book.sql } @File{"book.sql"} script. As we work
+through the chapter we will build the 'book' application step by step.
+Create or copy the
+@File{"qt/tools/designer/examples/book/book1/main.cpp"} file shown
+earlier. The project file for this first example is
+@File{"qt/tools/designer/examples/book/book1/book.pro"}. Start a new
+project by clicking @Option{File"|"New}, then click the 'C++ Project'
+icon to invoke the @Win{Project Settings} dialog. Click the ellipsis
+button to invoke the @Win{Save As} dialog; navigate to the project's
+directory (creating it if necessary). Make sure you're in the
+project's directory, then enter a project name of 'book.pro'. Click
+the @Option{Save} button to return to the @Win{Project Settings} dialog, then click @Option{OK}. Now click @Option{Project"|"Database Connections}. Fill in the connection information appropriate to your database then press @Option{Connect}. The connection name should now appear in the left hand list box. (If this doesn't happen you'll need to contact your database systems administrator for help.) Close the dialog.
 @PP
-We will now create a new form with a @B{QDataTable}qdatatable @Index{ QDataTable } that's connected
+We will now create a new form with a @Class{QDataTable}qdatatable @Index{ QDataTable } that's connected
 to one of our database tables.
 
 @PP
-Click @B{File"|"New}. The @I{New File} dialog presents us with
+Click @Option{File"|"New}. The @Win{New File} dialog presents us with
 a number of form templates to choose from. Choose the 'Dialog'
-form and click @B{OK}. Now click @B{File"|"Save}. You will be
-prompted for a filename, call it @F @Verbatim{book.ui}.
+form and click @Option{OK}. Now click @Option{File"|"Save}. You will be
+prompted for a filename, call it @File{"book.ui"}.
 
-@LD @I { Setting up a @B{QDataTable}{@PageMark{setting.up.a.qdatatable}} }
+@LD @I { Setting up a @Class{QDataTable}{@PageMark{setting.up.a.qdatatable}} }
 
 databases @RawIndex{ Databases }
 databases.sql.table.wizard @SubIndex{ SQL Table Wizard }
 wizards @RawIndex{ Wizards }
 wizards.sql.table @SubIndex{ SQL Table }@PP
-To place a @B{QDataTable}qdatatable @Index{ QDataTable } widget on the form either click @B{Tools"|"Views"|"QDataTable}
-or click the @B{QDataTable}qdatatable @Index{ QDataTable } toolbar button. Click on the form
+To place a @Class{QDataTable}qdatatable @Index{ QDataTable } widget on the form either click @Option{Tools"|"Views"|"QDataTable}
+or click the @Class{QDataTable}qdatatable @Index{ QDataTable } toolbar button. Click on the form
 and the SQL Table Wizard will appear.
 
 @BulletList
 @LI{
-The @I{Database Connection and Table} wizard page is used to
+The @Win{Database Connection and Table} wizard page is used to
 set up a connection if one doesn't exist and to choose the table
-or view for the @B{QDataTable}qdatatable @Index{ QDataTable }. (See Setting Up Qt Designer's
+or view for the @Class{QDataTable}qdatatable @Index{ QDataTable }. (See Setting Up Qt Designer's
 Connections.)
 
 @PP
 Click the connection you wish to use, listed in the left hand
 list box, e.g. "\""(default)"\"". The available tables and views will
 appear in the right hand Table list box. Click the 'author' table
-and then click the @B{Next} button.
+and then click the @Option{Next} button.
 }
 @LI{
-The @I{Displayed Fields [p.~@PageOf{displayed.fieldsxx}]} wizard page provides a means of selecting
-which fields should be displayed in the @B{QDataTable}qdatatable @Index{ QDataTable } and in
+The @Win{Displayed Fields} wizard page provides a means of selecting
+which fields should be displayed in the @Class{QDataTable}qdatatable @Index{ QDataTable } and in
 what order. By default all fields except the primary key (if
 there is one) are in the Displayed Fields [p.~@PageOf{displayed.fieldsxx}] list box. The left-
 and right-pointing blue arrow buttons can be used to move fields
@@ -333,26 +344,26 @@ The blue up and down pointing arrow buttons are used to select
 the display order of the displayed fields.
 
 @PP
-The default settings are the ones we want so simply click @B{Next}.
+The default settings are the ones we want so simply click @Option{Next}.
 }
 @LI{
 properties @RawIndex{ Properties }
 
 properties.datatable @SubIndex{ DataTable }@PP
-The @I{Table Properties [p.~@PageOf{table.properties}]} wizard page provides convenient access
-to some of the database-related properties of the @B{QDataTable}qdatatable @Index{ QDataTable }.
+The @Win{Table Properties} wizard page provides convenient access
+to some of the database-related properties of the @Class{QDataTable}qdatatable @Index{ QDataTable }.
 
 @PP
 Make sure the Confirm Deletes checkbox is checked, then click
-@B{Next}.
+@Option{Next}.
 }
 @LI{
-The @I{SQL} wizard page is used to set the @B{QDataTable}qdatatable @Index{ QDataTable }'s Filter
-and Sort properties. The Filter is an SQL @F @Verbatim{WHERE}
+The @Win{SQL} wizard page is used to set the @Class{QDataTable}qdatatable @Index{ QDataTable }'s Filter
+and Sort properties. The Filter is an SQL @Code{WHERE}
 clause (without the word 'WHERE'). For example, to only list
-authors whose surnames begin with 'P', we would enter @F @Verbatim{title LIKE 'P%'}. We'll leave the filter empty. The Available Fields
+authors whose surnames begin with 'P', we would enter @Code{title LIKE 'P%'}. We'll leave the filter empty. The Available Fields
 list box lists all the fields. The Sort By list box lists the
-fields that the @B{QDataTable}qdatatable @Index{ QDataTable } is to sort by and the direction
+fields that the @Class{QDataTable}qdatatable @Index{ QDataTable } is to sort by and the direction
 of their sorting (ASCending or DESCending). The left and right
 blue arrows are used to move fields between the two list boxes.
 The up and down blue arrows move fields up and down within the
@@ -361,16 +372,16 @@ Sort By list box. The ASC or DESC setting is changed with the
 
 @PP
 Move the surname and forename fields into the Sort By list box
-and click @B{Next}.
+and click @Option{Next}.
 }
 @LI{
-The @I{Finish} wizard page gives us the opportunity to go back
+The @Win{Finish} wizard page gives us the opportunity to go back
 and change any of our settings. We will be able to change them
-later through the @B{QDataTable}qdatatable @Index{ QDataTable }'s properties so we can finish
+later through the @Class{QDataTable}qdatatable @Index{ QDataTable }'s properties so we can finish
 with the wizard.
 
 @PP
-Click @B{Finish}.
+Click @Option{Finish}.
 }
 @EndList
 @PP
@@ -378,41 +389,41 @@ The table will appear on the form with each column labelled with
 a default column name. If you wish to change the settings then
 most of them are available in the property window. The display
 names, the fields they are based upon, and the order of appearance
-of the columns can be changed using the @I{Edit Table} dialog
-(explained later) by right clicking the @B{QDataTable}qdatatable @Index{ QDataTable } and left
-clicking @B{Edit}.
+of the columns can be changed using the @Win{Edit Table} dialog
+(explained later) by right clicking the @Class{QDataTable}qdatatable @Index{ QDataTable } and left
+clicking @Option{Edit}.
 
 @LD @I { Laying out the Form{@PageMark{laying.out.the.form}} }
 @PP
-Click on the form and click the @B{Lay Out Vertically} toolbar
-button. Now click @B{Preview"|"Preview Form}; the form will run
+Click on the form and click the @Option{Lay Out Vertically} toolbar
+button. Now click @Option{Preview"|"Preview Form}; the form will run
 and the table will automatically display all the records.
 
 @PP
 To turn the form we've created into an executable application
 we must add the
 
-main.cpp @Index{ main.cpp } @F @Verbatim{main.cpp} file to the project file and make the project. We should also do some renaming to make things easier to understand.
+main.cpp @Index{ main.cpp } @File{"main.cpp"} file to the project file and make the project. We should also do some renaming to make things easier to understand.
 @BulletList
 @LI{
 Click on the form and change its name to 'BookForm' and its caption
-to 'Book'. Click on the @B{QDataTable}qdatatable @Index{ QDataTable } and change its name to
+to 'Book'. Click on the @Class{QDataTable}qdatatable @Index{ QDataTable } and change its name to
 'AuthorDataTable'.
 }
 @LI{
-Click @B{File"|"Save All}.
+Click @Option{File"|"Save All}.
 }
 @LI{
 Open the project file, e.g.
 
-book.pro @Index{ book.pro } @F @Verbatim{book.pro}, in a plain text editor and add the line: @F @Verbatim{SOURCES += main.cpp} at the end of the file.}
+book.pro @Index{ book.pro } @File{"book.pro"}, in a plain text editor and add the line: @Code{SOURCES += main.cpp} at the end of the file.}
 @LI{
-Run @F @Verbatim{qmake} to generate the make file, e.g. @F @Verbatim{qmake -o Makefile book.pro}, then make and run the @F @Verbatim{book}
+Run @File{"qmake"} to generate the make file, e.g. @Code{qmake -o Makefile book.pro}, then make and run the @File{"book"}
 program.
 }
 @EndList
 @PP
-This example shows how easy it is to use @B{QDataTable}qdatatable @Index{ QDataTable } to show
+This example shows how easy it is to use @Class{QDataTable}qdatatable @Index{ QDataTable } to show
 the contents of a database table or view. You can use the application
 we've just built to update and delete author records. In the
 examples that follow we will cover insertions, setting up master-detail
@@ -435,7 +446,7 @@ In many databases, this can be achieved by using a view. See
 your database's documentation for details.
 
 }
-@LD @Heading { Inserting Records in @B{QDataTable}s{@PageMark{inserting.records.in.qdatatables}} }
+@LD @Heading { Inserting Records in @Class{QDataTable}s{@PageMark{inserting.records.in.qdatatables}} }
 
 inserting.records @Index{ Inserting Records }
 databases @RawIndex{ Databases }
@@ -444,33 +455,33 @@ Record insertion into a relational database usually requires
 the generation of a primary key value which uniquely identifies
 the record in the table. Also we often want to create default
 values for some fields to minimize the user's work. We will create
-a slot to capture the @B{QDataTable}qdatatable @Index{ QDataTable }s
+a slot to capture the @Class{QDataTable}qdatatable @Index{ QDataTable }s
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal and populate the @B{QSqlRecord} insertion buffer with a unique primary key.
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and populate the @Class{QSqlRecord} insertion buffer with a unique primary key.
 @BulletList
 @LI{
-Click @B{Edit"|"Slots} to invoke the @I{Edit Slots} dialog. Click
-@B{New Slot}, then enter the slot name @F @Verbatim{primeInsertAuthor(QSqlRecord*)}
-into the Slot Properties' Slot line edit box. Click @B{OK}.
+Click @Option{Edit"|"Slots} to invoke the @Win{Edit Slots} dialog. Click
+@Option{New Slot}, then enter the slot name @Func{primeInsertAuthor(QSqlRecord*)}
+into the Slot Properties' Slot line edit box. Click @Option{OK}.
 }
 @LI{
-Click the @B{Connect Signals"/"Slots} toolbar button, then click
+Click the @Option{Connect Signals"/"Slots} toolbar button, then click
 the AuthorDataTable, drag to the form and release the mouse.
-The @I{Edit Connections} dialog will now appear. Click the
+The @Win{Edit Connections} dialog will now appear. Click the
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal and then the @F @Verbatim{primeInsertAuthor()} slot to make the connection. Now click @B{OK}.}
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and then the @Func{primeInsertAuthor()} slot to make the connection. Now click @Option{OK}.}
 @LI{
 Click the Source tab of the Object Hierarchy window (click @B{Window"|"Object
 Hierarchy} to make the window visible if necessary). Click the
-@F @Verbatim{primeInsertAuthor()} slot and an editor window will
+@Func{primeInsertAuthor()} slot and an editor window will
 appear.
 }
 @LI{
-We must change the @F @Verbatim{BookForm::primeInsertAuthor()}
+We must change the @Func{BookForm::primeInsertAuthor()}
 slot to specify the parameter name and perform the necessary
 action:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void BookForm::primeInsertAuthor( QSqlRecord * buffer )
     {
         QSqlQuery query;
@@ -484,7 +495,7 @@ action:
 qsqlrecord @Index{ QSqlRecord }
 qsqlquery @Index{ QSqlQuery }
 @PP
-A @B{QSqlQuery}qsqlquery @Index{ QSqlQuery } object is used to increment and retrieve a unique
+A @Class{QSqlQuery}qsqlquery @Index{ QSqlQuery } object is used to increment and retrieve a unique
 'sequence' number for the author table. The signal passed us
 a pointer to the insertion buffer and we then put the value we've
 retrieved, i.e. the next sequence number, into the buffer's id
@@ -505,8 +516,8 @@ databases.deleting.records @SubIndex{ Deleting Records }
 updating.records @Index{ Updating Records }
 databases @RawIndex{ Databases }
 databases.updating.records @SubIndex{ Updating Records }@PP
-If we rebuild the application it will now support @F @Verbatim{INSERT}
-as well as @F @Verbatim{UPDATE} and @F @Verbatim{DELETE}. We
+If we rebuild the application it will now support @Code{INSERT}
+as well as @Code{UPDATE} and @Code{DELETE}. We
 could easily have added additional code to insert default values,
 e.g. today's date into a date field, if necessary.
 
@@ -518,59 +529,59 @@ databases.confirmations @SubIndex{ Confirmations }
 browsing.databases @Index{ Browsing Databases }@PP
 Browsing is supported by clicking records and by using the arrow
 keys. Once a record is active (highlighted) we can edit the it.
-Press the @B{Insert} key to @F @Verbatim{INSERT} a new record;
-press @B{F2} to @F @Verbatim{UPDATE} the current record; press
-the @B{Del} key to @F @Verbatim{DELETE} the current record. All
+Press the @Option{Insert} key to @Code{INSERT} a new record;
+press @Option{F2} to @Code{UPDATE} the current record; press
+the @Option{Del} key to @Code{DELETE} the current record. All
 these operations take place immediately. Users can be given the
-opportunity to confirm their edits by setting the @B{QDataTable}qdatatable @Index{ QDataTable }'s
+opportunity to confirm their edits by setting the @Class{QDataTable}qdatatable @Index{ QDataTable }'s
 confirmEdits property to True. If the confirmEdits property is
 True then user confirmation will be required for all insertions,
 updates and deletes. For finer control you can set the confirmInsert,
 confirmUpdate and confirmDelete properties individually.
 
 @QD{
-@B{ <b>QDataTable} User Interface Interaction<"/"b>
+@Option{ <b>QDataTable} User Interface Interaction<"/"b>
 
 databases @RawIndex{ Databases }
 databases.user.interface.interaction @SubIndex{ User Interface Interaction }
 user.interface.interaction.databases @Index{ User Interface Interaction, Databases }@PP
-The default user-interface behaviour for @B{QDataTable}qdatatable @Index{ QDataTable }s is as
+The default user-interface behaviour for @Class{QDataTable}qdatatable @Index{ QDataTable }s is as
 follows:
 
 @NumberedList
 @LI{
 Users can move to records by clicking the scrollbar and clicking
 records with the mouse. They can also use the keyboard's navigation
-keys, e.g. @B{Left Arrow}, @B{Right Arrow}, @B{Up Arrow}, @B{Down
-Arrow}, @B{Page Up}, @B{Page Down}, @B{Home} and @B{End}.
+keys, e.g. @Option{Left Arrow}, @Option{Right Arrow}, @Option{Up Arrow}, @B{Down
+Arrow}, @Option{Page Up}, @Option{Page Down}, @Option{Home} and @Option{End}.
 }
 @LI{
-@F @Verbatim{INSERT} is initiated by right-clicking the record
-and clicking Insert or by pressing the @B{Ins} (Insert) key.
-The user moves between fields using @B{Tab} and @B{Shift+Tab}.
-The @F @Verbatim{INSERT} will take place if the user presses
-@B{Enter} or @B{Tab}s off the last field. If autoEdit is TRUE
+@Code{INSERT} is initiated by right-clicking the record
+and clicking Insert or by pressing the @Option{Ins} (Insert) key.
+The user moves between fields using @Option{Tab} and @Option{Shift+Tab}.
+The @Code{INSERT} will take place if the user presses
+@Option{Enter} or @Option{Tab}s off the last field. If autoEdit is TRUE
 the insert will take place if the user navigates to another record.
-@F @Verbatim{INSERT} is cancelled by pressing @B{Esc} (Escape).
+@Code{INSERT} is cancelled by pressing @Option{Esc} (Escape).
 If autoEdit is FALSE navigating to another record also cancels
-the @F @Verbatim{INSERT}. Setting confirmInsert to TRUE will
-require the user to confirm each @F @Verbatim{INSERT}.
+the @Code{INSERT}. Setting confirmInsert to TRUE will
+require the user to confirm each @Code{INSERT}.
 }
 @LI{
-@F @Verbatim{UPDATE} is initiated by right-clicking the record
-and clicking Update or by pressing @B{F2}. The update will take
+@Code{UPDATE} is initiated by right-clicking the record
+and clicking Update or by pressing @Option{F2}. The update will take
 place if the user presses Enter or Tabs off the last field. If
 autoEdit is TRUE the update will take place if the user navigates
-to another record. @F @Verbatim{UPDATE} is cancelled by pressing
-@B{Esc}. If autoEdit is FALSE navigating to another record also
-cancels the @F @Verbatim{UPDATE}. Setting confirmUpdate to TRUE
-will require the user to confirm each @F @Verbatim{UPDATE}.
+to another record. @Code{UPDATE} is cancelled by pressing
+@Option{Esc}. If autoEdit is FALSE navigating to another record also
+cancels the @Code{UPDATE}. Setting confirmUpdate to TRUE
+will require the user to confirm each @Code{UPDATE}.
 }
 @LI{
-@F @Verbatim{DELETE} is achieved by right-clicking the record
-and clicking Delete or by pressing the @B{Del} (Delete) key.
+@Code{DELETE} is achieved by right-clicking the record
+and clicking Delete or by pressing the @Option{Del} (Delete) key.
 Setting confirmDelete to TRUE will require the user to confirm
-each @F @Verbatim{DELETE}.
+each @Code{DELETE}.
 }
 @EndList
 @PP
@@ -586,69 +597,69 @@ Databases often have pairs of tables that are related. For example,
 an invoice table might list the numbers, dates and customers
 for invoices, but not the actual invoice items, which an invoice
 item table might store. In the 'book' application we wish to
-have a @B{QDataTable}qdatatable @Index{ QDataTable } that we can use to browse through the authors
-table and a second @B{QDataTable}qdatatable @Index{ QDataTable } to show the books they've written.
+have a @Class{QDataTable}qdatatable @Index{ QDataTable } that we can use to browse through the authors
+table and a second @Class{QDataTable}qdatatable @Index{ QDataTable } to show the books they've written.
 
 @PP
-Open the book project if it isn't already open @I{Qt Designer}.
-We will modify this project to show two @B{QDataTable}qdatatable @Index{ QDataTable }s that
+Open the book project if it isn't already open @QDR.
+We will modify this project to show two @Class{QDataTable}qdatatable @Index{ QDataTable }s that
 relate the author table to the book table.
 
 @BulletList
 @LI{
-Click the author @B{QDataTable}qdatatable @Index{ QDataTable } and then click the @B{Break Layout}
+Click the author @Class{QDataTable}qdatatable @Index{ QDataTable } and then click the @Option{Break Layout}
 toolbutton.
 }
 @LI{
-Resize the @B{QDataTable}qdatatable @Index{ QDataTable } so that it only occupies the top half
+Resize the @Class{QDataTable}qdatatable @Index{ QDataTable } so that it only occupies the top half
 of the form.
 }
 @LI{
-Now click on the @B{QDataTable}qdatatable @Index{ QDataTable } toolbutton and click on the bottom
+Now click on the @Class{QDataTable}qdatatable @Index{ QDataTable } toolbutton and click on the bottom
 half of the form. The SQL Table Wizard will appear. (This Wizard
 is explained in Quickly Viewing a Database Table [p.~@PageOf{quickly.viewing.a.database.table}].)
 
 @BulletList
 @LI{
 Click the connection you're using and click the book table. Click
-the @B{Next} button.
+the @Option{Next} button.
 }
 @LI{
 Since we do not want them visible, make sure the authorid and
 id fields are moved to the Available Fields list box by using
 the arrow buttons. Move the title field to the top of the Displayed
 Fields, and move the price field above the notes field. Click
-the @B{Next} button.
+the @Option{Next} button.
 }
 @LI{
 On the Table Properties [p.~@PageOf{table.properties}] page click the Read Only checkbox then
-click the @B{Next} button.
+click the @Option{Next} button.
 }
 @LI{
-On the SQL page we will leave the Filter (@F @Verbatim{WHERE}
+On the SQL page we will leave the Filter (@Code{WHERE}
 clause) empty. Move the title field to the Sort By list box and
-click @B{Next}. Now click @B{Finish}.
+click @Option{Next}. Now click @Option{Finish}.
 }
 @LI{
-Change this @B{QDataTable}qdatatable @Index{ QDataTable }'s name to "\""BookDataTable"\"".
+Change this @Class{QDataTable}qdatatable @Index{ QDataTable }'s name to "\""BookDataTable"\"".
 }
 @EndList}
 @LI{
-@B{Shift+Click} the top @B{QDataTable}qdatatable @Index{ QDataTable } so that both @B{QDataTable}qdatatable @Index{ QDataTable }s
-are selected and then click the @B{Lay Out Vertically (in Splitter)}
+@Option{Shift+Click} the top @Class{QDataTable}qdatatable @Index{ QDataTable } so that both @Class{QDataTable}qdatatable @Index{ QDataTable }s
+are selected and then click the @Option{Lay Out Vertically (in Splitter)}
 toolbar button.
 }
 @LI{
-Click on the form and click the @B{Lay Out Vertically} toolbar
+Click on the form and click the @Option{Lay Out Vertically} toolbar
 button.
 }
 @EndList
 @PP
-Preview the form by clicking @B{Preview"|"Preview Form}. All
-the authors are displayed in the top @B{QDataTable}qdatatable @Index{ QDataTable } and all the
-books are displayed in the bottom @B{QDataTable}qdatatable @Index{ QDataTable }. However we
+Preview the form by clicking @Option{Preview"|"Preview Form}. All
+the authors are displayed in the top @Class{QDataTable}qdatatable @Index{ QDataTable } and all the
+books are displayed in the bottom @Class{QDataTable}qdatatable @Index{ QDataTable }. However we
 only want the books of the currently selected author showing
-in the bottom @B{QDataTable}qdatatable @Index{ QDataTable }. We will deal with this by filtering
+in the bottom @Class{QDataTable}qdatatable @Index{ QDataTable }. We will deal with this by filtering
 the records in the book table according to the author selected
 in the author table.
 
@@ -663,19 +674,19 @@ value.editors.sql.table.editor @SubIndex{ SQL Table Editor }@PP
  0.3 @Scale @IncludeGraphic { "images/edit-dbtable-dialog.eps.gz"
 }
 @PP
-@B{QDataTable}qdatatable @Index{ QDataTable }s are created and set up using the SQL Table Wizard.
-Like any other @I{Qt Designer} widget their properties may be
+@Class{QDataTable}qdatatable @Index{ QDataTable }s are created and set up using the SQL Table Wizard.
+Like any other @QDR widget their properties may be
 changed in the Properties window. Some of the column and row
-based properties can also be be changed using the @I{Edit Table}
-dialog. This dialog is invoked by right clicking the @B{QDataTable}qdatatable @Index{ QDataTable }
-and left clicking the @B{Edit} menu item. The right hand half
-of the @I{Edit Table} dialog is where we choose the fields we
+based properties can also be be changed using the @Win{Edit Table}
+dialog. This dialog is invoked by right clicking the @Class{QDataTable}qdatatable @Index{ QDataTable }
+and left clicking the @Option{Edit} menu item. The right hand half
+of the @Win{Edit Table} dialog is where we choose the fields we
 wish to display, their order and their labels. The procedure
 for creating columns is as follows:
 
 @BulletList
 @LI{
-Click the @B{New Column} button.
+Click the @Option{New Column} button.
 }
 @LI{
 Drop down the Field combobox to list the available fields.
@@ -687,53 +698,52 @@ Click the field you wish to include at this point.
 @I{Optionally} edit the Label if the default isn't appropriate.
 }
 @LI{
-@I{Optionally} click the Pixmap ellipsis (@B{...}) button to
+@I{Optionally} click the Pixmap ellipsis (@Option{...}) button to
 choose a pixmap to be displayed to the left of the column's label.
 (The ellipsis button appears when you click in the Value part
-of the Properties list by a @I{pixmap} or @I{iconSet} property.)
+of the Properties list by a @Prop{pixmap} or @Prop{iconSet} property.)
 }
 @EndList
 @PP
 Repeat the steps listed above for each column you wish to add.
 Once all the fields have been added you can change their ordering
 by using the blue up and down arrow buttons. At any point you
-can press @B{Apply} to see how the table will look. Finally click
-the @B{OK} button to save the properties you have set. You can
+can press @Option{Apply} to see how the table will look. Finally click
+the @Option{OK} button to save the properties you have set. You can
 always return to the table editor to change these settings later.
 
 }
-@LD @I { Filtering One @B{QDataTable} by Another{@PageMark{filtering.one.qdatatable.by.another}} }
+@LD @I { Filtering One @Class{QDataTable} by Another{@PageMark{filtering.one.qdatatable.by.another}} }
 
 databases @RawIndex{ Databases }
 databases.relating.tables @SubIndex{ Relating Tables }@PP
 To filter the book table's records we need to capture the author
-@B{QDataTable}qdatatable @Index{ QDataTable }'s
+@Class{QDataTable}qdatatable @Index{ QDataTable }'s
 
-currentchanged @Index{ currentChanged() } @F @Verbatim{currentChanged()} signal and change the BookDataTable's filter accordingly.
+currentchanged @Index{ currentChanged() } @Func{currentChanged()} signal and change the BookDataTable's filter accordingly.
 @BulletList
 @LI{
-Click @B{Edit"|"Slots}. In the @I{Edit Slots} dialog click @B{New
-Slot} and enter a slot name of @F @Verbatim{newCurrentAuthor(QSqlRecord*)}.
-Click @B{OK}.
+Click @Option{Edit"|"Slots}. In the @Win{Edit Slots} dialog click
+@Option{New Slot} and enter a slot name of @Func{newCurrentAuthor(QSqlRecord*)}.
+Click @Option{OK}.
 }
 @LI{
-Click @B{Edit"|"Connections} to invoke the @I{View and Edit Connections}
+Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
 dialog. Create a new connection, connecting the AuthorDataTable's
 currentChanged() signal to the form's newCurrentAuthor() slot.
-Click @B{OK}.
+Click @Option{OK}.
 }
 @LI{
-Click the Source tab of the Object Hierarchy window (click @B{Window"|"Object
-Hierarchy} to make the window visible if necessary). Click the
-@F @Verbatim{newCurrentAuthor()} slot and an editor window will
+Click the Source tab of the Object Hierarchy window (click @Option{Window"|"Object Hierarchy} to make the window visible if necessary). Click the
+@Func{newCurrentAuthor()} slot and an editor window will
 appear.
 }
 @LI{
-We must change the @F @Verbatim{BookForm::newCurrentAuthor()}
+We must change the @Func{BookForm::newCurrentAuthor()}
 slot to specify the parameter name and perform the necessary
 action:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void BookForm::newCurrentAuthor( QSqlRecord *author )
     {
         BookDataTable->setFilter( "authorid=" + author->value( "id" ).toString() );
@@ -743,7 +753,7 @@ action:
 qsqlrecord @Index{ QSqlRecord }
 @PP
 All that's required now is to change the BookDataTable's filter
-and refresh the @B{QDataTable}qdatatable @Index{ QDataTable } to show the results of the filter.
+and refresh the @Class{QDataTable}qdatatable @Index{ QDataTable } to show the results of the filter.
 }
 @EndList
 @LD @I { Preparing the Interface for Drilldown{@PageMark{preparing.the.interface.for.drilldown}} }
@@ -752,14 +762,14 @@ databases @RawIndex{ Databases }
 databases.drilldown @SubIndex{ Drilldown }
 drilldown @Index{ Drilldown }@PP
 We can now browse and edit authors and see their books in the
-BookDataTable. In the next section we explore @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser },
+BookDataTable. In the next section we explore @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser },
 which will allow us to drill down to a dialog through which we
 can edit books. For now we will add some buttons to the main
 BookForm which we will use to invoke the book editing dialog.
 
 @BulletList
 @LI{
-Click the form, then click the @B{Break Layout} toolbar button.
+Click the form, then click the @Option{Break Layout} toolbar button.
 Resize the form to make room for some buttons at the bottom.
 }
 @LI{
@@ -775,20 +785,20 @@ QuitPushButton -- "&"Quit
 }
 @EndList
 @PP
-Hold down the Shift key and Click both buttons (i.e. @B{Shift+Click}
-the buttons) and click the @B{Lay Out Horizontally} toolbar button.
-Click the form and click the @B{Lay Out Vertically} toolbar button.
+Hold down the Shift key and Click both buttons (i.e. @Option{Shift+Click}
+the buttons) and click the @Option{Lay Out Horizontally} toolbar button.
+Click the form and click the @Option{Lay Out Vertically} toolbar button.
 }
 @LI{
 We will provide the Quit button with functionality now and work
-on the rest shortly. Click @B{Edit"|"Connections}, then connect
+on the rest shortly. Click @Option{Edit"|"Connections}, then connect
 the the Quit button's clicked() signal to the form's accept()
-slot. Click @B{OK}.
+slot. Click @Option{OK}.
 }
 @EndList
 @End @Section
 @Section
-    @Title { Using @B{QDataBrowser} and @B{QDataView} }
+    @Title { Using @Class{QDataBrowser} and @Class{QDataView} }
     @Tag { using.qdatabrowser.and.qdataview }
 @Begin
 @PP
@@ -797,8 +807,8 @@ slot. Click @B{OK}.
 @I{The Book Application's Edit Books Dialog} }
  0.3 @Scale @IncludeGraphic { "images/book-dialog.eps.gz"
 }
-@LD @Heading { Drilling Down to a Form using @B{QDataBrowser}{@PageMark{drilling.down.to.a.form.using.qdatabrowser}} }
-@LD @I { Setting up a @B{QDataBrowser}{@PageMark{setting.up.a.qdatabrowser}} }
+@LD @Heading { Drilling Down to a Form using @Class{QDataBrowser}{@PageMark{drilling.down.to.a.form.using.qdatabrowser}} }
+@LD @I { Setting up a @Class{QDataBrowser}{@PageMark{setting.up.a.qdatabrowser}} }
 
 databases @RawIndex{ Databases }
 databases.drilldown @SubIndex{ Drilldown }
@@ -808,33 +818,33 @@ databases.data.browser.wizard @SubIndex{ Data Browser Wizard }
 wizards @RawIndex{ Wizards }
 wizards.data.browser @SubIndex{ Data Browser }@PP
 We will now create a new form to allow users to edit book records.
-Click the @B{New} toolbar button, click the Dialog template from
-the @I{New File} dialog and click @B{OK}. Change the name of
+Click the @Option{New} toolbar button, click the Dialog template from
+the @Win{New File} dialog and click @Option{OK}. Change the name of
 the form to EditBookForm and its caption to 'Edit Books'. Click
-the @B{Save} toolbar button and call the file @F @Verbatim{editbook.ui}.
-Now that we have the form we can add a @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } to show
+the @Option{Save} toolbar button and call the file @File{"editbook.ui"}.
+Now that we have the form we can add a @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } to show
 the book records.
 
 @BulletList
 @LI{
-Click the @B{Data Browser} toolbar button, then click the form.
+Click the @Option{Data Browser} toolbar button, then click the form.
 The Data Browser Wizard [p.~@PageOf{data.browser.wizard}] will appear.
 }
 @LI{
-The @I{Database Connection and Table} wizard page is used to
+The @Win{Database Connection and Table} wizard page is used to
 set up a connection if one doesn't exist and to choose the table
-or view for the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }. (See Setting Up Qt Designer's
+or view for the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }. (See Setting Up Qt Designer's
 Connections.)
 
 @PP
 Click the connection you wish to use, listed in the Connection
 list box, e.g. "\""(default)"\"". The available tables and views will
 appear in the Table list box. Click the book table and then click
-the @B{Next} button.
+the @Option{Next} button.
 }
 @LI{
-The @I{Displayed Fields [p.~@PageOf{displayed.fieldsxx}]} wizard page provides a means of selecting
-which fields should be displayed in the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and
+The @Win{Displayed Fields} wizard page provides a means of selecting
+which fields should be displayed in the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and
 in what order. By default all fields except the primary key (if
 there is one) are in the right hand Displayed Fields [p.~@PageOf{displayed.fieldsxx}] list box.
 The left and right blue arrow buttons can be used to move fields
@@ -845,24 +855,24 @@ order of the displayed fields.
 @PP
 We don't want to see the authorid foreign key field on the form,
 so move it to the Available Fields list box. Also, move the title
-field to the top of the Displayed Fields [p.~@PageOf{displayed.fieldsxx}] list. Click the @B{Next}
+field to the top of the Displayed Fields [p.~@PageOf{displayed.fieldsxx}] list. Click the @Option{Next}
 button.
 }
 @LI{
-The @I{Navigation and Editing [p.~@PageOf{navigation.and.editing}]} wizard page allows us to choose
+The @Win{Navigation and Editing} wizard page allows us to choose
 which navigation and editing buttons should appear on the form.
 
 @PP
-We will accept the defaults and simply click the @B{Next} button.
+We will accept the defaults and simply click the @Option{Next} button.
 }
 @LI{
-The @I{SQL} wizard page is used to set the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }'s
-Filter and Sort properties. The Filter is an SQL @F @Verbatim{WHERE}
+The @Win{SQL} wizard page is used to set the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }'s
+Filter and Sort properties. The Filter is an SQL @Code{WHERE}
 clause (without the word 'WHERE'). For example, to only list
 books that cost less than 50 (of some currency, e.g. dollars),
-we would enter @F @Verbatim{price < 50}. We will leave the filter
+we would enter @Code{price < 50}. We will leave the filter
 empty. The Available Fields list box lists all the fields. The
-Sort By list box lists the fields that the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } is
+Sort By list box lists the fields that the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } is
 to sort by and the direction of their sorting (ASCending or DESCending).
 The left and right blue arrows are used to move fields between
 the two list boxes. The up and down blue arrows move fields up
@@ -870,113 +880,113 @@ and down within the Sort By list box. The ASC or DESC setting
 is changed with the sort order button.
 
 @PP
-Move the title field into the Sort By list box and click @B{Next}.
+Move the title field into the Sort By list box and click @Option{Next}.
 }
 @LI{
-The @I{Layout} wizard page is used to specify the initial layout
+The @Win{Layout} wizard page is used to specify the initial layout
 of the form.
 
 @PP
-Change the Number of Columns to 1, then click @B{Next}. Now click
-@B{Finish}.
+Change the Number of Columns to 1, then click @Option{Next}. Now click
+@Option{Finish}.
 }
 @LI{
-The @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } will now appear on the form. Resize the
-form to make it smaller. Click the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } then click
-the @B{Break Layout} toolbar button. Click the buttons then click
-the @B{Break Layout} toolbar button. Add another button called
+The @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } will now appear on the form. Resize the
+form to make it smaller. Click the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } then click
+the @Option{Break Layout} toolbar button. Click the buttons then click
+the @Option{Break Layout} toolbar button. Add another button called
 'PushButtonClose' with the text '"&"Close' and place it to the
 right of the Delete button.
 }
 @LI{
-@B{Shift+Click} the Insert, Update, Delete and Close buttons,
-then click the @B{Lay Out Horizontally} toolbar button. Click
-the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }, then click the @B{Lay Out in a Grid} toolbar
-button. Finally click the form and click the @B{Lay Out Vertically}
-toolbar button. Now click the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and rename it
+@Option{Shift+Click} the Insert, Update, Delete and Close buttons,
+then click the @Option{Lay Out Horizontally} toolbar button. Click
+the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }, then click the @Option{Lay Out in a Grid} toolbar
+button. Finally click the form and click the @Option{Lay Out Vertically}
+toolbar button. Now click the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and rename it
 'BookDataBrowser'.
 }
 @LI{
-@I{Qt Designer} will generate the necessary code to make the
+@QDR will generate the necessary code to make the
 browser operational (including generating the appropriate cursor,
 sort and filter code).
 
 @PP
 For finer control over the form, we will be creating our own
 database cursor. Therefore, set the BookDataBrowser's frameworkCode
-property to FALSE in the Properties window to prevent @I{Qt Designer}
+property to FALSE in the Properties window to prevent @QDR
 from generating redundant code for the cursor.
 }
 @EndList
 @QD{
-@B{ <b>QDataBrowser} User Interface Interaction<"/"b>
+@Option{ <b>QDataBrowser} User Interface Interaction<"/"b>
 @PP
-The user-interface behaviour for @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }s is created
+The user-interface behaviour for @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }s is created
 by connecting slots and signals. The slots provided are:
 
 @NumberedList
 @LI{
 insert @Index{ insert() }@PP
 
-@F @Verbatim{insert()},
-update @Index{ update() } @F @Verbatim{update()} and
-del @Index{ del() } @F @Verbatim{del()} for editing;}
+@Func{insert()},
+update @Index{ update() } @Func{update()} and
+del @Index{ del() } @Func{del()} for editing;}
 @LI{
 first @Index{ first() }@PP
 
-@F @Verbatim{first()},
-next @Index{ next() } @F @Verbatim{next()},
-prev @Index{ prev() } @F @Verbatim{prev()}, and
-last @Index{ last() } @F @Verbatim{last()} for navigation;}
+@Func{first()},
+next @Index{ next() } @Func{next()},
+prev @Index{ prev() } @Func{prev()}, and
+last @Index{ last() } @Func{last()} for navigation;}
 @LI{
 refresh @Index{ refresh() }@PP
 
-@F @Verbatim{refresh()} to refresh the cursor from the database;}
+@Func{refresh()} to refresh the cursor from the database;}
 @LI{
 readfields @Index{ readFields() }@PP
 
-@F @Verbatim{readFields()} to read data from the cursor's edit buffer and
-writefields @Index{ writeFields() } @F @Verbatim{writeFields()} to write the form's data to the cursor's edit buffer;}
+@Func{readFields()} to read data from the cursor's edit buffer and
+writefields @Index{ writeFields() } @Func{writeFields()} to write the form's data to the cursor's edit buffer;}
 @LI{
 clearvalues @Index{ clearValues() }@PP
 
-@F @Verbatim{clearValues()} to clear the form's values.}
+@Func{clearValues()} to clear the form's values.}
 @EndList
 @PP
-If you use @I{Qt Designer}'s @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } wizard you will
+If you use @QDR's @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } wizard you will
 be given the option of creating a default set of buttons for
 navigation and editing. The behaviour of these buttons is set
 up using the slots described above to provide the following functionality:
 
 @NumberedList
 @LI{
-@F @Verbatim{INSERT} is initiated by pressing the @B{Ins} (Insert)
-key. The user moves between fields using @B{Tab} and @B{Shift+Tab}.
-If the user presses the Update button the @F @Verbatim{INSERT}
+@Code{INSERT} is initiated by pressing the @Option{Ins} (Insert)
+key. The user moves between fields using @Option{Tab} and @Option{Shift+Tab}.
+If the user presses the Update button the @Code{INSERT}
 will take place and the user will be taken to the record they
 have just inserted. If the user presses the Insert button (i.e.
-a second time) the @F @Verbatim{INSERT} will take place and a
-new insertion will be initiated. If autoEdit is TRUE the @F @Verbatim{INSERT}
-will take place if the user navigates to another record. @F @Verbatim{INSERT}
-is cancelled by pressing the @B{Esc} key or by pressing the @B{Del}
+a second time) the @Code{INSERT} will take place and a
+new insertion will be initiated. If autoEdit is TRUE the @Code{INSERT}
+will take place if the user navigates to another record. @Code{INSERT}
+is cancelled by pressing the @Option{Esc} key or by pressing the @Option{Del}
 (Delete) key. If autoEdit is FALSE then navigating to another
-record also cancels the @F @Verbatim{INSERT}. Setting confirmInsert
-to TRUE will require the user to confirm each @F @Verbatim{INSERT}.
+record also cancels the @Code{INSERT}. Setting confirmInsert
+to TRUE will require the user to confirm each @Code{INSERT}.
 }
 @LI{
-@F @Verbatim{UPDATE} is automatically initiated whenever the
+@Code{UPDATE} is automatically initiated whenever the
 user navigates to a record. An update will take place if the
 user presses the Update button. If autoEdit is TRUE the update
-will take place if the user navigates to another record. @F @Verbatim{UPDATE}
-is cancelled by pressing the @B{Esc} key or by pressing the @B{Del}
+will take place if the user navigates to another record. @Code{UPDATE}
+is cancelled by pressing the @Option{Esc} key or by pressing the @Option{Del}
 button. If autoEdit is FALSE then navigating to another record
-also cancels the @F @Verbatim{UPDATE}. Setting confirmUpdate
-to TRUE will require the user to confirm each @F @Verbatim{UPDATE}.
+also cancels the @Code{UPDATE}. Setting confirmUpdate
+to TRUE will require the user to confirm each @Code{UPDATE}.
 }
 @LI{
-@F @Verbatim{DELETE} is achieved by pressing the @B{Del} key.
+@Code{DELETE} is achieved by pressing the @Option{Del} key.
 Setting confirmDelete to TRUE will require the user to confirm
-each @F @Verbatim{DELETE}.
+each @Code{DELETE}.
 }
 @EndList
 }
@@ -995,15 +1005,16 @@ e.g. authorid.
 @LI{
 We need to make a new slot to connect the Edit Books' button's
 
-clicked @Index{ clicked() } @F @Verbatim{clicked()} signal to. Click on the Book form to make it @I{Qt Designer}'s active form. Invoke the @I{Edit Slots} dialog and create a new slot called @F @Verbatim{editClicked()}. Now click @B{Edit"|"Connections}. Connect the Edit Books button's clicked() signal to the form's editClicked() slot. Clicked() slot. Click @B{OK} to leave the dialog.
+clicked @Index{ clicked() } @Func{clicked()} signal to. Click on the
+Book form to make it @QDR's active form. Invoke the @Win{Edit Slots} dialog and create a new slot called @Func{editClicked()}. Now click @Option{Edit"|"Connections}. Connect the Edit Books button's clicked() signal to the form's editClicked() slot. Clicked() slot. Click @Option{OK} to leave the dialog.
 
 object.hierarchy @Index{ Object Hierarchy }}
 @LI{
 In the Object Hierarchy window click Source and then click the
-@F @Verbatim{editClicked} function. We need to change it to the
+@Func{editClicked()} function. We need to change it to the
 following:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void BookForm::editClicked()
     {
         EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
@@ -1025,64 +1036,64 @@ qsqlcursor @Index{ QSqlCursor }
 qsqlindex @Index{ QSqlIndex }
 @PP
 We create our dialog as before. We also create a cursor over
-the book table and set the dialog's @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }, BookDataBrowser,
-to use this new cursor. We set the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser }'s filter
-and sort to those that applied to the main form's book @B{QDataTable}qdatatable @Index{ QDataTable }.
-We refresh the @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and seek to the same record the
+the book table and set the dialog's @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }, BookDataBrowser,
+to use this new cursor. We set the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser }'s filter
+and sort to those that applied to the main form's book @Class{QDataTable}qdatatable @Index{ QDataTable }.
+We refresh the @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } and seek to the same record the
 user was viewing on the main form. Then we exec the dialog and
 delete it when the user has finished with it. Finally we update
 the BookDataTable in the main form to reflect any changes that
 were made in the dialog.
 }
 @LI{
-Because our code refers to a class declared in @F @Verbatim{editbook.h}
-and to a @B{QDataBrowser}qdatabrowser @Index{ QDataBrowser } we need to add two additional include
+Because our code refers to a class declared in @File{"editbook.h"}
+and to a @Class{QDataBrowser}qdatabrowser @Index{ QDataBrowser } we need to add two additional include
 files. Click on the BookForm, then click on the Source tab of
 the Object Hierarchy window. Right click the 'Includes (In Declaration)'
-item and click New. Type in @F @Verbatim{"editbook.h"}. Now add
-a second include, this time, @F @Verbatim{}<qdatabrowser.h>.
+item and click New. Type in @File{"editbook.h"}. Now add
+a second include, this time, @File{<qdatabrowser.h>}.
 }
 @EndList
 @PP
 Now when we navigate through the author and book records in the
 BookForm we can click the Edit Books button to launch our Edit
-Books dialog. Although the dialog supports @F @Verbatim{UPDATE},
-@F @Verbatim{DELETE} and navigation over the book table, we cannot
+Books dialog. Although the dialog supports @Code{UPDATE},
+@Code{DELETE} and navigation over the book table, we cannot
 edit the foreign keys nor perform inserts. We will deal with
-insertion in the same way as we did with the @B{QDataTable}qdatatable @Index{ QDataTable },
+insertion in the same way as we did with the @Class{QDataTable}qdatatable @Index{ QDataTable },
 then we will handle the foreign key relationship to author.
 
-@LD @I { Inserting into a @B{QDataBrowser}{@PageMark{inserting.into.a.qdatabrowser}} }
+@LD @I { Inserting into a @Class{QDataBrowser}{@PageMark{inserting.into.a.qdatabrowser}} }
 @PP
 We will create a slot to receive the Edit Books form's
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal so that we can insert a unique primary key.
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal so that we can insert a unique primary key.
 @BulletList
 @LI{
-Click on the Edit Books form, then create a new Slot called @F
-@Verbatim{primeInsertBook(QSqlRecord*)}.
+Click on the Edit Books form, then create a new Slot called 
+@Func{primeInsertBook(QSqlRecord*)}.
 
 @PP
-Click @B{Edit"|"Slots}, then click the @B{New Slot} button and
+Click @Option{Edit"|"Slots}, then click the @Option{New Slot} button and
 type the new slot name in the Slot Properties Slot edit box.
-Click @B{OK}.
+Click @Option{OK}.
 }
 @LI{
 Connect the BookDataBrowser's
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal to the @F @Verbatim{primeInsertBook()} slot.
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal to the @Func{primeInsertBook()} slot.
 @PP
-Click the @B{Connect Signals"/"Slots} toolbar button, then click
+Click the @Option{Connect Signals"/"Slots} toolbar button, then click
 the BookDataBrowser and drag to the form; release the mouse on
 the form. Now click the
 
-primeinsert @Index{ primeInsert() } @F @Verbatim{primeInsert()} signal and the primeInsertBook slot. Click @B{OK}.}
+primeinsert @Index{ primeInsert() } @Func{primeInsert()} signal and the primeInsertBook slot. Click @Option{OK}.}
 @LI{
 In the Object Hierarchy window click Source and then click the
-@F @Verbatim{primeInsertBook} slot. We need to change it to the
+@Func{primeInsertBook()} slot. We need to change it to the
 following:
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::primeInsertBook( QSqlRecord * buffer )
     {
         QSqlQuery query;
@@ -1101,11 +1112,11 @@ clicked @Index{ clicked() }
 accept @Index{ accept() } @PP
 We will also tidy up the user interface slightly. Click the Update
 button and set its default property to True. Connect the Close
-button's @F @Verbatim{clicked()} signal to the EditBookForm's
-@F @Verbatim{accept()} slot.
+button's @Func{clicked()} signal to the EditBookForm's
+@Func{accept()} slot.
 }
 @EndList
-@LD @I { Handling Foreign Keys in a @B{QDataBrowser}{@PageMark{handling.foreign.keys.in.a.qdatabrowser}} }
+@LD @I { Handling Foreign Keys in a @Class{QDataBrowser}{@PageMark{handling.foreign.keys.in.a.qdatabrowser}} }
 
 foreign.keys @Index{ Foreign Keys }
 databases @RawIndex{ Databases }
@@ -1115,7 +1126,7 @@ keys. The most powerful and flexible approach is to subclass
 widgets and use property maps to relate the widgets to the database.
 This approach is described in the Qt SQL Module documentation,
 particularly the StatusPicker example. A simpler approach that
-can be taken wholly within @I{Qt Designer} is presented here.
+can be taken wholly within @QDR is presented here.
 
 @PP
 We will add a new field to the EditBookForm so that authors can
@@ -1125,19 +1136,19 @@ the visual design we'll write the code to make it all work.
 @BulletList
 @LI{
 First we'll add the new widgets. Click the BookDataBrowser and
-click the @B{Break Layout} toolbar button. Resize the form to
+click the @Option{Break Layout} toolbar button. Resize the form to
 make it larger and drag each set of buttons down to make some
 room below the title and price QLineEdits. Click the @B{Text
 Label} toolbar button and click on the form beneath the Price
 label. Click the @I{Text Label} and change its text to 'Author'.
-Click the @B{ComboBox} toolbar button and click on the form beneath
+Click the @Option{ComboBox} toolbar button and click on the form beneath
 the price QLineEdit. In the Property Window change the @I{ComboBox}'s
-@I{name} to ComboBoxAuthor and change its @I{sizePolicy} @I{hSizeType}
+@Prop{name} to ComboBoxAuthor and change its @Prop{sizePolicy} @Prop{hSizeType}
 to Expanding.
 }
 @LI{
-Now we'll lay out the dialog. @B{Shift+Click} the Author label
-and the @I{ComboBox} then click the @B{Lay Out Horizontally}
+Now we'll lay out the dialog. @Option{Shift+Click} the Author label
+and the @I{ComboBox} then click the @Option{Lay Out Horizontally}
 toolbar button. Now click the BookDataBrowser and click the @B{Lay
 Out in a Grid} toolbar button.
 }
@@ -1152,36 +1163,36 @@ it in slots and connecting signals to our slots.
 
 @BulletList
 @LI{
-Create two new slots called @F @Verbatim{beforeUpdateBook(QSqlRecord *buffer)} and @F @Verbatim{primeUpdateBook(QSqlRecord *buffer)}.
-(Click @B{Edit"|"Slots}, then in the @I{Edit Slots} dialog click
+Create two new slots called @Func{beforeUpdateBook(QSqlRecord *buffer)} and @Func{primeUpdateBook(QSqlRecord *buffer)}.
+(Click @Option{Edit"|"Slots}, then in the @Win{Edit Slots} dialog click
 New Slot and enter the first new slot. Click New Slot again and
-enter the second slot then click @B{OK}.)
+enter the second slot then click @Option{OK}.)
 }
 @LI{
 When the user navigates through the dialog, each time they move
 to a new record, a
 
-primeupdate @Index{ primeUpdate() } @F @Verbatim{primeUpdate()} signal is emitted. We connect to this so that we can update the @I{ComboBox}'s display. Just before a record is updated or inserted into the database a
-beforeupdate @Index{ beforeUpdate() } @F @Verbatim{beforeUpdate()} or
-beforeinsert @Index{ beforeInsert() } @F @Verbatim{beforeInsert()} signal is emitted. We connect our @F @Verbatim{beforeUpdateBook()} slot to both these signals so that we can ensure that the book's authorid field is correctly populated.
+primeupdate @Index{ primeUpdate() } @Func{primeUpdate()} signal is emitted. We connect to this so that we can update the @I{ComboBox}'s display. Just before a record is updated or inserted into the database a
+beforeupdate @Index{ beforeUpdate() } @Func{beforeUpdate()} or
+beforeinsert @Index{ beforeInsert() } @Func{beforeInsert()} signal is emitted. We connect our @Func{beforeUpdateBook()} slot to both these signals so that we can ensure that the book's authorid field is correctly populated.
 @PP
 Click the BookDataBrowser and drag the mouse to the form; release
-the mouse and the @I{Edit Connections} dialog will appear. Connect
+the mouse and the @Win{Edit Connections} dialog will appear. Connect
 the
 
-beforeupdate @Index{ beforeUpdate() } @F @Verbatim{beforeUpdate()} signal to our @F @Verbatim{beforeUpdateBook()} slot. Connect the
-beforeinsert @Index{ beforeInsert() } @F @Verbatim{beforeInsert()} signal to our @F @Verbatim{beforeUpdateBook()} slot. Finally connect the
-primeupdate @Index{ primeUpdate() } @F @Verbatim{primeUpdate()} signal to our @F @Verbatim{primeUpdateBook()} slot.}
+beforeupdate @Index{ beforeUpdate() } @Func{beforeUpdate()} signal to our @Func{beforeUpdateBook()} slot. Connect the
+beforeinsert @Index{ beforeInsert() } @Func{beforeInsert()} signal to our @Func{beforeUpdateBook()} slot. Finally connect the
+primeupdate @Index{ primeUpdate() } @Func{primeUpdate()} signal to our @Func{primeUpdateBook()} slot.}
 @LI{
 All that remains is to write the underlying code. All the code
-snippets are taken from @F @Verbatim{qt/tools/designer/examples/book/book7/editbook.ui}.
+snippets are taken from @File{"qt/tools/designer/examples/book/book7/editbook.ui"}.
 
 @NumberedList
 @LI{
 We start with the
 
-init @Index{ init() } @F @Verbatim{init()} function; this is called after the dialog is constructed and we will use it to populate the @I{ComboBox} with author names.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+init @Index{ init() } @Func{init()} function; this is called after the dialog is constructed and we will use it to populate the @I{ComboBox} with author names.
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::init()
     {
         QSqlQuery query( "SELECT surname FROM author ORDER BY surname;" );
@@ -1198,7 +1209,7 @@ each one into the @I{ComboBox}.
 We next write the code which will be executed just before a record
 is updated (or inserted) in the database.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
     {
         QSqlQuery query( "SELECT id FROM author WHERE surname ='" +
@@ -1217,7 +1228,7 @@ it in the update (or insert) buffer's authorid field.
 As the user navigates through the records we ensure that the
 @I{ComboBox} reflects the current author.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::primeUpdateBook( QSqlRecord * buffer )
     {
         // Who is this book's author?
@@ -1248,24 +1259,24 @@ set the @I{ComboBox}'s current item to the matching author.
 @PP
 If the author name has changed or been deleted the query will
 fail and no author id will be inserted into the buffer causing
-the @F @Verbatim{INSERT} to fail. An alternative is to record
+the @Code{INSERT} to fail. An alternative is to record
 the author id's as we populate the @I{ComboBox} and store them
-in a @B{QMap}qmap @Index{ QMap } which we can then look up as required. This approach
+in a @Class{QMap}qmap @Index{ QMap } which we can then look up as required. This approach
 requires changes to the
 
-init @Index{ init() } @F @Verbatim{init()}, @F @Verbatim{beforeUpdateBook()} and @F @Verbatim{primeInsertBook()} functions and the addition of a new function, @F @Verbatim{mapAuthor()}. The relevant code from @F @Verbatim{qt/tools/designer/examples/book/book8/editbook.ui} is shown below.
+init @Index{ init() } @Func{init()}, @Func{beforeUpdateBook()} and @Func{primeInsertBook()} functions and the addition of a new function, @Func{mapAuthor()}. The relevant code from @File{"qt/tools/designer/examples/book/book8/editbook.ui"} is shown below.
 @BulletList
 @LI{
 First we need to create a class variable to map author names
 to author id's. Click in the Source tab of the Object Hierarchy,
-then right click the Class Variables item and click @B{New}.
+then right click the Class Variables item and click @Option{New}.
 Type in 'QMap<QString,int> authorMap;'.
 }
 @LI{
 We now record the author id's in the
 
-init @Index{ init() } @F @Verbatim{init()} function.
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+init @Index{ init() } @Func{init()} function.
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::init()
     {
         QSqlQuery query( "SELECT surname, id FROM author ORDER BY surname;" );
@@ -1279,13 +1290,13 @@ init @Index{ init() } @F @Verbatim{init()} function.
 qsqlquery @Index{ QSqlQuery }
 @PP
 After inserting each author's name into the @I{ComboBox} we populate
-a @B{QMap}qmap @Index{ QMap } with the author's name and id.
+a @Class{QMap}qmap @Index{ QMap } with the author's name and id.
 }
 @LI{
 Instead of looking up the author's id in the database we look
-it up in the @B{QMap}qmap @Index{ QMap }.
+it up in the @Class{QMap}qmap @Index{ QMap }.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::beforeUpdateBook( QSqlRecord * buffer )
     {
         int id;
@@ -1298,7 +1309,7 @@ qsqlrecord @Index{ QSqlRecord }}
 We use a single function for storing author id's and returning
 them so that we can use a static data structure.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::mapAuthor( const QString & name, int & id, bool populate )
     {
         if ( populate )
@@ -1310,14 +1321,14 @@ them so that we can use a static data structure.
 qstring @Index{ QString }
 @PP
 If the populate flag is TRUE, we store the author's name and
-id in the @B{QMap}qmap @Index{ QMap }, otherwise we look up the given author name
+id in the @Class{QMap}qmap @Index{ QMap }, otherwise we look up the given author name
 and set id appropriately.
 }
 @LI{
 Before we perform an update we need to know who the book's author
 is, and we need to update the combobox.
 
-@LD { 0.75 1.00 } @Scale @F @RawVerbatim @Begin
+@LD @Code @RawVerbatim @Begin
     void EditBookForm::primeUpdateBook( QSqlRecord * buffer )
     {
         // Who is this book's author?
@@ -1347,12 +1358,12 @@ Another approach which is especially useful if the same foreign
 key lookups are required in different parts of the application
 is to subclass a cursor and use this for our lookups. This is
 described in the Qt SQL Module documentation, particulary the
-section on subclassing @B{QSqlCursor}qsqlcursor @Index{ QSqlCursor }.
+section on subclassing @Class{QSqlCursor}qsqlcursor @Index{ QSqlCursor }.
 
 @PP
 The 'book' example demonstrates the basic techniques needed for
 SQL programming with Qt. Additional information on the Qt SQL
-classes, especially the @B{QSqlQuery}qsqlquery @Index{ QSqlQuery } and @B{QSqlCursor}qsqlcursor @Index{ QSqlCursor } classes
+classes, especially the @Class{QSqlQuery}qsqlquery @Index{ QSqlQuery } and @Class{QSqlCursor}qsqlcursor @Index{ QSqlCursor } classes
 is provided in the Qt SQL Module documentation.
 
 @End @Section

@@ -1,10 +1,10 @@
-@Chapter
+@Section
     @Title { Introduction to the Qt Reference Documentation }
     @Tag { introduction.to.the.qt.reference.documentation }
 @Begin
 @LP
 The documentation for the Qt library is written in-line in the
-@F @Verbatim{.cpp} files by the developers themselves. The documentation
+@File{.cpp} files by the developers themselves. The documentation
 team revises the documentation to ensure that it is accurate
 and usable, and to provide quality control. The documentation
 team also writes the larger texts, such as the class descriptions
@@ -19,8 +19,8 @@ with each new version, but we may change the internals considerably
 to improve performance and enhance functionality.
 
 @PP
-The Qt Reference Documentation consists of almost 1,500 HTML
-pages (over 2,500 printed pages). The overwhelming majority of
+The Qt Reference Documentation consists of over 1,500 HTML
+pages (around 2,500 printed pages). The overwhelming majority of
 pages document Qt classes. Since developers differ in the way
 they think and work we provide a variety of approaches to navigating
 the documentation set:
@@ -65,4 +65,4 @@ also two tutorials and numerous example programs in the examples
 subdirectory of the Qt distribution.
 
 
-@End @Chapter
+@End @Section

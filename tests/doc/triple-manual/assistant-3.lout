@@ -1,14 +1,14 @@
-@Chapter
+@Section
     @Title { The 1 Minute Guide to using Qt Assistant }
     @Tag { the.minute.guide.to.using.qt.assistant }
 @Begin
 @LP
-Under Windows, @I{Qt Assistant} is available as a menu option
-on the Qt menu. On Unix, run @F @Verbatim{assistant} from an
-xterm.
+Under Windows, @QAT is available as a menu option
+on the Qt menu. On Unix, run @File{assistant} from an
+@File{xterm}.
 
 @PP
-When you start up @I{Qt Assistant}, you will be presented with
+When you start up @QAT, you will be presented with
 a standard main-window style application, with a menu bar and
 toolbar. Below these, on the left hand side is a navigation window
 called the @I{Sidebar}, and on the right, taking up most of the
@@ -16,7 +16,7 @@ space, is the documentation window. By default, the Qt Reference
 Documentation's home page is shown in the documentation window.
 
 @PP
-@I{Qt Assistant} works in a similar way to a web browser. If
+@QAT works in a similar way to a web browser. If
 you click underlined text (which signifies a cross-reference),
 the documentation window will present the relevant page. You
 can bookmark pages of particular interest and you can click the
@@ -24,10 +24,10 @@ can bookmark pages of particular interest and you can click the
 the pages you've visited.
 
 @PP
-Although @I{Qt Assistant} can be used just like a web browser
-to navigate through the Qt documentation set, @I{Qt Assistant}
+Although @QAT can be used just like a web browser
+to navigate through the Qt documentation set, @QAT
 offers a powerful means of navigation that web browsers don't
-provide. @I{Qt Assistant} uses an intelligent algorithm to index
+provide. @QAT uses an intelligent algorithm to index
 all the pages in the documentation sets that it presents so that
 you can search for particular words and phrases.
 
@@ -38,7 +38,7 @@ e.g. 'homedirpath'. As you type, words are found and highlighted
 in a list beneath the line edit. If the highlighted text matches
 what you're looking for, double click it, (or press @B{Enter})
 and the documentation window will display the relevant page.
-You rarely have to type in the whole word before @I{Qt Assistant}
+You rarely have to type in the whole word before @QAT
 finds a match.
 
 @PP
@@ -54,4 +54,4 @@ using the @B{Up} and @B{Down} arrow keys and press @B{Enter}).
 The relevant page will display in the documentation window.
 
 
-@End @Chapter
+@End @Section

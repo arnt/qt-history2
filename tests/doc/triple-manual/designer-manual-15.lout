@@ -8,7 +8,7 @@
     @Tag { introductionxxxxxx }
 @Begin
 @PP
-By default @I{Qt Designer} starts up with three windows on the
+By default @QDR starts up with three windows on the
 left hand side. They are the Project Overview Window [p.~@PageOf{project.overview.window}], the Object
 Explorer Window, and the Property Editor"/"Signal Handlers Window [p.~@PageOf{property.editor.signal.handlers.window}].
 This chapter explains each window in detail.
@@ -28,7 +28,7 @@ This chapter explains each window in detail.
 This window lists all the files associated with the project.
 To open a form or file single click it in the Files list. To
 rapidly switch between forms and files, type the name of the
-file in the line edit above the files list and @I{Qt Designer}
+file in the line edit above the files list and @QDR
 will perform an incremental search to show any matching files
 or forms.
 
@@ -75,13 +75,13 @@ menu.
 
 @PP
 To edit or add slots, right click the Slots folder and select
-'Edit' to invoke the @I{Edit Slots Dialog}. Right click the Public,
+'Edit' to invoke the @Win{Edit Slots} dialog. Right click the Public,
 Protected, or Private subdirectories and click 'New' to invoke
-the @I{Edit Slots Dialog}. Right click a slot in the list to
+the @Win{Edit Slots} dialog. Right click a slot in the list to
 invoke a menu with additional options for the slot. To add new
-slots, choose 'New' from the menu, which invokes the @I{Edit
-Slots Dialog}. To change the properties of the selected slot,
-choose 'Properties' which invokes the @I{Edit Slots Dialog}.
+slots, choose 'New' from the menu, which invokes the @Win{Edit
+Slots} dialog. To change the properties of the selected slot,
+choose 'Properties' which invokes the @Win{Edit Slots} dialog.
 To open the C++ editor and jump to the implementation of the
 selected slot, choose 'Goto Implementation'. To remove the selected
 slot, choose 'Delete'. Signals can be added or deleted in the
@@ -93,12 +93,12 @@ Right click 'Forward Declarations', 'Includes (in declaration)',
 a context menu with the 'new' or 'edit' options. Choose 'New'
 to invoke a line edit for typing a declaration, variable, or
 include. Right click 'Forward Declarations' and choose 'Edit'
-to invoke the @I{Edit Forward Declarations Dialog [p.~@PageOf{edit.forward.declarations.dialog}]}. Right click
-'Includes (in declaration)' and choose'Edit' to invoke the @I{Edit
-Includes (in Declaration) Dialog}. Right click 'Class variables'
-and choose 'Edit' to invoke the @I{Edit Class Variables Dialog [p.~@PageOf{edit.class.variables.dialog}]}.
+to invoke the @Win{Edit Forward Declarations} dialog. Right click
+'Includes (in declaration)' and choose'Edit' to invoke the @Win{Edit
+Includes (in Declaration)} dialog. Right click 'Class variables'
+and choose 'Edit' to invoke the @Win{Edit Class Variables} dialog.
 Right click 'Includes (in Implementation)' and choose 'Edit'
-to invoke the @I{Edit Includes (in Implementation) Dialog [p.~@PageOf{edit.includes.in.implementation.dialog}]}.
+to invoke the @Win{Edit Includes (in Implementation)} dialog.
 
 @End @Section
 @Section

@@ -16,10 +16,10 @@ Ctrl+C -- Copies the selected GUI elements from the active form
 into the clipboard.
 }
 @LI{
-Alt+E -- Pulls down the @B{Edit} menu.
+Alt+E -- Pulls down the @Option{Edit} menu.
 }
 @LI{
-Alt+F -- Pulls down the @B{File} menu.
+Alt+F -- Pulls down the @Option{File} menu.
 }
 @LI{
 Ctrl+G -- Applies a grid layout to the selected container, or
@@ -32,7 +32,7 @@ or creates a new container containing the selected GUI elements
 and applies a horizontal box layout to this container.
 }
 @LI{
-Alt+H -- Pulls down the @B{Help} menu.
+Alt+H -- Pulls down the @Option{Help} menu.
 }
 @LI{
 Ctrl+J Adjusts the size of the selected GUI element (or elements)
@@ -45,19 +45,19 @@ or creates a new container containing the selected GUI elements
 and applies a vertical box layout to this container.
 }
 @LI{
-Alt+L -- Pulls down the @B{Layout} menu.
+Alt+L -- Pulls down the @Option{Layout} menu.
 }
 @LI{
 Ctrl+M -- Opens an online version of this manual in Qt Assistant.
 }
 @LI{
-Ctrl+N -- Invokes the @I{New File} dialog.
+Ctrl+N -- Invokes the @Win{New File} dialog.
 }
 @LI{
-Ctrl+O -- Invokes the @I{Open File} dialog.
+Ctrl+O -- Invokes the @Win{Open File} dialog.
 }
 @LI{
-Alt+P -- Pulls down the @B{Preview} menu.
+Alt+P -- Pulls down the @Option{Preview} menu.
 }
 @LI{
 Ctrl+R -- Checks the accelerators in the active form for duplicates.
@@ -70,7 +70,7 @@ Ctrl+T -- Previews the active form in the default GUI style of
 the platform.
 }
 @LI{
-Alt+T -- Pulls down the @B{Tools} menu.
+Alt+T -- Pulls down the @Option{Tools} menu.
 }
 @LI{
 Ctrl+V -- Pastes the GUI element (or elements) in the clipboard
@@ -79,7 +79,7 @@ plus a little offset. Does nothing if the clipboard does not
 contain a GUI element.
 }
 @LI{
-Alt+W -- Pulls down the @B{Window} menu.
+Alt+W -- Pulls down the @Option{Window} menu.
 }
 @LI{
 Ctrl+X -- Cuts the selected GUI element (or elements) from the
