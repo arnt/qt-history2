@@ -30,24 +30,25 @@ ParenMatcher::ParenMatcher()
 
 bool ParenMatcher::match( QTextCursor *cursor )
 {
-    QChar c( cursor->parag()->at( cursor->index() )->c );
-    if ( c == '{' || c == '(' || c == '[' ) {
-	return checkOpenParen( cursor );
-    } else if ( cursor->index() > 0 ) {
-	c = cursor->parag()->at( cursor->index() - 1 )->c;
-	if ( c == '}' || c == ')' || c == ']' ) {
-	    return checkClosedParen( cursor );
-	}
-    }
-
+    bool ret = FALSE;
     if ( cursor->document()->hasSelection( QTextDocument::Selection1 ) ||
 	 cursor->document()->hasSelection( QTextDocument::Selection2 ) ) {
 	cursor->document()->removeSelection( QTextDocument::Selection1 );
 	cursor->document()->removeSelection( QTextDocument::Selection2 );
-	return TRUE;
+	ret = TRUE;
     }
 
-    return FALSE;
+    QChar c( cursor->parag()->at( cursor->index() )->c );
+    if ( c == '{' || c == '(' || c == '[' ) {
+	return checkOpenParen( cursor ) || ret;
+    } else if ( cursor->index() > 0 ) {
+	c = cursor->parag()->at( cursor->index() - 1 )->c;
+	if ( c == '}' || c == ')' || c == ']' ) {
+	    return checkClosedParen( cursor ) || ret;
+	}
+    }
+
+    return ret;
 }
 
 bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
