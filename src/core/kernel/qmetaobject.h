@@ -115,8 +115,14 @@ public:
     enum {
         Void, VoidStar, Long, Int, Short,
         Char, ULong, UInt, UShort, UChar, Bool,
-        Float, Double, QChar, QByteArray, QString
+        Float, Double, QChar, QByteArray, QString,
+        User = 256
     };
+
+    typedef void (*Destructor)(void *);
+    typedef void *(*CopyConstructor)(const void *);
+
+    static int registerType(const char *typeName, Destructor destructor, CopyConstructor copyConstructor);
     static int type(const char *typeName);
     static void *copy(int type, void *data);
     static void destroy(int type, void *data);

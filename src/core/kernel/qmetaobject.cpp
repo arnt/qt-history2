@@ -1468,6 +1468,17 @@ static const struct { const char * typeName; int type; }types[]  = {
     {0, QMetaType::Void}
 };
 
+
+/*!
+  Registers a user type for marshalling, with \a typeName, a \a
+  destructor, and a \a copyConstructor. Returns the type's handle, or
+  0 if the type could not be registered.
+ */
+int QMetaType::registerType(const char *typeName, Destructor destructor, CopyConstructor copyConstructor)
+{
+    return -1;
+}
+
 /*!
   Returns a handle to the type with name \a typeName, or 0 if there is
   no such type.

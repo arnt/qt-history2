@@ -1638,7 +1638,7 @@ int *QObjectPrivate::queuedConnectionTypes(const char *signal)
         QByteArray type(e, s-e);
         ++s;
 
-        if (type.at(type.size()-1) == '*') {
+        if (type.endsWith('*')) {
             types[n] = QMetaType::type("void*");
         } else {
             types[n] = QMetaType::type(type);
@@ -1980,10 +1980,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
             rmember = rmeta->signal(member_index);
             break;
         }
-        if(smember.isCompat()) 
+        if(smember.isCompat())
             qWarning("Object::connect: Connecting from COMPAT signal (%s).", signal);
         if(rmember.isCompat())
-            qWarning("Object::connect: Connecting to COMPAT %s (%s).", 
+            qWarning("Object::connect: Connecting to COMPAT %s (%s).",
                      (membcode == QSLOT_CODE) ? "slot" : "signal", member);
         switch(rmember.access()) {
         case QMetaMember::Private:
