@@ -15,10 +15,6 @@
 
 #include <math.h>
 
-static QLineF::IntersectType qt_linef_intersect(float x1, float y1, float x2, float y2,
-                                                   float x3, float y3, float x4, float y4,
-                                                   float *x, float *y);
-
 /*!
     \class QLineF
 
@@ -180,7 +176,37 @@ QLineF QLineF::unitVector() const
     return f;
 }
 
+#define SAME_SIGNS(a, b) ((a) * (b) >= 0)
 
+// Line intersection algorithm, copied from Graphics Gems II
+static bool qt_linef_intersect(float x1, float y1, float x2, float y2,
+                               float x3, float y3, float x4, float y4)
+{
+    float a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
+    float r1, r2, r3, r4;         /* 'Sign' values */
+
+    a1 = y2 - y1;
+    b1 = x1 - x2;
+    c1 = x2 * y1 - x1 * y2;
+
+    r3 = a1 * x3 + b1 * y3 + c1;
+    r4 = a1 * x4 + b1 * y4 + c1;
+
+    if ( r3 != 0 && r4 != 0 && SAME_SIGNS( r3, r4 ))
+        return false;
+
+    a2 = y4 - y3;
+    b2 = x3 - x4;
+    c2 = x4 * y3 - x3 * y4;
+
+    r1 = a2 * x1 + b2 * y1 + c2;
+    r2 = a2 * x2 + b2 * y2 + c2;
+
+    if ( r1 != 0 && r2 != 0 && SAME_SIGNS( r1, r2 ))
+        return false;
+
+    return true;
+}
 
 /*!
     Returns wheter this line intersects the line \a l or not. By
@@ -190,97 +216,48 @@ QLineF QLineF::unitVector() const
 */
 QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPoint) const
 {
-    float ox, oy;
-    IntersectType type = qt_linef_intersect(startX(), startY(), endX(), endY(),
-                                               l.startX(), l.startY(), l.endX(), l.endY(),
-                                               &ox, &oy);
+    Q_ASSERT(!isNull());
+    Q_ASSERT(!l.isNull());
+
+    // Parallell lines
+    if (vx() == l.vx() && vy() == l.vy()) {
+        return NoIntersection;
+    }
+
+    QPointF isect;
+    IntersectType type;
+
+    // For special case where one of the lines are vertical
+    if (vx() == 0) {
+        float la = l.vy() / l.vx();
+        isect = QPointF(p1.x(), la * p1.x() + l.startY() - la*l.startX());
+        type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
+                                  l.startX(), l.startY(), l.endX(), l.endY())
+               ? BoundedIntersection : UnboundedIntersection;
+    } else if (l.vx() == 0) {
+        float ta = vy() / vx();
+        isect = QPointF(l.startX(), ta * l.startX() + startY() - ta*startX());
+        type = qt_linef_intersect(p1.x(), p1.y(), p2.x(), p2.y(),
+                                  l.startX(), l.startY(), l.endX(), l.endY())
+               ? BoundedIntersection : UnboundedIntersection;
+    } else {
+        float ta = vy()/vx();
+        float la = l.vy()/l.vx();
+        float x = ( - l.startY() + la * l.startX() + p1.y() - ta * p1.x() ) / (la - ta);
+        isect = QPointF(x, ta*(x - p1.x()) + p1.y());
+        type = (x >= p1.x() && x <= p2.x() && x >= l.p1.x() && x <= l.p2.x())
+               ? BoundedIntersection : UnboundedIntersection;
+    }
+
     if (intersectionPoint)
-        *intersectionPoint = QPointF(ox, oy);
+        *intersectionPoint = isect;
     return type;
 }
 
 
-/*!
+    /*!
     \fn void QLineF::moveBy(const QLineF &l)
 
     Translates this line by the vector specified by the line \a l.
 
 */
-
-#define SAME_SIGNS(a, b) ((a) * (b) >= 0)
-
-// Line intersection algorithm, copied from Graphics Gems II
-static QLineF::IntersectType qt_linef_intersect(float x1, float y1, float x2, float y2,
-                                                   float x3, float y3, float x4, float y4,
-                                                   float *x, float *y)
-{
-    float a1, a2, b1, b2, c1, c2; /* Coefficients of line eqns. */
-    float r1, r2, r3, r4;         /* 'Sign' values */
-    float denom, offset, num;     /* Intermediate values */
-
-    /* Compute a1, b1, c1, where line joining points 1 and 2
-     * is "a1 x  +  b1 y  +  c1  =  0".
-     */
-
-    a1 = y2 - y1;
-    b1 = x1 - x2;
-    c1 = x2 * y1 - x1 * y2;
-
-    /* Compute r3 and r4.
-     */
-
-
-    r3 = a1 * x3 + b1 * y3 + c1;
-    r4 = a1 * x4 + b1 * y4 + c1;
-
-    /* Check signs of r3 and r4.  If both point 3 and point 4 lie on
-     * same side of line 1, the line segments do not intersect.
-     */
-
-    if ( r3 != 0 &&
-         r4 != 0 &&
-         SAME_SIGNS( r3, r4 ))
-        return QLineF::NoIntersection;
-
-    /* Compute a2, b2, c2 */
-
-    a2 = y4 - y3;
-    b2 = x3 - x4;
-    c2 = x4 * y3 - x3 * y4;
-
-    /* Compute r1 and r2 */
-
-    r1 = a2 * x1 + b2 * y1 + c2;
-    r2 = a2 * x2 + b2 * y2 + c2;
-
-    /* Check signs of r1 and r2.  If both point 1 and point 2 lie
-     * on same side of second line segment, the line segments do
-     * not intersect.
-     */
-
-    if ( r1 != 0 &&
-         r2 != 0 &&
-         SAME_SIGNS( r1, r2 ))
-        return QLineF::NoIntersection;
-
-    /* Line segments intersect: compute intersection point.
-     */
-
-    denom = a1 * b2 - a2 * b1;
-    if ( denom == 0 )
-        return QLineF::UnboundedIntersection;
-    offset = denom < 0 ? - denom / 2 : denom / 2;
-
-    /* The denom/2 is to get rounding instead of truncating.  It
-     * is added or subtracted to the numerator, depending upon the
-     * sign of the numerator.
-     */
-
-    num = b1 * c2 - b2 * c1;
-    *x = ( num < 0 ? num - offset : num + offset ) / denom;
-
-    num = a2 * c1 - a1 * c2;
-    *y = ( num < 0 ? num - offset : num + offset ) / denom;
-
-    return QLineF::BoundedIntersection;
-} /* lines_intersect */
