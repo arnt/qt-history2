@@ -548,7 +548,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	connectStartPos = mapFromGlobal( e->globalPos() );
 	currentConnectPos = mapFromGlobal( e->globalPos() );
 	connectSender = designerWidget( w );
-	connectReceiver = designerWidget( w );
+	connectReceiver = connectableObject( designerWidget( w ), connectReceiver );
 	beginUnclippedPainter( FALSE );
 	drawConnectLine();
 	break;
@@ -721,7 +721,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	currentConnectPos = mapFromGlobal( e->globalPos() );
 	if ( newReceiver &&
 	     ( isMainContainer( newReceiver ) || insertedWidgets.find( newReceiver ) ) && !isCentralWidget( newReceiver ) )
-	    connectReceiver = newReceiver;
+	    connectReceiver = connectableObject( newReceiver, connectReceiver );
 	mainWindow()->statusBar()->message( tr( "Connect '%1' with '%2'" ).arg( connectSender->name() ).
 					    arg( connectReceiver->name() ) );
 	qApp->processEvents();
@@ -2436,4 +2436,16 @@ bool FormWindow::isCentralWidget( QObject *w ) const
     if ( !mainContainer()->inherits( "QMainWindow" ) )
 	return FALSE;
     return w == ( (QMainWindow*)mainContainer() )->centralWidget();
+}
+
+QObject *FormWindow::connectableObject( QObject *w, QObject *fallback )
+{
+    if ( !project() )
+	return w;
+    LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
+    if ( !iface )
+	return w;
+    if ( !iface->supports( LanguageInterface::ConnectionsToCustomSlots ) && isMainContainer( w ) )
+	return fallback;
+    return w;
 }

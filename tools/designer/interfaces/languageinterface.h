@@ -42,7 +42,8 @@ struct LanguageInterface : public QUnknownInterface
 
     enum Support
     {
-	ReturnType
+	ReturnType,
+	ConnectionsToCustomSlots
     };
 
     virtual void functions( const QString &code, QValueList<Function> *funcs ) const = 0;

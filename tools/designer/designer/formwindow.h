@@ -238,6 +238,8 @@ private:
 
     virtual QWidget *containerAt( const QPoint &pos, QWidget *notParentOf );
 
+    QObject *connectableObject( QObject *w, QObject *fallback );
+
 private slots:
     virtual void invalidCheckedSelections();
     virtual void updatePropertiesTimerDone();

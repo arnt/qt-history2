@@ -25,6 +25,7 @@
 #include "command.h"
 #include "widgetfactory.h"
 #include "editslotsimpl.h"
+#include "project.h"
 
 #include <qmetaobject.h>
 #include <qlistbox.h>
@@ -103,13 +104,20 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 
     QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     QStringList lst;
+    bool includeMainContainer = TRUE;
+    if ( formWindow->project() ) {
+	LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
+	if ( iface && !iface->supports( LanguageInterface::ConnectionsToCustomSlots ) )
+	    includeMainContainer = FALSE;
+    }
     while ( it.current() ) {
 	if ( lst.find( it.current()->name() ) != lst.end() ) {
 	    ++it;
 	    continue;
 	}
 	lst << it.current()->name();
-	if ( qstrcmp( it.current()->name(), "central widget" ) != 0 )
+	if ( qstrcmp( it.current()->name(), "central widget" ) != 0 &&
+	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) )
 	    comboReceiver->insertItem( it.current()->name() );
 	if ( qstrcmp( it.current()->name(), receiver->name() ) == 0 )
 	    comboReceiver->setCurrentItem( comboReceiver->count() - 1 );

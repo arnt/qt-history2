@@ -145,3 +145,12 @@ QString LanguageInterfaceImpl::createEmptyFunction()
 {
     return "{\n\n}";
 }
+
+bool LanguageInterfaceImpl::supports( Support s ) const
+{
+    if ( s == ReturnType )
+	return TRUE;
+    if ( s == ConnectionsToCustomSlots )
+	return TRUE;
+    return FALSE;
+}

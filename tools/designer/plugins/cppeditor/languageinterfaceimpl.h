@@ -40,7 +40,7 @@ public:
     void setDefinitionEntries( const QString &definition, const QStringList &entries, QUnknownInterface *designerIface );
     QString createArguments( const QStringList &args );
     QString createEmptyFunction();
-    bool supports( Support s ) const { if ( s == ReturnType ) return TRUE; return FALSE; }
+    bool supports( Support s ) const;
 
 private:
     ulong ref;
