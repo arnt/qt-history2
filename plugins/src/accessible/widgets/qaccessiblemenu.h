@@ -1,7 +1,7 @@
 #ifndef QACCESSIBLEMENU_H
 #define QACCESSIBLEMENU_H
 
-#include "qaccessiblewidgets.h"
+#include <qaccessiblewidget.h>
 
 class QPopupMenu;
 class QMenuBar;

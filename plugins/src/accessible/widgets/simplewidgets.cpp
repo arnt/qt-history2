@@ -2,6 +2,7 @@
 
 #include <qaccel.h>
 #include <qpushbutton.h>
+#include <qprogressbar.h>
 #include <qtoolbutton.h>
 #include <qlabel.h>
 #include <qgroupbox.h>
@@ -58,21 +59,6 @@ QString QAccessibleButton::text(Text t, int child) const
     QString str;
 
     switch (t) {
-/*
-    case DefaultAction:
-	switch(role(child)) {
-	case PushButton:
-	    return QButton::tr("Press");
-	case CheckBox:
-	    if (state(child) & Checked)
-		return QButton::tr("UnCheck");
-	    return QButton::tr("Check");
-	case RadioButton:
-	    return QButton::tr("Check");
-	default:
-	    return QButton::tr("Press");
-	}
-*/
     case Accelerator:
 	{
 	    QPushButton *pb = qt_cast<QPushButton*>(object());
@@ -110,6 +96,9 @@ QAccessible::State QAccessibleButton::state(int child) const
     QPushButton *pb = qt_cast<QPushButton*>(b);
     if (pb && pb->isDefault())
 	state |= DefaultButton;
+    QToolButton *tb = qt_cast<QToolButton*>(b);
+    if (tb && tb->autoRaise())
+	state |= HotTracked;
 
     return (State)state;
 }
@@ -118,7 +107,7 @@ QAccessible::State QAccessibleButton::state(int child) const
 
 /*!
   \class QAccessibleDisplay qaccessiblewidget.h
-  \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display static information.
+  \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display information.
 */
 
 /*!
@@ -145,6 +134,8 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
 	if (l->movie())
 	    return Animation;
 #endif
+    } else if (qt_cast<QProgressBar*>(object())) {
+	return ProgressBar;
     }
     return QAccessibleWidget::role(child);
 }
@@ -166,6 +157,10 @@ QString QAccessibleDisplay::text(Text t, int child) const
 	    else
 		str = QString::number(l->intValue());
 	}
+	break;
+    case Value:
+	if (qt_cast<QProgressBar*>(object()))
+	    str = QString::number(qt_cast<QProgressBar*>(object())->progress());
 	break;
     default:
 	break;

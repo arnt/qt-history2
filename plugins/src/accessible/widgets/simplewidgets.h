@@ -1,7 +1,7 @@
 #ifndef SIMPLEWIDGETS_H
 #define SIMPLEWIDGETS_H
 
-#include <qaccessiblewidgets.h>
+#include <qaccessiblewidget.h>
 
 class QButton;
 class QLineEdit;
@@ -23,7 +23,7 @@ protected:
 class QAccessibleDisplay : public QAccessibleWidget
 {
 public:
-    QAccessibleDisplay(QWidget *o, Role role);
+    QAccessibleDisplay(QWidget *w, Role role = StaticText);
 
     QString	text(Text t, int child) const;
     Role	role(int child) const;

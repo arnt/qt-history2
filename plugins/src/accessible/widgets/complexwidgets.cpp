@@ -7,6 +7,8 @@
 #include <qlineedit.h>
 #include <private/qtitlebar_p.h>
 #include <qstyle.h>
+#include <qtooltip.h>
+#include <qwhatsthis.h>
 
 QString Q_EXPORT qacc_stripAmp(const QString &text);
 
@@ -22,6 +24,7 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
 : QAccessibleWidget(w)
 {
     Q_ASSERT(header());
+    addControllingSignal("clicked(int)");
 }
 
 /*! Returns the QHeader. */
@@ -49,11 +52,15 @@ QString QAccessibleHeader::text(Text t, int child) const
 {
     QString str;
 
-    switch (t) {
+    if (child <= childCount()) switch (t) {
     case Name:
 	str = header()->label(child - 1);
 	break;
-    default:
+    case Description:
+	str = QToolTip::textFor(widget(), header()->sectionRect(child-1).center());
+	break;
+    case Help:
+	str = QWhatsThis::textFor(widget(), header()->sectionRect(child-1).center());
 	break;
     }
     if (str.isEmpty())
@@ -64,16 +71,26 @@ QString QAccessibleHeader::text(Text t, int child) const
 /*! \reimp */
 QAccessible::Role QAccessibleHeader::role(int child) const
 {
-    if (header()->orientation() == Qt::Horizontal)
-	return child ? Column : ColumnHeader;
-    else
-	return child ? Row : RowHeader;
+    return (header()->orientation() == Qt::Horizontal) ? ColumnHeader : RowHeader;
 }
 
 /*! \reimp */
 QAccessible::State QAccessibleHeader::state(int child) const
 {
-    return QAccessibleWidget::state(child);
+    int state = QAccessibleWidget::state(child);
+
+    int section = child ? child - 1 : -1;
+    if (!header()->isClickEnabled(section))
+	state |= Unavailable;
+    else
+	state |= Selectable;
+    if (child && section == header()->sortIndicatorSection())
+	state |= Selected;
+    if (header()->isResizeEnabled(section))
+	state |= Sizeable;
+    if (child && header()->isMovingEnabled())
+	state |= Moveable;
+    return (State)state;
 }
 
 /*!
@@ -96,31 +113,41 @@ QTabBar *QAccessibleTabBar::tabBar() const
     return qt_cast<QTabBar*>(object());
 }
 
+QButton *QAccessibleTabBar::button(int child) const
+{
+    if (child <= tabBar()->count())
+	return 0;
+    if (child - tabBar()->count() == 1)
+	return qt_cast<QButton*>(tabBar()->child("qt_left_btn"));
+    if (child - tabBar()->count() == 2)
+	return qt_cast<QButton*>(tabBar()->child("qt_right_btn"));
+    Q_ASSERT(FALSE);
+    return 0;
+}
+
 /*! \reimp */
 QRect QAccessibleTabBar::rect(int child) const
 {
     if (!child)
 	return QAccessibleWidget::rect(0);
 
-    if (child > tabBar()->count()) {
-	// get buttonLeft/buttonRight
-	QRect r;
-	return r;
-    }
-
-    QTab *tab = tabBar()->tabAt(child - 1);
-
     QPoint tp = tabBar()->mapToGlobal(QPoint(0,0));
-    QRect rec = tab->rect();
+    QRect rec;
+    if (child <= tabBar()->count()) { 
+	QTab *tab = tabBar()->tabAt(child - 1);
+	rec = tab->rect();
+    } else {
+	QWidget *widget = button(child);
+	rec = widget->geometry();
+    }
     return QRect(tp.x() + rec.x(), tp.y() + rec.y(), rec.width(), rec.height());
 }
 
 /*! \reimp */
 int QAccessibleTabBar::childCount() const
 {
-    int wc = QAccessibleWidget::childCount();
-    wc += tabBar()->count();
-    return wc;
+    // tabs + scroll buttons
+    return tabBar()->count() + 2;
 }
 
 /*! \reimp */
@@ -129,16 +156,16 @@ QString QAccessibleTabBar::text(Text t, int child) const
     QString str;
 
     if (child > tabBar()->count()) {
-	int right = child - tabBar()->count() == 1;
-	return right ? QTabBar::tr("Scroll Right") : QTabBar::tr("Scroll Left");
-    }
-    QTab *tab = child ? tabBar()->tabAt(child - 1) : 0;
-    if (tab) {
+	bool left = child - tabBar()->count() == 1;
+	switch (t) {
+	case Name:
+	    return left ? QTabBar::tr("Scroll Left") : QTabBar::tr("Scroll Right");
+	}
+    } else if (child > 0) {
+	QTab *tab = tabBar()->tabAt(child - 1);
 	switch (t) {
 	case Name:
 	    return qacc_stripAmp(tab->text());
-	default:
-	    break;
 	}
     }
 
@@ -165,8 +192,12 @@ QAccessible::State QAccessibleTabBar::state(int child) const
     if (!child)
 	return (State)st;
 
-    if (child > tabBar()->count())
+    if (child > tabBar()->count()) {
+	QWidget *bt = button(child);
+	if (!bt->isEnabled())
+	    st |= Unavailable;
 	return (State)st;
+    }
 
     QTab *tab = tabBar()->tabAt(child - 1);
     if (!tab)
@@ -188,15 +219,14 @@ bool QAccessibleTabBar::doAction(int action, int child)
 {
     if (!child)
 	return FALSE;
-/*
+
     if (child > tabBar()->count()) {
-	QAccessibleInterface *iface;
-	QAccessibleWidget::queryChild(child - tabBar()->count(), &iface);
-	if (!iface)
+	QButton *bt = button(child);
+	if (!bt->isEnabled())
 	    return FALSE;
-	return iface->doAction(action, 0);
+	bt->animateClick();
+	return TRUE;
     }
-*/
     QTab *tab = tabBar()->tabAt(child - 1);
     if (!tab || !tab->isEnabled())
 	return FALSE;

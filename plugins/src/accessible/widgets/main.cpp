@@ -29,8 +29,6 @@ QStringList AccessibleFactory::keys() const
     list << "QLineEdit";
     list << "QComboBox";
     list << "QSpinBox";
-    list << "QSpinWidget";
-    list << "QDial";
     list << "QScrollBar";
     list << "QSlider";
     list << "QToolButton";
@@ -85,11 +83,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QComboBox") {
 	iface = new QAccessibleComboBox(widget);
     } else if (classname == "QSpinBox") {
-	iface = new QAccessibleRangeControl(widget, SpinBox);
-    } else if (classname == "QSpinWidget") {
-	iface = new QAccessibleSpinWidget(widget);
-    } else if (classname == "QDial") {
-	iface = new QAccessibleRangeControl(widget, Dial);
+	iface = new QAccessibleSpinBox(widget);
     } else if (classname == "QScrollBar") {
 	iface = new QAccessibleScrollBar(widget );
     } else if (classname == "QSlider") {
@@ -131,13 +125,13 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QMainWindow") {
 	iface = new QAccessibleWidget(widget, Application);
     } else if (classname == "QLabel" || classname == "QLCDNumber") {
-	iface = new QAccessibleDisplay(widget, StaticText);
+	iface = new QAccessibleDisplay(widget);
     } else if (classname == "QGroupBox") {
 	iface = new QAccessibleDisplay(widget, Grouping);
     } else if (classname == "QStatusBar") {
 	iface = new QAccessibleWidget(widget, StatusBar);
     } else if (classname == "QProgressBar") {
-	iface = new QAccessibleRangeControl(widget, ProgressBar);
+	iface = new QAccessibleDisplay(widget);
     } else if (classname == "QToolBar") {
 	QToolBar *tb = (QToolBar*)widget;
 	iface = new QAccessibleWidget(widget, ToolBar, tb->label());

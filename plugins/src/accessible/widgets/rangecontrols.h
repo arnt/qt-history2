@@ -5,19 +5,12 @@
 
 class QScrollBar;
 class QSlider;
+class QSpinBox;
 
-class QAccessibleRangeControl : public QAccessibleWidget
+class QAccessibleSpinBox : public QAccessibleWidget
 {
 public:
-    QAccessibleRangeControl(QWidget *o, Role role, const QString &name = QString());
-
-    QString	text(Text t, int child) const;
-};
-
-class QAccessibleSpinWidget : public QAccessibleRangeControl
-{
-public:
-    QAccessibleSpinWidget(QWidget *w);
+    QAccessibleSpinBox(QWidget *w);
 
     int		childCount() const;
     QRect	rect(int child) const;
@@ -29,9 +22,12 @@ public:
     State	state(int child) const;
 
     bool	doAction(int action, int child);
+
+protected:
+    QSpinBox	*spinBox() const;
 };
 
-class QAccessibleScrollBar : public QAccessibleRangeControl
+class QAccessibleScrollBar : public QAccessibleWidget
 {
 public:
     QAccessibleScrollBar(QWidget *w, const QString &name = QString());
@@ -48,13 +44,12 @@ protected:
     QScrollBar *scrollBar() const;
 };
 
-class QAccessibleSlider : public QAccessibleRangeControl
+class QAccessibleSlider : public QAccessibleWidget
 {
 public:
     QAccessibleSlider(QWidget *w, const QString &name = QString());
 
     int		childCount() const;
-    int		relationTo(int child, const QAccessibleInterface *other, int otherChild);
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;

@@ -3,6 +3,7 @@
 
 #include <qaccessiblewidget.h>
 
+class QButton;
 class QHeader;
 class QTabBar;
 class QComboBox;
@@ -17,8 +18,8 @@ public:
 
     QRect	rect(int child) const;
     QString	text(Text t, int child) const;
-    Role role(int child) const;
-    State state(int child) const;
+    Role	role(int child) const;
+    State	state(int child) const;
 
 protected:
     QHeader *header() const;
@@ -42,6 +43,9 @@ public:
 
 protected:
     QTabBar *tabBar() const;
+
+private:
+    QButton *button(int child) const;
 };
 
 class QAccessibleComboBox : public QAccessibleWidget

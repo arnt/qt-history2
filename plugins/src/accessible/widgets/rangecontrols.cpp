@@ -5,184 +5,154 @@
 #include <qspinbox.h>
 #include <qscrollbar.h>
 #include <qslider.h>
-#include <qprogressbar.h>
-#include <qrangecontrol.h>
 #include <qstyle.h>
 
 QString Q_EXPORT qacc_stripAmp(const QString &text);
 
 /*!
-  \class QAccessibleRangeControl qaccessiblewidget.h
-  \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
+  \class QAccessibleSpinBox qaccessiblewidget.h
+  \brief The QAccessibleText class implements the QAccessibleInterface for spinbox widgets.
 */
 
 /*!
-  Constructs a QAccessibleRangeControl object for \a w.
-  \a role and \a name.
+  Constructs a QAccessibleSpinWidget object for \a w.
 */
-QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, const QString &name)
-: QAccessibleWidget(w, role, name)
+QAccessibleSpinBox::QAccessibleSpinBox(QWidget *w)
+: QAccessibleWidget(w, SpinBox)
 {
+    Q_ASSERT(spinBox());
     addControllingSignal("valueChanged(int)");
+    addControllingSignal("valueChanged(QString)");
 }
 
 /*! \reimp */
-QString QAccessibleRangeControl::text(Text t, int child) const
+QSpinBox *QAccessibleSpinBox::spinBox() const
 {
-    QString str;
-
-    switch (t) {
-    case Value:
-	{
-	    int value = 0;
-	    if (qt_cast<QSlider*>(object()))
-		value = qt_cast<QSlider*>(object())->value();
-	    else if (qt_cast<QDial*>(object()))
-		value = qt_cast<QDial*>(object())->value();
-	    else if (qt_cast<QScrollBar*>(object()))
-		value = qt_cast<QScrollBar*>(object())->value();
-	    else if (qt_cast<QSpinBox*>(object()))
-		return qt_cast<QSpinBox*>(object())->text();
-	    else if (qt_cast<QProgressBar*>(object()))
-		value = qt_cast<QProgressBar*>(object())->progress();
-	    str = QString::number(value);
-	}
-	break;
-    default:
-	break;
-    }
-    if (str.isEmpty())
-	str = QAccessibleWidget::text(t, child);;
-    return qacc_stripAmp(str);
-}
-
-/*!
-  \class QAccessibleSpinWidget qaccessiblewidget.h
-  \brief The QAccessibleText class implements the QAccessibleInterface for up/down widgets.
-*/
-
-/*!
-  Constructs a QAccessibleSpinWidget object for \a o.
-*/
-QAccessibleSpinWidget::QAccessibleSpinWidget(QWidget *o)
-: QAccessibleRangeControl(o, SpinBox)
-{
+    return qt_cast<QSpinBox*>(object());
 }
 
 /*! \reimp */
-QRect QAccessibleSpinWidget::rect(int child) const
+int QAccessibleSpinBox::childCount() const
+{
+    return 3;
+}
+
+/*! \reimp */
+QRect QAccessibleSpinBox::rect(int child) const
 {
     QRect rect;
     switch(child) {
     case 1:
-	rect = ((QSpinWidget*)widget())->upRect();
+	rect = widget()->rect();
+	rect.setRight(spinBox()->upRect().left());
 	break;
     case 2:
-	rect = ((QSpinWidget*)widget())->downRect();
+	rect = spinBox()->upRect();
+	break;
+    case 3:
+	rect = spinBox()->downRect();
 	break;
     default:
 	rect = widget()->rect();
+	break;
     }
     QPoint tl = widget()->mapToGlobal(QPoint(0, 0));
     return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
 }
 
 /*! \reimp */
-int QAccessibleSpinWidget::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int QAccessibleSpinBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
+    
     if (entry) switch (rel) {
-    case QAccessible::Up:
-	return entry < childCount() ? entry + 1 : -1;
-    case QAccessible::Down:
-	return entry > 1 ? entry - 1 : -1;
+    case Child:
+	return entry <= childCount() ? entry : -1;
     case QAccessible::Left:
-	return -1;
+	return (entry == 2 || entry == 3) ? 1 : -1;
     case QAccessible::Right:
-	return -1;
-    default:
-	break;
+	return entry == 1 ? 2 : -1;
+    case QAccessible::Up:
+	return entry == 3 ? 2 : -1;
+    case QAccessible::Down:
+	return entry == 2 ? 3 : -1;
     }
-    return QAccessibleRangeControl::navigate(rel, entry, target);
+    return QAccessibleWidget::navigate(rel, entry, target);
 }
 
 /*! \reimp */
-int QAccessibleSpinWidget::childCount() const
-{
-    return 2;
-}
-
-/*! \reimp */
-QString QAccessibleSpinWidget::text(Text t, int child) const
+QString QAccessibleSpinBox::text(Text t, int child) const
 {
     switch (t) {
     case Name:
 	switch (child) {
-	case 1:
-	    return QSpinWidget::tr("More");
 	case 2:
+	    return QSpinWidget::tr("More");
+	case 3:
 	    return QSpinWidget::tr("Less");
-	default:
-	    break;
 	}
 	break;
-    default:
+    case Value:
+	if (child < 2)
+	    return spinBox()->text();
 	break;
     }
-    return QAccessibleRangeControl::text(t, child);
+    return QAccessibleWidget::text(t, 0);
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleSpinWidget::role(int child) const
+QAccessible::Role QAccessibleSpinBox::role(int child) const
 {
     switch(child) {
     case 1:
-	return PushButton;
+	return EditableText;
     case 2:
+	return PushButton;
+    case 3:
 	return PushButton;
     default:
 	break;
     }
-    return QAccessibleRangeControl::role(child);
+    return QAccessibleWidget::role(child);
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleSpinWidget::state(int child) const
+QAccessible::State QAccessibleSpinBox::state(int child) const
 {
-    int state = QAccessibleRangeControl::state(child);
+    int state = QAccessibleWidget::state(child);
     switch(child) {
-    case 1:
-	if (!((QSpinWidget*)widget())->isUpEnabled())
+    case 2:
+	if (spinBox()->value() >= spinBox()->maxValue())
 	    state |= Unavailable;
 	return (State)state;
-    case 2:
-	if (!((QSpinWidget*)widget())->isDownEnabled())
+    case 3:
+	if (spinBox()->value() <= spinBox()->minValue())
 	    state |= Unavailable;
 	return (State)state;
     default:
 	break;
     }
-    return QAccessibleRangeControl::state(child);
+    return (State)state;
 }
 
 /*! \reimp */
-bool QAccessibleSpinWidget::doAction(int action, int child)
+bool QAccessibleSpinBox::doAction(int action, int child)
 {
     if (action == Press) switch(child) {
-    case 1:
-	if (!((QSpinWidget*)widget())->isUpEnabled())
-	    return FALSE;
-	((QSpinWidget*)widget())->stepUp();
-	return TRUE;
     case 2:
-	if (!((QSpinWidget*)widget())->isDownEnabled())
+	if (spinBox()->value() >= spinBox()->maxValue())
 	    return FALSE;
-	((QSpinWidget*)widget())->stepDown();
+	spinBox()->stepUp();
+	return TRUE;
+    case 3:
+	if (spinBox()->value() <= spinBox()->minValue())
+	    return FALSE;
+	spinBox()->stepDown();
 	return TRUE;
     default:
 	break;
     }
-    return QAccessibleRangeControl::doAction(action, child);
+    return QAccessibleWidget::doAction(action, 0);
 }
 
 /*!
@@ -192,12 +162,13 @@ bool QAccessibleSpinWidget::doAction(int action, int child)
 
 /*!
   Constructs a QAccessibleScrollBar object for \a w.
-  \a name is propagated to the QAccessibleRangeControl constructor.
+  \a name is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleScrollBar::QAccessibleScrollBar(QWidget *w, const QString &name)
-: QAccessibleRangeControl(w, ScrollBar, name)
+: QAccessibleWidget(w, ScrollBar, name)
 {
     Q_ASSERT(scrollBar());
+    addControllingSignal("valueChanged(int)");
 }
 
 /*! Returns the scroll bar. */
@@ -214,10 +185,7 @@ QRect QAccessibleScrollBar::rect(int child) const
     int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, scrollBar());
     switch (child) {
     case 1:
-	if (scrollBar()->orientation() == Vertical)
-	    rect = QRect(0, 0, sz, sz);
-	else
-	    rect = QRect(0, 0, sz, sz);
+	rect = QRect(0, 0, sz, sz);
 	break;
     case 2:
 	if (scrollBar()->orientation() == Vertical)
@@ -241,7 +209,7 @@ QRect QAccessibleScrollBar::rect(int child) const
 	    rect = QRect(scrollBar()->rect().width() - sz, 0, sz, sz);
 	break;
     default:
-	return QAccessibleRangeControl::rect(child);
+	return QAccessibleWidget::rect(child);
     }
 
     QPoint tp = scrollBar()->mapToGlobal(QPoint(0,0));
@@ -259,9 +227,9 @@ QString	QAccessibleScrollBar::text(Text t, int child) const
 {
     switch (t) {
     case Value:
-	if (child && child != 3)
-	    return QString();
-	break;
+	if (!child || child == 3)
+	    return QString::number(scrollBar()->value());
+	return QString();
     case Name:
 	switch (child) {
 	case 1:
@@ -280,7 +248,7 @@ QString	QAccessibleScrollBar::text(Text t, int child) const
 	break;
 
     }
-    return QAccessibleRangeControl::text(t, child);
+    return QAccessibleWidget::text(t, child);
 }
 
 /*! \reimp */
@@ -326,12 +294,13 @@ bool QAccessibleScrollBar::doAction(int action, int child)
 
 /*!
   Constructs a QAccessibleScrollBar object for \a w.
-  \a name is propagated to the QAccessibleRangeControl constructor.
+  \a name is propagated to the QAccessibleWidget constructor.
 */
 QAccessibleSlider::QAccessibleSlider(QWidget *w, const QString &name)
-: QAccessibleRangeControl(w, Slider, name)
+: QAccessibleWidget(w, Slider, name)
 {
     Q_ASSERT(slider());
+    addControllingSignal("valueChanged(int)");
 }
 
 /*! Returns the slider. */
@@ -362,17 +331,11 @@ QRect QAccessibleSlider::rect(int child) const
 	    rect = QRect(srect.x() + srect.width(), 0, slider()->width() - srect.x() - srect.width(), slider()->height());
 	break;
     default:
-	return QAccessibleRangeControl::rect(child);
+	return QAccessibleWidget::rect(child);
     }
 
     QPoint tp = slider()->mapToGlobal(QPoint(0,0));
     return QRect(tp.x() + rect.x(), tp.y() + rect.y(), rect.width(), rect.height());
-}
-
-/*! \reimp */
-int QAccessibleSlider::relationTo(int child, const QAccessibleInterface *other, int otherChild)
-{
-    return QAccessibleRangeControl::relationTo(child, other, otherChild);
 }
 
 /*! \reimp */
@@ -386,9 +349,9 @@ QString	QAccessibleSlider::text(Text t, int child) const
 {
     switch (t) {
     case Value:
-	if (child && child != 2)
-	    return QString();
-	break;
+	if (!child || child == 2)
+	    return QString::number(slider()->value());
+	return QString();
     case Name:
 	switch (child) {
 	case 1:
@@ -402,7 +365,7 @@ QString	QAccessibleSlider::text(Text t, int child) const
     default:
 	break;
     }
-    return QAccessibleRangeControl::text(t, child);
+    return QAccessibleWidget::text(t, child);
 }
 
 /*! \reimp */
