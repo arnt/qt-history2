@@ -113,6 +113,9 @@ public:
 	: QObjectPrivate()
     {
 	reset();
+#if defined(Q_WS_X11)
+	xfd = -1;
+#endif // Q_WS_X11
     }
 
     inline void reset() {
@@ -121,9 +124,6 @@ public:
 	quitnow = FALSE;
 	exitloop = FALSE;
 	shortcut = FALSE;
-#if defined(Q_WS_X11)
-	xfd = -1;
-#endif // Q_WS_X11
     }
 
     int looplevel;
