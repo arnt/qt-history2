@@ -1110,6 +1110,8 @@ void QXmlInputSource::fetchData()
 */
 QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 {
+    if ( data.size() == 0 )
+	return QString::null;
     if ( beginning ) {
 	delete encMapper;
 	encMapper = 0;
