@@ -1436,16 +1436,6 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
     return v;
 }
 
-#ifndef QT_NO_XRENDER
-// ### REMOVE ME 3.1
-// polute the stack to work around an XRender bug in XFree86 4.1
-static void stack_ffffffff()
-{
-       long ffffffff[50];
-       for(int i =0; i < 50; i++)
-               ffffffff[i] = 0xffffffff;
-}
-#endif // QT_NO_XRENDER
 
 /*****************************************************************************
   qt_init() - initializes Qt for X11
@@ -1886,7 +1876,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	if (XRenderQueryExtension(appDpy, &xrender_eventbase, &xrender_errorbase)) {
 	    // XRender is supported, let's see if we have a PictFormat for the
 	    // default visual
-            stack_ffffffff();
 	    XRenderPictFormat *format =
 		XRenderFindVisualFormat(appDpy,
 					(Visual *) QPaintDevice::x_appvisual);
