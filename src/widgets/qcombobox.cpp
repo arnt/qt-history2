@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#154 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -415,12 +415,8 @@ void QComboBox::setStyle( GUIStyle s )
 	}
 
     }
-    if ( d->ed ) {
-//##### 	d->ed->setStyle( s );
+    if ( d->ed )
 	d->ed->setFrame( s == MotifStyle );
-    }
-//     if ( d->listBox )
-//##### 	d->listBox->setStyle( s );
 }
 
 
