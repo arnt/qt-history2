@@ -21,6 +21,7 @@ sql {
 		    $$SQL_H/qsqlresult.h \
 		    $$SQL_H/qsqlindex.h \
 		    $$SQL_H/qsqltable.h \
+		    $$SQL_H/qsqlpropertymap.h \
 		    $$SQL_H/qdatetimeedit.h
 
 	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
@@ -36,6 +37,7 @@ sql {
 		    $$SQL_CPP/qsqlresult.cpp \
 		    $$SQL_CPP/qsqlindex.cpp \
 		    $$SQL_CPP/qdatetimeedit.cpp \
+		    $$SQL_CPP/qsqlpropertymap.cpp \
 		    $$SQL_CPP/qsqltable.cpp
 
 	contains(sql-driver, all ) {

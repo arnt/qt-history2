@@ -37,7 +37,7 @@
 #include "qsqltable.h"
 #include "qsqldriver.h"
 #include "qsqleditorfactory.h"
-#include "qsqlform.h"
+#include "qsqlpropertymap.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"

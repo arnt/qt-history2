@@ -1,8 +1,8 @@
 /****************************************************************************
 **
-** Definition of QSqlForm class
+** Definition of QSqlPropertyMap class
 **
-** Created : 2000-11-03
+** Created : 2000-11-20
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
@@ -34,59 +34,41 @@
 **
 **********************************************************************/
 
-#ifndef QSQLFORM_H
-#define QSQLFORM_H
+#ifndef QSQLPROPERTYMAP_H
+#define QSQLPROPERTYMAP_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qvariant.h"
 #include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class QSqlField;
-class QSqlRecord;
-class QSqlCursor;
-class QSqlEditorFactory;
-class QSqlPropertyMap;
 class QWidget;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QWidget*, QSqlField*>;
+template class Q_EXPORT QMap<QString,QString>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QSqlForm : public QObject
-{
-    Q_OBJECT
+class Q_EXPORT QSqlPropertyMap {
 public:
-    QSqlForm( QObject * parent = 0, const char * name = 0 );
-    ~QSqlForm();
+    QSqlPropertyMap();
+    virtual ~QSqlPropertyMap();
 
-    virtual void insert( QWidget * widget, QSqlField * field );
-    virtual void remove( QWidget * widget );
-    uint         count() const;
+    QVariant      property( QWidget * widget );
+    virtual void  setProperty( QWidget * widget, const QVariant & value );
 
-    QWidget *   widget( uint i ) const;
-    QSqlField * widgetToField( QWidget * widget ) const;
-    QWidget *   fieldToWidget( QSqlField * field ) const;
+    void insert( const QString & classname, const QString & property );
+    void remove( const QString & classname );
 
-    void        installPropertyMap( QSqlPropertyMap * map );
-
-public slots:
-    virtual void readField( QWidget * widget );
-    virtual void writeField( QWidget * widget );
-    virtual void readFields();
-    virtual void writeFields();
-    
-    virtual void clear();
-    virtual void clearValues();
+    static QSqlPropertyMap * defaultMap();
+    static void installDefaultMap( QSqlPropertyMap * map );
 
 private:
-    QMap< QWidget *, QSqlField * > map;
-    QSqlPropertyMap * propertyMap;
+    QMap< QString, QString > propertyMap;
 };
 
 #endif // QT_NO_SQL
-#endif // QSQLFORM_H
+#endif // QSQLPROPERTYMAP_H
