@@ -261,7 +261,6 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QTabBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
-	connect( widget, SIGNAL(selected(int)), this, SLOT(tabBarSelectionChanged()) );
     } else if ( widget->inherits( "QHeader" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
@@ -1783,11 +1782,6 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	}
         break;
 
-    case QEvent::MouseButtonRelease:
-	if ( widget->inherits( "QTabBar" ) )
-	    widget->repaint( FALSE );
-	break;
-
     case QEvent::Enter:
 	if ( !widget->isActiveWindow() )
 	    break;
@@ -1820,14 +1814,6 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     }
 
     return QWindowsStyle::eventFilter( o, e );
-}
-
-void QWindowsXPStyle::tabBarSelectionChanged()
-{
-    const QObject *o = sender();
-    if ( !o->inherits( "QTabBar" ) )
-	return;
-    ((QWidget*)o)->repaint();
 }
 
 #endif //QT_NO_STYLE_WINDOWSXP

@@ -1889,44 +1889,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    qt_set_windows_resources();
 	break;
 
-    case WM_THEMECHANGED:
-	if ( qApp ) {
-	    qApp->style().unPolish( qApp );
-
-	    QWidgetList *list = qApp->allWidgets();
-	    if ( !qApp->closingDown() ) {		
-		QWidgetListIt it( *list );
-		register QETWidget *w;
-		while ( (w=(QETWidget*)it.current()) ) {		// for all widgets...
-		    ++it;
-		    if ( !w->testWFlags(Qt::WType_Desktop) ) {	// except desktop
-			if ( w->testWState(Qt::WState_Polished) )
-			    qApp->style().unPolish(w);		// repolish
-		    }
-		}
-	    }
-
-	    qApp->style().polish( qApp );
-
-	    if ( !qApp->closingDown() ) {
-		QWidgetListIt it( *list );
-		register QETWidget *w;
-		while ( (w=(QETWidget*)it.current()) ) {	// for all widgets...
-		    ++it;
-		    if ( !w->testWFlags(Qt::WType_Desktop) ) {	// except desktop
-			if ( w->testWState(Qt::WState_Polished) )
-			    qApp->style().polish(w);		// repolish
-			w->repolishStyle( qApp->style() );
-			if ( w->isVisible() ){
-			    w->update();
-			}
-		    }
-		}
-	    }
-	    delete list;
-	}
-	break;
-
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
@@ -2377,32 +2339,50 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		break;
 #endif
 #if defined (QT_TABLET_SUPPORT)
-	case WT_PACKET:
-	    // Get the packets and also don't link against the actual library...
-	    if ( ptrWTPacketsGet ) {
-		if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
-		    result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+	    case WT_PACKET:
+		// Get the packets and also don't link against the actual library...
+		if ( ptrWTPacketsGet ) {
+		    if ( (nPackets = ptrWTPacketsGet( hTab, NPACKETQSIZE, &localPacketBuf)) ) {
+			result = widget->translateTabletEvent( msg, localPacketBuf, nPackets );
+		    }
 		}
-	    }
-	    break;
-	case WT_PROXIMITY: 
-	    // flush the QUEUE
-	    if ( ptrWTPacketsGet )
-		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
-	    break;
+		break;
+	    case WT_PROXIMITY: 
+		// flush the QUEUE
+		if ( ptrWTPacketsGet )
+		    ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+		break;
 #endif
 
-	case WM_SETFOCUS:
-	    if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
-		widget->setFocus();
-	    break;
+	    case WM_SETFOCUS:
+		if ( !QWidget::find( (HWND)wParam ) ) // we didn't set focus, so set it now
+		    widget->setFocus();
+		break;
 
-	case WM_KILLFOCUS:
-	    if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
-		widget->clearFocus();
-	    break;
+	    case WM_KILLFOCUS:
+		if ( !QWidget::find( (HWND)wParam ) ) // we don't get focus, so unset it now
+		    widget->clearFocus();
+		break;
 
-	default:
+	    case WM_THEMECHANGED:
+		if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() )
+		    break;
+
+		qApp->style().unPolish( qApp );
+
+		if ( widget->testWState(Qt::WState_Polished) )
+		    qApp->style().unPolish(widget);
+
+		qApp->style().polish( qApp );
+
+		if ( widget->testWState(Qt::WState_Polished) )
+		    qApp->style().polish(widget);
+		widget->repolishStyle( qApp->style() );
+		if ( widget->isVisible() )
+		    widget->update();
+		break;
+
+	    default:
 		result = FALSE;			// event was not processed
 		break;
 
