@@ -909,7 +909,8 @@ void QFontPrivate::computeLineWidth()
 	lineWidth = nlw;
 }
 
-void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevice *dev, const QRegion *rgn, int dir)
+void QFontPrivate::drawText(int x, int y, const QString &s, int from, int len, 
+			    QPaintDevice *dev, const QRegion *rgn, int dir)
 {
     MoveTo(x, y);
     if(len < 1)
@@ -926,10 +927,10 @@ void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevic
 	task |= GIMME_WIDTH;
 #endif
 #ifdef QMAC_FONT_ATSUI
-    int w = do_text_task(this, s, 0, len, task, x, y, dev, rgn, dir);
+    int w = do_text_task(this, s, from, len, task, x, y, dev, rgn, dir);
 #else
     Q_UNUSED(rgn);
-    int w = do_text_task(this, s, 0, len, task, x, y);
+    int w = do_text_task(this, s, from, len, task, x, y);
 #endif
     
 #ifdef DEBUG_FONTMETRICS

@@ -1771,19 +1771,27 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     drawTile(this, x, y, w, h, pixmap, sx, sy);
 }
 
-
+#if 1
+void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::TextDirection dir)
+{
+    drawText(x, y, str, 0, len, dir);
+}
+void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
+{
+#else
 void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
 {
     drawText(x, y, str.mid(from), len, dir);
 }
-
 void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::TextDirection dir)
 {
+    int from = 0;
+#endif
     if(!isActive())
 	return;
     if(len < 0)
 	len = str.length();
-    if(len == 0)                             // empty string
+    if(len == 0 || from >= (int)str.length()-1)   // empty string
 	return;
 
     updateBrush();
@@ -1792,10 +1800,10 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
     if(testf(ExtDev)) {
 	QPDevCmdParam param[2];
 	QPoint p(x, y);
-	QString newstr = str.left(len);
+	QString newstr = str.mid(from, len);
 	param[0].point = &p;
 	param[1].str = &newstr;
-	if(!pdev->cmd(QPaintDevice::PdcDrawText2,this,param ) || !pdev->handle())
+	if(!pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !pdev->handle())
 	    return;
     }
 
@@ -1803,7 +1811,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
 	if(txop >= TxScale) {
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo    fi = fontInfo();
-	    QRect bbox = fm.boundingRect(str, len);
+	    QRect bbox = fm.boundingRect(str.mid(from), len);
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
@@ -1812,10 +1820,10 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
 	    QWMatrix mat2;
 	    if(txop <= TxScale && pdev->devType() != QInternal::Printer) {
 		double newSize = m22() * cfont.pointSizeFloat();
-		newSize = QMAX(6.0, QMIN( newSize, 72.0)); // empirical values
+		newSize = QMAX(6.0, QMIN(newSize, 72.0)); // empirical values
 		dfont.setPointSizeFloat(newSize);
 		QFontMetrics fm2(dfont);
-		QRect abbox = fm2.boundingRect(str, len);
+		QRect abbox = fm2.boundingRect(str.mid(from), len);
 		aw = abbox.width();
 		ah = abbox.height();
 		tx = -abbox.x();
@@ -1832,7 +1840,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
 	    }
 	    bool empty = aw == 0 || ah == 0;
 #ifndef QMAC_NO_CACHE_TEXT_XFORM
-	    QString bm_key = gen_text_bitmap_key(mat2, dfont, str, len);
+	    QString bm_key = gen_text_bitmap_key(mat2, dfont, str.mid(from), len);
 	    QBitmap *wx_bm = get_text_bitmap(bm_key);
 #else
 	    QBitmap *wx_bm = 0;
@@ -1843,7 +1851,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
 		QPainter paint(&bm);		// draw text in bitmap
 		paint.setPen(color1);
 		paint.setFont(dfont);
-		paint.drawText(tx, ty, str, len, dir);
+		paint.drawText(tx, ty, str, from, len, dir);
 		paint.end();
 
 		wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
@@ -1895,7 +1903,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
     x += d->offx;
     y += d->offy;
     if(bg_mode == OpaqueMode) {
-	QRect br = fontMetrics().boundingRect(str, len);
+	QRect br = fontMetrics().boundingRect(str.mid(from), len);
 	Rect r;
 	r.left = x + br.x();
 	r.top = y + br.y();
@@ -1912,7 +1920,7 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
     QFont *f = pfont;
     if(!f)
 	f = &cfont;
-    f->d->drawText(x, y, str, len, pdev, &d->cache.paintreg, dir);
+    f->d->drawText(x, y, str, from, len, pdev, &d->cache.paintreg, dir);
 }
 
 QPoint QPainter::pos() const
