@@ -43,7 +43,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
 
 class Q_EXPORT QTab
 {
@@ -161,6 +161,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_TABBAR
 
 #endif // QTABBAR_H

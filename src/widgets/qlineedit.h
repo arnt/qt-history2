@@ -49,7 +49,7 @@ class QValidator;
 #include "qstring.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_LINEEDIT
 
 class Q_EXPORT QLineEdit : public QWidget
 {
@@ -209,6 +209,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_LINEEDIT
 
 #endif // QLINEEDIT_H

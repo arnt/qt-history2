@@ -1068,6 +1068,7 @@ QWidget *QWidget::find( WId id )
   Returns the widget flags for this this widget.
 
   Widget flags are internal, not meant for public use.
+
   \sa testWFlags(), setWFlags(), clearWFlags()
 */
 
@@ -3811,6 +3812,9 @@ QSize QWidget::minimumSizeHint() const
   Returns TRUE if any of the widget flags in \e n are set. The
   widget flags are listed in qnamespace.h, and are strictly for
   internal use.
+
+  Widget flags are internal, not meant for public use.
+  \sa getWFlags(), setWFlags(), clearWFlags()
 */
 
 /*!

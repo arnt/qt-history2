@@ -44,3 +44,7 @@
 #define QT_NO_QWS_MACH64
 #define QT_NO_QWS_VOODOO3
 #define QT_NO_QWS_MATROX
+ 
+#if !defined(__i386__)
+#define QT_NO_QWS_VGA_16
+#endif

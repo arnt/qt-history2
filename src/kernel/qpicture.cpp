@@ -528,7 +528,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		    s.device()->at( s.device()->at()+len );
 	}
 #if defined(DEBUG)
-	//debug( "device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len );
+	//qDebug( "device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len );
 	ASSERT( s.device()->at() - strm_pos == len );
 #endif
     }

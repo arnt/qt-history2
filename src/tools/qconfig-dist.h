@@ -9,3 +9,7 @@
 // and where the application-suite is often a fixed set.
 
 #define QT_NO_IMAGEIO_MNG // not defined by default.
+
+#if !defined(__i386__)
+#define QT_NO_QWS_VGA_16
+#endif

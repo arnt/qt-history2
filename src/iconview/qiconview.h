@@ -75,6 +75,10 @@ struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
 
+class QStringList;
+
+#ifndef QT_NO_DRAGANDDROP
+
 /*****************************************************************************
  *
  * Class QIconDragItem
@@ -124,6 +128,8 @@ private:
     friend class QIconView;
     friend class QIconViewPrivate;
 };
+
+#endif
 
 /*****************************************************************************
  *

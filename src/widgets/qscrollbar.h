@@ -45,7 +45,7 @@ class QTimer;
 #include "qrangecontrol.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLBAR
 
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
@@ -182,6 +182,6 @@ inline int QScrollBar::sliderStart() const
 }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_SCROLLBAR
 
 #endif // QSCROLLBAR_H

@@ -1148,9 +1148,11 @@ void QWidget::setActiveWindow()
     QWidget *tlw = topLevelWidget();
     if ( tlw->isVisible() && !tlw->topData()->embedded ) {
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
-	
-	if ( tlw->topData()->xic)
-	    XSetICFocus((XIC) tlw->topData()->xic);
+
+#ifndef NO_XIM	
+	if (tlw->topData()->xic)
+	    XSetICFocus( (XIC) tlw->topData()->xic);
+#endif
     }
 }
 

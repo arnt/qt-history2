@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qwidgetstack.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_WIDGETSTACK
 
 #include "qobjectlist.h"
 #include "qobjectdict.h"

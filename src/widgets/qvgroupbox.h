@@ -42,7 +42,7 @@
 #include "qgroupbox.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VGROUPBOX
 
 class Q_EXPORT QVGroupBox : public QGroupBox
 {
@@ -59,6 +59,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_VGROUPBOX
 
 #endif // QVGROUPBOX_H

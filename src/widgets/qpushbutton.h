@@ -43,7 +43,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_PUSHBUTTON
 
 class Q_EXPORT QPushButton : public QButton
 {
@@ -127,6 +127,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_PUSHBUTTON
 
 #endif // QPUSHBUTTON_H

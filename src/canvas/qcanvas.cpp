@@ -914,9 +914,6 @@ void QCanvas::setChanged(const QRect& area)
 /*!
 \internal
 Redraw a given area of the QCanvas.
-
-### warwick, what do you mean:
-If only_changes then only changes to the area are redrawn.
 */
 void QCanvas::drawChanges(const QRect& inarea)
 {
@@ -958,11 +955,6 @@ void QCanvas::drawChanges(const QRect& inarea)
 /*!
 \internal
 Redraw a given area of the QCanvas.
-
-### warwick, what do you mean:
-If only_changes then only changes to the area are redrawn.
-
-If one_view then only one view is updated, otherwise all are.
 */
 void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
@@ -1413,7 +1405,7 @@ perhaps QCanvasRectangle or QCanvasSprite.
 /*!
 Constructs a QCanvasItem on \a canvas.
 
-\sa setCanvas(QCanvas*)
+\sa setCanvas()
 */
 QCanvasItem::QCanvasItem(QCanvas* canvas) :
     cnv(canvas),
@@ -3034,8 +3026,10 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 */
 void QCanvasPolygonalItem::setPen(QPen p)
 {
-    pn = p;
-    changeChunks();
+    if ( pn != p ) {
+	pn = p;
+	changeChunks();
+    }
 }
 
 /*!
@@ -3045,9 +3039,10 @@ void QCanvasPolygonalItem::setPen(QPen p)
 */
 void QCanvasPolygonalItem::setBrush(QBrush b)
 {
-    // ### if transparent, needn't add to inner chunks
-    br = b;
-    changeChunks();
+    if ( br != b) {
+	br = b;
+	changeChunks();
+    }
 }
 
 
@@ -3582,6 +3577,7 @@ QCanvasText::QCanvasText(const QString& t, QFont f, QCanvas* canvas) :
 */
 QCanvasText::~QCanvasText()
 {
+    removeFromChunks();
 }
 
 /*!

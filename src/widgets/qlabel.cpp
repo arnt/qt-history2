@@ -855,13 +855,17 @@ void QLabel::updateLabel( QSize oldSizeHint )
 #ifndef QT_NO_RICHTEXT
 	doc ||
 #endif
-	(align & WordBreak) )
-	policy.setHeightForWidth( TRUE );
-    else
+	(align & WordBreak) ) {
+	if ( policy == QSizePolicy( QSizePolicy::Minimum,
+				    QSizePolicy::Minimum ) )
+	    policy = QSizePolicy( QSizePolicy::Preferred,
+				  QSizePolicy::Preferred, TRUE );
+	else
+	    policy.setHeightForWidth( TRUE );
+    } else {
 	policy.setHeightForWidth( FALSE );
-
+    }
     setSizePolicy( policy );
-
     QRect cr = contentsRect();
     if ( sizeHint() != oldSizeHint )
 	updateGeometry();

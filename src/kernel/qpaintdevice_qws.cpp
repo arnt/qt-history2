@@ -303,7 +303,7 @@ int QPaintDevice::bytesPerLine() const
 
 // We should maybe return an extended-device Gfx by default here
 
-QGfx * QPaintDevice::graphicsContext() const
+QGfx * QPaintDevice::graphicsContext(bool) const
 {
     qFatal("QGfx requested for QPaintDevice");
     return 0;

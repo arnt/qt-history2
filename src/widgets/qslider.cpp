@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qslider.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SLIDER
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qtimer.h"

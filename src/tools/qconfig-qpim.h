@@ -11,13 +11,14 @@
 //#define QT_DEMO_LINUX
 //#define QT_DEMO_SINGLE_FLOPPY
 //#define QT_QWS_IPAQ
+#define QT_QWS_CASSIOPEIA
 
 #ifndef QT_DLL
 #define QT_DLL // Internal
 #endif
 
 #define QT_NO_PROCESS
-#ifdef QT_QWS_IPAQ
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_CASSIOPEIA)
 # define QT_NO_QWS_CURSOR
 #endif
 #define QT_NO_CODECS
@@ -68,14 +69,13 @@
 
 #if defined(QT_DEMO_LINUX) || defined(QT_DEMO_SINGLE_FLOPPY)
 #define QT_NO_QWS_VFB
-#ifndef QT_QWS_IPAQ
-#define QT_NO_QWS_TRANSFORMED
-#endif
+#define NO_CHECK
 #endif
 
 //The new richtext stuff requires networkprotocol
 
 #ifdef QT_DEMO_SINGLE_FLOPPY 
+#define QT_NO_QWS_TRANSFORMED
 #define QT_NO_NETWORK
 #define QT_NO_NETWORKPROTOCOL
 #else
@@ -90,6 +90,8 @@
 #define QT_NO_QWS_MATROX
 #define QT_NO_QWS_DEPTH_16
 #define QT_NO_QWS_DEPTH_32
+#else
+#define QT_NO_QWS_VGA_16
 #endif
 
 // Doesn't compile

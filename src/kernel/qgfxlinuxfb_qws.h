@@ -66,6 +66,7 @@ private:
     int startuph;
     int startupd;
     fb_cmap *startcmap;
+    int dataoffset;
 };
 
 #endif

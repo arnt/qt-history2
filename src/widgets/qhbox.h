@@ -39,7 +39,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_HBOX
 
 #include "qframe.h"
 
@@ -62,6 +62,6 @@ private:
     QBoxLayout *lay;
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_HBOX
 
 #endif // QHBOX_H

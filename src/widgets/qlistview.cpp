@@ -4542,15 +4542,13 @@ void QCheckListItem::init()
     exclusive = 0;
 }
 
-
 /*!  Destroys the item, deleting all its children, freeing up all
   allocated resources.
 */
 QCheckListItem::~QCheckListItem()
 {
-    delete reserved;
+    delete (QCheckListItemPrivate*)reserved;
 }
-
 
 /*! \fn QCheckListItem::Type QCheckListItem::type() const
 

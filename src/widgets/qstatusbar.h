@@ -42,7 +42,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_STATUSBAR
 
 
 class QStatusBarPrivate;
@@ -84,6 +84,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_STATUSBAR
 
 #endif // QSTATUSBAR_H

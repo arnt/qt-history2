@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qlineedit.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_LINEEDIT
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qfontmetrics.h"

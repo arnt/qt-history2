@@ -567,7 +567,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
     }
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	//debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
+	//qDebug( "xdnd drag position from unexpected source (%08lx not %08lx)",
 	//     l[0], qt_xdnd_dragsource_xid );
 	return;
     }
@@ -704,7 +704,7 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe, bool /*passive*/ )
 
 void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe, bool /*passive*/ )
 {
-    //debug( "xdnd leave" );
+    //qDebug( "xdnd leave" );
     if ( !qt_xdnd_current_widget ||
 	 w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget() ) {
 	return; // sanity
@@ -723,7 +723,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe, bool /*passive*/ )
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
 	// This often happens - leave other-process window quickly
-	//debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
+	//qDebug( "xdnd drag leave from unexpected source (%08lx not %08lx",
 	       //l[0], qt_xdnd_dragsource_xid );
 	qt_xdnd_current_widget = 0;
 	return;
@@ -785,10 +785,10 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe, bool passive )
     }
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    //debug( "xdnd drop" );
+    //qDebug( "xdnd drop" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	//debug( "xdnd drop from unexpected source (%08lx not %08lx",
+	//qDebug( "xdnd drop from unexpected source (%08lx not %08lx",
 	//       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
@@ -1433,7 +1433,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 								qt_xdnd_selection,
 								nbytes, FALSE );
 		} else if ( type != *a ) {
-		    // (includes None) debug( "Qt clipboard: unknown atom %ld", type);
+		    // (includes None) qDebug( "Qt clipboard: unknown atom %ld", type);
 		}
 #if 0
 		// this needs to be matched by a qt_xdnd_target_data->clear()

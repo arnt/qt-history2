@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qtabwidget.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABWIDGET
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qtabbar.h"

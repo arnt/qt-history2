@@ -44,7 +44,7 @@
 #include "qlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MULTILINEEDIT
 
 struct QMultiLineData;
 class QMultiLineEditCommand;
@@ -378,6 +378,6 @@ inline int QMultiLineEdit::numLines() const
     return contents->count();
 }
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_MULTILINEEDIT
 
 #endif // QMULTILINED_H

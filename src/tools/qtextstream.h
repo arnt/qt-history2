@@ -57,7 +57,10 @@ public:
 		    UnicodeReverse, RawUnicode, UnicodeUTF8 };
 
     void	setEncoding( Encoding );
+#ifndef QT_NO_TEXTCODEC
     void	setCodec( QTextCodec* );
+#endif
+
     //    Encoding encoding() const { return cmode; }
 
     QTextStream();

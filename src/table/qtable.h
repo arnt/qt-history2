@@ -373,6 +373,7 @@ public:
     };
 
     QTableHeader( int, QTable *t, QWidget *parent=0, const char *name=0 );
+    ~QTableHeader() {};
     void addLabel( const QString &s , int size );
 
     void setSectionState( int s, SectionState state );

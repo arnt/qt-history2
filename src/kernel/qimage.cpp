@@ -816,11 +816,19 @@ void QImage::fill( uint pixel )
 
 void QImage::invertPixels( bool invertAlpha )
 {
-    Q_UINT32 *p = (Q_UINT32*)bits();
-    Q_UINT32 *end = p + numBytes()/4;
-    uint xorbits = invertAlpha && depth() == 32 ? 0x00ffffff : 0xffffffff;
-    while ( p < end )
-	*p++ ^= xorbits;
+    Q_UINT32 n = numBytes();
+    if ( n % 4 ) {
+	Q_UINT8 *p = (Q_UINT8*)bits();
+	Q_UINT8 *end = p + n;
+	while ( p < end )
+	    *p++ ^= 0xff;
+    } else {
+	Q_UINT32 *p = (Q_UINT32*)bits();
+	Q_UINT32 *end = p + n/4;
+	uint xorbits = invertAlpha && depth() == 32 ? 0x00ffffff : 0xffffffff;
+	while ( p < end )
+	    *p++ ^= xorbits;
+    }
 }
 
 
@@ -1002,8 +1010,15 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( data->ncols != numColors )		// could not alloc color table
 	return FALSE;
 
-    int bpl    = ((width*depth+31)/32)*4;	// bytes per scanline
-    int pad    = bpl - (width*depth)/8;		// pad with zeros
+// Qt/Embedded doesn't want to waste memory on un-necessary padding.
+#ifdef _WS_QWS_
+    const int bpl = (width*depth+7)/8;		// bytes per scanline
+    const int pad = 0;
+#else
+    const int bpl = ((width*depth+31)/32)*4;	// bytes per scanline
+    // #### WWA: shouldn't this be (width*depth+7)/8:
+    const int pad = bpl - (width*depth)/8;	// pad with zeros
+#endif
     int nbytes = bpl*height;			// image size
     int ptbl   = height*sizeof(uchar*);		// pointer table size
     int size   = nbytes + ptbl;			// total size of data block
@@ -1018,7 +1033,8 @@ bool QImage::create( int width, int height, int depth, int numColors,
     data->nbytes  = nbytes;
     data->bitordr = bitOrder;
     data->bits = p;				// set image pointer
-    uchar *d = (uchar*)p + ptbl;		// setup scanline pointers
+    //uchar *d = (uchar*)p + ptbl;		// setup scanline pointers
+    uchar *d = (uchar*)(p + height);		// setup scanline pointers
     while ( height-- ) {
 	*p++ = d;
 	if ( pad )
@@ -3053,7 +3069,8 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   read.  See the QMovie for loading multiple images.
 
   PBM, PGM, and PPM format \e output is always in the more condensed
-  raw format.
+  raw format. PPM and PGM files with more than 256 levels of intensity
+  are scaled down when reading.
 
   \warning Unisys has changed its position regarding GIF.  If you are
   in a country where Unisys holds a patent on LZW compression and/or
@@ -4265,8 +4282,9 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc < 0 || mcc > 32767 )
 	return;					// weird P.M image
 
-    if ( mcc > 255 )
-	mcc = 255;
+    int maxc = mcc;
+    if ( maxc > 255 )
+	maxc = 255;
     image.create( w, h, nbits, 0,
 		  nbits == 1 ? QImage::BigEndian :  QImage::IgnoreEndian );
     if ( image.isNull() )
@@ -4316,18 +4334,34 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 		    *p++ = b;
 		}
 	    } else if ( nbits == 8 ) {
-		while ( n-- ) {
-		    *p++ = read_pbm_int( d );
+		if ( mcc == maxc ) {
+		    while ( n-- ) {
+			*p++ = read_pbm_int( d );
+		    }
+		} else {
+		    while ( n-- ) {
+			*p++ = read_pbm_int( d ) * maxc / mcc;
+		    }
 		}
 	    } else {				// 32 bits
 		n /= 4;
 		int r, g, b;
-		while ( n-- ) {
-		    r = read_pbm_int( d );
-		    g = read_pbm_int( d );
-		    b = read_pbm_int( d );
-		    *((QRgb*)p) = qRgb( r, g, b );
-		    p += 4;
+		if ( mcc == maxc ) {
+		    while ( n-- ) {
+			r = read_pbm_int( d );
+			g = read_pbm_int( d );
+			b = read_pbm_int( d );
+			*((QRgb*)p) = qRgb( r, g, b );
+			p += 4;
+		    }
+		} else {
+		    while ( n-- ) {
+			r = read_pbm_int( d ) * maxc / mcc;
+			g = read_pbm_int( d ) * maxc / mcc;
+			b = read_pbm_int( d ) * maxc / mcc;
+			*((QRgb*)p) = qRgb( r, g, b );
+			p += 4;
+		    }
 		}
 	    }
 	}
@@ -4338,9 +4372,9 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	image.setColor( 0, qRgb(255,255,255) ); // white
 	image.setColor( 1, qRgb(0,0,0) );	// black
     } else if ( nbits == 8 ) {			// graymap
-	image.setNumColors( mcc+1 );
-	for ( int i=0; i<=mcc; i++ )
-	    image.setColor( i, qRgb(i*255/mcc,i*255/mcc,i*255/mcc) );
+	image.setNumColors( maxc+1 );
+	for ( int i=0; i<=maxc; i++ )
+	    image.setColor( i, qRgb(i*255/maxc,i*255/maxc,i*255/maxc) );
     }
 
     iio->setImage( image );

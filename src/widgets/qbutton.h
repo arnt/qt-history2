@@ -42,7 +42,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_BUTTON
 
 
 class QButtonGroup;
@@ -221,6 +221,6 @@ inline QButton::ToggleType QButton::toggleType() const
 }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_BUTTON
 
 #endif // QBUTTON_H

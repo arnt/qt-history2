@@ -289,6 +289,13 @@ public:
 	init();
     }
 
+    ~QWSDisplayData()
+    {
+	qt_screen->disconnect();
+	delete qt_screen;
+	qt_screen = 0;
+    }
+
     //####public data members
 
     QWSRegionManager *rgnMan;
@@ -552,21 +559,25 @@ void QWSDisplayData::fillQueue()
 	    unused_identifiers.append(ce->simpleData.objectid);
 	    delete e;
 	} else if ( e->type == QWSEvent::Mouse ) {
-	    if ( mouse_event ) {
-		if ( (mouse_event->window() != e->window ()
-		      || mouse_event->simpleData.state !=
-		      ((QWSMouseEvent*)e)->simpleData.state )) {
-		    queue.append( mouse_event );
-		} else {
-		    delete mouse_event;
+	    if ( !qt_screen ) {
+		delete e;
+	    } else {
+		if ( mouse_event ) {
+		    if ( (mouse_event->window() != e->window ()
+			  || mouse_event->simpleData.state !=
+			  ((QWSMouseEvent*)e)->simpleData.state )) {
+			queue.append( mouse_event );
+		    } else {
+			delete mouse_event;
+		    }
 		}
+		mouse_event = (QWSMouseEvent*)e;
+		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+		QPoint p(mouse_event->simpleData.x_root, mouse_event->simpleData.y_root);
+		p = qt_screen->mapFromDevice( p, s );
+		mouse_event->simpleData.x_root = p.x();
+		mouse_event->simpleData.y_root = p.y();
 	    }
-	    mouse_event = (QWSMouseEvent*)e;
-	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-	    QPoint p(mouse_event->simpleData.x_root, mouse_event->simpleData.y_root);
-	    p = qt_screen->mapFromDevice( p, s );
-	    mouse_event->simpleData.x_root = p.x();
-	    mouse_event->simpleData.y_root = p.y();
 	} else if ( e->type == QWSEvent::RegionModified ) {
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
 	    if ( re->simpleData.is_ack ) {
@@ -580,7 +591,7 @@ void QWSDisplayData::fillQueue()
 				 region_event->simpleData.nrectangles );
 		    QRegion ur = r1 + r2;
 		    region_event->setData( (char *)ur.rects().data(),
-					    ur.rects().count() * sizeof(QRect), TRUE );
+					   ur.rects().count() * sizeof(QRect), TRUE );
 		    region_event->simpleData.nrectangles = ur.rects().count();
 		    delete e;
 		} else {
@@ -661,14 +672,18 @@ void QWSDisplayData::waitForCreation()
 #ifndef QT_NO_COP
 void QWSDisplayData::waitForQCopResponse()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
+#endif
     while ( 1 ) {
 	fillQueue();
 	if ( qcop_response )
 	    break;
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if ( csocket )
 	    csocket->waitForMore(1000);
+#endif
     }
     queue.prepend(qcop_response);
     qcop_response = 0;
@@ -679,6 +694,11 @@ void QWSDisplayData::waitForQCopResponse()
 QWSDisplay::QWSDisplay()
 {
     d = new QWSDisplayData( 0, qws_single_process );
+}
+
+QWSDisplay::~QWSDisplay()
+{
+    delete d;
 }
 
 QGfx * QWSDisplay::screenGfx()
@@ -1229,7 +1249,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 #if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
-
 }
 
 /*****************************************************************************
@@ -1838,7 +1857,13 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock(FALSE);
+#endif
+
     enter_loop();
+
     return quit_code;
 }
 
@@ -1857,8 +1882,12 @@ bool QApplication::processNextEvent( bool canWait )
 	sendPostedEvents();
 
 	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
-	    if ( app_exit_loop )		// quit between events
+	    if ( app_exit_loop ) {		// quit between events
+#if defined(QT_THREAD_SUPPORT)
+		    qApp->unlock(FALSE);
+#endif
 		return FALSE;
+	    }
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
 	    nevents++;
 
@@ -3258,18 +3287,16 @@ int QApplication::wheelScrollLines()
     return 0;
 }
 
-#if defined(QT_THREAD_SUPPORT)
-
 void QApplication::wakeUpGuiThread()
 {
+#if defined(QT_THREAD_SUPPORT)
     char c = 0;
     int nbytes;
-    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+    if ( ::ioctl(qt_thread_pipe[0], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );
     }
-}
-
 #endif
+}
 
 void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 {
@@ -3367,8 +3394,12 @@ QCopChannel::QCopChannel( const QCString& channel )
 
     // do we need a new channel list ?
     QCopClientMap::Iterator it = qcopClientMap->find( channel );
-    if ( it == qcopClientMap->end() )
-	it = qcopClientMap->insert( channel, QList<QCopChannel>() );
+    if ( it != qcopClientMap->end() ) {
+	it.data().append( this );
+	return;
+    }
+
+    it = qcopClientMap->insert( channel, QList<QCopChannel>() );
     it.data().append( this );
 
     // inform server about this channel
@@ -3495,6 +3526,20 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
     it.data().append( cl );
 }
 
+/*!
+  \internal
+  Server side: unsubscribe \a cl from all channels.
+ */
+
+void QCopChannel::detach( const QWSClient *cl )
+{
+    if ( !qcopServerMap )
+	return;
+
+    QCopServerMap::Iterator it = qcopServerMap->begin();
+    for ( ; it != qcopServerMap->end(); it++ )
+	it.data().removeRef( cl );
+}
 
 /*!
   \internal

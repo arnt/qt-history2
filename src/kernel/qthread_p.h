@@ -42,6 +42,11 @@
 
 #include <errno.h>
 #include <unistd.h>
+#ifdef QWS
+#include <qptrdict.h>
+#else
+#include <qintdict.h>
+#endif
 
 
 // Thread definitions for UNIX platforms

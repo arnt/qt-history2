@@ -43,7 +43,7 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SLIDER
 
 
 class QTimer;
@@ -183,6 +183,6 @@ inline QSlider::Orientation QSlider::orientation() const
 }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_SLIDER
 
 #endif // QSLIDER_H

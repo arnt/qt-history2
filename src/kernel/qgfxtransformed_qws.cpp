@@ -239,23 +239,7 @@ QImage QTransformedScreen::mapToDevice( const QImage &img ) const
 	h = img.width();
     }
 
-    QImage rimg;
-    if ( img.depth() > 8 ) {
-	rimg = QImage( w, h, img.depth(), img.numColors(), img.bitOrder() );
-    } else {
-	// Unpadded
-	int linestep = (w * img.depth() + 7) / 8;
-	uchar* unpadded_data = new uchar[h*linestep];
-	QRgb* cmap;
-	int nc = img.numColors();
-	if ( nc ) {
-	    cmap = new QRgb[nc];
-	} else {
-	    cmap = 0;
-	}
-	rimg = QImage( unpadded_data, w, h,
-		img.depth(), linestep, cmap, nc, img.bitOrder() );
-    }
+    QImage rimg( w, h, img.depth(), img.numColors(), img.bitOrder() );
 
     for ( int i = 0; i < img.numColors(); i++ ) {
 	rimg.colorTable()[i] = img.colorTable()[i];
@@ -466,11 +450,12 @@ public:
 
 protected:
     virtual void setSourceWidgetOffset( int x, int y );
+    bool inDraw;
 };
 
 template <const int depth, const int type>
 QGfxTransformedRaster<depth,type>::QGfxTransformedRaster(unsigned char *b,int w,int h)
-: QGfxRaster<depth,type>( b, w, h )
+: QGfxRaster<depth,type>( b, w, h ), inDraw( FALSE )
 {
 }
 
@@ -532,8 +517,14 @@ void QGfxTransformedRaster<depth,type>::drawPoints( const QPointArray &a, int id
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 {
-    QGfxRaster<depth,type>::drawLine( tx(x1,y1), ty(x1,y1),
-				      tx(x2,y2), ty(x2,y2) );
+    if ( inDraw ) {
+	QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
+    } else {
+	inDraw = TRUE;
+	QGfxRaster<depth,type>::drawLine( tx(x1,y1), ty(x1,y1),
+					  tx(x2,y2), ty(x2,y2) );
+	inDraw = FALSE;
+    }
 }
 
 template <const int depth, const int type>
@@ -552,29 +543,21 @@ void QGfxTransformedRaster<depth,type>::fillRect( int x, int y, int w, int h )
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool w, int idx, int num )
 {
-    QPointArray na( num );
+    if ( inDraw ) {
+	QGfxRaster<depth,type>::drawPolygon( a, w, idx, num );
+    } else {
+	inDraw = TRUE;
+	QPointArray na( num );
 
-    for ( int i = 0; i < num; i++ ) {
-	int x, y;
-	a.point( i+idx, &x, &y );
-	na.setPoint( i, tx(x,y), ty(x,y) );
-    }
+	for ( int i = 0; i < num; i++ ) {
+	    int x, y;
+	    a.point( i+idx, &x, &y );
+	    na.setPoint( i, tx(x,y), ty(x,y) );
+	}
 
-    if((*optype)!=0) {
-	sync();
+	QGfxRaster<depth,type>::drawPolygon( na, w, 0, num );
+	inDraw = FALSE;
     }
-    (*optype)=0;
-    useBrush();
-    GFX_START(clipbounds)
-    if ( cbrush.style() != QBrush::NoBrush )
-	scan( na, w, 0, num );
-
-    drawPolyline(a, idx, num);
-    if (a[idx] != a[idx+num-1]) {
-	drawLine( a[idx].x(), a[idx].y(),
-		a[idx+num-1].x(), a[idx+num-1].y() );
-    }
-    GFX_END
 }
 
 template <const int depth, const int type>

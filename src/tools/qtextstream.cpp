@@ -193,10 +193,14 @@ const int QTextStream::floatfield  = ( QTextStream::scientific |
 
 class QTextStreamPrivate {
 public:
-    QTextStreamPrivate(): decoder( 0 ), sourceType( NotSet ) {}
+#ifndef QT_NO_TEXTCODEC
+    QTextStreamPrivate() : decoder( 0 ), sourceType( NotSet ) {}
     ~QTextStreamPrivate() { delete decoder; }
-
     QTextDecoder *decoder;		//???
+#else
+    QTextStreamPrivate() : sourceType( NotSet ) {}
+    ~QTextStreamPrivate() { }
+#endif
     QString ungetcBuf;
 
     enum SourceType { NotSet, IODevice, String, ByteArray, File };
@@ -664,6 +668,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	}
     }
 
+#ifndef QT_NO_TEXTCODEC
     if ( mapper ) {
 	bool shortRead = FALSE;
 	if ( !d->decoder )
@@ -724,7 +729,9 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    if ( shortRead )
 		return rnum;
 	}
-    } else if ( latin1 ) {
+    } else
+#endif
+    if ( latin1 ) {
 	if ( len == 1+rnum ) {
 	    // use this method for one character because it is more efficient
 	    // (arnt doubts whether it makes a difference, but lets it stand)
@@ -896,12 +903,15 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 */
 void QTextStream::ts_putc( QChar c )
 {
+#ifndef QT_NO_TEXTCODEC
     if ( mapper ) {
 	int len = 1;
 	QString s = c;
 	QCString block = mapper->fromUnicode( s, len );
 	dev->writeBlock( block, len );
-    } else if ( latin1 ) {
+    } else
+#endif
+    if ( latin1 ) {
 	if( c.row() )
 	    dev->putch( '?' ); //######unknown character???
 	else
@@ -2282,7 +2292,11 @@ void QTextStream::setEncoding( Encoding e )
 	internalOrder = TRUE;
 	break;
     case UnicodeUTF8:
+#ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForMib( 106 );
+#else
+	mapper = 0;
+#endif
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
 	internalOrder = TRUE;
@@ -2307,12 +2321,14 @@ void QTextStream::setEncoding( Encoding e )
 	break;
     case Locale:
 	latin1 = TRUE; 				// fallback to Latin 1
+#ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForLocale();
 #if defined(_OS_WIN32_)
 	if ( GetACP() == 1252 )
 	    mapper = 0;				// Optimized latin1 processing
 #endif
 	if ( mapper && mapper->mibEnum() == 4 )
+#endif
 	    mapper = 0;				// Optimized latin1 processing
 	doUnicodeHeader = TRUE; // If it reads as Unicode, accept it
 	break;
@@ -2325,6 +2341,7 @@ void QTextStream::setEncoding( Encoding e )
 }
 
 
+#ifndef QT_NO_TEXTCODEC
 /*!  Sets the codec for this stream to \a codec. Will not try to
   autodetect Unicode.
 
@@ -2341,5 +2358,6 @@ void QTextStream::setCodec( QTextCodec *codec )
     mapper = codec;
     doUnicodeHeader = FALSE;
 }
+#endif
 
 #endif // QT_NO_TEXTSTREAM

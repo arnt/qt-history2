@@ -680,6 +680,11 @@ void QWSServer::clientClosed()
 	}
     }
 
+#ifndef QT_NO_COP
+    // Enfore unsubscription from all channels.
+    QCopChannel::detach( cl );
+#endif    
+    
     QRegion exposed;
     {
 	// Shut down all windows for this client
@@ -701,7 +706,7 @@ void QWSServer::clientClosed()
 		if ( mouseGrabber == w ) {
 		    mouseGrabber = 0;
 		    mouseGrabbing = FALSE;
-#ifndef QT_NO_CURSOR
+#ifndef QT_NO_QWS_CURSOR
 		    if (nextCursor) {
 			// Not grabbing -> set the correct cursor
 			setCursor(nextCursor);
@@ -968,7 +973,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	(*it)->sendEvent( &event );
 
     if ( !state && !qwsServer->mouseGrabbing ) {
-#ifndef QT_NO_CURSOR
+#ifndef QT_NO_QWS_CURSOR
 	if (qwsServer->mouseGrabber && qwsServer->nextCursor) {
 	    qwsServer->setCursor(qwsServer->nextCursor);
 	    qwsServer->nextCursor = 0;
@@ -1392,7 +1397,7 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	if ( !cmd->simpleData.grab ) {
 	    mouseGrabbing = FALSE;
 	    mouseGrabber = 0;
-#ifndef QT_NO_CURSOR
+#ifndef QT_NO_QWS_CURSOR
 	    if (nextCursor) {
 		// Not grabbing -> set the correct cursor
 		setCursor(nextCursor);

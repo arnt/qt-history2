@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qspinbox.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SPINBOX
 
 #include "qspinbox.h"
 #include "qcursor.h"

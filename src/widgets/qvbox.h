@@ -42,7 +42,7 @@
 #include "qhbox.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VBOX
 
 class Q_EXPORT QVBox : public QHBox
 {
@@ -56,6 +56,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_VBOX
 
 #endif // QVBOX_H

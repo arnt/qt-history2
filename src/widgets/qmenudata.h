@@ -43,7 +43,7 @@
 #include "qiconset.h" // conversion QPixmap->QIconset
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MENUDATA
 
 class QPopupMenu;
 class QMenuDataData;
@@ -277,6 +277,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_MENUDATA
 
 #endif // QMENUDATA_H

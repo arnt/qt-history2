@@ -777,7 +777,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 #endif // QT_NO_TRANSFORMATIONS
 
 // CALLER DELETES
-QGfx * QPixmap::graphicsContext() const
+QGfx * QPixmap::graphicsContext(bool) const
 {
     if(isNull()) {
 	qDebug("Can't make QGfx for null pixmap\n");

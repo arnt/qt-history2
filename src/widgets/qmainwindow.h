@@ -44,7 +44,7 @@
 #include "qlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MAINWINDOW
 
 class QMenuBar;
 class QStatusBar;
@@ -218,6 +218,6 @@ inline void QMainWindow::setToolBarsMovable( bool b )
     setDockWindowsMovable( b );
 }
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_MAINWINDOW
 
 #endif // QMAINWINDOW_H

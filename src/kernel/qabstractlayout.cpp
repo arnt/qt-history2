@@ -340,9 +340,10 @@ static QSize smartMinSize( const QWidgetItem *i )
 	s.setWidth( min.width() );
     if ( min.height() > 0 )
 	s.setHeight( min.height() );
+
     if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
-	    s.setHeight( i->heightForWidth( s.width() ) );
-    	
+	s.setHeight( i->heightForWidth( s.width() ) );
+    
     s = s.expandedTo( QSize(1,1) );
     return s;
 }
@@ -1447,6 +1448,12 @@ taller than sizeHint() says.
   width of the widget (for example, a QLabel with automatic word-breaking).
 */
 
+#if defined(__GNUC__) && __GNUC__ == 2 && __GNUC_MINOR__ == 96
+
+QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
+    : data( hor | (ver<<HSize) | (hfw ? (1<<2*HSize) : 0) ) {}
+
+#endif
 
 /*! \fn QSizePolicy::SizeType QSizePolicy::horData() const
 Returns the horizontal component of the size policy.

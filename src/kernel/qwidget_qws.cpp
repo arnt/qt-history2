@@ -880,63 +880,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
     }
 
-    /*
-    if( isMove && ( w==olds.width() && h==olds.height() ) &&
-	!isTopLevel() ) {
-	QGfx * mygfx=parentWidget()->graphicsContext();
-
-	QWidget * par=parentWidget();
-
-	// Code from paintableRegion
-	QRegion r;
-	if (par->isVisible()) {
-	    r = par->allocatedRegion();
-	    if (par->extra && par->extra->topextra)
-		r += par->extra->topextra->decor_allocated_region;
-	    const QObjectList *c = par->children();
-	    if ( c ) {
-		QObjectListIt it(*c);
-		QObject* ch;
-		while ((ch=it.current())) {
-		    ++it;
-		    if ( ch->isWidgetType() &&
-			 !((QWidget*)ch)->isTopLevel() &&
-			 ((QWidget *)ch)!=this) {
-			r -= ((QWidget*)ch)->requestedRegion();
-		    }
-		}
-	    }
-	}
-
-	QPoint a(x,y);
-        a=mapToGlobal(a);
-	QPoint b(oldp.x(),oldp.y());
-	b=mapToGlobal(b);
-
-	// If source and destination rect both within clipping region
-	// do it the fast way
-
-	if(r.fullyContains(QRect(a.x(),a.y(),w,h)) &&
-	   r.fullyContains(QRect(b.x(),b.y(),w,h))) {
-	    mygfx->setWidgetRegion(r);
-	    mygfx->setSource(parentWidget());
-	    mygfx->blt(x,y,w,h,oldp.x(),oldp.y());
-	    delete mygfx;
-	    QRect rp=QRect(oldp,olds);
-	    parentWidget()->repaint(rp);
-	    QRegion r2=QRegion(rp).subtract(r);
-	    int loopc;
-	    QArray<QRect> tmp=r2.rects();
-	    for(loopc=0;loopc<tmp.size();loopc++) {
-		paint_children(parentWidget(),tmp[loopc]);
-	    }
-	    QApplication::postEvent( this,
-				     new QMoveEvent( QPoint(x,y), oldp ) );
-	    return;
-	}
-    }
-    */
-
     if ( isVisible() ) {
 	isSettingGeometry = TRUE;
 	if ( isMove ) {
@@ -967,10 +910,22 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QWidget *p = parentWidget();
 	    if (p) {
 		QRegion oldr( QRect(oldp, olds) );
+		QRegion upd = QRegion(r) | oldr;
+//#define FAST_WIDGET_MOVE
+#ifdef FAST_WIDGET_MOVE
+		if ( isMove && ( w==olds.width() && h==olds.height() ) &&
+		    !isTopLevel() )
+		{
+		    QGfx * gfx = p->graphicsContext(FALSE);
+		    gfx->scroll(x,y,w,h,oldp.x(),oldp.y());
+		    upd -= QRegion(r);
+		    delete gfx;
+		}
+#endif
 		if ( p->isSettingGeometry ) {
 		    dirtyChildren.translate( x, y );
 		    if ( oldp != r.topLeft() ) {
-			dirtyChildren |= QRegion(r) | oldr;
+			dirtyChildren |= upd;
 			QApplication::postEvent( this, new QPaintEvent(rect(),
 			    !testWFlags(QWidget::WRepaintNoErase)) );
 		    } else {
@@ -980,7 +935,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    }
 		    p->addDirtyChildRegion( dirtyChildren );
 		} else {
-		    QRegion upd = QRegion(r) | oldr;
 		    dirtyChildren.translate( x, y );
 		    dirtyChildren |= upd;
 		    paint_children( p, dirtyChildren );
@@ -1460,14 +1414,14 @@ void QWidget::setName( const char *name )
     }
 }
 
-QGfx * QWidget::graphicsContext() const
+QGfx * QWidget::graphicsContext(bool clip_children) const
 {
     QGfx * qgfx_qws;
     qgfx_qws=qwsDisplay()->screenGfx();
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
     if ( isVisible() && topLevelWidget()->isVisible() ) {
-	r = paintableRegion();
+	r = clip_children ? paintableRegion() : allocatedRegion();
 	int rgnIdx = topLevelWidget()->alloc_region_index;
 	if ( rgnIdx >= 0 ) {
 	    QWSDisplay::grab();

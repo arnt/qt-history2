@@ -308,8 +308,8 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QListBoxItem
 {
 public:
-    QListBoxItem( QListBox* listbox = 0);
-    QListBoxItem( QListBox* listbox, QListBoxItem *after);
+    QListBoxItem( QListBox* listbox = 0 );
+    QListBoxItem( QListBox* listbox, QListBoxItem *after );
     virtual ~QListBoxItem();
 
     virtual QString text() const;

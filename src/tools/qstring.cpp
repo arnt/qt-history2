@@ -11100,6 +11100,7 @@ QChar::Category QChar::category() const
 #else
 // ### just ASCII
     if ( rw == 0 ) {
+	static const int punct[] = { ',', '.', ';', ':', '?', '!', 0 };
 	if ( cl >= '0' && cl <='9' )
 	    return Number_DecimalDigit;
 	if ( cl >= 'a' && cl <='z' )
@@ -11112,6 +11113,10 @@ QChar::Category QChar::category() const
 	    return Separator_Line;
 	if ( cl < ' ' )
 	    return Other_Control;
+	for ( int i = 0; punct[i]; i++ ) {
+	    if ( cl == punct[i] )
+		return Punctuation_Other;
+	}
 	return Symbol_Other; //#######
     }
     return Letter_Uppercase; //#######

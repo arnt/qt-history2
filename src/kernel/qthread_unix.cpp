@@ -291,6 +291,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   reaches the end of MyThread::run(), just as an application does when
   it leaves main().
 
+  See also the paragraph on <a href="threads.html">Thread Support in Qt</a>.
 */
 
 

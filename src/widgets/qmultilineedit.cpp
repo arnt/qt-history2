@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qmultilineedit.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MULTILINEEDIT
 #include "qpainter.h"
 #include "qscrollbar.h"
 #include "qcursor.h"

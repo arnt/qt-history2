@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qtableview.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABLEVIEW
 #include "qscrollbar.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

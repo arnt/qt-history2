@@ -412,7 +412,7 @@ public:
     QWidget  *childAt( const QPoint &, bool includeThis = FALSE ) const;
 
 #if defined(_WS_QWS_)
-    virtual QGfx * graphicsContext() const;
+    virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
 
 protected:

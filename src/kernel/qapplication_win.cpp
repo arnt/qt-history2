@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#415 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#416 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -44,11 +44,12 @@
 #include <ctype.h>
 #include "qt_windows.h"
 #include <limits.h>
-
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
 #endif
+
+static UINT WM95_MOUSEWHEEL = 0;
 
 #ifndef QT_MAKEDLL
 #include "qtmain_win.cpp"
@@ -152,21 +153,21 @@ static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
 
-typedef void  (*VFPTR)();
-typedef QList<void> QVFuncList;
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-// VFPTR qt_set_preselect_handler (VFPTR);
+// VFPTR qt_set_preselect_handler( VFPTR );
 static VFPTR qt_preselect_handler = 0;
-// VFPTR qt_set_postselect_handler (VFPTR);
+// VFPTR qt_set_postselect_handler( VFPTR );
 static VFPTR qt_postselect_handler = 0;
-Q_EXPORT VFPTR qt_set_preselect_handler (VFPTR handler)
+Q_EXPORT VFPTR qt_set_preselect_handler( VFPTR handler )
 {
     VFPTR old_handler = qt_preselect_handler;
     qt_preselect_handler = handler;
     return old_handler;
 }
-Q_EXPORT VFPTR qt_set_postselect_handler (VFPTR handler)
+Q_EXPORT VFPTR qt_set_postselect_handler( VFPTR handler )
 {
     VFPTR old_handler = qt_postselect_handler;
     qt_postselect_handler = handler;
@@ -634,11 +635,11 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 void qt_cleanup()
 {
     if ( postRList ) {
-	VFPTR f = (VFPTR)postRList->first();
-	while ( f ) {				// call post routines
-	    (*f)();
-	    postRList->remove();
-	    f = (VFPTR)postRList->first();
+	QVFuncList::Iterator it = postRList->begin();
+	while ( it != postRList->end() ) {	// call post routines
+	    (**it)();
+	    postRList->remove( it );
+	    it = postRList->begin();
 	}
 	delete postRList;
 	postRList = 0;
@@ -686,7 +687,7 @@ Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction p )
 	postRList = new QVFuncList;
 	CHECK_PTR( postRList );
     }
-    postRList->insert( 0, (void *)p );		// store at list head
+    postRList->prepend( p );
 }
 
 
@@ -1539,8 +1540,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
-	} else if ( message == WM95_MOUSEWHEEL ) {
-	    result = widget->translateWheelEvent( msg ); // win95 mousewheel support
+	} else if ( message == WM95_MOUSEWHEEL ) { 
+	    result = widget->translateWheelEvent( msg );
 	} else
 	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event

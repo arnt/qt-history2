@@ -86,8 +86,7 @@ signals:
     
 private slots:
     void	ownerDestroyed();
-    
-    
+
 protected:
     void	connectNotify( const char * );
     bool	event( QEvent * );

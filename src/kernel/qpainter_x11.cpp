@@ -2563,8 +2563,8 @@ static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
   that is to be drawn (the default is (0,0).
 
   Calling drawTiledPixmap() is similar to calling drawPixmap() several
-  times to fill (tile) an area with a pixmap, but can be much more
-  efficient.
+  times to fill (tile) an area with a pixmap, but is potentially
+  much more efficient depending on the underlying window system.
 
   \sa drawPixmap()
 */

@@ -95,8 +95,9 @@ private:
     Q_UINT16 data;
 };
 
+#if !(defined(__GNUC__) && __GNUC__ == 2 && __GNUC_MINOR__ == 96)
 inline QSizePolicy::QSizePolicy( SizeType hor, SizeType ver, bool hfw )
 	: data( hor | (ver<<HSize) | (hfw ? (1<<2*HSize) : 0) ) {}
-
+#endif
 
 #endif

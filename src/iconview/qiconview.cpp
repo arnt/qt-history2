@@ -2632,13 +2632,13 @@ int QIconView::index( const QIconViewItem *item ) const
 	return d->count - 1;
     else {
 	QIconViewItem *i = d->firstItem;
-	uint j = 0;
+	int j = 0;
 	while ( i && i != item ) {
 	    i = i->next;
 	    ++j;
 	}
 
-	return j;
+	return i ? j : -1;
     }
 }
 

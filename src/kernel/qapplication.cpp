@@ -417,7 +417,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if (qstricmp(arg, "-style=motifplus") == 0) {
 	    setStyle(new QMotifPlusStyle);
 #endif
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_STYLE
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
@@ -681,6 +681,13 @@ void QApplication::initialize( int argc, char **argv )
 #endif
     is_app_running = TRUE; // no longer starting up
 
+#ifdef _WS_QWS_
+    // This is in qapplication.cpp in qt/main
+    extern QRect qt_maxWindowRect;
+    if ( qt_is_gui_used )
+	qt_maxWindowRect = qApp->desktop()->rect();
+#endif
+
 #ifndef QT_NO_STYLE
 #if defined(_WS_X11_)
     if ( qt_is_gui_used )
@@ -716,7 +723,7 @@ void QApplication::initialize( int argc, char **argv )
     qInitPngIO();
 #endif
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_STYLE
     app_style->polish( *app_pal );
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
@@ -1323,7 +1330,7 @@ void QApplication::polish( QWidget *w )
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_STYLE
     w->style().polish( w );
 #endif
 }
@@ -2362,7 +2369,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	if ( w->topLevelWidget() == old_active || w->topLevelWidget()==active_window ) {
 	    QColorGroup acg = w->palette().active();
 	    QColorGroup icg = w->palette().inactive();
-	    if ( acg != icg &&
+	    if ( acg != icg && 
 		 ( acg.background() != icg.background() ||
 		   acg.base() != icg.base() ||
 		   acg.button() != icg.button() ||

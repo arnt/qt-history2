@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #include "qtooltip.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TOOLTIP
 #include "qlabel.h"
 #include "qptrdict.h"
 #include "qapplication.h"

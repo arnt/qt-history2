@@ -86,7 +86,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 				   int x, int y, int w, int h, const QColorGroup &g,
 				   int s, bool down, bool enabled )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_BUTTON
     QBrush fill;
     if ( s == QButton::NoChange ) {
 	QBrush b = p->brush();
@@ -435,7 +435,7 @@ void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 void
 QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_PUSHBUTTON
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
 
@@ -565,7 +565,7 @@ void QWindowsStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 /*! \reimp */
 void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool selected )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
     QRect r( t->rect() );
     bool reverse = QApplication::reverseLayout();
     if ( tb->shape()  == QTabBar::RoundedAbove ) {
@@ -703,7 +703,7 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
 				      int &sliderMin, int &sliderMax,
 				      int &sliderLength, int&buttonDim ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLBAR
     int maxLength;
     int b = 0;
     int length = HORIZONTAL ? sb->width()  : sb->height();
@@ -737,7 +737,7 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb,
  */
 void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLBAR
 #define ADD_LINE_ACTIVE ( activeControl == AddLine )
 #define SUB_LINE_ACTIVE ( activeControl == SubLine )
     QColorGroup g  = sb->colorGroup();
@@ -862,7 +862,7 @@ void QWindowsStyle::drawSlider( QPainter *p,
 			     const QColorGroup &g,
 			     Orientation orient, bool tickAbove, bool tickBelow )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SLIDER
     // 4444440
     // 4333310
     // 4322210
@@ -1193,7 +1193,7 @@ static const int windowsCheckMarkWidth = 12;       // checkmarks width on window
 */
 void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
     p->setMouseTracking( TRUE );
     if ( !p->testWState( WState_Polished ) )
 	p->setCheckable( TRUE );
@@ -1251,7 +1251,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
 					    QMenuItem* mi,
 					    const QFontMetrics& /*fm*/ ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
     int w = 2*windowsItemHMargin + 2*windowsItemFrame; // a little bit of border can never harm
 
     if ( mi->isSeparator() )
@@ -1287,7 +1287,7 @@ int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw,
 int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi,
 					const QFontMetrics& fm ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
     int h = 0;
     if ( mi->isSeparator() )			// separator height
 	h = windowsSepHeight;
@@ -1313,7 +1313,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 				       bool enabled,
 				       int x, int y, int w, int h)
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
     const QColorGroup & g = pal.active();
     bool dis = !enabled;
     QColorGroup itemg = dis ? pal.disabled() : pal.active();

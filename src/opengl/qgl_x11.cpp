@@ -116,11 +116,11 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     XStandardColormap *c;
     int n, i;
 
-    //debug( "Choosing cmap for vID %0x", vi->visualid );
+    //qDebug( "Choosing cmap for vID %0x", vi->visualid );
 
     if ( vi->visualid == 
 	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
-	//debug( "Using x11AppColormap" );
+	//qDebug( "Using x11AppColormap" );
 	return QPaintDevice::x11AppColormap();
     }
 
@@ -134,7 +134,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 		    if ( c[i].visualid == vi->visual->visualid ) {
 			x->cmap = c[i].colormap;
 			x->scmap = c[i];
-			//debug( "Using HP_RGB scmap" );
+			//qDebug( "Using HP_RGB scmap" );
 
 		    }
 		    i++;
@@ -154,7 +154,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 		    if ( c[i].visualid == vi->visualid ) {
 			x->cmap = c[i].colormap;
 			x->scmap = c[i];
-			//debug( "Using RGB_DEFAULT scmap" );
+			//qDebug( "Using RGB_DEFAULT scmap" );
 
 		    }
 		    i++;
@@ -168,7 +168,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	x->cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
 				   AllocNone );
 	x->alloc = TRUE;
-	//debug( "Allocating cmap" );
+	//qDebug( "Allocating cmap" );
 
     }
 
@@ -539,7 +539,7 @@ void QGLContext::makeCurrent()
 			     ((QWidget *)paintDevice)->winId(),
 			     (GLXContext)cx );
 #if defined(CHECK_NULL)
-    //    debug("makeCurrent: %i, vi=%i, vi->vi=%i, vi->id=%i", (int)this, (int)vi, (int)((XVisualInfo*)vi)->visual, (int)((XVisualInfo*)vi)->visualid );
+    //    qDebug("makeCurrent: %i, vi=%i, vi->vi=%i, vi->id=%i", (int)this, (int)vi, (int)((XVisualInfo*)vi)->visual, (int)((XVisualInfo*)vi)->visualid );
     if ( !ok )
 	qWarning("QGLContext::makeCurrent(): Failed.");
 #endif

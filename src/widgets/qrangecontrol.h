@@ -42,7 +42,7 @@
 #include "qglobal.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_RANGECONTROL
 
 
 class QRangeControlPrivate;
@@ -116,6 +116,6 @@ inline int QRangeControl::pageStep() const
 { return page; }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_RANGECONTROL
 
 #endif // QRANGECONTROL_H

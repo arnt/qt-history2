@@ -125,7 +125,7 @@ public:
     static QWSDisplay *qwsDisplay();
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
-    virtual QGfx * graphicsContext() const;
+    virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
 
     enum PDevCmd {

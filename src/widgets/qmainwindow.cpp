@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qmainwindow.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MAINWINDOW
 
 #include "qtimer.h"
 #include "qlayout.h"

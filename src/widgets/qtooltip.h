@@ -40,7 +40,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TOOLTIP
 
 
 class QTipManager;
@@ -128,6 +128,6 @@ private:
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_TOOLTIP
 
 #endif // QTOOLTIP_H

@@ -87,17 +87,22 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	qFatal("Error reading variable information");
     }
 
+    d=vinfo.bits_per_pixel;
+    lstep=(vinfo.xres_virtual*d+7)/8;
+    int xoff = vinfo.xoffset;
+    int yoff = vinfo.yoffset;
     const char* qwssize;
     if((qwssize=getenv("QWS_SIZE"))) {
 	sscanf(qwssize,"%dx%d",&w,&h);
 	dw=w;
 	dh=h;
+	xoff += (vinfo.xres - w)/2;
+	yoff += (vinfo.yres - h)/2;
     } else {
 	dw=w=vinfo.xres;
 	dh=h=vinfo.yres;
     }
-    d=vinfo.bits_per_pixel;
-    lstep=(vinfo.xres_virtual*d+7)/8;
+    dataoffset = yoff * lstep + xoff * d / 8;
     //qDebug("Using %dx%dx%d screen",w,h,d);
 
     /* Figure out the size of the screen in bytes */
@@ -110,6 +115,8 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 
     data = (unsigned char *)mmap(0, mapsize, PROT_READ | PROT_WRITE,
 				 MAP_SHARED, fd, 0);
+    data += dataoffset;
+
     if ((int)data == -1) {
 	perror("mapping /dev/fb0");
 	qFatal("Error: failed to map framebuffer device to memory.");
@@ -166,8 +173,8 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 	screencols=0;
     }
 
-    // No blankin' screen, no blinkin' cursor!
-    const char termctl[] = "\033[9;0]\033[?33l";
+    // No blankin' screen, no blinkin' cursor!, no cursor!
+    const char termctl[] = "\033[9;0]\033[?33l\033[?25l";
     write(1,termctl,sizeof(termctl));
 
     initted=true;
@@ -177,11 +184,12 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 
 void QLinuxFbScreen::disconnect()
 {
+    data -= dataoffset;
     munmap((char*)data,mapsize);
     close(fd);
-    // a reasonable screensaver timeout
-    printf( "\033[9;15]" );
-    fflush( stdout );
+    // Blankin' screen, blinkin' cursor!
+    const char termctl[] = "\033[9;15]\033[?33h\033[?25h\033[?0c";
+    write(1,termctl,sizeof(termctl));
 }
 
 //#define DEBUG_VINFO
@@ -322,12 +330,10 @@ bool QLinuxFbScreen::initCard()
 	free(cmap.blue);
 	free(cmap.transp);
     } else if(finfo.visual==FB_VISUAL_DIRECTCOLOR) {
-	// This code is just base on what the cyber2000 driver expects
 	screencols=256;
 	fb_cmap cmap;
 	cmap.start=0;
 	int rbits=0,gbits=0,bbits=0;
-	qDebug("Directcolor visual");
 	switch (vinfo.bits_per_pixel) {
 	  case 8:
 		rbits=vinfo.red.length;

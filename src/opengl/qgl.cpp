@@ -1720,7 +1720,7 @@ headers or libraries are placed in a non-standard directory, you may need
 to change the SYSCONF_CXXFLAGS_OPENGL and/or SYSCONF_LFLAGS_OPENGL in the
 config file for your system (qt/configs/*) ).
 
-When you install Qt for Windows, the Qt OpenGL module always included.
+When you install Qt for Windows, the Qt OpenGL module is always included.
 
 The Qt OpenGL module is not licensed for use with the Qt Professional
 Edition. Consider upgrading to the Qt Enterprise Edition if you require

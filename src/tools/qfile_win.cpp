@@ -53,6 +53,14 @@ QCString qt_win95Name(const QString s)
 	if ( n >= 0 )
 	    ss[n] = '\\';
 	return qt_winQString2MB(ss);
+    } else if ( s.length() > 3 && s[2] == '/' && s[3] == '/' ) {
+	QString ss(s);
+	ss[2] = '\\';
+	ss.remove( 3, 1 );
+	int n = ss.find('/');
+	if ( n >= 0 )
+	    ss[n] = '\\';
+	return qt_winQString2MB(ss);
     } else {
 	return qt_winQString2MB(s);
     }

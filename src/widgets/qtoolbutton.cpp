@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qtoolbutton.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TOOLBUTTON
 
 #include "qdrawutil.h"
 #include "qpainter.h"

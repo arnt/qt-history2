@@ -42,7 +42,7 @@
 #include "qbutton.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_CHECKBOX
 
 class Q_EXPORT QCheckBox : public QButton
 {
@@ -85,6 +85,6 @@ inline void QCheckBox::setChecked( bool check )
 { setOn( check ); }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_CHECKBOX
 
 #endif // QCHECKBOX_H

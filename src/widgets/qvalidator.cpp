@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qvalidator.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VALIDATOR
 #include "qwidget.h"
 
 #include <math.h> // HUGE_VAL

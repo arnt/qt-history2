@@ -33,7 +33,7 @@
 
 
 #include "qgrid.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_GRID
 #include "qlayout.h"
 #include "qapplication.h"
 

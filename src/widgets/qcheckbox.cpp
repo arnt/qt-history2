@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qcheckbox.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_CHECKBOX
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qpixmap.h"

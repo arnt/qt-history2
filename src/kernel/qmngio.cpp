@@ -340,11 +340,11 @@ static mng_bool settimer( mng_handle handle, mng_uint32  iMsecs )
     return ((QMNGFormat*)mng_get_userdata(handle))->settimer(iMsecs);
 }
 
-static mng_ptr memalloc(mng_uint32 iLen)
+static mng_ptr memalloc(mng_size_t iLen)
 {
     return calloc(1,iLen);
 }
-static void memfree(mng_ptr iPtr, mng_uint32 /*iLen*/)
+static void memfree(mng_ptr iPtr, mng_size_t /*iLen*/)
 {
     free(iPtr);
 }

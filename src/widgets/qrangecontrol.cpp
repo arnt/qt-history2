@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qrangecontrol.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_RANGECONTROL
 #include "qglobal.h"
 #include <limits.h>
 

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qhgroupbox.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_HGROUPBOX
 
 // NOT REVISED
 /*!

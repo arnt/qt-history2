@@ -42,7 +42,7 @@
 #include "qscrollbar.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLVIEW
 
 struct QScrollViewData;
 
@@ -67,7 +67,7 @@ public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();
 
-    enum ResizePolicy { Default, Manual, AutoOne };
+    enum ResizePolicy { Default, Manual, AutoOne /*, StretchOne=4*/ };
     virtual void setResizePolicy( ResizePolicy );
     ResizePolicy resizePolicy() const;
 
@@ -217,6 +217,6 @@ private:	// Disabled copy constructor and operator=
     void changeFrameRect(const QRect&);
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_SCROLLVIEW
 
 #endif // QSCROLLVIEW_H

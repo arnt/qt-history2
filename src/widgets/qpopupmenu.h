@@ -43,7 +43,7 @@
 #include "qmenudata.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
 
 
 class Q_EXPORT QPopupMenu : public QFrame, public QMenuData
@@ -170,6 +170,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_POPUPMENU
 
 #endif // QPOPUPMENU_H

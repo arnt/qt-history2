@@ -2260,7 +2260,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     if ( !value.canCast( type ) )
 	return FALSE;
 
-    // Some stupid casts in this switch... for #@$!&@ SunPro C++ 5.0 compiler
+    // Some stupid casts in this switch... for #@$!&@ Sun WorkShop C++ 5.0
     switch ( type ) {
 
     case QVariant::Invalid:
@@ -3249,6 +3249,7 @@ QVariant QObject::property( const char *name ) const
 	return value;
 
     case QVariant::Cursor:
+#ifndef QT_NO_CURSOR
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoCursor m = (ProtoCursor)p->get;
 	    value = QVariant( (this->*m)() );
@@ -3265,6 +3266,9 @@ QVariant QObject::property( const char *name ) const
 	} else {
 	    ASSERT( 0 );
 	}
+#else
+	qWarning("Cursor in QVariant ignored");
+#endif
 	return value;
 
     case QVariant::IconSet:

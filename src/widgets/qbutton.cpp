@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qbutton.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_BUTTON
 #include "qbuttongroup.h"
 #include "qbitmap.h"
 #include "qpainter.h"
@@ -86,7 +86,9 @@ struct QButtonData
     QButtonData() : group(0), a(0) {}
     QButtonGroup *group;
     QTimer timer;
+#ifndef QT_NO_ACCEL
     QAccel *a;
+#endif
 };
 
 
@@ -372,7 +374,9 @@ void QButton::setText( const QString &text )
     if ( autoresize )
 	adjustSize();
 
+#ifndef QT_NO_ACCEL
     setAccel( QAccel::shortcutKey( btext ) );
+#endif
 
     update();
     updateGeometry();
@@ -433,7 +437,11 @@ void QButton::setPixmap( const QPixmap &pixmap )
 
 int QButton::accel() const
 {
+#ifndef QT_NO_ACCEL
     return d && d->a ? d->a->key( 0 ) : 0;
+#else
+    return 0;
+#endif
 }
 
 /*!
@@ -461,6 +469,7 @@ int QButton::accel() const
 
 void QButton::setAccel( int key )
 {
+#ifndef QT_NO_ACCEL
     if ( d && d->a )
 	d->a->clear();
     if ( !key )
@@ -470,6 +479,7 @@ void QButton::setAccel( int key )
 	d->a = new QAccel( this, "buttonAccel" );
     d->a->connectItem( d->a->insertItem( key, 0 ),
 		       this, SLOT(animateClick()) );
+#endif
 }
 
 

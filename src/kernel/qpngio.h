@@ -89,6 +89,6 @@ private:
     int alignx;
 };
 
-#endif // QT_NO_IMAEGIO_PNG
+#endif // QT_NO_IMAGEIO_PNG
 
 #endif // QPNGIO_H

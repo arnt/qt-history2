@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #include "qtabbar.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
 #include "qaccel.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
@@ -777,7 +777,7 @@ void QTabBar::setShape( Shape s )
 
 
 /*!
-  Layout all existing tabs (i.e. setting their r attribute ) according
+  Layout all existing tabs (i.e. setting their \c r attribute) according
   to their label and their iconset.
  */
 void QTabBar::layoutTabs()

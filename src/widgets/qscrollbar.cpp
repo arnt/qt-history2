@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qscrollbar.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLBAR
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qapplication.h"

@@ -43,7 +43,7 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SPINBOX
 
 
 class QPushButton;
@@ -164,6 +164,6 @@ private:	// Disabled copy constructor and operator=
 
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_SPINBOX
 
 #endif // QSPINBOX_H

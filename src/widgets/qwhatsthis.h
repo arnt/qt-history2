@@ -40,7 +40,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_WHATSTHIS
 
 #include "qcursor.h"
 
@@ -71,6 +71,6 @@ public:
 
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_WHATSTHIS
 
 #endif // QWHATSTHIS_H

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qradiobutton.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_RADIOBUTTON
 #include "qbuttongroup.h"
 #include "qpainter.h"
 #include "qdrawutil.h"

@@ -860,4 +860,4 @@ void QVoodooCursor::move(int x,int y)
 
 #endif // QT_NO_QWS_CURSOR
 
-#endif // QT_NO_VOODOO3
+#endif // QT_NO_QWS_VOODOO3

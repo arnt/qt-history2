@@ -45,6 +45,6 @@
 
 void qInitMngIO();
 
-#endif // QT_NO_IMAEGIO_MNG
+#endif // QT_NO_IMAGEIO_MNG
 
 #endif // QMNGIO_H

@@ -365,6 +365,7 @@ bool QFile::open( int m, int f )
 		setType( IO_Sequential );
 		length = INT_MAX;
 	    }
+	    resetStatus();
 	}
     }
     return TRUE;

@@ -44,7 +44,7 @@
 #include "qregexp.h" // QString->QRegExp conversion
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VALIDATOR
 
 
 class Q_EXPORT QValidator : public QObject
@@ -159,6 +159,6 @@ private:
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_VALIDATOR
 
 #endif // QVALIDATOR_H

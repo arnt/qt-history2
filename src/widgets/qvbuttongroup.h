@@ -42,7 +42,7 @@
 #include "qbuttongroup.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VBUTTONGROUP
 
 class Q_EXPORT QVButtonGroup : public QButtonGroup
 {
@@ -60,6 +60,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_VBUTTONGROUP
 
 #endif // QVBUTTONGROUP_H

@@ -1,6 +1,7 @@
 #ifndef QT_H
 #endif // QT_H
 
+#define NO_CHECK
 #define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION
@@ -45,10 +46,18 @@
 #define QT_NO_STRINGLIST
 #define QT_NO_SESSIONMANAGER
 #define QT_NO_TEXTCODEC
+#define QT_NO_QWS_KEYBOARD
+
+#define QT_NO_DIALOG
+#define QT_NO_FRAME
+#define QT_NO_SEMIMODAL
 
 #define QT_NO_STYLE
 #define QT_NO_IMAGEIO_MNG
 #define QT_NO_EFFECTS
+#define QT_NO_COP
 #define QT_NO_QWS_MACH64
 #define QT_NO_QWS_VOODOO3
 #define QT_NO_QWS_MATROX
+#define QT_NO_QWS_VGA_16
+#define QT_NO_QWS_TRANSFORMED

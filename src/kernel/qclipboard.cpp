@@ -57,7 +57,8 @@
   applications.
 
   QClipboard supports the same data types that QDragObject does, and uses
-  similar mechanisms.
+  similar mechanisms. For advanced clipboard usage, you should read
+  \link dnd.html the drag-and-drop documentation\endlink.
 
   There is only one QClipboard object in an application, and you
   can gain access to it using QApplication::clipboard().

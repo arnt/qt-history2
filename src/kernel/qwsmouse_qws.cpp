@@ -819,12 +819,15 @@ void QCalibratedMouseHandler::clearCalibration()
 void QCalibratedMouseHandler::writeCalibration()
 {
     QString calFile = "/etc/pointercal";
+#ifndef QT_NO_TEXTSTREAM
     QFile file( calFile );
     if ( file.open( IO_WriteOnly ) ) {
 	QTextStream t( &file );
 	t << a << " " << b << " " << c << " ";
 	t << d << " " << e << " " << f << " " << s;
-    } else {
+    } else
+#endif
+    {
 	qDebug( "Could not save calibration: %s", calFile.latin1() );
     }
 }
@@ -832,10 +835,15 @@ void QCalibratedMouseHandler::writeCalibration()
 void QCalibratedMouseHandler::readCalibration()
 {
     QString calFile = "/etc/pointercal";
+#ifndef QT_NO_TEXTSTREAM
     QFile file( calFile );
     if ( file.open( IO_ReadOnly ) ) {
 	QTextStream t( &file );
 	t >> a >> b >> c >> d >> e >> f >> s;
+    } else
+#endif
+    {
+	qDebug( "Could not read calibration: %s", calFile.latin1() );
     }
 }
 

@@ -45,6 +45,7 @@ QString QFontFactoryBDF::name()
     return "BDF";
 }
 
+#ifndef QT_NO_TEXTCODEC
 static
 QTextCodec* calc_mapper(const QString& charset_registry, const QString& charset_encoding)
 {
@@ -55,6 +56,7 @@ QTextCodec* calc_mapper(const QString& charset_registry, const QString& charset_
     }
     return 0;
 }
+#endif
 
 class QRenderedFontBDF : public QRenderedFont {
     QDiskFont* df;
@@ -79,7 +81,9 @@ public:
 	int glyph_index=0;
 	int num_glyphs=0;
 	QRect bbox;
+#ifndef QT_NO_TEXTCODEC
 	QTextCodec* mapper=0;
+#endif
 	int default_char = -1;
 	default_qchar = 0;
 
@@ -103,11 +107,11 @@ public:
 			    croptop++;
 		    }
 		    donetop:
-		    t = g->data+(h-1)*linestep;
+		    t = g->data+h*linestep;
 		    for (int j=h-1; j>croptop; j--) {
 			int i;
 			for (i=0; i<linestep; i++)
-			    if ( *t++ )
+			    if ( *--t )
 				goto donebot;
 			if ( i==linestep )
 			    cropbot++;
@@ -156,6 +160,7 @@ public:
 		    if ( encoding < 0 ) {
 			glyph_index = -1;
 		    } else {
+#ifndef QT_NO_TEXTCODEC
 			if ( mapper ) {
 			    QCString c;
 			    int e = encoding;
@@ -164,7 +169,9 @@ public:
 				e >>= 8;
 			    }
 			    glyph_index = mapper->toUnicode(c)[0].unicode();
-			} else {
+			} else
+#endif
+			{
 			    // No mapping. Assume Unicode/Latin1/ASCII7
 			    glyph_index = encoding;
 			}
@@ -178,10 +185,14 @@ public:
 				 token[1].toInt(),token[2].toInt());
 		} else if ( tag == "CHARSET_REGISTRY" ) {
 		    charset_registry = token[1];
+#ifndef QT_NO_TEXTCODEC
 		    mapper = calc_mapper(charset_registry,charset_encoding);
+#endif
 		} else if ( tag == "CHARSET_ENCODING" ) {
 		    charset_encoding = token[1];
+#ifndef QT_NO_TEXTCODEC
 		    mapper = calc_mapper(charset_registry,charset_encoding);
+#endif
 		} else if ( tag == "FONTBOUNDINGBOX" ) {
 		    bbox = QRect(token[3].toInt(),token[4].toInt(),
 				 token[1].toInt(),token[2].toInt());

@@ -37,7 +37,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_POPUPMENU
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"
@@ -2008,5 +2008,5 @@ void QPopupMenu::activateItemAt( int index )
 }
 
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_POPUPMENU
 

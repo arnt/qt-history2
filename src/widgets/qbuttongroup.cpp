@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qbuttongroup.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_BUTTONGROUP
 #include "qbutton.h"
 #include "qlist.h"
 #include "qapplication.h"

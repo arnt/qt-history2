@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qgroupbox.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_GROUPBOX
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qbitmap.h"

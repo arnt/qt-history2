@@ -37,7 +37,7 @@
 
 
 #include "qvbox.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_VBOX
 
 // NOT REVISED
 /*!

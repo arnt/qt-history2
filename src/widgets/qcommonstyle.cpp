@@ -94,7 +94,7 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
  */
 void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_PUSHBUTTON
     QRect r = pushButtonContentsRect( btn );
     if ( btn->isDown() || btn->isOn() ){
 	int sx = 0;
@@ -141,7 +141,7 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 				  int& overlap) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
     overlap = 3;
     hframe = 24;
     vframe = 0;
@@ -154,7 +154,7 @@ void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
  */
 void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
     if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
 	// triangular, above or below
 	int y;
@@ -197,7 +197,7 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
  */
 void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TABBAR
     p->drawRect( t->rect() );
 #endif
 }
@@ -206,7 +206,7 @@ void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t,
  */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_SCROLLBAR
     if ( !sb->rect().contains( p ) )
 	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
@@ -228,7 +228,7 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 
 QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_PUSHBUTTON
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
@@ -249,7 +249,7 @@ void QCommonStyle::drawToolButton( QPainter *p, int x, int y, int w, int h,
 
 void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TOOLBUTTON
     if ( !btn )
 	return;
 

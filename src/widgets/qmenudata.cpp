@@ -37,7 +37,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenudata.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_MENUDATA
 #include "qpopupmenu.h"
 #include "qmenubar.h"
 #include "qapplication.h"
@@ -1356,9 +1356,12 @@ bool QCustomMenuItem::isSeparator() const
  */
 void QMenuData::activateItemAt( int index )
 {
+#ifndef QT_NO_MENUBAR
     if ( isMenuBar )
 	( (QMenuBar*)this )->activateItemAt( index );
-    else if ( isPopupMenu ) 
+    else
+#endif
+    if ( isPopupMenu ) 
 	( (QPopupMenu*)this )->activateItemAt( index );
 }
 

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qhbuttongroup.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_HBUTTONGROUP
 
 // NOT REVISED
 /*!

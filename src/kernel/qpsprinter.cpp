@@ -206,18 +206,13 @@ static const char * const ps_header[] = {
 "/rC {",
 "  /rL 0 d",
 "  0",
-"  {",
-"    ", // string pos
+"  {", // string pos
 "    dup 2 index length ge { exit } if",
-"    ", // string pos
 "    1 rB",
-"    1 eq {",
-"      ", // compressed
-"      3 rB",
-"      ", // string pos bits
+"    1 eq {", // compressed
+"      3 rB", // string pos bits
 "      dup 4 ge {",
-"        dup rB",
-"        ", // string pos bits extra
+"        dup rB", // string pos bits extra
 "        1 index 5 ge {",
 "          1 index 6 ge {",
 "            1 index 7 ge {",
@@ -235,34 +230,22 @@ static const char * const ps_header[] = {
 "      exch 10 rB 1 add 3 mul",
 "      ", // string length pos dist
 "      {",
-"	", // string length pos dist
 "	dup 3 index lt {",
 "	  dup",
 "	} {",
 "	  2 index",
-"	} ifelse",
-"	", // string length pos dist length-this-time
+"	} ifelse", // string length pos dist length-this-time
 "	4 index 3 index 3 index sub 2 index getinterval",
-"	", // string length pos dist length-this-time substring
 "	5 index 4 index 3 -1 roll putinterval",
-"	", // string length pos dist length-this-time
 "	dup 4 -1 roll add 3 1 roll",
-"	", // string length pos dist length-this-time
 "	4 -1 roll exch sub ",
-"	", // string pos dist length
 "	dup 0 eq { exit } if",
-"	", // string pos dist length
 "	3 1 roll",
-"	", // string length pos dist
-"      } loop",
-"      ", // string pos dist length
+"      } loop", // string pos dist length
 "      pop pop",
-"    } {",
-"      ", // uncompressed
+"    } {", // uncompressed
 "      3 rB 1 add 3 mul",
-"      ", // string pos length
 "      {",
-"        ", // string pos
 "	2 copy 8 rB put 1 add",
 "      } repeat",
 "    } ifelse",
@@ -589,7 +572,8 @@ static const char * const ps_header[] = {
 "    0 B BR",
 "} D",
 "",
-"/PE {",				// PdcSetPen [style width R G B]
+"/PE {", // PdcSetPen [style width R G B Cap Join]
+"    setlinejoin setlinecap"
 "    CRGB",
 "    PCol astore pop",
 "    /LWi ED",
@@ -598,7 +582,7 @@ static const char * const ps_header[] = {
 "} D",
 "",
 "/P1 {",				// PdcSetPen [R G B]
-"    1 0 5 2 roll PE",
+"    1 0 5 2 roll 0 0 PE",
 "} D",
 "",
 "/ST {",				// SET TRANSFORM [matrix]
@@ -1748,8 +1732,11 @@ static const struct {
     QFont::CharSet cs;
     uint mib;
 } unicodevalues[] = {
+#ifndef QT_NO_TEXTCODEC
     { QFont::KOI8R, 2084 },
+#endif
     { QFont::ISO_8859_1, 4 },
+#ifndef QT_NO_TEXTCODEC
     { QFont::ISO_8859_2, 5 },
     { QFont::ISO_8859_3, 6 },
     { QFont::ISO_8859_4, 7 },
@@ -1768,6 +1755,10 @@ static const struct {
 #endif
     // makeFixedStrings() below assumes that this is last
     { QFont::ISO_8859_9, 12 }
+#define unicodevalues_LAST QFont::ISO_8859_9
+#else
+#define unicodevalues_LAST QFont::ISO_8859_1
+#endif
 };
 
 
@@ -1869,7 +1860,6 @@ static void makeFixedStrings()
     QString vector;
     QString glyphname;
     QString unicodestring;
-    QTextCodec * codec;
     do {
 	vector.sprintf( "/FE%d [", (int)unicodevalues[i].cs );
 	glyphname = "";
@@ -1886,6 +1876,8 @@ static void makeFixedStrings()
 	    vector += glyphname;
 	}
 	// the next 128 are particular to each encoding
+#ifndef QT_NO_TEXTCODEC
+	QTextCodec * codec;
 	codec = QTextCodec::codecForMib( (int)unicodevalues[i].mib );
 	for( k=128; k<256; k++ ) {
 	    int value = 0xFFFD;
@@ -1910,11 +1902,12 @@ static void makeFixedStrings()
 	    vector += QString::fromLatin1(" /");
 	    vector += glyphname;
 	}
+#endif
 	vector += QString::fromLatin1(" ] d");
 	vector = wordwrap( vector );
 	font_vectors->insert( (int)(unicodevalues[i].cs),
 			      new QString( vector ) );
-    } while ( unicodevalues[i++].cs != QFont::ISO_8859_9 );
+    } while ( unicodevalues[i++].cs != unicodevalues_LAST );
 }
 
 
@@ -2182,11 +2175,13 @@ void QPSPrinter::setFont( const QFont & f )
 	fontsUsed += ps;
 
     QTextCodec * codec = 0;
+#ifndef QT_NO_TEXTCODEC
     i = 0;
     do {
 	if ( unicodevalues[i].cs == f.charSet() )
 	    codec = QTextCodec::codecForMib( unicodevalues[i++].mib );
-    } while( codec == 0 && unicodevalues[i++].cs != QFont::ISO_8859_9 );
+    } while( codec == 0 && unicodevalues[i++].cs != unicodevalues_LAST );
+#endif
     d->currentFontCodec = codec;
 }
 
@@ -2249,24 +2244,24 @@ static void emitBits( QByteArray & out, int & byte, int & bit,
 }
 
 
-QByteArray compress( QImage * image ) {
-    int size = image->width()*image->height();
+QByteArray compress( const QImage & image ) {
+    int size = image.width()*image.height();
     int pastPixel[tableSize];
     int mostRecentPixel[hashSize];
     QRgb *pixel = new QRgb[size+1];
 
     int i = 0;
     int x, y;
-    if ( image->depth() == 8 ) {
-	for( y=0; y < image->height(); y++ ) {
-	    uchar * s = image->scanLine( y );
-	    for( x=0; x < image->width(); x++ )
-		pixel[i++] = ( image->color( s[x] ) ) & RGB_MASK;
+    if ( image.depth() == 8 ) {
+	for( y=0; y < image.height(); y++ ) {
+	    uchar * s = image.scanLine( y );
+	    for( x=0; x < image.width(); x++ )
+		pixel[i++] = ( image.color( s[x] ) ) & RGB_MASK;
 	}
     } else {
-	for( y=0; y < image->height(); y++ ) {
-	    QRgb * s = (QRgb*)(image->scanLine( y ));
-	    for( x=0; x < image->width(); x++ )
+	for( y=0; y < image.height(); y++ ) {
+	    QRgb * s = (QRgb*)(image.scanLine( y ));
+	    for( x=0; x < image.width(); x++ )
 		pixel[i++] = (*s++) & RGB_MASK;
 	}
     }
@@ -2446,26 +2441,6 @@ QByteArray compress( QImage * image ) {
 }
 
 
-static void ps_dumpPixmapData( QTextStream &stream, QImage img, int depth )
-{
-    if ( depth == 1 ) {
-	int w = (((img.width() + 7)&8) + 1)/8;
-	QCString out( w * img.height() );
-	int y = 0;
-	char * p = out.data();
-	while( y < img.height() ) {
-	    memcpy( p, img.scanLine( y ), w );
-	    out += w;
-	    y++;
-	}
-	ps_r7( stream, out, w * img.height() );
-    } else {
-	QByteArray out = compress( &img );
-	ps_r7( stream, out, out.size() );
-    }
-}
-
-
 #undef XCOORD
 #undef YCOORD
 #undef WIDTH
@@ -2505,6 +2480,25 @@ static const char * color( const QColor &c, QPrinter * printer )
     return returnbuffer;
 }
 
+
+static const char * psCap( Qt::PenCapStyle p )
+{
+    if ( p == Qt::SquareCap )
+	return "2 ";
+    else if ( p == Qt::RoundCap )
+	return "1 ";
+    return "0 ";
+}
+			  
+			  
+static const char * psJoin( Qt::PenJoinStyle p ) {
+    if ( p == Qt::BevelJoin )
+	return "2 ";
+    else if ( p == Qt::RoundJoin )
+	return "1 ";
+    return "0 ";
+}
+			  
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
@@ -2563,20 +2557,17 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( d->dirtyClipping )	// Must be after matrixSetup and newPageSetup
 	    clippingSetup( paint );
 	if ( d->dirtypen ) {
-	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 )
+	    // we special-case for narrow solid lines with the default
+	    // cap and join styles
+	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
+		 d->cpen.capStyle() == Qt::FlatCap && 
+		 d->cpen.joinStyle() == Qt::MiterJoin )
 		stream << color( d->cpen.color(), printer ) << "P1\n";
 	    else
 		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
-		       << ' ' << color( d->cpen.color(), printer ) << "PE\n";
-	    d->dirtypen = FALSE;
-	}
-	if ( d->dirtypen ) {
-	    // we special-case for narrow solid lines
-	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 )
-		stream << color( d->cpen.color(), printer ) << "P1\n";
-	    else
-		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
-		       << ' ' << color( d->cpen.color(), printer ) << "PE\n";
+		       << ' ' << color( d->cpen.color(), printer ) 
+		       << psCap( d->cpen.capStyle() )
+		       << psJoin( d->cpen.joinStyle() ) << "PE\n";
 	    d->dirtypen = FALSE;
 	}
 	if ( d->dirtybrush ) {
@@ -2695,9 +2686,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcDrawText2:
 	if ( p[1].str->length() > 0 ) {
 	    QCString tmpC;
+#ifndef QT_NO_TEXTCODEC
 	    if ( d->currentFontCodec )
 		tmpC = d->currentFontCodec->fromUnicode( *p[1].str );
 	    else // #### should use 16-bit stuff here
+#endif
 		tmpC=p[1].str->local8Bit();
 	    uint spaces = 0;
 	    while( spaces < tmpC.length() && tmpC[(int)spaces] == ' ' )
@@ -2889,7 +2882,14 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 	    stream << pnt.x() << " " << pnt.y() << " TR\n";
 	stream << "/sl " << width*3*height << " string d\n";
 	stream << "sl rC\n";
-	ps_dumpPixmapData( stream, img, 24 );
+	QByteArray out;
+	if ( img.depth() < 8 )
+	    out = compress( img.convertDepth( 8 ) );
+	else if ( img.depth() > 8 && img.depth() < 24 )
+	    out = compress( img.convertDepth( 24 ) );
+	else
+	    out = compress( img );
+	ps_r7( stream, out, out.size() );
 	stream << "pop\n";
 	stream << width << ' ' << height << " 8[1 0 0 1 0 0]{sl}QCI\n";
 	if ( pnt.x() || pnt.y() )
@@ -3289,6 +3289,9 @@ void QPSPrinter::resetDrawingTools( QPainter *paint )
     param[0].brush = &paint->brush();
     if (*param[0].brush != defaultBrush )
 	cmd( PdcSetBrush, paint, param);
+
+    d->dirtypen = TRUE;
+    d->dirtybrush = TRUE;
 
     if ( paint->hasViewXForm() || paint->hasWorldXForm() )
 	matrixSetup( paint );

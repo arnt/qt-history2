@@ -34,7 +34,7 @@
 **********************************************************************/
 
 #include "qwhatsthis.h"
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_WHATSTHIS
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
 #include "qpixmap.h"

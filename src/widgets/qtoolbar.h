@@ -42,7 +42,7 @@
 #include "qdockwindow.h"
 #endif // QT_H
 
-#ifndef QT_NO_COMPLEXWIDGETS
+#ifndef QT_NO_TOOLBAR
 
 class QMainWindow;
 class QButton;
@@ -99,6 +99,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_COMPLEXWIDGETS
+#endif // QT_NO_TOOLBAR
 
 #endif // QTOOLBAR_H
