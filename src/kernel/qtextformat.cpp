@@ -41,11 +41,11 @@ public:
 	bool boolValue;
 	int intValue;
 	float floatValue;
-	void *ptr;
+	mutable void *ptr;
     } data;
 
     QString stringValue() const
-    { return *reinterpret_cast<QString *>(const_cast<void *>(data.ptr)); }
+    { return *reinterpret_cast<QString *>(&data.ptr); }
 
 private:
     void free();
