@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#72 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#73 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#72 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#73 $")
 
 
 /*****************************************************************************
@@ -240,9 +240,9 @@ static bool   crc_tbl_init = FALSE;
 
 static void createCRC16Table()			// build CRC16 lookup table
 {
-    register int i;
-    register int j;
-    int v0, v1, v2, v3;
+    register uint i;
+    register uint j;
+    uint v0, v1, v2, v3;
     for ( i=0; i<16; i++ ) {
 	v0 = i & 1;
 	v1 = (i >> 1) & 1;
@@ -289,7 +289,7 @@ UINT16 qchecksum( const char *data, uint len )
 	c >>= 4;
 	crc = ((crc >> 4) & 0x0fff) ^ crc_tbl[((crc ^ c) & 15)];
     }
-    return ~crc;
+    return (~crc & 0xffff);
 }
 
 
