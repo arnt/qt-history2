@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#6 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#7 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#7 $");
 
 
 #if defined(_CC_MSVC_)
@@ -918,7 +918,7 @@ void QGLContext::swapBuffers()
   \code
     class MyGLDrawer : public QGLWidget
     {
-        QOBJECT;   // Include this if you want to use Qt signals & slots etc.
+        Q_OBJECT	// include this if you use Qt signals/slots
 
     public:
         MyGLDrawer( QWidget *parent, const char *name )
@@ -937,10 +937,14 @@ void QGLContext::swapBuffers()
     };
   \endcode
 
-  If you need to repaint from other places than resizeGL and paintGL()
-  (a typical example is when using \link QTimer timers\endlink to
-  animate scenes) you must call makeCurrent() before you draw and, if
-  you are using double-buffering, swapBuffers() when you are finished.
+  If you need to repaint from other places than paintGL() (a typical
+  example is when using \link QTimer timers\endlink to animate scenes),
+  you can call the updateGL() function.
+
+  When paintGL() or resizeGL() is called, your widget has been made
+  current.  If you need to call the standard OpenGL API functions from
+  other places (e.g. in your widget's constructor), you must call
+  makeCurrent() first.
 
   Like QGLContext, QGLWidget has advanced functions for requesting a
   new display format, and you can even set a new rendering context.
@@ -1074,7 +1078,9 @@ void QGLWidget::setContext( QGLContext *context )
 #endif
     }
 
+#if defined(Q_WGL)
     bool has_cx = glcx != 0;
+#endif
     delete glcx;
     glcx = context;
 
@@ -1103,7 +1109,7 @@ void QGLWidget::setContext( QGLContext *context )
     }
     bool visible = isVisible();
     if ( visible )
-        hide();
+	hide();
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
     if ( XVisualIDFromVisual(vi->visual) ==
 	 XVisualIDFromVisual((Visual*)QPaintDevice::x11Visual()) )
@@ -1137,7 +1143,6 @@ void QGLWidget::setContext( QGLContext *context )
 
 /*!
   \fn void QGLWidget::updateGL()
-
   Updates the widget by calling paintGL().
 */
 
@@ -1145,6 +1150,9 @@ void QGLWidget::setContext( QGLContext *context )
 /*!
   This virtual function is called whenever the widget needs to be painted.
   Reimplement it in a subclass.
+
+  There is no need to call makeCurrent() because this has already been
+  done when the function is called.
 */
 
 void QGLWidget::paintGL()
@@ -1156,6 +1164,9 @@ void QGLWidget::paintGL()
   \fn void QGLWidget::resizeGL( int width , int height )
   This virtual function is called whenever the widget has been resized.
   Reimplement it in a subclass.
+
+  There is no need to call makeCurrent() because this has already been
+  done when the function is called.
 */
 
 void QGLWidget::resizeGL( int, int )
@@ -1176,6 +1187,7 @@ void QGLWidget::paintEvent( QPaintEvent * )
     else
 	glFlush();
 }
+
 
 /*!
   Handles resize events. Calls the virtual function resizeGL().
