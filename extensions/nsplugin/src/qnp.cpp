@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#25 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#26 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1204,7 +1204,7 @@ public:
 	QRect g = geometry();
 	QColor bg = backgroundColor();
 	bool mt = hasMouseTracking();
-	bool hascurs = testWFlags( WCursorSet );
+	bool hascurs = testWFlags( WState_OwnCursor );
 	QCursor curs = cursor();
 	clearWFlags( WState_Created );
 	clearWFlags( WState_Visible );
