@@ -301,6 +301,7 @@ want to modify an existing profile, click the relevant profile, then
 click \Button Modify. To delete a profile, click it, then click
 \Button Delete. Profiles are documented in \l{Customizing Qt
 Assistant with Profiles}.
+\endlist
 
 \chapter Full Text Searching
 
