@@ -191,39 +191,4 @@ void QSqlRowset::sync()
     }
 }
 
-// Debugging only
-void QSqlRowset::dumpRecords()
-{
-    static int n = 0;
-
-    //    if( affectedRows() > 0 ){
-	QString out;
-	for(uint i = 0; i < count(); i++){
-	    out += "* " +
-	      QString().sprintf("%-15s", (const char *)
-				QSql::fields().field(i).name()) + " ";
-	}
-	qDebug( QString().fill('*',count()*18) + "*");
-	qDebug( out + "*" );
-	qDebug( QString().fill('*',count()*18) + "*");
-	while(next()){
-	    out = "";
-	    for(uint i = 0; i < count(); i++){
-		out +=
-		    QString().sprintf("%-15s", (const char *)
-				      QSql::operator[](i).asString()) + " * ";
-	    }
-	    qDebug("* " + out, n);
-	}
-	qDebug( QString().fill('*',count()*18) + "*");
-	n++;
-	//    } else {
-	//	qDebug("No matching records.");
-	//    }
-}
-
 #endif // QT_NO_SQL
-
-
-
-
