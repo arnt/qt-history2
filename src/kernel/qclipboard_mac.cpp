@@ -26,7 +26,7 @@ void QClipboard::setData( QMimeSource* src )
 {
 }
 
-QMimeSource * QClipBoard::data() const
+QMimeSource * QClipboard::data() const
 {
     return 0;
 }
