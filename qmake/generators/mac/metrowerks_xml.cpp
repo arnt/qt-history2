@@ -81,7 +81,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     xmlfile = findTemplate(xmlfile);
 
     QFile file(xmlfile);
-    if(!file.open(IO_ReadOnly)) {
+    if(!file.open(IO_ReadOnly )) {
 	fprintf(stderr, "Cannot open XML file: %s\n", xmlfile.latin1());
 	return FALSE;
     }
@@ -91,6 +91,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     QString line;
     while ( !xml.eof() ) {
 	line = xml.readLine();
+	qDebug("input ::%s::", line.latin1());
 	while((rep = line.find(QRegExp("\\$\\$[a-zA-Z0-9_-]*"))) != -1) {
 	    QString torep = line.mid(rep, line.find(QRegExp("[^\\$a-zA-Z0-9_-]"), rep) - rep);
 	    QString variable = torep.right(torep.length()-2);
@@ -98,7 +99,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << line.left(rep); //output the left side
 	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
 	    if(variable == "CODEWARRIOR_HEADERS" || variable == "CODEWARRIOR_SOURCES") {
-		QString arg=variable.right(variable.length() - variable.findRev('_'));
+		QString arg=variable.right(variable.length() - variable.findRev('_') - 1);
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -112,7 +113,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || variable == "CODEWARRIOR_HEADERS_LINKORDER") {
-		QString arg=variable.mid(variable.find('_'), variable.findRev('_'));
+		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_')-3);
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -124,7 +125,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || variable == "CODEWARRIOR_SOURCES_GROUP") {
-		QString arg=variable.mid(variable.find('_'), variable.findRev('_'));
+		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_'));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -137,7 +138,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
-		QString arg=variable.mid(variable.find('_'), variable.findRev('_'));
+		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_'));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -164,16 +165,21 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     t << endl;
     file.close();
 
-    if(mocAware()) {
-	QFile file(Option::output_dir + project->variables()["TARGET"].first() + ".mocs");
-	if(!file.open(IO_WriteOnly)) {
-	    fprintf(stderr, "Cannot open MOCS file: %s\n", xmlfile.latin1());
+    if(mocAware()) { //generate the $$TARGET.mocs file
+	QString mocs = Option::output_dir + Option::dir_sep + project->variables()["TARGET"].first() + ".mocs";
+	QFile mocfile(mocs);
+	if(!mocfile.open(IO_WriteOnly)) {
+	    fprintf(stderr, "Cannot open MOCS file: %s\n", mocs.latin1());
 	} else {
-	    QTextStream mocs(&file);
+	    QTextStream mocs(&mocfile);
 	    QStringList &list = project->variables()["SRCMOC"];
-	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) 
-		mocs << findMocSource((*it)) << endl;
-	    file.close();
+	    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		QString src = findMocSource((*it));
+		if(src.findRev('/') != -1)
+		    src = src.right(src.length() - src.findRev('/') - 1);
+		mocs << src << endl;
+	    }
+	    mocfile.close();
 	}
     }
     return TRUE;
@@ -198,9 +204,11 @@ MetrowerksMakefileGenerator::init()
     }
     
     QStringList &configs = project->variables()["CONFIG"];
-    if (project->isActiveConfig("qt_dll"))
-	if(configs.findIndex("qt") == -1) configs.append("qt");
-
+    if(project->isActiveConfig("qt"))
+	if(configs.findIndex("moc")) configs.append("moc");
+    if ( project->isActiveConfig("moc") ) {
+	setMocAware(TRUE);
+    }
 
     MakefileGenerator::init();
 }
