@@ -69,8 +69,6 @@
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
-#include "qwindowsstyle.h" // ######## dependency
-// #include "qmotifplusstyle.h" // ######## dependency
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
@@ -2180,8 +2178,10 @@ void QApplication::x11_initialize_style()
     }
     if ( seems_like_KDE_is_running ) {
 #ifndef QT_NO_STYLE_WINDOWS
-	// default to windowsstyle on KDE
-	app_style = new QWindowsStyle;
+	// check if KDE's styles are available
+	app_style = QStyleFactory::create("highcolor");
+	if(!app_style) 	// No, use windows style on KDE
+	    app_style = QStyleFactory::create("windows");
 #endif
     } else { // maybe another desktop?
 	if ( XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
