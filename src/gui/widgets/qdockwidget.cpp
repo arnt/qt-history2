@@ -12,25 +12,25 @@
 ****************************************************************************/
 
 #include "qdockwidget.h"
-#include "qmainwindow.h"
 
+#include <qaction.h>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include <qdrawutil.h>
 #include <qevent.h>
 #include <qfontmetrics.h>
+#include <qmainwindow.h>
 #include <qpainter.h>
 #include <qrubberband.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
-#include <qaction.h>
 
 #include <private/qwidgetresizehandler_p.h>
 
 #include "qdockwidget_p.h"
-#include "qmainwindowlayout_p.h"
 #include "qdockwidgetlayout_p.h"
+#include "qmainwindowlayout_p.h"
 
 
 inline bool hasFeature(QDockWidget *dockwidget, QDockWidget::DockWidgetFeature feature)
@@ -472,11 +472,9 @@ void QDockWidgetTitle::toggleTopLevel()
 void QDockWidgetPrivate::init() {
     Q_Q(QDockWidget);
 
-    q->setFrameStyle(QFrame::Panel | QFrame::Raised);
-
     top = new QVBoxLayout(q);
-    top->setMargin(2);
-    top->setSpacing(2);
+    top->setSpacing(q->style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
+    top->setMargin(top->spacing() * 2);
 
     title = new QDockWidgetTitle(q);
     top->insertWidget(0, title);
@@ -593,7 +591,7 @@ void QDockWidgetPrivate::toggleView(bool b)
     area.
 */
 QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
-    : QFrame(*new QDockWidgetPrivate, parent, flags)
+    : QWidget(*new QDockWidgetPrivate, parent, flags)
 {
     Q_D(QDockWidget);
     d->init();
@@ -611,7 +609,7 @@ QDockWidget::QDockWidget(QWidget *parent, Qt::WFlags flags)
     \sa setWindowTitle()
 */
 QDockWidget::QDockWidget(const QString &title, QWidget *parent, Qt::WFlags flags)
-    : QFrame(*new QDockWidgetPrivate, parent, flags)
+    : QWidget(*new QDockWidgetPrivate, parent, flags)
 {
     Q_D(QDockWidget);
     d->init();
@@ -753,7 +751,7 @@ void QDockWidget::changeEvent(QEvent *event)
     default:
         break;
     }
-    QFrame::changeEvent(event);
+    QWidget::changeEvent(event);
 }
 
 /*! \reimp */
@@ -762,6 +760,15 @@ void QDockWidget::closeEvent(QCloseEvent *event)
     Q_D(QDockWidget);
     if (!(d->features & DockWidgetClosable))
         event->ignore();
+}
+
+/*! \reimp */
+void QDockWidget::paintEvent(QPaintEvent *event)
+{
+    QStyleOptionFrame opt;
+    opt.init(this);
+    QPainter p(this);
+    style()->drawPrimitive(QStyle::PE_FrameDockWidget, &opt, &p, this);
 }
 
 /*! \reimp */
@@ -774,10 +781,14 @@ bool QDockWidget::event(QEvent *event)
         if (!event->spontaneous())
             d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
+    case QEvent::StyleChange:
+        d->top->setSpacing(style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth));
+        d->top->setMargin(d->top->spacing() * 2);
+        break;
     default:
         break;
     }
-    return QFrame::event(event);
+    return QWidget::event(event);
 }
 
 /*!

@@ -25,19 +25,19 @@
 // We mean it.
 //
 
-#include "qframe_p.h"
+#include "private/qwidget_p.h"
 
 class QBoxLayout;
 class QDockWidgetTitle;
 class QWidgetResizeHandler;
 
-class QDockWidgetPrivate : public QFramePrivate
+class QDockWidgetPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QDockWidget)
 
 public:
     inline QDockWidgetPrivate()
-	: QFramePrivate(), widget(0),
+	: QWidgetPrivate(), widget(0),
           features(QDockWidget::DockWidgetClosable
                    | QDockWidget::DockWidgetMovable
                    | QDockWidget::DockWidgetFloatable),

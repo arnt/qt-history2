@@ -14,13 +14,13 @@
 #ifndef QDOCKWIDGET_H
 #define QDOCKWIDGET_H
 
-#include <QtGui/qframe.h>
+#include <QtGui/qwidget.h>
 
 class QDockWidgetLayout;
 class QDockWidgetPrivate;
 class QMainWindow;
 
-class Q_GUI_EXPORT QDockWidget : public QFrame
+class Q_GUI_EXPORT QDockWidget : public QWidget
 {
     Q_OBJECT
 
@@ -72,6 +72,7 @@ signals:
 protected:
     void changeEvent(QEvent *event);
     void closeEvent(QCloseEvent *event);
+    void paintEvent(QPaintEvent *event);
     bool event(QEvent *event);
 
 private:
