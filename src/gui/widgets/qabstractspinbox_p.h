@@ -60,6 +60,8 @@ public:
 
     QStyleOptionSpinBox styleOption() const;
 
+    void setRange(const QCoreVariant &min, const QCoreVariant &max);
+
     QCoreVariant valueForPosition(int pos) const;
 
     virtual void emitSignals();

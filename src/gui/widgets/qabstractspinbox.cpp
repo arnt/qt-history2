@@ -1215,6 +1215,15 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
     return state;
 }
 
+void QAbstractSpinBoxPrivate::setRange(const QCoreVariant &min, const QCoreVariant &max)
+{
+    minimum = qMin(min, max);
+    maximum = qMax(min, max);
+    setValue(qMin(qMax(minimum, value), maximum), EmitIfChanged);
+    resetState();
+    update();
+}
+
 /*!
     \internal
 

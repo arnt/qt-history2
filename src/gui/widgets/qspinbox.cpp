@@ -393,8 +393,7 @@ void QSpinBox::setMaximum(int max)
 
 void QSpinBox::setRange(int min, int max)
 {
-    d->setBoundary(Minimum, QCoreVariant(qMin(min,max)));
-    d->setBoundary(Maximum, QCoreVariant(qMax(min,max)));
+    d->setRange(min, max);
 }
 
 /*!
@@ -758,8 +757,7 @@ void QDoubleSpinBox::setMaximum(double max)
 
 void QDoubleSpinBox::setRange(double min, double max)
 {
-    d->setBoundary(Minimum, QCoreVariant(qMin(min,max)));
-    d->setBoundary(Maximum, QCoreVariant(qMax(min,max)));
+    d->setRange(min, max);
 }
 
 /*!
