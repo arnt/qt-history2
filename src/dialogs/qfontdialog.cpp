@@ -486,9 +486,18 @@ void QFontDialog::updateFamilies()
 
     enum match_t { MATCH_NONE=0, MATCH_LAST_RESORT=1, MATCH_APP=2, MATCH_FALLBACK, MATCH_FAMILY=3 };
 
-    QStringList familyNames = d->fdb.families(d->script) +
-			      d->fdb.families(QFont::Unicode) +
-			      d->fdb.families(QFont::UnknownScript);
+    QStringList familyNames = d->fdb.families(d->script);
+    {
+	// merge the unicode/unknown family list with the above list.
+	QStringList l = d->fdb.families(QFont::Unicode) +
+			d->fdb.families(QFont::UnknownScript);
+	QStringList::ConstIterator it = l.begin(), end = l.end();
+	for (; it != end; ++it) {
+	    if (! familyNames.contains(*it))
+		familyNames << *it;
+	}
+    }
+
     familyNames.sort();
 
     d->familyList->clear();
