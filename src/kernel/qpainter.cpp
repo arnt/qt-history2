@@ -310,6 +310,10 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     \value NorROP  dst = NOT (src OR dst)
 
     By far the most useful ones are \c CopyROP and \c XorROP.
+
+    On Qt/Mac, only \c CopyROP, \c OrROP, \c XorROP, \c NotAndROP,
+    \c NotCopyROP, \c NotOrROP, \c NotXorROP, and \c AndROP are 
+    supported.
 */
 
 /*!
