@@ -718,11 +718,24 @@ void QTabBar::resizeEvent(QResizeEvent *)
 void QTabBar::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
+    int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {
+        if (i == d->currentIndex) {
+            selected = i;
+            continue;
+        }
         QStyleOptionTab opt = d->getStyleOption(i);
         style()->drawControl(QStyle::CE_TabBarTab, &opt, &p, this);
         style()->drawControl(QStyle::CE_TabBarLabel, &opt, &p, this);
     }
+
+    // Draw the selected tab last to get it "on top"
+    if (selected >= 0) {
+        QStyleOptionTab opt = d->getStyleOption(selected);
+        style()->drawControl(QStyle::CE_TabBarTab, &opt, &p, this);
+        style()->drawControl(QStyle::CE_TabBarLabel, &opt, &p, this);
+    }
+
 }
 
 /*!\reimp
