@@ -115,15 +115,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     d->sharing = shareContext && shareContext->cx;
 
     if((cx = (void *)ctx)) {
-#ifdef QMAC_ONE_PIXEL_LOCK
 	if(deviceIsPixmap()) {
 	    QPixmap *pm = (QPixmap *)d->paintDevice;
 	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->handle());
 	    aglSetOffScreen(ctx, pm->width(), pm->height(),
 			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-#else
-#error "Not ready to handle that case, tror jeg!"
-#endif
 	} else {
 	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)d->paintDevice->handle()));
 	}
@@ -487,7 +483,7 @@ void QGLWidget::macInternalFixBufferRect()
     update();
 }
 
-QPaintEngine *QGLWidget::engine() const
+QPaintEngine *QGLWidget::engine()
 {
     if (!d->paintEngine)
 	((QGLWidget*) this)->d->paintEngine = new QOpenGLPaintEngine(this);
