@@ -64,7 +64,7 @@ static QList<QWindowsMime> mimes;
 
   Qt has predefined support for the following Windows Clipboard formats:
   <ul>
-    <li> \c CF_UNICODETEXT - converted to "text/plain;charset=utf16"
+    <li> \c CF_UNICODETEXT - converted to "text/plain;charset=ISO-10646-UCS-2"
 	    and thus supported by QTextDrag.
     <li> \c CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
 	    and thus supported by QTextDrag.
@@ -263,7 +263,7 @@ int QWindowsMimeText::cfFor(const char* mime)
 	    cs = cs.left(i);
 	if ( cs == "system" )
 	    return CF_TEXT;
-	if ( cs == "utf16" )
+	if ( cs == "ISO-10646-UCS-2" )
 	    return CF_UNICODETEXT;
     }
     return 0;
@@ -274,7 +274,7 @@ const char* QWindowsMimeText::mimeFor(int cf)
     if ( cf == CF_TEXT )
 	return "text/plain";
     else if ( cf == CF_UNICODETEXT )
-	return "text/plain;charset=utf16";
+	return "text/plain;charset=ISO-10646-UCS-2";
     else
 	return 0;
 }
