@@ -62,7 +62,7 @@
   implement both incidences separately but use an abstraction. These abstractions
   are called \e actions.
 
-  A QAction accumulates items like a pixmap, the appropriate menu text,
+  A QAction accumulates items like pixmaps, an appropriate menu text,
   an accelerator, a help text, a tool tip etc. that \e represent the user command.
   These items are referred to with the term \e properties. Although the term
   \e action might suggest so they do not include the user command itself.
@@ -81,7 +81,7 @@
   A toggle action emits a toggled() signal whenever it changes state.
   Several toggle actions can be combined in a QActionGroup.
 
-  Whether an action is a command action or a toggle action can be defined by
+  Whether an action is a command action or a toggle action can be defined via
   the setToggleAction() function.
 
   To insert an action into a menu or a tool bar, use addTo(). Depending
@@ -110,11 +110,11 @@
   and remove it again with removeFrom().
 
   Changing an action's properties using one of the set-functions shows instant
-  effect on all representations. Whilst properties like setEnabled(), setText(),
-  menuText(), toolTip(), statusTip(), setAccel(), iconSet() and
+  effect on all representations. Whilst properties like isEnabled(), text(),
+  menuText(), toolTip(), statusTip(), accel(), iconSet() and
   whatsThis() are equally useful
-  for both command and toggle actions, the setOn() property does only show effect
-  when isToggleAction() returns TRUE.
+  for both command and toggle actions, the isOn() property does show effect
+  only when isToggleAction() returns TRUE.
 
   Since accelerators and status tips are window specific, the application
   window has to be an ancestor of an action with accel() or statusTip()
@@ -288,16 +288,15 @@ QString QActionPrivate::statusTip() const
   The \a toggle parameter defines whether the action becomes a toggle action
   (TRUE) or a command action (FALSE).
 
-  If the \a parent is a QActionGroup, the action automatically becomes a
-  member of it.
+  If \a parent is a QActionGroup, the action joins it automatically.
 
   Note: for accelerators and status tips to work, the application window
   must parent the action or one of its ancestors.
-  A QAction created with default arguments
-  will neither display status tips nor respond to accelerators.
+  A QAction created with the default \e parent
+  neither displays status tips nor responds to accelerators.
 
-  This constructor creates a very rudimentary action. In order to make it useful
-  you will at least have to change its text property using setText().
+  The above constructor creates a very rudimentary action. In order to make 
+  it useful you will at least have to change its text property using setText().
  */
 QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
@@ -308,14 +307,13 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 }
 
 
-/*!\overload
-  Constructs an action with the following properties: the description \a text,
-  the icon or iconset \a icon, the menu text
+/*! This constructor creates an action with the following properties: 
+  the description \a text, the icon or iconset \a icon, the menu text
   \a menuText and a keyboard accelerator \a accel. It is a child of \a parent
-  and named \a name. As long as \a toggle isn't set to TRUE this constructor
-  creates a command action.
+  and named \a name. As long as \a toggle isn't set to TRUE the new
+  object is a command action.
 
-  Note that for accelerators and status tips to work, the parent or one of
+  Note that for accelerators and status tips to work, \a parent or one of
   its ancestors has to be the application window.
 
   If  \a parent is a QActionGroup, the action automatically becomes a
@@ -323,7 +321,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
 
   Unless you call setToolTip() to define a separate tip text, \a text
   and \a accel will show up in tool tips. They will also serve as status tip
-  as long as no statusTip() and no tooltip() have been defined.
+  as long as no statusTip() and no toolTip() have been defined.
  */
 QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
@@ -338,17 +336,16 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
     init();
 }
 
-/*!\overload
-  Constructs an iconless action with the description text \a text,
-  the menu text \a menuText and the keyboard accelerator \a accel.
+/*! This constructor results in an iconless action with the description text 
+  \a text, the menu text \a menuText and the keyboard accelerator \a accel.
   Its parent is \a parent and its name \a
   name. Depending on the value of \a toggle a command action (default,
   FALSE) or a toggle action (TRUE) is created.
 
   \a text and \a accel will show up in tooltips unless you call
   setToolTip() to define a specific tip text. As long as toolTip()
-  and statusTip() are not explicitly set this combination will also
-  serve as status tip.
+  and statusTip() are not explicitly set this combination 
+  serves as status tip, too.
 
   The action automatically becomes a member of \a parent if \a parent
   is a QActionGroup.
@@ -386,11 +383,13 @@ QAction::~QAction()
 
   \dontinclude action/toggleaction/toggleaction.cpp
   \skipto labelonoffaction
-  \printuntil setIconSet
+  \printline labelonoffaction
+  \skipto setIconSet
+  \printline setIconSet
 
   (c.f. the action/toggleaction example)
 
-  By default \a icon will be used up as tool button icon and in the menu entry.
+  By default \a icon will be used as tool button icon and in the menu entry.
 
   \sa iconSet();
  */
@@ -416,7 +415,7 @@ QIconSet QAction::iconSet() const
 /*! Attaches a descriptive \a text to the action.
 
   If \l QMainWindow::usesTextLabel() is TRUE \a text shows up as
-  label in the relevant tool-button. \a text serves furthermore
+  label in the relevant tool-button. Furthermore \a text serves 
   as the default text in menus and tips if
   the relevant properties are not defined otherwise.
 
@@ -436,7 +435,7 @@ void QAction::setText( const QString& text )
   text() in combination with
   accel() serves as menu text, tool tip and status tip.
 
-  \sa setText(), menuText(), setToolTip(), setStatusTip()
+  \sa setText(), setMenuText(), setToolTip(), setStatusTip()
  */
 QString QAction::text() const
 {
@@ -444,12 +443,11 @@ QString QAction::text() const
 }
 
 
-/*! Sets a special text \a text for menu items.
+/*! Sets a special text \a text for menu entries.
 
   The entire menu entry will consist of iconSet() (if defined), \a text
-  and accel() (if defined). Use \a setMenuText() to specify
-  ellipses or keyboard shortcuts that should not show up in tooltips or
-  as button text.
+  and accel() (if defined). Use setMenuText() whenever different wording
+  in menu items, tool tips and button text sounds appropriate.
 
   \sa menuText(), setText(), text()
  */
@@ -459,7 +457,7 @@ void QAction::setMenuText( const QString& text )
     d->update();
 }
 
-/*! Returns the text used for menu items.
+/*! Returns the text used in menu entries.
 
   If no menu text has been defined yet, this is the same as text().
 
@@ -472,7 +470,10 @@ QString QAction::menuText() const
 
 /*! Sets the tool tip text to \a tip.
 
-  \sa toolTip()
+  As long as statusTip() hasn't been set using setStatusTip()
+  \a tip serves as message in the status bar as well.
+
+  \sa toolTip(), statusTip()
  */
 void QAction::setToolTip( const QString& tip )
 {
@@ -483,9 +484,12 @@ void QAction::setToolTip( const QString& tip )
 /*! Returns the current tool tip.
 
   If no tool tip has been defined yet, it returns text()
-  and a hotkey hint.
+  and a hotkey hint. 
 
-  \sa setToolTip(), text(), accel()
+  toolTip() serves as statusTip() as long as no
+  separate message for the status bar has been set.
+
+  \sa setToolTip(), setStatusTip(), text(), accel()
 */
 QString QAction::toolTip() const
 {
@@ -498,7 +502,7 @@ QString QAction::toolTip() const
   Note that QActions that were created with only non-windows as
   ancestors can't display status tips.
 
-  \sa statusTip()
+  \sa statusTip(), toolTip()
 */
 void QAction::setStatusTip( const QString& tip )
 {
@@ -542,6 +546,9 @@ void QAction::setWhatsThis( const QString& whatsThis )
 
 /*! Returns the What's This help text for this action.
 
+  Unlike for tips and menu entries text() does not serve
+  as default value here.
+  
   \sa setWhatsThis()
  */
 QString QAction::whatsThis() const
@@ -550,9 +557,17 @@ QString QAction::whatsThis() const
 }
 
 
-/*! Sets the action's accelerator to \a key.
+/*! Sets the action's accelerator to \a key, e.g.:
 
-  Note: for accelerators to work, the parent or one of its ancestors
+  \dontinclude action/toggleaction/toggleaction.cpp
+  \skipto labelonoffaction
+  \printline labelonoffaction
+  \skipto setAccel
+  \printline setAccel
+ 
+  (c.f. the action/toggleaction example)   
+
+  For accelerators to work, the action's parent or one of its ancestors
   has to be the application window.
 
   \sa accel()
@@ -603,6 +618,10 @@ int QAction::accel() const
   You may want to add toggle actions to a QActionGroup for exclusive
   toggling.
 
+  Keep in mind that it is advisable to connect a command actions'
+  user command to the activated() signal whereas toggled() is the
+  preferred signal for toggle actions. 
+
   \sa isToggleAction()
  */
 void QAction::setToggleAction( bool enable )
@@ -648,6 +667,8 @@ void QAction::setOn( bool enable )
 /*! Returns TRUE if this toggle action is switched on, or FALSE if it is
   switched off.
 
+  For command actions isOn() is always FALSE.
+
   \sa setOn(), isToggleAction()
 */
 bool QAction::isOn() const
@@ -657,8 +678,8 @@ bool QAction::isOn() const
 
 /*! Enables the action if \a enable is TRUE, otherwise disables it.
 
-  Disabled actions can't be choosen by the user. They won't
-  disappear from the menu/tool bar but will be presented immediately
+  Disabled actions can't be choosen by the user. They don't
+  disappear from the menu/tool bar but are immediately presented 
   in a manner indicating their unavailability.
 
   What's this? help on disabled actions is still available
@@ -705,23 +726,22 @@ void QAction::toolButtonToggled( bool on )
 
   Currently supported widget types are QToolBar and QPopupMenu.
 
-  An action addded to a tool bar will be displayed automatically
-  as a tool button, an action added to a pop up menu will appear
+  An action added to a tool bar is automatically displayed 
+  as a tool button, an action added to a pop up menu appears
   as a menu entry, e.g.
 
   \dontinclude action/application.cpp
   \skipto fileTools
   \printline fileTools
-  \printuntil addTo( fileTools )
-  \skipto whatsThisButton
-  \printline whatsThisButton
+  \skipto addTo( fileTools )
+  \printline addTo( fileTools )
 
-  \skipto file
+  \skipto new QPopupMenu
   \printuntil menuBar()
   \skipto fileOpenAction->addTo
   \printline fileOpenAction->addTo
 
-  (cf. <A HREF="simple-application-action.html">Simple Application Walkthrough
+  (cf. the <A HREF="simple-application-action.html">Simple Application Walkthrough
   featuring QAction</A>)
 
   addTo() returns TRUE if the action was added successfully, FALSE
@@ -834,7 +854,7 @@ void QAction::clearStatusText()
 
 /*! Removes the action from widget \a w.
 
-  Returns TRUE when the action was removed successfully, FALSE
+  Returns TRUE if the action was removed successfully, FALSE
   otherwise.
 
   \sa addTo()
@@ -901,10 +921,11 @@ void QAction::objectDestroyed()
 
 /*! \fn void QAction::toggled(bool)
 
-  This signal is emitted when a toggle action changes state.
+  This signal is emitted when a toggle action changes state;
+  command actions don't emit toggled(). 
 
   The carried argument denotes to the new state; i.e. TRUE
-  when the toggle action was switched on and FALSE when
+  if the toggle action was switched on and FALSE when
   it was switched off.
 
   To trigger a user command depending on whether a toggle action has
@@ -915,6 +936,9 @@ void QAction::objectDestroyed()
   \skipto QMainWindow * window
   \printline QMainWindow * window
   \skipto labelonoffaction
+  \printline labelonoffaction
+  \skipto connect
+
   \printuntil setUsesTextLabel
 
   (c.f. the action/toggleaction example)

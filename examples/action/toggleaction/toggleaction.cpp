@@ -11,10 +11,10 @@ int main( int argc, char **argv )
     QMainWindow * window = new QMainWindow;
     QToolBar * toolbar = new QToolBar( window );
 
-    QAction * labelonoffaction = new QAction( "labels on/off", 
-                                              "tool-button labels on/off", 
-                                              Qt::ALT+Qt::Key_L,
-                                              window, "labelonoff", TRUE );
+    QAction * labelonoffaction = new QAction( window, "labelonoff", TRUE );  
+
+    labelonoffaction->setText( "labels on/off" ); 
+    labelonoffaction->setAccel( Qt::ALT+Qt::Key_L );
     labelonoffaction->setIconSet( (QPixmap) labelonoff_xpm );                                 
 
     QObject::connect( labelonoffaction, SIGNAL( toggled( bool ) ), 
