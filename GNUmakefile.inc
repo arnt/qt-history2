@@ -1,11 +1,26 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#16 $
+# $Id: //depot/qt/main/GNUmakefile.inc#17 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
 #############################################################################
+
+
+ifdef QT_EMBEDDED
+ifeq ($(PROJECT),qt)
+PROJECT=qt-e
+endif
+PROJOBJ=e/
+PROJMAK=-e
+TMAKEPATH=$(TMAKEDIR)/lib/linux-qws-g++
+export TMAKEPATH
+ifndef QT_TARGET
+QT_TARGET=release
+endif
+endif
+
 
 ifndef QT_TARGET
 QT_TARGET=debug
@@ -22,15 +37,6 @@ else
 VCTEMPLATE = vclib
 endif
 
-ifdef QT_EMBEDDED
-ifeq ($(PROJECT),qt)
-PROJECT=qt-e
-endif
-PROJOBJ=e/
-PROJMAK=-e
-TMAKEPATH=$(TMAKEDIR)/lib/linux-qws-g++
-export TMAKEPATH
-endif
 
 SYNCQT = $(QTDIR)/bin/syncqt
 
