@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#20 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#21 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -289,7 +289,7 @@ public:
 	POINT curPos;
 	if ( GetCursorPos( &curPos ) ) {
 	    QPoint p(curPos.x, curPos.y);
-	    
+	
 	    QNPWidget *newFocussedWidget = 0;
 	    for ( QNPWidget* npw = npwidgets.first();
 		npw; npw = npwidgets.next() )
@@ -303,12 +303,12 @@ public:
 	    }
 	    if (newFocussedWidget != focussedWidget && focussedWidget)
 		focussedWidget->leaveInstance();
-	    
+	
 	    if (newFocussedWidget) {
 		if (newFocussedWidget != focussedWidget)
 		    newFocussedWidget->enterInstance();
 	    }
-	    
+	
 	    focussedWidget = newFocussedWidget;
 	}
     }
@@ -532,7 +532,7 @@ struct NS_Private {
 ** NPP_New is called when your plugin is instantiated (i.e. when an EMBED
 ** tag appears on a page).
 */
-extern "C" NPError 
+extern "C" NPError
 NPP_New(NPMIMEType /*pluginType*/,
     NPP instance,
     uint16 mode,
@@ -546,7 +546,7 @@ NPP_New(NPMIMEType /*pluginType*/,
 
     if (instance == NULL)
         return NPERR_INVALID_INSTANCE_ERROR;
-        
+
     instance->pdata = new _NPInstance;
 
     This = (_NPInstance*) instance->pdata;
@@ -584,7 +584,7 @@ NPP_New(NPMIMEType /*pluginType*/,
     return result;
 }
 
-extern "C" NPError 
+extern "C" NPError
 NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 {
     _NPInstance* This;
@@ -619,7 +619,7 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 }
 
 
-extern "C" NPError 
+extern "C" NPError
 NPP_SetWindow(NPP instance, NPWindow* window)
 {
     if (!qNP) qNP = QNPlugin::create();
@@ -726,10 +726,10 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 }
 
 
-extern "C" NPError 
+extern "C" NPError
 NPP_NewStream(NPP instance,
           NPMIMEType type,
-          NPStream *stream, 
+          NPStream *stream,
           NPBool seekable,
           uint16 *stype)
 {
@@ -758,7 +758,7 @@ int32 STREAMBUFSIZE = 0X0FFFFFFF; /* If we are reading from a file in NPAsFile
                                    * mode so we can take any size stream in our
                                    * write call (since we ignore it) */
 
-extern "C" int32 
+extern "C" int32
 NPP_WriteReady(NPP instance, NPStream *stream)
 {
     _NPInstance* This;
@@ -778,7 +778,7 @@ NPP_WriteReady(NPP instance, NPStream *stream)
 }
 
 
-extern "C" int32 
+extern "C" int32
 NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buffer)
 {
     if (instance != NULL)
@@ -795,7 +795,7 @@ NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buffer)
 }
 
 
-extern "C" NPError 
+extern "C" NPError
 NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
 {
     _NPInstance* This;
@@ -832,7 +832,7 @@ NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
 }
 
 
-extern "C" void 
+extern "C" void
 NPP_StreamAsFile(NPP instance, NPStream *stream, const char* fname)
 {
     _NPInstance* This;
@@ -874,7 +874,7 @@ public:
 };
 #endif
 
-extern "C" void 
+extern "C" void
 NPP_Print(NPP instance, NPPrint* printInfo)
 {
     if(printInfo == NULL)
@@ -882,7 +882,7 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 
     if (instance != NULL) {
         _NPInstance* This = (_NPInstance*) instance->pdata;
-    
+
         if (printInfo->mode == NP_FULL) {
             printInfo->print.fullPrint.pluginPrinted =
 		This->instance->printFullPage();
@@ -1060,7 +1060,7 @@ void qt_XDestroyWindow( const QWidget* qw, Display *display, Window window )
 
 #ifdef _WS_WIN_
 
-BOOL   WINAPI   DllMain (HANDLE hInst, 
+BOOL   WINAPI   DllMain (HANDLE hInst,
                         ULONG ul_reason_for_call,
                         LPVOID lpReserved)
 {
@@ -1073,7 +1073,7 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
 	case DLL_THREAD_DETACH:
 	    break;
     }
-	    
+	
     return TRUE;
 }
 
@@ -1089,8 +1089,10 @@ int main(int argc, char** argv)
 /*!
   \class QNPWidget qnp.h
   \brief A QWidget that is a Web-browser plugin window
+  
+  \extension nsplugin
 
-  Derive from QNPWidget to create a widget that can be used as a 
+  Derive from QNPWidget to create a widget that can be used as a
   Browser plugin window, or create one and add child widgets.
   Instances of QNPWidget may only be created
   when QNPInstance::newWindow() is called by the browser.
@@ -1291,6 +1293,8 @@ void QNPWidget::unsetWindow()
 /*!
   \class QNPInstance qnp.h
   \brief a QObject that is a Web-browser plugin
+
+  \extension nsplugin
 
   Deriving from QNPInstance creates an object that represents a single
   &lt;EMBED&gt; tag in an HTML document.
@@ -1623,10 +1627,10 @@ void QNPInstance::status(const char* msg)
 
 /*!
   Returns the Java object associated with the plug-in instance, an
-  object of the 
-  \link QNPlugin::getJavaClass() plug-in's Java class\endlink, 
+  object of the
+  \link QNPlugin::getJavaClass() plug-in's Java class\endlink,
   or 0 if the plug-in does not have a Java class, Java is disabled, or
-  an error occurred .  
+  an error occurred .
 
   The return value is actually a <tt>jref</tt> we use <tt>void*</tt> so
   as to avoid burdening plugins which do not require Java.
@@ -1644,6 +1648,10 @@ void* QNPInstance::getJavaPeer() const
 /*!
   \class QNPStream qnp.h
   \brief A stream of data provided to a QNPInstance by the browser.
+
+  \extension nsplugin
+
+  Note that this is neither a QTextStream or a QDataStream.
 
   \sa QNPInstance::write(), QNPInstance::newStreamCreated()
 */
@@ -1793,6 +1801,8 @@ int QNPStream::write( int len, void* buffer )
   \class QNPlugin qnp.h
   \brief The plugin central factory.
 
+  \extension nsplugin
+
   This class is the heart of the plugin.  One instance of this object is
   created when the plugin is \e first needed, by calling
   QNPlugin::create(), which must be implemented in your plugin code to
@@ -1823,14 +1833,14 @@ QNPlugin* QNPlugin::actual()
 }
 
 /*!
-  Creates a QNPlugin.  This may only be used by the constructor 
+  Creates a QNPlugin.  This may only be used by the constructor
   derived class
   returned by plugin's implementation of the QNPlugin::create() function.
 */
 QNPlugin::QNPlugin()
 {
     // Encourage linker to include stuff.
-    static void* a; 
+    static void* a;
     a = (void*)NP_Initialize;
     a = (void*)NP_Shutdown;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#21 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#22 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -52,6 +52,8 @@ const char *qGLVersion()
   \class QGLFormat qgl.h
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
+
+  \extension imageio
 
   A display format has several characteristics:
   <ul>
@@ -458,6 +460,8 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 /*!
   \class QGLContext qgl.h
   \brief The QGLContext class encapsulates an OpenGL rendering context.
+
+  \extension qgl
 
   An OpenGL rendering context is a complete set of OpenGL state
   variables.
@@ -932,6 +936,8 @@ void QGLContext::swapBuffers()
 /*!
   \class QGLWidget qgl.h
   \brief The QGLWidget class is a widget for rendering OpenGL graphics.
+
+  \extension qgl
 
   It is easy to render OpenGL graphics in Qt applications. You can
   create a subclass of QGLWidget and reimplement two functions:

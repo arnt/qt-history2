@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#3 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#4 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -255,6 +255,8 @@ static void np_do_timers( void*, void* )
   \class QXtApplication qxt.h
   \brief Allows mixing of Xt/Motif and Qt widgets.
 
+  \extension xt
+
   The QXtApplication and QXtWidget classes allow old Xt or Motif widgets
   to be used in new Qt applications.  They also allow Qt widgets to
   be used in primarily Xt/Motif applications.  The facility is intended
@@ -343,6 +345,8 @@ bool QXtApplication::x11EventFilter(XEvent* ev)
 /*!
   \class QXtWidget qxt.h
   \brief Allows mixing of Xt/Motif and Qt widgets.
+
+  \extension xt
 
   QXtWidget acts as a bridge between Xt and Qt. For utilizing old
   Xt widgets, it can be a QWidget
@@ -458,7 +462,7 @@ void QXtWidget::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry(x,y,w,h);
 
     Arg args[20];
-    Cardinal nargs=0; 
+    Cardinal nargs=0;
     XtSetArg(args[nargs], XtNx, x);       nargs++;
     XtSetArg(args[nargs], XtNy, y);       nargs++;
     XtSetArg(args[nargs], XtNwidth, w);   nargs++;
