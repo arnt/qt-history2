@@ -1163,7 +1163,7 @@ MakefileGenerator::filePrefixRoot(const QString &root, const QString &path)
 }
 
 void
-MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
+MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool noBuild)
 {
     QString rm_dir_contents("-$(DEL_FILE)");
     if(Option::target_mode != Option::TARG_WIN_MODE) //ick
@@ -1277,7 +1277,9 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
         }
 
         if(!target.isEmpty()) {
-            if(project->isActiveConfig("build_all"))
+            if(noBuild)
+                t << "install_" << (*it) << ": ";
+            else if(project->isActiveConfig("build_all"))
                 t << "install_" << (*it) << ": all ";
             else
                 t << "install_" << (*it) << ": first ";
@@ -1320,7 +1322,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
             debug_msg(1, "no definition for install %s: install target not created",(*it).toLatin1().constData());
         }
     }
-    t << "install: " << all_installs << " " << var("INSTALLDEPS");
+    t << "install: " << var("INSTALLDEPS") << " " << all_installs;
     if(project->isEmpty("QMAKE_NOFORCE"))
         t <<  " FORCE";
     t << "\n\n";
@@ -2205,7 +2207,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     if(flags & SubTargetInstalls) {
         project->variables()["INSTALLDEPS"]   += "install_subtargets";
         project->variables()["UNINSTALLDEPS"] += "uninstall_subtargets";
-        writeInstalls(t, "INSTALLS");
+        writeInstalls(t, "INSTALLS", true);
     }
 
     if(project->isEmpty("QMAKE_NOFORCE"))

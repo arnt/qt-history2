@@ -45,7 +45,7 @@ protected:
     void writeObj(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
-    void writeInstalls(QTextStream &t, const QString &installs);
+    void writeInstalls(QTextStream &t, const QString &installs, bool noBuild=false);
     void writeHeader(QTextStream &t);
     void writeSubDirs(QTextStream &t);
     void writeMakeQmake(QTextStream &t);
