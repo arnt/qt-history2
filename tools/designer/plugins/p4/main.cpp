@@ -798,8 +798,8 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 	actionEdit->setEnabled( FALSE );
     }
 
-    if ( fwIface )
-	fwIface->setListViewIcon( pix );
+//     if ( fwIface )
+// 	fwIface->setListViewIcon( pix );
 }
 
 void P4Interface::statusMessage( const QString &text )
