@@ -30,9 +30,13 @@
 //
 //
 
-#include "qlist.h"
 #include "qobject.h"
 #include "qpointer.h"
+
+#include <qlist.h>
+#if defined(QT_THREAD_SUPPORT)
+#  include <private/qspinlock_p.h>
+#endif
 
 #define Q_DECL_PUBLIC( Class ) \
 private: \
@@ -62,6 +66,9 @@ public:
 	objectName(0),
 	ownObjectName(false)
     {
+#if defined(QT_THREAD_SUPPORT)
+	spinlock.initialize();
+#endif
 #ifndef QT_NO_USERDATA
 	userData.setAutoDelete(true);
 #endif
@@ -71,23 +78,26 @@ public:
 #if defined(QT_THREAD_SUPPORT)
     // id of the thread that owns the object
     Qt::HANDLE thread;
+    QSpinLock spinlock;
 #endif
 
     // signal connections
     struct Connections {
 	int count;
-	struct Connection{
+	struct Connection {
 	    int signal;
 	    union {
 		QObject *receiver;
 		QObject **guarded;
 	    };
 	    int member;
+	    int type; // 0 == auto, 1 == direct, 2 == queued
 	    int *types;
 	} connections[1];
     };
     Connections *connections;
-    void addConnection(int signal, QObject *receiver, int member, int *types = 0);
+    static int *queuedConnectionTypes(const char *signal);
+    void addConnection(int signal, QObject *receiver, int member, int type = 0, int *types = 0);
     Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
 
@@ -108,10 +118,10 @@ public:
     void refSender(QObject *sender);
     void derefSender(QObject *sender);
     void removeSender(QObject *sender);
+    void derefSenders();
 
-    static QObject *setCurrentSender(Senders *senders, QObject *sender);
-    static void resetCurrentSender(Senders *senders, QObject *sender);
-    static void derefSenders(Senders *senders);
+    static QObject *setCurrentSender(QObject *receiver, QObject *sender);
+    static void resetCurrentSender(QObject *receiver, QObject *sender);
 
 
     QObjectList children;

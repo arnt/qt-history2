@@ -167,7 +167,7 @@ struct Q_CORE_EXPORT QMetaObject
 			int signal_index,
 			const QObject *receiver,
 			int membcode, int member_index,
-			int *types = 0);
+			int type = 0, int *types = 0);
     // internal index-based disconnect
     static bool disconnect(const QObject *sender,
 			   int signal_index,
