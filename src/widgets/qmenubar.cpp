@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#164 $
 **
 ** Implementation of QMenuBar class
 **
@@ -609,10 +609,13 @@ int QMenuBar::calculateRects( int max_width )
 	    w = mi->pixmap()->width();
 	    h = mi->pixmap()->height();
 	} else if ( !mi->text().isNull() ) {	// text item
-	    w = fm.width(mi->text())
+	    QString s = mi->text();
+	    w = fm.width(s)
 		    - fm.minLeftBearing()
 		    - fm.minRightBearing()
 		    + 2*motifItemHMargin;
+		w -= s.contains('&')*fm.width('&');
+		w += s.contains("&&")*fm.width('&');
 	    h = fm.height() + motifItemVMargin;
 	} else if ( mi->isSeparator() ) {	// separator item
 	    separator = i;
