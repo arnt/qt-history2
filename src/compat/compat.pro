@@ -1,11 +1,12 @@
-TARGET		= Qt3Compat
-QPRO_PWD        = $$PWD
-QT              = core gui network sql
+TARGET	   = Qt3Compat
+QPRO_PWD   = $$PWD
+QT         = core gui network sql
+DEFINES   += QT_BUILD_COMPAT_LIB
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x60000000
+
 include(../qbase.pri)
 
 PRECOMPILED_HEADER = other/qt_compat_pch.h
-
-DEFINES += QT_BUILD_COMPAT_LIB
 
 include(tools/tools.pri)
 include(sql/sql.pri)

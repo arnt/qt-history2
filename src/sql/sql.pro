@@ -1,16 +1,14 @@
-TARGET		= QtSql
-QPRO_PWD        = $$PWD
-QT = core
-
+TARGET	   = QtSql
+QPRO_PWD   = $$PWD
+QT         = core
 DEFINES += QT_BUILD_SQL_LIB
-
-DEFINES += QT_NO_CAST_FROM_ASCII
-
-PRECOMPILED_HEADER = ../core/global/qt_pch.h
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x62000000
 
 include(../qbase.pri)
 
-SQL_P =         sql
+DEFINES += QT_NO_CAST_FROM_ASCII
+PRECOMPILED_HEADER = ../core/global/qt_pch.h
+SQL_P = sql
 
 include(kernel/kernel.pri)
 include(drivers/drivers.pri)

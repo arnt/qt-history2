@@ -1,12 +1,15 @@
-TARGET = QtOpenGL
-QPRO_PWD        = $$PWD
+TARGET     = QtOpenGL
+QPRO_PWD   = $$PWD
+QT         = core gui
+DEFINES   += QT_BUILD_OPENGL_LIB
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x63000000
+
+
 include(../qbase.pri)
 
-QT = core gui
 !win32:!embedded:!mac:CONFIG	   += x11
 contains(QT_CONFIG, opengl):CONFIG += opengl
 
-DEFINES += QT_BUILD_OPENGL_LIB
 
 HEADERS += qgl.h \
 	   qglcolormap.h \

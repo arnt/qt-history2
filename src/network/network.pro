@@ -1,9 +1,10 @@
 TARGET   = QtNetwork
 QPRO_PWD = $$PWD
 DEFINES += QT_BUILD_NETWORK_LIB
-include(../qbase.pri)
-
 QT = core
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x64000000
+
+include(../qbase.pri)
 
 # Qt network module
 

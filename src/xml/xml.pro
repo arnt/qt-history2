@@ -1,12 +1,12 @@
-TARGET                = QtXml
-QPRO_PWD        = $$PWD
-QT = core
-
-DEFINES += QT_BUILD_XML_LIB
-
-PRECOMPILED_HEADER = ../core/global/qt_pch.h
+TARGET     = QtXml
+QPRO_PWD   = $$PWD
+QT         = core
+DEFINES   += QT_BUILD_XML_LIB
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x61000000
 
 include(../qbase.pri)
+
+PRECOMPILED_HEADER = ../core/global/qt_pch.h
 
 HEADERS += qxml.h qdom.h
 SOURCES += qxml.cpp qdom.cpp

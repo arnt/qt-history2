@@ -1,8 +1,8 @@
-TARGET		= QtCore
-QPRO_PWD        = $$PWD
+TARGET	   = QtCore
+QPRO_PWD   = $$PWD
 QT         =
-
-DEFINES += QT_BUILD_CORE_LIB
+DEFINES   += QT_BUILD_CORE_LIB
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x67000000
 
 include(../qbase.pri)
 include(arch/$$ARCH/arch.pri)
@@ -19,3 +19,4 @@ mac:LIBS += -framework ApplicationServices
 win32:DEFINES-=QT_NO_CAST_TO_ASCII
 
 QMAKE_LIBS += $$QMAKE_LIBS_CORE
+

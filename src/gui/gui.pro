@@ -1,10 +1,11 @@
-TARGET		= QtGui
-QPRO_PWD        = $$PWD
-DEFINES += QT_BUILD_GUI_LIB
+TARGET	   = QtGui
+QPRO_PWD   = $$PWD
+QT = core 
+DEFINES   += QT_BUILD_GUI_LIB
+win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x65000000
 
 include(../qbase.pri)
 
-QT = core 
 !win32:!embedded:!mac:CONFIG	  += x11
 contains(QT_CONFIG, x11sm):CONFIG += x11sm
 
