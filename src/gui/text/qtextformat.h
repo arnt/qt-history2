@@ -22,7 +22,6 @@
 class QString;
 
 class QTextFormatCollection;
-class QTextFormatProperty;
 class QTextFormatPrivate;
 class QTextBlockFormat;
 class QTextCharFormat;
@@ -217,7 +216,6 @@ public:
     void clearProperty(int propertyId);
 
     bool hasProperty(int propertyId) const;
-    PropertyType propertyType(int propertyId) const;
 
     QList<int> allPropertyIds() const;
 

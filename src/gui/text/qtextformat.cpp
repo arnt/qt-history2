@@ -14,10 +14,27 @@
 #include "qtextformat.h"
 #include "qtextformat_p.h"
 
+#include <qvariant.h>
 #include <qdatastream.h>
 #include <qdebug.h>
 #include <qmap.h>
 #include <qhash.h>
+
+// remove only when you are sure that the implicit registration via
+// qVariantGet/qVariantSet also registers the streaming operators
+static int registerTextLengthType()
+{
+    int id = qRegisterMetaType<QTextLength>("Qt/QTextLength");
+    qRegisterMetaTypeStreamOperators<QTextLength>("Qt/QTextLength");
+    return id;
+}
+
+static int registerTextLengthVectorType()
+{
+    int id = qRegisterMetaType<QVector<QTextLength> >("Qt/QVector<QTextLength>");
+    qRegisterMetaTypeStreamOperators<QVector<QTextLength> >("Qt/QVector<QTextLength>");
+    return id;
+}
 
 /*!
     \class QTextLength qtextformat.h
@@ -114,73 +131,13 @@ QDataStream &operator>>(QDataStream &stream, QTextLength &length)
     return stream;
 }
 
-class QTextFormatProperty
-{
-public:
-    inline QTextFormatProperty() : type(QTextFormat::Undefined) {}
-
-    inline QTextFormatProperty(bool value) : type(QTextFormat::Bool)
-    { data.boolValue = value; }
-
-    inline QTextFormatProperty(int value) : type(QTextFormat::Integer)
-    { data.intValue = value; }
-
-    inline QTextFormatProperty(float value) : type(QTextFormat::Float)
-    { data.floatValue = value; }
-
-    inline QTextFormatProperty(const QColor &value) : type(QTextFormat::Color)
-    { data.color = value.rgb(); }
-
-    QTextFormatProperty(const QString &value);
-
-    QTextFormatProperty(const QTextLength &value);
-    QTextFormatProperty(const QVector<QTextLength> &value);
-
-    QTextFormatProperty &operator=(const QTextFormatProperty &rhs);
-    inline QTextFormatProperty(const QTextFormatProperty &rhs) : type(QTextFormat::Undefined)
-    { (*this) = rhs; }
-
-    inline ~QTextFormatProperty()
-    { free(); }
-
-    bool operator==(const QTextFormatProperty &rhs) const;
-
-    QTextFormat::PropertyType type;
-    union {
-        bool boolValue;
-        int intValue;
-        float floatValue;
-        mutable void *ptr;
-        QRgb color;
-    } data;
-
-    inline const QString &stringValue() const
-    { return *reinterpret_cast<const QString *>(&data.ptr); }
-
-    inline const QTextLength &lengthValue() const
-    { return *reinterpret_cast<const QTextLength *>(data.ptr); }
-
-    inline const QVector<QTextLength> &lengthVectorValue() const
-    { return *reinterpret_cast<const QVector<QTextLength> *>(&data.ptr); }
-
-    uint hash() const;
-
-private:
-    void free();
-};
-
-Q_DECLARE_TYPEINFO(QTextFormatProperty, Q_PRIMITIVE_TYPE);
-
-static QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop);
-static QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop);
-
 class QTextFormatPrivate : public QSharedData
 {
 public:
     QTextFormatPrivate() : hashDirty(true), hashValue(0) {}
 
     // keep Q_INT* types here, so we can safely stream to a datastream
-    typedef QMap<Q_INT32, QTextFormatProperty> PropertyMap;
+    typedef QMap<Q_INT32, QVariant> PropertyMap;
 
     Q_INT32 type;
 
@@ -191,7 +148,7 @@ public:
         return props == rhs.props;
     }
 
-    inline void insertProperty(Q_INT32 key, const QTextFormatProperty &value)
+    inline void insertProperty(Q_INT32 key, const QVariant &value)
     {
         hashDirty = true;
         props.insert(key, value);
@@ -207,6 +164,11 @@ public:
 
     inline void load(QDataStream &stream)
     {
+        static int typeId1 = registerTextLengthType();
+        static int typeId2 = registerTextLengthVectorType();
+        Q_UNUSED(typeId1);
+        Q_UNUSED(typeId2);
+
         stream >> type >> props;
     }
 
@@ -226,181 +188,19 @@ private:
     mutable uint hashValue;
 };
 
-
-#ifndef QT_NO_DEBUG
-QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
+static uint variantHash(const QVariant &variant)
 {
-    switch (property.type) {
-        case QTextFormat::Undefined: debug << "[Undefined]"; break;
-        case QTextFormat::Bool: debug << "[" << "Bool:" << property.data.boolValue << "]"; break;
-        case QTextFormat::Integer: debug << "[" << "Integer:" << property.data.intValue << "]"; break;
-        case QTextFormat::Float: debug << "[" << "Float:" << property.data.floatValue << "]"; break;
-        case QTextFormat::String: debug << "[" << "String:" << property.stringValue() << "]"; break;
-        default: Q_ASSERT(false);
-    }
-    return debug;
-}
-#endif
+    switch (variant.type()) {
+        case QVariant::Invalid: return 0;
+        case QVariant::Bool: return variant.toBool();
+        case QVariant::Int: return variant.toInt();
+        case QVariant::Double: return static_cast<int>(variant.toDouble());
+        case QVariant::String: return qHash(variant.toString());
+        case QVariant::Color: return qHash(variant.toColor().rgb());
+        default: return qHash(variant.typeName());
 
-QTextFormatProperty::QTextFormatProperty(const QString &value)
-{
-    type = QTextFormat::String;
-    new (&data.ptr) QString(value);
-}
-
-QTextFormatProperty::QTextFormatProperty(const QTextLength &value)
-{
-    type = QTextFormat::Length;
-    data.ptr = new QTextLength(value);
-}
-
-QTextFormatProperty::QTextFormatProperty(const QVector<QTextLength> &value)
-{
-    type = QTextFormat::LengthVector;
-    new (&data.ptr) QVector<QTextLength>(value);
-}
-
-uint QTextFormatProperty::hash() const
-{
-    switch (type) {
-        case QTextFormat::Undefined: return 0;
-        case QTextFormat::Bool: return data.boolValue;
-        case QTextFormat::FormatObject:
-        case QTextFormat::Integer: return data.intValue;
-        case QTextFormat::Float: return static_cast<int>(data.floatValue);
-        case QTextFormat::String: return qHash(stringValue());
-        case QTextFormat::Color: return qHash(data.color);
-        case QTextFormat::Length: return lengthValue().type();
-        case QTextFormat::LengthVector: return lengthVectorValue().count();
-        default: Q_ASSERT(false);
     }
     return 0;
-}
-
-QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &rhs)
-{
-    if (this == &rhs)
-        return *this;
-
-    free();
-
-    type = rhs.type;
-
-    if (type == QTextFormat::String)
-        new (&data.ptr) QString(rhs.stringValue());
-    else if (type == QTextFormat::Length)
-        data.ptr = new QTextLength(rhs.lengthValue());
-    else if (type == QTextFormat::LengthVector)
-        new (&data.ptr) QVector<QTextLength>(rhs.lengthVectorValue());
-    else if (type != QTextFormat::Undefined)
-        data = rhs.data;
-
-    return *this;
-}
-
-void QTextFormatProperty::free()
-{
-    if (type == QTextFormat::String)
-        reinterpret_cast<QString *>(&data.ptr)->~QString();
-    else if (type == QTextFormat::Length)
-        delete reinterpret_cast<QTextLength *>(data.ptr);
-    else if (type == QTextFormat::LengthVector)
-        reinterpret_cast<QVector<QTextLength> *>(&data.ptr)->~QVector<QTextLength>();
-}
-
-bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
-{
-    if (type != rhs.type)
-        return false;
-
-    switch (type) {
-        case QTextFormat::Undefined: return true;
-        case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
-        case QTextFormat::FormatObject:
-        case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
-        case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
-        case QTextFormat::String: return stringValue() == rhs.stringValue();
-        case QTextFormat::Color: return data.color == rhs.data.color;
-        case QTextFormat::Length: return lengthValue() == rhs.lengthValue();
-        case QTextFormat::LengthVector: return lengthVectorValue() == rhs.lengthVectorValue();
-    }
-
-    return true;
-}
-
-QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
-{
-    stream <<(Q_INT32(prop.type));
-
-    switch (prop.type) {
-        case QTextFormat::Undefined: break;
-        case QTextFormat::Bool: stream << Q_INT8(prop.data.boolValue); break;
-        case QTextFormat::FormatObject:
-        case QTextFormat::Integer: stream << Q_INT32(prop.data.intValue); break;
-        case QTextFormat::Float: stream << prop.data.floatValue; break;
-        case QTextFormat::String: stream << prop.stringValue(); break;
-        case QTextFormat::Color: stream << Q_UINT32(prop.data.color); break;
-        case QTextFormat::Length: stream << prop.lengthValue(); break;
-        case QTextFormat::LengthVector: stream << prop.lengthVectorValue(); break;
-        default: Q_ASSERT(false); break;
-    }
-
-    return stream;
-}
-
-QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
-{
-    Q_INT32 t;
-    stream >> t;
-    prop.type = static_cast<QTextFormat::PropertyType>(t);
-
-    switch (prop.type) {
-        case QTextFormat::Undefined: break;
-        case QTextFormat::Bool: {
-            Q_INT8 b;
-            stream >> b;
-            prop.data.boolValue = b;
-            break;
-        }
-        case QTextFormat::FormatObject:
-        case QTextFormat::Integer: {
-            Q_INT32 i;
-            stream >> i;
-            prop.data.intValue = i;
-            break;
-        }
-        case QTextFormat::Float: stream >> prop.data.floatValue; break;
-        case QTextFormat::String: {
-            QString s;
-            stream >> s;
-            prop.type = QTextFormat::Undefined;
-            prop = QTextFormatProperty(s);
-            break;
-        }
-        case QTextFormat::Color: {
-            Q_UINT32 col;
-            stream >> col;
-            prop.data.color = col;
-            break;
-        }
-        case QTextFormat::Length: {
-            QTextLength l;
-            stream >> l;
-            prop.type = QTextFormat::Undefined;
-            prop = QTextFormatProperty(l);
-            break;
-        }
-        case QTextFormat::LengthVector: {
-            QVector<QTextLength> v;
-            stream >> v;
-            prop.type = QTextFormat::Undefined;
-            prop = QTextFormatProperty(v);
-            break;
-        }
-        default: Q_ASSERT(false); break;
-    }
-
-    return stream;
 }
 
 uint QTextFormatPrivate::recalcHash() const
@@ -408,7 +208,7 @@ uint QTextFormatPrivate::recalcHash() const
     hashValue = 0;
     for (PropertyMap::ConstIterator it = props.begin();
          it != props.end(); ++it)
-        hashValue += (it.key() << 16) + it->hash();
+        hashValue += (it.key() << 16) + variantHash(*it);
 
     hashDirty = false;
     return hashValue;
@@ -767,10 +567,10 @@ QTextImageFormat QTextFormat::toImageFormat() const
 */
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::Bool)
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Bool)
         return defaultValue;
-    return prop.data.boolValue;
+    return prop.toBool();
 }
 
 /*!
@@ -782,10 +582,10 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 */
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::Integer)
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Int)
         return defaultValue;
-    return prop.data.intValue;
+    return prop.toInt();
 }
 
 /*!
@@ -797,10 +597,10 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 */
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::Float)
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Double)
         return defaultValue;
-    return prop.data.floatValue;
+    return prop.toDouble(); // ####
 }
 
 /*!
@@ -812,10 +612,10 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 */
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::String)
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::String)
         return defaultValue;
-    return prop.stringValue();
+    return prop.toString();
 }
 
 /*!
@@ -827,10 +627,10 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 */
 QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::Color)
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Color)
         return defaultValue;
-    return prop.data.color;
+    return prop.toColor();
 }
 
 /*!
@@ -842,10 +642,12 @@ QColor QTextFormat::colorProperty(int propertyId, const QColor &defaultValue) co
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::Length)
-        return QTextLength();
-    return prop.lengthValue();
+    static int typeId = registerTextLengthType();
+    Q_UNUSED(typeId);
+    const QVariant prop = d->properties().value(propertyId);
+    QTextLength length;
+    qVariantGet(prop, length, "Qt/QTextLength");
+    return length;
 }
 
 /*!
@@ -857,10 +659,12 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 */
 QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 {
-    const QTextFormatProperty prop = d->properties().value(propertyId);
-    if (prop.type != QTextFormat::LengthVector)
-        return QVector<QTextLength>();
-    return prop.lengthVectorValue();
+    static int typeId = registerTextLengthVectorType();
+    Q_UNUSED(typeId);
+    const QVariant prop = d->properties().value(propertyId);
+    QVector<QTextLength> vector;
+    qVariantGet(prop, vector, "Qt/QVector<QTextLength>");
+    return vector;
 }
 
 /*!
@@ -1008,7 +812,11 @@ void QTextFormat::setProperty(int propertyId, const QColor &value, const QColor 
 */
 void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 {
-    d->insertProperty(propertyId, value);
+    static int typeId = registerTextLengthType();
+    Q_UNUSED(typeId);
+    QVariant v;
+    qVariantSet(v, value, "Qt/QTextLength");
+    d->insertProperty(propertyId, v);
 }
 
 /*!
@@ -1018,7 +826,11 @@ void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 */
 void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
-    d->insertProperty(propertyId, value);
+    static int typeId = registerTextLengthVectorType();
+    Q_UNUSED(typeId);
+    QVariant v;
+    qVariantSet(v, value, "Qt/QVector<QTextLength>");
+    d->insertProperty(propertyId, v);
 }
 
 /*!
@@ -1051,10 +863,10 @@ void QTextFormat::clearProperty(int propertyId)
 */
 int QTextFormat::objectIndex() const
 {
-    const QTextFormatProperty prop = d->properties().value(ObjectIndex);
-    if (prop.type != QTextFormat::FormatObject)
+    const QVariant prop = d->properties().value(ObjectIndex);
+    if (prop.type() != QVariant::Int) // ####
         return -1;
-    return prop.data.intValue;
+    return prop.toInt();
 }
 
 /*!
@@ -1069,10 +881,8 @@ void QTextFormat::setObjectIndex(int o)
     if (o == -1) {
         d->clearProperty(ObjectIndex);
     } else {
-        QTextFormatProperty prop;
-        prop.type = FormatObject;
-        prop.data.intValue = o;
-        d->insertProperty(ObjectIndex, prop);
+        // ### type
+        d->insertProperty(ObjectIndex, o);
     }
 }
 
@@ -1092,13 +902,6 @@ bool QTextFormat::hasProperty(int propertyId) const
 
     \sa hasProperty() allPropertyIds() PropertyType
 */
-QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
-{
-    if (!d)
-        return QTextFormat::Undefined;
-
-    return d->properties().value(propertyId).type;
-}
 
 /*!
     Returns a list of all the property IDs for this text format.
