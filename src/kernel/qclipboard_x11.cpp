@@ -52,6 +52,7 @@
 #include "qdatetime.h"
 #include "qdragobject.h"
 #include "qbuffer.h"
+#include "qvaluelist.h"
 #include "qt_x11.h"
 #include "qapplication_p.h"
 
@@ -97,6 +98,8 @@ public:
     const char* format( int n ) const;
     QByteArray encodedData( const char* fmt ) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
+
+    QValueList<const char *> formatList;
 };
 
 
@@ -118,7 +121,8 @@ public:
     QMimeSource *source() const { return src; }
 
     void addTransferredPixmap(QPixmap pm)
-    { /* TODO: queue them */
+    {
+	/* TODO: queue them */
 	transferred[tindex] = pm;
 	tindex=(tindex+1)%2;
     }
@@ -412,7 +416,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    if ( r != Success )
 		break;
 
-	    offset += length;
+	    offset += length / (32 / *format);
 	    length *= format_inc * (*format) / 8;
 
 	    // Here we check if we get a buffer overflow and tries to
@@ -794,29 +798,44 @@ QClipboardWatcher::QClipboardWatcher()
 
 bool QClipboardWatcher::empty() const
 {
-    Display *dpy   = owner->x11Display();
-    return XGetSelectionOwner(dpy,XA_PRIMARY) == None;
+    Display *dpy = owner->x11Display();
+    Window win = XGetSelectionOwner(dpy, (inSelectionMode ?
+					  XA_PRIMARY : qt_xa_clipboard));
+    return win == None;
 }
 
 const char* QClipboardWatcher::format( int n ) const
 {
-    if ( empty() )
-	return 0;
+    qDebug("QClipboardWatcher::format(%d)", n);
 
-    // TODO: record these once
-    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
-    QByteArray targets = getDataInFormat(xa_targets);
-    if ( targets.size()/sizeof(Atom) > (uint)n ) {
-	Atom* target = (Atom*)targets.data();
-	if ( *target == XA_PIXMAP )
-	    return "image/ppm";
-	const char* fmt = qt_xdnd_atom_to_str(target[n]);
-	return fmt;
-    } else {
-	if ( n == 0 )
-	    return "text/plain";
+    if ( empty() ) {
+	qDebug("    empty?!");
+	return 0;
     }
 
+    if (! formatList.count()) {
+	// get the list of targets from the current clipboard owner - we do this
+	// once so that multiple calls to this function don't require multiple
+	// server round trips...
+	static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
+
+	qDebug("    getting targets");
+
+	QClipboardWatcher *that = (QClipboardWatcher *) this;
+	QByteArray ba = getDataInFormat(xa_targets);
+	Atom *target = (Atom *) ba.data();
+	int i, size = ba.size() / sizeof(Atom);
+	for (i = 0; i < size; i++)
+	    if ( *target == XA_PIXMAP )
+		that->formatList.append("image/ppm");
+	    else
+		that->formatList.append(qt_xdnd_atom_to_str(target[n]));
+    }
+
+    if (n >= 0 && n < (signed) formatList.count())
+	return formatList[n];
+    if (n == 0)
+	return "text/plain";
     return 0;
 }
 
@@ -915,7 +934,7 @@ QMimeSource* QClipboard::data() const
 /*!
   Sets the clipboard data to \a src.  Ownership of the data is
   transferred to the clipboard. If you want to remove the data either
-  call clear() or call setData() again with new data. 
+  call clear() or call setData() again with new data.
 
   The QDragObject subclasses are reasonable objects to put into the
   clipboard (but do not try to call QDragObject::drag() on the same
@@ -996,9 +1015,6 @@ bool qt_check_selection_sentinel( XEvent* )
 	  and have already emitted dataChanged() as a result of that)
 	*/
 
-	//# Could optimize away the X server roundtrip of XGetWindowProperty
-	// by checking if dataChanged() is connected to anything
-	// ### This is done in the main event loop in QApplication
 	Window* owners, rootwindow;
 	Atom actualType;
 	int actualFormat;
