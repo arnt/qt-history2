@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#104 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#104 $");
 
 
 /*!
@@ -1056,14 +1056,6 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->shortClick = TRUE;
     } else {
 	popup();
-	QMouseEvent me1( Event_MouseButtonPress,
-			 d->popup->mapFromGlobal(mapToGlobal( QPoint(0,0) ) ),
-			 e->button(), e->state() );
-	QApplication::sendEvent( d->popup, &me1 );
-	QMouseEvent me2( Event_MouseMove,
-			 d->popup->mapFromGlobal(mapToGlobal( e->pos() ) ),
-			 e->button(), e->state() );
-	QApplication::sendEvent( d->popup, &me2 );
 	QTimer::singleShot( 200, this, SLOT(internalClickTimeout()));
 	d->shortClick = TRUE;
     }
@@ -1129,9 +1121,11 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 		!d->usingListBox &&
 		e->key() == Key_Space ) {
 	e->accept();
+	d->popup->setActiveItem( d->current );
 	popup();
 	return;
     } else {
+	e->ignore();
 	return;
     }
 
