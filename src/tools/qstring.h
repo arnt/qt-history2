@@ -48,7 +48,6 @@
 
 #ifndef QT_NO_STL
 #include <string>
-#include <wstring>
 #if defined(Q_WRONG_SB_CTYPE_MACROS) && defined(_SB_CTYPE_MACROS)
 #undef _SB_CTYPE_MACROS
 #endif
@@ -397,7 +396,6 @@ public:
 #endif
 #ifndef QT_NO_STL
     QString( const std::string& );                   // deep copy
-    QString( const std::wstring& );		     // deep copy
 #endif
     ~QString();
 
@@ -405,7 +403,6 @@ public:
     QString    &operator=( const char * );      // deep copy
 #ifndef QT_NO_STL
     QString    &operator=( const std::string& );     // deep copy
-    QString    &operator=( const std::wstring& );    // deep copy
 #endif
     QString    &operator=( const QCString& );   // deep copy
     QString    &operator=( QChar c );
@@ -525,7 +522,6 @@ public:
 #endif
 #ifndef QT_NO_STL
     QString    &append( const std::string& );
-    QString    &append( const std::wstring& );
 #endif
     QString    &prepend( char );
     QString    &prepend( QChar );
@@ -536,7 +532,6 @@ public:
 #endif
 #ifndef QT_NO_STL
     QString    &prepend( const std::string& );
-    QString    &prepend( const std::wstring& );
 #endif
     QString    &remove( uint index, uint len );
 #if defined(Q_QDOC)
@@ -624,7 +619,6 @@ public:
 #endif
 #ifndef QT_NO_STL
     QString    &operator+=( const std::string& );
-    QString    &operator+=( const std::wstring& );
 #endif
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
@@ -660,7 +654,6 @@ public:
 #endif
 #ifndef QT_NO_STL
     operator std::string() const { return ascii() ? ascii() : ""; }
-    operator std::wstring() const { return ucs2(); }
 #endif
 
     static QString fromUcs2( const unsigned short *ucs2 );
@@ -942,15 +935,6 @@ inline QString &QString::append( const std::string& s )
 { return operator+=(s); }
 inline QString &QString::prepend( const std::string& s )
 { return insert(0, s); }
-
-inline QString &QString::operator=( const std::wstring& str )
-{ return operator=(QString((QChar*)str.data(), str.length())); }
-inline QString &QString::operator+=( const std::wstring& str )
-{ return operator+=(QString((QChar*)str.data(), str.length())); }
-inline QString &QString::append( const std::wstring& str )
-{ return operator+=(QString((QChar*)str.data(), str.length())); }
-inline QString &QString::prepend( const std::wstring& str )
-{ return insert(0, QString((QChar*)str.data(), str.length())); }
 #endif
 
 inline QString &QString::setNum( short n, int base )
