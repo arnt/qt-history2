@@ -52,6 +52,7 @@ void QsCodeParser::initializeParser( const Config& config )
     while ( r != replaces.end() ) {
 	if ( replaceRegExp.exactMatch(*r) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
+	    before.setMinimal( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -251,6 +252,7 @@ void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
     while ( a != args.end() ) {
 	if ( replaceRegExp.exactMatch(*a) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
+	    before.setMinimal( TRUE );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
