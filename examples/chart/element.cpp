@@ -78,44 +78,47 @@ QTextStream &operator<<( QTextStream &s, const Element &element )
 QTextStream &operator>>( QTextStream &s, Element &element )
 {
     QString data = s.readLine();
+    element.setValue( Element::INVALID );
 
     int errors = 0;
     bool ok;
 
     QStringList fields = QStringList::split( FIELD_SEP, data );
-    double value = fields[0].toDouble( &ok );
-    if ( !ok )
-	errors++;
-    QColor valueColor = QColor( fields[1] );
-    if ( !valueColor.isValid() )
-	errors++;
-    int valuePattern = fields[2].toInt( &ok );
-    if ( !ok )
-	errors++;
-    QColor labelColor = QColor( fields[3] );
-    if ( !labelColor.isValid() )
-	errors++;
-    QStringList propoints = QStringList::split( PROPOINT_SEP, fields[4] );
-    QString label = fields[5];
+    if ( fields.count() >= 4 ) {
+	double value = fields[0].toDouble( &ok );
+	if ( !ok )
+	    errors++;
+	QColor valueColor = QColor( fields[1] );
+	if ( !valueColor.isValid() )
+	    errors++;
+	int valuePattern = fields[2].toInt( &ok );
+	if ( !ok )
+	    errors++;
+	QColor labelColor = QColor( fields[3] );
+	if ( !labelColor.isValid() )
+	    errors++;
+	QStringList propoints = QStringList::split( PROPOINT_SEP, fields[4] );
+	QString label = data.section( FIELD_SEP, 5 );
 
-    if ( !errors ) {
-	element.set( value, valueColor, valuePattern, label, labelColor );
-	int i = 0;
-	for ( QStringList::iterator point = propoints.begin();
-	      i < Element::MAX_PROPOINTS && point != propoints.end();
-	      ++i, ++point ) {
-	    errors = 0;
-	    QStringList xy = QStringList::split( XY_SEP, *point );
-	    double x = xy[0].toDouble( &ok );
-	    if ( !ok || x <= 0.0 || x >= 1.0 )
-		errors++;
-	    double y = xy[1].toDouble( &ok );
-	    if ( !ok || y <= 0.0 || y >= 1.0 )
-		errors++;
-	    if ( errors )
-		x = y = Element::NO_PROPORTION;
-	    element.setProX( i, x );
-	    element.setProY( i, y );
+	if ( !errors ) {
+	    element.set( value, valueColor, valuePattern, label, labelColor );
+	    int i = 0;
+	    for ( QStringList::iterator point = propoints.begin();
+		i < Element::MAX_PROPOINTS && point != propoints.end();
+		++i, ++point ) {
+		errors = 0;
+		QStringList xy = QStringList::split( XY_SEP, *point );
+		double x = xy[0].toDouble( &ok );
+		if ( !ok || x <= 0.0 || x >= 1.0 )
+		    errors++;
+		double y = xy[1].toDouble( &ok );
+		if ( !ok || y <= 0.0 || y >= 1.0 )
+		    errors++;
+		if ( errors )
+		    x = y = Element::NO_PROPORTION;
+		element.setProX( i, x );
+		element.setProY( i, y );
+	    }
 	}
     }
 
