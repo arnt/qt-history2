@@ -33,6 +33,9 @@ private:
     QProcess configure;
     QProcess make;
     QProcess cleaner;
+#if defined(QSA)
+    QProcess assistant;
+#endif
 
     QString programsFolder;
     QString devSysFolder;
@@ -55,6 +58,7 @@ private slots:
     void cleanDone();
     void configDone();
     void makeDone();
+    void assistantDone();
     void restartBuild();
     void readConfigureOutput();
     void readConfigureError();
@@ -62,6 +66,8 @@ private slots:
     void readCleanerError();
     void readMakeOutput();
     void readMakeError();
+    void readAssistantOutput();
+    void readAssistantError();
     void timerFired();
     void optionSelected( QListViewItem * );
     void optionClicked( QListViewItem * );

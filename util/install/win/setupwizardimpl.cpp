@@ -749,6 +749,11 @@ void SetupWizardImpl::readMakeOutput()
     updateOutputDisplay( &make );
 }
 
+void SetupWizardImpl::readAssistantOutput()
+{
+    updateOutputDisplay( &assistant );
+}
+
 void SetupWizardImpl::readCleanerError()
 {
     updateErrorDisplay( &cleaner );
@@ -762,6 +767,11 @@ void SetupWizardImpl::readConfigureError()
 void SetupWizardImpl::readMakeError()
 {
     updateErrorDisplay( &make );
+}
+
+void SetupWizardImpl::readAssistantError()
+{
+    updateOutputDisplay( &assistant );
 }
 
 void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
@@ -857,6 +867,42 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
     }
 }
 #endif
+
+void SetupWizardImpl::assistantDone()
+{
+#if defined(QSA)
+    QString contentFile;
+    static int count = 0;
+    if ( count == 0 ) {
+	connect( &assistant, SIGNAL( processExited() ), this, SLOT( assistantDone() ) );
+	connect( &assistant, SIGNAL( readyReadStdout() ), this, SLOT( readAssistantOutput() ) );
+	connect( &assistant, SIGNAL( readyReadStderr() ), this, SLOT( readAssistantError() ) );
+	contentFile = "qsa.xml";
+    } else if ( count == 1 ) {
+	contentFile = "qt-script-for-applications.xml";
+    } else {
+	doFinalIntegration();
+	return;
+    }
+    ++count;
+
+    // install documentation
+    QDir html( optionsPageQsa->installPath->text() );
+    html.cd( "doc/html/" );
+
+    QStringList lst;
+    lst << "assistant";
+    lst << "-addContentFile";
+    lst << QDir::convertSeparators( html.filePath( contentFile ) );
+    assistant.setArguments( lst );
+    if( !assistant.start() ) {
+	logOutput( "Installing QSA documentation failed\n" );
+	assistantDone();
+    }
+#else
+    doFinalIntegration();
+#endif
+}
 
 void SetupWizardImpl::doFinalIntegration()
 {
@@ -1067,7 +1113,11 @@ void SetupWizardImpl::doFinalIntegration()
 	}
     }
 #endif
+#if defined(QSA)
+#endif
     buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
+    setNextEnabled( buildPage, true );
+    logOutput( "The build was successful", true );
 }
 
 void SetupWizardImpl::makeDone()
@@ -1106,12 +1156,13 @@ void SetupWizardImpl::makeDone( bool error )
 	// integration stuff.
 	if ( !globalInformation.reconfig() ) {
 	    logOutput( "Doing the final integration steps..." );
-	    doFinalIntegration();
+	    assistantDone();
+	} else {
+	    setNextEnabled( buildPage, true );
+	    logOutput( "The build was successful", true );
 	}
 	buildPage->restartBuild->setText( "Success" );
 	buildPage->restartBuild->setEnabled( FALSE );
-	setNextEnabled( buildPage, true );
-	logOutput( "The build was successful", true );
     }
 }
 
