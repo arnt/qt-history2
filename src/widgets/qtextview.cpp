@@ -512,8 +512,13 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Delete:
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	    removeSelectedText();
-	    break;
+	    if ( doc->selectionStartCursor( QTextDocument::Standard ) !=
+		 doc->selectionEndCursor( QTextDocument::Standard ) ) {
+		 removeSelectedText();
+		 break;
+	    } else {
+		doc->removeSelection( QTextDocument::Standard );
+	    }
 	}
 
 	doKeyboardAction( ActionDelete );
@@ -522,8 +527,13 @@ void QTextView::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Backspace:
 	if ( doc->hasSelection( QTextDocument::Standard ) ) {
-	    removeSelectedText();
-	    break;
+	    if ( doc->selectionStartCursor( QTextDocument::Standard ) !=
+		 doc->selectionEndCursor( QTextDocument::Standard ) ) {
+		removeSelectedText();
+		break;
+	    } else {
+		doc->removeSelection( QTextDocument::Standard );
+	    }
 	}
 
 	if ( !cursor->parag()->prev() &&
