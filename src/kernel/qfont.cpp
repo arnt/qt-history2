@@ -513,7 +513,7 @@ int QFont::pointSize() const
   (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-  \sa pointSize(), QFontInfo
+  \sa pointSize(), QFontInfo, setPixelSize() 
 */
 void QFont::setPointSize( int pointSize )
 {
@@ -651,11 +651,11 @@ void QFont::setItalic( bool enable )
 }
 
 
-/*! Returns the weight set by setWeight().
+/*! Returns the requested font boldness.
 
   Use QFontInfo to find the weight of the window system font actually used.
 
-  \sa setWeight(), QFontInfo
+  \sa setWeight(), Weight, QFontInfo
 */
 int QFont::weight() const
 {
@@ -680,7 +680,7 @@ int QFont::weight() const
   \value Black 87
 */
 
-/*! Sets the weight (or boldness) to \a weight, which should be a value
+/*! Sets the weight (or boldness) of \e this font to \a weight, which should be a value
   from the QFont::Weight enumeration.
 
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
@@ -693,11 +693,11 @@ int QFont::weight() const
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   Strictly speaking you can use all values in the range [0,99] (where
-  0 is ultralight and 99 is extremely black), but there is perhaps
+  0 is ultralight and 99 is extremely black), but this is perhaps
   asking too much of the underlying window system.
 
   If the specified weight is not available the closest available will
-  be used. Use QFontInfo to check the actual weight.
+  be used. Use QFontInfo::weight() to check the actual weight.
 
   \sa weight(), QFontInfo
 */
@@ -739,10 +739,10 @@ void QFont::setWeight( int weight )
 */
 
 
-/*! Returns the value set by setUnderline().
+/*! Returns whether \e this font should be drawn with underlines or not.
 
-  Use QFontInfo to find the underline value of the window system font
-  actually used for drawing.
+  Use QFontInfo to find out whether the window system font
+  actually used for drawing is underlined or not.
 
   \sa setUnderline(), QFontInfo::underline()
 */
@@ -752,7 +752,7 @@ bool QFont::underline() const
 }
 
 
-/*! Sets underline on or off, depending on the value of \a enable
+/*! Switches underlining on or off, depending on the value of \a enable
   (TRUE or FALSE, respectively).
 
   \sa underline(), QFontInfo
@@ -767,10 +767,10 @@ void QFont::setUnderline( bool enable )
 }
 
 
-/*! Returns the value set by setStrikeOut().
+/*! Returns whether strings should be striken out or not.
 
-  Use QFontInfo to find the strike out value of the window system font
-  actually used.
+  Use QFontInfo to find out whether the window system font
+  actually used draws a horizontal line through strings.
 
   \sa setStrikeOut(), QFontInfo::strikeOut().
 */
@@ -782,6 +782,9 @@ bool QFont::strikeOut() const
 
 /*! Sets strike out on or off, depending on the value of \a enable
   (TRUE or FALSE, respectively).
+
+  If \a enable is TRUE a horizontal line in half character height indicating
+  cancelation is drawn above strings written with \e this QFont.
 
   \sa strikeOut(), QFontInfo
 */
@@ -826,7 +829,7 @@ void QFont::setFixedPitch( bool enable )
 }
 
 
-/*! Returns the StyleStratgie set by setStyleHint().
+/*! Returns the current StyleStrategy.
 
   \sa setStyleHint()
 */
@@ -836,7 +839,7 @@ QFont::StyleStrategy QFont::styleStrategy() const
 }
 
 
-/*! Returns the StyleHint set by setStyleHint().
+/*! Returns the current StyleHint.
 
   \sa setStyleHint(), QFontInfo::styleHint()
 */
@@ -852,18 +855,18 @@ QFont::StyleHint QFont::styleHint() const
   default family if a selected font family is not available.
 
   \value AnyStyle leaves the task of finding a
-  good default family to the font matching algorithm.
+  good default family to the font matching algorithm. This is the default.
 
   \value SansSerif prefers sans serif fonts.
   \value Helvetica indicates the same as \c SansSerif.
 
-  \value Serif chooses fonts with serifs.  
+  \value Serif chooses fonts with serifs if possible.  
   \value Times is the same as \c Serif.
 
   \value TypeWriter prefers fixed-pitch fonts.
   \value Courier has the same meaning as \c TypeWriter.
 
-  \value OldEnglish prefers decorative fonts.
+  \value OldEnglish chooses decorative fonts preferably.
   \value Decorative is the same as \c OldEnglish.
 
   \value System defers to system fonts. 
@@ -876,7 +879,8 @@ QFont::StyleHint QFont::styleHint() const
 
   The following strategies are available:
 
-  \value PreferDefault
+  \value PreferDefault is the default style strategy. It does not prefer 
+         any type of font.
   \value PreferBitmap prefers bitmap fonts (as opposed to outline fonts).
   \value PreferDevice prefers device fonts.
   \value PreferOutline prefers outline fonts (as opposed to bitmap fonts).
@@ -885,21 +889,22 @@ QFont::StyleHint QFont::styleHint() const
   Any of these may be ORed with an indicator whether 
   \value PreferMatch exact matching or
   \value PreferQuality good quality should be preferred.
+
+  Whilst all strategies work on Windows, \c PreferDefault and \c PreferBitmap are 
+  the only ones currently supported with X11.
 */
 
 /*! Sets the style hint and strategy to \a hint and \a strategy,
   respectively.
 
-  The style hint has a default value of \c AnyStyle which leaves the
-  task of finding a good default family to the font matching
-  algorithm.
+  Without explicit setting of a style hint \link StyleHint AnyStyle\endlink 
+  is used.
 
-  The style strategy has a default value of \c PreferDefault which tells
-  the algorithm not to prefer any type of font.
-  Right now, the X version only supports bitmap fonts.
+  The style strategy defaults to \link StyleStrategy PreferDefault.\endlink
+  When setting a strategy note that right now, the X version only supports bitmap fonts.
 
   In the example below the push button will
-  display its text label with the Bavaria font family if this family
+  display its text label with the NewYork font family if this family
   is available, if not it will display its text label with another
   serif font:
 
@@ -911,7 +916,7 @@ QFont::StyleHint QFont::styleHint() const
   \skipto setFont
   \printline setFont
 
-  \sa QFont::StyleHint, styleHint(), QFont::StyleStrategy, styleStrategy(), QFontInfo
+  \sa StyleHint, styleHint(), StyleStrategy, styleStrategy(), QFontInfo
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
@@ -928,7 +933,7 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 /*! Turns raw mode on if \a enable is TRUE, or turns it off if \a
   enable is FALSE.
 
-  Calling this function only has effect under X windows.  If raw mode
+  Calling this function only has effect under the X Window System. If raw mode
   is enabled, Qt will search for an X font with a complete font name
   matching the family name, ignoring all other values set for the
   QFont.  If the font name matches several fonts, Qt will use the
@@ -1122,12 +1127,12 @@ static void initFontSubst()
 /*! Returns the first family name to be used whenever \a familyName is
   specified. The lookup is case insensitive.
 
-  If there is no substitution for \a familyName, then \a familyName is
+  If there is no substitution for \a familyName, \a familyName is
   returned.
 
   To obtain a list of all substitutions use substitutes().
 
-  \sa setFamily() insertSubstitution() removeSubstitution()
+  \sa setFamily() insertSubstitutions() insertSubstitution() removeSubstitution()
 */
 QString QFont::substitute( const QString &familyName )
 {
@@ -1144,7 +1149,7 @@ QString QFont::substitute( const QString &familyName )
 /*! Returns a list of family names to be used whenever \a familyName is
   specified.  The lookup is case insensitive.
 
-  If there is no substitution for \a familyName, then an empty
+  If there is no substitution for \a familyName, an empty
   list is returned.
 
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
@@ -1153,7 +1158,7 @@ QString QFont::substitute( const QString &familyName )
   (Code taken from \link simple-font-demo-example.html
    fonts/simple-qfont-demo/viewer.cpp \endlink)
 
-   \sa substitute()
+   \sa substitute() insertSubstitutions() insertSubstitution() removeSubstitution() 
  */
 QStringList QFont::substitutes(const QString &familyName)
 {
@@ -1423,8 +1428,8 @@ void QFont::cacheStatistics()
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 
-/*!
-  \relates QFont
+/*! \relates QFont
+
   Writes the font \a font to the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -1446,8 +1451,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 }
 
 
-/*!
-  \relates QFont
+/*! \relates QFont
   Reads the font \a font from the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
@@ -2053,8 +2057,8 @@ int QFontInfo::pixelSize() const
 }
 
 
-/*!
-  Returns the italic value of the matched window system font.
+/*! Returns the italic value of the matched window system font.
+
   \sa QFont::italic()
 */
 bool QFontInfo::italic() const
@@ -2063,8 +2067,7 @@ bool QFontInfo::italic() const
 }
 
 
-/*!
-  Returns the weight of the matched window system font.
+/*! Returns the weight of the matched window system font.
 
   \sa QFont::weight(), bold()
 */
@@ -2074,8 +2077,7 @@ int QFontInfo::weight() const
 }
 
 
-/*!
-  \fn bool QFontInfo::bold() const
+/*! \fn bool QFontInfo::bold() const
 
   Returns TRUE if weight() would return a greater than
   \c QFont::Normal, and FALSE otherwise.
