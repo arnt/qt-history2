@@ -56,7 +56,7 @@ public:
         controls.sort();
     }
     
-    int rows() const { return controls.count(); }
+    int rowCount() const { return controls.count(); }
     QVariant data(const QModelIndex &index, int role) const;
     
 private:
