@@ -128,7 +128,6 @@ public:
 
     static QObject *setCurrentSender(Senders *senders, QObject *sender);
     static void resetCurrentSender(Senders *senders, QObject *sender);
-    static bool derefSenders(Senders *senders);
 
     QList<QPointer<QObject> > eventFilters;
 

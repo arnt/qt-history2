@@ -16,7 +16,7 @@
 #define QTHREAD_H
 
 #ifndef QT_H
-#include <qnamespace.h>
+#include <qobject.h>
 #endif // QT_H
 
 #include <limits.h>
@@ -25,8 +25,10 @@ struct QThreadInstance;
 class QObject;
 class QEvent;
 
-class Q_CORE_EXPORT QThread
+class Q_CORE_EXPORT QThread : public QObject
 {
+    Q_OBJECT
+
 public:
 #ifdef QT_COMPAT
     static QT_COMPAT void postEvent( QObject *,QEvent * );
@@ -42,9 +44,6 @@ public:
     QThread( unsigned int stackSize = 0 );
     virtual ~QThread();
 
-    // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
-
     enum Priority {
 	IdlePriority,
 
@@ -59,11 +58,21 @@ public:
 	InheritPriority
     };
 
+    bool isFinished() const;
+    bool isRunning() const;
+
+public slots:
     void start( Priority = InheritPriority );
     void terminate();
 
-    bool finished() const;
-    bool running() const;
+public:
+    // default argument causes thread to block indefinately
+    bool wait( unsigned long time = ULONG_MAX );
+
+signals:
+    void started();
+    void finished();
+    void terminated();
 
 protected:
     virtual void run() = 0;

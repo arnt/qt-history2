@@ -25,15 +25,15 @@
 #include "qmutexpool_p.h"
 #include "qthreadinstance_p.h"
 
+#include <qcoreapplication.h>
+#include <qpointer.h>
 
 static QThreadInstance main_instance = {
     0, { 0, &main_instance }, 0, 0, 1, 0, PTHREAD_COND_INITIALIZER, 0
 };
 
-
 extern QMutexPool *static_qt_global_mutexpool;
 static QMutexPool *qt_thread_mutexpool = 0;
-
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -69,7 +69,7 @@ QThreadInstance *QThreadInstance::current()
 void QThreadInstance::init(unsigned int stackSize)
 {
     stacksize = stackSize;
-    args[0] = args[1] = 0;
+    args[0] = args[1] = args[2] = 0;
     thread_storage = 0;
 
     finished = false;
@@ -97,7 +97,17 @@ void *QThreadInstance::start(void *_arg)
     pthread_cleanup_push(QThreadInstance::finish, arg[1]);
     pthread_testcancel();
 
-    ((QThread *) arg[0])->run();
+    QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
+    arg[2] = reinterpret_cast<Qt::HANDLE>(thr->thread());
+    thr->QObject::setThread(QThread::currentThread());
+    emit thr->started();
+    thr->run();
+    if (thr) {
+	emit thr->finished();
+	QCoreApplication::sendPostedEvents();
+	thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
+	arg[0] = arg[1] = arg[2] = 0;
+    }
 
     pthread_cleanup_pop(true);
     return 0;
@@ -113,9 +123,18 @@ void QThreadInstance::finish(void *)
     }
 
     QMutexLocker locker(d->mutex());
+
+    if (d->args[0] && d->args[1] && d->args[2]) {
+	// terminated!
+	QThread *thr = reinterpret_cast<QThread *>(d->args[0]);
+	Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(d->args[2]);
+	emit thr->terminated();
+	thr->QObject::setThread(old);
+    }
+
     d->running = false;
     d->finished = true;
-    d->args[0] = d->args[1] = 0;
+    d->args[0] = d->args[1] = d->args[2] = 0;
 
     QThreadStorageData::finish(d->thread_storage);
     d->thread_storage = 0;
@@ -360,6 +379,7 @@ void QThread::start(Priority priority)
 
     d->args[0] = this;
     d->args[1] = d;
+    d->args[2] = 0;
     ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
     pthread_attr_destroy(&attr);
 
@@ -368,7 +388,7 @@ void QThread::start(Priority priority)
 
 	d->running = false;
 	d->finished = false;
-	d->args[0] = d->args[1] = 0;
+	d->args[0] = d->args[1] = d->args[2] = 0;
     }
 }
 

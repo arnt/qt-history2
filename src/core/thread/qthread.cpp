@@ -158,7 +158,7 @@ void QThread::terminate()
 /*!
     Returns true is the thread is finished; otherwise returns FALSE.
 */
-bool QThread::finished() const
+bool QThread::isFinished() const
 {
     QMutexLocker locker(d->mutex());
     return d->finished;
@@ -167,7 +167,7 @@ bool QThread::finished() const
 /*!
     Returns true if the thread is running; otherwise returns FALSE.
 */
-bool QThread::running() const
+bool QThread::isRunning() const
 {
     QMutexLocker locker(d->mutex());
     return d->running;

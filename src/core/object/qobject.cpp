@@ -12,24 +12,22 @@
 **
 ****************************************************************************/
 
+#include "qobject.h"
+#include "qobject_p.h"
+
+#include "qcoreapplication.h"
 #include "qcorevariant.h"
 #include "qeventloop.h"
-#include "qcoreapplication.h"
-#include "qcoreevent.h"
 #include "qmetaobject.h"
 
 #include <qdebug.h>
 #include <qregexp.h>
 #include <qthread.h>
-#define LOCK_INITIALIZE(n) (new (&n->lock) QSpinLock())
-#define LOCK_CLEANUP(n)    ((n)->lock.~QSpinLock())
-#define LOCK_ACQUIRE(n)    (n)->lock.acquire()
-#define LOCK_RELEASE(n)    (n)->lock.release()
+
+#include <new>
 
 #include <ctype.h>
 #include <limits.h>
-
-#include "qobject_p.h"
 
 #define d d_func()
 #define q q_func()
@@ -64,21 +62,23 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
     addGuard(ptr);
 }
 
+/*! \internal
+ */
 QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
 			       int nargs, int *types, void **args)
     :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 { }
 
+/*! \internal
+ */
 QMetaCallEvent::~QMetaCallEvent()
 {
-    for (int i = 0; i < nargs_; i++)
+    for (int i = 0; i < nargs_; ++i) {
 	if (types_[i] && args_[i])
 	    QMetaType::destroy(types_[i], args_[i]);
-
-    if (types_)
-	qFree(types_);
-    if (args_)
-	qFree(args_);
+    }
+    if (types_) qFree(types_);
+    if (args_) qFree(args_);
 }
 
 
@@ -219,12 +219,11 @@ static inline bool isSpace( char x )
 void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 {
     QObjectList list = parent->children();
-    if ( !list.isEmpty() ) {
-	for (int i = 0; i < list.size(); ++i) {
-	    QObject *obj = list.at(i);
-	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
-		return obj;
-	}
+    if (!list) return 0;
+    for (int i = 0; i < list.size(); ++i) {
+	QObject *obj = list.at(i);
+	if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
+	    return obj;
     }
     return 0;
 }
@@ -253,6 +252,7 @@ QObject::QObject(QObject *parent)
     : d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
+    d->thread = QThread::currentThread();
     setParent(parent);
     QEvent e( QEvent::Create );
     QCoreApplication::sendEvent( this, &e );
@@ -268,6 +268,7 @@ QObject::QObject( QObject *parent, const char *name )
     : d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
+    d->thread = QThread::currentThread();
     setParent(parent);
     if (name)
 	setObjectName(name);
@@ -276,18 +277,18 @@ QObject::QObject( QObject *parent, const char *name )
     QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
-/*!\internal*/
+/*! \internal
+ */
 QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
+    d->thread = QThread::currentThread();
     if (d->isWidget) {
 	if (parent) {
 	    d->parent = parent;
 	    d->parent->d->children.append(this);
-	    d->thread = d->parent->d->thread;
-	} else {
-	    d->thread = QThread::currentThread();
+	    d->thread = 0;
 	}
 	// no events sent here, this is done at the end of the QWidget constructor
     } else {
@@ -336,7 +337,7 @@ QObject::~QObject()
 
     // disconnect receivers
     if (d->connections) {
-	LOCK_ACQUIRE(d->connections);
+	d->connections->lock.acquire();
 
 	// reset all guarded pointers
 	int i = 0;
@@ -347,59 +348,57 @@ QObject::~QObject()
 	}
 	for (int i = 0; i < d->connections->count; ++i) {
 	    QObjectPrivate::Connections::Connection &c = d->connections->connections[i];
-	    if (c.receiver) {
-		LOCK_RELEASE(d->connections);
+	    if (c.receiver)
 		c.receiver->d->removeSender(this);
-		LOCK_ACQUIRE(d->connections);
-	    }
 	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
 		qFree(c.types);
 		c.types = 0;
 	    }
 	}
 
-	LOCK_RELEASE(d->connections);
-	LOCK_CLEANUP(d->connections);
+	d->connections->lock.release();
+	d->connections->lock.~QSpinLock();
+
 	qFree(d->connections);
 	d->connections = 0;
     }
 
     // disconnect senders
     if (d->senders) {
-	LOCK_ACQUIRE(d->senders);
+	d->senders->lock.acquire();
+
 	for (int i = 0; i < d->senders->count; ++i) {
 	    QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
-	    if (sender.sender) {
-		LOCK_RELEASE(d->senders);
-		sender.sender->d->removeReceiver(this);
-		LOCK_ACQUIRE(d->senders);
-	    }
+	    if (sender.sender) sender.sender->d->removeReceiver(this);
 	}
+	if (!--d->senders->ref) {
+	    if (d->senders->senders != d->senders->stack)
+		qFree(d->senders->senders);
 
-	if (QObjectPrivate::derefSenders(d->senders)) {
-	    LOCK_RELEASE(d->senders);
-	    LOCK_CLEANUP(d->senders);
+	    d->senders->lock.release();
+	    d->senders->lock.~QSpinLock();
+
 	    qFree(d->senders);
 	} else {
-	    LOCK_RELEASE(d->senders);
+	    d->senders->lock.release();
 	}
 	d->senders = 0;
     }
 
     // might have pending timers
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+    QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop && d->pendTimer)
 	eventloop->unregisterTimers(this);
 
-    if ( d->parent )				// remove it from parent object
-	setParent_helper(0);
-
     d->eventFilters.clear();
 
-    while ( !d->children.isEmpty() )			// delete children objects
+    while (!d->children.isEmpty())			// delete children objects
 	delete d->children.takeFirst();
 
     QCoreApplication::removePostedEvents( this );
+
+    if ( d->parent )				// remove it from parent object
+	setParent_helper(0);
 
     if (d->objectName && d->ownObjectName) {
 	delete [] (char*)d->objectName;
@@ -638,22 +637,25 @@ bool QObject::event( QEvent *e )
     case QEvent::EmitSignal: {
 	QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
 	QObjectPrivate::Senders *senders = d->senders;
-	LOCK_ACQUIRE(senders);
 	QObject *sender =
 	    QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()));
-	LOCK_RELEASE(senders);
+#if defined(QT_NO_EXCEPTIONS)
 	qt_metacall((e->type() == QEvent::InvokeSlot
 		     ? QMetaObject::InvokeSlot
 		     : QMetaObject::EmitSignal),
 		    mce->id(), mce->args());
-	LOCK_ACQUIRE(senders);
-	QObjectPrivate::resetCurrentSender(senders, sender);
-	bool last = QObjectPrivate::derefSenders(senders);
-	LOCK_RELEASE(senders);
-	if (last) {
-	    LOCK_CLEANUP(senders);
-	    qFree(senders);
+#else
+	try {
+	    qt_metacall((e->type() == QEvent::InvokeSlot
+			 ? QMetaObject::InvokeSlot
+			 : QMetaObject::EmitSignal),
+			mce->id(), mce->args());
+	} catch (...) {
+	    QObjectPrivate::resetCurrentSender(senders, sender);
+	    throw;
 	}
+#endif
+	QObjectPrivate::resetCurrentSender(senders, sender);
 	return true;
     }
 
@@ -864,18 +866,45 @@ bool QObject::blockSignals( bool block )
     Returns the thread id in which this object was created.
  */
 Qt::HANDLE QObject::thread() const
-{ return d->thread; }
+{
+    const QObject *toplevel = this;
+    for (; toplevel && toplevel->d->parent; toplevel = toplevel->d->parent)
+	;
+    Q_ASSERT(toplevel-d->thread != 0);
+    return toplevel->d->thread;
+}
 
 /*!
     \internal
+
+    Note: Any running timers for thie object are stopped in the
+    object's eventloop .  They are \e not restarted in the new
+    thread's eventloop.
  */
-void QObject::setThread(Qt::HANDLE thread)
+void QObject::setThread(Qt::HANDLE thr)
 {
     Q_ASSERT_X(!d->parent, "QObject::setThread",
 	       "Cannot set the thread on an object with a parent.");
-    Q_ASSERT_X(thread != 0, "QObject::setThread",
+    Q_ASSERT_X(thr != 0, "QObject::setThread",
 	       "thread argument must not be zero.");
-    d->thread = thread;
+
+    // ### TODO: make sure this works for objects with children
+    Q_ASSERT_X(d->children.size() == 0, "QObject::setThread",
+	       "TODO: make sure this works for objects with children");
+
+    if (d->thread == thr) return;
+
+    // might have pending timers
+    QEventLoop *eventloop = QEventLoop::instance(thread());
+    if (eventloop && d->pendTimer)
+	eventloop->unregisterTimers(this);
+    d->pendTimer = false;
+
+    // move any posted events to the new thread
+    extern void qt_movePostedEvents(QObject *object, Qt::HANDLE _from, Qt::HANDLE _to);
+    qt_movePostedEvents(this, d->thread, thr);
+
+    d->thread = thr;
 }
 
 //
@@ -942,7 +971,7 @@ void QObject::setThread(Qt::HANDLE thread)
 int QObject::startTimer( int interval )
 {
     d->pendTimer = TRUE;				// set timer flag
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+    QEventLoop *eventloop = QEventLoop::instance(thread());
     Q_ASSERT_X(eventloop, "QObject::startTimer", "Cannot start timer without an event loop");
     return eventloop->registerTimer(interval, (QObject *)this);
 }
@@ -958,7 +987,7 @@ int QObject::startTimer( int interval )
 
 void QObject::killTimer( int id )
 {
-    QEventLoop *eventloop = QEventLoop::instance(d->thread);
+    QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop) eventloop->unregisterTimer(id);
 }
 
@@ -1176,16 +1205,20 @@ void QObject::setParent(QObject *parent)
 
 void QObject::setParent_helper(QObject *parent)
 {
-    if (parent && parent == d->parent)
+    if (parent == d->parent)
 	return;
     if (d->parent && d->parent->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
-	QCoreApplication::sendEvent( d->parent, &e);
+	QCoreApplication::sendEvent(d->parent, &e);
     }
+    const Qt::HANDLE thr = thread();
     d->parent = parent;
     if (d->parent) {
 	// object heirarchies are constrained to a single thread
-	d->thread = d->parent->d->thread;
+	Q_ASSERT_X(thr == d->parent->thread(), "QObject::setParent",
+		   "New parent must be in the same thread as the previous parent");
+	d->thread = 0;
+
 	d->parent->d->children.append(this);
 	const QMetaObject *polished = d->polished;
 	QChildEvent e(QEvent::ChildAdded, this);
@@ -1198,8 +1231,8 @@ void QObject::setParent_helper(QObject *parent)
 	QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     } else {
-	// when setting the parent to zero, move ownership to the current thread
-	d->thread = QThread::currentThread();
+	const Qt::HANDLE current = QThread::currentThread();
+	if (thr != current) setThread(current);
     }
 }
 
@@ -1371,26 +1404,28 @@ void QObjectPrivate::refSender(QObject *sender)
     bool created = false;
     if (!senders) {
 	Senders *s = (Senders *) qMalloc(sizeof(Senders));
-	LOCK_INITIALIZE(s);
+	new (&s->lock) QSpinLock();
 	s->senders = s->stack;
 	s->ref = 1;
 	s->count = 1;
 	s->current = 0;
 
+	s->lock.acquire();
 	if (!q_atomic_test_and_set_ptr(&senders, 0, s)) {
-	    LOCK_CLEANUP(s);
+	    s->lock.release();
+	    s->lock.~QSpinLock();
 	    qFree(s);
 	} else {
 	    created = true;
 	}
     }
 
-    LOCK_ACQUIRE(senders);
     if (!created) {
+	senders->lock.acquire();
 	while (i < senders->count) {
 	    if (senders->senders[i].sender == sender) {
 		++senders->senders[i].ref;
-		LOCK_RELEASE(senders);
+		senders->lock.release();
 		return;
 	    }
 	    ++i;
@@ -1419,7 +1454,8 @@ void QObjectPrivate::refSender(QObject *sender)
     }
     senders->senders[i].sender = sender;
     senders->senders[i].ref = 1;
-    LOCK_RELEASE(senders);
+
+    senders->lock.release();
 }
 
 /*
@@ -1431,8 +1467,9 @@ void QObjectPrivate::derefSender(QObject *sender)
 {
     if (!senders) return;
 
-    LOCK_ACQUIRE(senders);
-    for (int i = 0; i < senders->count; ++i)
+    QSpinLockLocker locker(&senders->lock);
+
+    for (int i = 0; i < senders->count; ++i) {
 	if (senders->senders[i].sender == sender) {
 	    if (!--senders->senders[i].ref) {
 		senders->senders[i].sender = 0;
@@ -1441,7 +1478,7 @@ void QObjectPrivate::derefSender(QObject *sender)
 	    }
 	    break;
 	}
-    LOCK_RELEASE(senders);
+    }
 }
 
 /*
@@ -1452,26 +1489,14 @@ void QObjectPrivate::removeSender(QObject *sender)
 {
     if (!senders) return;
 
-    LOCK_ACQUIRE(senders);
-    for (int i = 0; i < senders->count; ++i)
+    QSpinLockLocker locker(&senders->lock);
+
+    for (int i = 0; i < senders->count; ++i) {
 	if (senders->senders[i].sender == sender)
 	    senders->senders[i].sender = 0;
+    }
     if (senders->current == sender)
 	senders->current = 0;
-    LOCK_RELEASE(senders);
-}
-
-/*
-    Dereferences senders list, and frees it no longer referenced.
- */
-bool QObjectPrivate::derefSenders(Senders *senders)
-{
-    if (senders && !--senders->ref) {
-	if (senders->senders != senders->stack)
-	    qFree(senders->senders);
-	return true;
-    }
-    return false;
 }
 
 /*
@@ -1481,19 +1506,25 @@ bool QObjectPrivate::derefSenders(Senders *senders)
 QObject *QObjectPrivate::setCurrentSender(Senders *senders, QObject *sender)
 {
     if (!senders) return 0;
-    QObject *previous = senders->current;
+
+    QSpinLockLocker locker(&senders->lock);
+
+    register QObject *const previous = senders->current;
     senders->current = sender;
     ++senders->ref;
     return previous;
 }
 
 /*
-    Resets current sender, dererences senders list, and frees it no
-    longer referenced.
+    Resets current sender, dereferences senders list, and frees it
+    when no longer referenced.
  */
 void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
 {
     if (!senders) return;
+
+    senders->lock.acquire();
+
     senders->current = 0;
     if (sender) {
         // only if the new current sender is still in the list
@@ -1503,6 +1534,18 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
 		break;
 	    }
 	}
+    }
+
+    if (!--senders->ref) {
+	if (senders->senders != senders->stack)
+	    qFree(senders->senders);
+
+	senders->lock.release();
+	senders->lock.~QSpinLock();
+
+	qFree(senders);
+    } else {
+	senders->lock.release();
     }
 }
 
@@ -1608,20 +1651,21 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     bool created = false;
     if (!connections) {
 	Connections *c = (Connections *) qMalloc(sizeof(Connections));
-	LOCK_INITIALIZE(c);
+	new (&c->lock) QSpinLock();
 	c->count = 1;
 
+	c->lock.acquire();
 	if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
-	    LOCK_CLEANUP(c);
+	    c->lock.release();
+	    c->lock.~QSpinLock();
 	    qFree(c);
 	} else {
 	    created = true;
 	}
     }
 
-    LOCK_ACQUIRE(connections);
-
     if (!created) {
+	connections->lock.acquire();
 	while (i < connections->count && connections->connections[i].receiver)
 	    ++i;
 	if (i == connections->count) {
@@ -1638,18 +1682,21 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     c.type = type;
     c.types = types;
 
-    LOCK_RELEASE(connections);
+    connections->lock.release();
 }
 
+/*! \internal
+
+    Note: You MUST acquire the connections lock before calling this
+    function.
+*/
 QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int signal, int &i) const
 {
     if (!connections) return 0;
     while (i < connections->count) {
 	if (connections->connections[i].receiver
-	    && connections->connections[i].signal == signal) {
-	    LOCK_RELEASE(connections);
+	    && connections->connections[i].signal == signal)
 	    return &connections->connections[i++];
-	}
 	++i;
     }
     return 0;
@@ -1658,6 +1705,9 @@ QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int sign
 void QObjectPrivate::removeReceiver(QObject *receiver)
 {
     if (!connections) return;
+
+    QSpinLockLocker locker(&connections->lock);
+
     for (int i = 0; i < connections->count; ++i) {
 	QObjectPrivate::Connections::Connection &c = connections->connections[i];
 	if (c.receiver == receiver) {
@@ -1721,11 +1771,9 @@ int QObject::receivers(const char *signal) const
 #endif
 	    return false;
 	}
-	int i = 0;
-	LOCK_ACQUIRE(d->connections);
-	while (d->findConnection(signal_index, i))
-	    ++receivers;
-	LOCK_RELEASE(d->connections);
+	QSpinLockLocker locker(&d->connections->lock);
+	for (int i = 0; d->findConnection(signal_index, i); ++receivers)
+	    ;
     }
     return receivers;
 }
@@ -2143,7 +2191,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
 
-    LOCK_ACQUIRE(s->d->connections);
+    QSpinLockLocker locker(&s->d->connections->lock);
     bool success = false;
     for (int i = 0; i < s->d->connections->count; ++i) {
 	QObjectPrivate::Connections::Connection &c = s->d->connections->connections[i];
@@ -2152,9 +2200,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 	    && (r == 0 || (c.receiver == r
 			   && (member_index < 0
 			       || (member_index<<1)+membcode-1 == c.member)))) {
-	    LOCK_RELEASE(s->d->connections);
 	    c.receiver->d->derefSender(s);
-	    LOCK_ACQUIRE(s->d->connections);
 	    c.receiver = 0;
 	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
 		qFree(c.types);
@@ -2163,7 +2209,6 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
 	    success = true;
 	}
     }
-    LOCK_RELEASE(s->d->connections);
     return success;
 }
 
@@ -2205,7 +2250,7 @@ void QMetaObject::connectSlotsByName(const QObject *o)
 
 /*!\internal
  */
-void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
+void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 {
     if (obj->d->blockSig || !obj->d->connections)
 	return;
@@ -2216,67 +2261,65 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
     if (!argv)
 	argv = static_argv;
     for (; first || c != 0; c = nc) {
-	LOCK_ACQUIRE(obj->d->connections);
-	// find the next connection before activating the current
-	// connection
+	obj->d->connections->lock.acquire();
 	if (first) {
 	    first = false;
 	    c = obj->d->findConnection(signal_index, i);
 	    if (!c) {
-		LOCK_RELEASE(obj->d->connections);
+		obj->d->connections->lock.release();
 		break;
 	    }
 	}
+	// find the next connection before activating the current
+	// connection
 	nc = obj->d->findConnection(signal_index, i);
-	// determine if this connection should be sent immediately
-	// or put into the event queue
+	// determine if this connection should be sent immediately or
+	// put into the event queue
 	const bool queued = (c->type == Qt::QueuedConnection
 			     || (c->type == Qt::AutoConnection
-				 && c->receiver->d->thread != obj->d->thread));
+				 && c->receiver->thread() != obj->thread()));
 	if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
 	    QMetaMember m = obj->metaObject()->signal(signal_index);
 	    c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
 	    if (!c->types) // cannot queue arguments
 		c->types = &DIRECT_CONNECTION_ONLY;
+	    if (c->types == &DIRECT_CONNECTION_ONLY) { // cannot activate
+		obj->d->connections->lock.release();
+		continue;
+	    }
 	}
 
-	// work on a copy of the connection since we cannot keep the
-	// spinlock held during the metacall
-	QObjectPrivate::Connections::Connection cc = *c;
-
-	LOCK_RELEASE(obj->d->connections);
-	if (cc.types == &DIRECT_CONNECTION_ONLY) // do not activate
-	    continue;
+	obj->d->connections->lock.release();
 
 	if (queued) { // QueuedConnection
 	    int nargs = 1; // include return type
-	    while (cc.types[nargs-1]) { ++nargs; }
+	    while (c->types[nargs-1]) { ++nargs; }
 	    int *types = (int *) qMalloc(nargs*sizeof(int));
 	    void **args = (void **) qMalloc(nargs*sizeof(void *));
 	    types[0] = 0; // return type
 	    args[0] = 0; // return value
 	    for (int n = 1; n < nargs; ++n)
-		args[n] = QMetaType::copy((types[n] = cc.types[n-1]), argv[n]);
-	    QCoreApplication::postEvent(cc.receiver,
-					new QMetaCallEvent((cc.member & 1)
+		args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
+	    QCoreApplication::postEvent(c->receiver,
+					new QMetaCallEvent((c->member & 1)
 							   ? QEvent::EmitSignal
 							   : QEvent::InvokeSlot,
-							   cc.member >> 1, obj,
+							   c->member >> 1, obj,
 							   nargs, types, args));
 	} else { // DirectConnection
-	    QObjectPrivate::Senders *senders = cc.receiver->d->senders;
-	    LOCK_ACQUIRE(senders);
+	    QObjectPrivate::Senders *senders = c->receiver->d->senders;
 	    QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
-	    LOCK_RELEASE(senders);
-	    cc.receiver->qt_metacall((Call)((cc.member & 1) + 1), cc.member >> 1, argv);
-	    LOCK_ACQUIRE(senders);
-	    QObjectPrivate::resetCurrentSender(senders, sender);
-	    bool last = QObjectPrivate::derefSenders(senders);
-	    LOCK_RELEASE(senders);
-	    if (last) {
-		LOCK_CLEANUP(senders);
-		qFree(senders);
+#if defined(QT_NO_EXCEPTIONS)
+	    c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+#else
+	    try {
+		c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+	    } catch (...) {
+		QObjectPrivate::resetCurrentSender(senders, sender);
+		throw;
 	    }
+#endif
+	    QObjectPrivate::resetCurrentSender(senders, sender);
 	}
     }
 }
@@ -2460,7 +2503,7 @@ QObjectUserData* QObject::userData( uint id ) const
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QObject *o) {
     if (!o)
-	return dbg << "QObject(0x0)";
+	return dbg << "QObject(0x0) ";
     dbg.nospace() << o->className() << "(" << (void *)o;
     if (o->objectName(0))
 	dbg << ", name = \"" << o->objectName(0) << '\"';

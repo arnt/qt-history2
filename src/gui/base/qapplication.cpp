@@ -37,16 +37,8 @@
 #include "qfileinfo.h"
 #include "qhash.h"
 
-#if defined(QT_THREAD_SUPPORT)
-#  include <qthread.h>
-#  include <private/qmutexpool_p.h>
-#  define M_LOCK(x) \
-    QMutexLocker mlocker(qt_global_mutexpool \
-			 ? qt_global_mutexpool->get(x) \
-			 : 0)
-#else
-#  define M_LOCK(x)
-#endif
+#include <qthread.h>
+#include <private/qspinlock_p.h>
 
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
@@ -627,7 +619,7 @@ void QApplication::process_cmdline()
 */
 
 QApplication::QApplication( int &argc, char **argv )
-        // ### FIXME - the order below is undefined, you might end up getting a 
+        // ### FIXME - the order below is undefined, you might end up getting a
         // QGuiEventLoop before a QApplicationPrivate - funny things will happen
     : QCoreApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
 {
@@ -2450,7 +2442,6 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	return TRUE;
     }
 
-#if defined(QT_THREAD_SUPPORT)
     Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
 	       "QApplication::sendEvent",
 	       QString("Cannot send events to objects owned by a different thread (%1).  "
@@ -2460,14 +2451,13 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	       .arg(receiver->className())
 	       .arg(QString::number((ulong) receiver->thread(), 16))
 	       .latin1());
-#endif
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-	extern QPostEventList *qt_postEventList(QObject *); // from qcoreapplication.cpp
-	QPostEventList *postedEvents = qt_postEventList(receiver);
+	extern QPostEventList *qt_postEventList(Qt::HANDLE); // from qcoreapplication.cpp
+	QPostEventList *postedEvents = qt_postEventList(receiver->thread());
 	if (postedEvents) {
-	    M_LOCK(&postedEvents->mutex);
+	    QSpinLockLocker locker(&postedEvents->spinlock);
 
 	    // the QObject destructor calls QObject::removeChild, which calls
 	    // QCoreApplication::sendEvent() directly.  this can happen while the event

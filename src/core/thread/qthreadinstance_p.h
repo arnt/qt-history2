@@ -47,7 +47,7 @@ public:
     void terminate();
 
     unsigned int stacksize;
-    void *args[2];
+    void *args[3];
     void **thread_storage;
     bool finished : 1;
     bool running  : 1;
