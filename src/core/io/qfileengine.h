@@ -129,6 +129,8 @@ private:
     friend class QFileEngine;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFileEngine::FileFlags)
+
 class QFSFileEnginePrivate;
 class QFSFileEngine : public QFileEngine
 {
@@ -150,7 +152,7 @@ public:
     virtual Q_LONGLONG write(const char *data, Q_LONGLONG len);
     virtual QFile::Error error() const;
     virtual QString errorString() const;
-    
+
     virtual bool remove();
     virtual bool rename(const QString &newName);
     virtual bool link(const QString &newName);

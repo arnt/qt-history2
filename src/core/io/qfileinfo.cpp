@@ -86,7 +86,7 @@ QFileInfoPrivate::~QFileInfoPrivate()
     q_ptr = 0;
 }
 
-void 
+void
 QFileInfoPrivate::initFileEngine(const QString &file)
 {
     detach();
@@ -97,7 +97,7 @@ QFileInfoPrivate::initFileEngine(const QString &file)
     data->fileName = file;
 }
 
-void 
+void
 QFileInfoPrivate::detach()
 {
     if (data->ref != 1) {
@@ -108,7 +108,7 @@ QFileInfoPrivate::detach()
     }
 }
 
-uint 
+uint
 QFileInfoPrivate::getFileFlags(QFileEngine::FileFlags request) const
 {
     QFileEngine::FileFlags flags = 0;
@@ -129,7 +129,7 @@ QFileInfoPrivate::getFileFlags(QFileEngine::FileFlags request) const
     return data->fileFlags & request;
 }
 
-QDateTime 
+QDateTime
 &QFileInfoPrivate::getFileTime(QFileEngine::FileTime request) const
 {
     if(request == QFileEngine::CreationTime) {
@@ -294,7 +294,7 @@ QFileInfo::operator==(const QFileInfo &fileinfo)
        d->data->fileEngine->caseSensitive() != fileinfo.d->data->fileEngine->caseSensitive())
         return false;
     if(fileinfo.size() == size()) { //if the size isn't the same...
-        QString file1 = absoluteFilePath(), 
+        QString file1 = absoluteFilePath(),
                 file2 = fileinfo.absoluteFilePath();
         if(file1.length() == file2.length()) {
             if(!fileinfo.d->data->fileEngine->caseSensitive()) {
@@ -314,7 +314,7 @@ QFileInfo::operator==(const QFileInfo &fileinfo)
     Makes a copy of the given \a fileinfo and assigns it to this QFileInfo.
 */
 
-QFileInfo 
+QFileInfo
 &QFileInfo::operator=(const QFileInfo &fileinfo)
 {
     qAtomicAssign(d->data, fileinfo.d->data);
@@ -970,7 +970,7 @@ QFile::Permissions
 QFileInfo::permissions() const
 {
     if(!d->data->fileEngine)
-        return false;
+        return 0;
     return QFile::Permissions(d->getFileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
 }
 

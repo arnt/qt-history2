@@ -179,6 +179,8 @@ private:
     Q_DISABLE_COPY(QFile)
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFile::Permissions)
+
 #ifdef QT_COMPAT
 // QFile::Error
 #  define IO_Ok QFile::NoError
