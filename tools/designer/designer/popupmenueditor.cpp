@@ -1035,9 +1035,13 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 	case Qt::Key_Alt:
 	case Qt::Key_Shift:
 	case Qt::Key_Control:
-	case Qt::Key_Escape:
 	    // do nothing
 	    return;
+
+	case Qt::Key_Escape:
+	    currentField = 0;
+	    navigateLeft();
+	    break;
 	 
 	case Qt::Key_C:
 	    if ( e->state() & Qt::ControlButton &&
