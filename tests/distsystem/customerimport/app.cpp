@@ -43,9 +43,8 @@ void ImportApp::doImport()
 		    axaptaCursor.first();
 		    if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
-			    QSqlRecord* buffer = axaptaCursor.primeUpdate();
 			    QSqlQuery q( QString::null, axaptaDB );
-			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + buffer->value( "ACCOUNTNUM" ).toString() + "'";
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
 			    bool b = q.exec( tmp );
 			    if( b )
 				log << customerID << " ... OK" << endl;
@@ -57,18 +56,22 @@ void ImportApp::doImport()
 			axaptaCursor.first();
 			if( axaptaCursor.isValid() ) {
 			    // We found a record, hooray :)
-			    QSqlRecord* buffer = axaptaCursor.primeUpdate();
 			    QSqlQuery q( QString::null, axaptaDB );
-			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + buffer->value( "ACCOUNTNUM" ).toString() + "'";
+			    QString tmp = "UPDATE CUSTTABLE SET INTERNID = '" + customerID + "' WHERE DATAAREAID = 'ts3' AND ACCOUNTNUM = '" + axaptaCursor.value( "ACCOUNTNUM" ).toString() + "'";
 			    bool b = q.exec( tmp );
-			    if( b )
-				log << customerID << " ... MAYBE (Name OK, but address mismatched)" << endl;
+			    if( b ) {
+				QString simpleAxaptaAddress = axaptaCursor.value( "ADDRESS" ).toString();
+				QString simpleInternAddress = customerAddress;
+
+				simpleAxaptaAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
+				simpleInternAddress.replace( QRegExp( "[\\r,\\n]" ), " " );
+				log << customerID << " ... MAYBE (Name OK, but address mismatch) A: \"" << simpleAxaptaAddress << "\" I: \"" << simpleInternAddress << "\"" << endl;
+			    }
 			    else
 				log << customerID << " ... FAILED (SQL error)" << endl;
 			}
-			else {
+			else
 			    log << customerID << " ... FAILED (\"" << customerName << "\" not found)" << endl;
-			}
 		    }
 		    logFile.flush();
 		    internCursor.next();
