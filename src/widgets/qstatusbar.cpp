@@ -112,7 +112,9 @@ public:
     QBoxLayout * box;
     QTimer * timer;
 
+#ifndef QT_NO_SIZEGRIP
     QSizeGrip * resizer;
+#endif    
 };
 
 
@@ -126,7 +128,9 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     d = new QStatusBarPrivate;
     d->items.setAutoDelete( TRUE );
     d->box = 0;
+#ifndef QT_NO_SIZEGRIP
     d->resizer = 0;
+#endif
     d->timer = 0;
 
     setSizeGripEnabled(TRUE); // causes reformat()
@@ -230,7 +234,11 @@ void QStatusBar::removeWidget( QWidget* widget )
 
 bool QStatusBar::isSizeGripEnabled() const
 {
+#ifdef QT_NO_SIZEGRIP
+    return FALSE;
+#else    
     return (bool)d->resizer;
+#endif
 }
 
 /*!
@@ -241,6 +249,7 @@ bool QStatusBar::isSizeGripEnabled() const
 */
 void QStatusBar::setSizeGripEnabled(bool enabled)
 {
+#ifndef QT_NO_SIZEGRIP
     if ( !enabled != !d->resizer ) {
 	if ( enabled ) {
 	    d->resizer = new QSizeGrip( this, "QStatusBar::resizer" );
@@ -252,6 +261,7 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 	if ( d->resizer && isVisible() )
 	    d->resizer->show();
     }
+#endif
 }
 
 
@@ -291,14 +301,14 @@ void QStatusBar::reformat()
 	maxH = QMAX( maxH, itemH );
 	item = d->items.next();
     }
-
+#ifndef QT_NO_SIZEGRIP
     if ( d->resizer ) {
 	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
 	l->addSpacing( 2 );
 	l->addWidget( d->resizer, 0, AlignBottom );
 	l->addSpacing( 2 );
     }
-
+#endif
     l->addStrut( maxH );
     d->box->addSpacing( 2 );
     d->box->activate();
@@ -415,6 +425,7 @@ void QStatusBar::paintEvent( QPaintEvent * )
 */
 void QStatusBar::resizeEvent( QResizeEvent * e )
 {
+#if 0
     QStatusBarPrivate::SBItem* item;    
     for ( item = d->items.first(); item; item = d->items.next() )
 	item->w->setMinimumWidth( 30 );
@@ -422,7 +433,7 @@ void QStatusBar::resizeEvent( QResizeEvent * e )
     int mw = d->box->totalMinimumSize().width() - 30;
     for ( item = d->items.first(); item; item = d->items.next() )
 	item->w->setMaximumWidth( width() - mw );
-
+#endif
     QWidget::resizeEvent( e );
 }
 
