@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#5 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -34,6 +34,7 @@ extern Qt::WindowsVersion qt_winver;	// defined in qapplication_win.cpp
 const int maxNameLen = 255;
 const int maxMultiLen = 16383;
 
+static
 void splitFilter( const QString& rawFilter, QString* filterName, 
 		  QString* filterExp )
 {
@@ -56,6 +57,7 @@ void splitFilter( const QString& rawFilter, QString* filterName,
 }
 
 
+static
 void addFilterA( QBuffer* buf, const QString& rawFilter )
 {
     if ( !rawFilter.isEmpty() ) {
@@ -70,6 +72,7 @@ void addFilterA( QBuffer* buf, const QString& rawFilter )
 }
 
 
+static
 void addFilter( QBuffer* buf, const QString& rawFilter )
 {
     if ( !rawFilter.isEmpty() ) {
@@ -90,6 +93,7 @@ QCString aTitle;
 QByteArray aFilter;
 // Use ANSI strings and API
 
+static
 OPENFILENAMEA* makeOFNA( QWidget* parent,
 			 const QString& initialSelection,
 			 const QString& initialDirectory,
@@ -141,6 +145,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
 }
 
 
+static
 void cleanUpOFNA( OPENFILENAMEA** ofn )
 {
     delete *ofn;
@@ -154,6 +159,7 @@ TCHAR* tInitDir;
 TCHAR* tInitSel;
 QByteArray tFilter;
 
+static
 OPENFILENAME* makeOFN( QWidget* parent,
 		       const QString& initialSelection,
 		       const QString& initialDirectory,
@@ -210,6 +216,7 @@ OPENFILENAME* makeOFN( QWidget* parent,
 }
 
 
+static
 void cleanUpOFN( OPENFILENAME** ofn )
 {
     delete *ofn;
