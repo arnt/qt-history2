@@ -46,6 +46,7 @@
 #include <qcursor.h>
 #include <qtimer.h>
 #ifdef Q_WS_MACX
+#include <CGContext.h>
 #include <CGImage.h>
 #endif
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -289,9 +290,11 @@ QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 	GetWindowRegionRec *s = (GetWindowRegionRec *)param;
 	result = 0;
 	switch(s->regionCode) {
+	case kWindowOpaqueRgn: 
+	    EmptyRgn(s->winRgn);
+	    break; 
 	case kWindowStructureRgn:
-	case kWindowContentRgn:
-	case kWindowOpaqueRgn: {
+	case kWindowContentRgn: {
 	    if(QWidget *widget = QWidget::find( (WId)window )) {
 		QRegion cr;
 		if(widget->extra && !widget->extra->mask.isNull())
@@ -323,17 +326,28 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 
     if ( widget ) {
 #ifdef Q_WS_MAC9
-	/* this is the right way to do this, and it works very well on mac 9, however macosx is not calling
-	   this with the proper region, as some of the area (usually offscreen) isn't actually processed here
-	   even though it is dirty, so for now this is mac9 only */
+	/* this is the right way to do this, and it works very well on mac
+	   9, however macosx is not calling this with the proper region, as
+	   some of the area (usually offscreen) isn't actually processed
+	   here even though it is dirty, so for now this is mac9 only */
 	QRegion reg(rgn);
-        { //lookup the x and y, don't use qwidget because this callback can be called before its updated
+	{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
 	    LocalToGlobal(&px);
 	    reg.translate(-px.h, -px.v);
 	}
 #else
+	//Clear a nobackground widget to make it transparent
+	if(widget->backgroundMode() == Qt::NoBackground) {
+	    CGContextRef ctx;
+	    CGRect r2 = CGRectMake(0, 0, widget->width(), widget->height());
+	    CreateCGContextForPort(GetWindowPort((WindowPtr)widget->handle()), &ctx);
+	    CGContextClearRect(ctx, r2);
+	    CGContextFlush(ctx);
+	    CGContextRelease(ctx);
+	}
+
 	//this is the solution to weird things on demo example (white areas), need
 	//to examine why this happens FIXME!
 	Q_UNUSED(rgn);
@@ -1190,7 +1204,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
     if ( isDesktop() )
 	return;
-
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
@@ -1201,15 +1214,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( extra->topextra ) {
 	    if ( extra->topextra->incw ) {
 		w = w/extra->topextra->incw;
-		w = w*extra->topextra->incw;
+		w *= extra->topextra->incw;
 	    }
 	    if ( extra->topextra->inch ) {
 		h = h/extra->topextra->inch;
-		h = h*extra->topextra->inch;
+		h *= extra->topextra->inch;
 	    }
 	}
     }
-
     if ( w < 1 )                                // invalid size
 	w = 1;
     if ( h < 1 )
@@ -1217,13 +1229,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     QPoint oldp = pos();
     QSize  olds = size();
-
     QRegion oldregion = clippedRegion(FALSE);
-
     QRect  r( x, y, w, h );
     dirtyClippedRegion(FALSE);
     crect = r;
-
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
     dirtyClippedRegion(TRUE);
