@@ -63,6 +63,7 @@ struct QUrlInfoPrivate
 // NOT REVISED
 /*!
   \class QUrlInfo qurlinfo.h
+  \brief The QUrlInfo class stores information about URLs.
 
   \ingroup misc
 

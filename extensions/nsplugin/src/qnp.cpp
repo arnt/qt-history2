@@ -1172,17 +1172,6 @@ public:
   The default implementation is an empty window.
 */
 
-/*! \enum QNPWidget::InstanceMode
-
-  This enum type provides C++-friendly names for three #defines in
-  npapi.h: <ul>
-
-  <li> \c Embed - corresponds to NP_EMBED
-  <li> \c Full - corresponds to NP_FULL
-  <li> \c Background - corresponds to NP_BACKGROUND
-
-  </ul>
-*/
 /*!
   Creates a QNPWidget.
 */
@@ -1370,6 +1359,18 @@ void QNPWidget::unsetWindow()
   the task of the QNPInstance is to gather data, while
   the task of the QNPWidget is to provide a graphical interface to that data,
   this restriction can be easily accommodated.
+*/
+
+/*! \enum QNPInstance::InstanceMode
+
+  This enum type provides C++-friendly names for three #defines in
+  npapi.h: <ul>
+
+  <li> \c Embed - corresponds to NP_EMBED
+  <li> \c Full - corresponds to NP_FULL
+  <li> \c Background - corresponds to NP_BACKGROUND
+
+  </ul>
 */
 
 /*!

@@ -903,6 +903,7 @@ bool QMetaProperty::stored( QObject* o ) const
 
 /*!
   \class QMetaObjectCleanUp
+  \brief The QMetaObjectCleanUp is an internal class.
 */
 
 /*!
