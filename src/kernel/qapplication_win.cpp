@@ -223,11 +223,11 @@ void qt_erase_background( HDC hdc, int x, int y, int w, int h,
     if ( brush.pixmap() ) {
 	qt_draw_tiled_pixmap( hdc, x, y, w, h, brush.pixmap(), off_x, off_y );
     } else {
-	HBRUSH brush = CreateSolidBrush( brush.color().pixel() );
-	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
+	HBRUSH hbrush = CreateSolidBrush( brush.color().pixel() );
+	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, hbrush );
 	PatBlt( hdc, x, y, w, h, PATCOPY );
 	SelectObject( hdc, oldBrush );
-	DeleteObject( brush );
+	DeleteObject( hbrush );
     }
     if ( QColor::hPal() ) {
 	SelectPalette( hdc, oldPal, TRUE );
@@ -1824,8 +1824,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		qt_erase_background
 		    ( (HDC)wParam, r.left, r.top,
 			r.right-r.left, r.bottom-r.top,
-			widget->backgroundColor(),
-			widget->backgroundPixmap(), ox, oy );
+			QBrush(widget->backgroundColor(), *widget->backgroundPixmap()),
+			ox, oy );
 		RETURN(TRUE);
 	    }
 	    break;
