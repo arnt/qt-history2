@@ -657,6 +657,10 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;
 	d->advances[i].y = gi.yoff;
+	// #### not quite correct! should be done after glyph positioning!
+	int y = d->offsets[i].y + gi.y;
+	d->ascent = QMAX( d->ascent, -y );
+	d->descent = QMAX( d->descent, y + gi.height );
     }
 
     bool positioned = ((OpenTypeIface *) openType)->applyGlyphPositioning( OpenTypeIface::Arabic, result );
@@ -671,6 +675,7 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 // 	qDebug("no open type positioning, using heuristics");
 	heuristicPositionMarks( result );
     }
+
 
 //     qDebug("logClusters:");
 //     for ( int i = 0; i < result->d->length; i++ )

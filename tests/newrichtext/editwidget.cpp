@@ -16,7 +16,12 @@ public:
     ScriptItemArray items;
     ShapedItem shaped;
     int cursorPos;
-    QMemArray<int> lineBreaks;
+    struct Line {
+	int pos;
+	int ascent;
+	int descent;
+    };
+    QMemArray<Line> lineBreaks;
     bool cursorOn;
 };
 
@@ -93,9 +98,10 @@ void EditWidget::paintEvent( QPaintEvent * )
     QPainter painter( this );
     const TextLayout *layout = TextLayout::instance();
     int start = 0;
-    int y = 50;
+    int y = 5;
     for ( int j = 0; j < d->lineBreaks.size(); j++ ) {
-	int end = d->lineBreaks[j];
+	int end = d->lineBreaks[j].pos;
+	y += d->lineBreaks[j].ascent;
 	unsigned char levels[256];
 	int visualOrder[256];
 	int x = 5;
@@ -138,7 +144,7 @@ void EditWidget::paintEvent( QPaintEvent * )
 	    }
 	}
 	start = end;
-	y += 50;
+	y += d->lineBreaks[j].descent;
     }
 
 }
@@ -161,6 +167,8 @@ void EditWidget::recalculate()
     int allocLines = 10;
     d->lineBreaks.resize(allocLines);
     int i = 0;
+    int ascent = 0;
+    int descent = 0;
     while ( i < d->items.size() ) {
 	layout->shape( shaped, d->font, d->text, d->items, i );
 	layout->position( shaped );
@@ -171,13 +179,23 @@ void EditWidget::recalculate()
 	    CharAttributesArray attrs;
 	    layout->attributes( attrs, d->text, d->items, i );
 	    if ( layout->split( d->items, i, shaped, attrs, w - lw ) ) {
+		layout->shape( shaped, d->font, d->text, d->items, i );
+		layout->position( shaped );
+		ascent = QMAX( ascent, shaped.ascent() );
+		descent = QMAX( descent, shaped.descent() );
 		i++;
 	    }
 	    // ensure we process at least one word
-	    if ( line && d->lineBreaks[line-1] == i )
+	    if ( line && d->lineBreaks[line-1].pos == i ) {
+		ascent = QMAX( ascent, shaped.ascent() );
+		descent = QMAX( descent, shaped.descent() );
 		i++;
-	    d->lineBreaks[line] = i;
+	    }
+	    d->lineBreaks[line].pos = i;
+	    d->lineBreaks[line].ascent = ascent;
+	    d->lineBreaks[line].descent = descent;
 	    line++;
+	    ascent = descent = 0;
 	    if ( line >= allocLines ) {
 		allocLines += 10;
 		d->lineBreaks.resize( allocLines );
@@ -187,9 +205,13 @@ void EditWidget::recalculate()
 	} else {
 	    i++;
 	    lw += cw;
+	    ascent = QMAX( ascent, shaped.ascent() );
+	    descent = QMAX( descent, shaped.descent() );
 	}
     }
-    d->lineBreaks[line] = d->items.size();
+    d->lineBreaks[line].pos = d->items.size();
+    d->lineBreaks[line].ascent = ascent;
+    d->lineBreaks[line].descent = descent;
     d->lineBreaks.resize( line+1 );
     qDebug("recalulate took %d ms",  t.elapsed() );
 }

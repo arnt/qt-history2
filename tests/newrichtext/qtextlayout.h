@@ -165,7 +165,8 @@ public:
     ShapedItemPrivate()
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), fontEngine( 0 ),
-	  from( 0 ), length( 0 ), enginePrivate( 0 ) {}
+	  from( 0 ), length( 0 ), ascent( 0 ), descent( 0 ),
+	  enginePrivate( 0 ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
 	free( offsets );
@@ -185,6 +186,8 @@ public:
     QString string;
     int from;
     int length;
+    short ascent;
+    short descent;
     void *enginePrivate;
 };
 
@@ -198,6 +201,8 @@ public:
     int count() const;
     const Offset *offsets() const;
     const Offset *advances() const { return d->advances; }
+    int ascent() const;
+    int descent() const;
 
     ShapedItemPrivate *d;
 };

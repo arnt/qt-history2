@@ -80,9 +80,15 @@ const Offset *ShapedItem::offsets() const
 }
 
 
+int ShapedItem::ascent() const
+{
+    return d->ascent;
+}
 
-
-
+int ShapedItem::descent() const
+{
+    return d->descent;
+}
 
 
 

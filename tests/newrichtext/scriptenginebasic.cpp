@@ -233,11 +233,15 @@ void ScriptEngineBasic::position( ShapedItem *shaped )
     d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
     memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
     d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
+    d->ascent = d->descent = 0;
     for ( int i = 0; i < d->num_glyphs; i++ ) {
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;
 	d->advances[i].y = gi.yoff;
 // 	qDebug("setting advance of glyph %d to %d", i, gi.xoff );
+	int y = d->offsets[i].y + gi.y;
+	d->ascent = QMAX( d->ascent, -y );
+	d->descent = QMAX( d->descent, y + gi.height );
     }
 
     heuristicPositionMarks( shaped );
