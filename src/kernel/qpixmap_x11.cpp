@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#93 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#93 $");
 
 
 /*****************************************************************************
@@ -1144,13 +1144,13 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = a.height - y;
     }
-    XImage *xi;					// get pixmap data from window
-    xi = XGetImage( dpy, window, x, y, w, h, AllPlanes, ZPixmap );
-    CHECK_PTR( xi );
     QPixmap pm( w, h );				// create new pixmap
-    XPutImage( dpy, pm.handle(), qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h);
     pm.data->uninit = FALSE;
-    XDestroyImage( xi );
+    GC gc = qt_xget_temp_gc( FALSE );
+    XSetSubwindowMode( dpy, gc, IncludeInferiors );
+    XCopyArea( dpy, QApplication::desktop()->handle(), pm.handle(), gc,
+	       x, y, w, h, 0, 0 );
+    XSetSubwindowMode( dpy, gc, ClipByChildren );
     return pm;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#68 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#68 $");
 
 
 /*!
@@ -241,8 +241,6 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
     }
     return p->gc;
 }
-
-
 
 
 /*!
