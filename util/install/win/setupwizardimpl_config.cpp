@@ -272,7 +272,8 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-style-sgi";
 #  endif
-    if ( !optionsPage->skipBuild->isChecked() 
+    if ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
+	    || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
 #  if defined(Q_OS_WIN32)
     && qWinVersion() & WV_NT_based ) {
 #  else
@@ -307,6 +308,10 @@ void SetupWizardImpl::cleanDone()
 		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 
+	    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+	    if ( globalInformation.reconfig() )
+		outStream << makeCmds[ globalInformation.sysId() ].latin1() << " clean" << endl;
+	    
 	    // There is a limitation on Windows 9x regarding the length of the
 	    // command line. So rather use the configure.cache than specifying
 	    // all configure options on the command line.
@@ -325,14 +330,13 @@ void SetupWizardImpl::cleanDone()
 		outStream << args.join( " " ) << endl;
 	    }
 
-	    if( !globalInformation.reconfig() ) {
-		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
-		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
-	    }
+	    outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
 	    outFile.close();
 	}
 	logOutput( "Doing the final integration steps..." );
-	doFinalIntegration();
+	// No need to redo the integration step
+	if ( !globalInformation.reconfig() )
+	    doFinalIntegration();
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
@@ -918,7 +922,7 @@ void SetupWizardImpl::showPageBuild()
     nextButton()->setText( "Next >" );
     saveSettings();
 
-    if( globalInformation.reconfig() ) {
+    if( globalInformation.reconfig() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
 	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake" );
 

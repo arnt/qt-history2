@@ -29,7 +29,18 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
     if( globalInformation.reconfig() ) {
 	currentInstLabel->show();
 	currentInstallation->show();
-	rebuildInstallation->show();
+#if defined(Q_OS_WIN32)
+	// Makes no sense to have the rebuild installation option on DOS based
+	// Windows
+	if ( qWinVersion() & WV_NT_based )
+#endif
+	    rebuildInstallation->show();
+#if defined(Q_OS_WIN32)
+	else {
+	    rebuildInstallation->setChecked( FALSE );
+	    rebuildInstallation->hide();
+	}
+#endif
     } else {
 	currentInstLabel->hide();
 	currentInstallation->hide();
