@@ -118,6 +118,16 @@ by a section showing how you can create new components.
 
 See also the list of \l{Model/View Classes}.
 
+\section1 Related Examples
+
+\list
+\o \l{itemviews/chart}{Chart}
+\o \l{itemviews/dirview}{Dir View}
+\o \l{itemviews/pixelator}{Pixelator}
+\o \l{itemviews/simpletreemodel}{Simple Tree Model}
+\o \l{itemviews/spinboxdelegate}{Spin Box Delegate}
+\endlist
+
 */
 
 /*!
