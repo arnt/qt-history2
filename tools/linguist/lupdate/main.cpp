@@ -165,7 +165,8 @@ int main( int argc, char **argv )
                     } else if ( it.key() == "TRANSLATIONS" ) {
                 	tsFileNames.append( *t );
                 	metSomething = TRUE;
-                    } else if ( it.key() == "CODEC" ) {
+                    } else if ( it.key() == "CODEC" ||
+				it.key() == "DEFAULTCODEC" ) {
                 	codec = (*t).latin1();
                     }
         	}
