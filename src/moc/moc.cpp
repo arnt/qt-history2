@@ -467,7 +467,10 @@ void Moc::moc(FILE *out)
 		    def.hasQObject = true;
 		    break;
 		case Q_PROPERTY_TOKEN:
-		    parseProperty(&def);
+		    parseProperty(&def, false);
+		    break;
+		case Q_OVERRIDE_TOKEN:
+		    parseProperty(&def, true);
 		    break;
 		case Q_ENUMS_TOKEN:
 		    parseEnumOrFlag(&def, false);
@@ -627,10 +630,11 @@ void Moc::parseSignals(ClassDef *def)
 }
 
 
-void Moc::parseProperty(ClassDef *def)
+void Moc::parseProperty(ClassDef *def, bool override)
 {
     next(LPAREN);
     PropertyDef propDef;
+    propDef.override = override;
     QByteArray type = parseType();
     if (type.isEmpty())
 	error();

@@ -129,7 +129,7 @@ public:
 
     void parseSlots(FunctionDef::Access access,	 ClassDef *def);
     void parseSignals(ClassDef *def);
-    void parseProperty(ClassDef *def);
+    void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseClassInfo(ClassDef *def);
 private:

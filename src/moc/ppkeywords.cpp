@@ -1,4 +1,4 @@
-// generated from kewywords/keywords.cpp
+// auto generated
 // DO NOT EDIT.
 
 static const short pp_keyword_trans[][128] = {
