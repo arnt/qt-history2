@@ -1141,6 +1141,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QTabWidget";
     else if ( o->inherits( "QDesignerWidgetStack" ) )
 	return "QWidgetStack";
+    else if ( o->inherits( "QWidgetStack" ) )
+	return "QWeDoNotWantToBreakTabWidget";	
     else if ( o->inherits( "QDesignerDialog" ) )
 	return "QDialog";
     else if ( o->inherits( "QDesignerWidget" ) )
@@ -1374,16 +1376,13 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
     } else if ( propName == "frameworkCode" ) {
 	return QVariant( TRUE, 0 );
     } else if ( propName == "layoutMargin" ) {
-	/*
 	if ( w->inherits( "QLayoutWidget" ) )
 	    return QVariant( 0 );
-	else
-	*/
-	if ( MainWindow::self->formWindow() )
-	    return QVariant( -1 ); //QVariant( MainWindow::self->formWindow()->layoutDefaultMargin() );
+	else if ( MainWindow::self->formWindow() )
+	    return QVariant( -1 ); 
     } else if ( propName == "layoutSpacing" ) {
 	if ( MainWindow::self->formWindow() )
-	    return QVariant( -1 ); //( MainWindow::self->formWindow()->layoutDefaultSpacing() );
+	    return QVariant( -1 ); 
     }
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );
 }
