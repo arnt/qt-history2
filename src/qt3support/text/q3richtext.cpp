@@ -25,6 +25,7 @@
 #include "qfile.h"
 #include "qfileinfo.h"
 #include "qfont.h"
+#include "qbitmap.h"
 #include "qimage.h"
 #include "qmap.h"
 #include "qmime.h"
