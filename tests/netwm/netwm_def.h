@@ -108,7 +108,6 @@ public:
 	KDEDockingWindows   = 1<<12, // NOT STANDARD
 	CloseWindow         = 1<<13,
 	WMMoveResize        = 1<<14,
-	Properties          = 1<<15,
 
 	// window
 	WMName              = 1<<16,
@@ -122,7 +121,7 @@ public:
 	WMHandledIcons      = 1<<24,
 	WMPing              = 1<<25,
 	WMKDEDockWinFor     = 1<<26, // NOT STANDARD
-	XAWMState           = 1<<27  // NOT STANDARD
+	INTERNAL_XAWMState  = 1<<27  // NOT STANDARD
 
     };
 };

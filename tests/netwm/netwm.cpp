@@ -418,6 +418,9 @@ NETRootInfo::NETRootInfo(Display *d, unsigned long pr, int s) {
 	p->screen = DefaultScreen(p->display);
 
     p->root = RootWindow(p->display, p->screen);
+    p->rootSize.width = WidthOfScreen(ScreenOfDisplay(p->display, p->screen));
+    p->rootSize.height = HeightOfScreen(ScreenOfDisplay(p->display, p->screen));
+ 
     p->supportwindow = None;
     p->protocols = pr;
     p->number_of_desktops = p->current_desktop = 0;
@@ -714,9 +717,6 @@ void NETRootInfo::setSupported(unsigned long pr) {
 
     if (p->protocols & WMMoveResize)
 	atoms[pnum++] = net_wm_moveresize;
-
-    if (p->protocols & Properties)
-	atoms[pnum++] = net_properties;
 
     if (p->protocols & WMName)
 	atoms[pnum++] = net_wm_name;
@@ -1079,7 +1079,7 @@ void NETRootInfo::update(unsigned long dirty) {
 	if (XGetWindowProperty(p->display, p->root, net_desktop_geometry,
 			       0l, 2l, False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
-	    == Success)
+	    == Success) {
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 2) {
@@ -1090,12 +1090,14 @@ void NETRootInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
+        } else
+          p->geometry = p->rootSize;
 
     if (dirty & DesktopViewport)
 	if (XGetWindowProperty(p->display, p->root, net_desktop_viewport,
 			       0l, 2l, False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
-	    == Success)
+	    == Success) {
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 &&
 		    nitems_ret == 2) {
@@ -1106,18 +1108,22 @@ void NETRootInfo::update(unsigned long dirty) {
 
 		XFree(data_ret);
 	    }
+        } else
+          p->viewport.x = p->viewport.y = 0;
 
     if (dirty & CurrentDesktop)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
 			       0l, 1l, False, XA_CARDINAL, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
-	    == Success)
+	    == Success) {
 	    if (data_ret) {
 		if (type_ret == XA_CARDINAL && format_ret == 32 && nitems_ret == 1)
 		    p->current_desktop = *((CARD32 *) data_ret);
 
 		XFree(data_ret);
 	    }
+        } else
+            p->current_desktop = 0;
 
     if (dirty & DesktopNames)
 	if (XGetWindowProperty(p->display, p->root, net_current_desktop,
@@ -1240,7 +1246,7 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->name = (char *) 0;
     p->desktop = p->pid = p->handled_icons = 0;
     p->managed = False;
-    p->properties = pr;
+    p->properties = pr | INTERNAL_XAWMState;
     p->icon_count = 0;
 
     role = rl;
@@ -1519,7 +1525,7 @@ unsigned long NETWinInfo::event(XEvent *e) {
 	Bool done = False;
 	while (! done) {
 	    if (pe.xproperty.atom == xa_wm_state)
-		dirty |= XAWMState;
+		dirty |= INTERNAL_XAWMState;
 	    else if (pe.xproperty.atom == net_wm_state)
 		dirty |= WMState;
 	    else if (pe.xproperty.atom == net_wm_desktop)
@@ -1547,7 +1553,7 @@ void NETWinInfo::update(unsigned long dirty) {
     unsigned long nitems_ret, unused;
     unsigned char *data_ret;
 
-    if (dirty & XAWMState)
+    if (dirty & INTERNAL_XAWMState)
 	if (XGetWindowProperty(p->display, p->window, xa_wm_state, 0l, 1l,
 			       False, xa_wm_state, &type_ret, &format_ret,
 			       &nitems_ret, &unused, &data_ret)
