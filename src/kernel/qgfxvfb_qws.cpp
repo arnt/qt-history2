@@ -99,6 +99,7 @@ class QGfxVFb : public QGfxRaster<depth,type>
 {
 public:
     QGfxVFb(unsigned char *b,int w,int h);
+    virtual ~QGfxVFb();
 
     virtual void drawPoint( int,int );
     virtual void drawPoints( const QPointArray &,int,int );
@@ -114,7 +115,12 @@ public:
 
 template <const int depth, const int type>
 QGfxVFb<depth,type>::QGfxVFb(unsigned char *b,int w,int h)
-    : QGfxRaster<depth, type>( b, w, h )
+    : QGfxRaster( b, w, h )
+{
+}
+
+template <const int depth, const int type>
+QGfxVFb<depth,type>::~QGfxVFb()
 {
 }
 
@@ -248,7 +254,8 @@ bool QVFbScreen::connect()
 
     size = lstep * h;
     mapsize = size;
-    screencols = 0;
+    screencols = hdr->numcols;
+    memcpy( screenclut, hdr->clut, sizeof( QRgb ) * screencols );
 
     return TRUE;
 }
@@ -267,19 +274,6 @@ bool QVFbScreen::initCard()
 	for(int loopc=0;loopc<256;loopc++) {
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 	}
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-	for(int loopc=0;loopc<256;loopc++) {
-	    int a,b,c;
-	    a=((loopc & 0xe0) >> 5) << 5;
-	    b=((loopc & 0x18) >> 3) << 6;
-	    c=(loopc & 0x07) << 5;
-	    a=a | 0x3f;
-	    b=b | 0x3f;
-	    c=c | 0x3f;
-	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
-				   cmap.green[loopc] >> 8,
-				   cmap.blue[loopc] >> 8);
-	}
 #else
 	// 6x6x6 216 color cube
 	int idx = 0;
@@ -294,6 +288,7 @@ bool QVFbScreen::initCard()
 	screencols=idx;
 #endif
 	memcpy( hdr->clut, screenclut, sizeof( QRgb ) * screencols );
+	hdr->numcols = screencols;
     }
 
     return true;
@@ -336,36 +331,31 @@ void QVFbScreen::restore()
 
 QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
-    QGfx* ret;
+    QGfx* ret = 0;
     if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
 #if QT_FEATURE_QWS_DEPTH_16
     } else if(d==16) {
-	ret = new QGfxRaster<16,0>(bytes,w,h);
+      ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_15
     } else if(d==15) {
-	ret = new QGfxRaster<15,0>(bytes,w,h);
+      ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_8
-    } else if(d==8) {
+    } else if (d==8) {
 	ret = new QGfxVFb<8,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
-    } else if(d==8) {
-	ret = new QGfxVFb<8,0>(bytes,w,h);
-#endif
-#if QT_FEATURE_QWS_DEPTH_8DIRECT
-    } else if(d==8) {
+    } else if (d==8) {
 	ret = new QGfxVFb<8,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_32
-    } else if(d==32) {
+    } else if (d==32) {
 	ret = new QGfxVFb<32,0>(bytes,w,h);
 #endif
     } else {
 	qFatal("Can't drive depth %d",d);
-	ret = 0; // silence gcc
     }
     ret->setLineStep(linestep);
     return ret;

@@ -103,8 +103,6 @@ struct SWCursorData {
 
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
     #define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-    #define GFX_8BPP_PIXEL(r,g,b) ((((r) >> 5) << 5) | (((g) >> 6) << 3) | ((b) >> 5))
 #else
     #define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
 #endif
@@ -476,7 +474,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clutcols = 0;
     update_clip();
 
-#if QT_FEATURE_QWS_DEPTH_8 || QT_FEATURE_QWS_DEPTH_8GRAYSCALE || QT_FEATURE_QWS_DEPTH_8DIRECT
+#if QT_FEATURE_QWS_DEPTH_8 || QT_FEATURE_QWS_DEPTH_8GRAYSCALE
     // default colour map
     setClut( qt_screen->clut(), qt_screen->numCols() );
 #endif
@@ -1763,13 +1761,6 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    if(src_normal_palette) {
 		ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
 	    } else {
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-	    if(src_normal_palette) {
-		r=((val & 0xe0) >> 5) << 5;
-		g=((val & 0x18) >> 3) << 6;
-		b=((val & 0x07)) << 5;
-		ret=(r << 16) | (g << 8) | b;
-	    } else {
 #else
 	    if(true) {
 #endif
@@ -1855,13 +1846,6 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	    if(src_normal_palette) {
 		ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
-	    } else {
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-	    if(src_normal_palette) {
-	    r=((val & 0xe0) >> 5) << 2;
-	    g=((val & 0x18) >> 3) << 4;
-	    b=((val & 0x07)) << 2;
-	    ret=(r << 11) | (g << 6) | b;
 	    } else {
 #else
 	    if(true) {
@@ -2688,13 +2672,8 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    int val = *tempptr++;
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	    alphabuf[loopc] = (val << 16) | (val << 8) | val;
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-	    int r=((val & 0xe0) >> 5) << 5;
-	    int g=((val & 0x18) >> 3) << 6;
-	    int b=((val & 0x07)) << 5;
-	    alphabuf[loopc] = (r << 16) | (g << 8) | b;
 #else
-	    alphabuf[loopc]=clut[val];
+	    alphabuf[loopc] = clut[val];
 #endif
 	}
 
@@ -3697,24 +3676,6 @@ bool QScreen::initCard()
 	    cmap.transp[loopc]=0;
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 	}
-#elif QT_FEATURE_QWS_DEPTH_8DIRECT
-	unsigned int loopc;
-	for(loopc=0;loopc<256;loopc++) {
-	    int a,b,c;
-	    a=((loopc & 0xe0) >> 5) << 5;
-	    b=((loopc & 0x18) >> 3) << 6;
-	    c=(loopc & 0x07) << 5;
-	    a=a | 0x3f;
-	    b=b | 0x3f;
-	    c=c | 0x3f;
-	    cmap.red[loopc]=a << 8;
-	    cmap.green[loopc]=b << 8;
-	    cmap.blue[loopc]=c << 8;
-	    cmap.transp[loopc]=0;
-	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
-				   cmap.green[loopc] >> 8,
-				   cmap.blue[loopc] >> 8);
-	}
 #else
 	// 6x6x6 216 color cube
 	int idx = 0;
@@ -3843,10 +3804,6 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
-    } else if(d==8) {
-	ret = new QGfxRaster<8,0>(bytes,w,h);
-#endif
-#if QT_FEATURE_QWS_DEPTH_8DIRECT
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif

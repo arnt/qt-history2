@@ -746,7 +746,8 @@ QGfx * QPixmap::graphicsContext() const
 	    data->clut[1]=qRgb(0,0,0);
 	    data->numcols = 2;
 	}
-	ret->setClut(data->clut,data->numcols);
+	if ( data->numcols )
+	    ret->setClut(data->clut,data->numcols);
     }
     return ret;
 }

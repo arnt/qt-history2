@@ -83,6 +83,7 @@ QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
     hdr->height = h;
     hdr->depth = d;
     hdr->linestep = bpl;
+    hdr->numcols = 0;
     hdr->dataoffset = 1024;
     hdr->update = QRect();
 
