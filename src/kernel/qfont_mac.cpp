@@ -257,6 +257,8 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 
 void QFontPrivate::drawText( QString s, int len )
 {
+    macSetFont(NULL);
+
     Str255 str;
     qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
     DrawString( str  );
