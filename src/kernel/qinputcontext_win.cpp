@@ -255,6 +255,8 @@ static void releaseContext( HWND wnd, HIMC imc )
 
 static void notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue )
 {
+    if ( !imc )
+	return;
     if ( aimm )
 	aimm->NotifyIME( imc, dwAction, dwIndex, dwValue );
     else
