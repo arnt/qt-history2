@@ -746,7 +746,7 @@ int QSqlCursor::mode() const
     Sets field \a name to \a calculated. If the field \a name does not
     exist, nothing happens. The value of a calculated field is set by
     the calculateField() virtual function which you must reimplement
-    (or the field value will be an invalid QVariant). Calculated
+    (or the field value will be an invalid QCoreVariant). Calculated
     fields do not appear in generated SQL statements sent to the
     database.
 
@@ -785,7 +785,7 @@ bool QSqlCursor::isCalculated( const QString& name ) const
     When a trimmed field of type string is read from the
     database any trailing (right-most) spaces are removed.
 
-    \sa isTrimmed() QVariant
+    \sa isTrimmed() QCoreVariant
 */
 
 void QSqlCursor::setTrimmed( const QString& name, bool trim )
@@ -1332,7 +1332,7 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
     for ( int j = 0; j < fieldCount; ++j ) {
 	const QSqlField* f = d->editBuffer.field( j );
 	if ( d->editBuffer.isGenerated( j ) ) {
-	    if (f->type() == QVariant::ByteArray)
+	    if (f->type() == QCoreVariant::ByteArray)
 		sql->bindValue(cnt, f->value(), QSql::In | QSql::Binary);
 	    else
 		sql->bindValue(cnt, f->value());
@@ -1363,14 +1363,14 @@ bool QSqlCursor::exec( const QString & sql )
     to be calculated. If calculated fields are being used, derived
     classes must reimplement this function and return the appropriate
     value for field \a name. The default implementation returns an
-    invalid QVariant.
+    invalid QCoreVariant.
 
     \sa setCalculated()
 */
 
-QVariant QSqlCursor::calculateField( const QString& )
+QCoreVariant QSqlCursor::calculateField( const QString& )
 {
-    return QVariant();
+    return QCoreVariant();
 }
 
 /*! \internal
@@ -1403,8 +1403,8 @@ void QSqlCursor::sync()
 		haveCalculatedFields = TRUE;
 	    }
 	    if ( QSqlRecord::isGenerated( i ) ) {
-		QVariant v = QSqlQuery::value( j );
-		if ( ( v.type() == QVariant::String ) &&
+		QCoreVariant v = QSqlQuery::value( j );
+		if ( ( v.type() == QCoreVariant::String ) &&
 			d->infoBuffer[ i ].isTrim() ) {
 		    v = qTrim( v.toString() );
 		}
@@ -1438,7 +1438,7 @@ void QSqlCursor::afterSeek()
     Returns the value of field number \a i.
 */
 
-QVariant QSqlCursor::value( int i ) const
+QCoreVariant QSqlCursor::value( int i ) const
 {
     return QSqlRecord::value( i );
 }
@@ -1475,7 +1475,7 @@ bool QSqlCursor::isNull( const QString& name ) const
 }
 
 /*! \reimp */
-void QSqlCursor::setValue( int i, const QVariant& val )
+void QSqlCursor::setValue( int i, const QCoreVariant& val )
 {
 #ifdef QT_DEBUG
     qDebug("QSqlCursor::setValue(): This will not affect actual database values. Use primeInsert(), primeUpdate() or primeDelete().");

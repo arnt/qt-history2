@@ -44,16 +44,16 @@ class QM_COMPAT_EXPORT_SQL QSqlFieldInfo
     uint trim: 1;
     uint calc: 1;
     QString nm;
-    QVariant::Type typ;
-    QVariant defValue;
+    QCoreVariant::Type typ;
+    QCoreVariant defValue;
 
 public:
     QSqlFieldInfo( const QString& name = QString(),
-		   QVariant::Type typ = QVariant::Invalid,
+		   QCoreVariant::Type typ = QCoreVariant::Invalid,
 		   int required = -1,
 		   int len = -1,
 		   int prec = -1,
-		   const QVariant& defValue = QVariant(),
+		   const QCoreVariant& defValue = QCoreVariant(),
 		   int sqlType = 0,
 		   bool generated = TRUE,
 		   bool trim = FALSE,
@@ -95,13 +95,13 @@ public:
     { return QSqlField(nm, typ, req, len, prec, defValue, tID, calc); }
     int isRequired() const
     { return req; }
-    QVariant::Type type() const
+    QCoreVariant::Type type() const
     { return typ; }
     int	length() const
     { return len; }
     int	precision() const
     { return prec; }
-    QVariant defaultValue() const
+    QCoreVariant defaultValue() const
     { return defValue; }
     QString name() const
     { return nm; }

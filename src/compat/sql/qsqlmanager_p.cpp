@@ -286,7 +286,7 @@ static int compare_recs( const QSqlRecord* buf1, const QSqlRecord* buf2,
 
     if ( f1 ) {
 	switch ( f1->type() ) { // ### more types?
-	case QVariant::String:
+	case QCoreVariant::String:
 	    cmp = f1->value().toString().trimmed().compare(
 		          buf2->value(fn).toString().trimmed() );
 	    break;

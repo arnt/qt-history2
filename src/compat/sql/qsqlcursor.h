@@ -44,10 +44,10 @@ public:
 	Writable = 7
     };
 
-    QVariant value(int i) const;
-    inline QVariant value(const QString &name) const { return value(position(name)); }
-    void setValue(int i, const QVariant &val);
-    inline void setValue(const QString &name, const QVariant &val) { setValue(position(name), val); }
+    QCoreVariant value(int i) const;
+    inline QCoreVariant value(const QString &name) const { return value(position(name)); }
+    void setValue(int i, const QCoreVariant &val);
+    inline void setValue(const QString &name, const QCoreVariant &val) { setValue(position(name), val); }
     virtual QSqlIndex primaryIndex( bool prime = TRUE ) const;
     virtual QSqlIndex index( const QStringList& fieldNames ) const;
     QSqlIndex index( const QString& fieldName ) const;
@@ -103,7 +103,7 @@ protected:
     void		afterSeek();
     bool		exec( const QString & sql );
 
-    virtual QVariant	calculateField( const QString& name );
+    virtual QCoreVariant calculateField( const QString& name );
     virtual int		update( const QString & filter, bool invalidate = TRUE );
     virtual int		del( const QString & filter, bool invalidate = TRUE );
 
