@@ -398,6 +398,8 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 	else if (ctrl && alt && keyCode == Qt::Key_Right)
 	    term = QMIN(vtQws + 1, 10);
 	if (term && !release) {
+	    ctrl = 0;
+	    alt = 0;
 	    ioctl(kbdFD, VT_ACTIVATE, term);
 	    return;
 	}
