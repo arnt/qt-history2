@@ -885,16 +885,18 @@ uint QTextStream::ts_getline( QChar* buf, uint len )
 	rlen = dev->readLine( cbuf, rlen+1 );
 	if ( rlen == -1 )
 	    rlen = 0;
-	int i = 0;
-	while ( i < rlen ) {
-	    buf[rnum].cell() = cbuf[i];
-	    buf[rnum].row() = 0;
-	    rnum++;
-	    i++;
+	char *end = cbuf+rlen;
+	char *it = cbuf;
+	buf +=rnum;
+	while ( it != end ) {
+	    buf->cell() = *(it++);
+	    buf->row() = 0;
+	    buf++;
 	}
+	rnum += rlen;
 	delete[] cbuf;
 	if ( rnum < len && dev->atEnd() )
-	    buf[rnum++] = QEOF;
+	    buf[1] = QEOF;
     }
     return rnum;
 }
