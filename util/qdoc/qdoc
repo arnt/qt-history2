@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#181 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#182 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1027,7 +1027,7 @@ sub readh {
 	   ) {
 	my ($cookie, $sig, $def) = ($1,$2,$3);
 	$sig =~ s/\w+\s+(\w+)/$1/;
-	print "class $sig\n";
+	#print "class $sig\n";
 	if ( $cookie eq "" ) {
 	    # Not a template
 	    &storeclass($filename, $sig, $def);
