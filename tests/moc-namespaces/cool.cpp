@@ -20,13 +20,18 @@ void Fett::BoringGuy::recitePi()
     emit fellAsleep();
 }
 
-void Fett::BoringGuy::playChess()
+void Fett::BoringGuy::playChess() const
 {
     warning( "Fett::CoolGuy::playChess()" );
 }
 
+void Fett::FunnyGuy::tellJoke()
+{
+    warning( "Fett::FunnyGuy::tellJoke()" );
+    emit giggled();
+}
 
-void Fett::Arne::And::Anda::beenThere() const
+void Fett::Arne::And::Anda::beenThere()
 {
     warning( "Fett::CoolGuy::beenThere()" );
     emit doneThat();
@@ -42,9 +47,10 @@ void Fetere::CoolGuy::highFive( int times )
 	emit hadMartini();
 }
 
-void Fetere::CoolGuy::chillOut()
+void Fetere::CoolGuy::chillOutWith( Fett::CoolGuy &c )
 {
-    warning( "Fetere::CoolGuy::chillOut()" );
+    warning( "Fetere::CoolGuy::chillOutWith()" );
+    c.highFive(1);
 }
 
 void Fetere::BoringGuy::recitePi()
@@ -53,13 +59,18 @@ void Fetere::BoringGuy::recitePi()
     emit fellAsleep();
 }
 
-void Fetere::BoringGuy::playChess()
+void Fetere::BoringGuy::playChess() const
 {
     warning( "Fetere::CoolGuy::playChess()" );
 }
 
+void Fetere::FunnyGuy::tellJoke()
+{
+    warning( "Fetere::FunnyGuy::tellJoke()" );
+    emit giggled();
+}
 
-void Fetere::Arne::And::Anda::beenThere() const
+void Fetere::Arne::And::Anda::beenThere()
 {
     warning( "Fetere::CoolGuy::beenThere()" );
     emit doneThat();

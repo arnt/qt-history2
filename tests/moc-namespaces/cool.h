@@ -7,8 +7,6 @@ namespace Fett {
     using namespace std;
     using std::printf;
 
-    using HisString::operator+
-
     class CoolGuy : public QWidget {
 	Q_OBJECT
     public:
@@ -23,7 +21,7 @@ namespace Fett {
     class BoringGuy : public QWidget {
 	Q_OBJECT
     public:
-	BoringGuy();
+	BoringGuy(){};
     signals:
 	void fellAsleep();	
     public slots:
@@ -31,14 +29,25 @@ namespace Fett {
 	void playChess() const;
     };
 
+
+    class FunnyGuy : public CoolGuy {
+        Q_OBJECT
+    public:
+	FunnyGuy(){};
+    signals:
+        void giggled();
+    public slots:
+        void tellJoke();
+    };
+
     namespace Arne
     {
 	namespace And {
 
-	    class Anda : public CoolGuy {
+	    class Anda : public Fett::CoolGuy {
 		Q_OBJECT
 	    public:
-		Anda();
+		Anda(){};
 	    public slots:
 	        void beenThere();
 	    signals:
@@ -54,24 +63,33 @@ namespace Fetere {
     class CoolGuy : public Fett::CoolGuy {
 	Q_OBJECT
     public:
-	CoolGuy();
+	CoolGuy(){};
     signals:
 	void hadMartini();
-	using HisString::fett;
     public slots:
         void highFive( int times );
-        void chillOutWith( const Fett::CoolGuy & );
+        void chillOutWith( Fett::CoolGuy & );
     };
 
     class BoringGuy : public QWidget {
 	Q_OBJECT
     public:
-	BoringGuy();
+	BoringGuy(){};
     signals:
 	void fellAsleep();	
     public slots:
         void recitePi();
 	void playChess() const;
+    };
+
+    class FunnyGuy : public CoolGuy {
+        Q_OBJECT
+    public:
+	FunnyGuy(){};
+    signals:
+        void giggled();
+    public slots:
+        void tellJoke();
     };
 
     namespace Arne
@@ -81,7 +99,9 @@ namespace Fetere {
 	    class Anda : public QWidget {
 		Q_OBJECT
 	    public:
-		Anda();
+		Anda(){};
+	    public slots:
+	        void beenThere();
 	    signals:
 		void doneThat();
 	    };
@@ -91,21 +111,17 @@ namespace Fetere {
 
 namespace F = Fetere;
 
-using namespave Fett;
 using Fetere::CoolGuy;
-using HisString::operator+
 
 namespace Arne
 {
 
     namespace And {
 
-	typedef int Fett;
-
-	class Anda : public BoringGuy  {
+	class Anda : public Fett::BoringGuy  {
 	    Q_OBJECT
 	public:
-	    Anda();
+	    Anda(){};
         public slots:
 	    void doneThat( const Anda & );
 	private:

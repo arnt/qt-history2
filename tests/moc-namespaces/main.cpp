@@ -6,10 +6,12 @@ int main( int argc, char ** argv ) {
 
     Fett::CoolGuy cool1;
     Fett::BoringGuy boring1;
+    Fett::FunnyGuy funny1;
     Fett::Arne::And::Anda duck1;
 
     Fetere::CoolGuy cool2;
     Fetere::BoringGuy boring2;
+    Fetere::FunnyGuy funny2;
     Fetere::Arne::And::Anda duck2;
 
     QObject::connect( &cool1, SIGNAL(hadMartini()),
@@ -21,6 +23,12 @@ int main( int argc, char ** argv ) {
                       &boring1, SLOT(playChess()) );
     QObject::connect( &cool2, SIGNAL(hadMartini()),
                       &duck1, SLOT(beenThere()) );
+
+    QObject::connect( &funny1, SIGNAL(giggled()),
+                      &funny2, SLOT(tellJoke()) );
+
+    QObject::connect( &funny2, SIGNAL(giggled()),
+                      &boring2, SLOT(recitePi()) );
 
 
 
