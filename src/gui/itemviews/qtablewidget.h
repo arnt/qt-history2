@@ -15,7 +15,7 @@
 #define QTABLEWIDGET_H
 
 #ifndef QT_H
-#include <qgenerictableview.h>
+#include <qtableview.h>
 #include <qabstractitemmodel.h>
 #include <qvector.h>
 #include <qiconset.h>
@@ -63,7 +63,7 @@ private:
 
 class QTableWidgetPrivate;
 
-class Q_GUI_EXPORT QTableWidget : public QGenericTableView
+class Q_GUI_EXPORT QTableWidget : public QTableView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableWidget)

@@ -6,8 +6,8 @@ HEADERS += \
 	itemviews/qgenericheader.h \
 	itemviews/qlistview.h \
 	itemviews/qlistview_p.h \
-	itemviews/qgenerictableview.h \
-	itemviews/qgenerictableview_p.h \
+	itemviews/qtableview.h \
+	itemviews/qtableview_p.h \
 	itemviews/qgenerictreeview.h \
 	itemviews/qgenerictreeview_p.h \
 	itemviews/qabstractitemdelegate.h \
@@ -25,7 +25,7 @@ SOURCES += \
 	itemviews/qabstractitemview.cpp \
 	itemviews/qgenericheader.cpp \
 	itemviews/qlistview.cpp \
-	itemviews/qgenerictableview.cpp \
+	itemviews/qtableview.cpp \
 	itemviews/qgenerictreeview.cpp \
 	itemviews/qabstractitemdelegate.cpp \
 	itemviews/qitemdelegate.cpp \

@@ -12,7 +12,7 @@
 
 #include <qapplication.h>
 #include <qhbox.h>
-#include <qgenerictableview.h>
+#include <qtableview.h>
 #include <qgenericheader.h>
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
@@ -25,15 +25,15 @@ int main(int argc, char *argv[])
     int rc = 100;
     int cc = 160;
     QAbstractItemModel *data = new PlasmaModel(rc, cc, &page);
-    QGenericTableView *view = new QGenericTableView(&page);
+    QTableView *view = new QTableView(&page);
     QAbstractItemDelegate *delegate = new PlasmaDelegate(view);
-    
+
     view->setModel(data);
     view->setItemDelegate(delegate);
     view->setShowGrid(false);
     view->horizontalHeader()->hide();
     view->verticalHeader()->hide();
-    
+
     for (int c = 0; c < cc; ++c)
         view->resizeColumnToContents(c, false);
     for (int r = 0; r < rc; ++r)

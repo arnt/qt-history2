@@ -1,5 +1,5 @@
 #include <qapplication.h>
-#include <qgenerictableview.h>
+#include <qtableview.h>
 #include <qgenerictreeview.h>
 #include <qlistview.h>
 #include <qsplitter.h>
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     QAbstractItemModel *data = new Model(1000, 10, &page);
     QItemSelectionModel *selections = new QItemSelectionModel(data, data);
 
-    QGenericTableView *table = new QGenericTableView(&page);
+    QTableView *table = new QTableView(&page);
     table->setModel(data);
     table->setSelectionModel(selections);
 

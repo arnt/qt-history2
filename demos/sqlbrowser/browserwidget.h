@@ -17,7 +17,7 @@
 #include <qwidget.h>
 
 class ConnectionWidget;
-class QGenericTableView;
+class QTableView;
 class QPushButton;
 class QTextEdit;
 
@@ -37,7 +37,7 @@ signals:
 
 private:
     QTextEdit *edit;
-    QGenericTableView *view;
+    QTableView *view;
     QPushButton *submitButton;
     ConnectionWidget *dbc;
 };

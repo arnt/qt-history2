@@ -13,7 +13,7 @@
 
 #include "qtablewidget.h"
 #include <qgenericheader.h>
-#include <private/qgenerictableview_p.h>
+#include <private/qtableview_p.h>
 
 class QTableModel : public QAbstractTableModel
 {
@@ -351,7 +351,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     \ingroup model-view
 
     If you want a table that uses your own data model you should
-    subclass QGenericTableView rather than this class.
+    subclass QTableView rather than this class.
 
     Items are set with setItem(), or with setText() or setIconSet();
     these last two are convenience functions that create a QTableItem
@@ -364,11 +364,11 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
-class QTableWidgetPrivate : public QGenericTableViewPrivate
+class QTableWidgetPrivate : public QTableViewPrivate
 {
     Q_DECLARE_PUBLIC(QTableWidget)
 public:
-    QTableWidgetPrivate() : QGenericTableViewPrivate() {}
+    QTableWidgetPrivate() : QTableViewPrivate() {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
 };
 
@@ -380,7 +380,7 @@ public:
     uses a QTableModel to hold its data.
 */
 QTableWidget::QTableWidget(QWidget *parent)
-    : QGenericTableView(*new QTableWidgetPrivate, parent)
+    : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
 }

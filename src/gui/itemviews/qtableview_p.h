@@ -11,16 +11,16 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICTABLEVIEW_P_H
-#define QGENERICTABLEVIEW_P_H
+#ifndef QTABLEVIEW_P_H
+#define QTABLEVIEW_P_H
 
 #include <private/qabstractitemview_p.h>
 
-class QGenericTableViewPrivate : public QAbstractItemViewPrivate
+class QTableViewPrivate : public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericTableView)
+    Q_DECLARE_PUBLIC(QTableView)
 public:
-    QGenericTableViewPrivate()
+    QTableViewPrivate()
         : showGrid(true), gridStyle(Qt::SolidLine), horizontalHeader(0), verticalHeader(0) {}
     void init();
 

@@ -11,25 +11,25 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICTABLEVIEW_H
-#define QGENERICTABLEVIEW_H
+#ifndef QTABLEVIEW_H
+#define QTABLEVIEW_H
 
 #ifndef QT_H
 #include <qabstractitemview.h>
 #endif
 
 class QGenericHeader;
-class QGenericTableViewPrivate;
+class QTableViewPrivate;
 
-class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
+class Q_GUI_EXPORT QTableView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericTableView)
+    Q_DECLARE_PRIVATE(QTableView)
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
 
 public:
-    QGenericTableView(QWidget *parent = 0);
-    ~QGenericTableView();
+    QTableView(QWidget *parent = 0);
+    ~QTableView();
 
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
@@ -74,7 +74,7 @@ protected slots:
     void columnCountChanged(int oldCount, int newCount);
 
 protected:
-    QGenericTableView(QGenericTableViewPrivate &, QWidget *parent);
+    QTableView(QTableViewPrivate &, QWidget *parent);
     void scrollContentsBy(int dx, int dy);
 
     void paintEvent(QPaintEvent *e);

@@ -13,7 +13,7 @@
 
 #include "browserwidget.h"
 
-#include <qgenerictableview.h>
+#include <qtableview.h>
 #include <qhbox.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
@@ -41,7 +41,7 @@ BrowserWidget::BrowserWidget(QWidget *parent)
 
     QVBox *vbox = new QVBox(splitter);
     QSplitter *splitter2 = new QSplitter(Qt::Vertical, vbox);
-    view = new QGenericTableView(splitter2);
+    view = new QTableView(splitter2);
     edit = new QTextEdit(splitter2);
 
     QHBox *hbox = new QHBox(this);
