@@ -147,8 +147,9 @@ if [ "${platform}" = "win" ]; then
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
   echo "Doing the sed thing with qcombo..." >&2
   cd win
-  sed -e '/QEditableCombobox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
   sed -e '/QEditableComboBox:/,$ d' < qcombo.cpp > a && mv a qcombo.cpp
+  cd ../../include
+  sed -e '/QEditableCombobox:/,/^};/ d' < qcombo.h > a && mv a qcombo.h
   echo "Removing X11-only files..." >&2
   rm -rf tools kernel widgets dialogs Makefile*
   cd win
