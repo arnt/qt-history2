@@ -69,16 +69,19 @@ public:
     void move(const QPoint &);
     void drop();
     void updatePixmap();
-    QWidget *source() { return object->d_func()->source; }
+    QWidget *source() { return object ? object->d_func()->source : 0; }
 
-    QDragPrivate *dragPrivate(QDrag *drag) { return drag ? drag->d_func() : 0; }
+    QDragPrivate *dragPrivate() { return object ? object->d_func() : 0; }
     static QDragManager *self();
-    static QDrag::DropAction determineDefaultAction(QDrag::DropActions actions);
+    QDrag::DropAction defaultAction() const;
 private:
     Q_DISABLE_COPY(QDragManager)
 
     QDrag *object;
+#if !defined(Q_WS_WIN) && !defined(Q_WS_X11)
+    // #### get rid of me
     void updateMode(Qt::KeyboardModifiers newstate);
+#endif
     void updateCursor();
 
     bool beingCancelled;

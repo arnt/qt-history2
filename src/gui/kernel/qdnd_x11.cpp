@@ -158,7 +158,6 @@ bool qt_motifdnd_active = false;
 static bool dndCancelled = false;
 
 // Shift/Ctrl handling, and final drop status
-static QDrag::DropAction global_requested_action = QDrag::CopyAction;
 static QDrag::DropAction global_accepted_action = QDrag::CopyAction;
 
 // for embedding only
@@ -243,9 +242,8 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
             int f;
             unsigned long n, a;
             WId *proxy_id_ptr;
-            XGetWindowProperty(w->x11Info().display(), w->winId(),
-                                ATOM(XdndProxy), 0, 1, False,
-                XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
+            XGetWindowProperty(w->x11Info().display(), w->winId(), ATOM(XdndProxy), 0, 1, False,
+                               XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
             WId proxy_id = 0;
             if (type == XA_WINDOW && proxy_id_ptr) {
                 proxy_id = *proxy_id_ptr;
@@ -253,9 +251,8 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
                 proxy_id_ptr = 0;
                 // Already exists. Real?
                 X11->ignoreBadwindow();
-                XGetWindowProperty(w->x11Info().display(), proxy_id,
-                    ATOM(XdndProxy), 0, 1, False,
-                    XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
+                XGetWindowProperty(w->x11Info().display(), proxy_id, ATOM(XdndProxy), 0, 1, False,
+                                   XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
                 if (X11->badwindow() || type != XA_WINDOW || !proxy_id_ptr || *proxy_id_ptr != proxy_id) {
                     // Bogus - we will overwrite.
                     proxy_id = 0;
@@ -267,14 +264,10 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
             if (!proxy_id) {
                 xdnd_widget = desktop_proxy = new QWidget;
                 proxy_id = desktop_proxy->winId();
-                XChangeProperty (w->x11Info().display(),
-                    w->winId(), ATOM(XdndProxy),
-                    XA_WINDOW, 32, PropModeReplace,
-                    (unsigned char *)&proxy_id, 1);
-                XChangeProperty (w->x11Info().display(),
-                    proxy_id, ATOM(XdndProxy),
-                    XA_WINDOW, 32, PropModeReplace,
-                    (unsigned char *)&proxy_id, 1);
+                XChangeProperty (w->x11Info().display(), w->winId(), ATOM(XdndProxy),
+                                 XA_WINDOW, 32, PropModeReplace, (unsigned char *)&proxy_id, 1);
+                XChangeProperty (w->x11Info().display(), proxy_id, ATOM(XdndProxy),
+                                 XA_WINDOW, 32, PropModeReplace, (unsigned char *)&proxy_id, 1);
             }
 
             XUngrabServer(w->x11Info().display());
@@ -283,17 +276,15 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
         }
         if (xdnd_widget) {
             Atom atm = (Atom)qt_xdnd_version;
-            XChangeProperty (xdnd_widget->x11Info().display(), xdnd_widget->winId(),
-                              ATOM(XdndAware), XA_ATOM, 32, PropModeReplace,
-                              (unsigned char *)&atm, 1);
+            XChangeProperty (xdnd_widget->x11Info().display(), xdnd_widget->winId(), ATOM(XdndAware),
+                             XA_ATOM, 32, PropModeReplace, (unsigned char *)&atm, 1);
             return true;
         } else {
             return false;
         }
     } else {
         if (w->isDesktop()) {
-            XDeleteProperty(w->x11Info().display(), w->winId(),
-                             ATOM(XdndProxy));
+            XDeleteProperty(w->x11Info().display(), w->winId(), ATOM(XdndProxy));
             delete desktop_proxy;
             desktop_proxy = 0;
         }
@@ -308,14 +299,14 @@ const char* qt_xdnd_atom_to_str(Atom a)
     if (a == XA_STRING)
         return "text/plain"; // some Xdnd clients are dumb
 
-    return XGetAtomName(QX11Info::display(), a);
+    return XGetAtomName(X11->display, a);
 }
 
 Atom qt_xdnd_str_to_atom(const char *mimeType)
 {
     if (!mimeType || !*mimeType)
         return 0;
-    return XInternAtom(QX11Info::display(), mimeType, False);
+    return XInternAtom(X11->display, mimeType, False);
 }
 
 
@@ -411,9 +402,6 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 
 void qt_handle_xdnd_enter(QWidget *, const XEvent * xe, bool /*passive*/)
 {
-    //if (!w->neveHadAChildWithDropEventsOn())
-        //return; // haven't been set up for dnd
-
     qt_motifdnd_active = false;
 
     last_enter_event.xclient = xe->xclient;
@@ -435,9 +423,8 @@ void qt_handle_xdnd_enter(QWidget *, const XEvent * xe, bool /*passive*/)
         int f;
         unsigned long n, a;
         Atom *data;
-        XGetWindowProperty(QX11Info::display(), qt_xdnd_dragsource_xid,
-                    ATOM(XdndTypelist), 0,
-                    qt_xdnd_max_type, False, XA_ATOM, &type, &f,&n,&a,(uchar**)&data);
+        XGetWindowProperty(QX11Info::display(), qt_xdnd_dragsource_xid, ATOM(XdndTypelist), 0,
+                           qt_xdnd_max_type, False, XA_ATOM, &type, &f,&n,&a,(uchar**)&data);
         for (; j<qt_xdnd_max_type && j < (int)n; j++) {
             qt_xdnd_types[j] = data[j];
         }
@@ -519,7 +506,7 @@ void qt_handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
         } else {
             if (qt_xdnd_target_answerwas) {
                 me.accept();
-                me.acceptAction(global_requested_action == global_accepted_action);
+                me.acceptAction(QDragManager::self()->defaultAction() == global_accepted_action);
             }
         }
 
@@ -686,7 +673,7 @@ void qt_handle_xdnd_drop(QWidget *, const XEvent * xe, bool passive)
         return;
     }
     if (qt_xdnd_source_object)
-        manager->dragPrivate(qt_xdnd_source_object)->target = qt_xdnd_current_widget;
+        manager->dragPrivate()->target = qt_xdnd_current_widget;
 
     if (!passive) {
         QDropEvent de(qt_xdnd_current_position, global_accepted_action, QDragManager::self()->dropData);
@@ -760,7 +747,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
 
     if (e->type() == QEvent::MouseMove) {
         QMouseEvent* me = (QMouseEvent *)e;
-        updateMode(me->modifiers());
         move(me->globalPos());
         return true;
     } else if (e->type() == QEvent::MouseButtonRelease) {
@@ -796,8 +782,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
             beingCancelled = false;
             eventLoop->exit();
         } else {
-            DEBUG() << "keyEvent: modifs=" << ke->modifiers();
-            updateMode(ke->modifiers());
             qt_xdnd_source_sameanswer = QRect(); // force move
             move(QCursor::pos());
         }
@@ -826,20 +810,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
     }
 }
 
-
-void QDragManager::updateMode(Qt::KeyboardModifiers modifiers)
-{
-    const int both = Qt::ShiftModifier|Qt::ControlModifier;
-    if ((modifiers & both) == both && (object->d->possible_actions & QDrag::LinkAction)) {
-        global_requested_action = QDrag::LinkAction;
-    } else if ((modifiers & Qt::ShiftButton) && (object->d->possible_actions & QDrag::MoveAction)) {
-        global_requested_action = QDrag::MoveAction;
-    } else {
-        global_requested_action = QDrag::CopyAction;
-    }
-}
-
-
 void QDragManager::updateCursor()
 {
     if (!noDropCursor) {
@@ -855,7 +825,7 @@ void QDragManager::updateCursor()
     QCursor *c;
     if (willDrop) {
         if (global_accepted_action == QDrag::CopyAction) {
-            if (global_requested_action == QDrag::MoveAction)
+            if (defaultAction() == QDrag::MoveAction)
                 c = moveCursor; // (source can delete)
             else
                 c = copyCursor;
@@ -1110,7 +1080,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
         move.data.l[3] = X11->time;
-        move.data.l[4] = qtaction_to_xdndaction(global_requested_action);
+        move.data.l[4] = qtaction_to_xdndaction(defaultAction());
 
         if (w)
             qt_handle_xdnd_position(w, (const XEvent *)&move, false);
@@ -1221,7 +1191,7 @@ void qt_xdnd_handle_selection_request(const XSelectionRequestEvent * req)
     evt.xselection.property = XNone;
     evt.xselection.time = req->time;
     const char* format = qt_xdnd_atom_to_str(req->target);
-    QDragPrivate* dp = QDragManager::self()->dragPrivate(qt_xdnd_source_object);
+    QDragPrivate* dp = QDragManager::self()->dragPrivate();
     if (format && dp->data->hasFormat(QLatin1String(format))) {
         QByteArray a = dp->data->data(QLatin1String(format));
         XChangeProperty (QX11Info::display(), req->requestor, req->property,
@@ -1251,7 +1221,7 @@ static QByteArray qt_xdnd_obtain_data(const char *format)
          (w=QWidget::find(qt_xdnd_dragsource_xid))
          && (!w->isDesktop() || w->acceptDrops()))
     {
-        QDragPrivate * o = QDragManager::self()->dragPrivate(qt_xdnd_source_object);
+        QDragPrivate * o = QDragManager::self()->dragPrivate();
         if (o->data->hasFormat(QLatin1String(format)))
             result = o->data->data(QLatin1String(format));
         return result;
@@ -1376,7 +1346,6 @@ QDrag::DropAction QDragManager::drag(QDrag * o)
                         object->d->source->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);
     global_accepted_action = QDrag::CopyAction;
-    updateMode(0);
     qt_xdnd_source_sameanswer = QRect();
     move(QCursor::pos());
     heartbeat = startTimer(200);
