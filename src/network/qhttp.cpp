@@ -1004,29 +1004,27 @@ void QHttpClient::readyRead()
 		close();
 		return;
 	    }
+	    emit replyHeader( m_reply );
 	
 	    // Handle data that was already read
-	    uint n = QMIN( m_reply.contentLength(), m_buffer.size() - i - 4 );
-	    if ( m_reply.hasAutoContentLength() )
-		n = m_buffer.size() - i - 4;
-	    m_bytesRead = n;
+	    m_bytesRead = m_buffer.size() - i - 4;
+	    if ( !m_reply.hasAutoContentLength() )
+		m_bytesRead = QMIN( m_reply.contentLength(), m_bytesRead );
 	
 	    if ( m_device ) {
 		// Write the data to file
-		m_device->writeBlock( m_buffer.data() + i + 4, n );
+		m_device->writeBlock( m_buffer.data() + i + 4, m_bytesRead );
 	    } else {
 		// Copy the data to the beginning of a new buffer.
 		QByteArray tmp;
 		// Resize the array. Do we know the size of the data a priori ?
 		if ( m_reply.hasAutoContentLength() )
-		    tmp.resize( n );
+		    tmp.resize( m_bytesRead );
 		else
 		    tmp.resize( m_reply.contentLength() );
-		memcpy( tmp.data(), m_buffer.data() + i + 4, n );
+		memcpy( tmp.data(), m_buffer.data() + i + 4, m_bytesRead );
 		m_buffer = tmp;
 	    }
-	
-	    emit replyHeader( m_reply );
 	}
     }
 
