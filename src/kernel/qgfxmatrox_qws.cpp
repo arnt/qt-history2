@@ -315,8 +315,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 #endif
     unsigned int tmpcol=tmp.alloc();
     if(((QLinuxFb_Shared *)shared_data)->forecol!=tmpcol) {
-      matrox_regw(FCOL,get_color(tmpcol));
-      ((QLinuxFb_Shared *)shared_data)->forecol=tmpcol;
+        matrox_regw(FCOL,get_color(tmpcol));
+        ((QLinuxFb_Shared *)shared_data)->forecol=tmpcol;
     }
 #ifndef QT_NO_QWS_REPEATER
     qt_screen=tmp2;
@@ -371,7 +371,7 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     int dx,dy;
     dx=abs(x2-x1);
     dy=abs(y2-y1);
-    
+
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
     setDest();
 
@@ -450,8 +450,6 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     GFX_END
-
-    return;
 }
 
 template<const int depth,const int type>
@@ -576,11 +574,10 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	
 	GFX_END
 
-	return;
     } else {
 	
 	GFX_END
-	    
+	
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
@@ -642,6 +639,8 @@ QMatroxScreen::QMatroxScreen( int display_id  )
     : QLinuxFbScreen( display_id )
 {
 }
+
+// #define DEBUG_INIT
 
 bool QMatroxScreen::connect( const QString &spec )
 {
