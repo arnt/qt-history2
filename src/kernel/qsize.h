@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#17 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#18 $
 **
 ** Definition of QSize class
 **
@@ -36,6 +36,8 @@ public:
     void   setWidth( int w );
     void   setHeight( int h );
     void   transpose();
+
+    QSize max( const QSize & );
 
     QCOORD &rwidth();
     QCOORD &rheight();
@@ -163,5 +165,10 @@ inline QSize operator/( const QSize &s, float c )
 
 #endif // no-debug functions
 
+
+inline QSize QSize::max( const QSize & otherSize )
+{
+    return QSize( QMAX( wd, otherSize.wd ), QMAX( ht, otherSize.ht ) );
+}
 
 #endif // QSIZE_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#22 $
 **
 ** Implementation of QSize class
 **
@@ -13,7 +13,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#22 $");
 
 
 /*!
@@ -308,3 +308,8 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
 }
 
 
+/*! \fn QSize QSize::max( const QSize & otherSize )
+  
+  Returns a size with the maximum width and height of this size and
+  \a otherSize.
+*/
