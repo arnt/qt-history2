@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#12 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -265,13 +265,6 @@ void QSpinBox::setCurrent( int i )
   Returns the most recent setCurrent() value.
 */
 
-/*!  \fn void selected( const char * )
-
-  This signal is emitted when the spinbox item is set to the given
-  string.
-*/
-
-
 /*!  Moves the spin box to the next value.  This is the same as
   clicking on the pointing-up button, and can be used for e.g.
   keyboard accelerators.
@@ -308,7 +301,7 @@ void QSpinBox::prev()
 }
 
 
-/*! \fn void selected( const char * );
+/*! \fn void selected( const char * )
 
   This signal is emitted every time the value of the spin box changes
   (by setCurrent(), by a keyboard accelerator, by mouse clicks, or by
