@@ -44,7 +44,7 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
     QLabel *source = new QLabel( sourceLed, tr("&Source phrase:"), this,
 				 "source label" );
     targetLed = new QLineEdit( this, "target line edit" );
-    QLabel *target = new QLabel( targetLed, tr("&Target phrase:"), this,
+    QLabel *target = new QLabel( targetLed, tr("&Translation:"), this,
 				 "target label" );
     definitionLed = new QLineEdit( this, "definition line edit" );
     QLabel *definition = new QLabel( definitionLed, tr("&Definition:"), this,
