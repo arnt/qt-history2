@@ -94,7 +94,7 @@ public:
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	 od(0), optimMode(FALSE),
-	 logLimit(-1),
+	 maxLogLines(-1),
 	 logOffset(0),
 #endif
 	 autoFormatting( QTextEdit::AutoAll )
@@ -118,7 +118,7 @@ public:
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
-    int logLimit;
+    int maxLogLines;
     int logOffset;
 #endif
     uint autoFormatting;
@@ -5906,7 +5906,7 @@ void QTextEdit::optimSetText( const QString &str )
     d->od->len = 0;
     d->od->clearTags();
     QFontMetrics fm( QScrollView::font() );
-    if ( !(str.isEmpty() || str.isNull() || d->logLimit == 0) ) {
+    if ( !(str.isEmpty() || str.isNull() || d->maxLogLines == 0) ) {
 	QStringList strl = QStringList::split( '\n', str, TRUE );
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
@@ -6127,7 +6127,7 @@ void QTextEdit::optimParseTags( QString * line )
 */
 void QTextEdit::optimAppend( const QString &str )
 {
-    if ( str.isEmpty() || str.isNull() || d->logLimit == 0 )
+    if ( str.isEmpty() || str.isNull() || d->maxLogLines == 0 )
 	return;
 
     QStringList strl = QStringList::split( '\n', str, TRUE );
@@ -6151,9 +6151,9 @@ void QTextEdit::optimAppend( const QString &str )
 	updateScrollBars();
 	ensureVisible( 0, contentsHeight(), 1, 1 );
     }
-    // when a loglimit is set, the text may not be redrawn because
+    // when a max log size is set, the text may not be redrawn because
     // the size of the viewport may not have change
-    if ( d->logLimit > -1 )
+    if ( d->maxLogLines > -1 )
 	viewport()->update();
     emit textChanged();
 }
@@ -6699,33 +6699,32 @@ void QTextEdit::polish()
 }
 
 /*! 
-    Limits the number of lines a QTextEdit can hold in LogText
+    Sets the maximum number of lines a QTextEdit can hold in LogText
     mode. -1 is used to specify an unlimited amount of lines (the
-    default). When the limit is reached and new lines are added, lines
-    are removed from the top of the buffer.
+    default).
     
     Never use formatting tags that span more than one line when a
-    limit is set. When lines are removed from the top of the buffer it
+    max size is set. When lines are removed from the top of the buffer it
     may result in an unbalanced tag pair, i.e. the left formatting tag
     is removed before the right one.
  */
-void QTextEdit::setLogLimit( int limit )
+void QTextEdit::setMaxLogLines( int limit )
 {
-    d->logLimit = limit;
-    if ( d->logLimit < -1 )
-	d->logLimit = -1;
-    if ( d->logLimit == -1 )
+    d->maxLogLines = limit;
+    if ( d->maxLogLines < -1 )
+	d->maxLogLines = -1;
+    if ( d->maxLogLines == -1 )
 	d->logOffset = 0;
 }
 
 /*! 
-    Returns the number of lines QTextEdit can hold in LogText mode. By
-    default the number of lines is not limited, i.e. the limit is set
-    to -1.
+    Returns the maximum number of lines QTextEdit can hold in LogText
+    mode. By default the number of lines is not limited, i.e. it is
+    set to -1.
  */
-int QTextEdit::logLimit()
+int QTextEdit::maxLogLines()
 {
-    return d->logLimit;
+    return d->maxLogLines;
 }
 
 /*!
@@ -6734,7 +6733,7 @@ int QTextEdit::logLimit()
  */
 void QTextEdit::optimCheckLimit( const QString& str )
 {
-    if ( d->logLimit > -1 && d->logLimit == d->od->numLines ) {
+    if ( d->maxLogLines > -1 && d->maxLogLines == d->od->numLines ) {
 	// NB! Removing the top line in the buffer will potentially
 	// destroy the structure holding the formatting tags - if line
 	// spanning tags are used.

@@ -392,8 +392,8 @@ public slots:
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     void polish();
-    void setLogLimit( int numLines );
-    int logLimit();
+    void setMaxLogLines( int numLines );
+    int maxLogLines();
 #endif
     
 signals:
