@@ -28,6 +28,9 @@ static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
 
 QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
+#ifndef APIENTRY
+# define APIENTRY
+#endif
 typedef void (APIENTRY *qt_glCompressedTexImage2DARB) (GLenum, GLint, GLenum, GLsizei,
                                                        GLsizei, GLint, GLsizei, const GLvoid *);
 static qt_glCompressedTexImage2DARB glCompressedTexImage2DARB = 0;
