@@ -162,10 +162,8 @@ void QThread::start(Priority priority)
     Q_D(QThread);
     QMutexLocker locker(&d->mutex);
 
-    if (d->running && !d->finished) {
-        qWarning("Thread is already running");
-        wait();
-    }
+    if (d->running)
+        return;
 
     d->running = true;
     d->finished = false;

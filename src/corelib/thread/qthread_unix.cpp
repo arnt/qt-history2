@@ -224,11 +224,8 @@ void QThread::usleep(unsigned long usecs)
     Begins execution of the thread by calling run(), which should be
     reimplemented in a QThread subclass to contain your code. The
     operating system will schedule the thread according to the \a
-    priority parameter.
-
-    If you try to start a thread that is already running, this
-    function will wait until the thread has finished and then restart
-    the thread.
+    priority parameter. If the thread is already running, this
+    function does nothing.
 
     \sa run(), terminate()
 */
@@ -237,7 +234,7 @@ void QThread::start(Priority priority)
     Q_D(QThread);
     QMutexLocker locker(&d->mutex);
     if (d->running)
-        d->thread_done.wait(locker.mutex());
+        return;
 
     d->running = true;
     d->finished = false;
