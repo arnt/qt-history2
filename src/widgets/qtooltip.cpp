@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#24 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#24 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -176,7 +176,7 @@ void QTipManager::add( QWidget * w, const QRect & r, const char * s,
 	w->setMouseTracking( TRUE );
 	tips->insert( (long)w, t );
     } else {
-	while( t && t->rect != r && t->next != 0 )
+	while( t->rect != r && t->next != 0 )
 	    t = t->next;
 	if ( t->rect != r ) {
 	    t->next = new QTipManager::Tip;
@@ -209,16 +209,15 @@ void QTipManager::remove( QWidget *w, const QRect & r )
 	    // ### need to disable sometimes
 	    w->removeEventFilter( tipManager );
 	}
+	delete t;
     } else {
 	while( t->next && t->next->rect != r )
 	    t = t->next;
 	if ( t->next ) {
 	    QTipManager::Tip * d = t->next;
 	    t->next = t->next->next;
-	    t = d;
+	    delete d;
 	}
-
-	delete t;
     }
 
     if ( tips->isEmpty() ) {
@@ -239,7 +238,7 @@ void QTipManager::someWidgetDestroyed()
 {
     const QObject * s = sender();
 
-    if ( s && s->isWidgetType() )
+    if ( s )
 	remove( (QWidget*) s );
 }
 
