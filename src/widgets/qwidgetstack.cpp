@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#12 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -43,11 +43,11 @@ class QWidgetStackPrivate {
   The application programmer can move any widget to the top of the
   stack at any time using the slot raiseWidget(), and add or remove
   widgets using addWidget() and removeWidget().
-  
+
   visibleWidget() is the \e get equivalent of raiseWidget(); it
   returns a pointer ot the widget that is currently on the top of the
   stack.
-  
+
   QWidgetStack also provides the ability to manipulate widgets through
   application-specfied integer IDs, and to translate from widget
   pointers to IDs using id() and from IDs to widget pointers using
@@ -243,8 +243,9 @@ void QWidgetStack::setChildGeometries()
 	
 	while( (o=it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() )
+	    if ( o->isWidgetType() ) {
 		l->addWidget( (QWidget *)o, 1, 1 );
+	    }
 	}
     }
     l->activate();
@@ -317,7 +318,7 @@ QWidget * QWidgetStack::visibleWidget() const
 
 
 /*! \fn void QWidgetStack::aboutToShow( int )
-  
+
   This signal is emitted just before a managed widget is shown, if
   that managed widget has a non-zero ID.  The argument is the numeric
   ID of the widget.
@@ -329,3 +330,13 @@ QWidget * QWidgetStack::visibleWidget() const
   This signal is emitted just before a managed widget is shown.  The
   argument is a pointer to the widget.
 */
+
+
+/*! \reimp */
+
+bool QWidgetStack::event( QEvent * e )
+{
+    if ( e->type() == Event_ChildInserted )
+	setChildGeometries();
+    return QFrame::event( e );
+}
