@@ -50,7 +50,8 @@
     \brief The QEditorFactory class is used to create editor widgets
     for QVariant data types.
 
-    \ingroup advanced
+    \ingroup database
+    \module sql
 
     Each editor factory provides the createEditor() function which
     given a QVariant will create and return a QWidget that can edit
