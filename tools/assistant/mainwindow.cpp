@@ -53,6 +53,7 @@ MainWindow::MainWindow()
 
     dw = new QDockWindow(this, Qt::DockWindowAreaLeft);
     helpDock = new HelpDialog(dw, this);
+    dw->setWidget(helpDock);
 
     dw->setAllowedAreas(Qt::AllDockWindowAreas);
     dw->setClosable(true);
