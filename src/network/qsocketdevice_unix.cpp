@@ -673,6 +673,11 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	    case ETIMEDOUT:
 		e = NetworkFailure;
 		break;
+	    case EPIPE:
+	    case ECONNRESET:
+		// connection closed
+		r = 0;
+		break;
 	    default:
 		e = UnknownError;
 		break;
