@@ -151,6 +151,20 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 }
 
 /*!
+  \reimp
+*/
+
+QModelIndexList QTreeView::selectedIndexes() const
+{
+    QModelIndexList viewSelected;
+    foreach (QModelIndex index, selectionModel()->selectedIndexes()) {
+        if (!isIndexHidden(index) && d->viewIndex(index) != -1)
+            viewSelected.append(index);
+    }
+    return viewSelected;
+}
+
+/*!
   Returns the header for the tree view.
 */
 
@@ -855,7 +869,7 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
 
 void QTreeView::scrollContentsBy(int dx, int dy)
 {
-    
+
     // guestimate the number of items in the viewport
     int viewCount = d->viewport->height() / d->itemHeight;
     int maxDeltaY = verticalFactor() * qMin(d->viewItems.count(), viewCount);

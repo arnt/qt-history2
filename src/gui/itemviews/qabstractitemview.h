@@ -73,6 +73,7 @@ public:
 
     virtual void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel *selectionModel() const;
+    virtual QModelIndexList selectedIndexes() const;
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;

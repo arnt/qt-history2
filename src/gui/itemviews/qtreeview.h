@@ -32,6 +32,7 @@ public:
 
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
+    QModelIndexList selectedIndexes() const;
 
     QHeaderView *header() const;
     void setHeader(QHeaderView *header);
@@ -59,7 +60,7 @@ public:
     QModelIndex itemAt(int x, int y) const;
     QModelIndex itemAbove(const QModelIndex &index) const;
     QModelIndex itemBelow(const QModelIndex &index) const;
-    
+
     void doItemsLayout();
     void reset();
 
@@ -108,7 +109,7 @@ protected:
 
     int columnSizeHint(int column) const;
     int rowSizeHint(const QModelIndex &left) const;
- 
+
     bool isIndexHidden(const QModelIndex &index) const;
 };
 

@@ -863,8 +863,7 @@ QListWidgetItem *QListWidget::takeItem(int row)
 }
 
 /*!
-      Returns the number of items in the list.
-
+      Returns the number of items in the list including any hidden items.
 */
 int QListWidget::count() const
 {
@@ -922,12 +921,12 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 }
 
 /*!
-  Returns true if \a item is selected; otherwise returns false.
+  Returns true if \a item is selected and not hidden; otherwise returns false.
 */
 bool QListWidget::isSelected(const QListWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    return selectionModel()->isSelected(index);
+    return selectionModel()->isSelected(index) && !isItemHidden(item);
 }
 
 /*!
@@ -946,7 +945,7 @@ void QListWidget::setSelected(const QListWidgetItem *item, bool select)
 
 QList<QListWidgetItem*> QListWidget::selectedItems() const
 {
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QModelIndexList indexes = selectedIndexes();
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items.append(d->model()->at(indexes.at(i).row()));

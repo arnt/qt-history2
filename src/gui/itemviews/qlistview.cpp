@@ -571,6 +571,7 @@ void QListView::ensureItemVisible(const QModelIndex &index)
 void QListView::reset()
 {
     d->prepareItemsLayout();
+    d->hiddenRows.clear();
     QAbstractItemView::reset();
 }
 
@@ -1378,7 +1379,7 @@ void QListViewPrivate::init()
 
 void QListViewPrivate::prepareItemsLayout()
 {
-    // initailization of data structs
+    // initialization of data structs
     int rowCount = qMax(model->rowCount(q->root()), 0);
     if (model->columnCount(q->root()) <= 0)
         rowCount = 0; // no contents
