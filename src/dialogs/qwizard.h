@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#15 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#16 $
 **
 ** Definition of the QWizard class.
 **
@@ -60,7 +60,7 @@ public:
     QWidget * currentPage() const;
 #ifdef QT_BUILDER
     QWidget* page( int pos ) const;
-    virtual bool setConfiguration( const QDomElement& );
+    bool event( QEvent* e );
 #endif
 
     virtual bool appropriate( QWidget * ) const;
@@ -99,6 +99,8 @@ protected:
     virtual void layOutButtonRow( QHBoxLayout * );
     virtual void layOutTitleRow( QHBoxLayout *, const QString & );
 
+    void configureEvent( QConfigureEvent* );
+    
 private:
     void setBackEnabled( bool );
     void setNextEnabled( bool );

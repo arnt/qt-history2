@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#39 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#40 $
 **
 ** Implementation of QWizard class.
 **
@@ -674,6 +674,17 @@ void QWizard::removePage( QWidget * page )
 }
 
 #ifdef QT_BUILDER
+bool QWizard::event( QEvent* e )
+{
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+
+    return QDialog::event( e );
+}
+
 QWidget* QWizard::page( int pos ) const
 {
     if ( pos >= count() || pos < 0 )
@@ -682,44 +693,51 @@ QWidget* QWizard::page( int pos ) const
     return d->pages[ pos ]->w;
 }
 
-bool QWizard::setConfiguration( const QDomElement& element )
+void QWizard::configureEvent( QConfigureEvent* ev )
 {
-    QDomElement r = element.firstChild().toElement();
+    QDomElement r = ev->element()->firstChild().toElement();
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
-      if ( r.tagName() == "Page" )
-      {
-	QVariant prop = r.property( "title", QVariant::String );
-	if ( prop.isEmpty() )
-	  return FALSE;
-	QString title = prop.stringValue();
+	if ( r.tagName() == "Page" )
+        {
+	    QVariant prop = r.property( "title", QVariant::String );
+	    if ( prop.isEmpty() )
+	    {
+		ev->ignore();
+		return;
+	    }
+	    
+	    QString title = prop.stringValue();
 
-	QDomElement c = r.firstChild().toElement();
-	for( ; !c.isNull(); c = c.nextSibling().toElement() )
-	{
-	  if ( c.tagName() == "Widget" )
-	  {
-	    QWidget* w = c.firstChild().toElement().toWidget( this );
-	    if ( !w )
-	      return FALSE;
-	    addPage( w, title );
-	  }
-	  else if ( c.tagName() == "Layout" )
-	  {
-	    QWidget* w = new QWidget( this );
-	    QLayout* l = c.firstChild().toElement().toLayout( w );
-	    if ( !l )
-	      return FALSE;
-	    addPage( w, title );
-	  }
+	    QDomElement c = r.firstChild().toElement();
+	    for( ; !c.isNull(); c = c.nextSibling().toElement() )
+	    {
+		if ( c.tagName() == "Widget" )
+	        {
+		    QWidget* w = c.firstChild().toElement().toWidget( this );
+		    if ( !w )
+		    {
+			ev->ignore();
+			return;
+		    }
+		    addPage( w, title );
+		}
+		else if ( c.tagName() == "Layout" )
+	        {
+		    QWidget* w = new QWidget( this );
+		    QLayout* l = c.firstChild().toElement().toLayout( w );
+		    if ( !l )
+		    {
+			ev->ignore();
+			return;
+		    }
+		    addPage( w, title );
+		}
+	    }
 	}
-      }
     }
 
-    if ( !QDialog::setConfiguration( element ) )
-      return FALSE;
-
-    return TRUE;
+    QDialog::configureEvent( ev );
 }
 
 #endif
