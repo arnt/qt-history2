@@ -713,7 +713,7 @@ copy_dist_file()
    edition=$3
    platform=$4
    platname=$5
-   if [ -f "$in_file" ] && [ ! -e "$out_file" ] && [ ! -x "$in_file" ]; then
+   if [ -f "$in_file" ] && ! binary_file "$in_file"; then
 	sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
 	    -e "s/%VERSION_NUMBER%/${REL_VERSION}/g" -e "s,%DISTNAME%,$platname,g" \
 	    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $in_file >${TMP_FILE}
