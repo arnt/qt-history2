@@ -289,7 +289,7 @@ if [ "$REL_VERSION" = "0.0.0" ]; then
 	REL_VERSION=$V
     fi
 fi
-BRANCH_DIGITS=`echo $REL_VERSION | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
+BRANCH_DIGITS=`echo $REL_VERSION | sed "s,\.,,g" | sed "s,\([0-9]*\.?[0-9]*\.?[0-9]*\).*,\1,g"`
 [ -z "$BRANCH_DIGITS" ] && BRANCH_DIGITS="000"
 
 #get include files
@@ -325,7 +325,7 @@ mv "$DISTDIR/qt/tools/linguist/lupdate/lupdate.1" "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
 #designer
 cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
-cp -f $DISTDIR/qt/gif/* $DISTDIR/qt/doc/html/
+cp -f $DISTDIR/qt/gif/* $DISTDIR/qt/doc/html/ 
 cp -f $DISTDIR/qt/tools/designer/manual/images/*.png $DISTDIR/qt/doc/html/designer/images
 cp -f $DISTDIR/qt/tools/designer/manual/images/*.gif $DISTDIR/qt/doc/html/designer/images 2>/dev/null
 rm -rf $DISTDIR/qt/tools/designer/manual
@@ -380,8 +380,10 @@ if [ "$TYPE" = "auto" ]; then
 fi
 TYPE="-${TYPE}"
 VERSION_STR=${REL_VERSION}${TYPE} && [ "$TYPE" = "-snapshot" ] && VERSION_STR=`date "+${VERSION_STR}-%Y%m%d"`
-sed -e "s,\(\#define *QT_VERSION  *\)[0-9]*,\1${BRANCH_DIGITS},g" \
-    -e "s,\(\#define *QT_VERSION_STR  *\"\)\(.*\),\1${VERSION_STR}\",g" $qglobal >${TMP_FILE}
+sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
+    -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
+echo "$VERSION_STR :: $BRANCH_DIGITS "
+cp ${TMP_FILE} foobar
 mv ${TMP_FILE} $qglobal
 if [ "$TYPE" != "-snapshot" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${REL_VERSION}${TYPE}, which confuses me terribly";
