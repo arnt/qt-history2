@@ -79,9 +79,6 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(updateCurrentEditor()), QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
-    QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
-                               q->metaObject()->indexOfSlot("doItemsLayout()"), q));
-
     q->setAttribute(WA_PaintOnScreen);
     q->setAttribute(WA_NoBackground);
 
@@ -535,7 +532,8 @@ QModelIndex QAbstractItemView::currentItem() const
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     d->root = QPersistentModelIndex(index, d->model);
-    doItemsLayout();
+    if (isVisible())
+        doItemsLayout();
 }
 
 /*!
@@ -972,6 +970,10 @@ void QAbstractItemView::showEvent(QShowEvent *e)
 {
     QViewport::showEvent(e);
     updateGeometries();
+
+    QApplication::postEvent(q, new QMetaCallEvent(
+                                QEvent::InvokeSlot,
+                                q->metaObject()->indexOfSlot("doItemsLayout()"), q));
 }
 
 // ### DOC: Guessed
@@ -1255,7 +1257,8 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
             d->viewport->update(itemViewportRect(topLeft));
         return;
     }
-    doItemsLayout();
+    if (isVisible())
+        doItemsLayout();
 }
 
 /*!
