@@ -155,7 +155,8 @@ public:
     bool isForegroundInherited() const;
     bool isBackgroundInherited() const;
     bool isTransparent() const;
-    void updateInheritedBackground();
+    void updateInheritedBackground(bool force = false);
+    void updatePropagatedBackground();
 
     void erase_helper(const QRegion &);
 

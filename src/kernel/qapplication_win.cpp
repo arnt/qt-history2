@@ -380,6 +380,8 @@ public:
 #endif
     void	repolishStyle( QStyle &style ) { styleChange( style ); }
 
+    HDC setHdc(HDC h) { HDC tmp = hdc; hdc = h; return tmp; }
+
 };
 
 static void set_winapp_name()
@@ -1259,26 +1261,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
-    if ( qt_winver & Qt::WV_NT_based ) {
-	// CreatePatternBrush is expensive, so only do when we would
-	// have more than one tile
-	if ( bg_pixmap->size().width() < w || bg_pixmap->size().height() < h ) {
-	    // NT has no brush size limitation, so this is straight-forward
-	    // Note: Since multi cell pixmaps are not used under NT, we can
-	    // safely access the hbm() parameter of the pixmap.
-	    HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
-	    HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
-	    POINT p;
-	    SetBrushOrgEx( hdc, -off_x, -off_y, &p );
-	    PatBlt( hdc, x, y, w, h, PATCOPY );
-	    SetBrushOrgEx( hdc, p.x, p.y, 0 );
-	    SelectObject( hdc, oldBrush );
-	    DeleteObject( brush );
-	    return;
-	}
-    }
-
-    // For Windows 9x, we must do everything ourselves.
     QPixmap *tile = 0;
     QPixmap *pm;
     int  sw = bg_pixmap->width(), sh = bg_pixmap->height();
@@ -1378,9 +1360,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !qApp )				// unstable app state
 	goto do_default;
 
-    // make sure we show widgets (e.g. scrollbars) when the user resizes
+    // make sure we update widgets also when the user resizes
     if ( inLoop && qApp->loopLevel() )
-	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
+	qApp->sendPostedEvents( 0, QEvent::Paint );
 
     inLoop = TRUE;
 
@@ -1815,8 +1797,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_ERASEBKGND:			// erase window background
-	    widget->erase(); // ### isn't there a region and/or rectangle in the mssage? Matthias
-	    RETURN(TRUE);
+	    {
+		HDC oldhdc = widget->setHdc((HDC)wParam);
+		widget->erase();
+		widget->setHdc(oldhdc);
+		RETURN(TRUE);
+	    }
+	    break;
 
 	case WM_MOVE:				// move window
 	case WM_SIZE:				// resize window

@@ -25,6 +25,7 @@
 #include <private/qapplication_p.h>
 #include <private/qinputcontext_p.h>
 #include "qevent.h"
+#include "qstack.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
 
@@ -737,22 +738,22 @@ void QWidget::setActiveWindow()
 
 void QWidget::update(bool erase)
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	InvalidateRect(winId(), 0, erase);
+     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
+	 InvalidateRect(winId(), 0, erase);
 }
 
 void QWidget::update(const QRegion &rgn, bool erase)
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	InvalidateRgn(winId(), rgn.handle(), erase);
+ 	InvalidateRgn(winId(), rgn.handle(), erase);
 }
 
 void QWidget::update(int x, int y, int w, int h, bool erase)
 {
-    if ( w && h &&
-	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	RECT r;
-	r.left = x;
+     if ( w && h &&
+ 	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+ 	RECT r;
+ 	r.left = x;
 	r.top  = y;
 	if ( w < 0 )
 	    r.right = crect.width();
@@ -1187,7 +1188,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
 	    if ( !testWFlags( WStaticContents ) )
-		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+		repaint();
 	}
     } else {
 	if (isMove && pos() != oldPos)
@@ -1264,57 +1265,49 @@ extern void qt_erase_background( HDC, int, int, int, int, const QBrush &, int, i
 
 void QWidgetPrivate::erase_helper( const QRegion& rgn )
 {
-    HDC lhdc;
-    bool tmphdc;
-
-#if 0
-    // #### good idea, but none of the other platforms does this
-    // #### currently. Needs fixing. Matthias
-    if( QPainter::redirect(q) ) {
-	tmphdc = FALSE;
-	lhdc = QPainter::redirect(q)->handle();
-	Q_ASSERT( lhdc );
-    } else
-#endif
-	if ( !q->hdc ) {
-	tmphdc = TRUE;
-	lhdc = GetDC(q->winId());
-    } else {
-	tmphdc = FALSE;
-	lhdc = q->hdc;
-    }
-
-    HRGN oldRegion = CreateRectRgn( 0, 0, 0, 0 );
-    bool hasRegion = GetClipRgn( lhdc, oldRegion ) != 0;
-    HRGN newRegion = 0;
-    if ( hasRegion ) {
-	newRegion = CreateRectRgn( 0, 0, 0, 0 );
-	CombineRgn(newRegion, oldRegion, rgn.handle(), RGN_AND );
-    } else {
-	newRegion = rgn.handle();
-    }
-    SelectClipRgn( lhdc, newRegion );
+    bool tmphdc = !q->hdc;
+    HDC lhdc = tmphdc ? GetDC(q->winId()) : q->hdc;
 
     QPoint offset;
-    const QWidget *w = q;
+    QStack<QWidget*> parents;
+    QWidget *w = q;
     while (w->d->isBackgroundInherited()) {
 	offset += w->pos();
 	w = w->parentWidget();
+	parents += w;
     }
 
+    SelectClipRgn(lhdc, rgn.handle());
     qt_erase_background(lhdc, 0, 0, q->crect.width(), q->crect.height(),
 			q->palette().brush(w->d->bg_role), offset.x(), offset.y());
 
-    //### insert parent drawing code from qwidget_x11.cpp here. Matthias
+    if (!parents)
+	goto cleanup;
 
-    SelectClipRgn( lhdc, hasRegion ? oldRegion : 0 );
-    DeleteObject( oldRegion );
-    if ( hasRegion )
-	DeleteObject( newRegion );
+    w = parents.pop();
+    for (;;) {
+	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+	    QPainter::Redirection oldRedirect = QPainter::redirect(w, q, offset);
+  	    QRect rr = q->rect();
+ 	    rr.moveBy(offset);
+	    QPaintEvent e(rr, true);
+	    QApplication::sendEvent(w, &e);
+	    QPainter::redirect(oldRedirect);
+	}
+	if (!parents)
+	    break;
+	w = parents.pop();
+	offset -= w->pos();
+    }
+
+ cleanup:
+    SelectClipRgn(lhdc, 0);
     if ( tmphdc ) {
 	ReleaseDC( q->winId(), lhdc );
 	q->hdc = 0;
     }
+
+
 }
 
 

@@ -1063,24 +1063,43 @@ bool QWidgetPrivate::isTransparent() const
 }
 
 /*
-  In case a widget inherits its parent's pixmap background, and
-  possibly propagates it further to its own children, this function
-  updates everthing that needs to be updated after a move.
+  In case a widget inherits its parent's pixmap background or content,
+  and possibly propagates it further to its own children, this
+  function updates everthing that needs to be updated after a move.
 
   This is necessary because the pixmap offset has changed.
  */
-void QWidgetPrivate::updateInheritedBackground()
+void QWidgetPrivate::updateInheritedBackground(bool force)
 {
-    if ( !q->isVisible() || !isBackgroundInherited()
-	 || !q->palette().brush(q->backgroundRole()).pixmap())
+    if (!q->isVisible() || !isBackgroundInherited())
 	return;
 
+    if (!force)
+	force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
+    if (force) {
+	q->repaint();
+	QObjectList lst = q->children();
+	for (int i = 0; i < lst.size(); ++i)
+	    if (lst.at(i)->isWidgetType())
+		static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground(force);
+    }
+}
+
+/*
+  In case a widget propagates its or its ancestor's contents to its
+  children, this function updates everything that needs to be updated
+  after a resize.
+
+  Call this only when WA_ContentsPropagated is set.
+ */
+void QWidgetPrivate::updatePropagatedBackground()
+{
     QObjectList lst = q->children();
     for (int i = 0; i < lst.size(); ++i)
 	if (lst.at(i)->isWidgetType())
-	    static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground();
-    q->update(true);
+	    static_cast<QWidget*>(lst.at(i))->d->updateInheritedBackground(true);
 }
+
 
 /*!
     \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
@@ -3112,8 +3131,8 @@ void QWidget::resize( int w, int h )
     QSize olds = size();
     setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
     setWState( WState_Resized );
-    if (olds != size() && testAttribute(WA_ContentsPropagated))
-	d->updateInheritedBackground();
+    if (testAttribute(WA_ContentsPropagated) &&  olds != size())
+	d->updatePropagatedBackground();
 }
 
 /*!
@@ -3127,7 +3146,10 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QSize olds = size();
     setGeometry_helper( x, y, w, h, TRUE );
     setWState( WState_Resized );
-    if (oldp != pos() || (olds != size() && testAttribute(WA_ContentsPropagated)))
+
+    if (testAttribute(WA_ContentsPropagated) &&  olds != size())
+	d->updatePropagatedBackground();
+    else if (oldp != pos())
 	d->updateInheritedBackground();
 }
 
