@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#14 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -117,7 +117,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     d->px = 0;
     d->py = 0;
-    
+
     topLevelWidget()->installEventFilter( this );
 
 }	
@@ -324,6 +324,7 @@ void QWorkspace::maximizeClient( QWidget* w)
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
 	c->show();
+	c->raise();
 	if ( d->maxClient && d->maxClient != c ) {
 	    d->maxClient->setGeometry( d->maxRestore );
 	}
@@ -357,7 +358,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 {
     if ( d->maxhandle && e->type() == QEvent::Resize && o == topLevelWidget() )
 	showMaxHandles();
-    
+
     return FALSE;
 }
 
@@ -383,7 +384,7 @@ void QWorkspace::showMaxHandles()
 	d->maxhandle->setFixedSize( 2* BUTTON_SIZE+2*d->maxhandle->frameWidth(),
 				    BUTTON_SIZE+2*d->maxhandle->frameWidth() );
     }
-    
+
     d->maxhandle->move ( topLevelWidget()->width() - d->maxhandle->width() - 4, 4 );
     d->maxhandle->show();
     d->maxhandle->raise();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.cpp#3 $
+** $Id: //depot/qt/main/tests/mdi/application.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -107,6 +107,7 @@ ApplicationWindow::ApplicationWindow()
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
 
     windowsMenu = new QPopupMenu( this );
+    windowsMenu->setCheckable( TRUE );
     connect( windowsMenu, SIGNAL( aboutToShow() ),
 	     this, SLOT( windowsMenuAboutToShow() ) );
     menuBar()->insertItem( "&Windows", windowsMenu );
@@ -334,6 +335,7 @@ void ApplicationWindow::windowsMenuAboutToShow()
 	int id = windowsMenu->insertItem(windows.at(i)->caption(),
 					 this, SLOT( windowsMenuActivated( int ) ) );
 	windowsMenu->setItemParameter( id, i );
+	windowsMenu->setItemChecked( id, ws->activeClient() == windows.at(i) );
     }
 }
 
