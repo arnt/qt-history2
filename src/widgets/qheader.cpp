@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#87 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -448,6 +448,8 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
 
     int i = cellAt( c );
+    if ( i < 0 )
+	return;
     int p = pPos( i );
 
     if ( (i != 0 && c < p + GRIPMARGIN) ||
