@@ -62,7 +62,7 @@ QByteArray combinePath(const char *infile, const char *outfile)
 /*!
   Creates a declaration (header file) for the form given in \a e
 
-  \sa createFormImpl(), createObjectDecl()
+  \sa createFormImpl()
 */
 void Ui3Reader::createFormDecl(const QDomElement &e)
 {
@@ -329,20 +329,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         }
     }
 
-    // actions, toolbars, menus
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName()  == "actions") {
-            for (QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement())
-                createActionDecl(a);
-        } else if (n.tagName() == "toolbars") {
-            for (QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement())
-                createToolbarDecl(a);
-        } else if (n.tagName() == "menubar") {
-            out << "    " << "QMenuBar *" << getObjectName(n) << ";" << endl;
-            for (QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement())
-                createMenuBarDecl(a);
-        }
-    }
     out << endl;
 
     // database connections
@@ -854,51 +840,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         }
     }
 
-    // actions, toolbars, menubar
-    bool needEndl = FALSE;
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName()  == "actions") {
-            if (!needEndl)
-                out << endl << indent << "// actions" << endl;
-            createActionImpl(n.firstChild().toElement(), "this");
-            needEndl = TRUE;
-        }
-    }
-    if (needEndl)
-        out << endl;
-    needEndl = FALSE;
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == "toolbars") {
-            if (!needEndl)
-                out << endl << indent << "// toolbars" << endl;
-            createToolbarImpl(n, objClass, objName);
-            needEndl = TRUE;
-        }
-    }
-    if (needEndl)
-        out << endl;
-    needEndl = FALSE;
-    for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
-        if (n.tagName() == "menubar") {
-            if (!needEndl)
-                out << endl << indent << "// menubar" << endl;
-            createMenuBarImpl(n, objClass, objName);
-            needEndl = TRUE;
-        }
-    }
-    if (needEndl)
-        out << endl;
-
     out << indent << "languageChange();" << endl;
-
-#if 0 // ### move this code in setupUI()
-    // take minimumSizeHint() into account, for height-for-width widgets
-    if (!geometry.isNull()) {
-        out << indent << "resize(QSize(" << geometry.width << ", "
-            << geometry.height << ").expandedTo(minimumSizeHint()));" << endl;
-        out << indent << "clearWState(WState_Polished);" << endl;
-    }
-#endif
 
     for (n = e; !n.isNull(); n = n.nextSibling().toElement()) {
         if (n.tagName()  == "connections") {

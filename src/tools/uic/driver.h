@@ -23,6 +23,8 @@ class DomWidget;
 class DomSpacer;
 class DomLayout;
 class DomLayoutItem;
+class DomActionGroup;
+class DomAction;
 
 class Driver
 {
@@ -57,7 +59,8 @@ public:
     QString findOrInsertLayout(DomLayout *ui_layout);
     QString findOrInsertLayoutItem(DomLayoutItem *ui_layoutItem);
     QString findOrInsertName(const QString &name);
-
+    QString findOrInsertActionGroup(DomActionGroup *ui_group);
+    QString findOrInsertAction(DomAction *ui_action);
 
 private:
     Option m_option;
@@ -69,6 +72,8 @@ private:
     QHash<DomWidget*, QString> m_widgets;
     QHash<DomSpacer*, QString> m_spacers;
     QHash<DomLayout*, QString> m_layouts;
+    QHash<DomActionGroup*, QString> m_actionGroups;
+    QHash<DomAction*, QString> m_actions;
     QHash<QString, bool> m_nameRepository;
 };
 

@@ -50,6 +50,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
 
     QStringList ui_tabstops;
     QList<DomWidget*> ui_toolbars;
+    QList<DomWidget*> ui_menubars;
     QList<DomActionGroup*> ui_action_list;
 
     QList<DomCustomWidget*> ui_customwidget_list;
@@ -116,6 +117,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
             DomActionGroup *g = new DomActionGroup();
             g->read(n);
             ui_action_list.append(g);
+            fixActionGroup(g);
         } else if (tagName == QLatin1String("toolbars")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
@@ -125,6 +127,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
                 }
                 n2 = n2.nextSibling().toElement();
             }
+        } else if (tagName == QLatin1String("menubar")) {
+            DomWidget *tb = createWidget(n, QLatin1String("QMenuBar"));
+            ui_menubars.append(tb);
         } else if (tagName == QLatin1String("customwidgets")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
@@ -168,7 +173,10 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
     DomWidget *w = createWidget(e);
     Q_ASSERT(w != 0);
 
-    w->setElementWidget(w->elementWidget() + ui_toolbars);
+    QList<DomWidget*> l = w->elementWidget();
+    l += ui_toolbars;
+    l += ui_menubars;
+    w->setElementWidget(l);
     w->setElementActionGroup(w->elementActionGroup() + ui_action_list);
 
     ui->setElementWidget(w);
@@ -191,6 +199,49 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &e)
     return ui;
 }
 
+void Ui3Reader::fixActionGroup(DomActionGroup *g)
+{
+    QList<DomActionGroup*> groups = g->elementActionGroup();
+    for (int i=0; i<groups.size(); ++i) {
+        fixActionGroup(groups.at(i));
+    }
+
+    QList<DomAction*> actions = g->elementAction();
+    for (int i=0; i<actions.size(); ++i) {
+        DomAction *a = actions.at(i);
+
+        QList<DomProperty*> properties = a->elementProperty();
+        for (int j=0; j<properties.size(); ++j) {
+            DomProperty *p = properties.at(j);
+            QString pname = p->attributeName();
+            if (pname == QLatin1String("name")) {
+                a->setAttributeName(p->elementCstring());
+                p->setAttributeName("objectName");
+            } else if (pname == QLatin1String("menuText"))
+                p->setAttributeName("text");
+            else if (pname == QLatin1String("iconSet"))
+                p->setAttributeName("icon");
+            else if (pname == QLatin1String("accel"))
+                p->setAttributeName("shortcut");
+        }
+    }
+
+    QList<DomProperty*> properties = g->elementProperty();
+    for (int j=0; j<properties.size(); ++j) {
+        DomProperty *p = properties.at(j);
+        QString pname = p->attributeName();
+        if (pname == QLatin1String("name")) {
+            g->setAttributeName(p->elementCstring());
+            p->setAttributeName("objectName");
+        } else if (pname == QLatin1String("menuText"))
+            p->setAttributeName("text");
+        else if (pname == QLatin1String("iconSet"))
+            p->setAttributeName("icon");
+        else if (pname == QLatin1String("accel"))
+            p->setAttributeName("shortcut");
+    }
+}
+
 DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetClass)
 {
     DomWidget *ui_widget = new DomWidget;
@@ -201,6 +252,8 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         className = QLatin1String("QWidget");
     else if (className == QLatin1String("QButtonGroup"))
         className = QLatin1String("Q3ButtonGroup");
+
+    bool isMenuBar = className == QLatin1String("QMenuBar");
 
     ui_widget->setAttributeClass(className);
 
@@ -242,6 +295,10 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomActionRef *a = new DomActionRef();
             a->read(e);
             ui_action_list.append(a);
+        } else if (t == QLatin1String("separator")) {
+            DomActionRef *a = new DomActionRef();
+            a->setAttributeName("separator");
+            ui_action_list.append(a);
         } else if (t == QLatin1String("property")) {
             // skip the property it is already handled by createProperties
 
@@ -256,6 +313,29 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomColumn *column = new DomColumn();
             column->read(e);
             ui_column_list.append(column);
+        } else if (isMenuBar && t == QLatin1String("item")) {
+            QString text = e.attribute("text");
+            QString name = e.attribute("name");
+
+            QList<DomProperty*> properties;
+            QList<DomProperty*> attributes;
+
+            DomProperty *ptext = new DomProperty();
+            ptext = new DomProperty();
+            ptext->setAttributeName("objectName");
+            ptext->setElementString(name);
+            properties.append(ptext);
+
+            DomProperty *atitle = new DomProperty();
+            atitle->setAttributeName("title");
+            atitle->setElementString(text);
+            attributes.append(atitle);
+
+            DomWidget *menu = createWidget(e, "QMenu");
+            menu->setAttributeName(name);
+            menu->setElementProperty(properties);
+            menu->setElementAttribute(attributes);
+            ui_child_list.append(menu);
         } else if (t == QLatin1String("item")) {
             DomItem *item = new DomItem();
             item->read(e);

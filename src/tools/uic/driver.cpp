@@ -69,6 +69,22 @@ QString Driver::findOrInsertLayoutItem(DomLayoutItem *ui_layoutItem)
     return QString::null;
 }
 
+QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)
+{
+    if (!m_actionGroups.contains(ui_group))
+        m_actionGroups.insert(ui_group, unique(ui_group->attributeName(), "QActionGroup"));
+
+    return m_actionGroups.value(ui_group);
+}
+
+QString Driver::findOrInsertAction(DomAction *ui_action)
+{
+    if (!m_actions.contains(ui_action))
+        m_actions.insert(ui_action, unique(ui_action->attributeName(), "QAction"));
+
+    return m_actions.value(ui_action);
+}
+
 QString Driver::findOrInsertName(const QString &name)
 {
     QString n = unique(name);

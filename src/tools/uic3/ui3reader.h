@@ -28,8 +28,8 @@ class DomWidget;
 class DomProperty;
 class DomLayout;
 class DomLayoutItem;
-
-struct Color;
+class DomActionGroup;
+class Color;
 
 typedef QList<QPair<int, Color> > ColorGroup;
 
@@ -57,27 +57,7 @@ public:
     void createSubDecl(const QDomElement &e, const QString& subclname);
     void createSubImpl(const QDomElement &e, const QString& subclname);
 
-    void createObjectDecl(const QDomElement &e);
-    void createSpacerDecl(const QDomElement &e);
-    void createActionDecl(const QDomElement &e);
-    void createToolbarDecl(const QDomElement &e);
-    void createMenuBarDecl(const QDomElement &e);
-    void createPopupMenuDecl(const QDomElement &e);
-    void createActionImpl(const QDomElement &e, const QString &parent);
-    void createToolbarImpl(const QDomElement &e, const QString &parentClass, const QString &parent);
-    void createMenuBarImpl(const QDomElement &e, const QString &parentClass, const QString &parent);
-    void createPopupMenuImpl(const QDomElement &e, const QString &parentClass, const QString &parent);
-    QString createObjectImpl(const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null);
-    QString createLayoutImpl(const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null);
-    QString createObjectInstance(const QString& objClass, const QString& parent, const QString& objName);
-    QString createSpacerImpl(const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null);
     void createExclusiveProperty(const QDomElement & e, const QString& exclusiveProp);
-    QString createListBoxItemImpl(const QDomElement &e, const QString &parent, QString *value = 0);
-    QString createIconViewItemImpl(const QDomElement &e, const QString &parent);
-    QString createListViewColumnImpl(const QDomElement &e, const QString &parent, QString *value = 0);
-    QString createTableRowColumnImpl(const QDomElement &e, const QString &parent, QString *value = 0);
-    QString createListViewItemImpl(const QDomElement &e, const QString &parent,
-                                    const QString &parentItem);
     void createColorGroupImpl(const QString& cg, const QDomElement& e);
     ColorGroup loadColorGroup(const QDomElement &e);
 
@@ -101,7 +81,6 @@ public:
     QDomElement parse(const QDomDocument &doc);
 
 private:
-    void registerLayouts (const QDomElement& e);
     void init();
 
     DomUI *generateUi4( const QDomElement &e); // ### rename me in createUI4()
@@ -111,7 +90,7 @@ private:
     DomLayout *createLayout(const QDomElement &e);
     DomLayoutItem *createLayoutItem(const QDomElement &e);
     DomProperty *readProperty(const QDomElement &e);
-
+    void fixActionGroup(DomActionGroup *g);
 
     QTextStream &out;
     QTextOStream trout;

@@ -22,6 +22,9 @@ WriteIconInitialization::WriteIconInitialization(Driver *drv)
 
 void WriteIconInitialization::accept(DomUI *node)
 {
+    if (node->elementImages() == 0)
+        return;
+
     QString className = node->elementClass() + option.postfix;
 
     output << "inline QPixmap " << className << "::icon(" << className << "::IconID id)\n"

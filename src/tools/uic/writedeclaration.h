@@ -28,6 +28,8 @@ struct WriteDeclaration : public TreeWalker
     void accept(DomWidget *node);
     void accept(DomLayout *node);
     void accept(DomSpacer *node);
+    void accept(DomActionGroup *node);
+    void accept(DomAction *node);
 
 private:
     Driver *driver;

@@ -38,6 +38,13 @@ struct WriteInitialization : public TreeWalker
     void accept(DomLayoutItem *node);
 
 //
+// actions
+//
+    void accept(DomActionGroup *node);
+    void accept(DomAction *node);
+    void accept(DomActionRef *node);
+
+//
 // tab stops
 //
     void accept(DomTabStops *tabStops);
@@ -92,6 +99,8 @@ private:
     QHash<QString, DomWidget*> m_registerdWidgets;
     int m_defaultMargin;
     int m_defaultSpacing;
+
+    bool m_externPixmap;
 };
 
 

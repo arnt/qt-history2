@@ -40,7 +40,7 @@ static QString fixString(const QString &str, bool encode=false)
 
 WriteInitialization::WriteInitialization(Driver *drv)
     : driver(drv), output(drv->output()), option(drv->option()),
-      m_defaultMargin(0), m_defaultSpacing(0)
+      m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true)
 {
 }
 
@@ -48,6 +48,8 @@ void WriteInitialization::accept(DomUI *node)
 {
     m_widgetChain.push(node->elementWidget());
     m_layoutChain.push(0);
+
+    m_externPixmap = node->elementImages() == 0;
 
     accept(node->elementLayoutDefault());
 
@@ -169,6 +171,9 @@ void WriteInitialization::accept(DomWidget *node)
         output << option.indent << parentWidget << "->addTab(" << varName << ", " << translate(title, className) << ");\n";
     else if (parentClass == QLatin1String("QWizard"))
         output << option.indent << parentWidget << "->addPage(" << varName << ", " << translate(title, className) << ");\n";
+    else if (parentClass == QLatin1String("QMenuBar")
+            || parentClass == QLatin1String("QMenu") && className == QLatin1String("QMenu"))
+        output << option.indent << parentWidget << "->addMenu(" << translate(title, className) << ", " << varName << ");\n";
 
     if (node->elementLayout().isEmpty())
         m_layoutChain.pop();
@@ -330,6 +335,38 @@ void WriteInitialization::accept(DomLayoutItem *node)
     output << "\n" << option.indent << layoutName << "->" << method << "(" << varName << opt << ");\n\n";
 }
 
+void WriteInitialization::accept(DomActionGroup *node)
+{
+    TreeWalker::accept(node);
+}
+
+void WriteInitialization::accept(DomAction *node)
+{
+    QString actionName = driver->findOrInsertAction(node);
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+
+    output << option.indent << actionName << " = new QAction(" << varName << ");\n";
+    writePropertiesImpl(actionName, "QAction", node->elementProperty());
+}
+
+void WriteInitialization::accept(DomActionRef *node)
+{
+    QString actionName = node->attributeName();
+    if (actionName.isEmpty() || !m_widgetChain.top())
+        return;
+
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+
+    if (m_widgetChain.top() && actionName == QLatin1String("separator")) {
+        QString parentClass = m_widgetChain.top()->attributeClass();
+        if (parentClass == QLatin1String("QMenu") || parentClass == QLatin1String("QToolBar")) {
+            output << option.indent << varName << "->addSeparator();\n";
+            return;
+        }
+    }
+
+    output << option.indent << varName << "->addAction(" << node->attributeName() << ");\n";
+}
 
 void WriteInitialization::writePropertiesImpl(const QString &objName, const QString &objClass,
                                      const QList<DomProperty*> &lst)
@@ -679,14 +716,18 @@ QString WriteInitialization::pixCall(const QString &pix) const
 {
     QString s = pix;
 
-    if (!m_pixmapFunction.isEmpty()) {
-        s.prepend(m_pixmapFunction + "(\"");
-        s.append("\")");
+    if (m_externPixmap || m_pixmapFunction.size()) {
+        if (m_externPixmap)
+            s = "\"" + s + "\"";
+
+        if (m_pixmapFunction.size())
+            s = m_pixmapFunction + "(" + s + ")";
+
     } else {
-        s = QString("icon(%1_ID)").arg(s);
+        return QLatin1String("icon(") + s + QLatin1String("_ID)");
     }
 
-    return QString("QIconSet(%1)").arg(s);
+    return QString("QPixmap(%1)").arg(s);
 }
 
 QString WriteInitialization::trCall(const QString &str, const QString &className) const

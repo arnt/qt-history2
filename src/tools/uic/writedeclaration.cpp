@@ -36,18 +36,19 @@ void WriteDeclaration::accept(DomUI *node)
 
     output << "\n" << option.indent << "inline void setupUI(" << widgetClassName << " *" << varName << ");\n";
 
-    output << "\n"
-           << option.indent << "enum IconID\n"
-           << option.indent << "{\n";
-    WriteIconDeclaration(driver).accept(node);
+    if (node->elementImages()) {
+        output << "\n"
+            << option.indent << "enum IconID\n"
+            << option.indent << "{\n";
+        WriteIconDeclaration(driver).accept(node);
 
-    output << option.indent << option.indent << "unknown_ID\n"
-           << option.indent << "};\n";
+        output << option.indent << option.indent << "unknown_ID\n"
+            << option.indent << "};\n";
 
-    output << "\n" << option.indent << "static QPixmap icon(IconID id);\n";
+        output << "\n" << option.indent << "static QPixmap icon(IconID id);\n";
+    }
 
     output << "};\n\n";
-
 }
 
 void WriteDeclaration::accept(DomWidget *node)
@@ -75,6 +76,20 @@ void WriteDeclaration::accept(DomLayout *node)
 void WriteDeclaration::accept(DomSpacer *node)
 {
     output << option.indent << "QSpacerItem *" << driver->findOrInsertSpacer(node) << ";\n";
+
+    TreeWalker::accept(node);
+}
+
+void WriteDeclaration::accept(DomActionGroup *node)
+{
+    output << option.indent << "QActionGroup *" << driver->findOrInsertActionGroup(node) << ";\n";
+
+    TreeWalker::accept(node);
+}
+
+void WriteDeclaration::accept(DomAction *node)
+{
+    output << option.indent << "QAction *" << driver->findOrInsertAction(node) << ";\n";
 
     TreeWalker::accept(node);
 }
