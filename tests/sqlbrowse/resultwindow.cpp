@@ -6,6 +6,8 @@
 #include <qsqlfield.h>
 #include <qsqlindex.h>
 #include <qsqltable.h>
+#include <qbuttongroup.h>
+#include <qpushbutton.h>
 
 // class MyDataGrid : public QSqlTable
 // {
@@ -32,6 +34,7 @@ ResultWindow::ResultWindow ( QWidget * parent, const char * name, WFlags f )
     QStringList fil = db->tables();
     tableList->insertStringList( fil );
     connect( execButton,SIGNAL(clicked()), this, SLOT(slotExec()));
+    browseType->setButton( 0 );
     //    grid->addWidget( new MyDataGrid( this ), 5, 5 );
 }
 
@@ -42,6 +45,20 @@ ResultWindow::~ResultWindow()
 
 void ResultWindow::slotExec()
 {
-    if ( db->isOpen() )
-	dataGrid->setRowset( tableList->currentText() );
+    if ( db->isOpen() ) {
+	QButton* b = browseType->selected();
+	if ( b ) {
+	    switch ( browseType->id( b ) ) {
+	    case 0: // SQL
+		dataGrid->setQuery( "select * from " + tableList->currentText() + ";" );
+		break;
+	    case 1: // Rowset
+		dataGrid->setRowset( tableList->currentText() );				
+		break;
+	    case 2: // View
+		dataGrid->setView( tableList->currentText() );				
+		break;
+	    }
+	}
+    }
 }
