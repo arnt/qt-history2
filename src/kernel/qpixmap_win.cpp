@@ -708,22 +708,36 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #ifndef Q_OS_TEMP
     bool hasRealAlpha = FALSE;
     if ( img.hasAlphaBuffer() &&
-	    d==32 && // ### can we have alpha channel with depth<32bpp?
 	    ( QApplication::winVersion() != Qt::WV_95 &&
 	      QApplication::winVersion() != Qt::WV_NT ) ) {
-	int i = 0;
-	while ( i<image.height() && !hasRealAlpha ) {
-	    uchar *p = image.scanLine(i);
-	    uchar *end = p + image.bytesPerLine();
-	    p += 3;
-	    while ( p < end ) {
-		if ( *p!=0 && *p!=0xff ) {
-		    hasRealAlpha = TRUE;
+        if (image.depth() == 8) {
+	    const QRgb * const rgb = img.colorTable();
+	    for (int i = 0, count = img.numColors(); i < count; ++i) {
+		const int alpha = qAlpha(rgb[i]);
+		if (alpha != 0 && alpha != 0xff) {
+		    hasRealAlpha = true;
 		    break;
 		}
-		p += 4;
 	    }
-	    ++i;
+	    if (hasRealAlpha) {
+		image = image.convertDepth(32, conversion_flags);
+		d = image.depth();
+	    }
+	} else if (image.depth() == 32) {
+	    int i = 0;
+	    while ( i<image.height() && !hasRealAlpha ) {
+		uchar *p = image.scanLine(i);
+		uchar *end = p + image.bytesPerLine();
+		p += 3;
+		while ( p < end ) {
+		    if ( *p!=0 && *p!=0xff ) {
+			hasRealAlpha = TRUE;
+			break;
+		    }
+		    p += 4;
+		}
+		++i;
+	    }
 	}
     }
 #endif
