@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#5 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#6 $
 **
 ** Definition of QRangeControl class
 **
@@ -38,7 +38,7 @@ public:
 
 protected:
     void	directSetValue( int val );
-    int		previousValue()	const;
+    int		prevValue()	const;
 
 private:
     void	adjustValue();
@@ -55,7 +55,7 @@ private:
 inline int QRangeControl::value() const
 { return val; }
 
-inline int QRangeControl::previousValue() const
+inline int QRangeControl::prevValue() const
 { return prevVal; }
 
 inline int QRangeControl::minValue() const
