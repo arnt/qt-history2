@@ -179,14 +179,13 @@ void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &ite
 void QItemDelegate::updateEditorGeometry(QWidget *editor, const QItemOptions &options,
 					 const QModelIndex &item) const
 {
-    QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit) {
+    if (editor) {
 	QRect rect = textRect(options, item);
  	rect.setX(rect.x() + 1);
  	rect.setY(rect.y() + 1);
  	rect.setWidth(rect.width() - 1);
  	rect.setHeight(rect.height() - 1);
-	lineEdit->setGeometry(rect);
+	editor->setGeometry(rect);
     }
 }
 

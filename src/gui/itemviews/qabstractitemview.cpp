@@ -70,7 +70,7 @@ public:
 	  layoutLock(false),
 	  state(QAbstractItemView::NoState),
 	  startEditActions(QItemDelegate::SelectedClicked|
-			   QItemDelegate::RenameKeyPressed|
+			   QItemDelegate::EditKeyPressed|
 			   QItemDelegate::AnyKeyPressed) {}
 
     ~QAbstractItemViewPrivate() {}
@@ -274,7 +274,6 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
     } else {
  	clearSelections();
     }
-    handleEdit(item, QItemDelegate::NoAction, e); // FIXME: ???
 }
 
 void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
@@ -315,15 +314,12 @@ void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
     setState(Selecting);
     setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item));
     updateContents(d->dragRect.normalize() | oldRect.normalize()); // draw selection rect
-
-    handleEdit(item, QItemDelegate::NoAction, e); // FIXME: ???
 }
 
 void QAbstractItemView::contentsMouseReleaseEvent(QMouseEvent *e)
 {
     updateContents(d->dragRect.normalize());
     setState(NoState);
-    handleEdit(currentItem(), QItemDelegate::NoAction, e); // FIXME: ???
 }
 
 void QAbstractItemView::contentsMouseDoubleClickEvent(QMouseEvent *e)
@@ -331,7 +327,7 @@ void QAbstractItemView::contentsMouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex item = itemAt(e->pos());
     if (!item.isValid())
 	return;
-    handleEdit(item, QItemDelegate::DoubleClicked, e);
+    startEdit(item, QItemDelegate::DoubleClicked, e);
 }
 
 void QAbstractItemView::contentsDragEnterEvent(QDragEnterEvent *e)
@@ -427,7 +423,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
     switch (e->key()) {
     case Key_F2:
-	if (handleEdit(currentItem(), QItemDelegate::RenameKeyPressed, e))
+	if (startEdit(currentItem(), QItemDelegate::EditKeyPressed, e))
 	    return;
 	break;
     case Key_Escape: // keys to ignore
@@ -435,9 +431,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_Return:
 	break;
     case Key_Space:
-	if (handleEdit(currentItem(), QItemDelegate::NoAction, e)) {
-		return;
-	} else {
+	// if (startEdit(currentItem(), QItemDelegate::NoAction, e)) {
+// 		return;
+// 	} else {
+    {
 	    selectionModel()->select(currentItem(),
 				     selectionUpdateMode(e->state(),currentItem()),
 				     selectionBehavior() );
@@ -445,8 +442,8 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 	}
 	break;
     default:
-	if (e->text()[0].isPrint() &&
-	    handleEdit(currentItem(), QItemDelegate::AnyKeyPressed, e))
+	if (e->text()[0].isPrint() && // FIXME: ???
+	    startEdit(currentItem(), QItemDelegate::AnyKeyPressed, e))
 	    return;
 	break;
     }
@@ -454,7 +451,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
 void QAbstractItemView::keyReleaseEvent(QKeyEvent *e)
 {
-    handleEdit(currentItem(), QItemDelegate::NoAction, e);
+//    startEdit(currentItem(), QItemDelegate::NoAction, e);
 }
 
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
@@ -469,23 +466,20 @@ void QAbstractItemView::showEvent(QShowEvent *e)
     updateGeometries();
 }
 
-bool QAbstractItemView::handleEdit(const QModelIndex &item,
-				   QItemDelegate::StartEditAction action,
-				   QEvent *event)
+bool QAbstractItemView::startEdit(const QModelIndex &item,
+				  QItemDelegate::StartEditAction action,
+				  QEvent *event)
 {
-   if (!model()->isEditable(item))//|| data->editType() == QItemDElegate::PersistentWidget)
+    if (!model()->isEditable(item))
 	return false;
-
-   QItemDelegate::EditType editType = itemDelegate()->editType(item);
-   bool type = (editType == QItemDelegate::PersistentWidget || editType == QItemDelegate::WidgetOnTyping);
-   if (type && (action & d->startEditActions)) {
-       setState(Editing);
-       return d->createEditor(item, action, event);
-   }
-
+    
+    QItemDelegate::EditType editType = itemDelegate()->editType(item);
+    if (action & d->startEditActions) {
+	setState(Editing);
+	return !!d->createEditor(item, action, event);
+    }
 //     if (event && delegate->editType() == QItemDelegate::NoWidget)
 // 	return d->sendItemEvent(data, event);
-
     return false;
 }
 
@@ -522,7 +516,7 @@ void QAbstractItemView::updateCurrentEditor()
 {
     //  this presumes that only one editor is open at one time
     QModelIndex item = currentItem(); // the edited item
-    if (!d->currentEditor)//|| !item->isEditable() || item->editType() != QItemDelegate::PersistentWidget )
+    if (!d->currentEditor)//|| !item->isEditable() || item->editType() != QItemDelegate::PersistentWidget)
  	return;
     QItemOptions options;
     getViewOptions(&options);
@@ -674,7 +668,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 // 	else
 	updateItem(current);
 
-    handleEdit(current, QItemDelegate::CurrentChanged, 0); // FIXME: ???
+    startEdit(current, QItemDelegate::CurrentChanged, 0);
 }
 
 void QAbstractItemView::startItemsLayout()
@@ -822,7 +816,7 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
 					    QEvent *event)
 {
     static bool recursive_lock = false; // FIXME: hack around design flaw
-    if ( recursive_lock )
+    if (recursive_lock)
 	return false;
     recursive_lock = true;
 
@@ -835,10 +829,11 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
     options.itemRect.moveLeft(options.itemRect.left() - q->contentsX());
 
     QWidget *w = delegate->createEditor(action, q->viewport(), options, item);
+    if (!w)
+	return false;
     w->show();
     w->setFocus();
-    if (event &&
-	(action == QItemDelegate::AnyKeyPressed || event->type() == QEvent::MouseButtonPress))
+    if (event && (action == QItemDelegate::AnyKeyPressed || event->type() == QEvent::MouseButtonPress))
 	QApplication::sendEvent(w, event);
 
     recursive_lock = false;

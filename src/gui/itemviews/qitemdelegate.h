@@ -49,7 +49,7 @@ public:
 	CurrentChanged = 1,
 	DoubleClicked = 2,
 	SelectedClicked = 4,
-	RenameKeyPressed = 8,
+	EditKeyPressed = 8,
 	AnyKeyPressed = 16
     };
 

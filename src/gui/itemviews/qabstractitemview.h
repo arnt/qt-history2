@@ -86,7 +86,7 @@ protected:
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) = 0;
     virtual QRect selectionRect(const QItemSelection *selection) const = 0;
 
-    virtual bool handleEdit(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
+    virtual bool startEdit(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
