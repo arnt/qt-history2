@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#13 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#14 $
 **
 ** Definition of QFont class
 **
@@ -69,12 +69,13 @@ public:
 #if defined(_WS_X11_)
     Font	handle() const;
 #endif
-
+    bool        dirty() const;
     void        updateSubscribers();
 
     static const QFont &defaultFont();
     static void  setDefaultFont( const QFont & );
     static void initialize();			// initialize font system
+    static void cacheStatistics();		// output cache statistics
     static void cleanup();			// cleanup font system
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#4 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#5 $
 **
 ** Definition of QFontData struct
 **
@@ -34,6 +34,10 @@ struct QFontDef  {
 	uint	  dirty		: 1;
 };
 
+#if defined(_WS_X11_)
+    struct QXFontData;
+#endif
+
 struct QFontData : QShared {
     QFontDef        req;                // requested
     QFontDef        act;                // actual
@@ -45,8 +49,7 @@ struct QFontData : QShared {
 	HANDLE	hfont;
 #elif defined(_WS_PM_)
 #elif defined(_WS_X11_)
-	QXFontStruct *xfont;
-	QString	  xFontName;
+	QXFontData *xfd;
 #endif
 };
 

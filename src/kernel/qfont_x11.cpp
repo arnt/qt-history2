@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#18 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#18 $";
 #endif
 
 // #define DEBUG_FONT
@@ -53,6 +53,7 @@ bool      smoothlyScalable( const    char *fontName );
 bool      fontExists      ( const    char *fontName );
 int       computeLineWidth( const    char *fontName );
 int       getWeight( const char *weightString, bool adjustScore = FALSE );
+void      loadXFont( QXFontData *&xfd, const char *fontName );
 
 #define PRIV ((QFont_Private*)this)
 
@@ -162,27 +163,53 @@ int computeLineWidth( const char *fontName )
 }
 
 // --------------------------------------------------------------------------
-// QFont dictionary to make font loading faster than using XLoadQueryFont
+// QFont cache to make font loading faster than using XLoadQueryFont
 //
 
+#include "qcache.h"
 #include "qdict.h"
 
-struct QXFontData {
-    QString      name;
-    XFontStruct *font;
+struct QXFontData : QShared {
+    QString       name;
+    QXFontStruct *f;
+    bool          dirty;
+    ~QXFontData() { debug("+++ Freeing [%s]",name.data());
+                    if( !dirty )
+                        XFreeFont( qXDisplay(), f );
+                  }
 };
+
+declare(QCacheM,QXFontData);
+
+class QFontCache : public QCacheM(QXFontData)
+{
+public:
+    QFontCache(long maxCost, int size=17,bool cs=TRUE,bool ck=TRUE)
+        : QCacheM(QXFontData)(maxCost,size,cs,ck){}
+    void deleteItem( GCI d );
+};
+
+void QFontCache::deleteItem( GCI d ) 
+{ 
+    QXFontData *xfd = (QXFontData *)d;
+    if ( xfd->dirty )
+        debug("QFontCache::deleteItem: dirty delete!!!!");
+    else
+        XFreeFont( qXDisplay(), xfd->f );
+    xfd->dirty = TRUE;
+    if ( xfd->deref() )
+        delete xfd;
+}
 
 struct QXFontName {
     QString      name;
     bool         exactMatch;
 };
 
-typedef declare(QDictM,QXFontData) QFontDict;
-typedef declare(QDictIteratorM,QXFontData) QFontDictIt;
 typedef declare(QDictM,QXFontName) QFontNameDict;
 typedef declare(QDictIteratorM,QXFontName) QFontNameDictIt;
 
-static QFontDict     *fontDict     = 0;         // dict of loaded fonts
+static QFontCache    *fontCache    = 0;         // cache of loaded fonts
 static QFontNameDict *fontNameDict = 0;         // dict of matched font names
 QFont QFont::defFont( "helvetica" , 12, QFont::Normal, 
                       FALSE, TRUE);             // default font
@@ -204,23 +231,32 @@ void  QFont::setDefaultFont( const QFont &f )
 
 void QFont::initialize()                        // called when starting up
 {
-    fontDict     = new QFontDict( 29 );         // create font dictionary
-    CHECK_PTR( fontDict );
+    fontCache    = new QFontCache( 1024*702 ); // create font cache
+    CHECK_PTR( fontCache );
     fontNameDict = new QFontNameDict( 29 );     // create font name dictionary
     CHECK_PTR( fontNameDict );
+    fontNameDict->setAutoDelete( TRUE );
+}
+
+void QFont::cacheStatistics()
+{
+    if ( fontCache )
+        fontCache->statistics();
 }
 
 void QFont::cleanup()                           // called when terminating app
 {
-    Display *dpy = qXDisplay();
-    QFontDictIt it( *fontDict );
+/*    Display *dpy = qXDisplay();
+    QFontDictIt it( *fontD
+ict );
     QXFontData *f;
-    while ( ( f = it.current() ) ) {            // free all fonts
+    while ( (f = it.current()) ) {              // free all fonts
         XFreeFont( dpy, f->font );
         delete f;
         ++it;
     }
-    delete fontDict;                            // delete font dictionary
+*/
+    delete fontCache;                            // delete font cache
     delete fontNameDict;
 }
 
@@ -238,7 +274,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
-    d->xfont         = 0;
+    d->xfd           = 0;
     d->isDefaultFont = FALSE;
 }
 
@@ -254,13 +290,15 @@ QFont::QFont( bool referenceDefaultFont )
     }
 }
 
-QFont::QFont( QFontData *data )
+QFont::QFont( QFontData *data ) // copies a font
 {
     d                = new QFontData;
     CHECK_PTR( d );
     *d               = *data;
-    d->isDefaultFont = FALSE;  // a copied font is never a default font
-    d->count         = 1;      // reset the ref count that was copied above
+    d->isDefaultFont = FALSE;   // a copied font is never a default font
+    d->count         = 1;       // reset the ref count that was copied above
+    if ( d->xfd )
+        d->xfd->ref();          // reference QXFontData
 }
 
 QFont::QFont( const char *family, int pointSize, int weight, bool italic,
@@ -271,7 +309,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic,
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
-    d->xfont         = 0;
+    d->xfd           = 0;
     d->isDefaultFont = defaultFont;
 }
 
@@ -299,11 +337,22 @@ QFont QFont::copy() const
 */
 }
 
+// If d->req.dirty is not TRUE the font must have been loaded
+// and we can safely assume that d->xfd is a valid pointer:
+
+#define DIRTY_FONT d->req.dirty || d->xfd->dirty
+#define DIRTY_METRICS f.d->req.dirty || f.d->xfd->dirty
+
 Font QFont::handle() const
 {
-    if ( d->req.dirty )
+    if ( DIRTY_FONT )
         loadFont();
-    return d->xfont->fid;
+    return d->xfd->f->fid;
+}
+
+bool QFont::dirty() const
+{
+    return DIRTY_FONT;
 }
 
 QString QFont::defaultFamily() const
@@ -363,7 +412,6 @@ QString QFont::lastResortFont() const
 }
 
 
-// !!!!hanord: Flytt disse til et mer passende sted
 int QFontMetrics::underlinePos() const
 {
     int pos = ( lineWidth()*2 + 3 )/6; // int( ((float)lineWidth())/3 + 0.5 )
@@ -372,15 +420,15 @@ int QFontMetrics::underlinePos() const
 
 int QFontMetrics::strikeOutPos() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    int pos = f.d->xfont->max_bounds.ascent/3;
+    int pos = f.d->xfd->f->max_bounds.ascent/3;
     return pos ? pos : 1;
 }
 
 int QFontMetrics::lineWidth() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
     return f.d->lineW;
 }
@@ -725,44 +773,55 @@ QString QFont_Private::findFont( bool *exact )
     return bestName;
 }
 
-QXFontData *loadXFont( const char *fontName )
+void loadXFont( QXFontData *&xfd, const char *fontName )
 {
-    QXFontData  *fd;
-    XFontStruct *tmp;
+    if ( xfd && xfd->deref() )
+        delete xfd;
 
-    if ( !fontDict )
-        return 0;
+    if ( !fontCache ) {
+        xfd = 0;
+        return;
+    }
 
-    fd = fontDict->find( fontName );
-    if ( fd )
-        return fd;
+    xfd = fontCache->find( fontName );
+    if ( xfd ) {
+        xfd->ref();
+        return;
+    }
                                           // font is not cached
+    QXFontStruct  *tmp;
     tmp = XLoadQueryFont( qXDisplay(), fontName );
-    if ( !tmp )
-        return 0;                         // could not load font
+    if ( !tmp ) {
+        xfd = 0;
+        return;                         // could not load font
+    }
 
-    fd = new QXFontData;
-    CHECK_PTR( fd );
-    fd->font = tmp;
-    fd->name = fontName;                  // used by QFontInfo
+    xfd = new QXFontData;
+    CHECK_PTR( xfd );
+    xfd->f    = tmp;
+    xfd->name = fontName;                  // used by QFontInfo
 #if defined(DEBUG_FONT)
-    debug( "min_byte1 = %i, max_byte1 = %i", fd->font->min_byte1,
-           fd->font->max_byte1 );
+    debug( "min_byte1 = %i, max_byte1 = %i", xfd->f->min_byte1,
+           xfd->f->max_byte1 );
     debug( "min_cob2 = %i, max_cob2      = %i",
-           fd->font->min_char_or_byte2,
-           fd->font->max_char_or_byte2 );
+           xfd->f->min_char_or_byte2,
+           xfd->f->max_char_or_byte2 );
 #endif
-    fontDict->insert( fontName, fd );
-    return fd;
+    XFontStruct *f = xfd->f;
+    long sz = ( f->max_bounds.ascent + f->max_bounds.descent )
+              * f->max_bounds.width
+              * ( f->max_char_or_byte2 - f->min_char_or_byte2 ) / 8;
+    xfd->ref();    // increment reference one for the insertion below
+    fontCache->insert( fontName, xfd ,sz );
+    return;
 }
 
 void QFont::loadFont() const
 {
     QString instanceID;
-    QXFontData	*fd;
     QXFontName	*fn;
 
-    if ( !fontNameDict || !fontDict ) {
+    if ( !fontNameDict || !fontCache ) {
 #if defined(CHECK_STATE)
 	warning( "QFont::loadFont: Not ready to load font.");
 #endif
@@ -807,12 +866,13 @@ void QFont::loadFont() const
 //#endif
     }
     d->exactMatch = fn->exactMatch;
-    fd = loadXFont( fn->name );
-    if ( !fd )
-        fatal( "QFont::loadFont: Internal error" );
-    d->xFontName = fd->name;
-    d->lineW     = computeLineWidth(fd->name ); 
-    d->xfont	 = fd->font;
+    loadXFont( d->xfd, fn->name );
+    if ( !d->xfd ) {
+        loadXFont( d->xfd, lastResortFont() );
+        if ( !d->xfd )
+            fatal( "QFont::loadFont: Internal error" );
+    }
+    d->lineW     = computeLineWidth( d->xfd->name ); 
     d->req.dirty = FALSE;
     d->act.dirty = TRUE;      // actual font information no longer valid
 #if defined(DEBUG_FONT)
@@ -844,54 +904,54 @@ QFontMetrics::QFontMetrics( const QFont &font )
 
 int QFontMetrics::ascent() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->max_bounds.ascent;
+    return f.d->xfd->f->max_bounds.ascent;
 }
 
 int QFontMetrics::descent() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->max_bounds.descent;
+    return f.d->xfd->f->max_bounds.descent;
 }
 
 int QFontMetrics::height() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->max_bounds.ascent + f.d->xfont->max_bounds.descent;
+    return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
 
 int QFontMetrics::leading() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->ascent            + f.d->xfont->descent -
-           f.d->xfont->max_bounds.ascent - f.d->xfont->max_bounds.descent;
+    return f.d->xfd->f->ascent            + f.d->xfd->f->descent -
+           f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->ascent + f.d->xfont->descent;
+    return f.d->xfd->f->ascent + f.d->xfd->f->descent;
 }
 
 int QFontMetrics::width( const char *str, int len ) const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
     if ( len < 0 )
         len = strlen( str );
-    return XTextWidth( f.d->xfont, str, len );
+    return XTextWidth( f.d->xfd->f, str, len );
 }
 
 int QFontMetrics::maxWidth() const
 {
-    if ( f.d->req.dirty )
+    if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfont->max_bounds.width;
+    return f.d->xfd->f->max_bounds.width;
 }
 
 // --------------------------------------------------------------------------
@@ -905,7 +965,7 @@ QFontInfo::QFontInfo( const QFont &font )
 
 void QFont::updateFontInfo() const
 {
-    if ( d->req.dirty )
+    if ( DIRTY_FONT )
         loadFont();
 
     if ( exactMatch() ) { //Copy font description if matching font was found
@@ -916,7 +976,7 @@ void QFont::updateFontInfo() const
     char *tokens[fontFields];
     QString buffer( 255 );       // Used to hold parsed X font name
 
-    buffer = d->xFontName.copy();
+    buffer = d->xfd->name.copy();
     if ( !parseXFontName( buffer, tokens ) ) {
 #if defined(DEBUG_FONT)
         debug("QFont::updateFontInfo: Not an XLFD font name");
