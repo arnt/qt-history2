@@ -518,7 +518,7 @@ void QListView::setRowHidden(int row, bool hide)
     if (hide)
         d->hiddenRows.append(row);
     else
-        d->hiddenRows.remove(row);
+        d->hiddenRows.remove(d->hiddenRows.indexOf(row));
 
     if (isVisible())
         doItemsLayout(); // FIXME: start from the hidden item row
