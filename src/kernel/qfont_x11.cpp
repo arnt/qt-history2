@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#145 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1006,16 +1006,19 @@ QCString QFont_Private::findFont( bool *exact )
 			    ? "bold"
 				: "black";
 	const char* slant = italic() ? "i" : "r";
+	const char* slant2 = italic() ? "o" : "r";
 	int size = pointSize()*10;
-	QCString s;
+	QCString s(512);
 	s.sprintf(
 	    "-*-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
+	    "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-helvetica-%s-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-*-*-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
 		familyName.ascii(), wt, slant, size,
 		familyName.ascii(), slant, size,
+		familyName.ascii(), slant2, size,
 		slant, wt, size,
 		slant, size,
 		size );
