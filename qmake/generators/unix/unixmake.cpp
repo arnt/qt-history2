@@ -294,7 +294,7 @@ UnixMakefileGenerator::processPrlFiles()
 			    if(processPrlFile(prl)) {
 				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
-				QRegExp reg("^.*lib(" + lib + "[^.]*)\\..*$");
+				QRegExp reg("^.*lib(" + lib + "[^./=]*)\\..*$");
 				if(reg.exactMatch(prl))
 				    prl = "-l" + reg.cap(1);
 				opt = prl;
