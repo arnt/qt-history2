@@ -158,7 +158,8 @@ int main(int argc, char **argv)
 		    }
 
 		    QFileInfo fi(Option::output);
-		    Option::output_dir = Option::fixPathToTargetOS(fi.dirPath());
+		    Option::output_dir = Option::fixPathToTargetOS(
+			fi.isSymLink() ? fi.readLink() : fi.dirPath());
 		    if(!Option::output.open(IO_WriteOnly | IO_Translate)) {
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());

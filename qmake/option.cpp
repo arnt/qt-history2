@@ -97,7 +97,7 @@ QString Option::mkfile::qmakespec_commandline;
 
 bool usage(const char *a0)
 {
-    fprintf(stderr, "Usage: %s [mode] [options] [files]\n"
+    fprintf(stdout, "Usage: %s [mode] [options] [files]\n"
 	    "\n"
 	    "   QMake has two modes, one mode for generating project files based on\n"
 	    "some heuristics, and the other for generating makefiles. Normally you\n"

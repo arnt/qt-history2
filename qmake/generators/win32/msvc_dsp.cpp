@@ -741,7 +741,6 @@ DspMakefileGenerator::init()
 							    " /I \"" + specdir() + "\"");
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
-	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_CHECK\"");
     } else {
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }

@@ -91,7 +91,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t" << "objects = {" << endl;
 
     //MAKE QMAKE equivlant
-    if(project->projectFile() != "(stdin)") {
+    if(!project->isActiveConfig("no_autoqmake") && project->projectFile() != "(stdin)") {
 	QString mkfile = Option::output_dir + Option::dir_sep + "qt_makeqmake.mak";
 	QFile mkf(mkfile);
 	if(mkf.open(IO_WriteOnly | IO_Translate)) {

@@ -136,10 +136,8 @@ UnixMakefileGenerator::init()
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) {
+	if ( !project->isActiveConfig("debug") ) 
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_CHECK");
-	}
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
 		if ( !project->isEmpty("QMAKE_RPATH") )

@@ -591,7 +591,6 @@ MakefileGenerator::init()
 			} else if(!line.isEmpty() && sep != -1) {
 			    file = line.left(sep).stripWhiteSpace();
 			    line = line.right(line.length() - sep - 1).stripWhiteSpace();
-			    fileFixify(file);
 			    if(state == CacheInfo) {
 				if(file == "QMAKE_CACHE_VERSION") {
 				    if(line != qmake_version()) 
@@ -602,6 +601,7 @@ MakefileGenerator::init()
 					break;
 				}
 			    } else if(state == CacheDepend) {
+				fileFixify(file);
 				bool found = (bool)cache_found_files[file];
 				QStringList files = QStringList::split(" ", line);
 				if(!found) {
@@ -632,6 +632,7 @@ MakefileGenerator::init()
 				    }
 				}
 			    } else {
+				fileFixify(file);
 				void *found = cache_found_files[file];
 				if(found != (void *)2) {
 				    if(found) {
