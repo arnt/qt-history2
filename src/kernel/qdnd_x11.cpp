@@ -61,7 +61,7 @@ extern void qt_leave_modal( QWidget *widget );
 
 extern Window qt_x11_findClientWindow( Window, Atom, bool );
 extern Atom qt_wm_state;
-extern Time qt_x_clipboardtime;
+extern Time qt_x_time;
 
 // this stuff is copied from qclb_x11.cpp
 
@@ -1215,7 +1215,7 @@ void QDragManager::move( const QPoint & globalPos )
 	move.data.l[0] = object->source()->winId();
 	move.data.l[1] = 0; // flags
 	move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
-	move.data.l[3] = qt_x_clipboardtime;
+	move.data.l[3] = qt_x_time;
 	move.data.l[4] = qtaction_to_xdndaction( global_requested_action );
 
 	if ( w )
@@ -1248,7 +1248,7 @@ void QDragManager::drop()
     drop.data.l[0] = object->source()->winId();
     drop.data.l[1] = 1 << 24; // flags
     drop.data.l[2] = 0; // ###
-    drop.data.l[3] = qt_x_clipboardtime;
+    drop.data.l[3] = qt_x_time;
     drop.data.l[4] = 0;
 
     QWidget * w = QWidget::find( qt_xdnd_current_proxy_target );
@@ -1566,7 +1566,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     dragSource = (QWidget *)(object->parent());
 
     qApp->installEventFilter( this );
-    qt_xdnd_source_current_time = qt_x_clipboardtime;
+    qt_xdnd_source_current_time = qt_x_time;
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );

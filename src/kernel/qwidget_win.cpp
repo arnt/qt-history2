@@ -794,11 +794,8 @@ void QWidget::showWindow()
 
 void QWidget::hideWindow()
 {
-    bool activateParent = isTopLevel() && parentWidget()&& isActiveWindow();
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
-    if ( activateParent )
-         SetActiveWindow( parentWidget()->topLevelWidget()->winId() );
 }
 
 

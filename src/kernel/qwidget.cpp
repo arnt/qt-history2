@@ -2493,27 +2493,13 @@ bool QWidget::focusNextPrevChild( bool next )
     QWidget *startingPoint = f->it.current();
     QWidget *candidate = 0;
     QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
-#if defined(_WS_X11_)
-    bool wrapped = FALSE;
-#endif
     do {
 	if ( w && w != startingPoint &&
 	     ( ( w->focusPolicy() & TabFocus ) == TabFocus )
 	     && !w->focusProxy() && w->isVisible() && w->isEnabled())
 	    candidate = w;
-#if defined(_WS_X11_)
-	if  (w == startingPoint )
-	    wrapped = TRUE;
-#endif
 	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
     } while( w && !(candidate && w==startingPoint) );
-
-#if defined(_WS_X11_)
-    extern void qt_xembed_tab_focus( QWidget*, bool ); // defined in qapplication_x11.cpp
-    if (!candidate || wrapped ) {
-	qt_xembed_tab_focus( this, next );
-    }
-#endif
 
     if ( !candidate )
 	return FALSE;
@@ -3178,7 +3164,9 @@ void QWidget::hide()
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
+    bool activateParent = isTopLevel() && parentWidget() &&  isActiveWindow();
     hideWindow();
+    
     setWState( WState_Withdrawn );
 
    if ( !testWState(WState_Visible) )
@@ -3203,6 +3191,9 @@ void QWidget::hide()
 
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
+
+    if ( activateParent )
+	parentWidget()->setActiveWindow();
 }
 
 

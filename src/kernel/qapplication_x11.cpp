@@ -193,21 +193,11 @@ static GC	app_gc_ro	= 0;		// read-only GC
 static GC	app_gc_tmp	= 0;		// temporary GC
 static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
-static Atom	qt_wm_protocols;		// window manager protocols
+Atom		qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 Atom 		qt_wm_take_focus;		// take focus window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 Atom	qt_net_wm_context_help; 	// context help
-
-Atom	qt_embedded_window;
-Atom	qt_embedded_window_take_focus;
-Atom	qt_embedded_window_focus_in;
-Atom	qt_embedded_window_focus_out;
-Atom	qt_embedded_window_tab_focus;
-Atom	qt_embedded_window_support_tab_focus;
-Atom	qt_wheel_event;
-Atom	qt_unicode_key_press;
-Atom	qt_unicode_key_release;
 
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
@@ -238,6 +228,22 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
+typedef int (*QX11EventFilter) (XEvent*);
+QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
+
+static QX11EventFilter qt_x11_event_filter = 0;
+QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter)
+{
+    QX11EventFilter old_filter = qt_x11_event_filter;
+    qt_x11_event_filter = filter;
+    return old_filter;
+}
+static bool qt_x11EventFilter( XEvent* ev )
+{
+    if ( qt_x11_event_filter  && qt_x11_event_filter( ev )  )
+	return TRUE;
+    return qApp->x11EventFilter( ev );
+}
 
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
@@ -258,7 +264,7 @@ static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
-Time		qt_x_clipboardtime = CurrentTime;
+Time		qt_x_time = CurrentTime;
 extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
 
 static void	qt_save_rootinfo();
@@ -320,7 +326,6 @@ extern QPalette *qt_std_pal;
 extern void qt_create_std_palette();
 
 void qt_x11_intern_atom( const char *, Atom * );
-void qt_xembed_tab_focus( QWidget*, bool next );
 
 static QList<QWidget>* deferred_map_list = 0;
 static void qt_deferred_map_cleanup()
@@ -366,7 +371,6 @@ public:
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
-    void embeddedWindowTabFocus( bool );
 };
 
 
@@ -1039,23 +1043,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
-
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW", &qt_embedded_window );
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW_TAKE_FOCUS",
-			    &qt_embedded_window_take_focus );
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW_FOCUS_IN",
-			    &qt_embedded_window_focus_in );
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW_FOCUS_OUT",
-			    &qt_embedded_window_focus_out );
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW_SUPPORT_TAB_FOCUS",
-			    &qt_embedded_window_support_tab_focus );
-	qt_x11_intern_atom( "_QT_EMBEDDED_WINDOW_TAB_FOCUS",
-			    &qt_embedded_window_tab_focus );
-	qt_x11_intern_atom( "_QT_WHEEL_EVENT", &qt_wheel_event );
-	qt_x11_intern_atom( "_QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );
-	qt_x11_intern_atom( "_QT_UNICODE_KEY_RELEASE",
-			    &qt_unicode_key_release );
-
 
 	qt_xdnd_setup();
 
@@ -2168,8 +2155,9 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		if ( amw && amw != widget ) {
 		    amw->raise(); //  help broken window managers
 		}
+		qt_x_time = event->xclient.data.l[1];
 		XSetInputFocus( appDpy, (amw?amw:widget)->winId(),
-				RevertToParent, event->xclient.data.l[1] );
+				RevertToParent, qt_x_time );
 	    } else if ( a == qt_net_wm_context_help ) {
 		QWhatsThis::enterWhatsThisMode();
 	    }
@@ -2190,69 +2178,6 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	} else {
 	    if ( passive_only ) return 0;
 	    // All other are interactions
-	    if ( event->xclient.message_type == qt_embedded_window_take_focus ) {
-		widget->setFocus();
-	    } else if ( event->xclient.message_type == qt_embedded_window_focus_in ) {
-		active_window = widget->topLevelWidget();
-		QWidget *w = widget->focusWidget();
-		while ( w && w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w )
-		    w->setFocus();
-		else
-		    widget->focusNextPrevChild( TRUE );
-	    } else if ( event->xclient.message_type == qt_embedded_window_focus_out ) {
-		active_window = 0;
-		if ( focus_widget && !inPopupMode() ) {
-		    QFocusEvent out( QEvent::FocusOut );
-		    QWidget *widget = focus_widget;
-		    focus_widget = 0;
-		    QApplication::sendEvent( widget, &out );
-		}
-	    } else if ( event->xclient.message_type == qt_wheel_event ) {
-		return widget->translateWheelEvent( event->xclient.data.l[0],
-						    event->xclient.data.l[1],
-						    event->xclient.data.l[2],
-						    event->xclient.data.l[3] );
-	    }
-	}
-    }
-    else if ( event->xclient.format == 16 ) {
-	if ( passive_only ) return 0; // all below are interactions
-	if ( event->xclient.message_type == qt_unicode_key_press
-	     || event->xclient.message_type == qt_unicode_key_release ) {
-
-	    QWidget *g = QWidget::keyboardGrabber();
-	    if ( g )
-		widget = (QETWidget*)g;
-	    else if ( focus_widget )
-		widget = (QETWidget*)focus_widget;
-	    else
-		widget = (QETWidget*)widget->topLevelWidget();
-
-	    if ( !widget || !widget->isEnabled() )
-		return 0;
-	    bool grab = g != 0;
-
-	    QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
-				QEvent::KeyPress : QEvent::KeyRelease;
-
-	    short *s = event->xclient.data.s;
-	    QChar c(s[6],s[5]);
-	    QString text;
-	    if (c != QChar::null)
-		text = c;
-	    if (!grab && type == QEvent::KeyPress) {
-		// test accelerators first
-		QKeyEvent a (QEvent::Accel, s[0], s[1], s[2], text, s[3], s[4]);
-		a.ignore();
-		QApplication::sendEvent( widget->topLevelWidget(), &a );
-		if ( a.isAccepted() )
-		    return 1;
-	    }
-	    QKeyEvent kev(type, s[0], s[1], s[2], text, s[3], s[4]);
-	    QApplication::sendEvent( widget, &kev );
-	    return 1;
 	}
     } else {
 	qt_motifdnd_handle_msg( widget, event, passive_only );
@@ -2274,7 +2199,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 */
 int QApplication::x11ProcessEvent( XEvent* event )
 {
-    if ( x11EventFilter(event) )		// send through app filter
+    if ( qt_x11EventFilter(event) )		// send through app filter
 	return 1;
 
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)event->xany.window );
@@ -2321,7 +2246,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
-	qt_x_clipboardtime = event->xproperty.time;
+	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_selection_sentinel ) {
 		if ( qt_check_selection_sentinel( event ) )
@@ -2339,30 +2264,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		if ( qt_deferred_map_contains( widget ) ) {
 		    qt_deferred_map_take( widget );
 		    XMapWindow( appDpy, widget->winId() );
-		}
-	    }
-	    else if ( event->xproperty.atom == qt_embedded_window ) {
-		Atom type;
-		int format;
-		unsigned long length, after;
-		unsigned char *data;
-		if ( XGetWindowProperty( appDpy, widget->winId(), qt_embedded_window, 0, 1,
-					 FALSE, XA_CARDINAL, &type, &format,
-					 &length, &after, &data ) == Success ) {
-		    if (data ) {
-			widget->topData()->embedded = ((long*)data[0])?1:0;
-			XFree( data );
-			if ( widget->topData()->embedded ) {
-			    // we support tab focus, inform the embedding widget about it
-			    XClientMessageEvent client_message;
-			    client_message.type = ClientMessage;
-			    client_message.window = widget->topData()->parentWinId;
-			    client_message.format = 32;
-			    client_message.message_type = qt_embedded_window_support_tab_focus;
-			    XSendEvent( appDpy, client_message.window, FALSE, NoEventMask,
-					(XEvent*)&client_message );
-			}
-		    }
 		}
 	    }
 	}
@@ -2421,14 +2322,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case ButtonPress:			// mouse event
     case ButtonRelease:
     case MotionNotify:
-	qt_x_clipboardtime = (event->type == MotionNotify) ?
+	qt_x_time = (event->type == MotionNotify) ?
 			     event->xmotion.time : event->xbutton.time;
 	widget->translateMouseEvent( event );
 	break;
 
     case XKeyPress:				// keyboard event
     case XKeyRelease: {
-	qt_x_clipboardtime = event->xkey.time;
+	qt_x_time = event->xkey.time;
 	if ( keywidget ) // should always exist
 	    keywidget->translateKeyEvent( event, grabbed );
     }
@@ -2450,25 +2351,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case XFocusIn: {				// got focus
 	if ( widget == desktop() )
-	    return TRUE; // not interesting
+	    break;
  	if ( inPopupMode() ) // some delayed focus event to ignore
  	    break;
-// 	qDebug("XFocusIn for '%s', mode = %d, detail = %d", widget->className(), event->xfocus.mode, event->xfocus.detail );
-	// 	if ( event->xfocus.mode == NotifyUngrab )
-	// 	    break;
-	QWidget* old_active_window = active_window;
+ 	if ( !widget->isTopLevel() )
+	    break;
+	if ( event->xfocus.detail != NotifyAncestor &&
+	     event->xfocus.detail != NotifyInferior &&
+	     event->xfocus.detail != NotifyNonlinear )
+	    break;
 	active_window = widget->topLevelWidget();
-	if (active_window && active_window->topData()->embedded ) {
-	    // we are embedded. Refuse focus, the out app will send us
-	    // qew_focus_in if that shall be necessary
-// 	    ((XEvent*)event)->xfocus.window
-// 		= active_window->topData()->parentWinId;
-// 	    XSendEvent( appDpy, active_window->topData()->parentWinId,
-// 			NoEventMask, FALSE, (XEvent*)event);
-	    active_window = old_active_window;
-	    return TRUE;
-	}
-
 	QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	QWidget *w = widget->focusWidget();
 	while ( w && w->focusProxy() )
@@ -2489,7 +2381,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
-	    return TRUE; // not interesting
+	    break;
+ 	if ( !widget->isTopLevel() )
+	    break;
+	if ( event->xfocus.detail != NotifyAncestor &&
+	     event->xfocus.detail != NotifyNonlinearVirtual &&
+	     event->xfocus.detail != NotifyNonlinear )
+	    break;
 	if ( focus_widget && !inPopupMode() && widget->topLevelWidget() == active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
 	    active_window = 0;
@@ -2502,15 +2400,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case EnterNotify: {			// enter window
+	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
-	qt_x_clipboardtime = event->xcrossing.time;
 	if ( event->xcrossing.mode != NotifyNormal )
 	    break;
 	if ( event->xcrossing.detail != NotifyAncestor &&
 	     event->xcrossing.detail != NotifyNonlinear &&
-	     event->xcrossing.detail != NotifyInferior &&
-	     event->xcrossing.detail != NotifyAncestor  )
+	     event->xcrossing.detail != NotifyInferior )
 	    break;
 	curWin = widget->winId();
 // 	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
@@ -2520,9 +2417,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
     break;
     case LeaveNotify: {			// leave window
+	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
-	qt_x_clipboardtime = event->xcrossing.time;
 	if ( widget->winId() != curWin )
 	    break;
 	if ( event->xcrossing.mode != NotifyNormal )
@@ -2537,7 +2434,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:			// window hidden
 	if ( widget->isVisible() && widget->isTopLevel() ) {
-	    if ( widget->topData()->wmstate || widget->topData()->embedded ) {
+	    if ( widget->topData()->wmstate ) {
 		widget->clearWState( WState_Visible );
 		widget->clearWState( WState_Withdrawn );
 		QHideEvent e( TRUE );
@@ -2551,7 +2448,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( !widget->isVisible() )  {
 	    if ( widget->testWState( WState_Withdrawn ) ) {
 		// this cannot happen in normal applications but might happen with embedding
-		if ( widget->isTopLevel() && widget->topData()->embedded )
+		if ( widget->isTopLevel() )
 		    widget->show();
 	    }
 	    else {
@@ -3312,7 +3209,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		XPutBackEvent( appDpy, &nextEvent );
 		break;
 	    }
-	    if ( !qApp->x11EventFilter(&nextEvent)
+	    if ( !qt_x11EventFilter(&nextEvent)
 		 && !x11Event( &nextEvent ) ) // send event through filter
 		lastMotion = nextEvent.xmotion;
 	    else
@@ -3361,17 +3258,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 			QFocusEvent::setReason( QFocusEvent::Mouse);
 			w->setFocus();
 			QFocusEvent::resetReason();
-			// inform parent in case we are an embedded window
-			QWidget* active_window = topLevelWidget();
-			if (active_window && active_window->topData()->embedded) {
-			  XClientMessageEvent client_message;
-			  client_message.type = ClientMessage;
-			  client_message.window = active_window->topData()->parentWinId;
-			  client_message.format = 32;
-			  client_message.message_type = qt_embedded_window_take_focus;
-			  XSendEvent( appDpy, client_message.window, FALSE, NoEventMask,
-				      (XEvent*)&client_message );
-			}
 		    }
 		}
 		break;
@@ -3409,28 +3295,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    // backward rotation respectively.
 		    delta *= 120*(event->xbutton.button == Button4?1:-1);
 
-		    if ( !translateWheelEvent( globalPos.x(), globalPos.y(), delta, state ) ) {
-			// we did not accept the wheel event because
-			// we did not have focus. If we are embedded,
-			// we'll send the event to our parent.
-
-			QWidget* tlw = topLevelWidget();
-
-			if ( tlw && tlw->topData()->embedded ) {
-			    XEvent ev;
-			    memset( &ev, 0, sizeof(ev) );
-			    ev.xclient.type = ClientMessage;
-			    ev.xclient.window = tlw->topData()->parentWinId;
-			    ev.xclient.message_type = qt_wheel_event;
-			    ev.xclient.format = 32;
-			    ev.xclient.data.l[0] = globalPos.x();
-			    ev.xclient.data.l[1] = globalPos.y();
-			    ev.xclient.data.l[2] = delta;
-			    ev.xclient.data.l[3] = state;
-			    XSendEvent(qt_xdisplay(), ev.xclient.window,
-				       FALSE, NoEventMask, &ev);
-			}
-		    }
+		    translateWheelEvent( globalPos.x(), globalPos.y(), delta, state );
 		}
 		return TRUE;
 	}
@@ -3846,18 +3711,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	return TRUE;
 
     Display *dpy = x11Display();
-    QWidget *tlw = topLevelWidget();
-
-    if ( !grab && tlw && tlw->topData()->embedded ) {
-	((XEvent*)event)->xkey.window = tlw->topData()->parentWinId;
-	XSendEvent( dpy, tlw->topData()->parentWinId, NoEventMask,
-		    FALSE, (XEvent*)event );
-	return TRUE;
-    }
 
     if ( !isEnabled() )
 	return TRUE;
-
 
     QEvent::Type type = (event->type == XKeyPress) ?
 	QEvent::KeyPress : QEvent::KeyRelease;
@@ -4117,7 +3973,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	// WARNING: this is O(number_of_events * number_of_matching_events)
 	while ( XCheckIfEvent(x11Display(),&xevent,isPaintOrScrollDoneEvent,
 			      (XPointer)&info) &&
-		!qApp->x11EventFilter(&xevent)  &&
+		!qt_x11EventFilter(&xevent)  &&
 		!x11Event( &xevent ) ) // send event through filter
 	{
 	    if ( !info.config ) {
@@ -4218,7 +4074,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
     XEvent otherEvent;
     while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
-	if ( qApp->x11EventFilter( &otherEvent ) )
+	if ( qt_x11EventFilter( &otherEvent ) )
 	    break;
 	if (x11Event( &otherEvent ) )
 	    break;
@@ -4270,36 +4126,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
     return close(FALSE);
-}
-
-
-/*
-  If \w is embedded and the tab-focus wrapped, tell the embedding
-  window about it so it may continue in its own focus chain.
- */
-void qt_xembed_tab_focus( QWidget* w, bool next ) {
-    ( (QETWidget*) w )->embeddedWindowTabFocus( next );
-}
-
-/*
-  If \w is embedded and the tab-focus wrapped, tell the embedding
-  window about it so it may continue in its own focus chain.
- */
-void QETWidget::embeddedWindowTabFocus( bool next )
-{
-    QWidget* tlw = topLevelWidget();
-
-    if ( tlw && tlw->topData()->embedded ) {
-	XEvent ev;
-	memset( &ev, 0, sizeof(ev) );
-	ev.xclient.type = ClientMessage;
-	ev.xclient.window = tlw->topData()->parentWinId;
-	ev.xclient.message_type = qt_embedded_window_tab_focus;
-	ev.xclient.format = 32;
-	ev.xclient.data.l[0] = next;
-	XSendEvent(qt_xdisplay(), ev.xclient.window,
-		   FALSE, NoEventMask, &ev);
-    }
 }
 
 

@@ -59,11 +59,13 @@ extern void qt_clear_paintevent_clipping();
 extern bool qt_dnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
-extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
-extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.const
+extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.cpp
+extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.cpp
 
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
+
+extern Time qt_x_time; // defined in qapplication_x11.cpp
 
 
 /*****************************************************************************
@@ -954,7 +956,7 @@ void QWidget::grabMouse()
 			      PointerMotionMask | EnterWindowMask |
 			      LeaveWindowMask ),
 		      GrabModeAsync, GrabModeAsync,
-		      None, None, CurrentTime );
+		      None, None, qt_x_time );
 	mouseGrb = this;
     }
 }
@@ -980,7 +982,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 		      (uint)(ButtonPressMask | ButtonReleaseMask |
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
-		      None, cursor.handle(), CurrentTime );
+		      None, cursor.handle(), qt_x_time );
 	mouseGrb = this;
     }
 }
@@ -994,7 +996,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 void QWidget::releaseMouse()
 {
     if ( !qt_nograb() && mouseGrb == this ) {
-	XUngrabPointer( x11Display(), CurrentTime );
+	XUngrabPointer( x11Display(),  qt_x_time );
 	XFlush( x11Display() );
 	mouseGrb = 0;
     }
@@ -1017,7 +1019,7 @@ void QWidget::grabKeyboard()
 	if ( keyboardGrb )
 	    keyboardGrb->releaseKeyboard();
 	XGrabKeyboard( x11Display(), winid, TRUE, GrabModeAsync, GrabModeAsync,
-		       CurrentTime );
+		       qt_x_time );
 	keyboardGrb = this;
     }
 }
@@ -1031,7 +1033,7 @@ void QWidget::grabKeyboard()
 void QWidget::releaseKeyboard()
 {
     if ( !qt_nograb() && keyboardGrb == this ) {
-	XUngrabKeyboard( x11Display(), CurrentTime );
+	XUngrabKeyboard( x11Display(), qt_x_time );
 	keyboardGrb = 0;
     }
 }
@@ -1089,7 +1091,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if ( tlw->isVisible() )
-	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, CurrentTime);
+	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
 }
 
 

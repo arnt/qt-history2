@@ -37,7 +37,7 @@
   Internal QClipboard functions for X11.
  *****************************************************************************/
 
-extern Time qt_x_clipboardtime;			// def. in qapplication_x11.cpp
+extern Time qt_x_time;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
 extern Atom qt_selection_sentinel;
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
@@ -647,7 +647,7 @@ void QClipboard::setData( QMimeSource* src )
     emit dataChanged();
 
     Window prevOwner = XGetSelectionOwner( dpy, XA_PRIMARY );
-    XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
+    XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_time );
     if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
 #if defined(DEBUG)
 	qWarning( "QClipboard::setData: Cannot set X11 selection owner" );
