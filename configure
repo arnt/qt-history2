@@ -1755,16 +1755,6 @@ else
     chmod -w $outpath/include/qmodules.h
 fi
 
-if [ "$QWS_PLATFORM" = "yes" ]
-    then
-    if [ "$XPLATFORM" = "$PLATFORM" ]
-    then
-	QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
-    fi
-else
-    QMAKE_CONFIG="$QMAKE_CONFIG nocrosscompiler"
-fi
-
 ##
 # Create the .qmake.cache file
 CACHEFILE=$outpath/.qmake.cache
