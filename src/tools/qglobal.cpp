@@ -65,6 +65,14 @@ const char *qVersion()
     return QT_VERSION_STR;
 }
 
+bool qSharedBuild()
+{
+#ifdef QT_SHARED
+    return TRUE;
+#else
+    return FALSE;
+#endif
+}
 
 /*****************************************************************************
   System detection routines

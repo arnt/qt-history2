@@ -867,6 +867,7 @@ extern Q_EXPORT bool qt_winunicode;
 
 Q_EXPORT const char *qVersion();
 Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
+Q_EXPORT bool qSharedBuild();
 #if defined(Q_OS_MAC)
 int qMacVersion();
 #elif defined(Q_WS_WIN)
