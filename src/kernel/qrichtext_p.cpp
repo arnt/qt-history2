@@ -596,9 +596,11 @@ int QTextParag::numberOfSubParagraph() const
 	    styleSheetItemsVec[ (int)p->styleSheetItemsVec.size() - 1 ] == p->style() ||
 		   p->styleSheetItemsVec.size() >= styleSheetItemsVec.size() &&
 		   p->styleSheetItemsVec[ (int)styleSheetItemsVec.size() - 1 ] == style() ) ) {
-	if ( p->style() == style() && listStyle() != p->listStyle() )
+	if ( p->style() == style() && listStyle() != p->listStyle() 
+	     && p->styleSheetItemsVec.size() == styleSheetItemsVec.size() )
 	    break;
-	if ( p->style()->name() == "li" && p->style() != style() || styleSheetItemsVec.size() == p->styleSheetItemsVec.size() )
+	if ( p->style()->displayMode() == QStyleSheetItem::DisplayListItem 
+	     && p->style() != style() || styleSheetItemsVec.size() == p->styleSheetItemsVec.size() )
 	    ++n;
 	p = p->prev();
     }

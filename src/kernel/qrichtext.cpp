@@ -1456,33 +1456,49 @@ void QTextDocument::setPlainText( const QString &text )
 
 struct Q_EXPORT Tag {
     Tag(){}
-    Tag( const QString&n, const QStyleSheetItem* s ):name(n),style(s) {
-	wsm = QStyleSheetItem::WhiteSpaceNormal;
+    Tag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
+	:name(n),style(s), format(f), alignment(Qt::AlignAuto),liststyle(QStyleSheetItem::ListDisc) {
+	    wsm = QStyleSheetItem::WhiteSpaceNormal;
     }
     QString name;
     const QStyleSheetItem* style;
     QStyleSheetItem::WhiteSpaceMode wsm;
     QTextFormat format;
+    int alignment;
+    QStyleSheetItem::ListStyle liststyle;
+
+    Tag(  const Tag& t ) {
+	name = t.name;
+	style = t.style;
+	wsm = t.wsm;
+	format = t.format;
+	alignment = t.alignment;
+	liststyle = t.liststyle;
+    }
+    Tag& operator=(const Tag& t) {
+	name = t.name;
+	style = t.style;
+	wsm = t.wsm;
+	format = t.format;
+	alignment = t.alignment;
+	liststyle = t.liststyle;
+	return *this;
+    }
+
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const Tag& ) const { return FALSE; }
 #endif
 };
 
-#define NEWPAR       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
-		    hasNewPar = TRUE;  curpar->setAlignment( curAlignment ); \
-		    QPtrVector<QStyleSheetItem> vec( tags.count() ); \
+#define NEWPAR       do{if ( !curpar || ( curtag.name != "table" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
+		    hasNewPar = TRUE; \
+		    space = TRUE; \
+		    QPtrVector<QStyleSheetItem> vec( tags.count() + 1); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); \
-		    curpar->setStyleSheetItems( vec ); }while(FALSE)
-#define NEWPAROPEN(nstyle)       if ( !curpar || ( curtag.name != "table" && curtag.name != "li" ) || curpar->length() > 1 )  { if ( !hasNewPar ) curpar = createParag( this, curpar ); curpar->setBreakable( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal);\
-		    hasNewPar = TRUE;  curpar->setAlignment( curAlignment ); \
-		    QPtrVector<QStyleSheetItem> vec( tags.count()+1 ); \
-		    int i = 0; \
-		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
-			vec.insert( i++, (*it).style );	\
-		    vec.insert( i, nstyle ); \
-		    curpar->setStyleSheetItems( vec ); }while(FALSE)
+		    vec.insert( i, curtag.style ); \
+		    curpar->setStyleSheetItems( vec ); }}while(FALSE)
 
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
@@ -1529,18 +1545,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<Tag> tags;
-    QValueStack<QStyleSheetItem::ListStyle> listStyles;
-    QValueStack<int> alignments;
-    bool inCenter = FALSE;
-    Tag curtag( "", sheet_->item("") );
-    curtag.format = *formatCollection()->defaultFormat();
-    bool space = FALSE;
+    Tag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
+    Tag curtag = initag;
+    bool space = TRUE;
 
     QString doc = text;
-    int depth = 0;
     bool hasNewPar = TRUE;
-    QStyleSheetItem::ListStyle curListStyle = QStyleSheetItem::ListDisc;
-    int curAlignment = Qt::AlignAuto;
     QString lastClose;
     while ( pos < int( doc.length() ) ) {
 	if (hasPrefix(doc, pos, '<' ) ){
@@ -1551,9 +1561,12 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
-		inCenter = inCenter || tagname == "center";
+
 		const QStyleSheetItem* nstyle = sheet_->item(tagname);
 		if ( nstyle ) {
+		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
+			hasNewPar = FALSE; // we want empty paragraphs in this case
+
 		    // we might have to close some 'forgotten' tags
 		    while ( !nstyle->allowedInContext( curtag.style ) ) {
 			QString msg;
@@ -1563,19 +1576,17 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			if ( tags.isEmpty() )
 			    break;
 			curtag = tags.pop();
-			curListStyle = listStyles.pop();
-			curAlignment = alignments.pop();
-			depth--;
 		    }
-		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
-		}
-
-		if ( inCenter )
-		    curAlignment = Qt::AlignCenter;
-
-		if ( !nstyle || nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpacePre ) {
- 		    while ( eat( doc, pos, '\n' ) )
- 			; // eliminate newlines right after openings
+		
+		    // special handling for p. We do not want to nest there for HTML compatibility
+		    if ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ) {
+			while ( curtag.style->name() == "p" ) {
+			    if ( tags.isEmpty() )
+				break;
+			    curtag = tags.pop();
+			}
+		    }
+		
 		}
 		
 		QTextCustomItem* custom =  0;
@@ -1590,7 +1601,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    NEWPAR;
 		} else if ( tagname == "table" ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
-		    curpar->setAlignment( curAlignment );
+		    curpar->setAlignment( curtag.alignment );
 		    custom = parseTable( attr, format, doc, pos, curpar );
 		    (void)eatSpace( doc, pos );
 		    emptyTag = TRUE;
@@ -1602,75 +1613,62 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    continue;
 
 		if ( custom ) {
-		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr );
 		    int index = curpar->length() - 1;
 		    if ( index < 0 )
 			index = 0;
+		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr );
 		    curpar->append( QChar('b') );
 		    curpar->setFormat( index, 1, &format );
 		    curpar->at( index )->setCustomItem( custom );
 		    curpar->addCustomItem();
 		    registerCustomItem( custom, curpar );
+		    curpar->setAlignment( curtag.alignment );
 		    hasNewPar = FALSE;
-		    curpar->setAlignment( curAlignment );
 		} else if ( !emptyTag ) {
-		    tags.push( curtag );
-		    listStyles.push( curListStyle );
-		    alignments.push( curAlignment );
-		    if ( nstyle ) {
-			// ignore whitespace for inline elements if there was already one
-			if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
-			     && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
-			    eatSpace( doc, pos );
+		    // ignore whitespace for inline elements if there was already one
+		    if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
+			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
+			eatSpace( doc, pos );
 
-			// some styles are not self nesting
-			if ( nstyle == curtag.style && !nstyle->selfNesting() ) {
-			    (void) tags.pop();
-			    curListStyle = listStyles.pop();
-			    curAlignment = alignments.pop();
-			}
-
-			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
-			    hasNewPar = FALSE; // we want empty paragraphs in this case
-			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
-			    NEWPAROPEN(nstyle);
-			if ( nstyle->displayMode() == QStyleSheetItem::DisplayListItem )
-			    curpar->setListStyle( curListStyle );
-			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			    if ( nstyle->name() == "p" && curtag.name == "li" &&
-				 curpar && curpar->prev() &&
-				 curpar->prev()->style() &&
-				 curpar->prev()->style()->displayMode() ==
-				 QStyleSheetItem::DisplayListItem &&
-				 lastClose != "li" && lastClose != "ul" && lastClose != "ol" ) {
-				QPtrVector<QStyleSheetItem> vec( tags.count()+1 );
-				int i = 0;
-				for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it )
-				    vec.insert( i++, (*it).style );
-				vec.insert( i, nstyle );
-				curpar->setStyleSheetItems( vec );
-			    }
-			}
-			if ( nstyle->alignment() != QStyleSheetItem::Undefined )
-			    curAlignment = nstyle->alignment();
-			else if ( !inCenter && ( nstyle->displayMode() == QStyleSheetItem::DisplayBlock ||
-						 nstyle->displayMode() == QStyleSheetItem::DisplayListItem ) )
-			    curAlignment = Qt::AlignAuto;
-			else if ( inCenter )
-			    curAlignment = Qt::AlignCenter;
-			
-			curtag.style = nstyle;
-			curtag.wsm = nstyle->whiteSpaceMode();
-			curtag.format = curtag.format.makeTextFormat( nstyle, attr );
-			
-			if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
-			    curpar->setFormat( &curtag.format );
-			if ( nstyle->name() == "li" ) {
-			    if ( attr.find( "value" ) != attr.end() )
-				curpar->setListValue( (*attr.find( "value" )).toInt() );
-			}
+		    // if we do nesting, push curtag on the stack,
+		    // otherwise reinint curag.
+ 		    if ( nstyle != curtag.style || nstyle->selfNesting() ) {
+			tags.push( curtag );
+		    } else {
+			if ( !tags.isEmpty() )
+			    curtag = tags.top();
+			else
+			    curtag = initag;
 		    }
+		
+		    const QStyleSheetItem* ostyle = curtag.style;
+		
 		    curtag.name = tagname;
+		    curtag.style = nstyle;
+		    curtag.name = tagname;
+		    curtag.style = nstyle;
+		    curtag.wsm = nstyle->whiteSpaceMode();
+		    curtag.liststyle = chooseListStyle( nstyle, attr, curtag.liststyle );
+		    curtag.format = curtag.format.makeTextFormat( nstyle, attr );
+		    if ( nstyle->alignment() != QStyleSheetItem::Undefined )
+			curtag.alignment = nstyle->alignment();
+		
+		    if ( ostyle->displayMode() == QStyleSheetItem::DisplayListItem &&
+			 curpar->length() <= 1
+			 && nstyle->displayMode() == QStyleSheetItem::DisplayBlock  ) {
+			// do not do anything, we reuse the paragraph we have
+		    } else if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline ) {
+			NEWPAR;
+		    }
+		
+		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			curpar->setListStyle( curtag.liststyle );
+			if ( attr.find( "value" ) != attr.end() )
+			    curpar->setListValue( (*attr.find( "value" )).toInt() );
+		    }
+			
+		    if ( nstyle->displayMode() != QStyleSheetItem::DisplayInline )
+			curpar->setFormat( &curtag.format );
 
 		    // hack to be sure <a name=".."></a> formats are inserted
 		    // we try to set the anchor name to the character directly before us
@@ -1696,101 +1694,76 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			   curtag.name[ 0 ] == 'h' ) ) {
 			QString align = attr["align"];
 			if ( align == "center" )
-			    curAlignment = Qt::AlignCenter;
+			    curtag.alignment = Qt::AlignCenter;
 			else if ( align == "right" )
-			    curAlignment = Qt::AlignRight;
+			    curtag.alignment = Qt::AlignRight;
 			else if ( align == "justify" )
-			    curAlignment = Qt::AlignJustify;
+			    curtag.alignment = Qt::AlignJustify;
 		    }
-		    if ( inCenter )
-			curAlignment = Qt::AlignCenter;
-		    curpar->setAlignment( curAlignment );
-		    depth++;
+		    curpar->setAlignment( curtag.alignment );
 		}
 	    } else {
-		// close tag
- 		bool fakeHasNewPar = FALSE;
 		QString tagname = parseCloseTag( doc, pos );
 		lastClose = tagname;
- 		if ( tagname == "p" )
- 		    fakeHasNewPar = TRUE;
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
-		if ( tagname == "center" ) {
-		    inCenter = FALSE;
-		    curAlignment = Qt::AlignAuto;
-		}
-		while ( eat( doc, pos, '\n' ) )
-		    ; // eliminate newlines right after closings
 		if ( !sheet_->item( tagname ) ) // ignore unknown tags
 		    continue;
-		depth--;
+
+		
+		// we close a block item. Since the text may continue, we need to have a new paragraph
+		bool needNewPar = curtag.style->displayMode() == QStyleSheetItem::DisplayBlock;
+		
+		if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+ 		    needNewPar = TRUE;
+		    hasNewPar = FALSE; // we want empty paragraphs in this case
+		}
+		
+		// html slopiness: handle unbalanched tag closing
 		while ( curtag.name != tagname ) {
 		    QString msg;
 		    msg.sprintf( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
 				 curtag.name.ascii(), tagname.ascii(), pos);
 		    sheet_->error( msg );
-		    if ( !hasNewPar && curtag.style->displayMode() != QStyleSheetItem::DisplayInline
-			 && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal ) {
-			eatSpace( doc, pos );
-			NEWPAR;
-		    }
 		    if ( tags.isEmpty() )
 			break;
-		
 		    curtag = tags.pop();
-		    curListStyle = listStyles.pop();
-		    depth--;
 		}
 
- 		Tag curtagtmp;
-		bool popIt = TRUE;
- 		if ( !tags.isEmpty() ) {
- 		    curtagtmp = tags.pop();
-		    if ( curtagtmp.name != "li" )
-			tags.push( curtagtmp );
-		    else
-			popIt = FALSE;
-		}
- 		if ( fakeHasNewPar && curtagtmp.name != "li" )
- 		    hasNewPar = FALSE;
-		curAlignment = alignments.pop();
-		if ( !inCenter && ( curtag.style->displayMode() == QStyleSheetItem::DisplayBlock ||
-				    curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) )
-		    curAlignment = Qt::AlignAuto;
-		else if ( inCenter )
-		    curAlignment = Qt::AlignCenter;
-		if ( !hasNewPar && curtag.style->displayMode() != QStyleSheetItem::DisplayInline
-		     && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal ) {
-		    eatSpace( doc, pos );
+		
+		// close the tag
+		if ( !tags.isEmpty() )
+		    curtag = tags.pop();
+		else
+		    curtag = initag;
+		
+ 		if ( needNewPar ) {
+		    if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			tags.push( curtag );
+			curtag.name = "p";
+			curtag.style = sheet_->item( curtag.name ); // a list item continues, use p for that
+// 			if ( curpar && curpar->style()->name() != "p" )
+// 		    } else {
+// 			hasNewPar = FALSE;
+		    }
 		    NEWPAR;
 		}
-		if ( popIt ) {
-		    if ( !tags.isEmpty() ) {
-			curtag = tags.pop();
-		    }
-		} else {
-		    if ( !curtagtmp.name.isEmpty() )
-			curtag = curtagtmp;
-		}
-		curListStyle = listStyles.pop();
 	    }
 	} else {
 	    // normal contents
 	    QString s;
 	    QChar c;
-	    bool hadNonSpace = !curpar->string()->toString().simplifyWhiteSpace().isEmpty();
 	    while ( pos < int( doc.length() ) && !hasPrefix(doc, pos, '<' ) ){
 		c = parseChar( doc, pos, curtag.wsm );
-		space = c.isSpace();
-		hadNonSpace = hadNonSpace || !space;
-		if ( c == '\n' ) // happens in WhiteSpacePre mode
-		    break;
 		
-		if ( !hadNonSpace && space && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
+		if ( c == '\n' ) // happens only in whitespacepre-mode.
+		    break;  // we want a new line in this case
+		
+		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c.isSpace() && space )
 		    continue;
 		if ( c == '\r' )
 		    continue;
+		space = c.isSpace();
 		s += c;
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
@@ -1805,7 +1778,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		hasNewPar = FALSE;
 		tags.push( curtag );
 		NEWPAR;
-		tags.pop();
+		curtag = tags.pop();
 	    }
 	}
     }
@@ -4986,12 +4959,12 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 {
 }
 
-#define DO_FLOW( lineStart ) if ( doc && doc->isPageBreakEnabled() ) { \
+#define DO_FLOW( lineStart ) do{ if ( doc && doc->isPageBreakEnabled() ) { \
 		    int yflow = lineStart->y + parag->rect().y();\
 		    int shift = doc->flow()->adjustFlow( yflow, dw, lineStart->h ); \
 		    lineStart->y += shift;\
 		    y += shift;\
-		}
+		}}while(FALSE)
 
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParagLineStart*> & )
@@ -5127,7 +5100,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
 		    lineStart->h = h;
-  		    DO_FLOW( lineStart )
+  		    DO_FLOW( lineStart );
 		}
 		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
@@ -5155,7 +5128,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lastBreak = -1;
 		col = 0;
 	    } else {
-  		DO_FLOW( lineStart )
+  		DO_FLOW( lineStart );
 		i = lastBreak;
 		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
@@ -5223,7 +5196,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	// last line in a paragraph is not justified
 	if ( align == Qt::AlignJustify )
 	    align = Qt::AlignAuto;
- 	DO_FLOW( lineStart )
+ 	DO_FLOW( lineStart );
 	lineStart = formatLine( parag, string, lineStart, firstChar, c, align, w - x );
 	delete lineStart;
     }
@@ -6839,7 +6812,7 @@ bool QTextTable::next( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     parag = doc->firstParag();
     idx = 0;
     ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    oy += cell->geometry().y() + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
 
@@ -6872,7 +6845,7 @@ bool QTextTable::prev( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
     parag = doc->firstParag();
     idx = parag->length() - 1;
     ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
 
@@ -6909,8 +6882,8 @@ bool QTextTable::down( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, 
 	return FALSE;
     parag = doc->firstParag();
     idx = 0;
-    ox += cell->geometry().x() + outerborder + parent->x(),
-    oy += cell->geometry().y() + outerborder;
+    ox += cell->geometry().x() + outerborder + parent->x();
+    oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
 
@@ -6948,7 +6921,7 @@ bool QTextTable::up( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, in
     parag = doc->lastParag();
     idx = parag->length() - 1;
     ox += cell->geometry().x() + outerborder + parent->x();
-    oy += cell->geometry().y() + outerborder;
+    oy += cell->geometry().y()  + cell->verticalAlignmentOffset() + outerborder;
     return TRUE;
 }
 
