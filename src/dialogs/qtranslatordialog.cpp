@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#2 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -27,7 +27,7 @@
 #include "qlayout.h"
 #include "qtranslator.h"
 #include "qpushbutton.h"
-#include "qmultilinedit.h"
+#include "qmultilineedit.h"
 #include "qheader.h"
 #include "qmenubar.h"
 
