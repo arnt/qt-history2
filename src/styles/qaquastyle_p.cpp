@@ -14,7 +14,6 @@
 
 #include "private/qaquastyle_p.h"
 #include <qapplication.h>
-#include <qobjectlist.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qptrlist.h>
@@ -344,15 +343,12 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 	       o->inherits("QPushButton")) {
 	QPushButton *btn = (QPushButton *)o;
 	// Find the correct button to use as default button
-	QObjectList *list = btn->topLevelWidget()->queryList("QPushButton");
-	QObjectListIterator it(*list);
-	QPushButton * pb;
-	while((pb = (QPushButton*)it.current())) {
-	    ++it;
+	QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
+	for(int i = 0; i < list.count(); i++) {
+	    QPushButton *pb = (QPushButton*)list.at(i);
 	    if(((e->type() == QEvent::FocusOut) && (pb->isDefault() ||
 						    (pb->autoDefault() && pb->hasFocus())) && (pb != btn)) ||
-		((e->type() == QEvent::Show) && pb->isDefault()))
-	    {
+		((e->type() == QEvent::Show) && pb->isDefault()))  {
 		QPushButton * tmp = d->defaultButton;
 		d->defaultButton = 0;
 		if(tmp)
@@ -362,7 +358,6 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 		break;
 	    }
 	}
-	delete list;
 	if(d->defaultButton) {
 	    if(d->buttonTimerId == -1)
                 d->buttonTimerId = startTimer(50);

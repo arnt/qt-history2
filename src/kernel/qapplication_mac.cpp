@@ -21,7 +21,6 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "private/qwidget_p.h"
-#include "qobjectlist.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qbitarray.h"
@@ -910,14 +909,11 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
     if(!widg)
 	return 0;
 
-    const QObjectList *objl=widg->children();
-    if(!objl) // No children
-	return widg;
-
-    QObjectListIterator it(*objl);
-    for(it.toLast(); it.current(); --it) {
-	if((*it)->isWidgetType()) {
-	    QWidget *curwidg=(QWidget *)(*it);
+    QObjectList chldrn=widg->children();
+    for(int i = chldrn.size() - 1; i >= 0; --i) {
+	QObject *obj = chldrn.at(i);
+	if(obj->isWidgetType()) {
+	    QWidget *curwidg=(QWidget *)obj;
 	    if(curwidg->isVisible() && !curwidg->isTopLevel()) {
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
@@ -1197,35 +1193,35 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	widget->close();
 	break; }
     case inToolbarButton: { //hide toolbars thing
-	if(const QObjectList *chldrn = widget->children()) {
-	    int h = 0;
-	    for(QObjectListIterator it(*chldrn); it.current(); ++it) {
-		if(it.current()->isWidgetType() && it.current()->inherits("QDockArea")) {
-		    QWidget *w = (QWidget *)it.current();
+	int h = 0;
+	QObjectList chldrn = widget->children();
+	for(int i = 0; i < chldrn.size(); i++) {
+	    QObject *obj = chldrn.at(i);
+	    if(obj->isWidgetType() && obj->inherits("QDockArea")) {
+		QWidget *w = (QWidget *)obj;
 #ifndef QT_NO_MAINWINDOW
-		    if(widget->inherits("QMainWindow") && ((QMainWindow*)widget)->topDock() != (QDockArea*)w)
-			continue; //bleh
+		if(widget->inherits("QMainWindow") && ((QMainWindow*)widget)->topDock() != (QDockArea*)w)
+		    continue; //bleh
 #endif
-		    if(w->width() < w->height()) //only do horizontal orientations
-			continue;
-		    int oh = w->sizeHint().height();
-		    if(oh < 0)
-			oh = 0;
-		    if(w->isVisible())
-			w->hide();
-		    else
-			w->show();
-		    sendPostedEvents();
-		    int nh = w->sizeHint().height();
-		    if(nh < 0)
-			nh = 0;
-		    if(oh != nh)
-			h += (oh - nh);
-		}
-	    }
-	    if(h)
-		widget->resize(widget->width(), widget->height() - h);
+		if(w->width() < w->height()) //only do horizontal orientations
+		    continue;
+		int oh = w->sizeHint().height();
+		if(oh < 0)
+		    oh = 0;
+		if(w->isVisible())
+		    w->hide();
+		else
+		    w->show();
+		sendPostedEvents();
+		int nh = w->sizeHint().height();
+		if(nh < 0)
+		    nh = 0;
+		if(oh != nh)
+		    h += (oh - nh);
+	    }	
 	}
+	if(h)
+	    widget->resize(widget->width(), widget->height() - h);
 	break; }
     case inDrag: {
 	{
@@ -1245,6 +1241,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	}
 	break; }
     case inGrow: {
+	qDebug("here goes..");
 	Rect limits;
 	SetRect(&limits, -2, 0, 0, 0);
 	if(QWExtra   *extra = widget->extraData())
@@ -1263,7 +1260,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    int nh = HiWord(growWindowSize);
 	    if(nw != widget->width() || nh != widget->height()) {
 		if(nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0)
-			widget->resize(nw, nh);
+		    widget->resize(nw, nh);
 	    }
 	}
 	break;
@@ -1741,7 +1738,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	{
 	    if((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
-		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", widget,
+		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       qt_mouseover ? qt_mouseover->className() : "none",
 		       qt_mouseover ? qt_mouseover->name() : "");
@@ -1813,7 +1810,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(etype == QEvent::MouseButtonDblClick)
 		event_desc = "Double Click";
 	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-		   plocal.x(), plocal.y(), event_desc, widget, widget ? widget->name() : "*Unknown*",
+		   plocal.x(), plocal.y(), event_desc, (QWidget*)widget, widget ? widget->name() : "*Unknown*",
 		   widget ? widget->className() : "*Unknown*", button, state|keys, wheel_delta);
 #endif
 	} else {

@@ -18,7 +18,6 @@
 #include "qdatetime.h"
 #include "qdict.h"
 #include "qdragobject.h"
-#include "qobjectlist.h"
 #include "qbitmap.h"
 #include "qt_mac.h"
 #include "qpainter.h"
@@ -165,7 +164,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
 		ItemReference ref = NULL;
 		if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
 		    qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
-		    return 0;
+		    return QByteArray();
 		}
 		if(GetFlavorDataSize(current_dropobj, ref, flav, &flavorsize) == noErr) {
 		    char *buffer = (char *)malloc(flavorsize);

@@ -15,6 +15,7 @@
 #include "qt_mac.h"
 
 #include "qimage.h"
+#include "qobject_p.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
@@ -22,7 +23,6 @@
 #include "qbitmap.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
-#include "qobjectlist.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
@@ -200,21 +200,20 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
     if(r.isEmpty())
 	return FALSE;
 
-    if(QObjectList * childObjects=(QObjectList*)p->children()) {
-	QObjectListIterator it(*childObjects);
-	for(it.toLast(); it.current(); --it) {
-	    if((*it)->isWidgetType()) {
-		QWidget *w = (QWidget *)(*it);
-		QRegion clpr = w->clippedRegion(FALSE);
-		if(!clpr.isNull() && !w->isTopLevel() &&
-		    w->isVisible() && clpr.contains(r.boundingRect())) {
-		    QRegion wr = clpr & r;
-		    r -= wr;
-		    wr.translate(-(point.x() + w->x()), -(point.y() + w->y()));
-		    qt_paint_children(w, wr, ops);
-		    if(r.isEmpty())
-			return TRUE;
-		}
+    QObjectList chldrn = p->children();
+    for(int i = chldrn.size() - 1; i >= 0; --i) {
+	QObject *obj = chldrn.at(i);
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    QRegion clpr = w->clippedRegion(FALSE);
+	    if(!clpr.isNull() && !w->isTopLevel() &&
+	       w->isVisible() && clpr.contains(r.boundingRect())) {
+		QRegion wr = clpr & r;
+		r -= wr;
+		wr.translate(-(point.x() + w->x()), -(point.y() + w->y()));
+		qt_paint_children(w, wr, ops);
+		if(r.isEmpty())
+		    return TRUE;
 	    }
 	}
     }
@@ -953,14 +952,11 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 	if(isVisible())
 	    qt_dirty_wndw_rgn("destroy",this, mac_rect(posInWindow(this), geometry().size()));
         clearWState(WState_Created);
-        if(children()) {
-            QObjectListIterator it(*children());
-            register QObject *obj;
-            while((obj=it.current())) {      // destroy all widget children
-                ++it;
-                if(obj->isWidgetType())
-                    ((QWidget*)obj)->destroy(destroySubWindows, destroySubWindows);
-            }
+	QObjectList chldrn = children();
+	for(int i = 0; i < chldrn.size(); i++) {  // destroy all widget children
+	    QObject *obj = chldrn.at(i);
+	    if(obj->isWidgetType())
+		((QWidget*)obj)->destroy(destroySubWindows, destroySubWindows);
         }
 	if(mac_mouse_grabber == this)
 	    releaseMouse();
@@ -1053,20 +1049,18 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
 
     //reparent children
-    if(QObjectList *chldn = queryList()) {
-	QObjectListIterator it(*chldn);
-	for(QObject *obj; (obj=it.current()); ++it) {
-	    if(obj->inherits("QAccel"))
-		((QAccel*)obj)->repairEventFilter();
-	    if(obj->isWidgetType()) {
-		QWidget *w = (QWidget *)obj;
-		if(((WindowPtr)w->hd) == old_hd) {
-		    w->hd = hd; //all my children hd's are now mine!
-		    w->macWidgetChangedWindow();
-		}
+    QObjectList chldrn = queryList();
+    for(int i = 0; i < chldrn.size(); i++) {
+	QObject *obj = chldrn.at(i);
+	if(obj->inherits("QAccel"))
+	    ((QAccel*)obj)->repairEventFilter();
+	if(obj->isWidgetType()) {
+	    QWidget *w = (QWidget *)obj;
+	    if(((WindowPtr)w->hd) == old_hd) {
+		w->hd = hd; //all my children hd's are now mine!
+		w->macWidgetChangedWindow();
 	    }
 	}
-	delete chldn;
     }
     reparentFocusWidgets(oldtlw);
 
@@ -1619,8 +1613,10 @@ void QWidget::raise()
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
-	if(p->childObjects && p->childObjects->findRef(this) >= 0)
-	    p->childObjects->append(p->childObjects->take());
+	if(p->d->children.findIndex(this) >= 0) {
+	    p->d->children.remove(this);
+	    p->d->children.append(this);
+	}
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
 	    clp ^= clippedRegion(FALSE);
@@ -1640,8 +1636,10 @@ void QWidget::lower()
 	QRegion clp;
 	if(isVisible())
 	    clp = clippedRegion(FALSE);
-	if(p->childObjects && p->childObjects->findRef(this) >= 0)
-	    p->childObjects->insert(0, p->childObjects->take());
+	if(p->d->children.findIndex(this) >= 0) {
+	    p->d->children.remove(this);
+	    p->d->children.insert(0, this);
+	}
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
 	    clp ^= clippedRegion(FALSE);
@@ -1659,12 +1657,14 @@ void QWidget::stackUnder(QWidget *w)
     QWidget *p = parentWidget();
     if(!p || p != w->parentWidget())
 	return;
-    int loc = p->childObjects->findRef(w);
+    int loc = p->d->children.findIndex(w);
     QRegion clp;
     if(isVisible())
 	clp = clippedRegion(FALSE);
-    if(loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0)
-	p->childObjects->insert(loc, p->childObjects->take());
+    if(loc >= 0 && p->d->children.findIndex(this) >= 0) {
+	p->d->children.remove(this);
+	p->d->children.insert(loc, this);
+    }
     if(isVisible()) {
 	dirtyClippedRegion(TRUE);
 	clp ^= clippedRegion(FALSE);
@@ -1954,13 +1954,14 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	unclippedBitBlt(this,x2,y2,this,x1,y1,w,h,Qt::CopyROP,TRUE,TRUE);
     }
     dirtyClippedRegion(TRUE);
-    if(!valid_rect && children()) {	// scroll children
+    if(!valid_rect) {	// scroll children
 	QPoint pd(dx, dy);
 	QWidgetList moved;
-	register QObject *o;
-	for(QObjectListIterator it(*children()); (o=it.current()); ++it) { //first move all children
-	    if(o->isWidgetType()) {
-		QWidget *w = (QWidget*)o;
+	QObjectList chldrn = children();
+	for(int i = 0; i < chldrn.size(); i++) {  //first move all children
+	    QObject *obj = chldrn.at(i);
+	    if(obj->isWidgetType()) {
+		QWidget *w = (QWidget*)obj;
 		w->crect = QRect(w->pos() + pd, w->size());
 		moved.append(w);
 	    }
@@ -2206,16 +2207,14 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    setRegionDirty(TRUE);
 	}
 	//when I get dirty so do my children
-	if(QObjectList *chldn = queryList()) {
-	    QObjectListIterator it(*chldn);
-	    for(QObject *obj; (obj = it.current()); ++it) {
-		if(obj->isWidgetType() && !obj->wasDeleted) {
-		    QWidget *w = (QWidget *)(*it);
-		    if(!w->isTopLevel() && w->isVisible())
-			w->setRegionDirty(TRUE);
-		}
+	QObjectList chldrn = queryList();
+	for(int i = 0; i < chldrn.size(); i++) {
+	    QObject *obj = chldrn.at(i);
+	    if(obj->isWidgetType() && !obj->wasDeleted) {
+		QWidget *w = (QWidget *)obj;
+		if(!w->isTopLevel() && w->isVisible())
+		    w->setRegionDirty(TRUE);
 	    }
-	    delete chldn;
 	}
     }
 
@@ -2239,35 +2238,27 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	myr = myr.intersect(QRect(px, py, widg->width(), widg->height()));
 	widg->setRegionDirty(FALSE);
 
-	if(const QObjectList *chldn = widg->children()) {
-	    for(QObjectListIterator it(*chldn); it.current() && it.current() != last; ++it) {
-		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
-		    w = (QWidget *)(*it);
-		    if(!w->isTopLevel() && w->isVisible() &&
-#if 0
-		       w->x() + w->width() > 0 && w->x() < widg->width() &&
-		       w->y() + w->height() > 0 && w->y() < w->height()
-#else
-		       1
-#endif
-			) {
-			QPoint wp(px + w->x(), py + w->y());
-			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
-			    w->setRegionDirty(TRUE);
-			    if(QObjectList *chldn2 = w->queryList()) {
-				QObjectListIterator it2(*chldn2);
-				for(QObject *obj; (obj = it2.current()); ++it2) {
-				    if(obj->isWidgetType() && !obj->wasDeleted) {
-					QWidget *w = (QWidget *)(*it2);
-					/* this relies on something that may change in the future
-					   if hd for all sub widgets != toplevel widget's hd, then
-					   this function will not work any longer */
-					if(w->hd == hd &&
-					   !w->isTopLevel() && w->isVisible())
-					    w->setRegionDirty(TRUE);
-				    }
-				}
-				delete chldn2;
+	QObjectList chldrn = widg->children();
+	for(int i = 0; i < chldrn.size(); i++) {
+	    QObject *obj = chldrn.at(i);
+	    if(obj == last)
+		break;
+	    if(obj->isWidgetType() && !obj->wasDeleted) {
+		w = (QWidget *)obj;
+		if(!w->isTopLevel() && w->isVisible()) {
+		    QPoint wp(px + w->x(), py + w->y());
+		    if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
+			w->setRegionDirty(TRUE);
+			QObjectList chldrn2 = w->queryList();
+			for(int i2 = 0; i2 < chldrn2.size(); i2++) {
+			    QObject *obj2 = chldrn2.at(i2);
+			    if(obj2->isWidgetType() && !obj2->wasDeleted) {
+				QWidget *w = (QWidget *)obj2;
+				/* this relies on something that may change in the future
+				   if hd for all sub widgets != toplevel widget's hd, then
+				   this function will not work any longer */
+				if(w->hd == hd && !w->isTopLevel() && w->isVisible())
+				    w->setRegionDirty(TRUE);
 			    }
 			}
 		    }
@@ -2352,7 +2343,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	return extra->clip_saved;
     }
 
-    bool no_children = !children() || !children()->count();
+    bool no_children = children().isEmpty();
     /* If we have no children, and we are clearly off the screen we just get an automatic
        null region. This is to allow isNull() to be a cheap test of "off-screen" plus it
        prevents all the below calculations (specifically posInWindow() is pointless). */
@@ -2409,11 +2400,12 @@ QRegion QWidget::clippedRegion(bool do_children)
 	extra->child_dirty = FALSE;
 	extra->clip_children = QRegion(vis_x, vis_y, vis_width, vis_height);
 	if(!no_children) {
-	    const QObjectList *chldnlst=children();
 	    QRect sr(vis_x, vis_y, vis_width, vis_height);
-	    for(QObjectListIterator it(*chldnlst); it.current(); ++it) {
-		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
-		    QWidget *cw = (QWidget *)(*it);
+	    QObjectList chldrn = children();
+	    for(int i = 0; i < chldrn.size(); i++) {
+		QObject *obj = chldrn.at(i);
+		if(obj->isWidgetType() && !obj->wasDeleted) {
+		    QWidget *cw = (QWidget *)obj;
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
 			if(cw->extra && !cw->extra->mask.isNull()) {
@@ -2440,24 +2432,24 @@ QRegion QWidget::clippedRegion(bool do_children)
 
 	//clip away my siblings
 	if(!isTopLevel() && parentWidget() && (vis_width || vis_height)) {
-	    if(const QObjectList *siblst = parentWidget()->children()) {
-		QPoint tmp;
-		QObjectListIterator it(*siblst);
-		//loop to this because its in zorder, and i don't care about people behind me
-		for(it.toLast(); it.current() && it.current() != this; --it) {
-		    if((*it)->isWidgetType() && !(*it)->wasDeleted) {
-			QWidget *sw = (QWidget *)(*it);
-			tmp = posInWindow(sw);
-			QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-			if(!sw->isTopLevel() && sw->isVisible() && extra->clip_sibs.contains(sr)) {
-			    QRegion sibrgn(sr);
-			    if(sw->extra && !sw->extra->mask.isNull()) {
-				mask = sw->extra->mask;
-				mask.translate(tmp.x(), tmp.y());
-				sibrgn &= mask;
-			    }
-			    extra->clip_sibs -= sibrgn;
+	    QPoint tmp;
+	    QObjectList siblngs = parentWidget()->children();
+	    for(int i = siblngs.size() - 1; i >= 0; --i) {
+		QObject *obj = siblngs.at(i);
+		if(obj == this) //I don't care about people behind me
+		    break;
+		if(obj->isWidgetType() && !obj->wasDeleted) {
+		    QWidget *sw = (QWidget *)obj;
+		    tmp = posInWindow(sw);
+		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
+		    if(!sw->isTopLevel() && sw->isVisible() && extra->clip_sibs.contains(sr)) {
+			QRegion sibrgn(sr);
+			if(sw->extra && !sw->extra->mask.isNull()) {
+			    mask = sw->extra->mask;
+			    mask.translate(tmp.x(), tmp.y());
+			    sibrgn &= mask;
 			}
+			extra->clip_sibs -= sibrgn;
 		    }
 		}
 	    }
