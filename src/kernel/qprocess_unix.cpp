@@ -111,6 +111,9 @@ public:
 #if defined(SA_RESTART)
 	    act.sa_flags |= SA_RESTART;
 #endif
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcessPrivate: install a sigchild handler" );
+#endif
 	    if ( sigaction( SIGCHLD, &act, oldact ) != 0 )
 		qWarning( "Error installing SIGCHLD handler" );
 	}
@@ -128,6 +131,9 @@ public:
 	    if ( proclist->count() == 0 ) {
 		delete proclist;
 		proclist = 0;
+#if defined(QPROCESS_DEBUG)
+		qDebug( "QProcessPrivate: restore old sigchild handler" );
+#endif
 		if ( sigaction( SIGCHLD, oldact, 0 ) != 0 )
 		    qWarning( "Error restoring SIGCHLD handler" );
 	    }
@@ -158,6 +164,9 @@ public:
 
     static void sigchldHnd()
     {
+#if defined(QPROCESS_DEBUG)
+		qDebug( "QProcessPrivate::sigchldHnd()" );
+#endif
 	if ( !proclist )
 	    return;
 	QProcess *proc;
@@ -446,7 +455,7 @@ void QProcess::closeStdin()
 #if defined(QPROCESS_DEBUG)
 	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin[1] );
 #endif
-	d->socketStdin[1] =0 ;
+	d->socketStdin[1] = 0;
     }
 }
 
