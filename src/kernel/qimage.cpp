@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#78 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#78 $");
 
 
 /*!
@@ -1571,8 +1571,8 @@ bool QImageIO::read()
   successfully written.
 
   Before writing an image, you must set an IO device or a file name.
-  If both an IO device and a file name has been set, then the IO device will
-  be used.
+  If both an IO device and a file name has been set, then the IO
+  device will be used.
 
   The image will be written using the specified image format.
 

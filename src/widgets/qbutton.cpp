@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#54 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#54 $");
 
 
 /*!
@@ -45,15 +45,14 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#53 $");
 
   The button label can be a \link setText() text\endlink or a \link
   setPixmap() pixmap\endlink.  It is up to widget implementation to
-  display the text or the pixmap.  All Qt buttons are capable of showing
-  texts and pixmaps.
+  display the text or the pixmap.  All the button classess provided
+  with Qt can show both texts and pixmaps.
 
-  Another convention thing about QButtons is \link setAutoResize()
-  auto-resizing\endlink.  Enabling auto-resizing will make a label
-  resize itself whenever the contents change.
+  Another convention regarding QButtons is \link setAutoResize()
+  auto-resizing\endlink.  Enabling auto-resizing makes a button resize
+  itself whenever the contents change.
 
-  \sa QButtonGroup
-*/
+  \sa QButtonGroup */
 
 
 /*!

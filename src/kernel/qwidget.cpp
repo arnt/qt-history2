@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#160 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#159 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#160 $");
 
 
 /*!
@@ -807,8 +807,10 @@ void QWidget::styleChange( GUIStyle )
   widget does not.  Note that an enabled widget receives keyboard
   events only when it is in focus.
 
-  \sa isEnabled(), QKeyEvent, QMouseEvent
-*/
+  Some widgets display themselves differently when they are disabled.
+  For example a button might draw its label grayed out.
+
+  \sa isEnabled(), QKeyEvent, QMouseEvent */
 
 void QWidget::setEnabled( bool enable )
 {

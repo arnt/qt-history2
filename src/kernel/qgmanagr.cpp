@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#7 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#7 $");
 
 
 
@@ -82,16 +82,18 @@ static void setWinfo( QWidget * w, wDict &dict, QGManager::Direction d, int p, i
     }
 }
 
-/*!
-  \internal
-  \class QChain
+/*! \class QChain qgmanagr.cpp
+
   \brief internal class for the QGManager.
+
+  \internal
 
   Everything is put into chains. Use QGManager::newParChain()
   or QGManager::newSerChain() to make chains.
 
   \sa QGManager.
 */
+
 class QChain
 {
 public:
