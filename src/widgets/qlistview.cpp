@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#76 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#76 $");
 
 
 const int Unsorted = 32767;
@@ -2848,6 +2848,20 @@ void QCheckListItem::setup()
 }
 
 
+int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int column) const
+{
+    int r = QListViewItem::width( fm, lv, column );
+    if ( column == 0 ) {
+	r += lv->itemMargin();
+	if ( myType == Controller && pix ) {
+	    r += pix->width();
+	} else {	
+	    r += BoxSize + 4;
+	}
+    }
+    return r;
+}
+
 /*!
   Paints this item.
  */
@@ -2857,17 +2871,19 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !p )
 	return;
 
+    p->fillRect( 0, 0, width, height(), cg.base() );
+
+    if ( column != 0 ) {
+	// The rest is text, or for subclasses to change.
+	QListViewItem::paintCell( p, cg, column, width );
+	return;
+    }
+
     QListView *lv = listView();
     if ( !lv )
 	return;
-    int r = 2;
-
-    p->fillRect( 0, 0, width, height(), cg.base() );
-
-    if ( column != 0 )
-	return; //### simplified...
-
-
+    int marg = lv->itemMargin();
+    int r = marg;
 
     bool winStyle = lv->style() == WindowsStyle;
 
@@ -2883,14 +2899,14 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 	if ( myType == CheckBox ) {
 	    p->setPen( QPen( cg.text(), 2 ) );
-	    p->drawRect( x+2, y+2, BoxSize-4, BoxSize-4 );
+	    p->drawRect( x+marg, y+2, BoxSize-4, BoxSize-4 );
 	    /////////////////////
 	    x++;
 	    y++;
 	    if ( on ) {
 		QPointArray a( 7*2 );
 		int i, xx, yy;
-		xx = x+3;
+		xx = x+1+marg;
 		yy = y+5;
 		for ( i=0; i<3; i++ ) {
 		    a.setPoint( 2*i,   xx, yy );

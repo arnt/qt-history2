@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#36 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#37 $
 **
 ** Definition of QListView widget class
 **
@@ -249,6 +249,7 @@ public:
 
     void paintCell( QPainter *,  const QColorGroup & cg,
 		    int column, int width ) const;
+    int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();
 
     void setOn( bool );
