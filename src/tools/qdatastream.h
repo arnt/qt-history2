@@ -284,7 +284,7 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
     in >> n;
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
     map.d->insertInOrder = true;
-#endif QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+#endif
     for (Q_UINT32 i = 0; i < n; ++i) {
 	Key key;
         T value;
