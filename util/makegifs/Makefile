@@ -19,7 +19,7 @@ SHELL =	/bin/sh
 ####### Files
 
 SOURCES	=	makeppms.cpp $(QTDIR)/examples/life/life.cpp
-OBJECTS	=	makeppms.o $(QTDIR)/examples/life/life.o
+OBJECTS	=	makeppms.o life.o
 SRCMETA	=	moc_life.cpp
 OBJMETA =	moc_life.o
 TARGET	=	makeppms
@@ -55,7 +55,7 @@ clean:
 ####### Explicit dependencies
 
 life.o: $(QTDIR)/examples/life/life.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
+	$(CC) -o life.o -c $(CFLAGS) -I$(INCDIR) $(QTDIR)/examples/life/life.cpp
 
 ####### Meta objects
 

@@ -82,7 +82,7 @@ public:
 	widget->setCaption(widgetname);
 	widget->show();
 	done = false;
-	startTimer(200);
+	startTimer(800);
 	while ( !done ) {
 	    qApp->processEvents();
 	}
@@ -103,8 +103,13 @@ public:
 	const int margin = 8;
 
 	QRect r = includeframe ? widget->frameGeometry() : widget->geometry();
-	QPixmap pm = QPixmap::grabWindow( QApplication::desktop()->winId(),
-	    r.x(), r.y(), r.width(), r.height() );
+	QPixmap pm;
+	if ( includeframe ) {
+	    pm = QPixmap::grabWindow( QApplication::desktop()->winId(),
+		    r.x(), r.y(), r.width(), r.height() );
+	} else {
+	    pm = QPixmap::grabWindow( widget->winId() );
+	}
 	if (includeframe) {
 	    pm.save( filename, "PPM" );
 	} else {
@@ -213,6 +218,7 @@ public:
 	QMessageBox()
     {
 	setText("This is a QMessageBox\nwith a message");
+	setIcon(QMessageBox::Information);
 	clearWFlags( WType_Modal );
     }
 };
@@ -230,9 +236,8 @@ public:
 class EgQProgressDialog : public QProgressDialog {
 public:
     EgQProgressDialog() :
-	QProgressDialog("Please wait...",100)
+	QProgressDialog("Please wait...", "Cancel", 100)
     {
-	setCancelButton("Cancel");
 	clearWFlags( WType_Modal );
     }
 };
@@ -331,19 +336,6 @@ public:
 	resize(300,mb.height());
     }
 };
-
-class EgQSpinBox : public QSpinBox {
-public:
-    EgQSpinBox() :
-	QSpinBox()
-    {
-	append("First");
-	append("Second");
-	append("Third");
-	resize(100,28);
-    }
-};
-
 
 class EgQTableView : public QTableView {
 public:
@@ -563,19 +555,20 @@ int main( int argc, char **argv )
 	DEPICT( EgQLCDNumber, "qlcdnum", "QLCDNumber" );
 	DEPICT( EgQLabel, "qlabel", "QLabel" );
 	DEPICT( EgQMenuBar, "qmenubar", "QMenuBar" );
-	DEPICT( EgQSpinBox, "qspinbox", "QSpinBox" );
 	DEPICT( EgQTableView, "qtablevw", "QTableView" );
 	DEPICT( EgQListBox, "qlistbox", "QListBox" );
 	DEPICT( EgQMultiLineEdit, "qmlined", "QMultiLineEdit" );
 	DEPICT( EgQPopupMenu, "qpopmenu", "QPopupMenu" );
-	DEPICT( EgQHeader, "qheader", "QHeader" );
 	DEPICT( EgQLineEdit, "qlined", "QLineEdit" );
 	DEPICT( EgQScrollBar, "qscrbar", "QScrollBar" );
 	DEPICT( EgQSlider, "qslider", "QSlider" );
 	DEPICT( EgQTabBar, "qtabbar", "QTabBar" );
 	DEPICT( EgQProgressBar, "qprogbar", "QProgressBar" );
 	DEPICT( EgQProgressDialog, "qprogdlg", "QProgressDialog" );
-	DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
+	// Not-yet-released
+	//DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
+	//DEPICT( EgQSpinBox, "qspinbox", "QSpinBox" );
+	//DEPICT( EgQHeader, "qheader", "QHeader" );
 
 	if ( !first ) break;
 
