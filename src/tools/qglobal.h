@@ -417,13 +417,13 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 //
 // Avoid some particularly useless warnings from some stupid compilers.
 // To get ALL C++ compiler warnings, define CC_WARNINGS or comment out
-// the line "#define NO_WARNINGS"
+// the line "#define Q_NO_WARNINGS"
 //
 
 #if !defined(CC_WARNINGS)
-#define NO_WARNINGS
+#define Q_NO_WARNINGS
 #endif
-#if defined(NO_WARNINGS)
+#if defined(Q_NO_WARNINGS)
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4275)
@@ -440,7 +440,7 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #elif defined(_CC_MWERKS_)
 #pragma warn_possunwant off
 #endif
-#endif // NO_WARNINGS
+#endif // Q_NO_WARNINGS
 
 //
 // Avoid dead code
