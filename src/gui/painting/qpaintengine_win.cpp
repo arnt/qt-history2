@@ -1731,6 +1731,8 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
     drawPolygon(pa, index, npoints);
 }
 
+
+
 void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 {
     if (!pm.hasAlpha()) {
@@ -1741,10 +1743,17 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     } else { // 1 bit masks or 8 bit alpha...
 	QImage image = pm.convertToImage();
 	PixelFormat pf;
-	switch(image.depth()) {
-	case 32: pf = PixelFormat32bppARGB; break;
-	case 16: pf = PixelFormat16bppARGB1555; break;
-	default:
+	int depth = image.depth();
+
+	if (depth == 32) {
+	    pf = PixelFormat32bppARGB;
+	} else if (depth = 16) {
+	    pf = PixelFormat16bppARGB1555;
+	} else if (depth = 8) {
+	    image = image.convertDepth(16);
+	    pf = PixelFormat16bppARGB1555;
+	    return;
+	} else {
 	    qDebug() << "QGdiplusPaintEngine::drawPixmap(), unsupported depth:" << image.depth();
 	    return;
 	}
@@ -1757,9 +1766,8 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     }
 }
 
-void QGdiplusPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
+void QGdiplusPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
 {
-    ti.fontEngine->draw(this, p.x(),  p.y(), ti, textflags);
 }
 
 void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
