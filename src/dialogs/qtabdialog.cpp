@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#72 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#73 $
 **
 ** Implementation of QTabDialog class
 **
@@ -55,11 +55,11 @@
   Defaults buttons.
 
   The normal way to use QTabDialog is to do the following in the
-  constructor: <ol> <li> Create a QTabDialog, <li> create a QWidget
+  constructor: <ol> <li> Create a QTabDialog. <li> Create a QWidget
   for each of the pages in the tab dialog, insert children into it,
   set up geometry management for it, and use addTab() to set up a tab
-  and keyboard accelerator for it, <li> set up the buttons for the tab
-  dialog (Apply, Cancel and so on), and finally <li> connect to the
+  and keyboard accelerator for it. <li> Set up the buttons for the tab
+  dialog (Apply, Cancel and so on). <li> Connect to the
   signals and slots. </ol>
 
   The pref.cpp example does all this.
