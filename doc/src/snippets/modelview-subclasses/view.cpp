@@ -64,7 +64,7 @@ QRect LinearView::itemRect(const QModelIndex &index) const
 }
 
 
-void LinearView::ensureItemVisible(const QModelIndex &index)
+void LinearView::ensureVisible(const QModelIndex &index)
 {
     QRect area = viewport()->rect();
     QRect rect = itemViewportRect(index);
@@ -131,7 +131,7 @@ void LinearView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
     QModelIndex leftIndex = itemAt(rect.left(), 0);
     QModelIndex rightIndex = itemAt(rect.right(), 0);
 
-    QItemSelection selection(leftIndex, rightIndex, model());
+    QItemSelection selection(leftIndex, rightIndex);
 
     selectionModel()->select(selection, command);
 }

@@ -25,11 +25,11 @@ public:
         : QAbstractListModel(parent) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    bool isEditable(const QModelIndex &index) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = QAbstractItemModel::EditRole);
 
     bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex());
