@@ -110,7 +110,8 @@ struct QLineEditPrivate {
 	preeditStart(-1),
 	preeditLength(-1),
 	txtBuffer( "" ),
-	passwordChar( '*' )
+	passwordChar( '*' ),
+	clipboard_mode( QClipboard::Clipboard )
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -213,6 +214,7 @@ struct QLineEditPrivate {
     int preeditStart, preeditLength;
     QString txtBuffer;  // semi-persistant storage for text()
     QChar passwordChar;
+    QClipboard::Mode clipboard_mode;
 };
 
 QPixmap* QLineEditPrivate::pm = 0;
@@ -1246,16 +1248,16 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
 #ifndef QT_NO_CLIPBOARD
     if (QApplication::clipboard()->supportsSelection()) {
-	QApplication::clipboard()->setSelectionMode(TRUE);
+	d->clipboard_mode = QClipboard::Selection;
 	copy();
-	QApplication::clipboard()->setSelectionMode(FALSE);
+	d->clipboard_mode = QClipboard::Clipboard;
     }
 
     if ( !d->readonly && e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
-	    QApplication::clipboard()->setSelectionMode( TRUE );
+	    d->clipboard_mode = QClipboard::Selection;
 	    paste();
-	    QApplication::clipboard()->setSelectionMode( FALSE );
+	    d->clipboard_mode = QClipboard::Clipboard;
 	}
 	return;
     }
@@ -1294,9 +1296,9 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     }
 #ifndef QT_NO_CLIPBOARD
     if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
-	QApplication::clipboard()->setSelectionMode(TRUE);
+	d->clipboard_mode = QClipboard::Selection;
 	copy();
-	QApplication::clipboard()->setSelectionMode(FALSE);
+	d->clipboard_mode = QClipboard::Clipboard;
     }
 #endif // QT_NO_CLIPBOARD
     if ( oldHST != hasSelectedText() )
@@ -1486,7 +1488,7 @@ void QLineEdit::copy() const
     QString t = selectedText();
     if ( !t.isEmpty() && echoMode() == Normal ) {
 	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
-	QApplication::clipboard()->setText( t );
+	QApplication::clipboard()->setText( t, d->clipboard_mode );
 	connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		 this, SLOT(clipboardChanged()) );
     }
@@ -1504,7 +1506,7 @@ void QLineEdit::copy() const
 
 void QLineEdit::paste()
 {
-    insert( QApplication::clipboard()->text() );
+    insert( QApplication::clipboard()->text( d->clipboard_mode ) );
     deselect();
 }
 
@@ -2135,9 +2137,9 @@ void QLineEdit::updateSelection()
 
 #ifndef QT_NO_CLIPBOARD
     if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
-	QApplication::clipboard()->setSelectionMode(TRUE);
+	d->clipboard_mode = QClipboard::Selection;
 	copy();
-	QApplication::clipboard()->setSelectionMode(FALSE);
+	d->clipboard_mode = QClipboard::Clipboard;
     }
 #endif // QT_NO_CLIPBOARD
 
@@ -2214,7 +2216,8 @@ QPopupMenu *QLineEdit::createPopupMenu()
     bool enableCut = !d->readonly && hasSelectedText();
     popup->setItemEnabled( d->id[ IdCut ], enableCut );
     popup->setItemEnabled( d->id[ IdCopy ], hasSelectedText() );
-    bool enablePaste = !d->readonly && !QApplication::clipboard()->text().isEmpty();
+    bool enablePaste = !d->readonly &&
+		       !QApplication::clipboard()->text( d->clipboard_mode ).isEmpty();
     popup->setItemEnabled( d->id[ IdPaste ], enablePaste );
 #endif
     bool enableClear = !d->readonly && !text().isEmpty();

@@ -86,7 +86,8 @@ class QTextEditPrivate
 public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
-	allowTabs(FALSE), mouseInternalPress(FALSE)
+	 allowTabs(FALSE), mouseInternalPress(FALSE),
+	 clipboard_mode( QClipboard::Clipboard )
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	, od(0), optimMode( FALSE)
 #endif
@@ -103,6 +104,7 @@ public:
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
     QString pressedName;
     QString onName;
+    QClipboard::Mode clipboard_mode;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
@@ -1997,7 +1999,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	mousePressed = FALSE;
 #ifndef QT_NO_CLIPBOARD
 	if (QApplication::clipboard()->supportsSelection()) {
-	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    d->clipboard_mode = QClipboard::Selection;
 
 	    // don't listen to selection changes
 	    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
@@ -2006,7 +2008,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 	    connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		     this, SLOT(clipboardChanged()) );
 
-	    QApplication::clipboard()->setSelectionMode(FALSE);
+	    d->clipboard_mode = QClipboard::Clipboard;
 	}
 #endif
     }
@@ -2036,9 +2038,9 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
                 viewport()->setCursor( ibeamCursor );
 #endif
             }
-            QApplication::clipboard()->setSelectionMode(TRUE);
+	    d->clipboard_mode = QClipboard::Selection;
             paste();
-            QApplication::clipboard()->setSelectionMode(FALSE);
+	    d->clipboard_mode = QClipboard::Clipboard;
         }
     }
 #endif
@@ -2266,7 +2268,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
         // if the clipboard support selections, put the newly selected text into
         // the clipboard
 	if (QApplication::clipboard()->supportsSelection()) {
-	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    d->clipboard_mode = QClipboard::Selection;
 
             // don't listen to selection changes
             disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
@@ -2275,7 +2277,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
             connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
                      this, SLOT(clipboardChanged()) );
 
-	    QApplication::clipboard()->setSelectionMode(FALSE);
+	    d->clipboard_mode = QClipboard::Clipboard;
 	}
 #endif
     } else if ( r == d->id[ IdUndo ] )
@@ -2863,7 +2865,7 @@ void QTextEdit::cut()
     QString t;
     if ( doc->hasSelection( QTextDocument::Standard ) &&
 	 !( t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy ) ).isEmpty() ) {
-	QApplication::clipboard()->setText( t );
+	QApplication::clipboard()->setText( t, d->clipboard_mode );
 	removeSelectedText();
     }
     updateMicroFocusHint();
@@ -2879,14 +2881,14 @@ void QTextEdit::copy()
     QString t = doc->selectedText( QTextDocument::Standard, qt_enable_richtext_copy );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
-	QApplication::clipboard()->setText( optimSelectedText() );
+	QApplication::clipboard()->setText( optimSelectedText(), d->clipboard_mode );
     else if ( doc->hasSelection( QTextDocument::Standard ) &&
 	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
-	QApplication::clipboard()->setText( t );
+	QApplication::clipboard()->setText( t, d->clipboard_mode );
 #else
     if ( doc->hasSelection( QTextDocument::Standard ) &&
 	 !t.isEmpty() && t.simplifyWhiteSpace() != "<selstart/>" )
-	QApplication::clipboard()->setText( t );
+	QApplication::clipboard()->setText( t, d->clipboard_mode );
 #endif
 }
 
@@ -4347,7 +4349,7 @@ void QTextEdit::setDocument( QTextDocument *dc )
 void QTextEdit::pasteSubType( const QCString& subtype )
 {
     QCString st = subtype;
-    QString t = QApplication::clipboard()->text(st);
+    QString t = QApplication::clipboard()->text( st, d->clipboard_mode );
     removeSelection( QTextDocument::Standard );
     if ( !t.isEmpty() ) {
 	if ( t.startsWith( "<selstart/>" ) ) {
@@ -4424,7 +4426,8 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 */
 void QTextEdit::pasteSpecial( const QPoint& pt )
 {
-    QCString st = pickSpecial( QApplication::clipboard()->data(), TRUE, pt );
+    QCString st = pickSpecial( QApplication::clipboard()->data( d->clipboard_mode ),
+			       TRUE, pt );
     if ( !st.isEmpty() )
 	pasteSubType( st );
 }
@@ -4868,7 +4871,7 @@ QPopupMenu *QTextEdit::createPopupMenu( const QPoint& pos )
 #else
     popup->setItemEnabled( d->id[ IdCopy ], doc->hasSelection( QTextDocument::Standard, TRUE ) );
 #endif
-    popup->setItemEnabled( d->id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text().isEmpty() );
+    popup->setItemEnabled( d->id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text( d->clipboard_mode ).isEmpty() );
 #endif
     popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
