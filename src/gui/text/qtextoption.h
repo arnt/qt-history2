@@ -40,9 +40,6 @@ public:
     inline void setWrapMode(WrapMode wrap) { wordWrap = wrap; }
     inline WrapMode wrapMode() const { return static_cast<WrapMode>(wordWrap); }
 
-    inline void setLayoutDirection(Qt::LayoutDirection dir) { direction = dir; }
-    inline Qt::LayoutDirection layoutDirection() const { return (Qt::LayoutDirection) direction; }
-
     enum Flag {
         IncludeTrailingSpaces = 0x80000000
     };
@@ -61,9 +58,8 @@ public:
 private:
     uint align : 8;
     uint wordWrap : 4;
-    uint direction : 4;
     uint design : 1;
-    uint unused : 15;
+    uint unused : 19;
     uint f;
     qreal tab;
     QTextOptionPrivate *d;

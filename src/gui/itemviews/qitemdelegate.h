@@ -66,8 +66,6 @@ protected:
 
     void doLayout(const QStyleOptionViewItem &option,
                   QRect *checkRect, QRect *iconRect, QRect *textRect, bool hint) const;
-    void doAlignment(Qt::LayoutDirection direction, const QRect &boundingRect, int alignment,
-                     QRect *rect) const;
     QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
     QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
     QRect check(const QStyleOptionViewItem &option, const QVariant &variant) const;

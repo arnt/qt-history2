@@ -24,6 +24,8 @@
 #include "qpolygon.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
+#include "qapplication.h"
+#include "qstyle.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>
@@ -850,6 +852,7 @@ void QPainter::initFrom(const QWidget *widget)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
         d->engine->setDirty(QPaintEngine::DirtyFont);
     }
+    d->state->layoutDirection = widget->layoutDirection();
 }
 
 
@@ -4703,10 +4706,9 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     bool showmnemonic = (tf & Qt::TextShowMnemonic);
     bool hidemnmemonic = (tf & Qt::TextHideMnemonic);
 
-    bool isRightToLeft = str.isRightToLeft();
-    if ((tf & Qt::AlignHorizontal_Mask) == Qt::AlignAuto)
-        tf |= isRightToLeft ? Qt::AlignRight : Qt::AlignLeft;
+    tf = QStyle::visualAlignment(painter ? painter->layoutDirection() : QApplication::layoutDirection(), QFlag(tf));
 
+    bool isRightToLeft = str.isRightToLeft();
     bool expandtabs = ((tf & Qt::TextExpandTabs) &&
                         (((tf & Qt::AlignLeft) && !isRightToLeft) ||
                           ((tf & Qt::AlignRight) && isRightToLeft)));
@@ -4937,6 +4939,92 @@ QPixmap qt_image_linear_gradient(const QRect &rect,
     QPixmapCache::insert(key, pixmap);
 
     return pixmap;
+}
+
+void QPainter::setLayoutDirection(Qt::LayoutDirection direction)
+{
+    Q_D(QPainter);
+    d->state->layoutDirection = direction;
+}
+
+Qt::LayoutDirection QPainter::layoutDirection() const
+{
+    Q_D(const QPainter);
+    return d->state->layoutDirection;
+}
+
+QPainterState::QPainterState(const QPainterState *s)
+{
+    font = s->font;
+    deviceFont = s->deviceFont;
+    pfont = s->pfont ? new QFont(*s->pfont) : 0;
+    pen = QPen(s->pen);
+    brush = QBrush(s->brush);
+    bgOrigin = s->bgOrigin;
+    bgBrush = QBrush(s->bgBrush);
+    tmpClipRegion = QRegion(s->tmpClipRegion);
+    tmpClipPath = s->tmpClipPath;
+    tmpClipOp = s->tmpClipOp;
+    bgMode = s->bgMode;
+    VxF = s->VxF;
+    WxF = s->WxF;
+#ifndef QT_NO_TRANSFORMATIONS
+    worldMatrix = s->worldMatrix;
+    matrix = s->matrix;
+    txop = s->txop;
+#else
+    xlatex = s->xlatex;
+    xlatey = s->xlatey;
+#endif
+    wx = s->wx;
+    wy = s->wy;
+    ww = s->ww;
+    wh = s->wh;
+    vx = s->vx;
+    vy = s->vy;
+    vw = s->vw;
+    vh = s->vh;
+    painter = s->painter;
+    clipInfo = s->clipInfo;
+    changeFlags = 0;
+    layoutDirection = s->layoutDirection;
+}
+
+QPainterState::QPainterState()
+{
+    init(0);
+}
+
+QPainterState::~QPainterState()
+{
+        delete pfont;
+}
+
+void QPainterState::init(QPainter *p) {
+    bgBrush = Qt::white;
+        bgMode = Qt::TransparentMode;
+        WxF = false;
+        VxF = false;
+        wx = wy = ww = wh = 0;
+        vx = vy = vw = vh = 0;
+        changeFlags = 0;
+        pfont = 0;
+        painter = p;
+        pen = QPen();
+        bgOrigin = QPointF(0, 0);
+        brush = QBrush();
+        font = deviceFont = QFont();
+        tmpClipRegion = QRegion();
+        tmpClipPath = QPainterPath();
+        tmpClipOp = Qt::NoClip;
+#ifndef QT_NO_TRANSFORMATIONS
+        worldMatrix.reset();
+        matrix.reset();
+        txop = 0;
+#else
+        xlatex = xlatey = 0;
+#endif
+        layoutDirection = QApplication::layoutDirection();
 }
 
 #ifdef QT_COMPAT

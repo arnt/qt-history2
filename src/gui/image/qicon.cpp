@@ -20,6 +20,7 @@
 #include "qpainter.h"
 #include "qfileinfo.h"
 #include "qstyle.h"
+#include "qpixmapcache.h"
 #include "qdebug.h"
 
 /*!
@@ -77,12 +78,14 @@ struct QPixmapIconEngineEntry
 class QPixmapIconEngine : public QIconEngine{
 public:
     QPixmapIconEngine(const QPixmap &);
+    QPixmapIconEngine(const QString &);
     ~QPixmapIconEngine();
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state);
     QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
-    QSize sizeUsed(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
     void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
 private:
+    QString fileName;
     QVector<QPixmapIconEngineEntry> pixmaps;
 };
 
@@ -90,6 +93,15 @@ QPixmapIconEngine::QPixmapIconEngine(const QPixmap &pm)
 {
     if (!pm.isNull())
         pixmaps += QPixmapIconEngineEntry(pm);
+}
+
+QPixmapIconEngine::QPixmapIconEngine(const QString &fileName)
+{
+    if (!fileName.isEmpty())
+        if (fileName.at(0) != QLatin1Char(':'))
+            this->fileName = QFileInfo(fileName).absoluteFilePath();
+        else
+            this->fileName = fileName;
 }
 
 QPixmapIconEngine::~QPixmapIconEngine()
@@ -121,8 +133,11 @@ static QPixmap bestSizeMatch( const QSize &size, const QPixmap &pa, const QPixma
 
 QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    if (pixmaps.isEmpty())
-        return QPixmap();
+    if (pixmaps.isEmpty() && !fileName.isEmpty()) {
+        QPixmap pm(fileName);
+        if (!pm.isNull())
+            pixmaps += QPixmapIconEngineEntry(pm);
+    }
 
     bool hasCorrectMode = true;
     QPixmap pm;
@@ -156,18 +171,29 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     if (pm.isNull())
         return pm;
 
-    if (!hasCorrectMode) {
-        QStyleOption opt(0);
-        opt.palette = QApplication::palette();
-        pm = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
+    QSize actualSize = pm.size();
+    actualSize.scale(size, Qt::KeepAspectRatio);
+
+    QString key = QLatin1String("qt_icon_")
+                  + QString::number(pm.serialNumber())
+                  + QLatin1String(mode == QIcon::Normal?"_normal_":"_disabled_")
+                  + QString::number(actualSize.width())
+                  + QLatin1Char('_')
+                  + QString::number(actualSize.height());
+
+    if (!QPixmapCache::find(key, pm)) {
+        if (!hasCorrectMode) {
+            QStyleOption opt(0);
+            opt.palette = QApplication::palette();
+            pm = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
+            if (pm.isNull())
+                return pm;
+        }
+        if (pm.width() > size.width() || pm.height() > size.height())
+            pm = pm.scale(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        if (pm.isDetached())
+            QPixmapCache::insert(key, pm);
     }
-    if (pm.width() > size.width() || pm.height() > size.height())
-        pm = pm.scale(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    //### here we might choose to cache the pixmap, but if we do, we
-    //### need to through the cache away if the application style or
-    //### palette changes
-
     return pm;
 }
 
@@ -187,10 +213,13 @@ static QSize bestSizeMatch( const QSize &size, const QSize &pa, const QSize &pb)
     return pb;
 }
 
-QSize QPixmapIconEngine::sizeUsed(const QSize &size, QIcon::Mode mode, QIcon::State state)
+QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    if (pixmaps.isEmpty())
-        return QSize();
+    if (pixmaps.isEmpty() && !fileName.isEmpty()) {
+        QPixmap pm(fileName);
+        if (!pm.isNull())
+            pixmaps += QPixmapIconEngineEntry(pm);
+    }
 
     QSize pm;
     for (int i = 0; i < pixmaps.count(); ++i)
@@ -219,7 +248,7 @@ QSize QPixmapIconEngine::sizeUsed(const QSize &size, QIcon::Mode mode, QIcon::St
             }
     }
 
-    if (pm.width() > size.width() || pm.height() > size.height())
+    if (!pm.isNull() && (pm.width() > size.width() || pm.height() > size.height()))
         pm.scale(size, Qt::KeepAspectRatio);
 
     return pm;
@@ -424,9 +453,9 @@ QPixmap QIcon::pixmap(Qt::IconSize size, QIcon::Mode mode, QIcon::State state) c
 */
 void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment, QIcon::Mode mode, QIcon::State state) const
 {
-    if (!d)
+    if (!d || !painter)
         return;
-    QRect alignedRect = QStyle::alignedRect(QApplication::layoutDirection(), alignment, d->engine->sizeUsed(rect.size(), mode, state), rect);
+    QRect alignedRect = QStyle::alignedRect(painter->layoutDirection(), alignment, d->engine->actualSize(rect.size(), mode, state), rect);
     d->engine->paint(painter, alignedRect, mode, state);
 }
 

@@ -128,7 +128,7 @@ void QItemDelegate::paint(QPainter *painter,
     // set text alignment
     value = model->data(index, QAbstractItemModel::TextAlignmentRole);
     if (value.isValid())
-        opt.displayAlignment = value.toInt();
+        opt.displayAlignment = QFlag(value.toInt());
 
     // set text color
     value = model->data(index, QAbstractItemModel::TextColorRole);
@@ -481,8 +481,8 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
         }
 
         if (!hint) { // we only need to do the internal layout if we are going to paint
-            doAlignment(option.direction, check, Qt::AlignCenter, checkRect);
-            doAlignment(option.direction, decoration, option.decorationAlignment, pixmapRect);
+            *checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter, checkRect->size(), check);
+            *pixmapRect = QStyle::alignedRect(option.direction, option.decorationAlignment, pixmapRect->size(), decoration);
         } else {
             *checkRect = check;
             *pixmapRect = decoration;
@@ -491,56 +491,6 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option,
     }
 }
 
-/*!
-    \internal
-*/
-
-void QItemDelegate::doAlignment(Qt::LayoutDirection direction,
-                                const QRect &boundingRect,
-                                int alignment, QRect *rect) const
-{
-    if (!boundingRect.isValid())
-        return;
-    if (alignment == Qt::AlignCenter) {
-        rect->moveCenter(boundingRect.center());
-        return;
-    }
-    // Qt::Horizontal
-    switch (alignment & Qt::AlignHorizontal_Mask) {
-    case Qt::AlignLeft:
-        rect->moveLeft(boundingRect.left());
-        break;
-    case Qt::AlignRight:
-        rect->moveRight(boundingRect.right());
-        break;
-    case Qt::AlignAuto:
-        if (direction == Qt::RightToLeft)
-            rect->moveRight(boundingRect.right());
-        else
-            rect->moveLeft(boundingRect.left());
-        break;
-    case Qt::AlignJustify:
-    case Qt::AlignHCenter:
-        rect->translate(boundingRect.center().x() - rect->center().x(), 0);
-        break;
-    default:
-        break;
-    }
-    // Qt::Vertical
-    switch (alignment & Qt::AlignVertical_Mask) {
-    case Qt::AlignTop:
-        rect->moveTop(boundingRect.top());
-        return;
-    case Qt::AlignBottom:
-        rect->moveBottom(boundingRect.bottom());
-        return;
-    case Qt::AlignVCenter:
-        rect->translate(0, boundingRect.center().y() - rect->center().y());
-        return;
-    default:
-        return;
-    }
-}
 
 /*!
     \internal

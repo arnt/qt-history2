@@ -127,17 +127,24 @@ public:
 
     // documented in qpainter.cpp
     enum AlignmentFlag {
-        AlignAuto               = 0x0000,         // text alignment
-        AlignLeft               = 0x0001,
-        AlignRight              = 0x0002,
-        AlignHCenter            = 0x0004,
-        AlignJustify            = 0x0008,
-        AlignHorizontal_Mask    = AlignLeft | AlignRight | AlignHCenter | AlignJustify,
-        AlignTop                = 0x0010,
-        AlignBottom             = 0x0020,
-        AlignVCenter            = 0x0040,
-        AlignVertical_Mask      = AlignTop | AlignBottom | AlignVCenter,
-        AlignCenter             = AlignVCenter | AlignHCenter
+        AlignLeft = 0x0001,
+        AlignLeading = AlignLeft,
+        AlignRight = 0x0002,
+        AlignTrailing = AlignRight,
+        AlignHCenter = 0x0004,
+        AlignJustify = 0x0008,
+        AlignAbsolute = 0x0010,
+        AlignHorizontal_Mask = AlignLeft | AlignRight | AlignHCenter | AlignJustify | AlignAbsolute,
+
+        AlignTop = 0x0020,
+        AlignBottom = 0x0040,
+        AlignVCenter = 0x0080,
+        AlignVertical_Mask = AlignTop | AlignBottom | AlignVCenter,
+
+        AlignCenter = AlignVCenter | AlignHCenter
+//#if QT_COMPAT
+        ,AlignAuto = AlignLeft
+//#endif
     };
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
@@ -835,7 +842,7 @@ public:
         FDiagPattern,
         DiagCrossPattern,
         LinearGradientPattern,
-	TexturePattern = 24
+        TexturePattern = 24
 #ifdef QT_COMPAT
         , CustomPattern = TexturePattern
 #endif
@@ -858,11 +865,11 @@ public:
         MV_10_DOT_4 = QSysInfo::MV_10_4,
 
         //Code names
-        MV_CHEETAH  = MV_10_DOT_0,
-        MV_PUMA     = MV_10_DOT_1,
-        MV_JAGUAR   = MV_10_DOT_2,
-        MV_PANTHER  = MV_10_DOT_3,
-        MV_TIGER    = MV_10_DOT_4
+        MV_CHEETAH = MV_10_DOT_0,
+        MV_PUMA = MV_10_DOT_1,
+        MV_JAGUAR = MV_10_DOT_2,
+        MV_PANTHER = MV_10_DOT_3,
+        MV_TIGER = MV_10_DOT_4
     };
 #endif // Q_OS_MAC
 
@@ -870,20 +877,20 @@ public:
     typedef int WindowsVersion;
 
     enum {
-        WV_32s      = QSysInfo::WV_32s,
-        WV_95       = QSysInfo::WV_95,
-        WV_98       = QSysInfo::WV_98,
-        WV_Me       = QSysInfo::WV_Me,
+        WV_32s = QSysInfo::WV_32s,
+        WV_95 = QSysInfo::WV_95,
+        WV_98 = QSysInfo::WV_98,
+        WV_Me = QSysInfo::WV_Me,
         WV_DOS_based= QSysInfo::WV_DOS_based,
 
-        WV_NT       = QSysInfo::WV_NT,
-        WV_2000     = QSysInfo::WV_2000,
-        WV_XP       = QSysInfo::WV_XP,
-        WV_2003     = QSysInfo::WV_2003,
+        WV_NT = QSysInfo::WV_NT,
+        WV_2000 = QSysInfo::WV_2000,
+        WV_XP = QSysInfo::WV_XP,
+        WV_2003 = QSysInfo::WV_2003,
         WV_NT_based = QSysInfo::WV_NT_based,
 
-        WV_CE       = QSysInfo::WV_CE,
-        WV_CENET    = QSysInfo::WV_CENET,
+        WV_CE = QSysInfo::WV_CE,
+        WV_CENET = QSysInfo::WV_CENET,
         WV_CE_based = QSysInfo::WV_CE_based
     };
 #endif // Q_OS_WIN
@@ -918,8 +925,8 @@ public:
         ForbiddenCursor,
         WhatsThisCursor,
         BusyCursor,
-        LastCursor        = BusyCursor,
-        BitmapCursor        = 24
+        LastCursor = BusyCursor,
+        BitmapCursor = 24
 
 #ifdef QT_COMPAT
         ,
@@ -970,32 +977,32 @@ public:
     };
 
     enum DockWindowArea {
-        LeftDockWindowArea   = 0x1,
-        RightDockWindowArea  = 0x2,
-        TopDockWindowArea    = 0x4,
+        LeftDockWindowArea = 0x1,
+        RightDockWindowArea = 0x2,
+        TopDockWindowArea = 0x4,
         BottomDockWindowArea = 0x8,
 
-        DockWindowArea_Mask   = 0xf,
-        AllDockWindowAreas   = DockWindowArea_Mask
+        DockWindowArea_Mask = 0xf,
+        AllDockWindowAreas = DockWindowArea_Mask
     };
     enum {
-        NDockWindowAreas     = 4
+        NDockWindowAreas = 4
     };
 
     Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea)
 
     enum ToolBarArea {
-        LeftToolBarArea   = 0x1,
-        RightToolBarArea  = 0x2,
-        TopToolBarArea    = 0x4,
+        LeftToolBarArea = 0x1,
+        RightToolBarArea = 0x2,
+        TopToolBarArea = 0x4,
         BottomToolBarArea = 0x8,
 
-        ToolBarArea_Mask   = 0xf,
-        AllToolBarAreas   = ToolBarArea_Mask
+        ToolBarArea_Mask = 0xf,
+        AllToolBarAreas = ToolBarArea_Mask
     };
 
     enum {
-        NToolBarAreas     = 4
+        NToolBarAreas = 4
     };
 
     Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea)
@@ -1086,9 +1093,9 @@ public:
 
     // Documented in qtabwidget.cpp
     enum Corner {
-        TopLeftCorner     = 0x00000,
-        TopRightCorner    = 0x00001,
-        BottomLeftCorner  = 0x00002,
+        TopLeftCorner = 0x00000,
+        TopRightCorner = 0x00001,
+        BottomLeftCorner = 0x00002,
         BottomRightCorner = 0x00003
 #ifdef QT_COMPAT
         ,TopLeft = TopLeftCorner,

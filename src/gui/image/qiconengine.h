@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QIconEngine
 public:
     virtual ~QIconEngine();
     virtual void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) = 0;
-    virtual QSize sizeUsed(const QSize &size, QIcon::Mode mode, QIcon::State state);
+    virtual QSize actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state);
     virtual QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state);
 
     virtual void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);

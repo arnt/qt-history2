@@ -581,8 +581,8 @@ QSize QLabelPrivate::sizeForWidth(int w) const
         if (m < 0 && frameWidth) // no indent, but we do have a frame
             m = (xw / 2 - d->margin) * 2;
         if (m >= 0) {
-            int horizAlign = QStyle::horizontalAlignment(q->layoutDirection(), QFlag(d->align));
-            if ((horizAlign & Qt::AlignLeft) || (horizAlign & Qt::AlignRight))
+            int align = QStyle::visualAlignment(q->layoutDirection(), QFlag(d->align));
+            if ((align & Qt::AlignLeft) || (align & Qt::AlignRight))
                 hextra += m;
             if ((d->align & Qt::AlignTop) || (d->align & Qt::AlignBottom))
                 vextra += m;
@@ -744,9 +744,7 @@ void QLabel::paintEvent(QPaintEvent *)
     const int mov = 0;
 #endif
 
-    int align = d->align;
-    if ((align & Qt::AlignHorizontal_Mask) == Qt::AlignAuto)
-        align |= QStyle::horizontalAlignment(layoutDirection(), QFlag(d->align));
+    int align = QStyle::visualAlignment(layoutDirection(), QFlag(d->align));
 
     if (!mov && !pix && !pic) {
         int m = indent();
@@ -1147,7 +1145,7 @@ void QLabel::setScaledContents(bool enable)
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
 
-/*! 
+/*!
     \fn void QLabel::setAlignment(Qt::AlignmentFlag flag)
 
     Without this function, a call to e.g. setAlignment(Qt::AlignTop)

@@ -45,11 +45,11 @@
   \a state into the rectangle \a rect.
 */
 
-/*!  
-  Returns the size of icon the engine is able to provide for the requested \a size,
-  \a mode and \a state. The default implementation returns the \a size given.
+/*!  Returns the actual size of the icon the engine provides for the
+  requested \a size, \a mode and \a state. The default implementation
+  returns the given \a size.
  */
-QSize QIconEngine::sizeUsed(const QSize &size, QIcon::Mode /*mode*/, QIcon::State /*state*/)
+QSize QIconEngine::actualSize(const QSize &size, QIcon::Mode /*mode*/, QIcon::State /*state*/)
 {
     return size;
 }
@@ -63,7 +63,7 @@ QIconEngine::~QIconEngine()
 }
 
 
-/*!  
+/*!
   Returns the icon as a pixmap with the required \a size, \a mode,
   and \a state. The default implementation creates a new pixmap and
   calls paint() to fill it.
@@ -78,7 +78,7 @@ QPixmap QIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State st
     return pm;
 }
 
-/*!  
+/*!
   Called by QIcon::addPixmap(). Adds a specialized \a pixmap for the given
   \a mode and \a state. The default pixmap-based engine stores any supplied
   pixmaps, and it uses them instead of scaled pixmaps if the size of a pixmap

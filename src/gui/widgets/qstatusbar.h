@@ -44,8 +44,8 @@ public slots:
 public:
     QT_COMPAT_CONSTRUCTOR QStatusBar(QWidget* parent, const char* name);
 public slots:
-    inline QT_COMPAT void message(const QString &text, int timeout = 0) { showMessage(text, timeout); }
-    inline QT_COMPAT void clear() { clearMessage(); }
+    inline QT_MOC_COMPAT void message(const QString &text, int timeout = 0) { showMessage(text, timeout); }
+    inline QT_MOC_COMPAT void clear() { clearMessage(); }
 #endif
 
 signals:

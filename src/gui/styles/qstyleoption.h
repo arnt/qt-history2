@@ -333,16 +333,16 @@ public:
     enum Position { Left, Right, Top, Bottom };
     enum Size { Small, Large };
 
-    int displayAlignment;
-    int decorationAlignment;
+    Qt::Alignment displayAlignment;
+    Qt::Alignment decorationAlignment;
     Position decorationPosition;
     Size decorationSize;
     QFont font;
 
     QStyleOptionViewItem();
 
-    QDOC_PROPERTY(int displayAlignment)
-    QDOC_PROPERTY(int decorationAlignment)
+    QDOC_PROPERTY(Qt::Alignment displayAlignment)
+    QDOC_PROPERTY(Qt::Alignment decorationAlignment)
     QDOC_PROPERTY(Position decorationPosition)
     QDOC_PROPERTY(Size decorationSize)
     QDOC_PROPERTY(QFont font)

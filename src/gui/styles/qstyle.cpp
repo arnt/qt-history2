@@ -1595,6 +1595,7 @@ QPoint QStyle::visualPos(Qt::LayoutDirection direction, const QRect &boundingRec
  */
 QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
 {
+    alignment = visualAlignment(direction, alignment);
     int x = rectangle.x();
     int y = rectangle.y();
     int w = size.width();
@@ -1607,28 +1608,24 @@ QRect QStyle::alignedRect(Qt::LayoutDirection direction, Qt::Alignment alignment
         x += rectangle.size().width() - w;
     else if ((alignment & Qt::AlignHCenter) == Qt::AlignHCenter)
         x += rectangle.size().width()/2 - w/2;
-    else if (((alignment & Qt::AlignLeft) != Qt::AlignLeft) && (direction == Qt::LeftToRight)) // Qt::AlignAuto && rightToLeft
-        x += rectangle.size().width() - w;
     return QRect(x, y, w, h);
 }
 
 /*!
 
-  Strips out vertical alignment flags and transforms an \a alignment
-  of Qt::AlignAuto into Qt::AlignLeft or Qt::AlignRight according to
-  the layout \a direction. The other horizontal alignment flags are
-  left untouched.
+  Transforms an \a alignment of Qt::AlignLeft or Qt::AlignRight
+  without Qt::AlignAbsolute into Qt::AlignLeft or Qt::AlignRight with
+  Qt::AlignAbsolute according to the layout \a direction. The other
+  horizontal alignment flags are left untouched.
 
   QWidget::layoutDirection
 */
-Qt::Alignment QStyle::horizontalAlignment(Qt::LayoutDirection direction,  Qt::Alignment alignment)
+Qt::Alignment QStyle::visualAlignment(Qt::LayoutDirection direction,  Qt::Alignment alignment)
 {
-    alignment &= Qt::AlignHorizontal_Mask;
-    if (alignment == Qt::AlignAuto) {
+    if ((alignment & Qt::AlignAbsolute) == 0) {
         if (direction == Qt::RightToLeft)
-            alignment = Qt::AlignRight;
-        else
-            alignment = Qt::AlignLeft;
+            alignment ^= (Qt::AlignLeft | Qt::AlignRight);
+        alignment |= Qt::AlignAbsolute;
     }
     return alignment;
 }

@@ -23,7 +23,6 @@ struct QTextOptionPrivate
 QTextOption::QTextOption()
     : align(Qt::AlignLeft),
       wordWrap(QTextOption::WordWrap),
-      direction(Qt::LeftToRight),
       design(false),
       unused(0),
       f(0),
@@ -35,7 +34,6 @@ QTextOption::QTextOption()
 QTextOption::QTextOption(Qt::Alignment alignment)
     : align(alignment),
       wordWrap(QTextOption::WordWrap),
-      direction(Qt::LeftToRight),
       design(false),
       unused(0),
       f(0),
@@ -52,7 +50,6 @@ QTextOption::~QTextOption()
 QTextOption::QTextOption(const QTextOption &o)
     : align(o.align),
       wordWrap(o.wordWrap),
-      direction(o.direction),
       design(o.design),
       unused(o.unused),
       f(o.f),
@@ -70,7 +67,6 @@ QTextOption &QTextOption::operator=(const QTextOption &o)
     delete d; d = 0;
     align = o.align;
     wordWrap = o.wordWrap;
-    direction =o.direction;
     design = o.design;
     unused = o.unused;
     f = o.f;

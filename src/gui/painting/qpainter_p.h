@@ -57,74 +57,10 @@ public:
 class QPainterState
 {
 public:
-    QPainterState() {
-        init(0);
-    }
-
-    QPainterState(const QPainterState *s) {
-        font = s->font;
-        deviceFont = s->deviceFont;
-        pfont = s->pfont ? new QFont(*s->pfont) : 0;
-        pen = QPen(s->pen);
-        brush = QBrush(s->brush);
-        bgOrigin = s->bgOrigin;
-        bgBrush = QBrush(s->bgBrush);
-        tmpClipRegion = QRegion(s->tmpClipRegion);
-        tmpClipPath = s->tmpClipPath;
-        tmpClipOp = s->tmpClipOp;
-        bgMode = s->bgMode;
-        VxF = s->VxF;
-        WxF = s->WxF;
-#ifndef QT_NO_TRANSFORMATIONS
-        worldMatrix = s->worldMatrix;
-        matrix = s->matrix;
-        txop = s->txop;
-#else
-        xlatex = s->xlatex;
-        xlatey = s->xlatey;
-#endif
-        wx = s->wx;
-        wy = s->wy;
-        ww = s->ww;
-        wh = s->wh;
-        vx = s->vx;
-        vy = s->vy;
-        vw = s->vw;
-        vh = s->vh;
-        painter = s->painter;
-        clipInfo = s->clipInfo;
-        changeFlags = 0;
-    }
-
-    ~QPainterState() {
-        delete pfont;
-    }
-
-    void init(QPainter *p) {
-        bgBrush = Qt::white;
-        bgMode = Qt::TransparentMode;
-        WxF = false;
-        VxF = false;
-        wx = wy = ww = wh = 0;
-        vx = vy = vw = vh = 0;
-        changeFlags = 0;
-        pfont = 0;
-        painter = p;
-        pen = QPen();
-        bgOrigin = QPointF(0, 0);
-        brush = QBrush();
-        font = deviceFont = QFont();
-        tmpClipRegion = QRegion();
-        tmpClipPath = QPainterPath();
-        tmpClipOp = Qt::NoClip;
-#ifndef QT_NO_TRANSFORMATIONS
-        worldMatrix.reset();
-        matrix.reset();
-        txop = 0;
-#else
-        xlatex = xlatey = 0;
-#endif
-    }
+    QPainterState();
+    QPainterState(const QPainterState *s);
+    ~QPainterState();
+    void init(QPainter *p);
 
     QPointF bgOrigin;
     QFont font;
@@ -154,6 +90,7 @@ public:
     Qt::BGMode bgMode;
     QPainter *painter;
     uint changeFlags;
+    Qt::LayoutDirection layoutDirection;
 };
 
 

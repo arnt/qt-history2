@@ -81,6 +81,9 @@ public:
     bool remove(const Key &key);
     T *take(const Key &key);
 
+private:
+    void trim(int m);
+
 #ifdef QT_COMPAT
     inline QT_COMPAT T *find(const Key &key) const { return object(key); }
 #endif
@@ -94,7 +97,7 @@ inline void QCache<Key,T>::clear()
 
 template <class Key, class T>
 inline void QCache<Key,T>::setMaxCost(int m)
-{ mx = m; while (l && total > mx) unlink(*l); }
+{ mx = m; trim(mx); }
 
 template <class Key, class T>
 inline T *QCache<Key,T>::object(const Key &key) const
@@ -122,21 +125,27 @@ void QCache<Key,T>::insert(const Key &key, T *object, int cost)
         delete object;
         return;
     }
+    trim(mx - cost);
+    Node sn(key, object, cost);
+    hash.insert(key, sn);
+    total += cost;
+    Node *n = &hash[key];
+    if (f) f->p = n;
+    n->n = f;
+    f = n;
+    if (!l) l = f;
+}
+
+template <class Key, class T>
+void QCache<Key,T>::trim(int m)
+{
     Node *n = l;
-    while (n && total > mx - cost) {
+    while (n && total > m) {
         Node *u = n;
         n = n->p;
         if (qIsDetached(*u->t))
             unlink(*u);
     }
-    Node sn(key, object, cost);
-    hash.insert(key, sn);
-    total += cost;
-    n = &hash[key];
-    if (f) f->p = n;
-    n->n = f;
-    f = n;
-    if (!l) l = f;
 }
 
 #endif

@@ -262,6 +262,9 @@ public:
     inline void drawImage(int x, int y, const QImage &image, int sx = 0, int sy = 0,
                           int sw = -1, int sh = -1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
+    void setLayoutDirection(Qt::LayoutDirection direction);
+    Qt::LayoutDirection layoutDirection() const;
+
     void drawText(const QPointF &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);

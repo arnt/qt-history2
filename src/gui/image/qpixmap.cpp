@@ -24,41 +24,15 @@
 #include <private/qinternal_p.h>
 #include "qevent.h"
 #include "qfile.h"
+#include "qfileinfo.h"
+#include "qpixmapcache.h"
+#include "qdatetime.h"
 #include "qimageio.h"
 
 #if defined(Q_WS_X11)
 #include "qx11info_x11.h"
 #endif
 
-//#define QT_NO_PIXMAP_RETAIN
-#ifndef QT_NO_PIXMAP_RETAIN
-#include <qcache.h>
-#include <qfileinfo.h>
-#include <qdatetime.h>
-class QRetainedPixmap : public QPixmap
-{
-public:
-    QRetainedPixmap(const QPixmap &p) : QPixmap(p) { }
-    virtual bool isOutOfDate() { return false; } //never goes out of date by default
-};
-Q_DECLARE_SHARED(QRetainedPixmap)
-
-class QRetainedPixmapFile : public QRetainedPixmap
-{
-    QString file;
-    QDateTime mtime;
-public:
-    QRetainedPixmapFile(const QString &f, const QPixmap &p) : QRetainedPixmap(p), file(f) {
-        mtime = QFileInfo(file).lastModified();
-    }
-    virtual bool isOutOfDate() {
-        return mtime != QFileInfo(file).lastModified();
-    }
-};
-
-typedef QCache<QString, QRetainedPixmap> QRetainedPixmapCache;
-Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024))
-#endif
 
 /*!
     \class QPixmap
@@ -807,37 +781,17 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
-#ifndef QT_NO_PIXMAP_RETAIN
-    QString absoluteFilePath = QFileInfo(fileName).absoluteFilePath();
-    if (QRetainedPixmap *retain = qt_retained_pixmaps()->object(absoluteFilePath)) {
-        if (retain->isOutOfDate()) {
-            qt_retained_pixmaps()->remove(absoluteFilePath);
-            delete retain;
-        } else {
-            *this = *retain;
+    QFileInfo info(fileName);
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString();
+
+    if (QPixmapCache::find(key, *this))
             return true;
-        }
-    }
-#endif
     QImageIO io(fileName, format);
-    bool result = io.read();
-    if (result) {
-        result = fromImage(io.image(), flags);
-#ifndef QT_NO_PIXMAP_RETAIN
-        if (result) {
-            QRetainedPixmap *keeper = 0;
-            if (fileName.at(0) != QLatin1Char(':'))
-                keeper = new QRetainedPixmapFile(absoluteFilePath, *this);
-            else
-                keeper = new QRetainedPixmap(*this);
-            int cost = width()*height()*depth()/8;
-            if (data->optim == LoadOptim)
-                cost /= 4;
-            qt_retained_pixmaps()->insert(absoluteFilePath, keeper, cost);
-        }
-#endif
+    if (io.read() && fromImage(io.image(), flags)) {
+        QPixmapCache::insert(key, *this);
+        return true;
     }
-    return result;
+    return false;
 }
 
 /*!
