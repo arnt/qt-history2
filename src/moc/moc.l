@@ -138,7 +138,12 @@ STRING		{ALMOSTSTRING}\"
 <IN_CLASS>"signals"		{ X;if( classPLevel == 1 ) return SIGNALS; }
 <IN_CLASS>"slots"		{ X;if( classPLevel == 1 ) return SLOTS; }
 <IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
-<IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
+<IN_CLASS>"Q_OBJECT"		{ X;
+				  if ( classPLevel == 1 )
+				      return Q_OBJECT;
+				  else if ( classPLevel > 1 )
+				      moc_warn( "Cannot use Q_OBJECT in nested class." );
+				}
 <IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
 <IN_CLASS>"Q_OVERRIDE"		{ X;if( classPLevel == 1 ) return Q_OVERRIDE; }
 <IN_CLASS>"Q_ENUMS"		{ X;if( classPLevel == 1 ) return Q_ENUMS; }
