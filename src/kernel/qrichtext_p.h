@@ -820,7 +820,7 @@ public:
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QList<QTextDocument> children() const { return childList; }
 
-    void setAddMargis( bool b ) { addMargs = b; }
+    void setAddMargins( bool b ) { addMargs = b; }
     int addMargins() const { return addMargs; }
 
 signals:
