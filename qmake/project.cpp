@@ -474,7 +474,9 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 			    }
 			}
 		    } else {
-			test = isActiveConfig(comp_scope.stripWhiteSpace(), TRUE, &place);
+			QString cscope = comp_scope.stripWhiteSpace();
+			doVariableReplace(cscope, place);
+			test = isActiveConfig(cscope.stripWhiteSpace(), TRUE, &place);
 		    }
 		    if(invert_test)
 			test = !test;
