@@ -18,8 +18,8 @@
 #include <limits.h>
 
 // defined in qfontdatbase_x11.cpp
-extern int qt_mibForXlfd( const char *encoding );
-extern int qt_xlfdEncoding_Id( const char *encoding );
+extern int qt_mib_for_xlfd_encoding( const char *encoding );
+extern int qt_xlfd_encoding_id( const char *encoding );
 
 extern void qt_draw_transformed_rect( QPainter *p, int x, int y, int w, int h, bool fill );
 
@@ -87,8 +87,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t
 	return OutOfMemory;
     }
 
-    for ( int i = 0; i < len; i++ )
-	*(glyphs++) = 0;
+    memset( glyphs, 0, len * sizeof( glyph_t ) );
     *nglyphs = len;
 
     if ( advances ) {
@@ -254,11 +253,9 @@ static inline XCharStruct *charStruct( XFontStruct *xfs, uint ch )
     return xcs;
 }
 
-QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name,
-				  const char *encoding, int )
-    : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. )
+QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, int mib )
+    : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. ), _cmap( mib )
 {
-    _cmap = qt_mibForXlfd( encoding );
     if ( _cmap ) _codec = QTextCodec::codecForMib( _cmap );
 
     cache_cost = (((fs->max_byte1 - fs->min_byte1) *
@@ -783,23 +780,24 @@ QFontEngine::Type QFontEngineXLFD::type() const
 // LatinXLFD engine
 // ------------------------------------------------------------------
 
+static const int engine_array_inc = 4;
+
 QFontEngineLatinXLFD::QFontEngineLatinXLFD( XFontStruct *xfs, const char *name,
-					    const char *encoding )
+					    int mib )
 {
-    _engines = new QFontEngine*[8];
-    _engines[0] = new QFontEngineXLFD( xfs, name, encoding, 0 );
+    _engines = new QFontEngine*[ engine_array_inc ];
+    _engines[0] = new QFontEngineXLFD( xfs, name, mib );
     _count = 1;
 
     memset( glyphIndices, 0, sizeof( glyphIndices ) );
+    memset( glyphAdvances, 0, sizeof( glyphAdvances ) );
+
     unsigned short chars[0x200];
     for ( int i = 0; i < 0x200; ++i )
 	chars[i] = i;
     int glyphCount = 0x200;
     _engines[0]->stringToCMap( (const QChar *)chars, 0x200,
 			       glyphIndices, glyphAdvances, &glyphCount );
-
-    // ### hack char 0 to be something other than 0 (bang for now)
-    glyphIndices[0] = 0x0021;
 }
 
 QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
@@ -814,11 +812,16 @@ QFontEngineLatinXLFD::~QFontEngineLatinXLFD()
 
 void QFontEngineLatinXLFD::findEngine( const QChar &ch )
 {
+    if ( ch.unicode() == 0 ) return;
+
     static const char *alternate_encodings[] = {
 	"iso8859-1",
 	"iso8859-2",
 	"iso8859-3",
 	"iso8859-4",
+	"iso8859-9",
+	"iso8859-10",
+	"iso8859-13",
 	"iso8859-14",
 	"iso8859-15",
 	"hp-roman8"
@@ -830,7 +833,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     int which = -1;
     int i;
     for ( i = 0; i < mib_count; ++i ) {
-	int mib = qt_mibForXlfd( alternate_encodings[i] );
+	const int mib = qt_mib_for_xlfd_encoding( alternate_encodings[i] );
 	bool skip = FALSE;
 	for ( int e = 0; e < _count; ++e ) {
 	    if ( _engines[e]->cmap() == mib ) {
@@ -850,14 +853,29 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     if ( ! codec || which == -1 )
 	return;
 
-    QFontEngine *engine =
-	QFontDatabase::findFont( QFont::Latin, 0, fontDef,
-				 qt_xlfdEncoding_Id( alternate_encodings[which] ) );
-    if ( ! engine ) return;
+    const int enc_id = qt_xlfd_encoding_id( alternate_encodings[which] );
+    QFontDef req = fontDef;
+    QFontEngine *engine = QFontDatabase::findFont( QFont::Latin, 0, req, enc_id );
+    if ( ! engine ) {
+	req.family = QString::null;
+	engine = QFontDatabase::findFont( QFont::Latin, 0, req, enc_id );
+	if ( ! engine ) return;
+    }
     engine->setScale( scale() );
 
+    if ( ! ( _count % engine_array_inc ) ) {
+	// grow the engines array
+	QFontEngine **old = _engines;
+	int new_size =
+	    ( ( ( _count+engine_array_inc ) / engine_array_inc ) * engine_array_inc );
+	_engines = new QFontEngine*[new_size];
+	for ( i = 0; i < _count; ++i )
+	    _engines[i] = old[i];
+	delete [] old;
+    }
+
     _engines[_count] = engine;
-    const int e = _count << 8;
+    const int hi = _count << 8;
     ++_count;
 
     unsigned short chars[0x200];
@@ -872,7 +890,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     for ( i = 0; i < 0x200; ++i ) {
 	if ( glyphIndices[i] != 0 ) continue;
 	if ( glyphs[i] == 0 ) continue;
-	glyphIndices[i] = e | glyphs[i];
+	glyphIndices[i] = hi | glyphs[i];
 	glyphAdvances[i] = advances[i];
     }
 }

@@ -61,14 +61,13 @@ class QPaintDevice;
 struct QFontDef
 {
     QFontDef()
-	: family_hash( 0 ), pointSize( -1 ), pixelSize( -1 ),
+	: pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
 	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 )
     {
     }
 
     QString family;
-    uint family_hash;
 
 #ifdef Q_WS_X11
     QString addStyle;
@@ -95,7 +94,6 @@ struct QFontDef
 	if ( stretch != other.stretch ) return stretch < other.stretch;
 	if ( styleHint != other.styleHint ) return styleHint < other.styleHint;
 	if ( styleStrategy != other.styleStrategy ) return styleStrategy < other.styleStrategy;
-	if ( family_hash != other.family_hash ) return family_hash < other.family_hash;
 	if ( family != other.family ) return family < other.family;
 
 #ifdef Q_WS_X11
@@ -106,8 +104,7 @@ struct QFontDef
     }
     inline bool operator==( const QFontDef &other ) const
     {
-	return ( family_hash   == other.family_hash   &&
-		 pointSize     == other.pointSize     &&
+	return ( pointSize     == other.pointSize     &&
 		 pixelSize     == other.pixelSize     &&
 		 styleHint     == other.styleHint     &&
 		 styleStrategy == other.styleStrategy &&
@@ -175,6 +172,7 @@ public:
     QPaintDevice *paintdevice;
     int screen;
 
+    uint rawMode    :  1;
     uint underline  :  1;
     uint overline   :  1;
     uint strikeOut  :  1;
@@ -192,8 +190,6 @@ public:
 	FixedPitch    = 0x0200,
 	Stretch       = 0x0400,
 	Complete      = 0x07ff,
-
-	RawMode       = 0x10000000
     };
 
     uint mask;
@@ -231,6 +227,14 @@ public:
 	{ return def == other.def && script == other.script && screen == other.screen; }
     };
 
+    // QFontEngineData cache
+    typedef QMap<Key,QFontEngineData*> EngineDataCache;
+    EngineDataCache engineDataCache;
+
+    QFontEngineData *findEngineData( const Key &key ) const;
+    void insertEngineData( const Key &key, QFontEngineData *engineData );
+
+    // QFontEngine cache
     struct Engine {
 	Engine() : data( 0 ), timestamp( 0 ), hits( 0 ) { }
 	Engine( QFontEngine *d ) : data( d ), timestamp( 0 ), hits( 0 ) { }
@@ -240,22 +244,11 @@ public:
 	uint hits;
     };
 
-    // QFontEngineData cache
-    typedef QMap<Key,QFontEngineData*> EngineDataCache;
-    EngineDataCache engineDataCache;
-
-    QFontEngineData *findEngineData( const Key &key ) const;
-    void insertEngineData( const Key &key, QFontEngineData *engineData );
-
-    // QFontEngine cache
     typedef QMap<Key,Engine> EngineCache;
     EngineCache engineCache;
 
     QFontEngine *findEngine( const Key &key );
     void insertEngine( const Key &key, QFontEngine *engine );
-
-    // need timer handler to automatically adjust the cache size and
-    // clean out old stuff
 
 private:
     void increaseCost( uint cost );

@@ -327,7 +327,7 @@ class QFontEngineLatinXLFD;
 class QFontEngineXLFD : public QFontEngine
 {
 public:
-    QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );
+    QFontEngineXLFD( XFontStruct *fs, const char *name, int cmap );
     ~QFontEngineXLFD();
 
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
@@ -378,7 +378,7 @@ private:
 class QFontEngineLatinXLFD : public QFontEngine
 {
 public:
-    QFontEngineLatinXLFD( XFontStruct *xfs, const char *name, const char *encoding );
+    QFontEngineLatinXLFD( XFontStruct *xfs, const char *name, int cmap );
     ~QFontEngineLatinXLFD();
 
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs,

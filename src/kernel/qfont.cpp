@@ -63,7 +63,8 @@
 
 QFontPrivate::QFontPrivate()
     : engineData( 0 ), paintdevice( 0 ),
-      underline( FALSE ), overline( FALSE ), strikeOut( FALSE ), mask( 0 )
+      rawMode( FALSE ), underline( FALSE ), overline( FALSE ), strikeOut( FALSE ),
+      mask( 0 )
 {
 #ifdef Q_WS_X11
     screen = QPaintDevice::x11AppScreen();
@@ -75,7 +76,7 @@ QFontPrivate::QFontPrivate()
 QFontPrivate::QFontPrivate( const QFontPrivate &other )
     : QShared(), request( other.request ), engineData( 0 ),
       paintdevice( other.paintdevice ), screen( other.screen ),
-      underline( other.underline ), overline( other.overline ),
+      rawMode( other.rawMode ), underline( other.underline ), overline( other.overline ),
       strikeOut( other.strikeOut ), mask( other.mask )
 {
 }
@@ -1191,13 +1192,10 @@ void QFont::setStretch( int factor )
 */
 void QFont::setRawMode( bool enable )
 {
-    if ( (bool)( d->mask & QFontPrivate::RawMode ) == enable ) return;
+    if ( (bool) d->rawMode == enable ) return;
 
     detach();
-    if ( enable )
-	d->mask |= QFontPrivate::RawMode;
-    else
-	d->mask &= ~QFontPrivate::RawMode;
+    d->rawMode = enable;
 }
 
 /*!
@@ -1269,7 +1267,7 @@ bool QFont::isCopyOf( const QFont & f ) const
 */
 bool QFont::rawMode() const
 {
-    return d->mask & QFontPrivate::RawMode;
+    return d->rawMode;
 }
 
 /*!
@@ -1520,7 +1518,7 @@ static Q_UINT8 get_font_bits( const QFontPrivate *f )
 	bits |= 0x08;
     // if ( f.hintSetByUser )
     // bits |= 0x10;
-    if ( f->mask & QFontPrivate::RawMode )
+    if ( f->rawMode )
 	bits |= 0x20;
     return bits;
 }
@@ -1543,8 +1541,8 @@ static void set_font_bits( Q_UINT8 bits, QFontPrivate *f )
     f->overline              = (bits & 0x40) != 0;
     f->strikeOut             = (bits & 0x04) != 0;
     f->request.fixedPitch    = (bits & 0x08) != 0;
-    // f->hintSetByUser = (bits & 0x10) != 0;
-    f->mask |= (bits & 0x20) != 0 ? QFontPrivate::RawMode : 0;
+    // f->hintSetByUser      = (bits & 0x10) != 0;
+    f->rawMode               = (bits & 0x20) != 0;
 }
 
 #endif
@@ -2777,7 +2775,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 */
 bool QFontInfo::rawMode() const
 {
-    return ( d->mask & QFontPrivate::RawMode );
+    return d->rawMode;
 }
 
 /*!

@@ -75,40 +75,62 @@ static const XlfdEncoding xlfd_encoding[] = {
     { "iso8859-2", 1, 5, make_tag('i','s','o','8'), make_tag('5','9','-','2') },
     { "iso8859-3", 2, 6, make_tag('i','s','o','8'), make_tag('5','9','-','3') },
     { "iso8859-4", 3, 7, make_tag('i','s','o','8'), make_tag('5','9','-','4') },
-    { "iso8859-14", 4, 110, make_tag('i','s','o','8'), make_tag('9','-','1','4') },
-    { "iso8859-15", 5, 111, make_tag('i','s','o','8'), make_tag('9','-','1','5') },
-    { "hp-roman8", 6, 2004, make_tag('h','p','-','r'), make_tag('m','a','n','8') },
-    { "iso8859-5", 7, 8, make_tag('i','s','o','8'), make_tag('5','9','-','5') },
-    { "*-cp1251", 8, 2251, 0, make_tag('1','2','5','1') },
-    { "koi8-ru", 9, 2084, make_tag('k','o','i','8'), make_tag('8','-','r','u') },
-    { "koi8-u", 10, 2088, make_tag('k','o','i','8'), make_tag('i','8','-','u') },
-    { "koi8-r", 11, 2084, make_tag('k','o','i','8'), make_tag('i','8','-','r') },
-    { "iso8859-7", 12, 10, make_tag('i','s','o','8'), make_tag('5','9','-','7') },
-    { "iso8859-6", 13, 82, make_tag('i','s','o','8'), make_tag('5','9','-','6') },
-    { "iso8859-8", 14, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
-    { "gb18030-0", 15, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
-    { "gb18030.2000-0", 16, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
-    { "gbk-0", 17, -113, make_tag('g','b','k','-'), make_tag('b','k','-','0') },
-    { "gb2312.*-0", 18, 57, make_tag('g','b','2','3'), 0 },
-    { "jisx0201*-0", 19, 15, make_tag('j','i','s','x'), 0 },
-    { "jisx0208*-0", 20, 63, make_tag('j','i','s','x'), 0 },
-    { "ksc5601.1987-0", 21, 36, make_tag('k','s','c','5'), make_tag('8','7','-','0') },
-    { "big5hkscs-0", 22, -2101, make_tag('b','i','g','5'), make_tag('c','s','-','0') },
-    { "hkscs-1", 23, -2101, make_tag('h','k','s','c'), make_tag('c','s','-','1') },
-    { "big5*-*", 24, -2026, make_tag('b','i','g','5'), 0 },
-    { "tscii-*", 25, 2028, make_tag('t','s','c','i'), 0 },
-    { "tis620*-*", 26, 2259, make_tag('t','i','s','6'), 0 },
-    { "iso8859-11", 27, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
-    { "mulelao-1", 28, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
-    { "ethiopic-unicode", 29, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
-    { "iso10646-1", 30, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
-    { "unicode-*", 31, 0, make_tag('u','n','i','c'), 0 },
-    { "*-symbol", 32, 0, 0, make_tag('m','b','o','l') },
-    { "*-fontspecific", 33, 0, 0, make_tag('i','f','i','c') },
+    { "iso8859-9", 4, 12, make_tag('i','s','o','8'), make_tag('5','9','-','9') },
+    { "iso8859-10", 5, 13, make_tag('i','s','o','8'), make_tag('9','-','1','0') },
+    { "iso8859-13", 6, 109, make_tag('i','s','o','8'), make_tag('9','-','1','3') },
+    { "iso8859-14", 7, 110, make_tag('i','s','o','8'), make_tag('9','-','1','4') },
+    { "iso8859-15", 8, 111, make_tag('i','s','o','8'), make_tag('9','-','1','5') },
+    { "hp-roman8", 9, 2004, make_tag('h','p','-','r'), make_tag('m','a','n','8') },
+    { "iso8859-5", 10, 8, make_tag('i','s','o','8'), make_tag('5','9','-','5') },
+    { "*-cp1251", 11, 2251, 0, make_tag('1','2','5','1') },
+    { "koi8-ru", 12, 2084, make_tag('k','o','i','8'), make_tag('8','-','r','u') },
+    { "koi8-u", 13, 2088, make_tag('k','o','i','8'), make_tag('i','8','-','u') },
+    { "koi8-r", 14, 2084, make_tag('k','o','i','8'), make_tag('i','8','-','r') },
+    { "iso8859-7", 15, 10, make_tag('i','s','o','8'), make_tag('5','9','-','7') },
+    { "iso8859-6", 16, 82, make_tag('i','s','o','8'), make_tag('5','9','-','6') },
+    { "iso8859-8", 17, 85, make_tag('i','s','o','8'), make_tag('5','9','-','8') },
+    { "gb18030-0", 18, -114, make_tag('g','b','1','8'), make_tag('3','0','-','0') },
+    { "gb18030.2000-0", 19, -113, make_tag('g','b','1','8'), make_tag('0','0','-','0') },
+    { "gbk-0", 20, -113, make_tag('g','b','k','-'), make_tag('b','k','-','0') },
+    { "gb2312.*-0", 21, 57, make_tag('g','b','2','3'), 0 },
+    { "jisx0201*-0", 22, 15, make_tag('j','i','s','x'), 0 },
+    { "jisx0208*-0", 23, 63, make_tag('j','i','s','x'), 0 },
+    { "ksc5601*-*", 24, 36, make_tag('k','s','c','5'), 0 },
+    { "big5hkscs-0", 25, -2101, make_tag('b','i','g','5'), make_tag('c','s','-','0') },
+    { "hkscs-1", 26, -2101, make_tag('h','k','s','c'), make_tag('c','s','-','1') },
+    { "big5*-*", 27, -2026, make_tag('b','i','g','5'), 0 },
+    { "tscii-*", 28, 2028, make_tag('t','s','c','i'), 0 },
+    { "tis620*-*", 29, 2259, make_tag('t','i','s','6'), 0 },
+    { "iso8859-11", 30, 2259, make_tag('i','s','o','8'), make_tag('9','-','1','1') },
+    { "mulelao-1", 31, -4242, make_tag('m','u','l','e'), make_tag('a','o','-','1') },
+    { "ethiopic-unicode", 32, 0, make_tag('e','t','h','i'), make_tag('c','o','d','e') },
+    { "iso10646-1", 33, 0, make_tag('i','s','o','1'), make_tag('4','6','-','1') },
+    { "unicode-*", 34, 0, make_tag('u','n','i','c'), 0 },
+    { "*-symbol", 35, 0, 0, make_tag('m','b','o','l') },
+    { "*-fontspecific", 36, 0, 0, make_tag('i','f','i','c') },
+    { "fontspecific-*", 37, 0, make_tag('f','o','n','t'), 0 },
     { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[34][58] = {
+static const char scripts_for_xlfd_encoding[38][58] = {
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0 },
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0 },
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0 },
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -312,6 +334,12 @@ static const char scripts_for_xlfd_encoding[34][58] = {
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 1, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 1, 0, 0, 0, 0 }
 
 };
@@ -321,7 +349,7 @@ static const char scripts_for_xlfd_encoding[34][58] = {
 
 const int numEncodings = sizeof( xlfd_encoding ) / sizeof( XlfdEncoding ) - 1;
 
-int qt_xlfdEncoding_Id( const char *encoding )
+int qt_xlfd_encoding_id( const char *encoding )
 {
     // qDebug("looking for encoding id for '%s'", encoding );
     int len = strlen( encoding );
@@ -365,11 +393,10 @@ int qt_xlfdEncoding_Id( const char *encoding )
     return -1;
 }
 
-int qt_mibForXlfd( const char *encoding )
+int qt_mib_for_xlfd_encoding( const char *encoding )
 {
-    int id = qt_xlfdEncoding_Id( encoding );
-    if ( id != -1 )
-	return xlfd_encoding[id].mib;
+    int id = qt_xlfd_encoding_id( encoding );
+    if ( id != -1 ) return xlfd_encoding[id].mib;
     return 0;
 };
 
@@ -509,6 +536,79 @@ static int getFontWeight( const QCString &weightString, bool adjustScore = FALSE
 }
 
 
+/*
+  Fills in a font definition (QFontDef) from an XLFD (X Logical Font
+  Description).
+
+  Returns TRUE if the the given xlfd is valid.  The fields lbearing
+  and rbearing are not given any values.
+*/
+bool qt_fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
+{
+    char *tokens[NFontFields];
+    QCString buffer = xlfd.copy();
+    if ( ! parseXFontName(buffer.data(), tokens) )
+	return FALSE;
+
+    fd->family = QString::fromLatin1(tokens[Family]);
+    QString foundry = QString::fromLatin1(tokens[Foundry]);
+    if ( ! foundry.isEmpty() && foundry != QString::fromLatin1("*") )
+	fd->family +=
+	    QString::fromLatin1(" [") + foundry + QString::fromLatin1("]");
+
+    if ( qstrlen( tokens[AddStyle] ) > 0 )
+	fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
+    else
+	fd->addStyle = QString::null;
+
+    fd->pointSize = atoi(tokens[PointSize]);
+    fd->styleHint = QFont::AnyStyle;	// ### any until we match families
+
+    char slant = tolower( (uchar) tokens[Slant][0] );
+    fd->italic = ( slant == 'o' || slant == 'i' );
+    char fixed = tolower( (uchar) tokens[Spacing][0] );
+    fd->fixedPitch = ( fixed == 'm' || fixed == 'c' );
+    fd->weight = getFontWeight( tokens[Weight] );
+
+    int r = atoi(tokens[ResolutionY]);
+    fd->pixelSize = atoi(tokens[PixelSize]);
+    // not "0" or "*", or required DPI
+    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY( screen ) &&
+	 r != QPaintDevice::x11AppDpiY( screen ) ) {
+	// calculate actual pointsize for display DPI
+	fd->pointSize = (int) ((fd->pixelSize * 720.) /
+			       QPaintDevice::x11AppDpiY( screen ) + 0.5);
+    } else if ( fd->pixelSize == 0 && fd->pointSize ) {
+	// calculate pixel size from pointsize/dpi
+	fd->pixelSize = ( fd->pointSize *
+				  QPaintDevice::x11AppDpiY( screen ) ) / 720;
+    }
+
+    return TRUE;
+}
+
+/*
+  Fills in a font definition (QFontDef) from the font properties in an
+  XFontStruct.
+
+  Returns TRUE if the QFontDef could be filled with properties from
+  the XFontStruct.  The fields lbearing and rbearing are not given any
+  values.
+*/
+static bool qt_fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
+{
+    unsigned long value;
+    if ( fs && !XGetFontProperty( fs, XA_FONT, &value ) )
+	return FALSE;
+
+    char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
+    QCString xlfd( n );
+    if ( n )
+	XFree( n );
+    return qt_fillFontDef( xlfd.lower(), fd, screen );
+}
+
+
 static QtFontStyle::Key getStyle( char ** tokens )
 {
     QtFontStyle::Key key;
@@ -595,7 +695,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	// here, since we can pass -1 to this function to do full
 	// database population
 	*(tokens[CharsetEncoding]-1) = '-';
-	int encoding_id = qt_xlfdEncoding_Id( tokens[CharsetRegistry] );
+	int encoding_id = qt_xlfd_encoding_id( tokens[CharsetRegistry] );
 	if ( encoding_id == -1 )
 	    continue;
 
@@ -1130,6 +1230,22 @@ QFontEngine *loadEngine( QFont::Script script,
 			 QtFontStyle *style, QtFontSize *size,
 			 QtFontEncoding *encoding, bool forced_encoding )
 {
+    if ( fp && fp->rawMode ) {
+	QCString xlfd = request.family.latin1();
+	qDebug( "Loading XLFD (rawmode) '%s'", xlfd.data() );
+
+	XFontStruct *xfs;
+	if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
+	    return 0;
+
+	QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd.data(), 0 );
+	if ( ! qt_fillFontDef( xfs, &fe->fontDef, QPaintDevice::x11AppScreen() ) &&
+	     ! qt_fillFontDef( xlfd, &fe->fontDef, QPaintDevice::x11AppScreen() ) )
+	    fe->fontDef = QFontDef();
+
+	return fe;
+    }
+
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding->encoding == -1 ) {
 
@@ -1299,25 +1415,27 @@ QFontEngine *loadEngine( QFont::Script script,
     if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
 	return 0;
 
+    QFontEngine *fe = 0;
+    const int mib = xlfd_encoding[ encoding->encoding ].mib;
     switch ( script ) {
     case QFont::Latin:
 	if ( ! forced_encoding ) {
-	    return new QFontEngineLatinXLFD( xfs, xlfd.data(),
-					     xlfd_for_id( encoding->encoding ) );
+	    fe = new QFontEngineLatinXLFD( xfs, xlfd.data(), mib );
+	    break;
 	}
-	break;
 
-    case QFont::Han:
-	// return new QFontEngineHanXLFD( xfs, xlfd.data(),
-	//                                xlfd_for_id( encoding->encoding ), 0 );
-	break;
+	// case QFont::Han:
+	// if ( ! forced_encoding ) {
+	// fe = new QFontEngineHanXLFD( xfs, xlfd.data(), mib );
+	// break;
+	// }
 
-    default: break;
+    default:
+	fe = new QFontEngineXLFD( xfs, xlfd.data(), mib );
+	break;
     }
 
-    QFontEngine *fe =
-	new QFontEngineXLFD( xfs, xlfd.data(), xlfd_for_id( encoding->encoding ),
-			     encoding->encoding );
     fe->setScale( scale );
+
     return fe;
 }

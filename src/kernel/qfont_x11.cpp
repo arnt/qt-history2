@@ -105,6 +105,25 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
     return pSize;
 }
 
+/*
+  Removes wildcards from an XLFD.
+
+  Returns \a xlfd with all wildcards removed if a match for \a xlfd is
+  found, otherwise it returns \a xlfd.
+*/
+static QCString qt_fixXLFD( const QCString &xlfd )
+{
+    QCString ret = xlfd;
+    int count = 0;
+    char **fontNames =
+	XListFonts( QPaintDevice::x11AppDisplay(), xlfd, 32768, &count );
+    if ( count > 0 )
+	ret = fontNames[0];
+    XFreeFontNames( fontNames );
+    return ret ;
+}
+
+
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 int QFontPrivate::defaultEncodingID = -1;
 
@@ -432,22 +451,17 @@ void QFont::setRawName( const QString &name )
 {
     detach();
 
-    setFamily( name );
-    setRawMode( TRUE );
+    // from qfontdatabase_x11.cpp
+    extern bool qt_fillFontDef( const QCString &xlfd, QFontDef *fd, int screen );
 
-    // bool validXLFD =
-    //     QFontPrivate::fillFontDef( QFontPrivate::fixXLFD( name.latin1() ),
-    //                                &d->request, d->x11Screen ) ;
-    // d->request.dirty = TRUE;
-    //
-    // if ( !validXLFD ) {
-    // #ifdef QT_CHECK_STATE
-    //     qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
-    // #endif // QT_CHECK_STATE
-    //
-    //     setFamily( name );
-    //     setRawMode( TRUE );
-    // }
+    if ( ! qt_fillFontDef( qt_fixXLFD( name.latin1() ), &d->request, d->screen ) ) {
+#ifdef QT_CHECK_STATE
+	qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
+#endif // QT_CHECK_STATE
+
+	setFamily( name );
+	setRawMode( TRUE );
+    }
 }
 
 /*!
@@ -655,318 +669,3 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	d->engineData->widthCache[ ch.unicode() ] = width;
     return width;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-// **********************************************************************
-// QFontPrivate static methods
-// **********************************************************************
-
-/*
-  Removes wildcards from an XLFD.
-
-  Returns \a xlfd with all wildcards removed if a match for \a xlfd is
-  found, otherwise it returns \a xlfd.
-*/
-QCString QFontPrivate::fixXLFD( const QCString &xlfd )
-{
-    QCString ret = xlfd;
-    int count = 0;
-    char **fontNames = getXFontNames( xlfd, &count );
-    if ( count > 0 )
-	ret = fontNames[0];
-    XFreeFontNames( fontNames );
-    return ret ;
-}
-
-/*
-  Fills in a font definition (QFontDef) from the font properties in an
-  XFontStruct.
-
-  Returns TRUE if the QFontDef could be filled with properties from
-  the XFontStruct.  The fields lbearing and rbearing are not given any
-  values.
-*/
-bool QFontPrivate::fillFontDef( void *vfs, QFontDef *fd, int screen )
-{
-    XFontStruct *fs = (XFontStruct *)vfs;
-    unsigned long value;
-    if ( fs && !XGetFontProperty( fs, XA_FONT, &value ) )
-	return FALSE;
-
-    char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
-    QCString xlfd( n );
-    if ( n )
-	XFree( n );
-    return fillFontDef( xlfd.lower(), fd, screen );
-}
-
-/*
-  Fills in a font definition (QFontDef) from an XLFD (X Logical Font
-  Description).
-
-  Returns TRUE if the the given xlfd is valid.  The fields lbearing
-  and rbearing are not given any values.
-*/
-bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
-{
-    char *tokens[QFontPrivate::NFontFields];
-    QCString buffer = xlfd.copy();
-    if ( ! parseXFontName(buffer.data(), tokens) )
-	return FALSE;
-
-    fd->family = QString::fromLatin1(tokens[Family]);
-    QString foundry = QString::fromLatin1(tokens[Foundry]);
-    if ( ! foundry.isEmpty() && foundry != QString::fromLatin1("*") )
-	fd->family += QString::fromLatin1(" [") + foundry + QString::fromLatin1("]");
-
-    if ( qstrlen( tokens[AddStyle] ) > 0 )
-	fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
-    else
-	fd->addStyle = QString::null;
-
-    fd->pointSize = atoi(tokens[PointSize]);
-    fd->styleHint = QFont::AnyStyle;	// ### any until we match families
-
-    char slant = tolower( (uchar) tokens[Slant][0] );
-    fd->italic = ( slant == 'o' || slant == 'i' );
-    char fixed = tolower( (uchar) tokens[Spacing][0] );
-    fd->fixedPitch = ( fixed == 'm' || fixed == 'c' );
-    fd->weight = getFontWeight( tokens[Weight] );
-
-    int r = atoi(tokens[ResolutionY]);
-    fd->pixelSize = atoi(tokens[PixelSize]);
-    // not "0" or "*", or required DPI
-    if ( r && fd->pixelSize && QPaintDevice::x11AppDpiY( screen ) &&
-	 r != QPaintDevice::x11AppDpiY( screen ) ) {
-	// calculate actual pointsize for display DPI
-	fd->pointSize = (int) ((fd->pixelSize * 720.) /
-			       QPaintDevice::x11AppDpiY( screen ) + 0.5);
-    } else if ( fd->pixelSize == 0 && fd->pointSize ) {
-	// calculate pixel size from pointsize/dpi
-	fd->pixelSize = ( fd->pointSize * QPaintDevice::x11AppDpiY( screen ) ) / 720;
-    }
-
-    fd->underline     = FALSE;
-    fd->strikeOut     = FALSE;
-    fd->hintSetByUser = FALSE;
-    fd->rawMode       = FALSE;
-    fd->dirty         = FALSE;
-
-    return TRUE;
-}
-
-
-
-
-// **********************************************************************
-// QFontPrivate member methods
-// **********************************************************************
-
-// Computes the line width (underline,strikeout)
-void QFontPrivate::computeLineWidth()
-{
-    int nlw;
-    int weight = actual.weight;
-    int pSize  = actual.pixelSize;
-
-    // ad hoc algorithm
-    int score = pSize * weight;
-    nlw = ( score ) / 700;
-
-    // looks better with thicker line for small pointsizes
-    if ( nlw < 2 && score >= 1050 ) nlw = 2;
-    if ( nlw == 0 ) nlw = 1;
-
-    if (nlw > lineWidth) lineWidth = nlw;
-}
-
-
-
-// fill the actual fontdef with data from the loaded font
-void QFontPrivate::initFontInfo(QFont::Script script, double scale)
-{
-    QFontEngine *fe = x11data.fontstruct[script];
-    QFontEngine::Type type = fe->type();
-
-    // set the scale value for each font correctly...
-    if ( scale > 0 &&  type == QFontEngine::Box )
-	((QFontEngineBox *) fe)->_size = (int)(((QFontEngineBox *) fe)->_size*scale);
-
-    if ((script != QFont::Unicode && script != defaultScript) || !actual.dirty ||
-	type == QFontEngine::Box ) {
-	// make sure the pixel size is correct, so that we can draw the missing char
-	// boxes in the correct size...
-	if (request.pixelSize == -1) {
-	    actual.pointSize = request.pointSize;
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
-	}
-	return;
-    }
-
-    if ( paintdevice &&
-	 (QPaintDeviceMetrics( paintdevice ).logicalDpiY() != QPaintDevice::x11AppDpiY( x11Screen )) ) {
-	// we have a printer font
-	actual = request;
-	float _pointSize = pointSize( actual, paintdevice, x11Screen );
-	float _pixelSize = pixelSize( actual, paintdevice, x11Screen );
-	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(_pointSize + 0.5);
-	else
-	    actual.pixelSize = (int) (_pixelSize + 0.5);
-
-	if ( type == QFontEngine::Xlfd ) {
-	    QFontEngineXLFD *fexlfd = (QFontEngineXLFD *)fe;
-	    QFontDef font;
-	    if ( fillFontDef(fexlfd->name(), &font, x11Screen ) ) {
-		if ( font.pixelSize != 0 )
-		    fexlfd->_scale *= _pixelSize/((float) font.pixelSize);
-		//qDebug("setting scale to %f requested pixel=%f got %d",
-		// fe->scale, _pixelSize, font.pixelSize);
-	    }
-	}
-	return;
-    }
-
-    actual.lbearing = SHRT_MIN;
-    actual.rbearing = SHRT_MIN;
-
-    if (exactMatch) {
-	actual = request;
-	actual.dirty = FALSE;
-
-	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
-	else
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
-
-#ifndef   QT_NO_XFTFREETYPE
-	if ( type == QFontEngine::Xft ) {
-	    QFontEngineXft *fexft = (QFontEngineXft *)fe;
-	    // parse the pattern
-	    XftPattern *pattern =
-		(XftPattern *) fexft->_pattern;
-
-	    char *family_value;
-	    int slant_value;
-	    int weight_value;
-	    int spacing_value = XFT_PROPORTIONAL;
-	    XftPatternGetString (pattern, XFT_FAMILY, 0, &family_value);
-	    XftPatternGetInteger (pattern, XFT_SLANT, 0, &slant_value);
-	    XftPatternGetInteger (pattern, XFT_WEIGHT, 0, &weight_value);
-	    XftPatternGetInteger (pattern, XFT_SPACING, 0, &spacing_value);
-	    if (weight_value == XFT_WEIGHT_LIGHT)
-		weight_value = QFont::Light;
-	    else if (weight_value <= XFT_WEIGHT_MEDIUM)
-		weight_value = QFont::Normal;
-	    else if (weight_value <= XFT_WEIGHT_DEMIBOLD)
-		weight_value = QFont::DemiBold;
-	    else if (weight_value <= XFT_WEIGHT_BOLD)
-		weight_value = QFont::Bold;
-	    else if ( weight_value <= XFT_WEIGHT_BLACK)
-		weight_value = QFont::Black;
-	    else
-		weight_value = QFont::Normal;
-
-	    actual.family = family_value;
-	    actual.weight = weight_value;
-	    actual.italic = (slant_value != XFT_SLANT_ROMAN);
-	    actual.fixedPitch = (spacing_value >= XFT_MONO);
-	} else
-#endif // QT_NO_XFTFREETYPE
-	{
-	    QFontEngineXLFD *fexlfd = (QFontEngineXLFD *)fe;
-	    QFontDef def;
-
-	    if ( ! fillFontDef( fexlfd->_fs, &def, x11Screen ) &&
-		 ! fillFontDef( fexlfd->name(), &def, x11Screen ) ) {
-		// failed to parse the XLFD of the exact match font...
-		// this should never happen...
-		exactMatch = FALSE;
-	    } else {
-		QString dfoundry, dfamily, afoundry, afamily;
-		QFontDatabase::parseFontName( def.family, dfoundry, dfamily );
-		QFontDatabase::parseFontName( actual.family, afoundry, afamily );
-
-		if ( dfamily        != afamily            ||
-		     ( !dfoundry.isEmpty() &&
-		       !afoundry.isEmpty() &&
-		       dfoundry     != afoundry )         ||
-		     ( !def.addStyle.isEmpty() &&
-		       !actual.addStyle.isEmpty() &&
-		       def.addStyle   != actual.addStyle ) ) {
-		    // the foundry/family/addStyle do not match between
-		    // these 2 fontdefs... we have most likely made an
-		    // exact match with a font alias... fix it...
-		    actual.family = def.family;
-		    actual.addStyle = def.addStyle;
-		    exactMatch = FALSE;
-
-		}
-	    }
-	    // if we have a scaled font, we fake actual to show the correct size
-	    // value nevertheless....
-	    actual.pointSize = (int) (actual.pointSize*scale);
-	    actual.pixelSize = (int) (actual.pixelSize*scale);
-	}
-
-	return;
-    }
-
-    if ( type != QFontEngineXLFD::Xlfd )
-	return;
-
-    QFontEngineXLFD *fexlfd = (QFontEngineXLFD *)fe;
-
-    if ( ! fillFontDef( fexlfd->_fs, &actual, x11Screen ) &&
-	 ! fillFontDef( fexlfd->name(), &actual, x11Screen ) ) {
-	// zero fontdef
-	actual = QFontDef();
-
-	actual.family = QString::fromLatin1(fe->name());
-	actual.rawMode = TRUE;
-	actual.pointSize = request.pointSize;
-	actual.pixelSize = request.pixelSize;
-	exactMatch = FALSE;
-
-	if ( actual.pointSize == -1 )
-	    actual.pointSize = (int)(pointSize( actual, paintdevice, x11Screen ) +.5);
-	else
-	    actual.pixelSize = (int)(pixelSize( actual, paintdevice, x11Screen ) +.5);
-    }
-
-    actual.pointSize = (int)(actual.pointSize*scale);
-    actual.pixelSize = (int)(actual.pixelSize*scale);
-    actual.underline = request.underline;
-    actual.strikeOut = request.strikeOut;
-    actual.dirty = FALSE;
-}
-
-#endif // 0
