@@ -27,11 +27,10 @@
 //
 
 #include <private/qcom_p.h>
-#include <qptrlist.h>
 #include <qstring.h>
 #include <qmap.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qcstring.h>
 #include <qobject.h>
 #include <qvariant.h>
@@ -67,7 +66,7 @@ struct DesignerInterface : public QUnknownInterface
     virtual DesignerProject *currentProject() const = 0;
     virtual DesignerFormWindow *currentForm() const = 0;
     virtual DesignerSourceFile *currentSourceFile() const = 0;
-    virtual QPtrList<DesignerProject> projectList() const = 0;
+    virtual QList<DesignerProject*> projectList() const = 0;
     virtual void showStatusMessage( const QString &, int ms = 0 ) const = 0;
     virtual DesignerDock *createDock() const = 0;
     virtual DesignerOutputDock *outputDock() const = 0;
@@ -89,7 +88,7 @@ struct DesignerInterface : public QUnknownInterface
 
 struct DesignerProject
 {
-    virtual QPtrList<DesignerFormWindow> formList() const = 0;
+    virtual QList<DesignerFormWindow*> formList() const = 0;
     virtual QStringList formNames() const = 0;
     virtual QString formFileName( const QString &form ) const = 0;
     virtual void addForm( DesignerFormWindow * ) = 0;
@@ -101,7 +100,7 @@ struct DesignerProject
     virtual QString databaseFile() const = 0;
     virtual void setDatabaseFile( const QString & ) = 0;
     virtual void setupDatabases() const = 0;
-    virtual QPtrList<DesignerDatabase> databaseConnections() const = 0;
+    virtual QList<DesignerDatabase*> databaseConnections() const = 0;
     virtual void addDatabase( DesignerDatabase * ) = 0;
     virtual void removeDatabase( DesignerDatabase * ) = 0;
     virtual void save() const = 0;
@@ -110,7 +109,7 @@ struct DesignerProject
     virtual void setCustomSetting( const QString &key, const QString &value ) = 0;
     virtual QString customSetting( const QString &key ) const = 0;
     virtual DesignerPixmapCollection *pixmapCollection() const = 0;
-    virtual void breakPoints( QMap<QString, QValueList<uint> > &bps ) const = 0;
+    virtual void breakPoints( QMap<QString, QList<uint> > &bps ) const = 0;
     virtual QString breakPointCondition( QObject *o, int line ) const = 0;
     virtual void setBreakPointCondition( QObject *o, int line, const QString &condition ) = 0;
     virtual void clearAllBreakpoints() const = 0;
@@ -195,7 +194,7 @@ struct DesignerFormWindow
     virtual QWidget *currentWidget() const = 0;
     virtual QWidget *form() const = 0;
     virtual void setCurrentWidget( QWidget * ) = 0;
-    virtual QPtrList<QAction> actionList() const = 0;
+    virtual QList<QAction*> actionList() const = 0;
     virtual QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
 				   QObject* parent, const char* name = 0, bool toggle = FALSE ) = 0;
     virtual void addAction( QAction * ) = 0;

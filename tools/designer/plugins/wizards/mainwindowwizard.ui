@@ -29,7 +29,7 @@
 <include location="global" impldecl="in implementation">qiconset.h</include>
 <include location="global" impldecl="in implementation">qaction.h</include>
 <include location="global" impldecl="in implementation">qpixmap.h</include>
-<include location="global" impldecl="in implementation">qdict.h</include>
+<include location="global" impldecl="in implementation">qhash.h</include>
 <include location="local" implDecl="in declaration">mainwindowwizard.ui.h</include>
 <forward>struct DesignerFormWindow;</forward>
 <forward>struct DesignerInterface;</forward>

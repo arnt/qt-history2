@@ -96,8 +96,8 @@ void MainWindowWizardBase::accept()
 
     QPixmap pix;
 
-    QDict<QAction> actions;
-    QPtrList<QAction> usedActions;
+    QHash<QString, QAction*> actions;
+    QList<QAction*> usedActions;
 
     QtMsgHandler oldMsgHandler = qInstallMsgHandler( devNull );
 
@@ -214,16 +214,17 @@ void MainWindowWizardBase::accept()
 		dfw->addToolBarSeparator( "toolBar" );
 		continue;
 	    }
-	    QAction *a = actions.find( listToolbar->text( i ) );
+	    QAction *a = actions.value( listToolbar->text( i ) );
 	    if ( !a )
 		continue;
 	    dfw->addToolBarAction( "toolBar", a );
 	    dfw->addAction( a );
-	    if ( usedActions.findRef( a ) == -1 )
+	    if ( usedActions.findIndex( a ) == -1 )
 		usedActions.append( a );
 	}
     }
-    for ( QAction *ac = usedActions.first(); ac; ac = usedActions.next() ) {
+    for( QList<QAction*>::Iterator it = usedActions.begin(); it != usedActions.end(); ++it) {
+	QAction *ac = (*it);
 	if ( QString( ac->name() ).find( "file" ) != -1 && checkCreateConnectionsFile->isChecked() ||
 	    QString( ac->name() ).find( "edit" ) != -1 && checkCreateConnectionsEdit->isChecked() ||
 	    QString( ac->name() ).find( "help" ) != -1 && checkCreateConnectionsHelp->isChecked() ) {

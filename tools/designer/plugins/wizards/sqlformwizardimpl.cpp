@@ -97,8 +97,9 @@ void SqlFormWizard::connectionSelected( const QString &c )
 	return;
 
     listBoxTable->clear();
-    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
-    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+    QList<DesignerDatabase*> databases = proIface->databaseConnections();
+    for(QList<DesignerDatabase*>::Iterator it = databases.begin(); it != databases.end(); ++it) {
+	DesignerDatabase *d = (*it);
 	if ( d->name() == c  || ( d->name() == "(default)" || d->name().isEmpty() ) && c == "(default)")
 	    listBoxTable->insertStringList( d->tables() );
     }
@@ -120,12 +121,13 @@ void SqlFormWizard::autoPopulate( bool populate )
     DesignerProject *proIface = (DesignerProject*)( (DesignerInterface*)appIface )->currentProject();
     if ( !proIface )
 	return;
-    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
+    QList<DesignerDatabase*> databases = proIface->databaseConnections();
     listBoxField->clear();
     listBoxSortField->clear();
     listBoxSelectedField->clear();
     if ( populate ) {
-	for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+	for(QList<DesignerDatabase*>::Iterator it = databases.begin(); it != databases.end(); ++it) {
+	    DesignerDatabase *d = (*it);
 	    if ( d->name() == listBoxConnection->currentText() ||
 		 ( ( d->name() == "(default)" || d->name().isEmpty() ) &&
 		 listBoxConnection->currentText() == "(default)" ) ) {
@@ -136,7 +138,7 @@ void SqlFormWizard::autoPopulate( bool populate )
 #ifndef QT_NO_SQL
 		QSqlCursor tab( listBoxTable->currentText(), TRUE, d->connection() );
 		QSqlIndex pIdx = tab.primaryIndex();
-		for ( uint i = 0; i < pIdx.count(); i++ ) {
+		for ( int i = 0; i < pIdx.count(); i++ ) {
 		    listBoxField->insertItem( pIdx.field( i )->name() );
 		    lst.remove( pIdx.field( i )->name() );
 		}
@@ -275,10 +277,10 @@ void SqlFormWizard::setupPage1()
 
     listBoxTable->clear();
     listBoxConnection->clear();
-    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
+    QList<DesignerDatabase*> databases = proIface->databaseConnections();
     QStringList lst;
-    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
-	lst << d->name();
+    for(QList<DesignerDatabase*>::Iterator it = databases.begin(); it != databases.end(); ++it) 
+	lst << (*it)->name();
     listBoxConnection->insertStringList( lst );
     if ( lst.count() )
 	listBoxConnection->setCurrentItem( 0 );
@@ -332,9 +334,10 @@ void SqlFormWizard::accept()
 	formWindow->setPropertyChanged( widget, "sort", TRUE );
     }
 
-    QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
+    QList<DesignerDatabase*> databases = proIface->databaseConnections();
     DesignerDatabase *database = 0;
-    for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
+    for(QList<DesignerDatabase*>::Iterator it = databases.begin(); it != databases.end(); ++it) {
+	DesignerDatabase *d = (*it);
 	if ( d->name() == listBoxConnection->currentText() || ( d->name() == "(default)" || d->name().isEmpty() ) && listBoxConnection->currentText() == "(default)" ) {
 	    database = d;
 	    d->open( FALSE );
