@@ -1228,7 +1228,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		} else if ( extension.isEmpty() ) {
 		    QString filter;
 		    for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
-			if ( (*it2).contains( fi.extension( FALSE ), FALSE ) ) {
+			if ( (*it2).contains( "." + fi.extension( FALSE ), FALSE ) ) {
 			    filter = *it2;
 			    break;
 			}
