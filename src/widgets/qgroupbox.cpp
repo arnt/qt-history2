@@ -67,7 +67,7 @@
   the frame.
 
   The simplest way to use it is to create a group box with the desired
-  number of columns (or rows) and orientation, and then just create 
+  number of columns (or rows) and orientation, and then just create
   widgets with the group box as parent.
 
   However, it is also possible to change the orientation() and number
@@ -313,7 +313,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     }
     // I really think this should call drawFrame() instead...
     style().drawPrimitive( QStyle::PE_GroupBoxFrame, &paint, frameRect(),
-			   colorGroup(), QStyle::Style_Default, 
+			   colorGroup(), QStyle::Style_Default,
 			   QStyleOption(lineWidth(), midLineWidth(),
 			    frameShape(), frameShadow()) );
     drawContents( &paint );			// draw the contents
@@ -574,7 +574,8 @@ void QGroupBox::fixFocus()
 	QWidget * p = w;
 	while( p && p != this && !p->isTopLevel() )
 	    p = p->parentWidget();
-	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus && w->isVisible() ) {
+	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus 
+	     && w->isVisibleTo(this) ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON
 		 || ( !best &&
