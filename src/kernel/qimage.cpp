@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#140 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#139 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#140 $");
 
 
 /*!
@@ -1647,19 +1647,6 @@ bool QImage::isGrayscale() const
 static
 void pnmscale(const QImage& src, QImage& dst)
 {
-// This function is based on:
-/* pnmscale.c - read a portable anymap and scale it
-**
-** Copyright (C) 1989, 1991 by Jef Poskanzer.
-**
-** Permission to use, copy, modify, and distribute this software and its
-** documentation for any purpose and without fee is hereby granted, provided
-** that the above copyright notice appear in all copies and that both that
-** copyright notice and this permission notice appear in supporting
-** documentation.  This software is provided "as is" without express or
-** implied warranty.
-*/
-
 #define SCALE 4096
 #define HALFSCALE 2048
 
@@ -1843,6 +1830,19 @@ void pnmscale(const QImage& src, QImage& dst)
   will be 32-bpp, while all-gray images (including black-and-white 1-bpp)
   will produce 8-bit grayscale images with the palette spanning 256 grays
   from black to white.
+
+  This function uses code based on:
+
+  pnmscale.c - read a portable anymap and scale it
+
+  Copyright (C) 1989, 1991 by Jef Poskanzer.
+
+  Permission to use, copy, modify, and distribute this software and its
+  documentation for any purpose and without fee is hereby granted, provided
+  that the above copyright notice appear in all copies and that both that
+  copyright notice and this permission notice appear in supporting
+  documentation.  This software is provided "as is" without express or
+  implied warranty.
 */
 QImage QImage::smoothScale(int w, int h) const
 {
