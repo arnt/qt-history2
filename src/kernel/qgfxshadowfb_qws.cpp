@@ -141,53 +141,156 @@ void QGfxShadow<depth,type>::tiledBlt( int x,int y,int w,int h )
     QWSDisplay::ungrab();
 }
 
+QShadowTimerHandler::QShadowTimerHandler(QShadowFbScreen * s)
+    : QObject(0,0)
+{
+    screen=s;
+    startTimer(20);   // About 50Hz
+}
+
+void QShadowTimerHandler::timerEvent(QTimerEvent *)
+{
+    screen->checkUpdate();
+}
+
 QShadowFbScreen::QShadowFbScreen( int display_id )
     : QLinuxFbScreen(display_id)
 {
+    timer=new QShadowTimerHandler(this);
 }
 
 QShadowFbScreen::~QShadowFbScreen()
 {
+    delete timer;
 }
 
 bool QShadowFbScreen::initDevice()
 {
+    return QLinuxFbScreen::initDevice();
 }
 
 bool QShadowFbScreen::connect( const QString &displaySpec )
 {
+    bool ret=QLinuxFbScreen::connect(displaySpec);
+    if(!ret)
+	return false;
+
+    real_screen=data;
+    data=(uchar *)malloc(size);
+    
+    return true;
 }
 
 void QShadowFbScreen::disconnect()
 {
+    free(data);
+    data=real_screen;
+    
+    QLinuxFbScreen::disconnect();
 }
 
-int QShadowFbScreen::initCursor(void*, bool)
+int QShadowFbScreen::initCursor(void* end_of_location, bool init)
 {
+    /*
+      The end_of_location parameter is unusual: it's the address
+      after the cursor data.
+    */
+#ifndef QT_NO_QWS_CURSOR
+    qt_sw_cursor=TRUE;
+    // ### until QLumpManager works Ok with multiple connected clients,
+    // we steal a chunk of shared memory
+    SWCursorData *data = (SWCursorData *)end_of_location - 1;
+    qt_screencursor=new QShadowScreenCursor();
+    qt_screencursor->init( data, init );
+    return sizeof(SWCursorData);
+#else
+    return 0;
+#endif
 }
 
 void QShadowFbScreen::shutdownDevice()
 {
-}
-
-QGfx * QShadowFbScreen::createGfx(unsigned char *,int,int,int,int)
-{
+    QLinuxFbScreen::shutdownDevice();
 }
 
 void QShadowFbScreen::save()
 {
+    QLinuxFbScreen::save();
 }
 
 void QShadowFbScreen::restore()
 {
+    QLinuxFbScreen::restore();
+}
+
+QGfx * QShadowFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, 
+				  int linestep)
+{
+    if(bytes==base()) {
+    QGfx* ret;
+    if ( FALSE ) {
+	//Just to simplify the ifdeffery
+#ifndef QT_NO_QWS_DEPTH_1
+    } else if(d==1) {
+	ret = new QGfxShadow<1,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_4
+    } else if(d==4) {
+	ret = new QGfxShadow<4,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+    } else if(d==16) {
+	ret = new QGfxShadow<16,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_8
+    } else if(d==8) {
+	ret = new QGfxShadow<8,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
+    } else if(d==8) {
+	ret = new QGfxShadow<8,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_24
+    } else if(d==24) {
+	ret = new QGfxShadow<24,0>(bytes,w,h);
+#endif
+#ifndef QT_NO_QWS_DEPTH_32
+    } else if(d==32) {
+	ret = new QGfxShadow<32,0>(bytes,w,h);
+#endif
+    } else {
+	qFatal("Can't drive depth %d",d);
+	ret = 0; // silence gcc
+    }
+    ret->setLineStep(linestep);
+    return ret;	
+    } else {
+	return QLinuxFbScreen::createGfx(bytes,w,h,d,linestep);
+    }
 }
 
 void QShadowFbScreen::setMode(int nw,int nh,int nd)
 {
+    QLinuxFbScreen::setMode(nw,nh,nd);
 }
 
 void QShadowFbScreen::setDirty( const QRect& r )
 {
+    to_update=to_update.unite(r);
+}
+
+void QShadowFbScreen::checkUpdate()
+{
+    QArray<QRect> rectlist=to_update.rects();
+    for(int loopc=0;loopc<rectlist.size();loopc++) {
+	QRect& r=rectlist[loopc];
+	for(int loopc2=r.top();loopc2<=r.bottom();loopc2++) {
+	    int offset=( lstep*loopc2 )+( ( r.left() *d )/8 );
+	    int width=( ( ( r.right()-r.left() ) +1 ) *d )/8;
+	    memcpy(real_screen+offset,data+offset,width);
+	}
+    }
+    to_update=QRegion();
 }
 
 extern "C" QScreen * qt_get_screen_shadowfb( int display_id )

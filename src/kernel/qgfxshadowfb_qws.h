@@ -38,6 +38,7 @@
 
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
+#include "qobject.h"
 
 template <const int depth, const int type>
 class QGfxShadow : public QGfxRaster<depth,type>
@@ -71,6 +72,22 @@ public:
 };
 #endif
 
+class QShadowFbScreen;
+
+class QShadowTimerHandler : public QObject
+{
+
+public:
+
+    QShadowTimerHandler(QShadowFbScreen *);
+    virtual void timerEvent(QTimerEvent *);
+
+private:
+
+    QShadowFbScreen * screen;
+
+};
+
 class QShadowFbScreen : public QLinuxFbScreen
 {
 
@@ -88,6 +105,13 @@ public:
     virtual void restore();
     virtual void setMode(int,int,int);
     virtual void setDirty( const QRect& );
+    void checkUpdate();
+
+private:
+
+    uchar * real_screen;
+    QShadowTimerHandler * timer;
+    QRegion to_update;
 
 };
 
