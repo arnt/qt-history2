@@ -92,8 +92,10 @@ QFocusFrame::setWidget(QWidget *widget)
         widget->installEventFilter(this);
         setParent(widget->parentWidget());
         d->updateSize();
-        raise();
-        show();
+        if (parentWidget()->rect().contains(geometry())) {
+            raise();
+            show();
+        }
     } else {
         d->widget = 0;
         hide();
