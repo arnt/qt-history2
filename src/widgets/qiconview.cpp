@@ -4560,8 +4560,6 @@ void QIconView::startDrag()
 
 #endif
 
-#endif
-
 /*!
   Inserts an item in the grid of the iconview. You should never need
   to call this manually.
