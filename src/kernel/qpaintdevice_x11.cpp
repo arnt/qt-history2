@@ -329,7 +329,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn int QPaintDevice::x11AppCells()
 
     Returns the number of entries in the colormap for the default
@@ -340,7 +339,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn HANDLE QPaintDevice::x11AppRootWindow()
 
     Returns the root window for the default screen of the X display
@@ -349,7 +347,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn HANDLE QPaintDevice::x11AppColormap()
 
     Returns the colormap for the default screen of the X display
@@ -360,7 +357,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn bool QPaintDevice::x11AppDefaultColormap ()
 
     Returns the default colormap for the default screen of the X
@@ -371,7 +367,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn void* QPaintDevice::x11AppVisual ()
 
     Returns the Visual for the default screen of the X display global
@@ -380,7 +375,6 @@ Qt::HANDLE QPaintDevice::x11RenderHandle() const
 */
 
 /*!
-    \overload
     \fn bool QPaintDevice::x11AppDefaultVisual ()
 
     Returns TRUE if the Visual used is the default for the default

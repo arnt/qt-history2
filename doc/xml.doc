@@ -215,7 +215,7 @@ provide additional useful functionality:
      \i Used to implement \link xml.html#namespaces namespace\endlink
 	support for a reader. Note that namespaces do not change the
 	parsing behavior. They are only reported through the handler.
-\endlist
+\endtable
 
 
 \target sax2Features
