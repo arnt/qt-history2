@@ -41,7 +41,7 @@ QString buddyString( QWidget *widget )
 
     QString str;
 
-    QObjectListIt it(*ol);
+    QObjectListIterator it(*ol);
     while ( it.current() ) {
 	QLabel *label = (QLabel*)it.current();
 	++it;
@@ -144,7 +144,7 @@ int QAccessibleWidget::controlAt( int x, int y ) const
     if ( !list || list->isEmpty() )
 	return 0;
 
-    QObjectListIt it( *list );
+    QObjectListIterator it( *list );
     QWidget *child = 0;
     int index = 1;
     while ( ( child = (QWidget*)it.current() ) ) {
@@ -207,7 +207,7 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 	    if ( !sl )
 		return -1;
 	    QObject *sib;
-	    QObjectListIt it( *sl );
+	    QObjectListIterator it( *sl );
 	    int index;
 	    if ( dir == NavNext ) {
 		index = 1;
