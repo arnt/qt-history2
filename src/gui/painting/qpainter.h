@@ -219,6 +219,8 @@ public:
     inline void drawPixmap(int x, int y, const QPixmap &pm,
                            int sx, int sy, int sw, int sh,
                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
+    inline void drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr,
+                           Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     inline void drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
                            Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     inline void drawPixmap(const QPointF &p, const QPixmap &pm,
@@ -540,6 +542,12 @@ inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm,
                                  int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
 {
     drawPixmap(QRectF(x, y, -1, -1), pm, QRectF(sx, sy, sw, sh), mode);
+}
+
+inline void QPainter::drawPixmap(const QPointF &p, const QPixmap &pm, const QRectF &sr,
+                                 Qt::PixmapDrawingMode mode)
+{
+    drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr, mode);
 }
 
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr,
