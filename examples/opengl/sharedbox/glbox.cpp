@@ -60,18 +60,18 @@ void GLBox::initializeGL()
 	sharedDisplayList = makeObject();	// Make one
 	object = sharedDisplayList;		// Use it
 	sharedListUsers++;				// Keep reference count
-	qDebug( "GLBox %s created shared display list.", objectName() );
+	qDebug( "GLBox %s created shared display list.", objectName().latin1() );
     }
     else {				// There is a shared diplay list
 	if ( isSharing() ) {		// Can we access it?
 	    object = sharedDisplayList;		// Yes, use it
 	    sharedListUsers++;			// Keep reference count
-	    qDebug( "GLBox %s uses shared display list.", objectName() );
+	    qDebug( "GLBox %s uses shared display list.", objectName().latin1() );
 	}
 	else {				
 	    localDisplayList = makeObject();	// No, roll our own
 	    object = localDisplayList;		// and use that
-	    qDebug( "GLBox %s uses private display list.", objectName() );
+	    qDebug( "GLBox %s uses private display list.", objectName().latin1() );
 	}
     }
 }
@@ -87,14 +87,14 @@ GLBox::~GLBox()
     makeCurrent();				// We're going to do gl calls
     if ( localDisplayList != 0 ) {		// Did we make our own?
 	glDeleteLists( localDisplayList, 1 );	// Yes, delete it
-	qDebug( "GLBox %s deleted private display list.", objectName() );
+	qDebug( "GLBox %s deleted private display list.", objectName().latin1() );
     }
     else {
 	sharedListUsers--;	// No, we used the shared one; keep refcount
 	if ( sharedListUsers == 0 ) { 			// Any sharers left?
 	    glDeleteLists( sharedDisplayList, 1 );	// No, delete it
 	    sharedDisplayList = 0;
-	    qDebug( "GLBox %s deleted shared display list.", objectName() );
+	    qDebug( "GLBox %s deleted shared display list.", objectName().latin1() );
 	}
     }
 }

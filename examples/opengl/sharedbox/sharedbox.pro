@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= sharedbox
 
 CONFIG		+= qt warn_on release
-QT         += opengl
+QT              += opengl compat
 DEPENDPATH	= ../include
 
 QTDIR_build:REQUIRES        = "contains(QT_CONFIG, opengl)"
