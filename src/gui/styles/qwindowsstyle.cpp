@@ -1120,6 +1120,9 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
 #if defined (Q_WS_WIN)
             {
+                // Force update the HDC before we use it.
+                p->save();
+                p->restore();
                 HDC hdc = p->device()->getDC();
                 RECT rect = { opt->rect.left(), opt->rect.top(),
                               opt->rect.right() + 1, opt->rect.bottom() + 1 };
@@ -1133,10 +1136,11 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             QColor bg_col = fropt->backgroundColor;
             if (!bg_col.isValid())
                 bg_col = p->background().color();
-            if (qGray(bg_col.rgb()) < 128)
-                p->setBrush(QBrush(Qt::white, Qt::Dense4Pattern));
-            else
-                p->setBrush(QBrush(Qt::black, Qt::Dense4Pattern));
+            // Create an "XOR" color.
+            QColor patternCol((bg_col.red() ^ 0xff) & 0xff,
+                              (bg_col.green() ^ 0xff) & 0xff,
+                              (bg_col.blue() ^ 0xff) & 0xff);
+            p->setBrush(QBrush(patternCol, Qt::Dense4Pattern));
             p->setPen(Qt::NoPen);
             p->drawRect(r.left(), r.top(), r.width(), 1);    // Top
             p->drawRect(r.left(), r.bottom(), r.width(), 1); // Bottom
