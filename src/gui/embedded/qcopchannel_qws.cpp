@@ -66,7 +66,7 @@ public:
     to the QObject constructor.
 */
 
-QCopChannel::QCopChannel(const char *channel, QObject *parent) :
+QCopChannel::QCopChannel(const QString& channel, QObject *parent) :
     QObject(parent)
 {
     init(channel);
@@ -77,7 +77,7 @@ QCopChannel::QCopChannel(const char *channel, QObject *parent) :
     Use the two argument overload, and call setObjectName() to \a name
     the instance, instead.
 */
-QCopChannel::QCopChannel(const char *channel, QObject *parent, const char *name) :
+QCopChannel::QCopChannel(const QString& channel, QObject *parent, const char *name) :
     QObject(parent)
 {
     setObjectName(name);
@@ -85,7 +85,7 @@ QCopChannel::QCopChannel(const char *channel, QObject *parent, const char *name)
 }
 #endif
 
-void QCopChannel::init(const char *channel)
+void QCopChannel::init(const QString& channel)
 {
     d = new QCopChannelPrivate;
     d->channel = channel;
@@ -141,7 +141,7 @@ QCopChannel::~QCopChannel()
     Returns the name of the channel.
 */
 
-const char *QCopChannel::channel() const
+QString QCopChannel::channel() const
 {
     return d->channel;
 }
@@ -157,7 +157,7 @@ const char *QCopChannel::channel() const
 
     Example:
     \code
-    void MyClass::receive(const char *msg, const QByteArray &data)
+    void MyClass::receive(const QString& msg, const QByteArray &data)
     {
         QDataStream stream(data, QIODevice::ReadOnly);
         if (msg == "execute(QString,QString)") {
@@ -181,13 +181,13 @@ const char *QCopChannel::channel() const
 
     \sa send()
  */
-void QCopChannel::receive(const char *msg, const QByteArray &data)
+void QCopChannel::receive(const QString& msg, const QByteArray &data)
 {
     emit received(msg, data);
 }
 
 /*!
-    \fn void QCopChannel::received(const char *msg, const QByteArray &data)
+    \fn void QCopChannel::received(const QString& msg, const QByteArray &data)
 
     This signal is emitted with the \a msg and \a data whenever the
     receive() function gets incoming data.
@@ -199,7 +199,7 @@ void QCopChannel::receive(const char *msg, const QByteArray &data)
     Returns true if \a channel is registered; otherwise returns false.
 */
 
-bool QCopChannel::isRegistered(const char * channel)
+bool QCopChannel::isRegistered(const QString&  channel)
 {
     QByteArray data;
     QDataStream s(&data, QIODevice::WriteOnly);
@@ -221,7 +221,7 @@ bool QCopChannel::isRegistered(const char * channel)
     \sa receive()
 */
 
-bool QCopChannel::send(const char *channel, const char *msg)
+bool QCopChannel::send(const QString& channel, const QString& msg)
 {
     QByteArray data;
     return send(channel, msg, data);
@@ -256,7 +256,7 @@ bool QCopChannel::send(const char *channel, const char *msg)
     \sa receive()
 */
 
-bool QCopChannel::send(const char *channel, const char *msg,
+bool QCopChannel::send(const QString& channel, const QString& msg,
                        const QByteArray &data)
 {
     if (!qt_fbdpy) {
@@ -295,7 +295,7 @@ void QWSServerSignalBridge::emitRemovedChannel(const QString& channel) {
     Server side: subscribe client \a cl on channel \a ch.
 */
 
-void QCopChannel::registerChannel(const char *ch, QWSClient *cl)
+void QCopChannel::registerChannel(const QString& ch, QWSClient *cl)
 {
     if (!qcopServerMap)
         qcopServerMap = new QCopServerMap;
@@ -347,8 +347,8 @@ void QCopChannel::detach(QWSClient *cl)
     specified channel.
 */
 
-void QCopChannel::answer(QWSClient *cl, const char *ch,
-                          const char *msg, const QByteArray &data)
+void QCopChannel::answer(QWSClient *cl, const QString& ch,
+                          const QString& msg, const QByteArray &data)
 {
     // internal commands
     if (!ch) {
@@ -403,7 +403,7 @@ void QCopChannel::answer(QWSClient *cl, const char *ch,
     Client side: distribute received event to the QCop instance managing the
     channel.
 */
-void QCopChannel::sendLocally(const char *ch, const char *msg,
+void QCopChannel::sendLocally(const QString& ch, const QString& msg,
                                 const QByteArray &data)
 {
     Q_ASSERT(qcopClientMap);
