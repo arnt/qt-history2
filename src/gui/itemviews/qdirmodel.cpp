@@ -683,7 +683,9 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
-  Returns the drag object for the list of model item \a indices
+  \fn QDragObject *QDirModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
+
+  Returns the drag object for the list of model item \a indexes
   originally dragged from the \a dragSource widget.
 */
 

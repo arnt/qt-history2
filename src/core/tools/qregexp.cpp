@@ -3739,7 +3739,7 @@ QStringList QRegExp::capturedTexts()
 /*!
     Returns the text captured by the \a nth subexpression. The entire
     match has index 0 and the parenthesized subexpressions have
-    indices starting from 1 (excluding non-capturing parentheses).
+    indexes starting from 1 (excluding non-capturing parentheses).
 
     \code
     QRegExp rxlen("(\\d+)(?:\\s*)(cm|inch)");

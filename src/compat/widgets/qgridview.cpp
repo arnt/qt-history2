@@ -43,7 +43,7 @@
     numRows or numCols is changed), reimplement the dimensionChange()
     change handler.
 
-    Note: the row and column indices are always given in the order,
+    Note: the row and column indexes are always given in the order,
     row (vertical offset) then column (horizontal offset). This order
     is the opposite of all pixel operations, which are given in the
     order x (horizontal offset), y (vertical offset).

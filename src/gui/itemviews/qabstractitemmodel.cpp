@@ -188,7 +188,7 @@ QString QAbstractItemModelPrivate::i2s(QChar *buf, int size, int num)
   to data will continue to be valid as long as that data exists within
   the model.
 
-  It is good practice to check that persistent model indices are valid
+  It is good practice to check that persistent model indexes are valid
   before using them.
 
   \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemModel
@@ -420,9 +420,11 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 /*!
     \fn QModelIndex::QModelIndex(Type type = Null)
 
-    Creates a new empty model index. This is typically used to create
-    a parent model index for top-level items, i.e., for items which
-    have no parent.
+    Creates a new empty model index of the given \a type. By default, a
+    \c Null model index is created. This type of model index is used as the
+    parent index for top-level items in a model.
+
+    \sa QAbstractItemModel
 */
 
 /*!
@@ -726,8 +728,10 @@ bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
+    \fn QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
+
     Returns a pointer to a QDragObject object containing the data
-    associated with the \a indices from the \a dragSource.
+    associated with the \a indexes from the \a dragSource.
 
     \sa itemData()
 */
@@ -870,6 +874,19 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 }
 
 /*!
+    \enum QAbstractItemModel::ItemFlag
+
+    This enum describes the properties of an item:
+
+    \value ItemIsSelectable It can be selected.
+    \value ItemIsEditable It can be edited.
+    \value ItemIsDragEnabled It can be dragged.
+    \value ItemIsDropEnabled It can be used as a drop target.
+    \value ItemIsCheckable It can be checked.
+    \value ItemIsEnabled The user can interact with the item.
+*/
+
+/*!
     Returns ItemFlags.
 
     The base class implementation
@@ -906,7 +923,7 @@ void QAbstractItemModel::sort(int, const QModelIndex &, Qt::SortOrder)
 }
 
 /*!
-    Returns true if the data referred to by indices \a left and \a right is
+    Returns true if the data referred to by indexes \a left and \a right is
     equal; otherwise returns false.
 
     \sa greaterThan() lessThan()
@@ -1066,7 +1083,7 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
     points to the given \a data.
 
     This function provides a consistent interface that model subclasses must
-    use to create model indices.
+    use to create model indexes.
 */
 
 /*!
@@ -1094,12 +1111,12 @@ bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent)
 /*!
     \internal
 
-    Invalidates the persistent indices by setting them to invalid
+    Invalidates the persistent indexes by setting them to invalid
     model indexes. Affects the given \a parent index, or if the \a
     parent is invalid affects all indexes.
 
     This function is used in model subclasses that can manage persistent
-    model indices.
+    model indexes.
 
 */
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)

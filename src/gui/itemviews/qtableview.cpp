@@ -140,12 +140,12 @@ void QTableViewPrivate::updateHorizontalScrollbar(int itemWidth)
     \l showGrid property.
 
     For some specialized forms of tables it is useful to be able to
-    convert between row and column indices and widget coordinates.
+    convert between row and column indexes and widget coordinates.
     The rowAt() function provides the y-coordinate within the view of the
     specified row; the row index can be used to obtain a corresponding
     y-coordinate with rowViewportPosition(). The columnAt() and
     columnViewportPosition() functions provide the equivalent conversion
-    operations between x-coordinates and column indices.
+    operations between x-coordinates and column indexes.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
 

@@ -2055,7 +2055,7 @@ int QCoreSettings::beginReadArray(const QString &prefix)
 /*!
     Adds \a prefix to the current group and starts writing an array
     of size \a size. If \a size is -1 (the default), it is automatically
-    determined based on the indices of the entries written.
+    determined based on the indexes of the entries written.
 
     If you have many occurrences of a certain set of keys, you can
     use arrays to make your life easier. For example, let's suppose

@@ -592,7 +592,7 @@ bool QAccessible::isActive()
 
     If an accessible object provides information about it's children
     through one QAccessibleInterface, the children are referenced
-    using indices. The index is 1-based for the children, i.e. 0
+    using indexes. The index is 1-based for the children, i.e. 0
     refers to the object itself, 1 to the first child, 2 to the second
     child, and so on.
 

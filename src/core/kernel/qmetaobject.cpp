@@ -54,7 +54,7 @@
 
     The index functions indexOfMember(), indexOfEnumerator(), and
     indexOfProperty() map names of member functions, enumerators, or
-    properties to indices in the meta object. For example, Qt uses
+    properties to indexes in the meta object. For example, Qt uses
     indexOfMember() internally when you connect a signal to a slot.
 
     Classes can also have a list of name--value pairs of additional

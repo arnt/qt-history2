@@ -2352,7 +2352,7 @@ bool QImage::allGray() const
     equivalent to allGray().
 
     For 8-bpp images, this function returns true if color(i) is
-    QRgb(i,i,i) for all indices of the color table; otherwise returns
+    QRgb(i,i,i) for all indexes of the color table; otherwise returns
     false.
 
     \sa allGray() depth()

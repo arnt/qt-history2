@@ -520,13 +520,13 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 
   \value NoUpdate       No selection will be made.
   \value Clear          The complete selection will be cleared.
-  \value Select         All specified indices will be selected.
-  \value Deselect       All specified indices will be deselected.
-  \value Toggle         All specified indicies will be selected or
+  \value Select         All specified indexes will be selected.
+  \value Deselect       All specified indexes will be deselected.
+  \value Toggle         All specified indexes will be selected or
                         deselected depending on their current state.
   \value Current        The current selection will be updated.
-  \value Rows           All indices will be expanded to span rows.
-  \value Columns        All indices will be expanded to span columns.
+  \value Rows           All indexes will be expanded to span rows.
+  \value Columns        All indexes will be expanded to span columns.
   \value SelectCurrent  A combination of Select and Current, provided for
                         convenience.
   \value ToggleCurrent  A combination of Toggle and Current, provided for
@@ -775,7 +775,7 @@ QAbstractItemModel *QItemSelectionModel::model() const
 }
 
 /*!
-  Returns a list of all selected model item indices. The list contains no
+  Returns a list of all selected model item indexes. The list contains no
   duplicates, and is not sorted.
 */
 QModelIndexList QItemSelectionModel::selectedIndexes() const
