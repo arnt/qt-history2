@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#5 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -490,19 +490,6 @@ XFormCenter::XFormCenter( QWidget *parent, const char *name )
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-#ifdef _WS_WIN_
-    qWarning( "QTranslator not yet implemented for Windows" );
-#else    
-    QTranslator mf(0);
-    mf.load("xform.tr",".");
-    a.installTranslator(&mf);
-#endif
-#if 0
-    QColor x( 0xaa, 0xbe, 0xff );	// kind of blue
-    QColorGroup g( black, x, x.light(), x.dark(), x.dark(120),	black, white );
-    QPalette p( g, g, g );
-    a.setPalette( p );
-#endif
 
     XFormCenter *xfc = new XFormCenter;
     xfc->setGeometry( 0, 0, 500, 400 );
