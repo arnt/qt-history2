@@ -2797,6 +2797,8 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 			       item->y() - contentsY(),
 			       item->width(), item->height());
 	}
+    } else if ( !autoArrange() ) {
+	item->dirty = FALSE;
     }
 
     d->count++;
@@ -3429,7 +3431,8 @@ void QIconView::setContentsPos( int x, int y )
 void QIconView::showEvent( QShowEvent * )
 {
     if ( d->dirty ) {
-	resizeContents( viewport()->width(), viewport()->height() );
+	resizeContents( QMAX( contentsWidth(), viewport()->width() ), 
+			QMAX( contentsHeight(), viewport()->height() ) );
 	if ( autoArrange() )
 	    arrangeItemsInGrid( FALSE );
     }
@@ -5680,7 +5683,7 @@ void QIconView::enterEvent( QEvent *e )
 
 void QIconView::updateItemContainer( QIconViewItem *item )
 {
-    if ( !item || d->containerUpdateLocked || !isVisible() )
+    if ( !item || d->containerUpdateLocked || (!isVisible() && autoArrange()) )
 	return;
 
     if ( item->d->container1 && d->firstContainer ) {
