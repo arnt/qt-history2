@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#272 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#273 $
 **
 ** Implementation of QListView widget class
 **
@@ -1582,7 +1582,7 @@ QListView::~QListView()
     if ( d->iterators ) {
         QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
-	    i->listView = 0L;
+	    i->listView = 0;
 	    i = d->iterators->next();
 	}
 	delete d->iterators;
@@ -1936,7 +1936,7 @@ void QListView::clear()
     if ( d->iterators ) {
         QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
-	    i->curr = 0L;
+	    i->curr = 0;
 	    i = d->iterators->next();
 	}
     }	
@@ -2759,7 +2759,7 @@ void QListView::doAutoScroll()
     else if ( pos.y() < 0 )
         g = contentsY();
 
-    QListViewItem *c = d->focusItem, *old = 0L;
+    QListViewItem *c = d->focusItem, *old = 0;
     if ( down ) {
         int y = itemRect( d->focusItem ).y() + contentsY();
         while( c && y + c->height() <= g ) {
@@ -4315,7 +4315,7 @@ void QListView::takeItem( QListViewItem * i )
 /*!  Constructs an empty iterator. */
 
 QListViewItemIterator::QListViewItemIterator()
-    : curr( 0L ), listView( 0L )
+    : curr( 0 ), listView( 0 )
 {
 }
 
@@ -4324,8 +4324,10 @@ QListViewItemIterator::QListViewItemIterator()
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
-    : curr( item ), listView( item ? item->listView() : 0L )
+    : curr( item ), listView( 0 )
 {
+    if ( item )
+	listView = item->listView();
     addToListView();
 }
 
@@ -4360,7 +4362,7 @@ QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIter
         if ( listView->d->iterators->removeRef( this ) ) {
             if ( listView->d->iterators->count() == 0 ) {
                 delete listView->d->iterators;
-                listView->d->iterators = 0L;
+                listView->d->iterators = 0;
             }
         }
     }
@@ -4382,7 +4384,7 @@ QListViewItemIterator::~QListViewItemIterator()
         if ( listView->d->iterators->removeRef( this ) ) {
             if ( listView->d->iterators->count() == 0 ) {
                 delete listView->d->iterators;
-                listView->d->iterators = 0L;
+                listView->d->iterators = 0;
             }
         }
     }
@@ -4481,7 +4483,7 @@ QListViewItemIterator &QListViewItemIterator::operator--()
                 return *this;
             } else {
                 // we are already the first child of the listview, so it's over
-                curr = 0L;
+                curr = 0;
                 return *this;
             }
         } else
@@ -4577,10 +4579,11 @@ void QListViewItemIterator::currentRemoved()
         curr = curr->parent();
     else if ( curr->nextSibling() )
         curr = curr->nextSibling();
-    else if ( listView && listView->firstChild() && listView->firstChild() != curr )
+    else if ( listView && listView->firstChild() &&
+	      listView->firstChild() != curr )
         curr = listView->firstChild();
     else
-        curr = 0L;
+        curr = 0;
 }
 
 
