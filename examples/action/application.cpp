@@ -75,14 +75,14 @@ ApplicationWindow::ApplicationWindow()
                      "from the <b>File</b> menu.</p>";
     fileSaveAction->setWhatsThis( fileSaveText );
 
-    fileSaveAsAction = new QAction( "Save File As", "Save &As...", 0,  this,
+    fileSaveAsAction = new QAction( "Save &As...", 0,  this,
                                     "save as" );
     connect( fileSaveAsAction, SIGNAL( activated() ) , this,
              SLOT( saveAs() ) );
     fileSaveAsAction->setWhatsThis( fileSaveText );
 
-    filePrintAction = new QAction( "Print File", QPixmap( fileprint ),
-                                   "&Print...", CTRL+Key_P, this, "print" );
+    filePrintAction = new QAction( QPixmap( fileprint ), "Print file",
+                                   CTRL+Key_P, this, "print" );
     connect( filePrintAction, SIGNAL( activated() ) , this,
              SLOT( print() ) );
 
@@ -91,12 +91,12 @@ ApplicationWindow::ApplicationWindow()
                      "command from the File menu.";
     filePrintAction->setWhatsThis( filePrintText );
 
-    fileCloseAction = new QAction( "Close", "&Close", CTRL+Key_W, this,
+    fileCloseAction = new QAction( "&Close", CTRL+Key_W, this,
                                    "close" );
     connect( fileCloseAction, SIGNAL( activated() ) , this,
              SLOT( close() ) );
 
-    fileQuitAction = new QAction( "Quit", "&Quit", CTRL+Key_Q, this,
+    fileQuitAction = new QAction( "&Quit", CTRL+Key_Q, this,
                                   "quit" );
     connect( fileQuitAction, SIGNAL( activated() ) , qApp,
              SLOT( closeAllWindows() ) );
