@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#3 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#3 $";
 #endif
 
 
@@ -276,17 +276,6 @@ QPoint QWidget::mapToParent( const QPoint &p ) const
 QPoint QWidget::mapFromParent( const QPoint &p ) const
 {						// map from parent coordinate
     return p - rect.topLeft();
-}
-
-
-char *QWidget::text() const			// get widget text
-{
-    return (char *)((pcchar)wtext);
-}
-
-void QWidget::setText( const char *s )		// set widget text
-{
-    wtext = s;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#4 $
 **
 ** Definition of QWidget class
 **
@@ -77,9 +77,6 @@ public:
 
     QCursor  cursor() const;			// get/set cursor
     void     setCursor( const QCursor & );
-
-    char    *text()		const;		// widget text
-    void     setText( const char * );
 
   // Widget management functions
 
@@ -163,7 +160,6 @@ private:
     QColor   fg_col;				// foreground color
     QFont    fnt;				// widget font
     QCursor  curs;				// widget cursor
-    QString  wtext;				// widget text
     GuiStyle gui;				// gui style
     static GuiStyle ggui;			// global GUI style
     static void createMapper();			// create widget mapper
