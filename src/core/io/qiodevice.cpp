@@ -862,7 +862,7 @@ bool QIODevice::waitForReadyRead(int msecs)
     buffered written data has been written to the device and the
     bytesWritten() signal has been emitted, or until \a msecs
     milliseconds have passed. If msecs is -1, this function will
-    not time out. For unbuffered devices, it does nothing.
+    not time out. For unbuffered devices, it returns immediately.
 
     Returns true if a payload of data was written to the device;
     otherwise returns false (i.e. if the operation timed out, or if an
