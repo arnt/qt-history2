@@ -77,7 +77,7 @@ int QSqlResultInfo::size() const
      \sa QSqlFieldInfo
 */
 
-QSqlFieldInfoList QSqlResultInfo::fields() const
+QSqlFieldList QSqlResultInfo::fields() const
 {
     return fieldList;
 }
@@ -100,7 +100,7 @@ int QSqlResultInfo::affectedRows() const
 
 */
 
-int QSqlResultInfo::appendField( const QSqlFieldInfo& field )
+int QSqlResultInfo::appendField( const QSqlField& field )
 {
     fieldList.append( field );
     return ( fieldList.count() - 1 );

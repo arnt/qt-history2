@@ -100,7 +100,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
+QSqlField qMakeFieldInfo( const QODBCPrivate* p, int i  )
 {
     SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
@@ -122,7 +122,7 @@ QSqlFieldInfo qMakeFieldInfo( const QODBCPrivate* p, int i  )
 	qSystemWarning( QString("Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlFieldInfo( QString((char*)colName), type, (int)colSize, (int)colScale );
+    return QSqlField( QString((char*)colName), i, type );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLCHAR* buf, SQLINTEGER& lengthIndicator, bool& isNull )
@@ -536,7 +536,6 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
                         0);
     int count = 0;
     while ( r == SQL_SUCCESS ) {
-	QSqlFieldInfo fi;
 	bool isNull;
 	int nameLen(0);
 	r = SQLGetInfo( d->hDbc,
@@ -776,8 +775,8 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); current++ ) {
-	QSqlFieldInfo info = qMakeFieldInfo( d, field );
-	switch ( info.type ) {
+	QSqlField info = qMakeFieldInfo( d, field );
+	switch ( info.type() ) {
 	case QVariant::Int:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetIntData( d->hStmt, current, isNull ) );
@@ -854,7 +853,8 @@ QVariant QODBCResult::data( int field )
 
 	default:
 	case QVariant::String:
-	    SQLCHAR* buf = new SQLCHAR[info.length];
+	    //	    SQLCHAR* buf = new SQLCHAR[info.length]; // ### must fix this!
+	    SQLCHAR* buf = new SQLCHAR[ 255 ]; // ### temporary hack
 	    isNull = FALSE;
 	    QString fieldVal = qGetStringData( d->hStmt, current, buf, lengthIndicator, isNull );
 	    delete buf;

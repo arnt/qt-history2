@@ -26,6 +26,7 @@ public:
     int           fieldNumber() const { return num; }
     void          setReadOnly( bool readOnly ) { ro = readOnly; }
     bool          isReadOnly() const { return ro; }
+    QVariant::Type type() const { return val.type(); }
 
 private:
     QVariant      val;

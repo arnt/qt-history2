@@ -4,8 +4,10 @@
 #include <qtable.h>
 #include <qstring.h>
 #include <qsql.h>
-#include <qsqlresultinfo.h>
+#include <qsqlfield.h>
 #include <qsqldatabase.h>
+#include <qsqlresult.h>
+#include <qsqlresultinfo.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 
@@ -22,17 +24,12 @@ public:
     }
     ~Browse()
     {
-	qDebug("start ~Browse()");
 	free();
-	qDebug("end ~Browse()");
     }
     void free()
     {
-	qDebug("Browse free");
 	if ( res ) {
-	    qDebug("browse deleting res");
 	    delete res;
-	    qDebug("done browse deleting res");
 	    res = 0;
 	}
     }
@@ -42,7 +39,7 @@ public:
 	res = new QSql( r );
 	const QSqlResultInfo* i = res->info();
          if (i) {
-	    QSqlFieldInfoList flist = i->fields();
+	    QSqlFieldList flist = i->fields();
             setNumCols( flist.count() );
             int rows = i->size();
             if (rows > 0)
@@ -51,7 +48,7 @@ public:
 	    	setNumRows(10);
             QHeader* h = horizontalHeader();
             for ( int j = 0; j < numCols(); ++j )
-                h->setLabel( j, flist[j].name );
+                h->setLabel( j, flist[j].name() );
         }
     }
 protected:

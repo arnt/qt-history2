@@ -93,10 +93,10 @@ QVariant::Type decodePSQLType( int t )
     return type;
 }
 
-QSqlFieldInfo makeFieldInfo( QPSQLPrivate* p, int i )
+QSqlField makeFieldInfo( QPSQLPrivate* p, int i )
 {
     QVariant::Type type = decodePSQLType( PQftype( p->result, i ) );
-    return QSqlFieldInfo( PQfname( p->result, i ), type, PQfsize( p->result, i ), 0  );
+    return QSqlField( PQfname( p->result, i ), i, type );
 }
 
 QSqlField makeFieldInfo( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
@@ -194,11 +194,11 @@ QPoint pointFromString( const QString& s)
 
 QVariant QPSQLResult::data( int i )
 {
-    QSqlFieldInfo info = makeFieldInfo( d, i );
+    QSqlField info = makeFieldInfo( d, i );
     if ( PQbinaryTuples( d->result ) ) {
 	char* rawdata = PQgetvalue( d->result, at(), i );
 	int rawsize = PQfsize( d->result, i );
-	switch ( info.type ) {
+	switch ( info.type() ) {
 	case QVariant::String:
     	    return QVariant( QString(rawdata) );
 	case QVariant::Int:
@@ -258,7 +258,7 @@ QVariant QPSQLResult::data( int i )
 	}
     } else {
 	QString val( PQgetvalue( d->result, at(), i ) );
-	switch ( info.type ) {
+	switch ( info.type() ) {
 	case QVariant::String:
 	    return QVariant( val );
 	case QVariant::Int:

@@ -88,7 +88,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     return type;
 }
 
-QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
+QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 {
     OCIParam	*param;
     text        *colName;
@@ -164,9 +164,9 @@ QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 	    colLength = 0;
 	QString field((char*)colName);
 	field.truncate(colNameLen);
-	return QSqlFieldInfo( field, type, colLength, colPrecision );
+	return QSqlField( field, i, type );
     }
-    return QSqlFieldInfo( "", QVariant::Invalid, 0, 0 );
+    return QSqlField();
 }
 
 QOCIDriver::QOCIDriver( QObject * parent, const char * name )
@@ -373,9 +373,10 @@ public:
 	OCIDefine 	*dfn;
 	int 		r;
 	for ( int i=1; i <= size; ++i ) {
-	    QSqlFieldInfo f = makeFieldInfo( d, i );
-	    dataSize = f.length;
-	    if ( f.type == QVariant::DateTime ) {
+	    QSqlField f = makeFieldInfo( d, i );
+	    //	    dataSize = f.length; // ### must fix this!
+	    dataSize = 255; // temporary hack
+	    if ( f.type() == QVariant::DateTime ) {
 	    	r = OCIDefineByPos( d->sql,
 	 			&dfn,
 	 			d->err,
@@ -598,8 +599,8 @@ bool QOCIResult::fetchNext()
     }
     setAt( at() + 1 );
     for ( int i = 0; i < cols->size(); ++i ) {
-	QSqlFieldInfo f = makeFieldInfo( d, i+1 );
-	if ( f.type == QVariant::DateTime ) {
+	QSqlField f = makeFieldInfo( d, i+1 );
+	if ( f.type() == QVariant::DateTime ) {
 	    int century = cols->at(i)[0];
 	    int year = (unsigned char)cols->at(i)[1];
 	    if ( year > 100 && century > 100 ) {

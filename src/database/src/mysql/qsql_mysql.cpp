@@ -63,10 +63,10 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     return type;
 }
 
-QSqlFieldInfo qMakeFieldInfo( const MYSQL_FIELD* f )
+QSqlField qMakeField( const MYSQL_FIELD* f, int fieldNumber )
 {
     const char* c = (const char*)f->name;
-    return QSqlFieldInfo( QString(c), qDecodeMYSQLType(f->type), f->length, f->decimals );
+    return QSqlField( QString(c), fieldNumber, qDecodeMYSQLType(f->type) );
 }
 
 QMySQLResult::QMySQLResult( const QMySQLDriver* db )
@@ -135,8 +135,8 @@ QVariant QMySQLResult::data( int field )
 	MYSQL_FIELD* f = mysql_fetch_field_direct( d->result, field );
 	if ( f ) {
 	    QString val( ( d->row[field] ) );
-	    QSqlFieldInfo info = qMakeFieldInfo( f );
-	    switch ( info.type ) {
+	    QSqlField info = qMakeField( f, field );
+	    switch ( info.type() ) {
 	    case QVariant::Int:
 		return QVariant( val.toInt() );
 		break;
@@ -207,12 +207,14 @@ bool QMySQLResult::reset ( const QString& query )
 QMySQLResultInfo::QMySQLResultInfo( QMySQLPrivate* p )
 {
     if ( !mysql_errno( p->mysql ) ) {
+	int count = 0;
     	for ( ;; ) {
 	    MYSQL_FIELD* f = mysql_fetch_field( p->result );
 	    if ( f )
-		appendField( qMakeFieldInfo( f ) );
+		appendField( qMakeField( f , count ) );
 	    else
             	break;
+	    count++;
     	}
 	setSize( (int)mysql_num_rows( p->result ) );
 	setAffectedRows( (int)mysql_affected_rows( p->mysql ) );
@@ -329,8 +331,8 @@ QSqlFieldList QMySQLDriver::fields( const QString& tablename ) const
     QString fieldStmt( "show columns from %1;");
     QSql i = createResult();
     i << fieldStmt.arg( tablename );
-    while ( i.isActive() && i.next() ) 
-	fil.append ( QSqlField( i[0].toString() , t.at(), qDecodeMYSQLType(i[1].toInt()) ) );
+    while ( i.isActive() && i.next() )
+	fil.append ( QSqlField( i[0].toString() , i.at(), qDecodeMYSQLType(i[1].toInt()) ) );
     return fil;
 }
 
