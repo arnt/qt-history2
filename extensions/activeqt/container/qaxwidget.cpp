@@ -1354,6 +1354,10 @@ void QAxHostWidget::focusInEvent(QFocusEvent *e)
 void QAxHostWidget::focusOutEvent(QFocusEvent *e)
 {
     QWidget::focusOutEvent(e);
+    if (setFocusTimer) {
+        killTimer(setFocusTimer);
+        setFocusTimer = 0;
+    }
     if (QFocusEvent::reason() == QFocusEvent::Popup)
         return;
     
