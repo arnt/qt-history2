@@ -275,12 +275,6 @@ void Uic::createFormDecl( const QDomElement &e )
 
     QMap<QString, CustomInclude> customWidgetIncludes;
 
-    // database support
-    bool dbAware = FALSE;
-    if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" ) {
-	dbAware = TRUE;
-    }
-
     // at first the images, we need to ensure the names are unique
     QStringList forwardDecl;
     QStringList forwardDecl2;
@@ -321,8 +315,6 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "#define " << protector << endl;
     out << endl;
     out << "#include <qvariant.h>" << endl; // for broken HPUX compilers
-    if ( dbAware )
-	out << "#include <qvector.h>" << endl;
 
     QStringList globalIncludes, localIncludes;
     int wid = WidgetDatabase::idFromClassName( objClass );
@@ -467,21 +459,12 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "public:" << endl;
 
     // constructor(s)
-    if ( objClass == "QDialog" || objClass == "QWizard" || objClass == "QSqlDialog" ) {
+    if ( objClass == "QDialog" || objClass == "QWizard" ) {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
-	if ( dbAware ) {
-	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );" << endl;
-	}
-    } else if ( objClass == "QWidget" || objClass == "QSqlWidget" ) {
+    } else if ( objClass == "QWidget" ) {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
-	if ( dbAware ) {
-	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );" << endl;
-	}
     } else if ( objClass == "QMainWindow" ) {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
-	if ( dbAware ) {
-	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
-	}
 	isMainWindow = TRUE;
     } else {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
@@ -493,7 +476,7 @@ void Uic::createFormDecl( const QDomElement &e )
 
     // children
     bool needEventHandler = FALSE;
-    bool needPolish = dbAware;
+    bool needPolish = FALSE;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -501,7 +484,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	needEventHandler = needEventHandler ||
 			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
-	if ( s == "QSqlTable" )
+	if ( s == "QSqlTable" || s == "QSqlDataForm" )
 	    needPolish = TRUE;
     }
 
@@ -530,8 +513,6 @@ void Uic::createFormDecl( const QDomElement &e )
 		out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
 	}
     }
-    if ( dbAware )
-	out << indent << "QSqlForm* " << nameOfClass << "Form;" << endl;
 
     out << endl;
 
@@ -585,9 +566,8 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( needEventHandler )
 	out << "    bool event( QEvent* );" << endl;
 
-    // for multiple constructor initialization
-    if ( dbAware )
-	out << indent << "void init" << nameOfClass << "();" << endl;
+    //## multiple ctor initialization, needed anymore?
+    //    out << indent << "void init" << nameOfClass << "();" << endl;
 
     nl = e.parentNode().toElement().elementsByTagName( "variable" );
     if ( nl.length() > 0 ) {
@@ -672,9 +652,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	    globalIncludes += s;
     }
 
-    bool dbAware = FALSE;
-    if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" )
-	dbAware = TRUE;
     registerDatabases( e );
     dbConnections = unique( dbConnections );
     if ( dbConnections.count() )
@@ -823,7 +800,7 @@ void Uic::createFormImpl( const QDomElement &e )
 
 
     // constructor(s)
-    if ( objClass == "QDialog" || objClass == "QWizard" || objClass == "QSqlDialog" ) {
+    if ( objClass == "QDialog" || objClass == "QWizard" ) {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
@@ -833,7 +810,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, bool modal, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
-    } else if ( objClass == "QWidget" || objClass == "QSqlWidget" )  {
+    } else if ( objClass == "QWidget" )  {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
 	out << " *  name 'name' and widget flags set to 'f'." << endl;
@@ -864,48 +841,6 @@ void Uic::createFormImpl( const QDomElement &e )
 
     if ( objClass == "QMainWindow" )
 	out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;
-
-    if ( dbAware ) {
-	out << indent << "init" << nameOfClass << "();" << endl;
-	out << "}" << endl << endl;
-
-	if ( objClass == "QSqlDialog" ) {
-	    out << "/* " << endl;
-	    out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
-	    out << " *  name 'name' and widget flags set to 'f' " << endl;
-	    out << " *" << endl;
-	    out << " *  The " << objClass.mid(1).lower() << " will be initialized with the default cursor 'cursor'." << endl;
-	    out << " *" << endl;
-	    out << " *  The " << objClass.mid(1).lower() << " will by default be modeless, unless you set 'modal' to" << endl;
-	    out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
-	    out << " */" << endl;
-	    out << nameOfClass << "::" << nameOfClass << "( QSqlCursor* cursor, QWidget* parent,  const char* name, bool modal, WFlags fl )" << endl;
-	    out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
-	    out << "{" << endl;
-	    out << indent << "init" << nameOfClass << "();" << endl;
-	    out << indent << "setCursor( cursor );" << endl;
-	    out << "}" << endl << endl;
-	} else if ( objClass == "QSqlWidget" ) {
-	    out << "/* " << endl;
-	    out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
-	    out << " *  name 'name' and widget flags set to 'f'." << endl;
-	    out << " *" << endl;
-	    out << " *  The " << objClass.mid(1).lower() << " will be initialized with the default cursor 'cursor'." << endl;
-	    out << " */" << endl;
-	    out << nameOfClass << "::" << nameOfClass << "( QSqlCursor* cursor, QWidget* parent,  const char* name, WFlags fl )" << endl;
-	    out << "    : " << objClass << "( parent, name, fl )" << endl;
-	    out << "{" << endl;
-	    out << indent << "init" << nameOfClass << "();" << endl;
-	    out << indent << "setCursor( cursor );" << endl;
-	    out << "}" << endl << endl;
-	}
-
-	out << "/* " << endl;
-	out << " *  Initializes " << nameOfClass << "." << endl;
-	out << " */" << endl;
-	out << "void " << nameOfClass << "::init" << nameOfClass <<"()" << endl;
-	out << "{" << endl;
-    }
 
     // create pixmaps for all images
     if ( !images.isEmpty() ) {
@@ -940,20 +875,19 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( value.isEmpty() )
 		continue;
 	    if ( prop == "name" ) {
-		if ( dbAware )
-		    out << "    if ( !name() )" << endl;
-		else
-		    out << "    if ( !name )" << endl;
+		out << "    if ( !name )" << endl;
 		out << "\t";
 	    } else {
 		out << indent;
 	    }
-	    if ( dbAware && prop == "sort" ) {
+	    if ( prop == "sort" ) {
 		QString defaultTable = getDatabaseInfo( e, "table" );
-		out << "QStringList " << defaultTable << "Sort;" << endl;
-		out << indent << defaultTable << "Sort << \"" << value << "\";" << endl;
-		out << indent;
-		value = defaultTable + "Sort";
+		if ( !defaultTable.isEmpty() ) {
+		    out << "QStringList " << defaultTable << "Sort;" << endl;
+		    out << indent << defaultTable << "Sort << \"" << value << "\";" << endl;
+		    out << indent;
+		    value = defaultTable + "Sort";
+		}
 	    }
 
 	    if ( prop == "geometry" && n2.tagName() == "rect") {
@@ -1014,21 +948,15 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    if ( dbAware ) {
-	QString defaultTable = getDatabaseInfo( e, "table" );
-	out << indent << nameOfClass << "Form =  new QSqlForm( this, \"" << nameOfClass << "Form\" );" << endl;
-	createFormImpl( e, nameOfClass, "(default)", defaultTable );
-	out << indent << "setForm( " << nameOfClass << "Form );" << endl;
-    }
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
 	QString s = getClassName( n );
-	if ( s == "QSqlDialog" || s == "QSqlWidget" ) {
+	if ( s == "QSqlDataForm" || s == "QSqlDataView" ) {
 	    QString objName = getObjectName( n );
 	    QString tab = getDatabaseInfo( n, "table" );
 	    QString con = getDatabaseInfo( n, "connection" );
-	    out << indent << objName << "Form =  new QSqlForm( this, \"" << objName << "Form\" );" << endl;
+	    out << indent << "QSqlForm* " << objName << "Form =  new QSqlForm( this, \"" << objName << "Form\" );" << endl;
 	    QDomElement n2;
 	    for ( n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() )
 		createFormImpl( n2, objName, con, tab );
@@ -1138,8 +1066,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // handle application events if required
     bool needFontEventHandler = FALSE;
     bool needSqlTableEventHandler = FALSE;
-    bool needSqlFormEventHandler = dbAware;
-    bool needSqlWidgetEventHandler = FALSE;
+    bool needSqlDataFormEventHandler = FALSE;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
@@ -1147,9 +1074,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	QString s = getClassName( nl.item(i).toElement() );
 	if ( s == "QSqlTable" )
 	    needSqlTableEventHandler = TRUE;
-	if ( s == "QSqlWidget" )
-	    needSqlWidgetEventHandler = TRUE;
-	if ( needFontEventHandler && needSqlTableEventHandler && needSqlWidgetEventHandler )
+	if ( s == "QSqlDataForm" )
+	    needSqlDataFormEventHandler = TRUE;
+	if ( needFontEventHandler && needSqlTableEventHandler && needSqlDataFormEventHandler )
 	    break;
     }
     if ( needFontEventHandler ) {
@@ -1175,18 +1102,11 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    if ( needSqlTableEventHandler || needSqlFormEventHandler || needSqlWidgetEventHandler ) {
+    if ( needSqlTableEventHandler || needSqlDataFormEventHandler ) {
 	out << "/*  " << endl;
 	out << " *  Widget polish.  Reimplemented to handle" << endl;
-	if ( needSqlTableEventHandler ) {
-	    out << " *  default SQL table initialization";
-	    if ( needSqlFormEventHandler )
-		out << " and" << endl;
-	    else
-		out << endl;
-	}
-	if ( needSqlFormEventHandler )
-	    out << " *  default SQL form initialization" << endl;
+	if ( needSqlTableEventHandler )
+	    out << " *  default SQL table initialization" << endl;
 	out << " */" << endl;
 	out << "void " << nameOfClass  << "::polish()" << endl;
 	out << "{" << endl;
@@ -1215,26 +1135,11 @@ void Uic::createFormImpl( const QDomElement &e )
 		}
 	    }
 	}
-	if ( needSqlFormEventHandler ) {
-	    out << indent << "if ( !sqlCursor() ) {" << endl;
-	    QString defaultTable = getDatabaseInfo( e, "table" );
-	    QString conn = getDatabaseInfo( e, "connection" );
-	    if ( conn == "(default)" )
-		out << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << defaultTable << "\" );" << endl;
-	    else
-		out << indent << indent << "QSqlCursor* cursor = new QSqlCursor( \"" << defaultTable << "\", " << conn << "Connection );" << endl;
-	    out << indent << indent << "setCursor( cursor, TRUE );" << endl;
-	    out << indent << indent << "QSqlRecord* buf = cursor->editBuffer();" << endl;
-	    out << indent << indent << "form()->setRecord( buf );" << endl;
-	    out << indent << indent << "refresh();" << endl;
-	    out << indent << indent << "firstRecord();" << endl;
-	    out << indent << "}" << endl;
-	}
-	if ( needSqlWidgetEventHandler ) {
+	if ( needSqlDataFormEventHandler ) {
 	    nl = e.elementsByTagName( "widget" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString s = getClassName( nl.item(i).toElement() );
-		if ( s == "QSqlWidget" ) {
+		if ( s == "QSqlDataForm" ) {
 		    QString obj = getObjectName( nl.item(i).toElement() );
 		    QString tab = getDatabaseInfo( nl.item(i).toElement(), "table" );
 		    QString conn = getDatabaseInfo( nl.item(i).toElement(), "connection" );
@@ -1375,8 +1280,6 @@ void Uic::createObjectDecl( const QDomElement& e )
 	if ( objClass == "Line" )
 	    objClass = "QFrame";
 	out << "    " << objClass << "* " << objName << ";" << endl;
-	if ( objClass == "QSqlDialog" || objClass == "QSqlWidget" )
-	    out << indent << "QSqlForm* " << objName << "Form;" << endl;
     }
 }
 
