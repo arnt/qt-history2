@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#356 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#357 $
 **
 ** Implementation of QWidget class
 **
@@ -2791,8 +2791,13 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
-    if ( isTopLevel() && !testWState( WState_Resized ) && sizeHint().isValid() )
-	resize( sizeHint() );
+    if ( isTopLevel() && !testWState( WState_Resized ) )  {
+	QSize s = sizeHint();
+	if ( layout() && layout()->hasHeightForWidth() )
+	    s.setHeight( layout()->heightForWidth( s.width() ) );
+	if ( s.isValid() )
+	    resize( s );
+    }
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     if ( parentWidget() )
       QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
@@ -3961,8 +3966,8 @@ void QWidget::setLayout( QLayout *l )
   If there is a QLayout that manages this widget's children, the size
   policy specified by that layout is used. If there is no such
   QLayout, the result of this function is used.
-  
-  The default implementation returns a value which means 
+
+  The default implementation returns a value which means
   that  the widget can be freely resized,
   but prefers to be the size sizeHint() returns.
 
