@@ -1,6 +1,6 @@
 #include <qwidgetplugin.h>
 
-class QT_WIDGET_PLUGIN_EXPORT CustomWidgetPlugin : public QWidgetPlugin
+class CustomWidgetPlugin : public QWidgetPlugin
 {
 public:
     CustomWidgetPlugin();

@@ -2,11 +2,12 @@
 #define FILECHOOSER_H
 
 #include <qwidget.h>
+#include <qwidgetplugin.h>
 
 class QLineEdit;
 class QPushButton;
 
-class FileChooser : public QWidget
+class QT_WIDGET_PLUGIN_EXPORT FileChooser : public QWidget
 {
     Q_OBJECT
 
