@@ -59,9 +59,10 @@
 #include "qshared.h"
 #include "qbitarray.h"
 #include "qkeysequence.h"
+#include "qpen.h"
 
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
-// #define QVARIANT_DEBUG
+#define QVARIANT_DEBUG
 
 extern Q_EXPORT const int qt_variant_types[];
 
@@ -97,7 +98,8 @@ const int qt_variant_types[]  = {
 	QVariant::DateTime,
 	QVariant::ByteArray,
 	QVariant::BitArray,
-	QVariant::KeySequence
+	QVariant::KeySequence,
+	QVariant::Pen
 };
 
 
@@ -216,6 +218,9 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QKeySequence( *((QKeySequence*)d->value.ptr) );
 	    break;
 #endif
+	case QVariant::Pen:
+	    value.ptr = new QPen( *((QPen*)d->value.ptr) );
+	    break;
 	case QVariant::Int:
 	    value.i = d->value.i;
 	    break;
@@ -344,6 +349,9 @@ void QVariant::Private::clear()
 	    delete (QKeySequence*)value.ptr;
 	    break;
 #endif
+	case QVariant::Pen:
+	    delete (QPen*)value.ptr;
+	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
 	case QVariant::UInt:
@@ -462,6 +470,7 @@ void QVariant::Private::clear()
   \value BitArray  a QBitArray
   \value SizePolicy  a QSizePolicy
   \value KeySequence  a QKeySequence
+  \value Pen  a QPen
 
   Note that Qt's definition of bool depends on the compiler.
   qglobal.h has the system-dependent definition of bool.
@@ -801,6 +810,16 @@ QVariant::QVariant( const QKeySequence& val )
 #endif
 
 /*!
+  Constructs a new variant with a pen value, \a val.
+*/
+QVariant::QVariant( const QPen& val )
+{
+    d = new Private;
+    d->typ = Pen;
+    d->value.ptr = new QPen( val );
+}
+
+/*!
   Constructs a new variant with an integer value, \a val.
 */
 QVariant::QVariant( int val )
@@ -929,7 +948,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 32;
+static const int ntypes = 33;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -963,7 +982,8 @@ static const char* const type_map[ntypes] =
     "QDateTime",
     "QByteArray",
     "QBitArray",
-    "QKeySequence"
+    "QKeySequence",
+    "QPen"
 };
 
 
@@ -1242,11 +1262,20 @@ void QVariant::load( QDataStream& s )
 	break;
 #ifndef QT_NO_ACCEL
     case KeySequence:
-	QKeySequence* x = new QKeySequence;
- 	s >> *x;
-	d->value.ptr = x;
+	{
+	    QKeySequence* x = new QKeySequence;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
 	break;
 #endif // QT_NO_ACCEL
+    case Pen:
+	{
+	    QPen* x = new QPen;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
     }
     d->typ = t;
 }
@@ -1372,6 +1401,9 @@ void QVariant::save( QDataStream& s ) const
 	break;
     case KeySequence:
 	s << *((QKeySequence*)d->value.ptr);
+	break;
+    case Pen:
+	s << *((QPen*)d->value.ptr);
 	break;
     case Invalid:
 	s << QString(); // ### looks wrong.
@@ -1931,6 +1963,20 @@ const QKeySequence QVariant::toKeySequence() const
 #endif // QT_NO_ACCEL
 
 /*!
+  Returns the variant as a QPen if the variant has type()
+  Pen, or an empty QPen otherwise.
+
+  \sa asPen()
+*/
+const QPen QVariant::toPen() const
+{
+    if ( d->typ != Pen )
+	return QPen();
+
+    return *((QPen*)d->value.ptr);
+}
+
+/*!
   Returns the variant as an int if the variant has type()
   String, CString, Int, UInt, Double, Bool or KeySequence; or 0 otherwise.
 
@@ -2126,6 +2172,7 @@ Q_VARIANT_AS(BitArray)
 #ifndef QT_NO_ACCEL
 Q_VARIANT_AS(KeySequence)
 #endif
+Q_VARIANT_AS(Pen)
 
 /*! \fn QString& QVariant::asString()
 
@@ -2384,6 +2431,16 @@ Q_VARIANT_AS(KeySequence)
   Returns a reference to the stored key sequence.
 
   \sa toKeySequence()
+*/
+
+/*! \fn QPen& QVariant::asPen()
+
+  Tries to convert the variant to hold a QPen value. If that
+  is not possible then the variant is set to an empty pen.
+
+  Returns a reference to the stored pen.
+
+  \sa toPen()
 */
 
 /*!
@@ -2669,6 +2726,9 @@ bool QVariant::cast( Type t )
 	asKeySequence();
 	break;
 #endif
+    case QVariant::Pen:
+	asPen();
+	break;
     default:
     case QVariant::Invalid:
 	(*this) = QVariant();
@@ -2769,6 +2829,8 @@ bool QVariant::operator==( const QVariant &v ) const
     case KeySequence:
 	return v.toKeySequence() == toKeySequence();
 #endif
+    case Pen:
+	return v.toPen() == toPen();
     case Invalid:
 	break;
     }

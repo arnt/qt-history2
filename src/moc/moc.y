@@ -220,7 +220,7 @@ QCString uTypeExtra( QCString ctype )
   This table is copied from qvariant.cpp. If you change
   one, change both.
 */
-static const int ntypes = 32;
+static const int ntypes = 33;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -254,7 +254,8 @@ static const char* const type_map[ntypes] =
     "QDateTime",
     "QByteArray",
     "QBitArray",
-    "QKeySequence"
+    "QKeySequence",
+    "QPen"
 };
 
 int qvariant_nameToType( const char* name )
@@ -557,7 +558,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 21;		// moc output format revision
+const int formatRevision = 22;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
