@@ -857,10 +857,11 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		file = string.Right( string.GetLength() - 7 );
 		file.TrimLeft();
 		file.TrimRight();
+		CString originalFile = file;
 		splitFileName( file, filepath, filename, fileext );
 		if ( filepath.Left( 2 ) == ".\\" )
 		    filepath = filepath.Right( filepath.GetLength() - 2 );
-		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED";
+		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED" || originalFile.Right( 5 ) == ".ui.h";
 
 		if ( !ignore ) {
 		    if ( fileext == "ui" )
