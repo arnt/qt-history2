@@ -51,7 +51,6 @@
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qt_windows.h>
-#include <qimage.h>
 
 #include <uxtheme.h>
 #include <tmschema.h>
@@ -282,7 +281,6 @@ struct XPThemeData
 	    partId == TABP_TABITEMLEFTEDGE ||
 	    partId == TABP_TABITEMRIGHTEDGE ||
 	    partId == TABP_TABITEM ) ) {
-	    QWMatrix m;
 	    QRect oldrec = rec;
 	    rec = QRect( 0, 0, rec.width(), rec.height() );
 	    QPixmap pm( rec.size() );
@@ -291,7 +289,6 @@ struct XPThemeData
 	    pDrawThemeBackground( handle(), p.handle(), partId, stateId, &rect(), 0 );
 	    rec = oldrec;
 	    p.end();
-
 	    if ( flipped ) {
 		QWMatrix m;
 		m.scale( 1, -1 );
