@@ -5,6 +5,49 @@
     with URLs.
     \reentrant
 
+    It can parse and construct URLs in both encoded and unencoded
+    form. QUrl also has support for internationalized domain names
+    (IDNs).
+
+    The most common way to use QUrl is to initialize it via the
+    constructor by passing a QString. Otherwise, setUrl() and
+    setEncodedUrl() can also be used.
+
+    A URL can also be constructed piece by piece by calling
+    setScheme(), setUserName(), setPassword(), setHost(), setPort(),
+    setPath(), setEncodedQuery() and setFragment(). Some convenience
+    functions are also availble: setAuthority() sets the user name,
+    password, host and port. setUserInfo() sets the user name and
+    password at once.
+
+    Call isValid() to check if the URL is valid. This can be done at
+    any point during the constructing of a URL.
+
+    Constructing a query is particularily convenient through the use
+    of setQueryItems(), addQueryItem() and removeQueryItem(). Use
+    setQueryDelimiters() to customize the delimiters used for
+    generating the query string.
+
+    For the convenience of generating encoded URL strings or query
+    strings, there are two static functions called
+    fromPercentageEncodingThenUtf8() and
+    toUtf8ThenPercentageEncoding() which deal with percent encoding
+    and decoding of QStrings.
+
+    Calling isRelative() will tell whether or not the URL is
+    relative. A relative URL can be resolved by passing it as argument
+    to resolved(), which returns an absolute URL. isParentOf() is used
+    for determining whether one URL is a parent of another.
+
+    isLocalFile() tells whether the URL represents the path to a local
+    file or not. fromLocalFile() constructs a QUrl by parsing a local
+    file path. toLocalFile() converts a URL to a local file path.
+
+    The human readable representation of the URL is fetched with
+    toString(). This representation is appropriate for displaying a
+    URL to a user in unencoded form. The encoded form however, as
+    returned by toEncoded(), is more suited for internal use, passing
+    to web servers, mail clients and so on.
 */
 
 #include <private/qunicodetables_p.h>
@@ -858,7 +901,7 @@ void QUrlPrivate::setAuthority(const QString &auth)
     if (portIndex != -1)
         hostLength -= (auth.length() - portIndex);
 
-    host = auth.mid(hostIndex, hostLength).toLower().trimmed();
+    host = auth.mid(hostIndex, hostLength).trimmed();
 }
 
 void QUrlPrivate::setUserInfo(const QString &userInfo)
@@ -1083,9 +1126,9 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     // parse() is called in ParseOnly mode; we don't want to set all
     // the members over again.
     if (parseOptions == ParseAndSet) {
-        that->scheme = QUrl::fromPercentageEncodingThenUtf8(__scheme).toLower();
+        that->scheme = QUrl::fromPercentageEncodingThenUtf8(__scheme);
         that->setUserInfo(QUrl::fromPercentageEncodingThenUtf8(__userInfo));
-        that->host = QUrl::fromPercentageEncodingThenUtf8(__host).toLower();
+        that->host = QUrl::fromPercentageEncodingThenUtf8(__host);
         that->port = __port;
         that->path = QUrl::fromPercentageEncodingThenUtf8(__path);
         that->query = QUrl::fromPercentageEncodingThenUtf8(__query).ascii();
@@ -1097,9 +1140,9 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     that->isParsed = true;
 
 #if defined (Q4URL_DEBUG)
-    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentageEncodingThenUtf8(__scheme).toLower().latin1());
+    qDebug("QUrl::setUrl(), scheme = %s", QUrl::fromPercentageEncodingThenUtf8(__scheme).latin1());
     qDebug("QUrl::setUrl(), userInfo = %s", QUrl::fromPercentageEncodingThenUtf8(__userInfo).latin1());
-    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentageEncodingThenUtf8(__host).toLower().latin1());
+    qDebug("QUrl::setUrl(), host = %s", QUrl::fromPercentageEncodingThenUtf8(__host).latin1());
     qDebug("QUrl::setUrl(), port = %i", __port);
     qDebug("QUrl::setUrl(), path = %s", QUrl::fromPercentageEncodingThenUtf8(__path).latin1());
     qDebug("QUrl::setUrl(), query = %s", QUrl::fromPercentageEncodingThenUtf8(__query).ascii());
@@ -1169,23 +1212,62 @@ QByteArray QUrlPrivate::toEncoded() const
     return url;
 }
 
+/*!
+    Constructs a URL by parsing \a url. \a url is assumed to be in
+    human readable representation, with no percentage encoding. Any
+    percent symbols '%' will be interpreted as they are.
+
+    \code
+        QUrl url("http://www.example.com/List of holidays.xml");
+    \endcode
+
+    To construct a URL from an encoded string, call fromEncoded():
+
+    \code
+        QUrl url = QUrl::fromEncoded("http://www.trolltech.com/List%20of%20holidays.xml");
+    \endcode
+*/
 QUrl::QUrl(const QString &url) : d(new QUrlPrivate)
 {
     if (!url.isEmpty())
         setUrl(url);
 }
 
+/*!
+    Constructs a copy of \a copy.
+*/
 QUrl::QUrl(const QUrl &copy) : d(copy.d)
 {
     ++d->ref;
 }
 
+/*!
+    Destructor; called immediately before the object is deleted.
+*/
 QUrl::~QUrl()
 {
     if (!--d->ref)
         delete d;
 }
 
+/*!
+    Returns true if the URL is valid; otherwise returns false.
+
+    The URL is run through a conformance test. Every part of the URL
+    must conform to the standard encoding rules of the URI standard
+    for the URL to be reported as valid.
+
+    \code
+        bool checkUrl(const QUrl &url) {
+            if (!url.isValid()) {
+                qDebug("Invalid URL: %s", url.toString().latin1());
+                return false;
+            }
+
+            return true;
+        }
+    \endcode
+*/
 bool QUrl::isValid() const
 {
     if (!d->isParsed) d->parse();
@@ -1208,9 +1290,8 @@ void QUrl::clear()
 /*!
     Constructs a URL by parsing the contents of \a url.
 
-    \a url is assumed to be unencoded in unicode format. Before it is
-    parsed, the string is converted to UTF-8, and all non ASCII
-    characters are then percentage encoded.
+    \a url is assumed to be in unicode format, with no percent
+    encoding.
 
     Calling isValid() will tell whether or not a valid URL was
     constructed.
@@ -1240,15 +1321,14 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl)
 }
 
 /*!
-    Sets the scheme of the URL to \a scheme. \a scheme is trimmed and
-    converted to lower case before it is stored. As a scheme can only
+    Sets the scheme of the URL to \a scheme. As a scheme can only
     contain ASCII characters, no conversion or encoding is done on the
     input.
 
     The scheme describes the type (or protocol) of the URL. It's
-    represented by optional first ASCII characters of the URL, and is
-    followed by a ':'. The following example shows a URL where the
-    scheme is "http":
+    represented by one or more ASCII characters at the start the URL,
+    and is followed by a ':'. The following example shows a URL where
+    the scheme is "http":
 
     \code
         http://www.trolltech.com/
@@ -1257,7 +1337,7 @@ void QUrl::setEncodedUrl(const QByteArray &encodedUrl)
     \endcode
 
     The scheme can also be empty, in which case the URL is interpreted
-    as \e relative.
+    as relative.
 
     \sa scheme(), isRelative()
 */
@@ -1267,7 +1347,7 @@ void QUrl::setScheme(const QString &scheme)
     detach();
     d->isValidated = false;
 
-    d->scheme = scheme.toLower().trimmed();
+    d->scheme = scheme;
 }
 
 /*!
@@ -1288,7 +1368,7 @@ QString QUrl::scheme() const
 
     The authority of a URL is the combination of user info, a host
     name and a port. All of these elements are optional; an empty
-    authority is perfectly valid.
+    authority is therefore valid.
 
     The user info and host are separated by a '@', and the host and
     port are separated by a ':'. If the user info is empty, the '@'
@@ -1340,7 +1420,7 @@ QString QUrl::authority() const
         ftp://tray:5uQQo_f@ftp.example.com/
               \__/ \_____/
               user password
-              \___________/
+              \__________/
                 user info
     \encode
 
@@ -1400,9 +1480,6 @@ QString QUrl::userName() const
     info element in the authority of the URL, as described in
     setUserInfo().
 
-    \a password is converted to UTF-8, and then all non-ASCII
-    characters are percentage encoded before it is stored.
-
     \sa password(), setUserInfo()
 */
 void QUrl::setPassword(const QString &password)
@@ -1431,8 +1508,6 @@ QString QUrl::password() const
     Sets the host of the URL to \a host. The host is part of the
     authority.
 
-    The host name is trimmed and converted to lower case.
-
     \sa host(), setAuthority()
 */
 void QUrl::setHost(const QString &host)
@@ -1441,7 +1516,7 @@ void QUrl::setHost(const QString &host)
     detach();
     d->isValidated = false;
 
-    d->host = host.toLower().trimmed();
+    d->host = host.trimmed();
 }
 
 /*!
@@ -1459,8 +1534,8 @@ QString QUrl::host() const
     Sets the port of the URL to \a port. The port is part of the
     authority of the URL, as described in setAuthority().
 
-    If \a port is negative or has a value larger than 65535, it will
-    be set to -1 and isValid() will return false.
+    If \a port is negative or has a value larger than 65535, the port
+    will be set to -1 indicating that the port is indefined.
 */
 void QUrl::setPort(int port)
 {
@@ -1544,7 +1619,7 @@ QString QUrl::path() const
     and \a pairDelimiter will be used to separate key-value pairs.
     Any occurrances of these delimiting characters in the encoded
     representation of the keys and values of the query string are
-    percentage encoded when calling toEncoded().
+    percentage encoded.
 
     If \a valueDelimiter is set to '-' and \a pairDelimiter is '/',
     the above query string would instead be represented like this:
@@ -1637,7 +1712,7 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
 }
 
 /*!
-    Returns the query string of the URL, represented as a QMap.
+    Returns the query string of the URL, as a map of keys and values.
 
     \sa setQueryItems(), setEncodedQuery()
 */
@@ -1875,8 +1950,9 @@ QByteArray QUrl::toEncoded() const
     return d->toEncoded();
 }
 
-/* ###
-
+/*!
+    Parses \a input and returns the corresponding QUrl. \a input is
+    assumed to be in encoded form, containing only ASCII characters.
 */
 QUrl QUrl::fromEncoded(const QByteArray &input)
 {
@@ -1993,20 +2069,35 @@ QByteArray QUrl::toUtf8ThenPercentageEncoding(const QString &input, const char a
     return QByteArray(output.data(), length);
 }
 
+/*!
+    Compares this URL with url and returns true if they are equal;
+    otherwise returns false.
+*/
 bool QUrl::operator ==(const QUrl &url) const
 {
-    return toString(None) == url.toString(None);
+    return d->scheme.toLower() == url.d->scheme.toLower()
+          && d->userName == url.d->userName && d->password == url.d->password
+          && d->host.toLower() == url.d->host.toLower() && d->port == url.d->port
+          && d->path == url.d->path && d->query == url.d->query
+          && d->fragment == url.d->fragment;
 }
 
+/*!
+    Compares this URL with url and returns true if they are not equal;
+    otherwise returns false.
+*/
 bool QUrl::operator !=(const QUrl &url) const
 {
     return !(*this == url);
 }
 
-QUrl &QUrl::operator =(const QUrl &copy)
+/*!
+    Assigns the data of \a url to this class.
+*/
+QUrl &QUrl::operator =(const QUrl &url)
 {
     QUrlPrivate *x = new QUrlPrivate;
-    *x = *copy.d;
+    *x = *url.d;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         delete x;
@@ -2014,6 +2105,10 @@ QUrl &QUrl::operator =(const QUrl &copy)
     return *this;
 }
 
+/*! \internal
+
+    Forces a detach.
+*/
 void QUrl::detach()
 {
     if (d->ref != 1) {
@@ -2035,15 +2130,13 @@ bool QUrl::isLocalFile() const
     if (!d->isParsed) d->parse();
 
     return (d->scheme.isEmpty() || d->scheme == QLatin1String("file"))
-	   && (d->host.isEmpty() || d->host == QLatin1String("localhost")
-	   || d->host == qGetHostName().toLower());
+	   && (d->host.isEmpty() || d->host.toLower() == QLatin1String("localhost")
+	   || d->host.toLower() == qGetHostName().toLower());
 }
 
 /*!
     Returns a QUrl representation of \a localFile, interpreted as a
     local file.
-
-
 */
 QUrl QUrl::fromLocalFile(const QString &localFile) //### set host name option ??
 {
@@ -2083,9 +2176,6 @@ QString QUrl::toLocalFile() const
     Returns true if this URL is a parent of \a childUrl. \a childUrl is a child
     of this URL if the two URLs share the same scheme and authority,
     and this URL's path is a parent of the path of \a childUrl.
-
-//### currentlt only when scheme and authority are the same
-
 */
 bool QUrl::isParentOf(const QUrl &childUrl) const
 {
