@@ -684,10 +684,10 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QRect br = btn->rect;
             int dbi = pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
-            if (btn->state & Style_ButtonDefault) {
+            if (btn->features & QStyleOptionButton::DefaultButton)
                 drawPrimitive(PE_ButtonDefault, opt, p, widget);
+            if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
-            }
             if (!(btn->features & QStyleOptionButton::Flat)
                 || btn->state & (Style_Down | Style_On)) {
                 QStyleOptionButton tmpBtn = *btn;
@@ -1186,7 +1186,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dx1, dx2;
             dx1 = pixelMetric(PM_DefaultFrameWidth, btn, widget);
-            if (btn->state & Style_ButtonDefault)
+            if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 dx1 += pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
             dx2 = dx1 * 2;
             r.setRect(opt->rect.x() + dx1, opt->rect.y() + dx1, opt->rect.width() - dx2,
@@ -1196,7 +1196,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
     case SR_PushButtonFocusRect:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dbw1 = 0, dbw2 = 0;
-            if (btn->state & Style_ButtonDefault) {
+            if (btn->features & QStyleOptionButton::AutoDefaultButton){
                 dbw1 = pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
                 dbw2 = dbw1 * 2;
             }
@@ -2453,7 +2453,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, c
             fw = pixelMetric(PM_DefaultFrameWidth, btn, widget) * 2;
             w += bm + fw;
             h += bm + fw;
-            if (btn->state & Style_ButtonDefault) {
+            if (btn->features & QStyleOptionButton::AutoDefaultButton){
                 int dbw = pixelMetric(PM_ButtonDefaultIndicator, btn, widget) * 2;
                 w += dbw;
                 h += dbw;

@@ -136,7 +136,7 @@ private:
         QStyleOptionMenuItem menuOption;
         menuOption.palette = option.palette;
         menuOption.state = QStyle::Style_Default;
-        menuOption.state |= QStyle::Style_ButtonDefault;
+//###         menuOption.state |= QStyle::Style_ButtonDefault;
         if (option.state & QStyle::Style_Enabled)
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)

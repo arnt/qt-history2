@@ -985,25 +985,27 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->fillRect(opt->rect, fill);
         }
         break; }
-    case PE_ButtonCommand: {
-        QBrush fill;
-        StyleFlags flags = opt->state;
-        QPalette pal = opt->palette;
-        QRect r = opt->rect;
-        if (! (flags & Style_Down) && (flags & Style_On))
-            fill = QBrush(pal.light(), Qt::Dense4Pattern);
-        else
-            fill = pal.brush(QPalette::Button);
+    case PE_ButtonCommand:
+        if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
+            QBrush fill;
+            StyleFlags flags = opt->state;
+            QPalette pal = opt->palette;
+            QRect r = opt->rect;
+            if (! (flags & Style_Down) && (flags & Style_On))
+                fill = QBrush(pal.light(), Qt::Dense4Pattern);
+            else
+                fill = pal.brush(QPalette::Button);
 
-        if (flags & Style_ButtonDefault && flags & Style_Down) {
-            p->setPen(pal.dark());
-            p->setBrush(fill);
-            p->drawRect(r);
-        } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-            qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On), &fill);
-        else
-            p->fillRect(r, fill);
-        break; }
+            if (btn->features & QStyleOptionButton::DefaultButton && flags & Style_Down) {
+                p->setPen(pal.dark());
+                p->setBrush(fill);
+                p->drawRect(r);
+            } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
+                qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down | Style_On), &fill);
+            else
+                p->fillRect(r, fill);
+            break;
+        }
     case PE_ButtonDefault:
         p->setPen(opt->palette.shadow());
         p->drawRect(opt->rect);
@@ -2166,7 +2168,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
             int w = sz.width(),
                 h = sz.height();
             int defwidth = 0;
-            if (btn->state & Style_ButtonDefault)
+            if (btn->features & QStyleOptionButton::AutoDefaultButton)
                 defwidth = 2 * pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
             if (w < 80 + defwidth && btn->icon.isNull())
                 w = 80 + defwidth;

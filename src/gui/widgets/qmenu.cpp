@@ -142,7 +142,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             QIconSet is = action->icon();
             if(!is.isNull()) {
                 QSize is_sz = is.pixmap(QIconSet::Small, QIconSet::Normal).size();
-                if(is_sz.height() > sz.height()) 
+                if(is_sz.height() > sz.height())
                     sz.setHeight(is_sz.height());
             }
         }
@@ -571,13 +571,13 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     opt.font = action->font();
 
-    if (defaultAction == action)
-        opt.state |= QStyle::Style_ButtonDefault; //probably should be something else
+ //####    if (defaultAction == action)
+//         opt.state |= QStyle::Style_ButtonDefault; //probably should be something else
     if (currentAction && currentAction == action)
         opt.state |= QStyle::Style_Active;
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
-    if (!checkable) 
+    if (!checkable)
         opt.checkState = QStyleOptionMenuItem::NotCheckable;
     else
         opt.checkState = action->isChecked() ? QStyleOptionMenuItem::Checked
@@ -1062,7 +1062,7 @@ QSize QMenu::sizeHint() const
     opt.state = QStyle::Style_Default;
     for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
          i != actionRects.constEnd(); ++i) {
-        if(i.value().bottom() > s.height()) 
+        if(i.value().bottom() > s.height())
             s.setHeight(i.value().y()+i.value().height());
         if(i.value().right() > s.width())
             s.setWidth(i.value().right());
@@ -1076,8 +1076,8 @@ QSize QMenu::sizeHint() const
     s.rwidth() +=2 * style().pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
     s.rheight() += 2 * style().pixelMetric(QStyle::PM_MenuVMargin, &opt, this);
 
-    return style().sizeFromContents(QStyle::CT_Menu, &opt, 
-                                    s.expandedTo(QApplication::globalStrut()), 
+    return style().sizeFromContents(QStyle::CT_Menu, &opt,
+                                    s.expandedTo(QApplication::globalStrut()),
                                     fontMetrics(), this);
 }
 
@@ -1638,7 +1638,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         if(!key_consumed && key == Qt::Key_Left && d->causedPopup && qt_cast<QMenu*>(d->causedPopup)) {
             QPointer<QWidget> caused = d->causedPopup;
             hide();
-            if(caused) 
+            if(caused)
                 caused->setFocus();
             key_consumed = true;
         }

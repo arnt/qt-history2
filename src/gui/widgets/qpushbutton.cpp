@@ -274,14 +274,16 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
         opt.features |= QStyleOptionButton::Flat;
     if (menu)
         opt.features |= QStyleOptionButton::HasMenu;
+    if (autoDefault || defaultButton)
+        opt.features |= QStyleOptionButton::AutoDefaultButton;
+    if (defaultButton)
+        opt.features |= QStyleOptionButton::DefaultButton;
     if (down)
         opt.state |= QStyle::Style_Down;
     if (checked)
         opt.state |= QStyle::Style_On;
     if (!flat && !down)
         opt.state |= QStyle::Style_Raised;
-    if (defaultButton)
-        opt.state |= QStyle::Style_ButtonDefault;
     opt.text = text;
     opt.icon = icon;
     return opt;

@@ -120,7 +120,7 @@ public:
     enum { Type = SO_Button };
     enum { Version = 1 };
 
-    enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
+    enum ButtonFeature { None = 0x00, Flat = 0x01, HasMenu = 0x02, DefaultButton = 0x04, AutoDefaultButton = 0x08 };
     Q_DECLARE_FLAGS(ButtonFeatures, ButtonFeature);
 
     ButtonFeatures features;

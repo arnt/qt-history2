@@ -95,7 +95,6 @@ public:
         Style_Up =            0x00004000,
         Style_Selected =      0x00008000,
         Style_Active =        0x00010000,
-        Style_ButtonDefault = 0x00020000,
         Style_Rectangle =     0x00040000,
         Style_Open =          0x00100000,
         Style_Children =      0x00200000,
