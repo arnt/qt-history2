@@ -1,6 +1,7 @@
 #ifndef QUTYPES_H
 #define QUTYPES_H
 #include "utypes.h"
+#include <qstring.h>
 
 // {B1D3BE80-2F2F-44F7-AB11-E8A0CEC84B82}
 extern const UUid TID_UType_QString;

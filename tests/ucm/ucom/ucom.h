@@ -2,7 +2,6 @@
 #define UCOM_H
 
 #include <memory.h>
-#include <qstring.h>
 
 struct UObject;
 struct UInterfaceDescription;
@@ -44,7 +43,7 @@ struct UDispatchInterface : public UUnknownInterface
     virtual const UInterfaceDescription* interfaceDescription() const = 0;
 
     // returns the event description of this dispatch interface.
-    virtual const UInterfaceDescription* eventDescription() const = 0;
+    virtual const UInterfaceDescription* eventsDescription() const = 0;
 
     // invokes method id with parameters V*. Returns some sort of
     // exception code.
@@ -157,7 +156,7 @@ struct UProperty
     const char* name;
     UType* type;
     const void* typeExtra; //type dependend. Usually 0, but UEnum for UType_enum or const char* for UType_ptr
-    
+
     int set; // -1 undefined
     int get; // -1 undefined
 
@@ -187,7 +186,7 @@ struct UEnumItem 				// - a name/value pair
     int value;
 };
 
-struct UEnum 
+struct UEnum
 {			
     const char *name;			// - enumerator name
     unsigned int count;			// - number of values

@@ -1,7 +1,7 @@
 #include "ucom.h"
 #include "utypes.h"
 #include "qutypes.h"
-
+#include <qlist.h>
 
 double foo( int i, double d )
 {
@@ -32,33 +32,33 @@ void getName( QString& s )
 }
 
 
-static UParameter ParamFoo[] = {
+static const UParameter ParamFoo[] = {
     { 0, pUType_double, 0, 2 },
     { "i", pUType_int, 0, 1 },
     { "d", pUType_double, 0, 1 }
 };
 
-static UParameter ParamBar[] = {
+static const UParameter ParamBar[] = {
     { 0, pUType_QString, 0, 2 },
     { "c", pUType_charstar, 0, 1 },
     { "i", pUType_int, 0, 1 }
 };
 
-static UParameter ParamGetXY[] = {
+static const UParameter ParamGetXY[] = {
     { "x", pUType_int, 0, 3 },
     { "y", pUType_int, 0, 3 }
 };
 
-static UParameter ParamGetXYPtr[] = {
+static const UParameter ParamGetXYPtr[] = {
     { "x", pUType_ptr, 0, 1 },
     { "y", pUType_ptr, 0, 1 }
 };
 
-static UParameter ParamGetName[] = {
+static const UParameter ParamGetName[] = {
     { "s", pUType_QString, 0, 3 }
 };
 
-static UMethod ExampleMethods[] = {
+static const UMethod ExampleMethods[] = {
     {"foo", 3,  ParamFoo},
     {"bar", 3,  ParamBar},
     {"getXY", 2,  ParamGetXY},
@@ -66,8 +66,8 @@ static UMethod ExampleMethods[] = {
     {"getName", 1,  ParamGetName},
 };
 
-static UInterfaceDescription  ExampleDescription = {
-    5, ExampleMethods, 
+static const UInterfaceDescription  ExampleDescription = {
+    5, ExampleMethods,
     0, 0
 };
 
@@ -96,6 +96,23 @@ URESULT invoke( int id, UObject *o )
 	break;
     }
     return ok ? URESULT_OK : URESULT_TYPE_MISMATCH;
+}
+
+
+void signal( int t0 ) 
+{
+    QList<UDispatchInterface> listeners;
+    if ( listeners.isEmpty() )
+  	return;
+    UObject o[3];
+    pUType_double->set( o+1, 7 );
+    pUType_int->set( o+2, 3.14159268 );
+    QListIterator<UDispatchInterface> it(listeners);
+    UDispatchInterface* l;
+    while ( (l=it.current()) ) {
+	++it;
+	l->invoke( 0, o );
+    }
 }
 
 int main( int /*argc*/, char** /*argv*/ )
@@ -149,7 +166,7 @@ int main( int /*argc*/, char** /*argv*/ )
 	
 	qDebug( "invoke(4) : %s", s );
     }
-    
-    
+
+
     return 0;
 }
