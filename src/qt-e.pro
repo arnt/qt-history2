@@ -301,21 +301,21 @@ unix:SOURCES    = tools/qdir_unix.cpp \
 		  kernel/qsound_qws.cpp \
 		  kernel/qthread_unix.cpp \
 		  kernel/qwidget_qws.cpp \
-		  kernel/qgfx.cpp \
-		  kernel/qgfxraster.cpp \
+		  kernel/qgfx_qws.cpp \
+		  kernel/qgfxraster_qws.cpp \
 		  kernel/qfontmanager_qws.cpp \
-		  kernel/qfontfactory_bdf.cpp \
-		  kernel/qfontfactory_ttf.cpp \
+		  kernel/qfontfactorybdf_qws.cpp \
+		  kernel/qfontfactoryttf_qws.cpp \
 		  kernel/qmemorymanager_qws.cpp \
-		  kernel/qwscommand.cpp \
+		  kernel/qwscommand_qws.cpp \
 		  kernel/qwindowsystem_qws.cpp \
 		  kernel/qkeyboard_qws.cpp \
 		  kernel/qwscursor_qws.cpp \
 		  kernel/qwsmouse_qws.cpp \
-		  kernel/qwsmanager.cpp \
-		  kernel/qwsproperty.cpp \
+		  kernel/qwsmanager_qws.cpp \
+		  kernel/qwsproperty_qws.cpp \
 		  kernel/qlock_qws.cpp \
-		  kernel/qwsregionmanager.cpp
+		  kernel/qwsregionmanager_qws.cpp
 
 unix:SOURCES   += kernel/qpsprinter.cpp \
 		  kernel/qwidgetcreate_qws.cpp \
@@ -544,16 +544,16 @@ TMAKE_CXXFLAGS    += -felide-constructors
 QNETWORK=../extensions/network/src
 
 ALLHEADERS        += $$KERNEL_H/qfontmanager_qws.h \
-		  $$KERNEL_H/qfontfactory_bdf.h \
-		  $$KERNEL_H/qfontfactory_ttf.h \
+		  $$KERNEL_H/qfontfactorybdf_qws.h \
+		  $$KERNEL_H/qfontfactoryttf_qws.h \
 		  $$KERNEL_H/qmemorymanager_qws.h \
-		  $$KERNEL_H/qwsmanager.h \
-		  $$KERNEL_H/qgfx.h \
-		  $$KERNEL_H/qgfxraster.h \
+		  $$KERNEL_H/qwsmanager_qws.h \
+		  $$KERNEL_H/qgfx_qws.h \
+		  $$KERNEL_H/qgfxraster_qws.h \
 		  $$KERNEL_H/qwindowsystem_qws.h \
 		  $$KERNEL_H/qwscursor_qws.h \
 		  $$KERNEL_H/qlock_qws.h \
-		  $$KERNEL_H/qwsregionmanager.h
+		  $$KERNEL_H/qwsregionmanager_qws.h
 
 ALLHEADERS		+= $$QNETWORK/qdns.h \
 		  $$QNETWORK/qftp.h \

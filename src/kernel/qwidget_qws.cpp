@@ -32,9 +32,9 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 //#include "qimagepaintdevice.h"
-#include "qgfx.h"
-#include "qwsmanager.h"
-#include "qwsregionmanager.h"
+#include "qgfx_qws.h"
+#include "qwsmanager_qws.h"
+#include "qwsregionmanager_qws.h"
 
 void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---
@@ -1341,8 +1341,8 @@ void QWidget::setName( const char *name )
 
 QGfx * QWidget::graphicsContext() const
 {
-    QGfx * qgfx;
-    qgfx=qwsDisplay()->screenGfx();
+    QGfx * qgfx_qws;
+    qgfx_qws=qwsDisplay()->screenGfx();
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
     if (isVisible())
@@ -1356,17 +1356,17 @@ QGfx * QWidget::graphicsContext() const
 	// regions back in sync again.
 	r &= qwsDisplay()->regionManager()->region( rgnIdx );
     }
-    qgfx->setWidgetRegion(r);
-    qgfx->setGlobalRegionIndex( rgnIdx );
-    qgfx->setOffset(offset.x(),offset.y());
+    qgfx_qws->setWidgetRegion(r);
+    qgfx_qws->setGlobalRegionIndex( rgnIdx );
+    qgfx_qws->setOffset(offset.x(),offset.y());
     // Clip the window decoration for TL windows.
     // It is possible for these windows to draw on the wm decoration if
     // they change the clip region.  Bug or feature?
     if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-	qgfx->setClipRegion(rect());
+	qgfx_qws->setClipRegion(rect());
     }
 
-    return qgfx;
+    return qgfx_qws;
 }
 
 unsigned char * QWidget::scanLine(int i) const

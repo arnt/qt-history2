@@ -19,8 +19,8 @@
 *****************************************************************************/
 
 #include "qfontmanager_qws.h"
-#include "qfontfactory_ttf.h"
-#include "qfontfactory_bdf.h"
+#include "qfontfactoryttf_qws.h"
+#include "qfontfactorybdf_qws.h"
 #include "qfontdata_p.h"
 #include "qfile.h"
 #include <stdio.h>

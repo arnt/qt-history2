@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include "qpaintdevicemetrics.h"
 //#include "qimagepaintdevice.h"
-#include "qgfx.h"
+#include "qgfx_qws.h"
 
 /* paintevent magic to provide Windows semantics on FB
  */

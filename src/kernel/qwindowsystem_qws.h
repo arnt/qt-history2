@@ -28,9 +28,9 @@
 #include <qlist.h>
 #include <qimage.h>
 
-#include "qwsproperty.h"
-#include "qwscommand.h"
-#include "qwsevent.h"
+#include "qwsproperty_qws.h"
+#include "qwscommand_qws.h"
+#include "qwsevent_qws.h"
 #endif // QT_H
 
 struct SWCursorData;

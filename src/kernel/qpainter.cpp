@@ -32,7 +32,7 @@
 #include "q1xcompatibility.h"
 #include "qpaintdevicemetrics.h"
 #ifdef _WS_QWS_
-#include "qgfx.h"
+#include "qgfx_qws.h"
 #endif
 #include <stdlib.h>
 

@@ -19,9 +19,9 @@
 *****************************************************************************/
 
 #include "qwindowsystem_qws.h"
-#include "qwsevent.h"
-#include "qwscommand.h"
-#include "qwsutils.h"
+#include "qwsevent_qws.h"
+#include "qwscommand_qws.h"
+#include "qwsutils_qws.h"
 
 #include <qapplication.h>
 #include <qtimer.h>
@@ -37,7 +37,7 @@
 #include <errno.h>
 #include <termios.h>
 
-#include <qgfx.h>
+#include <qgfx_qws.h>
 
 #ifdef __MIPSEL__
 #include <linux/tpanel.h>

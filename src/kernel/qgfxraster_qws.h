@@ -22,7 +22,7 @@
 #define QGFXRASTER_H
 
 #ifndef QT_H
-#include "qgfx.h"
+#include "qgfx_qws.h"
 #include "qpen.h"
 #include "qbrush.h"
 #include "qimage.h"

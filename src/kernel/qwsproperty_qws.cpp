@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qwsproperty.cpp#3 $
+** $Id: //depot/qt/main/util/qws/qwsproperty_qws.cpp#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -18,8 +18,8 @@
 **
 *****************************************************************************/
 
-#include "qwsproperty.h"
-#include "qwscommand.h"
+#include "qwsproperty_qws.h"
+#include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
 
 #include <stdlib.h>

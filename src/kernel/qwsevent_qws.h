@@ -4,8 +4,8 @@
 #define QWSEVENT_H
 
 #ifndef QT_H
-#include "qwsutils.h"
-#include "qwscommand.h" //QWSProtocolItem lives there, for now
+#include "qwsutils_qws.h"
+#include "qwscommand_qws.h" //QWSProtocolItem lives there, for now
 #endif // QT_H
 
 struct QWSMouseEvent;

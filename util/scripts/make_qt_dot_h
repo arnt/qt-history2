@@ -18,7 +18,7 @@
     qt_mac.h
     qt_x11.h
     qt_windows.h
-    qgfxmach64_defs.h
+    qgfxmach64defs_qws.h
     qthread.h
     qmutex.h
     qgeneric.h
@@ -26,24 +26,6 @@
     qpaintdevicedefs.h
     qwindow.h
     qtranslatordialog.h
-};
-
-@QWS_HEADERS = qw {
-    qgfx.h
-    qgfxmach64_defs.h
-    qgfxraster.h
-    qgfxvoodoo_defs.h
-    qfontmanager_qws.h
-    qlock_qws.h
-    qmemorymanager_qws.h
-    qwindowsystem_qws.h
-    qwscommand.h
-    qwscursor_qws.h
-    qwsevent.h
-    qwsmanager.h
-    qwsproperty.h
-    qwsregionmanager.h
-    qwsutils.h
 };
 
 @NETWORK_HEADERS = qw {
@@ -56,7 +38,7 @@
     qsocketdevice.h
 };
 
-@IGNORE = ( @IGNORE, @QWS_HEADERS, @NETWORK_HEADERS );
+@IGNORE = ( @IGNORE, @NETWORK_HEADERS );
 
 $IGNORE=join "|", map { "\Q$_" } @IGNORE;
 
@@ -73,13 +55,22 @@ if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
     shift;
 }
 
+@QT_HEADERS = ();
+@QWS_HEADERS = ();
+
 opendir(INC, $DIR)
     || die "can't opendir $DIR: $!";
-@QT_HEADERS =
-    grep {
-	m/\.h$/ &&
-	!m/^$IGNORE$/ &&
-	! -f "$ENV{QTDIR}/src/compat/$_"
+    map {
+	if ( m/\.h$/ &&
+	    !m/^$IGNORE$/ &&
+	    ! -f "$ENV{QTDIR}/src/compat/$_" )
+	{
+	    if ( /_qws\./ ) {
+		push @QWS_HEADERS, $_;
+	    } else {
+		push @QT_HEADERS, $_;
+	    }
+	}
     } readdir INC;
 
 open QT_H, ">$DIR/qt.h" or die "Cannot open $DIR/qt.h\n";
@@ -125,6 +116,7 @@ sub do_headers
     my %FILE;
     my %LOCAL;
     my %DEP;
+    my %HEADERS;
     H: for $h ( @HEADERS ) {
 	open HEADER, "$DIR/$h";
 	$content = "" if $fix;
@@ -138,10 +130,12 @@ sub do_headers
 	    } elsif ( /$include/ ) {
 		if ($incscan) {
 		    $inc=$2;
-		    $DEP{"$h $inc"}=1;
-		    $LOCAL{$inc}=($1 eq '"');
-		    $FILE{$h}++;
-		    $FILE{$inc}++;
+		    if ( !$IGNORE_HEADERS{$inc} ) {
+			$DEP{"$h $inc"}=1;
+			$LOCAL{$inc}=($1 eq '"');
+			$FILE{$h}++;
+			$FILE{$inc}++;
+		    }
 		}
 	    }
 	}
@@ -202,7 +196,9 @@ sub do_headers
     }
 }
 
+map { $IGNORE_HEADERS{$_}=1; } @QWS_HEADERS; 
 do_headers @QT_HEADERS;
+%IGNORE_HEADERS=();
 print QT_H "\n#ifdef _WS_QWS_\n";
 do_headers @NETWORK_HEADERS;
 do_headers @QWS_HEADERS;

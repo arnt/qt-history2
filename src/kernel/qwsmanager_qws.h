@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwsmanager.h $
+** $Id: //depot/qt/main/src/kernel/qwsmanager_qws.h $
 **
 ** Definition of QWSManager class. This manages QWS top-level windows.
 **

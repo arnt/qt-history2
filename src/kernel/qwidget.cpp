@@ -39,7 +39,7 @@
 #include "qt_windows.h"
 #endif
 #if defined(_WS_QWS_)
-#include "qwsmanager.h"
+#include "qwsmanager_qws.h"
 #endif
 
 // NOT REVISED

@@ -1,6 +1,9 @@
+
+#ifndef QT_H
 #include <qobject.h>
 #include <qiconset.h>
 #include <qstring.h>
+#endif // QT_H
 
 class QActionPrivate;
 class QActionGroupPrivate;

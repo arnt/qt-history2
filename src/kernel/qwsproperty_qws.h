@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qwsproperty.h#3 $
+** $Id: //depot/qt/main/util/qws/qwsproperty_qws.h#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -22,7 +22,7 @@
 #define QWSPROPERTY_H
 
 #ifndef QT_H
-#include "qwscommand.h"
+#include "qwscommand_qws.h"
 #include <qdict.h>
 #endif // QT_H
 

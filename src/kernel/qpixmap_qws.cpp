@@ -26,7 +26,7 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qgfx.h"
+#include "qgfx_qws.h"
 #include <stdlib.h>
 
 #include "qmemorymanager_qws.h"

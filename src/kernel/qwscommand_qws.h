@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qwscommand.cpp#3 $
+** $Id: //depot/qt/main/util/qws/qwscommand_qws.cpp#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -22,7 +22,7 @@
 #define QWSCOMMAND_H
 
 #ifndef QT_H
-#include "qwsutils.h"
+#include "qwsutils_qws.h"
 #endif // QT_H
 
 #define QTE_PIPE "/tmp/.QtEmbedded"

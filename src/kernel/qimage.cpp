@@ -40,7 +40,7 @@
 #include <ctype.h>
 
 #ifdef _WS_QWS_
-#include "qgfx.h"
+#include "qgfx_qws.h"
 #endif
 
 

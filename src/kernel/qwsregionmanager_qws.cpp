@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 #include "qwindowdefs.h"
-#include "qwsregionmanager.h"
+#include "qwsregionmanager_qws.h"
 
 #define QT_MAX_REGIONS      400
 #define QT_RECTS_PER_REGION 4

@@ -18,11 +18,11 @@
 **
 *****************************************************************************/
 
-#include "qgfxraster.h"
+#include "qgfxraster_qws.h"
 #include "qpen.h"
 #include "qpaintdevicemetrics.h"
 #include "qmemorymanager_qws.h"
-#include "qwsregionmanager.h"
+#include "qwsregionmanager_qws.h"
 #include "qwindowdefs.h"
 
 
@@ -3885,15 +3885,15 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 
 #if defined (QWS_MACH64)
 
-#include "qgfxmach64.cpp"
+#include "qgfxmach64_qws.cpp"
 
 #elif defined(QWS_VOODOO)
 
-#include "qgfxvoodoo.cpp"
+#include "qgfxvoodoo_qws.cpp"
 
 #elif defined(QWS_VFB)
 
-#include "qgfxvfb.cpp"
+#include "qgfxvfb_qws.cpp"
 
 #else
 

@@ -19,19 +19,19 @@
 *****************************************************************************/
 
 #include "qwindowsystem_qws.h"
-#include "qwsevent.h"
-#include "qwscommand.h"
-#include "qwsutils.h"
+#include "qwsevent_qws.h"
+#include "qwscommand_qws.h"
+#include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
 
 #include <qapplication.h>
 #include <qpointarray.h> //cursor test code
 #include <qimage.h>
 #include <qcursor.h>
-#include <qgfx.h>
+#include <qgfx_qws.h>
 #include <qwindowdefs.h>
 #include <qlock_qws.h>
-#include <qwsregionmanager.h>
+#include <qwsregionmanager_qws.h>
 #include <qqueue.h>
 
 #include <qpen.h>
@@ -48,7 +48,7 @@
 #include <sys/sem.h>
 #include <signal.h>
 
-#include <qgfx.h>
+#include <qgfx_qws.h>
 
 extern void qt_init_display(); //qapplication_qws.cpp
 

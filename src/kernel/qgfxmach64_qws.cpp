@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxmach64.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qgfxmach64_qws.cpp#73 $
 **
 ** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
 *
@@ -37,8 +37,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "qgfxraster.h"
-#include "qgfxmach64_defs.h"
+#include "qgfxraster_qws.h"
+#include "qgfxmach64defs_qws.h"
 
 #define LASTOP_LINE 1
 #define LASTOP_RECT 2

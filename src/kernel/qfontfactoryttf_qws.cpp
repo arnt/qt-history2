@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qfontfactory_ttf.h"
+#include "qfontfactoryttf_qws.h"
 
 #if QT_FEATURE_TRUETYPE
 

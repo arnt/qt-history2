@@ -22,7 +22,7 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qgfx.h"
+#include "qgfx_qws.h"
 
 /*****************************************************************************
   QColor static member functions

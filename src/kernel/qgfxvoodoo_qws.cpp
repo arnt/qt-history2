@@ -18,7 +18,7 @@
 **
 *****************************************************************************/
 
-#include "qgfxvoodoo_defs.h"
+#include "qgfxvoodoodefs_qws.h"
 
 unsigned char * regbase=0;
 

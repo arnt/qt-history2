@@ -25,7 +25,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qgfx.h"
+#include "qgfx_qws.h"
 
 QPaintDevice::QPaintDevice( uint devflags )
 {

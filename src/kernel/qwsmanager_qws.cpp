@@ -8,8 +8,8 @@
 #include "qregion.h"
 #include "qevent.h"
 #include "qtimer.h"
-#include "qgfx.h"
-#include "qwsmanager.h"
+#include "qgfx_qws.h"
+#include "qwsmanager_qws.h"
 
 #define CORNER_GRAB	16
 #define BORDER_WIDTH	4
@@ -738,7 +738,7 @@ void QWSButton::paint()
 }
 
 /*!
-  \class QWSDecorator qwsmanager.h
+  \class QWSDecorator qwsmanager_qws.h
   \brief The QWSDecorator allows the appearance of the Qt/Embedded Window
   Manager to be customised.
 

@@ -17,7 +17,7 @@
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
-#include "qgfx.h"
+#include "qgfx_qws.h"
 
 #include <stdio.h>
 #include <dlfcn.h>

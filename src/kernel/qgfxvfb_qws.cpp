@@ -20,7 +20,7 @@
 
 #ifdef QWS_VFB
 
-#include "qgfxraster.h"
+#include "qgfxraster_qws.h"
 
 #include <sys/ipc.h>
 #include <sys/types.h>

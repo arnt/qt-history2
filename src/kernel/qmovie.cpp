@@ -37,7 +37,7 @@
 #if QT_FEATURE_MOVIE
 
 #ifdef _WS_QWS_
-#include "qgfx.h"
+#include "qgfx_qws.h"
 #endif
 
 #include "qasyncio.h"

@@ -1,7 +1,7 @@
 
 #include <qcursor.h>
 #include <qbitmap.h>
-#include <qgfx.h>
+#include <qgfx_qws.h>
 #include <qapplication.h>
 #include "qwindowsystem_qws.h"
 #include "qwscursor_qws.h"

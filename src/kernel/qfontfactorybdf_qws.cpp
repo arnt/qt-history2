@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qfontfactory_bdf.h"
+#include "qfontfactorybdf_qws.h"
 
 #if QT_FEATURE_BDF
 
