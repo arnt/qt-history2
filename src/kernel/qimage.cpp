@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#5 $
 **
 ** Implementation of QImage class
 **
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#5 $";
 #endif
 
 
@@ -246,7 +246,8 @@ QImage QImage::copy() const
     }
     else {					// copy image
 	int w=data->pm->width(), h=data->pm->height();
-	QPixMap *pm = new QPixMap( w, h );	// create new pixmap
+	int d=data->pm->depth();
+	QPixMap *pm = new QPixMap( w, h, d );	// create new pixmap
 	CHECK_PTR( pm );
 	data->pm->bitBlt( 0, 0, w, h,		// copy from this pixmap
 			  pm, 0, 0 );		//   into new pixmap
