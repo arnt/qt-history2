@@ -196,7 +196,7 @@ inline void QGfxVoodoo<depth,type>::do_scissors(QRect & r)
 	tmp->clipleft=r.left();
 	tmp->cliptop=r.top();
     }
-    if(tmp->clipright!=r.right() || 
+    if(tmp->clipright!=r.right() ||
        tmp->clipbottom!=r.bottom()) {
         wait_for_fifo(1);
         regw(CLIP0MIN,(r.bottom()) << 16 | r.right());
@@ -328,7 +328,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -380,7 +380,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 	regw(COLORFORE,srccol);
 	((QLinuxFb_Shared *)shared_data)->forecol=srccol;
     }
-    
+
     // We clip in software here because rectangle-rectangle intersections
     // are very fast, probably much more so than writing graphics card
     // registers to set up the clip
@@ -425,7 +425,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 	}
     }
     GFX_END
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 }
@@ -451,7 +451,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	return;
     }
 
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -556,13 +556,13 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	do_scissors(r);
 
 	GFX_END
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 
 	return;
     } else {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	// software fallback
@@ -600,7 +600,7 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	return;
     }
 
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -634,12 +634,12 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	do_scissors(tmprect);
 
 	GFX_END
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	return;
     } else {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
@@ -656,7 +656,7 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	return;
     }
 
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
 
@@ -673,12 +673,12 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     int dx,dy;
     dx=abs(x2-x1);
     dy=abs(y2-y1);
-    
+
     // On the Voodoo3, unlike the Mach64, Bresenham parameters
     // for the line are calculated automatically
 
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
-      
+
     QColor tmp=cpen.color();
 
 #ifndef QT_NO_QWS_REPEATER
@@ -691,16 +691,16 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 #endif
 
     int loopc;
-    
+
     if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
       wait_for_fifo(1);
       regw(COLORFORE,srccol);
       ((QLinuxFb_Shared *)shared_data)->forecol=srccol;
     }
-    
+
     wait_for_fifo(1);
     regw(COMMAND,0x6 | getRop(myrop));
-    
+
     for(loopc=0;loopc<ncliprect;loopc++) {
       do_scissors(cliprect[loopc]);
       wait_for_fifo(2);
@@ -711,7 +711,7 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     do_scissors(tmprect);
 
     GFX_END
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
     return;
