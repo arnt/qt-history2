@@ -2512,6 +2512,11 @@ void QListViewItem::ignoreDoubleClick()
     item begins with the letters they type the current item doesn't
     change.
 
+    Note that the list view's size hint is calculated taking into
+    account the height \e and width to produce a nice aspect ratio.
+    This may mean that you need to reimplement sizeHint() in some
+    cases.
+
     \warning The list view assumes ownership of all list view items
     and will delete them when it does not need them any more.
 

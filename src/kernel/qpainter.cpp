@@ -80,8 +80,6 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     }
     \endcode
 
-    Usage is simple, and there are many settings you can use:
-
     \list
 
     \i font() is the currently set font. If you set a font that isn't
@@ -128,7 +126,11 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     the next time a painter begins painting on it.
 
     save() saves all of these settings on an internal stack, restore()
-    pops them back.
+    pops them back. This is especially useful if you are
+    reimplementing a drawing function that gives you a non-const
+    QPainter reference since you can call save() before you use it and
+    call restore() before leaving your function so that it remains in
+    tact.
 
     The core functionality of QPainter is drawing, and there are
     functions to draw most primitives: drawPoint(), drawPoints(),

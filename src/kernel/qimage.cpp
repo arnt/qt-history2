@@ -2679,7 +2679,8 @@ void pnmscale(const QImage& src, QImage& dst)
     by \a w and \a h (it is as large as possible within the
     constraints); if \a mode is \c ScaleMax, the returned image fits
     at least into the specified rectangle (it is a small as possible
-    within the constraints).
+    within the constraints). Note that the algorithm used favors speed
+    rather than smoothness.
 
     For 32-bpp images and 1-bpp/8-bpp color images the result will be
     32-bpp, whereas \link allGray() all-gray \endlink images
