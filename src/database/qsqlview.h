@@ -21,12 +21,14 @@ public:
     ~QSqlView();
 
     QSqlIndex     primaryIndex() const;
-    int           insert();
-    int           update( const QSqlIndex & filter = QSqlIndex() );
-    int           del( const QSqlIndex & filter = QSqlIndex() );
+    virtual int   insert( bool invalidate = TRUE );
+    virtual int   update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
+    virtual int   del( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
 protected:
-    int           update( const QString & filter );
-    int           del( const QString & filter );
+    virtual int   update( const QString & filter, bool invalidate = TRUE );
+    virtual int   del( const QString & filter, bool invalidate = TRUE );
+private:
+    int           apply( const QString& q, bool invalidate );
 };
 
 #endif // QT_NO_SQL

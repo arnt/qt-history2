@@ -149,12 +149,12 @@ bool QSqlRowset::select( const QString & filter, const QSqlIndex & sort )
 */
 bool QSqlRowset::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( fieldEqualsValue( "and", filter ), sort );
+    return select( fieldEqualsValue( nm, "and", filter ), sort );
 }
 
 QString qMakeFieldValue( const QString& prefix, QSqlField& field, const QString& op = "=" )
 {
-    QString f = prefix + "." + field.name();
+    QString f = ( prefix.length() > 0 ? QString(".") : QString::null ) + field.name();
     if( (field.type() == QVariant::String) || (field.type() == QVariant::CString) )
 	f += " " + op + " '" + field.value().toString() + "'";
     else
@@ -166,7 +166,7 @@ QString qMakeFieldValue( const QString& prefix, QSqlField& field, const QString&
   \internal
 
 */
-QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex & i )
+QString QSqlRowset::fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
 {
     QString filter;
     int k = i.count();
@@ -177,13 +177,13 @@ QString QSqlRowset::fieldEqualsValue( const QString& fieldSep, const QSqlIndex &
 		filter += " " + fieldSep + " " ;
 	    QString fn = i.field(j).name();
 	    QSqlField f = field( fn );
-	    filter += qMakeFieldValue( nm, f );
+	    filter += qMakeFieldValue( prefix, f );
 	}
     } else { // use all fields
  	for ( uint j = 0; j < count(); ++j ) {
 	    if ( j > 0 )
 		filter += " " + fieldSep + " " ;
-	    filter += qMakeFieldValue( nm, field( j ) );
+	    filter += qMakeFieldValue( prefix, field( j ) );
 	}
     }
     return filter;
