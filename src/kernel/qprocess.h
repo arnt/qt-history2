@@ -66,12 +66,11 @@ class Q_EXPORT QProcess : public QObject
     Q_OBJECT
 public:
     QProcess( QObject *parent=0, const char *name=0 );
-    QProcess( const QString& com, QObject *parent=0, const char *name=0 );
-    QProcess( const QString& com, const QStringList& args, QObject *parent=0, const char *name=0 );
+    QProcess( const QString& arg0, QObject *parent=0, const char *name=0 );
+    QProcess( const QStringList& args, QObject *parent=0, const char *name=0 );
     ~QProcess();
 
-    // set the command, arguments, etc.
-    void setCommand( const QString& com );
+    // set the arguments and working directory
     void setArguments( const QStringList& args );
     void addArgument( const QString& arg );
     void setWorkingDirectory( const QDir& dir );
@@ -106,7 +105,6 @@ public slots:
 private:
     QProcessPrivate *d;
 
-    QString     command;
     QDir        workingDir;
     QStringList arguments;
 

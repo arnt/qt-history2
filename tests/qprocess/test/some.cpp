@@ -16,14 +16,14 @@ Some::Some( QObject *p ) : QObject( p )
 {
     proc = new QProcess( this );
 #if defined(_OS_UNIX_)
-    proc->setCommand( QDir::current().absFilePath( "some" ) );
+    proc->addArgument( QDir::current().absFilePath( "some" ) );
     proc->addArgument( "-cat" );
 #else
 //    QDir dir = QDir::current();
 //    dir.cd( "Debug" );
-//    proc->setCommand( dir.absFilePath( "some" ) );
+//    proc->addArgument( dir.absFilePath( "some" ) );
 //    proc->addArgument( "-cat" );
-    proc->setCommand( "p4" );
+    proc->addArgument( "p4" );
 #endif
 
     // io stuff

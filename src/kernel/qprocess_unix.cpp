@@ -277,11 +277,16 @@ bool QProcess::start()
     }
 
     // construct the arguments for exec
-    const char** arglist = new const char*[ arguments.count() + 2 ];
-    arglist[0] = command.latin1();
-    int i = 1;
+    QCString *arglistQ = new QCString[ arguments.count() + 1 ];
+    const char** arglist = new const char*[ arguments.count() + 1 ];
+    int i = 0;
     for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
-	arglist[ i++ ] = (*it).latin1();
+	arglistQ[i] = (*it).local8Bit();
+	arglist[i] = arglistQ[i];
+#if defined(QPROCESS_DEBUG)
+	qDebug( "QProcess::start(): arg %d = %s", i, arglist[i] );
+#endif
+	i++;
     }
     arglist[i] = 0;
 
@@ -297,7 +302,7 @@ bool QProcess::start()
 	::dup2( d->socketStdout[1], STDOUT_FILENO );
 	::dup2( d->socketStderr[1], STDERR_FILENO );
 	::chdir( workingDir.absPath().latin1() );
-	::execvp( command.latin1(), (char*const*)arglist ); // ### a hack
+	::execvp( arglist[0], (char*const*)arglist ); // ### a hack
 	::exit( -1 );
     } else if ( d->pid == -1 ) {
 	// error forking
@@ -307,6 +312,7 @@ bool QProcess::start()
 	::close( d->socketStdin[0] );
 	::close( d->socketStdout[1] );
 	::close( d->socketStderr[1] );
+	delete[] arglistQ;
 	delete[] arglist;
 	return FALSE;
     }
@@ -333,6 +339,7 @@ bool QProcess::start()
     d->notifierStderr->setEnabled( TRUE );
 
     // cleanup and return
+    delete[] arglistQ;
     delete[] arglist;
     return TRUE;
 }

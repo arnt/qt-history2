@@ -65,38 +65,40 @@ QProcess::QProcess( QObject *parent, const char *name )
 }
 
 /*!
-  Constructs a QProcess with the given command (but does not start it).
+  Constructs a QProcess with \a arg0 as the command to be executed.
+
+  The process is not started. You have to call start() explicitly to start the
+  process.
 */
-QProcess::QProcess( const QString& com, QObject *parent, const char *name )
+QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name )
 {
     init();
-    setCommand( com );
+    addArgument( arg0 );
 }
 
 /*!
-  Constructs a QProcess with the given command and arguments (but does not
-  start it).
+  Constructs a QProcess with \a args as the arguments of the process. The first
+  element in the list is the command to be executed. The other elements in the
+  list are the arguments to this command.
+
+  The process is not started. You have to call start() explicitly to start the
+  process.
 */
-QProcess::QProcess( const QString& com, const QStringList& args, QObject *parent, const char *name )
+QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name )
 {
     init();
-    setCommand( com );
     setArguments( args );
 }
 
-/*!
-  Sets the command that should be executed.
-*/
-void QProcess::setCommand( const QString& com )
-{
-    command = com;
-}
 
 /*!
-  Sets the arguments for the command. Arguments that were previously set, will
-  be deleted first.
+  Sets \a args as the arguments for the process. The first element in the list
+  is the command to be executed. The other elements in the list are the
+  arguments to this command.
+
+  Arguments that were previously set, will be deleted first.
 */
 void QProcess::setArguments( const QStringList& args )
 {
@@ -104,7 +106,10 @@ void QProcess::setArguments( const QStringList& args )
 }
 
 /*!
-  Adds a argument to the end of the existing list of arguments.
+  Adds \a arg to the end of the existing list of arguments.
+
+  The first element in the list of arguments is the command to be executed; the
+  following elements are the arguments to this command.
 */
 void QProcess::addArgument( const QString& arg )
 {
@@ -112,7 +117,7 @@ void QProcess::addArgument( const QString& arg )
 }
 
 /*!
-  Sets a working directory in which the command is executed.
+  Sets \a dir as the working directory in which the command is executed.
 */
 void QProcess::setWorkingDirectory( const QDir& dir )
 {

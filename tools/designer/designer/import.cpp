@@ -84,10 +84,9 @@ Import::Import( const QString &fn, MainWindow *mw )
 
     if ( !command.isEmpty() ) {
 	QStringList lst = QStringList::split( ' ', command );
-	process = new QProcess( lst[ 0 ] );
+	process = new QProcess;
 	QStringList::Iterator it2 = lst.begin();
-	++it2;
-	for ( ; it2 != lst.end(); ++it2 ) {
+	for ( it2 = lst.begin() ; it2 != lst.end(); ++it2 ) {
 	    if ( *it2 == "%f" )
 		process->addArgument( fn );
 	    else
