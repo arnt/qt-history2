@@ -49,7 +49,6 @@
 #endif
 
 #include <private/qt_x11_p.h>
-
 #include <private/qnumeric_p.h>
 
 #define d d_func()
@@ -814,8 +813,9 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
  */
 
 QX11PaintEngine::QX11PaintEngine()
-    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine | AlphaFill
+    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | AlphaFillPolygon
                    | LinearGradientFillPolygon
 #endif
         )
@@ -828,8 +828,9 @@ QX11PaintEngine::QX11PaintEngine()
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, UsesFontEngine | AlphaFill
+    : QPaintEngine(dptr, UsesFontEngine
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
+                   | AlphaFillPolygon
                    | LinearGradientFillPolygon
 #endif
         )

@@ -185,6 +185,8 @@ public:
 
     QPolygon draw_helper_xpolygon(const void *data, ShapeType type);
     void draw_helper(const void *data, bool winding, ShapeType type,
+                     DrawOperation operation, uint emulationSpecifier);
+    void draw_helper(const void *data, bool winding, ShapeType type,
                      DrawOperation operation = StrokeAndFillDraw);
 
     void updateMatrix();
