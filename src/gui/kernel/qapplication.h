@@ -279,7 +279,7 @@ private:
     friend void qt_mac_update_os_settings();
     friend bool qt_set_socket_handler(int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);
-    friend void qt_init(QApplicationPrivate *priv, QApplication::Type);
+    friend void qt_init(QApplicationPrivate *, QApplication::Type);
 #endif
 
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE)

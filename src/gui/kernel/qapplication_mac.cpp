@@ -1150,6 +1150,58 @@ static Qt::KeyboardModifiers get_modifiers(int keys, bool from_mouse=false)
     }
     return ret;
 }
+void qt_mac_send_modifiers_changed(Q_UINT32 modifiers, QObject *object)
+{
+    static Q_UINT32 cachedModifiers = 0;
+    Q_UINT32 lastModifiers = cachedModifiers,
+          changedModifiers = lastModifiers ^ modifiers;
+    cachedModifiers = modifiers;
+
+    //check the bits
+    static mac_enum_mapper modifier_key_symbols[] = {
+        { shiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) },
+        { rightShiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) }, //???
+        { controlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) },
+        { rightControlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) }, //???
+        { cmdKeyBit, MAP_MAC_ENUM(Qt::Key_Control) },
+        { optionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) },
+        { rightOptionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) }, //???
+        { alphaLockBit, MAP_MAC_ENUM(Qt::Key_CapsLock) },
+        { kEventKeyModifierNumLockBit, MAP_MAC_ENUM(Qt::Key_NumLock) },
+        {   0, MAP_MAC_ENUM(0) } };
+    for(int i = 0; i <= 32; i++) { //just check each bit
+        if(!(changedModifiers & (1 << i)))
+            continue;
+        QEvent::Type etype = QEvent::KeyPress;
+        if(lastModifiers & (1 << i))
+            etype = QEvent::KeyRelease;
+        int key = 0;
+        for(uint x = 0; modifier_key_symbols[x].mac_code; x++) {
+            if(modifier_key_symbols[x].mac_code == i) {
+#ifdef DEBUG_KEY_MAPS
+                qDebug("got modifier changed: %s", modifier_key_symbols[x].desc);
+#endif
+                key = modifier_key_symbols[x].qt_code;
+                break;
+            }
+        }
+        if(!key) {
+#ifdef DEBUG_KEY_MAPS
+            qDebug("could not get modifier changed: %d", i);
+#endif
+            continue;
+        }
+#ifdef DEBUG_KEY_MAPS
+        qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - 0x%08x",
+               etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
+               object ? object->metaObject()->className() : "none",
+               object ? object->objectName().local8Bit() : "",
+               key, (int)modifiers);
+#endif
+        QKeyEvent ke(etype, key, get_modifiers(modifiers ^ (1 << i)), "", false);
+        qt_sendSpontaneousEvent(object, &ke);
+    }
+}
 
 //mouse buttons
 static mac_enum_mapper mouse_symbols[] = {
@@ -2168,11 +2220,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             UInt32 modifiers;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(modifiers), 0, &modifiers);
-            static UInt32 cachedModifiers = 0;
-            UInt32 lastModifiers = cachedModifiers,
-                changedModifiers = lastModifiers ^ modifiers;
-            cachedModifiers = modifiers;
-
             //find which widget to send to
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
@@ -2180,51 +2227,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 widget = QApplicationPrivate::focus_widget;
             if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
                 break;
-
-            //check the bits
-            static mac_enum_mapper modifier_key_symbols[] = {
-                { shiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) },
-                { rightShiftKeyBit, MAP_MAC_ENUM(Qt::Key_Shift) }, //???
-                { controlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) },
-                { rightControlKeyBit, MAP_MAC_ENUM(Qt::Key_Meta) }, //???
-                { cmdKeyBit, MAP_MAC_ENUM(Qt::Key_Control) },
-                { optionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) },
-                { rightOptionKeyBit, MAP_MAC_ENUM(Qt::Key_Alt) }, //???
-                { alphaLockBit, MAP_MAC_ENUM(Qt::Key_CapsLock) },
-                { kEventKeyModifierNumLockBit, MAP_MAC_ENUM(Qt::Key_NumLock) },
-                {   0, MAP_MAC_ENUM(0) } };
-            for(int i = 0; i <= 32; i++) { //just check each bit
-                if(!(changedModifiers & (1 << i)))
-                    continue;
-                QEvent::Type etype = QEvent::KeyPress;
-                if(lastModifiers & (1 << i))
-                    etype = QEvent::KeyRelease;
-                int key = 0;
-                for(uint x = 0; modifier_key_symbols[x].mac_code; x++) {
-                    if(modifier_key_symbols[x].mac_code == i) {
-#ifdef DEBUG_KEY_MAPS
-                        qDebug("got modifier changed: %s", modifier_key_symbols[x].desc);
-#endif
-                        key = modifier_key_symbols[x].qt_code;
-                        break;
-                    }
-                }
-                if(!key) {
-#ifdef DEBUG_KEY_MAPS
-                    qDebug("could not get modifier changed: %d", i);
-#endif
-                    continue;
-                }
-#ifdef DEBUG_KEY_MAPS
-                qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - 0x%08x",
-                       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
-                       widget ? widget->metaObject()->className() : "none",
-                       widget ? widget->objectName().local8Bit() : "",
-                       key, (int)modifiers);
-#endif
-                QKeyEvent ke(etype, key, get_modifiers(modifiers ^ (1 << i)), "", false);
-                QApplication::sendSpontaneousEvent(widget,&ke);
-            }
+            qt_mac_send_modifiers_changed(modifiers, widget);
             break;
         }
 
