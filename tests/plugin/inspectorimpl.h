@@ -3,7 +3,7 @@
 #include "inspector.h"
 
 #include <qdict.h>
-#include <qplugin.h>
+#include <qlibrary.h>
 #include <qlistview.h>
 
 class QUnknownInterface;
@@ -24,7 +24,7 @@ private:
     void addInterface( QListViewItem *parent, QUnknownInterface *iface );
 
     QDict<QListViewItem> itemDict;
-    QDict<QPlugIn> libDict;
+    QDict<QLibrary> libDict;
     QString path;
 };
 

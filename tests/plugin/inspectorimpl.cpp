@@ -32,7 +32,7 @@ void LibraryInspector::showLibrary( QListViewItem *item )
     while ( (pitem = item->parent() ) )
 	item = pitem;
 
-    QPlugIn* plugin = libDict[item->text( 0 )];
+    QLibrary* plugin = libDict[item->text( 0 )];
     if ( !plugin ) {
 	details->setText( "<Can't find plugin!>" );
 	return;
@@ -53,9 +53,9 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 
     QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( "*"+intID+"*" );
     if ( iface ) {
-	QRegExp regexp( "*QPlugInInterface*", TRUE, TRUE );
-	if ( regexp.match( iface->interfaceID() ) ) {
-	    QPlugInInterface *piface = (QPlugInInterface*)iface;
+	QRegExp regexp( "*QComponentInterface*", TRUE, TRUE );
+	if ( regexp.match( iface->interfaceId() ) ) {
+	    QComponentInterface *piface = (QComponentInterface*)iface;
 	    text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->brief() );
 	    text += QString("<tr><td><b>Description:</b></td><td>%1</td></tr>").arg( piface->description() );
 	    text += QString("<tr><td><b>Author:</b></td><td>%1</td></tr>").arg( piface->author() );
@@ -95,11 +95,11 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
 
     QString ID = iface->ID();
 
-    QListViewItem *item = new QListViewItem( parent, iface->ID(), iface->interfaceID() );
+    QListViewItem *item = new QListViewItem( parent, iface->ID(), iface->interfaceId() );
 
     QStringList ifaces = iface->interfaceList( FALSE );
     for ( QStringList::Iterator it = ifaces.begin(); it != ifaces.end(); ++it ) {
-	if ( *it == iface->interfaceID() )
+	if ( *it == iface->interfaceId() )
 	    continue;
 	QUnknownInterface *sub = iface->queryInterface( *it, FALSE );
 	if ( sub ) {
@@ -143,11 +143,11 @@ void LibraryInspector::selectPath()
 		break;
 
 	    QString lib = p + "/" + *it;
-	    QPlugIn *plugin = new QPlugIn( lib );
+	    QLibrary *plugin = new QLibrary( lib );
 	    libDict.insert( lib, plugin );
 
 	    QListViewItem *libItem = new QListViewItem( view, plugin->library() );
-	    QPlugInInterface *iface = (QPlugInInterface*)plugin->queryInterface( "*QPlugInInterface*", FALSE );
+	    QComponentInterface *iface = (QComponentInterface*)plugin->queryInterface( "*QComponentInterface*", FALSE );
 	    addInterface( libItem, iface );
 	}
     }
