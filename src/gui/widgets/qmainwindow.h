@@ -16,7 +16,7 @@
 
 #include <QtGui/qwidget.h>
 
-class QDockWindow;
+class QDockWidget;
 class QMainWindowPrivate;
 class QMenuBar;
 class QStatusBar;
@@ -49,8 +49,8 @@ public:
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *widget);
 
-    void setCorner(Qt::Corner corner, Qt::DockWindowArea area);
-    Qt::DockWindowArea corner(Qt::Corner corner) const;
+    void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
+    Qt::DockWidgetArea corner(Qt::Corner corner) const;
 
     void addToolBarBreak(Qt::ToolBarArea area);
     void insertToolBarBreak(QToolBar *before);
@@ -63,14 +63,14 @@ public:
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 
-    void addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow);
-    void addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+    void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
+    void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
-    void splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+    void splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                          Qt::Orientation orientation);
-    void removeDockWindow(QDockWindow *dockwindow);
+    void removeDockWidget(QDockWidget *dockwidget);
 
-    Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
+    Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
 
     QByteArray saveState(int version = 0) const;
     bool restoreState(const QByteArray &state, int version = 0);

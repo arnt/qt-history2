@@ -31,8 +31,8 @@
 #include <qvector.h>
 
 class QToolBar;
-class QDockWindow;
-class QDockWindowLayout;
+class QDockWidget;
+class QDockWidgetLayout;
 
 class QMainWindowLayout : public QLayout
 {
@@ -55,17 +55,17 @@ public:
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 
-    QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
-    void addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+    QDockWidgetLayout *layoutForArea(Qt::DockWidgetArea area);
+    void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
-    void splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+    void splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                          Qt::Orientation orientation);
-    Qt::DockWindowArea dockWindowArea(QDockWindow *dockwindow) const;
+    Qt::DockWidgetArea dockWidgetArea(QDockWidget *dockwidget) const;
 
     enum { // sentinel values used to validate state data
         VersionMarker = 0xff,
         ToolBarStateMarker = 0xfe,
-        DockWindowStateMarker = 0xfd
+        DockWidgetStateMarker = 0xfd
     };
     void saveState(QDataStream &stream) const;
     bool restoreState(QDataStream &stream);
@@ -83,7 +83,7 @@ public:
 
     void invalidate();
 
-    void removeRecursive(QDockWindow *dockwindow);
+    void removeRecursive(QDockWidget *dockwidget);
 
 
     // utility functions
@@ -97,11 +97,11 @@ public:
 
     void beginConstrain();
     void endConstrain();
-    int constrain(QDockWindowLayout *dock, int delta);
+    int constrain(QDockWidgetLayout *dock, int delta);
 
-    Qt::DockWindowAreas locateDockWindow(QDockWindow *dockwindow, const QPoint &mouse) const;
-    QRect placeDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
-    void dropDockWindow(QDockWindow *dockwindow, const QRect &r, const QPoint &mouse);
+    Qt::DockWidgetAreas locateDockWidget(QDockWidget *dockwidget, const QPoint &mouse) const;
+    QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
+    void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
@@ -109,7 +109,7 @@ public:
     void removeToolBarInfo(QToolBar *toolbar);
 
     // dock/center-widget layout data
-    Qt::DockWindowArea corners[4];
+    Qt::DockWidgetArea corners[4];
     struct QMainWindowLayoutInfo
     {
 	QLayoutItem *item;

@@ -572,18 +572,18 @@ bool qt_mac_is_macdrawer(const QWidget *w)
     return (w && w->windowType() == Qt::Drawer);
 }
 
-bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWindowArea where) //users of Qt/Mac can use this..
+bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWidgetArea where) //users of Qt/Mac can use this..
 {
     if(!qt_mac_is_macdrawer(w))
         return false;
     OptionBits edge;
-    if(where & Qt::LeftDockWindowArea)
+    if(where & Qt::LeftDockWidgetArea)
         edge = kWindowEdgeLeft;
-    else if(where & Qt::RightDockWindowArea)
+    else if(where & Qt::RightDockWidgetArea)
         edge = kWindowEdgeRight;
-    else if(where & Qt::TopDockWindowArea)
+    else if(where & Qt::TopDockWidgetArea)
         edge = kWindowEdgeTop;
-    else if(where & Qt::BottomDockWindowArea)
+    else if(where & Qt::BottomDockWidgetArea)
         edge = kWindowEdgeBottom;
     else
         return false;

@@ -26,7 +26,7 @@ public:
     enum OptionType {
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
-                      SO_DockWindow, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
+                      SO_DockWidget, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
                       SO_Q3ListView, SO_TitleBar,
@@ -305,10 +305,10 @@ protected:
     QStyleOptionQ3DockWindow(int version);
 };
 
-class Q_GUI_EXPORT QStyleOptionDockWindow : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionDockWidget : public QStyleOption
 {
 public:
-    enum { Type = SO_DockWindow };
+    enum { Type = SO_DockWidget };
     enum { Version = 1 };
 
     QString title;
@@ -316,7 +316,7 @@ public:
     bool moveable;
     bool floatable;
 
-    QStyleOptionDockWindow();
+    QStyleOptionDockWidget();
 
     QDOC_PROPERTY(QString title)
     QDOC_PROPERTY(bool closable)
@@ -324,7 +324,7 @@ public:
     QDOC_PROPERTY(bool floatable)
 
 protected:
-    QStyleOptionDockWindow(int version);
+    QStyleOptionDockWidget(int version);
 };
 
 class Q_GUI_EXPORT QStyleOptionViewItem : public QStyleOption

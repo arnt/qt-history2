@@ -15,10 +15,10 @@ HEADERS += \
         widgets/qdatetimeedit.h \
         widgets/qdial.h \
         widgets/qdialogbuttons_p.h \
-        widgets/qdockwindow.h \
-	widgets/qdockwindow_p.h \
-        widgets/qdockwindowlayout_p.h \
-        widgets/qdockwindowseparator_p.h \
+        widgets/qdockwidget.h \
+	widgets/qdockwidget_p.h \
+        widgets/qdockwidgetlayout_p.h \
+        widgets/qdockwidgetseparator_p.h \
         widgets/qframe.h \
         widgets/qframe_p.h \
         widgets/qgridwidget.h \
@@ -75,9 +75,9 @@ SOURCES += \
         widgets/qdial.cpp \
         widgets/qdialogbuttons.cpp \
         widgets/qdockseparator.cpp \
-        widgets/qdockwindow.cpp \
-        widgets/qdockwindowlayout.cpp \
-        widgets/qdockwindowseparator.cpp \
+        widgets/qdockwidget.cpp \
+        widgets/qdockwidgetlayout.cpp \
+        widgets/qdockwidgetseparator.cpp \
         widgets/qeffects.cpp \
         widgets/qframe.cpp \
         widgets/qgridwidget.cpp \

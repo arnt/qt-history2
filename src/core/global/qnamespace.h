@@ -965,20 +965,20 @@ public:
         AnchorHref
     };
 
-    enum DockWindowArea {
-        LeftDockWindowArea = 0x1,
-        RightDockWindowArea = 0x2,
-        TopDockWindowArea = 0x4,
-        BottomDockWindowArea = 0x8,
+    enum DockWidgetArea {
+        LeftDockWidgetArea = 0x1,
+        RightDockWidgetArea = 0x2,
+        TopDockWidgetArea = 0x4,
+        BottomDockWidgetArea = 0x8,
 
-        DockWindowArea_Mask = 0xf,
-        AllDockWindowAreas = DockWindowArea_Mask
+        DockWidgetArea_Mask = 0xf,
+        AllDockWidgetAreas = DockWidgetArea_Mask
     };
     enum {
-        NDockWindowAreas = 4
+        NDockWidgetAreas = 4
     };
 
-    Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea)
+    Q_DECLARE_FLAGS(DockWidgetAreas, DockWidgetArea)
 
     enum ToolBarArea {
         LeftToolBarArea = 0x1,
@@ -1206,7 +1206,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWidgetAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)

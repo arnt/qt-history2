@@ -456,7 +456,7 @@ static const char * const qt_unshade_xpm[] = {
 "..........",
 ".........."};
 
-static const char * dock_window_close_xpm[] = {
+static const char * dock_widget_close_xpm[] = {
 "8 8 2 1",
 "# c #000000",
 ". c None",
@@ -969,8 +969,8 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
         return QPixmap((const char **)qt_close_xpm);
     case SP_TitleBarContextHelpButton:
         return QPixmap((const char **)qt_help_xpm);
-    case SP_DockWindowCloseButton:
-        return QPixmap((const char **)dock_window_close_xpm);
+    case SP_DockWidgetCloseButton:
+        return QPixmap((const char **)dock_widget_close_xpm);
     case SP_MessageBoxInformation:
         return QPixmap((const char **)information_xpm);
     case SP_MessageBoxWarning:
@@ -1494,7 +1494,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
          popupPal.setColor(QPalette::Midlight, opt->palette.light().color());
          qDrawWinPanel(p, opt->rect, popupPal, opt->state & State_Sunken);
         break; }
-    case PE_IndicatorDockWindowResizeHandle: {
+    case PE_IndicatorDockWidgetResizeHandle: {
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light().color());
         if (opt->state & State_Horizontal) {

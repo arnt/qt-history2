@@ -403,7 +403,7 @@ static void qt_set_windows_resources()
     QApplication::setFont(statusFont, "QTipLabel");
     QApplication::setFont(statusFont, "QStatusBar");
     QApplication::setFont(titleFont, "QTitleBar");
-    QApplication::setFont(smallTitleFont, "QDockWindowTitleBar");
+    QApplication::setFont(smallTitleFont, "QDockWidgetTitle");
 #else
     LOGFONT lf;
     HGDIOBJ stockFont = GetStockObject(SYSTEM_FONT);
@@ -1751,8 +1751,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 {
                     const QWidget *tlw = widget->window();
                     // Do not change activation if the clicked widget is inside a floating dock window
-                    if (tlw->inherits("QDockWindow") && qApp->activeWindow()
-                         && !qApp->activeWindow()->inherits("QDockWindow"))
+                    if (tlw->inherits("QDockWidget") && qApp->activeWindow()
+                         && !qApp->activeWindow()->inherits("QDockWidget"))
                         RETURN(MA_NOACTIVATE);
                 }
                 result = false;

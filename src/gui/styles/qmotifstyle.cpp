@@ -565,7 +565,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
-    case PE_IndicatorDockWindowResizeHandle: {
+    case PE_IndicatorDockWidgetResizeHandle: {
         const int motifOffset = 10;
         int sw = pixelMetric(PM_SplitterWidth);
         if (opt->state & State_Horizontal) {
@@ -658,7 +658,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             handleOpt.state &= ~State_Horizontal;
         else
             handleOpt.state |= State_Horizontal;
-        drawPrimitive(PE_IndicatorDockWindowResizeHandle, &handleOpt, p, widget);
+        drawPrimitive(PE_IndicatorDockWidgetResizeHandle, &handleOpt, p, widget);
         break; }
 
     case CE_ScrollBarSubLine: {
@@ -1547,7 +1547,7 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
         }
         break;
 
-    case PM_DockWindowHandleExtent:
+    case PM_DockWidgetHandleExtent:
         ret = 9;
         break;
 
@@ -2167,7 +2167,7 @@ QMotifStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *o
         return QPixmap((const char **)qt_maximize_xpm);
     case SP_TitleBarCloseButton:
         return QPixmap((const char **)qt_close_xpm);
-    case SP_DockWindowCloseButton:
+    case SP_DockWidgetCloseButton:
         return QPixmap((const char **)dock_window_close_xpm);
 
     case SP_MessageBoxInformation:

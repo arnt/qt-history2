@@ -14,7 +14,7 @@
 #include "qmainwindow.h"
 #include "qmainwindowlayout_p.h"
 
-#include "qdockwindow.h"
+#include "qdockwidget.h"
 #include "qtoolbar.h"
 
 #include <qapplication.h>
@@ -92,7 +92,7 @@ void QMainWindowPrivate::init()
     widget, such as a text edit, drawing canvas or QWorkspace (for MDI
     applications).
 
-    \sa QDockWindow, QToolBar
+    \sa QDockWidget, QToolBar
 */
 
 /*!
@@ -259,21 +259,21 @@ void QMainWindow::setCentralWidget(QWidget *widget)
 
     \sa corner()
 */
-void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
+void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
 {
     bool valid = false;
     switch (corner) {
     case Qt::TopLeftCorner:
-        valid = (area == Qt::TopDockWindowArea || area == Qt::LeftDockWindowArea);
+        valid = (area == Qt::TopDockWidgetArea || area == Qt::LeftDockWidgetArea);
         break;
     case Qt::TopRightCorner:
-        valid = (area == Qt::TopDockWindowArea || area == Qt::RightDockWindowArea);
+        valid = (area == Qt::TopDockWidgetArea || area == Qt::RightDockWidgetArea);
         break;
     case Qt::BottomLeftCorner:
-        valid = (area == Qt::BottomDockWindowArea || area == Qt::LeftDockWindowArea);
+        valid = (area == Qt::BottomDockWidgetArea || area == Qt::LeftDockWidgetArea);
         break;
     case Qt::BottomRightCorner:
-        valid = (area == Qt::BottomDockWindowArea || area == Qt::RightDockWindowArea);
+        valid = (area == Qt::BottomDockWidgetArea || area == Qt::RightDockWidgetArea);
         break;
     }
     Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
@@ -287,7 +287,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 
     \sa setCorner()
 */
-Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
+Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
 /*!
@@ -396,53 +396,53 @@ Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d->layout->toolBarArea(toolbar); }
 
 /*!
-    Adds the given \a dockwindow to the specified \a area.
+    Adds the given \a dockwidget to the specified \a area.
 */
-void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow)
+void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget)
 {
-    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
-               "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
+    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
+               "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
     Qt::Orientation orientation = Qt::Horizontal;
     switch (area) {
-    case Qt::LeftDockWindowArea:
-    case Qt::RightDockWindowArea:
+    case Qt::LeftDockWidgetArea:
+    case Qt::RightDockWidgetArea:
         orientation = Qt::Vertical;
         break;
     default:
         break;
     }
-    addDockWindow(area, dockwindow, orientation);
+    addDockWidget(area, dockwidget, orientation);
 
 #ifdef Q_WS_MAC     //drawer support
     extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
-    if (qt_mac_is_macdrawer(dockwindow)) {
-        extern bool qt_mac_set_drawer_preferred_edge(QWidget *, Qt::DockWindowArea); //qwidget_mac.cpp
-        qt_mac_set_drawer_preferred_edge(dockwindow, area);
-        if (dockwindow->isVisible()) {
-            dockwindow->hide();
-            dockwindow->show();
+    if (qt_mac_is_macdrawer(dockwidget)) {
+        extern bool qt_mac_set_drawer_preferred_edge(QWidget *, Qt::DockWidgetArea); //qwidget_mac.cpp
+        qt_mac_set_drawer_preferred_edge(dockwidget, area);
+        if (dockwidget->isVisible()) {
+            dockwidget->hide();
+            dockwidget->show();
         }
     }
 #endif
 }
 
 /*!
-    Adds \a dockwindow into the given \a area in the direction
+    Adds \a dockwidget into the given \a area in the direction
     specified by the \a orientation.
 */
-void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow,
+void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                                 Qt::Orientation orientation)
 {
     // add a window to an area, placing done relative to the previous
-    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
-               "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
-    d->layout->addDockWindow(area, dockwindow, orientation);
+    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
+               "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
+    d->layout->addDockWidget(area, dockwidget, orientation);
     if (isVisible())
         d->layout->relayout();
 }
 
 /*!
-    \fn void QMainWindow::splitDockWindow(QDockWindow *first, QDockWindow *second, Qt::Orientation orientation)
+    \fn void QMainWindow::splitDockWidget(QDockWidget *first, QDockWidget *second, Qt::Orientation orientation)
 
     Splits the space covered by the \a first dock window into two parts,
     moves the \a first dock window into the first part, and moves the
@@ -456,35 +456,35 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
     in the two parts of the divided area. When right-to-left layout direction
     is enabled, the placing of the dock windows will be reversed.
 */
-void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
+void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)
 {
-    Qt::DockWindowArea area = dockWindowArea(after);
+    Qt::DockWidgetArea area = dockWidgetArea(after);
     Q_UNUSED(area);
-    Q_ASSERT_X(dockwindow->isAreaAllowed(area),
-               "QMainWindow::splitDockWindow", "specified 'area' is not an allowed area");
-    d->layout->splitDockWindow(after, dockwindow, orientation);
+    Q_ASSERT_X(dockwidget->isAreaAllowed(area),
+               "QMainWindow::splitDockWidget", "specified 'area' is not an allowed area");
+    d->layout->splitDockWidget(after, dockwidget, orientation);
     if (isVisible())
         d->layout->relayout();
 }
 
 /*!
-    Removes the \a dockwindow from the main window.
+    Removes the \a dockwidget from the main window.
 */
-void QMainWindow::removeDockWindow(QDockWindow *dockwindow)
-{ d->layout->removeRecursive(dockwindow); }
+void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
+{ d->layout->removeRecursive(dockwidget); }
 
 /*!
-    Returns the \c Qt::DockWindowArea for \a dockwindow.
+    Returns the \c Qt::DockWidgetArea for \a dockwidget.
 
-    \sa addDockWindow() splitDockWindow() Qt::DockWindowArea
+    \sa addDockWidget() splitDockWidget() Qt::DockWidgetArea
 */
-Qt::DockWindowArea QMainWindow::dockWindowArea(QDockWindow *dockwindow) const
-{ return d->layout->dockWindowArea(dockwindow); }
+Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
+{ return d->layout->dockWidgetArea(dockwidget); }
 
 /*!
     Saves the current state of this mainwindow's toolbars and
-    dockwindows.  The \a version number is stored as part of the data.
+    dockwidgets.  The \a version number is stored as part of the data.
 
     To restore the saved state, pass the return value and \a version
     number to restoreState().
@@ -503,7 +503,7 @@ QByteArray QMainWindow::saveState(int version) const
 
 /*!
     Restores the \a state of this mainwindow's toolbars and
-    dockwindows.  The \a version number is compared with that stored
+    dockwidgets.  The \a version number is compared with that stored
     in \a state.  If they do not match, the mainwindow's state is left
     unchanged, and this function returns false; otherwise, the state
     is restored, and this function returns true.
@@ -588,12 +588,12 @@ QMenu *QMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
     QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
-    QList<QDockWindow *> dockwindows = qFindChildren<QDockWindow *>(this);
-    if (toolbars.size() || dockwindows.size()) {
+    QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
+    if (toolbars.size() || dockwidgets.size()) {
         menu = new QMenu(this);
-        if (!dockwindows.isEmpty()) {
-        for (int i = 0; i < dockwindows.size(); ++i)
-            menu->addAction(dockwindows.at(i)->toggleViewAction());
+        if (!dockwidgets.isEmpty()) {
+        for (int i = 0; i < dockwidgets.size(); ++i)
+            menu->addAction(dockwidgets.at(i)->toggleViewAction());
             menu->addSeparator();
         }
         if (!toolbars.isEmpty()) {

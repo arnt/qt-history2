@@ -24,7 +24,7 @@
 #include <qbitmap.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 #include <qevent.h>
 #include <qfocusframe.h>
 #include <qgroupbox.h>
@@ -584,7 +584,7 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if (qt_cast<QDockWindow *>(widg->window()) || qgetenv("QWIDGET_ALL_SMALL")) {
+    if (qt_cast<QDockWidget *>(widg->window()) || qgetenv("QWIDGET_ALL_SMALL")) {
         //if (small.width() != -1 || small.height() != -1)
         return QAquaSizeSmall;
     } else if (qgetenv("QWIDGET_ALL_MINI")) {

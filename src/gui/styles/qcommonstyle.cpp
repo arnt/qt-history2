@@ -18,7 +18,7 @@
 #include "private/qdialogbuttons_p.h"
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qdockwindow.h"
+#include "qdockwidget.h"
 #include "qdrawutil.h"
 #include "qgroupbox.h"
 #include "qmenu.h"
@@ -642,11 +642,11 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                                frame->rect.height(), frame->palette.foreground().color(), lwidth);
         }
         break;
-    case PE_FrameDockWindow:
+    case PE_FrameDockWidget:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt)) {
             int lw = frame->lineWidth;
             if (lw <= 0)
-                lw = pixelMetric(PM_DockWindowFrameWidth);
+                lw = pixelMetric(PM_DockWidgetFrameWidth);
 
             qDrawShadePanel(p, frame->rect, frame->palette, false, lw);
         }
@@ -1337,8 +1337,8 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         }
         p->restore();
         break; }
-    case CE_DockWindowTitle:
-        if (const QStyleOptionDockWindow *dwOpt = qt_cast<const QStyleOptionDockWindow *>(opt)) {
+    case CE_DockWidgetTitle:
+        if (const QStyleOptionDockWidget *dwOpt = qt_cast<const QStyleOptionDockWidget *>(opt)) {
             QRect r = dwOpt->rect.adjusted(0, 0, -1, -1);
             if (dwOpt->moveable) {
                 p->setPen(dwOpt->palette.color(QPalette::Dark));
@@ -2039,10 +2039,10 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 down = tb->activeSubControls & SC_TitleBarCloseButton;
                 if (tb->titleBarFlags & Qt::WStyle_Tool
 #ifndef QT_NO_MAINWINDOW
-                     || qt_cast<const QDockWindow *>(widget)
+                     || qt_cast<const QDockWidget *>(widget)
 #endif
                    )
-                    pm = standardPixmap(SP_DockWindowCloseButton, &tool, widget);
+                    pm = standardPixmap(SP_DockWidgetCloseButton, &tool, widget);
                 else
                     pm = standardPixmap(SP_TitleBarCloseButton, &tool, widget);
                 tool.rect = ir;
@@ -2576,7 +2576,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
             if (tb->titleBarFlags & Qt::WStyle_Tool) {
                 ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 16);
 #ifndef QT_NO_MAINWINDOW
-            } else if (qt_cast<const QDockWindow*>(widget)) {
+            } else if (qt_cast<const QDockWidget*>(widget)) {
                 ret = qMax(widget->fontMetrics().lineSpacing(), 13);
 #endif
             } else {
@@ -2674,15 +2674,15 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         }
 #endif // QT_NO_SLIDER
 
-    case PM_DockWindowSeparatorExtent:
+    case PM_DockWidgetSeparatorExtent:
         ret = 6;
         break;
 
-    case PM_DockWindowHandleExtent:
+    case PM_DockWidgetHandleExtent:
         ret = 8;
         break;
 
-    case PM_DockWindowFrameWidth:
+    case PM_DockWidgetFrameWidth:
         ret = 1;
         break;
 

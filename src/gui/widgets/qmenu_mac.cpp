@@ -17,7 +17,7 @@
 #include <private/qt_mac_p.h>
 #include "qregexp.h"
 #include "qmainwindow.h"
-#include "qdockwindow.h"
+#include "qdockwidget.h"
 #include "qtoolbar.h"
 #include "qstyle.h"
 
@@ -845,7 +845,7 @@ bool QMenuBar::macUpdateMenuBar()
     if(w) {
         mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
 #ifndef QT_NO_MAINWINDOW
-        QDockWindow *dw = qt_cast<QDockWindow *>(w);
+        QDockWidget *dw = qt_cast<QDockWidget *>(w);
         if(!mb && dw) {
             QMainWindow *mw = qt_cast<QMainWindow *>(dw->parentWidget());
             if (mw && (mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))

@@ -27,21 +27,21 @@
 
 #include <qwidget.h>
 
-class QDockWindowLayout;
+class QDockWidgetLayout;
 
 class QDockSeparator : public QWidget
 {
 public:
-    QDockSeparator(QDockWindowLayout *dock, QWidget *parent);
+    QDockSeparator(QDockWidgetLayout *dock, QWidget *parent);
 
-    void setDock(QDockWindowLayout *d);
+    void setDock(QDockWidgetLayout *d);
 
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
 
-    QDockWindowLayout *dock;
+    QDockWidgetLayout *dock;
     Qt::Orientation orientation;
 
     struct DragState {

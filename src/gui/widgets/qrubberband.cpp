@@ -55,7 +55,7 @@ QStyleOption QRubberBandPrivate::getStyleOption() const
     \mainclass
 
     A rubber band is often used to show a new bounding area (as in a
-    QSplitter or a QDockWindow that is undocking). Commonly this has
+    QSplitter or a QDockWidget that is undocking). Commonly this has
     been implemented using a QPainter and XOR, but this approach
     doesn't always work properly since rendering can happen in the
     window below the rubber band, but before the rubber band has been

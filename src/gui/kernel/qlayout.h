@@ -114,7 +114,6 @@ public:
 };
 
 class QBoxLayoutPrivate;
-class QDockWindow;
 
 class Q_GUI_EXPORT QBoxLayout : public QLayout
 {

@@ -460,12 +460,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
     \value PE_Q3DockWindowSeparator  Item separator for Qt 3 compatible dock window
                                      and toolbar contents.
-    \value PE_IndicatorDockWindowResizeHandle  Resize handle for dock windows.
+    \value PE_IndicatorDockWidgetResizeHandle  Resize handle for dock windows.
 
     \value PE_Frame  Generic frame; see also QFrame.
     \value PE_FrameMenu  Frame for popup windows/menus; see also QMenu.
     \value PE_PanelMenuBar  Panel for menu bars.
-    \value PE_FrameDockWindow  Panel frame for dock windows and toolbars.
+    \value PE_FrameDockWidget  Panel frame for dock windows and toolbars.
     \value PE_FrameTabWidget  Frame for tab widgets.
     \value PE_FrameLineEdit  Panel frame for line edits.
     \value PE_FrameGroupBox  Panel frame around group boxes.
@@ -583,10 +583,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \i \l State_Up \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
     \row \i \l PE_PanelGroupBox, \l PE_Panel, \l PE_PanelLineEdit,
-            \l PE_PanelPopup, \l PE_PanelDockWindow
+            \l PE_PanelPopup, \l PE_PanelDockWidget
          \i \l QStyleOptionFrame \i \l State_Sunken
          \i Indicates that the Frame should be sunken.
-    \row \i \l PE_Q3DockWindowHandle \i \l QStyleOptionDockWindow
+    \row \i \l PE_Q3DockWindowHandle \i \l QStyleOptionDockWidget
          \i \l State_Horizontal \i Indicates that the window handle is horizontal
          instead of vertical.
     \row \i \l PE_Q3DockWindowSeparator \i \l QStyleOption
@@ -612,7 +612,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_PushButtonBevel  The bevel and default indicator of a QPushButton.
     \value CE_PushButtonLabel  The label (icon with text or pixmap) of a QPushButton
 
-    \value CE_DockWindowTitle  Dock window title.
+    \value CE_DockWidgetTitle  Dock window title.
     \value CE_Splitter  Splitter handle; see also QSplitter.
 
 
@@ -646,7 +646,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CE_MenuHMargin  The horizontal extra space on the left/right of a menu
     \value CE_MenuVMargin  The vertical extra space on the top/bottom of a menu
 
-    \value CE_DockWindowEmptyArea  The empty area of a QDockWindow
+    \value CE_Q3DockWindowEmptyArea  The empty area of a QDockWidget
 
     \value CE_ToolBoxTab  The toolbox's tab area
     \value CE_SizeGrip  Window resize handle; see also QSizeGrip.
@@ -833,7 +833,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l SR_RadioButtonContents  \i \l QStyleOptionButton
     \row \i \l SR_RadioButtonFocusRect \i \l QStyleOptionButton
     \row \i \l SR_ComboBoxFocusRect    \i \l QStyleOptionComboBox
-    \row \i \l SR_DockWindowHandleRect \i \l QStyleOptionDockWindow
+    \row \i \l SR_DockWidgetHandleRect \i \l QStyleOptionDockWidget
     \row \i \l SR_ProgressBarGroove    \i \l QStyleOptionProgressBar
     \row \i \l SR_ProgressBarContents  \i \l QStyleOptionProgressBar
     \row \i \l SR_ProgressBarLabel     \i \l QStyleOptionProgressBar
@@ -1060,13 +1060,13 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         and the slider
     \value PM_SliderSpaceAvailable  The available space for the slider to move
 
-    \value PM_DockWindowSeparatorExtent  Width of a separator in a
+    \value PM_DockWidgetSeparatorExtent  Width of a separator in a
         horizontal dock window and the height of a separator in a
         vertical dock window
-    \value PM_DockWindowHandleExtent  Width of the handle in a
+    \value PM_DockWidgetHandleExtent  Width of the handle in a
         horizontal dock window and the height of the handle in a
         vertical dock window
-    \value PM_DockWindowFrameWidth  Frame width of a dock window
+    \value PM_DockWidgetFrameWidth  Frame width of a dock window
 
     \value PM_MenuBarPanelWidth  Frame width of a menubar
     \value PM_MenuBarItemSpacing  Spacing between menubar items
@@ -1185,7 +1185,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value CT_CheckBox
     \value CT_ComboBox
     \value CT_DialogButtons
-    \value CT_DockWindow
+    \value CT_DockWidget
     \value CT_HeaderSection
     \value CT_LineEdit
     \value CT_Menu
@@ -1231,7 +1231,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \row \i \l CT_ToolButton  \i \l QStyleOptionToolButton
     \row \i \l CT_ComboBox    \i \l QStyleOptionComboBox
     \row \i \l CT_Splitter    \i \l QStyleOption
-    \row \i \l CT_DockWindow  \i \l QStyleOptionDockWindow
+    \row \i \l CT_Q3DockWindow \i \l QStyleOptionQ3DockWindow
     \row \i \l CT_ProgressBar \i \l QStyleOptionProgressBar
     \row \i \l CT_MenuItem    \i \l QStyleOptionMenuItem
     \endtable
@@ -1484,7 +1484,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SP_ItemChecked
     \value SP_ItemPartiallyChecked
     \value SP_ItemUnchecked
-    \value SP_DockWindowCloseButton  Close button on dock windows (see also QDockWindow)
+    \value SP_DockWidgetCloseButton  Close button on dock windows (see also QDockWidget)
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars
     \value SP_CustomBase  Base value for custom ControlElements;

@@ -102,7 +102,7 @@ public:
 
         PE_Frame,
         PE_FrameDefaultButton,
-        PE_FrameDockWindow,
+        PE_FrameDockWidget,
         PE_FrameFocusRect,
         PE_FrameGroupBox,
         PE_FrameLineEdit,
@@ -126,7 +126,7 @@ public:
         PE_IndicatorBranch,
         PE_IndicatorButtonDropDown,
         PE_IndicatorCheckBox,
-        PE_IndicatorDockWindowResizeHandle,
+        PE_IndicatorDockWidgetResizeHandle,
         PE_IndicatorHeaderArrow,
         PE_IndicatorMenuCheckMark,
         PE_IndicatorProgressChunk,
@@ -180,13 +180,13 @@ public:
         CE_HeaderSection,
         CE_HeaderLabel,
 
-        CE_DockWindowEmptyArea,
+        CE_Q3DockWindowEmptyArea,
         CE_ToolBoxTab,
         CE_SpinBoxSlider,
         CE_SizeGrip,
         CE_Splitter,
         CE_RubberBand,
-        CE_DockWindowTitle,
+        CE_DockWidgetTitle,
 
         CE_ScrollBarAddLine,
         CE_ScrollBarSubLine,
@@ -352,9 +352,9 @@ public:
         PM_SliderTickmarkOffset,        //
         PM_SliderSpaceAvailable,        // available space for slider to move
 
-        PM_DockWindowSeparatorExtent,
-        PM_DockWindowHandleExtent,
-        PM_DockWindowFrameWidth,
+        PM_DockWidgetSeparatorExtent,
+        PM_DockWidgetHandleExtent,
+        PM_DockWidgetFrameWidth,
 
         PM_TabBarTabOverlap,
         PM_TabBarTabHSpace,
@@ -435,7 +435,7 @@ public:
         CT_ToolButton,
         CT_ComboBox,
         CT_Splitter,
-        CT_DockWindow,
+        CT_Q3DockWindow,
         CT_ProgressBar,
         CT_MenuItem,
         CT_MenuBarItem,
@@ -539,7 +539,7 @@ public:
         SP_TitleBarShadeButton,
         SP_TitleBarUnshadeButton,
         SP_TitleBarContextHelpButton,
-        SP_DockWindowCloseButton,
+        SP_DockWidgetCloseButton,
         SP_MessageBoxInformation,
         SP_MessageBoxWarning,
         SP_MessageBoxCritical,

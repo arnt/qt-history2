@@ -136,8 +136,8 @@ public:
         if (ref++ && !force)
             return;
 
-        use_xp = resolveSymbols() 
-                 && pIsThemeActive() 
+        use_xp = resolveSymbols()
+                 && pIsThemeActive()
                  && pIsAppThemed();
 
         COLORREF cref;
@@ -597,14 +597,14 @@ void QWindowsXPStyle::polish(QWidget *widget)
         //    tb->setAutoRaise(true);
         //    // ugly hack, please look away
         //    tb->setFixedSize(16, 16);
-        //    QDockWindow *dw = static_cast<QDockWindow *>(tb->parent()->parent());
+        //    QDockWidget *dw = static_cast<QDockWidget *>(tb->parent()->parent());
         //    if (dw->area() && dw->area()->orientation() == Qt::Horizontal)
         //        tb->move(0, 2);
         //    // ok, you can look again
         //}
-    } else if (widget->inherits("QDockWindowHandle")) {
+    } else if (widget->inherits("QDockWidgetHandle")) {
         //QWidget *p = (QWidget*)widget->parent();
-        //if (!((QDockWindow*)p)->isToolbar) {
+        //if (!((QDockWidget*)p)->isToolbar) {
         //    QPalette pal = widget->palette();
         //    pal.setColor(QPalette::Active, QPalette::Background, d->dockColorActive);
         //    pal.setColor(QPalette::Inactive, QPalette::Background, d->dockColorActive);
@@ -627,7 +627,7 @@ void QWindowsXPStyle::polish(QWidget *widget)
     } else if (qt_cast<QScrollBar*>(widget)) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
-    } else if (widget->inherits("QDockWindowTitle")) {
+    } else if (widget->inherits("QDockWidgetTitle")) {
         widget->installEventFilter(this);
         widget->setMouseTracking(true);
     } else if (widget->inherits("Q3WorkspaceChild")) {
@@ -686,7 +686,7 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
 
     widget->removeEventFilter(this);
 
-    if (!widget->inherits("QDockWindowTitle")) {
+    if (!widget->inherits("QDockWidgetTitle")) {
         SetWindowRgn(widget->winId(), 0, true);
         if (!QString::compare(widget->objectName(), "_workspacechild_icon_"))
             SetWindowRgn(widget->parentWidget()->winId(), 0, true);
@@ -697,7 +697,7 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
         widget->setPalette(QPalette());
     } else if (qt_cast<QTabBar*>(widget)) {
         disconnect(widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()));
-    } else if (widget->inherits("QDockWindowHandle") ||
+    } else if (widget->inherits("QDockWidgetHandle") ||
 //                qt_cast<Q3MenuBar*>(widget) ||
                 (qt_cast<QToolButton*>(widget) &&
                   !QString::compare("qt_close_button1", widget->objectName()))) {
@@ -720,10 +720,10 @@ void QWindowsXPStyle::updateRegion(QWidget *widget)
     if (!use_xp)
         return;
 
-    if (widget->inherits("QDockWindowTitle")) {
+    if (widget->inherits("QDockWidgetTitle")) {
         XPThemeData theme(widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect());
         theme.setTransparency();
-    } else if (widget->inherits("QDockWindowTitle") && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
+    } else if (widget->inherits("QDockWidgetTitle") && !QString::compare(widget->objectName(), "_workspacechild_icon_")) {
         XPThemeData theme(widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
         theme.setTransparency();
         XPThemeData theme2(widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect());
@@ -859,7 +859,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
 //    case PE_Splitter:
-    case PE_IndicatorDockWindowResizeHandle:
+    case PE_IndicatorDockWidgetResizeHandle:
         return;
 
     case PE_Frame:
@@ -922,7 +922,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     case PE_PanelMenuBar:
         break;
 
-    case PE_FrameDockWindow:
+    case PE_FrameDockWidget:
         name = "REBAR";
         partId = RP_BAND;
         stateId = 1;
@@ -1183,7 +1183,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
             default:
                 QCommonStyle::drawControl(element, option, p, widget);
                 break;
-            case QTabBar::RoundedNorth: 
+            case QTabBar::RoundedNorth:
                 if (selected)
                     rect.addCoords(!firstTab ? -tabOverlap : 0, 0, !lastTab ? tabOverlap : 0, borderThickness);
                 else
@@ -1315,7 +1315,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 QIcon::Mode mode = dis ? QIcon::Disabled : QIcon::Normal;
                 if (act && !dis)
                     mode = QIcon::Active;
-                QPixmap pixmap = checked ? 
+                QPixmap pixmap = checked ?
                                  menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, QIcon::On) :
                                  menuitem->icon.pixmap(pixelMetric(PM_SmallIconSize), mode);
                 int pixw = pixmap.width();
@@ -1378,7 +1378,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
                 }
                 p->drawText(vTextRect, text_flags, s);
             }
-            
+
             // draw sub menu arrow --------------------------------------------
             if (menuitem->menuItemType == QStyleOptionMenuItem::SubMenu) {
                 int dim = (h - 2 * windowsItemFrame) / 2;
@@ -1973,7 +1973,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 theme.rec = option->rect;
                 partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCAPTION :
                         (titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION);
-                if (titlebar->inherits("QDockWindowTitle"))
+                if (titlebar->inherits("QDockWidgetTitle"))
                     partId = WP_SMALLCAPTION;
                 if (!titlebar->isEnabled())
                     stateId = CS_DISABLED;
@@ -2522,7 +2522,7 @@ QSize QWindowsXPStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt
             if (menuitem->menuItemType == QStyleOptionMenuItem::Separator) {
                 sz = QSize(10, windowsSepHeight);
                 break;
-            } 
+            }
         }
         // Fall-through intended
     default:
@@ -2616,9 +2616,9 @@ bool QWindowsXPStyle::eventFilter(QObject *o, QEvent *e)
                         header->update(d->hotHeader);
                 }
 #ifndef QT_NO_TITLEBAR
-            //} else if (qt_cast<QDockWindowTitle*>(o)) {
+            //} else if (qt_cast<QDockWidgetTitle*>(o)) {
             //    static SubControl clearHot = SC_TitleBarLabel;
-            //    QDockWindowTitle *titlebar = (QDockWindowTitle*)o;
+            //    QDockWidgetTitle *titlebar = (QDockWidgetTitle*)o;
             //    SubControl sc = hitTestComplexControl(CC_TitleBar, titlebar, d->hotSpot);
             //    if (sc != clearHot || clearHot != SC_TitleBarLabel) {
             //        QRect rect = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, titlebar, clearHot));

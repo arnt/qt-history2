@@ -19,7 +19,6 @@
 #include "qwidget.h"
 #include "qapplication.h"
 #include "qvector.h"
-#include "qdockwindow.h"
 #include "qmenu.h"
 #include "qshortcut.h"
 #include "qapplication_p.h"

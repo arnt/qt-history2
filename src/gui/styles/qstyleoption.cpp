@@ -111,7 +111,7 @@
     \value SO_Q3ListViewItem \l QStyleOptionQ3ListViewItem
     \value SO_Header \l QStyleOptionHeader
     \value SO_Q3DockWindow \l QStyleOptionQ3DockWindow
-    \value SO_DockWindow \l QStyleOptionDockWindow
+    \value SO_DockWidget \l QStyleOptionDockWidget
     \value SO_SpinBox \l QStyleOptionSpinBox
     \value SO_ToolButton \l QStyleOptionToolButton
     \value SO_ComboBox \l QStyleOptionComboBox
@@ -1123,47 +1123,47 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 */
 
 /*!
-    \class QStyleOptionDockWindow
-    \brief The QStyleOptionDockWindow class is used to describe the
+    \class QStyleOptionDockWidget
+    \brief The QStyleOptionDockWidget class is used to describe the
     parameters for drawing a dock window.
 */
 
 /*!
-    Constructs a QStyleOptionDockWindow. The member variables are
+    Constructs a QStyleOptionDockWidget. The member variables are
     initialized to default values.
 */
 
-QStyleOptionDockWindow::QStyleOptionDockWindow()
-    : QStyleOption(Version, SO_DockWindow), moveable(false)
+QStyleOptionDockWidget::QStyleOptionDockWidget()
+    : QStyleOption(Version, SO_DockWidget), moveable(false)
 {
 }
 
 /*!
     \internal
 */
-QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
-    : QStyleOption(version, SO_DockWindow), closable(false),
+QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
+    : QStyleOption(version, SO_DockWidget), closable(false),
       moveable(false), floatable(false)
 {
 }
 
 /*!
-    \property QStyleOptionDockWindow::title
+    \property QStyleOptionDockWidget::title
     \brief The title of the dock window
 */
 
 /*!
-    \property QStyleOptionDockWindow::closable
+    \property QStyleOptionDockWidget::closable
     \brief Indicates that the dock window is closable.
 */
 
 /*!
-    \property QStyleOptionDockWindow::moveable
+    \property QStyleOptionDockWidget::moveable
     \brief Indicates that the dock window is moveable.
 */
 
 /*!
-    \property QStyleOptionDockWindow::floatable
+    \property QStyleOptionDockWidget::floatable
     \brief Indicates that the dock window is floatable.
 */
 

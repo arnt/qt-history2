@@ -13,7 +13,7 @@
 
 #include "qdockseparator_p.h"
 
-#include "qdockwindowlayout_p.h"
+#include "qdockwidgetlayout_p.h"
 
 #include "qmainwindow.h"
 #include "qmainwindowlayout_p.h"
@@ -25,11 +25,11 @@
 #include <qstyleoption.h>
 
 
-QDockSeparator::QDockSeparator(QDockWindowLayout *d, QWidget *parent)
+QDockSeparator::QDockSeparator(QDockWidgetLayout *d, QWidget *parent)
     : QWidget(parent), state(0)
 { setDock(d); }
 
-void QDockSeparator::setDock(QDockWindowLayout *d)
+void QDockSeparator::setDock(QDockWidgetLayout *d)
 {
     Q_ASSERT(d != 0);
     dock = d;
@@ -103,5 +103,5 @@ void QDockSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::State_Horizontal;
     opt.rect = rect();
     opt.palette = palette();
-    style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);
 }
