@@ -81,29 +81,29 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 			 (!project->variables()["QMAKE_APP_FLAG"].isEmpty() || !project->isActiveConfig("staticlib"));
 
     t << "####### Compiler, tools and options" << endl << endl;
-    t << "CC      = " << var("QMAKE_CC") << endl;
-    t << "CXX     = " << var("QMAKE_CXX") << endl;
-    t << "LEX     = " << var("QMAKE_LEX") << endl;
-    t << "YACC    = " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS  = " << var("QMAKE_CFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS= " << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
-    t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::qmakepath << endl;
+    t << "CC       = " << var("QMAKE_CC") << endl;
+    t << "CXX      = " << var("QMAKE_CXX") << endl;
+    t << "LEX      = " << var("QMAKE_LEX") << endl;
+    t << "YACC     = " << var("QMAKE_YACC") << endl;
+    t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CXXFLAGS = " << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
+    t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
+    t << "INCPATH  = " << varGlue("INCLUDEPATH","-I", " -I", "") << " -I" << Option::qmakepath << endl;
     if(!project->isActiveConfig("staticlib")) {
-	t << "LINK  = " << var("QMAKE_LINK") << endl;
-	t << "LFLAGS= " << var("QMAKE_LFLAGS") << endl;
-	t << "LIBS  = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
+	t << "LINK     = " << var("QMAKE_LINK") << endl;
+	t << "LFLAGS   = " << var("QMAKE_LFLAGS") << endl;
+	t << "LIBS     = " << "$(SUBLIBS) " << var("QMAKE_LIBDIR_FLAGS") << " " << var("QMAKE_LIBS") << endl;
     }
-    t << "AR      = " << var("QMAKE_AR") << endl;
-    t << "RANLIB  = " << var("QMAKE_RANLIB") << endl;
-    t << "MOC     = " << var("QMAKE_MOC") << endl;
-    t << "UIC     = "	<< var("QMAKE_UIC") << endl;
-    t << "TAR     = "	<< var("QMAKE_TAR") << endl;
-    t << "GZIP    = " << var("QMAKE_GZIP") << endl;
-    t << "COPY  =       " << var("QMAKE_COPY") << endl;
-    t << "DEL   =       " << var("QMAKE_DEL") << endl;
-    t << "MOVE  =       " << var("QMAKE_MOVE") << endl;
+    t << "AR       = " << var("QMAKE_AR") << endl;
+    t << "RANLIB   = " << var("QMAKE_RANLIB") << endl;
+    t << "MOC      = " << var("QMAKE_MOC") << endl;
+    t << "UIC      = "	<< var("QMAKE_UIC") << endl;
+    t << "TAR      = "	<< var("QMAKE_TAR") << endl;
+    t << "GZIP     = " << var("QMAKE_GZIP") << endl;
+    t << "COPY     = " << var("QMAKE_COPY") << endl;
+    t << "DEL      = " << var("QMAKE_DEL") << endl;
+    t << "MOVE     = " << var("QMAKE_MOVE") << endl;
     t << endl;
 
     /* files */
