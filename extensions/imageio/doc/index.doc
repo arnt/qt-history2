@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.9 1999/05/10 15:28:42 warwick Exp $
+** $Id: index.doc,v 1.10 1999/06/08 23:09:33 agulbra Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.9 1999/05/10 15:28:42 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.10 1999/06/08 23:09:33 agulbra Exp $";
 #endif
 
 /*! \page imageio.html
@@ -51,7 +51,7 @@ image formats should either call the function:
 <h3> <a name="all">qInitImageIO()</a> </h3>
 
 <pre>
-  #include &lt;qimgio.h&gt;
+  #include &lt;qimageio.h&gt;
 </pre>
 
   Initialize <em>all</em> image I/O extensions.  Note that future versions
