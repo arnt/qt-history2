@@ -347,7 +347,7 @@ QVariant QPSQLResult::data( int i )
     case QVariant::PointArray: // format '((x,y),(x1,y1),...,(xn,yn))'
 	{
 	    QRegExp pointPattern("\\([0-9-]*,[0-9-]*\\)");
-	    int points = val.contains( pointPattern );
+	    int points = val.count( pointPattern );
 	    QPointArray parray( points );
 	    int idx = 1;
 	    for ( int i = 0; i < points; i++ ){
@@ -469,9 +469,9 @@ bool QPSQLResult::reset ( const QString& query )
     if ( d->result )
 	PQclear( d->result );
     if ( d->isUtf8 ) {
-	d->result = PQexec( d->connection, query.utf8().data() );
+	d->result = PQexec( d->connection, query.utf8() );
     } else {
-	d->result = PQexec( d->connection, query.local8Bit().data() );
+	d->result = PQexec( d->connection, query.local8Bit() );
     }
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
@@ -655,7 +655,7 @@ bool QPSQLDriver::open( const QString & db,
     if ( !connOpts.isEmpty() )
 	connectString += " " + QStringList::split( ';', connOpts ).join( " " );
 
-    d->connection = PQconnectdb( connectString.local8Bit().data() );
+    d->connection = PQconnectdb( connectString.local8Bit() );
     if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
