@@ -576,7 +576,7 @@ QRect QTableView::visualRectForSelection(const QItemSelection &selection) const
 
     for (int i = 0; i < selection.count(); ++i) {
         QItemSelectionRange r = selection.at(i);
-        if (r.parent().isValid() || !r.isValid())
+        if (r.parent() != rootIndex() || !r.isValid())
             continue;
         // find the visual top, left, bottom and right
         rangeTop = d->verticalHeader->visualIndex(r.top());
