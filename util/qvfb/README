@@ -12,12 +12,11 @@ framebuffer.
 
 To use the virtual framebuffer:
 
-1. Compile libqt with -DQWS_VFB (see qt-e.pro).
+1. Set QT_FEATURE_QWS_VFB in $QTDIR/src/tools/qfeature.h and compile the
+   Qt/Embedded library.
 2. Start qvfb (qvfb should be compiled as a normal Qt/X11 application).
 3. Start a Qt/Embedded server (i.e. construct QApplication with
    QApplication::GuiServer flag).
-
-Remember to kill the Qt/Embedded applications before exiting qvfb.
 
 qvfb supports the following command line options:
 
@@ -26,3 +25,7 @@ qvfb supports the following command line options:
 [-depth depth]   the depth of the virtual framebuffer (8 or 32, default: 8).
 [-nocursor]      do not display the X11 cursor in the framebuffer window.
 
+The virtual framebuffer is a development tool only.  No security issues have
+been considered in the virtual framebuffer design.  It should not be used
+in a production environment and QT_FEATURE_QWS_VFB should always be disabled
+in production libraries.
