@@ -3377,6 +3377,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			if (data)
 			    XFree(data);
 		    } else if (event->xproperty.atom == qt_wm_state) {
+			// the widget frame strut should also be invalidated
+			widget->topData()->fleft = widget->topData()->fright =
+			 widget->topData()->ftop = widget->topData()->fbottom = 0;
+			widget->fstrut_dirty = 1;
+
 			if (event->xproperty.state == PropertyDelete) {
 			    // the window manager has removed the WM State property,
 			    // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
@@ -3684,14 +3689,20 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else
 	    // store the parent. Useful for many things, embedding for instance.
 	    widget->topData()->parentWinId = event->xreparent.parent;
-	if ( widget->isTopLevel() && qt_focus_model != FocusModel_Unknown ) {
-	    // toplevel reparented...
-	    QWidget *newparent = QWidget::find( event->xreparent.parent );
-	    if ( ! newparent || newparent->isDesktop() ) {
-		// we dont' know about the new parent (or we've been
-		// reparented to root), perhaps a window manager
-		// has been (re)started?  reset the focus model to unknown
-		qt_focus_model = FocusModel_Unknown;
+	if ( widget->isTopLevel() ) {
+	    // the widget frame strut should also be invalidated
+	    widget->topData()->fleft = widget->topData()->fright =
+	     widget->topData()->ftop = widget->topData()->fbottom = 0;
+
+	    if ( qt_focus_model != FocusModel_Unknown ) {
+		// toplevel reparented...
+		QWidget *newparent = QWidget::find( event->xreparent.parent );
+		if ( ! newparent || newparent->isDesktop() ) {
+		    // we dont' know about the new parent (or we've been
+		    // reparented to root), perhaps a window manager
+		    // has been (re)started?  reset the focus model to unknown
+		    qt_focus_model = FocusModel_Unknown;
+		}
 	    }
 	}
 	break;
