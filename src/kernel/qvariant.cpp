@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qvariant.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qvariant.cpp#5 $
 **
 ** Implementation of QVariant class
 **
@@ -51,6 +51,36 @@
   at a time.
 */
 
+/*! \enum QVariant::Type
+
+  This enum type defines the types of variable that a QVariant can
+  contain.  Here is a lost of the supported types, and what they
+  indicate that the relevant QVariant object contains : <ul>
+
+  <li> \c Empty - nothing
+  <li> \c String - a QString
+  <li> \c StringList - a QStringList
+  <li> \c IntList - a QValueList<int>
+  <li> \c DoubleList - a QValueList<double>
+  <li> \c Font - a QFont
+  <li> \c Pixmap - a QPixmap
+  <li> \c Brush - a QBrush
+  <li> \c Rect - a QRect
+  <li> \c Size - a QSize
+  <li> \c Color - a QColor
+  <li> \c Palette - a QPalette
+  <li> \c ColorGroup - a QColorGroup
+  <li> \c IconSet - a QIconSet
+  <li> \c Point - a QPoint
+  <li> \c Image - a QImage
+  <li> \c Int - an int
+  <li> \c Bool - a bool
+  <li> \c Double - a doublea
+
+  </ul> Note that Qt's idea of bool depends on the compiler.
+  qglobal.h has the system-dependent definition of bool.
+*/
+
 /*!
   Creates an empty variant.
 */
@@ -59,18 +89,20 @@ QVariant::QVariant()
   typ = Empty;
 }
 
-/*!
-  Subclasses which re-implement clear() should reimplement the
-  destructor to call clear() - so that the overridden clear() is
-  called.
+/*!  Destroys the QVariant and the contained object.
+
+  Note that subclasses that re-implement clear() should reimplement
+  the destructor to call clear().  This constructor calls clear(), but
+  since it is the destructor, QVariant::clear() is called rather than
+  any subclass.
 */
 QVariant::~QVariant()
 {
     clear();
 }
 
-/*!
-  Constructs a deep copy of the variant passed as argument to this constructor.
+/*!  Constructs a deep copy of the variant passed as argument to this
+  constructor.
 */
 QVariant::QVariant( const QVariant& p ) : QShared()
 {
@@ -651,7 +683,7 @@ void QVariant::initTypeNameMap()
   Converts the enum representation of the storage type to its
   string representation.
 */
-QString QVariant::typeToName( QVariant::Type _typ )
+QString QVariant::typeToName( Type _typ )
 {
     initTypeNameMap();
     return typ_to_name[_typ];
