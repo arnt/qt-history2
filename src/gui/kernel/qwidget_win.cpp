@@ -1315,6 +1315,7 @@ void QWidget::showNormal()
 
 void QWidgetPrivate::raise_sys()
 {
+    uint f = (q->isPopup() || testWFlags(Qt::WStyle_Tool)) ? SWP_NOACTIVATE : 0;
     SetWindowPos(q->winId(), HWND_TOP, 0, 0, 0, 0, f | SWP_NOMOVE | SWP_NOSIZE);
 }
 
