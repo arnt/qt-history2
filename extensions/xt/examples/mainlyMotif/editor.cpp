@@ -62,7 +62,8 @@ main(int argc, char** argv)
     XtSetValues(qtchild.xtWidget(), args, nargs);
 
     nargs=0;
-    XtSetArg(args[nargs], XmNstring, XTEDMSG);                 nargs++;
+    XtSetArg(args[nargs], XmNeditMode, XmMULTI_LINE_EDIT);     nargs++;
+    XtSetArg(args[nargs], XmNvalue, XTEDMSG);                  nargs++;    
     XtSetArg(args[nargs], XmNwidth, 200);                      nargs++;
     XtSetArg(args[nargs], XmNheight, 200);                     nargs++;
     XtSetArg(args[nargs], XmNtopOffset, marg);                 nargs++;
