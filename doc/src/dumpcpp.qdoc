@@ -2,6 +2,7 @@
     \page activeqt-tools-dumpcpp.html
     \ingroup activeqt-tools
     \title The dumpcpp Tool
+    \keyword dumpcpp
 
     The \c dumpcpp tool generates a C++ namespace for a type library.
 
@@ -26,6 +27,10 @@
     \i -nometaobject
     \i Do not generate a .cpp file with the meta object information. 
     The meta object is then generated in runtime.
+
+    \row
+    \i -compat
+    \i Generate namespace with dynamicCall-compatible API
     \row
     \i -v
     \i Print version information
@@ -39,6 +44,68 @@
 
     \quotefile qutlook/qutlook.pro
     \printuntil TYPELIBS
+
+    The generated namespace will declare all enumerations, as well as one QAxObject subclass 
+    for each \c coclass and \c interface declared in the type library. coclasses marked with 
+    the \c control attribute will be wrapped by a QAxWidget subclass.
+
+    Those classes that wrap creatable coclasses (i.e. coclasses that are not marked 
+    as \c noncreatable) have a default constructor; this is typically a single class 
+    of type \c Application. 
+
+    \code
+    Outlook::Application *outlook = new Outlook::Application;
+    \encode
+
+    All other classes can only be created by passing an IDispatch interface pointer 
+    to the constructor; those classes should however not be created explicitly. 
+    Instead, use the appropriate API of already created objects.
+
+    \code
+    Outlook::_NameSpace *session = outlook->Session();
+    \endcode
+
+    All coclass wrappers also have one constructors taking an interface wrapper class
+    for each interface implemented.
+
+    \code
+    Outlook::NameSpace *session = outlook->Session();
+    \endcode
+
+    You have to create coclasses to be able to connect to signals of the subobject.
+    Note that the constructor deletes the interface object, so the following will
+    cause a segmentation fault:
+
+    \code
+    Outlook::_NameSpace *tmp = outlook->Session();
+    Outlook::NameSpace *session = new Outlook::NameSpace(tmp);
+    delete tmp; // or any other use of tmp: segfault
+    \endcode
+
+    If the return type is of a coclass or interface type declared in another type 
+    library you have to include the namespace header for that other type library 
+    before including the header for the namespace you want to use (both header have 
+    to be generated with this tool).
+
+    By default, methods and property returning subobjects will use the type as in 
+    the type library. The caller of the function is responsible for deleting or 
+    reparenting the object returned. If the \c -compat switch is set, properties 
+    and method returning a COM object have the return type \c IDispatch*, and 
+    the namespace will not declare wrapper classes for interfaces. 
+
+    In this case, create the correct wrapper class explicitly:
+
+    \code
+    Outlook::NameSpace *session = new Outlook::NameSpace
+(outlook->Session()); 
+    \encode
+
+    You can of course use the IDispatch* returned directly, in which case you have to 
+    call \c Release() when finished with the interface.
+
+    All classes in the namespace are tagged with a macro that allows you to export
+    or import them from a DLL. To do that, declare the macro to expand to 
+    \c __declspec(dllimport/export) before including the header file.
 
     To build the tool you must first build the
     \link qaxcontainer.html QAxContainer \endlink library.

@@ -7,12 +7,13 @@
     Commercial Edition \endlink and are \e not part of the Qt
     Open Source Edition.
 
-    Qt's ActiveX support allows Qt/Windows developers to:
+    Qt's ActiveX and COM support allows Qt/Windows developers to:
     \list 1
-    \i Access and use ActiveX controls provided by any ActiveX server
-    in their Qt applications.
-    \i Make their Qt applications available as ActiveX servers, with
-    any number of Qt widgets as ActiveX controls.
+    \i Access and use ActiveX controls and COM objects provided by any 
+    ActiveX server in their Qt applications.
+    \i Make their Qt applications available as COM servers, with
+    any number of Qt objects and widgets as COM objects and ActiveX 
+    controls.
     \endlist
 
     \section1 ActiveQt Modules

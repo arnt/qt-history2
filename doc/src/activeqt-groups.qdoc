@@ -2,7 +2,8 @@
     \title ActiveQt Examples
 
     The following pages list example programs for using ActiveX controls
-    in a Qt application, and for writing ActiveX controls using Qt.
+    and COM objects in a Qt application, and for writing such objects and
+    controls using Qt.
 
     \list
     \i \link qaxcontainer-examples.html QAxContainer Examples \endlink
@@ -15,7 +16,7 @@
     \title The QAxContainer Examples
 
     The following example programs illustrate the embedding of ActiveX 
-    controls using the QAxContainer module.
+    controls and COM objects using the QAxContainer module.
 
     For more information see the \link qaxcontainer.html QAxContainer 
     \endlink documentation.
@@ -26,7 +27,7 @@
     \title The QAxServer Examples
 
     The following example programs illustrate the development of ActiveX
-    controls using the the QAxServer module.
+    controls and COM objects using the the QAxServer module.
 
     For more information see the \link qaxserver.html QAxServer \endlink
     documentation.
