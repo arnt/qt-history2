@@ -968,8 +968,7 @@ public:
     Source *parse(TokenEngine::TokenContainer tokenContainer,
                   QList<Type> tokenTypeList, TypedPool<Item> *memoryPool);
 signals:
-    void error(const QString message);
-    void warning(const QString message);
+    void error(const QString type, const QString message);
 private:
     bool parseGroup(Item *node);
     bool parseGroupPart(Item *node);

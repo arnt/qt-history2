@@ -38,12 +38,14 @@ Source *Preprocessor::parse(TokenEngine::TokenContainer tokenContainer,
     numTokens = m_tokenContainer.count();
 
     if(m_tokenContainer.count() != tokenTypeList.count()) {
-        emit error("Internal error in preprocessor: Number of tokens is not equal to number of types in type list");
+        emit error("Error", "Internal error in preprocessor: Number of tokens is not equal to number of types in type list");
         return m_source;
     }
 
-    if(tokenTypeList.isEmpty())
+    if(tokenTypeList.isEmpty()) {
+        emit error("Warning:", "Trying to parse empty source file");
         return m_source;
+    }
     Q_ASSERT(m_source->toItemComposite());
     parseGroup(m_source);
 
@@ -154,9 +156,10 @@ bool Preprocessor::parseNonDirective(Item *group)
 
 bool Preprocessor::parseTextLine(Item *group)
 {
-//    cout << "parsetextline" << endl;
+    //cout << "parsetextline" << endl;
     Q_ASSERT(group->toItemComposite());
     const TokenSection tokenSection = readLine();
+   // cout << tokenSection.fullText().constData() << endl;
 
     if(tokenSection.count() == 0)
         return false;
@@ -352,10 +355,9 @@ bool Preprocessor::parseDefineDirective(Item *group)
         replacementListStart = 3;
     }
 
-    //get replacement list
     const int skipNewLine = 1;
     QList<int> replacementList = cleanedLine.mid(
-            replacementListStart, replacementList.count() - replacementListStart - skipNewLine );
+            replacementListStart, cleanedLine.count() - replacementListStart - skipNewLine );
 
     macro->setTokenSection(line);
     macro->setIdentifier(TokenList(m_tokenContainer, QList<int>() << identifier));
@@ -479,7 +481,7 @@ TokenSection Preprocessor::readLine()
     if(gotNewline)
         ++lexerTokenIndex; //include newline
     else
-        emit error("Unexprected end of source");
+        emit error("Error", "Unexprected end of source");
 
     return TokenSection(m_tokenContainer, startIndex, lexerTokenIndex - startIndex);
 }

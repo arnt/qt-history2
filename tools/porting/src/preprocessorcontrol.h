@@ -35,18 +35,21 @@ private:
     QString m_basePath;
 };
 
-class PreprocessorCache
+class PreprocessorCache: public QObject
 {
+Q_OBJECT
 public:
-    PreprocessorCache() {};
+    PreprocessorCache();
     TokenEngine::TokenContainer sourceTokens(const QString &filename);
     Rpp::Source *sourceTree(const QString &filename);
+signals:
+    void error(QString type, QString text);
 private:
     QByteArray readFile(const QString & filename) const;
-    Tokenizer tokenizer;
-    Rpp::RppLexer lexer;
-    Rpp::Preprocessor preprocessor;
-    TypedPool<Rpp::Item> memoryPool;
+    Tokenizer m_tokenizer;
+    Rpp::RppLexer m_lexer;
+    Rpp::Preprocessor m_preprocessor;
+    TypedPool<Rpp::Item> m_memoryPool;
     QMap<QString, Rpp::Source *> m_sourceTrees;
     QMap<QString, TokenEngine::TokenContainer> m_sourceTokens;
 };
@@ -57,12 +60,14 @@ Q_OBJECT
 public:
     PreprocessorController(IncludeFiles includefiles,
                            PreprocessorCache &preprocessorCahce,
-                           Rpp::DefineMap *activedefinitions );
+                           Rpp::DefineMap *activedefinitions);
 
     TokenEngine::TokenSectionSequence evaluate(const QString &filename);
 public slots:
     void includeSlot(Rpp::Source *&includee, const Rpp::Source *includer,
          const QString &filename, Rpp::RppTreeEvaluator::IncludeType includeType);
+signals:
+    void error(QString type, QString text);
 private:
     IncludeFiles m_includeFiles;
     Rpp::RppTreeEvaluator m_rppTreeEvaluator;

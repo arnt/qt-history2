@@ -123,6 +123,13 @@ QByteArray PreprocessorCache::readFile(const QString &filename) const
     return f.readAll();
 }
 
+PreprocessorCache::PreprocessorCache()
+{
+    connect(&m_preprocessor, SIGNAL(error(QString, QString)),
+            this, SIGNAL(error(QString, QString)));
+}
+
+
 /*
     Return a TokenSequence with the contents of filname.
     Assumens filename exists and is readable, returns a empty
@@ -132,10 +139,14 @@ QByteArray PreprocessorCache::readFile(const QString &filename) const
 */
 TokenContainer PreprocessorCache::sourceTokens(const QString &filename)
 {
+//    cout << "sourceTokens: " << filename.toLatin1().constData() << endl;
     if(m_sourceTokens.contains(filename))
         return m_sourceTokens.value(filename);
+    if(!QFile::exists(filename))
+        return TokenContainer();
+
     QByteArray fileContents = readFile(filename);
-    QList<TokenEngine::Token> tokenList = tokenizer.tokenize(fileContents);
+    QList<TokenEngine::Token> tokenList = m_tokenizer.tokenize(fileContents);
     TokenContainer tokenContainer(fileContents, tokenList);
     m_sourceTokens.insert(filename, tokenContainer);
     return tokenContainer;
@@ -153,11 +164,13 @@ Source *PreprocessorCache::sourceTree(const QString &filename)
     if(m_sourceTrees.contains(filename))
         return m_sourceTrees.value(filename);
     TokenContainer tokenContainer = sourceTokens(filename);
-    TokenSequenceAdapter<TokenContainer> tokenSequence(tokenContainer);
-    QList<Type> tokenTypes = lexer.lex(&tokenSequence);
-    Source *source = preprocessor.parse(tokenContainer, tokenTypes, &memoryPool);
+    QList<Type> tokenTypes = m_lexer.lex(tokenContainer);
+    Source *source = m_preprocessor.parse(tokenContainer, tokenTypes, &m_memoryPool);
     source->setFileName(filename);
-    m_sourceTrees.insert(filename, source);
+
+    if(tokenContainer.count() > 0) //don't cache empty files
+        m_sourceTrees.insert(filename, source);
+
     return source;
 }
 
@@ -167,12 +180,19 @@ PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
  m_preprocessorCache(preprocessorCache),
  m_activeDefinitions(activeDefinitions)
 {
+    //connect include callback
     connect(&m_rppTreeEvaluator,
         SIGNAL(includeCallback(Source *&, const Source *,
         const QString &, RppTreeEvaluator::IncludeType)),
         this,
         SLOT(includeSlot(Source *&, const Source *,
         const QString &, RppTreeEvaluator::IncludeType)));
+
+    //connect error handlers
+    connect(&m_preprocessorCache , SIGNAL(error(QString, QString)),
+            this, SIGNAL(error(QString, QString)));
+
+
 }
 
 /*
@@ -191,6 +211,9 @@ void PreprocessorController::includeSlot(Source *&includee,
     else //AngleBracketInclude
         newFilename = m_includeFiles.angleBracketLookup(filename);
 
+    if (!QFile::exists(newFilename))
+        emit error("Error", "In includeSlot(): Could not find file " + filename);
+
     includee = m_preprocessorCache.sourceTree(newFilename);
 }
 
@@ -201,6 +224,8 @@ void PreprocessorController::includeSlot(Source *&includee,
 TokenSectionSequence PreprocessorController::evaluate(const QString &filename)
 {
     QString resolvedFilename = m_includeFiles.resolve(filename);
+    if(!QFile::exists(resolvedFilename))
+        emit error("Error", "Could not find file: " + filename);
     Source *source  = m_preprocessorCache.sourceTree(resolvedFilename);
     return m_rppTreeEvaluator.evaluate(source, m_activeDefinitions);
 }
