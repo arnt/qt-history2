@@ -105,7 +105,7 @@ QColormap::~QColormap()
 
 QColormap & QColormap::operator=( const QColormap & map )
 {
-    QColormap dummy( d->widget );
+    static QColormap dummy( d->widget ); // ### This is wrong. Fix it!
     return dummy;
 }
 
