@@ -341,8 +341,35 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
     QRect boundingRect( const QChar &ch );
-    int textWidth( const QString &str, int pos, int len );
 
+    struct TextRun {
+	TextRun() { xoff = 0; yoff = 0; script = NoScript; string = 0; length = 0; next = 0; }
+	~TextRun() { if ( next ) delete next; }
+	void setParams( int x, int y, const QChar *s, int len, Script sc = NoScript ) {
+	    xoff = x;
+	    yoff = y;
+	    string = s;
+	    length = len;
+	    script = sc;
+	}
+	int xoff;
+	int yoff;
+	Script script;
+	const QChar *string;
+	int length;
+	TextRun *next;
+#ifdef Q_WS_X11
+	QByteArray mapped;
+#endif
+    };
+
+    /*
+       some replacement functions for native calls. This is needed, because shaping and
+       non spacing marks can change the extents of a string to draw. At the same time
+       drawing needs to take care to correctly position non spacing marks.
+    */
+    int textWidth( const QString &str, int pos, int len );
+    
 #ifdef Q_WS_X11
     Script scriptForChar(const QChar &c);
     Script hanHack( const QChar & c );
@@ -398,30 +425,6 @@ public:
     void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
     void computeLineWidth();
 
-    /*
-       some replacement functions for Xlib calls. This is needed, because shaping and
-       non spacing marks can change the extents of a string to draw. At the same time
-       drawing needs to take care to correctly position non spacing marks.
-    */
-    struct TextRun {
-	TextRun() { xoff = 0; yoff = 0; fs = 0; string = 0; length = 0; next = 0; }
-	~TextRun() { if ( next ) delete next; }
-	void setParams( int x, int y, const QChar *s, int len, QFontStruct *qfs ) {
-	    xoff = x;
-	    yoff = y;
-	    string = s;
-	    length = len;
-	    fs = qfs;
-	}
-	int xoff;
-	int yoff;
-	QFontStruct *fs;
-	QByteArray mapped;
-	const QChar *string;
-	int length;
-	TextRun *next;
-    };
-
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
     void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
@@ -466,22 +469,6 @@ public:
 	QFontStruct *fin;
 	HDC currHDC;
 
-	struct TextRun {
-		TextRun() : xoff(0), yoff(0), string(0), length(0), next(0) {}
-		~TextRun() { delete next; }
-		int xoff;
-		int yoff;
-		const QChar *string;
-		int length;
-		TextRun *next;
-		void setParams( int x, int y, const QChar *s, int l ) 
-		{
-			xoff = x;
-			yoff = y;
-			string = s;
-			length = l;
-		}
-	};
 	int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
 	void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN

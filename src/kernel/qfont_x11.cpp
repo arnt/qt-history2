@@ -670,7 +670,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		    qfs = x11data.fontstruct[currs];
 		}
 		// string width (this is for the PREVIOUS truple)
-		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, qfs );
+		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
 		currw += runWidth( this, qfs, str, lasts + pos, i - lasts, cache->mapped );
 		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 		cache->next = run;
@@ -688,7 +688,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    }
 	    QPoint p = pa[pa.size() - nmarks];
 	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
-	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, qfs );
+	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, currs );
 	    if ( qfs && qfs != (QFontStruct *)-1 && qfs->codec )
 		cache->mapped = qfs->codec->fromUnicode( str, pos + i, 1 );
 	    QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
@@ -705,7 +705,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		    qfs = x11data.fontstruct[currs];
 		}
 		// string width (this is for the PREVIOUS truple)
-		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, qfs );
+		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
 		currw += runWidth( this, qfs, str, lasts + pos, i - lasts, cache->mapped );
 		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 		cache->next = run;
@@ -726,7 +726,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    }
 	    QPoint p = pa[pa.size() - nmarks];
 	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
-	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, qfs );
+	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, currs );
 	    if ( qfs && qfs != (QFontStruct *)-1 && qfs->codec )
 		cache->mapped = qfs->codec->fromUnicode( str, pos + i, 1 );
 	} else {
@@ -734,7 +734,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    load(currs);
 	    qfs = x11data.fontstruct[currs];
 	}
-	cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, qfs );
+	cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
 	currw += runWidth( this, qfs, str, lasts, i - lasts, cache->mapped );
 	QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
 	cache->next = run;
@@ -896,9 +896,10 @@ void QFontPrivate::drawText( Display *dpy, WId hd, GC gc, int x, int y,
 			     const QFontPrivate::TextRun *cache )
 {
     while ( cache ) {
-	QFontStruct *qfs = cache->fs;
+	QFontStruct *qfs = x11data.fontstruct[cache->script];
 	XFontStruct *fs = 0;
-	if ( qfs && qfs != (QFontStruct *) -1 )
+	// ### NoScript shouldn't happen....
+	if ( cache->script != NoScript && qfs && qfs != (QFontStruct *) -1 )
 	    fs = (XFontStruct *)qfs->handle;
 
 	if ( !fs ) {
