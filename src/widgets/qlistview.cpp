@@ -1239,7 +1239,13 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
 {
-    int w = fm.width( text( c ) ) + lv->itemMargin() * 2;
+    QString t( text( c ) );
+    int lb = 0, rb = 0;
+    if ( t.length() >= 1 ) {
+	lb = fm.leftBearing( t[ 0 ] );
+	rb = fm.rightBearing( t[ t.length() - 1 ] );
+    }
+    int w = fm.width( t ) + lv->itemMargin() * 2 + lb + rb;
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
@@ -1673,7 +1679,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
-    
+
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),

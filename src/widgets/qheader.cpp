@@ -1026,28 +1026,30 @@ void QHeader::paintSection( QPainter *p, int id, QRect fr )
 
     p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
 
-    if ( data->sortColumn == logIdx && pw + 8 + p->fontMetrics().width( s ) + 12 < fr.width() ) {
+    int arrowWidth = orient == Qt::Horizontal ? height() : width();
+    arrowWidth -= 6;
+    if ( data->sortColumn == logIdx && pw + 8 + p->fontMetrics().width( s ) + arrowWidth < fr.width() ) {
 	p->save();
 	if ( data->sortDirection ) {
 	    QPointArray pa( 3 );
-	    int x = fr.x() + fr.width() - 16;
+	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
 	    p->setPen( colorGroup().dark() );
 	    pa.setPoint( 0, x, 4 );
-	    pa.setPoint( 1, x + 12, 4 );
-	    pa.setPoint( 2, x + 6, fr.height() - 6 );
+	    pa.setPoint( 1, x + arrowWidth, 4 );
+	    pa.setPoint( 2, x + arrowWidth / 2, fr.height() - 6 );
 	    p->drawPolyline( pa );
 	    p->setPen( colorGroup().light() );
-	    p->drawLine( x, 4, x + 6, fr.height() - 6 );
+	    p->drawLine( x, 4, x + arrowWidth / 2, fr.height() - 6 );
 	} else {
 	    QPointArray pa( 3 );
-	    int x = fr.x() + fr.width() - 16;
+	    int x = fr.x() + fr.width() - ( arrowWidth + 4 );
 	    p->setPen( colorGroup().dark() );
 	    pa.setPoint( 0, x, fr.height() - 6 );
-	    pa.setPoint( 1, x + 12, fr.height() - 6 );
-	    pa.setPoint( 2, x + 6, 4 );
+	    pa.setPoint( 1, x + arrowWidth, fr.height() - 6 );
+	    pa.setPoint( 2, x + arrowWidth / 2, 4 );
 	    p->drawPolyline( pa );
 	    p->setPen( colorGroup().light() );
-	    p->drawLine( x, fr.height() - 6, x + 6, 4 );
+	    p->drawLine( x, fr.height() - 6, x + arrowWidth / 2, 4 );
 	}
 	p->restore();
     }
