@@ -162,8 +162,12 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     }
     else {
 	if( RegCreateKeyExA( HKEY_LOCAL_MACHINE, QString( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName ).local8Bit(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
-	    RegSetValueExA( key, "DisplayName", 0, REG_SZ, displayName.local8Bit(), displayName.local8Bit().length() + 1 );
-	    RegSetValueExA( key, "UninstallString", 0, REG_SZ, cmdString.local8Bit(), cmdString.local8Bit().length() + 1 );
+	    RegSetValueExA( key, "DisplayName", 0, REG_SZ,
+		    (const unsigned char*)displayName.local8Bit().data(),
+		    displayName.local8Bit().length() + 1 );
+	    RegSetValueExA( key, "UninstallString", 0, REG_SZ,
+		    (const unsigned char*)cmdString.local8Bit().data(),
+		    cmdString.local8Bit().length() + 1 );
 
 	    RegCloseKey( key );
 	    return true;

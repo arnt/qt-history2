@@ -415,12 +415,12 @@ static bool copyFile( const QString& src, const QString& dest )
 #ifdef Q_WS_WIN
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	bool res;
-	TCHAR *tentryName = qt_winTchar_new( entryName );
-	res = CopyFileW( tentryName, qt_winTchar( targetName, TRUE ), false );
-	delete tentryName;
+	TCHAR *tsrc = (TCHAR*)qt_winTchar_new( src );
+	res = CopyFileW( tsrc, (TCHAR*)qt_winTchar( dest, TRUE ), false );
+	delete tsrc;
 	return res;
     } else {
-	return CopyFileA( entryName.local8Bit(), targetName.local8Bit(), false );
+	return CopyFileA( src.local8Bit(), dest.local8Bit(), false );
     }
 #else
     int len;
@@ -1810,9 +1810,9 @@ void SetupWizardImpl::archiveMsg( const QString& msg )
 static HANDLE createFile( const QString &entryName, DWORD attr1, DWORD attr2 )
 {
     if ( qWinVersion() & Qt::WV_NT_based ) {
-	return ::CreateFileW( (WCHAR*)qt_winTchar( entryName, TRUE ), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+	return ::CreateFileW( (WCHAR*)qt_winTchar( entryName, TRUE ), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
     } else {
-	return ::CreateFileA( entryName.local8Bit(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL ) ){
+	return ::CreateFileA( entryName.local8Bit(), attr1, attr2, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
     }
 }
 #endif
