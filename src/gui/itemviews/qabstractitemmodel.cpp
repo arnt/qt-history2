@@ -834,7 +834,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 }
 
 /*!
-    \enum QAbstractItemModel::Match
+    \enum QAbstractItemModel::MatchFlag
 
     \value Match_Contains The value is contained in the item.
     \value Match_FromStart The value matches the start of the item.

@@ -833,8 +833,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     \value Key_unknown
 
-    \omitvalue Key_Direction_L internal use only
-    \omitvalue Key_Direction_R internal use only
+    \omitvalue Key_Direction_L
+    \omitvalue Key_Direction_R
 
 */
 

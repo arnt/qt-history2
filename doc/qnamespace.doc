@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 /*!
-    \enum Qt::AlignmentFlags
+    \enum Qt::AlignmentFlag
 
     This enum type is used to describe alignment. It contains
     horizontal and vertical flags.

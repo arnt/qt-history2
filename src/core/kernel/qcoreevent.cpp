@@ -120,7 +120,7 @@
     \value PaletteChange  Palette of the widget changed.
     \value Polish The widget is polished.
     \value PolishRequest The widget should be polished.
-    \omitvalue QWSUpdate internal.
+    \omitvalue QWSUpdate
     \value Quit  Reserved.
     \value Reparent  Reserved.
     \value Resize  Widget's size changed, \l{QResizeEvent}.

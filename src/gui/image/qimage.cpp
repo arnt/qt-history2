@@ -12,7 +12,6 @@
 **
 ****************************************************************************/
 
-
 #include "qimage.h"
 #include "qregexp.h"
 #include "qfile.h"
@@ -204,7 +203,7 @@
     \value ThresholdAlphaDither (default) - No dithering.
     \value OrderedAlphaDither A faster, more ordered dither.
     \value DiffuseAlphaDither A high-quality dither.
-    \omitvalue NoAlpha Not supported.
+    \omitvalue NoAlpha
 
     Color matching versus dithering preference
     \value PreferDither (default when converting to a pixmap) - Always dither
@@ -212,7 +211,7 @@
     \value AvoidDither (default when converting for the purpose of saving to
            file) - Dither 32-bit images only if the image has more than 256
            colors and it is being converted to 8 bits.
-    \omitvalue AutoDither Not supported.
+    \omitvalue AutoDither
 
     \omitvalue ColorMode_Mask
     \omitvalue Dither_Mask
