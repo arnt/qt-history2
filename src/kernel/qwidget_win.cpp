@@ -714,7 +714,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    SetActiveWindow( topLevelWidget()->winId() );
+    SetForegroundWindow( topLevelWidget()->winId() );
 }
 
 
