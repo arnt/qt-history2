@@ -138,8 +138,7 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
 
 
 /*!
-    Constructs a status bar called \a name with parent \a parent and
-    with a size grip.
+    Constructs a status bar with a size grip with the given \a parent.
 
     \sa setSizeGripEnabled()
 */

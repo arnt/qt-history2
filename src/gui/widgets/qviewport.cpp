@@ -179,6 +179,11 @@ void QViewportPrivate::layoutChildren()
     viewport->setGeometry(vr); // resize the viewport last
 }
 
+/*!
+    \internal
+
+    Creates a new QViewportPrivate, \a dd with the given \a parent.
+*/
 QViewport::QViewport(QViewportPrivate &dd, QWidget *parent)
     :QFrame(dd, parent)
 {
@@ -232,12 +237,17 @@ QSize QViewport::maximumViewportSize() const
     return max;
 }
 
+/*!
+    \property QViewport::acceptDrops
+    \brief whether the viewport accepts the dropping of dragged
+    objects
+*/
 
 /*!
     \property QViewport::verticalScrollBarPolicy
     \brief the policy for the vertical scroll bar
 
-    The default policy is \c Qt::ScrollBarAsNeeded
+    The default policy is \c Qt::ScrollBarAsNeeded.
 
     \sa horizontalScrollBarPolicy
 */
@@ -269,7 +279,7 @@ QScrollBar *QViewport::verticalScrollBar() const
     \property QViewport::horizontalScrollBarPolicy
     \brief the policy for the horizontal scroll bar
 
-    The default policy is \c Qt::ScrollBarAsNeeded
+    The default policy is \c Qt::ScrollBarAsNeeded.
 
     \sa verticalScrollBarPolicy
 */
@@ -314,8 +324,9 @@ void QViewport::setViewportMargins(int left, int top, int right, int bottom)
     d->layoutChildren();
 }
 
-/*!  The main event handler for the QViewport widget (\e not the
-  scrolling area viewport()).
+/*!
+    This is the main event handler for the QViewport widget (\e not
+    the scrolling area viewport()). The event is passed in \a e.
 */
 bool QViewport::event(QEvent *e)
 {
@@ -417,7 +428,8 @@ void QViewport::paintEvent(QPaintEvent*)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    mouse press events for the viewport() widget.
+    mouse press events for the viewport() widget. The event is passed
+    in \a e.
 
     \sa QWidget::mousePressEvent()
 */
@@ -428,7 +440,8 @@ void QViewport::mousePressEvent(QMouseEvent *e)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    mouse release events for the viewport() widget.
+    mouse release events for the viewport() widget. The event is
+    passed in \a e.
 
     \sa QWidget::mouseReleaseEvent()
 */
@@ -439,7 +452,8 @@ void QViewport::mouseReleaseEvent(QMouseEvent *e)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    mouse double click events for the viewport() widget.
+    mouse double click events for the viewport() widget. The event is
+    passed in \a e.
 
     \sa QWidget::mouseDoubleClickEvent()
 */
@@ -450,7 +464,8 @@ void QViewport::mouseDoubleClickEvent(QMouseEvent *e)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    mouse move events for the viewport() widget.
+    mouse move events for the viewport() widget. The event is passed
+    in \a e.
 
     \sa QWidget::mouseMoveEvent()
 */
@@ -461,7 +476,8 @@ void QViewport::mouseMoveEvent(QMouseEvent *e)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    wheel events for the viewport() widget.
+    wheel events for the viewport() widget. The event is passed in \a
+    e.
 
     \sa QWidget::wheelEvent()
 */
@@ -474,7 +490,8 @@ void QViewport::wheelEvent(QWheelEvent *e)
 
 /*!
     This event handler can be reimplemented in a subclass to receive
-    context menu events for the viewport() widget.
+    context menu events for the viewport() widget. The event is passed
+    in \a e.
 
     \sa QWidget::contextMenuEvent()
 */
@@ -483,6 +500,11 @@ void QViewport::contextMenuEvent(QContextMenuEvent *e)
     QFrame::contextMenuEvent(e);
 }
 
+/*!
+    This function is called with key event \a e when key presses
+    occur. It handles PageUp, PageDown, Up, Down, Left, and Right, and
+    ignores all other key presses.
+*/
 void QViewport::keyPressEvent(QKeyEvent * e)
 {
     switch (e->key()) {
@@ -556,6 +578,9 @@ void QViewport::dropEvent(QDropEvent *)
 
 #endif
 
+/*!
+    Scrolls the viewport's contents by \a dx, \a dy.
+*/
 void QViewport::scrollContentsBy(int, int)
 {
     viewport()->update();
@@ -580,6 +605,9 @@ void QViewportPrivate::showOrHideScrollBars()
     layoutChildren();
 }
 
+/*!
+    Returns the viewport's minimum size hint.
+*/
 QSize QViewport::minimumSizeHint() const
 {
     int h = fontMetrics().height();

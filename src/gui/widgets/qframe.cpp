@@ -413,8 +413,6 @@ int QFrame::frameWidth() const
     If you set the rectangle to a null rectangle (for example
     \c{QRect(0, 0, 0, 0)}), then the resulting frame rectangle is
     equivalent to the \link QWidget::rect() widget rectangle\endlink.
-
-    \sa contentsRect
 */
 
 QRect QFrame::frameRect() const

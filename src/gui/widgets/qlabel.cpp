@@ -154,7 +154,7 @@ QPicture *QLabel::picture() const
 /*!
     Constructs an empty label.
 
-    The \a parent, \a name and widget flag \a f, arguments are passed
+    The \a parent and widget flag \a f, arguments are passed
     to the QFrame constructor.
 
     \sa setAlignment(), setFrameStyle(), setIndent()
@@ -168,7 +168,7 @@ QLabel::QLabel(QWidget *parent, WFlags f)
 /*!
     Constructs a label that displays the text, \a text.
 
-    The \a parent, \a name and widget flag \a f, arguments are passed
+    The \a parent and widget flag \a f, arguments are passed
     to the QFrame constructor.
 
     \sa setText(), setAlignment(), setFrameStyle(), setIndent()
@@ -452,7 +452,7 @@ void QLabel::setNum(double num)
 }
 
 /*!
-    \property QLabel::d->alignment
+    \property QLabel::alignment
     \brief the alignment of the label's contents
 
     The alignment is a bitwise OR of \c Qt::AlignmentFlags and \c
@@ -1065,15 +1065,15 @@ QMovie* QLabel::movie() const
 */
 
 /*!
-    \property QLabel::d->textformat
+    \property QLabel::textFormat
     \brief the label's text format
 
-    See the \c Qt::D->Textformat enum for an explanation of the possible
+    See the \c Qt::Textformat enum for an explanation of the possible
     options.
 
     The default format is \c AutoText.
 
-    \sa text
+    \sa text()
 */
 
 Qt::TextFormat QLabel::textFormat() const

@@ -1217,14 +1217,9 @@ void QTextEdit::setWrapColumnOrWidth(int w)
 }
 
 /*!
-    Finds the next occurrence of the string, \a expr. Returns true if
-    \a expr was found and changes the cursor to select the match;
-    otherwise returns false;
-
-    If \a cs is QString::CaseSensitive (the default), the search is case sensitive;
-    otherwise the search is case insensitive. If \a mode is FindAnything
-    (the default) the search looks for any matching; otherwise it searches
-    for whole matches only.
+    Finds the next occurrence of the string, \a exp, using the given
+    \a flags. Returns true if \a exp was found and changes the cursor
+    to select the match; otherwise returns false;
 */
 bool QTextEdit::find(const QString &exp, StringComparison flags)
 {

@@ -361,7 +361,8 @@ QSize QPushButton::sizeHint() const
 }
 
 /*!
-    Draws the push button bevel. Called from paintEvent().
+    Draws the push button bevel on painter \a paint. Called from
+    paintEvent().
 
     \sa drawLabel()
 */
@@ -374,7 +375,8 @@ void QPushButton::drawBevel(QPainter *paint)
 
 
 /*!
-    Draws the push button label. Called from paintEvent().
+    Draws the push button label on painter \a paint. Called from
+    paintEvent().
 
     \sa drawBevel()
 */
@@ -403,16 +405,16 @@ void QPushButton::updateMask()
 }
 
 
-/*
-  Paints the button, by first calling drawBevel() and then
-  drawLabel(). If you reimplement paintEvent() in order to draw a
-  different label only, you can call drawBevel() from your code.
-
-  \code
-    QPainter p(this);
-    drawBevel(&p);
-    // ... your label drawing code
-  \endcode
+/*!
+    Paints the button, by first calling drawBevel() and then
+    drawLabel(). If you reimplement paintEvent() just to draw a
+    different label, you can call drawBevel() from your own code, for
+    example:
+    \code
+        QPainter p(this);
+        drawBevel(&p);
+        // ... your label drawing code
+    \endcode
 */
 void QPushButton::paintEvent(QPaintEvent *)
 {
@@ -476,8 +478,9 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 
 
 /*!
-    Associates the popup menu \a popup with this push button. This
-    turns the button into a menu button.
+    Associates the popup menu \a menu with this push button. This
+    turns the button into a menu button, which in some styles will
+    produce a small triangle to the right of the button's text.
 
     Ownership of the menu is \e not transferred to the push button.
 

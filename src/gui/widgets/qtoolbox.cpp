@@ -488,7 +488,8 @@ void QToolBox::removeItem(int index)
 /*!
     \property QToolBox::currentIndex
     \brief The index of the current item, or -1 if the toolbox is empty.
-    \sa indexOf(), item()
+
+    \sa indexOf(), widget()
 */
 
 
@@ -649,7 +650,7 @@ void QToolBox::changeEvent(QEvent *ev)
   This virtual handler is called after a new item was added or
   inserted at position \a index.
 
-  \sa tabRemoved()
+  \sa itemRemoved()
  */
 void QToolBox::itemInserted(int index)
 {
@@ -660,7 +661,7 @@ void QToolBox::itemInserted(int index)
   This virtual handler is called after an item was removed from
   position \a index.
 
-  \sa tabInserted()
+  \sa itemInserted()
  */
 void QToolBox::itemRemoved(int index)
 {

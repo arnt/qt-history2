@@ -25,7 +25,7 @@ class QViewportPrivate;
 class Q_GUI_EXPORT QViewport : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(ScrollBarPolicy ScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
+    Q_PROPERTY(ScrollBarPolicy verticalScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
     Q_PROPERTY(ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
     Q_OVERRIDE(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
 

@@ -702,8 +702,6 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 }
 
 /*!
-    \overload
-
     This convenience function creates a new action with some \a
     text, and a submenu given by \a menu. The function adds the newly
     created action to the menu's list of actions, and returns it.
@@ -752,8 +750,6 @@ QAction *QMenu::addSeparator()
 }
 
 /*!
-    \overload
-
     This convenience function creates a new action with the text \a
     text, and submenu \a menu. The function inserts the newly created
     action into this menu's list of actions before action \a before
@@ -1792,6 +1788,12 @@ void QMenu::internalDelayedPopup()
     //do the popup
     d->activeMenu->popup(pos);
 }
+
+/*!
+    \fn void QMenu::aboutToShow()
+
+    This signal is emitted just before the menu is shown to the user.
+*/
 
 /*!
     \fn void QMenu::activated(QAction *action)

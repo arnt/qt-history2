@@ -680,6 +680,12 @@ void QToolBar::resizeEvent(QResizeEvent *e)
     checkForExtension(e->size());
 }
 
+/*!
+    \internal
+
+    This function is called when an action is triggered. The relevant
+    information is passed in the event \a e.
+*/
 void QToolBar::actionEvent(QActionEvent *e)
 {
     // ################ temporary hack to see something in the toolbars

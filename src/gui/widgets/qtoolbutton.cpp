@@ -100,7 +100,7 @@ public:
     feature is sometimes used with the "Back" button in a web browser.
     After pressing and holding the button down for a while, a menu
     pops up showing a list of possible pages to jump to. With
-    QToolButton you can set a popup menu using setPopup(). The default
+    QToolButton you can set a popup menu using setMenu(). The default
     delay is 600ms; you can adjust it with setPopupDelay().
 
     \img qdockwindow.png Toolbar with Toolbuttons \caption A floating
@@ -376,7 +376,8 @@ void QToolButton::setUsesTextLabel(bool enable)
 
 
 /*!
-    Draws the tool button bevel. Called from paintEvent().
+    Draws the tool button bevel on painter \a p. Called from
+    paintEvent().
 
     \sa drawLabel()
 */
@@ -423,7 +424,7 @@ void QToolButton::drawBevel(QPainter * p)
 
 
 /*!
-    Draws the tool button label. Called from paintEvent().
+    Draws the tool button label on painter \a p. Called from paintEvent().
 
     \sa drawBevel()
 */
@@ -459,16 +460,16 @@ void QToolButton::drawLabel(QPainter *p)
                             QStyleOption());
 }
 
-/*
-  Paints the button, by first calling drawBevel() and then
-  drawLabel(). If you reimplement paintEvent() in order to draw a
-  different label only, you can call drawBevel() from your code.
-
-  \code
-    QPainter p(this);
-    drawBevel(&p);
-    // ... your label drawing code
-  \endcode
+/*!
+    Paints the button, by first calling drawBevel() and then
+    drawLabel(). If you reimplement paintEvent() just to draw a
+    different label, you can call drawBevel() from your code. For
+    example:
+    \code
+        QPainter p(this);
+        drawBevel(&p);
+        // ... your label drawing code
+    \endcode
 */
 void QToolButton::paintEvent(QPaintEvent *)
 {
@@ -509,7 +510,8 @@ void QToolButton::leaveEvent(QEvent * e)
 }
 
 
-/*\!reimp
+/*!
+    \reimp
  */
 void QToolButton::timerEvent(QTimerEvent *e)
 {
@@ -567,6 +569,12 @@ bool QToolButton::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
+/*!
+    \internal
+
+    Returns true if this button has a 3D effect; otherwise returns
+    false.
+*/
 bool QToolButton::uses3D() const
 {
     return style().styleHint(QStyle::SH_ToolButton_Uses3D)
@@ -682,7 +690,7 @@ QIconSet QToolButton::iconSet(bool /* on */) const
 #endif
 
 /*!
-    Associates the popup menu \a popup with this tool button.
+    Associates the given popup \a menu with this tool button.
 
     The popup will be shown each time the tool button has been pressed
     down for a certain amount of time. A typical application example
@@ -823,7 +831,7 @@ void QToolButtonPrivate::popupTimerDone()
     special section to the toolbutton that can be used to open the
     popupmenu.
 
-    \sa setPopup()
+    \sa setMenu()
 */
 void QToolButton::setPopupDelay(int delay)
 {

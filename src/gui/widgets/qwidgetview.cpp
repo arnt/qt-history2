@@ -36,18 +36,20 @@ public:
 /*!
 
     \class QWidgetView
-
-    \brief The QWidgetView provides on-demand scroll bars around a widget.
+    \brief The QWidgetView class provides on-demand scroll bars around a widget.
 
     \ingroup basic
     \mainclass
- */
+
+    The widget view's widget must be set with setWidget(); it can be
+    retrieved by widget(). The widget view's widget can be set
+    resizable with setWidgetResizable().
+*/
 
 
 /*!
-    Constructs a widget view.
-
-    The \a parent arguments is sent to the QWidget constructor.
+    Constructs a widget view with the given \a parent, and with no
+    widget; see setWidget().
 */
 QWidgetView::QWidgetView(QWidget *parent)
     :QViewport(*new QWidgetViewPrivate,parent)
@@ -61,8 +63,8 @@ QWidgetView::QWidgetView(QWidget *parent)
 }
 
 /*!
-  Destroys the widget view.
- */
+    Destroys the widget view.
+*/
 QWidgetView::~QWidgetView()
 {
 }
@@ -91,10 +93,10 @@ void QWidgetViewPrivate::updateScrollBars()
 }
 
 /*!
-  Returns the current view widget. If there is no view widget, returns 0.
+    Returns the view widget's widget, or 0 if there is none.
 
-  \sa setWidget()
- */
+    \sa setWidget()
+*/
 
 QWidget *QWidgetView::widget() const
 {
@@ -102,12 +104,12 @@ QWidget *QWidgetView::widget() const
 }
 
 /*!
-  Makes \a w the view widget.
+    Set's the view widget's widget to \a w.
 
-  \a w becomes a child of the widgetview, and will be destroyed when
-  the widgetview gets deleted or a new view widget is set.
+    \a w becomes a child of the widget view, and will be destroyed
+    when the widget view is deleted or when a new view widget is set.
 
-  \sa widget()
+    \sa widget()
 */
 void QWidgetView::setWidget(QWidget *w)
 {
@@ -170,18 +172,18 @@ void QWidgetView::scrollContentsBy(int, int)
 
 
 /*!
-  \property QWidgetView::widgetResizable
-  \brief whether the view should resize the view widget
+    \property QWidgetView::widgetResizable
+    \brief whether the widget view should resize the view widget
 
-  If this property is set to false (the default), the view keeps the
-  size of the view widget. You can at anytime change resize the widget
-  with widget()->resize(), and the view will adjust itself to the new
-  size.
+    If this property is set to false (the default), the view honors
+    the size of its widget. Regardless of this property you can
+    programmatically resize the widget using widget()->resize(), and
+    the widget view will automatically adjust itself to the new size.
 
-  If this property is set to true, the view automatically resizes the
-  widget in order to avoid scroll bars where they can be avoided, or
-  to take advantage of extra space.
- */
+    If this property is set to true, the view will automatically
+    resize the widget in order to avoid scroll bars where they can be
+    avoided, or to take advantage of extra space.
+*/
 bool QWidgetView::widgetResizable() const
 {
     return d->resizable;

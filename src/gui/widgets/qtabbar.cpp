@@ -161,6 +161,12 @@ public:
     the Excel spreadsheet, for example
 */
 
+/*!
+    \fn void QTabBar::currentChanged(int index)
+
+    This signal is emitted when the tab bar's current tab changes. The
+    new current has the given \a index.
+*/
 
 int QTabBarPrivate::extraWidth() const
 {
@@ -286,6 +292,9 @@ void QTabBarPrivate::refresh()
     }
 }
 
+/*!
+    Creates a new tab bar with the given \a parent.
+*/
 QTabBar::QTabBar(QWidget* parent)
     :QWidget(*new QTabBarPrivate, parent, 0)
 {
@@ -293,6 +302,9 @@ QTabBar::QTabBar(QWidget* parent)
 }
 
 
+/*!
+    Destroys the tab bar.
+*/
 QTabBar::~QTabBar()
 {
 }

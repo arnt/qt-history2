@@ -149,8 +149,8 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 /*!
     \fn void QLineEdit::cursorPositionChanged(int old, int new)
 
-    This signal is emitted whenever the cursor moves. The argument is
-    the old and the new cursorPosition.
+    This signal is emitted whenever the cursor moves. The previous
+    position is given by \a old, and the new position by \a new.
 
     \sa setCursorPosition(), cursorPosition()
 */

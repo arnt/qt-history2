@@ -38,9 +38,21 @@ public:
     top widget is the currentWidget().  It can be changed by setting
     the \l currentIndex property, using setCurrentIndex(). The index
     of a given widget inside the stacked box is retrieved with
-    index(), widget() returns the widget at a given index position.
+    indexOf(); widget() returns the widget at a given index position.
 */
 
+/*!
+    \fn void QStackedBox::currentChanged(int)
+
+    This signal is emitted when the current widget is changed.
+*/
+
+/*!
+    \fn void QStackedBox::widgetRemoved(int index)
+
+    This signal is emitted when the widget at position \a index is
+    removed.
+*/
 
 
 /*!
@@ -82,20 +94,24 @@ int QStackedBox::insertWidget(int index, QWidget *w)
 }
 
 
-/*\! Removes \a w from this box. Does not delete \a w.
- */
+/*!
+    Removes widget \a w from this layout, but does not delete it.
+*/
 void QStackedBox::removeWidget(QWidget *w)
 {
     d->layout->removeWidget(w);
 }
 
 
-/*\property QStackedBox::currentIndex
-\brief The index of the current widget
+/*!
+    \property QStackedBox::currentIndex
+    \brief The index position of the current widget
 
-The current index is -1 if there is no current widget.
+    The current index is -1 if there is no current widget. The widget
+    at index position 0 is the one that is on top (i.e. the one that
+    is visible).
 
-\sa currentWidget() indexOf()
+    \sa currentWidget() indexOf()
 */
 
 void QStackedBox::setCurrentIndex(int index)
@@ -127,15 +143,17 @@ int QStackedBox::indexOf(QWidget *w) const
 }
 
 /*!
-  Returns the widget with index \a idx. Returns 0 if there is no such widget.
- */
+    Returns the widget at position \a index, or 0 if there is no such
+    widget.
+*/
 QWidget *QStackedBox::widget(int index) const
 {
     return d->layout->widget(index);
 }
 
-/*!\property QStackedLayout::count
-  \brief the number of widgets in this layout.
+/*!
+    \property QStackedBox::count
+    \brief The number of widgets in this layout.
 */
 int QStackedBox::count() const
 {

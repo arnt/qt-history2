@@ -50,28 +50,27 @@
 
     <img src=qradiobt-m.png> <img src=qradiobt-w.png>
 
-    \important text, setText, text, pixmap, setPixmap, accel, setAccel, isToggleButton, setDown, isDown, isOn, state, autoRepeat, isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released, clicked, toggled, state stateChanged
+    \important text(), setText(), text(), setDown(), isDown(),
+    autoRepeat(), group(), setAutoRepeat(), toggle(), pressed(),
+    released(), clicked(), toggled()
 
     \sa QPushButton QToolButton
     \link guibooks.html#fowler GUI Design Handbook: Radio Button\endlink
 */
 
 /*!
-    \property QRadioButton::checked \brief Whether the radio button is
-    checked
-
-    This property will not effect any other radio buttons unless they
-    have been placed in the same QButtonGroup. The default value is
-    false (unchecked).
-*/
-
-/*!
-    \property QRadioButton::autoMask \brief whether the radio button
-    is automatically masked
+    \property QRadioButton::autoMask
+    \brief whether the radio button is automatically masked
 
     \sa QWidget::setAutoMask()
 */
 
+/*!
+    \property QRadioButton::autoExclusive
+    \brief whether the radio button is automatically exclusive
+
+    The default is true.
+*/
 
 /*
     Initializes the radio button.
@@ -86,8 +85,7 @@ static void qRadioButtonInit(QRadioButton *button)
 /*!
     Constructs a radio button with no text.
 
-    The \a parent and \a name arguments are sent on to the QWidget
-    constructor.
+    The \a parent argument is passed on to the QAbstractButton constructor.
 */
 
 QRadioButton::QRadioButton(QWidget *parent)
@@ -99,8 +97,7 @@ QRadioButton::QRadioButton(QWidget *parent)
 /*!
     Constructs a radio button with the text \a text.
 
-    The \a parent and \a name arguments are sent on to the QWidget
-    constructor.
+    The \a parent argument is passed on to the QAbstractButton constructor.
 */
 
 QRadioButton::QRadioButton(const QString &text, QWidget *parent)
@@ -154,7 +151,8 @@ bool QRadioButton::hitButton(const QPoint &pos) const
 }
 
 /*!
-    Draws the radio button bevel. Called from paintEvent().
+    Draws the radio button bevel on painter \a p. Called from
+    paintEvent().
 
     \sa drawLabel()
 */
@@ -167,7 +165,8 @@ void QRadioButton::drawBevel(QPainter *p)
 }
 
 /*!
-    Draws the radio button label. Called from paintEvent().
+    Draws the radio button label on painter \a p. Called from
+    paintEvent().
 
     \sa drawBevel()
 */
@@ -179,16 +178,16 @@ void QRadioButton::drawLabel(QPainter *p)
     style().drawControl(QStyle::CE_RadioButtonLabel, &opt, p, this);
 }
 
-/*
-  Paints the button, by first calling drawBevel() and then
-  drawLabel(). If you reimplement paintEvent() in order to draw a
-  different label only, you can call drawBevel() from your code.
-
-  \code
-    QPainter p(this);
-    drawBevel(&p);
-    // ... your label drawing code
-  \endcode
+/*!
+    Paints the button, by first calling drawBevel() and then
+    drawLabel(). If you reimplement paintEvent() just to draw a
+    different label, you can call drawBevel() from your own code. For
+    example:
+    \code
+        QPainter p(this);
+        drawBevel(&p);
+        // ... your label drawing code
+    \endcode
 */
 void QRadioButton::paintEvent(QPaintEvent *)
 {
