@@ -3059,7 +3059,6 @@ bool QRegExp::match( const QString& str ) const
     int len = rx.matchedLength();
   \endcode
 */
-#ifndef QT_NO_COMPAT
 int QRegExp::match( const QString& str, int index, int *len,
 		    bool indexIsStart )
 {
@@ -3081,7 +3080,6 @@ int QRegExp::match( const QString& str, int index, int *len,
     }
     return pos;
 }
-#endif
 
 /*!
   Attempts to find a match in \a str from position \a start (0 by default).  If
