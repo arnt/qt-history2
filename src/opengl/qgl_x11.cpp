@@ -585,8 +585,13 @@ QColor QGLContext::overlayTransparentColor() const
 		 trans_colors[i].screen == myScreen ) {
 		XColor col;
 		col.pixel = trans_colors[i].color;
+		col.red = col.green = col.blue = 0;
+		col.flags = 0;
 		XQueryColor( d->paintDevice->x11Display(), d->paintDevice->x11Colormap(), &col );
-		return QColor( qRgb( col.red, col.green, col.blue ), trans_colors[i].color );
+		uchar r = (uchar)((col.red / 65535.0) * 255.0 + 0.5);
+		uchar g = (uchar)((col.green / 65535.0) * 255.0 + 0.5);
+		uchar b = (uchar)((col.blue / 65535.0) * 255.0 + 0.5);
+		return QColor(qRgb(r,g,b), trans_colors[i].color);
 	    }
 	}
     }
