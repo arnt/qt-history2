@@ -41,7 +41,7 @@
 class Q_EXPORT QThreadStorageData
 {
 public:
-    QThreadStorageData(void (*func)(void **));
+    QThreadStorageData(void (*func)(void *));
     ~QThreadStorageData();
 
     void** get() const;
@@ -51,16 +51,11 @@ public:
     int id;
     bool constructed;
 
-    bool ensure_constructed(void (*func)(void **));
+    bool ensure_constructed(void (*func)(void *));
 };
 
 
 // pointer specialization
-template <typename T>
-static inline
-void qThreadStorage_deleteData(T **t)
-{ delete *t; }
-
 template <typename T>
 static inline
 T *&qThreadStorage_localData(QThreadStorageData &d, T **)
@@ -86,11 +81,6 @@ void qThreadStorage_setLocalData(QThreadStorageData &d, T **t)
 #ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 // value-based specialization
-template <typename T>
-static inline
-void qThreadStorage_deleteData(T *t)
-{ delete t; }
-
 template <typename T>
 static inline
 T &qThreadStorage_localData(QThreadStorageData &d, T *)
@@ -127,7 +117,7 @@ private:
     QThreadStorage &operator=(const QThreadStorage &);
 #endif // Q_DISABLE_COPY
 
-    static void deleteData(void **x) { qThreadStorage_deleteData(reinterpret_cast<T>(*x)); }
+    static void deleteData(void *x) { delete reinterpret_cast<T*>(x); }
 
 public:
     inline QThreadStorage() : d(deleteData) { }

@@ -51,11 +51,11 @@ static pthread_mutex_t thread_storage_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool thread_storage_init = false;
 static struct {
     bool used;
-    void (*func)( void ** );
+    void (*func)( void * );
 } thread_storage_usage[MAX_THREAD_STORAGE];
 
 
-QThreadStorageData::QThreadStorageData( void (*func)( void ** ) )
+QThreadStorageData::QThreadStorageData( void (*func)( void * ) )
     : id(0), constructed(true)
 {
     pthread_mutex_lock( &thread_storage_mutex );
@@ -117,7 +117,7 @@ void **QThreadStorageData::set( void *p )
 
     // delete any previous data
     if ( d->thread_storage[id] )
-	thread_storage_usage[id].func( &d->thread_storage[id] );
+	thread_storage_usage[id].func( d->thread_storage[id] );
 
     // store new data
     d->thread_storage[id] = p;
@@ -143,13 +143,13 @@ void QThreadStorageData::finish( void **thread_storage )
 	    continue;
 	}
 
-	thread_storage_usage[i].func( &thread_storage[i] );
+	thread_storage_usage[i].func( thread_storage[i] );
     }
 
     delete [] thread_storage;
 }
 
-bool QThreadStorageData::ensure_constructed(void (*func)(void **))
+bool QThreadStorageData::ensure_constructed(void (*func)(void *))
 {
     if (! constructed) {
         id = 0;

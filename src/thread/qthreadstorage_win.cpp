@@ -49,10 +49,10 @@ static const int MAX_THREAD_STORAGE = 257; // 256 maximum + 1 used in QRegExp
 static bool thread_storage_init = FALSE;
 static struct {
     bool used;
-    void (*func)( void ** );
+    void (*func)( void * );
 } thread_storage_usage[MAX_THREAD_STORAGE];
 
-static void thread_storage_id( int &id, void (*func)( void ** ), bool alloc )
+static void thread_storage_id( int &id, void (*func)( void * ), bool alloc )
 {
     static QMutex mutex;
     mutex.lock();
@@ -88,7 +88,7 @@ static void thread_storage_id( int &id, void (*func)( void ** ), bool alloc )
 }
 
 
-QThreadStorageData::QThreadStorageData( void (*func)( void ** ) )
+QThreadStorageData::QThreadStorageData( void (*func)( void * ) )
     : id(0), constructed(true)
 {
     thread_storage_id( id, func, TRUE );
@@ -122,7 +122,7 @@ void **QThreadStorageData::set( void *p )
 
     // delete any previous data
     if ( d->thread_storage[id] )
-	thread_storage_usage[id].func( &d->thread_storage[id] );
+	thread_storage_usage[id].func( d->thread_storage[id] );
 
     // store new data
     d->thread_storage[id] = p;
@@ -148,13 +148,13 @@ void QThreadStorageData::finish( void **thread_storage )
 	    continue;
 	}
 
-	thread_storage_usage[i].func( &thread_storage[i] );
+	thread_storage_usage[i].func( thread_storage[i] );
     }
 
     delete [] thread_storage;
 }
 
-bool QThreadStorageData::ensure_constructed(void (*func)(void **))
+bool QThreadStorageData::ensure_constructed(void (*func)(void *))
 {
     if (! constructed) {
         id = 0;
