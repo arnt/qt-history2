@@ -649,7 +649,7 @@ bool QODBCDriver::open( const QString & db,
 			&d->hDbc);
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qSqlWarning("QODBCDriver::open: Unable to allocate connection", d );
+		qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
 #endif
 		setOpenError( TRUE );
 		return FALSE;
@@ -666,16 +666,16 @@ bool QODBCDriver::open( const QString & db,
 			    &cb,
 			    SQL_DRIVER_NOPROMPT);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-		setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
-		setOpenError( TRUE );
-		return FALSE;
+	setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
+	setOpenError( TRUE );
+	return FALSE;
     }
 
     if ( !d->checkDriver() ) {
-
-	setLastError( qMakeError( "Unable to connect, driver doesn't support needed functionality", QSqlError::Connection, d ) );
-	setOpenError( TRUE );
-	return FALSE;
+#ifdef QT_CHECK_RANGE
+	// Shouldn't we rather abort here?
+	qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality" );
+#endif
     }
 
     setOpen( TRUE );
