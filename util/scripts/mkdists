@@ -13,7 +13,7 @@ MYNAME=`whoami`
 TMP_DIR=/tmp
 # This is ugly, but it is faster to do a workaround than to aks a
 # sysadmin to increase the size of /tmp
-[ "$MYNAME" = "reggie" ] && TMP_DIR=~/tmp
+[ "$MYNAME" = "espenr" ] && TMP_DIR=~/tmp
 TMP_FILE=${TMP_DIR}/qt-tmpf-$$
 echo "Temporary directory: $TMP_DIR"
 
@@ -380,8 +380,11 @@ status "Creating moc files.."
 pushd $DISTDIR/qt/src/moc >>$LOG 2>&1
 $QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
 
-status "make moc_lex.cpp >>$LOG"
-status "make moc_yacc.cpp >>$LOG"
+status "make moc_lex.cpp"
+make moc_lex.cpp >>$LOG
+status "make moc_yacc.cpp"
+make moc_yacc.cpp >>$LOG
+
 rm -f Makefile
 popd >>$LOG 2>&1
 
@@ -493,12 +496,6 @@ if [ "x$DO_ID" = "xyes" ]; then
 	esac
     done
 fi
-
-#make pregenerated moc files more recent than their sources
-sleep 2
-touch $DISTDIR/qt/src/moc/moc_lex.cpp
-sleep 2
-touch $DISTDIR/qt/src/moc/moc_yacc.cpp $DISTDIR/qt/src/moc/moc_yacc.h
 
 public_file () {
     { [ ! -e "$1" ] || [ -d "$1" ] ; } && return 1
