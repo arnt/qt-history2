@@ -46,6 +46,7 @@
 class QSqlPropertyMap::QSqlPropertyMapPrivate
 {
 public:
+    QSqlPropertyMapPrivate() {}
     QMap< QString, QString > propertyMap;
 };
 
@@ -119,6 +120,7 @@ public:
  */
 QSqlPropertyMap::QSqlPropertyMap()
 {
+    d = new QSqlPropertyMapPrivate();
     d->propertyMap["QLineEdit"]    = "text";
     d->propertyMap["QSpinBox"]     = "value";
     d->propertyMap["QDial"]        = "value";
@@ -142,6 +144,7 @@ QSqlPropertyMap::QSqlPropertyMap()
  */
 QSqlPropertyMap::~QSqlPropertyMap()
 {
+    delete d;
 }
 
 /*!
