@@ -96,6 +96,4 @@ inline int qRound(QFixedPoint f) { return f.val > 0 ? (f.val + 128)>>8 : (f.val 
 inline int floor(QFixedPoint f) { return f.val > 0 ? f.val >> 8 : (f.val - 255)/256; }
 inline int ceil(QFixedPoint f) { return f.val > 0 ? (f.val + 255) >> 8 : f.val/256; }
 
-typedef QFixedPoint qReal;
-
 #endif

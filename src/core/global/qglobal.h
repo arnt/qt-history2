@@ -1815,6 +1815,7 @@ Q_CORE_EXPORT char *qgetenv(const char *varName);
 
 #ifdef QT_USE_FIXED_POINT
 #include <qfixedpoint.h>
+typedef QFixedPoint qReal;
 #else
 typedef double qReal;
 #endif
