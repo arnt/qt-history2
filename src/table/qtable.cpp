@@ -4095,6 +4095,9 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    setCurrentCell( currentRow(), qMax( 0, currentColumn() - 1 ) );
 	}
 	return;
+    case Key_Escape:
+	e->ignore();
+	return;
     default: // ... or start in-place editing
 	if ( e->text()[ 0 ].isPrint() ) {
 	    QTableItem *itm = item( tmpRow, tmpCol );
