@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#110 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#111 $
 **
 ** Definition of QStyle class
 **
@@ -127,9 +127,15 @@ public:
 	PO_MenuBarPanel,
 
 	PO_Panel,
-	PO_PanelPopup
+	PO_PanelPopup,
+	
+	PO_TabBarBase
+/*
+	  PO_Panel,
+	  PO_PanelPopup,
+	  PO_PanelMenu,
+	  PO_PanelToolbar,
 
-	/*
 	  PO_CheckMark,
 
 	  PO_ScrollBarLineUp,
@@ -149,7 +155,9 @@ public:
 	PStyle_On =			0x00000010,
 	PStyle_Horizontal =		0x00000020,
 	PStyle_Vertical =		0x00000040,
-	PStyle_HasFocus =		0x00000080
+	PStyle_HasFocus =		0x00000080,
+	PStyle_Top =			0x00000100,
+	PStyle_Bottom =			0x00000200
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
 	  PStyle_FocusAtBorder=		0X00000002
@@ -173,21 +181,17 @@ public:
 	CE_CheckBoxLabel,
 
 	CE_RadioButton,
-	CE_RadioButtonLabel
-
-	/*
-	  CE_Tab,
+	CE_RadioButtonLabel,
+	
+	CE_TabBarTab
+        /*
 	  CE_MenuBarItem,
 	*/
     };
 
     enum ControlElementFlags{
-	CStyle_Default = 		0x00000000
-
-	/*
-	  ,
-	  CStyle_Selected =	 	0x00000001
-	*/
+	CStyle_Default = 		0x00000000,
+	CStyle_Selected =	 	0x00000001
     };
     typedef uint CFlags;
 
@@ -329,20 +333,19 @@ public:
 	PM_DockWindowSeparatorExtent,
 	PM_DockWindowHandleExtent,
 	PM_DockWindowFrameWidth,
+	
+	PM_MenuBarFrameWidth,
 
-	PM_MenuBarFrameWidth
-
+	PM_TabBarOverlap,
+	PM_TabBarBaseHeight,
+	PM_TabBarBaseOverlap
+	
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
 
 	  PM_SplitterWidth,
-	  PM_SliderLength,
-	  PM_MaximimumSliderDragDistance,
-	  PM_TabBarOverlap,
 
-	  PM_TabBarBaseHeight,
-	  PM_TabBarBaseOverlap,
 
 	  PM_MenuItemSeparation,
 

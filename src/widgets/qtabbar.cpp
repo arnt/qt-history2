@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#161 $
 **
 ** Implementation of QTab and QTabBar classes
 **
@@ -368,7 +368,14 @@ QSize QTabBar::minimumSizeHint() const
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
-    style().drawTab( p, this, t, selected );
+    QStyle::CFlags flags = QStyle::CStyle_Default;
+
+    if ( selected )
+	flags |= QStyle::CStyle_Selected;
+    style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
+			 colorGroup(), flags );
+    
+//    style().drawTab( p, this, t, selected );
 
     QRect r( t->r );
     p->setFont( font() );
@@ -411,20 +418,15 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     QRect tr = r;
     if ( t->id == currentTab() )
-	tr.setBottom( tr.bottom() -
+	tr.setBottom( tr.bottom() - 
 		      style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
     style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(),
-		      AlignCenter | ShowPrefix, colorGroup(), isEnabled() && t->enabled,
-		      0, t->label );
+		      AlignCenter | ShowPrefix, colorGroup(),
+		      isEnabled() && t->enabled, 0, t->label );
 
-    if ( !has_focus )
-	return;
-
-    if ( style() == WindowsStyle )
-	p->drawWinFocusRect( br, backgroundColor() );
-    else // shouldn't this be black, irrespective of everything?
-	p->drawRect( br );
+    if ( has_focus )
+	style().drawPrimitive( QStyle::PO_FocusRect, p, br, colorGroup() );
 }
 
 
@@ -879,7 +881,13 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
 				   r.top() + ( r.height()-h ) / 2 - 1,
 			       w + 2, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
-	    style().drawTab( &p, this, t, TRUE );
+
+	    QStyle::CFlags flags = QStyle::CStyle_Default;
+	    flags |= QStyle::CStyle_Selected;
+	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
+				 colorGroup(), flags );
+	    
+//	    style().drawTab( &p, this, t, TRUE );
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, FALSE );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#60 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#61 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -815,6 +815,45 @@ void QCommonStyle::drawControl( ControlElement element,
 			  cg, flags, data);
 	break; }
 
+    case CE_TabBarTab: {
+	QTabBar * tb = (QTabBar *) widget;
+	if ( tb->shape() == QTabBar::TriangularAbove ||
+	     tb->shape() == QTabBar::TriangularBelow )
+	{
+	    // triangular, above or below
+	    int y;
+	    int x;
+	    QPointArray a( 10 );
+	    a.setPoint( 0, 0, -1 );
+	    a.setPoint( 1, 0, 0 );
+	    y = r.height()-2;
+	    x = y/3;
+	    a.setPoint( 2, x++, y-1 );
+	    a.setPoint( 3, x++, y );
+	    a.setPoint( 3, x++, y++ );
+	    a.setPoint( 4, x, y );
+
+	    int i;
+	    int right = r.width() - 1;
+	    for ( i = 0; i < 5; i++ )
+		a.setPoint( 9-i, right - a.point( i ).x(), a.point( i ).y() );
+
+	    if ( tb->shape() == QTabBar::TriangularAbove )
+		for ( i = 0; i < 10; i++ )
+		    a.setPoint( i, a.point(i).x(),
+				r.height() - 1 - a.point( i ).y() );
+
+	    a.translate( r.left(), r.top() );
+
+	    if ( how & CStyle_Selected )
+		p->setBrush( cg.base() );
+	    else
+		p->setBrush( cg.background() );
+	    p->setPen( cg.foreground() );
+	    p->drawPolygon( a );
+	    p->setBrush( NoBrush );
+	}
+	break; }
 
     default:
 	break;
@@ -846,7 +885,7 @@ void QCommonStyle::drawControlMask( ControlElement control,
     case CE_RadioButton:
 	drawPrimitive(PO_ExclusiveIndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
-
+    
     default:
 	p->fillRect(r, color1);
 	break;
@@ -1457,6 +1496,18 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 2;
 	break;
 
+    case PM_TabBarOverlap:
+	ret = 3;
+	break;
+	
+    case PM_TabBarBaseHeight:
+	ret = 0;
+	break;
+	
+    case PM_TabBarBaseOverlap:
+	ret = 0;
+	break;
+	
     default:
 	ret = 0;
 	break;

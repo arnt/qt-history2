@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#82 $
 **
 ** Implementation of QTabWidget class
 **
@@ -127,11 +127,10 @@
   \sa currentPage(), showPage(), tabLabel()
 */
 
-
-class QTabBarExtension : public QWidget
+class QTabBarBase : public QWidget
 {
 public:
-    QTabBarExtension( QTabWidget * parent = 0, const char * name = 0 )
+    QTabBarBase( QTabWidget * parent = 0, const char * name = 0 )
         : QWidget( parent, name ) {};
 protected:
     void paintEvent( QPaintEvent * )
@@ -140,8 +139,17 @@ protected:
         if( obj ){
             QTabWidget * t = (QTabWidget *) obj;
             QPainter p( this );
-            style().drawTabBarExtension( &p, x(), y(), width(), height(),
-                                         colorGroup(), t );
+	    QStyle::PFlags flags = QStyle::PStyle_Default;
+
+	    if ( t->tabPosition() == QTabWidget::Top )
+		flags |= QStyle::PStyle_Top;
+	    if ( t->tabPosition() == QTabWidget::Bottom )
+		flags |= QStyle::PStyle_Bottom;
+	    
+	    style().drawPrimitive( QStyle::PO_TabBarBase, &p, rect(), 
+				   colorGroup(), flags );
+//             style().drawTabBarExtension( &p, x(), y(), width(), height(),
+//                                          colorGroup(), t );
         }
     }
 };
@@ -150,11 +158,11 @@ class QTabWidgetData
 {
 public:
     QTabWidgetData()
-        : tabs(0), tabExtension(0), stack(0), dirty( TRUE ),
+        : tabs(0), tabBase(0), stack(0), dirty( TRUE ),
           pos( QTabWidget::Top ), shape( QTabWidget::Rounded ) {};
     ~QTabWidgetData(){};
     QTabBar* tabs;
-    QTabBarExtension* tabExtension;
+    QTabBarBase* tabBase;
     QWidgetStack* stack;
     bool dirty;
     QTabWidget::TabPosition pos;
@@ -192,7 +200,7 @@ void QTabWidget::init()
 
     d->stack = new QWidgetStack( this, "tab pages" );
     d->stack->installEventFilter( this );
-    d->tabExtension = new QTabBarExtension( this, "tab extension" );
+    d->tabBase = new QTabBarBase( this, "tab base" );
     setTabBar( new QTabBar( this, "tab control" ) );
 
     d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
@@ -601,7 +609,13 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, extw, exth, overlap;
 
-    style().tabBarExtensionMetrics( this, extw, exth, overlap );
+    // the width is basically useless since it's pointless to have a
+    // tabbar base that has a different width than the qtabwidget
+    // itself
+//    style().tabBarExtensionMetrics( this, extw, exth, overlap );
+    extw = width(); 
+    exth = style().pixelMetric( QStyle::PM_TabBarBaseHeight, this );
+    overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
 
     if( reverse ) {
 	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
@@ -619,7 +633,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	exty = taby + t.height() - overlap;
     }
     d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
-    d->tabExtension->setGeometry( 0, exty, extw, exth );
+    d->tabBase->setGeometry( 0, exty, extw, exth );
     d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
 			   t.height()+QMAX(0, lw-2));
 
@@ -637,7 +651,7 @@ QSize QTabWidget::sizeHint() const
     QSize s( d->stack->sizeHint() );
     QSize t( d->tabs->sizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
-		  s.height() + t.height() + d->tabExtension->height());
+		  s.height() + t.height() + d->tabBase->height());
 }
 
 
@@ -649,7 +663,7 @@ QSize QTabWidget::minimumSizeHint() const
     QSize s( d->stack->minimumSizeHint() );
     QSize t( d->tabs->minimumSizeHint() );
     return QSize( QMAX( s.width(), t.width() ),
-		  s.height() + t.height() + d->tabExtension->height() );
+		  s.height() + t.height() + d->tabBase->height() );
 }
 
 /*! \reimp
