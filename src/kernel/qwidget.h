@@ -531,9 +531,6 @@ protected:
     virtual void macWidgetChangedWindow();
 #endif
 
-private slots:
-    void	 focusProxyDestroyed();
-
 protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:
