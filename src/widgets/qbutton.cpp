@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#30 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#30 $";
 #endif
 
 
@@ -222,31 +222,15 @@ void QButton::setAutoResizing( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  Virtual function that adjusts the size of the button to fit the contents.
-
-  This function is called automatically whenever the contents change and
-  auto-resizing is enabled.
-
-  \sa setAutoResizing()
- ----------------------------------------------------------------------------*/
-
-void QButton::adjustSize()
-{
-}
-
-
-/*----------------------------------------------------------------------------
   \fn bool QButton::isOn() const
   Returns TRUE if this toggle button has been switched ON, or FALSE
   if it has been switched OFF.
-
   \sa switchOn(), switchOff(), isOn()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Swithes a toggle button ON.  This function should be called only for
   toggle buttons.
-
   \sa switchOff(), isOn()
  ----------------------------------------------------------------------------*/
 
@@ -265,7 +249,6 @@ void QButton::switchOn()			// switch button on
 /*----------------------------------------------------------------------------
   Swithes a toggle button OFF.  This function should be called only for
   toggle buttons.
-
   \sa switchOn(), isOn()
  ----------------------------------------------------------------------------*/
 
@@ -285,7 +268,6 @@ void QButton::switchOff()			// switch button off
 /*----------------------------------------------------------------------------
   \fn bool QButton::toggleButton() const
   Returns TRUE if the button is a toggle button.
-
   \sa setToggleButton()
  ----------------------------------------------------------------------------*/
 
