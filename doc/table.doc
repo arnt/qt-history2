@@ -54,9 +54,6 @@ It consists of the following classes:
   integrate check box items into a QTable. 
 <li> \l QTableSelection provides access to selected areas in a
   QTable.  
-<li> With the \l QTableHeader class it is possible to create table header objects. 
-  As each QTable already comes with a header column and row
-  it is quite likely that you'll never use this class.
 </ul>
 
 

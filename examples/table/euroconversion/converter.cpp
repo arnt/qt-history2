@@ -72,7 +72,6 @@ void EuroConverter::processValueChange( int, int col )
 	if ( ok ){
 	    double euro = calculate( value );
 	    setText( 0, 3, QString::number( euro ) ); 
-	    updateCell( 0, 3 );
 	} else {
 	    setText( 0, 0, "" ); 
 	    setText( 0, 3, "" ); 
