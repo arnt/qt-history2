@@ -40,6 +40,10 @@ static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
     return qt_aqua_size_constrain(NULL);
 }
 
+//externals
+QRegion qt_mac_convert_mac_region(HIShapeRef); //qregion_mac.cpp
+
+//HITheme QMacStyle
 QMacStyleCG::QMacStyleCG()
 {
 
@@ -72,7 +76,64 @@ void
 QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r, const QPalette &pal,
 			   SFlags flags, const QStyleOption &opt) const
 {
+    ThemeDrawState tds = kThemeStateActive;
+    if(flags & Style_Down) {
+	tds = kThemeStatePressed;
+    } else if(qAquaActive(pal)) {
+	if(!(flags & Style_Enabled))
+	    tds = kThemeStateUnavailable;
+    } else {
+	if(flags & Style_Enabled)
+	    tds = kThemeStateInactive;
+	else
+	    tds = kThemeStateUnavailableInactive;
+    }
+
     switch(pe) {
+    case PE_CheckListController:
+	break;
+    case PE_CheckListExclusiveIndicator:
+    case PE_ExclusiveIndicatorMask:
+    case PE_ExclusiveIndicator: {
+	HIThemeButtonDrawInfo info;
+	info.version = qt_mac_hitheme_version;
+	info.state = tds;
+	info.kind = (qt_mac_get_size_for_painter(p) == QAquaSizeSmall) ? kThemeSmallRadioButton : kThemeRadioButton;
+	info.value = (flags & Style_On) ? kThemeButtonOn : kThemeButtonOff;
+	info.adornment = kThemeAdornmentNone;
+	const HIRect *mac_r = qt_glb_mac_rect(r, p);
+	if(pe == PE_ExclusiveIndicatorMask) {
+	    p->save();
+	    HIShapeRef shape;
+	    HIThemeGetButtonShape(mac_r, &info, &shape);
+	    p->setClipRegion(qt_mac_convert_mac_region(shape));
+	    p->fillRect(r, color1);
+	    p->restore();
+	} else {
+	    HIThemeDrawButton(mac_r, &info, (CGContextRef)p->handle(), kHIThemeOrientationNormal, 0);
+	}
+	break; }
+    case PE_CheckListIndicator:
+    case PE_IndicatorMask:
+    case PE_Indicator: {
+	HIThemeButtonDrawInfo info;
+	info.version = qt_mac_hitheme_version;
+	info.state = tds;
+	info.kind = (qt_mac_get_size_for_painter(p) == QAquaSizeSmall) ? kThemeSmallCheckBox : kThemeCheckBox;
+	info.value = (flags & Style_On) ? kThemeButtonOn : kThemeButtonOff;
+	info.adornment = kThemeAdornmentNone;
+	const HIRect *mac_r = qt_glb_mac_rect(r, p);
+	if(pe == PE_ExclusiveIndicatorMask) {
+	    p->save();
+	    HIShapeRef shape;
+	    HIThemeGetButtonShape(mac_r, &info, &shape);
+	    p->setClipRegion(qt_mac_convert_mac_region(shape));
+	    p->fillRect(r, color1);
+	    p->restore();
+	} else {
+	    HIThemeDrawButton(mac_r, &info, (CGContextRef)p->handle(), kHIThemeOrientationNormal, 0);
+	}
+	break; }
     case PE_FocusRect:
 	break;     //This is not used because of the QAquaFocusWidget thingie..
     default:
@@ -100,14 +161,13 @@ QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget *wid
 
     switch(element) {
     case CE_PushButton: {
-	ThemeButtonKind bkind = kThemePushButton;
 	HIThemeButtonDrawInfo info;
 	info.version = qt_mac_hitheme_version;
 	info.state = tds;
-	info.kind = bkind;
+	info.kind = kThemePushButton;
 	info.value = kThemeButtonOff;
 	info.adornment = kThemeAdornmentNone;
-	HIThemeDrawButton(qt_glb_mac_rect(r, widget), &info, (CGContextRef)p->handle(), kHIThemeOrientationNormal, 0);
+	HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, (CGContextRef)p->handle(), kHIThemeOrientationNormal, 0);
 	break; }
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
@@ -125,7 +185,26 @@ QMacStyleCG::drawComplexControl(ComplexControl control, QPainter* p, const QWidg
 int 
 QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
-    return QWindowsStyle::pixelMetric(metric, widget);
+    int ret;
+    switch(metric) {
+    case PM_IndicatorWidth:
+    case PM_IndicatorHeight: {
+	HIThemeButtonDrawInfo info;
+	info.version = qt_mac_hitheme_version;
+	info.state = kThemeStateActive;
+	info.kind = (qt_aqua_size_constrain(widget) == QAquaSizeSmall) ? kThemeSmallRadioButton : kThemeRadioButton;
+	info.value = kThemeButtonOn;
+	info.adornment = kThemeAdornmentNone;
+	HIRect outr;
+	HIThemeGetButtonContentBounds(qt_glb_mac_rect(widget->rect()), &info, &outr);
+	qDebug("%s: %f %f %f %f", widget->objectName(), outr.origin.x, outr.origin.y, outr.size.width, outr.size.height);
+	ret = (int)((metric == PM_IndicatorHeight) ? outr.size.width : outr.size.height);
+	break; }
+    default:
+	ret = QWindowsStyle::pixelMetric(metric, widget);
+	break;
+    }
+    return ret;
 }
 
 
