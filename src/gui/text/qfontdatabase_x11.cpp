@@ -832,6 +832,9 @@ static void loadXft()
                      XFT_FAMILY, XFT_WEIGHT, XFT_SLANT,
                      XFT_SPACING, XFT_FILE, XFT_INDEX,
                      FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
+#if FC_VERSION >= 20193
+                     FC_WIDTH,
+#endif
                      (const char *)0);
 
     for (int i = 0; i < fonts->nfont; i++) {
@@ -899,7 +902,9 @@ static void loadXft()
         styleKey.weight = getXftWeight(weight_value);
         if (!scalable) {
             int width = 100;
+#if FC_VERSION >= 20193
 	    XftPatternGetInteger (fonts->fonts[i], FC_WIDTH, 0, &width);
+#endif
             styleKey.stretch = width;
         }
 
@@ -1167,10 +1172,12 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
     XftPatternAddDouble(pattern, XFT_SIZE, size_value);
 
     if (!smoothScalable) {
+#if FC_VERSION >= 20193
         int stretch = request.stretch;
         if (!stretch)
             stretch = 100;
 	XftPatternAddInteger(pattern, FC_WIDTH, stretch);
+#endif
     } else if ((request.stretch > 0 && request.stretch != 100) ||
         (key.oblique && fakeOblique)) {
         XftMatrix matrix;
