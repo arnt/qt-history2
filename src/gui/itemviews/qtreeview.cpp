@@ -579,10 +579,10 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
         primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         opt.rect = primitive;
         opt.state = QStyle::Style_Item
-                    | (d->model->rowCount(parent) - 1 > index.row()
-                       ? QStyle::Style_Sibling : QStyle::Style_Default)
-                    | (model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_Default)
-                    | (d->items.at(d->current).open ? QStyle::Style_Open : QStyle::Style_Default);
+                    |(d->model->rowCount(parent) - 1 > index.row()
+                      ? QStyle::Style_Sibling : QStyle::Style_Default)
+                    |(model()->hasChildren(index) ? QStyle::Style_Children : QStyle::Style_Default)
+                    |(d->items.at(d->current).open ? QStyle::Style_Open : QStyle::Style_Default);
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
     }
     // then go out level by level
@@ -814,7 +814,6 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 {
     int start = d->viewIndex(itemAt(rect.left(), rect.top()));
     int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));
-
     d->select(start, stop, command);
 }
 
@@ -921,7 +920,7 @@ void QTreeView::dataChanged()
 }
 
 /*!
-###
+  \internal
 */
 
 void QTreeView::reopen()
@@ -962,6 +961,7 @@ void QTreeView::rowsRemoved(const QModelIndex &parent, int start, int end)
     d->close(p, false);
     d->reopen = p;
 
+    // make a delayed function call
     int slot = metaObject()->indexOfSlot("reopen()");
     QApplication::postEvent(this, new QMetaCallEvent(slot, this));
 }
@@ -991,7 +991,8 @@ void QTreeView::resizeColumnToContents(int column)
 void QTreeView::selectAll()
 {
     d->select(d->first(), d->last(),
-              QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+              QItemSelectionModel::ClearAndSelect
+              |QItemSelectionModel::Rows);
 }
 
 /*!
@@ -1056,7 +1057,6 @@ void QTreeView::verticalScrollbarAction(int action)
     int y = -(above / factor); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {
-
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && item < d->items.count())
@@ -1066,16 +1066,12 @@ void QTreeView::verticalScrollbarAction(int action)
             value -= factor * (y - h) / delegate->sizeHint(option, model,
                                                            d->modelIndex(item - 1)).height();
         verticalScrollBar()->setSliderPosition(value);
-
     } else if (action == QScrollBar::SliderPageStepSub) {
-
         y += d->viewport->height();
-
         // go up to the top of the page
         while (y > 0 && item > 0)
             y -= delegate->sizeHint(option, model, d->modelIndex(--item)).height();
         value = item * factor; // i is now the first item in the page
-
         if (y < 0)
             value += factor * -y / delegate->sizeHint(option, model, d->modelIndex(item)).height();
         verticalScrollBar()->setSliderPosition(value);
@@ -1227,13 +1223,16 @@ void QTreeViewPrivate::layout(int i)
     else
         qExpand<QTreeViewItem>(items, i, count);
 
-    int level = i >= 0 ? items.at(i).level + 1 : 0;
     int first = i + 1;
+    int level = (i >= 0 ? items.at(i).level + 1 : 0);
     for (int j = first; j < first + count; ++j) {
         current = model->index(j - first, 0, parent);
         items[j].index = current;
         items[j].level = level;
+        //items[j].hidden = (j == 3); // FIXME: test code
     }
+
+    //hiddenItemsCount = 1; // FIXME: test code
 
     int k = i;
     QModelIndex root = q->root();
@@ -1434,7 +1433,7 @@ void QTreeViewPrivate::updateVerticalScrollbar(int itemHeight)
 {
     int factor = q->verticalFactor();
     int height = viewport->height();
-    int itemCount = items.count();
+    int itemCount = items.count() - hiddenItemsCount;
 
     // if we have no viewport or no items, there is nothing to do
     if (height <= 0 || itemCount <= 0 || itemHeight <= 0) {

@@ -33,7 +33,7 @@ public:
 
     QTreeViewPrivate()
         : QAbstractItemViewPrivate(),
-          header(0), indent(20), itemHeight(-1), reopen(-1),
+          header(0), indent(20), itemHeight(-1), reopen(-1), hiddenItemsCount(0),
           alternatingColors(false), oddColor(Qt::lightGray), evenColor(Qt::white) { }
 
     ~QTreeViewPrivate() {}
@@ -85,6 +85,9 @@ public:
     // used when opening and closing items
     QVector<QModelIndex> opened;
     int reopen;
+
+    // used for hidden items
+    int hiddenItemsCount;
 
     // used for alternating background color
     bool alternatingColors;
