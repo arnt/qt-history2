@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#52 $
 **
 ** Implementation of QDialog class
 **
@@ -15,6 +15,7 @@
 #include "qkeycode.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
+#include "qwidgetlist.h"
 
 /*!
   \class QDialog qdialog.h
@@ -289,28 +290,48 @@ void QDialog::show()
     if ( !did_move ) {
 	QWidget *w = parentWidget();
 	QPoint p( 0, 0 );
-	QWidget* desk = QApplication::desktop();
+	int extraw = 0, extrah = 0;
+	QWidget * desk = QApplication::desktop();
 	if ( w )
-	    p = w->mapToGlobal( p );
+	    w = w->topLevelWidget();
+
+	QWidgetList  *list = QApplication::topLevelWidgets();
+	QWidgetListIt it( *list );
+	while ( (extraw == 0 || extrah == 0) &&
+		it.current() != 0 ) {
+	    int w, h;
+	    w = it.current()->frameGeometry().width() - 
+		it.current()->width();
+	    h = it.current()->frameGeometry().height() - 
+		it.current()->height();
+
+	    extraw = QMAX( extraw, w );
+	    extrah = QMAX( extrah, h );
+	    // ### ++it at the end of the loop
+	    ++it;
+	}
+	delete list;
+
+	if ( w )
+	    p = QPoint( w->x() + w->width()/2,
+			w->y() + w->height()/ 2 );
 	else
-	    w = desk;
+	    p = QPoint( desk->width()/2, desk->height()/2 );
 
-	int fw = frameGeometry().width();
-	int fh = frameGeometry().height();
+	p = QPoint( p.x()-width()/2 - extraw,
+		    p.y()-height()/2 - extraw );
 
-	int x = p.x() + w->width()/2  - fw/2;
-	int y = p.y() + w->height()/2 - fh/2;
+	if ( p.x() + extraw + width() > desk->width() )
+	    p.setX( desk->width() - width() - extraw );
+	if ( p.x() < 0 )
+	    p.setX( 0 );
 
-	if ( x+fw > desk->width() )
-	    x = desk->width()-fw;
-	if ( y+fh > desk->height() )
-	    y = desk->height()-fh;
-	if ( x < 0 )
-	    x = 0;
-	if ( y < 0 )
-	    y = 0;
-
-	move(x, y);
+	if ( p.y() + extrah + height() > desk->height() )
+	    p.setY( desk->height() - height() - extrah );
+	if ( p.y() < 0 )
+	    p.setY( 0 );
+	
+	move( p );
     }
     QWidget::show();
     if ( testWFlags(WType_Modal) )
