@@ -468,8 +468,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
-	initPaintDevice();
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
 
+	initPaintDevice();
 	
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
@@ -1867,11 +1871,6 @@ void QPainter::initPaintDevice(bool force) {
 
 	//set the correct window prot
 	SetPortWindowPort((WindowPtr)w->handle());
-
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
 
 	if(!w->isVisible()) 
 	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
