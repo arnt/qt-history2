@@ -656,7 +656,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 }
 
 /*!
-    \property QStyleOptionComplex::parts
+    \property QStyleOptionComplex::subControls
     \brief The sub-controls that need to be painted.
 
     This is a bitwise OR of the various parts that need to be drawn for the complex control.
@@ -665,7 +665,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 /*!
-    \property QStyleOptionComplex::activeParts
+    \property QStyleOptionComplex::activeSubControls
     \brief The sub-controls that are active for the complex control.
 
     This a bitwise OR of the various parts that are active (pressed) for the complex control.

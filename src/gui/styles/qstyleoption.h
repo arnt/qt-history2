@@ -341,6 +341,9 @@ public:
 
     QDOC_PROPERTY(QStyle::SubControls parts);
     QDOC_PROPERTY(QStyle::SubControls activeParts);
+
+protected:
+    QStyleOptionComplex(int version);
 };
 
 class Q_GUI_EXPORT QStyleOptionSlider : public QStyleOptionComplex
