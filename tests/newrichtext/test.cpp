@@ -84,7 +84,6 @@ int MyWidget::getCursorPosition( int _x )
 	current = visualOrder[i];
 	ShapedItem shaped;
 	layout->shape( shaped, f, string, items, current );
-	layout->position( shaped );
 
         cp = layout->xToCursor( shaped, _x );
 
