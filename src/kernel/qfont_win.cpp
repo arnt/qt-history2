@@ -1049,9 +1049,16 @@ int QFontMetrics::width( QChar ch ) const
     if ( ch.combiningClass() > 0 )
 	return 0;
 
+    if ( qt_winver & Qt::WV_NT_based && painter )
+	painter->nativeXForm( TRUE );
+
     SIZE s = {0,0};
     wchar_t tc = ch.unicode();
     BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
+
+    if ( qt_winver & Qt::WV_NT_based && painter )
+	painter->nativeXForm( FALSE );
+
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontMetrics::width: GetTextExtentPoint32 failed" );
@@ -1076,7 +1083,18 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( !simple )
 	len = shaped.length();
 
-    return d->textWidth( str, 0, len );
+    HDC tmp = d->fin->hdc;
+    if ( qt_winver & Qt::WV_NT_based && painter ) {
+	painter->nativeXForm( TRUE );
+	d->fin->hdc = painter->handle();
+    }
+    int width = d->textWidth( str, 0, len );
+    if( qt_winver & Qt::WV_NT_based && painter ) {
+	painter->nativeXForm( FALSE );
+	d->fin->hdc = tmp;
+    }
+
+    return width;
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
@@ -1089,7 +1107,12 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 		return 0;
     SIZE s = {0,0};
     wchar_t tc = ch.unicode();
+    if ( qt_winver & Qt::WV_NT_based && painter )
+	painter->nativeXForm( TRUE );
     BOOL res = GetTextExtentPoint32W( hdc(), &tc, 1, &s );
+    if ( qt_winver & Qt::WV_NT_based && painter )
+	painter->nativeXForm( FALSE );
+
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QFontMatrics::charWidth: GetTextExtentPoint32 failed" );
