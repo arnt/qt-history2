@@ -198,11 +198,19 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 {
     if(!w || !w->isTopLevel())
 	return false;
-    w->d->createTLExtra();
-    w->d->extra->topextra->resizer += up;
 
-    bool remove_grip = (w->d->extra->topextra->resizer ||
-			(w->d->extra->maxw && w->d->extra->maxh && w->d->extra->maxw == w->d->extra->minw && w->d->extra->maxh == w->d->extra->minh));
+    w->createTLExtra();
+    w->extra->topextra->resizer += up;
+    
+    {
+	WindowClass wclass;
+	GetWindowClass((WindowPtr)w->handle(), &wclass);
+	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute)) 
+	    return TRUE;
+    }
+    bool remove_grip = (w->extra->topextra->resizer ||
+			(w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh));
+
     WindowAttributes attr;
     GetWindowAttributes((WindowRef)w->handle(), &attr);
     if(remove_grip) {
@@ -926,7 +934,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	hd = (void *)id;
 	macWidgetChangedWindow();
 	setWinId(id);
-	ReshapeCustomWindow((WindowPtr)hd);
+	if(extra && !extra->mask.isNull())
+	   ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
 	    setWindowTransparency(180);
 #if QT_MACOSX_VERSION >= 0x1020
