@@ -1,9 +1,9 @@
 #include <QtGui>
 
-#include "window.h"
+#include "mainwindow.h"
 
-Window::Window(QWidget *parent)
-    : QWidget(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
     QLabel *nameLabel = new QLabel(tr("Comment:"), this);
     commentEdit = new QTextEdit(this);
@@ -24,7 +24,7 @@ Window::Window(QWidget *parent)
     setWindowTitle(tr("Dragging"));
 }
 
-void Window::mousePressEvent(QMouseEvent *event)
+void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton
         && iconLabel->geometry().contains(event->pos())) {
