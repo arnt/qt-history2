@@ -50,6 +50,8 @@ extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
+extern const uchar *qt_patternForBrush(int); // qbrush.cpp
+extern QPixmap qt_pixmapForBrush(int); // qbrush.cpp
 
 // paintevent magic to provide Windows semantics on Qt/Mac
 class paintevent_item
@@ -824,33 +826,9 @@ QQuickDrawPaintEngine::setupQDBrush()
     d->brush_style_pix = 0;
     int bs = d->current.brush.style();
     if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
-        QString key;
-        key.sprintf("$qt-brush$%d", bs);
-        d->brush_style_pix = QPixmapCache::find(key);
-        if(!d->brush_style_pix) {                        // not already in pm dict
-            static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
-            static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
-            static uchar dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
-            static uchar dense4_pat[] = { 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55 };
-            static uchar dense5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
-            static uchar dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
-            static uchar dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
-            static uchar hor_pat[]    = { 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00 };
-            static uchar ver_pat[]    = { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10 };
-            static uchar cross_pat[]  = { 0x10, 0x10, 0x10, 0xff, 0x10, 0x10, 0x10, 0x10 };
-            static uchar bdiag_pat[]  = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-            static uchar fdiag_pat[]  = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-            static uchar dcross_pat[] = { 0x81, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x81 };
-            static uchar *pat_tbl[] = {
-                dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
-                hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
-
-            const int size = 8;
-            uchar *pat=pat_tbl[bs-Dense1Pattern];
-            d->brush_style_pix = new QPixmap(size, size);
-            d->brush_style_pix->setMask(QBitmap(size, size, pat, false));
-            QPixmapCache::insert(key, d->brush_style_pix);
-        }
+        if (!d->brush_style_pix)
+            d->brush_style_pix = new QPixmap(8, 8);
+        d->brush_style_pix->setMask(qt_pixmapForBrush(bs));
         d->brush_style_pix->fill(d->current.brush.color());
     } else { //unset
         d->brush_style_pix = 0;
@@ -980,32 +958,27 @@ inline static float qt_mac_convert_color_to_cg(int c) { return ((float)c * 1000 
 
 //pattern handling (tiling)
 struct QMacPattern {
-    bool as_mask;
-    union {
-        const QPixmap *pixmap;
-        struct {
-            uchar *bytes;
-            uint pixels_per_line;
-        } mask;
-    };
+    QPixmap pixmap;
+    Qt::BrushStyle bs;
     CGImageRef image;
 };
+
 static void qt_mac_draw_pattern(void *info, CGContextRef c)
 {
     QMacPattern *pat = (QMacPattern*)info;
     int w = 0, h = 0;
-    if(pat->as_mask) {
-        w = h = pat->mask.pixels_per_line;
-        if(!pat->image) {
-            CGDataProviderRef provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w*h, 0);
-            pat->image = CGImageMaskCreate(w, h, 1, 1, w/8, provider, 0, false);
+    if (!pat->image) {
+        if (pat->bs != Qt::CustomPattern) {
+            w = h = 8;
+            CGDataProviderRef provider
+                = CGDataProviderCreateWithData(0, qt_patternForBrush(pat->bs), w * h, 0);
+            pat->image = CGImageMaskCreate(w, h, 1, 1, w / 8, provider, 0, false);
             CGDataProviderRelease(provider);
+        } else {
+            w = pat->pixmap.width();
+            h = pat->pixmap.height();
+            pat->image = qt_mac_create_cgimage(pat->pixmap, false);
         }
-    } else {
-        w = pat->pixmap->width();
-        h = pat->pixmap->height();
-        if(!pat->image)
-            pat->image = qt_mac_create_cgimage(*pat->pixmap, false);
     }
     CGRect rect = CGRectMake(0, 0, w, h);
     HIViewDrawCGImage(c, &rect, pat->image); //HIViews render the way we want anyway, so just use the convenience..
@@ -1197,7 +1170,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     }
 
     //pattern
-    int bs = ps->brush.style();
+    Qt::BrushStyle bs = ps->brush.style();
     if(bs == LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(&ps->brush, 1, 0, 4, 0, &callbacks);
@@ -1212,36 +1185,15 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         int width = 0, height = 0;
         QMacPattern *qpattern = new QMacPattern;
         qpattern->image = 0;
+        qpattern->bs = bs;
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
-        if(bs == CustomPattern) {
-            qpattern->as_mask = false;
-            qpattern->pixmap = ps->brush.pixmap();
-            width = qpattern->pixmap->width();
-            height = qpattern->pixmap->height();
+        if (bs == CustomPattern) {
+            qpattern->pixmap = *ps->brush.pixmap();
+            width = qpattern->pixmap.width();
+            height = qpattern->pixmap.height();
         } else {
-            static uchar dense1_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
-            static uchar dense2_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
-            static uchar dense3_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
-            static uchar dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
-            static uchar dense5_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
-            static uchar dense6_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
-            static uchar dense7_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
-            static uchar hor_pat[]    = { 0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff };
-            static uchar ver_pat[]    = { 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef, 0xef };
-            static uchar cross_pat[]  = { 0xef, 0xef, 0xef, 0x00, 0xef, 0xef, 0xef, 0xef };
-            static uchar bdiag_pat[]  = { 0x7f, 0xbf, 0xdf, 0xef, 0xf7, 0xfb, 0xfd, 0xfe };
-            static uchar fdiag_pat[]  = { 0xfe, 0xfd, 0xfb, 0xf7, 0xef, 0xdf, 0xbf, 0x7f };
-            static uchar dcross_pat[] = { 0x7e, 0xbd, 0xdb, 0xe7, 0xe7, 0xdb, 0xbd, 0x7e };
-            static uchar *pat_tbl[] = {
-                dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
-                hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
-
-            qpattern->as_mask = true;
-            qpattern->mask.bytes = pat_tbl[bs-Dense1Pattern];
-            qpattern->mask.pixels_per_line = 8;
-            width = height = qpattern->mask.pixels_per_line;
-
+            width = height = 8;
             const QColor &col = ps->brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
             components[1] = qt_mac_convert_color_to_cg(col.green());
@@ -1255,8 +1207,10 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         callbks.version = 0;
         callbks.drawPattern = qt_mac_draw_pattern;
         callbks.releaseInfo = qt_mac_dispose_pattern;
-        CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM(d->hd), width, height,
-                                                    kCGPatternTilingNoDistortion, !base_colorspace, &callbks);
+        CGPatternRef fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
+                                                    CGContextGetCTM(d->hd), width, height,
+                                                    kCGPatternTilingNoDistortion, !base_colorspace,
+                                                    &callbks);
         CGContextSetFillPattern(d->hd, fill_pattern, components);
 
         CGPatternRelease(fill_pattern);
@@ -1608,9 +1562,9 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
     CGContextSaveGState(d->hd);
     //setup the pattern
     QMacPattern *qpattern = new QMacPattern;
+    qpattern->bs = Qt::CustomPattern;
     qpattern->image = 0;
-    qpattern->as_mask = false;
-    qpattern->pixmap = &pixmap;
+    qpattern->pixmap = pixmap;
     CGPatternCallbacks callbks;
     callbks.version = 0;
     callbks.drawPattern = qt_mac_draw_pattern;
