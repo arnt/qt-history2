@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#6 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -292,27 +292,29 @@ bool QtFileIconViewItem::acceptDrop( QMimeSource *e )
     return FALSE;
 }
 
-void QtFileIconViewItem::dropped( QMimeSource *mime )
+void QtFileIconViewItem::dropped( QDropEvent *e )
 {
     timer.stop();
 
-    if ( type() == Dir && mime->provides( "text/uri-list" ) ) {
-        QStrList lst;
-        lst.setAutoDelete( FALSE );
-
-        QUrlDrag::decode( mime, lst );
-
-        QString str;
-
-        str = "Copy\n\n";
-        for ( unsigned int i = 0; i < lst.count(); i++ )
-            str += QString( "   %1\n" ).arg( lst.at( i ) );
-        str += QString( "\n"
-                        "To\n\n"
-                        "   %1" ).arg( filename() );
-
-        QMessageBox::information( 0L, "Copy", str, "Not Implemented" );
+    if ( !QUriDrag::canDecode( e ) ) {
+        e->ignore();
+        return;
     }
+    
+    QStringList lst;
+    QUriDrag::decodeLocalFiles( e, lst );
+
+    QString str;
+    str = "Copy\n\n";
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it )
+        str += QString( "   %1\n" ).arg( *it );
+    str += QString( "\n"
+                    "To\n\n"
+                    "   %1" ).arg( filename() );
+
+    QMessageBox::information( iconView(), "Copy", str, "Not Implemented" );
+    e->accept();
 }
 
 void QtFileIconViewItem::dragEntered()
@@ -358,7 +360,7 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
     readDir( viewDir );
 
     connect( this, SIGNAL( doubleClicked( QtIconViewItem * ) ), this, SLOT( itemDoubleClicked( QtIconViewItem * ) ) );
-    connect( this, SIGNAL( dropped( QMimeSource * ) ), this, SLOT( slotDropped( QMimeSource * ) ) );
+    connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
     connect( this, SIGNAL( itemRightClicked( QtIconViewItem * ) ), this, SLOT( slotItemRightClicked( QtIconViewItem * ) ) );
     connect( this, SIGNAL( viewportRightClicked() ), this, SLOT( slotViewportRightClicked() ) );
 }
@@ -479,25 +481,27 @@ void QtFileIconView::keyPressEvent( QKeyEvent *e )
         QtIconView::keyPressEvent( e );
 }
 
-void QtFileIconView::slotDropped( QMimeSource *mime )
+void QtFileIconView::slotDropped( QDropEvent *e )
 {
-    if ( mime->provides( "text/uri-list" ) ) {
-        QStrList lst;
-        lst.setAutoDelete( FALSE );
-
-        QUrlDrag::decode( mime, lst );
-
-        QString str;
-
-        str = "Copy\n\n";
-        for ( unsigned int i = 0; i < lst.count(); i++ )
-            str += QString( "   %1\n" ).arg( lst.at( i ) );
-        str += QString( "\n"
-                        "To\n\n"
-                        "   %1" ).arg( viewDir.absPath() );
-
-        QMessageBox::information( this, "Copy", str, "OK" );
+    if ( !QUriDrag::canDecode( e ) ) {
+        e->ignore();
+        return;
     }
+    
+    QStringList lst;
+    QUriDrag::decodeLocalFiles( e, lst );
+
+    QString str;
+    str = "Copy\n\n";
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it )
+        str += QString( "   %1\n" ).arg( *it );
+    str += QString( "\n"
+                    "To\n\n"
+                    "   %1" ).arg( viewDir.absPath() );
+
+    QMessageBox::information( this, "Copy", str, "Not Implemented" );
+    e->accept();
 }
 
 void QtFileIconView::viewLarge()
