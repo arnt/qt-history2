@@ -135,7 +135,7 @@
     treated as 0; hue 540 is treated as 180.
 
     \sa QPalette, QApplication::setColorSpec(),
-    \link http://www.inforamp.net/~poynton/Poynton-color.html Color FAQ\endlink
+    \link http://www.poynton.com/ColorFAQ.html Color FAQ\endlink
 */
 
 
