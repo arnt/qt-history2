@@ -10,9 +10,10 @@ interfaces (GUIs) from Qt components. It allows you to design and build
 widgets and dialogs using on-screen forms using the same widgets that
 will be used in your application.
 Components created with \QD can also take advantage of Qt's
-signals and slots, and they can even be previewed so that you can
-be certain that they will look and feel exactly as you expect.
+signals and slots, and they can be previewed so that you can ensure
+that they will look and feel exactly as you intended.
 
+\omit
 \list
 \i \l{designer-getting-started.html}{Getting Started}
   \list
@@ -24,6 +25,7 @@ be certain that they will look and feel exactly as you expect.
   \i \l{designer-designing-a-component.html#CreatingADialog}{Creating a Dialog}
   \i \l{designer-designing-a-component.html#ComposingTheDialog}{Composing The Dialog}
   \i \l{designer-designing-a-component.html#CreatingALayout}{Creating a Layout}
+  \i \l{designer-designing-a-component.html#SignalAndSlotConnections}{Signal and Slot Connections}
   \endlist
 \i \l{designer-using-a-component.html}{Using a Component In Your Application}
   \list
@@ -32,11 +34,128 @@ be certain that they will look and feel exactly as you expect.
   \i \l{designer-using-a-component.html#SubclassingAForm}{Subclassing a Form}
   \endlist
 \endlist
+\endomit
 
 \list
+\i \l{designer-manual.html}{Qt Designer}
+ \list
+   \i \raw HTML
+ <a href="designer-manual.html#sec.1">Overview</a>
+\endraw
+ \endlist
+\i \l{designer-getting-started.html}{Getting Started}
+ \list
+   \i \raw HTML
+ <a href="designer-getting-started.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-getting-started.html#sec.2">Launching Designer</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-getting-started.html#sec.3">The User Interface</a>
+\endraw
+ \endlist
+\i \l{designer-designing-a-component.html}{Designing a Component}
+ \list
+   \i \raw HTML
+ <a href="designer-designing-a-component.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-designing-a-component.html#sec.2">Creating a Dialog</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-designing-a-component.html#sec.3">Composing The Dialog</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-designing-a-component.html#sec.4">Creating a Layout</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-designing-a-component.html#sec.5">Signal and Slot Connections</a>
+\endraw
+ \endlist
+\i \l{designer-using-a-component.html}{Using a Component In Your Application}
+ \list
+   \i \raw HTML
+ <a href="designer-using-a-component.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-a-component.html#sec.2">A Simple Case</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-a-component.html#sec.3">Using a Private Interface</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-a-component.html#sec.4">Subclassing a Form</a>
+\endraw
+ \endlist
 \i \l{designer-editing-mode.html}{Form Editing Mode}
-\i \l{designer-using-containers.html}{Using Containers}
+ \list
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.2">Managing Forms</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.3">Editing a Form</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.4">The Property Editor</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.5">Layouts</a>
+\endraw
+  \list
+    \i \raw HTML
+ <a href="designer-editing-mode.html#sec.5.1">Applying and Breaking Layouts</a>
+\endraw
+    \i \raw HTML
+ <a href="designer-editing-mode.html#sec.5.2">Horizontal and Vertical Layouts</a>
+\endraw
+    \i \raw HTML
+ <a href="designer-editing-mode.html#sec.5.3">The Grid Layout</a>
+\endraw
+  \endlist
+   \i \raw HTML
+ <a href="designer-editing-mode.html#sec.6">Previewing Forms</a>
+\endraw
+ \endlist
 \i \l{designer-connection-mode.html}{Connection Editing Mode}
+ \list
+   \i \raw HTML
+ <a href="designer-connection-mode.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-connection-mode.html#sec.2">Connecting Objects</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-connection-mode.html#sec.3">Editing Connections</a>
+\endraw
+ \endlist
+\i \l{designer-using-containers.html}{Using Containers}
+ \list
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.1">Overview</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.2">General Features</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.3">Frames</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.4">Group Boxes</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.5">Stacked Widgets</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.6">Tab Widgets</a>
+\endraw
+   \i \raw HTML
+ <a href="designer-using-containers.html#sec.7">Toolbox Widgets</a>
+\endraw
+ \endlist
 \endlist
 
 */
@@ -51,7 +170,7 @@ be certain that they will look and feel exactly as you expect.
 This manual covers the fundamental steps that most users will take when
 creating graphical user interfaces with \QD. We will introduce the
 main features of the tool by creating a simple dialog that we can use
-directly, or subclass in an example program.
+in an example program.
 
 \image designer-getting-started.png A simple dialog produced with \QD.
 
@@ -264,7 +383,7 @@ facilities.
 \i \bold{The Property Editor}
 
 All designable widget properties can be
-edited in the \l{designer-editing-mode.html#PropertyEditor}{Property Editor}
+edited in the \l{designer-editing-mode.html#ThePropertyEditor}{Property Editor}
 window.
 
 The properties can be edited by using the controls provided; the type of
@@ -291,20 +410,21 @@ Any of the standard Qt layouts (horizontal, vertical, and grid) can be used.
 To apply a layout to a selection of objects, click the appropriate icon
 in \QD's tool bar, or select the layout from the form's context menu.
 
-We begin laying out our dialog by putting each label and its associated
-input widget into horizontal layouts, and we put the push buttons into a
-horizontal layout with the horizontal spacer.
+We begin laying out our dialog by putting all the labels and their
+associated input widgets into a grid layout. To do this, we need to ensure
+that all the widgets are lined up in a grid arrangement. We put the push
+buttons into a horizontal layout with the horizontal spacer.
 
 \table
 \row \i
 \inlineimage designer-dialog-layout.png
 \i \bold{Placing widgets in layouts}
 
-The widgets and spacers are now placed in horizontal layouts. Each of the
-layouts containing labels and input widgets take up as little space as
-possible. The horizontal spacer in the lower layout reserves some space to
-the left of the push buttons, and makes the layout larger than normal.
-This will help to position the buttons correctly in the dialog.
+The widgets and spacers are now placed in a grid layout. The layout
+takes up as little space as possible. The horizontal spacer in the lower
+layout reserves some space to the left of the push buttons, and makes
+the layout larger than normal. This will help to position the buttons
+correctly in the dialog.
 \endtable
 
 The Property Editor can be used to change the appearance of layouts on
@@ -315,16 +435,49 @@ layout and the space between widgets. By default, \QD gives each layout
 a 1 pixel wide \c margin so that it can show a border around each object
 on the form. If you wish, you can set this to 0.
 
-We can create more complex layouts by selecting the horizontal layouts and
-applying other layouts to them, but we really only need a form-level
-vertical layout to ensure that the dialog will appear correct. To do this,
+We can create more complex layouts by selecting the layouts and placing
+them into other layouts, but we really only need a form-level vertical
+layout to ensure that the dialog will appear correctly. To do this,
 we click the form to ensure that no objects are selected then apply the
 vertical layout. The form may now be larger than necessary; we can resize
 it to make it smaller.
 
 \image designer-dialog-final.png
 
+\target SignalAndSlotConnections
+\section1 Signal and Slot Connections
 
+Objects on the form can be connected together using their signals and
+slots, making it unnecessary to connect many widgets together using code
+in your application. In addition, \QD's connection editor provides a
+visual representation of the signal and slot connections in the form
+that can help other developers understand how the final component is
+to be used.
+
+We can show how the connection editor is used by connecting the
+\l{QLineEdit::returnPressed()}{returnPressed()} signal of the line edit
+in our dialog to the \key OK button's
+\l{QPushButton::animateClick()}{animateClick()} slot.
+
+We change into connection editing mode by opening the \key{Form} menu
+and selecting \key{Connection Mode}. The objects in the form will now
+become highlighted as the cursor passes over them. To connect the
+line edit to the \key OK button, we click on the widget and drag the
+cursor towards the push button; a line extends from the line edit to
+the cursor.
+
+\image designer-making-connection.png
+
+When the cursor is over the \key OK button, we release the mouse button
+to complete the connection, and a dialog opens to allow us to choose
+compatible signals and slots. Since the returnPressed() signal
+and the animateClick() slot have compatible signatures, we can use them
+together to "click" the \key OK button whenever the return key is
+pressed in the line edit. To try this out, we can open a preview of
+the dialog by pressing \key{Ctrl R} or by opening the \key Form menu
+and selecting \key Preview.
+
+\image designer-dialog-preview.png
 
 \l{designer-getting-started.html}{[Getting Started]}
 \l{designer-manual.html}{[Up]}
@@ -541,6 +694,7 @@ that changes can be seen immediately.
 The editing interface is intuitive for simple operations, and still provides
 support for flexible layout features.
 
+\target ManagingForms
 \section1 Managing Forms
 
 \QD allows you to create and edit new forms (open the \key File menu and
@@ -553,6 +707,7 @@ At any point, it is possible to save a form by selecting the
 by \QD contain information about the objects used and the signal-slot
 connections between them.
 
+\target EditingAForm
 \section1 Editing a Form
 
 Objects are added to the form by dragging them from the main toolbox
@@ -618,8 +773,7 @@ Widgets can also be "cloned" on the form: Holding down \key Ctrl and dragging
 the widget creates a copy of the widget that can be dragged to a new position.
 \endtable
 
-
-\target PropertyEditor
+\target ThePropertyEditor
 \section1 The Property Editor
 
 The \l{#PropertyEditor}{Property Editor} always displays the properties of
@@ -639,7 +793,7 @@ integer properties are displayed in spinboxes, and compound properties such
 as colors and sizes are presented in drop-down lists of input widgets.
 \endtable
 
-
+\target Layouts
 \section1 Layouts
 
 Before the form can be used the objects on the form need to be placed into
@@ -677,6 +831,7 @@ to indicate where the object will be added.
 The form's top level layout can be set by clearing the selection (click
 the left mouse button on the form itself) and applying a layout.
 
+\target HoizontalAndVerticalLayouts
 \section2 Horizontal and Vertical Layouts
 
 The simplest way to arrange objects on a form is to place them in a
@@ -691,6 +846,7 @@ Horizontal and vertical layouts can be combined, and nested to any depth.
 However, if you need more control over the placement of objects, you
 should consider using the grid layout.
 
+\target TheGridLayout
 \section2 The Grid Layout
 
 Complex form layouts can be created by placed objects in a grid layout.
@@ -699,12 +855,15 @@ widgets on the form, but can result in a much less flexible layout.
 However, for some kinds of form layout, a grid arrangement is much more
 suitable than a nested arrangement of horizontal and vertical layouts.
 
+\target PreviewingForms
 \section1 Previewing Forms
 
 Although \QD's forms are accurate representations of the components
 being edited, it is useful to preview the final appearance while editing.
 This feature can be activated by opening the \key Form menu and selecting
 \key Preview, or by pressing \key{Ctrl R} when in the form.
+
+\image designer-dialog-preview.png
 
 The preview shows exactly what the final component will look like when
 used in an application.
@@ -729,6 +888,7 @@ will present a menu of compatible signals and slots to use. When the form
 is saved, the connections are preserved so that they will be ready for use
 when your project is built.
 
+\target ConnectingObjects
 \section1 Connecting Objects
 
 To begin connecting objects, enter connection mode by selecting \key{Edit
@@ -793,6 +953,7 @@ order to make the form maintainable for other designers. \QD provides
 facilities for editing the appearance of connections on the form which
 do not influence the way that the widgets behave in the final product.
 
+\target EditingConnections
 \section1 Editing Connections
 
 If many connections are used in a form, it can appear a little crowded when
@@ -802,15 +963,6 @@ by allowing the user to re-route the paths between objects. This is purely
 a cosmetic concern: The .ui files created by \QD will contain the same
 basic information about the connections, and this will result in the
 same code being generated.
-
-By default, connection paths are created with two nodes that can be
-freely positioned on the form. The first node is initially placed on the
-form, but it can be dragged inside the source object to control where the
-connection path begins.
-The second node is usually located within the destination object and it
-determines where the connection path ends. This node can be accessed by
-clicking the last path segment. It can either be repositioned inside the
-destination object, or dragged outside.
 
 \table
 \row
@@ -828,6 +980,15 @@ The labels that show the signal and slot for each connection can also be
 repositioned to make the form tidier.
 \endtable
 
+By default, connection paths are created with two nodes that can be
+freely positioned on the form. The first node is initially placed on the
+form, but it can be dragged inside the source object to control where the
+connection path begins.
+The second node is usually located within the destination object and it
+determines where the connection path ends. This node can be accessed by
+clicking the last path segment. It can either be repositioned inside the
+destination object, or dragged outside.
+
 \omit
 \table
 \row
@@ -837,8 +998,6 @@ repositioned to make the form tidier.
 The connection labels can also be moved around for maintainance purposes.
 \endtable
 \endomit
-
-Connections 
 
 \table
 \row
