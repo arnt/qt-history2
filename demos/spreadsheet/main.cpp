@@ -211,11 +211,11 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     pix.fill(Qt::black);
     colorAction = toolBar->addAction(pix, tr("&Color..."));
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
-    fontAction = toolBar->addAction(QPixmap(":/images/font.png"), tr("Font..."));
+    fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
     connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
-    sumAction = toolBar->addAction(QPixmap(":/images/sum.png"), tr("Sum"));
+    sumAction = toolBar->addAction(QPixmap(":/images/sum.xpm"), tr("Sum"));
     connect(sumAction, SIGNAL(triggered()), this, SLOT(sum()));
-    clearAction = toolBar->addAction(QPixmap(":/images/sum.png"), tr("Clear"));
+    clearAction = toolBar->addAction(QPixmap(":/images/clear.xpm"), tr("Clear"));
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
      // Hide the toolbar for now...

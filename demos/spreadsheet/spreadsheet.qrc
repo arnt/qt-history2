@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+	<file>images/font.xpm</file>
+	<file>images/sum.xpm</file>
+	<file>images/clear.xpm</file>
+</qresource>
+</RCC>
