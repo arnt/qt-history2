@@ -670,7 +670,7 @@ static const char * const ps_header[] = {
 "  definefont pop",
 "} D",
 
-"/MFUni {",				// newname encoding fontname
+"/MFEmb {",				// newname encoding fontname
 "  findfont dup length dict begin",
 "  {",
 "    1 index /FID ne",
@@ -2138,6 +2138,7 @@ public:
     virtual unsigned short unicode_for_glyph(int glyphindex) { return glyphindex; }
     virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
     void insertIntoSubset( unsigned short unicode );
+    virtual bool embedded() { return FALSE; }
 
 protected:
     QString psname;
@@ -2348,9 +2349,14 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
 	s << psname;
 	s << "-ENC-";
 	s << dummy.sprintf("%02x",range + rangeOffset);
-	s << " /";
-	s << psname;
-	s << " MFUni\n";
+	if ( embedded() ) {
+	    s << " /";
+	    s << psname;
+	    s << " MFEmb\n";
+	} else {
+	    s << " " << psname << "List";
+	    s << " MF\n";
+	}	    
     }
 
     // === write header ===
@@ -2539,6 +2545,7 @@ public:
    //  virtual ~QPSPrinterFontTTF();
 
   virtual void restore();
+      virtual bool embedded() { return TRUE; }
 private:
   QByteArray     data;
   QArray<ushort> uni2glyph; // to speed up lookups
@@ -4297,6 +4304,7 @@ class QPSPrinterFontPFA
 public:
   QPSPrinterFontPFA(const QFont &f, QByteArray& data);
   virtual void    download(QTextStream& s, bool global);
+      virtual bool embedded() { return TRUE; }
 private:
   QByteArray     data;
 };
@@ -4344,6 +4352,7 @@ class QPSPrinterFontPFB
 public:
   QPSPrinterFontPFB(const QFont &f, QByteArray& data);
   virtual void    download(QTextStream& s, bool global);
+      virtual bool embedded() { return TRUE; }
 private:
   QByteArray     data;
 };
@@ -4963,12 +4972,14 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	// memory mapping would be better here
 	if (fontfilename.length() > 0) { // maybe there is no file name
 	    QFile fontfile(fontfilename);
-	    printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
-	    data = QByteArray( fontfile.size() );
+	    if ( file.exists() ) {
+		printf("font name %s size = %d\n",fontfilename.latin1(),fontfile.size());
+		data = QByteArray( fontfile.size() );
 
-	    fontfile.open(IO_Raw | IO_ReadOnly);
-	    fontfile.readBlock(data.data(), fontfile.size());
-	    fontfile.close();
+		fontfile.open(IO_Raw | IO_ReadOnly);
+		fontfile.readBlock(data.data(), fontfile.size());
+		fontfile.close();
+	    }
 	}
 
 
