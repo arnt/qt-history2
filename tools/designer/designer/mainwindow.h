@@ -176,6 +176,7 @@ signals:
     void formWindowsChanged();
     void formWindowChanged();
     void projectChanged();
+    void editorChanged();
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );

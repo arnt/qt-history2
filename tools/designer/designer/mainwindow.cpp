@@ -2710,6 +2710,7 @@ void MainWindow::editFunction( const QString &func, const QString &l, bool rerea
     editor->show();
     editor->setFocus();
     editor->setFunction( func );
+    emit editorChanged();
 }
 
 void MainWindow::setupRecentlyFilesMenu()
@@ -3201,8 +3202,8 @@ void MainWindow::resetBreakPoints()
 SourceFile *MainWindow::sourceFile()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->hasFocus() ) {
-	    if ( e->object()->inherits( "SourceFile" ) )
+	if ( workspace->activeWindow() == e ) {
+	    if ( e->object() && e->object()->inherits( "SourceFile" ) )
 		return (SourceFile*)e->object();
 	}
     }

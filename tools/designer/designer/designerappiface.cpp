@@ -139,6 +139,7 @@ void DesignerInterfaceImpl::onProjectChange( QObject *receiver, const char *slot
 void DesignerInterfaceImpl::onFormChange( QObject *receiver, const char *slot )
 {
     QObject::connect( mainWindow, SIGNAL( formWindowChanged() ), receiver, slot );
+    QObject::connect( mainWindow, SIGNAL( editorChanged() ), receiver, slot );
 }
 
 

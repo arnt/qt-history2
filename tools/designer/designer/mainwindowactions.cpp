@@ -1695,6 +1695,7 @@ SourceEditor *MainWindow::editSource( bool /*resetSame*/ )
 	editor->setObject( formWindow(), formWindow()->project() );
     editor->show();
     editor->setFocus();
+    emit editorChanged();
     return editor;
 }
 
@@ -1732,6 +1733,7 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
     editor->setFocus();
     if ( editor->object() != f )
 	editor->setObject( f, currentProject );
+    emit editorChanged();
     return editor;
 }
 
