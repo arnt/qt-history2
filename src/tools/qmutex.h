@@ -92,12 +92,12 @@ private:
 inline QMutexLocker::QMutexLocker( QMutex *m )
     : mtx( m )
 {
-    mtx->lock();
+    if ( mtx ) mtx->lock();
 }
 
 inline QMutexLocker::~QMutexLocker()
 {
-    mtx->unlock();
+    if ( mtx ) mtx->unlock();
 }
 
 inline QMutex *QMutexLocker::mutex() const
