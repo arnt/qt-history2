@@ -472,17 +472,14 @@ void QTextEdit::resizeEvent( QResizeEvent *e )
 
 void QTextEdit::ensureCursorVisible()
 {
-    if ( cursor->document()->parent() ) // ####### (should do something for nested stuff)
-	return;
-
     lastFormatted = cursor->parag();
     formatMore();
     QTextString::Char *chr = cursor->parag()->at( cursor->index() );
     int h = cursor->parag()->lineHeightOfChar( cursor->index() );
-    int x = cursor->parag()->rect().x() + chr->x;
+    int x = cursor->parag()->rect().x() + chr->x + cursor->offsetX();
     int y = 0; int dummy;
     cursor->parag()->lineHeightOfChar( cursor->index(), &dummy, &y );
-    y += cursor->parag()->rect().y();
+    y += cursor->parag()->rect().y() + cursor->offsetY();
     int w = 1;
     ensureVisible( x, y + h / 2, w, h / 2 + 2 );
 }

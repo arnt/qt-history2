@@ -199,7 +199,8 @@ class QTextTableCell;
 class QTextDocument
 {
     friend class QTextTableCell;
-
+    friend class QTextCursor;
+    
 public:
     enum SelectionIds {
 	Standard = 0,
@@ -345,6 +346,7 @@ public:
 
 private:
     void clear();
+    QPixmap *bufferPixmap( const QSize &s );
 
 private:
     struct Selection {
@@ -377,7 +379,9 @@ private:
     bool underlLinks;
     QColor linkC;
     const QBrush *backBrush;
-
+    QPixmap *buf_pixmap;
+    bool nextDoubleBuffered;
+    
     // HTML parser
     bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);

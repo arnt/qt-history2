@@ -249,6 +249,8 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
     string->format( -1, TRUE );
     if ( h != string->rect().height() )
 	invalidateNested();
+    else if ( doc->parent() )
+	doc->nextDoubleBuffered = TRUE;
 }
 
 void QTextCursor::gotoLeft()
@@ -896,7 +898,9 @@ QTextDocument::QTextDocument( QTextDocument *p )
     linkC = Qt::blue;
     underlLinks = TRUE;
     backBrush = 0;
-
+    buf_pixmap = 0;
+    nextDoubleBuffered = FALSE;
+    
     if ( p )
 	withoutDoubleBuffer = p->withoutDoubleBuffer;
     else
@@ -1265,7 +1269,7 @@ QString QTextDocument::richText( QTextParag *p, bool formatted ) const
 		inBulletList = FALSE;
 		listDepth--;
 	    }
-	    if ( !inBulletList && p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem && 
+	    if ( !inBulletList && p->style() && p->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
 		 p->listStyle() == QStyleSheetItem::ListDisc ) {
 		text += "<ul>\n";
 		listDepth++;
@@ -1875,17 +1879,11 @@ void QTextDocument::doLayout( QPainter *p, int w )
     }
 }
 
-static QList<QPixmap> usedPixmaps;
-static QList<QPixmap> freePixmaps;
-static QPixmap *bufferPixmap( const QSize &s )
+QPixmap *QTextDocument::bufferPixmap( const QSize &s )
 {
-    QPixmap *buf_pixmap = freePixmaps.first();
     if ( !buf_pixmap ) {
 	buf_pixmap = new QPixmap( s );
-	usedPixmaps.append( buf_pixmap );
     } else {
-	freePixmaps.removeRef( buf_pixmap );
-	usedPixmaps.append( buf_pixmap );
 	if ( buf_pixmap->width() < s.width() ||
 	     buf_pixmap->height() < s.height() ) {
 	    buf_pixmap->resize( QMAX( s.width(), buf_pixmap->width() ),
@@ -1894,18 +1892,6 @@ static QPixmap *bufferPixmap( const QSize &s )
     }
 
     return buf_pixmap;
-}
-
-static void freePixmap( QPixmap *p )
-{
-    if ( !p )
-	return;
-    usedPixmaps.removeRef( p );
-    // don't keep too much pixmaps in the memory
-    if ( freePixmaps.count() > 5 || p->height() > 300 )
-	delete p;
-    else
-	freePixmaps.append( p );
 }
 
 void QTextDocument::draw( QPainter *p, const QRegion &reg, const QColorGroup &cg, const QBrush *paper )
@@ -1942,45 +1928,69 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 			       QPixmap *&doubleBuffer, const QColorGroup &cg,
 			       bool drawCursor, QTextCursor *cursor )
 {
-    QPainter painter;
+    QPainter *painter = new QPainter;
     parag->setChanged( FALSE );
     QRect ir( parag->rect() );
-    if ( cx >= 0 && cy >= 0 )
-	ir = ir.intersect( QRect( cx, cy, cw, ch ) );
-    if ( !doubleBuffer ||
-	 ir.width() > doubleBuffer->width() ||
-	 ir.height() > doubleBuffer->height() ) {
-	freePixmap( doubleBuffer );
-	doubleBuffer = bufferPixmap( ir.size() );
-	painter.begin( doubleBuffer );
+    bool useDoubleBuffer = !parag->document()->parent();
+    if ( !useDoubleBuffer && parag->document()->nextDoubleBuffered )
+	useDoubleBuffer = TRUE;
+
+    if ( useDoubleBuffer  ) {
+	if ( cx >= 0 && cy >= 0 )
+	    ir = ir.intersect( QRect( cx, cy, cw, ch ) );
+	if ( !doubleBuffer ||
+	     ir.width() > doubleBuffer->width() ||
+	     ir.height() > doubleBuffer->height() ) {
+	    doubleBuffer = bufferPixmap( ir.size() );
+	    painter->begin( doubleBuffer );
+	} else {
+	    painter->begin( doubleBuffer );
+	}
     } else {
-	painter.begin( doubleBuffer );
+	painter = p;
+	painter->saveWorldMatrix();
+	painter->translate( ir.x(), ir.y() );
     }
 
-    painter.setBrushOrigin( -ir.x(), -ir.y() );
+    painter->setBrushOrigin( -ir.x(), -ir.y() );
 
-    painter.fillRect( QRect( 0, 0, ir.width(), ir.height() ),
-		      cg.brush( QColorGroup::Base ) );
+    if ( useDoubleBuffer ) {
+	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
+		       cg.brush( QColorGroup::Base ) );
+    } else {
+	if ( cursor && cursor->parag() == parag ) {
+	    painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 10, ir.height() ),
+			       cg.brush( QColorGroup::Base ) );
+	}
+    }
 	
-    painter.translate( -( ir.x() - parag->rect().x() ),
+    painter->translate( -( ir.x() - parag->rect().x() ),
 		       -( ir.y() - parag->rect().y() ) );
-    parag->paint( painter, cg, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
+    parag->paint( *painter, cg, drawCursor ? cursor : 0, TRUE, cx, cy, cw, ch );
     if ( !flow()->isEmpty() ) {
-	painter.saveWorldMatrix();
-	painter.translate( 0, -parag->rect().y() );
+	painter->saveWorldMatrix();
+	painter->translate( 0, -parag->rect().y() );
 	QRect cr( cx, cy, cw, ch );
 	cr = cr.intersect( QRect( 0, parag->rect().y(), parag->rect().width(), parag->rect().height() ) );
-	flow()->drawFloatingItems( &painter, cr.x(), cr.y(), cr.width(), cr.height(), cg );
-	painter.restoreWorldMatrix();
+	flow()->drawFloatingItems( painter, cr.x(), cr.y(), cr.width(), cr.height(), cg );
+	painter->restoreWorldMatrix();
     }
+
 	
-    p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
+    if ( useDoubleBuffer ) {
+	delete painter;
+	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
+    } else {
+	painter->restoreWorldMatrix();
+    }
+
     if ( parag->rect().x() + parag->rect().width() < parag->document()->x() + parag->document()->width() ) {
 	p->fillRect( parag->rect().x() + parag->rect().width(), parag->rect().y(),
 		     ( parag->document()->x() + parag->document()->width() ) -
 		     ( parag->rect().x() + parag->rect().width() ),
 		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
     }
+    parag->document()->nextDoubleBuffered = FALSE;
 }	
 
 QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
@@ -2019,7 +2029,6 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	
 	if ( !parag->rect().intersects( QRect( cx, cy, cw, ch ) ) ) {
 	    if ( parag->rect().y() > cy + ch ) {
-		freePixmap( doubleBuffer );
 		tmpCursor = 0;
 		return lastFormatted;
 	    }
@@ -2048,7 +2057,12 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 	    flow()->drawFloatingItems( p, cr.x(), cr.y(), cr.width(), cr.height(), cg );
 	}
     }
-    freePixmap( doubleBuffer );
+
+    if ( buf_pixmap && buf_pixmap->height() > 300 ) {
+	delete buf_pixmap;
+	buf_pixmap = 0;
+    }
+
     tmpCursor = 0;
     return lastFormatted;
 }
