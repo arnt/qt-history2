@@ -31,6 +31,7 @@ public:
     Win32MakefileGenerator(QMakeProject *p);
     ~Win32MakefileGenerator();
 protected:
+    virtual QString defaultInstall(const QString &);
     virtual void writeSubDirs(QTextStream &t);
     virtual QString writeObjCompParts(QTextStream &t);
     virtual void writeCleanParts(QTextStream &t);

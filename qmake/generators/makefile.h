@@ -32,7 +32,6 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
-    QString filePrefixRoot(const QString &, const QString &);
     void checkMultipleDefinition(const QString &, const QString &);
     QString createMocFileName(const QString &);
     QMap<QString, QString> fileFixed;
@@ -97,6 +96,7 @@ protected:
     QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
     QString valList(const QStringList &varList);
 
+    QString filePrefixRoot(const QString &, const QString &);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
                        const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;

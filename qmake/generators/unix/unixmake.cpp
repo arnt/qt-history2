@@ -597,7 +597,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             int slsh = dst_prl.lastIndexOf('/');
             if(slsh != -1)
                 dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
-            dst_prl = root + targetdir + dst_prl;
+            dst_prl = filePrefixRoot(root, targetdir + dst_prl);
             ret += "-$(INSTALL_FILE) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
             if(!uninst.isEmpty())
                 uninst.append("\n\t");
@@ -613,7 +613,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
                 src_lt = src_lt.left(dot);
             src_lt += Option::libtool_ext;
             src_lt.prepend("lib");
-            QString dst_lt = root + targetdir + src_lt;
+            QString dst_lt = filePrefixRoot(root, targetdir + src_lt);
             if(!project->isEmpty("DESTDIR")) {
                 src_lt.prepend(var("DESTDIR"));
                 src_lt = Option::fixPathToLocalOS(fileFixify(src_lt,
@@ -635,7 +635,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             if(dot != -1)
                 src_pc = src_pc.left(dot);
             src_pc += ".pc";
-            QString d = root + targetdir + "pkgconfig" + Option::dir_sep;
+            QString d = filePrefixRoot(root, targetdir + "pkgconfig" + Option::dir_sep);
             QString dst_pc = d + src_pc;
             if(!project->isEmpty("DESTDIR")) {
                 src_pc.prepend(var("DESTDIR"));
@@ -668,13 +668,13 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         QString dst_dir = fileFixify(targetdir, FileFixifyAbsolute);
         if(QDir::isRelativePath(dst_dir))
             dst_dir = Option::fixPathToTargetOS(Option::output_dir + Option::dir_sep + dst_dir);
-        ret = "-$(LIBTOOL) --mode=install cp \"" + src_targ + "\" \"" + root + dst_dir + "\"";
+        ret = "-$(LIBTOOL) --mode=install cp \"" + src_targ + "\" \"" + filePrefixRoot(root, dst_dir) + "\"";
         uninst.append("-$(LIBTOOL) --mode=uninstall \"" + src_targ + "\"");
     } else {
         QString src_targ = target;
         if(!destdir.isEmpty())
             src_targ = Option::fixPathToTargetOS(destdir + target, false);
-        QString dst_targ = root + fileFixify(targetdir + target, FileFixifyAbsolute);
+        QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + target, FileFixifyAbsolute));
         if(!ret.isEmpty())
             ret += "\n\t";
         if(resource)
@@ -711,7 +711,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
                     int lslash = link.lastIndexOf(Option::dir_sep);
                     if(lslash != -1)
                         link = link.right(link.length() - (lslash + 1));
-                    QString dst_link = root + fileFixify(targetdir + link, FileFixifyAbsolute);
+                    QString dst_link = filePrefixRoot(root, fileFixify(targetdir + link, FileFixifyAbsolute));
                     ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");

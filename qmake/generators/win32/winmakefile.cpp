@@ -879,3 +879,44 @@ void Win32MakefileGenerator::writeRcFilePart(QTextStream &t)
             << var("QMAKE_RC") << " " << var("RC_FILE") << endl << endl;
     }
 }
+
+QString Win32MakefileGenerator::defaultInstall(const QString &t)
+{
+    if(t != "target" || project->first("TEMPLATE") == "subdirs")
+        return QString();
+
+    const QString root = "$(INSTALL_ROOT)";
+    QStringList &uninst = project->variables()[t + ".uninstall"];
+    QString ret;
+    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), false);
+    targetdir = fileFixify(targetdir, FileFixifyAbsolute);
+    if(targetdir.right(1) != Option::dir_sep)
+        targetdir += Option::dir_sep;
+
+    QStringList links;
+    QString target="$(TARGET)";
+    if(project->first("TEMPLATE") == "lib") {
+        if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
+           !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
+            QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
+            int slsh = dst_prl.lastIndexOf('/');
+            if(slsh != -1)
+                dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
+            dst_prl = filePrefixRoot(root, targetdir + dst_prl);
+            ret += "-$(INSTALL_FILE) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
+            if(!uninst.isEmpty())
+                uninst.append("\n\t");
+            uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
+        }
+    }
+
+    QString src_targ = target;
+    QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + target, FileFixifyAbsolute));
+    if(!ret.isEmpty())
+        ret += "\n\t";
+    ret += QString("-$(INSTALL_FILE)") + " \"" + src_targ + "\" \"" + dst_targ + "\"";
+    if(!uninst.isEmpty())
+        uninst.append("\n\t");
+    uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+    return ret;
+}

@@ -1928,3 +1928,4 @@ MakefileGenerator::create(QMakeProject *proj)
     }
     return mkfile;
 }
+
