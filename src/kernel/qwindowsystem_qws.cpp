@@ -479,8 +479,9 @@ void QWSClient::sendRegionModifyEvent( int winid, QRegion exposed, bool ack )
     event.simpleData.window = winid;
     event.simpleData.nrectangles = exposed.rects().count();
     event.simpleData.is_ack = ack;
-    event.setData( (char *)exposed.rects().data(),
-		    exposed.rects().count() * sizeof(QRect), FALSE );
+    QVector<QRect> rects = exposed.rects();
+    event.setData( (char *)rects.data(),
+		    rects.count() * sizeof(QRect), FALSE );
 
 //    qDebug( "Sending %d %d rects ack: %d", winid, event.simpleData.nrectangles, ack );
     sendEvent( &event );
