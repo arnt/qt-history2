@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#140 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2200,21 +2200,17 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
 
 	if ( (tf & AlignRight) == AlignRight ) {
-	    xp = w - tw;			// right aligned
-	    xc = xp + fm.minRightBearing();
+	    xc = w - tw + fm.minRightBearing();
 	} else if ( (tf & AlignHCenter) == AlignHCenter ) {
-	    xp = w/2 - tw/2;			// centered text
 	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
 		     - fm.minLeftBearing();
 	} else {
-	    xp = 0;				// left aligned
 	    xc = -fm.minLeftBearing();
 	}
 
 	if ( pp )				// erase pixmap if gray text
 	    pp->fillRect( 0, 0, w, fheight, color0 );
 
-	int bxp = xp;				// base x position
 	int bxc = xc;				// base x position (chars)
 	while ( TRUE ) {
 	    k = 0;
@@ -2238,7 +2234,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		painter->drawText( x+xc, y+yp, p, k );	// draw the text
 	    if ( (*cp & TABSTOP) == TABSTOP ) {
 		int w = (*cp++ & WIDTHBITS);
-		xp = bxp + w;
 		xc = bxc + w;
 	    } else {				// *cp == 0 || *cp == BEGLINE
 		break;
