@@ -5460,9 +5460,13 @@ void QWidget::ensurePolished() const
 
     // polish children after 'this'
     QList<QObject*> children = d->children;
-    for (int i = 0; i < children.size(); ++i)
-        if (QWidget *w = qobject_cast<QWidget *>(children.at(i)))
+    for (int i = 0; i < children.size(); ++i) {
+        QObject *o = children.at(i);
+        if(!o->isWidgetType())
+            continue;
+        if (QWidget *w = qobject_cast<QWidget *>(o))
             w->ensurePolished();
+    }
 
     if (d->parent && d->sendChildEvents) {
         QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
