@@ -1,6 +1,7 @@
 #ifndef WIGGLYWIDGET_H
 #define WIGGLYWIDGET_H
 
+#include <QBasicTimer>
 #include <QWidget>
 
 class WigglyWidget : public QWidget
@@ -18,9 +19,9 @@ protected:
     void timerEvent(QTimerEvent *event);
 
 private:
+    QBasicTimer timer;
     QString text;
     int step;
-    int timerId;
 };
 
 #endif

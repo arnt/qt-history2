@@ -1,6 +1,7 @@
 #ifndef DIGITALCLOCK_H
 #define DIGITALCLOCK_H
 
+#include <QBasicTimer>
 #include <QLCDNumber>
 
 class DigitalClock : public QLCDNumber
@@ -14,8 +15,8 @@ protected:
 private:
     void showTime();
 
+    QBasicTimer timer;
     bool showingColon;
-    int timerId;
 };
 
 #endif

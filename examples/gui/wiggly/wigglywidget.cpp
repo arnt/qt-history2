@@ -12,7 +12,7 @@ WigglyWidget::WigglyWidget(QWidget *parent)
     setFont(newFont);
 
     step = 0;
-    timerId = startTimer(60);
+    timer.start(60, this);
 }
 
 void WigglyWidget::paintEvent(QPaintEvent *)
@@ -40,7 +40,7 @@ void WigglyWidget::paintEvent(QPaintEvent *)
 
 void WigglyWidget::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == timerId) {
+    if (event->timerId() == timer.timerId()) {
         step = (step + 1) % 16;
         update();
     } else {

@@ -8,7 +8,7 @@ DigitalClock::DigitalClock(QWidget *parent)
     setSegmentStyle(Filled);
 
     showingColon = true;
-    timerId = startTimer(1000);
+    timer.start(1000, this);
     showTime();
 
     setWindowTitle(tr("Digital Clock"));
@@ -17,7 +17,7 @@ DigitalClock::DigitalClock(QWidget *parent)
 
 void DigitalClock::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == timerId)
+    if (event->timerId() == timer.timerId())
         showTime();
     else
         QLCDNumber::timerEvent(event);
