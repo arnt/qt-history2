@@ -175,7 +175,7 @@ QWindowsLocalCodec::~QWindowsLocalCodec()
 }
 
 
-QString QWindowsLocalCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
+QString QWindowsLocalCodec::convertToUnicode(const char* chars, int len, ConverterState * /*state*/) const
 {
     return qt_winMB2QString(chars, len);
 }

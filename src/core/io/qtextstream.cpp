@@ -764,7 +764,6 @@ void QTextStreamPrivate::ts_putc(QChar c)
     if (mapper) {
         if (!encoder)
             encoder = mapper->makeEncoder();
-        int len = 1;
         QString s(c);
         QByteArray block = encoder->fromUnicode(s);
         dev->write(block);
