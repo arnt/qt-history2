@@ -1076,8 +1076,8 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 #ifndef QT_NO_CHECKBOX
 	    QRect ir = subRect(SR_CheckBoxIndicator, widget);
-	    rect.setRect(ir.right() + 10, wrect.y(),
-			 wrect.width() - ir.width() - 10, wrect.height());
+	    rect.setRect(ir.right() + 6, wrect.y(),
+			 wrect.width() - ir.width() - 6, wrect.height());
 #endif
 	    break;
 	}
@@ -1117,8 +1117,8 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     case SR_RadioButtonContents:
 	{
 	    QRect ir = subRect(SR_RadioButtonIndicator, widget);
-	    rect.setRect(ir.right() + 10, wrect.y(),
-			 wrect.width() - ir.width() - 10, wrect.height());
+	    rect.setRect(ir.right() + 6, wrect.y(),
+			 wrect.width() - ir.width() - 6, wrect.height());
 	    break;
 	}
 

@@ -1782,6 +1782,7 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
 QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 {
     QRect rect;
+    QRect wrect = widget->rect();
 
     switch ( r ) {
     case SR_SliderFocusRect:
@@ -1793,7 +1794,7 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	{
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    int fw = pixelMetric( PM_DefaultFrameWidth, widget );
-	    QRect tr = widget->rect();
+	    QRect tr = wrect;
 
 	    tr.addCoords( fw, fw, -fw, -fw );
 	    get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
@@ -1831,7 +1832,6 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    if (progressbar->percentageVisible())
 		textw = fm.width("100%") + 6;
 
-	    QRect wrect = widget->rect();
 	    if (progressbar->indicatorFollowsStyle() ||
 		progressbar->centerIndicator())
 		rect = wrect;
@@ -1852,14 +1852,31 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	    if (progressbar->percentageVisible())
 		textw = fm.width("100%") + 6;
 
-	    QRect wrect = widget->rect();
 	    if (progressbar->indicatorFollowsStyle() ||
 		progressbar->centerIndicator())
-		rect = widget->rect();
+		rect = wrect;
 	    else
 		rect.setCoords(wrect.right() - textw, wrect.top(),
 			       wrect.right(), wrect.bottom());
 #endif
+	    break;
+	}
+
+    case SR_CheckBoxContents:
+	{
+#ifndef QT_NO_CHECKBOX
+	    QRect ir = subRect(SR_CheckBoxIndicator, widget);
+	    rect.setRect(ir.right() + 10, wrect.y(),
+			 wrect.width() - ir.width() - 10, wrect.height());
+#endif
+	    break;
+	}
+
+    case SR_RadioButtonContents:
+	{
+	    QRect ir = subRect(SR_RadioButtonIndicator, widget);
+	    rect.setRect(ir.right() + 10, wrect.y(),
+			 wrect.width() - ir.width() - 10, wrect.height());
 	    break;
 	}
 
