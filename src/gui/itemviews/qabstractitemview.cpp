@@ -699,6 +699,9 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
 
+    if (d->state == Editing && d->currentEditor.first == index)
+        return;
+
     d->pressedItem = index;
     d->pressedState = e->state();
     d->pressedPosition = pos + QPoint(horizontalOffset(), verticalOffset());
@@ -775,8 +778,15 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
-    selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
-    setState(NoState);
+
+    if (state() == Editing && d->currentEditor.first == index)
+        return;
+
+    if (state() == Selecting) {
+        selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
+        setState(NoState);
+    }
+
     if (index == d->pressedItem)
         emit clicked(index, e->button());
     if (e->button() == Qt::RightButton) {
@@ -869,9 +879,9 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
 {
     QViewport::focusInEvent(e);
-    QModelIndex item = currentItem();
-    if (item.isValid())
-        d->viewport->update(itemViewportRect(item));
+    QModelIndex index = currentItem();
+    if (index.isValid())
+        d->viewport->update(itemViewportRect(index));
 }
 
 /*!
@@ -881,9 +891,9 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
     QViewport::focusOutEvent(e);
-    QModelIndex item = currentItem();
-    if (item.isValid())
-        d->viewport->update(itemViewportRect(item));
+    QModelIndex index = currentItem();
+    if (index.isValid())
+        d->viewport->update(itemViewportRect(index));
 }
 
 /*!
@@ -1062,7 +1072,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
     if (!index.isValid())
         return;
 
-    setState(NoState);
+    d->state = NoState;
 
     if (itemDelegate()->editorType(d->model, index) == QAbstractItemDelegate::Events) {
         setFocus();
