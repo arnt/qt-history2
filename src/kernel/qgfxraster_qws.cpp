@@ -296,6 +296,7 @@ void QScreenCursor::drawCursor()
 
     QRgb *clut = data->clut;
 
+#ifndef QT_NO_QWS_DEPTH_32
     if (depth == 32)
     {
 	unsigned int *dptr = (unsigned int *)dest;
@@ -337,8 +338,11 @@ void QScreenCursor::drawCursor()
 	    srcptr += data->width;
 	    dptr += linestep/4;
 	}
+	return;
     }
-    else if (depth == 16)
+#endif
+#ifndef QT_NO_QWS_DEPTH_16
+    if (depth == 16)
     {
 	unsigned short *dptr = (unsigned short *)dest;
 	unsigned int srcval;
@@ -388,7 +392,11 @@ void QScreenCursor::drawCursor()
 	    srcptr += data->width;
 	    dptr += linestep/2;
 	}
-    } else if (depth == 8) {
+	return;
+    }
+#endif
+#if !defined(QT_NO_QWS_DEPTH_8GRAYSCALE) || !defined(QT_NO_QWS_DEPTH_8)
+    if (depth == 8) {
 	unsigned char *dptr = (unsigned char *)dest;
         unsigned int srcval;
 	int av,r,g,b;
@@ -431,6 +439,7 @@ void QScreenCursor::drawCursor()
 	    dptr += linestep;
 	}
     }
+#endif
 }
 
 QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
