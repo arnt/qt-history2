@@ -1238,14 +1238,15 @@ QStringList QFont::substitutions()
 {
     initFontSubst();
 
-    QStringList ret, *list;
+    QStringList ret;
     QDictIterator<QStringList> it(*fontSubst);
 
-    while ((list = it.current()) != 0) {
+    while (it.current()) {
+	ret.append(it.currentKey());
 	++it;
-
-	ret += *list;
     }
+
+    ret.sort();
 
     return ret;
 }
