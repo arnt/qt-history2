@@ -217,7 +217,7 @@ bool QProcess::start()
     QString args;
     args = command.latin1();
     for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
-	args += QString(" ") + (*it).latin1();
+	args += QString( " \'" ) + (*it).latin1() + QString( "\'" );
     }
 
     // CreateProcess()
