@@ -6,6 +6,8 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
+#include <qwhatsthis.h>
+#include <qtoolbutton.h>	
 
 class Dialog : public QDialog
 {
@@ -16,16 +18,13 @@ public:
     {
 	QVBoxLayout* l = new QVBoxLayout( this );
 	QPushButton* button = new QPushButton( "next", this );
+	QWhatsThis::add( button, "Example whats this text");
 	l->addWidget( button );
 	connect( button, SIGNAL( clicked() ), this, SLOT( buttonClicked() ) );
 	button = new QPushButton( "done", this );
 	l->addWidget( button );
 	connect( button, SIGNAL( clicked() ), this, SLOT( accept() ) );
-	button = new QPushButton( "show popup", this );
-	l->addWidget( button );
-	connect( button, SIGNAL( clicked() ), this, SLOT( showPopup() ) );
-	popup = new QLabel( "Popup Label", this, 0, WType_Popup );
-	popup->setFrameStyle( QFrame::Panel | QFrame::Raised );
+	l->addWidget( QWhatsThis::whatsThisButton( this ) );
     }
     ~Dialog()
     {
