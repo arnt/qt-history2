@@ -5,7 +5,6 @@
 #include <qaction.h>
 #include <qdict.h>
 #include <qpainter.h>
-#include <qregexp.h>
 
 /* XPM */
 static const char * const editmark_xpm[] ={
