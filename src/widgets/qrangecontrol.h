@@ -121,7 +121,7 @@ inline int QRangeControl::pageStep() const
 
 #endif // QT_NO_RANGECONTROL
 
-#ifndef QT_NO_RANGECONTROLWIDGET
+#ifndef QT_NO_SPINWIDGET
 
 class QSpinWidgetPrivate;
 
@@ -175,6 +175,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif // QT_NO_RANGECONTROLWIDGET
+#endif // QT_NO_SPINWIDGET
 
 #endif // QRANGECONTROL_H

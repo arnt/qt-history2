@@ -801,7 +801,7 @@
 #endif
 
 #if defined(QT_NO_FRAME)
-# define QT_NO_RANGECONTROLWIDGET
+# define QT_NO_SPINWIDGET
 #endif
 
 
@@ -860,7 +860,7 @@
 #endif
 
 
-#if defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE) || defined(QT_NO_RANGECONTROLWIDGET) || defined(QT_NO_LINEEDIT)
+#if defined(QT_NO_RANGECONTROL) || defined(QT_NO_STYLE) || defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT)
 /*!
   Spin boxes
 */

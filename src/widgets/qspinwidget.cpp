@@ -34,7 +34,7 @@
 
 #include "qrangecontrol.h"
 
-#ifndef QT_NO_RANGECONTROLWIDGET
+#ifndef QT_NO_SPINWIDGET
 
 #include "qrect.h"
 #include "qtimer.h"
