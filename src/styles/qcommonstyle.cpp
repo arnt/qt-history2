@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#38 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#39 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -556,7 +556,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  const QRect &r,
 				  const QColorGroup &cg,
 				  PFlags flags,
-				  void *data ) const
+				  void * ) const
 {
     switch (op) {
     case PO_ButtonCommand:
@@ -573,6 +573,9 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawRect(r);
 	p->setPen(oldPen);
 	break; }
+
+    default:
+	break;
     }
 }
 
@@ -676,8 +679,8 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 
 	rect.setRect(wrect.left()   + dx1,
 		     wrect.top()    + dx1,
-		     wrect.right()  - dx2,
-		     wrect.bottom() - dx2);
+		     wrect.right()  - dx2 + 1,
+		     wrect.bottom() - dx2 + 1);
 	break; }
 
     case SR_PushButtonFocusRect: {
@@ -685,8 +688,8 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    dfw2 = dfw1 * 2;
 	rect.setRect(wrect.left()   + dfw1,
 		     wrect.top()    + dfw1,
-		     wrect.right()  - dfw2,
-		     wrect.bottom() - dfw2);
+		     wrect.right()  - dfw2 + 1,
+		     wrect.bottom() - dfw2 + 1);
 	break; }
 
     default:
