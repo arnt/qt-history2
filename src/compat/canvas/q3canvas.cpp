@@ -14,6 +14,7 @@
 #include "q3canvas.h"
 #include "qapplication.h"
 #include "qbitmap.h"
+#include "qdesktopwidget.h"
 #include "qimage.h"
 #include "q3ptrdict.h"
 #include "qpainter.h"
