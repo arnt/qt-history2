@@ -5,14 +5,14 @@
 class MotifPlusStyleInterface : public QStyleInterface
 {
 public:
-    MotifPlusStyleInterface( QUnknownInterface *parent, const char *name = 0 );
+    MotifPlusStyleInterface( QUnknownInterface *parent );
 
     QStringList featureList() const;
     QStyle *create( const QString& );
 };
 
-MotifPlusStyleInterface::MotifPlusStyleInterface( QUnknownInterface *parent, const char *name )
-: QStyleInterface( parent, name )
+MotifPlusStyleInterface::MotifPlusStyleInterface( QUnknownInterface *parent )
+: QStyleInterface( parent )
 {
 }
 
@@ -30,13 +30,14 @@ QStyle* MotifPlusStyleInterface::create( const QString& style )
     return 0;
 }
 
-class PlugInInterface : public QComponentInterface
+class PlugInInterface : public QUnknownInterface
 {
 public:
     PlugInInterface();
 };
 
 PlugInInterface::PlugInInterface()
+: QUnknownInterface()
 {
     new MotifPlusStyleInterface( this );
 }

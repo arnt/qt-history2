@@ -5,14 +5,14 @@
 class PlatinumStyleInterface : public QStyleInterface
 {
 public:
-    PlatinumStyleInterface( QUnknownInterface *parent, const char *name = 0 );
+    PlatinumStyleInterface( QUnknownInterface *parent );
 
     QStringList featureList() const;
     QStyle *create( const QString& );
 };
 
-PlatinumStyleInterface::PlatinumStyleInterface( QUnknownInterface *parent, const char *name )
-: QStyleInterface( parent, name )
+PlatinumStyleInterface::PlatinumStyleInterface( QUnknownInterface *parent )
+: QStyleInterface( parent )
 {
 }
 
@@ -30,13 +30,14 @@ QStyle* PlatinumStyleInterface::create( const QString& style )
     return 0;
 }
 
-class PlugInInterface : public QComponentInterface
+class PlugInInterface : public QUnknownInterface
 {
 public:
     PlugInInterface();
 };
 
 PlugInInterface::PlugInInterface()
+: QUnknownInterface()
 {
     new PlatinumStyleInterface( this );
 }

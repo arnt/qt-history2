@@ -5,14 +5,14 @@
 class CompactStyleInterface : public QStyleInterface
 {
 public:
-    CompactStyleInterface( QUnknownInterface *parent, const char *name = 0 );
+    CompactStyleInterface( QUnknownInterface *parent );
 
     QStringList featureList() const;
     QStyle *create( const QString& );
 };
 
-CompactStyleInterface::CompactStyleInterface( QUnknownInterface *parent, const char *name )
-: QStyleInterface( parent, name )
+CompactStyleInterface::CompactStyleInterface( QUnknownInterface *parent )
+: QStyleInterface( parent )
 {
 }
 
@@ -30,13 +30,14 @@ QStyle* CompactStyleInterface::create( const QString& style )
     return 0;
 }
 
-class PlugInInterface : public QComponentInterface
+class PlugInInterface : public QUnknownInterface
 {
 public:
     PlugInInterface();
 };
 
 PlugInInterface::PlugInInterface()
+: QUnknownInterface()
 {
     new CompactStyleInterface( this );
 }
