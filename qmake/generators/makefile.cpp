@@ -1782,12 +1782,16 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 t << subtarget->target << "-" << targetSuffixes.at(suffix) << "-ordered: " << mkfile;
                 if(target)
                     t << " " << targets.at(target-1)->target << "-" << targetSuffixes.at(suffix) << "-ordered ";
+                if(project->isEmpty("QMAKE_NOFORCE"))
+                    t <<  " FORCE";
                 t << cdin
                   << "$(MAKE)" << makefilein << " " << s
                   << cdout << endl;
             }
-            t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile
-              << cdin
+            t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile;
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t <<  " FORCE";
+            t << cdin
               << "$(MAKE)" << makefilein << " " << s
               << cdout << endl;
         }
@@ -1818,8 +1822,6 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             continue;
 
         t << suffix << ":";
-        if(project->isEmpty("QMAKE_NOFORCE"))
-            t <<  " FORCE";
         for(int target = 0; target < targets.size(); ++target) {
             QString targetRule = targets.at(target)->target + "-" + suffix;
             if(flags & SubTargetOrdered)
@@ -1828,6 +1830,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         }
         if(suffix == "all")
             t << varGlue("ALL_DEPS"," "," ","");
+        if(project->isEmpty("QMAKE_NOFORCE"))
+            t <<  " FORCE";
         t << endl;
         if(suffix == "clean") {
             t << varGlue("QMAKE_CLEAN","\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "\n");
@@ -1902,8 +1906,10 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
         }
         if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
             t << "qmake: " <<
-                project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].join(" \\\n\t\t") << "\n\t"
-              << "@" << qmake << endl << endl;
+                project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].join(" \\\n\t\t");
+            if(project->isEmpty("QMAKE_NOFORCE"))
+                t <<  " FORCE";
+            t << "\n\t" << "@" << qmake << endl << endl;
         }
     }
 }
