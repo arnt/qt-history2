@@ -168,7 +168,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 		    SKIP_WS(k);
 		    if(*k == '=') {
 			QString msg;
-			qmake_error_msg(*d + "must be followed immediatly by =");
+			qmake_error_msg(*d + "must be followed immediately by =");
 			return FALSE;
 		    }
 		}
