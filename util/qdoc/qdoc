@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#62 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#63 $
 #
 # this is a massive hack, written very quickly
 #
@@ -114,6 +114,9 @@ sub findlink {
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
+    } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
+	     defined($anchor{"::" . $_}) && $anchor{"::" . $_} ne $url) {
+	sprintf("<a href=%s>%s</a>", $anchor{"::" . $_}, $_);
     } else {
 	sprintf("%s", $_);
     }
@@ -795,8 +798,7 @@ sub readc {
 						  $name, "(", $args, ")",
 						  $const);
 			    }
-			    print "url: ", $url, " is ", $def{$url}, "\n" 
-				if ($debug);
+#			    print "url: ", $url, " is ", $def{$url}, "\n";
 			}
 		    }
 		}
@@ -870,7 +872,7 @@ sub makenames {
 	$anchor{$_} = $dum;
     }
 
-#  foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
+#   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
 }
 
 #
