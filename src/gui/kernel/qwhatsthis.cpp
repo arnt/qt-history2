@@ -373,11 +373,10 @@ class QWhatsThisPrivate : public QObject
 
 void QWhatsThisPrivate::notifyToplevels(QEvent *e)
 {
-    QWidgetMapper *mapper = QWidget::wmapper();
-    for (QWidgetMapper::ConstIterator it = mapper->constBegin(); it != mapper->constEnd(); ++it) {
-        register QWidget *w = *it;
-        if (w->isTopLevel())
-            QApplication::sendEvent(w, e);
+    QWidgetList toplevels = QApplication::topLevelWidgets();
+    for (int i = 0; i < toplevels.count(); ++i) {
+        register QWidget *w = toplevels.at(i);
+        QApplication::sendEvent(w, e);
     }
 }
 
