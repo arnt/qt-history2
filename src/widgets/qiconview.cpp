@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#39 $
 **
 ** Definition of QIconView widget class
 **
@@ -119,6 +119,7 @@ struct QIconViewPrivate
     bool isIconDrag;
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
+    QPoint dragStart;
 };
 
 /*****************************************************************************
@@ -983,7 +984,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     QString t = text_;
     if ( t.isEmpty() )
 	t = itemText;
-    
+
     int h = 0;
     int w = 0;
     QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(),
@@ -991,7 +992,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 			       t ) );
     w = r.width();
     h = r.height();
-    
+
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
 
@@ -2002,8 +2003,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
     if ( !i && e->source() == viewport() && d->currentItem && !d->cleared ) {
 	QRect r = d->currentItem->rect();
 
-	d->currentItem->move( QPoint( e->pos().x() - d->currentItem->iconRect().width() / 2,
-				      e->pos().y() - d->currentItem->iconRect().height() / 2 ) );
+	d->currentItem->move( e->pos() - d->dragStart );
 
 	int w = d->currentItem->x() + d->currentItem->width() + 1;
 	int h = d->currentItem->y() + d->currentItem->height() + 1;
@@ -2426,6 +2426,10 @@ QDragObject *QIconView::dragObject()
 	return 0;
 
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    
+    d->dragStart = QPoint( orig.x() - d->currentItem->x(), 
+			   orig.y() - d->currentItem->y() );
+    
     QIconDrag *drag = new QIconDrag( viewport() );
     drag->setPixmap( QPixmap( d->currentItem->icon().pixmap( d->mode, QIconSet::Normal ) ),
  		     QPoint( d->currentItem->iconRect().width() / 2, d->currentItem->iconRect().height() / 2 ) );
