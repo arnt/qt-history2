@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#9 $
 **
 ** Implementation of movie classes
 **
@@ -327,6 +327,7 @@ QGIFDecoder::QGIFDecoder()
 {
     globalcmap_hold = 0;
     disposal = NoDisposal;
+    disposed = TRUE;
     frame = -1;
     state = Header;
     count = 0;
@@ -362,6 +363,49 @@ const char* QGIFDecoder::Factory::formatName() const
 }
 
 QGIFDecoder::Factory QGIFDecoder::factory;
+
+
+void QGIFDecoder::disposePrevious( QImage& img, QImageConsumer* consumer )
+{
+    // Handle disposal of previous image before processing next one
+
+    if ( disposed ) return;
+
+    switch (disposal) {
+      case NoDisposal:
+	break;
+      case DoNotChange:
+	break;
+      case RestoreBackground:
+	preserve_trans = FALSE;
+	if (trans>=0) {
+	    // Easy:  we use the transparent colour
+	    fillRect(img, left, top, right-left+1, bottom-top+1, trans);
+	} else if (bgcol>=0) {
+	    // Easy:  we use the bgcol given
+	    fillRect(img, left, top, right-left+1, bottom-top+1, bgcol);
+	} else {
+	    // Impossible:  We don't know of a bgcol - use pixel 0
+	    uchar** line = img.jumpTable();
+	    fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
+	}
+	if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+	break;
+      case RestoreImage: {
+	uchar** line = img.jumpTable();
+	preserve_trans = FALSE;
+	for (int y=top; y<=bottom; y++) {
+	    memcpy(line[y]+left,
+		backingstore.scanLine(y-top),
+		right-left+1);
+	}
+	if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+      }
+    }
+    disposal = NoDisposal; // Until an extension says otherwise.
+
+    disposed = TRUE;
+}
 
 /*!
   This function decodes some data into image changes.
@@ -458,36 +502,8 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	  case ImageDescriptor:
 	    hold[count++]=ch;
 	    if (count==10) {
-		// Handle disposal of pervious image before processing this one
-		switch (disposal) {
-		  case NoDisposal:
-		    break;
-		  case DoNotChange:
-		    break;
-		  case RestoreBackground:
-		    preserve_trans = FALSE;
-		    if (trans>=0) {
-			// Easy:  we use the transparent colour
-			fillRect(img, left, top, right-left+1, bottom-top+1, trans);
-		    } else if (bgcol>=0) {
-			// Easy:  we use the bgcol given
-			fillRect(img, left, top, right-left+1, bottom-top+1, bgcol);
-		    } else {
-			// Impossible:  We don't know of a bgcol - use pixel 0
-			fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
-		    }
-		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
-		    break;
-		  case RestoreImage:
-		    preserve_trans = FALSE;
-		    for (int y=top; y<=bottom; y++) {
-			memcpy(line[y]+left,
-			    backingstore.scanLine(y-top),
-			    right-left+1);
-		    }
-		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
-		}
-
+		disposePrevious( img, consumer );
+		disposed = FALSE;
 		left=LM(hold[1], hold[2]);
 		top=LM(hold[3], hold[4]);
 		int width=LM(hold[5], hold[6]);
@@ -532,7 +548,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 			    line[top+y]+left, width);
 		    }
 		}
-		disposal = NoDisposal; // Unless extension says otherwise.
 
 		count=0;
 		if (lcmap) {
@@ -730,6 +745,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	    if (count<5) hold[count]=ch;
 	    count++;
 	    if (count==hold[0]+1) {
+		disposePrevious( img, consumer );
 		disposal=Disposal(hold[1]>>2&0x7);
 		//UNUSED: waitforuser=!!((hold[1]>>1)&0x1);
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;

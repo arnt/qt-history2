@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#5 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#6 $
 **
 ** Definition of asynchronous image/movie loading classes
 **
@@ -116,6 +116,7 @@ private:
     int left, top, right, bottom;
     enum Disposal { NoDisposal, DoNotChange, RestoreBackground, RestoreImage };
     Disposal disposal;
+    bool disposed;
     int trans;
     bool preserve_trans;
     bool gcmap;
@@ -134,6 +135,7 @@ private:
     int frame;
     bool digress;
     void nextY(QImage& img, QImageConsumer* consumer);
+    void disposePrevious( QImage& img, QImageConsumer* consumer );
 };
 
 #endif
