@@ -37,17 +37,29 @@
 #include "qimage.h"
 #include "qcombobox.h"
 #include "qslider.h"
+#include "qstylefactory.h"
 
 
 // The Light Style, 3rd revision
 
 LightStyleV3::LightStyleV3()
-    : QWindowsStyle()
+    : QCommonStyle()
 {
+    basestyle = QStyleFactory::create( "Windows" );
+    if ( ! basestyle )
+	basestyle = QStyleFactory::create( QStyleFactory::keys().first() );
+    if ( ! basestyle )
+	qFatal( "LightStyle: couldn't find a basestyle!" );
 }
 
 LightStyleV3::~LightStyleV3()
 {
+    delete basestyle;
+}
+
+void LightStyleV3::polishPopupMenu( QPopupMenu * )
+{
+    // empty to satisy pure virtual requirements
 }
 
 /*
@@ -513,6 +525,9 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_Panel:
+    case PE_PanelLineEdit:
+    case PE_PanelTabWidget:
+    case PE_WindowFrame:
 	{
 	    QRect br = r;
 
@@ -720,7 +735,52 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	break;
 
     default:
-	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
+	if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
+	    QPointArray a;
+
+	    switch ( pe ) {
+	    case PE_ArrowUp:
+		a.setPoints( 7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2 );
+		break;
+
+	    case PE_ArrowDown:
+		a.setPoints( 7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1 );
+		break;
+
+	    case PE_ArrowRight:
+		a.setPoints( 7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0 );
+		break;
+
+	    case PE_ArrowLeft:
+		a.setPoints( 7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0 );
+		break;
+
+	    default:
+		break;
+	    }
+
+	    if (a.isNull())
+		return;
+
+	    p->save();
+	    if ( flags & Style_Enabled ) {
+		a.translate( r.x() + r.width() / 2, r.y() + r.height() / 2 );
+		p->setPen( cg.buttonText() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+	    } else {
+		a.translate( r.x() + r.width() / 2 + 1, r.y() + r.height() / 2 + 1 );
+		p->setPen( cg.light() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+		a.translate( -1, -1 );
+		p->setPen( cg.mid() );
+		p->drawLineSegments( a, 0, 3 );         // draw arrow
+		p->drawPoint( a[6] );
+	    }
+	    p->restore();
+	} else
+	    QCommonStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	break;
     }
 }
@@ -798,7 +858,7 @@ void LightStyleV3::drawControl( ControlElement control,
 		br.addCoords( 1, 0, -1, -1 );
 		p->fillRect( br, cg.brush( QColorGroup::Background ) );
 	    } else
-		QWindowsStyle::drawControl( control, p, widget, r, cg, flags, data );
+		QCommonStyle::drawControl( control, p, widget, r, cg, flags, data );
 	    break;
 	}
 
@@ -969,7 +1029,7 @@ void LightStyleV3::drawControl( ControlElement control,
 	break;
 
     default:
-	QWindowsStyle::drawControl(control, p, widget, r, cg, flags, data);
+	QCommonStyle::drawControl(control, p, widget, r, cg, flags, data);
 	break;
     }
 }
@@ -986,7 +1046,7 @@ void LightStyleV3::drawControlMask( ControlElement control,
 	break;
 
     default:
-	QWindowsStyle::drawControlMask(control, p, widget, r, data);
+	QCommonStyle::drawControlMask(control, p, widget, r, data);
 	break;
     }
 }
@@ -998,7 +1058,7 @@ QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
     switch (subrect) {
     case SR_PushButtonFocusRect:
 	{
-	    rect = QWindowsStyle::subRect( SR_PushButtonContents, widget );
+	    rect = QCommonStyle::subRect( SR_PushButtonContents, widget );
 	    int bm = pixelMetric( PM_ButtonMargin, widget ), hbm = bm / 2;
 	    rect.addCoords( hbm, hbm, -hbm, -hbm );
   	    break;
@@ -1006,13 +1066,13 @@ QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
 
     case SR_ComboBoxFocusRect:
 	{
-	    rect = QWindowsStyle::subRect( SR_ComboBoxFocusRect, widget );
+	    rect = QCommonStyle::subRect( SR_ComboBoxFocusRect, widget );
 	    rect.addCoords( -1, -1, 1, 1 );
 	    break;
 	}
 
     default:
-	rect = QWindowsStyle::subRect(subrect, widget);
+	rect = QCommonStyle::subRect(subrect, widget);
 	break;
     }
 
@@ -1273,9 +1333,15 @@ void LightStyleV3::drawComplexControl( ComplexControl control,
 	    break;
 	}
 
+    case CC_ListView:
+	// use the base style for CC_ListView
+	basestyle->drawComplexControl(control, p, widget, r, cg, flags,
+				      controls, active, data);
+	break;
+
     default:
-	QWindowsStyle::drawComplexControl(control, p, widget, r, cg, flags,
-					  controls, active, data);
+	QCommonStyle::drawComplexControl(control, p, widget, r, cg, flags,
+				      controls, active, data);
 	break;
     }
 }
@@ -1415,7 +1481,7 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 		}
 
 	    default:
-		ret = QWindowsStyle::querySubControlMetrics(control, widget, sc, data);
+		ret = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 		break;
 	    }
 
@@ -1423,7 +1489,7 @@ QRect LightStyleV3::querySubControlMetrics( ComplexControl control,
 	}
 
     default:
-	ret = QWindowsStyle::querySubControlMetrics(control, widget, sc, data);
+	ret = QCommonStyle::querySubControlMetrics(control, widget, sc, data);
 	break;
     }
 
@@ -1436,7 +1502,7 @@ QStyle::SubControl LightStyleV3::querySubControl( ComplexControl control,
 						const QStyleOption &data ) const
 {
     QStyle::SubControl ret =
-	QWindowsStyle::querySubControl(control, widget, pos, data);
+	QCommonStyle::querySubControl(control, widget, pos, data);
 
     // this is an ugly hack, but i really don't care, it's the quickest way to
     // enabled the third button
@@ -1540,7 +1606,7 @@ int LightStyleV3::pixelMetric( PixelMetric metric,
 	}
 
     default:
-	ret = QWindowsStyle::pixelMetric(metric, widget);
+	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
     }
 
@@ -1641,7 +1707,7 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 	}
 
     default:
-	ret = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
+	ret = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
 	break;
     }
 
@@ -1656,6 +1722,18 @@ int LightStyleV3::styleHint( StyleHint stylehint,
     int ret;
 
     switch (stylehint) {
+    case SH_EtchDisabledText:
+    case SH_Slider_SnapToValue:
+    case SH_PrintDialog_RightAlignButtons:
+    case SH_FontDialog_SelectAssociatedText:
+    case SH_PopupMenu_AllowActiveAndDisabled:
+    case SH_MenuBar_AltKeyNavigation:
+    case SH_MenuBar_MouseTracking:
+    case SH_PopupMenu_MouseTracking:
+    case SH_ComboBox_ListMouseTracking:
+	ret = 1;
+	break;
+
     case SH_MainWindow_SpaceBelowMenuBar:
 	ret = 0;
 	break;
@@ -1665,9 +1743,16 @@ int LightStyleV3::styleHint( StyleHint stylehint,
 	break;
 
     default:
-	ret = QWindowsStyle::styleHint(stylehint, widget, option, returnData);
+	ret = QCommonStyle::styleHint(stylehint, widget, option, returnData);
 	break;
     }
 
     return ret;
+}
+
+QPixmap LightStyleV3::stylePixmap( StylePixmap stylepixmap,
+				   const QWidget *widget,
+				   const QStyleOption &data ) const
+{
+    return basestyle->stylePixmap( stylepixmap, widget, data );
 }
