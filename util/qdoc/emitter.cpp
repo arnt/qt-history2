@@ -194,6 +194,9 @@ void DocEmitter::start()
     emitHtml();
 
     warnAboutOmitted();
+
+    if ( config->lint() )
+	lint();
 }
 
 void DocEmitter::addGroup( DefgroupDoc *doc )
@@ -550,4 +553,72 @@ void DocEmitter::addHtmlFile( const QString& fileName )
 	message( 1, "HTML file '%s' lacking '.html' extension",
 		 fileName.latin1() );
     htmllist.insert( fileName );
+}
+
+/*
+  
+*/
+
+static StringSet anames;
+static StringSet ahrefs;
+
+static void lintHtmlFile( const QString& filePath )
+{
+    static QRegExp anchor( QString(
+	    "<a[ \n\t]+(name|href)[ \n\t]*=[ \n\t]*"
+	    "(\"[^\"]+\"|[^\"> \n\t]+)[ \n\t]*>") );
+
+    QFile f( filePath );
+    if ( !f.open(IO_ReadOnly) ) {
+	message( 0, "Cannot open file '%s'", filePath.latin1() );
+	return;
+    }
+
+    QTextStream t( &f );
+    QString fullText = t.read();
+    f.close();
+
+    QString fileName = filePath.mid( filePath.findRev(QChar('/')) + 1 );
+    anames.insert( fileName );
+
+// ###
+#if 0
+    if ( filePath.right(13) == QString("-members.html") )
+	return;
+#endif
+
+    int k = 0;
+    while ( (k = anchor.search(fullText, k)) != -1 ) {
+	QString link = anchor.cap( 2 );
+	if ( link[0] == QChar('"') )
+	    link = link.mid( 1, link.length() - 2 );
+
+	if ( anchor.cap(1) == QString("name") ) {
+	    anames.insert( fileName + QChar('#') + link );
+	} else {
+	    if ( link[0] == QChar('#') )
+		ahrefs.insert( fileName + link );
+	    else
+		ahrefs.insert( link );
+	}
+	k += anchor.matchedLength();
+    }
+}
+
+void DocEmitter::lint() const
+{
+    StringSet::ConstIterator h = htmllist.begin();
+    while ( h != htmllist.end() ) {
+	lintHtmlFile( config->outputDir() + QChar('/') + *h );
+	++h;
+    }
+
+    StringSet diff = difference( ahrefs, anames );
+    StringSet::ConstIterator href = diff.begin();
+    while ( href != diff.end() ) {
+	if ( !(*href).startsWith("file:") && !(*href).startsWith("ftp:") &&
+	     !(*href).startsWith("http:") && !(*href).startsWith("mailto:") )
+	    message( 0, "Broken link to '%s'", (*href).latin1() );
+	++href;
+    }
 }

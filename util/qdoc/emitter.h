@@ -48,6 +48,7 @@ public:
     void nailDownDocs();
 
     void emitHtml() const;
+    void lint() const;
 
 private:
 #if defined(Q_DISABLE_COPY)

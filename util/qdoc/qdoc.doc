@@ -1429,6 +1429,10 @@
     documentation, and "--internal=no" to generate public
     documentation.
 
+   \i \target --lint
+    <b>--lint</b> instructs qdoc to parse the generated HTML
+    documentation and to report broken links.
+
    \i \target --max-similar
     <b>--max-similar</b> (cf. \link #MAXSIMILAR MAXSIMILAR \endlink)
     sets a limit on the number of similar warnings.

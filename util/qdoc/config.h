@@ -45,6 +45,7 @@ public:
     bool isInternal() const { return internal; }
     bool autoHrefs() const { return autoh; }
     bool supervisor() const { return super; }
+    bool lint() const { return lin; }
     bool friendly() const { return frend; }
 
 private:
@@ -86,6 +87,7 @@ private:
     bool internal;
     bool autoh;
     bool super;
+    bool lin;
     bool frend;
 
     QString dotHtml;

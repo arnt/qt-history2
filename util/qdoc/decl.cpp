@@ -948,7 +948,7 @@ void ClassDecl::fillInDocsForThis()
 		StringSet documentedParams;
 
 		QString brief = (*q)->propertyDoc()->brief();
-		bool whether = brief.lower().startsWith( QString("whether ") );
+		bool whether = brief.startsWith( QString("whether ") );
 
 		/*
 		  The function has the right name. Let's see if it

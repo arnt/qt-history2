@@ -93,7 +93,7 @@ Config::Config( int argc, char **argv )
     : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), prod( "" ), co( "" ),
       vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
       styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
-      super( FALSE ), frend( FALSE ), dotHtml( ".html" ),
+      super( FALSE ), lin( FALSE ), frend( FALSE ), dotHtml( ".html" ),
       membersDotHtml( "-members.html" )
 {
     QString confFilePath( "qdoc.conf" );
@@ -232,6 +232,8 @@ Config::Config( int argc, char **argv )
 		showHelpShort();
 	    } else if ( opt == QString("--internal") ) {
 		internal = isYes( val );
+	    } else if ( opt == QString("--lint") ) {
+		lin = isYes( val );
 	    } else if ( opt == QString("--max-similar") ) {
 		if ( !plus )
 		    maxSim = 0;
@@ -430,6 +432,7 @@ void Config::showHelp()
 	    "  --help                   Display this information\n"
 	    "  --help-short             List short options\n"
 	    "  --internal=<yes|no>      Generate internal documentation [%s]\n"
+	    "  --lint=<yes|no>          Report broken links [%s]\n"
 	    "  --max-similar=<num>      Limit number of similar warnings [%d]\n"
 	    "  --max-warnings=<num>     Limit number of warnings [%d]\n"
 	    "  --only=<regexp>          Generate only matching HTML files\n"
@@ -437,8 +440,8 @@ void Config::showHelp()
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(frend), toYN(internal), maxSim, maxAll,
-	    toYN(super), wlevel );
+	    toYN(autoh), toYN(frend), toYN(internal), toYN(lint), maxSim,
+	    maxAll, toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }
 

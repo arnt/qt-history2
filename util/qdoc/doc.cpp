@@ -753,8 +753,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    brief = getRestOfParagraph( yyIn, yyPos );
 		    if ( !brief.isEmpty() ) {
 			brief[0] = brief[0].lower();
-			if ( brief.right(1) == QChar('.') )
+			if ( brief.endsWith(QChar('.')) )
 			    brief.truncate( brief.length() - 1 );
+			if ( brief.endsWith(QString(" or not")) )
+			    brief.truncate( brief.length() - 7 );
+
 			yyOut += QString( "<p>This property holds " ) + brief +
 				 QString( ".\n<p>" );
 		    }
