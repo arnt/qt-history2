@@ -294,7 +294,7 @@ void QThreadEvent::wait(const QTime & t)
 {
     timespec ti;
     ti.tv_sec=t.second();
-    ti.tv_nsec=t.time().msec()*1000000;
+    ti.tv_nsec=t.msec()*1000000;
     int ret=pthread_cond_timedwait (&( d->mycond ),
 				    ( pthread_mutex_t * )( d->m.handle() ), &ti);
 
