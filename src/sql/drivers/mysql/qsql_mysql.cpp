@@ -35,6 +35,7 @@
 **********************************************************************/
 
 #include "qsql_mysql.h"
+#include <private/qsqlextension_p.h>
 
 #include <qdatetime.h>
 #include <qmap.h>
@@ -42,6 +43,45 @@
 #include <qregexp.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
+
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlDriverExtension> *qt_driver_extension_dict;
+
+class QMYSQLDriverExtension : public QSqlDriverExtension
+{
+public:
+    QMYSQLDriverExtension( QMYSQLDriver *dri )
+	: QSqlDriverExtension(), driver(dri) {}
+    ~QMYSQLDriverExtension() {}
+
+    bool isOpen() const;
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString> connOpts );
+private:
+    QMYSQLDriver *driver;
+};
+
+bool QMYSQLDriverExtension::isOpen() const
+{
+    return driver->isOpen();
+}
+
+bool QMYSQLDriverExtension::open( const QString& db,
+				  const QString& user,
+				  const QString& password,
+				  const QString& host,
+				  int port,
+				  const QMap<QString, QString> connOpts )
+{
+    return driver->open( db, user, password, host, port, connOpts );
+}
 
 class QMYSQLDriverPrivate
 {
@@ -287,6 +327,10 @@ QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
 
 void QMYSQLDriver::init()
 {
+    if ( !qt_driver_extension_dict )
+	qt_driver_extension_dict = new QPtrDict<QSqlDriverExtension>;
+
+    qt_driver_extension_dict->insert( this, new QMYSQLDriverExtension(this) );
     d = new QMYSQLDriverPrivate();
     d->mysql = 0;
 }
@@ -336,6 +380,65 @@ bool QMYSQLDriver::open( const QString & db,
 				(port > -1) ? port : 0,
 				NULL,
 				0))
+    {
+	if ( mysql_select_db( d->mysql, db )) {
+	    setLastError( qMakeError("Unable open database '" + db + "'", QSqlError::Connection, d ) );
+	    mysql_close( d->mysql );
+	    setOpenError( TRUE );
+	    return FALSE;
+	}
+    } else {
+	    setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
+	    mysql_close( d->mysql ) ;
+	    return FALSE;
+    }
+    setOpen( TRUE );
+    setOpenError( FALSE );
+    return TRUE;
+}
+
+bool QMYSQLDriver::open( const QString& db,
+			 const QString& user,
+			 const QString& password,
+			 const QString& host,
+			 int port,
+			 QMap<QString, QString> connOpts )
+{
+    if ( isOpen() )
+	close();
+    
+    unsigned int optionFlags = 0;
+    if ( connOpts.count() ) {
+	QMap<QString, QString>::ConstIterator it;
+	QString opt;
+	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
+	    opt = it.key().upper();
+	    if ( opt == "CLIENT_COMPRESS" )
+		optionFlags |= CLIENT_COMPRESS;
+	    else if ( opt == "CLIENT_FOUND_ROWS" )
+		optionFlags |= CLIENT_FOUND_ROWS;
+	    else if ( opt == "CLIENT_IGNORE_SPACE" )
+		optionFlags |= CLIENT_IGNORE_SPACE;
+	    else if ( opt == "CLIENT_INTERACTIVE" )
+		optionFlags |= CLIENT_INTERACTIVE;
+	    else if ( opt == "CLIENT_NO_SCHEMA" )
+		optionFlags |= CLIENT_NO_SCHEMA;
+	    else if ( opt == "CLIENT_ODBC" )
+		optionFlags |= CLIENT_ODBC;
+	    else if ( opt == "CLIENT_SSL" )
+		optionFlags |= CLIENT_SSL;
+	}
+    }
+    
+    if ( (d->mysql = mysql_init((MYSQL*) 0)) &&
+	    mysql_real_connect( d->mysql,
+				host,
+				user,
+				password,
+				db,
+				(port > -1) ? port : 0,
+				NULL,
+				optionFlags ) )
     {
 	if ( mysql_select_db( d->mysql, db )) {
 	    setLastError( qMakeError("Unable open database '" + db + "'", QSqlError::Connection, d ) );

@@ -129,7 +129,7 @@ bool QSqlDriver::isOpen() const
 {
     if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
 	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
-	if ( ext )
+	if ( ext && ext->implements( "isOpen" ) )
 	    return ext->isOpen();
     }
 
@@ -469,5 +469,29 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
     return r;
 }
 
+/*!
+    \overload
+    
+    Open a database connection on database \a db, using user name \a
+    user, password \a password, host \a host, port \a port and
+    connection options \a connOpts.
 
+    Returns TRUE on success and FALSE on failure.
+
+    \sa setOpen()
+*/
+bool QSqlDriver::open( const QString & db,
+		       const QString & user,
+		       const QString & password,
+		       const QString & host,
+		       int port,
+		       const QMap<QString, QString> connOpts )
+{
+    if ( qt_driver_extension_dict && !qt_driver_extension_dict->isEmpty() ) {
+	QSqlDriverExtension *ext = qt_driver_extension_dict->find((QSqlDriver*)this);
+	if ( ext )
+	    return ext->open( db, user, password, host, port, connOpts );
+    }
+    return open( db, user, password, host, port );
+}
 #endif // QT_NO_SQL

@@ -283,6 +283,7 @@ public:
     QString hname;
     QString drvName;
     int port;
+    QMap<QString, QString> connOptions;
 };
 
 /*!
@@ -585,11 +586,17 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
 
 bool QSqlDatabase::open()
 {
+//     return d->driver->open( d->dbname,
+// 			    d->uname,
+// 			    d->pword,
+// 			    d->hname,
+// 			    d->port );
     return d->driver->open( d->dbname,
-				d->uname,
-				d->pword,
-				d->hname,
-				d->port);
+			    d->uname,
+			    d->pword,
+			    d->hname,
+			    d->port,
+			    d->connOptions );
 }
 
 /*!
@@ -893,5 +900,49 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     return d->driver->recordInfo( query );
 }
 
+/*!
+    Sets the specified connection option. The options depend on the
+    database client used.
 
+    For MySQL the following options are recognised:
+    CLIENT_COMPRESS
+    CLIENT_FOUND_ROWS
+    CLIENT_IGNORE_SPACE
+    CLIENT_SSL
+    CLIENT_ODBC
+    CLIENT_NO_SCHEMA
+    CLIENT_INTERACTIVE
+    
+    For PostgreSQL:
+    host
+    connect_timeout
+    options
+    tty
+    requiressl
+    service
+    
+    For ODBC/DB2:
+    
+    For OCI:
+    
+    For TDS:
+*/
+void QSqlDatabase::setConnectionOption( const QString& option, const QString& value )
+{
+    d->connOptions[option] = value;
+}
+
+/*!
+*/
+void QSqlDatabase::clearConnectionOption( const QString& option )
+{
+    d->connOptions.remove( option );
+}
+
+/*!
+*/
+QString QSqlDatabase::connectionOption( const QString& option ) const
+{
+    return d->connOptions[option];
+}
 #endif // QT_NO_SQL

@@ -105,6 +105,13 @@ public:
     QString		formatValue( const QSqlField* field,
 				     bool trimStrings ) const;
     MYSQL*		mysql();
+    // ### remove me for 4.0
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString> connOpts );
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

@@ -79,6 +79,13 @@ public:
     ~QPSQLDriverExtension() {}
 
     bool isOpen() const;
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString> connOpts );
+    bool implements( const QString& function ) const;
 private:
     QPSQLDriver *driver;
 };
@@ -86,6 +93,25 @@ private:
 bool QPSQLDriverExtension::isOpen() const
 {
     return PQstatus( driver->connection() ) == CONNECTION_OK;
+}
+
+bool QPSQLDriverExtension::open( const QString& db,
+				 const QString& user,
+				 const QString& password,
+				 const QString& host,
+				 int port,
+				 const QMap<QString, QString> connOpts )
+{
+    return driver->open( db, user, password, host, port, connOpts );
+}
+
+bool QPSQLDriverExtension::implements( const QString& function ) const
+{
+    if ( function == "isOpen" )
+	return TRUE;
+    else if ( function == "open" )
+	return TRUE;
+    return FALSE;
 }
 
 QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
@@ -439,7 +465,7 @@ bool QPSQLResult::reset ( const QString& query )
     cleanup();
     if ( !driver() )
 	return FALSE;
-    if ( !driver()-> isOpen() || driver()->isOpenError() )
+    if ( !driver()->isOpen() || driver()->isOpenError() )
 	return FALSE;
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
@@ -608,6 +634,49 @@ bool QPSQLDriver::open( const QString & db,
 	connectString.append( " password=" ).append( password );
     if ( port > -1 )
 	connectString.append( " port=" ).append( QString::number( port ) );
+    d->connection = PQconnectdb( connectString.local8Bit().data() );
+    if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
+	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
+	setOpenError( TRUE );
+	return FALSE;
+    }
+
+    pro = getPSQLVersion( d->connection );
+    d->isUtf8 = setEncodingUtf8( d->connection );
+    setDatestyle( d->connection );
+
+    setOpen( TRUE );
+    setOpenError( FALSE );
+    return TRUE;
+}
+
+bool QPSQLDriver::open( const QString & db,
+			const QString & user,
+			const QString & password,
+			const QString & host,
+			int port,
+			const QMap<QString, QString> connOpts )
+{
+    if ( isOpen() )
+	close();
+    QString connectString;
+    if ( host.length() )
+	connectString.append( "host=" ).append( host );
+    if ( db.length() )
+	connectString.append( " dbname=" ).append( db );
+    if ( user.length() )
+	connectString.append( " user=" ).append( user );
+    if ( password.length() )
+	connectString.append( " password=" ).append( password );
+    if ( port > -1 )
+	connectString.append( " port=" ).append( QString::number( port ) );
+    
+    if ( connOpts.count() ) {
+	QMap<QString, QString>::ConstIterator it;
+	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
+	    connectString.append( " " + it.key() + "=" + it.data() );
+	}
+    }
     d->connection = PQconnectdb( connectString.local8Bit().data() );
     if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );

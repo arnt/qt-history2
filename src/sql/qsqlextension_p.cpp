@@ -155,4 +155,8 @@ QSqlDriverExtension::~QSqlDriverExtension()
 {
 }
 
+bool QSqlDriverExtension::implements( const QString& ) const
+{
+    return FALSE;
+}
 #endif

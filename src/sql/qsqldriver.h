@@ -46,6 +46,7 @@
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qstringlist.h"
+#include "qmap.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -88,19 +89,27 @@ public:
 
     virtual bool		hasFeature( DriverFeature f ) const = 0;
     virtual bool		open( const QString & db,
-					const QString & user = QString::null,
-					const QString & password = QString::null,
-					const QString & host = QString::null,
-				int port = -1 ) = 0;
+				      const QString & user = QString::null,
+				      const QString & password = QString::null,
+				      const QString & host = QString::null,
+				      int port = -1 ) = 0;
     virtual void		close() = 0;
     virtual QSqlQuery		createQuery() const = 0;
+
+    // ### remove for 4.0
+    bool			open( const QString& db,
+				      const QString& user,
+				      const QString& password,
+				      const QString& host,
+				      int port,
+				      const QMap<QString, QString> connOpts );
 
 protected:
     virtual void		setOpen( bool o );
     virtual void		setOpenError( bool e );
     virtual void		setLastError( const QSqlError& e );
 private:
-    // ### This could use a d-pointer in 4.0.
+    // ### This class needs a d-pointer in 4.0.
     int		          dbState;
     QSqlError	          error;
 #if defined(Q_DISABLE_COPY)

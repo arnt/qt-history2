@@ -116,6 +116,10 @@ public:
 
     QSqlDriver*		driver() const;
 
+    void 		setConnectionOption( const QString& option, const QString& value );
+    void 		clearConnectionOption( const QString& option );
+    QString 		connectionOption( const QString& option ) const;
+    
     // MOC_SKIP_BEGIN
     QT_STATIC_CONST char * const defaultConnection;
     // MOC_SKIP_END

@@ -129,6 +129,13 @@ public:
     QSqlDriverExtension();
     virtual ~QSqlDriverExtension();
     virtual bool isOpen() const = 0;
+    virtual bool open( const QString & db,
+		       const QString & user,
+		       const QString & password,
+		       const QString & host,
+		       int port,
+		       const QMap<QString, QString> connOpts ) = 0;
+    virtual bool implements( const QString& function ) const;
 };
 #endif
 #endif
