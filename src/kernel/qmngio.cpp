@@ -90,7 +90,7 @@ public:
     bool errorproc( mng_int32   iErrorcode,
 		   mng_int8    iSeverity,
 		   mng_chunkid iChunkname,
-		   mng_uint32  iChunkseq,
+		   mng_uint32  /*iChunkseq*/,
 		   mng_int32   iExtra1,
 		   mng_int32   iExtra2,
 		   mng_pchar   zErrortext )
@@ -107,6 +107,7 @@ public:
     bool processheader( mng_uint32 iWidth, mng_uint32 iHeight )
     {
 	image->create(iWidth,iHeight,32);
+	image->setAlphaBuffer(TRUE);
 	memset(image->bits(),0,iWidth*iHeight*4);
 	consumer->setSize(iWidth,iHeight);
 	mng_set_canvasstyle(handle,
@@ -128,13 +129,15 @@ public:
     }
     mng_uint32 gettickcount( )
     {
-	return timer.elapsed();
+	return timer.elapsed() - losttime;
     }
     bool settimer( mng_uint32 iMsecs )
     {
 	consumer->setFramePeriod(iMsecs);
 	consumer->frameDone();
 	state = Time;
+	losingtimer.start();
+	losttime -= iMsecs;
 	return TRUE;
     }
 
@@ -150,6 +153,11 @@ private:
     uint maxbuffer;
     uint nbuffer;
 
+    // Timing
+    QTime timer;
+    QTime losingtimer;
+    int losttime;
+
     void enlargeBuffer(uint n)
     {
 	if ( n > maxbuffer ) {
@@ -164,7 +172,6 @@ private:
     uint ubuffer;
     QImageConsumer* consumer;
     QImage* image;
-    QTime timer;
 };
 
 class Q_EXPORT QMNGFormatType : public QImageFormatType
@@ -260,6 +267,7 @@ QMNGFormat::QMNGFormat()
     nbuffer = 0;
     maxbuffer = 0;
     buffer = 0;
+    losttime = 0;
 }
 
 /*!
@@ -326,7 +334,7 @@ static mng_ptr memalloc(mng_uint32 iLen)
 {
     return calloc(1,iLen);
 }
-static void memfree(mng_ptr iPtr, mng_uint32 iLen)
+static void memfree(mng_ptr iPtr, mng_uint32 /*iLen*/)
 {
     free(iPtr);
 }
@@ -359,14 +367,17 @@ int QMNGFormat::decode(QImage& img, QImageConsumer* cons,
 	mng_setcb_settimer( handle, ::settimer );
 	state = Data;
 	mng_readdisplay(handle);
+	losingtimer.start();
     }
 
+    losttime += losingtimer.elapsed();
     if ( state == Time ) {
 	state = Data;
 	mng_display_resume(handle);
     } else if ( state == Data ) {
 	mng_read_resume(handle);
     }
+    losingtimer.start();
 
     image = 0;
 

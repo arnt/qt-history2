@@ -736,13 +736,28 @@ const QRect& QMovie::getValidRect() const
 }
 
 /*!
-  Returns the current frame of the movie.  It is not generally useful to
+  Returns the current frame of the movie, as a QPixmap.
+  It is not generally useful to
   keep a copy of this pixmap.  Better to keep a copy of the QMovie and
   get the framePixmap() only when needed for drawing.
+
+  \sa frameImage()
 */
 const QPixmap& QMovie::framePixmap() const
 {
     return d->mypixmap;
+}
+
+/*!
+  Returns the current frame of the movie, as a QImage.
+  It is not generally useful to
+  keep a copy of this pixmap.
+
+  \sa framePixmap()
+*/
+const QImage& QMovie::frameImage() const
+{
+    return d->decoder->image();
 }
 
 /*!

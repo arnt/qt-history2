@@ -57,6 +57,7 @@ public:
 
     const QRect& getValidRect() const;
     const QPixmap& framePixmap() const;
+    const QImage& frameImage() const;
 
     bool isNull() const;
 
