@@ -129,7 +129,7 @@ void Project::parse()
 	    }
 	}
     }
-	
+
     i = contents.find( "PROJECTNAME" );
     if ( i != -1 ) {
 	proName = "";
@@ -278,7 +278,7 @@ void Project::save()
 	}
 	contents.remove( start, end - start + 1 );
     }
-	
+
     if ( !uifiles.isEmpty() ) {
 	contents += "INTERFACES\t= ";
 	for ( QStringList::Iterator it = uifiles.begin(); it != uifiles.end(); ++it )
@@ -312,7 +312,7 @@ void Project::save()
 	qWarning( "Couldn't write project file...." );
 	return;
     }
-	
+
     QTextStream os( &f );
     os << contents;
 
@@ -348,10 +348,16 @@ Project::DatabaseConnection *Project::databaseConnection( const QString &name )
 
 bool Project::DatabaseConnection::connect()
 {
-    if ( name != "(default)" )
-	connection = QSqlDatabase::addDatabase( driver );
-    else
-	connection = QSqlDatabase::addDatabase( driver, name );
+    // register our name, if nec
+    if ( name != "(default)" ) {
+	connection = QSqlDatabase::database();
+	if ( !connection )
+	    connection = QSqlDatabase::addDatabase( driver );
+    } else {
+	connection = QSqlDatabase::database( name );
+	if ( !connection )
+	    connection = QSqlDatabase::addDatabase( driver, name );
+    }
     connection->setDatabaseName( dbName );
     connection->setUserName( username );
     connection->setPassword( password );
