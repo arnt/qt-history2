@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#273 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#274 $
 **
 ** Implementation of QListView widget class
 **
@@ -1570,7 +1570,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->r->setSelectable( FALSE );
 
     viewport()->setFocusProxy( this );
-    setFocusPolicy( StrongFocus );
+    viewport()->setFocusPolicy( WheelFocus );
 }
 
 
@@ -2802,11 +2802,7 @@ void QListView::doAutoScroll()
     d->visibleTimer->start( 1, TRUE );
 }
 
-/*!  Handles focus in events on behalf of viewport().  Since
-  viewport() is this widget's focus proxy by default, you can think of
-  this function as handling this widget's focus in events.
-
-  \sa setFocusPolicy() setFocusProxy() focusOutEvent()
+/*!\reimp
 */
 
 void QListView::focusInEvent( QFocusEvent * )
@@ -2819,11 +2815,7 @@ void QListView::focusInEvent( QFocusEvent * )
 }
 
 
-/*!  Handles focus out events on behalf of viewport().  Since
-  viewport() is this widget's focus proxy by default, you can think of
-  this function as handling this widget's focus in events.
-
-  \sa setFocusPolicy() setFocusProxy() focusInEvent()
+/*!\reimp
 */
 
 void QListView::focusOutEvent( QFocusEvent * )
@@ -2836,9 +2828,7 @@ void QListView::focusOutEvent( QFocusEvent * )
 }
 
 
-/*!  Handles key press events on behalf of viewport().  Since
-  viewport() is this widget's focus proxy by default, you can think of
-  this function as handling this widget's keyboard input.
+/*!\reimp
 */
 
 void QListView::keyPressEvent( QKeyEvent * e )

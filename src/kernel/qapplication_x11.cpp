@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#526 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#527 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -328,7 +328,7 @@ public:
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
-    static bool translateWheelEvent( int global_x, int global_y, int delta, int state );
+    bool translateWheelEvent( int global_x, int global_y, int delta, int state );
     void embeddedWindowTabFocus( bool );
 };
 
@@ -2032,10 +2032,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		    QApplication::sendEvent( widget, &out );
 		}
 	    } else if ( event->xclient.message_type == qt_wheel_event ) {
-		return QETWidget::translateWheelEvent( event->xclient.data.l[0],
-						       event->xclient.data.l[1],
-						       event->xclient.data.l[2],
-						       event->xclient.data.l[3] );
+		return widget->translateWheelEvent( event->xclient.data.l[0],
+						    event->xclient.data.l[1],
+						    event->xclient.data.l[2],
+						    event->xclient.data.l[3] );
 	    }
 	}
     }
@@ -3135,8 +3135,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 				       FALSE, NoEventMask, &ev);
 			}
 		    }
-		    return TRUE;
 		}
+		return TRUE;
 	}
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
@@ -3273,8 +3273,15 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 //
 bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int state )
 {
+    QWidget* w = this;
+    
+    while ( w->focusProxy() )
+	w = w->focusProxy();
+    if ( w->focusPolicy() == QWidget::WheelFocus ) 
+	w->setFocus();
+    
     // send the event to the widget that has the focus or its ancestors
-    QWidget* w = qApp->focusWidget();
+    w = qApp->focusWidget();
     if (w){
 	do {
 	    QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
@@ -3283,7 +3290,7 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 	    QApplication::sendEvent( w, &e );
 	    if ( e.isAccepted() )
 		return TRUE;
-	    w = w->parentWidget();
+	    w = w->isTopLevel()?0:w->parentWidget();
 	} while (w);
     }
     return FALSE;

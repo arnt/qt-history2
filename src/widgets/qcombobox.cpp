@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#220 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#221 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1372,10 +1372,10 @@ void QComboBox::currentChanged()
 
 
 
-/*! \reimp 
+/*! \reimp
 
   \internal
-  
+
   The event filter steals events from the popup or listbox when they
   are popped up. It makes the popup stay up after a short click in
   motif style. In windows style it toggles the arrow button of the
@@ -1437,7 +1437,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     } else if ( d->usingListBox() && ( object == d->listBox() || object == d->listBox()->viewport() )) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
-        case QEvent::MouseMove:
+	case QEvent::MouseMove:
 	    if ( !d->mouseWasInsidePopup  ) {
 		QPoint pos = e->pos();
 		if ( d->listBox()->rect().contains( pos ) )
@@ -1480,8 +1480,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	    break;
-        case QEvent::MouseButtonDblClick:
-        case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
 	    if ( !d->listBox()->rect().contains( e->pos() ) ) {
 		QPoint globalPos = d->listBox()->mapToGlobal(e->pos());
 		if ( QApplication::widgetAt( globalPos, TRUE ) == this ) {
@@ -1518,7 +1518,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     } else if ( !d->usingListBox() && object == d->popup() ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {
-        case QEvent::MouseButtonRelease:
+	case QEvent::MouseButtonRelease:
 	    if ( d->shortClick ) {
 		QMouseEvent tmp( QEvent::MouseMove,
 				 e->pos(), e->button(), e->state() ) ;
@@ -1527,8 +1527,8 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		return TRUE;
 	    }
 	    break;
-        case QEvent::MouseButtonDblClick:
-        case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
 	    if ( !d->popup()->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
 		d->popup()->removeEventFilter( this );

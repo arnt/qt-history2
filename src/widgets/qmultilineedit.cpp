@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#59 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -198,7 +198,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setBackgroundMode( PaletteBase );
     setWFlags( WResizeNoErase );
     setKeyCompression( TRUE );
-    setFocusPolicy( StrongFocus );
+    setFocusPolicy( WheelFocus );
     setCursor( ibeamCursor );
     verticalScrollBar()->setCursor( arrowCursor );
     horizontalScrollBar()->setCursor( arrowCursor );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#446 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#447 $
 **
 ** Implementation of QWidget class
 **
@@ -2750,6 +2750,8 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
   <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
   and clicking.
+  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts 
+  focus by using the mouse wheel.
   <li> \c QWidget::NoFocus, the widget does not accept focus
   </ul>
 

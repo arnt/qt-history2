@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#278 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#279 $
 **
 ** Implementation of QListBox widget class
 **
@@ -476,8 +476,8 @@ highlighted.
   If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
 
-  A list box has \c StrongFocus as a default focusPolicy(), i.e. it can
-  get keyboard focus both by tabbing and clicking.
+  A list box has \c WheelFocus as a default focusPolicy(), i.e. it can
+  get keyboard focus both by tabbing, clicking and the mouse wheel.
 
   New items may be inserted using either insertItem(), insertStrList()
   and inSort().
@@ -546,8 +546,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(ensureCurrentVisible()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
-    viewport()->setFocusProxy( this ); // ### wrong way around, kind of
-    setFocusPolicy( StrongFocus );
+    viewport()->setFocusProxy( this ); 
+    viewport()->setFocusPolicy( WheelFocus );
     viewport()->setBackgroundMode( PaletteBase );
 }
 

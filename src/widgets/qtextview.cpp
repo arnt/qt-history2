@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#23 $
 **
 ** Implementation of the QTextView class
 **
@@ -148,7 +148,8 @@ void QTextView::init()
     d->textformat = AutoText;
 
     viewport()->setBackgroundMode(NoBackground);
-    setFocusPolicy( StrongFocus );
+    viewport()->setFocusProxy( this );
+    viewport()->setFocusPolicy( WheelFocus );
 
     d->resizeTimer = new QTimer( this );
     connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
@@ -243,7 +244,7 @@ void QTextView::createRichText()
 {
     d->papcolgrp = d->mypapcolgrp;
     d->paplinkcol = d->mylinkcol;
-    
+
     d->doc_ = new QRichText( d->txt, viewport()->font(), d->contxt,
 			     8, mimeSourceFactory(), styleSheet() );
     if ( !d->doc_->attributes() )
@@ -384,7 +385,7 @@ const QColorGroup& QTextView::paperColorGroup() const
 
 /*!
   Sets the color used to display links in the document to \c col.
-  
+
   \sa linkColor()
  */
 void QTextView::setLinkColor( const QColor& col )
@@ -394,18 +395,18 @@ void QTextView::setLinkColor( const QColor& col )
 }
 
 /*!
-  Returns the current link color. 
-  
+  Returns the current link color.
+
   The color may either have been set with setLinkColor() or stem from
   the document's body tag.
-  
+
   \sa setLinkColor()
  */
 const QColor& QTextView::linkColor() const
 {
     return d->paplinkcol;
 }
-    
+
 /*!
   Defines wether or not links should be displayed underlined.
  */
