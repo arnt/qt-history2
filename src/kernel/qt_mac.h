@@ -23,6 +23,7 @@
 #else
 #define QMAC_DEFAULT_STYLE "QPlatinumStyle"
 #endif
+#define QMAC_NO_FAKECURSOR
 
 #undef DEBUG
 #ifdef OLD_DEBUG

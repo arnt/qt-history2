@@ -69,7 +69,6 @@ QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
   Internal QCursorData class
  *****************************************************************************/
 
-#define QMAC_NO_FAKECURSOR
 #ifndef QMAC_NO_FAKECURSOR
 class QMacCursorWidget : public QWidget
 {
@@ -77,12 +76,13 @@ class QMacCursorWidget : public QWidget
     QPixmap *pm;
 public:
     QMacCursorWidget(QBitmap *mask, QPixmap *pix) : 
-	QWidget(0, "fake_cursor", WType_Popup | WRepaintNoErase)
+	QWidget(0, "fake_cursor", WType_Dialog | WRepaintNoErase | WStyle_Customize | WStyle_NoBorder)
 	{
 	    pm = pix;
 	    hide();
 	    resize(pm->width(), pm->height());
 	    setMask(*mask);
+	    ChangeWindowAttributes((WindowPtr)handle(), kWindowNoShadowAttribute, 0);
 	}
     ~QMacCursorWidget() { }
 protected:
@@ -123,7 +123,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 {
 #ifndef QMAC_NO_FAKECURSOR
     if(c->data->type == QCursorData::TYPE_FakeCursor) {
-	/* That's right folks, I want nice big pixmaps - if apple won't give them to me, why
+	/* That's right folks, I want nice big cursors - if apple won't give them to me, why
 	   I'll just take them!!! */
 	c->data->curs.fc.widget->move(p->h - c->data->curs.fc.empty_curs->hotSpot.h, 
 				      p->v - c->data->curs.fc.empty_curs->hotSpot.v);
@@ -138,7 +138,7 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
     if(currentCursor != c->handle()) {
 #ifndef QMAC_NO_FAKECURSOR
 	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor) 
-	    currentCursor->curs.fc.widget->move(-666, -666);
+	    currentCursor->curs.fc.widget->hide();
 #endif
 	if(c->data->type == QCursorData::TYPE_CursPtr) {
 	    SetCursor(c->data->curs.cp.hcurs);

@@ -208,6 +208,36 @@ void qt_mac_destroy_widget(QWidget *w)
 	qt_app_im.endCompose(FALSE);
 }
 
+static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
+{
+    Point p;
+    p.h = x;
+    p.v = y;
+    WindowPtr wp;
+    short ret = FindWindow(p, &wp);
+#ifndef QMAC_NO_FAKECURSOR
+    if(wp && !unhandled_dialogs.find((void *)wp)) {
+	QWidget *tmp_w = QWidget::find((WId)wp);
+	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
+	    tmp_w->hide();
+	    ret = qt_mac_find_window(x, y, w);
+	    tmp_w->show();
+	    return ret;
+	}
+    }
+#endif
+    if(w) {
+	if(wp && !unhandled_dialogs.find((void *)wp)) {
+	    *w = QWidget::find((WId)wp);
+	    if(!*w)
+		qWarning("qt_mac_find_window: Couldn't find %d",(int)wp);
+	} else {
+	    *w = NULL;
+	}
+    }
+    return ret;
+}
+
 bool qt_nograb()				// application no-grab option
 {
 #if defined(QT_DEBUG)
@@ -634,26 +664,15 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 QWidget *QApplication::widgetAt( int x, int y, bool child)
 {
     //find the tld
-    Point p;
-    p.h=x;
-    p.v=y;
-    WindowPtr wp;
-    FindWindow(p,&wp);
-    if(!wp || unhandled_dialogs.find((void *)wp))
-	return NULL; //oh well, not my widget!
-
-    //get that widget
-    QWidget * widget=QWidget::find((WId)wp);
-    if(!widget) {
-	qWarning("Couldn't find %d",(int)wp);
+    QWidget *widget;
+    qt_mac_find_window( x, y, &widget);
+    if(!widget) 
 	return 0;
-    }
 
     //find the child
     if(child) {
-	QMacSavedPortInfo savedInfo(widget);
-	GlobalToLocal( &p ); //now map it to the window
-	widget = qt_recursive_match(widget, p.h, p.v);
+	QPoint p = widget->mapFromGlobal(QPoint(x, y));
+	widget = qt_recursive_match(widget, p.x(), p.y());
     }
     return widget;
 }
@@ -1283,10 +1302,8 @@ static int get_key(int key, int scan)
 
 bool QApplication::do_mouse_down( Point *pt )
 {
-    WindowPtr wp;
-    short windowPart;
-    windowPart = FindWindow( *pt, &wp );
-    QWidget *widget = QWidget::find( (WId)wp );
+    QWidget *widget;
+    short windowPart = qt_mac_find_window( pt->h, pt->v, &widget);
     bool in_widget = FALSE;
 
     switch( windowPart ) {
@@ -1332,7 +1349,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	break; }
     case inDrag:
     {
-	    DragWindow( wp, *pt, 0 );
+	    DragWindow( (WindowPtr)widget->handle(), *pt, 0 );
 	    QPoint np, op(widget->crect.x(), widget->crect.y());
 	    {
 		QMacSavedPortInfo savedInfo(widget);
@@ -1359,7 +1376,8 @@ bool QApplication::do_mouse_down( Point *pt )
 			 extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
 			 extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
 	}
-	int growWindowSize = GrowWindow( wp, *pt, limits.left == -2 ? NULL : &limits);
+	int growWindowSize = GrowWindow( (WindowPtr)widget->handle(), 
+					 *pt, limits.left == -2 ? NULL : &limits);
 	if( growWindowSize) {
 	    // nw/nh might not match the actual size if setSizeIncrement is used
 	    int nw = LoWord( growWindowSize );
@@ -1372,19 +1390,19 @@ bool QApplication::do_mouse_down( Point *pt )
 	break;
     }
     case inCollapseBox:
-	if( TrackBox( wp, *pt, windowPart ) == true ) {
+	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
 	    if(widget)
 		widget->showMinimized();
 	}
 	break;
     case inZoomIn:
-	if( TrackBox( wp, *pt, windowPart ) == true ) {
+	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
 	    if(widget)
 		widget->showNormal();
 	}
 	break;
     case inZoomOut:
-	if( TrackBox( wp, *pt, windowPart ) == true ) {
+	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
 	    if(widget)
 		widget->showMaximized();
 	}
@@ -1728,24 +1746,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//handle popup's first
 	QWidget *popupwidget = NULL;
-	bool special_close = FALSE;
-	if( app->inPopupMode() ) {
-	    qt_closed_popup = FALSE;
-
-	    WindowPtr wp;
-	    FindWindow(where,&wp);
-	    if(wp) {
-		QWidget *clt=QWidget::find((WId)wp);
-		if(clt && clt->isPopup())
-		    popupwidget = clt;
-	    }
+	if(app->inPopupMode()) {
+	    QWidget *clt;
+	    qt_mac_find_window( where.h, where.v, &clt );
+	    if(clt && clt->isPopup())
+		popupwidget = clt;
 	    if(!popupwidget)
 		popupwidget = activePopupWidget();
 	    QMacSavedPortInfo savedInfo(popupwidget);
 	    Point gp = where;
 	    GlobalToLocal( &gp ); //now map it to the window
 	    popupwidget = qt_recursive_match(popupwidget, gp.h, gp.v);
-
+	}
+	bool special_close = FALSE;
+	if( popupwidget ) {
+	    qt_closed_popup = FALSE;
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(popupwidget->mapFromGlobal( p ));
 	    bool was_context = FALSE;
