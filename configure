@@ -164,7 +164,7 @@ then
     echo
     echo "This is the Trolltech in-house version of Qt."
     echo
-    Licensee="TrollTech"
+    Licensee="Trolltech"
     Products="qt-internal"
     EMB="/Embedded" #fixme
 else
