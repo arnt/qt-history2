@@ -58,6 +58,7 @@ public:
     static int customCount();
     static QRgb customColor( int );
     static void setCustomColor( int, QRgb );
+    static void setStandardColor( int, QRgb );
 
 private:
     ~QColorDialog();
