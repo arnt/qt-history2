@@ -65,6 +65,89 @@ inline static void qt_mac_clear_menubar()
     InvalMenuBar();
 }
 
+//creation of the MenuRef
+static EventTypeSpec menu_events[] = {
+    { kEventClassMenu, kEventMenuTargetItem },
+    { kEventClassMenu, kEventMenuDispose }
+};
+struct QMacMenuBind {
+    QMacMenuBind() : qmenubar(0), qmenu(0), mac_menu(0), handler(0) { }
+    Q4MenuBar *qmenubar;
+    Q4Menu *qmenu;
+    MenuRef mac_menu;
+    EventHandlerRef handler;
+};
+QMAC_PASCAL OSStatus qt_menu_event(EventHandlerCallRef er, EventRef event, void *data)
+{
+    bool handled_event = true;
+    QMacMenuBind *mb = (QMacMenuBind*)data;
+    UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+    switch(eclass) {
+    case kEventClassMenu: {
+	if(ekind == kEventMenuTargetItem) {
+	    qDebug("targeting %p %p", mb->qmenu, mb->qmenubar);
+	    handled_event = false;
+	} else if(ekind == kEventMenuDispose) {
+	    delete mb;
+	} else {
+	    handled_event = false;
+	}
+	break; }
+    default:
+	handled_event = false;
+	break;
+    }
+    if(!handled_event) //let the event go through
+	return CallNextEventHandler(er, event);
+    return noErr; //we eat the event
+}
+static EventHandlerUPP mac_menu_eventUPP = 0;
+static void cleanup_menu_eventUPP()
+{
+    DisposeEventHandlerUPP(mac_menu_eventUPP);
+    mac_menu_eventUPP = 0;
+}
+static const EventHandlerUPP make_menu_eventUPP()
+{
+    if(mac_menu_eventUPP)
+	return mac_menu_eventUPP;
+    qAddPostRoutine(cleanup_menu_eventUPP);
+    return mac_menu_eventUPP = NewEventHandlerUPP(qt_menu_event);
+}
+static MenuRef qt_mac_create_menu(QMacMenuBind *mb) 
+{
+    MenuRef ret = 0;
+    if(CreateNewMenu(0, 0, &ret) == noErr) {
+	InstallMenuEventHandler(ret, make_menu_eventUPP(), GetEventTypeCount(menu_events),
+				menu_events, mb, &mb->handler);
+    } else {
+	qWarning("This really cannot happen!!");
+    }
+    return ret;
+}
+inline static MenuRef qt_mac_create_menu(Q4MenuBar *menubar) 
+{
+    QMacMenuBind *mb = new QMacMenuBind;
+    mb->qmenubar = menubar;
+    if(MenuRef mac_menu = qt_mac_create_menu(mb)) {
+	mb->mac_menu = mac_menu;
+	return mac_menu;
+    }
+    delete mb;
+    return 0;
+}
+inline static MenuRef qt_mac_create_menu(Q4Menu *menu) 
+{
+    QMacMenuBind *mb = new QMacMenuBind;
+    mb->qmenu = menu;
+    if(MenuRef mac_menu = qt_mac_create_menu(mb)) {
+	mb->mac_menu = mac_menu;
+	return mac_menu;
+    }
+    delete mb;
+    return 0;
+}
+
 /*****************************************************************************
   Q4Menu bindings
  *****************************************************************************/
@@ -103,10 +186,11 @@ Q4MenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction
     if(action->action->isVisible()) {
 	action->visible = 1;
 
+	MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
 	if(before)
-	    InsertMenuItemTextWithCFString(menu, 0, before_index-1, 0, action->command);
+	    InsertMenuItemTextWithCFString(menu, 0, before_index-1, attr, action->command);
 	else
-	    AppendMenuItemTextWithCFString(menu, 0, 0, action->command, 0);
+	    AppendMenuItemTextWithCFString(menu, 0, attr, action->command, 0);
 	syncAction(action);
     }
 }
@@ -116,9 +200,10 @@ Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 {
     if(!action)
 	return;
+    const short index = findActionIndex(action);
     if(!action->action->isVisible()) {
 	if(action->visible) {
-	    DeleteMenuItem(menu, findActionIndex(action));
+	    DeleteMenuItem(menu, index);
 	    action->visible = 0;
 	}
 	return;
@@ -128,24 +213,115 @@ Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 	if(index+1 < actionItems.size())
 	    before = actionItems[index+1];
 	addAction(action, before);
-	return;
+	return; //sync will be called from there..
     }
 
+    if(action->action->isSeparator()) {
+	ChangeMenuItemAttributes(menu, index, kMenuItemAttrSeparator, 0);
+	return;
+    } else {
+	ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrSeparator);
+    }
+
+    //find text (and accel)
+    action->ignore_accel = 0;
+    QString text = action->action->text();
+    QKeySequence accel = action->action->accel();
+    {
+	int st = text.lastIndexOf('\t');
+	if(st != -1) {
+	    action->ignore_accel = 1;
+	    accel = QKeySequence(text.right(text.length()-(st+1)));
+	    text.remove(st, text.length()-st);
+	}
+    }
+    if(accel.count() > 1)
+	text += " (****)"; //just to denote a multi stroke accelerator
+
     MenuItemDataRec data;
-    data.whichData = 0;
+    memset(&data, '\0', sizeof(data));
 
     //string
     data.whichData |= kMenuItemDataCFString;
-    qt_mac_no_ampersands(action->action->text(), &data.cfText);
+    qt_mac_no_ampersands(text, &data.cfText);
 
-    if(action->action->menu()) { //just submenu
-	data.whichData |= kMenuItemDataSubmenuHandle;
+    //enabled
+    data.whichData |= kMenuItemDataEnabled;
+    data.enabled = action->action->isEnabled();
+
+    //icon
+    data.whichData |= kMenuItemDataIconHandle;
+    data.iconType = kMenuIconRefType;
+    if(!action->action->icon().isNull()) 
+	data.iconHandle = (Handle)qt_mac_create_iconref(action->action->icon().pixmap(QIconSet::Small, QIconSet::Normal));
+    
+    data.whichData |= kMenuItemDataSubmenuHandle;
+    if(action->action->menu()) { //submenu
 	data.submenuHandle = action->action->menu()->macMenu();
-    } else {
+    } else { //respect some other items
+	//accelerators
+	if(accel.isEmpty()) {
+	    data.whichData |= kMenuItemDataCmdKeyModifiers;
+	    data.whichData |= kMenuItemDataCmdKeyGlyph;
+	} else {
+	    int accel_key = accel[0];
+	    data.whichData |= kMenuItemDataCmdKeyModifiers;
+	    if((accel_key & Qt::CTRL) != Qt::CTRL)
+		data.cmdKeyModifiers |= kMenuNoCommandModifier;
+	    if((accel_key & Qt::META) == Qt::META)
+		data.cmdKeyModifiers |= kMenuControlModifier;
+	    if((accel_key & Qt::ALT) == Qt::ALT)
+		data.cmdKeyModifiers |= kMenuOptionModifier;
+	    if((accel_key & Qt::SHIFT) == Qt::SHIFT)
+		data.cmdKeyModifiers |= kMenuShiftModifier;
+
+	    accel_key &= ~(Qt::MODIFIER_MASK | Qt::UNICODE_ACCEL);
+	    if(accel_key == Qt::Key_Return)
+		data.cmdKeyGlyph = kMenuReturnGlyph;
+	    else if(accel_key == Qt::Key_Enter)
+		data.cmdKeyGlyph = kMenuEnterGlyph;
+	    else if(accel_key == Qt::Key_Tab)
+		data.cmdKeyGlyph = kMenuTabRightGlyph;
+	    else if(accel_key == Qt::Key_Backspace)
+		data.cmdKeyGlyph = kMenuDeleteLeftGlyph;
+	    else if(accel_key == Qt::Key_Delete)
+		data.cmdKeyGlyph = kMenuDeleteRightGlyph;
+	    else if(accel_key == Qt::Key_Escape)
+		data.cmdKeyGlyph = kMenuEscapeGlyph;
+	    else if(accel_key == Qt::Key_PageUp)
+		data.cmdKeyGlyph = kMenuPageUpGlyph;
+	    else if(accel_key == Qt::Key_PageDown)
+		data.cmdKeyGlyph = kMenuPageDownGlyph;
+	    else if(accel_key == Qt::Key_Up)
+		data.cmdKeyGlyph = kMenuUpArrowGlyph;
+	    else if(accel_key == Qt::Key_Down)
+		data.cmdKeyGlyph = kMenuDownArrowGlyph;
+	    else if(accel_key == Qt::Key_Left)
+		data.cmdKeyGlyph = kMenuLeftArrowGlyph;
+	    else if(accel_key == Qt::Key_Right)
+		data.cmdKeyGlyph = kMenuRightArrowGlyph;
+	    else if(accel_key == Qt::Key_CapsLock)
+		data.cmdKeyGlyph = kMenuCapsLockGlyph;
+	    else if(accel_key >= Qt::Key_F1 && accel_key <= Qt::Key_F15)
+		data.cmdKeyGlyph = (accel_key - Qt::Key_F1) + kMenuF1Glyph;
+	    else if(accel_key == Qt::Key_Home)
+		data.cmdKeyGlyph = kMenuNorthwestArrowGlyph;
+	    else if(accel_key == Qt::Key_End)
+		data.cmdKeyGlyph = kMenuSoutheastArrowGlyph;
+	    if(data.cmdKeyGlyph) {
+		data.whichData |= kMenuItemDataCmdKeyGlyph;
+	    } else {
+		data.whichData |= kMenuItemDataCmdKey;
+		data.cmdKey = (UniChar)accel_key;
+	    }
+	}
     }
 
     //actually set it
     SetMenuItemData(menu, action->command, true, &data);
+
+    //grrrrr.. why isn't checked in the data?
+    MacCheckMenuItem(menu, index, action->action->isChecked() && action->action->isCheckable());
 }
 
 void 
@@ -178,7 +354,7 @@ Q4MenuPrivate::macMenu()
 	return mac_menu->menu;
     if(!mac_menu)
 	mac_menu = new QMacMenuPrivate;
-    CreateNewMenu(0, 0, &mac_menu->menu);	
+    mac_menu->menu = qt_mac_create_menu(q);
     return mac_menu->menu;
 }
 MenuRef Q4Menu::macMenu() { return d->macMenu(); }
@@ -320,7 +496,7 @@ MenuRef Q4MenuBarPrivate::macMenu()
     if(!mac_menubar) {
 	return 0;
     } else if(!mac_menubar->menu) {
-	CreateNewMenu(0, 0, &mac_menubar->menu);
+	mac_menubar->menu = qt_mac_create_menu(q);
 
 	QList<QAction*> items = q->actions();
 	for(int i = 0; i < items.count(); i++) 

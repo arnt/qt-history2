@@ -15,7 +15,7 @@ struct QMenuAction {
 #ifdef Q_WS_MAC
 struct QMacMenuAction {
     int command;
-    uchar visible : 1;
+    uchar visible : 1, ignore_accel : 1;
     QPointer<QAction> action;
 };
 #endif

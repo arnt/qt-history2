@@ -20,7 +20,9 @@
 #include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 
 //This turns on core graphics (don't use it unless you're Sam!!!)
-#define USE_CORE_GRAPHICS
+#if QT_MACOSX_VERSION >= 0x1030 //for now don't use CG on Jaguar..
+# define USE_CORE_GRAPHICS
+#endif
 
 #if QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
 # define QMAC_NO_FAKECURSOR
