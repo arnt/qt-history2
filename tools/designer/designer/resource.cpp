@@ -529,6 +529,7 @@ bool Resource::save( QIODevice* dev )
 	saveConnections( ts, 0 );
     saveTabOrder( ts, 0 );
     saveMetaInfoAfter( ts, 0 );
+    saveIncludeHints( ts, 0 );
     ts << "</UI>" << endl;
     saveFormCode();
     images.clear();
@@ -653,6 +654,13 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	const char* className = WidgetFactory::classNameOf( obj );
 	if ( obj->isA( "CustomWidget" ) )
 	    usedCustomWidgets << QString( className );
+	if ( WidgetDatabase::
+	     isCustomWidget( WidgetDatabase::idFromClassName( className ) ) ||
+	    WidgetDatabase::
+	     isCustomPluginWidget( WidgetDatabase::idFromClassName( className ) ) )
+	    includeHints
+		<< WidgetDatabase::includeFile( WidgetDatabase::idFromClassName( className ) );
+
 	if ( obj != formwindow && !formwindow->widgets()->find( (QWidget*)obj ) )
 	    return; // we don't know anything about this thing
 
@@ -2444,6 +2452,18 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "<layoutfunctions" << s << m << "/>" << endl;
 	}
     }
+}
+
+void Resource::saveIncludeHints( QTextStream &ts, int indent )
+{
+    if ( includeHints.isEmpty() )
+	return;
+    ts << makeIndent( indent ) << "<includehints>" << endl;
+    indent++;
+    for ( QStringList::Iterator it = includeHints.begin(); it != includeHints.end(); ++it )
+	ts << makeIndent( indent ) << "<includehint>" << *it << "</includehint>" << endl;
+    indent--;
+    ts << makeIndent( indent ) << "</includehints>" << endl;
 }
 
 QColorGroup Resource::loadColorGroup( const QDomElement &e )

@@ -57,6 +57,7 @@ WidgetDatabaseRecord::WidgetDatabaseRecord()
     icon = 0;
     nameCounter = 0;
     isCommon = FALSE;
+    isPlugin = FALSE;
 }
 
 WidgetDatabaseRecord::~WidgetDatabaseRecord()
@@ -575,6 +576,7 @@ void WidgetDatabase::setupPlugins()
 	r->includeFile = iface->includeFile( *it );
 	r->isContainer = iface->isContainer( *it );
 	r->name = *it;
+	r->isPlugin = TRUE;
 	append( r );
 	iface->release();
     }
@@ -841,6 +843,15 @@ bool WidgetDatabase::isCustomWidget( int id )
     if ( id >= dbcustom && id < dbcustomcount )
 	return TRUE;
     return FALSE;
+}
+
+bool WidgetDatabase::isCustomPluginWidget( int id )
+{
+    setupDataBase( id );
+    WidgetDatabaseRecord *r = at( id );
+    if ( !r )
+	return FALSE;
+    return r->isPlugin;
 }
 
 bool WidgetDatabase::isWhatsThisLoaded()
