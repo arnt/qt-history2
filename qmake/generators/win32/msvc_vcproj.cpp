@@ -319,7 +319,7 @@ bool VcprojGenerator::writeProjectMakefile()
 	   mergedProjects.at(0)->vcProject.Name ==
 	   mergedProjects.at(1)->vcProject.Name)
 	    mergedProjects.at(0)->writePrlFile();
-        mergedProject.Name = mergedProjects.at(0)->vcProject.Name;
+        mergedProject.Name = project->first("QMAKE_ORIG_TARGET");
         mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
         mergedProject.ProjectGUID = getProjectUUID();
         mergedProject.Keyword = project->first("VCPROJ_KEYWORD");
