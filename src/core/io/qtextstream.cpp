@@ -59,7 +59,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
         char ch;
         stream >> ch; // ch == 'x'
-    \encode
+    \endcode
 
 
 
