@@ -4,7 +4,7 @@
      DebugPackage.CONFIG = debug
      ReleasePackage.target = release
      ReleasePackage.CONFIG = release
-     BUILDS = DebugPackage ReleasePackage
+     BUILDS += DebugPackage ReleasePackage
   } else:DebugPackage {
      OBJECTS_DIR ~= s,release,debug,g
      MOC_DIR ~= s,release,debug,g
