@@ -1,24 +1,25 @@
 !contains(TEMPLATE, subdirs):!win32-msvc:!macx-xcode {
-  !build_pass {
-     DebugPackage.target = debug
-     DebugPackage.CONFIG = debug
-     ReleasePackage.target = release
-     ReleasePackage.CONFIG = release
-     CONFIG(debug, debug|release) {
-         BUILDS += DebugPackage ReleasePackage
-     } else {
-         BUILDS += ReleasePackage DebugPackage
-     }
-  } else:DebugPackage {
-     isEmpty(OBJECTS_DIR): OBJECTS_DIR = debug
-     else: OBJECTS_DIR ~= s,release,debug,gi
-     isEmpty(MOC_DIR): MOC_DIR = debug
-     else: MOC_DIR ~= s,release,debug,gi
-     #TARGET = $${TARGET}d
-  } else:ReleasePackage {
-     isEmpty(OBJECTS_DIR): OBJECTS_DIR = release
-     else: OBJECTS_DIR ~= s,debug,release,gi
-     isEmpty(MOC_DIR): MOC_DIR = release
-     else: MOC_DIR ~= s,debug,release,gi
-  }
+    !build_pass {
+        DebugPackage.target = debug
+        DebugPackage.CONFIG = debug
+        ReleasePackage.target = release
+        ReleasePackage.CONFIG = release
+        CONFIG(debug, debug|release) {
+            BUILDS += DebugPackage ReleasePackage
+        } else {
+            BUILDS += ReleasePackage DebugPackage
+        }
+    } else {
+        isEmpty(QMAKE_DEBUG_RELEASE):QMAKE_DEBUG_RELEASE += OBJECTS_DIR MOC_DIR RCC_DIR UI_DIR
+        debug_and_release_target:QMAKE_DEBUG_RELEASE += DESTDIR
+        for(fix, QMAKE_DEBUG_RELEASE) {
+            isEmpty($$fix) {
+                DebugPackage:eval($$fix = debug)
+                ReleasePackage:eval($$fix = release)
+            } else {
+                DebugPackage:eval($$fix ~= s/release/debug/gi)
+                ReleasePackage:eval($$fix ~= s/debug/release/gi)
+            }
+        }
+    }
 }
