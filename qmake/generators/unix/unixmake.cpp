@@ -435,7 +435,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     bool resource = FALSE;
     const QString root = "$(INSTALL_ROOT)";
     QStringList &uninst = project->variables()[t + ".uninstall"];
-    QString ret, destdir=fileFixify(project->first("DESTDIR"));
+    QString ret, destdir=project->first("DESTDIR");
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
@@ -480,6 +480,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = root + fileFixify(targetdir + target);
     if(!ret.isEmpty())
 	ret += "\n\t";
+    ret += QString("$(DEL_FILE) ") + (resource ? "-r " : "") + "\"" + dst_targ + "\"" + "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
 	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
