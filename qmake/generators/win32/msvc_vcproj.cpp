@@ -40,6 +40,7 @@
 #include <qdir.h>
 #include <stdlib.h>
 #include <qregexp.h>
+#include <qdict.h>
 
 #if defined(Q_OS_WIN32)
 #include <objbase.h>
@@ -80,7 +81,9 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 }
 
 struct VcsolutionDepend {
+    int uuid;
     QString vcprojFile, orig_target, target;
+    ::target targetType;
     QStringList dependencies;
 };
 
@@ -92,8 +95,9 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	return;
     }
 
-    QPtrList<VcsolutionDepend> solution_depends;
-    solution_depends.setAutoDelete(TRUE);
+    QDict<VcsolutionDepend> solution_depends;
+    QPtrList<VcsolutionDepend> solution_cleanup;
+    solution_cleanup.setAutoDelete(TRUE);
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentDirPath();
     for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
@@ -118,11 +122,12 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			subdirs += tmp_subdirs;
 		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" ||
 			      tmp_proj.first("TEMPLATE") == "vclib") {
+			// We _assume_ target.vcproj, and don't actually check!
 			QString vcproj = fi.baseName() + project->first("VCPROJ_EXTENSION");
 			if(QFile::exists(vcproj) || 1) {
-			    VcprojGenerator tmp_dsp(&tmp_proj);
-			    tmp_dsp.setNoIO(TRUE);
-			    tmp_dsp.init();
+			    VcprojGenerator tmp_vcproj(&tmp_proj);
+			    tmp_vcproj.setNoIO(TRUE);
+			    tmp_vcproj.init();
 			    if(Option::debug_level) {
 				QMap<QString, QStringList> &vars = tmp_proj.variables();
 				for(QMap<QString, QStringList>::Iterator it = vars.begin(); 
@@ -136,6 +141,12 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			    newDep->vcprojFile = fileFixify(vcproj);
 			    newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			    newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
+			    newDep->targetType = tmp_vcproj.projectTarget;
+			    {
+			    	static int uuid = 666;
+			    	newDep->uuid = uuid;
+			    	uuid++;
+			    }
 			    if(newDep->target.endsWith(".dll"))
 				newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
 			    if(!tmp_proj.isEmpty("FORMS")) 
@@ -154,8 +165,17 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 				    }
 				}
 			    }
-			    solution_depends.append(newDep);
-			}
+			    solution_cleanup.append(newDep);
+  			    solution_depends.insert(newDep->target, newDep);
+  			    {
+  			    	QRegExp libVersion("[0-9]{3,3}\\.lib$");
+    	  			if(libVersion.match(newDep->target) != -1) 
+	    			   solution_depends.insert(newDep->target.left(newDep->target.length() - 
+	    						   libVersion.matchedLength()) + ".lib", newDep);
+			    }
+			    t << "\"" << newDep->orig_target << "\" \"" << newDep->vcprojFile 
+			      << "\" { " << newDep->uuid << " }" << endl;
+		        }
 		    }
 		}
 		QDir::setCurrent(oldpwd);
@@ -163,23 +183,15 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	}
     }
 
-    VcsolutionDepend *vc;
-    QMap<QString, int> uuids;
-    QRegExp libVersion("[0-9]{3,3}\\.lib$");
-    for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
-	static int uuid = 666;
-	uuids.insert(vc->target, uuid);
-	if(libVersion.search(vc->target) != -1) 
-	    uuids.insert(vc->target.left(vc->target.length() - libVersion.matchedLength()) + ".lib", 
-			 uuid);
-	t << "\"" << vc->orig_target << "\" \"" << vc->vcprojFile << "\" { " << uuid << " }" << endl;
-	uuid++;
-    }
-    for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
-	int uuid = uuids[vc->target], cnt = 0;
-	for(QStringList::iterator dit = vc->dependencies.begin(); dit != vc->dependencies.end(); ++dit) {
-	    if(uuids.contains((*dit)))
-		t << uuid << "." << cnt++ << " = " << uuids[(*dit)] << endl;
+    for(solution_cleanup.first(); solution_cleanup.current(); solution_cleanup.next()) {
+	int cnt = 0;
+	for(QStringList::iterator dit = solution_cleanup.current()->dependencies.begin(); 
+	    dit != solution_cleanup.current()->dependencies.end(); 
+	    ++dit) {
+	    if(VcsolutionDepend *vc=solution_depends[*dit]) {
+	    	if(solution_cleanup.current()->targetType != StaticLib || vc->targetType == Application)
+		    t << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid << endl;
+	    }
 	}
     }
 }
