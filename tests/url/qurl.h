@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.h#17 $
+** $Id: //depot/qt/main/tests/url/qurl.h#18 $
 **
 ** Implementation of QFileDialog class
 **
@@ -138,6 +138,7 @@ public:
     void emitRemoved( const QString & );
     void emitItemChanged( const QString &oldname, const QString &newname );
     void emitError( int ecode, const QString &msg );
+    void emitData( const QString &d );
     
 signals:
     void entry( const QUrlInfo & );
@@ -147,7 +148,8 @@ signals:
     void removed( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
     void error( int ecode, const QString &msg );
-
+    void data( const QString & );
+    
 protected:
     virtual void reset();
     virtual void parse( const QString& url );
@@ -156,7 +158,7 @@ protected:
 
     static char hex2int( char c );
     void getNetworkProtocol();
-    
+
 private:
     QUrlPrivate *d;
 
@@ -196,6 +198,11 @@ inline void QUrl::emitItemChanged( const QString &oldname, const QString &newnam
 inline void QUrl::emitError( int ecode, const QString &msg )
 {
     emit error( ecode, msg );
+}
+
+inline void QUrl::emitData( const QString &d )
+{
+    emit data( d );
 }
 
 #endif

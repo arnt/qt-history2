@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qnetprotocol.cpp#2 $
+** $Id: //depot/qt/main/tests/url/qnetprotocol.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -95,6 +95,10 @@ void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
 {
 }
 
+void QNetworkProtocol::get()
+{
+}
+
 QUrlInfo QNetworkProtocol::makeInfo() const
 {
     return QUrlInfo();
@@ -109,3 +113,4 @@ QString QNetworkProtocol::toString() const
 {
     return QString::null;
 }
+

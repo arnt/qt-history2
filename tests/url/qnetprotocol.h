@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qnetprotocol.h#1 $
+** $Id: //depot/qt/main/tests/url/qnetprotocol.h#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -45,30 +45,31 @@ QNetworkProtocol *qGetNetworkProtocol( const QString &protocol );
 class QNetworkProtocol : public QObject
 {
     Q_OBJECT
-    
+
 public:
     QNetworkProtocol();
     virtual ~QNetworkProtocol();
-    
+
     virtual void openConnection( QUrl *u );
     virtual bool isOpen();
     virtual void close();
     virtual void setUrl( QUrl *u );
-    
+
     virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 			      int sortSpec = QDir::DefaultSort );
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
+    virtual void get();
     
     virtual QUrlInfo makeInfo() const;
     virtual QNetworkProtocol *copy() const;
     virtual QString toString() const;
-    
+
 protected:
     QUrl *url;
-    
+
 };
 
 #endif
