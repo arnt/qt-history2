@@ -67,12 +67,12 @@ public:
 template<class T> class QSharedPointer : public QExplicitSharedPointer<T>
 {
 public:
-    T * operator->() { if (d && d->ref != 1) detach(); return d; }
-    const T * operator->() const { return d; }
-    operator T *() { if (d && d->ref != 1) detach(); return d; }
-    operator const T *() const { return d; }
-    T * data() { if (d && d->ref != 1) detach(); return d; }
-    const T * data() const { return d; }
+    T * operator->() { if (this->d && this->d->ref != 1) detach(); return this->d; }
+    const T * operator->() const { return this->d; }
+    operator T *() { if (this->d && this->d->ref != 1) detach(); return this->d; }
+    operator const T *() const { return this->d; }
+    T * data() { if (this->d && this->d->ref != 1) detach(); return this->d; }
+    const T * data() const { return this->d; }
 
     QSharedPointer() : QExplicitSharedPointer<T>() {}
 
@@ -88,17 +88,17 @@ public:
 	return *this;
     }
 
-    bool operator!() const { return !d; }
+    bool operator!() const { return !this->d; }
     void detach();
 };
 
 template <class T>
 Q_OUTOFLINE_TEMPLATE void QSharedPointer<T>::detach()
 {
-    if (!d) return;
-    T *x = new T(*d);
+    if (!this->d) return;
+    T *x = new T(*this->d);
     ++x->ref;
-    x = qAtomicSetPtr(&d, x);
+    x = qAtomicSetPtr(&this->d, x);
     if (!--x->ref)
 	delete x;
 }
