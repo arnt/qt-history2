@@ -603,7 +603,8 @@ bool FileDriver::insert( const List& data )
 	}
 	xbShort rc = d->putField( pos, val );
 	if ( rc != XB_NO_ERROR ) {
-	    ERROR_RETURN( "Unable to insert, unable to put field data: " + QString( xbStrError( rc ) ) );
+	    ERROR_RETURN( "Unable to insert, unable to put field data: " + QString( xbStrError( rc ) ) +
+			  " for field: " + name );
 	}
     }
     xbShort rc = d->file.AppendRecord();
@@ -1303,11 +1304,13 @@ bool FileDriver::starDescription( QVariant& v )
 	ERROR_RETURN( "Internal error: Unable to get star description, file not open" );
     }
     List list;
-    for ( uint i = 0; i < count(); ++i ) {
-	QVariant val;
-	//	if ( !fieldDescription( i, val ) ) #### fix
-	    return FALSE;
-	list.append( val );
+    QStringList names = columnNames();
+    QValueList<QVariant::Type> types = columnTypes();
+    for ( uint i = 0; i < names.count(); ++i ) {
+	List fieldDescription;
+	fieldDescription.append( names[i] );
+	fieldDescription.append( (int)types[i] );
+	list.append( fieldDescription );
     }
     v = list;
 #ifdef DEBUG_XBASE
