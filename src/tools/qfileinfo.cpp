@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#53 $
 **
 ** Implementation of QFileInfo class
 **
@@ -56,7 +56,7 @@ extern "C" int readlink( const char *, void *, uint );
 
 #if defined(_OS_FATFS_)
 
-static void convertSeparators( QString& s )
+static void slashify( QString& s )
 {
     for (int i=0; i<(int)s.length(); i++) {
 	if ( s[i] == '\\' )
@@ -66,7 +66,7 @@ static void convertSeparators( QString& s )
 
 #elif defined(UNIX)
 
-static void convertSeparators( QString& )
+static void slashify( QString& )
 {
     return;
 }
@@ -135,7 +135,7 @@ QFileInfo::QFileInfo()
 QFileInfo::QFileInfo( const QString &file )
 {
     fn	  = file;
-    convertSeparators( fn );
+    slashify( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -151,7 +151,7 @@ QFileInfo::QFileInfo( const QString &file )
 QFileInfo::QFileInfo( const QFile &file )
 {
     fn	  = file.name();
-    convertSeparators( fn );
+    slashify( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -168,7 +168,7 @@ QFileInfo::QFileInfo( const QFile &file )
 QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
 {
     fn	  = d.filePath( fileName );
-    convertSeparators( fn );
+    slashify( fn );
     fic	  = 0;
     cache = TRUE;
 }
@@ -257,7 +257,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 void QFileInfo::setFile( const QString &file )
 {
     fn = file;
-    convertSeparators( fn );
+    slashify( fn );
     delete fic;
     fic = 0;
 }
@@ -273,7 +273,7 @@ void QFileInfo::setFile( const QString &file )
 void QFileInfo::setFile( const QFile &file )
 {
     fn	= file.name();
-    convertSeparators( fn );
+    slashify( fn );
     delete fic;
     fic = 0;
 }
@@ -290,7 +290,7 @@ void QFileInfo::setFile( const QFile &file )
 void QFileInfo::setFile( const QDir &d, const QString &fileName )
 {
     fn	= d.filePath( fileName );
-    convertSeparators( fn );
+    slashify( fn );
     delete fic;
     fic = 0;
 }
@@ -867,7 +867,7 @@ void QFileInfo::doStat() const
     if ( qt_winunicode )
 	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
     else
-	r = _stat(qt_winQString2MB(fn), b);
+	r = _stat(qt_winQString2MB(QDir::convertSeparators(fn)), b);
 #endif
 
     if ( r != 0 ) {

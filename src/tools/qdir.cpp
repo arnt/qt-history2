@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#82 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#83 $
 **
 ** Implementation of QDir class
 **
@@ -338,13 +338,14 @@ QString QDir::canonicalPath() const
 		r = qt_winQString(tmp);
 	}
     } else {
-	if ( _chdir(qt_winQString2MB(dPath)) >= 0 ) {
+	if ( _chdir(qt_winQString2MB(convertSeparators(dPath))) >= 0 ) {
 	    char tmp[PATH_MAX];
 	    if ( _getcwd( tmp, PATH_MAX ) )
 		r = tmp;
 	}
     }
     CHDIR( cur );
+    slashify( r );
 #else
     char cur[PATH_MAX];
     char tmp[PATH_MAX];
@@ -920,7 +921,7 @@ bool QDir::isReadable() const
     if ( qt_winunicode ) {
 	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
     } else {
-	return _access(qt_winQString2MB(dPath), R_OK) == 0;
+	return _access(qt_winQString2MB(convertSeparators(dPath)), R_OK) == 0;
     }
 #endif
 }
@@ -1466,6 +1467,7 @@ static int cmp_si( const void *n1, const void *n2 )
 bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
 {
+    int i;
     if ( !fList ) {
 	fList  = new QStringList;
 	CHECK_PTR( fList );
@@ -1525,6 +1527,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
 	p += '/';
     p += "*.*";
+    for ( i=0; i<=plen; i++ )
+	if ( p[i] == '/' )
+	    p[i] = '\\';
 
     if ( qt_winunicode ) {
 	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
@@ -1572,15 +1577,16 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	if ( wc.match(fname) == -1 && !(allDirs && isDir) )
 	    continue;
 
-	QString name = fname;
-	if ( doExecable ) {
-	    QString ext = name.right(4).lower();
-	    if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
-		 ext == ".pif" || ext == ".cmd" )
-		isExecable = TRUE;
-	}
-
 	if  ( (doDirs && isDir) || (doFiles && isFile) ) {
+	    QString name = fname;
+	    slashify(name);
+	    if ( doExecable ) {
+		QString ext = name.right(4).lower();
+		if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
+		     ext == ".pif" || ext == ".cmd" )
+		    isExecable = TRUE;
+	    }
+
 	    if ( noSymLinks && isSymLink )
 		continue;
 	    if ( (filterSpec & RWEMask) != 0 )
@@ -1658,8 +1664,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     // Sort...
     QDirSortItem* si= new QDirSortItem[fiList->count()];
-    int i=0;
     QFileInfo* itm;
+    i=0;
     for (itm = fiList->first(); itm; itm = fiList->next())
 	si[i++].item = itm;
     cmp_si_sortSpec = sortSpec;
