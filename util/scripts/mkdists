@@ -7,10 +7,20 @@ P4PORT=p4.troll.no:866	#point p4 to the correct server
 #internal variables
 YEAR=`date +%Y`
 CREATED_MANIFEST=no
-TMP_DIR=/tmp
-TMP_FILE=${TMP_DIR}/qt-tmpf-$$
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
+
+# This is ugly, but it is faster to do a workaround than to aks a
+# sysadmin to increase the size of /tmp
+if [ "$MYNAME" = "reggie" ]; then
+    TMP_DIR=~/tmp
+    TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+else
+    TMP_DIR=/tmp
+    TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+fi
+
+echo $TMP_DIR
 
 #version info
 REL_VERSION=0.0.0
@@ -984,6 +994,10 @@ for plat in mac win x11 qnx6 embedded; do
 	       popd
 	       pushd qt/dist/win
 	       zip -9q $OUT_TREE/win-selfextractor.zip install.exe
+	       if [ -x $QTDIR/util/packageclient/packageclient ]; then 
+		status "Build windows exe on utsikt.troll.no"
+		$QTDIR/util/packageclient/packageclient $OUT_TREE/win-selfextractor.zip $OUT_TREE/${PLATNAME}.exe utsikt.troll.no
+	       fi
 	       popd
 	   fi
 	fi
