@@ -64,14 +64,14 @@ public:
                                    const QString &caption = QString(),
                                    const QString &dir = QString(),
                                    const QString &filter = QString(),
-                                   const QString &selectedFilter = QString(),
+                                   QString &selectedFilter = QString(),
                                    Options options = 0);
 
     static QString getSaveFileName(QWidget *parent = 0,
                                    const QString &caption = QString(),
                                    const QString &dir = QString(),
                                    const QString &filter = QString(),
-                                   const QString &selectedFilter = QString(),
+                                   QString &selectedFilter = QString(),
                                    Options options = 0);
 
     static QString getExistingDirectory(QWidget *parent = 0,
@@ -83,7 +83,7 @@ public:
                                         const QString &caption = QString(),
                                         const QString &dir = QString(),
                                         const QString &filter = QString(),
-                                        const QString &selectedFilter = QString(),
+                                        QString &selectedFilter = QString(),
                                         Options options = 0);
 
 #ifdef QT_COMPAT
