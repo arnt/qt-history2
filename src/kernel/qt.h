@@ -217,7 +217,6 @@
 #include <qstylefactory.h>
 #include <qstyleinterface.h>
 #include "qstylesheet.h"
-#include <qsvgdevice.h>
 #include "qpainter.h"
 #include <qtabdialog.h>
 #include "qsqleditorfactory.h"
@@ -237,7 +236,6 @@
 #include <qtoolbutton.h>
 #include <qtooltip.h>
 #include "qdesktopwidget.h"
-#include <qtrayicon.h>
 #include <qtsciicodec.h>
 #include "qurloperator.h"
 #include <qhttp.h>
