@@ -84,7 +84,7 @@ The Qt Reference Manual
 The full Qt reference documentation in HTML format is included with this
 evaluation version. You can read it using the Qt Assistant tool, which is
 available on the Qt submenu on the Start menu. You can also read it by
-opening the file QTDIR\doc\html\index.html with any web browser.
+opening the file QTDIR/doc/html/index.html with any web browser.
 
 If you are new to Qt programming, we recommend that you check out the
 tutorial section and the Qt Designer manual. It may also be a good idea to
