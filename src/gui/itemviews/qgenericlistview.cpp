@@ -368,7 +368,7 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 
     if (model()->parent(item) != root())
         return;
-    
+
     if (area.contains(rect)) {
         d->viewport->repaint(rect);
         return;
@@ -765,20 +765,27 @@ void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 
 QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) const
 {
-    QList<QModelIndex> items = selection.items(model());
-    QList<QModelIndex>::iterator it = items.begin();
-    QRect rect;
-    for (; it != items.end(); ++it)
-        rect |= itemRect(*it);
-    items.clear();
-    rect.moveLeft(rect.left() - horizontalScrollBar()->value());
-    rect.moveTop(rect.top() - verticalScrollBar()->value());
-    if (!d->wrap && d->movement == QGenericListView::Static)
-        if (d->flow == QGenericListView::TopToBottom)
-            rect.setWidth(d->viewport->width());
-        else
-            rect.setHeight(d->viewport->height());
-    return rect;
+    if (selection.count() == 1 && selection.at(0).top() == selection.at(0).bottom()) {
+        QModelIndex singleItem = model()->index(selection.at(0).top(),
+                                                selection.at(0).left(),
+                                                selection.at(0).parent());
+        return itemViewportRect(singleItem);
+    }
+    return d->viewport->clipRegion().boundingRect();
+//     QList<QModelIndex> items = selection.items(model());
+//     QList<QModelIndex>::iterator it = items.begin();
+//     QRect rect;
+//     for (; it != items.end(); ++it)
+//         rect |= itemRect(*it);
+//     items.clear();
+//     rect.moveLeft(rect.left() - horizontalScrollBar()->value());
+//     rect.moveTop(rect.top() - verticalScrollBar()->value());
+//     if (!d->wrap && d->movement == QGenericListView::Static)
+//         if (d->flow == QGenericListView::TopToBottom)
+//             rect.setWidth(d->viewport->width());
+//         else
+//             rect.setHeight(d->viewport->height());
+//     return rect;
 }
 
 void QGenericListView::doItemsLayout()
@@ -1094,7 +1101,7 @@ void QGenericListViewPrivate::init()
     rubberBand->hide();
     viewport->setAcceptDrops(true);
 }
-    
+
 void QGenericListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
