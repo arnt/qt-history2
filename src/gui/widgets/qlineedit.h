@@ -29,6 +29,7 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_OBJECT
 
     Q_ENUMS(EchoMode)
+    Q_PROPERTY(QString inputMask READ inputMask WRITE setInputMask)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(int maxLength READ maxLength WRITE setMaxLength)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
@@ -43,7 +44,6 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool undoAvailable READ isUndoAvailable)
     Q_PROPERTY(bool redoAvailable READ isRedoAvailable)
-    Q_PROPERTY(QString inputMask READ inputMask WRITE setInputMask)
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput)
 
 public:

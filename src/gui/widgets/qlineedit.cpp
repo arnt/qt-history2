@@ -2501,7 +2501,7 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             }
         }
     }
-    q->setText(QString::null);
+    q->setText(text);
 }
 
 
