@@ -3991,11 +3991,14 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    QListViewItem * prev = d->focusItem;
+    if ( !i && firstChild() && firstChild() &&
+	 ( firstChild()->firstChild() || firstChild()->nextSibling() ) )
+	return;
 
+    QListViewItem * prev = d->focusItem;
     d->focusItem = i;
 
-    if ( i != prev && i ) {
+    if ( i != prev ) {
 	if ( i && d->selectionMode == Single ) {
 	    bool changed = FALSE;
 	    if ( prev && prev->selected ) {
@@ -4009,22 +4012,13 @@ void QListView::setCurrentItem( QListViewItem * i )
 	    }
 	    if ( changed )
 		emit selectionChanged();
-	} 
+	}
 
 	if ( i )
 	    repaintItem( i );
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
-    } else if ( !i ) {
-	if ( d->selectionMode == Single ) {
-	    if ( prev && prev->selected ) {
-		prev->setSelected( FALSE );
-		emit selectionChanged();
-	    }
-	}
-	if( prev )
-	    repaintItem( prev );
     }
 }
 
