@@ -51,8 +51,8 @@ public:
     QSqlField * widgetToField( QWidget * widget ) const;
     QWidget *   fieldToWidget( QSqlField * field ) const;
 
-    void        readFields();
-    void        writeFields();
+    void        readRecord();
+    void        writeRecord();
 
     void        installPropertyMap( QSqlPropertyMap * map );
 
@@ -87,8 +87,8 @@ public:
 
 
 public slots:
-    void readFields();
-    void writeFields();
+    void readRecord();
+    void writeRecord();   
     void clear();
 
     virtual void first();

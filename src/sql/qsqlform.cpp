@@ -178,7 +178,7 @@ void QSqlFormMap::clear()
     for( it = map.begin(); it != map.end(); ++it ){
 	(*it)->clear();
     }
-    readFields();
+    readRecord();
 }
 
 /*!
@@ -239,7 +239,7 @@ QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
   Update the widgets in the map with values from the actual database
   fields.
 */
-void QSqlFormMap::readFields()
+void QSqlFormMap::readRecord()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
@@ -256,7 +256,7 @@ void QSqlFormMap::readFields()
 
   Update the actual database fields with values from the widgets.
 */
-void QSqlFormMap::writeFields()
+void QSqlFormMap::writeRecord()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
@@ -298,7 +298,7 @@ void QSqlFormMap::writeFields()
   form.associate( w, myView.field( 0 ) );
 
   // Now, update the contents of the form from the fields in the form.
-  form.readFields();
+  form.readRecord();
   \endcode
 
   If you want to use custom editors for displaying/editing data fields,
@@ -471,10 +471,10 @@ bool QSqlForm::autoDelete() const
   fields. Also emits a signal to indicate that the form state has
   changed.
 */
-void QSqlForm::readFields()
+void QSqlForm::readRecord()
 {
     if( v ){
-	map.readFields();
+	map.readRecord();
 	emit stateChanged( v->at() );
     } else
 	qWarning( "QSqlForm: No view associated with this form." );
@@ -484,10 +484,10 @@ void QSqlForm::readFields()
 
   Refresh the SQL fields with values from the associated widgets.
 */
-void QSqlForm::writeFields()
+void QSqlForm::writeRecord()
 {
     if( v )
-	map.writeFields();
+	map.writeRecord();
     else
 	qWarning( "QSqlForm: No view associated with this form." );
 }
@@ -499,7 +499,7 @@ void QSqlForm::writeFields()
 void QSqlForm::clear()
 {
     map.clear();
-    readFields();
+    readRecord();
 }
 
 /*!
@@ -509,7 +509,7 @@ void QSqlForm::clear()
 void QSqlForm::first()
 {
     if( v && v->first() ){
-	readFields();
+	readRecord();
     }
 }
 
@@ -520,7 +520,7 @@ void QSqlForm::first()
 void QSqlForm::last()
 {
     if( v && v->last() ){
-	readFields();
+	readRecord();
     }
 }
 
@@ -536,7 +536,7 @@ void QSqlForm::next()
 	if( v->at() == QSqlResult::AfterLast ){
 	    v->last();
 	}
-	readFields();
+	readRecord();
     }
 }
 
@@ -551,7 +551,7 @@ void QSqlForm::prev()
 	if( v->at() == QSqlResult::BeforeFirst ){
 	    v->first();
 	}
-	readFields();
+	readRecord();
     }
 }
 
@@ -563,7 +563,7 @@ void QSqlForm::prev()
 bool QSqlForm::insert()
 {
     if( !readOnly && v ){
-	writeFields();
+	writeRecord();
 	v->insert();
 	return TRUE;
     }
@@ -578,7 +578,7 @@ bool QSqlForm::insert()
 bool QSqlForm::update()
 {
     if( !readOnly && v ){
-	writeFields();
+	writeRecord();
 	if( v->update( v->primaryIndex() ) )
 	    return TRUE;
     }
@@ -593,7 +593,7 @@ bool QSqlForm::update()
 bool QSqlForm::del()
 {
     if( !readOnly && v && v->del( v->primaryIndex() ) ){
-	readFields();
+	readRecord();
 	return TRUE;
     }
     return FALSE;
@@ -606,7 +606,7 @@ bool QSqlForm::del()
 void QSqlForm::seek( uint i )
 {
     if( v && v->seek( i ) ){
-	readFields();
+	readRecord();
     }
 }
 
@@ -625,11 +625,8 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
 
     if( !widget || !view ) return;
 
-    //###
-    //    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
-    //	                                  factory;
-    QEditorFactory* f = 0;
-
+    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
+    	                                  factory;    
     QWidget * editor;
     QLabel * label;
     QVBoxLayout * vb = new QVBoxLayout( widget );
@@ -640,28 +637,32 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
 
     QString pi = view->primaryIndex().toString();
 
+    int visibleFields = 0;
+    // Count visible fields
+    for( uint i = 0; i < view->count(); i ++ ){
+	if( view->field( i )->isVisible() )
+	    visibleFields++;
+    }
+    
     if( columns < 1 ) columns = 1;
-    int numPerColumn = view->count() / columns;
+    int numPerColumn = visibleFields / columns;
 
-    if( (view->count() % columns) > 0)
+    if( (visibleFields % columns) > 0)
 	numPerColumn++;
 
     int col = 0, currentCol = 0;
 
-    for(uint i = 0; i < view->count(); i++){
+    for( uint i = 0; i < view->count(); i++ ){
 	if( col >= numPerColumn ){
 	    col = 0;
 	    currentCol += 2;
 	}
 
-	// Do not show primary index fields in the form
-	QString name = view->field( i )->name();
-	if( name == pi ) continue;
+	// Do not show primary index fields or foreign keys in the form
+	if( view->field( i )->name() == pi || !view->field( i )->isVisible() )
+	    continue;
 
-	// ### crap - use the field displayLabel() instead!
-	name[0] = name[0].upper(); // capitalize the first letter
-	label = new QLabel( name, widget );
-
+	label = new QLabel( view->field( i )->displayLabel(), widget );
 	g->addWidget( label, col, currentCol );
 
 	editor = f->createEditor( widget, view->value( i ) );
@@ -671,8 +672,6 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
     }
 
     setView( view );
-    readFields();
+    readRecord();
 }
-
-
 #endif // QT_NO_SQL
