@@ -1117,7 +1117,7 @@ void QNPInstance::print(QPainter*)
     note that the SGML specification does not permit multiple
     arguments with the same name.
 
-    \sa arg()
+    \sa arg(), argn()
 */
 int QNPInstance::argc() const
 {
@@ -1125,11 +1125,13 @@ int QNPInstance::argc() const
 }
 
 /*!
-    Returns the name of the \a{i}-th argument. See argc().
+    Returns the name of the \a{i}-th argument.
+
+    \sa argc(), argv()
 */
 const char* QNPInstance::argn(int i) const
 {
-    return pi->argv[i];
+    return pi->argn[i];
 }
 
 /*!
@@ -1152,7 +1154,9 @@ void QNPInstance::notifyURL(const char*, Reason, void*)
 }
 
 /*!
-    Returns the value of the \a{i}-th argument. See argc().
+    Returns the value of the \a{i}-th argument. 
+    
+    \as argc(), arg()
 */
 const char* QNPInstance::argv(int i) const
 {
