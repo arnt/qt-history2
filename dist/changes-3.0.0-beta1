@@ -223,7 +223,7 @@ stage.
 SVG support
 -----------
 
-SVG is a W3C standard for "Scalable Vector Graphics". Qt 3.0's XML
+SVG is a W3C standard for "Scalable Vector Graphics". Qt 3.0's SVG
 support means that QPicture can optionally generate and import static
 SVG documents. All the SVG features that have an equivalent in
 QPainter are supported.
