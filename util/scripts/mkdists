@@ -136,7 +136,7 @@ for $i ( readdir NSPLUGIN ) {
 
 #
 # We should just insert the version parameter into the qglobal.h, and have
-# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#2 $ or something for purely internal use.
+# qglobal.h use $Id: //depot/qt/main/util/scripts/mkdists#3 $ or something for purely internal use.
 #
 $qglobalfile="$DISTDIR/qt/src/tools/qglobal.h";
 open QGLOBAL, $qglobalfile;
@@ -409,7 +409,7 @@ print "Windows...\n";
 
 # Replace symlinks with real files
 chdir "$DISTDIR/qt/src";
-print "Moving header files...\n";
+print "  Moving header files...\n";
 system("mv ../include/qt.h .") if -f "../include/qt.h";
 system("rm -f ../include/*.h");
 system("mv */q*.h ../include");
@@ -420,13 +420,14 @@ system("mv extensions/nsplugin/src/q*.h include");
 
 cpdist("commercial", "win");
 
-print "Converting Unix text files to DOS...\n";
+print "  Converting Unix text files to DOS...\n";
 chdir $DISTDIR;
 unlink "qt/MANIFEST";
 system(q{find qt -type f -print | fmt -1 | \
 	egrep -v '\.(dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm)$'}
 	." | xargs ${scriptdir}/unix_to_dos");
 
+print "  Packing...\n";
 open WINCOMM, "| zip -\@ -q -9 qtwin${VERSIONWIN}.zip";
 chdir "$DISTDIR/qt";
 find ( sub {
@@ -440,7 +441,8 @@ find ( sub {
 }, "." );
 close WINCOMM;
 
-system("zip -r -q -9 $qt${VERSIONWIN}-doconly.zip qt/doc");
+chdir "$DISTDIR";
+system("zip -r -q -9 qt${VERSIONWIN}-doconly.zip qt/doc");
 
 print "Cleaning up...\n";
 
