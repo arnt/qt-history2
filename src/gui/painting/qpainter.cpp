@@ -500,8 +500,10 @@ void QPainter::drawPoint(const QPoint &p)
 	return;
     d->engine->updateState(d->state);
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform))
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
 	d->engine->drawPoint(xForm(p));
+	return;
+    }
 
     d->engine->drawPoint(p);
 }
