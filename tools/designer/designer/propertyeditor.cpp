@@ -642,11 +642,12 @@ static QString to_string( const QVariant &v, bool accel )
 void PropertyTextItem::showEditor()
 {
     PropertyItem::showEditor();
-    if ( !lin ) {
+    if ( !lin || lin->text().length() == 0 ) {
 	lined()->blockSignals( TRUE );
 	lined()->setText( to_string( value(), accel ) );
 	lined()->blockSignals( FALSE );
     }
+
     QWidget* w;
     if ( hasMultiLines )
 	w = box;
