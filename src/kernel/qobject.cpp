@@ -45,6 +45,10 @@
 #include <private/qucom_p.h>
 #include "qptrvector.h"
 
+#ifdef QT_THREAD_SUPPORT
+#include <qmutex.h>
+#endif
+
 #include <ctype.h>
 
 #ifndef QT_NO_USERDATA
@@ -259,30 +263,41 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 
 
 static QObjectList* object_trees = 0;
+
+#ifdef QT_THREAD_SUPPORT
+static QMutex *obj_trees_mutex = 0;
+#endif
+
 static void cleanup_object_trees()
 {
     delete object_trees;
     object_trees = 0;
+    delete obj_trees_mutex;
+    obj_trees_mutex = 0;
 }
 
 static void ensure_object_trees()
 {
-    if ( object_trees )
-	return;
     object_trees = new QObjectList;
     qAddPostRoutine( cleanup_object_trees );
 }
 
 static void insert_tree( QObject* obj )
 {
-    ensure_object_trees();
+    if ( !obj_trees_mutex )
+	obj_trees_mutex = new QMutex();
+    QMutexLocker locker( obj_trees_mutex );
+    if ( !object_trees )
+	ensure_object_trees();
     object_trees->insert(0, obj );
 }
 
 static void remove_tree( QObject* obj )
 {
-    if ( object_trees )
+    if ( object_trees ) {
+	QMutexLocker locker( obj_trees_mutex );
 	object_trees->removeRef( obj );
+    }
 }
 
 
@@ -2098,23 +2113,33 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
     if ( clist->count() == 1 ) { // save iterator
 	c = clist->first();
 	object = c->object();
-	if ( object->senderObjects )
+	QObject *oldSender;
+	if ( object->senderObjects ) {
+	    oldSender = ((QSenderObjectList *) object->senderObjects)->currentSender;
 	    ((QSenderObjectList *) object->senderObjects)->currentSender = this;
+	}
 	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
+	if ( object->senderObjects )
+	    ((QSenderObjectList *) object->senderObjects)->currentSender = oldSender;
     } else {
 	QConnectionListIt it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
 	    object = c->object();
-	    if ( object->senderObjects )
+	    QObject *oldSender;
+	    if ( object->senderObjects ) {
+		oldSender = ((QSenderObjectList *) object->senderObjects)->currentSender;
 		((QSenderObjectList *) object->senderObjects)->currentSender = this;
+	    }
 	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
+	    if ( object->senderObjects )
+		((QSenderObjectList *) object->senderObjects)->currentSender = oldSender;
 	}
     }
 }
