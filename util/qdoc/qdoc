@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#169 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#170 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2201,7 +2201,7 @@ sub memberlists {
     $tail = "";
 
     foreach ( sort keys %anchor ) {
-	if ( $type{$anchor{$_}} eq "class" ) {
+	if ( $type{$anchor{$_}} eq "class" && $name{$anchor{$_}} eq $_ ) {
 	    print O $tail;
 	    $file = $anchor{$_};
 	    $file =~ s/\.html/-members.html/;
