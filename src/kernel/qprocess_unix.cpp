@@ -357,6 +357,15 @@ void QProcessManager::removeMe()
 
 void QProcessManager::sigchldHnd( int fd )
 {
+    // make sure that this function is not called recursively -- this can
+    // happen, if you enter the event loop in the slot connected to the
+    // processExited() signal (e.g. by showing a modal dialog) and there are
+    // more than one process which exited in the meantime
+    static bool alreadyCalled = FALSE;
+    if ( alreadyCalled )
+	return;
+    alreadyCalled = TRUE;
+
     char tmp;
     ::read( fd, &tmp, sizeof(tmp) );
 #if defined(QT_QPROCESS_DEBUG)
@@ -412,6 +421,7 @@ void QProcessManager::sigchldHnd( int fd )
 	    proc = procList->next();
 	}
     }
+    alreadyCalled = FALSE;
 }
 
 #include "qprocess_unix.moc"
