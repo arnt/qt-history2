@@ -52,13 +52,13 @@ void QThreadPrivate::setEventLoop(QThread *thread, QEventLoop *eventLoop)
     if (!thread) {
         if (eventLoop)
             Q_ASSERT_X(!globalEventLoop, "QEventLoop",
-                       "Cannot have more than one event loop per application");
+                       "Cannot have more than one event loop per application")
         globalEventLoop = eventLoop;
         return;
     }
     if (eventLoop)
         Q_ASSERT_X(!thread->d->eventloop, "QEventLoop",
-                   "Cannot have more than one event loop per thread");
+                   "Cannot have more than one event loop per thread")
     thread->d->eventloop = eventLoop;
 }
 
