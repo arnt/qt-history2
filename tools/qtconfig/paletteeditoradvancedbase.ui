@@ -306,9 +306,6 @@
                             <property name="focusPolicy">
                                 <enum>TabFocus</enum>
                             </property>
-                            <property name="scale" stdset="0">
-                                <bool>false</bool>
-                            </property>
                             <property name="toolTip" stdset="0">
                                 <string>Choose a color</string>
                             </property>
@@ -473,9 +470,6 @@
                             <property name="focusPolicy">
                                 <enum>TabFocus</enum>
                             </property>
-                            <property name="scale" stdset="0">
-                                <bool>false</bool>
-                            </property>
                             <property name="toolTip" stdset="0">
                                 <string>Choose a color</string>
                             </property>
@@ -572,7 +566,6 @@
         <signal>changed()</signal>
         <property type="Color">color</property>
         <property type="Pixmap">pixmap</property>
-        <property type="Bool">scale</property>
     </customwidget>
 </customwidgets>
 <images>
