@@ -21,7 +21,7 @@
 #include "qsqlrecord.h"
 #include "qstringlist.h"
 #include "qwidget.h"
-#include "qdict.h"
+#include "qhash.h"
 
 class QSqlFormPrivate
 {
@@ -29,8 +29,8 @@ public:
     QSqlFormPrivate() : propertyMap( 0 ), buf( 0 ), dirty( FALSE ) {}
     ~QSqlFormPrivate() { if ( propertyMap ) delete propertyMap; }
     QStringList fld;
-    QDict<QWidget> wgt;
-    QMap< QWidget *, QSqlField * > map;
+    QHash <QString, QWidget*> wgt;
+    QMap <QWidget*, QSqlField *> map;
     QSqlPropertyMap * propertyMap;
     QSqlRecord* buf;
     bool dirty;

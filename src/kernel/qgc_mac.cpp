@@ -118,13 +118,6 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 		 "result of a paintEvent");
 //	return false;
     }
-    if(pdev->isExtDev() && pdev->paintingActive()) {
-	// somebody else is already painting
-	qWarning("QPainter::begin: Another QPainter is already painting "
-		 "this device;\n\tAn extended paint device can only be painted "
-		 "by one QPainter at a time.");
-	return false;
-    }
 
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;

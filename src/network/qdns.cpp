@@ -74,7 +74,7 @@ static Q_UINT32 now()
 
 
 static QList<QHostAddress*> *ns = 0;
-static QStrList * domains = 0;
+static QList<QByteArray> *domains = 0;
 
 static void doResInit();
 
@@ -894,28 +894,27 @@ QDnsManager::QDnsManager()
     ::ns = ns;
     ::ns->setAutoDelete( TRUE );
 
-    QStrList * domains = new QStrList( TRUE );
-
-    ::domains->first();
-    const char * s;
-    while( (s=::domains->current()) != 0 ) {
-	domains->first();
-	while( domains->current() != 0 && qstrcmp( domains->current(), s ) )
-	    domains->next();
-	if ( !domains->current() ) {
-	    domains->append( s );
+    QList<QByteArray> *new_domains = new QList<QByteArray>;
+    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it) {
+	bool found = false;
+	for(QList<QByteArray>::Iterator it2 = new_domains->begin(); it2 != new_domains->end(); ++it2) {
+	    if((*it) == (*it2)) {
+		found = true;
+		break;
+	    }
+	}
+	if(!found) {
+	    new_domains->append((*it)); 
 #if defined(QDNS_DEBUG)
 	    qDebug( "searching domain %s", s );
 	} else {
 	    qDebug( "skipping domain %s", s );
 #endif
 	}
-	::domains->next();
     }
 
-    delete ::domains;
-    ::domains = domains;
-    ::domains->setAutoDelete( TRUE );
+    delete domains;
+    domains = new_domains;
 }
 
 
@@ -1609,12 +1608,8 @@ void QDns::setLabel( const QString & label )
 	}
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
-	    QStrListIterator it( *domains );
-	    const char * dom;
-	    while( (dom=it.current()) != 0 ) {
-		++it;
-		n.append( l.lower() + "." + dom );
-	    }
+	    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it) 
+		n.append( l.lower() + "." + (*it).data() );
 	}
 	n.append( l.lower() );
     }
@@ -2217,8 +2212,7 @@ static void doResInit()
 	return;
     ns = new QList<QHostAddress *>;
     ns->setAutoDelete( TRUE );
-    domains = new QStrList( TRUE );
-    domains->setAutoDelete( TRUE );
+    domains = new QList<QByteArray>;
 
     QString domainName, nameServer, searchList;
 
@@ -2380,8 +2374,7 @@ static void doResInit()
 	return;
     ns = new QList<QHostAddress *>;
     ns->setAutoDelete( TRUE );
-    domains = new QStrList( TRUE );
-    domains->setAutoDelete( TRUE );
+    domains = new QList<QByteArray>;
 
 #if defined(Q_MODERN_RES_API)
     struct __res_state res;
@@ -2409,13 +2402,13 @@ static void doResInit()
 #  if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ ) {
 	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
+	    domains->append( QByteArray(QString::fromLatin1( _res.dnsrch[i] ).lower()) );
 	else
 	    break;
     }
 #  endif
     if ( *_res.defdname )
-	domains->append( QString::fromLatin1( _res.defdname ).lower() );
+	domains->append( QByteArray(QString::fromLatin1( _res.defdname ).lower()) );
 #endif
 
     QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
