@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#12 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#13 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -166,9 +166,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     id = popup->insertItem( "&New" );
     popup->setItemEnabled( id, FALSE );
     id = popup->insertItem( "&Open", this, SLOT( open() ) );
-    
+
     movie = QMovie( MOVIEFILENAME );
-    
+
     //experimental
     QLabel* l = new QLabel(0,0);
     l->setFixedSize( 128, 64 );
@@ -754,6 +754,6 @@ void WidgetView::mySelectionChanged( QListViewItem* item )
 void WidgetView::wellArraySelected(int row, int cell)
 {
     QPalette p( qApp->palette() );
-    p.setBrush( QColorGroup::Background, well->getCellBrush(row, cell) );
+    p.setBrush( QColorGroup::Background, well->cellBrush(row, cell) );
     qApp->setPalette( p, TRUE);
 }
