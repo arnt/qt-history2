@@ -114,11 +114,12 @@ QTreeModel::~QTreeModel()
 void QTreeModel::clear()
 {
     for (int i = 0; i < tree.count(); ++i) {
-        tree.at(i)->par = 0;
         tree.at(i)->view = 0;
         delete tree.at(i);
     }
+    tree.clear();
     delete header;
+    header = 0;
     emit reset();
 }
 
@@ -410,7 +411,7 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     LessThan compare = order == Qt::AscendingOrder ? &lessThan : &greaterThan;
     qHeapSort(begin, end, compare);
 
-    emit dataChanged(index(0, 0, parent), index(count - 1, columnCount() - 1, parent));
+    emit reset();
 }
 
 /*!
@@ -427,7 +428,9 @@ void QTreeModel::sortAll(int column, Qt::SortOrder order)
     QList<QTreeWidgetItem*>::iterator it = tree.begin();
     for (; it != tree.end(); ++it)
         (*it)->sortChildren(column, order, true);
-    emit dataChanged(index(0, 0), index(tree.count() - 1, columnCount() - 1));
+
+    // everything has changed
+    emit reset();
 }
 
 bool QTreeModel::lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
@@ -686,9 +689,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
-    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
-                                 |QAbstractItemModel::ItemIsSelectable
-                                 |QAbstractItemModel::ItemIsCheckable
+    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
                                  |QAbstractItemModel::ItemIsEnabled)
 {
 }
@@ -701,9 +702,7 @@ QTreeWidgetItem::QTreeWidgetItem()
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
-    : view(view), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
-                                    |QAbstractItemModel::ItemIsSelectable
-                                    |QAbstractItemModel::ItemIsCheckable
+    : view(view), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
                                     |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
@@ -721,9 +720,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
-    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
-                                 |QAbstractItemModel::ItemIsSelectable
-                                 |QAbstractItemModel::ItemIsCheckable
+    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsSelectable
                                  |QAbstractItemModel::ItemIsEnabled)
 {
     if (view) {
@@ -742,9 +739,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(parent->view), par(parent),
-      itemFlags(QAbstractItemModel::ItemIsEditable
-                |QAbstractItemModel::ItemIsSelectable
-                |QAbstractItemModel::ItemIsCheckable
+      itemFlags(QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent)
