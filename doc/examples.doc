@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.7 1997/08/06 15:03:12 hanord Exp $
+** $Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.7 1997/08/06 15:03:12 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 2.8 1997/09/03 21:39:20 paul Exp $";
 #endif
 
 
@@ -87,6 +87,14 @@ static char ident[] = "$Id: examples.doc,v 2.7 1997/08/06 15:03:12 hanord Exp $"
 
   \include hello/hello.h
 
+*/
+
+
+/*! \example layout/layout.cpp
+
+  <h1 align=center>Geometry management</h1>
+
+  This example shows how to use Qt's layout classes. 
 */
 
 
