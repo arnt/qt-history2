@@ -9,12 +9,16 @@
 class QPlugInInterface
 {
     friend class QPlugIn;
+    friend class QApplicationInterface;
 public:
     QPlugInInterface(): cIfaces( 53 ) 
     {
 	cIfaces.setAutoDelete( TRUE );
     }
     virtual ~QPlugInInterface() {}
+
+    virtual bool connectNotify( QApplication* ) { return TRUE; }
+    virtual bool disconnectNotify( QApplication* ) { return TRUE; }
 
     virtual QString name() { return QString::null; }
     virtual QString description() { return QString::null; }

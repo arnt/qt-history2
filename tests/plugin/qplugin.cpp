@@ -34,6 +34,28 @@
 */
 
 /*!
+  \fn bool QPlugInInterface::connectNotify( QApplication* theApp )
+
+  This function gets called by the plugin loader as soon as the interface is validated.
+  Reimplement this function to provide post constructor initialization.
+  
+  If the function returns FALSE, the interface gets deleted immediately. The default
+  implementation returns TRUE.
+*/
+
+/*!
+  \fn bool QPlugInInterface::disconnectNotify()
+
+  This function gets called directly before the interface gets destroyed.
+  Reimplement this function to provide pre destructor cleanup, or to prevent
+  the unloading of the library.
+
+  If the function returns FALSE, the interface remains undestroyed, and the corresponding
+  library is not unloaded.
+  The default implementation returns TRUE.
+*/
+
+/*!
   \fn QString QPlugInInterface::name()
 
   Reimplement this function to return the name of the plugin.
@@ -219,7 +241,7 @@ QPlugIn::~QPlugIn()
   Loads the shared library and initializes function pointers. Returns TRUE if 
   the library was loaded successfully, otherwise does nothing and returns FALSE.
 
-  This function gets called automatically if the policy is not ManualPolicy. 
+  This function gets called automatically if the policy is not Manual. 
   Otherwise you have to make sure that the library has been loaded before usage.
 
   \sa setPolicy()
@@ -245,10 +267,15 @@ bool QPlugIn::load()
 }
 
 /*!
-  Unloads the library. 
-  Calls the library's onDisconnect routine and returns TRUE if the library 
-  was unloaded. Does nothing and returns FALSE otherwise.
+  Calls the interface's disconnectNotify method and unloads the library.
+  When disconnectNotify returns FALSE, the library will not be unloaded,
+  and the function returns FALSE. Thus the plugin interface can prevent
+  the unloading of the library, e.g. when the application still uses
+  an object that would be unsafe to delete.
+  Otherwise, the interface is deleted and the library unloaded, and the
+  function returns TRUE.
 
+  \warning
   If \a force is set to TRUE, the library gets unloaded
   at any cost, which is in most cases a segmentation fault,
   so you should know what you're doing!
@@ -259,16 +286,8 @@ bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
 	if ( ifc ) {
-	    ConnectProc dc;
-    #if defined(_WS_WIN_)
-	    dc = (ConnectProc) GetProcAddress( pHnd, "onDisconnect" );
-    #elif defined(_WS_X11_)
-	    dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
-    #endif
-	    if ( dc ) {
-		if ( !dc( qApp ) && !force)
-		    return FALSE;
-	    }
+	    if ( !ifc->disconnectNotify( qApp ) && !force )
+		return FALSE;
 
 	    delete ifc;
 	    ifc = 0;
@@ -337,7 +356,7 @@ bool QPlugIn::use()
 }
 
 /*!
-  Loads the interface of the shared library and calls the onConnect routine.
+  Loads the interface of the shared library and calls the connectNotify function.
   Returns TRUE if successful, or FALSE if the interface could not be loaded.
 
   When a QApplication is present, the function will try to connect the 
@@ -369,7 +388,14 @@ bool QPlugIn::loadInterface()
 	delete ifc;
 	ifc = 0;
 	return FALSE;
-    } else if ( qApp ) {
+    } 
+    if ( !ifc->connectNotify( qApp ) ) {
+	delete ifc;
+	ifc = 0;
+	return FALSE;
+    }
+
+    if ( qApp ) {
 	QStrList appIfaces = qApp->queryInterfaceList();
 	for ( uint i = 0; i < appIfaces.count(); i++ ) {
 	    QCString iface = appIfaces.at( i );
@@ -378,10 +404,7 @@ bool QPlugIn::loadInterface()
 		QClientInterface* ci = plugInterface()->requestClientInterface( iface );
 		QApplicationInterface* ai = qApp->requestApplicationInterface( iface );
 		if ( ai && ci ) {
-		    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-		    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
-		    QObject::connect( ci, SIGNAL(makeConnection(const char*,QObject*,const char*)), ai, SLOT(requestSignal(const char*,QObject*,const char*)) );
-		    QObject::connect( ci, SIGNAL(eventFilter(QObject*)), ai, SLOT(requestEvents(QObject*)) );
+		    ai->connectToClient( ci );
 		    ifc->connectNotify( iface );
 		} else {
 #ifdef CHECK_RANGE
@@ -396,15 +419,7 @@ bool QPlugIn::loadInterface()
 	}
     }
 
-#if defined(_WS_WIN_)
-    ConnectProc c = (ConnectProc) GetProcAddress( pHnd, "onConnect" );
-#elif defined(_WS_X11_)
-    ConnectProc c = (ConnectProc) dlsym( pHnd, "onConnect" );
-#endif
-    if( c )
-	c( qApp );
-
-    return ifc != 0;
+    return TRUE;
 }
 
 /*!

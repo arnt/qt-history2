@@ -41,7 +41,6 @@ private:
     QPlugInInterface* ifc;
 
     typedef QPlugInInterface* (*LoadInterfaceProc)();
-    typedef bool (*ConnectProc)( QApplication* );
 
 #ifdef _WS_WIN_
     HINSTANCE pHnd;

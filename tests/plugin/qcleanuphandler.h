@@ -36,7 +36,7 @@ public:
 	return TRUE;
     }
 
-protected:
+private:
     QList<QGuardedPtr<Type> > cleanUpObjects;
 };
 
@@ -63,7 +63,7 @@ public:
 	return !cleanUpObjects.count();
     }
 
-protected:
+private:
     QList<QPixmap> cleanUpObjects;
 };
 
