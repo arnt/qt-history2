@@ -65,11 +65,12 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
     Q_PROPERTY( QString markedText READ markedText )
     Q_PROPERTY( bool dragEnabled READ dragEnabled WRITE setDragEnabled )
+    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
 
 public:
     QLineEdit( QWidget *parent, const char *name=0 );
     QLineEdit( const QString &, QWidget *parent, const char *name=0 );
-   ~QLineEdit();
+    ~QLineEdit();
 
     QString text() const;
 

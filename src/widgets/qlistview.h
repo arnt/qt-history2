@@ -59,7 +59,7 @@ class QMimeSource;
 class QLineEdit;
 class QListViewToolTip;
 
-class Q_EXPORT QListViewItem: public Qt
+class Q_EXPORT QListViewItem : public Qt
 {
     friend class QListViewItemIterator;
     friend class QListViewToolTip;
@@ -246,6 +246,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
     Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
+    Q_PROPERTY( int treeStepSize READ treeStepSize WRITE setTreeStepSize )
 
 public:
     QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );

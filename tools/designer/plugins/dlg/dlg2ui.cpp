@@ -127,7 +127,7 @@ static const struct {
     { "ListView", "ItemMargin", "itemMargin", "integer" },
     { "ListView", "MultiSelection", "multiSelection", "boolean" },
     { "ListView", "RootIsDecorated", "rootIsDecorated", "boolean" },
-    { "ListView", "TreeStepSize", 0, 0 },
+    { "ListView", "TreeStepSize", "treeStepSize", "boolean" },
     { "MultiLineEdit", "AutoUpdate", 0, 0 },
     { "MultiLineEdit", "EchoMode", 0, 0 },
     { "MultiLineEdit", "HorizontalMargin", 0, 0 },

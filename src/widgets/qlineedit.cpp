@@ -1388,13 +1388,16 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
     return d->mode;
 }
 
-/*!  Enables read-only mode if \a enable is TRUE and disables it if \a
-  enable is FALSE.  In read-only mode, the user can copy the text to
-  the clipboard or drag-and-drop the text but cannot edit it.
+
+/*! \property QLineEdit::readOnly
+    \brief whether the line edit is read only.
+
+  In read-only mode, the user can still copy the text to the
+  clipboard or drag-and-drop the text, but cannot edit it.
 
   QLineEdit does not show a cursor in read-only mode.
 
-  \sa setEnabled(), isReadOnly()
+  \sa setEnabled()
 */
 void QLineEdit::setReadOnly( bool enable )
 {
@@ -1404,21 +1407,16 @@ void QLineEdit::setReadOnly( bool enable )
 #endif
 }
 
-/*!
-  Returns whether the line-edit is read-only.
-  \sa setReadOnly()
-*/
 bool QLineEdit::isReadOnly() const
 {
     return d->readonly;
 }
 
-
-
 /*!
   Returns a recommended size for the widget.
 
-  The width returned is enough for a few characters, typically 15 to 20.
+  The width returned is enough for a few characters, typically 15 to 20
+  pixels.
 */
 QSize QLineEdit::sizeHint() const
 {
@@ -1434,7 +1432,7 @@ QSize QLineEdit::sizeHint() const
 /*!
   Returns a minimum size for the line edit.
 
-  The width returned is enough for at least one character.
+  The width returned is enough for one character at least.
 */
 
 QSize QLineEdit::minimumSizeHint() const

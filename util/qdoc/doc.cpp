@@ -222,10 +222,13 @@ static QString getRestOfParagraph( const QString& in, int& pos )
     int begin = pos;
     while ( pos < (int) in.length() && numNLsInRow < 2 ) {
 	QChar ch = in[pos];
-        if ( ch.unicode() == '\n' )
+        if ( ch.unicode() == '\n' ) {
 	    numNLsInRow++;
-	else if ( !ch.isSpace() )
+	} else if ( !ch.isSpace() ) {
+	    if ( numNLsInRow == 1 && ch == QChar('\\') )
+		break;
 	    numNLsInRow = 0;
+	}
 	pos++;
     }
 

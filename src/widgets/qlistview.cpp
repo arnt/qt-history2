@@ -277,13 +277,15 @@ static QPoint activatedP;
 
 // NOT REVISED
 /*!
-  \class QListViewItem qlistview.h
+  \class QListViewItem
   \brief The QListViewItem class implements a list view item.
 
   A list view item is a multi-column object capable of displaying
-  itself.  Its design has the following main goals: <ul> <li> Work
-  quickly and well for \e large sets of data. <li> Be easy to use in
-  the simple case. </ul>
+  itself.  Its design has the following main goals:
+  \list
+  \i Work quickly and well for \e large sets of data.
+  \i Be easy to use in the simple case.
+  \endlist
 
   The simplest way to use QListViewItem is to construct one with a few
   constant strings.  This creates an item that is a child of \e
@@ -291,11 +293,11 @@ static QPoint activatedP;
   it:
 
   \code
-     (void) new QListViewItem( parent, "first column", "second column" );
+    (void) new QListViewItem( parent, "first column", "second column" );
   \endcode
 
-  This object will be deleted when \e parent is deleted, as for \link
-  QObject QObjects. \endlink
+  This object will be deleted when \e parent is deleted, as for
+  \l {QObject}s.
 
   The parent is either another QListViewItem or a QListView.  If the
   parent is a QListView, this item is a top-level item within that
@@ -350,8 +352,8 @@ static QPoint activatedP;
   whenever the user clicks on the item or presses space when the item
   is the currently highlighted item.</ul>
 
-  Some subclasses call setExpandable( TRUE ) even when they have no
-  children, and populate themselves when setup() or setOpen( TRUE ) is
+  Some subclasses call setExpandable(TRUE) even when they have no
+  children, and populate themselves when setup() or setOpen(TRUE) is
   called.  The dirview/dirview.cpp example program uses precisely this
   technique to start up quickly: The files and subdirectories in a
   directory aren't entered into the tree until they need to.
@@ -2146,7 +2148,7 @@ void QListViewPrivate::Root::setup()
 */
 
   /*!
-  \class QListView qlistview.h
+  \class QListView
   \brief The QListView class implements a list/tree view.
   \ingroup advanced
 
@@ -2783,13 +2785,13 @@ void QListView::buildDrawableList() const
     }
 }
 
+/*! \property QListView::treeStepSize
+    \brief the number of pixels a child is offset from its parent
 
+  The default is 20 pixels.
 
-
-/*!  Returns the number of pixels a child is offset from its parent.
-  This number has meaning only for tree views.  The default is 20.
-
-  \sa setTreeStepSize()
+  Of course, this property is meaningless for non-hierarchical list
+  views.
 */
 
 int QListView::treeStepSize() const
@@ -2797,21 +2799,13 @@ int QListView::treeStepSize() const
     return d->levelWidth;
 }
 
-
-/*!  Sets the number of pixels a child is offset from its parent in a tree
-  view to \a l.  The default is 20.
-
-  \sa treeStepSize()
-*/
-
-void QListView::setTreeStepSize( int l )
+void QListView::setTreeStepSize( int size )
 {
-    if ( l != d->levelWidth ) {
-	d->levelWidth = l;
-	// update
+    if ( size != d->levelWidth ) {
+	d->levelWidth = size;
+	// ### update
     }
 }
-
 
 /*!  Inserts \a i into the list view as a top-level item.  You do not
   need to call this unless you've called takeItem(\a i) or
@@ -2827,8 +2821,12 @@ void QListView::insertItem( QListViewItem * i )
 }
 
 
-/*!  Removes and deletes all the items in this list view and triggers an
-  update. \sa triggerUpdate() */
+/*!
+  Removes and deletes all the items in this list view and triggers an
+  update.
+
+  \sa triggerUpdate()
+*/
 
 void QListView::clear()
 {
@@ -5146,7 +5144,7 @@ void QListView::repaintItem( const QListViewItem * item ) const
 
 
 /*!
-  \class QCheckListItem qlistview.h
+  \class QCheckListItem
   \brief The QCheckListItem class provides checkable list view items.
 
   There are three types of check list items: checkboxes, radio buttons
@@ -6025,7 +6023,7 @@ void QListView::startDrag()
  **********************************************************************/
 
 
-/*! \class QListViewItemIterator qlistview.h
+/*! \class QListViewItemIterator
 
   \brief The QListViewItemIterator class provides an iterator for collections of QListViewItems.
 
