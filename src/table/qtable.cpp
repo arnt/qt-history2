@@ -53,9 +53,7 @@
 #include "qcheckbox.h"
 #include "qdragobject.h"
 #include "qevent.h"
-#include <stdlib.h>
-#include <limits.h>
-#include <wchar.h>
+
 
 class Q_EXPORT QTableHeader : public QHeader
 {
@@ -4870,12 +4868,8 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 
 void QTableHeader::setSectionStateToAll( SectionState state )
 {
-    if ( sizeof( int ) == sizeof( wchar_t ) ) {
-	wmemset( (wchar_t*)states.data(), (int)state, states.count() );
-    } else {
-	for ( int i = 0; i < count(); ++i )
-	    states[ i ] = state;
-    }
+    for ( int i = 0; i < count(); ++i )
+	states[ i ] = state;
 }
 
 /*! Returns the SectionState of section \a s.
