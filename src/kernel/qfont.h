@@ -151,13 +151,6 @@ public:
     QString toString() const;
     bool fromString(const QString &);
 
-    // we will need some central way to convert a charset to an encoding name, but
-    // probably not in QFont
-    // static QString encodingName( CharSet );
-
-    static QFont defaultFont();
-    static void setDefaultFont( const QFont & );
-
     static QString substitute(const QString &);
     static QStringList substitutes(const QString &);
     static QStringList substitutions();
@@ -175,6 +168,9 @@ public:
 
 
 #ifndef QT_NO_COMPAT
+
+    static QFont defaultFont();
+    static void setDefaultFont( const QFont & );
 
     enum CharSet {
 	ISO_8859_1,  Latin1 = ISO_8859_1, AnyCharSet,
