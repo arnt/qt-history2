@@ -1,6 +1,8 @@
 #include <qpicture.h>
 #include <qapplication.h>
 #include <qpainter.h>
+#include <qwidget.h>
+#include <qevent.h>
 
 class DisplayWidget : public QWidget {
 public:
