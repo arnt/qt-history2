@@ -24,8 +24,18 @@ public:
     PlasmaModel(int rows, int cols, QObject *parent = 0);
     ~PlasmaModel();
 
-    int rows() const;
-    int columns() const;
+#ifdef Q_NO_USING_KEYWORD
+    int rowCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::rowCount(parnet); }
+    int columnCount(const QModelIndex &parent) const
+        { return QAbstractItemModel::columnCount(parnet); }
+#else
+    using QAbstractItemModel::rowCount;
+    using QAbstractItemModel::columnCount;
+#endif
+
+    int rowCount() const;
+    int columnCount() const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
 
@@ -36,12 +46,12 @@ private:
     inline int rgb(unsigned char r, unsigned char g, unsigned char b) const
         { return (r << 16) + (g << 8) + b; }
     inline unsigned int value(int row, int column) const
-        { return values.at((row * numCols) + column); }
+        { return values.at((row * cols) + column); }
     inline void setValue(int row, int column, int val)
-        { values[(row * numCols) + column] = val; }
+        { values[(row * cols) + column] = val; }
 
-    int numRows;
-    int numCols;
+    int rows;
+    int cols;
     int timer;
 
     QVector<unsigned int> values;

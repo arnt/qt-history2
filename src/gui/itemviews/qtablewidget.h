@@ -183,8 +183,21 @@ public:
 
     bool isItemVisible(const QTableWidgetItem *item) const;
 
+#ifdef Q_NO_USING_KEYWORD
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+        { QTableView::selectionChanged(selected, deselected); }
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous)
+        { QTableView::currentChanged(current, previous); }
+    void ensureVisible(const QModelIndex &index)
+        { QTableView::ensureVisible(index); }
+#else
+    using QTableView::selectionChanged;
+    using QTableView::currentChanged;
+    using QTableView::ensureVisible;
+#endif
+    
 public slots:
-    void ensureItemVisible(const QTableWidgetItem *item);
+    void ensureVisible(const QTableWidgetItem *item);
     void insertRow(int row);
     void insertColumn(int column);
     void removeRow(int row);
@@ -198,8 +211,8 @@ signals:
                        Qt::KeyboardModifiers modifiers);
     void keyPressed(QTableWidgetItem *item, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void returnPressed(QTableWidgetItem *item);
-    void currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
-    void itemSelectionChanged();
+    void currentChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
+    void selectionChanged();
     void itemEntered(QTableWidgetItem *item, Qt::MouseButton button,
                      Qt::KeyboardModifiers modifiers);
     void aboutToShowContextMenu(QMenu *menu, QTableWidgetItem *item);
@@ -218,7 +231,7 @@ private:
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d, void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current))
     Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight))

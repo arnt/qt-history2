@@ -54,9 +54,12 @@ public:
         { return QAbstractItemModel::rowCount(parnet); }
     int columnCount(const QModelIndex &parent) const
         { return QAbstractItemModel::columnCount(parnet); }
+    void sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+        { QAbstractItemModel::sort(column, parent, order); }
 #else
     using QAbstractItemModel::rowCount;
     using QAbstractItemModel::columnCount;
+    using QAbstractItemModel::sort;
 #endif
     
     void setRowCount(int rows);
@@ -918,7 +921,7 @@ public:
     void emitKeyPressed(const QModelIndex &index, Qt::Key key,
                         Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -955,9 +958,9 @@ void QTableWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->item(index));
 }
 
-void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current, const QModelIndex &previous)
+void QTableWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
-    emit q->currentItemChanged(model()->item(current), model()->item(previous));
+    emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
 void QTableWidgetPrivate::emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
@@ -1485,7 +1488,7 @@ bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QTableWidget::ensureItemVisible(const QTableWidgetItem *item)
+void QTableWidget::ensureVisible(const QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
@@ -1573,10 +1576,10 @@ void QTableWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(itemSelectionChanged()));
+            this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }

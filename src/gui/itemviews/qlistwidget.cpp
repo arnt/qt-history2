@@ -589,7 +589,7 @@ public:
                            Qt::KeyboardModifiers modifiers);
     void emitKeyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void emitReturnPressed(const QModelIndex &index);
-    void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
     void emitItemEntered(const QModelIndex &index, Qt::MouseButton button,
                          Qt::KeyboardModifiers modifiers);
     void emitAboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
@@ -625,11 +625,11 @@ void QListWidgetPrivate::emitReturnPressed(const QModelIndex &index)
     emit q->returnPressed(model()->at(index.row()));
 }
 
-void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
-                                                const QModelIndex &previous)
+void QListWidgetPrivate::emitCurrentChanged(const QModelIndex &current,
+                                            const QModelIndex &previous)
 {
     QListWidgetItem *currentItem = model()->at(current.row());
-    emit q->currentItemChanged(currentItem, model()->at(previous.row()));
+    emit q->currentChanged(currentItem, model()->at(previous.row()));
     emit q->currentTextChanged(currentItem ? currentItem->text() : QString());
 }
 
@@ -1043,7 +1043,7 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QListWidget::ensureItemVisible(const QListWidgetItem *item)
+void QListWidget::ensureVisible(const QListWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
@@ -1089,10 +1089,10 @@ void QListWidget::setup()
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+            this, SLOT(emitCurrentChanged(QModelIndex,QModelIndex)));
     connect(selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(itemSelectionChanged()));
+            this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 
