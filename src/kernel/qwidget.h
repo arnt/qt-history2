@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#33 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#34 $
 **
 ** Definition of QWidget class
 **
@@ -27,7 +27,6 @@ class QWidget : public QObject, public QPaintDevice
 {						// base class for UI objects
 friend class QApplication;
 friend class QPainter;
-friend void  QFont::updateSubscribers();
     Q_OBJECT
 public:
     QWidget( QWidget *parent=0, const char *name=0, WFlags f=0 );
