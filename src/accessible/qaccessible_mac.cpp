@@ -17,6 +17,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qt_mac.h"
 #include "qhash.h"
+#include "qpointer.h"
 #include "qapplication.h"
 
 /*****************************************************************************
@@ -414,7 +415,24 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			Boolean val = (iface->state(0) & Focus) ? true : false;
 			SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
 		    } else if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
-			QVector<int> sel = iface->selection();
+			const int cc = iface->childCount();
+			QVector<int> sel(cc);
+			int selIndex = 0;
+			for (int i = 1; i <= cc; ++i) {
+			    QAccessibleInterface *child = 0;
+			    int i2 = iface->navigate(Child, i, &child);
+			    bool isSelected = false;
+			    if (child) {
+				isSelected = child->state(0) & Selected;
+				child->release();
+				child = 0;
+			    } else {
+				isSelected = iface->state(i2) & Selected;
+			    }
+			    if (isSelected)
+				sel[selIndex++] = i;
+			}
+			sel.resize(selIndex);
 			AXUIElementRef *arr = (AXUIElementRef *)malloc(sizeof(AXUIElementRef) * sel.count());
 			for(int i = 0; i < sel.count(); i++) {
 			    QAccessibleInterface *child_iface;
@@ -490,6 +508,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, NULL,
 					     sizeof(val), NULL, &val) == noErr)
 			    iface->setText(Help, 0, cfstring2qstring(val));
+#if 0
 		    } else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
 			Boolean val;
 			if(GetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, NULL,
@@ -497,6 +516,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    if(val)
 				iface->doAction(0, SetFocus);
 			}
+#endif
 		    } else {
 			qWarning("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		    }
@@ -520,7 +540,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 	    } else if(ekind == kEventAccessibleGetAllActionNames) {
 		QAccessibleInterface *iface;
 		if(QAccessible::queryAccessibleInterface(object, &iface)) {
-		    const int actCount = iface->actionCount(0);
+		    const int actCount = iface->numActions(0);
 		    CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
 		    for(int i = 0; i < actCount; i++) {
 			QString actName = iface->actionText(i, Name, 0);
@@ -536,6 +556,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    CFStringRef act;
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
+#if 0
 		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Press);
 		    } else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) {
@@ -548,10 +569,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			iface->doAction(0, Select);
 		    } else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Cancel);
-		    } else {
+		    } else 
+#endif
+		    {
 			bool found_act = FALSE;
 			const QString qAct = cfstring2qstring(act);
-			const int actCount = iface->actionCount(0);
+			const int actCount = iface->numActions(0);
 			for(int i = 0; i < actCount; i++) {
 			    if(iface->actionText(i, Name, 0) == qAct) {
 				iface->doAction(0, i);
@@ -571,6 +594,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
 		    QString actDesc;
+#if 0
 		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Press, Description, 0);
 		    } else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) {
@@ -583,10 +607,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			actDesc = iface->actionText(Select, Description, 0);
 		    } else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Cancel, Description, 0);
-		    } else {
+		    } else 
+#endif
+		    {
 			bool found_act = FALSE;
 			const QString qAct = cfstring2qstring(act);
-			const int actCount = iface->actionCount(0);
+			const int actCount = iface->numActions(0);
 			for(int i = 0; i < actCount; i++) {
 			    if(iface->actionText(i, Name, 0) == qAct) {
 				actDesc = iface->actionText(i, Description, 0);
