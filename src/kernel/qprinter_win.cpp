@@ -1342,14 +1342,14 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 {
     int lpx = GetDeviceCaps( hdc, LOGPIXELSX );
     int lpy = GetDeviceCaps( hdc, LOGPIXELSY );
-    *top = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx;
-    *left = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy;
-    *bottom = ( GetDeviceCaps( hdc, PHYSICALWIDTH ) -
-		GetDeviceCaps( hdc, HORZRES ) -
-		GetDeviceCaps( handle(), PHYSICALOFFSETX ) ) * res / lpx;
-    *right = ( GetDeviceCaps( hdc, PHYSICALHEIGHT ) -
-	       GetDeviceCaps( hdc, VERTRES ) -
-	       GetDeviceCaps( handle(), PHYSICALOFFSETY ) ) * res / lpy;
+    *top = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy;
+    *left = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx;
+    *bottom = GetDeviceCaps( hdc, PHYSICALHEIGHT )
+	      - GetDeviceCaps( hdc, VERTRES )
+	      - *top;
+    *right = GetDeviceCaps( hdc, PHYSICALWIDTH )
+	     - GetDeviceCaps( hdc, HORZRES )
+	     - *left;
 }
 
 /*
@@ -1366,8 +1366,8 @@ void QPrinter::reinit()
 	    DEVMODE* dm = (DEVMODE*)GlobalLock( hdevmode );
 	    if ( dm ) {
 		writeDevmode( dm );
-		qt_winTchar( printer_name, true );		
-		hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm ); 
+		qt_winTchar( printer_name, true );
+		hdcTmp = CreateDC( L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm );
 		GlobalUnlock( hdevmode );
 	    }
 	} , {
