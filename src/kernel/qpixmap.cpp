@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#37 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ bool QPixmap::load( const char *fileName, const char *format )
 }
 
 /*----------------------------------------------------------------------------
-  Loads an image from the binary data in \e data (\e len bytes).
+  Loads an image from the binary data in \e buf (\e len bytes).
   Returns TRUE if successful, or FALSE if the image could not be loaded.
 
   If \e format is specified, then the loader will try to read the image
@@ -287,10 +287,10 @@ bool QPixmap::load( const char *fileName, const char *format )
   \sa load(), save(), imageFormat()
  ----------------------------------------------------------------------------*/
 
-bool QPixmap::loadFromData( const uchar *data, uint len, const char *format )
+bool QPixmap::loadFromData( const uchar *buf, uint len, const char *format )
 {
     QByteArray a;
-    a.setRawData( (char *)data, len );
+    a.setRawData( (char *)buf, len );
     QBuffer b( a );
     b.open( IO_ReadOnly );
     QImageIO io( &b, format );
@@ -299,7 +299,7 @@ bool QPixmap::loadFromData( const uchar *data, uint len, const char *format )
 #endif
     bool result = io.read();
     b.close();
-    a.resetRawData( (char *)data, len );
+    a.resetRawData( (char *)buf, len );
     if ( result ) {
 	detach();
 	result = convertFromImage( io.image() );

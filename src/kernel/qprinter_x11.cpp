@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#8 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#8 $")
 
 
 /*****************************************************************************
@@ -126,7 +126,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     QPSPrinter *ps = (QPSPrinter*)pdrv;
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	if ( ps && state == PST_IDLE ) {
-	    char *fname  = output_file ? output_filename : tmpnam(0);
+	    char *fname  = output_file ? output_filename.data() : tmpnam(0);
 	    if ( !fname || *fname == '\0' ) {
 #if defined(DEBUG)
 		warning( "QPrinter: File name cannot be null" );

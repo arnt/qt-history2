@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#44 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -146,8 +146,8 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 /*----------------------------------------------------------------------------
   Constructs a scroll bar.
 
-  \arg \e minVal is the minimum scroll bar value.
-  \arg \e maxVal is the maximum scroll bar value.
+  \arg \e minValue is the minimum scroll bar value.
+  \arg \e maxValue is the maximum scroll bar value.
   \arg \e lineStep is the line step value.
   \arg \e pageStep is the page step value.
   \arg \e value is the initial value.
@@ -156,11 +156,11 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
   The \e parent and \e name arguments are sent to the QWidget constructor.
  ----------------------------------------------------------------------------*/
 
-QScrollBar::QScrollBar( int minVal, int maxVal, int lineStep, int pageStep,
+QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 			int value,  Orientation orientation,
 			QWidget *parent, const char *name )
     : QWidget( parent, name ),
-      QRangeControl( minVal, maxVal, lineStep, pageStep, value )
+      QRangeControl( minValue, maxValue, lineStep, pageStep, value )
 {
     orient = orientation;
     init();

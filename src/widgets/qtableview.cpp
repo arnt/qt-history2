@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#9 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#9 $")
 
 
 const int sbDim = 16;
@@ -1723,22 +1723,22 @@ void QTableView::doAutoScrollBars()
     setVerScrollBar( vScrollOn , FALSE );
 }
 
-void QTableView::updateScrollBars( uint flags )
+void QTableView::updateScrollBars( uint f )
 {
-    sbDirty = sbDirty | flags;
+    sbDirty = sbDirty | f;
     if ( inSbUpdate )
 	return;
     inSbUpdate = TRUE;
 
-    if ( testTableFlags(Tbl_autoHScrollBar) && ( sbDirty & horRange ) ||
-	 testTableFlags(Tbl_autoVScrollBar) && ( sbDirty & verRange ) )
-					// If range change and auto
+    if ( testTableFlags(Tbl_autoHScrollBar) && (sbDirty & horRange) ||
+	 testTableFlags(Tbl_autoVScrollBar) && (sbDirty & verRange) )
+					// if range change and auto
 	doAutoScrollBars();		// turn scrollbars on/off if needed
     if ( !doUpdate || !isVisible() ) {
 	inSbUpdate = FALSE;
 	return;
     }
-    if ( testTableFlags(Tbl_hScrollBar) && ( sbDirty & horMask ) ) {
+    if ( testTableFlags(Tbl_hScrollBar) && (sbDirty & horMask) != 0 ) {
 	if ( sbDirty & horGeometry )
 	    hScrollBar->setGeometry( 0,height() - sbDim,
 				     viewWidth() + frameWidth()*2, sbDim );
@@ -1757,7 +1757,7 @@ void QTableView::updateScrollBars( uint flags )
 	    hScrollBar->setValue( xOffs );
     }
 
-    if ( testTableFlags(Tbl_vScrollBar) && ( sbDirty & verMask ) ) {
+    if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
 	    vScrollBar->setGeometry( width() - sbDim, 0,
 				     sbDim, viewHeight() + frameWidth()*2 );
