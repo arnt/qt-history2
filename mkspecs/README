@@ -325,7 +325,7 @@ To configure a system, follow these simple steps.
    	Irix		_SGIAPI
    	Solaris		_XPG5
    This may solve a problem in the short term but is guaranteed to
-   a be maintainance nightmare in the long term. If you don't know
+   be a maintainance nightmare in the long term. If you don't know
    the canonical way of respecifying the default interfaces on a
    given platform, ask someone who knows the platform, have a look
    at the system header files and especially at <unistd.h> and the

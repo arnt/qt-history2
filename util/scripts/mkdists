@@ -729,8 +729,9 @@ for plat in mac win x11 embedded; do
 	esac
 	if [ "$plat" != "embedded" ]; then
 	    #Remove embedded from mkspec so that configure does not think we are running embedded
-	    rm -rf $PLATDIR/mkspecs/qws
+	    rm -rf "$PLATDIR/mkspecs/qws"
 	fi
+	rm -f "$PLATDIR/mkspecs/README"
 	rm -rf "$PLATDIR/examples/kiosk"
 	rm -f "$PLATDIR/lib/fonts/unifont.bdf"
 	rm -rf "$PLATDIR/tmake"
