@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#11 $
 **
 ** Implementation of something useful
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#11 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -302,10 +302,15 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 				       int w, int top, int bottom ) const
 {
 
+
+    //    p->fillRect( -1000, -1000, 2000, 2000, red );
+    //    QApplication::flushX();
+    //    sleep( 1 );
+    //    p->fillRect( -1000, -1000, 2000, 2000, yellow );
+    //    QApplication::flushX();
+    //
     p->fillRect( 0, top, w, bottom - top, cg.base() );
 
-    //QApplication::flushX();
-    //    sleep( 5 );
 
     const QListViewItem * child = firstChild();
     int y = 0;
@@ -348,13 +353,17 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 	    dotlines[c++] = QPoint( w, by );
 	}
 
-	if ( linetop != by ) {
-	    dotlines[c++] = QPoint( bx, linetop );
-	    dotlines[c++] = QPoint( bx, by );
-	}
-
 	y += child->totalHeight();
 	child = child->nextSibling();
+    }
+
+    if ( child )
+	by = QMIN( y, bottom ); // more, nastier overloading.
+    
+
+    if ( linetop != by ) {
+	dotlines[c++] = QPoint( bx, linetop );
+	dotlines[c++] = QPoint( bx, by );
     }
 
     p->setPen( QPen( cg.dark(), 0, DotLine ) );
@@ -491,7 +500,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	// need to paint this item?
 	if ( ih > 0 && head->y < cy+ch && head->y+ih >= cy ) {
-
 	    if ( fx < 0 ) {
 		// find first interesting column, once
 		x = 0;
@@ -545,12 +553,11 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	     head->y + ith > cy &&
 	     head->y + ih < cy + ch ) {
 	    // perhaps even a branch?
-
 	    if ( tx < 0 )
 		tx = root->h->cellPos( root->h->mapToActual( 0 ) );
 		
 	    if ( tx < cx + cw &&
-		 tx + head->l * treeStepSize() ) > cx ) {
+		 tx + head->l * treeStepSize() > cx ) {
 		debug( "tx = %d", tx );
 		p->save();
 		// compute the clip rectangle the safe way
@@ -570,10 +577,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 		p->setClipRect( r );
 
-		debug( "QListView painting tree branches (%d,%d,%d,%d)",
-		       r.left(),r.top(),r.width(),r.height());
-		debug( " item %p ", head->item );
-
+		debug( "QListView painting tree branches %p (%d,%d,%d,%d)",
+		       head->item,r.left(),r.top(),r.width(),r.height());
 
                 p->translate( rleft, rtop );
 		head->item->paintTreeBranches( p, colorGroup(),
