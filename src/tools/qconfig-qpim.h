@@ -38,8 +38,7 @@
 #define QT_NO_SOUND
 #define QT_NO_PROPERTIES
 #define QT_NO_DNS
-#define QT_NO_NETWORK
-#define QT_NO_NETWORKPROTOCOL
+
 #define QT_NO_COLORNAMES
 #define QT_NO_TRANSFORMATIONS
 #define QT_NO_PRINTER
@@ -72,6 +71,17 @@
 #ifndef QT_QWS_IPAQ
 #define QT_NO_QWS_TRANSFORMED
 #endif
+#endif
+
+//The new richtext stuff requires networkprotocol
+
+#ifdef QT_DEMO_SINGLE_FLOPPY 
+#define QT_NO_NETWORK
+#define QT_NO_NETWORKPROTOCOL
+#else
+#define QT_NO_QWS_MULTIPROCESS
+#define QT_NO_NETWORKPROTOCOL_FTP
+#define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 #ifdef QT_DEMO_SINGLE_FLOPPY // VGA16 is all we need
