@@ -1390,7 +1390,7 @@ void QWidget::enabledChange( bool )
 
 QRect QWidget::frameGeometry() const
 {
-    if (isTopLevel()) {
+    if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
@@ -1415,7 +1415,7 @@ QRect QWidget::frameGeometry() const
 */
 int QWidget::x() const
 {
-    if (isTopLevel()) {
+    if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
@@ -1436,7 +1436,7 @@ int QWidget::x() const
 */
 int QWidget::y() const
 {
-    if (isTopLevel()) {
+    if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
@@ -1457,7 +1457,7 @@ int QWidget::y() const
 */
 QPoint QWidget::pos() const
 {
-    if (isTopLevel()) {
+    if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
@@ -2962,7 +2962,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 */
 QSize QWidget::frameSize() const
 {
-    if (isTopLevel()) {
+    if (isTopLevel() && ! isPopup()) {
 	if (fstrut_dirty)
 	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
