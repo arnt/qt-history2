@@ -1082,23 +1082,23 @@ void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 				   const QColorGroup &g,
 				   bool act, bool dis )
 {
-    const int markW = 7;
-    const int markH = 7;
+    const int markW = w > 7 ? 7 : w;
+    const int markH = markW;
     int posX = x + ( w - markW )/2 - 1;
     int posY = y + ( h - markH )/2;
 
     // Could do with some optimizing/caching...
-    QPointArray a( 7*2 );
+    QPointArray a( markH*2 );
     int i, xx, yy;
     xx = posX;
     yy = 3 + posY;
-    for ( i=0; i<3; i++ ) {
+    for ( i=0; i<markW/2; i++ ) {
 	a.setPoint( 2*i,   xx, yy );
 	a.setPoint( 2*i+1, xx, yy+2 );
 	xx++; yy++;
     }
     yy -= 2;
-    for ( i=3; i<7; i++ ) {
+    for ( ; i<markH; i++ ) {
 	a.setPoint( 2*i,   xx, yy );
 	a.setPoint( 2*i+1, xx, yy+2 );
 	xx++; yy--;

@@ -177,7 +177,7 @@ void QCompactStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
 	int mw = checkcol + motifItemFrame;
 	int mh = h - 2*motifItemFrame;
 	if ( mi->isChecked() ) {
-	    drawCheckMark( p, x + motifItemFrame,
+	    drawCheckMark( p, x + motifItemFrame + 2,
 			   y+motifItemFrame, mw, mh, itemg, act, dis );
 	}
     }
