@@ -28,10 +28,6 @@
 #include <qt_windows.h>
 #endif
 
-// see ### in widgetdatabase.cpp
-static bool dbnounload = true;
-static QStringList *dbpaths = 0;
-
 int main(int argc, char * argv[])
 {
     bool impl = false;
@@ -113,7 +109,7 @@ int main(int argc, char * argv[])
             } else if (opt == "nofwd") {
                 nofwd = true;
             } else if (opt == "nounload") {
-                dbnounload = true;
+                // skip
             } else if (opt == "convert") {
                 convert = true;
             } else if (opt == "subdecl") {
@@ -148,11 +144,7 @@ int main(int argc, char * argv[])
                     error = "Missing plugin path.";
                     break;
                 }
-                if (!dbpaths)
-                    dbpaths = new QStringList();
-                QString fn = QFile::decodeName(argv[++n]);
-                dbpaths->append(fn);
-                QCoreApplication::addLibraryPath(fn);
+                ++n; // ignore the next argument
             } else if (opt == "version") {
                 fprintf(stderr,
                          "User Interface Compiler for Qt version %s\n",
