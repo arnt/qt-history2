@@ -201,9 +201,14 @@ bool QButtonGroup::isExclusive() const
   radio buttons\endlink. A non-exclusive group allow many buttons to be
   switched on at the same time.
 
-  The default setting is FALSE.
+  The default setting is FALSE. 
 
-  \sa isExclusive()
+  Note that radio buttons can be set exclusive by both, setExclusive(),
+  and setRadioButtonExclusive(). QButtonGroup treats radio buttons
+  exclusive if either, isExclusive() or isRadioButtonExclusive() evaluates
+  to TRUE.
+
+  \sa isExclusive(), isRadioButtonExclusive(), setRadioButtonExclusive()
 */
 
 void QButtonGroup::setExclusive( bool enable )
