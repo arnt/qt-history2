@@ -1315,7 +1315,7 @@ int QApplication::macProcessEvent(MSG * m)
 
 		QPoint p( er->where.h, er->where.v );
 		QPoint plocal(popupwidget->mapFromGlobal( p ));
-		QMouseEvent qme( etype, plocal, p, button, state );
+		QMouseEvent qme( etype, plocal, p, button | (keys & Qt::ControlButton), state | (keys & Qt::ControlButton) );
 		QApplication::sendEvent( popupwidget, &qme );
 	    } 
 	    
