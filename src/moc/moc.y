@@ -419,13 +419,13 @@ struct Property
 	     const QByteArray &stored,
 	     const QByteArray &editable,
 	     bool override)
-	: lineNo(lineNo), type(typearg), name(name),
+	: lineNo(lineNo_), type(typearg), name(name),
 	  read(read), write(write), reset(reset),
 	  designable(designable),
 	  scriptable(scriptable),
 	  stored(stored),
 	  editable(editable),
-	  override(override),
+	  override(override),d
 	  gspec(ValueSpec)
     {
 	/*
