@@ -25,9 +25,8 @@ void HtmlGenerator::initializeGenerator( const Config& config )
 	const char *right;
     } defaults[] = {
 	{ ATOM_FORMATTING_BOLD, "<b>", "</b>" },
-	{ ATOM_FORMATTING_INDEX, "<--", "-->" },
+	{ ATOM_FORMATTING_INDEX, "<!--", "-->" },
 	{ ATOM_FORMATTING_ITALIC, "<i>", "</i>" },
-	{ ATOM_FORMATTING_LINK, "<b>", "</b>" },
 	{ ATOM_FORMATTING_PARAMETER, "<i>", "</i>" },
 	{ ATOM_FORMATTING_SUBSCRIPT, "<sub>", "</sub>" },
 	{ ATOM_FORMATTING_SUPERSCRIPT, "<sup>", "</sup>" },
@@ -121,7 +120,15 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	out() << formattingLeftMap()[atom->string()];
 	break;
     case Atom::FormattingRight:
-	out() << formattingRightMap()[atom->string()];
+	if ( atom->string() == ATOM_FORMATTING_LINK ) {
+	    if ( link.isEmpty() ) {
+		out() << "</font>";
+	    } else {
+		out() << "</a>";
+	    }
+	} else {
+	    out() << formattingRightMap()[atom->string()];
+	}
 	break;
     case Atom::GeneratedList:
 	if ( atom->string() == "annotatedclasses" ) {
@@ -161,10 +168,24 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::Link:
 	link = linkForNode( marker->resolveTarget(atom->string(), relative),
 			    relative );
+	if ( link.isEmpty() ) {
+	    out() << "<font color=\"red\">";
+	} else {
+	    out() << "<a href=\"" << link << "\">";
+	}
+	inLink = TRUE;
+	skipAhead = 1;
 	break;
     case Atom::LinkNode:
 	link = linkForNode( CodeMarker::nodeForString(atom->string()),
 			    relative );
+	if ( link.isEmpty() ) {
+	    out() << "<font color=\"red\">";
+	} else {
+	    out() << "<a href=\"" << link << "\">";
+	}
+	inLink = TRUE;
+	skipAhead = 1;
 	break;
     case Atom::ListLeft:
 	if ( atom->string() == ATOM_LIST_BULLET ) {
@@ -345,8 +366,8 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
     generateInherits( classe, marker );
     generateInheritedBy( classe, marker );
 
-    generateListOfAllMemberFunctions( classe, marker );
-    out() << "<p><a href=\"foo\">" << "List of all member functions."
+    QString link = generateListOfAllMemberFile( classe, marker );
+    out() << "<p><a href=\"" << link << "\">" << "List of all members."
 	  << "</a></p>\n";
 
     sections = marker->classSections( classe, CodeMarker::Summary );
@@ -355,32 +376,8 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 	out() << "<a name=\"" << registerRef( (*s).name ) << "\"/>\n";
 	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
 
-	if ( !(*s).members.isEmpty() ) {
-	    bool twoColumn = ( (*s).members.count() >= 5 &&
-			       (*s).members.first()->type() == Node::Property );
+	generateClassSectionList( *s, classe, marker, CodeMarker::Summary );
 
-	    if ( twoColumn )
-		out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
-			 " cellspacing=\"0\">\n"
-		      << "<tr><td width=\"45%\" valign=\"top\">";
-	    out() << "<ul>\n";
-
-	    int i = 0;
-	    NodeList::ConstIterator m = (*s).members.begin();
-	    while ( m != (*s).members.end() ) {
-		if ( twoColumn && i == (int) ((*s).members.count() + 1) / 2 )
-		    out() << "</ul></td><td valign=\"top\"><ul>\n";
-
-		out() << "<li><div class=\"fn\"/>";
-		generateSynopsis( *m, classe, marker, CodeMarker::Summary );
-		out() << "</li>\n";
-		i++;
-		++m;
-	    }
-	    out() << "</ul>\n";
-	    if ( twoColumn )
-		out() << "</td></tr>\n</table>\n";
-	}
 	if ( !(*s).inherited.isEmpty() ) {
 	    out() << "<ul>\n";
 	    QValueList<QPair<ClassNode *, int> >::ConstIterator p =
@@ -394,10 +391,9 @@ void HtmlGenerator::generateClassNode( const ClassNode *classe,
 		    out() << (*s).pluralMember;
 		}
 		out() << " inherited from <a href=\"" << fileName( (*p).first )
-		      << "#" << cleanRef( (*s).name ) << "\">"
-		      << protect( plainCode(marker->markedUpFullName(
-						    (*p).first, classe)) )
-		      << "</a></li>\n";
+		      << "#" << cleanRef( (*s).name ) << "\">";
+		generateFullName( (*p).first, classe, marker );
+		out() << "</a></li>\n";
 		++p;
 	    }
 	    out() << "</ul>\n";
@@ -553,17 +549,24 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 }
 #endif
 
-void HtmlGenerator::generateListOfAllMemberFunctions( const ClassNode *classe,
-						      CodeMarker *marker )
+QString HtmlGenerator::generateListOfAllMemberFile( const ClassNode *classe,
+						    CodeMarker *marker )
 {
-    beginSubPage( classe->location(),
-		  fileBase(classe) + "-members." + fileExtension(classe) );
-    generateHeader( "Member Function List for " + classe->name() );
-    out() << "<p>This is the complete list of member functions for "
-	  << highlightedCode( marker->markedUpFullName(classe, 0), classe )
-	  << ", including inherited functions.</p>\n";
+    QString fileName = fileBase( classe ) + "-members." +
+		       fileExtension( classe );
+    beginSubPage( classe->location(), fileName );
+    generateHeader( "List of All Members for " + classe->name() );
+    out() << "<p>This is the complete list of members for ";
+    generateFullName( classe, 0, marker );
+    out() << ", including inherited members.</p>\n";
+
+    ClassSection section =
+	    marker->classSections( classe, CodeMarker::SeparateList ).first();
+    generateClassSectionList( section, 0, marker, CodeMarker::SeparateList );
+
     generateFooter();
     endSubPage();
+    return fileName;
 }
 
 void HtmlGenerator::generateSynopsis( const Node *node,
@@ -586,6 +589,42 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     marked.replace( "</@extra>", "</tt>" );
 
     out() << highlightedCode( marked, relative );
+}
+
+void HtmlGenerator::generateClassSectionList( const ClassSection& section,
+					      const ClassNode *relative,
+					      CodeMarker *marker,
+					      CodeMarker::SynopsisStyle style )
+{
+    if ( !section.members.isEmpty() ) {
+	bool twoColumn = FALSE;
+	if ( style == CodeMarker::SeparateList ) {
+	    twoColumn = ( section.members.count() >= 16 );
+	} else if ( section.members.first()->type() == Node::Property ) {
+	    twoColumn = ( section.members.count() >= 5 );
+	}
+	if ( twoColumn )
+	    out() << "<table width=\"100%\" border=\"0\" cellpadding=\"0\""
+		     " cellspacing=\"0\">\n"
+		  << "<tr><td width=\"45%\" valign=\"top\">";
+	out() << "<ul>\n";
+
+	int i = 0;
+	NodeList::ConstIterator m = section.members.begin();
+	while ( m != section.members.end() ) {
+	    if ( twoColumn && i == (int) (section.members.count() + 1) / 2 )
+		out() << "</ul></td><td valign=\"top\"><ul>\n";
+
+	    out() << "<li><div class=\"fn\"/>";
+	    generateSynopsis( *m, relative, marker, style );
+	    out() << "</li>\n";
+	    i++;
+	    ++m;
+	}
+	out() << "</ul>\n";
+	if ( twoColumn )
+	    out() << "</td></tr>\n</table>\n";
+    }
 }
 
 QString HtmlGenerator::cleanRef( const QString& ref )
@@ -774,9 +813,21 @@ QString HtmlGenerator::linkForNode( const Node *node, const Node *relative )
 	return "";
 
     fn = fileName( node );
-    if ( fn != fileName(relative) )
+    if ( relative == 0 || fn != fileName(relative) )
 	link += fn;
     if ( !node->isInnerNode() )
 	link += "#" + refForNode( node );
     return link;
+}
+
+void HtmlGenerator::generateFullName( const Node *apparentNode,
+				      const Node *relative, CodeMarker *marker,
+				      const Node *actualNode )
+{
+    if ( actualNode == 0 )
+	actualNode = apparentNode;
+    out() << "<a href=\"" << linkForNode( actualNode, relative ) << "\">"
+	  << protect( plainCode(marker->markedUpFullName(apparentNode,
+							 relative)) )
+	  << "</a>";
 }

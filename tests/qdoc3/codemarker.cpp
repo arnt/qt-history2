@@ -156,31 +156,53 @@ QString CodeMarker::sortName( const Node *node )
 {
     if ( node->type() == Node::Function ) {
 	FunctionNode *func = (FunctionNode *) node;
-	int sortNo;
+	QString sortNo;
 	if ( func->metaness() == FunctionNode::Ctor ) {
-	    sortNo = 1;
+	    sortNo = "1";
 	} else if ( func->metaness() == FunctionNode::Dtor ) {
-	    sortNo = 2;
+	    sortNo = "2";
 	} else {
-	    sortNo = 3;
+	    sortNo = "3";
 	}
-	return QString::number( sortNo ) + func->name() + " " +
+	return sortNo + func->name() + " " +
 	       QString::number( func->overloadNumber(), 36 );
     } else {
-	return node->name();
+	return "3" + node->name();
     }
 }
 
-void CodeMarker::insert( FastClassSection& fastSection, Node *node )
+void CodeMarker::insert( FastClassSection& fastSection, Node *node,
+			 SynopsisStyle style )
 {
-    if ( node->parent() == (const InnerNode *) fastSection.classe ) {
-	fastSection.memberMap.insert( sortName(node), node );
-    } else if ( node->parent()->type() == Node::Class ) {
-	if ( fastSection.inherited.isEmpty() ||
-	     fastSection.inherited.last().first != node->parent() )
-	    fastSection.inherited.append(
-		    QPair<ClassNode *, int>((ClassNode *) node->parent(), 0) );
-	fastSection.inherited.last().second++;
+    bool inheritedMember = ( node->parent() !=
+			     (const InnerNode *) fastSection.classe );
+    bool irrelevant = FALSE;
+
+    if ( node->type() == Node::Function ) {
+	FunctionNode *func = (FunctionNode *) node;
+	irrelevant = ( (inheritedMember &&
+			(func->metaness() == FunctionNode::Ctor ||
+			 func->metaness() == FunctionNode::Dtor)) ||
+			(func->overloadNumber() != 1 &&
+			 style == SeparateList) );
+    } else if ( node->type() == Node::Enum ) {
+	irrelevant = ( inheritedMember && style != SeparateList );
+    }
+
+    if ( !irrelevant ) {
+	if ( !inheritedMember || style == SeparateList ) {
+	    fastSection.memberMap.insert( sortName(node), node );
+	} else {
+	    if ( node->parent()->type() == Node::Class ) {
+		if ( fastSection.inherited.isEmpty() ||
+		     fastSection.inherited.last().first != node->parent() ) {
+		    QPair<ClassNode *, int> p( (ClassNode *) node->parent(),
+					       0 );
+		    fastSection.inherited.append( p );
+		}
+		fastSection.inherited.last().second++;
+	    }
+	}
     }
 }
 

@@ -318,8 +318,7 @@ void Generator::generateInherits( const ClassNode *classe,
 	r = classe->baseClasses().begin();
 	index = 0;
 	while ( r != classe->baseClasses().end() ) {
-	    text << Atom( Atom::C,
-			  marker->markedUpFullName((*r).node, classe) );
+	    appendFullName( text, (*r).node, classe, marker );
 	    if ( (*r).access == Node::Protected ) {
 		text << " (protected)";
 	    } else if ( (*r).access == Node::Private ) {
@@ -346,9 +345,8 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 	r = classe->derivedClasses().begin();
 	index = 0;
 	while ( r != classe->derivedClasses().end() ) {
-	    text << Atom( Atom::C,
-			  marker->markedUpFullName((*r).node, classe) )
-		     << separator( index++, classe->derivedClasses().count() );
+	    appendFullName( text, (*r).node, classe, marker );
+	    text << separator( index++, classe->derivedClasses().count() );
 	    ++r;
 	}
 	text << Atom::ParaRight;
@@ -527,12 +525,9 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
     if ( func->reimplementedFrom() != 0 ) {
 	const FunctionNode *from = func->reimplementedFrom();
 	Text text;
-	text << Atom::ParaLeft << "Reimplemented from "
-	     << Atom( Atom::LinkNode, CodeMarker::stringForNode(from) )
-	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_LINK )
-	     << Atom( Atom::C, marker->markedUpFullName(from->parent(), func) )
-	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_LINK ) << "."
-	     << Atom::ParaRight;
+	text << Atom::ParaLeft << "Reimplemented from ";
+	appendFullName( text, from, func, marker, from->parent() );
+	text << "." << Atom::ParaRight;
 	generateText( text, func, marker );
     }
 }
@@ -595,10 +590,23 @@ void Generator::generateReimplementedBy( const FunctionNode *func,
     r = func->reimplementedBy().begin();
     index = 0;
     while ( r != func->reimplementedBy().end() ) {
-	text << Atom( Atom::C, marker->markedUpFullName(*r, func) )
-	     << separator( index++, func->reimplementedBy().count() );
+	appendFullName( text, *r, func, marker );
+	text << separator( index++, func->reimplementedBy().count() );
 	++r;
     }
     text << Atom::ParaRight;
     generateText( text, func, marker );
+}
+
+void Generator::appendFullName( Text& text, const Node *apparentNode,
+				const Node *relative, CodeMarker *marker,
+				const Node *actualNode )
+{
+    if ( actualNode == 0 )
+	actualNode = apparentNode;
+    text << Atom( Atom::LinkNode, CodeMarker::stringForNode(actualNode) )
+	 << Atom( Atom::FormattingLeft, ATOM_FORMATTING_LINK )
+	 << Atom( Atom::String,
+		  plainCode( marker->markedUpFullName(apparentNode, relative)) )
+	 << Atom( Atom::FormattingRight, ATOM_FORMATTING_LINK );
 }

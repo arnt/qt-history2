@@ -44,7 +44,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
     QString name;
 
     name = taggedNode( node );
-    if ( style == Summary )
+    if ( style != Detailed )
         name = linkTag( node, name );
     name = "<@name>" + name + "</@name>";
 
@@ -60,45 +60,44 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 	{
             const FunctionNode *func = (const FunctionNode *) node;
 
-	    if ( style == Summary )
-		synopsis = "function ";
-	    synopsis += name + " (";
+	    synopsis = name;
 
-            if ( !func->parameters().isEmpty() ) {
-        	synopsis += " ";
-        	QValueList<Parameter>::ConstIterator p =
-			func->parameters().begin();
-        	while ( p != func->parameters().end() ) {
-                    if ( p != func->parameters().begin() )
-                	synopsis += ", ";
-		    synopsis += " <@param>" + protect( (*p).name() ) +
-				"</@param> : " + protect( (*p).leftType() );
-                    ++p;
+	    if ( style == SeparateList ) {
+		synopsis += "()";
+	    } else {
+		synopsis += " (";
+        	if ( !func->parameters().isEmpty() ) {
+        	    synopsis += " ";
+        	    QValueList<Parameter>::ConstIterator p =
+			    func->parameters().begin();
+        	    while ( p != func->parameters().end() ) {
+                	if ( p != func->parameters().begin() )
+                	    synopsis += ", ";
+			synopsis += " <@param>" + protect( (*p).name() ) +
+				    "</@param> : " + protect( (*p).leftType() );
+                	++p;
+        	    }
+        	    synopsis += " ";
         	}
-        	synopsis += " ";
-            }
-            synopsis += ")";
+		synopsis += ")";
+	    }
 
-	    if ( !func->returnType().isEmpty() )
+	    if ( style != SeparateList && !func->returnType().isEmpty() )
 		synopsis += " : " + protect( func->returnType() );
 
-            if ( style == Detailed ) {
-        	if ( func->metaness() == FunctionNode::Signal )
-                    extras << "[signal]";
-            }
+            if ( style == Detailed && func->metaness() == FunctionNode::Signal )
+		extras << "[signal]";
 	}
         break;
     case Node::Property:
 	{
             const PropertyNode *property = (const PropertyNode *) node;
 
-	    if ( style == Summary )
-		synopsis = "var ";
-	    synopsis += name + " : " + property->dataType();
-	    if ( style == Detailed ) {
-		if ( property->setter().isEmpty() )
-		    extras << "[read only]";
-	    }
+	    synopsis = name;
+	    if ( style != SeparateList )
+		synopsis += " : " + property->dataType();
+	    if ( style == Detailed && property->setter().isEmpty() )
+		extras << "[read only]";
 	}
         break;
     case Node::Enum:
@@ -215,41 +214,40 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 	    while ( c != ancestorClass->childNodes().end() ) {
 		if ( (*c)->access() == Node::Public ) {
 		    if ( (*c)->type() == Node::Enum ) {
-			insert( enums, *c );
+			insert( enums, *c, style );
 		    } else if ( (*c)->type() == Node::Function ) {
 			const FunctionNode *func = (const FunctionNode *) *c;
 			if ( func->metaness() == FunctionNode::Signal ) {
-			    insert( signalz, *c );
+			    insert( signalz, *c, style );
 			} else {
-			    insert( functions, *c );
+			    insert( functions, *c, style );
 			}
 		    } else if ( (*c)->type() == Node::Property ) {
 			const PropertyNode *property =
 				(const PropertyNode *) *c;
 			if ( property->setter().isEmpty() ) {
-			    insert( readOnlyProperties, *c );
+			    insert( readOnlyProperties, *c, style );
 			} else {
-			    insert( writableProperties, *c );
+			    insert( writableProperties, *c, style );
 			}
 		    }
 		}
 		++c;
 	    }
 
-	    QValueList<RelatedClass>::ConstIterator b =
+	    QValueList<RelatedClass>::ConstIterator r =
 		    ancestorClass->baseClasses().begin();
-	    while ( b != ancestorClass->baseClasses().end() ) {
-		stack.prepend( (*b).node );
-		++b;
+	    while ( r != ancestorClass->baseClasses().end() ) {
+		stack.prepend( (*r).node );
+		++r;
 	    }
 	}
-	enums.inherited.clear();
 	append( sections, enums );
 	append( sections, writableProperties );
 	append( sections, readOnlyProperties );
 	append( sections, functions );
 	append( sections, signalz );
-    } else {
+    } else if ( style == Detailed ) {
 	FastClassSection enums( classe, "Enum Documentation" );
 	FastClassSection functionsAndSignals( classe,
 		"Function and Signal Documentation" );
@@ -259,11 +257,11 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 	while ( c != classe->childNodes().end() ) {
 	    if ( (*c)->access() == Node::Public ) {
 		if ( (*c)->type() == Node::Enum ) {
-		    insert( enums, *c );
+		    insert( enums, *c, style );
 		} else if ( (*c)->type() == Node::Function ) {
-		    insert( functionsAndSignals, *c );
+		    insert( functionsAndSignals, *c, style );
 		} else if ( (*c)->type() == Node::Property ) {
-		    insert( properties, *c );
+		    insert( properties, *c, style );
 		}
 	    }
 	    ++c;
@@ -271,6 +269,30 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 	append( sections, enums );
 	append( sections, properties );
 	append( sections, functionsAndSignals );
+    } else { // ( style == SeparateList )
+	FastClassSection all( classe );
+
+	QValueStack<const ClassNode *> stack;
+	stack.push( classe );
+
+	while ( !stack.isEmpty() ) {
+	    const ClassNode *ancestorClass = stack.pop();
+
+	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	    while ( c != ancestorClass->childNodes().end() ) {
+		if ( (*c)->access() == Node::Public )
+		    insert( all, *c, style );
+		++c;
+	    }
+
+	    QValueList<RelatedClass>::ConstIterator r =
+		    ancestorClass->baseClasses().begin();
+	    while ( r != ancestorClass->baseClasses().end() ) {
+		stack.prepend( (*r).node );
+		++r;
+	    }
+	}
+	append( sections, all );
     }
     return sections;
 }

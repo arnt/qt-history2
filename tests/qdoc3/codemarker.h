@@ -35,7 +35,7 @@ struct FastClassSection
     QMap<QString, Node *> memberMap;
     QValueList<QPair<ClassNode *, int> > inherited;
 
-    FastClassSection( const ClassNode *classe0, const QString& name0,
+    FastClassSection( const ClassNode *classe0, const QString& name0 = "",
 		      const QString& singularMember0 = "member",
 		      const QString& pluralMember0 = "members" )
 	: classe( classe0 ), name( name0 ), singularMember( singularMember0 ),
@@ -45,7 +45,7 @@ struct FastClassSection
 class CodeMarker
 {
 public:
-    enum SynopsisStyle { Summary, Detailed };
+    enum SynopsisStyle { Summary, Detailed, SeparateList };
 
     CodeMarker();
     virtual ~CodeMarker();
@@ -83,7 +83,8 @@ protected:
     QString protect( const QString& string );
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
-    void insert( FastClassSection& fastSection, Node *node );
+    void insert( FastClassSection& fastSection, Node *node,
+		 SynopsisStyle style );
     void append( QValueList<ClassSection>& sectionList,
 		 const FastClassSection& fastSection );
 

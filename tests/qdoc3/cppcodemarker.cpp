@@ -248,39 +248,39 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	    switch ( (*c)->access() ) {
 	    case Node::Public:
 		if ( isSlot ) {
-		    insert( publicSlots, *c );
+		    insert( publicSlots, *c, style );
 		} else if ( isSignal ) {
-		    insert( publicSignals, *c );
+		    insert( publicSignals, *c, style );
 		} else if ( isStatic ) {
-		    insert( staticPublicMembers, *c );
+		    insert( staticPublicMembers, *c, style );
 		} else if ( (*c)->type() == Node::Property ) {
-		    insert( properties, *c );
+		    insert( properties, *c, style );
 		} else if ( (*c)->type() == Node::Function ) {
-		    insert( publicFunctions, *c );	    
+		    insert( publicFunctions, *c, style );
 		} else {
-		    insert( publicTypes, *c );
+		    insert( publicTypes, *c, style );
 		}
 		break;
 	    case Node::Protected:
 		if ( isSlot ) {
-		    insert( protectedSlots, *c );
+		    insert( protectedSlots, *c, style );
 		} else if ( isStatic ) {
-		    insert( staticProtectedMembers, *c );
+		    insert( staticProtectedMembers, *c, style );
 		} else if ( (*c)->type() == Node::Function ) {
-		    insert( protectedFunctions, *c );
+		    insert( protectedFunctions, *c, style );
 		} else {
-		    insert( protectedTypes, *c );
+		    insert( protectedTypes, *c, style );
 		}
 		break;
 	    case Node::Private:
 		if ( isSlot ) {
-		    insert( privateSlots, *c );
+		    insert( privateSlots, *c, style );
 		} else if ( isStatic ) {
-		    insert( staticPrivateMembers, *c );
+		    insert( staticPrivateMembers, *c, style );
 		} else if ( (*c)->type() == Node::Function ) {
-		    insert( privateFunctions, *c );
+		    insert( privateFunctions, *c, style );
 		} else {
-		    insert( privateTypes, *c );
+		    insert( privateTypes, *c, style );
 		}
 	    }
 	    ++c;
@@ -312,11 +312,11 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
 	    if ( (*c)->type() == Node::Enum || (*c)->type() == Node::Typedef ) {
-		insert( memberTypes, *c );
+		insert( memberTypes, *c, style );
 	    } else if ( (*c)->type() == Node::Property ) {
-		insert( properties, *c );
+		insert( properties, *c, style );
 	    } else if ( (*c)->type() == Node::Function ) {
-		insert( memberFunctions, *c );
+		insert( memberFunctions, *c, style );
 	    }
 	    ++c;
 	}

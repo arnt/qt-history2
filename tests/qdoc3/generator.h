@@ -55,6 +55,7 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
+
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );
     QString plainCode( const QString& markedCode );
@@ -77,6 +78,9 @@ private:
 				    CodeMarker *marker );
     void generateReimplementedBy( const FunctionNode *func,
 				  CodeMarker *marker );
+    void appendFullName( Text& text, const Node *apparentNode,
+			 const Node *relative, CodeMarker *marker,
+			 const Node *actualNode = 0 );
 
     QRegExp amp;
     QRegExp lt;

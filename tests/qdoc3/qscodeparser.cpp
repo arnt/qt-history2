@@ -408,14 +408,14 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	return;
     }
 
-    QValueList<RelatedClass>::ConstIterator b = qtClass->baseClasses().begin();
-    while ( b != qtClass->baseClasses().end() ) {
+    QValueList<RelatedClass>::ConstIterator r = qtClass->baseClasses().begin();
+    while ( r != qtClass->baseClasses().end() ) {
 	ClassNode *quickBaseClass = cpp2qs.findClassNode( qsTre,
-							  (*b).node->name() );
+							  (*r).node->name() );
 	if ( quickBaseClass != 0 )
-	    quickClass->addBaseClass( (*b).access, quickBaseClass,
-				      (*b).templateArgs );
-	++b;
+	    quickClass->addBaseClass( (*r).access, quickBaseClass,
+				      (*r).templateArgs );
+	++r;
     }
 
     Set<QString> funcBlackList;

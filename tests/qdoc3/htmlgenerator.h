@@ -49,11 +49,18 @@ private:
     void generateNavigationBar( const NavigationBar& bar, const Node *node,
     				CodeMarker *marker );
 #endif
-    void generateListOfAllMemberFunctions( const ClassNode *classe,
-					   CodeMarker *marker );
+    QString generateListOfAllMemberFile( const ClassNode *classe,
+					 CodeMarker *marker );
     void generateSynopsis( const Node *node, const InnerNode *relative,
 			   CodeMarker *marker,
 			   CodeMarker::SynopsisStyle style );
+    void generateClassSectionList( const ClassSection& section,
+				   const ClassNode *relative,
+				   CodeMarker *marker,
+				   CodeMarker::SynopsisStyle style );
+    void generateFullName( const Node *apparentNode, const Node *relative,
+			   CodeMarker *marker, const Node *actualNode = 0 );
+
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
     QString protect( const QString& string );
