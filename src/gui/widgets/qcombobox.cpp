@@ -220,15 +220,18 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 {
     QComboBox *comboBox = qt_cast<QComboBox *>(parentWidget());
     if (comboBox) {
-        QStyleOptionComboBox opt(0);
-        opt.init(comboBox);
-        opt.parts = QStyle::SC_All;
-        opt.activeParts = QStyle::SC_ComboBoxArrow;
-        QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
-                                                         QStyle::SC_ComboBoxArrow, comboBox);
-        QRect globalArrowRect(comboBox->mapToGlobal(arrowRect.topLeft()),
-                              comboBox->mapToGlobal(arrowRect.bottomRight()));
-        if (globalArrowRect.contains(e->globalPos())) {
+        QRect ignoreRect = rect();
+        if (comboBox->isEditable()) {
+            QStyleOptionComboBox opt(0);
+            opt.init(comboBox);
+            opt.parts = QStyle::SC_All;
+            opt.activeParts = QStyle::SC_ComboBoxArrow;
+            ignoreRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                        QStyle::SC_ComboBoxArrow, comboBox);
+        }
+        ignoreRect = QRect(comboBox->mapToGlobal(ignoreRect.topLeft()),
+                           comboBox->mapToGlobal(ignoreRect.bottomRight()));
+        if (ignoreRect.contains(e->globalPos())) {
             ignoreMousePress = true; // ignore next mousepress (replayed) if click on arrowrect
         }
     }
