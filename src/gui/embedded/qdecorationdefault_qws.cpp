@@ -313,31 +313,40 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
 
 QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
-    int titleHeight = 20;
-    int bw = BORDER_WIDTH;
-    int bbw = BOTTOM_BORDER_WIDTH;
+    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
+    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
+    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
+    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
+    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
+    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+
+    int titleHeight = hasTitle ? 20 : 0;
+    int bw = hasBorder ? BORDER_WIDTH : 0;
+    int bbw = hasBorder ? BOTTOM_BORDER_WIDTH : 0;
 
     QRegion region;
     switch (decorationRegion) {
         case All: {
-                if (widget->isMaximized()) {
-                    QRect r(rect.left(), rect.top() - titleHeight,
-                            rect.width(), rect.height() + titleHeight);
-                    region = r;
-                } else {
-                    QRect r(rect.left() - bw,
-                            rect.top() - titleHeight - bw,
-                            rect.width() + 2 * bw,
-                            rect.height() + titleHeight + bw + bbw);
-                    region = r;
-                }
+                QRect r(rect.left() - bw,
+                        rect.top() - titleHeight - bw,
+                        rect.width() + 2 * bw,
+                        rect.height() + titleHeight + bw + bbw);
+                region = r;
                 region -= rect;
             }
             break;
 
         case Title: {
-                QRect r(rect.left() + titleHeight, rect.top() - titleHeight, rect.width()
-                        - menu_width - close_width - maximize_width - minimize_width - help_width,
+                QRect r(rect.left()
+                        + (hasSysMenu ? titleHeight : 0),
+                        rect.top() - titleHeight,
+                        rect.width()
+                        - (hasSysMenu ? menu_width : 0)
+                        - close_width
+                        - (hasMaximize ? maximize_width : 0)
+                        - (hasMinimize ? minimize_width : 0)
+                        - (hasContextHelp ? help_width : 0),
+
                         titleHeight);
                 if (r.width() > 0)
                     region = r;
@@ -439,41 +448,52 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             break;
 
         case Menu: {
-                QRect r(rect.left(), rect.top() - titleHeight,
-                        menu_width, titleHeight);
-                region = r;
+                if (hasSysMenu) {
+                    region = QRect(rect.left(), rect.top() - titleHeight,
+                                   menu_width, titleHeight);
+                }
             }
             break;
 
         case Help: {
-                QRect r(rect.right() - bw - close_width - maximize_width
-                        - minimize_width - help_width, rect.top() - titleHeight,
-                        help_width, titleHeight);
-                if (r.left() > rect.left() + titleHeight)
-                    region = r;
+                if (hasContextHelp) {
+                    QRect r(rect.right()
+                            - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - (hasMinimize ? minimize_width : 0)
+                            - help_width + 1, rect.top() - titleHeight,
+                            help_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
             }
             break;
 
 
         case Minimize: {
-                QRect r(rect.right() - bw - close_width - maximize_width
-                        - minimize_width, rect.top() - titleHeight,
-                        minimize_width, titleHeight);
-                if (r.left() > rect.left() + titleHeight)
-                    region = r;
+                if (hasMinimize) {
+                    QRect r(rect.right() - close_width
+                            - (hasMaximize ? maximize_width : 0)
+                            - minimize_width + 1, rect.top() - titleHeight,
+                            minimize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
             }
             break;
 
         case Maximize: {
-                QRect r(rect.right() - bw - close_width - maximize_width,
-                        rect.top() - titleHeight, maximize_width, titleHeight);
-                if (r.left() > rect.left() + titleHeight)
-                    region = r;
+                if (hasMaximize) {
+                    QRect r(rect.right() - close_width - maximize_width + 1,
+                            rect.top() - titleHeight, maximize_width, titleHeight);
+                    if (r.left() > rect.left() + titleHeight)
+                        region = r;
+                }
             }
             break;
 
         case Close: {
-                QRect r(rect.right() - bw - close_width, rect.top() - titleHeight,
+                QRect r(rect.right() - close_width + 1, rect.top() - titleHeight,
                         close_width, titleHeight);
                 if (r.left() > rect.left() + titleHeight)
                     region = r;
@@ -493,17 +513,29 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     if (decorationRegion == None)
         return false;
 
-    const QPalette pal = widget->palette();
     const QRect titleRect = QDecoration::region(widget, Title).boundingRect();
+    const QPalette pal = widget->palette();
     int titleHeight = titleRect.height();
     int titleWidth = titleRect.width();
     QRegion oldClipRegion = painter->clipRegion();
 
+    bool hasBorder = !widget->testWFlags(Qt::WStyle_NoBorder) && !widget->isMaximized();
+    bool hasTitle = widget->testWFlags(Qt::WStyle_Title);
+    bool hasSysMenu = widget->testWFlags(Qt::WStyle_SysMenu);
+    bool hasContextHelp = widget->testWFlags(Qt::WStyle_ContextHelp);
+    bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
+    bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
+
     bool paintAll = (decorationRegion == All);
     bool handled = false;
 
-    if ((paintAll || decorationRegion & Borders) && state == Normal) {
-        painter->setClipRegion(oldClipRegion - titleRect); // reduce flicker
+    if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {
+        if (hasTitle) { // reduce flicker
+            QRect rect(widget->rect());
+            QRect r(rect.left() + BORDER_WIDTH, rect.top() - titleHeight,
+                    rect.width() - 2 * BORDER_WIDTH, titleHeight);
+            painter->setClipRegion(oldClipRegion - r);
+        }
         QRect br = QDecoration::region(widget).boundingRect();
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
                     br.height(), pal, false,
@@ -511,7 +543,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         handled |= true;
     }
 
-    if ((paintAll || decorationRegion & Title && titleWidth > 0) && state == Normal) {
+    if ((paintAll || decorationRegion & Title && titleWidth > 0) && state == Normal && hasTitle) {
         painter->setClipRegion(oldClipRegion);
         QBrush titleBrush;
         QPen   titlePen;
@@ -538,22 +570,22 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
 
     if (state != Hover) {
         painter->setClipRegion(oldClipRegion);
-        if (paintAll || decorationRegion & Menu) {
+        if ((paintAll || decorationRegion & Menu) && hasSysMenu) {
             paintButton(painter, widget, Menu, state, pal);
             handled |= true;
         }
 
-        if (paintAll || decorationRegion & Help) {
+        if ((paintAll || decorationRegion & Help) && hasContextHelp) {
             paintButton(painter, widget, Help, state, pal);
             handled |= true;
         }
 
-        if (paintAll || decorationRegion & Minimize) {
+        if ((paintAll || decorationRegion & Minimize) && hasMinimize) {
             paintButton(painter, widget, Minimize, state, pal);
             handled |= true;
         }
 
-        if (paintAll || decorationRegion & Maximize) {
+        if ((paintAll || decorationRegion & Maximize) && hasMaximize) {
             paintButton(painter, widget, Maximize, state, pal);
             handled |= true;
         }
@@ -576,13 +608,11 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
 
     if (state & QDecoration::Pressed) {
-        qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1, brect.height()-1,
-                    pal, true, &pal.brush(QPalette::Background));
+        qDrawWinPanel(painter, brect, pal, true, &pal.brush(QPalette::Background));
         ++xoff;
         ++yoff;
     } else {
-        painter->fillRect(brect.x(), brect.y(), brect.width() - 1, brect.height() - 1,
-                        pal.brush(QPalette::Background));
+        painter->fillRect(brect, pal.brush(QPalette::Background));
     }
 
     if (!pm.isNull())
