@@ -29,6 +29,7 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qlibrary.h"
+#include "qdesktopwidget.h"
 
 #ifdef Q_Q4PAINTER
 #include "qwin32gc.h"
@@ -921,20 +922,20 @@ void QWidget::changeState_helper(WState newstate)
     	    needShow = isVisible();
 
 	    if (newstate & WState_FullScreen) {
-		if ( topData()->normalGeometry.width() < 0 )
-		    topData()->normalGeometry = QRect( pos(), size() );
-		topData()->savedFlags = getWFlags();
+		if ( d->topData()->normalGeometry.width() < 0 )
+		    d->topData()->normalGeometry = QRect( pos(), size() );
+		d->topData()->savedFlags = getWFlags();
 		reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 			 // preserve some widget flags
 			 (getWFlags() & 0xffff0000),
 			 mapToGlobal(QPoint(0, 0)));
 		setGeometry(qApp->desktop()->screenGeometry(this));
 	    } else {
-		reparent( 0, topData()->savedFlags, QPoint(0,0) );
-		QRect r = topData()->normalGeometry;
+		reparent( 0, d->topData()->savedFlags, QPoint(0,0) );
+		QRect r = d->topData()->normalGeometry;
 		if ( r.width() >= 0 ) {
 		    // the widget has been maximized
-		    topData()->normalGeometry = QRect(0,0,-1,-1);
+		    d->topData()->normalGeometry = QRect(0,0,-1,-1);
 		    move(r.topLeft());
 		    resize(r.size());
 		}
@@ -1005,7 +1006,7 @@ void QWidget::showWindow()
 {
     int sm = SW_SHOW;
     if ( isTopLevel() ) {
-	switch ( topData()->showMode ) {
+	switch ( d->topData()->showMode ) {
 	case 1:
 	    sm = SW_HIDE;
 	    break;
@@ -1019,7 +1020,7 @@ void QWidget::showWindow()
 	    sm = SW_SHOW;
 	    break;
 	}
-	topData()->showMode = 0; // reset
+	d->topData()->showMode = 0; // reset
     }
 
     if ( testWFlags(WStyle_Tool) || isPopup() )
@@ -1039,7 +1040,7 @@ void QWidget::showMinimized()
 	    d->topData()->fullscreen = 0;
 	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
 	}
-	topData()->showMode = 1;
+	d->topData()->showMode = 1;
     }
 
     if ( isVisible() )
@@ -1057,14 +1058,14 @@ void QWidget::showMinimized()
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
-	if ( topData()->normalGeometry.width() < 0 ) {
-	    topData()->savedFlags = getWFlags();
-	    topData()->normalGeometry = geometry();
+	if ( d->topData()->normalGeometry.width() < 0 ) {
+	    d->topData()->savedFlags = getWFlags();
+	    d->topData()->normalGeometry = geometry();
 	    reparent( 0,
 		      WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 		      (getWFlags() & 0xffff0000), // preserve some widget flags
-		      topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
+		      d->topData()->normalGeometry.topLeft() );
+	    d->topData()->fullscreen = 0;
 	    SHFullScreen( winId(), SHFS_SHOWTASKBAR | SHFS_SHOWSIPBUTTON );
 	}
 	d->topData()->showMode = 2;
