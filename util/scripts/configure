@@ -48,6 +48,7 @@ NAS_SOUND=no
 I_FLAGS=
 L_FLAGS=
 l_FLAGS=
+XPLATFORM=
 
 # Parse the arguments, setting things to "yes" or "no".
 
@@ -55,6 +56,9 @@ while [ -n "$1" ]; do
    case $1 in
    -platform)
        shift; PLATFORM=$1
+	;;
+   -xplatform)
+       shift; XPLATFORM=$1
 	;;
    -release)
        DEBUG=no
@@ -183,8 +187,12 @@ each option:
  *  -no-nas-sound ...... Do not compile in NAS sound support.
     -system-nas-sound .. Use NAS libaudio from the operating system.
 
-    -platform target ... See the PLATFORMS file for a list of supported
+    -platform target ... The platform you are building on.
+    -xplatform target .. The platform you are building for (cross-compiling).
+
+                         See the PLATFORMS file for a list of supported
                          operating systems and compilers.
+
 
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
@@ -347,9 +355,16 @@ fi
 
 # Check if the platform + static + debug exists
 
+if [ -z "$XPLATFORM" ]
+then
+    XPLATFORM="$PLATFORM"
+fi
+
 TARGET=$PLATFORM
+XTARGET=$XPLATFORM
 if [ "x$SHARED" = "xyes" ]; then
     TARGET="${TARGET}-shared"
+    XTARGET="${XTARGET}-shared"
     if [ '!' -f $relpath/configs/$TARGET ]; then
         echo
         echo
@@ -359,8 +374,18 @@ if [ "x$SHARED" = "xyes" ]; then
         echo
         exit 2
     fi
+    if [ '!' -f $relpath/configs/$XTARGET ]; then
+        echo
+        echo
+        echo '    No shared library support for platform/compiler ' $XTARGET
+        echo '    Please see the PLATFORMS file for more information.'
+        echo
+        echo
+        exit 2
+    fi
 else
     TARGET="${TARGET}-static"
+    XTARGET="${XTARGET}-static"
     if [ '!' -f $relpath/configs/$TARGET ]; then
         echo
         echo
@@ -370,13 +395,24 @@ else
         echo
         exit 2
     fi
+    if [ '!' -f $relpath/configs/$XTARGET ]; then
+        echo
+        echo
+        echo '     No static library support for platform/compiler ' $XTARGET
+        echo '    Please see the PLATFORMS file for more information.'
+        echo
+        echo
+        exit 2
+    fi
 fi
 
 if [ "x$DEBUG" = "xyes" ]; then
     TARGET="${TARGET}-debug"
+    XTARGET="${XTARGET}-debug"
 fi
 
 CONFIG="$relpath/configs/${TARGET}"
+XCONFIG="$relpath/configs/${XTARGET}"
 if [ -z "$TARGET" -o '!' -f "$CONFIG" ];
 then
     echo
@@ -387,7 +423,16 @@ then
     echo
     exit 2
 fi
-
+if [ -z "$XTARGET" -o '!' -f "$XCONFIG" ];
+then
+    echo
+    echo
+    echo '   The specified platform/compiler not supported: ' $XTARGET
+    echo '   Please see the PLATFORMS file for a complete list.'
+    echo
+    echo
+    exit 2
+fi
 
 # Build up the variables for output
 
@@ -432,7 +477,14 @@ QTDIR='$(QTDIR)'
 # Give feedback...
 
 echo
-echo "Build type:    $TARGET"
+if [ "$XTARGET" = "$TARGET" ]
+then
+    echo "Build type:    $TARGET"
+else
+    echo "Building on:   $TARGET"
+    echo "Building for:  $XTARGET"
+fi
+
 if [ -n "$PLATFORM_NOTES" ]
 then
     echo "Platform notes:"
@@ -453,6 +505,13 @@ for a in `find $relpath/. -name Makefile.in -print | sort` ; do
     test -d $buildpath || mkdir $buildpath
     N=$buildpath/Makefile
     M=$a
+    if [ $buildpath = ././src/moc ]
+    then
+	# Don't cross-compile this
+	CONF=$CONFIG
+    else
+	CONF=$XCONFIG
+    fi
     cat > $N <<EOF
 #############################################################################
 # Automatically generated from $M
@@ -463,11 +522,11 @@ EOF
 
     if [ $relpath != `pwd` ] ; then
         echo VPATH=$relpath/$buildpath >> $N
-	cat .buildopts $CONFIG >> $N
+	cat .buildopts $CONF >> $N
 	sed -e's/	\$(MOC) [^ ]* -o .*/	$(MOC) $< -o $@/g' \
 	    -e's/\(	\$(CXX) -c \$(CXXFLAGS) \$(INCPATH) -o\) [^ ]* [^ ]*/\1 $@ $</g' $M >> $N
     else
-	cat .buildopts $CONFIG $M >> $N
+	cat .buildopts $CONF $M >> $N
     fi
     if [ "$VERBOSE" = "yes" ]; then
        echo '  Created' $N
