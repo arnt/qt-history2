@@ -21,12 +21,17 @@ public:
 
 #if defined(Q_WS_X11)
     int lookupString(XKeyEvent *, QCString &, KeySym *, Status *) const;
+    void setXFontSet(QFont *);
 #endif // Q_WS_X11
 
     void *ic;
     QString text, lastcompose;
     QWidget *focusWidget;
     bool composing;
+#ifdef    Q_WS_X11
+    QFont font;
+    XFontSet fontset;
+#endif // Q_WS_X11
 };
 
 

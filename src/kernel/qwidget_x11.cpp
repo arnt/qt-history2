@@ -734,7 +734,8 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
   \sa microFocusHint()
 */
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont * )
+void QWidget::setMicroFocusHint(int x, int y, int width, int height,
+				bool text, QFont *f )
 {
 #ifndef QT_NO_XIM
     if ( text ) {
@@ -748,6 +749,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	if ( qt_xim && qic ) {
 	    QPoint p( x, y );
 	    p = mapTo( topLevelWidget(), p);
+	    qic->setXFontSet(f);
 	    qic->setComposePosition(p.x(), p.y() + height);
 	    qic->setComposeArea(x, y, width, height);
 	}

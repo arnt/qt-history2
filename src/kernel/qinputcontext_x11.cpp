@@ -204,7 +204,7 @@ extern "C" {
 
 
 QInputContext::QInputContext(QWidget *widget)
-    : ic(0), focusWidget(0), composing(FALSE)
+    : ic(0), focusWidget(0), composing(FALSE), fontset(0)
 {
 #if !defined(QT_NO_XIM)
     if (! qt_xim) {
@@ -222,6 +222,8 @@ QInputContext::QInputContext(QWidget *widget)
     XVaNestedList preedit_attr = 0;
     XIMCallback startcallback, drawcallback, donecallback, caretcallback;
 
+    setXFontSet(0);
+
     if (qt_xim_style & XIMPreeditArea) {
 	rect.x = 0;
 	rect.y = 0;
@@ -230,6 +232,7 @@ QInputContext::QInputContext(QWidget *widget)
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNArea, &rect,
+					   XNFontSet, fontset,
 					   (char *) 0);
     } else if (qt_xim_style & XIMPreeditPosition) {
 	spot.x = 1;
@@ -237,6 +240,7 @@ QInputContext::QInputContext(QWidget *widget)
 
 	preedit_attr = XVaCreateNestedList(0,
 					   XNSpotLocation, &spot,
+					   XNFontSet, fontset,
 					   (char *) 0);
     } else if (qt_xim_style & XIMPreeditCallbacks) {
 	startcallback.client_data = (XPointer) this;
@@ -279,9 +283,12 @@ QInputContext::QInputContext(QWidget *widget)
 
 QInputContext::~QInputContext()
 {
+
 #if !defined(QT_NO_XIM)
     if (ic)
 	XDestroyIC((XIC) ic);
+    if ( (qt_xim_style & XIMPreeditPosition) && fontset )
+	XFreeFontSet( QPaintDevice::x11AppDisplay(), fontset );
 #endif // !QT_NO_XIM
     ic = 0;
     focusWidget = 0;
@@ -318,7 +325,10 @@ void QInputContext::setComposePosition(int x, int y)
 	point.y = y;
 
 	XVaNestedList preedit_attr =
-	    XVaCreateNestedList(0, XNSpotLocation, &point, (char *) 0);
+	    XVaCreateNestedList(0,
+				XNSpotLocation, &point,
+				XNFontSet, fontset,
+				(char *) 0);
 	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
     }
@@ -336,7 +346,10 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 	rect.width = w;
 	rect.height = h;
 
-	XVaNestedList preedit_attr = XVaCreateNestedList(0, XNArea, &rect, (char *) 0);
+	XVaNestedList preedit_attr = XVaCreateNestedList(0,
+							 XNArea, &rect,
+							 XNFontSet, fontset,
+							 (char *) 0);
 	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
     }
@@ -372,5 +385,50 @@ void QInputContext::setFocus()
 #if !defined(QT_NO_XIM)
     if (qt_xim && ic)
 	XSetICFocus((XIC) ic);
+#endif // !QT_NO_XIM
+}
+
+void QInputContext::setXFontSet(QFont *f)
+{
+#if !defined(QT_NO_XIM)
+    Display* dpy = QPaintDevice::x11AppDisplay();
+    int missCount;
+    char** missList;
+    char* defStr;
+
+    if (f && font == *f) // nothing to do
+	return;
+
+    if (fontset)
+	XFreeFontSet(QPaintDevice::x11AppDisplay(),
+		     fontset);
+
+    if (f) {
+#if defined(QT_NO_XFTFREETYPE)
+	fontset = XCreateFontSet(dpy, f->rawName().latin1(),
+				 &missList, &missCount, &defStr);
+#else // !QT_NO_XFTFREETYPE
+	QString wght, slant;
+
+	if (f->bold())
+	    wght = QString::fromLatin1("bold");
+	else
+	    wght = QString::fromLatin1("medium");
+
+	if (f->italic())
+	    slant = QString::fromLatin1("i");
+	else
+	    slant = QString::fromLatin1("r");
+
+	QString rawName = QString("-*-fixed-%1-%2-*-*-14-*").arg(wght).arg(slant);
+	fontset = XCreateFontSet(dpy, rawName.latin1(),
+				 &missList, &missCount, &defStr);
+#endif // !QT_NO_XFTFREETYPE
+    } else
+	fontset = XCreateFontSet(dpy, "-*-fixed-*--14-*",
+				 &missList, &missCount, &defStr);
+
+    if(missCount > 0)
+	XFreeStringList(missList);
 #endif // !QT_NO_XIM
 }
