@@ -427,18 +427,21 @@ void MainWindow::goHome()
     showLink( "qtopiadesktop.html", "Qtopia Desktop Documentation" );
 #else
     // #### we need a general Qt frontpage with links to Qt Class docu, Designer Manual, Linguist Manual, etc,
-    showLink( "index.html", "Qt Reference Documentation" );
+    showLink( QString( qInstallPathDocs() ) +
+	      "/html/index.html", "Qt Reference Documentation" );
 #endif
 }
 
 void MainWindow::showAssistantHelp()
 {
-    showLink( "assistant.html", tr( "Qt Assistant Manual" ) );
+    showLink( QString( qInstallPathDocs() ) +
+	      "/html/assistant.html", tr( "Qt Assistant Manual" ) );
 }
 
 void MainWindow::showLinguistHelp()
 {
-    showLink( "linguist-manual.html", tr( "Qt Linguist Manual" ) );
+    showLink( QString( qInstallPathDocs() ) +
+	      "/html/linguist-manual.html", tr( "Qt Linguist Manual" ) );
 }
 
 void MainWindow::print()
@@ -508,7 +511,8 @@ void MainWindow::showBookmark( int id )
 
 void MainWindow::showDesignerHelp()
 {
-    showLink( "designer-manual.html", tr( "Qt Designer Manual" ) );
+    showLink( QString( qInstallPathDocs() ) +
+	      "/html/designer-manual.html", tr( "Qt Designer Manual" ) );
 }
 
 void MainWindow::showLink( const QString & link, const QString & title )
@@ -529,7 +533,8 @@ void MainWindow::showQtHelp()
 #ifdef QT_PALMTOPCENTER_DOCS
     showLink( "palmtopcenter.html", tr( "Qt Palmtopcenter Documentation" ) );
 #else
-    showLink( "index.html", tr( "Qt Reference Documentation" ) );
+    showLink( QString( qInstallPathDocs() ) +
+	      "/html/index.html", tr( "Qt Reference Documentation" ) );
 #endif
 }
 
