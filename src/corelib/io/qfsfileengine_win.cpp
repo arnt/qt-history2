@@ -821,11 +821,12 @@ bool QFSFileEnginePrivate::doStat() const
             QString statName = QDir::convertSeparators(file);
             // Stat on windows doesn't accept d: without \ so append \ it if this is the case.
             // It also does not accept c:\dir\ so remove it unless if is drive c:\
+            // but it does want just \
             
             if ((statName.length() == 2 || statName.length() == 3) && statName.at(1) == ':') {
                 if (statName.length() == 2)
                     statName += '\\';
-            } else if (statName.at(statName.length() - 1) == '\\') {
+            } else if (statName.length() >= 2 && statName.at(statName.length() - 1) == '\\') {
                 statName.truncate(statName.length() - 1);
             }
             
