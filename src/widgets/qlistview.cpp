@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#347 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#348 $
 **
 ** Implementation of QListView widget class
 **
@@ -636,6 +636,10 @@ void QListViewItem::removeItem( QListViewItem * item )
     if ( nextChild && item == *nextChild )
 	*nextChild = (*nextChild)->siblingItem;
     item->parentItem = 0;
+    item->siblingItem = 0;
+    item->ownHeight = 0;
+    item->maybeTotalHeight = -1;
+    item->configured = FALSE;
 }
 
 
@@ -827,7 +831,7 @@ void QListViewItem::setOpen( bool o )
     if ( o == (bool)open )
 	return;
     open = o;
-
+    
     if ( !nChildren )
 	return;
     invalidateHeight();
