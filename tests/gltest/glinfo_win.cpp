@@ -257,9 +257,9 @@ void GLInfo::VisualInfo(HDC hDC)
 		
 		//printf("%2d ", pfd.cColorBits);
 		if(pfd.dwFlags & PFD_DRAW_TO_WINDOW)
-			str.sprintf("%swn ", (const char*)str);
+			str.sprintf("%swindow ", (const char*)str);
 		else if(pfd.dwFlags & PFD_DRAW_TO_BITMAP) 
-			str.sprintf("%sbm ", (const char*)str);
+			str.sprintf("%sbitmap ", (const char*)str);
 		else 
 			str.sprintf("%s. ", (const char*)str);
 		
@@ -272,8 +272,12 @@ void GLInfo::VisualInfo(HDC hDC)
 		else 
 			str.sprintf("%s0 ", (const char*)str);
 		
-		str.sprintf("%s%c %c %c ", (const char*)str, 
-								   pfd.iPixelType == PFD_TYPE_RGBA ? 'r' : 'c',
+		if(pfd.iPixelType == PFD_TYPE_RGBA)
+			str.sprintf("%srgba ", (const char*)str);
+		else
+			str.sprintf("%scolor_index ", (const char*)str);
+
+		str.sprintf("%s%c %c ", (const char*)str, 
 								   pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : '0',
 								   pfd.dwFlags & PFD_STEREO ? 'y' : '0');
 		
