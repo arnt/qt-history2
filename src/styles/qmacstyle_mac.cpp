@@ -2095,6 +2095,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_PopupMenu_AllowActiveAndDisabled:
+	ret = FALSE;
+	break;
     case SH_PopupMenu_SubMenuPopupDelay:
 	ret = 100;
 	break;
