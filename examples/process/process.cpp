@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/process/process.cpp#8 $
+** $Id: //depot/qt/main/examples/process/process.cpp#9 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -50,11 +50,11 @@ UicManager::UicManager()
 
     // Set up the command and arguments.
     // On the command line you would do:
-    //   uic -tr i18n "small dialog.ui"
+    //   uic -tr i18n "small_dialog.ui"
     proc->addArgument( "uic" );
     proc->addArgument( "-tr" );
     proc->addArgument( "i18n" );
-    proc->addArgument( "small dialog.ui" );
+    proc->addArgument( "small_dialog.ui" );
 
     connect( proc, SIGNAL(readyReadStdout()),
 	    this, SLOT(readFromStdout()) );
