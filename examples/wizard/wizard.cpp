@@ -51,9 +51,10 @@ void Wizard::setupPage1()
 
     key = new QLineEdit( row1 );
     key->setMaxLength( 4 );
-    key->setValidator( new QIntValidator( 9999, 0, key ) );
+    key->setValidator( new QIntValidator( 1000, 9999, key ) );
 
-    connect( key, SIGNAL( textChanged( const QString & ) ), this, SLOT( keyChanged( const QString & ) ) );
+    connect( key, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( keyChanged( const QString & ) ) );
 
     addPage( page1, "Personal Key" );
 
@@ -108,9 +109,12 @@ void Wizard::setupPage2()
     phone = new QLineEdit( row4 );
     email = new QLineEdit( row5 );
 
-    connect( firstName, SIGNAL( textChanged( const QString & ) ), this, SLOT( dataChanged( const QString & ) ) );
-    connect( lastName, SIGNAL( textChanged( const QString & ) ), this, SLOT( dataChanged( const QString & ) ) );
-    connect( email, SIGNAL( textChanged( const QString & ) ), this, SLOT( dataChanged( const QString & ) ) );
+    connect( firstName, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( dataChanged( const QString & ) ) );
+    connect( lastName, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( dataChanged( const QString & ) ) );
+    connect( email, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( dataChanged( const QString & ) ) );
 
     addPage( page2, "Personal Data" );
     setHelpEnabled( page2, FALSE );
@@ -205,10 +209,10 @@ void Wizard::showPage( QWidget* page )
 
 void Wizard::keyChanged( const QString &text )
 {
-    if ( text.length() == 4 )
-        nextButton()->setEnabled( TRUE );
-    else
-        nextButton()->setEnabled( FALSE );
+    QString t = text;
+    int p = 0;
+    bool on = ( key->validator()->validate(t, p) == QValidator::Acceptable );
+    nextButton()->setEnabled( on );
 }
 
 void Wizard::dataChanged( const QString & )
