@@ -778,6 +778,11 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                          kHIThemeOrientationNormal);
         if (sub & SC_SliderTickmarks) {
             int numMarks = slider->maximum() / slider->pageStep();
+            if (control == QStyle::CC_Slider) {
+                const QSlider *s = static_cast<const QSlider *>(slider);
+                if(s->tickInterval())
+                    numMarks = s->width() / s->tickInterval();
+            }
             if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                 // They asked for both, so we'll give it to them.
                 tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
