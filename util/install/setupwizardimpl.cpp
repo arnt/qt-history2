@@ -111,6 +111,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	removePage( progressPage );
 	setTitle( configPage, "Reconfigure Qt" );
     }
+    readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -537,7 +538,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	setInstallStep( 2 );
     } else if( newPage == licensePage ) {
 	setInstallStep( 3 );
-	readLicense( QDir::homeDirPath() + "/.qt-license" );
     } else if( newPage == foldersPage ) {
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
