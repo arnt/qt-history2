@@ -392,8 +392,8 @@ bool ResultSet::sort( const qdb::List& index )
     QMap<int,bool> desc; /* indicates fields with a descending sort */
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
-	QValueList<QVariant> fieldDescription = index[i].toList();
-	if ( fieldDescription.count() != 2 ) {
+	qdb::List fieldDescription = index[i].toList();
+	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("ResultSet::sort: bad field description!");
 	    return 0;
 	}

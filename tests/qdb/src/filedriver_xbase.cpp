@@ -130,11 +130,11 @@ bool FileDriver::create( const qdb::List& data )
 	if ( fieldDescription.count() != 4 ) {
 	    ERROR_RETURN( "FileDriver::create: bad field description" );
 	}
-	QString name = fieldDescription[3].toString();
+	QString name = fieldDescription[0].toString();
 	int namelen = QMAX( name.length(), 11 );
-	QVariant::Type type = (QVariant::Type)fieldDescription[2].toInt();
-	int len = fieldDescription[1].toInt();
-	int prec = fieldDescription[0].toInt();
+	QVariant::Type type = (QVariant::Type)fieldDescription[1].toInt();
+	int len = fieldDescription[2].toInt();
+	int prec = fieldDescription[3].toInt();
 	qstrncpy( x.FieldName, name.latin1(), namelen );
 	x.FieldName[namelen] = 0;
 	x.Type = variantToXbaseType( type );
@@ -640,7 +640,6 @@ bool FileDriver::createIndex( const qdb::List& data, bool unique )
 	}
 	QString name = createIndexData[0].toString();
 	QVariant::Type type = (QVariant::Type)createIndexData[1].toInt();
-	//bool desc = createIndexData[2].toBool(); //## duh?
 	/* create the index description string */
 	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
