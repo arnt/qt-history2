@@ -1233,6 +1233,11 @@ QPtrCollection::Item QGListIterator::operator-=( uint jumps )
 
 // If you use QStrList you need qglist.cpp anyway
 #include <qstrlist.h>
+/*!
+    \internal
+    Converts a \c{char *}-based QStrList to a Unicode-based
+    QStringList.
+*/
 QStringList QStrList::toStringList() const
 {
     QStringList res;

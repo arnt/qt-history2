@@ -201,6 +201,7 @@ example for a shorter and easier approach.)
 
 Then we insert a separator, ... 
 
+\skipto &Print
 \printline &Print
 \printuntil &Close
 \printline &Quit

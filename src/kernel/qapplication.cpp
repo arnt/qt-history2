@@ -2051,7 +2051,7 @@ void QApplication::aboutQt()
 
 
 
-/*!
+/*
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
   Sends event \a event directly to receiver \a receiver, using the

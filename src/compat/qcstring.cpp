@@ -181,7 +181,7 @@
     \sa isNull()
 */
 
-/*!
+/*
     \fn bool QCString::isNull() const
 
     Returns TRUE if the string is null, i.e. if data() == 0; otherwise
@@ -200,7 +200,7 @@
     \sa isEmpty(), length(), size()
 */
 
-/*!
+/*
     \fn bool QCString::isEmpty() const
 
     Returns TRUE if the string is empty, i.e. if length() == 0;
@@ -212,7 +212,7 @@
     \sa isNull(), length(), size()
 */
 
-/*!
+/*
     \fn uint QCString::length() const
 
     Returns the length of the string, excluding the '\0'-terminator.
@@ -223,7 +223,7 @@
     \sa size(), isNull(), isEmpty()
 */
 
-/*!
+/*
     \fn bool QCString::truncate( uint pos )
 
     Truncates the string at position \a pos.
@@ -681,7 +681,7 @@ bool QCString::setExpand( uint index, char c )
 }
 
 
-/*!
+/*
     \fn QCString::operator const char *() const
 
     Returns the string data.
