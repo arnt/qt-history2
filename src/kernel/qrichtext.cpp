@@ -1807,7 +1807,7 @@ void QTextDocument::doLayout( QPainter *p, int w )
     QTextParag *parag = fParag;
     while ( parag ) {
 	parag->invalidate( 0 );
-	if ( p && is_printer( p ) )
+	if ( is_printer( p ) )
 	    parag->setPainter( p );
 	parag->format();
 	parag = parag->next();
@@ -5124,7 +5124,7 @@ QTextTable::~QTextTable()
 void QTextTable::adjustToPainter( QPainter* p)
 {
     painter = p;
-    if ( is_printer( p ) && FALSE ) { // #####
+    if ( is_printer( p ) ) {
 	QPaintDeviceMetrics metrics(p->device());
 	double xscale = QMAX( scale_factor( metrics.logicalDpiX() ),
 			      scale_factor( metrics.logicalDpiY() ) );
@@ -5133,7 +5133,7 @@ void QTextTable::adjustToPainter( QPainter* p)
 	innerborder = int(innerborder * xscale);
 	outerborder = int(outerborder * xscale);
     }
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
+    for ( QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->adjustToPainter();
 
     width = 0;
@@ -5178,12 +5178,12 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
 							cell->geometry().width(), cell->geometry().height() ) ) ) {
-	    cell->draw( x+outerborder, y+outerborder, cx, cy, cw, ch, cg );
+	    cell->draw( x+outerborder+innerborder, y+outerborder+innerborder, cx, cy, cw, ch, cg );
 	    if ( border ) {
-		QRect r( x+outerborder+cell->geometry().x()-innerborder,
-			 y+outerborder+cell->geometry().y()-innerborder,
-			 cell->geometry().width()+2*innerborder,
-			 cell->geometry().height()+2*innerborder);
+		QRect r( x+outerborder+cell->geometry().x(),
+			 y+outerborder+cell->geometry().y(),
+			 cell->geometry().width(),
+			 cell->geometry().height());
 		int s = cellspacing;
 		if ( is_printer( p ) ) {
 		    qDrawPlainRect( p, r, cg.text(), us_ib );
@@ -5225,16 +5225,15 @@ void QTextTable::resize( QPainter* p, int nwidth )
 	return;
     int w = nwidth;
     painter = p;
-    format( w );
-    if ( nwidth >= 32000 )
-	nwidth = w;
-    cachewidth = nwidth;
     if ( is_printer( painter ) ) {
 	adjustToPainter( painter );
     } else {
 	painter = 0;
     }
-
+    format( w );
+    if ( nwidth >= 32000 )
+	nwidth = w;
+    cachewidth = nwidth;
     if ( stretch )
 	nwidth = nwidth * stretch / 100;
 
@@ -5583,7 +5582,7 @@ int QTextTableCell::heightForWidth( int w ) const
 	that->richtext->doLayout( painter(), w );
 	that->cached_width = w;
     }
-    return richtext->height();
+    return richtext->height() + 2 * parent->innerborder;
 }
 
 void QTextTableCell::adjustToPainter()
