@@ -37,10 +37,10 @@ FormDialog::FormDialog()
     staffCursor->first();
 
     sqlForm = new QSqlForm( this );
-    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->insert( forenameEdit, "forename" );
     sqlForm->insert( surnameEdit, "surname" );
     sqlForm->insert( salaryEdit, "salary" );
+    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->readFields();
 }
 
