@@ -258,43 +258,6 @@ static bool sm_blockUserInput = FALSE;		// session management
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
 
-typedef void (*VFPTR)();
-typedef QValueList<VFPTR> QVFuncList;
-void qt_install_preselect_handler( VFPTR );
-void qt_remove_preselect_handler( VFPTR );
-static QVFuncList *qt_preselect_handler = 0;
-void qt_install_postselect_handler( VFPTR );
-void qt_remove_postselect_handler( VFPTR );
-static QVFuncList *qt_postselect_handler = 0;
-void qt_install_preselect_handler( VFPTR handler )
-{
-    if ( !qt_preselect_handler )
-	qt_preselect_handler = new QVFuncList;
-    qt_preselect_handler->append( handler );
-}
-void qt_remove_preselect_handler( VFPTR handler )
-{
-    if ( qt_preselect_handler ) {
-	QVFuncList::Iterator it = qt_preselect_handler->find( handler );
-	if ( it != qt_preselect_handler->end() )
-		qt_preselect_handler->remove( it );
-    }
-}
-void qt_install_postselect_handler( VFPTR handler )
-{
-    if ( !qt_postselect_handler )
-	qt_postselect_handler = new QVFuncList;
-    qt_postselect_handler->prepend( handler );
-}
-void qt_remove_postselect_handler( VFPTR handler )
-{
-    if ( qt_postselect_handler ) {
-	QVFuncList::Iterator it = qt_postselect_handler->find( handler );
-	if ( it != qt_postselect_handler->end() )
-		qt_postselect_handler->remove( it );
-    }
-}
-
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 static WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 

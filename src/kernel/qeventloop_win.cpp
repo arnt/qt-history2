@@ -585,6 +585,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 		return FALSE;
 	    }
 	} else {
+	    emit aboutToBlock();
 	    if ( !winGetMessage(&msg,0,0,0) ) {
 		exit( 0 );				// WM_QUIT received
 		return FALSE;

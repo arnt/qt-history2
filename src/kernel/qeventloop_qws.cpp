@@ -59,6 +59,44 @@ QLock *QWSDisplay::lock = 0;
 
 bool qt_disable_lowpriority_timers=FALSE;
 
+// ### this needs to go away at some point...
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
+void qt_install_preselect_handler( VFPTR );
+void qt_remove_preselect_handler( VFPTR );
+static QVFuncList *qt_preselect_handler = 0;
+void qt_install_postselect_handler( VFPTR );
+void qt_remove_postselect_handler( VFPTR );
+static QVFuncList *qt_postselect_handler = 0;
+void qt_install_preselect_handler( VFPTR handler )
+{
+    if ( !qt_preselect_handler )
+	qt_preselect_handler = new QVFuncList;
+    qt_preselect_handler->append( handler );
+}
+void qt_remove_preselect_handler( VFPTR handler )
+{
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator it = qt_preselect_handler->find( handler );
+	if ( it != qt_preselect_handler->end() )
+		qt_preselect_handler->remove( it );
+    }
+}
+void qt_install_postselect_handler( VFPTR handler )
+{
+    if ( !qt_postselect_handler )
+	qt_postselect_handler = new QVFuncList;
+    qt_postselect_handler->prepend( handler );
+}
+void qt_remove_postselect_handler( VFPTR handler )
+{
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator it = qt_postselect_handler->find( handler );
+	if ( it != qt_postselect_handler->end() )
+		qt_postselect_handler->remove( it );
+    }
+}
+
 
 void QEventLoop::init()
 {
@@ -106,9 +144,8 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
     }
 
-    if ( d->quitnow ) {			// break immediately
-	return FALSE;
-    }
+    // don't block for events if the app is quitting, or we need to exitloop
+    canWait = ( canWait && !d->quitnow && !d->exitloop );
 
     extern QPtrQueue<QWSCommand> *qt_get_server_queue();
     if ( !qt_get_server_queue()->isEmpty() ) {
@@ -151,22 +188,14 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     FD_SET( d->thread_pipe[0], &d->sn_vec[0].select_fds );
     highest = QMAX( highest, d->thread_pipe[0] );
 
+    if ( canWait )
+	emit aboutToBlock();
 
-
-
-    /*
-      ### TODO - a cleaner way to do preselect handlers should be invented...
-      virtual functions?
-
-      if ( qt_preselect_handler ) {
-      QVFuncList::Iterator end = qt_preselect_handler->end();
-      for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
-      (**it)();
-      }
-    */
-
-
-
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator it, end = qt_preselect_handler->end();
+	for ( it = qt_preselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
 
     // unlock the GUI mutex and select.  when we return from this function, there is
     // something for us to do
@@ -206,23 +235,11 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	::read( d->thread_pipe[0], &c, 1 );
     }
 
-
-
-
-
-    /*
-      ### TODO - a cleaner way to do postselect handlers should be invented...
-      virtual functions?
-
-      if ( qt_postselect_handler ) {
-      QVFuncList::Iterator end = qt_postselect_handler->end();
-      for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
-      (**it)();
-      }
-    */
-
-
-
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator it, end = qt_postselect_handler->end();
+	for ( it = qt_postselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
 
     // activate socket notifiers
     if ( ! ( flags & ExcludeSocketNotifiers ) && nsel > 0 && d->sn_highest >= 0 ) {

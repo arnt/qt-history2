@@ -488,6 +488,8 @@ static QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 
 int QEventLoop::macHandleSelect(timeval *tm)
 {
+    emit aboutToBlock();
+
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
 	for ( QVFuncList::Iterator it = qt_preselect_handler->begin();
@@ -551,7 +553,7 @@ int QEventLoop::macHandleSelect(timeval *tm)
 	    QPtrList<QSockNot> *list = d->sn_vec[i].list;
 	    QSockNot *sn = list->first();
 	    while ( sn ) {
-		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) ) 
+		if ( FD_ISSET( sn->fd, &d->sn_vec[i].select_fds ) )
 		    setSocketNotifierPending( sn->obj );
 		sn = list->next();
 	    }
