@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#82 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#83 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1329,7 +1329,7 @@ sub classindex {
 ";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=", $url, ">", $name{$url}, "</a>\n"
-	    if ($type{$url} eq "class");
+	    if (($type{$url} eq "class") && defined($documented{$url}));
     }
     print O "</ul>\n", $address;
     close(O);
@@ -1411,11 +1411,14 @@ alphabetically.
 ";
     foreach ( sort keys %members ) {
 	&doclassinheritance( $name{$_} ) if (($type{$_} eq "class") && 
+					     (defined($documented{$$_})) &&
 					     !($inheritance{$_} =~ /\S/s));
     }
     foreach ( sort keys %members ) {
 	print "Not in hierarchy index page: ", $name{$_}, "\n"
-	    if (($type{$_} eq "class") && !defined($classtree{$name{$_}}));
+	    if (($type{$_} eq "class") &&
+		(defined($documented{$$_})) &&
+		!defined($classtree{$name{$_}}));
     }
     print O "</ul>", $address;
     close O;
