@@ -318,8 +318,7 @@ private:
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase |
-	       WNoMousePropagation  )
+    : QWidget( parent, name, WNoAutoErase | WNoMousePropagation  )
 {
     d = new QTabPrivate;
     d->pressed = 0;

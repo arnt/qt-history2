@@ -462,7 +462,7 @@ static inline bool checkIndex( const char *method, const char * name,
 */
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name, WNoAutoErase )
 {
     d = new QComboBoxData( this );
     if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) ||
@@ -509,7 +509,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 
 
 QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
-    : QWidget( parent, name, WResizeNoErase )
+    : QWidget( parent, name, WNoAutoErase )
 {
     d = new QComboBoxData( this );
     setUpListBox();

@@ -386,7 +386,7 @@ struct QLineEditPrivate {
 */
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
+    : QFrame( parent, name, WNoAutoErase )
 {
     init();
 }
@@ -406,7 +406,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 
 QLineEdit::QLineEdit( const QString & contents,
 		      QWidget *parent, const char *name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
+    : QFrame( parent, name, WNoAutoErase )
 {
     init();
     setText( contents );
@@ -425,7 +425,8 @@ QLineEdit::QLineEdit( const QString & contents,
   \sa setMask() text()
 */
 QLineEdit::QLineEdit( const QString & mask, const QString & contents,
-	   QWidget* parent, const char* name ) : QFrame( parent, name, WRepaintNoErase )
+	   QWidget* parent, const char* name )
+    : QFrame( parent, name, WNoAutoErase )
 {
     init();
     if ( !mask.isEmpty() )

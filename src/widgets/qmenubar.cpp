@@ -251,7 +251,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
     Constructs a menu bar called \a name with parent \a parent.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
-    : QFrame( parent, name, WResizeNoErase | WRepaintNoErase )
+    : QFrame( parent, name, WNoAutoErase )
 {
 #if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_eaten_menubar = FALSE;

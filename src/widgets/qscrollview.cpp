@@ -483,28 +483,27 @@ void QScrollViewData::viewportResized( int w, int h )
 
     When you construct a QScrollView, some of the widget flags apply
     to the viewport() instead of being sent to the QWidget constructor
-    for the QScrollView. This applies to \c WResizeNoErase, \c
-    WStaticContents, \c WRepaintNoErase and \c WPaintClever. See \l
-    Qt::WidgetFlags for documentation about these flags. Here are some
-    examples:
+    for the QScrollView. This applies to \c WNoAutoErase, \c
+    WStaticContents, and \c WPaintClever. See \l Qt::WidgetFlags for
+    documentation about these flags. Here are some examples:
 
     \list
 
     \i An image-manipulation widget would use \c
-    WResizeNoErase|WStaticContents because the widget draws all pixels
+    WNoAutoErase|WStaticContents because the widget draws all pixels
     itself, and when its size increases, it only needs a paint event
     for the new part because the old part remains unchanged.
 
-    \i A word processing widget might use \c WResizeNoErase and
-    repaint itself line by line to get a less-flickery resizing. If
-    the widget is in a mode in which no text justification can take
-    place, it might use \c WStaticContents too, so that it would only
-    get a repaint for the newly visible parts.
-
     \i A scrolling game widget in which the background scrolls as the
-    characters move might use \c WRepaintNoErase (in addition to \c
-    WStaticContents and \c WResizeNoErase) so that the window system
-    background does not flash in and out during scrolling.
+    characters move might use \c WNoAutoErase (in addition to \c
+    WStaticContents) so that the window system background does not
+    flash in and out during scrolling.
+
+    \i A word processing widget might use \c WNoAutoErase and repaint
+    itself line by line to get a less-flickery resizing. If the widget
+    is in a mode in which no text justification can take place, it
+    might use \c WStaticContents too, so that it would only get a
+    repaint for the newly visible parts.
 
     \endlist
 
@@ -529,10 +528,10 @@ void QScrollViewData::viewportResized( int w, int h )
     The contentsMoving() signal is emitted just before the contents
     are moved to a new position.
 
-    \warning \c WResizeNoErase is currently set by default, i.e. you
-    must always clear the background manually in scrollview
-    subclasses. This will change in a future version of Qt and we
-    recommend specifying the flag explicitly.
+    \warning QScrollView currently does not erase the background when
+    resized, i.e. you must always clear the background manually in
+    scrollview subclasses. This will change in a future version of Qt
+    and we recommend specifying the WNoAutoErase flag explicitly.
 
     <img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
@@ -567,7 +566,7 @@ void QScrollViewData::viewportResized( int w, int h )
     Constructs a QScrollView called \a name with parent \a parent and
     widget flags \a f.
 
-    The widget flags \c WStaticContents, \c WRepaintNoErase and \c
+    The widget flags \c WStaticContents, \c WNoAutoErase and \c
     WPaintClever are propagated to the viewport() widget. The other
     widget flags are propagated to the parent constructor as usual.
 */

@@ -975,14 +975,14 @@ int QListBoxPixmap::rtti() const
     Performance is boosted by modifying the widget flags \a f so that
     only part of the QListBoxItem children is redrawn. This may be
     unsuitable for custom QListBoxItem classes, in which case \c
-    WStaticContents and \c WRepaintNoErase should be cleared
+    WStaticContents and \c WNoAutoErase should be cleared
     immediately after construction.
 
     \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
 QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
-    : QScrollView( parent, name, f | WStaticContents | WRepaintNoErase )
+    : QScrollView( parent, name, f | WStaticContents | WNoAutoErase )
 {
     d = new QListBoxPrivate( this );
     d->updateTimer = new QTimer( this, "listbox update timer" );

@@ -603,7 +603,7 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-	Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
+			      Qt::WNoAutoErase | Qt::WStyle_StaysOnTop, orient );
 
     q_roll->run( time );
 }
@@ -622,7 +622,7 @@ void qFadeEffect( QWidget* w, int time )
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-	Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop);
+	Qt::WNoAutoErase | Qt::WStyle_StaysOnTop);
 
     q_blend->run( time );
 }

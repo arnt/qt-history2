@@ -152,7 +152,7 @@ public:
 };
 
 QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
-    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WResizeNoErase | WRepaintNoErase )
+    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WNoAutoErase )
 {
     d = new QTitleBarPrivate();
 
@@ -163,12 +163,12 @@ QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if ( w ) {
-	setWFlags( ((QTitleBar*)w)->getWFlags() | WResizeNoErase | WRepaintNoErase );
+	setWFlags( ((QTitleBar*)w)->getWFlags() | WNoAutoErase );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     	setCaption( w->caption() );
 #endif
     } else {
-	setWFlags( WStyle_Customize | WResizeNoErase | WRepaintNoErase );
+	setWFlags( WStyle_Customize | WNoAutoErase );
     }
 
     readColors();

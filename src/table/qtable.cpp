@@ -1912,7 +1912,7 @@ QSize QCheckTableItem::sizeHint() const
 */
 
 QTable::QTable( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WRepaintNoErase | WStaticContents ),
+    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
@@ -1932,7 +1932,7 @@ QTable::QTable( QWidget *parent, const char *name )
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
-    : QScrollView( parent, name, WRepaintNoErase | WStaticContents ),
+    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {

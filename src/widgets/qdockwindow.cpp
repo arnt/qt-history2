@@ -380,7 +380,7 @@ private:
 };
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
-    : QWidget( dw, "qt_dockwidget_internal", WRepaintNoErase ), dockWindow( dw ),
+    : QWidget( dw, "qt_dockwidget_internal", WNoAutoErase ), dockWindow( dw ),
       closeButton( 0 ), opaque( default_opaque ), mousePressed( FALSE )
 {
     ctrlDown = FALSE;

@@ -308,21 +308,21 @@ static int indexOfItem( QListViewItem *item )
 
     static QListViewItem *lastItem = 0;
     static int lastIndex = 0;
-    
+
     if ( !item || !item->listView() )
 	return 0;
-    
+
     if ( item == lastItem )
 	return lastIndex;
-    
+
     lastItem = item;
     int index = 1;
-    
+
     QListViewItemIterator it( item->listView() );
     while ( it.current() ) {
 	if ( it.current() == item ) {
 	    lastIndex = index;
-	    return index;	    
+	    return index;
 	}
 	++it;
 	++index;
@@ -1508,7 +1508,7 @@ void QListViewItem::setOpen( bool o )
 	    emit lv->collapsed( this );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( lv->viewport(), indexOfItem( this ), QAccessible::StateChanged );
-#endif    
+#endif
     }
 }
 
@@ -1701,13 +1701,13 @@ void QListViewItem::enforceSortOrder() const
 void QListViewItem::setSelected( bool s )
 {
     bool old = selected;
-    
+
     if ( listView() && listView()->selectionMode() != QListView::NoSelection) {
 	if ( s && isSelectable() )
 	    selected = TRUE;
 	else
 	    selected = FALSE;
-	
+
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	if ( old != selected ) {
 	    int ind = indexOfItem( this );
@@ -2532,12 +2532,12 @@ void QListViewItem::ignoreDoubleClick()
     Performance is boosted by modifying the widget flags \a f so that
     only part of the QListViewItem children is redrawn. This may be
     unsuitable for custom QListViewItem classes, in which case \c
-    WStaticContents and \c WRepaintNoErase should be cleared.
+    WStaticContents and \c WNoAutoErase should be cleared.
 
     \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
-    : QScrollView( parent, name, f | WStaticContents | WRepaintNoErase )
+    : QScrollView( parent, name, f | WStaticContents | WNoAutoErase )
 {
     init();
 }

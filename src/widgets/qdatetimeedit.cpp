@@ -416,7 +416,7 @@ private:
 */
 QDateTimeEditor::QDateTimeEditor( QDateTimeEditBase * parent,
 				  const char * name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WNoAutoErase )
 {
     d = new QDateTimeEditorPrivate();
     cw = parent;
@@ -2320,7 +2320,7 @@ void QTimeEdit::addNumber( int sec, int num )
 
     switch( sec ) {
     case 0:
-	txt = ( d->display & AMPM && d->h > 12 ) ? 
+	txt = ( d->display & AMPM && d->h > 12 ) ?
 	    QString::number( d->h - 12 ) : QString::number( d->h );
 
 	if ( d->overwrite || txt.length() == 2 ) {

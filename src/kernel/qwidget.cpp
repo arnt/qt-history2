@@ -689,9 +689,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     system repaint events directly. (This tends to produce more events
     and smaller repaint regions.)
 
-    \value WResizeNoErase  indicates that resizing the widget should
-    not erase it. This allows smart-repainting to avoid flicker.
-
     \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
 
@@ -699,10 +696,13 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     north-west aligned and static. On resize, such a widget will
     receive paint events only for the newly visible part of itself.
 
-    \value WRepaintNoErase  indicates that the widget paints all its
-    pixels. Updating, scrolling and focus changes should therefore not
-    erase the widget. This allows smart-repainting to avoid flicker.
+    \value WNoAutoErase indicates that the widget paints all its
+    pixels. Updating, resizing, scrolling and focus changes should
+    therefore not erase the widget. This allows smart-repainting to
+    avoid flicker.
 
+    \value WResizeNoErase  \obsolete Use WNoAutoErase instead.
+    \value WRepaintNoErase  \obsolete Use WNoAutoErase instead.
     \value WGroupLeader  makes this window a group leader. A group
     leader should \e not have a parent (i.e. it should be a top-level
     window). Any decendant windows (direct or indirect) of a group
@@ -4984,7 +4984,7 @@ void QWidget::moveEvent( QMoveEvent * )
     after processing the resize event. No drawing need be (or should
     be) done inside this handler.
 
-    Widgets that have been created with the \c WResizeNoErase flag
+    Widgets that have been created with the \c WNoAutoErase flag
     will not be erased. Nevertheless, they will receive a paint event
     for their entire area afterwards. Again, no drawing needs to be
     done inside this handler.

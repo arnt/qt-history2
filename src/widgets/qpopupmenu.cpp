@@ -265,7 +265,7 @@ static QPopupMenu* active_popup_menu = 0;
 */
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-    : QFrame( parent, name, WType_Popup  | WRepaintNoErase )
+    : QFrame( parent, name, WType_Popup  | WNoAutoErase )
 {
     d = new QPopupMenuPrivate;
     d->scroll.scrollableSize = d->scroll.topScrollableIndex = 0;
@@ -2650,7 +2650,7 @@ void QPopupMenu::toggleTearOff()
 #endif
 	p->setCheckable( isCheckable() );
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
-		     WRepaintNoErase | WDestructiveClose,
+		     WNoAutoErase | WDestructiveClose,
 		     geometry().topLeft(), FALSE );
 	p->mitems->setAutoDelete( FALSE );
 	p->tornOff = TRUE;

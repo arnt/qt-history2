@@ -214,7 +214,7 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
+    : QWidget( parent, name, WNoAutoErase ),
       QRangeControl()
 {
     initSpinBox();
@@ -233,7 +233,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 		    const char* name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
+    : QWidget( parent, name, WNoAutoErase ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
     initSpinBox();
@@ -495,7 +495,7 @@ QSize QSpinBox::sizeHint() const
 	w = QMAX( w, fm.width( s ) + wx );
     }
     return style().sizeFromContents(QStyle::CT_SpinBox, this,
-				    QSize( w + d->controls->downRect().width(), 
+				    QSize( w + d->controls->downRect().width(),
 					   h + style().pixelMetric( QStyle::PM_DefaultFrameWidth ) * 2).
 				    expandedTo( QApplication::globalStrut() ));
 }

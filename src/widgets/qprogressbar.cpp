@@ -92,7 +92,7 @@
 */
 
 QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WRepaintNoErase | WResizeNoErase ),
+    : QFrame( parent, name, f | WNoAutoErase ),
       total_steps( 100 ),
       progress_val( -1 ),
       percentage( -1 ),
@@ -123,7 +123,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 
 QProgressBar::QProgressBar( int totalSteps,
 			    QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WRepaintNoErase | WResizeNoErase ),
+    : QFrame( parent, name, f | WNoAutoErase ),
       total_steps( totalSteps ),
       progress_val( -1 ),
       percentage( -1 ),

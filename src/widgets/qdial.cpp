@@ -146,7 +146,7 @@ public:
 */
 
 QDial::QDial( QWidget *parent, const char *name, WFlags f )
-    : QWidget( parent, name, f | WRepaintNoErase | WResizeNoErase ), QRangeControl()
+    : QWidget( parent, name, f | WNoAutoErase ), QRangeControl()
 {
     d = new QDialPrivate;
     d->eraseAreaValid = FALSE;
@@ -168,7 +168,7 @@ QDial::QDial( QWidget *parent, const char *name, WFlags f )
 
 QDial::QDial( int minValue, int maxValue, int pageStep, int value,
 	      QWidget *parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase ),
+    : QWidget( parent, name, WNoAutoErase ),
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;

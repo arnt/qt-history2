@@ -885,7 +885,7 @@ static bool block_set_alignment = FALSE;
 */
 
 QTextEdit::QTextEdit( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WStaticContents | WRepaintNoErase | WResizeNoErase ),
+    : QScrollView( parent, name, WStaticContents | WNoAutoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
@@ -913,7 +913,7 @@ QTextEdit::QTextEdit( QWidget *parent, const char *name )
 
 QTextEdit::QTextEdit( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WStaticContents | WRepaintNoErase | WResizeNoErase ),
+    : QScrollView( parent, name, WStaticContents | WNoAutoErase ),
       doc( new QTextDocument( 0 ) ), undoRedoInfo( doc )
 {
     init();
@@ -1015,7 +1015,7 @@ void QTextEdit::init()
     connect( this, SIGNAL(horizontalSliderReleased()), this, SLOT(sliderReleased()) );
     connect( this, SIGNAL(verticalSliderReleased()), this, SLOT(sliderReleased()) );
     installEventFilter( this );
-}   
+}
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
@@ -5102,7 +5102,7 @@ int QTextEdit::wrapColumnOrWidth() const
     This enum defines where text can be wrapped in word wrap mode.
 
     \value AtWhiteSpace Don't use this deprecated value (it is a
-    synonym for \c AtWordBoundary which you should use instead).  
+    synonym for \c AtWordBoundary which you should use instead).
     \value Anywhere  Break anywhere, including within words.
     \value AtWordBoundary Break lines at word boundaries, e.g. spaces or
     newlines
@@ -6718,11 +6718,11 @@ void QTextEdit::polish()
     QWidget::polish();
 }
 
-/*! 
+/*!
     Sets the maximum number of lines a QTextEdit can hold in LogText
     mode. -1 is used to specify an unlimited amount of lines (the
     default).
-    
+
     Never use formatting tags that span more than one line when a
     max size is set. When lines are removed from the top of the buffer it
     may result in an unbalanced tag pair, i.e. the left formatting tag
@@ -6737,7 +6737,7 @@ void QTextEdit::setMaxLogLines( int limit )
 	d->logOffset = 0;
 }
 
-/*! 
+/*!
     Returns the maximum number of lines QTextEdit can hold in LogText
     mode. By default the number of lines is not limited, i.e. it is
     set to -1.
@@ -6785,7 +6785,7 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	    } else {
 		t = t->next;
 	    }
-	}	
+	}
 	// Remove all references to the ptrs we just deleted
 	itr = d->od->tags;
 	while ( itr ){
@@ -6801,7 +6801,7 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	QMapIterator<int, QTextEditOptimPrivate::Tag *> idx;
 	if ( (idx = d->od->tagIndex.find( d->logOffset )) != d->od->tagIndex.end() )
 	    d->od->tagIndex.remove( idx );
-	
+
 	QMapIterator<int,QString> it;
 	if ( (it = d->od->lines.find( d->logOffset )) != d->od->lines.end() ) {
 	    d->od->len -= (*it).length();

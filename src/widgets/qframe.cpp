@@ -376,7 +376,7 @@ void QFrame::updateFrameWidth( bool resetLineMetrics )
 	}
 	break;
 
-	
+
     case LineEditPanel:
     case TabWidgetPanel:
     case PopupPanel:
@@ -517,7 +517,7 @@ QSize QFrame::sizeHint() const
 void QFrame::paintEvent( QPaintEvent *event )
 {
     const int m = margin();
-    if ( m && testWFlags( WResizeNoErase|WRepaintNoErase ) ) {
+    if ( m && testWFlags( WNoAutoErase ) ) {
 	QRect r = contentsRect();
 	r.addCoords( -m, -m, m, m );
 	erase( event->region().intersect( QRegion( r ) - contentsRect() ) );
