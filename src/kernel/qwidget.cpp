@@ -3810,6 +3810,8 @@ void QWidget::hideChildren( bool spontaneous )
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
 		if ( !widget->isTopLevel() && widget->isShown() ) {
+		    if ( !spontaneous )
+			widget->clearWState( WState_Visible );
 		    widget->hideChildren( spontaneous );
 		    QHideEvent e;
 		    if ( spontaneous )
