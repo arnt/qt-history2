@@ -4747,7 +4747,7 @@ QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString 
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag */*parag*/, QTextString *text, QTextParagLineStart *line,
+QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag * /*parag*/, QTextString *text, QTextParagLineStart *line,
 							QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
