@@ -28,10 +28,8 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
 protected:
     QStringList &findDependencies(const QString &file);
     QString var(const QString &value);
-    QString precompcpp, precomph;
-    QString pch;
+    QString precompH, precompObj, precompPch;
     bool usePCH;
-    bool deletePCHcpp;
 
 public:
     NmakeMakefileGenerator(QMakeProject *p);

@@ -54,13 +54,11 @@ QStringList
 &NmakeMakefileGenerator::findDependencies(const QString &file)
 {
     QStringList &aList = MakefileGenerator::findDependencies(file);
-    if(file != precompcpp) {
-	for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
-	    if(file.endsWith(*it)) {
-		if(!aList.contains(pch))
-		    aList += pch;
-		break;
-	    }
+    for(QStringList::Iterator it = Option::cpp_ext.begin(); it != Option::cpp_ext.end(); ++it) {
+	if(file.endsWith(*it)) {
+	    if(!aList.contains(precompObj))
+		aList += precompObj;
+	    break;
 	}
     }
     return aList;
@@ -69,10 +67,6 @@ QStringList
 void
 NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 {
-    // Add linking of PCH compiled objects
-    if (usePCH)
-	project->variables()["OBJECTS"] += QString(precompcpp).replace(Option::cpp_ext.first(), Option::obj_ext);
-
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
     t << "CXX		=	" << var("QMAKE_CXX") << endl;
@@ -367,15 +361,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     // precompiled header
     if(usePCH) {
-	QString realPrecompH = fileFixify(precomph, 
-					  QFileInfo(precompcpp).dirPath(TRUE), 
-					  QDir::currentDirPath(), 
-					  TRUE);
-	QString precompRule = QString("-c -Yc%1 /Fp%2").arg(realPrecompH).arg(pch);
-	t << pch << ": " << precompcpp << " " << findDependencies(precompcpp).join(" \\\n\t\t")
-	  << "\n\t" << "$(CXX) " + precompRule +" $(CXXFLAGS) $(INCPATH) " << precompcpp << endl << endl;
-	if (deletePCHcpp)
-	    t << precompcpp << ":\n\t" << "@echo #include \"" << realPrecompH << "\" > " << precompcpp << endl << endl;
+	QString precompRule = QString("-c -Yc -Fp%1 -Fo%2").arg(precompPch).arg(precompObj);
+	t << precompObj << ": " << precompH << " " << findDependencies(precompH).join(" \\\n\t\t")
+	  << "\n\t" << "$(CXX) " + precompRule +" $(CXXFLAGS) $(INCPATH) -TP " << precompH << endl << endl;
     }
 }
 
@@ -386,11 +374,11 @@ NmakeMakefileGenerator::var(const QString &value)
     	if ((value == "QMAKE_RUN_CXX_IMP_BATCH"
 	    || value == "QMAKE_RUN_CXX_IMP"
 	    || value == "QMAKE_RUN_CXX")) {
-	    QFileInfo precomphInfo(precomph);
-	    QString precompRule = QString("-c -FI%1 -Yu%2 /Fp%3")
-		.arg(precomphInfo.fileName())
-		.arg(precomphInfo.fileName())
-		.arg(pch);
+	    QFileInfo precompHInfo(precompH);
+	    QString precompRule = QString("-c -FI%1 -Yu%2 -Fp%3")
+		.arg(precompHInfo.fileName())
+		.arg(precompHInfo.fileName())
+		.arg(precompPch);
 	    QString p = MakefileGenerator::var(value);
 	    p.replace("-c", precompRule);
 	    // Cannot use -Gm with -FI & -Yu, as this gives an 
@@ -413,30 +401,6 @@ NmakeMakefileGenerator::init()
     if(init_flag)
 	return;
     init_flag = TRUE;
-
-    /* Do PCH setup */
-    if ( project->variables()["PRECOMPILED_SOURCE"].size() > 1 )
-	warn_msg(WarnLogic, "nmake generator doesn't support multiple files in PRECOMPILED_SOURCE, only first one used" );
-    precomph = Option::fixPathToTargetOS(project->first("PRECOMPILED_HEADER"));
-    precompcpp = Option::fixPathToTargetOS(project->first("PRECOMPILED_SOURCE"));
-    pch = QString(precomph).replace(".h", ".pch");
-    usePCH = !precomph.isEmpty() && project->isActiveConfig("precompile_header");
-    deletePCHcpp = precompcpp.isEmpty();
-    if (usePCH) {
-	// Add PCH to cleanup
-	project->variables()["QMAKE_CLEAN"] += pch;
-	// Add cleanup stage for generated file
-	if(deletePCHcpp) {
-	    precompcpp = project->first("TARGET") + "_pch";
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + Option::obj_ext;
-	    project->variables()["QMAKE_CLEAN"] += precompcpp + Option::cpp_ext.first();
-	    precompcpp += Option::cpp_ext.first();
-	}
-	project->variables()["PRECOMPILED_HEADER"] = precomph;
-	project->variables()["PRECOMPILED_SOURCE"] = precompcpp;
-	project->variables()["PRECOMPILED_OBJECT"] = QString(precompcpp).replace(Option::cpp_ext.first(),Option::obj_ext);
-	project->variables()["PRECOMPILED_PCH"] = pch;
-    }
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
@@ -556,7 +520,25 @@ NmakeMakefileGenerator::init()
     if(!project->variables()["RES_FILE"].isEmpty())
 	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
 
+    // Base class init!
     MakefileGenerator::init();
+
+    // Setup PCH variables
+    precompH = project->first("PRECOMPILED_HEADER");
+    usePCH = !precompH.isEmpty() && project->isActiveConfig("precompile_header");
+    if (usePCH) {
+	// Created files
+	precompObj = var("OBJECTS_DIR") + project->first("TARGET") + "_pch" + Option::obj_ext;
+	precompPch = var("OBJECTS_DIR") + project->first("TARGET") + "_pch.pch";
+	// Add linking of precompObj (required for whole precompiled classes)
+	project->variables()["OBJECTS"]		  += precompObj;
+	// Add pch file to cleanup
+	project->variables()["QMAKE_CLEAN"]	  += precompPch;
+	// Return to variable pool
+	project->variables()["PRECOMPILED_OBJECT"] = precompObj;
+	project->variables()["PRECOMPILED_PCH"]    = precompPch;
+    }
+
     if(!project->variables()["VERSION"].isEmpty()) {
 	QStringList l = QStringList::split('.', project->first("VERSION"));
 	project->variables()["VER_MAJ"].append(l[0]);
