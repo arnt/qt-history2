@@ -4072,6 +4072,12 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         QWidget *widget = 0;
         for (int i = 0; !widget && i < list.size(); ++i) {
             QWidget *w = list.at(i);
+#ifdef Q_WS_MAC
+            bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
+            bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
+            if(qt_mac_is_macdrawer(w) || qt_mac_is_macdrawer(w))
+                continue;
+#endif
             if (!w->isHidden()
                  && !w->isDesktop()
                  && !w->isPopup()
