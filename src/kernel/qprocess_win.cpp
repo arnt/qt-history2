@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#41 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -150,11 +150,17 @@ void QProcess::reset()
 
 QByteArray* QProcess::bufStdout()
 {
+    if( d->pipeStdout[0] != 0 )
+	socketRead( 1 );
+    }
     return &d->bufStdout;
 }
 
 QByteArray* QProcess::bufStderr()
 {
+    if( d->pipeStderr[0] != 0 )
+	socketRead( 2 );
+    }
     return &d->bufStderr;
 }
 

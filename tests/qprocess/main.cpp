@@ -51,7 +51,6 @@ int main( int argc, char **argv )
 		while ( proc.canReadLineStdout() ) {
 		    qDebug( proc.readLineStdout() );
 		}
-		a.processEvents();
 	    }
 	}
     } else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#65 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -499,11 +499,17 @@ void QProcess::reset()
 
 QByteArray* QProcess::bufStdout()
 {
+    if ( d->proc && d->proc->socketStdout ) {
+	socketRead( d->proc->socketStdout );
+    }
     return &d->bufStdout;
 }
 
 QByteArray* QProcess::bufStderr()
 {
+    if ( d->proc && d->proc->socketStderr ) {
+	socketRead( d->proc->socketStderr );
+    }
     return &d->bufStderr;
 }
 
