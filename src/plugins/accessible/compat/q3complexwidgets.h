@@ -17,6 +17,7 @@
 #include <qaccessiblewidget.h>
 
 class Q3Header;
+class Q3TitleBar;
 
 class Q3AccessibleHeader : public QAccessibleWidget
 {
@@ -32,6 +33,24 @@ public:
 
 protected:
     Q3Header *header() const;
+};
+
+class Q3AccessibleTitleBar : public QAccessibleWidget
+{
+public:
+    Q3AccessibleTitleBar(QWidget *w);
+
+    int childCount() const;
+
+    QString text(Text t, int child) const;
+    QRect rect(int child) const;
+    Role role(int child) const;
+    State state(int child) const;
+
+    bool doAction(int action, int child, const QVariantList &params);
+
+protected:
+    Q3TitleBar *titleBar() const;
 };
 
 #endif

@@ -89,22 +89,4 @@ protected:
     QComboBox *comboBox() const;
 };
 
-class QAccessibleTitleBar : public QAccessibleWidget
-{
-public:
-    QAccessibleTitleBar(QWidget *w);
-
-    int childCount() const;
-
-    QString text(Text t, int child) const;
-    QRect rect(int child) const;
-    Role role(int child) const;
-    State state(int child) const;
-
-    bool doAction(int action, int child, const QVariantList &params);
-
-protected:
-    QTitleBar *titleBar() const;
-};
-
 #endif // COMPLEXWIDGETS_H

@@ -51,6 +51,7 @@ QStringList CompatAccessibleFactory::keys() const
     list << "Q3Header";
     list << "QListBox";
     list << "QTable";
+    list << "Q3TitleBar";
 
     return list;
 }
@@ -90,6 +91,8 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         iface = new QAccessibleWidget(widget, Grip);
     } else if (classname == "Q3Header") {
         iface = new Q3AccessibleHeader(widget);
+    } else if (classname == "Q3TitleBar") {
+        iface = new Q3AccessibleTitleBar(widget);
     }
 
     return iface;

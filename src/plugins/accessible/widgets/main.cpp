@@ -67,7 +67,6 @@ QStringList AccessibleFactory::keys() const
     list << "QMenu";
     list << "QHeaderView";
     list << "QTabBar";
-    list << "QTitleBar";
     list << "QToolBar";
     list << "QWorkspaceChild";
     list << "QSizeGrip";
@@ -161,8 +160,6 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleHeader(widget);
     } else if (classname == "QTabBar") {
         iface = new QAccessibleTabBar(widget);
-    } else if (classname == "QTitleBar") {
-        iface = new QAccessibleTitleBar(widget);
     } else if (classname == "QWorkspaceChild") {
         iface = new QAccessibleWidget(widget, Window);
     } else if (classname == "QSizeGrip") {
