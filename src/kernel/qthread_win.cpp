@@ -167,8 +167,6 @@ void QThreadPrivate::internalRun( QThread* that )
     threadDict->insert( d->id, d );
     dictSection()->leave();
 
-    d->running = TRUE;
-    d->finished = FALSE;
     that->run();
     d->finished = TRUE;
     d->running = FALSE;
@@ -294,6 +292,8 @@ void QThread::start()
 	wait();
     }
 
+    d->running = TRUE;
+    d->finished = FALSE;
     d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
 
