@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#109 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#108 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#109 $")
 
 
 // --------------------------------------------------------------------------
@@ -533,15 +533,19 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 /*!
   Sets the main widget of the application.
 
-  On X11, this function also resizes and moves the main widget
+  The special thing about the main widget is that destroying the main
+  widget (i.e. the program calls QWidget::close() or the user
+  double-clicks the window close box) will leave the main event loop and
+  \link QApplication::quit() exit the application\endlink.
+
+  For X-Windows, this function also resizes and moves the main widget
   according to the \e -geometry command-line option, so you should
-  \link QWidget::setGeometry() set default geometry \endlink before
+  \link QWidget::setGeometry() set the default geometry\endlink before
   calling setMainWidget().
 
-  When the user destroys the main widget, the application leaves the
-  main event loop and quits.
 
-  \sa mainWidget(), exec(), quit() */
+  \sa mainWidget(), exec(), quit()
+*/
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {

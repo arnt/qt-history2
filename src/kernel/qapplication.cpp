@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#65 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#65 $")
 
 
 /*----------------------------------------------------------------------------
@@ -49,13 +49,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#64 $")
   \endcode
 
   <strong>Important</strong><br>
-  Notice that the QApplication object must be created before any widget can be
-  defined!
+  Notice that the QApplication object must  be created before any widget can
+  be defined!
 
-  Note also that on X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.	 To preserve this
-  functionality, you must set your defaults before setMainWidget() and
-  any overrides after.
+  Note also that for X-Windows, setMainWidget() may change the main widget
+  according to the \e -geometry option.  To preserve this functionality,
+  you must set your defaults before setMainWidget() and any overrides
+  after.
 
   \header qkeycode.h
   \header qwindefs.h
