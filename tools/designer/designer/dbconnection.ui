@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>DatabaseConnectionWidget</string>
+        <string>Edit Database Connection</string>
     </property>
     <grid>
         <property name="name">
