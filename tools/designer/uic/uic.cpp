@@ -433,7 +433,6 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	out << indent << itemName << " = new QPopupMenu( this );" << endl;
 	out << endl;
 
-	trout << indent << objName << "->clear();" << endl;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
 		trout << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
