@@ -99,26 +99,32 @@ shareddbg:
 dist: 
 	-$(RM) -rf $(DISTDIR)
 	# misc
-	mkdir -p $(DISTDIR)/{include/qt,lib/qt/include,lib/qt/doc,bin,man/man1,man/man3}
+	mkdir -p $(DISTDIR)/{include,lib/qt/include,lib/qt/doc,lib/qt/src/tools,lib/qt/src/kernel,lib/qt/src/widgets,lib/qt/src/dialogs,lib/qt/moc,bin,man/man1,man/man3}
 	ln -s ../lib/qt/include $(DISTDIR)/include/qt
 	cp -fR /local/qt/install-extra/. $(DISTDIR)
 	rm -rf $(DISTDIR)/RCS
 	cp -f $(INCDIR)/*.h $(DISTDIR)/lib/qt/include
-	co -p -q moc/moc.1 > $(DISTDIR)/man/man1/moc.1
+	co -q -p -q moc/moc.1 > $(DISTDIR)/man/man1/moc.1
 	cp -f /local/man/man3/*.3qt $(DISTDIR)/man/man3
 	cp -f /local/qt/doc/html/*.html $(DISTDIR)/lib/qt/doc
 	cp -f /local/qt/doc/html/*.gif $(DISTDIR)/lib/qt/doc
+	# source
+	set -e ; for a in tools kernel widgets dialogs ; do \
+	    ( set -e ; cd $(DISTDIR)/lib/qt/src/$$a ; ln -s /local/qt/src/$${a}/RCS RCS ; co -q -r Makefile ; co -q -r `make -s showfiles` ; rm RCS ); \
+	done
+	# moc
+	( set -e ; cd $(DISTDIR)/lib/qt/moc ; ln -s /local/qt/src/moc/RCS RCS ; co -q -r Makefile ; make -s checkout ; rm RCS )
 	# examples
 	mkdir -p `make -s -C /local/qt/examples showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/examples/_g`
 	set -e ; for a in `find $(DISTDIR)/lib/qt/examples -type d -print` ; \
 	do \
-	    ( set -e ; cd $$a ; co -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
+	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
 	done
 	# tutorial
 	mkdir -p `make -s -C /local/qt/tutorial showdirs | fmt -1 | sed 's_^_'$(DISTDIR)/lib/qt/tutorial/_g`
 	set -e ; for a in `find $(DISTDIR)/lib/qt/tutorial -type d -print` ; \
 	do \
-	    ( set -e ; cd $$a ; co -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
+	    ( set -e ; cd $$a ; co -q -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
 	done
 	chmod -R u+w $(DISTDIR)
 
