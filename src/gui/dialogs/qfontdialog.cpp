@@ -293,12 +293,12 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     connect(d->underline, SIGNAL(clicked()),
             SLOT(updateSample()));
 
-    QList<QFontDatabase::WritingSystem> writingSystems = d->fdb.writingSystems();
-    writingSystems.prepend(QFontDatabase::Any);
-    for (int i = 0; i < writingSystems.count(); ++i) {
-        QString writingSystemName = QFontDatabase::writingSystemName(writingSystems.at(i));
-        if (!writingSystemName.isEmpty())
-            d->writingSystemCombo->addItem(writingSystemName);
+    for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
+        QFontDatabase::WritingSystem ws = QFontDatabase::WritingSystem(i);
+        QString writingSystemName = QFontDatabase::writingSystemName(ws);
+        if (writingSystemName.isEmpty())
+            break;
+        d->writingSystemCombo->addItem(writingSystemName);
     }
 
     updateFamilies();
