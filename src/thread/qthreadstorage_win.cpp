@@ -18,7 +18,11 @@
 #include <string.h>
 
 // #define QTHREADSTORAGE_DEBUG
-
+#ifdef QTHREADSTORAGE_DEBUG
+#  define DEBUG qDebug
+#else
+#  define DEBUG if(false)qDebug
+#endif
 
  // 256 maximum + 1 used in QRegExp + 1 used in QEventLoop
 static const int MAX_THREAD_STORAGE = 258;
@@ -99,7 +103,6 @@ void **QThreadStorageData::set( void *p )
     if ( d->thread_storage[id] ) {
 	DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
 	      id, (unsigned long) GetCurrentThreadId());
-
 	void *q = d->thread_storage[id];
 	d->thread_storage[id] = 0;
 	thread_storage_usage[id].func( d->thread_storage[id] );
