@@ -33,7 +33,7 @@
 #include <signal.h>
 
 #if defined(Q_OS_SCO) && defined(raise)
-#  undef raise // fix for broken headers on SCO OpenServer 5.0.5
+#  undef raise
 #endif
 
 #if defined(Q_WS_WIN)
@@ -95,7 +95,7 @@ static void signalHandler( QT_SIGNAL_ARGS )
 extern "C" {
 #endif
 
-#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
+#if defined(Q_OS_IRIX) && defined(Q_CC_GNU) && !defined(_LANGUAGE_C_PLUS_PLUS) && defined(_SGIAPI)
 static void exitHandler()
 #else
 static void exitHandler( int )
