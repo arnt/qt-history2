@@ -553,7 +553,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    for(QStringList::Iterator libit = libs.begin(), objit = objs.begin(); 
 		libit != libs.end(); ++libit) {
 		QStringList build;
-		for(int cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) 
+		for(cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) 
 		    build << (*objit);
 		QString ar;
 		if((*libit) == "$(TARGET)") {
