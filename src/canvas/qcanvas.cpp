@@ -1334,16 +1334,7 @@ void QCanvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
 */
 void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
-#if 0
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
-#else
-    // ### hack to prevent drawing artifacts on Windows after having rotated the
-    // canvas forwards and back.
-    QRect ir = inarea;
-    ir.setRight( ir.right()+1 );
-    ir.setBottom( ir.bottom() + 1 );
-    QRect area=ir.intersect(QRect(0,0,width()+1,height()+1));
-#endif
 
     if ( !dblbuf )
 	double_buffer = FALSE;
