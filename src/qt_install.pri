@@ -6,7 +6,11 @@ INSTALLS += target
 macx { 
     QtFramework = /Library/Frameworks/$${TARGET}.framework
     framework.path = $$QtFramework/Headers
-    framework.commands += $$quote(cp -rf $$target.path/$(TARGET) $(INSTALL_ROOT)/$$QtFramework/$${TARGET})
+    framework.commands += $$quote("cp -rf $$target.path/$(TARGET) $(INSTALL_ROOT)/$$QtFramework/$${TARGET}")
+    framework.commands += $$quote("\n\t install_name_tool -id $$QtFramework/$$TARGET $(INSTALL_ROOT)/$$QtFramework/$${TARGET}")       
+    for(lib, $$list(QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Compat)) {
+        framework.commands += $$quote("\n\t install_name_tool -change lib$${lib}.4.dylib /Library/Frameworks/$${lib}.framework/$$lib $(INSTALL_ROOT)/$$QtFramework/$${TARGET}")       
+    }
     INSTALLS += framework
 }
 
