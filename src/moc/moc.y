@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#225 $
+** $Id: //depot/qt/main/src/moc/moc.y#226 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1708,12 +1708,23 @@ void init()					// initialize
     tmpArgList	 = new ArgList;
     tmpFunc	 = new Function;
     tmpEnum	 = new Enum;
+
+#ifdef MOC_MWERKS_PLUGIN
+    buf_buffer = NULL;
+    buf_index = 0;
+    buf_size_total = 0;
+#endif    
 }
 
 void cleanup()
 {
     delete g;
     g = NULL;
+
+#ifdef MOC_MWERKS_PLUGIN
+    if(buf_buffer && g_ctx) 
+	CWReleaseFileText(g_ctx, buf_buffer);
+#endif    
 }
 
 void initClass()				 // prepare for new class
@@ -2776,7 +2787,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#225 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#226 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
