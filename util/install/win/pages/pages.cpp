@@ -144,8 +144,8 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
     installPath->setText(
-	    QString( QDir::homeDirPath() + "/" ) +
-	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("-"), "" )
+	    QString( QDir::homeDirPath() + "/Qt" ) +
+	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" )
 	    );
     sysGroup->hide();
 #endif
