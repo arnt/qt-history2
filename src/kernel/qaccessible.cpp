@@ -281,6 +281,19 @@ static void qAccessibleCleanup()
     qAccessibleManager = 0;
 }
 
+#ifdef Q_WS_MAC
+QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
+{
+    if(qAccessibleInterface) {
+	for(QPtrDictIterator<QAccessibleInterface> it(*qAccessibleInterface); it.current(); ++it) {
+	    if(it.current() == o)
+		return (QObject*)it.currentKey();
+	}
+    }
+    return NULL;
+}
+#endif
+
 /*!
     Sets \a iface to point to the implementation of the
     QAccessibleInterface for \a object, and returns \c QS_OK if
