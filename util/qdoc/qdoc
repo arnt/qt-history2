@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#137 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#138 $
 #
 # this is a massive hack, written very quickly
 #
@@ -946,7 +946,7 @@ remains with ", $company, "
 
 The example program on this page may be used, distributed and modified
 without limitation.
-C0664 510077 qtdoc-1.2-a4-2.ps
+
 ", $doc, "
 <hr>
 ", $h, $address;
