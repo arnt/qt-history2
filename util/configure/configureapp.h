@@ -53,7 +53,10 @@ private:
 
     QStringList qmakeVars;
     QStringList qmakeDefines;
-    QStringList makeList;
+    //  makeList[0] for qt and qtmain
+    //  makeList[1] for subdirs and libs
+    //  makeList[2] for the rest
+    QStringList makeList[3];
     QStringList qmakeIncludes;
     QStringList qmakeLibs;
     QStringList::Iterator makeListIterator;
