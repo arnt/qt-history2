@@ -653,6 +653,12 @@ void QTextHtmlParser::parseTag()
     resolveNode();
     parseAttributes();
 
+    // special handling for anchors with href attribute (hyperlinks)
+    if (node->isAnchor && !node->anchorHref.isEmpty()) {
+        node->fontUnderline = true; // ####
+        node->color = Qt::blue; // ####
+    }
+
     // finish tag
     while (pos < len && txt.at(pos++) != QLatin1Char('>'))
         ;
@@ -830,7 +836,9 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     alignment = parent->alignment;
     listStyle = parent->listStyle;
     anchorHref = parent->anchorHref;
-    anchorName = parent->anchorName;
+    // makes no sense to inherit that property, a named anchor is a single point
+    // in the document, which is set by the DocumentFragment
+    //anchorName = parent->anchorName;
     wsm = parent->wsm;
 
     // initialize remaining properties
@@ -844,8 +852,6 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     // set element specific attributes
     switch (id) {
         case Html_a:
-            fontUnderline = true;
-            color = Qt::blue; // ####
             isAnchor = true;
             break;
         case Html_em:
