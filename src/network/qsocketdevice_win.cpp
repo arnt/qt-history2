@@ -515,66 +515,62 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 	return -1;
     }
 #endif
-    bool done = FALSE;
     Q_LONG r = 0;
-    while ( done == FALSE ) {
-	if ( t == Datagram ) {
-	    struct sockaddr_in a;
-	    memset( &a, 0, sizeof(a) );
-	    SOCKLEN_T sz;
-	    sz = sizeof( a );
-	    r = ::recvfrom( fd, data, maxlen, 0, (struct sockaddr *)&a, &sz );
-	    pp = ntohs( a.sin_port );
-	    pa = QHostAddress( ntohl( a.sin_addr.s_addr ) );
-	} else {
-	    r = ::recv( fd, data, maxlen, 0 );
-	}
-	done = TRUE;
-	if ( r == SOCKET_ERROR && e == NoError ) {
-	    switch( WSAGetLastError() ) {
-		case WSANOTINITIALISED:
-		    e = Impossible;
-		    break;
-		case WSAECONNABORTED:
-		case WSAETIMEDOUT:
-		case WSAECONNRESET:
-		    // connection closed
-		    r = 0;
-		    break;
-		case WSAENETDOWN:
-		case WSAENETRESET:
-		    e = NetworkFailure;
-		    break;
-		case WSAEFAULT:
-		case WSAENOTCONN:
-		case WSAESHUTDOWN:
-		case WSAEINVAL:
-		    e = Impossible;
-		    break;
-		case WSAEINTR:
-		    // ### ?
-		    break;
-		case WSAEINPROGRESS:
-		    e = NoResources;
-		    break;
-		case WSAENOTSOCK:
-		    e = Impossible;
-		    break;
-		case WSAEOPNOTSUPP:
-		    e = Bug; // ### ?
-		    break;
-		case WSAEWOULDBLOCK:
-		    break;
-		case WSAEMSGSIZE:
-		    e = NoResources; // ### ?
-		    break;
-		case WSAEISCONN:
-		    // ### ?
-		    break;
-		default:
-		    e = UnknownError;
-		    break;
-	    }
+    if ( t == Datagram ) {
+	struct sockaddr_in a;
+	memset( &a, 0, sizeof(a) );
+	SOCKLEN_T sz;
+	sz = sizeof( a );
+	r = ::recvfrom( fd, data, maxlen, 0, (struct sockaddr *)&a, &sz );
+	pp = ntohs( a.sin_port );
+	pa = QHostAddress( ntohl( a.sin_addr.s_addr ) );
+    } else {
+	r = ::recv( fd, data, maxlen, 0 );
+    }
+    if ( r == SOCKET_ERROR && e == NoError ) {
+	switch( WSAGetLastError() ) {
+	    case WSANOTINITIALISED:
+		e = Impossible;
+		break;
+	    case WSAECONNABORTED:
+	    case WSAETIMEDOUT:
+	    case WSAECONNRESET:
+		// connection closed
+		r = 0;
+		break;
+	    case WSAENETDOWN:
+	    case WSAENETRESET:
+		e = NetworkFailure;
+		break;
+	    case WSAEFAULT:
+	    case WSAENOTCONN:
+	    case WSAESHUTDOWN:
+	    case WSAEINVAL:
+		e = Impossible;
+		break;
+	    case WSAEINTR:
+		// ### ?
+		break;
+	    case WSAEINPROGRESS:
+		e = NoResources;
+		break;
+	    case WSAENOTSOCK:
+		e = Impossible;
+		break;
+	    case WSAEOPNOTSUPP:
+		e = Bug; // ### ?
+		break;
+	    case WSAEWOULDBLOCK:
+		break;
+	    case WSAEMSGSIZE:
+		e = NoResources; // ### ?
+		break;
+	    case WSAEISCONN:
+		// ### ?
+		break;
+	    default:
+		e = UnknownError;
+		break;
 	}
     }
     return r;
