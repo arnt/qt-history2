@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#87 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#87 $");
 
 
 /*****************************************************************************
@@ -37,9 +37,9 @@ static char	appName[120];			// application name
 static HANDLE	appInst;			// handle to app instance
 static HANDLE	appPrevInst;			// handle to prev app instance
 static int	appCmdShow;			// main window show command
-static int	numZeroTimers = 0;		// number of full-speed timers
-static HWND	curWin	  = 0;			// current window
-static HANDLE	displayDC = 0;			// display device context
+static int	numZeroTimers	= 0;		// number of full-speed timers
+static HWND	curWin		= 0;		// current window
+static HANDLE	displayDC	= 0;		// display device context
 static QWidget *desktopWidget	= 0;		// desktop window widget
 
 #if defined(DEBUG)
@@ -777,6 +777,8 @@ static void sn_activate_fd( int sockfd, int type )
 
 int QApplication::exec()
 {
+    quit_now  = FALSE;
+    quit_code = 0;
     enter_loop();
     return quit_code;
 }
@@ -834,12 +836,10 @@ bool QApplication::processNextEvent( bool canWait )
 
 void QApplication::processEvents()
 {
-    QTime start = QTime::currentTime();
-    QTime now;
+    uint ticks = (uint)GetTickCount();
     while ( !quit_now && processNextEvent(FALSE) ) {
-	now = QTime::currentTime();
-	if ( start.msecsTo(now) > 3000 )	// 3 secs or more elapsed
-	    break;
+	if ( (uint)GetTickCount() - ticks > 3000 )
+	    break;				// 3 secs or more elapsed
     }
 }
 
@@ -847,6 +847,7 @@ void QApplication::processEvents()
 int QApplication::enter_loop()
 {
     loop_level++;
+    quit_now = FALSE;
 
     while ( !quit_now && !app_exit_loop )
 	processNextEvent( TRUE );

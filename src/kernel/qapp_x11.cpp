@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#210 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#211 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#210 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#211 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1223,6 +1223,8 @@ static int sn_activate()
 
 int QApplication::exec()
 {
+    quit_now  = FALSE;
+    quit_code = 0;
     enter_loop();
     return quit_code;
 }
@@ -1519,6 +1521,7 @@ void QApplication::processEvents()
 int QApplication::enter_loop()
 {
     loop_level++;
+    quit_now = FALSE;
 
     while ( !quit_now && !app_exit_loop )
 	processNextEvent( TRUE );
