@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#27 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -726,11 +726,10 @@ QWhatsThis::~QWhatsThis()
 }
 
 
-/*! \fn QString QWhatsThis::text( const QPoint & ) const
-
-  Not yet.
-
-*/
+QString QWhatsThis::text( const QPoint & )
+{
+    return QString::null; //####
+}
 
 
 /*!  Enters What's This? question mode and returns immediately.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#12 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#13 $
 **
 ** Definition of QWhatsThis class
 **
@@ -37,7 +37,7 @@ public:
     QWhatsThis( QWidget * parent, const char * name = 0 );
     ~QWhatsThis();
 
-    virtual QString text( const QPoint & ){return QString::null;}//####
+    virtual QString text( const QPoint & );
 
     // the common static functions
     static void add( QWidget *, const QString &);
