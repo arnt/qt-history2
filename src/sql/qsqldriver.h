@@ -40,54 +40,55 @@ class QM_EXPORT_SQL QSqlDriver : public QObject
 {
     friend class QSqlDatabase;
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QSqlDriver);
+
 public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
-			 NamedPlaceholders, PositionalPlaceholders };
+                         NamedPlaceholders, PositionalPlaceholders };
 
-    QSqlDriver(QObject * parent=0);
+    QSqlDriver(QObject *parent=0);
     ~QSqlDriver();
-    virtual bool	isOpen() const;
-    bool		isOpenError() const;
+    virtual bool isOpen() const;
+    bool isOpenError() const;
 
-    virtual bool		beginTransaction();
-    virtual bool		commitTransaction();
-    virtual bool		rollbackTransaction();
-    virtual QStringList		tables( const QString& tableType ) const;
-    virtual QSqlIndex		primaryIndex( const QString& tableName ) const;
-    virtual QSqlRecord		record( const QString& tableName ) const;
+    virtual bool beginTransaction();
+    virtual bool commitTransaction();
+    virtual bool rollbackTransaction();
+    virtual QStringList tables(const QString &tableType) const;
+    virtual QSqlIndex primaryIndex(const QString &tableName) const;
+    virtual QSqlRecord record(const QString &tableName) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QSqlRecord record(const QSqlQuery& query) const
-    { return query.record(); }    
+    { return query.record(); }
     inline QT_COMPAT QSqlRecord recordInfo( const QString& tablename ) const
     { return record(tablename); }
     inline QT_COMPAT QSqlRecord recordInfo( const QSqlQuery& query ) const
     { return query.record(); }
 #endif
-    virtual QString		nullText() const;
-    virtual QString		formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
-    QSqlError			lastError() const;
+    virtual QString nullText() const;
+    virtual QString formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
+    QSqlError lastError() const;
 
-    virtual bool		hasFeature( DriverFeature f ) const = 0;
-    virtual void		close() = 0;
-    virtual QSqlQuery		createQuery() const = 0;
+    virtual bool hasFeature( DriverFeature f ) const = 0;
+    virtual void close() = 0;
+    virtual QSqlQuery createQuery() const = 0;
 
-    virtual bool			open( const QString& db,
-				      const QString& user = QString(),
-				      const QString& password = QString(),
-				      const QString& host = QString(),
-				      int port = -1,
-				      const QString& connOpts = QString() ) = 0;
+    virtual bool open( const QString& db,
+                       const QString& user = QString(),
+                       const QString& password = QString(),
+                       const QString& host = QString(),
+                       int port = -1,
+                       const QString& connOpts = QString() ) = 0;
 protected:
-    virtual void		setOpen( bool o );
-    virtual void		setOpenError( bool e );
-    virtual void		setLastError( const QSqlError& e );
+    virtual void setOpen( bool o );
+    virtual void setOpenError( bool e );
+    virtual void setLastError( const QSqlError& e );
 private:
-    QSqlDriverPrivate* d;
 #if defined(Q_DISABLE_COPY)
     QSqlDriver( const QSqlDriver & );
     QSqlDriver &operator=( const QSqlDriver & );
 #endif
 };
 
-#endif	// QT_NO_SQL
+#endif// QT_NO_SQL
 #endif

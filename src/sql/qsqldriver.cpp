@@ -17,20 +17,29 @@
 #ifndef QT_NO_SQL
 
 #include "qdatetime.h"
+#include "private/qobject_p.h"
 
-class QSqlDriverPrivate
+#define d d_func()
+#define q q_func()
+
+class QSqlDriverPrivate: public QObjectPrivate
 {
 public:
-    QSqlDriverPrivate(QSqlDriver* d);
+    QSqlDriverPrivate();
+    virtual ~QSqlDriverPrivate();
 public:
-    QSqlDriver* q;
+    QSqlDriver *q;
     uint isOpen: 1;
     uint isOpenError: 1;
     QSqlError error;
 };
 
-inline QSqlDriverPrivate::QSqlDriverPrivate(QSqlDriver* d)
-    : q(d), isOpen(FALSE), isOpenError(FALSE)
+inline QSqlDriverPrivate::QSqlDriverPrivate()
+    : QObjectPrivate(), isOpen(FALSE), isOpenError(FALSE)
+{
+}
+
+QSqlDriverPrivate::~QSqlDriverPrivate()
 {
 }
 
@@ -51,9 +60,8 @@ inline QSqlDriverPrivate::QSqlDriverPrivate(QSqlDriver* d)
 */
 
 QSqlDriver::QSqlDriver( QObject * parent)
-    : QObject(parent)
+    : QObject(*new QSqlDriverPrivate, parent)
 {
-    d = new QSqlDriverPrivate(this);
 }
 
 /*!
@@ -62,7 +70,6 @@ QSqlDriver::QSqlDriver( QObject * parent)
 
 QSqlDriver::~QSqlDriver()
 {
-    delete d;
 }
 
 /*!
