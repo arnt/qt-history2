@@ -147,7 +147,7 @@ QMacStyle::~QMacStyle()
 /*! \reimp */
 void QMacStyle::polish(QApplication* app)
 {
-#ifdef USE_CORE_GRAPHICS
+#if defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030
     if(!cg_style)
 	cg_style = new QMacStyleCG();
     cg_style->polish(app);
