@@ -811,6 +811,7 @@ void MainWindow::helpAbout()
 	LanguageInterface *iface = MetaDataBase::languageInterface( eProject->language() );
 	dlg.aboutLicense->setText( iface->aboutText() );
     }
+    dlg.aboutVersion->setText(QString("Version ") + QString(QT_VERSION_STR));
     dlg.resize( dlg.width(), dlg.layout()->heightForWidth(dlg.width()) );
     dlg.exec();
 }
