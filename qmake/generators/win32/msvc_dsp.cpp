@@ -76,8 +76,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 	// Created files
 	QString origTarget = project->first("QMAKE_ORIG_TARGET");
 	origTarget.replace(QRegExp("-"), "_");
-	precompObj = origTarget + Option::obj_ext;
-	precompPch = origTarget + ".pch";
+	precompObj = "\"$(IntDir)\\" + origTarget + Option::obj_ext + "\"";
+	precompPch = "\"$(IntDir)\\" + origTarget + ".pch\"";
 	// Add PRECOMPILED_HEADER to HEADERS
 	if (!project->variables()["HEADERS"].contains(precompH))
 	    project->variables()["HEADERS"] += precompH;
@@ -161,8 +161,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    }
 		    if (usePCH && precompH.endsWith(*it)) {
 			QString basicBuildCmd = QString("\tcl.exe /TP /W3 /FD /c /D \"WIN32\" /Yc /Fp\"%1\" /Fo\"%2\" %3 %4 %5 %6 %7 %8 %9 /D \"")
-							.arg("$(IntDir)\\" + precompPch)
-							.arg("$(IntDir)\\" + precompObj)
+							.arg(precompPch)
+							.arg(precompObj)
 							.arg(var("MSVCDSP_INCPATH"))
 							.arg(var("MSVCDSP_DEFINES"))
 							.arg(var("MSVCDSP_CXXFLAGS"));
@@ -189,7 +189,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			buildCmdsR += "\" /Fd\"$(IntDir)\\\\\" " + (*it) + " \\\n";
 			buildCmdsD += "\" /Fd\"$(IntDir)\\\\\" " + (*it) + " \\\n";
 
-			compilePCH = "\"$(IntDir)\\" + precompPch + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
+			compilePCH = precompPch + " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 
 		    }
 		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
