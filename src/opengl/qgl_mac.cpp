@@ -40,8 +40,6 @@
 #if defined(Q_WS_MAC)
 #include <agl.h>
 #include <gl.h>
-#include <CodeFragments.h>
-#include <Gestalt.h>
 
 #include <qpixmap.h>
 #include <qapplication.h>
