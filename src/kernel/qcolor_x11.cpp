@@ -786,7 +786,7 @@ void QColor::destroyAllocContext( int context )
 	return;
 
     int screen;
-    for ( screen = 0; screen < screencount; ++screencount ) {
+    for ( screen = 0; screen < screencount; ++screen ) {
 	if ( screendata[screen]->g_truecolor )
 	    continue;
 
