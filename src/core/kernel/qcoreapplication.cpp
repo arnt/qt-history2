@@ -1161,7 +1161,7 @@ QString QCoreApplication::applicationFilePath()
     absPath = QDir::cleanPath(absPath);
 
     QFileInfo fi(absPath);
-    return fi.exists() ? fi.canonicalPath() : QString::null;
+    return fi.exists() ? fi.canonicalFilePath() : QString::null;
 #endif
 }
 #endif // QT_NO_DIR
