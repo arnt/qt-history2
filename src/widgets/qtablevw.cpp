@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#68 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#68 $");
 
 
 const int sbDim = 16;
@@ -2027,11 +2027,11 @@ void QTableView::doAutoScrollBars()
     }
 
     if ( testTableFlags(Tbl_autoHScrollBar) && vScrollOn && !hScrollOn )
-	if ( w > viewW - sbDim - 1 )
+	if ( w > viewW - sbDim )
 	    hScrollOn = TRUE;
 
     if ( testTableFlags(Tbl_autoVScrollBar) && hScrollOn && !vScrollOn )
-	if ( h > viewH - sbDim - 1 )
+	if ( h > viewH - sbDim )
 	    vScrollOn = TRUE;
 
     setHorScrollBar( hScrollOn, FALSE );
