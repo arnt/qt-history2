@@ -366,7 +366,7 @@ void QComLibrary::createInstanceInternal()
 	return;
 
     QFileInfo fileinfo( library() );
-    QString lastModified  = fileinfo.lastModified().toString();
+    QString lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
     QString regkey = QString("/Qt Plugins %1.%2/%3")
 		     .arg( ( QT_VERSION & 0xff0000 ) >> 16 )
 		     .arg( ( QT_VERSION & 0xff00 ) >> 8 )
