@@ -1281,10 +1281,11 @@ void Project::removeTempProject()
     for ( it = files.begin(); it != files.end(); ++it ) {
 	d.remove( *it );
     }
-    d = QDir( QFileInfo( filename ).dirPath() + "/images" );
-    files = d.entryList( QDir::Files );
-    for ( it = files.begin(); it != files.end(); ++it ) {
-	d.remove( *it );
+    if ( d.exists( QFileInfo( filename ).dirPath() + "/images" ) ) {
+	d = QDir( QFileInfo( filename ).dirPath() + "/images" );
+	files = d.entryList( QDir::Files );
+	for ( it = files.begin(); it != files.end(); ++it )
+	    d.remove( *it );
     }
 }
 
