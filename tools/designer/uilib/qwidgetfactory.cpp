@@ -29,7 +29,7 @@
 #include "../designer/config.h"
 #include "../designer/database2.h"
 #include <qdom.h>
-#include <qfile.h>
+#include <qdir.h>
 #include <qlayout.h>
 #include <qmetaobject.h>
 #include <domtool.h>

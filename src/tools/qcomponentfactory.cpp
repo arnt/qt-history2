@@ -48,17 +48,17 @@
 
   \ingroup componentmodel
 
-  The component factory provides static convenience functions that can be used both by 
-  applications to instantiate components, and by component servers to register components.
+  The static convenience functions can be used both by applications to instantiate components, 
+  and by component servers to register components.
 
   The createInstance() function provides a pointer to an interface implemented in a specific 
   component.
 
   Use registerServer() to load a component server and register its components, and unregisterServer()
-  to unregsiter the components. The component exported by the component server has to implement the
-  QComponentRegistrationInterface. registerComponent() and unregisterComponent() register and unregister
-  single components from the system component registry, and should be used by implementations of the 
-  QComponentServerInterface.
+  to unregister the components. The component exported by the component server has to implement the
+  QComponentRegistrationInterface. The static functions registerComponent() and unregisterComponent() 
+  register and unregister a single component from the system component registry, and should be used when
+  implementing the QComponentRegistrationInterface.
 
   \sa QComponentRegistrationInterface QComponentFactoryInterface
 */
