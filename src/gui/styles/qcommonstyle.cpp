@@ -1159,16 +1159,16 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
     that is useful for drawing the sub-rectangle.
 */
 QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetrics &fm,
-                            const QWidget *w) const
+                            const QWidget *widget) const
 {
     QRect r;
     switch (sr) {
     case SR_PushButtonContents:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dx1, dx2;
-            dx1 = pixelMetric(PM_DefaultFrameWidth, btn, w);
+            dx1 = pixelMetric(PM_DefaultFrameWidth, btn, widget);
             if (btn->state & Style_ButtonDefault)
-                dx1 += pixelMetric(PM_ButtonDefaultIndicator, btn, w);
+                dx1 += pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
             dx2 = dx1 * 2;
             r.setRect(opt->rect.x() + dx1, opt->rect.y() + dx1, opt->rect.width() - dx2,
                       opt->rect.height() - dx2);
@@ -1178,11 +1178,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             int dbw1 = 0, dbw2 = 0;
             if (btn->state & Style_ButtonDefault) {
-                dbw1 = pixelMetric(PM_ButtonDefaultIndicator, btn, w);
+                dbw1 = pixelMetric(PM_ButtonDefaultIndicator, btn, widget);
                 dbw2 = dbw1 * 2;
             }
 
-            int dfw1 = pixelMetric(PM_DefaultFrameWidth, btn, w) * 2,
+            int dfw1 = pixelMetric(PM_DefaultFrameWidth, btn, widget) * 2,
                 dfw2 = dfw1 * 2;
 
             r.setRect(btn->rect.x() + dfw1 + dbw1, btn->rect.y() + dfw1 + dbw1,
@@ -1192,15 +1192,15 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
 
     case SR_CheckBoxIndicator:
         {
-            int h = pixelMetric(PM_IndicatorHeight, opt, w);
+            int h = pixelMetric(PM_IndicatorHeight, opt, widget);
             r.setRect(0, (opt->rect.height() - h) / 2,
-                      pixelMetric(PM_IndicatorWidth, opt, w), h);
+                      pixelMetric(PM_IndicatorWidth, opt, widget), h);
         }
         break;
 
     case SR_CheckBoxContents:
         {
-            QRect ir = subRect(SR_CheckBoxIndicator, opt, fm, w);
+            QRect ir = subRect(SR_CheckBoxIndicator, opt, fm, widget);
             r.setRect(ir.right() + 6, opt->rect.y(), opt->rect.width() - ir.width() - 6,
                       opt->rect.height());
         }
@@ -1209,11 +1209,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
     case SR_CheckBoxFocusRect:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (btn->text.isEmpty()) {
-                r = subRect(SR_CheckBoxIndicator, opt, fm, w);
+                r = subRect(SR_CheckBoxIndicator, opt, fm, widget);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_CheckBoxContents, opt, fm, w);
+            QRect cr = subRect(SR_CheckBoxContents, opt, fm, widget);
 
             if (!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
@@ -1229,15 +1229,15 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
 
     case SR_RadioButtonIndicator:
         {
-            int h = pixelMetric(PM_ExclusiveIndicatorHeight, opt, w);
+            int h = pixelMetric(PM_ExclusiveIndicatorHeight, opt, widget);
             r.setRect(0, (opt->rect.height() - h) / 2,
-                    pixelMetric(PM_ExclusiveIndicatorWidth, opt, w), h);
+                    pixelMetric(PM_ExclusiveIndicatorWidth, opt, widget), h);
         }
         break;
 
     case SR_RadioButtonContents:
         {
-            QRect ir = subRect(SR_RadioButtonIndicator, opt, fm, w);
+            QRect ir = subRect(SR_RadioButtonIndicator, opt, fm, widget);
             r.setRect(ir.right() + 6, opt->rect.y(),
                       opt->rect.width() - ir.width() - 6, opt->rect.height());
             break;
@@ -1246,11 +1246,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
     case SR_RadioButtonFocusRect:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             if (!btn->icon.isNull() && btn->text.isEmpty()) {
-                r = subRect(SR_RadioButtonIndicator, opt, fm, w);
+                r = subRect(SR_RadioButtonIndicator, opt, fm, widget);
                 r.addCoords(1, 1, -1, -1);
                 break;
             }
-            QRect cr = subRect(SR_RadioButtonContents, opt, fm, w);
+            QRect cr = subRect(SR_RadioButtonContents, opt, fm, widget);
 
             if(!btn->icon.isNull()) {
                 r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
@@ -1265,8 +1265,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         break;
     case SR_SliderFocusRect:
         if (const QStyleOptionSlider *slider = qt_cast<const QStyleOptionSlider *>(opt)) {
-            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, w);
-            int thickness  = pixelMetric(PM_SliderControlThickness, slider, w);
+            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, slider, widget);
+            int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
             if (slider->orientation == Qt::Horizontal)
                 r.setRect(0, tickOffset - 1, slider->rect.width(), thickness + 2);
             else
@@ -1309,7 +1309,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         break;
     case SR_ToolButtonContents:
         if (const QStyleOptionToolButton *tb = qt_cast<const QStyleOptionToolButton *>(opt))
-            r = querySubControlMetrics(CC_ToolButton, tb, SC_ToolButton, w);
+            r = querySubControlMetrics(CC_ToolButton, tb, SC_ToolButton, widget);
         break;
     case SR_ComboBoxFocusRect:
         r.setRect(3, 3, opt->rect.width() - 6 - 16, opt->rect.height() - 6);
@@ -1334,27 +1334,23 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
             }
         }
         break;
-    case SR_HeaderLabel:
-        if (const QStyleOptionHeader * const hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
-            int margin = pixelMetric(QStyle::PM_HeaderMargin);
-            r.setRect(opt->rect.x() + margin, opt->rect.y() + margin,
-                      opt->rect.width() - margin * 2, opt->rect.height() - margin * 2);
+    case SR_HeaderLabel: {
+        int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
+        r.setRect(opt->rect.x() + margin, opt->rect.y() + margin,
+                  opt->rect.width() - margin * 2, opt->rect.height() - margin * 2);
 
-        }
-        break;
-    case SR_HeaderArrow:
-        if (const QStyleOptionHeader * const hdr = qt_cast<const QStyleOptionHeader *>(opt)) {
-            int h = opt->rect.height();
-            int w = opt->rect.width();
-            int x = opt->rect.x();
-            int y = opt->rect.y();
-            int margin = pixelMetric(QStyle::PM_HeaderMargin);
-            if (opt->state & QStyle::Style_Horizontal)
-                r.setRect(x + w - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
-            else
-                r.setRect(x + 5, y, h / 2, h - margin * 2);
-        }
-        break;
+        break; }
+    case SR_HeaderArrow: {
+        int h = opt->rect.height();
+        int w = opt->rect.width();
+        int x = opt->rect.x();
+        int y = opt->rect.y();
+        int margin = pixelMetric(QStyle::PM_HeaderMargin, opt, widget);
+        if (opt->state & QStyle::Style_Horizontal)
+            r.setRect(x + w - margin * 2 - (h / 2), y + 5, h / 2, h - margin * 2);
+        else
+            r.setRect(x + 5, y, h / 2, h - margin * 2);
+        break; }
     default:
         break;
     }
