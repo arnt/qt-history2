@@ -848,9 +848,9 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
   into the icon view.
 */
 
-void QIconViewItem::init( QIconViewItem *after,
+void QIconViewItem::init( QIconViewItem *after
 #ifndef QT_NO_PICTURE
-			  QPicture *pic
+			  , QPicture *pic
 #endif
 			  )
 {
@@ -888,7 +888,9 @@ QIconViewItem::~QIconViewItem()
     view = 0;
     if ( itemIcon && itemIcon->serialNumber() != unknown_icon->serialNumber() )
 	delete itemIcon;
+#ifndef QT_NO_PICTURE
     delete itemPic;
+#endif
     delete d;
 }
 
@@ -1652,11 +1654,14 @@ void QIconViewItem::calcRect( const QString &text_ )
     int pw = 0;
     int ph = 0;
 
+#ifndef QT_NO_PICTURE
     if ( picture() ) {
 	QRect br = picture()->boundingRect();
 	pw = br.width() + 2;
 	ph = br.height() + 2;
-    } else {
+    } else
+#endif
+    {
 	pw = ( pixmap() ? pixmap() : unknown_icon )->width() + 2;
 	ph = ( pixmap() ? pixmap() : unknown_icon )->height() + 2;
     }

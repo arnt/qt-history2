@@ -233,9 +233,9 @@ protected:
     void calcTmpText();
 
 private:
-    void init( QIconViewItem *after = 0,
+    void init( QIconViewItem *after = 0
 #ifndef QT_NO_PICTURE
-	       QPicture *pic = 0
+	       , QPicture *pic = 0
 #endif
 	       );
     void renameItem();
