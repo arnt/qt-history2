@@ -32,12 +32,12 @@ QSqlDriver
    are therefore obsolete and have been removed.
 
 New functions:
-	bool QSqlDriver::feature( QSqlDriver::DriverFeature ) const;
+	bool feature( QSqlDriver::DriverFeature ) const;
 
 Removed functions:
-	bool QSqlDriver::hasQuerySizeSupport() const;
-	bool QSqlDriver::canEditBinaryFields() const;
-	bool QSqlDriver::hasTransactionSupport() const;
+	bool hasQuerySizeSupport() const;
+	bool canEditBinaryFields() const;
+	bool hasTransactionSupport() const;
 
 QTabWidget
 ----------
@@ -46,9 +46,9 @@ QTabWidget
    QTabWidget.
 
 New functions:
-    void removeTabToolTip( QWidget * w );
-    void setTabToolTip( QWidget * w, const QString & tip );
-    QString tabToolTip( QWidget * w ) const;
+	void removeTabToolTip( QWidget * w );
+	void setTabToolTip( QWidget * w, const QString & tip );
+	QString tabToolTip( QWidget * w ) const;
 
 QTabBar
 -------
@@ -57,6 +57,6 @@ QTabBar
    QTabBar.
 
 New functions:
-    void 	removeToolTip( int id );
-    void     	setToolTip( int id, const QString & tip );
-    QString 	toolTip( int id ) const;
+	void removeToolTip( int id );
+	void setToolTip( int id, const QString & tip );
+	QString toolTip( int id ) const;
