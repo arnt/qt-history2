@@ -477,8 +477,8 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     // children
+    bool needEventHandler = dbAware;
     nl = e.elementsByTagName( "widget" );
-    bool needEventHandler = FALSE;
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
 	createObjectDecl( n );
@@ -857,6 +857,14 @@ void Uic::createFormImpl( const QDomElement &e )
 	    } else {
 		out << indent;
 	    }
+	    if ( dbAware && prop == "sort" ) {
+		QString defaultTable = getDatabaseInfo( e, "table" );
+		out << "QStringList " << defaultTable << "Sort;" << endl;
+		out << indent << defaultTable << "Sort << \"" << value << "\";" << endl;
+		out << indent;
+		value = defaultTable + "Sort";
+	    }
+
 	    if ( prop == "geometry" && n2.tagName() == "rect") {
 		QDomElement n3 = n2.firstChild().toElement();
 		int w = 0, h = 0;
@@ -1018,6 +1026,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // handle application events if required
     bool needFontEventHandler = FALSE;
     bool needSqlTableEventHandler = FALSE;
+    bool needSqlFormEventHandler = dbAware;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
@@ -1028,7 +1037,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( needFontEventHandler && needSqlTableEventHandler )
 	    break;
     }
-    if ( needFontEventHandler || needSqlTableEventHandler ) {
+    if ( needFontEventHandler || needSqlTableEventHandler || needSqlFormEventHandler ) {
 	//	indent = "\t"; // increase indentation for if-clause below
 	out << "/*  " << endl;
 	out << " *  Main event handler. Reimplemented to handle";
@@ -1039,7 +1048,14 @@ void Uic::createFormImpl( const QDomElement &e )
 		out << " and" << endl;
 	    else
 		out << endl;
-	    out << " *  default SQL table initialization." << endl;
+	    out << " *  default SQL table initialization" << endl;
+	}
+	if ( needSqlFormEventHandler ) {
+	    if ( needSqlTableEventHandler || needFontEventHandler )
+		out << " *  and";
+	    else
+		out << " * ";
+	    out << " default SQL form initialization" << endl;
 	}
 	out << " */" << endl;
 	out << "bool " << nameOfClass  << "::event( QEvent* ev )" << endl;
@@ -1101,6 +1117,15 @@ void Uic::createFormImpl( const QDomElement &e )
 		}
 	    }
 	    out << "    }" << endl;
+	}
+	if ( needSqlFormEventHandler ) {
+	    out << indent << "if ( ev->type() == QEvent::Show ) {" << endl;
+	    out << indent << indent << "QSqlCursor* cursor = defaultCursor();" << endl;
+	    out << indent << indent << "if ( cursor && !cursor->isActive() ) {" << endl;
+	    out << indent << indent << indent << "refresh();" << endl;
+	    out << indent << indent << indent << "firstRecord();" << endl;
+	    out << indent << indent << "}" << endl;
+	    out << indent << "}" << endl;
 	}
 	out << "    return ret;" << endl;
 	out << "}" << endl;
@@ -1296,7 +1321,6 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		    out << indent << indent << "cursor = new QSqlCursor( name );" << endl;
 		else
 		    out << indent << indent <<  "cursor = new QSqlCursor( name, " << (*it) << "Connection );" << endl;
-		out << indent << indent << "cursor->select( cursor->primaryIndex() );" << endl;
 		out << indent << indent << "autoDeleteCursors.insert( " << i << ", cursor );" << endl;
 		out << indent << indent << "recognized = TRUE;" << endl;
 		out << indent << "}" << endl;
