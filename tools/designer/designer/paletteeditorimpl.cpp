@@ -102,6 +102,13 @@ PaletteEditor::PaletteEditor( FormWindow *fw, QWidget * parent, const char * nam
     buttonActivePixmap->setFormWindow( formWindow );
     buttonInactivePixmap->setFormWindow( formWindow );
     buttonDisabledPixmap->setFormWindow( formWindow );
+
+    checkBuildActiveEffect->setChecked( FALSE );
+    checkBuildActiveEffect->setChecked( TRUE );
+    checkBuildInactiveEffect->setChecked( FALSE );
+    checkBuildInactiveEffect->setChecked( TRUE );
+    checkBuildDisabledEffect->setChecked( FALSE );
+    checkBuildDisabledEffect->setChecked( TRUE );
 }
 
 PaletteEditor::~PaletteEditor()
