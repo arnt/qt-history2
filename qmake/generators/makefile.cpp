@@ -613,7 +613,11 @@ MakefileGenerator::init()
 
     /* get deps and mocables */
     QDict<void> cache_found_files;
-    QString cache_file(Option::output_dir + QDir::separator() + ".qmake.internal.cache");
+    QString cache_file(".qmake.internal.cache");
+    if(!project->isEmpty("QMAKE_INTERNAL_CACHE_FILE"))
+	cache_file = Option::fixPathToLocalOS(project->first("QMAKE_INTERNAL_CACHE_FILE"));
+    if(cache_file.find(QDir::separator()) == -1) //guess they know what they are doing..
+	cache_file.prepend(Option::output_dir + QDir::separator());
     if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
 	Option::mkfile::do_deps || Option::mkfile::do_mocs) && !noIO()) {
 	QPtrList<MakefileDependDir> deplist;
