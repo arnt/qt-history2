@@ -101,8 +101,6 @@ protected:
     virtual void layOutButtonRow( QHBoxLayout * );
     virtual void layOutTitleRow( QHBoxLayout *, const QString & );
 
-    void configureEvent( QConfigureEvent* );
-
 private:
     void setBackEnabled( bool );
     void setNextEnabled( bool );
