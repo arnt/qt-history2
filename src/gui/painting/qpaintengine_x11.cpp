@@ -1409,48 +1409,44 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
-    if (pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate
-        && pixmap.hasAlphaChannel() && !pixmap.data->x11_mask)
-    {
 #if !defined(QT_NO_XRENDER)
-        if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
-            // this is essentially drawTile() from above, inlined for
-            // the XRenderComposite call
-            int yPos, xPos, drawH, drawW, yOff, xOff;
-            yPos = y;
-            yOff = sy;
-            while(yPos < y + h) {
-                drawH = pixmap.height() - yOff;    // Cropping first row
-                if (yPos + drawH > y + h)        // Cropping last row
-                    drawH = y + h - yPos;
-                xPos = x;
-                xOff = sx;
-                while(xPos < x + w) {
-                    drawW = pixmap.width() - xOff; // Cropping first column
-                    if (xPos + drawW > x + w)    // Cropping last column
-                        drawW = x + w - xPos;
-                    XRenderComposite(d->dpy, PictOpOver,
-                                     pixmap.x11PictureHandle(), XNone,
-                                     d->picture, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
-                    xPos += drawW;
-                    xOff = 0;
-                }
-                yPos += drawH;
-                yOff = 0;
+    if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
+        // this is essentially qt_draw_tile(), inlined for
+        // the XRenderComposite call
+        int yPos, xPos, drawH, drawW, yOff, xOff;
+        yPos = y;
+        yOff = sy;
+        while(yPos < y + h) {
+            drawH = pixmap.height() - yOff;    // Cropping first row
+            if (yPos + drawH > y + h)        // Cropping last row
+                drawH = y + h - yPos;
+            xPos = x;
+            xOff = sx;
+            while(xPos < x + w) {
+                drawW = pixmap.width() - xOff; // Cropping first column
+                if (xPos + drawW > x + w)    // Cropping last column
+                    drawW = x + w - xPos;
+                XRenderComposite(d->dpy, PictOpOver,
+                                 pixmap.x11PictureHandle(), XNone,
+                                 d->picture, xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
+                xPos += drawW;
+                xOff = 0;
             }
-            return;
+            yPos += drawH;
+            yOff = 0;
         }
+    } else
 #endif // !QT_NO_XRENDER
-
-        XSetTile(d->dpy, d->gc, pixmap.handle());
-        XSetFillStyle(d->dpy, d->gc, FillTiled);
-        XSetTSOrigin(d->dpy, d->gc, x-sx, y-sy);
-        XFillRectangle(d->dpy, d->hd, d->gc, x, y, w, h);
-        XSetTSOrigin(d->dpy, d->gc, 0, 0);
-        XSetFillStyle(d->dpy, d->gc, FillSolid);
-    } else {
-	qt_draw_tile(this, x, y, w, h, pixmap, sx, sy);
-    }
+        if (pixmap.depth() > 1 && !pixmap.data->x11_mask) {
+            XSetTile(d->dpy, d->gc, pixmap.handle());
+            XSetFillStyle(d->dpy, d->gc, FillTiled);
+            XSetTSOrigin(d->dpy, d->gc, x-sx, y-sy);
+            XFillRectangle(d->dpy, d->hd, d->gc, x, y, w, h);
+            XSetTSOrigin(d->dpy, d->gc, 0, 0);
+            XSetFillStyle(d->dpy, d->gc, FillSolid);
+        } else {
+            qt_draw_tile(this, x, y, w, h, pixmap, sx, sy);
+        }
 }
 
 static void drawLines(QPaintEngine *p, const QTextItemInt &ti, int baseline, int x1, int w)
