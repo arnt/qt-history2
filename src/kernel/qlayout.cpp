@@ -869,7 +869,7 @@ inline QGridLayoutDataIterator::QGridLayoutDataIterator( QGridLayoutData *d )
     \mainclass
 
     QGridLayout takes the space made available to it (by its parent
-    layout or by the mainWidget()), divides it up into rows and
+    layout or by the parentWidget()), divides it up into rows and
     columns, and puts each widget it manages into the correct cell.
 
     Columns and rows behave identically; we will discuss columns, but
@@ -1109,13 +1109,13 @@ void QGridLayout::setGeometry( const QRect &r )
 
     \warning in the current version of Qt this function does not
     return valid results until setGeometry() has been called, i.e.
-    after the mainWidget() is visible.
+    after the parentWidget() is visible.
 */
 QRect QGridLayout::cellGeometry( int row, int col ) const
 {
     return data->cellGeometry( row, col );
 }
-
+#ifndef QT_NO_COMPAT
 /*!
     Expands this grid so that it will have \a nRows rows and \a nCols
     columns. Will not shrink the grid. You should not need to call
@@ -1126,7 +1126,7 @@ void QGridLayout::expand( int nRows, int nCols )
 {
     data->expand( nRows, nCols );
 }
-
+#endif
 /*!
     Sets up the grid.
 */
@@ -1523,7 +1523,7 @@ private:
     \ingroup appearance
 
     QBoxLayout takes the space it gets (from its parent layout or from
-    the mainWidget()), divides it up into a row of boxes, and makes
+    the parentWidget()), divides it up into a row of boxes, and makes
     each managed widget fill one box.
 
     \img qhbox-m.png Horizontal box with five child widgets

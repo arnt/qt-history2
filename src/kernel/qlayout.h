@@ -312,7 +312,6 @@ public:
     void addWidget(QWidget *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
     void addLayout(QLayout *, int row, int col, Alignment = 0);
     void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Alignment = 0);
-    void expand( int rows, int cols );
 
     void setOrigin( Corner );
     Corner origin() const;
@@ -334,6 +333,7 @@ private:
     QGridLayoutData *data;
 #ifndef QT_NO_COMPAT
 public:
+    void expand( int rows, int cols );
     inline void addRowSpacing( int row, int minsize ) { addItem(new QSpacerItem(0,minsize), row, 0); }
     inline void addColSpacing( int col, int minsize ) { addItem(new QSpacerItem(minsize,0), 0, col); }
     inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Alignment align = 0)
