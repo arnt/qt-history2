@@ -115,6 +115,7 @@ public:
 
 protected:
     bool eventFilter( QObject *, QEvent * );
+    void paintEvent( QPaintEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -198,6 +199,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+    void paintEvent( QPaintEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );

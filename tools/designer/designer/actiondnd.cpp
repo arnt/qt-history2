@@ -144,6 +144,16 @@ bool QDesignerToolBar::eventFilter( QObject *o, QEvent *e )
     return QToolBar::eventFilter( o, e );
 }
 
+void QDesignerToolBar::paintEvent( QPaintEvent *e )
+{
+    QToolBar::paintEvent( e );
+    if ( e->rect() != rect() )
+	return;
+    QPoint p = lastIndicatorPos;
+    lastIndicatorPos = QPoint( -1, -1 );
+    drawIndicator( p );
+}
+
 void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 {
     if ( e->button() == MidButton )
@@ -515,7 +525,6 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
     p.end();
     pix.setMask( pix.createHeuristicMask() );
     drag->setPixmap( pix );
-    QApplication::sendPostedEvents();
     if ( !drag->drag() ) {
 	insertItem( txt, popup, -1, itm );
     }
@@ -875,3 +884,12 @@ void QDesignerPopupMenu::actionRemoved()
     actionList.removeRef( (QAction*)sender() );
 }
 
+void QDesignerPopupMenu::paintEvent( QPaintEvent *e )
+{
+    QPopupMenu::paintEvent( e );
+    if ( e->rect() != rect() )
+	return;
+    QPoint p = lastIndicatorPos;
+    lastIndicatorPos = QPoint( -1, -1 );
+    drawIndicator( p );
+}
