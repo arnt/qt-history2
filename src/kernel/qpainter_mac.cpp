@@ -340,7 +340,9 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-	if(!w->isVisible()); //leave the clipped reg empty if its not visible, this is hacky FIXME!!!
+	if(!w->isVisible()) { 
+	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
+	}
 	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) {
 	    clippedreg = paintevents.current()->region();
 	}
