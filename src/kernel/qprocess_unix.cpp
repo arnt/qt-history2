@@ -831,7 +831,7 @@ bool QProcess::isRunning() const
 	QProcess *that = (QProcess*)this; // mutable
 	that->exitNormal = WIFEXITED( status ) != 0;
 	if ( exitNormal ) {
-	    that->exitStat = WEXITSTATUS( status );
+	    that->exitStat = (char)WEXITSTATUS( status );
 	}
 	d->exitValuesCalculated = TRUE;
 #if defined(QT_QPROCESS_DEBUG)
