@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#32 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#32 $";
 #endif
 
 
@@ -282,10 +282,10 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			    x2,   y+i );
 	    drawPolyline( a );
 	}
-        cpen.setColor( mColor );
+        setPen( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x1+lw, y+lw+i, x2-lw, y+lw+i );
-	cpen.setColor( bColor );
+	setPen( bColor );
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x1+lw, y+tlw-i-1,
 			    x2-i,  y+tlw-i-1,
@@ -309,10 +309,10 @@ void QPainter::drawShadeLine( int x1, int y1, int x2, int y2,
 			    x+tlw-1, y1+i );
 	    drawPolyline( a );
 	}
-        cpen.setColor( mColor );
+        setPen( mColor );
 	for ( i=0; i<mlw; i++ )			// draw lines in the middle
 	    drawLine( x+lw+i, y1+lw, x+lw+i, y2 );
-	cpen.setColor( bColor );
+	setPen( bColor );
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
 	    a.setPoints( 3, x+lw,      y2-i,
 			    x+tlw-i-1, y2-i,
@@ -345,7 +345,7 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 	a.setPoints( 8, x1,y1, x2,y1, x1,y1+1, x1,y2, x1+2,y2-1,
 		     x2-1,y2-1, x2-1,y1+2,  x2-1,y2-2 );
 	drawLineSegments( a );			// draw top lines
-	cpen.setColor( bColor );
+	setPen( bColor );
 	a.setPoints( 8, x1+1,y1+1, x2,y1+1, x1+1,y1+2, x1+1,y2-1,
 		     x1+1,y2, x2,y2,  x2,y1+2, x2,y2-1 );
 	drawLineSegments( a );			// draw bottom lines
@@ -362,13 +362,13 @@ void QPainter::drawShadeRect( int x, int y, int w, int h,
 	    j++;
 	    k++;
 	}
-	cpen.setColor( mColor );
+	setPen( mColor );
 	j = lw*2;
 	for ( i=0; i<mlw; i++ ) {		// draw lines in the middle
 	    drawRect( x1+lw+i, y1+lw+i, w-j, h-j );
 	    j += 2;
 	}
-	cpen.setColor( bColor );
+	setPen( bColor );
 	j = 0;
 	k = m;
 	for ( i=0; i<lw; i++ ) {		// draw bottom shadow
@@ -415,7 +415,7 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
     }
     drawLineSegments( a );
     n = 0;
-    cpen.setColor( bColor );
+    setPen( bColor );
     x1 = x;
     y1 = y2 = y+h-1;
     x2 = x+w-1;
