@@ -1941,6 +1941,8 @@ void QTable::init( int rows, int cols )
     connect( autoScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
     curRow = curCol = 0;
+    topHeader->setSectionState( curCol, QTableHeader::Bold );
+    leftHeader->setSectionState( curRow, QTableHeader::Bold );
     edMode = NotEditing;
     editRow = editCol = -1;
 
