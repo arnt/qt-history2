@@ -1,5 +1,6 @@
 #include "../../designer/actioniface.h"
 #include "../../designer/designerappiface.h"
+#include "p4.h"
 
 #include <qcleanuphandler.h>
 #include <qapplicationinterface.h>
@@ -33,7 +34,7 @@ private slots:
 private:
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
-
+    
 };
 
 P4Interface::P4Interface()
@@ -94,7 +95,9 @@ void P4Interface::p4Edit()
     if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) ||
 	 !( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
 	return;
-    qDebug( "P4Interface::p4Edit %s", fwIface->requestProperty( "fileName" ).toString().latin1() );
+ 
+    P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), mwIface );
+    edit->edit();
 }
 
 void P4Interface::p4Submit()
