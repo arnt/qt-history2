@@ -148,7 +148,7 @@ void CDialogWidget::generate()
 	strConfigs.truncate( strConfigs.length() - 1 ); // Remove the trailing space
 	strDefines.truncate( strDefines.length() - 1 ); // Remove the trailing space
 
-	strQMake = "qmake qt \"CONFIGS+=" + strConfigs + "\" \"DEFINES+=" + strDefines + "\" -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
+	strQMake = "qmake qt \"CONFIG+=" + strConfigs + "\" \"DEFINES+=" + strDefines + "\" -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
 	if ( m_pOptions->text().length() )
 	{
 		strQMake += " " + m_pOptions->text();
