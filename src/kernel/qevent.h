@@ -68,7 +68,7 @@ public:
 	Close = 19,				// request to close widget
 	Quit = 20,				// request to quit application
 	Reparent = 21,				// widget has been reparented
-	ShowMaximized = 21,		       	// widget is shown maximized
+	ShowMaximized = 28,		       	// widget is shown maximized
 	ShowMinimized = 22,		       	// widget is shown minimized
 	ShowNormal = 23,	       		// widget is shown normal
 	WindowActivate = 24,	       		// window was activated
