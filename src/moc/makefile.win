@@ -79,35 +79,35 @@ $(TMPCPP): moc.y $(LEXOUT)
 moc_gen.o: moc_gen.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qbuffer.obj: ..\win\qbuffer.cpp
+qbuffer.obj: ..\tools\qbuffer.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qcollect.obj: ..\win\qcollect.cpp
+qcollect.obj: ..\tools\qcollect.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qdatetm.obj: ..\win\qdatetm.cpp
+qdatetm.obj: ..\tools\qdatetm.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qdstream.obj: ..\win\qdstream.cpp
+qdstream.obj: ..\tools\qdstream.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qgarray.obj: ..\win\qgarray.cpp
+qgarray.obj: ..\tools\qgarray.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qgdict.obj: ..\win\qgdict.cpp
+qgdict.obj: ..\tools\qgdict.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qglist.obj: ..\win\qglist.cpp
+qglist.obj: ..\tools\qglist.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qglobal.obj: ..\win\qglobal.cpp
+qglobal.obj: ..\tools\qglobal.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qgvector.obj: ..\win\qgvector.cpp
+qgvector.obj: ..\tools\qgvector.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qiodev.obj: ..\win\qiodev.cpp
+qiodev.obj: ..\tools\qiodev.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
-qstring.obj: ..\win\qstring.cpp
+qstring.obj: ..\tools\qstring.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
