@@ -54,6 +54,7 @@ struct QTextHtmlParserNode {
     QString text;
     QVector<QTextHtmlParserAttribute> attributes;
     int parent;
+    QVector<int> children;
     uint isBlock : 1;
     uint isListItem : 1;
     uint isListStart : 1;

@@ -901,6 +901,9 @@ void QTextHtmlParser::resolveParent()
         p = at(p).parent;
     }
     node->parent = p;
+
+    // makes it easier to traverse the tree, later
+    nodes[p].children.append(nodes.count() - 1);
 }
 
 // sets all properties on the new node
