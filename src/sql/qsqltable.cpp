@@ -77,7 +77,8 @@ public:
 	  confEdits( 3 ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
-	  autoDelete( FALSE )
+	  autoDelete( FALSE ),
+	  refreshing( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -107,6 +108,7 @@ public:
     QStringList fld;
     QStringList fldLabel;
     QValueList< QIconSet > fldIcon;
+    bool refreshing;
 };
 
 /*! \enum QSqlTable::Confirm
@@ -1159,8 +1161,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 }
 
 
-/*!  Resets the table so that it displays no data.  This is called
-  internally before displaying new data.
+/*!  Resets the table so that it displays no data.
 
   \sa setCursor()
 
@@ -1463,6 +1464,8 @@ void QSqlTable::repaintCell( int row, int col )
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
+    if ( d->refreshing )
+	return;
     QTable::paintCell(p,row,col,cr, false);  // empty cell
 
     if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
@@ -1588,6 +1591,9 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
     if ( cursor ) {
 	QSqlCursorNavigator::setCursor( cursor );
 	if ( autoPopulate ) {
+	    d->fld.clear();
+	    d->fldLabel.clear();
+	    d->fldIcon.clear();
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
 		addColumn( sqlCursor()->field( i )->name(), sqlCursor()->displayLabel( sqlCursor()->field( i )->name() ) );
 	}
@@ -1754,13 +1760,17 @@ void QSqlTable::refresh()
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
+    d->refreshing = TRUE;
     setNumCols( 0 );
     d->colIndex.clear();
+    QSqlCursorNavigator::refresh();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
 	for ( uint i = 0; i < d->fld.count(); ++i ) {
 	    field = cur->field( d->fld[ i ] );
-	    if ( field && cur->isVisible( field->name() ) && !cur->primaryIndex().contains( field->name() ) ) {
+	    if ( field && cur->isVisible( field->name() ) &&
+		 !cur->primaryIndex().contains( field->name() ) &&
+		 ( cur->position( field->name() ) != -1 ) ) {
 		setNumCols( numCols() + 1 );
 		d->colIndex.append( cur->position( field->name() ) );
 		setColumnReadOnly( numCols()-1, field->isReadOnly() );
@@ -1773,7 +1783,7 @@ void QSqlTable::refresh()
 	    }
 	}
     }
-    QSqlCursorNavigator::refresh();
+    d->refreshing = FALSE;
     setSize( cur );
 }
 
