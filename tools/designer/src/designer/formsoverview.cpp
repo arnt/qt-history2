@@ -171,7 +171,7 @@ void FormsOverview::updateFormsNow()
         w->ensurePolished();
         QPixmap pix = QPixmap::grabWidget(w);
         QImage img = pix.toImage();
-        img.scale(128, 128, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        img.scale(128, 128, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         pix = img;
         item->setIcon(0, pix);
         delete w;
