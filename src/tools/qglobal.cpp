@@ -408,8 +408,6 @@ void warning( const char *msg, ... )
     }
 }
 
-#endif
-
 /*!
   \relates QApplication
   Prints a fatal error message and exits, or calls the message handler (if it
@@ -483,7 +481,7 @@ void fatal( const char *msg, ... )
     }
 }
 
-
+#endif
 
 
 /*!
