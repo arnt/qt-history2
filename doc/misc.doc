@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.11 1997/08/19 10:53:48 aavit Exp $
+** $Id: misc.doc,v 2.12 1997/09/11 19:02:28 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.11 1997/08/19 10:53:48 aavit Exp $";
+static char ident[] = "$Id: misc.doc,v 2.12 1997/09/11 19:02:28 paul Exp $";
 #endif
 
 
@@ -195,7 +195,7 @@ Yes, easily.
 <title>Qt License Statement</title>
 </head><body bgcolor="#ffffff">
 <p>
-This is the free software license for Qt version 1.2; it mainly
+This is the free software license for Qt version 1.3; it mainly
 covers development of free software for the free software community.
 We believe that it does not constrain development of free software
 noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
@@ -212,7 +212,7 @@ than this one.
 Copyright &copy; 1992-1997 Troll Tech AS.  All rights reserved.
 <p>
 <p>
-This is the free software license for Qt version 1.2; it covers
+This is the free software license for Qt version 1.3; it covers
 private use, use of third-party application programs based on Qt, and
 development of free software for the free software community.
 <p>
