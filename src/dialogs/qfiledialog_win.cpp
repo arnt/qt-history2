@@ -328,6 +328,12 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 
     DWORD selFilIdx;        
 
+    int idx = 0;
+    if ( selectedFilter && !selectedFilter->isEmpty() ) {
+	QStringList filterLst = makeFiltersList( filter );
+	idx = filterLst.findIndex( *selectedFilter );
+    }
+
     if ( parent )
 	qt_enter_modal( parent );
     QT_WA( {
@@ -335,6 +341,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
 				     winFilter(filter), ExistingFile );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetOpenFileName( ofn ) ) {
 	    result = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
@@ -345,11 +353,14 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
 				       winFilter(filter), ExistingFile );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetOpenFileNameA( ofn ) ) {
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
 	}
 	cleanUpOFNA( &ofn );
+
     } );
     if ( parent )
 	qt_leave_modal( parent );
@@ -395,6 +406,12 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     
     DWORD selFilIdx;
 
+    int idx = 0;
+    if ( selectedFilter && !selectedFilter->isEmpty() ) {
+	QStringList filterLst = makeFiltersList( filter );
+	idx = filterLst.findIndex( *selectedFilter );
+    }
+
     if ( parent )
 	qt_enter_modal( parent );
     QT_WA( {
@@ -402,6 +419,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
 				     winFilter(filter), AnyFile );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetSaveFileName( ofn ) ) {
 	    result = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
@@ -412,6 +431,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
 				       winFilter(filter), AnyFile );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetSaveFileNameA( ofn ) ) {
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
@@ -464,12 +485,20 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 
     DWORD selFilIdx;
 
+    int idx = 0;
+    if ( selectedFilter && !selectedFilter->isEmpty() ) {
+	QStringList filterLst = makeFiltersList( filter );
+	idx = filterLst.findIndex( *selectedFilter );
+    }
+
     if ( parent )
 	qt_enter_modal( parent );
     QT_WA( {
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
 				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetOpenFileName( ofn ) ) {
 	    QString fileOrDir = QString::fromUcs2( (ushort*)ofn->lpstrFile );
 	    selFilIdx = ofn->nFilterIndex;
@@ -499,6 +528,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
 				       *initialDirectory, title,
 				       winFilter( filter ), ExistingFiles );
+	if ( idx )
+	    ofn->nFilterIndex = idx + 1;
 	if ( GetOpenFileNameA( ofn ) ) {
 	    QCString fileOrDir = ofn->lpstrFile;
 	    selFilIdx = ofn->nFilterIndex;
