@@ -71,7 +71,8 @@ kernel {
 		  $$KERNEL_H/qtextengine_p.h \
 		  $$KERNEL_H/qfontengine_p.h \
 		  $$KERNEL_H/qtextlayout_p.h \
-		  $$KERNEL_H/qtextformat.h
+		  $$KERNEL_H/qtextformat.h \
+		  $$KERNEL_H/qtextformat_p.h
 
 	win32 {
 		HEADERS    += \

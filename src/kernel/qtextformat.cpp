@@ -1,4 +1,5 @@
 #include "qtextformat.h"
+#include "qtextformat_p.h"
 
 #include <qstring.h>
 #include <qfontmetrics.h>

@@ -18,6 +18,7 @@
 #include <qpainter.h>
 #include <qstackarray.h>
 #include <qtextformat.h>
+#include "qtextformat_p.h"
 
 #include "qfontengine_p.h"
 
