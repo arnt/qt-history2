@@ -212,9 +212,9 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
     bool gray = format == "PGM";
 
     if (format == "PBM") {
-        image = image.convertDepth(1);
+        image = image.convertToFormat(QImage::Format_MonoLSB);
     } else if (image.depth() == 1) {
-        image = image.convertDepth(8);
+        image = image.convertToFormat(QImage::Format_Indexed8);
     }
 
     if (image.depth() == 1 && image.numColors() == 2) {

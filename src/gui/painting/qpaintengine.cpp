@@ -626,8 +626,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 
         QImage img = pm.toImage();
         if (img.depth() != 32)
-            img = img.convertDepth(32);
-        img.setAlphaBuffer(true);
+            img = img.convertToFormat(QImage::Format_ARGB32);
         int i = 0;
         QRgb pen_rgb = state->pen().color().rgb() & 0x00ffffff;
         while (i < img.height()) {

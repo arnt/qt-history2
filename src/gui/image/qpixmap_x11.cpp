@@ -945,7 +945,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     if (force_mono) {
         if (d != 1) {
             // dither
-            image = image.convertDepth(1, flags);
+            image = image.convertToFormat(QImage::Format_MonoLSB, flags);
             d = 1;
         }
     } else {                                        // can be both
@@ -968,7 +968,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             }
         }
         if (conv8) {
-            image = image.convertDepth(8, flags);
+            image = image.convertToFormat(QImage::Format_Indexed8, flags);
             d = 8;
         }
     }

@@ -3120,7 +3120,7 @@ QPixmap QCommonStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &p
 {
     switch (iconMode) {
     case QIcon::Disabled: {
-        QImage im = pixmap.toImage().convertDepth(32);
+        QImage im = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
 
         // Create a colortable based on the background (black -> bg -> white)
         QColor bg = opt->palette.color(QPalette::Disabled, QPalette::Background);

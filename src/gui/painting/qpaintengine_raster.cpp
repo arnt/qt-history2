@@ -735,7 +735,7 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
 QImage *qt_image_for_pixmap(const QPixmap &pixmap)
 {
     static QImage cached_image;
-    cached_image = pixmap.toImage().convertDepth(32);
+    cached_image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
     return &cached_image;
 }
 

@@ -2672,7 +2672,7 @@ void QGLWidget::qglClearColor(const QColor& c) const
 
 QImage QGLWidget::convertToGLFormat(const QImage& img)
 {
-    QImage res = img.convertDepth(32);
+    QImage res = img.convertToFormat(QImage::Format_ARGB32);
     res = res.mirrored();
 
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {

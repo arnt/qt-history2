@@ -1506,12 +1506,7 @@ static void convert_ARGB_to_ARGB_PM(QImageData *dest, const QImageData *src, Qt:
     const uchar *src_data = src->data;
     uchar *dest_data = dest->data;
     for (int i = 0; i < src->nbytes; ++i) {
-        QRgb pixel = *src_data;
-        int alpha = qAlpha(pixel);
-        *dest_data = (alpha << 24)
-                     | (qt_div_255(alpha*qRed(pixel)) << 16)
-                     | (qt_div_255(alpha*qGreen(pixel)) << 8)
-                     | (qt_div_255(alpha*qBlue(pixel)) << 0);
+        *dest_data = PREMUL(*src_data);
         ++src_data;
         ++dest_data;
     }
@@ -1529,12 +1524,7 @@ static void convert_ARGB_PM_to_ARGB(QImageData *dest, const QImageData *src, Qt:
     const uchar *src_data = src->data;
     uchar *dest_data = dest->data;
     for (int i = 0; i < src->nbytes; ++i) {
-        QRgb pixel = *src_data;
-        int alpha = qAlpha(pixel);
-        *dest_data = (alpha << 24)
-                     | ((255*qRed(pixel)/alpha) << 16)
-                     | ((255*qGreen(pixel)/alpha) << 8)
-                     | ((255*qBlue(pixel)/alpha) << 0);
+        *dest_data = INV_PREMUL(*src_data);
         ++src_data;
         ++dest_data;
     }
@@ -2308,7 +2298,7 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         return QImage();
 
     QImage image(d->width, d->height, format);
-    converter(d, image.d, flags);
+    converter(image.d, d, flags);
     return image;
 }
 
@@ -2324,7 +2314,7 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
     QImage image(d->width, d->height, format);
     if (image.d->depth <= 8)
         image.d->colortable = colorTable;
-    converter(d, image.d, flags);
+    converter(image.d, d, flags);
     return image;
 }
 
