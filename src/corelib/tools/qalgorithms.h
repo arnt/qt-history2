@@ -30,6 +30,8 @@ template <typename BiIterator, typename T>
 inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy);
 
 template <typename BiIterator, typename T, typename LessThan>
+Q_OUTOFLINE_TEMPLATE void qStableSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan);
+template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator, BiIterator, LessThan, T *);
 template <typename BiIterator, typename T>
 inline void qStableSortHelper(BiIterator, BiIterator, const T &);
