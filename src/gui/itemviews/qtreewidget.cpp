@@ -792,6 +792,26 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 /*!
+  \fn int QTreeWidgetItem::textAlignment(int column) const
+
+  Returns the text alignment for the label in the given \a column
+  (see \l{Qt::AlignmentFlag}).
+*/
+
+/*!
+  \fn void QTreeWidgetItem::setTextAlignment(int column, int alignment)
+
+  Sets the text alignment for the label in the given \a column to
+  the \a alignment specified (see \l{Qt::AlignmentFlag}).
+*/
+
+/*!
+    \fn int QTreeWidgetItem::indexOfChild(QTreeWidgetItem *child) const
+
+    Returns the index of the given \a child in the item's list of children.
+*/
+
+/*!
   \internal
   Constructs a tree widget item. The item must be inserted into a tree view.
 
@@ -1146,12 +1166,29 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 */
 
 /*!
+    \property QTreeWidget::sortingEnabled
+    \brief whether the items in the tree widget are sorted
+*/
+
+/*!
+    \fn void QTreeWidget::pressed(QTreeWidgetItem *item, int column, Qt::ButtonState button)
+
+    This signal is emitted when the user presses a mouse button inside the
+    widget. The specified \a item is the item that was clicked, or 0 if no item
+    was clicked.
+    The \a column is the item's column that was clicked, or -1 if
+    no item was clicked.
+    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
+*/
+
+/*!
     \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
     This signal is emitted when the user clicks inside the widget.
-    The \a item given is the item that was clicked, or 0 if no item was clicked.
-    The \a column is the column that contained the item, or -1 if no item was
+    The specified \a item is the item that was clicked, or 0 if no item was
     clicked.
+    The \a column is the item's column that was clicked, or -1 if
+    no item was clicked.
     The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
@@ -1159,10 +1196,95 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
     \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
     This signal is emitted when the user double clicks inside the widget.
-    The \a item given is the item that was clicked, or 0 if no item was clicked.
-    The \a column is the column that contained the item, or -1 if no item was
+    The specified \a item is the item that was clicked, or 0 if no item was
     clicked.
+    The \a column is the item's column that was clicked, or -1 if
+    no item was clicked.
     The button clicked is specified by \a button (see \l{Qt::ButtonState}).
+*/
+
+/*!
+    \fn void QTreeWidget::keyPressed(QTreeWidgetItem *item, int column, Qt::Key key, Qt::ButtonState button)
+
+    This signal is emitted when the user presses a key inside the widget.
+    The specified \a item and \a column had the focus when the \a key was
+    pressed.
+    If no item had the focus, \a item is 0 and \a column is -1.
+
+    If a mouse button was pressed at the time of the key press, its state
+    is specified by \a button (see \l{Qt::ButtonState}).
+
+    \sa returnPressed()
+*/
+
+/*!
+    \fn void QTreeWidget::returnPressed(QTreeWidgetItem *item, int column)
+
+    This signal is emitted when the return key is pressed inside the widget.
+
+    The specified \a item and \a column had the focus when the return key was
+    pressed.
+    If no item had the focus, \a item is 0 and \a column is -1.
+
+    \sa keyPressed()
+*/
+
+/*!
+    \fn void QTreeWidget::expanded(QTreeWidgetItem *item)
+
+    This signal is emitted when the specified \a item is expanded so that
+    all of its children are displayed.
+
+    \sa isItemOpen()
+*/
+
+/*!
+    \fn void QTreeWidget::collapsed(QTreeWidgetItem *item)
+
+    This signal is emitted when the specified \a item is collapsed so that
+    none of its children are displayed.
+
+    \sa isItemOpen()
+*/
+
+/*!
+    \fn void QTreeWidget::currentChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
+
+    This signal is emitted when the current item changes. The current
+    item is specified by \a current, and this replaces the \a previous
+    current item.
+*/
+
+/*!
+    \fn void QTreeWidget::selectionChanged()
+
+    This signal is emitted when the selection changes in the tree widget.
+    The current selection can be found with selectedItems().
+*/
+
+/*!
+    \fn void QTreeWidget::itemEntered(QTreeWidgetItem *item, int column, Qt::ButtonState state)
+
+    This signal is emitted when the mouse cursor enters an \a item over the
+    specified \a column. The state of the mouse buttons is specified by
+    \a state.
+
+    \sa Qt::ButtonState
+*/
+
+/*!
+    \fn void QTreeWidget::aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem *item, int column)
+
+    This signal is emitted when the tree widget is about to show a context
+    menu specified by \a menu. The menu is actived for the specified \a item
+    and \a column.
+*/
+
+/*!
+    \fn void QTreeWidget::itemChanged(QTreeWidgetItem *item, int column)
+
+    This signal is emitted when the contents of the \a column in the specified
+    \a item changes.
 */
 
 /*!
@@ -1210,7 +1332,7 @@ QTreeWidget::~QTreeWidget()
 {
 }
 
-/*!
+/*
   Retuns the number of header columns in the view.
 */
 
@@ -1219,7 +1341,7 @@ int QTreeWidget::columnCount() const
     return d->model()->columnCount();
 }
 
-/*!
+/*
   Sets the number of header \a columns in the tree widget.
 */
 

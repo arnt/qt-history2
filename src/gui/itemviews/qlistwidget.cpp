@@ -409,8 +409,7 @@ void QListWidgetItem::clear()
 /*!
   \fn int QListWidgetItem::textAlignment() const
 
-  This font returns the text alignment for this item (see
-  \l{Qt::AlignmentFlag}).
+  Returns the text alignment for the list item (see \l{Qt::AlignmentFlag}).
 */
 
 /*!
