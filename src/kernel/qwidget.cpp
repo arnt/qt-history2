@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#265 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#266 $
 **
 ** Implementation of QWidget class
 **
@@ -1986,10 +1986,10 @@ void QWidget::setFocus()
     }
 
     if ( isActiveWindow() ) {
-	if ( qApp->focus_widget && qApp->focus_widget != this ) {
-	    QWidget * prev = qApp->focus_widget;
-	    qApp->focus_widget = this;
-	    
+	QWidget * prev = qApp->focus_widget;
+	qApp->focus_widget = this;
+	if ( prev && prev != this ) {
+	
 	    if (!prev->isPopup() && topLevelWidget()->isPopup()
 		&& topLevelWidget() != prev->topLevelWidget()) {
 		// imitate other toolkits by not sending a focus out event in that case
@@ -2000,11 +2000,8 @@ void QWidget::setFocus()
 	    }
 	}
 
-	qApp->focus_widget = this;
 	QFocusEvent in( Event_FocusIn );
 	QApplication::sendEvent( this, &in );
-    } else {
-	qApp->focus_widget = 0;
     }
 }
 

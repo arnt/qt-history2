@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#167 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#168 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1366,6 +1366,10 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     bool ok_key = TRUE;
 
     switch ( e->key() ) {
+    case Key_Tab:
+	// ignore tab, otherwise it will be passed to the menubar
+	break;
+	
     case Key_Up:
 	d = -1;
 	break;

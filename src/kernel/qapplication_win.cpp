@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#164 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1045,23 +1045,18 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 void QApplication::winFocus( QWidget *w, bool gotFocus )
 {
     if ( gotFocus ) {
-#if defined(CHECK_NULL)
-	ASSERT( w != 0 && w->focusWidget() != 0 );
-#endif
-	if ( !w ) return; // Confused, be robust after assert
-	w = w->focusWidget();
-	if ( !w || w==focus_widget ) return; // Confused
-	if ( w->isFocusEnabled() || w->isTopLevel() ) {
-	    focus_widget = w;
-	    QFocusEvent in( Event_FocusIn );
-	    QApplication::sendEvent( w, &in );
-	} else {
+	if ( inPopupMode() ) // some delayed focus event to ignore
+	    break;
+	active_window = widget->topLevelWidget();
+	QWidget *w = widget->focusWidget();
+	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
+	    w->setFocus();
+	else {
 	    // set focus to some arbitrary widget with WTabToFocus
-	    w->topLevelWidget()->focusNextPrevChild( TRUE );
-	    focus_widget = w->focusWidget();
+	    widget->focusNextPrevChild( TRUE );
 	}
     } else {
-	if ( focus_widget ) {
+	if ( focus_widget && !inPopupMode) {
 	    QFocusEvent out( Event_FocusOut );
 	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
@@ -1087,7 +1082,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
     msg.message = message;			// time and pt fields ignored
     msg.wParam = wParam;
     msg.lParam = lParam;
- 
+
     if ( qApp->winEventFilter(&msg) )		// send through app filter
 	return 0;
 
@@ -1138,13 +1133,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_SYSKEYUP:
 	case WM_CHAR: {
 	    QWidget *g = QWidget::keyboardGrabber();
-	    if ( popupWidgets )
-		widget = (QETWidget*)popupWidgets->last();
-	    else if ( g )
+	    if ( g )
 		widget = (QETWidget*)g;
-	    else if ( qApp->focusWidget() )
-		widget = (QETWidget*)qApp->focusWidget();
-	    result = widget->translateKeyEvent(msg, g != 0);
+	    else if ( focus_widget )
+		widget = (QETWidget*)focus_widget;
+	    else
+		widget = (QETWidget*)widget->topLevelWidget();
+	    if ( widget->isEnabled() )
+		result = widget->translateKeyEvent( event, g != 0 );
 	    break;
 	  }
 	case WM_SYSCHAR:
@@ -1287,12 +1283,12 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QCustomEvent e( Event_Clipboard, &msg );
 		QApplication::sendEvent( qt_clipboard, &e );
 		return 0;
-	    
+	
 	    }
-	case WM_MOUSEWHEEL: 
+	case WM_MOUSEWHEEL:
 	    result = widget->translateWheelEvent( msg );
 	    break;
-	    
+	
 						// NOTE: fall-through!
 	default:
 	    result = FALSE;			// event was not processed
@@ -1357,7 +1353,7 @@ void qt_leave_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, MSG *msg )
 {
-    if ( popupWidgets )				// popup widget mode
+    if ( qApp->activePopupWidget() )
 	return TRUE;
     if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
 	return TRUE;
@@ -1406,18 +1402,18 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 /*****************************************************************************
   Popup widget mechanism
 
-  qt_open_popup()
+  openPopup()
 	Adds a widget to the list of popup widgets
 	Arguments:
 	    QWidget *widget	The popup widget to be added
 
-  qt_close_popup()
+  closePopup()
 	Removes a widget from the list of popup widgets
 	Arguments:
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-void qt_open_popup( QWidget *popup )
+void openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
@@ -1426,9 +1422,17 @@ void qt_open_popup( QWidget *popup )
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
 	setAutoCapture( popup->winId() );	// grab mouse/keyboard
+    // popups are not focus-handled by the window system (the first
+    // popup grabbed the keyboard), so we have to do that manually: A
+    // new popup gets the focus
+    active_window = popup;
+    if (active_window->focusWidget())
+	active_window->focusWidget()->setFocus();
+    else
+	active_window->setFocus();
 }
 
-void qt_close_popup( QWidget *popup )
+void closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
@@ -1440,6 +1444,17 @@ void qt_close_popup( QWidget *popup )
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
     }
+     else {
+ 	// popups are not focus-handled by the window system (the
+ 	// first popup grabbed the keyboard), so we have to do that
+ 	// manually: A popup was closed, so the previous popup gets
+ 	// the focus.
+	 active_window = popupWidgets->getLast();
+	 if (active_window->focusWidget())
+	     active_window->focusWidget()->setFocus();
+	 else
+	     active_window->setFocus();
+     }
 }
 
 
@@ -2083,12 +2098,12 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     int delta =	(short) HIWORD ( msg.wParam );
     QPoint globalPos;
 
-    globalPos.rx() = LOWORD ( msg.lParam ); 
-    globalPos.ry() = HIWORD ( msg.lParam ); 
-    
+    globalPos.rx() = LOWORD ( msg.lParam );
+    globalPos.ry() = HIWORD ( msg.lParam );
+
     QWheelEvent e( Event_Wheel, globalPos, delta, state );
     e.ignore();	
-    
+
     // send the event to the widget that has the focus or its ancestors
     QWidget* w = qApp->focus_widget;
     if (w){

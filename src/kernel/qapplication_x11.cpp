@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#332 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#333 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -306,7 +306,6 @@ static void qt_x11_process_intern_atoms()
 	int i = atoms_to_be_created->count();
 	Atom * res = (Atom *)malloc( i * sizeof( Atom ) );
 	Atom ** resp = (Atom **)malloc( i * sizeof( Atom* ) );
-#warning broken qstring
 	char ** names = (char **)malloc( i * sizeof(const char*));
 
 	i = 0;
@@ -2023,8 +2022,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case FocusOut:				// lost focus
-	if (!inPopupMode)
+	if ( focus_widget && !inPopupMode) {
+	    QFocusEvent out( Event_FocusOut );
+	    QWidget *widget = focus_widget;
 	    focus_widget = 0;
+	    QApplication::sendEvent( widget, &out );
+	}
 	break;
 
     case EnterNotify:			// enter window
@@ -2247,7 +2250,7 @@ void qt_leave_modal( QWidget *widget )
 
 static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
-    if ( qApp->activePopupWidget() )				// popup widget mode
+    if ( qApp->activePopupWidget() )
 	return TRUE;
     if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
 	return TRUE;
@@ -2318,18 +2321,6 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-
-bool qt_grab_pointer( QWidget* widget ){
-    return  XGrabPointer(appDpy, widget->winId(), TRUE,
-			 (uint)(ButtonPressMask | ButtonReleaseMask |
-				ButtonMotionMask | EnterWindowMask |
-				LeaveWindowMask | PointerMotionMask),
-			 GrabModeSync, GrabModeAsync,
-			 None, None, CurrentTime ) == GrabSuccess;
-}
-
-
-
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
@@ -2343,14 +2334,19 @@ void QApplication::openPopup( QWidget *popup )
 			   GrabModeSync, GrabModeSync, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
 	    XAllowEvents( popup->x11Display(), SyncKeyboard, CurrentTime );
-	    popupGrabOk = qt_grab_pointer(popup);
-	    if ( (popupGrabOk = (qt_grab_pointer(popup) )) ) {
+	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+			      (uint)(ButtonPressMask | ButtonReleaseMask |
+				     ButtonMotionMask | EnterWindowMask |
+				     LeaveWindowMask | PointerMotionMask),
+			      GrabModeSync, GrabModeAsync,
+			      None, None, CurrentTime );
+	    if ( (popupGrabOk = (r == GrabSuccess)) ) {
 		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
 	    } else {
 		XUngrabKeyboard( popup->x11Display(), CurrentTime );
 	    }
 	}
-    } 
+    }
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
