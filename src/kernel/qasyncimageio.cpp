@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#45 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -123,25 +123,44 @@ struct QImageDecoderPrivate {
 	count = 0;
     }
 
+    static void cleanup();
+
+    static void ensureFactories()
+    {
+	if ( !factories ) {
+	    factories = new QList<QImageFormatType>;
+#ifdef USE_GIF
+	    gif_decoder_factory = new QGIFFormatType;
+#endif
+	    qAddPostRoutine( cleanup );
+	}
+    }
+
     static QList<QImageFormatType> * factories;
 
     // Builtins...
+#ifdef USE_GIF
     static QGIFFormatType * gif_decoder_factory;
+#endif
 
     uchar header[max_header];
     int count;
 };
 
 QList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
+#ifdef USE_GIF
 QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
+#endif
 
 
-static void cleanup()
+void QImageDecoderPrivate::cleanup()
 {
-    delete QImageDecoderPrivate::factories;
-    QImageDecoderPrivate::factories = 0;
-    delete QImageDecoderPrivate::gif_decoder_factory;
-    QImageDecoderPrivate::gif_decoder_factory = 0;
+    delete factories;
+    factories = 0;
+#ifdef USE_GIF
+    delete gif_decoder_factory;
+    gif_decoder_factory = 0;
+#endif
 }
 
 
@@ -193,11 +212,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	    d->header[d->count++] = buffer[consumed++];
 	}
 	
-	if ( !QImageDecoderPrivate::factories ) {
-	    QImageDecoderPrivate::factories = new QList<QImageFormatType>;
-	    QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
-	    qAddPostRoutine( cleanup );
-	}
+	QImageDecoderPrivate::ensureFactories();
 
 	for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
 	    f && !actual_decoder;
@@ -236,11 +251,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 */
 const char* QImageDecoder::formatName(const uchar* buffer, int length)
 {
-    if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
-	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
-	qAddPostRoutine( cleanup );
-    }
+    QImageDecoderPrivate::ensureFactories();
 
     const char* name = 0;
     for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
@@ -261,11 +272,7 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 */
 QStrList QImageDecoder::inputFormats()
 {
-    if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
-	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
-	qAddPostRoutine( cleanup );
-    }
+    QImageDecoderPrivate::ensureFactories();
 
     QStrList result;
 
@@ -287,11 +294,7 @@ QStrList QImageDecoder::inputFormats()
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 {
-    if ( !QImageDecoderPrivate::factories ) {
-	QImageDecoderPrivate::factories = new QList<QImageFormatType>;
-	QImageDecoderPrivate::gif_decoder_factory = new QGIFFormatType;
-	qAddPostRoutine( cleanup );
-    }
+    QImageDecoderPrivate::ensureFactories();
 
     QImageDecoderPrivate::factories->insert(0,f);
 }
@@ -375,7 +378,6 @@ QImageFormat::~QImageFormat()
   from QImageFormat, which can decode that format.
 
   The factories for formats built into Qt
-  (currently only GIF)
   are automatically defined before any other factory is initialized.
   If two factories would recognize an image format, the factory created
   last will override the earlier one, thus you can override current
@@ -416,7 +418,11 @@ QImageFormatType::~QImageFormatType()
     QImageDecoder::unregisterDecoderFactory(this);
 }
 
-/*!
+
+
+#ifdef USE_GIF
+
+/* -- NOTDOC
   \class QGIFFormat qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
@@ -450,7 +456,7 @@ QGIFFormat::~QGIFFormat()
 }
 
 
-/*!
+/* -- NOTDOC
   \class QGIFFormatType qasyncimageio.h
   \brief Incremental image decoder for GIF image format.
 
@@ -1060,3 +1066,5 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
     // Consume bogus extra lines
     if (y >= sheight) out_of_bounds=TRUE; //y=bottom;
 }
+
+#endif // USE_GIF
