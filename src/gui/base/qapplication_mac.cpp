@@ -892,11 +892,10 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
-# ifdef USE_CORE_GRAPHICS
+#ifdef USE_CORE_GRAPHICS
 	QCoreGraphicsPaintEngine::initialize();
-# else
+#endif
 	QQuickDrawPaintEngine::initialize();
-# endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::initialize();
 #endif
