@@ -30,6 +30,9 @@
 #include <private/qpainter_p.h>
 #include <private/qwidget_p.h>
 
+#include <qpainterpath.h>
+#include <private/qpainterpath_p.h>
+
 #include <string.h>
 
 #define d d_func()
@@ -969,12 +972,12 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
-                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PainterPaths|PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
-    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
+    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PainterPaths|PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
 }
 
@@ -1245,6 +1248,63 @@ QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
     CGContextMoveToPoint(d->hd, p1.x(), p1.y());
     CGContextAddLineToPoint(d->hd, p2.x(), p2.y());
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
+}
+
+void 
+QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
+{
+    CGMutablePathRef path = CGPathCreateMutable();
+    // Drawing the subpaths
+    const QPainterPathPrivate *pd = p.d;
+    for (int i=0; i<pd->subpaths.size(); ++i) {
+        const QPainterSubpath &sub = pd->subpaths.at(i);
+        if (sub.elements.isEmpty())
+            continue;
+        const QPoint firstPoint = sub.firstPoint();
+        CGPathMoveToPoint(path, 0, firstPoint.x(), firstPoint.y());
+        for (int j=0; j<sub.elements.size(); ++j) {
+            const QPainterPathElement &elm = sub.elements.at(j);
+            switch (elm.type) {
+            case QPainterPathElement::Line: {
+                CGPathAddLineToPoint(path, 0, elm.lineData.x2, elm.lineData.y2);
+                break;
+            }
+            case QPainterPathElement::Bezier: {
+                CGPathAddCurveToPoint(path, 0, elm.bezierData.x2, elm.bezierData.y2,
+                                      elm.bezierData.x3, elm.bezierData.y3, 
+                                      elm.bezierData.x4, elm.bezierData.y4);
+                break;
+            }
+            case QPainterPathElement::Arc: {
+                CGMutablePathRef subpath = CGPathCreateMutable();
+                CGAffineTransform transform = CGAffineTransformMake(((float)elm.arcData.w)/elm.arcData.h, 
+                                                                    0, 0, -1, 1, (elm.arcData.y*2)+elm.arcData.h);
+                float begin_radians = ((float)elm.arcData.start/16) * (M_PI/180), 
+                        end_radians = ((float)((elm.arcData.start+elm.arcData.length)/16)) * (M_PI/180);
+                CGPathAddArc(subpath, &transform, 
+                             (elm.arcData.x+(elm.arcData.w/2))/((float)elm.arcData.w/elm.arcData.h), 
+                             elm.arcData.y + (elm.arcData.h/2),
+                             elm.arcData.h/2, begin_radians, end_radians, 
+                             elm.arcData.start < 0 || elm.arcData.length < 0);
+                CGPathAddPath(path, 0, subpath);
+                CGPathRelease(subpath);
+                break;
+            }
+            default:
+                qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
+            }
+        }
+        CGPathCloseSubpath(path);
+    }
+    CGContextBeginPath(d->hd);
+    CGContextAddPath(d->hd, path);
+    uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
+    if(p.fillMode() == QPainterPath::Winding)
+        ops |= QCoreGraphicsPaintEnginePrivate::CGFill;
+    else
+        ops |= QCoreGraphicsPaintEnginePrivate::CGEOFill;
+    d->drawPath(ops);
+    CGPathRelease(path);
 }
 
 void

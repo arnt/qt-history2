@@ -106,6 +106,7 @@ public:
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawLine(const QPoint &pt1, const QPoint &pt2);
+    void drawPath(const QPainterPath &path);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &pt);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);

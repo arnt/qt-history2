@@ -57,6 +57,7 @@ private:
 
     friend class QPainter;
     friend class QWin32PaintEngine;
+    friend class QCoreGraphicsPaintEngine;
 };
 
 inline void QPainterPath::addLine(int x1, int y1, int x2, int y2)
