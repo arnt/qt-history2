@@ -91,7 +91,7 @@ enum {
 // buffer has to have a length of 3. It's needed for Hangul decomposition
 static const unsigned short * QT_FASTCALL decomposition(uint ucs4, int *length, int *tag, unsigned short *buffer)
 {
-    if (uc >= Hangul_SBase && uc < Hangul_SBase + Hangul_SCount) {
+    if (ucs4 >= Hangul_SBase && ucs4 < Hangul_SBase + Hangul_SCount) {
         int SIndex = ucs4 - Hangul_SBase;
         buffer[0] = Hangul_LBase + SIndex / Hangul_NCount; // L
         buffer[1] = Hangul_VBase + (SIndex % Hangul_NCount) / Hangul_TCount; // V
@@ -219,8 +219,29 @@ static QString compose(const QString &str)
 
 static QString canonicalOrder(const QString &str)
 {
-    // #####
-    return str;
+    QString s = str;
+    const int l = s.length()-1;
+    int pos = 0;
+    while (pos < l) {
+        int c2 = QUnicodeTables::combiningClass(s.at(pos+1).unicode());
+        if (c2 == 0) {
+            pos += 2;
+            continue;
+        }
+        int c1 = QUnicodeTables::combiningClass(s.at(pos-1).unicode());
+        if (c1 > c2) {
+            // exchange characters
+            QChar *uc = s.data();
+            QChar tmp = uc[pos];
+            uc[pos] = uc[pos+1];
+            uc[pos+1] = tmp;
+            if (pos > 0)
+                --pos;
+        } else {
+            ++pos;
+        }
+    }
+    return s;
 }
 
 QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::NormalizationMode mode)
