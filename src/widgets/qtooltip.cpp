@@ -435,6 +435,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 			 !t->group->del && !t->groupText.isEmpty() ) {
 			removeTimer->stop();
 			emit t->group->showTip( t->groupText );
+			currentTip = t;
 		    }
 		}
 		widget = w;
@@ -470,7 +471,7 @@ void QTipManager::showTip()
     if ( t == 0 )
 	return;
 
-    if (  t == currentTip )
+    if ( t == currentTip && label && label->isVisible() )
 	return; // nothing to do
 
     if ( t->tip ) {
