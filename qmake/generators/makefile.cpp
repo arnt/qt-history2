@@ -723,7 +723,10 @@ void
 MakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
     if(var == "QMAKE_PRL_LIBS") {
-	QStringList &out = project->variables()["QMAKE_LIBS"];
+	QString where = "QMAKE_LIBS";
+	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	    where = project->first("QMAKE_INTERNAL_PRL_LIBS");
+	QStringList &out = project->variables()[where];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
 	    if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
 		out.append((*it));
@@ -744,7 +747,10 @@ MakefileGenerator::processPrlFiles()
     for(bool ret = FALSE; TRUE; ret = FALSE) {
 	//read in any prl files included..
 	QStringList l_out;
-	QStringList &l = project->variables()["QMAKE_LIBS"];
+	QString where = "QMAKE_LIBS";
+	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	    where = project->first("QMAKE_INTERNAL_PRL_LIBS");
+	QStringList &l = project->variables()[where];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString file = (*it);
 	    if(processPrlFile(file))
@@ -774,7 +780,7 @@ MakefileGenerator::writePrlFile(QTextStream &t)
 	t << "QMAKE_PRL_DEFINES = " 
 	  << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
     if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
-	QStringList libs; 
+	QStringList libs;
 	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 	    libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
 	else

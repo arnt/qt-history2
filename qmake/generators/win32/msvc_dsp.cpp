@@ -529,6 +529,29 @@ DspMakefileGenerator::init()
 	    }
 	}
     }
+
+    if ( project->isActiveConfig("debug") ) {
+	if ( !project->first("OBJECTS_DIR").isEmpty() )
+	    project->variables()["MSVCDSP_OBJECTSDIRDEB"] = project->first("OBJECTS_DIR");
+	else
+	    project->variables()["MSVCDSP_OBJECTSDIRDEB"] = "Debug";
+	project->variables()["MSVCDSP_OBJECTSDIRREL"] = "Release";
+	if ( !project->first("DESTDIR").isEmpty() )
+	    project->variables()["MSVCDSP_TARGETDIRDEB"] = project->first("DESTDIR");
+	else
+	    project->variables()["MSVCDSP_TARGETDIRDEB"] = "Debug";
+	project->variables()["MSVCDSP_TARGETDIRREL"] = "Release";
+    } else {
+	if ( !project->first("OBJECTS_DIR").isEmpty() )
+	    project->variables()["MSVCDSP_OBJECTSDIRREL"] = project->first("OBJECTS_DIR");
+	project->variables()["MSVCDSP_OBJECTSDIRDEB"] = "Debug";
+	if ( !project->first("DESTDIR").isEmpty() )
+	    project->variables()["MSVCDSP_TARGETDIRREL"] = project->first("DESTDIR");
+	else
+	    project->variables()["MSVCDSP_TARGETDIRREL"] = "Release";
+	project->variables()["MSVCDSP_TARGETDIRDEB"] = "Debug";
+    }
+    
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
@@ -641,7 +664,6 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES"," /D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
 						   " /I \"" + specdir() + "\"");
-
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
     } else {
@@ -680,6 +702,7 @@ DspMakefileGenerator::init()
 	if ( QFile::exists( *it + ".h" ) )
 	    project->variables()["SOURCES"].append( *it + ".h" );
     }
+    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCDSP_LIBS";
 }
 
 
@@ -699,13 +722,7 @@ DspMakefileGenerator::findTemplate(QString file)
 void
 DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l) 
 {
-    if(var == "QMAKE_PRL_LIBS") {
-	QStringList &out = project->variables()["MSVCDSP_LIBS"];
-	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	    if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
-		out.append((*it));
-	}
-    } else if(var == "QMAKE_PRL_DEFINES") {
+    if(var == "QMAKE_PRL_DEFINES") {
 	QStringList &out = project->variables()["MSVCDSP_DEFINES"];
 	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
 	    if(out.findIndex((*it)) == -1)
