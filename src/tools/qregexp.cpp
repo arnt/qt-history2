@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#27 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
@@ -670,13 +670,13 @@ void QRegExp::compile()
 		else
 		    neg = 0;
 		if ( *p == ']' )		// bracket, not end
-		    cc[*p++] = 1;
+		    cc[(unsigned char)(*p++)] = 1;
 		int prev_c = -1;
 		while ( *p && *p != ']' ) {	// scan the char set
 		    if ( *p == '-' && *(p+1) && *(p+1) != ']' ) {
 			p++;			// range!
 			if ( prev_c == -1 )	// no previous char
-			    cc['-'] = 1;
+			    cc[(unsigned char)'-'] = 1;
 			else {
 			    int start = prev_c;
 			    int stop = char_val( &p );
