@@ -73,22 +73,27 @@ bool QFontDef::exactMatch( const QFontDef &other ) const
       us to compare e.g. "Helvetica" and "Helvetica [Adobe]" with
       positive results.
     */
-    QString this_family, this_foundry, other_family, other_foundry;
-    QFontDatabase::parseFontName(family, this_foundry, this_family);
-    QFontDatabase::parseFontName(other.family, other_foundry, other_family);
-
-    if ((pointSize == -1 || other.pointSize == -1) && pixelSize != other.pixelSize)
+    if (pixelSize != -1 && other.pixelSize != -1) {
+	if (pixelSize != other.pixelSize)
+	    return FALSE;
+    } else if (pointSize != -1 && other.pointSize != -1) {
+	if (pointSize != other.pointSize
+	    && (QABS(pointSize - other.pointSize) >= 5
+		|| qRound(pointSize/10.) != qRound(other.pointSize/10.)))
+	    return FALSE;
+    } else {
 	return FALSE;
-    if ((pixelSize == -1 || other.pixelSize == -1) && pointSize != other.pointSize &&
-	(QABS(pointSize - other.pointSize) >= 5 ||
-	 qRound(pointSize/10.) != qRound(other.pointSize/10.)))
-	return FALSE;
+    }
 
     if (!ignorePitch && !other.ignorePitch && fixedPitch != other.fixedPitch)
 	return FALSE;
 
     if (stretch != 0 && other.stretch != 0 && stretch != other.stretch)
 	return FALSE;
+
+    QString this_family, this_foundry, other_family, other_foundry;
+    QFontDatabase::parseFontName(family, this_foundry, this_family);
+    QFontDatabase::parseFontName(other.family, other_foundry, other_family);
 
     return ( styleHint     == other.styleHint
 	    && styleStrategy == other.styleStrategy
