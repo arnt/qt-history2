@@ -16,7 +16,7 @@
 #include "fbm.h"
 
 #if defined(Q_CC_MSVC)
-#pragma disable(warning:4244)
+#pragma warning(disable:4244)
 #endif
 
 /* Definitions used by the noise2() functions */
