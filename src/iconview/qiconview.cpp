@@ -2102,6 +2102,13 @@ void QIconViewItem::calcTmpText()
     tmpText += "...";
 }
 
+/*! \internal */
+
+QString QIconViewItem::tempText() const
+{
+    return tmpText;
+}
+
 void QIconViewItem::checkRect()
 {
     int x = itemRect.x();

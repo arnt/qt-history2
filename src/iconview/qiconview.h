@@ -217,6 +217,7 @@ protected:
     void setTextRect( const QRect &r );
     void setPixmapRect( const QRect &r );
     void calcTmpText();
+    QString tempText() const;
 
 private:
     void init( QIconViewItem *after = 0
