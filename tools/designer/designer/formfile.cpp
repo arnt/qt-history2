@@ -130,7 +130,10 @@ QString FormFile::absFileName() const
 
 QString FormFile::codeFile() const
 {
-    return filename + codeExtension();
+    QString codeExt = codeExtension();
+    if ( codeExt.isEmpty() )
+	return "";
+    return filename + codeExt;
 }
 
 QString FormFile::code()
