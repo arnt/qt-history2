@@ -2781,15 +2781,15 @@ void PropertyList::setupProperties()
 	 w->isWidgetType() && WidgetFactory::layoutType( (QWidget*)w ) != WidgetFactory::NoLayout ) {
 	item = new PropertyLayoutItem( this, item, 0, "layoutSpacing" );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" ) 
-	     || MetaDataBase::spacing( editor->widget() ) != -1 ) 
-	    layoutInitValue( item, TRUE ); 
-	else 
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutSpacing" )
+	     || MetaDataBase::spacing( editor->widget() ) != -1 )
+	    layoutInitValue( item, TRUE );
+	else
 	    layoutInitValue( item );	
 	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" )
-	     || MetaDataBase::margin( editor->widget() ) != -1 ) 
+	     || MetaDataBase::margin( editor->widget() ) != -1 )
 	    layoutInitValue( item, TRUE );
 	else
 	    layoutInitValue( item );
@@ -2800,7 +2800,7 @@ void PropertyList::setupProperties()
 	 !w->inherits( "QDesignerMenuBar" ) && !w->inherits( "QDesignerToolBar" ) ) {
 	item = new PropertyTextItem( this, item, 0, "toolTip", TRUE, FALSE );
 	setPropertyValue( item );
-	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) ) 
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "toolTip" ) )
 	    item->setChanged( TRUE, FALSE );
 	item = new PropertyTextItem( this, item, 0, "whatsThis", TRUE, TRUE );
 	setPropertyValue( item );
@@ -3435,6 +3435,8 @@ void EventList::setup()
 {
     clear();
 
+    if ( !formWindow )
+	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
     QStrList sigs;
     if ( iface )
