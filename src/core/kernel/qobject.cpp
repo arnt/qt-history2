@@ -89,8 +89,9 @@ struct QConnection {
 class QConnectionList
 {
 public:
-    QConnectionList()
-    { invariant = 0; }
+    inline QConnectionList()
+        : invariant(0)
+    { }
 
     QReadWriteLock lock;
 

@@ -212,8 +212,8 @@ class Q_CORE_EXPORT QCoreVariant
 #ifndef qdoc
     struct PrivateShared
     {
-        inline PrivateShared() { ref = 1; }
-        inline PrivateShared(void *v) { ref = 1; value.ptr = v; }
+        inline PrivateShared() : ref(1) { }
+        inline PrivateShared(void *v) : ref(1) { value.ptr = v; }
         QAtomic ref;
         union
         {
