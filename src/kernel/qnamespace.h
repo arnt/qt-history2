@@ -171,10 +171,13 @@ public:
 	WPaintClever		= 0x00080000,
 	WResizeNoErase		= 0x00100000,
 	WMouseNoMask		= 0x00200000,
-	WNorthWestGravity	= 0x00400000,
+	WStaticContents		= 0x00400000,
+#ifndef QT_NO_COMPAT
+	WNorthWestGravity	= WStaticContents,
+#endif
 	WRepaintNoErase		= 0x00800000,
 	WX11BypassWM		= 0x01000000,
-	WGroupLeader 		= 0x02000000
+	WGroupLeader 		= 0x02000000,
     };
 
     // Image conversion flags.  The unusual ordering is caused by

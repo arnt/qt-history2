@@ -131,6 +131,7 @@ struct QScrollViewData {
 	policy = QScrollView::Default;
 	signal_choke = FALSE;
 	static_bg = FALSE;
+	fake_scroll = FALSE;
     }
     ~QScrollViewData()
     {
@@ -279,7 +280,8 @@ struct QScrollViewData {
 #endif
 
     bool static_bg;
-
+    bool fake_scroll;
+    
     // This variable allows ensureVisible to move the contents then
     // update both the sliders.  Otherwise, updating the sliders would
     // cause two image scrolls, creating ugly flashing.
@@ -491,8 +493,6 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase) )
 {
     WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity);
-//    if ( QApplication::reverseLayout() )
-//	flags |= WWinNorthEastGravity;
     d = new QScrollViewData( this, flags );
 			    
 #ifndef QT_NO_DRAGANDDROP
@@ -836,7 +836,11 @@ void QScrollView::updateScrollBars()
     d->signal_choke=sc;
 
     if ( contentsX()+visibleWidth() > contentsWidth() ) {
-	int x=QMAX(0,contentsWidth()-visibleWidth());
+	int x;
+	if ( reverse ) 
+	    x =QMIN(0,contentsWidth()-visibleWidth());
+	else
+	    x =QMAX(0,contentsWidth()-visibleWidth());
 	d->hbar.setValue(x);
 	// Do it even if it is recursive
 	moveContents( -x, -contentsY() );
@@ -900,8 +904,11 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     // disabled. This makes it possible for subclasses to implement
     // dynamic wrapping without a horizontal scrollbar showing up all
     // the time when making a window smaller.
-    if ( QApplication::reverseLayout() )
+    if ( QApplication::reverseLayout() ) {
+	d->fake_scroll = TRUE;
 	scrollBy( -event->size().width() + event->oldSize().width(), 0 );
+	d->fake_scroll = FALSE;
+    }
     if ( u )
 	updateScrollBars();
     d->hideOrShowAll(this);
@@ -1646,7 +1653,11 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 */
 void QScrollView::setContentsPos( int x, int y )
 {
-    if ( x < 0 ) x = 0;
+    // bounds checking...
+    if ( QApplication::reverseLayout() )
+	if ( x > contentsWidth() - visibleWidth() ) x = contentsWidth() - visibleWidth();
+    else
+	if ( x < 0 ) x = 0;
     if ( y < 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
     d->signal_choke=TRUE;
@@ -1708,11 +1719,10 @@ void QScrollView::center( int x, int y, float xmargin, float ymargin )
 */
 void QScrollView::moveContents(int x, int y)
 {
-    if( QApplication::reverseLayout() )
-	if ( -x  < 0 )
+    if ( -x+visibleWidth() > contentsWidth() )
+	if( QApplication::reverseLayout() )
 	    x=QMAX(0,-contentsWidth()+visibleWidth());
-    else
-	if ( -x+visibleWidth() > contentsWidth() )
+	else
 	    x=QMIN(0,-contentsWidth()+visibleWidth());
     if ( -y+visibleHeight() > contentsHeight() )
 	y=QMIN(0,-contentsHeight()+visibleHeight());
@@ -1740,7 +1750,7 @@ void QScrollView::moveContents(int x, int y)
 	if ( viewport()->isUpdatesEnabled() )
 	    viewport()->update();
 	d->moveAllBy(dx,dy);
-    } else {
+    } else if ( !d->fake_scroll || contentsWidth() > visibleWidth() ) {
 	// Small move
 	clipper()->scroll(dx,dy);
     }
