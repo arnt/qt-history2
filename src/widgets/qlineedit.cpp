@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#60 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#60 $");
 
 
 /*!
@@ -153,6 +153,21 @@ void QLineEdit::selectAll()
     cursorPos  = 0;
     end( TRUE );
 }
+
+
+
+/*!
+  Deselects all text (i.e. removes marking) and leaves the cursor at the
+  current position.
+*/
+
+void QLineEdit::deselect()
+{
+    markAnchor = cursorPos;
+    markDrag   = cursorPos;
+    repaint( !hasFocus() );
+}
+
 
 /*!
   Returns a pointer to the text currently in the line.
@@ -947,3 +962,4 @@ int QLineEdit::maxMark() const
 {
     return markAnchor > markDrag ? markAnchor : markDrag;
 }
+

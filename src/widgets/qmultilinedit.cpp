@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#25 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -511,6 +511,19 @@ void QMultiLineEdit::selectAll()
 {
     
 }
+
+
+
+/*!
+  Deselects all text (i.e. removes marking) and leaves the cursor at the
+  current position (not implemented yet).
+*/
+
+void QMultiLineEdit::deselect()
+{
+
+}
+
 
 /*!
   Sets the text to \a s, removing old text, if any.

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#18 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#19 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -40,6 +40,7 @@ public slots:
     void clear();
     void setText( const char * );
     void append( const char * );
+    void deselect();
     void selectAll();
     void setReadOnly( bool );
     void setOverwriteMode( bool );
