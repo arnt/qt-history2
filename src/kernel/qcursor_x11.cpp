@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#3 $
 **
 ** Implementation of QCursor class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940219
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#3 $";
 #endif
 
 
@@ -73,8 +73,8 @@ void QCursor::cleanup()
     int shape = ArrowCursor;
     register QCursor *c;
     while ( c=cursorTable[shape] ) {
-	if ( c->cursor )			// cursor was used
-	    XFreeCursor( dpy, c->cursor );
+	if ( c->hcurs )				// cursor was used
+	    XFreeCursor( dpy, c->hcurs );
 	if ( c->pm && c->pmm ) {		// cursor has pixmap
 	    XFreePixmap( dpy, c->pm );
 	    XFreePixmap( dpy, c->pmm );
@@ -93,7 +93,7 @@ QCursor *QCursor::locate( int shape )		// get global cursor
 
 QCursor::QCursor()				// default arrow cursor
 {
-    cursor = 0;
+    hcurs = 0;
     cshape = 0;
     if ( qApp )					// when not initializing
 	setShape( ArrowCursor );
@@ -101,7 +101,7 @@ QCursor::QCursor()				// default arrow cursor
 
 QCursor::QCursor( int shape )			// cursor with shape
 {
-    cursor = 0;
+    hcurs = 0;
     cshape = 0;
     setShape( shape );
 }
@@ -110,7 +110,7 @@ QCursor::QCursor( QBitMap *bitmap, QBitMap *mask, int hotX, int hotY )
 {						// define own cursor
     bm = bitmap;
     bmm = mask;
-    cursor = 0;
+    hcurs = 0;
     cshape = BitMapCursor;
     hx = hotX >= 0 ? hotX : bitmap->size().width()/2;
     hy = hotY >= 0 ? hotY : bitmap->size().height()/2;
@@ -135,7 +135,7 @@ bool QCursor::setShape( int shape )		// set cursor shape
     QCursor *c = locate( shape );		// find one of the global ones
     if ( c ) {
 	c->update();
-	cursor = c->cursor;			// copy attributes
+	hcurs = c->hcurs;			// copy attributes
 	pm  = c->pm;
 	pmm = c->pmm;
     }
@@ -160,9 +160,10 @@ void QCursor::setPos( int x, int y )		// set cursor position
 }
 
 
-void QCursor::update()				// update/load cursor
+void QCursor::update() const			// update/load cursor
 {
-    if ( cursor )				// already loaded
+    register QCursor *c = (QCursor *)this;	// cheat const!
+    if ( c->hcurs )				// already loaded
 	return;
 
   // Non-standard X11 cursors are created from bitmaps
@@ -206,25 +207,26 @@ void QCursor::update()				// update/load cursor
 
     Display *dpy = qXDisplay();
     uint sh;
-    if ( cshape == BitMapCursor ) {
+    if ( c->cshape == BitMapCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
 	bg.red = bg.green = bg.blue = 255 << 8;
 	fg.red = fg.green = fg.blue = 0;
-	cursor = XCreatePixmapCursor( dpy, bm->hd, bmm->hd, &fg, &bg, hx, hy );
+	c->hcurs = XCreatePixmapCursor( dpy, c->bm->hd, c->bmm->hd,
+					&fg, &bg, c->hx, c->hy );
 	return;
     }
-    if ( cshape >= SizeVerCursor && cshape < SizeAllCursor ) {
+    if ( c->cshape >= SizeVerCursor && c->cshape < SizeAllCursor ) {
 	XColor bg, fg;				// ignore stupid CFront message
 	bg.red = bg.green = bg.blue = 255 << 8;
 	fg.red = fg.green = fg.blue = 0;
-	int i = (cshape - SizeVerCursor)*2;
+	int i = (c->cshape - SizeVerCursor)*2;
 	Window rootwin = qXRootWin();
-	pm  = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i], 16, 16 );
-	pmm = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i+1], 16, 16 );
-	cursor = XCreatePixmapCursor( dpy, pm, pmm, &fg, &bg, 8, 8 );
+	c->pm  = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i], 16, 16 );
+	c->pmm = XCreateBitmapFromData( dpy, rootwin, cursor_bits[i+1], 16,16);
+	c->hcurs = XCreatePixmapCursor( dpy, c->pm, c->pmm, &fg, &bg, 8, 8 );
 	return;
     }
-    switch ( cshape ) {
+    switch ( c->cshape ) {
 	case ArrowCursor:
 	    sh = XC_left_ptr;
 	    break;
@@ -245,9 +247,9 @@ void QCursor::update()				// update/load cursor
 	    break;
 	default:
 #if defined(CHECK_RANGE)
-	    warning( "QCursor::update: Invalid cursor shape %d", cshape );
+	    warning( "QCursor::update: Invalid cursor shape %d", c->cshape );
 #endif
 	    return;
     }
-    cursor = XCreateFontCursor( qXDisplay(), sh );
+    c->hcurs = XCreateFontCursor( qXDisplay(), sh );
 }
