@@ -56,6 +56,7 @@ struct QCheckListItemPrivate;
 class QListViewItemIterator;
 class QDragObject;
 class QMimeSource;
+class QLineEdit;
 
 class Q_EXPORT QListViewItem: public Qt
 {
@@ -162,6 +163,10 @@ public:
     void setVisible( bool b );
     bool isVisible() const;
 
+    void setRenameEnabled( bool b );
+    bool renameEnabled() const;
+    void startRename();
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
@@ -177,6 +182,9 @@ protected:
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
+    void okRename();
+    void cancelRename();
+
     int ownHeight;
     int maybeTotalHeight;
     int nChildren;
@@ -192,10 +200,12 @@ private:
     uint allow_drag : 1;
     uint allow_drop : 1;
     uint visible : 1;
+    uint allow_rename : 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
+    QLineEdit *renameBox;
 
     void * columns;
 
@@ -336,6 +346,8 @@ signals:
 #ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e );
 #endif
+    void itemRenamed( QListViewItem *item, const QString & );
+    void itemRenamed( QListViewItem *item );
 
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
@@ -376,6 +388,7 @@ private slots:
     void updateDirtyItems();
     void makeVisible();
     void handleSizeChange( int, int, int );
+    void startRename();
 
 private:
     void init();

@@ -54,6 +54,8 @@
 #include "qpixmapcache.h"
 #include "qtl.h"
 #include "qdragobject.h"
+#include "qlineedit.h"
+#include "qvbox.h"
 
 const int Unsorted = 16383;
 
@@ -205,6 +207,7 @@ struct QListViewPrivate
     QListViewItem *pressedItem, *selectAnchor;
 
     QTimer *scrollTimer;
+    QTimer *renameTimer;
 
     bool clearing;
     bool makeCurrentVisibleOnUpdate;
@@ -530,6 +533,8 @@ void QListViewItem::init()
     allow_drag = FALSE;
     allow_drop = FALSE;
     visible = TRUE;
+    allow_rename = FALSE;
+    renameBox = 0;
 }
 
 /* If \a b is TRUE, the item is made visible, else it is hidden, so
@@ -562,6 +567,80 @@ void QListViewItem::setVisible( bool b )
 bool QListViewItem::isVisible() const
 {
     return (bool)visible;
+}
+
+/*! If \a b is TRUE, this item can be in-place renamed by the user,
+  else this is not possible */
+
+void QListViewItem::setRenameEnabled( bool b )
+{
+    allow_rename = b;
+}
+
+/*! Returns whether it is allowed to in-place rename this item. */
+
+bool QListViewItem::renameEnabled() const
+{
+    return (bool)allow_rename;
+}
+
+/*!  If in-place renaming of this item is enabled (see
+  renameEnabled()), this function starts renaming it, by creating the
+  edit box and intializing that one.
+*/
+
+void QListViewItem::startRename()
+{
+    if ( !renameEnabled() )
+	return;
+    if ( renameBox )
+	cancelRename();
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    int col = 0;
+    QRect r = lv->itemRect( this );
+    r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
+    r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() );
+    QVBox *box = new QVBox( lv->viewport() );
+    box->setFrameStyle( QFrame::Box | QFrame::Plain );
+    box->setBackgroundMode( QWidget::PaletteBase );
+    renameBox = new QLineEdit( box );
+    renameBox->setFrame( FALSE );
+    renameBox->setText( text( col ) );
+    renameBox->selectAll();
+    renameBox->installEventFilter( lv );
+    lv->addChild( box, r.x(), r.y() );
+    box->resize( r.size() + QSize( 0, 6 ) );
+    lv->viewport()->setFocusProxy( renameBox );
+    renameBox->setFocus();
+    box->show();
+}
+
+void QListViewItem::okRename()
+{
+    QListView *lv = listView();
+    if ( !lv || !renameBox )
+	return;
+    int col = 0;
+    setText( col, renameBox->text() );
+    emit lv->itemRenamed( this );
+    emit lv->itemRenamed( this, renameBox->text() );
+    cancelRename();
+}
+
+void QListViewItem::cancelRename()
+{
+    QListView *lv = listView();
+    if ( !lv || !renameBox )
+	return;
+    bool resetFocus = lv->viewport()->focusProxy() == renameBox;
+    delete renameBox->parentWidget();
+    renameBox = 0;
+    if ( resetFocus ) {
+	lv->viewport()->setFocusProxy( lv );
+	lv->setFocus();
+    }
 }
 
 /*!  Destroys the item, deleting all its children and freeing up all
@@ -1921,6 +2000,20 @@ void QListViewPrivate::Root::setup()
 */
 
 /*!
+  \fn void QListView::itemRenamed (QListViewItem * item)
+
+  This signal is emitted when \a item has bee renamed, usually by
+  in in-place renaming.
+*/
+
+/*!
+  \fn void QListView::itemRenamed (QListViewItem * item, const QString &text)
+
+  This signal is emitted when \a item has bee renamed to \a name,
+  usually by in in-place renaming.
+*/
+
+/*!
   Constructs a new empty list view, with \a parent as a parent and \a name
   as object name.
 
@@ -1953,6 +2046,7 @@ void QListView::init()
     d->dirtyItems = 0;
     d->dirtyItemTimer = new QTimer( this );
     d->visibleTimer = new QTimer( this );
+    d->renameTimer = new QTimer( this );
     d->margin = 1;
     d->selectionMode = QListView::Single;
     d->sortcolumn = 0;
@@ -1988,6 +2082,8 @@ void QListView::init()
 	     this, SLOT(updateDirtyItems()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
 	     this, SLOT(makeVisible()) );
+    connect( d->renameTimer, SIGNAL(timeout()),
+	     this, SLOT(startRename()) );
 
     connect( d->h, SIGNAL(sizeChange( int, int, int )),
 	     this, SLOT(handleSizeChange( int, int, int )) );
@@ -2956,6 +3052,20 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 	    // nothing
 	    break;
 	}
+    } else if ( o->inherits( "QLineEdit" ) ) {
+	if ( currentItem() && currentItem()->renameBox ) {
+	    if ( e->type() == QEvent::KeyPress ) {
+		QKeyEvent *ke = (QKeyEvent*)e;
+		if ( ke->key() == Key_Return ||
+		     ke->key() == Key_Enter ) {
+		    currentItem()->okRename();
+		    return TRUE;
+		} else if ( ke->key() == Key_Escape ) {
+		    currentItem()->cancelRename();
+		    return TRUE;
+		}
+	    }
+	}
     }
     return QScrollView::eventFilter( o, e );
 }
@@ -3307,6 +3417,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( vp );
+    if ( i == currentItem() && i && i->isSelected() )
+	d->renameTimer->start( QApplication::doubleClickInterval(), TRUE );
     QListViewItem *oldCurrent = currentItem();
     if ( !oldCurrent && !i && firstChild() ) {
 	d->focusItem = firstChild();
@@ -3536,6 +3648,7 @@ void QListView::contentsMouseReleaseEvent( QMouseEvent * e )
 */
 void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
+    d->renameTimer->stop();
     if ( !e )
 	return;
 
@@ -3757,6 +3870,8 @@ void QListView::focusOutEvent( QFocusEvent * )
 
 void QListView::keyPressEvent( QKeyEvent * e )
 {
+    if ( currentItem() && currentItem()->renameBox )
+	return;
     if ( !e || !firstChild() ) {
 	e->ignore();
 	return; // subclass bug
@@ -3915,6 +4030,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Escape:
 	e->ignore(); // For QDialog
 	return;
+    case Key_F2:
+	if ( currentItem() && currentItem()->renameEnabled() )
+	    currentItem()->startRename();
     default:
 	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
 	    selectCurrent = FALSE;
@@ -5847,6 +5965,12 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
 	if ( shift )
 	    selectRange( old, d->focusItem, TRUE, FALSE );
     }
+}
+
+void QListView::startRename()
+{
+    if ( currentItem() )
+	currentItem()->startRename();
 }
 
 void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel )
