@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#81 $
 **
 ** Implementation of QTextCodec class
 **
@@ -494,7 +494,6 @@ QTextCodec* QTextCodec::codecForLocale()
     if ( !p || *p != '.' ) {
 	// Some versions of setlocale return encoding, others not.
 	char *ctype = qstrdup( setlocale( LC_CTYPE, 0 ) );
-
 	// Some Linux distributions have broken locales which will return
 	// "C" for LC_CTYPE
 	if ( strcmp( ctype, "C" ) == 0 ) {
