@@ -488,7 +488,6 @@ DspMakefileGenerator::init()
 	return;
     QStringList::Iterator it;
     init_flag = TRUE;
-    const bool thread = project->isActiveConfig("thread");
 
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "vcapp")
@@ -500,7 +499,6 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
-    QStringList &configs = project->variables()["CONFIG"];
     if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	project->variables()["CONFIG"].remove("staticlib");
 	project->variables()["QMAKE_APP_OR_DLL"].append("1");

@@ -817,8 +817,6 @@ void VcprojGenerator::initOld()
     if(project->variables()["QMAKESPEC"].isEmpty())
 	project->variables()["QMAKESPEC"].append(getenv("QMAKESPEC"));
 
-   QStringList &configs = project->variables()["CONFIG"];
-
     // If we are a dll, then we cannot be a staticlib at the same time...
     if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	project->variables()["CONFIG"].remove("staticlib");

@@ -1011,7 +1011,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ) {
 	    QString tar = (*it)->target;
 	    ++it;
-	    if ((*it))
+	    if (it != subdirs.end())
 		t << (*it)->target << ": " << tar << endl;
 	}
 	t << endl;
