@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#87 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#87 $");
 
 
 const int Unsorted = 32767;
@@ -1434,7 +1434,7 @@ void QListView::clear()
 
     setSelected( d->currentSelected, FALSE );
     d->focusItem = 0;
-    contentsResize( d->h->sizeHint().width(), viewport()->height() );
+    resizeContents( d->h->sizeHint().width(), viewport()->height() );
 
     // if it's down its downness makes no sense, so undown it
     d->buttonDown = FALSE;
@@ -1551,7 +1551,7 @@ void QListView::show()
 	reconfigureItems();
 
 	QSize s( d->h->sizeHint() );
-	contentsResize( QMIN(20,s.width()), d->r->totalHeight() );
+	resizeContents( QMIN(20,s.width()), d->r->totalHeight() );
 	d->h->setGeometry( viewport()->x(), viewport()->y()-s.height(),
 			   viewport()->width(), s.height() );
     }
@@ -1577,7 +1577,7 @@ void QListView::updateGeometries()
 
     int h = d->h->sizeHint().height(); // ### slightly slow
     setMargins( 0, h, 0, 0 );
-    contentsResize( w, d->r->totalHeight() );
+    resizeContents( w, d->r->totalHeight() );
     d->h->setGeometry( viewport()->x(), viewport()->y()-h,
 		       viewport()->width(), h );
 }

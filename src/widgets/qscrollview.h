@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#14 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#15 $
 **
 ** Definition of QScrollView class
 **
@@ -25,7 +25,17 @@ public:
     QScrollView(QWidget *parent=0, const char *name=0, WFlags f=0);
     ~QScrollView();
 
-    void setContents(QWidget* child);
+    enum ResizePolicy { Default, Manual, AutoOne };
+    virtual void setResizePolicy( ResizePolicy );
+    ResizePolicy resizePolicy() const;
+
+    void addChild(QWidget* child);
+    virtual void addChild(QWidget* child, int x, int y);
+    virtual void moveChild(QWidget* child, int x, int y);
+    int childX(QWidget* child);
+    int childY(QWidget* child);
+    bool childIsVisible(QWidget* child);
+    void showChild(QWidget* child, bool yes=TRUE);
 
     enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 
@@ -40,8 +50,8 @@ public:
 
     QScrollBar*  horizontalScrollBar();
     QScrollBar*  verticalScrollBar();
+    QWidget*	 viewport();
 
-    void	contentsResize( int w, int h );
     int		contentsWidth() const;
     int		contentsHeight() const;
     int		contentsX() const;
@@ -55,6 +65,7 @@ signals:
     void	contentsMoving(int x, int y);
 
 public slots:
+    virtual void resizeContents( int w, int h );
     void	scrollBy( int dx, int dy );
     void        setContentsPos( int x, int y );
     void	ensureVisible(int x, int y);
@@ -72,8 +83,6 @@ protected:
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
     void	frameChanged();
-
-    QWidget*	viewport();
 
     void setMargins(int left, int top, int right, int bottom);
     int leftMargin() const;
@@ -95,5 +104,10 @@ private:	// Disabled copy constructor and operator=
     QScrollView &operator=( const QScrollView & );
     void changeFrameRect(const QRect&);
 };
+
+inline void QScrollView::addChild(QWidget* child)
+{
+    addChild(child,0,0);
+}
 
 #endif
