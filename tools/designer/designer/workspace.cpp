@@ -193,6 +193,8 @@ QString WorkspaceItem::text( int column ) const
     case ProjectType:
 	if ( project->isDummy() )
 	    return Project::tr("<No Project>" );
+	else if ( MainWindow::self->singleProjectMode() )
+	    return project->projectName();
 	return project->makeRelative( project->fileName() );
     case FormFileType:
 	return formFile->formName() + ": " + formFile->fileName();

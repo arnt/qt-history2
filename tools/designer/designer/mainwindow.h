@@ -171,6 +171,7 @@ public:
     QObject *findRealObject( QObject *o );
 
     Project *setSingleProject( const QString &lang, const QString &projectName );
+    bool singleProjectMode() const { return singleProject; }
 
 public slots:
     void showProperties( QObject *w );
@@ -434,6 +435,7 @@ private:
     QGuardedPtr<QWidget> previewedForm;
     QPopupMenu *projectMenu;
     QString menuHelpFile;
+    bool singleProject;
 
 public:
     QString lastSaveFilter;

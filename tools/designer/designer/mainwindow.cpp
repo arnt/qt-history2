@@ -154,6 +154,7 @@ MainWindow::MainWindow( bool asClient )
     currentProject = 0;
     wspace = 0;
     oWindow = 0;
+    singleProject = FALSE;
 
     statusBar()->clear();
 #if defined(QT_NON_COMMERCIAL)
@@ -3350,6 +3351,7 @@ QString MainWindow::whatsThisFrom( const QString &key )
 
 Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
 {
+    singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
     eProject = new Project( "#####", projectName, projectSettingsPluginManager, FALSE );
