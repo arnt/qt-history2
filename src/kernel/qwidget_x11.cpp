@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#413 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#414 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1407,9 +1407,11 @@ void QWidget::lower()
 
 int qwidget_tlw_gravity = 1;
 
-static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
+static void do_size_hints( QWidget* widget, QWExtra *x, XSizeHints *s )
 {
     if ( x ) {
+	s->x = widget->x();
+	s->y = widget->y();
 	if ( x->minw > 0 || x->minh > 0 ) {	// add minimum size hints
 	    s->flags |= PMinSize;
 	    s->min_width  = x->minw;
@@ -1429,11 +1431,16 @@ static void do_size_hints( Display *dpy, WId winid, QWExtra *x, XSizeHints *s )
 	    s->base_width = x->topextra->basew;
 	    s->base_height = x->topextra->baseh;
 	}
+	
+	if ( widget->testWState(Qt::WState_USPositionX) ) {
+	    s->flags |= USPosition;
+	    s->flags |= PPosition;
+	}
     }
     s->flags |= PWinGravity;
     s->win_gravity = qwidget_tlw_gravity;	// usually NorthWest (1)
     qwidget_tlw_gravity = 1;			// reset in case it was set
-    XSetWMNormalHints( dpy, winid, s );
+    XSetWMNormalHints( widget->x11Display(), widget->winId(), s );
 }
 
 
@@ -1453,15 +1460,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QPoint oldp = pos();
-    QSize  olds = size();
+    QPoint oldPos( pos() );
+    QSize oldSize( size() );
+    QRect oldGeom( crect );
     QRect  r( x, y, w, h );
 
     // We only care about stuff that changes the geometry, or may
     // cause the window manager to change its state
-    if ( r.size() == olds && oldp == r.topLeft() &&
-	 (isTopLevel() == FALSE
-	  || !isMove || testWState(WState_USPositionX)) )
+    if ( !isTopLevel() && oldGeom == r )
 	return;
 
     setCRect( r );
@@ -1471,14 +1477,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	size_hints.flags = USSize | PSize;
 	if ( isMove )
 	    setWState(WState_USPositionX);
-	if ( testWState(WState_USPositionX) )
-	    // also restore the usposition, otherwise it would be cleared
-	    size_hints.flags |= USPosition;
-	size_hints.x = x;
-	size_hints.y = y;
 	size_hints.width = w;
 	size_hints.height = h;
-	do_size_hints( dpy, winId(), extra, &size_hints );
+	do_size_hints( this, extra, &size_hints );
     }
 
     if ( isMove )
@@ -1486,28 +1487,28 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     else
 	XResizeWindow( dpy, winid, w, h );
 
-    bool isResize = olds != r.size();
+    bool isResize = size() != oldSize;
 
     if ( isVisible() ) {
-	if ( isMove && oldp != r.topLeft() ) {
-	    QMoveEvent e( r.topLeft(), oldp );
+	if ( isMove && pos() != oldPos ) {
+	    QMoveEvent e( pos(), oldPos );
 	    QApplication::sendEvent( this, &e );
 	}
 	if ( isResize ) {
 	    if ( isTopLevel() )
 		setWState( WState_ConfigPending );
-	    QResizeEvent e( r.size(), olds );
+	    QResizeEvent e( size(), oldSize );
 	    QApplication::sendEvent( this, &e );
 	    if ( !testWFlags( WNorthWestGravity ) )
 		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {
-	if ( isMove && oldp != r.topLeft() )
+	if ( isMove && pos() != oldPos )
 	    QApplication::postEvent( this,
-				     new QMoveEvent( r.topLeft(), oldp ) );
+				     new QMoveEvent( pos(), oldPos ) );
 	if ( isResize )
 	    QApplication::postEvent( this,
-				     new QResizeEvent( r.size(), olds ) );
+				     new QResizeEvent( size(), oldSize ) );
     }
 }
 
@@ -1542,7 +1543,7 @@ void QWidget::setMinimumSize( int minw, int minh )
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
-	do_size_hints( x11Display(), winId(), extra, &size_hints );
+	do_size_hints( this, extra, &size_hints );
     }
     updateGeometry();
 }
@@ -1590,7 +1591,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
-	do_size_hints( x11Display(), winId(), extra, &size_hints );
+	do_size_hints( this, extra, &size_hints );
     }
     updateGeometry();
 }
@@ -1624,7 +1625,7 @@ void QWidget::setSizeIncrement( int w, int h )
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
-	do_size_hints( x11Display(), winId(), extra, &size_hints );
+	do_size_hints( this, extra, &size_hints );
     }
 }
 /*!
@@ -1650,7 +1651,7 @@ void QWidget::setBaseSize( int basew, int baseh )
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
-	do_size_hints( x11Display(), winId(), extra, &size_hints );
+	do_size_hints( this, extra, &size_hints );
     }
 }
 
