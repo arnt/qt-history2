@@ -1871,7 +1871,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 			       QPixmap *&doubleBuffer, const QColorGroup &cg,
 			       bool drawCursor, QTextCursor *cursor )
 {
-    QPainter *painter = new QPainter;
+    QPainter *painter = 0;
     parag->setChanged( FALSE );
     QRect ir( parag->rect() );
     bool useDoubleBuffer = !parag->document()->parent();
@@ -1879,6 +1879,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	useDoubleBuffer = TRUE;
 
     if ( useDoubleBuffer  ) {
+	painter = new QPainter;
 	if ( cx >= 0 && cy >= 0 )
 	    ir = ir.intersect( QRect( cx, cy, cw, ch ) );
 	if ( !doubleBuffer ||
@@ -1917,9 +1918,9 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 	painter->translate( 0, +parag->rect().y() );
     }
 
-	
     if ( useDoubleBuffer ) {
 	delete painter;
+	painter = 0;
 	p->drawPixmap( ir.topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), ir.size() ) );
     } else {
 	painter->translate( -ir.x(), -ir.y() );
