@@ -1097,7 +1097,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << "}" << endl;
     out << endl;
 
-	// destructor
+    // destructor
     out << "/*  " << endl;
     out << " *  Destroys the object and frees any allocated resources" << endl;
     out << " */" << endl;
@@ -1111,6 +1111,7 @@ void Uic::createFormImpl( const QDomElement &e )
     bool needFontEventHandler = FALSE;
     bool needSqlTableEventHandler = FALSE;
     bool needSqlFormEventHandler = dbAware;
+    bool needSqlWidgetEventHandler = FALSE;
     nl = e.elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	if ( !DomTool::propertiesOfType( nl.item(i).toElement() , "font" ).isEmpty() )
@@ -1118,7 +1119,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	QString s = getClassName( nl.item(i).toElement() );
 	if ( s == "QSqlTable" )
 	    needSqlTableEventHandler = TRUE;
-	if ( needFontEventHandler && needSqlTableEventHandler )
+	if ( s == "QSqlWidget" )
+	    needSqlWidgetEventHandler = TRUE;
+	if ( needFontEventHandler && needSqlTableEventHandler && needSqlWidgetEventHandler )
 	    break;
     }
     if ( needFontEventHandler ) {
@@ -1144,7 +1147,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    if ( needSqlTableEventHandler || needSqlFormEventHandler ) {
+    if ( needSqlTableEventHandler || needSqlFormEventHandler || needSqlWidgetEventHandler ) {
 	out << "/*  " << endl;
 	out << " *  Widget polish.  Reimplemented to handle" << endl;
 	if ( needSqlTableEventHandler ) {
@@ -1194,6 +1197,28 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << indent << indent << "refresh();" << endl;
 	    out << indent << indent << "firstRecord();" << endl;
 	    out << indent << "}" << endl;
+	}
+	if ( needSqlWidgetEventHandler ) {
+	    nl = e.elementsByTagName( "widget" );
+	    for ( i = 0; i < (int) nl.length(); i++ ) {
+		QString s = getClassName( nl.item(i).toElement() );
+		if ( s == "QSqlWidget" ) {
+		    QString obj = getObjectName( nl.item(i).toElement() );
+		    QString tab = getDatabaseInfo( nl.item(i).toElement(), "table" );
+		    if ( !(tab).isEmpty() ) {
+			out << indent << "if ( " << obj << " ) {" << endl;
+			out << indent << indent << "if ( !" << obj << "->sqlCursor() )" << endl;
+			out << indent << indent << indent << obj << "->setCursor( createCursor( \"" << tab << "\" ) );" << endl;
+			out << indent << indent << "if ( !" << obj << "->form() )" << endl;
+			out << indent << indent << indent << obj << "->setForm( " << tab << "Form );" << endl;
+			out << indent << indent << "if ( " << obj << "->sqlCursor() ) {" << endl;
+			out << indent << indent << indent << obj << "->refresh();" << endl;
+			out << indent << indent << indent << obj << "->firstRecord();" << endl;
+			out << indent << indent << "}" << endl;
+			out << indent << "}" << endl;
+		    }
+		}
+	    }
 	}
 	out << indent << objClass << "::polish();" << endl;
 	out << "}" << endl;
@@ -1330,8 +1355,8 @@ void Uic::createDatabaseImpl( const QDomElement& e )
 		    if ( (*it3) == (*it2) ) { // form for table
 			out << indent << indent << "QSqlRecord* buf = " << (*it2) << "Cursor->editBuffer();" << endl;
 			out << indent << indent << (*it3) << "Form->setRecord( buf );" << endl;
+			out << indent << indent << (*it3) << "Form->readFields();" << endl;
 		    }
-		    out << indent << indent << (*it3) << "Form->readFields();" << endl;
 		}
 		out << indent << "}" << endl;
 	    }
