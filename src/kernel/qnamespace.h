@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#9 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#10 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -377,7 +377,7 @@ public:
 	AndNotROP,
 	OrNotROP,
 	NandROP,
-	NorROP,	LastROP=NorROP,
+	NorROP,	LastROP=NorROP
     };
 
 };
