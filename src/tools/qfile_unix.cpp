@@ -50,7 +50,8 @@ bool qt_file_access( const QString& fn, int t )
 }
 
 /*!
-  Removes the file \a fileName.
+    \overload  
+    Removes the file \a fileName.
   Returns TRUE if successful, otherwise FALSE.
 */
 
@@ -260,6 +261,7 @@ bool QFile::open( int m )
 }
 
 /*!
+    \overload
   Opens a file in the mode \a m using an existing file handle \a f.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -323,6 +325,7 @@ bool QFile::open( int m, FILE *f )
 }
 
 /*!
+    \overload
   Opens a file in the mode \a m using an existing file descriptor \a f.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -390,7 +393,8 @@ QIODevice::Offset QFile::size() const
 }
 
 /*!
-  \fn QIODevice::Offset QFile::at() const
+    \overload
+  QIODevice::Offset QFile::at() const
   Returns the file index.
   \sa size()
 */

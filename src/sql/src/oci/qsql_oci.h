@@ -56,8 +56,6 @@ class QOCIResult : public QSqlResult
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
-    bool        isForwardOnly() const {return forwardOnly;}
-    void        setForwardOnly( bool forward ) { forwardOnly = forward; }
     OCIStmt*    statement();
 
 protected:
@@ -81,7 +79,6 @@ private:
     QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
-    bool                forwardOnly;
 };
 
 class QOCIDriver : public QSqlDriver

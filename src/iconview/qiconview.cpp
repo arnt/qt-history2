@@ -1444,6 +1444,7 @@ bool QIconViewItem::move( const QPoint &pnt )
 /*!
   \overload
 
+  Moves the item by the x, y values in point \a pnt.
 */
 
 void QIconViewItem::moveBy( const QPoint &pnt )
@@ -1702,6 +1703,8 @@ void QIconViewItem::removeRenameBox()
   rectangles returned by rect(), textRect() and pixmapRect().
   setRect(), setTextRect() and setPixmapRect() are provided mainly for
   reimplementations of this function.
+
+  \a text_ is an internal parameter which defaults to QString::null.
 */
 
 void QIconViewItem::calcRect( const QString &text_ )
@@ -5305,7 +5308,8 @@ void QIconView::findItemByName( const QString &text )
   Lays out a row of icons (if Arrangement == \c TopToBottom this is a
   column). Starts laying out with the item \a begin. \a y is the
   starting coordinate. Returns the last item of the row (column) and
-  sets the new starting coordinate to \a y.
+  sets the new starting coordinate to \a y. The \a changed parameter
+  is used internally.
 
   This function may be made private in a future version of Qt. \e{We
   do not recommend calling it.}

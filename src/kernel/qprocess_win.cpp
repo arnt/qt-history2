@@ -202,7 +202,7 @@ QProcess::~QProcess()
     delete d;
 }
 
-bool QProcess::start()
+bool QProcess::start( QStringList *env )
 {
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start()" );

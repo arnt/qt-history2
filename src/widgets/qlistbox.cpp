@@ -583,15 +583,15 @@ int QListBoxPixmap::rtti() const
   \ingroup advanced
 
   This is typically a single-column list in which zero or one item
-  is selected at once, but it can also be used in many other ways.
+  is selected, but it can also be used in many other ways.
 
   QListBox will add scroll bars as necessary, but it isn't intended for
   \e really big lists.	If you want more than a few thousand items,
   it's probably better to use a different widget mainly because the
   scroll bars won't provide very good navigation, but also because
-  QListBox may become slow at larger sizes.
+  QListBox may become slow with huge lists.
 
-  There is a variety of selection modes described in the
+  There are a variety of selection modes described in the
   QListBox::SelectionMode documentation. The default is
   Single selection mode, and you can change it using setSelectionMode().
   (setMultiSelection() is still provided for compatibility with Qt
@@ -599,11 +599,11 @@ int QListBoxPixmap::rtti() const
 
   Because QListBox offers multiple selection it has to display keyboard
   focus and selection state separately.  Therefore there are functions
-  both to set the selection state of an item, setSelected(), and to
-  select which item displays keyboard focus, setCurrentItem().
+  both to set the selection state of an item, i.e. setSelected(), and to
+  select which item displays keyboard focus, i.e. setCurrentItem().
 
-  The list box normally arranges its items in a single column with a
-  vertical scroll bar if necessary, but it is also possible to have a
+  The list box normally arranges its items in a single column and adds a
+  vertical scroll bar if required. It is possible to have a
   different fixed number of columns (setColumnMode()), or as many
   columns as will fit in the list box's assigned screen space
   (setColumnMode( FitToWidth )), or to have a fixed number of rows

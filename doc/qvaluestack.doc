@@ -125,7 +125,7 @@
 /*!
   \fn void  QValueStack::push( const T& d )
 
-  Adds an element to the top of the stack.  Last in, first out.
+  Adds element, \a d, to the top of the stack.  Last in, first out.
 
   This function is equivalent to append().
 
@@ -147,6 +147,7 @@
 
 /*!
   \fn const T& QValueStack::top() const
+  \overload
   Returns a reference to the top item of the stack or the item
   referenced by end() if no such item exists.
 

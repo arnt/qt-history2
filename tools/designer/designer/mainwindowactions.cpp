@@ -1041,14 +1041,22 @@ void MainWindow::fileCloseProject()
 	QWidgetList windows = workSpace()->windowList();
 	workSpace()->blockSignals( TRUE );
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	    if ( !w->inherits( "FormWindow" ) )
-		continue;
-	    if ( ( (FormWindow*)w )->project() == pro ) {
-		if ( !closeForm( (FormWindow*)w ) )
-		    return;
-		w->close();
+	    if ( w->inherits( "FormWindow" ) ) {
+		if ( ( (FormWindow*)w )->project() == pro ) {
+		    if ( !closeForm( (FormWindow*)w ) )
+			return;
+		    w->close();
+		}
+	    } else if ( w->inherits( "SourceEditor" ) ) {
+		if ( ( (SourceEditor*)w )->project() == pro &&
+		     ( (SourceEditor*)w )->object()->inherits( "SourceFile" ) ) {
+		    if ( !closeEditor( (SourceEditor*)w ) )
+			return;
+		    w->close();
+		}
 	    }
 	}
+	hierarchyView->clear();
 	windows = workSpace()->windowList();
 	workSpace()->blockSignals( FALSE );
 	actionGroupProjects->removeChild( a );

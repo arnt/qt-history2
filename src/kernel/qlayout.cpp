@@ -1132,6 +1132,7 @@ void QGridLayout::init( int nRows, int nCols )
 }
 
 /*!
+    \overload
   Adds \a item to the next free position of this layout.
 */
 

@@ -139,9 +139,9 @@ then
     HELP=yes
 else
     #back up and generate some qconfig/qmodules for configure
-    [ -e "$relpath/src/tools/qconfig.h" ] && mv -f $relpath/src/tools/qconfig.h qconfig.h-hold
+    [ -r "$relpath/src/tools/qconfig.h" ] && mv -f $relpath/src/tools/qconfig.h qconfig.h-hold
     echo "// All features enabled while configuring" >$relpath/src/tools/qconfig.h
-    [ -e "$relpath/src/tools/qmodules.h" ] && mv -f $relpath/src/tools/qmodules.h qmodules.h-hold
+    [ -r "$relpath/src/tools/qmodules.h" ] && mv -f $relpath/src/tools/qmodules.h qmodules.h-hold
     echo "// All modules enabled while configuring" >$relpath/src/tools/qmodules.h
 
 # Find a make command
@@ -158,6 +158,7 @@ else
 	exit 1
     fi
 fi
+
 
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
@@ -328,6 +329,7 @@ else
 	exit 0
     fi
 fi
+
 
 # Remove the build options file
 [ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
@@ -1362,7 +1364,7 @@ then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
 
-[ -e qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
+[ -r qconfig.h-hold ] && mv -f qconfig.h-hold $outpath/include/qconfig.h
 
 case "$QCONFIG" in
   minimal|small|medium|large|full)
@@ -1539,7 +1541,7 @@ mv -f Makefile.tmp Makefile
 
 
 #do modules.h
-[ -e qmodules.h-hold ] && mv -f qmodules.h-hold $relpath/src/tools/qmodules.h
+[ -r qmodules.h-hold ] && mv -f qmodules.h-hold $relpath/src/tools/qmodules.h
 rm -f $relpath/src/tools/qmodules.h.new
 cat >$relpath/src/tools/qmodules.h.new << EOF
 // These modules are present in this configuration of Qt
@@ -1614,7 +1616,7 @@ then
     for f in $openfiles
     do
 	#don't need to worry about generated files
-	[ -e `echo $f | sed "s,cpp$,ui,"` ] && continue
+	[ -r `echo $f | sed "s,cpp$,ui,"` ] && continue
 	basename $f | grep '^moc_' >/dev/null 2>&1 && continue
 	#done
 	INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"

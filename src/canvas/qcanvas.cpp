@@ -4911,7 +4911,7 @@ void QCanvasSprite::setFrame(int f)
     0, repeating this sequence indefinitely
 */
 
-/*
+/*!
     Sets the animation characteritics for the sprite.
 
     For \a type == Cyclic, the frames will increase by \a step
@@ -4920,6 +4920,8 @@ void QCanvasSprite::setFrame(int f)
     For \a type == Oscillate, the frames will increase by \a step
     at each advance, up to the frameCount(), then decrease by \a step
     back to 0, etc.
+
+    The \a state parameter is for internal use.
 */
 void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int state)
 {
@@ -4932,6 +4934,8 @@ void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int sta
 /*!
   Extends the default QCanvasItem implementation to provide
   the functionality of setFrameAnimation().
+
+  The \a phase is 0 or 1: see QCanvas::animate() for details.
 
   \sa QCanvasItem::advance() setVelocity()
 */

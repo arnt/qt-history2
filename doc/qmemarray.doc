@@ -290,6 +290,7 @@
 
 /*!
   \fn QMemArray<type> &QMemArray::assign( const type *data, uint size )
+  \overload
   Shallow copy. Dereferences the current array and references the
   array data \a data, which contains \a size elements.
   Returns a reference to this array.
@@ -306,8 +307,10 @@
 
 /*!
   \fn QMemArray<type> &QMemArray::duplicate( const type *data, uint size )
+  \overload
   Deep copy. Dereferences the current array and obtains a copy of the
-  array data \a data instead.  Returns a reference to this array.
+  array data \a data instead.  Returns a reference to this array. The
+  size of the array is given by \a size.
   \sa copy()
 */
 
@@ -456,6 +459,7 @@
 
 /*!
   \fn ConstIterator QMemArray::begin() const
+  \overload
   Returns a const iterator pointing at the beginning of this array.
   This iterator can be used as the iterators of QValueList and QMap,
   for example. In fact, not only does it behave like a usual pointer,
@@ -464,6 +468,7 @@
 
 /*!
   \fn ConstIterator QMemArray::end() const
+  \overload
   Returns a const iterator pointing behind the last element of this array.
   This iterator can be used as the iterators of QValueList and QMap,
   for example. In fact, not only does it behave like a usual pointer,

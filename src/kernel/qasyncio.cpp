@@ -62,7 +62,8 @@ QAsyncIO::~QAsyncIO()
 }
 
 /*!
-  Ensures that only one object can respond to changes in readiness.
+  Ensures that only one object, \a obj and function, \a member, can
+  respond to changes in readiness.
 */
 void QAsyncIO::connect(QObject* obj, const char *member)
 {
@@ -114,7 +115,7 @@ void QDataSink::maybeReady()
 /*!
   \fn void QDataSink::receive(const uchar*, int count)
 
-  This function is called to provide data for the data sink.  The count
+  This function is called to provide data for the data sink.  The \a count
   will be no more than the amount indicated by the most recent call to
   readyToReceive().  The sink must use all the provided data.
 */
@@ -162,7 +163,7 @@ void QDataSource::maybeReady()
   \fn void QDataSource::sendTo(QDataSink*, int count)
 
   This function is called to extract data from the source, by sending
-  it to the given data sink.  The count will be no more than the amount
+  it to the given data sink.  The \a count will be no more than the amount
   indicated by the most recent call to readyToSend().  The source must
   use all the provided data, and the sink will be prepared to accept at
   least this much data.
@@ -252,7 +253,7 @@ int QIODeviceSource::readyToSend()
 }
 
 /*!
-  Reads and sends a block of data.
+  Reads a block of data and sends up to \a n bytes to the \a sink.
 */
 void QIODeviceSource::sendTo(QDataSink* sink, int n)
 {

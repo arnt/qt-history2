@@ -121,8 +121,8 @@ void QFontManager::cleanup()
 /*!
   \fn QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
 
-  This constructs a QRenderedFont; the QDiskFont and QFontDef are needed by 
-  the font factory to render glyphs.
+  This constructs a QRenderedFont; the QDiskFont \a df and QFontDef \a
+  d are needed by the font factory to render glyphs.
 */
 
 QRenderedFont::QRenderedFont(QDiskFont * df, const QFontDef &d)
@@ -262,7 +262,7 @@ QFontManager::~QFontManager()
 }
 
 extern bool qws_savefonts; //in qapplication_qws.cpp
-
+/*! \internal */
 int QFontManager::cmpFontDef(const QFontDef & goal, const QFontDef & choice)
 {
     int r = 100;
@@ -308,7 +308,7 @@ QDiskFont * QFontManager::get(const QFontDef & f)
 }
 
 /*!
-  Loads the disk font as a rendered font.
+  Loads the disk font, \a f as a rendered font.
 */
 QRenderedFont* QDiskFont::load(const QFontDef & f)
 {
@@ -344,13 +344,14 @@ of the lowest character)
 
 /*!
 \fn int QRenderedFont::width(int)
+\overload
 Returns the width in pixels of the unicode character specified
 */
 
 /*!
 \fn int QRenderedFont::width(const QString & s,int l=-1 );
-Returns the width in pixels of the first l characters of the string s,
-or the whole string if the value for l is not specified. This should be
+Returns the width in pixels of the first \a l characters of the string \a s,
+or the whole string if the value for \a l is not specified. This should be
 used in preference to adding up the widths of each character in the string
 since it can take account of kerning and inter-character spacing
 */
@@ -369,12 +370,12 @@ of the character specified.
 
 /*!
 \fn bool QRenderedFont::inFont(QChar ch) const
-Returns true if the unicode character ch is in the font.
+Returns true if the unicode character \a ch is in the font.
 */
 
 /*!
 \fn virtual QGlyph QRenderedFont::render(QChar ch)
-Renders the unicode character ch, returning a QGlyph.
+Renders the unicode character \a ch, returning a QGlyph.
 A QGlyph has two members, metrics and data. Metrics contains
 information on the size, advance width and so forth of the character,
 data a pointer to the raw data for the character - either a 1 bit per pixel

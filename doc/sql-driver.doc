@@ -76,7 +76,7 @@ loaded by the Qt library at runtime), the driver must export a
 QSqlDriverFactoryInterface, which is an interface that is capable of
 producing QSqlDriver objects (see QSqlDriverFactory::create()).  There
 are several macros available to assist in creating such a plugin.  See
-the source from the examples provided with Qt in \code
-QTDIR/src/sql/src for more information.
+the source from the examples provided with Qt in 
+\c{QTDIR/src/sql/src} for more information.
 
 */

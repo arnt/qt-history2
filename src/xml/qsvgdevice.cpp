@@ -159,6 +159,7 @@ bool QSvgDevice::play( QPainter *painter )
 #endif
 	return FALSE;
     }
+    pt = painter;
     if ( doc.isNull() ) {
 	qWarning( "QSvgDevice::play: No SVG data set." );
 	return FALSE;
@@ -171,11 +172,38 @@ bool QSvgDevice::play( QPainter *painter )
     }
 
     QDomNamedNodeMap attr = svg.attributes();
-    int w = lenToInt( attr, "width" );
-    int h = lenToInt( attr, "height" );
+    QString wstr = attr.contains( "width" )
+		   ? attr.namedItem( "width" ).nodeValue() : "100%";
+    QString hstr = attr.contains( "height" )
+		   ? attr.namedItem( "height" ).nodeValue() : "100%";
+    if ( attr.contains( "viewBox" ) ) {
+	QRegExp re( "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
+		    "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*" );
+	if ( re.search( attr.namedItem( "viewBox" ).nodeValue() ) < 0 ) {
+	    qWarning( "QSvgDevice::play: Invalid viewBox attribute.");
+	    return FALSE;
+	} else {
+	    int x = int(re.cap( 1 ).toDouble());
+	    int y = int(re.cap( 2 ).toDouble());
+	    int w = int(re.cap( 3 ).toDouble());
+	    int h = int(re.cap( 4 ).toDouble());
+	    if ( w < 0 || h < 0 ) {
+		qWarning( "QSvgDevice::play: Invalid viewBox dimension.");
+		return FALSE;
+	    } else if ( w == 0 || h == 0 ) {
+		return TRUE;
+	    }
+	    painter->setWindow( x, y, w, h );
+	}
+    }
+    int w = int(parseLen( wstr, 0, TRUE ));
+    int h = int(parseLen( hstr, 0, FALSE ));
     brect.setWidth( w );
     brect.setHeight( h );
-    painter->setClipRect( 0, 0, h, w );
+    painter->setViewport( 0, 0, w, h );
+    painter->setClipRect( 0, 0, w, h );
+    if ( attr.contains( "transform" ) )
+	setTransform( attr.namedItem( "transform" ).nodeValue() );
 
     const struct ElementTable {
 	const char *name;
@@ -207,7 +235,6 @@ bool QSvgDevice::play( QPainter *painter )
     }
 
     // 'play' all elements recursively starting with 'svg' as root
-    pt = painter;
     d->talign = Qt::AlignLeft;
     return play( svg );
 }
@@ -808,10 +835,12 @@ QColor QSvgDevice::parseColor( const QString &col )
 /*!
   \internal
   Parse a <length> datatype consisting of a number followed by an optional
-  unit specifier. Can be used for type <coordinate> as well.
+  unit specifier. Can be used for type <coordinate> as well. For relative
+  units the value of \a horiz will determine whether the horizontal or
+  vertical dimension will be used.
 */
 
-double QSvgDevice::parseLen( const QString &str, bool *ok ) const
+double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 {
     QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$" );
     if ( reg.search( str ) == -1 ) {
@@ -830,7 +859,7 @@ double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 	else if ( u == "ex" )
 	    d *= 0.5 * pt->font().pointSizeFloat(); // ### not precise
 	else if ( u == "%" )
-	    d *= boundingRect().width() / 100.0;
+	    d *= (horiz ? pt->window().width() : pt->window().height())/100.0;
 	else if ( u == "cm" )
 	    d *= m.logicalDpiX() / 2.54;
 	else if ( u == "mm" )
@@ -984,9 +1013,10 @@ void QSvgDevice::drawPath( const QString &data )
     int pcount = 0;			// current point array index
     uint idx = 0;			// current data position
     int mode = 0, lastMode = 0;		// parser state
+    bool relative = false;		// e.g. 'h' vs. 'H'
     QString commands( "MZLHVCSQTA" );	// recognized commands
     int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };	// no of arguments
-    QRegExp reg( "\\s*([+-]?\\d*\\.?\\d*)" );		// floating point
+    QRegExp reg( "\\s*,?\\s*([+-]?\\d*\\.?\\d*)" );	// floating point
 
     subIndex.append( 0 );
     // detect next command
@@ -996,13 +1026,19 @@ void QSvgDevice::drawPath( const QString &data )
 	    continue;
 	QChar chUp = ch.upper();
 	int cmd = commands.find( chUp );
-	if ( cmd == - 1 && !mode ) {
-	    qWarning( "QSvgDevice::drawPath: Unknown command" );
-	    return;
+	if ( cmd >= 0 ) {
+	    // switch to new command mode
+	    mode = cmd;
+	    relative = ( ch != chUp );		// e.g. 'm' instead of 'M'
+	} else {
+	    if ( mode && !ch.isLetter() ) {
+		cmd = mode;			// continue in previous mode
+		idx--;
+	    } else {
+		qWarning( "QSvgDevice::drawPath: Unknown command" );
+		return;
+	    }
 	}
-	// switch to new command mode
-	mode = chUp.unicode();
-	bool relative = ( ch != chUp );		// e.g. 'm' instead of 'M'
 
 	// read in the required number of arguments
 	const int maxArgs = 7;
@@ -1022,38 +1058,38 @@ void QSvgDevice::drawPath( const QString &data )
 	int offsetX = relative ? x : 0;		// correction offsets
 	int offsetY = relative ? y : 0;		// for relative commands
 	switch ( mode ) {
-	case 'M':				// move to
+	case 0:					// 'M' move to
 	    if ( x != x0 || y != y0 )
 		path.setPoint( pcount++, x0, y0 );
 	    x = x0 = int(arg[ 0 ]) + offsetX;
 	    y = y0 = int(arg[ 1 ]) + offsetY;
 	    subIndex.append( pcount );
 	    path.setPoint( pcount++, x0, y0 );
-	    mode = 'L';
+	    mode = 2;				// -> 'L'
 	    break;
-	case 'Z':				// close path
+	case 1:					// 'Z' close path
 	    path.setPoint( pcount++, x0, y0 );
 	    x = x0;
 	    y = y0;
 	    mode = 0;
 	    break;
-	case 'L':				// line to
+	case 2:					// 'L' line to
 	    x = int(arg[ 0 ]) + offsetX;
 	    y = int(arg[ 1 ]) + offsetY;
 	    path.setPoint( pcount++, x, y );
 	    break;
-	case 'H':				// horizontal line
+	case 3:					// 'H' horizontal line
 	    x = int(arg[ 0 ]) + offsetX;
 	    path.setPoint( pcount++, x, y );
 	    break;
-	case 'V':				// vertical line
+	case 4:					// 'V' vertical line
 	    y = int(arg[ 0 ]) + offsetY;
 	    path.setPoint( pcount++, x, y );
 	    break;
-	case 'C':				// cubic bezier curveto
-	case 'S':				// smooth shorthand
-	case 'Q':				// quadratic bezier curves
-	case 'T': {				// smooth shorthand
+	case 5:					// 'C' cubic bezier curveto
+	case 6:					// 'S' smooth shorthand
+	case 7:					// 'Q' quadratic bezier curves
+	case 8: {				// 'T' smooth shorthand
 	    quad.setPoint( 0, x, y );
 	    // if possible, reflect last control point if smooth shorthand
 	    if ( mode == 'S' || mode == 'T' ) {
@@ -1088,7 +1124,7 @@ void QSvgDevice::drawPath( const QString &data )
 		path.setPoint( pcount++, bezier[ k ] );
 	    break;
 	}
-	case 'A':				// elliptical arc curve
+	case 9:					// 'A' elliptical arc curve
 	    // ### just a straight line
 	    x = int(arg[ 5 ]) + offsetX;
 	    y = int(arg[ 6 ]) + offsetY;

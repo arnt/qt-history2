@@ -266,9 +266,14 @@ static void set_winapp_name()
   qWinMain() - Initializes Windows. Called from WinMain() in qtmain_win.cpp
  *****************************************************************************/
 
+#if defined( Q_OS_TEMP )
+Q_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
+	       int cmdShow, int &argc, QArray<pchar> &argv )
+#else
 Q_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QArray<pchar> &argv )
+#endif
 {
     static bool already_called = FALSE;
 
@@ -1548,7 +1553,7 @@ void QApplication::wakeUpGuiThread()
 
 /*!
   The message procedure calls this function for every message received.
-  Reimplement this function if you want to process window messages \a msg that
+  Reimplement this function if you want to process window messages \e msg that
   are not processed by Qt.
 */
 bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter

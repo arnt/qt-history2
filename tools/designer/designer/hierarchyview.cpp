@@ -701,6 +701,16 @@ HierarchyView::HierarchyView( QWidget *parent )
     }
 }
 
+void HierarchyView::clear()
+{
+    listview->clear();
+    fList->clear();
+    for ( QMap<QString, ClassBrowser>::Iterator it = classBrowsers.begin();
+	  it != classBrowsers.end(); ++it ) {
+	(*it).iface->clear();
+    }
+}
+
 void HierarchyView::setFormWindow( FormWindow *fw, QWidget *w )
 {
     if ( fw == 0 || w == 0 ) {

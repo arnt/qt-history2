@@ -289,7 +289,7 @@ QVariant::Type qFieldType( QTDSPrivate* d, int i )
 
 
 QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
-    : QSqlResult( db ), forwardOnly( FALSE )
+    : QSqlResult( db )
 {
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::QTDSResult" );
@@ -359,10 +359,10 @@ bool QTDSResult::fetchFirst()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchFirst()" );
 #endif
-    if ( forwardOnly && at() != QSql::BeforeFirst ) {
+    if ( isForwardOnly() && at() != QSql::BeforeFirst ) {
 	return FALSE;
     }
-    if ( !forwardOnly && set->seek( 0 ) ) {
+    if ( !isForwardOnly() && set->seek( 0 ) ) {
 	setAt( 0 );
 	return TRUE;
     }
@@ -378,7 +378,7 @@ bool QTDSResult::fetchNext()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchNext()" );
 #endif
-    if ( !forwardOnly && set->seek( at() + 1 ) ) {
+    if ( !isForwardOnly() && set->seek( at() + 1 ) ) {
 	setAt( at() + 1 );
 	return TRUE;
     }
@@ -395,14 +395,14 @@ bool QTDSResult::fetchLast()
 #ifdef DEBUG_TDS
     qDebug( "QTDSResult::fetchLast()" );
 #endif
-    if ( !forwardOnly && at() == QSql::AfterLast && set->size() > 0 ) {
+    if ( !isForwardOnly() && at() == QSql::AfterLast && set->size() > 0 ) {
 	setAt( set->size() - 1 );
 	return TRUE;
     }
     if ( at() >= QSql::BeforeFirst ) {
 	while ( fetchNext() )
 	    ; /* brute force */
-	if ( forwardOnly && at() == QSql::AfterLast ) {
+	if ( isForwardOnly() && at() == QSql::AfterLast ) {
 	    setAt( at() - 1 );
 	    return TRUE;
 	} else

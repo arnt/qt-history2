@@ -156,8 +156,8 @@ void QFile::init()
 */
 
 /*!
-  Sets the name of the file. The name may have no path, a relative path or
-  an absolute absolute directory path. 
+  Sets the name of the file to \a name. The name may have no path, a
+  relative path or an absolute absolute directory path. 
 
   Do not call this function if the file has already been opened.
 
@@ -192,6 +192,7 @@ void QFile::setName( const QString &name )
 }
 
 /*!
+    \overload
   Returns TRUE if this file exists; otherwise returns FALSE.
   \sa name()
 */
@@ -271,9 +272,10 @@ bool QFile::atEnd() const
 /*!
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line or \a maxlen bytes have
-  been read, whichever occurs first. Returns the number of bytes read,
-  or -1 if there was an error.  The terminating newline is not stripped.
+  Reads bytes from the file into the char* \a p, until end-of-line or
+  \a maxlen bytes have been read, whichever occurs first. Returns the
+  number of bytes read, or -1 if there was an error.  The terminating
+  newline is not stripped.
 
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw
@@ -315,12 +317,13 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 
 
 /*!
+    \overload
   Reads a line of text.
 
-  Reads bytes from the file until end-of-line or \a maxlen bytes have
-  been read, whichever occurs first. Returns the number of bytes read,
-  or -1 if there was an error.g. end of file.  The terminating newline
-  is not stripped.
+  Reads bytes from the file into string \a s, until end-of-line or \a
+  maxlen bytes have been read, whichever occurs first. Returns the
+  number of bytes read, or -1 if there was an error.g. end of file.
+  The terminating newline is not stripped.
 
   This function is efficient only for buffered files.  Avoid
   readLine() for files that have been opened with the \c IO_Raw
@@ -489,8 +492,8 @@ static QFile::EncoderFn encoder = locale_encoder;
   in the file system and this function should be avoided. On Windows 95,
   non-Latin1 locales are not supported at this time.
 
-  By default, this function converts to the local 8-bit encoding
-  determined by the user's locale.  This is sufficient for
+  By default, this function converts \a fileName to the local 8-bit
+  encoding determined by the user's locale.  This is sufficient for
   file names that the user chooses.  File names hard-coded into the
   application should only use 7-bit ASCII filename characters.
 
@@ -514,7 +517,7 @@ QCString QFile::encodeName( const QString &fileName )
 */
 
 /*!
-  Sets the function for encoding Unicode file names.
+  Sets the function for encoding Unicode file names to \a f.
   The default encodes in the locale-specific 8-bit encoding.
 
   \sa encodeName()
@@ -533,7 +536,7 @@ QString locale_decoder( const QCString &localFileName )
 static QFile::DecoderFn decoder = locale_decoder;
 
 /*!
-  This does the reverse of QFile::encodeName().
+  This does the reverse of QFile::encodeName() using \a localFileName.
 
   \sa setDecodingFunction()
 */
@@ -549,7 +552,7 @@ QString QFile::decodeName( const QCString &localFileName )
 */
 
 /*!
-  Sets the function for decoding 8-bit file names.
+  Sets the function for decoding 8-bit file names to \a f.
   The default uses the locale-specific 8-bit encoding.
 
   \sa encodeName(), decodeName()

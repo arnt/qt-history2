@@ -60,7 +60,7 @@
 */
 
 /*! \fn QPtrQueue::QPtrQueue( const QPtrQueue<type>& queue )
-  Creates a queue from another.
+  Creates a queue from \a queue.
 
   Only the pointers are copied - the items are not.  The autoDelete()
   flag is set to FALSE.
@@ -197,8 +197,8 @@
   \fn QDataStream& QPtrQueue::write( QDataStream& s,
 				     QPtrCollection::Item item ) const
 
-  Writes a queue item to the stream \a s and returns a reference to the
-  stream.
+  Writes a queue item, \a item, to the stream \a s and returns a
+  reference to the stream.
 
   The default implementation does nothing.
 

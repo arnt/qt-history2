@@ -377,7 +377,7 @@ QColor::QColor( const QColor &c )
 
 
 /*!
-  Assigns a copy of the color \c and returns a reference to this color.
+  Assigns a copy of the color \a c and returns a reference to this color.
 */
 
 QColor &QColor::operator=( const QColor &c )
@@ -610,6 +610,7 @@ void QColor::setHsv( int h, int s, int v )
 
 /*!
   \fn QRgb QColor::rgb() const
+  \overload
   Returns the RGB value.
 
   The return type \e QRgb is equivalent to \c unsigned \c int.
@@ -657,6 +658,7 @@ void QColor::setRgb( int r, int g, int b )
 
 
 /*!
+  \overload
   Sets the RGB value to \a rgb.
 
   The type \e QRgb is equivalent to \c unsigned \c int.
@@ -801,7 +803,7 @@ uint QColor::pixel() const
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QColor
-  Writes a color object to the stream.
+  Writes a color object, \a c to the stream, \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -816,7 +818,7 @@ QDataStream &operator<<( QDataStream &s, const QColor &c )
 
 /*!
   \relates QColor
-  Reads a color object from the stream.
+  Reads a color object, \a c, from the stream, \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -864,7 +866,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   \fn int qAlpha( QRgb rgba )
   \relates QColor
 
-  Returns the alpha component of the RGBA quadruplet \e rgb.
+  Returns the alpha component of the RGBA quadruplet \a rgba.
 */
 
 /*!
@@ -893,7 +895,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   \fn int qGray( int r, int g, int b )
   \relates QColor
 
-  Returns a gray value 0..255 from the \a (r,g,b) triplet.
+  Returns a gray value 0..255 from the (\a r, \a g, \a b) triplet.
 
   The gray value is calculated using the formula (r*11 + g*16 +
   b*5)/32.

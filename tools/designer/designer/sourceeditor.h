@@ -45,6 +45,7 @@ public:
     void setClass( const QString &clss );
     void save();
     void setModified( bool b );
+    bool isModified() const;
 
     static QString sourceOfObject( QObject *fw, const QString &lang, EditorInterface *iface, LanguageInterface *lIface );
 

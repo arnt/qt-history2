@@ -389,12 +389,15 @@ QImage::QImage( const QImage &image )
 }
 
 /*!
-  Constructs an image that uses an existing memory buffer.
-  The buffer must remain valid throughout the life of the QImage. The image
-  does not delete the buffer at destruction.
+  Constructs an image \a w pixels wide, \a h pixels high with a
+  color depth of \a depth, that uses an existing memory buffer, \a
+  yourdata. The buffer must remain valid throughout the life of the
+  QImage. The image does not delete the buffer at destruction.
 
   If \a colortable is 0, a color table sufficient for \a numColors will be
   allocated (and destructed later).
+
+  The endian-ness is given in \a bitOrder.
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		QRgb* colortable, int numColors,
@@ -574,7 +577,8 @@ QImage QImage::copy() const
   Returns a
   \link shclass.html deep copy\endlink of a sub-area of the image.
 
-  The returned image is always \a w by \a h pixels in size.
+  The returned image is always \a w by \a h pixels in size, and is
+  copied from position \a x, \a y in this image.
   In areas beyond this image pixels are filled with pixel 0.
 
   \sa bitBlt()
@@ -5570,9 +5574,10 @@ static void write_xpm_image( QImageIO * iio )
 #endif // QT_NO_IMAGEIO_XPM
 
 /*!
-  Note:  currently no closest-color search is made.  If colors are found that
-  are not in the palette, the palette may not be used at all.  This result
-  should not be considered valid because it may change in future implementations.
+  Note:  currently no closest-color search is made.  If colors are
+  found that are not in the palette, the palette may not be used at
+  all.  This result should not be considered valid because it may
+  change in future implementations.
 
   Currently inefficient for non-32-bit images.
 */

@@ -328,7 +328,8 @@ Q_UINT16 qChecksum( const char *data, uint len )
 
 /*!
   \relates QMemArray
-  Writes a byte array to a stream and returns a reference to the stream.
+  Writes byte array \a a to the stream \a s and returns a reference to
+  the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -341,7 +342,8 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 
 /*!
   \relates QMemArray
-  Reads a byte array from a stream and returns a reference to the stream.
+  Reads a byte array into \a a from the stream \a s and returns a
+  reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -540,7 +542,7 @@ QCString::QCString( const char *str, uint maxsize )
 */
 
 /*!
-  \fn QCString &QCString::operator=( const char *str )
+  \overload QCString &QCString::operator=( const char *str )
   Assigns a deep copy of \a str to this string and returns a reference to
   this string.
 
@@ -651,7 +653,7 @@ bool QCString::resize( uint len )
   \endcode
 
   \warning All vsprintf() implementations will write past the end of
-  the target string (*this) if the format specification and arguments
+  the target string (*this) if the \a format specification and arguments
   happen to be longer than the target string, and some will also fail
   if the target string is longer than some arbitrary implementation
   limit.
@@ -735,6 +737,7 @@ int QCString::find( char c, int index, bool cs ) const
 }
 
 /*!
+    \overload
   Finds the first occurrence of the string \a str, starting at position
   \a index.
 
@@ -810,7 +813,8 @@ int QCString::findRev( char c, int index, bool cs ) const
     return d >= b ? (int)(d - b) : -1;
 }
 
-/*!
+/*! 
+    \overload
   Finds the first occurrence of the string \a str, starting at
   position \a index and searching backwards.
 
@@ -880,6 +884,7 @@ int QCString::contains( char c, bool cs ) const
 }
 
 /*!
+    \overload
   Returns the number of times \a str occurs in the string.
 
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a
@@ -1222,6 +1227,7 @@ QCString QCString::simplifyWhiteSpace() const
 
 
 /*!
+    \overload
   Inserts string \a s into the string at position \a index.
 
   If \a index is beyond the end of the string, the string is extended with
@@ -1348,7 +1354,8 @@ QCString &QCString::replace( uint index, uint len, const char *str )
 
 #ifndef QT_NO_REGEXP
 /*!
-  Finds the first occurrence of the regular expression \a rx, starting at
+    \overload
+    Finds the first occurrence of the regular expression \a rx, starting at
   position \a index.
 
   Returns the position of the next match, or -1 if \a rx was not found.
@@ -1362,6 +1369,7 @@ int QCString::find( const QRegExp& rx, int index ) const
 }
 
 /*!
+    \overload
   Finds the first occurrence of the regular expression \a rx, starting at
   position \a index and searching backwards.
 
@@ -1377,6 +1385,7 @@ int QCString::findRev( const QRegExp& rx, int index ) const
 }
 
 /*!
+    \overload
   Counts the number of overlapping occurrences of \a rx in the string.
 
   Example:
@@ -1398,6 +1407,7 @@ int QCString::contains( const QRegExp &rx ) const
 
 
 /*!
+    \overload
   Replaces every occurrence of \a rx in the string with \a str.
   Returns a reference to the string.
 
@@ -1617,6 +1627,7 @@ QCString &QCString::setStr( const char *str )
 }
 
 /*!
+    \overload
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
@@ -1645,6 +1656,7 @@ QCString &QCString::setNum( long n )
 }
 
 /*!
+    \overload
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
@@ -1664,25 +1676,25 @@ QCString &QCString::setNum( ulong n )
 }
 
 /*!
-  \fn QCString &QCString::setNum( int n )
+    \overload QCString &QCString::setNum( int n )
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
 
 /*!
-  \fn QCString &QCString::setNum( uint n )
+    \overload QCString &QCString::setNum( uint n )
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
 
 /*!
-  \fn QCString &QCString::setNum( short n )
+    \overload QCString &QCString::setNum( short n )
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
 
 /*!
-  \fn QCString &QCString::setNum( ushort n )
+    \overload QCString &QCString::setNum( ushort n )
   Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
@@ -1781,6 +1793,7 @@ QCString& QCString::operator+=( const char *str )
 }
 
 /*!
+    \overload
   Appends character \a c to the string and returns a reference to the string.
 */
 
@@ -1802,7 +1815,7 @@ QCString &QCString::operator+=( char c )
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QCString
-  Writes a string to the stream.
+  Writes string \a str to the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1813,7 +1826,7 @@ QDataStream &operator<<( QDataStream &s, const QCString &str )
 
 /*!
   \relates QCString
-  Reads a string from the stream.
+  Reads a string into \a str from the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -1846,55 +1859,55 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator==( const QCString &s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
   Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
 */
 
 /*!
-  \fn bool operator==( const QCString &s1, const char *s2 )
+  \overload bool operator==( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
+  Equivalent to \c{qstrcmp(s1,s2) == 0}.
 */
 
 /*!
-  \fn bool operator==( const char *s1, const QCString &s2 )
+  \overload bool operator==( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if the two strings are equal, or FALSE if they are different.
+  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) == 0</code>.
+  Equivalent to \c{qstrcmp(s1,s2) == 0}.
 */
 
 /*!
   \fn bool operator!=( const QCString &s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
+  Equivalent to \c{qstrcmp(s1,s2) != 0}.
 */
 
 /*!
-  \fn bool operator!=( const QCString &s1, const char *s2 )
+  \overload bool operator!=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
+  Equivalent to \c{qstrcmp(s1,s2) != 0}.
 */
 
 /*!
-  \fn bool operator!=( const char *s1, const QCString &s2 )
+  \overload bool operator!=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if the two strings are different, or FALSE if they are equal.
+  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 
-  Equivalent to <code>qstrcmp(s1,s2) != 0</code>.
+  Equivalent to \c{qstrcmp(s1,s2) != 0}.
 */
 
 /*!
   \fn bool operator<( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than \a s2, otherwise returns FALSE.
+  Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
@@ -1902,9 +1915,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 */
 
 /*!
-  \fn bool operator<( const char *s1, const QCString &s2 )
+  \overload bool operator<( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than \a s2, otherwise returns FALSE.
+  Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
@@ -1914,7 +1927,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than or equal to \a s2,
+  Returns TRUE if \a s1 is less than or equal to \a s2;
   otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
@@ -1923,9 +1936,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 */
 
 /*!
-  \fn bool operator<=( const char *s1, const QCString &s2 )
+  \overload bool operator<=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is less than or equal to \a s2,
+  Returns TRUE if \a s1 is less than or equal to \a s2;
   otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
@@ -1936,7 +1949,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than \a s2, otherwise returns FALSE.
+  Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
@@ -1944,9 +1957,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 */
 
 /*!
-  \fn bool operator>( const char *s1, const QCString &s2 )
+  \overload bool operator>( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than \a s2, otherwise returns FALSE.
+  Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
@@ -1956,7 +1969,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than or equal to \a s2,
+  Returns TRUE if \a s1 is greater than or equal to \a s2;
   otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
@@ -1965,9 +1978,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 */
 
 /*!
-  \fn bool operator>=( const char *s1, const QCString &s2 )
+  \overload bool operator>=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is greater than or equal to \a s2,
+  Returns TRUE if \a s1 is greater than or equal to \a s2;
   otherwise returns FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
@@ -1978,29 +1991,29 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn const QCString operator+( const QCString &s1, const QCString &s2 )
   \relates QCString
-  Returns a string which consists of the concatenation of s1 and s2.
+  Returns a string which consists of the concatenation of \a s1 and \a s2.
 */
 
 /*!
-  \fn const QCString operator+( const QCString &s1, const char *s2 )
+  \overload const QCString operator+( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns a string which consists of the concatenation of s1 and s2.
+  Returns a string which consists of the concatenation of \a s1 and \a s2.
 */
 
 /*!
-  \fn const QCString operator+( const char *s1, const QCString &s2 )
+  \overload const QCString operator+( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns a string which consists of the concatenation of s1 and s2.
+  Returns a string which consists of the concatenation of \a s1 and \a s2.
 */
 
 /*!
-  \fn const QCString operator+( const QCString &s, char c )
+  \overload const QCString operator+( const QCString &s, char c )
   \relates QCString
-  Returns a string which consists of the concatenation of s and c.
+  Returns a string which consists of the concatenation of \a s and \a c.
 */
 
 /*!
-  \fn const QCString operator+( char c, const QCString &s )
+  \overload const QCString operator+( char c, const QCString &s )
   \relates QCString
-  Returns a string which consists of the concatenation of c and s.
+  Returns a string which consists of the concatenation of \a c and \a s.
 */

@@ -99,6 +99,7 @@
   \value SplitHCursor - horziontal splitting
   \value PointingHandCursor - a pointing hand
   \value ForbiddenCursor - a slashed circle
+  \value BitmapCursor 
   
   ArrowCursor is the default for widgets in a normal state.
 */

@@ -279,6 +279,7 @@ void QFileInfo::setFile( const QString &file )
 }
 
 /*!
+    \overload
   Sets the file that the QFileInfo provides information about to \a file.
 
   If the file has a relative path, the QFileInfo will also have a
@@ -296,6 +297,7 @@ void QFileInfo::setFile( const QFile &file )
 }
 
 /*!
+    \overload
   Sets the file that the QFileInfo provides information about to \a
   fileName in directory \a d.
 

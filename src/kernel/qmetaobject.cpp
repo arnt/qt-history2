@@ -447,6 +447,7 @@ const QClassInfo* QMetaObject::classInfo( int index, bool super ) const
 }
 
 /*!
+    \overload
   Returns the class information with name \a name or 0 if no such
   information exists.
 
@@ -835,10 +836,10 @@ bool QMetaProperty::stored( QObject* o ) const
 
 
 /*!
-  Tries to reset the property with a reset method. On success,
-  returns TRUE, otherwise FALSE.
+  Tries to reset the property for object \o with a reset method. On
+  success, returns TRUE; otherwise returns FALSE.
 
-  Reset methods are optional, usually only few properties support
+  Reset methods are optional, usually only a few properties support
   them.
  */
 bool QMetaProperty::reset( QObject* o ) const

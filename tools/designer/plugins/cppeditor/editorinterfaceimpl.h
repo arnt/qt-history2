@@ -23,6 +23,7 @@
 
 #include <editorinterface.h>
 #include <qobject.h>
+#include <qguardedptr.h>
 
 class QTimer;
 class ViewManager;
@@ -63,6 +64,7 @@ public:
     void setStep( int ) {}
     void clearStep() {}
     void setModified( bool m );
+    bool isModified() const;
     void setMode( Mode ) {}
 
     int numLines() const;
@@ -79,7 +81,7 @@ private slots:
     void update();
 
 private:
-    ViewManager *viewManager;
+    QGuardedPtr<ViewManager> viewManager;
     unsigned long ref;
     DesignerInterface *dIface;
     QTimer *updateTimer;

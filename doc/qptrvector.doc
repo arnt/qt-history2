@@ -387,7 +387,8 @@
 /*!
   \fn QDataStream& QPtrVector::write( QDataStream &s,
 				      QPtrCollection::Item item ) const
-  Writes a vector item to the stream \a s and returns a reference to the stream.
+  Writes a vector item, \a item, to the stream \a s and returns a
+  reference to the stream.
 
   The default implementation does nothing.
 

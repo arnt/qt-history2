@@ -58,9 +58,9 @@
 
 /*!
   \fn QSortedList::QSortedList( const QSortedList<type> &list )
-  Constructs a copy of \e list.
+  Constructs a copy of \a list.
 
-  Each item in \e list is copied to this new list.
+  Each item in \a list is copied to this new list.
 */
 
 /*!
@@ -72,9 +72,9 @@
 
 /*!
   \fn QSortedList<type>& QSortedList::operator=(const QSortedList<type>& list)
-  Assigns \e list to this list and returns a reference to this list.
+  Assigns \a list to this list and returns a reference to this list.
 
-  This list is first cleared; each item in \e list is then
+  This list is first cleared; each item in \a list is then
   appended to this list.  Only the pointers are copied
   (shallow copy) unless newItem() has been reimplemented().
 */

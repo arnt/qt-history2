@@ -53,8 +53,8 @@
 /*!
   \fn QBitVal::QBitVal (QBitArray* a, uint i)
 
-  Constructs a reference to an element in a QBitArray.  This is
-  what QBitArray::operator[] constructs its return value with.
+  Constructs a reference to element \a i in the QBitArray \a a.  This
+  is what QBitArray::operator[] constructs its return value with.
 */
 
 /*!
@@ -66,14 +66,15 @@
 /*!
   \fn QBitVal& QBitVal::operator= (const QBitVal& v)
 
-  Sets the value referenced by the QBitVal to that referenced by another
-  QBitVal.
+  Sets the value referenced by the QBitVal to that referenced by 
+  QBitVal \a v.
 */
 
 /*!
+    \overload
   \fn QBitVal& QBitVal::operator= (bool v)
 
-  Sets the value referenced by the QBitVal.
+  Sets the value referenced by the QBitVal to \a v.
 */
 
 
@@ -278,6 +279,7 @@ bool QBitArray::testBit( uint index ) const
 }
 
 /*!
+    \overload
   Sets the bit at position \a index (sets it to 1).
   \sa clearBit() toggleBit()
 */
@@ -360,7 +362,7 @@ bool QBitArray::toggleBit( uint index )
   Implements the [] operator for bit arrays.
 
   The returned QBitVal is a context object. It makes it possible to get
-  and set a single bit value.
+  and set a single bit value by its \a index position.
 
   Example:
   \code
@@ -376,6 +378,7 @@ bool QBitArray::toggleBit( uint index )
 */
 
 /*!
+    \overload
   \fn bool QBitArray::operator[]( int index ) const
   Implements the [] operator for constant bit arrays.
 */
@@ -567,7 +570,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
 /*!
   \relates QBitArray
-  Writes a bit array to a stream.
+  Writes bit array \a a to stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -583,7 +586,7 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 
 /*!
   \relates QBitArray
-  Reads a bit array from a stream.
+  Reads a bit array into \a a from stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

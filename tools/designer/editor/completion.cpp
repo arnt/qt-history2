@@ -598,7 +598,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	s.append( post );
 	label += "<p>" + s + "</p>";
 	functionLabel->setFunctionText( num, s );
-	w = QMAX( w, functionLabel->fontMetrics().width( s ) );
+	w = QMAX( w, functionLabel->fontMetrics().width( s ) + 10 );
     }
     w += 16;
     if ( label.isEmpty() )

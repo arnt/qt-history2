@@ -300,7 +300,7 @@ This template recognizes the following system variables:
 files to be processed.  Each sub-project file must be named the same as the
 directory (ie in subdirectory display, you must have a display.pro which
 will be made by built by qmake, and finally make the project).  See the
-\e qmake \link qmakecommandreference.html#subdirs reference
+\e qmake \link qmake-commandreference.html#subdirs reference
 manual \endlink for details.
 
 \section2 Special Templates for Microsoft Visual C++
@@ -373,7 +373,7 @@ scoping \endlink variable assignments.
 
 The most common \e qmake options and project variables are
 described here.  See the \e qmake
-\link qmakecommandreference.html#CONFIG reference manual \endlink for
+\link qmake-commandreference.html#CONFIG reference manual \endlink for
 details.
 
 \target Details

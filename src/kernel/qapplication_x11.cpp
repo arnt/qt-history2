@@ -759,7 +759,9 @@ static void qt_x11_process_intern_atoms()
 
 static bool ignore_settings_change = FALSE;
 
-// apply the settings to the application
+/*! \internal
+    apply the settings to the application
+*/
 bool QApplication::x11_apply_settings()
 {
     if (! qt_std_pal)

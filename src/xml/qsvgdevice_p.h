@@ -95,7 +95,7 @@ private:
     // reading
     bool play( const QDomNode &node );
     QColor parseColor( const QString &col );
-    double parseLen( const QString &str, bool *ok=0 ) const;
+    double parseLen( const QString &str, bool *ok=0, bool horiz=TRUE ) const;
     int lenToInt( const QDomNamedNodeMap &map, const QString &attr,
 		  int def=0 ) const;
     void setStyle( const QString &s );

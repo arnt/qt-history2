@@ -71,7 +71,7 @@ public:
 
 */
 
-QSqlResult::QSqlResult( const QSqlDriver * db )
+QSqlResult::QSqlResult( const QSqlDriver * db ): forwardOnly( FALSE )
 {
     d = new QSqlResultPrivate();
     d->sqldriver = db;
@@ -310,6 +310,25 @@ bool QSqlResult::fetchNext()
 bool QSqlResult::fetchPrev()
 {
     return fetch( at() - 1 );
+}
+
+/*! Returns TRUE when you can only scroll forward through a result set
+    otherwise FALSE
+*/
+bool QSqlResult::isForwardOnly() const
+{
+    return forwardOnly;
+}
+
+/*! Toggles forward only mode. In forward only mode only fetchNext() is
+    allowed for navigating the results. Forward only mode needs far less
+    memory since results do not have to be cached.
+    forward only mode is off by default.
+    \sa fetchNext()
+*/
+void QSqlResult::setForwardOnly( bool forward )
+{
+    forwardOnly = forward;
 }
 
 #endif // QT_NO_SQL

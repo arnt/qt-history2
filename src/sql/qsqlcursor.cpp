@@ -411,7 +411,11 @@ void QSqlCursor::append( const QSqlField& field )
     QSqlRecord::append( field );
 }
 
-/*!  Insert a copy of \a field at position \a pos.  If a field already
+/*!  
+
+    \overload
+    
+    Insert a copy of \a field at position \a pos.  If a field already
   exists at \a pos, it is removed.  Note that all references to the
   cursor edit buffer become invalidated.
 */

@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "qwinfunctions_wce.h"
+#include "qfunctions_wce.h"
 
 #include <windows.h>
 #include <winbase.h>
@@ -279,6 +279,9 @@ HRGN  CreateRectRgn(int x1, int y1, int x2, int y2)
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 ///////////////// MFC compatibility functions ///////////////////
+// This code has been copied from the MFC library source code  //
+// and will need replacing. Much of this is not used also, and //
+// needs removing                                              //
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 

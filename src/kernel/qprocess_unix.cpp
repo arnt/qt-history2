@@ -532,6 +532,14 @@ QProcess::~QProcess()
   command is searched in the path for executable programs; you can also use an
   absolute path to the command.
 
+  If \a env is null, then the process is started with the same environment as
+  the starting process. If \a env is non-null, then the values in the
+  stringlist are interpreted as environment setttings of the form \c
+  {key=value} and the process is started in these environment settings. For
+  convenience, there is a small exception to this rule under Unix: if \a env
+  does not contain any settings for the environment variable \c
+  LD_LIBRARY_PATH, then this variable is inherited from the starting process.
+
   Returns TRUE if the process could be started, otherwise FALSE.
 
   You can write data to standard input of the process with
@@ -547,7 +555,7 @@ QProcess::~QProcess()
 
   \sa launch() closeStdin()
 */
-bool QProcess::start()
+bool QProcess::start( QStringList *env )
 {
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start()" );

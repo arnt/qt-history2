@@ -1023,6 +1023,13 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		unregisterClient( (FormWindow*)o );
 	    }
 	    return TRUE;
+	} else if ( o->inherits( "SourceEditor" ) && ( (SourceEditor*)o )->object()->inherits( "SourceFile" ) ) {
+	    if ( !closeEditor( (SourceEditor*)o ) ) {
+		( (QCloseEvent*)e )->ignore();
+	    } else {
+		( (QCloseEvent*)e )->accept();
+	    }		
+	    return TRUE;
 	}
 	break;
     case QEvent::DragEnter:
@@ -1282,6 +1289,16 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
 	if ( hierarchyView->sourceEditor() != w )
 	    hierarchyView->showClasses( (SourceEditor*)w );
+	actionEditor->setFormWindow( 0 );
+	if ( formList && ( (FormWindow*)w )->project() && ( (FormWindow*)w )->project() != currentProject ) {
+	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
+		if ( *it == ( (SourceEditor*)w )->project() ) {
+		    projectSelected( it.key() );
+		    it.key()->setOn( TRUE );
+		    break;
+		}
+	    }
+	}
     } else {
 	actionSearchFind->setEnabled( FALSE );
 	actionSearchIncremetal->setEnabled( FALSE );
@@ -2152,6 +2169,30 @@ bool MainWindow::closeForm( FormWindow *fw )
 
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
 	(*it)->formClosed( fw );
+
+    return TRUE;
+}
+
+bool MainWindow::closeEditor( SourceEditor *se )
+{
+    bool modified = FALSE;
+    modified = se->isModified();
+    QString fn = ( (SourceFile*)se->object() )->fileName();
+    if ( modified ) {
+	switch ( QMessageBox::warning( this, tr( "Save Code" ),
+				       tr( "Save changes to '%1'?" ).arg( fn ),
+				       tr( "&Yes" ), tr( "&No" ), tr( "&Cancel" ), 0, 2 ) ) {
+	case 0: // save
+	    ( (SourceFile*)se->object() )->save();
+	    break;
+	case 1: // don't save
+	    break;
+	case 2: // cancel
+	    return FALSE;
+	default:
+	    break;
+	}
+    }
 
     return TRUE;
 }

@@ -67,9 +67,9 @@ public:
     virtual void setWorkingDirectory( const QDir& dir );
 #endif
     // control the execution
-    virtual bool start();
-    virtual bool launch( const QString& buf );
-    virtual bool launch( const QByteArray& buf );
+    virtual bool start( QStringList *env=0 );
+    virtual bool launch( const QString& buf, QStringList *env=0  );
+    virtual bool launch( const QByteArray& buf, QStringList *env=0  );
     void hangUp() const;
     void kill() const;
 

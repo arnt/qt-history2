@@ -267,21 +267,22 @@
 #include <qworkspace.h>
 #include <qxml.h>
 #include <qlocalfs.h>
+#include <qgridview.h>
 
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <limits.h>
-#include "../kernel/qlayoutengine_p.h"
-#include "../widgets/qeffects_p.h"
-#include "../kernel/qfontdata_p.h"
-#include "../kernel/qinternal_p.h"
-#include "../kernel/qcomplextext_p.h"
-#include "../sql/qsqlmanager_p.h"
-#include "../xml/qsvgdevice_p.h"
-#include "../codecs/qfontcodecs_p.h"
-#include "../kernel/qpsprinter_p.h"
-#include "../widgets/qtitlebar_p.h"
-#include "../kernel/qrichtext_p.h"
-#include "../widgets/qwidgetresizehandler_p.h"
+#include "../src/kernel/qlayoutengine_p.h"
+#include "../src/widgets/qeffects_p.h"
+#include "../src/kernel/qfontdata_p.h"
+#include "../src/kernel/qinternal_p.h"
+#include "../src/kernel/qcomplextext_p.h"
+#include "../src/sql/qsqlmanager_p.h"
+#include "../src/xml/qsvgdevice_p.h"
+#include "../src/codecs/qfontcodecs_p.h"
+#include "../src/kernel/qpsprinter_p.h"
+#include "../src/widgets/qtitlebar_p.h"
+#include "../src/kernel/qrichtext_p.h"
+#include "../src/widgets/qwidgetresizehandler_p.h"
 #endif // Private headers
 
 

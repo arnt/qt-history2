@@ -464,8 +464,7 @@ private:
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 : QSqlResult(db),
   cols(0),
-  cached(FALSE),
-  forwardOnly(FALSE)
+  cached(FALSE)
 {
     d = new QOCIPrivate();
     (*d) = (*p);
@@ -697,7 +696,7 @@ bool QOCIResult::cacheNext()
 	    } else {
 		v = QVariant( cols->value( i ) );
 	    }
-	    if ( forwardOnly ) {
+	    if ( isForwardOnly() ) {
 		fs.setValue( i, v );
 		fs.field( i )->setNull( cols->isNull(i) );
 	    } else {
@@ -716,7 +715,7 @@ bool QOCIResult::cacheNext()
 
 bool QOCIResult::fetchNext()
 {
-    if ( !forwardOnly && rowCache.contains( at() + 1 ) ) {
+    if ( !isForwardOnly() && rowCache.contains( at() + 1 ) ) {
 	setAt( at() + 1 );
 	return TRUE;
     }
@@ -729,11 +728,11 @@ bool QOCIResult::fetchNext()
 
 bool QOCIResult::fetch( int i )
 {
-    if ( !forwardOnly && rowCache.contains( i ) ) {
+    if ( !isForwardOnly() && rowCache.contains( i ) ) {
 	setAt( i );
 	return TRUE;
     }
-    if ( forwardOnly && at() > i )
+    if ( isForwardOnly() && at() > i )
 	return FALSE;
     setAt( rowCache.size() - 1 );
     while ( at() < i ) {
@@ -749,9 +748,9 @@ bool QOCIResult::fetch( int i )
 
 bool QOCIResult::fetchFirst()
 {
-    if ( forwardOnly && at() != QSql::BeforeFirst )
+    if ( isForwardOnly() && at() != QSql::BeforeFirst )
 	return FALSE;
-    if ( !forwardOnly && rowCache.contains( 0 ) ) {
+    if ( !isForwardOnly() && rowCache.contains( 0 ) ) {
 	setAt( 0 );
 	return TRUE;
     }
@@ -764,14 +763,14 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    if ( !forwardOnly && at() == QSql::AfterLast && rowCache.count() > 0 ) {
+    if ( !isForwardOnly() && at() == QSql::AfterLast && rowCache.count() > 0 ) {
 	setAt( rowCache.count() - 1 );
 	return TRUE;
     }
     if ( at() >= QSql::BeforeFirst ) {
 	while ( fetchNext() )
 	    ; /* brute force */
-	if ( forwardOnly && at() == QSql::AfterLast ) {
+	if ( isForwardOnly() && at() == QSql::AfterLast ) {
 	    setAt( at() - 1 );
 	    return TRUE;
 	} else
@@ -782,7 +781,7 @@ bool QOCIResult::fetchLast()
 
 QVariant QOCIResult::data( int field )
 {
-    if ( forwardOnly )
+    if ( isForwardOnly() )
 	return fs.value( field );
     else
 	return rowCache[at()][field].value();
@@ -790,7 +789,7 @@ QVariant QOCIResult::data( int field )
 
 bool QOCIResult::isNull( int field )
 {
-    if ( forwardOnly )
+    if ( isForwardOnly() )
 	return fs.field( field )->isNull();
     else
 	return rowCache[at()][field].isNull();

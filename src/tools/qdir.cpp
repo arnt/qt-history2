@@ -209,7 +209,7 @@ QDir::QDir( const QString &path, const QString &nameFilter,
 }
 
 /*!
-  Constructs a QDir that is a copy of the given directory.
+  Constructs a QDir that is a copy of the directory \a d.
   \sa operator=()
 */
 
@@ -251,9 +251,9 @@ QDir::~QDir()
 
 
 /*!
-  Sets the path of the directory. The path is cleaned of redundant ".",
-  ".." and of multiple separators. No check is made to ensure that a
-  directory with this path exists.
+  Sets the path of the directory to \a path. The path is cleaned of
+  redundant ".", ".." and of multiple separators. No check is made to
+  ensure that a directory with this path exists.
 
   The path can be either absolute or relative. Absolute paths begin with
   the directory separator "/" or a drive specification (except under
@@ -476,9 +476,10 @@ bool QDir::cdUp()
 */
 
 /*!
-  Sets the name filter used by entryList() and entryInfoList().
+  Sets the name filter used by entryList() and entryInfoList() to \a
+  nameFilter.
 
-  The name filter is a wildcard (globbing) filter that understands "*"
+  The \a nameFilter is a wildcard (globbing) filter that understands "*"
   and "?" wildcards. (See \link qregexp.html#wildcard-matching QRegExp
   wildcard matching.\endlink) You may specify several filter entries all
   separated by a single space " " or by a semi-colon ";". 
@@ -512,17 +513,22 @@ void QDir::setNameFilter( const QString &nameFilter )
 
   \value Dirs  List directories only.
   \value Files  List files only.
-
   \value  Drives  List disk drives (ignored under Unix).
   \value  NoSymLinks  Do not list symbolic links (ignored by operating
   systems that don't support symbolic links).
+  \value All List directories, files, drives and symlinks.
+  \value TypeMask A mask for the the Dirs, Files, Drives and
+  NoSymLinks flags.
   \value  Readable  List files for which the application has read access.
   \value  Writable  List files for which the application has write access.
   \value  Executable  List files for which the application has execute access.
+  \value RWEMask A mask for the Readable, Writable and Executable flags.
   \value  Modified  Only list files that have been modified (ignored
   under Unix).
   \value  Hidden  List hidden files (on Unix, files starting with a .).
   \value  System  List system files (ignored under Unix).
+  \value AccessMask A mask for the Readable, Writable, Executable Modified, Hidden and System flags
+  \value DefaultFilter Internal flag.
 
   If you do not set any of \c Readable, \c Writable or \c Executable,
   QDir will set all three of them.  This makes the default easy to
@@ -536,9 +542,10 @@ void QDir::setNameFilter( const QString &nameFilter )
 
 
 /*!
-  Sets the filter used by entryList() and entryInfoList(). The filter is
-  used to specify the kind of files that should be returned by
-  entryList() and entryInfoList(). See \l{QDir::FilterSpec}.
+  Sets the filter used by entryList() and entryInfoList() to \a
+  filterSpec. The filter is used to specify the kind of files that
+  should be returned by entryList() and entryInfoList(). See
+  \l{QDir::FilterSpec}.
 
   \sa filter(), setNameFilter()
 */
@@ -569,10 +576,12 @@ void QDir::setFilter( int filterSpec )
   \value Time  Sort by time (modification time).
   \value Size  Sort by file size.
   \value Unsorted  Do not sort.
+  \value SortByMask A mask for Name, Time and Size.
 
   \value DirsFirst  Put the directories first, then the files.
   \value Reversed  Reverse the sort order.
   \value IgnoreCase  Sort case-insensitively.
+  \value DefaultSort Internal flag.
 
   You can only specify one of the first four.  
   
@@ -676,6 +685,7 @@ QStrList QDir::encodedEntryList( int filterSpec, int sortSpec ) const
 
 /*!
     \obsolete
+    \overload
   This function is included to easy porting from Qt 1.x to Qt 2.0,
   it is the same as entryList(), but encodes the filenames as 8-bit
   strings using QFile::encodedName().
@@ -865,6 +875,7 @@ QDir &QDir::operator=( const QDir &d )
 }
 
 /*!
+    \overload
   Sets the directory path to be the given \a path.
 */
 
@@ -938,12 +949,12 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 }
 
 /*!
-  Checks for existence of a file.
+  Checks for existence of the file \a name.
 
   If \a acceptAbsPath is TRUE a path starting with separator "/" will
   check the file with the absolute path. If \a
   acceptAbsPath is FALSE any number of separators at the beginning of \a
-  fileName will be removed and the resultant file name will be checked.
+  file will be removed and the resultant file name will be checked.
 
   Returns TRUE if the file exists; otherwise returns FALSE.
 
@@ -1100,7 +1111,7 @@ bool QDir::match( const QString &filter, const QString &fileName )
 
 /*!
   Removes all multiple directory separators "/" and resolves
-  any "."s or ".."s found in the path.
+  any "."s or ".."s found in the path, \a filePath.
 
   Symbolic links are kept.  This function does not return the
   canonical path, but rather the most simplified version of the input.

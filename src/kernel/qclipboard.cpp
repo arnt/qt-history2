@@ -160,6 +160,7 @@ QString QClipboard::text(QCString& subtype) const
 }
 
 /*!
+    \overload
   Returns the clipboard text as plain text, or a null string if the
   clipboard does not contain any text.
 

@@ -212,6 +212,7 @@ void QProcess::addArgument( const QString& arg )
 {
     _arguments.append( arg );
 }
+
 #ifndef QT_NO_DIR
 /*!
   Returns the working directory that was set with setWorkingDirectory().
@@ -437,6 +438,14 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
   command is searched in the path for executable programs; you can also use an
   absolute path to the command.
 
+  If \a env is null, then the process is started with the same environment as
+  the starting process. If \a env is non-null, then the values in the
+  stringlist are interpreted as environment setttings of the form \c
+  {key=value} and the process is started in these environment settings. For
+  convenience, there is a small exception to this rule under Unix: if \a env
+  does not contain any settings for the environment variable \c
+  LD_LIBRARY_PATH, then this variable is inherited from the starting process.
+
   Returns TRUE if the process could be started, otherwise FALSE.
 
   Notice that you should not use the slots writeToStdin() and closeStdin() on
@@ -460,7 +469,7 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
 
   \sa start() launchFinished();
 */
-bool QProcess::launch( const QByteArray& buf )
+bool QProcess::launch( const QByteArray& buf, QStringList *env )
 {
     if ( start() ) {
 	if ( !buf.isEmpty() ) {
@@ -483,7 +492,7 @@ bool QProcess::launch( const QByteArray& buf )
   The data \a buf is written to standard input with writeToStdin(): so this
   function writes the QString::local8Bit() representation of the string.
 */
-bool QProcess::launch( const QString& buf )
+bool QProcess::launch( const QString& buf, QStringList *env )
 {
     if ( start() ) {
 	if ( !buf.isEmpty() ) {

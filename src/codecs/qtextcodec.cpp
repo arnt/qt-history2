@@ -278,7 +278,8 @@ QTextCodec::~QTextCodec()
 
 /*!
   Returns a value indicating how likely this decoder is
-  for decoding some format that has the given name.
+  for decoding some format that has the given name. The name is
+  compared with the \a hint.
 
   A good match returns a positive number around
   the length of the string.  A bad match is negative.
@@ -324,6 +325,8 @@ static QString lettersAndNumbers( const char * input )
   A simple utility function for heuristicNameMatch() - it
   does some very minor character-skipping
   so that almost-exact matches score high.
+  \a name is the text we're matching and \a hint is used for the
+  comparison.
 */
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
@@ -561,13 +564,11 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 static QTextCodec * localeMapper = 0;
 
 /*!
-  Allows you to set the codec that will be returned by \sa codecForLocale.
-  This might be needed for some applications, that want to use their own mechanism
-  for setting the locale.
+  Set the codec to \a c; this will be returned by \sa codecForLocale.
+  This might be needed for some applications, that want to use their
+  own mechanism for setting the locale.
 */
-void QTextCodec::setCodecForLocale(QTextCodec *c)
-{
-    localeMapper = c;
+void QTextCodec::setCodecForLocale(QTextCodec *c) { localeMapper = c;
 }
 
 /*!  Returns a pointer to the codec most suitable for this locale. */
@@ -715,6 +716,9 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
   Note that this is often a poor choice, since character
   encodings often use most of the available character sequences,
   and so only by linguistic analysis could a true match be made.
+
+  \a chars contains the characters to check, and \a len contans the
+  number of characters.
 
   \sa heuristicContentMatch()
 */
@@ -873,6 +877,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
 
 /*!
   \overload
+  \a uc is the unicode source string.
 */
 QCString QTextCodec::fromUnicode(const QString& uc) const
 {
@@ -882,6 +887,8 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 
 /*!
   \overload
+  \a a contains the source characters; \a len contains the number of
+  characters in \a to use.
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
@@ -892,6 +899,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 
 /*!
   \overload
+  \a a contains the source characters. 
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -901,6 +909,8 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 
 /*!
   \overload
+  \a a contains the source characters; \a len contains the number of
+  characters in \a to use.
 */
 QString QTextCodec::toUnicode(const QCString& a, int len) const
 {
@@ -911,6 +921,7 @@ QString QTextCodec::toUnicode(const QCString& a, int len) const
 
 /*!
   \overload
+  \a a contains the source characters. 
 */
 QString QTextCodec::toUnicode(const QCString& a) const
 {
@@ -920,6 +931,7 @@ QString QTextCodec::toUnicode(const QCString& a) const
 
 /*!
   \overload
+  \a chars contains the source characters. 
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {
@@ -954,6 +966,7 @@ bool QTextCodec::canEncode( QChar ch ) const
 
 /*!
     \overload
+    \a s contains the string that we are testing for encode-ability.
 */
 bool QTextCodec::canEncode( const QString& s ) const
 {

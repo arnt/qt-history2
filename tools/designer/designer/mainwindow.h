@@ -297,6 +297,7 @@ private:
     void setupRMBSpecialCommands( QValueList<int> &ids, QMap<QString, int> &commands, FormWindow *w );
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *w );
     bool closeForm( FormWindow *fw );
+    bool closeEditor( SourceEditor *se );
 
     bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();

@@ -95,7 +95,7 @@
   \endcode
 
   The dictionary in our example maps \c int* keys to \c char* items.
-  QPtrDict implements the \link operator[] [] operator\endlink to look up
+  QPtrDict implements operator[] to look up
   an item.
 
   QPtrDict is implemented by QGDict as a hash array with a fixed number of

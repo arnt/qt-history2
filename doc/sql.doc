@@ -831,7 +831,7 @@ widgets with data from the database via the cursor's buffer.
 \target Displaying_a_Record_in_a_DataForm
 \section3 Displaying a Record in a Data Form
 
-\l QDataForm is a Widget that can hold a read-only \l QSqlForm. In
+\l QDataView is a Widget that can hold a read-only \l QSqlForm. In
 addition to \l QSqlForm it offers the slot refresh ( \l QSqlRecord * ) so it
 can easily be linked together with a \l QDataTable to display a detailled
 view of a record:

@@ -460,9 +460,9 @@ int QGLFormat::plane() const
 }
 
 /*!
-  Sets the requested plane. 0 is the normal plane, 1 is the first
-  overlay plane, 2 is the second overlay plane, etc.; -1, -2,
-  etc. are underlay planes.
+  Sets the requested plane to \a plane. 0 is the normal plane, 1 is
+  the first overlay plane, 2 is the second overlay plane, etc.; -1,
+  -2, etc. are underlay planes.
 
   Note that in contrast to other format specifications, the plane
   specifications will be matched exactly. This means that if you specify
@@ -549,7 +549,7 @@ QGLFormat QGLFormat::defaultFormat()
 }
 
 /*!
-  Sets a new default QGLFormat for the application.
+  Sets a new default QGLFormat for the application to \a f.
   For example, to set single buffering as the default instead
   of double buffering, your main() can contain code like this:
   \code
@@ -604,9 +604,9 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 }
 
 /*!
-  Sets a new default QGLFormat for overlay contexts. This format is
-  used whenever a QGLWidget is created with a format that hasOverlay()
-  enabled.
+  Sets a new default QGLFormat for overlay contexts to \a f. This
+  format is used whenever a QGLWidget is created with a format that
+  hasOverlay() enabled.
 
   For example, to get a double buffered overlay context (if
   available), use code like this:
@@ -1859,7 +1859,7 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 /*!
   \fn void QGLWidget::setColormap( const QGLColormap & cmap )
   
-  Set the colormap for this widget.
+  Set the colormap for this widget to \a cmap.
   Usually it is only top-level widgets that can have colormaps installed.
     
   \sa colormap()

@@ -267,3 +267,8 @@ QString SourceEditor::text() const
 {
     return iFace->text();
 }
+
+bool SourceEditor::isModified() const
+{
+    return iFace->isModified();
+}

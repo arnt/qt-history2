@@ -100,8 +100,8 @@
 */
 
 /*! \fn QPair::QPair( const T1& t1, const T2& t2 )
-	Constructs a pair and initializes the \c first element with t1
-	and the \c second element with t2.
+	Constructs a pair and initializes the \c first element with \a t1
+	and the \c second element with \a t2.
 
 	\sa qMakePair()
 */

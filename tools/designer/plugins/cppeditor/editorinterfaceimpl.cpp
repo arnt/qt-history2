@@ -273,13 +273,17 @@ void EditorInterfaceImpl::setModified( bool m )
     ( (CppEditor*)viewManager->currentView() )->setModified( m );
 }
 
+bool EditorInterfaceImpl::isModified() const
+{
+    if ( !viewManager )
+	return FALSE;
+    return ( (CppEditor*)viewManager->currentView() )->isModified();
+}
+
 bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::ChildRemoved ) {
-	viewManager = 0;
-    } else if ( e->type() == QEvent::KeyPress ) {
+    if ( e->type() == QEvent::KeyPress )
 	updateTimer->stop();
-    }
 
     return QObject::eventFilter( o, e );
 }

@@ -2228,6 +2228,15 @@ QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
 	ts << ",";
     }
     ts << endl;
+    for ( dw = l.first(); dw; dw = l.next() ) {
+	ts << "[" << dw->caption() << ","
+	   << (int)dw->geometry().x() << ","
+	   << (int)dw->geometry().y() << ","
+	   << (int)dw->geometry().width() << ","
+	   << (int)dw->geometry().height() << ","
+	   << (int)dw->isVisible() << "]";
+    }
+    ts << endl;
 
     saveDockArea( ts, mainWindow.topDock() );
     saveDockArea( ts, mainWindow.bottomDock() );
@@ -2246,8 +2255,59 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 	    }
 	}
     }
-    if ( a )
+    if ( a ) {
 	ts >> *a;
+    } else if ( d == Qt::TornOff ) {
+	QString s = ts.readLine();
+	enum State { Pre, Name, X, Y, Width, Height, Visible, Post };
+	int state = Pre;
+	QString name, x, y, w, h, visible;
+	QChar c;
+	for ( int i = 0; i < (int)s.length(); ++i ) {
+	    c = s[ i ];
+	    if ( state == Pre && c == '[' ) {
+		state++;
+		continue;
+	    }
+	    if ( c == ',' &&
+		 ( state == Name || state == X || state == Y || state == Width || state == Height ) ) {
+		state++;
+		continue;
+	    }
+	    if ( state == Visible && c == ']' ) {
+		for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
+		    if ( QString( dw->caption() ) == name ) {
+			if ( !dw->inherits( "QToolBar" ) )
+			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
+			else
+			    dw->setGeometry( x.toInt(), y.toInt(), dw->width(), dw->height() );
+			if ( !(bool)visible.toInt() )
+			    dw->hide();
+			else
+			    dw->show();
+			break;
+		    }
+		}
+
+		name = x = y = w = h = visible = "";
+
+		state = Pre;
+		continue;
+	    }
+	    if ( state == Name )
+		name += c;
+	    else if ( state == X )
+		x += c;
+	    else if ( state == Y )
+		y += c;
+	    else if ( state == Width )
+		w += c;
+	    else if ( state == Height )
+		h += c;
+	    else if ( state == Visible )
+		visible += c;
+	}
+    }
 }
 
 /*!

@@ -211,7 +211,7 @@ QAccel::QAccel( QWidget *parent, const char *name )
 
 /*!
   Constructs a QAccel object that operates on \a watch, but is a child of
-  \a parent.
+  \a parent. The object is called \a name.
 
   This constructor is not needed for normal application programming.
 */
@@ -420,8 +420,9 @@ bool QAccel::connectItem( int id, const QObject *receiver, const char *member )
 }
 
 /*!
-  Disconnects an accelerator item from a function in another
-  object.
+  Disconnects an accelerator item with id \a id from the function
+  called \a member in the \a receiver object.
+
   \sa connectItem()
 */
 
@@ -460,6 +461,7 @@ void QAccel::repairEventFilter()
 
 /*!
   Processes accelerator events intended for the top level widget.
+  \a e is the event that occurred on object \a o.
 */
 
 bool QAccel::eventFilter( QObject *o, QEvent *e )

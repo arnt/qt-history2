@@ -51,8 +51,6 @@ class QTDSResult : public QSqlResult
 public:
     QTDSResult( const QTDSDriver* db, const QTDSPrivate* p );
     ~QTDSResult();
-    bool        isForwardOnly() const { return forwardOnly; }
-    void        setForwardOnly( bool forward ) { forwardOnly = forward; }
 protected:
     void		cleanup();
     bool		fetch( int i );
@@ -68,7 +66,6 @@ private:
     QTDSPrivate*	    d;
     QSqlClientResultSet*    set;
     QSqlClientResultBuffer* buf;
-    bool		    forwardOnly;
     bool		    cacheNext();
 };
 

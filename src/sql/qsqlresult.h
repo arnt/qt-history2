@@ -75,12 +75,15 @@ protected:
     bool            isValid() const;
     bool            isActive() const;
     bool            isSelect() const;
+    bool            isForwardOnly() const;
     const QSqlDriver* driver() const;
     virtual void    setAt( int at );
     virtual void    setActive( bool a );
     virtual void    setLastError( const QSqlError& e );
     virtual void    setQuery( const QString& query );
     virtual void    setSelect( bool s );
+    virtual void    setForwardOnly( bool forward );
+
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
@@ -93,6 +96,8 @@ protected:
     virtual int     numRowsAffected() = 0;
 private:
     QSqlResultPrivate* d;
+    bool forwardOnly;
+
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

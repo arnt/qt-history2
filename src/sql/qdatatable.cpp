@@ -164,6 +164,13 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
     then navigates. (Note that setAutoDelete() is unrelated; it is used
     to set whether the QSqlCursor is deleted when the table is deleted.)
 
+  Since the data table can perform edits, it must be able to uniquely
+  identify every record so that edits are correctly applied. Because
+  of this the underlying cursor must have a valid primary index to
+  ensure that a unique record is inserted, updated or deleted within
+  the database otherwise the database may be changed to an
+  inconsistent state.
+  
   QDataTable creates editors using the default \l QSqlEditorFactory.
   Different editor factories can be used by calling
   installEditorFactory(). A property map is used to map between the
@@ -907,6 +914,10 @@ QWidget* QDataTable::beginUpdate ( int row, int col, bool replace )
   to confirm the insert. Returns TRUE if the insert succeeded,
   otherwise returns FALSE.
 
+  The underlying cursor must have a valid primary index to ensure that a
+  unique record is inserted within the database otherwise the database
+  may be changed to an inconsistent state.
+
 */
 
 bool QDataTable::insertCurrent()
@@ -1645,6 +1656,33 @@ void QDataTable::setSize( QSqlCursor* sql )
     }
 }
 
+/*!
+    \fn virtual void QDataTable::setSqlCursor( QSqlCursor* cursor = 0, bool autoPopulate = FALSE, bool autoDelete = FALSE )
+
+    This is an alias for setCursor(); it is only required if you have
+    a conflict with the QWidget::setCursor() function.
+
+*/
+
+/*!
+    \fn virtual void QDataTable::setSqlCursor( QSqlCursor* cursor )
+    \overload
+    This is an alias for setCursor(); it is only required if you have
+    a conflict with the QWidget::setCursor() function.
+
+*/
+
+/*!
+    \fn void QDataTable::setCursor( QSqlCursor* cursor )
+    \overload
+
+    Sets \a cursor as the data source for the table.
+    Does not automatically create columns based on the fields
+    (autoPopulate is FALSE). The data table does not take ownership of
+    the cursor (autoDelete is FALSE).
+
+*/
+
 /*!  Sets \a cursor as the data source for the table.  To force the
   display of the data from \a cursor, use refresh(). If \a
   autoPopulate is TRUE, columns are automatically created based upon
@@ -1837,7 +1875,9 @@ void QDataTable::sortDescending( int col )
     sortColumn( col, FALSE );
 }
 
-/*! Refreshes the table.  If there is no currently defined cursor (see
+/*! 
+    \overload
+    Refreshes the table.  If there is no currently defined cursor (see
   setCursor()), nothing happens. The \a mode parameter determines which
   type of refresh will take place.
 

@@ -120,9 +120,9 @@ QString QDir::canonicalPath() const
 /*!
   Creates a directory.
 
-  If \e acceptAbsPath is TRUE a path starting with a separator ('/')
-  will create the absolute directory, if \e acceptAbsPath is FALSE
-  any number of separators at the beginning of \e dirName will be removed.
+  If \a acceptAbsPath is TRUE a path starting with a separator ('/')
+  will create the absolute directory, if \a acceptAbsPath is FALSE
+  any number of separators at the beginning of \a dirName will be removed.
 
   Returns TRUE if successful, otherwise FALSE.
 
@@ -141,9 +141,9 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 /*!
   Removes a directory.
 
-  If \e acceptAbsPath is TRUE a path starting with a separator ('/')
-  will remove the absolute directory, if \e acceptAbsPath is FALSE
-  any number of separators at the beginning of \e dirName will be removed.
+  If \a acceptAbsPath is TRUE a path starting with a separator ('/')
+  will remove the absolute directory, if \a acceptAbsPath is FALSE
+  any number of separators at the beginning of \a dirName will be removed.
 
   The directory must be empty for rmdir() to succeed.
 
@@ -207,11 +207,11 @@ bool QDir::isRoot() const
 /*!
   Renames a file.
 
-  If \e acceptAbsPaths is TRUE a path starting with a separator ('/')
-  will rename the file with the absolute path, if \e acceptAbsPath is FALSE
-  any number of separators at the beginning of \e name will be removed.
+  If \a acceptAbsPaths is TRUE a path starting with a separator ('/')
+  will rename the file with the absolute path, if \a acceptAbsPaths is FALSE
+  any number of separators at the beginning of the names will be removed.
 
-  Returns TRUE if successful, otherwise FALSE.
+  Returns TRUE if successful; otherwise returns FALSE.
 
   On most file systems, rename() fails only if \a oldName does not exist
   or if \a newName and \a oldName are not on the same partition, but
@@ -308,7 +308,7 @@ QString QDir::rootDirPath()
 }
 
 /*!
-  Returns TRUE if the path is relative, FALSE if it is absolute.
+  Returns TRUE if \a path is relative; returns FALSE if it is absolute.
   \sa isRelative()
 */
 

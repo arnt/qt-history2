@@ -77,6 +77,7 @@ struct EditorInterface : public QUnknownInterface
     virtual void clearStep() = 0;
     virtual void readSettings() = 0;
     virtual void setModified( bool m ) = 0;
+    virtual bool isModified() const = 0;
     virtual int numLines() const = 0;
     virtual void breakPoints( QValueList<int> &l ) const = 0;
     virtual void setBreakPoints( const QValueList<int> &l ) = 0;

@@ -304,9 +304,9 @@ void QDialog::hideDefault()
 */
 
 /*!
-  \fn void  QDialog::setResult( int )
+  \fn void  QDialog::setResult( int i )
 
-  Sets the modal dialog's result code.
+  Sets the modal dialog's result code to \a i.
 */
 
 

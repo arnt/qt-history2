@@ -184,7 +184,9 @@ void QSqlForm::insert( QWidget * widget, const QString& field )
     d->fld += field;
 }
 
-/*!  Removes \a field from the form.
+/*!  
+    \overload
+    Removes \a field from the form.
 
 */
 

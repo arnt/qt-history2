@@ -289,6 +289,7 @@
 
 /*!
   \fn bool QPtrList::remove()
+  \overload
   Removes the current list item.
 
   Returns TRUE if successful, or FALSE if the current item is null.
@@ -310,6 +311,7 @@
 
 /*!
   \fn bool QPtrList::remove( const type *item )
+  \overload
   Removes the first occurrence of \a item from the list.
 
   Returns TRUE if successful, or FALSE if the item could not be found in the
@@ -444,6 +446,7 @@
 
 /*!
   \fn type *QPtrList::take()
+  \overload
   Takes the current item out of the list without deleting it (even if
   \link setAutoDelete() auto-deletion\endlink is enabled).
   Returns a pointer to the item taken out of the list, or null if
@@ -600,6 +603,7 @@
 
 /*!
   \fn int QPtrList::at() const
+  \overload
   Returns the index of the current list item.  The returned value is -1
   if the current item is null.
   \sa current()
@@ -1034,7 +1038,7 @@ case-insensitive compare.
   \i nonzero if \a item1 != \a item2
   \endlist
 
-  This function returns \a int rather than \a bool so that
+  This function returns \e int rather than \e bool so that
   reimplementations can return three values and use it to sort by:
 
   \list
@@ -1067,8 +1071,8 @@ case-insensitive compare.
   \fn QDataStream& QPtrList::write( QDataStream& s,
 				    QPtrCollection::Item item ) const
 
-  Writes a list item to the stream \a s and returns a reference to the
-  stream.
+  Writes a list item, \a item to the stream \a s and returns a
+  reference to the stream.
 
   The default implementation does nothing.
 

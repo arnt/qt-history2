@@ -71,7 +71,8 @@ static int dummy_lastop = 0;
 
 /*!
   \fn QLinuxFbScreen::QLinuxFbScreen( int display_id )
-  Constructs a QLinuxFbScreen.
+  Constructs a QLinuxFbScreen; passes \a display_id to the QScreen
+  constructor.
 */
 
 QLinuxFbScreen::QLinuxFbScreen( int display_id ) : QScreen( display_id )
@@ -89,11 +90,11 @@ QLinuxFbScreen::~QLinuxFbScreen()
 }
 
 /*!
-  \fn bool QLinuxFbScreen::connect( const QString &displaySpec )
   This is called by Qt/Embedded clients to map in the framebuffer.
   It should be reimplemented by accelerated drivers to map in graphics
   card registers; those drivers should then call this method in order to set 
-  up offscreen memory management.
+  up offscreen memory management. The device is specified in \a
+  displaySpec, e.g. "/dev/fb".
 */
 
 bool QLinuxFbScreen::connect( const QString &displaySpec )
@@ -563,7 +564,7 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
   preserve the memory pool's integrity, so cache and uncache should not
   be called if the screen is locked.
 
-  \amount is the amount of memory to allocate, \a optim gives the optimization
+  \a amount is the amount of memory to allocate, \a optim gives the optimization
   level (same values as QPixmap::Optimization).
 */
 
@@ -682,9 +683,8 @@ void QLinuxFbScreen::shutdownDevice()
 }
 
 /*!
-\fn void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
-In paletted graphics modes, this sets color index i to the specified RGB
-value.
+In paletted graphics modes, this sets color index \a i to the specified RGB
+value, (\a r, \a g, \a b).
 */
 
 void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
@@ -713,12 +713,12 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 }
 
 /*!
-\fn void QLinuxFbScreen::setMode(int nw,int nh,int nd)
-Sets the framebuffer to a new resolution and bit depth. After doing this
-any currently-existing gfx's will be invalid and the screen should be
-completely redrawn. In a multiple-process Embedded Qt situation you will
-need to signal all other applications to also setMode() to the same mode
-and redraw.
+Sets the framebuffer to a new resolution and bit depth. The width is
+in \a nw, the height is in \a nh, and the depth is \a nd. After doing
+this any currently-existing gfx's will be invalid and the screen
+should be completely redrawn. In a multiple-process Embedded Qt
+situation you will need to signal all other applications to call
+setMode() to the same mode and redraw.
 */
 
 void QLinuxFbScreen::setMode(int nw,int nh,int nd)

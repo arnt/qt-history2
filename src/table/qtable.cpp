@@ -4748,7 +4748,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 }
 
 /*! This event handler is called when a drag activity leaves \e this
-  QTable object.
+  QTable object with event \a e.
 */
 
 void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )

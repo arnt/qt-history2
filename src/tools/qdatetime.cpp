@@ -500,7 +500,10 @@ QString QDate::longDayName( int weekday )
 #endif //QT_NO_TEXTDATE
 
 #if !defined(QT_NO_SPRINTF)
-/*!  Returns the date as a string.  The \a f parameter determines the
+/*!  
+    \overload
+
+    Returns the date as a string.  The \a f parameter determines the
   format of the string.
 
   If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using
@@ -832,6 +835,8 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 }
 
 /*!
+    \overload
+
   Returns TRUE if the specified date (year \a y, month \a m and day \a
   d) is valid.
 
@@ -1054,7 +1059,9 @@ int QTime::msec() const
 
 
 #ifndef QT_NO_SPRINTF
-/*!  Returns the time as a string.  Milliseconds are not included.
+/*!  
+    \overload
+    Returns the time as a string.  Milliseconds are not included.
   The \a f parameter determines the format of the string.
 
   If \a f is Qt::TextDate, the string format is HH:MM:SS; e.g., 1
@@ -1377,6 +1384,7 @@ bool QTime::currentTime( QTime *ct )
 }
 
 /*!
+    \overload
   Returns TRUE if the specified time is valid, otherwise FALSE.
 
   The time is valid if \a h is in the range 0-23, \a m and \a s are in
@@ -1622,7 +1630,10 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 }
 
 #ifndef QT_NO_SPRINTF
-/*!  Returns the datetime as a string.  The \a f parameter determines
+/*!  
+    \overload
+
+    Returns the datetime as a string.  The \a f parameter determines
   the format of the string.
 
   If \a f is Qt::TextDate, the string format is "Wed May 20 03:40:13
@@ -2016,7 +2027,7 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
 
 /*!
   \relates QTime
-  Writes a time to the stream.
+  Writes time \a t to the stream \a s.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

@@ -430,6 +430,7 @@ void QDragObject::dragLink()
 
 
 /*!
+    \overload
   Starts a drag operation using the contents of this object.
 
   At this point, the object becomes owned by Qt, not the
@@ -1009,7 +1010,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 */
 
 /*!
-  Constructs a QStoredDrag.  The parameters are passed
+  Constructs a QStoredDrag.  The \a dragSource and \a name are passed
   to the QDragObject constructor, and the format is set to \a mimeType.
 
   The data will be unset.  Use setEncodedData() to set it.
@@ -1057,7 +1058,7 @@ void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 }
 
 /*!
-  Returns the stored data.
+  Returns the stored data. \a m contains the data's format.
 
   \sa setEncodedData()
 */
@@ -1101,6 +1102,7 @@ QUriDrag::QUriDrag( QStrList uris,
 /*!
   Constructs a object to drag.  You will need to call
   setUris() before you start the drag().
+  Passes \a dragSource and \a name to the QStoredDrag constructor.
 */
 QUriDrag::QUriDrag( QWidget * dragSource, const char * name ) :
     QStoredDrag( "text/uri-list", dragSource, name )
@@ -1430,6 +1432,7 @@ QWidget* QDropEvent::source() const
 
 /*!
   Constructs a color drag object with the color \a col.
+    Passes \a dragSource and \a name to the QStoredDrag constructor.
 */
 
 QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
@@ -1440,6 +1443,7 @@ QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name
 
 /*!
   Constructs a color drag object with a white color
+    Passes \a dragSource and \a name to the QStoredDrag constructor.
 */
 
 QColorDrag::QColorDrag( QWidget *dragsource, const char *name )

@@ -276,6 +276,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 }
 
 /*!
+    \overload
   Returns the index of the screen that contains \a point, or -1 if no
   screen contains the point.
 

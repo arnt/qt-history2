@@ -169,8 +169,8 @@
   \fn QDataStream& QPtrStack::write( QDataStream& s,
 				     QPtrCollection::Item item ) const
 
-  Writes a stack item to the stream \a s and returns a reference to the
-  stream.
+  Writes a stack item, \a item, to the stream \a s and returns a
+  reference to the stream.
 
   The default implementation does nothing.
 

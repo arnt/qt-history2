@@ -439,6 +439,8 @@ QPoint QCursor::pos()
     return QPoint( root_x, root_y );
 }
 
+/*! \internal
+*/
 int QCursor::x11Screen()
 {
     Window root;

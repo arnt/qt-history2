@@ -354,17 +354,18 @@ QImageDecoder::~QImageDecoder()
   Returns the image currently being decoded.
 */
 
+static bool plugins_loaded = FALSE;
+
 /*!
   Call this function to decode some data into image changes.  The data
-  will be decoded, sending change information to the QImageConsumer of
-  this QImageDecoder until one of the change functions of the consumer
-  returns FALSE.
+  in \a buffer will be decoded, sending change information to the
+  QImageConsumer of this QImageDecoder until one of the change
+  functions of the consumer returns FALSE. The length of the data is
+  given in \a length.
 
   Returns the number of bytes consumed: 0 if consumption is complete,
   and -1 if decoding fails due to invalid data.
 */
-static bool plugins_loaded = FALSE;
-
 int QImageDecoder::decode(const uchar* buffer, int length)
 {
     if (!actual_decoder) {
@@ -547,7 +548,8 @@ QImageFormat::~QImageFormat()
 
   It should decode some or all of the bytes from \a buffer into
   \a img, calling the methods of \a consumer as the decoding proceeds to
-  inform that consumer of changes to the image.
+  inform that consumer of changes to the image. The length of the data is
+  given in \a length.
   The consumer may be 0, in which case the function should just process
   the data into \a img without telling any consumer about the changes.
   Note that the decoder must store enough state
@@ -588,12 +590,12 @@ QImageFormat::~QImageFormat()
   \fn virtual QImageFormat* QImageFormatType::decoderFor(const
 	    uchar* buffer, int length)
 
-  Returns a decoder for decoding an image that starts with the given bytes.
-  This function should only return a decoder if it is certain that the
-  decoder applies to data with the given header.  Returns 0 if there is
-  insufficient data in the header to make a positive identification
-  or if the data is not recognized.
-*/
+  Returns a decoder for decoding an image that starts with the bytes
+  in \a buffer. The length of the data is given in \a length. This
+  function should only return a decoder if it is certain that the
+  decoder applies to data with the given header.  Returns 0 if there
+  is insufficient data in the header to make a positive identification
+  or if the data is not recognized. */
 
 /*!
   \fn virtual const char* QImageFormatType::formatName() const

@@ -52,7 +52,6 @@ SUBDIRS     =	aclock \
 		tictac \
 		tooltip \
 		tux \
-		validator \
 		widgets \
 		wizard \
 		xform

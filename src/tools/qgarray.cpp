@@ -40,6 +40,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined( Q_OS_WIN32 )
+#include <qwinfunctions.h>
+#endif
+
 #define USE_MALLOC				// comment to use new/delete
 
 #undef NEW
@@ -104,7 +108,7 @@ QGArray::QGArray( int, int )
 }
 
 /*!
-  Constructs an array with room for \e size bytes.
+  Constructs an array with room for \a size bytes.
 */
 
 QGArray::QGArray( int size )
@@ -125,7 +129,7 @@ QGArray::QGArray( int size )
 }
 
 /*!
-  Constructs a shallow copy of \e a.
+  Constructs a shallow copy of \a a.
 */
 
 QGArray::QGArray( const QGArray &a )
@@ -152,7 +156,7 @@ QGArray::~QGArray()
 /*!
   \fn QGArray &QGArray::operator=( const QGArray &a )
 
-  Assigns a shallow copy of \e a to this array and returns a reference to
+  Assigns a shallow copy of \a a to this array and returns a reference to
   this array.  Equivalent to assign().
 */
 
@@ -182,7 +186,7 @@ QGArray::~QGArray()
 
 
 /*!
-  Returns TRUE if this array is equal to \e a, otherwise FALSE.
+  Returns TRUE if this array is equal to \a a, otherwise FALSE.
   The comparison is bitwise, of course.
 */
 
@@ -197,7 +201,7 @@ bool QGArray::isEqual( const QGArray &a ) const
 
 
 /*!
-  Resizes the array to \e newsize bytes.
+  Resizes the array to \a newsize bytes.
 */
 
 bool QGArray::resize( uint newsize )
@@ -228,13 +232,13 @@ bool QGArray::resize( uint newsize )
 }
 
 /*!
-  Fills the array with the repeated occurrences of \e d, which is
-  \e sz bytes long.
-  If \e len is specified as different from -1, then the array will be
-  resized to \e len*sz before it is filled.
+  Fills the array with the repeated occurrences of \a d, which is
+  \a sz bytes long.
+  If \a len is specified as different from -1, then the array will be
+  resized to \a len*sz before it is filled.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated
-  (only when \e len != -1).
+  (only when \a len != -1).
 
   \sa resize()
 */
@@ -268,8 +272,9 @@ bool QGArray::fill( const char *d, int len, uint sz )
 }
 
 /*!
+    \overload
   Shallow copy. Dereference the current array and references the data
-  contained in \e a instead. Returns a reference to this array.
+  contained in \a a instead. Returns a reference to this array.
   \sa operator=()
 */
 
@@ -287,10 +292,10 @@ QGArray &QGArray::assign( const QGArray &a )
 
 /*!
   Shallow copy. Dereference the current array and references the
-  array data \e d, which contains \e len bytes.
+  array data \a d, which contains \a len bytes.
   Returns a reference to this array.
 
-  Do not delete \e d later, because QGArray takes care of that.
+  Do not delete \a d later, because QGArray takes care of that.
 */
 
 QGArray &QGArray::assign( const char *d, uint len )
@@ -310,7 +315,7 @@ QGArray &QGArray::assign( const char *d, uint len )
 
 /*!
   Deep copy. Dereference the current array and obtains a copy of the data
-  contained in \e a instead. Returns a reference to this array.
+  contained in \a a instead. Returns a reference to this array.
   \sa assign(), operator=()
 */
 
@@ -356,8 +361,10 @@ QGArray &QGArray::duplicate( const QGArray &a )
 }
 
 /*!
-  Deep copy. Dereferences the current array and obtains a copy of the
-  array data \e d instead.  Returns a reference to this array.
+    \overload
+  Deep copy. Dereferences the current array and obtains a copy of 
+  \a len characters from array data \a d instead.  Returns a reference
+  to this array.
   \sa assign(), operator=()
 */
 
@@ -390,8 +397,8 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 }
 
 /*!
-  Resizes this array to \e len bytes and copies the \e len bytes at
-  address \e into it.
+  Resizes this array to \a len bytes and copies the \a len bytes at
+  address \a d into it.
 
   \warning This function disregards the reference count mechanism.  If
   other QGArrays reference the same data as this, all will be updated.
@@ -419,7 +426,7 @@ void QGArray::store( const char *d, uint len )
 /*!
   \fn void QGArray::setSharedBlock( array_data *p )
 
-  Sets the shared array block to \e p.
+  Sets the shared array block to \a p.
 
   \warning
 
@@ -432,8 +439,8 @@ void QGArray::store( const char *d, uint len )
 /*!
   Sets raw data and returns a reference to the array.
 
-  Dereferences the current array and sets the new array data to \e d and
-  the new array size to \e len.	 Do not attempt to resize or re-assign the
+  Dereferences the current array and sets the new array data to \a d and
+  the new array size to \a len.	 Do not attempt to resize or re-assign the
   array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
@@ -478,8 +485,8 @@ QGArray &QGArray::setRawData( const char *d, uint len )
 /*!
   Resets raw data.
 
-  The arguments must be the data and length that were passed to
-  setRawData().  This is for consistency checking.
+  The arguments must be the data, \a d, and length \a len, that were
+  passed to setRawData().  This is for consistency checking.
 */
 
 void QGArray::resetRawData( const char *d, uint len )
@@ -496,10 +503,10 @@ void QGArray::resetRawData( const char *d, uint len )
 
 
 /*!
-  Finds the first occurrence of \e d in the array from position \e index,
-  where \e sz is the size of the \e d element.
+  Finds the first occurrence of \a d in the array from position \a index,
+  where \a sz is the size of the \a d element.
 
-  Note that \e index is given in units of \e sz, not bytes.
+  Note that \a index is given in units of \a sz, not bytes.
 
   This function only compares whole cells, not bytes.
 */
@@ -559,8 +566,8 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 }
 
 /*!
-  Returns the number of occurrences of \e d in the array, where \e sz is
-  the size of the \e d element.
+  Returns the number of occurrences of \a d in the array, where \a sz is
+  the size of the \a d element.
 
   This function only compares whole cells, not bytes.
 */
@@ -632,7 +639,7 @@ static int cmp_arr( const void *n1, const void *n2 )
 #endif
 
 /*!
-  Sorts the array.
+  Sorts the first \a sz items of the array.
 */
 
 void QGArray::sort( uint sz )
@@ -645,7 +652,7 @@ void QGArray::sort( uint sz )
 }
 
 /*!
-  Binary search; assumes sorted array
+  Binary search; assumes that \a d is a sorted array of size \a sz.
 */
 
 int QGArray::bsearch( const char *d, uint sz ) const
@@ -666,12 +673,12 @@ int QGArray::bsearch( const char *d, uint sz ) const
 /*!
   \fn char *QGArray::at( uint index ) const
 
-  Returns a pointer to the byte at offset \e index in the array.
+  Returns a pointer to the byte at offset \a index in the array.
 */
 
 /*!
   Expand the array if necessary, and copies (the first part of) its
-  contents from the \e index*zx bytes at \e d.
+  contents from the \a index * \a sz bytes at \a d.
 
   Returns TRUE if the operation succeeds, FALSE if it runs out of
   memory.
@@ -717,7 +724,7 @@ QGArray::array_data * QGArray::newData()
 
 
 /*!
-  Deletes the shared array block.
+  Deletes the shared array block, \a p.
 */
 
 void QGArray::deleteData( array_data *p )

@@ -139,6 +139,7 @@ public:
     void setFormWindow( FormWindow *fw, QWidget *w );
     FormWindow *formWindow() const;
     SourceEditor *sourceEditor() const { return editor; }
+    void clear();
 
     void showClasses( SourceEditor *se );
     void updateClassBrowsers();

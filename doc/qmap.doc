@@ -385,7 +385,7 @@
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m )
   \relates QMap
-  Reads the map \m from the stream \s. The types \e Key and \e T must implement
+  Reads the map \a m from the stream \a s. The types \e Key and \e T must implement
   the streaming operator as well.
 */
 
@@ -477,7 +477,7 @@
 /*! \obsolete
   \fn Iterator QMap::insert( const Key& key, const T& value, bool overwrite )
 
-  Use \link QMap::insert( value_type ) insert() \endlink instead.
+  Use QMap::insert() instead.
 
   \sa iterator
 */
@@ -491,6 +491,7 @@
 */
 
 /*! \obsolete
+    \overload
   \fn void QMap::remove( const Key& k )
 
   Use erase() instead.
@@ -614,7 +615,7 @@
 
 /*!
   \fn QMapIterator::QMapIterator( const QMapIterator<K,T>& it )
-  Constructs a copy of the iterator.
+  Constructs a copy of the iterator, \a it.
 */
 
 /*!
@@ -749,12 +750,12 @@
 
 /*!
   \fn QMapConstIterator::QMapConstIterator( const QMapConstIterator<K,T>& it )
-  Constructs a copy of the iterator.
+  Constructs a copy of the iterator, \a it.
 */
 
 /*!
   \fn QMapConstIterator::QMapConstIterator( const QMapIterator<K,T>& it )
-  Constructs a copy of the iterator.
+  Constructs a copy of the iterator, \a it.
 */
 
 /*!

@@ -204,6 +204,7 @@ QRgb QGLColormap::entryRgb( int idx ) const
 }
 
 /*!
+    \overload
   Set cell with index \a idx in the colormap to color \a color.
 */
 void QGLColormap::setEntry( int idx, const QColor & color )

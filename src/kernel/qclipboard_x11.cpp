@@ -913,9 +913,9 @@ QMimeSource* QClipboard::data() const
 }
 
 /*!
-  Sets the clipboard data.  Ownership of the data is transferred to
-  the clipboard. If you want to remove the data either call clear() or
-  call setData() again with new data. 
+  Sets the clipboard data to \a src.  Ownership of the data is
+  transferred to the clipboard. If you want to remove the data either
+  call clear() or call setData() again with new data. 
 
   The QDragObject subclasses are reasonable objects to put into the
   clipboard (but do not try to call QDragObject::drag() on the same

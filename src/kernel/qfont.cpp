@@ -386,7 +386,7 @@ QFont::QFont()
     is also supported.) If the \a family is available from more than one
     foundry and the foundry isn't specified, an arbitrary foundry is
     chosen. If the family isn't available a family will be set using the
-    \link fontmatching font matching\endlink algorithm.
+    \link #fontmatching font matching\endlink algorithm.
 
   \sa Weight, setFamily(), setPointSize(), setWeight(), setItalic(), setStyleHint() QApplication::font()
 */
@@ -458,7 +458,7 @@ QString QFont::family() const
     is also supported.) If the \a family is available from more than one
     foundry and the foundry isn't specified, an arbitrary foundry is
     chosen. If the family isn't available a family will be set using the
-    \link fontmatching font matching\endlink algorithm.
+    \link #fontmatching font matching\endlink algorithm.
 
     \sa family(), setStyleHint(), QFontInfo
 */
@@ -791,7 +791,7 @@ void QFont::setFixedPitch( bool enable )
 
 /*! Returns the StyleStrategy.
 
-    The style strategy affects the \link fontmatching font
+    The style strategy affects the \link #fontmatching font
     matching\endlink algorithm. See \l QFont::StyleStrategy for the list
     of strategies.
 
@@ -805,7 +805,7 @@ QFont::StyleStrategy QFont::styleStrategy() const
 
 /*! Returns the StyleHint.
 
-    The style hint affects the \link fontmatching font
+    The style hint affects the \link #fontmatching font
     matching\endlink algorithm. See \l QFont::StyleHint for the list
     of strategies.
 
@@ -819,7 +819,7 @@ QFont::StyleHint QFont::styleHint() const
 
 /*! \enum QFont::StyleHint
 
-  Style hints are used by the \link fontmatching font matching\endlink
+  Style hints are used by the \link #fontmatching font matching\endlink
   algorithm to find an appropriate default family if a selected font
   family is not available.
 
@@ -843,7 +843,7 @@ QFont::StyleHint QFont::styleHint() const
 
 /*! \enum QFont::StyleStrategy
 
-  The style strategy tells the \link fontmatching font matching\endlink
+  The style strategy tells the \link #fontmatching font matching\endlink
   algorithm what type of fonts should be used to find an appropriate
   default family.
 
@@ -869,7 +869,7 @@ QFont::StyleHint QFont::styleHint() const
 /*! Sets the style hint and strategy to \a hint and \a strategy,
   respectively.
     
-    If these aren't set explicitly the style hint will default to \l
+    If these aren't set explicitly the style hint will default to 
     \c AnyStyle and the style strategy to \c PreferDefault.
   
   Currently Qt under X11 only supports bitmap fonts.

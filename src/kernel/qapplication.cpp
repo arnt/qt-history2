@@ -56,6 +56,10 @@
 #include "qthread.h"
 #endif
 
+#if defined( Q_OS_WIN32 )
+#include <qwinfunctions.h>
+#endif
+
 
 /*!
   \class QApplication qapplication.h
@@ -3375,6 +3379,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   Low-level write access to the application's identification and state
   records are kept in the session manager.
+
+    The property called \a name has its value set to \a value.
 */
 
 /*!
@@ -3383,6 +3389,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   Low-level write access to the application's identification and state
   record are kept in the session manager.
+
+    The property called \a name has its value set to \a value.
 */
 
 /*!
