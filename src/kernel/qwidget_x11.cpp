@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#233 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#232 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#233 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1623,4 +1623,28 @@ int QWidget::metric( int m ) const
 	}
     }
     return val;
+}
+
+
+/*!  Registers \a mimeType as a possible drop type and announces to
+  the system that this widget \e may be able to accept \a mimeType
+  drop.
+  
+  \code
+    registerDropType( "text/plain" );
+    retisterDropType( "image/gif" );
+  \endcode
+*/
+
+void QWidget::registerDropType( const char * mimeType )
+{
+    extern Atom qt_xdnd_aware;
+
+    extern void qt_xdnd_add_type( const char * );
+    qt_xdnd_add_type( mimeType );
+
+    Atom qt_xdnd_version = (Atom)1;
+    XChangeProperty ( dpy, winId(), qt_xdnd_aware, XA_ATOM, 32,
+		      PropModeReplace,
+		      (unsigned char *)&qt_xdnd_version, 1 );
 }

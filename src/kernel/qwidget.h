@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#139 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#140 $
 **
 ** Definition of QWidget class
 **
@@ -211,7 +211,11 @@ public:
   // Misc. functions
 
     QWidget     *focusWidget() const;
+    
+  // drag and drop
 
+    void	 registerDropType( const char * mimeType );
+				  
 public:
     QWidget	*parentWidget() const;
     bool	 testWFlags( WFlags n ) const;

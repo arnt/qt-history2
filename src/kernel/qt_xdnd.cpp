@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#3 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -13,12 +13,15 @@
 #include "qwidget.h"
 #include "qintdict.h"
 #include "qdatetm.h"
+#include "qdict.h"
+
 
 #include <X11/X.h> // for Atom
 #include <X11/Xlib.h> // for XEvent
+#include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#3 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -33,6 +36,12 @@ void qt_handle_xdnd_status( QWidget *, const XEvent * );
 void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 void qt_handle_xdnd_drop( QWidget *, const XEvent * );
 
+// this one's copied into qwid_x11.cpp
+void qt_xdnd_add_type( const char * );
+
+// clean up the shit used.
+static void qt_xdnd_cleanup();
+
 // client messages
 Atom qt_xdnd_enter;
 Atom qt_xdnd_position;
@@ -44,18 +53,22 @@ Atom qt_xdnd_drop;
 
 // XDND selection
 static Atom qt_xdnd_selection;
+// other selection
+static Atom qt_selection_property;
 
 // property for XDND drop sites
-static Atom qt_xdnd_aware;
+Atom qt_xdnd_aware;
 
 // real variables:
 // xid of current drag source
 static Atom qt_xdnd_dragsource_xid = 0;
-//
+// the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
+// preferred type, as atom
+static Atom qt_xdnd_preferred_type = 0;
 
-static QIntDict<QString> qt_xdnd_drag_types( 17 );
-
+static QIntDict<QString> * qt_xdnd_drag_types = 0;
+static QDict<Atom> qt_xdnd_atom_numbers( 17 );
 
 
 void qt_xdnd_setup() {
@@ -69,6 +82,16 @@ void qt_xdnd_setup() {
     qt_x11_intern_atom( "XdndSelection", &qt_xdnd_selection );
 
     qt_x11_intern_atom( "XdndAware", &qt_xdnd_aware );
+
+    qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
+
+    // common MIME types
+    qt_xdnd_add_type( "text/plain" );
+    qt_xdnd_add_type( "image/gif" );
+    qt_xdnd_add_type( "image/xpm" );
+    qt_xdnd_add_type( "image/xbm" );
+
+    qAddPostRoutine( qt_xdnd_cleanup );
 }
 
 
@@ -76,6 +99,24 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     const long *l = xe->xclient.data.l;
 
     debug( "xdnd enter" );
+    
+    // first, build the atom dict, if possible
+    if ( !qt_xdnd_drag_types ) {
+	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
+	qt_xdnd_drag_types->setAutoDelete( TRUE );
+	QDictIterator<Atom> it( qt_xdnd_atom_numbers );
+	Atom * a;
+	while( (a=it.current()) != 0 ) {
+	    QString * s = new QString( it.currentKey() );
+	    s->detach();
+	    ++it;
+	    qt_xdnd_drag_types->insert( (long)(*a), s );
+	}
+	// ### hack!  treat XA_STRING as text/plain.  remove ASAP
+	QString * s;
+	s = new QString( "text/plain" );
+	qt_xdnd_drag_types->insert( (long)XA_STRING, s );
+    }
 
     int version = (int)(((unsigned long)(l[1])) >> 24);
 
@@ -89,10 +130,17 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
 
     // get the first types
     int i;
+    int j = 0;
     for( i=2; i < 5; i++ ) {
-	qt_xdnd_types[i-2] = l[i];
-	debug( "l[%d] = %ld", i, l[i] );
+	if ( qt_xdnd_drag_types->find( l[i] ) ) {
+	    qt_xdnd_types[j++] = l[i];
+	    debug( "l[%d] = %s", i,
+		   qt_xdnd_drag_types->find( l[i] )->data() );
+	} else {
+	    debug( "l[%d] = unknown (%ld)", i, l[i] );
+	}
     }
+    qt_xdnd_types[j] = 0;
 
     if ( l[1] & 1 ) {
 	// should retrieve that property
@@ -126,13 +174,12 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     int i = 0;
     while( i < 100 /* ### */ && qt_xdnd_types[i] ) {
-	if ( qt_xdnd_types[i] == 42424242
-	    /* qt_xdnd_drag_types[l[i]] */ ) {
-	    QString promp("text/plain");
-	    QDragMoveEvent me( QPoint( 0,0 ), promp );
-			       //*(qt_xdnd_drag_types[l[i]]) );
+	QString * s = qt_xdnd_drag_types->find( qt_xdnd_types[i] );
+	if ( s ) {
+	    QDragMoveEvent me( QPoint( 0,0 ), *s );
 	    QApplication::sendEvent( w, &me );
 	    if ( me.isAccepted() ) {
+		qt_xdnd_preferred_type = qt_xdnd_types[i];
 		response.data.l[1] = 1; // yess!!!!
 		break;
 	    }
@@ -169,6 +216,8 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
     QApplication::sendEvent( w, &e );
 
     qt_xdnd_dragsource_xid = 0;
+    qt_xdnd_preferred_type = 0;
+    qt_xdnd_types[0] = 0;
 }
 
 
@@ -189,9 +238,8 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
     if ( XGetSelectionOwner(w->x11Display(), qt_xdnd_selection ) == None )
 	return;
 
-    extern Atom qt_selection_property; // from qapp_x11.cpp
     XConvertSelection( w->x11Display(), qt_xdnd_selection,
-		       42424242, qt_selection_property,
+		       qt_xdnd_preferred_type, qt_selection_property,
 		       w->winId(), CurrentTime );
 
     XFlush( w->x11Display() );
@@ -213,6 +261,9 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 
     Atom prop = xevent.xselection.property;
     Window win = xevent.xselection.requestor;
+    
+    if ( !prop || !win )
+	return;
 
     static QByteArray buf( 256 );
     Atom actual_type;
@@ -227,11 +278,7 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 				    AnyPropertyType, &actual_type,
 				    &actual_format, &nitems,
 				    &bytes_after, &back );
-	if ( r != Success  || actual_type != 42424242 ) {
-	    char *n = XGetAtomName( w->x11Display(), actual_type );
-	    XFree( n );  // ### tissbæsjpromp?
-	}
-	if ( r != Success || actual_type != 42424242 )
+	if ( r != Success || actual_type != qt_xdnd_preferred_type )
 	    break;
 	while ( nread + nitems >= buf.size() )
 	    buf.resize( buf.size()*2 );
@@ -242,16 +289,44 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 
     buf[nread] = 0;
 
-    QString format( "text/plain" );
-
-    QDropEvent de( QPoint( 0,0 ), format, buf );
-    QApplication::sendEvent( w, &de );
+    QString * format = qt_xdnd_drag_types->find( qt_xdnd_preferred_type );
+    if ( format ) {
+	QDropEvent de( QPoint( 0,0 ), *format, buf );
+	QApplication::sendEvent( w, &de );
+    }
 }
 
 /*
-    Atom qt_xdnd_version = 0;
+    Atom qt_xdnd_version = (Atom)1;
     extern Atom qt_xdnd_aware;
     XChangeProperty ( dpy, id, qt_xdnd_aware, XA_ATOM, 32, PropModeReplace,
 		      (unsigned char *)&qt_xdnd_version, 1 );
 */
 
+
+
+void qt_xdnd_add_type( const char * mimeType )
+{
+    if ( !mimeType || !*mimeType )
+	return;
+    if ( qt_xdnd_atom_numbers.find( mimeType ) )
+	return;
+
+    Atom * tmp = new Atom;
+    *tmp = 0;
+    qt_xdnd_atom_numbers.insert( mimeType, tmp );
+    qt_x11_intern_atom( mimeType, tmp );
+    if ( qt_xdnd_drag_types ) {
+	QString * s = new QString( mimeType );
+	qt_xdnd_drag_types->insert( (long)(*tmp), s );
+    }
+    qt_xdnd_atom_numbers.setAutoDelete( TRUE );
+}
+
+
+
+void qt_xdnd_cleanup()
+{
+    delete qt_xdnd_drag_types;
+    qt_xdnd_drag_types = 0;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#229 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#228 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#229 $");
 
 
 /*!
@@ -333,7 +333,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#228 $");
   When writing a widget, there are a few more things to look out for.
   In the constructor, be sure to set up your member variables early
   on, before there's any chance that you might receive an event.
-  
+
   It is often a good idea to reimplement sizeHint(), so users of your
   class can set up layout management more easily.  If you do, consider
   offering size management using autoMinimumSize() too.
@@ -1198,7 +1198,7 @@ QSize QWidget::sizeIncrement() const
   Sets both the minimum and maximum sizes of the widget to \e s,
   thereby preventing it from ever growing or shrinking.
 
-  \sa setMaximumSize() setMinimumSize() setAutoMinimumSize() 
+  \sa setMaximumSize() setMinimumSize() setAutoMinimumSize()
 */
 
 void QWidget::setFixedSize( const QSize & s)
@@ -1306,12 +1306,12 @@ void QWidget::setFixedHeight( int h )
 
   The only effect of this call is to change the value returned by
   autoMinimumSize().  Some subclasses use code like this:
-  
+
   \code
     if ( autoMinimumSize() )
 	setMinimumSize( sizeHint() );
   \endcode
-  
+
   in functions such as setFont(), setStyle(), QButton::setPixmap() and
   QLabel::setText().
 
@@ -1329,9 +1329,9 @@ void QWidget::setAutoMinimumSize( bool enable )
 
 /*!  Returns TRUE if this widget has been configured to manage it own
   minimum size, and FALSE if it has not.
-  
+
   The default is FALSE.
-  
+
   If this function returns TRUE, some widgets ensure that
   setMinimumSize() is called when appropriate, for example by
   including this code in access functions like QLabel::setText():

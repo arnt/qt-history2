@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#43 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#44 $
 **
 ** Definition of event classes
 **
@@ -202,7 +202,7 @@ protected:
 class QDragMoveEvent : public QEvent
 {
 public:
-    QDragMoveEvent( const QPoint& pos, const QByteArray & f )
+    QDragMoveEvent( const QPoint& pos, const QString & f )
 	: QEvent(Event_DragMove), p(pos), fmt(f), accpt(FALSE) {}
     const QPoint &pos() const	{ return p; }
     bool   isAccepted() const	{ return accpt; }

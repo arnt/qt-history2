@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#292 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#293 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#292 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#293 $");
 
 
 /*****************************************************************************
@@ -244,6 +244,7 @@ static int qt_xio_errhandler( Display * )
 // memory leak: if the app exits before qt_init_internal(), this dict
 // isn't released correctly.
 static QDict<Atom> * atoms_to_be_created = 0;
+static bool create_atoms_now = 0;
 
 /*****************************************************************************
   qt_x11_intern_atom() - efficiently interns an atom, now or later.
@@ -260,7 +261,7 @@ void qt_x11_intern_atom( const char * name, Atom * result)
     if ( !name || !result || *result )
 	return;
 
-    if ( qApp && !qApp->startingUp() ) {
+    if ( create_atoms_now ) {
 	*result = XInternAtom(appDpy, name, FALSE );
     } else {
 	if ( !atoms_to_be_created ) {
@@ -309,6 +310,7 @@ static void qt_x11_process_intern_atoms()
 #endif
 	delete atoms_to_be_created;
 	atoms_to_be_created = 0;
+	create_atoms_now = TRUE;
     }
 }
 
@@ -474,11 +476,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 
+    qt_xdnd_setup();
+    
     qt_x11_process_intern_atoms();
 
   // Misc. initialization
 
-    qt_xdnd_setup();
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();

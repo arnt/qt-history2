@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#116 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#116 $");
 
 
 struct QLineEditPrivate {
@@ -145,6 +145,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
+    registerDropType( "text/plain" );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#99 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#99 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -453,7 +453,7 @@ void QWidget::setCursor( const QCursor &cursor )
 
 void QWidget::setCaption( const char *caption )
 {
-    if ( caption && extra && extra->caption && 
+    if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
 	return; // for less flicker
     if ( extra )
@@ -524,7 +524,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 		 (long)extra->winIcon );
 }
 
- 
+
 void QWidget::setIconText( const char *iconText )
 {
     if ( extra )
@@ -989,4 +989,10 @@ int QWidget::metric( int m ) const
 
     }
     return val;
+}
+
+
+void QWidget::registerDropType( const char * /* mimeType */ )
+{
+    // nothing
 }
