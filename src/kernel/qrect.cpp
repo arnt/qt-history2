@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#39 $
 **
 ** Implementation of QRect class
 **
@@ -13,7 +13,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#39 $");
 
 
 /*!
@@ -53,7 +53,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#38 $");
 
 /*!
   \fn QRect::QRect()
-  Constructs an invalid rectangle.
+  Constructs an empty rectangle.
 */
 
 /*!
@@ -122,7 +122,7 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 
   An empty rectangle has a left() \> right() or top() \> bottom().
 
-  An empty rectangle is not valid.
+  An empty rectangle is not valid. \code isEmpty() == !isValid()\endcode
 
   \sa isNull(), isValid()
 */
@@ -130,9 +130,11 @@ QRect::QRect( const QPoint &topLeft, const QSize &size )
 /*!
   \fn bool QRect::isValid() const
 
-  Returns TRUE if the rectangle is valid, or FALSE if it is invalid.
+  Returns TRUE if the rectangle is valid, or FALSE if it is invalid (empty).
 
   A valid rectangle has a left() \<= right() and top() \<= bottom().
+
+  \code isValid() == !isEmpty()\endcode
 
   \sa isNull(), isEmpty(), normalize()
 */
@@ -549,6 +551,7 @@ bool QRect::contains( const QRect &r, bool proper ) const
 
 /*!
   Returns the union rectangle of this rectangle and \e r.
+  If \e r is empty, this rectangle is returned unchanged.
   \sa intersect(), intersects(), contains()
 */
 
