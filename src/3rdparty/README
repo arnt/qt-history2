@@ -8,6 +8,6 @@ have been removed:
     zlib/contrib - a collection of non-zlib code
     zlib/msdos   - Zlib for a platform never supported by Qt ;-)
     libmng/contrib - ?
-    libmng/Unix - ?
+    libmng/special - ?
 
 Some patches are applied from time to time.
