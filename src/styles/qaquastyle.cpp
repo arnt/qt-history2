@@ -562,11 +562,11 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 
     case PO_ScrollBarSlider: {
 	QPixmap tip1, tip2, fill;
+	QBitmap tip1m, tip2m;
 	QRect real_rect;
 	QString act;
 	if(!qAquaActive( cg ) ) 
 	    act = "dis_";
-	drawPrimitive( PO_ScrollBarAddPage, p, r, cg, flags, data ); //erase
 	if( flags & PStyle_Horizontal ) {
 	    QString nstr = QString::number(r.height());
 	    qAquaPixmap( "hsbr_tip_" + act + "left_" + nstr, tip1 );
@@ -1107,6 +1107,92 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					void **data ) const
 {
     switch(ctrl) {
+    case CC_ScrollBar: {
+	sub = 0xFFFFFFF; //bleh, must paint all?
+	QScrollBar *scrollbar = (QScrollBar *) widget;
+	QRect addline, subline, addpage, subpage, slider, first, last;
+	bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
+
+	subline = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubLine, data);
+	addline = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddLine, data);
+	subpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarSubPage, data);
+	addpage = querySubControlMetrics(ctrl, widget, SC_ScrollBarAddPage, data);
+	slider  = querySubControlMetrics(ctrl, widget, SC_ScrollBarSlider,  data);
+	first   = querySubControlMetrics(ctrl, widget, SC_ScrollBarFirst,   data);
+	last    = querySubControlMetrics(ctrl, widget, SC_ScrollBarLast,    data);
+
+	if ((sub & SC_ScrollBarSubPage) && subpage.isValid())
+	    drawPrimitive(PO_ScrollBarSubPage, p, subpage, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarSubPage) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarAddPage) && addpage.isValid())
+	    drawPrimitive(PO_ScrollBarAddPage, p, addpage, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarAddPage) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarFirst) && first.isValid())
+	    drawPrimitive(PO_ScrollBarFirst, p, first, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarFirst) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarLast) && last.isValid())
+	    drawPrimitive(PO_ScrollBarLast, p, last, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarLast) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarSubLine) && subline.isValid())
+	    drawPrimitive(PO_ScrollBarSubLine, p, subline, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarSubLine) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarAddLine) && addline.isValid())
+	    drawPrimitive(PO_ScrollBarAddLine, p, addline, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarAddLine) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+	if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
+	    //cleanup
+	    QRect eraserect(slider);
+	    if(eraserect.y() < subline.height())
+		eraserect.setY(subline.height());
+	    if(eraserect.bottom() > addline.y())
+		eraserect.setBottom(addline.y());
+	    if(eraserect.isValid())
+		drawPrimitive(PO_ScrollBarAddPage, p, eraserect, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((subActive == SC_ScrollBarAddPage) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    //now draw
+	    drawPrimitive(PO_ScrollBarSlider, p, slider, cg,
+			  ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			  ((subActive == SC_ScrollBarSlider) ?
+			   PStyle_Down : PStyle_Default) |
+			  ((scrollbar->orientation() == Qt::Horizontal) ?
+			   PStyle_Horizontal : PStyle_Vertical));
+
+	    // ### perhaps this should not be able to accept focus if maxedOut?
+	    if (scrollbar->hasFocus()) {
+		QRect fr(slider.x() + 2, slider.y() + 2,
+			 slider.width() - 5, slider.height() - 5);
+		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
+	    }
+	}
+	break; }
     case CC_TitleBar: {
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
@@ -1476,8 +1562,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	case SC_ScrollBarAddLine: 
 	case SC_ScrollBarSubLine: {
 	    QScrollBar *scr = (QScrollBar *)w;
-	    int extent = pixelMetric(PM_ScrollBarExtent, w);
-	    rect = QRect(0, 0, extent, extent);
+	    rect = QRect(0, 0, 16, 26);
 	    if(sc == SC_ScrollBarAddLine) {
 		int x = 0, y = 0;
 		if(scr->orientation() == Horizontal) 
@@ -1486,6 +1571,8 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		    y = scr->height() - 26;
 		rect.moveTopLeft(QPoint(x, y));
 	    } 
+	    if(scr->orientation() == Horizontal)
+		rect.setSize(QSize(rect.height(), rect.width()));
 	    break; }
 	default:
 	    rect = QWindowsStyle::querySubControlMetrics( control, w, sc, data); 
