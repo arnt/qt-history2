@@ -7,7 +7,7 @@
 HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    urlLineEdit = new QLineEdit("http://www.trolltech.com/video/overview.rm",
+    urlLineEdit = new QLineEdit("http://www.trolltech.com/index.html",
                                 this);
 
     urlLabel = new QLabel(tr("&URL:"), this);
@@ -104,12 +104,15 @@ void HttpWindow::httpRequestFinished(int requestId, bool error)
             delete file;
             file = 0;
         }
+
+        progressDialog->hide();
         return;
     }
 
     if (requestId != httpGetId)
         return;
 
+    progressDialog->hide();
     file->close();
 
     if (error) {
