@@ -127,7 +127,7 @@ void HtmlWriter::flushHead()
 	putsMeta( styl.latin1() );
 	putsMeta( "\n--></style>\n" );
     }
-    putsMeta( "</head>\n<body bgcolor=#fff8f8>\n" );
+    putsMeta( "</head>\n<body>\n" );
 
     if ( !posth.isEmpty() )
 	putsMeta( posth.latin1() );

@@ -88,7 +88,11 @@ static QString htmlProtect( const QString& str )
 
 static QString getEscape( const QString& in, int& pos )
 {
-    switch ( in[pos].unicode() ) {
+    int ch = 0;
+    if ( pos < (int) in.length() )
+	ch = in[pos].unicode();
+
+    switch ( ch ) {
     case '&':
 	pos++;
 	return QString( "&amp;" );
@@ -99,7 +103,7 @@ static QString getEscape( const QString& in, int& pos )
 	pos++;
 	return QString( "&gt;" );
     case '\\':
-	// double backslash is turned into &#92; so that pass 2 leaves it alone
+	// double backslash becomes &#92; so that pass 2 leaves it alone
 	pos++;
 	return QString( "&#92;" );
     default:
@@ -110,12 +114,14 @@ static QString getEscape( const QString& in, int& pos )
 static QString processBackslashes( const QString& str )
 {
     QString t;
+    int i = 0;
 
-    for ( int i = 0; i < (int) str.length(); i++ ) {
-	if ( str[i].unicode() == '\\' )
+    while ( i < (int) str.length() ) {
+	QChar ch = str[i++];
+	if ( ch == QChar('\\') )
 	    t += getEscape( str, i );
 	else
-	    t += str[i];
+	    t += ch;
     }
     return t;
 }
@@ -673,7 +679,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			warning( 2, location(), "Missing '\\endlink'" );
 		    } else {
 			yyOut += QString( "\\link" );
-			yyOut += yyIn.mid( begin, end - begin );
+			yyOut += processBackslashes(
+					 yyIn.mid(begin, end - begin) );
 			yyOut += QString( "\\endlink" );
 			yyPos = end + 8;
 		    }
@@ -1054,7 +1061,7 @@ QStringList DocParser::getStringList()
 	    yyPos++;
 
 	if ( end > begin )
-	    stringl.append( yyIn.mid(begin, end - begin) );
+	    stringl.append( processBackslashes(yyIn.mid(begin, end - begin)) );
 	skipSpacesOrNL( yyIn, yyPos );
     }
     return stringl;
@@ -1164,11 +1171,8 @@ QString Doc::href( const QString& name, const QString& text )
 {
     QString t = text;
     QString y = res->href( name, t );
-    if ( t.isEmpty() ) {
+    if ( t.isEmpty() )
 	t = name;
-	if ( t.left(5) == QString("file:") )
-	    t = t.mid( 5 );
-    }
     if ( y.length() != t.length() )
 	return y;
 
@@ -1178,9 +1182,18 @@ QString Doc::href( const QString& name, const QString& text )
     if ( k.isEmpty() && t.right(1) == QChar('s') )
 	k = keywordLinks[t.left(t.length() - 1)]; 
     // try a URL
-    if ( k.isEmpty() && (name.left(5) == QString("file:") ||
-			 name.left(5) == QString("http:") ||
-			 name.left(7) == QString("mailto:")) )
+    if ( k.isEmpty() ) {
+	if ( name.left(5) == QString("file:") ||
+	     name.left(5) == QString("http:") ||
+	     name.left(7) == QString("mailto:") ) {
+	    k = name;
+
+	    // chop the protocol
+	    if ( t == name && t.left(5) != QString("http:") )
+		t = name.mid( name.find(QChar(':')) + 1 );
+	}
+    }
+    if ( k.isEmpty() && name[0] == QChar('#') )
 	k = name;
 
     if ( k.isEmpty() )
@@ -1757,7 +1770,7 @@ QString Doc::finalHtml() const
 		break;
 	    case hash( 'l', 1 ):
 		consume( "l" );
-		name = processBackslashes( getArgument(yyIn, yyPos) );
+		name = getArgument( yyIn, yyPos );
 		ahref = href( name );
 		if ( ahref.length() == name.length() )
 		    warning( 2, location(), "Unresolved '\\l' to '%s'",
@@ -1766,7 +1779,7 @@ QString Doc::finalHtml() const
 		break;
 	    case hash( 'l', 4 ):
 		consume( "link" );
-		link = processBackslashes( getArgument(yyIn, yyPos) );
+		link = getArgument( yyIn, yyPos );
 		begin = yyPos;
 		end = yyIn.find( QString("\\endlink"), yyPos );
 		if ( end == -1 ) {
