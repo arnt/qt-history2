@@ -2755,7 +2755,7 @@ void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
 #ifdef QT_DEBUG_DRAW
     QRectF rect = a.boundingRect();
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPolyline(), count=%d, [%d,%d,%d,%d]\n",
+        printf("QPainter::drawPolyline(), count=%d, [%.2f,%.2f,%.2f,%.2f]\n",
            a.size(), rect.x(), rect.y(), rect.width(), rect.height());
 #endif
 

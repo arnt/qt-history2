@@ -442,6 +442,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
     d->ellipseHack = false;
 
+    // force a call to switch advanced mode on/off 
+    d->setNativeMatrix(QMatrix());
     return true;
 }
 

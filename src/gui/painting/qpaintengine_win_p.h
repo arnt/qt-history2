@@ -197,7 +197,7 @@ public:
         usesWidgetDC(false),
         forceGdi(false),
         forceGdiplus(false),
-        noNativeXform(false),
+        noNativeXform(true),
         advancedMode(false),
         ellipseHack(false),
         penStyle(Qt::SolidLine),
