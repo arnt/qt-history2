@@ -2,51 +2,60 @@
 
 
     There are two ways to install Qt on your computer:
-    a) Let the install program do the work.
-    b) Do the process manually.
 
-    We recommend that you let the installation program do the work,
-    but we will describe the manual procedure as well, in case the
-    installation should fail for some reason.
+    A) Let the install program do the work.
+    B) Do the process manually.
+
+    We recommend that you use installation program, but we describe the
+    manual procedure as well, in case the installation should fail for some
+    reason.
 
 A   USING THE INSTALLATION PROGRAM
 
-    This should be straightforward.
-    1. Select where you want the files installed, and which development
-       tools you will be using with Qt. The wizard will only let you
-       select one, but you may set the system up to use any other
-       development system later.
+    Start the install.exe program and go through all the steps of
+    installation wizard:
 
-    2. Enter your license information.
-       Either type it in, or let the installation program read it
-       from the Qt license file you have received.
+    1. Read the license. You are only able to continue the installation if
+       you accept the license.
 
-    3. Choose which program menu folder Qt should install its icons
-       to.
-       The checkbox for setting QTDIR is to choose whether or not
-       the environment variable QTDIR should be set or modified.
-       If checked, QTDIR will be set to point to the directory where
-       you installed Qt.
+    2. Select where you want to install Qt and which parts of Qt you want
+       to install. You also have to slect which development tools you want
+       to use with Qt. The wizard allows you to select only one, but you
+       may set the system up to use any other development system later.
+
+    3. Enter your license information -- either type it in, or let the
+       installation program read it from the Qt license file you have
+       received with your Qt package.
+
+    4. Choose which program menu folder Qt should install its icons to.
+
+       The checkbox for setting QTDIR is to choose whether or not the
+       environment variable QTDIR should be set or modified.  If checked,
+       QTDIR will be set to point to the directory where you installed Qt.
        If QTDIR is already set, (Qt is already installed, maybe another
        version) this checkbox will be cleared by default, to avoid
        accidental modifications to your setup.
 
-    4. Configuration of the library.
-       On the next page you will get the opportunity to configure the
-       library.  For most people, the defaults will be OK, but in case
-       you need a special configuration, now is your chance.
-       The library may also be reconfigured later.
+       If you have chosen to use Microsoft Visual Studio, you must also
+       specify the path to the installation of Microsoft Visual Studio.
+       This allows Qt to integrate itself into the development environment
 
-    After this, the files will be copied into the installation directory,
-    and the toolkit will be compiled.  Logs of both the file copy and
-    building will be saved to the installation directory, to be reviewed
-    later.
+    5. Configuration of the library: you can choose several options and
+       configurations for building the Qt library. The default options
+       should be sufficient for most of the time. The library may also be
+       reconfigured later.
+
+    After this, the wizard copies the files into the installation
+    directory, and compiles the toolkit. Logs of both the file copy and
+    building are saved to the installation directory. If you selected
+    Microsoft Visual Studio as your development environment, the wizard
+    also makes an integration of the Qt tools into Visual Studio.
 
     NOTE: When installing the toolkit on a Windows 9X system, the
-    compilation step will be skipped.  Due to technical limitations in
-    the operating system, the installation program will write the
-    steps needed to build the toolkit into a batch file, and put a shortcut
-    to this in the start menu.  To build it, just click on this shortcut.
+    compilation step is skipped, due to technical limitations in the
+    operating system. The installation program writes the steps needed to
+    build the toolkit into a batch file and puts a shortcut to this in the
+    start menu. To build it, just click on this shortcut.
 
     Some operating system versions may require a reboot before all
     environment variables are activated.
@@ -55,44 +64,41 @@ A   USING THE INSTALLATION PROGRAM
 B   BUILDING THE LIBRARY MANUALLY
 
     Here are step by step instructions on how to build Qt manually.
-    Get the files uncompressed into the directory you want to use,
-    e.g. C:\Qt\3.0.0\
 
-    1. First you need to set up the environment variables for Qt.
-       QTDIR should be set to the directory where the Qt files have been
-       installed.  All other paths needed by the build system or Qt development
-       tools will be derived from this variable.
-       QMAKESPEC should be set to the development system you will be using.
-       See the mkspecs directory for a list of which systems are available.
-       When setting QMAKESPEC, you should only use the name of the directory,
-       e.g. "win32-msvc", and not the complete path.
-    
-    2. Add Qt to the PATH variable.
-       Add %QTDIR%\bin and %QTDIR%\lib to your path.
-    
-    3. To build Qt the first time, you should be able to use development
-       systems command line tools.  Depending on your system and configuration
-       this may have to be set up.  Microsoft Visual Studio keeps a batch
-       file in VC98\BIN\VCVARS32.BAT to be used for this purpose.
+    1. Uncompress the files into the directory you want to use, e.g.
+       C:\Qt\3.0.0\
 
-    4. After all the environment variables have been set up, you may continue
-       with the configuration step.
-       The first step is to CD into the QTDIR directory.
-       Qt 3.0 features a configure tool, that makes this process a lot easier
-       than with earlier versions of the toolkit.
-       To review the available options, type "configure -help" on the command
-       line.
-       To build Qt as a shared library, without debug information, the command
-       would be "configure -release -shared".
+    2. You need to set up certain environment variables for Qt:
 
-       The configure tool will scan through all the Qt files, and generate
-       makefiles as appropriate for your configuration.  When it is done,
-       you may continue with the build step.
+       a. Set QTDIR to the directory where the Qt files have been
+	  installed. All other paths needed by the build system or Qt
+	  development tools will be derived from this variable.
 
-    5. The actual commands needed to build Qt depends on your development system.
-       For Visual C++, the command is "nmake", while Borland uses "make".
-       This will build all the different parts of the toolkit.
+       b. Set QMAKESPEC to win32-msvc if you want to build Qt with
+	  Microsoft Visual Studio or set it to win32-borland if you want to
+	  build Qt with Borland Builder. (See the mkspecs directory for a
+	  complete list of which systems are available.)
 
+       c. Extend your PATH variable by %QTDIR%\bin to make sure that the Qt
+          tools are found.
 
+    4. The next step is to configure your Qt library:
 
-    That is all.  Qt and the Qt Designer is now installed.
+       a. Change the directory in the command prompt to the directory where
+          you unpacked the Qt files ("cd %QTDIR%").
+
+       b. Execute the configure tool in the command prompt with the desired
+	  options. For example, use "configure -release -shared" to build
+	  Qt as a shared library, without debug information.
+
+	  Type "configure -help" to get a list of all available options
+
+	  The configure tool scans through all the Qt files, and generates
+	  makefiles for your configuration.
+
+    5. The actual commands needed to build Qt depends on your development
+       system. For Microsoft Visual Studio, type the command "nmake" in the
+       command prompt and for Borland type "make". This builds all the
+       different parts of the toolkit.
+
+    That is all. Qt and the Qt Designer are now installed.
