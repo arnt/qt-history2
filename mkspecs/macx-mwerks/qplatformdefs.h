@@ -30,6 +30,12 @@
 #include <socket.h>
 #include <ioctl.h>
 #include <wait.h>
+#include <pwd.h>
+#include <nameser.h>
+#include <netinet/in.h>
+#include <resolv.h>
+#include <dirent.h>
+#include <grp.h>
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
