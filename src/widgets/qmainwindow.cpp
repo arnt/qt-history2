@@ -322,7 +322,7 @@ QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar 
 class QToolLayout : public QLayout
 {
     Q_OBJECT
-    
+
 public:
     QToolLayout( QLayout* parent, QMainWindowPrivate::ToolBarDock *d,
 		 QBoxLayout::Direction dd, bool justify,
@@ -620,7 +620,7 @@ void QToolLayout::setGeometry( const QRect &r )
 class QMainWindowLayout : public QLayout
 {
     Q_OBJECT
-    
+
 public:
     QMainWindowLayout( QLayout* parent = 0 );
     ~QMainWindowLayout() {}
@@ -2584,9 +2584,9 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 
     // calculate the docking areas
     QRect leftArea( -10, h1, left + 20, height() - h1 - h2 );
-    QRect topArea( -10, h1 - 10, width() + 20, top + 20 );
+    QRect topArea( -10, h1 - 10, width() + 20, top + 10 );
     QRect rightArea( width() - right - 10, h1, right + 20, height() - h1 - h2 );
-    QRect bottomArea( -10, height() - bottom - h2 - 10, width() + 20, bottom + 20 );
+    QRect bottomArea( -10, height() - bottom - h2, width() + 20, bottom + 10 );
     QRect leftTop = leftArea.intersect( topArea );
     QRect leftBottom = leftArea.intersect( bottomArea );
     QRect rightTop = rightArea.intersect( topArea );
