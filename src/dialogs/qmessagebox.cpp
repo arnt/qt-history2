@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#34 $
 **
 ** Implementation of QMessageBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#34 $");
 
 // Message box icons, from page 210 of the Windows style guide.
 
@@ -157,9 +157,14 @@ static const unsigned char critical_gif_data[] = {
 
 
 struct QMBData {
+    QMBData(QMessageBox* parent) :
+	iconLabel( parent )
+    {
+    }
+
     int			numButtons;		// number of buttons
     QMessageBox::Icon	icon;			// message box icon
-    QPixmap		iconPixmap;
+    QLabel		iconLabel;		// label holding any icon
     int			button[3];		// button types
     int			defButton;		// default button (index)
     int			escButton;		// escape button (index)
@@ -285,7 +290,7 @@ void QMessageBox::init( int button1, int button2, int button3 )
 #endif
 	button1 = button2 = button3 = 0;
     }
-    mbd = new QMBData;
+    mbd = new QMBData(this);
     CHECK_PTR( mbd );
     mbd->numButtons = 0;
     mbd->button[0] = button1;
@@ -378,7 +383,7 @@ int QMessageBox::indexOf( int button ) const
 void QMessageBox::resizeButtons()
 {
     int i;
-    QSize maxSize(0,0);
+    QSize maxSize( style() == MotifStyle ? 0 : 75, 0 );
     for ( i=0; i<mbd->numButtons; i++ ) {
 	QSize s = mbd->pb[i]->sizeHint();
 	maxSize.setWidth(  QMAX(maxSize.width(), s.width()) );
@@ -499,7 +504,7 @@ void QMessageBox::setIcon( Icon icon )
 
 const QPixmap *QMessageBox::iconPixmap() const
 {
-    return mbd->iconPixmap.isNull() ? 0 : &mbd->iconPixmap;
+    return mbd->iconLabel.pixmap();
 }
 
 /*!
@@ -510,7 +515,7 @@ const QPixmap *QMessageBox::iconPixmap() const
 
 void QMessageBox::setIconPixmap( const QPixmap &pixmap )
 {
-    mbd->iconPixmap = pixmap;
+    mbd->iconLabel.setPixmap(pixmap);
 }
 
 
@@ -617,6 +622,10 @@ void QMessageBox::adjustSize()
     label->adjustSize();
     int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
     int w = QMAX( bw, label->width() ) + 2*border;
+    if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
+	mbd->iconLabel.adjustSize();
+	w += mbd->iconLabel.pixmap()->width() + border;
+    }
     int h = smax.height();
     if ( label->height() )
 	h += label->height() + 3*border;
@@ -639,7 +648,14 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     int border = bh/2;
     if ( border == 0 )
 	border = 10;
-    label->move( width()/2 - label->width()/2,
+    else if ( style() == MotifStyle )
+	border += 6;
+    int lmargin = 0;
+    mbd->iconLabel.adjustSize();
+    mbd->iconLabel.move( border, border );
+    if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )
+	lmargin += mbd->iconLabel.pixmap()->width() + border;
+    label->move( (width() + lmargin)/2 - label->width()/2,
 		 (height() - border - bh - label->height()) / 2 );
     int space = (width() - bw*n)/(n+1);
     for ( i=0; i<n; i++ ) {
