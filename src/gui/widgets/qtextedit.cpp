@@ -2015,13 +2015,14 @@ QMenu *QTextEdit::createPopupMenu(const QPoint &pos)
 }
 
 /*!
-    This function is called whenever the textedit's selection needs
-    to be encapsulated into a new QMimeData object, for drag and
-    drop or for copying to the clipboard for example.
+    This function returns a new MIME data object to represent the contents
+    of the text edit's current selection. It is called when the selection needs
+    to be encapsulated into a new QMimeData object; for example, when a drag
+    and drop operation is started, or when data is copyied to the clipboard.
 
-    If you re-implement this function note that the ownership of
-    the returned QMimeData object is passed to the caller. The
-    selection can be retrieved using the textCursor() function.
+    If you reimplement this function, note that the ownership of the returned
+    QMimeData object is passed to the caller. The selection can be retrieved
+    by using the textCursor() function.
 */
 QMimeData *QTextEdit::createMimeDataFromSelection() const
 {
@@ -2038,8 +2039,10 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
 };
 
 /*!
-    This function is called whenever text is to be inserted as the
-    result of pasting from the clipboard or from accepting a drop.
+    This function inserts the contents of the MIME data object into the
+    text edit at the current cursor position. It is called whenever text
+    is inserted as the result of a clipboard paste operation, or when
+    the text edit accepts data from a drag and drop operation.
 */
 void QTextEdit::insertFromMimeData(const QMimeData *source)
 {
