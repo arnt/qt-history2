@@ -11,13 +11,20 @@ public:
     int shmId;
 }
 
-QWSSharedMemory::QWSSharedMemory(int size, QString filename) 
+QWSSharedMemory::QWSSharedMemory(int size, QString filename, id) 
 {
+    if(id < 0)
+    	id = 0;
+    if(id > max_id)
+        id = max_id;
+
+    char x = 'a' + id;
+
     shmSize = size;
     shmFile = filename;
     shmBase = 0;
     d = new QWSSharedMemoryPrivate;
-    d->key = ftok( shmFile.latin1(), 'a' );
+    d->key = ftok( shmFile.latin1(), x );
     d->idInitted = FALSE;
     d->shmId = -1;
 }

@@ -11,8 +11,16 @@ public:
     int connected;
 }
 
-QWSSharedMemory::QWSSharedMemory(int size, QString filename) 
+QWSSharedMemory::QWSSharedMemory(int size, QString filename, int id) 
 {
+    if (id > max_id)
+	id = max_id;
+    if (id < 0)
+        id = 0;
+
+    char x = 'a' + id;
+    filename.prepend(x);
+
     shmSize = size;
     shmFile = filename;
     shmBase = 0;

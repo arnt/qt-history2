@@ -2,11 +2,13 @@
 
 #include <qstring.h>
 
+static const int max_id = 20;
+
 class QWSSharedMemoryPrivate;
 class QWSSharedMemory {
 
 public:
-	QWSSharedMemory(int size, QString file);
+	QWSSharedMemory(int size, QString file, int id);
 	~QWSSharedMemory();
 
 	/* active functions */
