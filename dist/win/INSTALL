@@ -1,0 +1,71 @@
+                        HOW TO INSTALL Qt FOR WINDOWS
+
+
+1.  Unzip the qtwin%VERSIONWIN%.zip file, unless you already have.
+    If you don't already have unzip, WinZip or another zip program,
+    you can download and install ftp://ftp.troll.no/util/infozip.exe.
+
+	c:
+	cd \
+	unzip qtwin%VERSIONWIN%.zip
+
+    This creates the directory C:\qt.
+
+
+2.  Set some environment variables in AUTOEXEC.BAT or via "System"
+    in "Control Panel" (Windows NT):
+
+    The QTDIR variable says where Qt is installed, for example:
+
+	QTDIR=c:\qt
+
+    You must also set the PATH to locate the moc.exe program:
+
+	PATH=%QTDIR%\bin;%PATH%
+
+    You can also set environment variables supported by many compilers:
+
+	INCLUDE=%QTDIR%\include;%INCLUDE%
+	set LIB=%QTDIR%\lib;%LIB%
+
+    Restart the computer to make sure these settings are applied.
+
+
+3.  Qt comes with makefiles for Microsoft Visual C++ and Borland C++.
+    The default makefiles are for Microsoft Visual C++.
+    If you use Borland C++, you will need to install other makefiles.
+
+    For Borland C++ users:
+
+	cd qt
+	unzip mkfiles\Borland.zip
+
+
+4.  You are now ready to compile the Qt library:
+
+	cd qt\src
+	nmake		(or "make" for Borland C++ users)
+
+    The qt.lib and qtmain.lib files are created in the qt\lib directory.
+
+
+5.  There are several makefiles in the examples and tutorial
+    directories. To compile an example program:
+
+ 	cd qt\examples\tetrix
+	nmake		(or "make")
+
+    You can also compile all examples and all tutorial programs in one go:
+
+	cd qt\examples
+	nmake		(or "make")
+	cd ..\tutorial
+	nmake		(or "make")
+
+
+We recommend that you use tmake from Troll Tech to create makefiles. This
+is a free tool which eliminates the hassle of writing and maintaining
+makefiles across different platforms and compilers.  See README.tmake for
+more information.
+
+That is all.  Qt is now installed.

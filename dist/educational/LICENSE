@@ -1,0 +1,80 @@
+                  TROLL TECH BINARY EDUCATIONAL SITE LICENSE
+
+Copyright (C) 1992-1997 Troll Tech AS.	All rights reserved.
+
+This is the binary educational site license for Qt version 1.1; it covers
+use of Qt at a university (or similar educational institution) department
+or faculty.
+
+			COPYRIGHT AND RESTRICTIONS
+
+The Qt toolkit is a product of Troll Tech AS.
+
+Only one person at your site can have access to and view the Qt source
+code. That person may compile and distribute binary versions of the Qt
+library, the documentation and header files to all current members of
+staff and students at the department or faculty. These distributions must
+contain the file LICENSE which comes with the educational site license
+distribution from Troll Tech.
+
+All technical support for Qt must be handled locally. Bug reports
+etc. must go through a dedicated person at your site. All bugs and
+problems should be reported to Troll Tech by that person.
+
+Under no circumstances, except after explicit permission from Troll Tech,
+may the Qt source code be changed or binary or other versions of Qt be
+distributed to persons not covered by this license.
+
+As a current member of staff or student at the department or faculty you
+you may use the binary version of the Qt toolkit to create application
+programs provided that:
+
+  - You accept this license.
+  - Your software does not require modifications to Qt.
+  - You satisfy ONE of the following three requirements
+    EITHER
+      Users of your software can obtain source code for the software, freely
+      modify the source code (possibly with restrictions on copyright
+      notices, attributions and legal responsibility), and freely
+      redistribute original or modified versions of the software.
+    OR
+      Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
+      version 2 or later, as defined by the Free Software Foundation.
+    OR
+      Your software is distributed under the GNU LIBRARY GENERAL PUBLIC
+      LICENSE, version 2 or later, as defined by the Free Software Foundation.
+
+If you are paid to develop something with Qt or it is a part of your job
+the following conditions also apply:
+  - Your software must not require libraries, programs, data or
+    documentation that are not available outside your organization in
+    order to compile or use.
+  - If and when your organization starts using the software, you must
+    notify Troll Tech AS of the following:
+       * Your organization's name and purpose.
+       * The software's name and purpose.
+       * The software's license.
+       * That your organization considers the software to be free software.
+
+You may also use the Qt toolkit to create reusable components (such as
+libraries) provided that you accept the terms above, and in addition that:
+  - Your components' documentation includes the following text:
+	[Your package] requires the Qt library, which is copyright
+	Troll Tech AS.	Freely distributable programs may generally
+	use Qt for free, see [README.QT] for details.
+  - README.QT is distributed along with your components.
+  - Qt is not distributed as an integral part of your components.
+
+
+		       LIMITATIONS OF LIABILITY
+
+Troll Tech AS makes no obligation under this license to support or upgrade
+Qt, or assist in the use of Qt.
+
+In no event shall Troll Tech AS be liable for any lost revenue or profits
+or other direct, indirect, special, incidental or consequential damages,
+even if Troll Tech has been advised of the possibility of such damages.
+
+Qt IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY
+OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
