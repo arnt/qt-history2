@@ -291,6 +291,8 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 
     switch(element) {
     case CE_PushButton: {
+        if (!widget)
+            break;
 	const QPushButton *btn = static_cast<const QPushButton *>(widget);
         if (btn->isFlat() && !(how & Style_Down))
 	    return;
@@ -365,6 +367,82 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                  &(pal.buttonText().color()) );
 #endif
         break; }
+    case CE_PopupMenuItem: {
+        if (!widget || opt.isDefault())
+            break;
+        const QPopupMenu *popup = static_cast<const QPopupMenu *>(widget);
+        const QMenuItem *mi = opt.menuItem();
+        bool disabled = mi ? !mi->isEnabled() : false;
+        bool itemSelected = how & Style_Active;
+        // Draw the background and then the text and stuff.
+        HIRect menuRect = *qt_glb_mac_rect(popup->rect(), popup);
+        HIRect itemRect = *qt_glb_mac_rect(r, popup);
+        HIThemeMenuItemDrawInfo mdi;
+        mdi.version = qt_mac_hitheme_version;
+        mdi.itemType = kThemeMenuItemPlain;
+        if (mi && mi->iconSet())
+            mdi.itemType |= kThemeMenuItemHasIcon;
+        if (mi && mi->popup())
+            mdi.itemType |= kThemeMenuItemHierarchical | kThemeMenuItemHierBackground;
+        else
+            mdi.itemType |= kThemeMenuItemPopUpBackground;
+        mdi.state = (disabled) ? kThemeMenuDisabled : kThemeMenuActive;
+        if (itemSelected)
+            mdi.state |= kThemeMenuSelected;
+        HIRect contentRect;
+        if (mi && mi->isSeparator()) {
+            // ### Something strange is happening here.
+            HIThemeDrawMenuSeparator(&menuRect, &itemRect, &mdi,
+                                     static_cast<CGContextRef>(p->handle()),
+                                     kHIThemeOrientationNormal);
+            break;
+        } else {
+            HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi, static_cast<CGContextRef>(p->handle()),
+                                kHIThemeOrientationNormal, &contentRect);
+        }
+        bool checkable = popup->isCheckable();
+        bool itemChecked = mi->isChecked();
+        bool reverse = QApplication::reverseLayout();
+        int maxIW = opt.maxIconWidth();
+        if (checkable)
+            maxIW += 12;
+        QRect qtContentRect(QPoint((int)contentRect.origin.x, (int)contentRect.origin.y),
+                            QSize((int)contentRect.size.width, (int)contentRect.size.height));
+        int xpos = qtContentRect.x() + 2;
+        if (reverse)
+            xpos = qtContentRect.width() - maxIW - 2;
+        // Draw checks
+        if (checkable && itemChecked) {
+            int mw = maxIW;
+            int mh = qtContentRect.height();
+            int xp = xpos;
+            SFlags myflags = Style_Default;
+            if (!disabled)
+                myflags |= Style_Enabled;
+            if (itemSelected)
+                myflags |= Style_On;
+            // ### Need to implement PE_CheckMark, commonstyle doesn't look correct for Mac OS X.
+            // It should also change color when it is selected.
+            drawPrimitive(PE_CheckMark, p, QRect(xp, qtContentRect.y(), mw, mh), pal, myflags);
+        }
+        if (disabled)
+            p->setPen(pal.text());
+        else if (itemSelected)
+            p->setPen(pal.highlightedText());
+        else
+            p->setPen(pal.buttonText());
+        // All Mac popups appear to have a space for a check.
+        xpos += maxIW + 5;
+        // Draw text
+        if (mi) {
+            QString str = mi->text();
+            if (!str.isEmpty()) {
+                int text_flags = AlignVCenter | NoAccel | DontClip | SingleLine;
+                p->drawText(xpos, qtContentRect.y(), qtContentRect.width(), qtContentRect.height(),
+                            text_flags, str);
+            }
+        }
+        break; }
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
@@ -376,6 +454,8 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 {
     switch (control) {
     case CC_Slider: {
+        if (!w)
+            break;
         const QSlider *slider = static_cast<const QSlider *>(w);
         bool tracking = slider->tracking();
         HIThemeTrackDrawInfo tdi;
