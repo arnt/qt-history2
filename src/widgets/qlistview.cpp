@@ -4526,8 +4526,12 @@ void QListView::ensureItemVisible( const QListViewItem * i )
     if ( d->r->maybeTotalHeight < 0 )
 	updateGeometries();
     int h = ( i->height() + 1 ) / 2;
-    int x = itemMargin() + ( i->depth() + ( rootIsDecorated() ? 1 : 0 ) ) * treeStepSize();
+    int x = itemMargin() + i->depth() * treeStepSize();
     int w = i->width( fontMetrics(), this, 0 );
+    if ( i->pixmap( 0 ) )
+	w += i->pixmap( 0 )->width();
+    if ( rootIsDecorated() )
+	w += treeStepSize();
     ensureVisible( x + w / 2, itemPos( i ) + h, w / 2, h );
 }
 
