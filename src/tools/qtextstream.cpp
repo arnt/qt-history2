@@ -1580,7 +1580,7 @@ QTextStream &QTextStream::operator>>( char *s )
 
     uint maxlen = width( 0 ), l, total=0;
     const uint buf_size = maxlen ? maxlen : getstr_tmp_size;
-    QChar buf[buf_size];
+    QChar *buf = new QChar[buf_size];
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
 	for(uint i = 0; i < l; i++)
@@ -1590,6 +1590,7 @@ QTextStream &QTextStream::operator>>( char *s )
 	   break;
     }
     *s = '\0';
+    delete [] buf;
     return *this;
 }
 
