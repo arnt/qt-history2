@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#13 $
+** $Id: //depot/qt/main/src/tools/qlist.h#14 $
 **
 ** Definition of QList template/macro class
 **
@@ -49,7 +49,7 @@ public:									      \
     bool  remove()			{ return QGList::remove((GCI)0); }    \
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }    \
     bool  removeRef( const type *d )	{ return QGList::removeRef((GCI)d); } \
-    bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }     \
+    void  removeNode( QLNode *n )	{ QGList::removeNode(n); }	      \
     bool  removeFirst()			{ return QGList::removeFirst(); }     \
     bool  removeLast()			{ return QGList::removeLast(); }      \
     type *take( uint i )		{ return (type *)QGList::takeAt(i); } \
@@ -133,7 +133,7 @@ public:
     bool  remove()			{ return QGList::remove((GCI)0); }
     bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
     bool  removeRef( const type *d )	{ return QGList::removeRef((GCI)d); }
-    bool  removeNode( QLNode *n )	{ return QGList::removeNode(n); }
+    void  removeNode( QLNode *n )	{ QGList::removeNode(n); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
     type *take( uint i )		{ return (type *)QGList::takeAt(i); }
