@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -33,6 +33,8 @@
 #include "qfiledefs_p.h"
 #include "qdir.h"
 #include "qt_mac.h"
+
+#include <limits.h>
 
 const unsigned char * p_str(const char * c, int len=-1); //qglobal.cpp
 

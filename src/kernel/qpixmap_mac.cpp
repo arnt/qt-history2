@@ -5,6 +5,9 @@
 #include "qbitmap.h"
 #include "qwmatrix.h"
 #include "qt_mac.h"
+
+#include <limits.h>
+
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )

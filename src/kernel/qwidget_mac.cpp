@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -49,6 +49,7 @@
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
+#include <limits.h>
 
 /*****************************************************************************
   QWidget debug facilities

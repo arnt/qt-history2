@@ -23,7 +23,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <grp.h>
-#include <limits.h>
 #include <locale.h>
 #include <pwd.h>
 #include <signal.h>

@@ -1,11 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFileInfo class
 **
-** Created : 950628
-**
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -29,17 +27,18 @@
 
 #include "qglobal.h"
 
-#ifdef Q_OS_MACX
-#include <pwd.h>
-#include <grp.h>
-#endif
-
 #include "qfileinfo.h"
 #include "qplatformdefs.h"
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
 #include <qt_mac.h>
+
+#ifdef Q_OS_MACX
+#include <pwd.h>
+#include <grp.h>
+#endif
+#include <limits.h>
 
 void QFileInfo::slashify( QString& n )
 {
