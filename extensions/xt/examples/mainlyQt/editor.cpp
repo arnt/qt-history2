@@ -1,5 +1,5 @@
 #include "qxt.h"
-#include <qmultilinedit.h>
+#include <qmultilineedit.h>
 #include <qpainter.h>
 #include <qmessagebox.h>
 #include <X11/Shell.h>
