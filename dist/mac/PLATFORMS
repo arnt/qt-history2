@@ -1,4 +1,4 @@
-Before you build the Qt library and example programs, you must run the
+Before you build the Qt libraries and demo programs, you must run the
 "configure" script to set the platform information and other build
 settings.  You can use the -platform option to specify the operating
 system and compiler you are using.
@@ -6,11 +6,11 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   macx-g++ 
-  macx-pbuilder -- Cannot be used for building the Qt library.
+  macx-xcode
 
 Compilation problems:
 
-  If you experience problems compiling Qt 3.x consult the platform
+  If you experience problems compiling Qt 4.x consult the platform
   notes found at http://www.trolltech.com/developer/platforms/ where
   we post workarounds and known issues as we become aware of them.
 
@@ -20,7 +20,7 @@ Example:
 
 Customization:
 
-  You can create your own custom configuration by adding new files to
-  the mkspecs directory. The configuration macx-g++ is included
-  as an example. It uses GNU g++ as a C/C++ compiler.
+  You can create your own custom configuration by adding new files to the
+  mkspecs directory. Use a copy of the macx-g++ mkspec as an example. It uses
+  GCC as a C/C++ compiler.
 
