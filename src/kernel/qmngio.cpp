@@ -100,7 +100,7 @@ public:
 	return TRUE;
     }
     bool errorproc( mng_int32   iErrorcode,
-		   mng_int8    iSeverity,
+		   mng_int8    /*iSeverity*/,
 		   mng_chunkid iChunkname,
 		   mng_uint32  /*iChunkseq*/,
 		   mng_int32   iExtra1,
