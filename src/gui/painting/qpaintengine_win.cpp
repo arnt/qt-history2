@@ -2596,8 +2596,11 @@ void QGdiplusPaintEngine::drawRect(const QRectF &r)
 
 void QGdiplusPaintEngine::drawPoint(const QPointF &p)
 {
-    if (d->usePen)
-        GdipDrawRectangle(d->graphics, d->pen, p.x(), p.y(), 1, 1);
+    if (d->usePen) {
+        GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgb());
+        GdipFillRectangle(d->graphics, d->cachedSolidBrush, p.x(), p.y(), 1, 1);
+        GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
+    }
 }
 
 void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
