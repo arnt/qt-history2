@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#8 $
 **
 ** Implementation of QPointArray class
 **
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#8 $";
 #endif
 
 
@@ -351,6 +351,105 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
     delete[] py;
 }
 #endif
+
+
+const max_bezcontrols = 20;			// max Bezier control points
+
+//
+// We're using Pascal's triangle to calculate the binomial
+// coefficients C(n,k) once.
+// The advantages are that it is much faster than calculating on demand,
+// and that we don't get any numerical overflow.
+//
+
+const max_bico  = max_bezcontrols;		// max binomial coefficient n
+const num_bicos = max_bico*(max_bico+1)/2;	// 1+2+3+...+max_bico
+static long bicot[num_bicos];			// Pascal's triangle
+
+#define BICO(n,k) bicot[ (n)*((n)+1)/2 + (k) ];
+
+static void init_bicot()			// initialize Pascal's triangle
+{
+    static bool initialized = FALSE;
+    if ( initialized )
+	return;
+    initialized = TRUE;
+    long *p, *c;
+    int n, k;
+    memset( bicot, sizeof(bicot), 0 );
+    for ( n=0; n<max_bico; n++ ) {		// fill edges with 1's
+	c = &BICO(n,0);
+	c[0] = c[n] = 1;
+    }
+    for ( n=2; n<max_bico; n++ ) {		// compute sums
+	p = &BICO(n-1,0);
+	c = &BICO(n,1);
+	for ( k=1; k<n; k++ ) {
+	    *c++ = *p + *(p+1);
+	    p++;
+	}
+    }
+}
+
+
+QPointArray QPointArray::bezier()		// calculate Bezier curve
+{
+    if ( size() <= 2 || size() > max_bezcontrols ) {
+	QPointArray p;
+	if ( size() == 2 )			// trivial
+	    p = copy();
+	return p;
+    }
+    int n = size() - 1;				// n + 1 control points
+    int m = 0;					// m = # Bezier points
+    for ( int q=0; q<n; q++ ) {
+	int x1, y1, x2, y2;
+	point( q,   &x1, &y1 );
+	point( q+1, &x2, &y2 );
+	x1 -= x2;
+	y1 -= y2;
+	if ( x1 < 0 ) x1 = -x1;
+	if ( y1 < 0 ) y1 = -y1;
+	m += x1 > y1 ? x1 : y1;			// minimal # Bezier points
+    }
+    QPointArray p( m );				// p = Bezier point array
+    m--;
+    double bv,u;
+    init_bicot();
+    long *bico = &BICO(n,0);
+    double uv1[max_bezcontrols];		// contains: uv1[i] = u^i
+    double uv2[max_bezcontrols];		// contains: uv2[i] = (1-u)^i
+    double xvec[max_bezcontrols];
+    double yvec[max_bezcontrols];
+    uv1[0] = uv2[0] = 1;
+    for ( int v=0; v<=n; v++ ) {		// store all x,y in xvec,yvec
+	int x, y;
+	point( v, &x, &y );
+	xvec[v] = x;
+	yvec[v] = y;
+    }
+    double xf, yf;
+    double *p1, *p2;
+    int i,b,k;
+    QPointData *pd = p.data();
+    for ( i=0; i<=m; i++ ) {			// for each Bezier point...
+	u = (double)i/m;
+	for ( b=1; b<=n; b++ ) {		// compute u^1, u^2, ... u^n
+	    uv1[b] = u*uv1[b-1];		//   and (1-u)^1, ... (1-u)^n
+	    uv2[b] = (1.0-u)*uv2[b-1];
+	}
+	xf = yf = 0;
+	for ( k=0; k<=n; k++ ) {		// add control point influence
+	    bv = uv1[k]*uv2[n-k]*bico[k];	// compute blending value
+	    xf += bv*xvec[k];
+	    yf += bv*yvec[k];
+	}
+	pd->x = (Qpnta_t)(xf + (xf > 0 ? 0.5 : -0.5));
+	pd->y = (Qpnta_t)(yf + (yf > 0 ? 0.5 : -0.5));
+	pd++;
+    }
+    return p;
+}
 
 
 // --------------------------------------------------------------------------

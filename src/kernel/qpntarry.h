@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#6 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#7 $
 **
 ** Definition of QPointArray class
 **
 ** Author  : Haavard Nord
 ** Created : 940213
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -101,6 +101,7 @@ public:
 
     void    makeArc( int x, int y, int w, int h, int a1, int a2 );
     void    makeEllipse( int x, int y, int w, int h );
+    QPointArray bezier();
 };
 
 
