@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#32 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -269,6 +269,7 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	}
     }
 
+    w->setGeometry( invisible->geometry() );
     w->show();
 }
 
