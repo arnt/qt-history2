@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#82 $
 **
 ** Implementation of date and time classes
 **
@@ -72,7 +72,7 @@ const char *QDate::weekdayNames[] ={
   QDate member functions
  *****************************************************************************/
 
-// NOT REVISED
+// BEING REVISED: aavit
 /*!
   \class QDate qdatetime.h
   \brief The QDate class provides date functions.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#240 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#241 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -39,7 +39,7 @@
 #include <ctype.h>
 
 
-// NOT REVISED
+// BEING REVISED: jo (QImageIO)
 /*!
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap
@@ -667,7 +667,7 @@ void QImage::fill( uint pixel )
 		    p++;
 		}
 	    }
-	} else {	
+	} else {
 	    for ( int i=0; i<height(); i++ ) {
 		uint *p = (uint *)scanLine(i);
 		uint *end = p + width();
@@ -3820,7 +3820,7 @@ static void write_pbm_image( QImageIO *iio )
 	    }
 	    }
 	    break;
-	
+
 	case 8: {
 	    str.insert(1, '6');
 	    str.append("255\n");
@@ -3857,7 +3857,7 @@ static void write_pbm_image( QImageIO *iio )
 	    delete [] buf;
 	    }
 	    break;
-	
+
 	case 32: {
 	    str.insert(1, '6');
 	    str.append("255\n");

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.18 1999/10/21 10:04:33 aavit Exp $
+** $Id: qcache.doc,v 2.19 1999/10/27 21:40:22 arnt Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -26,6 +26,7 @@
   QCache documentation
  *****************************************************************************/
 
+// BEING REVISED: ettrich
 /*!
   \class QCache qcache.h
 

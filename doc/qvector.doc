@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvector.doc,v 2.1 1999/10/21 18:39:33 aavit Exp $
+** $Id: qvector.doc,v 2.2 1999/10/27 21:40:24 arnt Exp $
 **
 ** QVector class documentation
 **
@@ -26,6 +26,7 @@
   QVector documentation
  *****************************************************************************/
 
+// BEING REVISED: ettrich
 /*!
   \class QVector qvector.h
 

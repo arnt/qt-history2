@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#125 $
 **
 ** Implementation of layout classes
 **
@@ -491,7 +491,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].minimumSize < chain[i].size )
 		chain[i].minimumSize = chain[i].size;
-	}	
+	}
     }
     /*
     if ( wh < sizeHint ) {
@@ -750,7 +750,7 @@ private:
 };
 
 
-// NOT REVISED
+// BEING REVISED: reggie
 /*!
   \class QGridLayout qlayout.h
 
@@ -1351,7 +1351,7 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 			addColSpacing( c, cell.attribute( "spacing" ).toInt() );
 		    if ( cell.hasAttribute( "stretch" ) )
 			setColStretch( c, cell.attribute( "stretch" ).toInt() );
-	
+
 		    ++c;
 		}
 		else

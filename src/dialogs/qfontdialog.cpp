@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#49 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#50 $
 **
 ** Implementation of QFontDialog
 **
@@ -49,7 +49,7 @@
 //
 //
 
-// NOT REVISED
+// BEING REVISED: hanord
 /*!
   \class QFontDialog qfontdialog.h
   \brief The QFontDialog provides a dialog widget for selecting a text font
@@ -648,7 +648,7 @@ void QFontDialog::scriptHighlighted( const QString &s )
 
 void QFontDialog::styleHighlighted( const QString &s )
 {
-    d->styleEdit->setText( s );	
+    d->styleEdit->setText( s );
     if ( style() == WindowsStyle && d->styleEdit->hasFocus() )
 	d->styleEdit->selectAll();
 

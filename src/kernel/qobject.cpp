@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#231 $
 **
 ** Implementation of QObject class
 **
@@ -1959,7 +1959,7 @@ static void dumpRecursive( int level, QObject *object )
 	    } else {
 		flags += 'I';
 	    }
-	}	
+	}
 	qDebug( "%s%s::%s %s", (const char*)buf, object->className(), name,
 	    flags.latin1() );
 	if ( object->children() ) {

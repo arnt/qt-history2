@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#139 $
 **
 ** Implementation of QLabel widget class
 **
@@ -47,7 +47,7 @@ public:
 };
 
 
-// NOT REVISED
+// BEING REVISED: aavit
 /*!
   \class QLabel qlabel.h
   \brief The QLabel widget displays a static text or pixmap.

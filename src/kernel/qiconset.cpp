@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#33 $
 **
 ** Implementation of QIconSet class
 **
@@ -59,7 +59,7 @@ struct QIconSetPrivate: public QShared
 };
 
 
-// NOT REVISED
+// BEING REVISED: warwick
 /*! \class QIconSet qiconset.h
 
   \brief The QIconSet class provides a set of icons (normal, disabled,
@@ -278,7 +278,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 	QPixmap r;
 	return r;
     }
-	
+
     QImage i;
     QIconSetPrivate * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;

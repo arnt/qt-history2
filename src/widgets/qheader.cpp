@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#101 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -49,11 +49,11 @@ struct QHeaderData
     bool		move;
     int sortColumn;
     bool sortDirection;
-    
+
 };
 
 
-// NOT REVISED
+// BEING REVISED: eiriken
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a table header.
@@ -295,7 +295,7 @@ void QHeader::paintRect( int p, int s )
     paint.setPen( QPen( black, 1, DotLine ) );
     if ( orient == Horizontal )
 	paint.drawRect( p, 3, s, height() - 5 );
-    else	
+    else
 	paint.drawRect( 3, p, height() - 5, s );
 }
 
@@ -598,7 +598,7 @@ void QHeader::handleColumnResize( int index, int s, bool final )
 // 	    scroll( delta, 0, QRect( repaintPos, 0, width() - repaintPos,  height() ) );
 // 	repaint( repaintPos - 4, 0, 4, height(), FALSE ); // border between the items
 	repaint( FALSE );
-	int pos = cellPos( count() - 1 ) + cellSize( count() - 1 ) - offset(); 
+	int pos = cellPos( count() - 1 ) + cellSize( count() - 1 ) - offset();
 	if ( pos > 0 && pos < width() )
 	    repaint( pos, 0, width() - pos, height() );
     } else

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#47 $
 **
 ** Implementation of QBuffer class
 **
@@ -26,8 +26,8 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-// NOT REVISED
-/*###*//*!
+// BEING REVISED: paul
+/*!
   \class QBuffer qbuffer.h
   \brief The QBuffer class is an I/O device that operates on a QByteArray
 
@@ -36,16 +36,16 @@
   QBuffer allows reading and writing a memory buffer.
   It has an associated QByteArray which holds the buffer data. The
   size() of the buffer is automatically adjusted if more data is written.
-  
+
   The constructor \link QBuffer::QBuffer(QByteArray)
   QBuffer(QByteArray) \endlink creates a QBuffer with an existing byte
   array.  The byte array can be set with setBuffer() and retrieved
   with buffer().
-  
+
   Use open() to open the buffer before use, and to set the mode
   (read-only,write-only, etc.).  close() closes the buffer; this must
   be done before open() with a new mode or setBuffer().
-  
+
   The common way to use QBuffer is through QDataStream or QTextStream
   which have constructors that take a QBuffer parameter. For
   convenience, there are also QDataStream and QTextStream constructors
@@ -54,10 +54,10 @@
 
   Note that QTextStream can also operate on a QString (a Unicode
   string); a QBuffer cannot.
-  
+
   You can also use QBuffer directly through the standard QIODevice
   functions readBlock(), writeBlock() readLine(), at(), getch(), putch() and
-  ungetch().  
+  ungetch().
 
   \sa QFile, QDataStream, QTextStream,  \link shclass.html Shared Classes\endlink
 */
@@ -82,7 +82,7 @@ QBuffer::QBuffer()
   \c IO_ReadWrite) and write something into the buffer, \a buf
   will be modified.
 
-  
+
   Example:
   \code
     QCString str = "abc";
@@ -94,7 +94,7 @@ QBuffer::QBuffer()
       // Now, str == "abcdef"
   \endcode
 
-  
+
   \sa setBuffer()
 */
 
@@ -150,7 +150,7 @@ bool QBuffer::setBuffer( QByteArray buf )
   \fn QByteArray QBuffer::buffer() const
 
   Returns this buffer's byte array.
-  
+
   \sa setBuffer()
 */
 
@@ -443,7 +443,7 @@ int QBuffer::putch( int ch )
   it is not zero.
 
   This function is normally called to "undo" a getch() operation.
-  
+
   Returns \a ch, or -1 if some error occurred.
 
   \sa getch(), putch()

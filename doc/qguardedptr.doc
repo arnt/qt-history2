@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qguardedptr.doc,v 1.1 1999/09/29 13:50:54 ettrich Exp $
+** $Id: qguardedptr.doc,v 1.2 1999/10/27 21:40:23 arnt Exp $
 **
 ** QGuardedPtr class documentation
 **
@@ -25,6 +25,8 @@
 /*****************************************************************************
   QGuardedPtr documentation
  *****************************************************************************/
+
+// BEING REVISED: warwick
 
 /*!
   \class QGuardedPtr qguardedptr.h

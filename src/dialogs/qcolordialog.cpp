@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#21 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#22 $
 **
 ** Implementation of QColorDialog class
 **
@@ -793,7 +793,7 @@ void QColorDialogPrivate::addCustom()
 }
 
 
-// NOT REVISED
+// BEING REVISED: jo
 /*!
   \class QColorDialog qcolordialog.h
   \brief The QColorDialog provides a dialog widget for specifying colors.

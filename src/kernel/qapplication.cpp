@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#292 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#293 $
 **
 ** Implementation of QApplication class
 **
@@ -43,7 +43,8 @@
 #endif
 
 
-// NOT REVISED
+// BEING REVISED: hanord (QSessionManager)
+
 /*!
   \class QApplication qapplication.h
   \brief The QApplication class manages the GUI application's control flow and main settings.
@@ -2180,7 +2181,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   This enum type defines the circumstances under which this
   application wants to be restarted by the session manager.  The
   current values are: <ul>
-  
+
   <li> \c RestartIfRunning - if the application still runs by the time
   the session is shut down, it wants to be restarted at the start of
   the next session.
@@ -2194,10 +2195,10 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 
   <li> \c RestartNever - the application does not want to be restarted
   automatically.
-  
+
   </ul>
 
-  The default hint is \c RestartIfRunning. 
+  The default hint is \c RestartIfRunning.
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#29 $
 **
 ** Implementation of QClipboard class
 **
@@ -32,7 +32,7 @@
 #define QApplication QBaseApplication
 #endif
 
-// NOT REVISED
+// BEING REVISED: weis
 /*!
   \class QClipboard qclipboard.h
   \brief The QClipboard class provides access to the window system clipboard.
