@@ -815,14 +815,16 @@ void QString::realloc(int alloc)
         x->c = 0;
         x->cache = 0;
         x->ref = 1;
+        x->alloc = alloc;
+        x->data = x->array;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             free(x);
     } else {
         d = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc * sizeof(QChar)));
+        d->alloc = alloc;
+        d->data = d->array;
     }
-    d->alloc = alloc;
-    d->data = d->array;
 }
 
 void QString::realloc()
