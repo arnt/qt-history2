@@ -86,18 +86,19 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
 					  bool off=TRUE, const QRect &rect=QRect())
 {
     static Rect r;
+    bool use_rect = (rect.x() || rect.y() || rect.width() || rect.height());
     QPoint tl(qr.topLeft());
     if(pd && pd->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget*)pd;
 	tl = w->mapTo(w->topLevelWidget(), tl);
     }
-    if(rect.isValid())
+    if(use_rect)
 	tl += rect.topLeft();
     int offset = 0;
     if(off)
 	offset = 1;
-    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - offset, tl.y() + qr.height() - offset);
-    if(rect.isValid()) {
+    SetRect(&r, tl.x(), tl.y(), (tl.x() + qr.width()) - offset, (tl.y() + qr.height()) - offset);
+    if(use_rect) {
 	r.right -= rect.width();
 	r.bottom -= rect.height();
     }
@@ -276,7 +277,7 @@ void QMacStyle::polish( QApplication* app )
     pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_mac_highlight_active_color );
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_mac_highlight_inactive_color );
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight, QColor( 0xC2, 0xC2, 0xC2 ) );
-    pal.setColor( QColorGroup::HighlightedText, pc);
+    pal.setColor( QColorGroup::HighlightedText, black);
 
     app->setPalette( pal, TRUE );
 }
@@ -724,7 +725,7 @@ void QMacStyle::drawControl( ControlElement element,
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
 	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
 	    ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
-	    SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)));
+	    SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(1, 1, 1, 2)));
 	    ((QMacPainter *)p)->noop();
 	    DrawControlInCurrentPort(btn);
 	} else 
@@ -734,7 +735,7 @@ void QMacStyle::drawControl( ControlElement element,
 	    if(btn->isFlat()) 
 		info.adornment = kThemeAdornmentNoShadow;
 	    ((QMacPainter *)p)->noop();
-	    DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(3, 3, 6, 6)), 
+	    DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 2)), 
 			    kThemePushButton, &info, NULL, NULL, NULL, 0);
 	}
 	break; }
