@@ -5546,8 +5546,11 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 
 void QTextTable::resize( QPainter* p, int nwidth )
 {
+    if ( fixwidth && cachewidth != 0 )
+	return;
     if ( nwidth == cachewidth )
 	return;
+    cachewidth = nwidth;
     int w = nwidth;
     painter = p;
     if ( is_printer( painter ) ) {
@@ -5558,7 +5561,6 @@ void QTextTable::resize( QPainter* p, int nwidth )
     format( w );
     if ( nwidth >= 32000 )
 	nwidth = w;
-    cachewidth = nwidth;
     if ( stretch )
 	nwidth = nwidth * stretch / 100;
 
