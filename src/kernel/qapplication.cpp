@@ -1051,8 +1051,11 @@ QApplication::~QApplication()
     postevent_mutex = 0;
 #endif // QT_THREAD_SUPPORT
 
-    if( qApp == this )
+    if( qApp == this ) {
+	if ( postedEvents )
+	    removePostedEvents( this );
 	qApp = 0;
+    }
     is_app_running = FALSE;
 
     if ( widgetCount ) {
