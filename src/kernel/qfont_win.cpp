@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#59 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -525,9 +525,13 @@ int QFontMetrics::leftBearing(char ch) const
 	GetCharABCWidths(hdc(),ch,ch,&abc);
 	return abc.abcA;
     } else {
-	ABCFLOAT abc;
-	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return int(abc.abcfA);
+	if ( qt_winver == WV_NT ) {
+	    ABCFLOAT abc;
+	    GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
+	    return int(abc.abcfA);
+	} else {
+	    return 0;
+	}
     }
 }
 
@@ -539,9 +543,13 @@ int QFontMetrics::rightBearing(char ch) const
 	GetCharABCWidths(hdc(),ch,ch,&abc);
 	return abc.abcC;
     } else {
-	ABCFLOAT abc;
-	GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
-	return int(abc.abcfC);
+	if ( qt_winver == WV_NT ) {
+	    ABCFLOAT abc;
+	    GetCharABCWidthsFloat(hdc(),ch,ch,&abc);
+	    return int(abc.abcfC);
+	} else {
+	    return 0;
+	}
     }
 }
 
@@ -580,25 +588,24 @@ int QFontMetrics::minRightBearing() const
 	    }
 	    delete [] abc;
 	} else {
-	    ABCFLOAT *abc = new ABCFLOAT[n];
-	    GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
-	    float fml = abc[0].abcfA;
-	    float fmr = abc[0].abcfC;
-	    for (int i=1; i<n; i++) {
-		fml = QMIN(fml,abc[i].abcfA);
-		fmr = QMIN(fmr,abc[i].abcfC);
+	    if ( qt_winver == WV_NT ) {
+		ABCFLOAT *abc = new ABCFLOAT[n];
+		GetCharABCWidthsFloat(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
+		float fml = abc[0].abcfA;
+		float fmr = abc[0].abcfC;
+		for (int i=1; i<n; i++) {
+		    fml = QMIN(fml,abc[i].abcfA);
+		    fmr = QMIN(fmr,abc[i].abcfC);
+		}
+		ml = int(fml-0.9999);
+		mr = int(fmr-0.9999);
+		delete [] abc;
+	    } else {
+		ml = mr = 0;
 	    }
-	    ml = int(fml-0.9999);
-	    mr = int(fmr-0.9999);
-	    delete [] abc;
 	}
-#ifdef NO_WORKAROND_FOR_FONT_PROBLEM
 	def->lbearing = ml;
 	def->rbearing = mr;
-#else
-        def->lbearing = QABS(ml) > 10 ? 0 : ml;
-        def->rbearing = QABS(mr) > 10 ? 0 : mr;
-#end
     }
 
     return def->rbearing;
