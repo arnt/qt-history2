@@ -1133,6 +1133,12 @@ void Configure::generateConfigfiles()
                       << "#define QT_NO_ACCESSIBILITY" << endl
                       << "#endif" << endl;
         }
+        if (dictionary["OPENGL"] == "no") {
+            outStream << "#ifndef QT_NO_OPENGL" << endl
+                      << "#define QT_NO_OPENGL" << endl
+                      << "#endif" << endl;
+        }
+
 	outFile.close();
         if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
                          dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h")
@@ -1760,8 +1766,8 @@ void Configure::readLicense()
         CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
         HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
         if (GetConsoleScreenBufferInfo(stdOut, &consoleInfo))
-            screenHeight = consoleInfo.srWindow.Bottom 
-                         - consoleInfo.srWindow.Top 
+            screenHeight = consoleInfo.srWindow.Bottom
+                         - consoleInfo.srWindow.Top
                          - 1; // Some overlap for context
 
         // Prompt the license content to the user
@@ -1769,7 +1775,7 @@ void Configure::readLicense()
         while(i < licenseContent.size()) {
             cout << licenseContent.at(i) << endl;
             if (++i % screenHeight == 0) {
-                cout << "(Press any key for more..)"; 
+                cout << "(Press any key for more..)";
                 if(_getch() == 3) // _Any_ keypress w/no echo(eat <Enter> for stdout)
                     exit(0);      // Exit cleanly for Ctrl+C
                 cout << "\r";     // Overwrite text above
