@@ -170,6 +170,9 @@ public:
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     int heuristicContentMatch(const char *, int) const;
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
     bool canEncode( QChar ) const;
 };
 
@@ -204,7 +207,11 @@ public:
 
     int heuristicContentMatch(const char *, int) const;
     int heuristicNameMatch(const char* hint) const;
-    bool canEncode( QChar ) const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
+bool canEncode( QChar ) const;
 };
 
 
