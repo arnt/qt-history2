@@ -1175,8 +1175,10 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
 
     stroke.setFillMode(QPainterPath::Winding);
 
+#ifdef QPP_STROKE_DEBUG
     printf(" -> Final path:\n");
     qt_debug_path(stroke);
+#endif
 
     return stroke;
 }
