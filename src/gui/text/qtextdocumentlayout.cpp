@@ -84,12 +84,24 @@ struct LayoutStruct {
 class QTextTableData : public QTextFrameData
 {
 public:
+    inline QTextTableData() : cellSpacing(0) {}
+    int cellSpacing;
     QVector<int> minWidths;
     QVector<int> maxWidths;
     QVector<int> widths;
     QVector<int> heights;
     QVector<int> columnPositions;
     QVector<int> rowPositions;
+
+    inline int cellWidth(int column, int colspan) const
+    { return columnPositions.at(column + colspan - 1) + widths.at(column + colspan - 1)
+             - columnPositions.at(column) - 2 * padding; }
+
+    inline void calcRowPosition(int row)
+    { 
+        if (row > 0)
+            rowPositions[row] = rowPositions.at(row - 1) + heights.at(row - 1) + border + cellSpacing + border;
+    }
 };
 
 static QTextFrameData *createData(QTextFrame *f)
@@ -741,7 +753,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     Q_ASSERT(constraints.count() == columns);
     Q_ASSERT(constraintValues.count() == columns);
 
-    const int cellSpacing = fmt.cellSpacing();
+    const int cellSpacing = td->cellSpacing = fmt.cellSpacing();
     // ### fix padding
     const int margin = td->margin + td->border;
 
@@ -843,8 +855,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     //
     // ### this could be made faster by iterating over the cells array of QTextTable
     for (int r = 0; r < rows; ++r) {
-        if (r > 0)
-            td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border + cellSpacing + td->border;
+        td->calcRowPosition(r);
 
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
@@ -859,9 +870,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 continue;
             }
 
-            const int width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                              - td->columnPositions.at(c) - 2 * td->padding;
-
+            const int width = td->cellWidth(c, cspan);
             LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2*td->padding);
@@ -870,8 +879,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
 
     if (haveRowSpannedCells) {
         for (int r = 0; r < rows; ++r) {
-            if (r > 0)
-                td->rowPositions[r] = td->rowPositions.at(r-1) + td->heights.at(r-1) + td->border + cellSpacing + td->border;
+            td->calcRowPosition(r);
 
             for (int c = 0; c < columns; ++c) {
                 QTextTableCell cell = table->cellAt(r, c);
@@ -887,17 +895,14 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 if (cell.row() != r)
                     continue;
 
-                const int width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                                  - td->columnPositions.at(c) - 2 * td->padding;
-
+                const int width = td->cellWidth(c, cspan);
                 LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
                 // the last row gets all the remaining space
-                // ### take spacing into account
                 int heightToDistribute = layoutStruct.y + 2*td->padding;
                 for (int n = 0; n < rspan - 1; ++n) {
                     const int row = r + n;
-                    heightToDistribute -= td->heights.at(row);
+                    heightToDistribute -= td->heights.at(row) + td->border + cellSpacing + td->border;
                     if (heightToDistribute <= 0)
                         break;
                 }
