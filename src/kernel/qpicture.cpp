@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#26 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#26 $";
 #endif
 
 
@@ -42,22 +42,22 @@ Example of how to record a picture:
 \code
   QPicture  pic;
   QPainter  p;
-  p.begin( &pic );			\/ paint in picture
-  p.drawEllipse( 10,20, 80,70 );	\/ draw an ellipse
-  p.end();				\/ painting done
-  pic.save( "drawing.pic" );		\/ save picture
+  p.begin( &pic );				// paint in picture
+  p.drawEllipse( 10,20, 80,70 );		// draw an ellipse
+  p.end();					// painting done
+  pic.save( "drawing.pic" );			// save picture
 \endcode
 
 Example of how to replay a picture:
 \code
   QPicture  pic;
-  pic.load( "drawing.pic" );		\/ load picture
+  pic.load( "drawing.pic" );			// load picture
 
   QWidget   w;
   QPainter  p;
-  p.begin( &w );			\/ paint in widget
-  p.drawPicture( pic );			\/ draw the picture
-  p.end();				\/ painting done
+  p.begin( &w );				// paint in widget
+  p.drawPicture( pic );				// draw the picture
+  p.end();					// painting done
 \endcode */
 
 

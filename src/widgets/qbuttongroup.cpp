@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#12 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#12 $";
 #endif
 
 
@@ -154,8 +154,8 @@ void QButtonGroup::buttonClicked()
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
 	if ( sobj == i->button )		// button was clicked
 	    id = i->id;
-	else if ( switch_off )			// switch all other off
-	    i->button->switchOff();
+	else if ( switch_off && i->button->inherits("QRadioButton") )
+	    i->button->switchOff();		// switch other radio buttons off
     }
     if ( id != -1 )
 	emit clicked( id );

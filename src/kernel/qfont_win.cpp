@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#9 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_win.cpp#9 $";
 #endif
 
 
@@ -70,6 +70,7 @@ QFontData &QFontData::operator=( const QFontData &d )
     stockFont = TRUE;
     hdc = hfont = 0;
     tm = 0;
+    return *this;
 }
 
 
@@ -97,18 +98,18 @@ void QFont::cacheStatistics()
 QFont::QFont( bool )				// create default font
 {
     init();
-    d->req.family    = "helvetica";
-    d->req.pointSize = 10*14;
+    d->req.family    = "Arial";
+    d->req.pointSize = 12*8;
 }
 
 
 #define DIRTY_FONT (d->req.dirty)
 
 
-HANDLE QFont::handle() const
+HANDLE QFont::handle( HANDLE output_hdc ) const
 {
     if ( DIRTY_FONT )
-	loadFont();
+	loadFont( output_hdc );
     return d->hfont;
 }
 
@@ -158,7 +159,7 @@ void QFont::updateFontInfo() const
 }
 
 
-void QFont::loadFont() const
+void QFont::loadFont( HANDLE output_hdc ) const
 {
     d->exactMatch = TRUE;
     d->lineW	  = 1;
@@ -227,8 +228,14 @@ void QFont::loadFont() const
 	weight = FW_DONTCARE;
     else
 	weight = (d->req.weight*900)/99;
+    int height;
+    if ( output_hdc )
+	height = d->req.pointSize*GetDeviceCaps(output_hdc,LOGPIXELSY)/72;
+    else
+	height = d->req.pointSize;
+
     d->hfont = CreateFont(
-	d->req.pointSize/10,			// height
+	-height/10,				// height
 	0,					// width
 	0,					// escapement
 	0,					// orientation
@@ -332,9 +339,10 @@ int QFontMetrics::width( const char *str, int len ) const
 	return 0;
     if ( len < 0 )
 	len = strlen( str );
-    HDC	hdc;
+    HDC hdc;
     if ( data.widget ) {
 	QFont f = data.w->font();
+	f.handle();
 	hdc = f.d->hdc;
     }
     else
@@ -360,13 +368,20 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	return QRect( 0, 0, 0, 0 );
     if ( data.widget ) {
 	QFont f = data.w->font();
+	f.handle();
 	hdc = f.d->hdc;
     }
     else
 	hdc = data.p->handle();
 #if defined(_WS_WIN32_)
+#if 0
+    RECT r;
+    r.left = r.top = r.right = r.bottom;
+    DrawText( hdc, str, len, &r, DT_CALCRECT | DT_SINGLELINE );
+    return QRect( QPoint(r.left,r.top), QPoint(r.right,r.bottom) );
+#endif
     SIZE s;
-    GetTextExtentPoint( hdc, str, len, &s );
+    GetTextExtentPoint32( hdc, str, len, &s );
     return QRect( 0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent );
 #else
 #error not implemented for win 16

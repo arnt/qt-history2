@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#10 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#10 $";
 #endif
 
 
@@ -693,8 +693,16 @@ WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
 	    result = widget->translateConfigEvent( msg );
 	    break;
 
-//	case WM_SETFOCUS:			// got focus
-//	case WM_KILLFOCUS:			// lost focus
+	case WM_SETFOCUS:			// got focus
+	    if ( widget->testWFlags(WType_Popup) ) {
+		result = TRUE;
+		SetFocus( (HWND)wParam );
+		debug( "Fooled setFocus" );
+	    }
+	    break;
+	case WM_KILLFOCUS:			// lost focus
+	    break;
+
 	case WM_ACTIVATE:
 	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
 	    break;
