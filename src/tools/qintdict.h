@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#3 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#4 $
 **
 ** Definition of QIntDict template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 940624
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -43,6 +43,7 @@ public:									      \
     bool  insert( long k, const type *d )				      \
 			{ return QGDict::look((const char*)k,(GCI)d,1)!=0;}   \
     bool  remove( long k )	{ return QGDict::remove((const char*)k); }    \
+    type *take( long k )	{ return (type*)QGDict::take((const char*)k);}\
     void  clear()		{ QGDict::clear(); }			      \
     type *find( long k )	const					      \
 	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0);}  \
@@ -99,6 +100,7 @@ public:
     bool  insert( long k, const type *d )
 			{ return QGDict::look((const char*)k,(GCI)d,1)!=0; }
     bool  remove( long k )	{ return QGDict::remove((const char*)k); }
+    type *take( long k )	{ return (type*)QGDict::take((const char*)k); }
     void  clear()		{ QGDict::clear(); }
     type *find( long k )	const
 	{ return (type *)((QGDict*)this)->QGDict::look((const char*)k,0,0); }
