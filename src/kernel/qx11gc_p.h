@@ -1,6 +1,8 @@
 #ifndef QX11GC_P_H
 #define QX11GC_P_H
 
+#include "qregion.h"
+
 static const short ropCodes[] = {                     // ROP translation table
     GXcopy, // CopyROP
     GXor, // OrROP

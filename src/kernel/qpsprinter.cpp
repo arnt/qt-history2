@@ -49,6 +49,7 @@
 #include "qfontdatabase.h"
 #include "qregexp.h"
 #include "qbitmap.h"
+#include "qregion.h"
 #include <private/qunicodetables_p.h>
 
 #if defined(Q_OS_WIN32)
