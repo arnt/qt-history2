@@ -5,30 +5,46 @@
 #include <qcheckbox.h>
 
 #include "some.h"
+#include "guicat.h"
 
 int main( int argc, char **argv )
 {
-    if ( argc > 1 && QString( "-cat" ) == argv[1] ) {
-	char ch;
-	while( !cin.eof() )
-	{
-	    cin >> ch;
-	    cout << ch;
-	    cout.flush();
-	    cerr << (char)(ch +1);
-	    cerr.flush();
+    if ( argc > 1 ) {
+	if ( QString( "-cat" ) == argv[1] ) {
+	    char ch;
+	    while( !cin.eof() )
+	    {
+		cin >> ch;
+		cout << ch;
+		cout.flush();
+		cerr << (char)(ch +1);
+		cerr.flush();
+	    }
+	    return ch;
+	} else if ( QString( "-guicat" ) == argv[1] ) {
+	    QApplication a( argc, argv );
+	    GuiCat gc;
+	    a.setMainWidget( &gc );
+	    gc.show();
+	    return a.exec();
 	}
-	return ch;
     } else {
 	QApplication a( argc, argv );
 	SomeFactory factory;
 	QVBox vb;
 
-	QPushButton *newProcess = new QPushButton( "New Process", &vb );
-	QPushButton *quit = new QPushButton ( "Quit", &vb );
-
+	QPushButton *newProcess;
+	newProcess = new QPushButton( "New Process (cat)", &vb );
 	QObject::connect( newProcess, SIGNAL(clicked()),
-		&factory, SLOT(newProcess()) );
+		&factory, SLOT(newProcess0()) );
+	newProcess = new QPushButton( "New Process (guicat)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(newProcess1()) );
+	newProcess = new QPushButton( "New Process (p4)", &vb );
+	QObject::connect( newProcess, SIGNAL(clicked()),
+		&factory, SLOT(newProcess2()) );
+
+	QPushButton *quit = new QPushButton ( "Quit", &vb );
 	QObject::connect( quit, SIGNAL(clicked()),
 		&factory, SLOT(quit()) );
 	QObject::connect( &factory, SIGNAL(quitted()),

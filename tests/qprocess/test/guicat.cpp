@@ -1,0 +1,87 @@
+#include "guicat.h"
+
+#include <qpushbutton.h>
+#include <qapplication.h>
+#include <iostream.h>
+#if defined(_OS_UNIX_)
+#include <unistd.h>
+#endif
+
+GuiCat::GuiCat( QWidget *p ) : QVBox( p )
+{
+    QPushButton *pb;
+
+    pb = new QPushButton( "Read One Byte", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(readOneByte()) );
+
+    pb = new QPushButton( "Write to Stdout", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(writeStdout()) );
+
+    pb = new QPushButton( "Write to Stderr", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(writeStderr()) );
+
+    pb = new QPushButton( "Close Stdin", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(closeStdin()) );
+
+    pb = new QPushButton( "Close Stdout", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(closeStdout()) );
+
+    pb = new QPushButton( "Close Stderr", this );
+    connect( pb, SIGNAL(clicked()), this, SLOT(closeStderr()) );
+
+    pb = new QPushButton( "Quit", this );
+    connect( pb, SIGNAL(clicked()), qApp, SLOT(quit()) );
+}
+
+
+void GuiCat::readOneByte()
+{
+    char ch;
+    if( !cin.eof() ) {
+	cin >> ch;
+	buf.resize( buf.size() + 1 );
+	buf[ buf.size()-1 ] = ch;
+    }
+}
+
+
+void GuiCat::writeStdout()
+{
+    for ( uint i=0; i<buf.size(); i++ )
+	cout << buf[i];
+    cout.flush();
+    buf.resize( 0 );
+}
+
+
+void GuiCat::writeStderr()
+{
+    for ( uint i=0; i<buf.size(); i++ )
+	cerr << buf[i];
+    cerr.flush();
+    buf.resize( 0 );
+}
+
+
+void GuiCat::closeStdin()
+{
+#if defined(_OS_UNIX_)
+    ::close( STDIN_FILENO );
+#endif
+}
+
+
+void GuiCat::closeStdout()
+{
+#if defined(_OS_UNIX_)
+    ::close( STDOUT_FILENO );
+#endif
+}
+
+
+void GuiCat::closeStderr()
+{
+#if defined(_OS_UNIX_)
+    ::close( STDERR_FILENO );
+#endif
+}

@@ -14,25 +14,37 @@
 static QLabel *out;
 static QLabel *err;
 
-Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit ) : QObject( p )
+Some::Some( QObject *p, bool cStdout, bool cStderr, bool cExit, int com )
+	: QObject( p )
 {
     proc = new QProcess( this );
-    proc->addArgument( QDir::current().absFilePath( "some" ) );
-    proc->addArgument( "-cat" );
+    switch ( com ) {
+    case 1:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-guicat" );
+	hideAfterExit = TRUE;
+	break;
 #if 0
-    // for windows compiled from a dsp file
-    proc = new QProcess( this );
-    QDir dir = QDir::current();
-    dir.cd( "Debug" );
-    proc->addArgument( dir.absFilePath( "some" ) );
-    proc->addArgument( "-cat" );
+	// for windows compiled from a dsp file
+	proc = new QProcess( this );
+	QDir dir = QDir::current();
+	dir.cd( "Debug" );
+	proc->addArgument( dir.absFilePath( "some" ) );
+	proc->addArgument( "-cat" );
 #endif
-#if 0
-    // other external program
-    proc->addArgument( "p4" );
-    proc->addArgument( "help" );
-    proc->addArgument( "commands" );
-#endif
+    case 2:
+	// other external program
+	proc->addArgument( "p4" );
+	proc->addArgument( "help" );
+	proc->addArgument( "commands" );
+	hideAfterExit = FALSE;
+	break;
+    default:
+	proc->addArgument( QDir::current().absFilePath( "some" ) );
+	proc->addArgument( "-cat" );
+	hideAfterExit = TRUE;
+	break;
+    }
 
     // io stuff
     QLineEdit *in = new QLineEdit( &main );
@@ -102,10 +114,8 @@ void Some::kill()
 {
     if ( proc->kill() ) {
 	qDebug( "kill() Successful!" );
-//	QMessageBox::information( &main, "kill()", "Successful!" );
     } else {
 	qDebug( "kill() Fail!" );
-//	QMessageBox::information( &main, "kill()", "Fail!" );
     }
     showInfo();
 }
@@ -114,10 +124,8 @@ void Some::hup()
 {
     if ( proc->hangUp() ) {
 	qDebug( "hangUp() Successful!" );
-//	QMessageBox::information( &main, "hangUp()", "Successful!" );
     } else {
 	qDebug( "hangUp() Fail!" );
-//	QMessageBox::information( &main, "hangUp()", "Fail!" );
     }
     showInfo();
 }
@@ -141,9 +149,8 @@ void Some::showInfo()
 void Some::procExited()
 {
     showInfo();
-#if defined(_OS_UNIX_)
-    main.hide();
-#endif
+    if ( hideAfterExit )
+	main.hide();
 }
 
 void Some::wroteStdin()
@@ -186,9 +193,19 @@ void Some::connectExit( bool enable )
  * SomeFactory
 */
 
-void SomeFactory::newProcess()
+void SomeFactory::newProcess0()
 {
-    new Some( parent, cStdout, cStderr, cExit );
+    new Some( parent, cStdout, cStderr, cExit, 0 );
+}
+
+void SomeFactory::newProcess1()
+{
+    new Some( parent, cStdout, cStderr, cExit, 1 );
+}
+
+void SomeFactory::newProcess2()
+{
+    new Some( parent, cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::quit()

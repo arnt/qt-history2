@@ -10,7 +10,7 @@ class Some : public QObject
     Q_OBJECT
 
 public:
-    Some( QObject *, bool cStdout, bool cStderr, bool cExitp );
+    Some( QObject *, bool cStdout, bool cStderr, bool cExitp, int com );
     ~Some() { };
 
 public slots:
@@ -34,6 +34,7 @@ private:
     QLabel *normalExitInfo;
     QLabel *exitStatusInfo;
     QProcess *proc;
+    bool hideAfterExit;
 };
 
 
@@ -48,7 +49,9 @@ public:
     { delete parent; };
 
 public slots:
-    void newProcess();
+    void newProcess0();
+    void newProcess1();
+    void newProcess2();
     void quit();
 
     void connectStdout( bool enable );
