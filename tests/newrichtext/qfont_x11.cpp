@@ -2638,7 +2638,30 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     if (len == 0)
 	return QRect();
 
-    return QRect();
+
+    const TextLayout *layout = TextLayout::instance();
+    ScriptItemArray items;
+    layout->itemize( items,  str );
+    ShapedItem shaped;
+    int nchars;
+    QGlyphMetrics gm;
+    for ( int i = 0; i < items.size() && (nchars = len-items[i].position) > 0; i++ ) {
+	layout->shape( shaped, QFont( d ), str, items, i );
+	// ### not the best way to ensure positioning has happened.
+	(void)layout->width( shaped );
+	QFont::Script script = (QFont::Script)shaped.d->analysis.script;
+	d->load( script );
+	// #### take care of length argument
+	FontEngineIface *fe = d->x11data.fontstruct[script];
+	QGlyphMetrics m = fe->boundingBox( shaped.d->glyphs, shaped.d->advances, shaped.d->offsets, shaped.d->num_glyphs );
+	gm.x = QMIN( gm.x, m.x + gm.xoff );
+	gm.y = QMIN( gm.y, m.x + gm.yoff );
+	gm.width = QMAX( gm.width, m.width+gm.xoff );
+	gm.height = QMAX( gm.height, m.height+gm.yoff );
+	gm.xoff += m.xoff;
+	gm.yoff += m.yoff;
+    }
+    return QRect( gm.x, gm.y, gm.width, gm.height );
 }
 
 

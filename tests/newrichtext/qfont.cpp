@@ -1876,7 +1876,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
-    return QRect( gi.xoff, gi.yoff, gi.width, gi.height );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
 }
 
 
