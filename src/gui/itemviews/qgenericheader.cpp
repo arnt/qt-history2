@@ -7,6 +7,7 @@
 #include <qscrollbar.h>
 #include <qapplication.h>
 #include <private/qabstractitemview_p.h>
+#include <qdebug.h>
 
 class QGenericHeaderPrivate: public QAbstractItemViewPrivate
 {
@@ -197,6 +198,8 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
 
     int section;
+    int width = d->viewport->width();
+    int height = d->viewport->height();
     if (d->orientation == Horizontal) {
         for (int i = start; i <= end; ++i) {
             if (sections[i].hidden)
@@ -204,8 +207,16 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             section = sections[i].section;
             item = model()->index(0, section, 0, QModelIndex::HorizontalHeader);
             options.itemRect.setRect(sectionPosition(section) - offset, 0,
-                                     sectionSize(section), height());
+                                     sectionSize(section), height);
             paintSection(&painter, &options, item);
+        }
+        if (options.itemRect.right() < area.right()) {
+            QStyle::SFlags flags = QStyle::Style_Off|QStyle::Style_Raised|QStyle::Style_Horizontal;
+            if (isEnabled())
+                flags |= QStyle::Style_Enabled;
+            QRect rect(options.itemRect.right() + 1, 0,
+                       width - options.itemRect.right() - 1, height);
+            style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
         }
     } else {
         for (int i = start; i <= end; ++i) {
@@ -214,20 +225,17 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
             section = sections[i].section;
             item = model()->index(section, 0, 0, QModelIndex::VerticalHeader);
             options.itemRect.setRect(0, sectionPosition(section) - offset,
-                                     width(), sectionSize(section));
+                                     width, sectionSize(section));
             paintSection(&painter, &options, item);
         }
-    }
-
-    if (options.itemRect.right() < area.right()) {
-        QStyle::SFlags flags = QStyle::Style_Off | QStyle::Style_Raised;
-        if (orientation() == Horizontal)
-            flags |= QStyle::Style_Horizontal;
-        if (isEnabled())
-            flags |= QStyle::Style_Enabled;
-        QRect rect(options.itemRect.right() + 1, area.top(),
-                   area.width() - options.itemRect.right() - 1, area.height());
-        style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
+        if (options.itemRect.bottom() < area.bottom()) {
+            QStyle::SFlags flags = QStyle::Style_Off|QStyle::Style_Raised;
+            if (isEnabled())
+                flags |= QStyle::Style_Enabled;
+            QRect rect(0, options.itemRect.bottom() + 1,
+                       width, height - options.itemRect.bottom() - 1);
+            style().drawPrimitive(QStyle::PE_HeaderSection, &painter, rect, palette(), flags);
+        }
     }
 
     painter.end();
@@ -285,9 +293,6 @@ int QGenericHeader::indexAt(int position) const
 
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
 
-    if (end == 0 && sections[1].position < position)
-        return -1;
-
     while (end - start > 0) {
         if (sections[idx].position > position)
             end = idx - 1;
@@ -295,6 +300,9 @@ int QGenericHeader::indexAt(int position) const
             start = idx;
         idx = (start + end + 1) / 2;
     }
+
+    if (idx == end && sections[end + 1].position < position)
+        return -1;
 
     return idx;
 }
@@ -686,12 +694,16 @@ void QGenericHeader::resizeSection(int section, int size)
         }
     }
 
-    int pos = sectionPosition(section) - offset() - (d->reverse() ? size : 0);
+    int w = d->viewport->width();
+    int h = d->viewport->height();
+    int pos = sectionPosition(section) - offset();
+    if (d->reverse())
+        pos -= size;
     QRect r;
     if (orientation() == Horizontal)
-        r = QRect(pos, 0, width() - pos, height());
+        r.setRect(pos, 0, w - pos, h);
     else
-        r = QRect(0, pos, width(), height() - pos);
+        r.setRect(0, pos, w, h - pos);
     d->viewport->update(r.normalize());
     emit sectionSizeChanged(section, oldSize, size);
 }
