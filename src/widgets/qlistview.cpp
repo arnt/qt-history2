@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#84 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#84 $");
 
 
 const int Unsorted = 32767;
@@ -706,7 +706,7 @@ const char * QListViewItem::text( int column ) const
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width ) const
+			       int column, int width )
 {
     // Change width() if you change this.
 
@@ -782,7 +782,7 @@ int QListViewItem::width(const QFontMetrics& fm, const QListView* lv, int c) con
 */
 
 void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
-				const QRect & r ) const
+				const QRect & r )
 {
     if ( listView()->style() == WindowsStyle ) {
 	p->drawWinFocusRect( r );
@@ -808,11 +808,11 @@ void QListViewItem::paintFocus( QPainter *p, const QColorGroup &,
 */
 
 void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
-				   int w, int y, int h, GUIStyle s ) const
+				   int w, int y, int h, GUIStyle s )
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
-    const QListViewItem * child = firstChild();
+    QListViewItem * child = firstChild();
     int linetop = 0, linebot = 0;
 
     int dotoffset = y & 1;
@@ -1824,7 +1824,7 @@ QListViewItem * QListViewItem::itemBelow()
   \sa nextSibling()
 */
 
-const QListViewItem* QListViewItem::firstChild () const
+QListViewItem* QListViewItem::firstChild () const
 {
     enforceSortOrder();
     return childItem;
@@ -2073,14 +2073,10 @@ void QListView::focusInEvent( QFocusEvent * )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
-    if ( d->focusItem ) {
-	if ( !isMultiSelection() )
-	    setSelected( d->focusItem, FALSE );
-	else
-	    repaintItem( d->focusItem );
-    } else {
+    if ( d->focusItem )
+	repaintItem( d->focusItem );
+    else
 	triggerUpdate();
-    }
     return;
 }
 
@@ -2322,11 +2318,11 @@ bool QListView::isMultiSelection() const
   selected if \a selected is FALSE.
 
   If the list view is in single-selection mode and \a selected is
-  TRUE, the present selected item is unselected.  Unlike
-  QListViewItem::setSelected(), this function updates the list view as
-  necessary and emits the selectionChanged() signals.
+  TRUE, the present selected item is unselected and made current.
+  Unlike QListViewItem::setSelected(), this function updates the list
+  view as necessary and emits the selectionChanged() signals.
 
-  \sa isSelected() setMultiSelection() isMultiSelection()
+  \sa isSelected() setMultiSelection() isMultiSelection() setCurrentItem()
 */
 
 void QListView::setSelected( QListViewItem * item, bool selected )
@@ -2344,6 +2340,9 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	d->currentSelected = selected ? item : 0;
 	repaintItem( item );
     }
+    
+    if ( item && !isMultiSelection() && selected && d->focusItem != item )
+	setCurrentItem( item );
 
     if ( !isMultiSelection() )
 	emit selectionChanged( item );
@@ -2628,7 +2627,7 @@ bool QListView::allColumnsShowFocus() const
   \sa itemAt() itemBelow() itemAbove()
 */
 
-const QListViewItem * QListView::firstChild() const
+QListViewItem * QListView::firstChild() const
 {
     return d->r->childItem;
 }
@@ -2883,7 +2882,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
   Paints this item.
  */
 void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width ) const
+			       int column, int width )
 {
     if ( !p )
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#40 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#41 $
 **
 ** Definition of QListView widget class
 **
@@ -67,14 +67,14 @@ public:
     bool isSelected() const { return selected; }
 
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
-			    int column, int width ) const;
+			    int column, int width );
     virtual void paintBranches( QPainter * p, const QColorGroup & cg,
-				int w, int y, int h, GUIStyle s ) const;
+				int w, int y, int h, GUIStyle s );
     virtual void paintFocus( QPainter *, const QColorGroup & cg,
-			     const QRect & r ) const;
+			     const QRect & r );
 
-    const QListViewItem * firstChild() const;
-    const QListViewItem * nextSibling() const { return siblingItem; }
+    QListViewItem * firstChild() const;
+    QListViewItem * nextSibling() const { return siblingItem; }
 
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
@@ -160,7 +160,7 @@ public:
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
 
-    const QListViewItem * firstChild() const;
+    QListViewItem * firstChild() const;
 
     virtual void setAllColumnsShowFocus( bool );
     bool allColumnsShowFocus() const;
@@ -247,7 +247,7 @@ public:
 		    const QPixmap & );
 
     void paintCell( QPainter *,  const QColorGroup & cg,
-		    int column, int width ) const;
+		    int column, int width );
     int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();
 
