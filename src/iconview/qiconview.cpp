@@ -675,22 +675,26 @@ const char* QIconDrag::format( int i ) const
 
 QByteArray QIconDrag::encodedData( const char* mime ) const
 {
-    QByteArray a;
-    if ( QString( mime ) == "application/x-qiconlist" ) {
-	QValueList<QIconDragDataItem>::ConstIterator it = d->items.begin();
-	QString s;
-	for ( ; it != d->items.end(); ++it ) {
-	    QString k( "%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$" );
-	    k = k.arg( (*it).item.pixmapRect().x() ).arg( (*it).item.pixmapRect().y() ).arg( (*it).item.pixmapRect().width() ).
-		arg( (*it).item.pixmapRect().height() ).arg( (*it).item.textRect().x() ).arg( (*it).item.textRect().y() ).
-		arg( (*it).item.textRect().width() ).arg( (*it).item.textRect().height() );
-	    k += QString( (*it).data.data() ) + "$@@$";
-	    s += k;
-	}
-	a.resize( s.length() + 1 );
-	memcpy( a.data(), s.latin1(), a.size() );
+    if ( d->items.count() <= 0 || QString( mime ) !=
+	 "application/x-qiconlist" )
+	return QByteArray();
+
+    QValueList<QIconDragDataItem>::ConstIterator it = d->items.begin();
+    QString s;
+    for ( ; it != d->items.end(); ++it ) {
+	QString k( "%1$@@$%2$@@$%3$@@$%4$@@$%5$@@$%6$@@$%7$@@$%8$@@$" );
+	k = k.arg( (*it).item.pixmapRect().x() ).arg(
+	    (*it).item.pixmapRect().y() ).arg( (*it).item.pixmapRect().width() ).
+	    arg( (*it).item.pixmapRect().height() ).arg(
+		(*it).item.textRect().x() ).arg( (*it).item.textRect().y() ).
+	    arg( (*it).item.textRect().width() ).arg(
+		(*it).item.textRect().height() );
+	k += QString( (*it).data.data() ) + "$@@$";
+	s += k;
     }
 
+    QByteArray a( s.length() + 1 );
+    memcpy( a.data(), s.latin1(), a.size() );
     return a;
 }
 
