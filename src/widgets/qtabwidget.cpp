@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#14 $
 **
 ** Implementation of QTabWidget class
 **
@@ -119,8 +119,12 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name)
     d->stack->setLineWidth( style().defaultFrameWidth() );
 }
 
+/*!
+  Destructs the tab widget.
+*/
 QTabWidget::~QTabWidget()
 {
+    delete d;
 }
 
 /*!

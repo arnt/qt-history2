@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qserversocket.cpp#5 $
 **
 ** Implementation of QServerSocket class
 **
@@ -75,6 +75,16 @@ QServerSocket::QServerSocket( int port, QObject *parent,
     d = new QServerSocketPrivate;
     d->socket = new QSocketDevice;
     d->addr = QSocketAddress( port );    
+}
+
+/*!
+  Destructs the socket.
+  \internal
+     ##### what happens to connection?
+*/
+QServerSocket::~QServerSocket()
+{
+    delete d;
 }
 
 

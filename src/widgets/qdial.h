@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#5 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#6 $
 **
 ** Definition of something or other
 **
@@ -27,6 +27,7 @@ public:
     QDial( QWidget *parent=0, const char *name=0 );
     QDial( int minValue, int maxValue, int pageStep, int value,
 	   QWidget *parent=0, const char *name=0 );
+    ~QDial();
 
     virtual void setTracking( bool enable );
     bool tracking() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#13 $
 **
 ** Implementation of something useful.
 **
@@ -131,6 +131,14 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
       QRangeControl( minValue, maxValue, 1, pageStep, value )
 {
     d = new QDialPrivate;
+}
+
+/*!
+  Destructs the dial.
+*/
+QDial::~QDial()
+{
+    delete d;
 }
 
 

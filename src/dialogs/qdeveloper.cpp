@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#13 $
 **
 ** Implementation of QDeveloper class
 **
@@ -370,6 +370,7 @@ QDeveloper::QDeveloper() :
 
 QDeveloper::~QDeveloper()
 {
+    delete d;
 }
 
 void QDeveloper::addTopLevelWidget(QWidget* tlw)
