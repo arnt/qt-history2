@@ -188,6 +188,10 @@ void HelpDialog::loadIndexFile()
 	    if ( !isVisible() )
 		break;
 	    QString l = ts.readLine();
+	    if ( l.find( "::" ) != -1 ) {
+		int i = l.find( "\"" ) + 1;
+		l.remove( i, l.find( "::" ) + 2 - i );
+	    }
 	    lst->append( l );
 	    if ( bar )
 		bar->setProgress( bar->progress() + l.length() );
