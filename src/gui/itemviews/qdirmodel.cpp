@@ -193,7 +193,17 @@ public:
         { return rootIsVirtual ? QObject::tr("My Computer") : root.info.fileName(); }
     inline QIcon rootIcon() const
         { return rootIsVirtual ? iconProvider->computerIcon() : iconProvider->icon(root.info); }
-
+    inline QFileInfoList entryInfoList(const QDir &dir) const
+        {
+            QFileInfoList fil = dir.entryInfoList(nameFilters, filters, sort);
+            for (int i = 0; i < fil.count(); ++i) {
+                QString fn = fil.at(i).fileName();
+                if (fn == "." || fn == "..")
+                    fil.removeAt(i--);
+            }
+            return fil;
+        }
+    
     mutable QDirNode root;
     bool rootIsVirtual;
     bool resolveSymlinks;
@@ -953,13 +963,13 @@ QModelIndex QDirModel::index(const QString &path) const
             // FIXME: workaround for problem in QDir
 #if 1
             QDir dir(absPath);
-            QFileInfoList info = dir.entryInfoList(d->nameFilters, d->filters, d->sort);
+            QFileInfoList info = d->entryInfoList(dir);
 //            qDebug("index: fileinfo count %d", info.count());
             entries.clear();
             for (int fi = 0; fi < info.count(); ++fi)
                 entries << info.at(fi).fileName();
 #else
-            entries = QDir(absPath).entryList(d->nameFilters, d->filters, d->sort);
+            entries = d->entryInfoList(QDir(absPath));
 //            qDebug("index: got %d entries", entries.count());
 #endif
         }
@@ -1251,13 +1261,19 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
         info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
-        info = dir.entryInfoList(nameFilters, filters, sort);
+        info = entryInfoList(dir);
     }
 
-//    qDebug("children: info count %d", info.count());
-
+//    qDebug("children: info count %d", info.count());    
+//     for (int i = 0; i < info.count(); ++i) {
+//         if (info.at(i).fileName() == ".") {
+//             info.removeAt(i);
+//             break;
+//         }
+//     }
+    
     QVector<QDirNode> nodes(info.count());
-    for (int i = 0; i < (int)info.count(); ++i) {
+    for (int i = 0; i < info.count(); ++i) {
         nodes[i].parent = parent;
         if (d->resolveSymlinks && info.at(i).isSymLink()) {
             QString link = info.at(i).readLink();
@@ -1300,7 +1316,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
         info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
-        info = dir.entryInfoList(nameFilters, filters, sort);
+        info = entryInfoList(dir);
     }
 
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
@@ -1359,5 +1375,5 @@ QFileInfoList QDirModelPrivate::rootChildren() const
     if (rootIsVirtual)
         return QDir::drives();
     QDir dir = QDir(root.info.absoluteFilePath());
-    return dir.entryInfoList(nameFilters, filters, sort);
+    return entryInfoList(dir);
 }
