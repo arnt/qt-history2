@@ -97,6 +97,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // last widget used for layouting
     QHBox *row4 = new QHBox( this );
+    vbox->addWidget( row4 );
     row4->setMargin( 5 );
 
     // last label
@@ -111,6 +112,7 @@ LineEdits::LineEdits( QWidget *parent, const char *name )
 
     // and the last lineedit
     lined4 = new QLineEdit( this );
+    vbox->addWidget( lined4 );
 
     // give the first LineEdit the focus at the beginning
     lined1->setFocus();
