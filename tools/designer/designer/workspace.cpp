@@ -701,20 +701,24 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove source file from project" ), REMOVE_SOURCE );
-	menu.insertSeparator();
-	menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
-	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
-	menu.setItemChecked( TOGGLE_PACKAGE, wi->sourceFile->isPackage() );
+	if ( MainWindow::self->singleProjectMode() ) {
+	    menu.insertSeparator();
+	    menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
+	    menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
+	    menu.setItemChecked( TOGGLE_PACKAGE, wi->sourceFile->isPackage() );
+	}
 	break;
     case WorkspaceItem::FormFileType:
 	menu.insertItem( tr( "&Open form..." ), OPEN_FORM );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ),
 			 tr( "&Remove form from project" ), REMOVE_FORM );
-	menu.insertSeparator();
-	menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
-	menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
-	menu.setItemChecked( TOGGLE_PACKAGE, wi->formFile->isPackage() );
+	if ( MainWindow::self->singleProjectMode() ) {
+	    menu.insertSeparator();
+	    menu.insertItem( tr( "&Export as package..." ), EXPORT_PACKAGE );
+	    menu.insertItem( tr( "&Package (exclude from project)" ), TOGGLE_PACKAGE );
+	    menu.setItemChecked( TOGGLE_PACKAGE, wi->formFile->isPackage() );
+	}
 	break;
     case WorkspaceItem::FormSourceType:
 	menu.insertItem( tr( "&Open form source..." ), OPEN_FORM_SOURCE );
