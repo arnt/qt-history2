@@ -514,7 +514,8 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     src_normal_palette=false;
     clutcols = 0;
     update_clip();
-
+    myrop=CopyROP;
+    
 #if !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_8GRAYSCALE)
     // default colour map
     setClut( qt_screen->clut(), qt_screen->numCols() );
@@ -1708,24 +1709,66 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
 {
-    if ( depth == 32 )
-	((QRgb*)l)[x] = pixel;
-    else if ( depth == 16 )
-	((ushort*)l)[x] = pixel;
-    else if ( depth == 8 )
-	l[x] = pixel;
+    if( (myrop!=XorROP) && (myrop!=NotROP) ) {
+	if ( depth == 32 )
+	    ((QRgb*)l)[x] = pixel;
+	else if ( depth == 16 )
+	    ((ushort*)l)[x] = (pixel & 0xffff);
+	else if ( depth == 8 )
+	    l[x] = (pixel & 0xff);
 #ifndef QT_NO_QWS_VGA_16
-    else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
-	qgfx_vga16_set_color(pixel);
-	qgfx_vga16_set_mask(1 << (x%8));
-	l[x/8] |= 1;
-    }
+	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
+	    qgfx_vga16_set_color(pixel);
+	    qgfx_vga16_set_mask(1 << (x%8));
+	    l[x/8] |= 1;
+	}
 #endif
-    else if ( depth == 1 )
-	if ( pixel )
-	    l[x/8] |= 1 << (x%8);
-	else
-	    l[x/8] &= ~(1 << (x%8));
+	else if ( depth == 1 )
+	    if ( pixel )
+		l[x/8] |= 1 << (x%8);
+	    else
+		l[x/8] &= ~(1 << (x%8));
+    } else if(myrop==XorROP) {
+	if ( depth == 32 )
+	    ((QRgb*)l)[x] = ((QRgb*)l)[x] ^ pixel;
+	else if ( depth == 16 )
+	    ((ushort*)l)[x] = ((ushort*)l)[x] ^ pixel;
+	else if ( depth == 8 )
+	    l[x] = l[x] ^ pixel;
+#ifndef QT_NO_QWS_VGA_16
+	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
+	    qgfx_vga16_set_color(pixel);
+	    qgfx_vga16_set_mask(1 << (x%8));
+	    l[x/8] |= 1;
+	}
+#endif
+	else if ( depth == 1 )
+	    if ( pixel )
+		l[x/8] |= 1 << (x%8);
+	    else
+		l[x/8] &= ~(1 << (x%8));	
+    } else if(myrop==NotROP) {
+	if ( depth == 32 )
+	    ((QRgb*)l)[x] = ~(((QRgb*)l)[x]);
+	else if ( depth == 16 )
+	    ((ushort*)l)[x] = ~(((ushort*)l)[x]);
+	else if ( depth == 8 )
+	    l[x] = ~(l[x]);
+#ifndef QT_NO_QWS_VGA_16
+	else if ( depth == 4 && type == QGfxRaster_VGA16 ) {
+	    qgfx_vga16_set_color(pixel);
+	    qgfx_vga16_set_mask(1 << (x%8));
+	    l[x/8] |= 1;
+	}
+#endif
+	else if ( depth == 1 )
+	    if ( pixel )
+		l[x/8] |= 1 << (x%8);
+	    else
+		l[x/8] &= ~(1 << (x%8));	
+    } else {
+	// ...
+    }
 }
 
 
@@ -2002,77 +2045,135 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 template <const int depth, const int type>
 GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
 {
-    if ( depth == 32 ) {
-	unsigned int *myptr=(unsigned int *)l + x1;
-	int w = x2-x1+1;
-	while ( w-- )
-	    *(myptr++) = pixel;
-    } else if ( depth == 16 ) {
-	unsigned short int *myptr=(unsigned short int *)l;
+    if( (myrop!=XorROP) && (myrop!=NotROP) ) {
+	if ( depth == 32 ) {
+	    unsigned int *myptr=(unsigned int *)l + x1;
+	    int w = x2-x1+1;
+	    while ( w-- )
+		*(myptr++) = pixel;
+	} else if ( depth == 16 ) {
+	    unsigned short int *myptr=(unsigned short int *)l;
 #ifdef QWS_NO_WRITE_PACKING
-	int w = x2-x1+1;
-	myptr+=x1;
-	while ( w-- )
-	    *(myptr++) = pixel;
+	    int w = x2-x1+1;
+	    myptr+=x1;
+	    while ( w-- )
+		*(myptr++) = pixel;
 #else
-	int frontadd;
-	int backadd;
-	int count;
-	calcPacking(myptr,x1,x2,frontadd,backadd,count);
+	    int frontadd;
+	    int backadd;
+	    int count;
+	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	myptr+=x1;
+	    myptr+=x1;
 
-	QuadByte put;
-	unsigned short int * tmp=(unsigned short int *)&put;
-	*tmp=pixel;
-	*(tmp+1)=pixel;
-	*(tmp+2)=pixel;
-	*(tmp+3)=pixel;
+	    QuadByte put;
+	    unsigned short int * tmp=(unsigned short int *)&put;
+	    *tmp=pixel;
+	    *(tmp+1)=pixel;
+	    *(tmp+2)=pixel;
+	    *(tmp+3)=pixel;
 
-	while ( frontadd-- )
-	    *(myptr++)=pixel;
+	    while ( frontadd-- )
+		*(myptr++)=pixel;
 
-	while ( count-- ) {
-	    *((QuadByte *)myptr) = put;
-	    myptr += 4;
-	}
-	while ( backadd-- )
-	    *(myptr++)=pixel;
+	    while ( count-- ) {
+		*((QuadByte *)myptr) = put;
+		myptr += 4;
+	    }
+	    while ( backadd-- )
+		*(myptr++)=pixel;
 #endif
-    } else if ( depth == 8 ) {
-	unsigned char *myptr=l;
-	myptr+=x1;
-	int w = x2-x1+1;
-	while ( w-- )
-	    *(myptr++) = pixel;
-    } else if ( depth == 1 ) {
-	//#### we need to use semaphore
-	l += x1/8;
-	if ( x1/8 == x2/8 ) {
-	    // Same byte
+	} else if ( depth == 8 ) {
+	    unsigned char *myptr=l;
+	    myptr+=x1;
+	    int w = x2-x1+1;
+	    while ( w-- )
+		*(myptr++) = pixel;
+	} else if ( depth == 1 ) {
+	    //#### we need to use semaphore
+	    l += x1/8;
+	    if ( x1/8 == x2/8 ) {
+		// Same byte
 
-	    uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
-	    if ( pixel )
-		*l |= mask;
-	    else
-		*l &= ~mask;
-	} else {
-	    volatile unsigned char *last = l + (x2/8-x1/8);
-	    uchar mask = 0xff << (x1 % 8);
-	    if ( pixel )
-		*l++ |= mask;
-	    else
-		*l++ &= ~mask;
-	    unsigned char byte = pixel ? 0xff : 0x00;
-	    while (l < last)
-		*l++ = byte;
+		uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
+		if ( pixel )
+		    *l |= mask;
+		else
+		    *l &= ~mask;
+	    } else {
+		volatile unsigned char *last = l + (x2/8-x1/8);
+		uchar mask = 0xff << (x1 % 8);
+		if ( pixel )
+		    *l++ |= mask;
+		else
+		    *l++ &= ~mask;
+		unsigned char byte = pixel ? 0xff : 0x00;
+		while (l < last)
+		    *l++ = byte;
 
-	    mask = 0xff >> (7 - x2 % 8);
-	    if ( pixel )
-		*l |= mask;
-	    else
-		*l &= ~mask;
+		mask = 0xff >> (7 - x2 % 8);
+		if ( pixel )
+		    *l |= mask;
+		else
+		    *l &= ~mask;
+	    }
 	}
+    } else if(myrop==XorROP) {
+	if ( depth == 32 ) {
+	    unsigned int *myptr=(unsigned int *)l + x1;
+	    int w = x2-x1+1;
+	    while ( w-- ) {
+		(*myptr) = (*myptr) ^ pixel;
+		myptr++;
+	    }
+	} else if ( depth == 16 ) {
+	    unsigned short int *myptr=(unsigned short int *)l;
+	    int w = x2-x1+1;
+	    myptr+=x1;
+	    while ( w-- ) {
+		(*myptr) = (*myptr) ^ pixel;
+		myptr++;
+	    }
+	} else if ( depth == 8 ) {
+	    unsigned char *myptr=l;
+	    myptr+=x1;
+	    int w = x2-x1+1;
+	    while ( w-- ) {
+		(*myptr) = (*myptr) ^ pixel;
+		myptr++;
+	    }
+	} else if ( depth == 1 ) {
+	    // ...
+	}
+    } else if(myrop==NotROP) {
+	if ( depth == 32 ) {
+	    unsigned int *myptr=(unsigned int *)l + x1;
+	    int w = x2-x1+1;
+	    while ( w-- ) {
+		(*myptr) = ~(*myptr);
+		myptr++;
+	    }
+	} else if ( depth == 16 ) {
+	    unsigned short int *myptr=(unsigned short int *)l;
+	    int w = x2-x1+1;
+	    myptr+=x1;
+	    while ( w-- ) {
+		(*myptr) = ~(*myptr);
+		myptr++;
+	    }
+	} else if ( depth == 8 ) {
+	    unsigned char *myptr=l;
+	    myptr+=x1;
+	    int w = x2-x1+1;
+	    while ( w-- ) {
+		(*myptr) = ~(*myptr);
+		myptr++;
+	    }
+	} else if ( depth == 1 ) {
+	    // ...
+	}
+    } else {
+	// ... - will probably go in above clause
     }
 }
 

@@ -622,6 +622,9 @@ void QPainter::setRasterOp( RasterOp r )
 	updatePen();				// get non-cached pen GC
     if ( brushRef )
 	updateBrush();				// get non-cached brush GC
+
+    gfx->setRop(r);
+    
 }
 
 void QPainter::setBrushOrigin( int x, int y )

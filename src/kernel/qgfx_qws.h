@@ -242,6 +242,8 @@ public:
     virtual void save()=0;
     virtual void restore()=0;
 
+    virtual void setRop(RasterOp)=0;
+
     virtual void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos)=0;
 
 protected:

@@ -92,6 +92,8 @@ public:
     void save();
     void restore();
 
+    virtual void setRop(RasterOp r) { myrop=r; }
+
     virtual void paintCursor(const QImage& image, int hotx, int hoty, QPoint cursorPos);
 
     void setClut(QRgb * cols,int numcols) { clut=cols; clutcols=numcols;  }
@@ -207,6 +209,8 @@ protected:
     int globalRegionIndex;
     int *globalRegionRevision;
     int currentRegionRevision;
+
+    RasterOp myrop;
 
     unsigned long int pixel; // == cpen.pixel() or cbrush.pixel()
 
