@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#28 $
 **
 ** Implementation of QProgressBar class
 **
@@ -292,5 +292,35 @@ void QProgressBar::drawContents( QPainter *p )
 	p->fillRect( bar, colorGroup().base() );
 	p->setPen( colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
+    }
+}
+
+
+/*!
+  Draws the progressbar contents mask using the painter \e p.
+  Used only in transparent mode.
+
+  \sa QWidget::setAutoMask();
+*/
+void QProgressBar::drawContentsMask( QPainter *p )
+{
+    const int unit_width  = 9;	    // includes 2 bg pixels
+    const QRect bar = contentsRect();
+
+    if ( style() == WindowsStyle ) {
+	// ### This part doesn't actually change.
+	QFontMetrics fm = p->fontMetrics();
+	int textw = fm.width("100%");
+	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
+	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
+
+	const QRect r( ox + bar.x(), bar.y(), u*unit_width + 2, bar.height() );
+	p->drawRect( r );
+
+	// ### This part changes every percentage change.
+	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+	    AlignRight | AlignVCenter, progress_str );
+    } else {
+	p->drawRect( bar );
     }
 }
