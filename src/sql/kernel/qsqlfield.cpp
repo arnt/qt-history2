@@ -460,9 +460,9 @@ bool QSqlField::isValid() const
 }
 
 #ifndef QT_NO_DEBUG_OUTPUT
-#if !defined(Q_OS_MAC) || (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_2)
 QDebug operator<<(QDebug dbg, const QSqlField &f)
 {
+#ifndef Q_NO_STREAMING_DEBUG
     dbg.nospace() << "QSqlField(\"" << f.name() << "\", " << QCoreVariant::typeToName(f.type());
     if (f.length() >= 0)
         dbg.nospace() << ", length: " << f.length();
@@ -478,8 +478,12 @@ QDebug operator<<(QDebug dbg, const QSqlField &f)
         dbg.nospace() << ", auto-value: \"" << f.defaultValue() << "\"";
     dbg.nospace() << ")";
     return dbg.space();
-}
+#else
+    qWarning("This compiler does not support streaming QDebug");
+    return dbg;
+    Q_UNUSED(v);
 #endif
+}
 #endif
 
 /*!
