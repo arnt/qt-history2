@@ -378,10 +378,9 @@ void QMenuBar::performDelayedContentsChanged()
     if ( isVisible() ) {
 	update();
 #ifndef QT_NO_MAINWINDOW
-	QMainWindow *mw = ::qt_cast<QMainWindow>(parent());
-	if ( mw ) {
-	    mw->triggerLayout();
-	    mw->update();
+	if ( parent() && parent()->inherits( "QMainWindow" ) ) {
+	    ( (QMainWindow*)parent() )->triggerLayout();
+	    ( (QMainWindow*)parent() )->update();
 	}
 #endif
 #ifndef QT_NO_LAYOUT
@@ -495,7 +494,7 @@ void QMenuBar::languageChange()
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
-    if ( object == parent() && object && !::qt_cast<QToolBar>(object) &&
+    if ( object == parent() && object && !object->inherits( "QToolBar" ) &&
 	 event->type() == QEvent::Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	int w = e->size().width();
@@ -808,9 +807,8 @@ void QMenuBar::show()
 #endif
 
 #ifndef QT_NO_MAINWINDOW
-    QMainWindow *mw = ::qt_cast<QMainWindow>(parent());
-    if ( mw ) //### ugly workaround
-	mw->triggerLayout();
+    if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
+	( (QMainWindow*)parent() )->triggerLayout();
 #endif
     raise();
 }
@@ -826,9 +824,8 @@ void QMenuBar::hide()
     setAltMode( FALSE );
     hidePopups();
 #ifndef QT_NO_MAINWINDOW
-    QMainWindow *mw = ::qt_cast<QMainWindow>(parent());
-    if ( mw ) //### ugly workaround
-	mw->triggerLayout();
+    if ( parent() && parent()->inherits( "QMainWindow" ) ) //### ugly workaround
+		( (QMainWindow*)parent() )->triggerLayout();
 #endif
 }
 
@@ -1566,8 +1563,7 @@ QSize QMenuBar::sizeHint() const
 
 QSize QMenuBar::minimumSize() const
 {
-    QToolBar *tb = ::qt_cast<QToolBar>(parent());
-    if ( tb )
+    if ( parent() && parent()->inherits( "QToolBar" ) )
 	return sizeHint();
     return QFrame::minimumSize();
 }

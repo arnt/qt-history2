@@ -331,8 +331,9 @@ protected:
 	while ( ( o = it.current() ) ) {
 	    ++it;
 	    ++i;
-	    QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-	    if ( !dw || !dw->isVisible() )
+	    if ( !o->inherits( "QDockWindow" ) )
+		continue;
+	    if ( !( (QDockWindow*)o )->isVisible() )
 		continue;
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
@@ -373,10 +374,10 @@ protected:
 	    while ( ( o = it.current() ) ) {
 		++it;
 		++i;
-		QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-		if ( !dw || !dw->isVisible() )
+		if ( !o->inherits( "QDockWindow" ) )
 		    continue;
-
+		if ( !( (QDockWindow*)o )->isVisible() )
+		    continue;
 		if ( e->x() >= x && e->x() <= x + 30 ) {
 		    int old = pressedHandle;
 		    pressedHandle = i;
@@ -402,8 +403,8 @@ protected:
 	if ( e->button() == LeftButton ) {
 	    if ( e->y() >= 0 && e->y() <= height() ) {
 		QObject *o = ( (QObjectList*)children() )->at( pressedHandle );
-		QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-		if ( dw ) {
+		if ( o && o->inherits( "QDockWindow" ) ) {
+		    QDockWindow *dw = (QDockWindow*)o;
 		    dw->show();
 		    dw->dock();
 		}
@@ -432,14 +433,13 @@ protected:
 	    QObject *o;
 	    while ( ( o = it.current() ) ) {
 		++it;
-		QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-		if ( !dw )
+		if ( !o->inherits( "QDockWindow" ) )
 		    continue;
-		if ( dw->isHidden() ) {
+		if ( ( (QDockWindow*)o )->isHidden() ) {
 		    visible = FALSE;
 		    continue;
 		}
-		if ( !dw->isVisible() )
+		if ( !( (QDockWindow*)o )->isVisible() )
 		    continue;
 		visible = TRUE;
 		break;
@@ -487,10 +487,10 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     int x = 0;
     while ( ( o = it.current() ) ) {
 	++it;
-	QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-	if ( !dw || !dw->isVisible() )
+	if ( !o->inherits( "QDockWindow" ) )
 	    continue;
-
+	if ( !( (QDockWindow*)o )->isVisible() )
+	    continue;
 	if ( pos.x() >= x && pos.x() <= x + 30 ) {
 	    QDockWindow *dw = (QDockWindow*)o;
 	    if ( !dw->caption().isEmpty() )
@@ -1271,9 +1271,8 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
 {
     addDockWindow( dockWindow, edge, newLine );
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = ::qt_cast<QToolBar>(dockWindow);
-    if ( tb )
-	tb->setLabel( label );
+    if ( dockWindow->inherits( "QToolBar" ) )
+	( (QToolBar*)dockWindow )->setLabel( label );
 #endif
 }
 
@@ -1587,7 +1586,7 @@ bool QMainWindow::dockMainWindow( QObject *dock )
     while ( dock ) {
 	if ( dock->parent() && dock->parent() == this )
 	    return TRUE;
-	if ( ::qt_cast<QMainWindow>(dock->parent()) )
+	if ( dock->parent() && dock->parent()->inherits( "QMainWindow" ) )
 	    return FALSE;
 	dock = dock->parent();
     }
@@ -1605,7 +1604,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    setUpLayout();
 	d->tll->activate();
     } else if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-	( ::qt_cast<QDockArea>(o) && dockMainWindow( o ) || o == d->hideDock || o == d->mb ) ) {
+	 ( o->inherits( "QDockArea" ) && dockMainWindow( o ) || o == d->hideDock || o == d->mb ) ) {
 	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
@@ -1636,17 +1635,17 @@ void QMainWindow::childEvent( QChildEvent* e)
 	    d->mc = 0;
 	    d->mwl->setCentralWidget( 0 );
 	    triggerLayout();
-	} else if ( ::qt_cast<QDockWindow>(e->child()) ) {
+	} else if ( e->child()->isWidgetType() && e->child()->inherits("QDockWindow")) {
 	    removeDockWindow( (QDockWindow *)(e->child()) );
 	    d->appropriate.remove( (QDockWindow*)e->child() );
 	    triggerLayout();
 	}
-    } else if ( e->type() == QEvent::ChildInserted && !d->sb ) {
-	d->sb = ::qt_cast<QStatusBar>(e->child());
-	if ( d->sb ) {
+    } else if ( e->type() == QEvent::ChildInserted ) {
+	if ( e->child()->inherits( "QStatusBar" ) ) {
+	    d->sb = (QStatusBar*)e->child();
 	    if ( d->tll ) {
 		if ( !d->tll->findWidget( d->sb ) )
-		    d->tll->addWidget( d->sb );
+		    d->tll->addWidget( (QStatusBar*)e->child() );
 	    } else {
 		triggerLayout();
 	    }
@@ -1904,9 +1903,8 @@ QPtrList<QToolBar> QMainWindow::toolBars( Dock dock ) const
     QPtrList<QDockWindow> lst = dockWindows( dock );
     QPtrList<QToolBar> tbl;
     for ( QDockWindow *w = lst.first(); w; w = lst.next() ) {
-	QToolBar *tb = ::qt_cast<QToolBar>(w);
-	if ( tb )
-	    tbl.append( tb );
+	if ( w->inherits( "QToolBar" ) )
+	    tbl.append( (QToolBar*)w );
     }
     return tbl;
 }
@@ -1946,10 +1944,9 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
 	    QObject *o;
 	    while ( ( o = it.current() ) ) {
 		++it;
-		QDockWindow *dw = ::qt_cast<QDockWindow>(o);
-		if ( !dw )
+		if ( !o->inherits( "QDockWindow" ) )
 		    continue;
-		lst.append( dw );
+		lst.append( (QDockWindow*)o );
 	    }
 	}
     }
@@ -2180,7 +2177,7 @@ void QMainWindow::menuAboutToShow()
 	if ( dockWindows == AllDockWindows || dockWindows == NoToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;
-		if ( !appropriate( dw ) || ::qt_cast<QToolBar>(dw) || !dockMainWindow( dw ) )
+		if ( !appropriate( dw ) || dw->inherits( "QToolBar" ) || !dockMainWindow( dw ) )
 		    continue;
 		QString label = dw->caption();
 		if ( !label.isEmpty() ) {
@@ -2198,13 +2195,13 @@ void QMainWindow::menuAboutToShow()
 #ifndef QT_NO_TOOLBAR
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
-		QToolBar *tb = ::qt_cast<QToolBar>(o);
-		if ( !tb || !appropriate(tb) || !dockMainWindow(tb) )
+		QDockWindow *dw = (QDockWindow*)o;
+		if ( !appropriate( dw ) || !dw->inherits( "QToolBar" ) || !dockMainWindow( dw ) )
 		    continue;
-		QString label = tb->label();
+		QString label = ( (QToolBar*)dw )->label();
 		if ( !label.isEmpty() ) {
-		    int id = menu->insertItem( label, tb, SLOT( toggleVisible() ) );
-		    menu->setItemChecked( id, tb->isVisible() );
+		    int id = menu->insertItem( label, dw, SLOT( toggleVisible() ) );
+		    menu->setItemChecked( id, dw->isVisible() );
 		    empty = FALSE;
 		}
 	    }
@@ -2257,14 +2254,12 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
 
 void QMainWindow::slotPlaceChanged()
 {
-    QObject* obj = (QObject*)sender();
-    QDockWindow *dw = ::qt_cast<QDockWindow>(obj);
-    if ( dw )
-	emit dockWindowPositionChanged( dw );
+    const QObject* obj = sender();
+    if ( obj->inherits( "QDockWindow" ) )
+	emit dockWindowPositionChanged( (QDockWindow*)obj );
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = ::qt_cast<QToolBar>(obj);
-    if ( tb )
-	emit toolBarPositionChanged( tb );
+    if ( obj->inherits( "QToolBar" ) )
+	emit toolBarPositionChanged( (QToolBar*) obj );
 #endif
 }
 
@@ -2513,7 +2508,7 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QP
 	    if ( state == Visible && c == ']' ) {
 		for ( QDockWindow *dw = l.first(); dw; dw = l.next() ) {
 		    if ( QString( dw->caption() ) == name ) {
-			if ( !::qt_cast<QToolBar>(dw) )
+			if ( !dw->inherits( "QToolBar" ) )
 			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
 			else
 			    dw->setGeometry( x.toInt(), y.toInt(), dw->width(), dw->height() );

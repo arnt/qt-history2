@@ -141,9 +141,9 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
 {
     init();
 #ifndef QT_NO_TOOLBAR
-    QToolBar* tb = ::qt_cast<QToolBar>(parent);
-    if ( tb ) {
+    if ( parent && parent->inherits( "QToolBar" ) ) {
 	setAutoRaise( TRUE );
+	QToolBar* tb = (QToolBar*)parent;
 	if ( tb->mainWindow() ) {
 	    connect( tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
 	             this, SLOT(setUsesBigPixmap(bool)) );
@@ -895,9 +895,10 @@ void QToolButton::popupTimerDone()
     setAutoRepeat( FALSE );
     bool horizontal = TRUE;
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = ::qt_cast<QToolBar>(parentWidget());
-    if ( tb && tb->orientation() == Vertical )
-	horizontal = FALSE;
+    if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
+	if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
+	    horizontal = FALSE;
+    }
 #endif
     QPoint p;
     QRect screen = qApp->desktop()->availableGeometry( this );

@@ -659,8 +659,9 @@ void QGroupBox::fixFocus()
 	     && w->isVisibleTo(this) ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON
-		 || ( !best && ::qt_cast<QRadioButton>(w) 
-		 && ((QRadioButton*)w)->isChecked() )
+		 || ( !best &&
+		   w->inherits( "QRadioButton" ) &&
+		   ((QRadioButton*)w)->isChecked() )
 #endif
 		    )
 		// we prefer a checked radio button or a widget that

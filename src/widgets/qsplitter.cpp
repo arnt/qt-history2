@@ -927,7 +927,7 @@ void QSplitter::recalc( bool update )
 	}
     }
     if ( empty ) {
-	if ( ::qt_cast<QSplitter>(parentWidget()) ) {
+	if ( parentWidget() != 0 && parentWidget()->inherits("QSplitter") ) {
 	    // nested splitters; be nice
 	    maxl = maxt = 0;
 	} else {

@@ -443,9 +443,8 @@ void QWizard::help()
 	return;
 
 #if 0
-    QWizardPage *wpage = ::qt_cast<QWizardPage>(page);
-    if ( wpage )
-	emit wpage->helpClicked();
+    if ( page->inherits( "QWizardPage" ) )
+	emit ((QWizardPage *)page)->helpClicked();
 #endif
     emit helpClicked();
 }
