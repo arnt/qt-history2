@@ -124,7 +124,7 @@ signals:
     void done(bool);
 
 private slots:
-    void startNextCommand();network/qftp.h
+    void startNextCommand();
     void piFinished(const QString&);
     void piError(int, const QString&);
     void piConnectState(int);
