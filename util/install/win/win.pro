@@ -101,6 +101,7 @@ eval {
     } else {
 	win32:RC_FILE	= install-eval.rc
     }
+    mac:RC_FILE = ../../../tools/designer/app/designer.icns
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
     DESTDIR		= ../../../bin
@@ -126,4 +127,10 @@ noncommercial {
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
     DESTDIR		= ../../../bin
+}
+
+mystaticconfig {
+    QMAKE_LIBS_QT =
+    QMAKE_LIBS_QT_THREAD =
+    LIBS += ../../../lib/libqt-mt.a -lz -framework Carbon
 }

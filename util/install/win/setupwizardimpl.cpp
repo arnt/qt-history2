@@ -12,7 +12,7 @@
 #include <qlistbox.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
-#include <zlib/zlib.h>
+#include <zlib.h>
 #include <qtextstream.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -1786,7 +1786,7 @@ void SetupWizardImpl::showPageProgress()
 #    if defined(EVAL)
 			    tr( "Could not patch the Qt library with the evaluation\n"
 				"license information. You will not be able to execute\n"
-				"any program linked against %1." ).arg( *it )
+				"any program linked against %1. Error %2" ).arg( *it ).arg(ret)
 #    elif defined(EDU)
 			    tr( "Could not patch the Qt library with the educational\n"
 				"edition license information. You will not be able to\n"

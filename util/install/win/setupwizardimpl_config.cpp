@@ -12,7 +12,7 @@
 #include <qlistbox.h>
 #include <qapplication.h>
 #include <qcheckbox.h>
-#include <zlib/zlib.h>
+#include <zlib.h>
 #include <qtextstream.h>
 #include <qpushbutton.h>
 #include <qcombobox.h>
@@ -937,24 +937,34 @@ void SetupWizardImpl::showPageConfig()
 	if ( globalInformation.sysId() != GlobalInformation::Borland ) {
 	    // I was not able to make Postgres work with Borland
 	    item = new CheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+#ifndef Q_OS_MACX
 	    item->addRequiredFiles( "libpq.dll" );
+#endif
 	    item->setOn( item->verify() );
 	    psqlPluginInstall = item;
 	    psqlPluginInstall->setHelpText( tr(
-			"Installs the PostgreSQL 7.1 driver. This driver can "
+			"Installs the PostgreSQL 7.x driver. This driver can "
 			"be used to access PostgreSQL 6 databases as well "
 			"as PostgreSQL 7 databases."
+#ifdef Q_OS_MACX
+                        "\n\nRequires a proper PostgreSQL installation."
+#endif
 			), configPage->explainOption );
 	} else {
 	    psqlPluginInstall = 0;
 	}
 
 	item = new CheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
+#ifndef Q_OS_MACX
 	item->addRequiredFiles( "libmySQL.dll" );
+#endif
 	item->setOn( item->verify() );
 	mysqlPluginInstall = item;
 	mysqlPluginInstall->setHelpText( tr(
 		    "Installs the MySQL 3.x database driver."
+#ifdef Q_OS_MACX
+                        "\n\nRequires a proper MySQL installation."
+#endif
 		    ), configPage->explainOption );
 
 #if !defined(Q_OS_MAC)
