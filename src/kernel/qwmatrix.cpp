@@ -114,7 +114,7 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 	double a    = pi/180 * 25;         // convert 25 to radians
 	double sina = sin(a);
 	double cosa = cos(a);
-	QWMatrix m1(0, 0, 0, 0, 10, -20);  // translation matrix
+	QWMatrix m1(1, 0, 0, 1, 10, -20);  // translation matrix
 	QWMatrix m2( cosa, sina,           // rotation matrix
 		    -sina, cosa, 0, 0 );
 	QWMatrix m3(1.2, 0, 0, 0.7, 0, 0); // scaling matrix
