@@ -33,7 +33,7 @@
 
     \image relationaltable.png
 
-    \sa QSqlRelationalTableModel, {Model/View Programming}
+    \sa QSqlRelationalTableModel, \link model-view-programming.html Model/View Programming \endlink
 */
 
 
