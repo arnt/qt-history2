@@ -126,9 +126,17 @@ public:
     void setVerticalHeaderLabels(const QStringList &labels);
     void setHorizontalHeaderLabels(const QStringList &labels);
 
+signals:
+    void clicked(QTableWidgetItem *item, int button);
+    void doubleClicked(QTableWidgetItem *item, int button);
+
 protected:
     void removeItem(QTableWidgetItem *item);
     void setModel(QAbstractItemModel *model);
+
+private:
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
 };
 
 #endif

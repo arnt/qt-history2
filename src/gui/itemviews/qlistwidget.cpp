@@ -446,10 +446,23 @@ class QListWidgetPrivate : public QListViewPrivate
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
+    void emitClicked(const QModelIndex &index, int button);
+    void emitDoubleClicked(const QModelIndex &index, int button);
 };
 
 #define d d_func()
 #define q q_func()
+
+void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+{
+    emit q->clicked(model()->at(index.row()), button);
+}
+
+void QListWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+{
+    emit q->doubleClicked(model()->at(index.row()), button);
+}
+
 
 #ifdef QT_COMPAT
 /*!
@@ -460,6 +473,10 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 {
     setObjectName(name);
     setModel(new QListModel(this));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
 }
 #endif
 
@@ -483,6 +500,24 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 */
 
 /*!
+    \fn void QListWidget::clicked(QListWidgetItem *item, int button)
+
+    This signal is emitted when a mouse button is clicked. The \a item
+    may be 0 if the mouse was not clicked on an item.  The button
+    clicked is specified by \a button (see \l{Qt::ButtonState}).
+*/
+
+/*!
+    \fn void QListWidget::doubleClicked(QListWidgetItem *item, int button);
+
+    This signal is emitted when a mouse button is double clicked. The
+    \a item may be 0 if the mouse was not clicked on an item.  The
+    button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
+*/
+
+
+/*!
     Constructs a new QListWidget with the given \a parent.
 */
 
@@ -490,6 +525,10 @@ QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
 }
 
 /*!
@@ -622,3 +661,5 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
     QAbstractItemView::closePersistentEditor(index);
 }
 */
+
+#include "moc_qlistwidget.cpp"

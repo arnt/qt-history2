@@ -419,10 +419,41 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate() {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
+    void emitClicked(const QModelIndex &index, int button);
+    void emitDoubleClicked(const QModelIndex &index, int button);
 };
 
 #define d d_func()
 #define q q_func()
+
+void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
+{
+    emit q->clicked(model()->item(index), button);
+}
+
+void QTableWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
+{
+    emit q->doubleClicked(model()->item(index), button);
+}
+
+
+/*!
+    \fn void QTableWidget::clicked(QTableWidgetItem *item, int button)
+
+    This signal is emitted when a mouse button is clicked. The \a item
+    may be 0 if the mouse was not clicked on an item.  The button
+    clicked is specified by \a button (see \l{Qt::ButtonState}).
+*/
+
+/*!
+    \fn void QTableWidget::doubleClicked(QTableWidgetItem *item, int button);
+
+    This signal is emitted when a mouse button is double clicked. The
+    \a item may be 0 if the mouse was not clicked on an item.  The
+    button clicked is specified by \a button (see
+    \l{Qt::ButtonState}).
+*/
+
 
 /*!
     Creates a new table view with the given \a parent. The table view
@@ -432,6 +463,10 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
+    connect(this, SIGNAL(clicked(const QModelIndex&, int)),
+            SLOT(emitClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
+            SLOT(emitDoubleClicked(const QModelIndex&, int)));
 }
 
 /*!
@@ -602,3 +637,5 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
 }
+
+#include "moc_qtablewidget.cpp"

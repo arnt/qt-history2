@@ -118,11 +118,19 @@ public:
     int count() const;
     void sort(Qt::SortOrder order);
 
+signals:
+    void clicked(QListWidgetItem *item, int button);
+    void doubleClicked(QListWidgetItem *item, int button);
+
 protected:
     void removeItem(QListWidgetItem *item);
     void setModel(QAbstractItemModel *model);
 //    void openPersistentEditor(QListWidgetItem *item);
 //    void closePersistentEditor(QListWidgetItem *item);
+
+private:
+    Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
 };
 
 #endif

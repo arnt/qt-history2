@@ -600,7 +600,7 @@ void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 */
 
 /*!
-    \fn void QTreeWidget::clicked(QTreeWidgetItem *item)
+    \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, int button)
 
     This signal is emitted when a mouse button is clicked. The \a item
     may be 0 if the mouse was not clicked on an item. The \a column
@@ -610,7 +610,7 @@ void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 */
 
 /*!
-    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item)
+    \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, int button)
 
     This signal is emitted when a mouse button is double clicked. The
     \a item may be 0 if the mouse was not clicked on an item. The \a
