@@ -1342,9 +1342,8 @@ if [ -z "$PLATFORM" ]; then
 	#PLATFORM=irix-g++
 	PLATFORM=irix-cc
 	#PLATFORM=irix-cc-64
-	#PLATFORM=irix-cc-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-g++ irix-cc-64 irix-cc-o32
+	    - Also available for IRIX: irix-g++ irix-cc-64
 	"
 	;;
      HP-UX:*)
@@ -3670,31 +3669,6 @@ EOF
     done
 done
 rm -f .projects .projects.3
-
-
-#-------------------------------------------------------------------------------
-# check for platforms that won't be supported in 3.3->
-#-------------------------------------------------------------------------------
-case "$PLATFORM" in
-solaris-cc*)
-  if $unixtests/suncc.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-    SUPPORTED=no
-  fi
-  ;;
-irix-cc-o32)
-  SUPPORTED=no
-  ;;
-esac
-
-if [ "$SUPPORTED" = "no" ]; then
-    echo
-    echo "WARNING:"
-    echo "Qt 3.2 was the last version to support the following compilers:"
-    echo
-    echo "- Sun Workshop 5.0"
-    echo "- SGI MIPSpro CC in o32 mode"
-    echo
-fi
 
 #-------------------------------------------------------------------------------
 # check for platforms that we don't yet know about
