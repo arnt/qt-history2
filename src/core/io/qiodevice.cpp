@@ -482,7 +482,8 @@ void QIODevice::resetStatus()
 }
 
 /*!
-    Used by subclasses to set the device flags.
+    Used by subclasses to set the device flags to \a f; see \c
+    OpenModes.
 */
 void QIODevice::setFlags(int f)
 {
