@@ -142,9 +142,9 @@ public:
     QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     void		resolveProperty( QMetaProperty* prop );
-    
+
     QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
-    
+
 
 
     // static wrappers around constructors, necessary to work around a
@@ -166,7 +166,7 @@ public:
     static QClassInfo 		*new_classinfo( int );
 
 private:
-    QMemberDict 	*init( QMetaData *, int );
+    QMemberDict		*init( QMetaData *, int );
     QMetaData		*mdata( int code, const char *, bool ) const;
     QMetaData		*mdata( int code, int index, bool super ) const;
 
