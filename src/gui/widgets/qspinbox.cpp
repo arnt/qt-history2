@@ -1007,7 +1007,6 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     maximum = QCoreVariant((int)100);
     value = minimum;
     singlestep = QCoreVariant((int)1);
-    useprivate = true;
     type = QCoreVariant::Int;
 }
 
@@ -1060,7 +1059,6 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     value = minimum;
     singlestep = QCoreVariant(1.0);
     precision = 2;
-    useprivate = true;
     type = QCoreVariant::Double;
     const QString str = QLocale().toString(4567.1);
     if (str.size() == 6) {

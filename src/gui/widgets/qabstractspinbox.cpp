@@ -421,7 +421,12 @@ QLineEdit *QAbstractSpinBox::lineEdit() const
     \fn void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
 
     Sets the line edit of the spinbox to be \a lineEdit instead of the
-    current line edit widget.
+    current line edit widget. \a lineEdit can not be 0.
+
+    If \a lineEdit->validator() returns 0 the internal validator of
+    the spinbox will be set on the line edit. Note that
+
+
 */
 
 void QAbstractSpinBox::setLineEdit(QLineEdit *e)
@@ -430,20 +435,23 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
         Q_ASSERT(e != 0);
         return;
     }
+    const QValidator *validator = d->edit ? d->edit->validator() : 0;
     delete d->edit;
     d->edit = e;
     if (d->edit->parent() != this)
         d->edit->setParent(this);
 
+    if (!e->validator() && validator)
+        e->setValidator(validator);
+
     d->edit->setFrame(false);
     d->edit->setAttribute(Qt::WA_InputMethodEnabled, false);
     d->edit->setFocusProxy(this);
 
-    if (d->useprivate) {
+    if (d->type != QCoreVariant::Invalid) {
         connect(d->edit, SIGNAL(textChanged(QString)), this, SLOT(editorTextChanged(QString)));
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(editorCursorPositionChanged(int,int)));
     }
-    setAttribute(Qt::WA_InputMethodEnabled);
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
@@ -525,6 +533,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 {
     switch(e->type()) {
         case QEvent::StyleChange:
+            d->spinclicktimerinterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->resetState();
             break;
         case QEvent::EnabledChange:
@@ -810,7 +819,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         }
         e->accept();
     }
-    if (d->sliderpressed && d->useprivate) {
+    if (d->sliderpressed && d->type != QCoreVariant::Invalid) {
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
     }
@@ -864,7 +873,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QCoreVariant::Invalid), spinclicktimerid(-1), spinclicktimerinterval(100),
-      buttonstate(None), sizehintdirty(true), dirty(true), useprivate(false), pendingemit(false),
+      buttonstate(None), sizehintdirty(true), dirty(true), pendingemit(false),
       tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
       sliderpressed(false), frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
@@ -1005,9 +1014,10 @@ void QAbstractSpinBoxPrivate::init()
     spinclicktimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    q->setAttribute(Qt::WA_InputMethodEnabled);
 
     q->setLineEdit(new QLineEdit(q));
-    if (useprivate)
+    if (d->type != QCoreVariant::Invalid)
         edit->setValidator(new QSpinBoxValidator(this, q));
 
     edit->setObjectName("qt_spinbox_lineedit");
@@ -1058,9 +1068,6 @@ void QAbstractSpinBoxPrivate::resetState()
         if (spinclicktimerid != -1)
             q->killTimer(spinclicktimerid);
         spinclicktimerid = -1;
-//         if (spinkeytimerid != -1)
-//             q->killTimer(spinkeytimerid);
-//         spinkeytimerid = -1;
         updateSpinBox();
     }
 }
@@ -1232,12 +1239,9 @@ QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCore
             v = (wasMax && steps > 0 || (!wasMin && steps < 0)) ? minimum : maximum;
         } else if (v < minimum) {
             v = (!wasMax && !wasMin ? minimum : maximum);
-//      } else if (wasMin && steps < 0 || wasMax && steps > 0) {
-//          v = (wasMax ? minimum : maximum);
         }
     }
 
-//    qDebug("(%s) %s =(%d)=> %s", old.toTime().toString().latin1(), val.toTime().toString().latin1(), steps, v.toString().latin1());
     return v;
 }
 
@@ -1296,7 +1300,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
 
 void QAbstractSpinBoxPrivate::update()
 {
-    if (useprivate) {
+    if (d->type != QCoreVariant::Invalid) {
         if (!q->isVisible()) {
             dirty = true;
         } else {
@@ -1383,9 +1387,9 @@ QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
 
 QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCoreVariant *val) const
 {
-    if (!useprivate) {
+    if (d->type == QCoreVariant::Invalid)
         return QValidator::Acceptable;
-    }
+
     Q_ASSERT(input);
     if (specialvaluetext.size() && *input == specialvaluetext) {
         if (val)
@@ -1414,7 +1418,7 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
 
 void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
 {
-    if (!useprivate)
+    if (d->type == QCoreVariant::Invalid)
         return;
 
     QCoreVariant v = getZeroVariant();
@@ -1437,6 +1441,7 @@ QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBoxPrivate *p, QObject *parent
     : QValidator(parent)
 {
     dptr = p;
+    setObjectName("qt_spinboxvalidator");
 }
 
 /*!

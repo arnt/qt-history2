@@ -905,7 +905,6 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     first.pos = 0;
     last.section = LastSection;
     last.pos = -1;
-    useprivate = true;
     readLocaleSettings();
 }
 

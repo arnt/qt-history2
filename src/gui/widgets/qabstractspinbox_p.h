@@ -108,12 +108,10 @@ public:
     QCoreVariant value, minimum, maximum, singlestep;
     QCoreVariant::Type type;
     int spinclicktimerid, spinclicktimerinterval;
-//    int spinkeytimerid, spinkeytimerinterval;
     uint buttonstate;
     mutable QSize cachedsizehint, cachedminimumsizehint;
     mutable uint sizehintdirty : 1;
     mutable uint dirty : 1;
-    uint useprivate : 1;
     uint pendingemit : 1;
     uint spindownenabled : 1;
     uint spinupenabled : 1;
