@@ -946,8 +946,6 @@ void QFtp::error( int code )
 	    op->setState( StFailed );
 	    op->setProtocolDetail( msg );
 	    op->setErrorCode( (int)ErrHostNotFound );
-	    clearOperationQueue();
-	    emit finished( op );
 	}
     }
 }

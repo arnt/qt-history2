@@ -825,14 +825,12 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 
     QNetworkOperation *op = d->operationQueue.head();
 
-    d->opInProgress = 0;
+    d->opInProgress = op;
 
     if ( !checkConnection( op ) ) {
 	if ( op->state() != QNetworkProtocol::StFailed ) {
 	    d->opStartTimer->start( 0, TRUE );
-	    d->opInProgress = op;
 	} else {
-	    d->opInProgress = op;
 	    d->operationQueue.dequeue();
 	    clearOperationQueue();
 	    emit finished( op );
