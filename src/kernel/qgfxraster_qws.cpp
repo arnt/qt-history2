@@ -1416,15 +1416,6 @@ void QGfxRasterBase::restore()
     setBrush(savebrush);
 }
 
-// inline QRect::setCoords
-inline void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
-{
-    x1 = (QCOORD)xp1;
-    y1 = (QCOORD)yp1;
-    x2 = (QCOORD)xp2;
-    y2 = (QCOORD)yp2;
-}
-
 /*!
   \internal
 

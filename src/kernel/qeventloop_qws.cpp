@@ -161,17 +161,17 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     if ( ! ( flags & ExcludeSocketNotifiers ) ) {
 	// return the highest fd we can wait for input on
 	if ( d->sn_highest >= 0 ) {                     // has socket notifier(s)
-	    if ( d->sn_vec[0].list && ! d->sn_vec[0].list->isEmpty() )
+	    if (!d->sn_vec[0].list.isEmpty())
 		d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
 	    else
 		FD_ZERO( &d->sn_vec[0].select_fds );
 
-	    if ( d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty() )
+	    if (!d->sn_vec[1].list.isEmpty())
 		d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
 	    else
 		FD_ZERO( &d->sn_vec[1].select_fds );
 
-	    if ( d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty() )
+	    if (!d->sn_vec[2].list.isEmpty())
 		d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
 	    else
 		FD_ZERO( &d->sn_vec[2].select_fds );

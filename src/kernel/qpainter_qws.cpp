@@ -1554,7 +1554,7 @@ void qt_draw_background( QPainter *p, int x, int y, int w,  int h )
 {
     if (p->testf(QPainter::ExtDev)) {
 	if (p->pdev->devType() == QInternal::Printer)
-	    p->fillRect(x, y, w, h, p->bg_col);
+	    p->fillRect(x, y, w, h, p->bg_brush);
 	return;
     }
     p->gfx->setPen( QPen::NoPen );
