@@ -6,7 +6,7 @@
 #include <qcombo.h>
 #include <qfiledlg.h>
 #include <qmsgbox.h>
-#include <qprogbar.h>
+#include <qprogdlg.h>
 #include <qtabdlg.h>
 #include <qgrpbox.h>
 #include <qbttngrp.h>
@@ -53,7 +53,7 @@ public:
 	if (widget) widget->hide();
     }
 
-    void depict(QProgressBar* w, const char* savefile)
+    void depict(QProgressDialog* w, const char* savefile)
     {
 	w->setProgress(0);
 	sleep(3);
@@ -196,7 +196,17 @@ public:
 class EgQProgressBar : public QProgressBar {
 public:
     EgQProgressBar() :
-	QProgressBar("Please wait...",100)
+	QProgressBar(100)
+    {
+	setProgress(35);
+	resize(sizeHint());
+    }
+};
+
+class EgQProgressDialog : public QProgressDialog {
+public:
+    EgQProgressDialog() :
+	QProgressDialog("Please wait...",100)
     {
 	setCancelButton("Cancel");
 	clearWFlags( WType_Modal );
@@ -471,9 +481,10 @@ public:
 class EgQViewport : public QViewport {
     LifeWidget life;
 public:
-    EgQViewport() :
-	life(portHole())
+    EgQViewport()
     {
+	view(&life);
+
 	life.resize(400,400);
 	life.setBackgroundColor(QColor(170,180,170));
 
@@ -539,6 +550,7 @@ int main( int argc, char **argv )
 	DEPICT( EgQSlider, "qslider", "QSlider" );
 	DEPICT( EgQTabBar, "qtabbar", "QTabBar" );
 	DEPICT( EgQProgressBar, "qprogbar", "QProgressBar" );
+	DEPICT( EgQProgressDialog, "qprogdlg", "QProgressDialog" );
 	DEPICT( EgQViewport, "qviewp", "QViewport" );
 
 	if ( !first ) break;
