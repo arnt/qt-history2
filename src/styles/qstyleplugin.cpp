@@ -52,7 +52,7 @@ QStylePluginPrivate::~QStylePluginPrivate()
 
 QStringList QStylePluginPrivate::featureList() const
 {
-    return plugin->featureList();
+    return plugin->keys();
 }
 
 QStyle *QStylePluginPrivate::create( const QString &key )
@@ -88,7 +88,7 @@ QStylePlugin::~QStylePlugin()
     // don't delete d, as this is deleted by d
 }
 
-QStringList QStylePlugin::featureList() const
+QStringList QStylePlugin::keys() const
 {
     return QStringList();
 }

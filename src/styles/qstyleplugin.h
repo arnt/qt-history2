@@ -17,7 +17,7 @@ public:
     QStylePlugin();
     virtual ~QStylePlugin();
 
-    virtual QStringList featureList() const;
+    virtual QStringList keys() const;
     virtual QStyle *create( const QString &key );
 
     QUnknownInterface *iface();

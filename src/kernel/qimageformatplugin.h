@@ -17,10 +17,10 @@ public:
     QImageFormatPlugin();
     virtual ~QImageFormatPlugin();
 
-    virtual QStringList featureList() const;
-    bool loadImage( const QString &format, const QString &filename, QImage *image );
-    bool saveImage( const QString &format, const QString &filename, const QImage &image );
-    bool installIOHandler( const QString &format );
+    virtual QStringList keys() const;
+    virtual bool loadImage( const QString &format, const QString &filename, QImage *image );
+    virtual bool saveImage( const QString &format, const QString &filename, const QImage &image );
+    virtual bool installIOHandler( const QString &format );
 
     QUnknownInterface *iface();
 

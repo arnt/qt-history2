@@ -44,7 +44,7 @@ QRESULT QSqlDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
 
 QStringList QSqlDriverPluginPrivate::featureList() const
 {
-    return plugin->featureList();
+    return plugin->keys();
 }
 
 QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
@@ -63,7 +63,7 @@ QSqlDriverPlugin::~QSqlDriverPlugin()
     // don't delete d, as this is deleted by d
 }
 
-QStringList QSqlDriverPlugin::featureList() const
+QStringList QSqlDriverPlugin::keys() const
 {
     return QStringList();
 }

@@ -45,7 +45,7 @@ QRESULT QTextCodecPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
 
 QStringList QTextCodecPluginPrivate::featureList() const
 {
-    return plugin->featureList();
+    return plugin->keys();
 }
 
 QTextCodec *QTextCodecPluginPrivate::createForMib( int mib )
@@ -68,7 +68,7 @@ QTextCodecPlugin::~QTextCodecPlugin()
 {
 }
 
-QStringList QTextCodecPlugin::featureList() const
+QStringList QTextCodecPlugin::keys() const
 {
     return QStringList();
 }

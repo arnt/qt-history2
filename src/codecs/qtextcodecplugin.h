@@ -17,7 +17,7 @@ public:
     QTextCodecPlugin();
     virtual ~QTextCodecPlugin();
 
-    virtual QStringList featureList() const;
+    virtual QStringList keys() const;
     virtual QTextCodec *createForMib( int mib );
     virtual QTextCodec *createForName( const QString &name );
 

@@ -17,7 +17,7 @@ public:
     QSqlDriverPlugin();
     virtual ~QSqlDriverPlugin();
 
-    virtual QStringList featureList() const;
+    virtual QStringList keys() const;
     virtual QSqlDriver *create( const QString &key );
 
     QUnknownInterface *iface();

@@ -48,22 +48,22 @@ QRESULT QImageFormatPluginPrivate::queryInterface( const QUuid &iid, QUnknownInt
 
 QStringList QImageFormatPluginPrivate::featureList() const
 {
-    return plugin->featureList();
+    return plugin->keys();
 }
 
 QRESULT QImageFormatPluginPrivate::loadImage( const QString &format, const QString &filename, QImage *image )
 {
-    return plugin->loadImage( format, filename, image );
+    return plugin->loadImage( format, filename, image ) ? QS_FALSE : QS_OK;
 }
 
 QRESULT QImageFormatPluginPrivate::saveImage( const QString &format, const QString &filename, const QImage &image )
 {
-    return plugin->saveImage( format, filename, image );
+    return plugin->saveImage( format, filename, image ) ? QS_FALSE : QS_OK;
 }
 
 QRESULT QImageFormatPluginPrivate::installIOHandler( const QString &format )
 {
-    return plugin->installIOHandler( format );
+    return plugin->installIOHandler( format ) ? QS_FALSE : QS_OK;
 }
 
 
@@ -76,7 +76,7 @@ QImageFormatPlugin::~QImageFormatPlugin()
 {
 }
 
-QStringList QImageFormatPlugin::featureList() const
+QStringList QImageFormatPlugin::keys() const
 {
     return QStringList();
 }
