@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#19 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#19 $";
 #endif
 
 
@@ -53,7 +53,7 @@ color and save it in the internal table.
 
 This method seems to work well even with thousands of allocated colors.
 
-\sa QPallette.
+\sa QPalette.
 */
 
 // --------------------------------------------------------------------------
@@ -275,7 +275,7 @@ void QColor::getRGB( int *r, int *g, int *b ) const
 
 /*!
 \fn void QColor::setRGB( int r, int g, int b )
-Sets the RGB value to (\e r,\e g,\e b).
+Sets the RGB value to (\e r, \e g, \e b).
 
 \sa getRGB().
 */
