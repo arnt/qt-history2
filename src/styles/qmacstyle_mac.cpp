@@ -875,7 +875,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 				     tds, &twm, twa, kWindowTitleTextRgn, treg.handle(TRUE));
 		p->setClipRegion(treg);
 		QRect br = treg.boundingRect();
-		int x = br.x(), y = br.y() + ((tb->height() / 2) - ( p->fontMetrics().height() / 2 ));
+		int x = br.x(), y = br.y() + ((tbar->height() / 2) - ( p->fontMetrics().height() / 2 ));
 		if(br.width() <= (p->fontMetrics().width(tbar->caption())+iw*2))
 		    x += iw;
 		else
