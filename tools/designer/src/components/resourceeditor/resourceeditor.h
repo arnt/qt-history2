@@ -1,16 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #ifndef RESOURCEEDITOR_H
 #define RESOURCEEDITOR_H
 
@@ -27,42 +14,24 @@ class FormTab;
 class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget
 {
     Q_OBJECT
-
+    
 public:
     ResourceEditor(AbstractFormEditor *core, QWidget *parent = 0);
 
-    QAction *newQrcAction() const { return m_new_qrc_action; }
-    QAction *openQrcAction() const { return m_open_qrc_action; }
-    QAction *saveQrcAction() const { return m_save_qrc_action; }
-    QAction *removeQrcAction() const { return m_remove_qrc_action; }
-    QAction *reloadQrcAction() const { return m_reload_qrc_action; }
-
-public slots:
+private slots:
     void addTab(AbstractFormWindow *form);
     void removeTab(AbstractFormWindow *form);
     void formNameChanged(const QString &name);
-
-    void newQrc();
-    void openQrc();
-    void saveQrc();
-    void removeQrc();
-    void reloadQrc();
-
+        
 private:
-    QAction *m_new_qrc_action;
-    QAction *m_open_qrc_action;
-    QAction *m_save_qrc_action;
-    QAction *m_remove_qrc_action;
-    QAction *m_reload_qrc_action;
-
     QTabWidget *m_tabs;
     QList<ResourceModel*> m_model_list;
-
+    
     int indexOfForm(AbstractFormWindow *form);
     ResourceModel *model(const QString &file);
-
+    
     FormTab *currentFormTab() const;
-
+    
     friend class FormTab;
 };
 

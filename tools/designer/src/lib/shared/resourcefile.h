@@ -16,6 +16,7 @@ public:
     QString fileName() const { return m_file_name; }
     bool load();
     bool save();
+    QString errorMessage() const { return m_error_message; }
     
     QString resolvePath(const QString &path) const;
 
@@ -35,6 +36,7 @@ public:
     QString file(int prefix_idx, int file_idx) const;
 
     int indexOfPrefix(const QString &prefix);
+    int indexOfFile(int pref_idx, const QString &file);
         
     QString relativePath(const QString &abs_path) const;
     QString absolutePath(const QString &rel_path) const;
@@ -47,6 +49,7 @@ private:
     typedef QMap<QString, QStringList> ResourceMap;
     ResourceMap m_resource_map;
     QString m_file_name;
+    QString m_error_message;
 };
 
 #endif // RESOURCEFILE_H

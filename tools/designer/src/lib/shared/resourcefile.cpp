@@ -35,16 +35,16 @@ ResourceFile::ResourceFile(const QString &file_name)
 
 bool ResourceFile::load()
 {
+    m_error_message.clear();
+    
     if (m_file_name.isEmpty()) {
-        qWarning("ResourceFile::load(): file name is empty");
+        m_error_message = QObject::tr("file name is empty");
         return false;
     }
 
     QFile file(m_file_name);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
-                    m_file_name.toLatin1().constData(),
-                    file.errorString().toLatin1().constData());
+        m_error_message = file.errorString();
         return false;
     }
 
@@ -55,16 +55,14 @@ bool ResourceFile::load()
     QString error_msg;
     int error_line, error_col;
     if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-        qWarning("ResourceFile::ResourceFile(): failed to parse qrc file:\n%s %d:%d:%s",
-                    file.fileName().toLatin1().constData(), error_line, error_col,
-                    error_msg.toLatin1().constData());
+        m_error_message = QObject::tr("XML error on line %1, col %2: %3")
+                    .arg(error_line).arg(error_col).arg(error_msg);
         return false;
     } 
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        qWarning("ResourceFile::ResourceFile(): bad root element in '%s'",
-                    file.fileName().toLatin1().constData());
+        m_error_message = QObject::tr("no <RCC> root element");
         return false;
     }
 
@@ -82,16 +80,16 @@ bool ResourceFile::load()
 
 bool ResourceFile::save()
 {
+    m_error_message.clear();
+
     if (m_file_name.isEmpty()) {
-        qWarning("ResourceFile::save(): file name is empty");
+        m_error_message = QObject::tr("file name is empty");
         return false;
     }
     
     QFile file(m_file_name);
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
-                    m_file_name.toLatin1().constData(),
-                    file.errorString().toLatin1().constData());
+        m_error_message = file.errorString();
         return false;
     }
     
@@ -176,9 +174,20 @@ int ResourceFile::indexOfPrefix(const QString &prefix)
     return -1;
 }
 
+int ResourceFile::indexOfFile(int pref_idx, const QString &file)
+{
+    QString prefix = this->prefix(pref_idx);
+    if (prefix.isEmpty())
+        return -1;
+    return m_resource_map.value(prefix).indexOf(file);
+}
+
 void ResourceFile::addFile(const QString &prefix, const QString &file)
 {
-    m_resource_map[fixPrefix(prefix)].append(absolutePath(file));
+    QString abs_file = absolutePath(file);
+    QString fixed_prefix = fixPrefix(prefix);
+
+    m_resource_map[fixed_prefix].append(abs_file);
 }
 
 void ResourceFile::removePrefix(const QString &prefix)
@@ -196,7 +205,7 @@ void ResourceFile::removeFile(const QString &prefix, const QString &file)
 
 QString ResourceFile::relativePath(const QString &abs_path) const
 {
-    if (QFileInfo(abs_path).isRelative())
+    if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
         return abs_path;
         
     return ::relativePath(QFileInfo(m_file_name).path(), abs_path);
@@ -278,6 +287,8 @@ QString ResourceFile::file(int prefix_idx, int file_idx) const
     QStringList list = m_resource_map.value(prefix(prefix_idx));
     if (file_idx >= list.size())
         return QString();
-    return relativePath(list.at(file_idx));
+    QString path = list.at(file_idx);
+    QString rel_path = relativePath(path);
+    return rel_path;
 }
 

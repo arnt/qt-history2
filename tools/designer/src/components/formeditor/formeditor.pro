@@ -26,7 +26,6 @@ HEADERS += \
            widgetselection.h \
            formwindowmanager.h \
            formeditor.h \
-           iconloader.h \
            formeditor_global.h \
            qlayoutwidget_propertysheet.h \
            spacer_propertysheet.h \

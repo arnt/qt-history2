@@ -1,16 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #include <QtCore/QFileInfo>
 #include <QtCore/qdebug.h>
 #include <QtCore/QAbstractItemModel>
@@ -27,11 +14,15 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
 #include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
+#include <QtGui/QToolButton>
 
 #include <abstractformeditor.h>
 #include <abstractformwindowmanager.h>
 
 #include <resourcefile.h>
+#include <iconloader.h>
+
 #include "resourceeditor.h"
 
 /******************************************************************************
@@ -44,7 +35,7 @@ class ResourceModel : public QAbstractItemModel
 
 public:
     ResourceModel(const ResourceFile &resource_file, QObject *parent = 0);
-
+    
     QModelIndex index(int row, int column,
                         const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -55,13 +46,15 @@ public:
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
 
     QString fileName() const { return m_resource_file.fileName(); }
+    void setFileName(const QString &file_name) { m_resource_file.setFileName(file_name); }
     void getItem(const QModelIndex &index, QString &prefix, QString &file) const;
 
     QModelIndex addNewPrefix();
     QModelIndex addFiles(const QModelIndex &idx, const QStringList &file_list);
     void changePrefix(const QModelIndex &idx, const QString &prefix);
     QModelIndex prefixIndex(const QModelIndex &sel_idx) const;
-    void deleteItem(const QModelIndex &idx);
+    QModelIndex deleteItem(const QModelIndex &idx);
+    QModelIndex getIndex(const QString &prefix, const QString &file);
 
     QString absolutePath(const QString &path) const { return m_resource_file.absolutePath(path); }
 
@@ -73,7 +66,7 @@ public:
 
 signals:
     void dirtyChanged(bool b);
-
+    
 private:
     ResourceFile m_resource_file;
     bool m_dirty;
@@ -99,7 +92,7 @@ QModelIndex ResourceModel::index(int row, int column,
     QModelIndex result;
 
     qint64 d = reinterpret_cast<qint64>(parent.data());
-
+    
     if (!parent.isValid()) {
         if (row < m_resource_file.prefixCount())
             result = createIndex(row, 0, reinterpret_cast<void*>(-1));
@@ -111,7 +104,7 @@ QModelIndex ResourceModel::index(int row, int column,
     }
 
 //    qDebug() << "ResourceModel::index(" << row << column << parent << "):" << result;
-
+    
     return result;
 }
 
@@ -120,60 +113,49 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
     QModelIndex result;
 
     qint64 d = reinterpret_cast<qint64>(index.data());
-
+    
     if (index.isValid() && d != -1)
         result = createIndex(d, 0, reinterpret_cast<void*>(-1));
 
 //    qDebug() << "ResourceModel::parent(" << index << "):" << result;
-
+    
     return result;
 }
 
 int ResourceModel::rowCount(const QModelIndex &parent) const
 {
     int result = 0;
-
+    
     qint64 d = reinterpret_cast<qint64>(parent.data());
-
+    
     if (!parent.isValid())
         result = m_resource_file.prefixCount();
     else if (d == -1)
         result = m_resource_file.fileCount(parent.row());
 
 //    qDebug() << "ResourceModel::rowCount(" << parent << "):" << result;
-
+    
     return result;
 }
 
-int ResourceModel::columnCount(const QModelIndex &parent) const
+int ResourceModel::columnCount(const QModelIndex &) const
 {
-    int result = 0;
-
-    qint64 d = reinterpret_cast<qint64>(parent.data());
-
-    if (!parent.isValid())
-        result = m_resource_file.prefixCount() == 0 ? 0 : 1;
-    else if (d == -1)
-        result = m_resource_file.fileCount(parent.row()) == 0 ? 0 : 1;
-
-//    qDebug() << "ResourceModel::columnCount(" << parent << "):" << result;
-
-    return result;
+    return 1;
 }
 
 bool ResourceModel::hasChildren(const QModelIndex &parent) const
 {
     bool result = false;
-
+    
     qint64 d = reinterpret_cast<qint64>(parent.data());
-
+    
     if (!parent.isValid())
         result = m_resource_file.prefixCount() > 0;
     else if (d == -1)
         result = m_resource_file.fileCount(parent.row()) > 0;
 
 //    qDebug() << "ResourceModel::hasChildren(" << parent << "):" << result;
-
+    
     return result;
 }
 
@@ -218,6 +200,26 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
     }
 }
 
+QModelIndex ResourceModel::getIndex(const QString &prefix, const QString &file)
+{
+    if (prefix.isEmpty())
+        return QModelIndex();
+
+    int pref_idx = m_resource_file.indexOfPrefix(prefix);
+    if (pref_idx == -1)
+        return QModelIndex();
+
+    QModelIndex pref_model_idx = index(pref_idx, 0, QModelIndex());
+    if (file.isEmpty())
+        return pref_model_idx;
+        
+    int file_idx = m_resource_file.indexOfFile(pref_idx, file);
+    if (file_idx == -1)
+        return QModelIndex();
+
+    return index(file_idx, 0, pref_model_idx);
+}
+
 QModelIndex ResourceModel::prefixIndex(const QModelIndex &sel_idx) const
 {
     if (!sel_idx.isValid())
@@ -238,7 +240,7 @@ QModelIndex ResourceModel::addNewPrefix()
     emit rowsInserted(QModelIndex(), i, i);
 
     setDirty(true);
-
+    
     return index(i, 0, QModelIndex());
 }
 
@@ -263,7 +265,7 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &idx, const QStringList &f
         emit rowsInserted(prefix_idx, cnt - added, cnt - 1);
         setDirty(true);
     }
-
+    
     return index(cnt - 1, 0, prefix_idx);
 }
 
@@ -286,35 +288,63 @@ void ResourceModel::changePrefix(const QModelIndex &idx, const QString &prefix)
     setDirty(true);
 }
 
-void ResourceModel::deleteItem(const QModelIndex &idx)
+QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
 {
     if (!idx.isValid())
-        return;
+        return QModelIndex();
 
     QString prefix, file;
     getItem(idx, prefix, file);
     Q_ASSERT(!prefix.isEmpty());
+    int prefix_idx = m_resource_file.indexOfPrefix(prefix);
+    int file_idx = m_resource_file.indexOfFile(prefix_idx, file);
 
     emit rowsAboutToBeRemoved(parent(idx), idx.row(), idx.row());
 
-    if (file.isEmpty())
+    if (file.isEmpty()) {
         m_resource_file.removePrefix(prefix);
-    else
+        if (prefix_idx == m_resource_file.prefixCount())
+            --prefix_idx;
+    } else {
         m_resource_file.removeFile(prefix, file);
-
+        if (file_idx == m_resource_file.fileCount(prefix_idx))
+            --file_idx;
+    }
+    
     setDirty(true);
+
+    if (prefix_idx == -1)
+        return QModelIndex();
+    QModelIndex prefix_model_idx = index(prefix_idx, 0, QModelIndex());
+    if (file_idx == -1)
+        return prefix_model_idx;
+    return index(file_idx, 0, prefix_model_idx);
 }
 
 void ResourceModel::reload()
 {
-    m_resource_file.load();
+    if (!m_resource_file.load()) {
+        QMessageBox::warning(0, tr("Error opening resource file"),
+                                tr("Failed to open \"%1\":\n%2")
+                                    .arg(m_resource_file.fileName())
+                                    .arg(m_resource_file.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
     emit reset();
     setDirty(false);
 }
 
 void ResourceModel::save()
 {
-    m_resource_file.save();
+    if (!m_resource_file.save()) {
+        QMessageBox::warning(0, tr("Error saving resource file"),
+                                tr("Failed to save \"%1\":\n%2")
+                                    .arg(m_resource_file.fileName())
+                                    .arg(m_resource_file.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
+        return;
+    }
     setDirty(false);
 }
 
@@ -331,8 +361,7 @@ public:
 
     AbstractFormWindow *form() const { return m_form; }
     int qrcCount();
-    bool dirty() const;
-
+    
 public slots:
     void updateQrcList();
     void updateUi();
@@ -341,16 +370,23 @@ public slots:
     void deleteItem();
     void setCurrentPrefix(const QString &prefix);
     void setCurrentIndex(int i);
-
+    int currentIndex() const;
+    
     void addView(const QString &file_name);
+    
     void saveCurrentView();
     void removeCurrentView();
     void reloadCurrentView();
-
-signals:
-    void dirtyChanged(bool);
-
+    void newView();
+    void openView();
+    
 private:
+    QToolButton *m_new_button;
+    QToolButton *m_open_button;
+    QToolButton *m_save_button;
+    QToolButton *m_remove_button;
+    QToolButton *m_reload_button;
+
     AbstractFormWindow *m_form;
     ResourceEditor *m_editor;
 
@@ -367,6 +403,16 @@ private:
     int indexOfView(QTreeView *view);
 };
 
+static QToolButton *createToolButton(QWidget *parent, const QString &text,
+                                        const QString &icon_path, const char *slot)
+{
+    QToolButton *result = new QToolButton(parent);
+    result->setText(text);
+    result->setIcon(createIconSet(icon_path));
+    QObject::connect(result, SIGNAL(clicked()), parent, slot);
+    return result;
+}
+
 FormTab::FormTab(AbstractFormWindow *form, ResourceEditor *editor)
     : QWidget(0)
 {
@@ -381,12 +427,29 @@ FormTab::FormTab(AbstractFormWindow *form, ResourceEditor *editor)
     QHBoxLayout *layout2 = new QHBoxLayout;
     layout1->addLayout(layout2);
     layout2->addWidget(new QLabel(tr("Resource file:"), this));
+    
     m_qrc_combo = new QComboBox(this);
     m_qrc_combo->setEditable(false);
     m_qrc_combo->setInsertPolicy(QComboBox::NoInsert);
     m_qrc_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     connect(m_qrc_combo, SIGNAL(activated(int)), this, SLOT(setCurrentIndex(int)));
     layout2->addWidget(m_qrc_combo);
+    
+    m_new_button = createToolButton(this, tr("New"), QLatin1String("filenew.png"),
+                                    SLOT(newView()));
+    m_open_button = createToolButton(this, tr("Open"), QLatin1String("fileopen.png"),
+                                    SLOT(openView()));
+    m_save_button = createToolButton(this, tr("Save"), QLatin1String("filesave.png"),
+                                    SLOT(saveCurrentView()));
+    m_remove_button = createToolButton(this, tr("Remove"), QLatin1String("editdelete.png"),
+                                    SLOT(removeCurrentView()));
+    m_reload_button = /*createToolButton(this, tr("Reload"), QLatin1String("filereload.png"),
+                                    SLOT(reloadCurrentView()));*/ 0;
+    layout2->addWidget(m_new_button);
+    layout2->addWidget(m_open_button);
+    layout2->addWidget(m_save_button);
+    layout2->addWidget(m_remove_button);
+//    layout2->addWidget(m_reload_button);
 
     m_qrc_stack = new QStackedWidget(this);
     layout1->addWidget(m_qrc_stack);
@@ -398,7 +461,7 @@ FormTab::FormTab(AbstractFormWindow *form, ResourceEditor *editor)
     connect(m_prefix_edit, SIGNAL(textChanged(const QString&)),
             this, SLOT(setCurrentPrefix(const QString&)));
     layout4->addWidget(m_prefix_edit);
-
+    
     QHBoxLayout *layout3 = new QHBoxLayout;
     layout1->addLayout(layout3);
     layout3->addStretch();
@@ -433,20 +496,11 @@ ResourceModel *FormTab::currentModel() const
     return qobject_cast<ResourceModel*>(view->model());
 }
 
-bool FormTab::dirty() const
-{
-    ResourceModel *model = currentModel();
-    if (model == 0)
-        return false;
-
-    return model->dirty();
-}
-
 void FormTab::getCurrentItem(QString &prefix, QString &file)
 {
     prefix.clear();
     file.clear();
-
+    
     QTreeView *view = currentView();
     if (view == 0)
         return;
@@ -454,7 +508,7 @@ void FormTab::getCurrentItem(QString &prefix, QString &file)
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
-
+    
     model->getItem(view->currentIndex(), prefix, file);
 }
 
@@ -463,7 +517,7 @@ void FormTab::addPrefix()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-
+    
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -477,7 +531,7 @@ void FormTab::setCurrentPrefix(const QString &prefix)
     QTreeView *view = currentView();
     if (view == 0)
         return;
-
+    
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -490,7 +544,7 @@ void FormTab::addFiles()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-
+    
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -513,7 +567,7 @@ void FormTab::deleteItem()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-
+    
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
@@ -521,17 +575,15 @@ void FormTab::deleteItem()
     QModelIndex cur_idx = view->currentIndex();
     if (!cur_idx.isValid())
         return;
+    
+    QModelIndex idx = model->deleteItem(cur_idx);        
 
-    QModelIndex idx = view->indexBelow(cur_idx);
-    while (idx.isValid() && model->parent(idx) == cur_idx)
-        idx = view->indexBelow(idx);
-    if (!idx.isValid())
-        idx = view->indexAbove(idx);
-
-    model->deleteItem(cur_idx);
-
-    if (idx.isValid())
+    if (idx.isValid()) {
+        QModelIndex pref_idx = model->prefixIndex(idx);
+        if (pref_idx != idx)
+            view->setExpanded(pref_idx, true);
         view->selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+    }
 }
 
 void FormTab::updateUi()
@@ -539,14 +591,25 @@ void FormTab::updateUi()
     QString prefix, file;
     getCurrentItem(prefix, file);
 
-    m_add_prefix_button->setEnabled(true);
+    m_add_prefix_button->setEnabled(currentModel() != 0);
     m_add_files_button->setEnabled(!prefix.isEmpty());
     m_delete_button->setEnabled(!prefix.isEmpty());
     m_prefix_edit->setEnabled(!prefix.isEmpty());
-
+    
     m_prefix_edit->blockSignals(true);
     m_prefix_edit->setText(prefix);
     m_prefix_edit->blockSignals(false);
+
+    m_new_button->setEnabled(true);
+    m_open_button->setEnabled(true);
+    m_save_button->setEnabled(currentModel() != 0 && currentModel()->dirty());
+    m_remove_button->setEnabled(currentModel() != 0);
+//    m_reload_button->setEnabled(currentModel() != 0);
+}
+
+int FormTab::currentIndex() const
+{
+    return m_qrc_stack->currentIndex();
 }
 
 void FormTab::setCurrentIndex(int i)
@@ -554,23 +617,12 @@ void FormTab::setCurrentIndex(int i)
     if (i > qrcCount())
         return;
 
-    ResourceModel *old_model = currentModel();
-    if (old_model != 0)
-        disconnect(old_model, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
-    bool old_dirty = dirty();
-
     m_qrc_combo->blockSignals(true);
     m_qrc_combo->setCurrentIndex(i);
     m_qrc_combo->blockSignals(false);
     m_qrc_stack->setCurrentIndex(i);
 
-    ResourceModel *new_model = currentModel();
-    if (new_model != 0)
-        connect(new_model, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
-    bool new_dirty = dirty();
-
-    if (old_dirty != new_dirty)
-        emit dirtyChanged(new_dirty);
+    updateUi();
 }
 
 void FormTab::updateQrcList()
@@ -581,7 +633,7 @@ void FormTab::updateQrcList()
         m_qrc_stack->removeWidget(w);
         delete w;
     }
-
+    
     QStringList qrc_file_list = m_form->resourceFiles();
     foreach (QString qrc_file, qrc_file_list)
         addView(qrc_file);
@@ -600,16 +652,20 @@ void FormTab::addView(const QString &qrc_file)
         name = m_form->relativePath(qrc_file);
     m_qrc_combo->addItem(name);
     QTreeView *view = new QTreeView;
-    view->setModel(m_editor->model(qrc_file));
+    ResourceModel *model = m_editor->model(qrc_file);
+    view->setModel(model);
     view->header()->hide();
     m_qrc_stack->addWidget(view);
     connect(view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
             this, SLOT(updateUi()));
-
+    connect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
+            
     setCurrentIndex(idx);
 
     if (!qrc_file.isEmpty())
         m_form->addResourceFile(qrc_file);
+
+    updateUi();
 }
 
 void FormTab::saveCurrentView()
@@ -617,7 +673,23 @@ void FormTab::saveCurrentView()
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
-
+    
+    if (model->fileName().isEmpty()) {
+        QString file_name = QFileDialog::getSaveFileName(this, tr("Save resource file"),
+                                                            m_form->absolutePath(QString()),
+                                                            tr("Resource files (*.qrc)"));
+        if (file_name.isEmpty())
+            return;
+        model->setFileName(file_name);
+        m_form->addResourceFile(file_name);
+        QString s = QFileInfo(file_name).fileName();
+        m_qrc_combo->blockSignals(true);
+        m_qrc_combo->setItemText(currentIndex(), s);
+        m_qrc_combo->setCurrentIndex(-1);
+        m_qrc_combo->setCurrentIndex(currentIndex());
+        m_qrc_combo->blockSignals(false);
+    }
+    
     model->save();
 }
 
@@ -635,13 +707,13 @@ void FormTab::removeCurrentView()
     QTreeView *view = currentView();
     if (view == 0)
         return;
-
+    
     ResourceModel *model = currentModel();
     if (model == 0)
         return;
 
     QString file_name = model->fileName();
-
+        
     int idx = indexOfView(view);
     if (idx == -1)
         return;
@@ -650,6 +722,8 @@ void FormTab::removeCurrentView()
     m_qrc_stack->removeWidget(view);
     delete view;
 
+    disconnect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
+    
     if (!file_name.isEmpty())
         m_form->removeResourceFile(file_name);
 
@@ -668,6 +742,22 @@ void FormTab::reloadCurrentView()
     model->reload();
 }
 
+void FormTab::newView()
+{
+    addView(QString());
+}
+
+void FormTab::openView()
+{
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open resource file"),
+                                                        m_form->absolutePath(QString()),
+                                                        tr("Resource files (*.qrc)"));
+    if (file_name.isEmpty())
+        return;
+
+    addView(file_name);
+}
+
 /******************************************************************************
 ** ResourceEditor
 */
@@ -679,24 +769,10 @@ ResourceEditor::ResourceEditor(AbstractFormEditor *core, QWidget *parent)
     m_tabs = new QTabWidget(this);
     layout->addWidget(m_tabs);
 
-    m_new_qrc_action = new QAction(tr("New"), this);
-    m_open_qrc_action = new QAction(tr("Open"), this);
-    m_save_qrc_action = new QAction(tr("Save"), this);
-    m_remove_qrc_action = new QAction(tr("Remove"), this);
-    m_reload_qrc_action = new QAction(tr("Reload"), this);
-
-    connect(m_new_qrc_action, SIGNAL(triggered()), this, SLOT(newQrc()));
-    connect(m_open_qrc_action, SIGNAL(triggered()), this, SLOT(openQrc()));
-    connect(m_remove_qrc_action, SIGNAL(triggered()), this, SLOT(removeQrc()));
-    connect(m_save_qrc_action, SIGNAL(triggered()), this, SLOT(saveQrc()));
-    connect(m_reload_qrc_action, SIGNAL(triggered()), this, SLOT(reloadQrc()));
-
     connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
             this, SLOT(addTab(AbstractFormWindow*)));
     connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
             this, SLOT(removeTab(AbstractFormWindow*)));
-
-    m_tabs->hide();
 }
 
 static QString tabName(const QString &form_name)
@@ -712,9 +788,6 @@ void ResourceEditor::addTab(AbstractFormWindow *form)
     connect(form, SIGNAL(fileNameChanged(const QString&)),
             this, SLOT(formNameChanged(const QString&)));
     m_tabs->setCurrentIndex(m_tabs->count() - 1);
-
-    if (m_tabs->count())
-        m_tabs->show();
 }
 
 int ResourceEditor::indexOfForm(AbstractFormWindow *form)
@@ -735,9 +808,6 @@ void ResourceEditor::removeTab(AbstractFormWindow *form)
     QWidget *form_tab = m_tabs->widget(idx);
     m_tabs->removeTab(idx);
     delete form_tab;
-
-    if (m_tabs->count() == 0)
-        m_tabs->hide();
 }
 
 void ResourceEditor::formNameChanged(const QString &name)
@@ -749,7 +819,7 @@ void ResourceEditor::formNameChanged(const QString &name)
     int idx = indexOfForm(form);
     if (idx == -1)
         return;
-
+        
     m_tabs->setTabText(idx, tabName(name));
 }
 
@@ -768,9 +838,14 @@ ResourceModel *ResourceEditor::model(const QString &file)
     }
 
     ResourceFile rf(file);
-    if (!rf.load())
+    if (!rf.load()) {
+        QMessageBox::warning(this, tr("Error opening resource file"),
+                                tr("Failed to open \"%1\":\n%2")
+                                    .arg(file).arg(rf.errorMessage()),
+                                QMessageBox::Ok, QMessageBox::NoButton);
         return 0;
-
+    }
+                
     ResourceModel *model = new ResourceModel(rf);
     m_model_list.append(model);
     return model;
@@ -779,57 +854,6 @@ ResourceModel *ResourceEditor::model(const QString &file)
 FormTab *ResourceEditor::currentFormTab() const
 {
     return qobject_cast<FormTab*>(m_tabs->currentWidget());
-}
-
-void ResourceEditor::newQrc()
-{
-    FormTab *tab = currentFormTab();
-    if (tab == 0)
-        return;
-
-    tab->addView(QString());
-}
-
-void ResourceEditor::openQrc()
-{
-    FormTab *tab = currentFormTab();
-    if (tab == 0)
-        return;
-
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Open resource file"),
-                                                        tab->form()->absolutePath(QString()),
-                                                        tr("Resource files (*.qrc)"));
-    if (file_name.isEmpty())
-        return;
-
-    tab->addView(file_name);
-}
-
-void ResourceEditor::saveQrc()
-{
-    FormTab *tab = currentFormTab();
-    if (tab == 0)
-        return;
-
-    tab->saveCurrentView();
-}
-
-void ResourceEditor::removeQrc()
-{
-    FormTab *tab = currentFormTab();
-    if (tab == 0)
-        return;
-
-    tab->removeCurrentView();
-}
-
-void ResourceEditor::reloadQrc()
-{
-    FormTab *tab = currentFormTab();
-    if (tab == 0)
-        return;
-
-    tab->reloadCurrentView();
 }
 
 #include "resourceeditor.moc"

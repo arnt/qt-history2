@@ -30,7 +30,8 @@ HEADERS += \
     $$PWD/widgetfactory.h \
     $$PWD/widgetdatabase.h \
     $$PWD/promotetocustomwidgetdialog.h \
-    $$PWD/resourcefile.h
+    $$PWD/resourcefile.h \
+    $$PWD/iconloader.h
 
 SOURCES += \
     $$PWD/spacer_widget.cpp \

@@ -34,6 +34,8 @@
     <file>images/mac/editvlayoutsplit.png</file>
     <file>images/mac/filenew.png</file>
     <file>images/mac/redo.png</file>
+    <file>images/mac/fileopen.png</file>
+    <file>images/mac/filesave.png</file>
     <file>images/qtlogo.png</file>
     <file>images/resetproperty.png</file>
     <file>images/widgets/checkbox.png</file>
@@ -82,6 +84,8 @@
     <file>images/win/editvlayoutsplit.png</file>
     <file>images/win/filenew.png</file>
     <file>images/win/redo.png</file>
+    <file>images/win/fileopen.png</file>
+    <file>images/win/filesave.png</file>
   </qresource>
 </RCC>
 
