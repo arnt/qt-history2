@@ -1,6 +1,9 @@
 #!/bin/sh
 
-WHICH=`which which 2>/dev/null | tail -1`
+HOME=/dev/null
+export HOME
+
+WHICH=`which which 2>/dev/null`
 if [ -z "$WHICH" ]; then
     if which which >/dev/null 2>&1; then
 	WHICH=which
