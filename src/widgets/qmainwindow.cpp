@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#48 $
 **
 ** Implementation of QMainWindow class
 **
@@ -95,10 +95,9 @@ class QMainWindowPrivate {
 public:
     struct ToolBar {
 	ToolBar() : t(0), nl(FALSE) {}
-	ToolBar( QToolBar * tb, QString label, bool n=FALSE )
-	    : t(tb), l(label), nl(n) {}
+	ToolBar( QToolBar * tb, bool n=FALSE )
+	    : t(tb), nl(n) {}
 	QToolBar * t;
-	QString l;
 	bool nl;
     };
 	
@@ -388,15 +387,17 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 }
 
 
-/*!  Adds \a toolBar to this the end of \a edge, labelling it \a label
-and makes it start a new line of tool bars if \a nl is TRUE.
+
+
+/*!  Adds \a toolBar to this the end of \a edge and makes it start a
+new line of tool bars if \a nl is TRUE.
 
 If \a toolBar is already managed by some main window, it is first
 removed from that window.
 */
 
-void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
-			      ToolBarDock edge, bool nl )
+void QMainWindow::addToolBar( QToolBar * toolBar,
+			      ToolBarDock edge, bool newLine )
 {
     if ( !toolBar )
 	return;
@@ -432,24 +433,26 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
     if ( !dl )
 	return;
 
-    dl->append( new QMainWindowPrivate::ToolBar( toolBar, label, nl ) );
+    dl->append( new QMainWindowPrivate::ToolBar( toolBar, newLine ) );
     triggerLayout();
 }
 
 
-/*!  Moves \a toolBar to the end of \a edge, changing its label to \a
-label and its newline status to \a nl.
+/*!  Adds \a toolBar to this the end of \a edge, labelling it \a label
+and makes it start a new line of tool bars if \a newLine is TRUE.
 
-The behaviour of this function if \a toolBar is 0 or not being managed
-by this main window is undefined.
+If \a toolBar is already managed by some main window, it is first
+removed from that window.
 */
 
-void QMainWindow::moveToolBar( QToolBar * toolBar, const QString &label,
-			      ToolBarDock edge, bool nl )
+void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
+			      ToolBarDock edge, bool newLine )
 {
-    addToolBar( toolBar, label, edge, nl );
+    if ( toolBar ) {
+	toolBar->setLabel( label );
+	addToolBar( toolBar, edge, newLine );
+    }
 }
-
 
 
 static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
@@ -465,6 +468,71 @@ static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
 	}
     } while( (ct=l->next()) != 0 );
     return 0;
+}
+
+
+/*!  Moves \a toolBar to this the end of \a edge.
+
+If \a toolBar is already managed by some main window, it is moved from
+that window to this and set to \e not start a new line.
+*/
+
+void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
+{
+    if ( !toolBar )
+	return;
+    if ( toolBar->mw )
+	toolBar->mw->removeToolBar( toolBar );
+
+    QMainWindowPrivate::ToolBar * ct;
+    ct = takeToolBarFromDock( toolBar, d->top );
+    if ( !ct )
+	ct = takeToolBarFromDock( toolBar, d->left );
+    if ( !ct )
+	ct = takeToolBarFromDock( toolBar, d->right );
+    if ( !ct )
+	ct = takeToolBarFromDock( toolBar, d->bottom );
+    if ( !ct )
+	ct = takeToolBarFromDock( toolBar, d->tornOff );
+    if ( !ct )
+	ct = takeToolBarFromDock( toolBar, d->unmanaged );
+    if ( ct ) {
+	setDockEnabled( edge, TRUE );
+
+	QMainWindowPrivate::ToolBarDock * dl = 0;
+	if ( edge == Top ) {
+	    dl = d->top;
+	    toolBar->setOrientation( QToolBar::Horizontal );
+	    toolBar->installEventFilter( this );
+	} else if ( edge == Left ) {
+	    dl = d->left;
+	    toolBar->setOrientation( QToolBar::Vertical );
+	    toolBar->installEventFilter( this );
+	} else if ( edge == Bottom ) {
+	    dl = d->bottom;
+	    toolBar->setOrientation( QToolBar::Horizontal );
+	    toolBar->installEventFilter( this );
+	} else if ( edge == Right ) {
+	    dl = d->right;
+	    toolBar->setOrientation( QToolBar::Vertical );
+	    toolBar->installEventFilter( this );
+	} else if ( edge == TornOff ) {
+	    dl = d->tornOff;
+	} else if ( edge == Unmanaged ) {
+	    dl = d->unmanaged;
+	}
+  
+	if ( !dl ) {
+	    delete ct;
+	    return;
+	}
+
+	dl->append( ct );
+    } else {
+	addToolBar( toolBar, edge );
+    }
+
+    triggerLayout();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#19 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#20 $
 **
 ** Definition of QToolBar class
 **
@@ -62,6 +62,9 @@ public:
     bool event( QEvent * e );
     bool eventFilter( QObject *, QEvent * );
 
+    virtual void setLabel( const QString & );
+    QString label() const;
+
 protected:
     void paintEvent( QPaintEvent * );
 
@@ -73,6 +76,7 @@ private:
     Orientation o;
     QMainWindow * mw;
     QWidget * sw;
+    QString l;
 
     friend QMainWindow;
 };

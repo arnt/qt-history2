@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#38 $
 **
 ** Implementation of QToolBar class
 **
@@ -348,4 +348,28 @@ bool QToolBar::eventFilter( QObject * o, QEvent * e )
 	QApplication::postEvent( this, layoutHint );
     }
     return QWidget::eventFilter( o, e );
+}
+
+
+/*!  Sets the label of this tool bar to \a label.  The label is not
+currently used; it will be used in a forthcoming tool bar
+configuration dialog.
+
+\sa label()
+*/
+
+void QToolBar::setLabel( const QString & label )
+{
+    l = label;
+}
+
+
+/*!  Returns the label of this tool bar.
+
+  \sa setLabel()
+*/
+
+QString QToolBar::label() const
+{
+    return l;
 }
