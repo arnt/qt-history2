@@ -728,7 +728,7 @@ then
     exit 2
 fi
 # Link the platform include file into the include directory
-ln -sf ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/
+ln -sf ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/qplatformdefs.h
 
 # Auto-detect opengl support
 if echo $MODULES | grep opengl >/dev/null 
