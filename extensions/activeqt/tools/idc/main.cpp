@@ -14,7 +14,7 @@ static bool attachTypeLibrary( const QString &applicationName, int resource, con
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
 	    return FALSE;
 	}
-	if ( !UpdateResourceW(hExe,L"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	if ( !UpdateResourceW(hExe,L"TYPELIB",resourceName,0,(void*)data.data(),data.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
 	    if ( errorMessage )
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
@@ -28,7 +28,7 @@ static bool attachTypeLibrary( const QString &applicationName, int resource, con
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not open file.").arg(applicationName);
 	    return FALSE;
 	}
-	if ( !UpdateResourceA(hExe,"TYPELIB",resourceName,0,data.data(),data.count()) ) {
+	if ( !UpdateResourceA(hExe,"TYPELIB",resourceName,0,(void*)data.data(),data.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
 	    if ( errorMessage )
 		*errorMessage = QString("Failed to attach type library to binary %1 - could not update file.").arg(applicationName);
@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 
     int i = 1;
     while ( i < argc ) {
-	QCString p = QCString(argv[i]).lower();
+	QString p = QString::fromLocal8Bit(argv[i]).toLower();
 
 	if ( p == "/idl" || p == "-idl" ) {
 	    ++i;
@@ -121,7 +121,7 @@ int main( int argc, char **argv )
 		break;
 	    }
 	    idlfile = argv[i];
-	    idlfile = idlfile.stripWhiteSpace().lower();
+	    idlfile = idlfile.trimmed().toLower();
 	} else if ( p == "/version" || p == "-version" ) {
 	    ++i;
 	    if ( i > argc )
@@ -138,7 +138,7 @@ int main( int argc, char **argv )
 		break;
 	    }
 	    tlbfile = argv[i];
-	    tlbfile = tlbfile.stripWhiteSpace().lower();
+	    tlbfile = tlbfile.trimmed().toLower();
 	} else if ( p == "/v" || p == "-v" ) {
 	    fprintf(stdout, "Qt interface definition compiler version 1.0\n");
 	    return 0;
@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 	    break;
 	} else {
 	    input = argv[i];
-	    input = input.stripWhiteSpace().lower();
+	    input = input.trimmed().toLower();
 	}
 	i++;
     }
@@ -181,7 +181,7 @@ int main( int argc, char **argv )
 	return 3;
     }
     slashify( input );
-    if ( tlbfile ) {
+    if ( !!tlbfile ) {
 	slashify( tlbfile );
 	QFile file( tlbfile );
 	if ( !file.open( IO_ReadOnly ) )
@@ -192,7 +192,7 @@ int main( int argc, char **argv )
 	fprintf(stderr, error.latin1());
 	fprintf(stderr, "\n");
 	return ok ? 0 : 4;
-    } else if ( idlfile ) {
+    } else if ( !!idlfile ) {
 	slashify( idlfile );
 	HMODULE hdll = 0;
 	QT_WA( {
