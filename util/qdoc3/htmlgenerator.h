@@ -45,7 +45,10 @@ protected:
     virtual QString fileExtension();
 
 private:
-    void generateHeader( const QString& title, const Node *node = 0 );
+    const Node *findNodeForTarget(const QString &target, const Node *relative,
+                                  CodeMarker *marker, const Atom *atom = 0);
+    void generateHeader(const QString& title, const Node *node = 0,
+                        CodeMarker *marker = 0);
     void generateTitle( const QString& title, const QString &subTitle = QString());
     void generateFooter( const Node *node = 0 );
     void generateBrief(const Node *node, CodeMarker *marker);

@@ -592,17 +592,16 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         {
             int numColumns = 1;
             const Node *node = relative;
+
             Doc::SectioningUnit sectioningUnit = Doc::Section4;
             QStringList params = atom->string().split(",");
             QString columnText = params.at(0);
             QStringList pieces = columnText.split(" ", QString::SkipEmptyParts);
-            if (pieces.size() == 2) {
-                QString path = pieces.at(1);
+            if (pieces.size() >= 2) {
                 columnText = pieces.at(0);
-                if (!path.isEmpty())
-                    node = marker->resolveTarget(path, tre, tre->root());
-                if (!node)
-                    node = relative;
+                pieces.pop_front();
+                QString path = pieces.join(" ").trimmed();
+                node = findNodeForTarget(path, relative, marker, atom);
             }
 
             if (params.size() == 2) {
@@ -797,7 +796,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     if (!fake->subTitle().isEmpty())
         htmlTitle += " (" + fake->subTitle() + ")";
 
-    generateHeader(htmlTitle, fake);
+    generateHeader(htmlTitle, fake, marker);
     generateTitle(fake->fullTitle(), fake->subTitle());
 
     generateBrief(fake, marker);
@@ -851,7 +850,8 @@ QString HtmlGenerator::fileExtension()
     return "html";
 }
 
-void HtmlGenerator::generateHeader(const QString& title, const Node *node)
+void HtmlGenerator::generateHeader(const QString& title, const Node *node,
+                                   CodeMarker *marker)
 {
 
     out() << "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
@@ -878,37 +878,43 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node)
 
     if (node && !node->links().empty()) {
         QPair<QString,QString> linkPair;
+        const Node *linkNode;
 
         if (node->links().contains(Node::PreviousLink)) {
             linkPair = node->links()[Node::PreviousLink];
+            linkNode = findNodeForTarget(linkPair.first, node, marker);
             out() << "    <link rel=\"prev\" href=\""
-                  << linkPair.first << "\" />\n";
-            navigationLinks += "[Previous: <a href=\"" + protect(linkPair.first) + "\">"
+                  << linkNode->name() << "\" />\n";
+            navigationLinks += "[Previous: <a href=\"" + protect(linkNode->name()) + "\">"
                             + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::ContentsLink)) {
             linkPair = node->links()[Node::ContentsLink];
+            linkNode = findNodeForTarget(linkPair.first, node, marker);
             out() << "    <link rel=\"contents\" href=\""
-                  << linkPair.first << "\" />\n";
-            navigationLinks += "[<a href=\"" + protect(linkPair.first) + "\">"
+                  << linkNode->name() << "\" />\n";
+            navigationLinks += "[<a href=\"" + protect(linkNode->name()) + "\">"
                             + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::NextLink)) {
             linkPair = node->links()[Node::NextLink];
+            linkNode = findNodeForTarget(linkPair.first, node, marker);
             out() << "    <link rel=\"next\" href=\""
-                  << linkPair.first << "\" />\n";
-            navigationLinks += "[Next: <a href=\"" + protect(linkPair.first) + "\">"
+                  << linkNode->name() << "\" />\n";
+            navigationLinks += "[Next: <a href=\"" + protect(linkNode->name()) + "\">"
                             + protect(linkPair.second) + "</a>]\n";
         }
         if (node->links().contains(Node::IndexLink)) {
             linkPair = node->links()[Node::IndexLink];
+            linkNode = findNodeForTarget(linkPair.first, node, marker);
             out() << "    <link rel=\"index\" href=\""
-                  << linkPair.first << "\" />\n";
+                  << linkNode->name() << "\" />\n";
         }
         if (node->links().contains(Node::StartLink)) {
             linkPair = node->links()[Node::StartLink];
+            linkNode = findNodeForTarget(linkPair.first, node, marker);
             out() << "    <link rel=\"start\" href=\""
-                  << linkPair.first << "\" />\n";
+                  << linkNode->name() << "\" />\n";
         }
     }
     out() << "</head>\n"
@@ -1945,4 +1951,30 @@ bool HtmlGenerator::isThreeColumnEnumValueTable(const Atom *atom)
         atom = atom->next();
     }
     return false;
+}
+
+const Node *HtmlGenerator::findNodeForTarget(const QString &target,
+    const Node *relative, CodeMarker *marker, const Atom *atom)
+{
+    const Node *node = 0;
+
+    if (target.isEmpty()) {
+        node = relative;
+    } else if (target.endsWith(".html")) {
+        node = tre->root()->findNode(target, Node::Fake);
+    } else if (marker) {
+        node = marker->resolveTarget(target, tre, relative);
+        if (!node)
+            node = tre->findFakeNodeByTitle(target);
+        if (!node && atom)
+            node = tre->findUnambiguousTarget(target,
+                const_cast<Atom*>(atom));
+    }
+
+    if (!node) {
+        relative->doc().location().warning(tr("Cannot link to '%1'").arg(target));
+        return relative;
+    }
+
+    return node;
 }

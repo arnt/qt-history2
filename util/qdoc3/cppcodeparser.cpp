@@ -317,51 +317,61 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
         int spaceAt = arg.indexOf(" ");
         QString desc;
         QString link;
-        if (spaceAt != -1) {
+        if (arg.contains(".html") && spaceAt != -1) {
             link = arg.left(spaceAt).trimmed();
             desc = arg.mid(spaceAt).trimmed();
-        } else
+        } else {
             link = arg.trimmed();
+            desc = link;
+        }
         node->setLink(Node::ContentsLink, link, desc);
     } else if (command == COMMAND_NEXTLINK) {
         int spaceAt = arg.indexOf(" ");
         QString desc;
         QString link;
-        if (spaceAt != -1) {
+        if (arg.contains(".html") && spaceAt != -1) {
             link = arg.left(spaceAt).trimmed();
             desc = arg.mid(spaceAt).trimmed();
-        } else
+        } else {
             link = arg.trimmed();
+            desc = link;
+        }
         node->setLink(Node::NextLink, link, desc);
     } else if (command == COMMAND_PREVIOUSLINK) {
         int spaceAt = arg.indexOf(" ");
         QString desc;
         QString link;
-        if (spaceAt != -1) {
+        if (arg.contains(".html") && spaceAt != -1) {
             link = arg.left(spaceAt).trimmed();
             desc = arg.mid(spaceAt).trimmed();
-        } else
+        } else {
             link = arg.trimmed();
+            desc = link;
+        }
         node->setLink(Node::PreviousLink, link, desc);
     } else if (command == COMMAND_INDEXLINK) {
         int spaceAt = arg.indexOf(" ");
         QString desc;
         QString link;
-        if (spaceAt != -1) {
+        if (arg.contains(".html") && spaceAt != -1) {
             link = arg.left(spaceAt).trimmed();
             desc = arg.mid(spaceAt).trimmed();
-        } else
+        } else {
             link = arg.trimmed();
+            desc = link;
+        }
         node->setLink(Node::IndexLink, link, desc);
     } else if (command == COMMAND_STARTLINK) {
         int spaceAt = arg.indexOf(" ");
         QString desc;
         QString link;
-        if (spaceAt != -1) {
+        if (arg.contains(".html") && spaceAt != -1) {
             link = arg.left(spaceAt).trimmed();
             desc = arg.mid(spaceAt).trimmed();
-        } else
+        } else {
             link = arg.trimmed();
+            desc = link;
+        }
         node->setLink(Node::StartLink, link, desc);
     } else {
 	processCommonMetaCommand( doc.location(), command, arg, node, tre );
