@@ -176,7 +176,7 @@ int QSemaphore::operator-=(int n)
     }
 
     d->value -= n;
-    d->cond.wakeOne();
+    d->cond.wakeAll();
 
     return d->value;
 }
