@@ -32,13 +32,12 @@
 
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
-#  define FD_DEBUG qDebugyes
-
+#  define FD_DEBUG qDebug
 #else
 #  define FD_DEBUG if (false) qDebug
 #endif
 
-// #define FONT_MATCH_DEBUG
+#define FONT_MATCH_DEBUG
 #ifdef FONT_MATCH_DEBUG
 #  define FM_DEBUG qDebug
 #else
@@ -564,25 +563,31 @@ static QtFontEncoding *findEncoding(int script, int styleStrategy,
         FM_DEBUG("            PreferBitmap and/or OpenGL set, skipping Xft");
     } else {
         encoding = size->encodingID(-1); // -1 == prefer Xft
-        if (encoding) return encoding;
+        if (encoding)
+            return encoding;
     }
 
     // Xft not available, find an XLFD font, trying the default encoding first
     encoding = size->encodingID(QFontPrivate::defaultEncodingID);
-
-    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+    if (encoding) {
+        // does it support the requested script?
+        bool supportsScript = false;
+        for (int ws = 1; !supportsScript && ws < QFontDatabase::WritingSystemsCount; ++ws) {
+            if (scriptForWritingSystem[ws] != script)
+                continue;
+            supportsScript = writingSystems_for_xlfd_encoding[encoding->encoding][ws];
+        }
+        if (!supportsScript)
+            encoding = 0;
+    }
+    // find the first encoding that supports the requested script
+    for (int ws = 1; !encoding && ws < QFontDatabase::WritingSystemsCount; ++ws) {
         if (scriptForWritingSystem[ws] != script)
             continue;
-        if (!encoding || !writingSystems_for_xlfd_encoding[encoding->encoding][ws]) {
-            // find the first encoding that supports the requested writing system
-            encoding = 0;
-            for (int x = 0; !encoding && x < size->count; ++x) {
-                const int enc = size->encodings[x].encoding;
-                if (writingSystems_for_xlfd_encoding[enc][ws]) {
-                    encoding = size->encodings + x;
-                    break;
-                }
-            }
+        for (int x = 0; !encoding && x < size->count; ++x) {
+            const int enc = size->encodings[x].encoding;
+            if (writingSystems_for_xlfd_encoding[enc][ws])
+                encoding = size->encodings + x;
         }
     }
 
