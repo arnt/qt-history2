@@ -157,17 +157,10 @@ QSound::~QSound()
 
 /*!
     Returns TRUE if the sound has finished playing; otherwise returns FALSE.
-
-    Note: On Windows this will always return TRUE as there is no way to determine
-    when the sound has finished.
 */
 bool QSound::isFinished() const
 {
-#ifdef Q_OS_WIN
-    return TRUE;
-#else
     return d->looprem == 0;
-#endif
 }
 
 /*!
@@ -197,9 +190,6 @@ int QSound::loops() const
 /*!
     Returns the number of times the sound will loop. This value
     decreases each time the sound loops.
-
-    This function is not supported on Windows and will always return
-    the total number of loops.
 */
 int QSound::loopsRemaining() const
 {
@@ -209,9 +199,6 @@ int QSound::loopsRemaining() const
 /*!
     Sets the sound to repeat \a l times when it is played. Passing the
     value -1 will cause the sound to loop indefinitely.
-
-    On Windows, sounds with a loop count different from 1 will always 
-    loop indefinitely.
 
     \sa loops()
 */
@@ -230,6 +217,9 @@ QString QSound::fileName() const
 
 /*!
     Stops the sound playing.
+
+    On Windows the current loop will finish if a sound is played
+    in a loop.
 
     \sa play()
 */
