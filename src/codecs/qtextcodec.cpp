@@ -596,7 +596,7 @@ QTextCodec* QTextCodec::codecForLocale()
         else if ( try_locale_list( iso8859_5locales, lang ) )
             localeMapper = codecForName( "ISO 8859-5" );
         else if ( try_locale_list( iso8859_6locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-6-I" );
+            localeMapper = codecForName( "ISO 8859-6" );
         else if ( try_locale_list( iso8859_7locales, lang ) )
             localeMapper = codecForName( "ISO 8859-7" );
         else if ( try_locale_list( iso8859_8locales, lang ) )

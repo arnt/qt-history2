@@ -58,40 +58,6 @@ static const uchar unicode_to_heb_05[32] = {
     0xF8, 0xF9, 0xFA, unkn, unkn, unkn, unkn, unkn
 };
 
-static const ushort arab_to_unicode[128] = {
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0x00A0, 0xFFFD, 0xFFFD, 0xFFFD, 0x00A4, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0x060C, 0x00AD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0x061B, 0xFFFD, 0xFFFD, 0xFFFD, 0x061F,
-    0xFFFD, 0x0621, 0x0622, 0x0623, 0x0624, 0x0625, 0x0626, 0x0627,
-    0x0628, 0x0629, 0x062A, 0x062B, 0x062C, 0x062D, 0x062E, 0x062F,
-    0x0630, 0x0631, 0x0632, 0x0633, 0x0634, 0x0635, 0x0636, 0x0637,
-    0x0638, 0x0639, 0x063A, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0x0640, 0x0641, 0x0642, 0x0643, 0x0644, 0x0645, 0x0646, 0x0647,
-    0x0648, 0x0649, 0x064A, 0x064B, 0x064C, 0x064D, 0x064E, 0x064F,
-    0x0650, 0x0651, 0x0652, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
-    0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD
-};
-
-static const uchar unicode_to_arab_06[0x60] = {
-    unkn, unkn, unkn, unkn, unkn, unkn, unkn, unkn,
-    unkn, unkn, unkn, unkn, 0xac, unkn, unkn, unkn,
-    unkn, unkn, unkn, unkn, unkn, unkn, unkn, unkn,
-    unkn, unkn, unkn, 0xbb, unkn, unkn, unkn, 0xbf,
-    unkn, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,
-    0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf,
-    0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7,
-    0xd8, 0xd9, 0xda, unkn, unkn, unkn, unkn, unkn,
-    0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7,
-    0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
-    0xf0, 0xf1, 0xf2, unkn, unkn, unkn, unkn, unkn,
-    unkn, unkn, unkn, unkn, unkn, unkn, unkn, unkn,
-};
-
 /* this function assuems the QString is still visually ordered.
  * Finding the basic direction of the text is not easy in this case, since
  * a string like "my friend MOLAHS" could (in logical order) mean aswell
@@ -107,16 +73,14 @@ static QChar::Direction findBasicDirection(QString str)
     QChar::Direction dir1 = QChar::DirON;
     QChar::Direction dir2 = QChar::DirON;
 
-    // If the visual representation of the text starts and ends with the same
+    // If the visual representation of the first line starts and ends with the same
     // directionality, we know the answer.
     pos = 0;
-    while (pos < len)
-    {
-	if (str.at(pos).direction() < 2) // DirR or DirL
-	    {
-		dir1 = str.at(pos).direction();
-		break;
-	    }
+    while (pos < len) {
+	if (str.at(pos).direction() < 2) { // DirR or DirL 
+	    dir1 = str.at(pos).direction();
+	    break;
+	}
 	pos++;
     }
 
@@ -124,13 +88,11 @@ static QChar::Direction findBasicDirection(QString str)
 	return QChar::DirL;
 
     pos = len;
-    while (pos > 0)
-    {
-	if (str.at(pos).direction() < 2) // DirR or DirL
-	    {
-		dir2 = str.at(pos).direction();
-		break;
-	    }
+    while (pos > 0) {
+	if (str.at(pos).direction() < 2) { // DirR or DirL
+	    dir2 = str.at(pos).direction();
+	    break;
+	}
 	pos--;
     }
 
@@ -142,10 +104,8 @@ static QChar::Direction findBasicDirection(QString str)
     // at one side of the text...
 
     pos = 0;
-    while (pos < len-1 && str.at(pos).direction() < 2 )
-    {
-	if(str.at(pos).category() == QChar::Punctuation_Other)
-	{
+    while (pos < len-1 && str.at(pos).direction() < 2 ) {
+	if(str.at(pos).category() == QChar::Punctuation_Other) {
 	    if( str.at(pos+1).direction() < 2 ) return QChar::DirR;
 	    else break; // no letter next to the mark... don't know
 	}
@@ -153,10 +113,8 @@ static QChar::Direction findBasicDirection(QString str)
     }
 
     pos = len;
-    while (pos < 1 && str.at(pos).direction() < 2 )
-    {
-	if(str.at(pos).category() == QChar::Punctuation_Other)
-	{
+    while (pos < 1 && str.at(pos).direction() < 2 ) {
+	if(str.at(pos).category() == QChar::Punctuation_Other) {
 	    if( str.at(pos-1).direction() < 2 ) return QChar::DirL;
 	    else break; // no letter next to the mark... don't know
 	}
@@ -207,40 +165,33 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
     // now, go through it, to see if there is some substring
     // we need to reverse again...
     QChar::Direction opposite = (dir==QChar::DirL ? QChar::DirR : QChar::DirL);
-    while(a <= b)
-    {
+    while(a <= b) {
 	QChar::Direction d = str.at(a).direction();
-	if( d == opposite )
-	{
+	if( d == opposite ) {
 	    // found something to reverse...
 	    uint c = a;
 	    while( c < b && str.at(c).direction() == opposite )
 		c++;
 	    c--;
-	    if( c > a )
-	    {
+	    if( c > a ) {
 		reverse(str, a, c, opposite);
 		a = c;
 	    }
 	} else if ( dir == QChar::DirR &&
 		    d == QChar::DirEN ||
-		    d == QChar::DirAN )
-	{
+		    d == QChar::DirAN ) {
 	    uint c = a;
-	    while( c < b)
-	    {
+	    while( c < b) {
 		d = str.at(c).direction();
 		if ( d != QChar::DirEN && d != QChar::DirES &&
 		     d != QChar::DirET && d != QChar::DirCS &&
-		     d != QChar::DirAN )
-		{
+		     d != QChar::DirAN ) {
 		    c--;
 		    break;
 		}
 		c++;
 	    }
-	    if( c > a )
-	    {
+	    if( c > a ) {
 		reverse(str, a, c, opposite);
 		a = c;
 	    }
@@ -283,16 +234,14 @@ QString QHebrewCodec::toUnicode(const char* chars, int len,
     if( len == 0 ) return QString::null;
 
     // Test, if the user gives us a directionality.
-    // We use 0xFE and 0xFF in ISO8859-6 and 8859-8 for that.
-    // These chars are undefined in the charsets, and are mapped to
+    // We use 0xFE and 0xFF in ISO8859-8 for that.
+    // These chars are undefined in the charset, and are mapped to
     // RTL overwrite
-    if( c[0] == 0xfe )
-    {
+    if( c[0] == 0xfe ) {
 	basicDir = QChar::DirL;
 	c++; // skip directionality hint
     }
-    if( c[0] == 0xff )
-    {
+    if( c[0] == 0xff ) {
 	basicDir = QChar::DirR;
 	c++; // skip directionality hint
     }
@@ -357,16 +306,13 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	    if ( ch.cell() > 0x91 )
 		converted = TRUE;
 	    // 0x0591 - 0x05cf: hebrew punktuation... dropped
-           if ( ch.cell() >= 0xD0 )
+	    if ( ch.cell() >= 0xD0 )
 		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
-	    if ( ch.cell() == 0x3E )
-	    {
+	    if ( ch.cell() == 0x3E ) {
 		*rstr += (char)0xAF;
 		converted = TRUE;
-	    }
-	    else if ( ch.cell() == 0x17 )
-	    {
+	    } else if ( ch.cell() == 0x17 ) {
 		*rstr += (char)0xCF;
 		converted = TRUE;
 	    }
@@ -374,13 +320,10 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 	    converted = FALSE;
 	}
     } else {
-	if ( ch.cell() < 0x80 )
-	{
+	if ( ch.cell() < 0x80 ) {
 	    *rstr += ch.cell();
 	    converted = TRUE;
-	}
-	else if( ch.cell() < 0xA0 )
-	{
+	} else if( ch.cell() < 0xA0 ) {
 	    *rstr += unicode_to_heb_00[ch.cell() - 0xA0];
 	    converted = TRUE;
 	}
