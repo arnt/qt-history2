@@ -32,6 +32,12 @@
 #include <freetype/freetype.h>
 #endif
 
+#ifndef QT_XFT2
+#define FcBool Bool
+#define FcTrue True
+#define FcFalse False
+#endif
+
 #ifdef QFONTDATABASE_DEBUG
 #  define FD_DEBUG qDebug
 #else
