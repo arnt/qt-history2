@@ -13,6 +13,8 @@ do
     shift
 done
 
+export TMAKEPATH=$TMAKEDIR/lib/linux-g++ # Any should do
+
 if [ ! -d $QTDIR/configs ]
 then
     mkdir $QTDIR/configs
