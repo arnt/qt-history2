@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#3 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#3 $";
 #endif
 
 
@@ -76,7 +76,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     if ( be16 != be32 ) {			// strange machine!
 #if defined(CHECK_RANGE)
-	fatal( "qSysInfo: Inconsistent system byte ordering" );
+	fatal( "qSysInfo: Inconsistent system byte order" );
 #endif
 	return FALSE;
     }
