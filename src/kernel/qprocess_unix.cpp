@@ -1034,7 +1034,8 @@ bool QProcess::isRunning() const
 	    fd_set fds;
 	    struct timeval tv;
 	    FD_ZERO( &fds );
-	    FD_SET( d->procManager->sigchldFd[1], &fds );
+	    int foobar = d->procManager->sigchldFd[1];
+	    FD_SET( foobar, &fds );
 	    tv.tv_sec = 0;
 	    tv.tv_usec = 0;
 	    while ( ::select( d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv ) > 0 )
