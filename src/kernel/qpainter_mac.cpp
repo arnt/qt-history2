@@ -1939,12 +1939,11 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.
     for(int i = start; i < end; i++) {
-	QScriptItem &si = engine->items[i];
-	QFontEngine *fe = si.fontEngine;
+	QScriptItem *si = &engine->items[i];
+	QFontEngine *fe = si->fontEngine;
 	Q_ASSERT(fe);
-	Q_ASSERT(si.shaped);
-	fe->draw(this, x + si.x,  y + si.y - ascent, engine->glyphs( si ), engine->advances( si ),
-		 engine->offsets( si ), si.num_glyphs, si.analysis.bidiLevel % 2);
+	fe->draw(this, x + si->x,  y + si->y - ascent, engine->glyphs( si ), engine->advances( si ),
+		 engine->offsets( si ), si->num_glyphs, si->analysis.bidiLevel % 2);
     }
 }
 
@@ -1960,7 +1959,7 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int
     if ( txop == TxTranslate )
         map( x, y, &x, &y );
 
-    QTextEngine *engine - ti.engine;
+    QTextEngine *engine = ti.engine;
     QScriptItem &si = engine->items[ti.item];
     engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;

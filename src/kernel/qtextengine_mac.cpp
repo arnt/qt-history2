@@ -1,5 +1,4 @@
 
-//SDM?? WTF is the point of this file?
 // -----------------------------------------------------------------------------------------------------
 //
 // Text engine classes
@@ -20,8 +19,6 @@ void QScriptItemArray::clear()
 	    QScriptItem &si = d->items[i];
 	    if ( si.fontEngine )
 		si.fontEngine->deref();
-	    if ( si.shaped )
-		delete si.shaped;
 	}
 	d->size = 0;
     }
@@ -57,17 +54,6 @@ void QScriptItemArray::split( int item, int pos )
 //     qDebug("split at position %d itempos=%d", pos, item );
 }
 
-
-QShapedItem::~QShapedItem()
-{
-    if ( ownGlyphs ) {
-	free( glyphs );
-	free( advances );
-	free( offsets );
-	free( logClusters );
-	free( glyphAttributes );
-    }
-}
 
 void QTextEngine::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder )
 {
