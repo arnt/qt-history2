@@ -2314,9 +2314,9 @@ QString QAxBase::generateDocumentation()
 		    returntype = "void";
 		else if ( QUType::isEqual( &static_QUType_ptr, param->type ) )
 		    returntype = (const char*)param->typeExtra;
-		else if ( QUType::isEqual( &static_QUType_enum, param->type ) )
+		else if ( QUType::isEqual( &static_QUType_enum, param->type ) && param->typeExtra )
 		    returntype = ((QUEnum*)param->typeExtra)->name;
-		else if ( QUType::isEqual( &static_QUType_varptr, param->type ) ) {
+		else if ( QUType::isEqual( &static_QUType_varptr, param->type ) && param->typeExtra ) {
 		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    returntype = QVariant::typeToName( vartype );
 		} else {
@@ -2882,9 +2882,9 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 		const QUParameter *retparam = slot->method->parameters;
 		if ( QUType::isEqual( retparam->type, &static_QUType_ptr ) )
 		    type = (const char*)retparam->typeExtra;
-		else if ( QUType::isEqual( retparam->type, &static_QUType_QVariant ) )
+		else if ( QUType::isEqual( retparam->type, &static_QUType_QVariant ) && retparam->typeExtra )
 		    type = QVariant::typeToName( (QVariant::Type)*(char*)retparam->typeExtra );
-		else if ( QUType::isEqual( retparam->type, &static_QUType_varptr ) )
+		else if ( QUType::isEqual( retparam->type, &static_QUType_varptr )  && retparam->typeExtra )
 		    type = QVariant::typeToName( (QVariant::Type)*(char*)retparam->typeExtra );
 		else
 		    type = retparam->type->desc();
