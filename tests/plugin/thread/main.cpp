@@ -8,6 +8,7 @@
 #include <qdialog.h>
 #include <qlcdnumber.h>
 #include <qlayout.h>
+#include <qregexp.h>
 
 class TestInterface;
 
@@ -31,13 +32,12 @@ class TestInterface : public QObject, public ActionInterface
     Q_OBJECT
 
 public:
-    TestInterface();
+    TestInterface( QUnknownInterface *parent, const char *name = 0 );
     ~TestInterface();
 
-    bool connectNotify( QApplicationInterface* );
-    bool disconnectNotify();
+    bool initialize( QApplicationInterface* );
 
-    QStringList featureList();
+    QStringList featureList() const;
     QAction* create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
 
@@ -47,59 +47,59 @@ protected:
 
 private slots:
     void startThread();
+    void countWidgets();
 
 private:
     QGuardedCleanUpHandler<QAction> actions;
-    QGuardedPtr<QApplicationInterface> appInterface;
     TestThread* thread;
     QDialog* dialog;
     QLCDNumber* lcd;
 };
 
-TestInterface::TestInterface()
+TestInterface::TestInterface( QUnknownInterface *parent, const char *name )
+: ActionInterface( parent, name ), thread( 0 ), dialog( 0 )
 {
-    dialog = 0;
-    thread = 0;
 }
 
 TestInterface::~TestInterface()
 {
+    if ( thread ) {
+	thread->stop();
+	thread->wait();
+    }
+
     delete dialog;
 }
 
-bool TestInterface::connectNotify( QApplicationInterface* appIface )
+bool TestInterface::initialize( QApplicationInterface* )
 {
-    if ( !( appInterface = (QApplicationInterface*)appIface ) )
+    if ( !applicationInterface() )
 	return FALSE;
 
-    thread = new TestThread( this );
-    return TRUE;
+    return TRUE;    
 }
 
-bool TestInterface::disconnectNotify()
-{
-    thread->stop();
-    thread->wait();
-    delete thread;
-
-    return TRUE;
-}
-
-QStringList TestInterface::featureList()
+QStringList TestInterface::featureList() const
 {
     QStringList list;
-    list << "Start...";
+    list << "Start Thread";
+    list << "Count Widgets";
     return list;
 }
 
 QAction* TestInterface::create( const QString& actionname, QObject* parent )
 {
-    if ( actionname == "Start..." ) {
+    if ( actionname == "Start Thread" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "St&art...", 0, parent, actionname );
 	connect( a, SIGNAL(activated()), this, SLOT(startThread()) );
 	actions.addCleanUp( a );
 	return a;
-    } 
+    } else if ( actionname == "Count Widgets" ) {
+	QAction* a = new QAction( actionname, QIconSet(), "&Count", 0, parent, actionname );
+	connect( a, SIGNAL(activated()), this, SLOT(countWidgets()) );
+	actions.addCleanUp( a );
+	return a;
+    }
 
     return 0;
 }
@@ -107,6 +107,44 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 QString TestInterface::group( const QString & )
 {
     return "Test";
+}
+
+void TestInterface::countWidgets()
+{
+    if ( !applicationInterface() )
+	return;
+
+    DesignerFormWindowInterface *fwIface = (DesignerFormWindowInterface*)applicationInterface()->queryInterface( "*DesignerActiveFormWindowInterface" );
+    
+    if ( !fwIface )
+	 return;
+
+    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)fwIface->queryInterface( "*DesignerWidgetListInterface" );
+    if ( !wlIface )
+	return;
+
+    DesignerWidgetInterface *awIface = (DesignerWidgetInterface*)fwIface->queryInterface( "*DesignerActiveWidgetInterface" );
+    if ( awIface ) {
+	qDebug( awIface->requestProperty( "name" ).toString() );
+    }
+
+    DesignerWidgetInterface *wIface = wlIface->current();
+    int count = 0;
+    while ( wIface ) {
+	qDebug( "%d. widget: %s", ++count, wIface->requestProperty( "name" ).toString().latin1() );
+	delete wIface;
+	wIface = wlIface->next();
+    }
+    wlIface->release();
+}
+
+void TestInterface::startThread()
+{
+    if ( !thread )
+	thread = new TestThread( this );
+
+    if ( !thread->running() )
+	thread->start();
 }
 
 bool TestInterface::event( QEvent* e )
@@ -126,7 +164,7 @@ bool TestInterface::event( QEvent* e )
 	}
 	QString *t = (QString*)((QCustomEvent*)e)->data();
 	if ( t ) {
-	    if ( t->length() != lcd->numDigits() )
+	    if ( (int)t->length() != lcd->numDigits() )
 		lcd->setNumDigits( t->length() );
 	    lcd->display( *t );
 	    delete t;
@@ -141,12 +179,6 @@ bool TestInterface::eventFilter( QObject *o, QEvent *e )
 	thread->stop();
     }
     return QObject::eventFilter( o, e );
-}
-
-void TestInterface::startThread()
-{
-    if ( !thread->running() )
-	thread->start();
 }
 
 TestThread::TestThread( TestInterface *f )
@@ -189,28 +221,22 @@ void TestThread::run()
 class TestPlugIn : public QPlugInInterface
 {
 public:
+    TestPlugIn();
+    ~TestPlugIn();
+
     QString name() const { return "Test plugin"; }
     QString description() const { return "PlugIn to show what kind of stupid things you can do here"; }
     QString author() const { return "Trolltech"; }
-
-    QUnknownInterface* queryInterface( const QString& );
-    QStringList interfaceList() const;
 };
 
-QStringList TestPlugIn::interfaceList() const
+TestPlugIn::TestPlugIn()
+: QPlugInInterface( "Test PlugIn" )
 {
-    QStringList list;
-
-    list << "TestInterface";
-
-    return list;
+    new TestInterface( this );
 }
 
-QUnknownInterface* TestPlugIn::queryInterface( const QString &request )
+TestPlugIn::~TestPlugIn()
 {
-    if ( request == "TestInterface" )
-	return new TestInterface( this );
-    return 0;
 }
 
 Q_EXPORT_INTERFACE(TestPlugIn)

@@ -40,8 +40,6 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 
     QString text( "<table>" );
 
-    QRegExp intMatch( "*"+intID+"*", TRUE, TRUE );
-
     if ( item->text( 0 ) == intID ) {
 	QFile lib( plugin->library() );
 	text += QString("<tr><td><b>Size:</b></td><td>%1</td></tr>").arg( lib.size() );
@@ -51,9 +49,12 @@ void LibraryInspector::showLibrary( QListViewItem *item )
 	return;
     }
 
-    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( intMatch );
+    QRegExp intMatch( "*"+intID+"*" );
+
+    QUnknownInterface *iface = (QUnknownInterface*)plugin->queryInterface( "*"+intID+"*" );
     if ( iface ) {
-	if ( intMatch.match( "QPlugInInterface" ) ) {
+	QRegExp regexp( "*QPlugInInterface*", TRUE, TRUE );
+	if ( regexp.match( iface->interfaceID() ) ) {
 	    QPlugInInterface *piface = (QPlugInInterface*)iface;
 	    text += QString("<tr><td><b>Name:</b></td><td>%1</td></tr>").arg( piface->name() );
 	    text += QString("<tr><td><b>Description:</b></td><td>%1</td></tr>").arg( piface->description() );
@@ -103,10 +104,9 @@ void LibraryInspector::addInterface( QListViewItem *parent, QUnknownInterface *i
     if ( !iface )
 	return;
 
-    QString intID = iface->interfaceID();
     QString uni;
     QString hier;
-    intID = demangle( intID, &uni, &hier );
+    QString intID = iface->ID( &hier );
 
     QListViewItem *item = new QListViewItem( parent, intID, hier, uni );
 
@@ -163,7 +163,7 @@ void LibraryInspector::selectPath()
 	    libDict.insert( lib, plugin );
 
 	    QListViewItem *libItem = new QListViewItem( view, plugin->library() );
-	    QPlugInInterface *iface = (QPlugInInterface*)plugin->queryInterface( QRegExp("QPlugInInterface"), FALSE );
+	    QPlugInInterface *iface = (QPlugInInterface*)plugin->queryInterface( "*QPlugInInterface*", FALSE );
 	    addInterface( libItem, iface );
 	}
     }
