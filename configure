@@ -1538,7 +1538,7 @@ then
         the Qt library and the amount of memory taken by your
         applications.
 
-        You may elect to re-run $0 with the -no-g++-exceptions
+        You may elect to re-run `basename $0` with the -no-g++-exceptions
         option to compile Qt without exceptions.  This is
         completely binary compatible, and existing
         applications should continue to work.
