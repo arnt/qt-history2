@@ -1421,9 +1421,9 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
     //check that it is an absolute file
 #ifdef Q_WS_WIN
     if (!(r.length() > 3 && r[0].isLetter() && r[1] == ':' && (r[2] == '\\' || r[2] == '/'))) 
-	return QCString();
+	return QByteArray();
     else if (r.length() == 2 && !(r[0].isLetter() && r[1] == ':'))
-	return QCString();
+	return QByteArray();
 #else
     if (!(r.length() >= 1 && r[0] == '/'))
 	return QByteArray();

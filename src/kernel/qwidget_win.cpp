@@ -1124,6 +1124,7 @@ void QWidget::setWindowState_helper(uint newstate)
 
 void QWidget::hideWindow()
 {
+#if 0
     // Make sure that ShowWindow
     // isn't called excessively
     if (extra)
@@ -1131,6 +1132,7 @@ void QWidget::hideWindow()
 	    return;
 	else
 	    extra->shown_mode = SW_HIDE;
+#endif
 
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
@@ -1158,6 +1160,7 @@ void QWidget::showWindow()
     if (testWFlags(WStyle_Tool) || isPopup())
 	sm = SW_SHOWNOACTIVATE;
 
+#if 0
     // Make sure that ShowWindow and UpdateWindow
     // isn't called excessively
     if (extra)
@@ -1165,6 +1168,7 @@ void QWidget::showWindow()
 	    return;
 	else
 	    extra->shown_mode = sm;
+#endif
 
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );

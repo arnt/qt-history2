@@ -243,7 +243,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
     if ( advances ) {
 	HDC hdc = dc();
 	unsigned int glyph;
-	int overhang = (qt_winver & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	int overhang = (qWinVersion() & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
 	for( register int i = 0; i < len; i++ ) {
 	    glyph = *(glyphs + i);
 	    advances[i] = (glyph < widthCacheSize) ? widthCache[glyph] : 0;

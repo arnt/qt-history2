@@ -2428,13 +2428,6 @@ bool QTable::rowMovingEnabled() const
     return mRows;
 }
 
-template <class T> static void resizeList(QVector<T *> *lst, int len)
-{
-    int oldSize = lst->size();
-    lst->resize( len );
-    for (int i=oldSize; i < len; ++i)
-	(*lst)[i] = 0;
-}
 
 /*!
     This is called when QTable's internal array needs to be resized to
@@ -2447,8 +2440,8 @@ template <class T> static void resizeList(QVector<T *> *lst, int len)
 
 void QTable::resizeData( int len )
 {
-    resizeList(&contents, len);
-    resizeList(&widgets, len);
+    contents.resize(len);
+    widgets.resize(len);
 }
 
 /*!
@@ -5837,7 +5830,7 @@ void QTable::insertWidget( int row, int col, QWidget *w )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	resizeList(&widgets, numRows() * numCols());
+	widgets.resize(numRows() * numCols());
 
     widgets[indexOf(row, col)] = w;
 }
@@ -5858,7 +5851,7 @@ QWidget *QTable::cellWidget( int row, int col ) const
 	return 0;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	resizeList(&(const_cast<QTable *>(this)->widgets), numRows() * numCols());
+	(const_cast<QTable *>(this)->widgets).resize(numRows() * numCols());
 
     return widgets[indexOf(row, col)];
 }
@@ -5883,7 +5876,7 @@ void QTable::clearCellWidget( int row, int col )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	resizeList(&widgets, numRows() * numCols());
+	widgets.resize(numRows() * numCols());
 
     QWidget *w = cellWidget( row, col );
     if ( w ) {

@@ -3151,7 +3151,6 @@ bool QETWidget::sendKeyEvent( QEvent::Type type, int code,
     return e.isAccepted();
 }
 
-
 //
 // Paint event translation
 //
@@ -3172,10 +3171,11 @@ bool QETWidget::translatePaintEvent( const MSG & )
 
     // Create region, which is not empty_region
     QRegion rgn( false );
+#undef d
     // Destructor will delete rgn
-    rgn.data->rgn = possible_region;
-    rgn.data->ref();
-
+    rgn.d->rgn = possible_region;
+    ++rgn.d->ref;
+#define d d_func()
 //  Speed optimization from Qt 3.3, can this be used in main?
 //  We probably want to use 'res' to trigger a repaint of a
 //  QRect, instead of a QRegion, on res == SIMPLEREGION
