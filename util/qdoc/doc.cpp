@@ -222,7 +222,7 @@ static QString getRestOfParagraph( const QString& in, int& pos )
     int begin = pos;
     while ( pos < (int) in.length() && numNLsInRow < 2 ) {
 	QChar ch = in[pos];
-        if ( ch.unicode() == '\n' ) {
+	if ( ch.unicode() == '\n' ) {
 	    numNLsInRow++;
 	} else if ( !ch.isSpace() ) {
 	    if ( numNLsInRow == 1 && ch == QChar('\\') )
@@ -1633,7 +1633,7 @@ QString Doc::href( const QString& name, const QString& text, bool propertize )
     if ( k.isEmpty() ) {
 	// try without the plural
 	if ( namex.right(1) == QChar('s') )
-	    k = keywordLinks[namex.left(textx.length() - 1)]; 
+	    k = keywordLinks[namex.left(textx.length() - 1)];
 	if ( k.isEmpty() ) {
 	    // try an example file
 	    k = includedExampleLinks[namex];

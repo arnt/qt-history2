@@ -302,7 +302,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 	    addANames( &includeText, includeLinkMap );
 	addANames( &walkthroughText, walkthroughLinkMap );
     }
-    
+
     fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
 
     if ( !firstPass ) {

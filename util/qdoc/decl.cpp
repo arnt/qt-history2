@@ -957,7 +957,7 @@ void ClassDecl::fillInDocsForThis()
 	}
 	++child;
     }
-    
+
     /*
       Do some other stuff.
     */

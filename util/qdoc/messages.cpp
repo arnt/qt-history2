@@ -81,41 +81,43 @@ void warning( int level, const Location& loc, const char *message, ... )
 	return;
     }
 
-    QString filename = loc.shortFilePath();
-    QString filenameBase = loc.filePath();
-    filenameBase =
-	    filenameBase.left( filenameBase.length() - filename.length() - 1 );
-    if ( !filenameBase.isEmpty() && currentDirectory != filenameBase ) {
+    QString fileName = loc.shortFilePath();
+    QString fileNameBase = loc.filePath();
+    fileNameBase =
+	    fileNameBase.left( fileNameBase.length() - fileName.length() - 1 );
+    if ( !fileNameBase.isEmpty() && currentDirectory != fileNameBase ) {
 	// we changed directory; find the longest shared prefix
 	int i = 0;
 	int j;
+
 	do {
 	    j = currentDirectory.find( QChar('/'), i + 1 );
 	    if ( j < 0 )
 		j = currentDirectory.length();
 	    if ( j > i &&
-		 (j == (int) filenameBase.length()
-		  || filenameBase[j] == QChar('/')) &&
-		 filenameBase.left(j) == currentDirectory.left(j) )
+		 (j == (int) fileNameBase.length()
+		  || fileNameBase[j] == QChar('/')) &&
+		 fileNameBase.left(j) == currentDirectory.left(j) )
 		i = j;
 	    else
 		j = -1;
-	} while( j >= 0 );
+	} while ( j >= 0 );
 
-	// now, should we change to filenameBase or to the prefix? we
-	// change to the prefix if it's any good at all.
+	// now, should we change to fileNameBase or to the prefix? we
+	// change to the prefix if it's any good at all
 	if ( i > 4 ) {
-	    QString extra = filenameBase.mid( i );
-	    filenameBase = filenameBase.left( i );
-	    filename.prepend( extra.mid( 1 ) + extra[0] );
+	    QString extra = fileNameBase.mid( i );
+	    fileNameBase = fileNameBase.left( i );
+	    if ( !extra.isEmpty() )
+		fileName.prepend( extra.mid(1) + extra[0] );
 	}
     }
-    if ( !filenameBase.isEmpty() &&
-	 currentDirectory != filenameBase ) {
+    if ( !fileNameBase.isEmpty() &&
+	 currentDirectory != fileNameBase ) {
 	if ( currentDirectory.length() )
 	    fprintf( stderr, "qdoc: Leaving directory `%s'\n",
 		     currentDirectory.latin1() );
-	currentDirectory = filenameBase;
+	currentDirectory = fileNameBase;
 	fprintf( stderr, "qdoc: Entering directory `%s'\n",
 		 currentDirectory.latin1() );
     }
@@ -123,7 +125,7 @@ void warning( int level, const Location& loc, const char *message, ... )
     va_list ap;
 
     va_start( ap, message );
-    fprintf( stderr, "%s:%d: ", filename.latin1(), loc.lineNum() );
+    fprintf( stderr, "%s:%d: ", fileName.latin1(), loc.lineNum() );
     vfprintf( stderr, message, ap );
     fprintf( stderr, "\n" );
     va_end( ap );

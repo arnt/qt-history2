@@ -34,7 +34,7 @@ QString DeclResolver::resolve( const QString& name ) const
 		ref = name.right( k );
 	    }
 
-            if ( html.contains(base) ) {
+	    if ( html.contains(base) ) {
 		return name;
 	    } else {
 		return QString::null;
