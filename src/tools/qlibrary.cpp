@@ -387,7 +387,7 @@ bool QLibrary::Private::loadLibrary()
 	return TRUE;
 
     QString filename = library->library();
-    if ( filename.find( ".so" ) != -1 )
+    if ( filename.find( ".so" ) == -1 )
 	filename = QString( "lib%1.so" ).arg( filename );
 
     pHnd = dlopen( filename.latin1() , RTLD_LAZY );
