@@ -370,6 +370,7 @@ QPixmap QPixmap::copy(bool ignoreMask) const
 
     QPainter painter(&pm);
     painter.drawPixmap(0, 0, *this, ignoreMask ? Qt::SourceCopy : Qt::AlphaBlend);
+    painter.end();
 
 #if defined(Q_WS_X11)
     x11SetDefaultScreen(old);
