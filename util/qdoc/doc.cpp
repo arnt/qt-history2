@@ -584,6 +584,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected file name after '\\base64'" );
 		} else {
 		    yyOut = yyIn.mid( yyPos );
+		    yyPos = yyIn.length();
 		    setKind( Doc::Base64, command );
 		}
 		break;
@@ -995,6 +996,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 				 "Expected file name after '\\plainpage'" );
 		    } else {
 			yyOut = yyIn.mid( yyPos );
+			yyPos = yyIn.length();
 			setKind( Doc::Plainpage, command );
 		    }
 		} else {
