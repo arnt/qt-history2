@@ -118,7 +118,7 @@ STDAPI DllRegisterServer(void)
 	// HKEY_CLASSES_ROOT\Clsid\{add-in  HKEY_CLASSES_ROOT\Clsid\{add-in CLSID}\Description="Add-In-Beschreibung"
 	_ATL_OBJMAP_ENTRY* pEntry = _Module.m_pObjMap;
 	CRegKey key;
-	LONG lRes = key.Open(HKEY_CLASSES_ROOT, _T("CLSID"));
+	LONG lRes = key.Open(HKEY_CLASSES_ROOT, _T("CLSID"), KEY_READ);
 	if (lRes == ERROR_SUCCESS)
 	{
 		USES_CONVERSION;

@@ -241,7 +241,7 @@ accordingly.
   MY_VAR = one two three four
   MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
   MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
-\encode
+\endcode
 
 MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
 contains 'three two three'.

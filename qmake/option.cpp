@@ -121,7 +121,7 @@ bool usage(const char *a0)
 	    "Options:\n"
 	    "\t * You can place any variable assignment in options and it will be     *\n"
 	    "\t * processed as if it was in [files]. These assignments will be parsed *\n"
-	    "\t * before [files].                                                    *\n"
+	    "\t * before [files].                                                     *\n"
 	    "\t-o file        Write output to file\n"
 	    "\t-unix          Run in unix mode\n"
 	    "\t-win32         Run in win32 mode\n"

@@ -347,10 +347,17 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig, bool useThre
 	::MessageBox( NULL, err, "Error", MB_OK );
     }
     CString sharedLibText;
+#if defined(QT_TRIAL)
+    if ( useThreads )
+	sharedLibText = CString("$(QTDIR)\\lib\\qt-mteval") + version + CString(".lib");
+    else
+	sharedLibText = CString("$(QTDIR)\\lib\\qteval") + version + CString(".lib");
+#else
     if ( useThreads )
 	sharedLibText = CString("$(QTDIR)\\lib\\qt-mt") + version + CString(".lib");
     else
 	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
+#endif
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
@@ -406,10 +413,17 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig, bool useThre
 	::MessageBox( NULL, err, "Error", MB_OK );
     }
     CString sharedLibText;
+#if defined(QT_TRIAL)
+    if ( useThreads )
+	sharedLibText = CString("$(QTDIR)\\lib\\qt-mteval") + version + CString(".lib");
+    else
+	sharedLibText = CString("$(QTDIR)\\lib\\qteval") + version + CString(".lib");
+#else
     if ( useThreads )
 	sharedLibText = CString("$(QTDIR)\\lib\\qt-mt") + version + CString(".lib");
     else
 	sharedLibText = CString("$(QTDIR)\\lib\\qt") + version + CString(".lib");
+#endif
     const CComBSTR sharedLib(sharedLibText + CString(" $(QTDIR)\\lib\\qtmain.lib") );
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
@@ -808,7 +822,7 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		splitFileName( file, filepath, filename, fileext );
 		if ( filepath.Left( 2 ) == ".\\" )
 		    filepath = filepath.Right( filepath.GetLength() - 2 );
-		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED" || filename.Right(3) == ".ui";
+		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED" || fileext == "ui";
 
 		if ( !ignore ) {
 		    if ( fileext == "ui" )
@@ -823,7 +837,8 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 			group = "LEXSOURCES";
 		    else if ( fileext == "ts" )
 			group = "TRANSLATIONS";
-
+		    else
+			break;
 		    CString temp;
 		    filelists.Lookup( group, temp );
 		    filepath.Replace( "\\", "/" );

@@ -706,6 +706,7 @@ void Configure::generateOutputVars()
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "DEFINES+=" ) + qmakeDefines.join( " " );
+    qmakeVars += QString( "INCLUDEPATH+=" ) + qmakeIncludes.join( " " );
     qmakeVars += QString( "sql-drivers+=" ) + qmakeSql.join( " " );
     qmakeVars += QString( "sql-plugins+=" ) + qmakeSqlPlugins.join( " " );
     qmakeVars += QString( "styles+=" ) + qmakeStyles.join( " " );
@@ -747,12 +748,6 @@ void Configure::generateCachefile()
 	}
 	cacheStream << "CONFIG+=" << qmakeConfig.join( " " ) << " incremental create_prl link_prl" << endl;
 	cacheStream << "QMAKESPEC=" << dictionary[ "QMAKESPEC" ] << endl;
-	if( !qmakeIncludes.isEmpty() ) {
-	    cacheStream << "INCLUDEPATH=";
-	    for( QStringList::Iterator incs = qmakeIncludes.begin(); incs != qmakeIncludes.end(); ++incs )
-		cacheStream << (*incs);
-	    cacheStream << endl;
-	}
 	cacheFile.close();
     }
     QFile configFile( qtDir + "\\.qtwinconfig" );
