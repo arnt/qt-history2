@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#6 $
 **
 ** Implementation of QSlider class
 **
@@ -12,11 +12,15 @@
 #include "qslider.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
+#include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#6 $");
 
 #define SLIDE_BORDER	2
-#define SLIDE_WIDTH	30
+#define MOTIF_WIDTH	30
+#define WIN_WIDTH	10
+//#define WIN_LENGTH	20
+
 static const int thresholdTime = 500;
 static const int repeatTime    = 100;
 
@@ -33,14 +37,14 @@ static const int repeatTime    = 100;
 
   QSlider only offers integer ranges.
 
-  The recommended thickness of a slider is 16 pixels.
+  The recommended thickness of a slider is given by sizeHint().
 
   \ingroup realwidgets
+  \internal
+  sizeHint is not implemented yet!
+
+  WinStyle is not finished! 
 */
-
-
-
-
 
 /*!
   Constructs a vertical slider.
@@ -101,6 +105,7 @@ void QSlider::init()
     sliderPos = 0;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
+    setAcceptFocus( TRUE );
 }
 
 
@@ -156,9 +161,28 @@ void QSlider::init()
  */
 int QSlider::positionFromValue( int v ) const
 {
-    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
+    int  a = available();
     int range = maxValue() - minValue();
-    return range > 0 ? ( v * available ) / (range): 0;
+    return range > 0 ? ( v * a ) / (range): 0;
+}
+/*!
+  Returns the available space in which the slider can move.
+  */
+int QSlider::available() const
+{
+    int a;
+    switch ( style() ) {
+    case WindowsStyle:
+	a = (orient == Horizontal) ? width() - WIN_WIDTH
+	    : height() - WIN_WIDTH;
+	break;
+    default:
+    case MotifStyle:
+	a = (orient == Horizontal) ? width() -MOTIF_WIDTH - 2*SLIDE_BORDER 
+	    : height() - MOTIF_WIDTH - 2*SLIDE_BORDER;
+	break;
+    }
+    return a;
 }
 
 /*!
@@ -166,9 +190,9 @@ int QSlider::positionFromValue( int v ) const
  */
 int QSlider::valueFromPosition( int p ) const
 {
-    int  available = (orient == Horizontal) ? width() -SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER; 
+    int a = available();
     int range = maxValue() - minValue();
-    return available > 0 ? (2 * p * range + available ) / (2*available): 0;
+    return a > 0 ? (2 * p * range + a ) / ( 2*a ): 0;
 }
 
 /*!
@@ -250,12 +274,25 @@ void QSlider::setOrientation( Orientation orientation )
   */
 QRect QSlider::sliderRect() const
 {
-    if (orient == Horizontal )
-	return QRect ( SLIDE_BORDER + sliderPos, SLIDE_BORDER, 
-		       SLIDE_WIDTH, height() - 2 * SLIDE_BORDER );
-    else
-	return QRect ( SLIDE_BORDER, SLIDE_BORDER + sliderPos, 
-		       width() - 2 * SLIDE_BORDER, SLIDE_WIDTH );
+    switch ( style() ) {
+    case WindowsStyle:
+	if (orient == Horizontal )
+	    return QRect ( sliderPos, 0, 
+			   WIN_WIDTH, height()  );
+	else
+	    return QRect ( 0, sliderPos,
+			   width(), WIN_WIDTH  );
+	break;
+    default:
+    case MotifStyle:
+	if (orient == Horizontal )
+	    return QRect ( SLIDE_BORDER + sliderPos, SLIDE_BORDER, 
+			   MOTIF_WIDTH, height() - 2 * SLIDE_BORDER );
+	else
+	    return QRect ( SLIDE_BORDER, SLIDE_BORDER + sliderPos, 
+			   width() - 2 * SLIDE_BORDER, MOTIF_WIDTH );
+	break;
+    }
 }
 
 /*
@@ -292,15 +329,23 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
     QColorGroup g = colorGroup();
     QBrush fill( g.background() );
 
-    qDrawShadePanel( p, r, g, FALSE, 2, &fill );
-    if ( orient == Horizontal ) {
-	QCOORD mid = ( r.left() + r.right() ) / 2;
-	qDrawShadeLine( p, mid,  r.top(), mid,  r.bottom() - 1,
-			g, TRUE, 1);
-    } else {
-	QCOORD mid = ( r.top() + r.bottom() ) / 2;
-	qDrawShadeLine( p, r.left(), mid,  r.right() - 1, mid,
-			g, TRUE, 1);
+    switch ( style() ) {
+    case WindowsStyle:
+	qDrawWinButton( p, r, g, FALSE, &fill );
+	break;
+    default:
+    case MotifStyle:
+	qDrawShadePanel( p, r, g, FALSE, 2, &fill );
+	if ( orient == Horizontal ) {
+	    QCOORD mid = ( r.left() + r.right() ) / 2;
+	    qDrawShadeLine( p, mid,  r.top(), mid,  r.bottom() - 1,
+			    g, TRUE, 1);
+	} else {
+	    QCOORD mid = ( r.top() + r.bottom() ) / 2;
+	    qDrawShadeLine( p, r.left(), mid,  r.right() - 1, mid,
+			    g, TRUE, 1);
+	}
+	break;
     }
 }
 
@@ -310,28 +355,28 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
 void QSlider::paintSlider( int oldPos, int newPos )
 {
+    if ( style() == WindowsStyle ) {
+	repaint(); //#######
+	return;
+    }
+	
     QPainter p;
     p.begin( this );
 
     QColorGroup g = colorGroup();
-    QRect sliderR;
-    if (orient == Horizontal )
-	sliderR = QRect ( SLIDE_BORDER  + newPos, SLIDE_BORDER  , 
-			  SLIDE_WIDTH, height() - 2 * SLIDE_BORDER );
-    else
-	sliderR = QRect ( SLIDE_BORDER, SLIDE_BORDER + newPos,
-			  width() - 2 * SLIDE_BORDER, SLIDE_WIDTH );
+    QRect sliderR = sliderRect();
     switch ( style() ) {
     case WindowsStyle:
+	paintSlider( &p, sliderR );
+	break;
     default:
     case MotifStyle:
-	paintSlider( &p, sliderR );
 	int c,d;
 	if ( oldPos < newPos ) {
 	    c = oldPos + SLIDE_BORDER;
 	    d = newPos - oldPos;
 	} else {
-	    c = newPos + SLIDE_WIDTH + SLIDE_BORDER;
+	    c = newPos + MOTIF_WIDTH + SLIDE_BORDER;
 	    d = oldPos - newPos;
 	}
 	if ( orient == Horizontal )
@@ -340,6 +385,7 @@ void QSlider::paintSlider( int oldPos, int newPos )
 	else
 	    p.fillRect( SLIDE_BORDER, c, 
 			width() - 2*SLIDE_BORDER, d, backgroundColor() ); 
+	paintSlider( &p, sliderR );
 	break;
     }
     p.end();
@@ -357,16 +403,34 @@ void QSlider::paintEvent( QPaintEvent * )
 {
     QPainter p;
     p.begin( this );
-    qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
 
     QRect sliderR = sliderRect();
     QColorGroup g = colorGroup();
-
     switch ( style() ) {
     case WindowsStyle:
+	//### drawWinFocusFrame
+	if ( hasFocus() )
+	    qDrawPlainRect( &p, 0, 0, width(), height(), black );
+	if ( orient == Horizontal ) {
+	    qDrawWinPanel( &p, 0, height()/2 - 2,  width(), 4 , g, TRUE );
+	    p.setPen( black );
+	    p.drawLine( 1, height()/2 - 1, width() - 3, height()/2 - 1 );
+	} else {
+	    qDrawWinPanel( &p, width()/2 - 2, 0, 4, height(), g, TRUE );
+	    p.setPen( black );
+	    p.drawLine( width()/2 - 1, 1, width()/2 - 1, height() - 3 );
+	}
+	paintSlider( &p, sliderR );
+	break;
     default:
     case MotifStyle:
+	qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
+	if ( hasFocus() ) {
+	    p.setPen( black );
+	    p.drawRect(  1, 1, width() - 2, height() - 2 );
+	}
 	paintSlider( &p, sliderR );
+	break;
     }
     p.end();
 }
@@ -379,7 +443,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     resetState();
     if ( e->button() == MidButton ) {
 	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
-	moveSlider( pos - SLIDE_WIDTH / 2 );
+	moveSlider( pos - slideWidth() / 2 );
 	return;
     }
     if ( e->button() != LeftButton )
@@ -413,17 +477,17 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
     if ( (e->state() & MidButton) ) { 		// middle button wins
 	int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
-	moveSlider( pos - SLIDE_WIDTH / 2 );
+	moveSlider( pos - slideWidth() / 2 );
 	return;	
     }
     if ( !(e->state() & LeftButton) )
 	return;					// left mouse button is up
     if ( state != Dragging )
 	return;
-    int  available = (orient == Horizontal) ? width() - SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
+    int  a = available();
     int pos = (orient == Horizontal) ?  e->pos().x(): e->pos().y();
     int oldPos = sliderPos;
-    sliderPos = QMIN( available, QMAX( 0, pos - clickOffset) );
+    sliderPos = QMIN( a, QMAX( 0, pos - clickOffset) );
     int newVal = valueFromPosition( sliderPos );
     if ( sliderVal != newVal ) {
 	sliderVal = newVal;
@@ -448,10 +512,6 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
     resetState();
 }
 
-
-
-
-
 /*!
   Moves the left (or top) edge of the slider to position 
   \a pos.
@@ -459,9 +519,9 @@ void QSlider::mouseReleaseEvent( QMouseEvent *e )
 
 void QSlider::moveSlider( int pos )
 {
-        int  available = (orient == Horizontal) ? width() - SLIDE_WIDTH - 2*SLIDE_BORDER : height() - SLIDE_WIDTH - 2*SLIDE_BORDER;
+        int  a = available();
 	int oldPos = sliderPos;
-	sliderPos = QMIN( available, QMAX( 0, pos ) );
+	sliderPos = QMIN( a, QMAX( 0, pos ) );
 	int newVal = valueFromPosition( sliderPos );
 	if ( sliderVal != newVal ) {
 	    sliderVal = newVal;
@@ -498,4 +558,56 @@ void QSlider::resetState()
 	warning("QSlider: in wrong state");
     }
     state = None;
+}
+
+
+/*!
+  Handles key press events for the slider.
+*/
+
+void QSlider::keyPressEvent( QKeyEvent *e )
+{
+    switch ( e->key() ) {
+    case Key_Left:
+	if ( orient == Horizontal )
+	    setValue( value() - 1 );
+	break;
+    case Key_Right:
+	if ( orient == Horizontal )
+	    setValue( value() + 1 );
+	break;
+    case Key_Up:
+	if ( orient == Vertical )
+	    setValue( value() - 1 );
+	break;
+    case Key_Down:
+	if ( orient == Vertical )
+	    setValue( value() + 1 );
+	break;
+    case Key_Home:
+	setValue( minValue() );
+	break;
+    case Key_End:
+	setValue( maxValue() );
+	break;
+    default:
+	e->ignore();
+	break;
+    }
+}
+
+
+/*!
+  Returns the width of the slider.
+*/
+
+int QSlider::slideWidth() const 
+{
+    switch ( style() ) {
+    case WindowsStyle:
+	return WIN_WIDTH;
+    default:
+    case MotifStyle:
+	return MOTIF_WIDTH;
+    }
 }

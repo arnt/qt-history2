@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#10 $
 **
 ** Implementation of draw utilities
 **
@@ -11,7 +11,7 @@
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#10 $");
 
 
 /*!
@@ -465,7 +465,7 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
     QPen   oldPen   = p->pen();
     QBrush oldBrush = p->brush();
     p->setPen( c );
-    p->setBrush( oldBrush );
+    p->setBrush( NoBrush );
     for ( int i=0; i<lineWidth; i++ )
 	p->drawRect( x+i, y+i, w-i*2, h-i*2 );
     if ( fill ) {				// fill with fill color

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#4 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#5 $
 **
 ** Definition of QSlider class
 **
@@ -43,6 +43,8 @@ signals:
 protected:
     void	timerEvent( QTimerEvent * );
 
+    void	keyPressEvent( QKeyEvent * );
+
     void	resizeEvent( QResizeEvent * );
     void	paintEvent( QPaintEvent * );
 
@@ -65,6 +67,8 @@ private:
     void	paintSlider( int, int );
     void	resetState();
     bool	track;
+    int		slideWidth() const;
+    int		available() const;
 
     int		timerId;
     QCOORD	sliderPos;

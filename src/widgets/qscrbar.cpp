@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#60 $
 **
 ** Implementation of QScrollBar class
 **
@@ -13,8 +13,9 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 #include "qbitmap.h"
+#include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#60 $");
 
 
 /*!
@@ -172,6 +173,7 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
+    setAcceptFocus( TRUE );
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
 }
@@ -293,8 +295,35 @@ void QScrollBar::timerEvent( QTimerEvent * )
   Handles key press events for the scroll bar.
 */
 
-void QScrollBar::keyPressEvent( QKeyEvent * )
+void QScrollBar::keyPressEvent( QKeyEvent *e )
 {
+    switch ( e->key() ) {
+    case Key_Left:
+	if ( orient == Horizontal )
+	    setValue( value() - 1 );
+	break;
+    case Key_Right:
+	if ( orient == Horizontal )
+	    setValue( value() + 1 );
+	break;
+    case Key_Up:
+	if ( orient == Vertical )
+	    setValue( value() - 1 );
+	break;
+    case Key_Down:
+	if ( orient == Vertical )
+	    setValue( value() + 1 );
+	break;
+    case Key_Home:
+	setValue( minValue() );
+	break;
+    case Key_End:
+	setValue( maxValue() );
+	break;
+    default:
+	e->ignore();
+	break;
+    }
 }
 
 
@@ -317,6 +346,12 @@ void QScrollBar::paintEvent( QPaintEvent * )
     QPainter p;
     p.begin( this );
     qDrawShadePanel( &p, rect(), colorGroup(), TRUE );
+    if ( hasFocus() ) {
+	if ( style() != WindowsStyle ) {
+	    p.setPen( black );
+	    p.drawRect(  1, 1, width() - 2, height() - 2 );
+	}
+    }
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
 			pressedControl, &p );
     p.end();
@@ -668,6 +703,11 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		qDrawWinPanel( p, sliderR.x(), sliderR.y(),
 			       sliderR.width(), sliderR.height(), g,
 			       FALSE, &fill );
+		if ( hasFocus() ) {
+		    //### drawWinFocusFrame
+		    qDrawPlainRect( p, sliderR.x() + 2 , sliderR.y() + 2,
+		    	       sliderR.width() - 5, sliderR.height() - 5, black );
+		}
 	    }
 	    break;
 	default:
