@@ -3449,6 +3449,7 @@ void QTable::removeSelection( const QTableSelection &s )
 	}
     }
     selections.setAutoDelete( TRUE );
+    emit selectionChanged();
 }
 
 /*!
