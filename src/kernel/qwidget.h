@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#5 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#6 $
 **
 ** Definition of QWidget class
 **
@@ -18,7 +18,6 @@
 #include "qwindefs.h"
 #include "qobject.h"
 #include "qpaintd.h"
-#include "qrect.h"
 #include "qcolor.h"
 #include "qfont.h"
 #include "qcursor.h"
