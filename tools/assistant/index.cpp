@@ -86,7 +86,10 @@ void Index::makeIndex()
 void Index::setupDocumentList()
 {
     QDir d( docPath );
-    docList = d.entryList( "*.html" );
+    QStringList lst = d.entryList( "*.html" );
+    QStringList::ConstIterator it = lst.begin();
+    for ( ; it != lst.end(); ++it )
+	docList.append( docPath + "/" + *it );
 }
 
 void Index::insertInDict( const char *str, int docNum )
@@ -107,7 +110,7 @@ void Index::insertInDict( const char *str, int docNum )
 
 void Index::parseDocument( const QString &filename, int docNum )
 {
-    QFile file( docPath + "/" + filename );
+    QFile file( filename );
     if ( !file.open( IO_ReadOnly ) ) {
 	qWarning( "can not open file " + filename );
 	return;
@@ -270,7 +273,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
 
 QString Index::getDocumentTitle( const QString &fileName )
 {
-    QFile file( docPath + "/" + fileName );
+    QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
 	qWarning( "can not open file " + fileName );
 	return fileName;
@@ -418,7 +421,7 @@ void Index::buildMiniDict( const char *str )
 
 bool Index::searchForPattern( const QStringList &patterns, const QStringList &words, const QString &fileName )
 {
-    QFile file( docPath + "/" + fileName );
+    QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) ) {
 	qWarning( "can not open file " + fileName );
 	return FALSE;
