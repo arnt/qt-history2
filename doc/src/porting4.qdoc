@@ -80,7 +80,8 @@
 
     \o Add the line \c{QT += compat} to your \c .pro file if you use
        \c qmake; otherwise, edit your makefile or project file to
-       link against the Qt3Compat library. (You might also need to
+       link against the Qt3Compat library and add \c -DQT_COMPAT to your
+       compiler flags. (You might also need to
        specify other libraries. See
        \l{qt4-getting-started.html}{Getting Started with Qt 4} for
        details.)
