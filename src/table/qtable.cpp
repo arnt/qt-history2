@@ -49,7 +49,6 @@
 #ifndef QT_NO_TABLE
 
 #include "qpainter.h"
-#include "qkeycode.h"
 #include "qlineedit.h"
 #include "qcursor.h"
 #include "qapplication.h"

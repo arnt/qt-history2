@@ -59,7 +59,6 @@
 #include "qbrush.h"
 #include "qtimer.h"
 #include "qcursor.h"
-#include "qkeycode.h"
 #include "qapplication.h"
 #include "qtextedit.h"
 #include "qmemarray.h"
