@@ -66,17 +66,15 @@ extern int mac_window_count; //qwidget_mac.cpp
 extern QMutex *qt_mac_port_mutex; //qapplication_mac.cpp
 #endif
 
-class QMacBlockingFunction : public QObject //done in qapplication_mac.cpp
+class QMacBlockingFunction //implemented in qeventloop_mac.cpp
 {
 private:
-    static int block;
+    class Object;
+    static Object *block;
 public:
     QMacBlockingFunction();
-    ~QMacBlockingFunction() { block--; }
+    ~QMacBlockingFunction();
     static bool blocking() { return block != 0; }
-
-protected:
-    void timerEvent(QTimerEvent *);
 };
 
 class QMacSavedFontInfo 

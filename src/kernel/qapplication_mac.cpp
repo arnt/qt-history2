@@ -930,7 +930,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 	QPoint qmp(QCursor::pos());
 	mouse_pos.h = qmp.x();
 	mouse_pos.v = qmp.y();
-	qt_mac_set_cursor(qApp->d->cursor_list.first(), &mouse_pos);
+	qt_mac_set_cursor(&qApp->d->cursor_list.first(), &mouse_pos);
     }
 }
 
@@ -947,9 +947,7 @@ void QApplication::restoreOverrideCursor()
 	mouse_pos.v = qmp.y();
 
 	const QCursor def(Qt::ArrowCursor);
-	const QCursor *n = qApp->d->cursor_list.isEmpty()
-			   ? &def : &qApp->d->cursor_list.first();
-	qt_mac_set_cursor(n, &mouse_pos);
+	qt_mac_set_cursor(qApp->d->cursor_list.isEmpty() ? &def : &qApp->d->cursor_list.first(), &mouse_pos);
     }
 }
 
@@ -1744,23 +1742,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		widget = QApplication::widgetAt(where.h, where.v, true);
 	}
 	if(!QMacBlockingFunction::blocking()) { //set the cursor up
-	    const QCursor *n = NULL;
+	    QCursor cursor(Qt::ArrowCursor);
 	    if(widget) { //only over the app, do we set a cursor..
 		if(!qApp->d->cursor_list.isEmpty()) {
-		    n = qApp->d->cursor_list.first();
+		    cursor = qApp->d->cursor_list.first();
 		} else {
 		    for(QWidget *p = widget; p; p = p->parentWidget()) {
 			QWExtra *extra = ((QExtraWidget*)p)->extraData();
 			if(extra && extra->curs) {
-			    n = extra->curs;
+			    cursor = *extra->curs;
 			    break;
 			}
 		    }
 		}
 	    }
-	    const QCursor def(Qt::ArrowCursor);
-	    if(!n) n = &def; //I give up..
-	    qt_mac_set_cursor(n, &where);
+	    qt_mac_set_cursor(&cursor, &where);
 	}
 
 	//This mouse button state stuff looks like this on purpose
