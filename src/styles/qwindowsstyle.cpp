@@ -1707,7 +1707,7 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
 	p->setPen( cg.text() );
 	p->setPen( DotLine );
 
-	static QBitmap *verticalLine = NULL, *horizontalLine = NULL;
+	static QBitmap *verticalLine = 0, *horizontalLine = 0;
 	static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
 	if ( !verticalLine ) {
 	    // make 128*1 and 1*128 bitmaps that can be used for
