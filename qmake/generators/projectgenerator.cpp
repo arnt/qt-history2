@@ -108,7 +108,7 @@ ProjectGenerator::init()
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-	    if(generateDependencies(deplist, (*val_it))) {
+	    if(generateDependencies(deplist, (*val_it), TRUE)) {
 		QStringList &tmp = depends[(*val_it)];
 		if(!tmp.isEmpty()) {
 		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
@@ -161,6 +161,8 @@ ProjectGenerator::init()
 			break;
 		    } 
 		}
+		if(!found && (*val_it).right(Option::moc_ext.length()) == Option::moc_ext)
+		    found = TRUE;
 		if(found) 
 		    val_it = l.remove(val_it);
 		else

@@ -184,7 +184,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 bool
-MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString fn)
+MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString fn, bool recurse)
 {
     fileFixify(fn);
     QStringList &fndeps = findDependencies(fn);
@@ -268,7 +268,7 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString 
 	} else if(ftype == UI_FILE) {
 	    // skip whitespaces
 	    while(x < total_size_read &&
-		    (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
+		  (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
 		x++;
 	    if(*(big_buffer + x) == '<') {
 		x++;
@@ -337,12 +337,14 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString 
 	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
     }
 
-    for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
-	generateDependencies(dirs, (*fnit));
-	QStringList &deplist = findDependencies((*fnit));
-	for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
-	    if(fndeps.findIndex((*it)) == -1)
-		fndeps.append((*it));
+    if(recurse) {
+	for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
+	    generateDependencies(dirs, (*fnit), recurse);
+	    QStringList &deplist = findDependencies((*fnit));
+	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
+		if(fndeps.findIndex((*it)) == -1)
+		    fndeps.append((*it));
+	}
     }
     debug_msg(2, "Dependancies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
     return TRUE;
@@ -438,11 +440,10 @@ MakefileGenerator::init()
 	    QStringList &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
-		    if(doDepends())
-			generateDependencies(deplist, (*val_it));
-		        if(mocAware() && !generateMocList((*val_it)))
-			    warn_msg(WarnLogic, "Failure to open: %s", (*val_it).latin1());
-		    }
+		    generateDependencies(deplist, (*val_it), doDepends());
+		    if(mocAware() && !generateMocList((*val_it)))
+			warn_msg(WarnLogic, "Failure to open: %s", (*val_it).latin1());
+		}
 	    }
 	}
     }
@@ -655,7 +656,8 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	if((*sit).isEmpty())
 	    continue;
 
-	t << (*oit) << ": " << (*sit) << " " << findDependencies((*sit)).join(" \\\n\t\t");
+	t << (*sit) << ": " << findDependencies((*sit)).join(" \\\n\t\t") << endl
+	  << (*oit) << ": " << (*sit);
 
 	QString comp, cimp;
 	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext) {

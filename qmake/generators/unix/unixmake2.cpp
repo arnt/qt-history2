@@ -79,8 +79,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
-			  (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
-			   !project->isActiveConfig("staticlib")));
+			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
+			    !project->isActiveConfig("staticlib")));
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC       = ";
@@ -231,16 +231,19 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
 
-	QStringList &l = project->variables()["SOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    if(!(*it).isEmpty()) {
-		QString d_file;
-		if((*it).right(2) == ".c")
-		    d_file = (*it).left((*it).length() - 2);
-		else if((*it).right(Option::cpp_ext.length()) == Option::cpp_ext)
-		    d_file = (*it).left((*it).length() - Option::cpp_ext.length());
-		if(!d_file.isEmpty())
-		    t << "-include " << odir << ".deps/" << d_file << ".d" << endl;
+	QString src[] = { "SOURCES", "UICIMPLS", "SRCMOC", QString::null };
+	for(int x = 0; !src[x].isNull(); x++) {
+	    QStringList &l = project->variables()[src[x]];
+	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		if(!(*it).isEmpty()) {
+		    QString d_file;
+		    if((*it).right(2) == ".c")
+			d_file = (*it).left((*it).length() - 2);
+		    else if((*it).right(Option::cpp_ext.length()) == Option::cpp_ext)
+			d_file = (*it).left((*it).length() - Option::cpp_ext.length());
+		    if(!d_file.isEmpty())
+			t << "-include " << odir << ".deps/" << d_file << ".d" << endl;
+		}
 	    }
 	}
     }
@@ -259,8 +262,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString destdir = project->first("DESTDIR");
 	if(do_incremental) {
 	    //utility variables
-	    QString s_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
-	    QString incr_target = var("TARGET").replace("." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
+	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
+	    QString incr_target = var("TARGET") + "_incremental";
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
 
@@ -298,8 +301,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString destdir = project->first("DESTDIR");
 	if(do_incremental) {
 	    //utility variables
-	    QString s_ext = project->variables()["QMAKE_EXTENTION_SHLIB"].first();
-	    QString incr_target = var("QMAKE_ORIG_TARGET").replace("." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
+	    QString s_ext = project->variables()["QMAKE_EXTENSION_SHLIB"].first();
+	    QString incr_target = var("QMAKE_ORIG_TARGET").replace("\\." + s_ext, "").replace(QRegExp("^lib"), "") + "_incremental";
 	    incr_target = incr_target.right(incr_target.length() - (incr_target.findRev(Option::dir_sep) + 1));
 	    QString incr_target_dir = var("DESTDIR") + "lib" + incr_target + "." + s_ext;
 
@@ -439,7 +442,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << "\t-rm -f $(SRCMOC)" << '\n';
 	    clean_targets += " mocclean";
 	}
-	    t << endl;
+	t << endl;
     }
     t << "uiclean:" << "\n";
     if (!var("UICIMPLS").isEmpty() || !var("UICDECLS").isEmpty()) {
