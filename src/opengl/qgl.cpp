@@ -26,6 +26,7 @@
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
+QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
 
 #if defined(Q_WS_X11)
 #include "private/qt_x11_p.h"
@@ -1237,8 +1238,8 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
     glGenTextures(1, &tx_id);
     glBindTexture(target, tx_id);
     glTexParameterf(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    if (QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap 
-	&& target == GL_TEXTURE_2D) 
+    if (QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap
+	&& target == GL_TEXTURE_2D)
     {
 	glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
 	glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
@@ -2995,3 +2996,16 @@ QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
 }
 
 #endif // QT3_SUPPORT
+
+void QGLExtensions::init_extensions()
+{
+    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
+    if (extensions.contains("texture_rectangle"))
+	glExtensions |= TextureRectangle;
+    if (extensions.contains("multisample"))
+	glExtensions |= SampleBuffers;
+    if (extensions.contains("generate_mipmap"))
+	glExtensions |= GenerateMipmap;
+    if (extensions.contains("texture_compression_s3tc"))
+	glExtensions |= TextureCompression;
+}

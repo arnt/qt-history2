@@ -549,7 +549,7 @@ static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     iAttributes[i++] = WGL_ACCELERATION_ARB; // 7
     iAttributes[i++] = WGL_SAMPLE_BUFFERS_ARB; // 8
     iAttributes[i++] = WGL_SAMPLES_ARB; // 9
-    
+
     if (wglGetPixelFormatAttribivARB(hdc, pfi, 0, i,
 				     iAttributes.constData(),
 				     iValues.data()))
@@ -574,7 +574,7 @@ static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
 	if (fmt.sampleBuffers())
 	    fmt.setSamples(iValues[9]);
     }
-#if 0	
+#if 0
     qDebug() << "values for pfi:" << pfi;
     qDebug() << "0:" << fmt.doubleBuffer();
     qDebug() << "1:" << fmt.depthBufferSize();
@@ -1313,16 +1313,14 @@ void QGLWidget::setColormap(const QGLColormap & c)
     }
 }
 
-QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
-
 void QGLExtensions::init()
 {
     static init_done = false;
-    
+
     if (init_done)
 	return;
     init_done = true;
-    
+
     // we need a current GL context in order to obtain the API
     // entries and GL extension strings
     QWidget dmy(0);
@@ -1336,23 +1334,14 @@ void QGLExtensions::init()
     SetPixelFormat(dmy_pdc, dmy_pf, &dmy_pfd);
     HGLRC dmy_rc = wglCreateContext(dmy_pdc);
     wglMakeCurrent(dmy_pdc, dmy_rc);
-    
+
     wglChoosePixelFormatARB =
 	(PFNWGLCHOOSEPIXELFORMATARB) wglGetProcAddress("wglChoosePixelFormatARB");
     wglGetPixelFormatAttribivARB =
 	(PFNWGLGETPIXELFORMATATTRIBIVARB) wglGetProcAddress("wglGetPixelFormatAttribivARB");
-    
-    QString extensions(reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)));
-    if (extensions.contains("texture_rectangle"))
-	glExtensions |= TextureRectangle;
-    if (extensions.contains("multisample"))
-	glExtensions |= SampleBuffers;
-    if (extensions.contains("generate_mipmap"))
-	glExtensions |= GenerateMipmap;
-    if (extensions.contains("texture_compression") 
-	&& extensions.contains("texture_compression_s3tc"))
-	glExtensions |= TextureCompression;
-    
+
+    init_extensions();
+
     wglMakeCurrent(dmy_pdc, 0);
     wglDeleteContext(dmy_rc);
     ReleaseDC(dmy.winId(), dmy_pdc);

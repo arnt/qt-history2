@@ -655,8 +655,6 @@ void QGLWidgetPrivate::updatePaintDevice()
         olcx->updatePaintDevice();
 }
 
-QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
-
 void QGLExtensions::init()
 {
 }

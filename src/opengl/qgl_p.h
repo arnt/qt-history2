@@ -118,7 +118,8 @@ public:
     Q_DECLARE_FLAGS(Extensions, Extension)
 
     static Extensions glExtensions;
-    static void init();
+    static void init(); // sys dependent
+    static void init_extensions(); // general: called by init()
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGLExtensions::Extensions)
