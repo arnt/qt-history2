@@ -106,6 +106,8 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
     dictionary[ "SQL_DB2" ]	    = "no";
+    dictionary[ "SQL_SQLITE" ]	    = "no";
+    dictionary[ "SQL_IBASE" ]	    = "no";
 
     dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
@@ -373,6 +375,20 @@ void Configure::parseCmdLine()
 	    dictionary[ "SQL_DB2" ] = "plugin";
 	else if( configCmdLine.at(i) == "-no-sql-db2" )
 	    dictionary[ "SQL_DB2" ] = "no";
+
+        else if( configCmdLine.at(i) == "-qt-sql-sqlite" )
+            dictionary[ "SQL_SQLITE" ] = "yes";
+        else if( configCmdLine.at(i) == "-plugin-sql-db2" )
+            dictionary[ "SQL_SQLITE" ] = "plugin";
+        else if( configCmdLine.at(i) == "-no-sql-sqlite" )
+            dictionary[ "SQL_SQLITE" ] = "no";
+
+        else if( configCmdLine.at(i) == "-qt-sql-ibase" )
+            dictionary[ "SQL_IBASE" ] = "yes";
+        else if( configCmdLine.at(i) == "-plugin-sql-ibase" )
+            dictionary[ "SQL_IBASE" ] = "plugin";
+        else if( configCmdLine.at(i) == "-no-sql-ibase" )
+            dictionary[ "SQL_IBASE" ] = "no";
 
 	else if( configCmdLine.at(i) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
@@ -713,7 +729,9 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "                         oci" << endl;
 	cout << "                         odbc" << endl;
 	cout << "                         tds" << endl;
-	cout << "                         db2" << endl << endl;
+	cout << "                         db2" << endl;
+	cout << "                         sqlite" << endl;
+	cout << "                         ibase" << endl << endl;
 
 	cout << "-qt-style-*        * Build the specified style into Qt" << endl;
 	cout << "-plugin-style-*      Build the specified style into a plugin" << endl;
@@ -897,6 +915,16 @@ void Configure::generateOutputVars()
 	qmakeSql += "db2";
     else if ( dictionary[ "SQL_DB2" ] == "plugin" )
 	qmakeSqlPlugins += "db2";
+
+    if ( dictionary[ "SQL_SQLITE" ] == "yes" )
+        qmakeSql += "sqlite";
+    else if ( dictionary[ "SQL_SQLITE" ] == "plugin" )
+        qmakeSqlPlugins += "sqlite";
+
+    if ( dictionary[ "SQL_IBASE" ] == "yes" )
+        qmakeSql += "ibase";
+    else if ( dictionary[ "SQL_IBASE" ] == "plugin" )
+        qmakeSqlPlugins += "ibase";
 
     if ( dictionary[ "SHARED" ] == "yes" )
 	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
@@ -1292,7 +1320,9 @@ WCE( { cout << "PocketPC...................." << dictionary[ "STYLE_POCKETPC" ] 
     cout << "OCI........................." << dictionary[ "SQL_OCI" ] << endl;
     cout << "PostgreSQL.................." << dictionary[ "SQL_PSQL" ] << endl;
     cout << "TDS........................." << dictionary[ "SQL_TDS" ] << endl;
-    cout << "DB2........................." << dictionary[ "SQL_DB2" ] << endl << endl;
+    cout << "DB2........................." << dictionary[ "SQL_DB2" ] << endl;
+    cout << "SQLite......................" << dictionary[ "SQL_SQLITE" ] << endl;
+    cout << "Interbase..................." << dictionary[ "SQL_IBASE" ] << endl << endl;
 
     cout << "Sources are in.............." << dictionary[ "QT_SOURCE_TREE" ] << endl;
     cout << "Install prefix.............." << dictionary[ "QT_INSTALL_PREFIX" ] << endl;
