@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#4 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -56,29 +56,91 @@ bool QDropSitePrivate::eventFilter( QObject *, QEvent * e )
 }
 
 
-QDropSite::QDropSite( QWidget* parent )
+/*!
+  \class QDropSite qdropsite.h
+  \brief Encapsulates the requirements for implementing Drag-and-Drop dropping.
+
+  Multiply-inherit from a QWidget subclass and this class to make a widget
+  which can receive drag-and-drop events.  This slightly unusual arrangement
+  is due to binary-compatibility issues.  Qt 2.0 will allow the same technique,
+  but this class will be almost empty.
+
+  Example:
+  \code
+    class MyLabel : public QLabel, QDropSite {
+      public:
+	MyLabel( QWidget* parent ) :
+	    QLabel( parent ), QDropSite( this )
+	{
+	}
+
+	void dragEnterEvent( QDragEnterEvent * );
+	void dragMoveEvent( QDragMoveEvent * );
+	void dragLeaveEvent( QDragLeaveEvent * );
+	void dropEvent( QDropEvent * );
+    };
+  \endcode
+
+  \sa QDrag, QTextDrag, QImageDrag
+*/
+
+/*!
+  Constructs a QDropSite to handle events for the widget \a self.
+
+  Pass <tt>this</tt> as the \a parent parameter.
+  This enables dropping by calling QWidget::setAcceptDrops(TRUE).
+*/
+QDropSite::QDropSite( QWidget* self )
 {
-    d = new QDropSitePrivate(parent,this);
-    parent->setAcceptDrops( TRUE );
+    d = new QDropSitePrivate(self,this);
+    self->setAcceptDrops( TRUE );
 }
 
+/*!
+  Destructs the drop site.
+*/
 QDropSite::~QDropSite()
 {
     delete d; // not really needed
 }
 
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse enters this widget.
+
+  The default implementation does nothing.
+*/
 void QDropSite::dragEnterEvent( QDragEnterEvent * )
 {
 }
 
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse enters this widget, and whenever it moves within
+  the widget.
+
+  The default implementation does nothing.
+*/
 void QDropSite::dragMoveEvent( QDragMoveEvent * )
 {
 }
 
+/*!
+  This event handler is called when a drag is in progress and the
+  mouse leaves this widget.
+
+  The default implementation does nothing.
+*/
 void QDropSite::dragLeaveEvent( QDragLeaveEvent * )
 {
 }
 
+/*!
+  This event handler is called when the drag is dropped on this
+  widget.
+
+  The default implementation does nothing.
+*/
 void QDropSite::dropEvent( QDropEvent * )
 {
 }
