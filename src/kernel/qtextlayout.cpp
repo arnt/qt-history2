@@ -320,7 +320,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	return LineEmpty;
 
     int numSpaceItems = 0;
-    if ( d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
+    if ( !(alignment & Qt::SingleLine) && d->currentItem > d->firstItemInLine && d->items[d->currentItem-1].isSpace ) {
 	int i = d->currentItem-1;
 	while ( i > d->firstItemInLine && d->items[i].isSpace ) {
 	    numSpaceItems++;

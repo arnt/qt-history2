@@ -3078,7 +3078,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     }
     int ascent, descent;
     int left, right;
-    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, &descent, &left, &right );
+    layout.endLine( 0, 0, Qt::SingleLine|Qt::AlignLeft, &ascent, &descent, &left, &right );
 
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.
