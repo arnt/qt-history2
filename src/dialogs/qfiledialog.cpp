@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#128 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#129 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1036,7 +1036,9 @@ void QFileDialog::setDir( const QDir &dir )
     if ( !dir.exists() ||
 	 dir.absPath() == cwd.absPath() )
 	return;
+    QString nf( cwd.nameFilter() );
     cwd = dir;
+    cwd.setNameFilter( nf );
     cwd.convertToAbs();
     cwd.setMatchAllDirs( TRUE );
     cwd.setSorting( cwd.sorting() );
@@ -1850,7 +1852,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 	    // ### is there a suitable condition for this?  only valid
 	    // wildcards?
 	    nameEdit->setFocus();
-	} else if ( focusWidget() == nameEdit ) {
+	} else if ( nameEdit->hasFocus() ) {
 	    if ( d->currentFileName.isNull() ) {
 		// maybe change directory
 		QFileInfo i( cwd, nameEdit->text() );
@@ -1871,6 +1873,8 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 			ke->accept(); // strangely, means to ignore that event
 		}
 	    }
+	} else if ( files->hasFocus() || d->moreFiles->hasFocus() ) {
+	    ke->accept();
 	}
     }
 
