@@ -625,7 +625,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     int i;
     int last = 0;
     for ( i = 0; i < len; i++ ) {
-	if ( uc->combiningClass() != 0 && pos + i > 0 ) {
+	// for the row hack, see comment in buildCache below!
+	uchar row = uc->row();
+	if ( uc->combiningClass() != 0 && (row < 0x09 || row > 0x0e) && pos + i > 0 ) {
 	    if ( i - last > 0 ) {
 		GetTextExtentPoint32W( fin->dc(), tc + last, i - last, &s );
 		width += s.cx;
@@ -665,7 +667,9 @@ void QFontPrivate::buildCache( HDC hdc, const QString &str, int pos, int len, QF
 	unsigned char row = uc->row();
 	if ( row >= 0x05 && row <= 0x06 || row >= 0xfb )
 	    singlePrint = TRUE;
-	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
+	// disable our shaping for indic and thai, as we (a) can't do indic, so we let uniscribe do it (b) Uniscribe repositions thai marks anyway,
+	// so positioning by hand doesn't work correctly.
+	if ( uc->combiningClass() != 0 && (row < 0x09 || row > 0x0e) && !nmarks && pos + i > 0 ) {
 	    const QChar *qc = str.unicode() + lasts;
 	    int length = i - lasts;
 	    cache->setParams( width, 0, 0, qc, length,
