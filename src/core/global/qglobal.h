@@ -1295,21 +1295,9 @@ class QBool
 
 public:
     inline explicit QBool(bool B) : b(B) {}
-    inline operator bool() const { return b; }
-
-private:
-    inline operator char() const { return 0; }
-    inline operator signed char() const { return 0; }
-    inline operator uchar() const { return 0; }
-    inline operator short() const { return 0; }
-    inline operator ushort() const { return 0; }
-    inline operator int() const { return 0; }
-    inline operator uint() const { return 0; }
-    inline operator long() const { return 0; }
-    inline operator ulong() const { return 0; }
-    inline operator Q_LONGLONG() const { return 0; }
-    inline operator Q_ULONGLONG() const { return 0; }
+    inline operator void *() const { return b ? (void *)0 : (void *)this; }
 };
+
 
 /*
  compilers which follow outdated template instantiation rules
