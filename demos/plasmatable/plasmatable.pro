@@ -8,3 +8,5 @@ SOURCES         = main.cpp \
                   plasmamodel.cpp \
                   plasmadelegate.cpp \
                   colorfilter.cpp
+build_all:CONFIG += release
+

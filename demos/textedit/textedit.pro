@@ -10,3 +10,4 @@ SOURCES         = textedit.cpp \
                   main.cpp
 
 RESOURCES += textedit.qrc
+build_all:CONFIG += release

@@ -10,3 +10,4 @@ INCLUDEPATH += .
 # Input
 HEADERS += model.h
 SOURCES += model.cpp main.cpp
+build_all:CONFIG += release

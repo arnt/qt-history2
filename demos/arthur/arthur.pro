@@ -36,4 +36,4 @@ contains(QT_CONFIG, opengl) {
 
 TARGET = arthur
 RESOURCES += arthur.qrc
-
+build_all:CONFIG += release
