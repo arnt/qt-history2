@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#5 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#5 $";
 #endif
 
 
@@ -36,20 +36,23 @@ QRegion::QRegion( const QRect &rr, RegionType t )
     QRect r = rr;
     data = new QRegionData;
     CHECK_PTR( data );
-    QPointArray a;
     r.fixup();
     int id;
     if ( t == Rectangle ) {			// rectangular region
-	a.resize( 4 );
-	a.setPoint( 0, r.topLeft() );
-	a.setPoint( 1, r.topRight() );
-	a.setPoint( 2, r.bottomRight() );
-	a.setPoint( 3, r.bottomLeft() );
+	data->rgn = XCreateRegion();
+	XRectangle xr;
+	xr.x = r.x();
+	xr.y = r.y();
+	xr.width = r.width();
+	xr.height = r.height();
+	XUnionRectWithRegion( &xr, data->rgn, data->rgn );
 	id = QRGN_SETRECT;
     }
     else if ( t == Ellipse ) {			// elliptic region
+	QPointArray a;
 	a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
 	id = QRGN_SETELLIPSE;
+	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
     }
     else {
 #if defined(CHECK_RANGE)
@@ -58,7 +61,6 @@ QRegion::QRegion( const QRect &rr, RegionType t )
 	return;
     }
     cmd( id, &r );
-    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), WindingRule );
 }
 
 QRegion::QRegion( const QPointArray &a )	// create region from pt array
