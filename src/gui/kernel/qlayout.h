@@ -115,8 +115,8 @@ private:
 class Q_GUI_EXPORT QLayoutIterator
 {
 public:
-    inline QT_COMPAT QLayoutIterator(QLayout *i) : layout(i), index(0) {}
-    inline QT_COMPAT QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
+    inline QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QLayoutIterator(const QLayoutIterator &i) : layout(i.layout), index(i.index) {
     }
     inline QT_COMPAT QLayoutIterator &operator=(const QLayoutIterator &i) {
         layout = i.layout;
