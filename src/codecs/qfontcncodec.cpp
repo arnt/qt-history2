@@ -1,11 +1,11 @@
 /****************************************************************************
 ** $Id$
 **
-** Japanese Font utilities for X11
+** Chinese Font utilities for X11
 **
 ** Created : 20010130
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
