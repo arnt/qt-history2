@@ -74,6 +74,40 @@ QString QTextBrowserPrivate::resolvePath(const QString &name) const
     return path.absoluteFilePath();
 }
 
+/*!
+    \class QTextBrowser qtextbrowser.h
+    \brief The QTextBrowser class provides a rich text browser with hypertext navigation.
+
+    \ingroup text
+
+    This class extends QTextEdit (in read-only mode), adding some
+    navigation functionality so that users can follow links in
+    hypertext documents. The contents of QTextEdit is set with
+    setText(), but QTextBrowser has an additional function,
+    setSource(), which makes it possible to set the text to a named
+    document. The name is looked up in the directory of the current document
+    factory. If a document name ends with an anchor (for example, "\c
+    #anchor"), the text browser automatically scrolls to that position
+    (using scrollToAnchor()). When the user clicks on a hyperlink, the
+    browser will call setSource() itself, with the link's \c href
+    value as argument. You can track the current source by connetion
+    to the sourceChanged() signal.
+
+    QTextBrowser provides backward() and forward() slots which you can
+    use to implement Back and Forward buttons. The home() slot sets
+    the text to the very first document displayed. The linkClicked()
+    signal is emitted when the user clicks a link.
+
+    If you want to provide your users with editable rich text use
+    QTextEdit. If you want a text browser without hypertext navigation
+    use QTextEdit, and use QTextEdit::setReadOnly() to disable
+    editing. If you just need to display a small piece of rich text
+    use QSimpleRichText or QLabel.
+*/
+
+/*!
+    Constructs an empty QTextBrowser with parent \a parent.
+*/
 QTextBrowser::QTextBrowser(QWidget *parent)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
@@ -97,10 +131,31 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
 }
 #endif
 
+/*!
+    \internal
+*/
 QTextBrowser::~QTextBrowser()
 {
 }
 
+/*!
+    \property QTextBrowser::source
+    \brief the name of the displayed document.
+
+    This is a an empty string if no document is displayed or if the
+    source is unknown.
+
+    When setting this property QTextBrowser tries to find a document
+    with the specified name in the directory of the current source,
+    unless the value is an absolute file path. It also checks for 
+    optional anchors and scrolls the document accordingly.
+
+    If the first tag in the document is \c{<qt type=detail>}, the
+    document is displayed as a popup rather than as new document in
+    the browser window itself. Otherwise, the document is displayed
+    normally in the text browser with the text set to the contents of
+    the named document with setText().
+*/
 QString QTextBrowser::source() const
 {
     if (d->stack.isEmpty())
@@ -109,6 +164,9 @@ QString QTextBrowser::source() const
         return d->stack.top();
 }
 
+/*!
+    Reloads the current set source.
+*/
 void QTextBrowser::reload()
 {
     QString s = d->currentURL;
@@ -204,6 +262,69 @@ void QTextBrowser::setSource(const QString& name)
     emit sourceChanged(url);
 }
 
+/*!
+    \fn void QTextBrowser::backwardAvailable(bool available)
+
+    This signal is emitted when the availability of backward()
+    changes. \a available is false when the user is at home();
+    otherwise it is true.
+*/
+
+/*!
+    \fn void QTextBrowser::forwardAvailable(bool available)
+
+    This signal is emitted when the availability of forward() changes.
+    \a available is true after the user navigates backward() and false
+    when the user navigates or goes forward().
+*/
+
+/*!
+    \fn void QTextBrowser::sourceChanged(const QString& src)
+
+    This signal is emitted when the mime source has changed, \a src
+    being the new source.
+
+    Source changes happen both programmatically when calling
+    setSource(), forward(), backword() or home() or when the user
+    clicks on links or presses the equivalent key sequences.
+*/
+
+/*!  \fn void QTextBrowser::highlighted (const QString &link)
+
+    This signal is emitted when the user has selected but not
+    activated a link in the document. \a link is the value of the \c
+    href i.e. the name of the target document.
+*/
+
+/*!
+    \fn void QTextBrowser::linkClicked(const QString& link)
+
+    This signal is emitted when the user clicks a link. The \a link is
+    the value of the \c href i.e. the name of the target document.
+
+    The \a link will be the absolute location of the document, based
+    on the value of the anchor's href tag and the current context of
+    the document.
+
+    \sa anchorClicked()
+*/
+
+/*!
+    \fn void QTextBrowser::anchorClicked(const QString &link)
+
+    This signal is emitted when the user clicks an anchor. The \a link is
+    the value of the \c href i.e. the name of the target document.
+
+    \sa linkClicked()
+*/
+
+/*!
+    Changes the document displayed to the previous document in the
+    list of documents built by navigating links. Does nothing if there
+    is no previous document.
+
+    \sa forward(), backwardAvailable()
+*/
 void QTextBrowser::backward()
 {
     if (d->stack.count() <= 1)
@@ -213,6 +334,13 @@ void QTextBrowser::backward()
     emit forwardAvailable(true);
 }
 
+/*!
+    Changes the document displayed to the next document in the list of
+    documents built by navigating links. Does nothing if there is no
+    next document.
+
+    \sa backward(), forwardAvailable()
+*/
 void QTextBrowser::forward()
 {
     if (d->forwardStack.isEmpty())
@@ -221,12 +349,25 @@ void QTextBrowser::forward()
     emit forwardAvailable(!d->forwardStack.isEmpty());
 }
 
+/*!
+    Changes the document displayed to be the first document the
+    browser displayed.
+*/
 void QTextBrowser::home()
 {
     if (!d->home.isNull())
         setSource(d->home);
 }
 
+/*!
+    The event \a ev is used to provide the following keyboard shortcuts:
+    \table
+    \header \i Keypress            \i Action
+    \row \i Alt+Left Arrow  \i \l backward()
+    \row \i Alt+Right Arrow \i \l forward()
+    \row \i Alt+Up Arrow    \i \l home()
+    \endtable
+*/
 void QTextBrowser::keyPressEvent(QKeyEvent *ev)
 {
     if (ev->state() & Qt::AltButton) {
@@ -248,6 +389,9 @@ void QTextBrowser::keyPressEvent(QKeyEvent *ev)
     QTextEdit::keyPressEvent(ev);
 }
 
+/*!
+    \reimp
+*/
 void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 {
     QTextEdit::mouseMoveEvent(ev);
@@ -265,6 +409,9 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 
 }
 
+/*!
+    \reimp
+*/
 void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 {
     QTextEdit::mouseReleaseEvent(ev);
@@ -286,6 +433,15 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     }
 }
 
+/*!
+    This function is called when the document to display contains images. For each
+    image loadImage is called at least once. \a name corresponds to the name attribute
+    of QTextImageFormat or the source attribute of the html img tag.
+
+    The default implementation tries to locate the image by interpreting \a name as
+    a file name. If it is not an absolute path it tries to find the image in the same
+    directory as the current source.
+*/
 QImage QTextBrowser::loadImage(const QString &name)
 {
     QImage img;
@@ -299,7 +455,7 @@ void QTextBrowser::setText(const QString &txt, const QString &context)
     d->textOrSourceChanged = true;
     d->curmark = "";
     d->curmain = "";
-    Q3TextEdit::setText(txt, context);
+    QTextEdit::setText(txt, context);
 }
 */
 
