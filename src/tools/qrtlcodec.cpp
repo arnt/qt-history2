@@ -163,17 +163,17 @@ static QChar::Direction findBasicDirection(QString str)
     return QChar::DirR;
 }
 
-int QHebCodec::mibEnum() const
+int QHebrewCodec::mibEnum() const
 {
     return 11;
 }
 
-const char* QHebCodec::name() const
+const char* QHebrewCodec::name() const
 {
     return "ISO 8859-8";
 }
 
-QString QHebCodec::toUnicode(const char* chars, int len) const
+QString QHebrewCodec::toUnicode(const char* chars, int len) const
 {
     return toUnicode(chars, len, heb_to_unicode);
 }
@@ -265,11 +265,11 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
   be recognizes as having a basic left to right direction. so the logically
   ordered QString would be "english HEBREW english2". 
 
-  By prepending a (char)0xff before the string, QHebCodec::toUnicode would 
+  By prepending a (char)0xff before the string, QHebrewCodec::toUnicode would 
   use a basic text direction of left-to-right, and the string would thus 
   become "english2 HEBREW english".
   */
-QString QHebCodec::toUnicode(const char* chars, int len, 
+QString QHebrewCodec::toUnicode(const char* chars, int len, 
 			     const ushort *table) const
 {
     QString r;
@@ -310,7 +310,7 @@ QString QHebCodec::toUnicode(const char* chars, int len,
     return r;
 }
 
-QCString QHebCodec::fromUnicode(const QString& uc, int& len_in_out) const
+QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     // process only len chars...
     int l;
@@ -334,7 +334,7 @@ QCString QHebCodec::fromUnicode(const QString& uc, int& len_in_out) const
     return rstr;
 }
 
-bool QHebCodec::to8bit(const QChar ch, QCString *rstr) const
+bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 {
     bool converted = FALSE;
 
@@ -392,7 +392,7 @@ bool QHebCodec::to8bit(const QChar ch, QCString *rstr) const
     return converted;
 }
 
-int QHebCodec::heuristicContentMatch(const char* chars, int len) const
+int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
 {
     const unsigned char * c = (const unsigned char *)chars;
 
@@ -408,25 +408,25 @@ int QHebCodec::heuristicContentMatch(const char* chars, int len) const
 
 // -------------------------------------------------------------------------
 
-int QArabCodec::mibEnum() const
+int QArabicCodec::mibEnum() const
 {
     return 9;
 }
 
-const char* QArabCodec::name() const
+const char* QArabicCodec::name() const
 {
     return "ISO 8859-6";
 }
 
 /*!
-  \sa QHebCodec::toUnicode()
+  \sa QHebrewCodec::toUnicode()
   */
-QString QArabCodec::toUnicode(const char* chars, int len) const
+QString QArabicCodec::toUnicode(const char* chars, int len) const
 {
-    return QHebCodec::toUnicode(chars, len, arab_to_unicode);
+    return QHebrewCodec::toUnicode(chars, len, arab_to_unicode);
 }
 
-bool QArabCodec::to8bit(const QChar ch, QCString *rstr) const
+bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 {
     bool converted = TRUE;
 
@@ -472,7 +472,7 @@ bool QArabCodec::to8bit(const QChar ch, QCString *rstr) const
     return converted;
 }
 
-int QArabCodec::heuristicContentMatch(const char* chars, int len) const
+int QArabicCodec::heuristicContentMatch(const char* chars, int len) const
 {
     const unsigned char * c = (const unsigned char *)chars;
 

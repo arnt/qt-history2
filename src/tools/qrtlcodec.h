@@ -22,7 +22,7 @@
 
 #include "qtextcodec.h"
 
-class Q_EXPORT QHebCodec : public QTextCodec {
+class Q_EXPORT QHebrewCodec : public QTextCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
@@ -38,7 +38,7 @@ protected:
 
 };
 
-class Q_EXPORT QArabCodec : public QHebCodec {
+class Q_EXPORT QArabicCodec : public QHebrewCodec {
 public:
     virtual int mibEnum() const;
     const char* name() const;
