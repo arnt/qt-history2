@@ -37,7 +37,8 @@ public:
 
 private:
     Q_DISABLE_COPY(QPrintDialog)
-#if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
+
+// #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
     Q_PRIVATE_SLOT(d, void browseClicked())
     Q_PRIVATE_SLOT(d, void okClicked())
     Q_PRIVATE_SLOT(d, void printerOrFileSelected(int))
@@ -51,7 +52,7 @@ private:
     Q_PRIVATE_SLOT(d, void setFirstPage(int))
     Q_PRIVATE_SLOT(d, void setLastPage(int))
     Q_PRIVATE_SLOT(d, void fileNameEditChanged(const QString &text))
-#endif
+// #endif
 };
 
 #endif // QPRINTDIALOG_H

@@ -33,6 +33,20 @@ public:
     {
     }
 
+    void browseClicked() {}
+    void okClicked() {}
+    void printerOrFileSelected(int) {}
+    void landscapeSelected(int) {}
+    void paperSizeSelected(int) {}
+    void orientSelected(int) {}
+    void pageOrderSelected(int) {}
+    void colorModeSelected(int) {}
+    void setNumCopies(int) {}
+    void printRangeSelected(int) {}
+    void setFirstPage(int) {}
+    void setLastPage(int) {}
+    void fileNameEditChanged(const QString &text) {}
+    
     QWin32PrintEnginePrivate *ep;
 };
 
@@ -144,3 +158,5 @@ int QPrintDialog::exec()
 
     return result;
 }
+
+#include "moc_qprintdialog.cpp"
