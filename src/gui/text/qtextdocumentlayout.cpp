@@ -117,6 +117,10 @@ public:
     QList<Page> pages;
 #endif
 
+    QTextDocumentLayoutPrivate()
+        : widthUsed(0) 
+    { }
+
     QSize pageSize;
     bool pagedLayout;
     mutable QTextBlockIterator currentBlock;
