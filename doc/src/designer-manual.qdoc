@@ -30,6 +30,7 @@ be certain that they will look and feel exactly as you expect.
 
 \list
 \i \l{designer-editing-mode.html}{Form Editing Mode}
+\i \l{designer-using-containers.html}{Using Containers}
 \i \l{designer-connection-mode.html}{Connection Editing Mode}
 \endlist
 
@@ -354,7 +355,7 @@ be edited (open the \key File menu and select \key{Open Form...} or press
 \key{Ctrl O}).
 
 At any point, it is possible to save a form by selecting the
-\key {Save Form As...} option from the \key {File} menu. The files saved
+\key {Save Form As...} option from the \key {File} menu. The .ui files saved
 by \QD contain information about the objects used and the signal-slot
 connections between them.
 
@@ -368,8 +369,8 @@ clicking on them using the left mouse button.
 The toolbox contains objects in a number of different categories, all of
 which can be simply placed on the form as required. The only objects that
 require a little more preparation are the \e Container widgets.
-These are described in more detail in the
-\l{designer-using-containers.html}{Using Containers} chapter.
+These are described in more detail in the chapter on
+\l{designer-using-containers.html}{Using Containers}.
 
 \table
 \row \i
@@ -379,6 +380,9 @@ These are described in more detail in the
 Objects on the form are selected by clicking on them with the left mouse
 button. When a widget is selected, resize handles are shown at each corner
 and at the midpoint of each of its sides, indicating that it can be resized.
+
+If more than one object is selected, the current object will be displayed
+with different color resize handles.
 \endtable
 
 When selected, the normal clipboard operations can be performed on a widget
@@ -433,7 +437,7 @@ properties such as \c objectName (the object's internal name) and
 \table
 \row \i 
 \inlineimage designer-property-editor.png
-\i \bold{Editing properties:}
+\i \bold{Editing properties}
 
 The Property Editor uses standard Qt input widgets to manage the properties
 of objects on the form. Textual properties are shown in line edits,
@@ -442,13 +446,63 @@ as colors and sizes are presented in drop-down lists of input widgets.
 \endtable
 
 
-\section1 Layout Managers
+\section1 Layouts
 
-Before the form can be used The widgets on the form are 
+Before the form can be used the objects on the form need to be placed into
+layouts, this ensures that they will be displayed properly when the form is
+previewed or deployed in an application. Placing objects in a layout also
+ensures that they will be resized correctly when the form is resized.
+
+\section2 Applying and Breaking Layouts
+
+The simplest way to manage objects is to apply a layout to a group of
+existing objects. This is achieved by selecting the objects that you
+need to manage and applying one of the standard layouts from the main
+toolbar, the \key Edit menu, or the form's context menu.
+
+Once widgets have been inserted into a layout, it is not possible to
+move and resize them individually because the layout itself controls
+the geometry of each widget within it, taking account of the hints
+provided by spacers. Instead, you must either break the layout
+(\key{Ctrl B} or \key{Break Layout}) and adjust each object's geometry
+manually, or you can influence the widget's geometry by resizing the
+layout. You can also add and remove spacers from the layout to influence
+the geometries of the widgets.
+
+The top level layout of the form can be set by clearing the selection
+(click the left mouse button on the form itself) and applying a layout.
 
 \section2 Horizontal and Vertical Layouts
 
-\section2 Grid Layout
+The simplest way to arrange objects on a form is to place them in a
+horizontal or vertical layout. For example, the dialog shown at the
+beginning of this chapter contains two push buttons and a spacer that
+can be placed in a horizontal layout, keeping the buttons vertically
+aligned when more layouts are added to the dialog.
+In the same way, vertical layouts ensure that each of the widgets
+within are aligned horizontally.
+
+Horizontal and vertical layouts can be combined, and nested to any depth.
+However, if you need more control over the placement of objects, you
+should consider using the grid layout.
+
+\section2 The Grid Layout
+
+Complex form layouts can be created by placed objects in a grid layout.
+This kind of layout gives the form designer much more freedom to arrange
+widgets on the form, but can result in a much less flexible layout.
+However, for some kinds of form layout, a grid arrangement is much more
+suitable than a nested arrangement of horizontal and vertical layouts.
+
+\section1 Previewing Forms
+
+Although \QD's forms are accurate representations of the components
+being edited, it is useful to preview the final appearance while editing.
+This feature can be activated by opening the \key Form menu and selecting
+\key Preview, or by pressing \key{Ctrl R} when in the form.
+
+The preview shows exactly what the final component will look like when
+used in an application.
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
@@ -593,4 +647,67 @@ be set up in the .ui file.
 
 \l{designer-designing-a-component.html}{[Designing a Component]}
 \l{designer-manual.html}{[Up]}
+*/
+
+/*!
+\page designer-using-containers.html
+
+\title Using Containers
+
+\section1 Overview
+
+Container widgets provide high level control over groups of objects on a form.
+They can be used to perform a variety of functions, such as managing input
+widgets, providing paged and tabbed layouts, or just acting as decorative
+containers for other objects.
+
+Since many containers offer specialized functionality, they require a little
+more explanation than ordinary widgets in order to make the most of them.
+
+\section1 General Features
+
+Since containers are designed to hold other objects, \QD provides visual
+feedback to help you place objects inside them. When dragging an object
+from the toolbox or from elsewhere on the form, each container will become
+highlighted as the cursor is positioned over it. This indicates that you
+can drop the object inside, and that it will become a child object of the
+container. This feedback is important because it is easy to place objects
+close to containers without actually placing them inside.
+
+Each container typically allows its child objects to be arranged by
+one or more layouts. The type of layout management provided depends on
+each container, although setting the layout is usually just a matter of
+selecting the container by clicking it, and applying a layout.
+
+\section1 Frames
+
+\image designer-containers-frame.png
+
+Frames are used to enclose and group widgets, and to provide decoration.
+They are used as the foundation for more complex containers, but they
+can also be used as placeholders in forms.
+
+The most important properties of frames are \c frameShape,
+\c frameShadow, \c lineWidth, and \c midLineWidth. These are described
+in more detail in the QFrame class description.
+
+Each frame can contain its own layout. Select the frame and apply the
+layout as usual.
+
+\section1 Groupboxes
+
+\image designer-containers-groupbox.png
+
+Groupboxes are usually used to group together collections of checkboxes and
+radio buttons with similar purposes.
+
+The most important properties of groupboxes are \c title, \c flat,
+\c checkable, and \c checked. These are demonstrated in the 
+
+
+
+\l{designer-designing-a-component.html}{[Designing a Component]}
+\l{designer-editing-mode.html}{[Form Editing Mode]}
+\l{designer-manual.html}{[Up]}
+
 */
