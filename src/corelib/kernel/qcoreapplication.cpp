@@ -39,9 +39,6 @@
 
 #include <stdlib.h>
 
-#define d d_func()
-#define q q_func()
-
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 extern QString qAppFileName();
 #endif
@@ -130,13 +127,13 @@ public:
     {
         // thread should be running and not finished for the lifetime
         // of the application (even if QCoreApplication goes away)
-        d->running = true;
-        d->finished = false;
+        d_func()->running = true;
+        d_func()->finished = false;
     }
     inline ~QCoreApplicationThread()
     {
         // avoid warning from QThread
-        d->running = false;
+        d_func()->running = false;
     }
 private:
     inline void run()
@@ -178,10 +175,10 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
     for (int i = 0; i < data->postEventList.size(); ++i) {
         const QPostEvent &pe = data->postEventList.at(i);
         if (pe.event) {
-            --pe.receiver->d->postedEvents;
+            --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
             if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d->postedChildInsertedEvents;
+                --pe.receiver->d_func()->postedChildInsertedEvents;
 #endif
             pe.event->posted = false;
             delete pe.event;
@@ -194,6 +191,7 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
 
 void QCoreApplicationPrivate::createEventDispatcher()
 {
+    Q_Q(QCoreApplication);
 #if defined(Q_OS_UNIX)
     eventDispatcher = new QEventDispatcherUNIX(q);
 #elif defined(Q_OS_WIN)
@@ -210,7 +208,7 @@ void QCoreApplicationPrivate::moveToMainThread(QObject *o)
     Q_ASSERT(o->parent() == 0);
     if (o->thread() != 0)
         QCoreApplication::sendPostedEvents(o, 0);
-    o->d->thread = QThreadData::get(mainThread())->id;
+    o->d_func()->thread = QThreadData::get(mainThread())->id;
 }
 
 #ifdef QT3_SUPPORT
@@ -233,10 +231,10 @@ void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver,
             if (pe.event && pe.receiver == receiver) {
                 if (pe.event->type() == QEvent::ChildInserted
                     && ((QChildEvent*)pe.event)->child() == child) {
-                    --receiver->d->postedEvents;
-                    --receiver->d->postedChildInsertedEvents;
-                    Q_ASSERT(receiver->d->postedEvents >= 0);
-                    Q_ASSERT(receiver->d->postedChildInsertedEvents >= 0);
+                    --receiver->d_func()->postedEvents;
+                    --receiver->d_func()->postedChildInsertedEvents;
+                    Q_ASSERT(receiver->d_func()->postedEvents >= 0);
+                    Q_ASSERT(receiver->d_func()->postedChildInsertedEvents >= 0);
                     pe.event->posted = false;
                     delete pe.event;
                     const_cast<QPostEvent &>(pe).event = 0;
@@ -327,8 +325,8 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p)
 */
 void QCoreApplication::flush()
 {
-    if (self && self->d->eventDispatcher)
-        self->d->eventDispatcher->flush();
+    if (self && self->d_func()->eventDispatcher)
+        self->d_func()->eventDispatcher->flush();
 }
 
 /*!
@@ -352,6 +350,7 @@ extern void qt_set_library_config_file(const QString &); //qlibraryinfo.cpp
 // ### move to QCoreApplicationPrivate constructor?
 void QCoreApplication::init()
 {
+    Q_D(QCoreApplication);
 #ifdef Q_WS_WIN
     // Get the application name/instance if qWinMain() was not invoked
     set_winapp_name();
@@ -410,6 +409,7 @@ void QCoreApplication::init()
 */
 QCoreApplication::~QCoreApplication()
 {
+    Q_D(QCoreApplication);
     qt_call_post_routines();
 
 #ifndef QT_NO_COMPONENT
@@ -467,6 +467,7 @@ QCoreApplication::~QCoreApplication()
 
 bool QCoreApplication::notify(QObject *receiver, QEvent *e)
 {
+    Q_D(QCoreApplication);
     // no events are delivered after ~QCoreApplication() has started
     if (QCoreApplicationPrivate::is_app_closing)
         return true;
@@ -479,8 +480,8 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
     d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
-  if (e->type() == QEvent::ChildRemoved && receiver->d->postedChildInsertedEvents)
-      d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
+    if (e->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
+        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
 #endif // QT3_SUPPORT
 
     return receiver->isWidgetType() ? false : d->notify_helper(receiver, e);
@@ -492,17 +493,18 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
  */
 bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
 {
+    Q_Q(QCoreApplication);
     // send to all application event filters
-    for (int i = 0; i < d->eventFilters.size(); ++i) {
-        register QObject *obj = d->eventFilters.at(i);
+    for (int i = 0; i < eventFilters.size(); ++i) {
+        register QObject *obj = eventFilters.at(i);
         if (obj && obj->eventFilter(receiver,e))
             return true;
     }
 
     // send to all receiver event filters
     if (receiver != q) {
-        for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-            register QObject *obj = receiver->d->eventFilters.at(i);
+        for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
+            register QObject *obj = receiver->d_func()->eventFilters.at(i);
             if (obj && obj->eventFilter(receiver,e))
                 return true;
         }
@@ -711,27 +713,23 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         QMutexLocker locker(&data->postEventList.mutex);
 
         // if this is one of the compressible events, do compression
-        if (receiver->d->postedEvents
+        if (receiver->d_func()->postedEvents
             && self && self->compressEvent(event, receiver, &data->postEventList)) {
             delete event;
             return;
         }
 
         event->posted = true;
-        ++receiver->d->postedEvents;
+        ++receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
         if (event->type() == QEvent::ChildInserted)
-            ++receiver->d->postedChildInsertedEvents;
+            ++receiver->d_func()->postedChildInsertedEvents;
 #endif
-
-#undef d
         if (event->type() == QEvent::DeferredDelete) {
             // remember the current eventloop
             if (!data->eventLoops.isEmpty())
                 event->d = reinterpret_cast<QEventPrivate *>(data->eventLoops.top());
         }
-#define d d_func()
-
         data->postEventList.append(QPostEvent(receiver, event));
     }
 
@@ -799,7 +797,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 #ifdef QT3_SUPPORT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted
-        && !receiver->d->postedChildInsertedEvents) {
+        && !receiver->d_func()->postedChildInsertedEvents) {
         return;
     }
     // Make sure the object hierarchy is stable before processing events
@@ -810,7 +808,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     QMutexLocker locker(&data->postEventList.mutex);
 
-    if (data->postEventList.size() == 0 || (receiver && !receiver->d->postedEvents))
+    if (data->postEventList.size() == 0 || (receiver && !receiver->d_func()->postedEvents))
         return;
 
     // okay. here is the tricky loop. be careful about optimizing
@@ -837,7 +835,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         if (event_type && event_type != pe.event->type())
             continue;
 
-#undef d
         if (pe.event->type() == QEvent::DeferredDelete) {
             const QEventLoop *const currentEventLoop =
                 data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
@@ -851,7 +848,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
                 continue;
             }
         }
-#define d d_func()
 
         // first, we diddle the event so that we can deliver
         // it, and that noone will try to touch it later.
@@ -859,12 +855,12 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         QEvent * e = pe.event;
         QObject * r = pe.receiver;
 
-        --r->d->postedEvents;
-        Q_ASSERT(r->d->postedEvents >= 0);
+        --r->d_func()->postedEvents;
+        Q_ASSERT(r->d_func()->postedEvents >= 0);
 #ifdef QT3_SUPPORT
         if (e->type() == QEvent::ChildInserted)
-            --r->d->postedChildInsertedEvents;
-        Q_ASSERT(r->d->postedChildInsertedEvents >= 0);
+            --r->d_func()->postedChildInsertedEvents;
+        Q_ASSERT(r->d_func()->postedChildInsertedEvents >= 0);
 #endif
 
         // next, update the data structure so that we're ready
@@ -925,7 +921,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-    if (!receiver->d->postedEvents) return;
+    if (!receiver->d_func()->postedEvents) return;
 
     // iterate over the posted event list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
@@ -941,10 +937,10 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
         const QPostEvent &pe = data->postEventList.at(i);
         if (pe.receiver == receiver) {
             if (pe.event) {
-                --receiver->d->postedEvents;
+                --receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
                 if (pe.event->type() == QEvent::ChildInserted)
-                    --receiver->d->postedChildInsertedEvents;
+                    --receiver->d_func()->postedChildInsertedEvents;
 #endif
                 pe.event->posted = false;
                 delete pe.event;
@@ -956,9 +952,9 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
         }
     }
 
-    Q_ASSERT(!receiver->d->postedEvents);
+    Q_ASSERT(!receiver->d_func()->postedEvents);
 #ifdef QT3_SUPPORT
-    Q_ASSERT(!receiver->d->postedChildInsertedEvents);
+    Q_ASSERT(!receiver->d_func()->postedChildInsertedEvents);
 #endif
 
     if (data->postEventList.offset == n)
@@ -1008,10 +1004,10 @@ void QCoreApplicationPrivate::removePostedEvent(QEvent * event)
                      pe.receiver ? pe.receiver->metaObject()->className() : "null",
                      pe.receiver ? pe.receiver->objectName().toLocal8Bit().data() : "object");
 #endif
-            --pe.receiver->d->postedEvents;
+            --pe.receiver->d_func()->postedEvents;
 #ifdef QT3_SUPPORT
             if (pe.event->type() == QEvent::ChildInserted)
-                --pe.receiver->d->postedChildInsertedEvents;
+                --pe.receiver->d_func()->postedChildInsertedEvents;
 #endif
             pe.event->posted = false;
             delete pe.event;
@@ -1099,6 +1095,7 @@ void QCoreApplication::quit()
 
 void QCoreApplication::installTranslator(QTranslator * mf)
 {
+    Q_D(QCoreApplication);
     if (!mf)
         return;
 
@@ -1123,6 +1120,7 @@ void QCoreApplication::installTranslator(QTranslator * mf)
 
 void QCoreApplication::removeTranslator(QTranslator * mf)
 {
+    Q_D(QCoreApplication);
     if (!mf)
         return;
 
@@ -1175,11 +1173,11 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
     if (!sourceText)
         return QString();
 
-    if (self && !self->d->translators.isEmpty()) {
+    if (self && !self->d_func()->translators.isEmpty()) {
         QList<QTranslator*>::ConstIterator it;
         QTranslator *mf;
         QString result;
-        for (it = self->d->translators.constBegin(); it != self->d->translators.constEnd(); ++it) {
+        for (it = self->d_func()->translators.constBegin(); it != self->d_func()->translators.constEnd(); ++it) {
             mf = *it;
             result = mf->findMessage(context, sourceText, comment).translation();
             if (!result.isEmpty())
@@ -1304,6 +1302,7 @@ QString QCoreApplication::applicationFilePath()
 */
 int QCoreApplication::argc() const
 {
+    Q_D(const QCoreApplication);
     return d->argc;
 }
 
@@ -1351,6 +1350,7 @@ int QCoreApplication::argc() const
 */
 char **QCoreApplication::argv() const
 {
+    Q_D(const QCoreApplication);
     return d->argv;
 }
 
@@ -1367,12 +1367,12 @@ char **QCoreApplication::argv() const
 */
 void QCoreApplication::setOrganizationDomain(const QString &organization)
 {
-    self->d->organization = organization;
+    self->d_func()->organization = organization;
 }
 
 QString QCoreApplication::organizationDomain()
 {
-    return self ? self->d->organization : QString();
+    return self ? self->d_func()->organization : QString();
 }
 
 /*!
@@ -1387,13 +1387,13 @@ QString QCoreApplication::organizationDomain()
 */
 void QCoreApplication::setApplicationName(const QString &application)
 {
-    self->d->application = application;
+    self->d_func()->application = application;
 }
 
 
 QString QCoreApplication::applicationName()
 {
-    return self ? self->d->application : QString();
+    return self ? self->d_func()->application : QString();
 }
 
 
@@ -1429,8 +1429,8 @@ QStringList QCoreApplication::libraryPaths()
 {
     if (!self)
         return QStringList();
-    if (!self->d->app_libpaths) {
-        QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
+    if (!self->d_func()->app_libpaths) {
+        QStringList *app_libpaths = self->d_func()->app_libpaths = new QStringList;
         QString installPathPlugins =  QLibraryInfo::location(QLibraryInfo::PluginsPath);
         if (QFile::exists(installPathPlugins)) {
 #ifdef Q_WS_WIN
@@ -1444,7 +1444,7 @@ QStringList QCoreApplication::libraryPaths()
         if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
             app_libpaths->append(app_location);
     }
-    return *self->d->app_libpaths;
+    return *self->d_func()->app_libpaths;
 }
 
 
@@ -1458,8 +1458,8 @@ QStringList QCoreApplication::libraryPaths()
  */
 void QCoreApplication::setLibraryPaths(const QStringList &paths)
 {
-    delete self->d->app_libpaths;
-    self->d->app_libpaths = new QStringList(paths);
+    delete self->d_func()->app_libpaths;
+    self->d_func()->app_libpaths = new QStringList(paths);
 }
 
 /*!
@@ -1482,8 +1482,8 @@ void QCoreApplication::addLibraryPath(const QString &path)
     libraryPaths();
 
     QString canonicalPath = QDir(path).canonicalPath();
-    if (!self->d->app_libpaths->contains(canonicalPath))
-        self->d->app_libpaths->prepend(canonicalPath);
+    if (!self->d_func()->app_libpaths->contains(canonicalPath))
+        self->d_func()->app_libpaths->prepend(canonicalPath);
 }
 
 /*!
@@ -1500,7 +1500,7 @@ void QCoreApplication::removeLibraryPath(const QString &path)
     // make sure that library paths is initialized
     libraryPaths();
 
-    self->d->app_libpaths->removeAll(path);
+    self->d_func()->app_libpaths->removeAll(path);
 }
 
 #endif //QT_NO_COMPONENT
@@ -1523,6 +1523,7 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 QCoreApplication::EventFilter
 QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
 {
+    Q_D(QCoreApplication);
     EventFilter old = d->eventFilter;
     d->eventFilter = filter;
     return old;
@@ -1538,6 +1539,7 @@ QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
 */
 bool QCoreApplication::filterEvent(void *message, long *result)
 {
+    Q_D(QCoreApplication);
     if (result)
         *result = 0;
     if (d->eventFilter)
