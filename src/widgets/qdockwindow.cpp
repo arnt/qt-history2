@@ -1976,10 +1976,8 @@ void QDockWindow::contextMenuEvent( QContextMenuEvent *e )
 	    break;
 	o = o->parent();
     }
-    if ( !o )
-	return;
-    if ( ( (QMainWindow*)o )->showDockMenu( e->globalPos() ) )
-	e->accept();
+    if ( !o || ! ( (QMainWindow*)o )->showDockMenu( e->globalPos() ) )
+	e->ignore();
 }
 
 #include "qdockwindow.moc"

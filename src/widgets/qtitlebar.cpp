@@ -311,10 +311,10 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 void QTitleBar::contextMenuEvent( QContextMenuEvent *e )
 {
     QStyle::SCFlags ctrl = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
-    if( ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu ) {
+    if( ctrl == QStyle::SC_TitleBarLabel || ctrl == QStyle::SC_TitleBarSysMenu )
 	emit popupOperationMenu(e->globalPos());
-	e->accept();
-    }
+    else
+	e->ignore();
 }
 
 void QTitleBar::mouseReleaseEvent( QMouseEvent * e)

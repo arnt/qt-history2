@@ -53,8 +53,8 @@
 #include "qaccessible.h"
 #endif
 
-static const int autoRepeatDelay  = 300;
-static const int autoRepeatPeriod = 100;
+#define AUTO_REPEAT_DELAY  300
+#define AUTO_REPEAT_PERIOD 100
 
 class QButtonData
 {
@@ -564,7 +564,7 @@ void QButton::setAutoRepeat( bool enable )
 {
     repeat = (uint)enable;
     if ( repeat && mlbDown )
-	timer()->start( autoRepeatDelay, TRUE );
+	timer()->start( AUTO_REPEAT_DELAY, TRUE );
 }
 
 /*!
@@ -785,7 +785,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	QGuardedPtr<QTimer> t = timer();
 	emit pressed();
 	if ( repeat && t )
-	    t->start( autoRepeatDelay, TRUE );
+	    t->start( AUTO_REPEAT_DELAY, TRUE );
     }
 }
 
@@ -887,7 +887,7 @@ void QButton::autoRepeatTimeout()
 	    emit pressed();
 	}
 	if ( t )
-	    t->start( autoRepeatPeriod, TRUE );
+	    t->start( AUTO_REPEAT_PERIOD, TRUE );
     }
 }
 

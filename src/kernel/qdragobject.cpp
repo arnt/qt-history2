@@ -383,8 +383,11 @@ QPoint QDragObject::pixmapHotSpot() const
     return d->hot;
 }
 
+#if 0
+
+// ## reevaluate for Qt 4
 /*!
-    Set the \a cursor used when dragging in mode \a m. 
+    Set the \a cursor used when dragging in mode \a m.
     Note: X11 only allow bitmaps for cursors.
 */
 void QDragObject::setCursor( DragMode m, const QPixmap &cursor )
@@ -438,6 +441,8 @@ QPixmap *QDragObject::cursor( DragMode m ) const
 
     return qt_dnd_manager->pm_cursor+index;
 }
+
+#endif // 0
 
 /*!
     Starts a drag operation using the contents of this object, using

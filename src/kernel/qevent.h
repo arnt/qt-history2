@@ -400,7 +400,7 @@ class Q_EXPORT QContextMenuEvent : public QEvent
 public:
     enum Reason { Mouse, Keyboard, Other };
     QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
-	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( FALSE ), consum(FALSE),
+	: QEvent( ContextMenu ), p( pos ), gp( globalPos ), accpt( TRUE ), consum( TRUE ),
 	reas( reason ), s((ushort)state) {}
     QContextMenuEvent( Reason reason, const QPoint &pos, int state );
 
@@ -415,7 +415,7 @@ public:
     ButtonState state()	const	{ return (ButtonState) s; }
     bool    isAccepted() const	{ return accpt; }
     bool    isConsumed() const	{ return consum; }
-    void    consume()		{ consum = TRUE; }
+    void    consume()		{ accpt = FALSE; consum = TRUE; }
     void    accept()		{ accpt = TRUE; consum = TRUE; }
     void    ignore()		{ accpt = FALSE; consum = FALSE; }
 
@@ -435,7 +435,7 @@ class Q_EXPORT QIMEvent : public QEvent
 {
 public:
     QIMEvent( Type type, const QString &text, int cursorPosition )
-	: QEvent(type), txt(text), cpos(cursorPosition), a(FALSE) {}
+	: QEvent(type), txt(text), cpos(cursorPosition), a(TRUE) {}
     const QString &text() const { return txt; }
     int cursorPos() const { return cpos; }
     bool isAccepted() const { return a; }

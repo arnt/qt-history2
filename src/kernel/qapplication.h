@@ -227,9 +227,6 @@ public:
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
-    static bool	    metaComposedUnicode();
-    static void	    setMetaComposedUnicode( bool enable = TRUE );
-
 #if defined(Q_WS_MAC)
     virtual bool     macEventFilter( EventHandlerCallRef, EventRef );
 #endif

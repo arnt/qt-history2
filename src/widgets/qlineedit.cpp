@@ -1991,7 +1991,6 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent * e )
     default:
 	; // nothing selected or lineedit destroyed. Be careful.
     }
-    e->accept();
 #endif //QT_NO_POPUPMENU
 }
 

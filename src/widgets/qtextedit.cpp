@@ -1539,7 +1539,6 @@ void QTextEdit::imStartEvent( QIMEvent *e )
     if ( hasSelectedText() )
 	removeSelectedText();
     d->preeditStart = cursor->index();
-    e->accept();
 }
 
 /*!
@@ -1579,8 +1578,6 @@ void QTextEdit::imComposeEvent( QIMEvent *e )
     }
 
     repaintChanged();
-
-    e->accept();
 }
 
 /*!
@@ -1605,8 +1602,6 @@ void QTextEdit::imEndEvent( QIMEvent *e )
     d->preeditStart = d->preeditLength = -1;
 
     repaintChanged();
-
-    e->accept();
 }
 
 

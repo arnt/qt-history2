@@ -243,8 +243,8 @@ void QGroupBox::setTitle( const QString &title )
 			    this, SLOT(fixFocus()) );
     }
 #endif
-    if ( isCheckable() ) {
 #ifndef QT_NO_CHECKBOX
+    if ( d->checkbox ) {
 	d->checkbox->setText( str );
 	updateCheckBoxGeometry();
 #endif
@@ -350,8 +350,8 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
 			  isEnabled(), 0, str, -1, ownPalette() ? 0 : &pen );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
-    } else if ( isCheckable() ) {
 #ifndef QT_NO_CHECKBOX
+    } else if ( d->checkbox ) {
 	QRect cbClip = d->checkbox->geometry();
 	QFontMetrics fm = paint.fontMetrics();
 	cbClip.setX( cbClip.x() - fm.width(QChar(' ')) );
@@ -560,7 +560,7 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() && w->name() != QString( "qt_groupbox_checkbox" ) )
+	    if ( w->isWidgetType() && w != d->checkbox )
 		insertWid( w );
 	}
     }
@@ -578,16 +578,27 @@ bool QGroupBox::event( QEvent * e )
 /*!\reimp */
 void QGroupBox::childEvent( QChildEvent *c )
 {
-    // Similar to QGrid::childEvent()
-    if ( !c->inserted() || !c->child()->isWidgetType() ||
-	 qstrcmp(c->child()->name(), "qt_groupbox_checkbox") == 0 )
+    if ( !c->inserted() || !c->child()->isWidgetType() )
 	return;
-    if ( isCheckable() ) {
-	((QWidget*)c->child())->setEnabled( isChecked() );
+    QWidget *w = (QWidget*)c->child();
+#ifndef QT_NO_CHECKBOX
+    if ( d->checkbox ) {
+	if ( w == d->checkbox )
+	    return;
+	if ( d->checkbox->isChecked() ) {
+	    if ( !w->testWState( WState_ForceDisabled ) )
+		w->setEnabled( TRUE );
+	} else {
+	    if ( w->isEnabled() ) {
+		w->setEnabled( FALSE );
+		((QGroupBox*)w)->clearWState( WState_ForceDisabled );
+	    }
+	}
     }
+#endif
     if ( !grid )
 	return;
-    insertWid( (QWidget*)c->child() );
+    insertWid( w );
 }
 
 void QGroupBox::insertWid( QWidget* w )
@@ -719,13 +730,7 @@ void QGroupBox::focusInEvent( QFocusEvent * )
 void QGroupBox::fontChange( const QFont & oldFont )
 {
     QWidget::fontChange( oldFont );
-#ifndef QT_NO_CHECKBOX
-    if ( isCheckable() ) {
-	// make sure checkbox gets the right font as its font change is called too late
-	d->checkbox->setFont( font() );
-	updateCheckBoxGeometry();
-    }
-#endif
+    updateCheckBoxGeometry();
     calculateFrame();
     setTextSpacer();
 }
@@ -802,7 +807,7 @@ void QGroupBox::setFlat( bool b )
 void QGroupBox::setCheckable( bool b )
 {
 #ifndef QT_NO_CHECKBOX
-    if ( isCheckable() == b )
+    if ( (d->checkbox != 0) == b )
 	return;
 
     if ( b ) {
@@ -831,22 +836,17 @@ void QGroupBox::setCheckable( bool b )
 
 bool QGroupBox::isCheckable() const
 {
-#ifndef QT_NO_CHECKBOX
     return ( d->checkbox != 0 );
-#else
-    return FALSE;
-#endif
 }
 
 
 bool QGroupBox::isChecked() const
 {
 #ifndef QT_NO_CHECKBOX
-    if ( isCheckable() )
-	return d->checkbox->isChecked();
-    else
+    return d->checkbox && d->checkbox->isChecked();
+#else
+    return FALSE;
 #endif
-	return FALSE;
 }
 
 /*!
@@ -869,7 +869,7 @@ bool QGroupBox::isChecked() const
 void QGroupBox::setChecked( bool b )
 {
 #ifndef QT_NO_CHECKBOX
-    if ( isCheckable() )
+    if ( d->checkbox )
 	d->checkbox->setChecked( b );
 #endif
 }
@@ -880,13 +880,23 @@ void QGroupBox::setChecked( bool b )
 */
 void QGroupBox::setChildrenEnabled( bool b )
 {
-    if ( children() ) {
-	QObjectListIt it( *children() );
-	while( it.current() ) {
-	    if ( it.current()->isWidgetType() &&
-		 it.current()->name() != QString( "qt_groupbox_checkbox" ) )
-		((QWidget*)it.current())->setEnabled( b );
-	    ++it;
+    if ( !children() )
+	return;
+    QObjectListIt it( *children() );
+    QObject *o;
+    while( (o = it.current()) ) {
+	++it;
+	if ( o->isWidgetType() && o != d->checkbox ) {
+	    QWidget *w = (QWidget*)o;
+	    if ( b ) {
+		if ( !w->testWState( WState_ForceDisabled ) )
+		    w->setEnabled( TRUE );
+	    } else {
+		if ( w->isEnabled() ) {
+		    w->setEnabled( FALSE );
+		    ((QGroupBox*)w)->clearWState( WState_ForceDisabled );
+		}
+	    }
 	}
     }
 }
@@ -898,7 +908,7 @@ void QGroupBox::setChildrenEnabled( bool b )
 void QGroupBox::updateCheckBoxGeometry()
 {
 #ifndef QT_NO_CHECKBOX
-    if ( isCheckable() ) {
+    if ( d->checkbox ) {
 	QSize cbSize = d->checkbox->sizeHint();
 	QRect cbRect( 0, 0, cbSize.width(), cbSize.height() );
 

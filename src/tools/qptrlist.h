@@ -186,17 +186,6 @@ public:
 #define QListIterator QPtrListIterator
 #endif
 
-template <class type>
-class QPtrListAutoDelete : public QPtrList<type>
-{
-public:
-    inline QPtrListAutoDelete() { setAutoDelete(TRUE); }
-    inline QPtrListAutoDelete( const QPtrList<type> &l )
-	: QPtrList<type>(l) {}
-    inline QPtrListAutoDelete<type> &operator=(const QPtrList<type> &l)
-	{ return (QPtrListAutoDelete<type>&)QGList::operator=(l); }
-};
-
 #define Q_DEFINED_QPTRLIST
 #include "qwinexport.h"
 

@@ -346,6 +346,7 @@ void QCheckBox::updateMask()
     setMask(bm);
 }
 
+/*!\reimp*/
 bool QCheckBox::hitButton( const QPoint &pos ) const
 {
     QRect r = QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxFocusRect, this ), this );
