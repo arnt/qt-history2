@@ -1,4 +1,4 @@
-dTEMPLATE 	= app
+TEMPLATE 	= app
 DESTDIR		= $$QT_BUILD_TREE/bin
 TARGET		= designer
 CONFIG 		-= moc
