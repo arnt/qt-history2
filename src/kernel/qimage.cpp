@@ -2069,7 +2069,7 @@ bool QImage::valid( int x, int y ) const
 int QImage::pixelIndex( int x, int y ) const
 {
 #if defined(QT_CHECK_RANGE)
-    if ( x < 0 || x > width() ) {
+    if ( x < 0 || x >= width() ) {
 	qWarning( "QImage::pixel: x=%d out of range", x );
 	return -12345;
     }
@@ -2111,7 +2111,7 @@ int QImage::pixelIndex( int x, int y ) const
 QRgb QImage::pixel( int x, int y ) const
 {
 #if defined(QT_CHECK_RANGE)
-    if ( x < 0 || x > width() ) {
+    if ( x < 0 || x >= width() ) {
 	qWarning( "QImage::pixel: x=%d out of range", x );
 	return 12345;
     }
@@ -2153,7 +2153,7 @@ QRgb QImage::pixel( int x, int y ) const
 
 void QImage::setPixel( int x, int y, uint index_or_rgb )
 {
-    if ( x < 0 || x > width() ) {
+    if ( x < 0 || x >= width() ) {
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QImage::setPixel: x=%d out of range", x );
 #endif
