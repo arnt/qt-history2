@@ -878,7 +878,6 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     while ( it.current() ) {
 	QWorkspaceChild* w = (QWorkspaceChild*)it.current();
 	++it;
-	QWidget *icon = w->iconw;
 	int x = w->x();
 	int y = w->y();
 	bool m = FALSE;
