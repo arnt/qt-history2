@@ -15,7 +15,7 @@ TITLE="Creating Main Windows with Actions, Toolbars and Menus"
 HREF="main-windows.html"><LINK
 REL="NEXT"
 TITLE="Using Qt Designer's Value Editors"
-HREF="c2490.html"></HEAD
+HREF="c2513.html"></HEAD
 ><BODY
 CLASS="SECT1"
 ><DIV
@@ -50,7 +50,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c2490.html"
+HREF="c2513.html"
 >Next</A
 ></TD
 ></TR
@@ -63,7 +63,7 @@ CLASS="SECT1"
 ><H1
 CLASS="SECT1"
 ><A
-NAME="AEN2320"
+NAME="AEN2343"
 >Converting the Design into an Executable Application</A
 ></H1
 ><P
@@ -88,7 +88,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN2334"
+NAME="AEN2357"
 >Implementing the Main Window's Functionality</A
 ></H2
 ><P
@@ -122,7 +122,7 @@ CLASS="SECT3"
 ><H3
 CLASS="SECT3"
 ><A
-NAME="AEN2343"
+NAME="AEN2366"
 >New Files and Loading and Saving Existing 
 	    Files</A
 ></H3
@@ -171,7 +171,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::fileOpen()
+>void EditorForm::fileOpen()
 {
     if ( saveAndContinue( &quot;Open&quot; ) ) {
             <I
@@ -228,7 +228,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::fileSave()
+>void EditorForm::fileSave()
 {
     if ( fileName.isEmpty() ) {
         fileSaveAs();
@@ -274,7 +274,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::fileSaveAs()
+>void EditorForm::fileSaveAs()
 {
     <I
 CLASS="EMPHASIS"
@@ -312,7 +312,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::fileExit()
+>void EditorForm::fileExit()
 {
     if ( saveAndContinue( &quot;Exit&quot; ) )
         qApp-&gt;exit();
@@ -466,7 +466,7 @@ WIDTH="100%"
 ><TD
 ><PRE
 CLASS="PROGRAMLISTING"
->int EditorForm::init()
+>void EditorForm::init()
 {
     textEdit-&gt;setFocus();  
  
@@ -508,7 +508,7 @@ CLASS="SECT2"
 ><H2
 CLASS="SECT2"
 ><A
-NAME="AEN2416"
+NAME="AEN2439"
 >Making the Application Run</A
 ></H2
 ><P
@@ -720,7 +720,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c2490.html"
+HREF="c2513.html"
 >Next</A
 ></TD
 ></TR

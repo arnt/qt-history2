@@ -226,8 +226,8 @@ Click <indexterm><primary>Menu Options</primary><secondary>File|New</secondary><
 New Form
 dialog. The default form is Dialog which is what we want; click <guibutton>OK</>.
 Resize the form to make it smaller; it should be about 2 inches (5 cm)
-square. Change the form's name to 'CustomerFormBase' and the caption to
-'Credit Rating'. Save the form as 'customerformbase.ui'.
+square. Change the form's name to 'CreditFormBase' and the caption to
+'Credit Rating'. Save the form as <filename>creditformbase.ui</>.
 </para>
 <para id="anbb">
 We'll now add the widgets we need.
@@ -310,14 +310,9 @@ We'll now lay out the widgets and connect up the slots we need.
 <orderedlist numeration="arabic">
 <listitem>
 <para id="andd">
-Click the form so that no widgets are selected. <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+Click</secondary></indexterm>
-<keycap>Ctrl+Click</> the Standard
-radio button and drag the rubber band so that it touches the other two
-radio buttons, then release. Press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+L</secondary></indexterm>
+Click the credit rating group box then press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+L</secondary></indexterm>
 <keycap>Ctrl+L</> (lay out
-vertically). Click the Credit Rating button group, then press
-<indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+H</secondary></indexterm>
-<keycap>Ctrl+H</> (lay out horizontally).
+vertically). 
 </para>
 </listitem>
 <listitem>

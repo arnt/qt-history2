@@ -707,14 +707,26 @@ buttons.
 	    Connect the fontComboBox's \fs[activated()] signal to the
 	    textEdit's \fs[setFamily()] slot. This connection will
 	    handle updating the textEdit's font family with the user's
-	    choice of font. We will have to populate the combobox with
-	    the font names for the user to choose from in code. (See the
+	    choice of font. Note that when you invoke the 
+	    \dlg[Edit Connections] dialog the first signal that is
+	    highlighted is \fse[activated(int)]. Since the
+	    \fs[setFamily()] slot takes a \class[QString] argument it
+	    does \i[not] appear in the list of slots. Only those slots
+	    which are compatible with the highlighted signal are
+	    shown, in this case, slots which take no argument or which
+	    take an integer argument. Click the 
+	    \fse[activated(const QString&amp;)] signal and the list of
+	    slots will change to those which take no argument or which
+	    take a \class[QString] argument; the list will now include
+	    \fs[setFamily()] since this takes a \class[QString]
+	    argument. We will have to populate the combobox with the
+	    font names for the user to choose from in code. (See the
 	    \fn[init()] function in <xref linkend="changing-fonts">
 	    "Changing Fonts".) It's a good idea to connect the
 	    fontComboBox's \fs[activate()] signal to the textEdit's
 	    \fs[setFocus()] slot; this will ensure that after the user
-	    has changed font the focus will return to the text. 
-	    </para>
+	    has changed font the focus will return
+	    to the text. </para>
 
 	    <para id="aklh">
 	    The richedit application is nearly complete. We will have to

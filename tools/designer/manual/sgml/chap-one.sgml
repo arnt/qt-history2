@@ -903,7 +903,7 @@ layoutMargin to the same value in the same way.
     <para id="alto">
     <indexterm><primary>Absolute positioning</primary></indexterm>
 
-    In the example we've presented we've used <emphasis>Qt Designer</>'s layout tools to lay
+    In the example we used <emphasis>Qt Designer</>'s layout tools to lay
     out our widgets. We will use the layout tools again in the examples
     presented in later chapters. If you want to use absolute
     positioning, i.e. to place and size your widgets with exact pixel
@@ -1150,7 +1150,7 @@ Edit Connections dialog will pop up. The top left hand list box
     the Connections list box. Click <guibutton>OK</>.
     </para>
     <para id="ambb">
-    We will make a great many signal/slot connections as we work through
+    We will make lots of signal/slot connections as we work through
     the examples, including connections to our own custom slots.
     Signal/slot connections (using pre-defined signals and slots) work
     in preview mode. Press <indexterm><primary>Keypresses (Qt Designer)</primary><secondary>Ctrl+T</secondary></indexterm>
