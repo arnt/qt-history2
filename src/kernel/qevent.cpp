@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#25 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#25 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -152,11 +152,13 @@ void QEvent::peErrMsg()				// posted event error message
   The QTimer class provides a high-level programming interface with one-shot
   timers and timer signals instead of events.
 
-  The event handler QWidget::timerEvent() receives timer events.
+  The event handler QObject::timerEvent() receives timer events.
 
-  \sa QTimer QWidget::timerEvent() QObject::startTimer()
-  QObject::killTimer() QObject::killTimers()
-  ----------------------------------------------------------------------------*/
+  \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
+  QObject::killTimer(), QObject::killTimers()
+ ----------------------------------------------------------------------------*/
+  
+  
 
 /*----------------------------------------------------------------------------
   \fn QTimerEvent::QTimerEvent( int timerId )
