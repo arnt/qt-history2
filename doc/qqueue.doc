@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qqueue.doc,v 2.0 1996/09/24 10:15:16 agulbra Exp $
+** $Id: qqueue.doc,v 2.1 1997/06/15 18:31:30 hanord Exp $
 **
 ** QQueue class documentation
 **
@@ -12,7 +12,7 @@
   QQueue documentation
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QQueue qqueue.h
   \brief The QQueue class is a template class that provides a queue.
 
@@ -26,4 +26,4 @@
   A stack is a collection that can be used to enqueue and deqeue items.
 
   \sa \link collection.html Collection Classes\endlink
- ----------------------------------------------------------------------------*/
+*/

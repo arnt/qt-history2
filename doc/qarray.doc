@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.1 1996/10/06 19:13:33 agulbra Exp $
+** $Id: qarray.doc,v 2.2 1997/06/15 18:31:30 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -11,7 +11,7 @@
   QArray documentation
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QArray qarray.h
   \brief The QArray class is a template class that provides arrays of simple types.
 
@@ -117,16 +117,16 @@
   QArray defaults to QArrayT if templates are supported, QArrayM otherwise.
 
   \sa \link shclass.html Shared Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray::QArray()
   Constructs a null array.
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray::QArray( int size )
   Constructs an array with room for \e size elements.
   Makes a null array if \e size == 0.
@@ -134,68 +134,68 @@
   Note that the elements are not initialized.
 
   \sa resize(), isNull()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray::QArray( const QArray<type> &a )
   Constructs a shallow copy of \e a.
   \sa assign()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray::~QArray()
   Dereferences the array data and deletes it if this was the last
   reference.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::operator=( const QArray<type> &a )
   Assigns a shallow copy of \e a to this array and returns a reference
   to this array.
 
   Equivalent to assign( a ).
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type *QArray::data() const
   Returns a pointer to the actual array data.
 
   The array is a null array if data() == 0 (null pointer).
 
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QArray::nrefs() const
   Returns the reference count for the shared array data. This reference count
   is always greater than zero.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QArray::size() const
   Returns the size of the array (max number of elements).
 
   The array is a null array if size() == 0.
 
   \sa isNull(), resize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::isEmpty() const
   Returns TRUE if the array is empty, i.e. size() == 0, otherwise FALSE.
 
   isEmpty() is equivalent with isNull() for QArray.  Note that this is not
   the case for QString::isEmpty().
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::isNull() const
   Returns TRUE if the array is null, otherwise FALSE.
 
   A null array has size() == 0 and data() == 0.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::resize( uint size )
   Resizes (expands or shrinks) the array to \e size elements. The array
   becomes a null array if \e size == 0.
@@ -205,9 +205,9 @@
   New elements will not be initialized.
 
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::truncate( uint pos )
   Truncates the array at position \e pos.
 
@@ -216,9 +216,9 @@
   Equivalent to resize(\e pos).
 
   \sa resize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::fill( const type &v, int size=-1 )
   Fills the array with the value \e v. If \e size is specified as different
   from -1, then the array will be resized before filled.
@@ -227,9 +227,9 @@
   (only when \e size != -1).
 
   \sa resize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QArray::detach()
   Detaches this array from shared array data, i.e. makes a private, deep
   copy of the data.
@@ -238,45 +238,45 @@
   \link nrefs() reference count\endlink is greater than one.
 
   \sa copy()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> QArray::copy() const
   Returns a deep copy of this array.
   \sa detach(), duplicate()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::assign( const QArray<type> &a )
   Shallow copy. Dereferences the current array and references the data
   contained in \e a instead. Returns a reference to this array.
   \sa operator=()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::assign( const type *data, uint size )
   Shallow copy. Dereferences the current array and references the
   array data \e data, which contains \e size elements.
   Returns a reference to this array.
 
   Do not delete \e data later, QArray takes care of that.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::duplicate( const QArray<type> &a )
   Deep copy. Dereferences the current array and obtains a copy of the data
   contained in \e a instead. Returns a reference to this array.
   \sa copy()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::duplicate( const type *data, uint size )
   Deep copy. Dereferences the current array and obtains a copy of the
   array data \e data instead.  Returns a reference to this array.
   \sa copy()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray<type> &QArray::setRawData( const type *data, uint size )
 
   Sets raw data and returns a reference to the array.
@@ -316,9 +316,9 @@
   Be careful.
 
   \sa resetRawData()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QArray::resetRawData( const type *data, uint size )
   Resets raw data that was set using setRawData().
 
@@ -326,61 +326,61 @@
   setRawData().	 This is for consistency checking.
 
   \sa setRawData()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QArray::find( const type &v, uint index ) const
   Finds the first occurrence of \e v, starting at position \e index.
 
   Returns the position of \e v, or -1 if \e v could not be found.
 
   \sa contains()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QArray::contains( const type &v ) const
   Returns the number of times \e v occurs in the array.
   \sa find()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type &QArray::operator[]( int index ) const
   Returns a reference to the element at position \e index in the array.
 
   This can be used to both read and set an element.  Equivalent to at().
 
   \sa at()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn type &QArray::at( uint index ) const
   Returns a reference to the element at position \e index in the array.
 
   This can be used to both read and set an element.
 
   \sa operator[]()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QArray::operator const type *() const
   Cast operator.  Returns a pointer to the array.
   \sa data()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::operator==( const QArray<type> &a ) const
   Returns TRUE if this array is equal to \e a, otherwise FALSE.
 
   The two arrays are bitwise compared.
 
   \sa operator!=()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QArray::operator!=( const QArray<type> &a ) const
   Returns TRUE if this array is different from \e a, otherwise FALSE.
 
   The two arrays are bitwise compared.
 
   \sa operator==()
- ----------------------------------------------------------------------------*/
+*/
