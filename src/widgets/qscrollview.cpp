@@ -1480,15 +1480,23 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
             break;
         case QEvent::MouseButtonPress:
             viewportMousePressEvent( (QMouseEvent*)e );
+	    if ( ((QMouseEvent*)e)->isAccepted() )
+		return TRUE;
             break;
         case QEvent::MouseButtonRelease:
             viewportMouseReleaseEvent( (QMouseEvent*)e );
+	    if ( ((QMouseEvent*)e)->isAccepted() )
+		return TRUE;
             break;
         case QEvent::MouseButtonDblClick:
             viewportMouseDoubleClickEvent( (QMouseEvent*)e );
+	    if ( ((QMouseEvent*)e)->isAccepted() )
+		return TRUE;
             break;
         case QEvent::MouseMove:
             viewportMouseMoveEvent( (QMouseEvent*)e );
+	    if ( ((QMouseEvent*)e)->isAccepted() )
+		return TRUE;
             break;
 #ifndef QT_NO_DRAGANDDROP
         case QEvent::DragEnter:
@@ -1545,8 +1553,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     mousePressEvent(): the press position is translated to be a point
     on the contents.
 */
-void QScrollView::contentsMousePressEvent( QMouseEvent* )
+void QScrollView::contentsMousePressEvent( QMouseEvent* e )
 {
+    e->ignore();
 }
 
 /*!
@@ -1554,8 +1563,9 @@ void QScrollView::contentsMousePressEvent( QMouseEvent* )
     mouseReleaseEvent(): the release position is translated to be a
     point on the contents.
 */
-void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
+void QScrollView::contentsMouseReleaseEvent( QMouseEvent* e )
 {
+    e->ignore();
 }
 
 /*!
@@ -1563,8 +1573,9 @@ void QScrollView::contentsMouseReleaseEvent( QMouseEvent* )
     mouseDoubleClickEvent(): the click position is translated to be a
     point on the contents.
 */
-void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
+void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 {
+    e->ignore();
 }
 
 /*!
@@ -1572,8 +1583,9 @@ void QScrollView::contentsMouseDoubleClickEvent( QMouseEvent* )
     mouseMoveEvent(): the mouse position is translated to be a point
     on the contents.
 */
-void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
+void QScrollView::contentsMouseMoveEvent( QMouseEvent* e )
 {
+    e->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1700,6 +1712,8 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMousePressEvent(&ce);
+    if ( !ce.isAccepted() )
+	e->ignore();
 }
 
 /*!\internal
@@ -1715,6 +1729,8 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseReleaseEvent(&ce);
+    if ( !ce.isAccepted() )
+	e->ignore();
 }
 
 /*!\internal
@@ -1730,6 +1746,8 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseDoubleClickEvent(&ce);
+    if ( !ce.isAccepted() )
+	e->ignore();
 }
 
 /*!\internal
@@ -1745,6 +1763,8 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
     QMouseEvent ce(e->type(), viewportToContents(e->pos()),
         e->globalPos(), e->button(), e->state());
     contentsMouseMoveEvent(&ce);
+    if ( !ce.isAccepted() )
+	e->ignore();
 }
 
 #ifndef QT_NO_DRAGANDDROP
