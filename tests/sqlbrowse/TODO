@@ -9,3 +9,6 @@ for the new-autonumbered field value on an insert.  This will allow
 accurate relocation to a newly inserted record in a QDataTable or
 QDataBrowse.
 
+
+Optimize local data caching.  Using QValueList<QValueList<QVariant>>
+is probably not the fastest and most memory efficient approach.
