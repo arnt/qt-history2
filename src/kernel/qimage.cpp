@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#29 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#29 $";
 #endif
 
 /*!
@@ -431,7 +431,8 @@ int QImage::systemByteOrder()			// determine system byte order
 {
     static int sbo = IgnoreEndian;
     if ( sbo == IgnoreEndian ) {		// initialize
-	int ws, be;
+	int  ws;
+	bool be;
 	qSysInfo( &ws, &be );
 	sbo = be ? BigEndian : LittleEndian;
     }
