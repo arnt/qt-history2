@@ -205,8 +205,8 @@ public:
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
-    void selectAll( bool select ); // ###### make virtual
-    void invertSelection(); // ######### make virtual
+    virtual void selectAll( bool select );
+    virtual void invertSelection();
 
 signals:
     void highlighted( int index );
@@ -231,6 +231,8 @@ signals:
     void mouseButtonPressed( int, QListBoxItem*, const QPoint& );
     void mouseButtonClicked( int, QListBoxItem*, const QPoint& );
 
+    void contextMenu( QListBoxItem *, const QPoint & );
+
     void onItem( QListBoxItem *item );
     void onViewport();
 
@@ -239,6 +241,8 @@ protected:
     void mouseReleaseEvent( QMouseEvent * );
     void mouseDoubleClickEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
+    void contentsContextMenuEvent( QContextMenuEvent * );
+
     void keyPressEvent( QKeyEvent *e );
     void focusInEvent( QFocusEvent *e );
     void focusOutEvent( QFocusEvent *e );

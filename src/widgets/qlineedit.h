@@ -165,6 +165,7 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent * );
 #endif
+    void contextMenuEvent( QContextMenuEvent * );
 
 #ifndef QT_NO_COMPAT
     void repaintArea( int, int ) { update(); }

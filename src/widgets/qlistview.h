@@ -355,6 +355,8 @@ signals:
     void mouseButtonPressed( int, QListViewItem *, const QPoint& , int );
     void mouseButtonClicked( int, QListViewItem *,  const QPoint&, int );
 
+    void contextMenu( QListViewItem *, const QPoint & );
+
     void onItem( QListViewItem *item );
     void onViewport();
 
@@ -371,11 +373,12 @@ protected:
     void contentsMouseReleaseEvent( QMouseEvent * e );
     void contentsMouseMoveEvent( QMouseEvent * e );
     void contentsMouseDoubleClickEvent( QMouseEvent * e );
+    void contentsContextMenuEvent( QContextMenuEvent * e );
 #ifndef QT_NO_DRAGANDDROP
-    virtual void contentsDragEnterEvent( QDragEnterEvent *e );
-    virtual void contentsDragMoveEvent( QDragMoveEvent *e );
-    virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
-    virtual void contentsDropEvent( QDropEvent *e );
+    void contentsDragEnterEvent( QDragEnterEvent *e );
+    void contentsDragMoveEvent( QDragMoveEvent *e );
+    void contentsDragLeaveEvent( QDragLeaveEvent *e );
+    void contentsDropEvent( QDropEvent *e );
     virtual QDragObject *dragObject();
     virtual void startDrag();
 #endif

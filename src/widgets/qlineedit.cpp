@@ -838,33 +838,7 @@ static bool inSelection( int x, QTextParag *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
-#ifndef QT_NO_POPUPMENU
     d->undoRedoInfo.clear();
-    if ( e->button() == RightButton ) {
-
-	QPopupMenu *popup = createPopupMenu();
-	int r = popup->exec( e->globalPos() );
-	delete popup;
-
-	if ( r == d->id[ IdClear ] )
-	    clear();
-	else if ( r == d->id[ IdSelectAll ] )
-	    selectAll();
- 	else if ( r == d->id[ IdUndo ] )
- 	    undo();
- 	else if ( r == d->id[ IdRedo ] )
- 	    redo();
-#ifndef QT_NO_CLIPBOARD
-	else if ( r == d->id[ IdCut ] )
-	    cut();
-	else if ( r == d->id[ IdCopy ] )
-	    copy();
-	else if ( r == d->id[ IdPaste ] )
-	    paste();
-#endif
-	return;
-    }
-#endif //QT_NO_POPUPMENU
 
     d->inDoubleClick = FALSE;
     QPoint p( e->pos().x() + d->offset - frameWidth() - margin() - 1, 0 );
@@ -1040,6 +1014,39 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
     *d->cursor = c2;
     update();
+}
+
+/*!\reimp
+*/
+void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
+{
+#ifndef QT_NO_POPUPMENU
+    d->undoRedoInfo.clear();
+
+    QPopupMenu *popup = createPopupMenu();
+    QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
+		 e->globalPos() + QPoint( width() / 2, height() / 2 );
+    int r = popup->exec( pos );
+    delete popup;
+
+    if ( r == d->id[ IdClear ] )
+	clear();
+    else if ( r == d->id[ IdSelectAll ] )
+	selectAll();
+    else if ( r == d->id[ IdUndo ] )
+ 	undo();
+    else if ( r == d->id[ IdRedo ] )
+ 	redo();
+#ifndef QT_NO_CLIPBOARD
+    else if ( r == d->id[ IdCut ] )
+	cut();
+    else if ( r == d->id[ IdCopy ] )
+	copy();
+    else if ( r == d->id[ IdPaste ] )
+	paste();
+#endif
+    e->accept();
+#endif //QT_NO_POPUPMENU
 }
 
 /*!

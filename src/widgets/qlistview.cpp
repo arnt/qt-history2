@@ -3860,6 +3860,35 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     }
 }
 
+/*! \reimp
+*/
+
+void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
+{
+    e->accept();
+    if ( e->reason() == QContextMenuEvent::Keyboard ) {
+	QListViewItem *item = currentItem();
+	if ( item ) {
+	    QRect r = itemRect( item );
+	    QPoint p = r.topLeft();
+	    if ( allColumnsShowFocus() )
+		p += QPoint( width() / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
+	    else
+		p += QPoint( columnWidth( 0 ) / 2, ( r.height() / 2 )+ ( header()->isVisible() ? header()->height() : 0 ) );
+	    emit contextMenu( item, mapToGlobal( p ) );
+	}
+    } else {
+	QListViewItem *item = itemAt( e->pos() );
+	if ( selectionMode() == Extended || ( selectionMode() == Single && !item ) )
+	    clearSelection();
+	if ( item ) {
+	    setCurrentItem( item );
+	    if ( selectionMode() != QListView::NoSelection )
+		setSelected( item, TRUE );
+	    emit contextMenu( item, e->globalPos() );
+	}
+    }
+}
 
 /*!
   Processes mouse move events on behalf of the viewed widget.
@@ -4871,6 +4900,16 @@ int QListView::itemMargin() const
   are then the relevant QListViewItem (may be 0), the point in global
   coordinates and the relevant column (or -1 if the click was outside
   the list).
+*/
+
+/*!
+  \fn void QListView::showContextMenu( QListViewItem *item, const QPoint & pos )
+
+  This signal is emitted when the user invokes a context menu with the right mouse button
+  or with special system keys, with \a item being the item under the mouse cursor or the 
+  current item, respectively.
+
+  \a pos is the position for the context menu in the global coordinate system.
 */
 
 /*!\reimp

@@ -165,6 +165,7 @@ protected slots:
 protected:
     void paintEvent( QPaintEvent * );
     void childEvent( QChildEvent * );
+    void contextMenuEvent( QContextMenuEvent * );
     bool event( QEvent * );
     void styleChange( QStyle& );
 

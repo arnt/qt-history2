@@ -135,12 +135,6 @@ public:
     bool isDockWindowAccepted( QDockWindow *dw );
     void setAcceptDockWindow( QDockWindow *dw, bool accept );
 
-signals:
-    void rightButtonPressed( const QPoint &globalPos );
-
-protected:
-    void mousePressEvent( QMouseEvent *e );
-
 private:
     struct DockWindowData
     {

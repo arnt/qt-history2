@@ -394,6 +394,7 @@ signals:
     void rightButtonPressed( QIconViewItem* item, const QPoint& pos );
     void mouseButtonPressed( int button, QIconViewItem* item, const QPoint& pos );
     void mouseButtonClicked( int button, QIconViewItem* item, const QPoint& pos );
+    void contextMenu( QIconViewItem* item, const QPoint &pos );
 
 #ifndef QT_NO_DRAGANDDROP
     void dropped( QDropEvent *e, const QValueList<QIconDragItem> &lst );
@@ -414,24 +415,25 @@ private slots:
     void movedContents( int dx, int dy );
 
 protected:
-    virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
-    virtual void contentsMousePressEvent( QMouseEvent *e );
-    virtual void contentsMouseReleaseEvent( QMouseEvent *e );
-    virtual void contentsMouseMoveEvent( QMouseEvent *e );
-    virtual void contentsMouseDoubleClickEvent( QMouseEvent *e );
+    void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
+    void contentsMousePressEvent( QMouseEvent *e );
+    void contentsMouseReleaseEvent( QMouseEvent *e );
+    void contentsMouseMoveEvent( QMouseEvent *e );
+    void contentsMouseDoubleClickEvent( QMouseEvent *e );
+    void contentsContextMenuEvent( QContextMenuEvent *e );
 
 #ifndef QT_NO_DRAGANDDROP
-    virtual void contentsDragEnterEvent( QDragEnterEvent *e );
-    virtual void contentsDragMoveEvent( QDragMoveEvent *e );
-    virtual void contentsDragLeaveEvent( QDragLeaveEvent *e );
-    virtual void contentsDropEvent( QDropEvent *e );
+    void contentsDragEnterEvent( QDragEnterEvent *e );
+    void contentsDragMoveEvent( QDragMoveEvent *e );
+    void contentsDragLeaveEvent( QDragLeaveEvent *e );
+    void contentsDropEvent( QDropEvent *e );
 #endif
 
-    virtual void resizeEvent( QResizeEvent* e );
-    virtual void keyPressEvent( QKeyEvent *e );
-    virtual void focusInEvent( QFocusEvent *e );
-    virtual void focusOutEvent( QFocusEvent *e );
-    virtual void enterEvent( QEvent *e );
+    void resizeEvent( QResizeEvent* e );
+    void keyPressEvent( QKeyEvent *e );
+    void focusInEvent( QFocusEvent *e );
+    void focusOutEvent( QFocusEvent *e );
+    void enterEvent( QEvent *e );
 
     virtual void drawRubber( QPainter *p );
 #ifndef QT_NO_DRAGANDDROP

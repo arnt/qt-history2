@@ -197,6 +197,7 @@ protected:
     void contentsDragLeaveEvent( QDragLeaveEvent *e );
     void contentsDropEvent( QDropEvent *e );
 #endif
+    void contentsContextMenuEvent( QContextMenuEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
     QTextDocument *document() const;

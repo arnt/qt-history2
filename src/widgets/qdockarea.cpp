@@ -885,15 +885,6 @@ void QDockArea::lineUp( bool keepNewLines )
     layout->activate();
 }
 
-/*! \reimp
- */
-
-void QDockArea::mousePressEvent( QMouseEvent *e )
-{
-    if ( e->button() == RightButton )
-	emit rightButtonPressed( e->globalPos() );
-}
-
 QDockArea::DockWindowData *QDockArea::dockWindowData( QDockWindow *w )
 {
     DockWindowData *data = new DockWindowData;

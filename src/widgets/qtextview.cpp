@@ -947,30 +947,6 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
     mightStartDrag = FALSE;
     pressedLink = QString::null;
 
-    if ( !isReadOnly() && e->button() == RightButton ) {
-	QPopupMenu *popup = createPopupMenu();
-	int r = popup->exec( e->globalPos() );
-	delete popup;
-
-	if ( r == d->id[ IdClear ] )
-	    clear();
-	else if ( r == d->id[ IdSelectAll ] )
-	    selectAll();
- 	else if ( r == d->id[ IdUndo ] )
- 	    undo();
- 	else if ( r == d->id[ IdRedo ] )
- 	    redo();
-#ifndef QT_NO_CLIPBOARD
-	else if ( r == d->id[ IdCut ] )
-	    cut();
-	else if ( r == d->id[ IdCopy ] )
-	    copy();
-	else if ( r == d->id[ IdPaste ] )
-	    paste();
-#endif
-	return;
-    }
-
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
 	drawCursor( FALSE );
@@ -1209,6 +1185,36 @@ void QTextView::contentsDropEvent( QDropEvent *e )
 }
 
 #endif
+
+/*! \reimp */
+void QTextView::contentsContextMenuEvent( QContextMenuEvent *e )
+{
+    clearUndoRedo();
+
+    e->accept();
+    if ( !isReadOnly() ) {
+	QPopupMenu *popup = createPopupMenu();
+	int r = popup->exec( e->globalPos() );
+	delete popup;
+
+	if ( r == d->id[ IdClear ] )
+	    clear();
+	else if ( r == d->id[ IdSelectAll ] )
+	    selectAll();
+ 	else if ( r == d->id[ IdUndo ] )
+ 	    undo();
+ 	else if ( r == d->id[ IdRedo ] )
+ 	    redo();
+#ifndef QT_NO_CLIPBOARD
+	else if ( r == d->id[ IdCut ] )
+	    cut();
+	else if ( r == d->id[ IdCopy ] )
+	    copy();
+	else if ( r == d->id[ IdPaste ] )
+	    paste();
+#endif
+    }
+}
 
 void QTextView::doAutoScroll()
 {
