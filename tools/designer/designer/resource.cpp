@@ -59,6 +59,7 @@
 #include <qregexp.h>
 #include <zlib.h>
 #include <qdatetime.h>
+#include <qtable.h>
 
 static QString makeIndent( int indent )
 {
@@ -545,6 +546,43 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "</column>" << endl;
 	}
 	saveItem( lv->firstChild(), ts, indent - 1 );
+    } else if ( obj->inherits( "QTable" ) ) {
+	QTable *table = (QTable*)obj;
+	int i;
+	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
+	for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
+	    ts << makeIndent( indent ) << "<column>" << endl;
+	    indent++;
+	    QStringList l;
+	    l << table->horizontalHeader()->label( i );
+	    QList<QPixmap> pix;
+	    pix.setAutoDelete( TRUE );
+	    if ( table->horizontalHeader()->iconSet( i ) )
+		pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
+	    saveItem( l, pix, ts, indent );
+	    if ( table->inherits( "QSqlTable" ) && !columnFields.isEmpty() ) {
+		ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
+		indent++;
+		ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;
+		indent--;
+		ts << makeIndent( indent ) << "</property>" << endl;
+	    }
+	    indent--;
+	    ts << makeIndent( indent ) << "</column>" << endl;
+	}
+	for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
+	    ts << makeIndent( indent ) << "<row>" << endl;
+	    indent++;
+	    QStringList l;
+	    l << table->verticalHeader()->label( i );
+	    QList<QPixmap> pix;
+	    pix.setAutoDelete( TRUE );
+	    if ( table->verticalHeader()->iconSet( i ) )
+		pix.append( new QPixmap( table->verticalHeader()->iconSet( i )->pixmap() ) );
+	    saveItem( l, pix, ts, indent );
+	    indent--;
+	    ts << makeIndent( indent ) << "</row>" << endl;
+	}
     }
 }
 
@@ -1078,7 +1116,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    createItem( n, w );
-	} else if ( n.tagName() == "column" ) {
+	} else if ( n.tagName() == "column" || n.tagName() =="row" ) {
 	    createColumn( n, w );
 	}
 
@@ -1122,6 +1160,45 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setClickEnabled( clickable, i );
 	if ( !resizeable )
 	    lv->header()->setResizeEnabled( resizeable, i );
+    } else if ( widget->inherits( "QTable" ) ) {
+	QTable *table = (QTable*)widget;
+	bool isRow;
+	if ( ( isRow = e.tagName() == "row" ) )
+	    table->setNumRows( table->numRows() + 1 );
+	else
+	    table->setNumCols( table->numCols() + 1 );
+	
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	bool hasPixmap = FALSE;
+	QString txt;
+	QString field;
+	QMap<QString, QString> fieldMap = MetaDataBase::columnFields( table );
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QString attrib = n.attribute( "name" );
+		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+		if ( attrib == "text" )
+		    txt = v.toString();
+		else if ( attrib == "pixmap" ) {
+		    hasPixmap = !n.firstChild().toText().data().isEmpty();
+		    if ( hasPixmap )
+			pix = loadPixmap( n.firstChild().toElement().toElement() );
+		} else if ( attrib == "field" )
+		    field = v.toString();
+	    }
+	    n = n.nextSibling().toElement();
+	}
+
+	int i = isRow ? table->numRows() - 1 : table->numCols() - 1;
+	QHeader *h = !isRow ? table->horizontalHeader() : table->verticalHeader();
+	if ( hasPixmap )
+	    h->setLabel( i, pix, txt );
+	else
+	    h->setLabel( i, txt );
+	if ( !isRow && !field.isEmpty() )
+	    fieldMap.insert( txt, field );
+	MetaDataBase::setColumnFields( table, fieldMap );
     }
 }
 

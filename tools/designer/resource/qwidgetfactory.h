@@ -15,6 +15,7 @@ class QWidget;
 class QLayout;
 class QDomElement;
 class QListViewItem;
+class QTable;
 
 class QWidgetFactory
 {
@@ -56,6 +57,15 @@ private:
 	}
     };
 
+    struct Field
+    {
+	Field() {}
+	Field( const QString &s1, const QPixmap &p, const QString &s2 ) : name( s1 ), pix( p ), field( s2 ) {}
+	QString name;
+	QPixmap pix;
+	QString field;
+    };
+
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
@@ -63,7 +73,8 @@ private:
     QMap<QString, QStringList> dbTables;
     QString defConnection, defTable;
     QMap<QString, QString> buddies;
-    
+    QMap<QTable*, QValueList<Field> > fieldMaps;
+
 };
 
 #endif

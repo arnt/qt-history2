@@ -33,8 +33,12 @@ QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
 
 void QDesignerSqlWidget::paintEvent( QPaintEvent *e )
 {
+#if defined(DESIGNER)
     if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) )
 	( (FormWindow*)parentWidget() )->paintGrid( this, e );
+#else
+    Q_UNUSED( e );
+#endif
 }
 
 
@@ -47,8 +51,12 @@ QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
 
 void QDesignerSqlDialog::paintEvent( QPaintEvent *e )
 {
+#if defined(DESIGNER)
     if ( parentWidget() && parentWidget()->inherits( "FormWindow" ) )
 	( (FormWindow*)parentWidget() )->paintGrid( this, e );
+#else
+    Q_UNUSED( e );
+#endif
 }
 
 
@@ -60,7 +68,7 @@ DatabaseSupport::DatabaseSupport()
     parent = 0;
 }
 
-void DatabaseSupport::initPreview( const QString &connection, const QString &table, QObject *o, 
+void DatabaseSupport::initPreview( const QString &connection, const QString &table, QObject *o,
 				   const QMap<QString, QString> &databaseControls )
 {
     tbl = table;

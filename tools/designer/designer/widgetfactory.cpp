@@ -943,7 +943,8 @@ bool WidgetFactory::hasItems( int id )
     QString className = WidgetDatabase::className( id );
 
     if ( className.mid( 1 ) == "ListBox" || className.mid( 1 ) == "ListView" ||
-	 className.mid( 1 ) == "IconView" || className.mid( 1 ) == "ComboBox" )
+	 className.mid( 1 ) == "IconView" || className.mid( 1 ) == "ComboBox" ||
+	 className.contains( "Table" ) )
 	return TRUE;
 
     return FALSE;

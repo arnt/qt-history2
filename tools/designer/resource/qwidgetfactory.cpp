@@ -177,8 +177,19 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ] );
 	    else
 		c = new QSqlCursor( (*it)[ 1 ], conn );
-	    table->setCursor( c );
-	    table->setSorting( TRUE );  // show off features
+	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
+	    table->setCursor( c, fieldMap.isEmpty() );
+	    if ( !fieldMap.isEmpty() ) {
+		    int i = 0;
+		    for ( QValueList<Field>::Iterator fit = fieldMap.begin(); fit != fieldMap.end(); ++fit, ++i ) {
+			table->addColumn( c->field( (*fit).field ) );
+			if ( !(*fit).pix.isNull() )
+			    table->horizontalHeader()->setLabel( i, (*fit).pix, (*fit).name );
+			else
+			    table->horizontalHeader()->setLabel( i, (*fit).name );
+		    }
+	    }				
+	    table->setSorting( TRUE );
 	    table->setAutoDelete( TRUE );
 	}
     }
@@ -189,7 +200,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	if ( label && buddy )
 	    label->setBuddy( buddy );
     }
-    
+
     delete widgetFactory;
 
     return w;
@@ -524,7 +535,7 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    createItem( n, w );
-	} else if ( n.tagName() == "column" ) {
+	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
 	    createColumn( n, w );
 	}
 
@@ -678,7 +689,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	    } else if ( prop == "buddy" ) {
 		buddies.insert( obj->name(), v.toCString() );
 	    }
-    
+
 	    return;
 	}
     }
@@ -1040,6 +1051,50 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setClickEnabled( clickable, i );
 	if ( !resizeable )
 	    lv->header()->setResizeEnabled( resizeable, i );
+    } else if ( widget->inherits( "QTable" ) ) {
+	QTable *table = (QTable*)widget;
+	bool isRow;
+	if ( ( isRow = e.tagName() == "row" ) )
+	    table->setNumRows( table->numRows() + 1 );
+	else
+	    table->setNumCols( table->numCols() + 1 );
+	
+	QDomElement n = e.firstChild().toElement();
+	QPixmap pix;
+	bool hasPixmap = FALSE;
+	QString txt;
+	QString field;
+	QValueList<Field> fieldMap;
+	if ( fieldMaps.find( table ) != fieldMaps.end() ) {
+	    fieldMap = *fieldMaps.find( table );
+	    fieldMaps.remove( table );
+	}
+	while ( !n.isNull() ) {
+	    if ( n.tagName() == "property" ) {
+		QString attrib = n.attribute( "name" );
+		QVariant v = DomTool::elementToVariant( n.firstChild().toElement(), QVariant() );
+		if ( attrib == "text" )
+		    txt = v.toString();
+		else if ( attrib == "pixmap" ) {
+		    hasPixmap = !n.firstChild().toText().data().isEmpty();
+		    if ( hasPixmap )
+			pix = loadPixmap( n.firstChild().toElement().toElement() );
+		} else if ( attrib == "field" )
+		    field = v.toString();
+	    }
+	    n = n.nextSibling().toElement();
+	}
+
+	int i = isRow ? table->numRows() - 1 : table->numCols() - 1;
+	QHeader *h = !isRow ? table->horizontalHeader() : table->verticalHeader();
+	if ( hasPixmap )
+	    h->setLabel( i, pix, txt );
+	else
+	    h->setLabel( i, txt );
+	if ( !isRow && !field.isEmpty() ) {
+	    fieldMap.append( Field( txt, hasPixmap ? pix : QPixmap(), field ) );
+	    fieldMaps.insert( table, fieldMap );
+	}
     }
 }
 
