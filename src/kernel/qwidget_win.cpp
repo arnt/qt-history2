@@ -18,7 +18,6 @@
 #include "qbitmap.h"
 #include "qaccel.h"
 #include "qimage.h"
-#include "qfocusdata.h"
 #include "qlayout.h"
 #include "qt_windows.h"
 #include "qpaintdevicemetrics.h"

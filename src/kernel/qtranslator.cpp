@@ -381,7 +381,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     if ( filename[0] == '/'
 #ifdef Q_WS_WIN
-	 || (filename[0] && filename[1] == ':') || filename[0] == '\\'
+	 || (filename[0].isLetter() && filename[1] == ':') || filename[0] == '\\'
 #endif
 	 )
 	prefix = QString::fromLatin1( "" );

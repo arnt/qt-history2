@@ -238,7 +238,7 @@ QChar::QChar(uchar c)
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
 	// #####
-	ucs =  QTextCodec::codecForCStrings()->toUnicode(&((char)c), 1).at(0).unicode();
+	ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&c, 1).at(0).unicode();
     else
 #endif
 	ucs = (unsigned char)c;

@@ -333,7 +333,7 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     QStringList::Iterator it;
     if ( abs_name[0] == '/'
 #ifdef Q_WS_WIN
-	    || ( abs_name[0] && abs_name[1] == ':' ) || abs_name.startsWith("\\\\")
+	    || ( abs_name[0].isLetter() && abs_name[1] == ':' ) || abs_name.startsWith("\\\\")
 #endif
     )
     {
@@ -436,7 +436,7 @@ QString QMimeSourceFactory::makeAbsolute(const QString& abs_or_rel_name, const Q
     if ( context.isNull() ||
 	 !(context[0] == '/'
 #ifdef Q_WS_WIN
-	 || ( context[0] && context[1] == ':')
+	 || ( context[0].isLetter() && context[1] == ':')
 #endif
 	   ))
 	return abs_or_rel_name;
