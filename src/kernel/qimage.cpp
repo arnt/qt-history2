@@ -312,7 +312,7 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
 QImage::QImage( const char *xpm[] )
 {
     init();
-#if QT_FEATURE_IMAGIO_XPM
+#if QT_FEATURE_IMAGEIO_XPM
     read_xpm_image_or_array( 0, xpm, *this );
 #else
     // We use a qFatal rather than disabling the whole function, as this
@@ -2867,19 +2867,19 @@ QDataStream &operator>>( QDataStream &s, QImage &image )
  *****************************************************************************/
 
 // standard image io handlers (defined below)
-#if QT_FEATURE_IMAGIO_BMP
+#if QT_FEATURE_IMAGEIO_BMP
 static void read_bmp_image( QImageIO * );
 static void write_bmp_image( QImageIO * );
 #endif
-#if QT_FEATURE_IMAGIO_PPM
+#if QT_FEATURE_IMAGEIO_PPM
 static void read_pbm_image( QImageIO * );
 static void write_pbm_image( QImageIO * );
 #endif
-#if QT_FEATURE_IMAGIO_XBM
+#if QT_FEATURE_IMAGEIO_XBM
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
 #endif
-#if QT_FEATURE_IMAGIO_XPM
+#if QT_FEATURE_IMAGEIO_XPM
 static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
 #endif
@@ -2912,7 +2912,7 @@ static QString fbname( const QString &fileName )	// get file basename (sort of)
     return s;
 }
 
-#if QT_FEATURE_IMAGIO_BMP
+#if QT_FEATURE_IMAGEIO_BMP
 static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 {
     int i;
@@ -3072,11 +3072,11 @@ static void init_image_handlers()		// initialize image handlers
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_image_handlers );
-#if QT_FEATURE_IMAGIO_BMP
+#if QT_FEATURE_IMAGEIO_BMP
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
 #endif
-#if QT_FEATURE_IMAGIO_PPM
+#if QT_FEATURE_IMAGEIO_PPM
 	QImageIO::defineIOHandler( "PBM", "^P1", "t",
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "PBMRAW", "^P4", "O",
@@ -3090,18 +3090,18 @@ static void init_image_handlers()		// initialize image handlers
 	QImageIO::defineIOHandler( "PPMRAW", "^P6", "O",
 				   read_pbm_image, write_pbm_image );
 #endif
-#if QT_FEATURE_IMAGIO_XBM
+#if QT_FEATURE_IMAGEIO_XBM
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
 #endif
-#if QT_FEATURE_IMAGIO_XPM
+#if QT_FEATURE_IMAGEIO_XPM
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
 #endif
-#if QT_FEATURE_IMAGIO_PNG
+#if QT_FEATURE_IMAGEIO_PNG
 	qInitPngIO();
 #endif
-#if QT_FEATURE_IMAGIO_JPEG
+#if QT_FEATURE_IMAGEIO_JPEG
 	qInitJpegIO();
 #endif
     }
@@ -3587,7 +3587,7 @@ bool QImageIO::write()
     return iostat == 0;				// image successfully written?
 }
 
-#if QT_FEATURE_IMAGIO_BMP
+#if QT_FEATURE_IMAGEIO_BMP
 
 /*****************************************************************************
   BMP (DIB) image read/write functions
@@ -4042,9 +4042,9 @@ static void write_bmp_image( QImageIO *iio )
     qt_write_dib( s, image );
 }
 
-#endif // QT_FEATURE_IMAGIO_BMP
+#endif // QT_FEATURE_IMAGEIO_BMP
 
-#if QT_FEATURE_IMAGIO_PPM
+#if QT_FEATURE_IMAGEIO_PPM
 
 /*****************************************************************************
   PBM/PGM/PPM (ASCII and RAW) image read/write functions
@@ -4327,7 +4327,7 @@ static void write_pbm_image( QImageIO *iio )
     iio->setStatus(0);
 }
 
-#endif // QT_FEATURE_IMAGIO_PPM
+#endif // QT_FEATURE_IMAGEIO_PPM
 
 #if QT_FEATURE_ASYNC_IMAGE_IO
 
@@ -4395,7 +4395,7 @@ static void read_async_image( QImageIO *iio )
 
 #endif // QT_FEATURE_ASYNC_IMAGE_IO
 
-#if QT_FEATURE_IMAGIO_XBM
+#if QT_FEATURE_IMAGEIO_XBM
 
 /*****************************************************************************
   X bitmap image read/write functions
@@ -4539,10 +4539,10 @@ static void write_xbm_image( QImageIO *iio )
     d->writeBlock( buf, strlen(buf) );
 }
 
-#endif QT_FEATURE_IMAGIO_XBM
+#endif QT_FEATURE_IMAGEIO_XBM
 
 
-#if QT_FEATURE_IMAGIO_XPM
+#if QT_FEATURE_IMAGEIO_XPM
 
 /*****************************************************************************
   XPM image read/write functions
@@ -4843,7 +4843,7 @@ static void write_xpm_image( QImageIO * iio )
     iio->setStatus( 0 );
 }
 
-#endif // QT_FEATURE_IMAGIO_XPM
+#endif // QT_FEATURE_IMAGEIO_XPM
 
 /*!
   Note:  currently no closest-color search is made.  If colors are found that
