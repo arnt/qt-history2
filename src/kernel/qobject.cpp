@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#149 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#148 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#149 $");
 
 
 /*!
@@ -557,6 +557,9 @@ bool QObject::event( QEvent *e )
   timer events for the object.
 
   The default implementation does nothing.
+  
+  QTimer provides a higher-level interface to the timer functionality,
+  and also more general information about timers.
 
   \sa startTimer(), killTimer(), killTimers(), event()
 */

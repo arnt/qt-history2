@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#30 $
 **
 ** Implementation of QTimer class
 **
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#30 $");
 
 
 /*!
@@ -41,7 +41,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $");
 
   As a special case, a QTimer with timeout 0 times out as soon as all
   the events in the window system's event queue have been processed.
-
+  
   This can be used to do heavy work while providing a snappy
   user interface: \code
     QTimer *t = new QTimer( myObject );
@@ -57,12 +57,16 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $");
   on more and more platforms and we expect that null events will
   eventually be replaced by threading.
 
-  An alternative is to call QObject::startTimer() for your object and
-  reimplement the QObject::timerEvent() event handler in your class
-  (it must inherit QObject).  The advantage is that you can have
-  multiple running timers, each having a unique identifier.  The
-  disadvantage is that it does not support such high-level features as
-  single-shot timers or signals.
+  Note that QTimer's accuracy depends on the underlying operating
+  system and hardware.  Most platforms support an accuracy of 20ms;
+  some provide more.  If Qt is unable to deliver the requested number
+  of timer clicks, it will silently discard some.
+
+  An alternative to using QTimer is to call QObject::startTimer() for
+  your object and reimplement the QObject::timerEvent() event handler
+  in your class (which must of course inherit QObject).  The
+  disadvantage is that timerEvent() does not support such high-level
+  features as single-shot timers or signals.
 */
 
 
