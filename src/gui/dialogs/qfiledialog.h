@@ -33,6 +33,7 @@ class Q_GUI_EXPORT QFileDialog : public QDialog
     Q_PROPERTY(AcceptMode acceptMode READ acceptMode WRITE setAcceptMode)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
+    Q_PROPERTY(bool confirmOverwrite READ confirmOverwrite WRITE setConfirmOverwrite)
     Q_ENUMS(ViewMode FileMode AcceptMode)
 
 public:
@@ -40,7 +41,11 @@ public:
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
     enum AcceptMode { AcceptOpen, AcceptSave };
 
-    enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
+    enum Option {
+        ShowDirsOnly = 0x01,
+        DontResolveSymlinks = 0x02,
+        DontConfirmOverwrite = 0x04
+    };
     Q_DECLARE_FLAGS(Options, Option)
 
     QFileDialog(QWidget *parent, Qt::WFlags f);
@@ -78,6 +83,9 @@ public:
 
     void setResolveSymlinks(bool enabled);
     bool resolveSymlinks() const;
+
+    void setConfirmOverwrite(bool enabled);
+    bool confirmOverwrite() const;
 
     void setHistory(const QStringList &paths);
     QStringList history() const;

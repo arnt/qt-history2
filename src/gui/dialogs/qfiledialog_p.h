@@ -115,8 +115,10 @@ public:
     QItemSelectionModel *selections;
     QListView *listView;
     QTreeView *treeView;
+    
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
+    bool confirmOverwrite;
 
     QList<QPersistentModelIndex> history;
 
@@ -156,6 +158,7 @@ struct QFileDialogArgs
     QString selection;
     QString filter;
     QFileDialog::FileMode mode;
+    QFileDialog::Options options;
 };
 
 #endif // QFILEDIALOG_P_H

@@ -305,8 +305,9 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \enum QFileDialog::Option
 
-    \value DontResolveSymlinks
     \value ShowDirsOnly
+    \value DontResolveSymlinks
+    \value DontConfirmOverwrite
 */
 
 /*!
@@ -357,6 +358,8 @@ QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
 {
     d->fileMode = args.mode;
+    setResolveSymlinks(!(args.options & DontResolveSymlinks));
+    setConfirmOverwrite(!(args.options & DontConfirmOverwrite));
     setWindowTitle(args.caption);
     QStringList nameFilter = qt_make_filter_list(args.filter);
     if (nameFilter.isEmpty())
@@ -664,6 +667,25 @@ bool QFileDialog::resolveSymlinks() const
     return d->model->resolveSymlinks();
 }
 
+/*
+  \property QFileDialog::confirmOverwrite
+  \brief Whether the filedialog should ask before accepting a selected file,
+  when the accept mode is AcceptSave.
+
+  If this property is set to true and the accept mode is AcceptSave,
+  the filedialog will ask whether the user wants to overwrite the fike before
+  accepting the file.
+*/
+void QFileDialog::setConfirmOverwrite(bool enabled)
+{
+    d->confirmOverwrite = enabled;
+}
+
+bool QFileDialog::confirmOverwrite() const
+{
+    return d->confirmOverwrite;
+}
+
 /*!
   \brief sets the browsing history of the filedialog to contain the given \a paths.
 */
@@ -774,13 +796,16 @@ void QFileDialog::accept()
         QFileInfo info(fn);
         if (info.isDir())
             return;
-        if (!info.exists() || acceptMode() == AcceptOpen)
+        if (!info.exists()
+            || !confirmOverwrite()
+            || acceptMode() == AcceptOpen)
             QDialog::accept();
         else if (QMessageBox::warning(this, windowTitle(),
                                       fn + tr(" already exists.\n"
                                               "Do you want to replace it?"),
                                       QMessageBox::Yes,
-                                      QMessageBox::No) == QMessageBox::Yes)
+                                      QMessageBox::No)
+                 == QMessageBox::Yes)
             QDialog::accept();
         return;}
     case ExistingFile:
@@ -817,6 +842,7 @@ QFileDialogPrivate::QFileDialogPrivate()
       treeView(0),
       fileMode(QFileDialog::AnyFile),
       acceptMode(QFileDialog::AcceptOpen),
+      confirmOverwrite(true),
       lookIn(0),
       fileName(0),
       fileType(0),
@@ -1770,6 +1796,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     args.selection = selection;
     args.filter = filter;
     args.mode = ExistingFile;
+    args.options = options;
 
 #if defined(Q_WS_WIN)
     if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
@@ -1789,7 +1816,6 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     args.caption = caption.isEmpty() ? QString::fromLatin1("Open") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
     if (!selection.isEmpty())
@@ -1872,6 +1898,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.selection = selection;
     args.filter = filter;
     args.mode = AnyFile;
+    args.options = options;
 
 #if defined(Q_WS_WIN)
     if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
@@ -1889,7 +1916,6 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.caption = caption.isEmpty() ? QString::fromLatin1("Save As") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
     dlg->setAcceptMode(AcceptSave);
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
@@ -1958,6 +1984,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     args.caption = caption;
     args.directory = directory;
     args.mode = (options & ShowDirsOnly ? DirectoryOnly : Directory);
+    args.options = options;
 
 #if defined(Q_WS_WIN)
     if (qobject_cast<QWindowsStyle *>(qApp->style()) && (options & ShowDirsOnly)) {
@@ -1976,7 +2003,6 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     args.caption = caption.isEmpty() ? QString::fromLatin1("Find Directory") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -2063,6 +2089,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.directory = directory;
     args.filter = filter;
     args.mode = ExistingFiles;
+    args.options = options;
 
 #if defined(Q_WS_WIN)
     if (::qobject_cast<QWindowsStyle*>(qApp->style())) {
@@ -2081,7 +2108,6 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.caption = caption.isEmpty() ? QString::fromLatin1("Open") : caption;
     QFileDialog *dlg = new QFileDialog(args);
     dlg->setModal(true);
-    dlg->setResolveSymlinks(!(options & DontResolveSymlinks));
     if (selectedFilter)
         dlg->selectFilter(*selectedFilter);
 
