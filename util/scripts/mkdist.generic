@@ -21,13 +21,6 @@ set -e
 # Use this if something mysterious exits
 #set -x
 
-disttype=$1
-platform=$2
-
-VERSION=$3
-BRANCH=${VERSION%.*}
-LABEL="qt/$VERSION"
-
 while true ; do
   case "$1" in
     "-nodoc") nodoc="yes"; shift;;
@@ -37,6 +30,14 @@ while true ; do
     *) break;;
   esac
 done
+
+disttype=$1
+platform=$2
+
+VERSION=$3
+BRANCH=${VERSION%.*}
+LABEL="qt/$VERSION"
+
 
 DISTDIR=/tmp/qt-$VERSION-`whoami`
 
