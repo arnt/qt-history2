@@ -995,6 +995,8 @@ void QMessageBox::adjustSize()
 	    h = mbd->iconLabel.height() + 3*border + bh;
     }
     int w = QMAX( buttons, labelSize.width() + lmargin ) + 2*border;
+    if ( w > QApplication::desktop()->width() )
+	w = QApplication::desktop()->width();
     resize( w, h );
     setMinimumSize( size() );
 }
