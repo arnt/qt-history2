@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#59 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -208,8 +208,6 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 {
     const QColorGroup & g = colorGroup();
     QPainter paint( this );
-
-    paint.setClipRegion( event->region() );
 
     if ( lenvisible ) {					// draw title
 	const QFontMetrics & fm = paint.fontMetrics();

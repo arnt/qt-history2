@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#203 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#204 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -979,8 +979,6 @@ void QComboBox::resizeEvent( QResizeEvent * )
 void QComboBox::paintEvent( QPaintEvent *event )
 {
     QPainter p( this );
-    if ( event )
-	p.setClipRegion( event->region() );
     const QColorGroup & g = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {

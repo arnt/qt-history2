@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#207 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#208 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -648,7 +648,6 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     }
 
     QPainter p( this );
-    p.setClipRegion( e->region() );
     p.drawPixmap( 0, 0, *d->pm );
     if ( hasFocus() ) {
 	int curYTop = d->cursorRepaintRect.y();
@@ -1710,7 +1709,7 @@ bool QLineEdit::edited() const
 
 /*!
   Moves the cursor one word to the right.  If \a mark is TRUE, the text
-  is marked. 
+  is marked.
   \sa cursorWordBackward()
 */
 void QLineEdit::cursorWordForward( bool mark )
@@ -1725,7 +1724,7 @@ void QLineEdit::cursorWordForward( bool mark )
 
 /*!
   Moves the cursor one word to the left.  If \a mark is TRUE, the text
-  is marked. 
+  is marked.
   \sa cursorWordForward()
 */
 void QLineEdit::cursorWordBackward( bool mark )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#98 $
 **
 ** Implementation of QScrollView class
 **
@@ -1033,7 +1033,6 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 {
     QWidget* vp = viewport();
     QPainter p(vp);
-    p.setClipRegion(pe->region());
     QRect r = pe->rect();
     if ( d->clipped_viewport ) {
 	QRect rr(

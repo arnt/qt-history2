@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#83 $
 **
 ** Implementation of QSlider class
 **
@@ -435,8 +435,6 @@ void QSlider::paintEvent( QPaintEvent *e )
 {
 
     QPainter p( this );
-    QRect paintRegion = e->rect();
-    p.setClipRegion( paintRegion );
     QRect sliderR = sliderRect();
     QColorGroup g = colorGroup();
     {

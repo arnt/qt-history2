@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#71 $
 **
 ** Implementation of QTabBar class
 **
@@ -421,7 +421,6 @@ void  QTabBar::updateMask()
 void QTabBar::paintEvent( QPaintEvent * e )
 {
     QPainter p( this );
-    p.setClipRegion( e->region() );
 
     if (backgroundPixmap() ) {
 	p.setBrushOrigin( rect().bottomLeft() );
