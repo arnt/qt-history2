@@ -108,15 +108,12 @@ void View::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex 
 
     if (model()->hasChildren(index)) {
         static const int size = 9;
-        int left = rect.width() - (indentation() + size) / 2 ;
-        int top = rect.y() + (rect.height() - size) / 2;
-        painter->drawLine(left + 2, top + 4, left + 6, top + 4);
-        if (!isOpen(index))
-            painter->drawLine(left + 4, top + 2, left + 4, top + 6);
-        QPen oldPen = painter->pen();
-        painter->setPen(opt.palette.dark());
-        painter->drawRect(left, top, size - 1, size - 1);
-        painter->setPen(oldPen);
+        opt.state |= QStyle::Style_Children;
+        opt.rect.setRect(rect.width() - (indentation() + size) / 2,
+                         rect.y() + (rect.height() - size) / 2, size, size);
+        if (isOpen(index))
+            opt.state |= QStyle::Style_Open;
+        style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
 }
 
