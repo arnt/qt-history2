@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#19 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#19 $")
 
 
 const int sbDim = 16;
@@ -1275,7 +1275,7 @@ void QTableView::paintEvent( QPaintEvent *e )
     int	  row	= firstRow;
     int	  col;
     int	  yPos	= yStart;
-    int	  xPos;
+    int	  xPos = maxX+1; // in case the while() is empty
     int	  nextX;
     int	  nextY;
     QRect winR = viewRect();
@@ -1721,7 +1721,7 @@ void QTableView::scroll( int xPixels, int yPixels )
 	// have to erase an area no longer used for
 	// cell drawing.
 
-	int oldLim, newLim;
+	int oldLim = 0, newLim = 0; // both =0 just to get around -Wunused
 	if ( testTableFlags(Tbl_cutCellsH) ) {
 	    int maxX = maxViewX();
 	    int oldLastMaxX, oldLastMinX;
@@ -1766,7 +1766,7 @@ void QTableView::scroll( int xPixels, int yPixels )
       // have to erase an area no longer used for
       // cell drawing.
 
-	int oldLim, newLim;
+	int oldLim = 0, newLim = 0; // both =0 just to get around -Wunused
 	if ( testTableFlags(Tbl_cutCellsV) ) {
 	    int maxY = maxViewY();
 	    int oldLastMaxY, oldLastMinY;
