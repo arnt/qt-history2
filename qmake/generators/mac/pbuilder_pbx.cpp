@@ -1116,10 +1116,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(as_release) {
 	    t << "\t\t\t\t" << "DEBUGGING_SYMBOLS = NO;" << "\n";
 	} else {
-	    t << "\t\t\t\t" << "GCC_ENABLE_FIX_AND_CONTINUE = YES;" << "\n"
+	    t << "\t\t\t\t" << "GCC_ENABLE_FIX_AND_CONTINUE = " 
+	      << (project->isActiveConfig("no_fix_and_continue") ? "NO" : "YES") << ";" << "\n"
 	      << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = YES;" << "\n"
 	      << "\t\t\t\t" << "GCC_OPTIMIZATION_LEVEL = 0;" << "\n"
-	      << "\t\t\t\t" << "ZERO_LINK = YES;" << "\n";
+	      << "\t\t\t\t" << "ZERO_LINK ="
+	      << (project->isActiveConfig("no_zero_link") ? "NO" : "YES") << ";" << "\n";
 	}
 	t << "\t\t\t" << "};" << "\n"
 	  << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
