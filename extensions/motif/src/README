@@ -1,0 +1,128 @@
+QMotif Extension
+----------------
+
+The QMotif extension provides a complete integration between Qt and Xt/Motif.
+This extension provides 3 classes:
+
+        QMotif
+        QMotifDialog
+        QMotifWidget
+
+QMotif:
+-------
+QMotif only provides a few public functions, but is the brains behind the
+integration.  QMotif is responsible for initializing the Xt toolkit and
+the Xt application context.  It does not open a connection to the X server,
+this is done by using QApplication.
+
+The only member function in QMotif that depends on an X server connection
+is QMotif::initialize().  QMotif can be created before or after QApplication.
+
+Example usage of QMotif and QApplication:
+
+    static char *resources[] = {
+        ...
+    };
+
+    int main(int argc, char **argv)
+    {
+        QMotif integrator;
+
+        XtAppSetFallbackResources( integrator.applicationContext(),
+                                   resources );
+
+        QApplication app( argc, argv );
+        integrator.initialize( &argc, argv, "AppClass", NULL, 0 );
+
+        ...
+
+        XtAppMainLoop( integrator.applicationContext() );
+        return 0;
+    }
+
+NOTE:
+With the release of Qt 3.1.0, a QEventLoop class will be introduced.  The
+QMotif extension will provide a reimplementation of QEventLoop to operate
+completely through Xt event delivery functions.  This will provide an even
+better integration, since all events, timers and external input sources will
+be handled by one common event loop.
+
+When using QMotif with Qt 3.0.x, make sure you run the main Xt event loop
+(XtAppMainLoop()).  Running the QApplication event loop can cause problems
+with events not being delivered to Xt properly.
+
+QMotifDialog:
+-------------
+QMotifDialog provides the QDialog API for Motif dialogs.  Applications moving
+to Qt will need to not only rewrite Motif dialogs in Qt, they will also
+need tom move to the Qt modailty semantics.  QMotifDialog ensures that modal
+Motif dialogs continue to work when used in a Qt application.
+
+For the purpose of the QMotif extension, Motif has 2 classes of dialogs:
+predefined dialogs and custom dialogs.  The predefined Motif dialogs are:
+
+    Prompt
+    Selection
+    Command
+    FileSelection
+    Template
+    Error
+    Information
+    Message
+    Question
+    Warning
+    Working
+    
+QMotifDialog provides a constructor for the predefined Motif dialog types,
+which creates a dialog shell and the dialog widget itself.
+
+Example usage QMotifDialog to create a predefined Motif dialog:
+
+    ...
+    XmString message = XmStringCreateLroR( "This is a Message dialog.",
+                                           XmSTRING_DEFAULT_CHARSET );
+    Arg args[1];
+    XtSetArg( args[0], XmNmessageString, message );
+
+    // parent is an ApplicationShell created earlier in the application
+    QMotifDialog dailog( QMotifDialog::Message, parent, args, 1,
+                         "motif message dialog", TRUE );
+    XtAddCallback( dialog.dialog(), XmNokCallback,
+                   (XtCallbackProc) QMotifDialog::acceptCallback, &dialog );
+    XtAddCallback( dialog.dialog(), XmNcancelCallback,
+                   (XtCallbackProc) QMotifDialog::rejectCallback, &dialog );
+    dialog.exec();
+
+    XmStringFree( message );
+    ...
+
+QMotifDialog also provides a constructor for custom Motif dialogs, which
+creates only the dialog shell.  The application programmer can create
+a custom dialog using the QMotifDialog shell as the parent.
+
+QMotifDialog can be used with either an Xt/Motif or a QWidget parent.
+NOTE: QMotifDialogs with QWidget parents has not been implemented.
+
+QMotifWidget:
+-------------
+QMotifWidget provides the QWidget API for Xt/Motif widgets. 
+
+QMotifWidget has 2 main purposes: providing a toplevel QWidget and providing
+a QWidget that can be used as the central widget in a QMainWindow.
+
+An Xt/Motif widget created with a toplevel QMotifWidget can begin using the
+standard Qt dialogs and custom QDialogs while keeping the main Xt/Motif
+interface of the application.  Using a QMotifWidget as the parent for
+the various QDialogs will ensure that modality and stacking works properly
+throughout the entire application.
+
+Applications moving to Qt can have custom Xt/Motif widgets that will take
+time to rewrite with Qt. QMotifWidget also provides a way to use custom
+Xt/Motif widgets as the center widget of a QMainWindow.  NOTE: This
+functionality has not been tested yet.
+
+KNOWN BUGS:
+-----------
+This documentation is incomplete and unfinished.
+QMotifDialog is not completely implemented.
+QMotifWidget is not tested with an Xt/Motif widget inside a QMainWindow.
