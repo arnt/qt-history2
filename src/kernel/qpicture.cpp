@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#6 $
 **
 ** Implementation of QMetaFile class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#6 $";
 #endif
 
 
@@ -126,6 +126,9 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
     QRect  r;
     QPointArray a;
     QColor color;
+    QFont  font;
+    QPen   pen;
+    QBrush brush;
     QWXFMatrix matrix;
 
     while ( nrecords-- && !s.eos() ) {
@@ -234,19 +237,16 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 		painter->setBrushOrigin( p );
 		break;
 	    case PDC_SETFONT:
-	        s >> str;
-	        painter->setFont( QFont( str ) );
-		delete str;
+	        s >> font;
+	        painter->setFont( font );
 		break;
 	    case PDC_SETPEN:
-		s >> i1_8 >> i2_8 >> ul;
-		color.setRGB( ul );
-		painter->setPen( QPen( color, i2_8, (PenStyle)i1_8 ) );
+		s >> pen;
+		painter->setPen( pen );
 		break;
 	    case PDC_SETBRUSH:
-		s >> i_8 >> ul;
-		color.setRGB( ul );
-		painter->setBrush( QBrush( color, (BrushStyle)i_8 ) );
+		s >> brush;
+		painter->setBrush( brush );
 		break;
 	    case PDC_SETVXFORM:
 		s >> i_8;
@@ -329,30 +329,30 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	case PDC_MOVETO:
 	case PDC_LINETO:
 	case PDC_SETBRUSHORIGIN:
-	    s << *p[0].p;
+	    s << *p[0].point;
 	    break;
 	case PDC_DRAWLINE:
-	    s << *p[0].p << *p[1].p;
+	    s << *p[0].point << *p[1].point;
 	    break;
 	case PDC_DRAWRECT:
 	case PDC_DRAWELLIPSE:
-	    s << *p[0].r;
+	    s << *p[0].rect;
 	    break;
 	case PDC_DRAWROUNDRECT:
 	case PDC_DRAWARC:
 	case PDC_DRAWPIE:
 	case PDC_DRAWCHORD:
-	    s << *p[0].r << (INT16)p[1].i << (INT16)p[2].i;
+	    s << *p[0].rect << (INT16)p[1].ival << (INT16)p[2].ival;
 	    break;
 	case PDC_DRAWLINESEGS:
 	case PDC_DRAWPOLYLINE:
-	    s << *p[0].a;
+	    s << *p[0].ptarr;
 	    break;
 	case PDC_DRAWPOLYGON:
-	    s << *p[0].a << (INT8)p[1].i;
+	    s << *p[0].ptarr << (INT8)p[1].ival;
 	    break;
 	case PDC_DRAWTEXT:
-	    s << *p[0].p << p[1].str;
+	    s << *p[0].point << p[1].str;
 	    break;
 	case PDC_DRAWTEXTALIGN:
 	    debug( "QMetaFile::cmd: DRAWTEXTALIGN not implemented" );
@@ -364,33 +364,33 @@ bool QMetaFile::cmd( int c, QPDevCmdParam *p )
 	case PDC_RESTORE:
 	    break;
 	case PDC_SETBKCOLOR:
-	    s << p[0].ul;
+	    s << *p[0].color;
 	    break;
 	case PDC_SETBKMODE:
 	case PDC_SETROP:
-	    s << (INT8)p[0].i;
+	    s << (INT8)p[0].ival;
 	    break;
 	case PDC_SETFONT:
-	    s << p[0].str;
+	    s << *p[0].font;
 	    break;
 	case PDC_SETPEN:
-	    s << (INT8)p[0].i << (INT8)p[1].i << p[2].ul;
+	    s << *p[0].pen;
 	    break;
 	case PDC_SETBRUSH:
-	    s << (INT8)p[0].i << p[1].ul;
+	    s << *p[0].brush;
 	    break;
 	case PDC_SETUNIT:
 	case PDC_SETVXFORM:
 	case PDC_SETWXFORM:
 	case PDC_SETCLIP:
-	    s << (INT8)p[0].i;
+	    s << (INT8)p[0].ival;
 	    break;
 	case PDC_SETSOURCEVIEW:
 	case PDC_SETTARGETVIEW:
-	    s << *p[0].r;
+	    s << *p[0].rect;
 	    break;
 	case PDC_SETWXFMATRIX:
-	    s << *p[0].m << (INT8)p[1].i;
+	    s << *p[0].matrix << (INT8)p[1].ival;
 	    break;
 	case PDC_SETCLIPRGN:
 	    s << *p[0].rgn;
