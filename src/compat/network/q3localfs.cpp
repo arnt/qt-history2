@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QLocalFs class
+** Implementation of Q3LocalFs class
 **
 ** Created : 950429
 **
@@ -35,23 +35,25 @@
 **
 **********************************************************************/
 
-#include "qlocalfs.h"
+#include "q3localfs.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
 #include "qfileinfo.h"
 #include "qfile.h"
+#include "q3url.h"
 #include "qurlinfo.h"
 #include "qapplication.h"
-#include "qurloperator.h"
-#include "qguardedptr.h"
+#include "q3urloperator.h"
+#include "q3guardedptr.h"
+#include "q3valuelist.h"
 
 //#define QLOCALFS_DEBUG
 
 
 /*!
-    \class QLocalFs qlocalfs.h
-    \brief The QLocalFs class is an implementation of a
+    \class Q3LocalFs q3localfs.h
+    \brief The Q3LocalFs class is an implementation of a
     QNetworkProtocol that works on the local file system.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -61,7 +63,7 @@
 
     \ingroup io
 
-    This class is derived from QNetworkProtocol. QLocalFs is not
+    This class is derived from QNetworkProtocol. Q3LocalFs is not
     normally used directly, but rather through a QUrlOperator, for
     example:
     \code
@@ -69,11 +71,11 @@
     op.listChildren(); // Asks the server to provide a directory listing
     \endcode
 
-    This code will only work if the QLocalFs class is registered; to
+    This code will only work if the Q3LocalFs class is registered; to
     register the class, you must call qInitNetworkProtocols() before
-    using a QUrlOperator with QLocalFs.
+    using a QUrlOperator with Q3LocalFs.
 
-    If you really need to use QLocalFs directly, don't forget
+    If you really need to use Q3LocalFs directly, don't forget
     to set its QUrlOperator with setUrl().
 
     \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
@@ -83,8 +85,8 @@
     Constructor.
 */
 
-QLocalFs::QLocalFs()
-    : QNetworkProtocol()
+Q3LocalFs::Q3LocalFs()
+    : Q3NetworkProtocol()
 {
 }
 
@@ -116,10 +118,10 @@ static int convertPermissions(QFileInfo *fi)
     \reimp
 */
 
-void QLocalFs::operationListChildren( QNetworkOperation *op )
+void Q3LocalFs::operationListChildren( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationListChildren" );
+    qDebug( "Q3LocalFs: operationListChildren" );
 #endif
     op->setState( StInProgress );
 
@@ -135,8 +137,8 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 	return;
     }
 
-    const QFileInfoList *filist = dir.entryInfoList( QDir::All | QDir::Hidden | QDir::System );
-    if ( !filist ) {
+    QFileInfoList filist = dir.entryInfoList(QDir::All | QDir::Hidden | QDir::System);
+    if ( filist.isEmpty() ) {
 	QString msg = tr( "Could not read directory\n%1" ).arg( url()->path() );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
@@ -147,14 +149,12 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
 
     emit start( op );
 
-    QFileInfoListIterator it( *filist );
-    QFileInfo *fi;
-    QValueList<QUrlInfo> infos;
-    while ( ( fi = it.current() ) != 0 ) {
-	++it;
-	infos << QUrlInfo( fi->fileName(), convertPermissions(fi), fi->owner(), fi->group(),
-			   fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
-			   fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
+    Q3ValueList<QUrlInfo> infos;
+    for (int i = 0; i < filist.size(); ++i) {
+        QFileInfo fi = filist.at(i);
+	infos << QUrlInfo( fi.fileName(), convertPermissions(&fi), fi.owner(), fi.group(),
+			   fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
+			   fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
     }
     emit newChildren( infos, op );
     op->setState( StDone );
@@ -165,10 +165,10 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     \reimp
 */
 
-void QLocalFs::operationMkDir( QNetworkOperation *op )
+void Q3LocalFs::operationMkDir( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationMkDir" );
+    qDebug( "Q3LocalFs: operationMkDir" );
 #endif
     op->setState( StInProgress );
     QString dirname = op->arg( 0 );
@@ -196,13 +196,13 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
     \reimp
 */
 
-void QLocalFs::operationRemove( QNetworkOperation *op )
+void Q3LocalFs::operationRemove( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationRemove" );
+    qDebug( "Q3LocalFs: operationRemove" );
 #endif
     op->setState( StInProgress );
-    QString name = QUrl( op->arg( 0 ) ).path();
+    QString name = Q3Url( op->arg( 0 ) ).path();
     bool deleted = FALSE;
 
     dir = QDir( url()->path() );
@@ -230,10 +230,10 @@ void QLocalFs::operationRemove( QNetworkOperation *op )
     \reimp
 */
 
-void QLocalFs::operationRename( QNetworkOperation *op )
+void Q3LocalFs::operationRename( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationRename" );
+    qDebug( "Q3LocalFs: operationRename" );
 #endif
     op->setState( StInProgress );
     QString oldname = op->arg( 0 );
@@ -257,18 +257,18 @@ void QLocalFs::operationRename( QNetworkOperation *op )
     \reimp
 */
 
-void QLocalFs::operationGet( QNetworkOperation *op )
+void Q3LocalFs::operationGet( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationGet" );
+    qDebug( "Q3LocalFs: operationGet" );
 #endif
     op->setState( StInProgress );
-    QString from = QUrl( op->arg( 0 ) ).path();
+    QString from = Q3Url( op->arg( 0 ) ).path();
 
     QFile f( from );
     if ( !f.open( IO_ReadOnly ) ) {
 #ifdef QLOCALFS_DEBUG
-	qDebug( "QLocalFs: could not open %s", from.latin1() );
+	qDebug( "Q3LocalFs: could not open %s", from.latin1() );
 #endif
 	QString msg = tr( "Could not open\n%1" ).arg( from );
 	op->setState( StFailed );
@@ -288,7 +288,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	    emit data( s, op );
 	    emit dataTransferProgress( f.size(), f.size(), op );
 #ifdef QLOCALFS_DEBUG
-	    qDebug( "QLocalFs: got all %d bytes at once", f.size() );
+	    qDebug( "Q3LocalFs: got all %d bytes at once", f.size() );
 #endif
 	} else {
 	    s.resize( blockSize );
@@ -308,13 +308,13 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;
 		}
-                QGuardedPtr<QObject> that = this;
+                Q3GuardedPtr<QObject> that = this;
                 qApp->processEvents();
                 if (!that)
                     return;
 	    }
 #ifdef QLOCALFS_DEBUG
-	    qDebug( "QLocalFs: got all %d bytes step by step", f.size() );
+	    qDebug( "Q3LocalFs: got all %d bytes step by step", f.size() );
 #endif
 	    emit dataTransferProgress( f.size(), f.size(), op );
 	}
@@ -328,13 +328,13 @@ void QLocalFs::operationGet( QNetworkOperation *op )
     \reimp
 */
 
-void QLocalFs::operationPut( QNetworkOperation *op )
+void Q3LocalFs::operationPut( Q3NetworkOperation *op )
 {
 #ifdef QLOCALFS_DEBUG
-    qDebug( "QLocalFs: operationPut" );
+    qDebug( "Q3LocalFs: operationPut" );
 #endif
     op->setState( StInProgress );
-    QString to = QUrl( op->arg( 0 ) ).path();
+    QString to = Q3Url( op->arg( 0 ) ).path();
 
     QFile f( to );
     if ( !f.open( IO_WriteOnly ) ) {
@@ -361,7 +361,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	    f.flush();
 	    emit dataTransferProgress( i + blockSize, ba.size(), op );
 	    i += blockSize;
-	    QGuardedPtr<QObject> that = this;
+	    Q3GuardedPtr<QObject> that = this;
             qApp->processEvents();
             if (!that)
                 return;
@@ -379,7 +379,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
     \reimp
 */
 
-int QLocalFs::supportedOperations() const
+int Q3LocalFs::supportedOperations() const
 {
     return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
@@ -388,7 +388,7 @@ int QLocalFs::supportedOperations() const
     \internal
 */
 
-int QLocalFs::calcBlockSize( int totalSize ) const
+int Q3LocalFs::calcBlockSize( int totalSize ) const
 {
     if ( totalSize == 0 )
 	return 1024;

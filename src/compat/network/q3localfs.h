@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QLocalFs class
+** Definition of Q3LocalFs class
 **
 ** Created : 950429
 **
@@ -39,27 +39,27 @@
 #define QLOCALFS_H
 
 #ifndef QT_H
-#include "qnetworkprotocol.h"
+#include "q3networkprotocol.h"
 #include "qdir.h"
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-class Q_EXPORT QLocalFs : public QNetworkProtocol
+class Q_CORE_EXPORT Q3LocalFs : public Q3NetworkProtocol
 {
     Q_OBJECT
 
 public:
-    QLocalFs();
+    Q3LocalFs();
     virtual int supportedOperations() const;
 
 protected:
-    virtual void operationListChildren( QNetworkOperation *op );
-    virtual void operationMkDir( QNetworkOperation *op );
-    virtual void operationRemove( QNetworkOperation *op );
-    virtual void operationRename( QNetworkOperation *op );
-    virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPut( QNetworkOperation *op );
+    virtual void operationListChildren( Q3NetworkOperation *op );
+    virtual void operationMkDir( Q3NetworkOperation *op );
+    virtual void operationRemove( Q3NetworkOperation *op );
+    virtual void operationRename( Q3NetworkOperation *op );
+    virtual void operationGet( Q3NetworkOperation *op );
+    virtual void operationPut( Q3NetworkOperation *op );
 
 private:
     int calcBlockSize( int totalSize ) const;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QUrlOperator class
+** Implementation of Q3UrlOperator class
 **
 ** Created : 950429
 **
@@ -35,23 +35,24 @@
 **
 **********************************************************************/
 
-#include "qurloperator.h"
+#include "q3urloperator.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
 #include "qurlinfo.h"
-#include "qnetworkprotocol.h"
+#include "q3networkprotocol.h"
 #include "qmap.h"
 #include "qdir.h"
-#include "qptrdict.h"
-#include "qguardedptr.h"
+#include "q3ptrdict.h"
+#include "q3guardedptr.h"
+#include "q3valuelist.h"
 
-//#define QURLOPERATOR_DEBUG
+//#define Q3URLOPERATOR_DEBUG
 
-class QUrlOperatorPrivate
+class Q3UrlOperatorPrivate
 {
 public:
-    QUrlOperatorPrivate()
+    Q3UrlOperatorPrivate()
     {
 	oldOps.setAutoDelete( FALSE );
 	networkProtocol = 0;
@@ -59,7 +60,7 @@ public:
 	currPut = 0;
     }
 
-    ~QUrlOperatorPrivate()
+    ~Q3UrlOperatorPrivate()
     {
 	delete networkProtocol;
 	while ( oldOps.first() ) {
@@ -69,26 +70,26 @@ public:
     }
 
     QMap<QString, QUrlInfo> entryMap;
-    QNetworkProtocol *networkProtocol;
+    Q3NetworkProtocol *networkProtocol;
     QString nameFilter;
     QDir dir;
 
     // maps needed for copy/move operations
-    QPtrDict<QNetworkOperation> getOpPutOpMap;
-    QPtrDict<QNetworkProtocol> getOpPutProtMap;
-    QPtrDict<QNetworkProtocol> getOpGetProtMap;
-    QPtrDict<QNetworkOperation> getOpRemoveOpMap;
-    QGuardedPtr<QNetworkProtocol> currPut;
+    Q3PtrDict<Q3NetworkOperation> getOpPutOpMap;
+    Q3PtrDict<Q3NetworkProtocol> getOpPutProtMap;
+    Q3PtrDict<Q3NetworkProtocol> getOpGetProtMap;
+    Q3PtrDict<Q3NetworkOperation> getOpRemoveOpMap;
+    Q3GuardedPtr<Q3NetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
-    QPtrList< QNetworkOperation > oldOps;
+    Q3PtrList< Q3NetworkOperation > oldOps;
 };
 
 /*!
-    \class QUrlOperator qurloperator.h
+    \class Q3UrlOperator q3urloperator.h
 
-    \brief The QUrlOperator class provides common operations on URLs.
+    \brief The Q3UrlOperator class provides common operations on URLs.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -117,17 +118,17 @@ public:
     and info(). If a directory is to be traversed using
     listChildren(), a name filter can be set with setNameFilter().
 
-    A QUrlOperator can be used like this, for example to download a
+    A Q3UrlOperator can be used like this, for example to download a
     file (and assuming that the FTP protocol is \link
     qInitNetworkProtocols() registered\endlink):
     \code
-    QUrlOperator *op = new QUrlOperator();
+    Q3UrlOperator *op = new Q3UrlOperator();
     op->copy( QString("ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz"),
 	     "file:/tmp" );
     \endcode
 
     If you want to be notified about success/failure, progress, etc.,
-    you can connect to QUrlOperator's signals, e.g. to start(),
+    you can connect to Q3UrlOperator's signals, e.g. to start(),
     newChildren(), createdDirectory(), removed(), data(),
     dataTransferProgress(), startedNextCopy(),
     connectionStateChanged(), finished(), etc. A network operation can
@@ -136,8 +137,8 @@ public:
     The class uses the functionality of registered network protocols
     to perform these operations. Depending of the protocol of the URL,
     it uses an appropriate network protocol class for the operations.
-    Each of the operation functions of QUrlOperator creates a
-    QNetworkOperation object that describes the operation and puts it
+    Each of the operation functions of Q3UrlOperator creates a
+    Q3NetworkOperation object that describes the operation and puts it
     into the operation queue for the network protocol used. If no
     suitable protocol could be found (because no implementation of the
     necessary network protocol is registered), the URL operator emits
@@ -150,17 +151,17 @@ public:
     \list
     \i \link QFtp FTP\endlink,
     \i \link QHttp HTTP\endlink,
-    \i \link QLocalFs local file system\endlink.
+    \i \link Q3LocalFs local file system\endlink.
     \endlist
 
     For more information about the Qt Network Architecture see the
     \link network.html Qt Network Documentation\endlink.
 
-    \sa QNetworkProtocol, QNetworkOperation
+    \sa Q3NetworkProtocol, Q3NetworkOperation
 */
 
 /*!
-    \fn void QUrlOperator::newChildren( const QValueList<QUrlInfo> &i, QNetworkOperation *op )
+    \fn void Q3UrlOperator::newChildren( const Q3ValueList<QUrlInfo> &i, Q3NetworkOperation *op )
 
     This signal is emitted after listChildren() was called and new
     children (i.e. files) have been read from a list of files. \a i
@@ -168,12 +169,12 @@ public:
     to the operation object which contains all the information about
     the operation, including the state.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 
 /*!
-    \fn void QUrlOperator::finished( QNetworkOperation *op )
+    \fn void Q3UrlOperator::finished( Q3NetworkOperation *op )
 
     This signal is emitted when an operation of some sort finishes,
     whether with success or failure. \a op is a pointer to the
@@ -182,22 +183,22 @@ public:
     state and error code of the operation object to see whether or not
     the operation was successful.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::start( QNetworkOperation *op )
+    \fn void Q3UrlOperator::start( Q3NetworkOperation *op )
 
     Some operations (such as listChildren()) emit this signal when
     they start processing the operation. \a op is a pointer to the
     operation object which contains all the information about the
     operation, including the state.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::createdDirectory( const QUrlInfo &i, QNetworkOperation *op )
+    \fn void Q3UrlOperator::createdDirectory( const QUrlInfo &i, Q3NetworkOperation *op )
 
     This signal is emitted when mkdir() succeeds and the directory has
     been created. \a i holds the information about the new directory.
@@ -206,11 +207,11 @@ public:
     information about the operation, including the state.
     \c op->arg(0) holds the new directory's name.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::removed( QNetworkOperation *op )
+    \fn void Q3UrlOperator::removed( Q3NetworkOperation *op )
 
     This signal is emitted when remove() has been succesful and the
     file has been removed.
@@ -219,11 +220,11 @@ public:
     information about the operation, including the state.
     \c op->arg(0) holds the name of the file that was removed.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::itemChanged( QNetworkOperation *op )
+    \fn void Q3UrlOperator::itemChanged( Q3NetworkOperation *op )
 
     This signal is emitted whenever a file which is a child of the URL
     has been changed, for example by successfully calling rename().
@@ -232,11 +233,11 @@ public:
     \c op->arg(0) holds the original file name and \c op->arg(1) holds
     the new file name (if it was changed).
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::data( const QByteArray &data, QNetworkOperation *op )
+    \fn void Q3UrlOperator::data( const QByteArray &data, Q3NetworkOperation *op )
 
     This signal is emitted when new \a data has been received after calling
     get() or put().
@@ -245,11 +246,11 @@ public:
     \c op->arg(0) holds the name of the file whose data is retrieved
     and op->rawArg(1) holds the (raw) data.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
+    \fn void Q3UrlOperator::dataTransferProgress( int bytesDone, int bytesTotal, Q3NetworkOperation *op )
 
     This signal is emitted during data transfer (using put() or
     get()). \a bytesDone specifies how many bytes of \a bytesTotal have
@@ -258,57 +259,57 @@ public:
     \a bytesTotal may be -1, which means that the total number of bytes
     is not known.
 
-    \sa QNetworkOperation, QNetworkProtocol
+    \sa Q3NetworkOperation, Q3NetworkProtocol
 */
 
 /*!
-    \fn void QUrlOperator::startedNextCopy( const QPtrList<QNetworkOperation> &lst )
+    \fn void Q3UrlOperator::startedNextCopy( const Q3PtrList<Q3NetworkOperation> &lst )
 
     This signal is emitted if copy() starts a new copy operation. \a
-    lst contains all QNetworkOperations related to this copy
+    lst contains all Q3NetworkOperations related to this copy
     operation.
 
     \sa copy()
 */
 
 /*!
-    \fn void QUrlOperator::connectionStateChanged( int state, const QString &data )
+    \fn void Q3UrlOperator::connectionStateChanged( int state, const QString &data )
 
     This signal is emitted whenever the URL operator's connection
     state changes. \a state describes the new state, which is a
-    \l{QNetworkProtocol::ConnectionState} value.
+    \l{Q3NetworkProtocol::ConnectionState} value.
 
     \a data is a string that describes the change of the connection.
     This can be used to display a message to the user.
 */
 
 /*!
-    Constructs a QUrlOperator with an empty (i.e. invalid) URL.
+    Constructs a Q3UrlOperator with an empty (i.e. invalid) URL.
 */
 
-QUrlOperator::QUrlOperator()
-    : QUrl()
+Q3UrlOperator::Q3UrlOperator()
+    : Q3Url()
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: cstr 1" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: cstr 1" );
 #endif
-    d = new QUrlOperatorPrivate;
+    d = new Q3UrlOperatorPrivate;
 }
 
 /*!
-    Constructs a QUrlOperator using \a url and parses this string.
+    Constructs a Q3UrlOperator using \a url and parses this string.
 
     If you pass strings like "/home/qt" the "file" protocol is
     assumed.
 */
 
-QUrlOperator::QUrlOperator( const QString &url )
-    : QUrl( url )
+Q3UrlOperator::Q3UrlOperator( const QString &url )
+    : Q3Url( url )
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: cstr 2" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: cstr 2" );
 #endif
-    d = new QUrlOperatorPrivate;
+    d = new Q3UrlOperatorPrivate;
     getNetworkProtocol();
 }
 
@@ -316,13 +317,13 @@ QUrlOperator::QUrlOperator( const QString &url )
     Constructs a copy of \a url.
 */
 
-QUrlOperator::QUrlOperator( const QUrlOperator& url )
-    : QObject(), QUrl( url )
+Q3UrlOperator::Q3UrlOperator( const Q3UrlOperator& url )
+    : QObject(), Q3Url( url )
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: cstr 3" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: cstr 3" );
 #endif
-    d = new QUrlOperatorPrivate;
+    d = new Q3UrlOperatorPrivate;
     *d = *url.d;
 
     d->networkProtocol = 0;
@@ -332,19 +333,19 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 }
 
 /*!
-    Constructs a QUrlOperator. The URL on which this QUrlOperator
+    Constructs a Q3UrlOperator. The URL on which this Q3UrlOperator
     operates is constructed out of the arguments \a url, \a relUrl and
-    \a checkSlash: see the corresponding QUrl constructor for an
+    \a checkSlash: see the corresponding Q3Url constructor for an
     explanation of these arguments.
 */
 
-QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash )
-    : QUrl( url, relUrl, checkSlash )
+Q3UrlOperator::Q3UrlOperator( const Q3UrlOperator& url, const QString& relUrl, bool checkSlash )
+    : Q3Url( url, relUrl, checkSlash )
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: cstr 4" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: cstr 4" );
 #endif
-    d = new QUrlOperatorPrivate;
+    d = new Q3UrlOperatorPrivate;
     if ( relUrl == "." )
 	*d = *url.d;
 
@@ -357,10 +358,10 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool
     Destructor.
 */
 
-QUrlOperator::~QUrlOperator()
+Q3UrlOperator::~Q3UrlOperator()
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: dstr" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: dstr" );
 #endif
     delete d;
 }
@@ -372,11 +373,11 @@ QUrlOperator::~QUrlOperator()
     operation that should be started. Returns \a op on success;
     otherwise returns 0.
 */
-const QNetworkOperation *QUrlOperator::startOperation( QNetworkOperation *op )
+const Q3NetworkOperation *Q3UrlOperator::startOperation( Q3NetworkOperation *op )
 {
     if ( d->networkProtocol && (d->networkProtocol->supportedOperations()&op->operation()) ) {
 	d->networkProtocol->addOperation( op );
-	if ( op->operation() == QNetworkProtocol::OpListChildren )
+	if ( op->operation() == Q3NetworkProtocol::OpListChildren )
 	    clearEntries();
 	return op;
     }
@@ -387,22 +388,22 @@ const QNetworkOperation *QUrlOperator::startOperation( QNetworkOperation *op )
 	msg = tr( "The protocol `%1' is not supported" ).arg( protocol() );
     } else {
 	switch ( op->operation() ) {
-	case QNetworkProtocol::OpListChildren:
+	case Q3NetworkProtocol::OpListChildren:
 	    msg = tr( "The protocol `%1' does not support listing directories" ).arg( protocol() );
 	    break;
-	case QNetworkProtocol::OpMkDir:
+	case Q3NetworkProtocol::OpMkDir:
 	    msg = tr( "The protocol `%1' does not support creating new directories" ).arg( protocol() );
 	    break;
-	case QNetworkProtocol::OpRemove:
+	case Q3NetworkProtocol::OpRemove:
 	    msg = tr( "The protocol `%1' does not support removing files or directories" ).arg( protocol() );
 	    break;
-	case QNetworkProtocol::OpRename:
+	case Q3NetworkProtocol::OpRename:
 	    msg = tr( "The protocol `%1' does not support renaming files or directories" ).arg( protocol() );
 	    break;
-	case QNetworkProtocol::OpGet:
+	case Q3NetworkProtocol::OpGet:
 	    msg = tr( "The protocol `%1' does not support getting files" ).arg( protocol() );
 	    break;
-	case QNetworkProtocol::OpPut:
+	case Q3NetworkProtocol::OpPut:
 	    msg = tr( "The protocol `%1' does not support putting files" ).arg( protocol() );
 	    break;
 	default:
@@ -410,9 +411,9 @@ const QNetworkOperation *QUrlOperator::startOperation( QNetworkOperation *op )
 	    break;
 	}
     }
-    op->setState( QNetworkProtocol::StFailed );
+    op->setState( Q3NetworkProtocol::StFailed );
     op->setProtocolDetail( msg );
-    op->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
+    op->setErrorCode( (int)Q3NetworkProtocol::ErrUnsupported );
     emit finished( op );
     deleteOperation( op );
     return 0;
@@ -427,23 +428,23 @@ const QNetworkOperation *QUrlOperator::startOperation( QNetworkOperation *op )
     check the state of the network operation pointer.
 
     Because the operation may not be executed immediately, a pointer
-    to the QNetworkOperation object created by this function is
+    to the Q3NetworkOperation object created by this function is
     returned. This object contains all the data about the operation
     and is used to refer to this operation later (e.g. in the signals
-    that are emitted by the QUrlOperator). The return value can also
+    that are emitted by the Q3UrlOperator). The return value can also
     be 0 if the operation object couldn't be created.
 
-    The path of this QUrlOperator must to point to a directory
+    The path of this Q3UrlOperator must to point to a directory
     (because the children of this directory will be listed), not to a
     file.
 */
 
-const QNetworkOperation *QUrlOperator::listChildren()
+const Q3NetworkOperation *Q3UrlOperator::listChildren()
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren, QString::null, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpListChildren, QString::null, QString::null, QString::null );
     return startOperation( res );
 }
 
@@ -457,22 +458,22 @@ const QNetworkOperation *QUrlOperator::listChildren()
     see whether or not the operation was successful.
 
     Because the operation will not be executed immediately, a pointer
-    to the QNetworkOperation object created by this function is
+    to the Q3NetworkOperation object created by this function is
     returned. This object contains all the data about the operation
     and is used to refer to this operation later (e.g. in the signals
-    that are emitted by the QUrlOperator). The return value can also
+    that are emitted by the Q3UrlOperator). The return value can also
     be 0 if the operation object couldn't be created.
 
-    The path of this QUrlOperator must to point to a directory (not a
+    The path of this Q3UrlOperator must to point to a directory (not a
     file) because the new directory will be created in this path.
 */
 
-const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
+const Q3NetworkOperation *Q3UrlOperator::mkdir( const QString &dirname )
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpMkDir, dirname, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpMkDir, dirname, QString::null, QString::null );
     return startOperation( res );
 }
 
@@ -484,23 +485,23 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
     the operation was successful.
 
     Because the operation will not be executed immediately, a pointer
-    to the QNetworkOperation object created by this function is
+    to the Q3NetworkOperation object created by this function is
     returned. This object contains all the data about the operation
     and is used to refer to this operation later (e.g. in the signals
-    that are emitted by the QUrlOperator). The return value can also
+    that are emitted by the Q3UrlOperator). The return value can also
     be 0 if the operation object couldn't be created.
 
-    The path of this QUrlOperator must point to a directory; because
+    The path of this Q3UrlOperator must point to a directory; because
     if \a filename is relative, it will try to remove it in this
     directory.
 */
 
-const QNetworkOperation *QUrlOperator::remove( const QString &filename )
+const Q3NetworkOperation *Q3UrlOperator::remove( const QString &filename )
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRemove, filename, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, filename, QString::null, QString::null );
     return startOperation( res );
 }
 
@@ -512,23 +513,23 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
     to see whether or not the operation was successful.
 
     Because the operation may not be executed immediately, a pointer
-    to the QNetworkOperation object created by this function is
+    to the Q3NetworkOperation object created by this function is
     returned. This object contains all the data about the operation
     and is used to refer to this operation later (e.g. in the signals
-    that are emitted by the QUrlOperator). The return value can also
+    that are emitted by the Q3UrlOperator). The return value can also
     be 0 if the operation object couldn't be created.
 
-    This path of this QUrlOperator must to point to a directory
+    This path of this Q3UrlOperator must to point to a directory
     because \a oldname and \a newname are handled relative to this
     directory.
 */
 
-const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QString &newname )
+const Q3NetworkOperation *Q3UrlOperator::rename( const QString &oldname, const QString &newname )
 {
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpRename, oldname, newname, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRename, oldname, newname, QString::null );
     return startOperation( res );
 }
 
@@ -542,7 +543,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
     put() operations. If you want to be notified about the progress of
     the operation, connect to the dataTransferProgress() signal. Bear
     in mind that the get() and put() operations emit this signal
-    through the QUrlOperator. The number of transferred bytes and the
+    through the Q3UrlOperator. The number of transferred bytes and the
     total bytes that you receive as arguments in this signal do not
     relate to the the whole copy operation; they relate first to the
     get() and then to the put() operation. Always check what type of
@@ -555,60 +556,60 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
     Because a move or copy operation consists of multiple operations
     (get(), put() and maybe remove()), this function doesn't return a
-    single QNetworkOperation, but rather a list of them. They are in
+    single Q3NetworkOperation, but rather a list of them. They are in
     the order: get(), put() and (if applicable) remove().
 
     \sa get(), put()
 */
 
-QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString &to, bool move, bool toPath )
+Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QString &to, bool move, bool toPath )
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
 #endif
 
-    QPtrList<QNetworkOperation> ops;
+    Q3PtrList<Q3NetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
-    QUrlOperator *uFrom = new QUrlOperator( *this, from );
-    QUrlOperator *uTo = new QUrlOperator( to );
+    Q3UrlOperator *uFrom = new Q3UrlOperator( *this, from );
+    Q3UrlOperator *uTo = new Q3UrlOperator( to );
 
     // prepare some string for later usage
     QString frm = *uFrom;
     QString file = uFrom->fileName();
     file.prepend( "/" );
 
-    // uFrom and uTo are deleted when the QNetworkProtocol deletes itself via
+    // uFrom and uTo are deleted when the Q3NetworkProtocol deletes itself via
     // autodelete
     uFrom->getNetworkProtocol();
     uTo->getNetworkProtocol();
-    QNetworkProtocol *gProt = uFrom->d->networkProtocol;
-    QNetworkProtocol *pProt = uTo->d->networkProtocol;
+    Q3NetworkProtocol *gProt = uFrom->d->networkProtocol;
+    Q3NetworkProtocol *pProt = uTo->d->networkProtocol;
 
     uFrom->setPath( uFrom->dirPath() );
 
-    if ( gProt && (gProt->supportedOperations()&QNetworkProtocol::OpGet) &&
-	 pProt && (pProt->supportedOperations()&QNetworkProtocol::OpPut) ) {
+    if ( gProt && (gProt->supportedOperations()&Q3NetworkProtocol::OpGet) &&
+	 pProt && (pProt->supportedOperations()&Q3NetworkProtocol::OpPut) ) {
 
-	connect( gProt, SIGNAL( data(const QByteArray&,QNetworkOperation*) ),
-		 this, SLOT( copyGotData(const QByteArray&,QNetworkOperation*) ) );
-	connect( gProt, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ),
-		 this, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ) );
-	connect( gProt, SIGNAL( finished(QNetworkOperation*) ),
-		 this, SLOT( continueCopy(QNetworkOperation*) ) );
-	connect( gProt, SIGNAL( finished(QNetworkOperation*) ),
-		 this, SIGNAL( finished(QNetworkOperation*) ) );
+	connect( gProt, SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ),
+		 this, SLOT( copyGotData(const QByteArray&,Q3NetworkOperation*) ) );
+	connect( gProt, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ),
+		 this, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ) );
+	connect( gProt, SIGNAL( finished(Q3NetworkOperation*) ),
+		 this, SLOT( continueCopy(Q3NetworkOperation*) ) );
+	connect( gProt, SIGNAL( finished(Q3NetworkOperation*) ),
+		 this, SIGNAL( finished(Q3NetworkOperation*) ) );
 	connect( gProt, SIGNAL( connectionStateChanged(int,const QString&) ),
 		 this, SIGNAL( connectionStateChanged(int,const QString&) ) );
 
-	connect( pProt, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ),
-		 this, SIGNAL( dataTransferProgress(int,int,QNetworkOperation*) ) );
-	connect( pProt, SIGNAL( finished(QNetworkOperation*) ),
-		 this, SIGNAL( finished(QNetworkOperation*) ) );
-	connect( pProt, SIGNAL( finished(QNetworkOperation*) ),
+	connect( pProt, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ),
+		 this, SIGNAL( dataTransferProgress(int,int,Q3NetworkOperation*) ) );
+	connect( pProt, SIGNAL( finished(Q3NetworkOperation*) ),
+		 this, SIGNAL( finished(Q3NetworkOperation*) ) );
+	connect( pProt, SIGNAL( finished(Q3NetworkOperation*) ),
 		 this, SLOT( finishedCopy() ) );
 
-	QNetworkOperation *opGet = new QNetworkOperation( QNetworkProtocol::OpGet, frm, QString::null, QString::null );
+	Q3NetworkOperation *opGet = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, QString::null, QString::null );
 	ops.append( opGet );
 	gProt->addOperation( opGet );
 
@@ -617,31 +618,31 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 	if (!toPath)
 	    toFile = to;
 
-	QNetworkOperation *opPut = new QNetworkOperation( QNetworkProtocol::OpPut, toFile, QString::null, QString::null );
+	Q3NetworkOperation *opPut = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, toFile, QString::null, QString::null );
 	ops.append( opPut );
 
 	d->getOpPutProtMap.insert( (void*)opGet, pProt );
 	d->getOpGetProtMap.insert( (void*)opGet, gProt );
 	d->getOpPutOpMap.insert( (void*)opGet, opPut );
 
-	if ( move && (gProt->supportedOperations()&QNetworkProtocol::OpRemove) ) {
+	if ( move && (gProt->supportedOperations()&Q3NetworkProtocol::OpRemove) ) {
 	    gProt->setAutoDelete( FALSE );
 
-	    QNetworkOperation *opRm = new QNetworkOperation( QNetworkProtocol::OpRemove, frm, QString::null, QString::null );
+	    Q3NetworkOperation *opRm = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, frm, QString::null, QString::null );
 	    ops.append( opRm );
 	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
 	} else {
 	    gProt->setAutoDelete( TRUE );
 	}
-#ifdef QURLOPERATOR_DEBUG
-	qDebug( "QUrlOperator: copy operation should start now..." );
+#ifdef Q3URLOPERATOR_DEBUG
+	qDebug( "Q3UrlOperator: copy operation should start now..." );
 #endif
 	return ops;
     } else {
 	QString msg;
 	if ( !gProt ) {
 	    msg = tr( "The protocol `%1' is not supported" ).arg( uFrom->protocol() );
-	} else if ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) {
+	} else if ( gProt->supportedOperations() & Q3NetworkProtocol::OpGet ) {
 	    msg = tr( "The protocol `%1' does not support copying or moving files or directories" ).arg( uFrom->protocol() );
 	} else if ( !pProt ) {
 	    msg = tr( "The protocol `%1' is not supported" ).arg( uTo->protocol() );
@@ -650,10 +651,10 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 	}
 	delete uFrom;
 	delete uTo;
-	QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet, frm, to, QString::null );
-	res->setState( QNetworkProtocol::StFailed );
+	Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, to, QString::null );
+	res->setState( Q3NetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
-	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
+	res->setErrorCode( (int)Q3NetworkProtocol::ErrUnsupported );
 	emit finished( res );
 	deleteOperation( res );
     }
@@ -671,10 +672,10 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
     This function calls copy() for each entry in \a files in turn. You
     don't get a result from this function; each time a new copy
     begins, startedNextCopy() is emitted, with a list of
-    QNetworkOperations that describe the new copy operation.
+    Q3NetworkOperations that describe the new copy operation.
 */
 
-void QUrlOperator::copy( const QStringList &files, const QString &dest,
+void Q3UrlOperator::copy( const QStringList &files, const QString &dest,
 			 bool move )
 {
     d->waitingCopies = files;
@@ -692,7 +693,7 @@ void QUrlOperator::copy( const QStringList &files, const QString &dest,
     of this function is known to be correct, and to FALSE otherwise.
 */
 
-bool QUrlOperator::isDir( bool *ok )
+bool Q3UrlOperator::isDir( bool *ok )
 {
     if ( ok )
 	*ok = TRUE;
@@ -715,7 +716,7 @@ bool QUrlOperator::isDir( bool *ok )
 /*!
     Tells the network protocol to get data from \a location or, if
     this is QString::null, to get data from the location to which this
-    URL points (see QUrl::fileName() and QUrl::encodedPathAndQuery()).
+    URL points (see Q3Url::fileName() and Q3Url::encodedPathAndQuery()).
     What happens then depends on the network protocol. The data()
     signal is emitted when data comes in. Because it's unlikely that
     all data will come in at once, it is common for multiple data()
@@ -725,24 +726,24 @@ bool QUrlOperator::isDir( bool *ok )
     network operation object to see whether or not the operation was
     successful.
 
-    If \a location is QString::null, the path of this QUrlOperator
+    If \a location is QString::null, the path of this Q3UrlOperator
     should point to a file when you use this operation. If \a location
     is not empty, it can be a relative URL (a child of the path to
-    which the QUrlOperator points) or an absolute URL.
+    which the Q3UrlOperator points) or an absolute URL.
 
     For example, to get a web page you might do something like this:
 
     \code
-    QUrlOperator op( "http://www.whatever.org/cgi-bin/search.pl?cmd=Hello" );
+    Q3UrlOperator op( "http://www.whatever.org/cgi-bin/search.pl?cmd=Hello" );
     op.get();
     \endcode
 
-    For most other operations, the path of the QUrlOperator must point
+    For most other operations, the path of the Q3UrlOperator must point
     to a directory. If you want to download a file you could do the
     following:
 
     \code
-    QUrlOperator op( "ftp://ftp.whatever.org/pub" );
+    Q3UrlOperator op( "ftp://ftp.whatever.org/pub" );
     // do some other stuff like op.listChildren() or op.mkdir( "new_dir" )
     op.get( "a_file.txt" );
     \endcode
@@ -751,7 +752,7 @@ bool QUrlOperator::isDir( bool *ok )
 
     \e Never do anything like this:
     \code
-    QUrlOperator op( "http://www.whatever.org/cgi-bin" );
+    Q3UrlOperator op( "http://www.whatever.org/cgi-bin" );
     op.get( "search.pl?cmd=Hello" ); // WRONG!
     \endcode
 
@@ -764,11 +765,11 @@ bool QUrlOperator::isDir( bool *ok )
     \sa copy()
 */
 
-const QNetworkOperation *QUrlOperator::get( const QString &location )
+const Q3NetworkOperation *Q3UrlOperator::get( const QString &location )
 {
-    QUrl u( *this );
+    Q3Url u( *this );
     if ( !location.isEmpty() )
-	u = QUrl( *this, location );
+	u = Q3Url( *this, location );
 
     if ( !u.isValid() )
 	return 0;
@@ -778,7 +779,7 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
 	getNetworkProtocol();
     }
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet, u, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, u, QString::null, QString::null );
     return startOperation( res );
 }
 
@@ -794,24 +795,24 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
     operation object to see whether or not the operation was
     successful.
 
-    If \a location is QString::null, the path of this QUrlOperator
+    If \a location is QString::null, the path of this Q3UrlOperator
     should point to a file when you use this operation. If \a location
     is not empty, it can be a relative (a child of the path to which
-    the QUrlOperator points) or an absolute URL.
+    the Q3UrlOperator points) or an absolute URL.
 
     For putting some data to a file you can do the following:
 
     \code
-    QUrlOperator op( "ftp://ftp.whatever.com/home/me/filename.dat" );
+    Q3UrlOperator op( "ftp://ftp.whatever.com/home/me/filename.dat" );
     op.put( data );
     \endcode
 
-    For most other operations, the path of the QUrlOperator must point
+    For most other operations, the path of the Q3UrlOperator must point
     to a directory. If you want to upload data to a file you could do
     the following:
 
     \code
-    QUrlOperator op( "ftp://ftp.whatever.com/home/me" );
+    Q3UrlOperator op( "ftp://ftp.whatever.com/home/me" );
     // do some other stuff like op.listChildren() or op.mkdir( "new_dir" )
     op.put( data, "filename.dat" );
     \endcode
@@ -821,11 +822,11 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
     \sa copy()
 */
 
-const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QString &location )
+const Q3NetworkOperation *Q3UrlOperator::put( const QByteArray &data, const QString &location )
 {
-    QUrl u( *this );
+    Q3Url u( *this );
     if ( !location.isEmpty() )
-	u = QUrl( *this, location );
+	u = Q3Url( *this, location );
 
     if ( !u.isValid() )
 	return 0;
@@ -835,7 +836,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
 	getNetworkProtocol();
     }
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPut, u, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, u, QString::null, QString::null );
     res->setRawArg( 1, data );
     return startOperation( res );
 }
@@ -846,7 +847,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
     \sa QDir::setNameFilter()
 */
 
-void QUrlOperator::setNameFilter( const QString &nameFilter )
+void Q3UrlOperator::setNameFilter( const QString &nameFilter )
 {
     d->nameFilter = nameFilter;
 }
@@ -854,10 +855,10 @@ void QUrlOperator::setNameFilter( const QString &nameFilter )
 /*!
     Returns the name filter of the URL.
 
-    \sa QUrlOperator::setNameFilter() QDir::nameFilter()
+    \sa Q3UrlOperator::setNameFilter() QDir::nameFilter()
 */
 
-QString QUrlOperator::nameFilter() const
+QString Q3UrlOperator::nameFilter() const
 {
     return d->nameFilter;
 }
@@ -866,7 +867,7 @@ QString QUrlOperator::nameFilter() const
     Clears the cache of children.
 */
 
-void QUrlOperator::clearEntries()
+void Q3UrlOperator::clearEntries()
 {
     d->entryMap.clear();
 }
@@ -875,9 +876,9 @@ void QUrlOperator::clearEntries()
     Adds an entry to the cache of children.
 */
 
-void QUrlOperator::addEntry( const QValueList<QUrlInfo> &i )
+void Q3UrlOperator::addEntry( const Q3ValueList<QUrlInfo> &i )
 {
-    QValueList<QUrlInfo>::ConstIterator it = i.begin();
+    Q3ValueList<QUrlInfo>::ConstIterator it = i.begin();
     for ( ; it != i.end(); ++it )
 	d->entryMap[ ( *it ).name().stripWhiteSpace() ] = *it;
 }
@@ -889,7 +890,7 @@ void QUrlOperator::addEntry( const QValueList<QUrlInfo> &i )
     finished listChildren() operation.
 */
 
-QUrlInfo QUrlOperator::info( const QString &entry ) const
+QUrlInfo Q3UrlOperator::info( const QString &entry ) const
 {
     if ( d->entryMap.contains( entry.stripWhiteSpace() ) ) {
 	return d->entryMap[ entry.stripWhiteSpace() ];
@@ -914,26 +915,26 @@ QUrlInfo QUrlOperator::info( const QString &entry ) const
     Finds a network protocol for the URL and deletes the old network protocol.
 */
 
-void QUrlOperator::getNetworkProtocol()
+void Q3UrlOperator::getNetworkProtocol()
 {
     delete d->networkProtocol;
-    QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( protocol() );
+    Q3NetworkProtocol *p = Q3NetworkProtocol::getNetworkProtocol( protocol() );
     if ( !p ) {
 	d->networkProtocol = 0;
 	return;
     }
 
-    d->networkProtocol = (QNetworkProtocol *)p;
+    d->networkProtocol = (Q3NetworkProtocol *)p;
     d->networkProtocol->setUrl( this );
-    connect( d->networkProtocol, SIGNAL( itemChanged(QNetworkOperation*) ),
-	     this, SLOT( slotItemChanged(QNetworkOperation*) ) );
+    connect( d->networkProtocol, SIGNAL( itemChanged(Q3NetworkOperation*) ),
+	     this, SLOT( slotItemChanged(Q3NetworkOperation*) ) );
 }
 
 /*!
     Deletes the currently used network protocol.
 */
 
-void QUrlOperator::deleteNetworkProtocol()
+void Q3UrlOperator::deleteNetworkProtocol()
 {
     delete d->networkProtocol;
     d->networkProtocol = 0;
@@ -943,9 +944,9 @@ void QUrlOperator::deleteNetworkProtocol()
     \reimp
 */
 
-void QUrlOperator::setPath( const QString& path )
+void Q3UrlOperator::setPath( const QString& path )
 {
-    QUrl::setPath( path );
+    Q3Url::setPath( path );
     if ( d->networkProtocol )
 	d->networkProtocol->setUrl( this );
 }
@@ -954,9 +955,9 @@ void QUrlOperator::setPath( const QString& path )
     \reimp
 */
 
-void QUrlOperator::reset()
+void Q3UrlOperator::reset()
 {
-    QUrl::reset();
+    Q3Url::reset();
     deleteNetworkProtocol();
     d->nameFilter = "*";
 }
@@ -965,9 +966,9 @@ void QUrlOperator::reset()
     \reimp
 */
 
-bool QUrlOperator::parse( const QString &url )
+bool Q3UrlOperator::parse( const QString &url )
 {
-    bool b = QUrl::parse( url );
+    bool b = Q3Url::parse( url );
     if ( !b ) {
 	return b;
     }
@@ -981,15 +982,15 @@ bool QUrlOperator::parse( const QString &url )
     \reimp
 */
 
-QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
+Q3UrlOperator& Q3UrlOperator::operator=( const Q3UrlOperator &url )
 {
     deleteNetworkProtocol();
-    QUrl::operator=( url );
+    Q3Url::operator=( url );
 
-    QPtrDict<QNetworkOperation> getOpPutOpMap = d->getOpPutOpMap;
-    QPtrDict<QNetworkProtocol> getOpPutProtMap = d->getOpPutProtMap;
-    QPtrDict<QNetworkProtocol> getOpGetProtMap = d->getOpGetProtMap;
-    QPtrDict<QNetworkOperation> getOpRemoveOpMap = d->getOpRemoveOpMap;
+    Q3PtrDict<Q3NetworkOperation> getOpPutOpMap = d->getOpPutOpMap;
+    Q3PtrDict<Q3NetworkProtocol> getOpPutProtMap = d->getOpPutProtMap;
+    Q3PtrDict<Q3NetworkProtocol> getOpGetProtMap = d->getOpGetProtMap;
+    Q3PtrDict<Q3NetworkOperation> getOpRemoveOpMap = d->getOpRemoveOpMap;
 
     *d = *url.d;
 
@@ -1008,10 +1009,10 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
     \reimp
 */
 
-QUrlOperator& QUrlOperator::operator=( const QString &url )
+Q3UrlOperator& Q3UrlOperator::operator=( const QString &url )
 {
     deleteNetworkProtocol();
-    QUrl::operator=( url );
+    Q3Url::operator=( url );
     d->oldOps.setAutoDelete( FALSE );
     getNetworkProtocol();
     return *this;
@@ -1021,9 +1022,9 @@ QUrlOperator& QUrlOperator::operator=( const QString &url )
     \reimp
 */
 
-bool QUrlOperator::cdUp()
+bool Q3UrlOperator::cdUp()
 {
-    bool b = QUrl::cdUp();
+    bool b = Q3Url::cdUp();
     if ( d->networkProtocol )
 	d->networkProtocol->setUrl( this );
     return b;
@@ -1033,7 +1034,7 @@ bool QUrlOperator::cdUp()
     \reimp
 */
 
-bool QUrlOperator::checkValid()
+bool Q3UrlOperator::checkValid()
 {
     // ######
     if ( !isValid() ) {
@@ -1048,12 +1049,12 @@ bool QUrlOperator::checkValid()
     \internal
 */
 
-void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
+void Q3UrlOperator::copyGotData( const QByteArray &data_, Q3NetworkOperation *op )
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: copyGotData: %d new bytes", data_.size() );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: copyGotData: %d new bytes", data_.size() );
 #endif
-    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
+    Q3NetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     if ( put ) {
 	QByteArray &s = put->raw( 1 );
 	int size = s.size();
@@ -1067,24 +1068,24 @@ void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
     \internal
 */
 
-void QUrlOperator::continueCopy( QNetworkOperation *op )
+void Q3UrlOperator::continueCopy( Q3NetworkOperation *op )
 {
-    if ( op->operation() != QNetworkProtocol::OpGet )
+    if ( op->operation() != Q3NetworkProtocol::OpGet )
 	return;
-    if ( op->state()!=QNetworkProtocol::StDone &&  op->state()!=QNetworkProtocol::StFailed ) {
+    if ( op->state()!=Q3NetworkProtocol::StDone &&  op->state()!=Q3NetworkProtocol::StFailed ) {
 	return;
     }
 
-#ifdef QURLOPERATOR_DEBUG
-    if ( op->state() != QNetworkProtocol::StFailed ) {
-	qDebug( "QUrlOperator: continue copy (get finished, put will start)" );
+#ifdef Q3URLOPERATOR_DEBUG
+    if ( op->state() != Q3NetworkProtocol::StFailed ) {
+	qDebug( "Q3UrlOperator: continue copy (get finished, put will start)" );
     }
 #endif
 
-    QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
-    QNetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
-    QNetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
-    QNetworkOperation *rm = d->getOpRemoveOpMap[ (void*)op ];
+    Q3NetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
+    Q3NetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
+    Q3NetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
+    Q3NetworkOperation *rm = d->getOpRemoveOpMap[ (void*)op ];
     d->getOpPutOpMap.take( op );
     d->getOpGetProtMap.take( op );
     d->getOpPutProtMap.take( op );
@@ -1092,7 +1093,7 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
     if ( pProt )
 	pProt->setAutoDelete( TRUE );
     if ( put && pProt ) {
-	if ( op->state() != QNetworkProtocol::StFailed ) {
+	if ( op->state() != Q3NetworkProtocol::StFailed ) {
 	    pProt->addOperation( put );
 	    d->currPut = pProt;
 	} else {
@@ -1103,26 +1104,26 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 	gProt->setAutoDelete( TRUE );
     }
     if ( rm && gProt ) {
-	if ( op->state() != QNetworkProtocol::StFailed ) {
+	if ( op->state() != Q3NetworkProtocol::StFailed ) {
 	    gProt->addOperation( rm );
 	} else {
 	    deleteOperation( rm );
 	}
     }
-    disconnect( gProt, SIGNAL( data(const QByteArray&,QNetworkOperation*) ),
-		this, SLOT( copyGotData(const QByteArray&,QNetworkOperation*) ) );
-    disconnect( gProt, SIGNAL( finished(QNetworkOperation*) ),
-		this, SLOT( continueCopy(QNetworkOperation*) ) );
+    disconnect( gProt, SIGNAL( data(const QByteArray&,Q3NetworkOperation*) ),
+		this, SLOT( copyGotData(const QByteArray&,Q3NetworkOperation*) ) );
+    disconnect( gProt, SIGNAL( finished(Q3NetworkOperation*) ),
+		this, SLOT( continueCopy(Q3NetworkOperation*) ) );
 }
 
 /*!
     \internal
 */
 
-void QUrlOperator::finishedCopy()
+void Q3UrlOperator::finishedCopy()
 {
-#ifdef QURLOPERATOR_DEBUG
-    qDebug( "QUrlOperator: finished copy (finished putting)" );
+#ifdef Q3URLOPERATOR_DEBUG
+    qDebug( "Q3UrlOperator: finished copy (finished putting)" );
 #endif
 
     if ( d->waitingCopies.isEmpty() )
@@ -1130,32 +1131,32 @@ void QUrlOperator::finishedCopy()
 
     QString cp = d->waitingCopies.first();
     d->waitingCopies.remove( cp );
-    QPtrList<QNetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
+    Q3PtrList<Q3NetworkOperation> lst = copy( cp, d->waitingCopiesDest, d->waitingCopiesMove );
     emit startedNextCopy( lst );
 }
 
 /*!
     Stops the current network operation and removes all this
-    QUrlOperator's waiting network operations.
+    Q3UrlOperator's waiting network operations.
 */
 
-void QUrlOperator::stop()
+void Q3UrlOperator::stop()
 {
     d->getOpPutOpMap.clear();
     d->getOpRemoveOpMap.clear();
     d->getOpGetProtMap.setAutoDelete( TRUE );
     d->getOpPutProtMap.setAutoDelete( TRUE );
-    QPtrDictIterator<QNetworkProtocol> it( d->getOpPutProtMap );
+    Q3PtrDictIterator<Q3NetworkProtocol> it( d->getOpPutProtMap );
     for ( ; it.current(); ++it )
 	it.current()->stop();
     d->getOpPutProtMap.clear();
-    it = QPtrDictIterator<QNetworkProtocol>( d->getOpGetProtMap );
+    it = Q3PtrDictIterator<Q3NetworkProtocol>( d->getOpGetProtMap );
     for ( ; it.current(); ++it )
 	it.current()->stop();
     d->getOpGetProtMap.clear();
     if ( d->currPut ) {
 	d->currPut->stop();
-	delete (QNetworkProtocol *) d->currPut;
+	delete (Q3NetworkProtocol *) d->currPut;
 	d->currPut = 0;
     }
     d->waitingCopies.clear();
@@ -1168,7 +1169,7 @@ void QUrlOperator::stop()
     \internal
 */
 
-void QUrlOperator::deleteOperation( QNetworkOperation *op )
+void Q3UrlOperator::deleteOperation( Q3NetworkOperation *op )
 {
     if ( op )
 	d->oldOps.append( op );
@@ -1179,13 +1180,13 @@ void QUrlOperator::deleteOperation( QNetworkOperation *op )
     updates the entryMap after a network operation finished
 */
 
-void QUrlOperator::slotItemChanged( QNetworkOperation *op )
+void Q3UrlOperator::slotItemChanged( Q3NetworkOperation *op )
 {
     if ( !op )
 	return;
 
     switch ( op->operation() ) {
-    case QNetworkProtocol::OpRename :
+    case Q3NetworkProtocol::OpRename :
     {
 	if ( op->arg( 0 ) == op->arg( 1 ) )
 	    return;
@@ -1198,7 +1199,7 @@ void QUrlOperator::slotItemChanged( QNetworkOperation *op )
 	}
 	break;
     }
-    case QNetworkProtocol::OpRemove :
+    case Q3NetworkProtocol::OpRemove :
     {
 	QMap<QString, QUrlInfo>::iterator mi = d->entryMap.find( op->arg( 0 ) );
 	if ( mi != d->entryMap.end() )

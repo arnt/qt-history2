@@ -26,7 +26,7 @@
 #include "qcheckbox.h"
 #include "qcleanuphandler.h"
 #include "qcombobox.h"
-#include "qcstring.h"
+#include "q3cstring.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
 #include "qdragobject.h"
@@ -45,7 +45,7 @@
 #include "qpointer.h"
 #include "qpopupmenu.h"
 #include "q3progressbar.h"
-#include "qptrvector.h"
+#include "q3ptrvector.h"
 #include "qpushbutton.h"
 #include "qregexp.h"
 #include "qsplitter.h"
@@ -56,6 +56,7 @@
 #include "qtooltip.h"
 #include "qvbox.h"
 #include "qwidgetstack.h"
+#include "q3urloperator.h"
 
 #ifdef Q_WS_WIN
 #ifdef QT_THREAD_SUPPORT
@@ -648,7 +649,7 @@ private:
     QListBoxItem *currDropItem;
     QTimer *changeDirTimer;
     bool firstMousePressEvent;
-    QUrlOperator startDragUrl;
+    Q3UrlOperator startDragUrl;
 
 };
 
@@ -704,7 +705,7 @@ private:
     bool firstMousePressEvent;
     bool ascending;
     int sortcolumn;
-    QUrlOperator startDragUrl;
+    Q3UrlOperator startDragUrl;
 
 };
 
@@ -996,7 +997,7 @@ public:
     QWidgetStack *preview;
     bool infoPreview, contentsPreview;
     QSplitter *splitter;
-    QUrlOperator url, oldUrl;
+    Q3UrlOperator url, oldUrl;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
     Q3FilePreview *infoPreviewer, *contentsPreviewer;
     bool hadDotDot;
@@ -1009,15 +1010,15 @@ public:
     bool ignoreStop;
 
     QTimer *mimeTypeTimer;
-    const QNetworkOperation *currListChildren;
+    const Q3NetworkOperation *currListChildren;
 
     // this is similar to QUrl::encode but does encode "*" and
     // doesn't encode whitespaces
     static QString encodeFileName(const QString& fName) {
 
         QString newStr;
-        QCString cName = fName.utf8();
-        const QCString sChars(
+        Q3CString cName = fName.utf8();
+        const Q3CString sChars(
 #ifdef Q_WS_WIN
             "#%"
 #else
@@ -1046,15 +1047,15 @@ public:
         return newStr;
     }
 
-    static bool fileExists(const QUrlOperator &url, const QString& name)
+    static bool fileExists(const Q3UrlOperator &url, const QString& name)
     {
         Q3Url u(url, Q3FileDialogPrivate::encodeFileName(name));
         if (u.isLocalFile()) {
             QFileInfo f(u.path());
             return f.exists();
         } else {
-            QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol(url.protocol());
-            if (p && (p->supportedOperations()&QNetworkProtocol::OpListChildren)) {
+            Q3NetworkProtocol *p = Q3NetworkProtocol::getNetworkProtocol(url.protocol());
+            if (p && (p->supportedOperations()&Q3NetworkProtocol::OpListChildren)) {
                 QUrlInfo ui(url.info(name.isEmpty() ? "." : name));
                 return ui.isValid();
             }
@@ -1356,9 +1357,9 @@ void QFileListBox::viewportDropEvent(QDropEvent *e)
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
 
-    QUrlOperator dest;
+    Q3UrlOperator dest;
     if (currDropItem)
-        dest = QUrlOperator(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text()));
+        dest = Q3UrlOperator(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text()));
     else
         dest = filedialog->d->url;
     QStringList lst;
@@ -1769,9 +1770,9 @@ void Q3FileDialogQFileListView::viewportDropEvent(QDropEvent *e)
     bool move = e->action() == QDropEvent::Move;
 //     bool supportAction = move || e->action() == QDropEvent::Copy;
 
-    QUrlOperator dest;
+    Q3UrlOperator dest;
     if (currDropItem)
-        dest = QUrlOperator(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text(0)));
+        dest = Q3UrlOperator(filedialog->d->url, Q3FileDialogPrivate::encodeFileName(currDropItem->text(0)));
     else
         dest = filedialog->d->url;
     filedialog->d->url.copy(l, dest, move);
@@ -2316,7 +2317,7 @@ Q3FileDialog::Q3FileDialog(const QString& dirName, const QString & filter,
     init();
     d->mode = ExistingFile;
     rereadDir();
-    QUrlOperator u(dirName);
+    Q3UrlOperator u(dirName);
     if (!dirName.isEmpty() && (!u.isLocalFile() || QDir(dirName).exists()))
         setSelection(dirName);
     else if (workingDirectory && !workingDirectory->isEmpty())
@@ -2368,24 +2369,24 @@ void Q3FileDialog::init()
     connect(d->mimeTypeTimer, SIGNAL(timeout()),
              this, SLOT(doMimeTypeLookup()));
 
-    d->url = QUrlOperator(QDir::currentDirPath());
+    d->url = Q3UrlOperator(QDir::currentDirPath());
     d->oldUrl = d->url;
     d->currListChildren = 0;
 
-    connect(&d->url, SIGNAL(start(QNetworkOperation*)),
-             this, SLOT(urlStart(QNetworkOperation*)));
-    connect(&d->url, SIGNAL(finished(QNetworkOperation*)),
-             this, SLOT(urlFinished(QNetworkOperation*)));
-    connect(&d->url, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-             this, SLOT(insertEntry(QList<QUrlInfo>,QNetworkOperation*)));
-    connect(&d->url, SIGNAL(removed(QNetworkOperation*)),
-             this, SLOT(removeEntry(QNetworkOperation*)));
-    connect(&d->url, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
-             this, SLOT(createdDirectory(QUrlInfo,QNetworkOperation*)));
-    connect(&d->url, SIGNAL(itemChanged(QNetworkOperation*)),
-             this, SLOT(itemChanged(QNetworkOperation*)));
-    connect(&d->url, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
-             this, SLOT(dataTransferProgress(int,int,QNetworkOperation*)));
+    connect(&d->url, SIGNAL(start(Q3NetworkOperation*)),
+             this, SLOT(urlStart(Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(finished(Q3NetworkOperation*)),
+             this, SLOT(urlFinished(Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(newChildren(QList<QUrlInfo>,Q3NetworkOperation*)),
+             this, SLOT(insertEntry(QList<QUrlInfo>,Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(removed(Q3NetworkOperation*)),
+             this, SLOT(removeEntry(Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(createdDirectory(QUrlInfo,Q3NetworkOperation*)),
+             this, SLOT(createdDirectory(QUrlInfo,Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(itemChanged(Q3NetworkOperation*)),
+             this, SLOT(itemChanged(Q3NetworkOperation*)));
+    connect(&d->url, SIGNAL(dataTransferProgress(int,int,Q3NetworkOperation*)),
+             this, SLOT(dataTransferProgress(int,int,Q3NetworkOperation*)));
 
     nameEdit = new QLineEdit(this, "name/filter editor");
     nameEdit->setMaxLength(255); //_POSIX_MAX_PATH
@@ -2723,7 +2724,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
             else
                 f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
             if (f.isDir()) {
-                setUrl(QUrlOperator(d->url,
+                setUrl(Q3UrlOperator(d->url,
                                       Q3FileDialogPrivate::encodeFileName(nameEdit->text() + "/")));
                 d->checkForFilter = true;
                 trySetSelection(true, d->url, true);
@@ -2962,9 +2963,9 @@ void Q3FileDialog::setSelection(const QString & filename)
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
     if (Q3Url::isRelativeUrl(filename))
-        d->url = QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(filename));
+        d->url = Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(filename));
     else
-        d->url = QUrlOperator(filename);
+        d->url = Q3UrlOperator(filename);
     d->url.setNameFilter(nf);
     d->checkForFilter = true;
     bool isDirOk;
@@ -2972,7 +2973,7 @@ void Q3FileDialog::setSelection(const QString & filename)
     if (!isDirOk)
         isDir = d->url.path().right(1) == "/";
     if (!isDir) {
-        QUrlOperator u(d->url);
+        Q3UrlOperator u(d->url);
         d->url.setPath(d->url.dirPath());
         trySetSelection(false, u, true);
         d->ignoreNextRefresh = true;
@@ -3070,7 +3071,7 @@ void Q3FileDialog::setDir(const QString & pathstr)
         int i = 0;
         while(i < (int)dr.length() && dr[i] != '/')
             i++;
-        QCString user;
+        Q3CString user;
         if (i == 1) {
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
 
@@ -3136,7 +3137,7 @@ void Q3FileDialog::setDir(const QDir &dir)
     d->url.setNameFilter(nf);
     QUrlInfo i(d->url.info(nameEdit->text().isEmpty()? "." : nameEdit->text()));
     d->checkForFilter = true;
-    trySetSelection(i.isDir(), QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text())), false);
+    trySetSelection(i.isDir(), Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text())), false);
     d->checkForFilter = false;
     rereadDir();
     emit dirEntered(d->url.path());
@@ -3148,7 +3149,7 @@ void Q3FileDialog::setDir(const QDir &dir)
   \sa url()
 */
 
-void Q3FileDialog::setUrl(const QUrlOperator &url)
+void Q3FileDialog::setUrl(const Q3UrlOperator &url)
 {
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
@@ -3163,7 +3164,7 @@ void Q3FileDialog::setUrl(const QUrlOperator &url)
 
     d->checkForFilter = true;
     if (!d->url.isDir()) {
-        QUrlOperator u = d->url;
+        Q3UrlOperator u = d->url;
         d->url.setPath(d->url.dirPath());
         trySetSelection(false, u, false);
         rereadDir();
@@ -3342,7 +3343,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
     // hm... isn't that problem exactly the documented behaviour? the
     // documented behaviour sounds meaningful.
     if (!startWith.isEmpty()) {
-        QUrlOperator u(Q3FileDialogPrivate::encodeFileName(startWith));
+        Q3UrlOperator u(Q3FileDialogPrivate::encodeFileName(startWith));
         if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
             *workingDirectory = startWith;
         } else {
@@ -3459,7 +3460,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
     makeVariables();
     QString initialSelection;
     if (!startWith.isEmpty()) {
-        QUrlOperator u(Q3FileDialogPrivate::encodeFileName(startWith));
+        Q3UrlOperator u(Q3FileDialogPrivate::encodeFileName(startWith));
         if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
             *workingDirectory = startWith;
         } else {
@@ -3567,7 +3568,7 @@ void Q3FileDialog::okClicked()
             QStringList sf = selectedFiles();
             bool isdir = false;
             if (sf.count() == 1) {
-                QUrlOperator u(d->url, sf[0]);
+                Q3UrlOperator u(d->url, sf[0]);
                 bool ok;
                 isdir = u.isDir(&ok) && ok;
             }
@@ -3580,7 +3581,7 @@ void Q3FileDialog::okClicked()
     }
 
     if (mode() == AnyFile) {
-        QUrlOperator u(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text()));
+        Q3UrlOperator u(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text()));
         if (!u.isDir()) {
             d->currentFileName = u;
             emit fileSelected(selectedFile());
@@ -3615,7 +3616,7 @@ void Q3FileDialog::okClicked()
             f = QUrlInfo(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
         }
         if (f.isDir()) {
-            setUrl(QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(f.name() + "/")));
+            setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(f.name() + "/")));
             d->checkForFilter = true;
             trySetSelection(true, d->url, true);
             d->checkForFilter = false;
@@ -3678,7 +3679,7 @@ void Q3FileDialog::resizeEvent(QResizeEvent * e)
   \internal
   The only correct way to try to set currentFileName
 */
-bool Q3FileDialog::trySetSelection(bool isDir, const QUrlOperator &u, bool updatelined)
+bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool updatelined)
 {
     if (!isDir && !u.path().isEmpty() && u.path().right(1) == "/")
         isDir = true;
@@ -3853,7 +3854,7 @@ void Q3FileDialog::updateFileNameEdit(Q3ListViewItem * newItem)
         }
         // Encode the filename in case it had any special characters in it
         QString encFile = Q3FileDialogPrivate::encodeFileName(newItem->text(0));
-        trySetSelection(i->info.isDir(), QUrlOperator(d->url, encFile), true);
+        trySetSelection(i->info.isDir(), Q3UrlOperator(d->url, encFile), true);
     }
 }
 
@@ -3963,7 +3964,7 @@ void Q3FileDialog::fileNameEditDone()
 {
     QUrlInfo f(d->url.info(nameEdit->text().isEmpty() ? "." : nameEdit->text()));
     if (mode() != Q3FileDialog::ExistingFiles) {
-        QUrlOperator u(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text()));
+        Q3UrlOperator u(d->url, Q3FileDialogPrivate::encodeFileName(nameEdit->text()));
         trySetSelection(f.isDir(), u, false);
         if (d->preview && d->preview->isVisible())
             updatePreviews(u);
@@ -4000,13 +4001,13 @@ void Q3FileDialog::selectDirectoryOrFile(Q3ListViewItem * newItem)
 
     QString oldName = nameEdit->text();
     if (i->info.isDir()) {
-        setUrl(QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name()) + "/"));
+        setUrl(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name()) + "/"));
         if (isDirectoryMode(mode())) {
             QUrlInfo f (d->url.info(QString::fromLatin1(".")));
             trySetSelection(f.isDir(), d->url, true);
         }
     } else if (newItem->isSelectable() &&
-                trySetSelection(i->info.isDir(), QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name())), true)) {
+                trySetSelection(i->info.isDir(), Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i->info.name())), true)) {
         if (!isDirectoryMode(mode())) {
             if (mode() == ExistingFile) {
                 if (Q3FileDialogPrivate::fileExists(d->url, nameEdit->text())) {
@@ -4259,7 +4260,7 @@ void Q3FileDialog::pathSelected(int)
 void Q3FileDialog::cdUpClicked()
 {
     QString oldName = nameEdit->text();
-    setUrl(QUrlOperator(d->url, ".."));
+    setUrl(Q3UrlOperator(d->url, ".."));
     if (!oldName.isEmpty())
         nameEdit->setText(oldName);
 }
@@ -4281,7 +4282,7 @@ void Q3FileDialog::newFolderClicked()
     d->url.mkdir(foldername);
 }
 
-void Q3FileDialog::createdDirectory(const QUrlInfo &info, QNetworkOperation *)
+void Q3FileDialog::createdDirectory(const QUrlInfo &info, Q3NetworkOperation *)
 {
     resortDir();
     if (d->moreFiles->isVisible()) {
@@ -4362,7 +4363,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
 #if defined(Q_WS_WIN)
     QString initialDir;
     if (!dir.isEmpty()) {
-        QUrlOperator u(dir);
+        Q3UrlOperator u(dir);
         if (QFileInfo(u.path()).isDir())
             initialDir = dir;
     } else
@@ -4392,7 +4393,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
     dir_ = dir_.simplified();
     if (dir_.isEmpty() && !wd.isEmpty())
         dir_ = wd;
-    QUrlOperator u(dir_);
+    Q3UrlOperator u(dir_);
     if (u.isLocalFile()) {
         if (!dir_.isEmpty()) {
             QFileInfo f(u.path());
@@ -4764,7 +4765,7 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
                 QUrlInfo i(d->url.info(nameEdit->text().isEmpty() ? "." :nameEdit->text()));
                 if (i.isDir()) {
                     nameEdit->setText(QString::fromLatin1(""));
-                    setDir(QUrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i.name())));
+                    setDir(Q3UrlOperator(d->url, Q3FileDialogPrivate::encodeFileName(i.name())));
                 }
                 ke->accept();
             } else if (mode() == ExistingFiles) {
@@ -5498,7 +5499,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
 
     if (!dir.isEmpty()) {
         // #### works only correct for local files
-        QUrlOperator u(Q3FileDialogPrivate::encodeFileName(dir));
+        Q3UrlOperator u(Q3FileDialogPrivate::encodeFileName(dir));
         if (u.isLocalFile() && QFileInfo(u.path()).isDir()) {
             *workingDirectory = dir;
         } else {
@@ -5594,7 +5595,7 @@ static bool isRoot(const Q3Url &u)
 extern Q_CORE_EXPORT int qt_ntfs_permission_lookup;
 #endif
 
-void Q3FileDialog::urlStart(QNetworkOperation *op)
+void Q3FileDialog::urlStart(Q3NetworkOperation *op)
 {
     if (!op)
         return;
@@ -5603,7 +5604,7 @@ void Q3FileDialog::urlStart(QNetworkOperation *op)
     old_qt_ntfs_permission_lookup = qt_ntfs_permission_lookup;
     qt_ntfs_permission_lookup = 0;
 #endif
-    if (op->operation() == QNetworkProtocol::OpListChildren) {
+    if (op->operation() == Q3NetworkProtocol::OpListChildren) {
 #ifndef QT_NO_CURSOR
         if (!d->cursorOverride) {
             QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -5651,20 +5652,20 @@ void Q3FileDialog::urlStart(QNetworkOperation *op)
     }
 }
 
-void Q3FileDialog::urlFinished(QNetworkOperation *op)
+void Q3FileDialog::urlFinished(Q3NetworkOperation *op)
 {
     if (!op)
         return;
 
 #ifndef QT_NO_CURSOR
-    if (op->operation() == QNetworkProtocol::OpListChildren &&
+    if (op->operation() == Q3NetworkProtocol::OpListChildren &&
          d->cursorOverride) {
         QApplication::restoreOverrideCursor();
         d->cursorOverride = false;
     }
 #endif
 
-    if (op->state() == QNetworkProtocol::StFailed) {
+    if (op->state() == Q3NetworkProtocol::StFailed) {
         if (d->paths->hasFocus())
             d->ignoreNextKeyPress = true;
 
@@ -5678,18 +5679,16 @@ void Q3FileDialog::urlFinished(QNetworkOperation *op)
         QMessageBox::critical(this, tr("Error"), op->protocolDetail());
 
         int ecode = op->errorCode();
-        if (ecode == QNetworkProtocol::ErrListChildren || ecode == QNetworkProtocol::ErrParse ||
-             ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
-             ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
-             ecode == QNetworkProtocol::ErrFileNotExisting) {
-            if (d->url != d->oldUrl) {
-                d->url = d->oldUrl;
-                rereadDir();
-            }
+        if (ecode == Q3NetworkProtocol::ErrListChildren || ecode == Q3NetworkProtocol::ErrParse ||
+             ecode == Q3NetworkProtocol::ErrUnknownProtocol || ecode == Q3NetworkProtocol::ErrLoginIncorrect ||
+             ecode == Q3NetworkProtocol::ErrValid || ecode == Q3NetworkProtocol::ErrHostNotFound ||
+             ecode == Q3NetworkProtocol::ErrFileNotExisting) {
+            d->url = d->oldUrl;
+            rereadDir();
         } else {
             // another error happened, no need to go back to last dir
         }
-    } else if (op->operation() == QNetworkProtocol::OpListChildren &&
+    } else if (op->operation() == Q3NetworkProtocol::OpListChildren &&
                 op == d->currListChildren) {
         if (!d->hadDotDot && !isRoot(d->url)) {
             bool ok = true;
@@ -5710,8 +5709,8 @@ void Q3FileDialog::urlFinished(QNetworkOperation *op)
             }
         }
         resortDir();
-    } else if (op->operation() == QNetworkProtocol::OpGet) {
-    } else if (op->operation() == QNetworkProtocol::OpPut) {
+    } else if (op->operation() == Q3NetworkProtocol::OpGet) {
+    } else if (op->operation() == Q3NetworkProtocol::OpPut) {
         rereadDir();
         if (d->progressDia) {
             d->ignoreStop = true;
@@ -5726,7 +5725,7 @@ void Q3FileDialog::urlFinished(QNetworkOperation *op)
 #endif
 }
 
-void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, QNetworkOperation *op)
+void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, Q3NetworkOperation *op)
 {
     if (!op)
         return;
@@ -5752,11 +5751,11 @@ void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, QNetworkO
     }
 
     if (d->progressDia) {
-        if (op->operation() == QNetworkProtocol::OpGet) {
+        if (op->operation() == Q3NetworkProtocol::OpGet) {
             if (d->progressDia) {
                 d->progressDia->setReadProgress(bytesDone);
             }
-        } else if (op->operation() == QNetworkProtocol::OpPut) {
+        } else if (op->operation() == Q3NetworkProtocol::OpPut) {
             if (d->progressDia) {
                 d->progressDia->setWriteLabel(label);
                 d->progressDia->setWriteProgress(bytesDone);
@@ -5767,9 +5766,9 @@ void Q3FileDialog::dataTransferProgress(int bytesDone, int bytesTotal, QNetworkO
     }
 }
 
-void Q3FileDialog::insertEntry(const QList<QUrlInfo> &lst, QNetworkOperation *op)
+void Q3FileDialog::insertEntry(const QList<QUrlInfo> &lst, Q3NetworkOperation *op)
 {
-    if (op && op->operation() == QNetworkProtocol::OpListChildren &&
+    if (op && op->operation() == Q3NetworkProtocol::OpListChildren &&
          op != d->currListChildren)
         return;
     QList<QUrlInfo>::ConstIterator it = lst.begin();
@@ -5834,7 +5833,7 @@ void Q3FileDialog::insertEntry(const QList<QUrlInfo> &lst, QNetworkOperation *op
     }
 }
 
-void Q3FileDialog::removeEntry(QNetworkOperation *op)
+void Q3FileDialog::removeEntry(Q3NetworkOperation *op)
 {
     if (!op)
         return;
@@ -5859,7 +5858,7 @@ void Q3FileDialog::removeEntry(QNetworkOperation *op)
     }
 }
 
-void Q3FileDialog::itemChanged(QNetworkOperation *op)
+void Q3FileDialog::itemChanged(Q3NetworkOperation *op)
 {
     if (!op)
         return;

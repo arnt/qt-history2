@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QUrlOperator class
+** Definition of Q3UrlOperator class
 **
 ** Created : 950429
 **
@@ -35,45 +35,45 @@
 **
 **********************************************************************/
 
-#ifndef QURLOPERATOR_H
-#define QURLOPERATOR_H
+#ifndef Q3URLOPERATOR_H
+#define Q3URLOPERATOR_H
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qurl.h"
-#include "qptrlist.h"
-#include "qnetworkprotocol.h"
+#include "q3url.h"
+#include "q3ptrlist.h"
+#include "q3networkprotocol.h"
 #include "qstringlist.h" // QString->QStringList conversion
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
 class QUrlInfo;
-class QUrlOperatorPrivate;
+class Q3UrlOperatorPrivate;
+class Q3NetworkProtocol;
 
-class Q_EXPORT QUrlOperator : public QObject, public QUrl
+class Q_COMPAT_EXPORT Q3UrlOperator : public QObject, public Q3Url
 {
-    friend class QNetworkProtocol;
-
     Q_OBJECT
+    friend class Q3NetworkProtocol;
 
 public:
-    QUrlOperator();
-    QUrlOperator( const QString &urL );
-    QUrlOperator( const QUrlOperator& url );
-    QUrlOperator( const QUrlOperator& url, const QString& relUrl, bool checkSlash = FALSE );
-    virtual ~QUrlOperator();
+    Q3UrlOperator();
+    Q3UrlOperator( const QString &urL );
+    Q3UrlOperator( const Q3UrlOperator& url );
+    Q3UrlOperator( const Q3UrlOperator& url, const QString& relUrl, bool checkSlash = FALSE );
+    virtual ~Q3UrlOperator();
 
     virtual void setPath( const QString& path );
     virtual bool cdUp();
 
-    virtual const QNetworkOperation *listChildren();
-    virtual const QNetworkOperation *mkdir( const QString &dirname );
-    virtual const QNetworkOperation *remove( const QString &filename );
-    virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
-    virtual const QNetworkOperation *get( const QString &location = QString::null );
-    virtual const QNetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
-    virtual QPtrList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE, bool toPath = TRUE );
+    virtual const Q3NetworkOperation *listChildren();
+    virtual const Q3NetworkOperation *mkdir( const QString &dirname );
+    virtual const Q3NetworkOperation *remove( const QString &filename );
+    virtual const Q3NetworkOperation *rename( const QString &oldname, const QString &newname );
+    virtual const Q3NetworkOperation *get( const QString &location = QString::null );
+    virtual const Q3NetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
+    virtual Q3PtrList<Q3NetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE, bool toPath = TRUE );
     virtual void copy( const QStringList &files, const QString &dest, bool move = FALSE );
     virtual bool isDir( bool *ok = 0 );
 
@@ -82,21 +82,21 @@ public:
 
     virtual QUrlInfo info( const QString &entry ) const;
 
-    QUrlOperator& operator=( const QUrlOperator &url );
-    QUrlOperator& operator=( const QString &url );
+    Q3UrlOperator& operator=( const Q3UrlOperator &url );
+    Q3UrlOperator& operator=( const QString &url );
 
     virtual void stop();
 
 signals:
-    void newChildren( const QValueList<QUrlInfo> &, QNetworkOperation *res );
-    void finished( QNetworkOperation *res );
-    void start( QNetworkOperation *res );
-    void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
-    void removed( QNetworkOperation *res );
-    void itemChanged( QNetworkOperation *res );
-    void data( const QByteArray &, QNetworkOperation *res );
-    void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
-    void startedNextCopy( const QPtrList<QNetworkOperation> &lst );
+    void newChildren( const Q3ValueList<QUrlInfo> &, Q3NetworkOperation *res );
+    void finished( Q3NetworkOperation *res );
+    void start( Q3NetworkOperation *res );
+    void createdDirectory( const QUrlInfo &, Q3NetworkOperation *res );
+    void removed( Q3NetworkOperation *res );
+    void itemChanged( Q3NetworkOperation *res );
+    void data( const QByteArray &, Q3NetworkOperation *res );
+    void dataTransferProgress( int bytesDone, int bytesTotal, Q3NetworkOperation *res );
+    void startedNextCopy( const Q3PtrList<Q3NetworkOperation> &lst );
     void connectionStateChanged( int state, const QString &data );
 
 protected:
@@ -108,19 +108,19 @@ protected:
     void deleteNetworkProtocol();
 
 private slots:
-    const QNetworkOperation *startOperation( QNetworkOperation *op );
-    void copyGotData( const QByteArray &data, QNetworkOperation *op );
-    void continueCopy( QNetworkOperation *op );
+    const Q3NetworkOperation *startOperation( Q3NetworkOperation *op );
+    void copyGotData( const QByteArray &data, Q3NetworkOperation *op );
+    void continueCopy( Q3NetworkOperation *op );
     void finishedCopy();
-    void addEntry( const QValueList<QUrlInfo> &i );
-    void slotItemChanged( QNetworkOperation *op );
+    void addEntry( const Q3ValueList<QUrlInfo> &i );
+    void slotItemChanged( Q3NetworkOperation *op );
 
 private:
-    void deleteOperation( QNetworkOperation *op );
+    void deleteOperation( Q3NetworkOperation *op );
 
-    QUrlOperatorPrivate *d;
+    Q3UrlOperatorPrivate *d;
 };
 
 #endif // QT_NO_NETWORKPROTOCOL
 
-#endif // QURLOPERATOR_H
+#endif // Q3URLOPERATOR_H

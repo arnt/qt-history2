@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QNetworkProtocol class
+** Definition of Q3NetworkProtocol class
 **
 ** Created : 950429
 **
@@ -47,33 +47,33 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL
 
-class QNetworkProtocol;
-class QNetworkOperation;
+class Q3NetworkProtocol;
+class Q3NetworkOperation;
 class QTimer;
-class QUrlOperator;
-class QNetworkProtocolPrivate;
-template <class T> class QValueList;
+class Q3UrlOperator;
+class Q3NetworkProtocolPrivate;
+template <class T> class Q3ValueList;
 
-class Q_EXPORT QNetworkProtocolFactoryBase
+class Q_COMPAT_EXPORT Q3NetworkProtocolFactoryBase
 {
 public:
-   virtual QNetworkProtocol *createObject() = 0;
+   virtual Q3NetworkProtocol *createObject() = 0;
 
 };
 
 template< class Protocol >
-class QNetworkProtocolFactory : public QNetworkProtocolFactoryBase
+class Q3NetworkProtocolFactory : public Q3NetworkProtocolFactoryBase
 {
 public:
-    QNetworkProtocol *createObject() {
+    Q3NetworkProtocol *createObject() {
 	return new Protocol;
     }
 
 };
 
-typedef QDict< QNetworkProtocolFactoryBase > QNetworkProtocolDict;
+typedef QDict< Q3NetworkProtocolFactoryBase > Q3NetworkProtocolDict;
 
-class Q_EXPORT QNetworkProtocol : public QObject
+class Q_COMPAT_EXPORT Q3NetworkProtocol : public QObject
 {
     Q_OBJECT
 
@@ -126,91 +126,91 @@ public:
 	ErrPermissionDenied
     };
 
-    QNetworkProtocol();
-    virtual ~QNetworkProtocol();
+    Q3NetworkProtocol();
+    virtual ~Q3NetworkProtocol();
 
-    virtual void setUrl( QUrlOperator *u );
+    virtual void setUrl( Q3UrlOperator *u );
 
     virtual void setAutoDelete( bool b, int i = 10000 );
     bool autoDelete() const;
 
     static void registerNetworkProtocol( const QString &protocol,
-					 QNetworkProtocolFactoryBase *protocolFactory );
-    static QNetworkProtocol *getNetworkProtocol( const QString &protocol );
+					 Q3NetworkProtocolFactoryBase *protocolFactory );
+    static Q3NetworkProtocol *getNetworkProtocol( const QString &protocol );
     static bool hasOnlyLocalFileSystem();
 
     virtual int supportedOperations() const;
-    virtual void addOperation( QNetworkOperation *op );
+    virtual void addOperation( Q3NetworkOperation *op );
 
-    QUrlOperator *url() const;
-    QNetworkOperation *operationInProgress() const;
+    Q3UrlOperator *url() const;
+    Q3NetworkOperation *operationInProgress() const;
     virtual void clearOperationQueue();
     virtual void stop();
 
 signals:
-    void data( const QByteArray &, QNetworkOperation *res );
+    void data( const QByteArray &, Q3NetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );
-    void finished( QNetworkOperation *res );
-    void start( QNetworkOperation *res );
-    void newChildren( const QValueList<QUrlInfo> &, QNetworkOperation *res );
-    void newChild( const QUrlInfo &, QNetworkOperation *res );
-    void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
-    void removed( QNetworkOperation *res );
-    void itemChanged( QNetworkOperation *res );
-    void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
+    void finished( Q3NetworkOperation *res );
+    void start( Q3NetworkOperation *res );
+    void newChildren( const Q3ValueList<QUrlInfo> &, Q3NetworkOperation *res );
+    void newChild( const QUrlInfo &, Q3NetworkOperation *res );
+    void createdDirectory( const QUrlInfo &, Q3NetworkOperation *res );
+    void removed( Q3NetworkOperation *res );
+    void itemChanged( Q3NetworkOperation *res );
+    void dataTransferProgress( int bytesDone, int bytesTotal, Q3NetworkOperation *res );
 
 protected:
-    virtual void processOperation( QNetworkOperation *op );
-    virtual void operationListChildren( QNetworkOperation *op );
-    virtual void operationMkDir( QNetworkOperation *op );
-    virtual void operationRemove( QNetworkOperation *op );
-    virtual void operationRename( QNetworkOperation *op );
-    virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPut( QNetworkOperation *op );
-    virtual void operationPutChunk( QNetworkOperation *op );
-    virtual bool checkConnection( QNetworkOperation *op );
+    virtual void processOperation( Q3NetworkOperation *op );
+    virtual void operationListChildren( Q3NetworkOperation *op );
+    virtual void operationMkDir( Q3NetworkOperation *op );
+    virtual void operationRemove( Q3NetworkOperation *op );
+    virtual void operationRename( Q3NetworkOperation *op );
+    virtual void operationGet( Q3NetworkOperation *op );
+    virtual void operationPut( Q3NetworkOperation *op );
+    virtual void operationPutChunk( Q3NetworkOperation *op );
+    virtual bool checkConnection( Q3NetworkOperation *op );
 
 private:
-    QNetworkProtocolPrivate *d;
+    Q3NetworkProtocolPrivate *d;
 
 private slots:
-    void processNextOperation( QNetworkOperation *old );
+    void processNextOperation( Q3NetworkOperation *old );
     void startOps();
-    void emitNewChildren( const QUrlInfo &i, QNetworkOperation *op );
+    void emitNewChildren( const QUrlInfo &i, Q3NetworkOperation *op );
 
     void removeMe();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QNetworkProtocol( const QNetworkProtocol & );
-    QNetworkProtocol &operator=( const QNetworkProtocol & );
+    Q3NetworkProtocol( const Q3NetworkProtocol & );
+    Q3NetworkProtocol &operator=( const Q3NetworkProtocol & );
 #endif
 };
 
-class QNetworkOperationPrivate;
+class Q3NetworkOperationPrivate;
 
-class Q_EXPORT QNetworkOperation : public QObject
+class Q_COMPAT_EXPORT Q3NetworkOperation : public QObject
 {
     Q_OBJECT
-    friend class QUrlOperator;
+    friend class Q3UrlOperator;
 
 public:
-    QNetworkOperation( QNetworkProtocol::Operation operation,
+    Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
 		    const QString &arg0, const QString &arg1,
 		    const QString &arg2 );
-    QNetworkOperation( QNetworkProtocol::Operation operation,
+    Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
 		    const QByteArray &arg0, const QByteArray &arg1,
 		    const QByteArray &arg2 );
-    ~QNetworkOperation();
+    ~Q3NetworkOperation();
 
-    void setState( QNetworkProtocol::State state );
+    void setState( Q3NetworkProtocol::State state );
     void setProtocolDetail( const QString &detail );
     void setErrorCode( int ec );
     void setArg( int num, const QString &arg );
     void setRawArg( int num, const QByteArray &arg );
 
-    QNetworkProtocol::Operation operation() const;
-    QNetworkProtocol::State state() const;
+    Q3NetworkProtocol::Operation operation() const;
+    Q3NetworkProtocol::State state() const;
     QString arg( int num ) const;
     QByteArray rawArg( int num ) const;
     QString protocolDetail() const;
@@ -223,12 +223,12 @@ private slots:
 
 private:
     QByteArray &raw( int num ) const;
-    QNetworkOperationPrivate *d;
+    Q3NetworkOperationPrivate *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QNetworkOperation( const QNetworkOperation & );
-    QNetworkOperation &operator=( const QNetworkOperation & );
+    Q3NetworkOperation( const Q3NetworkOperation & );
+    Q3NetworkOperation &operator=( const Q3NetworkOperation & );
 #endif
 };
 

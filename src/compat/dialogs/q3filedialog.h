@@ -20,7 +20,7 @@ class QLabel;
 class QWidget;
 class QFileDialog;
 class QTimer;
-class QNetworkOperation;
+class Q3NetworkOperation;
 class QLineEdit;
 class Q3ListViewItem;
 class QListBoxItem;
@@ -29,7 +29,7 @@ class Q3FileDialogQFileListView;
 
 #include "qdir.h"
 #include "qdialog.h"
-#include "qurloperator.h"
+#include "q3urloperator.h"
 #include "qurlinfo.h"
 
 #ifndef QT_NO_FILEDIALOG
@@ -161,7 +161,7 @@ public:
 public slots:
     void done(int);
     void setDir(const QString&);
-    void setUrl(const QUrlOperator &url);
+    void setUrl(const Q3UrlOperator &url);
     void setFilter(const QString&);
     void setFilters(const QString&);
     void setFilters(const char **);
@@ -217,13 +217,13 @@ private slots:
 
     void updateGeometries();
     void modeButtonsDestroyed();
-    void urlStart(QNetworkOperation *op);
-    void urlFinished(QNetworkOperation *op);
-    void dataTransferProgress(int bytesDone, int bytesTotal, QNetworkOperation *);
-    void insertEntry(const QList<QUrlInfo> &fi, QNetworkOperation *op);
-    void removeEntry(QNetworkOperation *);
-    void createdDirectory(const QUrlInfo &info, QNetworkOperation *);
-    void itemChanged(QNetworkOperation *);
+    void urlStart(Q3NetworkOperation *op);
+    void urlFinished(Q3NetworkOperation *op);
+    void dataTransferProgress(int bytesDone, int bytesTotal, Q3NetworkOperation *);
+    void insertEntry(const QList<QUrlInfo> &fi, Q3NetworkOperation *op);
+    void removeEntry(Q3NetworkOperation *);
+    void createdDirectory(const QUrlInfo &info, Q3NetworkOperation *);
+    void itemChanged(Q3NetworkOperation *);
     void goBack();
 
 private:
@@ -244,7 +244,7 @@ private:
     };
 
     void init();
-    bool trySetSelection(bool isDir, const QUrlOperator &, bool);
+    bool trySetSelection(bool isDir, const Q3UrlOperator &, bool);
     void deleteFile(const QString &filename);
     void popupContextMenu(const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p);

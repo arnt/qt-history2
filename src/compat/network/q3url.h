@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QUrl class
+** Definition of Q3Url class
 **
 ** Created : 950429
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QURL_H
-#define QURL_H
+#ifndef Q3URL_H
+#define Q3URL_H
 
 #ifndef QT_H
 #include "qstring.h"
@@ -44,16 +44,16 @@
 
 #ifndef QT_NO_URL
 
-class QUrlPrivate;
+class Q3UrlPrivate;
 
-class Q_EXPORT QUrl
+class Q_COMPAT_EXPORT Q3Url
 {
 public:
-    QUrl();
-    QUrl( const QString& url );
-    QUrl( const QUrl& url );
-    QUrl( const QUrl& url, const QString& relUrl, bool checkSlash = FALSE );
-    virtual ~QUrl();
+    Q3Url();
+    Q3Url( const QString& url );
+    Q3Url( const Q3Url& url );
+    Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash = FALSE );
+    virtual ~Q3Url();
 
     QString protocol() const;
     virtual void setProtocol( const QString& protocol );
@@ -97,10 +97,10 @@ public:
     QString fileName() const;
     QString dirPath() const;
 
-    QUrl& operator=( const QUrl& url );
-    QUrl& operator=( const QString& url );
+    Q3Url& operator=( const Q3Url& url );
+    Q3Url& operator=( const QString& url );
 
-    bool operator==( const QUrl& url ) const;
+    bool operator==( const Q3Url& url ) const;
     bool operator==( const QString& url ) const;
 
     static void decode( QString& url );
@@ -118,7 +118,7 @@ protected:
     virtual bool parse( const QString& url );
 
 private:
-    QUrlPrivate *d;
+    Q3UrlPrivate *d;
 
 };
 
