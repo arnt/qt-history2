@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#37 $
 **
 ** Implementation of movie classes
 **
@@ -63,7 +63,16 @@
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
   Mark property of CompuServe Incorporated.
 
-  <img src=qmovie.gif>
+  \warning Unisys has changed its position regarding GIF.  If you are
+  in a country where Unisys holds a patent on LZW compression and/or
+  decompression, Unisys may require a license for you.  These
+  countries include Canada, Japan, the USA, France, Germany, Italy
+  and the UK.  There is more information on Unisys web site:
+  <a href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
+  Unisys' position.</a> GIF support may be removed in a future version
+  of Qt.
+
+  <img src="qmovie.gif">
 
   \sa QLabel::setMovie()
 */
@@ -830,7 +839,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.36 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.37 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

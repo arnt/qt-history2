@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#169 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2353,25 +2353,29 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   The programmer can install new image file formats in addition to those
   that Qt implements.
 
-  Qt currently supports the following image file formats:
-    GIF, BMP, XBM, XPM and PNM.
-  The different PNM formats are: PBM (P1), PGM (P2), PPM (P3), PBMRAW (P4),
-  PGMRAW (P5) and PPMRAW (P6).
+  Qt currently supports the following image file formats: GIF (reading
+  only), BMP, XBM, XPM and PNM.  The different PNM formats are: PBM
+  (P1), PGM (P2), PPM (P3), PBMRAW (P4), PGMRAW (P5) and PPMRAW (P6).
 
   Additional formats are available with the
-  <a href="http://www.troll.no/imageio/">Qt Image IO Extension</a> package.
-
-  PBM, PGM, and PPM format output is only supported in PPMRAW format.
-
-  Due to patent restrictions, only GIF \e reading is provided.  Unisys
-  has a patent on one of the algorithms used for GIF writing, and
-  enforces it aggressively.
+  <a href="imageio.html">Qt Image IO Extension</a> package.
 
   You will normally not need to use this class, QPixmap::load(),
   QPixmap::save() and QImage contain most of the needed functionality.
 
-  For image files which contain sequences of images, only the first is read.
-  See the QMovie for loading multiple images.
+  For image files which contain sequences of images, only the first is
+  read.  See the QMovie for loading multiple images.
+
+  PBM, PGM, and PPM format output is only supported in PPMRAW format.
+
+  \warning Unisys has changed its position regarding GIF.  If you are
+  in a country where Unisys holds a patent on LZW compression and/or
+  decompression, Unisys may require a license for you.  These
+  countries include Canada, Japan, the USA, France, Germany, Italy
+  and the UK.  There is more information on Unisys web site:
+  <a href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
+  Unisys' position.</a> GIF support may be removed in a future version
+  of Qt.
 
   \sa QImage, QPixmap, QFile, QMovie
 */
