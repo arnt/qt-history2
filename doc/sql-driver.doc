@@ -59,7 +59,7 @@ The currently available drivers shipped with Qt are:
 \list
 \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
 \i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
-\i \link #QODBC3 QODBC3\endlink - ODBC (Open Database Connectivity) Driver
+\i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
@@ -161,19 +161,20 @@ database version and enable features accordingly.
 
 \section3 Unicode support
 
-If the Oracle server supports unicode, the OCI plugin will use the
-Utf8 encoding to communicate with the server. Oracle 8 only supports
-fetching unicode strings, Oracle 9 supports fetching as well as
-inserting unicode strings.
+If the Oracle server supports Unicode, the OCI plugin will use UTF-8
+encoding to communicate with the server. When accessing an Oracle 8
+database, only retrieval of Unicode strings are supported. For Oracle
+9 both retrieval and insertion of Unicode strings are supported.
 
 \section3 BLOB/LOB support
 
-Binary Large Objects (BLOBs) can be fetched but they consume a lot of
-memory. We recommend using separate queries and fetch only one BLOB at
-a time.
+Binary Large Objects (BLOBs) can be retrieved, but be aware that this
+process may require a lot of memory. We recommend using separate
+queries and retrieving only one BLOB at a time.
 
-Note that Oracle 9 doesn't support scrollable result sets with LOB columns,
-you have to use a forward only query to select LOB fields (see QSqlQuery::setForwardOnly()).
+Note that Oracle 9 doesn't support scrollable result sets with LOB
+columns, you have to use a forward only query to select LOB fields
+(see QSqlQuery::setForwardOnly()).
 
 Inserting (B)LOB fields is limited to Oracle's maximum SQL string size.
 
@@ -326,14 +327,16 @@ For more information about PostgreSQL visit \l http://www.postgresql.org.
 
 \section 3 Unicode support
 
-The QPSQL7 driver automatically detects whether PostgreSQL supports
-unicode and uses it if available. Note that the driver only supports
-Utf8. If your database uses any other encoding, the server has to be
-compiled with unicode conversion support.
+The QPSQL7 driver automatically detects whether the PostgreSQL
+database you are connecting to supports Unicode or not. Unicode is
+automatically used if the server supports it. Note that the driver
+only supports the UTF-8 encoding. If your database uses any other
+encoding, the server has to be compiled with Unicode conversion
+support.
 
-Unicode support has been introduced in PostgreSQL version 7.1 and only
-works if both the server and the client library have been compiled
-with multibyte support.  More information about how to set up a
+Unicode support was introduced in PostgreSQL version 7.1 and it will
+only work if both the server and the client library have been compiled
+with multibyte support. More information about how to set up a
 multibyte enabled PostgreSQL server can be found in the PostgreSQL
 Administrator Guide, Chapter 5.
 
