@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#24 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#25 $
 **
 ** Definition of QApplication class
 **
@@ -23,7 +23,7 @@ class QApplication				// application class
 {
 friend class QWidget;
 public:
-    QApplication( int argc, char **argv );
+    QApplication( int &argc, char **argv );
     virtual ~QApplication();
 
     static GUIStyle style();
