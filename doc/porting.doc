@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.47 1999/05/05 11:11:28 ettrich Exp $
+** $Id: porting.doc,v 1.48 1999/05/05 19:13:13 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -105,6 +105,7 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#QMenuData>QPopupMenu</a></b>
  <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
  <li><b><a href=#QPainter>QPainter</a></b>
+ <li><b><a href=#QPoint>QPoint, QSize and QRect</a></b>
  <li><b><a href=#QPixmap>QPixmap</a></b>
  <li><b><a href=#QRegion>QRegion</a></b>
  <li><b><a href=#QRgb>QRgb</a></b>
@@ -647,6 +648,9 @@ be shared.
 Remove all such calls. The default size of toplevel widgets will be their
 \link QWidget::sizeHint() sizeHint()\endlink.
 
+<p> The special maximum MaximumHeight/Width is now QWIDGETSIZE_MAX,
+not QCOORD_MAX.
+
 <p> \link QBoxLayout::addWidget() QBoxLayout::addWidget()\endlink
 now interprets the \e alignment parameter more aggressively.  A
 non-default alignment now indicates that the widget should not grow to
@@ -768,6 +772,14 @@ instead.
         NorROP, LastROP)
 is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
+
+
+<h3><a name=QPoint>QPoint, QSize and QRect</a></h3>
+
+<p>The basic coordinate datatype in these classes, QCOORD, is now 32
+bit (int) instead of a 16 bit (short). The const values QCOORD_MIN and
+QCOORD_MAX have changed accordingly.
+
 
 <h3><a name=QImage>QImage</a></h3>
 
