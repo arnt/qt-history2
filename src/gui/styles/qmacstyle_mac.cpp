@@ -47,6 +47,7 @@
 #include <qtextedit.h>
 #include <qtextstream.h>
 #include <qtoolbar.h>
+#include <qtoolbutton.h>
 #include <qtreeview.h>
 #include <qtimer.h>
 
