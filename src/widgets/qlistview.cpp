@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#46 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#46 $");
 
 
 const int Unsorted = 32767;
@@ -2194,4 +2194,376 @@ void QListView::repaintItem( const QListViewItem * item ) const
     QRect r( itemRect( item ) );
     if ( r.isValid() )
 	((QListView *)this)->viewport()->repaint( r );
+}
+
+
+
+
+
+/*!
+  \class QCheckListItem qlistview.h
+  \brief The QCheckListItem class implements checkable list view items.
+
+  There are three types of check list items: CheckBox, RadioButton and Controller.
+
+
+  Checkboxes may be inserted at top level in the list view. A radio button must
+  be child of a controller.
+*/
+
+
+/* XPM */
+static const char * def_item_xpm[] = {
+"16 16 4 1",
+" 	c None",
+".	c #000000000000",
+"X	c #FFFFFFFF0000",
+"o	c #C71BC30BC71B",
+"                ",
+"                ",
+" ..........     ",
+" .XXXXXXXX.     ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" ..........oo   ",
+"   oooooooooo   ",
+"   oooooooooo   ",
+"                ",
+"                "};
+
+
+
+
+static    QPixmap * tempIcon = 0; // ########### temporary!
+static const int BoxSize = 16;
+
+
+/*!
+  Constructs a checkable item with parent \a parent, text \a text and type
+  \a tt. Note that a RadioButton must be child of a Controller, otherwise
+  it will not toggle.
+ */
+QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text, Type tt )
+    : QListViewItem( parent, text, 0 )
+{
+    myType = tt;
+    pix = 0;
+    init();
+    if ( myType == RadioButton ) {
+	if ( parent->type() != Controller )
+	    warning( "QCheckListItem::QCheckListItem(), radio button must be " 
+		     "child of a controller" );
+	else 
+	    exclusive = parent;
+    }
+}
+
+/*!
+  Constructs a checkable item with parent \a parent, text \a text and type
+  \a tt. Note that \a tt must not be RadioButton, if so
+  it will not toggle.
+ */
+QCheckListItem::QCheckListItem( QListView *parent, const char *text, Type tt )
+    : QListViewItem( parent, text, 0 )
+{
+    myType = tt;
+    if ( tt == RadioButton )
+	warning( "QCheckListItem::QCheckListItem(), radio button must be "
+		 "child of a QCheckListItem" );
+    pix = 0;
+    init();
+}
+
+/*!
+  Constructs a Controller item with parent \a parent, text \a text and pixmap
+  \a p.
+ */
+QCheckListItem::QCheckListItem( QListView *parent, const char *text, QPixmap p )
+    : QListViewItem( parent, text, 0 )
+{
+    myType = Controller;
+    pix = new QPixmap(p);
+    init();
+}
+
+/*!
+  Constructs a Controller item with parent \a parent, text \a text and pixmap
+  \a p.
+ */
+QCheckListItem::QCheckListItem( QListViewItem *parent, const char *text, QPixmap p )
+    : QListViewItem( parent, text, 0 )
+{
+    myType = Controller;
+    pix = new QPixmap(p);
+    init();
+}
+
+void QCheckListItem::init()
+{
+    on = FALSE;
+    if ( !tempIcon )
+	tempIcon = new QPixmap( def_item_xpm );
+    if ( myType == Controller ) {
+	if ( !pix )
+	    pix = tempIcon; //#####
+    } else {
+	pix = 0;
+    }
+    exclusive = 0;
+}
+
+/*!
+  If this is a Controller that has RadioButton children, turn off the
+  child that is on.
+ */
+void QCheckListItem::turnOffChild()
+{
+    if ( myType == Controller && exclusive )
+	exclusive->setOn( FALSE );
+}
+
+/*!
+  Toggle checkbox, or set radiobutton on.
+ */
+void QCheckListItem::activate()
+{
+    if ( myType == CheckBox ) {
+	on = !on;
+	stateChange( on );
+    } else if ( myType == RadioButton ) {
+	if ( exclusive && exclusive->exclusive != this )
+	    exclusive->turnOffChild();
+	on = TRUE;
+	if ( exclusive )
+	    exclusive->exclusive = this;
+	stateChange( on );
+    }
+}
+
+/*!
+  Sets this button on of \a b is TRUE, off otherwise. Maintains radiobutton
+  exclusivity.
+ */
+void QCheckListItem::setOn( bool b  )
+{
+    if ( b == on )
+	return;
+    if ( myType == CheckBox ) {
+	on = b;
+	stateChange( b );
+    } else if ( myType == RadioButton ) {
+	if ( b ) {
+	    if ( exclusive && exclusive->exclusive != this )
+		exclusive->turnOffChild();
+	    on = TRUE;
+	    if ( exclusive )
+		exclusive->exclusive = this;
+	} else {
+	    if ( exclusive && exclusive->exclusive == this )
+		exclusive->exclusive = 0;
+	    on = FALSE;
+	}
+	stateChange( b );
+    }
+    repaint();
+}
+
+
+/*!
+  This virtual function is called when the item changes its on/off state.
+ */
+void QCheckListItem::stateChange( bool )
+{
+}
+
+/*!
+  Performs setup.
+ */
+void QCheckListItem::setup()
+{
+    QListViewItem::setup();
+    int h = height();
+    if ( myType == Controller && pix )
+	 h = QMAX( pix->height(), h );
+    h = QMAX( BoxSize, h );
+    setHeight( h );
+}
+
+
+/*!
+  Paints this item.
+ */
+void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
+			       int column, int width, bool showFocus ) const
+{
+    if ( !p )
+	return;
+
+    QListView *lv = listView();
+    if ( !lv )
+	return;
+    int r = 2;
+
+    p->fillRect( 0, 0, width, height(), cg.base() );
+
+    if ( column != 0 )
+	return; //### simplified...
+
+
+
+    bool winStyle = lv->style() == WindowsStyle;
+
+    if ( myType == Controller && pix ) {
+	p->drawPixmap( 0, (height()-pix->height())/2, *pix );
+	r += pix->width();
+    } else {	
+	ASSERT( lv ); //###
+	//	QFontMetrics fm( lv->font() );
+	//	int d = fm.height();
+	int x = 0;
+	int y = (height() - BoxSize) / 2;
+	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
+	if ( myType == CheckBox ) {
+	    p->setPen( QPen( cg.text(), 2 ) );
+	    p->drawRect( x+2, y+2, BoxSize-4, BoxSize-4 );
+	    /////////////////////
+	    x++;
+	    y++;
+	    if ( on ) {
+		QPointArray a( 7*2 );
+		int i, xx, yy;
+		xx = x+3;
+		yy = y+5;
+		for ( i=0; i<3; i++ ) {
+		    a.setPoint( 2*i,   xx, yy );
+		    a.setPoint( 2*i+1, xx, yy+2 );
+		    xx++; yy++;
+		}
+		yy -= 2;
+		for ( i=3; i<7; i++ ) {
+		    a.setPoint( 2*i,   xx, yy );
+		    a.setPoint( 2*i+1, xx, yy+2 );
+		    xx++; yy--;
+		}
+		p->setPen( black );
+		p->drawLineSegments( a );
+	    }
+	    ////////////////////////
+	} else { //radiobutton look
+	    if ( winStyle ) {
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
+
+		static QCOORD pts1[] = {		// dark lines
+		    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+		static QCOORD pts2[] = {		// black lines
+		    2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
+		static QCOORD pts3[] = {		// background lines
+		    2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
+		static QCOORD pts4[] = {		// white lines
+		    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+		    11,4, 10,3, 10,2 };
+		// static QCOORD pts5[] = {		// inner fill
+		//    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+		//QPointArray a;
+		//	p->eraseRect( x, y, w, h );
+
+		p->setPen( cg.text() );
+		QPointArray a( QCOORDARRLEN(pts1), pts1 );
+		a.translate( x, y );
+		//p->setPen( cg.dark() );
+		p->drawPolyline( a );
+		a.setPoints( QCOORDARRLEN(pts2), pts2 );
+		a.translate( x, y );
+		p->drawPolyline( a );
+		a.setPoints( QCOORDARRLEN(pts3), pts3 );
+		a.translate( x, y );
+		//		p->setPen( black );
+		p->drawPolyline( a );
+		a.setPoints( QCOORDARRLEN(pts4), pts4 );
+		a.translate( x, y );
+		//			p->setPen( blue );
+		p->drawPolyline( a );
+		//		a.setPoints( QCOORDARRLEN(pts5), pts5 );
+		//		a.translate( x, y );
+		//	QColor fillColor = isDown() ? g.background() : g.base();
+		//	p->setPen( fillColor );
+		//	p->setBrush( fillColor );
+		//	p->drawPolygon( a );
+		if ( on     ) {
+		    p->setPen( NoPen );
+		    p->setBrush( cg.text() );
+		    p->drawRect( x+5, y+4, 2, 4 );
+		    p->drawRect( x+4, y+5, 4, 2 );
+		}
+
+	    } else { //motif
+		p->setPen( QPen( cg.text() ) );
+		QPointArray a;
+		int cx = BoxSize/2 - 1;
+		int cy = height()/2;
+		int e = BoxSize/2 - 1;
+		for ( int i = 0; i < 3; i++ ) { //penWidth 2 doesn't quite work
+		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e ); 
+		    p->drawPolygon( a );
+		    e--;
+		}
+		if ( on ) { 
+		    p->setPen( QPen( cg.text()) );
+		    QBrush   saveBrush = p->brush();
+		    p->setBrush( cg.text() );
+		    e = e - 2;
+		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e ); 
+		    p->drawPolygon( a );
+		    p->setBrush( saveBrush );
+		}
+	    }
+	}
+	r += BoxSize + 4;
+    }
+
+#if 1
+    p->translate( r, 0 );
+    QListViewItem::paintCell( p, cg, column, width - r, showFocus );
+#else
+    const char * t = text();
+    if ( t ) {
+	if ( lv )
+	    p->setFont( lv->font() );
+
+	if ( isSelected() && column==0 ) {
+	    p->fillRect( r-2, 0, width - r + 2, height(),
+			 QApplication::winStyleHighlightColor() );
+	    p->setPen( white ); // ###
+	} else {
+	    p->setPen( cg.text() );
+	}
+
+	// should do the ellipsis thing here
+	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
+    }
+
+    if ( showFocus && !column ) {
+	if ( lv->style() == WindowsStyle ) {
+	    p->drawWinFocusRect( r-2, 0, width-r+2, height() );
+	} else {
+	    p->setPen( black );
+	    p->drawRect( r-2, 0, width-r+2, height() );
+	}
+    }
+#endif
+}
+
+/*!
+  Fills the rectangle. No decoration is drawn.
+ */
+void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
+			    int w, int, int h, GUIStyle) const
+{
+    p->fillRect( 0, 0, w, h, cg.base() );
+
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#21 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#22 $
 **
 ** Definition of QListView widget class
 **
@@ -188,5 +188,39 @@ private:
     friend QListViewItem;
 };
 
+class QCheckListItem : public QListViewItem
+{
+public:
+    enum Type { RadioButton, CheckBox, Controller };
+
+    QCheckListItem( QCheckListItem *parent, const char *text, Type= Controller );
+    QCheckListItem( QListView *parent, const char *text, Type = Controller );
+    QCheckListItem( QListViewItem *parent, const char *text, QPixmap );
+    QCheckListItem( QListView *parent, const char *text, QPixmap );
+
+    void paintCell( QPainter *,  const QColorGroup & cg,
+		    int column, int width, bool showFocus ) const;
+    void setup();
+
+    void setOn( bool );
+    bool isOn() const { return on; }
+    Type type() const { return myType; }
+    const char *text() const { return QListViewItem::text( 0 ); }
+
+protected:
+    void paintBranches( QPainter * p, const QColorGroup & cg,
+			int w, int y, int h, GUIStyle s ) const;
+
+    void activate();
+    void turnOffChild();
+    virtual void stateChange( bool );
+private:
+    void init();
+    Type myType;
+    bool on;
+    QCheckListItem *exclusive;
+
+    QPixmap *pix;
+};
 
 #endif // QLISTVIEW_H
