@@ -1247,14 +1247,17 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
     if ( section < 0 ) {
-	style().drawHeaderSection( p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), FALSE );
+	style().drawComplexControl( QStyle::CC_Header, p, this, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+				    colorGroup() );
 	return;
     }
 
     bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
-	style().drawHeaderSection( p, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), down );
+	style().drawComplexControl( QStyle::CC_Header, p, this, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
+				    colorGroup(), down ? QStyle::CStyle_Selected : QStyle::CStyle_Default,
+				    QStyle::SC_HeaderSection );
     } else {
 	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
@@ -1262,8 +1265,10 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawHeaderSection( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
-				     colorGroup(), down );
+	    style().drawComplexControl( QStyle::CC_Header, p, this, 
+					QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
+					colorGroup(), down ? QStyle::CStyle_Selected : QStyle::CStyle_Default,
+					QStyle::SC_HeaderSection );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x(), fr.y() + fr.height() - 1, fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1282,8 +1287,10 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawHeaderSection( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
-				     colorGroup(), down );
+	    style().drawComplexControl( QStyle::CC_Header, p, this, 
+					QRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4),
+					colorGroup(), down ? QStyle::CStyle_Selected : QStyle::CStyle_Default,
+					QStyle::SC_HeaderSection );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
 	    p->drawLine( fr.x() + width() - 1, fr.y(), fr.x() + fr.width() - 1, fr.y() + fr.height() - 1 );
@@ -1323,9 +1330,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 	s = tr("%1").arg(section);
 
     int m = 0;
-    if ( style() == WindowsStyle  &&
-	 index==handleIdx && ( state == Pressed || state == Moving ) )
-	m = 1;
+    if ( index==handleIdx && ( state == Pressed || state == Moving ) )
+	m = style().styleHint(QStyle::SH_Header_ExtraWidth, this );
 
     QRect r( fr.x() + QH_MARGIN+m, fr.y() + 2+m,
 	     fr.width() - 6, fr.height() - 4 );

@@ -149,14 +149,6 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 }
 
 /*! \reimp */
-void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
-				     const QColorGroup &g, bool down )
-{
-    drawPrimitive(PO_ButtonBevel, p, QRect(x, y, w, h), g,
-		  down ? PStyle_Sunken : PStyle_Default);
-}
-
-/*! \reimp */
 void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled )
 {
     drawItem( p, QRect(x, y, w, h), AlignCenter + ShowPrefix, g, enabled, 0, text );
@@ -874,12 +866,17 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       const QWidget *widget,
 				       const QRect &r,
 				       const QColorGroup &cg,
-				       CFlags,
+				       CFlags flags,
 				       SCFlags controls,
 				       SCFlags active,
 				       void *data ) const
 {
     switch (control) {
+    case CC_Header: {
+	drawPrimitive(PO_ButtonBevel, p, r, cg,
+		      flags & CStyle_Selected ? PStyle_Sunken : PStyle_Default);
+	break; }
+
     case CC_ToolButton: {
 	QToolButton *toolbutton = (QToolButton *) widget;
 	void **sdata = (void **) data;

@@ -242,7 +242,8 @@ public:
 	CC_Slider,
 	CC_ToolButton,
 	CC_TitleBar,
-	CC_ListView
+	CC_ListView,
+	CC_Header
 	/*
 	  CC_MenuItem,
 	*/
@@ -287,7 +288,10 @@ public:
 
 	SC_ListView              =      0x00000001,
 	SC_ListViewBranch        =      0x00000002,
-	SC_ListViewExpand        =      0x00000004
+	SC_ListViewExpand        =      0x00000004,
+
+	SC_Header                =      0x00000001,
+	SC_HeaderSection         =      0x00000002
 
 	/*
 	  SC_MenuItemCheck =		0x00000001,
@@ -313,6 +317,15 @@ public:
 					 const QWidget *widget,
 					 const QRect &r,
 					 void *data = 0 ) const = 0;
+    virtual void drawSubControl( SCFlags subCtrl,
+				 QPainter* p,
+				 const QWidget* w,
+				 const QRect& r,
+				 const QColorGroup& cg,
+				 CFlags flags = CStyle_Default,
+				 SCFlags subActive = SC_None,
+				 void* data = 0 ) const = 0;
+
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  const QWidget *widget,
@@ -394,8 +407,9 @@ public:
     enum StyleHint  {
 	SH_ScrollBar_BackgroundMode,
 	SH_ScrollBar_MiddleClickAbsolutePosition,
-	SH_ScrollBar_ScrollWhenPointerLeavesControl
+	SH_ScrollBar_ScrollWhenPointerLeavesControl,
 
+	SH_Header_ExtraWidth
 	/*
 	  FH_TabBarCentered
 	*/
@@ -485,7 +499,7 @@ public:
 					 QMenuItem* mi,
 					 const QFontMetrics& fm ) const = 0;
     virtual int popupSubmenuIndicatorWidth(
-					   const QFontMetrics& fm ) const;
+	const QFontMetrics& fm ) const;
     virtual int popupMenuItemHeight( bool checkable,
 				     QMenuItem* mi,
 				     const QFontMetrics& fm ) const = 0;
@@ -500,8 +514,6 @@ public:
     // styleHint and return pointers to pixmaps?
     virtual QPixmap titleBarPixmap( const QTitleBar *, SubControl ) const = 0;
 
-    // header
-    virtual void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;
 
     // groupbox
     virtual void drawGroupBoxTitle( QPainter *p,int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled ) = 0;

@@ -126,9 +126,6 @@ public:
     void tabbarMetrics( const QTabBar*, int&, int&, int& ) const;
     void drawTab( QPainter*, const QTabBar*, QTab*, bool selected );
 
-    // header
-    void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
-
     // groupbox
     void drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled );
     void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb );
