@@ -98,44 +98,24 @@ void QDesignerStackedWidget::updateButtons()
 
 void QDesignerStackedWidget::prevPage()
 {
-    if (/* FormWindow *fw = */FormWindow::findFormWindow(this)) {
+    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
             newIndex = count() -1;
-    
-#if 0 // ### port me [command]
-        QString pn(tr("Raise previous page of '%2'").arg(objectName()));
-        SetPropertyCommand *cmd =
-            new SetPropertyCommand(pn, fw, this,
-                                    "currentIndex", currentIndex(), newIndex);
+
+        SetPropertyCommand *cmd = new SetPropertyCommand(fw);
+        cmd->init(this, "currentIndex", newIndex);
         fw->commandHistory()->push(cmd);
-        if (IPropertySheet* sheet = Q_IDE_EXTENSION(fw->core(), this, IPropertySheet)) {
-            sheet->setChanged(sheet->indexOf("currentIndex"), true);
-        }
         updateButtons();
-#endif
     }
 }
 
 void QDesignerStackedWidget::nextPage()
 {
     if (FormWindow *fw = FormWindow::findFormWindow(this)) {
-
-        int newIndex = (currentIndex() + 1) % count();
-    
-#if 0 // ### port me [command]
-        QString pn(tr("Raise next page of '%2'").arg(objectName()));
-        SetPropertyCommand *cmd =
-            new SetPropertyCommand(pn, fw, this, fw->core()->propertyEditor(),
-                                    "currentIndex", currentIndex(),
-                                    newIndex, QString::null, QString::null);
+        SetPropertyCommand *cmd = new SetPropertyCommand(fw);
+        cmd->init(this, "currentIndex", (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);
-#endif
-        setCurrentIndex(newIndex);
-    
-        if (IPropertySheet* sheet = qt_extension<IPropertySheet*>(fw->core()->extensionManager(), this)) {
-            sheet->setChanged(sheet->indexOf("currentIndex"), true);
-        }
         updateButtons();
     }
 }
