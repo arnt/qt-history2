@@ -80,8 +80,8 @@ class QPicturePrivate : public QShared, public QPaintCommands
 {
     Q_DECLARE_PUBLIC(QPicture);
     friend class QPicturePaintEngine;
-    friend QDataStream &operator<<(QDataStream &s, const QPicture &r);
-    friend QDataStream &operator>>(QDataStream &s, QPicture &r);
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPicture &r);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &s, QPicture &r);
 
 public:
     QPicturePrivate() : q_ptr(0) {}
