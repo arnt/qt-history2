@@ -142,11 +142,13 @@ void QDockArea::setupLayout()
 void QDockArea::setupHorizontalLayout()
 {
     delete layout;
-    layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
+    layout = 0;
     insertedSplitters.clear();
 
     if ( !sections )
 	return;
+
+    layout = new QBoxLayout( this, QBoxLayout::TopToBottom );
 
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
@@ -193,11 +195,13 @@ void QDockArea::setupHorizontalLayout()
 void QDockArea::setupVerticalLayout()
 {
     delete layout;
-    layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
+    layout = 0;
     insertedSplitters.clear();
 
     if ( !sections )
 	return;
+
+    layout = new QBoxLayout( this, QBoxLayout::LeftToRight );
 
     QVector<QBoxLayout> layouts;
     layouts.resize( sections );
