@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#18 $
 **
 ** Implementation of QAccel class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#18 $")
 
 
 /*!
@@ -114,8 +114,8 @@ QAccel::QAccel( QWidget *parent, const char *name )
 
 QAccel::~QAccel()
 {
-    if ( parent() )
-	parent()->topLevelWidget()->removeEventFilter( this );
+    if ( parentWidget() )
+	parentWidget()->topLevelWidget()->removeEventFilter( this );
     emit destroyed();
     delete aitems;
 }
