@@ -111,8 +111,9 @@ void QPaintEngine::drawPath(const QPainterPath &)
 
 void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 {
-    bool useFontEngine = true;
+    bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
+	useFontEngine = true;
         if (state->txop > QPainter::TxTranslate) {
             useFontEngine = false;
             QFontEngine *fe = ti.fontEngine;
@@ -133,6 +134,7 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
     }
 
     if (!useFontEngine) {
+	qWarning("pper");
         // Fallback: rasterize into a pixmap and draw the pixmap
         QPixmap pm(ti.width, ti.ascent + ti.descent);
         pm.fill(Qt::white);
