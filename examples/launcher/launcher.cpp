@@ -16,7 +16,6 @@ struct {
     const char* label;
     const char* file;
 } command[] = {
-    { "Info Kiosk - MPEGs", "( cd ../kiosk; exec ./kiosk)" },
     { "Help Text Browser", "(cd ../helpviewer; exec ../helpviewer/helpviewer)" },
     { "Canvas - alpha-blending", "( cd ../canvas; exec ./canvas )" },
     { "Text Editor", "exec ../qwerty/qwerty ../qwerty/unicode.txt" },

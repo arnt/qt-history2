@@ -490,6 +490,10 @@ if (!$notplatform{win}) {
 
     &rmrf( "$qtdir/extensions/xt" );
 
+    # delete kiosk
+
+    &rmrf( "$qtdir/examples/kiosk" );
+
     # Generate makefiles
 
     mkdir "$qtdir/lib",0777 unless ( -d "$qtdir/lib" );
