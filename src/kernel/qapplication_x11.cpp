@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#117 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include <locale.h>
+#include <errno.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -34,13 +35,13 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <qmemchk.h>
 #endif
 
-#if defined(_OS_LINUX_)
+#if defined(_OS_LINUX_) && defined(DEBUG)
 #include <qfile.h>
 #include <qstring.h>
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#116 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#117 $")
 
 
 /*****************************************************************************
@@ -1042,7 +1043,7 @@ static void sn_activate()
 	    QSockNot *sn = list->first();
 	    while ( sn ) {
 		if ( FD_ISSET(sn->fd,fds) )	// store away for activation
-		    sn_rnd_dict->insert( random(), sn->obj );
+		    sn_rnd_dict->insert( rand(), sn->obj );
 		sn = list->next();
 	    }
 	}
