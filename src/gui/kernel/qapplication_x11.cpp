@@ -712,9 +712,9 @@ bool QApplication::x11_apply_settings()
 
     if (appliedstamp && appliedstamp == settingsstamp.toTime_t())
         return true;
-    
+
     settings.beginGroup(QLatin1String("Qt"));
-    
+
     appliedstamp = settingsstamp.toTime_t();
 
     if (! timestamp.isValid() || settingsstamp > timestamp)
@@ -772,7 +772,7 @@ bool QApplication::x11_apply_settings()
         QApplication::setPalette(pal);
         *qt_std_pal = pal;
     }
-    
+
     if (!qt_app_has_font) {
         QFont font(QApplication::font());
         QString str = settings.value(QLatin1String("font")).toString();
@@ -910,7 +910,7 @@ bool QApplication::x11_apply_settings()
     }
 
     settings.endGroup(); // Qt
-    
+
     return true;
 }
 
@@ -1899,7 +1899,7 @@ void qt_init(QApplicationPrivate *priv, int,
 
                 qt_resolve_symlinks =
                     settings.value(QLatin1String("resolveSymlinks"), true).toBool();
-            
+
                 settings.endGroup(); // Qt
             }
         }
@@ -2994,7 +2994,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (event->xcrossing.mode != NotifyNormal)
             break;
         if (!widget->isDesktop())
-            widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
+             widget->translateMouseEvent(event); //we don't get MotionNotify, emulate it
 
         QWidget* enter = 0;
         XEvent ev;
@@ -3431,7 +3431,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         return true;
 
     static int x_root_save = -1, y_root_save = -1;
-
     if (event->type == MotionNotify) { // mouse move
         if (event->xmotion.root != RootWindow(X11->display, x11Info().screen()) &&
             ! qt_xdnd_dragging)
@@ -3469,17 +3468,6 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
                                         Qt::MidButton |
                                         Qt::RightButton)) == 0)
             qt_button_down = 0;
-
-        // throw away mouse move events that are sent multiple times to the same
-        // position
-        bool throw_away = false;
-        if (x_root_save == globalPos.x() &&
-            y_root_save == globalPos.y())
-            throw_away = true;
-        x_root_save = globalPos.x();
-        y_root_save = globalPos.y();
-        if (throw_away)
-            return true;
     } else if (event->type == EnterNotify || event->type == LeaveNotify) {
         XEvent *xevent = (XEvent *)event;
         //unsigned int xstate = event->xcrossing.state;
@@ -3487,6 +3475,9 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         pos.rx() = xevent->xcrossing.x;
         pos.ry() = xevent->xcrossing.y;
         pos = d->mapFromWS(pos);
+        if (xevent->xcrossing.x_root == x_root_save
+            && xevent->xcrossing.y_root == y_root_save)
+            return false;
         globalPos.rx() = xevent->xcrossing.x_root;
         globalPos.ry() = xevent->xcrossing.y_root;
         state = translateButtonState(xevent->xcrossing.state);
@@ -3607,6 +3598,8 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         QWidget *activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = qApp->activePopupWidget();
         if (popup != this) {
+            if (event->type == LeaveNotify)
+                return false;
             if (testWFlags(Qt::WType_Popup) && rect().contains(pos))
                 popup = this;
             else                                // send to last popup
