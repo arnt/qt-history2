@@ -2152,6 +2152,9 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	}
     }
 
+    if ( !d->currentItem && hasFocus() )
+ 	setCurrentItem( d->firstItem );
+    
     d->count++;
     d->dirty = TRUE;
 }
@@ -2363,7 +2366,7 @@ QIconViewItem *QIconView::currentItem() const
 
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
-    if ( item == d->currentItem || !item )
+    if ( item == d->currentItem || ( !item && d->firstItem ) )
 	return;
     QIconViewItem *old = d->currentItem;
     d->currentItem = item;
@@ -2965,7 +2968,8 @@ void QIconView::clear()
     clearSelection();
     blockSignals( FALSE );
     setContentsPos( 0, 0 );
-
+    d->currentItem = 0;
+    
     if ( !d->firstItem ) {
 	d->clearing = FALSE;
 	return;
@@ -3358,7 +3362,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     d->dragStartPos = e->pos();
     QIconViewItem *item = findItem( e->pos() );
-    
+
     if ( d->currentItem )
 	d->currentItem->renameItem();
 
@@ -3435,7 +3439,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	    else
 		item->setSelected( TRUE, e->state() & ControlButton );
 	}
-    } else if ( ( d->selectionMode != Single || e->button() == RightButton ) 
+    } else if ( ( d->selectionMode != Single || e->button() == RightButton )
 		&& !( e->state() & ControlButton ) )
 	selectAll( FALSE );
 
@@ -3745,16 +3749,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	return;
 
     if ( !d->currentItem ) {
-	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
-	    findItemByName( e->text() );
-	    return;
-	}
-	
-	if ( e->key() == Key_Control )
-	    return;
-
 	setCurrentItem( d->firstItem );
-
 	if ( d->selectionMode == Single )
 	    d->currentItem->setSelected( TRUE, TRUE );
 	return;

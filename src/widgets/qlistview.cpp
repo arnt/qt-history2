@@ -561,6 +561,9 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     lsc = Unsorted;
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
+    QListView *lv = listView();
+    if ( lv && lv->hasFocus() && !lv->d->focusItem )
+	lv->setCurrentItem( lv->firstChild() );
 }
 
 
@@ -3282,7 +3285,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) 
+    else if ( firstChild() && e->reason() != QFocusEvent::Mouse )
 	setCurrentItem( firstChild() );
 }
 
@@ -3302,12 +3305,16 @@ void QListView::focusOutEvent( QFocusEvent * )
 
 void QListView::keyPressEvent( QKeyEvent * e )
 {
-    if ( !e )
+    if ( !e || !firstChild() )
 	return; // subclass bug
-
+    
     QListViewItem* oldCurrent = currentItem();
-    if ( !oldCurrent )
+    if ( !oldCurrent ) {
+	setCurrentItem( firstChild() );
+	if ( d->selectionMode == Single )
+	    setSelected( firstChild(), TRUE );
 	return;
+    }
 
     QListViewItem * i = currentItem();
 
@@ -3732,9 +3739,9 @@ QListViewItem * QListView::selectedItem() const
 
 void QListView::setCurrentItem( QListViewItem * i )
 {
-    if ( !i )
+    if ( !i && firstChild() )
 	return;
-    
+
     QListViewItem * prev = d->focusItem;
     d->focusItem = i;
 

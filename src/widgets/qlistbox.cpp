@@ -1000,6 +1000,8 @@ void QListBox::insertStrList( const QStrList & list, int index )
 	insertItem( new QListBoxText(QString::fromLatin1(txt)),
 		    index++ );
     }
+    if ( hasFocus() && !d->current )
+	setCurrentItem( d->head );
 }
 
 
@@ -1038,6 +1040,8 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 		    index + i );
 	i++;
     }
+    if ( hasFocus() && !d->current )
+	setCurrentItem( d->head );
 }
 
 /*!
@@ -1089,6 +1093,9 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	}
     }
 
+    if ( hasFocus() && !d->current )
+	setCurrentItem( d->head );
+    
     d->count++;
     triggerUpdate( TRUE );
 }
@@ -1134,6 +1141,9 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 		item->p->n = item;
 	}
     }
+
+    if ( hasFocus() && !d->current )
+	setCurrentItem( d->head );
 
     d->count++;
     triggerUpdate( TRUE );
@@ -1400,7 +1410,7 @@ void QListBox::setCurrentItem( int index )
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
-    if ( d->current == i || !i )
+    if ( d->current == i || ( !i && d->head ) )
 	return;
     QListBoxItem * o = d->current;
     d->current = i;
@@ -1413,7 +1423,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 	    setSelected( i, TRUE );
     }
 #endif
-    
+
     int ind = index( i );
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
@@ -1800,9 +1810,12 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     if ( count() == 0 )
 	return;
     QListBoxItem *old = d->current;
-    if ( currentItem() == 0 )
+    if ( !old ) {
 	setCurrentItem( d->head );
-    old = d->current;
+	if ( d->selectionMode == Single )
+	    setSelected( d->head, TRUE );
+	return;
+    }
 
     switch ( e->key() ) {
     case Key_Up:
