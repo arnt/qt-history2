@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#51 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#51 $";
 #endif
 
 
@@ -1065,12 +1065,16 @@ QString QString::simplifyWhiteSpace() const
 
 
 /*----------------------------------------------------------------------------
-  Insert \e s into the string before position \e index.  If \e index
-  is too large, \e s is inserted at the end of the string.
+  Insert \e s into the string before position \e index.
+
+  If \e index is beyond the end of the string, the string is extended with
+  spaces (ASCII 32) to length \e index and \e s is then appended.
 
   \code
     QString s = "I like fish";
     s.insert( 2, "don't ");		// s == "I don't like fish"
+    s = "x";
+    s.insert( 3, "yz" );		// s == "x  yz"
   \endcode
  ----------------------------------------------------------------------------*/
 
@@ -1098,12 +1102,13 @@ QString &QString::insert( uint index, const char *s )
   Insert \e c into the string at (before) position \e index and returns
   a reference to the string.
 
-  If \e index is too large, \e c is inserted at the end of the string.
+  If \e index is beyond the end of the string, the string is extended with
+  spaces (ASCII 32) to length \e index and \e c is then appended.
 
   Example:
   \code
     QString s = "Yes";
-    s.insert( 12528, '!');	// s == "Yes!"
+    s.insert( 3, '!');			// s == "Yes!"
   \endcode
 
   \sa remove(), replace()
