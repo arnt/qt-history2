@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#8 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -23,7 +23,7 @@ class QColorGroup				// color group class
 public:
     QColorGroup();				// all colors black
     QColorGroup( const QColor &foreground, const QColor &background,
-		 const QColor &light, const QColor &dark, const QColor &medium,
+		 const QColor &light, const QColor &dark, const QColor &mid,
 		 const QColor &text, const QColor &base);
    ~QColorGroup();
 
