@@ -407,9 +407,33 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
     QTableWidget class.
 
     \ingroup model-view
-    \mainclass
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    Table items are used to hold pieces of information for table widgets.
+    Items usually contain text, icons, or checkboxes
+
+    The QTableWidgetItem class is a convenience class that replaces the
+    \c QTableItem class in Qt 3. It provides an item for use with
+    the QTableWidget class.
+
+    Items are usually constructed with a table widget as their parent then
+    inserted at a particular position specified by row and column numbers:
+
+    \quotefile snippets/qtablewidget-using/mainwindow.cpp
+    \skipto QTableWidgetItem *newItem
+    \printuntil tableWidget->setItem(
+
+    Each item can have its own background color which is set with
+    the setBackgroundColor() function. The current background color can be
+    found with backgroundColor().
+    The text label for each item can be rendered with its own font and text
+    color. These are specified with the setFont() and setTextColor() functions,
+    and read with font() and textColor().
+
+    Items can be made checkable by setting the appropriate flag value with the
+    setFlags() function. The current state of the item's flags can be read
+    with flags().
+
+    \sa QTableWidget
 */
 
 /*!
@@ -686,15 +710,52 @@ void QTableWidgetItem::clear()
     \ingroup model-view
     \mainclass
 
+    Table widgets provide standard table display facilities for applications.
+    The items in a QTableWidget are provided by QTableWidgetItem.
+
     If you want a table that uses your own data model you should
     use QTableView rather than this class.
 
-    Items are set with setItem(), or with setText() or setIcon();
-    these last two are convenience functions that create a QTableWidgetItem
-    for you. The number of rows is set with setRowCount(), and the
-    number of columns with setColumnCount().
+    Table widgets can be constructed with the required numbers of rows and
+    columns:
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
+    \quotefile snippets/qtablewidget-using/mainwindow.cpp
+    \skipto tableWidget = new
+    \printuntil tableWidget = new
+
+    Alternatively, tables can be constructed without a given size and resized
+    later:
+
+    \quotefile snippets/qtablewidget-resizing/mainwindow.cpp
+    \skipto tableWidget = new
+    \printuntil tableWidget = new
+    \skipto tableWidget->setRowCount(
+    \printuntil tableWidget->setColumnCount(
+
+    Items are created ouside the table (with no parent widget) and inserted
+    into the table with setItem():
+
+    \skipto QTableWidgetItem *newItem
+    \printuntil tableWidget->setItem(
+
+    Tables can be given both horizontal and vertical headers. The simplest way
+    to create the headers is to supply a list of strings to the
+    setHorizontalHeaderLabels() and setVerticalHeaderLabels() functions. These
+    will provide simple textual headers for the table's columns and rows.
+    More sophisticated headers can be created from existing table items
+    that are usually constructed outside the table. For example, we can
+    construct a table item with an icon and aligned text, and use it as the
+    header for a particular column:
+
+    \quotefile snippets/qtablewidget-using/mainwindow.cpp
+    \skipto QTableWidgetItem *cubesHeaderItem
+    \printuntil cubesHeaderItem->setTextAlignment
+
+    The number of rows in the table can be found with rowCount(), and the
+    number of columns with columnCount(). The table can be cleared with the
+    clear() function.
+
+    \sa QTableWidgetItem \link model-view-programming.html Model/View Programming\endlink
 */
 
 /*!

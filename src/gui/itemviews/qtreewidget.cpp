@@ -586,7 +586,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 
   \ingroup model-view
 
-  A tree widget item is used to display a row of information in a tree widget.
+  Tree widget items are used to hold rows of information for tree widgets.
   Rows usually contain several columns of data, each of which can contain
   a text label and an icon.
 
@@ -1614,7 +1614,7 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 
 /*!
   Returns a list of items that match the given \a text, using the criteria
-  given by the \a flags.
+  given by the \a flags (see QAbstractItemModel::MatchFlags).
 */
 
 QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,

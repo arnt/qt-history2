@@ -952,7 +952,7 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 
 /*!
   Finds items that matches the \a text, using the criteria given in the
-  \a flags (see {QAbstractItemModel::MatchFlags}).
+  \a flags (see QAbstractItemModel::MatchFlags).
 */
 
 QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
