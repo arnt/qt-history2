@@ -21,6 +21,7 @@ protected slots:
     void fieldUp();
     void removeField();
     void addField();
+    void setupDatabaseConnections();
 
 private:
     QWidget *widget;

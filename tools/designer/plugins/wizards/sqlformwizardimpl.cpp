@@ -10,6 +10,8 @@
 #include <qlayout.h>
 #include <qsqleditorfactory.h>
 
+#include "../designerinterface.h"
+
 SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
 			      const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
 			      QWidget* parent,  const char* name, bool modal, WFlags fl )
@@ -99,4 +101,15 @@ void SqlFormWizard::addField()
     if ( !f.isEmpty() )
 	listBoxSelectedField->insertItem( f );
     listBoxField->removeItem( i );
+}
+
+void SqlFormWizard::setupDatabaseConnections()
+{
+    if ( !appIface )
+	return;
+
+    DesignerMainWindowInterface *mwIface = (DesignerMainWindowInterface*)appIface->queryInterface( IID_DesignerMainWindowInterface );
+    if ( !mwIface )
+	return;
+    mwIface->editDatabaseConnections();
 }

@@ -40,6 +40,73 @@ private:
     unsigned long ref;
 };
 
+class DesignerMainWindowInterfaceImpl : public DesignerMainWindowInterface
+{
+public:
+    DesignerMainWindowInterfaceImpl( QUnknownInterface *);
+    virtual ~DesignerMainWindowInterfaceImpl();
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    void fileNew();
+    void fileNewProject();
+    void fileCloseProject();
+    void fileOpen();
+    bool fileSave();
+    bool fileSaveAs();
+    void fileSaveAll();
+    void fileCreateTemplate();
+
+    void editUndo();
+    void editRedo();
+    void editCut();
+    void editCopy();
+    void editPaste();
+    void editDelete();
+    void editSelectAll();
+    void editLower();
+    void editRaise();
+    void editAdjustSize();
+    void editLayoutHorizontal();
+    void editLayoutVertical();
+    void editLayoutHorizontalSplit();
+    void editLayoutVerticalSplit();
+    void editLayoutGrid();
+    void editLayoutContainerHorizontal();
+    void editLayoutContainerVertical();
+    void editLayoutContainerGrid();
+    void editBreakLayout();
+    void editAccels();
+    void editSlots();
+    void editConnections();
+    void editFormSettings();
+    void editProjectSettings();
+    void editDatabaseConnections();
+    void editPreferences();
+
+    void previewForm();
+    void previewForm( const QString& );
+    void windowPropertyEditor( bool );
+    void windowHierarchyView( bool );
+    void windowFormList( bool );
+    void windowActionEditor( bool );
+
+    void toolsCustomWidget();
+
+    void helpContents();
+    void helpManual();
+    void helpAbout();
+    void helpAboutQt();
+
+private:
+    QUnknownInterface* appIface;
+    MainWindow *mainWindow;
+    unsigned long ref;
+
+};
+
 class DesignerStatusBarInterfaceImpl : public DesignerStatusBarInterface
 {
 public:

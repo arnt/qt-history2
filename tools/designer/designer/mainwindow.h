@@ -130,7 +130,7 @@ protected:
     bool eventFilter( QObject *o, QEvent *e );
     void closeEvent( QCloseEvent *e );
 
-private slots:
+public slots:
     void fileNew();
     void fileNewProject();
     void fileCloseProject();

@@ -35,6 +35,8 @@ QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid
 	iface = new DesignerWidgetListInterfaceImpl( this );
     else if ( guid == IID_DesignerWidgetInterface )
 	iface = new DesignerWidgetInterfaceImpl( 0, this );
+    else if ( guid == IID_DesignerMainWindowInterface )
+	iface = new DesignerMainWindowInterfaceImpl( this );
 
     if ( iface )
 	iface->addRef();
@@ -75,6 +77,367 @@ QString DesignerApplicationInterfaceImpl::author() const
 {
     return "Trolltech";
 }
+
+
+
+
+
+DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( QUnknownInterface *ai )
+    : DesignerMainWindowInterface(), appIface( ai )
+{
+    QWidget *mw = qApp ? qApp->mainWidget() : 0;
+    if ( mw && mw->inherits( "MainWindow" ) )
+	mainWindow = (MainWindow*)mw;
+    else
+	mainWindow = 0;
+
+    appIface->addRef();
+}
+
+DesignerMainWindowInterfaceImpl::~DesignerMainWindowInterfaceImpl()
+{
+}
+
+QUnknownInterface *DesignerMainWindowInterfaceImpl::queryInterface( const QGuid &guid )
+{
+    return appIface->queryInterface( guid );
+}
+
+unsigned long DesignerMainWindowInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerMainWindowInterfaceImpl::release()
+{
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+void DesignerMainWindowInterfaceImpl::fileNew()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileNew();
+}
+
+void DesignerMainWindowInterfaceImpl::fileNewProject()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileNewProject();
+}
+
+void DesignerMainWindowInterfaceImpl::fileCloseProject()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileCloseProject();
+}
+
+void DesignerMainWindowInterfaceImpl::fileOpen()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileOpen();
+}
+
+bool DesignerMainWindowInterfaceImpl::fileSave()
+{
+    if ( !mainWindow )
+	return FALSE;
+    return mainWindow->fileSave();
+}
+
+bool DesignerMainWindowInterfaceImpl::fileSaveAs()
+{
+    if ( !mainWindow )
+	return FALSE;
+    return mainWindow->fileSaveAs();
+}
+
+void DesignerMainWindowInterfaceImpl::fileSaveAll()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileSaveAll();
+}
+
+void DesignerMainWindowInterfaceImpl::fileCreateTemplate()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->fileCreateTemplate();
+}
+
+void DesignerMainWindowInterfaceImpl::editUndo()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editUndo();
+}
+
+void DesignerMainWindowInterfaceImpl::editRedo()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editRedo();
+}
+
+void DesignerMainWindowInterfaceImpl::editCut()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editCut();
+}
+
+void DesignerMainWindowInterfaceImpl::editCopy()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editCopy();
+}
+
+void DesignerMainWindowInterfaceImpl::editPaste()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editPaste();
+}
+
+void DesignerMainWindowInterfaceImpl::editDelete()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editDelete();
+}
+
+void DesignerMainWindowInterfaceImpl::editSelectAll()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editSelectAll();
+}
+
+void DesignerMainWindowInterfaceImpl::editLower()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLower();
+}
+
+void DesignerMainWindowInterfaceImpl::editRaise()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editRaise();
+}
+
+void DesignerMainWindowInterfaceImpl::editAdjustSize()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editAdjustSize();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutHorizontal()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutHorizontal();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutVertical()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutVertical();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutHorizontalSplit()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutHorizontalSplit();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutVerticalSplit()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutVerticalSplit();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutGrid()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutGrid();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutContainerHorizontal()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutContainerHorizontal();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutContainerVertical()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutContainerVertical();
+}
+
+void DesignerMainWindowInterfaceImpl::editLayoutContainerGrid()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editLayoutContainerGrid();
+}
+
+void DesignerMainWindowInterfaceImpl::editBreakLayout()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editBreakLayout();
+}
+
+void DesignerMainWindowInterfaceImpl::editAccels()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editAccels();
+}
+
+void DesignerMainWindowInterfaceImpl::editSlots()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editSlots();
+}
+
+void DesignerMainWindowInterfaceImpl::editConnections()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editConnections();
+}
+
+void DesignerMainWindowInterfaceImpl::editFormSettings()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editFormSettings();
+}
+
+void DesignerMainWindowInterfaceImpl::editProjectSettings()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editProjectSettings();
+}
+
+void DesignerMainWindowInterfaceImpl::editDatabaseConnections()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editDatabaseConnections();
+}
+
+void DesignerMainWindowInterfaceImpl::editPreferences()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->editPreferences();
+}
+
+void DesignerMainWindowInterfaceImpl::previewForm()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->previewForm();
+}
+
+void DesignerMainWindowInterfaceImpl::previewForm( const QString &s )
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->previewForm( s );
+}
+
+void DesignerMainWindowInterfaceImpl::windowPropertyEditor( bool b )
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->windowPropertyEditor( b );
+}
+
+void DesignerMainWindowInterfaceImpl::windowHierarchyView( bool b )
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->windowHierarchyView( b );
+}
+
+void DesignerMainWindowInterfaceImpl::windowFormList( bool b )
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->windowFormList( b );
+}
+
+void DesignerMainWindowInterfaceImpl::windowActionEditor( bool b )
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->windowActionEditor( b );
+}
+
+void DesignerMainWindowInterfaceImpl::toolsCustomWidget()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->toolsCustomWidget();
+}
+
+void DesignerMainWindowInterfaceImpl::helpContents()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->helpContents();
+}
+
+void DesignerMainWindowInterfaceImpl::helpManual()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->helpManual();
+}
+
+void DesignerMainWindowInterfaceImpl::helpAbout()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->helpAbout();
+}
+
+void DesignerMainWindowInterfaceImpl::helpAboutQt()
+{
+    if ( !mainWindow )
+	return;
+    mainWindow->helpAboutQt();
+}
+
+
+
+
+
 
 /*
  * StatusBar Interface
