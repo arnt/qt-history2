@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#37 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -30,16 +30,9 @@
 #include "qdatastream.h"
 #include "qmessagebox.h"
 #include "qbitmap.h"
-
-
-#if _MSC_VER <= 1000
-#define bool unused_bool
-#include <ole2.h>          
-#undef bool
-#endif
-
-#include <windows.h>
+#include "qt_windows.h"
 #include <shlobj.h>
+
 
 extern WindowsVersion qt_winver;
 

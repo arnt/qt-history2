@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#50 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -23,14 +23,8 @@
 
 #include "qcolor.h"
 #include "qapplication.h"
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 /*****************************************************************************
   QColor static member functions

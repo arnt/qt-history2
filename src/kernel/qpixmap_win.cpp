@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#73 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -26,14 +26,8 @@
 #include "qpaintdevicedefs.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#78 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -30,14 +30,8 @@
 #include "qcache.h"
 #include "qdict.h"
 #include <limits.h>
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool	
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 

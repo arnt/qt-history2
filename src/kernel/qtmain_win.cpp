@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#4 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -22,13 +22,7 @@
 *****************************************************************************/
 
 #include "qapplication.h"
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
+#include "qt_windows.h"
 
 
 /*

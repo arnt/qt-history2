@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#20 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -25,14 +25,8 @@
 #include "qapplication.h"
 #include "qpixmap.h"
 #include "qdatetime.h"
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 /*****************************************************************************
   Internal QClipboard functions for Win32.

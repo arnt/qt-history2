@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#308 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#309 $
 **
 ** Implementation of QWidget class
 **
@@ -34,14 +34,9 @@
 #include "qbrush.h"
 #include "qlayout.h"
 #if defined(_WS_WIN_)
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
+#include "qt_windows.h"
 #endif
-#endif
+
 
 /*!
   \class QWidget qwidget.h

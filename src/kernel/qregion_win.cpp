@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#38 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -24,14 +24,8 @@
 #include "qregion.h"
 #include "qpointarray.h"
 #include "qbuffer.h"
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 static QRegion *empty_region = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#203 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -31,19 +31,12 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include <ctype.h>
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
 #include <mywinsock.h>
 #endif
-#include <ole2.h>
 
 #if !defined(QT_MAKEDLL)
 #define QAPPLICATION_WIN_CPP

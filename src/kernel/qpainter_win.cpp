@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#111 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -30,14 +30,8 @@
 #include "qintdict.h"
 #include <stdlib.h>
 #include <math.h>
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 

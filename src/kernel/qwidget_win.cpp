@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#149 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -33,14 +33,8 @@
 #include "qimage.h"
 #include "qfocusdata.h"
 #include "qlayout.h"
+#include "qt_windows.h"
 
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
