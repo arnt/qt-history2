@@ -384,10 +384,10 @@ int QMacMimeText::flavorFor(const char* mime)
     if(!qstricmp(mime, "text/plain"))
 	return kScrapFlavorTypeText;
     QByteArray m(mime);
-    int i = m.find("charset=");
+    int i = m.indexOf("charset=");
     if(i >= 0) {
 	QByteArray cs(m.data()+i+8);
-	i = cs.find(";");
+	i = cs.indexOf(";");
 	if(i>=0)
 	    cs = cs.left(i);
 	if(cs == "system")
