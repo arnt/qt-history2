@@ -507,16 +507,36 @@ void QWidget::unsetCursor()
 
 void QWidget::setCaption( const QString &cap )
 {
-    SetWTitle((WindowPtr)winid, p_str(cap.latin1()));
+    if ( extra && extra->topextra && extra->topextra->caption == cap )
+	return; // for less flicker
+    createTLExtra();
+    extra->topextra->caption = cap;
+    if(isTopLevel())
+	SetWTitle((WindowPtr)hd, p_str(cap.latin1()));
+    QEvent e( QEvent::CaptionChange );
+    QApplication::sendEvent( this, &e );
 }
 
-void QWidget::setIcon( const QPixmap & )
+void QWidget::setIcon( const QPixmap &pixmap )
 {
+    if ( extra && extra->topextra ) {
+	delete extra->topextra->icon;
+	extra->topextra->icon = 0;
+    } else {
+	createTLExtra();
+    }
+    QBitmap mask;
+    if ( pixmap.isNull() ) {
+    } else {
+	extra->topextra->icon = new QPixmap( pixmap );
+	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
+    }
 }
 
-
-void QWidget::setIconText( const QString & )
+void QWidget::setIconText( const QString &iconText )
 {
+    createTLExtra();
+    extra->topextra->iconText = iconText;
 }
 
 
@@ -1039,7 +1059,8 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
-    font().handle(); // force QFont::load call
+    //do we really need this? Will this need to go back when it crashes again? These are the questions..
+//    font().handle(); // force QFont::load call
     extra->macDndExtra = 0;
 }
 
