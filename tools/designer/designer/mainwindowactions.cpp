@@ -484,7 +484,7 @@ void MainWindow::setupToolActions()
 	QPopupMenu *menu = new QPopupMenu( this, grp.latin1() );
 	mmenu->insertItem( grp, menu );
 
-	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, grp.latin1() );
+	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, FALSE, grp.latin1() );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
 	toolBox->addCategory( grp, tb2 );
@@ -557,7 +557,7 @@ void MainWindow::setupToolActions()
 	customWidgetToolBar->hide();
 	actionToolsCustomWidget->addTo( customWidgetMenu );
 	customWidgetMenu->insertSeparator();
-	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0, toolBox, "Custom Widgets" );
+	QToolBar *tb2 = new QToolBar( "Custom Widgets", 0, toolBox, FALSE, "Custom Widgets" );
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	toolBox->addCategory( "Custom Widgets", tb2 );
