@@ -1256,11 +1256,10 @@ bool QAction::removeFrom( QWidget* w )
 void QAction::objectDestroyed()
 {
     const QObject* obj = sender();
-    QList<QActionPrivate::MenuItem*>::Iterator it(d->menuitems.begin());
     QActionPrivate::MenuItem* mi;
-    while (it != d->menuitems.end()) {
-	mi = *it;
-	++it;
+    for (int i = 0; i < d->menuitems.size();) {
+	mi = d->menuitems.at(i);
+	++i;
 	if (mi->popup == obj)
 	    d->menuitems.remove(mi);
     }
