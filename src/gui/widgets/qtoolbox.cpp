@@ -313,7 +313,7 @@ QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
 #endif
 
 /*!
-    Constructs a toolbox called \a name with parent \a parent and flags \a f.
+    Constructs a new toolbox with the given \a parent and the flags, \a f.
 */
 QToolBox::QToolBox(QWidget *parent, Qt::WFlags f)
     :  QFrame(parent, f)

@@ -115,6 +115,9 @@ public:
 
     \value BesideIcon The text appears beside the icon.
     \value BelowIcon The text appears below the icon.
+
+    \omitvalue Right
+    \omitvalue Under
 */
 
 
@@ -200,8 +203,7 @@ QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent, const char *name)
 
     An arrow button has auto-repeat turned on by default.
 
-    The \a parent and \a name arguments are sent to the QWidget
-    constructor.
+    The \a parent argument is passed to the QWidget constructor.
 */
 QToolButton::QToolButton(Qt::ArrowType type, QWidget *parent)
     : QAbstractButton(*new QToolButtonPrivate, parent)
@@ -474,10 +476,12 @@ void QToolButton::drawLabel(QPainter *p)
 }
 
 /*!
-    Paints the button, by first calling drawBevel() and then
-    drawLabel(). If you reimplement paintEvent() just to draw a
-    different label, you can call drawBevel() from your code. For
-    example:
+    \fn void QToolButton::paintEvent(QPaintEvent *event)
+
+    Paints the button in response to the paint \a event, by first
+    calling drawBevel() and then drawLabel(). If you reimplement
+    paintEvent() just to draw a different label, you can call
+    drawBevel() from your own code. For example:
     \code
         QPainter p(this);
         drawBevel(&p);

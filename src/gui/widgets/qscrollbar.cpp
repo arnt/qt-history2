@@ -204,9 +204,9 @@ QScrollBar::QScrollBar(QWidget *parent)
 }
 
 /*!
-    Constructs a vertical scroll bar.
+    Constructs a scroll bar with the given \a orientation.
 
-    The \a parent arguments is sent to the QWidget constructor.
+    The \a parent argument is passed to the QWidget constructor.
 
     The \l minimum defaults to 0, the \l maximum to 99, with a \l
     singleStep size of 1 and a \l pageStep size of 10, and an initial

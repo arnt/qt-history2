@@ -472,6 +472,13 @@ Qt::Alignment QLabel::alignment() const
 }
 
 
+/*!
+    \property QLabel::wordWrap
+    \brief the label's word-wrapping policy
+
+    If this property is true then label text is wrapped where
+    necessary at word-breaks; otherwise it is not wrapped at all.
+*/
 void QLabel::setWordWrap(bool on)
 {
     if (on)

@@ -40,16 +40,19 @@ public:
     of a given widget inside the stacked box is retrieved with
     indexOf(); widget() returns the widget at a given index position.
 
-    If you just want a stacked layout (i.e. no stack widget), use
+    If you just need a stacked layout (not a widget), use
     QStackedLayout instead.
 
     \sa QTabWidget
 */
 
 /*!
-    \fn void QStackedBox::currentChanged(int)
+    \fn void QStackedBox::currentChanged(int index)
 
-    This signal is emitted when the current widget is changed.
+    This signal is emitted when the current widget is changed. The
+    parameter holds the \a index of the new current widget, or -1 if
+    there isn't a new one (for example, if there are no widgets in the
+    stacked box).
 */
 
 /*!

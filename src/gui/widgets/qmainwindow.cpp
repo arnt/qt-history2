@@ -182,6 +182,13 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
 QWidget *QMainWindow::centerWidget() const
 { return d->layout->centerWidget(); }
 
+/*!
+    Sets the given \a widget to be the main window's center widget.
+
+    \warning This function should be called at most once for each main
+    window instance, and the widget passed must be a child of the main
+    window.
+*/
 void QMainWindow::setCenterWidget(QWidget *widget)
 {
     Q_ASSERT_X(widget != 0,
@@ -230,6 +237,8 @@ Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 { return d->layout->corners[corner]; }
 
 /*!
+    \internal
+
     Unimplemented.
 */
 void QMainWindow::setDockWindowState(const QString &/*state*/)
@@ -238,6 +247,8 @@ void QMainWindow::setDockWindowState(const QString &/*state*/)
 }
 
 /*!
+    \internal
+
     Unimplemented.
 */
 QString QMainWindow::dockWindowState() const

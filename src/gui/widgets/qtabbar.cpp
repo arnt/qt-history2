@@ -596,6 +596,9 @@ QSize QTabBar::minimumSizeHint() const
     return QSize(d->rightB->sizeHint().width() * 2 + 75, sizeHint().height());
 }
 
+/*!
+    Returns the size hint for the tab at position \a index.
+*/
 QSize QTabBar::tabSizeHint(int index) const
 {
     if (const QTabBarPrivate::Tab *tab = d->at(index)) {

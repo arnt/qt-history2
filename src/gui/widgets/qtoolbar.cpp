@@ -125,11 +125,37 @@ int QToolBarPrivate::indexOf(QAction *action) const
     \ingroup application
     \mainclass
 
-    \sa QMainWindow
+    Toolbar buttons are added by adding \e actions, using addAction()
+    or insertAction(). Groups of buttons can be separated using
+    addSeparator() or insertSeparator(). If a toolbar button is not
+    appropriate, a widget can be inserted instead using addWidget() or
+    insertWidget(); examples of suitable widgets are QSpinBox,
+    QDoubleSpinBox, and QComboBox. When a toolbar button is pressed it
+    emits the actionTriggered() signal. Toolbars may only be added to
+    QMainWindow and QMainWindow subclasses.
+
+    A toolbar can be fixed in place in a particular area() (e.g. at the
+    top of the window), or it can be movable() between toolbar areas, or
+    it can be floatable: see \l{allowedAreas} and isDockable().
+
 */
 
 /*!
-    Constructs a QToolBar with parent \a parent.
+    \fn bool QToolBar::isDockable(Qt::ToolBarArea area)
+
+    Returns true if this tool bar is dockable in the given \a area;
+    otherwise returns false.
+*/
+
+/*!
+    \fn void QToolBar::actionTriggered(QAction *action)
+
+    This signal is emitted when a tool bar button is pressed. The
+    parameter holds the tool bar button's associated \a action.
+*/
+
+/*!
+    Constructs a QToolBar with the given \a parent.
 */
 QToolBar::QToolBar(QMainWindow *parent)
     : QFrame(*new QToolBarPrivate, parent)
@@ -361,15 +387,17 @@ QAction *QToolBar::addAction(const QIconSet &icon, const QString &text,
 
 /*! \fn void QToolBar::insertAction(QAction *before, QAction *action)
 
-    Inserts \a action into the tool bar at position \a index.
+    Inserts the given \a action into the tool bar in front of the tool
+    bar item associated with the \a before action.
 
     \sa addAction()
 */
 
 /*! \overload
 
-    Creates a new action with text \a text. This action is inserted
-    into the tool bar at position \a index.
+    Creates a new action with the given \a text. This action is
+    inserted into the tool bar in front of the tool bar item
+    associated with the \a before action.
 */
 QAction *QToolBar::insertAction(QAction *before, const QString &text)
 {
@@ -380,8 +408,9 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text)
 
 /*! \overload
 
-    Creates a new action with the icon \a icon and text \a text. This
-    action is inserted into the tool bar at position \a index.
+    Creates a new action with the given \a icon and \a text. This
+    action is inserted into the tool bar in front of the tool bar item
+    associated with the \a before action.
 */
 QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text)
 {
@@ -392,10 +421,11 @@ QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QSt
 
 /*! \overload
 
-    Creates a new action with text \a text. This action is inserted
-    into the tool bar at position \a index. The action's \link
-    QAction::triggered() triggered()\endlink signal is connected to \a
-    member in \a receiver.
+    Creates a new action with the given \a text. This action is inserted
+    into the tool bar in front of the tool bar item associated with
+    the \a before action. The action's \link QAction::triggered()
+    triggered()\endlink signal is connected to the \a member in \a
+    receiver.
 */
 QAction *QToolBar::insertAction(QAction *before, const QString &text,
 				 const QObject *receiver, const char* member)
@@ -408,10 +438,11 @@ QAction *QToolBar::insertAction(QAction *before, const QString &text,
 
 /*! \overload
 
-    Creates a new action with the icon \a icon and text \a text. This
-    action is inserted into the tool bar at position \a index. The
-    action's \link QAction::triggered() triggered()\endlink signal is
-    connected to \a member in \a receiver.
+    Creates a new action with the given \a icon and \a text. This
+    action is inserted into the tool bar in front of the tool bar item
+    associated with the \a before action. The action's \link
+    QAction::triggered() triggered()\endlink signal is connected to
+    the \a member in the \a receiver.
 */
 QAction *QToolBar::insertAction(QAction *before, const QIconSet &icon, const QString &text,
 				 const QObject *receiver, const char* member)
@@ -436,7 +467,8 @@ QAction *QToolBar::addSeparator()
 }
 
 /*!
-    Inserts a separator into the tool bar at position \a index.
+    Inserts a separator into the tool bar in front of the tool bar
+    item associated with the \a before action.
 
     \sa addSeparator()
 */
@@ -449,6 +481,8 @@ QAction *QToolBar::insertSeparator(QAction *before)
 }
 
 /*!
+    Adds the given \a widget to the tool bar as the tool bar's last
+    item.
 
     \sa insertWidget()
 */
@@ -460,6 +494,8 @@ QAction *QToolBar::addWidget(QWidget *widget)
 }
 
 /*!
+    Inserts the given \a widget in front of the tool bar item
+    associated with the \a before action.
 
     \sa addWidget()
 */
@@ -471,7 +507,10 @@ QAction *QToolBar::insertWidget(QAction *before, QWidget *widget)
 }
 
 /*!
+    \internal
 
+    Returns the geometry of the tool bar item associated with the given
+    \a action, or an invalid QRect if no matching item is found.
 */
 QRect QToolBar::actionGeometry(QAction *action) const
 {
@@ -482,6 +521,14 @@ QRect QToolBar::actionGeometry(QAction *action) const
     }
     return QRect();
 }
+
+/*!
+    \fn QAction *QToolBar::actionAt(const QPoint &p) const
+
+    \overload
+
+    Returns the action at point \a p.
+*/
 
 /*!
     Returns the action at the point \a x, \a y. This function returns

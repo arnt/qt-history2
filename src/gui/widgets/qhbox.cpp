@@ -75,13 +75,14 @@ QHBox::QHBox(QWidget *parent, Qt::WFlags f)
 }
 
 /*!
-    Constructs a horizontal hbox if \a horizontal is true, otherwise
-    constructs a vertical hbox (also known as a vbox).
+    Constructs a horizontal hbox if \a orientation is \c
+    Qt::Horizontal, and constructs a vertical hbox (i.e. a vbox) if \a
+    orientation is \c Qt::Vertical.
 
     This constructor is provided for the QVBox class. You should never
     need to use it directly.
 
-    The \a parent, \a name and widget flags, \a f, are passed to the
+    The \a parent and widget flags, \a f, are passed to the
     QFrame constructor.
 */
 

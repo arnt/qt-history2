@@ -453,7 +453,10 @@ void QStatusBar::hideOrShow()
 
 
 /*!
-    Shows the temporary message, if appropriate.
+    \fn void QStatusBar::paintEvent(QPaintEvent *event)
+
+    Shows the temporary message, if appropriate, in response to the
+    paint \a event.
 */
 void QStatusBar::paintEvent(QPaintEvent *)
 {

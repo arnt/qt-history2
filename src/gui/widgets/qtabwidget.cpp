@@ -130,10 +130,10 @@
 
 
 /*!
-    \fn void QTabWidget::currentChanged(int);
+    \fn void QTabWidget::currentChanged(int index);
 
-    This signal is emitted whenever the current page index
-    changes. The parameter is the new current page index.
+    This signal is emitted whenever the current page index changes.
+    The parameter is the new current page \a index position.
 
     \sa currentWidget() currentIndex
 */
@@ -317,7 +317,7 @@ QString QTabWidget::tabText(int index) const
 /*!
     \overload
 
-    Defines a new \a iconset and a new \a label for the page at position \a index's tab.
+    Sets the \a icon for the tab at position \a index.
 */
 void QTabWidget::setTabIcon(int index, const QIconSet &icon)
 {
@@ -438,8 +438,8 @@ void QTabWidget::setCurrentIndex(int index)
 
 
 /*!
-    Returns the index position of the page at position \a index, or -1 if the widget
-    cannot be found.
+    Returns the index position of the page occupied by the widget \a
+    w, or -1 if the widget cannot be found.
 */
 int QTabWidget::indexOf(QWidget* w) const
 {
@@ -855,6 +855,11 @@ void QTabWidget::tabRemoved(int index)
     Q_UNUSED(index)
 }
 
+/*!
+    \fn void QTabWidget::paintEvent(QPaintEvent *event)
+
+    Paints the tab widget's tab bar in response to the paint \a event.
+*/
 void QTabWidget::paintEvent(QPaintEvent *)
 {
     QPainter p(this);

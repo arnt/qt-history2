@@ -68,7 +68,7 @@
     Workspaces can be placed in any layout, but are typically given
     as the central widget in a QMainWindow:
 
-    \quotefile examples/mdi/application.cpp
+    \quotefile mdi/application.cpp
     \skipto ws = new
     \printuntil setCentralWidget( vb );
 
@@ -257,7 +257,7 @@ static bool isChildOf(QWidget * child, QWidget * parent)
 }
 
 /*!
-    Constructs a workspace with a \a parent and a \a name.
+    Constructs a workspace with the given \a parent.
 */
 QWorkspace::QWorkspace(QWidget *parent)
     : QWidget(*new QWorkspacePrivate, parent, 0)
@@ -373,7 +373,13 @@ QSize QWorkspace::sizeHint() const
     return QSize(s.width()*2/3, s.height()*2/3);
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Sets the palette background color to \a c.
+
+    \sa setPaletteBackgroundPixmap()
+*/
 void QWorkspace::setPaletteBackgroundColor(const QColor & c)
 {
     d->background.setColor(c);
@@ -381,7 +387,13 @@ void QWorkspace::setPaletteBackgroundColor(const QColor & c)
 }
 
 
-/*! \reimp */
+/*!
+    \overload
+
+    Sets the palette background pixmap to \a pm.
+
+    \sa setPaletteBackgroundColor()
+*/
 void QWorkspace::setPaletteBackgroundPixmap(const QPixmap & pm)
 {
     d->background.setPixmap(pm);

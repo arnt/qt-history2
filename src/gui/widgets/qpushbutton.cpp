@@ -406,10 +406,12 @@ void QPushButton::updateMask()
 
 
 /*!
-    Paints the button, by first calling drawBevel() and then
-    drawLabel(). If you reimplement paintEvent() just to draw a
-    different label, you can call drawBevel() from your own code, for
-    example:
+    \fn void QPushButton::paintEvent(QPaintEvent *event)
+
+    Paints the button in response to the paint \a event, by first
+    calling drawBevel() and then drawLabel(). If you reimplement
+    paintEvent() just to draw a different label, you can call
+    drawBevel() from your own code, for example:
     \code
         QPainter p(this);
         drawBevel(&p);

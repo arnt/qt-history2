@@ -100,6 +100,8 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
     enough control, you can ignore them and subclass QSpinBox
     instead.
 
+    Here's an example QSpinBox subclass that provides a month picker.
+
     \code
         class monthSpin : public QSpinBox
         {
@@ -144,6 +146,22 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
 		}
             }
     \endcode
+*/
+
+/*!
+    \fn void QSpinBox::valueChanged(int i);
+
+    This signal is emitted whenever the spin box's value is changed.
+    The new value's integer value is passed in \a i.
+*/
+
+/*!
+    \fn void QSpinBox::valueChanged(QString text);
+
+    \overload
+
+    The new value is passed literally in \a text with no prefix() or
+    suffix().
 */
 
 /*!
@@ -223,7 +241,7 @@ void QSpinBox::setValue(int val)
     string. The default is no prefix. The prefix is not displayed when
     value() == minimum() and specialValueText() is set.
 
-    If no prefix is set, prefix() returns an empty QString.
+    If no prefix is set, prefix() returns an empty string.
 
     \sa suffix(), setSuffix(), specialValueText(), setSpecialValueText()
 */
@@ -255,7 +273,7 @@ void QSpinBox::setPrefix(const QString &p)
     string. The default is no suffix. The suffix is not displayed for
     the minValue() if specialValueText() is set.
 
-    If no suffix is set, suffix() returns an empty QString.
+    If no suffix is set, suffix() returns an empty string.
 
     \sa prefix(), setPrefix(), specialValueText(), setSpecialValueText()
 */
@@ -304,7 +322,7 @@ void QSpinBox::setSuffix(const QString &s)
     the numeric value is shown as usual.
 
     If no special-value text is set, specialValueText() returns an
-    empty QString.
+    empty string.
 */
 
 QString QSpinBox::specialValueText() const
@@ -392,15 +410,17 @@ void QSpinBox::setMaximum(int max)
 }
 
 /*!
-    Convenience function to set minimum and maximum values with one
-    function call.
+    Convenience function to set the minimum, \a min, and maximum, \a
+    max, values with a single function call.
 
+    \code
     setRange(min, max);
-
-       is analogous to:
-
+    \endcode
+    is equivalent to:
+    \code
     setMinimum(min);
     setMaximum(max);
+    \endcode
 
     \sa minimum maximum
 */
@@ -444,7 +464,7 @@ QString QSpinBox::mapValueToText(int v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    The default implementation tries to interpret \a text as an double
+    The default implementation tries to interpret \a txt as an integer
     in the standard way and returns the value. For an empty string or
     "-" (if negative values are allowed in the spinbox) it returns 0.
 
@@ -491,29 +511,31 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
     \mainclass
 
     QDoubleSpinBox allows the user to choose a value by clicking the
-    up/down buttons or pressing up/down on the keyboard to
-    increase/decrease the value currently displayed. The user can also
-    type the value in manually. If the value is entered directly into
-    the spin box, the value will be changed and valueChanged() will be
-    emitted with the new value when Enter/Return is pressed, when the
-    spin box looses focus or when the spin box is deactivated (see
-    QWidget::windowActivationChanged()). If tracking() is true the
-    value will be changed each time the value is changed in the
-    editor. The spin box supports double values but can be extended to
-    use different strings with mapValueToText() and mapTextToValue().
+    up and down buttons or by pressing Up or Down on the keyboard to
+    increase or decrease the value currently displayed. The user can
+    also type the value in manually. If the value is entered directly
+    into the spin box, the value will be changed and valueChanged()
+    will be emitted with the new value when Enter or Return is
+    pressed, when the spin box loses focus or when the spin box is
+    deactivated (see QWidget::windowActivationChanged()). If
+    tracking() is true the value will be changed each time the value
+    is changed in the editor. The spin box supports double values but
+    can be extended to use different strings with mapValueToText() and
+    mapTextToValue().
 
     Every time the value changes QDoubleSpinBox emits the
-    valueChanged() signals. The current value can be fetched with
+    valueChanged() signal. The current value can be fetched with
     value() and set with setValue().
 
-    Clicking the up/down buttons or using the keyboard accelerator's
-    up and down arrows will increase or decrease the current value in
-    steps of size lineStep(). If you want to change this behaviour you
+    Clicking the up and down buttons or using the keyboard accelerator's
+    Up and Down arrows will increase or decrease the current value in
+    steps of size lineStep(). If you want to change this behavior you
     can reimplement the virtual function stepBy(). The minimum and
     maximum value and the step size can be set using one of the
     constructors, and can be changed later with setMinimum(),
     setMaximum() and setLineStep(). The spinbox has a default
-    precision of 2 but this can be changed using setPrecision().
+    precision of 2 decimal places but this can be changed using
+    setPrecision().
 
     Most spin boxes are directional, but QDoubleSpinBox can also
     operate as a circular spin box, i.e. if the range is 0.0-99.9 and
@@ -533,9 +555,25 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
 */
 
 /*!
+    \fn void QDoubleSpinBox::valueChanged(double d);
+
+    This signal is emitted whenever the spin box's value is changed.
+    The new value's double value is passed in \a d.
+*/
+
+/*!
+    \fn void QDoubleSpinBox::valueChanged(QString text);
+
+    \overload
+
+    The new value is passed literally in \a text with no prefix() or
+    suffix().
+*/
+
+/*!
     Constructs a spin box with no minimum and maximum values, a step
-    value of 1.0 and a precision of 2. The value is initially set to
-    0.0 . It is parented to \a parent.
+    value of 1.0 and a precision of 2 decimal places. The value is
+    initially set to 0.00. The spin box has the given \a parent.
 
     \sa minimum(), setMinimum(), maximum(), setMaximum(), lineStep(),
     setLineStep()
@@ -581,14 +619,14 @@ void QDoubleSpinBox::setValue(double val)
     symbol. For example:
 
     \code
-        sb->setPrefix("$");
+        spinbox->setPrefix("$");
     \endcode
 
     To turn off the prefix display, set this property to an empty
     string. The default is no prefix. The prefix is not displayed when
     value() == minimum() and specialValueText() is set.
 
-    If no prefix is set, prefix() returns an empty QString.
+    If no prefix is set, prefix() returns an empty string.
 
     \sa suffix(), setSuffix(), specialValueText(), setSpecialValueText()
 */
@@ -613,14 +651,14 @@ void QDoubleSpinBox::setPrefix(const QString &p)
     example:
 
     \code
-        sb->setSuffix(" km");
+        spinbox->setSuffix(" km");
     \endcode
 
     To turn off the suffix display, set this property to an empty
     string. The default is no suffix. The suffix is not displayed for
     the minValue() if specialValueText() is set.
 
-    If no suffix is set, suffix() returns an empty QString.
+    If no suffix is set, suffix() returns an empty string.
 
     \sa prefix(), setPrefix(), specialValueText(), setSpecialValueText()
 */
@@ -669,7 +707,7 @@ void QDoubleSpinBox::setSuffix(const QString &s)
     the numeric value is shown as usual.
 
     If no special-value text is set, specialValueText() returns an
-    empty QString.
+    empty string.
 */
 
 QString QDoubleSpinBox::specialValueText() const
@@ -757,15 +795,17 @@ void QDoubleSpinBox::setMaximum(double max)
 }
 
 /*!
-    Convenience function to set minimum and maximum values with one
-    function call.
+    Convenience function to set the minimum, \a min, and maximum, \a
+    max, values with a single function call.
 
+    \code
     setRange(min, max);
-
-       is analogous to:
-
+    \endcode
+    is equivalent to:
+    \code
     setMinimum(min);
     setMaximum(max);
+    \endcode
 
     \sa minimum maximum
 */
@@ -838,7 +878,7 @@ QString QDoubleSpinBox::mapValueToText(double v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    The default implementation tries to interpret \a text as an double
+    The default implementation tries to interpret \a txt as a double
     in the standard way and returns the value. For an empty string or
     "-" (if negative values are allowed in the spinbox) it returns 0.
 

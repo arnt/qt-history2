@@ -1012,8 +1012,8 @@ void QSplitter::moveSplitter(QCOORD p, int id)
 }
 
 /*!
-    Returns the valid range of the splitter with ID \a id in \a *min
-    and \a *max if \a min and \a max are not 0.
+    Returns the valid range of the splitter with ID \a id in
+    \c{*}\a{min} and \c{*}\a{max} if \a min and \a max are not 0.
 
     \sa idAfter()
 */

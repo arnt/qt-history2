@@ -183,10 +183,12 @@ void QRadioButton::drawLabel(QPainter *p)
 }
 
 /*!
-    Paints the button, by first calling drawBevel() and then
-    drawLabel(). If you reimplement paintEvent() just to draw a
-    different label, you can call drawBevel() from your own code. For
-    example:
+    \fn void QRadioButton::paintEvent(QPaintEvent *event)
+
+    Paints the button in response to the paint \a event, by first
+    calling drawBevel() and then drawLabel(). If you reimplement
+    paintEvent() just to draw a different label, you can call
+    drawBevel() from your own code. For example:
     \code
         QPainter p(this);
         drawBevel(&p);

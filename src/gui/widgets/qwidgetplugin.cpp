@@ -65,8 +65,8 @@
 */
 
 /*!
-    Constructs a widget plugin. This is invoked automatically by the
-    \c Q_EXPORT_PLUGIN macro.
+    Constructs a widget plugin with the given \a parent. This is
+    invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QWidgetPlugin::QWidgetPlugin(QObject *parent)
     : QObject(parent)
@@ -185,8 +185,9 @@ bool QWidgetPlugin::isContainer(const QString &) const
 */
 
 /*!
-    Constructs a complex container widget plugin. This is invoked
-    automatically by the \c Q_EXPORT_PLUGIN macro.
+    Constructs a complex container widget plugin with the given \a
+    parent. This is invoked automatically by the \c Q_EXPORT_PLUGIN
+    macro.
 */
 
 QWidgetContainerPlugin::QWidgetContainerPlugin(QObject *parent)

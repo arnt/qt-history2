@@ -417,11 +417,10 @@ QAction *QMenuBar::addAction(const QString &text)
 /*!
     \overload
 
-    This convenience function creates a new action with the text \a
-    text and a keyboard shortcut of \a shortcut. The action's
-    triggered() signal is connected to the \a receiver's \a member
-    slot. The function adds the newly created action to the menu's
-    list of actions and returns it.
+    This convenience function creates a new action with the given \a
+    text. The action's triggered() signal is connected to the \a
+    receiver's \a member slot. The function adds the newly created
+    action to the menu's list of actions and returns it.
 
     \sa QWidget::addAction()
 */

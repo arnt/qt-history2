@@ -403,10 +403,13 @@ bool QViewport::viewportEvent(QEvent *e)
 }
 
 /*!
+    \fn void QViewport::resizeEvent(QResizeEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    resize events for the viewport() widget. When resizeEvent() is
-    called, the viewport already has its new geometry. The old size is
-    accessible through QResizeEvent::oldSize().
+    resize events (passed in \a event), for the viewport() widget.
+    When resizeEvent() is called, the viewport already has its new
+    geometry. The old size is accessible through
+    QResizeEvent::oldSize().
 
     \sa QWidget::resizeEvent()
  */
@@ -415,8 +418,10 @@ void QViewport::resizeEvent(QResizeEvent *)
 }
 
 /*!
+    \fn void QViewport::paintEvent(QPaintEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    paint events for the viewport() widget.
+    paint events (passed in \a event), for the viewport() widget.
 
     Note: If you open a painter, make sure to open it on the
     viewport().
@@ -537,8 +542,10 @@ void QViewport::keyPressEvent(QKeyEvent * e)
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
+    \fn void QViewport::dragEnterEvent(QDragEnterEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    drag enter events for the viewport() widget.
+    drag enter events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragEnterEvent()
 */
@@ -547,8 +554,10 @@ void QViewport::dragEnterEvent(QDragEnterEvent *)
 }
 
 /*!
+    \fn void QViewport::dragMoveEvent(QDragMoveEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    drag move events for the viewport() widget.
+    drag move events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragMoveEvent()
 */
@@ -557,8 +566,10 @@ void QViewport::dragMoveEvent(QDragMoveEvent *)
 }
 
 /*!
+    \fn void QViewport::dragLeaveEvent(QDragLeaveEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    drag leave events for the viewport() widget.
+    drag leave events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragLeaveEvent()
 */
@@ -567,8 +578,10 @@ void QViewport::dragLeaveEvent(QDragLeaveEvent *)
 }
 
 /*!
+    \fn void QViewport::dropEvent(QDropEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    drop events for the viewport() widget.
+    drop events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dropEvent()
 */
