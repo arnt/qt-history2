@@ -10,8 +10,14 @@
 class QTrayApplication::QTrayApplicationPrivate 
 {
 public:
-    QTrayApplicationPrivate() : has_icon( FALSE ), current_popup( 0 ), hIcon( 0 ), hWnd( 0 )
+    QTrayApplicationPrivate() : has_icon( FALSE ), wm_taskbarcreated( 0 ), current_popup( 0 ), hIcon( 0 ), hWnd( 0 )
     {
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    wm_taskbarcreated = RegisterWindowMessageW( (const unsigned short*)"TaskbarCreated" );
+	else
+#endif
+	    wm_taskbarcreated = RegisterWindowMessageA( "TaskbarCreated" );
     }
 
     ~QTrayApplicationPrivate()
@@ -127,6 +133,7 @@ public:
     }
 
     bool		has_icon;
+    uint		wm_taskbarcreated;
 
     QString		current_tip;
     QPixmap		current_icon;
@@ -254,6 +261,7 @@ bool QTrayApplication::winEventFilter( MSG *m )
 {
     if (!d->has_icon || m->hwnd != d->hWnd )
 	return QApplication::winEventFilter( m );
+    qDebug( "%d", m->message );
 
     switch(m->message) {
     case WM_DRAWITEM:
@@ -282,6 +290,10 @@ bool QTrayApplication::winEventFilter( MSG *m )
 	}
 	break;
     default:
+	if ( m->message == d->wm_taskbarcreated && d->has_icon ) {
+	    d->has_icon = FALSE;
+	    d->update( TRUE );
+	}
 	break;
     }
 
