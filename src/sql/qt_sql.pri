@@ -179,5 +179,17 @@ sql {
 #			win32-borland:LIBS  += $(BCB)/lib/PSDK/db2cli.lib
 		}
 	}
+
+        contains(sql-drivers, sqlite) {
+                HEADERS += $$SQL_CPP/drivers/sqlite/qsql_sqlite.h
+                SOURCES += $$SQL_CPP/drivers/sqlite/qsql_sqlite.cpp
+                DEFINES += QT_SQL_SQLITE
+                unix {
+                        LIBS += -lsqlite
+                }
+                win32 {
+                        LIBS += sqlite.lib
+                }
+        }
 }
 

@@ -436,6 +436,10 @@ QStringList QSqlDatabase::drivers()
     if ( !l.contains( "QDB2" ) )
 	l << "QDB2";
 #endif
+#ifdef QT_SQL_SQLITE
+    if ( !l.contains( "QSQLITE1" ) )
+	l << "QSQLITE1";
+#endif
 
     return l;
 }
@@ -490,6 +494,7 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \row \i QTDS7 \i Sybase Adaptive Server and Microsoft SQL Server Driver
     \row \i QMYSQL3 \i MySQL Driver
     \row \i QDB2 \i IBM DB2, v7.1 and higher
+    \row \i QSQLITE1 \i SQLite embedded database
     \endtable
 
     Additional third party drivers, including your own custom drivers,
@@ -563,6 +568,11 @@ void QSqlDatabase::init( const QString& type, const QString& )
 #ifdef QT_SQL_DB2
 	if ( type == "QDB2" )
 	    d->driver = new QDB2Driver();
+#endif
+
+#ifdef QT_SQL_SQLITE
+	if ( type == "QSQLITE1" )
+	    d->driver = new QSQLiteDriver();
 #endif
 
     }
