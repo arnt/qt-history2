@@ -15,11 +15,6 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 
-    data->uninit = FALSE;
-    data->w = w;
-    data->h = h;
-    data->d = 1;
-
     //at the end of this function this will go out of scope and the destructor will restore the state
     QMacSavedPortInfo saveportstate; 
 
@@ -36,16 +31,15 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 
     // Slow and icky
     RGBColor r;
-    const uchar *f = qt_get_bitflip_array();
     for(int y=0;y<h;y++) {
-	int sy = y * (w / 8);
+	int sy = y * ((w+7)/8);
 	for(int x=0;x<w;x++) {
-	    char one_bit;
-	    if(isXbitmap)
-		one_bit = ~f[*(bits + (sy + (x / 8)))];
+	    char one_bit = *(bits + (sy + (x / 8)));
+	    if(!isXbitmap)
+		one_bit = one_bit >> (7 - (x % 8));
 	    else
-		one_bit = ~(*(bits + (sy + (x / 8))));
-	    r.green = r.blue = r.red = one_bit ? 255*256 : 0;
+		one_bit = one_bit >> (x % 8);
+	    r.green = r.blue = r.red = one_bit & 0x01? 0 : 255*256;
 	    SetCPixel(x,y,&r);
 	}
     }
@@ -98,10 +92,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     }
 
-    if ( d == 1 )                               // 1 bit pixmap (bitmap)
-	image = image.convertBitOrder( QImage::BigEndian );
+    if(image.depth()==1) {
+	if(image.bitOrder()==QImage::BigEndian) 
+	    image=image.convertBitOrder(QImage::LittleEndian);
+	image.setColor( 0, qRgba(255,255,255, 0) );
+	image.setColor( 1, qRgba(0,0,0, 0) );
+    }
 
- 
     int w = image.width();
     int h = image.height();
 
@@ -145,15 +142,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
-    int loopc,loopc2;
     QRgb q;
-    for(loopc=0;loopc<image.width();loopc++) {
-	for(loopc2=0;loopc2<image.height();loopc2++) {
-	    q=image.pixel(loopc,loopc2);
+    for(int yy=0;yy<image.height();yy++) {
+	for(int xx=0;xx<image.width();xx++) {
+	    q=image.pixel(xx, yy);
 	    r.red=qRed(q)*256;
 	    r.green=qGreen(q)*256;
 	    r.blue=qBlue(q)*256;
-	    SetCPixel(loopc,loopc2,&r);
+	    SetCPixel(xx,yy,&r);
 	}
     }
     data->uninit = FALSE;
