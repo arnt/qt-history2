@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#222 $
+** $Id: //depot/qt/main/src/moc/moc.y#223 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1252,6 +1252,7 @@ class parser_reg {
     QCString  includeFile;				// name of #include file
     QCString  includePath;				// #include file path
     QCString  qtPath;				// #include qt file path
+    int           gen_count; //number of classes generated
     bool	  noInclude;		// no #include <filename>
     bool	  generatedCode;		// no code generated
     bool	  mocError;			// moc parsing error occurred
@@ -1281,6 +1282,7 @@ static parser_reg *g = NULL;
 
 parser_reg::parser_reg() : funcs(TRUE)
 {
+    gen_count = 0;
     noInclude     = FALSE;		// no #include <filename>
     generatedCode = FALSE;		// no code generated
     mocError = FALSE;			// moc parsing error occurred
@@ -2655,11 +2657,10 @@ void generateDispatch()
 
 void generateClass()		      // generate C++ source code for a class
 {
-    static int gen_count = 0;
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#222 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#223 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2692,7 +2693,8 @@ void generateClass()		      // generate C++ source code for a class
 	return;
     }
     g->generatedCode = TRUE;
-    if ( gen_count++ == 0 ) {			// first class to be generated
+    g->gen_count++;
+    if ( g->gen_count == 1 ) {			// first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
 	QCString dstr = dt.toString().ascii();
 	QCString fn = g->fileName;
