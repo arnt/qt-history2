@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#179 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#180 $
 **
 ** Implementation of QFileDialog class
 **
@@ -315,7 +315,7 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 }
 
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
-    : QListBox( parent ), filedialog( d ), renaming( FALSE ) 
+    : QListBox( parent ), filedialog( d ), renaming( FALSE )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -325,7 +325,7 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
              this, SLOT( cancelRename() ) );
 }
 
-void QFileListBox::keyPressEvent( QKeyEvent *e ) 
+void QFileListBox::keyPressEvent( QKeyEvent *e )
 {
     if ( ( e->key() == Key_Enter ||
            e->key() == Key_Return ) &&
@@ -339,24 +339,24 @@ void QFileListBox::keyPressEvent( QKeyEvent *e )
 void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 {
     cancelRename();
-    
+
     int i = currentItem();
     QListBox::viewportMousePressEvent( e );
     QString file = filedialog->selectedFile();
     if ( file.isEmpty() )
         file = filedialog->dirPath() + "/" + item( currentItem() )->text();
 
-    if ( i == currentItem() && currentItem() != -1 && 
+    if ( i == currentItem() && currentItem() != -1 &&
          QFileInfo( file ).isWritable() && item( currentItem() )->text() != ".." ) {
         i = currentItem();
         QRect r = itemRect( item( i ) );
-        int d = item( i )->pixmap() ? 
+        int d = item( i )->pixmap() ?
                 item( i )->pixmap()->width() + 5 : 25;
         int x = r.x() + d;
         int y = r.y() + 1;
         int w = r.width() - d - 1;
         int h = r.height() - 2;
-                
+
         lined->setFocus();
         lined->setText( item( i )->text() );
         lined->selectAll();
@@ -367,7 +367,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
         setFocusProxy( lined );
         renaming = TRUE;
     }
-}   
+}
 
 void QFileListBox::clear()
 {
@@ -387,7 +387,7 @@ void QFileListBox::rename()
 
         filedialog->rereadDir();
     }
-    
+
     cancelRename();
 }
 
@@ -396,7 +396,8 @@ void QFileListBox::cancelRename()
     lined->hide();
     viewport()->setFocusProxy( 0L );
     setFocusProxy( viewport() );
-    setFocus();
+    if ( !hasFocus() && !viewport()->hasFocus() )
+        setFocus();
     renaming = FALSE;
 }
 
@@ -412,13 +413,13 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
     header()->setMovingEnabled( FALSE );
 }
 
-void QFileListView::keyPressEvent( QKeyEvent *e ) 
+void QFileListView::keyPressEvent( QKeyEvent *e )
 {
     if ( ( e->key() == Key_Enter ||
            e->key() == Key_Return ) &&
          renaming )
         return;
-    
+
     cancelRename();
     QListView::keyPressEvent( e );
 }
@@ -426,25 +427,25 @@ void QFileListView::keyPressEvent( QKeyEvent *e )
 void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 {
     cancelRename();
-    
+
     QListViewItem *i = currentItem();
     QListView::viewportMousePressEvent( e );
     QString file = filedialog->selectedFile();
     if ( file.isEmpty() )
         file = filedialog->dirPath() + "/" + i->text( 0 );
 
-    if ( i == currentItem() && currentItem() && 
+    if ( i == currentItem() && currentItem() &&
          QFileInfo( file ).isWritable() && currentItem()->text( 0 ) != ".." ) {
         i = currentItem();
-        
+
         QRect r = itemRect( i );
-        int d = i->pixmap( 0 ) ? 
+        int d = i->pixmap( 0 ) ?
                 i->pixmap( 0 )->width() + 2 : 22;
         int x = r.x() + d;
         int y = r.y() + 1;
         int w = columnWidth( 0 ) - d - 1;
         int h = r.height() - 2;
-                
+
         lined->setFocus();
         lined->setText( i->text( 0 ) );
         lined->selectAll();
@@ -452,10 +453,10 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
         lined->setGeometry( x, y, w, h );
         lined->show();
         viewport()->setFocusProxy( lined );
-        setFocusProxy( lined ); 
+        setFocusProxy( lined );
         renaming = TRUE;
     }
-}   
+}
 
 void QFileListView::clear()
 {
@@ -475,7 +476,7 @@ void QFileListView::rename()
 
         filedialog->rereadDir();
     }
-    
+
     cancelRename();
     renaming = TRUE;
 }
@@ -485,7 +486,8 @@ void QFileListView::cancelRename()
     lined->hide();
     viewport()->setFocusProxy( 0L );
     setFocusProxy( viewport() );
-    setFocus();
+    if ( !hasFocus() && !viewport()->hasFocus() )
+        setFocus();
     renaming = FALSE;
 }
 
@@ -843,7 +845,7 @@ void QFileDialog::init()
              d->moreFiles, SLOT( cancelRename() ) );
     connect( d->mcView, SIGNAL( clicked() ),
              files, SLOT( cancelRename() ) );
-    
+
     d->stack->raiseWidget( d->moreFiles );
     d->mcView->setOn( TRUE );
 
