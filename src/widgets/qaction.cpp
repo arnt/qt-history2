@@ -612,8 +612,8 @@ int QAction::accel() const
 }
 
 
-/*! Makes the action a toggle action if \e enable is TRUE, or a
-  command action if \e enable is FALSE.
+/*! Makes the action a toggle action if \a enable is TRUE, or a
+  command action if \a enable is FALSE.
 
   You may want to add toggle actions to a QActionGroup for exclusive
   toggling.
@@ -641,7 +641,7 @@ bool QAction::isToggleAction() const
     return d->toggleaction;
 }
 
-/*! Switches a toggle action on if \e enable is TRUE or off if \e enable is
+/*! Switches a toggle action on if \a enable is TRUE or off if \e enable is
   FALSE.
 
   This function should be called upon toggle actions only.
@@ -1064,8 +1064,8 @@ QActionGroup::~QActionGroup()
 }
 
 /*!
-  Sets the action group to be exclusive if \e enable is TRUE,
-  or to be non-exclusive if \e enable is FALSE.
+  Sets the action group to be exclusive if \a enable is TRUE,
+  or to be non-exclusive if \a enable is FALSE.
 
   In an exclusive group, any toggle action that is a member of this
   group is toggled off by another action being toggled on.
