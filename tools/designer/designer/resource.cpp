@@ -2456,12 +2456,15 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 								 (*it).returnType ) +
 			    "\n" + iface->createEmptyFunction();
 		}
+		MetaDataBase::setFormCode( formwindow, code );
 	    } else {
 		return;
 	    }
 	}
 
 	if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
+	    if ( MetaDataBase::formCode( formwindow ).isEmpty() )
+		return;
 	    QString filename = MetaDataBase::formSourceFile( formwindow );
 	    if ( filename.isEmpty() ) {
 		filename = currFileName + iface->formCodeExtension();
