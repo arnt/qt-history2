@@ -37,8 +37,7 @@ fi
 function mk {
     platform=$1
     config=$2
-    platform=${platform#$PLATFORM/} # strip $PLATFORM
-    sysconf=configs/$platform-$config
+    sysconf=configs/${platform#$PLATFORM/}-$config
     TMAKEPATH=$QTDIR/tmake:$TMAKEDIR/lib/$platform:$TMAKEPATH \
 	tmake -t $config /dev/null >$sysconf
     if [ -s $sysconf  ]

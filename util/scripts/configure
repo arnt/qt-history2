@@ -216,10 +216,16 @@ UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
 UNAME_SYSTEM=`(uname -s) 2>/dev/null` || UNAME_SYSTEM=unknown
 UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
 
-PLATFORM_NOTES=""
-
-if [ -z "$PLATFORM" ]
+ARCH=""
+if [ -f configs/linux-x86-g++-shared ]
 then
+    # This is a Qt/Embedded distribution
+    PLATFORMS="linux-mips-g++ linux-x86-g++"
+    case "$UNAME_MACHINE" in
+     *86) ARCH=x86
+    ;; *) continue
+    esac
+else
     ##### Generate?  Look in configs/?
     PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ freebsd-g++ gnu-g++ hpux-acc
 	hpux-cc hpux-g++ hpux-n64 hpux-o64 irix-64 irix-dcc irix-g++ irix-n32
@@ -227,6 +233,12 @@ then
 	sco-g++ solaris-cc-gcc solaris-cc solaris-64 solaris-g++ sunos-g++
 	ultrix-g++ unixware-g++ unixware7-cc unixware7-g++"
 
+fi
+
+PLATFORM_NOTES=""
+
+if [ -z "$PLATFORM" ]
+then
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      AIX*)
         #PLATFORM=aix-g++
@@ -289,7 +301,7 @@ then
 	"
 	;;
      Linux:*)
-	PLATFORM=linux-g++
+	PLATFORM=linux-${ARCH}g++
 	;;
      SunOS:5*)
 	#PLATFORM=solaris-g++
