@@ -20,7 +20,7 @@ qt_install_headers {
     INSTALLS += targ_headers
 }
 
-embedded {
+embedded:equals(TARGET, QtGui) {
     # install fonts for embedded
     INSTALLS += fonts
     fonts.path = $$[QT_INSTALL_LIBS]/fonts
