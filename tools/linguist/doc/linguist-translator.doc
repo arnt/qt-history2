@@ -477,12 +477,8 @@ the clipboard.</dd>
 <dd>Copy the highlighted text in the translation pane to the clipboard.</dd>
 <dt><p><img src="../images/editpaste.png"></dt>
 <dd>Paste the clipboard text into the translation pane.</dd>
-<dt><p><img src="../images/editdelete.png"></dt>
-<dd>Delete the highlighted text in the translation pane.</dd>
 <dt><p><img src="../images/editfind.png"></dt>
 <dd>Pop up the <a href="#The_Find_Dialog">Find dialog</a>.</dd>
-<dt><p><img src="../images/startfromsource.png"></dt>
-<dd>Copy the source phrase to the translation area.</dd>
 <dt><p><img src="../images/prev.png"></dt>
 <dd>Move to the previous source phrase.</dd>
 <dt><p><img src="../images/next.png"></dt>
