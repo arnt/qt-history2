@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#40 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -255,50 +255,9 @@ void QButton::setOn( bool enable )
     }
 }
 
-#if !defined(OBSOLETE)
-
-bool QButton::isUp() const
-{
-    warning( "QButton::isUp: This function is OBSOLETE\n\t"
-	     "Use !isDown() instead!" );
-    return !isDown();
-}
-
-bool QButton::isOff() const
-{
-    warning( "QButton::isOff: This function is OBSOLETE\n\t"
-	     "Use !isOn() instead!" );
-    return !isOn();
-}
-
-void QButton::switchOn()
-{
-    warning( "QButton::switchOn: This function is OBSOLETE\n\t"
-	     "Use setOn(TRUE) instead!" );
-    bool lastOn = buttonOn;
-    buttonOn = TRUE;
-    if ( !lastOn ) {				// changed state
-	repaint( FALSE );			// redraw
-	emit toggled( TRUE );
-    }
-}
-
-void QButton::switchOff()
-{
-    warning( "QButton::switchOff: This function is OBSOLETE\n\t"
-	     "Use setOn(FALSE) instead!" );
-    bool lastOn = buttonOn;
-    buttonOn = FALSE;
-    if ( lastOn ) {				// changed state
-	repaint( FALSE );			// redraw
-	emit toggled( FALSE );
-    }
-}
-#endif // OBSOLETE
-
 
 /*----------------------------------------------------------------------------
-  \fn bool QButton::toggleButton() const
+  \fn bool QButton::isToggleButton() const
   Returns TRUE if the button is a toggle button.
   \sa setToggleButton()
  ----------------------------------------------------------------------------*/
@@ -313,7 +272,7 @@ void QButton::switchOff()
   toggle buttons. QPushButton is initially not a toggle button, but
   QPushButton::setToggleButton() can be called to create toggle buttons.
 
-  \sa toggleButton()
+  \sa isToggleButton()
  ----------------------------------------------------------------------------*/
 
 void QButton::setToggleButton( bool enable )
@@ -418,8 +377,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 	    repaint( FALSE );
 	    emit pressed();
 	}
-    }
-    else {					// mouse move outside button
+    } else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
 	    repaint( FALSE );
