@@ -70,8 +70,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	t << (*sdirit) << ":";
-//	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
-//	    t << " FORCE";
+	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
+	    t << " FORCE";
 	t << "\n\t"
 	  << "cd " << (*sdirit) << "\n\t"
 	  << "$(MAKE)" << "\n\t"
@@ -98,7 +98,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     }
     t << endl << endl;
 
-    if(!project->variables()["QMAKE_NOFORCE"].isEmpty())
+    if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
 
 }
