@@ -747,7 +747,8 @@ void QTabBar::layoutTabs()
     QFontMetrics fm = fontMetrics();
     int x = 0;
     QRect r;
-    for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
+    QTab *t;
+    for ( t = lstatic->first(); t; t = lstatic->next() ) {
 	int lw = fm.width( t->label );
 	int iw = 0;
 	int ih = 0;
@@ -762,7 +763,7 @@ void QTabBar::layoutTabs()
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
     }
-    for ( QTab* t = lstatic->first(); t; t = lstatic->next() )
+    for ( t = lstatic->first(); t; t = lstatic->next() )
 	t->r.setHeight( r.height() );
 }
 
