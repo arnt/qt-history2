@@ -32,7 +32,6 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     formatCollection = *priv->formatCollection();
 
     if (cursor.hasComplexSelection()) {
-        /* ############### disable until after tp2, as pasting such fragments doesn't work quite right
         QTextTable *table = cursor.currentTable();
         int row_start, col_start, num_rows, num_cols;
         cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
@@ -72,8 +71,6 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         // add end of table
         int end = table->lastPosition();
         appendFragment(priv, end, end+1, objectIndex);
-        */
-
     } else {
         appendFragments(priv, cursor.selectionStart(), cursor.selectionEnd());
     }
