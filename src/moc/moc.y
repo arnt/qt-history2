@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#113 $
+** $Id: //depot/qt/main/src/moc/moc.y#114 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -575,7 +575,7 @@ whatever:		  IDENTIFIER
 
 
 class_head:		  class_key
-			  class_name		{ className = $2; }
+			  qualified_class_name	{ className = $2; }
 			| class_key
 			  IDENTIFIER		/* possible DLL EXPORT macro */
 			  class_name		{ className = $3; }
@@ -1156,10 +1156,9 @@ QCString nameQualifier()
     return qualifier;
 }
 
-void openNameSpaceForMetaObject( FILE *out )
+int openNameSpaceForMetaObject( FILE *out )
 {
-    if ( namespaces.count() == 0 )
-	return;
+    int levels = 0;
     QListIterator<NamespaceInfo> iter( namespaces );
     NamespaceInfo *tmp;
     QCString indent = "";
@@ -1168,22 +1167,32 @@ void openNameSpaceForMetaObject( FILE *out )
 	    fprintf( out, "%snamespace %s {\n", (const char *)indent,
 		     (const char *) tmp->name );
 	    indent += "    ";
+	    levels++;
 	}
     }
+    QCString nm = className;
+    int pos;
+    while( (pos = nm.find( "::" )) != -1 ) {
+	QCString spaceName = nm.left( pos );
+	nm = nm.right( nm.length() - pos - 2 );
+	if ( !spaceName.isEmpty() ) {
+	    fprintf( out, "%snamespace %s {\n", (const char *)indent,
+		     (const char *) spaceName );
+	    indent += "    ";
+	    levels++;
+	}
+    }
+    return levels;
 }
 
-void closeNameSpaceForMetaObject( FILE *out )
+void closeNameSpaceForMetaObject( FILE *out, int levels )
 {
-    if ( namespaces.count() == 0 )
-	return;
-    QListIterator<NamespaceInfo> iter( namespaces );
-    NamespaceInfo *tmp;
-    for( ; (tmp = iter.current()) ; ++iter ) {
-	if ( !tmp->name.isNull() ) {  // If not unnamed namespace
+    int i;
+    for( i = 0 ; i < levels ; i++ )
 	    fprintf( out, "}" );
-	}
-    }
-    fprintf( out, "\n" );
+    if ( levels )
+	fprintf( out, "\n" );
+	
 }
 
 void selectOutsideClassState()
@@ -1380,6 +1389,17 @@ char *straddSpc( const char *s1, const char *s2,
 
 // Generate C++ code for building member function table
 
+QCString pureClassName()
+{
+    QCString result;
+    int pos = className.findRev( "::");
+    if ( pos != -1 )
+        result = className.right( className.length() - pos - 2 );
+    else
+	result = className;
+    return result;
+}
+
 QCString qualifiedClassName()
 {
     QCString tmp = nameQualifier();
@@ -1449,7 +1469,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.47 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.48 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1521,10 +1541,10 @@ void generateClass()		      // generate C++ source code for a class
 // it, except for QBuilder).
 //
     fprintf( out, "\n#if QT_VERSION >= 199\n" );
-    openNameSpaceForMetaObject( out );
+    int levels = openNameSpaceForMetaObject( out );
     fprintf( out, "static QMetaObjectInit init_%s(&%s::staticMetaObject);\n\n",
-	(const char*)className, (const char*)qualifiedClassName() );
-    closeNameSpaceForMetaObject( out );
+	(const char*)pureClassName(), (const char*)qualifiedClassName() );
+    closeNameSpaceForMetaObject( out, levels );
     fprintf( out, "#endif\n\n" );
 
 //
