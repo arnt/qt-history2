@@ -490,10 +490,12 @@ void QDockWidget::updateGui()
 void QDockWidget::updatePosition( const QPoint &globalPos )
 {
     if ( state == InDock ) {
-	if ( dockArea && dockArea != tmpDockArea )
-	    dockArea->removeDockWidget( this, FALSE, FALSE );
-	dockArea = tmpDockArea;
-	dockArea->moveDockWidget( this, globalPos, currRect, startOrientation != orientation() );
+	if ( tmpDockArea ) {
+	    if ( dockArea && dockArea != tmpDockArea )
+		dockArea->removeDockWidget( this, FALSE, FALSE );
+	    dockArea = tmpDockArea;
+	    dockArea->moveDockWidget( this, globalPos, currRect, startOrientation != orientation() );
+	}
     } else {
 	if ( dockArea )
 	    dockArea->removeDockWidget( this, TRUE, startOrientation != Horizontal );
@@ -508,6 +510,7 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
     if ( state == OutsideDock )
 	adjustSize();
     emit positionChanged();
+    tmpDockArea = 0;
 }
 
 void QDockWidget::setWidget( QWidget *w )
