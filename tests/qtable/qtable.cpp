@@ -1771,7 +1771,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
   used for editing the cell and after that setCellWidget() to set this
   editor as the widget of that cell.
 
-  \sa createEditor(), setCellWidget()
+  \sa createEditor(), setCellWidget(), endEdit()
 */
 
 QWidget *QTable::beginEdit( int row, int col, bool replace )
@@ -1806,7 +1806,7 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
   After that clearCellWidget() is called to get rid of the editor
   widget.
 
-  \sa setCellContentFromEditor()
+  \sa setCellContentFromEditor(), beginEdit()
 */
 
 void QTable::endEdit( int row, int col, bool accept, bool replace )
