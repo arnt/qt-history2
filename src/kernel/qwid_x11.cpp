@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#226 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#227 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#226 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#227 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -292,11 +292,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWFlags( WState_Visible );
     }
 
-    Atom qt_xdnd_version = 0;
-    extern Atom qt_xdnd_aware;
-    XChangeProperty ( dpy, id, qt_xdnd_aware, XA_ATOM, 32, PropModeReplace, 
-		      (unsigned char *)&qt_xdnd_version, 1 );
-
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
 }
@@ -337,7 +332,7 @@ bool QWidget::create()
 
 /*!
   Frees up window system resources.
-  Destroys the widget window if \a destroyWindow is TRUE.  
+  Destroys the widget window if \a destroyWindow is TRUE.
 
   destroy() calls itself recursively for all the child widgets,
   passing \a destroySubWindows for the \a destroyWindow parameter.
@@ -679,9 +674,9 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
 	mask_pixmap = mask.handle();
     }
-    XWMHints *h = XGetWMHints( dpy, winId() );    
+    XWMHints *h = XGetWMHints( dpy, winId() );
     XWMHints  wm_hints;
-    bool got_hints = h != 0;     
+    bool got_hints = h != 0;
     if ( !got_hints ) {
 	h = &wm_hints;
 	h->flags = 0;

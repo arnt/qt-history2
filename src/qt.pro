@@ -254,7 +254,8 @@ unix:SOURCES   += kernel/qapp_x11.cpp \
 unix:SOURCES   += dialogs/qprndlg.cpp \
 		  kernel/qpsprn.cpp \
 		  kernel/qnpsupport.cpp \
-		  kernel/qt_x11.cpp
+		  kernel/qt_x11.cpp \
+		  kernel/qt_xdnd.cpp
 
 TARGET		= qt
 VERSION		= 1.31

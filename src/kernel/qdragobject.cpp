@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#2 $
 **
 ** C++ file skeleton
 **
@@ -14,7 +14,7 @@
 #include "qkeycode.h"
 #include "qwidget.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#2 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -23,6 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#1 $");
 struct QDragData {
     QDragData(): autoDelete( TRUE ) {}
 
+    QString fmt;
     QByteArray enc;
     bool autoDelete;
 
@@ -34,16 +35,16 @@ struct QDragData {
 
 	bool eventFilter( QObject *, QEvent * );
 
-	void startDrag( QDragObject *, QByteArray encodedData );
+	void startDrag( QDragObject * );
 
 	void cancel();
 	void move( const QPoint & );
 	void drop( const QPoint & );
 
     private:
-	QDragObject * object;
 	QByteArray enc;
-	QByteArray fmt;
+	QDragObject * object;
+
 	QWidget * dragSource;
 	QWidget * dropWidget;
 	bool beingCancelled;
@@ -88,7 +89,7 @@ QDragData::Manager::~Manager()
 
 
 
-void QDragData::Manager::startDrag( QDragObject * o, QByteArray encodedData )
+void QDragData::Manager::startDrag( QDragObject * o )
 {
     if ( object == o ) {
 	debug( "meaningless" );
@@ -102,8 +103,6 @@ void QDragData::Manager::startDrag( QDragObject * o, QByteArray encodedData )
     }
 
     object = o;
-    enc = encodedData;
-    enc.detach(); // ### remove once QByteArray becomes implictly shared
     dragSource = (QWidget *)(object->parent());
     dragSource->installEventFilter( this );
 }
@@ -138,7 +137,8 @@ void QDragData::Manager::move( const QPoint & globalPos )
 	QApplication::sendEvent( dropWidget, &m );
     }
     if ( dest ) {
-	QDragMoveEvent m( dest->mapFromGlobal( globalPos ), fmt );
+	QDragMoveEvent m( dest->mapFromGlobal( globalPos ),
+			  QString( object->format() ) );
 	QApplication::sendEvent( dest, &m );
 	a = m.isAccepted();
     } else {
@@ -155,7 +155,10 @@ void QDragData::Manager::drop( const QPoint & globalPos )
 {
     debug( "d " );
     if ( dropWidget ) {
-	QDropEvent m( dropWidget->mapFromGlobal( globalPos ), fmt, enc );
+	if ( enc.isEmpty() )
+	    enc = object->encodedData();
+	QDropEvent m( dropWidget->mapFromGlobal( globalPos ),
+		      QString( object->format() ), enc );
 	QApplication::sendEvent( dropWidget, &m );
 	// was it accepted?  who cares!
     }
@@ -169,6 +172,11 @@ void QDragData::Manager::drop( const QPoint & globalPos )
 	if ( object->autoDelete() )
 	    delete object;
 	object = 0;
+    }
+
+    if ( !enc.isEmpty() ) {
+	enc.detach();
+	enc.resize( 0 );
     }
 
     if ( dragSource ) {
@@ -233,8 +241,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
-/*!  Deletes the drag object and frees up the storage used.
-*/
+/*!  Deletes the drag object and frees up the storage used. */
 
 QDragObject::~QDragObject()
 {
@@ -245,12 +252,22 @@ QDragObject::~QDragObject()
 }
 
 
+/*!  Starts a drag operation using the contents of this object. */
+
+void QDragObject::startDrag()
+{
+    manager->startDrag( this );
+}
+
+
 /*!  Sets the encoded data of this drag object to \a encodedData.  The
   encoded data is what's delivered to the drop sites, and must be in a
   strictly defined and portable format.
 
   Every subclass must call this function, normally in a higher-level
-  function such as QTextDragObject::setText().
+  function such as QTextDragObject::setText(), or in a
+  reimplementation of encodedData() in case the class wants lazy
+  evaluation of the data.
 
   The drag object can't be dropped (by the user) until this function
   has been called.
@@ -262,7 +279,19 @@ void QDragObject::setEncodedData( QByteArray & encodedData )
     d->enc.detach();
     if ( !manager )
 	new QDragData::Manager();
-    manager->startDrag( this, encodedData );
+}
+
+
+/*!  Returns the encoded payload of this object.  The drag manager
+  calls this when the recipient needs to see the content of the drag;
+  this generally doesn't happen until the actual drop.
+
+  The default returns whatever was set using setEncodedData().
+*/
+
+const QByteArray QDragObject::encodedData() const
+{
+    return d->enc;
 }
 
 
@@ -278,8 +307,8 @@ void QDragObject::setAutoDelete( bool enable )
 }
 
 
-/*!  Returns TRUE if the object will be deleted when the drag
-  operation finishes, or FALSE if it will not. */
+/*!  Returns TRUE if the object should be deleted when the drag
+  operation finishes, or FALSE if it should not. */
 
 bool QDragObject::autoDelete() const
 {
@@ -287,9 +316,53 @@ bool QDragObject::autoDelete() const
 }
 
 
-/*!  Creates a text drag object and sets it to \a text.  \a parent
-  must be the drag source, \a name is the object name.
+/*!
+
 */
+
+void QDragObject::setFormat( const char * mimeType )
+{
+    d->fmt = mimeType;
+    d->fmt.detach();
+}
+
+
+/*!
+
+*/
+
+const char * QDragObject::format() const
+{
+    return d->fmt;
+}
+
+
+/*!
+
+*/
+
+void QDragObject::encode()
+{
+    // nothing
+}
+
+
+
+/*! \class QTextDragObject qdragobject.h
+
+  \brief The QTextDragObject provides a drag and drop object for
+  tranferring plain text.
+
+  Plain text is defined as single- or multi-line US-ASCII or an
+  unspecified 8-bit character set.
+
+  Qt provides no built-in mechanism for delivering only single-line
+  or only US-ASCII text.
+*/
+
+
+/*!  Creates a text drag object and sets it to \a text.  \a parent
+  must be the drag source, \a name is the object name. */
 
 QTextDragObject::QTextDragObject( const char * text,
 				  QWidget * parent, const char * name )

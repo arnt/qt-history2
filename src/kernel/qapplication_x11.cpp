@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#283 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#282 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#283 $");
 
 
 /*****************************************************************************
@@ -129,16 +129,6 @@ static Atom	qt_qt_scrolldone;		// scroll synchronization
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_id;
 static Atom	qt_wm_state;
-
-// XDND support.  http://www.cco.caltech.edu/~jafl/xdnd/
-static Atom qt_xdnd_enter;
-static Atom qt_xdnd_position;
-static Atom qt_xdnd_status;
-static Atom qt_xdnd_leave;
-static Atom qt_xdnd_drop;
-static Atom qt_xdnd_selection_atom;
-
-Atom qt_xdnd_aware;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -188,6 +178,25 @@ int		qt_ncols_option  = 256;		// used in qcol_x11.cpp
 int		qt_visual_option = -1;
 bool		qt_cmap_option	 = FALSE;
 
+// stuff in qt_xdnd.cpp
+// setup
+extern void qt_xdnd_setup();
+// x event handling
+extern void qt_handle_xdnd_enter( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_position( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_status( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
+// client message atoms
+extern Atom qt_xdnd_enter;
+extern Atom qt_xdnd_position;
+extern Atom qt_xdnd_status;
+extern Atom qt_xdnd_leave;
+extern Atom qt_xdnd_drop;
+// thatsall
+
+void qt_x11_intern_atom( const char *, Atom * );
+
 
 class QETWidget : public QWidget		// event translator widget
 {
@@ -200,11 +209,6 @@ public:
     bool translateConfigEvent( const XEvent * );
     bool translateCloseEvent( const XEvent * );
     bool translateScrollDoneEvent( const XEvent * );
-    void translateXdndEnterEvent( const XEvent * );
-    void translateXdndPositionEvent( const XEvent * );
-    void translateXdndStatusEvent( const XEvent * );
-    void translateXdndLeaveEvent( const XEvent * );
-    void translateXdndDropEvent( const XEvent * );
 };
 
 
@@ -235,6 +239,78 @@ static int qt_xio_errhandler( Display * )
 #if defined(Q_C_CALLBACKS)
 }
 #endif
+
+
+// memory leak: if the app exits before qt_init_internal(), this dict
+// isn't released correctly.
+static QDict<Atom> * atoms_to_be_created = 0;
+
+/*****************************************************************************
+  qt_x11_intern_atom() - efficiently interns an atom, now or later.
+
+  if the app is being initialized, this function stores the adddress
+  of the atom and qt_init_internal will do the actual work quickly.
+  
+  neither argument may point to temporary variables.
+ *****************************************************************************/
+
+void qt_x11_intern_atom( const char * name, Atom * result)
+{
+    if ( !name || !result || *result )
+	return;
+
+    if ( qApp && !qApp->startingUp() ) {
+	*result = XInternAtom(appDpy, name, FALSE );
+    } else {
+	if ( !atoms_to_be_created ) {
+	    atoms_to_be_created = new QDict<Atom>;
+	    atoms_to_be_created->setAutoDelete( FALSE );
+	}
+	atoms_to_be_created->insert( name, result );
+	*result = 0;
+    }
+}
+
+
+static void qt_x11_process_intern_atoms()
+{
+    if ( atoms_to_be_created ) {
+#if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
+	int i = atoms_to_be_created->count();
+	Atom * res = (Atom *)malloc( i * sizeof( Atom ) );
+	Atom ** resp = (Atom **)malloc( i * sizeof( Atom* ) );
+	char ** names = (char **)malloc( i * sizeof(const char*));
+
+	i = 0;
+	QDictIterator<Atom> it( *atoms_to_be_created );
+	while( it.current() ) {
+	    res[i] = 0;
+	    resp[i] = it.current();
+	    names[i] = (char *)it.currentKey();
+	    i++;
+	    ++it;
+	}
+	XInternAtoms( appDpy, names, i, FALSE, res );
+	while( i ) {
+	    i--;
+	    if ( res[i] && resp[i] )
+		*(resp[i]) = res[i];
+	}
+	(void)free( res );
+	(void)free( resp );
+	(void)free( names );
+#else
+	QDictIterator<Atom>( atoms_to_be_created ) it;
+	while( it.current() ) {
+	    *it.current() XInternAtom(appDpy, it.currentKey(), FALSE );
+	    ++it;
+	}
+#endif
+	delete atoms_to_be_created;
+	atoms_to_be_created = 0;
+    }
+}
+
 
 
 /*****************************************************************************
@@ -390,55 +466,18 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
   // Support protocols
 
-    static const int atomCount = 13;
-    static Atom atomValues[atomCount];
-    static char * atomNames[atomCount] = {
-	"WM_PROTOCOLS",
-	"WM_DELETE_WINDOW",
-	"QT_SCROLL_DONE",
-	"_XSETROOT_ID",
-	"QT_SELECTION",
-	"WM_STATE",
-	"XdndEnter",
-	"XdndPosition",
-	"XdndStatus",
-	"XdndLeave",
-	"XdndDrop",
-	"XdndSelection",
-	"XdndAware"
-    };
+    qt_x11_intern_atom( "WM_PROTOCOLS", &qt_wm_protocols );
+    qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
+    qt_x11_intern_atom( "QT_SCROLL_DONE", &qt_qt_scrolldone );
+    qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
+    qt_x11_intern_atom( "QT_SELECTION", &qt_xsetroot_id );
+    qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 
-#if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
-    XInternAtoms( appDpy, atomNames, atomCount, FALSE, atomValues );
-#else
-    for ( int n=0; n<atomCount; n++ )
-	atomValues[n] = XInternAtom(appDpy, atomNames[n], FALSE );
-	
-#endif
-
-    qt_wm_protocols = atomValues[0];
-    qt_wm_delete_window = atomValues[1];
-
-  // Internal protocols
-
-    qt_qt_scrolldone = atomValues[2];
-
-  // Stuff for other functions
-
-    qt_xsetroot_id = atomValues[3];
-    qt_selection_id = atomValues[4];
-    qt_wm_state = atomValues[5];
-
-    qt_xdnd_enter = atomValues[6];
-    qt_xdnd_position = atomValues[7];
-    qt_xdnd_status = atomValues[8];
-    qt_xdnd_leave = atomValues[9];
-    qt_xdnd_drop = atomValues[10];
-    qt_xdnd_selection_atom = atomValues[11];
-    qt_xdnd_aware = atomValues[12];
+    qt_x11_process_intern_atoms();
 
   // Misc. initialization
 
+    qt_xdnd_setup();
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -1728,8 +1767,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	case EnterNotify:			// enter window
 	case LeaveNotify: {			// leave window
-	    QEvent e( event->type == EnterNotify ?
-		      Event_Enter : Event_Leave );
+	    QEvent e( event->type == EnterNotify ? Event_Enter : Event_Leave );
 	    QApplication::sendEvent( widget, &e );
 	    }
 	    break;
@@ -1743,8 +1781,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 
 	case ClientMessage:			// client message
-	    if ( event->xclient.format == 32 )
-	    {
+	    if ( event->xclient.format == 32 && event->xclient.message_type ) {
 		if ( event->xclient.message_type == qt_wm_protocols ) {
 		    long *l = event->xclient.data.l;
 		    if ( *l == (long)qt_wm_delete_window )
@@ -1752,15 +1789,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 		    widget->translateScrollDoneEvent(event);
 		} else if ( event->xclient.message_type == qt_xdnd_position ) {
-		    widget->translateXdndPositionEvent(event);
+		    qt_handle_xdnd_position( widget, event );
 		} else if ( event->xclient.message_type == qt_xdnd_enter ) {
-		    widget->translateXdndEnterEvent(event);
+		    qt_handle_xdnd_enter( widget, event );
 		} else if ( event->xclient.message_type == qt_xdnd_status ) {
-		    widget->translateXdndStatusEvent(event);
+		    qt_handle_xdnd_status( widget, event );
 		} else if ( event->xclient.message_type == qt_xdnd_leave ) {
-		    widget->translateXdndLeaveEvent(event);
+		    qt_handle_xdnd_leave( widget, event );
 		} else if ( event->xclient.message_type == qt_xdnd_drop ) {
-		    widget->translateXdndDropEvent(event);
+		    qt_handle_xdnd_drop( widget, event );
 		}
 	    }
 	    break;
@@ -1838,7 +1875,7 @@ int QApplication::enter_loop()
 {
     loop_level++;
     quit_now = FALSE;
-    
+
     bool old_app_exit_loop = app_exit_loop;
     app_exit_loop = FALSE;
 
@@ -3084,187 +3121,4 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
     return close(FALSE);
-}
-
-
-static Atom qt_xdnd_dragsource_xid = 0;
-static Atom qt_xdnd_types[100];
-
-static QIntDict<QString> qt_xdnd_drag_types( 17 );
-
-void QETWidget::translateXdndEnterEvent( const XEvent * xe )
-{
-    const long *l = xe->xclient.data.l;
-
-    debug( "xdnd enter" );
-
-    int version = (int)(((unsigned long)(l[1])) >> 24);
-
-    if ( version != 0 )
-	return;
-
-    qt_xdnd_dragsource_xid = l[0];
-
-    // XSelectInput() for DestroyNotify on qt_dnd_dragsource_xid
-    // so we'll know if it goes away
-
-    // get the first types
-    int i;
-    for( i=2; i < 5; i++ ) {
-	qt_xdnd_types[i-2] = l[i];
-	debug( "l[%d] = %d %d", i, l[i], XA_STRING );
-    }
-
-    if ( l[1] & 1 ) {
-	// should retrieve that property
-	debug( "more types than expected from %08lx", qt_xdnd_dragsource_xid );
-    }
-}
-
-
-void QETWidget::translateXdndPositionEvent( const XEvent * xe )
-{
-    const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-
-    debug( "xdnd pos" );
-
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
-	       l[0], qt_xdnd_dragsource_xid );
-	return;
-    }
-
-    XClientMessageEvent response;
-    response.type = ClientMessage;
-    response.window = qt_xdnd_dragsource_xid;
-    response.format = 32;
-    response.message_type = qt_xdnd_status;
-    response.data.l[0] = winId();
-    response.data.l[1] = 0; // flags
-    response.data.l[2] = 0; // x, y
-    response.data.l[3] = 0; // w, h
-    response.data.l[4] = 0; // just null
-
-    int i = 0;
-    while( i < 100 /* ### */ && qt_xdnd_types[i] ) {
-	if ( qt_xdnd_types[i] == XA_STRING 	
-	    /* qt_xdnd_drag_types[l[i]] */ ) {
-	    QString promp("text/plain");
-	    QDragMoveEvent me( QPoint( 0,0 ), promp );
-			       //*(qt_xdnd_drag_types[l[i]]) );
-	    QApplication::sendEvent( this, &me );
-	    if ( me.isAccepted() ) {
-		response.data.l[1] = 1; // yess!!!!
-		break;
-	    }
-	}
-	i++;
-    }
-
-    XSendEvent( appDpy, qt_xdnd_dragsource_xid, FALSE, NoEventMask,
-		(XEvent*)&response );
-}
-
-
-void QETWidget::translateXdndStatusEvent( const XEvent * xe )
-{
-    const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-
-    QDragResponseEvent e( l[1] & 1 );
-    QApplication::sendEvent( this, &e );
-}
-
-
-void QETWidget::translateXdndLeaveEvent( const XEvent * xe )
-{
-    const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-
-    debug( "xdnd leave" );
-
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
-	       l[0], qt_xdnd_dragsource_xid );
-	return;
-    }
-
-    QDragLeaveEvent e;
-    QApplication::sendEvent( this, &e );
-
-    qt_xdnd_dragsource_xid = 0;
-}
-
-
-void QETWidget::translateXdndDropEvent( const XEvent * xe )
-{
-   const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
-
-    debug( "xdnd drop" );
-
-    if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
-	       l[0], qt_xdnd_dragsource_xid );
-	return;
-    }
-
-    // ### ugle hack follows.  beep beep beep.  ###
-
-    if ( XGetSelectionOwner(dpy, qt_xdnd_selection_atom ) == None )
-	return;
-
-    extern Atom qt_selection_id; // from qapp_x11.cpp
-    XConvertSelection( appDpy, qt_xdnd_selection_atom,
-		       XA_STRING, qt_selection_id,
-		       this->winId(), CurrentTime );
-
-    XFlush( appDpy );
-
-    XEvent xevent;
-
-    QTime started = QTime::currentTime();
-    while ( TRUE ) {
-	if ( XCheckTypedWindowEvent(appDpy,winId(),SelectionNotify,&xevent) )
-	    break;
-	QTime now = QTime::currentTime();
-	if ( started > now )			// crossed midnight
-	    started = now;
-	if ( started.msecsTo(now) > 5000 ) {
-	    return;
-	}
-    }
-
-    Atom prop = xevent.xselection.property;
-    Window win = xevent.xselection.requestor;
-
-    static QByteArray buf( 256 );
-    Atom actual_type;
-    ulong nitems, bytes_after;
-    int actual_format;
-    int nread = 0;
-    uchar *back;
-
-    do {
-	int r = XGetWindowProperty( appDpy, win, prop,
-				    nread/4, 1024, TRUE,
-				    AnyPropertyType, &actual_type,
-				    &actual_format, &nitems,
-				    &bytes_after, &back );
-	if ( r != Success  || actual_type != XA_STRING ) {
-	    char *n = XGetAtomName( dpy, actual_type );
-	    XFree( n );  // ### tissbæsjpromp?
-	}
-	if ( r != Success || actual_type != XA_STRING )
-	    break;
-	while ( nread + nitems >= buf.size() )
-	    buf.resize( buf.size()*2 );
-	memcpy( buf.data()+nread, back, nitems );
-	nread += nitems;
-	XFree( (char *)back );
-    } while ( bytes_after > 0 );
-
-    buf[nread] = 0;
-
-    QString format( "text/plain" );
-
-    QDropEvent de( QPoint( 0,0 ), format, buf );
-    QApplication::sendEvent( this, &de );
 }

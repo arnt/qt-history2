@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#1 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#2 $
 **
-** Definition of 
+** Definition of
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -23,10 +23,16 @@ public:
 
     virtual void setAutoDelete( bool );
     bool autoDelete() const;
+    
+    virtual void startDrag();
+    
+    virtual void setFormat( const char * mimeType );
+    const char * format() const;
 
-protected:
-    virtual void setEncodedData( QByteArray & );
+    void setEncodedData( QByteArray & );
     const QByteArray encodedData() const;
+    
+    virtual void encode();
 
 private:
     QDragData * d;

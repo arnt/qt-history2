@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#41 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#42 $
 **
 ** Definition of event classes
 **
@@ -205,10 +205,10 @@ public:
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    const QByteArray & format() const { return fmt; }
+    const char * format() const { return fmt; }
 protected:
     QPoint p;
-    const QByteArray & fmt;
+    const QString fmt;
     bool   accpt;
 };
 
@@ -241,13 +241,13 @@ public:
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    const QByteArray & format() const { return fmt; }
+    const char * format() const { return fmt; }
     const QByteArray & payload() const { return enc; }
 protected:
     QPoint p;
     bool   accpt;
-    const QByteArray & fmt;
-    const QByteArray & enc;
+    const QString fmt;
+    const QByteArray enc;
 };
 
 
