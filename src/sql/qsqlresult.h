@@ -36,7 +36,6 @@ class QVariant;
 
 class QSqlDriver;
 class QSql;
-class QSqlResultInfo;
 class QSqlResultPrivate;
 
 class QM_EXPORT_SQL QSqlResult

@@ -26,7 +26,6 @@
 
 class QSqlDriver;
 class QSqlResult;
-class QSqlResultInfo;
 class QSqlDatabase;
 class QSqlRecord;
 
