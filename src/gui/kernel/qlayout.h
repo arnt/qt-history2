@@ -227,10 +227,10 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    explicit QLayout(QWidget *parent, int margin, int spacing = -1,
+    QT_COMPAT_CONSTRUCTOR QLayout(QWidget *parent, int margin, int spacing = -1,
                              const char *name = 0);
-    explicit QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
-    explicit QLayout(int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QLayout(int spacing, const char *name = 0);
     inline QT_COMPAT QWidget *mainWidget() const { return parentWidget(); }
     inline QT_COMPAT void remove(QWidget *w) { removeWidget(w); }
     inline QT_COMPAT void add(QWidget *w) { addWidget(w); }
@@ -345,11 +345,11 @@ public:
     QBoxLayout(Direction);
 
 #ifdef QT_COMPAT
-    explicit QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
+    QT_COMPAT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
                 const char *name = 0);
-    explicit QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
+    QT_COMPAT_CONSTRUCTOR  QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
                 const char *name = 0);
-    explicit QBoxLayout(Direction, int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR  QBoxLayout(Direction, int spacing, const char *name = 0);
 #endif
     ~QBoxLayout();
 
@@ -406,13 +406,18 @@ class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:
-    QHBoxLayout(QWidget *parent, int border = 0,
-                 int spacing = -1, const char *name = 0);
-    QHBoxLayout(QLayout *parentLayout,
-                 int spacing = -1, const char *name = 0);
-    QHBoxLayout(int spacing = -1, const char *name = 0);
-
+    QHBoxLayout();
+    QHBoxLayout(QWidget *parent);
+    QHBoxLayout(QLayout *parentLayout);
     ~QHBoxLayout();
+
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(QWidget *parent, int border,
+                 int spacing = -1, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(QLayout *parentLayout,
+                 int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR  QHBoxLayout(int spacing, const char *name = 0);
+#endif
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -425,14 +430,18 @@ class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
 {
     Q_OBJECT
 public:
-    QVBoxLayout(QWidget *parent, int border = 0,
-                 int spacing = -1, const char *name = 0);
-    QVBoxLayout(QLayout *parentLayout,
-                 int spacing = -1, const char *name = 0);
-    QVBoxLayout(int spacing = -1, const char *name = 0);
-
+    QVBoxLayout();
+    QVBoxLayout(QWidget *parent);
+    QVBoxLayout(QLayout *parentLayout);
     ~QVBoxLayout();
 
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(QWidget *parent, int border,
+                 int spacing = -1, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(QLayout *parentLayout,
+                 int spacing, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR  QVBoxLayout(int spacing, const char *name = 0);
+#endif
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QVBoxLayout(const QVBoxLayout &);

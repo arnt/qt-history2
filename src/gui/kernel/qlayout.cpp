@@ -2353,7 +2353,39 @@ QBoxLayout::Direction QBoxLayout::direction() const
         \link layout.html the Layout overview \endlink
 */
 
+
 /*!
+    Constructs a new top-level horizontal box with
+    parent \a parent.
+*/
+QHBoxLayout::QHBoxLayout(QWidget *parent)
+    : QBoxLayout(LeftToRight, parent)
+{
+}
+
+/*!
+    Constructs a new horizontal box and adds it to
+    \a parentLayout.
+*/
+QHBoxLayout::QHBoxLayout(QLayout *parentLayout)
+    : QBoxLayout(LeftToRight, parentLayout)
+{
+}
+
+/*!
+    Constructs a new horizontal box. You must add
+    it to another layout.
+*/
+QHBoxLayout::QHBoxLayout()
+    : QBoxLayout(LeftToRight)
+{
+}
+
+
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
     Constructs a new top-level horizontal box called \a name, with
     parent \a parent.
 
@@ -2372,6 +2404,7 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
 }
 
 /*!
+  \obsolete
     Constructs a new horizontal box called name \a name and adds it to
     \a parentLayout.
 
@@ -2388,6 +2421,7 @@ QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
 }
 
 /*!
+  \obsolete
     Constructs a new horizontal box called name \a name. You must add
     it to another layout.
 
@@ -2401,6 +2435,8 @@ QHBoxLayout::QHBoxLayout(int spacing, const char *name)
     setSpacing(spacing);
     setObjectName(name);
 }
+#endif
+
 
 /*!
     Destroys this box layout.
@@ -2436,6 +2472,36 @@ QHBoxLayout::~QHBoxLayout()
 */
 
 /*!
+    Constructs a new top-level vertical box with
+    parent \a parent.
+*/
+QVBoxLayout::QVBoxLayout(QWidget *parent)
+    : QBoxLayout(TopToBottom, parent)
+{
+}
+
+/*!
+    Constructs a new vertical box and adds it to
+    \a parentLayout.
+*/
+QVBoxLayout::QVBoxLayout(QLayout *parentLayout)
+    : QBoxLayout(TopToBottom, parentLayout)
+{
+}
+
+/*!
+    Constructs a new vertical box. You must add
+    it to another layout.
+
+*/
+QVBoxLayout::QVBoxLayout()
+    : QBoxLayout(TopToBottom)
+{
+}
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
     Constructs a new top-level vertical box called \a name, with
     parent \a parent.
 
@@ -2454,6 +2520,7 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
 }
 
 /*!
+  \obsolete
     Constructs a new vertical box called name \a name and adds it to
     \a parentLayout.
 
@@ -2470,6 +2537,7 @@ QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
 }
 
 /*!
+  \obsolete
     Constructs a new vertical box called name \a name. You must add
     it to another layout.
 
@@ -2484,6 +2552,9 @@ QVBoxLayout::QVBoxLayout(int spacing, const char *name)
     setObjectName(name);
 }
 
+
+#endif
+
 /*!
     Destroys this box layout.
 
@@ -2492,4 +2563,5 @@ QVBoxLayout::QVBoxLayout(int spacing, const char *name)
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
 #endif // QT_NO_LAYOUT
