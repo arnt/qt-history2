@@ -1823,10 +1823,6 @@ void QWidget::setBaseSize(int w, int h)
     d->topData()->baseh = h;
 }
 
-static void qt_clear_area( QWidget* w, const QBrush &bg, const QPoint &offset, const QRegion& reg)
-{
-}
-
 void QWidgetPrivate::erase_helper(const QRegion& rgn)
 {
     QPoint offset;
