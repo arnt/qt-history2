@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#228 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#229 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -198,7 +198,9 @@ struct QComboData
     QListBox * listBox() { ASSERT(usingLBox); return lBox; }
     QPopupMenu * popup() { ASSERT(!usingLBox); return pop; }
 
-    void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE; }
+    void setListBox( QListBox *l ) { lBox = l ; usingLBox = TRUE;
+    				l->setMouseTracking( TRUE );}
+
     void setPopupMenu( QPopupMenu * pm ) { pop = pm; usingLBox = FALSE; }
 
     int		current;
@@ -1358,8 +1360,6 @@ void QComboBox::currentChanged()
     repaint();
 }
 
-
-
 /*! \reimp
 
   \internal
@@ -1447,7 +1447,17 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 			}
 		    }
 		}
+	    } else if ((e->state() & ( RightButton | LeftButton | MidButton ) )
+		       == 0 && style() == WindowsStyle ){
+		QWidget *mouseW = QApplication::widgetAt( e->globalPos(), TRUE );
+		if ( mouseW == d->listBox()->viewport() ) { //###
+		    QMouseEvent m( QEvent::MouseMove, e->pos(), e->globalPos(),
+				   0, LeftButton );
+		    QApplication::sendEvent( object, &m ); //### Evil
+		    return TRUE;
+		}
 	    }
+
 	    break;
 	case QEvent::MouseButtonRelease:
 	    if ( d->listBox()->rect().contains( e->pos() ) ) {
@@ -1735,7 +1745,6 @@ void QComboBox::setListBox( QListBox * newListBox )
 	delete d->popup();
 
     newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
-
     d->setListBox( newListBox );
 
     d->listBox()->setAutoScrollBar( FALSE );
