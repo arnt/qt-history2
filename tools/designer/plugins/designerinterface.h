@@ -13,6 +13,7 @@
 #include "../shared/widgetinterface.h"
 #include "../designer/filterinterface.h"
 #include "../shared/editorinterface.h"
+#include "../shared/templatewizardiface.h"
 
 /*
  * Interfaces for MainWindow access
