@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#6 $
 **
 ** Implementation of date and time classes
 **
@@ -17,14 +17,14 @@
 #if defined(_OS_MSDOS_)
 #include <dos.h>
 #elif defined(_OS_OS2_)
-#include <bsedos.h>
+#include <os2.h>
 #elif defined(UNIX)
 #include <sys/time.h>
 #include <unistd.h>
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#6 $";
 #endif
 
 
@@ -354,7 +354,7 @@ QTime QTime::currentTime()			// get current time
     DATETIME t;
     DosGetDateTime( &t );
     ct.ds = MSECS_PER_HOUR*t.hours + MSECS_PER_MIN*t.minutes +
-	    1000*t.seconds + 10*t.hundreths;
+	    1000*t.seconds + 10*t.hundredths;
     return ct;
 
 #elif defined(UNIX)
