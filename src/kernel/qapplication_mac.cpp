@@ -385,6 +385,7 @@ int QApplication::macProcessEvent(MSG * m)
 	}
       }
     }
+    /*
     if(thesocs) {
       // Check for socket activity
       SockRec * sr;
@@ -436,6 +437,7 @@ int QApplication::macProcessEvent(MSG * m)
         sr=thesocs->next();
       }
     }
+    */
   } else if(er->what==keyUp) {
     short mychar;
     mychar=er->message & charCodeMask;
