@@ -18,9 +18,11 @@
 
 #include "qaccel.h"
 #include "qshared.h"
-#include "qvaluelist.h"
 #ifndef QT_NO_REGEXP
 # include "qregexp.h"
+#endif
+#ifndef QT_NO_DATASTREAM
+#  include "qdatastream.h"
 #endif
 
 #ifdef Q_WS_MAC
