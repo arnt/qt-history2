@@ -114,7 +114,7 @@ QPrinter::QPrinter( PrinterMode m )
     color_mode = GrayScale;
     ncopies     = 1;
     appcolcopies  = FALSE;
-    usercolcopies = FALSE;
+    usercolcopies = TRUE;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
     output_file = FALSE;
@@ -645,10 +645,22 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
+#if 0
 	    if ( appcolcopies ) 	    
 		pd.Flags |= PD_NOPAGENUMS;
 	    else
 		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
+#else
+	    // We want the Collate checkbox to be visible -- for that we have
+	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
+	    // pd.nMaxPage. In all other cases, we don't need to specify this
+	    // option; furthermore, it is harmful to specify it in those cases,
+	    // since that disables the selection of only printing certain
+	    // pages. (I don't know why this is like this, but my experiments
+	    // showed this behaviour.)
+	    if ( min_pg==0 && max_pg==0 )
+		pd.Flags |= PD_NOPAGENUMS;
+#endif
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -674,6 +686,10 @@ bool QPrinter::setup( QWidget *parent )
 		    else
 			dm->dmColor = DMCOLOR_MONOCHROME;
 		    dm->dmCopies = ncopies;
+		    if ( usercolcopies )
+			dm->dmCollate = DMCOLLATE_TRUE;
+		    else
+			dm->dmCollate = DMCOLLATE_FALSE;
 		    dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
 		    int winPageSize = mapPageSizeDevmode( pageSize() );
 		    if ( winPageSize != 0 ) {
@@ -718,10 +734,22 @@ bool QPrinter::setup( QWidget *parent )
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
+#if 0
 	    if ( appcolcopies ) 
 		pd.Flags |= PD_NOPAGENUMS;
 	    else
                 pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
+#else
+	    // We want the Collate checkbox to be visible -- for that we have
+	    // to specify PD_NOPAGENUMS if we don't set pd.nMinPage and
+	    // pd.nMaxPage. In all other cases, we don't need to specify this
+	    // option; furthermore, it is harmful to specify it in those cases,
+	    // since that disables the selection of only printing certain
+	    // pages. (I don't know why this is like this, but my experiments
+	    // showed this behaviour.)
+	    if ( min_pg==0 && max_pg==0 )
+		pd.Flags |= PD_NOPAGENUMS;
+#endif
 	    if ( usercolcopies )
 		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
@@ -743,6 +771,10 @@ bool QPrinter::setup( QWidget *parent )
                 else
                     dm->dmOrientation = DMORIENT_LANDSCAPE;
                 dm->dmCopies = ncopies;
+		if ( usercolcopies )
+		    dm->dmCollate = DMCOLLATE_TRUE;
+		else
+		    dm->dmCollate = DMCOLLATE_FALSE;
                 dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
 		int winPageSize = mapPageSizeDevmode( pageSize() );
 		if ( winPageSize != 0 ) {
