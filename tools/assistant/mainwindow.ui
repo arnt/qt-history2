@@ -401,7 +401,7 @@
             <cstring>actionOpenPage</cstring>
         </property>
         <property name="text">
-            <string>Add Page</string>
+            <string>Add Tab</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+N</string>
@@ -434,7 +434,7 @@
             <cstring>actionClosePage</cstring>
         </property>
         <property name="text">
-            <string>Close Page</string>
+            <string>Close Tab</string>
         </property>
         <property name="accel">
             <string>Ctrl+Alt+Q</string>
