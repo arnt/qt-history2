@@ -1139,8 +1139,9 @@ void QWorkspacePrivate::showMaximizeControls()
     if (!d->maxcontrols) {
         d->maxmenubar = b;
         d->maxcontrols = new QFrame(q->topLevelWidget(), "qt_maxcontrols");
-        QHBoxLayout* l = new QHBoxLayout(d->maxcontrols,
-                                          d->maxcontrols->frameWidth(), 0);
+        QHBoxLayout* l = new QHBoxLayout(d->maxcontrols);
+        l->setMargin(d->maxcontrols->frameWidth());
+        l->setSpacing(0);
         if (d->maxWindow->windowWidget() &&
              d->maxWindow->windowWidget()->testWFlags(Qt::WStyle_Minimize)) {
             QToolButton* iconB = new QToolButton(d->maxcontrols, "iconify");
@@ -1549,7 +1550,7 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (!c->windowWidget()->isHidden() 
+        if (!c->windowWidget()->isHidden()
          && !c->windowWidget()->testWFlags(Qt::WStyle_StaysOnTop)
          && !c->windowWidget()->testWFlags(Qt::WStyle_Tool)
          && !c->iconw)

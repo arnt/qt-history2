@@ -1445,15 +1445,11 @@ static void init_display()
     setlocale(LC_NUMERIC, "C");        // make sprintf()/scanf() work
 
     // Connect to FB server
-
     qt_fbdpy = new QWSDisplay();
 
     // Get display parameters
-
     // Set paintdevice parameters
-
     // XXX initial info sent from server
-
     // Misc. initialization
 
     QColor::initialize();
@@ -1466,10 +1462,6 @@ static void init_display()
     qws_decoration = QWSManager::newDefaultDecoration();
 #endif
 
-    //##### should be cleaned up at exit
-    //##### incoming.setAutoDelete(true);
-    //##### outgoing.setAutoDelete(true);
-
     qApp->setObjectName(appName);
 
     QFont f;
@@ -1477,7 +1469,6 @@ static void init_display()
     QApplication::setFont(f);
 
     qt_set_qws_resources();
-
 }
 
 void qt_init_display()

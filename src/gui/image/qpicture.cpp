@@ -544,10 +544,10 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 QImage image;
                 if (d->formatMajor < 4) {
                     s >> p >> image;
-                    painter->drawImage(p, image);
+                    painter->drawPixmap(p, image);
                 } else {
                     s >> r >> image;
-                    painter->drawImage(r, image);
+                    painter->drawPixmap(r, image);
                 }
             }
                 break;

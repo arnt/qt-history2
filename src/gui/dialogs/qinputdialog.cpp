@@ -121,8 +121,10 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     vbox->addWidget(d->stack);
     d->lineEdit = new QLineEdit(d->stack, "qt_inputdlg_le");
     d->spinBox = new QSpinBox(d->stack, "qt_inputdlg_sb");
-    d->comboBox = new QComboBox(false, d->stack, "qt_inputdlg_cb");
-    d->editComboBox = new QComboBox(true, d->stack, "qt_inputdlg_editcb");
+    d->comboBox = new QComboBox(false, d->stack);
+    d->comboBox->setObjectName("qt_inputdlg_cb");
+    d->editComboBox = new QComboBox(true, d->stack);
+    d->editComboBox->setObjectName("qt_inputdlg_editcb");
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setSpacing(6);

@@ -184,7 +184,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->sampleEdit->setText("AaBbYyZz");
     hbox->addWidget(d->sampleEdit);
 
-    d->scriptCombo = new QComboBox(false, this, "font encoding");
+    d->scriptCombo = new QComboBox(false, this);
+    d->scriptCombo->setObjectName("font encoding");
 
     d->scriptAccel
         = new QLabel(d->scriptCombo, tr("Scr&ipt"), this,"encoding label");
