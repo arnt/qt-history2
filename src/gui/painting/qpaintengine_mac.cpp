@@ -1423,16 +1423,16 @@ QCoreGraphicsPaintEngine::drawPoints(const QPolygon &pa)
 }
 
 void
-QCoreGraphicsPaintEngine::drawEllipse(const QRectF &rr)
+QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 {
     Q_ASSERT(isActive());
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGRect r = qt_mac_compose_rect(rr, d->penOffset());
-    CGAffineTransform transform = CGAffineTransformMakeScale(r.size.width / r.size.height, 1);
+    CGAffineTransform transform = CGAffineTransformMakeScale(r.width() / r.height(), 1);
     CGPathAddArc(path, &transform,
-                 (r.origin.x + (r.size.width / 2)) / (r.size.width / r.size.height),
-                 r.origin.y + (r.size.height / 2), r.size.height / 2, 0, 2 * M_PI, false);
+                 ((r.x() + (r.width() / 2)) / (r.width() / r.height())) + d->penOffset(),
+                 (r.y() + (r.height() / 2)) + d->penOffset(), 
+                 r.height() / 2, 0, (2 * M_PI), false);
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
