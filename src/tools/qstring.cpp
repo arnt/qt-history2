@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#6 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#6 $";
 #endif
 
 
@@ -149,7 +149,7 @@ QString::QString( const char *str )		// deep copy
 }
 
 
-QString& QString::operator=( const char *str )	// deep copy
+QString &QString::operator=( const char *str )	// deep copy
 {
     return (QString &)duplicate( str, strlen(str)+1 );
 }
