@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#324 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#325 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3054,6 +3054,7 @@ void QFileDialog::setMode( Mode newMode )
 	    d->moreFiles->setMultiSelection( FALSE );
 	    if ( sel.isNull() )
 		sel = QString::fromLatin1(".");
+	    d->types->setEnabled( FALSE );
 	} else if ( newMode == ExistingFiles ) {
 	    files->setSelectionMode( QListView::Extended );
 	    d->moreFiles->setSelectionMode( QListBox::Extended );
