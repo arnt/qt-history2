@@ -17,8 +17,8 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     classList = new QListView( this );
     classList->addColumn( "Text" );
     classList->setRootIsDecorated( TRUE );
-    connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem* )));
-    connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)));
+    connect( classList, SIGNAL(returnPressed(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
+    connect( classList, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(activateEditor(QListViewItem*)) );
     classList->show();
     qtdirenv = getenv( "QTDIR" );
     waitText = new QLabel( "Currently QDocing", this, "wait", WType_Modal | WStyle_Customize | WStyle_NormalBorder );
@@ -106,8 +106,8 @@ void QDocMainWindow::finished()
     QString linenumber;
     int newLine;
     QString text;
-    QDict<QListViewItem> category( 23 );
-    QDict<QListViewItem> filename( 3917 );
+    QDict<QListViewItem> category( 31 );
+    QDict<QListViewItem> filename( 4001 );
     QListViewItem *dirItem   = 0;
     QListViewItem *classItem = 0;
     while ( !outputText.isEmpty() ) {    
