@@ -122,12 +122,13 @@ const char *QAbstractItemModelDrag::format()
 
 QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
-QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index,
-                                                             QAbstractItemModel *model)
+QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index)
 {
-    // FIXME: this is slow
+    // NOTE: index should never be invalid
     QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
-    QList<QPersistentModelIndexData*> *persistentIndexes = &(model->d_func()->persistentIndexes);
+    QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
+    QList<QPersistentModelIndexData*> *persistentIndexes =
+        &(model->d_func()->persistentIndexes);
     for (int i = 0; i < persistentIndexes->count(); ++i) {
         if (persistentIndexes->at(i)->index == index) {
             d = persistentIndexes->at(i);
@@ -135,7 +136,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
         }
     }
     if (d == &QPersistentModelIndexData::shared_null) {
-        d = new QPersistentModelIndexData;
+        d = new QPersistentModelIndexData();
         d->model = model;
         d->index = index;
         persistentIndexes->append(d);
@@ -146,9 +147,8 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     if (data && data != &QPersistentModelIndexData::shared_null) {
-        if (data->model) {
-            data->model->d_func()->persistentIndexes.removeAll(data);
-        }
+        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
+        model->d_func()->persistentIndexes.removeAll(data);
         delete data;
     }
 }
@@ -222,18 +222,14 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 }
 
 /*!
-    Creates a new QPersistentModelIndex that is a copy of the model \a index
-    in the given \a model.
+    Creates a new QPersistentModelIndex that is a copy of the model \a index.
 */
 
-QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
+QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index)
     : d(&QPersistentModelIndexData::shared_null)
 {
-    if (!index.isValid()) {
-        ++d->ref;
-        return;
-    }
-    d = QPersistentModelIndexData::create(index, model);
+    if (index.isValid())
+        d = QPersistentModelIndexData::create(index);
     ++d->ref;
 }
 
@@ -288,6 +284,22 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 }
 
 /*!
+    Sets the persistent model index to refer to the same item in a model
+    as the \a other model index.
+*/
+
+void QPersistentModelIndex::operator=(const QModelIndex &other)
+{
+    if (!--d->ref)
+        QPersistentModelIndexData::destroy(d);
+    if (other.isValid())
+        d = QPersistentModelIndexData::create(other);
+    else
+        d = &QPersistentModelIndexData::shared_null;
+    ++d->ref;
+}
+
+/*!
   \fn QPersistentModelIndex::operator const QModelIndex&() const
 
   Cast operator that returns a const QModelIndex&.
@@ -298,6 +310,29 @@ QPersistentModelIndex::operator const QModelIndex&() const
     return d->index;
 }
 
+/*!
+    \fn bool QPersistentModelIndex::operator==(const QModelIndex &other) const
+
+    Returns true if this persistent model index refers to the same location as
+    the \a other model index; otherwise returns false.
+*/
+
+bool QPersistentModelIndex::operator==(const QModelIndex &other) const
+{
+    return d->index == other;
+}
+
+/*!
+    \fn bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
+
+    Returns true if this persistent model index does not refer to the same
+    location as the \a other model index; otherwise returns false.
+*/
+
+bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
+{
+    return d->index != other;
+}
 
 /*!
     \fn int QPersistentModelIndex::row() const
@@ -336,6 +371,18 @@ void *QPersistentModelIndex::data() const
 }
 
 /*!
+  \fn QAbstractItemModel *QPersistentModelIndex::model() const
+
+  \internal
+
+  Returns the model the index belogs to.
+*/
+const QAbstractItemModel *QPersistentModelIndex::model() const
+{
+    return d->index.model();
+}
+
+/*!
     \fn bool QPersistentModelIndex::isValid() const
 
     Returns true if this persistent model index is valid; otherwise returns
@@ -347,36 +394,11 @@ bool QPersistentModelIndex::isValid() const
     return d->index.isValid();
 }
 
-
-/*!
-    \fn bool QPersistentModelIndex::operator==(const QModelIndex &other) const
-
-    Returns true if this persistent model index refers to the same location as
-    the \a other model index; otherwise returns false.
-*/
-
-bool QPersistentModelIndex::operator==(const QModelIndex &other) const
-{
-    return d->index == other;
-}
-
-/*!
-    \fn bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
-
-    Returns true if this persistent model index does not refer to the same
-    location as the \a other model index; otherwise returns false.
-*/
-
-bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
-{
-    return d->index != other;
-}
-
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
 #ifndef Q_NO_STREAMING_DEBUG
-    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << ")";
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << "," << idx.data() << "," << idx.model() << ")";
     return dbg.space();
 #else
     qWarning("This compiler doesn't support the streaming of QDebug");
@@ -629,7 +651,6 @@ QAbstractItemModel::~QAbstractItemModel()
     for (int i = 0; i < d->persistentIndexes.count(); ++i) {
         Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
         d->persistentIndexes.at(i)->index = QModelIndex::Null;
-        d->persistentIndexes.at(i)->model = 0;
     }
 }
 

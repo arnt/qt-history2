@@ -24,22 +24,24 @@ class Q_GUI_EXPORT QModelIndex
     friend class QAbstractItemModel;
 public:
     enum SpecialValue { Null };
-    inline QModelIndex(SpecialValue = Null) : r(-1), c(-1), d(0) {}
+    inline QModelIndex(SpecialValue = Null) : r(-1), c(-1), d(0), m(0) {}
     inline QModelIndex(const QModelIndex &other)
-        : r(other.row()), c(other.column()), d(other.data()) {}
-    inline ~QModelIndex() { d = 0; }
+        : r(other.row()), c(other.column()), d(other.data()), m(other.model()) {}
+    inline ~QModelIndex() { d = 0; m = 0; }
     inline int row() const { return r; }
     inline int column() const { return c; }
     inline void *data() const { return d; }
-    inline bool isValid() const { return (r >= 0) && (c >= 0); }
+    inline const QAbstractItemModel *model() const { return m; }
+    inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
-    { return (other.r == r && other.c == c && other.d == d); }
+        { return (other.r == r && other.c == c && other.d == d && other.m == m); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
 private:
-    inline QModelIndex(int row, int column, void *data)
-        : r(row), c(column), d(data) {}
+    inline QModelIndex(int row, int column, void *data, const QAbstractItemModel *model)
+        : r(row), c(column), d(data), m(model) {}
     int r, c;
     void *d;
+    const QAbstractItemModel *m;
 };
 
 #ifndef QT_NO_DEBUG
@@ -52,19 +54,21 @@ class Q_GUI_EXPORT QPersistentModelIndex
 {
 public:
     QPersistentModelIndex();
-    QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model);
+    QPersistentModelIndex(const QModelIndex &index);
     QPersistentModelIndex(const QPersistentModelIndex &other);
     ~QPersistentModelIndex();
     bool operator<(const QPersistentModelIndex &other) const;
     bool operator==(const QPersistentModelIndex &other) const;
     void operator=(const QPersistentModelIndex &other);
+    bool operator==(const QModelIndex &other) const;
+    bool operator!=(const QModelIndex &other) const;
+    void operator=(const QModelIndex &other);
     operator const QModelIndex&() const;
     int row() const;
     int column() const;
     void *data() const;
+    const QAbstractItemModel *model() const;
     bool isValid() const;
-    bool operator==(const QModelIndex &other) const;
-    bool operator!=(const QModelIndex &other) const;
 private:
     QPersistentModelIndexData *d;
     friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
@@ -226,7 +230,7 @@ protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
     inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0) const
-        { return QModelIndex(row, column, data); }
+        { return QModelIndex(row, column, data, this); }
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);
     int persistentIndexesCount() const;

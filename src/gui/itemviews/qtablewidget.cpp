@@ -1320,7 +1320,7 @@ void QTableWidget::setSelected(const QTableWidgetSelectionRange &range, bool sel
     QModelIndex topLeft = model()->index(range.topRow(), range.leftColumn());
     QModelIndex bottomRight = model()->index(range.bottomRow(), range.rightColumn());
 
-    selectionModel()->select(QItemSelection(topLeft, bottomRight, model()),
+    selectionModel()->select(QItemSelection(topLeft, bottomRight),
                              select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 

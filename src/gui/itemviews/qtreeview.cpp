@@ -308,7 +308,7 @@ bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
     if (d->hiddenIndexes.count() <= 0)
         return false;
     QModelIndex index = model()->index(row, 0, parent);
-    QPersistentModelIndex persistent(index, model());
+    QPersistentModelIndex persistent(index);
     return d->hiddenIndexes.contains(persistent);
 }
 
@@ -320,7 +320,7 @@ bool QTreeView::isRowHidden(int row, const QModelIndex &parent) const
 void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 {
     QModelIndex index = model()->index(row, 0, parent);
-    QPersistentModelIndex persistent(index, model());
+    QPersistentModelIndex persistent(index);
     if (hide) {
         d->hiddenIndexes.append(persistent);
     } else {
@@ -1484,38 +1484,34 @@ void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::Selectio
     QItemSelection selection;
     for (int i = start; i <= stop; ++i) {
         QModelIndex index = d->modelIndex(i);
+        QModelIndex parent = q->model()->parent(index);
         if (previous.isValid() &&
-            q->model()->parent(index) == q->model()->parent(previous)) {
+            parent == q->model()->parent(previous)) {
             // same parent
-            currentRange = QItemSelectionRange(currentRange.top(),
+            QModelIndex tl = q->model()->index(currentRange.top(),
                                                currentRange.left(),
-                                               index.row(),
-                                               index.column(),
-                                               currentRange.parent(),
-                                               q->model());
+                                               currentRange.parent());
+            currentRange = QItemSelectionRange(tl, index);
         } else if (previous.isValid()
-                   && q->model()->parent(index) == q->model()->sibling(previous.row(),
-                                                                 0, previous)) {
+                   && parent == q->model()->sibling(previous.row(), 0, previous)) {
             // item is child of prevItem
             rangeStack.push(currentRange);
-            currentRange = QItemSelectionRange(index, q->model());
+            currentRange = QItemSelectionRange(index);
         } else {
             if (currentRange.isValid())
                 selection.append(currentRange);
             if (rangeStack.isEmpty()) {
-                currentRange = QItemSelectionRange(index, q->model());
+                currentRange = QItemSelectionRange(index);
             } else {
                 currentRange = rangeStack.pop();
-                if (q->model()->parent(index) == currentRange.parent()) {
-                    currentRange = QItemSelectionRange(currentRange.top(),
+                if (parent == currentRange.parent()) {
+                    QModelIndex tl = q->model()->index(currentRange.top(),
                                                        currentRange.left(),
-                                                       index.row(),
-                                                       index.column(),
-                                                       currentRange.parent(),
-                                                       q->model());
+                                                       currentRange.parent());
+                    currentRange = QItemSelectionRange(tl, index);
                 } else {
                     selection.append(currentRange);
-                    currentRange = QItemSelectionRange(index, q->model());
+                    currentRange = QItemSelectionRange(index);
                 }
             }
         }

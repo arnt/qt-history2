@@ -14,37 +14,20 @@
 #ifndef QITEMSELECTIONMODEL_H
 #define QITEMSELECTIONMODEL_H
 
-#include <qabstractitemmodel.h>
 #include <qlist.h>
+#include <qabstractitemmodel.h>
 
 class Q_GUI_EXPORT QItemSelectionRange
 {
 
 public:
-    inline QItemSelectionRange() : m(0) {}
+    inline QItemSelectionRange() {}
     inline QItemSelectionRange(const QItemSelectionRange &other)
-        : m(other.m), tl(other.tl), br(other.br) {}
-    inline QItemSelectionRange(int top, int left, int bottom, int right,
-                               const QModelIndex &parent, const QAbstractItemModel *model)
-        : m(model)
-        {
-            if (model) {
-                tl = QPersistentModelIndex(model->index(top, left, parent),
-                                           const_cast<QAbstractItemModel*>(model));
-                br = QPersistentModelIndex(model->index(bottom, right, parent),
-                                           const_cast<QAbstractItemModel*>(model));
-            }
-        }
-    inline QItemSelectionRange(const QModelIndex &index, const QAbstractItemModel *model) : m(model)
-        { tl = QPersistentModelIndex(index, const_cast<QAbstractItemModel*>(model)); br = tl; }
-
-    inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                               const QAbstractItemModel *model)
-        : m(model)
-        {
-            tl = QPersistentModelIndex(topLeft, const_cast<QAbstractItemModel*>(model));
-            br = QPersistentModelIndex(bottomRight, const_cast<QAbstractItemModel*>(model));
-        }
+        : tl(other.tl), br(other.br) {}
+    inline QItemSelectionRange(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+        { tl = topLeft; br = bottomRight; }
+    inline QItemSelectionRange(const QModelIndex &index)
+        { tl = index; br = tl; }
 
     inline int top() const { return tl.row(); }
     inline int left() const { return tl.column(); }
@@ -52,13 +35,15 @@ public:
     inline int right() const { return br.column(); }
     inline int width() const { return br.column() - tl.column() + 1; }
     inline int height() const { return br.row() - tl.row() + 1; }
-    inline QModelIndex parent() const { return (m ? m->parent(tl) : QModelIndex::Null); }
-    inline const QAbstractItemModel *model() const { return m; }
-    inline bool contains(const QModelIndex &item, const QAbstractItemModel *model) const
+    inline QModelIndex parent() const
+        { return tl.model() ? tl.model()->parent(tl) : QModelIndex::Null; }
+    inline const QAbstractItemModel *model() const { return tl.model(); }
+
+    inline bool contains(const QModelIndex &index) const
     {
-        return (model && model->parent(tl) == model->parent(item)
-                && tl.row() <= item.row() && tl.column() <= item.column()
-                && br.row() >= item.row() && br.column() >= item.column());
+        return (index.model() && parent() == index.model()->parent(index)
+                && tl.row() <= index.row() && tl.column() <= index.column()
+                && br.row() >= index.row() && br.column() >= index.column());
     }
 
     inline bool intersects(const QItemSelectionRange &other) const
@@ -72,27 +57,34 @@ public:
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
     {
-        return QItemSelectionRange(qMax(top(), other.top()), qMax(left(), other.left()),
-                                   qMin(bottom(), other.bottom()), qMin(right(), other.right()),
-                                   other.parent(), other.model());
+        if (model()) {
+            QModelIndex topLeft = model()->index(qMax(top(), other.top()),
+                                                 qMax(left(), other.left()),
+                                                 other.parent());
+            QModelIndex bottomRight = model()->index(qMin(bottom(), other.bottom()),
+                                                     qMin(right(), other.right()),
+                                                     other.parent());
+            return QItemSelectionRange(topLeft, bottomRight);
+        }
+        return QItemSelectionRange();
     }
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
-        return (parent() == other.parent()
-                && top() == other.top() && left() == other.left()
-                && bottom() == other.bottom() && right() == other.right());
+        return (tl == other.tl && br == other.br);
     }
 
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
-    inline bool isValid() const { return m && tl.isValid() && br.isValid()
-                                      && top() <= bottom() && left() <= right()
-                                      && top() > -1 && left() > -1; }
+    inline bool isValid() const
+    {
+        return (tl.isValid() && br.isValid()
+                && top() <= bottom() && left() <= right()
+                && top() > -1 && left() > -1);
+    }
 
-    QModelIndexList items(const QAbstractItemModel *model) const;
+    QModelIndexList indexes() const;
 
 private:
-    const QAbstractItemModel *m;
     QPersistentModelIndex tl, br;
 };
 
@@ -123,7 +115,7 @@ public:
 
     Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag)
 
-    QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
+    QItemSelectionModel(const QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
     QModelIndex currentIndex() const;
@@ -135,9 +127,10 @@ public:
     bool rowIntersectsSelection(int row, const QModelIndex &parent) const;
     bool columnIntersectsSelection(int column, const QModelIndex &parent) const;
 
-    QAbstractItemModel *model() const;
     QModelIndexList selectedIndexes() const;
     const QItemSelection selection() const;
+
+    const QAbstractItemModel *model() const;
 
 public slots:
     void setCurrentIndex(const QModelIndex &index, SelectionFlags command);
@@ -153,8 +146,8 @@ signals:
     void currentColumnChanged(const QModelIndex &current, const QModelIndex &previous);
 
 protected:
-    QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
-                        QObject *parent = 0);
+    QItemSelectionModel(QItemSelectionModelPrivate &dd,
+                        const QAbstractItemModel *model, QObject *parent = 0);
     void emitSelectionChanged(const QItemSelection &newSelection, const QItemSelection &oldSelection);
 };
 
@@ -164,14 +157,13 @@ class Q_GUI_EXPORT QItemSelection : public QList<QItemSelectionRange>
 {
 public:
     QItemSelection() {}
-    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                   const QAbstractItemModel *model);
-    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                const QAbstractItemModel *model);
-    bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
-    QModelIndexList items(QAbstractItemModel *model) const;
+    QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void select(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    bool contains(const QModelIndex &index) const;
+    QModelIndexList indexes() const;
     void merge(const QItemSelection &other, QItemSelectionModel::SelectionFlags command);
-    static void split(const QItemSelectionRange &range, const QItemSelectionRange &other,
+    static void split(const QItemSelectionRange &range,
+                      const QItemSelectionRange &other,
                       QItemSelection *result);
 };
 

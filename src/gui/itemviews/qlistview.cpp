@@ -16,6 +16,7 @@
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qpainter.h>
+#include <qbitmap.h>
 #include <qvector.h>
 #include <qstyle.h>
 #include <qevent.h>
@@ -757,6 +758,7 @@ void QListView::dropEvent(QDropEvent *e)
             d->viewport->update(itemViewportRect(index));
         }
         stopAutoScroll();
+        d->draggedItems.clear();
     } else {
         QAbstractItemView::dropEvent(e);
     }
@@ -772,10 +774,23 @@ QDragObject *QListView::dragObject()
     // We need these items to draw the drag items
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     QModelIndexList::ConstIterator it = indexes.begin();
+
+    QStyleOptionViewItem option = viewOptions();
+    option.rect = QRect(QPoint(0, 0), itemRect(*it).size());
+    QPixmap pixmap(option.rect.size());
+    //pixmap.setMask(pixmap.createHeuristicMask());
+    static QColor background(255, 255, 255, 127);
+    pixmap.fill(background);
+    QPainter painter(&pixmap);
+    itemDelegate()->paint(&painter, option, model(), *it);
+    painter.end();
+
     for (; it != indexes.end(); ++it)
         if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
             d->draggedItems.push_back(*it);
-    return model()->dragObject(indexes, this);
+    QDragObject *dragObject = model()->dragObject(indexes, this);
+    //dragObject->setPixmap(pixmap);
+    return dragObject;
 }
 
 /*!
@@ -1020,12 +1035,12 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         } else if ((*it).row() == (br.row() + 1)) {
             br = (*it); // expand current range
         } else {
-            selection.select(tl, br, model()); // select current range
+            selection.select(tl, br); // select current range
             tl = br = *it; // start new range
         }
     }
     if (tl.isValid() && br.isValid())
-        selection.select(tl, br, model());
+        selection.select(tl, br);
 
     selectionModel()->select(selection, command);
 }

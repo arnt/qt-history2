@@ -181,20 +181,20 @@
     Returns the list of model index items stored for the given \a model.
 */
 
-QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) const
+QModelIndexList QItemSelectionRange::indexes() const
 {
     QModelIndex index;
-    QModelIndexList indexes;
+    QModelIndexList result;
     if (isValid()) {
         for (int column = left(); column <= right(); ++column) {
             for (int row = top(); row <= bottom(); ++row) {
-                index = model->index(row, column, parent());
-                if (model->flags(index) & QAbstractItemModel::ItemIsSelectable)
-                    indexes.append(index);
+                index = model()->index(row, column, parent());
+                if (model()->flags(index) & QAbstractItemModel::ItemIsSelectable)
+                    result.append(index);
             }
         }
     }
-    return indexes;
+    return result;
 }
 
 /*!
@@ -254,10 +254,9 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
     top-left model item, specified by the \a topLeft index, to the
     bottom-right item, specified by \a bottomRight.*/
 
-QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                               const QAbstractItemModel *model)
+QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    select(topLeft, bottomRight, model);
+    select(topLeft, bottomRight);
 }
 
 /*!
@@ -265,9 +264,11 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
     item, specified by the \a topLeft index, to the bottom-right item,
     specified by \a bottomRight.*/
 
-void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                            const QAbstractItemModel *model)
+void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
+    if (topLeft.model() != bottomRight.model())
+        return;
+    const QAbstractItemModel *model = topLeft.model();
     if (model->parent(topLeft) != model->parent(bottomRight) ||
         !topLeft.isValid() || !bottomRight.isValid())
         return;
@@ -275,7 +276,7 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
     if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
         qWarning("topLeft and bottomRight are swapped!");
 
-    append(QItemSelectionRange(topLeft, bottomRight, model));
+    append(QItemSelectionRange(topLeft, bottomRight));
 }
 
 /*!
@@ -283,11 +284,11 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
     returns false.
 */
 
-bool QItemSelection::contains(const QModelIndex &index, const QAbstractItemModel *model) const
+bool QItemSelection::contains(const QModelIndex &index) const
 {
     QList<QItemSelectionRange>::const_iterator it = begin();
     for (; it != end(); ++it)
-        if ((*it).contains(index, model))
+        if ((*it).contains(index))
             return true;
     return false;
 }
@@ -296,13 +297,13 @@ bool QItemSelection::contains(const QModelIndex &index, const QAbstractItemModel
     Returns the list of selected model index items for the given \a model.
 */
 
-QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
+QModelIndexList QItemSelection::indexes() const
 {
-    QModelIndexList items;
+    QModelIndexList result;
     QList<QItemSelectionRange>::const_iterator it = begin();
     for (; it != end(); ++it)
-        items += (*it).items(model);
-    return items;
+        result += (*it).indexes();
+    return result;
 }
 
 /*!
@@ -378,14 +379,26 @@ void QItemSelection::split(const QItemSelectionRange &range,
     int other_bottom = other.bottom();
     int other_right = other.right();
     const QAbstractItemModel *model = range.model();
-    if (other_top > top)
-        result->append(QItemSelectionRange(top, left, other_top - 1, right, parent, model));
-    if (other_bottom < bottom)
-        result->append(QItemSelectionRange(other_bottom + 1, left, bottom, right, parent, model));
-    if (other_left > left)
-        result->append(QItemSelectionRange(top, left, bottom, other_left - 1, parent, model));
-    if (other_right < right)
-        result->append(QItemSelectionRange(top, other_right + 1, bottom, right, parent, model));
+    if (other_top > top) {
+        QModelIndex tl = model->index(top, left, parent);
+        QModelIndex br = model->index(other_top - 1, right, parent);
+        result->append(QItemSelectionRange(tl, br));
+    }
+    if (other_bottom < bottom) {
+        QModelIndex tl = model->index(other_bottom + 1, left, parent);
+        QModelIndex br = model->index(bottom, right, parent);
+        result->append(QItemSelectionRange(tl, br));
+    }
+    if (other_left > left) {
+        QModelIndex tl = model->index(top, left, parent);
+        QModelIndex br = model->index(bottom, other_left - 1, parent);
+        result->append(QItemSelectionRange(tl, br));
+    }
+    if (other_right < right) {
+        QModelIndex tl = model->index(top, other_right + 1, parent);
+        QModelIndex br = model->index(bottom, right, parent);
+        result->append(QItemSelectionRange(tl, br));
+    }
 }
 
 /*!
@@ -408,24 +421,18 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
         for (int i = 0; i < selection.count(); ++i) {
             QModelIndex parent = selection.at(i).parent();
             int colCount = model->columnCount(parent);
-            expanded.append(QItemSelectionRange(selection.at(i).top(),
-                                                0,
-                                                selection.at(i).bottom(),
-                                                colCount - 1,
-                                                selection.at(i).parent(),
-                                                selection.at(i).model()));
+            QModelIndex tl = model->index(selection.at(i).top(), 0, parent);
+            QModelIndex br = model->index(selection.at(i).bottom(), colCount - 1, parent);
+            expanded.append(QItemSelectionRange(tl, br));
         }
     }
     if (command & QItemSelectionModel::Columns) {
         for (int i = 0; i < selection.count(); ++i) {
             QModelIndex parent = selection.at(i).parent();
             int rowCount = model->rowCount(parent);
-            expanded.append(QItemSelectionRange(0,
-                                                selection.at(i).left(),
-                                                rowCount - 1,
-                                                selection.at(i).right(),
-                                                selection.at(i).parent(),
-                                                selection.at(i).model()));
+            QModelIndex tl = model->index(0, selection.at(i).left(), parent);
+            QModelIndex br = model->index(rowCount - 1, selection.at(i).right(), parent);
+            expanded.append(QItemSelectionRange(tl, br));
         }
     }
     return expanded;
@@ -466,7 +473,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   Constructs a selection model with the given \a parent that operates on
   the specified item \a model.
 */
-QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *parent)
+QItemSelectionModel::QItemSelectionModel(const QAbstractItemModel *model, QObject *parent)
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d->model = model;
@@ -475,7 +482,8 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
 /*!
   \internal
 */
-QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
+QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd,
+                                         const QAbstractItemModel *model,
                                          QObject *parent)
     : QObject(dd, parent)
 {
@@ -497,7 +505,7 @@ QItemSelectionModel::~QItemSelectionModel()
 */
 void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags command)
 {
-    QItemSelection selection(index, index, model());
+    QItemSelection selection(index, index);
     select(selection, command);
 }
 
@@ -638,7 +646,7 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
         return;
     }
     QModelIndex previous = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex(index, model()); // set current before emitting selection changed below
+    d->currentIndex = QPersistentModelIndex(index); // set current before emitting selection changed below
     if (command != NoUpdate)
         select(index, command); // select item
     emit currentChanged(index, previous);
@@ -662,22 +670,23 @@ QModelIndex QItemSelectionModel::currentIndex() const
 */
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
-    if ((model()->flags(index) & QAbstractItemModel::ItemIsSelectable) == 0)
+    if (model() != index.model()
+        || (model()->flags(index) & QAbstractItemModel::ItemIsSelectable) == 0)
         return false;
     bool selected = false;
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
     //  search model ranges
     for (; !selected && it != d->ranges.end(); ++it)
-        if ((*it).contains(index, model()))
+        if ((*it).contains(index))
             selected = true;
     // check  currentSelection
     if (d->currentSelection.count()) {
         if (d->currentCommand & Deselect && selected)
-            selected = !d->currentSelection.contains(index, model());
+            selected = !d->currentSelection.contains(index);
         else if (d->currentCommand & Toggle)
-            selected ^= d->currentSelection.contains(index, model());
+            selected ^= d->currentSelection.contains(index);
         else if (d->currentCommand & Select && !selected)
-            selected = d->currentSelection.contains(index, model());
+            selected = d->currentSelection.contains(index);
     }
     return selected;
 }
@@ -692,6 +701,9 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 */
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
+    if (parent.isValid() && model() != parent.model())
+        return false;
+
     // return false if row exist in currentSelection (Deselect)
     if (d->currentCommand & Deselect && d->currentSelection.count()) {
         for (int i=0; i<d->currentSelection.count(); ++i) {
@@ -722,7 +734,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
     for (int i = 0; i < colCount; ++i) {
         index = model()->index(row, i, parent);
         for (it = joined.begin(); it != joined.end(); ++it)
-            if ((*it).contains(index, model())) {
+            if ((*it).contains(index)) {
                 i = (*it).right();
                 break;
             }
@@ -742,6 +754,9 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
 */
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
+    if (parent.isValid() && model() != parent.model())
+        return false;
+
     // return false if column exist in currentSelection (Deselect)
     if (d->currentCommand & Deselect && d->currentSelection.count()) {
         for (int i = 0; i < d->currentSelection.count(); ++i) {
@@ -776,7 +791,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
     for (int i = 0; i < rowCount; ++i) {
          index = model()->index(i, column, parent);
          for (it = joined.begin(); it != joined.end(); ++it) {
-             if ((*it).contains(index, model())) {
+             if ((*it).contains(index)) {
                  i = (*it).bottom();
                  break;
              }
@@ -793,6 +808,8 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 */
 bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &parent) const
 {
+    if (parent.isValid() &&model() != parent.model())
+         return false;
     // check current selection
     for (int i = 0; i < d->currentSelection.count(); ++i)
         if (d->currentSelection.at(i).top() <= row
@@ -812,6 +829,8 @@ bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &par
 */
 bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelIndex &parent) const
 {
+    if (parent.isValid() && model() != parent.model())
+        return false;
     // check current selection
     for (int i = 0; i < d->currentSelection.count(); ++i)
         if (d->currentSelection.at(i).left() <= column
@@ -826,14 +845,6 @@ bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelInde
 }
 
 /*!
-  Returns the item model operated on by the selection model.
-*/
-QAbstractItemModel *QItemSelectionModel::model() const
-{
-    return d->model;
-}
-
-/*!
   Returns a list of all selected model item indexes. The list contains no
   duplicates, and is not sorted.
 */
@@ -841,7 +852,7 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 {
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);
-    return selected.items(model());
+    return selected.indexes();
 }
 
 /*!
@@ -852,6 +863,14 @@ const QItemSelection QItemSelectionModel::selection() const
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);
     return selected;
+}
+
+/*!
+  Returns the item model operated on by the selection model.
+*/
+const QAbstractItemModel *QItemSelectionModel::model() const
+{
+    return d->model;
 }
 
 /*!

@@ -19,16 +19,12 @@
 class QPersistentModelIndexData
 {
 public:
-    QPersistentModelIndexData() : model(0)
-    {
-        ref = 0;
-    }
-    QAbstractItemModel *model;
+    QPersistentModelIndexData() : model(0) { ref = 0; }
     QModelIndex index;
     QAtomic ref;
+    const QAbstractItemModel *model;
     static QPersistentModelIndexData shared_null;
-
-    static QPersistentModelIndexData *create(const QModelIndex &index, QAbstractItemModel *model);
+    static QPersistentModelIndexData *create(const QModelIndex &index);
     static void destroy(QPersistentModelIndexData *data);
 };
 

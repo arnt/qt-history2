@@ -590,7 +590,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
                              ? rect.right() : rect.left()), rect.top());
     QModelIndex br = itemAt((QApplication::reverseLayout()
                              ? rect.left() : rect.right()), rect.bottom());
-    selectionModel()->select(QItemSelection(tl, br, model()), command);
+    selectionModel()->select(QItemSelection(tl, br), command);
 }
 
 /*!
@@ -1033,7 +1033,7 @@ void QTableView::selectRow(int row)
             QModelIndex tl = model()->index(qMin(d->rowSectionAnchor, row), 0, root());
             QModelIndex br = model()->index(qMax(d->rowSectionAnchor, row),
                                             model()->columnCount(root()) - 1, root());
-            selectionModel()->select(QItemSelection(tl, br, model()), command);
+            selectionModel()->select(QItemSelection(tl, br), command);
         }
     }
 }
@@ -1058,7 +1058,7 @@ void QTableView::selectColumn(int column)
             QModelIndex tl = model()->index(0, qMin(d->columnSectionAnchor, column), root());
             QModelIndex br = model()->index(model()->rowCount(root()) - 1,
                                             qMax(d->columnSectionAnchor, column), root());
-            selectionModel()->select(QItemSelection(tl, br, model()), command);
+            selectionModel()->select(QItemSelection(tl, br), command);
         }
     }
 }

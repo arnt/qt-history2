@@ -33,7 +33,7 @@ public:
             ranges.removeAll(*it);
     }
 
-    QAbstractItemModel *model;
+    const QAbstractItemModel *model;
     QItemSelection ranges;
     QItemSelection currentSelection;
     QPersistentModelIndex currentIndex;

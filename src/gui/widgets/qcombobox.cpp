@@ -916,7 +916,7 @@ QModelIndex QComboBox::root() const
 void QComboBox::setRoot(const QModelIndex &index)
 {
     QModelIndex old = d->root;
-    d->root = QPersistentModelIndex(index, d->model);
+    d->root = QPersistentModelIndex(index);
     listView()->setRoot(index);
     emit rootChanged(old, index);
     update();
@@ -937,7 +937,7 @@ void QComboBox::setCurrentItem(int row)
     if (!index.isValid() || index == d->currentIndex)
         return;
     QModelIndex old = d->currentIndex;
-    d->currentIndex = QPersistentModelIndex(index, d->model);
+    d->currentIndex = QPersistentModelIndex(index);
     emit currentChanged(old, index);
     update();
 }
