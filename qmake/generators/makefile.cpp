@@ -1696,46 +1696,37 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             }
             if(!wrote_clean_cmds || !wrote_clean) {
                 QStringList cleans;
+                const QString del_statement("-$(DEL_FILE)");
                 if(!wrote_clean) {
                     if(project->isActiveConfig("no_delete_multiple_files")) {
                         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input)
-                            cleans.append("-$(DEL_FILE) " + replaceExtraCompilerVariables(tmp_clean, (*input),
-                                                       replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                            cleans.append(replaceExtraCompilerVariables(tmp_clean, (*input),
+                                          replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
                     } else {
-                        QString del_statement;
-                        int del_size = 0;
-                        const int qtdirSize = replaceExtraCompilerVariables("$(QTDIR)", QString::null, QString::null).count();
+                        QString files, file;
                         const int commandlineLimit = 2047; // NT limit, expanded
-                        for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                            if(del_statement.isEmpty()) {
-                                del_statement = "-$(DEL_FILE)";
-                                del_size = del_statement.size();
+                        for(int input = 0; input < tmp_inputs.size(); ++input) {
+                            file = " " + replaceExtraCompilerVariables(tmp_clean, tmp_inputs.at(input),
+                                           replaceExtraCompilerVariables(tmp_out, tmp_inputs.at(input), QString::null));
+                            if(del_statement.length() + files.length() +
+                               qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
+                                cleans.append(files);
+                                files.clear();
                             }
-                            QString next_statement = " " + replaceExtraCompilerVariables(tmp_clean, (*input),
-                                                           replaceExtraCompilerVariables(tmp_out, (*input), QString::null));
-
-                            int next_size = next_statement.size() + next_statement.count("$(QTDIR)") * qtdirSize;
-                            if(del_size+next_size > commandlineLimit) {
-                                cleans.append(del_statement);
-                                del_statement = "-$(DEL_FILE)" + next_statement;
-                                del_size = del_statement.size();
-                            } else {
-                                del_statement += next_statement;
-                                del_size += next_size;
-                            }
+                            files += file;
                         }
-                        if(!del_statement.isEmpty())
-                            cleans.append(del_statement);
-                    }
-                }
-                if(!wrote_clean_cmds) {
-                    for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
-                        cleans.append(replaceExtraCompilerVariables(tmp_clean_cmds, (*input),
-                                      replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                        if(!files.isEmpty())
+                            cleans.append(files);
                     }
                 }
                 if(!cleans.isEmpty())
-                    t << valGlue(cleans, "\n\t", "\n\t", "");
+                    t << valGlue(cleans, "\n\t" + del_statement, "\n\t" + del_statement, "");
+                if(!wrote_clean_cmds) {
+                    for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
+                        t << "\n\t" << replaceExtraCompilerVariables(tmp_clean_cmds, (*input),
+                                         replaceExtraCompilerVariables(tmp_out, (*input), QString::null));
+                    }
+                }
             }
             t << endl;
         }
