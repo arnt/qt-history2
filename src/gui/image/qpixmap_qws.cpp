@@ -701,8 +701,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently!
         QImage image = toImage();
-        image.transform(matrix, mode);
-        return QPixmap(image);
+        return QPixmap(image.transform(matrix, mode));
     }
 
     int           w, h;                                // size of target pixmap
