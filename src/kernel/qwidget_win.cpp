@@ -1198,7 +1198,7 @@ void QWidget::erase( int x, int y, int w, int h )
     int ox = offset.x();
     int oy = offset.y();
 
-    qt_erase_background( lhdc, x, y, w, h, background(), ox, oy );
+    qt_erase_background( lhdc, x, y, w, h, palette().background(), ox, oy );
 
     if ( tmphdc ) {
 	ReleaseDC( winId(), lhdc );
@@ -1243,8 +1243,7 @@ void QWidget::erase( const QRegion& rgn )
     int ox = offset.x();
     int oy = offset.y();
 
-    //#### use background() brush
-    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), background(), ox, oy );
+    qt_erase_background( lhdc, 0, 0, crect.width(), crect.height(), palette().background(), ox, oy );
     SelectClipRgn( lhdc, hasRegion ? oldRegion : 0 );
     DeleteObject( oldRegion );
     if ( hasRegion )
