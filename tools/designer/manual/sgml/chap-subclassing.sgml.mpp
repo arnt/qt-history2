@@ -575,16 +575,20 @@ longer required.
 </para>
 
 <para>
-We used the <function>child()</function> to gain access to a
-widget within the dynamic dialog, passing it the name of the widget we
-were interested in. In some situations we might not know what a widget
-is called. The 
-<function>QObject::queryList()</function> function is called with the name of a
-class and returns a <classname>QObjectList</classname> pointer which
-points to every object in the dialog that is derived from the given
-class. See the online <ulink
-url="http://doc.trolltech.com/qobject.html">QObject</> documentation for
-further details.
+We used the <function>child()</function> to gain access to a widget
+within the dynamic dialog, passing it the name of the widget we were
+interested in. In some situations we might not know what a widget is
+called. We can access the first widget of a specified class by calling
+<function>child()</function> with a null widget name and a classname,
+e.g. <literal>child(0,"QPushButton")</literal>. This will return a
+pointer to the first <classname>QPushButton</classname> it finds (or 0
+if there isn't one). If you want pointers to all the widgets of a given
+class you can call the <function>QObject::queryList()</function>
+function, passing it the name of the class. It returns a
+<classname>QObjectList</classname> pointer which points to every object
+in the dialog that is derived from the given class. See the online
+<ulink url="http://doc.trolltech.com/qobject.html">QObject</>
+documentation for further details.
 </para>
 </sect3>
 

@@ -7,9 +7,9 @@
 This chapter shows you how to use Qt's data-aware widgets from within
 \qd. It demonstrates \ins, \upd and \del in both \class[QDataTable]s
 (tables) and \class[QDataBrowser]s (forms). It also shows how to code
-Master-Detail relationships and Drilldown. A simple approach to Foreign
-key handling is presented, while a more sophisticated approach is
-presented in the SQL module documentation.
+Master-Detail relationships and Drilldown. A simple approach to foreign
+key handling is presented here; a more sophisticated approach is shown
+in the online SQL module documentation.
 </para>
 
 <para>
@@ -57,7 +57,9 @@ the SQL in this file to recreate the example database on your own
 system.
 
 <example><title>Schema <literal>CREATE TABLE</> Statements</><programlisting>
-\scan eg/book/book.sql /CREATE TABLE\s*author/ /CREATE TABLE\s*format/
+\scan eg/book/book.sql /CREATE TABLE\s*author/ /;/
+\scan eg/book/book.sql /CREATE TABLE\s*book/ /;/
+\scan eg/book/book.sql /CREATE TABLE\s*sequence/ /;/
 </programlisting></example>
 
 The 'book' table is simplified for the purposes of example. It can
@@ -420,7 +422,7 @@ bool createConnections()
 	    visible but rather the text associated with it. Thus, we
 	    would want the author's name to appear rather than the
 	    author id when we show book information.  In many
-	    databases, this can be achieved using a VIEW.  See your
+	    databases, this can be achieved using a view.  See your
 	    database's documentation for details.
 	    </para>
 	    </sidebar>
@@ -627,7 +629,7 @@ bool createConnections()
 
 		    <listitem>
 			<para>
-			Since we do not want them visiblem, make sure
+			Since we do not want them visible, make sure
 			the authorid and id fields are moved to the
 			Available Fields list box by using the arrow
 			buttons. Move the title field to the top of
