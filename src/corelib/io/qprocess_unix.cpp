@@ -542,8 +542,22 @@ qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
     return bytesRead;
 }
 
+static void qt_ignore_sigpipe()
+{
+    // Set to ignore SIGPIPE once only.
+    static QBasicAtomic atom = Q_ATOMIC_INIT(0);
+    if (atom.testAndSet(0, 1)) {
+        struct sigaction noaction;
+        memset(&noaction, 0, sizeof(noaction));
+        noaction.sa_handler = SIG_IGN;
+        ::sigaction(SIGPIPE, &noaction, 0);
+    }
+}
+
 qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
+    qt_ignore_sigpipe();
+    
     qint64 written = qint64(::write(writePipe[1], data, maxlen));
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::writeToStdin(%p \"%s\", %lld) == %lld",
