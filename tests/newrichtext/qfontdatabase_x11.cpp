@@ -52,6 +52,8 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include <freetype/freetype.h>
+
 #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
@@ -655,11 +657,8 @@ static void loadXft()
 	family->hasXft = TRUE;
 
 	QCString file = file_value;
-	QCString ext = file.mid( file.findRev( '.' ) ).lower();
-	if ( index_value == 0 && ( ext == ".ttf" || ext == ".otf" ) )
-	    family->xftFilename = file;
-	else
-	    qDebug("invalid xft file %s", file_value );
+	family->fontFilename = file;
+	family->fontFileIndex = index_value;
 
 	QtFontStyle::Key styleKey;
 	styleKey.italic = (slant_value == XFT_SLANT_ITALIC);
@@ -759,141 +758,130 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned s
 }
 #endif
 
-// #### get rid of the X11 screen somehow.
-static inline void checkXftCoverage( QtFontFamily *family, int x11Screen )
+static inline void checkXftCoverage( QtFontFamily *family )
 {
-//     qDebug("checking Xft coverage of family %s",  family->name.latin1() );
-
 #ifdef _POSIX_MAPPED_FILES
-    if ( !family->xftFilename.isEmpty() ) {
-	qDebug("not using Xft for coverage checking of '%s'!", family->name.latin1() );
-	int fd = open( family->xftFilename.data(), O_RDONLY );
+    QCString ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
+    if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
+	qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
+	int fd = open( family->fontFilename.data(), O_RDONLY );
+
 	if ( fd == -1 )
 	    goto xftCheck;
-	void *map;
-	size_t pagesize = getpagesize();
-	off_t offset = 0;
-	size_t length = (8192 / pagesize + 1) * pagesize;
-	if ( (map = mmap( 0, length, PROT_READ, MAP_SHARED, fd, offset ) ) == MAP_FAILED )
-	    goto xftCheck;
-
-	unsigned char *ttf = (unsigned char *)map;
-	Q_UINT32 version = getUInt( ttf );
-	if ( version != 0x00010000 ) {
-	    qDebug("file has wrong version %x",  version );
-	    goto xftCheck;
-	}
-	Q_UINT16 numTables =  getUShort( ttf+4 );
-
-	unsigned char *table_dir = ttf + 12;
-	Q_UINT32 cmap_offset = 0;
-	Q_UINT32 cmap_length = 0;
-	for ( int n = 0; n < numTables; n++ ) {
-	    Q_UINT32 tag = getUInt( table_dir + 16*n );
-	    if ( tag == MAKE_TAG( 'c', 'm', 'a', 'p' ) ) {
-		cmap_offset = getUInt( table_dir + 16*n + 8 );
-		cmap_length = getUInt( table_dir + 16*n + 12 );
-		break;
-	    }
-	}
-	if ( !cmap_offset ) {
-	    qDebug("no cmap found" );
-	    goto xftCheck;
-	}
-
-	if ( cmap_offset + cmap_length > length ) {
-	    munmap( map, length );
-	    offset = cmap_offset / pagesize * pagesize;
-	    cmap_offset -= offset;
-	    length = (cmap_offset + cmap_length);
+	{
+	    void *map;
+	    size_t pagesize = getpagesize();
+	    off_t offset = 0;
+	    size_t length = (8192 / pagesize + 1) * pagesize;
 	    if ( (map = mmap( 0, length, PROT_READ, MAP_SHARED, fd, offset ) ) == MAP_FAILED )
-		goto xftCheck;
-	}
+		goto error;
 
-	unsigned char *cmap = ((unsigned char *)map) + cmap_offset;
+	    unsigned char *ttf = (unsigned char *)map;
+	    Q_UINT32 version = getUInt( ttf );
+	    if ( version != 0x00010000 ) {
+		qDebug("file has wrong version %x",  version );
+		goto error;
+	    }
+	    Q_UINT16 numTables =  getUShort( ttf+4 );
 
-	version = getUShort( cmap );
-	if ( version != 0 ) {
-	    qDebug("wrong cmap version" );
-	    goto xftCheck;
-	}
-	numTables = getUShort( cmap + 2 );
-	unsigned char *unicode_table = 0;
-	for ( int n = 0; n < numTables; n++ ) {
-	    Q_UINT32 version = getUInt( cmap + 4 + 8*n );
-	    // accept both symbol and Unicode encodings. prefer unicode.
-	    if ( version == 0x00030001 || version == 0x00030000 ) {
-		unicode_table = cmap + getUInt( cmap + 4 + 8*n + 4 );
-		if ( version == 0x00030001 )
+	    unsigned char *table_dir = ttf + 12;
+	    Q_UINT32 cmap_offset = 0;
+	    Q_UINT32 cmap_length = 0;
+	    for ( int n = 0; n < numTables; n++ ) {
+		Q_UINT32 tag = getUInt( table_dir + 16*n );
+		if ( tag == MAKE_TAG( 'c', 'm', 'a', 'p' ) ) {
+		    cmap_offset = getUInt( table_dir + 16*n + 8 );
+		    cmap_length = getUInt( table_dir + 16*n + 12 );
 		    break;
+		}
 	    }
-	}
-
-	if ( !unicode_table ) {
-	    qDebug("no unicode table found" );
-	    goto xftCheck;
-	}
-
-	Q_UINT16 format = getUShort( unicode_table );
-	if ( format != 4 )
-	    goto xftCheck;
-
-	for ( int i = 0; i < QFont::NScripts+1; i++ ) {
-	    QChar ch = sampleCharacter( (QFont::Script)i );
-	    if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
-// 		qDebug("font can render script %d",  i );
-		family->scripts[i] = QtFontFamily::Supported;
-	    } else {
-		family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+	    if ( !cmap_offset ) {
+		qDebug("no cmap found" );
+		goto error;
 	    }
+
+	    if ( cmap_offset + cmap_length > length ) {
+		munmap( map, length );
+		offset = cmap_offset / pagesize * pagesize;
+		cmap_offset -= offset;
+		length = (cmap_offset + cmap_length);
+		if ( (map = mmap( 0, length, PROT_READ, MAP_SHARED, fd, offset ) ) == MAP_FAILED )
+		    goto error;
+	    }
+
+	    unsigned char *cmap = ((unsigned char *)map) + cmap_offset;
+
+	    version = getUShort( cmap );
+	    if ( version != 0 ) {
+		qDebug("wrong cmap version" );
+		goto error;
+	    }
+	    numTables = getUShort( cmap + 2 );
+	    unsigned char *unicode_table = 0;
+	    for ( int n = 0; n < numTables; n++ ) {
+		Q_UINT32 version = getUInt( cmap + 4 + 8*n );
+		// accept both symbol and Unicode encodings. prefer unicode.
+		if ( version == 0x00030001 || version == 0x00030000 ) {
+		    unicode_table = cmap + getUInt( cmap + 4 + 8*n + 4 );
+		    if ( version == 0x00030001 )
+			break;
+		}
+	    }
+
+	    if ( !unicode_table ) {
+		qDebug("no unicode table found" );
+		goto error;
+	    }
+
+	    Q_UINT16 format = getUShort( unicode_table );
+	    if ( format != 4 )
+		goto error;
+
+	    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
+		QChar ch = sampleCharacter( (QFont::Script)i );
+		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
+		    // 		qDebug("font can render script %d",  i );
+		    family->scripts[i] = QtFontFamily::Supported;
+		} else {
+		    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
+		}
+	    }
+	    family->xftScriptCheck = TRUE;
 	}
-
-
-	return;
+ error:
+	close( fd );
+	if ( family->xftScriptCheck )
+	    return;
     }
 #endif
-
  xftCheck:
 
-    qDebug("using Xft for checking of '%s'", family->name.latin1() );
+    qDebug("using Freetype for checking of '%s'", family->name.latin1() );
 
-    XftPattern *pattern = XftPatternCreate();
-    if ( !pattern )
-	return;
+    FT_Library ft_lib;
+    FT_Error error = FT_Init_FreeType( &ft_lib );
+    if ( error ) return;
+    FT_Face face;
+    error = FT_New_Face( ft_lib, family->fontFilename, family->fontFileIndex, &face );
+    if ( error ) return;
 
-#ifndef QT_XFT2
-    XftPatternAddString (pattern, XFT_ENCODING, "iso10646-1");
-#endif
-    XftPatternAddString( pattern, XFT_FAMILY, family->name.local8Bit().data() );
-
-    XftResult res;
-    XftPattern *result = XftFontMatch( QPaintDevice::x11AppDisplay(),
-				       x11Screen, pattern, &res );
-    XftPatternDestroy(pattern);
-    XftPattern *dup = XftPatternDuplicate( result );
-    XftFont *xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), dup);
-
-    if ( xftfs ) {
-	FontEngineIface *fe = new FontEngineXft( xftfs, result, 0 );
-
-	for ( int i = 0; i < QFont::NScripts+1; i++ ) {
-	    if ( ::canRender( fe,  sampleCharacter( (QFont::Script)i ) ) ) {
-// 		qDebug("font can render script %d",  i );
-		family->scripts[i] = QtFontFamily::Supported;
-	    } else {
-		family->scripts[i] |= QtFontFamily::UnSupported_Xft;
-	    }
+    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
+	QChar ch = sampleCharacter( (QFont::Script)i );
+	if ( FT_Get_Char_Index ( face, ch.unicode() ) ) {
+	    // 		qDebug("font can render script %d",  i );
+	    family->scripts[i] = QtFontFamily::Supported;
+	} else {
+	    family->scripts[i] |= QtFontFamily::UnSupported_Xft;
 	}
-	delete fe;
-    } else {
-	qDebug("could not load Xft font for family %s",  family->name.latin1() );
     }
+    FT_Done_Face( face );
+    FT_Done_FreeType( ft_lib );
     family->xftScriptCheck = TRUE;
-}
 
+}
 #endif
 
-static void load( const QString &family, QFont::Script script, int x11Screen )
+static void load( const QString &family, QFont::Script script )
 {
     if ( family.isNull() ) {
 	for ( int i = 0; i < numEncodings; i++ ) {
@@ -908,7 +896,7 @@ static void load( const QString &family, QFont::Script script, int x11Screen )
 #ifndef QT_NO_XFTFREETYPE
 	// need to check Xft coverage
 	if ( f->hasXft && !f->xftScriptCheck ) {
-	    checkXftCoverage( f, x11Screen );
+	    checkXftCoverage( f );
 	}
 #endif
 	// could reduce this further with some more magic:
@@ -958,7 +946,7 @@ void QFontDatabase::createDatabase()
 //     loadXlfds( 0, -1 ); // full load
 
     for ( int i = 0; i < db->count; i++ ) {
-	checkXftCoverage( db->families[i], 0 );
+	checkXftCoverage( db->families[i] );
     }
 
 #ifdef QFONTDATABASE_DEBUG
@@ -1281,7 +1269,7 @@ FontEngineIface *QFontDatabase::findFont( QFont::Script script,
     // qDebug( "  trying script %d (index %d)",
     // scriptlist[script_index], script_index );
 
-    load( family, script, x11Screen );
+    load( family, script );
 
     unsigned int score = ~0;
     for ( int x = 0; x < db->count; ++x ) {
@@ -1290,7 +1278,7 @@ FontEngineIface *QFontDatabase::findFont( QFont::Script script,
 	    continue;
 
 	if ( family.isNull() )
-	    load( fam->name, script, x11Screen );
+	    load( fam->name, script );
 
 	if ( !(fam->scripts[script] & QtFontFamily::Supported) ) {
 	    // should never get here with partial loads

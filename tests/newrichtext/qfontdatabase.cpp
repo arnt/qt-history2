@@ -233,7 +233,8 @@ struct QtFontFamily
     bool fullyLoaded : 1;
     QString name;
 #ifdef Q_WS_X11
-    QCString xftFilename;
+    QCString fontFilename;
+    int fontFileIndex;
 #endif
 
     int count;
