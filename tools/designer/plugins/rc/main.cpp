@@ -4,7 +4,7 @@
 
 #include "rc2ui.h"
 
-class RCFilter : public ImportFilterInterface
+class RCFilter : public ImportFilterInterface, public QLibraryInterface
 {
 public:
     RCFilter();
@@ -14,8 +14,11 @@ public:
     unsigned long release();
 
     QStringList featureList() const;
-
     QStringList import( const QString& filter, const QString& filename );
+
+    bool init();
+    void cleanup();
+    bool canUnload() const;
 
 private:
     unsigned long ref;
@@ -31,9 +34,11 @@ QUnknownInterface *RCFilter::queryInterface( const QUuid &uuid )
     QUnknownInterface *iface = 0;
 
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(ImportFilterInterface*)this;
     if ( uuid == IID_ImportFilterInterface )
 	iface = (ImportFilterInterface*)this;
+    if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -76,7 +81,23 @@ QStringList RCFilter::import( const QString &, const QString& filename )
     return c.targetFiles;
 }
 
+bool RCFilter::init()
+{
+    return TRUE;
+}
+
+void RCFilter::cleanup()
+{
+}
+
+bool RCFilter::canUnload() const
+{
+    return TRUE;
+}
+
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( RCFilter );
+    QUnknownInterface *iface = (QUnknownInterface*)(ImportFilterInterface*)new RCFilter;
+    iface->addRef();
+    return iface;
 }
