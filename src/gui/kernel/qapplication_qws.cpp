@@ -1602,7 +1602,8 @@ void qt_init(QApplicationPrivate *priv, int type)
         init_display();
 #ifndef QT_NO_QWS_MANAGER
         if (decoration.isEmpty()) {
-#ifndef QT_NO_QWS_DECORATION_STYLED
+#if 0//ndef QT_NO_QWS_DECORATION_STYLED
+            //we don't have gradients at the moment
             decoration = QString::fromLatin1("styled");
 #else
             decoration = QString::fromLatin1("default");
