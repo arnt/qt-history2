@@ -3213,7 +3213,8 @@ void QWidget::setKeyCompression(bool compress)
     \property QWidget::isActiveWindow
     \brief whether this widget is the active window
 
-    The active window is the window that has keyboard focus.
+    The active window is the window (or child of the window) that has
+    keyboard focus.
 
     When popup windows are visible, this property is TRUE for both the
     active window \e and for the popup.
