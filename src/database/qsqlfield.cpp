@@ -13,7 +13,7 @@
 /*!
   Constructs an empty SQL field using the field name \a fieldName
   and field number \a fieldNumber.  By default, the fields displayLabel()
-  uses \a fieldName.  The field is not read only.
+  uses \a fieldName.
 
   \sa setDisplayLabel() setReadOnly()
 
@@ -46,6 +46,50 @@ QVariant& QSqlField::value()
 {
     return val;
 }
+
+/*! \fn void setName( const QString& name )
+  Sets the name of the field to \a name,
+*/
+
+/*! \fn QString name() const
+  Returns the name of the field.
+*/
+
+/*! \fn void setDisplayLabel( const QString& l )
+  Sets the display label text of the field to \a l.
+*/
+
+/*! \fn QString displayLabel() const
+  Returns the display label of the field.
+*/
+
+/*! \fn void setFieldNumber( int fieldNumber )
+  Sets the field number of the field to \a fieldNumber.
+*/
+
+/*! \fn int fieldNumber() const
+  Returns the field number of the field.
+*/
+
+/*! \fn void setReadOnly( bool readOnly )
+  Sets the read only flag of the field to \a readOnly.
+*/
+
+/*! \fn bool isReadOnly() const
+  Returns TRUE if the field is read only, otherwise FALSE.
+*/
+
+/*! \fn void setIsNull( bool n )
+  Sets the null flag of the field to \a null.
+*/
+
+/*! \fn bool isNull() const
+  Returns TRUE if the field is currently null, otherwise FALSE.
+*/
+
+/*! \fn QVariant::Type type() const
+  Returns the field type.
+*/
 
 //////////
 
@@ -116,7 +160,7 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 
 QSqlField& QSqlFieldList::field( int i )
 {
-    return QValueList<QSqlField>::operator[](i);    
+    return QValueList<QSqlField>::operator[](i);
 }
 
 /*!
@@ -127,7 +171,7 @@ QSqlField& QSqlFieldList::field( int i )
 
 QSqlField& QSqlFieldList::field( const QString& name )
 {
-    return QValueList<QSqlField>::operator[]( position( name ) );    
+    return QValueList<QSqlField>::operator[]( position( name ) );
 }
 
 /*!

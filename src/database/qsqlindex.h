@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#include "qstringlist.h"
 #include "qsqlfield.h"
 #endif // QT_H
 
