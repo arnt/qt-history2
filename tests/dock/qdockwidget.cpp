@@ -413,10 +413,8 @@ QSize QDockWidget::sizeHint() const
     QSize s = wid->sizeHint();
     s += QSize( addX, addY );
 
-    if ( sizeHintSet ) {
-	s.setHeight( sh.height() );
-	s.setWidth( sh.width() );
-    }
+    if ( sizeHintSet )
+	return sh;
 
     return s;
 }
@@ -434,6 +432,9 @@ QSize QDockWidget::minimumSize() const
     if ( s.height() > sh.height() )
 	s.setHeight( sh.height() );
 
+    if ( dockArea && isResizeEnabled() )
+	return QSize( 0, 0 );
+    
     return s;
 }
 
@@ -449,6 +450,9 @@ QSize QDockWidget::minimumSizeHint() const
 	s.setWidth( sh.width() );
     if ( s.height() > sh.height() )
 	s.setHeight( sh.height() );
+
+    if ( dockArea && isResizeEnabled() )
+	return QSize( 0, 0 );
 
     return s;
 }
