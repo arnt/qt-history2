@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#602 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#603 $
 **
 ** Implementation of QFileDialog class
 **
@@ -955,6 +955,32 @@ public:
 
     QTimer *mimeTypeTimer;
     const QNetworkOperation *currListChildren;
+
+    // This is similar to QUrl::encode but does ecnode "*" and doesn't encode Whitespaces
+    static QString encodeFileName( const QString& fName ) {
+
+	QString newStr;
+	int len = fName.length();
+	if ( !len )
+	    return QString::null;
+	for ( int i = 0; i < len ;++i ) {
+	    ushort inCh = fName[ i ].unicode();
+
+	    if ( inCh >= 128 ||
+        	QString( "<>#@\"&%$:,;?={}|^~[]\'`\\*" ).contains(inCh) ) {
+	        newStr += QChar( '%' );
+        	ushort c = inCh / 16;
+        	c += c > 9 ? 'A' - 10 : '0';
+        	newStr += c;
+        	c = inCh % 16;
+        	c += c > 9 ? 'A' - 10 : '0';
+        	newStr += c;
+	    } else {
+        	newStr += fName[ i ];
+	    }
+	}
+        return newStr;	
+    }	
 
 };
 
@@ -2764,7 +2790,7 @@ QStringList QFileDialog::selectedFiles() const
 	QListViewItem * i = files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)i)->info.name() );
+		QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)i)->info.name() ) );
 		if ( u.isLocalFile() ) {
 		    QString s = u.toString();
 		    if ( s.left( 5 ) == "file:" )
@@ -3622,7 +3648,9 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	    d->moreFiles->setSelected( i->i, TRUE );
 	    d->moreFiles->blockSignals( FALSE );
 	}
-	trySetSelection( i->info.isDir(), QUrlOperator( d->url, newItem->text( 0 ) ), TRUE );
+	// Encode the filename in case it had any special characters in it
+	QString encFile = QFileDialogPrivate::encodeFileName( ( QFileDialogPrivate::encodeFileName( newItem->text( 0 ) ) ) );
+	trySetSelection( i->info.isDir(), QUrlOperator( d->url, encFile ), TRUE );
     }
 }
 
@@ -3641,7 +3669,7 @@ void QFileDialog::detailViewSelectionChanged()
 		d->moreFiles->setSelected( ( (QFileDialogPrivate::File *)i )->i, i->isSelected() );
 	}
 	if ( i->isSelected() && !( (QFileDialogPrivate::File *)i )->info.isDir() )
-	    str += QString( "\"%1\" " ).arg( i->text( 0 ) );
+	    str += QString( "\"%1\" " ).arg( QFileDialogPrivate::encodeFileName( i->text( 0 ) ) );
 	i = i->nextSibling();
     }
     d->moreFiles->blockSignals( FALSE );
@@ -3674,10 +3702,10 @@ void QFileDialog::listBoxSelectionChanged()
 		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
 	}
 	if ( d->moreFiles->isSelected( i )
-	&& !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
-	    str += QString( "\"%1\" " ).arg( i->text() );
-	if ( j == 0 )
-	    j = i;
+        && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
+	    str += QString( "\"%1\" " ).arg( QFileDialogPrivate::encodeFileName( i->text() ) );
+        if ( j == 0 )
+            j = i;
     }
 	i = d->moreFiles->item( ++index );
     }
@@ -3754,7 +3782,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 
     QString oldName = nameEdit->text();
     if ( i->info.isDir() ) {
-	setUrl( QUrlOperator( d->url, i->info.name() + "/" ) );
+	setUrl( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName( i->info.name() ) + "/" ) );
 	if ( isDirectoryMode( mode() ) ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1( "." ) );
 	    trySetSelection( f.isDir(), d->url, TRUE );
@@ -4800,6 +4828,8 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 */
 bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 {
+
+
     if ( !o || !e )
 	return TRUE;
 
@@ -5122,7 +5152,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QUrl u = QUrl( dlg->d->url, ((QFileDialogPrivate::File*)i)->info.name() );
+		QUrl u = QUrl( dlg->d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)i)->info.name() ) );
 		if ( u.isLocalFile() ) {
 		    QString s = u.toString();
 		    if ( s.left( 5 ) == "file:" )
@@ -5719,7 +5749,7 @@ void QFileDialog::doMimeTypeLookup()
     if ( item ) {
 	QFileInfo fi;
 	if ( d->url.isLocalFile() ) {
-	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path( FALSE ) );
+	    fi.setFile( QUrl( d->url.path(), QFileDialogPrivate::encodeFileName( item->info.name() ) ).path( FALSE ) );
 	} else
 	    fi.setFile( item->info.name() ); // #####
 	const QPixmap *p = iconProvider()->pixmap( fi );
