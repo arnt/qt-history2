@@ -24,7 +24,7 @@
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_OCI
 #else
-#define Q_EXPORT_SQLDRIVER_OCI Q_EXPORT
+#define Q_EXPORT_SQLDRIVER_OCI Q_SQL_EXPORT
 #endif
 
 // Check if OCI supports scrollable cursors (Oracle version >= 9)

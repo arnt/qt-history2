@@ -22,7 +22,7 @@
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_PSQL
 #else
-#define Q_EXPORT_SQLDRIVER_PSQL Q_EXPORT
+#define Q_EXPORT_SQLDRIVER_PSQL Q_SQL_EXPORT
 #endif
 
 class QPSQLPrivate;

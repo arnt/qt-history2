@@ -33,7 +33,7 @@
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_TDS
 #else
-#define Q_EXPORT_SQLDRIVER_TDS Q_EXPORT
+#define Q_EXPORT_SQLDRIVER_TDS Q_SQL_EXPORT
 #endif
 
 class QTDSDriverPrivate;

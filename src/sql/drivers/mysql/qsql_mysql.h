@@ -27,7 +27,7 @@
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_MYSQL
 #else
-#define Q_EXPORT_SQLDRIVER_MYSQL Q_EXPORT
+#define Q_EXPORT_SQLDRIVER_MYSQL Q_SQL_EXPORT
 #endif
 
 class QMYSQLDriverPrivate;

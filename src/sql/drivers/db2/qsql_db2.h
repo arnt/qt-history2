@@ -18,7 +18,7 @@
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_DB2
 #else
-#define Q_EXPORT_SQLDRIVER_DB2 Q_EXPORT
+#define Q_EXPORT_SQLDRIVER_DB2 Q_SQL_EXPORT
 #endif
 
 #include "qsqlresult.h"
