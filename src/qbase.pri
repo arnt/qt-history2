@@ -124,7 +124,9 @@ unix {
 # enable COMPAT warnings.
 DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII
 
-CONFIG(debug, debug|release) {
-   unix:TARGET = $$member(TARGET, 0)_debug
-   else:TARGET = $$member(TARGET, 0)d
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      unix:TARGET = $$member(TARGET, 0)_debug
+      else:TARGET = $$member(TARGET, 0)d
+   }
 }
