@@ -36,19 +36,19 @@
 **********************************************************************/
 
 // ####################
-/* 
+/*
    -- Not working yet: --
    - dockwidgets movable settings
    - dock menu
    - opaque moving
    - linup dockwidgets
-   
+
    -- Implemented but not tested --
    - setDockEnabled, isDockEnabled
 */
 // ####################
 
-   
+
 
 #include "qmainwindow.h"
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -260,7 +260,7 @@ public:
     QMap<Qt::Dock, bool> docks;
     QStringList disabledDocks;
     bool dockMenu;
-    
+
 };
 
 
@@ -588,7 +588,7 @@ void QMainWindow::setDockEnabled( QDockWidget *tb, Dock dock, bool enable )
 {
     QString s;
     s.sprintf( "%p_%d", tb, (int)dock );
-    if ( enable ) 
+    if ( enable )
 	d->disabledDocks.remove( s );
     else if ( d->disabledDocks.find( s ) == d->disabledDocks.end() )
 	d->disabledDocks << s;
@@ -1296,6 +1296,21 @@ void QMainWindow::slotPositionChanged()
 	emit dockWidgetPositionChanged( (QDockWidget*)sender() );
     if ( sender()->inherits( "QToolBar" ) )
 	emit toolBarPositionChanged( (QToolBar*)sender() );
+}
+
+QDockArea *QMainWindow::dockingArea( const QPoint &p )
+{
+    int mh = d->mb ? d->mb->height() : 0;
+    int sh = d->sb ? d->sb->height() : 0;
+    if ( p.x() >= -5 && p.x() <= 20 && p.y() > mh && p.y() - height() - sh )
+	return d->leftDock;
+    if ( p.x() >= width() - 20 && p.x() <= width() + 5 && p.y() > mh && p.y() - height() - sh )
+	return d->rightDock;
+    if ( p.y() >= -5 && p.y() < mh + 20 && p.x() >= 0 && p.x() <= width() )
+	return d->topDock;
+    if ( p.y() >= height() - sh - 20 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width() )
+	return d->bottomDock;
+    return 0;
 }
 
 #include "qmainwindow.moc"

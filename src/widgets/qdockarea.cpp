@@ -287,9 +287,9 @@ int QDockAreaLayout::heightForWidth( int w ) const
 	mthis->cached_width = w;
 	int h = mthis->layoutItems( QRect( 0, 0, w, 0 ), TRUE );
 	mthis->cached_hfw = h;
-	return QMAX( h, 5 ); // ### get rid of the MAX 5 when parent listens to events to drag toolwindows in a dock
+	return h;
     }
-    return QMAX( cached_hfw, 5 ); // ### get rid of the MAX 5 when parent listens to events to drag toolwindows in a dock
+    return cached_hfw;
 }
 
 int QDockAreaLayout::widthForHeight( int h ) const
@@ -311,7 +311,6 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 )
 {
     dockWidgets = new QList<QDockWidget>;
-    setMinimumSize( 3, 3 ); // ### get rid of that when parent listens to events to drag toolwindows in a dock
     layout = new QDockAreaLayout( this, o, dockWidgets, -1, -1, "toollayout" );
     installEventFilter( this );
 }
@@ -455,7 +454,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
 		    if ( point_pos( dw->pos(), orientation() ) < lastPos ) // we are in next line, so break
 			break;
-		    if ( point_pos( pos, orientation() ) < 
+		    if ( point_pos( pos, orientation() ) <
 			 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 )
 			break;
 		    index++;

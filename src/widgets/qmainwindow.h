@@ -117,6 +117,8 @@ public:
     QList<QToolBar> toolBars( Dock dock ) const;
     void lineUpToolBars( bool keepNewLines = FALSE );
 
+    QDockArea *dockingArea( const QPoint &p );
+    
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -149,7 +151,7 @@ protected:
 
 private slots:
     void slotPositionChanged();
-    
+
 private:
     QMainWindowPrivate * d;
     void triggerLayout( bool deleteLayout = TRUE);

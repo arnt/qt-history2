@@ -6,6 +6,7 @@
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qlayout.h>
+#include <qmainwindow.h>
 
 static const char * close_xpm[] = {
 "8 8 2 1",
@@ -418,12 +419,19 @@ static void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset )
 static QWidget *widgetAt( const QPoint &gp )
 {
     QWidget *w = qApp->widgetAt( gp, TRUE );
+    QMainWindow *mw = 0;
     while ( w ) {
 	if ( w->inherits( "QDockArea" ) )
 	    return w;
+	if ( w->inherits( "QMainWindow" ) )
+	    mw = (QMainWindow*)w;
 	w = w->parentWidget();
     }
-    return 0;
+    
+    if ( !mw )
+	return 0;
+    
+    return mw->dockingArea( mw->mapFromGlobal( gp ) );
 }
 
 void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
