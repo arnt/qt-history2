@@ -756,7 +756,7 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>Scr&amp;ipt</source>
-        <translation type='unfinished'>&amp;Handschrift</translation>
+        <translation>Schr&amp;iftsystem</translation>
     </message>
     <message>
         <source>OK</source>
@@ -919,23 +919,23 @@ Datei wurde nicht gefunden.
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type='unfinished'>Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type='unfinished'>Wiederherstellen</translation>
+        <translation>Wieder&amp;herstellen</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type='unfinished'>Ausschneiden</translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type='unfinished'>Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type='unfinished'>Einfügen</translation>
+        <translation>Einf&amp;ügen</translation>
     </message>
 </context>
 <context>
@@ -1333,23 +1333,23 @@ nach
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type='unfinished'>Rückgängig</translation>
+        <translation>&amp;Rückgängig</translation>
     </message>
     <message>
         <source>&amp;Redo</source>
-        <translation type='unfinished'>Wiederherstellen</translation>
+        <translation>Wieder&amp;herstellen</translation>
     </message>
     <message>
         <source>Cu&amp;t</source>
-        <translation type='unfinished'>Ausschneiden</translation>
+        <translation>&amp;Ausschneiden</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation type='unfinished'>Kopieren</translation>
+        <translation>&amp;Kopieren</translation>
     </message>
     <message>
         <source>&amp;Paste</source>
-        <translation type='unfinished'>Einfügen</translation>
+        <translation>Einf&amp;ügen</translation>
     </message>
 </context>
 <context>
@@ -1360,11 +1360,11 @@ nach
     </message>
     <message>
         <source>Shade</source>
-        <translation type='unfinished'>Nach oben rollen</translation>
+        <translation>Aufrollen</translation>
     </message>
     <message>
         <source>Unshade</source>
-        <translation type='unfinished'>Herunterklappen</translation>
+        <translation>Herabrollen</translation>
     </message>
     <message>
         <source>Normalize</source>
@@ -1558,7 +1558,7 @@ nach
     </message>
     <message>
         <source>Sh&amp;ade</source>
-        <translation type='unfinished'>Nach oben rollen</translation>
+        <translation>&amp;Aufrollen</translation>
     </message>
     <message>
         <source>%1 - [%2]</source>
@@ -1566,7 +1566,7 @@ nach
     </message>
     <message>
         <source>&amp;Unshade</source>
-        <translation type='unfinished'>Herunterklappen</translation>
+        <translation>&amp;Herabrollen</translation>
     </message>
 </context>
 <context>
