@@ -57,8 +57,6 @@ class QWorkspacePrivate;
 class QPopupMenu;
 class QDockWindow;
 
-#define QT_WORKSPACE_WINDOWMODE
-
 class QM_EXPORT_WORKSPACE QWorkspace : public QWidget
 {
     Q_OBJECT
