@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#36 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#36 $";
 #endif
 
 
@@ -669,7 +669,8 @@ void QPainter::createOwnGC()			// create our own GC
     borrowWidgetGC = FALSE;
     gc = XCreateGC( dpy, hd, 0, 0 );
     updatePen();
-    updateFont();
+    if ( cfont.dirty() || testf(DirtyFont) )
+	updateFont();
 }
 
 
@@ -1657,7 +1658,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( index + npoints > a.size() )
 	npoints = a.size() - index;
-    if ( !isActive() || npoints < 1 || index < 0 )
+    if ( !isActive() || npoints < 2 || index < 0 )
 	return;
     if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyPen) )
@@ -1698,7 +1699,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	npoints = a.size() - index;
     if ( index + npoints > a.size() )
 	npoints = a.size() - index;
-    if ( !isActive() || npoints < 1 || index < 0 )
+    if ( !isActive() || npoints < 2 || index < 0 )
 	return;
     QPointArray axf;
     QPointArray *pa = (QPointArray*)&a;
@@ -1748,6 +1749,83 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     }
     if ( winding && !quickwxf )			// set to normal fill rule
 	XSetFillRule( dpy, gc_brush, EvenOddRule );
+}
+
+
+#define BEZIER_CACHE
+
+#if defined(BEZIER_CACHE)
+struct QBezData {				// used for Bezier cache
+    QPointArray controls;
+    QPointArray points;
+};
+
+typedef declare(QListM,QBezData) QBezList;	// list of Bezier curves
+#endif
+
+
+void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
+{						// draw Bezier curve
+#if defined(BEZIER_CACHE)
+    static QBezList *bezlist = 0;
+    if ( !bezlist ) {				// create Bezier cache
+	bezlist = new QBezList;
+	bezlist->setAutoDelete( TRUE );
+    }
+#endif
+    if ( npoints < 0 )
+	npoints = a.size() - index;
+    if ( index + npoints > a.size() )
+	npoints = a.size() - index;
+    if ( !isActive() || npoints < 2 || index < 0 )
+	return;
+    QPointArray a2;
+    if ( npoints == a.size() )
+	a2 = a;
+    else {
+	if ( npoints != a.size() ) {
+	    a2.resize( npoints );
+	    for ( int i=0; i<npoints; i++ )
+		a2.setPoint( i, a.point(index+i) );
+	}
+    }
+    if ( testf(DirtyPen|ExtDev|WxF) ) {
+	if ( testf(DirtyPen) )
+	    updatePen();
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    param[0].ptarr = (QPointArray*)&a2;
+	    pdev->cmd( PDC_DRAWBEZIER, param );
+	    return;
+	}
+	if ( testf(VxF|WxF) )
+	    a2 = xForm( a2 );
+    }
+    if ( cpen.style() != NoPen ) {
+#if defined(BEZIER_CACHE)
+	int i;
+	for ( i=0; i<bezlist->count(); i++ ) {
+	    if ( bezlist->at(i)->controls == a2 ) {
+		a2 = bezlist->at(i)->points;
+		i = -1;
+		break;
+	    }
+	}
+	if ( i >= 0 ) {				// not found in bezlist
+	    QBezData *bez = new QBezData;
+	    bez->controls = a2.copy();
+	    a2 = a2.bezier();
+	    bez->points   = a2;
+	    if ( bezlist->count() > 13 )
+		bezlist->removeLast();
+	    bezlist->insert( bez );
+	}
+#else
+	a2 = a2.bezier();
+#endif
+	XDrawLines( dpy, hd, gc, (XPoint*)a2.data(), a2.size(),
+		    CoordModeOrigin);
+    }
 }
 
 
@@ -1838,9 +1916,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( cfont.dirty() || testf(DirtyFont))
+    if ( cfont.dirty() || testf(DirtyFont) )
 	updateFont();
-
     if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
@@ -1981,7 +2058,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 #endif
     if ( len == 0 )				// empty string
 	return;
-    if ( cfont.dirty() || testf(DirtyFont))
+
+    if ( cfont.dirty() || testf(DirtyFont) )
 	updateFont();
     if ( testf(DirtyPen|ExtDev) ) {
 	if ( testf(DirtyPen) )
