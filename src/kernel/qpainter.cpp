@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#12 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#12 $";
 #endif
 
 
@@ -44,6 +44,26 @@ void QPainter::setf( ushort b, bool v )
 	setf( b );
     else
 	clearf( b );
+}
+
+
+void QPainter::setTabStops( int ts )
+{
+    tabstops = ts;
+}
+
+void QPainter::setTabArray( int *ta )
+{
+    tabarraylen = 0;
+    delete tabarray;				// delete old array
+    if ( ta ) {
+	while ( ta[tabarraylen++] )
+	    ;
+	tabarray = new int[tabarraylen];	// duplicate ta
+	memcpy( tabarray, ta, sizeof(int)*tabarraylen );
+    }
+    else
+	tabarray = 0;
 }
 
 
