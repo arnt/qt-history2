@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#3 $
+** $Id: //depot/qt/main/src/tools/qstring.h#4 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -111,8 +111,6 @@ declare(QArrayM,char);
 // --------------------------------------------------------------------------
 // QByteArray stream functions
 //
-
-class QDataStream;
 
 QDataStream &operator<<( QDataStream &, const QByteArray & );
 QDataStream &operator>>( QDataStream &, QByteArray & );

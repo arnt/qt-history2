@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#2 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#3 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -14,8 +14,6 @@
 #define QGDICT_H
 
 #include "qcollect.h"
-
-class QDataStream;
 
 
 class Qbucket;					// internal classes

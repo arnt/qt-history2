@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#2 $
+** $Id: //depot/qt/main/src/tools/qglist.h#3 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -14,8 +14,6 @@
 #define QGLIST_H
 
 #include "qcollect.h"
-
-class QDataStream;
 
 
 // --------------------------------------------------------------------------
