@@ -81,12 +81,13 @@ public:
     int count(const T &t) const;
 
     class Iterator {
-	typedef std::random_access_iterator_tag  iterator_category;
+      public:
+        typedef std::random_access_iterator_tag  iterator_category;
 	typedef ptrdiff_t  difference_type;
 	typedef T value_type;
 	typedef T *pointer;
 	typedef T &reference;
-	Node *i; public:
+	Node *i;
 	inline Iterator(Node *n = 0): i(n){}
 	inline Iterator(const Iterator &o): i(o.i){}
 	inline T &operator*() { return i->t(); }
@@ -106,12 +107,13 @@ public:
     };
 
     class ConstIterator {
+      public:
 	typedef std::random_access_iterator_tag  iterator_category;
 	typedef ptrdiff_t difference_type;
 	typedef T value_type;
 	typedef T *pointer;
  	typedef T &reference;
-	Node *i; public:
+	Node *i;
 	inline ConstIterator(Node *n = 0): i(n){}
 	inline ConstIterator(const ConstIterator &o): i(o.i){}
 	inline ConstIterator(const Iterator &o): i(((ConstIterator&) o).i){}
