@@ -319,18 +319,24 @@ Q_UINT16 qChecksum( const char *data, uint len )
     return ~crc & 0xffff;
 }
 
-/*! \fn QByteArray qCompress( const QByteArray& data)
-  \relates QByteArray
-  \overload
+/*!
+    \fn QByteArray qCompress( const QByteArray& data )
+
+    \relates QByteArray
+
+    Compresses the array \a data and returns the compressed byte
+    array.
+
+    \sa qUncompress()
 */
 
 /*!
-  \relates QByteArray
+    \relates QByteArray
 
-  Compresses the array \a data which is \a nbytes long and returns the
-  compressed byte array.
+    \overload
 
-  \sa qUncompress()
+    Compresses the array \a data which is \a nbytes long and returns the
+    compressed byte array.
 */
 
 #ifndef QT_NO_COMPRESS
@@ -379,20 +385,32 @@ QByteArray qCompress( const uchar* data, int nbytes )
 }
 #endif
 
-/*! \fn QByteArray qUncompress( const QByteArray& data )
-  \relates QByteArray
-  \overload
+/*!
+    \fn QByteArray qUncompress( const QByteArray& data )
+
+    \relates QByteArray
+
+    Uncompresses the array \a data and returns the uncompressed byte
+    array.
+
+    Returns an empty QByteArray if the input data was corrupt.
+    \omit
+    ADD THE FOLLOWING FOR Qt 4.0
+    This function will uncompress data compressed with qCompress()
+    from this and any earlier Qt version, back to Qt 3.1 when this
+    feature was added.
+    \endomit
+
+    \sa qCompress()
 */
 
 /*!
-  \relates QByteArray
+    \relates QByteArray
 
-  Uncompresses the array \a data which is \a nbytes long and returns
-  the uncompressed byte array.
+    \overload
 
-  Returns an empty QByteArray if the input data was corrupt.
-
-  \sa qCompress()
+    Uncompresses the array \a data which is \a nbytes long and returns
+    the uncompressed byte array.
 */
 
 #ifndef QT_NO_COMPRESS
