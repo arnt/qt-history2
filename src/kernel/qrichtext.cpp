@@ -1152,6 +1152,8 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 		}
 		
+		if ( !nstyle && !custom ) // we have no clue what this tag could be, ignore it
+		    continue;
 		
 		if ( custom ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
@@ -1200,6 +1202,8 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
 		    continue; // nothing we could do with this, probably parse error
 		while ( eat( doc, pos, '\n' ) )
 		    ; // eliminate newlines right after closings
+		if ( !sheet_->item( tagname ) ) // ignore unknown tags
+		    continue;
 		depth--;
 		while ( curtag.name != tagname ) {
 		    QString msg;
