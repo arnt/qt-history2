@@ -77,11 +77,11 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
     QStringList subdirs = project->variables()["SUBDIRS"];
     QString oldpwd = QDir::currentPath();
     QMap<QString, QStringList> groups;
-    for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
-        QFileInfo fi(Option::fixPathToLocalOS((*it), true));
+    for(int subdir = 0; subdir < subdirs.count(); subdir++) {
+        QFileInfo fi(Option::fixPathToLocalOS(subdirs[subdir], true));
         if(fi.exists()) {
             if(fi.isDir()) {
-                QString profile = (*it);
+                QString profile = subdirs[subdir];
                 if(!profile.endsWith(Option::dir_sep))
                     profile += Option::dir_sep;
                 profile += fi.baseName() + ".pro";
@@ -230,11 +230,13 @@ nextfile:
       << "\t\t\t" << "projectReferences = (" << "\n";
     {
         QStringList &libdirs = project->variables()["QMAKE_PBX_SUBDIRS"];
-        for(QStringList::Iterator it = libdirs.begin(); it != libdirs.end(); ++it)
+        for(int i = 0; i < libdirs.count(); i++) {
+            QString lib = libdirs[i];
             t << "\t\t\t\t" << "{" << "\n"
-              << "\t\t\t\t\t" << "ProductGroup = " << keyFor((*it) + "_PRODUCTGROUP") << ";" << "\n"
-              << "\t\t\t\t\t" << "ProjectRef = " << keyFor((*it) + "_PROJECTREF") << ";" << "\n"
+              << "\t\t\t\t\t" << "ProductGroup = " << keyFor(lib + "_PRODUCTGROUP") << ";" << "\n"
+              << "\t\t\t\t\t" << "ProjectRef = " << keyFor(lib + "_PROJECTREF") << ";" << "\n"
               << "\t\t\t\t" << "}," << "\n";
+        }
     }
     t << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
@@ -542,9 +544,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
         for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->variables()[libs[i]];
-            for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
+            for(int x = 0; x < tmp.count();) {
                 bool remove = false;
-                QString library, name, opt = (*it).trimmed();
+                QString library, name, opt = tmp[x].trimmed();
                 if(opt.length() >= 2 && (opt[0] == '"' || opt[0] == '\'') && opt[(int) opt.length()-1] == opt[0])
                     opt = opt.mid(1, opt.length()-2);
                 if(opt.startsWith("-L")) {
@@ -593,18 +595,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         }
                     }
                 } else if(opt == "-framework") {
-                    ++it;
-                    if(it == tmp.end())
+                    if(x == tmp.count()-1)
                         break;
                     QStringList &fdirs = project->variables()["QMAKE_FRAMEWORKDIR"];
-                    fdirs.append("/System/Library/Frameworks/");
-                    fdirs.append("/Library/Frameworks/");
-                    for(QStringList::Iterator fit = fdirs.begin(); fit != fdirs.end(); ++fit) {
-                        if(QFile::exists((*fit) + QDir::separator() + (*it) + ".framework")) {
-                            --it;
-                            it = tmp.erase(it);
+                    if(fdirs.isEmpty())
+                        fdirs << "/System/Library/Frameworks/" << "/Library/Frameworks/";
+                    const QString framework = tmp[x+1];
+                    for(int fdir = 0; fdir < fdirs.count(); fdir++) {
+                        if(QFile::exists(fdirs[fdir] + QDir::separator() + framework + ".framework")) {
+                            tmp.removeAt(x);
                             remove = true;
-                            library = (*fit) + Option::dir_sep + (*it) + ".framework";
+                            library = fdirs[fdir] + Option::dir_sep + framework + ".framework";
                             break;
                         }
                     }
@@ -641,9 +642,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                     project->variables()["QMAKE_PBX_BUILD_LIBRARIES"].append(obj_key);
                 }
                 if(remove)
-                    it = tmp.erase(it);
+                    tmp.removeAt(x);
                 else
-                    ++it;
+                    x++;
             }
             project->variables()[libs[i]] = tmp;
         }
@@ -658,15 +659,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             writeHeader(mkt);
             mkt << "SUBLIBS= ";
             tmp = project->variables()["SUBLIBS"];
-            QStringList::Iterator it;
-            for(it = tmp.begin(); it != tmp.end(); ++it)
-                t << "tmp/lib" << (*it) << ".a ";
+            for(int i = 0; i < tmp.count(); i++)
+                t << "tmp/lib" << tmp[i] << ".a ";
             t << endl << endl;
             mkt << "sublibs: $(SUBLIBS)" << endl << endl;
             tmp = project->variables()["SUBLIBS"];
-            for(it = tmp.begin(); it != tmp.end(); ++it)
-                t << "tmp/lib" << (*it) << ".a" << ":\n\t"
-                  << var(QString("MAKELIB") + (*it)) << endl << endl;
+            for(int i = 0; i < tmp.count(); i++)
+                t << "tmp/lib" << tmp[i] << ".a" << ":\n\t"
+                  << var(QString("MAKELIB") + tmp[i]) << endl << endl;
             mkf.close();
         }
         QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
@@ -792,9 +792,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib") && !project->isActiveConfig("plugin"))
                 sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
             //create all the version symlinks (just to be like unixmake)
-            for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
-                if(targ != (*it))
-                    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
+            for(int i = 0; i < links.count(); i++) {
+                if(targ != links[i])
+                    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << links[i] << "\"" << endl;
             }
             shf.close();
 #ifdef Q_OS_UNIX
@@ -1024,8 +1024,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
-    for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
-        QString var = (*it), val = getenv(var);
+    for(int i = 0; i < tmp.count(); i++) {
+        QString var = tmp[i], val = getenv(var);
         if(val.isEmpty() && var == "TB")
             val = "/usr/bin/";
         t << "\t\t\t\t" << var << " = \"" << val << "\";" << "\n";
@@ -1214,11 +1214,11 @@ ProjectBuilderMakefileGenerator::fixEnvsList(const QString &where)
 {
     QString ret;
     const QStringList &l = project->variables()[where];
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-        fixEnvs((*it));
+    for(int i = 0; i < l.count(); i++) {
+        fixEnvs(l[i]);
         if(!ret.isEmpty())
             ret += " ";
-        ret += (*it);
+        ret += l[i];
     }
     return ret;
 }
