@@ -614,7 +614,6 @@ void QApplication::beep()
   Main event loop
  *****************************************************************************/
 
-
 /* key maps */
 #ifdef DEBUG_KEY_MAPS
 #define MAP_KEY(x) x, #x
