@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#26 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#26 $");
 
 
 // Magic value meaning an entire widget - if someone tries to insert a
@@ -43,13 +43,14 @@ public:
 	QString text;
 	QString groupText;
 	QToolTipGroup * group;
+	QToolTip * tip;
 	bool autoDelete;
 	Tip * next;
     };
 
     bool    eventFilter( QObject * o, QEvent * e );
     void    add( QWidget *, const QRect &, const char *, 
-		 QToolTipGroup *, const char *, bool );
+		 QToolTipGroup *, const char *, QToolTip *, bool );
     void    remove( QWidget *, const QRect & );
     void    remove( QWidget * );
 
@@ -73,7 +74,6 @@ private:
     QPoint  pos;
     QWidget *widget;
     QTipManager::Tip *currentTip;
-    bool    dontShow;
 };
 
 
@@ -83,7 +83,7 @@ private:
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Mar 17 12:39:34 1997
-**      by: The Qt Meta Object Compiler ($Revision: 2.20 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.21 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -155,7 +155,6 @@ QTipManager::QTipManager()
     tips = new QIntDict<QTipManager::Tip>( 313 );
     currentTip = 0;
     label = 0;
-    dontShow = FALSE;
 
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
@@ -185,34 +184,36 @@ QTipManager::~QTipManager()
     delete label;
 }
 
-
 void QTipManager::add( QWidget * w, const QRect & r, const char * s,
-		       QToolTipGroup * g, const char * gs, bool a )
+		       QToolTipGroup * g, const char * gs,
+		       QToolTip * tt, bool a )
 {
-    QTipManager::Tip * t = (*tips)[ (long)w ];
-    if ( !t ) {
-	// the first one for this widget
-	t = new QTipManager::Tip;
-	t->next = 0;
-	w->installEventFilter( tipManager );
-	w->setMouseTracking( TRUE );
-	tips->insert( (long)w, t );
+    QTipManager::Tip * h = (*tips)[ (long)w ];
+    QTipManager::Tip * t = new QTipManager::Tip;
+    if ( h ) {
+	tips->take( (long)w );
     } else {
-	while( t->rect != r && t->next != 0 )
-	    t = t->next;
-	if ( t->rect != r ) {
-	    t->next = new QTipManager::Tip;
-	    t = t->next;
-	    t->next = 0;
-	}
+	w->setMouseTracking( TRUE );
+	w->installEventFilter( tipManager );
     }
+    t->next = h;
+
+    t->tip = tt;
+    t->autoDelete = a;
 
     t->text = s;
-    t->autoDelete = a;
     t->rect = r;
-
     t->groupText = gs;
     t->group = g;
+
+    tips->insert( (long)w, t );
+    if ( a ) {
+	showTip();
+	tips->take( (long)w );
+	if( t->next )
+	    tips->insert( (long)w, t->next );
+	t->next = 0;
+    }
 }
 
 
@@ -221,6 +222,9 @@ void QTipManager::remove( QWidget *w, const QRect & r )
     QTipManager::Tip * t = (*tips)[ (long)w ];
     if ( t == 0 )
 	return;
+
+    if ( t == currentTip )
+	hideTip();
 
     if ( t->rect == r ) {
 	(void) tips->take( (long)w );
@@ -281,6 +285,8 @@ void QTipManager::remove( QWidget *w )
     (void) tips->take( (long)w );
     QTipManager::Tip * d;
     while ( t ) {
+	if ( t == currentTip )
+	    hideTip();
 	d = t->next;
 	delete t;
 	t = d;
@@ -316,6 +322,7 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
     if ( !tips || !e || !o || !o->isWidgetType() )
 	return FALSE;
     QWidget * w = (QWidget *)o;
+
     QTipManager::Tip * t = (*tips)[ (long int)w ];
     if ( !t )
 	return FALSE;
@@ -332,17 +339,23 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
     case Event_MouseButtonDblClick:
     case Event_KeyPress:
     case Event_KeyRelease:
-	// input - don't show a tip for this widget
+	// input - turn off tool tip mode
 	hideTip();
-	dontShow = TRUE;
+	fallAsleep.stop();
 	break;
     case Event_MouseMove:
 	{ // a whole scope just for one variable
 	    QMouseEvent * m = (QMouseEvent *)e;
 
+	    if ( currentTip && !currentTip->rect.contains( m->pos() ) ) {
+		hideTip();
+		if ( m->state() == 0 )
+		    return TRUE;
+	    }
+
 	    wakeUp.stop();
 	    if ( m->state() == 0 ) {
-		if ( dontShow )
+		if ( (label && label->isVisible()) )
 		    return TRUE;
 		else if ( fallAsleep.isActive() )
 		    wakeUp.start( 100, TRUE );
@@ -359,7 +372,6 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
     case Event_Enter: // fall through
     case Event_Leave:
 	hideTip();
-	dontShow = FALSE;
 	break;
     default:
 	hideTip();
@@ -385,6 +397,11 @@ void QTipManager::showTip()
 
     if ( t == 0 )
 	return;
+
+    if ( t->tip ) {
+	t->tip->maybeTip( pos );
+	return;
+    }
 
     if ( label ) {
 	label->setText( t->text );
@@ -415,14 +432,11 @@ void QTipManager::showTip()
     label->show();
     label->raise();
 
-    dontShow = TRUE;
     fallAsleep.start( 4000, TRUE );
 
-    if ( t->group && !t->groupText.isEmpty() ) {
+    if ( t->group && !t->groupText.isEmpty() )
 	emit t->group->showTip( t->groupText );
-	currentTip = t;
-    }
-
+    currentTip = t;
 }
 
 
@@ -436,6 +450,9 @@ void QTipManager::hideTip()
     } else if ( wakeUp.isActive() ) {
 	wakeUp.stop();
     }
+
+    if ( currentTip && currentTip->autoDelete )
+	delete currentTip;
 
     currentTip = 0;
     widget = 0;
@@ -500,13 +517,14 @@ void QTipManager::hideTip()
 
   To add a tip to a fixed rectangle within a widget, call the static
   function QToolTip::add() with the widget, rectangle and tip as
-  arguments.  Again, you can supply a QToolTipGroup * and another text
-  if you want.
+  arguments.  (See the tellme.cpp example.)  Again, you can supply a
+  QToolTipGroup * and another text if you want.
 
   Both of the above are one-liners and cover the vast majority of
   cases.  The third and most general API uses a pure virtual function
-  to decide whether to pop up a tool tip.  This mode can be used to
-  implement e.g. tips for text that can move as the user scrolls.
+  to decide whether to pop up a tool tip.  The tellme.cpp example
+  demonstrates this too.  This mode can be used to implement e.g. tips
+  for text that can move as the user scrolls.
 
   To use this API, you need to subclass QToolTip and reimplement
   maybeTip().  maybeTip() will be called when there's a chance that a
@@ -518,18 +536,6 @@ void QTipManager::hideTip()
   lets the mouse rest within the same rectangle again.  You can
   forcibly remove the tip by calling remove() with no arguments.  This
   is handy if the widget scrolls.
-*/
-
-
-/*! \class QToolTipGroup qtooltip.h
-
-  \brief The QToolTipGroup class provides a way to group tool tips
-  into natural groups.
-
-  Tool tips can display \e two texts, the one in the tip an optionally
-  another one, typically in a status bar.  QTooTipGroup provides a way
-  to link tool tips to this status bar.
-
 */
 
 
@@ -548,6 +554,9 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
 {
     p = parent;
     g = group;
+    if ( !tipManager )
+	tipManager = new QTipManager();
+    tipManager->add( p, entireWidget(), 0, g, 0, this, FALSE );
 }
 
 
@@ -565,7 +574,7 @@ void QToolTip::add( QWidget * widget, const char * text )
 	tipManager = new QTipManager;
 	qAddPostRoutine( cleanupTipManager );
     }
-    tipManager->add( widget, entireWidget(), text, 0, 0, FALSE );
+    tipManager->add( widget, entireWidget(), text, 0, 0, 0, FALSE );
 }
 
 
@@ -584,7 +593,7 @@ void QToolTip::add( QWidget * widget, const char * text,
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( widget, entireWidget(), text, group, longText, FALSE );
+    tipManager->add( widget, entireWidget(), text, group, longText, 0, FALSE );
 }
 
 /*!
@@ -610,7 +619,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( widget, rect, text, 0, 0, FALSE );
+    tipManager->add( widget, rect, text, 0, 0, 0, FALSE );
 }
 
 
@@ -631,7 +640,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect,
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( widget, rect, text, group, groupText, FALSE );
+    tipManager->add( widget, rect, text, group, groupText, 0, FALSE );
 }
 
 /*!
@@ -656,8 +665,6 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
   It is called when there is a chance that a tool tip should be shown,
   and must decide whether there is a tool tip for the point \a p and
   what rectangle
-
-
 */
 
 
@@ -672,7 +679,7 @@ void QToolTip::tip( const QRect & rect, const char * text )
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( parentWidget(), rect, text, 0, 0, TRUE );
+    tipManager->add( parentWidget(), rect, text, 0, 0, 0, TRUE );
 }
 
 /*! Pop up a tip saying \a text right now, and remove that tip once
@@ -687,7 +694,7 @@ void QToolTip::tip( const QRect & rect, const char * text,
 {
     if ( !tipManager )
 	tipManager = new QTipManager();
-    tipManager->add( parentWidget(), rect, text, group(), groupText, TRUE );
+    tipManager->add( parentWidget(), rect, text, group(), groupText, 0, TRUE );
 }
 
 
@@ -697,29 +704,6 @@ void QToolTip::clear()
 {
     if ( tipManager )
 	tipManager->remove( parentWidget() );
-}
-
-
-/*!
-
-*/
-
-QToolTipGroup::QToolTipGroup( QObject * parent, const char * name )
-    : QObject( parent, name )
-{
-    initMetaObject();
-}
-
-
-
-/*!
-  Destroy this tool tip groups and all tool tips in it.
-*/
-
-QToolTipGroup::~QToolTipGroup()
-{
-    if ( tipManager )
-	tipManager->removeFromGroup( this );
 }
 
 
@@ -745,3 +729,61 @@ QToolTipGroup::~QToolTipGroup()
 
   \sa parentWidget() QToolTipGroup
 */
+
+
+
+/*! \class QToolTipGroup qtooltip.h
+
+  \brief The QToolTipGroup class provides a way to group tool tips
+  into natural groups.
+
+  Tool tips can display \e two texts, the one in the tip an optionally
+  another one, typically in a status bar.  QTooTipGroup provides a way
+  to link tool tips to this status bar.
+
+  QToolTipGroup has practically no API, it is only used as an argument
+  to QToolTip's member functions, for example like this:
+
+  \code
+    QToolTipGroup * g = new QToolTipGroup( this, "tool tip relay" );
+    connect( g, SIGNAL(showTip(const char *)),
+             myLabel, SLOT(setText(const char *)) );
+    connect( g, SIGNAL(removeTip()),
+             myLabel, SLOT(clear()) );
+    QToolTip::add( giraffeButton, "feed giraffe",
+                   g, "Give the giraffe a meal" );
+    QToolTip::add( gorillaButton, "feed gorilla",
+                   g, "Give the gorilla a meal" );
+  \endcode
+
+  This example makes the object myLabel (which you have to supply)
+  display (one assumes, though you can make myLabel do anything, of
+  course) the strings "Give the giraffe a meal" and "Give the gorilla
+  a meal" while the relevant tool tips are being displayed.
+
+  Deleting a tool tip group removes the tool tips in it.
+
+*/
+
+
+/*!
+  Constructs a tool tip group.
+*/
+
+QToolTipGroup::QToolTipGroup( QObject * parent, const char * name )
+    : QObject( parent, name )
+{
+    initMetaObject();
+}
+
+
+
+/*!
+  Destroy this tool tip groups and all tool tips in it.
+*/
+
+QToolTipGroup::~QToolTipGroup()
+{
+    if ( tipManager )
+	tipManager->removeFromGroup( this );
+}
