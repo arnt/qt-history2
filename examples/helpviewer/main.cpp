@@ -12,9 +12,8 @@
 
 #include "helpwindow.h"
 #include <qapplication.h>
-#include <qwindowsstyle.h>
 #include <qdesktopwidget.h>
-#include <qstylesheet.h>
+#include <qdir.h>
 #include <stdlib.h>
 
 
@@ -27,13 +26,8 @@ int main( int argc, char ** argv )
     if (argc > 1) {
         home = argv[1];
     } else {
-        home = QString( qInstallPathDocs() ) + "/html/index.html";
-
-	// if $QTDIR is set, use that instead
-	const char *qtdirenv = getenv( "QTDIR" );
-	if ( qtdirenv ) {
-	    home = QString( qtdirenv ) + "/doc/html/index.html";
-	}
+	// Use a hard coded path. It is only an example.
+	home = QDir( "../../doc/html/index.html" ).absPath();
     }
 
     HelpWindow *help = new HelpWindow(home, ".", 0, "help viewer");
