@@ -27,7 +27,9 @@ ActiveQt Extension
 
 Two new functions, QAxFactory::startServer() and
 QAxFactory::stopServer(), can be used to start and stop an
-out-of-process ActiveQt server in runtime. Server binaries no longer
+out-of-process ActiveQt server in runtime. The new functions
+QAxFactory::serverDirPath() and QAxFactory::serverFilePath() return
+the location of the COM server binary. Server binaries no longer
 need to implement a main() entry point function.  A default
 implementation will be used for out-of-process servers. IClassFactory2
 is supported for the development of licensed components, and
