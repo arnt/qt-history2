@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#95 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#95 $");
 
 
 /*!
@@ -243,7 +243,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->current               = 0;
     d->maxCount              = INT_MAX;
     d->sizeLimit	     = 10;
-    d->p = AtBottom;
+    d->p                    =  AtBottom;
     d->autoresize            = FALSE;
     d->poppedUp              = FALSE;
     d->arrowDown             = FALSE;
@@ -892,8 +892,9 @@ void QComboBox::paintEvent( QPaintEvent * )
 
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
-			 buttonW, buttonH, g, FALSE, 2, &fill );
+			 buttonW, buttonH, g, FALSE, 2 );
 	QFontMetrics fm = p.fontMetrics();
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
 	const char *str = d->popup->text( d->current );
@@ -907,7 +908,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 		p.setClipping( FALSE );
 	    }
 	}
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
 
 	if ( hasFocus() )
 	    p.drawRect( xPos - 5, 4, width() - xPos + 1 , height() - 8 );
