@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#16 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#17 $
 **
 ** Definition of QFontMetrics class
 **
@@ -20,7 +20,7 @@
 class QFontMetrics
 {
 public:
-    QFontMetrics( QPaintDevice * );
+    QFontMetrics( const QPaintDevice * );
    ~QFontMetrics();
 
     int		ascent()	const;
@@ -42,11 +42,11 @@ public:
     const QFont &font()		const	{ return f; }
 
 private:
+    QFontMetrics( const QPainter * );
     static void reset( const QPaintDevice * );
     QFont	f;
     QPaintDevice *pdev;
     friend class QPaintDevice;
-    friend class QPainter;
 };
 
 
