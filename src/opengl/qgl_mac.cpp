@@ -581,7 +581,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 					   bool update)
 {
     if(QMacBlockingFunction::blocking()) { //nah, let's do it "later"
-	if(!dblbuf)
+	if(glcx && !dblbuf)
 	    glcx->fixBufferRect();
 	pending_fix = TRUE;
 	return;
