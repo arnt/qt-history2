@@ -38,7 +38,7 @@
 
 #ifndef QT_NO_SQL
 QSqlExtension::QSqlExtension()
-    : bindm( BindByPosition )
+    : bindm( BindByPosition ), bindCount( 0 )
 {
 }
 
@@ -77,12 +77,13 @@ void QSqlExtension::bindValue( int pos, const QVariant& val )
 void QSqlExtension::addBindValue( const QVariant& val )
 {
     bindm = BindByPosition;
-    bindValue( index.count(), val );
+    bindValue( bindCount++, val );
 }
 
 void QSqlExtension::clearValues()
 {
     values.clear();
+    bindCount = 0;
 }
 
 void QSqlExtension::clearIndex()

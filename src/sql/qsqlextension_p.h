@@ -83,6 +83,7 @@ public:
     enum BindMethod { BindByPosition, BindByName };
     BindMethod bindMethod();
     BindMethod bindm;
+    int bindCount;
     
     QMap<int, QString> index;
     QMap<QString, QVariant> values;
