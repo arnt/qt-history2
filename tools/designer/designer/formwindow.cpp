@@ -858,7 +858,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	drawConnectionLine();
 	break;
     case BUDDY_TOOL:
-	if ( currTool == BUDDY_TOOL && !validForBuddy )
+	if ( !validForBuddy )
 	    break;
 	restoreConnectionLine();
 	wid = qApp->widgetAt( e->globalPos(), TRUE );
