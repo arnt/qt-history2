@@ -1425,6 +1425,8 @@ private:
 
   </ul>
 
+  Use insertItem() to insert a layout item at a specified position.
+  
   QBoxLayout also includes two margin widths: The border width and the
   inter-box width.  The border width is the width of the reserved
   space along each of the QBoxLayout's four sides.  The intra-widget
@@ -1671,13 +1673,29 @@ void QBoxLayout::setGeometry( const QRect &s )
 }
 
 /*!
-  Adds \a item to this box.
+  Adds \a item to the end of this box layout.
+
+  \sa insertItem()
 */
 
 void QBoxLayout::addItem( QLayoutItem *item )
 {
     QBoxLayoutItem *it = new QBoxLayoutItem( item );
     data->list.append( it );
+    invalidate();
+}
+
+
+
+/*!
+  Inserts \a index to this box layout at index \a index.
+  \sa addItem(), findWidget()
+*/
+
+void QBoxLayout::insertItem( QLayoutItem *item , int index )
+{
+    QBoxLayoutItem *it = new QBoxLayoutItem( item );
+    data->list.insert( index, it );
     invalidate();
 }
 
@@ -1800,6 +1818,26 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignment )
     QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
     data->list.append( it );
     invalidate();
+}
+
+
+
+
+
+/*!
+  Searches for \a w in this layout (not including child layouts). 
+  
+  Returns the index of \a w, or -1 if \a w is not found.
+*/
+
+int QBoxLayout::findWidget( QWidget* w )
+{
+    const int n = data->list.count();
+    for ( int i=0; i < n; i++ ) {
+	if ( data->list.at(i)->item->widget() == w )
+	    return i;
+    }
+    return -1;    
 }
 
 
@@ -2171,5 +2209,6 @@ QVBoxLayout::QVBoxLayout( int space, const char *name )
 QVBoxLayout::~QVBoxLayout()
 {
 }
+
 
 

@@ -14,41 +14,66 @@
 
 #include <qlayout.h>
 
-int main( int argc, char **argv )
+class ExampleWidget : public QWidget
 {
-    QApplication a( argc, argv );
+    Q_OBJECT
+public:
+    ExampleWidget( QWidget *parent=0, const char* name = 0 );
+public slots:
+    void insertWidget(); 
+private:
+    QBoxLayout *testbox;
+};
 
-    QGroupBox *f = new QGroupBox;
-    f->setFrameStyle( QFrame::Panel  | QFrame::Sunken );
 
-    QBoxLayout *gm = new QBoxLayout( f, QBoxLayout::TopToBottom, 5 );
+#include "qex.moc"
+
+
+void ExampleWidget::insertWidget()
+{
+    QLabel *nl = new QLabel( "Inserting", this );
+    nl->setBackgroundColor( QColor( 222, 150, 111 ) );
+    testbox->insertItem( new QWidgetItem( nl ), 1 );
+    nl->show();
+}
+
+
+ExampleWidget::ExampleWidget( QWidget *parent, const char* name)
+    :QWidget(parent,name), testbox(0)
+{
+    QBoxLayout *gm = new QBoxLayout( this, QBoxLayout::TopToBottom, 5 );
 #if 1
     QBoxLayout *b1 = new QBoxLayout( QBoxLayout::LeftToRight);
+    testbox = b1;
     gm->addLayout( b1, 10 );
 
     for ( int i=0; i<4; i++ ) {
-	QLabel* lab = new QLabel(f);
+	QLabel* lab = new QLabel(this);
 	lab->setText("Testing");
 	lab->setFrameStyle( QFrame::Panel   | QFrame::Plain );
-	lab->setAlignment( Qt::AlignTop | Qt::AlignHCenter );
-	lab->setBackgroundColor(Qt::yellow);
+	lab->setAlignment( AlignTop | AlignHCenter );
+	lab->setBackgroundColor(yellow);
 
 	b1->addWidget( lab, 20 );
     }
 
-    QPushButton* qb = new QPushButton( "Quit", f );
-    a.connect( qb, SIGNAL(clicked()), SLOT(quit()) );
-    b1->addWidget( qb, 0, Qt::AlignTop );
+    QPushButton* tb = new QPushButton( "Insert", this );
+    connect( tb, SIGNAL(clicked()), this, SLOT(insertWidget()) );
+    b1->addWidget( tb, 0, AlignTop );
+
+    QPushButton* qb = new QPushButton( "Quit", this );
+    qApp->connect( qb, SIGNAL(clicked()), SLOT(quit()) );
+    b1->addWidget( qb, 0, AlignTop );
 
 
 #endif
-    QLabel* large = new QLabel(f);
+    QLabel* large = new QLabel(this);
     large->setText("This is supposed to be a large window\n you know.");
     large->adjustSize();
     large->setMinimumSize( large->size());
     large->setFrameStyle( QFrame::Panel | QFrame::Plain );
-    large->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
-    large->setBackgroundColor(Qt::white);
+    large->setAlignment( AlignVCenter | AlignHCenter );
+    large->setBackgroundColor(white);
 
     QBoxLayout *b2 = new QBoxLayout( QBoxLayout::LeftToRight);
     gm->addLayout( b2, 50 );
@@ -56,31 +81,41 @@ int main( int argc, char **argv )
     b2->addWidget( large, 100 ); // hstretch
 
     {
-	QLabel* s = new QLabel(f);
+	QLabel* s = new QLabel(this);
 	s->setText("This\n is\n supposed\n to be\n centered\n relatively.");
 	s->adjustSize();
 	s->setMinimumSize( s->size());
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
-	s->setBackgroundColor(Qt::cyan);
-	b2->addWidget( s, 10, Qt::AlignCenter );
+	s->setAlignment( AlignVCenter | AlignHCenter );
+	s->setBackgroundColor(cyan);
+	b2->addWidget( s, 10, AlignCenter );
     }
 
     {
-	QLabel* s = new QLabel(f);
+	QLabel* s = new QLabel(this);
 	s->setText("This is a widget inside the outermost box");
 	s->adjustSize();
 	s->setMinimumSize( s->width(), s->height() );
 	s->setFrameStyle( QFrame::Panel | QFrame::Plain );
-	s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
-	s->setBackgroundColor(Qt::red);
+	s->setAlignment( AlignVCenter | AlignHCenter );
+	s->setBackgroundColor(red);
 	gm->addWidget( s, 1 );
     }
 
     gm->activate();
     //gm->freeze();
-    f->show();
 
-    a.setMainWidget(f);
+}
+
+
+int main( int argc, char **argv )
+{
+    QApplication a( argc, argv );
+
+    ExampleWidget f;
+
+    f.show();
+
+    a.setMainWidget(&f);
     return a.exec();
 }

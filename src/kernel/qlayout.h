@@ -122,6 +122,7 @@ public:
     ~QBoxLayout();
 
     void addItem( QLayoutItem * );
+    void insertItem( QLayoutItem *, int index );
 
     Direction direction() const { return dir; }
     void setDirection( Direction );
@@ -145,6 +146,9 @@ public:
     void invalidate();
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
+
+    int findWidget( QWidget* w );
+
 private:
     void setupGeom();
     int calcHfw( int );
