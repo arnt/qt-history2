@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#79 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#80 $
 **
 ** Definition of QListBox widget class
 **
@@ -37,6 +37,7 @@ class QListBoxPrivate;
 class QListBoxItem;
 class QString;
 class QStrList;
+class QStringList;
 
 
 class Q_EXPORT QListBox : public QScrollView
@@ -50,7 +51,7 @@ public:
 
     uint count() const;
 
-    // ### uses const char *, not QString
+    void insertStringList( const QStringList&, int index=-1 );
     void insertStrList( const QStrList *, int index=-1 );
     void insertStrList( const QStrList &, int index=-1 );
     void insertStrList( const char **,

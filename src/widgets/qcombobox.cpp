@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#193 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#194 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -460,6 +460,33 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 		repaint();
 	    currentChanged();
 	}
+    }
+    if ( index != count() )
+	reIndex();
+}
+
+/*!
+  Inserts the list of strings at the index \e index in the combo box.
+*/
+
+void QComboBox::insertStringList( const QStringList &list, int index )
+{
+    QStringList::ConstIterator it = list.begin();
+    if ( index < 0 )
+	index = count();
+    while ( it != list.end() ) {
+	if ( d->usingListBox )
+	    d->listBox->insertItem( *it, index );
+	else
+	    d->popup->insertItem( *it, index, index );
+	if ( index++ == d->current && d->current < count() ) {
+	    if ( d->ed )
+		d->ed->setText( text( d->current ) );
+	    else
+		repaint();
+	    currentChanged();
+	}
+	++it;
     }
     if ( index != count() )
 	reIndex();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#70 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#71 $
 **
 ** Implementation of QDir class
 **
@@ -27,6 +27,7 @@
 #include "qfileinfo.h"
 #include "qfiledefs.h"
 #include "qregexp.h"
+#include "qstringlist.h"
 #include <stdlib.h>
 #include <ctype.h>
 #if defined(_OS_WIN32_)
@@ -664,7 +665,7 @@ QString QDir::operator[]( int index ) const
 {
     entryList();
     return fList && index >= 0 && index < (int)fList->count() ?
-	fList->at(index) : 0;
+	(*fList)[index] : QString::null;
 }
 
 
@@ -678,7 +679,7 @@ QString QDir::operator[]( int index ) const
 
   Returns 0 if the directory is unreadable or does not exist.
 
-  The returned pointer is a const pointer to a QStrList. The list is
+  The returned pointer is a const pointer to a QStringList. The list is
   owned by the QDir object and will be reused on the next call to
   entryList() for the same QDir instance. If you want to keep the
   entries of the list after a subsequent call to this function you will
@@ -687,7 +688,7 @@ QString QDir::operator[]( int index ) const
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QStrList *QDir::entryList( int filterSpec, int sortSpec ) const
+const QStringList *QDir::entryList( int filterSpec, int sortSpec ) const
 {
     if ( !dirty && filterSpec == (int)DefaultFilter &&
 		   sortSpec   == (int)DefaultSort )
@@ -703,7 +704,7 @@ const QStrList *QDir::entryList( int filterSpec, int sortSpec ) const
   The the filter and sorting specifications can be overridden using the
   \e nameFilter, \e filterSpec and \e sortSpec arguments.
 
-  The returned pointer is a const pointer to a QStrList. The list is
+  The returned pointer is a const pointer to a QStringList. The list is
   owned by the QDir object and will be reused on the next call to
   entryList() for the same QDir instance. If you want to keep the
   entries of the list after a subsequent call to this function you will
@@ -714,7 +715,7 @@ const QStrList *QDir::entryList( int filterSpec, int sortSpec ) const
   \sa entryInfoList(), setNameFilter(), setSorting(), setFilter()
 */
 
-const QStrList *QDir::entryList( const QString &nameFilter,
+const QStringList *QDir::entryList( const QString &nameFilter,
 				 int filterSpec, int sortSpec ) const
 {
     if ( filterSpec == (int)DefaultFilter )
@@ -1284,12 +1285,23 @@ bool QDir::isRelativePath( const QString &path )
 }
 
 
-static void dirInSort( QStrList *fl, QFileInfoList *fil,
+static void dirInSort( QStringList *fl, QFileInfoList *fil,
 		       const QString &fileName,
 		       const QFileInfo &fi, int sortSpec )
 {
+    // ###### placeholder
     QFileInfo *newFi = new QFileInfo( fi );
     CHECK_PTR( newFi );
+    if ( sortSpec & QDir::Reversed ) {
+	fl ->prepend( fileName );
+	fil->insert( 0, newFi );
+    } else {
+	fl ->append( fileName );
+	fil->append( newFi );
+    }
+
+/* This is an O(n*n) solution!  Better to sort afterwards.
+
     int sortBy = sortSpec & QDir::SortByMask;
     if ( sortBy == QDir::Unsorted ) {
 	if ( sortSpec & QDir::Reversed ) {
@@ -1341,6 +1353,7 @@ static void dirInSort( QStrList *fl, QFileInfoList *fil,
 	pos = ( sortSpec & QDir::Reversed ) ? 0 : fl->count();
     fl ->insert( pos, fileName );
     fil->insert( pos, newFi );
+*/
 }
 
 
@@ -1353,7 +1366,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
 {
     if ( !fList ) {
-	fList  = new QStrList;
+	fList  = new QStringList;
 	CHECK_PTR( fList );
 	fiList = new QFileInfoList;
 	CHECK_PTR( fiList );
@@ -1379,11 +1392,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
     bool dirsFirst  = (sortSpec	  & DirsFirst)	!= 0;
 
-    QStrList	  *dList  = 0;
+    QStringList	  *dList  = 0;
     QFileInfoList *diList = 0;
 
     if ( dirsFirst ) {
-	dList = new QStrList;
+	dList = new QStringList;
 	CHECK_PTR( dList );
 	diList	 = new QFileInfoList;
 	CHECK_PTR( dList );
@@ -1590,12 +1603,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif // UNIX
 
     if ( dirsFirst ) {
-	char	  *tmp	 = dList ->last();
+	// Prepend dirs into fList and fiList
+	QStringList::Iterator it = dList->last();
 	QFileInfo *fiTmp = diList->last();
-	while ( tmp ) {
-	    fList->insert( 0, tmp );
-	    tmp = dList->prev();
-	    fiList->insert( 0, fiTmp );
+	while ( it != dList->end() ) {
+	    fList->prepend(*it);
+	    fiList->insert(0, fiTmp);
+	    it++;
 	    fiTmp = diList->prev();
 	}
 	delete dList;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#148 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1914,7 +1914,7 @@ public:
 
     void addStyle( const QString &name, QFontStyle *style );
 
-    QList<QFontStyle> styles;    QStrList styleNames;
+    QList<QFontStyle> styles;    QStringList styleNames;
 };
 
 void QFontCharSetPrivate::addStyle( const QString &name, QFontStyle *style)
@@ -1951,7 +1951,7 @@ class QFontFamilyPrivate
 public:
     QString name;
     QList<QFontCharSet> charSets;
-    QStrList charSetNames;
+    QStringList charSetNames;
     QArray<bool> charSetSet;   // ###
 
     bool scalable;
@@ -1997,11 +1997,14 @@ void QFontFamilyPrivate::refresh()
 
 class QFontDatabasePrivate {
 public:
+    QFontDatabasePrivate() : familyNamesNeedSort(FALSE) { }
+
     static void createDatabase();
 
     QDict<QFontFamily> familyDict;
     QList<QFontFamily> families;
-    QStrList familyNames;
+    QStringList familyNames;
+    bool familyNamesNeedSort;
 
     void addFamily( const QString &name, QFontFamily *family );
 };
@@ -2010,7 +2013,8 @@ void QFontDatabasePrivate::addFamily( const QString &name, QFontFamily *family)
 {
     familyDict.insert( name, family );
     families.append( family );
-    familyNames.inSort( name );
+    familyNames.append( name );
+    familyNamesNeedSort = TRUE;
 }
 
 static QFontDatabasePrivate *db;
@@ -2354,7 +2358,7 @@ const QList<QFontStyle> &QFontCharSet::styles() const
     return d->styles;
 }
 
-const QStrList &QFontCharSet::styleNames() const
+const QStringList &QFontCharSet::styleNames() const
 {
     return d->styleNames;
 }
@@ -2426,9 +2430,9 @@ const QList<QFontCharSet> &QFontFamily::charSets() const
     return d ? d->charSets : nullList;
 }
 
-const QStrList &QFontFamily::charSetNames() const
+const QStringList &QFontFamily::charSetNames() const
 {
-    static QStrList nullList;
+    static QStringList nullList;
 
     return d ? d->charSetNames : nullList;
 }
@@ -2474,8 +2478,14 @@ const QList<QFontFamily> &QFontDatabase::families() const
     return d->families;
 }
 
-const QStrList &QFontDatabase::familyNames() const
+const QStringList &QFontDatabase::familyNames() const
 {
+    // cache-const
+    if ( d->familyNamesNeedSort ) {
+	d->familyNames.sort();
+	d->familyNamesNeedSort = FALSE;
+    }
+
     return d->familyNames;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#1 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#2 $
 **
 ** Definition of the QFontDatabase class and friends
 **
@@ -47,7 +47,7 @@
 #include "qlist.h"
 #endif // QT_H
 
-class QStrList;
+class QStringList;
 class QFontStylePrivate;
 
 class Q_EXPORT QFontStyle
@@ -91,7 +91,7 @@ public:
     bool smoothlyScalable() const;
 
     const QList<QFontStyle> &styles() const;
-    const QStrList &styleNames() const;
+    const QStringList &styleNames() const;
     const QFontStyle &style( const QString &styleName ) const;
 #if 0 
     const QFontStyle &normal() const;
@@ -123,7 +123,7 @@ public:
     QString name() const;
 
     const QList<QFontCharSet> &charSets() const;
-    const QStrList &charSetNames() const;
+    const QStringList &charSetNames() const;
     const QFontCharSet &charSet( const QString &charSetName ) const;
     const QFontCharSet &charSet( QFont::CharSet ) const;
 
@@ -146,7 +146,7 @@ public:
     QFontDatabase();
 
     const QList<QFontFamily> &families() const;
-    const QStrList &familyNames() const;
+    const QStringList &familyNames() const;
     const QFontFamily &family( const QString &familyName ) const;
 private:
     QFontDatabasePrivate *d;

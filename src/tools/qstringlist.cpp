@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#3 $
 **
 ** Implementation of QStringList
 **
@@ -25,6 +25,7 @@
 
 #include "qstringlist.h"
 #include "qdatastream.h"
+#include "qtl.h"
 
 QDataStream &operator>>( QDataStream& s, QStringList& l )
 {
@@ -55,3 +56,7 @@ QDataStream &operator<<( QDataStream& s, const QStringList& l )
   return s;
 }
 
+void QStringList::sort()
+{
+    qHeapSort(*this);
+}

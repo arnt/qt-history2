@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#36 $
+** $Id: //depot/qt/main/src/tools/qdir.h#37 $
 **
 ** Definition of QDir class
 **
@@ -33,6 +33,7 @@
 
 typedef QList<QFileInfo> QFileInfoList;
 typedef QListIterator<QFileInfo> QFileInfoListIterator;
+class QStringList;
 
 
 class Q_EXPORT QDir
@@ -104,9 +105,9 @@ public:
     uint count() const;
     QString	operator[]( int ) const;
 
-    const QStrList *entryList( int filterSpec = DefaultFilter,
+    const QStringList *entryList( int filterSpec = DefaultFilter,
         		       int sortSpec   = DefaultSort  ) const;
-    const QStrList *entryList( const QString &nameFilter,
+    const QStringList *entryList( const QString &nameFilter,
         		       int filterSpec = DefaultFilter,
         		       int sortSpec   = DefaultSort   ) const;
     
@@ -160,7 +161,7 @@ private:
 				 int FilterSpec, int SortSpec  );
 
     QString	dPath;
-    QStrList   *fList;
+    QStringList   *fList;
     QFileInfoList *fiList;
     QString	nameFilt;
     FilterSpec	filtS;

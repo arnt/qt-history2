@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#73 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#74 $
 **
 ** Definition of QListView widget class
 **
@@ -26,7 +26,6 @@
 #ifndef QLISTVIEW_H
 #define QLISTVIEW_H
 
-class QStrList;
 class QPixmap;
 class QFont;
 class QHeader;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#2 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#3 $
 **
 ** Definition of QStringList class
 **
@@ -31,7 +31,15 @@
 #include "qstring.h"
 #endif // QT_H
 
-typedef QValueList<QString> QStringList;
+class QStringList : public QValueList<QString>
+{
+public:
+    QStringList() { }
+    QStringList( const QStringList& l ) : QValueList<QString>(l) { }
+
+    void sort();
+    // ... stringlist-specific convenience functions go here.
+};
 
 class QDataStream;
   

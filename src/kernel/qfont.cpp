@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#118 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1015,22 +1015,22 @@ void QFont::removeSubstitution( const QString &familyName )
 
 
 /*!
-  Returns a sorted list of substituted family names in \e list.
+  Returns a sorted list of substituted family names.
 
   \sa insertSubstitution(), removeSubstitution(), substitute()
 */
 
-void QFont::listSubstitutions( QStrList *list )
+QStringList QFont::substitutions()
 {
+    QStringList list;
     initFontSubst();
-    list->clear();
-    list->setAutoDelete( TRUE );
     QFontSubstIt it( *fontSubst );
     const char* n;
     while ( (n=(const char*)(void*)it.currentKeyLong()) ) {
-	list->inSort( qstrdup(n) );
+	list.append(n);
 	++it;
     }
+    return list;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#35 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#36 $
 **
 ** Definition of QDragObject
 **
@@ -134,7 +134,7 @@ public:
     static QString urlToLocalFile(const char*);
     static bool canDecode( QMimeSource* e );
     static bool decode( QMimeSource* e, QStrList& i );
-    static bool decodeLocalFiles( QMimeSource* e, QStrList& i );
+    static bool decodeLocalFiles( QMimeSource* e, QStringList& i );
 };
 
 

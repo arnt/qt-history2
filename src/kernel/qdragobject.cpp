@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#74 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -899,7 +899,7 @@ int htod(int h)
 */
 QString QUrlDrag::urlToLocalFile(const char* url)
 {
-    QString result;
+    QCString utf8;
 
     if ( url && 0==qstrnicmp(url,"file:/",6) ) {
 	url += 6;
@@ -907,27 +907,27 @@ QString QUrlDrag::urlToLocalFile(const char* url)
 	    // It is local.
 	    while (*url) {
 		switch (*url) {
-		  case '|': result += ':';
+		  case '|': utf8 += ':';
 		    break;
-		  case '+': result += ' ';
+		  case '+': utf8 += ' ';
 		    break;
 		  case '%': {
 			int ch = url[1];
 			if ( ch && url[2] ) {
 			    ch = htod(ch)*16 + htod(url[2]);
-			    result += ch;
+			    utf8 += ch;
 			}
 		    }
 		    break;
 		  default:
-		    result += *url;
+		    utf8 += *url;
 		}
 		++url;
 	    }
 	}
     }
 
-    return result;
+    return QString::fromUtf8(utf8);
 }
 
 /*!
@@ -937,14 +937,13 @@ QString QUrlDrag::urlToLocalFile(const char* url)
   Returns TRUE if the event contained a valid list of URLs.
   The list will be empty if no URLs were local files.
 */
-bool QUrlDrag::decodeLocalFiles( QMimeSource* e, QStrList& l )
+bool QUrlDrag::decodeLocalFiles( QMimeSource* e, QStringList& l )
 {
     QStrList u;
     if ( !decode( e, u ) )
 	return FALSE;
 
     l.clear();
-    l.setAutoDelete(TRUE);
     for (const char* s=u.first(); s; s=u.next()) {
 	QString lf = urlToLocalFile(s);
 	if ( !lf.isNull() )

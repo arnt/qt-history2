@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#216 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#217 $
 **
 ** Implementation of QListBox widget class
 **
@@ -543,7 +543,7 @@ uint QListBox::count() const
   QString, so we recommend against using it.  It is provided so that
   legacy code will continue to work, and so that programs that
   certainly will not need to handle code outside a single 8-bit locale
-  can use it.
+  can use it.  See insertStringList() - it uses real QStrings.
 
   \warning This function is never significantly faster than a loop
   around insertItem().
@@ -559,14 +559,29 @@ void QListBox::insertStrList( const QStrList *list, int index )
 #endif
 	return;
     }
-    QStrListIterator it( *list );
-    const char* txt;
+    insertStrList( *list, index );
+}
+
+
+
+/*!
+  Inserts the string list \a list into the list at item \a index.
+
+  If \a index is negative, \a list is inserted at the end of the list.	If
+  \a index is too large, the operation is ignored.
+
+  \warning This function is never significantly faster than a loop
+  around insertItem().
+
+  \sa insertItem(), inSort()
+*/
+
+void QListBox::insertStringList( const QStringList & list, int index )
+{
     if ( index < 0 )
 	index = count();
-    while ( (txt=it.current()) ) {
-	++it;
-	insertItem( new QListBoxText(txt), index++ );
-    }
+    for ( QStringList::ConstIterator it = list.begin(); it != list.end(); ++it )
+	insertItem( new QListBoxText(*it), index++ );
 }
 
 
@@ -581,7 +596,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   QString, so we recommend against using it.  It is provided so that
   legacy code will continue to work, and so that programs that
   certainly will not need to handle code outside a single 8-bit locale
-  can use it.
+  can use it.  See insertStringList() - it uses real QStrings.
 
   \warning This function is never significantly faster than a loop
   around insertItem().
@@ -613,7 +628,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
   QString, so we recommend against using it.  It is provided so that
   legacy code will continue to work, and so that programs that
   certainly will not need to handle code outside a single 8-bit locale
-  can use it.
+  can use it.  See insertStringList() - it uses real QStrings.
 
   \warning This function is never significantly faster than a loop
   around insertItem().

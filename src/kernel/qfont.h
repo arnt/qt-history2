@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#62 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#63 $
 **
 ** Definition of QFont class
 **
@@ -32,7 +32,7 @@
 #endif // QT_H
 
 
-class  QStrList;
+class QStringList;
 struct QFontDef;
 struct QFontData;
 class  QFontInternal;
@@ -122,7 +122,7 @@ public:
     static QString substitute( const QString &familyName );
     static void insertSubstitution( const QString&, const QString &);
     static void removeSubstitution( const QString &);
-    static void listSubstitutions( QStrList * );
+    static QStringList substitutions();
 
     static bool defaultResolutionAdjusted();
     static void setDefaultResolutionAdjusted( bool );

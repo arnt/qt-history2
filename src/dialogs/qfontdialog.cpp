@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#28 $
 **
 ** Implementation of QFontDialog
 **
@@ -533,7 +533,7 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 void QFontDialog::updateFamilies()
 {
-    d->familyList->insertStrList( d->fdb.familyNames() );
+    d->familyList->insertStringList( d->fdb.familyNames() );
     if ( d->familyList->count() != 0 )
 	d->familyList->setCurrentItem( 0 );
 }
@@ -545,7 +545,7 @@ void QFontDialog::updateFamilies()
 void QFontDialog::updateScripts()
 {
     d->scriptCombo->clear();
-    d->scriptCombo->insertStrList( d->family.charSetNames() );
+    d->scriptCombo->insertStringList( d->family.charSetNames() );
     if ( d->scriptCombo->count() != 0 ) {
 	// Avoid bug in QComboBox ###### FIX IT
 	scriptHighlighted( d->scriptCombo->text( 0 ) );
@@ -558,7 +558,7 @@ void QFontDialog::updateScripts()
 void QFontDialog::updateStyles()
 {
     d->styleList->clear();
-    d->styleList->insertStrList( d->charSet.styleNames() );
+    d->styleList->insertStringList( d->charSet.styleNames() );
     if ( d->styleList->count() != 0 )
 	d->styleList->setCurrentItem( 0 );  // Will call updateSizes
     // updateSizes();

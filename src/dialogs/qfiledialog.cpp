@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#160 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#161 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1737,22 +1737,17 @@ void QFileDialog::setFilters( const char ** types )
 }
 
 
-/*! \overload void QFileDialog::setFilters( const QStrList & )
+/*! \overload void QFileDialog::setFilters( const QStringList & )
 */
 
-void QFileDialog::setFilters( const QStrList & types )
+void QFileDialog::setFilters( const QStringList & types )
 {
     if ( types.count() < 1 )
 	return;
 
     d->types->clear();
-    QStrListIterator it( types );
-    it.toFirst();
-    QString t;
-    while( (t=it.current()) != 0 ) {
-	++it;
-	d->types->insertItem( t );
-    }
+    for ( QStringList::ConstIterator it = types.begin(); it != types.end(); ++it )
+	d->types->insertItem( *it );
     d->types->setCurrentItem( 0 );
     setFilter( d->types->text( 0 ) );
 }
@@ -1790,14 +1785,12 @@ void QFileDialog::modeButtonsDestroyed()
   list, for example using code such as:
 
   \code
-    QStrList s( QFileDialog::getOpenFileNames() );
+    QStringList s( QFileDialog::getOpenFileNames() );
     // do something with the files in s.
-    s.setAutoDelete();
-    s.clear(); // or just go out of scope.
   \endcode
 */
 
-QStrList QFileDialog::getOpenFileNames( const QString & filter,
+QStringList QFileDialog::getOpenFileNames( const QString & filter,
 					const QString& dir,
 					QWidget *parent,
 					const char* name )
@@ -1821,8 +1814,7 @@ QStrList QFileDialog::getOpenFileNames( const QString & filter,
     dlg->setCaption( dlg->tr("Open") );
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
-    QStrList s;
-    s.setAutoDelete( FALSE );
+    QStringList s;
     if ( dlg->exec() == QDialog::Accepted ) {
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {

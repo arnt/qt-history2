@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#40 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#41 $
 **
 ** Definition of QFileDialog class
 **
@@ -71,7 +71,7 @@ public:
     static QString getExistingDirectory( const QString &dir = QString::null,
 					 QWidget *parent = 0,
 					 const char* name = 0 );
-    static QStrList getOpenFileNames( const QString &filter= QString::null,
+    static QStringList getOpenFileNames( const QString &filter= QString::null,
 				      const QString &dir = QString::null,
 				      QWidget *parent = 0,
 				      const char* name = 0);
@@ -103,7 +103,7 @@ public slots:
     void setDir( const QString& );
     void setFilter( const QString& );
     void setFilters( const char ** );
-    void setFilters( const QStrList& );
+    void setFilters( const QStringList& );
 
 signals:
     void fileHighlighted( const QString& );
