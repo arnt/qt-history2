@@ -475,9 +475,9 @@ void QPlatinumStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
   \sa QStyle
   */
-void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int& buttonDim )
 {
-    int buttonDim, maxLength;
+    int maxLength;
     int b = 0;
     int length = HORIZONTAL ? sb->width()  : sb->height();
     int extent = HORIZONTAL ? sb->height() : sb->width();
@@ -487,24 +487,26 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int
     else
 	buttonDim = ( length - b*2 )/2 - 1;
 
-    *sliderMin = b + buttonDim;
+    sliderMin = b + HORIZONTAL?(buttonDim + buttonDim):1; //b + buttonDim;
     maxLength  = length - b*2 - buttonDim*2;
 
      if ( sb->maxValue() == sb->minValue() ) {
- 	*sliderLength = maxLength;
+ 	sliderLength = maxLength;
      } else {
- 	*sliderLength = (sb->pageStep()*maxLength)/
+ 	sliderLength = (sb->pageStep()*maxLength)/
  			(sb->maxValue()-sb->minValue()+sb->pageStep());
- 	if ( *sliderLength < SLIDER_MIN )
- 	    *sliderLength = SLIDER_MIN;
- 	if ( *sliderLength > maxLength )
- 	    *sliderLength = maxLength;
+ 	if ( sliderLength < SLIDER_MIN )
+ 	    sliderLength = SLIDER_MIN;
+ 	if ( sliderLength > maxLength )
+ 	    sliderLength = maxLength;
      }
-
+     /*	Old macintosh, but they changed it for 8.5
       if (maxLength >=  buttonDim)
- 	 *sliderLength = buttonDim; // macintosh
+ 	 sliderLength = buttonDim; // macintosh
 
-    *sliderMax = *sliderMin + maxLength - *sliderLength;
+	 */
+	 
+    sliderMax = sliderMin + maxLength - sliderLength;
 
 }
 
@@ -585,17 +587,56 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
 
   \sa QStyle
   */
+QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
+{
+        if ( !sb->rect().contains( p ) )
+	return NONE;
+    int sliderMin, sliderMax, sliderLength, buttonDim, pos;
+    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+    pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
+    
+    if (sb->orientation() == QScrollBar::Horizontal) {
+	pos = p.x();
+	if (pos < buttonDim)
+	    return SUB_LINE;
+	if (pos < 2 * buttonDim)
+	    return ADD_LINE;
+	if (pos < sliderStart)
+	    return SUB_PAGE;
+	if (pos > sliderStart + sliderLength)
+	    return ADD_PAGE;
+	return SLIDER;
+    }
+    else {
+	pos = p.y();
+	if (pos < sliderStart)
+	    return SUB_PAGE;
+	if (pos < sliderStart + sliderLength)
+	    return SLIDER;
+	if (pos < sliderMax + sliderLength)
+	    return ADD_PAGE;
+	if (pos < sliderMax + sliderLength + buttonDim)
+	    return SUB_LINE;
+	return ADD_LINE;
+    }
+}
+
+/*!
+  Reimplementation from QStyle
+
+  \sa QStyle
+  */
 void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int sliderStart, uint controls, uint activeControl )
 {
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = sb->colorGroup();
 
-    int sliderMin, sliderMax, sliderLength;
-    scrollBarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+    int sliderMin, sliderMax, sliderLength, buttonDim;
+    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
     int b = 0;
-    int dimB = sliderMin - b;
+    int dimB = buttonDim;
     QRect addB;
     QRect subB;
     QRect addPageR;
@@ -608,10 +649,10 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     if ( HORIZONTAL ) {
 	subY = addY = ( extent - dimB ) / 2;
 	subX = b;
-	addX = length - dimB - b;
+	addX = b + dimB; //length - dimB - b;
     } else {
 	subX = addX = ( extent - dimB ) / 2;
-	subY = b;
+	subY = length - dimB - dimB - b; //b;
 	addY = length - dimB - b;
     }
 
@@ -621,14 +662,20 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     int sliderEnd = sliderStart + sliderLength;
     int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
-	subPageR.setRect( subB.right() + 1, b,
-			  sliderStart - subB.right() - 1 , sliderW );
-	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
+	subPageR.setRect( addB.right() + 1, b,
+			  sliderStart - addB.right() - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, length - b - sliderEnd, sliderW );
+// 	subPageR.setRect( subB.right() + 1, b,
+// 			  sliderStart - subB.right() - 1 , sliderW );
+// 	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
     } else {
-	subPageR.setRect( b, subB.bottom() + 1, sliderW,
-			  sliderStart - subB.bottom() - 1 );
-	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
+	subPageR.setRect( b, b + 1, sliderW,
+			  sliderStart - b - 1 );
+	addPageR.setRect( b, sliderEnd, sliderW, subY - sliderEnd );
+// 	subPageR.setRect( b, subB.bottom() + 1, sliderW,
+// 			  sliderStart - subB.bottom() - 1 );
+// 	addPageR.setRect( b, sliderEnd, sliderW, addY - sliderEnd );
 	sliderR .setRect( b, sliderStart, sliderW, sliderLength );
     }
 
@@ -693,6 +740,10 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal )
 {
 	if (!horizontal) {
+ 	    if (h > 20) {
+		y += (h-20)/2 ;
+		h = 20;
+	    }
 	    if (h > 8) {
 		int n = h / 4;
 		int my = y+h/2-n;
@@ -709,6 +760,10 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	    }
 	}
 	else {
+ 	    if (w > 20) {
+		x += (w-20)/2 ;
+		w = 20;
+	    }
 	    if (w > 8) {
 		int n = w / 4;
 		int mx = x+w/2-n;
@@ -1087,7 +1142,7 @@ int QPlatinumStyle::sliderLength() const
 void QPlatinumStyle::drawSlider( QPainter *p,
 				 int x, int y, int w, int h,
 				 const QColorGroup &g,
-				Orientation orient, bool tickAbove, bool tickBelow)
+				 Orientation /* orient */, bool /* tickAbove */, bool /* tickBelow */)
 {
     const QColor c0 = g.shadow();
     const QColor c1 = g.dark();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#23 $
 **
 ** Implementation of QStyle class
 **
@@ -87,7 +87,7 @@ QStyle::~QStyle()
 
   \sa unPolish, QPalette, QApplication::setPalette()
  */
-void QStyle::polish( QApplication* app)
+void QStyle::polish( QApplication*)
 {
 }
 
@@ -96,7 +96,7 @@ void QStyle::polish( QApplication* app)
 
   \sa polish, QPalette, QApplication::setPalette()
  */
-void QStyle::unPolish( QApplication* app)
+void QStyle::unPolish( QApplication*)
 {
 }
 
@@ -117,7 +117,7 @@ void QStyle::unPolish( QApplication* app)
   reasonably with all current \e and \e future widgets.
 
   The default implementation does nothing.
-  
+
   \sa unPolish(QWidget*)
 */
 void QStyle::polish( QWidget*)
@@ -130,10 +130,10 @@ void QStyle::polish( QWidget*)
   This function is the counterpart to polish. Is is called for every
   polished widget when the style is dynamically changed. The former
   style has to un-polish its settings before the new style can polish
-  them again. 
+  them again.
 
   The default implementation does nothing.
-  
+
   \sa polish(QWidget*)
 */
 void QStyle::unPolish( QWidget*)
@@ -440,12 +440,34 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn void QStyle::scrollBarMetrics( const QScrollBar*, int *, int *, int * )
+  \fn void QStyle::scrollBarMetrics( const QScrollBar*, int &, int &, int &, int& )
 
-  Returns the metrics of the passed scrollbar: sliderMin, sliderMax
-  and sliderLength
+  Returns the metrics of the passed scrollbar: sliderMin, sliderMax, 
+  sliderLength and buttonDim.
 
 */
+
+
+/*!
+  Returns the scrollbar control under the passed point.
+ */
+QStyle::ScrollControl QStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p)
+{
+        if ( !sb->rect().contains( p ) )
+	return NONE;
+    int sliderMin, sliderMax, sliderLength, buttonDim, pos;
+    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
+    pos = (sb->orientation() == QScrollBar::Horizontal)? p.x() : p.y();
+    if ( pos < sliderMin )
+	return SUB_LINE;
+    if ( pos < sliderStart )
+	return SUB_PAGE;
+    if ( pos < sliderStart + sliderLength )
+	return SLIDER;
+    if ( pos < sliderMax + sliderLength )
+	return ADD_PAGE;
+    return ADD_LINE;
+}
 
 /*!
 

@@ -476,9 +476,9 @@ QRect QWindowsStyle::comboButtonFocusRect( int x, int y, int w, int h)
 
   \sa QStyle
   */
-void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int *sliderMax, int *sliderLength )
+void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &sliderMax, int &sliderLength, int&buttonDim )
 {
-    int buttonDim, maxLength;
+    int maxLength;
     int b = 0;
     int length = HORIZONTAL ? sb->width()  : sb->height();
     int extent = HORIZONTAL ? sb->height() : sb->width();
@@ -488,20 +488,20 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int *sliderMin, int 
     else
 	buttonDim = ( length - b*2 )/2 - 1;
 
-    *sliderMin = b + buttonDim;
+    sliderMin = b + buttonDim;
     maxLength  = length - b*2 - buttonDim*2;
 
     if ( sb->maxValue() == sb->minValue() ) {
-	*sliderLength = maxLength;
+	sliderLength = maxLength;
     } else {
-	*sliderLength = (sb->pageStep()*maxLength)/
+	sliderLength = (sb->pageStep()*maxLength)/
 			(sb->maxValue()-sb->minValue()+sb->pageStep());
-	if ( *sliderLength < SLIDER_MIN )
-	    *sliderLength = SLIDER_MIN;
-	if ( *sliderLength > maxLength )
-	    *sliderLength = maxLength;
+	if ( sliderLength < SLIDER_MIN )
+	    sliderLength = SLIDER_MIN;
+	if ( sliderLength > maxLength )
+	    sliderLength = maxLength;
     }
-    *sliderMax = *sliderMin + maxLength - *sliderLength;
+    sliderMax = sliderMin + maxLength - sliderLength;
 
 }
 
@@ -517,11 +517,11 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = sb->colorGroup();
 
-    int sliderMin, sliderMax, sliderLength;
-    scrollBarMetrics( sb, &sliderMin, &sliderMax, &sliderLength );
+    int sliderMin, sliderMax, sliderLength, buttonDim;
+    scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
 
     int b = 0;
-    int dimB = sliderMin - b;
+    int dimB = buttonDim;
     QRect addB;
     QRect subB;
     QRect addPageR;

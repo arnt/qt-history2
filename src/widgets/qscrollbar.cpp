@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#116 $
 **
 ** Implementation of QScrollBar class
 **
@@ -152,23 +152,19 @@
 */
 
 
-enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
-		     SUB_PAGE = 0x8 , FIRST    = 0x10, LAST	= 0x20,
-		     SLIDER   = 0x40, NONE     = 0x80 };
-
 
 class QScrollBar_Private : public QScrollBar
 {
 public:
-    void	  sliderMinMax( int *, int * )		const;
-    void	  metrics( int *, int *, int * )	const;
+    void	  sliderMinMax( int &, int & )		const;
+    void	  metrics( int &, int &, int &, int& )	const;
 
-    ScrollControl pointOver( const QPoint &p )		const;
+    QStyle::ScrollControl pointOver( const QPoint &p )		const;
 
     int		  rangeValueToSliderPos( int val )	const;
     int		  sliderPosToRangeValue( int  val )	const;
 
-    void	  action( ScrollControl control );
+    void	  action( QStyle::ScrollControl control );
 
     void	  drawControls( uint controls, uint activeControl ) const;
     void	  drawControls( uint controls, uint activeControl,
@@ -244,7 +240,7 @@ void QScrollBar::init()
 {
     track	     = TRUE;
     sliderPos	     = 0;
-    pressedControl   = NONE;
+    pressedControl   = QStyle::NONE;
     clickedAt	     = FALSE;
     setFocusPolicy( NoFocus );
     if ( style() == MotifStyle )
@@ -305,7 +301,7 @@ void QScrollBar::setOrientation( Orientation orientation )
 
 bool QScrollBar::draggingSlider() const
 {
-    return pressedControl == SLIDER;
+    return pressedControl == QStyle::SLIDER;
 }
 
 
@@ -363,7 +359,7 @@ void QScrollBar::valueChange()
     int tmp = sliderPos;
     positionSliderFromValue();
     if ( tmp != sliderPos )
-	PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE , pressedControl );
+	PRIV->drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE , pressedControl );
     emit valueChanged(value());
 }
 
@@ -385,7 +381,7 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    PRIV->drawControls( ADD_LINE | ADD_PAGE | SLIDER | SUB_PAGE | SUB_LINE,
+    PRIV->drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE | QStyle::SUB_LINE,
 			pressedControl );
 }
 
@@ -404,7 +400,7 @@ void QScrollBar::timerEvent( QTimerEvent * )
 	startTimer( repeatTime );	//   and start repeating
     }
     if ( clickedAt ){
-	PRIV->action( (ScrollControl) pressedControl );
+	PRIV->action( (QStyle::ScrollControl) pressedControl );
 	QApplication::syncX();
     }
 }
@@ -501,7 +497,7 @@ void QScrollBar::paintEvent( QPaintEvent *event )
 	    p.drawRect(  1, 1, width() - 2, height() - 2 );
 	}
     }
-    PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
+    PRIV->drawControls( QStyle::ADD_LINE | QStyle::SUB_LINE | QStyle::ADD_PAGE | QStyle::SUB_PAGE | QStyle::SLIDER,
 			pressedControl, &p );
 }
 
@@ -524,29 +520,29 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     clickedAt	   = TRUE;
     pressedControl = PRIV->pointOver( e->pos() );
 
-    if ( (pressedControl == ADD_PAGE ||
-	  pressedControl == SUB_PAGE ||
-	  pressedControl == SLIDER ) &&
+    if ( (pressedControl == QStyle::ADD_PAGE ||
+	  pressedControl == QStyle::SUB_PAGE ||
+	  pressedControl == QStyle::SLIDER ) &&
 	 /*style() == MotifStyle &&*/
 	 e->button() == MidButton ) {
-	int dummy1, dummy2, sliderLength;
-	PRIV->metrics( &dummy1, &dummy2, &sliderLength );
+	int dummy1, dummy2, dummy3, sliderLength;
+	PRIV->metrics( dummy1, dummy2, sliderLength, dummy3 );
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
 	setValue( PRIV->sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
-	pressedControl = SLIDER;
+	pressedControl = QStyle::SLIDER;
     }
 
-    if ( pressedControl == SLIDER ) {
+    if ( pressedControl == QStyle::SLIDER ) {
 	clickOffset = (QCOORD)( (HORIZONTAL ? e->pos().x() : e->pos().y())
 				- sliderPos );
 	slidePrevVal   = value();
 	sliderStartPos = sliderPos;
 	emit sliderPressed();
-    } else if ( pressedControl != NONE ) {
+    } else if ( pressedControl != QStyle::NONE ) {
 	PRIV->drawControls( pressedControl, pressedControl );
-	PRIV->action( (ScrollControl) pressedControl );
+	PRIV->action( (QStyle::ScrollControl) pressedControl );
 	thresholdReached = FALSE;	// wait before starting repeat
 	startTimer(thresholdTime);
 	isTiming = TRUE;
@@ -564,22 +560,22 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 			 (/*style() == MotifStyle &&*/
 			  e->button() == MidButton)) )
 	return;
-    ScrollControl tmp = (ScrollControl) pressedControl;
+    QStyle::ScrollControl tmp = (QStyle::ScrollControl) pressedControl;
     clickedAt = FALSE;
     if ( isTiming )
 	killTimers();
     mouseMoveEvent( e );  // Might have moved since last mouse move event.
-    pressedControl = NONE;
+    pressedControl = QStyle::NONE;
 
     switch( tmp ) {
-	case SLIDER: // Set value directly, we know we don't have to redraw.
+	case QStyle::SLIDER: // Set value directly, we know we don't have to redraw.
 	    directSetValue( calculateValueFromSlider() );
 	    emit sliderReleased();
 	    if ( value() != prevValue() )
 		emit valueChanged( value() );
 	    break;
-	case ADD_LINE:
-	case SUB_LINE:
+	case QStyle::ADD_LINE:
+	case QStyle::SUB_LINE:
 	    PRIV->drawControls( tmp, pressedControl );
 	    break;
 	default:
@@ -603,9 +599,9 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 			  style() == MotifStyle*/)) )
 	return;
     int newSliderPos;
-    if ( pressedControl == SLIDER ) {
+    if ( pressedControl == QStyle::SLIDER ) {
 	int sliderMin, sliderMax;
-	PRIV->sliderMinMax( &sliderMin, &sliderMax );
+	PRIV->sliderMinMax( sliderMin, sliderMax );
 	QRect r = rect();
 	int m = style().maximumSliderDragDistance();
 	if ( m >= 0 ) {
@@ -638,7 +634,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
-	PRIV->drawControls( ADD_PAGE | SLIDER | SUB_PAGE, pressedControl );
+	PRIV->drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE, pressedControl );
     }
 }
 
@@ -658,8 +654,8 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 
 QRect QScrollBar::sliderRect() const
 {
-    int sliderMin, sliderMax, sliderLength;
-    PRIV->metrics( &sliderMin, &sliderMax, &sliderLength );
+    int sliderMin, sliderMax, sliderLength, buttonDim;
+    PRIV->metrics( sliderMin, sliderMax, sliderLength, buttonDim );
     int b = style() == MotifStyle ? MOTIF_BORDER : 0;
 
     if ( HORIZONTAL )
@@ -685,70 +681,31 @@ int QScrollBar::calculateValueFromSlider() const
   QScrollBar_Private member functions
  *****************************************************************************/
 
-void QScrollBar_Private::sliderMinMax( int *sliderMin, int *sliderMax) const
+void QScrollBar_Private::sliderMinMax( int &sliderMin, int &sliderMax) const
 {
-    int dummy;
-    metrics( sliderMin, sliderMax, &dummy );
+    int dummy1, dummy2;
+    metrics( sliderMin, sliderMax, dummy1, dummy2 );
 }
 
 
-void QScrollBar_Private::metrics( int *sliderMin, int *sliderMax,
-				  int *sliderLength ) const
+void QScrollBar_Private::metrics( int &sliderMin, int &sliderMax,
+				  int &sliderLength, int& buttonDim ) const
 {
 
-    style().scrollBarMetrics( this, sliderMin, sliderMax, sliderLength);
-    return;
-
-    int buttonDim, maxLength;
-    int b = style() == MotifStyle ? MOTIF_BORDER : 0;
-    int length = HORIZONTAL ? width()  : height();
-    int extent = HORIZONTAL ? height() : width();
-
-    if ( length > ( extent - b*2 - 1 )*2 + b*2 + SLIDER_MIN )
-	buttonDim = extent - b*2;
-    else
-	buttonDim = ( length - b*2 - SLIDER_MIN )/2 - 1;
-
-    *sliderMin = b + buttonDim;
-    maxLength  = length - b*2 - buttonDim*2;
-
-    if ( maxValue() == minValue() ) {
-	*sliderLength = maxLength;
-    } else {
-	*sliderLength = (pageStep()*maxLength)/
-			(maxValue()-minValue()+pageStep());
-	if ( *sliderLength < SLIDER_MIN )
-	    *sliderLength = SLIDER_MIN;
-	if ( *sliderLength > maxLength )
-	    *sliderLength = maxLength;
-    }
-    *sliderMax = *sliderMin + maxLength - *sliderLength;
+    style().scrollBarMetrics( this, sliderMin, sliderMax, sliderLength, buttonDim);
 }
 
 
-ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
+QStyle::ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
 {
-    if ( !rect().contains( p ) )
-	return NONE;
-    int sliderMin, sliderMax, sliderLength, pos;
-    metrics( &sliderMin, &sliderMax, &sliderLength );
-    pos = HORIZONTAL ? p.x() : p.y();
-    if ( pos < sliderMin )
-	return SUB_LINE;
-    if ( pos < sliderStart() )
-	return SUB_PAGE;
-    if ( pos < sliderStart() + sliderLength )
-	return SLIDER;
-    if ( pos < sliderMax + sliderLength )
-	return ADD_PAGE;
-    return ADD_LINE;
+    return style().scrollBarPointOver(this, sliderStart(), p);
 }
 
 
 int QScrollBar_Private::rangeValueToSliderPos( int v ) const
 {
     int smin, smax;
-    sliderMinMax( &smin, &smax );
+    sliderMinMax( smin, smax );
     if ( maxValue() == minValue() )
 	return smin;
     int sliderMin=smin, sliderMax=smax;
@@ -766,7 +723,7 @@ int QScrollBar_Private::rangeValueToSliderPos( int v ) const
 int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 {
     int sliderMin, sliderMax;
-    sliderMinMax( &sliderMin, &sliderMax );
+    sliderMinMax( sliderMin, sliderMax );
     if ( pos <= sliderMin || sliderMax == sliderMin )
 	return minValue();
     if ( pos >= sliderMax )
@@ -782,22 +739,22 @@ int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 }
 
 
-void QScrollBar_Private::action( ScrollControl control )
+void QScrollBar_Private::action( QStyle::ScrollControl control )
 {
     switch( control ) {
-	case ADD_LINE:
+	case QStyle::ADD_LINE:
 	    emit nextLine();
 	    addLine();
 	    break;
-	case SUB_LINE:
+	case QStyle::SUB_LINE:
 	    emit prevLine();
 	    subtractLine();
 	    break;
-	case ADD_PAGE:
+	case QStyle::ADD_PAGE:
 	    emit nextPage();
 	    addPage();
 	    break;
-	case SUB_PAGE:
+	case QStyle::SUB_PAGE:
 	    emit prevPage();
 	    subtractPage();
 	    break;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#190 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#191 $
 **
 ** Definition of QWidget class
 **
@@ -83,6 +83,7 @@ public:
     int		 height()	const;
     QRect	 rect()		const;
     QRect	 childrenRect() const;
+    QRegion childrenRegion() const;
 
     QSize	 minimumSize()	 const;
     QSize	 maximumSize()	 const;
@@ -407,7 +408,7 @@ private:
     uint keyCompression : 1;
 #if defined(_WS_X11_)
     uint usposition : 1;
-#endif    
+#endif
 
     static void	 createMapper();
     static void	 destroyMapper();

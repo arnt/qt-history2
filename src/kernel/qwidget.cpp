@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#315 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#316 $
 **
 ** Implementation of QWidget class
 **
@@ -1177,6 +1177,25 @@ void QWidget::enabledChange( bool )
 QRect QWidget::childrenRect() const
 {
     QRect r( 0, 0, 0, 0 );
+    if ( !children() )
+	return r;
+    QObjectListIt it( *children() );		// iterate over all children
+    QObject *obj;
+    while ( (obj=it.current()) ) {
+	++it;
+	if ( obj->isWidgetType() )
+	    r = r.unite( ((QWidget*)obj)->geometry() );
+    }
+    return r;
+}
+
+/*!
+  Returns the combined region of the widget's children geometry().
+*/
+
+QRegion QWidget::childrenRegion() const
+{
+    QRegion r;
     if ( !children() )
 	return r;
     QObjectListIt it( *children() );		// iterate over all children
