@@ -136,6 +136,8 @@ implemented as one on Unix). For instance:
 
   class Worker : public QPushButton, public QThread
   {
+      Q_OBJECT
+
   public:
       Worker(QWidget *parent = 0, const char *name = 0)
         : QPushButton(parent, name)
