@@ -6,6 +6,7 @@
 #include "qvariant.h"
 #include "qtable.h"
 #include "qpainter.h"
+#include "qsqldatabase.h"
 #include "qsql.h"
 #include "qsqlrowset.h"
 #include "qsqlview.h"
