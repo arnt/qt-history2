@@ -1,7 +1,9 @@
 #include <iostream.h>
 #include <qdragobject.h>
 
+#include "dnd.h"
 #include "iconview.h"
+
 
 IconView::IconView( QWidget* parent, const char* name )
     : QIconView( parent, name )
@@ -15,24 +17,27 @@ IconView::~IconView()
 
 }
 
-/*
+
 QDragObject *IconView::dragObject()
 {
     if ( !currentItem() ) return 0;
-    
-    QTextDrag * drg = new QTextDrag( currentItem()->text(), this );
+
+    QTextDrag * drg = new QTextDrag( ((IconViewItem*)currentItem())->tag(), this );
+    drg->setSubtype("dragdemotag");
     drg->setPixmap( *currentItem()->pixmap() );
-    
+
     return drg;
 }
-*/
 
-void IconView::slotNewItem( QDropEvent *evt, const QValueList<QIconDragItem>& )
+void IconView::slotNewItem( QDropEvent *e, const QValueList<QIconDragItem>& )
 {
-    QString label;
+    QString tag;
+    if ( !e->provides( "text/dragdemotag" ) ) return;
 
-    if ( QTextDrag::decode( evt, label ) ) {
-        QIconViewItem *item = new QIconViewItem( this, label );
-        item->setRenameEnabled( TRUE );
+    if ( QTextDrag::decode( e, tag ) ) {
+        IconItem item = ((DnDDemo*) parentWidget())->findItem( tag );
+        IconViewItem *iitem = new IconViewItem( this, item.name(), *item.pixmap(), tag );
+        iitem->setRenameEnabled( TRUE );
     }
+    e->acceptAction();
 }

@@ -2,6 +2,7 @@
 #include <qdragobject.h>
 #include <qapplication.h>
 #include "listview.h"
+#include "dnd.h"
 
 ListView::ListView( QWidget* parent, const char* name )
     : QListView( parent, name )
@@ -18,17 +19,22 @@ ListView::~ListView()
 
 void ListView::dragEnterEvent( QDragEnterEvent *e )
 {
-    if ( QTextDrag::canDecode( e ) )
+    if ( e->provides( "text/dragdemotag" ) )
 	e->accept();
 }
 
 void ListView::dropEvent( QDropEvent *e )
 {
-    QString text;
+    if ( !e->provides( "text/dragdemotag" ) )
+         return;
 
-    if ( QTextDrag::decode( e, text ) ) {
+    QString tag;
+
+    if ( QTextDrag::decode( e, tag ) ) {
+        IconItem item = ((DnDDemo*) parentWidget())->findItem( tag );
         QListViewItem *after = itemAt( viewport()->mapFromParent( e->pos() ) );
-        QListViewItem *item = new QListViewItem( this, after, text );
+        ListViewItem *litem = new ListViewItem( this, after, item.name(), tag );
+        litem->setPixmap( 0, *item.pixmap() );
     }
 }
 
@@ -48,8 +54,8 @@ void ListView::mouseMoveEvent( QMouseEvent *e )
     if ( !currentItem() ) return;
 
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
-        QDragObject *d = new QTextDrag( currentItem()->text( 0 ), this );
-        d->dragCopy();
+        QTextDrag *drg = new QTextDrag( ((ListViewItem*)currentItem())->tag(), this );
+        drg->setSubtype( "dragdemotag" );
         dragging = FALSE;
     }
 }
