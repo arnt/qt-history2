@@ -1949,6 +1949,10 @@ public:
     QBrush cbrush;
     bool dirtypen;
     bool dirtybrush;
+    QColor bkColor;
+    bool dirtyBkColor;
+    Qt::BGMode bkMode;
+    bool dirtyBkMode;
     QTextCodec * currentFontCodec;
     QString currentFont;
     QFontMetrics fm;
@@ -5230,8 +5234,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
-      dirtypen( FALSE ), dirtybrush( FALSE ), currentFontCodec( 0 ),
-      fm( QFont() ), textY( 0 )
+      dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), dirtyBkMode( FALSE ),
+      currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
 {
     printer = prt;
     headerFontNames.setAutoDelete( TRUE );
@@ -6171,6 +6175,17 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
                        << color( d->cbrush.color(), d->printer ) << "BR\n";
             d->dirtybrush = FALSE;
         }
+	if ( d->dirtyBkColor ) {
+	    d->pageStream << color( d->bkColor, d->printer ) << "BC\n";
+	    d->dirtyBkColor = FALSE;
+	}
+	if ( d->dirtyBkMode ) {
+	    if ( d->bkMode == Qt::TransparentMode )
+		d->pageStream << "/OMo false d\n";
+	    else
+		d->pageStream << "/OMo true d\n";
+	    d->dirtyBkMode = FALSE;
+	}
     }
 
     switch( c ) {
@@ -6311,14 +6326,21 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         break;
     }
     case PdcSetBkColor:
-        d->pageStream << color( *(p[0].color), d->printer ) << "BC\n";
+    {
+	if ( d->bkColor != *(p[0].color) ) {
+	    d->bkColor = *(p[0].color);
+	    d->dirtyBkColor = TRUE;
+	}
         break;
+    }
     case PdcSetBkMode:
-        if ( p[0].ival == Qt::TransparentMode )
-            d->pageStream << "/OMo false d\n";
-        else
-            d->pageStream << "/OMo true d\n";
+    {
+	if ( d->bkMode != p[0].ival ) {
+	    d->bkMode = (Qt::BGMode) p[0].ival;
+	    d->dirtyBkMode = TRUE;
+	}
         break;
+    }
     case PdcSetROP:
 #if defined(CHECK_RANGE)
         if ( p[0].ival != Qt::CopyROP )
