@@ -63,6 +63,11 @@
 #include <errno.h>
 #define	 GC GC_QQQ
 
+#if defined(QT_THREAD_SUPPORT)
+#include "qvaluestack.h"
+#include "qthread.h"
+#endif
+
 #if defined(_OS_LINUX_) && defined(DEBUG)
 #include "qfile.h"
 #include <unistd.h>
@@ -2146,6 +2151,11 @@ int QApplication::exec()
   \sa processEvents()
 */
 
+#if defined(QT_THREAD_SUPPORT)
+void qt_wait_for_exec();
+void qt_ack_pipe();
+#endif
+
 bool QApplication::processNextEvent( bool canWait )
 {
     XEvent event;
@@ -2218,15 +2228,38 @@ bool QApplication::processNextEvent( bool canWait )
 #define FDCAST (void*)
 #endif
 
+#if defined(QT_THREAD_SUPPORT)
+    qApp->unlock();
+#endif
+
     nsel = select( highest + 1,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),
 		   tm );
+
 #undef FDCAST
 
     if ( qt_postselect_handler )
 	qt_postselect_handler();
+
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
+	char c;
+	::read(qt_thread_pipe[0],&c,1);
+	if(c==1) {
+	    qt_ack_pipe();
+	    qt_wait_for_exec();
+	    qApp->lock();
+	    app_exit_loop=FALSE;
+	    return FALSE;
+	}
+    }
+#endif
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
@@ -2238,13 +2271,6 @@ bool QApplication::processNextEvent( bool canWait )
     } else if ( nsel > 0 && sn_highest >= 0 ) {
 	nevents += sn_activate();
     }
-
-#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
-    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
-	char c;
-	::read(qt_thread_pipe[0],&c,1);
-    }
-#endif
 
     nevents += qt_activate_timers();		// activate timers
     qt_reset_color_avail();			// color approx. optimization
@@ -2262,7 +2288,19 @@ bool QApplication::processNextEvent( bool canWait )
 void QApplication::wakeUpGuiThread()
 {
 #if defined(UNIX) && defined(QT_THREAD_SUPPORT)
-    char c = '*';
+    char c = 0;
+    int nbytes;
+    if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
+	::write(  qt_thread_pipe[1], &c, 1  );
+    }
+#endif
+}
+
+// We've now become the GUI thread
+void QApplication::guiThreadTaken()
+{
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    char c = 1;
     int nbytes;
     if ( ::ioctl(qt_thread_pipe[1], FIONREAD, (char*)&nbytes) >= 0 && nbytes == 0 ) {
 	::write(  qt_thread_pipe[1], &c, 1  );

@@ -52,6 +52,9 @@ typedef QApplication QNonBaseApplication;
 #define QNonBaseApplication QApplication
 #endif
 
+#if defined(QT_THREAD_SUPPORT)
+#include <qthread.h>
+#endif
 
 class Q_EXPORT QApplication : public QObject
 {
@@ -215,6 +218,11 @@ public:
 #endif
 
     void	     wakeUpGuiThread();
+    void	     guiThreadTaken();
+#if defined(QT_THREAD_SUPPORT)
+    void	     lock() { qt_mutex.lock(); }
+    void	     unlock() { qt_mutex.unlock(); }
+#endif
 
 signals:
     void	     lastWindowClosed();
@@ -231,6 +239,10 @@ private:
     void	     initialize( int, char ** );
     void	     init_precmdline();
     void	     process_cmdline( int* argcptr, char ** argv );
+
+#if defined(QT_THREAD_SUPPORT)
+    QMutex qt_mutex;
+#endif
 
     int		     app_argc;
     char	   **app_argv;

@@ -25,6 +25,8 @@
 
 #ifdef QT_THREAD_SUPPORT
 
+#define _GNU_SOURCE
+
 #include "qthread.h"
 #include <pthread.h>
 #include <errno.h>
@@ -44,6 +46,9 @@ public:
     QMutexPrivate();
     ~QMutexPrivate();
 
+    int count;
+    THREAD_HANDLE thread;
+
 };
 
 class QThreadPrivate {
@@ -53,7 +58,7 @@ public:
     pthread_t mythread;
     QThreadEvent thread_done;      // Used for QThread::wait()
     pthread_key_t mykey;
-    
+
 };
 
 class QThreadEventPrivate {
@@ -70,10 +75,15 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
-    int ret = pthread_mutex_init( &mymutex, 0 );
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr,PTHREAD_MUTEX_ERRORCHECK);
+    int ret = pthread_mutex_init( &mymutex, &attr );
+
     if( ret ) {
 	qFatal( "Mutex init failure %s", strerror( ret ) );
     }
+
 }
 
 QMutexPrivate::~QMutexPrivate()
@@ -107,7 +117,7 @@ QMutex::QMutex()
 
 QMutex::~QMutex()
 {
-    delete d;
+    //delete d;
 }
 
 void QMutex::lock()
@@ -194,12 +204,12 @@ void QThreadEventsPrivate::sendEvents()
 static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
 extern "C" {
-    static void * start_thread(QThread * t) 
+    static void * start_thread(QThread * t)
     {
 	t->runWrapper();
 	return 0;
     }
-    
+
     void destruct_dummy(void *)
     {
     }
@@ -234,15 +244,15 @@ void QThread::yield()
 // Do we want to support more than one thread data?
 void * QThread::threadData()
 {
-  return pthread_getspecific(& (d->mykey) );
+  return pthread_getspecific( d->mykey );
 }
 
 void QThread::setThreadData(void * v)
 {
-  int ret=pthread_setspecific(& (d->mykey), v);
+  int ret=pthread_setspecific( d->mykey, v);
   if(ret) {
       qWarning("Error setting thread data: %s",strerror(ret));
-  }  
+  }
 }
 
 THREAD_HANDLE QThread::handle()
@@ -262,7 +272,7 @@ QThread::QThread()
 
 QThread::~QThread()
 {
-    int ret=pthread_key_delete(& (d->mykey));
+    int ret=pthread_key_delete( d->mykey );
     if(ret) {
 	qWarning("Thread key destroy error: %s",strerror(ret));
     }
@@ -306,8 +316,10 @@ QThreadEvent::~QThreadEvent()
 
 void QThreadEvent::wait()
 {
+    d->m.lock();
     int ret=pthread_cond_wait (&( d->mycond ),
 			       ( pthread_mutex_t * )( d->m.handle() ));
+    d->m.unlock();
     if(ret) {
 	qWarning("Threadevent wait error:%s",strerror(ret));
     }
@@ -321,10 +333,11 @@ void QThreadEvent::wait(const QTime & t)
     gettimeofday(&now,0);
     ti.tv_sec=now.tv_sec+t.second();
     ti.tv_nsec=((now.tv_usec/1000)+t.msec())*1000000;
+    d->m.lock();
     int ret=pthread_cond_timedwait (&( d->mycond ),
 				    ( pthread_mutex_t * )( d->m.handle() ),
 				    &ti);
-
+    d->m.unlock();
     if(ret) {
 	qWarning("Threadevent timed wait error:%s",strerror(ret));
     }

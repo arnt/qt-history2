@@ -47,6 +47,11 @@
 #include "qnetwork.h"
 #endif
 
+#if defined(QT_THREAD_SUPPORT)
+#include "qthread.h"
+#include "qvaluestack.h"
+#endif
+
 #if defined(QT_MAKEDLL)
 #define QApplication QBaseApplication
 #endif
@@ -337,6 +342,103 @@ static void qt_fix_tooltips()
     QPalette pal( cg, cg, cg );
     QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
+#endif
+
+
+#if defined(QT_THREAD_SUPPORT)
+
+class QExecStack {
+
+    QMutex stackmutex;
+    QThreadEvent threadevent;
+    QThreadEvent pipereceive;
+    QValueStack<THREAD_HANDLE> handles;
+
+public:
+
+    QExecStack();
+    void takeExec();      // I am now the GUI thread
+    void releaseExec();   // Wake up previous GUI thread
+    void waitForExec();   // Previous thread calls this
+    void ackPipe();
+    void waitPipe();
+    THREAD_HANDLE current();
+
+};
+
+QExecStack::QExecStack()
+{
+    handles.push( QThread::currentThread() );
+}
+
+void QExecStack::takeExec()
+{
+    stackmutex.lock();
+    handles.push( QThread::currentThread() );
+    stackmutex.unlock();
+}
+
+void QExecStack::releaseExec()
+{
+    stackmutex.lock();
+    handles.pop();
+    stackmutex.unlock();
+    threadevent.wakeAll();
+}
+
+void QExecStack::waitForExec()
+{
+    while(true) {
+	threadevent.wait();
+	stackmutex.lock();
+	if( handles.top() == QThread::currentThread() ) {
+	    stackmutex.unlock();
+	    return;
+	} else {
+	    stackmutex.unlock();
+	}
+    }
+}
+
+THREAD_HANDLE QExecStack::current()
+{
+    THREAD_HANDLE ret;
+    stackmutex.lock();
+    ret=handles.top();
+    stackmutex.unlock();
+    return ret;
+}
+
+void QExecStack::ackPipe()
+{
+    pipereceive.wakeOne();
+}
+
+void QExecStack::waitPipe()
+{
+    while(1) {
+	pipereceive.wait();
+	stackmutex.lock();
+	THREAD_HANDLE tmp=handles.top();
+	stackmutex.unlock();
+	if(tmp==QThread::currentThread()) {
+	    return;
+	}
+    }
+}
+
+static QExecStack * qt_exec_stack=0;
+
+void qt_wait_for_exec()
+{
+    qt_exec_stack->waitForExec();
+}
+
+void qt_ack_pipe()
+{
+    qt_exec_stack->ackPipe();
+}
+
 #endif
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
@@ -657,6 +759,12 @@ void QApplication::initialize( int argc, char **argv )
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id );
 #endif
+
+#if defined(UNIX) && defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+    qt_exec_stack=new QExecStack;
+#endif
+
 }
 
 
@@ -1797,7 +1905,7 @@ QTextCodec* QApplication::defaultCodec() const
     return default_codec;
 }
 
-/*! 
+/*!
   \overload
   \obsolete
 
@@ -1814,7 +1922,7 @@ QString QApplication::translate( const char * context, const char * key ) const
   Returns the translation text for \a key, by querying the installed
   messages files.  The message file that was installed last is asked
   first.
-  
+
   QObject::tr() offers a more convenient way to use this functionality.
 
   \a context is typically a class name (e.g. \c MyDialog) and \a key is
@@ -2386,13 +2494,26 @@ bool QApplication::desktopSettingsAware()
 
 int QApplication::enter_loop()
 {
+#if defined(QT_THREAD_SUPPORT)
+    bool switched=false;
+    if(qt_exec_stack->current()!=QThread::currentThread()) {
+	qApp->unlock();
+	qt_exec_stack->takeExec();
+	guiThreadTaken();
+	qt_exec_stack->waitPipe();
+	qApp->lock();
+	switched=true;
+    }
+#endif
+    
     loop_level++;
 
     bool old_app_exit_loop = app_exit_loop;
     app_exit_loop = FALSE;
 
-    while ( !app_exit_loop )
+    while ( !app_exit_loop ) {
 	processNextEvent( TRUE );
+    }
 
     app_exit_loop = old_app_exit_loop || quit_now;
     loop_level--;
@@ -2402,6 +2523,12 @@ int QApplication::enter_loop()
 	emit aboutToQuit();
     }
 
+#if defined(QT_THREAD_SUPPORT)
+    if(switched) {
+	qt_exec_stack->releaseExec();
+    }
+#endif
+    
     return 0;
 }
 
@@ -2643,7 +2770,7 @@ void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
 /*!
   Returns TRUE if \a effect is enabled, otherwise FALSE.
 
-  By default, Qt will try to use the desktop settings, and 
+  By default, Qt will try to use the desktop settings, and
   setDesktopSettingsAware() must be called to prevent this.
 
   sa\ enableEffect(), Qt::UIEffect
