@@ -341,6 +341,7 @@ public slots:
 
     virtual void	show();
     virtual void	hide();
+    void		toggleShowHide( bool show );
 #ifndef QT_NO_COMPAT
     void		iconify() { showMinimized(); }
 #endif

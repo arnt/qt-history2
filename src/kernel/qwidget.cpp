@@ -3798,6 +3798,19 @@ void QWidget::hide()
 #endif
 }
 
+/*! Convenience slot to either show() or hide() the widget depending
+ on \a show.
+
+ \sa isHidden()
+*/
+
+void QWidget::toggleShowHide( bool show )
+{
+    if ( show )
+	this->show();
+    else
+	hide();
+}
 
 void QWidget::sendShowEventsToChildren( bool spontaneous )
 {
