@@ -1612,7 +1612,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   by the tablet device driver, for example, you might want to adjust
   color brightness based on pressure.  QTabletEvent allows you to get
   the pressure(), the xTilt() and yTilt(), as well as the type of
-  device being used with device() (see \l{TabletDevices}).
+  device being used with device() (see \l{TabletDevice}).
 
   A tablet event contains a special accept flag that indicates whether the
   receiver wants the event.  You should call QTabletEvent::accept() if you
@@ -1626,7 +1626,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \enum QTabletEvent::TabletDevices
+  \enum QTabletEvent::TabletDevice
 
   This enum defines what type of device is generating the event.
 
@@ -1647,7 +1647,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   The globalPos() is initialized to QCursor::pos(), i.e. \a pos, which is
   usually (but not always) correct.  Use the other constructor if you need
   to specify the global position explicitly.  \a device contains the
-  \link TabletDevices device type\endlink, \a pressure contains the
+  \link TabletDevice device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
   \a device's degrees of tilt from the X and Y axis respectively.
 
@@ -1659,7 +1659,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   Constructs a tablet event object.  The position when the event
   occurred is is given in \a pos and \a globalPos.  \a device contains
-  the \link TabletDevices device type\endlink, \a pressure contains the
+  the \link TabletDevice device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
   \a device's degrees of tilt from the X and Y axis respectively.
 

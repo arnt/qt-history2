@@ -216,7 +216,7 @@ protected:
 class Q_EXPORT QTabletEvent : public QEvent
 {
 public:
-    enum TabletDevices { NoDevice = -1, Puck, Stylus, Eraser };
+    enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
     QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
 	: QEvent( Tablet ), p( pos ), dev( device ), press( pressure ),
 	  xT( xTilt ), yT( yTilt )
