@@ -4534,7 +4534,7 @@ void QPSPrinterFontPFB::download(QTextStream& s, bool global)
       }
     }
     if (typ==2) {
-      static char *hexchar = "0123456789abcdef";
+      static const char *hexchar = "0123456789abcdef";
       for (int j=0; j<len; j++) {
         /* trim hexadecimal lines to line_length columns */
         if (hexcol >= line_length) {
