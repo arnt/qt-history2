@@ -175,11 +175,15 @@ QGVector::QGVector( const QGVector &a )		// make copy of other vector
 	vec = 0;
 	return;
     }
-    vec = NEW(Item,len);
+    vec = NEW( Item, len );
     Q_CHECK_PTR( vec );
-    for ( uint i=0; i<len; i++ ) {
-	vec[i] = a.vec[i] ? newItem( a.vec[i] ) : 0;
-	Q_CHECK_PTR( vec[i] );
+    for ( uint i = 0; i < len; i++ ) {
+	if ( a.vec[i] ) {
+	    vec[i] = newItem( a.vec[i] );
+	    Q_CHECK_PTR( vec[i] );
+	} else {
+	    vec[i] = 0;
+	}
     }
 }
 
@@ -189,19 +193,23 @@ QGVector::~QGVector()
 }
 
 QGVector& QGVector::operator=( const QGVector &v )
-{						// assign from other vector
-    clear();					// first delete old vector
+{
+    clear();
     len = v.len;
     numItems = v.numItems;
     if ( len == 0 ) {
 	vec = 0;
 	return *this;
     }
-    vec = NEW(Item,len);				// create new vector
+    vec = NEW( Item, len );
     Q_CHECK_PTR( vec );
-    for ( uint i=0; i<len; i++ ) {		// copy elements
-	vec[i] = v.vec[i] ? newItem( v.vec[i] ) : 0;
-	Q_CHECK_PTR( vec[i] );
+    for ( uint i = 0; i < len; i++ ) {
+	if ( v.vec[i] ) {
+	    vec[i] = newItem( v.vec[i] );
+	    Q_CHECK_PTR( vec[i] );
+	} else {
+	    vec[i] = 0;
+	}
     }
     return *this;
 }
