@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#13 $
 **
 ** Implementation of MIME support
 **
@@ -173,6 +173,7 @@ QMimeSourceFactory::QMimeSourceFactory() :
     d(new QMimeSourceFactoryData)
 {
     // add some reasonable defaults
+    setExtensionType("htm", "text/html");
     setExtensionType("html", "text/html");
     setExtensionType("txt", "text/plain");
     setExtensionType("xml", "text/xml;charset=utf8");
@@ -195,7 +196,7 @@ static QMimeSource* data_internal(const QString& abs_name,
 	
 	// get the right mimetype
 	QString e = fi.extension(FALSE);
-	QCString mimetype = "application/binary-data"; // #######warwick?
+	QCString mimetype = "application/octet-stream";
 	const char* imgfmt;
 	if ( extensions.contains(e) )
 	    mimetype = extensions[e].latin1();
@@ -218,29 +219,40 @@ static QMimeSource* data_internal(const QString& abs_name,
 /*!
   Returns a reference to the data associated with \a abs_name.  The return
   value only remains valid until a subsequent call to this function for
-  the same object, and only if setData() is not called to modify the data.
+  the same object, and only if setData() is not called to modify the data,
+  so you should immediately decode the result.
 
   If there is no data associated with \a abs_name in the factory's
   store, the factory tries to access the local filesystem. If \a
   abs_name isn't an absolute filename, the factory will search for it
   on all defined paths ( see setFilePath() ).
 
-  The factory naturally understands all image formats supported by
+  The factory understands all image formats supported by
   QImageIO. Any other mime types are determined by the filename
   extension. The default settings are
   \code
   setExtensionType("html", "text/html");
+  setExtensionType("htm", "text/html");
   setExtensionType("txt", "text/plain");
   setExtensionType("xml", "text/xml;charset=utf8");
   \endcode
-  You can easily add further extensions or change existing ones with
+  The effect of these is that filenames ending in "html", "htm", or "txt"
+  will be treated as text encoded in the local encoding; those ending in "xml"
+  will be treated as text encoded in UTF8 encoding.  The text subtype ("html",
+  "plain", or "xml") does not affect the factory, but users of the factory
+  may behave differently. We recommend creating "xml" files where practical
+  as such files can be viewed regardless of the run-time encoding.
+
+  Any file data that is not recognized will be retreived as a QMimeSource
+  providing the "application/octet-stream" MIME type, which is just
+  uninterpreted binary data.
+  You can add further extensions or change existing ones with
   subsequent calls to setExtensionType(). If the extension mechanism
   is not sufficient for you problem domain, you may inherit
   QMimeSourceFactory and reimplement this function to perform some
   more clever mime type detection. The same applies if you want to use
   the mime source factory for accessing URL referenced data over a
   network.
-
 */
 const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 {
