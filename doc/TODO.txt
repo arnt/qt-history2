@@ -326,6 +326,10 @@ QPopupMenu
   Be able to specify a maximum height for popup menus so that they don't use the whole 
   height of the desktop before splitting into another menu.
 
+QPainter
+    A customer asked for a QPainter::fillRect() overload that will take a QPoint and a
+    QSize.  Personally I think that it's pointless, but I'll add it all the same.
+
 New functionality
 -----------------
 
