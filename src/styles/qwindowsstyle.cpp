@@ -424,7 +424,6 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		      QBrush(pal.light(), Dense4Pattern));
 		p->setBrush(br);
 	    }
-	    p->setBrush(Qt::red);
 	    p->drawRect(r);
 	    p->setBackgroundColor(c);
 	    break;
