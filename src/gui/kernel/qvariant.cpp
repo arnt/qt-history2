@@ -705,12 +705,12 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-    \fn QVariant::QVariant(Type type, const void *v)
+    \fn QVariant::QVariant(int typeOrUserType, const void *v);
 
     \internal
 
-    Constructs a variant of type \a type, and initializes with \a v if
-    \a v is not 0.
+    Constructs a variant of type \a typeOrUserType, and initializes
+    with \a v if \a v is not 0.
 */
 
 /*!

@@ -2703,4 +2703,23 @@ QSize QScrollView::cachedSizeHint() const
     return d->use_cached_size_hint ? d->cachedSizeHint : QSize();
 }
 
+/*!
+    \fn void QScrollView::repaintContents(int x, int y, int w, int h, bool)
+
+    Use the four-argument overload instead.
+*/
+
+/*!
+    \fn void QScrollView::repaintContents(const QRect& r, bool)
+
+    Use the single-argument overload instead.
+*/
+
+/*!
+    \fn void QScrollView::repaintContents(bool)
+
+    Use the no-arguments overload instead.
+*/
+
+
 #endif // QT_NO_SCROLLVIEW

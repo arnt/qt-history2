@@ -804,6 +804,13 @@ QDir::SortSpec QDirModel::sorting() const
     return static_cast<QDir::SortSpec>(d->sortSpec);
 }
 
+/*!
+    \property QDirModel::resolveSymlinks
+    \brief Whether the directory model should resolve symbolic links
+
+    This is only relevant on operating systems that support symbolic
+    links.
+*/
 void QDirModel::setResolveSymlinks(bool enable)
 {
     d->resolveSymlinks = enable;

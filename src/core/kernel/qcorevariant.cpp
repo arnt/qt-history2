@@ -1018,7 +1018,7 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value DateTime  a QDateTime
     \value Double  a double
     \value Font  a QFont
-    \value IconSet  a QIconSet
+    \value Icon  a QIconSet
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
@@ -1043,6 +1043,8 @@ const QCoreVariant::Handler *QCoreVariant::handler = &qt_kernel_variant_handler;
     \value UserType
 
     \omitvalue CString
+    \omitvalue ColorGroup
+    \omitvalue IconSet
     \omitvalue LastType
 
     Note that Qt's definition of bool depends on the compiler.
@@ -2099,5 +2101,121 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 }
 #endif
 #endif
+
+/*!
+    \fn int &QCoreVariant::asInt()
+
+    Use toInt() instead.
+*/
+
+/*!
+    \fn uint &QCoreVariant::asUInt()
+
+    Use toUInt() instead.
+*/
+
+/*!
+    \fn Q_LLONG &QCoreVariant::asLongLong()
+
+    Use toLongLong() instead.
+*/
+
+/*!
+    \fn Q_ULLONG &QCoreVariant::asULongLong()
+
+    Use toULongLong() instead.
+*/
+
+/*!
+    \fn bool &QCoreVariant::asBool()
+
+    Use toBool() instead.
+*/
+
+/*!
+    \fn double &QCoreVariant::asDouble()
+
+    Use toDouble() instead.
+*/
+
+/*!
+    \fn QByteArray &QCoreVariant::asByteArray()
+
+    Use toByteArray() instead.
+*/
+
+/*!
+    \fn QBitArray &QCoreVariant::asBitArray()
+
+    Use toBitArray() instead.
+*/
+
+/*!
+    \fn QString &QCoreVariant::asString()
+
+    Use toString() instead.
+*/
+
+/*!
+    \fn QStringList &QCoreVariant::asStringList()
+
+    Use toStringList() instead.
+*/
+
+/*!
+    \fn QDate &QCoreVariant::asDate()
+
+    Use toDate() instead.
+*/
+
+/*!
+    \fn QTime &QCoreVariant::asTime()
+
+    Use toTime() instead.
+*/
+
+/*!
+    \fn QDateTime &QCoreVariant::asDateTime()
+
+    Use toDateTime() instead.
+*/
+
+/*!
+    \fn QList<QCoreVariant> &QCoreVariant::asList()
+
+    Use toList() instead.
+*/
+
+/*!
+    \fn QMap<QString,QCoreVariant> &QCoreVariant::asMap()
+
+    Use toMap() instead.
+*/
+
+/*!
+    \fn QCoreVariant::QCoreVariant(bool b, int dummy)
+
+    Use the QCoreVariant(bool) constructor instead.
+
+*/
+
+/*!
+    \fn const QByteArray QCoreVariant::toCString() const
+
+    Use toByteArray() instead.
+*/
+
+/*!
+    \fn QByteArray &QCoreVariant::asCString()
+
+    Use toByteArray() instead.
+*/
+
+/*!
+    \fn void QCoreVariant::cleanUp(Private *p)
+
+    \internal
+*/
+
 
 #endif //QT_NO_VARIANT
