@@ -1150,13 +1150,12 @@ void QFontEngineLatinXLFD::setScale( double scale )
 class Q_HackPaintDevice : public QPaintDevice
 {
 public:
-    Q_HackPaintDevice() : QPaintDevice( 0 ) {}
+    inline Q_HackPaintDevice() : QPaintDevice( 0 ) {}
     inline XftDraw *xftDrawHandle() const {
 	return (XftDraw *)rendhd;
     }
 
 };
-
 
 #ifdef QT_XFT2
 static inline void getGlyphInfo( XGlyphInfo *xgi, XftFont *font, int glyph )
@@ -1379,8 +1378,8 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     advance_t *advances = engine->advances( si );
     offset_t *offsets = engine->offsets( si );
 
-    const QColor &pen = p->pen().color();
-    XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
+    const QColor &pen = p->cpen.color();
+    XftDraw *draw = ((Q_HackPaintDevice *)p->pdev)->xftDrawHandle();
 
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
