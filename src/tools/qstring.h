@@ -42,15 +42,15 @@ class QCharRef;
 
 class Q_EXPORT QChar {
 public:
-    QChar() { rw = 0; cl = 0; }
-    QChar( char c ) { rw = 0; cl = (uchar)c; }
-    QChar( uchar c ) { rw = 0; cl = c; }
-    QChar( uchar c, uchar r ) { rw = r; cl = c; }
-    QChar( const QChar& c ) { rw = c.rw; cl = c.cl; }
-    QChar( ushort rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
-    QChar( short rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
-    QChar( uint rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
-    QChar( int rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
+    QChar();
+    QChar( char c );
+    QChar( uchar c );
+    QChar( uchar c, uchar r );
+    QChar( const QChar& c );
+    QChar( ushort rc );
+    QChar( short rc );
+    QChar( uint rc );
+    QChar( int rc );
 
     QT_STATIC_CONST QChar null;            // 0000
     QT_STATIC_CONST QChar replacement;     // FFFD
@@ -173,14 +173,84 @@ private:
     //### QWS must be defined on a platform by platform basis
     uchar rw;
     uchar cl;
+#if defined(QT_QSTRING_UCS_4)
+    ushort grp;
+#endif    
     enum { net_ordered = 1 };
 #else
     // ushort on _OS_WIN32_
     uchar cl;
     uchar rw;
+#if defined(QT_QSTRING_UCS_4)
+    ushort grp;
+#endif    
     enum { net_ordered = 0 };
 #endif
 };
+
+inline QChar::QChar() 
+{
+    rw = 0; cl = 0;
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( char c ) 
+{
+    rw = 0; cl = (uchar)c; 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( uchar c ) 
+{
+    rw = 0; cl = c; 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( uchar c, uchar r ) 
+{
+    rw = r; cl = c;
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( const QChar& c ) 
+{
+    rw = c.rw; cl = c.cl; 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( ushort rc ) 
+{
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( short rc ) 
+{
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( uint rc )
+{
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
+inline QChar::QChar( int rc ) 
+{
+    rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); 
+#ifdef QT_QSTRING_UCS_4
+    grp = 0;
+#endif    
+}
 
 
 inline int operator==( char ch, QChar c )
@@ -251,13 +321,8 @@ struct Q_EXPORT QStringData : public QShared {
     QStringData(QChar *u, uint l, uint m) :
 	unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
 
-#ifdef __ARMEL__
-    ~QStringData() { if ( unicode ) delete[] unicode;
-                     if ( ascii ) delete[] ascii; }
-#else
     ~QStringData() { if ( unicode ) delete[] ((char*)unicode);
                      if ( ascii ) delete[] ascii; }
-#endif
 
     void deleteSelf();
     QChar *unicode;

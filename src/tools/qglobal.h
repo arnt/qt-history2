@@ -230,6 +230,10 @@
 #define Q_C_CALLBACKS
 #endif
 
+#if defined(_CC_GNU_) && defined(__ARMEL__)
+#define QT_QSTRING_UCS_4
+#endif
+
 // Window system setting
 
 #if defined(_OS_MAC_)

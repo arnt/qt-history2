@@ -11942,13 +11942,9 @@ QString QString::visual(int index, int len)
 // IMPORTANT! If you change these, make sure you also change the
 // "delete unicode" statement in ~QStringData() in qstring.h correspondingly!
 
-#ifdef __ARMEL__
-#define QT_ALLOC_QCHAR_VEC( N ) new QChar[ N ]
-#define QT_DELETE_QCHAR_VEC( P ) delete[] P
-#else
-#define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ 2*( N ) ]
+#define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ sizeof(QChar)*( N ) ]
 #define QT_DELETE_QCHAR_VEC( P ) delete[] ((char*)( P ))
-#endif
+
 
 /*!
   This utility function converts the 8-bit string
@@ -14600,7 +14596,7 @@ QString& QString::setUnicodeCodes( const ushort* unicode_as_ushorts, uint len )
 	    char c = b[0];
 	    b[0] = b[1];
 	    b[1] = c;
-	    b += 2;
+	    b += sizeof(QChar);
 	}
     }
     return *this;
@@ -14659,7 +14655,8 @@ int QString::compare( const QString& s ) const
 bool operator==( const QString &s1, const QString &s2 )
 {
     return (s1.length() == s2.length()) && s1.isNull() == s2.isNull() &&
-	   (memcmp((char*)s1.unicode(),(char*)s2.unicode(),s1.length()*2) ==0);
+	   (memcmp((char*)s1.unicode(),(char*)s2.unicode(),
+		   s1.length()*sizeof(QChar)) ==0);
 }
 
 bool operator!=( const QString &s1, const QString &s2 )
@@ -14894,8 +14891,8 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 		static const uint auto_size = 1024;
 		char t[auto_size];
 		char *b;
-		if ( str.length()*2 > auto_size ) {
-		    b = new char[str.length()*2];
+		if ( str.length()*sizeof(QChar) > auto_size ) {
+		    b = new char[str.length()*sizeof(QChar)];
 		} else {
 		    b = t;
 		}
@@ -14904,10 +14901,10 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 		while ( l-- ) {
 		    *c++ = ub[1];
 		    *c++ = ub[0];
-		    ub+=2;
+		    ub+=sizeof(QChar);
 		}
 		s.writeBytes( b, sizeof(QChar)*str.length() );
-		if ( str.length()*2 > auto_size )
+		if ( str.length()*sizeof(QChar) > auto_size )
 		    delete [] b;
 	    }
 	} else {
@@ -14927,6 +14924,9 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
+#ifdef QT_QSTRING_UCS_4
+#warning "operator>> not working properly"
+#endif    
     if ( s.version() == 1 ) {
 	QCString l;
 	s >> l;
