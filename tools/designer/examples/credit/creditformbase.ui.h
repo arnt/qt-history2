@@ -1,5 +1,0 @@
-void CreditFormBase::setAmount()
-{
-
-}
-

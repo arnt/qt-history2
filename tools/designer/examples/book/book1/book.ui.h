@@ -1,5 +1,0 @@
-void BookForm::primeInsertAuthor( QSqlRecord * )
-{
-
-}
-
