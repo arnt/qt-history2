@@ -2168,7 +2168,7 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
 
 \title Qt OpenGL 3D Graphics
 
-This module is part of the \link editions.html Qt Enterprise
+This module is part of the \link commercialeditions.html Qt Enterprise
 Edition\endlink.
 
 \section1 Introduction
