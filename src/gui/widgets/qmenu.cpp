@@ -78,7 +78,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
     QList<QMenuAction*> ret;
     QList<QAction*> items = q->actions();
     int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
-    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q),
+    const int hmargin = q->style().pixelMetric(QStyle::PM_MenuHMargin, q),
               vmargin = q->style().pixelMetric(QStyle::PM_MenuVMargin, q);
 
     //for compatability now - will have to refactor this away..

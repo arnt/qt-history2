@@ -858,13 +858,14 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
         }
         break;
     case CE_MenuItem:
+    case CE_MenuEmptyArea:
         if (const QStyleOptionMenuItem *mi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
             int tabwidth = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
             bool active = mi->state & Style_Active;
             bool enabled = mi->state & Style_Enabled;
-            HIRect menuRect = qt_hirectForQRect(mi->menuRect, p);
-            HIRect itemRect = qt_hirectForQRect(mi->rect, p);
+            HIRect menuRect = qt_hirectForQRect(mi->menuRect, p, false);
+            HIRect itemRect = qt_hirectForQRect(mi->rect, p, false);
             HIThemeMenuItemDrawInfo mdi;
             mdi.version = qt_mac_hitheme_version;
             mdi.itemType = kThemeMenuItemPlain;
@@ -891,6 +892,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
                                     cg,
                                     kHIThemeOrientationNormal, &contentRect);
+                if(ce == CE_MenuEmptyArea)
+                    break;
             }
             int x, y, w, h;
             mi->rect.rect(&x, &y, &w, &h);
