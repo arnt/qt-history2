@@ -112,7 +112,7 @@
 
 	<figure>
 	    <title>The check boxes are not laid out yet</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -156,12 +156,12 @@
 
 	<figure>
 	    <title>The vertical layout icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<figure>
 	    <title>Check boxes are aligned vertically</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -189,7 +189,7 @@
 
 	<figure>
 	    <title>The break layout icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -208,12 +208,12 @@
 
 	<figure>
 	    <title>Check boxes aligned horizontally</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<figure>
 	    <title>The undo icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -229,7 +229,7 @@
 
 	<figure>
 	    <title>Two aligned button groups</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -242,7 +242,7 @@
 
 	<figure>
 	    <title>Alignment of additional widgets</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -313,7 +313,7 @@
 
 	<figure>
 	    <title>Realignment with invisible container</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -336,7 +336,7 @@
 
 	<figure>
 	    <title>Widgets in vertical layout</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -397,12 +397,12 @@
 
 	<figure>
 	    <title>The spacer icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<figure>
 	    <title>Inserting spacers into a form</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -415,7 +415,7 @@
 	<figure>
 	    <title>Figure 4-13. Combining spacers and the check box
 	    line into a row</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -428,7 +428,7 @@
 
 	<figure>
 	    <title>Check box line centered automatically</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>

@@ -39,7 +39,7 @@
 
 	<figure>
 	    <title>The connection tool</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -264,12 +264,12 @@ slotMovePosition(int,int)
 
 	<figure>
 	    <title>The tab order icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<figure>
 	    <title>A form in tab order mode</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -832,7 +832,7 @@ INTERFACES = myform.ui
 
 	<figure>
 	    <title>The dialog for describing custom widgets</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>

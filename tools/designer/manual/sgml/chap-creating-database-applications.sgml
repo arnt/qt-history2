@@ -43,7 +43,7 @@ editing in &db;s. A great deal of functionality is available from the
 classes directly in &qd; although subclassing is always available for
 finer control.
 <figure><title>The Book Application</title>
-<graphic format="jpg" fileref="images/book-book9-bookform.jpg"></graphic>
+<graphic format="gif" fileref="images/book-book9-bookform.gif"></graphic>
 </figure>
 </para>
 
@@ -591,7 +591,7 @@ a single field, in a combobox for example.
 	<sidebar><title>Using the Table Editor</>
 	<para>
 	<figure><title>Edit Table Dialog</title>
-	<graphic format="jpg" fileref="images/edit-table-dialog.jpg"></graphic>
+	<graphic format="gif" fileref="images/edit-table-dialog.gif"></graphic>
 	</figure>
 	&dt;s are created and set up using the SQL Table Wizard. Like
 	any other &qd; widget their properties may be changed in the
@@ -908,7 +908,7 @@ this section we will explain how to create a simple &dv; that provides
 browsing and editing of the book table. We will then specialise the
 dialog and integrate it with the book_view &dt;.
 <figure><title>?</title>
-<graphic format="jpg" fileref="images/book-dialog.jpg"></graphic>
+<graphic format="gif" fileref="images/book-dialog.gif"></graphic>
 </figure>
 </para>
 

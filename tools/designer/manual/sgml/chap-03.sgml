@@ -26,7 +26,7 @@
 
 	<figure>
 	    <title>The load icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -129,7 +129,7 @@
 
 	<figure>
 	    <title>The connections icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -144,7 +144,7 @@
 
 	<figure>
 	    <title>The connections dialog</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -173,7 +173,7 @@
 
 	<figure>
 	    <title>The slots dialog</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>

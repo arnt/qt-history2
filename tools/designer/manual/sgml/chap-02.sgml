@@ -37,7 +37,7 @@ designer
 
 	<figure>
 	    <title>The startup screen of Qt Designer</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -67,7 +67,7 @@ designer
 
 	<figure>
 	    <title>Selecting the type of form to create</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -79,7 +79,7 @@ designer
 
 	<figure>
 	    <title>An empty dialog form</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
     </sect1>
 
@@ -245,7 +245,7 @@ designer
 
 	<figure>
 	    <title>The check box tool icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -282,7 +282,7 @@ designer
 
 	<figure>
 	    <title>The first check box on the form</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -321,7 +321,7 @@ designer
 
 	<figure>
 	    <title>Four check boxes</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -352,7 +352,7 @@ designer
 
 	<figure>
 	    <title>The button group icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -409,7 +409,7 @@ designer
 
 	<figure>
 	    <title>The radio button icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -421,7 +421,7 @@ designer
 
 	<figure>
 	    <title>The push button icon</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -450,7 +450,7 @@ designer
 
 	<figure>
 	    <title>The test mode</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
 
 	<para>
@@ -470,7 +470,7 @@ designer
 
 	<figure>
 	    <title>This is how the first dialog should look</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
     </sect1>
 
@@ -831,7 +831,7 @@ wsock32.lib
 
 	<figure>
 	    <title>Our first program in action</title>
-	    <graphic format="jpg" fileref="images"></graphic>
+	    <graphic format="gif" fileref="images/.gif"></graphic>
 	</figure>
     </sect1>
 </chapter>
