@@ -84,12 +84,24 @@ int QFontMetrics::charWidth( const QString &s, int pos ) const
     int ret;
     Str255 str;
     qstring_to_pstring( s, s.length(), str, QFontStruct::currentEncoding );
+
     TextFont( FI->fin->fnum );
     TextSize( FI->request.pointSize / 10 );
+    short style = normal;
+    if(FI->request.italic)
+        style |= italic;
+    if(FI->request.underline) 
+	style |= underline;
+    //strikeout? FIXME
+    if(FI->request.weight == QFont::Bold)
+	style |= bold;
+    TextFace(style);
+
     //FIXME: This may not work correctly if str contains double byte characters
     ret = TextWidth( &str[1], pos, 1 );
     TextFont( QFontStruct::currentFnum );
     TextSize( QFontStruct::currentFsize );
+    TextFace( QFontStruct::currentFStyle );
     return ret;
 }
 
@@ -120,9 +132,20 @@ int QFontMetrics::width(const QString &s,int len) const
     qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
     TextFont( FI->fin->fnum );
     TextSize( FI->request.pointSize / 10 );
+    short style = normal;
+    if(FI->request.italic)
+        style |= italic;
+    if(FI->request.underline) 
+	style |= underline;
+    //strikeout? FIXME
+    if(FI->request.weight == QFont::Bold)
+	style |= bold;
+    TextFace(style);
+
     ret = TextWidth( &str[1], 0, str[0] );
     TextFont( QFontStruct::currentFnum );
     TextSize( QFontStruct::currentFsize );
+    TextFace( QFontStruct::currentFStyle );
     return ret;
 }
 
@@ -338,9 +361,20 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     // This currently won't work outside of ASCII
     TextFont(fin->fnum);
     TextSize(request.pointSize / 10);
+    short style = normal;
+    if(request.italic)
+        style |= italic;
+    if(request.underline) 
+	style |= underline;
+    //strikeout? FIXME
+    if(request.weight == QFont::Bold)
+	style |= bold;
+    TextFace(style);
+
     int char_width=CharWidth(ch);
     TextFont(QFontStruct::currentFnum);
     TextSize(QFontStruct::currentFsize);
+    TextFace( QFontStruct::currentFStyle );
     return QRect( 0,-(fin->ascent()),char_width+5,fin->ascent() + fin->descent()+5);
 }
 
