@@ -65,7 +65,7 @@
                         <cstring>textLabel4</cstring>
                     </property>
                     <property name="text">
-                        <string>About &amp;menu text:</string>
+                        <string>About &amp;Menu Text:</string>
                     </property>
                     <property name="buddy" stdset="0">
                         <cstring>leAboutMenuText</cstring>
@@ -87,7 +87,7 @@
                         <cstring>textLabel7</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Homepage:</string>
+                        <string>&amp;Start Page:</string>
                     </property>
                     <property name="buddy" stdset="0">
                         <cstring>leHome</cstring>
