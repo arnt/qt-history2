@@ -79,7 +79,9 @@
   constructor) and the title's alignment().
 
   You can change the spacing used by the group box with
-  setInsideMargin() and setInsideSpacing().
+  setInsideMargin() and setInsideSpacing(). To reduce space consumption, 
+  you can remove the right, left and bottom edges of the frame with 
+  setFlat().
 
   <img src=qgrpbox-w.png>
 
@@ -163,6 +165,7 @@ void QGroupBox::init()
     dir = Horizontal;
     marg = 11;
     spac = 5;
+    bFlat = FALSE;
 }
 
 void QGroupBox::setTextSpacer()
@@ -313,7 +316,16 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
-    drawFrame(&paint);
+    if ( bFlat ) {
+	    QRect fr = frameRect();
+	    QPoint p1( fr.x(), fr.y() + 1 );
+            QPoint p2( fr.x() + fr.width(), p1.y() );
+	    // ### This should probably be a style primitive.
+            qDrawShadeLine( &paint, p1, p2, colorGroup(), TRUE,
+                            lineWidth(), midLineWidth() );
+    } else {
+	drawFrame(&paint);
+    }
     drawContents( &paint );			// draw the contents
 }
 
@@ -670,6 +682,27 @@ QSize QGroupBox::sizeHint() const
 
 	return s.expandedTo( QSize( r.width() + 2 * r.x(), r.height()+ 2 * r.y() ) );
     }
+}
+
+/*!
+  \property QGroupBox::flat
+  \brief whether the group box is painted flat or has a frame around it.
+
+  By default a group box has a surrounding frame, with the title being placed 
+  on the upper frame line. In flat mode the right, left and bottom frame lines 
+  are omitted, and only the thin line at the top is drawn.
+  
+  \sa title
+*/
+bool QGroupBox::isFlat() const
+{ 
+    return bFlat;
+}
+
+void QGroupBox::setFlat( bool b )
+{
+    bFlat = b;
+    setColumnLayout( columns(), dir );
 }
 
 #endif

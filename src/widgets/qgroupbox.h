@@ -58,6 +58,7 @@ class Q_EXPORT QGroupBox : public QFrame
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
     Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
+    Q_PROPERTY( bool flat READ isFlat WRITE setFlat DESIGNABLE true )
 	
 public:
     QGroupBox( QWidget* parent=0, const char* name=0 );
@@ -90,6 +91,9 @@ public:
     void addSpace( int );
     QSize sizeHint() const;
 
+    bool isFlat() const;
+    void setFlat( bool b );
+
 protected:
     bool event( QEvent * );
     void childEvent( QChildEvent * );
@@ -119,7 +123,8 @@ private:
     QVBoxLayout *vbox;
     QGridLayout *grid;
     int row;
-    int col;
+    int col : 30;
+    uint bFlat : 1;
     int nRows, nCols;
     Orientation dir;
     int spac, marg;
