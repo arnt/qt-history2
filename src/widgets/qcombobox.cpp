@@ -2040,7 +2040,10 @@ void QComboBox::setEditable( bool y )
 
 void QComboBox::setUpListBox()
 {
-    d->setListBox( new QListBox( this, "in-combo", WType_Popup ) );
+    QString listBoxName( name() );
+    listBoxName += "_in-combo";
+
+    d->setListBox( new QListBox( this, listBoxName, WType_Popup ) );
     d->listBox()->setFont( font() );
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
