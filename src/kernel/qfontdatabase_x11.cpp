@@ -1280,8 +1280,8 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
     if ( !db )
 	initializeDb();
 
-    qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s', weight=%d",
-	    family.latin1(), script, scriptName( script ).latin1(), weight );
+//     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s', weight=%d",
+// 	    family.latin1(), script, scriptName( script ).latin1(), weight );
 
     QFontEngine *fe = 0;
 
@@ -1347,12 +1347,12 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
     if ( best_fam == 0 || best_fnd == 0 || best_sty == 0 )
 	return 0;
 
-    qDebug( "BEST: family '%s' foundry '%s'",
-	    best_fam->name.latin1(), best_fnd->name.latin1() );
-    qDebug( "  using weight %d italic %d oblique %d",
-	    best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
-    qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
-	    best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
+//     qDebug( "BEST: family '%s' foundry '%s'",
+// 	    best_fam->name.latin1(), best_fnd->name.latin1() );
+//     qDebug( "  using weight %d italic %d oblique %d",
+// 	    best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
+//     qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
+// 	    best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
 
     fe = loadEngine( styleStrategy, styleHint, best_fam->name, best_fnd->name,
 		     best_sty->key.weight, best_sty->key.italic,
