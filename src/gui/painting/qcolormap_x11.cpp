@@ -476,6 +476,10 @@ int QColormap::size() const
 
 uint QColormap::pixel(const QColor &color) const
 {
+    if (!color.isValid()) {
+        qWarning("requesting pixel value of invalid color!");
+        return pixel(Qt::black);
+    }
     if (color.spec() != QColor::Rgb)
         return pixel(color.toRgb());
 
