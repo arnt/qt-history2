@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#15 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#15 $";
 #endif
 
 
@@ -51,28 +51,23 @@ const char *QDate::weekdayNames[] ={
 // QDate member functions
 //
 
-/*!
-class QDate qdatetm.h
+/*! \class QDate qdatetm.h
 
-\brief The QDate class provides date functions.
+  \brief The QDate class provides date functions.
 
-The QDate is based on the Gregorian (modern western) calendar. England
-adopted the Gregorian calendar on September 14th 1752, which is the
-earliest date that is supported by QDate.  Using earlier dates will give
-undefined results. Some countries adopted the Gregorian calendar later
-than England, thus the week dat of early dates might be incorrect for these
-countries (but correct for England). There is practically no upper limit
-for dates (well, around 8000 AD).
-*/
+  The QDate is based on the Gregorian (modern western)
+  calendar. England adopted the Gregorian calendar on September 14th
+  1752, which is the earliest date that is supported by QDate.  Using
+  earlier dates will give undefined results. Some countries adopted
+  the Gregorian calendar later than England, thus the week dat of
+  early dates might be incorrect for these countries (but correct for
+  England).  The end of time ends around 8000AD, by which time we
+  expect Qt to be obsolete. */
 
-/*!
-\fn QDate::QDate()
-Constructs a null date. Null dates are invalid.
-*/
+/*! \fn QDate::QDate()
+  Constructs a null date. Null dates are invalid. */
 
-/*!
-Constructs a date with the year \e y, month \e m and day \e d.
-*/
+/*! Constructs a date with the year \e y, month \e m and day \e d. */
 
 QDate::QDate( int y, int m, int d )		// set date and time
 {
@@ -92,12 +87,12 @@ QDate::QDate( int y, int m, int d )		// set date and time
 /*!
 \fn bool QDate::isNull() const
 Returns TRUE if the date is null.
-See also: isValid().
+\sa isValid().
 */
 
 /*!
 Returns TRUE if the date is valid.
-See also: isNull().
+\sa isNull().
 */
 
 bool QDate::isValid() const			// valid date
@@ -108,7 +103,7 @@ bool QDate::isValid() const			// valid date
 
 /*!
 Returns the year part (>= 1752) of the date.
-See also: month(), day().
+\sa month(), day().
 */
 
 int QDate::year() const				// 1752..
@@ -120,7 +115,7 @@ int QDate::year() const				// 1752..
 
 /*!
 Returns the month part (1..12) of the date.
-See also: year(), day().
+\sa year(), day().
 */
 
 int QDate::month() const			// 1..12
@@ -132,7 +127,7 @@ int QDate::month() const			// 1..12
 
 /*!
 Returns the day part (1..31) of the date.
-See also: year(), month().
+\sa year(), month().
 */
 
 int QDate::day() const				// 1..31
@@ -568,16 +563,15 @@ bool QTime::isValid( int h, int m, int s, int ms ) // is valid time?
 }
 
 
-/*!
-Sets the time to the current time, for the purpose of timing:
-\code
-QTime t;
-t.start();				\/ start clock
+/*! Sets the time to the current time, e.g. for timing:
+  \code
+  QTime t;
+  t.start();				\/ start clock
   ... \/ some lengthy task
-printf( "%d\n", t.elapsed() );		\/ prints # msecs elapsed
-\endcode
-See also: restart(), elapsed().
-*/
+  printf( "%d\n", t.elapsed() );	\/ prints # msecs elapsed
+  \endcode
+
+  \sa restart(), elapsed(). */
 
 void QTime::start()				// start clock
 {
@@ -587,7 +581,7 @@ void QTime::start()				// start clock
 /*!
 Restarts for timing, and returns the number of microseconds that have elapsed
 since start() or restart().
-See also: start(), elapsed().
+\sa start(), elapsed().
 */
 
 long QTime::restart()				// restart clock
@@ -767,7 +761,7 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 
 /*!
 Returns the current datetime.
-See also: QDate::currentDate() and QTime::currentTime().
+\sa QDate::currentDate() and QTime::currentTime().
 */
 
 QDateTime QDateTime::currentDateTime()		// get current datetime
