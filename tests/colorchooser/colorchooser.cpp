@@ -20,36 +20,36 @@ protected:
     }
 };
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication app(argc, argv);
     QApplication::setFont( QFont("Helvetica") );
 
-    
+
     QFile f( "colours.dat" );
     if ( f.open(IO_ReadOnly) ) {
         QDataStream t( &f );
         int n = 0;
 	QColor c;
 	t >> c;
-        while ( !t.eof() ) {        
+        while ( !t.eof() ) {
 	    QColorDialog::setCustomColor( n++, c.rgb() );
 	    t >> c;
         }
         f.close();
     }
 
-    
+
     QColor c = QColorDialog::getColor( QApplication::palette().color( QPalette::Normal, QColorGroup::Background ));
-    
-    
-    
+
+
+
     ColorLabel l;
     if ( c.isValid() )
 	l.setBackgroundColor( c );
     l.show();
-	
+
    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
    int r =  app.exec();
    if ( f.open(IO_WriteOnly) ) {
