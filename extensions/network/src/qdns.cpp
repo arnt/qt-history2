@@ -139,7 +139,7 @@ class QDnsQuery: public QTimer { // this inheritance is a very evil hack
 public:
     QDnsQuery():
 	id( 0 ), t( QDns::None ), step(0), started(0),
-	dns( new QPtrDict<void>(17)) {}
+	dns( new QPtrDict<void>(17) ) {}
     Q_UINT16 id;
     QDns::RecordType t;
     QString l;
@@ -160,10 +160,10 @@ public:
     void parse();
     void notify();
 
+    bool ok;
+
 private:
     QDnsQuery * q;
-
-    bool ok;
 
     Q_UINT8 * answer;
     int size;
@@ -494,6 +494,9 @@ void QDnsAnswer::parse()
 
     // answers and stuff
     int rrno = 0;
+    // if we parse the answer completely, but there are no answers,
+    // ignore the entire thing.
+    int answers = 0;
     while( rrno < ancount + nscount + adcount && pp < size ) {
 	label = readString().lower();
 	if ( !ok )
@@ -565,6 +568,8 @@ void QDnsAnswer::parse()
 		break;
 	    }
 	    if ( rr ) {
+		if ( rrno < ancount )
+		    answers++;
 		rr->expireTime = q->started + ttl;
 		rr->deleteTime = ( rrno < ancount || ttl < 600)
 				 ? q->started + ttl : 0;
@@ -578,9 +583,15 @@ void QDnsAnswer::parse()
 	next = size;
 	rrno++;
     }
+    if ( answers == 0 ) {
+#if defined(DEBUG_QDNS)
+		qDebug( "DNS Manager: answer contained no answers" );
+#endif
+	ok = FALSE;
+    }
 
 #if defined(DEBUG_QDNS)
-    qDebug( "DNS Manager: ()" );
+    //qDebug( "DNS Manager: ()" );
 #endif
 }
 
@@ -826,7 +837,10 @@ void QDnsManager::answer()
     QDnsAnswer answer( a, q );
     answer.parse();
     answer.notify();
-    delete q;
+    if ( answer.ok )
+	delete q;
+    else
+	queries.insert( i, q );
 };
 
 
@@ -917,7 +931,30 @@ void QDnsManager::transmitQuery( int i )
     if ( !ns || ns->isEmpty() )
 	return;
 
-    socket->writeBlock( p.data(), pp, *ns->first(), 53 );
+    socket->writeBlock( p.data(), pp, *ns->at( q->step % ns->count() ), 53 );
+#if defined(DEBUG_QDNS)
+    qDebug( "issuing query %d about %s type %d to %s",
+	    q->id, q->l.ascii(), q->t,
+	    ns->at( q->step % ns->count() )->ip4AddrString().ascii() );
+#endif
+    if ( ns->count() > 1 && q->step == 0 ) {
+	// if it's the first time, send nonrecursive queries to the
+	// other name servers too.
+	p[2] = 0;
+	QHostAddress * server;
+	while( (server=ns->next()) != 0 ) {
+	    socket->writeBlock( p.data(), pp, *server, 53 );
+#if defined(DEBUG_QDNS)
+	    qDebug( "copying query to %s", server->ip4AddrString().ascii() );
+#endif
+	}
+    }
+    q->step++;
+    // some testing indicates that normal dns queries take up to 0.6
+    // seconds.  the graph becomes steep around that point, and the
+    // number of errors rises... so it seems good to retry at that
+    // point.
+    q->start( 600, TRUE );
 }
 
 
@@ -995,6 +1032,10 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		 !rr->nxdomain && cnamecount < 16 ) {
 		// cname.  if the code is ugly, that may just
 		// possibly be because the concept is.
+#if defined(DEBUG_QDNS)
+		qDebug( "found cname from %s to %s",
+			r->label().ascii(), rr->target.ascii() );
+#endif
 		s = rr->target;
 		d = m->domain( s );
 		if ( d->rrs )
@@ -1016,9 +1057,18 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	}
 	// if we found a positive result, return quickly
 	if ( !nxdomain && l->count() ) {
+#if defined(DEBUG_QDNS)
+	    qDebug( "found %d records for %s",
+		    l->count(), r->label().ascii() );
+#endif
 	    l->first();
 	    return l;
 	}
+
+#if defined(DEBUG_QDNS)
+	if ( nxdomain )
+	    qDebug( "found NXDomain %s", r->label().ascii() );
+#endif
 
 	if ( !nxdomain ) {
 	    // if we didn't, and not a negative result either, perhaps
@@ -1037,6 +1087,8 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		query->l = s;
 		query->started = now();
 		query->dns->replace( (void*)r, (void*)r );
+		QObject::connect( query, SIGNAL(timeout()),
+				  QDnsManager::manager(), SLOT(retransmit()) );
 		QDnsManager::manager()->transmitQuery( query );
 	    }
 	}
@@ -1455,11 +1507,12 @@ static void doResInit()
     ns->setAutoDelete( TRUE );
     domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
- 
+
     QString domainName, nameServer, searchList;
     HKEY k;
     int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
-			   "System\\CurrentControlSet\\Services\\Tcpip\\Parameters",
+			   "System\\CurrentControlSet\\Services\\Tcpip\\"
+			   "Parameters",
 			   0, KEY_READ, &k );
     if ( r == ERROR_SUCCESS ) {
 	domainName = getWindowsRegString( k, "Domain" );
