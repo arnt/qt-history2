@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#31 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#32 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#32 $")
 
 
 /*----------------------------------------------------------------------------
@@ -68,11 +68,6 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#31 $")
   Default implementation of virtual functions
  *****************************************************************************/
 
-/*
-  <li> \> 0 (positive integer) if \e item1 \> \e item2
-  <li> \< 0 (negative integer) if \e item1 \< \e item2
-  */
-
 /*----------------------------------------------------------------------------
   This virtual function compares two list items.
 
@@ -91,18 +86,16 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#31 $")
   <li> \< 0 (negative integer) if \e item1 \< \e item2
   </ul>
 
-  We use this in several places inside Qt.
+  The QList::inSort() function requires that compareItems() is implemented
+  as described here.
 
-  Default implementation:
+  This function should not modify the list because some const functions
+  call compareItems().
+
+  The default implementation compares the pointers:
   \code
-    int QGList::compareItems( GCI item1, GCI item2 )
-    {
-        return item1 != item2;			// compare pointers
-    }
-  \endcode
 
- This function should not modify the list because some const functions
- call compareItems().
+  \endcode
  ----------------------------------------------------------------------------*/
 
 int QGList::compareItems( GCI item1, GCI item2 )
@@ -170,7 +163,7 @@ QGList::QGList( const QGList & list )
     iterators = 0;				// initialize iterator list
     register QLNode *n = list.firstNode;
     while ( n ) {				// copy all items from list
-	append( n->getData() );
+	append( n->data );
 	n = n->next;
     }
 }
@@ -205,10 +198,10 @@ QGList& QGList::operator=( const QGList &list )
     if ( list.count() > 0 ) {
 	register QLNode *n = list.firstNode;
 	while ( n ) {				// copy all items from list
-	    append( n->getData() );
+	    append( n->data );
 	    n = n->next;
 	}
-	curNode  = firstNode;
+	curNode	 = firstNode;
 	curIndex = 0;
     }
     return *this;
@@ -232,7 +225,7 @@ QLNode *QGList::locate( uint index )
     if ( index == (uint)curIndex )		// current node ?
 	return curNode;
     if ( !curNode && firstNode ) {		// set current node
-	curNode  = firstNode;
+	curNode	 = firstNode;
 	curIndex = 0;
     }
     register QLNode *node;
@@ -454,7 +447,7 @@ bool QGList::removeNode( QLNode *n )
 #endif
     curNode = n;
     unlink();					// unlink node
-    deleteItem( n->getData() );			// deallocate this node
+    deleteItem( n->data );			// deallocate this node
     delete n;
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
@@ -463,7 +456,7 @@ bool QGList::removeNode( QLNode *n )
 
 /*----------------------------------------------------------------------------
   \internal
-  Removes the item \e d from the list.  Uses compareItems() to find the item.
+  Removes the item \e d from the list.	Uses compareItems() to find the item.
  ----------------------------------------------------------------------------*/
 
 bool QGList::remove( GCI d )
@@ -475,7 +468,7 @@ bool QGList::remove( GCI d )
     QLNode *n = unlink();			// unlink node
     if ( !n )
 	return FALSE;
-    deleteItem( n->getData() );			// deallocate this node
+    deleteItem( n->data );			// deallocate this node
     delete n;
     return TRUE;
 }
@@ -494,7 +487,7 @@ bool QGList::removeRef( GCI d )
     QLNode *n = unlink();			// unlink node
     if ( !n )
 	return FALSE;
-    deleteItem( n->getData() );			// deallocate this node
+    deleteItem( n->data );			// deallocate this node
     delete n;
     return TRUE;
 }
@@ -523,7 +516,7 @@ bool QGList::removeAt( uint index )
     QLNode *n = unlink();			// unlink node
     if ( !n )
 	return FALSE;
-    deleteItem( n->getData() );			// deallocate this node
+    deleteItem( n->data );			// deallocate this node
     delete n;
     return TRUE;
 }
@@ -545,7 +538,7 @@ GCI QGList::takeNode( QLNode *n )
 #endif
     curNode = n;
     unlink();					// unlink node
-    GCI d = n->getData();
+    GCI d = n->data;
     delete n;					// delete the node, not data
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
@@ -560,7 +553,7 @@ GCI QGList::takeNode( QLNode *n )
 GCI QGList::take()
 {
     QLNode *n = unlink();			// unlink node
-    GCI d = n ? n->getData() : 0;
+    GCI d = n ? n->data : 0;
     delete n;					// delete node, keep contents
     return d;
 }
@@ -575,7 +568,7 @@ GCI QGList::takeAt( uint index )
     if ( !locate(index) )
 	return 0;
     QLNode *n = unlink();			// unlink node
-    GCI d = n ? n->getData() : 0;
+    GCI d = n ? n->data : 0;
     delete n;					// delete node, keep contents
     return d;
 }
@@ -589,7 +582,7 @@ GCI QGList::takeFirst()
 {
     first();
     QLNode *n = unlink();			// unlink node
-    GCI d = n ? n->getData() : 0;
+    GCI d = n ? n->data : 0;
     delete n;
     return d;
 }
@@ -603,7 +596,7 @@ GCI QGList::takeLast()
 {
     last();
     QLNode *n = unlink();			// unlink node
-    GCI d = n ? n->getData() : 0;
+    GCI d = n ? n->data : 0;
     delete n;
     return d;
 }
@@ -619,7 +612,7 @@ void QGList::clear()
     register QLNode *n = firstNode;
     QLNode *prevNode;
     while ( n ) {				// for all nodes ...
-	deleteItem( n->getData() );		// deallocate data
+	deleteItem( n->data );			// deallocate data
 	prevNode = n;
 	n = n->next;
 	delete prevNode;			// deallocate node
@@ -654,15 +647,13 @@ int QGList::findRef( GCI d, bool fromStart )
 	n = curNode;
 	index = curIndex;
     }
-    while ( n && n->getData() != d ) {		// find exact match
+    while ( n && n->data != d ) {		// find exact match
 	n = n->next;
 	index++;
     }
-    if ( n ) {					// item was found
-	curNode  = n;
-	curIndex = (int)index;
-    }
-    return n ? (int)index : -1;			// return position of item
+    curNode = n;
+    curIndex = n ? index : -1;
+    return curIndex;				// return position of item
 }
 
 /*----------------------------------------------------------------------------
@@ -682,15 +673,13 @@ int QGList::find( GCI d, bool fromStart )
 	n = curNode;
 	index = curIndex;
     }
-    while ( n && compareItems(n->getData(),d) ){// find equal match
+    while ( n && compareItems(n->data,d) ){	// find equal match
 	n = n->next;
 	index++;
     }
-    if ( n ) {					// item was found
-	curNode  = n;
-	curIndex = (int)index;
-    }
-    return n ? (int)index : -1;			// return position of item
+    curNode = n;
+    curIndex = n ? index : -1;
+    return curIndex;				// return position of item
 }
 
 
@@ -704,7 +693,7 @@ uint QGList::containsRef( GCI d ) const
     register QLNode *n = firstNode;
     uint     count = 0;
     while ( n ) {				// for all nodes...
-	if ( n->getData() == d )		// count # exact matches
+	if ( n->data == d )			// count # exact matches
 	    count++;
 	n = n->next;
     }
@@ -713,7 +702,7 @@ uint QGList::containsRef( GCI d ) const
 
 /*----------------------------------------------------------------------------
   \internal
-  Counts the number an item occurs in the list.  Uses compareItems().
+  Counts the number an item occurs in the list.	 Uses compareItems().
  ----------------------------------------------------------------------------*/
 
 uint QGList::contains( GCI d ) const
@@ -722,7 +711,7 @@ uint QGList::contains( GCI d ) const
     uint     count = 0;
     QGList  *that = (QGList*)this;		// mutable for compareItems()
     while ( n ) {				// for all nodes...
-	if ( !that->compareItems(n->getData(),d) ) // count # equal matches
+	if ( !that->compareItems(n->data,d) )	// count # equal matches
 	    count++;
 	n = n->next;
     }
@@ -769,14 +758,14 @@ uint QGList::contains( GCI d ) const
 
 /*----------------------------------------------------------------------------
   \internal
-  Returns the first list item.  Sets this to current.
+  Returns the first list item.	Sets this to current.
  ----------------------------------------------------------------------------*/
 
 GCI QGList::first()
 {
     if ( firstNode ) {
 	curIndex = 0;
-	return (curNode=firstNode)->getData();
+	return (curNode=firstNode)->data;
     }
     return 0;
 }
@@ -790,7 +779,7 @@ GCI QGList::last()
 {
     if ( lastNode ) {
 	curIndex = numNodes-1;
-	return (curNode=lastNode)->getData();
+	return (curNode=lastNode)->data;
     }
     return 0;
 }
@@ -802,9 +791,14 @@ GCI QGList::last()
 
 GCI QGList::next()
 {
-    if ( curNode && curNode->next ) {
-	curIndex++;
-	return (curNode = curNode->next)->getData();
+    if ( curNode ) {
+	if ( curNode->next ) {
+	    curIndex++;
+	    curNode = curNode->next;
+	    return curNode->data;
+	}
+	curIndex = -1;
+	curNode = 0;
     }
     return 0;
 }
@@ -816,9 +810,14 @@ GCI QGList::next()
 
 GCI QGList::prev()
 {
-    if ( curNode && curNode->prev ) {
-	curIndex--;
-	return (curNode = curNode->prev)->getData();
+    if ( curNode ) {
+	if ( curNode->prev ) {
+	    curIndex--;
+	    curNode = curNode->prev;
+	    return curNode->data;
+	}
+	curIndex = -1;
+	curNode = 0;
     }
     return 0;
 }
@@ -837,7 +836,7 @@ void QGList::toVector( QGVector *vector ) const
     register QLNode *n = firstNode;
     uint i = 0;
     while ( n ) {
-	vector->insert( i, n->getData() );
+	vector->insert( i, n->data );
 	n = n->next;
 	i++;
     }
@@ -901,7 +900,7 @@ QDataStream &QGList::write( QDataStream &s ) const
     s << count();				// write number of items
     QLNode *n = firstNode;
     while ( n ) {				// write all items
-	write( s, n->getData() );
+	write( s, n->data );
 	n = n->next;
     }
     return s;
