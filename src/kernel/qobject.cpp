@@ -314,6 +314,14 @@ QObject::QObject( QObject *parent, const char *name )
     connections   = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
     eventFilters  = 0;				// no filters installed
+#if QT_VERSION >= 300
+#error "Remove sigSender - it's a massive waste."
+//	Define sender() to only be valid in a slot before any functions
+//	are called (which is all you could reliably document anyway, since
+//	slots that are reentered would be incorrect).  Saves 4 bytes per
+//      object simply by making sigSender a global variable.
+//	QObject::sender() is inline, so this had to wait until 3.0.
+#endif
     sigSender     = 0;				// no sender yet
     isSignal   = FALSE;				// assume not a signal object
     isWidget   = FALSE;				// assume not a widget object
