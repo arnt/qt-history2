@@ -19,7 +19,7 @@ clean::
 	rm -f $(OBJS) $(QOBJS)
 
 distclean:: clean
-	rm -rf qmake .deps/
+	rm -rf qmake .deps
 
 # don't use optimization for these
 qtextstream.o: @REL_QTDIR@/src/tools/qtextstream.cpp

@@ -32,7 +32,7 @@ clean::
 	rm -f $(OBJS) $(QTOBJS)
 
 distclean:: clean
-	rm -rf qmake .deps/
+	rm -rf qmake .deps
 
 # don't use optimization for these
 projectgenerator.o: projectgenerator.cpp
