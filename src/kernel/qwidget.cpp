@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#110 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#109 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#110 $")
 
 
 /*----------------------------------------------------------------------------
@@ -344,15 +344,6 @@ QWidget *QWidget::find( WId id )
 
   Widget flags are internal, not meant for public use.
   \sa testWFlags(), getWFlags(), setWFlags()
- ----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
-  \fn void QWidget::destroyed()
-  This signal is emitted immediately before the widget is destroyed.
-
-  All the widget's children are destroyed immediately after this signal
-  is emitted.
  ----------------------------------------------------------------------------*/
 
 

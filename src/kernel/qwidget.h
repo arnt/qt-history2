@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#72 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#73 $
 **
 ** Definition of QWidget class
 **
@@ -177,11 +177,6 @@ public:
     bool	 testWFlags( WFlags n ) const;
     static QWidget	 *find( WId );
     static QWidgetMapper *wmapper();
-
-  // Signals
-
-signals:
-    void	 destroyed();
 
   // Event handlers
 
