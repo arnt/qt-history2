@@ -323,7 +323,9 @@ void PixmapCollection::createCppFile()
 	out << "    DesignerMimeSourceFactory() {}" << endl;
 
 	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
-	out << "\tQImage img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
+	out << "\tQImage img;" << endl;
+	out << "\tif ( !!abs_name )" << endl;
+	out << "\t    img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
 	out << "\tif ( !img.isNull() ) {" << endl;
 	out << "\t    QPixmap pix;" << endl;
 	out << "\t    pix.convertFromImage( img );" << endl;
