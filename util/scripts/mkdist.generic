@@ -156,6 +156,7 @@ rm -f qt/make.help qt/variables
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
 rm -rf qt/examples/sheet
 rm -rf qt/examples/network
+rm -rf qt/doc/html
 
 echo "Removing kernel .cpp files for other platforms..." >&2
 cd ${DISTDIR}/qt/src/kernel
