@@ -34,11 +34,12 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __QKEYGEN_H__
-#define __QKEYGEN_H__
 
-#include <qfile.h>
-#include <qregexp.h>
+#ifndef KEYINFO_H
+#define KEYINFO_H
+
+#include <qdatetime.h>
+#include <qstring.h>
 
 #define MASK(n) ( (1 << (n)) - 1 )
 
@@ -65,4 +66,7 @@ uint featuresForKey( const QString& key );
 QString keyForFeatures( uint features, uint randomBits );
 uint featuresForKeyOnUnix( const QString& key );
 
-#endif /* __QKEYGEN_H__ */
+QString encodedExpiryDate( const QDate& date );
+QDate decodedExpiryDate( const QString& encodedDate );
+
+#endif
