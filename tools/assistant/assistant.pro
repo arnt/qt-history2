@@ -9,7 +9,7 @@ uic4.output  = ui_${QMAKE_FILE_BASE}.h
 uic4.commands = uic4 ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
 uic4.input = UI_SOURCES
 uic4.CONFIG += no_link
-QMAKE_EXTRA_UNIX_COMPILERS += uic4
+QMAKE_EXTRA_COMPILERS += uic4
 
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin

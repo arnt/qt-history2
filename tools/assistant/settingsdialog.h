@@ -40,12 +40,16 @@ public:
     inline QTabWidget *settingsTab() const
     { return gui.settingsTab; }
 
-protected slots:
+
+private slots:
+    void on_buttonOk_clicked();
+    void on_buttonCancel_clicked();
+    void on_colorButton_clicked();
+    void on_buttonBrowse_clicked();
+    void on_buttonHome_clicked();
+    void on_buttonPDF_clicked();
+
     void init();
-    void selectColor();
-    void browseWebApp();
-    void browsePDFApplication();
-    void browseHomepage();
     void accept();
     void reject();
 

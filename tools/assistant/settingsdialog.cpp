@@ -50,23 +50,23 @@ void SettingsDialog::init()
 }
 
 
-void SettingsDialog::selectColor()
+void SettingsDialog::on_colorButton_clicked()
 {
     QColor c = QColorDialog::getColor(gui.colorButton->paletteBackgroundColor(), this);
     gui.colorButton->setPaletteBackgroundColor(c);
 }
 
-void SettingsDialog::browseWebApp()
+void SettingsDialog::on_buttonBrowse_clicked()
 {
     setFile(gui.browserApp, tr("Qt Assistant - Set Web Browser"));
 }
 
-void SettingsDialog::browsePDFApplication()
+void SettingsDialog::on_buttonPDF_clicked()
 {
     setFile(gui.pdfApp, tr("Qt Assistant - Set PDF Browser"));
 }
 
-void SettingsDialog::browseHomepage()
+void SettingsDialog::on_buttonHome_clicked()
 {
     setFile(gui.homePage, tr("Qt Assistant - Set Homepage"));
 }
@@ -101,3 +101,14 @@ void SettingsDialog::reject()
     init();
     done(Rejected);
 }
+
+void SettingsDialog::on_buttonOk_clicked()
+{
+    accept();
+}
+
+void SettingsDialog::on_buttonCancel_clicked()
+{
+    reject();
+}
+
