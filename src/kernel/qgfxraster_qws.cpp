@@ -3123,7 +3123,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	    myptr+=x1;
 
 	    PackType put;
-	    
+
 # ifdef QWS_PACKING_4BYTE
 	    put = pixel | ( pixel << 16 );
 # else
@@ -3412,7 +3412,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	   
+
 	    PackType dput;
 # ifndef QWS_PACKING_4BYTE
 	    unsigned short int * fun;
@@ -3595,7 +3595,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		  } else {
 		    *(myptr) = gv;
 		  }
-		}	
+		}
 		myptr += inc;
 	    }
 	}
@@ -4039,7 +4039,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	  }
 	}
 #else
-       
+
 # ifdef QWS_PACKING_4BYTE
 	PackType put;
 # endif
@@ -4339,7 +4339,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
 	    int loopc,loopc2;
-	    
+
 	    PackType put;
 # ifdef QWS_PACKING_4BYTE
 	    put = pixel | (pixel << 16);
@@ -4588,7 +4588,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		    myptr+=4;
 # else
 		    myptr+=8;
-# endif		  
+# endif
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++) {
 		  *(myptr)=~(*myptr);

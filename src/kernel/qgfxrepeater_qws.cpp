@@ -45,6 +45,9 @@ public:
     ~QRepeaterGfx();
     void addScreen(QScreen *,QScreenCursor *,int,int,bool);
 
+    virtual void setClipDeviceRegion(const QRegion &) {}
+    virtual void setWidgetDeviceRegion(const QRegion &) {}
+
     virtual void setPen(const QPen &);
     virtual void setFont(const QFont &);
     virtual void setBrush(const QBrush &);
@@ -141,15 +144,18 @@ QString dumpRegion(QRegion r)
 void QRepeaterGfx::addScreen(QScreen * s,QScreenCursor *c,int x,int y,bool b)
 {
     QGfxRec * tmp=new QGfxRec;
+    QScreen * tmp2=qt_screen;
+    qt_screen=s;
     tmp->xoffs=x;
     tmp->yoffs=y;
     tmp->w=s->width();
     tmp->h=s->height();
     tmp->gfx=s->screenGfx();
-    tmp->gfx->setOffset(-(tmp->xoffs),-(tmp->yoffs));
+    tmp->gfx->setOffset(-(tmp->xoffs),(tmp->yoffs));
     tmp->gfx->setScreen(s,c,b,s->opType(),s->lastOp());
     tmp->screen=s;
     gfxen.append(tmp);
+    qt_screen=tmp2;
 }
 
 void QRepeaterGfx::setPen(const QPen & p)
@@ -547,6 +553,7 @@ public:
     virtual void disconnect() {}
     virtual void setMode(int,int,int) {}
     virtual int initCursor(void *,bool=FALSE);
+    virtual void setDirty(const QRect &);
     QImage * readScreen(int,int,int,int,QRegion &);
     QRegion getRequiredUpdate(int,int,int,int,int,int);
 
@@ -557,6 +564,21 @@ private:
     QPtrList<QScreenRec> screens;
 
 };
+
+void QRepeaterScreen::setDirty(const QRect & r)
+{
+     for(QScreenRec * walker=screens.first();walker;walker=screens.next()) {
+	 QRect r2=r;
+	 r2.moveBy(-(walker->xoffs),-(walker->yoffs));
+	 QRect screenrect(walker->xoffs,walker->yoffs,
+			  walker->screen->width(),
+			  walker->screen->height());
+	 if(r2.intersects(screenrect)) {
+	     r2=r2.intersect(screenrect);
+	     walker->screen->setDirty(r2);
+	 }
+     }
+}
 
 // r==the region of the virtual screen not covered by any of the framebuffers,
 //    intersected with the rectangle we're grabbing
@@ -607,12 +629,12 @@ extern char * qt_qws_hardcoded_slot;
 QRepeaterScreen::QRepeaterScreen(int)
     : QScreen(0)
 {
-    screens.append(new QScreenRec(new QLinuxFbScreen(0),
-				  "/proc/bus/pci/01/00.0","/dev/fb0",false));
-    screens.append(new QScreenRec(new QLinuxFbScreen(0),
-				  "/proc/bus/pci/00/0a.0","/dev/fb1",false));
+    screens.append(new QScreenRec(new QVFbScreen(0),
+				  "/proc/bus/pci/01/00.0",":0",true));
+    screens.append(new QScreenRec(new QVFbScreen(1),
+    				  "/proc/bus/pci/00/0a.0",":1",true));
     data=(uchar *)0xdeadbeef;
-    sw_cursor_exists=false;
+    sw_cursor_exists=true;
 }
 
 int QRepeaterScreen::initCursor(void * v,bool b)
@@ -625,6 +647,7 @@ int QRepeaterScreen::initCursor(void * v,bool b)
     for(walker=screens.first();walker;walker=screens.next()) {
 	qt_screen=walker->screen;
 	int am=walker->screen->initCursor((void *)c,b);
+	walker->cursor=qt_screencursor;
 	c-=am;
 	count+=am;
 	qrc->addScreen(walker->screen,walker->xoffs,walker->yoffs);
@@ -680,6 +703,9 @@ bool QRepeaterScreen::connect(const QString &)
 	if(walker->screen->depth() > d)
 	    d=walker->screen->depth();
     }
+
+    if(d==0)
+	d=32;
 
     lstep=0xdeadbeef;
     pixeltype=0;
@@ -799,75 +825,33 @@ void QRepeaterGfx::scroll (int x, int y, int w, int h, int sx, int sy)
     QRegion destregion(r1);
     QRegion srcregion(r2);
 
-    r2=r2.unite(r1);
-
-    bool crossover=false;
-    QGfxRec * walker;
-    for(walker=gfxen.first();walker;walker=gfxen.next()) {
-	if(r2.right() < walker->xoffs || r2.bottom() < walker->yoffs ||
-	   r2.left() > (walker->xoffs + walker->w) ||
-	   r2.top() > (walker->yoffs + walker->h)) {
-
-	} else if(r2.left() >= walker->xoffs && r2.top() >= walker->yoffs &&
-		  r2.right() <= (walker->xoffs+walker->w) &&
-		  r2.bottom() <= (walker->yoffs+walker->h)) {
-
-	} else {
-	    crossover=true;
-	}
-    }
-
-    if(!crossover) {
-	bool did_hide=false;
-	QRepeaterCursor * qrc=(QRepeaterCursor *)qt_screencursor;
-
-	for(walker=gfxen.first();walker;walker=gfxen.next()) {
-	    if(r2.left() >= walker->xoffs && r2.top() >= walker->yoffs &&
-	       r2.right() <= (walker->xoffs+walker->w) &&
-	       r2.bottom() <= (walker->yoffs+walker->h)) {
-		QScreen * tmp=qt_screen;
-		qt_screen=walker->screen;
-		walker->gfx->setOffset(xoffs-walker->xoffs,
-				       yoffs-walker->yoffs);
-		walker->gfx->scroll(x,y,w,h,sx,sy);
-		qt_screen=tmp;
-	    }
-	}
-
-	return;
-
-    }; /* else {
-	QRegion r;
-
-	QImage * i=((QRepeaterScreen *)qt_screen)->readScreen(
-						sx+xoffs,sy+yoffs,w,h,r);
-	QGfx * tmp=qt_screen->screenGfx();
-	tmp->setSource(i);
-	tmp->setWidgetRegion(widgetclip);
-	tmp->blt(x+xoffs,y+yoffs,w,h,0,0);
-	delete tmp;
-	delete i;
-
-	r.translate(x-sx,y-sy);
-
-	if(!r.isEmpty())
-	    qt_fbdpy->repaintRegion(r);
-    }
-    */
-
-    QRegion toupdate(r2);
-
-    for(walker=gfxen.first();walker;walker=gfxen.next()) {
+    QRegion toupdate;
+    
+    for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
+	QScreen * tmp=qt_screen;
+	qt_screen=walker->screen;
+	walker->gfx->setOffset(xoffs-walker->xoffs,
+			       yoffs-walker->yoffs);
+	walker->gfx->setClipping(false);
 	walker->gfx->scroll(x,y,w,h,sx,sy);
-	QRegion sregion(QRect(walker->xoffs,walker->yoffs,
-			      walker->w,walker->h));
-	QRegion ssrc=sregion.intersect(srcregion);
-	QRegion sdest=ssrc;
-	sdest.translate(x-sx,y-sy);
-	sdest=sregion.intersect(sdest);
-	toupdate=toupdate.subtract(sdest);
-    }
+	walker->gfx->setClipping(true);
+	qt_screen=tmp;
+	QRegion screen(QRect(walker->xoffs,walker->yoffs,
+			     walker->w,walker->h));
+	QRegion tmp1=destregion;
+	QRegion tmp2=srcregion;
+	QRegion tmp3=destregion.unite(srcregion);
+	tmp3=tmp3.intersect(screen);
+	       
+	QRegion tmp4=srcregion.intersect(screen);
+	tmp4.translate(x-sx,y-sy);
+	tmp4=srcregion.intersect(tmp4);
+	       
+	tmp3=tmp3.subtract(tmp4);
 
+	toupdate=toupdate.unite(tmp3);
+    }
+    
     if(!toupdate.isEmpty()) {
 	qt_fbdpy->repaintRegion(toupdate);
     }

@@ -708,6 +708,9 @@ void QWSDisplay::Data::fillQueue()
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
 	    if ( re->simpleData.is_ack ) {
 		region_ack = re;
+#ifdef QT_NO_QWS_REPEATER
+		// For some reason the compression code here causes
+		// corruption with the repeater display
 	    } else if ( (!region_event || re->window() == region_event->window() ) ) {
 		if ( region_event ) {
 		    QRegion r1;
@@ -723,6 +726,7 @@ void QWSDisplay::Data::fillQueue()
 		} else {
 		    region_event = re;
 		}
+#endif
 	    } else {
 		queue.append(e);
 	    }

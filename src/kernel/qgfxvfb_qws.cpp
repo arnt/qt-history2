@@ -66,29 +66,34 @@ public:
     bool success;
     unsigned char *shmrgn;
     QVFbHeader *hdr;
-};
 
-static QVFbScreen *qvfb_screen = 0;
+};
 
 #ifndef QT_NO_QWS_CURSOR
 class QVFbScreenCursor : public QScreenCursor
 {
 public:
-    QVFbScreenCursor();
+    QVFbScreenCursor(QVFbScreen * s);
 
     virtual void set( const QImage &image, int hotx, int hoty );
     virtual void move( int x, int y );
+
+private:
+
+    QVFbScreen * cursor_screen;
+
 };
 
-QVFbScreenCursor::QVFbScreenCursor() : QScreenCursor()
+QVFbScreenCursor::QVFbScreenCursor(QVFbScreen * s) : QScreenCursor()
 {
+    cursor_screen=s;
 }
 
 void QVFbScreenCursor::set( const QImage &image, int hotx, int hoty )
 {
     QWSDisplay::grab( TRUE );
     QRect r( data->x - hotx, data->y - hoty, image.width(), image.height() );
-    qvfb_screen->setDirty( data->bound | r );
+    cursor_screen->setDirty( data->bound | r );
     QScreenCursor::set( image, hotx, hoty );
     QWSDisplay::ungrab();
 }
@@ -97,7 +102,7 @@ void QVFbScreenCursor::move( int x, int y )
 {
     QWSDisplay::grab( TRUE );
     QRect r( x - data->hotx, y - data->hoty, data->width, data->height );
-    qvfb_screen->setDirty( r | data->bound );
+    cursor_screen->setDirty( r | data->bound );
     QScreenCursor::move( x, y );
     QWSDisplay::ungrab();
 }
@@ -140,7 +145,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPoint( int x, int y )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, 1, 1 ) );
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect( x+xoffs, y+yoffs, 1, 1 ) );
     QGfxRaster<depth,type>::drawPoint( x, y );
     QWSDisplay::ungrab();
 }
@@ -149,7 +154,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPoints( const QPointArray &pa,int x,int y )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( clipbounds );
+    ((QVFbScreen *)gfx_screen)->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPoints( pa, x, y );
     QWSDisplay::ungrab();
 }
@@ -160,7 +165,7 @@ void QGfxVFb<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
     QWSDisplay::grab( TRUE );
     QRect r;
     r.setCoords( x1+xoffs, y1+yoffs, x2+xoffs, y2+yoffs );
-    qvfb_screen->setDirty( r.normalize() );
+    ((QVFbScreen *)gfx_screen)->setDirty( r.normalize() );
     QGfxRaster<depth,type>::drawLine( x1, y1, x2, y2 );
     QWSDisplay::ungrab();
 }
@@ -169,7 +174,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::fillRect( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
     QGfxRaster<depth,type>::fillRect( x, y, w, h );
     QWSDisplay::ungrab();
 }
@@ -178,7 +183,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPolyline( const QPointArray &pa,int x,int y )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( clipbounds );
+    ((QVFbScreen *)gfx_screen)->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPolyline( pa, x, y );
     QWSDisplay::ungrab();
 }
@@ -187,7 +192,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::drawPolygon( const QPointArray &pa,bool w,int x,int y )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( clipbounds );
+    ((QVFbScreen *)gfx_screen)->setDirty( clipbounds );
     QGfxRaster<depth,type>::drawPolygon( pa, w, x, y );
     QWSDisplay::ungrab();
 }
@@ -196,7 +201,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::blt( int x,int y,int w,int h, int sx, int sy )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
     QGfxRaster<depth,type>::blt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
@@ -207,7 +212,7 @@ void QGfxVFb<depth,type>::scroll( int x,int y,int w,int h,int sx,int sy )
     QWSDisplay::grab( TRUE );
     int dy = sy - y;
     int dx = sx - x;
-    qvfb_screen->setDirty( QRect(QMIN(x,sx) + xoffs, QMIN(y,sy) + yoffs,
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect(QMIN(x,sx) + xoffs, QMIN(y,sy) + yoffs,
 			   w+abs(dx), h+abs(dy)) );
     QGfxRaster<depth,type>::scroll( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
@@ -218,7 +223,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::stretchBlt( int x,int y,int w,int h,int sx,int sy )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect( x + xoffs, y + yoffs, w, h) );
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect( x + xoffs, y + yoffs, w, h) );
     QGfxRaster<depth,type>::stretchBlt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
@@ -228,7 +233,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::tiledBlt( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
-    qvfb_screen->setDirty( QRect(x + xoffs, y + yoffs, w, h) );
+    ((QVFbScreen *)gfx_screen)->setDirty( QRect(x + xoffs, y + yoffs, w, h) );
     QGfxRaster<depth,type>::tiledBlt( x, y, w, h );
     QWSDisplay::ungrab();
 }
@@ -251,14 +256,20 @@ static int QVFb_dummy;
 bool QVFbScreen::connect( const QString & )
 {
     optype = &QVFb_dummy;
+    lastop = &QVFb_dummy;
+    screen_optype=&QVFb_dummy;
+    screen_lastop=&QVFb_dummy;
+
     key_t key = ftok( QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b' );
 
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
 
-    if ( (int)shmrgn == -1 || shmrgn == 0 )
+    if ( (int)shmrgn == -1 || shmrgn == 0 ) {
+	qDebug("No shmrgn %d",shmrgn);
 	return FALSE;
+    }
 
     hdr = (QVFbHeader *) shmrgn;
     data = shmrgn + hdr->dataoffset;
@@ -344,7 +355,7 @@ int QVFbScreen::initCursor(void* e, bool init)
     // ### until QLumpManager works Ok with multiple connected clients,
     // we steal a chunk of shared memory
     SWCursorData *data = (SWCursorData *)e - 1;
-    qt_screencursor=new QVFbScreenCursor();
+    qt_screencursor=new QVFbScreenCursor(this);
     qt_screencursor->init( data, init );
     return sizeof(SWCursorData);
 #else
@@ -421,7 +432,7 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
 
 extern "C" QScreen * qt_get_screen_qvfb( int display_id )
 {
-    return (qvfb_screen = new QVFbScreen( display_id ));
+    return new QVFbScreen( display_id );
 }
 
 #endif

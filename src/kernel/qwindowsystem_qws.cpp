@@ -1012,7 +1012,7 @@ void QWSServer::releaseKeyboard(QWSWindow* w)
     }
 }
 
- 
+
 #ifndef QT_NO_QWS_MULTIPROCESS
 /*!
   \internal
@@ -1305,7 +1305,7 @@ void QWSServer::refresh()
     exposeRegion( QRegion(0,0,swidth,sheight) );
     syncRegions();
 }
-
+		   
 #ifndef QT_NO_QWS_REPEATER
 /*!
     \overload
@@ -1549,7 +1549,7 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
     qws_keyModifiers = modifiers;
 
     QWSKeyEvent event;
-    QWSWindow *win = keyboardGrabber ? keyboardGrabber : 
+    QWSWindow *win = keyboardGrabber ? keyboardGrabber :
 	qwsServer->focusw;
 
     event.simpleData.window = win ? win->winId() : 0;
@@ -2035,7 +2035,7 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int alt )
     win = windows.first();
 
     // Update the altitude for non-fullscreen windows
-    if ( changingw->d->altitude != 2 ) 
+    if ( changingw->d->altitude != 2 )
 	changingw->d->altitude = alt;
 
     if ( changingw == windows.first() ) {
