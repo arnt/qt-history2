@@ -23,16 +23,18 @@ class QIODevice;
 
 class QTextDecoder;
 class QTextEncoder;
+template <typename T> class QList;
 
 class Q_CORE_EXPORT QTextCodec
 {
 public:
+    // #### make protected
     virtual ~QTextCodec();
 
-    static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const QByteArray &name);
+    static QTextCodec* codecForMib(int mib);
 
-    static QStringList availableCodecs();
+    static QList<QByteArray> availableCodecs();
     static QList<int> availableMibs();
 
     static QTextCodec* codecForLocale();
@@ -44,10 +46,6 @@ public:
     static QTextCodec* codecForCStrings();
     static void setCodecForCStrings(QTextCodec *c);
 
-    virtual const char* name() const = 0;
-    virtual const char* mimeName() const;
-    virtual int mibEnum() const = 0;
-
     QTextDecoder* makeDecoder() const;
     QTextEncoder* makeEncoder() const;
 
@@ -55,6 +53,7 @@ public:
     bool canEncode(const QString&) const;
 
     QString toUnicode(const QByteArray&) const;
+    QString toUnicode(const char* chars) const;
     QByteArray fromUnicode(const QString& uc) const;
     enum ConversionFlag {
         DefaultConversion,
@@ -80,20 +79,25 @@ public:
     QByteArray fromUnicode(const QChar *in, int length, ConverterState *state = 0) const
         { return convertFromUnicode(in, length, state); }
 
-#ifdef QT_COMPAT
-    static QT_COMPAT QTextCodec* codecForContent(const char*, int) { return 0; }
-    static const char* locale();
-    static QTextCodec* codecForName(const char* hint, int = 0) { return codecForName(QByteArray(hint)); }
-    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    QString toUnicode(const char* chars) const;
-    QString toUnicode(const QByteArray&, int len) const;
-#endif
+    virtual QByteArray name() const = 0;
+    virtual QList<QByteArray> aliases() const;
+    virtual int mibEnum() const = 0;
 
 protected:
     virtual QString convertToUnicode(const char *in, int length, ConverterState *state) const = 0;
     virtual QByteArray convertFromUnicode(const QChar *in, int length, ConverterState *state) const = 0;
 
     QTextCodec();
+
+public:
+#ifdef QT_COMPAT
+    static QT_COMPAT QTextCodec* codecForContent(const char*, int) { return 0; }
+    static QT_COMPAT const char* locale();
+    static QT_COMPAT QTextCodec* codecForName(const char* hint, int) { return codecForName(QByteArray(hint)); }
+    QT_COMPAT QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    QT_COMPAT QString toUnicode(const QByteArray&, int len) const;
+    QT_COMPAT QByteArray mimeName() const { return name(); }
+#endif
 
 private:
     static QTextCodec *cftr;

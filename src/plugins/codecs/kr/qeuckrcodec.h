@@ -43,9 +43,9 @@
 
 class QEucKrCodec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
-    const char* mimeName() const;
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -58,8 +58,8 @@ class QFontKsc5601Codec : public QTextCodec
 public:
     QFontKsc5601Codec();
 
-    const char* name() const ;
-    int mibEnum() const ;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

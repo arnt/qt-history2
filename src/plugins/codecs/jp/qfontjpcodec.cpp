@@ -71,7 +71,7 @@ QFontJis0208Codec::~QFontJis0208Codec()
 }
 
 
-const char* QFontJis0208Codec::name() const
+QByteArray QFontJis0208Codec::name() const
 {
     return "jisx0208*-0";
 }

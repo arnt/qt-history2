@@ -12,13 +12,9 @@
 ****************************************************************************/
 
 #include "qutfcodec_p.h"
+#include "qlist.h"
 
 #ifndef QT_NO_TEXTCODEC
-
-int QUtf8Codec::mibEnum() const
-{
-    return 106;
-}
 
 QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
@@ -189,9 +185,14 @@ QString QUtf8Codec::convertToUnicode(const char *chars, int len, ConverterState 
     return result;
 }
 
-const char* QUtf8Codec::name() const
+QByteArray QUtf8Codec::name() const
 {
     return "UTF-8";
+}
+
+int QUtf8Codec::mibEnum() const
+{
+    return 106;
 }
 
 enum { Swap = 0, Data = 1 };
@@ -286,12 +287,19 @@ QString QUtf16Codec::convertToUnicode(const char *chars, int len, ConverterState
 
 int QUtf16Codec::mibEnum() const
 {
-    return 1000;
+    return 1015;
 }
 
-const char* QUtf16Codec::name() const
+QByteArray QUtf16Codec::name() const
 {
-    return "ISO-10646-UCS-2";
+    return "UTF-16";
+}
+
+QList<QByteArray> QUtf16Codec::aliases() const
+{
+    QList<QByteArray> list;
+    list << "ISO-10646-UCS-2";
+    return list;
 }
 
 

@@ -64,32 +64,12 @@
 
 #include "qeuckrcodec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 
 unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
 
 #define        IsEucChar(c)        (((c) >= 0xa1) && ((c) <= 0xfe))
 #define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
-
-/*!
-  \reimp
-*/
-
-int QEucKrCodec::mibEnum() const
-{
-  /*
-   * Name: EUC-KR  (preferred MIME name)                     [RFC1557,Choi]
-   * MIBenum: 38
-   * Source: RFC-1557 (see also KS_C_5861-1992)
-   * Alias: csEUCKR
-   */
-  /* mibEnum for other codeset related with Korean.
-     KS_C_5601-1987 36, ISO2022-KRi 37 */
-
-  return 38;
-}
 
 /*!
   \reimp
@@ -190,19 +170,12 @@ QString QEucKrCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
-/*!
-  \reimp
-*/
-
-const char* QEucKrCodec::name() const
+int QEucKrCodec::mibEnum() const
 {
-  return "eucKR";
+  return 38;
 }
 
-/*!
-    Returns the codec's mime name.
-*/
-const char* QEucKrCodec::mimeName() const
+QByteArray QEucKrCodec::name() const
 {
   return "EUC-KR";
 }
@@ -214,7 +187,7 @@ QFontKsc5601Codec::QFontKsc5601Codec()
 }
 
 
-const char* QFontKsc5601Codec::name() const
+QByteArray QFontKsc5601Codec::name() const
 {
     return "ksc5601.1987-0";
 }
@@ -3405,5 +3378,3 @@ static unsigned short unicode2ksc(unsigned short unicode)
     }
     return 0;
 }
-
-#endif

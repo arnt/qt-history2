@@ -46,19 +46,11 @@
 #include "qtextcodec.h"
 #include "qjpunicode.h"
 
-#ifndef QT_NO_BIG_CODECS
-
-#if defined(QT_PLUGIN)
-#define Q_EXPORT_CODECS_JP
-#else
-#define Q_EXPORT_CODECS_JP Q_CORE_EXPORT
-#endif
-
-class Q_EXPORT_CODECS_JP QSjisCodec : public QTextCodec {
+class QSjisCodec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
-    const char* mimeName() const;
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -70,5 +62,4 @@ protected:
     const QJpUnicodeConv *conv;
 };
 
-#endif
 #endif

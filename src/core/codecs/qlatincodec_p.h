@@ -21,8 +21,8 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
-    const char* name() const;
-    const char* mimeName() const;
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
     int mibEnum() const;
 };
 
@@ -34,8 +34,8 @@ public:
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
-    const char* name() const;
-    const char* mimeName() const;
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
     int mibEnum() const;
 };
 

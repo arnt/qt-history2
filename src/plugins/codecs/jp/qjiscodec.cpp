@@ -106,8 +106,7 @@
 */
 
 #include "qjiscodec.h"
-
-#ifndef QT_NO_BIG_CODECS
+#include "qlist.h"
 
 enum {
     Esc = 0x1b,
@@ -157,20 +156,6 @@ QJisCodec::~QJisCodec()
 {
     delete (QJpUnicodeConv*)conv;
     conv = 0;
-}
-
-
-/*! \internal */
-int QJisCodec::mibEnum() const
-{
-    /*
-    Name: JIS_Encoding
-    MIBenum: 16
-    Source: JIS X 0202-1991.  Uses ISO 2022 escape sequences to
-            shift code sets as documented in JIS X 0202-1991.
-    Alias: csJISEncoding
-    */
-    return 16;
 }
 
 QByteArray QJisCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *cs) const
@@ -407,19 +392,26 @@ QString QJisCodec::convertToUnicode(const char* chars, int len, ConverterState *
     return result;
 }
 
+
+
 /*! \internal */
-const char* QJisCodec::name() const
+int QJisCodec::mibEnum() const
 {
-    return "JIS7";
+    return 39;
+}
+
+/*! \internal */
+QByteArray QJisCodec::name() const
+{
+    return "ISO-2022-JP";
 }
 
 /*!
     Returns the codec's mime name.
 */
-const char* QJisCodec::mimeName() const
+QList<QByteArray> QJisCodec::aliases() const
 {
-    return "ISO-2022-JP";
+    QList<QByteArray> list;
+    list << "JIS7"; // Qt 3 compat
 }
 
-
-#endif

@@ -49,7 +49,7 @@ QFontLaoCodec::QFontLaoCodec()
 {
 }
 
-const char *QFontLaoCodec::name() const
+QByteArray QFontLaoCodec::name() const
 {
     return "mulelao-1";
 }

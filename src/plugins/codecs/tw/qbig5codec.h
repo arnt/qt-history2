@@ -22,8 +22,8 @@
 
 class QBig5Codec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -31,8 +31,8 @@ public:
 
 class QBig5hkscsCodec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -46,8 +46,8 @@ class Q_CORE_EXPORT QFontBig5Codec : public QTextCodec
 public:
     QFontBig5Codec();
 
-    const char* name() const ;
-    int mibEnum() const ;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -58,8 +58,8 @@ class Q_CORE_EXPORT QFontBig5hkscsCodec : public QTextCodec
 public:
     QFontBig5hkscsCodec();
 
-    const char* name() const ;
-    int mibEnum() const ;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

@@ -49,8 +49,8 @@
 
 class Q_CORE_EXPORT QTsciiCodec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

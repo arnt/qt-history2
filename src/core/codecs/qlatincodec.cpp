@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qlatincodec_p.h"
+#include "qlist.h"
 
 QString QLatin1Codec::convertToUnicode(const char *chars, int len, ConverterState *) const
 {
@@ -43,14 +44,20 @@ QByteArray QLatin1Codec::convertFromUnicode(const QChar *ch, int len, ConverterS
     return r;
 }
 
-const char* QLatin1Codec::name() const
-{
-    return "ISO 8859-1";
-}
-
-const char* QLatin1Codec::mimeName() const
+QByteArray QLatin1Codec::name() const
 {
     return "ISO-8859-1";
+}
+
+QList<QByteArray> QLatin1Codec::aliases() const
+{
+    QList<QByteArray> list;
+    list << "US_ASCII"
+         << "latin1"
+         << "CP819"
+         << "IBM918"
+         << "iso-ir-100";
+    return list;
 }
 
 
@@ -61,7 +68,7 @@ int QLatin1Codec::mibEnum() const
 
 
 
-QString QLatin15Codec::convertToUnicode(const char* chars, int len, ConverterState *state) const
+QString QLatin15Codec::convertToUnicode(const char* chars, int len, ConverterState *) const
 {
     if (chars == 0)
         return QString::null;
@@ -178,17 +185,17 @@ QByteArray QLatin15Codec::convertFromUnicode(const QChar *in, int length, Conver
 }
 
 
-
-const char* QLatin15Codec::name() const
-{
-    return "ISO 8859-15";
-}
-
-const char* QLatin15Codec::mimeName() const
+QByteArray QLatin15Codec::name() const
 {
     return "ISO-8859-15";
 }
 
+QList<QByteArray> QLatin15Codec::aliases() const
+{
+    QList<QByteArray> list;
+    list << "latin9";
+    return list;
+}
 
 int QLatin15Codec::mibEnum() const
 {

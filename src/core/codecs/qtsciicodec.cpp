@@ -76,13 +76,6 @@ static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)        (((c) >= 0x80) && ((c) <= 0xfd))
 
-/*! \reimp */
-int QTsciiCodec::mibEnum() const
-{
-  /* There is no MIBEnum for TSCII now */
-  return 2028;
-}
-
 QByteArray QTsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
     char replacement = '?';
@@ -167,10 +160,15 @@ QString QTsciiCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
-/*! \reimp */
-const char* QTsciiCodec::name() const
+QByteArray QTsciiCodec::name() const
 {
     return "TSCII";
+}
+
+int QTsciiCodec::mibEnum() const
+{
+  /* There is no MIBEnum for TSCII now */
+  return -3197;
 }
 
 static const int UnToTsLast = 124; // 125 items -- so the last will be 124

@@ -57,8 +57,6 @@
 
 #include "qjpunicode.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 #include "qbytearray.h"
 #ifdef Q_OS_TEMP
 #include "qwinfunctions_wce.h"
@@ -10503,5 +10501,3 @@ static uint unicode11ToJisx0212(uint h, uint l)
 
 \internal
 */
-
-#endif

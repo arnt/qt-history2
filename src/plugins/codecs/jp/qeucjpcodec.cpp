@@ -89,8 +89,6 @@
 
 #include "qeucjpcodec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 static const uchar Esc = 0x1b;
 static const uchar Ss2 = 0x8e;        // Single Shift 2
 static const uchar Ss3 = 0x8f;        // Single Shift 3
@@ -114,30 +112,6 @@ QEucJpCodec::~QEucJpCodec()
 {
     delete (QJpUnicodeConv*)conv;
     conv = 0;
-}
-
-/*!
-  Returns 18.
-*/
-int QEucJpCodec::mibEnum() const
-{
-    /*
-    Name: Extended_UNIX_Code_Packed_Format_for_Japanese
-    MIBenum: 18
-    Source: Standardized by OSF, UNIX International, and UNIX Systems
-            Laboratories Pacific.  Uses ISO 2022 rules to select
-                   code set 0: US-ASCII (a single 7-bit byte set)
-                   code set 1: JIS X0208-1990 (a double 8-bit byte set)
-                               restricted to A0-FF in both bytes
-                   code set 2: Half Width Katakana (a single 7-bit byte set)
-                               requiring SS2 as the character prefix
-                   code set 3: JIS X0212-1990 (a double 7-bit byte set)
-                               restricted to A0-FF in both bytes
-                               requiring SS3 as the character prefix
-    Alias: csEUCPkdFmtJapanese
-    Alias: EUC-JP  (preferred MIME name)
-    */
-    return 18;
 }
 
 QByteArray QEucJpCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
@@ -284,20 +258,12 @@ QString QEucJpCodec::convertToUnicode(const char* chars, int len, ConverterState
     return result;
 }
 
-/*!
-  \reimp
-*/
-const char* QEucJpCodec::name() const
+int QEucJpCodec::mibEnum() const
 {
-    return "eucJP";
+    return 18;
 }
 
-/*!
-    Returns the codec's mime name.
-*/
-const char* QEucJpCodec::mimeName() const
+QByteArray QEucJpCodec::name() const
 {
     return "EUC-JP";
 }
-
-#endif

@@ -38,7 +38,7 @@ class Q_CORE_EXPORT QFontLaoCodec : public QTextCodec
 public:
     QFontLaoCodec();
 
-    const char *name() const;
+    QByteArray name() const;
     int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;

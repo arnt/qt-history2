@@ -64,8 +64,7 @@
 */
 
 #include "qsjiscodec.h"
-
-#ifndef QT_NO_BIG_CODECS
+#include "qlist.h"
 
 enum {
     Esc = 0x1b
@@ -97,23 +96,6 @@ QSjisCodec::~QSjisCodec()
     conv = 0;
 }
 
-
-/*!
-  \reimp
-*/
-int QSjisCodec::mibEnum() const
-{
-    /*
-    Name: Shift_JIS  (preferred MIME name)
-    MIBenum: 17
-    Source: A Microsoft code that extends csHalfWidthKatakana to include
-            kanji by adding a second byte when the value of the first
-            byte is in the ranges 81-9F or E0-EF.
-    Alias: MS_Kanji
-    Alias: csShiftJIS
-    */
-    return 17;
-}
 
 QByteArray QSjisCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
@@ -219,20 +201,23 @@ QString QSjisCodec::convertToUnicode(const char* chars, int len, ConverterState 
 }
 
 
-/*!
-  \reimp
-*/
-const char* QSjisCodec::name() const
+int QSjisCodec::mibEnum() const
 {
-    return "SJIS";
+    return 17;
+}
+
+QByteArray QSjisCodec::name() const
+{
+    return "Shift_JIS";
 }
 
 /*!
     Returns the codec's mime name.
 */
-const char* QSjisCodec::mimeName() const
+QList<QByteArray> QSjisCodec::aliases() const
 {
-    return "Shift_JIS";
+    QList<QByteArray> list;
+    list << "SJIS" // Qt 3 compat
+         << "MS_Kanji";
+    return list;
 }
-
-#endif

@@ -93,8 +93,6 @@
 
 #include "qgb18030codec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)        ((c) <= 0x7F)
 #define IsByteInGb2312(c)        (InRange((c), 0xA1, 0xFE))
@@ -125,19 +123,15 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len);
 static int qt_UnicodeToGb18030(uint unicode, uchar *gbchar);
 int qt_UnicodeToGbk(uint unicode, uchar *gbchar);
 
-/*! \internal */
 QGb18030Codec::QGb18030Codec()
 {
 }
 
-/*! \reimp */
-const char* QGb18030Codec::name() const
+QByteArray QGb18030Codec::name() const
 {
-    //qDebug("QGb18030Codec::name() = \"GB18030\"");
     return "GB18030";
 }
 
-/*! \reimp */
 int QGb18030Codec::mibEnum() const
 {
     return 114;
@@ -341,18 +335,24 @@ QGbkCodec::QGbkCodec()
 {
 }
 
-/*! \reimp */
 int QGbkCodec::mibEnum() const
 {
     return 113;
 }
 
-/*! \reimp */
-const char* QGbkCodec::name() const
+QByteArray QGbkCodec::name() const
 {
     return "GBK";
 }
 
+QList<QByteArray> QGbkCodec::aliases() const
+{
+    QList<QByteArray> list;
+    list << "CP936"
+         << "MS936"
+         << "windows-936";
+    return list;
+}
 
 QString QGbkCodec::convertToUnicode(const char* chars, int len, ConverterState *state) const
 {
@@ -490,7 +490,7 @@ int QGb2312Codec::mibEnum() const
 }
 
 /*! \reimp */
-const char* QGb2312Codec::name() const
+QByteArray QGb2312Codec::name() const
 {
     return "GB2312";
 }
@@ -607,20 +607,17 @@ QByteArray QGb2312Codec::convertFromUnicode(const QChar *uc, int len, ConverterS
 
 QFontGb2312Codec::QFontGb2312Codec()
 {
-    //qDebug("QFontGb2312Codec::QFontGb2312Codec()");
 }
 
 
-const char* QFontGb2312Codec::name() const
+QByteArray QFontGb2312Codec::name() const
 {
-    //qDebug("QFontGb2312Codec::name() = \"gb2312.1980-0\"");
     return "gb2312.1980-0";
 }
 
 
 int QFontGb2312Codec::mibEnum() const
 {
-    //qDebug("QFontGb2312Codec::mibEnum() = 57");
     return 57;
 }
 
@@ -658,20 +655,17 @@ QByteArray QFontGb2312Codec::convertFromUnicode(const QChar *uc, int len, Conver
 
 QFontGbkCodec::QFontGbkCodec()
 {
-    //qDebug("QFontGbkCodec::QFontGbkCodec()");
 }
 
 
-const char* QFontGbkCodec::name() const
+QByteArray QFontGbkCodec::name() const
 {
-    //qDebug("QFontGbkCodec::name() = \"gbk-0\"");
     return "gbk-0";
 }
 
 
 int QFontGbkCodec::mibEnum() const
 {
-    //qDebug("QFontGbkCodec::mibEnum() = -113");
     return -113;
 }
 
@@ -9288,5 +9282,3 @@ int qt_UnicodeToGbk(uint uni, uchar *gbchar) {
     gbchar[1] = (uchar)(gb & 0xFF);
     return 2;
 }
-
-#endif

@@ -73,8 +73,6 @@
 
 #include "qbig5codec.h"
 
-#ifndef QT_NO_BIG_CODECS
-
 static int qt_Big5hkscsToUnicode(const uchar *s, uint *pwc);
 static int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
@@ -88,19 +86,13 @@ static int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 #define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 
-/*! \reimp */
 int QBig5Codec::mibEnum() const
 {
-    /* See http://www.iana.org/assignments/character-sets */
-    //qDebug("QBig5Codec::mibEnum() = 2026");
     return 2026;
 }
 
-
-/*! \reimp */
-const char* QBig5Codec::name() const
+QByteArray QBig5Codec::name() const
 {
-    //qDebug("QBig5Codec::name() = \"Big5\"");
     return "Big5";
 }
 
@@ -278,20 +270,14 @@ QByteArray QBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
 */
 
 
-/*! \reimp */
 int QBig5hkscsCodec::mibEnum() const
 {
-    /* See http://www.iana.org/assignments/character-sets         */
-    /*     http://www.iana.org/assignments/charset-reg/Big5-HKSCS */
-    //qDebug("QBig5hkscsCodec::mibEnum() = 2101");
     return 2101;
 }
 
 
-/*! \reimp */
-const char* QBig5hkscsCodec::name() const
+QByteArray QBig5hkscsCodec::name() const
 {
-    //qDebug("QBig5hkscsCodec::name() = \"Big5-HKSCS\"");
     return "Big5-HKSCS";
 }
 
@@ -406,7 +392,7 @@ QFontBig5Codec::QFontBig5Codec()
 }
 
 
-const char* QFontBig5Codec::name() const
+QByteArray QFontBig5Codec::name() const
 {
     //qDebug("QFontBig5Codec::name() = \"big5-0\"");
     return "big5-0";
@@ -465,7 +451,7 @@ QFontBig5hkscsCodec::QFontBig5hkscsCodec()
 }
 
 
-const char* QFontBig5hkscsCodec::name() const
+QByteArray QFontBig5hkscsCodec::name() const
 {
     //qDebug("QFontBig5hkscsCodec::name() = \"big5hkscs-0\"");
     return "big5hkscs-0";
@@ -11249,5 +11235,3 @@ int qt_UnicodeToBig5hkscs (uint wc, uchar *r)
 
 
 /* ====================================================================== */
-
-#endif

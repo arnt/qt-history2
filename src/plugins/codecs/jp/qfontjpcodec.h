@@ -21,7 +21,7 @@ class QFontJis0201Codec : public QTextCodec
 public:
     QFontJis0201Codec();
 
-    const char *QFontJis0201Codec::name() const;
+    QByteArray QFontJis0201Codec::name() const;
     int QFontJis0201Codec::mibEnum() const;
 
     QByteArray QFontJis0201Codec::convertFromUnicode(const QChar *uc, int len,  ConverterState *) const;
@@ -34,8 +34,8 @@ public:
     QFontJis0208Codec();
     ~QFontJis0208Codec();
 
-    const char* QFontJis0208Codec::name() const;
-    int QFontJis0208Codec::mibEnum() const;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString QFontJis0208Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const;
     QByteArray QFontJis0208Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const;

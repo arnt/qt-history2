@@ -20,8 +20,8 @@
 
 class QUtf8Codec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    QByteArray name() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
@@ -29,8 +29,9 @@ public:
 
 class QUtf16Codec : public QTextCodec {
 public:
-    virtual int mibEnum() const;
-    const char* name() const;
+    QByteArray name() const;
+    QList<QByteArray> aliases() const;
+    int mibEnum() const;
 
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;

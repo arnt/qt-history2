@@ -23,12 +23,6 @@
     \internal
 */
 
-int QIsciiCodec::mibEnum() const
-{
-    /* There is no MIBEnum for Iscii */
-    return -3000-idx;
-}
-
 
 struct Codecs {
     const char *name;
@@ -47,14 +41,15 @@ static const Codecs codecs [] = {
     { "Iscii-Mlm", 0xd00 }
 };
 
-const char* QIsciiCodec::name() const
+QByteArray QIsciiCodec::name() const
 {
   return codecs[idx].name;
 }
 
-const char* QIsciiCodec::mimeName() const
+int QIsciiCodec::mibEnum() const
 {
-  return codecs[idx].name;
+    /* There is no MIBEnum for Iscii */
+    return -3000-idx;
 }
 
 

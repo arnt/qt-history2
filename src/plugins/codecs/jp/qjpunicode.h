@@ -45,15 +45,7 @@
 
 #include "qglobal.h"
 
-#ifndef QT_NO_BIG_CODECS
-
-#if defined(QT_PLUGIN)
-#define Q_EXPORT_CODECS_JP
-#else
-#define Q_EXPORT_CODECS_JP Q_CORE_EXPORT
-#endif
-
-class Q_EXPORT_CODECS_JP QJpUnicodeConv {
+class QJpUnicodeConv {
 public:
     enum Rules {
         // "ASCII" is ANSI X.3.4-1986, a.k.a. US-ASCII here.
@@ -142,5 +134,4 @@ private:
     int rule;
 };
 
-#endif // QT_NO_BIG_CODECS
 #endif // QJPUNICODE_H
