@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.64 1999/08/03 08:22:12 aavit Exp $
+** $Id: porting.doc,v 1.65 1999/08/06 17:36:06 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -94,7 +94,8 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#Namespace>Namespace</a></b>
  <li><b><a href=#Virtual>Virtual Functions</a></b>
  <li><b><a href=#Collection>Collection classes</a></b>
- <li><b><a href=#DebugVsRelease>Miscellaneous</a></b>
+ <li><b><a href=#DefaultParent>No Default 0 Parent Widget</a></b>
+ <li><b><a href=#DebugVsRelease>Debug vs. Release</a></b>
 
  <li><b><a href=#QApplication>QApplication</a></b>
  <li><b><a href=#QClipboard>QClipboard</a></b>
@@ -154,6 +155,23 @@ Compiling with -DQT1COMPATIBILITY will help you get going with Qt 2.0
 continue working.  Without it, you'll get compile errors that can
 easily be fixed by searching this page for the clean identifiers.
 
+<h3><a name=DefaultParent>No Default 0 Parent Widget</a></h3>
+
+In Qt 1.x, all widget constructors were defined with a default value
+of 0 for the parent widget. However, only the main window of the
+application should be created with a 0 parent, all other widgets
+should have parents. Having the 0 default made it too simple to create
+bugs by forgetting to specify the parent of non-mainwindow
+widgets. Such widgets would typically never be deleted (causing memory
+leaks), and they would become top-level widgets, confusing the window
+managers. Therefore, in Qt 2.0 the 0 default parent has been removed
+for the widget classes that are not likely to be used as main windows.
+
+Note also that programs no longer need (or should) use 0 parent just
+to indicate that a widget should be top-level. See
+\code QWidget::isTopLevel() \endcode for details. See also the notes about
+<a href=#QMenuData>QPopupMenu</a> and <a href=#QDialog>QDialog</a>
+below.
 
 <h3><a name=Virtual>Virtual Functions</a></h3>
 
@@ -209,6 +227,7 @@ This change has been made to avoid collisions with other namespaces.
 <p> The GCF global typedef is removed (it was not used in Qt).
 
 
+
 <h3><a name=DebugVsRelease>Debug vs. Release</a></h3>
 
 <p>The ASSERT macro is now a null expression if the CHECK_STATE flag
@@ -236,7 +255,6 @@ functionality in Qt 2.0, the following steps are required:
             using Perl.  Convert usage of char[] for temporary string
             building to QString (much software already uses QString for
             this purpose as it offers many more facilities).
-	    ##### shoudl we provide a script?
 
             If you find that you are mixing usage of QCString, QString,
             and QByteArray, this causes lots of unnecessary copying and
