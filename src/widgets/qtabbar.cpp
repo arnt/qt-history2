@@ -1101,6 +1101,7 @@ bool QTabBar::event( QEvent *e )
 void QTabBar::styleChange( QStyle& old )
 {
     layoutTabs();
+    updateArrowButtons();
     QWidget::styleChange( old );
 }
 
