@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#118 $
+** $Id: //depot/qt/main/src/moc/moc.y#119 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1461,7 +1461,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.52 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.53 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1646,26 +1646,24 @@ void generateClass()		      // generate C++ source code for a class
 	    a = f->args->next();
 	}
 
-	bool predef_call = FALSE;
-	if ( typstr.isEmpty() || typstr == "short" || typstr == "int" ||
-	     typstr == "long" || typstr == "char*" || typstr == "const char*"){
-	    predef_call = TRUE;
+	const char *predef_call_func;
+	if ( typstr == "bool" ) {
+	    predef_call_func = "activate_signal_bool";
+	} else if ( typstr == "QString" ) {
+	    predef_call_func = "activate_signal_string";
+	} else if ( typstr == "const QString&" ) {
+	    predef_call_func = "activate_signal_strref";
+	} else if ( typstr.isEmpty() || typstr == "short" ||
+		    typstr == "int" ||  typstr == "long" ||
+		    typstr == "char*" || typstr == "const char*" ) {
+	    predef_call_func = "activate_signal";
+	} else {
+	    predef_call_func = 0;
 	}
-	if ( !predef_call && !included_list_stuff ) {
+	if ( !predef_call_func && !included_list_stuff ) {
 	    // yes we need it, because otherwise QT_VERSION may not be defined
 	    fprintf( out, "\n#include <%sqobjectdefs.h>\n", (const char*)qtPath );
-	    fprintf( out, "#if QT_VERSION >= 141\n" );
-	    fprintf( out, "/" "/ newer implementation\n" );
 	    fprintf( out, "#include <%sqsignalslotimp.h>\n", (const char*)qtPath );
-	    fprintf( out, "#else\n" );
-	    fprintf( out, "/" "/ for late-model 1.x header files\n" );
-	    fprintf( out, "#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
-	    fprintf( out, "#define Q_MOC_CONNECTIONLIST_DECLARED\n" );
-	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
-	    fprintf( out, "Q_DECLARE(QListM,QConnection);\n" );
-	    fprintf( out, "Q_DECLARE(QListIteratorM,QConnection);\n" );
-	    fprintf( out, "#endif\n" );
-	    fprintf( out, "#endif\n" );
 	    included_list_stuff = TRUE;
 	}
 
@@ -1678,8 +1676,8 @@ void generateClass()		      // generate C++ source code for a class
 	else
 	    fprintf( out, " %s )\n{\n", (const char*)argstr );
 
-	if ( predef_call ) {
-	    fprintf( out, "    activate_signal( \"%s(%s)\"",
+	if ( predef_call_func ) {
+	    fprintf( out, "    %s( \"%s(%s)\"", predef_call_func,
 		     (const char*)f->name, (const char*)typstr );
 	    if ( !valstr.isEmpty() )
 		fprintf( out, ", %s", (const char*)valstr );
@@ -1688,6 +1686,9 @@ void generateClass()		      // generate C++ source code for a class
 	    continue;
 	}
 
+
+	fprintf( out,"    // No builtin function for signal parameter type %s\n",
+		 (const char*)typstr );
 	int nargs = f->args->count();
 	fprintf( out, "    QConnectionList *clist = receivers(\"%s(%s)\");\n",
 		 (const char*)f->name, (const char*)typstr );
