@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#30 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#30 $")
 
 
 /*----------------------------------------------------------------------------
@@ -73,6 +73,7 @@ void QFile::init()				// initialize internal data
     fd	   = 0;
     length = 0;
     index  = 0;
+    ext_f  = FALSE;				// not an external file handle
 }
 
 
@@ -319,10 +320,16 @@ bool QFile::open( int m )			// open file
     }
   \endcode
 
+  When a QFile is opened using this function, close() does not actually
+  close the file, only flushes it.
+
+  \warning If \e f is one of \c stdin, \c stdout or \c stderr, you may not
+  be able to seek. size() is set to \c LONG_MAX (in limits.h).
+
   \sa close()
  ----------------------------------------------------------------------------*/
 
-bool QFile::open( int m, FILE *f )		// open file, using file handle
+bool QFile::open( int m, FILE *f )
 {
     if ( isOpen() ) {
 #if defined(CHECK_RANGE)
@@ -334,7 +341,16 @@ bool QFile::open( int m, FILE *f )		// open file, using file handle
     setMode( m );
     setState( IO_Open );
     fh = f;
-    length = LONG_MAX;				// file might be stdin etc.
+    ext_f = TRUE;
+    if ( fh == stdin || fh == stdout || fh == stderr ) {
+	length = LONG_MAX;
+    }
+    else {
+	index = ftell( fh );
+	fseek( fh, 0, SEEK_END );
+	length = ftell( fh );
+	fseek( fh, index, SEEK_SET );
+    }
     return TRUE;
 }
 
@@ -342,10 +358,16 @@ bool QFile::open( int m, FILE *f )		// open file, using file handle
   Opens a file in the mode \e m using an existing file descriptor \e f.
   Returns TRUE if successful, otherwise FALSE.
 
+  When a QFile is opened using this function, close() does not actually
+  close the file, only flushes it.
+
+  \warning If \e f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
+  be able to seek. size() is set to \c LONG_MAX (in limits.h).
+
   \sa close()
  ----------------------------------------------------------------------------*/
 
-bool QFile::open( int m, int f )		// open file, using file descr
+bool QFile::open( int m, int f )
 {
     if ( isOpen() ) {
 #if defined(CHECK_RANGE)
@@ -357,7 +379,15 @@ bool QFile::open( int m, int f )		// open file, using file descr
     setMode( m );
     setState( IO_Open );
     fd = f;
-    length = LONG_MAX;				// file might be stdin etc.
+    ext_f = TRUE;
+    if ( fd == 0 || fd == 1 || fd == 2 ) {
+	length = LONG_MAX;
+    }
+    else {
+	index = LSEEK( fd, 0, SEEK_CUR );
+	length = LSEEK( fd, 0, SEEK_END );
+	LSEEK( fd, index, SEEK_SET );
+    }
     return TRUE;
 }
 
@@ -371,18 +401,18 @@ bool QFile::open( int m, int f )		// open file, using file descr
   \sa open(), flush()
  ----------------------------------------------------------------------------*/
 
-void QFile::close()				// close file
+void QFile::close()
 {
     if ( !isOpen() )				// file is not open
 	return;
     if ( fh ) {					// buffered file
-	if ( fh == stdin || fh == stdout || fh == stderr )
+	if ( ext_f )
 	    fflush( fh );			// cannot close
 	else
 	    fclose( fh );
     }
     else {					// raw file
-	if ( fd == 0 || fd == 1 || fd == 2 )	// stdin, out and error
+	if ( ext_f )
 	    ;					// cannot close
 	else
 	    CLOSE( fd );
@@ -396,7 +426,7 @@ void QFile::close()				// close file
   Calling close() implicitly flushes the file buffer.
  ----------------------------------------------------------------------------*/
 
-void QFile::flush()				// flush file
+void QFile::flush()
 {
     if ( isOpen() && fh )			// can only flush open/buffered
 	fflush( fh );				//   file
@@ -461,11 +491,11 @@ bool QFile::at( long n )
     }
     bool ok = TRUE;
     if ( isRaw() ) {				// raw file
-	if ( LSEEK( fd, n, SEEK_SET ) == -1 )
+	if ( LSEEK(fd, n, SEEK_SET) == -1 )
 	    ok = FALSE;
     }
     else {					// buffered file
-	if ( fseek( fh, n, SEEK_SET ) != 0 )
+	if ( fseek(fh, n, SEEK_SET) != 0 )
 	    ok = FALSE;
     }
     if ( ok )
@@ -475,6 +505,29 @@ bool QFile::at( long n )
 	warning( "QFile::at: Cannot set file position %ld", n );
 #endif
     return ok;
+}
+
+/*----------------------------------------------------------------------------
+  Returns TRUE if the end of file has been reached, otherwise FALSE.
+  \sa size()
+ ----------------------------------------------------------------------------*/
+
+bool QFile::atEnd() const
+{
+    if ( !isOpen() ) {
+#if defined(CHECK_STATE)
+	warning( "QFile::atEnd: File is not open" );
+#endif
+	return FALSE;
+    }
+    bool end;
+    if ( isRaw() ) {				// raw file
+	end = at() == size();
+    }
+    else {					// buffered file
+	end = feof( fh );
+    }
+    return end;
 }
 
 
@@ -689,13 +742,13 @@ int QFile::ungetch( int ch )
 	char buf[1];
 	at( index-1 );
 	buf[0] = ch;
-	if ( writeBlock( buf, 1 ) == 1 )
+	if ( writeBlock(buf, 1) == 1 )
 	    at ( index-1 );
 	else
 	    ch = EOF;
     }
     else {					// buffered file
-	if ( (ch = ungetc( ch, fh )) != EOF )
+	if ( (ch = ungetc(ch, fh)) != EOF )
 	    index--;
     }
     return ch;
