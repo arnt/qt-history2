@@ -74,6 +74,10 @@ namespace QUnicodeTables {
 
     Q_CORE_EXPORT QString normalize(const QString &str, QString::NormalizationForm mode);
     Q_CORE_EXPORT QString normalize(const QString &str, QString::NormalizationForm mode, QChar::UnicodeVersion version);
+
+#include "qunicodedata_p.h"
+
+    Q_CORE_EXPORT int script(uint uc);
 };
 
 

@@ -341,6 +341,19 @@ QString QUnicodeTables::normalize(const QString &str, QString::NormalizationForm
 
 }
 
+int QUnicodeTables::script(uint uc)
+{
+    if (uc > 0xffff)
+        return Common;
+    int script = uc_scripts[uc >> 7];
+    if (script < ScriptSentinel)
+        return script;
+    script = (((script - ScriptSentinel) * UnicodeBlockSize) + UnicodeBlockCount);
+    return uc_scripts[script + (uc & 0x7f)];
+}
+
+
+
 
 enum Script {
     // European Alphabetic Scripts
