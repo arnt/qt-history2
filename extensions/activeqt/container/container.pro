@@ -4,7 +4,6 @@ CONFIG          += qt warn_on
 DESTDIR         = $$QT_BUILD_TREE/lib
 TARGET          = qaxcontainer
 INCLUDEPATH     += $$QT_SOURCE_TREE/tools/designer/interfaces
-DEFINES		+= QAX_CONTAINER
 
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .

@@ -1,6 +1,8 @@
 TEMPLATE    = lib
 CONFIG      += qt warn_off staticlib
 TARGET      = qaxserver
+DEFINES	   += QAX_SERVER
+
 
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
