@@ -82,35 +82,28 @@ public:
 	    case QStyle::SC_None:
 	    default:
 		break;
-
 	    case QStyle::SC_TitleBarSysMenu:
-		tipstring = t->tr("System Menu");
+		tipstring = QTitleBar::tr( "System Menu" );
 		break;
-
 	    case QStyle::SC_TitleBarShadeButton:
-		tipstring = t->tr("Shade");
+		tipstring = QTitleBar::tr( "Shade" );
 		break;
-
 	    case QStyle::SC_TitleBarUnshadeButton:
-		tipstring = t->tr("Unshade");
+		tipstring = QTitleBar::tr( "Unshade" );
 		break;
-
 	    case QStyle::SC_TitleBarNormalButton:
 	    case QStyle::SC_TitleBarMinButton:
 		if(t->window->isMinimized())
-		    tipstring = t->tr("Normalize");
+		    tipstring = QTitleBar::tr( "Normalize" );
 		else
-		    tipstring = t->tr("Minimize");
+		    tipstring = QTitleBar::tr( "Minimize" );
 		break;
-
 	    case QStyle::SC_TitleBarMaxButton:
-		tipstring = t->tr("Maximize");
+		tipstring = QTitleBar::tr( "Maximize" );
 		break;
-
 	    case QStyle::SC_TitleBarCloseButton:
-		tipstring = t->tr("Close");
+		tipstring = QTitleBar::tr( "Close" );
 		break;
-
 	    case QStyle::SC_TitleBarLabel:
 		if(t->cuttext != t->text)
 		    tipstring = t->text;
