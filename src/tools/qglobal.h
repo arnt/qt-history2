@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#142 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#143 $
 **
 ** Global type declarations and definitions
 **
@@ -174,6 +174,9 @@
 #define _CC_DEC_
 #elif defined(__USLC__)
 #define _CC_USLC_
+#ifdef __EDG__ // UnixWare7
+#define HAS_BOOL_TYPE
+#endif
 #elif defined(_OS_HPUX_)
 // this test from from aCC online help
 #if __cplusplus >= 199707L

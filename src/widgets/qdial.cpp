@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#8 $
 **
 ** Implementation of something useful.
 **
@@ -33,6 +33,9 @@
 
 #ifdef _OS_WIN32_
 double M_PI = 3.14159265358979323846;
+#endif
+#ifdef _OS_UNIXWARE_
+#include <values.h>
 #endif
 
 class QDialPrivate
