@@ -1035,7 +1035,7 @@ void QRenameEdit::keyPressEvent( QKeyEvent *e )
 
 void QRenameEdit::focusOutEvent( QFocusEvent * )
 {
-    emit returnPressed();
+    emit escapePressed();
 }
 
 /************************************************************************
