@@ -690,25 +690,54 @@ QByteArray QIODevice::readAll()
 */
 
 /*!
-    Reads a single line (ending with \\n) from the device into \a data.
-    At most, the \a maximum number of bytes will be read. If there is a
-    newline at the end if the line, it is not stripped. A terminating
-    '\0' is appended to the characters read into \a data.
+    Reads characters from the device into \a data up to and including the next
+    newline character ('\n') or until at most \a maxlen - 1 characters have been
+    read. A terminating '\0' is appended to the characters stored in \a data.
 
-    Returns the number of bytes read, including the terminating '\0';
-    returns -1 if an error occurred.
+    Returns the total number of characters read, including the terminating '\0',
+    if no error occurred; otherwise returns -1.
+
+    \omit
+    ### FIXME: The number of bytes read needs to reflect the current behavior of the code.
+    \endomit
 
     To ensure that your \a data buffer is large enough to contain the
     \a maximum number of characters read from the device, pass a value
     that is one character less than the size of your buffer.
 
-    For example, a buffer that is 1024 characters in length will be
-    filled if the following call returns the maximum number of characters
-    specified:
+    Example:
 
     \code
-        device->readLine(data, 1023);
+    char buffer[12];
+    device->readLine(buffer, sizeof(buffer));
     \endcode
+
+    The above code will read bytes from a device in the following way:
+
+    \table
+    \header
+    \i Input from the device
+    \i Buffer contents
+    \i Length returned
+    \i Comment
+    \row
+    \i Trolltech\n
+    \i Trolltech\n\0
+    \i 11
+    \i 10 characters from the device plus a zero byte.
+    \row
+    \i Hello world\n
+    \i Hello world\0
+    \i 12
+    \i 11 characters from the device plus a zero byte. Note that the newline
+       character has not yet been read.
+    \row
+    \i The cow jumped over the moon.\n
+    \i The cow jum\0
+    \i 12
+    \i 11 characters from the device plus a zero byte. The rest of the string
+       has not yet been read.
+    \endtable
 
     \sa read(), QTextStream::readLine()
 */
