@@ -329,6 +329,8 @@ static const char* const type_map[][2] =
     { "QPixmap",	"IPictureDisp*" },
     { "QVariant",	"VARIANT" },
     { "QValueList<QVariant>", "SAFEARRAY(VARIANT)" },
+    { "Q_ULLONG",	"CY" },
+    { "Q_LLONG",	"CY" },
     // And we support COM data types
     { "BOOL",		"BOOL" },
     { "BSTR",		"BSTR" },
