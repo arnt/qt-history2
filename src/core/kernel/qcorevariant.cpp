@@ -1995,9 +1995,11 @@ const void *QCoreVariant::constData() const
     case Bool:
         return &d.data;
     case LongLong:
+        return &d.data.shared->value.ll;
     case ULongLong:
+        return &d.data.shared->value.ull;
     case Double:
-        return &d.data.shared->value;
+        return &d.data.shared->value.d;
     case String:
         QDATA(QString);
     case StringList:
