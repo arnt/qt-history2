@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#9 $
+** $Id: //depot/qt/main/src/tools/qarray.h#10 $
 **
 ** Definition of QArray template/macro class
 **
@@ -44,7 +44,7 @@ public:									      \
     QArrayM(type)& operator=(const QArrayM(type) &a)			      \
 			{ return (QArrayM(type)&)QGArray::operator=(a); }     \
     type *data()    const	{ return (type *)QGArray::data(); }	      \
-    uint  nrefs()   const	{ return p->count; }			      \
+    uint  nrefs()   const	{ return QGArray::nrefs(); }		      \
     uint  size()    const	{ return QGArray::size()/sizeof(type); }      \
     bool  isEmpty() const	{ return QGArray::size() == 0; }	      \
     bool  isNull()  const	{ return QGArray::data() == 0; }	      \
@@ -103,7 +103,7 @@ public:
     QArrayT<type> &operator=(const QArrayT<type> &a)
 			{ return (QArrayT<type>&)QGArray::operator=(a); }
     type *data()    const	{ return (type *)QGArray::data(); }
-    uint  nrefs()   const	{ return p->count; }
+    uint  nrefs()   const	{ return QGArray::nrefs(); }
     uint  size()    const	{ return QGArray::size()/sizeof(type); }
     bool  isEmpty() const	{ return QGArray::size() == 0; }
     bool  isNull()  const	{ return QGArray::data() == 0; }
