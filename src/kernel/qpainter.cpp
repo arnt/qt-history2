@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#42 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#42 $";
 #endif
 
 
@@ -61,7 +61,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#41 $";
 	paint.end();				// painting done
     }
   \endcode
-*/
+
+  Note that both painters and some paint devices have attributes such
+  as current font, current foreground colors and so on.
+  QPainter::begin() copies these attributes from the paint device, and
+  changing a paint device's attributes will have effect only the next
+  time a painter is opened on it.
+
+  \sa QPaintDevice, QWidget */
 
 
 void QPainter::setf( ushort b, bool v )		// set painter flag (internal)
@@ -242,7 +249,7 @@ void QPainter::setTabStops( int ts )		// set tab stops
 /*!
   Set an array containing the tab stops.
 
-  The last tab stop must be 0 (terminates the array). <br>
+  The last tab stop must be 0 (terminates the array).
   Notice that setting a tab array overrides any fixed tabulator
   stop that is set using setTabStops().
 
@@ -810,7 +817,7 @@ void QPainter::fillRect( const QRect &r, const QColor &c )
 }
 
 /*!
-  Erases the area inside \e (x,y,w,h). <br>
+  Erases the area inside \e (x,y,w,h).
   Equivalent to <code>fillRect( x, y, w, h, backgroundColor() )</code>.
 */
 
